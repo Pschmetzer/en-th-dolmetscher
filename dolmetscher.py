@@ -150,6 +150,20 @@ def pick_voice(lang):
     return v
 
 
+def apply_profile_prior(probs, pe, pt, plang):
+    """Sprache einer erkannten Person als Entscheidungshilfe – aber nie gegen eine klar
+    erkannte dritte Sprache (z. B. Deutsch), damit 'nur Englisch und Thai' gilt."""
+    top_lang, top_p = probs[0] if probs else ("", 0.0)
+    if top_lang not in ("en", "th") and top_p >= 0.6:
+        return pe, pt                                    # eindeutig andere Sprache -> Filter greift
+    if max(pe, pt) < 0.8 or pe + pt < MIN_LANG_P:        # unsicher -> Sprache der Person
+        if plang == "th":
+            pt = max(pt, pe + 0.01, MIN_LANG_P)
+        else:
+            pe = max(pe, pt + 0.01, MIN_LANG_P)
+    return pe, pt
+
+
 def load_model(model, device):
     """Apple-GPU (MPS) wenn möglich – ca. 2-4x schneller –, sonst CPU."""
     if device in ("auto", "mps"):
@@ -321,13 +335,11 @@ class Engine:
             except Exception as e:
                 log({"speaker": "fehler", "err": repr(e)[:200]})
         if who:
-            plang = who.get("lang", "en")
             hot = " ".join(who.get("vocab", [])) or None
-            # unsicher (keine Sprache klar vorn)? -> Sprache der Person nehmen
-            if max(pe, pt) < 0.8 or pe + pt < MIN_LANG_P:
-                if plang == "th": pt = max(pt, pe + 0.01, MIN_LANG_P)
-                else: pe = max(pe, pt + 0.01, MIN_LANG_P)
-                info["prior"] = plang
+            pe2, pt2 = apply_profile_prior(probs, pe, pt, who.get("lang", "en"))
+            if (pe2, pt2) != (pe, pt):
+                info["prior"] = who.get("lang", "en")
+            pe, pt = pe2, pt2
         if pe + pt < MIN_LANG_P:                  # weder Englisch noch Thai -> ignorieren
             info["drop"] = "andere Sprache"
             log(info)

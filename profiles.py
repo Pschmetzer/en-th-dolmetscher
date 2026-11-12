@@ -193,14 +193,17 @@ def enroll(name, lang, record_one, transcribe, emit, spk=None):
             emit("enroll_heard", i=i, heard=hyp, err=round(er, 3))
             if best is None or er < best[0]:
                 best = (er, audio, hyp)
-            if er <= 0.5:                         # passt zum Satz -> weiter
+            # nur bei offensichtlichem Durcheinander wiederholen (Störgeräusch, falsche Zeile) –
+            # nicht weil die Erkennung schwächelt: genau dafür ist das Profil ja da
+            other = min((error_rate(o, hyp, lang) for o in sents if o != sent), default=1.0)
+            if er <= 0.85 and not other < er - 0.2:
                 break
-            emit("enroll_retry", i=i, reason="anderer Satz gehört")   # Störgeräusch o. Ä.
+            emit("enroll_retry", i=i, reason="anderer Satz gehört")
         if best is None:
             emit("enroll_failed", reason="keine Aufnahme")
             return None
         er, audio, hyp = best
-        if audio.size >= MIN_SECONDS * SR and er <= 0.8:   # nur passende Aufnahmen für den Stimmabdruck
+        if audio.size >= MIN_SECONDS * SR:        # Stimmabdruck braucht nur genug Sprache
             embs.append(spk.embed(audio))
         rows.append({"ref": sent, "hyp": hyp, "err": round(min(er, 1.0), 3)})
     if len(embs) < 3:

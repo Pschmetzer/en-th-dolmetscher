@@ -32,3 +32,18 @@ def test_identify_threshold_and_margin():
     spk.embed = lambda a: np.array([0.6, 0.58], dtype=np.float32)      # too close to call
     assert spk.identify(audio)[0] is None
     assert spk.identify(audio[: profiles.SR])[0] is None                # too short
+
+
+def test_profile_prior_never_overrides_clear_third_language():
+    import dolmetscher as d
+    # deutlich Deutsch, Person hat EN-Profil -> bleibt unter der Schwelle (wird verworfen)
+    pe, pt = d.apply_profile_prior([("de", .94), ("en", .02)], .02, 0.0, "en")
+    assert pe + pt < d.MIN_LANG_P
+    # kurzer, unsicherer Thai-Satz einer Thai-Person (echter Log-Fall) -> Thai
+    pe, pt = d.apply_profile_prior([("en", .315), ("de", .246), ("th", .006)], .315, .006, "th")
+    assert pt > pe and pe + pt >= d.MIN_LANG_P
+    pe, pt = d.apply_profile_prior([("th", .46), ("nn", .11)], .109, .46, "th")
+    assert pt > pe
+    # klar Englisch bleibt Englisch, auch bei Thai-Profil
+    pe, pt = d.apply_profile_prior([("en", .98)], .98, 0.0, "th")
+    assert pe > pt
