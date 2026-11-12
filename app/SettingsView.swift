@@ -246,7 +246,18 @@ private struct TranslationSettings: View {
                     VStack(alignment: .leading) { Text(L.t("llm_model")); RestartNote() }
                 }
                 .accessibilityLabel(L.t("llm_model"))
+                Picker(L.t("style"), selection: $m.llmStyle) {
+                    ForEach(["casual", "neutral", "polite"], id: \.self) { Text(L.t("style_" + $0)).tag($0) }
+                }
+                if m.llmCostUSD > 0 {
+                    LabeledContent(L.t("llm_cost"), value: String(format: "≈ $%.3f", m.llmCostUSD))
+                }
             }
+            Section {
+                TextEditor(text: $m.glossary)
+                    .font(.body.monospaced()).frame(minHeight: 90)
+                    .accessibilityLabel(L.t("glossary"))
+            } header: { Text(L.t("glossary")) } footer: { Text(L.t("glossary_hint")) }
             APIKeySection()
         }
         .formStyle(.grouped)

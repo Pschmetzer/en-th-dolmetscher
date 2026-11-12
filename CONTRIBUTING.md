@@ -31,6 +31,8 @@ Tests must never call the Claude API or need a key. `anthropic` is optional: the
 
 Dependencies are pinned in `requirements.txt`. When you bump a version, check that `faster_whisper.audio.decode_audio` still works (PyAV 19 broke it) and the app still runs. Check the pins resolve together in a fresh venv, e.g. `uv venv /tmp/chk && uv pip install --dry-run --python /tmp/chk/bin/python -r requirements-dev.txt`.
 
+`pythainlp` is optional at runtime (Thai transliteration); the engine must work without it, but it is pinned in `requirements.txt`, so the tests run with it. Type-check the Swift app locally without building: `swiftc -typecheck -parse-as-library app/*.swift` (CI does the same on macOS).
+
 If you change events or settings between app and engine, update `docs/PROTOKOLL.md`.
 
 ## Pull requests

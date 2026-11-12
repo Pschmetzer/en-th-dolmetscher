@@ -12,7 +12,7 @@ Optionen: --model small|medium|base  --mic 0  --polite krub|ka  --json
           --voice-en/--voice-th NAME --llm [--llm-model ID] --earcons --meter --list-mics
 Protokoll Engine <-> App: docs/PROTOKOLL.md
 """
-import argparse, collections, http.client, itertools, json, logging, logging.handlers, os, queue, re, \
+import argparse, collections, functools, http.client, itertools, json, logging, logging.handlers, os, queue, re, \
     shutil, signal, subprocess, sys, tempfile, threading, time, urllib.error, urllib.parse, urllib.request
 import numpy as np
 from faster_whisper import WhisperModel
@@ -217,6 +217,14 @@ def _norm(s):
     return re.sub(r"[\s.,!?。]+", " ", s.lower()).strip()
 
 
+def warm_translate():
+    """TLS-Aufbau zu Google vorab, damit der erste Satz ihn nicht zahlt. Fehler still ignoriert."""
+    try:
+        _get_json("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=en&tl=th&q=hi", 4)
+    except Exception:
+        pass
+
+
 def google_translate(text, src, dst):
     u = ("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t"
          f"&sl={src}&tl={dst}&q={urllib.parse.quote(text)}")
@@ -248,7 +256,8 @@ def mymemory_translate(text, src, dst, e1=None):
     return out
 
 
-LLM = {"on": False, "model": "claude-opus-5-5", "client": None, "err": None, "skip_until": 0.0}
+LLM = {"on": False, "model": "claude-haiku-5-5", "client": None, "err": None, "skip_until": 0.0}
+LLM["context"] = 8                 # so viele letzte Sätze (Verlauf) gehen als Kontext an Claude
 LLM_BACKOFF = 60.0                 # s ohne Claude nach einem Fehler (dann direkt Google)
 KEYFILE = os.path.expanduser("~/Library/Application Support/Dolmetscher/anthropic_key")
 
@@ -281,9 +290,9 @@ LLM_SYSTEM = (
     "(e.g. ม่วงนอน or ยุ่งนอน is almost certainly ง่วงนอน 'sleepy'), missing tone marks, wrong spacing, "
     "English words written in Thai script. Use the recent conversation and the alternative hypotheses to infer "
     "what the speaker most likely meant, then translate that meaning naturally, the way a person would say it. "
+    "Ignore filler words (um, uh, like, you know, เอ่อ) and idioms: translate the meaning, never word by word. "
     "Thai often drops subjects; restore them in English from context. Keep names, numbers, prices and times exact. "
-    "Setting: a private, relaxed conversation at home between two people who are dating. Translate the way "
-    "they would actually talk to each other: warm, casual, natural, never formal or textbook-like. "
+    "{setting} "
     "Thai particles (นะ, จ้า, จ๊ะ, อ่ะ, เนอะ, ค่ะ/ครับ) carry tone, not words: render the feeling, not a literal word. "
     "Thai slang and short replies (ใช่, โอเค, จริงดิ, ไม่เป็นไร) get short natural English. "
     "Into Thai: casual, friendly spoken Thai between partners, matching the speaker's register; no stiff or "
@@ -291,13 +300,91 @@ LLM_SYSTEM = (
     "Reply with the translation only: no quotes, no notes, no romanization, no alternatives.")
 
 
+GLOSSARY_FILE = os.path.expanduser("~/Library/Application Support/Dolmetscher/glossary.txt")
+GLOSSARY = []                      # [(Wort, Übersetzung oder None = unverändert lassen)]
+
+
+def load_glossary(text=None):
+    """Eigene Wörter: je Zeile `Wort => Übersetzung` oder nur `Name` (nicht übersetzen).
+    `text=None` liest die Datei; sonst wird der Text übernommen und gespeichert."""
+    if text is None:
+        try:
+            with open(GLOSSARY_FILE, encoding="utf-8") as f:
+                text = f.read()
+        except OSError:
+            text = ""
+    else:
+        try:
+            os.makedirs(os.path.dirname(GLOSSARY_FILE), exist_ok=True)
+            with open(GLOSSARY_FILE, "w", encoding="utf-8") as f:
+                f.write(text)
+        except OSError as e:
+            log({"glossary": "speichern fehlgeschlagen", "err": repr(e)[:120]})
+    items = []
+    for line in text.splitlines():
+        a, sep, b = line.partition("=>")
+        a, b = a.strip(), b.strip()
+        if a:
+            items.append((a, b if sep and b else None))
+    GLOSSARY[:] = items[:200]
+    _CACHE.clear()                     # alte Übersetzungen kennen die neuen Einträge nicht
+
+
+def glossary_hits(text):
+    low = text.lower()
+    return [(a, b) for a, b in GLOSSARY if a.lower() in low]
+
+
+PRONOUNCE_FILE = os.path.expanduser("~/Library/Application Support/Dolmetscher/pronounce.txt")
+PRONOUNCE = []                     # [(Text, gesprochen)] – nur für die Sprachausgabe, Anzeige bleibt
+
+
+def load_pronounce(path=None):
+    """Aussprache-Ersetzungen: je Zeile `Text => gesprochen`. Gilt nur für TTS."""
+    try:
+        with open(path or PRONOUNCE_FILE, encoding="utf-8") as f:
+            text = f.read()
+    except OSError:
+        text = ""
+    items = []
+    for line in text.splitlines():
+        a, sep, b = line.partition("=>")
+        a, b = a.strip(), b.strip()
+        if a and sep and b:
+            items.append((a, b))
+    PRONOUNCE[:] = items[:200]
+
+
+def apply_pronounce(text):
+    for a, b in PRONOUNCE:
+        text = re.sub(re.escape(a), lambda m: b, text, flags=re.I)
+    return text
+
+
+STYLES = {
+    "casual": ("Setting: a private, relaxed conversation at home between two people who are dating. Translate "
+               "the way they would actually talk to each other: warm, casual, natural, never formal or textbook-like."),
+    "neutral": ("Setting: an everyday conversation between two adults. Translate in a natural, friendly, "
+                "neutral register: neither slangy nor stiff."),
+    "polite": ("Setting: a polite conversation with a stranger or service staff (shop, restaurant, taxi, hotel). "
+               "Translate courteously and clearly; use polite forms, no slang."),
+}
+LLM_PRICE = {"claude-haiku-5-5": (0.10, 0.50), "claude-sonnet-5-5": (2.0, 10.0), "claude-opus-5-5": (4.0, 20.0)}
+LLM["style"] = "casual"
+LLM["usd"] = 0.0
+
+
 def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
     client = llm_client()
     names = {"en": "English", "th": "Thai"}
-    ctx = "\n".join(f"[{names[l]}] {t}  =>  {o}" for l, t, o in list(history)[-6:])
+    ctx = "\n".join(f"[{names[l]}] {t}  =>  {o}" for l, t, o in list(history)[-LLM["context"]:])
     parts = []
     if ctx:
         parts.append(f"Recent conversation (original => translation):\n{ctx}")
+    hits = glossary_hits(text)
+    if hits:
+        parts.append("Glossary (use exactly these; a word without arrow stays unchanged):\n" + "\n".join(
+            f"- {a} => {b}" if b else f"- {a} (keep as is)" for a, b in hits))
     if alts:
         parts.append("Other recognition hypotheses for the same audio:\n" + "\n".join(f"- {a}" for a in alts))
     if dst == "th":
@@ -305,7 +392,13 @@ def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
                      " where a polite particle fits.")
     parts.append(f"Translate this {names[src]} speech into {names[dst]}:\n{text}")
     r = client.messages.create(model=LLM["model"], max_tokens=4096, output_config={"effort": "low"},
-                               system=LLM_SYSTEM, messages=[{"role": "user", "content": "\n\n".join(parts)}])
+                               system=LLM_SYSTEM.replace("{setting}", STYLES.get(LLM["style"], STYLES["casual"])),
+                               messages=[{"role": "user", "content": "\n\n".join(parts)}])
+    pin, pout = LLM_PRICE.get(LLM["model"], (4.0, 20.0))
+    u = getattr(r, "usage", None)
+    if u is not None:                               # Kosten mitzählen (Schätzung nach Preisliste)
+        LLM["usd"] += ((getattr(u, "input_tokens", 0) or 0) * pin + (getattr(u, "output_tokens", 0) or 0) * pout) / 1e6
+        emit("llm_cost", usd=round(LLM["usd"], 4))
     if r.stop_reason != "end_turn":                    # refusal, max_tokens, … -> nie halbe Sätze vorlesen
         raise RuntimeError(f"Claude: stop_reason {r.stop_reason}")
     out = "".join(b.text for b in r.content if b.type == "text").strip().strip('"“”')
@@ -319,9 +412,32 @@ LAUGH = {"th": re.compile(r"(?<!\d)5{3,}(?!\d)|(?:ฮ่า\s*){2,}ๆ*|ฮ่�
 LAUGH_OUT = {"th": "555", "en": "haha"}
 
 
+FILLERS = {
+    # nur eigenständige Zögerlaute und Einschübe zwischen Kommas ("It's, you know, good"); "As you know,"
+    # oder "Would you like, a coffee" bleiben unberührt
+    "en": re.compile(r"(?:(?<=\s)|^)(?:u+m+|u+h+|e+r+m*|h+m+|m+h+m+)\b[,]?(?=\s|[.!?]|$)"
+                     r"|(?<=\w),\s*(?:you know|i mean|like|sort of|kind of)\s*,(?=\s)", re.I),
+    # nur als eigenes Wort (sonst würde "อ่า" aus "อ่าน" gerissen)
+    "th": re.compile(r"(?:(?<=\s)|^)(?:เอ่อ|เออ|อืม|อ่า|เอ๊ะ)(?=\s|$)"),
+}
+
+
+def strip_fillers(text, lang):
+    """Füllwörter (um, uh, ", you know,", เอ่อ) vor der Übersetzung entfernen – sie verwirren Google
+    und kosten Claude Zeit. Bleibt nichts Sinnvolles übrig, gilt der Originaltext."""
+    rx = FILLERS.get(lang)
+    if not rx:
+        return text
+    out = rx.sub(lambda m: "," if m.group(0).lstrip().startswith(",") else " ", text)
+    out = re.sub(r"\s{2,}", " ", out)
+    out = re.sub(r"\s+([.,!?])", r"\1", out).strip(" ,")
+    return out if re.search(r"\w", out) else text
+
+
 def translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
     """Lachen (555, ฮ่าๆ, haha, lol) nicht übersetzen lassen – Google macht daraus "555" oder Unsinn –,
     sondern als Lachen der Zielsprache anhängen. Rest wie _translate."""
+    text = strip_fillers(text, src)
     rx = LAUGH.get(src)
     if rx and rx.search(text):
         rest = rx.sub(" ", text).strip(" ,.!")
@@ -338,7 +454,8 @@ def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
     Fehlermeldung zu liefern. `meta` (dict) bekommt provider und cached."""
     meta = meta if meta is not None else {}
     use_llm = LLM["on"] and time.time() >= LLM["skip_until"] and llm_available()
-    key = (_norm(text), src, dst, "llm" if use_llm else "mt", polite if dst == "th" else "")
+    key = (_norm(text), src, dst, ("llm:" + LLM["model"] + ":" + LLM["style"]) if use_llm else "mt",
+           polite if dst == "th" else "")
     if key in _CACHE and not (use_llm and history):        # mit Verlauf ist der Kontext jedes Mal anders
         _CACHE.move_to_end(key)
         meta.update(provider=_CACHE[key][1], cached=True)
@@ -368,6 +485,53 @@ def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
     if len(_CACHE) > _CACHE_MAX:
         _CACHE.popitem(last=False)
     return out
+
+
+_TH_RX = re.compile(r"[\u0e00-\u0e7f]")
+
+
+_THAINLP = {"missing": False}
+
+
+@functools.lru_cache(maxsize=512)
+def thai_latin(text):
+    """Lesbare Umschrift (RTGS, Wort für Wort getrennt) für Thai-Text; None ohne pythainlp oder bei
+    Fehlern – die App nimmt dann ihre eigene Umschrift."""
+    if not _TH_RX.search(text or "") or _THAINLP["missing"]:
+        return None
+    try:
+        from pythainlp.tokenize import word_tokenize
+        from pythainlp.transliterate import romanize
+        words = []
+        for w in word_tokenize(text):
+            if not w.strip():
+                continue
+            r = romanize(w, engine="royin") if w != "ก็" else "ko"
+            words.append(_TH_RX.sub("", r))                  # übrig gebliebene Thai-Zeichen/Marken weglassen
+        out = " ".join(x for x in words if x)
+    except ImportError:
+        _THAINLP["missing"] = True                     # einmal merken, nicht für jeden Satz neu versuchen
+        return None
+    except Exception as e:
+        log({"translit": "fehler", "err": type(e).__name__})   # kein Text im Log
+        return None
+    out = re.sub(r"\s+", " ", out).strip()
+    return out or None
+
+
+_NUM = re.compile(r"\d+(?:[.,:]\d+)*")
+_THAI_DIGITS = str.maketrans("๐๑๒๓๔๕๖๗๘๙", "0123456789")
+
+
+def _numbers(s):
+    out = (re.sub(r"[.,:]", "", x) for x in _NUM.findall(s.translate(_THAI_DIGITS)))
+    return sorted(x for x in out if not re.fullmatch(r"5{3,}", x))      # 555 = Lachen, keine Zahl
+
+
+def numbers_differ(a, b):
+    """True, wenn Ziffern im Original und in der Übersetzung nicht übereinstimmen (Preise, Zeiten)."""
+    na, nb = _numbers(a), _numbers(b)
+    return bool(na and nb) and na != nb
 
 
 def fix_thai(s, polite):
@@ -867,7 +1031,7 @@ class Speaker:
         item = {"id": uid, "lang": lang, "kind": kind, "parts": [], "t_end": t_end}
         if kind == "speech":
             boost = self.FAST_BOOST if behind else 0
-            for s in split_sentences(text, lang):
+            for s in split_sentences(apply_pronounce(text), lang):
                 stream, local = None, None
                 if eng.tts == "edge" and not eng.mute:
                     try:
@@ -1380,7 +1544,8 @@ class Engine:
         info["times"] = times
         log(info)
         return self.deliver(uid, lang, text, lp, time.time() - t0, speak=speak, t_end=t_end,
-                            speaker=who["name"] if who else None, alts=alts)
+                            speaker=who["name"] if who else None, alts=alts,
+                            role=role if role in ("me", "other") else None)
 
     def _guess_lang(self, probs):
         p = dict(probs)
@@ -1416,7 +1581,7 @@ class Engine:
             emit("partial", id=uid, text=text, lang=lang)
 
     def deliver(self, uid, lang, text, lp=0.0, stt_s=0.0, speak=True, speaker=None, alts=(), t_end=None,
-                source="mic", replaces=None):
+                source="mic", replaces=None, role=None):
         """Übersetzen, Blase melden, vorlesen (asynchron). Gemeinsam für Mikrofon, Schnellsätze und
         Korrekturen."""
         t1 = time.time()
@@ -1424,12 +1589,17 @@ class Engine:
                     source=source)
         if replaces:
             base["replaces"] = replaces
+        if alts:
+            base["alts"] = list(alts)[:3]
+        if role:
+            base["role"] = role
         self.texts[uid] = (lang, text)
         if len(self.texts) > 200:
             self.texts.pop(next(iter(self.texts)))
         if not self.translate_dir.get(lang, True):
             # diese Sprache bleibt wie sie ist: nur anzeigen, nicht übersetzen, nicht vorlesen
-            emit("utt", to=lang, out=text, tr=0.0, translated=False, provider="none", **base)
+            emit("utt", to=lang, out=text, tr=0.0, translated=False, provider="none",
+                 text_latin=thai_latin(text) if lang == "th" else None, **base)
             emit("listening")
             return lang, text, text
         dst = TARGET[lang]
@@ -1453,7 +1623,10 @@ class Engine:
              "tr_s": round(tr_s, 2)})
         if t_end:
             base["ready_s"] = round(time.time() - t_end, 2)    # Äußerungsende -> Übersetzung fertig
-        emit("utt", to=dst, out=out, tr=round(tr_s, 2), translated=True, provider=meta.get("provider"), **base)
+        emit("utt", to=dst, out=out, tr=round(tr_s, 2), translated=True, provider=meta.get("provider"),
+             text_latin=thai_latin(text) if lang == "th" else None,
+             out_latin=thai_latin(out) if dst == "th" else None,
+             num_warn=True if numbers_differ(text, out) else None, **base)
         if speak:
             self.speaker.add(out, dst, uid, t_end=t_end)
         emit("listening")
@@ -1557,6 +1730,10 @@ def apply_control(eng, d):
         if f"voice_{k}" in d:
             v = d[f"voice_{k}"]
             eng.voices[k] = v if v in VOICES[k] else None
+    if "glossary" in d:
+        load_glossary(str(d["glossary"]))
+    if d.get("style") in STYLES:
+        LLM["style"] = d["style"]
     if "llm" in d:
         LLM["on"] = bool(d["llm"])
         LLM["client"] = None               # Schlüssel evtl. neu gespeichert -> neu einlesen
@@ -1735,8 +1912,8 @@ def segmenter(read, utts, sess=0, on_end=None):
                     version, pre_sent = version + 1, False
             else:
                 silence += fdur
-            if silence >= SILENCE_END:
-                finish("vad")
+            if silence >= SILENCE_END - (min(0.2, SILENCE_END - 0.4) if speech < 1.2 else 0.0):
+                finish("vad")      # sehr kurze Äußerung („ja“): Satzende bis 0.2 s früher
             elif silence > 0 and EARLY_END.get(uid) == version:
                 finish("früh")          # Vorab-Erkennung: Satz ist eindeutig zu Ende
             elif (FAST["pre"] and not pre_sent and silence >= PRE_AT and SILENCE_END > PRE_AT + 0.1
@@ -1983,6 +2160,8 @@ if __name__ == "__main__":
     ap.add_argument("--voice-th", default=None)
     ap.add_argument("--llm", action="store_true", help="Übersetzung mit Claude (API-Schlüssel nötig)")
     ap.add_argument("--llm-model", default=LLM["model"])
+    ap.add_argument("--style", choices=list(STYLES), default="casual",
+                    help="Ton der Claude-Übersetzung: casual (Partner) | neutral | polite (Service)")
     ap.add_argument("--earcons", action="store_true", help="Signalton statt gesprochener Bestätigung")
     ap.add_argument("--meter", action="store_true", help="Pegel-Ereignisse senden")
     ap.add_argument("--no-two-person", action="store_true", help="Zwei-Personen-Modus aus (Englisch = ich, andere Stimme = Thai)")
@@ -2004,7 +2183,11 @@ if __name__ == "__main__":
     TTS_RACE = max(0.0, min(5.0, a.tts_race))
     FAST.update(pre=not a.no_pre, endpoint=not a.no_fast_endpoint, partial=a.partial)
     VAD["start"], VAD["keep"] = SENSITIVITY[a.sensitivity]
-    LLM["on"], LLM["model"] = a.llm, a.llm_model
+    LLM["on"], LLM["model"], LLM["style"] = a.llm, a.llm_model, a.style
+    load_glossary()
+    load_pronounce()
+    threading.Thread(target=warm_translate, daemon=True).start()
+    threading.Thread(target=thai_latin, args=("สวัสดี",), daemon=True).start()   # Umschrift vorwärmen
     signal.signal(signal.SIGTERM, shutdown)
     signal.signal(signal.SIGINT, shutdown)
     if a.profiles or a.enroll or a.delete_profile or a.vocab is not None:

@@ -25,7 +25,8 @@ Jede Äußerung hat eine `id` (String, z. B. `"u7"`). Die App darf den Status �
 | `--denoise` | Rauschunterdrückung im Mikrofon-Filter |
 | `--voice-en NAME`, `--voice-th NAME` | Neural-Stimme (z. B. `en-US-AvaMultilingualNeural`, `th-TH-PremwadeeNeural`); ohne Angabe: Thai nach `--polite` |
 | `--llm` | Übersetzung mit Claude (braucht API-Schlüssel, sonst automatisch Google) |
-| `--llm-model ID` | Standard `claude-opus-5-5` |
+| `--llm-model ID` | Standard `claude-haiku-5-5` (günstig und schnell; `claude-sonnet-5-5` genauer) |
+| `--style casual\|neutral\|polite` | Ton der Claude-Übersetzung (Standard `casual`) |
 | `--earcons` | Signalton statt gesprochener Bestätigung bei Sprachbefehlen |
 | `--meter` | Pegel-Ereignisse `level` senden |
 | `--log-text` / `--no-log-text` | Gesprächstexte ins Log schreiben. **Standard jetzt: aus** |
@@ -38,12 +39,13 @@ API-Schlüssel: Umgebungsvariable `ANTHROPIC_API_KEY` oder Datei
 | event | Felder | Hinweis |
 |---|---|---|
 | `loading` | `msg` | |
+| `llm_cost` | `usd` | geschätzte Claude-Kosten der Sitzung (nach Preisliste) |
 | `ready` | `msg`, `device`, `llm` (bool: Claude aktiv) | |
 | `listening` | | Mikrofon bereit; ändert den Sprech-Status nicht |
 | `hearing` | | jemand spricht gerade |
 | `thinking` | `id` | Äußerung `id` wird erkannt/übersetzt → Platzhalter-Blase |
 | `dropped` | `reason`, `id` (optional) | Platzhalter `id` entfernen |
-| `utt` | `id`, `lang`, `to`, `text`, `out`, `stt`, `tr` (s), `lp` (Erkennungs-Konfidenz, log-prob, ≈ −0.1 sicher … −1.3 unsicher), `translated`, `provider` (`claude`\|`google`\|`mymemory`\|`none`), `speaker`, `replaces` (optional: id der korrigierten Blase), `source` (`mic`\|`phrase`\|`edit`) | |
+| `utt` | `id`, `lang`, `to`, `text`, `out`, `stt`, `tr` (s), `lp` (Erkennungs-Konfidenz, log-prob, ≈ −0.1 sicher … −1.3 unsicher), `translated`, `provider` (`claude`\|`google`\|`mymemory`\|`none`), `speaker`, `replaces` (optional: id der korrigierten Blase), `source` (`mic`\|`phrase`\|`edit`); optional: `text_latin`/`out_latin` (lesbare RTGS-Umschrift für Thai, nur mit pythainlp), `alts` (andere Lesarten), `role` (`me`\|`other`), `num_warn` (Ziffern weichen ab) | |
 | `speaking` | `id`, `first_s` (s bis zum ersten Ton) | nur wenn wirklich Ton kommt (nicht bei stumm, Überspringen, Abbruch vor dem ersten Ton); `id` = `"cmd"` bei Befehlsantworten und „repeat“ |
 | `speak_done` | `id`, `skipped` (bool), `interrupted` (bool) | kommt für jede eingereihte Ausgabe **genau einmal**, auch ohne vorheriges `speaking`; `skipped`: wegen Rückstand/Stopp nicht vorgelesen |
 | `queue` | `stt` (wartende Äußerungen), `tts` (wartende Ausgaben) | bei jeder Änderung |
@@ -52,6 +54,10 @@ API-Schlüssel: Umgebungsvariable `ANTHROPIC_API_KEY` oder Datei
 | `command` | wie bisher + `rate`, `volume`, `voice_en`, `voice_th` | App speichert `rate`/`volume` dauerhaft |
 | `error` | `msg` | |
 | `barge_in` | | |
+| `mics` | `mics` (Liste `{index, name}`) | Antwort auf `--list-mics` |
+| `profiles` | `profiles` (Liste öffentlicher Profilfelder) | Antwort auf `--profiles` |
+| `profile_saved` | `profile` | nach `--enroll` bzw. `--vocab` |
+| `profile_deleted` | `name`, `ok` (bool) | Antwort auf `--delete-profile` |
 
 ## Steuerung (stdin)
 
@@ -67,6 +73,8 @@ Neu:
 | `sensitivity` | `low\|normal\|high` | VAD-Schwellen |
 | `voice_en`, `voice_th` | string | Stimme (leer = Standard) |
 | `llm` | bool | Claude-Übersetzung an/aus |
+| `style` | `casual`\|`neutral`\|`polite` | Ton der Claude-Übersetzung |
+| `glossary` | string | eigene Wörter, eine Zeile `Wort => Übersetzung` oder nur `Name` |
 | `earcons` | bool | Signaltöne statt Sprache bei Befehlen |
 | `stop_speaking` | true | laufende und wartende Ausgaben abbrechen |
 | `say` | `{"text": "...", "lang": "en"\|"th"}` | Schnellsatz: übersetzen und vorlesen wie eine Äußerung (`source: "phrase"`) |

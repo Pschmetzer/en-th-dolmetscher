@@ -29,3 +29,12 @@ jobs:
           swiftc --version
           mkdir -p build
           swiftc -O -parse-as-library -o build/Dolmetscher app/*.swift
+
+  swift-typecheck:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Typecheck Swift sources
+        run: |
+          swiftc --version
+          swiftc -typecheck -parse-as-library app/*.swift

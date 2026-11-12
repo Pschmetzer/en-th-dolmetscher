@@ -29,6 +29,9 @@ struct Utterance: Identifiable {
     var lp: Double?              // Erkennungs-Konfidenz (log-prob)
     var provider: String?
     var source: String?
+    var role: String?            // "me" / "other" im Zwei-Personen-Modus
+    var numWarn = false          // Ziffern in Original und Übersetzung stimmen nicht überein
+    var alts: [String] = []      // andere Lesarten der Erkennung (nur bei unsicherem Thai mit Claude)
     var skipped = false          // wegen Rückstand nicht vorgelesen
     var pending = false          // Platzhalter: wird gerade erkannt/übersetzt
     let textLatin: String?
@@ -37,13 +40,15 @@ struct Utterance: Identifiable {
 
     init(uid: String? = nil, translated: Bool = true, speaker: String? = nil, lang: String, to: String,
          text: String, out: String, stt: Double = 0, tr: Double = 0, lp: Double? = nil,
-         provider: String? = nil, source: String? = nil, skipped: Bool = false, pending: Bool = false) {
+         provider: String? = nil, source: String? = nil, skipped: Bool = false, pending: Bool = false,
+         textLatin: String? = nil, outLatin: String? = nil) {
         self.uid = uid; self.translated = translated; self.speaker = speaker
         self.lang = lang; self.to = to; self.text = text; self.out = out
         self.stt = stt; self.tr = tr; self.lp = lp; self.provider = provider; self.source = source
         self.skipped = skipped; self.pending = pending
-        self.textLatin = Translit.latin(text)
-        self.outLatin = translated ? Translit.latin(out) : nil
+        // Umschrift der Engine (RTGS, lesbar) hat Vorrang vor der ICU-Umschrift der App
+        self.textLatin = textLatin ?? Translit.latin(text)
+        self.outLatin = translated ? (outLatin ?? Translit.latin(out)) : nil
     }
 
     static func placeholder(_ uid: String) -> Utterance {
@@ -125,7 +130,20 @@ final class EngineModel: NSObject, ObservableObject {
     @Published var silence = ud.object(forKey: "silence") as? Double ?? 0.8 { didSet { Self.ud.set(silence, forKey: "silence"); send(["silence": silence]) } }
     @Published var sensitivity = ud.string(forKey: "sensitivity") ?? "normal" { didSet { Self.ud.set(sensitivity, forKey: "sensitivity"); send(["sensitivity": sensitivity]) } }
     @Published var earcons = ud.bool(forKey: "earcons") { didSet { Self.ud.set(earcons, forKey: "earcons"); send(["earcons": earcons]) } }
-    @Published var llm = ud.bool(forKey: "llm") { didSet { Self.ud.set(llm, forKey: "llm"); send(["llm": llm]) } }
+    @Published var llmStyle = ud.string(forKey: "llmStyle") ?? "casual" { didSet { Self.ud.set(llmStyle, forKey: "llmStyle"); send(["style": llmStyle]) } }
+    /// Geschätzte Claude-Kosten dieser Sitzung in US-Dollar (nach Preisliste, von der Engine gezählt).
+    @Published private(set) var llmCostUSD = 0.0
+    /// Eigene Wörter/Namen für die Claude-Übersetzung (eine Zeile: `Wort => Übersetzung` oder nur `Name`).
+    static let glossaryURL = FileManager.default.homeDirectoryForCurrentUser
+        .appendingPathComponent("Library/Application Support/Dolmetscher/glossary.txt")
+    @Published var glossary = (try? String(contentsOf: EngineModel.glossaryURL, encoding: .utf8)) ?? "" {
+        didSet {
+            try? FileManager.default.createDirectory(at: Self.glossaryURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try? glossary.write(to: Self.glossaryURL, atomically: true, encoding: .utf8)
+            send(["glossary": glossary])
+        }
+    }
+    @Published var llm = (ud.object(forKey: "llm") as? Bool) ?? true { didSet { Self.ud.set(llm, forKey: "llm"); send(["llm": llm]) } }
     /// Neural-Stimme: nach so vielen Sekunden spricht die macOS-Ersatzstimme (0 = aus).
     @Published var ttsRace = ud.object(forKey: "ttsRace") as? Double ?? 1.4 {
         didSet {
@@ -147,7 +165,7 @@ final class EngineModel: NSObject, ObservableObject {
         didSet { Self.ud.set(partialText, forKey: "partialText"); send(["partial": partialText]) }
     }
     // Nur beim Start wirksam – Änderung startet den Prozess neu (Zuhör-Zustand bleibt).
-    @Published var llmModel = ud.string(forKey: "llmModel") ?? "claude-opus-5-5" { didSet { Self.ud.set(llmModel, forKey: "llmModel"); scheduleRestart() } }
+    @Published var llmModel = ud.string(forKey: "llmModel") ?? "claude-haiku-5-5" { didSet { Self.ud.set(llmModel, forKey: "llmModel"); scheduleRestart() } }
     @Published var mic = ud.string(forKey: "mic") ?? "" { didSet { Self.ud.set(mic, forKey: "mic"); scheduleRestart() } }
     @Published var denoise = ud.bool(forKey: "denoise") { didSet { Self.ud.set(denoise, forKey: "denoise"); scheduleRestart() } }
     @Published var logText = ud.bool(forKey: "logText") { didSet { Self.ud.set(logText, forKey: "logText"); scheduleRestart() } }
@@ -160,7 +178,7 @@ final class EngineModel: NSObject, ObservableObject {
     static let voicesEN = ["en-US-AvaMultilingualNeural", "en-US-AndrewMultilingualNeural",
                            "en-GB-SoniaNeural", "en-US-EmmaMultilingualNeural"]
     static let voicesTH = ["th-TH-NiwatNeural", "th-TH-PremwadeeNeural", "th-TH-AcharaNeural"]
-    static let llmModels = ["claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"]
+    static let llmModels = ["claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5"]
 
     /// Einstellungen, die nur beim Start gelesen werden – Vergleich mit dem Stand beim Start.
     private var restartSignature: String {
@@ -339,7 +357,7 @@ final class EngineModel: NSObject, ObservableObject {
         var args = ["-u", script, "--json", "--idle", "--model", model, "--polite", polite, "--lang", lang, "--meter",
                     "--rate", String(rate), "--volume", Self.f2(volume),
                     "--silence", Self.f2(silence), "--sensitivity", sensitivity,
-                    "--llm-model", llmModel, logText ? "--log-text" : "--no-log-text",
+                    "--llm-model", llmModel, "--style", llmStyle, logText ? "--log-text" : "--no-log-text",
                     "--tts-race", Self.f2(ttsRace)]
         if !fastEndpoint { args.append("--no-fast-endpoint") }
         if !twoPerson { args.append("--no-two-person") }
@@ -438,6 +456,7 @@ final class EngineModel: NSObject, ObservableObject {
         backlogSTT = 0; backlogTTS = 0
         netDown.removeAll()
         llmActive = false
+        llmCostUSD = 0
         meter.reset()
         pttWork?.cancel(); pttWork = nil
         for w in hearingTimers.values { w.cancel() }
@@ -612,6 +631,7 @@ final class EngineModel: NSObject, ObservableObject {
             if speakingNow { break }
             status = paused ? Self.pausedText : L.t("dropped")
         case "utt": addUtterance(o, id: id)
+        case "llm_cost": llmCostUSD = (o["usd"] as? NSNumber)?.doubleValue ?? llmCostUSD
         default: break
         }
     }
@@ -643,8 +663,12 @@ final class EngineModel: NSObject, ObservableObject {
                           text: o["text"] as? String ?? "", out: o["out"] as? String ?? "",
                           stt: o["stt"] as? Double ?? 0, tr: o["tr"] as? Double ?? 0,
                           lp: o["lp"] as? Double, provider: o["provider"] as? String,
-                          source: o["source"] as? String)
+                          source: o["source"] as? String,
+                          textLatin: o["text_latin"] as? String, outLatin: o["out_latin"] as? String)
         u.readyS = (o["ready_s"] as? NSNumber)?.doubleValue
+        u.alts = (o["alts"] as? [String]) ?? []
+        u.numWarn = o["num_warn"] as? Bool ?? false
+        u.role = o["role"] as? String
         if let id { cancelHearingTimer(id); pendingIDs.remove(id) } else { pendingIDs.remove("?") }
         if let old = o["replaces"] as? String, let i = index(of: old) {
             items[i] = u
