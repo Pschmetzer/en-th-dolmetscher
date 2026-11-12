@@ -6,14 +6,13 @@ wird, übersetzt und spricht die Übersetzung sofort laut aus.
 
 Start:  python3 dolmetscher.py   (benötigt: pip install faster-whisper, ffmpeg)
 Optionen: --model small|medium|base  --mic 0  --polite krub|ka  --json
-          --file test.wav (ohne Mikrofon)  --mute
+          --lang auto|en|th  --tts edge|say  --file test.wav  --mute
 """
 import argparse, json, os, re, shutil, signal, subprocess, sys, time, urllib.parse, urllib.request
 import numpy as np
 from faster_whisper import WhisperModel
 
 SR = 16000
-FRAME = 480                       # 30 ms
 SILENCE_END = 0.8                 # s Stille = Satzende
 MIN_UTT = 0.4                     # s, kürzer wird ignoriert
 MAX_UTT = 20.0
@@ -21,6 +20,11 @@ MIN_LANG_P = 0.35                 # en+th zusammen mindestens so wahrscheinlich,
 MIN_LOGPROB = -1.0                # unsicherere Transkripte gelten als Rauschen/Halluzination
 VOICE = {"th": "Kanya", "en": "Samantha"}
 TARGET = {"en": "th", "th": "en"}
+# Weckwort nur am Satzanfang: "Translator, pause" / "Hey translator resume"
+WAKE = re.compile(r"^\W*(?:hey|hi|ok|okay)?\W*translat(?:or|er)\b\W*(.*)$", re.I | re.S)
+# Neural-Stimmen: Thai passend zu ครับ (Mann) / ค่ะ (Frau)
+NEURAL = {"th": {"krub": "th-TH-NiwatNeural", "ka": "th-TH-PremwadeeNeural"},
+          "en": {"en": "en-US-AvaMultilingualNeural"}}
 JUNK = {"thank you for watching", "thanks for watching", "subtitles by", "ขอบคุณที่รับชม"}
 FFMPEG = os.environ.get("DOLMETSCHER_FFMPEG") or shutil.which("ffmpeg") or "/opt/homebrew/bin/ffmpeg"
 SAY = "/usr/bin/say"
@@ -80,6 +84,10 @@ def fix_thai(s, polite):
 def pick_voice(lang):
     v = VOICE[lang]
     out = subprocess.run([SAY, "-v", "?"], capture_output=True, text=True).stdout
+    loc = "th_TH" if lang == "th" else "en_US"
+    for line in out.splitlines():                      # bessere Stimmen bevorzugen
+        if loc in line and re.search(r"Premium|Enhanced|Erweitert", line):
+            return line.split(loc)[0].strip()
     if v not in out:
         loc = "th_TH" if lang == "th" else "en_US"
         for line in out.splitlines():
@@ -89,14 +97,97 @@ def pick_voice(lang):
 
 
 class Engine:
-    def __init__(self, model, polite, lock="auto"):
-        self.lock = lock
+    def __init__(self, model, polite, lock="auto", tts="edge"):
+        self.lock, self.tts = lock, tts
         t = time.time()
         emit("loading", msg=f"Lade Whisper-Modell '{model}' …")
         self.m = WhisperModel(model, device="cpu", compute_type="int8")
         self.voice = {k: pick_voice(k) for k in VOICE}
         self.polite = polite
+        self.paused, self.rate, self.volume = False, 0, 1.0     # rate in %, volume 0.2..2
+        self.last, self.awake_until, self.mute = None, 0.0, False
         emit("ready", msg=f"bereit ({time.time()-t:.1f}s), Stimmen: {self.voice}")
+
+    def speak(self, text, lang):
+        """Natürliche Microsoft-Neural-Stimme (edge-tts), sonst macOS-Stimme."""
+        import tempfile
+        if self.mute:
+            log({"would_say": text})
+            return
+        t = time.time()
+        vol = ["-v", f"{self.volume:.2f}"]
+        tmp = tempfile.gettempdir()
+        if self.tts == "edge":
+            try:
+                import asyncio, edge_tts
+                voice = NEURAL[lang][self.polite if lang == "th" else "en"]
+                mp3 = os.path.join(tmp, "dolmetscher_tts.mp3")
+                if os.path.exists(mp3):
+                    os.remove(mp3)                     # nie eine alte Datei abspielen
+                asyncio.run(asyncio.wait_for(
+                    edge_tts.Communicate(text, voice, rate=f"{5 + self.rate:+d}%").save(mp3), timeout=6))
+                if os.path.getsize(mp3) > 0:
+                    log({"tts": "edge", "voice": voice, "secs": round(time.time() - t, 2)})
+                    subprocess.run(["/usr/bin/afplay", *vol, mp3])
+                    return
+            except Exception as e:
+                log({"tts": "edge-fehler", "err": repr(e)[:200]})
+        aiff = os.path.join(tmp, "dolmetscher_say.aiff")
+        log({"tts": "say", "voice": self.voice[lang]})
+        subprocess.run([SAY, "-v", self.voice[lang], "-r", str(int(185 * (1 + self.rate / 100))),
+                        "-o", aiff, text])
+        subprocess.run(["/usr/bin/afplay", *vol, aiff])
+
+    def command(self, cmd):
+        """Sprachbefehl ausführen. Gibt die gesprochene Bestätigung zurück."""
+        c = cmd.lower()
+        has = lambda *w: any(re.search(rf"\b{x}\b", c) for x in w)
+        state = {}
+        if not c.strip():
+            self.awake_until = time.time() + 6
+            reply = "Yes?"
+        elif has("pause", "stop", "sleep", "be quiet", "mute"):
+            self.paused = True; reply = "Paused. Say translator, resume."
+        elif has("resume", "continue", "start", "wake up", "go on", "unpause"):
+            self.paused = False; reply = "I'm listening."
+        elif has("repeat", "again", "say that"):
+            if self.last:
+                emit("command", text=cmd, reply="", paused=self.paused, lang=self.lock,
+                     polite=self.polite, rate=self.rate, volume=round(self.volume, 2))
+                emit("speaking"); self.speak(self.last[0], self.last[1])
+                return None
+            reply = "Nothing to repeat yet."
+        elif has("slower", "slow down"):
+            self.rate = max(self.rate - 15, -50); reply = "Slower."
+        elif has("faster", "speed up", "quicker"):
+            self.rate = min(self.rate + 15, 50); reply = "Faster."
+        elif has("louder", "volume up"):
+            self.volume = min(self.volume * 1.4, 2.0); reply = "Louder."
+        elif has("quieter", "softer", "volume down"):
+            self.volume = max(self.volume / 1.4, 0.2); reply = "Quieter."
+        elif has("thai", "tie", "ty", "tai", "thigh") and has("only", "mode"):
+            self.lock = "th"; reply = "Okay, Thai only."
+        elif has("english") and has("only", "mode"):
+            self.lock = "en"; reply = "Okay, English only."
+        elif has("auto", "automatic", "both"):
+            self.lock = "auto"; reply = "Okay, automatic."
+        elif has("female", "woman", "women", "girl", "lady"):
+            self.polite = "ka"; reply = "Okay, female voice."
+        elif has("male", "man", "men", "guy"):
+            self.polite = "krub"; reply = "Okay, male voice."
+        elif has("clear", "delete", "reset"):
+            state["clear"] = True; reply = "Cleared."
+        elif has("help", "commands", "what can you do"):
+            reply = ("Say translator, then: pause, resume, repeat, slower, faster, louder, quieter, "
+                     "Thai only, English only, auto, male or female voice, clear.")
+        else:
+            reply = "Sorry?"
+        if c.strip():
+            self.awake_until = 0.0
+        emit("command", text=cmd, reply=reply, paused=self.paused, lang=self.lock,
+             polite=self.polite, rate=self.rate, volume=round(self.volume, 2), **state)
+        log({"command": cmd, "reply": reply})
+        return reply
 
     def _stt(self, audio, lang):
         segs, _ = self.m.transcribe(audio, language=lang, beam_size=1, vad_filter=True, vad_parameters={"threshold": 0.25},
@@ -112,22 +203,22 @@ class Engine:
         if 0 < peak < 0.5:                       # leise Sprecher anheben
             audio = audio * (0.5 / peak)
         info = {"dur": round(audio.size / SR, 2), "rms": rms, "peak": round(peak, 3)}
+        _, _, probs = self.m.detect_language(audio=audio, language_detection_segments=2)
+        p = dict(probs)
+        pe, pt = p.get("en", 0.0), p.get("th", 0.0)
+        info.update(p_en=round(pe, 3), p_th=round(pt, 3),
+                    top=[(k, round(v, 3)) for k, v in probs[:3]])
+        if pe + pt < MIN_LANG_P:                  # weder Englisch noch Thai -> ignorieren
+            info["drop"] = "andere Sprache"
+            log(info)
+            emit("dropped", reason="weder Englisch noch Thai")
+            emit("listening")
+            return None
         if self.lock in ("en", "th"):
             lang = self.lock
             text, lp = self._stt(audio, lang)
             info.update(mode="lock")
         else:
-            _, _, probs = self.m.detect_language(audio=audio, language_detection_segments=2)
-            p = dict(probs)
-            pe, pt = p.get("en", 0.0), p.get("th", 0.0)
-            info.update(p_en=round(pe, 3), p_th=round(pt, 3),
-                        top=[(k, round(v, 3)) for k, v in probs[:3]])
-            if pe + pt < MIN_LANG_P:              # weder Englisch noch Thai -> ignorieren
-                info["drop"] = "andere Sprache"
-                log(info)
-                emit("dropped", reason="weder Englisch noch Thai")
-                emit("listening")
-                return None
             lang = "th" if pt > pe else "en"
             text, lp = self._stt(audio, lang)
             # unklar? beide Sprachen probieren und die sicherere nehmen
@@ -138,6 +229,33 @@ class Engine:
                 if t2 and (lp2 > lp or not text):
                     lang, text, lp = other, t2, lp2
         info.update(lang=lang, text=text, lp=round(lp, 3))
+
+        # --- Sprachbefehle: "Translator, ..." (oder Folgesatz nach bloßem "Translator")
+        en_text = text if lang == "en" else (self._stt(audio, "en")[0] if pe > pt else "")
+        m = WAKE.match(en_text)
+        if m or (time.time() < self.awake_until and en_text):
+            cmd = m.group(1) if m else en_text
+            info["command"] = cmd
+            log(info)
+            reply = self.command(cmd.strip(" .,!?"))
+            if reply and speak:
+                emit("speaking"); self.speak(reply, "en")
+            emit("listening")
+            return None
+        other = {"en": "th", "th": "en"}.get(self.lock)
+        if other and p.get(other, 0.0) > 0.5:     # Sprach-Sperre: die andere Sprache ignorieren
+            info["drop"] = "gesperrt"
+            log(info)
+            emit("dropped", reason="nur " + ("Thai" if self.lock == "th" else "Englisch") + " aktiv")
+            emit("listening")
+            return None
+        if self.paused:
+            info["drop"] = "pausiert"
+            log(info)
+            emit("dropped", reason="pausiert")
+            emit("listening")
+            return None
+
         if text and lp < MIN_LOGPROB:
             info["drop"] = "unsicher"
             text = ""
@@ -157,10 +275,11 @@ class Engine:
             return None
         if dst == "th":
             out = fix_thai(out, self.polite)
+        self.last = (out, dst)
         emit("utt", lang=lang, to=dst, text=text, out=out, stt=t1 - t0, tr=time.time() - t1)
         if speak:
             emit("speaking")
-            subprocess.run([SAY, "-v", self.voice[dst], "-r", "185", out])
+            self.speak(out, dst)
         emit("listening")
         return lang, text, out
 
@@ -271,14 +390,17 @@ if __name__ == "__main__":
     ap.add_argument("--mute", action="store_true")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--lang", choices=["auto", "en", "th"], default="auto")
+    ap.add_argument("--tts", choices=["edge", "say"], default="edge")
     a = ap.parse_args()
     JSON = a.json
     signal.signal(signal.SIGTERM, shutdown)
     signal.signal(signal.SIGINT, shutdown)
-    eng = Engine(a.model, a.polite, a.lang)
+    eng = Engine(a.model, a.polite, a.lang, a.tts)
+    eng.mute = a.mute
     if a.file:
-        from faster_whisper.audio import decode_audio
-        for f in a.file:
-            eng.process(decode_audio(f, sampling_rate=SR), speak=not a.mute)
+        for f in a.file:   # per ffmpeg dekodieren (unabhängig von der PyAV-Version)
+            raw = subprocess.run([FFMPEG, "-loglevel", "error", "-i", f, "-ar", str(SR), "-ac", "1",
+                                  "-f", "s16le", "-"], capture_output=True).stdout
+            eng.process(np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768, speak=not a.mute)
     else:
         mic_loop(eng, a.mic, speak=not a.mute)

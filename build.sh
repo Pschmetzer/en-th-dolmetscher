@@ -17,11 +17,12 @@ if [ -z "$PY" ]; then
   if [ ! -x "$PY" ]; then
     echo "→ Lege Python-Umgebung an …"
     mkdir -p "$SUPPORT"
-    python3 -m venv "$SUPPORT/venv"
-    "$SUPPORT/venv/bin/pip" install -q --upgrade pip faster-whisper
+    if command -v uv >/dev/null; then uv venv -q "$SUPPORT/venv"; else python3 -m venv "$SUPPORT/venv"; fi
+    if command -v uv >/dev/null; then uv pip install -q --python "$PY" faster-whisper edge-tts; else "$SUPPORT/venv/bin/pip" install -q --upgrade pip faster-whisper edge-tts; fi
   fi
 fi
 "$PY" -c "import faster_whisper" || { echo "faster-whisper fehlt in $PY"; exit 1; }
+"$PY" -c "import edge_tts" 2>/dev/null || echo "Hinweis: edge-tts fehlt in $PY – es wird die macOS-Stimme genutzt (pip install edge-tts)"
 
 echo "→ Lade Whisper-Modell 'small' (einmalig) …"
 "$PY" -c "from faster_whisper import WhisperModel; WhisperModel('small', device='cpu', compute_type='int8')"
@@ -31,6 +32,7 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 swiftc -O -parse-as-library -o "$APP/Contents/MacOS/Dolmetscher" app/DolmetscherApp.swift
 cp dolmetscher.py "$APP/Contents/Resources/"
+cp app/AppIcon.icns "$APP/Contents/Resources/"
 
 cat > "$APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -41,7 +43,8 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>CFBundleIdentifier</key><string>io.github.dolmetscher.en-th</string>
   <key>CFBundleExecutable</key><string>Dolmetscher</string>
   <key>CFBundlePackageType</key><string>APPL</string>
-  <key>CFBundleShortVersionString</key><string>1.0</string>
+  <key>CFBundleIconFile</key><string>AppIcon</string>
+  <key>CFBundleShortVersionString</key><string>1.1</string>
   <key>CFBundleVersion</key><string>1</string>
   <key>LSMinimumSystemVersion</key><string>14.0</string>
   <key>NSHighResolutionCapable</key><true/>

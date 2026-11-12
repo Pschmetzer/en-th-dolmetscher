@@ -16,6 +16,7 @@ final class EngineModel: ObservableObject {
     @Published var status = "Gestoppt"
     @Published var running = false
     @Published var busy = false
+    @Published var paused = false
     private static let ud = UserDefaults.standard
     @Published var speak = ud.object(forKey: "speak") as? Bool ?? true { didSet { Self.ud.set(speak, forKey: "speak") } }
     @Published var polite = ud.string(forKey: "polite") ?? "krub" { didSet { Self.ud.set(polite, forKey: "polite") } }
@@ -80,7 +81,7 @@ final class EngineModel: ObservableObject {
         }
         do {
             try p.run()
-            proc = p; running = true; status = "Starte …"
+            proc = p; running = true; paused = false; status = "Starte …"
         } catch {
             status = "Start fehlgeschlagen: \(error.localizedDescription)"
         }
@@ -114,11 +115,22 @@ final class EngineModel: ObservableObject {
         case "loading": status = "Lade Sprachmodell …"
         case "ready": status = "Modell geladen"
         case "calibrating": status = "Kalibriere Mikrofon – kurz still sein …"
-        case "listening": status = "🎙 Hört zu – einfach Englisch oder Thai sprechen"; busy = false
+        case "listening":
+            status = paused ? "⏸ Pausiert – sag „Translator, resume“" : "🎙 Hört zu – einfach Englisch oder Thai sprechen"
+            busy = false
         case "hearing": status = "👂 Höre …"
         case "thinking": status = "⏳ Übersetze …"; busy = true
         case "speaking": status = "🔊 Spricht …"
         case "error": status = "⚠️ " + (o["msg"] as? String ?? "Fehler")
+        case "command":
+            if o["clear"] as? Bool == true { items.removeAll() }
+            if let l = o["lang"] as? String { lang = l }
+            if let p = o["polite"] as? String { polite = p }
+            paused = o["paused"] as? Bool ?? false
+            let reply = o["reply"] as? String ?? ""
+            status = paused ? "⏸ Pausiert – sag „Translator, resume“" : "🗣 " + (reply.isEmpty ? "Wiederhole …" : reply)
+        case "dropped" where paused:
+            status = "⏸ Pausiert – sag „Translator, resume“"; busy = false
         case "dropped": status = "🤷 " + (o["reason"] as? String ?? "nicht verstanden") + " – bitte lauter/länger sprechen"; busy = false
         case "utt":
             let secs = (o["stt"] as? Double ?? 0) + (o["tr"] as? Double ?? 0)
@@ -182,7 +194,7 @@ struct ContentView: View {
                 ScrollView {
                     LazyVStack(spacing: 12) {
                         if m.items.isEmpty {
-                            Text("Start drücken und einfach sprechen.\nEnglisch wird auf Thai übersetzt, Thai auf Englisch.")
+                            Text("Start drücken und einfach sprechen.\nEnglisch wird auf Thai übersetzt, Thai auf Englisch.\n\nSprachbefehle: „Translator, pause / resume / repeat / slower / faster /\nlouder / quieter / Thai only / English only / auto / female voice / male voice / clear / help“")
                                 .multilineTextAlignment(.center).foregroundStyle(.secondary)
                                 .padding(.top, 80)
                         }
