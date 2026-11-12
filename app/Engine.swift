@@ -338,7 +338,8 @@ final class EngineModel: NSObject, ObservableObject {
 
     /// Status nach dem Ende einer Ausgabe bzw. wenn nichts vorgelesen wird.
     private var idleStatus: String {
-        paused ? Self.pausedText : (busy ? L.t("thinking") : L.t("listening"))
+        if paused { return pushToTalk ? "⏸ " + L.t("hold_to_talk") : Self.pausedText }
+        return busy ? L.t("thinking") : L.t("listening")
     }
 
     private func index(of uid: String?) -> Int? {
@@ -444,6 +445,8 @@ final class EngineModel: NSObject, ObservableObject {
     func setPaused(_ p: Bool) {
         guard running else { return }
         paused = p
+        replayPausedEngine = false   // sonst hebt das verzögerte Fortsetzen nach dem Vorlesen die Pause auf
+        resumeWork?.cancel(); resumeWork = nil
         send(["paused": p])
         if !speakingNow { status = idleStatus }
     }

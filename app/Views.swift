@@ -108,7 +108,7 @@ struct ContentView: View {
                     }
                 }.padding(16)
             }
-            .onChange(of: m.items.count) {
+            .onChange(of: m.items.last?.id) {   // auch wenn ein Platzhalter durch die fertige Blase ersetzt wird
                 if let last = m.items.last { withAnimation { sv.scrollTo(last.id, anchor: .bottom) } }
             }
         }
