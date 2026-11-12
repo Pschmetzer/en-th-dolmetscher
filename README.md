@@ -40,7 +40,9 @@ Requirements: macOS 14+, Xcode Command Line Tools, `brew install ffmpeg`, Python
 ./build.sh --install
 ```
 
-This creates a Python environment with faster-whisper (once), downloads the `small` model and installs `~/Applications/Dolmetscher.app`. Use an existing Python instead: `DOLMETSCHER_PYTHON=/path/to/python ./build.sh --install`.
+This creates a Python environment under `~/Library/Application Support/Dolmetscher/venv` with the pinned versions from `requirements.txt` (via `uv` if installed, else `pip`; re-running the script brings an existing environment back to those versions), downloads the `medium` and `small` models (once, ~2 GB) and installs `~/Applications/Dolmetscher.app`. Use an existing Python instead: `DOLMETSCHER_PYTHON=/path/to/python ./build.sh --install` (nothing is installed into it; it needs the packages from `requirements.txt`).
+
+Each rebuild is signed ad hoc, so macOS may ask for microphone access again. To avoid that, sign with a stable identity: `DOLMETSCHER_SIGN_IDENTITY="Dolmetscher Dev" ./build.sh --install` (see [CONTRIBUTING.md](CONTRIBUTING.md#stable-code-signing)).
 
 Open the app, press **Start** (or the space bar) and allow microphone access.
 
@@ -49,7 +51,7 @@ If the Thai voice is missing: System Settings → Accessibility → Spoken Conte
 ## Terminal only
 
 ```bash
-pip install faster-whisper
+pip install -r requirements.txt
 python3 dolmetscher.py            # --model base|small|medium  --polite krub|ka  --mic 0
 ```
 
@@ -72,4 +74,21 @@ Serve it locally with `python3 -m http.server` and open it in Chrome.
 - Laptop speakers: the microphone is muted while the translation is playing, so the engine doesn't translate its own voice.
 - `--polite krub|ka` picks the Thai politeness particle (ครับ/ค่ะ) and the pronoun (ผม/ฉัน).
 
-MIT License
+## Uninstall
+
+```bash
+rm -rf ~/Applications/Dolmetscher.app
+rm -rf ~/Library/Application\ Support/Dolmetscher   # Python environment and settings
+rm -rf ~/Library/Logs/Dolmetscher
+rm -rf ~/.cache/huggingface/hub/models--Systran--faster-whisper-*   # Whisper models (shared with other apps using faster-whisper)
+```
+
+Microphone permission: System Settings → Privacy & Security → Microphone, or `tccutil reset Microphone io.github.dolmetscher.en-th`.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Tests: `pip install -r requirements-dev.txt && pytest` (no models, network or microphone needed).
+
+## License
+
+MIT License. Dependencies keep their own licenses; notably [edge-tts](https://github.com/rany2/edge-tts) is LGPL-3.0. It is only installed as a dependency, not included in this repository or the app bundle.

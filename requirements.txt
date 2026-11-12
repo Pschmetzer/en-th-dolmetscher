@@ -1,0 +1,12 @@
+# Laufzeit-Abhängigkeiten der Engine (dolmetscher.py), getestet mit Python 3.12 auf macOS (Apple Silicon).
+# build.sh installiert genau diese Versionen in die App-venv.
+faster-whisper==1.2.1
+ctranslate2==4.9.0
+onnxruntime==1.31.1
+tokenizers==0.23.3
+huggingface-hub==2.4.0
+numpy==2.5.4
+# PyAV 19 hat das Argument metadata_errors entfernt, das faster_whisper.audio.decode_audio nutzt (--file).
+av==18.1.0
+# LGPL-3.0, nur als Abhängigkeit genutzt (nicht im Repo/der App enthalten)
+edge-tts==7.3.1
