@@ -169,7 +169,7 @@ def test_speaker_skips_when_far_behind(monkeypatch, _iso):
         def voice_for(self, lang):
             return "x"
 
-        def speak(self, text, lang, stream=None, on_start=None, boost=0, cancelled=None):
+        def speak(self, text, lang, stream=None, on_start=None, boost=0, cancelled=None, local=None):
             gate.wait(2)
             on_start and on_start(0.1)
             played.append((text, boost))
@@ -217,7 +217,7 @@ def test_stop_during_wait_cancels_part(monkeypatch, _iso):
         def voice_for(self, lang):
             return "x"
 
-        def speak(self, text, lang, stream=None, on_start=None, boost=0, cancelled=None):
+        def speak(self, text, lang, stream=None, on_start=None, boost=0, cancelled=None, local=None):
             waiting.set()
             t = time.time()
             while time.time() - t < 2 and not cancelled():
@@ -295,3 +295,33 @@ def test_stt_caps_tokens_and_disables_temperature_fallback():
     assert seen["max_new_tokens"] >= 250                      # lange Sätze passen hinein
     d.Engine._stt(e, np.zeros(2 * d.SR, dtype=np.float32), "en", quick=True)
     assert seen["beam_size"] == 1
+
+
+def test_tts_cache_serves_without_request(monkeypatch):
+    key = ("v", "+5%", "Thank you")
+    monkeypatch.setitem(d.TTS_CACHE, key, b"MP3")
+    st = d.EdgeStream("Thank you", "v", "+5%")
+    assert st.cached == b"MP3" and st.futs == []
+    assert st.first(0.1)[0] == b"MP3"
+
+
+def test_race_falls_back_to_prepared_local_voice(monkeypatch, tmp_path):
+    monkeypatch.setattr(d, "NULL_AUDIO", True)
+    monkeypatch.setattr(d, "TTS_RACE", 0.2)
+    aiff = tmp_path / "x.aiff"
+    aiff.write_bytes(b"x")
+
+    class SlowStream:
+        voice, cached, text = "edge", None, "hi"
+
+        def first(self, deadline=None):
+            assert deadline == 0.2
+            raise RuntimeError("edge-tts lieferte keine Audiodaten")
+
+        def cancel(self):
+            pass
+    local = types.SimpleNamespace(voice="Samantha", ready_path=lambda timeout=6.0: str(aiff))
+    started = []
+    e = types.SimpleNamespace(mute=False, tts="edge", volume=1.0, rate=0)
+    d.Engine.speak(e, "hi", "en", stream=SlowStream(), on_start=started.append, local=local)
+    assert started, "lokale Stimme hat nicht übernommen"

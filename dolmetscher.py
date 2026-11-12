@@ -610,17 +610,30 @@ def pipe_player(volume):
     return None
 
 
+TTS_CACHE = collections.OrderedDict()  # (Stimme, Tempo, Text) -> mp3: kurze, häufige Sätze sofort
+TTS_CACHE_MAX, TTS_CACHE_CHARS = 64, 120
+TTS_RACE = 1.4                         # s: kommt die Neural-Stimme nicht, spricht die vorbereitete macOS-Stimme
+
+
 class EdgeStream:
     """edge-tts-Anfrage, die sofort startet (Vorab-Laden, während noch etwas anderes spricht).
-    Abgespielt wird später mit edge_play()."""
+    Abgespielt wird später mit edge_play(). Bereits gehörte kurze Sätze kommen aus dem Cache."""
 
     def __init__(self, text, voice, rate):
         self.text, self.voice, self.rate = text, voice, rate
+        self.key = (voice, rate, text)
         self.t0 = time.time()
         self.stop = threading.Event()
         self.hedged = False
         self.futs = []
-        self.qs = [self._request()]
+        self.cached = TTS_CACHE.get(self.key)
+        if self.cached is not None:
+            q = queue.Queue()
+            q.put(self.cached)
+            q.put(None)
+            self.qs, self.hedged = [q], True      # kein zweiter Versuch nötig
+        else:
+            self.qs = [self._request()]
 
     def _request(self):
         import asyncio, edge_tts
@@ -677,11 +690,12 @@ class EdgeStream:
             f.cancel()
 
 
-def edge_play(stream, volume, on_start=None, cancelled=None):
+def edge_play(stream, volume, on_start=None, cancelled=None, deadline=None):
     """Vorab gestartete edge-tts-Anfrage abspielen, ab dem ersten Block. Gibt Kennzahlen zurück;
     wirft nur, wenn noch kein Ton kam (dann übernimmt 'say', ohne Doppelung)."""
     t0 = time.time()
-    first, q = stream.first()
+    first, q = stream.first(deadline)
+    got, complete = [], False
     stats = {"first_chunk_s": round(time.time() - t0, 2), "since_request_s": round(time.time() - stream.t0, 2),
              "hedged": stream.hedged}
     stats["waited_s"] = round(wait_quiet(cancelled=cancelled), 2)
@@ -705,7 +719,9 @@ def edge_play(stream, volume, on_start=None, cancelled=None):
                     if cancelled and cancelled():
                         break
                     p.stdin.write(chunk)
+                    got.append(chunk)
                     chunk = q.get(timeout=6)
+                complete = chunk is None
             except (BrokenPipeError, OSError, queue.Empty) as e:  # abgebrochen oder Netz weg
                 if not (cancelled and cancelled()):
                     stats["err"] = repr(e)[:120]
@@ -732,6 +748,11 @@ def edge_play(stream, volume, on_start=None, cancelled=None):
                 os.remove(mp3)
     finally:
         stream.cancel()
+    stats["cached"] = stream.cached is not None
+    if complete and stream.cached is None and len(stream.text) <= TTS_CACHE_CHARS:
+        TTS_CACHE[stream.key] = b"".join(got)
+        if len(TTS_CACHE) > TTS_CACHE_MAX:
+            TTS_CACHE.popitem(last=False)
     stats["interrupted"] = bool(cancelled and cancelled())
     return stats
 
@@ -742,6 +763,40 @@ def edge_say(text, voice, rate, volume, on_start=None):
 
 
 EARCON = "/System/Library/Sounds/Tink.aiff"
+
+
+class LocalVoice:
+    """macOS-Stimme im Hintergrund vorab rendern (say -o), damit sie sofort einspringen kann,
+    wenn die Neural-Stimme hängt. Wird nur abgespielt, wenn edge-tts die Frist verpasst."""
+
+    def __init__(self, text, voice, rate_pct):
+        self.done = threading.Event()
+        fd, self.path = tempfile.mkstemp(prefix="dolmetscher_race_", suffix=".aiff")
+        os.close(fd)
+        os.remove(self.path)
+        self.voice = voice
+
+        def run():
+            try:
+                subprocess.run([SAY, "-v", voice, "-r", str(int(185 * (1 + rate_pct / 100))), "-o", self.path, text],
+                               capture_output=True, timeout=20)
+            except Exception as e:
+                log({"tts": "lokal-vorab-fehler", "err": repr(e)[:200]})
+            self.done.set()
+        threading.Thread(target=run, name="say-prerender", daemon=True).start()
+
+    def ready_path(self, timeout=6.0):
+        self.done.wait(timeout)
+        return self.path if os.path.exists(self.path) and os.path.getsize(self.path) > 0 else None
+
+    def cleanup(self):
+        def rm():
+            self.done.wait(20)
+            try:
+                os.remove(self.path)
+            except OSError:
+                pass
+        threading.Thread(target=rm, daemon=True).start()
 
 
 class Speaker:
@@ -771,13 +826,16 @@ class Speaker:
         if kind == "speech":
             boost = self.FAST_BOOST if behind else 0
             for s in split_sentences(text, lang):
-                stream = None
+                stream, local = None, None
                 if eng.tts == "edge" and not eng.mute:
                     try:
                         stream = EdgeStream(s, eng.voice_for(lang), f"{5 + eng.rate + boost:+d}%")
                     except Exception as e:
                         log({"tts": "vorab-fehler", "err": repr(e)[:200]})
+                    if TTS_RACE > 0 and stream is not None and stream.cached is None:
+                        local = LocalVoice(s, eng.voice[lang], eng.rate + boost)
                 item["parts"].append((s, stream))
+                item.setdefault("local", []).append(local)
             item["boost"] = boost
         with self.cond:
             self.items.append(item)
@@ -853,12 +911,18 @@ class Speaker:
                 emit("speaking", id=uid, first_s=first_s, latency_s=lat)
                 log({"latency": {"id": uid, "end_to_sound_s": lat}})
         interrupted = False
-        for text, stream in it["parts"]:
-            if cancelled():
-                interrupted = CANCEL["gen"] != g
-                break
-            eng.speak(text, it["lang"], stream=stream, on_start=on_start, boost=it.get("boost", 0),
-                      cancelled=cancelled)
+        locals_ = it.get("local") or [None] * len(it["parts"])
+        try:
+            for (text, stream), local in zip(it["parts"], locals_):
+                if cancelled():
+                    interrupted = CANCEL["gen"] != g
+                    break
+                eng.speak(text, it["lang"], stream=stream, on_start=on_start, boost=it.get("boost", 0),
+                          cancelled=cancelled, local=local)
+        finally:
+            for local in locals_:
+                if local:
+                    local.cleanup()
         if CANCEL["gen"] != g:
             interrupted = True
         for _, st in it["parts"]:
@@ -936,7 +1000,7 @@ class Engine:
     def voice_for(self, lang):
         return self.voices.get(lang) or NEURAL[lang][self.polite if lang == "th" else "en"]
 
-    def speak(self, text, lang, stream=None, on_start=None, boost=0, cancelled=None):
+    def speak(self, text, lang, stream=None, on_start=None, boost=0, cancelled=None, local=None):
         """Natürliche Microsoft-Neural-Stimme (edge-tts, gestreamt), sonst macOS-Stimme. Blockiert
         bis zum Ende der Ausgabe – wird vom Speaker-Thread aufgerufen, nicht von der Erkennung."""
         if self.mute:
@@ -949,13 +1013,26 @@ class Engine:
             try:
                 if stream is None:
                     stream = EdgeStream(text, self.voice_for(lang), f"{5 + self.rate + boost:+d}%")
-                st = edge_play(stream, self.volume, on_start, cancelled)
+                st = edge_play(stream, self.volume, on_start, cancelled,
+                               deadline=TTS_RACE if (local and TTS_RACE > 0) else None)
                 net_state("tts", True)
                 log({"tts": "edge", "voice": stream.voice, **st, "secs": round(time.time() - t, 2)})
                 return
             except Exception as e:
-                log({"tts": "edge-fehler", "err": repr(e)[:200]})
-                net_state("tts", False)
+                log({"tts": "edge-fehler" if not local else "edge-zu-langsam", "err": repr(e)[:200]})
+                if not local:
+                    net_state("tts", False)
+            if local:                            # Wettlauf verloren: vorbereitete macOS-Stimme sofort
+                path = local.ready_path()
+                if path and not (cancelled and cancelled()):
+                    wait_quiet(cancelled=cancelled)
+                    if cancelled and cancelled():
+                        return
+                    log({"tts": "lokal", "voice": local.voice, "after_s": round(time.time() - t, 2)})
+                    if on_start:
+                        on_start(round(time.time() - t, 2))
+                    PLAYER.run(["/usr/bin/afplay", "-v", f"{self.volume:.2f}", path])
+                    return
         fd, aiff = tempfile.mkstemp(prefix="dolmetscher_say_", suffix=".aiff")
         os.close(fd)
         try:
@@ -1351,6 +1428,9 @@ def apply_control(eng, d):
         LLM["on"] = bool(d["llm"])
         LLM["client"] = None               # Schlüssel evtl. neu gespeichert -> neu einlesen
     if "earcons" in d: eng.earcons = bool(d["earcons"])
+    if isinstance(d.get("tts_race"), (int, float)):
+        global TTS_RACE
+        TTS_RACE = float(max(0.0, min(5.0, d["tts_race"])))
     if d.get("stop_speaking"):
         eng.stop_speaking()
     if isinstance(d.get("say"), dict):
@@ -1729,6 +1809,8 @@ if __name__ == "__main__":
     ap.add_argument("--llm-model", default=LLM["model"])
     ap.add_argument("--earcons", action="store_true", help="Signalton statt gesprochener Bestätigung")
     ap.add_argument("--meter", action="store_true", help="Pegel-Ereignisse senden")
+    ap.add_argument("--tts-race", type=float, default=TTS_RACE,
+                    help="s bis die vorbereitete macOS-Stimme einspringt (0 = aus)")
     ap.add_argument("--idle", action="store_true",
                     help="Modelle laden, Mikrofon erst mit {\"listen\": true} auf stdin öffnen")
     a = ap.parse_args()
@@ -1738,6 +1820,7 @@ if __name__ == "__main__":
         emit("mics", mics=list_mics())
         sys.exit(0)
     SILENCE_END = max(0.4, min(2.0, a.silence))
+    TTS_RACE = max(0.0, min(5.0, a.tts_race))
     VAD["start"], VAD["keep"] = SENSITIVITY[a.sensitivity]
     LLM["on"], LLM["model"] = a.llm, a.llm_model
     signal.signal(signal.SIGTERM, shutdown)
