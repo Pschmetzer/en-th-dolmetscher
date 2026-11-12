@@ -26,6 +26,7 @@
   #status { color:var(--mut); font-size:14px; }
   .note { background:var(--note-bg); border:1px solid var(--note-line); border-radius:10px; padding:10px 14px; font-size:14px; margin-bottom:12px; }
   .note a { color:var(--focus); }
+  .note .lite { display:block; font-size:16px; margin-bottom:2px; }
   .controls { display:flex; gap:12px; padding:4px 0 12px; flex-wrap:wrap; }
   button { font:inherit; color:inherit; }
   button.mode { flex:1; min-width:220px; padding:22px; font-size:20px; font-weight:600; border:3px solid transparent; border-radius:14px; cursor:pointer; color:var(--btn-fg); }
@@ -62,9 +63,10 @@
   <h1>🇬🇧 EN ⇄ TH 🇹🇭 Dolmetscher <small style="color:var(--mut);font-weight:400">Web Lite</small></h1>
   <span id="status" role="status" aria-live="polite">Bereit</span>
 </header>
-<div class="note">
-  <b>Web-Lite-Version.</b> Die <b>Mac-App</b> ist deutlich besser: automatische Spracherkennung (kein Umschalten E/T), Sprachbefehle in beiden Sprachen, bessere Erkennung, Neural-Stimmen.
-  Hier musst du die Sprache selbst wählen. <a href="https://github.com/Pschmetzer/en-th-dolmetscher" target="_blank" rel="noopener">Mac-App &amp; Quellcode auf GitHub</a>
+<div class="note" role="note">
+  <b class="lite">Lite-Version – eingeschränkt.</b> Hier musst du die Sprache selbst wählen (<kbd>E</kbd>/<kbd>T</kbd>); Erkennung und Stimmen kommen vom Browser (nur Chrome).
+  Die <b>Mac-App</b> ist deutlich besser: erkennt die Sprache automatisch, Sprachbefehle in beiden Sprachen, bessere Erkennung (Whisper), Neural-Stimmen, Stimmprofile, optional Übersetzung mit Claude.
+  <a href="https://github.com/Pschmetzer/en-th-dolmetscher" target="_blank" rel="noopener">Mac-App &amp; Quellcode auf GitHub</a>
 </div>
 <div id="warn"></div>
 <div class="controls">
@@ -102,6 +104,7 @@ const MODES = {
 };
 let mode = null, rec = null, speaking = false, paused = false, voices = [];
 let rate = 0.95, lastOut = null;   // lastOut = { text, lang }
+let gen = 0;   // bumped on every mode change; stale callbacks (cancelled speech, late translations) check it
 
 function showWarn(msg) { warn.style.display = 'block'; warn.innerHTML = msg; }
 if (!SR) showWarn('Dieser Browser hat keine Spracherkennung. Bitte <b>Google Chrome</b> verwenden.');
@@ -188,6 +191,7 @@ function stopRec() { if (rec) { const r = rec; rec = null; r.onend = null; try {
 
 function setMode(m) {
   stopRec();
+  gen++;
   speechSynthesis.cancel(); speaking = false;
   mode = (m === mode) ? null : m;
   paused = false;
@@ -210,7 +214,7 @@ function addEntry(cls, orig, trans, isErr) {
 
 async function handleFinal(text) {
   if (!text) return;
-  const cur = mode, m = MODES[cur];
+  const cur = mode, m = MODES[cur], g = gen;
   live.textContent = '…';
   if (cur === 'en') {
     const cmd = parseCommand(text);
@@ -225,6 +229,7 @@ async function handleFinal(text) {
   t.textContent = out;
   lastOut = { text: out, lang: m.tts };
   $('partnerText').textContent = out; $('partnerText').lang = m.to;
+  if (g !== gen || paused) return;   // mode changed/stopped or paused meanwhile: show, but don't speak or switch back
   const next = $('autoswitch').checked ? (cur === 'en' ? 'th' : 'en') : cur;
   if ($('speak').checked) speak(out, m.tts, next);
   else if (next !== mode) setMode(next);
@@ -238,7 +243,9 @@ function speak(text, lang, nextMode) {
   u.lang = lang;
   const v = pickVoice(lang); if (v) u.voice = v;
   u.rate = rate;
+  const g = gen;
   const done = () => {
+    if (g !== gen) return;      // cancelled by a mode change: setMode already took over
     speaking = false;
     if (!mode) return;
     if (nextMode !== mode) setMode(nextMode); else startRec();

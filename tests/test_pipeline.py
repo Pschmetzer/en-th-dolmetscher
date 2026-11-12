@@ -3,7 +3,6 @@
 Segmentierung mit echter Sprache braucht macOS `say` und das Silero-VAD aus faster-whisper;
 fehlt eins davon, wird der Test übersprungen.
 """
-import io
 import json
 import queue
 import shutil
@@ -48,25 +47,17 @@ def test_stop_kills_child_once():
     assert proc.poll() is not None and not p.playing()
 
 
-class _Resp(io.BytesIO):
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *a):
-        pass
-
-
-def _fake_urlopen(google, mymemory):
-    def urlopen(url, timeout=0):
+def _fake_get_json(google, mymemory):
+    def get_json(url, timeout=0):
         src = google if "googleapis" in url else mymemory
         if isinstance(src, Exception):
             raise src
-        return _Resp(json.dumps(src).encode())
-    return urlopen
+        return src
+    return get_json
 
 
 def test_mymemory_quota_text_is_never_returned(monkeypatch):
-    monkeypatch.setattr(d.urllib.request, "urlopen", _fake_urlopen(
+    monkeypatch.setattr(d, "_get_json", _fake_get_json(
         urllib.error.HTTPError("u", 429, "x", None, None),
         {"responseData": {"translatedText": "MYMEMORY WARNING: YOU USED ALL AVAILABLE FREE TRANSLATIONS"},
          "responseStatus": 429, "quotaFinished": True}))
@@ -75,7 +66,7 @@ def test_mymemory_quota_text_is_never_returned(monkeypatch):
 
 
 def test_offline_is_reported(monkeypatch):
-    monkeypatch.setattr(d.urllib.request, "urlopen", _fake_urlopen(
+    monkeypatch.setattr(d, "_get_json", _fake_get_json(
         urllib.error.URLError("no route"), urllib.error.URLError("no route")))
     with pytest.raises(RuntimeError, match="offline"):
         d.translate("hello", "en", "th")
