@@ -334,7 +334,7 @@ final class EngineModel: NSObject, ObservableObject {
                     "--llm-model", llmModel, logText ? "--log-text" : "--no-log-text",
                     "--tts-race", Self.f2(ttsRace)]
         if !fastEndpoint { args.append("--no-fast-endpoint") }
-        if !partialText { args.append("--no-partial") }
+        args.append(partialText ? "--partial" : "--no-partial")   // Engine-Standard ist aus
         if !speak { args.append("--mute") }
         if !trEN { args.append("--no-en") }
         if !trTH { args.append("--no-th") }
