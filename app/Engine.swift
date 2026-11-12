@@ -168,13 +168,15 @@ final class EngineModel: NSObject, ObservableObject {
         }
         state = .stopped
         replayPausedEngine = false
+        resumeWork?.cancel(); resumeWork = nil
         buffer = Data()
         busy = false
         status = "Gestoppt"
     }
 
     static func logTail(_ n: Int = 25) -> String {
-        guard let s = try? String(contentsOf: logURL, encoding: .utf8) else { return "(stderr.log nicht lesbar)" }
+        guard let d = try? Data(contentsOf: logURL) else { return "(stderr.log nicht lesbar)" }
+        let s = String(decoding: d, as: UTF8.self)
         let lines = s.split(separator: "\n", omittingEmptySubsequences: false).suffix(n)
         let t = lines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
         return t.isEmpty ? "(stderr.log ist leer)" : t
@@ -212,8 +214,11 @@ final class EngineModel: NSObject, ObservableObject {
             if let v = o["tr_th"] as? Bool, v != trTH { trTH = v }
             paused = o["paused"] as? Bool ?? false
             replayPausedEngine = false   // Nutzer hat selbst pausiert/fortgesetzt
+            resumeWork?.cancel(); resumeWork = nil
             let reply = o["reply"] as? String ?? ""
             status = paused ? Self.pausedText : "🗣 " + (reply.isEmpty ? "Wiederhole …" : reply)
+        case "dropped" where replayPausedEngine:
+            busy = false   // Echo der eigenen Wiedergabe verworfen – Status nicht ändern
         case "dropped" where paused:
             status = Self.pausedText; busy = false
         case "dropped": status = "🤷 " + (o["reason"] as? String ?? "nicht verstanden") + " – bitte lauter/länger sprechen"; busy = false
@@ -235,9 +240,13 @@ final class EngineModel: NSObject, ObservableObject {
     @Published private(set) var replayingID: UUID?
     /// true, wenn *wir* die Engine fürs Vorlesen pausiert haben (damit sie die Wiedergabe nicht erneut übersetzt).
     private var replayPausedEngine = false
+    /// Verzögertes Fortsetzen: Die Engine prüft die Pause erst nach der Erkennung eines ganzen
+    /// Abschnitts – sofort fortsetzen würde das Echo der Wiedergabe doch noch übersetzen.
+    private var resumeWork: DispatchWorkItem?
 
     func replay(_ u: Utterance) {
         synth.delegate = self
+        resumeWork?.cancel(); resumeWork = nil
         if synth.isSpeaking { synth.stopSpeaking(at: .immediate) }
         let s = AVSpeechUtterance(string: u.out)
         s.voice = AVSpeechSynthesisVoice(language: u.to == "th" ? "th-TH" : "en-US")
@@ -252,10 +261,18 @@ final class EngineModel: NSObject, ObservableObject {
     fileprivate func replayFinished() {
         guard !synth.isSpeaking else { return }
         replayingID = nil
-        if replayPausedEngine {
-            replayPausedEngine = false
-            send(["paused": false])
+        guard replayPausedEngine else { return }
+        resumeWork?.cancel()
+        let w = DispatchWorkItem { [weak self] in
+            MainActor.assumeIsolated {
+                guard let self, self.replayPausedEngine, !self.synth.isSpeaking else { return }
+                self.replayPausedEngine = false
+                self.resumeWork = nil
+                self.send(["paused": false])
+            }
         }
+        resumeWork = w
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5, execute: w)
     }
 
     // MARK: Export
