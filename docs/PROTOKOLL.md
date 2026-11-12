@@ -88,6 +88,10 @@ Neu:
 - Jede Äußerung bekommt ihre `id` schon beim Sprechbeginn (`hearing` hat jetzt `id`).
 - Neues Ereignis `partial` mit `id`, `text`, `lang`: vorläufiger Text, während noch gesprochen wird
   (etwa alle 2 s, nur wenn die Engine nicht ausgelastet ist). Die App zeigt ihn in der Platzhalter-Blase.
+  **Standard aus** (`--partial` schaltet ein): Die Engine hat nur einen Arbeits-Thread, ein Teiltext
+  kann die eigentliche Erkennung um bis zu ~0,5 s verzögern.
+- Vorab-Erkennung (`--no-pre` schaltet aus): nach 0,35 s Pause wird schon erkannt; ist die Äußerung
+  bei der vollen Pause unverändert, wird das Ergebnis wiederverwendet. Die Erkennung selbst ändert sich nicht.
 - Danach kommen wie bisher `thinking` → `utt`/`dropped` mit derselben `id`.
 
 ### Latenz
@@ -100,6 +104,6 @@ Neu:
 
 | Startargument | Steuerung | Bedeutung |
 |---|---|---|
-| `--tts-race S` (Standard 0.9, 0 = aus) | `tts_race` (float) | kommt die Neural-Stimme nicht in S Sekunden, spricht sofort die vorbereitete macOS-Stimme |
-| `--no-fast-endpoint` | `fast_endpoint` (bool) | schnelles Satzende: nach 0,35 s Pause vorab erkennen; sieht der Satz fertig aus, nicht bis zur vollen Pause warten |
-| `--no-partial` | `partial` (bool) | Teiltext während des Sprechens |
+| `--tts-race S` (Standard 1.4, 0 = aus) | `tts_race` (float) | kommt die Neural-Stimme nicht in S Sekunden, spricht sofort die vorbereitete macOS-Stimme |
+| `--no-fast-endpoint` | `fast_endpoint` (bool) | schnelles Satzende, **nur Englisch**: endet der vorab erkannte Text mit . ? ! (und ist sicher erkannt), nicht bis zur vollen Pause warten. Thai nie, weil ครับ/ค่ะ/นะ auch Teilsätze beenden |
+| `--partial` | `partial` (bool) | Teiltext während des Sprechens (Standard aus) |

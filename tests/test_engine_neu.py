@@ -325,3 +325,37 @@ def test_race_falls_back_to_prepared_local_voice(monkeypatch, tmp_path):
     e = types.SimpleNamespace(mute=False, tts="edge", volume=1.0, rate=0)
     d.Engine.speak(e, "hi", "en", stream=SlowStream(), on_start=started.append, local=local)
     assert started, "lokale Stimme hat nicht übernommen"
+
+
+def _fake_engine(calls):
+    class Det:
+        def detect_language(self, audio=None, language_detection_segments=2):
+            calls.append("detect")
+            return "en", 0.95, [("en", 0.95), ("de", 0.02)]
+    e = d.Engine.__new__(d.Engine)
+    e.m_det, e.spk, e.lock, e.paused, e.awake_until = Det(), None, "auto", False, 0.0
+    e.translate_dir = {"en": True, "th": True}
+
+    def fake_stt(audio, lang, hotwords=None, model=None, quick=False):
+        calls.append(("stt", lang, quick))
+        return "Where is the station?", -0.2, [types.SimpleNamespace(compression_ratio=1.1)]
+    e._stt = fake_stt
+    e.deliver = lambda uid, lang, text, *a, **k: calls.append(("deliver", uid, text)) or (lang, text, "x")
+    return e
+
+
+def test_prerecognition_is_reused_only_for_same_version(monkeypatch):
+    monkeypatch.setitem(d.FAST, "endpoint", True)
+    calls = []
+    e = _fake_engine(calls)
+    audio = np.full(d.SR * 2, 0.05, dtype=np.float32)
+    e.prerecognize("u1", 0, audio)
+    assert d.EARLY_END.get("u1") == 0                     # Englisch mit Fragezeichen -> sofort fertig
+    n = len(calls)
+    e.process(audio, speak=False, uid="u1", version=0)
+    assert calls[n:] == [("deliver", "u1", "Where is the station?")]   # keine zweite Erkennung
+    e.prerecognize("u2", 0, audio)
+    n = len(calls)
+    e.process(audio, speak=False, uid="u2", version=1)    # weitergesprochen -> neu erkennen
+    assert "detect" in calls[n:] and ("stt", "en", False) in calls[n:]
+    assert "u1" not in d.PRE and "u2" not in d.PRE
