@@ -18,15 +18,19 @@ import numpy as np
 from faster_whisper import WhisperModel
 
 SR = 16000
-SILENCE_END = 0.8                 # s Stille = Satzende (--silence, live änderbar)
-MIN_UTT = 0.4                     # s, kürzer wird ignoriert
+SILENCE_END = 0.7                 # s Stille = Satzende (--silence, live änderbar)
+MIN_UTT = 0.3                     # s, kürzer wird ignoriert (Log: leise Wörter mit 0,32 s gingen verloren)
 MAX_UTT = 20.0                    # s, länger wird an der leisesten Stelle geteilt
 MIN_LANG_P = 0.35                 # en+th zusammen mindestens so wahrscheinlich, sonst ignorieren
 # unsicherere Transkripte gelten als Rauschen/Halluzination; Thai bekommt systematisch
 # schlechtere log-probs (Log: echte Thai-Sätze bis −0.99), deshalb eine eigene Schwelle
 MIN_LOGPROB = {"en": -1.0, "th": -1.3}
-SENSITIVITY = {"low": (0.65, 0.4), "normal": (0.5, 0.3), "high": (0.35, 0.2)}   # VAD START, KEEP
-VAD = {"start": 0.5, "keep": 0.3}
+SENSITIVITY = {"low": (0.55, 0.35), "normal": (0.4, 0.25), "high": (0.3, 0.18)}   # VAD START, KEEP
+VAD = {"start": 0.4, "keep": 0.25}
+# Leises/entferntes Thai erkennt Whisper oft als eine andere asiatische Sprache (Log: ja 0,66 / zh 0,72,
+# th 0,01). Diese Wahrscheinlichkeiten zählen deshalb zu Thai; europäische Sprachen bleiben gefiltert.
+ASIAN_AS_TH = ("zh", "yue", "ja", "ko", "vi", "lo", "km", "my", "ms", "id", "tl", "jw", "su", "bo", "si")
+FOLDED_TH_LOGPROB = -0.6          # strenger, wenn Thai nur über diesen Umweg zustande kam (Rauschen)
 _IDS = itertools.count(1)
 
 
@@ -850,6 +854,14 @@ class Engine:
         emit("loading", msg=f"Lade Whisper-Modell '{model}' …")
         # "best": medium für Erkennung + Thai, large-v3-turbo für Englisch (Akzente)
         self.m, self.device = load_model("medium" if model == "best" else model, device)
+        # Spracherkennung mit small: 0,2–0,3 s statt 0,5–1,9 s (gemessen, M4 Pro/MPS), bei Thai
+        # sogar sicherer. Allgemeines STT (Rückfall, zweite Lesart) bleibt beim größeren Modell.
+        self.m_det = self.m
+        if model != "small":
+            try:
+                self.m_det = load_model("small", self.device)[0]
+            except Exception as e:
+                log({"detect_model": "small nicht geladen", "err": repr(e)[:200]})
         if model == "best":
             emit("loading", msg="Lade Englisch-Modell large-v3-turbo …")
         self.m_en = load_model("large-v3-turbo", self.device)[0] if model == "best" else None
@@ -1008,7 +1020,7 @@ class Engine:
             kw = dict(repetition_penalty=1.0, no_repeat_ngram_size=0, vad_filter=False)
         else:
             kw = dict(repetition_penalty=1.1, no_repeat_ngram_size=4, max_new_tokens=220,
-                      vad_filter=True, vad_parameters={"threshold": 0.25})
+                      vad_filter=True, vad_parameters={"threshold": 0.1})
         segs, _ = mdl.transcribe(audio, language=lang, beam_size=self.beam, hotwords=hotwords,
                                  condition_on_previous_text=False, **kw)
         segs = list(segs)
@@ -1035,11 +1047,21 @@ class Engine:
         t0 = time.time()
         audio, peak = normalize(audio)                 # leise Sprecher anheben (RMS, mit Obergrenze)
         info = {"id": uid, "dur": round(audio.size / SR, 2), "rms": rms, "peak": round(peak, 3)}
-        _, _, probs = self.m.detect_language(audio=audio, language_detection_segments=2)
+        times = {}
+        _, _, probs = self.m_det.detect_language(audio=audio, language_detection_segments=2)
+        times["detect"] = round(time.time() - t0, 2)
         p = dict(probs)
-        pe, pt = p.get("en", 0.0), p.get("th", 0.0)
-        info.update(p_en=round(pe, 3), p_th=round(pt, 3),
-                    top=[(k, round(v, 3)) for k, v in probs[:3]])
+        pe, pt_raw = p.get("en", 0.0), p.get("th", 0.0)
+        pt, folded = pt_raw, False
+        if self.lock != "en":
+            asian = sum(p.get(k, 0.0) for k in ASIAN_AS_TH)
+            if asian > 0 and pt_raw < 0.3 and asian > pe:
+                folded = True
+            pt = pt_raw + asian
+        # für den Profil-Prior: asiatische Labels zählen als Thai (sonst greift „klar andere Sprache“)
+        probs = [("th" if k in ASIAN_AS_TH and self.lock != "en" else k, v) for k, v in probs]
+        info.update(p_en=round(pe, 3), p_th=round(pt_raw, 3), p_th_eff=round(pt, 3), folded=folded,
+                    top=[(k, round(v, 3)) for k, v in sorted(p.items(), key=lambda x: -x[1])[:3]])
         # --- Stimmprofil: wer spricht? Sprache des Profils hilft bei unsicherer Erkennung
         who, hot = None, None
         if self.spk:
@@ -1065,10 +1087,13 @@ class Engine:
             lang = "th" if pt > pe else "en"
             text, lp, segs = self._stt(audio, lang, hotwords=hot if who and who.get("lang") == lang else None)
             # unklar? beide Sprachen probieren und die sicherere nehmen
+            times["stt"] = round(time.time() - t0 - times["detect"], 2)
             if (lang == "en" and pt > 0.2) or (lang == "th" and pe > 0.2) or not text \
-                    or lp < MIN_LOGPROB[lang] + 0.3:
+                    or max(pe, pt) < 0.6 or lp < -0.6:
                 other = "th" if lang == "en" else "en"
+                ta = time.time()
                 t2, lp2, segs2 = self._stt(audio, other)
+                times["alt"] = round(time.time() - ta, 2)
                 info.update(alt=other, alt_text=t2, alt_lp=round(lp2, 3), lp=round(lp, 3))
                 if t2 and (lp2 > lp or not text):
                     lang, text, lp, segs = other, t2, lp2, segs2
@@ -1101,7 +1126,8 @@ class Engine:
         if self.paused:
             return self._drop(info, "pausiert", uid)
 
-        if text and lp < MIN_LOGPROB[lang]:
+        min_lp = FOLDED_TH_LOGPROB if (lang == "th" and folded) else MIN_LOGPROB[lang]
+        if text and lp < min_lp:
             info["drop"] = "unsicher"
             text = ""
         if text:
@@ -1125,6 +1151,7 @@ class Engine:
             except Exception as e:
                 log({"alt": "fehler", "err": repr(e)[:200]})
         info["alts"] = alts
+        info["times"] = times
         log(info)
         return self.deliver(uid, lang, text, lp, time.time() - t0, speak=speak,
                             speaker=who["name"] if who else None, alts=alts)

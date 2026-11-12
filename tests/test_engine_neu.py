@@ -143,7 +143,7 @@ def test_apply_control_live_settings(monkeypatch):
     assert d.apply_control(e, {"rate": 80, "volume": 5, "silence": 1.2, "sensitivity": "high",
                                "voice_th": "th-TH-PremwadeeNeural", "voice_en": "bad; rm -rf",
                                "earcons": True, "stop_speaking": True}) is None
-    assert e.rate == 50 and e.volume == 2.0 and d.SILENCE_END == 1.2 and d.VAD["start"] == 0.35
+    assert e.rate == 50 and e.volume == 2.0 and d.SILENCE_END == 1.2 and d.VAD["start"] == 0.3
     assert e.voices == {"en": None, "th": "th-TH-PremwadeeNeural"} and e.earcons and e.stopped
     job = d.apply_control(e, {"say": {"text": "Thank you", "lang": "en"}})
     job()
