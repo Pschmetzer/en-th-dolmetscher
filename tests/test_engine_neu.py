@@ -278,3 +278,20 @@ def test_work_loop_handles_audio_and_jobs(monkeypatch, _iso):
     d.work_loop(E(), q, speak=False)
     assert [x[0] for x in seen] == ["audio", "job", "audio", "audio"]
     assert any(ev == "dropped" and kw.get("reason") == "fehler" for ev, kw in _iso)
+
+
+def test_stt_caps_tokens_and_disables_temperature_fallback():
+    """Regression: ohne Token-Grenze und mit Temperatur-Fallback brauchte ein 2-s-Satz 60 s."""
+    seen = {}
+
+    class M:
+        def transcribe(self, audio, **kw):
+            seen.update(kw)
+            return iter([types.SimpleNamespace(text="สวัสดี ครับ", avg_logprob=-0.2)]), None
+    e = types.SimpleNamespace(m=M(), m_en=None, m_th=M(), beam=3)
+    text, lp, _ = d.Engine._stt(e, np.zeros(2 * d.SR, dtype=np.float32), "th")
+    assert text == "สวัสดีครับ" and seen["temperature"] == 0.0 and seen["max_new_tokens"] <= 60
+    d.Engine._stt(e, np.zeros(18 * d.SR, dtype=np.float32), "th")
+    assert seen["max_new_tokens"] >= 250                      # lange Sätze passen hinein
+    d.Engine._stt(e, np.zeros(2 * d.SR, dtype=np.float32), "en", quick=True)
+    assert seen["beam_size"] == 1
