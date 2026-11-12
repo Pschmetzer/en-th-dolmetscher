@@ -66,7 +66,7 @@ If the Thai voice is missing: System Settings → Accessibility → Spoken Conte
 
 ```bash
 pip install -r requirements.txt
-python3 dolmetscher.py            # --model base|small|medium  --polite krub|ka  --mic 0
+python3 dolmetscher.py            # --model base|small|medium  --polite krub|ka  --mic 0  --barge-in  --log-text|--no-log-text
 ```
 
 ## Browser version
@@ -85,7 +85,9 @@ Serve it locally with `python3 -m http.server` and open it in Chrome.
 
 ## Notes
 
-- Laptop speakers: the microphone is muted while the translation is playing, so the engine doesn't translate its own voice.
+- Laptop speakers: only audio that arrives while the translation is playing (plus ~300 ms of reverb) is discarded, so the engine doesn't translate its own voice. Speech during recognition and translation is queued and handled in order, so a quick answer is not lost.
+- `--barge-in` (headphones only): talking while the translation plays stops it immediately. On speakers the engine would interrupt itself.
+- Log: `~/Library/Logs/Dolmetscher/engine.log`, rotated at about 1 MB (2 files kept). `--no-log-text` leaves recognised and translated text out of it.
 - `--polite krub|ka` picks the Thai politeness particle (ครับ/ค่ะ) and the pronoun (ผม/ฉัน).
 
 ## Uninstall

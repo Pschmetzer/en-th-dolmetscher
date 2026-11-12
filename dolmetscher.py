@@ -7,8 +7,10 @@ wird, übersetzt und spricht die Übersetzung sofort laut aus.
 Start:  python3 dolmetscher.py   (benötigt: pip install faster-whisper, ffmpeg)
 Optionen: --model small|medium|base  --mic 0  --polite krub|ka  --json
           --lang auto|en|th  --tts edge|say  --file test.wav  --mute
+          --barge-in (nur mit Kopfhörer)  --log-text/--no-log-text
 """
-import argparse, json, os, re, shutil, signal, subprocess, sys, time, urllib.parse, urllib.request
+import argparse, json, logging, logging.handlers, os, queue, re, shutil, signal, subprocess, sys, \
+    tempfile, threading, time, urllib.error, urllib.parse, urllib.request
 import numpy as np
 from faster_whisper import WhisperModel
 
@@ -88,7 +90,15 @@ JSON = False
 FF = None
 
 
+_EMIT_LOCK = threading.Lock()
+
+
 def emit(event, **kw):
+    with _EMIT_LOCK:                   # Mikrofon- und Arbeits-Thread schreiben beide
+        _emit(event, **kw)
+
+
+def _emit(event, **kw):
     if JSON:
         print(json.dumps({"event": event, **kw}, ensure_ascii=False), flush=True)
     elif event in ("loading", "ready", "calibrating", "error"):
@@ -102,28 +112,65 @@ def emit(event, **kw):
               f"Übers. {kw['tr']:.1f}s){C['off']}", flush=True)
 
 
-LOGFILE = os.path.expanduser("~/Library/Logs/Dolmetscher/engine.log")
+LOGFILE = os.environ.get("DOLMETSCHER_LOG") or os.path.expanduser("~/Library/Logs/Dolmetscher/engine.log")
+LOG_TEXT = True                   # --no-log-text: gesprochene/übersetzte Texte nicht ins Log
+_TEXT_KEYS = ("text", "alt_text", "out", "would_say", "cmd_retry", "command", "reply")
+_LOGGER = None
+
+
+def _logger():
+    """engine.log rotiert bei ~1 MB, es bleiben 2 Dateien (engine.log + engine.log.1)."""
+    global _LOGGER
+    if _LOGGER is None:
+        os.makedirs(os.path.dirname(LOGFILE), exist_ok=True)
+        h = logging.handlers.RotatingFileHandler(LOGFILE, maxBytes=1_000_000, backupCount=1,
+                                                 encoding="utf-8")
+        h.setFormatter(logging.Formatter("%(asctime)s %(message)s", "%H:%M:%S"))
+        lg = logging.getLogger("dolmetscher")
+        lg.setLevel(logging.INFO)
+        lg.propagate = False
+        lg.addHandler(h)
+        _LOGGER = lg
+    return _LOGGER
 
 
 def log(d):
     try:
-        os.makedirs(os.path.dirname(LOGFILE), exist_ok=True)
-        with open(LOGFILE, "a") as f:
-            f.write(time.strftime("%H:%M:%S ") + json.dumps(d, ensure_ascii=False) + "\n")
-    except OSError:
+        if not LOG_TEXT:
+            d = {k: (f"<{len(v)} Zeichen>" if k in _TEXT_KEYS and isinstance(v, str) else v)
+                 for k, v in d.items()}
+        _logger().info(json.dumps(d, ensure_ascii=False))
+    except Exception:
         pass
 
 
 def translate(text, src, dst):
+    """Google (gtx), sonst MyMemory. Wirft eine Exception statt eine Fehlermeldung zu liefern."""
     try:
         u = ("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t"
              f"&sl={src}&tl={dst}&q={urllib.parse.quote(text)}")
         with urllib.request.urlopen(u, timeout=6) as r:
-            return "".join(p[0] for p in json.load(r)[0])
-    except Exception:
-        u = f"https://api.mymemory.translated.net/get?q={urllib.parse.quote(text)}&langpair={src}|{dst}"
-        with urllib.request.urlopen(u, timeout=8) as r:
-            return json.load(r)["responseData"]["translatedText"]
+            out = "".join(p[0] for p in json.load(r)[0] if p and p[0])
+        if out.strip():
+            return out
+        raise ValueError("leere Antwort von Google")
+    except Exception as e1:
+        log({"translate": "google-fehler", "err": repr(e1)[:200]})
+        try:
+            u = f"https://api.mymemory.translated.net/get?q={urllib.parse.quote(text)}&langpair={src}|{dst}"
+            with urllib.request.urlopen(u, timeout=8) as r:
+                d = json.load(r)
+        except urllib.error.URLError as e2:
+            if isinstance(e1, urllib.error.URLError) and not isinstance(e2, urllib.error.HTTPError):
+                raise RuntimeError("offline – keine Internetverbindung") from e2
+            raise RuntimeError(f"MyMemory nicht erreichbar ({e2})") from e2
+        out = ((d.get("responseData") or {}).get("translatedText") or "").strip()
+        status = str(d.get("responseStatus", ""))
+        # MyMemory meldet Kontingent/Fehler als Text in translatedText – nie vorlesen
+        if (status != "200" or d.get("quotaFinished") or not out
+                or re.match(r"(MYMEMORY WARNING|QUERY LENGTH LIMIT|INVALID|PLEASE SELECT)", out, re.I)):
+            raise RuntimeError(f"MyMemory-Fehler {status or '?'}: {(d.get('responseDetails') or out)[:120]}")
+        return out
 
 
 def fix_thai(s, polite):
@@ -179,6 +226,233 @@ def load_model(model, device):
     return WhisperModel(model, device="cpu", compute_type="int8"), "cpu"
 
 
+class Player:
+    """Eigene Sprachausgabe (afplay/say/ffmpeg): merkt sich den Kindprozess, damit Stopp und
+    Barge-in ihn sofort beenden können, und sperrt das Mikrofon, solange er läuft (+ Nachhall)."""
+    TAIL = 0.3                         # s Nachhall nach Ende der Ausgabe
+
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.procs = {}                # Popen -> Startzeit
+        self.killed = set()
+        self.spans = []                # vergangene Ausgaben (start, ende)
+        self.interrupted = False       # durch Barge-in/Stopp abgebrochen
+
+    def start(self, cmd, **kw):
+        p = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **kw)
+        with self.lock:
+            self.procs[p] = time.time()
+        return p
+
+    def wait(self, p):
+        try:
+            p.wait()
+        finally:
+            with self.lock:
+                start = self.procs.pop(p, None)
+                self.killed.discard(p)
+                if start is not None:
+                    self.spans = (self.spans + [(start, time.time())])[-20:]
+                    log({"play_span": [round(start % 1000, 2), round(time.time() % 1000, 2)]})
+
+    def run(self, cmd):
+        self.wait(self.start(cmd))
+
+    def playing(self):
+        return bool(self.procs)
+
+    def gated(self, t=None):
+        """Konnte zum Aufnahmezeitpunkt t unsere eigene Stimme (oder ihr Nachhall) im Mikrofon
+        landen? t ist die Aufnahme- und nicht die Lesezeit (der Leser kann hinterherhinken)."""
+        if t is None:
+            t = time.time()
+        with self.lock:
+            if any(st - 0.05 <= t for st in self.procs.values()):
+                return True
+            return any(st - 0.05 <= t <= en + self.TAIL for st, en in self.spans)
+
+    def stop(self, tail=True):
+        with self.lock:
+            procs = [p for p in self.procs if p not in self.killed]
+            self.killed.update(procs)
+            if procs:
+                self.interrupted = True
+            if not tail:
+                self.spans = []
+        for p in procs:
+            try:
+                p.kill()
+            except OSError:
+                pass
+        return bool(procs)
+
+
+PLAYER = Player()
+HEARING = threading.Event()            # Mikrofon-Thread: gerade läuft eine Äußerung
+BARGE_IN = False
+DEBUG = bool(os.environ.get("DOLMETSCHER_DEBUG"))
+
+
+def wait_quiet(limit=5.0):
+    """Nicht in eine laufende Äußerung hineinsprechen (sonst würde sie abgeschnitten)."""
+    t = time.time()
+    while HEARING.is_set() and time.time() - t < limit and not BARGE_IN:
+        time.sleep(0.03)
+    return time.time() - t
+
+
+HEDGE = 1.2                            # s ohne Ton bis zum zweiten TTS-Versuch
+_TTS_LOOP = None
+_TTS_LOCK = threading.Lock()
+
+
+def tts_loop():
+    """Ein dauerhafter asyncio-Loop in eigenem Thread statt asyncio.run() je Satz."""
+    global _TTS_LOOP
+    with _TTS_LOCK:
+        if _TTS_LOOP is None:
+            import asyncio
+            _TTS_LOOP = asyncio.new_event_loop()
+            threading.Thread(target=_TTS_LOOP.run_forever, name="tts", daemon=True).start()
+        return _TTS_LOOP
+
+
+def tts_warmup():
+    """Import, DNS und TLS einmal vorab (Kaltstart sonst bis ~6 s beim ersten Satz)."""
+    def run():
+        t = time.time()
+        try:
+            import asyncio, edge_tts
+
+            async def go():
+                async for _ in edge_tts.Communicate("Hi.", NEURAL["en"]["en"]).stream():
+                    pass
+            asyncio.run_coroutine_threadsafe(go(), tts_loop()).result(timeout=15)
+            log({"tts_warmup_s": round(time.time() - t, 2)})
+        except Exception as e:
+            log({"tts_warmup": "fehler", "err": repr(e)[:200]})
+    threading.Thread(target=run, name="tts-warmup", daemon=True).start()
+
+
+_PIPE_PLAYER = None
+
+
+def pipe_player(volume):
+    """mp3 von stdin sofort abspielen: ffmpeg -> AudioToolbox, sonst ffplay, sonst None."""
+    global _PIPE_PLAYER
+    if _PIPE_PLAYER is None:
+        try:
+            dev = subprocess.run([FFMPEG, "-hide_banner", "-devices"], capture_output=True,
+                                 text=True, timeout=5).stdout
+        except Exception:
+            dev = ""
+        ffplay = shutil.which("ffplay") or (os.path.join(os.path.dirname(FFMPEG), "ffplay")
+                                            if os.path.exists(os.path.join(os.path.dirname(FFMPEG), "ffplay")) else None)
+        _PIPE_PLAYER = "at" if "audiotoolbox" in dev else (ffplay or "")
+    fast = ["-probesize", "32", "-analyzeduration", "0", "-fflags", "nobuffer", "-f", "mp3"]
+    if _PIPE_PLAYER == "at":
+        return [FFMPEG, "-hide_banner", "-nostats", "-loglevel", "quiet", *fast, "-i", "pipe:0",
+                "-af", f"volume={volume:.2f}", "-f", "audiotoolbox", "-"]
+    if _PIPE_PLAYER:
+        return [_PIPE_PLAYER, "-nodisp", "-autoexit", "-loglevel", "quiet", *fast,
+                "-af", f"volume={volume:.2f}", "-i", "pipe:0"]
+    return None
+
+
+def edge_say(text, voice, rate, volume):
+    """edge-tts streamen und ab dem ersten Block abspielen. Gibt Kennzahlen zurück;
+    wirft nur, wenn noch kein Ton kam (dann übernimmt 'say', ohne Doppelung)."""
+    import asyncio, edge_tts
+    t0 = time.time()
+    stop = threading.Event()
+
+    def request():
+        q = queue.Queue()
+
+        async def produce():
+            try:
+                async for c in edge_tts.Communicate(text, voice, rate=rate).stream():
+                    if stop.is_set() or getattr(q, "lost", False):
+                        break
+                    if c["type"] == "audio" and c["data"]:
+                        q.put(c["data"])
+            except Exception as e:
+                q.put(e)
+                return
+            q.put(None)
+        asyncio.run_coroutine_threadsafe(produce(), tts_loop())
+        return q
+
+    # Verbindungsaufbau hängt gelegentlich mehrere Sekunden: nach HEDGE s zweiter Versuch,
+    # der zuerst gelieferte gewinnt
+    qs, first, q, errs, hedged = [request()], None, None, [], False
+    while first is None and time.time() - t0 < 6:
+        if not hedged and time.time() - t0 > HEDGE:
+            qs.append(request())
+            hedged = True
+        for cand in list(qs):
+            try:
+                x = cand.get(timeout=0.02)
+            except queue.Empty:
+                continue
+            if x is None or isinstance(x, Exception):
+                errs.append(x)
+                qs.remove(cand)
+            else:
+                first, q = x, cand
+                break
+        if not qs:
+            break
+    for other in qs:
+        if other is not q:
+            other.lost = True
+    if first is None:
+        stop.set()
+        raise (errs[-1] if errs and errs[-1] else RuntimeError("edge-tts lieferte keine Audiodaten"))
+    stats = {"first_chunk_s": round(time.time() - t0, 2), "hedged": hedged}
+    stats["waited_s"] = round(wait_quiet(), 2)
+    cmd = pipe_player(volume)
+    PLAYER.interrupted = False
+    try:
+        if cmd:
+            p = PLAYER.start(cmd, stdin=subprocess.PIPE)
+            stats["play_start_s"] = round(time.time() - t0, 2)
+            chunk = first
+            try:
+                while chunk is not None:
+                    if isinstance(chunk, Exception):
+                        stats["err"] = repr(chunk)[:120]
+                        break
+                    p.stdin.write(chunk)
+                    chunk = q.get(timeout=6)
+            except (BrokenPipeError, OSError, queue.Empty) as e:  # abgebrochen oder Netz weg
+                if not PLAYER.interrupted:
+                    stats["err"] = repr(e)[:120]
+            finally:
+                try:
+                    p.stdin.close()
+                except OSError:
+                    pass
+                PLAYER.wait(p)
+        else:                                   # kein Pipe-Player: puffern, dann afplay
+            parts, chunk = [first], q.get(timeout=6)
+            while chunk is not None and not isinstance(chunk, Exception):
+                parts.append(chunk)
+                chunk = q.get(timeout=6)
+            fd, mp3 = tempfile.mkstemp(prefix="dolmetscher_tts_", suffix=".mp3")
+            try:
+                with os.fdopen(fd, "wb") as f:
+                    f.write(b"".join(parts))
+                stats["play_start_s"] = round(time.time() - t0, 2)
+                PLAYER.run(["/usr/bin/afplay", "-v", f"{volume:.2f}", mp3])
+            finally:
+                os.remove(mp3)
+    finally:
+        stop.set()
+    stats["interrupted"] = PLAYER.interrupted
+    return stats
+
+
 class Engine:
     def __init__(self, model, polite, lock="auto", tts="edge", device="auto"):
         self.lock, self.tts = lock, tts
@@ -215,34 +489,33 @@ class Engine:
         emit("ready", msg=f"bereit ({time.time()-t:.1f}s, {model} auf {self.device})", device=self.device)
 
     def speak(self, text, lang):
-        """Natürliche Microsoft-Neural-Stimme (edge-tts), sonst macOS-Stimme."""
-        import tempfile
+        """Natürliche Microsoft-Neural-Stimme (edge-tts, gestreamt), sonst macOS-Stimme."""
         if self.mute:
             log({"would_say": text})
             return
         t = time.time()
-        vol = ["-v", f"{self.volume:.2f}"]
-        tmp = tempfile.gettempdir()
         if self.tts == "edge":
             try:
-                import asyncio, edge_tts
                 voice = NEURAL[lang][self.polite if lang == "th" else "en"]
-                mp3 = os.path.join(tmp, "dolmetscher_tts.mp3")
-                if os.path.exists(mp3):
-                    os.remove(mp3)                     # nie eine alte Datei abspielen
-                asyncio.run(asyncio.wait_for(
-                    edge_tts.Communicate(text, voice, rate=f"{5 + self.rate:+d}%").save(mp3), timeout=6))
-                if os.path.getsize(mp3) > 0:
-                    log({"tts": "edge", "voice": voice, "secs": round(time.time() - t, 2)})
-                    subprocess.run(["/usr/bin/afplay", *vol, mp3])
-                    return
+                st = edge_say(text, voice, f"{5 + self.rate:+d}%", self.volume)
+                log({"tts": "edge", "voice": voice, **st, "secs": round(time.time() - t, 2)})
+                return
             except Exception as e:
                 log({"tts": "edge-fehler", "err": repr(e)[:200]})
-        aiff = os.path.join(tmp, "dolmetscher_say.aiff")
-        log({"tts": "say", "voice": self.voice[lang]})
-        subprocess.run([SAY, "-v", self.voice[lang], "-r", str(int(185 * (1 + self.rate / 100))),
-                        "-o", aiff, text])
-        subprocess.run(["/usr/bin/afplay", *vol, aiff])
+        fd, aiff = tempfile.mkstemp(prefix="dolmetscher_say_", suffix=".aiff")
+        os.close(fd)
+        try:
+            os.remove(aiff)                        # nie eine alte Datei abspielen
+            log({"tts": "say", "voice": self.voice[lang]})
+            subprocess.run([SAY, "-v", self.voice[lang], "-r", str(int(185 * (1 + self.rate / 100))),
+                            "-o", aiff, text])
+            if os.path.exists(aiff):
+                wait_quiet()
+                PLAYER.interrupted = False
+                PLAYER.run(["/usr/bin/afplay", "-v", f"{self.volume:.2f}", aiff])
+        finally:
+            if os.path.exists(aiff):
+                os.remove(aiff)
 
     def command(self, cmd):
         """Sprachbefehl ausführen. Gibt die gesprochene Bestätigung zurück."""
@@ -420,6 +693,7 @@ class Engine:
             out = translate(text, lang, dst)
         except Exception as e:
             emit("error", msg=f"Übersetzung fehlgeschlagen: {e}")
+            emit("listening")
             return None
         if dst == "th":
             out = fix_thai(out, self.polite)
@@ -529,7 +803,7 @@ class StreamVAD:
 
 
 def drain(ff):
-    """Alles verwerfen, was während der Sprachausgabe aufgenommen wurde."""
+    """Alles verwerfen, was gerade im Puffer liegt (nicht mehr im Ablauf genutzt)."""
     import fcntl
     fd = ff.stdout.fileno()
     fl = fcntl.fcntl(fd, fcntl.F_GETFL)
@@ -542,6 +816,78 @@ def drain(ff):
     fcntl.fcntl(fd, fcntl.F_SETFL, fl)
 
 
+def segmenter(read, utts):
+    """Mikrofon-Thread: liest laufend, segmentiert per VAD und reiht fertige Äußerungen ein.
+    Verworfen wird nur, was während der eigenen Sprachausgabe (+ Nachhall) ankommt.
+    Mit --barge-in (Kopfhörer) wird nichts verworfen; Sprechen unterbricht die Ausgabe."""
+    N = StreamVAD.N
+    vad = StreamVAD()
+    START, KEEP = 0.5, 0.3          # Hysterese: Start bei 0.5, weiter solange > 0.3
+    BARGE_FRAMES = 6                # ~190 ms durchgehend Sprache unterbricht die Ausgabe
+    fdur = N / SR
+    buf, voiced, silence, speech, pre, peak_rms = [], False, 0.0, 0.0, [], 0.0
+    was_gated, onset, t_cap, t_begin, dbg = False, 0, 0.0, 0.0, []
+
+    def finish(reason):
+        nonlocal buf, pre, voiced
+        voiced = False
+        HEARING.clear()
+        log({"segment": {"cut": reason, "start": round(t_begin % 1000, 2), "end": round(t_cap % 1000, 2),
+                         "lag_s": round(time.time() - t_cap, 2), "speech": round(speech, 2)}})
+        if speech >= MIN_UTT:
+            utts.put((np.concatenate(buf), round(peak_rms, 4), time.time(), reason))
+        else:
+            log({"drop": "zu kurz", "speech": round(speech, 2), "rms": round(peak_rms, 4)})
+            emit("dropped", reason="zu kurz")
+            emit("listening")
+        buf, pre = [], []
+
+    try:
+        while True:
+            f, t_cap = read()
+            if f.size < N:
+                break
+            if not BARGE_IN and PLAYER.gated(t_cap):
+                if voiced:              # Ausgabe beginnt mitten in einer Äußerung: Sauberes behalten
+                    finish("gate")
+                pre, was_gated = [], True
+                continue
+            if was_gated:               # eigene Stimme ist vorbei: VAD frisch starten
+                vad.reset()
+                was_gated = False
+            prob = vad(f)
+            rms = float(np.sqrt(np.mean(f ** 2)))
+            if DEBUG:
+                dbg = (dbg + [prob])[-31:]
+                if len(dbg) == 31:
+                    log({"vad_dbg": round(max(dbg), 2), "t": round(t_cap % 1000, 2),
+                         "lag": round(time.time() - t_cap, 2)}); dbg = []
+            if BARGE_IN and PLAYER.playing():
+                onset = onset + 1 if prob > START else 0
+                if onset >= BARGE_FRAMES and PLAYER.stop(tail=False):
+                    log({"barge_in": True})
+                    emit("barge_in")
+            if not voiced:
+                pre = (pre + [f])[-12:]                     # ~380 ms Vorlauf
+                if prob > START:
+                    voiced, buf, silence, speech, peak_rms = True, pre[:], 0.0, fdur, rms
+                    t_begin = t_cap
+                    HEARING.set()
+                    emit("hearing")
+                continue
+            buf.append(f)
+            peak_rms = max(peak_rms, rms)
+            if prob > KEEP:
+                silence = 0.0; speech += fdur
+            else:
+                silence += fdur
+            if silence >= SILENCE_END or len(buf) * fdur >= MAX_UTT:
+                finish("vad")
+    finally:
+        HEARING.clear()
+        utts.put(None)                  # Ende: Arbeits-Thread beendet sich
+
+
 def mic_loop(eng, mic, speak):
     global FF
     # leichte Vorverstärkung im ffmpeg, damit leise Stimmen mehr Pegel haben
@@ -550,54 +896,53 @@ def mic_loop(eng, mic, speak):
                            "-ar", str(SR), "-ac", "1", "-f", "s16le", "-"],
                           stdout=subprocess.PIPE)
     N = StreamVAD.N
-
-    def read():
-        b = FF.stdout.read(N * 2)
-        return np.frombuffer(b, dtype=np.int16).astype(np.float32) / 32768
-
-    vad = StreamVAD()
-    if read().size == 0:
+    first = FF.stdout.read(N * 2)
+    if not first:
         emit("error", msg="Mikrofon liefert keine Daten (Mikrofon-Zugriff erlaubt?)")
         return
     emit("listening")
+    frames = queue.Queue()
 
-    START, KEEP = 0.5, 0.3          # Hysterese: Start bei 0.5, weiter solange > 0.3
-    fdur = N / SR
-    buf, voiced, silence, speech, pre, peak_rms = [], False, 0.0, 0.0, [], 0.0
+    def reader():
+        """Nur Lesen (kein Rechnen), damit die ffmpeg-Pipe nie vollläuft. Jeder Block bekommt
+        seine Aufnahmezeit aus der Sample-Zählung; blockiert das Lesen, sind wir live."""
+        n, anchor = 0, time.time()
+        try:
+            while True:
+                t = time.time()
+                b = FF.stdout.read(N * 2)
+                now = time.time()
+                if len(b) < N * 2:
+                    break
+                n += N
+                if now - t > N / SR / 2 or anchor + n / SR > now:
+                    anchor = now - n / SR          # live bzw. nie in der Zukunft
+                frames.put((b, anchor + n / SR))
+        finally:
+            frames.put((b"", time.time()))
+
+    def read():
+        b, t = frames.get()
+        return np.frombuffer(b, dtype=np.int16).astype(np.float32) / 32768, t
+
+    threading.Thread(target=reader, name="mic-read", daemon=True).start()
+    utts = queue.Queue()
+    threading.Thread(target=segmenter, args=(read, utts), name="mic", daemon=True).start()
+    # Arbeiten im Haupt-Thread (Signale für Stopp kommen hier an); Äußerungen der Reihe nach
     while True:
-        f = read()
-        if f.size < N:
+        item = utts.get()
+        if item is None:
             break
-        prob = vad(f)
-        rms = float(np.sqrt(np.mean(f ** 2)))
-        if not voiced:
-            pre = (pre + [f])[-12:]                     # ~380 ms Vorlauf
-            if prob > START:
-                voiced, buf, silence, speech, peak_rms = True, pre[:], 0.0, fdur, rms
-                emit("hearing")
-            continue
-        buf.append(f)
-        peak_rms = max(peak_rms, rms)
-        if prob > KEEP:
-            silence = 0.0; speech += fdur
-        else:
-            silence += fdur
-        dur = len(buf) * fdur
-        if silence >= SILENCE_END or dur >= MAX_UTT:
-            voiced = False
-            if speech >= MIN_UTT:
-                emit("thinking")
-                eng.process(np.concatenate(buf), speak=speak, rms=round(peak_rms, 4))
-                drain(FF); time.sleep(0.3); drain(FF)   # eigene Stimme verwerfen
-                vad.reset()
-            else:
-                log({"drop": "zu kurz", "speech": round(speech, 2), "rms": round(peak_rms, 4)})
-                emit("dropped", reason="zu kurz")
-                emit("listening")
-            buf, pre = [], []
+        audio, rms, t_end, reason = item
+        emit("thinking")
+        t = time.time()
+        eng.process(audio, speak=speak, rms=rms)
+        log({"pipeline": {"queued_s": round(t - t_end, 2), "process_s": round(time.time() - t, 2),
+                          "backlog": utts.qsize(), "cut": reason}})
 
 
 def shutdown(*_):
+    PLAYER.stop()                       # laufende Ausgabe (afplay/say/ffmpeg) sofort stumm
     if FF and FF.poll() is None:
         FF.terminate()
     sys.exit(0)
@@ -621,13 +966,19 @@ if __name__ == "__main__":
     ap.add_argument("--enroll-lang", choices=["en", "th"], default="en")
     ap.add_argument("--delete-profile", metavar="NAME")
     ap.add_argument("--vocab", nargs=2, metavar=("NAME", "WÖRTER"), help="eigene Wörter, kommagetrennt")
+    ap.add_argument("--barge-in", action="store_true",
+                    help="Sprechen unterbricht die Ausgabe (nur mit Kopfhörer!)")
+    ap.add_argument("--log-text", action=argparse.BooleanOptionalAction, default=True,
+                    help="erkannte/übersetzte Texte ins Log schreiben (Standard: ja)")
     a = ap.parse_args()
-    JSON = a.json
+    JSON, BARGE_IN, LOG_TEXT = a.json, a.barge_in, a.log_text
     signal.signal(signal.SIGTERM, shutdown)
     signal.signal(signal.SIGINT, shutdown)
     if a.profiles or a.enroll or a.delete_profile or a.vocab is not None:
         profile_cli(a)
         sys.exit(0)
+    if a.tts == "edge" and not a.mute:
+        tts_warmup()                            # parallel zum Laden des Modells
     eng = Engine(a.model, a.polite, a.lang, a.tts, a.device)
     eng.mute = a.mute
     if a.no_en: eng.translate_dir["en"] = False
