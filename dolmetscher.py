@@ -394,18 +394,28 @@ def _warm(m):
     list(m.transcribe(np.zeros(SR, dtype=np.float32), language="en")[0])
 
 
+def _wm(model, **kw):
+    """Modell von der Platte laden, ohne bei jedem Start beim Hub nachzufragen (Modelle liegen
+    nach dem ersten Mal im Cache). Nur wenn es lokal fehlt: herunterladen."""
+    try:
+        return WhisperModel(model, local_files_only=True, **kw)
+    except Exception as e:
+        log({"model": model, "download": True, "err": repr(e)[:200]})
+        return WhisperModel(model, **kw)
+
+
 def load_model(model, device):
     """Apple-GPU (MPS) wenn möglich – ca. 2-4x schneller –, sonst CPU."""
     if device in ("auto", "mps"):
         try:
-            m = WhisperModel(model, device="mps", compute_type="float16")
+            m = _wm(model, device="mps", compute_type="float16")
             _warm(m)
             return m, "mps"
         except Exception as e:
             log({"mps": "nicht verfügbar", "err": repr(e)[:200]})
             if device == "mps":
                 raise
-    m = WhisperModel(model, device="cpu", compute_type="int8")
+    m = _wm(model, device="cpu", compute_type="int8")
     try:
         _warm(m)
     except Exception as e:
@@ -446,6 +456,14 @@ def split_sentences(s, lang, min_len=60):
         else:
             out.append(cur)
     return out or [s]
+
+
+def squash_repeats(text):
+    """Wiederholungsschleifen kürzen statt den ganzen Satz zu verlieren:
+    'สติ๊กฮ่าาาาาาา' -> 'สติ๊กฮ่าาา', 'ha ha ha ha ha ha' -> 'ha ha ha'."""
+    text = re.sub(r"(\D)\1{3,}", r"\1\1\1", text)
+    text = re.sub(r"(.{2,12}?)(?:\s*\1){3,}", r"\1 \1 \1", text)
+    return text
 
 
 def looks_hallucinated(text, dur, segs):
@@ -1273,7 +1291,13 @@ class Engine:
             info["drop"] = "unsicher"
             text = ""
         if text:
+            sq = squash_repeats(text)
+            if sq != text:
+                info["squashed"] = True
+                text = sq
             hall = looks_hallucinated(text, audio.size / SR, segs)
+            if hall == "wiederholung" and info.get("squashed"):
+                hall = None                             # Schleife schon gekürzt, Rest ist echter Text
             if hall:
                 info["drop"] = f"halluzination ({hall})"
                 text = ""

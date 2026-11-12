@@ -359,3 +359,11 @@ def test_prerecognition_is_reused_only_for_same_version(monkeypatch):
     e.process(audio, speak=False, uid="u2", version=1)    # weitergesprochen -> neu erkennen
     assert "detect" in calls[n:] and ("stt", "en", False) in calls[n:]
     assert "u1" not in d.PRE and "u2" not in d.PRE
+
+
+def test_squash_repeats():
+    from dolmetscher import squash_repeats as q
+    assert q("สติ๊กฮ่าาาาาาาาาาาาา") == "สติ๊กฮ่าาา"
+    assert q("ha ha ha ha ha ha ha") == "ha ha ha"
+    assert q("5000000") == "5000000"
+    assert q("ไปไหนมาครับ") == "ไปไหนมาครับ"
