@@ -25,4 +25,4 @@ jobs:
         run: |
           swiftc --version
           mkdir -p build
-          swiftc -O -parse-as-library -o build/Dolmetscher app/DolmetscherApp.swift
+          swiftc -O -parse-as-library -o build/Dolmetscher app/*.swift

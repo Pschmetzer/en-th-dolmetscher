@@ -35,7 +35,7 @@ echo "→ Lade Whisper-Modelle 'medium' (~1,5 GB) und 'small' (einmalig) …"
 echo "→ Kompiliere …"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
-swiftc -O -parse-as-library -o "$APP/Contents/MacOS/Dolmetscher" app/DolmetscherApp.swift
+swiftc -O -parse-as-library -o "$APP/Contents/MacOS/Dolmetscher" app/*.swift
 cp dolmetscher.py "$APP/Contents/Resources/"
 cp app/AppIcon.icns "$APP/Contents/Resources/"
 
