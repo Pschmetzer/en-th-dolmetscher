@@ -1,0 +1,142 @@
+[
+  {
+    "audio_s" : 2.4899374999999999,
+    "file" : "/Users/development/Documents/Claude/en-th-dolmetscher/.claude/worktrees/agent-ab7146bf621536d14/bench/audio/clean/en01.wav",
+    "ms_after_audio_end" : 22,
+    "ms_done_after_audio_end" : 31,
+    "ms_first_result" : 711,
+    "ms_prepare" : 81,
+    "ms_total" : 2523,
+    "text" : "Where is the nearest train station?"
+  },
+  {
+    "audio_s" : 2.1364375,
+    "file" : "/Users/development/Documents/Claude/en-th-dolmetscher/.claude/worktrees/agent-ab7146bf621536d14/bench/audio/clean/en02.wav",
+    "ms_after_audio_end" : 19,
+    "ms_done_after_audio_end" : 25,
+    "ms_first_result" : 1024,
+    "ms_prepare" : 71,
+    "ms_total" : 2164,
+    "text" : "How much does this cost?"
+  },
+  {
+    "audio_s" : 2.3251249999999999,
+    "file" : "/Users/development/Documents/Claude/en-th-dolmetscher/.claude/worktrees/agent-ab7146bf621536d14/bench/audio/clean/en03.wav",
+    "ms_after_audio_end" : 26,
+    "ms_done_after_audio_end" : 31,
+    "ms_first_result" : 718,
+    "ms_prepare" : 52,
+    "ms_total" : 2360,
+    "text" : "Can I have the bill, please?"
+  },
+  {
+    "audio_s" : 2.1125625000000001,
+    "file" : "/Users/development/Documents/Claude/en-th-dolmetscher/.claude/worktrees/agent-ab7146bf621536d14/bench/audio/clean/en04.wav",
+    "ms_after_audio_end" : 23,
+    "ms_done_after_audio_end" : 31,
+    "ms_first_result" : 713,
+    "ms_prepare" : 52,
+    "ms_total" : 2145,
+    "text" : "I'm allergic to peanuts"
+  },
+  {
+    "audio_s" : 3.7325624999999998,
+    "file" : "/Users/development/Documents/Claude/en-th-dolmetscher/.claude/worktrees/agent-ab7146bf621536d14/bench/audio/clean/en05.wav",
+    "ms_after_audio_end" : 31,
+    "ms_done_after_audio_end" : 40,
+    "ms_first_result" : 716,
+    "ms_prepare" : 65,
+    "ms_total" : 3775,
+    "text" : "We need a taxi to the airport at seven tomorrow morning"
+  },
+  {
+    "audio_s" : 2.6475,
+    "file" : "/Users/development/Documents/Claude/en-th-dolmetscher/.claude/worktrees/agent-ab7146bf621536d14/bench/audio/clean/en06.wav",
+    "ms_after_audio_end" : 28,
+    "ms_done_after_audio_end" : 36,
+    "ms_first_result" : 729,
+    "ms_prepare" : 69,
+    "ms_total" : 2689,
+    "text" : "Is breakfast included in the price?"
+  },
+  {
+    "audio_s" : 3.1245625000000001,
+    "file" : "/Users/development/Documents/Claude/en-th-dolmetscher/.claude/worktrees/agent-ab7146bf621536d14/bench/audio/clean/en07.wav",
+    "ms_after_audio_end" : 37,
+    "ms_done_after_audio_end" : 47,
+    "ms_first_result" : 729,
+    "ms_prepare" : 111,
+    "ms_total" : 3172,
+    "text" : "Could you speak a little more slowly, please?"
+  },
+  {
+    "audio_s" : 3.8424999999999998,
+    "file" : "/Users/development/Documents/Claude/en-th-dolmetscher/.claude/worktrees/agent-ab7146bf621536d14/bench/audio/clean/en08.wav",
+    "ms_after_audio_end" : 34,
+    "ms_done_after_audio_end" : 43,
+    "ms_first_result" : 718,
+    "ms_prepare" : 79,
+    "ms_total" : 3890,
+    "text" : "I'm really tired. I want to go back to the hotel."
+  },
+  {
+    "audio_s" : 2.8280625000000001,
+    "file" : "/Users/development/Documents/Claude/en-th-dolmetscher/.claude/worktrees/agent-ab7146bf621536d14/bench/audio/clean/en09.wav",
+    "ms_after_audio_end" : 28,
+    "ms_done_after_audio_end" : 35,
+    "ms_first_result" : 722,
+    "ms_prepare" : 77,
+    "ms_total" : 2865,
+    "text" : "Do you have this shirt in a larger size?"
+  },
+  {
+    "audio_s" : 2.3501249999999998,
+    "file" : "/Users/development/Documents/Claude/en-th-dolmetscher/.claude/worktrees/agent-ab7146bf621536d14/bench/audio/clean/en10.wav",
+    "ms_after_audio_end" : 44,
+    "ms_done_after_audio_end" : 56,
+    "ms_first_result" : 1023,
+    "ms_prepare" : 71,
+    "ms_total" : 2413,
+    "text" : "Thank you so much for your help"
+  },
+  {
+    "audio_s" : 2.6296875000000002,
+    "file" : "/Users/development/Documents/Claude/en-th-dolmetscher/.claude/worktrees/agent-ab7146bf621536d14/bench/audio/clean/en11.wav",
+    "ms_after_audio_end" : 36,
+    "ms_done_after_audio_end" : 49,
+    "ms_first_result" : 1052,
+    "ms_prepare" : 101,
+    "ms_total" : 2684,
+    "text" : "What time does the night market open?"
+  },
+  {
+    "audio_s" : 2.5208750000000002,
+    "file" : "/Users/development/Documents/Claude/en-th-dolmetscher/.claude/worktrees/agent-ab7146bf621536d14/bench/audio/clean/en12.wav",
+    "ms_after_audio_end" : 53,
+    "ms_done_after_audio_end" : 62,
+    "ms_first_result" : 724,
+    "ms_prepare" : 112,
+    "ms_total" : 2589,
+    "text" : "Please turn left at the next corner"
+  },
+  {
+    "audio_s" : 12.78975,
+    "file" : "/Users/development/Documents/Claude/en-th-dolmetscher/.claude/worktrees/agent-ab7146bf621536d14/bench/audio/clean/en13.wav",
+    "ms_after_audio_end" : 77,
+    "ms_done_after_audio_end" : 93,
+    "ms_first_result" : 1030,
+    "ms_prepare" : 102,
+    "ms_total" : 12885,
+    "text" : "Yesterday we took the ferry to the island rented two scooters drove around the whole coast had lunch at a small seafood restaurant near the pier and came back to the hotel just before the storm started in the evening"
+  },
+  {
+    "audio_s" : 2.1283124999999998,
+    "file" : "/Users/development/Documents/Claude/en-th-dolmetscher/.claude/worktrees/agent-ab7146bf621536d14/bench/audio/clean/en14.wav",
+    "ms_after_audio_end" : 20,
+    "ms_done_after_audio_end" : 27,
+    "ms_first_result" : 1023,
+    "ms_prepare" : 125,
+    "ms_total" : 2156,
+    "text" : "Translator pause"
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "audio_s" : 2.0158749999999999,
+    "file" : "/Users/development/Documents/Claude/en-th-dolmetscher/.claude/worktrees/agent-ab7146bf621536d14/bench/audio/clean/th01.wav",
+    "ms_after_audio_end" : 461,
+    "ms_done_after_audio_end" : 520,
+    "ms_first_result" : 129,
+    "ms_prepare" : 83,
+    "ms_total" : 520,
+    "text" : "Chan non-crap"
+  },
+  {
+    "audio_s" : 2.6306250000000002,
+    "file" : "/Users/development/Documents/Claude/en-th-dolmetscher/.claude/worktrees/agent-ab7146bf621536d14/bench/audio/clean/th05.wav",
+    "ms_after_audio_end" : 491,
+    "ms_done_after_audio_end" : 542,
+    "ms_first_result" : 40,
+    "ms_prepare" : 61,
+    "ms_total" : 542,
+    "text" : "One euro mark Mark Luna"
+  },
+  {
+    "audio_s" : 3.3967499999999999,
+    "file" : "/Users/development/Documents/Claude/en-th-dolmetscher/.claude/worktrees/agent-ab7146bf621536d14/bench/audio/clean/th10.wav",
+    "ms_after_audio_end" : 537,
+    "ms_done_after_audio_end" : 587,
+    "ms_first_result" : 122,
+    "ms_prepare" : 50,
+    "ms_total" : 587,
+    "text" : "Route five octane crap"
+  }
+]
