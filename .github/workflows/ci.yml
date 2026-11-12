@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - name: Install dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Run tests (no models, no network, no microphone)
+        run: python -m pytest -v
+      - name: Check build script syntax
+        run: bash -n build.sh
+      - name: Compile Swift app
+        run: |
+          swiftc --version
+          mkdir -p build
+          swiftc -O -parse-as-library -o build/Dolmetscher app/DolmetscherApp.swift

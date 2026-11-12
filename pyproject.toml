@@ -1,0 +1,10 @@
+[project]
+name = "en-th-dolmetscher"
+version = "1.1"
+description = "Hands-free English <-> Thai speech interpreter for macOS"
+license = "MIT"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

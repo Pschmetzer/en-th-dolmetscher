@@ -1,7 +1,10 @@
 #!/bin/bash
 # Baut Dolmetscher.app.  Nutzung:  ./build.sh [--install]
 #   DOLMETSCHER_PYTHON=/pfad/zu/python  – vorhandenes Python mit faster-whisper verwenden
-#   sonst wird eine venv unter ~/Library/Application Support/Dolmetscher/venv angelegt.
+#   sonst wird eine venv unter ~/Library/Application Support/Dolmetscher/venv angelegt
+#   und mit den Versionen aus requirements.txt bestückt (uv, falls vorhanden, sonst pip).
+#   DOLMETSCHER_SIGN_IDENTITY="Name"  – mit festem (z. B. selbstsignierten) Zertifikat signieren,
+#   damit macOS nach einem Neubau nicht erneut nach dem Mikrofon fragt (siehe CONTRIBUTING.md).
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -18,8 +21,10 @@ if [ -z "$PY" ]; then
     echo "→ Lege Python-Umgebung an …"
     mkdir -p "$SUPPORT"
     if command -v uv >/dev/null; then uv venv -q "$SUPPORT/venv"; else python3 -m venv "$SUPPORT/venv"; fi
-    if command -v uv >/dev/null; then uv pip install -q --python "$PY" faster-whisper edge-tts; else "$SUPPORT/venv/bin/pip" install -q --upgrade pip faster-whisper edge-tts; fi
   fi
+  echo "→ Installiere Abhängigkeiten (requirements.txt) …"
+  if command -v uv >/dev/null; then uv pip install -q --python "$PY" -r requirements.txt
+  else "$PY" -m pip install -q --upgrade pip && "$PY" -m pip install -q -r requirements.txt; fi
 fi
 "$PY" -c "import faster_whisper" || { echo "faster-whisper fehlt in $PY"; exit 1; }
 "$PY" -c "import edge_tts" 2>/dev/null || echo "Hinweis: edge-tts fehlt in $PY – es wird die macOS-Stimme genutzt (pip install edge-tts)"
@@ -54,7 +59,11 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 </dict></plist>
 PLIST
 
-codesign -s - --force --deep "$APP" >/dev/null 2>&1
+SIGN="${DOLMETSCHER_SIGN_IDENTITY:--}"
+if ! codesign -s "$SIGN" --force --deep "$APP" >/dev/null 2>&1; then
+  echo "Signieren mit '$SIGN' fehlgeschlagen – nutze Ad-hoc-Signatur"
+  codesign -s - --force --deep "$APP" >/dev/null 2>&1
+fi
 echo "✓ $APP"
 
 if [ "${1:-}" = "--install" ]; then
