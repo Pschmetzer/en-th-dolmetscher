@@ -55,13 +55,20 @@ struct Bubble: View {
     @EnvironmentObject var m: EngineModel
     let u: Utterance
     let scale: Double
+    /// Kopfzeile der Sprechblase: Flagge, ggf. Sprechername, Originaltext.
+    private var headerLine: String {
+        let who: String = u.speaker.map { "\($0): " } ?? ""
+        let original: String = u.translated ? u.text : L.t("not_translated")
+        return LangStyle.flag(u.lang) + " " + who + original
+    }
+
     var body: some View {
         let en = u.lang == "en"
         let playing = m.replayingID == u.id
         VStack(alignment: en ? .leading : .trailing, spacing: 6) {
             HStack(spacing: 6) {
                 if !en { Spacer(minLength: 0) }
-                Text(LangStyle.flag(u.lang) + " " + (u.speaker.map { "\($0): " } ?? "") + (u.translated ? u.text : L.t("not_translated")))
+                Text(headerLine)
                     .font(.system(size: 15 * scale)).foregroundStyle(.secondary)
                     .multilineTextAlignment(en ? .leading : .trailing)
                 if playing { Image(systemName: "speaker.wave.2.fill").foregroundStyle(.secondary) }

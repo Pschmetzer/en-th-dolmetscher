@@ -198,7 +198,9 @@ final class EngineModel: NSObject, ObservableObject {
 
     private func handle(_ ev: String, _ o: [String: Any]) {
         switch ev {
-        case "loading": status = L.t("loading")
+        case "loading":   // Engine meldet, welches Modell gerade lädt (z. B. "Lade Thai-Modell …")
+            let msg = o["msg"] as? String ?? ""
+            status = L.t("loading") + (msg.contains("Thai") ? " (ไทย)" : msg.contains("turbo") ? " (EN+)" : "")
         case "ready": status = L.t("ready") + " (" + (o["device"] as? String == "mps" ? "Apple-GPU" : "CPU") + ")"
         case "listening":
             status = paused ? Self.pausedText : L.t("listening")

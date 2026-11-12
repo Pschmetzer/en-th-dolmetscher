@@ -186,6 +186,8 @@ class Engine:
         emit("loading", msg=f"Lade Whisper-Modell '{model}' …")
         # "best": medium für Erkennung + Thai, large-v3-turbo für Englisch (Akzente)
         self.m, self.device = load_model("medium" if model == "best" else model, device)
+        if model == "best":
+            emit("loading", msg="Lade Englisch-Modell large-v3-turbo …")
         self.m_en = load_model("large-v3-turbo", self.device)[0] if model == "best" else None
         # Thai: auf Thai trainiertes Whisper (biodatlab, MIT) – ~30 % weniger Fehler bei leiser/entfernter Sprache
         self.m_th = None
