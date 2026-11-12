@@ -79,7 +79,7 @@ struct ContentView: View {
             Divider()
             if let log = m.crashLog { CrashBanner(log: log) }
             conversation
-            if m.pushToTalk && m.running { PushToTalkButton().padding(14) }
+            if m.pushToTalk && m.micOn { PushToTalkButton().padding(14) }
         }
         .frame(minWidth: 620, minHeight: 460)
         .background(WindowAccessor { w in
@@ -89,7 +89,7 @@ struct ContentView: View {
         .sheet(isPresented: $showProfiles) { ProfilesView().environmentObject(m) }
         .sheet(item: $correcting) { CorrectSheet(u: $0).environmentObject(m) }
         .id(uiLang)                                   // Oberflächensprache sofort umschalten
-        .onChange(of: uiLang) { if !m.active { m.status = L.t("stopped") } }
+        .onChange(of: uiLang) { m.refreshStatus() }
         .onAppear { if !tipsSeen { showTips = true } }
         .onReceive(NotificationCenter.default.publisher(for: .showTips)) { _ in showTips = true }
     }
@@ -188,7 +188,7 @@ struct StatusCluster: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            if m.running { LevelBar(meter: m.meter) }
+            if m.micOn { LevelBar(meter: m.meter) }
             Text(m.status).font(.headline).lineLimit(2)
                 .accessibilityLabel(L.t("status") + ": " + m.status)
             if m.backlog > 0 {
@@ -204,11 +204,30 @@ struct StatusCluster: View {
                     .help(offlineHelp)
                     .accessibilityLabel(L.t("offline") + ": " + offlineHelp)
             }
-            if m.busy || m.state == .starting {
+            if let med = m.latencyMedian { LatencyBadge(median: med) }
+            if m.busy || m.loadingModel {
                 ProgressView().controlSize(.small).accessibilityLabel(L.t("working"))
             }
         }
     }
+}
+
+/// Median der letzten 10 Latenzen (Äußerungsende → erster Ton), klein in der Kopfzeile.
+struct LatencyBadge: View {
+    let median: Double
+    var body: some View {
+        let text = "⏱ " + fmtSeconds(median)
+        Text(text)
+            .font(.caption).monospacedDigit().foregroundStyle(.secondary)
+            .help(L.t("latency_help"))
+            .accessibilityLabel(L.t("latency_help") + ": " + fmtSeconds(median))
+    }
+}
+
+/// Sekunden für die Anzeige, mit Dezimalzeichen der Oberflächensprache („2,1 s“).
+func fmtSeconds(_ v: Double) -> String {
+    let loc = Locale(identifier: L.lang == .de ? "de_DE" : "en_US")
+    return String(format: "%.1f s", locale: loc, v)
 }
 
 /// Kleiner Pegelbalken (eigenes ObservableObject → nur diese Ansicht zeichnet ~7×/s neu).

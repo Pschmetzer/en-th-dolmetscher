@@ -23,6 +23,9 @@ struct Utterance: Identifiable {
     var stt: Double              // Sekunden Spracherkennung
     var tr: Double               // Sekunden Übersetzung
     var firstSound: Double?      // Sekunden bis zum ersten Ton
+    var latency: Double?         // Sekunden vom Äußerungsende bis zum ersten Ton (`speaking.latency_s`)
+    var readyS: Double?          // Sekunden vom Äußerungsende bis die Übersetzung fertig ist (`utt.ready_s`)
+    var partial: String?         // vorläufiger Text, solange gesprochen wird (nur Platzhalter)
     var lp: Double?              // Erkennungs-Konfidenz (log-prob)
     var provider: String?
     var source: String?
@@ -59,15 +62,30 @@ final class LevelMeter: ObservableObject {
     func reset() { rms = 0; voice = false }
 }
 
+/// Zustand des Engine-Prozesses (nicht des Mikrofons).
 enum EngineState: Equatable { case stopped, starting, running }
 
 @MainActor
 final class EngineModel: NSObject, ObservableObject {
     @Published var items: [Utterance] = []
     @Published var status = L.t("stopped")
+    /// Prozess-Zustand. Die Engine läuft dauerhaft im Hintergrund (`--idle`), das Mikrofon schaltet `listen`.
     @Published private(set) var state: EngineState = .stopped
+    /// Prozess läuft (stdin offen) – Schnellsätze, Korrektur, Einstellungen live möglich.
     var running: Bool { state == .running }
-    var active: Bool { state != .stopped }
+    /// Modelle geladen (`ready` empfangen).
+    @Published private(set) var engineReady = false
+    /// Mikrofon laut Engine an (`mic`-Ereignis).
+    @Published private(set) var micOn = false
+    /// Nutzer möchte zuhören (Start gedrückt) – wird gesendet, sobald `ready` da ist.
+    @Published private(set) var wantListen = false
+    /// Start/Stopp-Knopf: rot, solange zugehört wird oder Start vorgemerkt ist.
+    var active: Bool { wantListen || micOn }
+    /// Engine lädt gerade (Prozess gestartet, `ready` fehlt noch).
+    var loadingModel: Bool { state != .stopped && !engineReady }
+    /// Median der letzten 10 Latenzen (Äußerungsende → erster Ton).
+    @Published private(set) var latencyMedian: Double?
+    private var latencies: [Double] = []
     /// Äußerungen, die gerade erkannt/übersetzt werden (thinking … utt/dropped).
     @Published private(set) var pendingIDs: Set<String> = []
     /// Ausgaben, die gerade vorgelesen werden (speaking … speak_done).
@@ -96,7 +114,7 @@ final class EngineModel: NSObject, ObservableObject {
     @Published var trEN = ud.object(forKey: "trEN") as? Bool ?? true { didSet { Self.ud.set(trEN, forKey: "trEN"); send(["tr_en": trEN]) } }
     @Published var trTH = ud.object(forKey: "trTH") as? Bool ?? true { didSet { Self.ud.set(trTH, forKey: "trTH"); send(["tr_th": trTH]) } }
     @Published var polite = ud.string(forKey: "polite") ?? "krub" { didSet { Self.ud.set(polite, forKey: "polite"); send(["polite": polite]) } }
-    @Published var model = EngineModel.initialModel() { didSet { Self.ud.set(model, forKey: "model") } }
+    @Published var model = EngineModel.initialModel() { didSet { Self.ud.set(model, forKey: "model"); scheduleRestart() } }
     @Published var lang = ud.string(forKey: "lang") ?? "auto" { didSet { Self.ud.set(lang, forKey: "lang"); send(["lang": lang]) } }
 
     // Stimme und Audio (live)
@@ -108,13 +126,29 @@ final class EngineModel: NSObject, ObservableObject {
     @Published var sensitivity = ud.string(forKey: "sensitivity") ?? "normal" { didSet { Self.ud.set(sensitivity, forKey: "sensitivity"); send(["sensitivity": sensitivity]) } }
     @Published var earcons = ud.bool(forKey: "earcons") { didSet { Self.ud.set(earcons, forKey: "earcons"); send(["earcons": earcons]) } }
     @Published var llm = ud.bool(forKey: "llm") { didSet { Self.ud.set(llm, forKey: "llm"); send(["llm": llm]) } }
-    // Nur beim Start wirksam (Neustart nötig)
-    @Published var llmModel = ud.string(forKey: "llmModel") ?? "claude-opus-5-5" { didSet { Self.ud.set(llmModel, forKey: "llmModel") } }
-    @Published var mic = ud.string(forKey: "mic") ?? "" { didSet { Self.ud.set(mic, forKey: "mic") } }
-    @Published var denoise = ud.bool(forKey: "denoise") { didSet { Self.ud.set(denoise, forKey: "denoise") } }
-    @Published var logText = ud.bool(forKey: "logText") { didSet { Self.ud.set(logText, forKey: "logText") } }
+    /// Neural-Stimme: nach so vielen Sekunden spricht die macOS-Ersatzstimme (0 = aus).
+    @Published var ttsRace = ud.object(forKey: "ttsRace") as? Double ?? 1.4 {
+        didSet {
+            let r = min(3, max(0, (ttsRace * 10).rounded() / 10))   // auf 0,1 s runden
+            if r != ttsRace { ttsRace = r }   // Zuweisung im eigenen didSet löst es nicht erneut aus
+            Self.ud.set(ttsRace, forKey: "ttsRace"); send(["tts_race": ttsRace])
+        }
+    }
+    /// Schnelles Satzende (Vorab-Erkennung nach kurzer Pause).
+    @Published var fastEndpoint = ud.object(forKey: "fastEndpoint") as? Bool ?? true {
+        didSet { Self.ud.set(fastEndpoint, forKey: "fastEndpoint"); send(["fast_endpoint": fastEndpoint]) }
+    }
+    /// Vorläufigen Text schon während des Sprechens zeigen.
+    @Published var partialText = ud.object(forKey: "partialText") as? Bool ?? true {
+        didSet { Self.ud.set(partialText, forKey: "partialText"); send(["partial": partialText]) }
+    }
+    // Nur beim Start wirksam – Änderung startet den Prozess neu (Zuhör-Zustand bleibt).
+    @Published var llmModel = ud.string(forKey: "llmModel") ?? "claude-opus-5-5" { didSet { Self.ud.set(llmModel, forKey: "llmModel"); scheduleRestart() } }
+    @Published var mic = ud.string(forKey: "mic") ?? "" { didSet { Self.ud.set(mic, forKey: "mic"); scheduleRestart() } }
+    @Published var denoise = ud.bool(forKey: "denoise") { didSet { Self.ud.set(denoise, forKey: "denoise"); scheduleRestart() } }
+    @Published var logText = ud.bool(forKey: "logText") { didSet { Self.ud.set(logText, forKey: "logText"); scheduleRestart() } }
     /// Wird nach dem Speichern/Löschen des API-Schlüssels erhöht (Engine liest ihn nur beim Start).
-    @Published var keyVersion = 0
+    @Published var keyVersion = 0 { didSet { scheduleRestart() } }
     @Published var pushToTalk = ud.bool(forKey: "pushToTalk") {
         didSet { Self.ud.set(pushToTalk, forKey: "pushToTalk"); if running { setPaused(pushToTalk) } }
     }
@@ -129,10 +163,37 @@ final class EngineModel: NSObject, ObservableObject {
         "\(model)|\(mic)|\(denoise)|\(llmModel)|\(logText)|\(keyVersion)"
     }
     @Published private var launchedSignature: String?
-    var needsRestart: Bool { active && launchedSignature != nil && launchedSignature != restartSignature }
+    var needsRestart: Bool { state != .stopped && launchedSignature != nil && launchedSignature != restartSignature }
 
     private var proc: Process?
     private var launchedAt = Date.distantPast
+    private var restartWork: DispatchWorkItem?
+    /// App-Start: Engine einmal im Hintergrund laden.
+    private var booted = false
+    /// Zuhör-Wunsch vor einem Absturz ohne Auto-Neustart (für „Neu starten“ im Absturz-Hinweis).
+    private var listenBeforeCrash = false
+    /// Mikrofon an den Stimmprofil-Assistenten ausgeliehen; danach Zuhören wiederherstellen?
+    private var micLent = false
+    private var resumeAfterLend = false
+    /// Erstes `mic`-Ereignis nach dem Start empfangen. Erst dann nimmt die Engine `listen` an
+    /// (`ready` kommt beim Laden, das Mikrofon-Objekt entsteht erst danach).
+    private var micKnown = false
+    private var canListen: Bool { engineReady && micKnown }
+
+    /// Einstellung mit Neustart geändert: kurz warten (mehrere Änderungen bündeln), dann neu starten.
+    private func scheduleRestart() {
+        restartWork?.cancel(); restartWork = nil
+        guard state != .stopped else { return }
+        let w = DispatchWorkItem { [weak self] in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.restartWork = nil
+                if self.needsRestart { self.restart() }
+            }
+        }
+        restartWork = w
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8, execute: w)
+    }
 
     override init() {
         super.init()
@@ -179,36 +240,101 @@ final class EngineModel: NSObject, ObservableObject {
         return ud.string(forKey: "model") ?? "medium"
     }
 
-    func toggle() { active ? stop() : start() }
+    // MARK: Lebenszyklus
+    // Der Prozess startet beim App-Start mit `--idle` (Modelle laden, Mikrofon aus) und bleibt geladen.
+    // Start/Stopp schalten nur das Mikrofon (`listen`). Neustart nur bei Einstellungen, die die Engine
+    // beim Start liest, nach einem Absturz oder über „Neu starten“.
 
-    func start() {
-        guard state == .stopped else { return }   // kein Doppelstart, während die Mikrofon-Abfrage offen ist
-        state = .starting
+    /// Einmal beim App-Start: Engine im Hintergrund laden.
+    func boot() {
+        guard !booted else { return }
+        booted = true
+        if ProcessInfo.processInfo.environment["DOLMETSCHER_DEMO"] != nil { return }
+        startEngine()
+    }
+
+    /// Start/Stopp-Knopf, Menüleiste, ⌃⌥D.
+    func toggle() { active ? stopListening() : startListening() }
+
+    /// Zuhören einschalten. Lädt die Engine noch, wird der Wunsch gemerkt und bei `ready` gesendet.
+    func startListening() {
+        guard !micLent else { return }   // Stimmprofil-Assistent nimmt gerade auf
         crashLog = nil
-        status = L.t("starting")
-        AVCaptureDevice.requestAccess(for: .audio) { ok in
-            DispatchQueue.main.async {
-                MainActor.assumeIsolated {
-                    guard self.state == .starting else { return }   // inzwischen Stopp gedrückt
-                    if ok { self.launch() }
-                    else {
-                        self.state = .stopped
-                        self.status = L.t("nomic")
+        wantListen = true
+        switch AVCaptureDevice.authorizationStatus(for: .audio) {
+        case .authorized: break
+        case .notDetermined:
+            status = L.t("starting")
+            AVCaptureDevice.requestAccess(for: .audio) { ok in
+                DispatchQueue.main.async {
+                    MainActor.assumeIsolated {
+                        guard self.wantListen else { return }   // inzwischen Stopp gedrückt
+                        if ok { self.startListening() } else { self.wantListen = false; self.status = L.t("nomic") }
                     }
                 }
             }
+            return
+        default:
+            wantListen = false
+            status = L.t("nomic")
+            return
+        }
+        if state == .stopped { startEngine(); return }   // `ready` sendet dann listen
+        if canListen {
+            send(["listen": true])
+            if !micOn { status = L.t("starting") }
+        } else if engineReady {
+            status = L.t("starting")   // erstes `mic`-Ereignis sendet listen
+        } else {
+            status = L.t("loading") + " " + L.t("then_start")
         }
     }
 
-    func restart() { stop(); start() }
+    /// Zuhören ausschalten – Modelle bleiben geladen, der Prozess läuft weiter.
+    func stopListening() {
+        wantListen = false
+        if canListen { send(["listen": false]) }
+        pttWork?.cancel(); pttWork = nil; pttHolding = false
+        meter.reset()
+        status = restingStatus
+    }
+
+    /// Prozess neu starten; danach wieder im vorigen Zuhör-Zustand.
+    func restart() {
+        let want = wantListen || micOn || (state == .stopped && listenBeforeCrash)
+        stopProcess()
+        listenBeforeCrash = false
+        if want && !micLent { startListening() } else { startEngine() }
+    }
+
+    /// Beim Beenden der App.
+    func shutdown() { stopProcess() }
+
+    /// Mikrofon für den Stimmprofil-Assistenten freigeben (Engine bleibt geladen).
+    func lendMic() {
+        guard !micLent else { return }
+        micLent = true
+        resumeAfterLend = wantListen || micOn
+        if resumeAfterLend { stopListening() }
+    }
+
+    /// Nach dem Assistenten: vorigen Zuhör-Zustand wiederherstellen.
+    func returnMic() {
+        guard micLent else { return }
+        micLent = false
+        if resumeAfterLend { resumeAfterLend = false; startListening() }
+    }
 
     private static func f2(_ v: Double) -> String { String(format: "%.2f", v) }
 
     private func launchArgs(_ script: String) -> [String] {
-        var args = ["-u", script, "--json", "--model", model, "--polite", polite, "--lang", lang, "--meter",
+        var args = ["-u", script, "--json", "--idle", "--model", model, "--polite", polite, "--lang", lang, "--meter",
                     "--rate", String(rate), "--volume", Self.f2(volume),
                     "--silence", Self.f2(silence), "--sensitivity", sensitivity,
-                    "--llm-model", llmModel, logText ? "--log-text" : "--no-log-text"]
+                    "--llm-model", llmModel, logText ? "--log-text" : "--no-log-text",
+                    "--tts-race", Self.f2(ttsRace)]
+        if !fastEndpoint { args.append("--no-fast-endpoint") }
+        if !partialText { args.append("--no-partial") }
         if !speak { args.append("--mute") }
         if !trEN { args.append("--no-en") }
         if !trTH { args.append("--no-th") }
@@ -221,9 +347,12 @@ final class EngineModel: NSObject, ObservableObject {
         return args
     }
 
-    private func launch() {
+    /// Prozess im Leerlauf starten (`--idle`): Modelle laden, Mikrofon bleibt aus.
+    private func startEngine() {
+        guard state == .stopped else { return }
+        restartWork?.cancel(); restartWork = nil
         guard let script = Bundle.main.path(forResource: "dolmetscher", ofType: "py") else {
-            state = .stopped; status = "dolmetscher.py fehlt im App-Bundle"; return
+            status = "dolmetscher.py fehlt im App-Bundle"; wantListen = false; return
         }
         let p = Process()
         p.executableURL = URL(fileURLWithPath: Paths.python)
@@ -261,26 +390,34 @@ final class EngineModel: NSObject, ObservableObject {
         }
         do {
             try p.run()
-            proc = p; stdin = inp; state = .running; paused = false; status = L.t("starting")
+            proc = p; stdin = inp; state = .running; paused = false
+            engineReady = false; micOn = false; micKnown = false
+            status = L.t("loading") + (wantListen ? " " + L.t("then_start") : "")
             launchedAt = Date()
             launchedSignature = restartSignature
             if pushToTalk { setPaused(true) }   // kein Startargument dafür – direkt per stdin
         } catch {
-            state = .stopped
+            state = .stopped; wantListen = false
             status = "Start fehlgeschlagen: \(error.localizedDescription)"
         }
     }
 
-    /// Unerwartetes Ende: einmal automatisch neu starten, wenn die Engine schon länger lief.
+    /// Unerwartetes Ende: einmal automatisch neu starten, wenn die Engine schon länger lief
+    /// (im vorigen Zuhör-Zustand). `listen: false` beendet den Prozess nicht – kommt hier also nicht an.
     private func engineEnded(code: Int32) {
         let uptime = Date().timeIntervalSince(launchedAt)
+        let want = wantListen || micOn
         state = .stopped; proc = nil; stdin = nil; launchedSignature = nil
+        engineReady = false; micOn = false; micKnown = false
         resetRuntime()
         if code != 0 && uptime > 30 {
-            start()
+            wantListen = want
+            startEngine()
             status = L.t("auto_restart")
             return
         }
+        wantListen = false
+        listenBeforeCrash = want
         status = L.t("crashed") + " (Code \(code))"
         crashLog = Self.logTail()
     }
@@ -294,9 +431,12 @@ final class EngineModel: NSObject, ObservableObject {
         llmActive = false
         meter.reset()
         pttWork?.cancel(); pttWork = nil
+        for w in hearingTimers.values { w.cancel() }
+        hearingTimers.removeAll()
     }
 
-    func stop() {
+    /// Prozess beenden (Neustart, App-Ende). Der Zuhör-Wunsch bleibt – `restart()` braucht ihn.
+    private func stopProcess() {
         let p = proc
         proc = nil          // vor terminate(): der terminationHandler erkennt so einen gewollten Stopp
         stdin = nil
@@ -304,13 +444,31 @@ final class EngineModel: NSObject, ObservableObject {
             (p.standardOutput as? Pipe)?.fileHandleForReading.readabilityHandler = nil
             p.terminate()
         }
+        restartWork?.cancel(); restartWork = nil
         state = .stopped
+        engineReady = false; micOn = false; micKnown = false
         launchedSignature = nil
         replayPausedEngine = false
         resumeWork?.cancel(); resumeWork = nil
         buffer = Data()
         resetRuntime()
         status = L.t("stopped")
+    }
+
+    /// Status, wenn das Mikrofon aus ist.
+    private var restingStatus: String {
+        switch state {
+        case .stopped: return L.t("stopped")
+        default:
+            if !engineReady { return L.t("loading") + (wantListen ? " " + L.t("then_start") : "") }
+            return L.t("ready_press_start")
+        }
+    }
+
+    /// Status neu setzen (z. B. nach Wechsel der Oberflächensprache), wenn gerade nichts passiert.
+    func refreshStatus() {
+        if crashLog != nil || speakingNow { return }
+        status = micOn ? idleStatus : restingStatus
     }
 
     static func logTail(_ n: Int = 25) -> String {
@@ -338,6 +496,7 @@ final class EngineModel: NSObject, ObservableObject {
 
     /// Status nach dem Ende einer Ausgabe bzw. wenn nichts vorgelesen wird.
     private var idleStatus: String {
+        if !micOn { return restingStatus }   // späte Ereignisse nach `listen: false` zeigen nicht „Hört zu“
         if paused { return pushToTalk ? "⏸ " + L.t("hold_to_talk") : Self.pausedText }
         return busy ? L.t("thinking") : L.t("listening")
     }
@@ -353,23 +512,68 @@ final class EngineModel: NSObject, ObservableObject {
         case "loading":   // Engine meldet, welches Modell gerade lädt (z. B. "Lade Thai-Modell …")
             let msg = o["msg"] as? String ?? ""
             status = L.t("loading") + (msg.contains("Thai") ? " (ไทย)" : msg.contains("turbo") ? " (EN+)" : "")
+                + (wantListen ? " " + L.t("then_start") : "")
         case "ready":
-            status = L.t("ready") + " (" + (o["device"] as? String == "mps" ? "Apple-GPU" : "CPU") + ")"
+            engineReady = true
             llmActive = o["llm"] as? Bool ?? false
             if pushToTalk && !pttHolding { setPaused(true) }
+            if wantListen && !micLent {
+                if canListen { send(["listen": true]) }   // sonst beim ersten `mic`-Ereignis
+                status = L.t("starting")
+            } else {
+                wantListen = false
+                status = restingStatus
+            }
+        case "mic":
+            let on = o["on"] as? Bool ?? false
+            let first = !micKnown
+            micKnown = true
+            micOn = on
+            if first && !on && wantListen && !micLent {
+                // Start wurde während des Ladens gedrückt: jetzt erst kann die Engine `listen` annehmen.
+                if engineReady { send(["listen": true]); status = L.t("starting") }
+                break
+            }
+            if on || engineReady { wantListen = on }   // Engine ist maßgeblich (z. B. Mikrofon ließ sich nicht öffnen)
+            if on {
+                if pushToTalk && !pttHolding { setPaused(true) }
+            } else {
+                meter.reset()
+                pttWork?.cancel(); pttWork = nil; pttHolding = false
+            }
+            if !speakingNow { status = idleStatus }
         case "listening":   // ändert den Sprech-Status nicht
             if id == nil { pendingIDs.remove("?") }   // ältere Engine ohne ids
             if !speakingNow { status = idleStatus }
-        case "hearing": if !speakingNow { status = L.t("hearing") }
+        case "hearing":
+            if let id { touchPlaceholder(id) }
+            if !speakingNow && micOn { status = L.t("hearing") }
+        case "partial":
+            guard let id else { break }
+            touchPlaceholder(id)
+            let text = (o["text"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            if let i = index(of: id), items[i].pending, !text.isEmpty {
+                items[i].partial = text
+                if let l = o["lang"] as? String { items[i].lang = l }
+            }
         case "thinking":
             let key = id ?? "?"
             pendingIDs.insert(key)
-            if let id, index(of: id) == nil { items.append(.placeholder(id)) }
+            if let id {
+                cancelHearingTimer(id)
+                if index(of: id) == nil { items.append(.placeholder(id)) }
+            }
             if !speakingNow { status = L.t("thinking") }
         case "speaking":
             let key = id ?? "?"
             speakingIDs.insert(key)
-            if let i = index(of: id), let f = o["first_s"] as? Double { items[i].firstSound = f }
+            if let i = index(of: id) {
+                if let f = o["first_s"] as? Double { items[i].firstSound = f }
+                if let lat = (o["latency_s"] as? NSNumber)?.doubleValue {
+                    items[i].latency = lat
+                    if items[i].source == nil || items[i].source == "mic" { recordLatency(lat) }
+                }
+            }
             status = L.t("speaking")
         case "speak_done":
             speakingIDs.remove(id ?? "?")
@@ -381,6 +585,7 @@ final class EngineModel: NSObject, ObservableObject {
         case "level":
             meter.rms = min(1, max(0, o["rms"] as? Double ?? 0))
             meter.voice = o["voice"] as? Bool ?? false
+            if meter.voice { lastVoiceAt = Date() }
         case "net":
             let what = o["what"] as? String ?? "translate"
             if o["ok"] as? Bool ?? true { netDown.remove(what) } else { netDown.insert(what) }
@@ -388,6 +593,7 @@ final class EngineModel: NSObject, ObservableObject {
         case "command": applyCommand(o)
         case "dropped":
             if let id {
+                cancelHearingTimer(id)
                 pendingIDs.remove(id)
                 items.removeAll { $0.pending && $0.uid == id }
             } else {
@@ -423,13 +629,14 @@ final class EngineModel: NSObject, ObservableObject {
     private func addUtterance(_ o: [String: Any], id: String?) {
         let l = o["lang"] as? String ?? "en"
         let translated = o["translated"] as? Bool ?? true
-        let u = Utterance(uid: id, translated: translated, speaker: o["speaker"] as? String, lang: l,
+        var u = Utterance(uid: id, translated: translated, speaker: o["speaker"] as? String, lang: l,
                           to: o["to"] as? String ?? (translated ? (l == "en" ? "th" : "en") : l),
                           text: o["text"] as? String ?? "", out: o["out"] as? String ?? "",
                           stt: o["stt"] as? Double ?? 0, tr: o["tr"] as? Double ?? 0,
                           lp: o["lp"] as? Double, provider: o["provider"] as? String,
                           source: o["source"] as? String)
-        if let id { pendingIDs.remove(id) } else { pendingIDs.remove("?") }
+        u.readyS = (o["ready_s"] as? NSNumber)?.doubleValue
+        if let id { cancelHearingTimer(id); pendingIDs.remove(id) } else { pendingIDs.remove("?") }
         if let old = o["replaces"] as? String, let i = index(of: old) {
             items[i] = u
             if let id { items.removeAll { $0.pending && $0.uid == id } }
@@ -438,6 +645,48 @@ final class EngineModel: NSObject, ObservableObject {
         } else {
             items.append(u)
         }
+    }
+
+    // MARK: Platzhalter mit Teiltext
+
+    /// Platzhalter je `hearing`-id: Läuft nach 3 s ohne weiteres Ereignis ab (z. B. `dropped` ohne id, „zu kurz“).
+    private var hearingTimers: [String: DispatchWorkItem] = [:]
+    private var lastVoiceAt = Date.distantPast
+
+    /// Platzhalter für `id` anlegen (falls nötig) und die 3-s-Frist neu starten.
+    private func touchPlaceholder(_ id: String) {
+        if index(of: id) == nil { items.append(.placeholder(id)) }
+        guard !pendingIDs.contains(id) else { return }   // schon in Erkennung – `utt`/`dropped` räumen auf
+        scheduleHearingTimeout(id)
+    }
+
+    private func scheduleHearingTimeout(_ id: String) {
+        hearingTimers[id]?.cancel()
+        let w = DispatchWorkItem { [weak self] in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.hearingTimers[id] = nil
+                guard !self.pendingIDs.contains(id) else { return }
+                // Spricht noch jemand (Pegel), Frist verlängern – sonst springt die Blase ans Ende.
+                if Date().timeIntervalSince(self.lastVoiceAt) < 1.0 { self.scheduleHearingTimeout(id); return }
+                self.items.removeAll { $0.pending && $0.uid == id }
+            }
+        }
+        hearingTimers[id] = w
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0, execute: w)
+    }
+
+    private func cancelHearingTimer(_ id: String) {
+        hearingTimers[id]?.cancel()
+        hearingTimers[id] = nil
+    }
+
+    private func recordLatency(_ v: Double) {
+        latencies.append(v)
+        if latencies.count > 10 { latencies.removeFirst(latencies.count - 10) }
+        let s = latencies.sorted()
+        let n = s.count
+        latencyMedian = n == 0 ? nil : (n % 2 == 1 ? s[n / 2] : (s[n / 2 - 1] + s[n / 2]) / 2)
     }
 
     // MARK: Steuerung
@@ -473,7 +722,7 @@ final class EngineModel: NSObject, ObservableObject {
     @Published private(set) var pttHolding = false
 
     func pttDown() {
-        guard running, !pttHolding else { return }
+        guard running, micOn, !pttHolding else { return }
         pttHolding = true
         pttWork?.cancel(); pttWork = nil
         setPaused(false)
@@ -512,7 +761,7 @@ final class EngineModel: NSObject, ObservableObject {
         let s = AVSpeechUtterance(string: u.out)
         s.voice = AVSpeechSynthesisVoice(language: u.to == "th" ? "th-TH" : "en-US")
         s.rate = AVSpeechUtteranceDefaultSpeechRate * 0.95
-        if running && !paused && !replayPausedEngine {
+        if running && micOn && !paused && !replayPausedEngine {
             send(["paused": true]); replayPausedEngine = true
         }
         replayingID = u.id

@@ -8,7 +8,6 @@ struct SettingsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if m.needsRestart { RestartBar() }
             TabView {
                 GeneralSettings().tabItem { Label(L.t("tab_general"), systemImage: "gearshape") }
                 VoiceSettings().tabItem { Label(L.t("tab_voice"), systemImage: "speaker.wave.2") }
@@ -21,21 +20,7 @@ struct SettingsView: View {
     }
 }
 
-/// Hinweis + Knopf, wenn Einstellungen erst nach einem Neustart der Engine wirken.
-struct RestartBar: View {
-    @EnvironmentObject var m: EngineModel
-    var body: some View {
-        HStack {
-            Label(L.t("needs_restart"), systemImage: "arrow.clockwise.circle")
-            Spacer()
-            Button(L.t("restart")) { m.restart() }.buttonStyle(.borderedProminent)
-        }
-        .padding(10)
-        .background(Color.orange.opacity(0.15))
-    }
-}
-
-/// Kleiner Zusatz an Einstellungen, die einen Neustart brauchen.
+/// Kleiner Zusatz an Einstellungen, deren Änderung die Engine neu startet (automatisch).
 private struct RestartNote: View {
     var body: some View {
         Text(L.t("restart_note")).font(.caption).foregroundStyle(.secondary)
@@ -71,7 +56,7 @@ private struct GeneralSettings: View {
                 }
                 .accessibilityLabel("Erkennungsmodell")
             } header: { Text("Modell") } footer: {
-                Text(m.active ? L.t("needs_restart") : "Größere Modelle erkennen genauer, brauchen aber länger.")
+                Text("Größere Modelle erkennen genauer, brauchen aber länger. " + L.t("restart_note"))
                     .foregroundStyle(.secondary)
             }
             MicSection()
@@ -159,6 +144,9 @@ private struct RecognitionSection: View {
             Toggle(isOn: $m.denoise) {
                 VStack(alignment: .leading) { Text(L.t("denoise")); RestartNote() }
             }
+            Toggle(L.t("fast_endpoint"), isOn: $m.fastEndpoint)
+                .help(L.t("fast_endpoint_help"))
+            Toggle(L.t("partial_text"), isOn: $m.partialText)
         }
     }
 }
@@ -212,8 +200,28 @@ private struct VoiceSettings: View {
                 }
                 .accessibilityLabel(L.t("voice_th"))
             }
+            TTSRaceSection()
         }
         .formStyle(.grouped)
+    }
+}
+
+/// Neural-Stimme zu langsam → nach … s spricht die macOS-Ersatzstimme (0 = aus).
+private struct TTSRaceSection: View {
+    @EnvironmentObject var m: EngineModel
+    private var valueText: String { m.ttsRace <= 0 ? L.t("off") : fmtSeconds(m.ttsRace) }
+    var body: some View {
+        Section {
+            HStack {
+                Text(L.t("tts_race"))
+                Slider(value: $m.ttsRace, in: 0...3, step: 0.1)
+                    .accessibilityLabel(L.t("tts_race"))
+                    .accessibilityValue(valueText)
+                Text(valueText).monospacedDigit().frame(width: 52, alignment: .trailing)
+            }
+        } footer: {
+            Text(L.t("tts_race_help")).foregroundStyle(.secondary)
+        }
     }
 }
 

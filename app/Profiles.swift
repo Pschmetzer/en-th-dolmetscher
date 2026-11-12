@@ -84,7 +84,8 @@ final class ProfilesModel: ObservableObject {
     /// Thai-Profil -> Assistent auf Thai; sonst App-Sprache (Englisch, falls die App auf Thai steht).
     var forced: UILang { enrollLang == "th" ? .th : (L.lang == .th ? .en : L.lang) }
 
-    func startEnroll(name: String, lang: String, model: String) {
+    /// `onDone` läuft, sobald der Aufnahme-Prozess beendet ist (Mikrofon wieder frei).
+    func startEnroll(name: String, lang: String, model: String, onDone: @escaping () -> Void = {}) {
         enrolling = true; enrollLang = lang; step = 0; sentence = ""; heard = ""; finished = nil; failed = nil
         hint = L.t("prep", forced)
         proc = EngineRunner.run(["--enroll", name, "--enroll-lang", lang, "--model", model],
@@ -95,8 +96,9 @@ final class ProfilesModel: ObservableObject {
                                         self.failed = L.t("ended", self.forced)
                                     }
                                     self.proc = nil; self.reload()
+                                    onDone()
                                 })
-        if proc == nil { failed = "dolmetscher.py?" }
+        if proc == nil { failed = "dolmetscher.py?"; onDone() }
     }
 
     func cancel() { proc?.terminate(); proc = nil; enrolling = false }
@@ -131,6 +133,7 @@ struct ProfilesView: View {
         Group { if pm.enrolling { EnrollView(pm: pm) } else { list } }
             .frame(width: 660, height: 500)
             .onAppear { pm.reload() }
+            .onDisappear { pm.cancel(); m.returnMic() }   // Fenster zu: Aufnahme beenden, Zuhören wiederherstellen
             .id(uiLang)
     }
 
@@ -160,8 +163,9 @@ struct ProfilesView: View {
                 }.frame(width: 230)
                 Spacer()
                 Button {
-                    m.stop()                         // Mikrofon freigeben
-                    pm.startEnroll(name: newName.trimmingCharacters(in: .whitespaces), lang: newLang, model: m.model)
+                    m.lendMic()                      // Mikrofon freigeben (Engine bleibt geladen)
+                    pm.startEnroll(name: newName.trimmingCharacters(in: .whitespaces), lang: newLang, model: m.model,
+                                   onDone: { m.returnMic() })
                     newName = ""
                 } label: { Label(L.t("record"), systemImage: "record.circle") }
                 .buttonStyle(.borderedProminent)
@@ -188,7 +192,10 @@ struct ProfilesView: View {
                     }
                 }
                 Spacer()
-                Button(L.t("redo")) { m.stop(); pm.startEnroll(name: p.name, lang: p.lang, model: m.model) }
+                Button(L.t("redo")) {
+                    m.lendMic()
+                    pm.startEnroll(name: p.name, lang: p.lang, model: m.model, onDone: { m.returnMic() })
+                }
                 Button(role: .destructive) { confirmDelete = p } label: { Image(systemName: "trash") }
                     .help(L.t("delete"))
             }

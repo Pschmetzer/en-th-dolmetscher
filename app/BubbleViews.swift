@@ -8,7 +8,7 @@ struct Bubble: View {
     var onCorrect: (Utterance) -> Void = { _ in }
 
     var body: some View {
-        if u.pending { PlaceholderBubble(scale: scale) } else { content }
+        if u.pending { PlaceholderBubble(u: u, scale: scale) } else { content }
     }
 
     private var en: Bool { u.lang == "en" }
@@ -125,14 +125,16 @@ private struct BubbleFooter: View {
     let scale: Double
     @AppStorage(Prefs.showDetails) private var showDetails = false
 
-    private static func sec(_ v: Double) -> String { String(format: "%.1f s", v) }
+    private static func sec(_ v: Double) -> String { fmtSeconds(v) }
 
     private var details: String {
         var parts: [String] = []
         if let p = u.provider, !p.isEmpty { parts.append(p) }
         if u.stt > 0 { parts.append(L.t("stt_short") + " " + Self.sec(u.stt)) }
         if u.tr > 0 { parts.append(L.t("tr_short") + " " + Self.sec(u.tr)) }
-        if let f = u.firstSound { parts.append(L.t("first_sound") + " " + Self.sec(f)) }
+        if let r = u.readyS { parts.append(L.t("ready_short") + " " + Self.sec(r)) }
+        if let l = u.latency { parts.append(L.t("to_sound") + " " + Self.sec(l)) }
+        else if let f = u.firstSound { parts.append(L.t("first_sound") + " " + Self.sec(f)) }
         if let lp = u.lp { parts.append(String(format: "lp %.2f", lp)) }
         return parts.joined(separator: " · ")
     }
@@ -158,10 +160,21 @@ private struct BubbleFooter: View {
     }
 }
 
-/// Platzhalter, solange die Engine eine Äußerung erkennt/übersetzt.
+/// Platzhalter, solange gesprochen bzw. erkannt/übersetzt wird – mit vorläufigem Text (`partial`).
 private struct PlaceholderBubble: View {
+    let u: Utterance
     let scale: Double
+
+    private var partial: String? {
+        guard let p = u.partial, !p.isEmpty else { return nil }
+        return p
+    }
+
     var body: some View {
+        if let p = partial { partialBody(p) } else { plainBody }
+    }
+
+    private var plainBody: some View {
         HStack(spacing: 8) {
             ProgressView().controlSize(.small)
             Text(L.t("translating_placeholder"))
@@ -172,6 +185,23 @@ private struct PlaceholderBubble: View {
         .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 14))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(L.t("translating_placeholder"))
+    }
+
+    private func partialBody(_ p: String) -> some View {
+        let en = u.lang != "th"
+        return HStack(alignment: .firstTextBaseline, spacing: 8) {
+            if !en { Spacer(minLength: 0) }
+            ProgressView().controlSize(.small)
+            Text(LangStyle.flag(u.lang) + " " + p)
+                .font(.system(size: 17 * scale)).italic().foregroundStyle(.secondary)
+                .multilineTextAlignment(en ? .leading : .trailing)
+            if en { Spacer(minLength: 0) }
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: en ? .leading : .trailing)
+        .background(LangStyle.color(u.lang).opacity(0.06), in: RoundedRectangle(cornerRadius: 14))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(L.t("partial_a11y") + ": " + p)
     }
 }
 
