@@ -139,7 +139,7 @@ final class EngineModel: NSObject, ObservableObject {
         didSet { Self.ud.set(fastEndpoint, forKey: "fastEndpoint"); send(["fast_endpoint": fastEndpoint]) }
     }
     /// Vorläufigen Text schon während des Sprechens zeigen.
-    @Published var partialText = ud.object(forKey: "partialText") as? Bool ?? true {
+    @Published var partialText = ud.object(forKey: "partialText") as? Bool ?? false {   // Standard aus: ein Teiltext kann die Erkennung verzögern
         didSet { Self.ud.set(partialText, forKey: "partialText"); send(["partial": partialText]) }
     }
     // Nur beim Start wirksam – Änderung startet den Prozess neu (Zuhör-Zustand bleibt).
