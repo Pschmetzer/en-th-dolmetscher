@@ -20,7 +20,8 @@ from faster_whisper import WhisperModel
 SR = 16000
 SILENCE_END = 0.7                 # s Stille = Satzende (--silence, live änderbar)
 MIN_UTT = 0.3                     # s, kürzer wird ignoriert (Log: leise Wörter mit 0,32 s gingen verloren)
-MAX_UTT = 20.0                    # s, länger wird an der leisesten Stelle geteilt
+MAX_UTT = 10.0                    # s, länger wird an der leisesten Stelle geteilt – der erste Teil wird
+                                  # schon übersetzt, während noch gesprochen wird
 MIN_LANG_P = 0.35                 # en+th zusammen mindestens so wahrscheinlich, sonst ignorieren
 # unsicherere Transkripte gelten als Rauschen/Halluzination; Thai bekommt systematisch
 # schlechtere log-probs (Log: echte Thai-Sätze bis −0.99), deshalb eine eigene Schwelle
@@ -536,7 +537,7 @@ def wait_quiet(limit=5.0, cancelled=None):
     return time.time() - t
 
 
-HEDGE = 1.2                            # s ohne Ton bis zum zweiten TTS-Versuch
+HEDGE = 0.8                            # s ohne Ton bis zum zweiten TTS-Versuch (Log: 1. Ton oft erst nach ~2 s)
 FIRST_DEADLINE = 3.0                   # s ohne Ton -> macOS-Stimme übernimmt (vorher 6 s)
 _TTS_LOOP = None
 _TTS_LOCK = threading.Lock()
@@ -900,7 +901,9 @@ class Engine:
                 self.m_th = load_model(THAI_MODEL, self.device)[0]
             except Exception as e:
                 log({"thai_model": "nicht geladen", "err": repr(e)[:200]})
-        self.beam = 5 if self.device == "mps" else 1
+        # Beam 1: gemessen (MPS, Thai-Modell) 1,45 s statt 2,5 s (Beam 3/5) bei gleichem Text; der
+        # Decoder dominiert, weil Thai viele Tokens braucht.
+        self.beam = 1
         log({"model": model, "device": self.device, "load_s": round(time.time() - t, 1)})
         self.voice = {k: pick_voice(k) for k in VOICE}
         self.voices = {"en": None, "th": None, **(voices or {})}   # gewählte Neural-Stimmen (None = Standard)
@@ -1040,19 +1043,26 @@ class Engine:
              polite=self.polite, rate=self.rate, volume=round(self.volume, 2),
              voice_en=self.voices.get("en") or "", voice_th=self.voices.get("th") or "", **extra)
 
-    def _stt(self, audio, lang, hotwords=None, model=None):
-        """Text, mittlere log-prob, Segmente. Thai: keine Wiederholungs-Sperren (มากๆ, ไม่ไม่ und
-        ครับครับ sind echtes Thai), keine zweite VAD (Silero hat schon geschnitten und würde leise
-        Wortenden kappen) und kein Token-Limit (lange Thai-Sätze wurden bei 160 Tokens abgeschnitten)."""
+    def _stt(self, audio, lang, hotwords=None, model=None, quick=False):
+        """Text, mittlere log-prob, Segmente.
+        - Token-Grenze nach Dauer (~14 Tokens/s + Reserve): lange Sätze passen ganz hinein (früher
+          bei 160 abgeschnitten), aber eine Wiederholungsschleife auf fremdem Audio endet schnell.
+        - temperature=0: keine Temperatur-Wiederholungen. Bei einer Halluzination rechnete Whisper
+          sonst bis zu 6x neu (Log: 2 s Audio -> 60 s Rechenzeit, danach Stau von 7 Sätzen).
+        - Thai: keine Wiederholungs-Sperren (มากๆ, ไม่ไม่ sind echtes Thai), keine zweite VAD.
+        - quick: Gegenprobe in der anderen Sprache mit Beam 1 (nur der log-prob-Vergleich zählt)."""
         mdl = model or (self.m_en if (lang == "en" and self.m_en) else
                         self.m_th if (lang == "th" and self.m_th) else self.m)
+        dur = audio.size / SR
+        cap = int(min(440, 24 + 14 * dur))
         if lang == "th":
             kw = dict(repetition_penalty=1.0, no_repeat_ngram_size=0, vad_filter=False)
         else:
-            kw = dict(repetition_penalty=1.1, no_repeat_ngram_size=4, max_new_tokens=220,
+            kw = dict(repetition_penalty=1.1, no_repeat_ngram_size=4,
                       vad_filter=True, vad_parameters={"threshold": 0.1})
-        segs, _ = mdl.transcribe(audio, language=lang, beam_size=self.beam, hotwords=hotwords,
-                                 condition_on_previous_text=False, **kw)
+        segs, _ = mdl.transcribe(audio, language=lang, beam_size=1 if quick else self.beam, hotwords=hotwords,
+                                 condition_on_previous_text=False, temperature=0.0,
+                                 max_new_tokens=cap, **kw)
         segs = list(segs)
         if lang == "th":
             # Thai-Modell setzt Leerzeichen zwischen Wörter – Thai schreibt man ohne. Leerzeichen
@@ -1119,14 +1129,16 @@ class Engine:
             text, lp, segs = self._stt(audio, lang, hotwords=hot if who and who.get("lang") == lang else None)
             # unklar? beide Sprachen probieren und die sicherere nehmen
             times["stt"] = round(time.time() - t0 - times["detect"], 2)
-            if (lang == "en" and pt > 0.2) or (lang == "th" and pe > 0.2) or not text \
-                    or max(pe, pt) < 0.6 or lp < -0.6:
+            # Gegenprobe in der anderen Sprache nur, wenn es wirklich unklar ist – und nicht bei Stau
+            busy = _QSTATE["stt_q"] is not None and _QSTATE["stt_q"].qsize() >= 2
+            if not busy and ((lang == "en" and pt > 0.2) or (lang == "th" and pe > 0.2) or not text
+                             or max(pe, pt) < 0.5 or lp < -0.8):
                 other = "th" if lang == "en" else "en"
                 ta = time.time()
-                t2, lp2, segs2 = self._stt(audio, other)
+                t2, lp2, segs2 = self._stt(audio, other, quick=True)
                 times["alt"] = round(time.time() - ta, 2)
                 info.update(alt=other, alt_text=t2, alt_lp=round(lp2, 3), lp=round(lp, 3))
-                if t2 and (lp2 > lp or not text):
+                if t2 and (lp2 > lp or not text) and not looks_hallucinated(t2, audio.size / SR, segs2):
                     lang, text, lp, segs = other, t2, lp2, segs2
         info.update(lang=lang, text=text, lp=round(lp, 3))
 
