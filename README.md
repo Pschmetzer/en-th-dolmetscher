@@ -30,7 +30,7 @@ python3 dolmetscher.py            # --model base|small|medium  --polite krub|ka 
 
 ## Browser version
 
-`index.html` is a simple variant with the Web Speech API (Chrome, buttons for EN/TH). Serve it with `python3 -m http.server` and open it in Chrome.
+Live: https://pschmetzer.github.io/en-th-dolmetscher/ — `index.html` is a simple variant with the Web Speech API (Chrome, buttons for EN/TH). Serve it with `python3 -m http.server` and open it in Chrome.
 
 ## Notes
 

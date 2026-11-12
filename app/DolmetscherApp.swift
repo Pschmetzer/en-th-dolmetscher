@@ -16,9 +16,10 @@ final class EngineModel: ObservableObject {
     @Published var status = "Gestoppt"
     @Published var running = false
     @Published var busy = false
-    @AppStorage("speak") var speak = true
-    @AppStorage("polite") var polite = "krub"
-    @AppStorage("model") var model = "small"
+    private static let ud = UserDefaults.standard
+    @Published var speak = ud.object(forKey: "speak") as? Bool ?? true { didSet { Self.ud.set(speak, forKey: "speak") } }
+    @Published var polite = ud.string(forKey: "polite") ?? "krub" { didSet { Self.ud.set(polite, forKey: "polite") } }
+    @Published var model = ud.string(forKey: "model") ?? "small" { didSet { Self.ud.set(model, forKey: "model") } }
 
     private var proc: Process?
     private var buffer = Data()
@@ -56,13 +57,18 @@ final class EngineModel: ObservableObject {
         let out = Pipe()
         p.standardOutput = out
         p.standardError = FileHandle.nullDevice
-        out.fileHandleForReading.readabilityHandler = { [weak self] h in
+        buffer = Data()
+        out.fileHandleForReading.readabilityHandler = { [weak self, weak p] h in
             let d = h.availableData
-            Task { @MainActor in self?.consume(d) }
-        }
-        p.terminationHandler = { [weak self] _ in
+            if d.isEmpty { h.readabilityHandler = nil; return }
             Task { @MainActor in
-                guard let self else { return }
+                guard let self, let p, self.proc === p else { return }
+                self.consume(d)
+            }
+        }
+        p.terminationHandler = { [weak self] ended in
+            Task { @MainActor in
+                guard let self, self.proc === ended else { return }   // nur der aktuelle Prozess
                 if self.running { self.status = "Engine beendet" }
                 self.running = false; self.busy = false; self.proc = nil
             }
@@ -77,8 +83,12 @@ final class EngineModel: ObservableObject {
 
     func stop() {
         running = false
-        proc?.terminate()
+        if let p = proc {
+            (p.standardOutput as? Pipe)?.fileHandleForReading.readabilityHandler = nil
+            p.terminate()
+        }
         proc = nil
+        buffer = Data()
         busy = false
         status = "Gestoppt"
     }
