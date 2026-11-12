@@ -3,59 +3,105 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>EN ⇄ TH Dolmetscher</title>
+<title>EN ⇄ TH Dolmetscher (Web Lite)</title>
 <style>
-  :root { --bg:#0f1115; --card:#1a1d24; --fg:#eef0f4; --mut:#8a90a0; --en:#3b82f6; --th:#f59e0b; --ok:#22c55e; }
+  :root {
+    --bg:#f6f7f9; --card:#ffffff; --fg:#14171f; --mut:#5d6475; --line:#dfe2e8;
+    --en:#2563eb; --th:#d97706; --btn-en:#1d4ed8; --btn-th:#b45309; --btn-fg:#fff;
+    --note-bg:#eef4ff; --note-line:#bcd0fa; --warn-bg:#fde8e8; --kbd:#e8eaf0; --focus:#2563eb;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#0f1115; --card:#1a1d24; --fg:#eef0f4; --mut:#9aa0b0; --line:#262a33;
+      --en:#3b82f6; --th:#f59e0b; --btn-en:#1e3a8a; --btn-th:#78350f;
+      --note-bg:#17233d; --note-line:#2c4271; --warn-bg:#4c1d1d; --kbd:#333a47; --focus:#8ab4ff;
+    }
+  }
   * { box-sizing:border-box; }
+  html, body { overflow-x:hidden; }
   body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.4 -apple-system,system-ui,sans-serif; }
-  header { display:flex; gap:12px; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid #262a33; flex-wrap:wrap; }
+  .wrap { padding-left:16px; padding-right:16px; max-width:1000px; margin:0 auto; }
+  header { display:flex; gap:12px; align-items:center; justify-content:space-between; padding:14px 0; flex-wrap:wrap; }
   h1 { font-size:18px; margin:0; }
   #status { color:var(--mut); font-size:14px; }
-  .controls { display:flex; gap:12px; padding:16px 20px; flex-wrap:wrap; }
-  button.mode { flex:1; min-width:220px; padding:22px; font-size:20px; font-weight:600; border:3px solid transparent; border-radius:14px; cursor:pointer; color:#fff; }
-  #btnEN { background:#1e3a8a; } #btnTH { background:#78350f; }
-  button.mode.active { border-color:#fff; box-shadow:0 0 0 4px rgba(255,255,255,.15); animation:pulse 1.4s infinite; }
+  .note { background:var(--note-bg); border:1px solid var(--note-line); border-radius:10px; padding:10px 14px; font-size:14px; margin-bottom:12px; }
+  .note a { color:var(--focus); }
+  .controls { display:flex; gap:12px; padding:4px 0 12px; flex-wrap:wrap; }
+  button { font:inherit; color:inherit; }
+  button.mode { flex:1; min-width:220px; padding:22px; font-size:20px; font-weight:600; border:3px solid transparent; border-radius:14px; cursor:pointer; color:var(--btn-fg); }
+  #btnEN { background:var(--btn-en); } #btnTH { background:var(--btn-th); }
+  button.mode.active { border-color:var(--fg); box-shadow:0 0 0 4px rgba(128,128,128,.25); animation:pulse 1.4s infinite; }
   @keyframes pulse { 50% { opacity:.8; } }
-  .opts { display:flex; gap:18px; padding:0 20px 10px; color:var(--mut); font-size:14px; flex-wrap:wrap; }
-  #live { margin:0 20px 12px; padding:14px 16px; background:var(--card); border-radius:10px; min-height:52px; font-size:22px; color:var(--mut); font-style:italic; }
-  #log { padding:0 20px 40px; display:flex; flex-direction:column-reverse; gap:12px; }
-  .entry { background:var(--card); border-radius:12px; padding:14px 18px; border-left:6px solid var(--en); }
+  button:focus-visible, input:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
+  .opts { display:flex; gap:10px 18px; padding:0 0 10px; color:var(--mut); font-size:14px; flex-wrap:wrap; align-items:center; }
+  .opts label { cursor:pointer; }
+  .small { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; }
+  #live { margin:0 0 12px; padding:14px 16px; background:var(--card); border-radius:10px; min-height:52px; font-size:22px; color:var(--mut); font-style:italic; overflow-wrap:anywhere; }
+  #log { padding-bottom:24px; display:flex; flex-direction:column-reverse; gap:12px; }
+  .entry { background:var(--card); border-radius:12px; padding:14px 18px; border-left:6px solid var(--en); overflow-wrap:anywhere; }
   .entry.th { border-left-color:var(--th); }
+  .entry.cmd { border-left-color:var(--mut); opacity:.8; }
   .orig { color:var(--mut); font-size:16px; }
   .trans { font-size:30px; font-weight:600; margin-top:6px; }
   .entry.th .trans { font-size:28px; }
-  #warn { display:none; margin:0 20px 12px; padding:12px 16px; background:#4c1d1d; border-radius:10px; }
-  kbd { background:#333; padding:1px 6px; border-radius:4px; font-size:13px; }
+  .trans.err { font-size:16px; font-weight:400; color:var(--mut); font-style:italic; }
+  #warn { display:none; margin:0 0 12px; padding:12px 16px; background:var(--warn-bg); border-radius:10px; }
+  kbd { background:var(--kbd); padding:1px 6px; border-radius:4px; font-size:13px; font-family:inherit; }
+  .help { color:var(--mut); font-size:13px; padding-bottom:12px; }
+  .help summary { cursor:pointer; }
+  #partner { display:none; position:fixed; inset:0; z-index:10; background:var(--bg); color:var(--fg); flex-direction:column; padding:16px; }
+  #partner.on { display:flex; }
+  #partner .bar { display:flex; justify-content:space-between; align-items:center; gap:12px; color:var(--mut); font-size:14px; }
+  #partnerText { flex:1; display:flex; align-items:center; justify-content:center; text-align:center; font-weight:700; font-size:clamp(40px,11vw,160px); line-height:1.15; overflow-wrap:anywhere; padding:8px 0; }
   @media (max-width:500px){ .trans{font-size:22px;} button.mode{min-width:100%;} }
 </style>
 </head>
 <body>
+<div class="wrap">
 <header>
-  <h1>🇬🇧 EN ⇄ TH 🇹🇭 Dolmetscher</h1>
-  <span id="status">Bereit</span>
+  <h1>🇬🇧 EN ⇄ TH 🇹🇭 Dolmetscher <small style="color:var(--mut);font-weight:400">Web Lite</small></h1>
+  <span id="status" role="status" aria-live="polite">Bereit</span>
 </header>
+<div class="note">
+  <b>Web-Lite-Version.</b> Die <b>Mac-App</b> ist deutlich besser: automatische Spracherkennung (kein Umschalten E/T), Sprachbefehle in beiden Sprachen, bessere Erkennung, Neural-Stimmen.
+  Hier musst du die Sprache selbst wählen. <a href="https://github.com/Pschmetzer/en-th-dolmetscher" target="_blank" rel="noopener">Mac-App &amp; Quellcode auf GitHub</a>
+</div>
 <div id="warn"></div>
 <div class="controls">
   <button class="mode" id="btnEN">🎙 Ich spreche (English) <kbd>E</kbd></button>
   <button class="mode" id="btnTH">🎙 พูดภาษาไทย (Thai) <kbd>T</kbd></button>
 </div>
 <div class="opts">
+  <label><input type="checkbox" id="dirEN" checked> Translate EN→TH</label>
+  <label><input type="checkbox" id="dirTH" checked> Translate TH→EN</label>
   <label><input type="checkbox" id="speak" checked> Übersetzung vorlesen</label>
   <label><input type="checkbox" id="autoswitch"> Nach jedem Satz Sprecher wechseln</label>
-  <span><kbd>Leertaste</kbd> = Stopp</span>
+  <button class="small" id="btnPartner" type="button">Partneransicht <kbd>P</kbd></button>
 </div>
-<div id="live">…</div>
+<details class="help">
+  <summary>Tastenkürzel &amp; Sprachbefehle</summary>
+  <p><kbd>E</kbd> English sprechen · <kbd>T</kbd> Thai sprechen · <kbd>Leertaste</kbd> Stopp · <kbd>P</kbd> Partneransicht · <kbd>Esc</kbd> Partneransicht schließen<br>
+  Sprachbefehle im EN-Modus, am Satzanfang (werden nie übersetzt): „Translator pause“, „resume“, „repeat“, „slower“, „faster“.</p>
+</details>
+<div id="live" aria-live="off">…</div>
 <div id="log"></div>
+</div>
+
+<div id="partner" role="dialog" aria-label="Partneransicht">
+  <div class="bar"><span>Letzte Übersetzung</span><button class="small" id="btnPartnerClose" type="button">Schließen <kbd>Esc</kbd></button></div>
+  <div id="partnerText" lang="th">…</div>
+</div>
 
 <script>
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const $ = id => document.getElementById(id);
 const statusEl = $('status'), live = $('live'), log = $('log'), warn = $('warn');
 const MODES = {
-  en: { rec: 'en-US', from: 'en', to: 'th', tts: 'th-TH', btn: $('btnEN') },
-  th: { rec: 'th-TH', from: 'th', to: 'en', tts: 'en-US', btn: $('btnTH') },
+  en: { rec: 'en-US', from: 'en', to: 'th', tts: 'th-TH', btn: $('btnEN'), dir: $('dirEN') },
+  th: { rec: 'th-TH', from: 'th', to: 'en', tts: 'en-US', btn: $('btnTH'), dir: $('dirTH') },
 };
-let mode = null, rec = null, speaking = false, voices = [];
+let mode = null, rec = null, speaking = false, paused = false, voices = [];
+let rate = 0.95, lastOut = null;   // lastOut = { text, lang }
 
 function showWarn(msg) { warn.style.display = 'block'; warn.innerHTML = msg; }
 if (!SR) showWarn('Dieser Browser hat keine Spracherkennung. Bitte <b>Google Chrome</b> verwenden.');
@@ -76,17 +122,41 @@ function pickVoice(lang) {
 }
 
 // ---- Translation (swap backend here) ----
+// Resolves to a translated string or throws. Never returns an error text.
 async function translate(text, from, to) {
   try {
     const u = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`;
     const r = await fetch(u);
-    if (!r.ok) throw new Error(r.status);
+    if (!r.ok) throw new Error('gtx ' + r.status);
     const j = await r.json();
-    return j[0].map(p => p[0]).join('');
+    const out = j[0].map(p => p[0]).join('').trim();
+    if (!out) throw new Error('gtx empty');
+    return out;
   } catch (e) {
     const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`);
+    if (!r.ok) throw new Error('mymemory ' + r.status);
     const j = await r.json();
-    return j.responseData.translatedText;
+    const out = (j.responseData && j.responseData.translatedText || '').trim();
+    // MyMemory reports errors / quota in-band, sometimes with HTTP 200 and the message as "translation".
+    if (Number(j.responseStatus) !== 200 || j.quotaFinished || !out
+        || /MYMEMORY WARNING|QUERY LENGTH LIMIT|INVALID LANGUAGE|PLEASE SELECT TWO DISTINCT/i.test(out))
+      throw new Error('mymemory unavailable');
+    return out;
+  }
+}
+
+// ---- Voice commands (EN mode only, start of final transcript) ----
+const CMD_RE = /^\s*(?:hey\s+)?translator[\s,.:;!-]*(pause|resume|repeat|slower|faster)\b[\s,.!?]*$/i;
+function parseCommand(text) { const m = CMD_RE.exec(text); return m ? m[1].toLowerCase() : null; }
+
+function runCommand(cmd) {
+  if (cmd === 'pause') { paused = true; speechSynthesis.cancel(); speaking = false; statusEl.textContent = '⏸ Pausiert – sage „Translator resume“'; }
+  else if (cmd === 'resume') { paused = false; statusEl.textContent = 'Hört zu (English)…'; }
+  else if (cmd === 'slower') { rate = Math.max(0.5, +(rate - 0.15).toFixed(2)); statusEl.textContent = 'Tempo ' + rate; }
+  else if (cmd === 'faster') { rate = Math.min(1.6, +(rate + 0.15).toFixed(2)); statusEl.textContent = 'Tempo ' + rate; }
+  else if (cmd === 'repeat') {
+    if (lastOut) speak(lastOut.text, lastOut.lang, mode);
+    else statusEl.textContent = 'Nichts zu wiederholen';
   }
 }
 
@@ -112,7 +182,7 @@ function startRec() {
   };
   rec.onend = () => { rec = null; if (mode && !speaking) startRec(); };  // Chrome stops after silence
   try { rec.start(); } catch {}
-  statusEl.textContent = mode === 'en' ? 'Hört zu (English)…' : 'กำลังฟัง (ไทย)…';
+  if (!paused) statusEl.textContent = mode === 'en' ? 'Hört zu (English)…' : 'กำลังฟัง (ไทย)…';
 }
 function stopRec() { if (rec) { const r = rec; rec = null; r.onend = null; try { r.abort(); } catch {} } }
 
@@ -120,24 +190,41 @@ function setMode(m) {
   stopRec();
   speechSynthesis.cancel(); speaking = false;
   mode = (m === mode) ? null : m;
+  paused = false;
   for (const k in MODES) MODES[k].btn.classList.toggle('active', k === mode);
   live.textContent = '…';
   if (mode) startRec(); else statusEl.textContent = 'Gestoppt';
 }
 
+function addEntry(cls, orig, trans, isErr) {
+  const entry = document.createElement('div');
+  entry.className = 'entry ' + cls;
+  entry.innerHTML = `<div class="orig"></div><div class="trans"></div>`;
+  entry.querySelector('.orig').textContent = orig;
+  const t = entry.querySelector('.trans');
+  t.textContent = trans; if (isErr) t.classList.add('err');
+  if (!trans) t.style.display = 'none';
+  log.appendChild(entry);
+  return t;
+}
+
 async function handleFinal(text) {
   if (!text) return;
-  const m = MODES[mode], cur = mode;
-  const entry = document.createElement('div');
-  entry.className = 'entry ' + cur;
-  entry.innerHTML = `<div class="orig"></div><div class="trans">…</div>`;
-  entry.querySelector('.orig').textContent = text;
-  log.appendChild(entry);
+  const cur = mode, m = MODES[cur];
   live.textContent = '…';
+  if (cur === 'en') {
+    const cmd = parseCommand(text);
+    if (cmd) { addEntry('cmd', '⌘ ' + text, '', false); runCommand(cmd); return; }  // never translated
+  }
+  if (paused) return;
+  if (!m.dir.checked) { addEntry(cur, text, '', false); return; }  // direction off: text only, no translation, no speech
+  const t = addEntry(cur, text, '…', false);
   let out;
   try { out = await translate(text, m.from, m.to); }
-  catch { entry.querySelector('.trans').textContent = '⚠️ Übersetzung fehlgeschlagen (Internet?)'; return; }
-  entry.querySelector('.trans').textContent = out;
+  catch { t.textContent = 'Übersetzung gerade nicht verfügbar (Internet / Limit?)'; t.classList.add('err'); return; }  // no error text is displayed as translation or spoken
+  t.textContent = out;
+  lastOut = { text: out, lang: m.tts };
+  $('partnerText').textContent = out; $('partnerText').lang = m.to;
   const next = $('autoswitch').checked ? (cur === 'en' ? 'th' : 'en') : cur;
   if ($('speak').checked) speak(out, m.tts, next);
   else if (next !== mode) setMode(next);
@@ -150,7 +237,7 @@ function speak(text, lang, nextMode) {
   const u = new SpeechSynthesisUtterance(text);
   u.lang = lang;
   const v = pickVoice(lang); if (v) u.voice = v;
-  u.rate = 0.95;
+  u.rate = rate;
   const done = () => {
     speaking = false;
     if (!mode) return;
@@ -160,13 +247,20 @@ function speak(text, lang, nextMode) {
   speechSynthesis.speak(u);
 }
 
+// ---- Partner view ----
+function togglePartner(on) { $('partner').classList.toggle('on', on === undefined ? !$('partner').classList.contains('on') : on); }
+$('btnPartner').onclick = () => togglePartner(true);
+$('btnPartnerClose').onclick = () => togglePartner(false);
+
 MODES.en.btn.onclick = () => setMode('en');
 MODES.th.btn.onclick = () => setMode('th');
 document.addEventListener('keydown', e => {
-  if (e.target.tagName === 'INPUT') return;
-  if (e.key === 'e' || e.key === 'E') setMode('en');
+  if (e.target.tagName === 'INPUT' || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key === 'Escape') togglePartner(false);
+  else if (e.key === 'p' || e.key === 'P') togglePartner();
+  else if (e.key === 'e' || e.key === 'E') setMode('en');
   else if (e.key === 't' || e.key === 'T') setMode('th');
-  else if (e.code === 'Space') { e.preventDefault(); if (mode) setMode(mode); }
+  else if (e.code === 'Space' && e.target.tagName !== 'BUTTON') { e.preventDefault(); if (mode) setMode(mode); }
 });
 </script>
 </body>
