@@ -117,7 +117,8 @@ def test_segmenter_keeps_speech_and_drops_own_voice(tmp_path):
         d.PLAYER.spans = []
     got = []
     while (x := utts.get_nowait()) is not None:
-        got.append(x)
+        if not isinstance(x[0], str):           # Vorab-Erkennung/Teiltext ("pre"/"partial") überspringen
+            got.append(x)
     assert len(got) == 2, [round(g[0].size / d.SR, 2) for g in got]
     for g, ref in zip(got, (a, b)):
         assert abs(g[0].size - ref.size) / d.SR < 1.5

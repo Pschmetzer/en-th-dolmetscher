@@ -169,7 +169,7 @@ def test_speaker_skips_when_far_behind(monkeypatch, _iso):
         def voice_for(self, lang):
             return "x"
 
-        def speak(self, text, lang, stream=None, on_start=None, boost=0, cancelled=None):
+        def speak(self, text, lang, stream=None, on_start=None, boost=0, cancelled=None, local=None):
             gate.wait(2)
             on_start and on_start(0.1)
             played.append((text, boost))
@@ -217,7 +217,7 @@ def test_stop_during_wait_cancels_part(monkeypatch, _iso):
         def voice_for(self, lang):
             return "x"
 
-        def speak(self, text, lang, stream=None, on_start=None, boost=0, cancelled=None):
+        def speak(self, text, lang, stream=None, on_start=None, boost=0, cancelled=None, local=None):
             waiting.set()
             t = time.time()
             while time.time() - t < 2 and not cancelled():
@@ -255,3 +255,140 @@ def test_claude_truncated_is_error(monkeypatch):
     monkeypatch.setattr(d, "llm_client", lambda: types.SimpleNamespace(messages=Msgs()))
     with pytest.raises(RuntimeError, match="max_tokens"):
         d.claude_translate("x", "en", "th")
+
+
+def test_work_loop_handles_audio_and_jobs(monkeypatch, _iso):
+    """Regression: Audio-Tupel (numpy-Array vorn) dürfen nicht mit "job" verglichen werden –
+    das ließ die Engine nach jedem gesprochenen Satz abstürzen."""
+    seen = []
+
+    class E:
+        speaker = types.SimpleNamespace(pending=lambda: 0)
+
+        def process(self, audio, speak=True, rms=None, uid=None, **kw):
+            seen.append(("audio", audio.size, uid))
+            if audio.size == 8000:
+                raise RuntimeError("kaputt")
+    q = queue.Queue()
+    q.put((np.zeros(16000, dtype=np.float32), 0.05, time.time(), "vad"))
+    q.put(("job", lambda: seen.append(("job",))))
+    q.put((np.zeros(8000, dtype=np.float32), 0.05, time.time(), "vad"))
+    q.put((np.zeros(4000, dtype=np.float32), 0.05, time.time(), "vad"))
+    q.put(None)
+    d.work_loop(E(), q, speak=False)
+    assert [x[0] for x in seen] == ["audio", "job", "audio", "audio"]
+    assert any(ev == "dropped" and kw.get("reason") == "fehler" for ev, kw in _iso)
+
+
+def test_stt_caps_tokens_and_disables_temperature_fallback():
+    """Regression: ohne Token-Grenze und mit Temperatur-Fallback brauchte ein 2-s-Satz 60 s."""
+    seen = {}
+
+    class M:
+        def transcribe(self, audio, **kw):
+            seen.update(kw)
+            return iter([types.SimpleNamespace(text="สวัสดี ครับ", avg_logprob=-0.2)]), None
+    e = types.SimpleNamespace(m=M(), m_en=None, m_th=M(), beam=3)
+    text, lp, _ = d.Engine._stt(e, np.zeros(2 * d.SR, dtype=np.float32), "th")
+    assert text == "สวัสดีครับ" and seen["temperature"] == 0.0 and seen["max_new_tokens"] <= 60
+    d.Engine._stt(e, np.zeros(18 * d.SR, dtype=np.float32), "th")
+    assert seen["max_new_tokens"] >= 250                      # lange Sätze passen hinein
+    d.Engine._stt(e, np.zeros(2 * d.SR, dtype=np.float32), "en", quick=True)
+    assert seen["beam_size"] == 1
+
+
+def test_tts_cache_serves_without_request(monkeypatch):
+    key = ("v", "+5%", "Thank you")
+    monkeypatch.setitem(d.TTS_CACHE, key, b"MP3")
+    st = d.EdgeStream("Thank you", "v", "+5%")
+    assert st.cached == b"MP3" and st.futs == []
+    assert st.first(0.1)[0] == b"MP3"
+
+
+def test_race_falls_back_to_prepared_local_voice(monkeypatch, tmp_path):
+    monkeypatch.setattr(d, "NULL_AUDIO", True)
+    monkeypatch.setattr(d, "TTS_RACE", 0.2)
+    aiff = tmp_path / "x.aiff"
+    aiff.write_bytes(b"x")
+
+    class SlowStream:
+        voice, cached, text = "edge", None, "hi"
+
+        def first(self, deadline=None):
+            assert deadline == 0.2
+            raise RuntimeError("edge-tts lieferte keine Audiodaten")
+
+        def cancel(self):
+            pass
+    local = types.SimpleNamespace(voice="Samantha", ready_path=lambda timeout=6.0: str(aiff))
+    started = []
+    e = types.SimpleNamespace(mute=False, tts="edge", volume=1.0, rate=0)
+    d.Engine.speak(e, "hi", "en", stream=SlowStream(), on_start=started.append, local=local)
+    assert started, "lokale Stimme hat nicht übernommen"
+
+
+def _fake_engine(calls):
+    class Det:
+        def detect_language(self, audio=None, language_detection_segments=2):
+            calls.append("detect")
+            return "en", 0.95, [("en", 0.95), ("de", 0.02)]
+    e = d.Engine.__new__(d.Engine)
+    e.m_det, e.spk, e.lock, e.paused, e.awake_until = Det(), None, "auto", False, 0.0
+    e.translate_dir = {"en": True, "th": True}
+
+    def fake_stt(audio, lang, hotwords=None, model=None, quick=False):
+        calls.append(("stt", lang, quick))
+        return "Where is the station?", -0.2, [types.SimpleNamespace(compression_ratio=1.1)]
+    e._stt = fake_stt
+    e.deliver = lambda uid, lang, text, *a, **k: calls.append(("deliver", uid, text)) or (lang, text, "x")
+    return e
+
+
+def test_prerecognition_is_reused_only_for_same_version(monkeypatch):
+    monkeypatch.setitem(d.FAST, "endpoint", True)
+    calls = []
+    e = _fake_engine(calls)
+    audio = np.full(d.SR * 2, 0.05, dtype=np.float32)
+    e.prerecognize("u1", 0, audio)
+    assert d.EARLY_END.get("u1") == 0                     # Englisch mit Fragezeichen -> sofort fertig
+    n = len(calls)
+    e.process(audio, speak=False, uid="u1", version=0)
+    assert calls[n:] == [("deliver", "u1", "Where is the station?")]   # keine zweite Erkennung
+    e.prerecognize("u2", 0, audio)
+    n = len(calls)
+    e.process(audio, speak=False, uid="u2", version=1)    # weitergesprochen -> neu erkennen
+    assert "detect" in calls[n:] and ("stt", "en", False) in calls[n:]
+    assert "u1" not in d.PRE and "u2" not in d.PRE
+
+
+def test_squash_repeats():
+    from dolmetscher import squash_repeats as q
+    assert q("สติ๊กฮ่าาาาาาาาาาาาา") == "สติ๊กฮ่าาา"
+    assert q("ha ha ha ha ha ha ha") == "ha ha ha"
+    assert q("5000000") == "5000000"
+    assert q("ไปไหนมาครับ") == "ไปไหนมาครับ"
+
+
+def test_lachen_wird_nicht_uebersetzt(monkeypatch):
+    import dolmetscher as d
+    monkeypatch.setattr(d, "_translate", lambda t, *a, **k: f"<{t}>")
+    assert d.translate("555", "th", "en") == "haha"
+    assert d.translate("ตลกมาก 555", "th", "en") == "<ตลกมาก> haha"
+    assert d.translate("haha you are funny", "en", "th") == "<you are funny> 555"
+    assert d.translate("ราคา 5550 บาท", "th", "en") == "<ราคา 5550 บาท>"
+
+
+def test_rolle_schwellen():
+    import numpy as np, profiles
+    class S(profiles.SpeakerID):
+        def __init__(self, sim):
+            self.sim = sim
+            self.profiles = [{"name": "ich", "lang": "en", "embedding": [1.0, 0.0]}]
+        def embed(self, a):
+            return np.array([self.sim, np.sqrt(1 - self.sim ** 2)], dtype=np.float32)
+    kurz, lang = np.zeros(int(0.8 * 16000), np.float32), np.zeros(3 * 16000, np.float32)
+    assert S(0.80).role(kurz)[0] == "me"
+    assert S(0.73).role(kurz)[0] is None          # ähnliche fremde Stimme: nie "ich" erzwingen
+    assert S(0.45).role(kurz)[0] == "other"
+    assert S(0.53).role(lang)[0] == "other"
+    assert S(0.80).role(np.zeros(4000, np.float32))[0] is None   # zu kurz

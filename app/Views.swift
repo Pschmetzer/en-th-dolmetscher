@@ -12,9 +12,7 @@ enum Prefs {
     static let showQuick = "showQuickPhrases"
     static let quickPhrases = "quickPhrases"
     static let fontRange = 0.6...2.5
-    static let defaultPhrases = ["How much is this?", "Where is the toilet?", "Thank you very much", "Too expensive",
-                                 "Can you help me?", "I don't understand", "Please speak slowly", "The bill, please"]
-                                .joined(separator: "\n")
+    static let defaultPhrases = ""
     static func phrases(_ s: String) -> [String] {
         s.split(whereSeparator: \.isNewline).map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
     }
@@ -70,6 +68,7 @@ struct ContentView: View {
     @State private var showTips = false
     @State private var showProfiles = false
     @State private var correcting: Utterance?
+    @State private var query = ""
     @AppStorage("uiLang") private var uiLang = "de"
 
     var body: some View {
@@ -78,18 +77,31 @@ struct ContentView: View {
             if showQuick { QuickPhraseBar() }
             Divider()
             if let log = m.crashLog { CrashBanner(log: log) }
+            if m.items.count > 5 || !query.isEmpty {
+                HStack {
+                    Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+                    TextField(L.t("search"), text: $query).textFieldStyle(.plain)
+                    if !query.isEmpty {
+                        Button { query = "" } label: { Image(systemName: "xmark.circle.fill") }.buttonStyle(.borderless)
+                    }
+                }
+                .padding(.horizontal, 16).padding(.vertical, 6)
+            }
             conversation
-            if m.pushToTalk && m.running { PushToTalkButton().padding(14) }
+            if m.pushToTalk && m.micOn { PushToTalkButton().padding(14) }
         }
         .frame(minWidth: 620, minHeight: 460)
         .background(WindowAccessor { w in
             w.level = onTop ? .floating : .normal
+            let t = "Dolmetscher · " + m.status
+            if w.title != t { w.title = t }
         })
         .sheet(isPresented: $showTips) { TipsSheet { tipsSeen = true; showTips = false } }
         .sheet(isPresented: $showProfiles) { ProfilesView().environmentObject(m) }
         .sheet(item: $correcting) { CorrectSheet(u: $0).environmentObject(m) }
         .id(uiLang)                                   // Oberflächensprache sofort umschalten
-        .onChange(of: uiLang) { if !m.active { m.status = L.t("stopped") } }
+        .onChange(of: m.items.isEmpty) { if m.items.isEmpty { query = "" } }
+        .onChange(of: uiLang) { m.refreshStatus() }
         .onAppear { if !tipsSeen { showTips = true } }
         .onReceive(NotificationCenter.default.publisher(for: .showTips)) { _ in showTips = true }
     }
@@ -99,11 +111,12 @@ struct ContentView: View {
             ScrollView {
                 LazyVStack(spacing: 12) {
                     if m.items.isEmpty {
-                        Text(L.t("empty") + "\n\n" + L.t("commands_hint"))
+                        Text(L.t("empty") + "\n\n" + L.t("empty_example") + "\n\n" + L.t("commands_hint"))
                             .multilineTextAlignment(.center).foregroundStyle(.secondary)
                             .padding(.top, 80)
                     }
-                    ForEach(m.items) { u in
+                    ForEach(m.items.filter { query.isEmpty || $0.text.localizedCaseInsensitiveContains(query)
+                                                 || $0.out.localizedCaseInsensitiveContains(query) }) { u in
                         Bubble(u: u, scale: scale, onCorrect: { correcting = $0 }).id(u.id)
                     }
                 }.padding(16)
@@ -119,6 +132,7 @@ struct ContentView: View {
 struct MainToolbar: View {
     @EnvironmentObject var m: EngineModel
     @Environment(\.openWindow) private var openWindow
+    @AppStorage(Prefs.fontScale) private var scale = 1.0
     @AppStorage(Prefs.alwaysOnTop) private var onTop = false
     @AppStorage("uiLang") private var uiLang = "de"
     @Binding var showProfiles: Bool
@@ -126,8 +140,8 @@ struct MainToolbar: View {
     var body: some View {
         HStack(spacing: 12) {
             startButton
-            StatusCluster()
-            Spacer()
+            StatusCluster().layoutPriority(1)
+            Spacer(minLength: 0)
             tools
         }
         .padding(14)
@@ -145,32 +159,44 @@ struct MainToolbar: View {
         .accessibilityHint("Leertaste, ⌃⌥D")
     }
 
+    private var lastReplayable: Utterance? {
+        m.items.last { !$0.pending && !$0.out.isEmpty }
+    }
+
     @ViewBuilder private var tools: some View {
         Button { m.stopSpeaking() } label: { Image(systemName: "speaker.slash") }
             .disabled(!m.running)
             .help(L.t("stop_speaking"))
             .accessibilityLabel(L.t("stop_speaking"))
+        Button { if let u = lastReplayable { m.replay(u) } } label: { Image(systemName: "arrow.counterclockwise.circle") }
+            .disabled(lastReplayable == nil)
+            .help(L.t("replay_last"))
+            .accessibilityLabel(L.t("replay_last"))
         Button { showProfiles = true } label: { Label(L.t("profiles"), systemImage: "person.crop.circle.badge.plus") }
             .help(L.t("profiles"))
             .accessibilityLabel(L.t("profiles"))
-        Picker("", selection: $uiLang) {
-            ForEach(UILang.allCases) { Text($0.label).tag($0.rawValue) }
-        }.labelsHidden().fixedSize().help(L.t("ui_language")).accessibilityLabel(L.t("ui_language"))
         Button { openWindow(id: "partner") } label: { Image(systemName: "person.2.wave.2") }
             .help(L.t("partner_view") + " (⇧⌘P)")
             .accessibilityLabel(L.t("partner_view"))
-        Toggle(isOn: $onTop) { Image(systemName: onTop ? "pin.fill" : "pin") }
-            .toggleStyle(.button)
-            .help(L.t("always_on_top"))
-            .accessibilityLabel(L.t("always_on_top"))
-        Button { exportConversation(m) } label: { Image(systemName: "square.and.arrow.up") }
-            .disabled(m.items.isEmpty)
-            .help(L.t("export") + " (⇧⌘E)")
-            .accessibilityLabel(L.t("export"))
-        Button { m.items.removeAll() } label: { Image(systemName: "trash") }
-            .disabled(m.items.isEmpty)
-            .help(L.t("clear"))
-            .accessibilityLabel(L.t("clear"))
+        // Seltene Aktionen im Menü, damit bei schmalem Fenster der Status Platz behält
+        Menu {
+            Picker(L.t("ui_language"), selection: $uiLang) {
+                ForEach(UILang.allCases) { Text($0.label).tag($0.rawValue) }
+            }
+            Toggle(L.t("always_on_top"), isOn: $onTop)
+            Button(L.t("font_bigger")) { scale = min(Prefs.fontRange.upperBound, ((scale + 0.1) * 10).rounded() / 10) }
+            Button(L.t("font_smaller")) { scale = max(Prefs.fontRange.lowerBound, ((scale - 0.1) * 10).rounded() / 10) }
+            Divider()
+            Button(L.t("export") + " (⇧⌘E)") { exportConversation(m) }.disabled(m.items.isEmpty)
+            Button(L.t("clear")) { m.items.removeAll() }.disabled(m.items.isEmpty)
+            Button(L.t("open_log")) {
+                NSWorkspace.shared.activateFileViewerSelecting([FileManager.default.homeDirectoryForCurrentUser
+                    .appendingPathComponent("Library/Logs/Dolmetscher/engine.log")])
+            }
+        } label: { Image(systemName: "ellipsis.circle") }
+            .menuStyle(.borderlessButton).fixedSize()
+            .help(L.t("more"))
+            .accessibilityLabel(L.t("more"))
         SettingsLink { Image(systemName: "gearshape") }
             .help(L.t("settings") + " (⌘,)")
             .accessibilityLabel(L.t("settings"))
@@ -188,8 +214,8 @@ struct StatusCluster: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            if m.running { LevelBar(meter: m.meter) }
-            Text(m.status).font(.headline).lineLimit(2)
+            if m.micOn { LevelBar(meter: m.meter) }
+            Text(m.status).font(.headline).lineLimit(2).help(m.status)
                 .accessibilityLabel(L.t("status") + ": " + m.status)
             if m.backlog > 0 {
                 Text("\(m.backlog) " + L.t("waiting"))
@@ -204,11 +230,35 @@ struct StatusCluster: View {
                     .help(offlineHelp)
                     .accessibilityLabel(L.t("offline") + ": " + offlineHelp)
             }
-            if m.busy || m.state == .starting {
+            if let med = m.latencyMedian { LatencyBadge(median: med) }
+            if m.llm && m.llmCostUSD > 0 {
+                Text(String(format: "≈ $%.2f", m.llmCostUSD))
+                    .font(.caption).monospacedDigit().foregroundStyle(.secondary)
+                    .help(L.t("llm_cost"))
+            }
+            if m.busy || m.loadingModel {
                 ProgressView().controlSize(.small).accessibilityLabel(L.t("working"))
             }
         }
     }
+}
+
+/// Median der letzten 10 Latenzen (Äußerungsende → erster Ton), klein in der Kopfzeile.
+struct LatencyBadge: View {
+    let median: Double
+    var body: some View {
+        let text = "⏱ " + fmtSeconds(median)
+        Text(text)
+            .font(.caption).monospacedDigit().foregroundStyle(.secondary)
+            .help(L.t("latency_help"))
+            .accessibilityLabel(L.t("latency_help") + ": " + fmtSeconds(median))
+    }
+}
+
+/// Sekunden für die Anzeige, mit Dezimalzeichen der Oberflächensprache („2,1 s“).
+func fmtSeconds(_ v: Double) -> String {
+    let loc = Locale(identifier: L.lang == .de ? "de_DE" : "en_US")
+    return String(format: "%.1f s", locale: loc, v)
 }
 
 /// Kleiner Pegelbalken (eigenes ObservableObject → nur diese Ansicht zeichnet ~7×/s neu).
@@ -229,26 +279,42 @@ struct LevelBar: View {
     }
 }
 
-/// Leiste mit Schnellsätzen: Klick → Engine übersetzt und liest vor.
+/// Leiste mit Schnellsätzen: Klick → Engine übersetzt und liest vor. „+“ legt eigene an, Rechtsklick löscht.
 struct QuickPhraseBar: View {
     @EnvironmentObject var m: EngineModel
     @AppStorage(Prefs.quickPhrases) private var raw = Prefs.defaultPhrases
+    @State private var adding = false
+    @State private var draft = ""
 
     var body: some View {
         let phrases = Prefs.phrases(raw)
-        if !phrases.isEmpty {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(Array(phrases.enumerated()), id: \.offset) { _, p in
-                        Button(p) { m.say(p) }
-                            .buttonStyle(.bordered)
-                            .help(L.t("quick_phrase_help"))
-                    }
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                Button { draft = ""; adding = true } label: { Image(systemName: "plus") }
+                    .buttonStyle(.bordered)
+                    .help("Eigenen Schnellsatz hinzufügen")
+                ForEach(Array(phrases.enumerated()), id: \.offset) { i, p in
+                    Button(p) { m.say(p) }
+                        .buttonStyle(.bordered)
+                        .disabled(!m.running)
+                        .help(L.t("quick_phrase_help"))
+                        .contextMenu {
+                            Button("Löschen", role: .destructive) {
+                                var l = phrases; l.remove(at: i); raw = l.joined(separator: "\n")
+                            }
+                        }
                 }
-                .padding(.horizontal, 14).padding(.bottom, 10)
             }
-            .disabled(!m.running)
-            .accessibilityLabel(L.t("quick_phrases"))
+            .padding(.horizontal, 14).padding(.bottom, 10)
+        }
+        .accessibilityLabel(L.t("quick_phrases"))
+        .alert("Neuer Schnellsatz (Englisch)", isPresented: $adding) {
+            TextField("Satz", text: $draft)
+            Button("Hinzufügen") {
+                let t = draft.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !t.isEmpty { raw = (phrases + [t]).joined(separator: "\n") }
+            }
+            Button("Abbrechen", role: .cancel) {}
         }
     }
 }

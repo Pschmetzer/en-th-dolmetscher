@@ -7,7 +7,7 @@ import AppKit
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     var model: EngineModel?
-    func applicationWillTerminate(_ n: Notification) { MainActor.assumeIsolated { model?.stop() } }
+    func applicationWillTerminate(_ n: Notification) { MainActor.assumeIsolated { model?.shutdown() } }
     func applicationShouldTerminateAfterLastWindowClosed(_ s: NSApplication) -> Bool { true }
     private var keyMonitor: Any?
     func applicationDidFinishLaunching(_ n: Notification) {
@@ -101,6 +101,7 @@ struct DolmetscherApp: App {
                 .onAppear {
                     delegate.model = model
                     HotKeys.shared.install(for: model)
+                    model.boot()   // Engine gleich im Hintergrund laden (Mikrofon aus)
                 }
         }
         .commands { AppCommands(model: model) }

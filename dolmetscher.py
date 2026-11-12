@@ -12,7 +12,7 @@ Optionen: --model small|medium|base  --mic 0  --polite krub|ka  --json
           --voice-en/--voice-th NAME --llm [--llm-model ID] --earcons --meter --list-mics
 Protokoll Engine <-> App: docs/PROTOKOLL.md
 """
-import argparse, collections, http.client, itertools, json, logging, logging.handlers, os, queue, re, \
+import argparse, collections, functools, http.client, itertools, json, logging, logging.handlers, os, queue, re, \
     shutil, signal, subprocess, sys, tempfile, threading, time, urllib.error, urllib.parse, urllib.request
 import numpy as np
 from faster_whisper import WhisperModel
@@ -20,7 +20,8 @@ from faster_whisper import WhisperModel
 SR = 16000
 SILENCE_END = 0.7                 # s Stille = Satzende (--silence, live änderbar)
 MIN_UTT = 0.3                     # s, kürzer wird ignoriert (Log: leise Wörter mit 0,32 s gingen verloren)
-MAX_UTT = 20.0                    # s, länger wird an der leisesten Stelle geteilt
+MAX_UTT = 10.0                    # s, länger wird an der leisesten Stelle geteilt – der erste Teil wird
+                                  # schon übersetzt, während noch gesprochen wird
 MIN_LANG_P = 0.35                 # en+th zusammen mindestens so wahrscheinlich, sonst ignorieren
 # unsicherere Transkripte gelten als Rauschen/Halluzination; Thai bekommt systematisch
 # schlechtere log-probs (Log: echte Thai-Sätze bis −0.99), deshalb eine eigene Schwelle
@@ -112,7 +113,6 @@ SAY = "/usr/bin/say"
 
 C = {"en": "\033[1;34m", "th": "\033[1;33m", "dim": "\033[2m", "off": "\033[0m"}
 JSON = False
-FF = None
 
 
 _EMIT_LOCK = threading.RLock()     # RLock: der Signal-Handler (Stopp) darf auch emit aufrufen
@@ -217,6 +217,14 @@ def _norm(s):
     return re.sub(r"[\s.,!?。]+", " ", s.lower()).strip()
 
 
+def warm_translate():
+    """TLS-Aufbau zu Google vorab, damit der erste Satz ihn nicht zahlt. Fehler still ignoriert."""
+    try:
+        _get_json("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=en&tl=th&q=hi", 4)
+    except Exception:
+        pass
+
+
 def google_translate(text, src, dst):
     u = ("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t"
          f"&sl={src}&tl={dst}&q={urllib.parse.quote(text)}")
@@ -248,7 +256,8 @@ def mymemory_translate(text, src, dst, e1=None):
     return out
 
 
-LLM = {"on": False, "model": "claude-opus-5-5", "client": None, "err": None, "skip_until": 0.0}
+LLM = {"on": False, "model": "claude-haiku-5-5", "client": None, "err": None, "skip_until": 0.0}
+LLM["context"] = 8                 # so viele letzte Sätze (Verlauf) gehen als Kontext an Claude
 LLM_BACKOFF = 60.0                 # s ohne Claude nach einem Fehler (dann direkt Google)
 KEYFILE = os.path.expanduser("~/Library/Application Support/Dolmetscher/anthropic_key")
 
@@ -281,18 +290,101 @@ LLM_SYSTEM = (
     "(e.g. ม่วงนอน or ยุ่งนอน is almost certainly ง่วงนอน 'sleepy'), missing tone marks, wrong spacing, "
     "English words written in Thai script. Use the recent conversation and the alternative hypotheses to infer "
     "what the speaker most likely meant, then translate that meaning naturally, the way a person would say it. "
+    "Ignore filler words (um, uh, like, you know, เอ่อ) and idioms: translate the meaning, never word by word. "
     "Thai often drops subjects; restore them in English from context. Keep names, numbers, prices and times exact. "
-    "Into Thai: everyday spoken Thai, polite but not stiff, matching the speaker's register. "
+    "{setting} "
+    "Thai particles (นะ, จ้า, จ๊ะ, อ่ะ, เนอะ, ค่ะ/ครับ) carry tone, not words: render the feeling, not a literal word. "
+    "Thai slang and short replies (ใช่, โอเค, จริงดิ, ไม่เป็นไร) get short natural English. "
+    "Into Thai: casual, friendly spoken Thai between partners, matching the speaker's register; no stiff or "
+    "formal wording (no ท่าน, no written-language phrasing). "
     "Reply with the translation only: no quotes, no notes, no romanization, no alternatives.")
+
+
+GLOSSARY_FILE = os.path.expanduser("~/Library/Application Support/Dolmetscher/glossary.txt")
+GLOSSARY = []                      # [(Wort, Übersetzung oder None = unverändert lassen)]
+
+
+def load_glossary(text=None):
+    """Eigene Wörter: je Zeile `Wort => Übersetzung` oder nur `Name` (nicht übersetzen).
+    `text=None` liest die Datei; sonst wird der Text übernommen und gespeichert."""
+    if text is None:
+        try:
+            with open(GLOSSARY_FILE, encoding="utf-8") as f:
+                text = f.read()
+        except OSError:
+            text = ""
+    else:
+        try:
+            os.makedirs(os.path.dirname(GLOSSARY_FILE), exist_ok=True)
+            with open(GLOSSARY_FILE, "w", encoding="utf-8") as f:
+                f.write(text)
+        except OSError as e:
+            log({"glossary": "speichern fehlgeschlagen", "err": repr(e)[:120]})
+    items = []
+    for line in text.splitlines():
+        a, sep, b = line.partition("=>")
+        a, b = a.strip(), b.strip()
+        if a:
+            items.append((a, b if sep and b else None))
+    GLOSSARY[:] = items[:200]
+    _CACHE.clear()                     # alte Übersetzungen kennen die neuen Einträge nicht
+
+
+def glossary_hits(text):
+    low = text.lower()
+    return [(a, b) for a, b in GLOSSARY if a.lower() in low]
+
+
+PRONOUNCE_FILE = os.path.expanduser("~/Library/Application Support/Dolmetscher/pronounce.txt")
+PRONOUNCE = []                     # [(Text, gesprochen)] – nur für die Sprachausgabe, Anzeige bleibt
+
+
+def load_pronounce(path=None):
+    """Aussprache-Ersetzungen: je Zeile `Text => gesprochen`. Gilt nur für TTS."""
+    try:
+        with open(path or PRONOUNCE_FILE, encoding="utf-8") as f:
+            text = f.read()
+    except OSError:
+        text = ""
+    items = []
+    for line in text.splitlines():
+        a, sep, b = line.partition("=>")
+        a, b = a.strip(), b.strip()
+        if a and sep and b:
+            items.append((a, b))
+    PRONOUNCE[:] = items[:200]
+
+
+def apply_pronounce(text):
+    for a, b in PRONOUNCE:
+        text = re.sub(re.escape(a), lambda m: b, text, flags=re.I)
+    return text
+
+
+STYLES = {
+    "casual": ("Setting: a private, relaxed conversation at home between two people who are dating. Translate "
+               "the way they would actually talk to each other: warm, casual, natural, never formal or textbook-like."),
+    "neutral": ("Setting: an everyday conversation between two adults. Translate in a natural, friendly, "
+                "neutral register: neither slangy nor stiff."),
+    "polite": ("Setting: a polite conversation with a stranger or service staff (shop, restaurant, taxi, hotel). "
+               "Translate courteously and clearly; use polite forms, no slang."),
+}
+LLM_PRICE = {"claude-haiku-5-5": (0.10, 0.50), "claude-sonnet-5-5": (2.0, 10.0), "claude-opus-5-5": (4.0, 20.0)}
+LLM["style"] = "casual"
+LLM["usd"] = 0.0
 
 
 def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
     client = llm_client()
     names = {"en": "English", "th": "Thai"}
-    ctx = "\n".join(f"[{names[l]}] {t}  =>  {o}" for l, t, o in list(history)[-6:])
+    ctx = "\n".join(f"[{names[l]}] {t}  =>  {o}" for l, t, o in list(history)[-LLM["context"]:])
     parts = []
     if ctx:
         parts.append(f"Recent conversation (original => translation):\n{ctx}")
+    hits = glossary_hits(text)
+    if hits:
+        parts.append("Glossary (use exactly these; a word without arrow stays unchanged):\n" + "\n".join(
+            f"- {a} => {b}" if b else f"- {a} (keep as is)" for a, b in hits))
     if alts:
         parts.append("Other recognition hypotheses for the same audio:\n" + "\n".join(f"- {a}" for a in alts))
     if dst == "th":
@@ -300,7 +392,13 @@ def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
                      " where a polite particle fits.")
     parts.append(f"Translate this {names[src]} speech into {names[dst]}:\n{text}")
     r = client.messages.create(model=LLM["model"], max_tokens=4096, output_config={"effort": "low"},
-                               system=LLM_SYSTEM, messages=[{"role": "user", "content": "\n\n".join(parts)}])
+                               system=LLM_SYSTEM.replace("{setting}", STYLES.get(LLM["style"], STYLES["casual"])),
+                               messages=[{"role": "user", "content": "\n\n".join(parts)}])
+    pin, pout = LLM_PRICE.get(LLM["model"], (4.0, 20.0))
+    u = getattr(r, "usage", None)
+    if u is not None:                               # Kosten mitzählen (Schätzung nach Preisliste)
+        LLM["usd"] += ((getattr(u, "input_tokens", 0) or 0) * pin + (getattr(u, "output_tokens", 0) or 0) * pout) / 1e6
+        emit("llm_cost", usd=round(LLM["usd"], 4))
     if r.stop_reason != "end_turn":                    # refusal, max_tokens, … -> nie halbe Sätze vorlesen
         raise RuntimeError(f"Claude: stop_reason {r.stop_reason}")
     out = "".join(b.text for b in r.content if b.type == "text").strip().strip('"“”')
@@ -309,12 +407,55 @@ def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
     return out
 
 
+LAUGH = {"th": re.compile(r"(?<!\d)5{3,}(?!\d)|(?:ฮ่า\s*){2,}ๆ*|ฮ่า\s*ๆ+|(?:คิก\s*){2,}|คิก\s*ๆ+"),
+         "en": re.compile(r"\b(?:a?ha(?:ha)+h?|lol|lmao|hehe(?:he)*)\b", re.I)}
+LAUGH_OUT = {"th": "555", "en": "haha"}
+
+
+FILLERS = {
+    # nur eigenständige Zögerlaute und Einschübe zwischen Kommas ("It's, you know, good"); "As you know,"
+    # oder "Would you like, a coffee" bleiben unberührt
+    "en": re.compile(r"(?:(?<=\s)|^)(?:u+m+|u+h+|e+r+m*|h+m+|m+h+m+)\b[,]?(?=\s|[.!?]|$)"
+                     r"|(?<=\w),\s*(?:you know|i mean|like|sort of|kind of)\s*,(?=\s)", re.I),
+    # nur als eigenes Wort (sonst würde "อ่า" aus "อ่าน" gerissen)
+    "th": re.compile(r"(?:(?<=\s)|^)(?:เอ่อ|เออ|อืม|อ่า|เอ๊ะ)(?=\s|$)"),
+}
+
+
+def strip_fillers(text, lang):
+    """Füllwörter (um, uh, ", you know,", เอ่อ) vor der Übersetzung entfernen – sie verwirren Google
+    und kosten Claude Zeit. Bleibt nichts Sinnvolles übrig, gilt der Originaltext."""
+    rx = FILLERS.get(lang)
+    if not rx:
+        return text
+    out = rx.sub(lambda m: "," if m.group(0).lstrip().startswith(",") else " ", text)
+    out = re.sub(r"\s{2,}", " ", out)
+    out = re.sub(r"\s+([.,!?])", r"\1", out).strip(" ,")
+    return out if re.search(r"\w", out) else text
+
+
 def translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
+    """Lachen (555, ฮ่าๆ, haha, lol) nicht übersetzen lassen – Google macht daraus "555" oder Unsinn –,
+    sondern als Lachen der Zielsprache anhängen. Rest wie _translate."""
+    text = strip_fillers(text, src)
+    rx = LAUGH.get(src)
+    if rx and rx.search(text):
+        rest = rx.sub(" ", text).strip(" ,.!")
+        if not rest:
+            if meta is not None:
+                meta.update(provider="none")
+            return LAUGH_OUT[dst]
+        return _translate(rest, src, dst, history, alts, polite, meta).rstrip() + " " + LAUGH_OUT[dst]
+    return _translate(text, src, dst, history, alts, polite, meta)
+
+
+def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
     """Claude (wenn an und verfügbar) → Google (gtx) → MyMemory. Wirft eine Exception statt eine
     Fehlermeldung zu liefern. `meta` (dict) bekommt provider und cached."""
     meta = meta if meta is not None else {}
     use_llm = LLM["on"] and time.time() >= LLM["skip_until"] and llm_available()
-    key = (_norm(text), src, dst, "llm" if use_llm else "mt", polite if dst == "th" else "")
+    key = (_norm(text), src, dst, ("llm:" + LLM["model"] + ":" + LLM["style"]) if use_llm else "mt",
+           polite if dst == "th" else "")
     if key in _CACHE and not (use_llm and history):        # mit Verlauf ist der Kontext jedes Mal anders
         _CACHE.move_to_end(key)
         meta.update(provider=_CACHE[key][1], cached=True)
@@ -344,6 +485,53 @@ def translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
     if len(_CACHE) > _CACHE_MAX:
         _CACHE.popitem(last=False)
     return out
+
+
+_TH_RX = re.compile(r"[\u0e00-\u0e7f]")
+
+
+_THAINLP = {"missing": False}
+
+
+@functools.lru_cache(maxsize=512)
+def thai_latin(text):
+    """Lesbare Umschrift (RTGS, Wort für Wort getrennt) für Thai-Text; None ohne pythainlp oder bei
+    Fehlern – die App nimmt dann ihre eigene Umschrift."""
+    if not _TH_RX.search(text or "") or _THAINLP["missing"]:
+        return None
+    try:
+        from pythainlp.tokenize import word_tokenize
+        from pythainlp.transliterate import romanize
+        words = []
+        for w in word_tokenize(text):
+            if not w.strip():
+                continue
+            r = romanize(w, engine="royin") if w != "ก็" else "ko"
+            words.append(_TH_RX.sub("", r))                  # übrig gebliebene Thai-Zeichen/Marken weglassen
+        out = " ".join(x for x in words if x)
+    except ImportError:
+        _THAINLP["missing"] = True                     # einmal merken, nicht für jeden Satz neu versuchen
+        return None
+    except Exception as e:
+        log({"translit": "fehler", "err": type(e).__name__})   # kein Text im Log
+        return None
+    out = re.sub(r"\s+", " ", out).strip()
+    return out or None
+
+
+_NUM = re.compile(r"\d+(?:[.,:]\d+)*")
+_THAI_DIGITS = str.maketrans("๐๑๒๓๔๕๖๗๘๙", "0123456789")
+
+
+def _numbers(s):
+    out = (re.sub(r"[.,:]", "", x) for x in _NUM.findall(s.translate(_THAI_DIGITS)))
+    return sorted(x for x in out if not re.fullmatch(r"5{3,}", x))      # 555 = Lachen, keine Zahl
+
+
+def numbers_differ(a, b):
+    """True, wenn Ziffern im Original und in der Übersetzung nicht übereinstimmen (Preise, Zeiten)."""
+    na, nb = _numbers(a), _numbers(b)
+    return bool(na and nb) and na != nb
 
 
 def fix_thai(s, polite):
@@ -394,18 +582,28 @@ def _warm(m):
     list(m.transcribe(np.zeros(SR, dtype=np.float32), language="en")[0])
 
 
+def _wm(model, **kw):
+    """Modell von der Platte laden, ohne bei jedem Start beim Hub nachzufragen (Modelle liegen
+    nach dem ersten Mal im Cache). Nur wenn es lokal fehlt: herunterladen."""
+    try:
+        return WhisperModel(model, local_files_only=True, **kw)
+    except Exception as e:
+        log({"model": model, "download": True, "err": repr(e)[:200]})
+        return WhisperModel(model, **kw)
+
+
 def load_model(model, device):
     """Apple-GPU (MPS) wenn möglich – ca. 2-4x schneller –, sonst CPU."""
     if device in ("auto", "mps"):
         try:
-            m = WhisperModel(model, device="mps", compute_type="float16")
+            m = _wm(model, device="mps", compute_type="float16")
             _warm(m)
             return m, "mps"
         except Exception as e:
             log({"mps": "nicht verfügbar", "err": repr(e)[:200]})
             if device == "mps":
                 raise
-    m = WhisperModel(model, device="cpu", compute_type="int8")
+    m = _wm(model, device="cpu", compute_type="int8")
     try:
         _warm(m)
     except Exception as e:
@@ -448,6 +646,14 @@ def split_sentences(s, lang, min_len=60):
     return out or [s]
 
 
+def squash_repeats(text):
+    """Wiederholungsschleifen kürzen statt den ganzen Satz zu verlieren:
+    'สติ๊กฮ่าาาาาาา' -> 'สติ๊กฮ่าาา', 'ha ha ha ha ha ha' -> 'ha ha ha'."""
+    text = re.sub(r"(\D)\1{3,}", r"\1\1\1", text)
+    text = re.sub(r"(.{2,12}?)(?:\s*\1){3,}", r"\1 \1 \1", text)
+    return text
+
+
 def looks_hallucinated(text, dur, segs):
     """Typische Whisper-Halluzination: Wiederholungsschleife oder unmöglich viele Zeichen pro Sekunde."""
     if any(getattr(s, "compression_ratio", 0) > 2.6 for s in segs):
@@ -456,6 +662,9 @@ def looks_hallucinated(text, dur, segs):
     if dur > 0 and chars / dur > 30:                    # selbst schnelles Thai hat < ~20 Zeichen/s
         return "zu schnell"
     return None
+
+
+NULL_AUDIO = bool(os.environ.get("DOLMETSCHER_NULL_AUDIO"))
 
 
 class Player:
@@ -471,6 +680,8 @@ class Player:
         self.interrupted = False       # durch Barge-in/Stopp abgebrochen
 
     def start(self, cmd, **kw):
+        if NULL_AUDIO:                 # Tests: kompletter Ausgabe-Pfad, aber ohne Ton
+            cmd = ["/bin/sleep", "1"] if cmd[0].endswith("afplay") else ["/bin/cat"]
         p = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **kw)
         with self.lock:
             self.procs[p] = time.time()
@@ -536,7 +747,7 @@ def wait_quiet(limit=5.0, cancelled=None):
     return time.time() - t
 
 
-HEDGE = 1.2                            # s ohne Ton bis zum zweiten TTS-Versuch
+HEDGE = 0.8                            # s ohne Ton bis zum zweiten TTS-Versuch (Log: 1. Ton oft erst nach ~2 s)
 FIRST_DEADLINE = 3.0                   # s ohne Ton -> macOS-Stimme übernimmt (vorher 6 s)
 _TTS_LOOP = None
 _TTS_LOCK = threading.Lock()
@@ -605,17 +816,30 @@ def pipe_player(volume):
     return None
 
 
+TTS_CACHE = collections.OrderedDict()  # (Stimme, Tempo, Text) -> mp3: kurze, häufige Sätze sofort
+TTS_CACHE_MAX, TTS_CACHE_CHARS = 64, 120
+TTS_RACE = 1.4                         # s: kommt die Neural-Stimme nicht, spricht die vorbereitete macOS-Stimme
+
+
 class EdgeStream:
     """edge-tts-Anfrage, die sofort startet (Vorab-Laden, während noch etwas anderes spricht).
-    Abgespielt wird später mit edge_play()."""
+    Abgespielt wird später mit edge_play(). Bereits gehörte kurze Sätze kommen aus dem Cache."""
 
     def __init__(self, text, voice, rate):
         self.text, self.voice, self.rate = text, voice, rate
+        self.key = (voice, rate, text)
         self.t0 = time.time()
         self.stop = threading.Event()
         self.hedged = False
         self.futs = []
-        self.qs = [self._request()]
+        self.cached = TTS_CACHE.get(self.key)
+        if self.cached is not None:
+            q = queue.Queue()
+            q.put(self.cached)
+            q.put(None)
+            self.qs, self.hedged = [q], True      # kein zweiter Versuch nötig
+        else:
+            self.qs = [self._request()]
 
     def _request(self):
         import asyncio, edge_tts
@@ -672,11 +896,12 @@ class EdgeStream:
             f.cancel()
 
 
-def edge_play(stream, volume, on_start=None, cancelled=None):
+def edge_play(stream, volume, on_start=None, cancelled=None, deadline=None):
     """Vorab gestartete edge-tts-Anfrage abspielen, ab dem ersten Block. Gibt Kennzahlen zurück;
     wirft nur, wenn noch kein Ton kam (dann übernimmt 'say', ohne Doppelung)."""
     t0 = time.time()
-    first, q = stream.first()
+    first, q = stream.first(deadline)
+    got, complete = [], False
     stats = {"first_chunk_s": round(time.time() - t0, 2), "since_request_s": round(time.time() - stream.t0, 2),
              "hedged": stream.hedged}
     stats["waited_s"] = round(wait_quiet(cancelled=cancelled), 2)
@@ -700,7 +925,9 @@ def edge_play(stream, volume, on_start=None, cancelled=None):
                     if cancelled and cancelled():
                         break
                     p.stdin.write(chunk)
+                    got.append(chunk)
                     chunk = q.get(timeout=6)
+                complete = chunk is None
             except (BrokenPipeError, OSError, queue.Empty) as e:  # abgebrochen oder Netz weg
                 if not (cancelled and cancelled()):
                     stats["err"] = repr(e)[:120]
@@ -727,6 +954,11 @@ def edge_play(stream, volume, on_start=None, cancelled=None):
                 os.remove(mp3)
     finally:
         stream.cancel()
+    stats["cached"] = stream.cached is not None
+    if complete and stream.cached is None and len(stream.text) <= TTS_CACHE_CHARS:
+        TTS_CACHE[stream.key] = b"".join(got)
+        if len(TTS_CACHE) > TTS_CACHE_MAX:
+            TTS_CACHE.popitem(last=False)
     stats["interrupted"] = bool(cancelled and cancelled())
     return stats
 
@@ -737,6 +969,40 @@ def edge_say(text, voice, rate, volume, on_start=None):
 
 
 EARCON = "/System/Library/Sounds/Tink.aiff"
+
+
+class LocalVoice:
+    """macOS-Stimme im Hintergrund vorab rendern (say -o), damit sie sofort einspringen kann,
+    wenn die Neural-Stimme hängt. Wird nur abgespielt, wenn edge-tts die Frist verpasst."""
+
+    def __init__(self, text, voice, rate_pct):
+        self.done = threading.Event()
+        fd, self.path = tempfile.mkstemp(prefix="dolmetscher_race_", suffix=".aiff")
+        os.close(fd)
+        os.remove(self.path)
+        self.voice = voice
+
+        def run():
+            try:
+                subprocess.run([SAY, "-v", voice, "-r", str(int(185 * (1 + rate_pct / 100))), "-o", self.path, text],
+                               capture_output=True, timeout=20)
+            except Exception as e:
+                log({"tts": "lokal-vorab-fehler", "err": repr(e)[:200]})
+            self.done.set()
+        threading.Thread(target=run, name="say-prerender", daemon=True).start()
+
+    def ready_path(self, timeout=6.0):
+        self.done.wait(timeout)
+        return self.path if os.path.exists(self.path) and os.path.getsize(self.path) > 0 else None
+
+    def cleanup(self):
+        def rm():
+            self.done.wait(20)
+            try:
+                os.remove(self.path)
+            except OSError:
+                pass
+        threading.Thread(target=rm, daemon=True).start()
 
 
 class Speaker:
@@ -758,21 +1024,24 @@ class Speaker:
         with self.cond:
             return len(self.items) + (1 if self.busy else 0)
 
-    def add(self, text, lang, uid, kind="speech"):
+    def add(self, text, lang, uid, kind="speech", t_end=None):
         eng = self.eng
         with self.cond:
             behind = len(self.items) + (1 if self.busy else 0)
-        item = {"id": uid, "lang": lang, "kind": kind, "parts": []}
+        item = {"id": uid, "lang": lang, "kind": kind, "parts": [], "t_end": t_end}
         if kind == "speech":
             boost = self.FAST_BOOST if behind else 0
-            for s in split_sentences(text, lang):
-                stream = None
+            for s in split_sentences(apply_pronounce(text), lang):
+                stream, local = None, None
                 if eng.tts == "edge" and not eng.mute:
                     try:
                         stream = EdgeStream(s, eng.voice_for(lang), f"{5 + eng.rate + boost:+d}%")
                     except Exception as e:
                         log({"tts": "vorab-fehler", "err": repr(e)[:200]})
+                    if TTS_RACE > 0 and stream is not None and stream.cached is None:
+                        local = LocalVoice(s, eng.voice[lang], eng.rate + boost)
                 item["parts"].append((s, stream))
+                item.setdefault("local", []).append(local)
             item["boost"] = boost
         with self.cond:
             self.items.append(item)
@@ -844,15 +1113,23 @@ class Speaker:
         def on_start(first_s):
             if not started["v"]:
                 started["v"] = True
-                emit("speaking", id=uid, first_s=first_s)
+                lat = round(time.time() - it["t_end"], 2) if it.get("t_end") else None
+                emit("speaking", id=uid, first_s=first_s, latency_s=lat)
+                log({"latency": {"id": uid, "end_to_sound_s": lat}})
         interrupted = False
-        for text, stream in it["parts"]:
-            if cancelled():
-                interrupted = True
-                break
-            eng.speak(text, it["lang"], stream=stream, on_start=on_start, boost=it.get("boost", 0),
-                      cancelled=cancelled)
-        if cancelled():
+        locals_ = it.get("local") or [None] * len(it["parts"])
+        try:
+            for (text, stream), local in zip(it["parts"], locals_):
+                if cancelled():
+                    interrupted = CANCEL["gen"] != g
+                    break
+                eng.speak(text, it["lang"], stream=stream, on_start=on_start, boost=it.get("boost", 0),
+                          cancelled=cancelled, local=local)
+        finally:
+            for local in locals_:
+                if local:
+                    local.cleanup()
+        if CANCEL["gen"] != g:
             interrupted = True
         for _, st in it["parts"]:
             if st:
@@ -900,7 +1177,9 @@ class Engine:
                 self.m_th = load_model(THAI_MODEL, self.device)[0]
             except Exception as e:
                 log({"thai_model": "nicht geladen", "err": repr(e)[:200]})
-        self.beam = 5 if self.device == "mps" else 1
+        # Beam 1: gemessen (MPS, Thai-Modell) 1,45 s statt 2,5 s (Beam 3/5) bei gleichem Text; der
+        # Decoder dominiert, weil Thai viele Tokens braucht.
+        self.beam = int(os.environ.get("DOLMETSCHER_BEAM", "1"))   # Benchmark: Beam-Vergleich
         log({"model": model, "device": self.device, "load_s": round(time.time() - t, 1)})
         self.voice = {k: pick_voice(k) for k in VOICE}
         self.voices = {"en": None, "th": None, **(voices or {})}   # gewählte Neural-Stimmen (None = Standard)
@@ -912,22 +1191,35 @@ class Engine:
         self.history = collections.deque(maxlen=8)             # (lang, text, out) – Kontext für Claude
         self.texts = {}                                        # id -> (lang, text) für Korrekturen
         self.spk = None
-        try:                                   # Stimmprofile (optional)
-            import profiles
-            if profiles.list_profiles():
-                self.spk = profiles.SpeakerID()
-                log({"profiles": [p["name"] for p in self.spk.profiles]})
-        except Exception as e:
-            log({"profiles": "aus", "err": repr(e)[:200]})
+        self.two_person = True                 # "Englisch = ich, andere Stimme = Thai" (braucht ein EN-Profil)
+        self.reload_profiles()
         self.speaker = Speaker(self)
         _QSTATE["speaker"] = self.speaker
         emit("ready", msg=f"bereit ({time.time()-t:.1f}s, {model} auf {self.device})", device=self.device,
              llm=bool(LLM["on"] and llm_available()))
 
+    def reload_profiles(self):
+        """Stimmprofile (neu) laden – auch nach dem Anlegen/Löschen in der App, ohne Neustart."""
+        try:
+            import profiles
+            if profiles.list_profiles():
+                if self.spk is None:
+                    self.spk = profiles.SpeakerID()
+                else:
+                    self.spk.reload()
+                log({"profiles": [p["name"] for p in self.spk.profiles]})
+            else:
+                self.spk = None
+        except Exception as e:
+            self.spk = None
+            log({"profiles": "aus", "err": repr(e)[:200]})
+        me = self.spk.me() if self.spk else None
+        emit("roles", me=me["name"] if me else None, on=self.two_person and me is not None)
+
     def voice_for(self, lang):
         return self.voices.get(lang) or NEURAL[lang][self.polite if lang == "th" else "en"]
 
-    def speak(self, text, lang, stream=None, on_start=None, boost=0, cancelled=None):
+    def speak(self, text, lang, stream=None, on_start=None, boost=0, cancelled=None, local=None):
         """Natürliche Microsoft-Neural-Stimme (edge-tts, gestreamt), sonst macOS-Stimme. Blockiert
         bis zum Ende der Ausgabe – wird vom Speaker-Thread aufgerufen, nicht von der Erkennung."""
         if self.mute:
@@ -940,13 +1232,26 @@ class Engine:
             try:
                 if stream is None:
                     stream = EdgeStream(text, self.voice_for(lang), f"{5 + self.rate + boost:+d}%")
-                st = edge_play(stream, self.volume, on_start, cancelled)
+                st = edge_play(stream, self.volume, on_start, cancelled,
+                               deadline=TTS_RACE if (local and TTS_RACE > 0) else None)
                 net_state("tts", True)
                 log({"tts": "edge", "voice": stream.voice, **st, "secs": round(time.time() - t, 2)})
                 return
             except Exception as e:
-                log({"tts": "edge-fehler", "err": repr(e)[:200]})
-                net_state("tts", False)
+                log({"tts": "edge-fehler" if not local else "edge-zu-langsam", "err": repr(e)[:200]})
+                if not local:
+                    net_state("tts", False)
+            if local:                            # Wettlauf verloren: vorbereitete macOS-Stimme sofort
+                path = local.ready_path()
+                if path and not (cancelled and cancelled()):
+                    wait_quiet(cancelled=cancelled)
+                    if cancelled and cancelled():
+                        return
+                    log({"tts": "lokal", "voice": local.voice, "after_s": round(time.time() - t, 2)})
+                    if on_start:
+                        on_start(round(time.time() - t, 2))
+                    PLAYER.run(["/usr/bin/afplay", "-v", f"{self.volume:.2f}", path])
+                    return
         fd, aiff = tempfile.mkstemp(prefix="dolmetscher_say_", suffix=".aiff")
         os.close(fd)
         try:
@@ -1040,19 +1345,26 @@ class Engine:
              polite=self.polite, rate=self.rate, volume=round(self.volume, 2),
              voice_en=self.voices.get("en") or "", voice_th=self.voices.get("th") or "", **extra)
 
-    def _stt(self, audio, lang, hotwords=None, model=None):
-        """Text, mittlere log-prob, Segmente. Thai: keine Wiederholungs-Sperren (มากๆ, ไม่ไม่ und
-        ครับครับ sind echtes Thai), keine zweite VAD (Silero hat schon geschnitten und würde leise
-        Wortenden kappen) und kein Token-Limit (lange Thai-Sätze wurden bei 160 Tokens abgeschnitten)."""
+    def _stt(self, audio, lang, hotwords=None, model=None, quick=False):
+        """Text, mittlere log-prob, Segmente.
+        - Token-Grenze nach Dauer (~14 Tokens/s + Reserve): lange Sätze passen ganz hinein (früher
+          bei 160 abgeschnitten), aber eine Wiederholungsschleife auf fremdem Audio endet schnell.
+        - temperature=0: keine Temperatur-Wiederholungen. Bei einer Halluzination rechnete Whisper
+          sonst bis zu 6x neu (Log: 2 s Audio -> 60 s Rechenzeit, danach Stau von 7 Sätzen).
+        - Thai: keine Wiederholungs-Sperren (มากๆ, ไม่ไม่ sind echtes Thai), keine zweite VAD.
+        - quick: Gegenprobe in der anderen Sprache mit Beam 1 (nur der log-prob-Vergleich zählt)."""
         mdl = model or (self.m_en if (lang == "en" and self.m_en) else
                         self.m_th if (lang == "th" and self.m_th) else self.m)
+        dur = audio.size / SR
+        cap = int(min(440, 24 + 14 * dur))
         if lang == "th":
             kw = dict(repetition_penalty=1.0, no_repeat_ngram_size=0, vad_filter=False)
         else:
-            kw = dict(repetition_penalty=1.1, no_repeat_ngram_size=4, max_new_tokens=220,
+            kw = dict(repetition_penalty=1.1, no_repeat_ngram_size=4,
                       vad_filter=True, vad_parameters={"threshold": 0.1})
-        segs, _ = mdl.transcribe(audio, language=lang, beam_size=self.beam, hotwords=hotwords,
-                                 condition_on_previous_text=False, **kw)
+        segs, _ = mdl.transcribe(audio, language=lang, beam_size=1 if quick else self.beam, hotwords=hotwords,
+                                 condition_on_previous_text=False, temperature=0.0,
+                                 max_new_tokens=cap, **kw)
         segs = list(segs)
         if lang == "th":
             # Thai-Modell setzt Leerzeichen zwischen Wörter – Thai schreibt man ohne. Leerzeichen
@@ -1071,14 +1383,30 @@ class Engine:
         emit("listening")
         return None
 
-    def process(self, audio, speak=True, rms=None, uid=None):
+    def process(self, audio, speak=True, rms=None, uid=None, t_end=None, version=None):
         uid = uid or new_id()
         emit("thinking", id=uid)
         t0 = time.time()
+        EARLY_END.pop(uid, None)
+        memo = PRE.pop(uid, None)
+        if memo is not None and memo["version"] != version:
+            memo = None                                # nach der Vorab-Erkennung wurde weitergesprochen
+
+        def stt(a, lang, hotwords=None, model=None, quick=False):
+            """_stt mit Wiederverwendung der Vorab-Erkennung (gleiche Sprache und Parameter)."""
+            key = (lang, hotwords, quick)
+            if memo is not None and model is None and key in memo["stt"]:
+                return memo["stt"][key]
+            return self._stt(a, lang, hotwords=hotwords, model=model, quick=quick)
+
         audio, peak = normalize(audio)                 # leise Sprecher anheben (RMS, mit Obergrenze)
-        info = {"id": uid, "dur": round(audio.size / SR, 2), "rms": rms, "peak": round(peak, 3)}
+        info = {"id": uid, "dur": round(audio.size / SR, 2), "rms": rms, "peak": round(peak, 3),
+                "pre": memo is not None}
         times = {}
-        _, _, probs = self.m_det.detect_language(audio=audio, language_detection_segments=2)
+        if memo is not None:
+            probs = memo["probs"]
+        else:
+            _, _, probs = self.m_det.detect_language(audio=audio, language_detection_segments=2)
         times["detect"] = round(time.time() - t0, 2)
         p = dict(probs)
         pe, pt_raw = p.get("en", 0.0), p.get("th", 0.0)
@@ -1107,34 +1435,57 @@ class Engine:
             if (pe2, pt2) != (pe, pt):
                 info["prior"] = who.get("lang", "en")
             pe, pt = pe2, pt2
+        # --- Zwei-Personen-Modus: Englisch kommt von mir, jede andere Stimme spricht Thai.
+        # Hilft genau bei kurzen Sätzen ("ok", "ใช่", "555"), bei denen die Spracherkennung rät.
+        role = None
+        if getattr(self, "two_person", False) and self.spk and self.lock not in ("en", "th"):
+            try:
+                role, rsim = self.spk.role(audio)
+                info.update(role=role, role_sim=round(rsim, 3))
+            except Exception as e:
+                log({"role": "fehler", "err": repr(e)[:200]})
+            if role == "me" and pt_raw >= 0.8 and audio.size >= SR:
+                role = None                         # Erkennung hört klar Thai: nicht erzwingen
+                info["role"] = "me?"
+            if role == "me":
+                pe, pt = max(pe, 0.95), min(pt, 0.05)
+            if role == "other" and pe >= 0.9 and audio.size >= SR:
+                role = None                         # klar Englisch (z. B. sie spricht Englisch)
+                info["role"] = "other?"
+            elif role == "other":
+                pe, pt = min(pe, 0.05), max(pt, 0.95)
         if pe + pt < MIN_LANG_P:                  # weder Englisch noch Thai -> ignorieren
             return self._drop(info, "andere Sprache", uid, "weder Englisch noch Thai")
         segs = []
         if self.lock in ("en", "th"):
             lang = self.lock
-            text, lp, segs = self._stt(audio, lang)
+            text, lp, segs = stt(audio, lang)
             info.update(mode="lock")
         else:
             lang = "th" if pt > pe else "en"
-            text, lp, segs = self._stt(audio, lang, hotwords=hot if who and who.get("lang") == lang else None)
+            text, lp, segs = stt(audio, lang, hotwords=hot if who and who.get("lang") == lang else None)
             # unklar? beide Sprachen probieren und die sicherere nehmen
             times["stt"] = round(time.time() - t0 - times["detect"], 2)
-            if (lang == "en" and pt > 0.2) or (lang == "th" and pe > 0.2) or not text \
-                    or max(pe, pt) < 0.6 or lp < -0.6:
+            # Gegenprobe in der anderen Sprache nur, wenn es wirklich unklar ist – und nicht bei Stau
+            busy = _QSTATE["stt_q"] is not None and _QSTATE["stt_q"].qsize() >= 2
+            unsure = (not text or lp < -0.8) if role else (
+                (lang == "en" and pt > 0.2) or (lang == "th" and pe > 0.2) or not text
+                or max(pe, pt) < 0.5 or lp < -0.8)
+            if not busy and unsure:
                 other = "th" if lang == "en" else "en"
                 ta = time.time()
-                t2, lp2, segs2 = self._stt(audio, other)
+                t2, lp2, segs2 = stt(audio, other, quick=True)
                 times["alt"] = round(time.time() - ta, 2)
                 info.update(alt=other, alt_text=t2, alt_lp=round(lp2, 3), lp=round(lp, 3))
-                if t2 and (lp2 > lp or not text):
+                if t2 and (lp2 > lp or not text) and not looks_hallucinated(t2, audio.size / SR, segs2):
                     lang, text, lp, segs = other, t2, lp2, segs2
         info.update(lang=lang, text=text, lp=round(lp, 3))
 
         # --- Sprachbefehle: "Translator, ..." (oder Folgesatz nach bloßem "Translator")
-        en_text = text if lang == "en" else (self._stt(audio, "en")[0] if pe > pt else "")
+        en_text = text if lang == "en" else (stt(audio, "en")[0] if pe > pt else "")
         if re.match(r"^\W*(?:hey|hi|ok|okay)?\W*tr\w*nsl", en_text, re.I):
             # Befehlskandidat: einmal mit Befehls-Vokabular nachhören
-            hw = self._stt(audio, "en", hotwords=HOTWORDS)[0]
+            hw = stt(audio, "en", hotwords=HOTWORDS)[0]
             info["cmd_retry"] = hw
             en_text = hw or en_text
         m = WAKE.match(en_text)
@@ -1162,7 +1513,15 @@ class Engine:
             info["drop"] = "unsicher"
             text = ""
         if text:
+            if lang == "th":
+                text = re.sub(r"(?:ห้า\s*){3,}", "555", text)   # gesprochenes 555 = Lachen
+            sq = squash_repeats(text)
+            if sq != text:
+                info["squashed"] = True
+                text = sq
             hall = looks_hallucinated(text, audio.size / SR, segs)
+            if hall == "wiederholung" and info.get("squashed"):
+                hall = None                             # Schleife schon gekürzt, Rest ist echter Text
             if hall:
                 info["drop"] = f"halluzination ({hall})"
                 text = ""
@@ -1176,7 +1535,7 @@ class Engine:
         alts = []
         if LLM["on"] and lang == "th" and self.m_th is not None and lp < -0.25 and llm_available():
             try:
-                a = self._stt(audio, "th", model=self.m)[0]
+                a = stt(audio, "th", model=self.m)[0]
                 if a and a != text:
                     alts.append(a)
             except Exception as e:
@@ -1184,11 +1543,45 @@ class Engine:
         info["alts"] = alts
         info["times"] = times
         log(info)
-        return self.deliver(uid, lang, text, lp, time.time() - t0, speak=speak,
-                            speaker=who["name"] if who else None, alts=alts)
+        return self.deliver(uid, lang, text, lp, time.time() - t0, speak=speak, t_end=t_end,
+                            speaker=who["name"] if who else None, alts=alts,
+                            role=role if role in ("me", "other") else None)
 
-    def deliver(self, uid, lang, text, lp=0.0, stt_s=0.0, speak=True, speaker=None, alts=(),
-                source="mic", replaces=None):
+    def _guess_lang(self, probs):
+        p = dict(probs)
+        pe = p.get("en", 0.0)
+        pt = p.get("th", 0.0) + (sum(p.get(k, 0.0) for k in ASIAN_AS_TH) if self.lock != "en" else 0.0)
+        return self.lock if self.lock in ("en", "th") else ("th" if pt > pe else "en")
+
+    def prerecognize(self, uid, version, audio):
+        """Vorab-Erkennung nach kurzer Pause: Sprache + Text wie process() sie berechnen würde.
+        Wird bei unveränderter Äußerung (nur Stille angehängt) wiederverwendet. Englisch mit
+        Satzzeichen am Ende beendet die Äußerung sofort (Thai nicht: ครับ/นะ enden auch Teilsätze)."""
+        t = time.time()
+        a, _ = normalize(audio)
+        _, _, probs = self.m_det.detect_language(audio=a, language_detection_segments=2)
+        lang = self._guess_lang(probs)
+        res = self._stt(a, lang)
+        PRE[uid] = {"version": version, "probs": probs, "stt": {(lang, None, False): res}}
+        if len(PRE) > 20:
+            PRE.pop(next(iter(PRE)))
+        early = (FAST["endpoint"] and lang == "en" and len(res[0].split()) >= 2
+                 and re.search(r"[.?!]['\"”]?\s*$", res[0]) is not None and res[1] > -0.6)
+        if early:
+            EARLY_END[uid] = version
+        log({"pre": {"id": uid, "v": version, "lang": lang, "s": round(time.time() - t, 2), "early": early}})
+
+    def partial(self, uid, audio):
+        """Vorläufiger Text während des Sprechens (kleines Modell, nur zur Anzeige)."""
+        a, _ = normalize(audio)
+        _, _, probs = self.m_det.detect_language(audio=a, language_detection_segments=1)
+        lang = self._guess_lang(probs)
+        text = self._stt(a, lang, model=self.m_det, quick=True)[0]
+        if text:
+            emit("partial", id=uid, text=text, lang=lang)
+
+    def deliver(self, uid, lang, text, lp=0.0, stt_s=0.0, speak=True, speaker=None, alts=(), t_end=None,
+                source="mic", replaces=None, role=None):
         """Übersetzen, Blase melden, vorlesen (asynchron). Gemeinsam für Mikrofon, Schnellsätze und
         Korrekturen."""
         t1 = time.time()
@@ -1196,12 +1589,17 @@ class Engine:
                     source=source)
         if replaces:
             base["replaces"] = replaces
+        if alts:
+            base["alts"] = list(alts)[:3]
+        if role:
+            base["role"] = role
         self.texts[uid] = (lang, text)
         if len(self.texts) > 200:
             self.texts.pop(next(iter(self.texts)))
         if not self.translate_dir.get(lang, True):
             # diese Sprache bleibt wie sie ist: nur anzeigen, nicht übersetzen, nicht vorlesen
-            emit("utt", to=lang, out=text, tr=0.0, translated=False, provider="none", **base)
+            emit("utt", to=lang, out=text, tr=0.0, translated=False, provider="none",
+                 text_latin=thai_latin(text) if lang == "th" else None, **base)
             emit("listening")
             return lang, text, text
         dst = TARGET[lang]
@@ -1223,9 +1621,14 @@ class Engine:
         tr_s = time.time() - t1
         log({"id": uid, "out": out, "provider": meta.get("provider"), "cached": meta.get("cached", False),
              "tr_s": round(tr_s, 2)})
-        emit("utt", to=dst, out=out, tr=round(tr_s, 2), translated=True, provider=meta.get("provider"), **base)
+        if t_end:
+            base["ready_s"] = round(time.time() - t_end, 2)    # Äußerungsende -> Übersetzung fertig
+        emit("utt", to=dst, out=out, tr=round(tr_s, 2), translated=True, provider=meta.get("provider"),
+             text_latin=thai_latin(text) if lang == "th" else None,
+             out_latin=thai_latin(out) if dst == "th" else None,
+             num_warn=True if numbers_differ(text, out) else None, **base)
         if speak:
-            self.speaker.add(out, dst, uid)
+            self.speaker.add(out, dst, uid, t_end=t_end)
         emit("listening")
         return lang, text, out
 
@@ -1314,6 +1717,10 @@ def apply_control(eng, d):
         if eng.mute:
             eng.stop_speaking()
     if "paused" in d: eng.paused = bool(d["paused"])
+    if "listen" in d and MIC is not None:
+        if d["listen"]:
+            return MIC.start                   # öffnet ffmpeg – nicht im Lese-Thread blockieren
+        MIC.stop()
     if isinstance(d.get("rate"), (int, float)): eng.rate = int(max(-50, min(50, d["rate"])))
     if isinstance(d.get("volume"), (int, float)): eng.volume = float(max(0.2, min(2.0, d["volume"])))
     if isinstance(d.get("silence"), (int, float)): SILENCE_END = float(max(0.4, min(2.0, d["silence"])))
@@ -1323,10 +1730,24 @@ def apply_control(eng, d):
         if f"voice_{k}" in d:
             v = d[f"voice_{k}"]
             eng.voices[k] = v if v in VOICES[k] else None
+    if "glossary" in d:
+        load_glossary(str(d["glossary"]))
+    if d.get("style") in STYLES:
+        LLM["style"] = d["style"]
     if "llm" in d:
         LLM["on"] = bool(d["llm"])
         LLM["client"] = None               # Schlüssel evtl. neu gespeichert -> neu einlesen
     if "earcons" in d: eng.earcons = bool(d["earcons"])
+    if "fast_endpoint" in d: FAST["endpoint"] = bool(d["fast_endpoint"])
+    if "two_person" in d:
+        eng.two_person = bool(d["two_person"])
+        eng.reload_profiles()
+    if d.get("reload_profiles"):
+        eng.reload_profiles()
+    if "partial" in d: FAST["partial"] = bool(d["partial"])
+    if isinstance(d.get("tts_race"), (int, float)):
+        global TTS_RACE
+        TTS_RACE = float(max(0.0, min(5.0, d["tts_race"])))
     if d.get("stop_speaking"):
         eng.stop_speaking()
     if isinstance(d.get("say"), dict):
@@ -1397,9 +1818,14 @@ def quietest_cut(buf, look_back_s=4.0, fdur=StreamVAD.N / SR):
 
 
 METER = False
+PRE_AT = 0.35                   # s Pause bis zur Vorab-Erkennung
+PARTIAL_EVERY = 2.0             # s Sprache zwischen zwei Teiltexten
+FAST = {"pre": True, "endpoint": True, "partial": False}
+EARLY_END = {}                  # uid -> version: Satz ist laut Vorab-Erkennung fertig
+PRE = {}                        # uid -> Ergebnis der Vorab-Erkennung
 
 
-def segmenter(read, utts):
+def segmenter(read, utts, sess=0, on_end=None):
     """Mikrofon-Thread: liest laufend, segmentiert per VAD und reiht fertige Äußerungen ein.
     Verworfen wird nur, was während der eigenen Sprachausgabe (+ Nachhall) ankommt.
     Mit --barge-in (Kopfhörer) wird nichts verworfen; Sprechen unterbricht die Ausgabe."""
@@ -1410,10 +1836,13 @@ def segmenter(read, utts):
     buf, voiced, silence, speech, pre, peak_rms = [], False, 0.0, 0.0, [], 0.0
     was_gated, onset, t_cap, t_begin, dbg = False, 0, 0.0, 0.0, []
     meter_n, meter_peak = 0, 0.0
+    t_voice = 0.0                   # Aufnahmezeit des letzten Sprach-Frames (für die Latenzmessung)
+    uid, version, pre_sent, partial_at = None, 0, False, 0.0
 
     def put(frames, reason, sp):
         if sp >= MIN_UTT:
-            utts.put((np.concatenate(frames), round(peak_rms, 4), time.time(), reason))
+            utts.put((np.concatenate(frames), round(peak_rms, 4), time.time(), reason, sess, t_voice or t_cap,
+                      uid, version))
             report_queue()
         else:
             log({"drop": "zu kurz", "speech": round(sp, 2), "rms": round(peak_rms, 4)})
@@ -1468,18 +1897,35 @@ def segmenter(read, utts):
                 pre = (pre + [f])[-12:]                     # ~380 ms Vorlauf
                 if prob > VAD["start"]:
                     voiced, buf, silence, speech, peak_rms = True, pre[:], 0.0, fdur, rms
+                    t_voice = t_cap
                     t_begin = t_cap
+                    uid, version, pre_sent, partial_at = new_id(), 0, False, 0.0
                     HEARING.set()
-                    emit("hearing")
+                    emit("hearing", id=uid)
                 continue
             buf.append(f)
             peak_rms = max(peak_rms, rms)
             if prob > VAD["keep"]:
                 silence = 0.0; speech += fdur
+                t_voice = t_cap
+                if pre_sent:            # weitergesprochen: Vorab-Erkennung gilt nicht mehr
+                    version, pre_sent = version + 1, False
             else:
                 silence += fdur
-            if silence >= SILENCE_END:
-                finish("vad")
+            if silence >= SILENCE_END - (min(0.2, SILENCE_END - 0.4) if speech < 1.2 else 0.0):
+                finish("vad")      # sehr kurze Äußerung („ja“): Satzende bis 0.2 s früher
+            elif silence > 0 and EARLY_END.get(uid) == version:
+                finish("früh")          # Vorab-Erkennung: Satz ist eindeutig zu Ende
+            elif (FAST["pre"] and not pre_sent and silence >= PRE_AT and SILENCE_END > PRE_AT + 0.1
+                  and speech >= MIN_UTT and utts.qsize() == 0):
+                # Vorab-Erkennung: nach kurzer Pause schon erkennen; ist der Satz bei SILENCE_END
+                # wirklich zu Ende, wird das Ergebnis wiederverwendet
+                pre_sent = True
+                utts.put(("pre", uid, version, np.concatenate(buf)))
+            elif (FAST["partial"] and silence == 0 and utts.qsize() == 0
+                  and len(buf) * fdur - partial_at >= PARTIAL_EVERY):
+                partial_at = len(buf) * fdur
+                utts.put(("partial", uid, np.concatenate(buf)))
             elif len(buf) * fdur >= MAX_UTT:
                 # zu lang: an der leisesten Stelle der letzten Sekunden teilen, Rest weiter sammeln
                 cut = quietest_cut(buf)
@@ -1487,9 +1933,14 @@ def segmenter(read, utts):
                 log({"segment": {"cut": "max", "len_s": round(len(head) * fdur, 2), "rest_s": round(len(tail) * fdur, 2)}})
                 put(head, "max", len(head) * fdur)
                 buf, speech = tail, len(tail) * fdur
+                uid, version, pre_sent, partial_at = new_id(), 0, False, 0.0
+                emit("hearing", id=uid)
     finally:
         HEARING.clear()
-        utts.put(None)                  # Ende: Arbeits-Thread beendet sich
+        if on_end:
+            on_end()
+        else:
+            utts.put(None)              # Ende: Arbeits-Thread beendet sich
 
 
 def mic_filter(denoise=False):
@@ -1521,65 +1972,144 @@ def list_mics():
     return mics
 
 
-def mic_loop(eng, mic, speak, jobs=None):
-    global FF
-    # leichte Vorverstärkung im ffmpeg, damit leise Stimmen mehr Pegel haben
-    FF = subprocess.Popen([FFMPEG, "-hide_banner", "-loglevel", "error", "-f", "avfoundation",
-                           "-i", f":{mic}", "-af", mic_filter(DENOISE),
-                           "-ar", str(SR), "-ac", "1", "-f", "s16le", "-"],
-                          stdout=subprocess.PIPE)
-    N = StreamVAD.N
-    first = FF.stdout.read(N * 2)
-    if not first:
-        emit("error", msg="Mikrofon liefert keine Daten (Mikrofon-Zugriff erlaubt?)")
-        return
-    emit("listening")
-    frames = queue.Queue()
+class Mic:
+    """Mikrofon-Sitzung, unabhängig von den geladenen Modellen: listen an/aus öffnet bzw. schließt
+    nur ffmpeg, Leser und Segmentierer. Der Arbeits-Thread und die Modelle bleiben bestehen."""
 
-    def reader():
-        """Nur Lesen (kein Rechnen), damit die ffmpeg-Pipe nie vollläuft. Jeder Block bekommt
-        seine Aufnahmezeit aus der Sample-Zählung; blockiert das Lesen, sind wir live."""
-        n, anchor = 0, time.time()
-        try:
-            while True:
-                t = time.time()
-                b = FF.stdout.read(N * 2)
-                now = time.time()
-                if len(b) < N * 2:
-                    break
-                n += N
-                if now - t > N / SR / 2 or anchor + n / SR > now:
-                    anchor = now - n / SR          # live bzw. nie in der Zukunft
-                frames.put((b, anchor + n / SR))
-        finally:
-            frames.put((b"", time.time()))
+    def __init__(self, eng, mic, jobs, idle=False):
+        self.eng, self.mic, self.jobs, self.idle = eng, mic, jobs, idle
+        self.ff, self.sess, self.on = None, 0, False
+        self.lock = threading.Lock()
 
-    def read():
-        b, t = frames.get()
-        return np.frombuffer(b, dtype=np.int16).astype(np.float32) / 32768, t
+    def start(self):
+        with self.lock:
+            if self.on:
+                emit("mic", on=True)
+                return True
+            self.sess += 1
+            sess = self.sess
+            # DOLMETSCHER_MIC_FILE: Audiodatei in Echtzeit statt Mikrofon (Ende-zu-Ende-Test)
+            loop = ["-stream_loop", "-1"] if os.environ.get("DOLMETSCHER_MIC_LOOP") else []
+            src = ([*loop, "-re", "-i", os.environ["DOLMETSCHER_MIC_FILE"]] if os.environ.get("DOLMETSCHER_MIC_FILE")
+                   else ["-f", "avfoundation", "-i", f":{self.mic}"])
+            # leichte Vorverstärkung im ffmpeg, damit leise Stimmen mehr Pegel haben
+            ff = subprocess.Popen([FFMPEG, "-hide_banner", "-loglevel", "error", *src, "-af", mic_filter(DENOISE),
+                                   "-ar", str(SR), "-ac", "1", "-f", "s16le", "-"], stdout=subprocess.PIPE)
+            self.ff = ff
+        N = StreamVAD.N
+        first = ff.stdout.read(N * 2)
+        if not first or sess != self.sess:
+            if sess == self.sess:
+                emit("error", msg="Mikrofon liefert keine Daten (Mikrofon-Zugriff erlaubt?)")
+                self._kill(ff)
+                emit("mic", on=False)
+                if not self.idle:
+                    self.jobs.put(None)
+            return False
+        frames = queue.Queue()
 
-    threading.Thread(target=reader, name="mic-read", daemon=True).start()
-    utts = jobs if jobs is not None else queue.Queue()
-    _QSTATE["stt_q"] = utts
-    threading.Thread(target=segmenter, args=(read, utts), name="mic", daemon=True).start()
-    # Arbeiten im Haupt-Thread (Signale für Stopp kommen hier an); Äußerungen der Reihe nach.
-    # Vorlesen läuft im Speaker-Thread – die nächste Äußerung wartet nicht mehr auf die Ausgabe.
+        def reader():
+            """Nur Lesen (kein Rechnen), damit die ffmpeg-Pipe nie vollläuft. Jeder Block bekommt
+            seine Aufnahmezeit aus der Sample-Zählung; blockiert das Lesen, sind wir live."""
+            n, anchor, b = 0, time.time(), b""
+            try:
+                while sess == self.sess:
+                    t = time.time()
+                    b = ff.stdout.read(N * 2)
+                    now = time.time()
+                    if len(b) < N * 2:
+                        break
+                    n += N
+                    if now - t > N / SR / 2 or anchor + n / SR > now:
+                        anchor = now - n / SR          # live bzw. nie in der Zukunft
+                    frames.put((b, anchor + n / SR))
+            finally:
+                frames.put((b"", time.time()))
+
+        def read():
+            b, t = frames.get()
+            return np.frombuffer(b, dtype=np.int16).astype(np.float32) / 32768, t
+
+        def ended():
+            """Segmentierer ist fertig: gewollter Stopp (andere Sitzung) oder Ende der Quelle."""
+            if sess == self.sess:              # Quelle endete von selbst (Datei zu Ende, Gerät weg)
+                with self.lock:
+                    self.on = False
+                self._kill(ff)
+                emit("mic", on=False)
+                if not self.idle:
+                    self.jobs.put(None)        # ohne --idle: wie bisher beenden
+
+        with self.lock:
+            self.on = True
+        threading.Thread(target=reader, name="mic-read", daemon=True).start()
+        threading.Thread(target=segmenter, args=(read, self.jobs, sess, ended), name="mic", daemon=True).start()
+        emit("mic", on=True)
+        emit("listening")
+        return True
+
+    @staticmethod
+    def _kill(ff):
+        if ff and ff.poll() is None:
+            ff.terminate()
+            try:
+                ff.wait(2)
+            except subprocess.TimeoutExpired:
+                ff.kill()
+
+    def stop(self):
+        """Mikrofon zu (Stopp-Knopf). Laufende/wartende Ausgaben brechen ab, Äußerungen dieser
+        Sitzung, die noch in der Warteschlange stehen, werden verworfen."""
+        with self.lock:
+            self.sess += 1
+            ff, self.ff, self.on = self.ff, None, False
+        self._kill(ff)
+        HEARING.clear()
+        self.eng.stop_speaking()
+        emit("mic", on=False)
+
+    def current(self, item):
+        """Gehört eine Äußerung zur laufenden Sitzung? (Alte nach Stopp verwerfen.)"""
+        return len(item) < 5 or item[4] == self.sess
+
+
+MIC = None
+
+
+def work_loop(eng, utts, speak):
+    """Arbeitet die Warteschlange ab: Äußerungen (audio, rms, t_end, reason) und App-Aufgaben
+    ("job", fn). Ein Fehler in einem Satz beendet die Engine nicht."""
     while True:
         item = utts.get()
         if item is None:
             break
-        if item[0] == "job":                 # Schnellsatz/Korrektur aus der App
+        if isinstance(item[0], str) and item[0] in ("pre", "partial"):
+            if utts.qsize() == 0 or item[0] == "pre":   # Teiltext nur, wenn nichts anderes wartet
+                try:
+                    if item[0] == "pre":
+                        eng.prerecognize(item[1], item[2], item[3])
+                    else:
+                        eng.partial(item[1], item[2])
+                except Exception as e:
+                    log({item[0]: "fehler", "err": repr(e)[:200]})
+            continue
+        if isinstance(item[0], str) and item[0] == "job":   # Schnellsatz/Korrektur aus der App
             try:
                 item[1]()
             except Exception as e:
                 log({"job": "fehler", "err": repr(e)[:200]})
             continue
         report_queue()
-        audio, rms, t_end, reason = item
+        if MIC is not None and not MIC.current(item):
+            continue                            # Äußerung aus einer gestoppten Sitzung
+        audio, rms, t_end, reason = item[:4]
+        t_speech_end = item[5] if len(item) > 5 else None
+        given_uid = item[6] if len(item) > 6 else None
+        version = item[7] if len(item) > 7 else None
         t = time.time()
-        uid = new_id()
+        uid = given_uid or new_id()
         try:
-            eng.process(audio, speak=speak, rms=rms, uid=uid)
+            eng.process(audio, speak=speak, rms=rms, uid=uid, t_end=t_speech_end, version=version)
         except Exception as e:                  # ein kaputter Satz darf die Engine nicht beenden
             log({"process": "fehler", "id": uid, "err": repr(e)[:300]})
             emit("dropped", reason="fehler", id=uid)
@@ -1593,8 +2123,8 @@ def shutdown(*_):
     if sp:
         sp.flush()
     PLAYER.stop()                       # laufende Ausgabe (afplay/say/ffmpeg) sofort stumm
-    if FF and FF.poll() is None:
-        FF.terminate()
+    if MIC is not None:
+        Mic._kill(MIC.ff)
     sys.exit(0)
 
 
@@ -1630,8 +2160,19 @@ if __name__ == "__main__":
     ap.add_argument("--voice-th", default=None)
     ap.add_argument("--llm", action="store_true", help="Übersetzung mit Claude (API-Schlüssel nötig)")
     ap.add_argument("--llm-model", default=LLM["model"])
+    ap.add_argument("--style", choices=list(STYLES), default="casual",
+                    help="Ton der Claude-Übersetzung: casual (Partner) | neutral | polite (Service)")
     ap.add_argument("--earcons", action="store_true", help="Signalton statt gesprochener Bestätigung")
     ap.add_argument("--meter", action="store_true", help="Pegel-Ereignisse senden")
+    ap.add_argument("--no-two-person", action="store_true", help="Zwei-Personen-Modus aus (Englisch = ich, andere Stimme = Thai)")
+    ap.add_argument("--no-fast-endpoint", action="store_true", help="kein schnelles Satzende (nur Englisch)")
+    ap.add_argument("--no-pre", action="store_true", help="keine Vorab-Erkennung")
+    ap.add_argument("--partial", action=argparse.BooleanOptionalAction, default=False,
+                    help="Teiltext während des Sprechens (Standard: aus)")
+    ap.add_argument("--tts-race", type=float, default=TTS_RACE,
+                    help="s bis die vorbereitete macOS-Stimme einspringt (0 = aus)")
+    ap.add_argument("--idle", action="store_true",
+                    help="Modelle laden, Mikrofon erst mit {\"listen\": true} auf stdin öffnen")
     a = ap.parse_args()
     JSON, BARGE_IN, LOG_TEXT, METER, DENOISE = a.json, a.barge_in, a.log_text, a.meter, a.denoise
     if a.list_mics:
@@ -1639,8 +2180,14 @@ if __name__ == "__main__":
         emit("mics", mics=list_mics())
         sys.exit(0)
     SILENCE_END = max(0.4, min(2.0, a.silence))
+    TTS_RACE = max(0.0, min(5.0, a.tts_race))
+    FAST.update(pre=not a.no_pre, endpoint=not a.no_fast_endpoint, partial=a.partial)
     VAD["start"], VAD["keep"] = SENSITIVITY[a.sensitivity]
-    LLM["on"], LLM["model"] = a.llm, a.llm_model
+    LLM["on"], LLM["model"], LLM["style"] = a.llm, a.llm_model, a.style
+    load_glossary()
+    load_pronounce()
+    threading.Thread(target=warm_translate, daemon=True).start()
+    threading.Thread(target=thai_latin, args=("สวัสดี",), daemon=True).start()   # Umschrift vorwärmen
     signal.signal(signal.SIGTERM, shutdown)
     signal.signal(signal.SIGINT, shutdown)
     if a.profiles or a.enroll or a.delete_profile or a.vocab is not None:
@@ -1652,6 +2199,8 @@ if __name__ == "__main__":
     apply_control(eng, {"rate": a.rate, "volume": a.volume, "voice_en": a.voice_en, "voice_th": a.voice_th})
     eng.mute = a.mute
     eng.earcons = a.earcons
+    if a.no_two_person:
+        eng.two_person = False
     if a.no_en: eng.translate_dir["en"] = False
     if a.no_th: eng.translate_dir["th"] = False
     jobs = queue.Queue()
@@ -1664,4 +2213,12 @@ if __name__ == "__main__":
             eng.process(np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768, speak=not a.mute)
         eng.speaker.wait_idle()                 # Ausgaben zu Ende spielen, dann beenden
     else:
-        mic_loop(eng, a.mic, speak=True, jobs=jobs)   # Stummschaltung über eng.mute (live änderbar)
+        MIC = Mic(eng, a.mic, jobs, idle=a.idle)
+        _QSTATE["stt_q"] = jobs
+        if a.idle:
+            emit("mic", on=False)
+        else:
+            jobs.put(("job", MIC.start))
+        # Arbeiten im Haupt-Thread (Signale für Stopp kommen hier an); Äußerungen der Reihe nach.
+        # Stummschaltung über eng.mute (live änderbar), Vorlesen im Speaker-Thread.
+        work_loop(eng, jobs, speak=True)

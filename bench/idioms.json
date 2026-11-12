@@ -1,0 +1,13 @@
+[
+  {"src": "en", "text": "I think we're getting there slowly.", "gist": "we're making slow progress"},
+  {"src": "en", "text": "I can't stand the smell in here. It's bad.", "gist": "the smell is unbearable"},
+  {"src": "en", "text": "Let me open the windows.", "gist": "open the windows"},
+  {"src": "en", "text": "It's a piece of cake.", "gist": "very easy"},
+  {"src": "en", "text": "Can you give me a hand with this?", "gist": "help me"},
+  {"src": "en", "text": "I'm running late, I'll be there in ten minutes.", "gist": "late, 10 minutes"},
+  {"src": "en", "text": "That costs 350 baht, right?", "gist": "350 baht"},
+  {"src": "th", "text": "ไม่เป็นไร ไม่ต้องห่วง", "gist": "it's okay, don't worry"},
+  {"src": "th", "text": "จริงดิ ไม่อยากจะเชื่อเลย", "gist": "really? can't believe it"},
+  {"src": "th", "text": "ง่วงนอนจัง เดี๋ยวไปนอนก่อนนะ", "gist": "so sleepy, going to bed"},
+  {"src": "th", "text": "ร้านนี้อาหารอร่อยมาก แต่แพงไปหน่อย", "gist": "delicious but a bit expensive"}
+]

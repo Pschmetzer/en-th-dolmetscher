@@ -15,7 +15,7 @@ Hands-free speech interpreter for macOS: just talk. English is translated into T
 
 ## Translation with Claude (optional)
 
-`--llm` (or the switch in the app's settings) translates with Claude instead of Google: more natural, keeps context and politeness better. It needs an Anthropic API key and **costs a little per sentence** (billed to your Anthropic account). Key: environment variable `ANTHROPIC_API_KEY`, or a file `~/Library/Application Support/Dolmetscher/anthropic_key` containing only the key (`chmod 600`). Default model `claude-opus-5-5`, change it with `--llm-model ID`. Without a key, without the `anthropic` package or on errors the engine falls back to Google automatically.
+`--llm` (or the switch in the app's settings) translates with Claude instead of Google: more natural, keeps context and politeness better. It needs an Anthropic API key and **costs a little per sentence** (billed to your Anthropic account). Key: environment variable `ANTHROPIC_API_KEY`, or a file `~/Library/Application Support/Dolmetscher/anthropic_key` containing only the key (`chmod 600`). Claude translation is on by default when a key is present (without a key the engine uses Google); turn it off in the settings. Default model `claude-haiku-5-5` (about 8 US cents per hour of conversation; `claude-sonnet-5-5` is more accurate at roughly 20× the price), change it with `--llm-model ID`. Tone: `--style casual|neutral|polite`. Own words and names go into the app settings (glossary). The app shows an estimated session cost. `python3 bench/run_translate.py` compares Google and Claude on idioms. Without a key, without the `anthropic` package or on errors the engine falls back to Google automatically.
 
 ## Mac app settings
 
@@ -25,7 +25,19 @@ Hands-free speech interpreter for macOS: just talk. English is translated into T
 - **Push-to-talk**, **menu bar** icon, global shortcuts **⌃⌥D** start/stop (⌃⌥Space is the macOS input-source switch) and **⌃⌥P** pause
 - **Quick phrases**: tap a saved sentence, it is translated and spoken like a spoken one
 - **Correct & retranslate**: fix a misrecognised bubble, it is translated and spoken again
-- **Thai transliteration** (Latin script) for Thai text, and a **confidence marker** on bubbles the recogniser was unsure about
+- **Thai transliteration** (readable RTGS spelling word by word with `pythainlp`, otherwise ICU) for Thai text, and a **confidence marker** on bubbles the recogniser was unsure about
+
+## Troubleshooting
+
+| Problem | Setting / fix |
+|---|---|
+| Too many false recognitions (noise, TV, typing) | Lower **sensitivity** (`--sensitivity low`) and turn on **noise suppression** (`--denoise`) |
+| The app translates its own voice (echo) | Use headphones; with headphones `--barge-in` also lets you interrupt the translation by talking |
+| Translation sounds stiff | Translate with Claude (`--llm`) and set the tone to casual (`--style casual`) |
+| Thai is recognised unreliably | Create a voice profile for the speaker and use `--model best` |
+| Latency too high | Turn partial text off (`--partial` is off by default and can delay recognition) and use `--model small` |
+| No internet | Recognition runs locally, but translation (Google/MyMemory/Claude) and the neural voices need the network; the app shows the state, nothing is translated or spoken offline |
+| Own names or words are translated wrongly | Add them to the glossary in the app settings (stored in `~/Library/Application Support/Dolmetscher/glossary.txt`) |
 
 ## Voice commands
 
