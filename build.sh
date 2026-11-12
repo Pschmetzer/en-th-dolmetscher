@@ -24,8 +24,8 @@ fi
 "$PY" -c "import faster_whisper" || { echo "faster-whisper fehlt in $PY"; exit 1; }
 "$PY" -c "import edge_tts" 2>/dev/null || echo "Hinweis: edge-tts fehlt in $PY – es wird die macOS-Stimme genutzt (pip install edge-tts)"
 
-echo "→ Lade Whisper-Modell 'small' (einmalig) …"
-"$PY" -c "from faster_whisper import WhisperModel; WhisperModel('small', device='cpu', compute_type='int8')"
+echo "→ Lade Whisper-Modelle 'medium' (~1,5 GB) und 'small' (einmalig) …"
+"$PY" -c "from faster_whisper import WhisperModel as W; W('medium', device='cpu', compute_type='int8'); W('small', device='cpu', compute_type='int8')"
 
 echo "→ Kompiliere …"
 rm -rf "$APP"

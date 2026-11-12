@@ -4,10 +4,10 @@
 
 Hands-free speech interpreter for macOS: just talk. English is translated into Thai and Thai into English, and the translation is spoken aloud right away. The engine **detects the language by itself**, so there are no buttons to switch.
 
-- Speech recognition: [faster-whisper](https://github.com/SYSTRAN/faster-whisper), local on the Mac (CPU)
+- Speech recognition: [faster-whisper](https://github.com/SYSTRAN/faster-whisper), local on the Mac, on the Apple GPU (Metal) when available, otherwise CPU. Models: `small` (fast), `medium` (default), `best` (medium for Thai + large-v3-turbo for English, better with accents; ~1.6 GB extra download on first use)
 - Translation: Google Translate web endpoint (unofficial, falls back to MyMemory). Needs internet
 - Speech output: natural Microsoft neural voices via the unofficial [edge-tts](https://github.com/rany2/edge-tts) library (Thai: Niwat / Premwadee, English: Ava). The translated text is sent to Microsoft for this. Falls back to macOS voices (`say`) when offline or if that service stops working (`--tts say` forces it)
-- Latency: roughly 3–4 s after the end of each sentence
+- Latency: roughly 3–5 s after the end of each sentence (recognition ~1.5–3 s on the GPU, translation ~1.5 s, voice ~1.5 s)
 - Quiet speech: Silero voice activity detection plus input gain, so soft voices are picked up too
 - Only English and Thai: other languages (and noise) are ignored. An Auto / EN / TH picker locks the language if needed
 - Log for troubleshooting: `~/Library/Logs/Dolmetscher/engine.log`

@@ -20,8 +20,19 @@ final class EngineModel: ObservableObject {
     private static let ud = UserDefaults.standard
     @Published var speak = ud.object(forKey: "speak") as? Bool ?? true { didSet { Self.ud.set(speak, forKey: "speak") } }
     @Published var polite = ud.string(forKey: "polite") ?? "krub" { didSet { Self.ud.set(polite, forKey: "polite") } }
-    @Published var model = ud.string(forKey: "model") ?? "small" { didSet { Self.ud.set(model, forKey: "model") } }
+    @Published var model = EngineModel.initialModel() { didSet { Self.ud.set(model, forKey: "model") } }
     @Published var lang = ud.string(forKey: "lang") ?? "auto" { didSet { Self.ud.set(lang, forKey: "lang") } }
+
+    /// Einmalige Umstellung alter Installationen von "small" auf das genauere "medium".
+    private static func initialModel() -> String {
+        if !ud.bool(forKey: "migratedToMedium") {
+            ud.set(true, forKey: "migratedToMedium")
+            if ud.string(forKey: "model") == nil || ud.string(forKey: "model") == "small" {
+                ud.set("medium", forKey: "model")
+            }
+        }
+        return ud.string(forKey: "model") ?? "medium"
+    }
 
     private var proc: Process?
     private var buffer = Data()
@@ -113,7 +124,7 @@ final class EngineModel: ObservableObject {
     private func handle(_ ev: String, _ o: [String: Any]) {
         switch ev {
         case "loading": status = "Lade Sprachmodell …"
-        case "ready": status = "Modell geladen"
+        case "ready": status = "Modell geladen (" + (o["device"] as? String == "mps" ? "Apple-GPU" : "CPU") + ")"
         case "calibrating": status = "Kalibriere Mikrofon – kurz still sein …"
         case "listening":
             status = paused ? "⏸ Pausiert – sag „Translator, resume“" : "🎙 Hört zu – einfach Englisch oder Thai sprechen"
@@ -183,8 +194,8 @@ struct ContentView: View {
                     Text("ครับ (m)").tag("krub"); Text("ค่ะ (w)").tag("ka")
                 }.frame(width: 110).disabled(m.running)
                 Picker("", selection: $m.model) {
-                    Text("Schnell").tag("base"); Text("Normal").tag("small"); Text("Genau").tag("medium")
-                }.frame(width: 100).disabled(m.running)
+                    Text("Schnell").tag("small"); Text("Normal").tag("medium"); Text("Beste (Englisch+)").tag("best")
+                }.frame(width: 130).disabled(m.running)
                 Button { m.items.removeAll() } label: { Image(systemName: "trash") }
                     .help("Verlauf leeren")
             }

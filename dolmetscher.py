@@ -22,6 +22,49 @@ VOICE = {"th": "Kanya", "en": "Samantha"}
 TARGET = {"en": "th", "th": "en"}
 # Weckwort nur am Satzanfang: "Translator, pause" / "Hey translator resume"
 WAKE = re.compile(r"^\W*(?:hey|hi|ok|okay)?\W*translat(?:or|er)\b\W*(.*)$", re.I | re.S)
+# unscharf ("Translate or pause", "Translate to a pulse") – zählt nur, wenn ein Befehl folgt
+WAKE_FUZZY = re.compile(r"^\W*(?:hey|hi|ok|okay)?\W*tr\w*nsl\w*\W*(?:(?:or|to|a|the|uh|um)\b\W*)*(.*)$",
+                        re.I | re.S)
+HOTWORDS = ("Translator pause resume repeat slower faster louder quieter Thai only English only "
+            "auto female voice male voice clear help")
+# Schlüsselwörter je Befehl (inkl. typischer Verhörer aus echten Logs)
+COMMANDS = [
+    ("pause", ["pause", "stop", "sleep", "be quiet", "mute", "post", "pulse", "pose", "paws",
+               "pours", "pals", "pass", "porsche", "paul's", "pores"]),
+    ("resume", ["resume", "continue", "start", "wake up", "go on", "unpause", "presume", "rezoom"]),
+    ("repeat", ["repeat", "again", "say that", "re-peat", "repeats"]),
+    ("slower", ["slower", "slow down", "slowly"]),
+    ("faster", ["faster", "speed up", "quicker"]),
+    ("louder", ["louder", "volume up", "lauder", "lower it up"]),
+    ("quieter", ["quieter", "softer", "volume down", "quiet"]),
+    ("female", ["female", "woman", "women", "girl", "lady", "she"]),
+    ("male", ["male", "man", "men", "guy", "he"]),
+    ("clear", ["clear", "delete", "reset", "clean"]),
+    ("help", ["help", "commands", "what can you do"]),
+]
+
+
+def parse_command(cmd):
+    """Befehl erkennen -> Schlüssel oder None. Leerer Text = nur das Weckwort."""
+    import difflib
+    c = cmd.lower().strip(" .,!?")
+    if not c:
+        return "wake"
+    has = lambda *w: any(re.search(rf"\b{re.escape(x)}\b", c) for x in w)
+    if has("only", "mode"):
+        if has("thai", "tie", "ty", "tai", "thigh", "time", "type"):
+            return "thai"
+        if has("english", "inglish"):
+            return "english"
+    if has("auto", "automatic", "both", "otto"):
+        return "auto"
+    for key, words in COMMANDS:
+        if has(*words):
+            return key
+    # Ähnlichkeit als letzte Rettung (kurze Befehle)
+    vocab = {w: k for k, ws in COMMANDS for w in ws if len(w) > 3}
+    hit = difflib.get_close_matches(c.split()[0] if c.split() else c, list(vocab), n=1, cutoff=0.75)
+    return vocab[hit[0]] if hit else None
 # Neural-Stimmen: Thai passend zu ครับ (Mann) / ค่ะ (Frau)
 NEURAL = {"th": {"krub": "th-TH-NiwatNeural", "ka": "th-TH-PremwadeeNeural"},
           "en": {"en": "en-US-AvaMultilingualNeural"}}
@@ -96,17 +139,36 @@ def pick_voice(lang):
     return v
 
 
+def load_model(model, device):
+    """Apple-GPU (MPS) wenn möglich – ca. 2-4x schneller –, sonst CPU."""
+    if device in ("auto", "mps"):
+        try:
+            m = WhisperModel(model, device="mps", compute_type="float16")
+            m.detect_language(audio=np.zeros(SR, dtype=np.float32))     # Probelauf
+            list(m.transcribe(np.zeros(SR, dtype=np.float32), language="en")[0])
+            return m, "mps"
+        except Exception as e:
+            log({"mps": "nicht verfügbar", "err": repr(e)[:200]})
+            if device == "mps":
+                raise
+    return WhisperModel(model, device="cpu", compute_type="int8"), "cpu"
+
+
 class Engine:
-    def __init__(self, model, polite, lock="auto", tts="edge"):
+    def __init__(self, model, polite, lock="auto", tts="edge", device="auto"):
         self.lock, self.tts = lock, tts
         t = time.time()
         emit("loading", msg=f"Lade Whisper-Modell '{model}' …")
-        self.m = WhisperModel(model, device="cpu", compute_type="int8")
+        # "best": medium für Erkennung + Thai, large-v3-turbo für Englisch (Akzente)
+        self.m, self.device = load_model("medium" if model == "best" else model, device)
+        self.m_en = load_model("large-v3-turbo", self.device)[0] if model == "best" else None
+        self.beam = 5 if self.device == "mps" else 1
+        log({"model": model, "device": self.device, "load_s": round(time.time() - t, 1)})
         self.voice = {k: pick_voice(k) for k in VOICE}
         self.polite = polite
         self.paused, self.rate, self.volume = False, 0, 1.0     # rate in %, volume 0.2..2
         self.last, self.awake_until, self.mute = None, 0.0, False
-        emit("ready", msg=f"bereit ({time.time()-t:.1f}s), Stimmen: {self.voice}")
+        emit("ready", msg=f"bereit ({time.time()-t:.1f}s, {model} auf {self.device})", device=self.device)
 
     def speak(self, text, lang):
         """Natürliche Microsoft-Neural-Stimme (edge-tts), sonst macOS-Stimme."""
@@ -140,57 +202,57 @@ class Engine:
 
     def command(self, cmd):
         """Sprachbefehl ausführen. Gibt die gesprochene Bestätigung zurück."""
-        c = cmd.lower()
-        has = lambda *w: any(re.search(rf"\b{x}\b", c) for x in w)
+        key = parse_command(cmd)
         state = {}
-        if not c.strip():
+        if key == "wake":
             self.awake_until = time.time() + 6
             reply = "Yes?"
-        elif has("pause", "stop", "sleep", "be quiet", "mute"):
+        elif key == "pause":
             self.paused = True; reply = "Paused. Say translator, resume."
-        elif has("resume", "continue", "start", "wake up", "go on", "unpause"):
+        elif key == "resume":
             self.paused = False; reply = "I'm listening."
-        elif has("repeat", "again", "say that"):
+        elif key == "repeat":
             if self.last:
                 emit("command", text=cmd, reply="", paused=self.paused, lang=self.lock,
                      polite=self.polite, rate=self.rate, volume=round(self.volume, 2))
                 emit("speaking"); self.speak(self.last[0], self.last[1])
                 return None
             reply = "Nothing to repeat yet."
-        elif has("slower", "slow down"):
+        elif key == "slower":
             self.rate = max(self.rate - 15, -50); reply = "Slower."
-        elif has("faster", "speed up", "quicker"):
+        elif key == "faster":
             self.rate = min(self.rate + 15, 50); reply = "Faster."
-        elif has("louder", "volume up"):
+        elif key == "louder":
             self.volume = min(self.volume * 1.4, 2.0); reply = "Louder."
-        elif has("quieter", "softer", "volume down"):
+        elif key == "quieter":
             self.volume = max(self.volume / 1.4, 0.2); reply = "Quieter."
-        elif has("thai", "tie", "ty", "tai", "thigh") and has("only", "mode"):
+        elif key == "thai":
             self.lock = "th"; reply = "Okay, Thai only."
-        elif has("english") and has("only", "mode"):
+        elif key == "english":
             self.lock = "en"; reply = "Okay, English only."
-        elif has("auto", "automatic", "both"):
+        elif key == "auto":
             self.lock = "auto"; reply = "Okay, automatic."
-        elif has("female", "woman", "women", "girl", "lady"):
+        elif key == "female":
             self.polite = "ka"; reply = "Okay, female voice."
-        elif has("male", "man", "men", "guy"):
+        elif key == "male":
             self.polite = "krub"; reply = "Okay, male voice."
-        elif has("clear", "delete", "reset"):
+        elif key == "clear":
             state["clear"] = True; reply = "Cleared."
-        elif has("help", "commands", "what can you do"):
+        elif key == "help":
             reply = ("Say translator, then: pause, resume, repeat, slower, faster, louder, quieter, "
                      "Thai only, English only, auto, male or female voice, clear.")
         else:
             reply = "Sorry?"
-        if c.strip():
+        if key != "wake":
             self.awake_until = 0.0
         emit("command", text=cmd, reply=reply, paused=self.paused, lang=self.lock,
              polite=self.polite, rate=self.rate, volume=round(self.volume, 2), **state)
-        log({"command": cmd, "reply": reply})
+        log({"command": cmd, "key": key, "reply": reply})
         return reply
 
-    def _stt(self, audio, lang):
-        segs, _ = self.m.transcribe(audio, language=lang, beam_size=1, vad_filter=True, vad_parameters={"threshold": 0.25},
+    def _stt(self, audio, lang, hotwords=None):
+        mdl = self.m_en if (lang == "en" and self.m_en) else self.m
+        segs, _ = mdl.transcribe(audio, language=lang, beam_size=self.beam, hotwords=hotwords, vad_filter=True, vad_parameters={"threshold": 0.25},
                                     condition_on_previous_text=False)
         segs = list(segs)
         text = " ".join(s.text.strip() for s in segs).strip()
@@ -232,7 +294,15 @@ class Engine:
 
         # --- Sprachbefehle: "Translator, ..." (oder Folgesatz nach bloßem "Translator")
         en_text = text if lang == "en" else (self._stt(audio, "en")[0] if pe > pt else "")
+        if re.match(r"^\W*(?:hey|hi|ok|okay)?\W*tr\w*nsl", en_text, re.I):
+            # Befehlskandidat: einmal mit Befehls-Vokabular nachhören
+            hw = self._stt(audio, "en", hotwords=HOTWORDS)[0]
+            info["cmd_retry"] = hw
+            en_text = hw or en_text
         m = WAKE.match(en_text)
+        fz = None if m else WAKE_FUZZY.match(en_text)
+        if fz and parse_command(fz.group(1)) not in (None, "wake"):
+            m = fz                              # "Translate or pause" -> Befehl
         if m or (time.time() < self.awake_until and en_text):
             cmd = m.group(1) if m else en_text
             info["command"] = cmd
@@ -383,7 +453,8 @@ def shutdown(*_):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--model", default="small")
+    ap.add_argument("--model", default="medium", help="small | medium | best (medium + large-v3-turbo für Englisch)")
+    ap.add_argument("--device", choices=["auto", "mps", "cpu"], default="auto")
     ap.add_argument("--mic", default="0")
     ap.add_argument("--polite", choices=["krub", "ka"], default="krub")
     ap.add_argument("--file", nargs="*")
@@ -395,7 +466,7 @@ if __name__ == "__main__":
     JSON = a.json
     signal.signal(signal.SIGTERM, shutdown)
     signal.signal(signal.SIGINT, shutdown)
-    eng = Engine(a.model, a.polite, a.lang, a.tts)
+    eng = Engine(a.model, a.polite, a.lang, a.tts, a.device)
     eng.mute = a.mute
     if a.file:
         for f in a.file:   # per ffmpeg dekodieren (unabhängig von der PyAV-Version)
