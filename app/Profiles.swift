@@ -20,12 +20,9 @@ enum EngineRunner {
                     onExit: @escaping () -> Void = {}) -> Process? {
         guard let script = Bundle.main.path(forResource: "dolmetscher", ofType: "py") else { return nil }
         let p = Process()
-        p.executableURL = URL(fileURLWithPath: info("DolmetscherPython") ?? "/usr/bin/python3")
+        p.executableURL = URL(fileURLWithPath: Paths.python)
         p.arguments = ["-u", script, "--json"] + args
-        var env = ProcessInfo.processInfo.environment
-        env["PATH"] = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
-        if let ff = info("DolmetscherFFmpeg") { env["DOLMETSCHER_FFMPEG"] = ff }
-        p.environment = env
+        p.environment = Paths.engineEnvironment()
         let out = Pipe()
         p.standardOutput = out
         p.standardError = FileHandle.nullDevice
