@@ -55,7 +55,17 @@ python3 dolmetscher.py            # --model base|small|medium  --polite krub|ka 
 
 ## Browser version
 
-Live: https://pschmetzer.github.io/en-th-dolmetscher/ — `index.html` is a simple variant with the Web Speech API (Chrome, buttons for EN/TH). Serve it with `python3 -m http.server` and open it in Chrome.
+Live: https://pschmetzer.github.io/en-th-dolmetscher/ — `index.html` is the **Web Lite** version: a single file, no build step, no external scripts. It uses Chrome's Web Speech API, so you pick the language yourself (buttons / keys `E`, `T`). The Mac app is better: automatic language detection, voice commands in both languages, better recognition.
+
+Web Lite features:
+- Per-direction switches "Translate EN→TH" / "Translate TH→EN". When a direction is off, only the recognized text is shown (no translation, no speech).
+- Voice commands in EN mode, at the start of a sentence, never translated: "Translator pause / resume / repeat / slower / faster".
+- Partner view (`P`): full screen, only the latest translation in huge type (`Esc` closes).
+- Dark/light theme follows the system; works at phone width.
+- Keys: `E` English, `T` Thai, `Space` stop, `P` partner view, `Esc` close it.
+- Translation: Google endpoint, MyMemory as fallback. Error or quota messages are never shown or spoken as a translation.
+
+Serve it locally with `python3 -m http.server` and open it in Chrome.
 
 ## Notes
 
