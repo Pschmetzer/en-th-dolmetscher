@@ -193,8 +193,8 @@ enum L {
                           "th": "การตั้งค่าที่เปลี่ยนจะมีผลหลังเริ่มใหม่"],
         "restart_note": ["de": "Neustart nötig", "en": "Restart required", "th": "ต้องเริ่มใหม่"],
         "font_size": ["de": "Schriftgröße", "en": "Font size", "th": "ขนาดตัวอักษร"],
-        "hotkeys_note": ["de": "Globale Tastenkürzel: ⌃⌥Leertaste Start/Stopp, ⌃⌥P Pause/Fortsetzen",
-                         "en": "Global shortcuts: ⌃⌥Space start/stop, ⌃⌥P pause/resume",
-                         "th": "ปุ่มลัด: ⌃⌥Space เริ่ม/หยุด, ⌃⌥P หยุดชั่วคราว/ทำต่อ"],
+        "hotkeys_note": ["de": "Globale Tastenkürzel: ⌃⌥D Start/Stopp, ⌃⌥P Pause/Fortsetzen",
+                         "en": "Global shortcuts: ⌃⌥D start/stop, ⌃⌥P pause/resume",
+                         "th": "ปุ่มลัด: ⌃⌥D เริ่ม/หยุด, ⌃⌥P หยุดชั่วคราว/ทำต่อ"],
     ]
 }

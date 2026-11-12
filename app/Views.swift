@@ -142,7 +142,7 @@ struct MainToolbar: View {
         .tint(m.active ? .red : .green)
         .keyboardShortcut(.space, modifiers: [])
         .accessibilityLabel(m.active ? L.t("stop_engine") : L.t("start_engine"))
-        .accessibilityHint("Leertaste, ⌃⌥Leertaste")
+        .accessibilityHint("Leertaste, ⌃⌥D")
     }
 
     @ViewBuilder private var tools: some View {

@@ -44,10 +44,10 @@ final class HotKeys {
 
     private func fire(_ id: UInt32) { actions[id]?() }
 
-    /// ⌃⌥Leertaste = Start/Stopp, ⌃⌥P = Pause/Fortsetzen.
+    /// ⌃⌥D = Start/Stopp (⌃⌥Leertaste ist in macOS der Eingabequellen-Wechsel), ⌃⌥P = Pause/Fortsetzen.
     func install(for model: EngineModel) {
         guard refs.isEmpty, failures.isEmpty else { return }
-        register(id: 1, keyCode: kVK_Space, modifiers: Self.ctrlOpt, name: "⌃⌥Space") { [weak model] in model?.toggle() }
+        register(id: 1, keyCode: kVK_ANSI_D, modifiers: Self.ctrlOpt, name: "⌃⌥D") { [weak model] in model?.toggle() }
         register(id: 2, keyCode: kVK_ANSI_P, modifiers: Self.ctrlOpt, name: "⌃⌥P") { [weak model] in model?.togglePause() }
     }
 }

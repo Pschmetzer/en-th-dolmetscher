@@ -22,7 +22,7 @@ Hands-free speech interpreter for macOS: just talk. English is translated into T
 - **Microphone** (`--mic`, list with `--list-mics`), **speaking rate** (`--rate`, −50 … 50 %), **volume** (`--volume`, 0.2 … 2.0), **voices** for English and Thai (`--voice-en`, `--voice-th`)
 - **Pause at end of sentence** (`--silence`, 0.4 … 2.0 s), **sensitivity** (`--sensitivity low|normal|high`), **noise suppression** (`--denoise`)
 - **Earcons**: a short tone instead of a spoken confirmation for voice commands (`--earcons`)
-- **Push-to-talk**, **menu bar** icon, global shortcuts **⌃⌥Space** start/stop and **⌃⌥P** pause
+- **Push-to-talk**, **menu bar** icon, global shortcuts **⌃⌥D** start/stop (⌃⌥Space is the macOS input-source switch) and **⌃⌥P** pause
 - **Quick phrases**: tap a saved sentence, it is translated and spoken like a spoken one
 - **Correct & retranslate**: fix a misrecognised bubble, it is translated and spoken again
 - **Thai transliteration** (Latin script) for Thai text, and a **confidence marker** on bubbles the recogniser was unsure about
