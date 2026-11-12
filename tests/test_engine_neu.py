@@ -169,7 +169,7 @@ def test_speaker_skips_when_far_behind(monkeypatch, _iso):
         def voice_for(self, lang):
             return "x"
 
-        def speak(self, text, lang, stream=None, on_start=None, boost=0):
+        def speak(self, text, lang, stream=None, on_start=None, boost=0, cancelled=None):
             gate.wait(2)
             on_start and on_start(0.1)
             played.append((text, boost))
@@ -205,3 +205,53 @@ def test_speaker_flush_reports_skipped(monkeypatch, _iso):
     gate.set()
     sp.wait_idle(3)
     assert ("speak_done", {"id": "b1", "skipped": True, "interrupted": True}) in _iso
+
+
+def test_stop_during_wait_cancels_part(monkeypatch, _iso):
+    """Stopp, während noch auf den ersten Ton gewartet wird, bricht die Ausgabe ab (Review-Punkt 1)."""
+    waiting, played = threading.Event(), []
+
+    class E:
+        tts, mute, rate, volume = "say", False, 0, 1.0
+
+        def voice_for(self, lang):
+            return "x"
+
+        def speak(self, text, lang, stream=None, on_start=None, boost=0, cancelled=None):
+            waiting.set()
+            t = time.time()
+            while time.time() - t < 2 and not cancelled():
+                time.sleep(0.01)
+            if not cancelled():
+                played.append(text)
+    sp = d.Speaker(E())
+    long = "This is the first sentence of a long answer. And here comes the second one, a bit longer."
+    sp.add(long, "en", "x1")
+    assert waiting.wait(2)
+    sp.flush()
+    sp.wait_idle(3)
+    assert played == []
+    assert ("speak_done", {"id": "x1", "skipped": False, "interrupted": True}) in _iso
+    assert not any(ev == "speaking" for ev, _ in _iso)
+
+
+def test_alts_are_masked_without_log_text(monkeypatch):
+    seen = []
+
+    class L:
+        def info(self, s):
+            seen.append(json.loads(s))
+    monkeypatch.setattr(d, "_logger", lambda: L())
+    monkeypatch.setattr(d, "LOG_TEXT", False)
+    d.log({"alts": ["geheim"], "lang": "th"})
+    assert seen == [{"alts": ["<6 Zeichen>"], "lang": "th"}]
+
+
+def test_claude_truncated_is_error(monkeypatch):
+    class Msgs:
+        def create(self, **kw):
+            return types.SimpleNamespace(stop_reason="max_tokens",
+                                         content=[types.SimpleNamespace(type="text", text="halb")])
+    monkeypatch.setattr(d, "llm_client", lambda: types.SimpleNamespace(messages=Msgs()))
+    with pytest.raises(RuntimeError, match="max_tokens"):
+        d.claude_translate("x", "en", "th")
