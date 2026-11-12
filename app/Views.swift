@@ -55,13 +55,20 @@ struct Bubble: View {
     @EnvironmentObject var m: EngineModel
     let u: Utterance
     let scale: Double
+    /// Kopfzeile der Sprechblase: Flagge, ggf. Sprechername, Originaltext.
+    private var headerLine: String {
+        let who: String = u.speaker.map { "\($0): " } ?? ""
+        let original: String = u.translated ? u.text : L.t("not_translated")
+        return LangStyle.flag(u.lang) + " " + who + original
+    }
+
     var body: some View {
         let en = u.lang == "en"
         let playing = m.replayingID == u.id
         VStack(alignment: en ? .leading : .trailing, spacing: 6) {
             HStack(spacing: 6) {
                 if !en { Spacer(minLength: 0) }
-                Text(LangStyle.flag(u.lang) + " " + (u.translated ? u.text : "nicht übersetzt"))
+                Text(headerLine)
                     .font(.system(size: 15 * scale)).foregroundStyle(.secondary)
                     .multilineTextAlignment(en ? .leading : .trailing)
                 if playing { Image(systemName: "speaker.wave.2.fill").foregroundStyle(.secondary) }
@@ -101,6 +108,8 @@ struct ContentView: View {
     @AppStorage(Prefs.alwaysOnTop) private var onTop = false
     @AppStorage(Prefs.tipsSeen) private var tipsSeen = false
     @State private var showTips = false
+    @State private var showProfiles = false
+    @AppStorage("uiLang") private var uiLang = "de"
 
     var body: some View {
         VStack(spacing: 0) {
@@ -111,7 +120,7 @@ struct ContentView: View {
                 ScrollView {
                     LazyVStack(spacing: 12) {
                         if m.items.isEmpty {
-                            Text("Start drücken und einfach sprechen.\nEnglisch wird auf Thai übersetzt, Thai auf Englisch.\n\nSprachbefehle: „Translator, pause / resume / repeat / slower / faster /\nlouder / quieter / Thai only / English only / auto / English off / Thai off /\nfemale voice / male voice / clear / help“\n\nSprechblase anklicken = nochmal vorlesen · Rechtsklick = kopieren")
+                            Text(L.t("empty") + "\n\n" + L.t("commands_hint"))
                                 .multilineTextAlignment(.center).foregroundStyle(.secondary)
                                 .padding(.top, 80)
                         }
@@ -128,6 +137,9 @@ struct ContentView: View {
             w.level = onTop ? .floating : .normal
         })
         .sheet(isPresented: $showTips) { TipsSheet { tipsSeen = true; showTips = false } }
+        .sheet(isPresented: $showProfiles) { ProfilesView().environmentObject(m) }
+        .id(uiLang)                                   // Oberflächensprache sofort umschalten
+        .onChange(of: uiLang) { if !m.active { m.status = L.t("stopped") } }
         .onAppear { if !tipsSeen { showTips = true } }
         .onReceive(NotificationCenter.default.publisher(for: .showTips)) { _ in showTips = true }
     }
@@ -135,7 +147,7 @@ struct ContentView: View {
     private var toolbar: some View {
         HStack(spacing: 12) {
             Button(action: m.toggle) {
-                Label(m.active ? "Stopp" : "Start", systemImage: m.active ? "stop.fill" : "mic.fill")
+                Label(m.active ? L.t("stop") : L.t("start"), systemImage: m.active ? "stop.fill" : "mic.fill")
                     .font(.title2.bold()).frame(width: 130, height: 34)
             }
             .buttonStyle(.borderedProminent)
@@ -149,6 +161,12 @@ struct ContentView: View {
                 ProgressView().controlSize(.small).accessibilityLabel("Arbeitet")
             }
             Spacer()
+            Button { showProfiles = true } label: { Label(L.t("profiles"), systemImage: "person.crop.circle.badge.plus") }
+                .help(L.t("profiles"))
+                .accessibilityLabel(L.t("profiles"))
+            Picker("", selection: $uiLang) {
+                ForEach(UILang.allCases) { Text($0.label).tag($0.rawValue) }
+            }.labelsHidden().fixedSize().help(L.t("ui_language")).accessibilityLabel(L.t("ui_language"))
             Button { openWindow(id: "partner") } label: { Image(systemName: "person.2.wave.2") }
                 .help("Partner-Ansicht öffnen (⇧⌘P)")
                 .accessibilityLabel("Partner-Ansicht öffnen")

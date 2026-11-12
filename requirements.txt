@@ -10,3 +10,5 @@ numpy==2.5.4
 av==18.1.0
 # LGPL-3.0, nur als Abhängigkeit genutzt (nicht im Repo/der App enthalten)
 edge-tts==7.3.1
+# Stimmprofile (Sprecher-Erkennung per ONNX, ohne torch), Apache-2.0
+sherpa-onnx==2.0.1

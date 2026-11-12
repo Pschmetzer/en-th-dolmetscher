@@ -6,6 +6,7 @@ import AVFoundation
 struct Utterance: Identifiable {
     let id = UUID()
     var translated = true
+    var speaker: String? = nil   // erkanntes Stimmprofil
     let lang: String        // gesprochene Sprache
     let to: String          // Sprache von `out`
     let text: String
@@ -19,7 +20,7 @@ enum EngineState: Equatable { case stopped, starting, running }
 @MainActor
 final class EngineModel: NSObject, ObservableObject {
     @Published var items: [Utterance] = []
-    @Published var status = "Gestoppt"
+    @Published var status = L.t("stopped")
     @Published private(set) var state: EngineState = .stopped
     var running: Bool { state == .running }
     var active: Bool { state != .stopped }
@@ -84,7 +85,7 @@ final class EngineModel: NSObject, ObservableObject {
         guard state == .stopped else { return }   // kein Doppelstart, während die Mikrofon-Abfrage offen ist
         state = .starting
         crashLog = nil
-        status = "Starte …"
+        status = L.t("starting")
         AVCaptureDevice.requestAccess(for: .audio) { ok in
             DispatchQueue.main.async {
                 MainActor.assumeIsolated {
@@ -92,7 +93,7 @@ final class EngineModel: NSObject, ObservableObject {
                     if ok { self.launch() }
                     else {
                         self.state = .stopped
-                        self.status = "Kein Mikrofon-Zugriff – Systemeinstellungen → Datenschutz → Mikrofon"
+                        self.status = L.t("nomic")
                     }
                 }
             }
@@ -151,7 +152,7 @@ final class EngineModel: NSObject, ObservableObject {
         }
         do {
             try p.run()
-            proc = p; stdin = inp; state = .running; paused = false; status = "Starte …"
+            proc = p; stdin = inp; state = .running; paused = false; status = L.t("starting")
         } catch {
             state = .stopped
             status = "Start fehlgeschlagen: \(error.localizedDescription)"
@@ -171,7 +172,7 @@ final class EngineModel: NSObject, ObservableObject {
         resumeWork?.cancel(); resumeWork = nil
         buffer = Data()
         busy = false
-        status = "Gestoppt"
+        status = L.t("stopped")
     }
 
     static func logTail(_ n: Int = 25) -> String {
@@ -193,18 +194,20 @@ final class EngineModel: NSObject, ObservableObject {
         }
     }
 
-    private static let pausedText = "⏸ Pausiert – sag „Translator, resume“"
+    private static var pausedText: String { L.t("paused") }
 
     private func handle(_ ev: String, _ o: [String: Any]) {
         switch ev {
-        case "loading": status = "Lade Sprachmodell …"
-        case "ready": status = "Modell geladen (" + (o["device"] as? String == "mps" ? "Apple-GPU" : "CPU") + ")"
+        case "loading":   // Engine meldet, welches Modell gerade lädt (z. B. "Lade Thai-Modell …")
+            let msg = o["msg"] as? String ?? ""
+            status = L.t("loading") + (msg.contains("Thai") ? " (ไทย)" : msg.contains("turbo") ? " (EN+)" : "")
+        case "ready": status = L.t("ready") + " (" + (o["device"] as? String == "mps" ? "Apple-GPU" : "CPU") + ")"
         case "listening":
-            status = paused ? Self.pausedText : "🎙 Hört zu – einfach Englisch oder Thai sprechen"
+            status = paused ? Self.pausedText : L.t("listening")
             busy = false
-        case "hearing": status = "👂 Höre …"
-        case "thinking": status = "⏳ Übersetze …"; busy = true
-        case "speaking": status = "🔊 Spricht …"
+        case "hearing": status = L.t("hearing")
+        case "thinking": status = L.t("thinking"); busy = true
+        case "speaking": status = L.t("speaking")
         case "error": status = "⚠️ " + (o["msg"] as? String ?? "Fehler")
         case "command":
             if o["clear"] as? Bool == true { items.removeAll() }
@@ -221,12 +224,12 @@ final class EngineModel: NSObject, ObservableObject {
             busy = false   // Echo der eigenen Wiedergabe verworfen – Status nicht ändern
         case "dropped" where paused:
             status = Self.pausedText; busy = false
-        case "dropped": status = "🤷 " + (o["reason"] as? String ?? "nicht verstanden") + " – bitte lauter/länger sprechen"; busy = false
+        case "dropped": status = L.t("dropped"); busy = false
         case "utt":
             let secs = (o["stt"] as? Double ?? 0) + (o["tr"] as? Double ?? 0)
             let l = o["lang"] as? String ?? "en"
             let translated = o["translated"] as? Bool ?? true
-            items.append(Utterance(translated: translated, lang: l,
+            items.append(Utterance(translated: translated, speaker: o["speaker"] as? String, lang: l,
                                    to: o["to"] as? String ?? (translated ? (l == "en" ? "th" : "en") : l),
                                    text: o["text"] as? String ?? "",
                                    out: o["out"] as? String ?? "", secs: secs))
