@@ -265,7 +265,7 @@ def test_work_loop_handles_audio_and_jobs(monkeypatch, _iso):
     class E:
         speaker = types.SimpleNamespace(pending=lambda: 0)
 
-        def process(self, audio, speak=True, rms=None, uid=None):
+        def process(self, audio, speak=True, rms=None, uid=None, **kw):
             seen.append(("audio", audio.size, uid))
             if audio.size == 8000:
                 raise RuntimeError("kaputt")

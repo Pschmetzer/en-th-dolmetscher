@@ -113,7 +113,6 @@ SAY = "/usr/bin/say"
 
 C = {"en": "\033[1;34m", "th": "\033[1;33m", "dim": "\033[2m", "off": "\033[0m"}
 JSON = False
-FF = None
 
 
 _EMIT_LOCK = threading.RLock()     # RLock: der Signal-Handler (Stopp) darf auch emit aufrufen
@@ -459,6 +458,9 @@ def looks_hallucinated(text, dur, segs):
     return None
 
 
+NULL_AUDIO = bool(os.environ.get("DOLMETSCHER_NULL_AUDIO"))
+
+
 class Player:
     """Eigene Sprachausgabe (afplay/say/ffmpeg): merkt sich den Kindprozess, damit Stopp und
     Barge-in ihn sofort beenden können, und sperrt das Mikrofon, solange er läuft (+ Nachhall)."""
@@ -472,6 +474,8 @@ class Player:
         self.interrupted = False       # durch Barge-in/Stopp abgebrochen
 
     def start(self, cmd, **kw):
+        if NULL_AUDIO:                 # Tests: kompletter Ausgabe-Pfad, aber ohne Ton
+            cmd = ["/bin/sleep", "1"] if cmd[0].endswith("afplay") else ["/bin/cat"]
         p = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **kw)
         with self.lock:
             self.procs[p] = time.time()
@@ -759,11 +763,11 @@ class Speaker:
         with self.cond:
             return len(self.items) + (1 if self.busy else 0)
 
-    def add(self, text, lang, uid, kind="speech"):
+    def add(self, text, lang, uid, kind="speech", t_end=None):
         eng = self.eng
         with self.cond:
             behind = len(self.items) + (1 if self.busy else 0)
-        item = {"id": uid, "lang": lang, "kind": kind, "parts": []}
+        item = {"id": uid, "lang": lang, "kind": kind, "parts": [], "t_end": t_end}
         if kind == "speech":
             boost = self.FAST_BOOST if behind else 0
             for s in split_sentences(text, lang):
@@ -845,7 +849,9 @@ class Speaker:
         def on_start(first_s):
             if not started["v"]:
                 started["v"] = True
-                emit("speaking", id=uid, first_s=first_s)
+                lat = round(time.time() - it["t_end"], 2) if it.get("t_end") else None
+                emit("speaking", id=uid, first_s=first_s, latency_s=lat)
+                log({"latency": {"id": uid, "end_to_sound_s": lat}})
         interrupted = False
         for text, stream in it["parts"]:
             if cancelled():
@@ -903,7 +909,7 @@ class Engine:
                 log({"thai_model": "nicht geladen", "err": repr(e)[:200]})
         # Beam 1: gemessen (MPS, Thai-Modell) 1,45 s statt 2,5 s (Beam 3/5) bei gleichem Text; der
         # Decoder dominiert, weil Thai viele Tokens braucht.
-        self.beam = 1
+        self.beam = int(os.environ.get("DOLMETSCHER_BEAM", "1"))   # Benchmark: Beam-Vergleich
         log({"model": model, "device": self.device, "load_s": round(time.time() - t, 1)})
         self.voice = {k: pick_voice(k) for k in VOICE}
         self.voices = {"en": None, "th": None, **(voices or {})}   # gewählte Neural-Stimmen (None = Standard)
@@ -1081,7 +1087,7 @@ class Engine:
         emit("listening")
         return None
 
-    def process(self, audio, speak=True, rms=None, uid=None):
+    def process(self, audio, speak=True, rms=None, uid=None, t_end=None):
         uid = uid or new_id()
         emit("thinking", id=uid)
         t0 = time.time()
@@ -1196,10 +1202,10 @@ class Engine:
         info["alts"] = alts
         info["times"] = times
         log(info)
-        return self.deliver(uid, lang, text, lp, time.time() - t0, speak=speak,
+        return self.deliver(uid, lang, text, lp, time.time() - t0, speak=speak, t_end=t_end,
                             speaker=who["name"] if who else None, alts=alts)
 
-    def deliver(self, uid, lang, text, lp=0.0, stt_s=0.0, speak=True, speaker=None, alts=(),
+    def deliver(self, uid, lang, text, lp=0.0, stt_s=0.0, speak=True, speaker=None, alts=(), t_end=None,
                 source="mic", replaces=None):
         """Übersetzen, Blase melden, vorlesen (asynchron). Gemeinsam für Mikrofon, Schnellsätze und
         Korrekturen."""
@@ -1235,9 +1241,11 @@ class Engine:
         tr_s = time.time() - t1
         log({"id": uid, "out": out, "provider": meta.get("provider"), "cached": meta.get("cached", False),
              "tr_s": round(tr_s, 2)})
+        if t_end:
+            base["ready_s"] = round(time.time() - t_end, 2)    # Äußerungsende -> Übersetzung fertig
         emit("utt", to=dst, out=out, tr=round(tr_s, 2), translated=True, provider=meta.get("provider"), **base)
         if speak:
-            self.speaker.add(out, dst, uid)
+            self.speaker.add(out, dst, uid, t_end=t_end)
         emit("listening")
         return lang, text, out
 
@@ -1326,6 +1334,10 @@ def apply_control(eng, d):
         if eng.mute:
             eng.stop_speaking()
     if "paused" in d: eng.paused = bool(d["paused"])
+    if "listen" in d and MIC is not None:
+        if d["listen"]:
+            return MIC.start                   # öffnet ffmpeg – nicht im Lese-Thread blockieren
+        MIC.stop()
     if isinstance(d.get("rate"), (int, float)): eng.rate = int(max(-50, min(50, d["rate"])))
     if isinstance(d.get("volume"), (int, float)): eng.volume = float(max(0.2, min(2.0, d["volume"])))
     if isinstance(d.get("silence"), (int, float)): SILENCE_END = float(max(0.4, min(2.0, d["silence"])))
@@ -1411,7 +1423,7 @@ def quietest_cut(buf, look_back_s=4.0, fdur=StreamVAD.N / SR):
 METER = False
 
 
-def segmenter(read, utts):
+def segmenter(read, utts, sess=0, on_end=None):
     """Mikrofon-Thread: liest laufend, segmentiert per VAD und reiht fertige Äußerungen ein.
     Verworfen wird nur, was während der eigenen Sprachausgabe (+ Nachhall) ankommt.
     Mit --barge-in (Kopfhörer) wird nichts verworfen; Sprechen unterbricht die Ausgabe."""
@@ -1422,10 +1434,11 @@ def segmenter(read, utts):
     buf, voiced, silence, speech, pre, peak_rms = [], False, 0.0, 0.0, [], 0.0
     was_gated, onset, t_cap, t_begin, dbg = False, 0, 0.0, 0.0, []
     meter_n, meter_peak = 0, 0.0
+    t_voice = 0.0                   # Aufnahmezeit des letzten Sprach-Frames (für die Latenzmessung)
 
     def put(frames, reason, sp):
         if sp >= MIN_UTT:
-            utts.put((np.concatenate(frames), round(peak_rms, 4), time.time(), reason))
+            utts.put((np.concatenate(frames), round(peak_rms, 4), time.time(), reason, sess, t_voice or t_cap))
             report_queue()
         else:
             log({"drop": "zu kurz", "speech": round(sp, 2), "rms": round(peak_rms, 4)})
@@ -1480,6 +1493,7 @@ def segmenter(read, utts):
                 pre = (pre + [f])[-12:]                     # ~380 ms Vorlauf
                 if prob > VAD["start"]:
                     voiced, buf, silence, speech, peak_rms = True, pre[:], 0.0, fdur, rms
+                    t_voice = t_cap
                     t_begin = t_cap
                     HEARING.set()
                     emit("hearing")
@@ -1488,6 +1502,7 @@ def segmenter(read, utts):
             peak_rms = max(peak_rms, rms)
             if prob > VAD["keep"]:
                 silence = 0.0; speech += fdur
+                t_voice = t_cap
             else:
                 silence += fdur
             if silence >= SILENCE_END:
@@ -1501,7 +1516,10 @@ def segmenter(read, utts):
                 buf, speech = tail, len(tail) * fdur
     finally:
         HEARING.clear()
-        utts.put(None)                  # Ende: Arbeits-Thread beendet sich
+        if on_end:
+            on_end()
+        else:
+            utts.put(None)              # Ende: Arbeits-Thread beendet sich
 
 
 def mic_filter(denoise=False):
@@ -1533,52 +1551,108 @@ def list_mics():
     return mics
 
 
-def mic_loop(eng, mic, speak, jobs=None):
-    global FF
-    # leichte Vorverstärkung im ffmpeg, damit leise Stimmen mehr Pegel haben
-    # DOLMETSCHER_MIC_FILE: Audiodatei in Echtzeit statt Mikrofon (Ende-zu-Ende-Test des Mikrofon-Pfads)
-    src = (["-re", "-i", os.environ["DOLMETSCHER_MIC_FILE"]] if os.environ.get("DOLMETSCHER_MIC_FILE")
-           else ["-f", "avfoundation", "-i", f":{mic}"])
-    FF = subprocess.Popen([FFMPEG, "-hide_banner", "-loglevel", "error", *src, "-af", mic_filter(DENOISE),
-                           "-ar", str(SR), "-ac", "1", "-f", "s16le", "-"],
-                          stdout=subprocess.PIPE)
-    N = StreamVAD.N
-    first = FF.stdout.read(N * 2)
-    if not first:
-        emit("error", msg="Mikrofon liefert keine Daten (Mikrofon-Zugriff erlaubt?)")
-        return
-    emit("listening")
-    frames = queue.Queue()
+class Mic:
+    """Mikrofon-Sitzung, unabhängig von den geladenen Modellen: listen an/aus öffnet bzw. schließt
+    nur ffmpeg, Leser und Segmentierer. Der Arbeits-Thread und die Modelle bleiben bestehen."""
 
-    def reader():
-        """Nur Lesen (kein Rechnen), damit die ffmpeg-Pipe nie vollläuft. Jeder Block bekommt
-        seine Aufnahmezeit aus der Sample-Zählung; blockiert das Lesen, sind wir live."""
-        n, anchor = 0, time.time()
-        try:
-            while True:
-                t = time.time()
-                b = FF.stdout.read(N * 2)
-                now = time.time()
-                if len(b) < N * 2:
-                    break
-                n += N
-                if now - t > N / SR / 2 or anchor + n / SR > now:
-                    anchor = now - n / SR          # live bzw. nie in der Zukunft
-                frames.put((b, anchor + n / SR))
-        finally:
-            frames.put((b"", time.time()))
+    def __init__(self, eng, mic, jobs, idle=False):
+        self.eng, self.mic, self.jobs, self.idle = eng, mic, jobs, idle
+        self.ff, self.sess, self.on = None, 0, False
+        self.lock = threading.Lock()
 
-    def read():
-        b, t = frames.get()
-        return np.frombuffer(b, dtype=np.int16).astype(np.float32) / 32768, t
+    def start(self):
+        with self.lock:
+            if self.on:
+                emit("mic", on=True)
+                return True
+            self.sess += 1
+            sess = self.sess
+            # DOLMETSCHER_MIC_FILE: Audiodatei in Echtzeit statt Mikrofon (Ende-zu-Ende-Test)
+            loop = ["-stream_loop", "-1"] if os.environ.get("DOLMETSCHER_MIC_LOOP") else []
+            src = ([*loop, "-re", "-i", os.environ["DOLMETSCHER_MIC_FILE"]] if os.environ.get("DOLMETSCHER_MIC_FILE")
+                   else ["-f", "avfoundation", "-i", f":{self.mic}"])
+            # leichte Vorverstärkung im ffmpeg, damit leise Stimmen mehr Pegel haben
+            ff = subprocess.Popen([FFMPEG, "-hide_banner", "-loglevel", "error", *src, "-af", mic_filter(DENOISE),
+                                   "-ar", str(SR), "-ac", "1", "-f", "s16le", "-"], stdout=subprocess.PIPE)
+            self.ff = ff
+        N = StreamVAD.N
+        first = ff.stdout.read(N * 2)
+        if not first or sess != self.sess:
+            if sess == self.sess:
+                emit("error", msg="Mikrofon liefert keine Daten (Mikrofon-Zugriff erlaubt?)")
+                self._kill(ff)
+                emit("mic", on=False)
+                if not self.idle:
+                    self.jobs.put(None)
+            return False
+        frames = queue.Queue()
 
-    threading.Thread(target=reader, name="mic-read", daemon=True).start()
-    utts = jobs if jobs is not None else queue.Queue()
-    _QSTATE["stt_q"] = utts
-    threading.Thread(target=segmenter, args=(read, utts), name="mic", daemon=True).start()
-    # Arbeiten im Haupt-Thread (Signale für Stopp kommen hier an); Äußerungen der Reihe nach.
-    # Vorlesen läuft im Speaker-Thread – die nächste Äußerung wartet nicht mehr auf die Ausgabe.
-    work_loop(eng, utts, speak)
+        def reader():
+            """Nur Lesen (kein Rechnen), damit die ffmpeg-Pipe nie vollläuft. Jeder Block bekommt
+            seine Aufnahmezeit aus der Sample-Zählung; blockiert das Lesen, sind wir live."""
+            n, anchor, b = 0, time.time(), b""
+            try:
+                while sess == self.sess:
+                    t = time.time()
+                    b = ff.stdout.read(N * 2)
+                    now = time.time()
+                    if len(b) < N * 2:
+                        break
+                    n += N
+                    if now - t > N / SR / 2 or anchor + n / SR > now:
+                        anchor = now - n / SR          # live bzw. nie in der Zukunft
+                    frames.put((b, anchor + n / SR))
+            finally:
+                frames.put((b"", time.time()))
+
+        def read():
+            b, t = frames.get()
+            return np.frombuffer(b, dtype=np.int16).astype(np.float32) / 32768, t
+
+        def ended():
+            """Segmentierer ist fertig: gewollter Stopp (andere Sitzung) oder Ende der Quelle."""
+            if sess == self.sess:              # Quelle endete von selbst (Datei zu Ende, Gerät weg)
+                with self.lock:
+                    self.on = False
+                self._kill(ff)
+                emit("mic", on=False)
+                if not self.idle:
+                    self.jobs.put(None)        # ohne --idle: wie bisher beenden
+
+        with self.lock:
+            self.on = True
+        threading.Thread(target=reader, name="mic-read", daemon=True).start()
+        threading.Thread(target=segmenter, args=(read, self.jobs, sess, ended), name="mic", daemon=True).start()
+        emit("mic", on=True)
+        emit("listening")
+        return True
+
+    @staticmethod
+    def _kill(ff):
+        if ff and ff.poll() is None:
+            ff.terminate()
+            try:
+                ff.wait(2)
+            except subprocess.TimeoutExpired:
+                ff.kill()
+
+    def stop(self):
+        """Mikrofon zu (Stopp-Knopf). Laufende/wartende Ausgaben brechen ab, Äußerungen dieser
+        Sitzung, die noch in der Warteschlange stehen, werden verworfen."""
+        with self.lock:
+            self.sess += 1
+            ff, self.ff, self.on = self.ff, None, False
+        self._kill(ff)
+        HEARING.clear()
+        self.eng.stop_speaking()
+        emit("mic", on=False)
+
+    def current(self, item):
+        """Gehört eine Äußerung zur laufenden Sitzung? (Alte nach Stopp verwerfen.)"""
+        return len(item) < 5 or item[4] == self.sess
+
+
+MIC = None
 
 
 def work_loop(eng, utts, speak):
@@ -1595,11 +1669,14 @@ def work_loop(eng, utts, speak):
                 log({"job": "fehler", "err": repr(e)[:200]})
             continue
         report_queue()
-        audio, rms, t_end, reason = item
+        if MIC is not None and not MIC.current(item):
+            continue                            # Äußerung aus einer gestoppten Sitzung
+        audio, rms, t_end, reason = item[:4]
+        t_speech_end = item[5] if len(item) > 5 else None
         t = time.time()
         uid = new_id()
         try:
-            eng.process(audio, speak=speak, rms=rms, uid=uid)
+            eng.process(audio, speak=speak, rms=rms, uid=uid, t_end=t_speech_end)
         except Exception as e:                  # ein kaputter Satz darf die Engine nicht beenden
             log({"process": "fehler", "id": uid, "err": repr(e)[:300]})
             emit("dropped", reason="fehler", id=uid)
@@ -1613,8 +1690,8 @@ def shutdown(*_):
     if sp:
         sp.flush()
     PLAYER.stop()                       # laufende Ausgabe (afplay/say/ffmpeg) sofort stumm
-    if FF and FF.poll() is None:
-        FF.terminate()
+    if MIC is not None:
+        Mic._kill(MIC.ff)
     sys.exit(0)
 
 
@@ -1652,6 +1729,8 @@ if __name__ == "__main__":
     ap.add_argument("--llm-model", default=LLM["model"])
     ap.add_argument("--earcons", action="store_true", help="Signalton statt gesprochener Bestätigung")
     ap.add_argument("--meter", action="store_true", help="Pegel-Ereignisse senden")
+    ap.add_argument("--idle", action="store_true",
+                    help="Modelle laden, Mikrofon erst mit {\"listen\": true} auf stdin öffnen")
     a = ap.parse_args()
     JSON, BARGE_IN, LOG_TEXT, METER, DENOISE = a.json, a.barge_in, a.log_text, a.meter, a.denoise
     if a.list_mics:
@@ -1684,4 +1763,12 @@ if __name__ == "__main__":
             eng.process(np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768, speak=not a.mute)
         eng.speaker.wait_idle()                 # Ausgaben zu Ende spielen, dann beenden
     else:
-        mic_loop(eng, a.mic, speak=True, jobs=jobs)   # Stummschaltung über eng.mute (live änderbar)
+        MIC = Mic(eng, a.mic, jobs, idle=a.idle)
+        _QSTATE["stt_q"] = jobs
+        if a.idle:
+            emit("mic", on=False)
+        else:
+            jobs.put(("job", MIC.start))
+        # Arbeiten im Haupt-Thread (Signale für Stopp kommen hier an); Äußerungen der Reihe nach.
+        # Stummschaltung über eng.mute (live änderbar), Vorlesen im Speaker-Thread.
+        work_loop(eng, jobs, speak=True)
