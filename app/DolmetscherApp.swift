@@ -20,6 +20,7 @@ final class EngineModel: ObservableObject {
     @Published var speak = ud.object(forKey: "speak") as? Bool ?? true { didSet { Self.ud.set(speak, forKey: "speak") } }
     @Published var polite = ud.string(forKey: "polite") ?? "krub" { didSet { Self.ud.set(polite, forKey: "polite") } }
     @Published var model = ud.string(forKey: "model") ?? "small" { didSet { Self.ud.set(model, forKey: "model") } }
+    @Published var lang = ud.string(forKey: "lang") ?? "auto" { didSet { Self.ud.set(lang, forKey: "lang") } }
 
     private var proc: Process?
     private var buffer = Data()
@@ -46,7 +47,7 @@ final class EngineModel: ObservableObject {
         let python = info("DolmetscherPython") ?? "/usr/bin/python3"
         let p = Process()
         p.executableURL = URL(fileURLWithPath: python)
-        var args = ["-u", script, "--json", "--model", model, "--polite", polite]
+        var args = ["-u", script, "--json", "--model", model, "--polite", polite, "--lang", lang]
         if !speak { args.append("--mute") }
         p.arguments = args
         var env = ProcessInfo.processInfo.environment
@@ -56,7 +57,11 @@ final class EngineModel: ObservableObject {
 
         let out = Pipe()
         p.standardOutput = out
-        p.standardError = FileHandle.nullDevice
+        let logDir = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Logs/Dolmetscher")
+        try? FileManager.default.createDirectory(at: logDir, withIntermediateDirectories: true)
+        let errURL = logDir.appendingPathComponent("stderr.log")
+        FileManager.default.createFile(atPath: errURL.path, contents: nil)
+        p.standardError = (try? FileHandle(forWritingTo: errURL)) ?? FileHandle.nullDevice
         buffer = Data()
         out.fileHandleForReading.readabilityHandler = { [weak self, weak p] h in
             let d = h.availableData
@@ -114,6 +119,7 @@ final class EngineModel: ObservableObject {
         case "thinking": status = "⏳ Übersetze …"; busy = true
         case "speaking": status = "🔊 Spricht …"
         case "error": status = "⚠️ " + (o["msg"] as? String ?? "Fehler")
+        case "dropped": status = "🤷 " + (o["reason"] as? String ?? "nicht verstanden") + " – bitte lauter/länger sprechen"; busy = false
         case "utt":
             let secs = (o["stt"] as? Double ?? 0) + (o["tr"] as? Double ?? 0)
             items.append(Utterance(lang: o["lang"] as? String ?? "en",
@@ -157,6 +163,9 @@ struct ContentView: View {
                 Text(m.status).font(.headline).lineLimit(2)
                 if m.busy { ProgressView().controlSize(.small) }
                 Spacer()
+                Picker("", selection: $m.lang) {
+                    Text("Auto").tag("auto"); Text("🇬🇧 nur EN").tag("en"); Text("🇹🇭 nur TH").tag("th")
+                }.frame(width: 110).disabled(m.running).help("Sprache fest einstellen, falls Auto falsch erkennt")
                 Toggle("Vorlesen", isOn: $m.speak).disabled(m.running)
                 Picker("", selection: $m.polite) {
                     Text("ครับ (m)").tag("krub"); Text("ค่ะ (w)").tag("ka")

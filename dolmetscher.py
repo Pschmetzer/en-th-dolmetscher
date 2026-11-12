@@ -14,9 +14,11 @@ from faster_whisper import WhisperModel
 
 SR = 16000
 FRAME = 480                       # 30 ms
-SILENCE_END = 0.7                 # s Stille = Satzende
+SILENCE_END = 0.8                 # s Stille = Satzende
 MIN_UTT = 0.4                     # s, kürzer wird ignoriert
 MAX_UTT = 20.0
+MIN_LANG_P = 0.35                 # en+th zusammen mindestens so wahrscheinlich, sonst ignorieren
+MIN_LOGPROB = -1.0                # unsicherere Transkripte gelten als Rauschen/Halluzination
 VOICE = {"th": "Kanya", "en": "Samantha"}
 TARGET = {"en": "th", "th": "en"}
 JUNK = {"thank you for watching", "thanks for watching", "subtitles by", "ขอบคุณที่รับชม"}
@@ -40,6 +42,18 @@ def emit(event, **kw):
         print(f"\n{C['dim']}{flag}: {kw['text']}{C['off']}")
         print(f"{C[kw['to']]}➜ {kw['out']}{C['off']}  {C['dim']}(STT {kw['stt']:.1f}s, "
               f"Übers. {kw['tr']:.1f}s){C['off']}", flush=True)
+
+
+LOGFILE = os.path.expanduser("~/Library/Logs/Dolmetscher/engine.log")
+
+
+def log(d):
+    try:
+        os.makedirs(os.path.dirname(LOGFILE), exist_ok=True)
+        with open(LOGFILE, "a") as f:
+            f.write(time.strftime("%H:%M:%S ") + json.dumps(d, ensure_ascii=False) + "\n")
+    except OSError:
+        pass
 
 
 def translate(text, src, dst):
@@ -75,7 +89,8 @@ def pick_voice(lang):
 
 
 class Engine:
-    def __init__(self, model, polite):
+    def __init__(self, model, polite, lock="auto"):
+        self.lock = lock
         t = time.time()
         emit("loading", msg=f"Lade Whisper-Modell '{model}' …")
         self.m = WhisperModel(model, device="cpu", compute_type="int8")
@@ -83,17 +98,56 @@ class Engine:
         self.polite = polite
         emit("ready", msg=f"bereit ({time.time()-t:.1f}s), Stimmen: {self.voice}")
 
-    def process(self, audio, speak=True):
-        t0 = time.time()
-        _, _, probs = self.m.detect_language(audio=audio)
-        p = dict(probs)
-        lang = "th" if p.get("th", 0) > p.get("en", 0) else "en"
-        segs, _ = self.m.transcribe(audio, language=lang, beam_size=1, vad_filter=True,
+    def _stt(self, audio, lang):
+        segs, _ = self.m.transcribe(audio, language=lang, beam_size=1, vad_filter=True, vad_parameters={"threshold": 0.25},
                                     condition_on_previous_text=False)
+        segs = list(segs)
         text = " ".join(s.text.strip() for s in segs).strip()
-        if not text or text.lower().strip(" .!") in JUNK:
+        lp = float(np.mean([s.avg_logprob for s in segs])) if segs else -9.0
+        return text, lp
+
+    def process(self, audio, speak=True, rms=None):
+        t0 = time.time()
+        peak = float(np.max(np.abs(audio))) if audio.size else 0.0
+        if 0 < peak < 0.5:                       # leise Sprecher anheben
+            audio = audio * (0.5 / peak)
+        info = {"dur": round(audio.size / SR, 2), "rms": rms, "peak": round(peak, 3)}
+        if self.lock in ("en", "th"):
+            lang = self.lock
+            text, lp = self._stt(audio, lang)
+            info.update(mode="lock")
+        else:
+            _, _, probs = self.m.detect_language(audio=audio, language_detection_segments=2)
+            p = dict(probs)
+            pe, pt = p.get("en", 0.0), p.get("th", 0.0)
+            info.update(p_en=round(pe, 3), p_th=round(pt, 3),
+                        top=[(k, round(v, 3)) for k, v in probs[:3]])
+            if pe + pt < MIN_LANG_P:              # weder Englisch noch Thai -> ignorieren
+                info["drop"] = "andere Sprache"
+                log(info)
+                emit("dropped", reason="weder Englisch noch Thai")
+                emit("listening")
+                return None
+            lang = "th" if pt > pe else "en"
+            text, lp = self._stt(audio, lang)
+            # unklar? beide Sprachen probieren und die sicherere nehmen
+            if (lang == "en" and pt > 0.1) or (lang == "th" and pe > 0.1) or not text:
+                other = "th" if lang == "en" else "en"
+                t2, lp2 = self._stt(audio, other)
+                info.update(alt=other, alt_text=t2, alt_lp=round(lp2, 3), lp=round(lp, 3))
+                if t2 and (lp2 > lp or not text):
+                    lang, text, lp = other, t2, lp2
+        info.update(lang=lang, text=text, lp=round(lp, 3))
+        if text and lp < MIN_LOGPROB:
+            info["drop"] = "unsicher"
+            text = ""
+        if not text or text.lower().strip(" .!?") in JUNK:
+            info.setdefault("drop", "nichts erkannt")
+            log(info)
+            emit("dropped", reason=info["drop"])
             emit("listening")
             return None
+        log(info)
         t1 = time.time()
         dst = TARGET[lang]
         try:
@@ -109,6 +163,28 @@ class Engine:
             subprocess.run([SAY, "-v", self.voice[dst], "-r", "185", out])
         emit("listening")
         return lang, text, out
+
+
+class StreamVAD:
+    """Silero-VAD Frame für Frame (512 Samples), Zustand bleibt erhalten.
+    Erkennt Sprache unabhängig von der Lautstärke – auch Flüstern/leises Sprechen."""
+    N, CTX = 512, 64
+
+    def __init__(self):
+        from faster_whisper.vad import get_vad_model
+        self.sess = get_vad_model().session
+        self.reset()
+
+    def reset(self):
+        self.h = np.zeros((1, 1, 128), dtype="float32")
+        self.c = np.zeros((1, 1, 128), dtype="float32")
+        self.ctx = np.zeros(self.CTX, dtype="float32")
+
+    def __call__(self, frame):
+        x = np.concatenate([self.ctx, frame]).astype("float32")[None, :]
+        self.ctx = frame[-self.CTX:]
+        out, self.h, self.c = self.sess.run(None, {"input": x, "h": self.h, "c": self.c})
+        return float(out.reshape(-1)[0])
 
 
 def drain(ff):
@@ -127,48 +203,55 @@ def drain(ff):
 
 def mic_loop(eng, mic, speak):
     global FF
+    # leichte Vorverstärkung im ffmpeg, damit leise Stimmen mehr Pegel haben
     FF = subprocess.Popen([FFMPEG, "-hide_banner", "-loglevel", "error", "-f", "avfoundation",
-                           "-i", f":{mic}", "-ar", str(SR), "-ac", "1", "-f", "s16le", "-"],
+                           "-i", f":{mic}", "-af", "highpass=f=80,volume=6dB,alimiter=limit=0.95",
+                           "-ar", str(SR), "-ac", "1", "-f", "s16le", "-"],
                           stdout=subprocess.PIPE)
+    N = StreamVAD.N
 
-    def read(n):
-        b = FF.stdout.read(n * 2)
+    def read():
+        b = FF.stdout.read(N * 2)
         return np.frombuffer(b, dtype=np.int16).astype(np.float32) / 32768
 
-    emit("calibrating", msg="Kalibriere Mikrofon, bitte 1 Sekunde still …")
-    levels = []
-    for _ in range(33):
-        f = read(FRAME)
-        if f.size == 0:
-            emit("error", msg="Mikrofon liefert keine Daten (Mikrofon-Zugriff erlaubt?)")
-            return
-        levels.append(np.sqrt(np.mean(f ** 2)))
-    thresh = max(float(np.median(levels)) * 3.0, 0.008)
+    vad = StreamVAD()
+    if read().size == 0:
+        emit("error", msg="Mikrofon liefert keine Daten (Mikrofon-Zugriff erlaubt?)")
+        return
     emit("listening")
 
-    buf, voiced, silence, pre = [], False, 0.0, []
+    START, KEEP = 0.5, 0.3          # Hysterese: Start bei 0.5, weiter solange > 0.3
+    fdur = N / SR
+    buf, voiced, silence, speech, pre, peak_rms = [], False, 0.0, 0.0, [], 0.0
     while True:
-        f = read(FRAME)
-        if f.size == 0:
+        f = read()
+        if f.size < N:
             break
+        prob = vad(f)
         rms = float(np.sqrt(np.mean(f ** 2)))
-        loud = rms > thresh
         if not voiced:
-            pre = (pre + [f])[-10:]
-            if loud:
-                voiced, buf, silence = True, pre[:], 0.0
+            pre = (pre + [f])[-12:]                     # ~380 ms Vorlauf
+            if prob > START:
+                voiced, buf, silence, speech, peak_rms = True, pre[:], 0.0, fdur, rms
                 emit("hearing")
             continue
         buf.append(f)
-        silence = 0.0 if loud else silence + FRAME / SR
-        dur = len(buf) * FRAME / SR
+        peak_rms = max(peak_rms, rms)
+        if prob > KEEP:
+            silence = 0.0; speech += fdur
+        else:
+            silence += fdur
+        dur = len(buf) * fdur
         if silence >= SILENCE_END or dur >= MAX_UTT:
             voiced = False
-            if dur - silence >= MIN_UTT:
+            if speech >= MIN_UTT:
                 emit("thinking")
-                eng.process(np.concatenate(buf), speak=speak)
+                eng.process(np.concatenate(buf), speak=speak, rms=round(peak_rms, 4))
                 drain(FF); time.sleep(0.3); drain(FF)   # eigene Stimme verwerfen
+                vad.reset()
             else:
+                log({"drop": "zu kurz", "speech": round(speech, 2), "rms": round(peak_rms, 4)})
+                emit("dropped", reason="zu kurz")
                 emit("listening")
             buf, pre = [], []
 
@@ -187,11 +270,12 @@ if __name__ == "__main__":
     ap.add_argument("--file", nargs="*")
     ap.add_argument("--mute", action="store_true")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--lang", choices=["auto", "en", "th"], default="auto")
     a = ap.parse_args()
     JSON = a.json
     signal.signal(signal.SIGTERM, shutdown)
     signal.signal(signal.SIGINT, shutdown)
-    eng = Engine(a.model, a.polite)
+    eng = Engine(a.model, a.polite, a.lang)
     if a.file:
         from faster_whisper.audio import decode_audio
         for f in a.file:

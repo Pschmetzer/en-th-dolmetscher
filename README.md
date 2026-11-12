@@ -6,6 +6,9 @@ Hands-free speech interpreter for macOS: just talk. English is translated into T
 - Translation: Google Translate web endpoint (unofficial, falls back to MyMemory). Needs internet
 - Speech output: macOS `say` (Thai: Kanya, English: Samantha)
 - Latency: roughly 3–4 s after the end of each sentence
+- Quiet speech: Silero voice activity detection plus input gain, so soft voices are picked up too
+- Only English and Thai: other languages (and noise) are ignored. An Auto / EN / TH picker locks the language if needed
+- Log for troubleshooting: `~/Library/Logs/Dolmetscher/engine.log`
 
 ## Mac app
 
