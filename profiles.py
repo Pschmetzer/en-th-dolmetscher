@@ -182,21 +182,27 @@ def enroll(name, lang, record_one, transcribe, emit, spk=None):
     embs, rows = [], []
     for i, sent in enumerate(sents, 1):
         emit("enroll_prompt", i=i, n=len(sents), sentence=sent, name=name)
-        audio = None
-        for _ in range(3):                       # up to 3 tries per sentence
+        best = None                               # (err, audio, hyp)
+        for attempt in range(3):                  # bis zu 3 Versuche pro Satz
             audio = record_one()
-            if audio is not None and audio.size >= 0.8 * SR:
+            if audio is None or audio.size < 0.8 * SR:
+                emit("enroll_retry", i=i, reason="zu kurz")
+                continue
+            hyp = transcribe(audio, lang)
+            er = error_rate(sent, hyp, lang)
+            emit("enroll_heard", i=i, heard=hyp, err=round(er, 3))
+            if best is None or er < best[0]:
+                best = (er, audio, hyp)
+            if er <= 0.5:                         # passt zum Satz -> weiter
                 break
-            emit("enroll_retry", i=i, reason="zu kurz – bitte noch einmal")
-        if audio is None:
+            emit("enroll_retry", i=i, reason="anderer Satz gehört")   # Störgeräusch o. Ä.
+        if best is None:
             emit("enroll_failed", reason="keine Aufnahme")
             return None
-        if audio.size >= MIN_SECONDS * SR:
+        er, audio, hyp = best
+        if audio.size >= MIN_SECONDS * SR and er <= 0.8:   # nur passende Aufnahmen für den Stimmabdruck
             embs.append(spk.embed(audio))
-        hyp = transcribe(audio, lang)
-        er = error_rate(sent, hyp, lang)
-        rows.append({"ref": sent, "hyp": hyp, "err": round(er, 3)})
-        emit("enroll_heard", i=i, heard=hyp, err=round(er, 3))
+        rows.append({"ref": sent, "hyp": hyp, "err": round(min(er, 1.0), 3)})
     if len(embs) < 3:
         emit("enroll_failed", reason="zu wenige brauchbare Aufnahmen")
         return None

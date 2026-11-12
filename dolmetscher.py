@@ -462,7 +462,8 @@ def profile_cli(a):
     elif a.enroll:
         emit("loading", msg="Lade Modelle für das Stimmprofil …")
         spk = profiles.SpeakerID()
-        eng = Engine(a.model, a.polite, "auto", a.tts, a.device)
+        # nur die nötigen Modelle: medium (+ Thai-Modell), kein large-v3-turbo
+        eng = Engine("small" if a.model == "small" else "medium", a.polite, "auto", a.tts, a.device)
 
         def stt(audio, lang):
             pk = float(np.max(np.abs(audio))) if audio.size else 0.0

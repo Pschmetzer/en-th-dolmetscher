@@ -85,7 +85,7 @@ enum L {
         "sentence": ["de": "Satz", "en": "Sentence", "th": "ประโยค"],
         "of": ["de": "von", "en": "of", "th": "จาก"],
         "heard": ["de": "Gehört:", "en": "Heard:", "th": "ได้ยินว่า:"],
-        "again": ["de": "Bitte noch einmal, etwas länger.", "en": "Once more please, a bit longer.", "th": "กรุณาพูดอีกครั้ง ยาวขึ้นอีกนิด"],
+        "again": ["de": "🔁 Bitte den Satz noch einmal vorlesen.", "en": "🔁 Please read the sentence once more.", "th": "🔁 กรุณาอ่านประโยคนี้อีกครั้ง"],
         "prep": ["de": "Wird vorbereitet … (beim ersten Mal bis zu 1 Minute)", "en": "Preparing … (up to 1 minute the first time)",
                  "th": "กำลังเตรียม … (ครั้งแรกอาจใช้เวลาถึง 1 นาที)"],
         "done": ["de": "Fertig! Profil gespeichert.", "en": "Done! Profile saved.", "th": "เสร็จแล้ว! บันทึกโปรไฟล์เรียบร้อย"],
