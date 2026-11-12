@@ -29,14 +29,14 @@ fi
 "$PY" -c "import faster_whisper" || { echo "faster-whisper fehlt in $PY"; exit 1; }
 "$PY" -c "import edge_tts" 2>/dev/null || echo "Hinweis: edge-tts fehlt in $PY – es wird die macOS-Stimme genutzt (pip install edge-tts)"
 
-echo "→ Lade Whisper-Modelle 'medium' (~1,5 GB) und 'small' (einmalig) …"
-"$PY" -c "from faster_whisper import WhisperModel as W; W('medium', device='cpu', compute_type='int8'); W('small', device='cpu', compute_type='int8')"
+echo "→ Lade Whisper-Modelle medium, small und Thai (~3,5 GB) (einmalig) …"
+"$PY" -c "from faster_whisper import WhisperModel as W; W('medium', device='cpu', compute_type='int8'); W('small', device='cpu', compute_type='int8'); W('Vinxscribe/biodatlab-whisper-th-medium-faster', device='cpu', compute_type='int8')"
 
 echo "→ Kompiliere …"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 swiftc -O -parse-as-library -o "$APP/Contents/MacOS/Dolmetscher" app/DolmetscherApp.swift
-cp dolmetscher.py "$APP/Contents/Resources/"
+cp dolmetscher.py profiles.py "$APP/Contents/Resources/"
 cp app/AppIcon.icns "$APP/Contents/Resources/"
 
 cat > "$APP/Contents/Info.plist" <<PLIST

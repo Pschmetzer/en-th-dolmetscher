@@ -19,6 +19,7 @@ MAX_UTT = 20.0
 MIN_LANG_P = 0.35                 # en+th zusammen mindestens so wahrscheinlich, sonst ignorieren
 MIN_LOGPROB = -1.0                # unsicherere Transkripte gelten als Rauschen/Halluzination
 VOICE = {"th": "Kanya", "en": "Samantha"}
+THAI_MODEL = "Vinxscribe/biodatlab-whisper-th-medium-faster"   # CTranslate2-Version von biodatlab/whisper-th-medium-combined
 TARGET = {"en": "th", "th": "en"}
 # Weckwort nur am Satzanfang: "Translator, pause" / "Hey translator resume"
 WAKE = re.compile(r"^\W*(?:hey|hi|ok|okay)?\W*translat(?:or|er)\b\W*(.*)$", re.I | re.S)
@@ -172,6 +173,14 @@ class Engine:
         # "best": medium für Erkennung + Thai, large-v3-turbo für Englisch (Akzente)
         self.m, self.device = load_model("medium" if model == "best" else model, device)
         self.m_en = load_model("large-v3-turbo", self.device)[0] if model == "best" else None
+        # Thai: auf Thai trainiertes Whisper (biodatlab, MIT) – ~30 % weniger Fehler bei leiser/entfernter Sprache
+        self.m_th = None
+        if model != "small":
+            try:
+                emit("loading", msg="Lade Thai-Modell …")
+                self.m_th = load_model(THAI_MODEL, self.device)[0]
+            except Exception as e:
+                log({"thai_model": "nicht geladen", "err": repr(e)[:200]})
         self.beam = 5 if self.device == "mps" else 1
         log({"model": model, "device": self.device, "load_s": round(time.time() - t, 1)})
         self.voice = {k: pick_voice(k) for k in VOICE}
@@ -179,6 +188,14 @@ class Engine:
         self.paused, self.rate, self.volume = False, 0, 1.0     # rate in %, volume 0.2..2
         self.translate_dir = {"en": True, "th": True}          # Richtung einzeln abschaltbar
         self.last, self.awake_until, self.mute = None, 0.0, False
+        self.spk = None
+        try:                                   # Stimmprofile (optional)
+            import profiles
+            if profiles.list_profiles():
+                self.spk = profiles.SpeakerID()
+                log({"profiles": [p["name"] for p in self.spk.profiles]})
+        except Exception as e:
+            log({"profiles": "aus", "err": repr(e)[:200]})
         emit("ready", msg=f"bereit ({time.time()-t:.1f}s, {model} auf {self.device})", device=self.device)
 
     def speak(self, text, lang):
@@ -272,11 +289,15 @@ class Engine:
         return reply
 
     def _stt(self, audio, lang, hotwords=None):
-        mdl = self.m_en if (lang == "en" and self.m_en) else self.m
-        segs, _ = mdl.transcribe(audio, language=lang, beam_size=self.beam, hotwords=hotwords, vad_filter=True, vad_parameters={"threshold": 0.25},
+        mdl = (self.m_en if (lang == "en" and self.m_en) else
+               self.m_th if (lang == "th" and self.m_th) else self.m)
+        segs, _ = mdl.transcribe(audio, language=lang, beam_size=self.beam, hotwords=hotwords,
+                                 repetition_penalty=1.1, no_repeat_ngram_size=4, max_new_tokens=160, vad_filter=True, vad_parameters={"threshold": 0.25},
                                     condition_on_previous_text=False)
         segs = list(segs)
         text = " ".join(s.text.strip() for s in segs).strip()
+        if lang == "th":   # Thai-Modell setzt Leerzeichen zwischen Wörter – Thai schreibt man ohne
+            text = re.sub(r"(?<=[\u0E00-\u0E7F]) (?=[\u0E00-\u0E7F])", "", text)
         lp = float(np.mean([s.avg_logprob for s in segs])) if segs else -9.0
         return text, lp
 
@@ -291,6 +312,22 @@ class Engine:
         pe, pt = p.get("en", 0.0), p.get("th", 0.0)
         info.update(p_en=round(pe, 3), p_th=round(pt, 3),
                     top=[(k, round(v, 3)) for k, v in probs[:3]])
+        # --- Stimmprofil: wer spricht? Sprache des Profils hilft bei unsicherer Erkennung
+        who, hot = None, None
+        if self.spk:
+            try:
+                who, sim, scores = self.spk.identify(audio)
+                info.update(speaker=who["name"] if who else None, spk_scores=scores)
+            except Exception as e:
+                log({"speaker": "fehler", "err": repr(e)[:200]})
+        if who:
+            plang = who.get("lang", "en")
+            hot = " ".join(who.get("vocab", [])) or None
+            # unsicher (keine Sprache klar vorn)? -> Sprache der Person nehmen
+            if max(pe, pt) < 0.8 or pe + pt < MIN_LANG_P:
+                if plang == "th": pt = max(pt, pe + 0.01, MIN_LANG_P)
+                else: pe = max(pe, pt + 0.01, MIN_LANG_P)
+                info["prior"] = plang
         if pe + pt < MIN_LANG_P:                  # weder Englisch noch Thai -> ignorieren
             info["drop"] = "andere Sprache"
             log(info)
@@ -303,7 +340,7 @@ class Engine:
             info.update(mode="lock")
         else:
             lang = "th" if pt > pe else "en"
-            text, lp = self._stt(audio, lang)
+            text, lp = self._stt(audio, lang, hotwords=hot if who and who.get("lang") == lang else None)
             # unklar? beide Sprachen probieren und die sicherere nehmen
             if (lang == "en" and pt > 0.1) or (lang == "th" and pe > 0.1) or not text:
                 other = "th" if lang == "en" else "en"
@@ -360,7 +397,8 @@ class Engine:
         t1 = time.time()
         if not self.translate_dir.get(lang, True):
             # diese Sprache bleibt wie sie ist: nur anzeigen, nicht übersetzen, nicht vorlesen
-            emit("utt", lang=lang, to=lang, text=text, out=text, stt=t1 - t0, tr=0.0, translated=False)
+            emit("utt", lang=lang, to=lang, text=text, out=text, stt=t1 - t0, tr=0.0, translated=False,
+                 speaker=who["name"] if who else None)
             emit("listening")
             return lang, text, text
         dst = TARGET[lang]
@@ -372,12 +410,65 @@ class Engine:
         if dst == "th":
             out = fix_thai(out, self.polite)
         self.last = (out, dst)
-        emit("utt", lang=lang, to=dst, text=text, out=out, stt=t1 - t0, tr=time.time() - t1)
+        emit("utt", lang=lang, to=dst, text=text, out=out, stt=t1 - t0, tr=time.time() - t1,
+             speaker=who["name"] if who else None)
         if speak:
             emit("speaking")
             self.speak(out, dst)
         emit("listening")
         return lang, text, out
+
+
+def record_one(mic="0", timeout=20.0):
+    """Ein gesprochener Satz vom Mikrofon (für das Anlegen von Stimmprofilen)."""
+    ff = subprocess.Popen([FFMPEG, "-hide_banner", "-loglevel", "error", "-f", "avfoundation",
+                           "-i", f":{mic}", "-af", "highpass=f=80,volume=6dB,alimiter=limit=0.95",
+                           "-ar", str(SR), "-ac", "1", "-f", "s16le", "-"], stdout=subprocess.PIPE)
+    vad, N = StreamVAD(), StreamVAD.N
+    fdur, buf, voiced, silence, speech, pre = N / SR, [], False, 0.0, 0.0, []
+    t_end = time.time() + timeout
+    try:
+        while time.time() < t_end:
+            b = ff.stdout.read(N * 2)
+            if len(b) < N * 2:
+                return None
+            f = np.frombuffer(b, dtype=np.int16).astype(np.float32) / 32768
+            prob = vad(f)
+            if not voiced:
+                pre = (pre + [f])[-12:]
+                if prob > 0.5:
+                    voiced, buf = True, pre[:]
+                    emit("hearing")
+                continue
+            buf.append(f)
+            if prob > 0.3: silence = 0.0; speech += fdur
+            else: silence += fdur
+            if silence >= 1.0:
+                return np.concatenate(buf) if speech >= 0.5 else None
+        return np.concatenate(buf) if buf else None
+    finally:
+        ff.terminate()
+
+
+def profile_cli(a):
+    import profiles
+    if a.profiles:
+        emit("profiles", profiles=[profiles.public(p) for p in profiles.list_profiles()])
+    elif a.delete_profile:
+        emit("profile_deleted", name=a.delete_profile, ok=profiles.delete_profile(a.delete_profile))
+    elif a.vocab is not None:
+        p = profiles.set_vocab(a.vocab[0], re.split(r"[,\n]", a.vocab[1]))
+        emit("profile_saved", profile=profiles.public(p))
+    elif a.enroll:
+        emit("loading", msg="Lade Modelle für das Stimmprofil …")
+        spk = profiles.SpeakerID()
+        eng = Engine(a.model, a.polite, "auto", a.tts, a.device)
+
+        def stt(audio, lang):
+            pk = float(np.max(np.abs(audio))) if audio.size else 0.0
+            if 0 < pk < 0.5: audio = audio * (0.5 / pk)
+            return eng._stt(audio, lang)[0]
+        profiles.enroll(a.enroll, a.enroll_lang, lambda: record_one(a.mic), stt, emit, spk)
 
 
 def control_loop(eng):
@@ -510,10 +601,18 @@ if __name__ == "__main__":
     ap.add_argument("--tts", choices=["edge", "say"], default="edge")
     ap.add_argument("--no-en", action="store_true", help="Englisch nicht übersetzen (nur anzeigen)")
     ap.add_argument("--no-th", action="store_true", help="Thai nicht übersetzen (nur anzeigen)")
+    ap.add_argument("--profiles", action="store_true", help="Stimmprofile auflisten (JSON)")
+    ap.add_argument("--enroll", metavar="NAME", help="Stimmprofil anlegen: 8 Sätze vorlesen")
+    ap.add_argument("--enroll-lang", choices=["en", "th"], default="en")
+    ap.add_argument("--delete-profile", metavar="NAME")
+    ap.add_argument("--vocab", nargs=2, metavar=("NAME", "WÖRTER"), help="eigene Wörter, kommagetrennt")
     a = ap.parse_args()
     JSON = a.json
     signal.signal(signal.SIGTERM, shutdown)
     signal.signal(signal.SIGINT, shutdown)
+    if a.profiles or a.enroll or a.delete_profile or a.vocab is not None:
+        profile_cli(a)
+        sys.exit(0)
     eng = Engine(a.model, a.polite, a.lang, a.tts, a.device)
     eng.mute = a.mute
     if a.no_en: eng.translate_dir["en"] = False
