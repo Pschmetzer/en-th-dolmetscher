@@ -4,7 +4,7 @@
 
 Hands-free speech interpreter for macOS: just talk. English is translated into Thai and Thai into English, and the translation is spoken aloud right away. The engine **detects the language by itself**, so there are no buttons to switch.
 
-- Speech recognition: [faster-whisper](https://github.com/SYSTRAN/faster-whisper), local on the Mac, on the Apple GPU (Metal) when available, otherwise CPU. Models: `small` (fast), `medium` (default), `best` (medium for Thai + large-v3-turbo for English, better with accents; ~1.6 GB extra download on first use)
+- Speech recognition: [faster-whisper](https://github.com/SYSTRAN/faster-whisper), local on the Mac, on the Apple GPU (Metal) when available, otherwise CPU. Models: `small` (fast), `medium` (default), `best` (+ large-v3-turbo for English, better with accents; ~1.6 GB extra). Thai is transcribed with a Whisper model fine-tuned on Thai ([biodatlab/whisper-th-medium-combined](https://huggingface.co/biodatlab/whisper-th-medium-combined), CTranslate2 version, MIT), about 30 % fewer errors on quiet or distant Thai speech in our tests
 - Translation: Google Translate web endpoint (unofficial, falls back to MyMemory). Needs internet
 - Speech output: natural Microsoft neural voices via the unofficial [edge-tts](https://github.com/rany2/edge-tts) library (Thai: Niwat / Premwadee, English: Ava). The translated text is sent to Microsoft for this. Falls back to macOS voices (`say`) when offline or if that service stops working (`--tts say` forces it)
 - Latency: roughly 3–5 s after the end of each sentence (recognition ~1.5–3 s on the GPU, translation ~1.5 s, voice ~1.5 s)
@@ -31,6 +31,20 @@ Talk to it like Siri: start with **"Translator, …"** (or "Hey translator, …"
 | Translator. *(pause)* … | answers "Yes?" and takes the next sentence as a command |
 
 Commands only control the app. General questions (weather, facts) are not supported, since that would need an LLM.
+
+## Voice profiles
+
+Each person reads 8 short sentences once (about a minute) in **Voice profiles**. The guide runs fully in Thai for Thai profiles, so a Thai speaker can do it alone. The app language can be switched between ไทย / English / Deutsch.
+
+A profile gives:
+- **who is speaking**: their name appears on the bubble
+- **the right language**: the person's language decides when detection is unsure, so short Thai sentences are no longer dropped
+- **own words**: names, companies, places, passed to Whisper as hints
+- **a quality score**: how well the engine understood the sentences
+
+It does *not* retrain the model on the voice. Voiceprints are biometric data. They are stored only on this Mac (`~/Library/Application Support/Dolmetscher/profiles/`, readable only by you) and can be deleted in the app. Speaker recognition uses [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) with the WeSpeaker ResNet34 model (~25 MB, downloaded on first use, checksum-verified).
+
+Terminal: `python3 dolmetscher.py --enroll Nok --enroll-lang th`, `--profiles`, `--vocab Nok "Sukhumvit, Siam"`, `--delete-profile Nok`.
 
 ## Mac app
 
