@@ -64,6 +64,7 @@ final class ProfilesModel: ObservableObject {
         _ = EngineRunner.run(["--profiles"], onEvent: { [weak self] o in
             guard o["event"] as? String == "profiles", let arr = o["profiles"] as? [[String: Any]] else { return }
             self?.profiles = arr.map(Self.parse)
+            NotificationCenter.default.post(name: .profilesChanged, object: nil)
         })
     }
 
@@ -262,4 +263,8 @@ struct EnrollView: View {
         }
         .padding(28)
     }
+}
+
+extension Notification.Name {
+    static let profilesChanged = Notification.Name("DolmetscherProfilesChanged")
 }

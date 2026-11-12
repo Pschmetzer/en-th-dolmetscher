@@ -24,6 +24,14 @@ MIN_SECONDS = 1.5      # shorter clips give unreliable voiceprints
 MIN_SIM = 0.68         # cosine similarity needed to accept a match (enrolled voices ~0.85+, strangers ~0.6)
 MIN_MARGIN = 0.05      # best match must beat the runner-up by this much
 
+# Zwei-Personen-Modus ("Englisch = ich, jede andere Stimme = Thai"): nur EIN Profil nötig.
+# Gemessen (wespeaker, Fenster 0,6-1,5 s): eigene Stimme 0,58-0,89, fremde Stimme 0,32-0,64.
+# Asymmetrisch streng: fälschlich "ich" würde Thai mit englischer Erkennung lesen -> Müll.
+ROLE_MIN_SECONDS = 0.6
+ROLE_ME_MIN = 0.76          # Untergrenze (ähnliche Test-Stimmen erreichten max. 0,73); pro Profil kalibriert
+ROLE_OTHER_MAX = 0.50       # darunter sicher eine andere Stimme
+ROLE_OTHER_MAX_LONG = 0.55  # ab 1,5 s sind die Werte stabiler
+
 ENROLL = {
     "en": [
         "Good morning, thank you for meeting with me today.",
@@ -140,6 +148,23 @@ class SpeakerID:
         e = np.array(self.ex.compute(s), dtype=np.float32)
         return e / (np.linalg.norm(e) + 1e-9)
 
+    def me(self):
+        """Das Profil der Person, die Englisch spricht (im Zwei-Personen-Modus 'ich')."""
+        return next((p for p in self.profiles if p.get("lang") == "en"), None)
+
+    def role(self, audio):
+        """-> ('me'|'other'|None, ähnlichkeit). None = unklar, dann entscheidet die Spracherkennung."""
+        me = self.me()
+        if me is None or audio.size < ROLE_MIN_SECONDS * SR:
+            return None, 0.0
+        sim = float(np.array(me["embedding"], dtype=np.float32) @ self.embed(audio))
+        long_ = audio.size >= MIN_SECONDS * SR
+        if sim >= max(ROLE_ME_MIN, float(me.get("role_me_min") or 0)):
+            return "me", sim
+        if sim <= (ROLE_OTHER_MAX_LONG if long_ else ROLE_OTHER_MAX):
+            return "other", sim
+        return None, sim
+
     def identify(self, audio):
         """-> (profile, similarity, scores) or (None, best_sim, scores)."""
         if self.mat is None or audio.size < MIN_SECONDS * SR:
@@ -179,7 +204,7 @@ def enroll(name, lang, record_one, transcribe, emit, spk=None):
     """
     spk = spk or SpeakerID()
     sents = ENROLL[lang]
-    embs, rows = [], []
+    embs, rows, auds = [], [], []
     for i, sent in enumerate(sents, 1):
         emit("enroll_prompt", i=i, n=len(sents), sentence=sent, name=name)
         best = None                               # (err, audio, hyp)
@@ -205,6 +230,7 @@ def enroll(name, lang, record_one, transcribe, emit, spk=None):
         er, audio, hyp = best
         if audio.size >= MIN_SECONDS * SR:        # Stimmabdruck braucht nur genug Sprache
             embs.append(spk.embed(audio))
+            auds.append(audio)
         rows.append({"ref": sent, "hyp": hyp, "err": round(min(er, 1.0), 3)})
     if len(embs) < 3:
         emit("enroll_failed", reason="zu wenige brauchbare Aufnahmen")
@@ -213,11 +239,20 @@ def enroll(name, lang, record_one, transcribe, emit, spk=None):
     e /= np.linalg.norm(e)
     # how consistent is the voice? (helps to pick thresholds later)
     self_sim = float(np.mean([x @ e for x in embs]))
+    # Kalibrierung für kurze Sätze ("ok", "yes"): Ähnlichkeit kurzer Ausschnitte der eigenen Stimme
+    short = []
+    for a in auds:
+        n = int(0.8 * SR)
+        for i in range(0, max(1, a.size - n), n):
+            short.append(float(spk.embed(a[i:i + n]) @ e))
+    p10 = float(np.percentile(short, 10)) if short else 0.0
+    role_me_min = round(min(0.85, max(ROLE_ME_MIN, p10 - 0.02)), 3)
     old = next((p for p in list_profiles() if p["name"] == name), {})
     p = {
         "name": name, "lang": lang, "created": time.strftime("%Y-%m-%d %H:%M"),
         "embedding": [round(float(x), 6) for x in e],
         "self_similarity": round(self_sim, 3),
+        "role_me_min": role_me_min,
         "vocab": old.get("vocab", []),
         "error_rate": round(float(np.mean([r["err"] for r in rows])), 3),
         "enroll_results": rows,

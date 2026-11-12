@@ -107,3 +107,12 @@ Neu:
 | `--tts-race S` (Standard 1.4, 0 = aus) | `tts_race` (float) | kommt die Neural-Stimme nicht in S Sekunden, spricht sofort die vorbereitete macOS-Stimme |
 | `--no-fast-endpoint` | `fast_endpoint` (bool) | schnelles Satzende, **nur Englisch**: endet der vorab erkannte Text mit . ? ! (und ist sicher erkannt), nicht bis zur vollen Pause warten. Thai nie, weil ครับ/ค่ะ/นะ auch Teilsätze beenden |
 | `--partial` | `partial` (bool) | Teiltext während des Sprechens (Standard aus) |
+
+## Zwei-Personen-Modus und lockeres Thai (Branch feat/rollen)
+
+- `two_person` (bool, Standard an; Startargument `--no-two-person`): Englisch kommt von der Person mit
+  englischem Stimmprofil, jede andere Stimme spricht Thai. Ohne englisches Profil wirkungslos.
+  Unklare Ähnlichkeit oder klar andere Sprache in der Erkennung → wie bisher.
+- `reload_profiles` (true): Stimmprofile neu laden (App schickt es nach Anlegen/Löschen).
+- Ereignis `roles` mit `me` (Profilname oder null) und `on` (bool).
+- Lachen (555, ฮ่าๆ, haha, lol) wird nicht übersetzt, sondern als Lachen der Zielsprache angehängt.

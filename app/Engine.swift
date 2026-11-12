@@ -138,6 +138,10 @@ final class EngineModel: NSObject, ObservableObject {
     @Published var fastEndpoint = ud.object(forKey: "fastEndpoint") as? Bool ?? true {
         didSet { Self.ud.set(fastEndpoint, forKey: "fastEndpoint"); send(["fast_endpoint": fastEndpoint]) }
     }
+    /// Zwei-Personen-Modus: Englisch kommt von mir (Stimmprofil), jede andere Stimme spricht Thai.
+    @Published var twoPerson = ud.object(forKey: "twoPerson") as? Bool ?? true {
+        didSet { Self.ud.set(twoPerson, forKey: "twoPerson"); send(["two_person": twoPerson]) }
+    }
     /// Vorläufigen Text schon während des Sprechens zeigen.
     @Published var partialText = ud.object(forKey: "partialText") as? Bool ?? false {   // Standard aus: ein Teiltext kann die Erkennung verzögern
         didSet { Self.ud.set(partialText, forKey: "partialText"); send(["partial": partialText]) }
@@ -197,6 +201,10 @@ final class EngineModel: NSObject, ObservableObject {
 
     override init() {
         super.init()
+        // Stimmprofil angelegt/gelöscht: laufende Engine lädt die Profile neu (kein Neustart nötig)
+        NotificationCenter.default.addObserver(forName: .profilesChanged, object: nil, queue: .main) { [weak self] _ in
+            self?.send(["reload_profiles": true])
+        }
         // Nur für Screenshots/Tests: DOLMETSCHER_DEMO=1 füllt den Verlauf mit Beispielen.
         if ProcessInfo.processInfo.environment["DOLMETSCHER_DEMO"] != nil {
             items = [
@@ -334,6 +342,7 @@ final class EngineModel: NSObject, ObservableObject {
                     "--llm-model", llmModel, logText ? "--log-text" : "--no-log-text",
                     "--tts-race", Self.f2(ttsRace)]
         if !fastEndpoint { args.append("--no-fast-endpoint") }
+        if !twoPerson { args.append("--no-two-person") }
         args.append(partialText ? "--partial" : "--no-partial")   // Engine-Standard ist aus
         if !speak { args.append("--mute") }
         if !trEN { args.append("--no-en") }

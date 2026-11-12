@@ -144,6 +144,8 @@ private struct RecognitionSection: View {
             Toggle(isOn: $m.denoise) {
                 VStack(alignment: .leading) { Text(L.t("denoise")); RestartNote() }
             }
+            Toggle(L.t("two_person"), isOn: $m.twoPerson)
+                .help(L.t("two_person_help"))
             Toggle(L.t("fast_endpoint"), isOn: $m.fastEndpoint)
                 .help(L.t("fast_endpoint_help"))
             Toggle(L.t("partial_text"), isOn: $m.partialText)
