@@ -848,11 +848,11 @@ class Speaker:
         interrupted = False
         for text, stream in it["parts"]:
             if cancelled():
-                interrupted = True
+                interrupted = CANCEL["gen"] != g
                 break
             eng.speak(text, it["lang"], stream=stream, on_start=on_start, boost=it.get("boost", 0),
                       cancelled=cancelled)
-        if cancelled():
+        if CANCEL["gen"] != g:
             interrupted = True
         for _, st in it["parts"]:
             if st:
@@ -1524,8 +1524,10 @@ def list_mics():
 def mic_loop(eng, mic, speak, jobs=None):
     global FF
     # leichte Vorverstärkung im ffmpeg, damit leise Stimmen mehr Pegel haben
-    FF = subprocess.Popen([FFMPEG, "-hide_banner", "-loglevel", "error", "-f", "avfoundation",
-                           "-i", f":{mic}", "-af", mic_filter(DENOISE),
+    # DOLMETSCHER_MIC_FILE: Audiodatei in Echtzeit statt Mikrofon (Ende-zu-Ende-Test des Mikrofon-Pfads)
+    src = (["-re", "-i", os.environ["DOLMETSCHER_MIC_FILE"]] if os.environ.get("DOLMETSCHER_MIC_FILE")
+           else ["-f", "avfoundation", "-i", f":{mic}"])
+    FF = subprocess.Popen([FFMPEG, "-hide_banner", "-loglevel", "error", *src, "-af", mic_filter(DENOISE),
                            "-ar", str(SR), "-ac", "1", "-f", "s16le", "-"],
                           stdout=subprocess.PIPE)
     N = StreamVAD.N
@@ -1564,11 +1566,17 @@ def mic_loop(eng, mic, speak, jobs=None):
     threading.Thread(target=segmenter, args=(read, utts), name="mic", daemon=True).start()
     # Arbeiten im Haupt-Thread (Signale für Stopp kommen hier an); Äußerungen der Reihe nach.
     # Vorlesen läuft im Speaker-Thread – die nächste Äußerung wartet nicht mehr auf die Ausgabe.
+    work_loop(eng, utts, speak)
+
+
+def work_loop(eng, utts, speak):
+    """Arbeitet die Warteschlange ab: Äußerungen (audio, rms, t_end, reason) und App-Aufgaben
+    ("job", fn). Ein Fehler in einem Satz beendet die Engine nicht."""
     while True:
         item = utts.get()
         if item is None:
             break
-        if item[0] == "job":                 # Schnellsatz/Korrektur aus der App
+        if isinstance(item[0], str) and item[0] == "job":   # Schnellsatz/Korrektur aus der App
             try:
                 item[1]()
             except Exception as e:

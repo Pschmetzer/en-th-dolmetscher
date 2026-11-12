@@ -255,3 +255,26 @@ def test_claude_truncated_is_error(monkeypatch):
     monkeypatch.setattr(d, "llm_client", lambda: types.SimpleNamespace(messages=Msgs()))
     with pytest.raises(RuntimeError, match="max_tokens"):
         d.claude_translate("x", "en", "th")
+
+
+def test_work_loop_handles_audio_and_jobs(monkeypatch, _iso):
+    """Regression: Audio-Tupel (numpy-Array vorn) dürfen nicht mit "job" verglichen werden –
+    das ließ die Engine nach jedem gesprochenen Satz abstürzen."""
+    seen = []
+
+    class E:
+        speaker = types.SimpleNamespace(pending=lambda: 0)
+
+        def process(self, audio, speak=True, rms=None, uid=None):
+            seen.append(("audio", audio.size, uid))
+            if audio.size == 8000:
+                raise RuntimeError("kaputt")
+    q = queue.Queue()
+    q.put((np.zeros(16000, dtype=np.float32), 0.05, time.time(), "vad"))
+    q.put(("job", lambda: seen.append(("job",))))
+    q.put((np.zeros(8000, dtype=np.float32), 0.05, time.time(), "vad"))
+    q.put((np.zeros(4000, dtype=np.float32), 0.05, time.time(), "vad"))
+    q.put(None)
+    d.work_loop(E(), q, speak=False)
+    assert [x[0] for x in seen] == ["audio", "job", "audio", "audio"]
+    assert any(ev == "dropped" and kw.get("reason") == "fehler" for ev, kw in _iso)
