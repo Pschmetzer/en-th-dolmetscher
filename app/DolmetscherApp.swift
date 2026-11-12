@@ -1,6 +1,7 @@
 // Dolmetscher – SwiftUI-Oberfläche für die Python-Engine (dolmetscher.py).
-// Weitere Dateien: Engine.swift (Prozess + Ereignisse), Views.swift (Hauptfenster),
-// PartnerView.swift (Vollbild für die Partnerin), SettingsView.swift (⌘,).
+// Weitere Dateien: Engine.swift (Prozess + Ereignisse), Views.swift (Hauptfenster), BubbleViews.swift (Sprechblasen),
+// PartnerView.swift (Vollbild für die Partnerin), SettingsView.swift (⌘,), HotKeys.swift (globale Kürzel),
+// Paths.swift (Python/ffmpeg/API-Schlüssel).
 import SwiftUI
 import AppKit
 
@@ -48,6 +49,12 @@ struct AppCommands: Commands {
             Toggle("Immer im Vordergrund", isOn: $onTop)
                 .keyboardShortcut("t", modifiers: [.command, .option])
             Divider()
+            Button(model.paused ? L.t("resume") : L.t("pause")) { model.togglePause() }
+                .disabled(!model.running)
+            Button(L.t("stop_speaking")) { model.stopSpeaking() }
+                .keyboardShortcut(".", modifiers: .command)
+                .disabled(!model.running)
+            Divider()
         }
         CommandGroup(replacing: .help) {
             Button("Tipps anzeigen") { NotificationCenter.default.post(name: .showTips, object: nil) }
@@ -55,14 +62,46 @@ struct AppCommands: Commands {
     }
 }
 
+/// Menüleisten-Symbol: Start/Stopp, Pause, Vorlesen stoppen, Fenster zeigen.
+struct MenuBarContent: View {
+    @EnvironmentObject var m: EngineModel
+    @Environment(\.openWindow) private var openWindow
+
+    var body: some View {
+        Text(m.status)
+        Divider()
+        Button(m.active ? L.t("stop") : L.t("start")) { m.toggle() }
+        Button(m.paused ? L.t("resume") : L.t("pause")) { m.togglePause() }
+            .disabled(!m.running)
+        Button(L.t("stop_speaking")) { m.stopSpeaking() }
+            .disabled(!m.running)
+        Divider()
+        Button(L.t("show_window")) {
+            openWindow(id: "main")
+            NSApp.activate(ignoringOtherApps: true)
+        }
+        Divider()
+        Button(L.t("quit")) { NSApp.terminate(nil) }
+    }
+}
+
 @main
 struct DolmetscherApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject var model = EngineModel()
+
+    private var menuIcon: String {
+        guard model.active else { return "waveform.circle" }
+        return model.paused ? "pause.circle" : "waveform.circle.fill"
+    }
+
     var body: some Scene {
         Window("Dolmetscher EN ⇄ TH", id: "main") {
             ContentView().environmentObject(model)
-                .onAppear { delegate.model = model }
+                .onAppear {
+                    delegate.model = model
+                    HotKeys.shared.install(for: model)
+                }
         }
         .commands { AppCommands(model: model) }
 
@@ -73,6 +112,12 @@ struct DolmetscherApp: App {
 
         Settings {
             SettingsView().environmentObject(model)
+        }
+
+        MenuBarExtra {
+            MenuBarContent().environmentObject(model)
+        } label: {
+            Image(systemName: menuIcon).accessibilityLabel("Dolmetscher")
         }
     }
 }

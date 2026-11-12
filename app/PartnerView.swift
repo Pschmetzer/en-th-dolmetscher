@@ -10,7 +10,7 @@ struct PartnerView: View {
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-            if let u = m.items.last(where: \.translated) ?? m.items.last {
+            if let u = m.items.last(where: { $0.translated && !$0.pending }) ?? m.items.last(where: { !$0.pending }) {
                 VStack(spacing: 28) {
                     Spacer(minLength: 0)
                     Text(u.out)
@@ -65,7 +65,7 @@ struct PartnerView: View {
                 Spacer()
             }
         }
-        .animation(.easeInOut(duration: 0.25), value: m.items.last(where: \.translated)?.id)
+        .animation(.easeInOut(duration: 0.25), value: m.items.last(where: { $0.translated && !$0.pending })?.id)
         .frame(minWidth: 480, minHeight: 320)
         .background(WindowAccessor { w in
             if window !== w {
