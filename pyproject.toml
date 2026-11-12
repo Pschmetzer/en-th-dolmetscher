@@ -5,6 +5,15 @@ description = "Hands-free English <-> Thai speech interpreter for macOS"
 license = "MIT"
 requires-python = ">=3.10"
 
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]
+# Kompakter Stil: mehrere Anweisungen/Importe pro Zeile und lambda-Zuweisungen sind gewollt.
+ignore = ["E401", "E701", "E702", "E731"]
+
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
