@@ -71,3 +71,35 @@ Neu:
 | `stop_speaking` | true | laufende und wartende Ausgaben abbrechen |
 | `say` | `{"text": "...", "lang": "en"\|"th"}` | Schnellsatz: übersetzen und vorlesen wie eine Äußerung (`source: "phrase"`) |
 | `retranslate` | `{"id": "u7", "text": "korrigierter Text", "lang": "en"\|"th"}` | neu übersetzen und vorlesen; `utt` kommt mit `replaces: "u7"`, `source: "edit"` |
+
+## Tempo-Ausbau (Branch feat/tempo)
+
+### Engine bleibt geladen (kein Modell-Laden bei jedem Start)
+
+- Neues Startargument `--idle`: Modelle laden, Mikrofon **aus**. Die App startet die Engine damit
+  gleich beim App-Start im Hintergrund.
+- Steuerung `{"listen": true}` öffnet das Mikrofon (Start-Knopf), `{"listen": false}` schließt es
+  wieder (Stopp-Knopf; Mikrofon-Anzeige von macOS geht aus). Die Modelle bleiben geladen.
+- Ereignis `mic` mit `on` (bool) bestätigt den Zustand. `ready` kommt einmal nach dem Laden.
+- Laufende/wartende Ausgaben werden bei `listen: false` abgebrochen.
+
+### Teiltext und Vorab-Erkennung
+
+- Jede Äußerung bekommt ihre `id` schon beim Sprechbeginn (`hearing` hat jetzt `id`).
+- Neues Ereignis `partial` mit `id`, `text`, `lang`: vorläufiger Text, während noch gesprochen wird
+  (etwa alle 2 s, nur wenn die Engine nicht ausgelastet ist). Die App zeigt ihn in der Platzhalter-Blase.
+- Danach kommen wie bisher `thinking` → `utt`/`dropped` mit derselben `id`.
+
+### Latenz
+
+- `speaking` hat zusätzlich `latency_s`: Sekunden vom Ende der Äußerung (letzter Sprach-Frame)
+  bis zum ersten Ton. `utt` hat zusätzlich `ready_s`: Sekunden vom Ende der Äußerung bis die
+  Übersetzung fertig ist.
+
+### Neue Einstellungen
+
+| Startargument | Steuerung | Bedeutung |
+|---|---|---|
+| `--tts-race S` (Standard 0.9, 0 = aus) | `tts_race` (float) | kommt die Neural-Stimme nicht in S Sekunden, spricht sofort die vorbereitete macOS-Stimme |
+| `--no-fast-endpoint` | `fast_endpoint` (bool) | schnelles Satzende: nach 0,35 s Pause vorab erkennen; sieht der Satz fertig aus, nicht bis zur vollen Pause warten |
+| `--no-partial` | `partial` (bool) | Teiltext während des Sprechens |
