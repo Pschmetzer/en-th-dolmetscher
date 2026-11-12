@@ -24,6 +24,8 @@ Talk to it like Siri: start with **"Translator, …"** (or "Hey translator, …"
 | Translator, louder / quieter | volume |
 | Translator, Thai only / English only / auto | lock the language or detect automatically |
 | Translator, female voice / male voice | Thai voice and politeness particle (ค่ะ / ครับ) |
+| Translator, English off / Thai off | that language is only shown, not translated or spoken (e.g. you speak English, only your partner's Thai is translated) |
+| Translator, English on / Thai on / translate both | turn a direction back on |
 | Translator, clear | clear the conversation |
 | Translator, help | list the commands |
 | Translator. *(pause)* … | answers "Yes?" and takes the next sentence as a command |

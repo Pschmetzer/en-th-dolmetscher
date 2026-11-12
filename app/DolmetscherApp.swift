@@ -4,6 +4,7 @@ import AVFoundation
 
 struct Utterance: Identifiable {
     let id = UUID()
+    var translated = true
     let lang: String
     let text: String
     let out: String
@@ -18,10 +19,21 @@ final class EngineModel: ObservableObject {
     @Published var busy = false
     @Published var paused = false
     private static let ud = UserDefaults.standard
-    @Published var speak = ud.object(forKey: "speak") as? Bool ?? true { didSet { Self.ud.set(speak, forKey: "speak") } }
-    @Published var polite = ud.string(forKey: "polite") ?? "krub" { didSet { Self.ud.set(polite, forKey: "polite") } }
+    @Published var speak = ud.object(forKey: "speak") as? Bool ?? true { didSet { Self.ud.set(speak, forKey: "speak"); send(["speak": speak]) } }
+    @Published var trEN = ud.object(forKey: "trEN") as? Bool ?? true { didSet { Self.ud.set(trEN, forKey: "trEN"); send(["tr_en": trEN]) } }
+    @Published var trTH = ud.object(forKey: "trTH") as? Bool ?? true { didSet { Self.ud.set(trTH, forKey: "trTH"); send(["tr_th": trTH]) } }
+    @Published var polite = ud.string(forKey: "polite") ?? "krub" { didSet { Self.ud.set(polite, forKey: "polite"); send(["polite": polite]) } }
     @Published var model = EngineModel.initialModel() { didSet { Self.ud.set(model, forKey: "model") } }
-    @Published var lang = ud.string(forKey: "lang") ?? "auto" { didSet { Self.ud.set(lang, forKey: "lang") } }
+    @Published var lang = ud.string(forKey: "lang") ?? "auto" { didSet { Self.ud.set(lang, forKey: "lang"); send(["lang": lang]) } }
+    private var stdin: Pipe?
+
+    /// Einstellung live an die laufende Engine schicken (eine JSON-Zeile auf stdin).
+    private func send(_ d: [String: Any]) {
+        guard running, let h = stdin?.fileHandleForWriting,
+              var data = try? JSONSerialization.data(withJSONObject: d) else { return }
+        data.append(0x0A)
+        try? h.write(contentsOf: data)
+    }
 
     /// Einmalige Umstellung alter Installationen von "small" auf das genauere "medium".
     private static func initialModel() -> String {
@@ -61,6 +73,8 @@ final class EngineModel: ObservableObject {
         p.executableURL = URL(fileURLWithPath: python)
         var args = ["-u", script, "--json", "--model", model, "--polite", polite, "--lang", lang]
         if !speak { args.append("--mute") }
+        if !trEN { args.append("--no-en") }
+        if !trTH { args.append("--no-th") }
         p.arguments = args
         var env = ProcessInfo.processInfo.environment
         env["PATH"] = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
@@ -69,6 +83,9 @@ final class EngineModel: ObservableObject {
 
         let out = Pipe()
         p.standardOutput = out
+        let inp = Pipe()
+        p.standardInput = inp
+        stdin = inp
         let logDir = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Logs/Dolmetscher")
         try? FileManager.default.createDirectory(at: logDir, withIntermediateDirectories: true)
         let errURL = logDir.appendingPathComponent("stderr.log")
@@ -137,6 +154,8 @@ final class EngineModel: ObservableObject {
             if o["clear"] as? Bool == true { items.removeAll() }
             if let l = o["lang"] as? String { lang = l }
             if let p = o["polite"] as? String { polite = p }
+            if let v = o["tr_en"] as? Bool, v != trEN { trEN = v }
+            if let v = o["tr_th"] as? Bool, v != trTH { trTH = v }
             paused = o["paused"] as? Bool ?? false
             let reply = o["reply"] as? String ?? ""
             status = paused ? "⏸ Pausiert – sag „Translator, resume“" : "🗣 " + (reply.isEmpty ? "Wiederhole …" : reply)
@@ -145,7 +164,8 @@ final class EngineModel: ObservableObject {
         case "dropped": status = "🤷 " + (o["reason"] as? String ?? "nicht verstanden") + " – bitte lauter/länger sprechen"; busy = false
         case "utt":
             let secs = (o["stt"] as? Double ?? 0) + (o["tr"] as? Double ?? 0)
-            items.append(Utterance(lang: o["lang"] as? String ?? "en",
+            items.append(Utterance(translated: o["translated"] as? Bool ?? true,
+                                   lang: o["lang"] as? String ?? "en",
                                    text: o["text"] as? String ?? "",
                                    out: o["out"] as? String ?? "", secs: secs))
         default: break
@@ -158,7 +178,7 @@ struct Bubble: View {
     var body: some View {
         let en = u.lang == "en"
         VStack(alignment: en ? .leading : .trailing, spacing: 6) {
-            Text((en ? "🇬🇧 " : "🇹🇭 ") + u.text)
+            Text((en ? "🇬🇧 " : "🇹🇭 ") + (u.translated ? u.text : "nicht übersetzt"))
                 .font(.system(size: 15)).foregroundStyle(.secondary)
             Text(u.out)
                 .font(.system(size: 30, weight: .semibold))
@@ -188,11 +208,13 @@ struct ContentView: View {
                 Spacer()
                 Picker("", selection: $m.lang) {
                     Text("Auto").tag("auto"); Text("🇬🇧 nur EN").tag("en"); Text("🇹🇭 nur TH").tag("th")
-                }.frame(width: 110).disabled(m.running).help("Sprache fest einstellen, falls Auto falsch erkennt")
-                Toggle("Vorlesen", isOn: $m.speak).disabled(m.running)
+                }.frame(width: 110).help("Sprache fest einstellen, falls Auto falsch erkennt")
+                Toggle("🇬🇧→🇹🇭", isOn: $m.trEN).help("Englisch ins Thai übersetzen (aus = Englisch bleibt Englisch)")
+                Toggle("🇹🇭→🇬🇧", isOn: $m.trTH).help("Thai ins Englische übersetzen (aus = Thai bleibt Thai)")
+                Toggle("Vorlesen", isOn: $m.speak)
                 Picker("", selection: $m.polite) {
                     Text("ครับ (m)").tag("krub"); Text("ค่ะ (w)").tag("ka")
-                }.frame(width: 110).disabled(m.running)
+                }.frame(width: 110)
                 Picker("", selection: $m.model) {
                     Text("Schnell").tag("small"); Text("Normal").tag("medium"); Text("Beste (Englisch+)").tag("best")
                 }.frame(width: 130).disabled(m.running)

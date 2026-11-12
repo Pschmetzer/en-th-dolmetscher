@@ -40,6 +40,7 @@ COMMANDS = [
     ("female", ["female", "woman", "women", "girl", "lady", "she"]),
     ("male", ["male", "man", "men", "guy", "he"]),
     ("clear", ["clear", "delete", "reset", "clean"]),
+    ("both_on", ["translate both", "both ways", "both directions", "everything"]),
     ("help", ["help", "commands", "what can you do"]),
 ]
 
@@ -51,11 +52,20 @@ def parse_command(cmd):
     if not c:
         return "wake"
     has = lambda *w: any(re.search(rf"\b{re.escape(x)}\b", c) for x in w)
+    thai_w = ("thai", "tie", "ty", "tai", "thigh", "time", "type")
+    if has("off", "don't translate", "do not translate", "no translation", "keep"):
+        if has(*thai_w): return "th_off"
+        if has("english", "inglish"): return "en_off"
+    if has("on") and not has("only"):
+        if has(*thai_w): return "th_on"
+        if has("english", "inglish"): return "en_on"
     if has("only", "mode"):
         if has("thai", "tie", "ty", "tai", "thigh", "time", "type"):
             return "thai"
         if has("english", "inglish"):
             return "english"
+    if has("translate both", "both ways", "both directions", "translate everything"):
+        return "both_on"
     if has("auto", "automatic", "both", "otto"):
         return "auto"
     for key, words in COMMANDS:
@@ -167,6 +177,7 @@ class Engine:
         self.voice = {k: pick_voice(k) for k in VOICE}
         self.polite = polite
         self.paused, self.rate, self.volume = False, 0, 1.0     # rate in %, volume 0.2..2
+        self.translate_dir = {"en": True, "th": True}          # Richtung einzeln abschaltbar
         self.last, self.awake_until, self.mute = None, 0.0, False
         emit("ready", msg=f"bereit ({time.time()-t:.1f}s, {model} auf {self.device})", device=self.device)
 
@@ -236,6 +247,15 @@ class Engine:
             self.polite = "ka"; reply = "Okay, female voice."
         elif key == "male":
             self.polite = "krub"; reply = "Okay, male voice."
+        elif key in ("en_off", "th_off", "en_on", "th_on", "both_on"):
+            if key == "both_on":
+                self.translate_dir = {"en": True, "th": True}
+            else:
+                self.translate_dir[key[:2]] = key.endswith("_on")
+            name = {"en": "English", "th": "Thai"}
+            reply = ("Okay, translating both ways." if all(self.translate_dir.values()) else
+                     " ".join(f"{name[k]} {'will be translated' if v else 'stays as it is'}."
+                              for k, v in self.translate_dir.items()))
         elif key == "clear":
             state["clear"] = True; reply = "Cleared."
         elif key == "help":
@@ -246,6 +266,7 @@ class Engine:
         if key != "wake":
             self.awake_until = 0.0
         emit("command", text=cmd, reply=reply, paused=self.paused, lang=self.lock,
+             tr_en=self.translate_dir["en"], tr_th=self.translate_dir["th"],
              polite=self.polite, rate=self.rate, volume=round(self.volume, 2), **state)
         log({"command": cmd, "key": key, "reply": reply})
         return reply
@@ -337,6 +358,11 @@ class Engine:
             return None
         log(info)
         t1 = time.time()
+        if not self.translate_dir.get(lang, True):
+            # diese Sprache bleibt wie sie ist: nur anzeigen, nicht übersetzen, nicht vorlesen
+            emit("utt", lang=lang, to=lang, text=text, out=text, stt=t1 - t0, tr=0.0, translated=False)
+            emit("listening")
+            return lang, text, text
         dst = TARGET[lang]
         try:
             out = translate(text, lang, dst)
@@ -352,6 +378,26 @@ class Engine:
             self.speak(out, dst)
         emit("listening")
         return lang, text, out
+
+
+def control_loop(eng):
+    """Einstellungen live aus der App (JSON-Zeilen auf stdin), ohne Neustart."""
+    import threading
+
+    def run():
+        for line in sys.stdin:
+            try:
+                d = json.loads(line)
+            except ValueError:
+                continue
+            if "tr_en" in d: eng.translate_dir["en"] = bool(d["tr_en"])
+            if "tr_th" in d: eng.translate_dir["th"] = bool(d["tr_th"])
+            if d.get("lang") in ("auto", "en", "th"): eng.lock = d["lang"]
+            if d.get("polite") in ("krub", "ka"): eng.polite = d["polite"]
+            if "speak" in d: eng.mute = not d["speak"]
+            if "paused" in d: eng.paused = bool(d["paused"])
+            log({"control": d})
+    threading.Thread(target=run, daemon=True).start()
 
 
 class StreamVAD:
@@ -462,16 +508,22 @@ if __name__ == "__main__":
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--lang", choices=["auto", "en", "th"], default="auto")
     ap.add_argument("--tts", choices=["edge", "say"], default="edge")
+    ap.add_argument("--no-en", action="store_true", help="Englisch nicht übersetzen (nur anzeigen)")
+    ap.add_argument("--no-th", action="store_true", help="Thai nicht übersetzen (nur anzeigen)")
     a = ap.parse_args()
     JSON = a.json
     signal.signal(signal.SIGTERM, shutdown)
     signal.signal(signal.SIGINT, shutdown)
     eng = Engine(a.model, a.polite, a.lang, a.tts, a.device)
     eng.mute = a.mute
+    if a.no_en: eng.translate_dir["en"] = False
+    if a.no_th: eng.translate_dir["th"] = False
+    if a.json and not a.file:
+        control_loop(eng)
     if a.file:
         for f in a.file:   # per ffmpeg dekodieren (unabhängig von der PyAV-Version)
             raw = subprocess.run([FFMPEG, "-loglevel", "error", "-i", f, "-ar", str(SR), "-ac", "1",
                                   "-f", "s16le", "-"], capture_output=True).stdout
             eng.process(np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768, speak=not a.mute)
     else:
-        mic_loop(eng, a.mic, speak=not a.mute)
+        mic_loop(eng, a.mic, speak=True)          # Stummschaltung über eng.mute (live änderbar)
