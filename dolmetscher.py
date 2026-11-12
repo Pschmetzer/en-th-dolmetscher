@@ -282,7 +282,12 @@ LLM_SYSTEM = (
     "English words written in Thai script. Use the recent conversation and the alternative hypotheses to infer "
     "what the speaker most likely meant, then translate that meaning naturally, the way a person would say it. "
     "Thai often drops subjects; restore them in English from context. Keep names, numbers, prices and times exact. "
-    "Into Thai: everyday spoken Thai, polite but not stiff, matching the speaker's register. "
+    "Setting: a private, relaxed conversation at home between two people who are dating. Translate the way "
+    "they would actually talk to each other: warm, casual, natural, never formal or textbook-like. "
+    "Thai particles (นะ, จ้า, จ๊ะ, อ่ะ, เนอะ, ค่ะ/ครับ) carry tone, not words: render the feeling, not a literal word. "
+    "Thai slang and short replies (ใช่, โอเค, จริงดิ, ไม่เป็นไร) get short natural English. "
+    "Into Thai: casual, friendly spoken Thai between partners, matching the speaker's register; no stiff or "
+    "formal wording (no ท่าน, no written-language phrasing). "
     "Reply with the translation only: no quotes, no notes, no romanization, no alternatives.")
 
 
@@ -309,7 +314,26 @@ def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
     return out
 
 
+LAUGH = {"th": re.compile(r"(?<!\d)5{3,}(?!\d)|(?:ฮ่า\s*){2,}ๆ*|ฮ่า\s*ๆ+|(?:คิก\s*){2,}|คิก\s*ๆ+"),
+         "en": re.compile(r"\b(?:a?ha(?:ha)+h?|lol|lmao|hehe(?:he)*)\b", re.I)}
+LAUGH_OUT = {"th": "555", "en": "haha"}
+
+
 def translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
+    """Lachen (555, ฮ่าๆ, haha, lol) nicht übersetzen lassen – Google macht daraus "555" oder Unsinn –,
+    sondern als Lachen der Zielsprache anhängen. Rest wie _translate."""
+    rx = LAUGH.get(src)
+    if rx and rx.search(text):
+        rest = rx.sub(" ", text).strip(" ,.!")
+        if not rest:
+            if meta is not None:
+                meta.update(provider="none")
+            return LAUGH_OUT[dst]
+        return _translate(rest, src, dst, history, alts, polite, meta).rstrip() + " " + LAUGH_OUT[dst]
+    return _translate(text, src, dst, history, alts, polite, meta)
+
+
+def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
     """Claude (wenn an und verfügbar) → Google (gtx) → MyMemory. Wirft eine Exception statt eine
     Fehlermeldung zu liefern. `meta` (dict) bekommt provider und cached."""
     meta = meta if meta is not None else {}
@@ -1003,17 +1027,30 @@ class Engine:
         self.history = collections.deque(maxlen=8)             # (lang, text, out) – Kontext für Claude
         self.texts = {}                                        # id -> (lang, text) für Korrekturen
         self.spk = None
-        try:                                   # Stimmprofile (optional)
-            import profiles
-            if profiles.list_profiles():
-                self.spk = profiles.SpeakerID()
-                log({"profiles": [p["name"] for p in self.spk.profiles]})
-        except Exception as e:
-            log({"profiles": "aus", "err": repr(e)[:200]})
+        self.two_person = True                 # "Englisch = ich, andere Stimme = Thai" (braucht ein EN-Profil)
+        self.reload_profiles()
         self.speaker = Speaker(self)
         _QSTATE["speaker"] = self.speaker
         emit("ready", msg=f"bereit ({time.time()-t:.1f}s, {model} auf {self.device})", device=self.device,
              llm=bool(LLM["on"] and llm_available()))
+
+    def reload_profiles(self):
+        """Stimmprofile (neu) laden – auch nach dem Anlegen/Löschen in der App, ohne Neustart."""
+        try:
+            import profiles
+            if profiles.list_profiles():
+                if self.spk is None:
+                    self.spk = profiles.SpeakerID()
+                else:
+                    self.spk.reload()
+                log({"profiles": [p["name"] for p in self.spk.profiles]})
+            else:
+                self.spk = None
+        except Exception as e:
+            self.spk = None
+            log({"profiles": "aus", "err": repr(e)[:200]})
+        me = self.spk.me() if self.spk else None
+        emit("roles", me=me["name"] if me else None, on=self.two_person and me is not None)
 
     def voice_for(self, lang):
         return self.voices.get(lang) or NEURAL[lang][self.polite if lang == "th" else "en"]
@@ -1234,6 +1271,25 @@ class Engine:
             if (pe2, pt2) != (pe, pt):
                 info["prior"] = who.get("lang", "en")
             pe, pt = pe2, pt2
+        # --- Zwei-Personen-Modus: Englisch kommt von mir, jede andere Stimme spricht Thai.
+        # Hilft genau bei kurzen Sätzen ("ok", "ใช่", "555"), bei denen die Spracherkennung rät.
+        role = None
+        if getattr(self, "two_person", False) and self.spk and self.lock not in ("en", "th"):
+            try:
+                role, rsim = self.spk.role(audio)
+                info.update(role=role, role_sim=round(rsim, 3))
+            except Exception as e:
+                log({"role": "fehler", "err": repr(e)[:200]})
+            if role == "me" and pt_raw >= 0.8 and audio.size >= SR:
+                role = None                         # Erkennung hört klar Thai: nicht erzwingen
+                info["role"] = "me?"
+            if role == "me":
+                pe, pt = max(pe, 0.95), min(pt, 0.05)
+            if role == "other" and pe >= 0.9 and audio.size >= SR:
+                role = None                         # klar Englisch (z. B. sie spricht Englisch)
+                info["role"] = "other?"
+            elif role == "other":
+                pe, pt = min(pe, 0.05), max(pt, 0.95)
         if pe + pt < MIN_LANG_P:                  # weder Englisch noch Thai -> ignorieren
             return self._drop(info, "andere Sprache", uid, "weder Englisch noch Thai")
         segs = []
@@ -1248,8 +1304,10 @@ class Engine:
             times["stt"] = round(time.time() - t0 - times["detect"], 2)
             # Gegenprobe in der anderen Sprache nur, wenn es wirklich unklar ist – und nicht bei Stau
             busy = _QSTATE["stt_q"] is not None and _QSTATE["stt_q"].qsize() >= 2
-            if not busy and ((lang == "en" and pt > 0.2) or (lang == "th" and pe > 0.2) or not text
-                             or max(pe, pt) < 0.5 or lp < -0.8):
+            unsure = (not text or lp < -0.8) if role else (
+                (lang == "en" and pt > 0.2) or (lang == "th" and pe > 0.2) or not text
+                or max(pe, pt) < 0.5 or lp < -0.8)
+            if not busy and unsure:
                 other = "th" if lang == "en" else "en"
                 ta = time.time()
                 t2, lp2, segs2 = stt(audio, other, quick=True)
@@ -1291,6 +1349,8 @@ class Engine:
             info["drop"] = "unsicher"
             text = ""
         if text:
+            if lang == "th":
+                text = re.sub(r"(?:ห้า\s*){3,}", "555", text)   # gesprochenes 555 = Lachen
             sq = squash_repeats(text)
             if sq != text:
                 info["squashed"] = True
@@ -1502,6 +1562,11 @@ def apply_control(eng, d):
         LLM["client"] = None               # Schlüssel evtl. neu gespeichert -> neu einlesen
     if "earcons" in d: eng.earcons = bool(d["earcons"])
     if "fast_endpoint" in d: FAST["endpoint"] = bool(d["fast_endpoint"])
+    if "two_person" in d:
+        eng.two_person = bool(d["two_person"])
+        eng.reload_profiles()
+    if d.get("reload_profiles"):
+        eng.reload_profiles()
     if "partial" in d: FAST["partial"] = bool(d["partial"])
     if isinstance(d.get("tts_race"), (int, float)):
         global TTS_RACE
@@ -1920,6 +1985,7 @@ if __name__ == "__main__":
     ap.add_argument("--llm-model", default=LLM["model"])
     ap.add_argument("--earcons", action="store_true", help="Signalton statt gesprochener Bestätigung")
     ap.add_argument("--meter", action="store_true", help="Pegel-Ereignisse senden")
+    ap.add_argument("--no-two-person", action="store_true", help="Zwei-Personen-Modus aus (Englisch = ich, andere Stimme = Thai)")
     ap.add_argument("--no-fast-endpoint", action="store_true", help="kein schnelles Satzende (nur Englisch)")
     ap.add_argument("--no-pre", action="store_true", help="keine Vorab-Erkennung")
     ap.add_argument("--partial", action=argparse.BooleanOptionalAction, default=False,
@@ -1950,6 +2016,8 @@ if __name__ == "__main__":
     apply_control(eng, {"rate": a.rate, "volume": a.volume, "voice_en": a.voice_en, "voice_th": a.voice_th})
     eng.mute = a.mute
     eng.earcons = a.earcons
+    if a.no_two_person:
+        eng.two_person = False
     if a.no_en: eng.translate_dir["en"] = False
     if a.no_th: eng.translate_dir["th"] = False
     jobs = queue.Queue()

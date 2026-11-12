@@ -367,3 +367,28 @@ def test_squash_repeats():
     assert q("ha ha ha ha ha ha ha") == "ha ha ha"
     assert q("5000000") == "5000000"
     assert q("ไปไหนมาครับ") == "ไปไหนมาครับ"
+
+
+def test_lachen_wird_nicht_uebersetzt(monkeypatch):
+    import dolmetscher as d
+    monkeypatch.setattr(d, "_translate", lambda t, *a, **k: f"<{t}>")
+    assert d.translate("555", "th", "en") == "haha"
+    assert d.translate("ตลกมาก 555", "th", "en") == "<ตลกมาก> haha"
+    assert d.translate("haha you are funny", "en", "th") == "<you are funny> 555"
+    assert d.translate("ราคา 5550 บาท", "th", "en") == "<ราคา 5550 บาท>"
+
+
+def test_rolle_schwellen():
+    import numpy as np, profiles
+    class S(profiles.SpeakerID):
+        def __init__(self, sim):
+            self.sim = sim
+            self.profiles = [{"name": "ich", "lang": "en", "embedding": [1.0, 0.0]}]
+        def embed(self, a):
+            return np.array([self.sim, np.sqrt(1 - self.sim ** 2)], dtype=np.float32)
+    kurz, lang = np.zeros(int(0.8 * 16000), np.float32), np.zeros(3 * 16000, np.float32)
+    assert S(0.80).role(kurz)[0] == "me"
+    assert S(0.73).role(kurz)[0] is None          # ähnliche fremde Stimme: nie "ich" erzwingen
+    assert S(0.45).role(kurz)[0] == "other"
+    assert S(0.53).role(lang)[0] == "other"
+    assert S(0.80).role(np.zeros(4000, np.float32))[0] is None   # zu kurz
