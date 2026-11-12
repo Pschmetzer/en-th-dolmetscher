@@ -7,7 +7,17 @@ enum Prefs {
     static let fontScale = "fontScale"
     static let alwaysOnTop = "alwaysOnTop"
     static let tipsSeen = "tipsSeen"
+    static let showDetails = "showDetails"
+    static let translit = "translit"
+    static let showQuick = "showQuickPhrases"
+    static let quickPhrases = "quickPhrases"
     static let fontRange = 0.6...2.5
+    static let defaultPhrases = ["How much is this?", "Where is the toilet?", "Thank you very much", "Too expensive",
+                                 "Can you help me?", "I don't understand", "Please speak slowly", "The bill, please"]
+                                .joined(separator: "\n")
+    static func phrases(_ s: String) -> [String] {
+        s.split(whereSeparator: \.isNewline).map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+    }
 }
 
 /// Farben für beide Sprachen – im Hauptfenster und in der Partner-Ansicht gleich.
@@ -51,86 +61,25 @@ func exportConversation(_ m: EngineModel) {
     catch { NSAlert(error: error).runModal() }
 }
 
-struct Bubble: View {
-    @EnvironmentObject var m: EngineModel
-    let u: Utterance
-    let scale: Double
-    /// Kopfzeile der Sprechblase: Flagge, ggf. Sprechername, Originaltext.
-    private var headerLine: String {
-        let who: String = u.speaker.map { "\($0): " } ?? ""
-        let original: String = u.translated ? u.text : L.t("not_translated")
-        return LangStyle.flag(u.lang) + " " + who + original
-    }
-
-    var body: some View {
-        let en = u.lang == "en"
-        let playing = m.replayingID == u.id
-        VStack(alignment: en ? .leading : .trailing, spacing: 6) {
-            HStack(spacing: 6) {
-                if !en { Spacer(minLength: 0) }
-                Text(headerLine)
-                    .font(.system(size: 15 * scale)).foregroundStyle(.secondary)
-                    .multilineTextAlignment(en ? .leading : .trailing)
-                if playing { Image(systemName: "speaker.wave.2.fill").foregroundStyle(.secondary) }
-                if en { Spacer(minLength: 0) }
-            }
-            Text(u.out)
-                .font(.system(size: 30 * scale, weight: .semibold))
-                .foregroundStyle(u.translated ? LangStyle.color(u.to) : .primary)
-                .multilineTextAlignment(en ? .leading : .trailing)
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: en ? .leading : .trailing)
-        .background(LangStyle.color(u.lang).opacity(playing ? 0.28 : 0.14), in: RoundedRectangle(cornerRadius: 14))
-        .contentShape(RoundedRectangle(cornerRadius: 14))
-        .onTapGesture { m.replay(u) }
-        .help("Klicken zum erneuten Vorlesen")
-        .contextMenu {
-            Button("Übersetzung kopieren") { copyToPasteboard(u.out) }
-            Button("Original kopieren") { copyToPasteboard(u.text) }
-            Button("Beides kopieren") { copyToPasteboard(u.text + "\n" + u.out) }
-            Divider()
-            Button("Vorlesen") { m.replay(u) }
-        }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(LangStyle.name(u.lang)): \(u.text). " + (u.translated ? "\(LangStyle.name(u.to)): \(u.out)" : "nicht übersetzt"))
-        .accessibilityAddTraits(.isButton)
-        .accessibilityHint("Zum Vorlesen aktivieren")
-        .accessibilityAction(named: "Vorlesen") { m.replay(u) }
-        .accessibilityAction(named: "Übersetzung kopieren") { copyToPasteboard(u.out) }
-    }
-}
-
 struct ContentView: View {
     @EnvironmentObject var m: EngineModel
-    @Environment(\.openWindow) private var openWindow
     @AppStorage(Prefs.fontScale) private var scale = 1.0
     @AppStorage(Prefs.alwaysOnTop) private var onTop = false
     @AppStorage(Prefs.tipsSeen) private var tipsSeen = false
+    @AppStorage(Prefs.showQuick) private var showQuick = true
     @State private var showTips = false
     @State private var showProfiles = false
+    @State private var correcting: Utterance?
     @AppStorage("uiLang") private var uiLang = "de"
 
     var body: some View {
         VStack(spacing: 0) {
-            toolbar
+            MainToolbar(showProfiles: $showProfiles)
+            if showQuick { QuickPhraseBar() }
             Divider()
             if let log = m.crashLog { CrashBanner(log: log) }
-            ScrollViewReader { sv in
-                ScrollView {
-                    LazyVStack(spacing: 12) {
-                        if m.items.isEmpty {
-                            Text(L.t("empty") + "\n\n" + L.t("commands_hint"))
-                                .multilineTextAlignment(.center).foregroundStyle(.secondary)
-                                .padding(.top, 80)
-                        }
-                        ForEach(m.items) { Bubble(u: $0, scale: scale).id($0.id) }
-                    }.padding(16)
-                }
-                .onChange(of: m.items.count) {
-                    if let last = m.items.last { withAnimation { sv.scrollTo(last.id, anchor: .bottom) } }
-                }
-            }
+            conversation
+            if m.pushToTalk && m.running { PushToTalkButton().padding(14) }
         }
         .frame(minWidth: 620, minHeight: 460)
         .background(WindowAccessor { w in
@@ -138,55 +87,190 @@ struct ContentView: View {
         })
         .sheet(isPresented: $showTips) { TipsSheet { tipsSeen = true; showTips = false } }
         .sheet(isPresented: $showProfiles) { ProfilesView().environmentObject(m) }
+        .sheet(item: $correcting) { CorrectSheet(u: $0).environmentObject(m) }
         .id(uiLang)                                   // Oberflächensprache sofort umschalten
         .onChange(of: uiLang) { if !m.active { m.status = L.t("stopped") } }
         .onAppear { if !tipsSeen { showTips = true } }
         .onReceive(NotificationCenter.default.publisher(for: .showTips)) { _ in showTips = true }
     }
 
-    private var toolbar: some View {
+    private var conversation: some View {
+        ScrollViewReader { sv in
+            ScrollView {
+                LazyVStack(spacing: 12) {
+                    if m.items.isEmpty {
+                        Text(L.t("empty") + "\n\n" + L.t("commands_hint"))
+                            .multilineTextAlignment(.center).foregroundStyle(.secondary)
+                            .padding(.top, 80)
+                    }
+                    ForEach(m.items) { u in
+                        Bubble(u: u, scale: scale, onCorrect: { correcting = $0 }).id(u.id)
+                    }
+                }.padding(16)
+            }
+            .onChange(of: m.items.count) {
+                if let last = m.items.last { withAnimation { sv.scrollTo(last.id, anchor: .bottom) } }
+            }
+        }
+    }
+}
+
+/// Kopfzeile: Start/Stopp, Status mit Pegel/Rückstand/Netz, Werkzeugknöpfe.
+struct MainToolbar: View {
+    @EnvironmentObject var m: EngineModel
+    @Environment(\.openWindow) private var openWindow
+    @AppStorage(Prefs.alwaysOnTop) private var onTop = false
+    @AppStorage("uiLang") private var uiLang = "de"
+    @Binding var showProfiles: Bool
+
+    var body: some View {
         HStack(spacing: 12) {
-            Button(action: m.toggle) {
-                Label(m.active ? L.t("stop") : L.t("start"), systemImage: m.active ? "stop.fill" : "mic.fill")
-                    .font(.title2.bold()).frame(width: 130, height: 34)
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(m.active ? .red : .green)
-            .keyboardShortcut(.space, modifiers: [])
-            .accessibilityLabel(m.active ? "Dolmetscher stoppen" : "Dolmetscher starten")
-            .accessibilityHint("Leertaste")
-            Text(m.status).font(.headline).lineLimit(2)
-                .accessibilityLabel("Status: \(m.status)")
-            if m.busy || m.state == .starting {
-                ProgressView().controlSize(.small).accessibilityLabel("Arbeitet")
-            }
+            startButton
+            StatusCluster()
             Spacer()
-            Button { showProfiles = true } label: { Label(L.t("profiles"), systemImage: "person.crop.circle.badge.plus") }
-                .help(L.t("profiles"))
-                .accessibilityLabel(L.t("profiles"))
-            Picker("", selection: $uiLang) {
-                ForEach(UILang.allCases) { Text($0.label).tag($0.rawValue) }
-            }.labelsHidden().fixedSize().help(L.t("ui_language")).accessibilityLabel(L.t("ui_language"))
-            Button { openWindow(id: "partner") } label: { Image(systemName: "person.2.wave.2") }
-                .help("Partner-Ansicht öffnen (⇧⌘P)")
-                .accessibilityLabel("Partner-Ansicht öffnen")
-            Toggle(isOn: $onTop) { Image(systemName: onTop ? "pin.fill" : "pin") }
-                .toggleStyle(.button)
-                .help("Immer im Vordergrund")
-                .accessibilityLabel("Immer im Vordergrund")
-            Button { exportConversation(m) } label: { Image(systemName: "square.and.arrow.up") }
-                .disabled(m.items.isEmpty)
-                .help("Gespräch exportieren (⇧⌘E)")
-                .accessibilityLabel("Gespräch exportieren")
-            Button { m.items.removeAll() } label: { Image(systemName: "trash") }
-                .disabled(m.items.isEmpty)
-                .help("Verlauf leeren")
-                .accessibilityLabel("Verlauf leeren")
-            SettingsLink { Image(systemName: "gearshape") }
-                .help("Einstellungen (⌘,)")
-                .accessibilityLabel("Einstellungen")
+            tools
         }
         .padding(14)
+    }
+
+    private var startButton: some View {
+        Button(action: m.toggle) {
+            Label(m.active ? L.t("stop") : L.t("start"), systemImage: m.active ? "stop.fill" : "mic.fill")
+                .font(.title2.bold()).frame(width: 130, height: 34)
+        }
+        .buttonStyle(.borderedProminent)
+        .tint(m.active ? .red : .green)
+        .keyboardShortcut(.space, modifiers: [])
+        .accessibilityLabel(m.active ? L.t("stop_engine") : L.t("start_engine"))
+        .accessibilityHint("Leertaste, ⌃⌥Leertaste")
+    }
+
+    @ViewBuilder private var tools: some View {
+        Button { m.stopSpeaking() } label: { Image(systemName: "speaker.slash") }
+            .disabled(!m.running)
+            .help(L.t("stop_speaking"))
+            .accessibilityLabel(L.t("stop_speaking"))
+        Button { showProfiles = true } label: { Label(L.t("profiles"), systemImage: "person.crop.circle.badge.plus") }
+            .help(L.t("profiles"))
+            .accessibilityLabel(L.t("profiles"))
+        Picker("", selection: $uiLang) {
+            ForEach(UILang.allCases) { Text($0.label).tag($0.rawValue) }
+        }.labelsHidden().fixedSize().help(L.t("ui_language")).accessibilityLabel(L.t("ui_language"))
+        Button { openWindow(id: "partner") } label: { Image(systemName: "person.2.wave.2") }
+            .help(L.t("partner_view") + " (⇧⌘P)")
+            .accessibilityLabel(L.t("partner_view"))
+        Toggle(isOn: $onTop) { Image(systemName: onTop ? "pin.fill" : "pin") }
+            .toggleStyle(.button)
+            .help(L.t("always_on_top"))
+            .accessibilityLabel(L.t("always_on_top"))
+        Button { exportConversation(m) } label: { Image(systemName: "square.and.arrow.up") }
+            .disabled(m.items.isEmpty)
+            .help(L.t("export") + " (⇧⌘E)")
+            .accessibilityLabel(L.t("export"))
+        Button { m.items.removeAll() } label: { Image(systemName: "trash") }
+            .disabled(m.items.isEmpty)
+            .help(L.t("clear"))
+            .accessibilityLabel(L.t("clear"))
+        SettingsLink { Image(systemName: "gearshape") }
+            .help(L.t("settings") + " (⌘,)")
+            .accessibilityLabel(L.t("settings"))
+    }
+}
+
+/// Status, Pegel, „2 warten“, Offline-Hinweis, Fortschritt.
+struct StatusCluster: View {
+    @EnvironmentObject var m: EngineModel
+
+    private var offlineHelp: String {
+        let parts = m.netDown.sorted().map { $0 == "tts" ? L.t("offline_tts") : L.t("offline_translate") }
+        return parts.joined(separator: "\n")
+    }
+
+    var body: some View {
+        HStack(spacing: 8) {
+            if m.running { LevelBar(meter: m.meter) }
+            Text(m.status).font(.headline).lineLimit(2)
+                .accessibilityLabel(L.t("status") + ": " + m.status)
+            if m.backlog > 0 {
+                Text("\(m.backlog) " + L.t("waiting"))
+                    .font(.caption.bold()).monospacedDigit()
+                    .padding(.horizontal, 6).padding(.vertical, 2)
+                    .background(Color.orange.opacity(0.2), in: Capsule())
+                    .help(L.t("backlog_help") + " (\(m.backlogSTT) / \(m.backlogTTS))")
+            }
+            if !m.netDown.isEmpty {
+                Image(systemName: "wifi.exclamationmark")
+                    .foregroundStyle(.red)
+                    .help(offlineHelp)
+                    .accessibilityLabel(L.t("offline") + ": " + offlineHelp)
+            }
+            if m.busy || m.state == .starting {
+                ProgressView().controlSize(.small).accessibilityLabel(L.t("working"))
+            }
+        }
+    }
+}
+
+/// Kleiner Pegelbalken (eigenes ObservableObject → nur diese Ansicht zeichnet ~7×/s neu).
+struct LevelBar: View {
+    @ObservedObject var meter: LevelMeter
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            Capsule().fill(Color.secondary.opacity(0.2))
+            Capsule().fill(meter.voice ? Color.green : Color.secondary)
+                .frame(height: max(2, 22 * meter.rms))
+        }
+        .frame(width: 6, height: 22)
+        .animation(.linear(duration: 0.12), value: meter.rms)
+        .help(L.t("level"))
+        .accessibilityElement()
+        .accessibilityLabel(L.t("level"))
+        .accessibilityValue("\(Int(meter.rms * 100)) %")
+    }
+}
+
+/// Leiste mit Schnellsätzen: Klick → Engine übersetzt und liest vor.
+struct QuickPhraseBar: View {
+    @EnvironmentObject var m: EngineModel
+    @AppStorage(Prefs.quickPhrases) private var raw = Prefs.defaultPhrases
+
+    var body: some View {
+        let phrases = Prefs.phrases(raw)
+        if !phrases.isEmpty {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(Array(phrases.enumerated()), id: \.offset) { _, p in
+                        Button(p) { m.say(p) }
+                            .buttonStyle(.bordered)
+                            .help(L.t("quick_phrase_help"))
+                    }
+                }
+                .padding(.horizontal, 14).padding(.bottom, 10)
+            }
+            .disabled(!m.running)
+            .accessibilityLabel(L.t("quick_phrases"))
+        }
+    }
+}
+
+/// Großer Knopf für Push-to-Talk: gedrückt halten = zuhören, loslassen = nach 0,9 s Pause.
+struct PushToTalkButton: View {
+    @EnvironmentObject var m: EngineModel
+    var body: some View {
+        let holding = m.pttHolding
+        Label(holding ? L.t("talking") : L.t("hold_to_talk"), systemImage: holding ? "mic.fill" : "mic")
+            .font(.title2.bold())
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity, minHeight: 60)
+            .background(holding ? Color.red : Color.accentColor, in: RoundedRectangle(cornerRadius: 14))
+            .contentShape(RoundedRectangle(cornerRadius: 14))
+            .gesture(DragGesture(minimumDistance: 0)
+                .onChanged { _ in m.pttDown() }
+                .onEnded { _ in m.pttUp() })
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(L.t("hold_to_talk"))
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAction { if m.pttHolding { m.pttUp() } else { m.pttDown() } }
     }
 }
 
@@ -195,7 +279,7 @@ struct CrashBanner: View {
     let log: String
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("Die Engine wurde unerwartet beendet. Letzte Zeilen aus stderr.log:", systemImage: "exclamationmark.triangle.fill")
+            Label(L.t("crash_banner"), systemImage: "exclamationmark.triangle.fill")
                 .font(.headline).foregroundStyle(.red)
             ScrollView {
                 Text(log).font(.system(size: 11, design: .monospaced))
@@ -206,13 +290,12 @@ struct CrashBanner: View {
             .padding(8)
             .background(Color(nsColor: .textBackgroundColor), in: RoundedRectangle(cornerRadius: 6))
             HStack {
-                Button("Neu starten") { m.restart() }
+                Button(L.t("restart")) { m.restart() }
                     .buttonStyle(.borderedProminent)
-                    .accessibilityLabel("Engine neu starten")
-                Button("Log im Finder zeigen") { NSWorkspace.shared.activateFileViewerSelecting([EngineModel.logURL]) }
-                Button("Kopieren") { copyToPasteboard(log) }
+                Button(L.t("show_log")) { NSWorkspace.shared.activateFileViewerSelecting([EngineModel.logURL]) }
+                Button(L.t("copy")) { copyToPasteboard(log) }
                 Spacer()
-                Button("Ausblenden") { m.crashLog = nil }
+                Button(L.t("hide")) { m.crashLog = nil }
             }
         }
         .padding(14)
