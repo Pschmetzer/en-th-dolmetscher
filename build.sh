@@ -39,6 +39,14 @@ swiftc -O -parse-as-library -o "$APP/Contents/MacOS/Dolmetscher" app/*.swift
 cp dolmetscher.py profiles.py "$APP/Contents/Resources/"
 cp app/AppIcon.icns "$APP/Contents/Resources/"
 
+# Pfade unter $HOME als "~/…" einbetten (die App expandiert die Tilde), damit die
+# Info.plist keinen Benutzernamen enthält. ffmpeg: die App sucht zusätzlich in
+# /opt/homebrew/bin und /usr/local/bin.
+tilde() { case "$1" in "$HOME"/*) printf '~/%s' "${1#"$HOME"/}" ;; *) printf '%s' "$1" ;; esac; }
+xml() { local s="${1//&/&amp;}"; s="${s//</&lt;}"; printf '%s' "${s//>/&gt;}"; }
+PY_PLIST="$(xml "$(tilde "$PY")")"
+FFMPEG_PLIST="$(xml "$(tilde "$FFMPEG")")"
+
 cat > "$APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -54,15 +62,16 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>LSMinimumSystemVersion</key><string>14.0</string>
   <key>NSHighResolutionCapable</key><true/>
   <key>NSMicrophoneUsageDescription</key><string>Der Dolmetscher hört zu, um Englisch und Thai zu übersetzen.</string>
-  <key>DolmetscherPython</key><string>$PY</string>
-  <key>DolmetscherFFmpeg</key><string>$FFMPEG</string>
+  <key>DolmetscherPython</key><string>$PY_PLIST</string>
+  <key>DolmetscherFFmpeg</key><string>$FFMPEG_PLIST</string>
 </dict></plist>
 PLIST
 
+# Ohne --deep: das Bundle enthält keine verschachtelten Bundles oder Frameworks.
 SIGN="${DOLMETSCHER_SIGN_IDENTITY:--}"
-if ! codesign -s "$SIGN" --force --deep "$APP" >/dev/null 2>&1; then
+if ! codesign -s "$SIGN" --force "$APP" >/dev/null 2>&1; then
   echo "Signieren mit '$SIGN' fehlgeschlagen – nutze Ad-hoc-Signatur"
-  codesign -s - --force --deep "$APP" >/dev/null 2>&1
+  codesign -s - --force "$APP" >/dev/null 2>&1
 fi
 echo "✓ $APP"
 

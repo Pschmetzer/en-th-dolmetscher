@@ -4,4 +4,5 @@ __pycache__/
 *.aiff
 .DS_Store
 .pytest_cache/
+.ruff_cache/
 .venv/

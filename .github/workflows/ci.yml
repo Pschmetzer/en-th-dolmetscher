@@ -19,9 +19,12 @@ jobs:
         run: python -m pip install -r requirements-dev.txt
       - name: Run tests (no models, no network, no microphone)
         run: python -m pytest -v
+      - name: Lint (ruff, not blocking)
+        continue-on-error: true
+        run: ruff check --output-format=github dolmetscher.py profiles.py bench/
       - name: Check build script syntax
         run: bash -n build.sh
-      - name: Compile Swift app
+      - name: Typecheck and compile all Swift files
         run: |
           swiftc --version
           mkdir -p build
