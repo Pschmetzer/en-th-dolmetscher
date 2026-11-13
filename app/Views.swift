@@ -138,6 +138,43 @@ struct ContentView: View {
     }
 }
 
+/// Alle Sprachbefehle, gut lesbar: Befehl groß und in voller Textfarbe, Bedeutung daneben.
+/// Steht im leeren Verlauf und jederzeit hinter dem Sprechblasen-Knopf in der Kopfzeile.
+struct CommandsList: View {
+    @AppStorage(Prefs.fontScale) private var scale = 1.0
+    static let rows: [(cmd: String, key: String)] = [
+        ("pause", "cmd_pause"), ("resume", "cmd_resume"), ("repeat", "cmd_repeat"),
+        ("slower · faster", "cmd_slower"), ("louder · quieter", "cmd_louder"),
+        ("English only · Thai only · auto", "cmd_only"),
+        ("English off · Thai off · … on", "cmd_off"),
+        ("male voice · female voice", "cmd_voice"), ("clear", "cmd_clear"), ("help", "cmd_help"),
+    ]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label(L.t("commands"), systemImage: "text.bubble")
+                .font(.system(size: 17 * scale, weight: .bold))
+            Text(L.t("commands_say"))
+                .font(.system(size: 14 * scale)).foregroundStyle(.secondary)
+            Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: 16, verticalSpacing: 7) {
+                ForEach(Self.rows, id: \.key) { row in
+                    GridRow {
+                        Text("“Translator, \(row.cmd)”")
+                            .font(.system(size: 15 * scale, weight: .semibold))
+                            .foregroundStyle(.primary)
+                            .textSelection(.enabled)
+                        Text(L.t(row.key))
+                            .font(.system(size: 14 * scale)).foregroundStyle(.secondary)
+                    }
+                    .accessibilityElement(children: .combine)
+                }
+            }
+        }
+        .multilineTextAlignment(.leading)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
 /// Leerer Verlauf: Richtung, Ladezustand, Beispiel und Sprachbefehle.
 struct EmptyState: View {
     @EnvironmentObject var m: EngineModel
@@ -162,12 +199,14 @@ struct EmptyState: View {
                 .font(.title3)
                 .padding(.horizontal, 14).padding(.vertical, 8)
                 .background(Color.secondary.opacity(0.1), in: Capsule())
-            Text(L.t("commands_hint")).font(.callout).foregroundStyle(.tertiary)
+            CommandsList()
+                .padding(16)
+                .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 14))
+                .padding(.top, 8)
         }
         .multilineTextAlignment(.center)
-        .frame(maxWidth: 520)
-        .padding(.top, 70)
-        .accessibilityElement(children: .combine)
+        .frame(maxWidth: 640)
+        .padding(.top, 40)
     }
 }
 
@@ -179,6 +218,7 @@ struct MainToolbar: View {
     @AppStorage(Prefs.alwaysOnTop) private var onTop = false
     @AppStorage("uiLang") private var uiLang = "de"
     @Binding var showProfiles: Bool
+    @State private var showCommands = false
 
     var body: some View {
         HStack(spacing: 12) {
@@ -225,6 +265,12 @@ struct MainToolbar: View {
             .disabled(lastReplayable == nil)
             .help(L.t("replay_last"))
             .accessibilityLabel(L.t("replay_last"))
+        Button { showCommands.toggle() } label: { Image(systemName: "text.bubble") }
+            .help(L.t("commands"))
+            .accessibilityLabel(L.t("commands"))
+            .popover(isPresented: $showCommands, arrowEdge: .bottom) {
+                CommandsList().padding(20).frame(minWidth: 520)
+            }
         Button { showProfiles = true } label: { Label(L.t("profiles"), systemImage: "person.crop.circle.badge.plus") }
             .help(L.t("profiles"))
             .accessibilityLabel(L.t("profiles"))
