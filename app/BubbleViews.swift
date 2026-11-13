@@ -67,6 +67,13 @@ struct Bubble: View {
         Button(L.t("copy_both")) { copyToPasteboard(u.text + "\n" + u.out) }
         Divider()
         Button(L.t("correct")) { onCorrect(u) }.disabled(!canCorrect)
+        if m.twoPerson, u.source != "phrase", u.source != "edit" {
+            if u.lang == "th" {
+                Button(L.t("reassign_me")) { m.reassign(u, role: "me") }.disabled(!canCorrect)
+            } else {
+                Button(L.t("reassign_other")) { m.reassign(u, role: "other") }.disabled(!canCorrect)
+            }
+        }
         ForEach(Array(u.alts.enumerated()), id: \.offset) { _, alt in
             Button(L.t("alt_reading") + ": " + alt) { m.retranslate(u, text: alt) }.disabled(!canCorrect)
         }

@@ -152,18 +152,44 @@ class SpeakerID:
         """Das Profil der Person, die Englisch spricht (im Zwei-Personen-Modus 'ich')."""
         return next((p for p in self.profiles if p.get("lang") == "en"), None)
 
-    def role(self, audio):
-        """-> ('me'|'other'|None, ähnlichkeit). None = unklar, dann entscheidet die Spracherkennung."""
+    def partner(self):
+        """Das Profil der Person, die Thai spricht (im Zwei-Personen-Modus 'Partnerin'), falls angelegt."""
+        return next((p for p in self.profiles if p.get("lang") == "th"), None)
+
+    def role(self, audio, prev=None):
+        """-> ('me'|'other'|None, ähnlichkeit zu mir). None = unklar, dann entscheidet die Spracherkennung."""
+        r = self.classify(audio, prev)
+        return r["role"], r.get("sim_me", 0.0)
+
+    def classify(self, audio, prev=None):
+        """Wer spricht? -> {"role", "sim_me", "sim_her", "emb", "how"}. `prev` = Rolle der direkt
+        vorangehenden Äußerung (nur bei kurzer Pause), entscheidet knappe Fälle."""
         me = self.me()
         if me is None or audio.size < ROLE_MIN_SECONDS * SR:
-            return None, 0.0
-        sim = float(np.array(me["embedding"], dtype=np.float32) @ self.embed(audio))
-        long_ = audio.size >= MIN_SECONDS * SR
-        if sim >= max(ROLE_ME_MIN, float(me.get("role_me_min") or 0)):
-            return "me", sim
-        if sim <= (ROLE_OTHER_MAX_LONG if long_ else ROLE_OTHER_MAX):
-            return "other", sim
-        return None, sim
+            return {"role": None, "how": "kein profil" if me is None else "zu kurz"}
+        e = self.embed(audio)
+        sim_me = float(np.array(me["embedding"], dtype=np.float32) @ e)
+        her = self.partner()
+        sim_her = float(np.array(her["embedding"], dtype=np.float32) @ e) if her else None
+        role, how = decide_role(sim_me, sim_her, audio.size / SR,
+                                max(ROLE_ME_MIN, float(me.get("role_me_min") or 0)), prev)
+        return {"role": role, "how": how, "sim_me": round(sim_me, 3),
+                "sim_her": None if sim_her is None else round(sim_her, 3), "emb": e}
+
+    def learn(self, name, emb, weight):
+        """Stimmabdruck eines Profils vorsichtig nachführen (gleitender Mittelwert) und speichern."""
+        p = next((x for x in self.profiles if x["name"] == name), None)
+        if p is None or emb is None:
+            return False
+        old = np.array(p["embedding"], dtype=np.float32)
+        new = (1 - weight) * old + weight * np.asarray(emb, dtype=np.float32)
+        new /= np.linalg.norm(new) + 1e-9
+        p["embedding"] = [round(float(x), 6) for x in new]
+        p["adapted"] = int(p.get("adapted") or 0) + 1
+        save_profile(p)
+        self.reload()
+        return True
+
 
     def identify(self, audio):
         """-> (profile, similarity, scores) or (None, best_sim, scores)."""
@@ -177,6 +203,45 @@ class SpeakerID:
         if best >= MIN_SIM and best - second >= MIN_MARGIN:
             return self.profiles[order[0]], best, scores
         return None, best, scores
+
+
+# Zwei Profile (ich = Englisch, Partnerin = Thai): Vergleich "klingt eher wie ich / wie sie".
+# Startwerte, noch nicht an echten Gesprächen gemessen – im Log stehen sim_me/sim_her pro Satz.
+ROLE_PAIR_MIN = 0.55        # die bessere der beiden Ähnlichkeiten muss mindestens so hoch sein
+ROLE_PAIR_MARGIN = 0.10     # und die andere um so viel schlagen
+ROLE_LEAN_MARGIN = 0.03     # knapper Vorsprung: nur zusammen mit dem vorherigen Sprecher
+ROLE_ME_FLOOR = 0.65        # "ich" nie darunter: fremde Stimmen erreichen bis 0,64 (falsch "ich" = Thai als Englisch gelesen)
+
+
+def decide_role(sim_me, sim_her, dur, me_min, prev=None):
+    """Reine Entscheidungsregel (testbar ohne Audio). -> (role|None, begründung)."""
+    long_ = dur >= MIN_SECONDS
+    if sim_her is not None:
+        best = max(sim_me, sim_her)
+        if sim_me >= me_min and sim_me > sim_her:
+            return "me", "profil ich"
+        if best >= ROLE_PAIR_MIN and abs(sim_me - sim_her) >= ROLE_PAIR_MARGIN:
+            if sim_her > sim_me:
+                return "other", "vergleich"
+            if sim_me >= ROLE_ME_FLOOR:
+                return "me", "vergleich"
+        if sim_me <= (ROLE_OTHER_MAX_LONG if long_ else ROLE_OTHER_MAX) and sim_her > sim_me:
+            return "other", "nicht ich"
+        lean = "me" if sim_me - sim_her >= ROLE_LEAN_MARGIN else \
+               "other" if sim_her - sim_me >= ROLE_LEAN_MARGIN else None
+        if lean and lean == prev and (lean == "other" or sim_me >= ROLE_ME_FLOOR):
+            return lean, "knapp + vorher"
+        return None, "unklar"
+    if sim_me >= me_min:
+        return "me", "profil ich"
+    if sim_me <= (ROLE_OTHER_MAX_LONG if long_ else ROLE_OTHER_MAX):
+        return "other", "nicht ich"
+    # Graubereich ohne Partnerprofil: Tendenz nur zusammen mit dem vorherigen Sprecher
+    mid = (me_min + (ROLE_OTHER_MAX_LONG if long_ else ROLE_OTHER_MAX)) / 2
+    lean = "me" if sim_me >= max(mid, ROLE_ME_FLOOR) else "other"
+    if lean == prev:
+        return lean, "knapp + vorher"
+    return None, "unklar"
 
 
 # ---------- quality ----------

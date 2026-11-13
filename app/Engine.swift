@@ -153,8 +153,8 @@ final class EngineModel: NSObject, ObservableObject {
         }
     }
     /// Schnelles Satzende (Vorab-Erkennung nach kurzer Pause).
-    @Published var fastEndpoint = ud.object(forKey: "fastEndpoint") as? Bool ?? true {
-        didSet { Self.ud.set(fastEndpoint, forKey: "fastEndpoint"); send(["fast_endpoint": fastEndpoint]) }
+    @Published var fastEndpoint = ud.object(forKey: "fastEndpointV2") as? Bool ?? false {
+        didSet { Self.ud.set(fastEndpoint, forKey: "fastEndpointV2"); send(["fast_endpoint": fastEndpoint]) }
     }
     /// Zwei-Personen-Modus: Englisch kommt von mir (Stimmprofil), jede andere Stimme spricht Thai.
     @Published var twoPerson = ud.object(forKey: "twoPerson") as? Bool ?? true {
@@ -359,7 +359,7 @@ final class EngineModel: NSObject, ObservableObject {
                     "--silence", Self.f2(silence), "--sensitivity", sensitivity,
                     "--llm-model", llmModel, "--style", llmStyle, logText ? "--log-text" : "--no-log-text",
                     "--tts-race", Self.f2(ttsRace)]
-        if !fastEndpoint { args.append("--no-fast-endpoint") }
+        args.append(fastEndpoint ? "--fast-endpoint" : "--no-fast-endpoint")   // Engine-Standard ist aus
         if !twoPerson { args.append("--no-two-person") }
         args.append(partialText ? "--partial" : "--no-partial")   // Engine-Standard ist aus
         if !speak { args.append("--mute") }
@@ -742,6 +742,13 @@ final class EngineModel: NSObject, ObservableObject {
 
     func say(_ text: String, lang: String = "en") {
         send(["say": ["text": text, "lang": lang]])
+    }
+
+    /// „Das war ich / Das war Partner“: Engine erkennt den Satz in der Sprache dieser Person neu
+    /// und führt den Stimmabdruck nach.
+    func reassign(_ u: Utterance, role: String) {
+        guard let uid = u.uid else { return }
+        send(["reassign": ["id": uid, "role": role]])
     }
 
     func retranslate(_ u: Utterance, text: String) {
