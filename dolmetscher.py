@@ -1192,6 +1192,8 @@ class Engine:
         self.texts = {}                                        # id -> (lang, text) für Korrekturen
         self.spk = None
         self.two_person = True                 # "Englisch = ich, andere Stimme = Thai" (braucht ein EN-Profil)
+        self.last_role = None                  # (rolle, ende) der letzten sicher zugeordneten Äußerung
+        self.recent = collections.OrderedDict()  # id -> (audio, stimmabdruck) für "Das war ich/sie"
         self.reload_profiles()
         self.speaker = Speaker(self)
         _QSTATE["speaker"] = self.speaker
@@ -1437,25 +1439,25 @@ class Engine:
             pe, pt = pe2, pt2
         # --- Zwei-Personen-Modus: Englisch kommt von mir, jede andere Stimme spricht Thai.
         # Hilft genau bei kurzen Sätzen ("ok", "ใช่", "555"), bei denen die Spracherkennung rät.
-        role = None
+        # Feste Regel: meine Stimme spricht nur Englisch, jede andere Stimme nur Thai. Die Sprache
+        # kommt dann allein von der Stimme, nicht von der (bei kurzen Sätzen ratenden) Spracherkennung.
+        role, emb = None, None
         if getattr(self, "two_person", False) and self.spk and self.lock not in ("en", "th"):
+            start = (t_end or time.time()) - audio.size / SR
+            last = getattr(self, "last_role", None)
+            prev = last[0] if last and start - last[1] <= ROLE_PREV_GAP else None
             try:
-                role, rsim = self.spk.role(audio)
-                info.update(role=role, role_sim=round(rsim, 3))
+                r = self.spk.classify(audio, prev)
+                role, emb = r["role"], r.get("emb")
+                info.update(role=role, role_how=r.get("how"), sim_me=r.get("sim_me"), sim_her=r.get("sim_her"))
             except Exception as e:
                 log({"role": "fehler", "err": repr(e)[:200]})
-            if role == "me" and pt_raw >= 0.8 and audio.size >= SR:
-                role = None                         # Erkennung hört klar Thai: nicht erzwingen
-                info["role"] = "me?"
-            if role == "me":
-                pe, pt = max(pe, 0.95), min(pt, 0.05)
-            if role == "other" and pe >= 0.9 and audio.size >= SR:
-                role = None                         # klar Englisch (z. B. sie spricht Englisch)
-                info["role"] = "other?"
-            elif role == "other":
-                pe, pt = min(pe, 0.05), max(pt, 0.95)
-        if pe + pt < MIN_LANG_P:                  # weder Englisch noch Thai -> ignorieren
+        if pe + pt < MIN_LANG_P:                  # weder Englisch noch Thai (Geräusch, Musik) -> ignorieren
             return self._drop(info, "andere Sprache", uid, "weder Englisch noch Thai")
+        if role == "me":
+            pe, pt = 1.0, 0.0
+        elif role == "other":
+            pe, pt = 0.0, 1.0
         segs = []
         if self.lock in ("en", "th"):
             lang = self.lock
@@ -1468,7 +1470,7 @@ class Engine:
             times["stt"] = round(time.time() - t0 - times["detect"], 2)
             # Gegenprobe in der anderen Sprache nur, wenn es wirklich unklar ist – und nicht bei Stau
             busy = _QSTATE["stt_q"] is not None and _QSTATE["stt_q"].qsize() >= 2
-            unsure = (not text or lp < -0.8) if role else (
+            unsure = False if role else (               # Rolle bekannt: Sprache steht fest, keine Gegenprobe
                 (lang == "en" and pt > 0.2) or (lang == "th" and pe > 0.2) or not text
                 or max(pe, pt) < 0.5 or lp < -0.8)
             if not busy and unsure:
@@ -1477,7 +1479,11 @@ class Engine:
                 t2, lp2, segs2 = stt(audio, other, quick=True)
                 times["alt"] = round(time.time() - ta, 2)
                 info.update(alt=other, alt_text=t2, alt_lp=round(lp2, 3), lp=round(lp, 3))
-                if t2 and (lp2 > lp or not text) and not looks_hallucinated(t2, audio.size / SR, segs2):
+                # logprob zweier Sprachen ist nicht vergleichbar: hört die Erkennung klar Englisch und
+                # praktisch kein Thai, gewinnt die Thai-Gegenprobe nicht (kurze englische Sätze als Thai)
+                keep_en = lang == "en" and text and pe >= 0.5 and pt_raw < 0.02
+                if t2 and (lp2 > lp or not text) and not keep_en \
+                        and not looks_hallucinated(t2, audio.size / SR, segs2):
                     lang, text, lp, segs = other, t2, lp2, segs2
         info.update(lang=lang, text=text, lp=round(lp, 3))
 
@@ -1543,9 +1549,57 @@ class Engine:
         info["alts"] = alts
         info["times"] = times
         log(info)
+        recent = self.__dict__.setdefault("recent", collections.OrderedDict())   # Tests bauen Engine ohne __init__
+        recent[uid] = (audio, emb)
+        while len(recent) > RECENT_MAX:
+            recent.popitem(last=False)
+        self.last_role = (role, t_end or time.time()) if role else None
+        if role and emb is not None:
+            self._learn_auto(role, info, audio.size / SR, emb)
         return self.deliver(uid, lang, text, lp, time.time() - t0, speak=speak, t_end=t_end,
                             speaker=who["name"] if who else None, alts=alts,
                             role=role if role in ("me", "other") else None)
+
+    def _learn_auto(self, role, info, dur, emb):
+        """Sehr sicher zugeordnete, längere Sätze führen den Stimmabdruck langsam nach."""
+        if dur < LEARN_MIN_S or info.get("role_how") not in ("profil ich", "vergleich"):
+            return
+        try:
+            p = self.spk.me() if role == "me" else self.spk.partner()
+            sim = info.get("sim_me") if role == "me" else info.get("sim_her")
+            if p and sim is not None and sim >= LEARN_MIN_SIM:
+                self.spk.learn(p["name"], emb, LEARN_W_AUTO)
+        except Exception as e:
+            log({"learn": "fehler", "err": repr(e)[:200]})
+
+    def reassign(self, uid, role):
+        """'Das war ich' / 'Das war sie' aus der App: Satz in der richtigen Sprache neu erkennen,
+        neu übersetzen (ersetzt die Blase) und den Stimmabdruck deutlich nachführen."""
+        if role not in ("me", "other") or uid not in self.recent:
+            emit("error", msg="Satz nicht mehr im Speicher – bitte neu sprechen")
+            return
+        audio, emb = self.recent[uid]
+        lang = "en" if role == "me" else "th"
+        if self.spk is not None:
+            try:
+                p = self.spk.me() if role == "me" else self.spk.partner()
+                long_ = audio.size >= LEARN_FIX_MIN_S * SR    # kurzes "ok" würde den Abdruck verbiegen
+                if emb is None and long_:
+                    emb = self.spk.embed(audio)
+                if p is not None and emb is not None and long_:
+                    self.spk.learn(p["name"], emb, LEARN_W_FIX)
+            except Exception as e:
+                log({"learn": "fehler", "err": repr(e)[:200]})
+        text, lp, _ = self._stt(audio, lang)
+        log({"reassign": {"id": uid, "role": role, "lang": lang, "lp": round(lp, 3)}})
+        self.last_role = (role, time.time())
+        if not text:
+            emit("error", msg="In dieser Sprache nichts erkannt")
+            return
+        new = new_id()
+        self.recent[new] = (audio, emb)
+        emit("thinking", id=new)
+        self.deliver(new, lang, text, lp, source="reassign", replaces=uid, role=role)
 
     def _guess_lang(self, probs):
         p = dict(probs)
@@ -1753,6 +1807,9 @@ def apply_control(eng, d):
     if isinstance(d.get("say"), dict):
         s = d["say"]
         return lambda: eng.say_phrase(s.get("text", ""), s.get("lang", "en"))
+    if isinstance(d.get("reassign"), dict):
+        r = d["reassign"]
+        return lambda: eng.reassign(str(r.get("id", "")), r.get("role"))
     if isinstance(d.get("retranslate"), dict):
         r = d["retranslate"]
         return lambda: eng.retranslate(str(r.get("id", "")), r.get("text", ""), r.get("lang", ""))
@@ -1818,9 +1875,15 @@ def quietest_cut(buf, look_back_s=4.0, fdur=StreamVAD.N / SR):
 
 
 METER = False
+ROLE_PREV_GAP = 3.0              # s: bis zu dieser Pause entscheidet der vorherige Sprecher knappe Fälle
+RECENT_MAX = 30                 # so viele letzte Sätze (Audio) für "Das war ich/sie" behalten
+LEARN_MIN_S = 2.0               # Stimmabdruck nur aus Sätzen ab dieser Länge nachführen
+LEARN_MIN_SIM = 0.80            # … und nur bei sehr sicherer Zuordnung
+LEARN_FIX_MIN_S = 1.5           # nach Korrektur nur aus Sätzen ab dieser Länge lernen (wie beim Anlegen)
+LEARN_W_AUTO, LEARN_W_FIX = 0.02, 0.15   # Gewicht: automatisch / nach Korrektur per Klick
 PRE_AT = 0.35                   # s Pause bis zur Vorab-Erkennung
 PARTIAL_EVERY = 2.0             # s Sprache zwischen zwei Teiltexten
-FAST = {"pre": True, "endpoint": True, "partial": False}
+FAST = {"pre": True, "endpoint": False, "partial": False}  # endpoint: Whisper setzt fast immer einen Punkt -> zerhackte Sätze
 EARLY_END = {}                  # uid -> version: Satz ist laut Vorab-Erkennung fertig
 PRE = {}                        # uid -> Ergebnis der Vorab-Erkennung
 
@@ -2165,7 +2228,8 @@ if __name__ == "__main__":
     ap.add_argument("--earcons", action="store_true", help="Signalton statt gesprochener Bestätigung")
     ap.add_argument("--meter", action="store_true", help="Pegel-Ereignisse senden")
     ap.add_argument("--no-two-person", action="store_true", help="Zwei-Personen-Modus aus (Englisch = ich, andere Stimme = Thai)")
-    ap.add_argument("--no-fast-endpoint", action="store_true", help="kein schnelles Satzende (nur Englisch)")
+    ap.add_argument("--fast-endpoint", action=argparse.BooleanOptionalAction, default=False,
+                    help="schnelles Satzende, nur Englisch (Standard: aus; zerteilt Sätze bei kurzen Denkpausen)")
     ap.add_argument("--no-pre", action="store_true", help="keine Vorab-Erkennung")
     ap.add_argument("--partial", action=argparse.BooleanOptionalAction, default=False,
                     help="Teiltext während des Sprechens (Standard: aus)")
@@ -2181,7 +2245,7 @@ if __name__ == "__main__":
         sys.exit(0)
     SILENCE_END = max(0.4, min(2.0, a.silence))
     TTS_RACE = max(0.0, min(5.0, a.tts_race))
-    FAST.update(pre=not a.no_pre, endpoint=not a.no_fast_endpoint, partial=a.partial)
+    FAST.update(pre=not a.no_pre, endpoint=a.fast_endpoint, partial=a.partial)
     VAD["start"], VAD["keep"] = SENSITIVITY[a.sensitivity]
     LLM["on"], LLM["model"], LLM["style"] = a.llm, a.llm_model, a.style
     load_glossary()

@@ -79,6 +79,7 @@ Neu:
 | `stop_speaking` | true | laufende und wartende Ausgaben abbrechen |
 | `say` | `{"text": "...", "lang": "en"\|"th"}` | Schnellsatz: übersetzen und vorlesen wie eine Äußerung (`source: "phrase"`) |
 | `retranslate` | `{"id": "u7", "text": "korrigierter Text", "lang": "en"\|"th"}` | neu übersetzen und vorlesen; `utt` kommt mit `replaces: "u7"`, `source: "edit"` |
+| `reassign` | `{"id": "u7", "role": "me"\|"other"}` | „Das war ich/Partner“: Satz in der Sprache dieser Person (ich = Englisch, Partner = Thai) neu erkennen und übersetzen; `utt` kommt mit `replaces: "u7"`, `source: "reassign"`, `role`. Führt den Stimmabdruck des Profils nach (Gewicht 0,15). Behalten werden die letzten 30 Sätze |
 
 ## Tempo-Ausbau (Branch feat/tempo)
 
@@ -113,7 +114,7 @@ Neu:
 | Startargument | Steuerung | Bedeutung |
 |---|---|---|
 | `--tts-race S` (Standard 1.4, 0 = aus) | `tts_race` (float) | kommt die Neural-Stimme nicht in S Sekunden, spricht sofort die vorbereitete macOS-Stimme |
-| `--no-fast-endpoint` | `fast_endpoint` (bool) | schnelles Satzende, **nur Englisch**: endet der vorab erkannte Text mit . ? ! (und ist sicher erkannt), nicht bis zur vollen Pause warten. Thai nie, weil ครับ/ค่ะ/นะ auch Teilsätze beenden |
+| `--fast-endpoint` (Standard aus) | `fast_endpoint` (bool) | schnelles Satzende, **nur Englisch**: endet der vorab erkannte Text mit . ? ! (und ist sicher erkannt), nicht bis zur vollen Pause warten. Thai nie, weil ครับ/ค่ะ/นะ auch Teilsätze beenden. Standard aus, weil Whisper fast immer einen Punkt setzt und Sätze sonst bei kurzen Denkpausen zerteilt werden |
 | `--partial` | `partial` (bool) | Teiltext während des Sprechens (Standard aus) |
 
 ## Zwei-Personen-Modus und lockeres Thai (Branch feat/rollen)

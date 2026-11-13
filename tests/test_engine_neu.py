@@ -1,5 +1,6 @@
 """Neue Engine-Teile ohne Mikrofon, Lautsprecher und Netz: Übersetzungskette, Cache, Thai-Formen,
 Satzteilung, Normalisierung, Halluzinationsfilter, Live-Steuerung, Sprecher-Warteschlange."""
+import collections
 import json
 import queue
 import threading
@@ -392,3 +393,98 @@ def test_rolle_schwellen():
     assert S(0.45).role(kurz)[0] == "other"
     assert S(0.53).role(lang)[0] == "other"
     assert S(0.80).role(np.zeros(4000, np.float32))[0] is None   # zu kurz
+
+
+def test_rolle_zwei_profile_entscheidung():
+    from profiles import decide_role as r
+    me_min = 0.76
+    assert r(0.80, 0.40, 2.0, me_min) == ("me", "profil ich")
+    assert r(0.66, 0.50, 2.0, me_min)[0] == "me"             # Vergleich: klar näher an mir
+    assert r(0.45, 0.70, 2.0, me_min)[0] == "other"          # klar näher an ihr
+    assert r(0.60, 0.58, 2.0, me_min) == (None, "unklar")    # zu knapp, kein Vorgänger
+    assert r(0.68, 0.64, 2.0, me_min, prev="me")[0] == "me"  # knapp + gleicher Sprecher davor
+    assert r(0.62, 0.58, 2.0, me_min, prev="me")[0] is None  # unter 0,65 nie "ich"
+    assert r(0.60, 0.64, 2.0, me_min, prev="other")[0] == "other"
+    assert r(0.60, 0.45, 2.0, me_min)[0] is None             # Vergleich spricht für mich, aber zu niedrig
+    # nur mein Profil: Graubereich entscheidet der Vorgänger
+    assert r(0.70, None, 2.0, me_min)[0] is None
+    assert r(0.70, None, 2.0, me_min, prev="me")[0] == "me"
+    assert r(0.45, None, 1.0, me_min)[0] == "other"
+
+
+def _lang_engine(calls, probs, texts, role=None):
+    """Engine-Attrappe: feste Spracherkennung, STT-Text/logprob je Sprache, optional feste Rolle."""
+    class Det:
+        def detect_language(self, audio=None, language_detection_segments=2):
+            calls.append("detect")
+            return probs[0][0], probs[0][1], probs
+    class Spk:
+        profiles = []
+        def identify(self, a):
+            return None, 0.0, {}
+        def classify(self, a, prev=None):
+            return {"role": role, "how": "vergleich", "sim_me": 0.5, "sim_her": 0.5, "emb": None}
+    e = d.Engine.__new__(d.Engine)
+    e.m_det, e.lock, e.paused, e.awake_until = Det(), "auto", False, 0.0
+    e.spk, e.two_person = (Spk(), True) if role else (None, False)
+    e.translate_dir = {"en": True, "th": True}
+
+    def fake_stt(audio, lang, hotwords=None, model=None, quick=False):
+        calls.append(("stt", lang, quick))
+        t, lp = texts[lang]
+        return t, lp, [types.SimpleNamespace(compression_ratio=1.1)]
+    e._stt = fake_stt
+    e.deliver = lambda uid, lang, text, *a, **k: calls.append(("deliver", lang, text, k.get("role"))) or (lang, text, "x")
+    return e
+
+
+def test_stimme_bestimmt_sprache_ohne_gegenprobe():
+    calls = []
+    texts = {"en": ("Where is the station?", -0.2), "th": ("สถานีอยู่ที่ไหน", -0.3)}
+    audio = np.full(d.SR * 2, 0.05, dtype=np.float32)
+    # Erkennung hört Englisch, die Stimme ist aber "andere" -> nur Thai erkennen
+    e = _lang_engine(calls, [("en", 0.9), ("th", 0.05)], texts, role="other")
+    e.process(audio, speak=False, uid="r1")
+    assert [c for c in calls if c[0] == "stt"] == [("stt", "th", False)]
+    assert calls[-1] == ("deliver", "th", "สถานีอยู่ที่ไหน", "other")
+    calls.clear()
+    e = _lang_engine(calls, [("th", 0.9), ("en", 0.05)], texts, role="me")
+    e.process(audio, speak=False, uid="r2")
+    assert [c for c in calls if c[0] == "stt"] == [("stt", "en", False)]
+    assert calls[-1][:2] == ("deliver", "en")
+
+
+def test_kurzes_englisch_wird_nicht_zu_thai():
+    # Log u21: p_en 0.67, p_th 0.001, englische Erkennung unsicher, Thai-Gegenprobe mit besserem logprob
+    calls = []
+    texts = {"en": ("Okay, wait.", -0.9), "th": ("โอเค เวท", -0.2)}
+    e = _lang_engine(calls, [("en", 0.67), ("ko", 0.065), ("th", 0.001)], texts)
+    e.process(np.full(int(d.SR * 1.4), 0.05, dtype=np.float32), speak=False, uid="u21")
+    assert calls[-1][:3] == ("deliver", "en", "Okay, wait.")
+
+
+def test_das_war_sie_erkennt_neu_auf_thai():
+    calls = []
+    texts = {"en": ("Where is the station?", -0.2), "th": ("สถานีอยู่ที่ไหน", -0.3)}
+    e = _lang_engine(calls, [("en", 0.9)], texts)
+    e.recent = collections.OrderedDict(u5=(np.zeros(d.SR, np.float32), None))
+    got = {}
+    e.deliver = lambda uid, lang, text, *a, **k: got.update(lang=lang, text=text, **k)
+    e.reassign("u5", "other")
+    assert got["lang"] == "th" and got["replaces"] == "u5" and got["role"] == "other"
+    assert e.last_role[0] == "other"
+
+
+def test_das_war_ich_lernt_nicht_aus_kurzem_satz():
+    calls, learned = [], []
+    texts = {"en": ("ok", -0.2), "th": ("โอเค", -0.3)}
+    e = _lang_engine(calls, [("th", 0.9)], texts)
+    e.spk = types.SimpleNamespace(me=lambda: {"name": "ich"}, partner=lambda: None,
+                                  embed=lambda a: np.ones(4, np.float32),
+                                  learn=lambda *a: learned.append(a))
+    e.recent = collections.OrderedDict(k=(np.zeros(int(d.SR * 0.7), np.float32), None),
+                                       l=(np.zeros(d.SR * 2, np.float32), None))
+    e.reassign("k", "me")
+    assert not learned and calls[-1][:2] == ("deliver", "en")
+    e.reassign("l", "me")
+    assert len(learned) == 1 and learned[0][0] == "ich"
