@@ -106,19 +106,33 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: .showTips)) { _ in showTips = true }
     }
 
+    /// Verlauf, ggf. nach dem Suchtext gefiltert.
+    private var shown: [Utterance] {
+        guard !query.isEmpty else { return m.items }
+        return m.items.filter { $0.text.localizedCaseInsensitiveContains(query)
+                                || $0.out.localizedCaseInsensitiveContains(query) }
+    }
+
     private var conversation: some View {
         ScrollViewReader { sv in
             ScrollView {
                 LazyVStack(spacing: 12) {
                     if m.items.isEmpty { EmptyState() }
-                    ForEach(m.items.filter { query.isEmpty || $0.text.localizedCaseInsensitiveContains(query)
-                                                 || $0.out.localizedCaseInsensitiveContains(query) }) { u in
-                        Bubble(u: u, scale: scale, onCorrect: { correcting = $0 }).id(u.id)
+                    ForEach(shown) { u in
+                        Bubble(m: m, u: u, scale: scale,
+                               playing: m.replayingID == u.id || (u.uid.map { m.speakingIDs.contains($0) } ?? false),
+                               running: m.running, twoPerson: m.twoPerson,
+                               onCorrect: { correcting = $0 })
+                            .equatable()
+                            .id(u.id)
                     }
                 }.padding(16)
             }
             .onChange(of: m.items.last?.id) {   // auch wenn ein Platzhalter durch die fertige Blase ersetzt wird
                 if let last = m.items.last { withAnimation { sv.scrollTo(last.id, anchor: .bottom) } }
+            }
+            .onChange(of: m.items.last?.partial) {   // Teiltext wächst: unten bleiben (ohne Animation, kommt oft)
+                if query.isEmpty, let last = m.items.last, last.pending { sv.scrollTo(last.id, anchor: .bottom) }
             }
         }
     }

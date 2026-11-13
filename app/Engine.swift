@@ -11,7 +11,7 @@ enum Translit {
     }
 }
 
-struct Utterance: Identifiable {
+struct Utterance: Identifiable, Equatable {
     let id = UUID()
     var uid: String?             // id der Engine (z. B. "u7"), für Korrektur und Sprachausgabe
     var translated: Bool
