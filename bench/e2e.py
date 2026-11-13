@@ -79,6 +79,7 @@ def main():
         rss = subprocess.run(["ps", "-o", "rss=", "-p", str(p.pid)], capture_output=True, text=True).stdout.strip()
         stats.append((rss, max(0, len(out.splitlines()) - 1)))
 
+    n_listen = len(events)                  # nur mic-Ereignisse nach dem Start zählen (--idle meldet anfangs "aus")
     send({"listen": True})
     if a.toggle:
         state = True
@@ -91,11 +92,11 @@ def main():
             send({"listen": True})
         time.sleep(15)
     else:
-        end = time.time() + (a.soak or 90)
+        end = time.time() + (a.soak or 150)
         while time.time() < end and p.poll() is None:
             time.sleep(10)
             sample()
-            if not a.soak and any(e.get("event") == "mic" and e.get("on") is False for e in events[2:]):
+            if not a.soak and any(e.get("event") == "mic" and e.get("on") is False for e in events[n_listen:]):
                 break
         time.sleep(6)
     alive = p.poll() is None

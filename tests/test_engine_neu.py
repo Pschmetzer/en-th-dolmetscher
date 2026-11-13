@@ -488,3 +488,111 @@ def test_das_war_ich_lernt_nicht_aus_kurzem_satz():
     assert not learned and calls[-1][:2] == ("deliver", "en")
     e.reassign("l", "me")
     assert len(learned) == 1 and learned[0][0] == "ich"
+
+
+def test_ueberholte_vorab_erkennung_wird_uebersprungen(monkeypatch):
+    """Wird nach der kurzen Pause weitergesprochen, rechnet der Arbeits-Thread die alte Fassung nicht mehr."""
+    monkeypatch.setattr(d, "PRE_NOW", collections.OrderedDict())
+    ran = []
+
+    class E:
+        speaker = types.SimpleNamespace(pending=lambda: 0)
+
+        def prerecognize(self, uid, version, audio):
+            ran.append((uid, version))
+    audio = np.zeros(8000, dtype=np.float32)
+    q = queue.Queue()
+    d.pre_mark("u1", 0)
+    q.put(("pre", "u1", 0, audio))
+    d.pre_mark("u1", 1)                     # weitergesprochen, bevor der Arbeits-Thread dran war
+    q.put(("pre", "u1", 1, audio))
+    q.put(("pre", "u9", 0, audio))          # ohne Eintrag (alte Aufrufer): läuft wie bisher
+    q.put(None)
+    d.work_loop(E(), q, speak=False)
+    assert ran == [("u1", 1), ("u9", 0)]
+
+
+def test_zweite_sprachpruefung_rettet_englisch_mit_akzent():
+    """Kleines Modell hört Deutsch (Englisch auf Platz 2) -> das große Modell entscheidet."""
+    calls = []
+    e = _fake_engine(calls)
+
+    class Small:
+        def detect_language(self, audio=None, language_detection_segments=2):
+            return "de", 0.64, [("de", 0.64), ("fr", 0.13), ("en", 0.12)]
+
+    class Big:
+        def __init__(self, probs):
+            self.probs = probs
+
+        def detect_language(self, audio=None, language_detection_segments=2):
+            calls.append("detect2")
+            return self.probs[0][0], self.probs[0][1], self.probs
+    audio = np.full(d.SR * 2, 0.05, dtype=np.float32)
+    e.m_det, e.m = Small(), Big([("en", 0.9), ("de", 0.05)])
+    e.process(audio, speak=False, uid="u1")
+    assert "detect2" in calls and ("deliver", "u1", "Where is the station?") in calls
+    # das große Modell hört auch Deutsch -> bleibt verworfen
+    calls.clear()
+    e.m = Big([("de", 0.93), ("en", 0.03)])
+    assert e.process(audio, speak=False, uid="u2") is None
+    assert not any(c[0] == "deliver" for c in calls if isinstance(c, tuple))
+    # klar fremde Sprache: keine zweite Prüfung (kostet nur Zeit)
+    calls.clear()
+
+    class Clear:
+        def detect_language(self, audio=None, language_detection_segments=2):
+            return "de", 0.95, [("de", 0.95), ("en", 0.02)]
+    e.m_det = Clear()
+    assert e.process(audio, speak=False, uid="u3") is None and "detect2" not in calls
+
+
+def test_ws_speak_wiederholt_mit_frischer_verbindung(monkeypatch):
+    """Vorrats-Verbindung inzwischen vom Server geschlossen -> einmal frisch öffnen, Ton kommt trotzdem."""
+    import asyncio
+    import aiohttp
+    T, B = aiohttp.WSMsgType.TEXT, aiohttp.WSMsgType.BINARY
+    msg = lambda t, data: types.SimpleNamespace(type=t, data=data)
+    head = b"Path:audio\r\n"
+    audio = len(head).to_bytes(2, "big") + head + b"MP3"
+
+    class WS:
+        closed = False
+
+        def __init__(self, msgs, fail=False):
+            self.msgs, self.fail, self.sent = msgs, fail, []
+
+        async def send_str(self, s):
+            if self.fail:
+                raise ConnectionResetError("zu")
+            self.sent.append(s)
+
+        async def close(self):
+            self.closed = True
+
+        def __aiter__(self):
+            async def gen():
+                for m in self.msgs:
+                    yield m
+            return gen()
+    stale = WS([], fail=True)
+    fresh = WS([msg(T, "Path:turn.start\r\n\r\n"), msg(B, audio), msg(T, "X:1\r\nPath:turn.end\r\n\r\n{}")])
+    monkeypatch.setitem(d._WS, "pool", [(stale, time.time())])
+
+    async def opened():
+        return fresh
+    monkeypatch.setattr(d, "_ws_open", opened)
+    got = []
+
+    async def run():
+        r = await d._ws_speak("SSML", got.append, lambda: False)
+        await asyncio.sleep(0)               # Schließen im Hintergrund laufen lassen
+        return r
+    assert asyncio.run(run()) is False       # nicht über den Vorrat gelaufen
+    assert got == [b"MP3"] and fresh.sent == ["SSML"] and stale.closed
+
+
+def test_standardstimmen_sind_schnelle_stimmen():
+    assert "Multilingual" not in d.NEURAL["en"]["en"]
+    assert d.NEURAL["en"]["en"] in d.VOICES["en"]
+    assert all(v in d.VOICES["th"] for v in d.NEURAL["th"].values())

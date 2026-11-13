@@ -191,14 +191,14 @@ private struct VoiceSettings: View {
             Section {
                 Picker(L.t("voice_en"), selection: $m.voiceEN) {
                     Text(L.t("voice_default")).tag("")
-                    ForEach(EngineModel.voicesEN, id: \.self) { Text($0).tag($0) }
-                    if !m.voiceEN.isEmpty && !EngineModel.voicesEN.contains(m.voiceEN) { Text(m.voiceEN).tag(m.voiceEN) }
+                    ForEach(EngineModel.voicesEN, id: \.self) { Text(EngineModel.voiceLabel($0)).tag($0) }
+                    if !m.voiceEN.isEmpty && !EngineModel.voicesEN.contains(m.voiceEN) { Text(EngineModel.voiceLabel(m.voiceEN)).tag(m.voiceEN) }
                 }
                 .accessibilityLabel(L.t("voice_en"))
                 Picker(L.t("voice_th"), selection: $m.voiceTH) {
                     Text(L.t("voice_th_default")).tag("")
-                    ForEach(EngineModel.voicesTH, id: \.self) { Text($0).tag($0) }
-                    if !m.voiceTH.isEmpty && !EngineModel.voicesTH.contains(m.voiceTH) { Text(m.voiceTH).tag(m.voiceTH) }
+                    ForEach(EngineModel.voicesTH, id: \.self) { Text(EngineModel.voiceLabel($0)).tag($0) }
+                    if !m.voiceTH.isEmpty && !EngineModel.voicesTH.contains(m.voiceTH) { Text(EngineModel.voiceLabel(m.voiceTH)).tag(m.voiceTH) }
                 }
                 .accessibilityLabel(L.t("voice_th"))
             }
