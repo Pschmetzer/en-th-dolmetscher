@@ -1,18 +1,66 @@
 // BubbleViews.swift – Sprechblase (mit Platzhalter, Konfidenz, Umschrift, Details) und Korrektur-Dialog.
 import SwiftUI
 
-struct Bubble: View {
-    @EnvironmentObject var m: EngineModel
+/// Eine Blase beobachtet das Modell nicht selbst: Sie bekommt nur die Werte, die sie zeigt, und ist
+/// `Equatable`. So zeichnet ein Statuswechsel (Pegel, „Höre …“, Rückstand) nicht jede sichtbare Blase neu,
+/// sondern nur die, deren Inhalt sich geändert hat.
+struct Bubble: View, Equatable {
+    let m: EngineModel           // nur für Aktionen (vorlesen, korrigieren), nicht beobachtet
     let u: Utterance
     let scale: Double
+    let playing: Bool
+    let running: Bool
+    let twoPerson: Bool
     var onCorrect: (Utterance) -> Void = { _ in }
+    @State private var hovering = false
+
+    nonisolated static func == (a: Bubble, b: Bubble) -> Bool {
+        a.u == b.u && a.scale == b.scale && a.playing == b.playing && a.running == b.running
+            && a.twoPerson == b.twoPerson
+    }
 
     var body: some View {
         if u.pending { PlaceholderBubble(u: u, scale: scale) } else { content }
     }
 
     private var en: Bool { u.lang == "en" }
-    private var playing: Bool { m.replayingID == u.id || (u.uid != nil && m.speakingIDs.contains(u.uid!)) }
+    private var canReassign: Bool { twoPerson && u.source != "phrase" && u.source != "edit" }
+    private func reassign() { m.reassign(u, role: u.lang == "th" ? "me" : "other") }
+
+    /// Solange diese Blase vorgelesen wird: deutlicher Abbrechen-Knopf direkt an der Blase.
+    private var stopButton: some View {
+        Button { m.stopSpeaking() } label: {
+            Label(L.t("cancel"), systemImage: "stop.fill")
+                .font(.system(size: 13, weight: .semibold))
+                .padding(.horizontal, 10).padding(.vertical, 5)
+                .foregroundStyle(.white)
+                .background(Color.red, in: Capsule())
+        }
+        .buttonStyle(.plain)
+        .padding(8)
+        .help(L.t("stop_speaking"))
+        .accessibilityLabel(L.t("stop_speaking"))
+    }
+
+    /// Sichtbare Korrektur-Knöpfe, sobald die Maus über der Blase ist (bisher nur im Kontextmenü).
+    private var quickActions: some View {
+        HStack(spacing: 2) {
+            Button { onCorrect(u) } label: { Image(systemName: "pencil") }
+                .help(L.t("correct")).accessibilityLabel(L.t("correct"))
+            if canReassign {
+                Button(action: reassign) { Image(systemName: "arrow.left.arrow.right") }
+                    .help(L.t(u.lang == "th" ? "reassign_me" : "reassign_other"))
+                    .accessibilityLabel(L.t(u.lang == "th" ? "reassign_me" : "reassign_other"))
+            }
+            Button { copyToPasteboard(u.out) } label: { Image(systemName: "doc.on.doc") }
+                .help(L.t("copy_translation")).accessibilityLabel(L.t("copy_translation"))
+        }
+        .buttonStyle(.borderless)
+        .font(.system(size: 13))
+        .padding(.horizontal, 6).padding(.vertical, 4)
+        .background(.regularMaterial, in: Capsule())
+        .padding(8)
+    }
     private var helpText: String {
         (u.lowConfidence ? L.t("low_conf") + " – " + L.t("click_replay") : L.t("click_replay"))
             + "\n" + u.date.formatted(date: .omitted, time: .standard)
@@ -40,13 +88,22 @@ struct Bubble: View {
             }
         }
         .contentShape(RoundedRectangle(cornerRadius: 14))
-        .onTapGesture { m.replay(u) }
+        .onTapGesture { if playing { m.stopSpeaking() } else { m.replay(u) } }   // zweiter Klick bricht ab
+        .overlay(alignment: en ? .topTrailing : .topLeading) {
+            if playing {
+                stopButton                       // versehentlich angetippt: sofort abbrechen
+            } else if hovering && canCorrect {
+                quickActions.transition(.opacity)
+            }
+        }
+        .onHover { h in withAnimation(.easeOut(duration: 0.12)) { hovering = h } }
         .help(helpText)
         .contextMenu { menu }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(a11yText)
         .accessibilityAddTraits(.isButton)
-        .accessibilityHint(L.t("click_replay"))
+        .accessibilityHint(playing ? L.t("stop_speaking") : L.t("click_replay"))
+        .accessibilityAction(named: L.t("stop_speaking")) { m.stopSpeaking() }
         .accessibilityAction(named: L.t("read_aloud")) { m.replay(u) }
         .accessibilityAction(named: L.t("copy_translation")) { copyToPasteboard(u.out) }
         .accessibilityAction(named: L.t("correct")) { if canCorrect { onCorrect(u) } }
@@ -59,7 +116,7 @@ struct Bubble: View {
         ud.set(cur.isEmpty ? s : cur + "\n" + s, forKey: Prefs.quickPhrases)
     }
 
-    private var canCorrect: Bool { u.uid != nil && m.running }
+    private var canCorrect: Bool { u.uid != nil && running }
 
     @ViewBuilder private var menu: some View {
         Button(L.t("copy_translation")) { copyToPasteboard(u.out) }
@@ -67,12 +124,8 @@ struct Bubble: View {
         Button(L.t("copy_both")) { copyToPasteboard(u.text + "\n" + u.out) }
         Divider()
         Button(L.t("correct")) { onCorrect(u) }.disabled(!canCorrect)
-        if m.twoPerson, u.source != "phrase", u.source != "edit" {
-            if u.lang == "th" {
-                Button(L.t("reassign_me")) { m.reassign(u, role: "me") }.disabled(!canCorrect)
-            } else {
-                Button(L.t("reassign_other")) { m.reassign(u, role: "other") }.disabled(!canCorrect)
-            }
+        if canReassign {
+            Button(L.t(u.lang == "th" ? "reassign_me" : "reassign_other"), action: reassign).disabled(!canCorrect)
         }
         ForEach(Array(u.alts.enumerated()), id: \.offset) { _, alt in
             Button(L.t("alt_reading") + ": " + alt) { m.retranslate(u, text: alt) }.disabled(!canCorrect)

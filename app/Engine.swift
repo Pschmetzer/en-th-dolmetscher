@@ -11,7 +11,7 @@ enum Translit {
     }
 }
 
-struct Utterance: Identifiable {
+struct Utterance: Identifiable, Equatable {
     let id = UUID()
     var uid: String?             // id der Engine (z. B. "u7"), für Korrektur und Sprachausgabe
     var translated: Bool
@@ -175,9 +175,24 @@ final class EngineModel: NSObject, ObservableObject {
         didSet { Self.ud.set(pushToTalk, forKey: "pushToTalk"); if running { setPaused(pushToTalk) } }
     }
 
-    static let voicesEN = ["en-US-AvaMultilingualNeural", "en-US-AndrewMultilingualNeural",
-                           "en-GB-SoniaNeural", "en-US-EmmaMultilingualNeural"]
-    static let voicesTH = ["th-TH-NiwatNeural", "th-TH-PremwadeeNeural", "th-TH-AcharaNeural"]
+    // Nur Stimmen, die schnell antworten (gemessen: erster Ton nach 0,4–0,7 s). Die Multilingual-Stimmen
+    // brauchen 1,5–4 s und stehen deshalb nicht mehr zur Wahl; eine gespeicherte Auswahl bleibt gültig.
+    static let voicesEN = ["en-US-AriaNeural", "en-US-JennyNeural", "en-US-MichelleNeural", "en-US-AvaNeural",
+                           "en-US-EmmaNeural", "en-US-GuyNeural", "en-US-AndrewNeural", "en-US-BrianNeural",
+                           "en-GB-RyanNeural"]
+    static let voicesTH = ["th-TH-NiwatNeural", "th-TH-PremwadeeNeural"]
+    private static let maleVoices: Set<String> = ["Guy", "Andrew", "Brian", "Ryan", "Niwat", "Christopher", "Eric"]
+
+    /// „en-US-AriaNeural“ → „Aria ♀ · US“ (lesbarer Name für die Stimmenauswahl).
+    static func voiceLabel(_ v: String) -> String {
+        let parts = v.split(separator: "-")
+        guard parts.count >= 3 else { return v }
+        var name = parts[2...].joined(separator: "-")
+        let slow = name.contains("Multilingual")
+        name = name.replacingOccurrences(of: "MultilingualNeural", with: "").replacingOccurrences(of: "Neural", with: "")
+        let sex = maleVoices.contains(name) ? "♂" : "♀"
+        return "\(name) \(sex) · \(parts[1])" + (slow ? " (" + L.t("voice_slow") + ")" : "")
+    }
     static let llmModels = ["claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5"]
 
     /// Einstellungen, die nur beim Start gelesen werden – Vergleich mit dem Stand beim Start.

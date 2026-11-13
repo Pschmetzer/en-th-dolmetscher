@@ -106,25 +106,68 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: .showTips)) { _ in showTips = true }
     }
 
+    /// Verlauf, ggf. nach dem Suchtext gefiltert.
+    private var shown: [Utterance] {
+        guard !query.isEmpty else { return m.items }
+        return m.items.filter { $0.text.localizedCaseInsensitiveContains(query)
+                                || $0.out.localizedCaseInsensitiveContains(query) }
+    }
+
     private var conversation: some View {
         ScrollViewReader { sv in
             ScrollView {
                 LazyVStack(spacing: 12) {
-                    if m.items.isEmpty {
-                        Text(L.t("empty") + "\n\n" + L.t("empty_example") + "\n\n" + L.t("commands_hint"))
-                            .multilineTextAlignment(.center).foregroundStyle(.secondary)
-                            .padding(.top, 80)
-                    }
-                    ForEach(m.items.filter { query.isEmpty || $0.text.localizedCaseInsensitiveContains(query)
-                                                 || $0.out.localizedCaseInsensitiveContains(query) }) { u in
-                        Bubble(u: u, scale: scale, onCorrect: { correcting = $0 }).id(u.id)
+                    if m.items.isEmpty { EmptyState() }
+                    ForEach(shown) { u in
+                        Bubble(m: m, u: u, scale: scale,
+                               playing: m.replayingID == u.id || (u.uid.map { m.speakingIDs.contains($0) } ?? false),
+                               running: m.running, twoPerson: m.twoPerson,
+                               onCorrect: { correcting = $0 })
+                            .equatable()
+                            .id(u.id)
                     }
                 }.padding(16)
             }
             .onChange(of: m.items.last?.id) {   // auch wenn ein Platzhalter durch die fertige Blase ersetzt wird
                 if let last = m.items.last { withAnimation { sv.scrollTo(last.id, anchor: .bottom) } }
             }
+            .onChange(of: m.items.last?.partial) {   // Teiltext wächst: unten bleiben (ohne Animation, kommt oft)
+                if query.isEmpty, let last = m.items.last, last.pending { sv.scrollTo(last.id, anchor: .bottom) }
+            }
         }
+    }
+}
+
+/// Leerer Verlauf: Richtung, Ladezustand, Beispiel und Sprachbefehle.
+struct EmptyState: View {
+    @EnvironmentObject var m: EngineModel
+    var body: some View {
+        VStack(spacing: 16) {
+            HStack(spacing: 14) {
+                Text("🇬🇧 English").foregroundStyle(LangStyle.color("en"))
+                Image(systemName: "arrow.left.arrow.right").foregroundStyle(.secondary).accessibilityHidden(true)
+                Text("🇹🇭 ไทย").foregroundStyle(LangStyle.color("th"))
+            }
+            .font(.system(size: 26, weight: .semibold))
+            if m.loadingModel {
+                HStack(spacing: 8) {
+                    ProgressView().controlSize(.small)
+                    Text(L.t("empty_loading"))
+                }
+                .foregroundStyle(.secondary)
+            } else {
+                Text(L.t("empty")).foregroundStyle(.secondary)
+            }
+            Text(L.t("empty_example"))
+                .font(.title3)
+                .padding(.horizontal, 14).padding(.vertical, 8)
+                .background(Color.secondary.opacity(0.1), in: Capsule())
+            Text(L.t("commands_hint")).font(.callout).foregroundStyle(.tertiary)
+        }
+        .multilineTextAlignment(.center)
+        .frame(maxWidth: 520)
+        .padding(.top, 70)
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -148,12 +191,22 @@ struct MainToolbar: View {
     }
 
     private var startButton: some View {
-        Button(action: m.toggle) {
-            Label(m.active ? L.t("stop") : L.t("start"), systemImage: m.active ? "stop.fill" : "mic.fill")
-                .font(.title2.bold()).frame(width: 130, height: 34)
+        // Start während des Ladens vorgemerkt: orange mit Fortschritt statt rot („läuft“ wäre gelogen)
+        let queued = m.active && !m.micOn && m.loadingModel
+        return Button(action: m.toggle) {
+            HStack(spacing: 8) {
+                if queued {
+                    ProgressView().controlSize(.small).tint(.white)
+                } else {
+                    Image(systemName: m.active ? "stop.fill" : "mic.fill")
+                }
+                Text(queued ? L.t("start_queued") : m.active ? L.t("stop") : L.t("start"))
+                    .lineLimit(1).minimumScaleFactor(0.6)
+            }
+            .font(.title2.bold()).frame(width: 130, height: 34)
         }
         .buttonStyle(.borderedProminent)
-        .tint(m.active ? .red : .green)
+        .tint(queued ? .orange : m.active ? .red : .green)
         .keyboardShortcut(.space, modifiers: [])
         .accessibilityLabel(m.active ? L.t("stop_engine") : L.t("start_engine"))
         .accessibilityHint("Leertaste, ⌃⌥D")
@@ -231,6 +284,15 @@ struct StatusCluster: View {
                     .accessibilityLabel(L.t("offline") + ": " + offlineHelp)
             }
             if let med = m.latencyMedian { LatencyBadge(median: med) }
+            if m.llm && m.engineReady && !m.llmActive {
+                SettingsLink {
+                    Label(L.t("llm_missing"), systemImage: "exclamationmark.circle")
+                        .font(.caption).foregroundStyle(.orange)
+                }
+                .buttonStyle(.plain)
+                .help(L.t("llm_missing_help"))
+                .accessibilityLabel(L.t("llm_missing") + ". " + L.t("llm_missing_help"))
+            }
             if m.llm && m.llmCostUSD > 0 {
                 Text(String(format: "≈ $%.2f", m.llmCostUSD))
                     .font(.caption).monospacedDigit().foregroundStyle(.secondary)
@@ -248,8 +310,10 @@ struct LatencyBadge: View {
     let median: Double
     var body: some View {
         let text = "⏱ " + fmtSeconds(median)
+        // bis 2 s fühlt sich das Gespräch flüssig an, ab 4 s stockt es
+        let color: Color = median <= 2 ? .green : median <= 4 ? .secondary : .orange
         Text(text)
-            .font(.caption).monospacedDigit().foregroundStyle(.secondary)
+            .font(.caption).monospacedDigit().foregroundStyle(color)
             .help(L.t("latency_help"))
             .accessibilityLabel(L.t("latency_help") + ": " + fmtSeconds(median))
     }

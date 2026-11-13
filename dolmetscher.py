@@ -23,6 +23,8 @@ MIN_UTT = 0.3                     # s, kürzer wird ignoriert (Log: leise Wörte
 MAX_UTT = 10.0                    # s, länger wird an der leisesten Stelle geteilt – der erste Teil wird
                                   # schon übersetzt, während noch gesprochen wird
 MIN_LANG_P = 0.35                 # en+th zusammen mindestens so wahrscheinlich, sonst ignorieren
+SECOND_LOOK_MIN = 0.05            # zweite Sprachprüfung (großes Modell) nur, wenn en oder th wenigstens so wahrscheinlich
+SECOND_LOOK_TOP = 0.85            # … und die fremde Sprache nicht schon so sicher ist
 # unsicherere Transkripte gelten als Rauschen/Halluzination; Thai bekommt systematisch
 # schlechtere log-probs (Log: echte Thai-Sätze bis −0.99), deshalb eine eigene Schwelle
 MIN_LOGPROB = {"en": -1.0, "th": -1.3}
@@ -96,11 +98,16 @@ def parse_command(cmd):
     hit = difflib.get_close_matches(c.split()[0] if c.split() else c, list(vocab), n=1, cutoff=0.75)
     return vocab[hit[0]] if hit else None
 # Neural-Stimmen: Thai passend zu ครับ (Mann) / ค่ะ (Frau)
+# Englisch: Aria statt Ava-Multilingual. Gemessen (Zeit bis zum ersten Ton): Aria/Jenny/Guy 0,4–0,7 s,
+# die Multilingual-Stimmen 1,5–4 s – dann sprang fast immer die macOS-Ersatzstimme ein.
 NEURAL = {"th": {"krub": "th-TH-NiwatNeural", "ka": "th-TH-PremwadeeNeural"},
-          "en": {"en": "en-US-AvaMultilingualNeural"}}
-VOICES = {"en": ["en-US-AvaMultilingualNeural", "en-US-AndrewMultilingualNeural", "en-US-EmmaMultilingualNeural",
-                 "en-GB-SoniaNeural"],
-          "th": ["th-TH-NiwatNeural", "th-TH-PremwadeeNeural", "th-TH-AcharaNeural"]}
+          "en": {"en": "en-US-AriaNeural"}}
+VOICES = {"en": ["en-US-AriaNeural", "en-US-JennyNeural", "en-US-GuyNeural", "en-US-MichelleNeural",
+                 "en-US-AvaNeural", "en-US-EmmaNeural", "en-US-AndrewNeural", "en-US-BrianNeural",
+                 "en-GB-RyanNeural", "en-GB-SoniaNeural",
+                 # langsam (erst nach 1,5–4 s Ton), nur noch für gespeicherte Einstellungen:
+                 "en-US-AvaMultilingualNeural", "en-US-AndrewMultilingualNeural", "en-US-EmmaMultilingualNeural"],
+          "th": ["th-TH-NiwatNeural", "th-TH-PremwadeeNeural"]}
 # typische Whisper-Halluzinationen bei Stille/Rauschen (nur wenn sie den ganzen Satz ausmachen)
 JUNK = {"thank you for watching", "thanks for watching", "subtitles by", "ขอบคุณที่รับชม",
         "thank you very much for watching", "please subscribe",
@@ -747,7 +754,8 @@ def wait_quiet(limit=5.0, cancelled=None):
     return time.time() - t
 
 
-HEDGE = 0.8                            # s ohne Ton bis zum zweiten TTS-Versuch (Log: 1. Ton oft erst nach ~2 s)
+HEDGE = 0.6                            # s ohne Ton bis zum zweiten TTS-Versuch (über eine offene Verbindung
+                                       # kommt der erste Ton sonst nach ~0,2 s)
 FIRST_DEADLINE = 3.0                   # s ohne Ton -> macOS-Stimme übernimmt (vorher 6 s)
 _TTS_LOOP = None
 _TTS_LOCK = threading.Lock()
@@ -770,6 +778,149 @@ def tts_loop():
             _TTS_LOOP = asyncio.new_event_loop()
             threading.Thread(target=_TTS_LOOP.run_forever, name="tts", daemon=True).start()
         return _TTS_LOOP
+
+
+WS_MAX_AGE = 20.0                      # s: gemessen lebt eine wartende Verbindung ≥ 20 s, nach 45 s ist sie zu
+WS_POOL_N = 2                          # eine für den Satz, eine für den zweiten Versuch/den nächsten Teilsatz
+WS_MAX_BYTES = 3000                    # längere Texte teilt edge-tts selbst -> alter Weg
+_WS = {"pool": [], "opening": 0, "session": None, "ok": True}   # nur im tts-Loop-Thread anfassen
+_WS_CONFIG = ("X-Timestamp:{}\r\nContent-Type:application/json; charset=utf-8\r\nPath:speech.config\r\n\r\n"
+              '{{"context":{{"synthesis":{{"audio":{{"metadataoptions":{{"sentenceBoundaryEnabled":"true",'
+              '"wordBoundaryEnabled":"false"}},"outputFormat":"audio-24khz-48kbitrate-mono-mp3"}}}}}}}}\r\n')
+
+
+async def _ws_open():
+    """Websocket zu edge-tts öffnen und die Audio-Konfiguration schon senden. Der Text (SSML) folgt
+    später: so zahlt der Satz den Verbindungsaufbau (DNS, TLS, Upgrade; gemessen ~0,3 s) nicht mehr."""
+    import asyncio, aiohttp
+    from edge_tts import communicate as ec
+    if _WS["session"] is None or _WS["session"].closed:
+        _WS["session"] = aiohttp.ClientSession(trust_env=True)
+    url = (f"{ec.WSS_URL}&ConnectionId={ec.connect_id()}&Sec-MS-GEC={ec.DRM.generate_sec_ms_gec()}"
+           f"&Sec-MS-GEC-Version={ec.SEC_MS_GEC_VERSION}")
+    ws = await asyncio.wait_for(_WS["session"].ws_connect(
+        url, compress=15, headers=ec.DRM.headers_with_muid(ec.WSS_HEADERS), ssl=ec._SSL_CTX), 10)
+    await ws.send_str(_WS_CONFIG.format(ec.date_to_string()))
+    return ws
+
+
+async def _ws_fill():
+    """Vorrat auffüllen: bis zu WS_POOL_N frische, offene Verbindungen; alte schließen."""
+    import asyncio
+    now, keep = time.time(), []
+    for ws, t in _WS["pool"]:
+        if ws.closed or now - t > WS_MAX_AGE:
+            asyncio.ensure_future(_ws_close(ws))
+        else:
+            keep.append((ws, t))
+    _WS["pool"] = keep
+
+    async def one():
+        try:
+            ws = await _ws_open()
+            _WS["pool"].append((ws, time.time()))
+        except Exception as e:
+            log({"tts_ws": "öffnen fehlgeschlagen", "err": repr(e)[:160]})
+        finally:
+            _WS["opening"] -= 1
+    for _ in range(WS_POOL_N - len(keep) - _WS["opening"]):
+        _WS["opening"] += 1
+        asyncio.ensure_future(one())
+
+
+async def _ws_close(ws):
+    import asyncio
+    try:
+        await asyncio.wait_for(ws.close(), 3)
+    except Exception:
+        pass
+
+
+def _ws_take():
+    """Frischeste offene Verbindung aus dem Vorrat oder None."""
+    now = time.time()
+    while _WS["pool"]:
+        ws, t = _WS["pool"].pop()
+        if not ws.closed and now - t <= WS_MAX_AGE:
+            return ws
+    return None
+
+
+def tts_prepare():
+    """Vom Mikrofon-Thread bei Sprechbeginn und vor dem Übersetzen aufgerufen: Verbindungen zur
+    Neural-Stimme schon öffnen, während noch gesprochen/erkannt wird. Kehrt sofort zurück."""
+    if not _WS["ok"]:
+        return
+    try:
+        import asyncio
+        asyncio.run_coroutine_threadsafe(_ws_fill(), tts_loop())
+    except Exception as e:
+        log({"tts_ws": "vorbereiten fehlgeschlagen", "err": repr(e)[:160]})
+
+
+def tts_prepare_if_speaking():
+    """Nur wenn die Neural-Stimme wirklich gebraucht wird (nicht stumm, nicht --tts say)."""
+    sp = _QSTATE.get("speaker")
+    eng = sp.eng if sp else None
+    if eng is not None and getattr(eng, "tts", "") == "edge" and not getattr(eng, "mute", True):
+        tts_prepare()
+
+
+def _ssml(text, voice, rate):
+    """SSML-Nachricht wie edge-tts sie sendet; None, wenn der Text zu lang ist oder sich die
+    Bibliothek geändert hat (dann der alte Weg über edge_tts.Communicate)."""
+    if not _WS["ok"]:
+        return None
+    try:
+        from edge_tts import communicate as ec
+        esc = ec.escape(ec.remove_incompatible_characters(text))
+        if len(esc.encode("utf-8")) > WS_MAX_BYTES:
+            return None
+        return ec.ssml_headers_plus_data(ec.connect_id(), ec.date_to_string(), ec.mkssml(
+            ec.TTSConfig(voice, rate, "+0%", "+0Hz", "SentenceBoundary"), esc))
+    except Exception as e:
+        _WS["ok"] = False
+        log({"tts_ws": "aus (edge-tts-Interna geändert)", "err": repr(e)[:160]})
+        return None
+
+
+async def _ws_speak(ssml, put, stopped):
+    """SSML über eine (möglichst schon offene) Verbindung senden, Audioblöcke an put() geben.
+    Eine Vorrats-Verbindung kann der Server inzwischen geschlossen haben: kam noch kein Ton,
+    einmal mit einer frisch geöffneten wiederholen."""
+    import asyncio, aiohttp
+    for attempt in (0, 1):
+        ws = _ws_take() if attempt == 0 else None
+        pooled = ws is not None
+        got = False
+        try:
+            if ws is None:
+                ws = await _ws_open()
+            await ws.send_str(ssml)
+            async for m in ws:
+                if stopped():
+                    return pooled
+                if m.type == aiohttp.WSMsgType.TEXT:
+                    if "Path:turn.end" in m.data:
+                        break
+                elif m.type == aiohttp.WSMsgType.BINARY:
+                    n = int.from_bytes(m.data[:2], "big")
+                    data = m.data[n + 2:]
+                    if data:
+                        got = True
+                        put(data)
+                elif m.type == aiohttp.WSMsgType.ERROR:
+                    raise RuntimeError(f"edge-tts Websocket-Fehler: {m.data}")
+            if got:
+                return pooled
+            raise RuntimeError("edge-tts lieferte keine Audiodaten")
+        except Exception:
+            if got or not pooled or stopped():
+                raise
+        finally:
+            if ws is not None:                 # im Hintergrund: der Server bestätigt das Schließen oft erst spät
+                asyncio.ensure_future(_ws_close(ws))
+    return False
 
 
 def tts_warmup():
@@ -831,6 +982,7 @@ class EdgeStream:
         self.t0 = time.time()
         self.stop = threading.Event()
         self.hedged = False
+        self.pooled = None                         # True: lief über eine vorab geöffnete Verbindung
         self.futs = []
         self.cached = TTS_CACHE.get(self.key)
         if self.cached is not None:
@@ -845,14 +997,21 @@ class EdgeStream:
         import asyncio, edge_tts
         q = queue.Queue()
         stop = self.stop
+        ssml = _ssml(self.text, self.voice, self.rate)
+
+        def stopped():
+            return stop.is_set() or getattr(q, "lost", False)
 
         async def produce():
             try:
-                async for c in edge_tts.Communicate(self.text, self.voice, rate=self.rate).stream():
-                    if stop.is_set() or getattr(q, "lost", False):
-                        break
-                    if c["type"] == "audio" and c["data"]:
-                        q.put(c["data"])
+                if ssml is not None:               # schnelle Strecke: vorab geöffnete Verbindung
+                    self.pooled = await _ws_speak(ssml, q.put, stopped)
+                else:
+                    async for c in edge_tts.Communicate(self.text, self.voice, rate=self.rate).stream():
+                        if stopped():
+                            break
+                        if c["type"] == "audio" and c["data"]:
+                            q.put(c["data"])
             except Exception as e:
                 q.put(e)
                 return
@@ -955,6 +1114,7 @@ def edge_play(stream, volume, on_start=None, cancelled=None, deadline=None):
     finally:
         stream.cancel()
     stats["cached"] = stream.cached is not None
+    stats["pooled"] = getattr(stream, "pooled", None)
     if complete and stream.cached is None and len(stream.text) <= TTS_CACHE_CHARS:
         TTS_CACHE[stream.key] = b"".join(got)
         if len(TTS_CACHE) > TTS_CACHE_MAX:
@@ -1155,28 +1315,33 @@ class Engine:
     def __init__(self, model, polite, lock="auto", tts="edge", device="auto", voices=None):
         self.lock, self.tts = lock, tts
         t = time.time()
-        emit("loading", msg=f"Lade Whisper-Modell '{model}' …")
-        # "best": medium für Erkennung + Thai, large-v3-turbo für Englisch (Akzente)
-        self.m, self.device = load_model("medium" if model == "best" else model, device)
+        emit("loading", msg=f"Lade Sprachmodelle ('{model}') …")
+        # Hauptmodell: Englisch, Rückfall und zweite Lesart. "best" = large-v3-turbo (Akzente). Früher
+        # lud "best" zusätzlich medium, das dann fast nie rechnete (~1,5 GB und mehrere Sekunden Start).
+        main = "large-v3-turbo" if model == "best" else model
+        self.m, self.device = load_model(main, device)
+        self.m_en = None                       # Englisch läuft über das Hauptmodell
         # Spracherkennung mit small: 0,2–0,3 s statt 0,5–1,9 s (gemessen, M4 Pro/MPS), bei Thai
-        # sogar sicherer. Allgemeines STT (Rückfall, zweite Lesart) bleibt beim größeren Modell.
-        self.m_det = self.m
+        # sogar sicherer. Thai: auf Thai trainiertes Whisper (biodatlab, MIT) – ~30 % weniger Fehler
+        # bei leiser/entfernter Sprache. Beide laden gleichzeitig (nach dem Hauptmodell, das das
+        # Gerät festlegt), statt nacheinander.
+        self.m_det, self.m_th = self.m, None
         if model != "small":
-            try:
-                self.m_det = load_model("small", self.device)[0]
-            except Exception as e:
-                log({"detect_model": "small nicht geladen", "err": repr(e)[:200]})
-        if model == "best":
-            emit("loading", msg="Lade Englisch-Modell large-v3-turbo …")
-        self.m_en = load_model("large-v3-turbo", self.device)[0] if model == "best" else None
-        # Thai: auf Thai trainiertes Whisper (biodatlab, MIT) – ~30 % weniger Fehler bei leiser/entfernter Sprache
-        self.m_th = None
-        if model != "small":
-            try:
-                emit("loading", msg="Lade Thai-Modell …")
-                self.m_th = load_model(THAI_MODEL, self.device)[0]
-            except Exception as e:
-                log({"thai_model": "nicht geladen", "err": repr(e)[:200]})
+            loaded = {}
+
+            def load(key, name):
+                try:
+                    loaded[key] = load_model(name, self.device)[0]
+                except Exception as e:
+                    log({"model": name, "nicht geladen": True, "err": repr(e)[:200]})
+            ths = [threading.Thread(target=load, args=a, name="load-" + a[0], daemon=True)
+                   for a in (("det", "small"), ("th", THAI_MODEL))]
+            for th in ths:
+                th.start()
+            for th in ths:
+                th.join()
+            self.m_det = loaded.get("det", self.m)
+            self.m_th = loaded.get("th")
         # Beam 1: gemessen (MPS, Thai-Modell) 1,45 s statt 2,5 s (Beam 3/5) bei gleichem Text; der
         # Decoder dominiert, weil Thai viele Tokens braucht.
         self.beam = int(os.environ.get("DOLMETSCHER_BEAM", "1"))   # Benchmark: Beam-Vergleich
@@ -1410,15 +1575,35 @@ class Engine:
         else:
             _, _, probs = self.m_det.detect_language(audio=audio, language_detection_segments=2)
         times["detect"] = round(time.time() - t0, 2)
-        p = dict(probs)
-        pe, pt_raw = p.get("en", 0.0), p.get("th", 0.0)
-        pt, folded = pt_raw, False
-        asian = sum(p.get(k, 0.0) for k in ASIAN_AS_TH)
-        pt_all = pt_raw + asian                  # für die Sprach-Sperre „nur Englisch“
-        if self.lock != "en":
-            if asian > 0 and pt_raw < 0.3 and asian > pe:
-                folded = True
-            pt = pt_all
+
+        def weigh(probs):
+            p = dict(probs)
+            pe, pt_raw = p.get("en", 0.0), p.get("th", 0.0)
+            pt, folded = pt_raw, False
+            asian = sum(p.get(k, 0.0) for k in ASIAN_AS_TH)
+            pt_all = pt_raw + asian              # für die Sprach-Sperre „nur Englisch“
+            if self.lock != "en":
+                if asian > 0 and pt_raw < 0.3 and asian > pe:
+                    folded = True
+                pt = pt_all
+            return p, pe, pt_raw, pt, folded, pt_all
+        p, pe, pt_raw, pt, folded, pt_all = weigh(probs)
+        # Zweite Meinung: Das kleine Erkennungsmodell hält Englisch mit Akzent gern für Deutsch,
+        # Spanisch, Portugiesisch … (Log: 8 % der Sätze so verworfen, Englisch auf Platz 2). Würde der
+        # Satz deshalb verworfen und ist Englisch/Thai nicht ganz abwegig, entscheidet das große Modell.
+        big = getattr(self, "m", None)
+        if (pe + pt < MIN_LANG_P and big is not None and big is not self.m_det
+                and max(pe, pt_raw) >= SECOND_LOOK_MIN and max(p.values(), default=1.0) < SECOND_LOOK_TOP):
+            try:
+                ta = time.time()
+                _, _, probs2 = big.detect_language(audio=audio, language_detection_segments=2)
+                first = (round(pe, 3), round(pt, 3))
+                probs = probs2
+                p, pe, pt_raw, pt, folded, pt_all = weigh(probs)
+                times["detect2"] = round(time.time() - ta, 2)
+                info.update(second_look=True, first_p=first)
+            except Exception as e:
+                log({"second_look": "fehler", "err": repr(e)[:200]})
         # für den Profil-Prior: asiatische Labels zählen als Thai (sonst greift „klar andere Sprache“)
         probs = [("th" if k in ASIAN_AS_TH and self.lock != "en" else k, v) for k, v in probs]
         info.update(p_en=round(pe, 3), p_th=round(pt_raw, 3), p_th_eff=round(pt, 3), folded=folded,
@@ -1658,6 +1843,8 @@ class Engine:
             return lang, text, text
         dst = TARGET[lang]
         meta = {}
+        if speak:
+            tts_prepare_if_speaking()          # Vorrat auffrischen (lange Sätze, Schnellsätze, Korrekturen)
         try:
             out = translate(text, lang, dst, history=tuple(self.history), alts=alts, polite=self.polite, meta=meta)
             net_state("translate", True)
@@ -1886,6 +2073,21 @@ PARTIAL_EVERY = 2.0             # s Sprache zwischen zwei Teiltexten
 FAST = {"pre": True, "endpoint": False, "partial": False}  # endpoint: Whisper setzt fast immer einen Punkt -> zerhackte Sätze
 EARLY_END = {}                  # uid -> version: Satz ist laut Vorab-Erkennung fertig
 PRE = {}                        # uid -> Ergebnis der Vorab-Erkennung
+PRE_NOW = collections.OrderedDict()   # uid -> aktuelle Fassung der Äußerung (Mikrofon-Thread schreibt)
+
+
+def pre_mark(uid, version):
+    """Aktuelle Fassung einer Äußerung merken. Eine eingereihte Vorab-Erkennung mit älterer Fassung
+    ist überholt (es wurde weitergesprochen) und wird nicht mehr gerechnet – sonst blockiert sie
+    den einzigen Arbeits-Thread 1–3 s (Log: bis zu drei überholte Läufe je Satz, danach Stau)."""
+    PRE_NOW[uid] = version
+    PRE_NOW.move_to_end(uid)
+    while len(PRE_NOW) > 50:
+        PRE_NOW.popitem(last=False)
+
+
+def pre_stale(uid, version):
+    return PRE_NOW.get(uid, version) != version
 
 
 def segmenter(read, utts, sess=0, on_end=None):
@@ -1965,6 +2167,7 @@ def segmenter(read, utts, sess=0, on_end=None):
                     uid, version, pre_sent, partial_at = new_id(), 0, False, 0.0
                     HEARING.set()
                     emit("hearing", id=uid)
+                    tts_prepare_if_speaking()       # Verbindung zur Stimme öffnen, während gesprochen wird
                 continue
             buf.append(f)
             peak_rms = max(peak_rms, rms)
@@ -1973,6 +2176,7 @@ def segmenter(read, utts, sess=0, on_end=None):
                 t_voice = t_cap
                 if pre_sent:            # weitergesprochen: Vorab-Erkennung gilt nicht mehr
                     version, pre_sent = version + 1, False
+                    pre_mark(uid, version)
             else:
                 silence += fdur
             if silence >= SILENCE_END - (min(0.2, SILENCE_END - 0.4) if speech < 1.2 else 0.0):
@@ -1984,6 +2188,7 @@ def segmenter(read, utts, sess=0, on_end=None):
                 # Vorab-Erkennung: nach kurzer Pause schon erkennen; ist der Satz bei SILENCE_END
                 # wirklich zu Ende, wird das Ergebnis wiederverwendet
                 pre_sent = True
+                pre_mark(uid, version)
                 utts.put(("pre", uid, version, np.concatenate(buf)))
             elif (FAST["partial"] and silence == 0 and utts.qsize() == 0
                   and len(buf) * fdur - partial_at >= PARTIAL_EVERY):
@@ -2147,6 +2352,9 @@ def work_loop(eng, utts, speak):
         if item is None:
             break
         if isinstance(item[0], str) and item[0] in ("pre", "partial"):
+            if item[0] == "pre" and pre_stale(item[1], item[2]):
+                log({"pre": {"id": item[1], "v": item[2], "skipped": "überholt"}})
+                continue
             if utts.qsize() == 0 or item[0] == "pre":   # Teiltext nur, wenn nichts anderes wartet
                 try:
                     if item[0] == "pre":
@@ -2193,7 +2401,7 @@ def shutdown(*_):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--model", default="medium", help="small | medium | best (medium + large-v3-turbo für Englisch)")
+    ap.add_argument("--model", default="medium", help="small | medium | best (large-v3-turbo für Englisch + Thai-Modell)")
     ap.add_argument("--device", choices=["auto", "mps", "cpu"], default="auto")
     ap.add_argument("--mic", default="0")
     ap.add_argument("--list-mics", action="store_true", help="Mikrofone als JSON ausgeben")

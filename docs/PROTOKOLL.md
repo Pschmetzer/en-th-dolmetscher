@@ -23,7 +23,7 @@ Jede Äußerung hat eine `id` (String, z. B. `"u7"`). Die App darf den Status �
 | `--silence S` | Sekunden Stille bis Satzende, 0.4 … 2.0 (Standard 0.8) |
 | `--sensitivity low\|normal\|high` | Empfindlichkeit der Spracherkennung (VAD) |
 | `--denoise` | Rauschunterdrückung im Mikrofon-Filter |
-| `--voice-en NAME`, `--voice-th NAME` | Neural-Stimme (z. B. `en-US-AvaMultilingualNeural`, `th-TH-PremwadeeNeural`); ohne Angabe: Thai nach `--polite` |
+| `--voice-en NAME`, `--voice-th NAME` | Neural-Stimme (z. B. `en-US-JennyNeural`, `th-TH-PremwadeeNeural`); ohne Angabe: Englisch `en-US-AriaNeural`, Thai nach `--polite` |
 | `--llm` | Übersetzung mit Claude (braucht API-Schlüssel, sonst automatisch Google) |
 | `--llm-model ID` | Standard `claude-haiku-5-5` (günstig und schnell; `claude-sonnet-5-5` genauer) |
 | `--style casual\|neutral\|polite` | Ton der Claude-Übersetzung (Standard `casual`) |
@@ -125,3 +125,24 @@ Neu:
 - `reload_profiles` (true): Stimmprofile neu laden (App schickt es nach Anlegen/Löschen).
 - Ereignis `roles` mit `me` (Profilname oder null) und `on` (bool).
 - Lachen (555, ฮ่าๆ, haha, lol) wird nicht übersetzt, sondern als Lachen der Zielsprache angehängt.
+
+## Schneller Ton, Laden, Sprachprüfung (Branch feat/schneller-ton-und-ui)
+
+Am Protokoll ändert sich nichts (keine neuen Ereignisse oder Felder). Verhalten der Engine:
+
+- **Englische Standardstimme `en-US-AriaNeural`** statt `en-US-AvaMultilingualNeural`. Gemessen: Die
+  Multilingual-Stimmen liefern den ersten Ton erst nach 1,5–4 s (dann sprang fast immer die macOS-Stimme
+  ein), Aria/Jenny/Guy nach 0,4–0,7 s. `th-TH-AcharaNeural` gibt es beim Dienst nicht mehr.
+- **Vorab geöffnete Verbindung zur Neural-Stimme:** Bei Sprechbeginn (`hearing`) und vor dem Übersetzen
+  öffnet die Engine bis zu zwei Websockets und schickt die Audio-Konfiguration. Der Text folgt, sobald die
+  Übersetzung da ist. Erster Ton gemessen nach ~0,12 s statt ~0,5 s. Verbindungen älter als 20 s werden
+  nicht mehr benutzt; schlägt eine fehl, wird einmal frisch geöffnet. Ändern sich die Interna von edge-tts,
+  läuft automatisch der alte Weg (`edge_tts.Communicate`). Im Log: `tts … "pooled": true`.
+- **Überholte Vorab-Erkennung:** Wurde nach der kurzen Pause weitergesprochen, wird eine noch wartende
+  Vorab-Erkennung übersprungen (Log `pre … "skipped": "überholt"`), statt den Arbeits-Thread zu blockieren.
+- **`--model best`** lädt large-v3-turbo als Hauptmodell (Englisch, Rückfall, zweite Lesart) und kein
+  zusätzliches medium mehr; small und das Thai-Modell laden gleichzeitig. Start gemessen 8–10 s statt 14–19 s,
+  ~0,45 GB weniger Speicher.
+- **Zweite Sprachprüfung:** Würde ein Satz als „weder Englisch noch Thai“ verworfen, obwohl Englisch oder
+  Thai mindestens 5 % haben und die fremde Sprache unter 85 % liegt (typisch: Englisch mit Akzent, vom kleinen
+  Modell für Deutsch/Spanisch gehalten), entscheidet das Hauptmodell. Log: `second_look`, `times.detect2`.
