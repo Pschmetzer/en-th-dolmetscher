@@ -57,6 +57,23 @@ enum L {
                           "en": "Voice commands: \"Translator, pause / resume / repeat / slower / louder / English off / help\"",
                           "th": "คำสั่งเสียง (ภาษาอังกฤษ): \"Translator, pause / resume / repeat\""],
         "profiles": ["de": "Stimmprofile", "en": "Voice profiles", "th": "โปรไฟล์เสียง"],
+        // Sprachbefehle (Übersicht im leeren Verlauf und hinter dem Knopf in der Kopfzeile)
+        "commands": ["de": "Sprachbefehle", "en": "Voice commands", "th": "คำสั่งเสียง"],
+        "commands_say": ["de": "Sag „Translator“ und dann den Befehl (auf Englisch):",
+                         "en": "Say \"Translator\" and then the command:",
+                         "th": "พูดว่า \"Translator\" แล้วตามด้วยคำสั่ง (ภาษาอังกฤษ):"],
+        "cmd_pause": ["de": "Übersetzen anhalten", "en": "stop translating", "th": "หยุดแปลชั่วคราว"],
+        "cmd_resume": ["de": "weiter übersetzen", "en": "continue translating", "th": "แปลต่อ"],
+        "cmd_repeat": ["de": "letzten Satz noch einmal", "en": "say the last sentence again", "th": "พูดประโยคล่าสุดอีกครั้ง"],
+        "cmd_slower": ["de": "langsamer / schneller sprechen", "en": "speak slower / faster", "th": "พูดช้าลง / เร็วขึ้น"],
+        "cmd_louder": ["de": "lauter / leiser", "en": "louder / quieter", "th": "ดังขึ้น / เบาลง"],
+        "cmd_only": ["de": "nur eine Sprache hören, „auto“ = beide", "en": "listen to one language only, \"auto\" = both",
+                     "th": "ฟังภาษาเดียว, \"auto\" = ทั้งสองภาษา"],
+        "cmd_off": ["de": "eine Richtung nicht übersetzen / wieder an", "en": "don't translate one direction / on again",
+                    "th": "ไม่แปลภาษานั้น / เปิดอีกครั้ง"],
+        "cmd_voice": ["de": "Thai-Stimme: ครับ oder ค่ะ", "en": "Thai voice: ครับ or ค่ะ", "th": "เสียงภาษาไทย: ครับ หรือ ค่ะ"],
+        "cmd_clear": ["de": "Verlauf leeren", "en": "clear the conversation", "th": "ล้างบทสนทนา"],
+        "cmd_help": ["de": "Befehle ansagen", "en": "hear the commands", "th": "ฟังรายการคำสั่ง"],
         "ui_language": ["de": "Sprache der App", "en": "App language", "th": "ภาษาของแอป"],
 
         // Profile

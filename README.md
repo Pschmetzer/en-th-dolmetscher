@@ -41,7 +41,7 @@ Hands-free speech interpreter for macOS: just talk. English is translated into T
 
 ## Voice commands
 
-Talk to it like Siri: start with **"Translator, …"** (or "Hey translator, …"). Commands are never translated.
+Talk to it like Siri: start with **"Translator, …"** (or "Hey translator, …"). Commands are never translated. In the app the list is shown in the empty conversation and behind the speech-bubble button in the toolbar.
 
 | Say | Effect |
 |---|---|
@@ -73,13 +73,17 @@ It does *not* retrain the model on the voice. Voiceprints are biometric data. Th
 
 Terminal: `python3 dolmetscher.py --enroll Nok --enroll-lang th`, `--profiles`, `--vocab Nok "Sukhumvit, Siam"`, `--delete-profile Nok`.
 
-## Mac app
+## Download and install (Mac app)
 
-Requirements: macOS 14+, Xcode Command Line Tools, `brew install ffmpeg`, Python 3.
+1. Download the source of the [latest release](https://github.com/Pschmetzer/en-th-dolmetscher/releases/latest) (“Source code (zip)”) and unpack it, or `git clone https://github.com/Pschmetzer/en-th-dolmetscher.git`.
+2. Requirements: macOS 14+ on Apple Silicon, Xcode Command Line Tools (`xcode-select --install`), `brew install ffmpeg`, Python 3.
+3. In the unpacked folder:
 
 ```bash
 ./build.sh --install
 ```
+
+There is no ready-made `.app` to download: the app needs a local Python environment and the speech models (~3.5 GB), which the script sets up on your Mac. The first run takes a few minutes; afterwards the app is in `~/Applications/Dolmetscher.app`.
 
 This creates a Python environment under `~/Library/Application Support/Dolmetscher/venv` with the pinned versions from `requirements.txt` (via `uv` if installed, else `pip`; re-running the script brings an existing environment back to those versions), downloads the `medium`, `small` and Thai models (once, ~3.5 GB) and installs `~/Applications/Dolmetscher.app`. Use an existing Python instead: `DOLMETSCHER_PYTHON=/path/to/python ./build.sh --install` (nothing is installed into it; it needs the packages from `requirements.txt`).
 
