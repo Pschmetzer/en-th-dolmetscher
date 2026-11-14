@@ -36,7 +36,8 @@ echo "→ Kompiliere …"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 swiftc -O -parse-as-library -o "$APP/Contents/MacOS/Dolmetscher" app/*.swift
-cp dolmetscher.py profiles.py "$APP/Contents/Resources/"
+cp dolmetscher.py profiles.py presets.py "$APP/Contents/Resources/"
+cp -R presets "$APP/Contents/Resources/presets"
 cp app/AppIcon.icns "$APP/Contents/Resources/"
 
 # Pfade unter $HOME als "~/…" einbetten (die App expandiert die Tilde), damit die

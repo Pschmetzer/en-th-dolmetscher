@@ -146,3 +146,22 @@ Am Protokoll ändert sich nichts (keine neuen Ereignisse oder Felder). Verhalten
 - **Zweite Sprachprüfung:** Würde ein Satz als „weder Englisch noch Thai“ verworfen, obwohl Englisch oder
   Thai mindestens 5 % haben und die fremde Sprache unter 85 % liegt (typisch: Englisch mit Akzent, vom kleinen
   Modell für Deutsch/Spanisch gehalten), entscheidet das Hauptmodell. Log: `second_look`, `times.detect2`.
+
+## Szenario-Presets (Branch feat/presets)
+
+Presets sind Daten: `presets/*.json` neben der Engine (mitgeliefert: `travel`, `restaurant`, `hotel`, `taxi`,
+`doctor` (nur Verständigung, kein medizinischer Rat), `office`, `shopping`) und eigene Dateien in
+`$DOLMETSCHER_HOME/presets/` (Standard `~/Library/Application Support/Dolmetscher/presets/`; gleiche `id`
+überschreibt das mitgelieferte Preset, ungültige Dateien werden übersprungen). Aufbau je Datei:
+
+- `id` (a-z, 0-9, `_`, `-`, max. 32), `names` `{de, en, th}` (max. 40 Zeichen), `style` (`casual`/`neutral`/`polite`)
+- optional `polite` (`krub`/`ka`), `voice` `{en?, th?}` (Stimmnamen aus der Stimmenliste)
+- `glossary`: bis 100 Paare `{en, th}` (max. 60 Zeichen), gelten in beide Richtungen
+- `phrases`: bis 50 Schnellsätze `{en, th}` (max. 200 Zeichen), werden nur geliefert, nicht automatisch gesprochen
+
+Steuerfeld (stdin): `preset: "<id>"` setzt den Stil und fügt das Glossar zum eigenen hinzu (eigene Einträge
+haben Vorrang). `preset: "none"` (oder `null`) stellt Stil, Höflichkeit, Stimmen und Glossar von vorher wieder
+her. Eigene `style`/`glossary`-Änderungen während eines Presets werden zur neuen Basis. Unbekannte `id`: nichts
+ändert sich. Sprachbefehl: "Translator, hotel mode" / "preset taxi" / "preset off" (höchstens 5 Wörter).
+
+Ereignis `preset` beim Wechsel: `id` und `name` (englisch); beide `null` bei "kein Preset".
