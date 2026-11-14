@@ -4,6 +4,7 @@
     python bench/run_bench.py                              # medium, alle Fälle
     python bench/run_bench.py --model small --device cpu --only th
     python bench/run_bench.py --cases th01,th02 --compare bench/results/baseline_main.json
+    python bench/run_bench.py --repeat 5 --compare baseline.json --fail-above 10   # Exit 2 bei >10 % Verschlechterung
 
 Audio: bench/audio/real/<id>.* (eigene Aufnahmen, bevorzugt), sonst --audio-dir
 (Standard bench/audio/clean, erzeugt von make_audio.py).
@@ -28,7 +29,7 @@ EN_NUM = {w: str(i) for i, w in enumerate(
 
 
 def _strip_punct(s):
-    return "".join(ch if not unicodedata.category(ch)[0] in "PS" else " " for ch in s)
+    return "".join(ch if unicodedata.category(ch)[0] not in "PS" else " " for ch in s)
 
 
 # gleichwertige Schreibweisen, die keine Erkennungsfehler sind
@@ -212,7 +213,7 @@ def run_case(d, eng, cap, case, audio, keep_profiles, retries=1):
         if utts or not errors or attempt == retries:
             break
         time.sleep(1.0)                                # z. B. Übersetzung kurz weg -> einmal neu
-    info = next((l for l in reversed(cap.logs) if "lang" in l or "text" in l or "drop" in l), {})
+    info = next((lg for lg in reversed(cap.logs) if "lang" in lg or "text" in lg or "drop" in lg), {})
     utt = utts[-1] if utts else {}
     if not utt and isinstance(ret, (tuple, list)) and len(ret) >= 3:
         utt = {"lang": ret[0], "text": ret[1], "out": ret[2]}
@@ -275,6 +276,7 @@ def summarize(results):
             "dropped": sum(bool(r["dropped"]) for r in rs),
             "total_median_s": round(pct(tot, 0.5), 2),
             "total_p90_s": round(pct(tot, 0.9), 2),
+            "total_p95_s": round(pct(tot, 0.95), 2),
             "stt_mean_s": round(statistics.mean(stt), 2) if stt else None,
             "tr_mean_s": round(statistics.mean(tr), 2) if tr else None,
             "overlap_mean": round(statistics.mean(ov), 3) if ov else None,
@@ -282,6 +284,61 @@ def summarize(results):
         if cmd:
             out[lang]["commands_ok"] = f"{sum(r['command_ok'] for r in cmd)}/{len(cmd)}"
     return out
+
+
+def merge_runs(runs):
+    """Mehrere Läufe desselben Falls: Inhalt vom ersten Lauf, Zeiten als Median/p95 über alle Läufe."""
+    r = dict(runs[0])
+    if len(runs) > 1:
+        tot = [x["total_s"] for x in runs]
+        r["total_s"] = round(statistics.median(tot), 3)
+        r["total_p95_s"] = round(pct(tot, 0.95), 3)
+        r["total_runs_s"] = tot
+        r["err_runs"] = [x["err"] for x in runs]
+    return r
+
+
+def _pkg_version(name):
+    try:
+        from importlib.metadata import version
+        return version(name)
+    except Exception:
+        return None
+
+
+def device_info():
+    """Gerät und Versionen, damit Ergebnisse vergleichbar bleiben."""
+    info = {"platform": platform.platform(), "machine": platform.machine(), "cpu": platform.processor() or None,
+            "cpu_count": os.cpu_count(), "mac_ver": platform.mac_ver()[0] or None}
+    try:
+        info["hw_model"] = subprocess.run(["sysctl", "-n", "machdep.cpu.brand_string"], capture_output=True,
+                                          text=True, timeout=5).stdout.strip() or None
+    except Exception:
+        pass
+    info["packages"] = {n: _pkg_version(n) for n in ("faster-whisper", "ctranslate2", "numpy", "onnxruntime")}
+    return info
+
+
+def regressions(cur, old, limit_pct):
+    """Kennzahlen, die gegenüber der Baseline um mehr als limit_pct Prozent schlechter wurden."""
+    higher_better = {"lang_acc": True, "exact": True, "overlap_mean": True, "err_mean": False,
+                     "err_mean_capped": False, "total_median_s": False, "total_p90_s": False, "dropped": False}
+    bad = []
+    for lang, b in cur["summary"].items():
+        a = old["summary"].get(lang)
+        if not a:
+            continue
+        for k, hb in higher_better.items():
+            va, vb = a.get(k), b.get(k)
+            if not isinstance(va, (int, float)) or not isinstance(vb, (int, float)):
+                continue
+            worse = (va - vb) if hb else (vb - va)
+            if worse <= 0:
+                continue
+            rel = worse / va * 100 if va else float("inf")
+            if rel > limit_pct:
+                bad.append(f"{lang}.{k}: {va:g} -> {vb:g} ({rel:+.1f} %)")
+    return bad
 
 
 def fmt(v, nd=3):
@@ -371,9 +428,17 @@ def main():
     ap.add_argument("--compare", default=None, help="ältere Ergebnis-JSON zum Vergleich")
     ap.add_argument("--profiles", action="store_true", help="Stimmprofile des Nutzers aktiv lassen")
     ap.add_argument("--worst", type=int, default=10)
+    ap.add_argument("--repeat", type=int, default=1, metavar="N",
+                    help="jeden Fall N-mal verarbeiten; Zeiten als Median/p95 (Standard 1)")
+    ap.add_argument("--fail-above", type=float, default=None, metavar="PROZENT",
+                    help="Exit-Code 2, wenn eine Kennzahl gegenüber --compare um mehr als PROZENT schlechter wird")
     ap.add_argument("--rescore", default=None,
                     help="vorhandene Ergebnis-JSON nur neu bewerten (ohne Engine), z. B. nach Metrik-Änderung")
     a = ap.parse_args()
+    if a.repeat < 1:
+        ap.error("--repeat muss >= 1 sein")
+    if a.fail_above is not None and not a.compare:
+        ap.error("--fail-above braucht --compare <baseline.json>")
 
     if a.rescore:
         doc = json.loads(Path(a.rescore).read_text())
@@ -389,7 +454,7 @@ def main():
         if a.compare:
             print_compare(doc, a.compare)
         print(f"\nGespeichert: {out}")
-        return
+        return check_regression(doc, a)
 
     cases = json.loads((HERE / "cases.json").read_text())
     if a.only:
@@ -422,7 +487,8 @@ def main():
 
     results = []
     for i, (c, p, src) in enumerate(todo, 1):
-        r = run_case(d, eng, cap, c, load_audio(p), a.profiles)
+        audio = load_audio(p)
+        r = merge_runs([run_case(d, eng, cap, c, audio, a.profiles) for _ in range(a.repeat)])
         r["audio"] = str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else str(p)
         r["audio_src"] = src
         results.append(r)
@@ -432,9 +498,11 @@ def main():
     now = datetime.datetime.now()
     meta = {"date": now.isoformat(timespec="seconds"), "model": a.model, "device": device,
             "requested_device": a.device, "load_s": round(load_s, 1),
-            "audio_dir": os.path.relpath(a.audio_dir, ROOT) if Path(a.audio_dir).resolve().is_relative_to(ROOT) else a.audio_dir,
+            "audio_dir": (os.path.relpath(a.audio_dir, ROOT)
+                          if Path(a.audio_dir).resolve().is_relative_to(ROOT) else a.audio_dir),
             "profiles": a.profiles, "only": a.only, "cases": a.cases or None,
-            "python": platform.python_version(), "machine": platform.machine()}
+            "python": platform.python_version(), "machine": platform.machine(),
+            "repeat": a.repeat, "device_info": device_info()}
     try:
         meta["git"] = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "--short", "HEAD"],
                                      capture_output=True, text=True).stdout.strip()
@@ -450,7 +518,22 @@ def main():
     if a.compare:
         print_compare(doc, a.compare)
     print(f"\nGespeichert: {out}")
+    return check_regression(doc, a)
+
+
+def check_regression(doc, a):
+    """Exit-Code 2 bei Regression gegen die Baseline (nur mit --fail-above)."""
+    if a.fail_above is None:
+        return 0
+    bad = regressions(doc, json.loads(Path(a.compare).read_text()), a.fail_above)
+    if bad:
+        print(f"\nREGRESSION (> {a.fail_above:g} % schlechter als {a.compare}):")
+        for line in bad:
+            print("   " + line)
+        return 2
+    print(f"\nKeine Regression über {a.fail_above:g} % gegenüber {a.compare}.")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -41,5 +41,14 @@
   {"id": "en11", "lang": "en", "text": "What time does the night market open?", "th_ref": "ตลาดกลางคืนเปิดกี่โมง", "tags": ["question", "time", "place"]},
   {"id": "en12", "lang": "en", "text": "Please turn left at the next corner.", "th_ref": "เลี้ยวซ้ายที่หัวมุมถัดไป", "tags": ["place"]},
   {"id": "en13", "lang": "en", "text": "Yesterday we took the ferry to the island, rented two scooters, drove around the whole coast, had lunch at a small seafood restaurant near the pier, and came back to the hotel just before the storm started in the evening.", "th_ref": "เมื่อวานเรานั่งเรือข้ามฟากไปเกาะ เช่ามอเตอร์ไซค์สองคัน ขับรอบชายฝั่ง กินข้าวเที่ยงที่ร้านอาหารทะเลเล็กๆใกล้ท่าเรือ แล้วกลับโรงแรมก่อนพายุจะเข้าตอนเย็น", "tags": ["long", "place"]},
-  {"id": "en14", "lang": "en", "text": "Translator, pause.", "tags": ["command"], "expect_command": "pause"}
+  {"id": "en14", "lang": "en", "text": "Translator, pause.", "tags": ["command"], "expect_command": "pause"},
+  {"id": "en15", "lang": "en", "text": "The meeting starts at 7:45 and the room number is 1204.", "th_ref": "การประชุมเริ่มเวลา 7:45 และห้องหมายเลข 1204", "tags": ["num", "time"]},
+  {"id": "en16", "lang": "en", "text": "My name is Patrick and I am staying at the Sukhumvit Hotel.", "th_ref": "ผมชื่อแพทริคและพักอยู่ที่โรงแรมสุขุมวิท", "tags": ["name", "place"]},
+  {"id": "en17", "lang": "en", "text": "The taxi from the airport costs about 450 baht.", "th_ref": "แท็กซี่จากสนามบินราคาประมาณ 450 บาท", "tags": ["num", "price"]},
+  {"id": "en18", "lang": "en", "text": "Translator, slower.", "tags": ["command"], "expect_command": "slower"},
+  {"id": "en19", "lang": "en", "text": "Translator, repeat.", "tags": ["command"], "expect_command": "repeat"},
+  {"id": "en20", "lang": "en", "text": "Translator, Thai only.", "tags": ["command"], "expect_command": "thai"},
+  {"id": "th40", "lang": "th", "text": "ผมจะไปประชุมที่ออฟฟิศตอนสิบโมงนะครับ", "en_ref": "I will go to the meeting at the office at ten o'clock.", "tags": ["code-switch", "time", "num"]},
+  {"id": "th41", "lang": "th", "text": "ขอ Wi-Fi password หน่อยได้ไหมคะ", "en_ref": "Could I have the Wi-Fi password, please?", "tags": ["code-switch", "question"]},
+  {"id": "th42", "lang": "th", "text": "ชื่อของฉันคือสมชาย อยู่ที่โรงแรมสยามค่ะ", "en_ref": "My name is Somchai and I'm staying at the Siam Hotel.", "tags": ["name", "place"]}
 ]
