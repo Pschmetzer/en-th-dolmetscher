@@ -17,6 +17,8 @@ Die Fälle stehen in `cases.json`. Thai wird mit der Stimme „Kanya“ erzeugt,
 
 ## 2. Messen
 
+Mit `--repeat N` wird jeder Fall N-mal verarbeitet; die Zeiten stehen als Median (und `total_p95_s`) im JSON, zusammen mit Gerät und Paketversionen (`meta.device_info`). `--fail-above PROZENT` (nur mit `--compare`) beendet den Lauf mit Exit-Code 2, wenn eine Kennzahl (Fehlerrate, Sprachtreffer, Zeiten, verworfen, Überlapp) um mehr als PROZENT schlechter ist als in der Baseline. Mehrere Sprachbefehle in einem Satz sind (noch) kein Fall: die Befehlsfälle erwarten genau einen Befehl.
+
 ```sh
 "$PY" bench/run_bench.py --model small --device cpu --only th
 "$PY" bench/run_bench.py --model medium --device cpu          # alle Fälle
