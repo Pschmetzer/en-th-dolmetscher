@@ -2211,7 +2211,7 @@ class Engine:
             emit("partial", id=uid, text=text, lang=lang)
 
     def deliver(self, uid, lang, text, lp=0.0, stt_s=0.0, speak=True, speaker=None, alts=(), t_end=None,
-                source="mic", replaces=None, role=None):
+                source="mic", replaces=None, role=None, extra=None):
         """Übersetzen, Blase melden, vorlesen (asynchron). Gemeinsam für Mikrofon, Schnellsätze und
         Korrekturen."""
         t1 = time.monotonic()
@@ -2223,6 +2223,8 @@ class Engine:
             base["alts"] = list(alts)[:3]
         if role:
             base["role"] = role
+        if extra:
+            base.update(extra)
         self.texts[uid] = (lang, text)
         if len(self.texts) > 200:
             self.texts.pop(next(iter(self.texts)))
@@ -2281,7 +2283,14 @@ class Engine:
         lang = lang if lang in TARGET else (self.texts.get(uid, ("en",))[0])
         new = new_id()
         emit("thinking", id=new)
-        self.deliver(new, lang, text, lp=0.0, source="edit", replaces=uid)
+        extra = None
+        try:
+            import correction_learning
+            sv = correction_learning.suggest_vocab(self.texts.get(uid, (lang, ""))[1], text, lang)
+            extra = {"suggest_vocab": sv} if sv else None      # nur Vorschlag, nie automatisch speichern
+        except Exception:
+            pass
+        self.deliver(new, lang, text, lp=0.0, source="edit", replaces=uid, extra=extra)
 
 
 def record_one(mic="0", timeout=20.0):
@@ -2322,9 +2331,21 @@ def profile_cli(a):
     elif a.delete_profile:
         emit("profile_deleted", name=a.delete_profile, ok=profiles.delete_profile(a.delete_profile))
     elif a.vocab is not None:
-        p = profiles.set_vocab(a.vocab[0], re.split(r"[,\n]", a.vocab[1]))
+        try:
+            p = profiles.set_vocab(a.vocab[0], re.split(r"[,\n]", a.vocab[1]))
+        except profiles.ProfileNameError as e:
+            emit("error", msg=f"Ungültiger Profilname: {e}")
+            return
+        except KeyError:
+            emit("error", msg=f"Profil nicht gefunden: {a.vocab[0]}")
+            return
         emit("profile_saved", profile=profiles.public(p))
     elif a.enroll:
+        try:
+            profiles._safe(a.enroll)
+        except profiles.ProfileNameError as e:
+            emit("error", msg=f"Ungültiger Profilname: {e}")
+            return
         emit("loading", msg="Lade Modelle für das Stimmprofil …")
         spk = profiles.SpeakerID()
         # nur die nötigen Modelle: medium (+ Thai-Modell), kein large-v3-turbo
@@ -2976,7 +2997,7 @@ def shutdown(*_):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--model", default="medium", help="small | medium | best (large-v3-turbo für Englisch + Thai-Modell)")
+    ap.add_argument("--model", default="medium", help="small | medium | best (large-v3-turbo für Englisch + Thai-Modell) | auto (nach Chip/RAM)")
     ap.add_argument("--device", choices=["auto", "mps", "cpu"], default="auto")
     ap.add_argument("--mic", default="0")
     ap.add_argument("--list-mics", action="store_true", help="Mikrofone als JSON ausgeben")
@@ -3056,7 +3077,17 @@ if __name__ == "__main__":
         sys.exit(0)
     if a.tts == "edge" and not a.mute:
         tts_warmup()                            # parallel zum Laden des Modells
-    eng = Engine(a.model, a.polite, a.lang, a.tts, a.device)
+    model, hw = a.model, None
+    if model == "auto":
+        import hwprofile
+        hw = hwprofile.auto_choice()
+        model = hw["model"]
+    eng = Engine(model, a.polite, a.lang, a.tts, a.device)
+    if hw:
+        if "DOLMETSCHER_BEAM" not in os.environ:
+            eng.beam = hw["beam"]
+        emit("hwprofile", chip=hw["chip"], ram_gb=hw["ram_gb"], model=model, beam=eng.beam, reason=hw["reason"])
+        log({"hwprofile": hw})
     apply_control(eng, {"rate": a.rate, "volume": a.volume, "voice_en": a.voice_en, "voice_th": a.voice_th})
     eng.mute = a.mute
     eng.earcons = a.earcons
