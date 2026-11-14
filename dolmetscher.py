@@ -158,6 +158,8 @@ def emit(event, **kw):
 
 
 def _emit(event, **kw):
+    if event == "utt":
+        import history_store; history_store.RECORDER.utt(kw)       # nur wenn eingeschaltet (Standard: aus)
     if JSON:
         print(json.dumps({"event": event, **kw}, ensure_ascii=False), flush=True)
     elif event in ("loading", "ready", "calibrating", "error"):
@@ -1881,7 +1883,7 @@ class Engine:
             with _PRE_LOCK:
                 PRE.clear()
                 EARLY_END.clear()
-        elif key.startswith("preset:"):
+        elif isinstance(key, str) and key.startswith("preset:"):
             pid = key[7:]
             name = set_preset(self, pid)
             reply = f"Okay, {name} mode." if name else "Okay, no preset."
@@ -2474,6 +2476,10 @@ def apply_control(eng, d):
             later.append(eng.reload_profiles)
         ok, v = _flag(d, "partial")
         if ok: FAST["partial"] = v
+        ok, v = _flag(d, "history")
+        if ok:
+            days = d.get("history_days")
+            later.append(lambda v=v, days=days: __import__("history_store").RECORDER.enable(v, days))
         n = _clamp(d.get("tts_race"), 0.0, 5.0)
         if n is not None: TTS_RACE = float(n)
         ok, v = _flag(d, "stop_speaking")
@@ -3073,6 +3079,14 @@ if __name__ == "__main__":
                     help="Modelle laden, Mikrofon erst mit {\"listen\": true} auf stdin öffnen")
     ap.add_argument("--profile-stdin", action="store_true",
                     help="Profilname/Wörter als eine JSON-Zeile von stdin lesen statt aus argv (Datenschutz)")
+    ap.add_argument("--history", action="store_true", help="Gesprächsverlauf lokal speichern (Standard: aus)")
+    ap.add_argument("--history-days", type=int, default=None, help="Verlauf älter als N Tage beim Start löschen")
+    ap.add_argument("--history-export", metavar="FORMAT", choices=["md", "json", "csv", "srt", "vtt", "anki"])
+    ap.add_argument("--history-session", metavar="ID")
+    ap.add_argument("--out", metavar="PFAD", help="Zieldatei für --history-export (sonst stdout)")
+    ap.add_argument("--history-search", metavar="TEXT")
+    ap.add_argument("--history-purge", metavar="TAGE", type=float)
+    ap.add_argument("--history-clear", action="store_true", help="gesamten Verlauf löschen")
     a = ap.parse_args()
     if a.profile_stdin:                         # {"enroll", "enroll_lang", "delete_profile", "vocab": [name, wörter]}
         try:
@@ -3086,6 +3100,11 @@ if __name__ == "__main__":
         v = req.get("vocab")
         if isinstance(v, list) and len(v) == 2 and all(isinstance(x, str) for x in v):
             a.vocab = v
+    import history_store
+    if history_store.wants_cli(a):
+        sys.exit(history_store.run_cli(a))
+    if a.history:
+        history_store.RECORDER.enable(True, a.history_days)
     JSON, BARGE_IN, LOG_TEXT, METER, DENOISE = a.json, a.barge_in, a.log_text, a.meter, a.denoise
     if a.list_mics:
         JSON = True
