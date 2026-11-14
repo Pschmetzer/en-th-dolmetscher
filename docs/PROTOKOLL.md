@@ -146,3 +146,15 @@ Am Protokoll ändert sich nichts (keine neuen Ereignisse oder Felder). Verhalten
 - **Zweite Sprachprüfung:** Würde ein Satz als „weder Englisch noch Thai“ verworfen, obwohl Englisch oder
   Thai mindestens 5 % haben und die fremde Sprache unter 85 % liegt (typisch: Englisch mit Akzent, vom kleinen
   Modell für Deutsch/Spanisch gehalten), entscheidet das Hauptmodell. Log: `second_look`, `times.detect2`.
+
+## Hardware-Auswahl und Korrektur-Vorschläge
+
+- `--model auto` wählt Modell und Beam nach Chip/RAM (Standard bleibt `medium`). Stufen: `small` (Intel
+  oder unter 8 GB), `medium` (Apple Silicon ab 8 GB, Beam 1; ab 16 GB Beam 3), `best` (Pro/Max/Ultra ab 24 GB,
+  Beam 5). `DOLMETSCHER_BEAM` überschreibt den Beam. Ereignis `hwprofile`: `chip`, `ram_gb`, `model`, `beam`,
+  `reason` (kommt direkt nach `ready`).
+- `utt` mit `source: "edit"` (Antwort auf `retranslate`) trägt optional `suggest_vocab`: Liste von Wörtern, die
+  der Nutzer gegenüber dem alten erkannten Text geändert oder ergänzt hat (ohne Eigennamen, Zahlen, Einheiten;
+  Thai per pythainlp-Segmentierung, sonst Thai-Läufe). Nur ein Vorschlag: die Engine speichert nichts, die App
+  fragt den Nutzer und schickt es ggf. per `--vocab` bzw. Glossar.
+- Ungültige Profilnamen bei `--vocab`/`--enroll` ergeben ein `error`-Ereignis statt eines Tracebacks.

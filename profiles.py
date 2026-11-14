@@ -57,10 +57,14 @@ ENROLL = {
 
 
 # ---------- storage ----------
+class ProfileNameError(ValueError):
+    pass
+
+
 def _safe(name):
     s = re.sub(r"[^\w\- ]", "", name, flags=re.U).strip()
     if not s:
-        raise ValueError("invalid profile name")
+        raise ProfileNameError("invalid profile name")
     return s
 
 
