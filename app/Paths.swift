@@ -59,7 +59,8 @@ enum Paths {
         return env
     }
 
-    enum PythonCheck: Equatable { case ok, noModule, failed(String) }
+    /// `ok` trägt die Versionen („3.12.4 1.0.3“ = Python, faster-whisper).
+    enum PythonCheck: Equatable { case ok(String), noModule, failed(String) }
 
     /// Prüft im Hintergrund, ob `import faster_whisper` mit dem Engine-Python klappt (Timeout 15 s).
     /// `done` läuft auf dem Main-Thread.
@@ -67,15 +68,16 @@ enum Paths {
         DispatchQueue.global(qos: .utility).async {
             let p = Process()
             p.executableURL = URL(fileURLWithPath: python)
-            p.arguments = ["-c", "import faster_whisper"]
+            p.arguments = ["-c", "import sys, faster_whisper; print(sys.version.split()[0], getattr(faster_whisper, '__version__', '?'))"]
             p.environment = engineEnvironment()
             let err = Pipe()
             p.standardError = err
-            p.standardOutput = FileHandle.nullDevice
+            let outPipe = Pipe()
+            p.standardOutput = outPipe
             p.standardInput = FileHandle.nullDevice
             let sem = DispatchSemaphore(value: 0)
             p.terminationHandler = { _ in sem.signal() }
-            var result = PythonCheck.ok
+            var result = PythonCheck.ok("?")
             do { try p.run() } catch {
                 DispatchQueue.main.async { done(.failed(error.localizedDescription)) }
                 return
@@ -83,7 +85,10 @@ enum Paths {
             if sem.wait(timeout: .now() + 15) == .timedOut {
                 p.terminate()
                 result = .failed("timeout")
-            } else if p.terminationStatus != 0 {
+            } else if p.terminationStatus == 0 {
+                let v = String(decoding: outPipe.fileHandleForReading.availableData, as: UTF8.self)
+                result = .ok(v.trimmingCharacters(in: .whitespacesAndNewlines))
+            } else {
                 let text = String(decoding: err.fileHandleForReading.availableData, as: UTF8.self)
                 result = text.contains("No module named") ? .noModule : .failed(String(text.suffix(300)))
             }

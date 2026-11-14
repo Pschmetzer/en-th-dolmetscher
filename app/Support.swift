@@ -138,7 +138,7 @@ extension EngineModel {
         #endif
         let pyText: String
         switch python {
-        case .ok: pyText = "OK (faster_whisper)"
+        case .ok(let v): pyText = "OK – Python / faster-whisper: " + v
         case .noModule: pyText = "faster_whisper fehlt"
         case .failed(let e): pyText = "Fehler: " + redact(e)
         }

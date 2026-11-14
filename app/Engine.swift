@@ -583,6 +583,7 @@ final class EngineModel: NSObject, ObservableObject {
     /// Absturz-Hinweis mit verständlicher Ursache (Speicher, fehlende Python-Module, Signal).
     private func engineEnded(code: Int32, reason: Process.TerminationReason) {
         let want = wantListen || micOn
+        let wasReady = engineReady   // fehlende Pflichtmodule beenden die Engine vor `ready`; spätere Treffer sind Warnungen optionaler Module
         if Date().timeIntervalSince(launchedAt) > 60 { restartAttempts = 0 }   // lief stabil: neuer Versuchsvorrat
         let tail = Self.logTail()
         state = .stopped; proc = nil; stdin = nil; launchedSignature = nil
@@ -590,8 +591,8 @@ final class EngineModel: NSObject, ObservableObject {
         loadSlowWork?.cancel(); loadSlowWork = nil; loadSlow = false
         resetRuntime()
         let signaled = reason == .uncaughtSignal
-        let envBroken = tail.contains("No module named") || tail.contains("ModuleNotFoundError")
-            || tail.contains("ImportError")
+        let envBroken = !wasReady && (tail.contains("No module named") || tail.contains("ModuleNotFoundError")
+            || tail.contains("ImportError"))
         let message: String
         if envBroken { message = L.t("crash_env") }
         else if signaled && code == SIGKILL { message = L.t("crash_oom") }
