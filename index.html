@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src https://translate.googleapis.com https://api.mymemory.translated.net; img-src data:; base-uri 'none'; form-action 'none'">
 <title>EN ⇄ TH Dolmetscher (Web Lite)</title>
 <style>
   :root {
@@ -58,7 +59,7 @@
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap" id="main">
 <header>
   <h1>🇬🇧 EN ⇄ TH 🇹🇭 Dolmetscher <small style="color:var(--mut);font-weight:400">Web Lite</small></h1>
   <span id="status" role="status" aria-live="polite">Bereit</span>
@@ -68,7 +69,10 @@
   Die <b>Mac-App</b> ist deutlich besser: erkennt die Sprache automatisch, Sprachbefehle in beiden Sprachen, bessere Erkennung (Whisper), Neural-Stimmen, Stimmprofile, optional Übersetzung mit Claude.
   <a href="https://github.com/Pschmetzer/en-th-dolmetscher" target="_blank" rel="noopener">Mac-App &amp; Quellcode auf GitHub</a>
 </div>
-<div id="warn"></div>
+<div class="note" role="note" id="privacy">
+  <b>Datenschutz:</b> Die Spracherkennung macht Chrome – dabei wird dein <b>Audio an Googles Server gesendet</b>. Der erkannte Text geht zum Übersetzen an Google Translate (Ersatz: MyMemory). Die Mac-App erkennt Sprache dagegen lokal auf dem Gerät.
+</div>
+<div id="warn" role="alert"></div>
 <div class="controls">
   <button class="mode" id="btnEN">🎙 Ich spreche (English) <kbd>E</kbd></button>
   <button class="mode" id="btnTH">🎙 พูดภาษาไทย (Thai) <kbd>T</kbd></button>
@@ -78,6 +82,7 @@
   <label><input type="checkbox" id="dirTH" checked> Translate TH→EN</label>
   <label><input type="checkbox" id="speak" checked> Übersetzung vorlesen</label>
   <label><input type="checkbox" id="autoswitch"> Nach jedem Satz Sprecher wechseln</label>
+  <label><input type="checkbox" id="keysOn" checked> Einzeltasten-Kürzel (E, T, P, Leertaste)</label>
   <button class="small" id="btnPartner" type="button">Partneransicht <kbd>P</kbd></button>
 </div>
 <details class="help">
@@ -86,12 +91,12 @@
   Sprachbefehle im EN-Modus, am Satzanfang (werden nie übersetzt): „Translator pause“, „resume“, „repeat“, „slower“, „faster“.</p>
 </details>
 <div id="live" aria-live="off">…</div>
-<div id="log"></div>
+<div id="log" role="log" aria-live="polite" aria-relevant="additions" aria-label="Übersetzungen"></div>
 </div>
 
-<div id="partner" role="dialog" aria-label="Partneransicht">
-  <div class="bar"><span>Letzte Übersetzung</span><button class="small" id="btnPartnerClose" type="button">Schließen <kbd>Esc</kbd></button></div>
-  <div id="partnerText" lang="th">…</div>
+<div id="partner" role="dialog" aria-modal="true" aria-labelledby="partnerTitle" aria-hidden="true">
+  <div class="bar"><span id="partnerTitle">Partneransicht – letzte Übersetzung</span><button class="small" id="btnPartnerClose" type="button">Schließen <kbd>Esc</kbd></button></div>
+  <div id="partnerText" lang="th" aria-live="polite">…</div>
 </div>
 
 <script>
@@ -168,6 +173,7 @@ function startRec() {
   if (!SR || !mode || speaking) return;
   rec = new SR();
   rec.lang = MODES[mode].rec;
+  live.lang = MODES[mode].from;
   rec.continuous = true;
   rec.interimResults = true;
   rec.onresult = ev => {
@@ -200,12 +206,15 @@ function setMode(m) {
   if (mode) startRec(); else statusEl.textContent = 'Gestoppt';
 }
 
-function addEntry(cls, orig, trans, isErr) {
+function addEntry(cls, orig, trans, isErr, from, to) {
   const entry = document.createElement('div');
   entry.className = 'entry ' + cls;
   entry.innerHTML = `<div class="orig"></div><div class="trans"></div>`;
-  entry.querySelector('.orig').textContent = orig;
+  const o = entry.querySelector('.orig');
+  o.textContent = orig;
+  if (from) o.lang = from;                 // screen readers pick the right voice
   const t = entry.querySelector('.trans');
+  if (to && !isErr) t.lang = to;
   t.textContent = trans; if (isErr) t.classList.add('err');
   if (!trans) t.style.display = 'none';
   log.appendChild(entry);
@@ -218,15 +227,15 @@ async function handleFinal(text) {
   live.textContent = '…';
   if (cur === 'en') {
     const cmd = parseCommand(text);
-    if (cmd) { addEntry('cmd', '⌘ ' + text, '', false); runCommand(cmd); return; }  // never translated
+    if (cmd) { addEntry('cmd', '⌘ ' + text, '', false, 'en'); runCommand(cmd); return; }  // never translated
   }
   if (paused) return;
-  if (!m.dir.checked) { addEntry(cur, text, '', false); return; }  // direction off: text only, no translation, no speech
-  const t = addEntry(cur, text, '…', false);
+  if (!m.dir.checked) { addEntry(cur, text, '', false, m.from); return; }  // direction off: text only, no translation, no speech
+  const t = addEntry(cur, text, '…', false, m.from, m.to);
   let out;
   try { out = await translate(text, m.from, m.to); }
   catch { t.textContent = 'Übersetzung gerade nicht verfügbar (Internet / Limit?)'; t.classList.add('err'); return; }  // no error text is displayed as translation or spoken
-  t.textContent = out;
+  t.textContent = out; t.lang = m.to;
   lastOut = { text: out, lang: m.tts };
   $('partnerText').textContent = out; $('partnerText').lang = m.to;
   if (g !== gen || paused) return;   // mode changed/stopped or paused meanwhile: show, but don't speak or switch back
@@ -255,16 +264,30 @@ function speak(text, lang, nextMode) {
 }
 
 // ---- Partner view ----
-function togglePartner(on) { $('partner').classList.toggle('on', on === undefined ? !$('partner').classList.contains('on') : on); }
+let partnerOpener = null;
+function togglePartner(on) {
+  const el = $('partner');
+  const want = on === undefined ? !el.classList.contains('on') : on;
+  if (want === el.classList.contains('on')) return;
+  if (want) partnerOpener = document.activeElement;
+  el.classList.toggle('on', want);
+  el.setAttribute('aria-hidden', want ? 'false' : 'true');
+  $('main').inert = want;                  // dialog is modal: nothing behind it is reachable (focus trap)
+  if (want) $('btnPartnerClose').focus();
+  else if (partnerOpener && partnerOpener.focus) partnerOpener.focus();
+}
 $('btnPartner').onclick = () => togglePartner(true);
 $('btnPartnerClose').onclick = () => togglePartner(false);
 
 MODES.en.btn.onclick = () => setMode('en');
 MODES.th.btn.onclick = () => setMode('th');
+try { $('keysOn').checked = localStorage.getItem('keysOn') !== '0'; } catch {}
+$('keysOn').onchange = () => { try { localStorage.setItem('keysOn', $('keysOn').checked ? '1' : '0'); } catch {} };
 document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { togglePartner(false); return; }   // closing a dialog always works
+  if (!$('keysOn').checked) return;                            // single-key shortcuts can be switched off (WCAG 2.1.4)
   if (e.target.tagName === 'INPUT' || e.ctrlKey || e.metaKey || e.altKey) return;
-  if (e.key === 'Escape') togglePartner(false);
-  else if (e.key === 'p' || e.key === 'P') togglePartner();
+  if (e.key === 'p' || e.key === 'P') togglePartner();
   else if (e.key === 'e' || e.key === 'E') setMode('en');
   else if (e.key === 't' || e.key === 'T') setMode('th');
   else if (e.code === 'Space' && e.target.tagName !== 'BUTTON') { e.preventDefault(); if (mode) setMode(mode); }

@@ -13,6 +13,7 @@ struct Bubble: View, Equatable {
     let twoPerson: Bool
     var onCorrect: (Utterance) -> Void = { _ in }
     @State private var hovering = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     nonisolated static func == (a: Bubble, b: Bubble) -> Bool {
         a.u == b.u && a.scale == b.scale && a.playing == b.playing && a.running == b.running
@@ -42,7 +43,8 @@ struct Bubble: View, Equatable {
         .accessibilityLabel(L.t("stop_speaking"))
     }
 
-    /// Sichtbare Korrektur-Knöpfe, sobald die Maus über der Blase ist (bisher nur im Kontextmenü).
+    /// Korrektur-Knöpfe: immer erreichbar (Tastatur-Fokus, Touchpad ohne Hover), blass im Ruhezustand,
+    /// deutlich bei Maus-Hover.
     private var quickActions: some View {
         HStack(spacing: 2) {
             Button { onCorrect(u) } label: { Image(systemName: "pencil") }
@@ -60,17 +62,25 @@ struct Bubble: View, Equatable {
         .padding(.horizontal, 6).padding(.vertical, 4)
         .background(.regularMaterial, in: Capsule())
         .padding(8)
+        .opacity(hovering ? 1 : 0.5)
     }
     private var helpText: String {
         (u.lowConfidence ? L.t("low_conf") + " – " + L.t("click_replay") : L.t("click_replay"))
             + "\n" + u.date.formatted(date: .omitted, time: .standard)
     }
-    private var a11yText: String {
-        var s = "\(LangStyle.name(u.lang)): \(u.text). "
-        s += u.translated ? "\(LangStyle.name(u.to)): \(u.out)" : L.t("not_translated")
-        if u.lowConfidence { s += ". " + L.t("low_conf") }
-        if u.skipped { s += ". " + L.t("not_spoken") }
-        return s
+    /// VoiceOver-Text; Thai-Abschnitte tragen die Sprachkennung "th".
+    private var a11yText: AttributedString {
+        var parts: [(String, String?)] = [("\(LangStyle.name(u.lang)): ", nil), (u.text, u.lang)]
+        if u.translated {
+            parts += [(". \(LangStyle.name(u.to)): ", nil), (u.out, u.to)]
+        } else {
+            parts.append((". " + L.t("not_translated"), nil))
+        }
+        var tail = ""
+        if u.lowConfidence { tail += ". " + L.t("low_conf") }
+        if u.skipped { tail += ". " + L.t("not_spoken") }
+        if !tail.isEmpty { parts.append((tail, nil)) }
+        return a11yAttributed(parts)
     }
 
     private var content: some View {
@@ -84,7 +94,7 @@ struct Bubble: View, Equatable {
         .background(LangStyle.color(u.lang).opacity(playing ? 0.28 : 0.14), in: RoundedRectangle(cornerRadius: 14))
         .overlay {
             if u.lowConfidence {
-                RoundedRectangle(cornerRadius: 14).strokeBorder(Color.orange, lineWidth: 2)
+                RoundedRectangle(cornerRadius: 14).strokeBorder(LangStyle.warning, lineWidth: 2)
             }
         }
         .contentShape(RoundedRectangle(cornerRadius: 14))
@@ -92,15 +102,17 @@ struct Bubble: View, Equatable {
         .overlay(alignment: en ? .topTrailing : .topLeading) {
             if playing {
                 stopButton                       // versehentlich angetippt: sofort abbrechen
-            } else if hovering && canCorrect {
-                quickActions.transition(.opacity)
+            } else if canCorrect {
+                quickActions
             }
         }
-        .onHover { h in withAnimation(.easeOut(duration: 0.12)) { hovering = h } }
+        .onHover { h in
+            if reduceMotion { hovering = h } else { withAnimation(.easeOut(duration: 0.12)) { hovering = h } }
+        }
         .help(helpText)
         .contextMenu { menu }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(a11yText)
+        .accessibilityLabel(Text(a11yText))
         .accessibilityAddTraits(.isButton)
         .accessibilityHint(playing ? L.t("stop_speaking") : L.t("click_replay"))
         .accessibilityAction(named: L.t("stop_speaking")) { m.stopSpeaking() }
@@ -130,9 +142,7 @@ struct Bubble: View, Equatable {
         ForEach(Array(u.alts.enumerated()), id: \.offset) { _, alt in
             Button(L.t("alt_reading") + ": " + alt) { m.retranslate(u, text: alt) }.disabled(!canCorrect)
         }
-        if u.lang == "en" {
-            Button(L.t("save_phrase")) { saveQuickPhrase(u.text) }
-        }
+        Button(L.t("save_phrase")) { saveQuickPhrase(u.text) }
         Button(L.t("read_aloud")) { m.replay(u) }
         Button(L.t("stop_speaking")) { m.stopSpeaking() }
     }
@@ -160,6 +170,7 @@ private struct BubbleHeader: View {
                 Text(line)
                     .font(.system(size: 15 * scale)).foregroundStyle(.secondary)
                     .multilineTextAlignment(en ? .leading : .trailing)
+                    .textSelection(.enabled)
                 if playing { Image(systemName: "speaker.wave.2.fill").foregroundStyle(.secondary).accessibilityHidden(true) }
                 if en { Spacer(minLength: 0) }
             }
@@ -185,6 +196,7 @@ private struct BubbleMain: View {
                 .font(.system(size: 30 * scale, weight: .semibold))
                 .foregroundStyle(u.translated ? LangStyle.color(u.to) : .primary)
                 .multilineTextAlignment(en ? .leading : .trailing)
+                .textSelection(.enabled)
             if translit, let latin = u.translated ? u.outLatin : u.textLatin {
                 Text(latin)
                     .font(.system(size: 14 * scale)).italic().foregroundStyle(.secondary)
@@ -225,14 +237,14 @@ private struct BubbleFooter: View {
                         .foregroundStyle(.secondary)
                 }
                 if u.numWarn {
-                    Label(L.t("num_warn"), systemImage: "number.circle").foregroundStyle(Color.orange)
+                    Label(L.t("num_warn"), systemImage: "number.circle").foregroundStyle(LangStyle.warning)
                 }
                 if u.provider == "mymemory" {
                     Label(L.t("weak_mt"), systemImage: "arrow.triangle.2.circlepath").foregroundStyle(.secondary)
                 }
                 if u.lowConfidence {
                     Label(L.t("low_conf"), systemImage: "exclamationmark.triangle")
-                        .foregroundStyle(Color.orange)
+                        .foregroundStyle(LangStyle.warning)
                     if let onCorrect {
                         Button(action: onCorrect) { Label(L.t("correct"), systemImage: "pencil") }
                             .buttonStyle(.borderless)
@@ -278,7 +290,8 @@ private struct PlaceholderBubble: View {
         return HStack(alignment: .firstTextBaseline, spacing: 8) {
             if !en { Spacer(minLength: 0) }
             ProgressView().controlSize(.small)
-            Text(LangStyle.flag(u.lang) + " " + p)
+            Text(LangStyle.flag(u.lang)).accessibilityHidden(true)
+            Text(p)
                 .font(.system(size: 17 * scale)).italic().foregroundStyle(.secondary)
                 .multilineTextAlignment(en ? .leading : .trailing)
             if en { Spacer(minLength: 0) }
@@ -287,7 +300,7 @@ private struct PlaceholderBubble: View {
         .frame(maxWidth: .infinity, alignment: en ? .leading : .trailing)
         .background(LangStyle.color(u.lang).opacity(0.06), in: RoundedRectangle(cornerRadius: 14))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(L.t("partial_a11y") + ": " + p)
+        .accessibilityLabel(Text(a11yAttributed([(L.t("partial_a11y") + ": ", nil), (p, u.lang)])))
     }
 }
 
@@ -301,7 +314,10 @@ struct CorrectSheet: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text(L.t("correct_title")).font(.title2.bold())
-            Text(LangStyle.flag(u.lang) + " " + LangStyle.name(u.lang)).foregroundStyle(.secondary)
+            HStack(spacing: 6) {
+                Text(LangStyle.flag(u.lang)).accessibilityHidden(true)
+                Text(LangStyle.name(u.lang))
+            }.foregroundStyle(.secondary)
             TextField(L.t("correct_title"), text: $text, axis: .vertical)
                 .lineLimit(2...6)
                 .textFieldStyle(.roundedBorder)
