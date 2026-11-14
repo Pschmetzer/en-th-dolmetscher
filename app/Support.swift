@@ -162,7 +162,7 @@ extension EngineModel {
             + "ungültige Zeilen=\(malformedLines), langsamerStart=\(loadSlow)"
         var lines: [String] = [ver]
         lines.append("macOS \(ProcessInfo.processInfo.operatingSystemVersionString), \(arch)")
-        lines.append("Python: \(redact(Paths.python)) – \(pyText)")
+        lines.append("Python: \(redact(Paths.python))" + (Paths.pythonIsFallback ? " (Ersatz, venv fehlt)" : "") + " – \(pyText)")
         lines.append("ffmpeg: " + (Paths.ffmpeg.map(redact) ?? "nicht gefunden"))
         lines.append("Modelle im Cache: " + (models.isEmpty ? "keine" : models.joined(separator: ", ")))
         lines.append(settings)

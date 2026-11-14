@@ -228,7 +228,7 @@ final class EngineModel: NSObject, ObservableObject {
     private var proc: Process?
     private var launchedAt = Date.distantPast
     private var restartWork: DispatchWorkItem?
-    /// Auto-Neustart nach Absturz: Zähler (zurück auf 0 bei `ready` oder Neustart durch den Nutzer) und Wartezeit.
+    /// Auto-Neustart nach Absturz: Zähler (zurück auf 0 nach 60 s stabiler Laufzeit oder bei Start durch den Nutzer).
     private(set) var restartAttempts = 0
     private static let maxRestartAttempts = 3
     private var backoffWork: DispatchWorkItem?
@@ -583,6 +583,7 @@ final class EngineModel: NSObject, ObservableObject {
     /// Absturz-Hinweis mit verständlicher Ursache (Speicher, fehlende Python-Module, Signal).
     private func engineEnded(code: Int32, reason: Process.TerminationReason) {
         let want = wantListen || micOn
+        if Date().timeIntervalSince(launchedAt) > 60 { restartAttempts = 0 }   // lief stabil: neuer Versuchsvorrat
         let tail = Self.logTail()
         state = .stopped; proc = nil; stdin = nil; launchedSignature = nil
         engineReady = false; micOn = false; micKnown = false
@@ -747,7 +748,6 @@ final class EngineModel: NSObject, ObservableObject {
                 + (wantListen ? " " + L.t("then_start") : "")
         case "ready":
             engineReady = true
-            restartAttempts = 0   // Start gelungen: Auto-Neustart-Zähler zurück
             loadSlowWork?.cancel(); loadSlowWork = nil; loadSlow = false
             llmActive = o["llm"] as? Bool ?? false
             if pushToTalk && !pttHolding { setPaused(true) }
