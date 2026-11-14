@@ -146,3 +146,27 @@ Am Protokoll ändert sich nichts (keine neuen Ereignisse oder Felder). Verhalten
 - **Zweite Sprachprüfung:** Würde ein Satz als „weder Englisch noch Thai“ verworfen, obwohl Englisch oder
   Thai mindestens 5 % haben und die fremde Sprache unter 85 % liegt (typisch: Englisch mit Akzent, vom kleinen
   Modell für Deutsch/Spanisch gehalten), entscheidet das Hauptmodell. Log: `second_look`, `times.detect2`.
+
+## Gesprächsverlauf (optional, Standard: aus)
+
+Lokal, nur auf Wunsch. Modul `history_store.py`, Datei `history.sqlite` unter
+`$DOLMETSCHER_HOME` bzw. `~/Library/Application Support/Dolmetscher/` (Ordner 0700, Datei 0600).
+Gespeichert wird pro `utt`: Zeit (UTC), Quellsprache, Originaltext, Übersetzung, Umschrift,
+Konfidenz (`exp(lp)`), Anbieter, Sitzungs-ID. Eine Korrektur (`replaces`) ersetzt den alten Eintrag.
+Nichts davon geht ins Log.
+
+Aufnahme:
+
+| Argument / stdin-Feld | Wirkung |
+|---|---|
+| `--history` / `{"history": true\|false}` | Aufzeichnung an/aus (live umschaltbar) |
+| `--history-days N` / `{"history_days": N}` | beim Einschalten Einträge älter als N Tage löschen |
+
+Befehle (beenden sich sofort, laden keine Modelle):
+
+| Argument | Wirkung |
+|---|---|
+| `--history-export md\|json\|csv\|srt\|vtt\|anki [--history-session ID] [--out PFAD]` | Export nach stdout oder Datei (0600). `srt`/`vtt` ohne ID: neueste Sitzung, Zeiten relativ zum Sitzungsstart. `anki`: Tab-getrennt Phrase, Übersetzung, Umschrift |
+| `--history-search TEXT` | Volltextsuche (FTS5 trigram, sonst LIKE), JSON-Liste auf stdout |
+| `--history-purge TAGE` | ältere Einträge löschen, `{"deleted": n}` |
+| `--history-clear` | alles löschen, `{"deleted": n}` |

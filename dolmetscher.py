@@ -131,6 +131,8 @@ def emit(event, **kw):
 
 
 def _emit(event, **kw):
+    if event == "utt":
+        import history_store; history_store.RECORDER.utt(kw)       # nur wenn eingeschaltet (Standard: aus)
     if JSON:
         print(json.dumps({"event": event, **kw}, ensure_ascii=False), flush=True)
     elif event in ("loading", "ready", "calibrating", "error"):
@@ -1986,6 +1988,8 @@ def apply_control(eng, d):
     if d.get("reload_profiles"):
         eng.reload_profiles()
     if "partial" in d: FAST["partial"] = bool(d["partial"])
+    if "history" in d:
+        import history_store; history_store.RECORDER.enable(d["history"], d.get("history_days"))
     if isinstance(d.get("tts_race"), (int, float)):
         global TTS_RACE
         TTS_RACE = float(max(0.0, min(5.0, d["tts_race"])))
@@ -2445,7 +2449,20 @@ if __name__ == "__main__":
                     help="s bis die vorbereitete macOS-Stimme einspringt (0 = aus)")
     ap.add_argument("--idle", action="store_true",
                     help="Modelle laden, Mikrofon erst mit {\"listen\": true} auf stdin öffnen")
+    ap.add_argument("--history", action="store_true", help="Gesprächsverlauf lokal speichern (Standard: aus)")
+    ap.add_argument("--history-days", type=int, default=None, help="Verlauf älter als N Tage beim Start löschen")
+    ap.add_argument("--history-export", metavar="FORMAT", choices=["md", "json", "csv", "srt", "vtt", "anki"])
+    ap.add_argument("--history-session", metavar="ID")
+    ap.add_argument("--out", metavar="PFAD", help="Zieldatei für --history-export (sonst stdout)")
+    ap.add_argument("--history-search", metavar="TEXT")
+    ap.add_argument("--history-purge", metavar="TAGE", type=float)
+    ap.add_argument("--history-clear", action="store_true", help="gesamten Verlauf löschen")
     a = ap.parse_args()
+    import history_store
+    if history_store.wants_cli(a):
+        sys.exit(history_store.run_cli(a))
+    if a.history:
+        history_store.RECORDER.enable(True, a.history_days)
     JSON, BARGE_IN, LOG_TEXT, METER, DENOISE = a.json, a.barge_in, a.log_text, a.meter, a.denoise
     if a.list_mics:
         JSON = True
