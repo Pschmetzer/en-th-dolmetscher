@@ -15,6 +15,7 @@ Protokoll Engine <-> App: docs/PROTOKOLL.md
 import argparse, collections, functools, http.client, itertools, json, logging, logging.handlers, os, queue, re, \
     shutil, signal, subprocess, sys, tempfile, threading, time, urllib.error, urllib.parse, urllib.request
 import numpy as np
+import presets
 from faster_whisper import WhisperModel
 
 SR = 16000
@@ -86,6 +87,8 @@ def parse_command(cmd):
     if len(words) > CMD_MAX_WORDS:
         return None
     has = lambda *w: any(re.search(rf"\b{re.escape(x)}\b", c) for x in w)
+    pk = presets.parse_spoken(c)
+    if pk: return pk                   # "hotel mode" / "preset taxi" -> "preset:<id>"
     if has("off", "don't translate", "do not translate", "no translation", "keep"):
         if has(*THAI_WORDS): return "th_off"
         if has("english", "inglish"): return "en_off"
@@ -512,6 +515,22 @@ def load_glossary(text=None):
 def glossary_hits(text):
     low = text.lower()
     return [(a, b) for a, b in GLOSSARY if a.lower() in low]
+
+
+PRESET = presets.PresetState()
+
+
+def set_preset(eng, pid, quiet=False):
+    """Szenario-Preset an/aus (pid None/"none" = zurück). Gibt den Namen (en) oder None zurück."""
+    all_p = presets.load_all()
+    if pid not in (None, "", "none") and pid not in all_p:
+        log({"preset": "unbekannt", "id": str(pid)[:40]})
+        return None
+    p = PRESET.activate(pid, all_p, GLOSSARY, LLM, eng)
+    _CACHE.clear()                     # Stil und Glossar ändern die Übersetzung
+    if not quiet:
+        emit("preset", id=p["id"] if p else None, name=p["names"]["en"] if p else None)
+    return p["names"]["en"] if p else None
 
 
 PRONOUNCE_FILE = os.path.expanduser("~/Library/Application Support/Dolmetscher/pronounce.txt")
@@ -1862,6 +1881,10 @@ class Engine:
             with _PRE_LOCK:
                 PRE.clear()
                 EARLY_END.clear()
+        elif key.startswith("preset:"):
+            pid = key[7:]
+            name = set_preset(self, pid)
+            reply = f"Okay, {name} mode." if name else "Okay, no preset."
         elif key == "help":
             reply = ("Say translator, then: pause, resume, repeat, slower, faster, louder, quieter, "
                      "Thai only, English only, auto, male or female voice, clear.")
@@ -2419,6 +2442,9 @@ def apply_control(eng, d):
                 else:
                     eng.voices[k] = None
                     emit("error", msg=f"Unbekannte Stimme ({k}) – Standardstimme wird genutzt")
+        pre = PRESET.active
+        if pre and ("glossary" in d or d.get("style") in STYLES):
+            set_preset(eng, None, quiet=True)  # eigene Änderung gilt als neue Basis, Preset danach neu
         if "glossary" in d:
             g = d["glossary"]
             if isinstance(g, str) and len(g) <= GLOSSARY_MAX:
@@ -2427,6 +2453,10 @@ def apply_control(eng, d):
                 emit("error", msg="Glossar ungültig oder zu lang – nicht übernommen")
         if d.get("style") in STYLES:
             LLM["style"] = d["style"]
+        if "preset" in d:
+            later.append(lambda p=d["preset"]: set_preset(eng, p))
+        elif pre and PRESET.active is None:
+            later.append(lambda p=pre: set_preset(eng, p, quiet=True))   # nach dem Glossar-Laden
         ok, v = _flag(d, "llm")
         if ok:
             LLM["on"] = v

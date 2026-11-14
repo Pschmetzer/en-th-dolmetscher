@@ -1,0 +1,81 @@
+{
+  "id": "office",
+  "names": {
+    "de": "Büro",
+    "en": "Office",
+    "th": "ที่ทำงาน"
+  },
+  "style": "neutral",
+  "glossary": [
+    {
+      "en": "meeting",
+      "th": "การประชุม"
+    },
+    {
+      "en": "deadline",
+      "th": "กำหนดส่ง"
+    },
+    {
+      "en": "invoice",
+      "th": "ใบแจ้งหนี้"
+    },
+    {
+      "en": "contract",
+      "th": "สัญญา"
+    },
+    {
+      "en": "schedule",
+      "th": "ตารางเวลา"
+    },
+    {
+      "en": "colleague",
+      "th": "เพื่อนร่วมงาน"
+    },
+    {
+      "en": "budget",
+      "th": "งบประมาณ"
+    },
+    {
+      "en": "presentation",
+      "th": "การนำเสนอ"
+    },
+    {
+      "en": "email",
+      "th": "อีเมล"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Nice to meet you.",
+      "th": "ยินดีที่ได้รู้จัก"
+    },
+    {
+      "en": "When is the next meeting?",
+      "th": "การประชุมครั้งต่อไปคือเมื่อไหร่"
+    },
+    {
+      "en": "Could you send me the document by email?",
+      "th": "ช่วยส่งเอกสารทางอีเมลให้หน่อยได้ไหม"
+    },
+    {
+      "en": "The deadline is on Friday.",
+      "th": "กำหนดส่งคือวันศุกร์"
+    },
+    {
+      "en": "Let me check and get back to you.",
+      "th": "ขอตรวจสอบก่อนแล้วจะติดต่อกลับ"
+    },
+    {
+      "en": "Could you explain that once more?",
+      "th": "ช่วยอธิบายอีกครั้งได้ไหม"
+    },
+    {
+      "en": "I agree with that.",
+      "th": "ฉันเห็นด้วย"
+    },
+    {
+      "en": "Thank you for your time.",
+      "th": "ขอบคุณที่สละเวลา"
+    }
+  ]
+}

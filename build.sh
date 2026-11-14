@@ -86,7 +86,8 @@ NEWAPP="$STAGE/Dolmetscher.app"
 echo "→ Kompiliere (Version $VERSION, Build $BUILD_NO) …"
 mkdir -p "$NEWAPP/Contents/MacOS" "$NEWAPP/Contents/Resources"
 swiftc -O -parse-as-library -o "$NEWAPP/Contents/MacOS/Dolmetscher" app/*.swift
-cp dolmetscher.py profiles.py "$NEWAPP/Contents/Resources/"
+cp dolmetscher.py profiles.py presets.py "$NEWAPP/Contents/Resources/"
+cp -R presets "$NEWAPP/Contents/Resources/presets"
 cp app/AppIcon.icns "$NEWAPP/Contents/Resources/"
 
 # Lokalisierte Mikrofon-Begründung (die Info.plist enthält die deutsche Grundfassung).
