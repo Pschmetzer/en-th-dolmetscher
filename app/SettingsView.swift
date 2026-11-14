@@ -4,9 +4,10 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject var m: EngineModel
-    @AppStorage("uiLang") private var uiLang = "de"
+    @AppStorage(L.key) private var uiLang = L.defaultCode
 
     var body: some View {
+        let _ = L.sync(uiLang)
         VStack(spacing: 0) {
             TabView {
                 GeneralSettings().tabItem { Label(L.t("tab_general"), systemImage: "gearshape") }
@@ -15,7 +16,8 @@ struct SettingsView: View {
                 DisplaySettings().tabItem { Label(L.t("tab_display"), systemImage: "textformat.size") }
             }
         }
-        .frame(width: 540, height: 600)
+        // Größenveränderbar (Szene: .windowResizability(.contentMinSize)); größere Schrift oder Thai-Texte brauchen Platz
+        .frame(minWidth: 540, idealWidth: 540, maxWidth: 900, minHeight: 460, idealHeight: 600, maxHeight: 1000)
         .id(uiLang)
     }
 }
@@ -31,32 +33,37 @@ private struct RestartNote: View {
 
 private struct GeneralSettings: View {
     @EnvironmentObject var m: EngineModel
+    @ObservedObject private var hk = HotKeys.shared
+    @AppStorage(Prefs.showMenuBar) private var showMenuBar = true
+    @AppStorage(Prefs.spaceToggle) private var spaceToggle = true
+    @AppStorage(Prefs.announce) private var announce = true
+
     var body: some View {
         Form {
             Section(L.t("tab_translation")) {
-                Toggle("🇬🇧 → 🇹🇭  Englisch ins Thai übersetzen", isOn: $m.trEN)
-                    .help("Aus = Englisch bleibt Englisch")
-                    .accessibilityLabel("Englisch ins Thai übersetzen")
-                Toggle("🇹🇭 → 🇬🇧  Thai ins Englische übersetzen", isOn: $m.trTH)
-                    .help("Aus = Thai bleibt Thai")
-                    .accessibilityLabel("Thai ins Englische übersetzen")
-                Picker("Spracherkennung", selection: $m.lang) {
-                    Text("Automatisch").tag("auto")
-                    Text("🇬🇧 nur Englisch").tag("en")
-                    Text("🇹🇭 nur Thai").tag("th")
+                Toggle("🇬🇧 → 🇹🇭  " + L.t("tr_en_toggle"), isOn: $m.trEN)
+                    .help(L.t("tr_en_help"))
+                    .accessibilityLabel(L.t("tr_en_toggle"))
+                Toggle("🇹🇭 → 🇬🇧  " + L.t("tr_th_toggle"), isOn: $m.trTH)
+                    .help(L.t("tr_th_help"))
+                    .accessibilityLabel(L.t("tr_th_toggle"))
+                Picker(L.t("recognition_lang"), selection: $m.lang) {
+                    Text(L.t("auto")).tag("auto")
+                    Text(L.t("only_en")).tag("en")
+                    Text(L.t("only_th")).tag("th")
                 }
-                .help("Sprache fest einstellen, falls Auto falsch erkennt")
-                .accessibilityLabel("Spracherkennung")
+                .help(L.t("recognition_lang_help"))
+                .accessibilityLabel(L.t("recognition_lang"))
             }
             Section {
-                Picker("Erkennungsmodell", selection: $m.model) {
-                    Text("Schnell (small)").tag("small")
-                    Text("Normal (medium)").tag("medium")
-                    Text("Beste (Englisch+)").tag("best")
+                Picker(L.t("model_label"), selection: $m.model) {
+                    Text(L.t("model_small")).tag("small")
+                    Text(L.t("model_medium")).tag("medium")
+                    Text(L.t("model_best")).tag("best")
                 }
-                .accessibilityLabel("Erkennungsmodell")
-            } header: { Text("Modell") } footer: {
-                Text("Größere Modelle erkennen genauer, brauchen aber länger. " + L.t("restart_note"))
+                .accessibilityLabel(L.t("model_label"))
+            } header: { Text(L.t("model_header")) } footer: {
+                Text(L.t("model_footer") + " " + L.t("restart_note"))
                     .foregroundStyle(.secondary)
             }
             MicSection()
@@ -68,28 +75,90 @@ private struct GeneralSettings: View {
                     VStack(alignment: .leading) { Text(L.t("log_text")); RestartNote() }
                 }
             } footer: {
-                Text(L.t("hotkeys_note")).foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(L.t("hotkeys_note")).foregroundStyle(.secondary)
+                    if !hk.failures.isEmpty {
+                        Label(L.t("hotkeys_failed") + " " + hk.failures.joined(separator: ", "),
+                              systemImage: "exclamationmark.triangle.fill")
+                            .foregroundStyle(LangStyle.warning)
+                    }
+                }
             }
+            Section(L.t("app_section")) {
+                Toggle(L.t("menubar_icon"), isOn: $showMenuBar)
+                    .help(L.t("menubar_icon_help"))
+                Toggle(L.t("space_toggle"), isOn: $spaceToggle)
+                    .help(L.t("space_toggle_help"))
+                Toggle(L.t("announce_toggle"), isOn: $announce)
+                    .help(L.t("announce_help"))
+            }
+            MaintenanceSection()
         }
         .formStyle(.grouped)
     }
 }
 
+/// Diagnosebericht kopieren, Einstellungen zurücksetzen, Log zeigen.
+private struct MaintenanceSection: View {
+    @EnvironmentObject var m: EngineModel
+    @State private var confirmReset = false
+    @State private var copied = false
+    @State private var checking = false
+
+    var body: some View {
+        Section(L.t("maintenance")) {
+            HStack {
+                Button(L.t("diag_copy")) {
+                    checking = true
+                    Paths.checkPython { result in
+                        copyToPasteboard(m.diagnosticReport(python: result))
+                        checking = false; copied = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { copied = false }
+                    }
+                }
+                .disabled(checking)
+                .help(L.t("diag_help"))
+                if checking { ProgressView().controlSize(.small) }
+                if copied { Label(L.t("diag_copied"), systemImage: "checkmark").foregroundStyle(.green) }
+                Spacer()
+                Button(L.t("show_log")) { NSWorkspace.shared.activateFileViewerSelecting([EngineModel.logURL]) }
+            }
+            HStack {
+                Button(L.t("reset_all"), role: .destructive) { confirmReset = true }
+                Spacer()
+            }
+            Text(L.t("reset_note")).font(.caption).foregroundStyle(.secondary)
+        }
+        .confirmationDialog(L.t("reset_confirm"), isPresented: $confirmReset, titleVisibility: .visible) {
+            Button(L.t("reset_all"), role: .destructive) { m.resetAllSettings() }
+            Button(L.t("cancel"), role: .cancel) {}
+        }
+    }
+}
+
 /// Mikrofonwahl: Liste per `dolmetscher.py --list-mics` (gleicher Python wie die Engine).
+/// Gespeichert werden Index und Name; beim Start gilt der Name (Indizes ändern sich beim Ein-/Ausstecken).
 private struct MicSection: View {
     @EnvironmentObject var m: EngineModel
     @State private var mics: [(index: String, name: String)] = []
     @State private var loading = false
     @State private var proc: Process?
 
+    private var selection: Binding<String> {
+        Binding(get: { m.mic }, set: { new in
+            m.mic = new
+            m.micName = mics.first { $0.index == new }?.name ?? ""   // „Systemstandard“ hat keinen Namen
+        })
+    }
+
     var body: some View {
         Section {
             HStack {
-                Picker(L.t("mic"), selection: $m.mic) {
+                Picker(L.t("mic"), selection: selection) {
                     Text(L.t("mic_default")).tag("")
                     ForEach(mics, id: \.index) { Text($0.name).tag($0.index) }
                     if !m.mic.isEmpty && !mics.contains(where: { $0.index == m.mic }) {
-                        Text("#\(m.mic)").tag(m.mic)
+                        Text(m.micName.isEmpty ? "#\(m.mic)" : m.micName).tag(m.mic)
                     }
                 }
                 .accessibilityLabel(L.t("mic"))
@@ -111,7 +180,7 @@ private struct MicSection: View {
     private func load() {
         guard !loading else { return }
         loading = true
-        proc = EngineRunner.run(["--list-mics"], onEvent: { o in
+        proc = EngineRunner.run(["--list-mics"], timeout: 15, onEvent: { o in
             guard o["event"] as? String == "mics", let list = o["mics"] as? [[String: Any]] else { return }
             mics = list.compactMap { d in
                 let idx = (d["index"] as? String) ?? (d["index"] as? NSNumber)?.stringValue
@@ -132,8 +201,8 @@ private struct RecognitionSection: View {
                 Text(L.t("silence"))
                 Slider(value: $m.silence, in: 0.4...2.0, step: 0.1)
                     .accessibilityLabel(L.t("silence"))
-                    .accessibilityValue(String(format: "%.1f s", m.silence))
-                Text(String(format: "%.1f s", m.silence)).monospacedDigit().frame(width: 44, alignment: .trailing)
+                    .accessibilityValue(fmtSeconds(m.silence))
+                Text(fmtSeconds(m.silence)).monospacedDigit().frame(width: 44, alignment: .trailing)
             }
             Picker(L.t("sensitivity"), selection: $m.sensitivity) {
                 Text(L.t("sens_low")).tag("low")
@@ -164,13 +233,13 @@ private struct VoiceSettings: View {
     var body: some View {
         Form {
             Section {
-                Toggle("Übersetzung vorlesen", isOn: $m.speak)
-                    .accessibilityLabel("Übersetzung vorlesen")
-                Picker("Höflichkeitspartikel (Thai)", selection: $m.polite) {
-                    Text("ครับ – männlich").tag("krub")
-                    Text("ค่ะ – weiblich").tag("ka")
+                Toggle(L.t("speak_toggle"), isOn: $m.speak)
+                    .accessibilityLabel(L.t("speak_toggle"))
+                Picker(L.t("polite_label"), selection: $m.polite) {
+                    Text(L.t("polite_krub")).tag("krub")
+                    Text(L.t("polite_ka")).tag("ka")
                 }
-                .accessibilityLabel("Thai-Höflichkeitspartikel: männlich krub oder weiblich ka")
+                .accessibilityLabel(L.t("polite_a11y"))
             }
             Section {
                 HStack {
@@ -238,7 +307,7 @@ private struct TranslationSettings: View {
                 if m.running && m.llm {
                     Label(m.llmActive ? L.t("llm_active") : L.t("llm_inactive"),
                           systemImage: m.llmActive ? "checkmark.circle" : "exclamationmark.circle")
-                        .foregroundStyle(m.llmActive ? .green : .orange)
+                        .foregroundStyle(m.llmActive ? Color.green : LangStyle.warning)
                 }
                 Picker(selection: $m.llmModel) {
                     ForEach(EngineModel.llmModels, id: \.self) { Text($0).tag($0) }
@@ -265,6 +334,7 @@ private struct TranslationSettings: View {
 }
 
 /// API-Schlüssel eingeben und als Datei (0600) speichern. Der Schlüssel wird nie angezeigt oder geloggt.
+/// Ein „Schlüssel testen“-Knopf fehlt absichtlich: Er würde den Schlüssel lesen und an die API senden.
 private struct APIKeySection: View {
     @EnvironmentObject var m: EngineModel
     @State private var key = ""
@@ -319,7 +389,7 @@ private struct DisplaySettings: View {
                     Text(L.t("font_size"))
                     Slider(value: $scale, in: Prefs.fontRange, step: 0.1)
                         .accessibilityLabel(L.t("font_size"))
-                        .accessibilityValue("\(Int(scale * 100)) Prozent")
+                        .accessibilityValue("\(Int(scale * 100)) %")
                     Text("\(Int(scale * 100)) %").monospacedDigit().frame(width: 48, alignment: .trailing)
                 }
                 Toggle(L.t("always_on_top"), isOn: $onTop)
