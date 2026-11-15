@@ -210,3 +210,104 @@ def test_keyfile_made_private(tmp_path, monkeypatch):
     monkeypatch.setattr(d, "KEYFILE", str(k))
     d._private_keyfile()
     assert (k.stat().st_mode & 0o777) == 0o600
+
+
+# ---- KeepAlive (ohne Netz, mit Fake-Verbindung) -----------------------------------------------------
+
+class _Resp:
+    def __init__(self, status, body, ctype="application/json"):
+        self.status, self.reason, self._body, self.will_close = status, "x", body, False
+        self.headers = {"Content-Type": ctype}
+
+    def read(self):
+        return self._body
+
+    def getheader(self, k, default=None):
+        return self.headers.get(k, default)
+
+
+def _fake_conn(log, answers):
+    class Conn:
+        def __init__(self, host, port=None, timeout=None):
+            self.host, self.sock, self.timeout = host, None, timeout
+            log.append(("new", host))
+
+        def set_tunnel(self, host, port, headers=None):
+            log.append(("tunnel", host, port, bool(headers)))
+
+        def request(self, method, path, body=None, headers=None):
+            self.last = (method, path, body)
+            log.append(("req", method, path, body))
+
+        def getresponse(self):
+            return answers.pop(0)(self.last) if callable(answers[0]) else answers.pop(0)
+
+        def close(self):
+            pass
+    return Conn
+
+
+@pytest.fixture
+def ka(monkeypatch):
+    log, answers = [], []
+    monkeypatch.setattr(d.http.client, "HTTPSConnection", _fake_conn(log, answers))
+    monkeypatch.setattr(d.urllib.request, "getproxies", lambda: {})
+    return d.KeepAlive(), log, answers
+
+
+def test_keepalive_posts_text_not_in_url(ka):
+    http, log, answers = ka
+    answers.append(_Resp(200, b'[[["x","y"]]]'))
+    url = "https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=en&tl=th&q=" + \
+          urllib.parse.quote("secret words")
+    assert http.get_json(url, 3) == [[["x", "y"]]]
+    _, method, path, body = [x for x in log if x[0] == "req"][0]
+    assert method == "POST" and "secret" not in path and "q=" not in path and b"secret" in body
+    assert "sl=en" in path
+
+
+def test_keepalive_falls_back_to_get_and_reuses(ka):
+    http, log, answers = ka
+    answers += [_Resp(405, b""), _Resp(200, b"{}"), _Resp(200, b"{}")]
+    url = "https://api.mymemory.translated.net/get?q=hi&langpair=en|th"
+    assert http.get_json(url, 3) == {} and http.get_json(url, 3) == {}
+    reqs = [x for x in log if x[0] == "req"]
+    assert [r[1] for r in reqs] == ["POST", "GET", "GET"] and "q=hi" in reqs[1][2]
+    assert sum(1 for x in log if x[0] == "new") == 1                 # Verbindung wiederverwendet
+
+
+def test_keepalive_not_json_and_redirect(ka):
+    http, log, answers = ka
+    answers += [_Resp(200, b"<html>Sorry</html>", "text/html"), _Resp(302, b"")]
+    with pytest.raises(d.NotJSON, match="unerwartet"):
+        http.get_json("https://example.org/x", 3)
+    with pytest.raises(d.urllib.error.HTTPError):
+        http.get_json("https://example.org/x", 3)
+
+
+def test_keepalive_uses_proxy(ka, monkeypatch):
+    http, log, answers = ka
+    monkeypatch.setattr(d.urllib.request, "getproxies", lambda: {"https": "http://u:p@proxy.local:3128"})
+    monkeypatch.setattr(d.urllib.request, "proxy_bypass", lambda h: False)
+    answers.append(_Resp(200, b"{}"))
+    http.get_json("https://example.org/x", 3)
+    assert ("new", "proxy.local") in log and ("tunnel", "example.org", 443, True) in log
+
+
+def test_keepalive_no_global_lock_during_request(ka):
+    """Während eine Anfrage an Host A läuft, darf Host B nicht warten."""
+    import threading
+    http, log, answers = ka
+    started, release = threading.Event(), threading.Event()
+
+    def slow(last):
+        started.set()
+        release.wait(2)
+        return _Resp(200, b"{}")
+    answers += [slow, _Resp(200, b"[]")]
+    t = threading.Thread(target=http.get_json, args=("https://a.example/x", 3))
+    t.start()
+    assert started.wait(2)
+    assert http.get_json("https://b.example/y", 3) == []              # kommt durch, obwohl A hängt
+    release.set()
+    t.join(2)

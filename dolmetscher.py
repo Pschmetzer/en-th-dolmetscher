@@ -271,36 +271,110 @@ def log(d):
         pass
 
 
+class NotJSON(ValueError):
+    """Antwort war kein JSON (HTML-Fehlerseite, Captive Portal …)."""
+
+
+_POST_HOSTS = {"translate.googleapis.com", "api.mymemory.translated.net"}
+
+
+def _proxy_for(host):
+    """HTTPS-Proxy aus Umgebung/Systemeinstellung (wie urllib), außer der Host ist ausgenommen."""
+    try:
+        p = urllib.request.getproxies().get("https")
+        if not p or urllib.request.proxy_bypass(host):
+            return None
+        return urllib.parse.urlsplit(p if "://" in p else "http://" + p)
+    except Exception:
+        return None
+
+
 class KeepAlive:
-    """HTTPS-GET über eine offene Verbindung je Host (spart TLS-Handshake pro Satz, ~0,2–0,5 s)."""
+    """HTTPS über offene Verbindungen je Host (spart TLS-Handshake pro Satz, ~0,2–0,5 s).
+    Kein Lock während der Anfrage: ein hängendes MyMemory blockiert Google nicht, parallele Anfragen
+    an denselben Host bekommen eine zweite Verbindung. Der gesprochene Text (`q`) geht bei Google und
+    MyMemory per POST im Body statt in der URL (landet nicht in Proxy-/Server-URL-Logs)."""
+
+    POOL = 2                                           # so viele freie Verbindungen je Host behalten
 
     def __init__(self):
-        self.conns, self.lock = {}, threading.Lock()
+        self.idle, self.lock, self.no_post = {}, threading.Lock(), set()
+
+    def _new(self, host, timeout):
+        px = _proxy_for(host)
+        if px is None or not px.hostname:
+            return http.client.HTTPSConnection(host, timeout=timeout)
+        c = http.client.HTTPSConnection(px.hostname, px.port or 8080, timeout=timeout)
+        hdr = {}
+        if px.username:
+            import base64
+            cred = f"{urllib.parse.unquote(px.username)}:{urllib.parse.unquote(px.password or '')}"
+            hdr["Proxy-Authorization"] = "Basic " + base64.b64encode(cred.encode()).decode()
+        c.set_tunnel(host, 443, headers=hdr)
+        return c
+
+    def _take(self, host, timeout):
+        with self.lock:
+            lst = self.idle.get(host)
+            if lst:
+                return lst.pop(), True
+        return self._new(host, timeout), False
+
+    def _give(self, host, c):
+        with self.lock:
+            lst = self.idle.setdefault(host, [])
+            if len(lst) < self.POOL:
+                lst.append(c)
+                return
+        c.close()
+
+    def _split(self, u):
+        """GET-URL -> (Methode, Pfad, Body): bei Google/MyMemory wandert `q` in einen POST-Body."""
+        path = u.path + ("?" + u.query if u.query else "")
+        if u.netloc not in _POST_HOSTS or u.netloc in self.no_post or not u.query:
+            return "GET", path, None
+        qs = urllib.parse.parse_qsl(u.query, keep_blank_values=True)
+        text = [(k, v) for k, v in qs if k == "q"]
+        if not text:
+            return "GET", path, None
+        rest = urllib.parse.urlencode([(k, v) for k, v in qs if k != "q"])
+        return "POST", u.path + ("?" + rest if rest else ""), urllib.parse.urlencode(text).encode()
 
     def get_json(self, url, timeout):
         u = urllib.parse.urlsplit(url)
-        path = u.path + ("?" + u.query if u.query else "")
-        with self.lock:
-            for attempt in (0, 1):                     # tote Verbindung: einmal neu aufbauen
-                c = self.conns.get(u.netloc)
-                if c is None:
-                    c = self.conns[u.netloc] = http.client.HTTPSConnection(u.netloc, timeout=timeout)
-                c.timeout = timeout
-                if c.sock is not None:
-                    c.sock.settimeout(timeout)
-                try:
-                    c.request("GET", path, headers={"User-Agent": "Mozilla/5.0", "Connection": "keep-alive"})
-                    r = c.getresponse()
-                    body = r.read()
-                except (http.client.HTTPException, ConnectionError, OSError) as e:
-                    c.close()
-                    self.conns.pop(u.netloc, None)
-                    if attempt or isinstance(e, TimeoutError):
-                        raise urllib.error.URLError(e) from e
-                    continue
-                if r.status >= 400:
-                    raise urllib.error.HTTPError(url, r.status, r.reason, r.headers, None)
-                return json.loads(body)
+        host = u.netloc
+        method, path, body = self._split(u)
+        hdr = {"User-Agent": "Mozilla/5.0", "Connection": "keep-alive"}
+        if body is not None:
+            hdr["Content-Type"] = "application/x-www-form-urlencoded;charset=utf-8"
+        for attempt in (0, 1):                     # tote Verbindung: einmal neu aufbauen
+            c, reused = self._take(host, timeout)
+            c.timeout = timeout
+            if c.sock is not None:
+                c.sock.settimeout(timeout)
+            try:
+                c.request(method, path, body=body, headers=hdr)
+                r = c.getresponse()
+                data = r.read()
+            except (http.client.HTTPException, ConnectionError, OSError) as e:
+                c.close()
+                if attempt or not reused or isinstance(e, TimeoutError):
+                    raise urllib.error.URLError(e) from e
+                continue
+            if r.will_close:
+                c.close()
+            else:
+                self._give(host, c)
+            if method == "POST" and r.status in (404, 405, 411, 413, 415):
+                self.no_post.add(host)               # Dienst nimmt kein POST (mehr): künftig GET
+                return self.get_json(url, timeout)
+            if r.status >= 300:
+                raise urllib.error.HTTPError(url, r.status, r.reason, r.headers, None)
+            try:
+                return json.loads(data)
+            except ValueError:
+                ct = (r.getheader("Content-Type") or "?").split(";")[0][:40]
+                raise NotJSON(f"unerwartet: keine JSON-Antwort (HTTP {r.status}, {ct})") from None
 
 
 HTTP = KeepAlive()
