@@ -16,7 +16,8 @@ enum EngineRunner {
     static func info(_ key: String) -> String? { Bundle.main.object(forInfoDictionaryKey: key) as? String }
 
     /// Startet dolmetscher.py; ruft onEvent für jede JSON-Zeile (Main-Thread, in Reihenfolge).
-    static func run(_ args: [String], onEvent: @escaping ([String: Any]) -> Void,
+    /// `timeout`: nach so vielen Sekunden wird der Prozess beendet (nil = kein Limit, z. B. beim Aufnehmen).
+    static func run(_ args: [String], timeout: TimeInterval? = nil, onEvent: @escaping ([String: Any]) -> Void,
                     onExit: @escaping () -> Void = {}) -> Process? {
         guard let script = Bundle.main.path(forResource: "dolmetscher", ofType: "py") else { return nil }
         let p = Process()
@@ -33,6 +34,7 @@ enum EngineRunner {
             if d.isEmpty { h.readabilityHandler = nil; return }
             DispatchQueue.main.async {
                 buf.append(d)
+                if buf.count > 1_000_000 { buf = Data(); return }   // Zeile ohne Ende: verwerfen statt wachsen
                 while let nl = buf.firstIndex(of: 0x0A) {
                     let line = buf.subdata(in: buf.startIndex..<nl)
                     buf.removeSubrange(buf.startIndex...nl)
@@ -42,6 +44,14 @@ enum EngineRunner {
         }
         p.terminationHandler = { _ in DispatchQueue.main.async { onExit() } }
         do { try p.run() } catch { return nil }
+        if let timeout {
+            let pp = p
+            DispatchQueue.global().asyncAfter(deadline: .now() + timeout) {
+                guard pp.isRunning else { return }
+                NSLog("Dolmetscher: %@ nach %.0f s abgebrochen (Zeitüberschreitung)", args.first ?? "?", timeout)
+                pp.terminate()
+            }
+        }
         return p
     }
 }
@@ -61,7 +71,7 @@ final class ProfilesModel: ObservableObject {
     private var proc: Process?
 
     func reload() {
-        _ = EngineRunner.run(["--profiles"], onEvent: { [weak self] o in
+        _ = EngineRunner.run(["--profiles"], timeout: 30, onEvent: { [weak self] o in
             guard o["event"] as? String == "profiles", let arr = o["profiles"] as? [[String: Any]] else { return }
             self?.profiles = arr.map(Self.parse)
             NotificationCenter.default.post(name: .profilesChanged, object: nil)
@@ -75,11 +85,11 @@ final class ProfilesModel: ObservableObject {
     }
 
     func delete(_ p: VoiceProfile) {
-        _ = EngineRunner.run(["--delete-profile", p.name], onEvent: { _ in }, onExit: { [weak self] in self?.reload() })
+        _ = EngineRunner.run(["--delete-profile", p.name], timeout: 30, onEvent: { _ in }, onExit: { [weak self] in self?.reload() })
     }
 
     func saveVocab(_ p: VoiceProfile, _ text: String) {
-        _ = EngineRunner.run(["--vocab", p.name, text], onEvent: { _ in }, onExit: { [weak self] in self?.reload() })
+        _ = EngineRunner.run(["--vocab", p.name, text], timeout: 30, onEvent: { _ in }, onExit: { [weak self] in self?.reload() })
     }
 
     /// Thai-Profil -> Assistent auf Thai; sonst App-Sprache (Englisch, falls die App auf Thai steht).
@@ -99,7 +109,7 @@ final class ProfilesModel: ObservableObject {
                                     self.proc = nil; self.reload()
                                     onDone()
                                 })
-        if proc == nil { failed = "dolmetscher.py?"; onDone() }
+        if proc == nil { failed = L.t("engine_missing", forced); onDone() }
     }
 
     func cancel() { proc?.terminate(); proc = nil; enrolling = false }
@@ -124,13 +134,14 @@ struct ProfilesView: View {
     @StateObject var pm = ProfilesModel()
     @EnvironmentObject var m: EngineModel
     @Environment(\.dismiss) var dismiss
-    @AppStorage("uiLang") var uiLang = "de"
+    @AppStorage(L.key) var uiLang = L.defaultCode
     @State private var newName = ""
     @State private var newLang = "th"
     @State private var vocabEdit: [String: String] = [:]
     @State private var confirmDelete: VoiceProfile?
 
     var body: some View {
+        let _ = L.sync(uiLang)
         Group { if pm.enrolling { EnrollView(pm: pm) } else { list } }
             .frame(width: 660, height: 500)
             .onAppear { pm.reload() }
@@ -143,9 +154,9 @@ struct ProfilesView: View {
             HStack {
                 Text(L.t("profiles")).font(.largeTitle.bold())
                 Spacer()
-                Picker("", selection: $uiLang) {
+                Picker(L.t("ui_language"), selection: $uiLang) {
                     ForEach(UILang.allCases) { Text($0.label).tag($0.rawValue) }
-                }.frame(width: 140).help(L.t("ui_language"))
+                }.labelsHidden().frame(width: 140).help(L.t("ui_language"))
                 Button(L.t("close")) { dismiss() }.keyboardShortcut(.cancelAction)
             }
             Text(L.t("profiles_intro")).foregroundStyle(.secondary)

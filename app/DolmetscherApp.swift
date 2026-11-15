@@ -1,24 +1,52 @@
 // Dolmetscher – SwiftUI-Oberfläche für die Python-Engine (dolmetscher.py).
 // Weitere Dateien: Engine.swift (Prozess + Ereignisse), Views.swift (Hauptfenster), BubbleViews.swift (Sprechblasen),
 // PartnerView.swift (Vollbild für die Partnerin), SettingsView.swift (⌘,), HotKeys.swift (globale Kürzel),
-// Paths.swift (Python/ffmpeg/API-Schlüssel).
+// Paths.swift (Python/ffmpeg/API-Schlüssel), Support.swift (Export, Diagnose, VoiceOver-Ansagen), L10n.swift (Texte).
 import SwiftUI
 import AppKit
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    var model: EngineModel?
-    func applicationWillTerminate(_ n: Notification) { MainActor.assumeIsolated { model?.shutdown() } }
-    func applicationShouldTerminateAfterLastWindowClosed(_ s: NSApplication) -> Bool { true }
     private var keyMonitor: Any?
+
+    /// Mit geschlossenem Fenster weiterlaufen, solange das Menüleisten-Symbol da ist (Einstellung).
+    func applicationShouldTerminateAfterLastWindowClosed(_ s: NSApplication) -> Bool {
+        !(UserDefaults.standard.object(forKey: Prefs.showMenuBar) as? Bool ?? true)
+    }
+
+    func applicationWillTerminate(_ n: Notification) {
+        MainActor.assumeIsolated {
+            HotKeys.shared.uninstall()
+            EngineModel.shared.shutdown()
+        }
+    }
+
     func applicationDidFinishLaunching(_ n: Notification) {
-        // ⌘= (US-Tastatur ohne Umschalt) wirkt wie ⌘+ – ohne zweiten Menüeintrag.
+        signal(SIGPIPE, SIG_IGN)   // Schreiben in die Pipe einer beendeten Engine darf die App nicht beenden
+        // Engine und globale Kürzel hängen an der App, nicht am Fenster (sie laufen auch bei geschlossenem Fenster).
+        MainActor.assumeIsolated {
+            HotKeys.shared.install(for: EngineModel.shared)
+            EngineModel.shared.boot()   // Modelle im Hintergrund laden (Mikrofon aus)
+        }
+        NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { _ in
+            MainActor.assumeIsolated { HotKeys.shared.retryIfNeeded() }
+        }
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { e in
-            guard e.modifierFlags.intersection(.deviceIndependentFlagsMask) == .command,
-                  e.charactersIgnoringModifiers == "=" else { return e }
-            let ud = UserDefaults.standard
-            let cur = ud.object(forKey: Prefs.fontScale) as? Double ?? 1.0
-            ud.set(min(Prefs.fontRange.upperBound, ((cur + 0.1) * 10).rounded() / 10), forKey: Prefs.fontScale)
-            return nil
+            let mods = e.modifierFlags.intersection(.deviceIndependentFlagsMask)
+            // ⌘= (US-Tastatur ohne Umschalt) wirkt wie ⌘+ – ohne zweiten Menüeintrag.
+            if mods == .command, e.charactersIgnoringModifiers == "=" {
+                let ud = UserDefaults.standard
+                ud.set(Prefs.zoomed(ud.object(forKey: Prefs.fontScale) as? Double ?? 1.0, 0.1), forKey: Prefs.fontScale)
+                return nil
+            }
+            // Leertaste = Start/Stopp, aber nur im Hauptfenster ohne Textfeld-Fokus (Suche, Glossar, Dialoge) und abschaltbar.
+            if e.keyCode == 49, mods.isEmpty, !e.isARepeat,
+               UserDefaults.standard.object(forKey: Prefs.spaceToggle) as? Bool ?? true,
+               let w = NSApp.keyWindow, w.identifier == Prefs.mainWindowID,
+               !(w.firstResponder is NSText), !(w.firstResponder is NSControl) {
+                MainActor.assumeIsolated { EngineModel.shared.toggle() }
+                return nil
+            }
+            return e
         }
     }
 }
@@ -28,25 +56,27 @@ struct AppCommands: Commands {
     @Environment(\.openWindow) private var openWindow
     @AppStorage(Prefs.fontScale) private var scale = 1.0
     @AppStorage(Prefs.alwaysOnTop) private var onTop = false
-
-    private func zoom(_ d: Double) {
-        scale = min(Prefs.fontRange.upperBound, max(Prefs.fontRange.lowerBound, (scale + d) * 10).rounded() / 10)
-    }
+    @AppStorage(L.key) private var uiLang = L.defaultCode   // Menüs neu aufbauen, wenn die Sprache wechselt
 
     var body: some Commands {
+        let _ = L.sync(uiLang)
         CommandGroup(replacing: .saveItem) {
-            Button("Gespräch exportieren …") { exportConversation(model) }
+            Button(L.t("export") + " …") { exportConversation(model) }
                 .keyboardShortcut("e", modifiers: [.command, .shift])
                 .disabled(model.items.isEmpty)
         }
+        CommandGroup(after: .textEditing) {
+            Button(L.t("find")) { NotificationCenter.default.post(name: .focusSearch, object: nil) }
+                .keyboardShortcut("f", modifiers: .command)
+        }
         CommandGroup(before: .toolbar) {
-            Button("Schrift größer") { zoom(0.1) }.keyboardShortcut("+", modifiers: .command)
-            Button("Schrift kleiner") { zoom(-0.1) }.keyboardShortcut("-", modifiers: .command)
-            Button("Originalgröße") { scale = 1.0 }.keyboardShortcut("0", modifiers: .command)
+            Button(L.t("font_bigger")) { scale = Prefs.zoomed(scale, 0.1) }.keyboardShortcut("+", modifiers: .command)
+            Button(L.t("font_smaller")) { scale = Prefs.zoomed(scale, -0.1) }.keyboardShortcut("-", modifiers: .command)
+            Button(L.t("font_reset")) { scale = 1.0 }.keyboardShortcut("0", modifiers: .command)
             Divider()
-            Button("Partner-Ansicht") { openWindow(id: "partner") }
+            Button(L.t("partner_view")) { openWindow(id: "partner") }
                 .keyboardShortcut("p", modifiers: [.command, .shift])
-            Toggle("Immer im Vordergrund", isOn: $onTop)
+            Toggle(L.t("always_on_top"), isOn: $onTop)
                 .keyboardShortcut("t", modifiers: [.command, .option])
             Divider()
             Button(model.paused ? L.t("resume") : L.t("pause")) { model.togglePause() }
@@ -57,7 +87,7 @@ struct AppCommands: Commands {
             Divider()
         }
         CommandGroup(replacing: .help) {
-            Button("Tipps anzeigen") { NotificationCenter.default.post(name: .showTips, object: nil) }
+            Button(L.t("tips_show")) { NotificationCenter.default.post(name: .showTips, object: nil) }
         }
     }
 }
@@ -66,8 +96,10 @@ struct AppCommands: Commands {
 struct MenuBarContent: View {
     @EnvironmentObject var m: EngineModel
     @Environment(\.openWindow) private var openWindow
+    @AppStorage(L.key) private var uiLang = L.defaultCode
 
     var body: some View {
+        let _ = L.sync(uiLang)
         Text(m.status)
         Divider()
         Button(m.active ? L.t("stop") : L.t("start")) { m.toggle() }
@@ -88,25 +120,31 @@ struct MenuBarContent: View {
 @main
 struct DolmetscherApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    @StateObject var model = EngineModel()
+    @StateObject var model = EngineModel.shared
+    @AppStorage(Prefs.showMenuBar) private var showMenuBar = true
+    @AppStorage(L.key) private var uiLang = L.defaultCode
+
+    init() { _ = L.lang }   // Standardsprache festlegen, bevor die erste Ansicht @AppStorage liest
 
     private var menuIcon: String {
         guard model.active else { return "waveform.circle" }
         return model.paused ? "pause.circle" : "waveform.circle.fill"
     }
 
+    /// Zustand für VoiceOver: das Symbol ändert nur Form und Füllung.
+    private var menuState: String {
+        guard model.active else { return L.t("stopped") }
+        return model.paused ? L.t("state_paused") : L.t("state_listening")
+    }
+
     var body: some Scene {
-        Window("Dolmetscher EN ⇄ TH", id: "main") {
+        let _ = L.sync(uiLang)
+        Window(L.t("app_title"), id: "main") {
             ContentView().environmentObject(model)
-                .onAppear {
-                    delegate.model = model
-                    HotKeys.shared.install(for: model)
-                    model.boot()   // Engine gleich im Hintergrund laden (Mikrofon aus)
-                }
         }
         .commands { AppCommands(model: model) }
 
-        Window("Partner-Ansicht", id: "partner") {
+        Window(L.t("partner_title"), id: "partner") {
             PartnerView().environmentObject(model)
         }
         .defaultSize(width: 1000, height: 640)
@@ -114,11 +152,14 @@ struct DolmetscherApp: App {
         Settings {
             SettingsView().environmentObject(model)
         }
+        .windowResizability(.contentMinSize)
 
-        MenuBarExtra {
+        MenuBarExtra(isInserted: $showMenuBar) {
             MenuBarContent().environmentObject(model)
         } label: {
-            Image(systemName: menuIcon).accessibilityLabel("Dolmetscher")
+            Image(systemName: menuIcon)
+                .accessibilityLabel("Dolmetscher")
+                .accessibilityValue(menuState)
         }
     }
 }

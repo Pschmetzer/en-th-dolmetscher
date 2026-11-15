@@ -1,4 +1,5 @@
 // Oberflächensprache: Deutsch, English, ไทย – umschaltbar in der App.
+// Jeder Schlüssel braucht de, en und th (geprüft von tests/test_l10n_keys.py).
 import Foundation
 
 enum UILang: String, CaseIterable, Identifiable {
@@ -8,8 +9,40 @@ enum UILang: String, CaseIterable, Identifiable {
 }
 
 enum L {
-    static var lang: UILang {
-        UILang(rawValue: UserDefaults.standard.string(forKey: "uiLang") ?? "") ?? .de
+    static let key = "uiLang"
+
+    /// Standardsprache beim ersten Start: Systemsprache (de/en/th), sonst Englisch.
+    static var defaultCode: String {
+        for tag in Locale.preferredLanguages {
+            let code = String(tag.prefix(2)).lowercased()
+            if UILang(rawValue: code) != nil { return code }
+        }
+        return "en"
+    }
+
+    /// Gecachte Sprache – t() liest nicht bei jedem Aufruf aus UserDefaults.
+    nonisolated(unsafe) private static var cached: UILang = .en
+    nonisolated(unsafe) private static var started = false
+    static var lang: UILang { start(); return cached }
+
+    private static func start() {
+        guard !started else { return }
+        started = true
+        let ud = UserDefaults.standard
+        if ud.string(forKey: key) == nil { ud.set(defaultCode, forKey: key) }   // @AppStorage und L sind so immer einig
+        cached = UILang(rawValue: ud.string(forKey: key) ?? "") ?? UILang(rawValue: defaultCode) ?? .en
+        NotificationCenter.default.addObserver(forName: UserDefaults.didChangeNotification, object: nil, queue: nil) { _ in
+            sync(UserDefaults.standard.string(forKey: key) ?? "")
+        }
+    }
+
+    /// Cache sofort auf `code` setzen (Ansichten rufen das mit ihrem @AppStorage-Wert auf, bevor sie L.t nutzen).
+    @discardableResult
+    static func sync(_ code: String) -> Bool {
+        start()
+        guard let l = UILang(rawValue: code), l != cached else { return false }
+        cached = l
+        return true
     }
 
     /// Text in der gewählten Oberflächensprache (oder einer erzwungenen, z. B. Thai im Profil-Assistenten).
@@ -17,6 +50,11 @@ enum L {
         let l = forced ?? lang
         guard let row = table[key] else { return key }
         return row[l.rawValue] ?? row["en"] ?? key
+    }
+
+    /// Text mit Platzhaltern (%@, %d, %.1f) – Format aus der Tabelle.
+    static func f(_ key: String, _ args: CVarArg...) -> String {
+        String(format: t(key), arguments: args)
     }
 
     static let table: [String: [String: String]] = [
@@ -44,7 +82,6 @@ enum L {
                   "th": "ไม่มีสิทธิ์ใช้ไมโครโฟน – การตั้งค่าระบบ → ความเป็นส่วนตัว → ไมโครโฟน"],
         "read_aloud": ["de": "Vorlesen", "en": "Read aloud", "th": "อ่านออกเสียง"],
         "not_translated": ["de": "nicht übersetzt", "en": "not translated", "th": "ไม่ได้แปล"],
-        "fast": ["de": "Schnell", "en": "Fast", "th": "เร็ว"],
         "normal": ["de": "Normal", "en": "Normal", "th": "ปกติ"],
         "best": ["de": "Beste Qualität", "en": "Best quality", "th": "คุณภาพดีที่สุด"],
         "only_en": ["de": "🇬🇧 nur EN", "en": "🇬🇧 EN only", "th": "🇬🇧 อังกฤษเท่านั้น"],
@@ -53,9 +90,6 @@ enum L {
         "empty": ["de": "Start drücken und einfach sprechen.\nEnglisch wird auf Thai übersetzt, Thai auf Englisch.",
                   "en": "Press Start and just talk.\nEnglish is translated into Thai, Thai into English.",
                   "th": "กด \"เริ่ม\" แล้วพูดได้เลย\nภาษาไทยจะถูกแปลเป็นภาษาอังกฤษ และภาษาอังกฤษเป็นภาษาไทย"],
-        "commands_hint": ["de": "Sprachbefehle: „Translator, pause / resume / repeat / slower / louder / English off / help“",
-                          "en": "Voice commands: \"Translator, pause / resume / repeat / slower / louder / English off / help\"",
-                          "th": "คำสั่งเสียง (ภาษาอังกฤษ): \"Translator, pause / resume / repeat\""],
         "profiles": ["de": "Stimmprofile", "en": "Voice profiles", "th": "โปรไฟล์เสียง"],
         // Sprachbefehle (Übersicht im leeren Verlauf und hinter dem Knopf in der Kopfzeile)
         "commands": ["de": "Sprachbefehle", "en": "Voice commands", "th": "คำสั่งเสียง"],
@@ -109,12 +143,8 @@ enum L {
         "failed": ["de": "Hat nicht geklappt:", "en": "That didn't work:", "th": "ไม่สำเร็จ:"],
         "tip_quiet": ["de": "Tipp: nah am Mac sprechen, ruhige Umgebung.", "en": "Tip: speak close to the Mac, in a quiet place.",
                       "th": "คำแนะนำ: พูดใกล้ๆ เครื่อง Mac ในที่เงียบ"],
-        "speaker_unknown": ["de": "Unbekannt", "en": "Unknown", "th": "ไม่ทราบ"],
-
         // Laufzeit / Protokoll
         "crashed": ["de": "Engine unerwartet beendet", "en": "Engine stopped unexpectedly", "th": "เครื่องแปลหยุดทำงานโดยไม่คาดคิด"],
-        "auto_restart": ["de": "Engine abgestürzt – starte automatisch neu …", "en": "Engine crashed – restarting automatically …",
-                         "th": "เครื่องแปลขัดข้อง – กำลังเริ่มใหม่อัตโนมัติ …"],
         "crash_banner": ["de": "Die Engine wurde unerwartet beendet. Letzte Zeilen aus stderr.log:",
                          "en": "The engine stopped unexpectedly. Last lines from stderr.log:",
                          "th": "เครื่องแปลหยุดทำงานโดยไม่คาดคิด บรรทัดล่าสุดจาก stderr.log:"],
@@ -239,9 +269,7 @@ enum L {
         "show_quick": ["de": "Schnellsätze-Leiste anzeigen", "en": "Show quick phrase bar", "th": "แสดงแถบประโยคด่วน"],
         "quick_edit": ["de": "Schnellsätze (ein Satz pro Zeile, Englisch)", "en": "Quick phrases (one per line, English)",
                        "th": "ประโยคด่วน (บรรทัดละหนึ่งประโยค ภาษาอังกฤษ)"],
-        "quick_reset": ["de": "Alle löschen", "en": "Restore defaults", "th": "คืนค่าเริ่มต้น"],
-        "needs_restart": ["de": "Geänderte Einstellungen wirken erst nach einem Neustart.", "en": "Changed settings take effect after a restart.",
-                          "th": "การตั้งค่าที่เปลี่ยนจะมีผลหลังเริ่มใหม่"],
+        "quick_reset": ["de": "Standard wiederherstellen", "en": "Restore defaults", "th": "คืนค่าเริ่มต้น"],
         "restart_note": ["de": "Änderung lädt die Engine neu", "en": "Changing this reloads the engine",
                          "th": "การเปลี่ยนจะโหลดเครื่องแปลใหม่"],
         "font_size": ["de": "Schriftgröße", "en": "Font size", "th": "ขนาดตัวอักษร"],
@@ -271,5 +299,243 @@ enum L {
                                "en": "Recognize early after a short pause; if the sentence looks complete, don't wait for the full pause.",
                                "th": "รู้จำล่วงหน้าหลังหยุดสั้น ๆ ถ้าประโยคดูจบแล้วไม่ต้องรอนาน"],
         "partial_text": ["de": "Text schon beim Sprechen zeigen", "en": "Show text while speaking", "th": "แสดงข้อความระหว่างพูด"],
+        // Ergänzungen (Einstellungen, Menüs, Willkommen, Fehler)
+        "app_title": ["de": "Dolmetscher EN ⇄ TH",
+               "en": "Dolmetscher EN ⇄ TH",
+               "th": "Dolmetscher EN ⇄ TH"],
+        "partner_title": ["de": "Partner-Ansicht",
+               "en": "Partner view",
+               "th": "มุมมองคู่สนทนา"],
+        "find": ["de": "Suchen",
+               "en": "Find",
+               "th": "ค้นหา"],
+        "font_reset": ["de": "Originalgröße",
+               "en": "Actual size",
+               "th": "ขนาดเดิม"],
+        "tips_show": ["de": "Tipps anzeigen",
+               "en": "Show tips",
+               "th": "แสดงคำแนะนำ"],
+        "state_listening": ["de": "Hört zu",
+               "en": "Listening",
+               "th": "กำลังฟัง"],
+        "state_paused": ["de": "Pausiert",
+               "en": "Paused",
+               "th": "หยุดชั่วคราว"],
+        "export_title": ["de": "Dolmetscher EN ⇄ TH – %@",
+               "en": "Dolmetscher EN ⇄ TH – %@",
+               "th": "Dolmetscher EN ⇄ TH – %@"],
+        "export_message": ["de": "Endung .md, .txt, .json, .csv (Tabelle) oder .srt (Untertitel)",
+               "en": "Extension .md, .txt, .json, .csv (table) or .srt (subtitles)",
+               "th": "นามสกุล .md, .txt, .json, .csv (ตาราง) หรือ .srt (คำบรรยาย)"],
+        "export_filename": ["de": "Gespräch",
+               "en": "Conversation",
+               "th": "บทสนทนา"],
+        "script_missing": ["de": "dolmetscher.py fehlt im App-Bundle",
+               "en": "dolmetscher.py is missing from the app bundle",
+               "th": "ไม่พบ dolmetscher.py ในแอป"],
+        "start_failed": ["de": "Start fehlgeschlagen: %@",
+               "en": "Start failed: %@",
+               "th": "เริ่มไม่สำเร็จ: %@"],
+        "error_generic": ["de": "Fehler",
+               "en": "Error",
+               "th": "ข้อผิดพลาด"],
+        "repeating": ["de": "Wiederhole …",
+               "en": "Repeating …",
+               "th": "กำลังพูดซ้ำ …"],
+        "log_unreadable": ["de": "(stderr.log nicht lesbar)",
+               "en": "(stderr.log not readable)",
+               "th": "(อ่าน stderr.log ไม่ได้)"],
+        "log_empty": ["de": "(stderr.log ist leer)",
+               "en": "(stderr.log is empty)",
+               "th": "(stderr.log ว่างเปล่า)"],
+        "crash_env": ["de": "Die Python-Umgebung ist unvollständig (ein Modul fehlt). ./build.sh erneut ausführen.",
+               "en": "The Python environment is incomplete (a module is missing). Run ./build.sh again.",
+               "th": "สภาพแวดล้อม Python ไม่สมบูรณ์ (ขาดโมดูล) ให้รัน ./build.sh อีกครั้ง"],
+        "crash_oom": ["de": "Das System hat die Engine beendet – vermutlich ist der Speicher knapp. Kleineres Modell wählen oder andere Programme schließen.",
+               "en": "The system stopped the engine – memory is probably low. Choose a smaller model or close other apps.",
+               "th": "ระบบปิดเครื่องแปล – น่าจะหน่วยความจำไม่พอ ลองเลือกโมเดลที่เล็กลงหรือปิดโปรแกรมอื่น"],
+        "crash_signal": ["de": "Die Engine ist abgestürzt (Signal %d).",
+               "en": "The engine crashed (signal %d).",
+               "th": "เครื่องแปลขัดข้อง (สัญญาณ %d)"],
+        "auto_restart_n": ["de": "Engine abgestürzt – Neustart %d von %d …",
+               "en": "Engine crashed – restart %d of %d …",
+               "th": "เครื่องแปลขัดข้อง – เริ่มใหม่ครั้งที่ %d จาก %d …"],
+        "load_slow": ["de": "Laden dauert lange",
+               "en": "Loading takes long",
+               "th": "โหลดนานผิดปกติ"],
+        "load_slow_help": ["de": "Die Modelle laden seit über 2 Minuten. Beim ersten Start werden sie heruntergeladen (mehrere GB). Sonst im Log nachsehen.",
+               "en": "The models have been loading for over 2 minutes. On the first start they are downloaded (several GB). Otherwise check the log.",
+               "th": "โมเดลโหลดมานานกว่า 2 นาที ครั้งแรกต้องดาวน์โหลดหลาย GB หากไม่ใช่ ให้ดูในล็อก"],
+        "open_mic_settings": ["de": "Systemeinstellungen öffnen",
+               "en": "Open System Settings",
+               "th": "เปิดการตั้งค่าระบบ"],
+        "jump_latest": ["de": "Zum Neuesten",
+               "en": "Jump to latest",
+               "th": "ไปที่ล่าสุด"],
+        "language_filter": ["de": "Nach Sprache filtern",
+               "en": "Filter by language",
+               "th": "กรองตามภาษา"],
+        "filter_all": ["de": "Alle",
+               "en": "All",
+               "th": "ทั้งหมด"],
+        "clear_confirm": ["de": "Gesamten Verlauf löschen?",
+               "en": "Delete the whole conversation?",
+               "th": "ล้างบทสนทนาทั้งหมดใช่ไหม"],
+        "start_hint": ["de": "Leertaste oder ⌃⌥D",
+               "en": "Space bar or ⌃⌥D",
+               "th": "กดสเปซบาร์ หรือ ⌃⌥D"],
+        "start_hint_nospace": ["de": "⌃⌥D",
+               "en": "⌃⌥D",
+               "th": "⌃⌥D"],
+        "phrase_add_help": ["de": "Eigenen Schnellsatz hinzufügen",
+               "en": "Add your own quick phrase",
+               "th": "เพิ่มประโยคด่วนของคุณ"],
+        "phrase_new_title": ["de": "Neuer Schnellsatz (Englisch oder Thai)",
+               "en": "New quick phrase (English or Thai)",
+               "th": "ประโยคด่วนใหม่ (อังกฤษหรือไทย)"],
+        "add": ["de": "Hinzufügen",
+               "en": "Add",
+               "th": "เพิ่ม"],
+        "welcome_title": ["de": "Willkommen beim Dolmetscher",
+               "en": "Welcome to Dolmetscher",
+               "th": "ยินดีต้อนรับสู่ Dolmetscher"],
+        "tip_mic_title": ["de": "Mikrofon erlauben",
+               "en": "Allow the microphone",
+               "th": "อนุญาตไมโครโฟน"],
+        "tip_mic_text": ["de": "Beim ersten Start fragt macOS nach dem Mikrofon. Bitte erlauben – sonst hört der Dolmetscher nichts. Später änderbar unter Systemeinstellungen → Datenschutz → Mikrofon.",
+               "en": "On first start macOS asks for the microphone. Please allow it – otherwise the interpreter hears nothing. You can change it later in System Settings → Privacy → Microphone.",
+               "th": "ครั้งแรก macOS จะถามเรื่องไมโครโฟน กรุณาอนุญาต ไม่เช่นนั้นล่ามจะไม่ได้ยินอะไร เปลี่ยนภายหลังได้ที่ การตั้งค่าระบบ → ความเป็นส่วนตัว → ไมโครโฟน"],
+        "tip_speak_title": ["de": "Einfach sprechen",
+               "en": "Just talk",
+               "th": "พูดได้เลย"],
+        "tip_speak_text": ["de": "Die Sprache wird automatisch erkannt: Englisch wird ins Thai übersetzt, Thai ins Englische. Erkennt er falsch, die Sprache in den Einstellungen (⌘,) fest einstellen.",
+               "en": "The language is detected automatically: English is translated into Thai, Thai into English. If it guesses wrong, set the language in Settings (⌘,).",
+               "th": "ระบบรู้จำภาษาอัตโนมัติ: อังกฤษแปลเป็นไทย ไทยแปลเป็นอังกฤษ ถ้ารู้จำผิด ให้ตั้งภาษาในการตั้งค่า (⌘,)"],
+        "tip_cmd_title": ["de": "Sprachbefehle mit „Translator“",
+               "en": "Voice commands with \"Translator\"",
+               "th": "คำสั่งเสียงด้วยคำว่า \"Translator\""],
+        "tip_cmd_text": ["de": "„Translator, pause“ · „Translator, resume“ · „Translator, repeat“ · „Translator, English off“ · „Translator, Thai only“ · „Translator, help“",
+               "en": "\"Translator, pause\" · \"Translator, resume\" · \"Translator, repeat\" · \"Translator, English off\" · \"Translator, Thai only\" · \"Translator, help\"",
+               "th": "\"Translator, pause\" · \"Translator, resume\" · \"Translator, repeat\" · \"Translator, English off\" · \"Translator, Thai only\" · \"Translator, help\""],
+        "privacy_title": ["de": "Datenschutz: wohin der Text geht",
+               "en": "Privacy: where the text goes",
+               "th": "ความเป็นส่วนตัว: ข้อความไปที่ไหนบ้าง"],
+        "privacy_text": ["de": "Die Spracherkennung (Whisper) läuft lokal, Audio verlässt den Mac nicht. Zum Übersetzen wird der erkannte Text an Google Translate gesendet (bei Ausfall an MyMemory). Die Sprachausgabe nutzt Microsofts Neural-Stimmen: der Übersetzungstext geht an Microsoft (Ersatz ohne Netz: macOS-Stimme). Nur wenn „Übersetzung mit Claude“ an ist und ein API-Schlüssel hinterlegt wurde, geht der Text zusätzlich an Anthropic.",
+               "en": "Speech recognition (Whisper) runs locally; audio never leaves the Mac. To translate, the recognized text is sent to Google Translate (MyMemory if that fails). Speech output uses Microsoft's neural voices: the translated text is sent to Microsoft (offline fallback: the macOS voice). Only if \"Translate with Claude\" is on and an API key is stored, the text also goes to Anthropic.",
+               "th": "การรู้จำเสียง (Whisper) ทำงานในเครื่อง เสียงไม่ออกจาก Mac ข้อความที่รู้จำได้จะถูกส่งไปยัง Google Translate เพื่อแปล (ถ้าล้มเหลวใช้ MyMemory) เสียงพูดใช้เสียงนิวรัลของ Microsoft: ข้อความคำแปลจะถูกส่งไปยัง Microsoft (ถ้าไม่มีเน็ตใช้เสียงของ macOS) เฉพาะเมื่อเปิด \"แปลด้วย Claude\" และมีคีย์ API ข้อความจะถูกส่งไปยัง Anthropic ด้วย"],
+        "lets_go": ["de": "Los geht’s",
+               "en": "Let’s go",
+               "th": "เริ่มเลย"],
+        "original": ["de": "Original",
+               "en": "Original",
+               "th": "ต้นฉบับ"],
+        "partner_other_screen": ["de": "Auf den anderen Bildschirm verschieben",
+               "en": "Move to the other screen",
+               "th": "ย้ายไปจอภาพอีกจอ"],
+        "partner_fullscreen": ["de": "Vollbild umschalten",
+               "en": "Toggle full screen",
+               "th": "สลับโหมดเต็มหน้าจอ"],
+        "engine_missing": ["de": "dolmetscher.py nicht gefunden",
+               "en": "dolmetscher.py not found",
+               "th": "ไม่พบ dolmetscher.py"],
+        "tr_en_toggle": ["de": "Englisch ins Thai übersetzen",
+               "en": "Translate English into Thai",
+               "th": "แปลอังกฤษเป็นไทย"],
+        "tr_th_toggle": ["de": "Thai ins Englische übersetzen",
+               "en": "Translate Thai into English",
+               "th": "แปลไทยเป็นอังกฤษ"],
+        "tr_en_help": ["de": "Aus = Englisch bleibt Englisch",
+               "en": "Off = English stays English",
+               "th": "ปิด = ภาษาอังกฤษไม่แปล"],
+        "tr_th_help": ["de": "Aus = Thai bleibt Thai",
+               "en": "Off = Thai stays Thai",
+               "th": "ปิด = ภาษาไทยไม่แปล"],
+        "recognition_lang": ["de": "Spracherkennung",
+               "en": "Speech recognition",
+               "th": "การรู้จำภาษา"],
+        "recognition_lang_help": ["de": "Sprache fest einstellen, falls Auto falsch erkennt",
+               "en": "Fix the language if Auto guesses wrong",
+               "th": "ตั้งภาษาเองถ้าโหมดอัตโนมัติรู้จำผิด"],
+        "auto": ["de": "Automatisch",
+               "en": "Automatic",
+               "th": "อัตโนมัติ"],
+        "model_label": ["de": "Erkennungsmodell",
+               "en": "Recognition model",
+               "th": "โมเดลรู้จำเสียง"],
+        "model_small": ["de": "Schnell (small)",
+               "en": "Fast (small)",
+               "th": "เร็ว (small)"],
+        "model_medium": ["de": "Normal (medium)",
+               "en": "Normal (medium)",
+               "th": "ปกติ (medium)"],
+        "model_best": ["de": "Beste (Englisch+)",
+               "en": "Best (English+)",
+               "th": "ดีที่สุด (อังกฤษ+)"],
+        "model_header": ["de": "Modell",
+               "en": "Model",
+               "th": "โมเดล"],
+        "model_footer": ["de": "Größere Modelle erkennen genauer, brauchen aber länger.",
+               "en": "Larger models are more accurate but slower.",
+               "th": "โมเดลใหญ่แม่นกว่าแต่ช้ากว่า"],
+        "hotkeys_failed": ["de": "Nicht registriert (schon belegt?):",
+               "en": "Not registered (already in use?):",
+               "th": "ลงทะเบียนไม่สำเร็จ (ถูกใช้แล้ว?):"],
+        "app_section": ["de": "App",
+               "en": "App",
+               "th": "แอป"],
+        "menubar_icon": ["de": "Symbol in der Menüleiste",
+               "en": "Menu bar icon",
+               "th": "ไอคอนในแถบเมนู"],
+        "menubar_icon_help": ["de": "Aus = die App endet, wenn das Fenster geschlossen wird. An = sie läuft im Hintergrund weiter.",
+               "en": "Off = the app quits when the window is closed. On = it keeps running in the background.",
+               "th": "ปิด = แอปปิดเมื่อปิดหน้าต่าง เปิด = ทำงานต่อเบื้องหลัง"],
+        "space_toggle": ["de": "Leertaste startet/stoppt",
+               "en": "Space bar starts/stops",
+               "th": "สเปซบาร์เริ่ม/หยุด"],
+        "space_toggle_help": ["de": "Nur im Hauptfenster und nicht beim Tippen in einem Textfeld",
+               "en": "Only in the main window and not while typing in a text field",
+               "th": "ใช้เฉพาะในหน้าต่างหลัก และไม่ใช้ขณะพิมพ์ในช่องข้อความ"],
+        "announce_toggle": ["de": "Übersetzungen für VoiceOver ansagen",
+               "en": "Announce translations to VoiceOver",
+               "th": "ประกาศคำแปลให้ VoiceOver"],
+        "announce_help": ["de": "Neue Übersetzungen und Fehler liest VoiceOver vor, wenn es läuft.",
+               "en": "VoiceOver reads new translations and errors when it is running.",
+               "th": "VoiceOver จะอ่านคำแปลใหม่และข้อผิดพลาดเมื่อเปิดใช้งานอยู่"],
+        "maintenance": ["de": "Wartung",
+               "en": "Maintenance",
+               "th": "การบำรุงรักษา"],
+        "diag_copy": ["de": "Diagnosebericht kopieren",
+               "en": "Copy diagnostic report",
+               "th": "คัดลอกรายงานวินิจฉัย"],
+        "diag_help": ["de": "Versionen, Modelle, System – ohne Schlüssel, Gesprächstexte und Home-Pfad",
+               "en": "Versions, models, system – without keys, conversation text and home path",
+               "th": "เวอร์ชัน โมเดล ระบบ – ไม่มีคีย์ ข้อความสนทนา และพาธโฮม"],
+        "diag_copied": ["de": "Kopiert",
+               "en": "Copied",
+               "th": "คัดลอกแล้ว"],
+        "reset_all": ["de": "Alle Einstellungen zurücksetzen",
+               "en": "Reset all settings",
+               "th": "รีเซ็ตการตั้งค่าทั้งหมด"],
+        "reset_note": ["de": "API-Schlüssel, Glossar, Stimmprofile und Verlauf bleiben erhalten.",
+               "en": "The API key, glossary, voice profiles and conversation are kept.",
+               "th": "คีย์ API อภิธานศัพท์ โปรไฟล์เสียง และบทสนทนาจะไม่ถูกลบ"],
+        "reset_confirm": ["de": "Alle Einstellungen auf Standard zurücksetzen?",
+               "en": "Reset all settings to their defaults?",
+               "th": "รีเซ็ตการตั้งค่าทั้งหมดเป็นค่าเริ่มต้นใช่ไหม"],
+        "speak_toggle": ["de": "Übersetzung vorlesen",
+               "en": "Read translation aloud",
+               "th": "อ่านคำแปลออกเสียง"],
+        "polite_label": ["de": "Höflichkeitspartikel (Thai)",
+               "en": "Politeness particle (Thai)",
+               "th": "คำลงท้าย (ไทย)"],
+        "polite_krub": ["de": "ครับ – männlich",
+               "en": "ครับ – male",
+               "th": "ครับ – ผู้ชาย"],
+        "polite_ka": ["de": "ค่ะ – weiblich",
+               "en": "ค่ะ – female",
+               "th": "ค่ะ – ผู้หญิง"],
+        "polite_a11y": ["de": "Thai-Höflichkeitspartikel: männlich krub oder weiblich ka",
+               "en": "Thai politeness particle: male krub or female ka",
+               "th": "คำลงท้ายภาษาไทย: ครับ (ผู้ชาย) หรือ ค่ะ (ผู้หญิง)"],
     ]
 }

@@ -12,7 +12,7 @@ enum Translit {
 }
 
 struct Utterance: Identifiable, Equatable {
-    let id = UUID()
+    var id = UUID()              // bleibt beim Ersetzen erhalten (kein Scroll-Sprung)
     var uid: String?             // id der Engine (z. B. "u7"), für Korrektur und Sprachausgabe
     var translated: Bool
     var speaker: String?         // erkanntes Stimmprofil
@@ -72,6 +72,9 @@ enum EngineState: Equatable { case stopped, starting, running }
 
 @MainActor
 final class EngineModel: NSObject, ObservableObject {
+    /// Gemeinsame Instanz: App-Delegate (Boot, Hotkeys, Beenden) und Szenen nutzen dasselbe Modell.
+    static let shared = EngineModel()
+
     @Published var items: [Utterance] = []
     @Published var status = L.t("stopped")
     /// Prozess-Zustand. Die Engine läuft dauerhaft im Hintergrund (`--idle`), das Mikrofon schaltet `listen`.
@@ -108,6 +111,12 @@ final class EngineModel: NSObject, ObservableObject {
     @Published private(set) var llmActive = false
     /// Gesetzt, wenn die Engine unerwartet endet: letzte Zeilen aus stderr.log.
     @Published var crashLog: String?
+    /// Mikrofon-Zugriff verweigert (Knopf „Systemeinstellungen öffnen“).
+    @Published private(set) var micDenied = false
+    /// Modell lädt seit mehr als 120 s ohne `ready`.
+    @Published private(set) var loadSlow = false
+    /// Zeilen von der Engine, die kein gültiges JSON waren (Diagnose).
+    private(set) var malformedLines = 0
     let meter = LevelMeter()
 
     private static let ud = UserDefaults.standard
@@ -137,11 +146,23 @@ final class EngineModel: NSObject, ObservableObject {
     static let glossaryURL = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent("Library/Application Support/Dolmetscher/glossary.txt")
     @Published var glossary = (try? String(contentsOf: EngineModel.glossaryURL, encoding: .utf8)) ?? "" {
-        didSet {
-            try? FileManager.default.createDirectory(at: Self.glossaryURL.deletingLastPathComponent(), withIntermediateDirectories: true)
-            try? glossary.write(to: Self.glossaryURL, atomically: true, encoding: .utf8)
-            send(["glossary": glossary])
-        }
+        didSet { scheduleGlossaryWrite() }
+    }
+    private var glossaryWork: DispatchWorkItem?
+    /// Schreiben und Senden gebündelt (0,5 s nach der letzten Eingabe), nicht bei jedem Tastendruck.
+    private func scheduleGlossaryWrite() {
+        glossaryWork?.cancel()
+        let w = DispatchWorkItem { [weak self] in MainActor.assumeIsolated { self?.flushGlossary() } }
+        glossaryWork = w
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: w)
+    }
+    /// Sofort schreiben, falls eine Änderung noch aussteht (auch beim Beenden der App).
+    func flushGlossary() {
+        guard glossaryWork != nil else { return }
+        glossaryWork?.cancel(); glossaryWork = nil
+        try? FileManager.default.createDirectory(at: Self.glossaryURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try? glossary.write(to: Self.glossaryURL, atomically: true, encoding: .utf8)
+        send(["glossary": glossary])
     }
     @Published var llm = (ud.object(forKey: "llm") as? Bool) ?? true { didSet { Self.ud.set(llm, forKey: "llm"); send(["llm": llm]) } }
     /// Neural-Stimme: nach so vielen Sekunden spricht die macOS-Ersatzstimme (0 = aus).
@@ -166,7 +187,9 @@ final class EngineModel: NSObject, ObservableObject {
     }
     // Nur beim Start wirksam – Änderung startet den Prozess neu (Zuhör-Zustand bleibt).
     @Published var llmModel = ud.string(forKey: "llmModel") ?? "claude-haiku-5-5" { didSet { Self.ud.set(llmModel, forKey: "llmModel"); scheduleRestart() } }
+    /// Gewähltes Mikrofon: Index (Fallback) und Name (stabil – Indizes ändern sich beim Ein-/Ausstecken).
     @Published var mic = ud.string(forKey: "mic") ?? "" { didSet { Self.ud.set(mic, forKey: "mic"); scheduleRestart() } }
+    @Published var micName = ud.string(forKey: "micName") ?? "" { didSet { Self.ud.set(micName, forKey: "micName"); scheduleRestart() } }
     @Published var denoise = ud.bool(forKey: "denoise") { didSet { Self.ud.set(denoise, forKey: "denoise"); scheduleRestart() } }
     @Published var logText = ud.bool(forKey: "logText") { didSet { Self.ud.set(logText, forKey: "logText"); scheduleRestart() } }
     /// Wird nach dem Speichern/Löschen des API-Schlüssels erhöht (Engine liest ihn nur beim Start).
@@ -197,7 +220,7 @@ final class EngineModel: NSObject, ObservableObject {
 
     /// Einstellungen, die nur beim Start gelesen werden – Vergleich mit dem Stand beim Start.
     private var restartSignature: String {
-        "\(model)|\(mic)|\(denoise)|\(llmModel)|\(logText)|\(keyVersion)"
+        "\(model)|\(mic)|\(micName)|\(denoise)|\(llmModel)|\(logText)|\(keyVersion)"
     }
     @Published private var launchedSignature: String?
     var needsRestart: Bool { state != .stopped && launchedSignature != nil && launchedSignature != restartSignature }
@@ -205,6 +228,15 @@ final class EngineModel: NSObject, ObservableObject {
     private var proc: Process?
     private var launchedAt = Date.distantPast
     private var restartWork: DispatchWorkItem?
+    /// Auto-Neustart nach Absturz: Zähler (zurück auf 0 nach 60 s stabiler Laufzeit oder bei Start durch den Nutzer).
+    private(set) var restartAttempts = 0
+    private static let maxRestartAttempts = 3
+    private var backoffWork: DispatchWorkItem?
+    private var loadSlowWork: DispatchWorkItem?
+    /// Mikrofonname wird gerade in einen Index aufgelöst (Prozess startet danach).
+    private var resolvingMic = false
+    /// Schreibzugriffe auf stdin der Engine laufen hier, nicht im Main-Thread.
+    private let sendQueue = DispatchQueue(label: "dolmetscher.engine.stdin")
     /// App-Start: Engine einmal im Hintergrund laden.
     private var booted = false
     /// Zuhör-Wunsch vor einem Absturz ohne Auto-Neustart (für „Neu starten“ im Absturz-Hinweis).
@@ -236,7 +268,15 @@ final class EngineModel: NSObject, ObservableObject {
         super.init()
         // Stimmprofil angelegt/gelöscht: laufende Engine lädt die Profile neu (kein Neustart nötig)
         NotificationCenter.default.addObserver(forName: .profilesChanged, object: nil, queue: .main) { [weak self] _ in
-            self?.send(["reload_profiles": true])
+            MainActor.assumeIsolated { self?.send(["reload_profiles": true]) }
+        }
+        // Nach den Systemeinstellungen zurück: Mikrofon-Freigabe neu prüfen
+        NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self, self.micDenied, AVCaptureDevice.authorizationStatus(for: .audio) == .authorized else { return }
+                self.micDenied = false
+                if !self.active { self.status = self.restingStatus }
+            }
         }
         // Nur für Screenshots/Tests: DOLMETSCHER_DEMO=1 füllt den Verlauf mit Beispielen.
         if ProcessInfo.processInfo.environment["DOLMETSCHER_DEMO"] != nil {
@@ -261,13 +301,41 @@ final class EngineModel: NSObject, ObservableObject {
 
     static let logURL = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent("Library/Logs/Dolmetscher/stderr.log")
+    private static let logMarker = "=== Dolmetscher-Engine gestartet"
+
+    /// stderr.log: anhängen statt überschreiben, pro Start eine Kopfzeile mit Zeitstempel.
+    /// Ab 1 MB wird beim Start rotiert (stderr.log.1 … .5).
+    private static func prepareLog(keep: Int = 5, maxBytes: Int = 1_000_000) -> FileHandle? {
+        let fm = FileManager.default
+        try? fm.createDirectory(at: logURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        let size = (try? fm.attributesOfItem(atPath: logURL.path)[.size] as? Int) ?? 0
+        if size > maxBytes {
+            func path(_ i: Int) -> String { i == 0 ? logURL.path : logURL.path + ".\(i)" }
+            try? fm.removeItem(atPath: path(keep))
+            for i in stride(from: keep - 1, through: 0, by: -1) where fm.fileExists(atPath: path(i)) {
+                try? fm.moveItem(atPath: path(i), toPath: path(i + 1))
+            }
+        }
+        let fd = open(logURL.path, O_WRONLY | O_CREAT | O_APPEND, 0o600)
+        guard fd >= 0 else { return nil }
+        let fh = FileHandle(fileDescriptor: fd, closeOnDealloc: true)
+        let ts = ISO8601DateFormatter().string(from: Date())
+        try? fh.write(contentsOf: Data("\n\(logMarker) \(ts) ===\n".utf8))
+        return fh
+    }
 
     /// Einstellung live an die laufende Engine schicken (eine JSON-Zeile auf stdin).
+    /// Das Schreiben läuft auf einer seriellen Queue (Reihenfolge bleibt, der Main-Thread blockiert nicht,
+    /// wenn die Pipe voll ist); Fehler (z. B. Engine schon weg) werden geloggt statt verschluckt.
     func send(_ d: [String: Any]) {
         guard running, let h = stdin?.fileHandleForWriting,
               var data = try? JSONSerialization.data(withJSONObject: d) else { return }
         data.append(0x0A)
-        try? h.write(contentsOf: data)
+        let keys = d.keys.sorted().joined(separator: ",")
+        sendQueue.async {
+            do { try h.write(contentsOf: data) }
+            catch { NSLog("Dolmetscher: Senden an die Engine fehlgeschlagen (%@): %@", keys, "\(error)") }
+        }
     }
 
     /// Einmalige Umstellung alter Installationen von "small" auf das genauere "medium".
@@ -302,21 +370,23 @@ final class EngineModel: NSObject, ObservableObject {
         guard !micLent else { return }   // Stimmprofil-Assistent nimmt gerade auf
         crashLog = nil
         wantListen = true
+        restartAttempts = 0   // Nutzer hat selbst gestartet: Auto-Neustart-Zähler neu
         switch AVCaptureDevice.authorizationStatus(for: .audio) {
-        case .authorized: break
+        case .authorized: micDenied = false
         case .notDetermined:
             status = L.t("starting")
             AVCaptureDevice.requestAccess(for: .audio) { ok in
                 DispatchQueue.main.async {
                     MainActor.assumeIsolated {
                         guard self.wantListen else { return }   // inzwischen Stopp gedrückt
-                        if ok { self.startListening() } else { self.wantListen = false; self.status = L.t("nomic") }
+                        if ok { self.startListening() } else { self.wantListen = false; self.micDenied = true; self.status = L.t("nomic") }
                     }
                 }
             }
             return
         default:
             wantListen = false
+            micDenied = true
             status = L.t("nomic")
             return
         }
@@ -334,6 +404,7 @@ final class EngineModel: NSObject, ObservableObject {
     /// Zuhören ausschalten – Modelle bleiben geladen, der Prozess läuft weiter.
     func stopListening() {
         wantListen = false
+        backoffWork?.cancel(); backoffWork = nil
         if canListen { send(["listen": false]) }
         pttWork?.cancel(); pttWork = nil; pttHolding = false
         meter.reset()
@@ -345,11 +416,28 @@ final class EngineModel: NSObject, ObservableObject {
         let want = wantListen || micOn || (state == .stopped && listenBeforeCrash)
         stopProcess()
         listenBeforeCrash = false
+        restartAttempts = 0
         if want && !micLent { startListening() } else { startEngine() }
     }
 
-    /// Beim Beenden der App.
-    func shutdown() { stopProcess() }
+    /// Beim Beenden der App: Prozess beenden und kurz warten; reagiert er nicht, SIGKILL
+    /// (sonst bliebe ein verwaister Python-Prozess mit Modellen im Speicher zurück).
+    func shutdown() {
+        flushGlossary()
+        let p = proc
+        stopProcess()
+        guard let p else { return }
+        let end = Date().addingTimeInterval(2)
+        while p.isRunning && Date() < end { usleep(50_000) }
+        if p.isRunning { kill(p.processIdentifier, SIGKILL) }
+    }
+
+    /// Systemeinstellungen → Datenschutz → Mikrofon.
+    func openMicrophoneSettings() {
+        if let u = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone") {
+            NSWorkspace.shared.open(u)
+        }
+    }
 
     /// Mikrofon für den Stimmprofil-Assistenten freigeben (Engine bleibt geladen).
     func lendMic() {
@@ -390,12 +478,45 @@ final class EngineModel: NSObject, ObservableObject {
     }
 
     /// Prozess im Leerlauf starten (`--idle`): Modelle laden, Mikrofon bleibt aus.
+    /// Ist ein Mikrofonname gespeichert, wird er zuerst in den aktuellen Index aufgelöst
+    /// (Indizes ändern sich beim Ein-/Ausstecken); bei Fehler oder Zeitüberschreitung gilt der gespeicherte Index.
     private func startEngine() {
-        guard state == .stopped else { return }
+        guard state == .stopped, !resolvingMic else { return }
         restartWork?.cancel(); restartWork = nil
-        guard let script = Bundle.main.path(forResource: "dolmetscher", ofType: "py") else {
-            status = "dolmetscher.py fehlt im App-Bundle"; wantListen = false; return
+        backoffWork?.cancel(); backoffWork = nil
+        guard Bundle.main.path(forResource: "dolmetscher", ofType: "py") != nil else {
+            status = L.t("script_missing"); wantListen = false; return
         }
+        guard !micName.isEmpty else { launchEngine(); return }
+        resolvingMic = true
+        status = L.t("mic_loading")
+        var finished = false
+        let finish: () -> Void = { [weak self] in
+            MainActor.assumeIsolated {
+                guard let self, !finished else { return }
+                finished = true
+                self.resolvingMic = false
+                self.launchEngine()
+            }
+        }
+        let p = EngineRunner.run(["--list-mics"], timeout: 8, onEvent: { [weak self] o in
+            guard o["event"] as? String == "mics", let list = o["mics"] as? [[String: Any]] else { return }
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                for d in list where d["name"] as? String == self.micName {
+                    let idx = (d["index"] as? String) ?? (d["index"] as? NSNumber)?.stringValue
+                    if let idx, idx != self.mic { self.mic = idx }
+                    break
+                }
+            }
+        }, onExit: finish)
+        if p == nil { finish() }
+    }
+
+    private func launchEngine() {
+        guard state == .stopped,
+              let script = Bundle.main.path(forResource: "dolmetscher", ofType: "py") else { return }
+        signal(SIGPIPE, SIG_IGN)   // Schreiben in eine tote Pipe soll einen Fehler liefern, nicht die App beenden
         let p = Process()
         p.executableURL = URL(fileURLWithPath: Paths.python)
         p.arguments = launchArgs(script)
@@ -405,9 +526,7 @@ final class EngineModel: NSObject, ObservableObject {
         p.standardOutput = out
         let inp = Pipe()
         p.standardInput = inp
-        try? FileManager.default.createDirectory(at: Self.logURL.deletingLastPathComponent(), withIntermediateDirectories: true)
-        FileManager.default.createFile(atPath: Self.logURL.path, contents: nil)
-        p.standardError = (try? FileHandle(forWritingTo: Self.logURL)) ?? FileHandle.nullDevice
+        p.standardError = Self.prepareLog() ?? FileHandle.nullDevice
         buffer = Data()
         resetRuntime()
         // Alles über die serielle Main-Queue: Ereignisse kommen in Reihenfolge an,
@@ -423,10 +542,11 @@ final class EngineModel: NSObject, ObservableObject {
             }
         }
         p.terminationHandler = { [weak self] ended in
+            let code = ended.terminationStatus, reason = ended.terminationReason
             DispatchQueue.main.async {
                 MainActor.assumeIsolated {
                     guard let self, self.proc === ended else { return }   // nur der aktuelle Prozess, nicht nach Stopp
-                    self.engineEnded(code: ended.terminationStatus)
+                    self.engineEnded(code: code, reason: reason)
                 }
             }
         }
@@ -437,31 +557,67 @@ final class EngineModel: NSObject, ObservableObject {
             status = L.t("loading") + (wantListen ? " " + L.t("then_start") : "")
             launchedAt = Date()
             launchedSignature = restartSignature
+            scheduleLoadSlow()
             if pushToTalk { setPaused(true) }   // kein Startargument dafür – direkt per stdin
         } catch {
             state = .stopped; wantListen = false
-            status = "Start fehlgeschlagen: \(error.localizedDescription)"
+            status = L.f("start_failed", error.localizedDescription)
         }
     }
 
-    /// Unerwartetes Ende: einmal automatisch neu starten, wenn die Engine schon länger lief
-    /// (im vorigen Zuhör-Zustand). `listen: false` beendet den Prozess nicht – kommt hier also nicht an.
-    private func engineEnded(code: Int32) {
-        let uptime = Date().timeIntervalSince(launchedAt)
+    /// Nach 120 s ohne `ready`: Hinweis statt endlosem „Lade …“.
+    private func scheduleLoadSlow() {
+        loadSlowWork?.cancel(); loadSlow = false
+        let w = DispatchWorkItem { [weak self] in
+            MainActor.assumeIsolated {
+                guard let self, self.state != .stopped, !self.engineReady else { return }
+                self.loadSlow = true
+            }
+        }
+        loadSlowWork = w
+        DispatchQueue.main.asyncAfter(deadline: .now() + 120, execute: w)
+    }
+
+    /// Unerwartetes Ende (`listen: false` beendet den Prozess nicht – kommt hier also nicht an).
+    /// Bis zu dreimal automatisch neu starten (Wartezeit 1, 2, 4 s) im vorigen Zuhör-Zustand; danach
+    /// Absturz-Hinweis mit verständlicher Ursache (Speicher, fehlende Python-Module, Signal).
+    private func engineEnded(code: Int32, reason: Process.TerminationReason) {
         let want = wantListen || micOn
+        let wasReady = engineReady   // fehlende Pflichtmodule beenden die Engine vor `ready`; spätere Treffer sind Warnungen optionaler Module
+        if Date().timeIntervalSince(launchedAt) > 60 { restartAttempts = 0 }   // lief stabil: neuer Versuchsvorrat
+        let tail = Self.logTail()
         state = .stopped; proc = nil; stdin = nil; launchedSignature = nil
         engineReady = false; micOn = false; micKnown = false
+        loadSlowWork?.cancel(); loadSlowWork = nil; loadSlow = false
         resetRuntime()
-        if code != 0 && uptime > 30 {
+        let signaled = reason == .uncaughtSignal
+        let envBroken = !wasReady && (tail.contains("No module named") || tail.contains("ModuleNotFoundError")
+            || tail.contains("ImportError"))
+        let message: String
+        if envBroken { message = L.t("crash_env") }
+        else if signaled && code == SIGKILL { message = L.t("crash_oom") }
+        else if signaled { message = L.f("crash_signal", Int(code)) }
+        else { message = L.t("crashed") + " (Code \(code))" }
+        if !envBroken, code != 0 || signaled, restartAttempts < Self.maxRestartAttempts {
+            restartAttempts += 1
             wantListen = want
-            startEngine()
-            status = L.t("auto_restart")
+            status = L.f("auto_restart_n", restartAttempts, Self.maxRestartAttempts)
+            let w = DispatchWorkItem { [weak self] in
+                MainActor.assumeIsolated {
+                    guard let self else { return }
+                    self.backoffWork = nil
+                    if self.state == .stopped { self.startEngine() }
+                }
+            }
+            backoffWork = w
+            DispatchQueue.main.asyncAfter(deadline: .now() + pow(2, Double(restartAttempts - 1)), execute: w)
             return
         }
         wantListen = false
         listenBeforeCrash = want
-        status = L.t("crashed") + " (Code \(code))"
-        crashLog = Self.logTail()
+        status = message
+        crashLog = tail
+        Announcer.post(message, force: true)
     }
 
     /// Laufzeitzustand zurücksetzen (Start, Stopp, Absturz) – sonst bleibt z. B. „busy“ hängen.
@@ -479,6 +635,7 @@ final class EngineModel: NSObject, ObservableObject {
     }
 
     /// Prozess beenden (Neustart, App-Ende). Der Zuhör-Wunsch bleibt – `restart()` braucht ihn.
+    /// Reagiert die Engine nicht auf SIGTERM, folgt nach 2 s SIGKILL.
     private func stopProcess() {
         let p = proc
         proc = nil          // vor terminate(): der terminationHandler erkennt so einen gewollten Stopp
@@ -486,8 +643,14 @@ final class EngineModel: NSObject, ObservableObject {
         if let p {
             (p.standardOutput as? Pipe)?.fileHandleForReading.readabilityHandler = nil
             p.terminate()
+            let pp = p
+            DispatchQueue.global().asyncAfter(deadline: .now() + 2) {
+                if pp.isRunning { kill(pp.processIdentifier, SIGKILL) }
+            }
         }
         restartWork?.cancel(); restartWork = nil
+        backoffWork?.cancel(); backoffWork = nil
+        loadSlowWork?.cancel(); loadSlowWork = nil; loadSlow = false
         state = .stopped
         engineReady = false; micOn = false; micKnown = false
         launchedSignature = nil
@@ -514,15 +677,26 @@ final class EngineModel: NSObject, ObservableObject {
         status = micOn ? idleStatus : restingStatus
     }
 
+    /// Letzte Zeilen des aktuellen Engine-Starts aus stderr.log (nur ab der letzten Kopfzeile).
     static func logTail(_ n: Int = 25) -> String {
-        guard let d = try? Data(contentsOf: logURL) else { return "(stderr.log nicht lesbar)" }
-        let s = String(decoding: d, as: UTF8.self)
+        guard let h = try? FileHandle(forReadingFrom: logURL) else { return L.t("log_unreadable") }
+        defer { try? h.close() }
+        let size = (try? h.seekToEnd()) ?? 0
+        try? h.seek(toOffset: size > 65_536 ? size - 65_536 : 0)
+        var s = String(decoding: (try? h.readToEnd()) ?? Data(), as: UTF8.self)
+        if let r = s.range(of: logMarker, options: .backwards) {
+            s = String(s[r.upperBound...])
+            if let nl = s.firstIndex(of: "\n") { s = String(s[nl...]) }   // Rest der Kopfzeile
+        }
         let lines = s.split(separator: "\n", omittingEmptySubsequences: false)
             .filter { !$0.contains("experimental") }   // MPS-Warnung von PyTorch, kein Fehler
             .suffix(n)
         let t = lines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
-        return t.isEmpty ? "(stderr.log ist leer)" : t
+        return t.isEmpty ? L.t("log_empty") : t
     }
+
+    /// Eine Zeile über 2 MB ist kein Ereignis (Protokoll-Fehler): verwerfen statt unbegrenzt puffern.
+    private static let maxLineBytes = 2_000_000
 
     private func consume(_ d: Data) {
         buffer.append(d)
@@ -530,8 +704,18 @@ final class EngineModel: NSObject, ObservableObject {
             let line = buffer.subdata(in: buffer.startIndex..<nl)
             buffer.removeSubrange(buffer.startIndex...nl)
             guard let obj = try? JSONSerialization.jsonObject(with: line) as? [String: Any],
-                  let ev = obj["event"] as? String else { continue }
+                  let ev = obj["event"] as? String else {
+                if !line.isEmpty {
+                    malformedLines += 1
+                    if malformedLines <= 5 { NSLog("Dolmetscher: Zeile der Engine ist kein Ereignis (%d Bytes)", line.count) }
+                }
+                continue
+            }
             handle(ev, obj)
+        }
+        if buffer.count > Self.maxLineBytes {
+            NSLog("Dolmetscher: Zeile der Engine zu lang (%d Bytes), verworfen", buffer.count)
+            buffer = Data(); malformedLines += 1
         }
     }
 
@@ -544,9 +728,16 @@ final class EngineModel: NSObject, ObservableObject {
         return busy ? L.t("thinking") : L.t("listening")
     }
 
+    /// Position je Engine-id. Der Cache wird bei jedem Zugriff geprüft (Einträge werden an mehreren
+    /// Stellen entfernt) und fällt sonst auf die lineare Suche zurück – meist trifft der Cache.
+    private var indexCache: [String: Int] = [:]
     private func index(of uid: String?) -> Int? {
         guard let uid else { return nil }
-        return items.lastIndex { $0.uid == uid }
+        if let i = indexCache[uid], i < items.count, items[i].uid == uid { return i }
+        guard let i = items.lastIndex(where: { $0.uid == uid }) else { indexCache[uid] = nil; return nil }
+        if indexCache.count > 4000 { indexCache.removeAll() }
+        indexCache[uid] = i
+        return i
     }
 
     private func handle(_ ev: String, _ o: [String: Any]) {
@@ -558,6 +749,7 @@ final class EngineModel: NSObject, ObservableObject {
                 + (wantListen ? " " + L.t("then_start") : "")
         case "ready":
             engineReady = true
+            loadSlowWork?.cancel(); loadSlowWork = nil; loadSlow = false
             llmActive = o["llm"] as? Bool ?? false
             if pushToTalk && !pttHolding { setPaused(true) }
             if wantListen && !micLent {
@@ -632,7 +824,10 @@ final class EngineModel: NSObject, ObservableObject {
         case "net":
             let what = o["what"] as? String ?? "translate"
             if o["ok"] as? Bool ?? true { netDown.remove(what) } else { netDown.insert(what) }
-        case "error": status = "⚠️ " + (o["msg"] as? String ?? "Fehler")
+        case "error":
+            let msg = o["msg"] as? String ?? L.t("error_generic")
+            status = "⚠️ " + msg
+            Announcer.post(msg, force: true)
         case "command": applyCommand(o)
         case "dropped":
             if let id {
@@ -667,7 +862,7 @@ final class EngineModel: NSObject, ObservableObject {
         replayPausedEngine = false   // Nutzer hat selbst pausiert/fortgesetzt
         resumeWork?.cancel(); resumeWork = nil
         let reply = o["reply"] as? String ?? ""
-        status = paused ? Self.pausedText : "🗣 " + (reply.isEmpty ? "Wiederhole …" : reply)
+        status = paused ? Self.pausedText : "🗣 " + (reply.isEmpty ? L.t("repeating") : reply)
     }
 
     private func addUtterance(_ o: [String: Any], id: String?) {
@@ -685,14 +880,18 @@ final class EngineModel: NSObject, ObservableObject {
         u.numWarn = o["num_warn"] as? Bool ?? false
         u.role = o["role"] as? String
         if let id { cancelHearingTimer(id); pendingIDs.remove(id) } else { pendingIDs.remove("?") }
+        // Beim Ersetzen bleibt die Blasen-id erhalten: die Liste behält ihre Position (kein Scroll-Sprung).
         if let old = o["replaces"] as? String, let i = index(of: old) {
+            u.id = items[i].id
             items[i] = u
             if let id { items.removeAll { $0.pending && $0.uid == id } }
         } else if let id, let i = items.lastIndex(where: { $0.pending && $0.uid == id }) {
+            u.id = items[i].id
             items[i] = u
         } else {
             items.append(u)
         }
+        if !u.out.isEmpty { Announcer.post(u.out) }
     }
 
     // MARK: Platzhalter mit Teiltext
@@ -840,26 +1039,21 @@ final class EngineModel: NSObject, ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.5, execute: w)
     }
 
-    // MARK: Export
+    // MARK: Einstellungen zurücksetzen
 
-    func transcript(markdown: Bool) -> String {
-        let df = DateFormatter(); df.dateFormat = "HH:mm:ss"
-        let day = DateFormatter(); day.dateStyle = .long; day.timeStyle = .short
-        var s = markdown ? "# Dolmetscher EN ⇄ TH – \(day.string(from: Date()))\n\n"
-                         : "Dolmetscher EN ⇄ TH – \(day.string(from: Date()))\n\n"
-        for u in items where !u.pending {
-            let who = u.lang == "en" ? "🇬🇧 EN" : "🇹🇭 TH"
-            let arrow = u.translated ? (u.to == "th" ? "🇹🇭 TH" : "🇬🇧 EN") : "(nicht übersetzt)"
-            if markdown {
-                s += "**\(df.string(from: u.date)) · \(who)**: \(u.text)  \n"
-                if u.translated { s += "→ \(arrow): \(u.out)\n\n" } else { s += "\n" }
-            } else {
-                s += "[\(df.string(from: u.date))] \(who): \(u.text)\n"
-                if u.translated { s += "  → \(arrow): \(u.out)\n" }
-                s += "\n"
-            }
-        }
-        return s
+    /// Alle Einstellungen auf Standard. Die @Published-Werte werden selbst zugewiesen (ihr didSet schreibt
+    /// UserDefaults und schickt es an die Engine) – ein bloßes Löschen von UserDefaults ließe alte Werte
+    /// im Speicher stehen. API-Schlüsseldatei, Glossar, Stimmprofile und Verlauf bleiben unberührt.
+    func resetAllSettings() {
+        speak = true; trEN = true; trTH = true; polite = "krub"; lang = "auto"
+        rate = 0; volume = 1.0; voiceEN = ""; voiceTH = ""
+        silence = 0.8; sensitivity = "normal"; earcons = false; llmStyle = "casual"; llm = true
+        ttsRace = 1.4; fastEndpoint = false; twoPerson = true; partialText = false
+        llmModel = "claude-haiku-5-5"; mic = ""; micName = ""; denoise = false; logText = false
+        pushToTalk = false; model = "medium"
+        for k in Prefs.resettableKeys { Self.ud.removeObject(forKey: k) }
+        Self.ud.set(L.defaultCode, forKey: L.key)
+        L.sync(L.defaultCode)
     }
 }
 

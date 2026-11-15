@@ -1,0 +1,81 @@
+{
+  "id": "restaurant",
+  "names": {
+    "de": "Restaurant",
+    "en": "Restaurant",
+    "th": "ร้านอาหาร"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "menu",
+      "th": "เมนู"
+    },
+    {
+      "en": "the bill",
+      "th": "เช็คบิล"
+    },
+    {
+      "en": "not spicy",
+      "th": "ไม่เผ็ด"
+    },
+    {
+      "en": "allergy",
+      "th": "แพ้อาหาร"
+    },
+    {
+      "en": "vegetarian",
+      "th": "มังสวิรัติ"
+    },
+    {
+      "en": "drinking water",
+      "th": "น้ำดื่ม"
+    },
+    {
+      "en": "takeaway",
+      "th": "ห่อกลับบ้าน"
+    },
+    {
+      "en": "without peanuts",
+      "th": "ไม่ใส่ถั่วลิสง"
+    },
+    {
+      "en": "ice",
+      "th": "น้ำแข็ง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "A table for two, please.",
+      "th": "ขอโต๊ะสำหรับสองคนหน่อย"
+    },
+    {
+      "en": "Could I see the menu, please?",
+      "th": "ขอดูเมนูหน่อย"
+    },
+    {
+      "en": "Not spicy, please.",
+      "th": "ไม่เผ็ดนะ"
+    },
+    {
+      "en": "I am allergic to peanuts.",
+      "th": "ฉันแพ้ถั่วลิสง"
+    },
+    {
+      "en": "What do you recommend?",
+      "th": "มีอะไรแนะนำไหม"
+    },
+    {
+      "en": "Could we have some water, please?",
+      "th": "ขอน้ำเปล่าหน่อย"
+    },
+    {
+      "en": "Check, please.",
+      "th": "ขอเช็คบิลหน่อย"
+    },
+    {
+      "en": "Can I pay by card?",
+      "th": "จ่ายด้วยบัตรได้ไหม"
+    }
+  ]
+}

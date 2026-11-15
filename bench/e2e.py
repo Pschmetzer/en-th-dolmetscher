@@ -109,7 +109,8 @@ def main():
         p.kill()
 
     utts = [e for e in events if e.get("event") == "utt"]
-    lat = [e["latency_s"] for e in events if e.get("event") == "speaking" and isinstance(e.get("latency_s"), (int, float))]
+    lat = [e["latency_s"] for e in events
+           if e.get("event") == "speaking" and isinstance(e.get("latency_s"), (int, float))]
     ready = [e["ready_s"] for e in utts if isinstance(e.get("ready_s"), (int, float))]
     queues = [e.get("stt", 0) for e in events if e.get("event") == "queue"]
     errors = [e for e in events if e.get("event") == "error"]
@@ -130,7 +131,8 @@ def main():
     print(f"mic-Ereignisse: {[e.get('on') for e in events if e.get('event') == 'mic']}")
     print(f"RSS kB / Threads: erste {stats[:1]}  letzte {stats[-1:]}")
     for e in utts[:14]:
-        print(f"  {e.get('lang')}→{e.get('to')}  fertig {e.get('ready_s')} s  {e.get('text', '')[:38]!r} → {e.get('out', '')[:38]!r}")
+        print(f"  {e.get('lang')}→{e.get('to')}  fertig {e.get('ready_s')} s  "
+              f"{e.get('text', '')[:38]!r} → {e.get('out', '')[:38]!r}")
     bad = []
     if not alive:
         bad.append("Engine-Prozess ist beendet")

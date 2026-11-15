@@ -1,0 +1,81 @@
+{
+  "id": "taxi",
+  "names": {
+    "de": "Taxi",
+    "en": "Taxi",
+    "th": "แท็กซี่"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "meter",
+      "th": "มิเตอร์"
+    },
+    {
+      "en": "airport",
+      "th": "สนามบิน"
+    },
+    {
+      "en": "highway",
+      "th": "ทางด่วน"
+    },
+    {
+      "en": "turn left",
+      "th": "เลี้ยวซ้าย"
+    },
+    {
+      "en": "turn right",
+      "th": "เลี้ยวขวา"
+    },
+    {
+      "en": "straight ahead",
+      "th": "ตรงไป"
+    },
+    {
+      "en": "stop here",
+      "th": "จอดตรงนี้"
+    },
+    {
+      "en": "change",
+      "th": "เงินทอน"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please use the meter.",
+      "th": "รบกวนเปิดมิเตอร์ด้วย"
+    },
+    {
+      "en": "To this address, please.",
+      "th": "ไปที่อยู่นี้หน่อย"
+    },
+    {
+      "en": "How long will it take?",
+      "th": "ใช้เวลาประมาณเท่าไหร่"
+    },
+    {
+      "en": "Please turn left here.",
+      "th": "เลี้ยวซ้ายตรงนี้หน่อย"
+    },
+    {
+      "en": "Please stop here.",
+      "th": "จอดตรงนี้หน่อย"
+    },
+    {
+      "en": "Could you wait for me for a few minutes?",
+      "th": "รอสักครู่ได้ไหม"
+    },
+    {
+      "en": "Do you have change?",
+      "th": "มีเงินทอนไหม"
+    },
+    {
+      "en": "Could I have a receipt, please?",
+      "th": "ขอใบเสร็จหน่อย"
+    }
+  ]
+}

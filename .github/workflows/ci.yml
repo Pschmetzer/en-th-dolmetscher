@@ -5,36 +5,96 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
+    name: Tests (Python ${{ matrix.python }})
     runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # 3.12: exakt die Versionen aus requirements.txt
+          - python: "3.12"
+            pinned: true
+          # 3.10: Mindestversion; die Pins (numpy 2.5 braucht >= 3.12) passen nicht, daher ungepinnt
+          - python: "3.10"
+            pinned: false
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      # Aktionen sind auf Commit-SHAs festgelegt (Dependabot hebt sie an).
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python }}
           cache: pip
           cache-dependency-path: requirements*.txt
-      - name: Install dependencies
+      - name: Install dependencies (pinned)
+        if: matrix.pinned
         run: python -m pip install -r requirements-dev.txt
+      - name: Install dependencies (unpinned, minimum Python)
+        if: ${{ !matrix.pinned }}
+        run: |
+          sed -e 's/==.*//' -e '/^-r/d' -e '/^#/d' requirements.txt requirements-dev.txt > /tmp/unpinned.txt
+          python -m pip install -r /tmp/unpinned.txt
       - name: Run tests (no models, no network, no microphone)
         run: python -m pytest -v
-      - name: Lint (ruff, not blocking)
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: Install ruff (version from requirements-dev.txt)
+        run: python -m pip install "$(grep '^ruff==' requirements-dev.txt)"
+      # bench/ und die Test-Infrastruktur sind sauber: hier darf nichts Neues hinzukommen.
+      - name: Ruff (blocking)
+        run: ruff check --output-format=github bench/ tests/conftest.py
+      # Engine, Profile und ältere Tests haben noch bekannte Befunde (E501, E741, ...): nur melden.
+      - name: Ruff (engine and older tests, not blocking)
         continue-on-error: true
-        run: ruff check --output-format=github dolmetscher.py profiles.py bench/
+        run: ruff check --output-format=github dolmetscher.py profiles.py tests/
+
+  shell:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Check build script syntax
         run: bash -n build.sh
-      - name: Typecheck and compile all Swift files
-        run: |
-          swiftc --version
-          mkdir -p build
-          swiftc -O -parse-as-library -o build/Dolmetscher app/*.swift
+      - name: shellcheck
+        run: shellcheck build.sh
 
-  swift-typecheck:
-    runs-on: macos-14
+  swift:
+    # Typecheck und vollständige Kompilierung aller Swift-Dateien; mindestens macOS 14 (LSMinimumSystemVersion).
+    runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Typecheck Swift sources
         run: |
           swiftc --version
           swiftc -typecheck -parse-as-library app/*.swift
+      - name: Compile
+        run: |
+          mkdir -p build
+          swiftc -O -parse-as-library -o build/Dolmetscher app/*.swift
+
+  audit:
+    name: Dependency audit (not blocking)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: pip-audit
+        run: |
+          python -m pip install "$(grep '^pip-audit==' requirements-dev.txt)"
+          pip-audit --no-deps --disable-pip -r requirements.txt
