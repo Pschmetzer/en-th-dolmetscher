@@ -249,8 +249,8 @@ def _run_enroll(markers, tmp_dur=2.0, name="N", lang="en"):
         if ev == "enroll_prompt":
             cur["i"] = k["i"]
     events = []
-    return profiles.enroll(name, lang, rec, lambda a, l: sents[cur["i"] - 1], lambda ev, **k: (emit(ev, **k), events.append(ev)),
-                           _EnrollSpk()), events
+    return profiles.enroll(name, lang, rec, lambda a, lg: sents[cur["i"] - 1],
+                           lambda ev, **k: (emit(ev, **k), events.append(ev)), _EnrollSpk()), events
 
 
 def test_enroll_drops_outlier_and_backs_up(pdir):
@@ -278,7 +278,7 @@ def test_enroll_short_audio_rejected_consistently(pdir):
 
 def test_enroll_invalid_name_before_recording(pdir):
     with pytest.raises(profiles.ProfileNameError):
-        profiles.enroll("!!", "en", lambda: None, lambda a, l: "", lambda *a, **k: None, _EnrollSpk())
+        profiles.enroll("!!", "en", lambda: None, lambda a, lg: "", lambda *a, **k: None, _EnrollSpk())
 
 
 # ---- error_rate ----

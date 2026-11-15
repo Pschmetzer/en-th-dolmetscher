@@ -64,8 +64,8 @@ def test_no_duplicate_keys():
 def test_every_key_has_all_languages():
     rows, _ = parse_table()
     assert len(rows) > 100
-    bad = {k: sorted(set(LANGS) - {l for l, v in r.items() if v.strip()}) for k, r in rows.items()
-           if not all(r.get(l, "").strip() for l in LANGS)}
+    bad = {k: sorted(set(LANGS) - {lg for lg, v in r.items() if v.strip()}) for k, r in rows.items()
+           if not all(r.get(lg, "").strip() for lg in LANGS)}
     assert not bad, f"Keys with a missing or empty language: {bad}"
     extra = {k: sorted(set(r) - set(LANGS)) for k, r in rows.items() if set(r) - set(LANGS)}
     assert not extra, f"Unknown language codes: {extra}"
@@ -79,8 +79,8 @@ def test_thai_text_is_thai():
 
 def test_placeholders_match_across_languages():
     rows, _ = parse_table()
-    bad = {k: [PLACEHOLDER.findall(r[l]) for l in LANGS] for k, r in rows.items()
-           if len({tuple(PLACEHOLDER.findall(r[l])) for l in LANGS}) > 1}
+    bad = {k: [PLACEHOLDER.findall(r[lg]) for lg in LANGS] for k, r in rows.items()
+           if len({tuple(PLACEHOLDER.findall(r[lg])) for lg in LANGS}) > 1}
     assert not bad, f"Format placeholders differ between languages: {bad}"
 
 

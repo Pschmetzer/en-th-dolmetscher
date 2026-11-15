@@ -23,7 +23,7 @@ def _local_imports(path, seen):
 
 def test_build_copies_all_engine_modules():
     needed = _local_imports(ROOT / "dolmetscher.py", {"dolmetscher"})
-    line = next(l for l in (ROOT / "build.sh").read_text().splitlines()
-                if re.match(r"\s*cp dolmetscher\.py ", l))
+    line = next(ln for ln in (ROOT / "build.sh").read_text().splitlines()
+                if re.match(r"\s*cp dolmetscher\.py ", ln))
     copied = {pathlib.Path(w).stem for w in line.split() if w.endswith(".py")}
     assert needed <= copied, f"build.sh kopiert nicht: {sorted(needed - copied)}"

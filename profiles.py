@@ -9,7 +9,7 @@ A profile is created once by reading 8 sentences aloud (~1 minute). It stores
 Profiles are biometric data. They stay on this Mac in
 ~/Library/Application Support/Dolmetscher/profiles/ (or $DOLMETSCHER_HOME/profiles) and never leave it.
 """
-import contextlib, datetime, fcntl, hashlib, json, os, re, shutil, sys, threading, time, unicodedata
+import contextlib, datetime, fcntl, hashlib, json, os, re, shutil, sys, threading, unicodedata
 import urllib.request
 from collections import Counter
 import numpy as np
@@ -619,7 +619,8 @@ class SpeakerID:
 ROLE_PAIR_MIN = 0.55        # die bessere der beiden Ähnlichkeiten muss mindestens so hoch sein
 ROLE_PAIR_MARGIN = 0.10     # und die andere um so viel schlagen
 ROLE_LEAN_MARGIN = 0.03     # knapper Vorsprung: nur zusammen mit dem vorherigen Sprecher
-ROLE_ME_FLOOR = 0.65        # "ich" nie darunter: fremde Stimmen erreichen bis 0,64 (falsch "ich" = Thai als Englisch gelesen)
+# "ich" nie darunter: fremde Stimmen erreichen bis 0,64 (falsch "ich" = Thai als Englisch gelesen)
+ROLE_ME_FLOOR = 0.65
 
 
 MAX_HOTWORDS = 2 * MAX_VOCAB
