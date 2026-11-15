@@ -186,6 +186,8 @@ _EMIT_LOCK = threading.RLock()     # RLock: der Signal-Handler (Stopp) darf auch
 def emit(event, **kw):
     with _EMIT_LOCK:                   # Mikrofon- und Arbeits-Thread schreiben beide
         _emit(event, **kw)
+    if event == "speak_done" and kw.get("id") == "cmd":
+        _wake_after_reply()
 
 
 def _json_default(o):
@@ -1283,7 +1285,19 @@ def _wm(model, **kw):
         return WhisperModel(model, local_files_only=True, **kw)
     except Exception as e:
         log({"model": model, "download": True, "err": _errtxt(e)})
-        return WhisperModel(model, **kw)
+        if not _DOWNLOAD_SAID.get(model):         # MPS- und CPU-Versuch: nur einmal melden
+            _DOWNLOAD_SAID[model] = True
+            emit("loading", msg=f"Lade Modell '{model}' herunter (einmalig, bis ~1,5 GB) …", download=True)
+        try:
+            return WhisperModel(model, **kw)
+        except Exception as e2:
+            if re.search(r"connect|resolve|offline|network|timed? ?out|unreachable", _errtxt(e2), re.I):
+                emit("error", code="model_offline",
+                     msg=f"Modell '{model}' fehlt und kann ohne Internet nicht geladen werden")
+            raise
+
+
+_DOWNLOAD_SAID = {}
 
 
 def load_model(model, device):
@@ -1305,16 +1319,33 @@ def load_model(model, device):
     return m, "cpu"
 
 
-def normalize(audio, target_rms=0.06, max_gain=10.0, peak=0.95):
-    """RMS-Normalisierung mit Obergrenze: hebt leise Sprecher an, ohne Rauschen beliebig zu verstärken."""
+def normalize(audio, target_rms=0.06, max_gain=10.0, peak=0.95, min_rms=0.003, frame=512):
+    """RMS-Normalisierung mit Obergrenze: hebt leise Sprecher an, ohne Rauschen beliebig zu verstärken.
+    - Pegel nur über die lauteren Abschnitte (Pausen zählen nicht mit, sonst wird zu stark angehoben).
+    - Spitze als 99,5-Perzentil: ein einzelnes Knacken/Husten verhindert die Anhebung nicht mehr.
+    - Fast nur Rauschen (Sprach-Pegel unter min_rms): nicht verstärken (sonst Halluzinationen).
+    Gibt (Audio, echte Spitze) zurück."""
     if not audio.size:
         return audio, 0.0
-    rms = float(np.sqrt(np.mean(audio ** 2)))
-    pk = float(np.max(np.abs(audio)))
-    if rms <= 1e-5 or pk <= 0:
+    absa = np.abs(audio)
+    pk = float(np.max(absa))
+    if pk <= 0:
         return audio, pk
-    g = min(target_rms / rms, max_gain, peak / pk)
-    return (audio * g if g > 1.0 else audio), pk
+    n = audio.size // frame
+    if n >= 4:
+        fr = np.sqrt(np.mean(audio[:n * frame].reshape(n, frame) ** 2, axis=1))
+        floor = max(float(np.percentile(fr, 90)) * 0.25, 1e-5)   # Pausen: > 12 dB unter dem Sprachpegel
+        voiced = fr[fr > floor]
+        rms = float(np.sqrt(np.mean(voiced ** 2))) if voiced.size else float(np.sqrt(np.mean(audio ** 2)))
+    else:
+        rms = float(np.sqrt(np.mean(audio ** 2)))
+    if rms < min_rms:
+        return audio, pk
+    pk_eff = float(np.percentile(absa, 99.5)) if audio.size >= 200 else pk
+    g = min(target_rms / rms, max_gain, peak / max(pk_eff, 1e-9))
+    if g <= 1.0:
+        return audio, pk
+    return np.clip(audio * g, -1.0, 1.0).astype(audio.dtype, copy=False), pk
 
 
 def split_sentences(s, lang, min_len=60):
@@ -1589,7 +1620,7 @@ def _ws_take():
 def tts_prepare():
     """Vom Mikrofon-Thread bei Sprechbeginn und vor dem Übersetzen aufgerufen: Verbindungen zur
     Neural-Stimme schon öffnen, während noch gesprochen/erkannt wird. Kehrt sofort zurück."""
-    if not _WS["ok"]:
+    if not _ws_usable():
         return
     try:
         import asyncio
@@ -1606,10 +1637,36 @@ def tts_prepare_if_speaking():
         tts_prepare()
 
 
+WS_FAIL_MAX = 3                        # so oft hintereinander scheitert der eigene Weg, während der alte geht
+WS_OFF_S = 300.0                       # -> so lange nur der alte Weg, dann neuer Versuch
+_WS_HEALTH = {"fails": 0, "off_until": 0.0}
+_WS_HEALTH_LOCK = threading.Lock()
+
+
+def _ws_result(ok):
+    """Eigenen Websocket-Weg abschalten, wenn er wiederholt scheitert, edge_tts.Communicate aber
+    geht (nur dann: ein Netzausfall soll den schnellen Weg nicht abschalten)."""
+    with _WS_HEALTH_LOCK:
+        if ok:
+            _WS_HEALTH["fails"] = 0
+            return
+        _WS_HEALTH["fails"] += 1
+        if _WS_HEALTH["fails"] < WS_FAIL_MAX:
+            return
+        _WS_HEALTH["fails"] = 0
+        _WS_HEALTH["off_until"] = time.monotonic() + WS_OFF_S
+    log({"tts_ws": "aus", "für_s": WS_OFF_S})
+
+
+def _ws_usable():
+    with _WS_HEALTH_LOCK:
+        return _WS["ok"] and time.monotonic() >= _WS_HEALTH["off_until"]
+
+
 def _ssml(text, voice, rate):
     """SSML-Nachricht wie edge-tts sie sendet; None, wenn der Text zu lang ist oder sich die
     Bibliothek geändert hat (dann der alte Weg über edge_tts.Communicate)."""
-    if not _WS["ok"]:
+    if not _ws_usable():
         return None
     try:
         from edge_tts import communicate as ec
@@ -1680,23 +1737,27 @@ def tts_warmup():
             log({"tts_warmup": "fehler", "err": _errtxt(e)})
     for i in range(2):
         threading.Thread(target=run, args=(i,), name="tts-warmup", daemon=True).start()
+    # `ffmpeg -devices` (bis 5 s) nicht erst beim ersten Satz, mitten im zeitkritischen Weg
+    threading.Thread(target=pipe_player, args=(1.0,), name="player-warmup", daemon=True).start()
 
 
 _PIPE_PLAYER = None
+_PIPE_PLAYER_LOCK = threading.Lock()
 
 
 def pipe_player(volume):
     """mp3 von stdin sofort abspielen: ffmpeg -> AudioToolbox, sonst ffplay, sonst None."""
     global _PIPE_PLAYER
-    if _PIPE_PLAYER is None:
-        try:
-            dev = subprocess.run([FFMPEG, "-hide_banner", "-devices"], capture_output=True,
-                                 text=True, timeout=5).stdout
-        except Exception:
-            dev = ""
-        ffplay = shutil.which("ffplay") or (os.path.join(os.path.dirname(FFMPEG), "ffplay")
-                                            if os.path.exists(os.path.join(os.path.dirname(FFMPEG), "ffplay")) else None)
-        _PIPE_PLAYER = "at" if "audiotoolbox" in dev else (ffplay or "")
+    with _PIPE_PLAYER_LOCK:                    # Vorwärmen und erster Satz: nur einmal nachsehen
+        if _PIPE_PLAYER is None:
+            try:
+                dev = subprocess.run([FFMPEG, "-hide_banner", "-devices"], capture_output=True,
+                                     text=True, timeout=5).stdout
+            except Exception:
+                dev = ""
+            near = os.path.join(os.path.dirname(FFMPEG), "ffplay")
+            ffplay = shutil.which("ffplay") or (near if os.path.exists(near) else None)
+            _PIPE_PLAYER = "at" if "audiotoolbox" in dev else (ffplay or "")
     fast = ["-probesize", "32", "-analyzeduration", "0", "-fflags", "nobuffer", "-f", "mp3"]
     if _PIPE_PLAYER == "at":
         return [FFMPEG, "-hide_banner", "-nostats", "-loglevel", "error" if DEBUG else "quiet", *fast, "-i", "pipe:0",
@@ -1725,6 +1786,7 @@ class EdgeStream:
         self.stop = threading.Event()
         self.hedged = False
         self.pooled = None                         # True: lief über eine vorab geöffnete Verbindung
+        self.audio = threading.Event()             # erster Ton ist da (LocalVoice rendert dann nicht mehr)
         self.futs = []
         with _TTS_CACHE_LOCK:
             self.cached = TTS_CACHE.get(self.key)
@@ -1734,6 +1796,7 @@ class EdgeStream:
             q = queue.Queue()
             q.put(self.cached)
             q.put(None)
+            self.audio.set()
             self.qs, self.hedged = [q], True      # kein zweiter Versuch nötig
         else:
             self.qs = [self._request()]
@@ -1743,21 +1806,42 @@ class EdgeStream:
         q = queue.Queue()
         stop = self.stop
         ssml = _ssml(self.text, self.voice, self.rate)
+        got = {"n": 0}
 
         def stopped():
             return stop.is_set() or getattr(q, "lost", False)
+
+        def put(data):
+            got["n"] += 1
+            self.audio.set()
+            q.put(data)
+
+        async def legacy():
+            async for c in edge_tts.Communicate(self.text, self.voice, rate=self.rate).stream():
+                if stopped():
+                    break
+                if c["type"] == "audio" and c["data"]:
+                    put(c["data"])
 
         async def produce():
             end = None                             # Endmarke (None = fertig, Exception = Fehler) kommt immer
             try:
                 if ssml is not None:               # schnelle Strecke: vorab geöffnete Verbindung
-                    self.pooled = await _ws_speak(ssml, q.put, stopped)
+                    try:
+                        self.pooled = await _ws_speak(ssml, put, stopped)
+                        _ws_result(True)
+                    except asyncio.CancelledError:
+                        raise
+                    except Exception as e:
+                        if got["n"] or stopped():  # schon Ton gespielt: kein Neustart (sonst doppelt)
+                            raise
+                        # Eigener Weg kaputt (edge-tts-Interna, 403 wegen Uhrzeit …): einmal der alte Weg
+                        log({"tts_ws": "fehler, alter Weg", "err": _errtxt(e)})
+                        await legacy()
+                        if got["n"]:
+                            _ws_result(False)      # alter Weg ging, eigener nicht
                 else:
-                    async for c in edge_tts.Communicate(self.text, self.voice, rate=self.rate).stream():
-                        if stopped():
-                            break
-                        if c["type"] == "audio" and c["data"]:
-                            q.put(c["data"])
+                    await legacy()
             except asyncio.CancelledError:
                 end = RuntimeError("abgebrochen")     # nie als "vollständig" (None) melden: kein halbes Audio im Cache
                 raise
@@ -1812,9 +1896,28 @@ def _tts_cache_put(key, data):
             TTS_CACHE.popitem(last=False)
 
 
+CHUNK_IDLE = 6.0                       # s ohne neuen Audioblock -> Verbindung gilt als abgerissen
+_CANCELLED = object()
+
+
+def _next_chunk(q, cancelled=None, idle=CHUNK_IDLE, step=0.2):
+    """Nächster Audioblock; in kurzen Schritten, damit Stopp/Barge-in nicht bis zu idle s hängen
+    bleibt. _CANCELLED bei Abbruch, queue.Empty nach idle s ohne Block."""
+    t = time.monotonic()
+    while True:
+        if cancelled and cancelled():
+            return _CANCELLED
+        try:
+            return q.get(timeout=step)
+        except queue.Empty:
+            if time.monotonic() - t >= idle:
+                raise
+
+
 def edge_play(stream, volume, on_start=None, cancelled=None, deadline=None):
     """Vorab gestartete edge-tts-Anfrage abspielen, ab dem ersten Block. Gibt Kennzahlen zurück;
-    wirft nur, wenn noch kein Ton kam (dann übernimmt 'say', ohne Doppelung)."""
+    wirft nur, wenn noch kein Ton kam (dann übernimmt 'say', ohne Doppelung). Reißt der Ton
+    mitten im Satz ab, steht stats["partial"] (der Satz wurde nur teilweise vorgelesen)."""
     t0 = time.time()
     first, q = stream.first(deadline)
     got, complete = [], False
@@ -1838,11 +1941,11 @@ def edge_play(stream, volume, on_start=None, cancelled=None, deadline=None):
                     if isinstance(chunk, Exception):
                         stats["err"] = repr(chunk)[:120]
                         break
-                    if cancelled and cancelled():
+                    if chunk is _CANCELLED or (cancelled and cancelled()):
                         break
                     p.stdin.write(chunk)
                     got.append(chunk)
-                    chunk = q.get(timeout=6)
+                    chunk = _next_chunk(q, cancelled)
                 complete = chunk is None
             except (BrokenPipeError, OSError, queue.Empty) as e:  # abgebrochen oder Netz weg
                 if not (cancelled and cancelled()):
@@ -1854,10 +1957,15 @@ def edge_play(stream, volume, on_start=None, cancelled=None, deadline=None):
                     pass
                 PLAYER.wait(p)
         else:                                   # kein Pipe-Player: puffern, dann afplay
-            parts, chunk = [first], q.get(timeout=6)
-            while chunk is not None and not isinstance(chunk, Exception):
+            parts, chunk = [first], _next_chunk(q, cancelled)
+            while chunk is not None and chunk is not _CANCELLED and not isinstance(chunk, Exception):
                 parts.append(chunk)
-                chunk = q.get(timeout=6)
+                chunk = _next_chunk(q, cancelled)
+            if chunk is _CANCELLED:
+                stats["interrupted"] = True
+                return stats
+            if isinstance(chunk, Exception):
+                stats["err"] = repr(chunk)[:120]
             fd, mp3 = tempfile.mkstemp(prefix="dolmetscher_tts_", suffix=".mp3", dir=private_tmp())
             try:
                 with os.fdopen(fd, "wb") as f:
@@ -1875,6 +1983,8 @@ def edge_play(stream, volume, on_start=None, cancelled=None, deadline=None):
     if complete and stream.cached is None and len(stream.text) <= TTS_CACHE_CHARS:
         _tts_cache_put(stream.key, b"".join(got))
     stats["interrupted"] = bool(cancelled and cancelled())
+    if "err" in stats and not stats["interrupted"]:
+        stats["partial"] = True                 # Ton riss ab: nicht von vorn sprechen (doppelt), aber melden
     return stats
 
 
@@ -1884,14 +1994,48 @@ def edge_say(text, voice, rate, volume, on_start=None):
 
 
 EARCON = "/System/Library/Sounds/Tink.aiff"
+SAY_TIMEOUT = 20.0                     # s: längstes say-Rendering, danach abbrechen
+
+
+def say_cmd(voice, rate_pct, path, text):
+    """say-Aufruf zum Rendern in eine Datei. '--' vor dem Text: beginnt er mit '-' ("- Yes", "-5 °C"),
+    läse say ihn sonst als Option und spräche nichts."""
+    rate = max(50, int(185 * (1 + _clamp_rate(rate_pct) / 100)))
+    return [SAY, "-v", voice, "-r", str(rate), "-o", path, "--", text]
+
+
+def run_cancellable(cmd, timeout=SAY_TIMEOUT, cancelled=None, step=0.05):
+    """Kindprozess (kein Abspielen, sperrt also nicht das Mikrofon) mit Zeitgrenze; Stopp/Barge-in
+    beendet ihn sofort. Rückgabe: Exit-Code, None bei Abbruch/Zeitüberschreitung."""
+    p = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    t = time.monotonic()
+    try:
+        while True:
+            try:
+                return p.wait(timeout=step)
+            except subprocess.TimeoutExpired:
+                pass
+            if (cancelled and cancelled()) or time.monotonic() - t > timeout:
+                return None
+    finally:
+        if p.poll() is None:
+            try:
+                p.kill()
+                p.wait(timeout=5)
+            except (OSError, subprocess.SubprocessError):
+                pass
 
 
 class LocalVoice:
     """macOS-Stimme im Hintergrund vorab rendern (say -o), damit sie sofort einspringen kann,
     wenn die Neural-Stimme hängt. Wird nur abgespielt, wenn edge-tts die Frist verpasst."""
 
-    def __init__(self, text, voice, rate_pct):
+    SLOTS = threading.BoundedSemaphore(2)   # höchstens so viele say-Renderings gleichzeitig (CPU für Whisper)
+    DELAY = 0.4                             # s auf den ersten Neural-Ton warten, bevor gerendert wird
+
+    def __init__(self, text, voice, rate_pct, audio=None):
         self.done = threading.Event()
+        self.dropped = threading.Event()        # cleanup() vor dem Start: gar nicht erst rendern
         fd, self.path = tempfile.mkstemp(prefix="dolmetscher_race_", suffix=".aiff", dir=private_tmp())
         os.close(fd)
         os.remove(self.path)
@@ -1899,14 +2043,20 @@ class LocalVoice:
 
         def run():
             try:
-                rate = max(50, int(185 * (1 + _clamp_rate(rate_pct) / 100)))
-                r = subprocess.run([SAY, "-v", voice, "-r", str(rate), "-o", self.path, "--", text],
-                                   capture_output=True, timeout=20)
-                if r.returncode != 0:
-                    log({"tts": "lokal-vorab-fehler", "rc": r.returncode})
+                if audio is not None and NET.get("tts", True):
+                    audio.wait(self.DELAY)          # Neural kommt meist in ~0,3 s: dann gar nicht rendern
+                with self.SLOTS:
+                    # Hat die Neural-Stimme inzwischen Ton geliefert (Normalfall), wird nichts gebraucht.
+                    if self.dropped.is_set() or (audio is not None and audio.is_set()):
+                        return
+                    r = subprocess.run(say_cmd(voice, rate_pct, self.path, text), capture_output=True,
+                                       timeout=SAY_TIMEOUT)
+                    if r.returncode != 0:
+                        log({"tts": "lokal-vorab-fehler", "rc": r.returncode})
             except Exception as e:
                 log({"tts": "lokal-vorab-fehler", "err": _errtxt(e)})
-            self.done.set()
+            finally:
+                self.done.set()
         threading.Thread(target=run, name="say-prerender", daemon=True).start()
 
     def ready_path(self, timeout=6.0):
@@ -1914,8 +2064,10 @@ class LocalVoice:
         return self.path if os.path.exists(self.path) and os.path.getsize(self.path) > 0 else None
 
     def cleanup(self):
+        self.dropped.set()
+
         def rm():
-            self.done.wait(20)
+            self.done.wait(SAY_TIMEOUT + 5)
             try:
                 os.remove(self.path)
             except OSError:
@@ -1938,26 +2090,35 @@ class Speaker:
         self.busy = False
         threading.Thread(target=self._loop, name="speaker", daemon=True).start()
 
+    PRESTART = 2                       # so viele Teilsätze je Ausgabe schon beim Einreihen anfragen
+
     def pending(self):
         with self.cond:
             return len(self.items) + (1 if self.busy else 0)
 
-    def add(self, text, lang, uid, kind="speech", t_end=None):
+    def _prepare(self, s, lang, boost):
+        """edge-tts-Anfrage und (als Rückfall) vorab gerenderte macOS-Stimme für einen Teilsatz."""
         eng = self.eng
+        stream, local = None, None
+        if eng.tts == "edge" and not eng.mute:
+            try:
+                stream = EdgeStream(s, eng.voice_for(lang), f"{_clamp_rate(5 + eng.rate + boost):+d}%")
+            except Exception as e:
+                log({"tts": "vorab-fehler", "err": _errtxt(e)})
+            if TTS_RACE > 0 and stream is not None and stream.cached is None:
+                local = LocalVoice(s, eng.voice[lang], eng.rate + boost, audio=stream.audio)
+        return stream, local
+
+    def add(self, text, lang, uid, kind="speech", t_end=None):
         with self.cond:
             behind = len(self.items) + (1 if self.busy else 0)
         item = {"id": uid, "lang": lang, "kind": kind, "parts": [], "t_end": t_end}
         if kind == "speech":
             boost = self.FAST_BOOST if behind else 0
-            for s in split_sentences(apply_pronounce(text), lang):
-                stream, local = None, None
-                if eng.tts == "edge" and not eng.mute:
-                    try:
-                        stream = EdgeStream(s, eng.voice_for(lang), f"{_clamp_rate(5 + eng.rate + boost):+d}%")
-                    except Exception as e:
-                        log({"tts": "vorab-fehler", "err": _errtxt(e)})
-                    if TTS_RACE > 0 and stream is not None and stream.cached is None:
-                        local = LocalVoice(s, eng.voice[lang], eng.rate + boost)
+            for i, s in enumerate(split_sentences(apply_pronounce(text), lang)):
+                # Nur die ersten Teile sofort anfragen; die übrigen erst, wenn der vorige zu spielen
+                # beginnt (sonst viele Websockets + say-Prozesse gleichzeitig, mitten in der Erkennung).
+                stream, local = self._prepare(s, lang, boost) if i < self.PRESTART else (None, None)
                 item["parts"].append((s, stream))
                 item.setdefault("local", []).append(local)
             item["boost"] = boost
@@ -2040,25 +2201,34 @@ class Speaker:
                 lat = round(time.time() - it["t_end"], 2) if it.get("t_end") else None
                 emit("speaking", id=uid, first_s=first_s, latency_s=lat)
                 log({"latency": {"id": uid, "end_to_sound_s": lat}})
-        interrupted = False
-        locals_ = it.get("local") or [None] * len(it["parts"])
+        interrupted, partial = False, False
+        parts = it["parts"]
+        locals_ = it.setdefault("local", [None] * len(parts))
+        boost = it.get("boost", 0)
         try:
-            for (text, stream), local in zip(it["parts"], locals_):
+            for i, (text, stream) in enumerate(parts):
                 if cancelled():
                     interrupted = CANCEL["gen"] != g
                     break
-                eng.speak(text, it["lang"], stream=stream, on_start=on_start, boost=it.get("boost", 0),
-                          cancelled=cancelled, local=local)
+                if i + 1 < len(parts) and parts[i + 1][1] is None and locals_[i + 1] is None:
+                    nxt, loc = self._prepare(parts[i + 1][0], it["lang"], boost)   # nächsten Teil vorab
+                    parts[i + 1], locals_[i + 1] = (parts[i + 1][0], nxt), loc
+                if eng.speak(text, it["lang"], stream=stream, on_start=on_start, boost=boost,
+                             cancelled=cancelled, local=locals_[i]) == "partial":
+                    partial = True
         finally:
             for local in locals_:
                 if local:
                     local.cleanup()
+            for _, st in parts:
+                if st:
+                    st.cancel()
         if CANCEL["gen"] != g:
             interrupted = True
-        for _, st in it["parts"]:
-            if st:
-                st.cancel()
-        emit("speak_done", id=uid, skipped=False, interrupted=interrupted)
+        done = {"id": uid, "skipped": False, "interrupted": interrupted}
+        if partial and not interrupted:
+            done["partial"] = True                # Ton riss mitten im Satz ab: App kann "Wiederholen" anbieten
+        emit("speak_done", **done)
 
 
 _QSTATE = {"stt": 0, "tts": 0, "last": None, "stt_q": None, "speaker": None}
@@ -2126,6 +2296,56 @@ def _env_beam():
         return 1
 
 
+WAKE_S = 6.0                     # s nach dem "Yes?", in denen ein Folgesatz als Befehl gilt
+DEGRADE_AT = 3                   # ab so vielen wartenden Äußerungen: keine Zusatz-Läufe (Second-Look, Alts)
+_DROP_CODES = (("zu kurz", "too_short"), ("befehl", "command"), ("andere Sprache", "other_language"),
+               ("weder Englisch", "other_language"), ("gesperrt", "locked"), ("nur ", "locked"),
+               ("pausiert", "paused"), ("unsicher", "unsure"), ("halluzination", "hallucination"),
+               ("floskel", "filler"), ("nichts erkannt", "empty"), ("übersetzung", "translate_failed"),
+               ("fehler", "error"))
+
+
+def drop_code(reason):
+    """Stabiler Code zu einem (deutschen) dropped-Grund – die App lokalisiert danach, nicht nach Freitext."""
+    r = (reason or "").lower()
+    for prefix, code in _DROP_CODES:
+        if r.startswith(prefix):
+            return code
+    return "other"
+
+
+def text_lang(text, lang):
+    """Sprache eines App-Textes prüfen: klar Thai geschrieben (> 50 % Thai-Buchstaben) -> "th",
+    klar lateinisch ohne Thai -> "en". Sonst gilt die Angabe der App."""
+    letters = [c for c in text if c.isalpha()]
+    if not letters:
+        return lang
+    th = sum(1 for c in letters if "\u0e00" <= c <= "\u0e7f") / len(letters)
+    if th > 0.5:
+        return "th"
+    if th == 0 and lang == "th" and sum(1 for c in letters if c.isascii()) / len(letters) > 0.8:
+        return "en"
+    return lang
+
+
+def _backlog():
+    q = _QSTATE.get("stt_q")
+    try:
+        return q.qsize() if q is not None else 0
+    except Exception:
+        return 0
+
+
+def _wake_after_reply():
+    """speak_done der Befehlsantwort: das Wake-Fenster ("Translator" -> "Yes?") startet erst jetzt,
+    sonst wäre es bei Rückstand in der Sprachausgabe abgelaufen, bevor der Nutzer "Yes?" hört."""
+    sp = _QSTATE.get("speaker")
+    eng = getattr(sp, "eng", None)
+    if eng is not None and getattr(eng, "_wake_wait", False):
+        eng._wake_wait = False
+        eng.awake_until = time.monotonic() + WAKE_S
+
+
 class Engine:
     def __init__(self, model, polite, lock="auto", tts="edge", device="auto", voices=None):
         self.lock, self.tts = lock, tts
@@ -2141,6 +2361,7 @@ class Engine:
         # bei leiser/entfernter Sprache. Beide laden gleichzeitig (nach dem Hauptmodell, das das
         # Gerät festlegt), statt nacheinander.
         self.m_det, self.m_th = self.m, None
+        self.degraded = []                     # Modelle, die nicht geladen werden konnten (ready.degraded)
         if model != "small":
             loaded = {}
 
@@ -2157,6 +2378,8 @@ class Engine:
                 th.join()
             self.m_det = loaded.get("det", self.m)
             self.m_th = loaded.get("th")
+            # schwächerer Rückfall (Hauptmodell erkennt Thai/Sprache): der App sagen, nicht nur ins Log
+            self.degraded = [n for k, n in (("det", "detect_model"), ("th", "thai_model")) if k not in loaded]
         # Beam 1: gemessen (MPS, Thai-Modell) 1,45 s statt 2,5 s (Beam 3/5) bei gleichem Text; der
         # Decoder dominiert, weil Thai viele Tokens braucht.
         self.beam = _env_beam()   # Benchmark: Beam-Vergleich
@@ -2178,7 +2401,8 @@ class Engine:
         self.speaker = Speaker(self)
         _QSTATE["speaker"] = self.speaker
         emit("ready", msg=f"bereit ({time.time()-t:.1f}s, {model} auf {self.device})", device=self.device,
-             llm=bool(LLM["on"] and llm_available()), protocol=PROTOCOL, engine_version=ENGINE_VERSION)
+             llm=bool(LLM["on"] and llm_available()), protocol=PROTOCOL, engine_version=ENGINE_VERSION,
+             **({"degraded": self.degraded} if self.degraded else {}))
 
     def reload_profiles(self):
         """Stimmprofile (neu) laden – auch nach dem Anlegen/Löschen in der App, ohne Neustart."""
@@ -2195,6 +2419,8 @@ class Engine:
         except Exception as e:
             self.spk = None
             log({"profiles": "aus", "err": repr(e)[:200]})
+            # nicht nur ins Log: sonst glaubt man, die Stimmerkennung laufe
+            emit("error", msg="Stimmprofile nicht nutzbar (Stimmerkennung aus): " + (str(e) or type(e).__name__)[:160])
         me = self.spk.me() if self.spk else None
         emit("roles", me=me["name"] if me else None, on=self.two_person and me is not None)
 
@@ -2203,7 +2429,8 @@ class Engine:
 
     def speak(self, text, lang, stream=None, on_start=None, boost=0, cancelled=None, local=None):
         """Natürliche Microsoft-Neural-Stimme (edge-tts, gestreamt), sonst macOS-Stimme. Blockiert
-        bis zum Ende der Ausgabe – wird vom Speaker-Thread aufgerufen, nicht von der Erkennung."""
+        bis zum Ende der Ausgabe – wird vom Speaker-Thread aufgerufen, nicht von der Erkennung.
+        Rückgabe "partial", wenn die Neural-Stimme mitten im Satz abriss, sonst None."""
         if self.mute:
             log({"would_say": text})
             if stream:
@@ -2211,15 +2438,24 @@ class Engine:
             return
         t = time.time()
         if self.tts == "edge":
+            began = {"v": False}                 # dieser Teil hat schon Ton: nie von vorn sprechen
+
+            def on_start_part(first_s):
+                began["v"] = True
+                if on_start:
+                    on_start(first_s)
             try:
                 if stream is None:
-                    stream = EdgeStream(text, self.voice_for(lang), f"{5 + self.rate + boost:+d}%")
-                st = edge_play(stream, self.volume, on_start, cancelled,
+                    stream = EdgeStream(text, self.voice_for(lang), f"{_clamp_rate(5 + self.rate + boost):+d}%")
+                st = edge_play(stream, self.volume, on_start_part, cancelled,
                                deadline=TTS_RACE if (local and TTS_RACE > 0) else None)
                 net_state("tts", True)
                 log({"tts": "edge", "voice": stream.voice, **st, "secs": round(time.time() - t, 2)})
-                return
+                return "partial" if st.get("partial") else None
             except Exception as e:
+                if began["v"]:
+                    log({"tts": "edge-abbruch", "err": repr(e)[:200]})
+                    return "partial"
                 log({"tts": "edge-fehler" if not local else "edge-zu-langsam", "err": repr(e)[:200]})
                 if not local:
                     net_state("tts", False)
@@ -2234,14 +2470,16 @@ class Engine:
                         on_start(round(time.time() - t, 2))
                     PLAYER.run(["/usr/bin/afplay", "-v", f"{self.volume:.2f}", path])
                     return
-        fd, aiff = tempfile.mkstemp(prefix="dolmetscher_say_", suffix=".aiff")
+        fd, aiff = tempfile.mkstemp(prefix="dolmetscher_say_", suffix=".aiff", dir=private_tmp())
         os.close(fd)
         try:
             os.remove(aiff)                        # nie eine alte Datei abspielen
             log({"tts": "say", "voice": self.voice[lang]})
-            subprocess.run([SAY, "-v", self.voice[lang], "-r", str(int(185 * (1 + (self.rate + boost) / 100))),
-                            "-o", aiff, text])
-            if os.path.exists(aiff) and not (cancelled and cancelled()):
+            rc = run_cancellable(say_cmd(self.voice[lang], self.rate + boost, aiff, text), cancelled=cancelled)
+            if rc != 0:
+                if not (cancelled and cancelled()):
+                    log({"tts": "say-fehler", "rc": rc})       # rc None: Zeitgrenze überschritten
+            elif os.path.exists(aiff) and not (cancelled and cancelled()):
                 wait_quiet(cancelled=cancelled)
                 if cancelled and cancelled():
                     return
@@ -2272,7 +2510,9 @@ class Engine:
         key = parse_command(cmd)
         state = {}
         if key == "wake":
-            self.awake_until = time.monotonic() + 6
+            # Fenster läuft ab Ende des "Yes?" (speak_done, siehe _wake_after_reply); bis dahin ab jetzt
+            self.awake_until = time.monotonic() + WAKE_S
+            self._wake_wait = True
             reply = "Yes?"
         elif key == "pause":
             self.paused = True; reply = "Paused. Say translator, resume."
@@ -2315,7 +2555,7 @@ class Engine:
             state["clear"] = True; reply = "Cleared."
             self.history.clear()
             self.last = None
-            for name in ("texts", "recent"):       # kein Roh-Audio/Text im Speicher behalten
+            for name in ("texts", "recent", "_hist_ids"):   # kein Roh-Audio/Text im Speicher behalten
                 getattr(self, name, {}).clear()
             with _PRE_LOCK:
                 PRE.clear()
@@ -2331,6 +2571,7 @@ class Engine:
             reply = "Sorry?"
         if key is not None and key != "wake":      # "Sorry?" (unbekannt) lässt das Wake-Fenster offen
             self.awake_until = 0.0
+            self._wake_wait = False
         reply_s = reply or ""
         self.emit_state(cmd, reply_s, **state)
         log({"command": cmd, "key": key, "reply": reply})
@@ -2373,10 +2614,10 @@ class Engine:
         lp = float(np.mean([s.avg_logprob for s in segs])) if segs else -9.0
         return text, lp, segs
 
-    def _drop(self, info, reason, uid, emit_reason=None):
+    def _drop(self, info, reason, uid, emit_reason=None, **extra):
         info["drop"] = reason
         log(info)
-        emit("dropped", reason=emit_reason or reason, id=uid)
+        emit("dropped", reason=emit_reason or reason, code=drop_code(reason), id=uid, **extra)
         emit("listening")
         return None
 
@@ -2428,7 +2669,8 @@ class Engine:
         # Spanisch, Portugiesisch … (Log: 8 % der Sätze so verworfen, Englisch auf Platz 2). Würde der
         # Satz deshalb verworfen und ist Englisch/Thai nicht ganz abwegig, entscheidet das große Modell.
         big = getattr(self, "m", None)
-        if (pe + pt < MIN_LANG_P and big is not None and big is not self.m_det
+        backlog = _backlog()
+        if (pe + pt < MIN_LANG_P and big is not None and big is not self.m_det and backlog < DEGRADE_AT
                 and max(pe, pt_raw) >= SECOND_LOOK_MIN and max(p.values(), default=1.0) < SECOND_LOOK_TOP):
             try:
                 ta = time.monotonic()
@@ -2445,16 +2687,16 @@ class Engine:
         info.update(p_en=round(pe, 3), p_th=round(pt_raw, 3), p_th_eff=round(pt, 3), folded=folded,
                     top=[(k, round(v, 3)) for k, v in sorted(p.items(), key=lambda x: -x[1])[:3]])
         # --- Stimmprofil: wer spricht? Sprache des Profils hilft bei unsicherer Erkennung
-        who, hot = None, None
+        who, get_emb = None, None
         if self.spk:
+            get_emb = self.spk.lazy_embed(audio)         # ein Stimmmodell-Lauf für identify + classify
             try:
-                who, sim, scores = self.spk.identify(audio)
+                who, sim, scores = self.spk.identify(audio, emb=get_emb)
                 info.update(speaker=_pseud(who["name"]) if who else None,
                             spk_scores=list(scores.values())[:3])        # Profilnamen nicht ins Log
             except Exception as e:
                 log({"speaker": "fehler", "err": repr(e)[:200]})
         if who:
-            hot = " ".join(who.get("vocab", [])) or None
             pe2, pt2 = apply_profile_prior(probs, pe, pt, who.get("lang", "en"))
             if (pe2, pt2) != (pe, pt):
                 info["prior"] = who.get("lang", "en")
@@ -2469,7 +2711,7 @@ class Engine:
             last = getattr(self, "last_role", None)
             prev = last[0] if last and start - last[1] <= ROLE_PREV_GAP else None
             try:
-                r = self.spk.classify(audio, prev)
+                r = self.spk.classify(audio, prev, emb=get_emb)
                 role, emb = r["role"], r.get("emb")
                 info.update(role=role, role_how=r.get("how"), sim_me=r.get("sim_me"), sim_her=r.get("sim_her"))
             except Exception as e:
@@ -2481,17 +2723,27 @@ class Engine:
         elif role == "other":
             pe, pt = 0.0, 1.0
         segs = []
+
+        def hot_for(lng):
+            # eigene Wörter: erkanntes Profil, sonst Profil der Rolle, sonst alle Profile dieser Sprache
+            if not self.spk:
+                return None
+            try:
+                return self.spk.hotwords(lng, who, role)
+            except Exception as e:
+                log({"hotwords": "fehler", "err": repr(e)[:200]})
+                return None
         if self.lock in ("en", "th"):
             lang = self.lock
-            text, lp, segs = stt(audio, lang)
+            text, lp, segs = stt(audio, lang, hotwords=hot_for(lang))
             info.update(mode="lock")
         else:
             lang = "th" if pt > pe else "en"
-            text, lp, segs = stt(audio, lang, hotwords=hot if who and who.get("lang") == lang else None)
+            text, lp, segs = stt(audio, lang, hotwords=hot_for(lang))
             # unklar? beide Sprachen probieren und die sicherere nehmen
             times["stt"] = round(time.monotonic() - t0 - times["detect"], 2)
             # Gegenprobe in der anderen Sprache nur, wenn es wirklich unklar ist – und nicht bei Stau
-            busy = _QSTATE["stt_q"] is not None and _QSTATE["stt_q"].qsize() >= 2
+            busy = backlog >= 2
             unsure = False if role else (               # Rolle bekannt: Sprache steht fest, keine Gegenprobe
                 (lang == "en" and pt > 0.2) or (lang == "th" and pe > 0.2) or not text
                 or max(pe, pt) < 0.5 or lp < -0.8)
@@ -2520,17 +2772,21 @@ class Engine:
         fz = None if m else WAKE_FUZZY.match(en_text)
         if fz and parse_command(fz.group(1)) not in (None, "wake"):
             m = fz                              # "Translate or pause" -> Befehl
-        if m or (time.monotonic() < self.awake_until and en_text and len(en_text.split()) <= 4):
+        if role == "other":
+            m = None                            # Partner-Stimme (Profil) gibt keine Befehle (auch nicht Wiedergabe)
+        if m or (role != "other" and time.monotonic() < self.awake_until and en_text
+                 and len(en_text.split()) <= 4):
             cmd = m.group(1) if m else en_text
             info["command"] = cmd
             log(info)
-            emit("dropped", reason="befehl", id=uid)
+            emit("dropped", reason="befehl", code="command", id=uid)
             reply = self.command(_strip_punct(cmd))
             if reply and speak:
                 self.reply(reply)
             emit("listening")
             return None
         self.awake_until = 0.0                  # längere Äußerung im Wake-Fenster: normal übersetzen, Fenster zu
+        self._wake_wait = False                 # … und nicht durch das spätere speak_done wieder öffnen
         other = {"en": "th", "th": "en"}.get(self.lock)
         if other and {"en": pe, "th": pt_all}[other] > 0.5:     # Sprach-Sperre: die andere Sprache ignorieren
             return self._drop(info, "gesperrt", uid, "nur " + ("Thai" if self.lock == "th" else "Englisch") + " aktiv")
@@ -2538,8 +2794,11 @@ class Engine:
             return self._drop(info, "pausiert", uid)
 
         min_lp = FOLDED_TH_LOGPROB if (lang == "th" and folded) else MIN_LOGPROB[lang]
+        unsure = {}
         if text and lp < min_lp:
             info["drop"] = "unsicher"
+            # App kann "trotzdem übersetzen" anbieten (per retranslate) – nicht stumm verlieren
+            unsure = {"text": text, "lang": lang, "lp": round(lp, 3)}
             text = ""
         if text:
             if lang == "th":
@@ -2555,15 +2814,19 @@ class Engine:
                 info["drop"] = f"halluzination ({hall})"
                 text = ""
         low = _strip_punct(text).lower()
-        if text and (low in JUNK or (low in JUNK_IF_SHORT and (1 if rms is None else rms) < 0.01
+        if text and (low in JUNK or (low in JUNK_IF_SHORT and (1.0 if rms is None else rms) < 0.01
                                      and audio.size / SR < 1.5)):
             info["drop"] = "floskel"
             text = ""
         if not text:
-            return self._drop(info, info.get("drop", "nichts erkannt"), uid)
-        # Thai mit Claude: Hypothese des allgemeinen Modells als zweite Lesart mitschicken
+            reason = info.get("drop", "nichts erkannt")
+            return self._drop(info, reason, uid, **(unsure if reason == "unsicher" else {}))
+        # Originaltext sofort zeigen (die Übersetzung dauert 1–3 s); `utt` folgt mit derselben id
+        emit("heard", id=uid, lang=lang, text=text, text_latin=thai_latin(text) if lang == "th" else None)
+        # Thai mit Claude: Hypothese des allgemeinen Modells als zweite Lesart mitschicken (nicht bei Stau)
         alts = []
-        if LLM["on"] and lang == "th" and self.m_th is not None and lp < -0.25 and llm_available():
+        if (LLM["on"] and lang == "th" and self.m_th is not None and lp < -0.25 and backlog < DEGRADE_AT
+                and llm_available()):
             try:
                 a = stt(audio, "th", model=self.m)[0]
                 if a and a != text:
@@ -2573,10 +2836,7 @@ class Engine:
         info["alts"] = alts
         info["times"] = times
         log(info)
-        recent = self.__dict__.setdefault("recent", collections.OrderedDict())   # Tests bauen Engine ohne __init__
-        recent[uid] = (audio, emb)
-        while len(recent) > RECENT_MAX:
-            recent.popitem(last=False)
+        self._remember(uid, audio, emb)
         self.last_role = (role, t_end or time.time()) if role else None
         if role and emb is not None:
             self._learn_auto(role, info, audio.size / SR, emb)
@@ -2598,11 +2858,31 @@ class Engine:
         except Exception as e:
             log({"learn": "fehler", "err": repr(e)[:200]})
 
+    def _remember(self, uid, audio, emb):
+        """Roh-Audio für "Das war ich/sie" behalten – begrenzt auf RECENT_MAX Sätze."""
+        recent = self.__dict__.setdefault("recent", collections.OrderedDict())   # Tests bauen Engine ohne __init__
+        recent[uid] = (audio, emb)
+        while len(recent) > RECENT_MAX:
+            recent.popitem(last=False)
+
+    def _forget(self, uid):
+        """Ersetzte Äußerung (Korrektur) aus Kontext und "repeat" nehmen: sonst stünde die falsch
+        erkannte Fassung weiter im Claude-Kontext bzw. würde wiederholt."""
+        entry = self.__dict__.setdefault("_hist_ids", {}).pop(uid, None)
+        if entry is not None:
+            try:
+                self.history.remove(entry)
+            except ValueError:
+                pass                                  # schon aus dem Fenster (maxlen) gefallen
+        recent = getattr(self, "recent", None)
+        if recent is not None:
+            recent.pop(uid, None)
+
     def reassign(self, uid, role):
         """'Das war ich' / 'Das war sie' aus der App: Satz in der richtigen Sprache neu erkennen,
         neu übersetzen (ersetzt die Blase) und den Stimmabdruck deutlich nachführen."""
         if role not in ("me", "other") or uid not in self.recent:
-            emit("error", msg="Satz nicht mehr im Speicher – bitte neu sprechen")
+            emit("error", code="reassign_expired", msg="Satz nicht mehr im Speicher – bitte neu sprechen")
             return
         audio, emb = self.recent[uid]
         lang = "en" if role == "me" else "th"
@@ -2620,11 +2900,12 @@ class Engine:
         log({"reassign": {"id": uid, "role": role, "lang": lang, "lp": round(lp, 3)}})
         self.last_role = (role, time.time())
         if not text:
-            emit("error", msg="In dieser Sprache nichts erkannt")
+            emit("error", code="reassign_empty", msg="In dieser Sprache nichts erkannt")
             return
         new = new_id()
-        self.recent[new] = (audio, emb)
+        self._remember(new, audio, emb)
         emit("thinking", id=new)
+        emit("heard", id=new, lang=lang, text=text, text_latin=thai_latin(text) if lang == "th" else None)
         self.deliver(new, lang, text, lp, source="reassign", replaces=uid, role=role)
 
     def _guess_lang(self, probs):
@@ -2690,8 +2971,11 @@ class Engine:
         self.texts[uid] = (lang, text)
         if len(self.texts) > 200:
             self.texts.pop(next(iter(self.texts)))
+        old = self.__dict__.get("_hist_ids", {}).get(replaces) if replaces else None
         if not self.translate_dir.get(lang, True):
             # diese Sprache bleibt wie sie ist: nur anzeigen, nicht übersetzen, nicht vorlesen
+            if replaces:
+                self._forget(replaces)
             emit("utt", to=lang, out=text, tr=0.0, translated=False, provider="none",
                  text_latin=thai_latin(text) if lang == "th" else None, **base)
             emit("listening")
@@ -2701,20 +2985,34 @@ class Engine:
         if speak:
             tts_prepare_if_speaking()          # Vorrat auffrischen (lange Sätze, Schnellsätze, Korrekturen)
         try:
-            out = translate(text, lang, dst, history=tuple(self.history), alts=alts, polite=self.polite, meta=meta)
+            # ersetzte (falsche) Fassung nicht als Kontext mitschicken; entfernt wird sie erst bei Erfolg,
+            # damit die alte Blase bei einem Fehler weiter korrigierbar bleibt
+            hist = tuple(h for h in self.history if h is not old)
+            out = translate(text, lang, dst, history=hist, alts=alts, polite=self.polite, meta=meta)
             net_state("translate", True)
         except Exception as e:
             if "offline" in str(e):
                 net_state("translate", False)
-            emit("dropped", reason="übersetzung fehlgeschlagen", id=uid)
-            emit("error", msg=f"Übersetzung fehlgeschlagen: {e}")
+            emit("dropped", reason="übersetzung fehlgeschlagen", code="translate_failed", id=uid)
+            emit("error", code="translate_failed", msg=f"Übersetzung fehlgeschlagen: {e}")
             emit("listening")
             return None
         if dst == "th":
             out = fix_thai(out, self.polite)
-        if speak and not getattr(self, "mute", False):   # nur Vorgelesenes ist "repeat"-fähig
+        if replaces:
+            self._forget(replaces)
+        last = getattr(self, "last", None)
+        # nur Vorgelesenes ist "repeat"-fähig; eine Korrektur eines älteren Satzes verdrängt nicht den neuesten
+        if speak and not getattr(self, "mute", False) and (not replaces or last is None or last[2] == replaces):
             self.last = (out, dst, uid)
-        self.history.append((lang, text, out))
+        elif replaces and last is not None and last[2] == replaces:
+            self.last = None                          # alte (falsche) Fassung nicht mehr wiederholen
+        entry = (lang, text, out)
+        self.history.append(entry)
+        ids = self.__dict__.setdefault("_hist_ids", {})
+        ids[uid] = entry
+        while len(ids) > 50:
+            ids.pop(next(iter(ids)))
         tr_s = time.monotonic() - t1
         log({"id": uid, "out": out, "provider": meta.get("provider"), "cached": meta.get("cached", False),
              "tr_s": round(tr_s, 2)})
@@ -2732,17 +3030,20 @@ class Engine:
     def say_phrase(self, text, lang):
         """Schnellsatz aus der App: übersetzen und vorlesen wie eine Äußerung."""
         text = (text or "").strip()
-        if text and lang in TARGET:
-            uid = new_id()
-            emit("thinking", id=uid)
-            self.deliver(uid, lang, text, lp=0.0, source="phrase")
+        if not text or lang not in TARGET:
+            emit("error", code="phrase_invalid", msg="Schnellsatz ungültig (Text leer oder Sprache unbekannt)")
+            return
+        lang = text_lang(text, lang)
+        uid = new_id()
+        emit("thinking", id=uid)
+        self.deliver(uid, lang, text, lp=0.0, source="phrase")
 
     def retranslate(self, uid, text, lang):
         """Korrigierter Text aus der App: neu übersetzen und vorlesen; ersetzt die alte Blase."""
         text = (text or "").strip()
         if not text:
             return
-        lang = lang if lang in TARGET else (self.texts.get(uid, ("en",))[0])
+        lang = text_lang(text, lang if lang in TARGET else (self.texts.get(uid, ("en",))[0]))
         new = new_id()
         emit("thinking", id=new)
         extra = None
@@ -2756,18 +3057,28 @@ class Engine:
 
 
 def record_one(mic="0", timeout=20.0):
-    """Ein gesprochener Satz vom Mikrofon (für das Anlegen von Stimmprofilen)."""
+    """Ein gesprochener Satz vom Mikrofon (für das Anlegen von Stimmprofilen). Ein Wachhund beendet
+    ffmpeg nach timeout+2 s: Lesen blockiert sonst endlos (Zugriff verweigert, Gerät hängt)."""
     ff = subprocess.Popen([FFMPEG, "-hide_banner", "-loglevel", "error", "-f", "avfoundation",
-                           "-i", f":{mic}", "-af", "highpass=f=80,volume=6dB,alimiter=limit=0.95",
+                           "-i", f":{resolve_mic(mic)}", "-af", "highpass=f=80,volume=6dB,alimiter=limit=0.95",
                            "-ar", str(SR), "-ac", "1", "-f", "s16le", "-"], stdout=subprocess.PIPE)
+    wd = threading.Timer(timeout + 2.0, Mic._kill, args=(ff,))
+    wd.daemon = True
+    wd.start()
     vad, N = StreamVAD(), StreamVAD.N
     fdur, buf, voiced, silence, speech, pre = N / SR, [], False, 0.0, 0.0, []
     t_end = time.monotonic() + timeout
+    got = False
     try:
         while time.monotonic() < t_end and not STOP.is_set():
             b = ff.stdout.read(N * 2)
             if len(b) < N * 2:
+                if not got and not STOP.is_set() and not _REC_ERR["said"]:
+                    _REC_ERR["said"] = True           # einmal je Lauf, nicht bei jedem der 8 Sätze
+                    emit("error", code="mic_no_data",
+                         msg="Mikrofon liefert keine Daten (Mikrofon-Zugriff erlaubt?)")
                 return None
+            got = True
             f = np.frombuffer(b, dtype=np.int16).astype(np.float32) / 32768
             prob = vad(f)
             if not voiced:
@@ -2783,13 +3094,23 @@ def record_one(mic="0", timeout=20.0):
                 return np.concatenate(buf) if speech >= 0.5 else None
         return np.concatenate(buf) if buf else None
     finally:
+        wd.cancel()
         Mic._kill(ff)                           # beenden und einsammeln (kein Zombie)
+
+
+_REC_ERR = {"said": False}
 
 
 def profile_cli(a):
     import profiles
     if a.profiles:
         emit("profiles", profiles=[profiles.public(p) for p in profiles.list_profiles()])
+    elif getattr(a, "delete_all_profiles", False):
+        try:
+            emit("profiles_deleted_all", ok=True, files=profiles.delete_all_profiles())
+        except OSError as e:
+            emit("profiles_deleted_all", ok=False, files=0)
+            emit("error", msg=f"Stimmdaten konnten nicht gelöscht werden: {e}")
     elif a.delete_profile:
         emit("profile_deleted", name=a.delete_profile, ok=profiles.delete_profile(a.delete_profile))
     elif a.vocab is not None:
@@ -2880,7 +3201,7 @@ def apply_control(eng, d):
                     eng.voices[k] = v
                 else:
                     eng.voices[k] = None
-                    emit("error", msg=f"Unbekannte Stimme ({k}) – Standardstimme wird genutzt")
+                    emit("error", code="voice_unknown", msg=f"Unbekannte Stimme ({k}) – Standardstimme wird genutzt")
         pre = PRESET.active
         if pre and ("glossary" in d or d.get("style") in STYLES):
             set_preset(eng, None, quiet=True)  # eigene Änderung gilt als neue Basis, Preset danach neu
@@ -2889,7 +3210,7 @@ def apply_control(eng, d):
             if isinstance(g, str) and len(g) <= GLOSSARY_MAX:
                 later.append(lambda g=g: load_glossary(g))      # schreibt die Datei
             else:
-                emit("error", msg="Glossar ungültig oder zu lang – nicht übernommen")
+                emit("error", code="glossary_invalid", msg="Glossar ungültig oder zu lang – nicht übernommen")
         if d.get("style") in STYLES:
             LLM["style"] = d["style"]
         if "preset" in d:
@@ -2932,19 +3253,22 @@ def apply_control(eng, d):
             if text and lang in TARGET:
                 job = lambda: eng.say_phrase(text, lang)
             else:
-                emit("error", msg="Schnellsatz ungültig (Text leer/zu lang oder Sprache unbekannt)")
+                emit("error", code="phrase_invalid",
+                     msg="Schnellsatz ungültig (Text leer/zu lang oder Sprache unbekannt)")
         elif isinstance(d.get("reassign"), dict):
             r = d["reassign"]
             uid = _text_arg(r.get("id"), 64)
             if uid and r.get("role") in ("me", "other"):
                 job = lambda: eng.reassign(uid, r.get("role"))
+            else:
+                emit("error", code="reassign_invalid", msg="Zuordnung ungültig (id oder Rolle fehlt)")
         elif isinstance(d.get("retranslate"), dict):
             r = d["retranslate"]
             uid, text = _text_arg(r.get("id"), 64), _text_arg(r.get("text"))
             if text:
                 job = lambda: eng.retranslate(uid or "", text, r.get("lang") if isinstance(r.get("lang"), str) else "")
             else:
-                emit("error", msg="Korrektur ungültig (Text leer oder zu lang)")
+                emit("error", code="edit_invalid", msg="Korrektur ungültig (Text leer oder zu lang)")
     for fn in later:
         fn()
     return job
@@ -3077,7 +3401,7 @@ def segmenter(read, utts, sess=0, on_end=None):
             report_queue()
         else:
             log({"drop": "zu kurz", "speech": round(sp, 2), "rms": round(peak_rms, 4)})
-            emit("dropped", reason="zu kurz")
+            emit("dropped", reason="zu kurz", code="too_short", id=uid)
             emit("listening")
 
     def finish(reason):
@@ -3212,6 +3536,42 @@ def list_mics():
     return mics
 
 
+def resolve_mic(mic):
+    """--mic/Steuerung: Index, Gerätename oder "default". Indizes verschieben sich, sobald AirPods/USB-Mikros
+    dazukommen; ein Name wird deshalb erst beim Öffnen auf den aktuellen Index abgebildet. Unbekannter Name:
+    error-Ereignis und Standardmikrofon."""
+    m = str(mic if mic is not None else "0").strip() or "0"
+    if m.isdigit() or m.lower() == "default":
+        return m if m.isdigit() else "default"
+    try:
+        mics = list_mics()
+    except Exception as e:
+        log({"mic": "liste-fehler", "err": _errtxt(e)})
+        return m                                # avfoundation versteht den Namen auch direkt
+    for x in mics:
+        if x["name"] == m or x["name"].lower() == m.lower():
+            return x["index"]
+    emit("error", code="mic_not_found", msg="Mikrofon nicht gefunden – Standardmikrofon wird genutzt")
+    return "default"
+
+
+def split_long(audio, max_s=30.0):
+    """--file: lange Aufnahmen an leisen Stellen in Stücke bis max_s teilen (Whisper sieht 30 s auf
+    einmal; Spracherkennung und Übersetzung je Stück)."""
+    N = StreamVAD.N
+    fdur = N / SR
+    frames = [audio[i:i + N] for i in range(0, audio.size, N)]
+    lim = max(2, int(max_s / fdur))
+    out = []
+    while len(frames) > lim:
+        cut = quietest_cut(frames[:lim], look_back_s=max_s / 3, fdur=fdur)
+        out.append(np.concatenate(frames[:cut]))
+        frames = frames[cut:]
+    if frames:
+        out.append(np.concatenate(frames))
+    return out
+
+
 class Mic:
     """Mikrofon-Sitzung, unabhängig von den geladenen Modellen: listen an/aus öffnet bzw. schließt
     nur ffmpeg, Leser und Segmentierer. Der Arbeits-Thread und die Modelle bleiben bestehen."""
@@ -3222,30 +3582,37 @@ class Mic:
         self.stops = 0                         # Zähler der Stopp-Knopf-Drücke (Wiederverbinden bricht dann ab)
         self.lock = threading.Lock()
 
-    def _fail(self, msg, retry):
+    def _fail(self, msg, retry, code="mic_failed"):
         """Start fehlgeschlagen: klares error-Event; ohne --idle (und nicht im Wiederverbinden) beenden."""
         if retry:
             log({"mic": "start fehlgeschlagen", "msg": msg})
             return False
-        emit("error", msg=msg)
+        emit("error", code=code, msg=msg)
         emit("mic", on=False)
         if not self.idle:
             self.jobs.put(None)
         return False
 
     @staticmethod
-    def _explain(err_lines):
+    def _explain(err_lines, timed_out=False):
+        """-> (code, Meldung) aus dem ffmpeg-Fehlertext."""
         txt = " ".join(err_lines)[-300:]
         if re.search(r"permission|not authori[sz]ed|denied|privacy|-1100", txt, re.I):
-            return "Mikrofon-Zugriff verweigert – in Systemeinstellungen > Datenschutz > Mikrofon erlauben"
+            return "mic_denied", ("Mikrofon-Zugriff verweigert – in Systemeinstellungen > Datenschutz > "
+                                  "Mikrofon erlauben")
         if re.search(r"no such|not found|invalid|cannot open|failed to", txt, re.I):
-            return "Mikrofon nicht verfügbar: " + txt.strip()[-120:]
-        return "Mikrofon liefert keine Daten (Mikrofon-Zugriff erlaubt?)"
+            return "mic_unavailable", "Mikrofon nicht verfügbar: " + txt.strip()[-120:]
+        if timed_out:
+            return "mic_timeout", (f"Mikrofon antwortet nicht ({MIC_START_TIMEOUT:.0f} s) – Mikrofon-Zugriff "
+                                   "erlaubt? Dann erneut starten")
+        return "mic_no_data", "Mikrofon liefert keine Daten (Mikrofon-Zugriff erlaubt?)"
 
     def start(self, _retry=False):
         mic_file = os.environ.get("DOLMETSCHER_MIC_FILE")
         if mic_file and not os.path.isfile(mic_file):
-            return self._fail(f"DOLMETSCHER_MIC_FILE nicht gefunden: {os.path.basename(mic_file)}", _retry)
+            return self._fail(f"DOLMETSCHER_MIC_FILE nicht gefunden: {os.path.basename(mic_file)}", _retry,
+                              "mic_file_missing")
+        dev = None if mic_file else resolve_mic(self.mic)   # kann ffmpeg abfragen: nicht unter dem Lock
         with self.lock:
             if self.on:
                 emit("mic", on=True)
@@ -3254,14 +3621,14 @@ class Mic:
             sess = self.sess
             # DOLMETSCHER_MIC_FILE: Audiodatei in Echtzeit statt Mikrofon (Ende-zu-Ende-Test)
             loop = ["-stream_loop", "-1"] if os.environ.get("DOLMETSCHER_MIC_LOOP") else []
-            src = ([*loop, "-re", "-i", mic_file] if mic_file else ["-f", "avfoundation", "-i", f":{self.mic}"])
+            src = ([*loop, "-re", "-i", mic_file] if mic_file else ["-f", "avfoundation", "-i", f":{dev}"])
             # leichte Vorverstärkung im ffmpeg, damit leise Stimmen mehr Pegel haben
             try:
                 ff = subprocess.Popen([FFMPEG, "-hide_banner", "-loglevel", "error", *src, "-af", mic_filter(DENOISE),
                                        "-ar", str(SR), "-ac", "1", "-f", "s16le", "-"],
                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             except OSError as e:
-                return self._fail(f"ffmpeg nicht startbar: {e}", _retry)
+                return self._fail(f"ffmpeg nicht startbar: {e}", _retry, "ffmpeg_missing")
             self.ff = ff
         err = collections.deque(maxlen=10)
 
@@ -3273,12 +3640,27 @@ class Mic:
                 pass
         threading.Thread(target=drain, name="mic-err", daemon=True).start()
         N = StreamVAD.N
-        first = ff.stdout.read(N * 2)
+        # Wachhund: der erste Read blockiert sonst endlos (Berechtigungsdialog, hängendes Gerät) – und mit
+        # ihm der Arbeits-Thread (auch Schnellsätze/Korrekturen), ohne dass die App mic/error bekommt.
+        timed_out = threading.Event()
+
+        def watchdog():
+            timed_out.set()
+            self._kill(ff)
+        wd = threading.Timer(MIC_START_TIMEOUT, watchdog)
+        wd.daemon = True
+        wd.start()
+        try:
+            first = ff.stdout.read(N * 2)
+        finally:
+            wd.cancel()
         if not first or sess != self.sess:
             if sess == self.sess:
                 time.sleep(0.2)               # ffmpeg-Fehlertext einsammeln
                 self._kill(ff)
-                return self._fail(self._explain(list(err)), _retry)
+                code, msg = self._explain(list(err), timed_out.is_set())
+                return self._fail(msg, _retry, code)
+            self._kill(ff)                    # überholt (Stopp/neuer Start): nicht weiterlaufen lassen
             return False
         frames = queue.Queue(maxsize=FRAMES_MAX)
 
@@ -3383,8 +3765,28 @@ class Mic:
 
 
 MIC = None
+MIC_START_TIMEOUT = 10.0         # s bis der erste Mikrofon-Block da sein muss (Wachhund)
 FRAMES_MAX = 1000                # Mikrofon-Blöcke (~32 s) – älteste fliegen raus statt unbegrenzt zu wachsen
 MIC_RETRIES = 5
+
+
+class WorkQueue(queue.Queue):
+    """Arbeits-Warteschlange: App-Aufgaben ("job": Schnellsatz, Korrektur, Mikrofon) vor wartenden
+    Äußerungen, damit ein Klick bei Rückstand nicht hinter allen Sätzen ansteht; sonst der Reihe nach."""
+
+    def _init(self, maxsize):
+        self.queue = collections.deque()
+        self.jobs = collections.deque()
+
+    def _qsize(self):
+        return len(self.queue) + len(self.jobs)
+
+    def _put(self, item):
+        is_job = isinstance(item, tuple) and item and isinstance(item[0], str) and item[0] == "job"
+        (self.jobs if is_job else self.queue).append(item)
+
+    def _get(self):
+        return self.jobs.popleft() if self.jobs else self.queue.popleft()
 
 
 def work_loop(eng, utts, speak):
@@ -3449,9 +3851,24 @@ def cleanup():
             log({"cleanup": "fehler", "err": repr(e)[:200]})
     if MIC is not None:
         Mic._kill(MIC.ff)
-    for pth in glob.glob(os.path.join(tempfile.gettempdir(), "dolmetscher_*")):   # Reste abgebrochener Läufe
+    clean_tmp()
+
+
+def clean_tmp(base=None, max_age=3600):
+    """Sprachdateien (das Gesagte) nicht liegen lassen: das eigene Temp-Verzeichnis ganz löschen,
+    Reste abgebrochener Läufe (Dateien und Verzeichnisse, nur eigene) nach max_age s."""
+    with _TMPDIR_LOCK:
+        own, _TMPDIR["path"] = _TMPDIR["path"], None
+    if own:
+        shutil.rmtree(own, ignore_errors=True)
+    for pth in glob.glob(os.path.join(base or tempfile.gettempdir(), "dolmetscher_*")):
         try:
-            if time.time() - os.path.getmtime(pth) > 3600:
+            st = os.lstat(pth)
+            if st.st_uid != os.getuid() or time.time() - st.st_mtime <= max_age:
+                continue
+            if os.path.isdir(pth) and not os.path.islink(pth):
+                shutil.rmtree(pth, ignore_errors=True)
+            else:
                 os.remove(pth)
         except OSError:
             pass
@@ -3486,6 +3903,8 @@ if __name__ == "__main__":
     ap.add_argument("--enroll", metavar="NAME", help="Stimmprofil anlegen: 8 Sätze vorlesen")
     ap.add_argument("--enroll-lang", choices=["en", "th"], default="en")
     ap.add_argument("--delete-profile", metavar="NAME")
+    ap.add_argument("--delete-all-profiles", action="store_true",
+                    help="ALLE Stimmprofile samt Sicherungen löschen (Stimmabdrücke)")
     ap.add_argument("--vocab", nargs=2, metavar=("NAME", "WÖRTER"), help="eigene Wörter, kommagetrennt")
     ap.add_argument("--barge-in", action="store_true",
                     help="Sprechen unterbricht die Ausgabe (nur mit Kopfhörer!)")
@@ -3545,7 +3964,12 @@ if __name__ == "__main__":
     JSON, BARGE_IN, LOG_TEXT, METER, DENOISE = a.json, a.barge_in, a.log_text, a.meter, a.denoise
     if a.list_mics:
         JSON = True
-        emit("mics", mics=list_mics())
+        try:
+            mics = list_mics()
+        except Exception as e:                  # ffmpeg fehlt/hängt: trotzdem eine JSON-Antwort
+            emit("error", code="mic_list_failed", msg=f"Mikrofone nicht abfragbar: {_errtxt(e)}")
+            mics = []
+        emit("mics", mics=mics)
         sys.exit(0)
     SILENCE_END = max(0.4, min(2.0, a.silence))
     TTS_RACE = max(0.0, min(5.0, a.tts_race))
@@ -3558,7 +3982,7 @@ if __name__ == "__main__":
     threading.Thread(target=thai_latin, args=("สวัสดี",), daemon=True).start()   # Umschrift vorwärmen
     signal.signal(signal.SIGTERM, shutdown)
     signal.signal(signal.SIGINT, shutdown)
-    if a.profiles or a.enroll or a.delete_profile or a.vocab is not None:
+    if a.profiles or a.enroll or a.delete_profile or a.delete_all_profiles or a.vocab is not None:
         profile_cli(a)
         sys.exit(0)
     if a.tts == "edge" and not a.mute:
@@ -3581,14 +4005,24 @@ if __name__ == "__main__":
         eng.two_person = False
     if a.no_en: eng.translate_dir["en"] = False
     if a.no_th: eng.translate_dir["th"] = False
-    jobs = queue.Queue()
+    jobs = WorkQueue()
     if a.json and not a.file:
         control_loop(eng, jobs)
     if a.file:
         for f in a.file:   # per ffmpeg dekodieren (unabhängig von der PyAV-Version)
-            raw = subprocess.run([FFMPEG, "-loglevel", "error", "-i", f, "-ar", str(SR), "-ac", "1",
-                                  "-f", "s16le", "-"], capture_output=True).stdout
-            eng.process(np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768, speak=not a.mute)
+            name = os.path.basename(f)
+            try:
+                raw = subprocess.run([FFMPEG, "-loglevel", "error", "-i", f, "-ar", str(SR), "-ac", "1",
+                                      "-f", "s16le", "-"], capture_output=True, timeout=600).stdout
+                audio = np.frombuffer(raw[:len(raw) // 2 * 2], dtype=np.int16).astype(np.float32) / 32768
+                if audio.size < MIN_UTT * SR:
+                    emit("error", code="file_empty", msg=f"{name}: keine Audiodaten")
+                    continue
+                for chunk in split_long(audio):    # lange Dateien an leisen Stellen teilen
+                    eng.process(chunk, speak=not a.mute)
+            except Exception as e:              # eine kaputte Datei bricht die übrigen nicht ab
+                log({"file": "fehler", "err": _errtxt(e)})
+                emit("error", code="file_failed", msg=f"{name}: {_errtxt(e)}")
         eng.speaker.wait_idle()                 # Ausgaben zu Ende spielen, dann beenden
     else:
         MIC = Mic(eng, a.mic, jobs, idle=a.idle)

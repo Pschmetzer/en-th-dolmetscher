@@ -263,6 +263,16 @@ def test_produce_always_sends_end_marker(monkeypatch):
         raise ConnectionError("weg")
     monkeypatch.setattr(d, "_ws_speak", boom)
     monkeypatch.setattr(d, "TTS_CACHE", d.collections.OrderedDict())
+
+    class Gone:                                   # auch der Rückfall (alter Weg) scheitert, ohne Netz
+        def __init__(self, *a, **k):
+            pass
+
+        async def stream(self):
+            raise ConnectionError("auch weg")
+            yield
+    import edge_tts
+    monkeypatch.setattr(edge_tts, "Communicate", Gone)
     st = d.EdgeStream("Hello there", "v", "+0%")
     x = st.qs[0].get(timeout=3)
     assert isinstance(x, Exception)

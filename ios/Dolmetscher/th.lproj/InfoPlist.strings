@@ -1,0 +1,4 @@
+"NSMicrophoneUsageDescription" = "แอปจะฟังสิ่งที่พูดเพื่อแปล";
+"NSSpeechRecognitionUsageDescription" = "เสียงพูดจะถูกแปลงเป็นข้อความบนเครื่องนี้เพื่อนำไปแปล";
+"NSCameraUsageDescription" = "ถ่ายรูปเมนูหรือป้ายเพื่อให้แอปอ่านและแปลข้อความ";
+"NSPhotoLibraryUsageDescription" = "เลือกรูปเมนูหรือป้ายเพื่อให้แอปอ่านและแปลข้อความ";

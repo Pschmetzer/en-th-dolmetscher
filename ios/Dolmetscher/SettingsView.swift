@@ -61,7 +61,18 @@ struct SettingsView: View {
                     }
                     Toggle(T("background"), isOn: $m.background)
                     Toggle(T("headset"), isOn: $m.headset)
+                    Toggle(T("thai_speaker"), isOn: $m.thaiOnSpeaker)
                 } header: { Text(T("sec_listening")) } footer: { Text(T("listening_note")) }
+
+                Section {
+                    Picker(T("history_keep"), selection: $m.historyDays) {
+                        Text(T("history_none")).tag(0)
+                        Text(T("history_1d")).tag(1)
+                        Text(T("history_7d")).tag(7)
+                        Text(T("history_30d")).tag(30)
+                        Text(T("history_forever")).tag(-1)
+                    }
+                } header: { Text(T("sec_privacy")) } footer: { Text(T("history_note")) }
 
                 Section {
                     Picker(T("ui_lang"), selection: $m.uiLang) {
