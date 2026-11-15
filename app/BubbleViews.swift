@@ -176,7 +176,7 @@ private struct BubbleHeader: View {
             }
             if translit && u.translated, let latin = u.textLatin {
                 Text(latin)
-                    .font(.system(size: 12 * scale)).italic().foregroundStyle(.tertiary)
+                    .font(.system(size: max(12, 12 * scale))).italic().foregroundStyle(.secondary)
                     .multilineTextAlignment(en ? .leading : .trailing)
             }
         }
@@ -250,10 +250,10 @@ private struct BubbleFooter: View {
                             .buttonStyle(.borderless)
                     }
                 }
-                if showD { Text(details).foregroundStyle(.tertiary).monospacedDigit() }
+                if showD { Text(details).foregroundStyle(.secondary).monospacedDigit() }
                 if u.lang == "en" { Spacer(minLength: 0) }
             }
-            .font(.system(size: 11 * scale))
+            .font(.system(size: max(12, 11 * scale)))
         }
     }
 }
@@ -262,6 +262,7 @@ private struct BubbleFooter: View {
 private struct PlaceholderBubble: View {
     let u: Utterance
     let scale: Double
+    @AppStorage(Prefs.translit) private var translit = true
 
     private var partial: String? {
         guard let p = u.partial, !p.isEmpty else { return nil }
@@ -285,22 +286,38 @@ private struct PlaceholderBubble: View {
         .accessibilityLabel(L.t("translating_placeholder"))
     }
 
+    /// Teiltext (`partial`, kursiv) oder schon fertig erkannter Originaltext (`heard`, aufrecht, mit Umschrift),
+    /// während die Übersetzung noch läuft.
     private func partialBody(_ p: String) -> some View {
         let en = u.lang != "th"
         return HStack(alignment: .firstTextBaseline, spacing: 8) {
             if !en { Spacer(minLength: 0) }
             ProgressView().controlSize(.small)
             Text(LangStyle.flag(u.lang)).accessibilityHidden(true)
-            Text(p)
-                .font(.system(size: 17 * scale)).italic().foregroundStyle(.secondary)
-                .multilineTextAlignment(en ? .leading : .trailing)
+            VStack(alignment: en ? .leading : .trailing, spacing: 2) {
+                if u.heard {
+                    Text(p)
+                        .font(.system(size: 17 * scale)).foregroundStyle(.primary)
+                        .multilineTextAlignment(en ? .leading : .trailing)
+                        .textSelection(.enabled)
+                    if translit, let latin = u.heardLatin, !latin.isEmpty {
+                        Text(latin)
+                            .font(.system(size: max(12, 12 * scale))).italic().foregroundStyle(.secondary)
+                            .multilineTextAlignment(en ? .leading : .trailing)
+                    }
+                } else {
+                    Text(p)
+                        .font(.system(size: 17 * scale)).italic().foregroundStyle(.secondary)
+                        .multilineTextAlignment(en ? .leading : .trailing)
+                }
+            }
             if en { Spacer(minLength: 0) }
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: en ? .leading : .trailing)
         .background(LangStyle.color(u.lang).opacity(0.06), in: RoundedRectangle(cornerRadius: 14))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(a11yAttributed([(L.t("partial_a11y") + ": ", nil), (p, u.lang)])))
+        .accessibilityLabel(Text(a11yAttributed([(L.t(u.heard ? "heard_a11y" : "partial_a11y") + ": ", nil), (p, u.lang)])))
     }
 }
 
