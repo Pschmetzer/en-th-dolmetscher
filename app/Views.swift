@@ -149,6 +149,16 @@ struct ContentView: View {
                 NoticeBanner(icon: "arrow.clockwise.circle", tint: LangStyle.warning, text: L.t("restart_deferred"),
                              action: (L.t("reload_now"), { m.restart() }))
             }
+            if m.engineHung && m.running {
+                NoticeBanner(icon: "exclamationmark.octagon.fill", tint: .red, text: L.t("engine_hung"),
+                             action: (L.t("reload_now"), { m.restart() }))
+            }
+            if !m.degradedModels.isEmpty {
+                NoticeBanner(icon: "gauge.with.dots.needle.33percent", tint: LangStyle.warning,
+                             text: L.f("degraded_models", m.degradedModels.map { L.t($0 == "thai_model" ? "degraded_thai"
+                                 : $0 == "detect_model" ? "degraded_detect" : "degraded_other") }.joined(separator: ", ")),
+                             action: (L.t("show_log"), { openLog() }), onClose: { m.degradedModels = [] })
+            }
             if let e = m.lastError {
                 NoticeBanner(icon: "exclamationmark.circle.fill", tint: LangStyle.warning,
                              text: e.date.formatted(date: .omitted, time: .standard) + " · " + e.msg,
