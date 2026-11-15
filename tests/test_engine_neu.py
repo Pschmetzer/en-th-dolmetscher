@@ -420,10 +420,14 @@ def _lang_engine(calls, probs, texts, role=None):
             return probs[0][0], probs[0][1], probs
     class Spk:
         profiles = []
-        def identify(self, a):
+        def lazy_embed(self, a):
+            return lambda: None
+        def identify(self, a, emb=None):
             return None, 0.0, {}
-        def classify(self, a, prev=None):
+        def classify(self, a, prev=None, emb=None):
             return {"role": role, "how": "vergleich", "sim_me": 0.5, "sim_her": 0.5, "emb": None}
+        def hotwords(self, lang, who=None, role=None):
+            return None
     e = d.Engine.__new__(d.Engine)
     e.m_det, e.lock, e.paused, e.awake_until = Det(), "auto", False, 0.0
     e.spk, e.two_person = (Spk(), True) if role else (None, False)
