@@ -13,7 +13,7 @@ Python: `PY="$HOME/Library/Application Support/Dolmetscher/venv/bin/python"`
 "$PY" bench/make_audio.py --noise --quiet --rate 150 --cases th01,th27
 ```
 
-Die Fälle stehen in `cases.json`. Thai wird mit der Stimme „Kanya“ erzeugt, Englisch mit „Samantha“. Als ffmpeg wird `DOLMETSCHER_FFMPEG` genommen, sonst das ffmpeg im PATH, sonst `/opt/homebrew/bin/ffmpeg`. `bench/audio/` wird nicht eingecheckt.
+Die Fälle stehen in `cases.json`. Thai wird mit der Stimme „Kanya“ erzeugt, Englisch mit „Samantha“. Als ffmpeg wird `DOLMETSCHER_FFMPEG` genommen, sonst das ffmpeg im PATH, sonst `/opt/homebrew/bin/ffmpeg` bzw. `/usr/local/bin/ffmpeg` (Intel). `bench/audio/` wird nicht eingecheckt.
 
 ## 2. Messen
 
@@ -52,9 +52,19 @@ Weitere Hinweise:
 
 Nach einer Änderung an der Metrik lässt sich ein altes Ergebnis ohne Engine neu bewerten: `"$PY" bench/run_bench.py --rescore bench/results/<datei>.json`.
 
-Der Vergleich zeigt für jede Kennzahl alt → neu mit der Differenz, außerdem die Fälle, deren Fehlerrate sich geändert hat. `results/baseline_main.json` ist der Stand von `main` (medium, CPU, saubere Stimmen).
+Der Vergleich zeigt für jede Kennzahl alt → neu mit der Differenz, außerdem die Fälle, deren Fehlerrate sich geändert hat. `results/baseline_main.json` ist die gültige Vergleichslinie (Stand `main` vom 12.11.2026, Commit 289de59: medium, CPU, saubere synthetische Stimmen, ein Lauf). `results/feat_medium_cpu.json` ist ein einzelner Zwischenstand eines Feature-Zweigs (Zeiten durch Systemlast verfälscht) und kein Vergleichsmaßstab.
+
+Baseline erneuern: wenn sich ein Modell (Name oder `MODEL_REVISIONS` in `dolmetscher.py`), die Metrik oder `cases.json` ändert, die Baseline auf `main` neu messen (`--repeat 3`, Rechner sonst ruhig) und mit dem Grund im Commit ersetzen. `--model best` und Apple-STT haben noch keine eigene Baseline.
+
+Regressionsprüfung: Der Benchmark braucht Modelle, `say` und Netz und läuft deshalb nicht in CI. Vor einem Release lokal `--compare bench/results/baseline_main.json --fail-above 10` laufen lassen (Release-Checkliste in CONTRIBUTING.md).
 
 ## Grenzen und eigene Aufnahmen
+
+Was die Zahlen aussagen und was nicht:
+
+- Alle Fälle sind **synthetisch** (macOS `say`, je eine Stimme: Kanya für Thai, Samantha für Englisch), 28 Thai- und 14 Englisch-Fälle, ohne Raumhall. Fehlerraten und Prozentangaben (auch „~30 % weniger Fehler“ im README) gelten nur für diese Stimmen, nicht allgemein für echte Sprecher.
+- Die Zeiten sind Einzelläufe auf einem Rechner (`meta` im JSON) und hängen von Gerät, Last und Cache ab. `total_*_s` misst ab Übergabe der ganzen Datei, nicht die Alltagslatenz am Mikrofon; die misst `bench/e2e.py` (Median/p90 bis Übersetzung und erstem Ton).
+- Die Übersetzung wird nicht automatisch bewertet („Überlapp“ ist kein Qualitätsmaß).
 
 - **Synthetische Stimmen ersetzen keine echten Sprecher.** Kanya spricht deutlich, in Standard-Thai und ohne Raumhall. Die echten Fehler wie „ฉันม่วงนอน“ statt „ฉันง่วงนอน“ treten bei ihr seltener auf.
 - **Eigene Aufnahmen** legt man als `bench/audio/real/<id>.wav` ab, mit derselben ID wie in `cases.json` (auch `.m4a`/`.mp3` gehen). `run_bench.py` nimmt sie bevorzugt, die Referenz kommt aus `cases.json`. Am besten wird der Referenztext wörtlich vorgelesen.
