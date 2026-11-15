@@ -3,6 +3,7 @@ name = "en-th-dolmetscher"
 version = "1.2"
 description = "Hands-free English <-> Thai speech interpreter for macOS"
 license = "MIT"
+# Engine-Code: ab 3.10 (CI prüft 3.10 ungepinnt). Die Lock-Dateien requirements*.txt (numpy 2.5) und build.sh brauchen 3.12.
 requires-python = ">=3.10"
 
 [tool.ruff]

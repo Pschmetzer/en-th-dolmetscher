@@ -16,7 +16,9 @@ Speicher/Threads. Rückgabewert 1, wenn eine Regel verletzt ist.
 import argparse, json, os, statistics, subprocess, sys, threading, time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PY = os.path.expanduser("~/Library/Application Support/Dolmetscher/venv/bin/python")
+# Python wie build.sh: DOLMETSCHER_PYTHON, sonst die App-venv, sonst das Python, das dieses Skript ausführt.
+_APP_PY = os.path.expanduser("~/Library/Application Support/Dolmetscher/venv/bin/python")
+PY = os.environ.get("DOLMETSCHER_PYTHON") or (_APP_PY if os.path.exists(_APP_PY) else sys.executable)
 
 
 def p90(xs):

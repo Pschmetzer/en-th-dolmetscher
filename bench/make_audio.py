@@ -14,7 +14,9 @@ import numpy as np
 HERE = Path(__file__).resolve().parent
 SR = 16000
 VOICES = {"th": "Kanya", "en": "Samantha"}
-FFMPEG = os.environ.get("DOLMETSCHER_FFMPEG") or shutil.which("ffmpeg") or "/opt/homebrew/bin/ffmpeg"
+# Reihenfolge: Umgebungsvariable, PATH, Homebrew (Apple Silicon, dann Intel)
+FFMPEG = (os.environ.get("DOLMETSCHER_FFMPEG") or shutil.which("ffmpeg")
+          or next((p for p in ("/opt/homebrew/bin/ffmpeg", "/usr/local/bin/ffmpeg") if os.path.exists(p)), "ffmpeg"))
 
 
 def variant_name(noise, quiet):

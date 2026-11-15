@@ -6,7 +6,7 @@ Apples Translation-Framework (on-device, offline, kostenlos) als Kommandozeilen-
 
 - **API ohne SwiftUI vorhanden, echte Übersetzung aus dem CLI aber noch ungetestet.** Bestätigt: kompiliert,
   Sitzung lässt sich aus einem nackten CLI-Binary (ohne Bundle/Info.plist) erzeugen, Statusabfrage und Fehlerpfad
-  (`notInstalled`) funktionieren. Auf diesem Mac ist **kein einziges** Sprachpaar installiert (auch nicht en-de o. ä.),
+  (`notInstalled`) funktionieren. Auf dem Testrechner war **kein einziges** Sprachpaar installiert (auch nicht en-de o. ä.),
   daher konnte keine Übersetzung durchlaufen. Hauptrisiko: dass ein unbundled Binary trotz installierter Pakete
   abgewiesen wird – erst nach Installation prüfbar.
 - Seit macOS 26.0 gibt es den öffentlichen Initializer
@@ -19,10 +19,10 @@ Apples Translation-Framework (on-device, offline, kostenlos) als Kommandozeilen-
 - Geprüft auf macOS 26.6.2, Command Line Tools SDK. Der Helfer braucht macOS 26.4+ (wegen `--fast`), sonst meldet er
   `{"ready":false,"error":"macOS 26.4 oder neuer nötig"}`.
 
-## Stand auf diesem Mac
+## Beispiel ohne installierte Sprachpakete
 
 ```
-$ /tmp/translate-helper --check
+$ ./translate-helper --check
 {"pairs":{"en-th":"supported","th-en":"supported"},"ready":true}
 ```
 
@@ -41,12 +41,12 @@ Latenzmessung steht deshalb noch aus. Nach Installation der Pakete einfach den T
 ## Bauen und testen
 
 ```sh
-swiftc -O -parse-as-library -o /tmp/translate-helper tools/translate-helper/main.swift
-/tmp/translate-helper --check
+swiftc -O -parse-as-library -o ./translate-helper tools/translate-helper/main.swift
+./translate-helper --check
 printf '%s\n' \
   '{"id":1,"text":"ฉันง่วงนอนมาก อยากกลับบ้านแล้ว","src":"th","dst":"en"}' \
   '{"id":2,"text":"Where is the nearest train station?","src":"en","dst":"th"}' \
-  | /tmp/translate-helper            # oder --fast für .lowLatency
+  | ./translate-helper            # oder --fast für .lowLatency
 ```
 
 ## Protokoll (JSON-Zeilen über stdin/stdout)

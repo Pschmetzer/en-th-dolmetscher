@@ -1,0 +1,9 @@
+# Entwicklung/CI. requirements-dev.txt ist daraus erzeugt (mit Hashes, Versionen wie requirements.txt):
+#   uv pip compile requirements-dev.in -c requirements.txt --universal --python-version 3.12 --generate-hashes -o requirements-dev.txt
+-r requirements.in
+pytest==9.2.0
+ruff==0.17.5
+# optional: Abdeckung lokal messen mit  pytest --cov=dolmetscher --cov=profiles
+pytest-cov==7.1.0
+# optional: bekannte Schwachstellen in den Pins prüfen (CI, nicht blockierend)
+pip-audit==2.10.1
