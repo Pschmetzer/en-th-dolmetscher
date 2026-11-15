@@ -1198,6 +1198,64 @@ def thai_latin(text):
 _NUM = re.compile(r"\d+(?:[.,:]\d+)*")
 _THAI_DIGITS = str.maketrans("๐๑๒๓๔๕๖๗๘๙", "0123456789")
 
+# Thai-Zahlwörter (Whisper schreibt Preise/Zimmernummern oft aus): nur für den Zahlenvergleich
+_TH_DIGIT_W = {"ศูนย์": 0, "หนึ่ง": 1, "เอ็ด": 1, "สอง": 2, "ยี่": 2, "สาม": 3, "สี่": 4, "ห้า": 5,
+               "หก": 6, "เจ็ด": 7, "แปด": 8, "เก้า": 9}
+_TH_MULT_W = {"สิบ": 10, "ร้อย": 100, "พัน": 1000, "หมื่น": 10_000, "แสน": 100_000, "ล้าน": 1_000_000}
+# Wörter, die Zahlwörter enthalten, aber keine Zahl sind (ร้อยละ = Prozent, แสนดี = sehr gut, ...)
+_TH_NUM_FALSE = re.compile(r"(สามารถ|สามี|สามเณร|ห้าม|ห้าง|เก้าอี้|หกล้ม|ยี่ห้อ|เรียบร้อย|ร้อยละ|ร้อยเรียง|ร้อยกรอง"
+                           r"|สัมพันธ์|พันธ[ุ์ะ]|แสน(?=ดี|สวย|สุข|รู้|จะ|ง่าย|ยาก|เศร้า|ไกล|นาน|แพง|อร่อย)"
+                           r"|ศูนย์(?=กลาง|การค้า|บริการ|ราชการ)|ล้านนา)")
+_TH_NUM_RUN = re.compile("(?:" + "|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], key=len, reverse=True))
+                         + r")(?:\s*(?:" + "|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], key=len, reverse=True))
+                         + "))*")
+_TH_TOKEN = re.compile("|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], key=len, reverse=True)))
+_SCALE = re.compile(r"(\d+(?:[.,]\d+)?)\s*(million|mio\.?|billion|พันล้าน|ล้าน)", re.I)
+_EN_NUM_WORDS = re.compile(r"\b(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen"
+                           r"|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty"
+                           r"|sixty|seventy|eighty|ninety|hundred|thousand|dozen)\b", re.I)
+
+
+def _thai_run_value(run):
+    """'สามร้อยห้าสิบ' -> 350, 'สามศูนย์ห้า' -> 305 (Ziffernfolge, z. B. Zimmer), unklar -> None."""
+    toks = _TH_TOKEN.findall(run)
+    if not any(t in _TH_MULT_W for t in toks):
+        if len(toks) == 1:
+            return None if toks[0] == "ศูนย์" else _TH_DIGIT_W[toks[0]]   # ศูนย์ allein: oft "Zentrum"
+        if len(toks) == 2:
+            return None                                  # สองสาม = "ein paar", keine 23
+        return int("".join(str(_TH_DIGIT_W[t]) for t in toks))
+    total, seg, pend = 0, 0, None
+    for t in toks:
+        if t in _TH_DIGIT_W:
+            if pend is not None:
+                return None                              # zwei Ziffern ohne Stelle dazwischen: mehrdeutig
+            pend = _TH_DIGIT_W[t]
+        elif t == "ล้าน":
+            total = (total + seg + (pend or 0) or 1) * 1_000_000
+            seg, pend = 0, None
+        else:
+            seg += (1 if pend is None else pend) * _TH_MULT_W[t]
+            pend = None
+    return total + seg + (pend or 0)
+
+
+def thai_words_to_digits(s):
+    """Ausgeschriebene Thai-Zahlen in Ziffern: 'ราคาสามร้อยห้าสิบบาท' -> 'ราคา 350 บาท'.
+    Wörter wie เรียบร้อย, สามารถ oder ร้อยละ bleiben stehen; nicht eindeutige Folgen ebenso."""
+    def one(m):
+        v = _thai_run_value(m.group(0))
+        return m.group(0) if v is None else f" {v} "
+    parts = _TH_NUM_FALSE.split(s)                   # ungerade Stellen: falsche Freunde, bleiben unverändert
+    return "".join(p if i % 2 else _TH_NUM_RUN.sub(one, p) for i, p in enumerate(parts))
+
+
+def _scale_sub(m):
+    g = m.group(1)
+    n = float(g.replace(",", "") if re.fullmatch(r"\d{1,3},\d{3}", g) else g.replace(",", "."))
+    unit = m.group(2).lower()
+    return f"{round(n * (1e9 if unit in ('billion', 'พันล้าน') else 1e6))}"
+
 
 _PM_TIME = re.compile(r"(?<![\d.:])(\d{1,2})(?::(\d{2}))?\s*([ap])\.?\s*m\b\.?", re.I)
 _TH_PM = re.compile(r"(?:บ่าย|เย็น)\s*(\d{1,2})(?::(\d{2}))?")
@@ -1212,10 +1270,14 @@ def _time24(m, pm):
     return f"{h}:{mi}"
 
 
-def _numbers(s):
+def _numbers(s, words=True):
     """Zahlen vergleichbar machen: 1.500/1,500 = Tausender (1500), 3:30 = 3.30 (Uhrzeit), aber 1.5 != 15;
-    2:30 PM = 14:30 (auch บ่าย 2:30), 9:00 = 9, 09 = 9. Thai-Lachen (555 ohne Zahlkontext) zählt nicht."""
-    s = _laugh_sub(s.translate(_THAI_DIGITS))
+    2:30 PM = 14:30 (auch บ่าย 2:30), 9:00 = 9, 09 = 9. Thai-Lachen (555 ohne Zahlkontext) zählt nicht.
+    words: ausgeschriebene Thai-Zahlen mitzählen (สามร้อยห้าสิบ = 350, บ่ายสองโมง = 14); 1.5 million = 1500000."""
+    s = _SCALE.sub(_scale_sub, s.translate(_THAI_DIGITS))       # zuerst "1.5 ล้าน", sonst zählt ล้าน allein
+    if words:
+        s = thai_words_to_digits(s)
+    s = _laugh_sub(s)
     s = _PM_TIME.sub(lambda m: _time24(m, m.group(3).lower() == "p"), s)
     s = _TH_PM.sub(lambda m: _time24(m, True), s)
     out = []
@@ -1229,8 +1291,10 @@ def _numbers(s):
 
 def numbers_differ(a, b):
     """True, wenn Zahlen im Original und in der Übersetzung nicht übereinstimmen (Preise, Zeiten).
-    Nur mit Zahlen auf beiden Seiten; einstellige Zahlen zählen nicht (oft als Wort übersetzt: 2 = สอง)."""
-    na, nb = _numbers(a), _numbers(b)
+    Nur mit Zahlen auf beiden Seiten; einstellige Zahlen zählen nicht (oft als Wort übersetzt: 2 = สอง).
+    Thai-Zahlwörter zählen nur, wenn die Gegenseite keine englischen Zahlwörter hat (die werden nicht umgerechnet)."""
+    na = _numbers(a, words=not _EN_NUM_WORDS.search(b))
+    nb = _numbers(b, words=not _EN_NUM_WORDS.search(a))
     if not (na and nb):
         return False
     diff = set(na) ^ set(nb)
@@ -1241,10 +1305,12 @@ _TH_CH = "\u0e01-\u0e4e"                     # Thai-Buchstaben/-Vokale/-Tonzeich
 _HAIR = r"(?:ยาว|สั้น|ร่วง|หงอก|ขาว|ดำ|สี|เปีย|ตรง|หยิก|ม้า|เส้น|เผ้า|ทรง|ของ(?:คุณ|เธอ|เขา|แม่|พ่อ))"
 
 
-def fix_thai(s, polite):
+def fix_thai(s, polite, question=False):
     """Höflichkeit und Pronomen an die Stimme angleichen: Google liefert 'ครับ/ค่ะ' (Kanya liest den
     Schrägstrich vor) oder einfach die Form des anderen Geschlechts. Mann: ครับ, ผม; Frau: ค่ะ/คะ, ฉัน.
-    Vorsichtig: คะ steckt in คะแนน, ผม heißt auch "Haar" (ตัดผม, ผมยาว) – das bleibt."""
+    Vorsichtig: คะ steckt in คะแนน, ผม heißt auch "Haar" (ตัดผม, ผมยาว) – das bleibt.
+    question: das Original war eine Frage (z. B. "...?" auf Englisch) – dann endet auch eine Ausgabe ohne
+    Fragewort/Fragezeichen mit คะ statt ค่ะ."""
     male = polite == "krub"
     s = re.sub(r"ครับ\s*/\s*ค่ะ|ค่ะ\s*/\s*ครับ", "ครับ" if male else "ค่ะ", s)
     s = re.sub(r"ครับ\s*/\s*คะ|คะ\s*/\s*ครับ", "ครับ" if male else "คะ", s)
@@ -1261,6 +1327,8 @@ def fix_thai(s, polite):
         s = re.sub(r"((?:ไหม|มั้ย|หรือ(?:เปล่า)?|(?<!ไม่มี)(?<!ไม่เป็น)อะไร|ที่ไหน|ไหน|เมื่อไหร่|เมื่อไร|ทำไม|ยังไง|"
                    r"อย่างไร|กี่\S*|ใคร)\s*)ค่ะ(?=\s*[?？]?\s*$|\s)", r"\1คะ", s)
         s = re.sub(r"ค่ะ(?=\s*[?？])|(?<=นะ)ค่ะ", "คะ", s)          # นะคะ, nie นะค่ะ
+        if question:
+            s = re.sub(r"ค่ะ(?=[\s.!?？]*$)", "คะ", s)                 # nur das letzte Partikel
     return s
 
 
@@ -1379,7 +1447,7 @@ def split_sentences(s, lang, min_len=60):
     if len(s) < min_len:
         return [s]
     if lang == "th":   # Thai trennt Sätze/Phrasen mit Leerzeichen
-        parts = re.split(r"(?<=[฀-๿\d])\s+(?=[฀-๿])", s)
+        parts = re.split(r"(?<=[฀-๿\d?!.？])\s+(?=[฀-๿])", s)     # auch nach "?"/"!" (ไหมคะ? ต่อไป...)
     else:
         parts = re.split(r"(?<!\bMr\.)(?<!\bMrs\.)(?<!\bMs\.)(?<!\bDr\.)(?<!\bSt\.)(?<!\bvs\.)(?<!\be\.g\.)"
                          r"(?<!\bi\.e\.)(?<=[.!?;])\s+", s)        # "Mr. Smith" nicht zerteilen
@@ -3020,7 +3088,7 @@ class Engine:
             emit("listening")
             return None
         if dst == "th":
-            out = fix_thai(out, self.polite)
+            out = fix_thai(out, self.polite, question=lang == "en" and text.rstrip().endswith("?"))
         if replaces:
             self._forget(replaces)
         last = getattr(self, "last", None)
