@@ -56,6 +56,8 @@ jobs:
       - name: Install ruff (version from requirements-dev.in)
         run: python -m pip install "$(grep '^ruff==' requirements-dev.in)"
       # bench/ und die Test-Infrastruktur sind sauber: hier darf nichts Neues hinzukommen.
+      - name: Icon script compiles (app/make_icon.py)
+        run: python -m py_compile app/make_icon.py
       - name: Ruff (blocking)
         run: ruff check --output-format=github bench/ tests/conftest.py
       # Engine, Profile und ältere Tests haben noch bekannte Befunde (E501, E741, ...): nur melden.
@@ -85,6 +87,23 @@ jobs:
         run: |
           mkdir -p build
           swiftc -O -parse-as-library -o build/Dolmetscher app/*.swift
+
+  tools:
+    # Prototypen in tools/ (macOS 26 SDK) nur typprüfen, damit sie nicht unbemerkt veralten. Nicht blockierend:
+    # translate-helper braucht APIs aus SDK 26.4, der Runner kann ein älteres Xcode haben.
+    name: Typecheck tools/ (macOS 26, not blocking)
+    runs-on: macos-26
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Xcode
+        run: |
+          sudo xcode-select -s "$(ls -d /Applications/Xcode_26*.app /Applications/Xcode.app 2>/dev/null | sort -V | tail -1)"
+          xcrun swiftc --version
+      - name: apple-stt
+        run: xcrun swiftc -typecheck -swift-version 5 -target arm64-apple-macosx26.0 tools/apple-stt/main.swift
+      - name: translate-helper
+        run: xcrun swiftc -typecheck -parse-as-library -target arm64-apple-macosx26.0 tools/translate-helper/main.swift
 
   audit:
     name: Dependency audit (not blocking)
