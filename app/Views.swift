@@ -149,7 +149,7 @@ struct ContentView: View {
                 NoticeBanner(icon: "arrow.clockwise.circle", tint: LangStyle.warning, text: L.t("restart_deferred"),
                              action: (L.t("reload_now"), { m.restart() }))
             }
-            if m.engineHung {
+            if m.engineHung && m.running {
                 NoticeBanner(icon: "exclamationmark.octagon.fill", tint: .red, text: L.t("engine_hung"),
                              action: (L.t("reload_now"), { m.restart() }))
             }

@@ -179,8 +179,14 @@ final class ProfilesModel: ObservableObject {
     }
 
     func delete(_ p: VoiceProfile) {
-        _ = EngineRunner.run([], request: ["delete_profile": p.name], timeout: 30, onEvent: { _ in },
-                             onExit: { [weak self] in self?.reload() })
+        deleteAllResult = nil
+        var ok = false
+        _ = EngineRunner.run([], request: ["delete_profile": p.name], timeout: 30, onEvent: { o in
+            if o["event"] as? String == "profile_deleted" { ok = o["ok"] as? Bool ?? false }
+        }, onExit: { [weak self] in
+            if !ok { self?.deleteAllResult = L.f("delete_failed", p.name) }   // sonst bliebe ein Fehlschlag stumm
+            self?.reload()
+        })
     }
 
     /// Alle Stimmprofile samt Sicherungen (.bak) und Quarantäne-Kopien (.bad) löschen (`--delete-all-profiles`).

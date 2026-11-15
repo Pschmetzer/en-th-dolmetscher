@@ -1006,9 +1006,12 @@ final class EngineModel: NSObject, ObservableObject {
             let what = o["what"] as? String ?? "translate"
             if o["ok"] as? Bool ?? true { netDown.remove(what) } else { netDown.insert(what) }
         case "error":
-            let msg = Self.errorText(code: o["code"] as? String, msg: o["msg"] as? String)
+            let code = o["code"] as? String, raw = o["msg"] as? String
+            let msg = Self.errorText(code: code, msg: raw)
             status = "⚠️ " + msg
-            lastError = (msg, Date())
+            // Hinweis behält die Ursache der Engine (Ausnahme, Dateiname, Gerät) – nur dort, wo sie variiert
+            let detail = code.map { Self.errorDetailCodes.contains($0) } == true ? raw : nil
+            lastError = (msg + (detail.map { " – " + $0 } ?? ""), Date())
             Announcer.post(msg, force: true)
         case "command": applyCommand(o)
         case "dropped":
@@ -1061,6 +1064,9 @@ final class EngineModel: NSObject, ObservableObject {
         return msg ?? L.t("error_generic")
     }
     static let speakerErrorPrefix = "Stimmprofile nicht nutzbar"
+    /// Codes, deren `msg` eine wechselnde Ursache enthält: im Hinweis zusätzlich zum übersetzten Text zeigen.
+    static let errorDetailCodes: Set<String> = ["translate_failed", "mic_failed", "mic_unavailable",
+                                                "mic_list_failed", "ffmpeg_missing", "file_failed", "file_empty"]
     /// `error.code` (docs/PROTOKOLL.md) -> L10n-Schlüssel. Literale Schlüssel: tests/test_l10n_keys.py prüft sie.
     static let errorKeys: [String: String] = [
         "mic_denied": "err_mic_denied", "mic_unavailable": "err_mic_unavailable", "mic_no_data": "err_mic_no_data",
@@ -1110,8 +1116,10 @@ final class EngineModel: NSObject, ObservableObject {
     private var pongSeen = false
     private var pingCounter = 0
     private var watchdogGen = 0
-    private static let pingEvery: TimeInterval = 10
-    private static let hungAfter: TimeInterval = 30
+    // Die Engine schreibt jede Steuerzeile ins Log: nicht öfter als alle 15 s pingen.
+    // 45 s Frist: Langsame Steueraktionen (z. B. Profile neu laden) laufen im selben Thread wie `pong`.
+    private static let pingEvery: TimeInterval = 15
+    private static let hungAfter: TimeInterval = 45
 
     private func startWatchdog() {
         watchdogGen += 1
