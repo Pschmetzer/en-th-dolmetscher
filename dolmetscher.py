@@ -1758,6 +1758,8 @@ class Engine:
         except Exception as e:
             self.spk = None
             log({"profiles": "aus", "err": repr(e)[:200]})
+            # nicht nur ins Log: sonst glaubt man, die Stimmerkennung laufe
+            emit("error", msg="Stimmprofile nicht nutzbar (Stimmerkennung aus): " + (str(e) or type(e).__name__)[:160])
         me = self.spk.me() if self.spk else None
         emit("roles", me=me["name"] if me else None, on=self.two_person and me is not None)
 

@@ -106,3 +106,20 @@ def test_lazy_embed_caches_none():
     s.embed = lambda a: calls.append(1)
     get = s.lazy_embed(np.zeros(10, np.float32))
     assert get() is None and get() is None and len(calls) == 1
+
+
+def test_engine_reports_unusable_speaker_model(monkeypatch):
+    import dolmetscher as d
+    events = []
+    monkeypatch.setattr(d, "emit", lambda e, **k: events.append((e, k)))
+    monkeypatch.setattr(profiles, "list_profiles", lambda: [_p("A")])
+
+    def boom():
+        raise RuntimeError("sherpa_onnx fehlt")
+    monkeypatch.setattr(profiles, "SpeakerID", boom)
+    e = d.Engine.__new__(d.Engine)
+    e.spk, e.two_person = None, True
+    e.reload_profiles()
+    assert e.spk is None
+    assert events[0][0] == "error" and "sherpa_onnx fehlt" in events[0][1]["msg"]
+    assert events[-1] == ("roles", {"me": None, "on": False})
