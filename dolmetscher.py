@@ -350,6 +350,11 @@ def warm_translate():
         _get_json("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=en&tl=th&q=hi", 4)
     except Exception:
         pass
+    try:                               # Claude-Client (import anthropic, ~0,5–1 s) nicht im ersten Satz bauen
+        if LLM["on"] and llm_available():
+            llm_client()
+    except Exception:
+        pass
 
 
 def google_translate(text, src, dst):
@@ -362,9 +367,48 @@ def google_translate(text, src, dst):
     if not out.strip():
         raise ValueError("leere Antwort von Google")
     if dst == "th" and re.search(r"[A-Za-z]{3}", text) and not re.search(r"[฀-๿]", out):
+        if _looks_like_name(text) and out.strip().lower() == text.strip().lower():
+            return out                      # "Hotel California", "Grab": Namen bleiben, kein Fehler
         raise ValueError("Google gab den Text unübersetzt zurück")
-    if dst == "en" and re.search(r"[฀-๿]", out) and len(re.findall(r"[฀-๿]", out)) > len(out) / 2:
+    if dst == "en" and _mostly_thai(out):
         raise ValueError("Google gab Thai statt Englisch zurück")
+    return out
+
+
+def _mostly_thai(s):
+    return len(re.findall(r"[฀-๿]", s)) > len(s) / 2
+
+
+def _looks_like_name(text):
+    """Ein einzelnes Wort oder bis zu 4 groß geschriebene Wörter (Name, Marke, Ort)."""
+    words = re.findall(r"[A-Za-z][\w'’&-]*", text)
+    return len(words) == 1 or (0 < len(words) <= 4 and all(w[0].isupper() for w in words))
+
+
+class _Implausible(ValueError):
+    """Antwort passt nicht zur Aufgabe (falsche Schrift, Ablehnung, Anmerkungen) – kein Netzfehler."""
+
+
+_LLM_PREFIX = re.compile(r"^\s*(?:translation|übersetzung|thai|english|คำแปล)\s*:\s*", re.I)
+_LLM_REFUSAL = re.compile(r"^\W*(?:i'?m sorry|i am sorry|sorry|i can(?:no|'|’)t|i cannot|i'?m unable|i am unable|"
+                          r"as an ai)\b.*\b(?:translat|help|assist|provide|comply|request)", re.I | re.S)
+
+
+def _check_llm(text, out, dst):
+    """Claude-Ausgabe plausibilisieren wie Google: richtige Schrift, keine Ablehnung, keine Anmerkungen,
+    Länge passend. Sonst _Implausible – dann übersetzt Google den Satz (ohne Claude-Pause)."""
+    out = _LLM_PREFIX.sub("", out).strip().strip('"“”')
+    if not out:
+        raise _Implausible("unerwartet: leere Claude-Ausgabe")
+    if _LLM_REFUSAL.search(out) or re.search(r"\n\s*\(?(?:note|notes|hinweis|alternative)", out, re.I):
+        raise _Implausible("unerwartet: Claude-Ausgabe mit Ablehnung/Anmerkung")
+    if dst == "th" and re.search(r"[A-Za-z]{3}", text) and not re.search(r"[฀-๿]", out) \
+            and not _looks_like_name(text):
+        raise _Implausible("unerwartet: Claude-Ausgabe nicht auf Thai")
+    if dst == "en" and _mostly_thai(out):
+        raise _Implausible("unerwartet: Claude-Ausgabe nicht auf Englisch")
+    if len(out) > 3 * len(text) + 60:
+        raise _Implausible("unerwartet: Claude-Ausgabe zu lang")
     return out
 
 
@@ -492,17 +536,33 @@ LLM_BACKOFF = 60.0                 # s ohne Claude nach einem Fehler (dann direk
 KEYFILE = os.path.expanduser("~/Library/Application Support/Dolmetscher/anthropic_key")
 
 
+_LLM_CLIENT_LOCK = threading.Lock()
+
+
+def _private_keyfile():
+    """Schlüsseldatei darf nur der Nutzer lesen: sonst auf 0600 setzen und das melden."""
+    try:
+        mode = os.stat(KEYFILE).st_mode
+        if mode & 0o077:
+            os.chmod(KEYFILE, 0o600)
+            log({"llm": "schlüsseldatei war für andere lesbar, auf 0600 gesetzt"})
+    except OSError:
+        pass
+
+
 def llm_client():
     """Anthropic-Client, wenn das SDK installiert ist und ein Schlüssel vorliegt (Umgebung oder Datei)."""
-    if LLM["client"] is None:
-        import anthropic
-        key = os.environ.get("ANTHROPIC_API_KEY")
-        if not key and os.path.exists(KEYFILE):
-            with open(KEYFILE, encoding="utf-8") as f:
-                key = f.read().strip() or None
-        LLM["client"] = anthropic.Anthropic(api_key=key, timeout=5.0, max_retries=0) if key else \
-            anthropic.Anthropic(timeout=5.0, max_retries=0)
-    return LLM["client"]
+    with _LLM_CLIENT_LOCK:                       # Vorwärmen (Start) und Arbeits-Thread nicht doppelt
+        if LLM["client"] is None:
+            import anthropic
+            key = os.environ.get("ANTHROPIC_API_KEY")
+            if not key and os.path.exists(KEYFILE):
+                _private_keyfile()
+                with open(KEYFILE, encoding="utf-8") as f:
+                    key = f.read().strip() or None
+            LLM["client"] = anthropic.Anthropic(api_key=key, timeout=5.0, max_retries=0) if key else \
+                anthropic.Anthropic(timeout=5.0, max_retries=0)
+        return LLM["client"]
 
 
 _LLM_AVAIL = {"t": 0.0, "env": None, "v": False}
@@ -753,7 +813,12 @@ def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
     pin, pout = LLM_PRICE.get(LLM["model"], (4.0, 20.0))
     u = getattr(r, "usage", None)
     if u is not None:                               # Kosten mitzählen (Schätzung nach Preisliste)
-        LLM["usd"] += ((getattr(u, "input_tokens", 0) or 0) * pin + (getattr(u, "output_tokens", 0) or 0) * pout) / 1e6
+        def n(k):
+            v = getattr(u, k, 0)
+            return v if isinstance(v, (int, float)) else 0
+        # Prompt-Caching: Lesen kostet 0,1×, Schreiben 1,25× des Eingabepreises
+        LLM["usd"] += (n("input_tokens") * pin + n("cache_read_input_tokens") * pin * 0.1
+                       + n("cache_creation_input_tokens") * pin * 1.25 + n("output_tokens") * pout) / 1e6
         emit("llm_cost", usd=round(LLM["usd"], 4))
     if r.stop_reason != "end_turn":                    # refusal, max_tokens, … -> nie halbe Sätze vorlesen
         raise RuntimeError(f"Claude: stop_reason {r.stop_reason}")
@@ -832,6 +897,8 @@ def _llm_backoff(e):
     """Wie lange nach einem Claude-Fehler direkt Google? Kurz bei Zeitüberschreitung/400, lang bei Auth."""
     sc = getattr(e, "status_code", None)
     name = type(e).__name__
+    if isinstance(e, _Implausible):
+        return 0.0                                       # inhaltlich, kein Ausfall: nächster Satz wieder Claude
     if sc in (401, 403):
         return 300.0                                     # Schlüssel falsch: nicht jeden Satz neu versuchen
     if sc == 400 or isinstance(e, TimeoutError) or "Timeout" in name:
@@ -854,7 +921,7 @@ def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
     out, e1 = None, None
     if use_llm:
         try:
-            out = claude_translate(text, src, dst, history, alts, polite)
+            out = _check_llm(text, claude_translate(text, src, dst, history, alts, polite), dst)
             meta["provider"] = "claude"
             LLM["err"] = None
         except Exception as e:

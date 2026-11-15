@@ -161,3 +161,52 @@ def test_junk_variants(text):
 @pytest.mark.parametrize("text", ["thanks for watching the kids", "hello", "", "Music festival", "ขอบคุณครับ"])
 def test_junk_keeps_real_speech(text):
     assert text not in d.JUNK
+
+
+# ---- Claude-Plausibilität, Kosten, Namen -----------------------------------------------------------
+
+@pytest.mark.parametrize("claude_out", ["I'm sorry, I can't help with translating that.",
+                                        "Hello, how are you today?",                      # nicht Thai
+                                        "สวัสดี\n\nNote: casual register"])
+def test_implausible_claude_falls_back_to_google(monkeypatch, claude_out):
+    monkeypatch.setitem(d.LLM, "on", True)
+    monkeypatch.setitem(d.LLM, "skip_until", 0.0)
+    monkeypatch.setattr(d, "llm_available", lambda: True)
+    monkeypatch.setattr(d, "claude_translate", lambda *a: claude_out)
+    monkeypatch.setattr(d, "_get_json", lambda u, t=0: [[["สวัสดีครับ", "x"]]])
+    meta = {}
+    assert d.translate("Hello, how are you today?", "en", "th", meta=meta) == "สวัสดีครับ"
+    assert meta["provider"] == "google" and d.LLM["skip_until"] <= d.time.time()   # keine Claude-Pause
+
+
+def test_claude_translation_prefix_stripped(monkeypatch):
+    assert d._check_llm("ขอโทษนะ", "Translation: I'm sorry", "en") == "I'm sorry"
+
+
+def test_cost_counts_cache_tokens(monkeypatch):
+    import types
+    u = types.SimpleNamespace(input_tokens=1_000_000, output_tokens=0, cache_read_input_tokens=1_000_000,
+                              cache_creation_input_tokens=1_000_000)
+    r = types.SimpleNamespace(usage=u, stop_reason="end_turn", content=[types.SimpleNamespace(type="text", text="ok")])
+    monkeypatch.setattr(d, "llm_client", lambda: types.SimpleNamespace(messages=types.SimpleNamespace(create=lambda **k: r)))
+    monkeypatch.setitem(d.LLM, "model", "claude-haiku-5-5")
+    monkeypatch.setitem(d.LLM, "usd", 0.0)
+    d.claude_translate("hi", "en", "th")
+    pin = d.LLM_PRICE["claude-haiku-5-5"][0]
+    assert d.LLM["usd"] == pytest.approx(pin * (1 + 0.1 + 1.25))
+
+
+@pytest.mark.parametrize("name", ["Hotel California", "Grab"])
+def test_google_keeps_names(monkeypatch, name):
+    monkeypatch.setattr(d, "_get_json", lambda u, t=0: [[[name, "x"]]])
+    meta = {}
+    assert d.translate(name, "en", "th", meta=meta) == name and meta["provider"] == "google"
+
+
+def test_keyfile_made_private(tmp_path, monkeypatch):
+    k = tmp_path / "key"
+    k.write_text("x")
+    k.chmod(0o644)
+    monkeypatch.setattr(d, "KEYFILE", str(k))
+    d._private_keyfile()
+    assert (k.stat().st_mode & 0o777) == 0o600
