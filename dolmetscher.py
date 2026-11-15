@@ -116,6 +116,18 @@ def parse_command(cmd):
         if hit:
             return _VOCAB[hit[0]]
     return None
+
+
+def match_wake(text):
+    """Weckwort am Satzanfang erkennen -> Rest nach dem Weckwort ("" bei bloßem "Translator") oder None.
+    Das unscharfe Weckwort ("Translate or pause") zählt nur, wenn ein echter Befehl folgt."""
+    m = WAKE.match(text)
+    if m:
+        return m.group(1)
+    fz = WAKE_FUZZY.match(text)
+    if fz and parse_command(fz.group(1)) not in (None, "wake"):
+        return fz.group(1)
+    return None
 # Neural-Stimmen: Thai passend zu ครับ (Mann) / ค่ะ (Frau)
 # Englisch: Aria statt Ava-Multilingual. Gemessen (Zeit bis zum ersten Ton): Aria/Jenny/Guy 0,4–0,7 s,
 # die Multilingual-Stimmen 1,5–4 s – dann sprang fast immer die macOS-Ersatzstimme ein.
@@ -2079,12 +2091,9 @@ class Engine:
             hw = stt(audio, "en", hotwords=HOTWORDS)[0]
             info["cmd_retry"] = hw
             en_text = hw or en_text
-        m = WAKE.match(en_text)
-        fz = None if m else WAKE_FUZZY.match(en_text)
-        if fz and parse_command(fz.group(1)) not in (None, "wake"):
-            m = fz                              # "Translate or pause" -> Befehl
-        if m or (time.monotonic() < self.awake_until and en_text and len(en_text.split()) <= 4):
-            cmd = m.group(1) if m else en_text
+        woke = match_wake(en_text)              # "" = bloßes Weckwort, None = kein Weckwort
+        if woke is not None or (time.monotonic() < self.awake_until and en_text and len(en_text.split()) <= 4):
+            cmd = woke if woke is not None else en_text
             info["command"] = cmd
             log(info)
             emit("dropped", reason="befehl", id=uid)
