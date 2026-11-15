@@ -15,19 +15,49 @@ struct VoiceProfile: Identifiable, Hashable {
 enum EngineRunner {
     static func info(_ key: String) -> String? { Bundle.main.object(forInfoDictionaryKey: key) as? String }
 
+    static let helperLogURL = FileManager.default.homeDirectoryForCurrentUser
+        .appendingPathComponent("Library/Logs/Dolmetscher/helper.log")
+
+    /// stderr der Hilfsaufrufe (Profile, Mikrofonliste, Verlaufs-Export) anhängen statt verwerfen –
+    /// sonst endet ein Fehler (falsches Python, fehlendes Paket) nur in „beendet“ ohne Ursache. Ab 512 KB neu.
+    private static func helperLog(_ args: [String]) -> FileHandle? {
+        let fm = FileManager.default
+        try? fm.createDirectory(at: helperLogURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        if let size = try? fm.attributesOfItem(atPath: helperLogURL.path)[.size] as? Int, size > 512_000 {
+            try? fm.removeItem(at: helperLogURL)
+        }
+        let fd = open(helperLogURL.path, O_WRONLY | O_CREAT | O_APPEND, 0o600)
+        guard fd >= 0 else { return nil }
+        let fh = FileHandle(fileDescriptor: fd, closeOnDealloc: true)
+        let ts = ISO8601DateFormatter().string(from: Date())
+        try? fh.write(contentsOf: Data("\n=== \(ts) \(args.first ?? "")\n".utf8))   // nur die Option, keine Namen
+        return fh
+    }
+
+    /// Letzte Zeilen von helper.log (für Fehlermeldungen im Profil-Fenster).
+    static func helperLogTail(_ n: Int = 6) -> String {
+        guard let d = try? Data(contentsOf: helperLogURL) else { return "" }
+        let lines = String(decoding: d.suffix(16_384), as: UTF8.self).split(separator: "\n")
+        return lines.suffix(n).joined(separator: "\n")
+    }
+
     /// Startet dolmetscher.py; ruft onEvent für jede JSON-Zeile (Main-Thread, in Reihenfolge).
     /// `timeout`: nach so vielen Sekunden wird der Prozess beendet (nil = kein Limit, z. B. beim Aufnehmen).
-    static func run(_ args: [String], timeout: TimeInterval? = nil, onEvent: @escaping ([String: Any]) -> Void,
+    /// `request`: Profilname/Wörter als JSON-Zeile auf stdin (`--profile-stdin`) statt als Argument –
+    /// Argumente sieht jeder lokale Nutzer in der Prozessliste.
+    static func run(_ args: [String], request: [String: Any]? = nil, timeout: TimeInterval? = nil,
+                    onEvent: @escaping ([String: Any]) -> Void,
                     onExit: @escaping () -> Void = {}) -> Process? {
         guard let script = Bundle.main.path(forResource: "dolmetscher", ofType: "py") else { return nil }
         let p = Process()
         p.executableURL = URL(fileURLWithPath: Paths.python)
-        p.arguments = ["-u", script, "--json"] + args
+        p.arguments = ["-u", script, "--json"] + (request != nil ? ["--profile-stdin"] : []) + args
         p.environment = Paths.engineEnvironment()
         let out = Pipe()
         p.standardOutput = out
-        p.standardError = FileHandle.nullDevice
-        p.standardInput = Pipe()
+        p.standardError = helperLog(args) ?? FileHandle.nullDevice
+        let inp = Pipe()
+        p.standardInput = inp
         var buf = Data()
         out.fileHandleForReading.readabilityHandler = { h in
             let d = h.availableData
@@ -44,6 +74,14 @@ enum EngineRunner {
         }
         p.terminationHandler = { _ in DispatchQueue.main.async { onExit() } }
         do { try p.run() } catch { return nil }
+        if let request, var line = try? JSONSerialization.data(withJSONObject: request) {
+            line.append(0x0A)
+            let h = inp.fileHandleForWriting
+            DispatchQueue.global(qos: .userInitiated).async {
+                try? h.write(contentsOf: line)
+                try? h.close()
+            }
+        }
         if let timeout {
             let pp = p
             DispatchQueue.global().asyncAfter(deadline: .now() + timeout) {
@@ -69,6 +107,39 @@ final class ProfilesModel: ObservableObject {
     @Published var finished: VoiceProfile?
     @Published var failed: String?
     private var proc: Process?
+    /// Zähler je Aufnahme: das späte Ende einer abgebrochenen Aufnahme darf die neue nicht stören.
+    private var enrollGen = 0
+
+    /// Name so, wie die Engine ihn als Dateinamen bereinigt (profiles._safe, ungefähr): „Anna!“ == „Anna“.
+    static func normalized(_ name: String) -> String {
+        let allowed = CharacterSet.letters.union(.decimalDigits).subtracting(.nonBaseCharacters)
+            .union(CharacterSet(charactersIn: "_- "))
+        let kept = name.precomposedStringWithCanonicalMapping.unicodeScalars.filter { allowed.contains($0) }
+        return String(String.UnicodeScalarView(kept)).trimmingCharacters(in: .whitespaces).lowercased()
+    }
+
+    /// Vorhandenes Profil mit (bereinigt) gleichem Namen – wird beim Anlegen überschrieben.
+    func existing(_ name: String) -> VoiceProfile? {
+        let n = Self.normalized(name)
+        return n.isEmpty ? nil : profiles.first { Self.normalized($0.name) == n }
+    }
+
+    /// Wörter an das Vokabular eines Profils anhängen (Vorschlag nach einer Korrektur).
+    /// Liest die Profile frisch, weil `--vocab` die ganze Liste ersetzt.
+    static func appendVocab(profile name: String, words: [String], done: @escaping (Bool) -> Void) {
+        _ = EngineRunner.run(["--profiles"], timeout: 30, onEvent: { o in
+            guard o["event"] as? String == "profiles", let arr = o["profiles"] as? [[String: Any]],
+                  let p = arr.map(parse).first(where: { $0.name == name }) else { return }
+            var list = p.vocab
+            for w in words where !list.contains(where: { $0.caseInsensitiveCompare(w) == .orderedSame }) { list.append(w) }
+            let r = EngineRunner.run([], request: ["vocab": [p.name, list.joined(separator: ", ")]], timeout: 30,
+                                     onEvent: { _ in }, onExit: {
+                NotificationCenter.default.post(name: .profilesChanged, object: nil)
+                done(true)
+            })
+            if r == nil { done(false) }
+        })
+    }
 
     func reload() {
         _ = EngineRunner.run(["--profiles"], timeout: 30, onEvent: { [weak self] o in
@@ -85,11 +156,13 @@ final class ProfilesModel: ObservableObject {
     }
 
     func delete(_ p: VoiceProfile) {
-        _ = EngineRunner.run(["--delete-profile", p.name], timeout: 30, onEvent: { _ in }, onExit: { [weak self] in self?.reload() })
+        _ = EngineRunner.run([], request: ["delete_profile": p.name], timeout: 30, onEvent: { _ in },
+                             onExit: { [weak self] in self?.reload() })
     }
 
     func saveVocab(_ p: VoiceProfile, _ text: String) {
-        _ = EngineRunner.run(["--vocab", p.name, text], timeout: 30, onEvent: { _ in }, onExit: { [weak self] in self?.reload() })
+        _ = EngineRunner.run([], request: ["vocab": [p.name, text]], timeout: 30, onEvent: { _ in },
+                             onExit: { [weak self] in self?.reload() })
     }
 
     /// Thai-Profil -> Assistent auf Thai; sonst App-Sprache (Englisch, falls die App auf Thai steht).
@@ -99,12 +172,21 @@ final class ProfilesModel: ObservableObject {
     func startEnroll(name: String, lang: String, model: String, onDone: @escaping () -> Void = {}) {
         enrolling = true; enrollLang = lang; step = 0; sentence = ""; heard = ""; finished = nil; failed = nil
         hint = L.t("prep", forced)
-        proc = EngineRunner.run(["--enroll", name, "--enroll-lang", lang, "--model", model],
-                                onEvent: { [weak self] o in self?.handle(o) },
+        enrollGen += 1
+        let gen = enrollGen
+        proc = EngineRunner.run(["--model", model], request: ["enroll": name, "enroll_lang": lang],
+                                onEvent: { [weak self] o in
+                                    guard let self, self.enrollGen == gen else { return }
+                                    self.handle(o)
+                                },
                                 onExit: { [weak self] in
                                     guard let self else { return }
+                                    // Abgebrochen und schon neu gestartet: Ende der alten Aufnahme ignorieren
+                                    // (deren onDone gäbe sonst das Mikrofon mitten in der neuen Aufnahme zurück).
+                                    guard self.enrollGen == gen else { return }
                                     if self.finished == nil && self.failed == nil && self.enrolling {
-                                        self.failed = L.t("ended", self.forced)
+                                        let tail = EngineRunner.helperLogTail(3)
+                                        self.failed = L.t("ended", self.forced) + (tail.isEmpty ? "" : "\n" + tail)
                                     }
                                     self.proc = nil; self.reload()
                                     onDone()
@@ -139,6 +221,16 @@ struct ProfilesView: View {
     @State private var newLang = "th"
     @State private var vocabEdit: [String: String] = [:]
     @State private var confirmDelete: VoiceProfile?
+    /// Neues Profil trägt (bereinigt) den Namen eines vorhandenen: erst fragen, dann ersetzen.
+    @State private var confirmReplace: VoiceProfile?
+
+    private func record() {
+        let name = newName.trimmingCharacters(in: .whitespaces)
+        guard !name.isEmpty else { return }
+        m.lendMic()                      // Mikrofon freigeben (Engine bleibt geladen)
+        pm.startEnroll(name: name, lang: newLang, model: m.model, onDone: { m.returnMic() })
+        newName = ""
+    }
 
     var body: some View {
         let _ = L.sync(uiLang)
@@ -175,13 +267,10 @@ struct ProfilesView: View {
                 }.frame(width: 230)
                 Spacer()
                 Button {
-                    m.lendMic()                      // Mikrofon freigeben (Engine bleibt geladen)
-                    pm.startEnroll(name: newName.trimmingCharacters(in: .whitespaces), lang: newLang, model: m.model,
-                                   onDone: { m.returnMic() })
-                    newName = ""
+                    if let p = pm.existing(newName) { confirmReplace = p } else { record() }
                 } label: { Label(L.t("record"), systemImage: "record.circle") }
                 .buttonStyle(.borderedProminent)
-                .disabled(newName.trimmingCharacters(in: .whitespaces).isEmpty)
+                .disabled(ProfilesModel.normalized(newName).isEmpty)
             }
         }
         .padding(22)
@@ -189,6 +278,11 @@ struct ProfilesView: View {
             get: { confirmDelete != nil }, set: { if !$0 { confirmDelete = nil } })) {
             Button(L.t("delete"), role: .destructive) { if let p = confirmDelete { pm.delete(p) }; confirmDelete = nil }
             Button(L.t("cancel"), role: .cancel) { confirmDelete = nil }
+        }
+        .confirmationDialog(L.f("profile_replace", confirmReplace?.name ?? ""), isPresented: Binding(
+            get: { confirmReplace != nil }, set: { if !$0 { confirmReplace = nil } }), titleVisibility: .visible) {
+            Button(L.t("replace"), role: .destructive) { confirmReplace = nil; record() }
+            Button(L.t("cancel"), role: .cancel) { confirmReplace = nil }
         }
     }
 
@@ -210,6 +304,7 @@ struct ProfilesView: View {
                 }
                 Button(role: .destructive) { confirmDelete = p } label: { Image(systemName: "trash") }
                     .help(L.t("delete"))
+                    .accessibilityLabel(L.t("delete") + " " + p.name)
             }
             HStack {
                 TextField(L.t("vocab"), text: Binding(

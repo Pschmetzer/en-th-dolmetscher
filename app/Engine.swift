@@ -26,6 +26,8 @@ struct Utterance: Identifiable, Equatable {
     var latency: Double?         // Sekunden vom Äußerungsende bis zum ersten Ton (`speaking.latency_s`)
     var readyS: Double?          // Sekunden vom Äußerungsende bis die Übersetzung fertig ist (`utt.ready_s`)
     var partial: String?         // vorläufiger Text, solange gesprochen wird (nur Platzhalter)
+    var heard = false            // `partial` ist der fertig erkannte Originaltext (`heard`), Übersetzung folgt
+    var heardLatin: String?      // Umschrift zu `heard`
     var lp: Double?              // Erkennungs-Konfidenz (log-prob)
     var provider: String?
     var source: String?
@@ -115,6 +117,28 @@ final class EngineModel: NSObject, ObservableObject {
     @Published private(set) var micDenied = false
     /// Modell lädt seit mehr als 120 s ohne `ready`.
     @Published private(set) var loadSlow = false
+    /// Stimmprofile laut `roles`: Name des englischen Profils („ich“) bzw. nil, wenn es keins gibt.
+    @Published private(set) var rolesKnown = false
+    @Published private(set) var rolesMe: String?
+    /// Zwei-Personen-Modus ist eingeschaltet, kann aber ohne englisches Stimmprofil nicht wirken.
+    var twoPersonIneffective: Bool { twoPerson && running && rolesKnown && rolesMe == nil }
+    /// `hwprofile` (nur bei Modell „auto“): Chip, Speicher und gewählte Stufe.
+    @Published private(set) var hwInfo: String?
+    /// Protokollversion der Engine, wenn sie nicht zur App passt (nil = passt oder unbekannt).
+    @Published private(set) var protocolMismatch: Int?
+    static let protocolVersion = 1
+    @Published private(set) var engineVersion: String?
+    /// Letzter Engine-Fehler (bleibt sichtbar, bis er weggeklickt wird – der Status wird sofort überschrieben).
+    @Published var lastError: (msg: String, date: Date)?
+    /// Vorschlag nach einer Korrektur: geänderte Wörter ins Vokabular eines Stimmprofils übernehmen.
+    @Published var vocabSuggestion: (words: [String], profile: String)?
+    /// Aktives Szenario-Preset laut Engine (`preset`-Ereignis): id und englischer Name; nil = keins.
+    @Published private(set) var activePreset: (id: String, name: String)?
+    /// Anzeigename des aktiven Presets in der Oberflächensprache.
+    var activePresetName: String? {
+        guard let a = activePreset else { return nil }
+        return PresetCatalog.all.first { $0.id == a.id }?.name ?? a.name
+    }
     /// Zeilen von der Engine, die kein gültiges JSON waren (Diagnose).
     private(set) var malformedLines = 0
     let meter = LevelMeter()
@@ -125,11 +149,19 @@ final class EngineModel: NSObject, ObservableObject {
     private func push(_ d: [String: Any]) { if !applyingRemote { send(d) } }
 
     @Published var speak = ud.object(forKey: "speak") as? Bool ?? true { didSet { Self.ud.set(speak, forKey: "speak"); send(["speak": speak]) } }
-    @Published var trEN = ud.object(forKey: "trEN") as? Bool ?? true { didSet { Self.ud.set(trEN, forKey: "trEN"); send(["tr_en": trEN]) } }
-    @Published var trTH = ud.object(forKey: "trTH") as? Bool ?? true { didSet { Self.ud.set(trTH, forKey: "trTH"); send(["tr_th": trTH]) } }
-    @Published var polite = ud.string(forKey: "polite") ?? "krub" { didSet { Self.ud.set(polite, forKey: "polite"); send(["polite": polite]) } }
+    @Published var trEN = ud.object(forKey: "trEN") as? Bool ?? true { didSet { Self.ud.set(trEN, forKey: "trEN"); push(["tr_en": trEN]) } }
+    @Published var trTH = ud.object(forKey: "trTH") as? Bool ?? true { didSet { Self.ud.set(trTH, forKey: "trTH"); push(["tr_th": trTH]) } }
+    @Published var polite = ud.string(forKey: "polite") ?? "krub" { didSet { Self.ud.set(polite, forKey: "polite"); push(["polite": polite]) } }
     @Published var model = EngineModel.initialModel() { didSet { Self.ud.set(model, forKey: "model"); scheduleRestart() } }
-    @Published var lang = ud.string(forKey: "lang") ?? "auto" { didSet { Self.ud.set(lang, forKey: "lang"); send(["lang": lang]) } }
+    @Published var lang = ud.string(forKey: "lang") ?? "auto" { didSet { Self.ud.set(lang, forKey: "lang"); push(["lang": lang]) } }
+    /// Szenario-Preset (id aus presets/*.json, "" = keins). Kein Startargument: wird nach jedem `ready` gesendet.
+    @Published var preset = ud.string(forKey: "preset") ?? "" {
+        didSet { Self.ud.set(preset, forKey: "preset"); push(["preset": preset.isEmpty ? "none" : preset]) }
+    }
+    /// Gesprächsverlauf lokal speichern (Engine: history.sqlite, Standard aus).
+    @Published var history = ud.bool(forKey: "history") {
+        didSet { Self.ud.set(history, forKey: "history"); push(["history": history]) }
+    }
 
     // Stimme und Audio (live)
     @Published var rate = ud.object(forKey: "rate") as? Int ?? 0 { didSet { Self.ud.set(rate, forKey: "rate"); push(["rate": rate]) } }
@@ -195,7 +227,11 @@ final class EngineModel: NSObject, ObservableObject {
     /// Wird nach dem Speichern/Löschen des API-Schlüssels erhöht (Engine liest ihn nur beim Start).
     @Published var keyVersion = 0 { didSet { scheduleRestart() } }
     @Published var pushToTalk = ud.bool(forKey: "pushToTalk") {
-        didSet { Self.ud.set(pushToTalk, forKey: "pushToTalk"); if running { setPaused(pushToTalk) } }
+        didSet {
+            Self.ud.set(pushToTalk, forKey: "pushToTalk")
+            if running { setPaused(pushToTalk) }
+            HotKeys.shared.install(for: self)   // globales Halte-Kürzel nur im Push-to-Talk-Modus belegen
+        }
     }
 
     // Nur Stimmen, die schnell antworten (gemessen: erster Ton nach 0,4–0,7 s). Die Multilingual-Stimmen
@@ -249,7 +285,14 @@ final class EngineModel: NSObject, ObservableObject {
     private var micKnown = false
     private var canListen: Bool { engineReady && micKnown }
 
-    /// Einstellung mit Neustart geändert: kurz warten (mehrere Änderungen bündeln), dann neu starten.
+    /// Neustart wegen einer Einstellung zurückgestellt, weil gerade ein Gespräch läuft
+    /// (Mikrofon an, Übersetzung oder Ausgabe). Wird übernommen, sobald es ruhig ist, oder per Knopf.
+    @Published private(set) var restartDeferred = false
+    /// Gespräch aktiv: ein Neustart (8–19 s Laden) würde es unterbrechen.
+    private var inConversation: Bool { micOn || busy || speakingNow }
+
+    /// Einstellung mit Neustart geändert: kurz warten (mehrere Änderungen bündeln), dann neu starten –
+    /// aber nicht mitten im Gespräch.
     private func scheduleRestart() {
         restartWork?.cancel(); restartWork = nil
         guard state != .stopped else { return }
@@ -257,11 +300,19 @@ final class EngineModel: NSObject, ObservableObject {
             MainActor.assumeIsolated {
                 guard let self else { return }
                 self.restartWork = nil
-                if self.needsRestart { self.restart() }
+                guard self.needsRestart else { self.restartDeferred = false; return }
+                if self.inConversation { self.restartDeferred = true } else { self.restart() }
             }
         }
         restartWork = w
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8, execute: w)
+    }
+
+    /// Zurückgestellten Neustart ausführen, sobald nichts mehr läuft.
+    private func applyDeferredRestart() {
+        guard restartDeferred, !inConversation, !micLent else { return }
+        restartDeferred = false
+        if needsRestart { restart() }
     }
 
     override init() {
@@ -412,24 +463,52 @@ final class EngineModel: NSObject, ObservableObject {
     }
 
     /// Prozess neu starten; danach wieder im vorigen Zuhör-Zustand.
+    /// Der neue Prozess startet erst, wenn der alte beendet ist: Die Engine räumt beim Beenden geordnet auf
+    /// (Mikrofon, ffmpeg) – zwei Prozesse gleichzeitig würden um das Mikrofon und den Speicher streiten.
     func restart() {
+        guard state != .starting else { return }   // wartet schon auf das Ende des alten Prozesses
         let want = wantListen || micOn || (state == .stopped && listenBeforeCrash)
-        stopProcess()
+        restartDeferred = false
+        let old = stopProcess()
         listenBeforeCrash = false
         restartAttempts = 0
-        if want && !micLent { startListening() } else { startEngine() }
+        wantListen = want           // Stopp während des Wartens setzt das zurück
+        let go: () -> Void = { [weak self] in
+            guard let self else { return }
+            if self.wantListen && !self.micLent { self.startListening() } else { self.startEngine() }
+        }
+        guard let old, old.isRunning else { go(); return }
+        retiringProc = old
+        state = .starting              // blockiert startEngine/launchEngine, `running` ist false
+        status = L.t("restarting")
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            let end = Date().addingTimeInterval(3)   // SIGKILL kommt nach 2 s (stopProcess)
+            while old.isRunning && Date() < end { usleep(50_000) }
+            if old.isRunning { kill(old.processIdentifier, SIGKILL) }
+            DispatchQueue.main.async {
+                MainActor.assumeIsolated {
+                    guard let self, self.retiringProc === old else { return }
+                    self.retiringProc = nil
+                    self.state = .stopped
+                    go()
+                }
+            }
+        }
     }
+
+    /// Alter Prozess, auf dessen Ende ein Neustart wartet (beim Beenden der App mit abräumen).
+    private var retiringProc: Process?
 
     /// Beim Beenden der App: Prozess beenden und kurz warten; reagiert er nicht, SIGKILL
     /// (sonst bliebe ein verwaister Python-Prozess mit Modellen im Speicher zurück).
     func shutdown() {
         flushGlossary()
-        let p = proc
-        stopProcess()
-        guard let p else { return }
+        let ps = [stopProcess(), retiringProc].compactMap { $0 }
+        retiringProc = nil
+        guard !ps.isEmpty else { return }
         let end = Date().addingTimeInterval(2)
-        while p.isRunning && Date() < end { usleep(50_000) }
-        if p.isRunning { kill(p.processIdentifier, SIGKILL) }
+        while ps.contains(where: \.isRunning) && Date() < end { usleep(50_000) }
+        for p in ps where p.isRunning { kill(p.processIdentifier, SIGKILL) }
     }
 
     /// Systemeinstellungen → Datenschutz → Mikrofon.
@@ -474,6 +553,7 @@ final class EngineModel: NSObject, ObservableObject {
         if !voiceTH.isEmpty { args += ["--voice-th", voiceTH] }
         if llm { args.append("--llm") }
         if earcons { args.append("--earcons") }
+        if history { args.append("--history") }
         return args
     }
 
@@ -529,14 +609,24 @@ final class EngineModel: NSObject, ObservableObject {
         p.standardError = Self.prepareLog() ?? FileHandle.nullDevice
         buffer = Data()
         resetRuntime()
-        // Alles über die serielle Main-Queue: Ereignisse kommen in Reihenfolge an,
-        // und das Prozessende überholt die letzten Zeilen nicht.
-        out.fileHandleForReading.readabilityHandler = { [weak self, weak p] h in
+        // Lese- und Ende-Handler laufen auf verschiedenen Hintergrund-Queues: das Prozessende kann die
+        // letzten Zeilen (z. B. das `error` kurz vor einem Absturz) überholen. Deshalb wird das Ende erst
+        // verarbeitet, wenn auch stdout zu ist (EOF reiht sich auf Main hinter alle Daten-Blöcke ein);
+        // erbt ein Kindprozess stdout, gilt das Ende nach 1,5 s trotzdem.
+        launchGen &+= 1
+        let gen = launchGen
+        endExit = nil; endStdoutClosed = false
+        restartDeferred = false
+        out.fileHandleForReading.readabilityHandler = { [weak self] h in
             let d = h.availableData
-            if d.isEmpty { h.readabilityHandler = nil; return }
+            if d.isEmpty {
+                h.readabilityHandler = nil
+                DispatchQueue.main.async { MainActor.assumeIsolated { self?.endPart(gen, stdoutClosed: true) } }
+                return
+            }
             DispatchQueue.main.async {
                 MainActor.assumeIsolated {
-                    guard let self, let p, self.proc === p else { return }
+                    guard let self, self.launchGen == gen, self.proc != nil else { return }
                     self.consume(d)
                 }
             }
@@ -545,8 +635,11 @@ final class EngineModel: NSObject, ObservableObject {
             let code = ended.terminationStatus, reason = ended.terminationReason
             DispatchQueue.main.async {
                 MainActor.assumeIsolated {
-                    guard let self, self.proc === ended else { return }   // nur der aktuelle Prozess, nicht nach Stopp
-                    self.engineEnded(code: code, reason: reason)
+                    guard let self else { return }
+                    self.endPart(gen, exited: (code, reason))
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+                        MainActor.assumeIsolated { self?.endPart(gen, stdoutClosed: true) }
+                    }
                 }
             }
         }
@@ -576,6 +669,22 @@ final class EngineModel: NSObject, ObservableObject {
         }
         loadSlowWork = w
         DispatchQueue.main.asyncAfter(deadline: .now() + 120, execute: w)
+    }
+
+    /// Zähler je Prozessstart: späte Rückmeldungen eines alten Prozesses werden daran erkannt.
+    private var launchGen = 0
+    private var endExit: (code: Int32, reason: Process.TerminationReason)?
+    private var endStdoutClosed = false
+
+    /// Prozessende erst verarbeiten, wenn Exit-Status *und* stdout-Ende (oder die Frist) da sind.
+    private func endPart(_ gen: Int, exited: (Int32, Process.TerminationReason)? = nil, stdoutClosed: Bool = false) {
+        guard gen == launchGen, proc != nil else { return }   // alter Start oder gewollter Stopp
+        if let exited { endExit = exited }
+        if stdoutClosed { endStdoutClosed = true }
+        guard let e = endExit, endStdoutClosed else { return }
+        endExit = nil; endStdoutClosed = false
+        if !buffer.isEmpty { consume(Data([0x0A])) }   // letzte Zeile ohne Zeilenende
+        engineEnded(code: e.code, reason: e.reason)
     }
 
     /// Unerwartetes Ende (`listen: false` beendet den Prozess nicht – kommt hier also nicht an).
@@ -620,6 +729,21 @@ final class EngineModel: NSObject, ObservableObject {
         Announcer.post(message, force: true)
     }
 
+    /// Solange zugehört wird: kein System-Ruhezustand und kein App Nap (Gespräch am Tisch, Fenster verdeckt).
+    /// Der Bildschirm darf aus, außer die Partner-Ansicht ist offen (die Partnerin liest mit).
+    private var awakeToken: NSObjectProtocol?
+    private var awakeDisplay = false
+    func keepAwake(_ on: Bool) {
+        let display = on && NSApp.windows.contains { $0.identifier == Prefs.partnerWindowID && $0.isVisible }
+        if on, awakeToken != nil, display == awakeDisplay { return }
+        if let t = awakeToken { ProcessInfo.processInfo.endActivity(t); awakeToken = nil }
+        guard on else { return }
+        var opts: ProcessInfo.ActivityOptions = [.userInitiated, .idleSystemSleepDisabled]
+        if display { opts.insert(.idleDisplaySleepDisabled) }
+        awakeToken = ProcessInfo.processInfo.beginActivity(options: opts, reason: "Dolmetscher hört zu")
+        awakeDisplay = display
+    }
+
     /// Laufzeitzustand zurücksetzen (Start, Stopp, Absturz) – sonst bleibt z. B. „busy“ hängen.
     private func resetRuntime() {
         pendingIDs.removeAll(); speakingIDs.removeAll()
@@ -629,14 +753,18 @@ final class EngineModel: NSObject, ObservableObject {
         llmActive = false
         llmCostUSD = 0
         meter.reset()
+        keepAwake(false)
         pttWork?.cancel(); pttWork = nil
         for w in hearingTimers.values { w.cancel() }
         hearingTimers.removeAll()
+        rolesKnown = false; rolesMe = nil
+        activePreset = nil
     }
 
     /// Prozess beenden (Neustart, App-Ende). Der Zuhör-Wunsch bleibt – `restart()` braucht ihn.
     /// Reagiert die Engine nicht auf SIGTERM, folgt nach 2 s SIGKILL.
-    private func stopProcess() {
+    @discardableResult
+    private func stopProcess() -> Process? {
         let p = proc
         proc = nil          // vor terminate(): der terminationHandler erkennt so einen gewollten Stopp
         stdin = nil
@@ -659,6 +787,7 @@ final class EngineModel: NSObject, ObservableObject {
         buffer = Data()
         resetRuntime()
         status = L.t("stopped")
+        return p
     }
 
     /// Status, wenn das Mikrofon aus ist.
@@ -751,6 +880,11 @@ final class EngineModel: NSObject, ObservableObject {
             engineReady = true
             loadSlowWork?.cancel(); loadSlowWork = nil; loadSlow = false
             llmActive = o["llm"] as? Bool ?? false
+            engineVersion = o["engine_version"] as? String
+            // Fehlt `protocol`, ist es eine ältere Engine (vor dem Handshake) – das ist kein Fehler.
+            if let pv = (o["protocol"] as? NSNumber)?.intValue, pv != Self.protocolVersion { protocolMismatch = pv }
+            else { protocolMismatch = nil }
+            if !preset.isEmpty { send(["preset": preset]) }
             if pushToTalk && !pttHolding { setPaused(true) }
             if wantListen && !micLent {
                 if canListen { send(["listen": true]) }   // sonst beim ersten `mic`-Ereignis
@@ -760,10 +894,16 @@ final class EngineModel: NSObject, ObservableObject {
                 status = restingStatus
             }
         case "mic":
+            if o["reconnecting"] as? Bool == true {   // Gerät weg, Engine verbindet neu – Zuhör-Zustand bleibt
+                let n = (o["attempt"] as? NSNumber)?.intValue ?? 1
+                status = L.f("mic_reconnecting", n, 5)
+                break
+            }
             let on = o["on"] as? Bool ?? false
             let first = !micKnown
             micKnown = true
             micOn = on
+            keepAwake(on)
             if first && !on && wantListen && !micLent {
                 // Start wurde während des Ladens gedrückt: jetzt erst kann die Engine `listen` annehmen.
                 if engineReady { send(["listen": true]); status = L.t("starting") }
@@ -777,6 +917,7 @@ final class EngineModel: NSObject, ObservableObject {
                 pttWork?.cancel(); pttWork = nil; pttHolding = false
             }
             if !speakingNow { status = idleStatus }
+            if !on { applyDeferredRestart() }
         case "listening":   // ändert den Sprech-Status nicht
             if id == nil { pendingIDs.remove("?") }   // ältere Engine ohne ids
             if !speakingNow { status = idleStatus }
@@ -787,9 +928,21 @@ final class EngineModel: NSObject, ObservableObject {
             guard let id else { break }
             touchPlaceholder(id)
             let text = (o["text"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-            if let i = index(of: id), items[i].pending, !text.isEmpty {
+            if let i = index(of: id), items[i].pending, !items[i].heard, !text.isEmpty {
                 items[i].partial = text
                 if let l = o["lang"] as? String { items[i].lang = l }
+            }
+        case "heard":   // fertig erkannter Originaltext vor der Übersetzung (gleiche id wie das folgende `utt`)
+            guard let id else { break }
+            let text = (o["text"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !text.isEmpty else { break }
+            if let i = index(of: id), !items[i].pending { break }   // `utt` ist schon da
+            touchPlaceholder(id)
+            if let i = index(of: id) {
+                if let l = o["lang"] as? String { items[i].lang = l }
+                items[i].partial = text
+                items[i].heard = true
+                items[i].heardLatin = (o["text_latin"] as? String) ?? Translit.latin(text)
             }
         case "thinking":
             let key = id ?? "?"
@@ -814,6 +967,7 @@ final class EngineModel: NSObject, ObservableObject {
             speakingIDs.remove(id ?? "?")
             if o["skipped"] as? Bool == true, let i = index(of: id) { items[i].skipped = true }
             if !speakingNow { status = idleStatus }
+            applyDeferredRestart()
         case "queue":
             backlogSTT = o["stt"] as? Int ?? 0
             backlogTTS = o["tts"] as? Int ?? 0
@@ -827,6 +981,7 @@ final class EngineModel: NSObject, ObservableObject {
         case "error":
             let msg = o["msg"] as? String ?? L.t("error_generic")
             status = "⚠️ " + msg
+            lastError = (msg, Date())
             Announcer.post(msg, force: true)
         case "command": applyCommand(o)
         case "dropped":
@@ -838,9 +993,27 @@ final class EngineModel: NSObject, ObservableObject {
                 pendingIDs.remove("?")
             }
             if replayPausedEngine { break }   // Echo der eigenen Wiedergabe verworfen – Status nicht ändern
+            defer { applyDeferredRestart() }
             if speakingNow { break }
             status = paused ? Self.pausedText : L.t("dropped")
-        case "utt": addUtterance(o, id: id)
+        case "utt":
+            addUtterance(o, id: id)
+            applyDeferredRestart()
+        case "roles":
+            rolesKnown = true
+            rolesMe = o["me"] as? String
+        case "hwprofile":
+            let chip = o["chip"] as? String ?? "?"
+            let ram = (o["ram_gb"] as? NSNumber)?.doubleValue ?? 0
+            let mdl = o["model"] as? String ?? "?"
+            let beam = (o["beam"] as? NSNumber)?.intValue ?? 1
+            hwInfo = L.f("hw_info", chip, Int(ram.rounded()), mdl, beam)
+        case "preset":
+            let pid = o["id"] as? String
+            activePreset = pid.map { ($0, o["name"] as? String ?? $0) }
+            applyingRemote = true   // Sprachbefehl „Translator, preset taxi“: Auswahl übernehmen, nicht zurückschicken
+            if (pid ?? "") != preset { preset = pid ?? "" }
+            applyingRemote = false
         case "llm_cost": llmCostUSD = (o["usd"] as? NSNumber)?.doubleValue ?? llmCostUSD
         default: break
         }
@@ -883,6 +1056,13 @@ final class EngineModel: NSObject, ObservableObject {
         // Beim Ersetzen bleibt die Blasen-id erhalten: die Liste behält ihre Position (kein Scroll-Sprung).
         if let old = o["replaces"] as? String, let i = index(of: old) {
             u.id = items[i].id
+            u.date = items[i].date
+            if u.speaker == nil { u.speaker = items[i].speaker }
+            // Korrektur: geänderte Wörter als Vokabular vorschlagen (nur fragen, nie automatisch speichern)
+            if let sv = o["suggest_vocab"] as? [String], !sv.isEmpty,
+               let target = items[i].speaker ?? (l == "en" ? rolesMe : nil) {
+                vocabSuggestion = (Array(sv.prefix(10)), target)
+            }
             items[i] = u
             if let id { items.removeAll { $0.pending && $0.uid == id } }
         } else if let id, let i = items.lastIndex(where: { $0.pending && $0.uid == id }) {
@@ -976,7 +1156,7 @@ final class EngineModel: NSObject, ObservableObject {
     @Published private(set) var pttHolding = false
 
     func pttDown() {
-        guard running, micOn, !pttHolding else { return }
+        guard pushToTalk, running, micOn, !pttHolding else { return }   // sonst höbe es eine eigene Pause auf
         pttHolding = true
         pttWork?.cancel(); pttWork = nil
         setPaused(false)
@@ -1012,8 +1192,16 @@ final class EngineModel: NSObject, ObservableObject {
         synth.delegate = self
         resumeWork?.cancel(); resumeWork = nil
         if synth.isSpeaking { synth.stopSpeaking(at: .immediate) }
+        if speakingNow { send(["stop_speaking": true]) }   // sonst sprechen Engine und Wiedergabe gleichzeitig
         let s = AVSpeechUtterance(string: u.out)
-        s.voice = AVSpeechSynthesisVoice(language: u.to == "th" ? "th-TH" : "en-US")
+        let code = u.to == "th" ? "th-TH" : "en-US"
+        guard let voice = AVSpeechSynthesisVoice(language: code) else {
+            // Ohne installierte Stimme spräche AVSpeech Thai mit einer fremden Stimme (Stille oder Unsinn).
+            status = L.t(u.to == "th" ? "no_thai_voice" : "no_voice")
+            Announcer.post(status, force: true)
+            return
+        }
+        s.voice = voice
         s.rate = AVSpeechUtteranceDefaultSpeechRate * 0.95
         if running && micOn && !paused && !replayPausedEngine {
             send(["paused": true]); replayPausedEngine = true
@@ -1050,7 +1238,7 @@ final class EngineModel: NSObject, ObservableObject {
         silence = 0.8; sensitivity = "normal"; earcons = false; llmStyle = "casual"; llm = true
         ttsRace = 1.4; fastEndpoint = false; twoPerson = true; partialText = false
         llmModel = "claude-haiku-5-5"; mic = ""; micName = ""; denoise = false; logText = false
-        pushToTalk = false; model = "medium"
+        pushToTalk = false; model = "medium"; preset = ""; history = false
         for k in Prefs.resettableKeys { Self.ud.removeObject(forKey: k) }
         Self.ud.set(L.defaultCode, forKey: L.key)
         L.sync(L.defaultCode)

@@ -16,6 +16,7 @@ enum Prefs {
     static let fontRange = 0.6...2.5
     /// Kennung des Hauptfensters (Leertaste-Kürzel, Scroll-Überwachung).
     static let mainWindowID = NSUserInterfaceItemIdentifier("dolmetscher.main")
+    static let partnerWindowID = NSUserInterfaceItemIdentifier("dolmetscher.partner")
     /// Schlüssel, die „Alle Einstellungen zurücksetzen“ löscht (Willkommensseite und Sprache bleiben bzw. werden gesetzt).
     static let resettableKeys = [fontScale, alwaysOnTop, showDetails, translit, showQuick, quickPhrases,
                                  showMenuBar, spaceToggle, announce]
@@ -139,6 +140,24 @@ struct ContentView: View {
             Divider()
             if m.micDenied { MicDeniedBanner() }
             if let log = m.crashLog { CrashBanner(log: log) }
+            if let pv = m.protocolMismatch {
+                NoticeBanner(icon: "exclamationmark.triangle.fill", tint: .red,
+                             text: L.f("protocol_mismatch", pv, EngineModel.protocolVersion))
+            }
+            if m.restartDeferred && m.needsRestart {
+                NoticeBanner(icon: "arrow.clockwise.circle", tint: LangStyle.warning, text: L.t("restart_deferred"),
+                             action: (L.t("reload_now"), { m.restart() }))
+            }
+            if let e = m.lastError {
+                NoticeBanner(icon: "exclamationmark.circle.fill", tint: LangStyle.warning,
+                             text: e.date.formatted(date: .omitted, time: .standard) + " · " + e.msg,
+                             action: (L.t("show_log"), { openLog() }), onClose: { m.lastError = nil })
+            }
+            if let v = m.vocabSuggestion { VocabSuggestionBanner(words: v.words, profile: v.profile) }
+            if m.twoPersonIneffective {
+                NoticeBanner(icon: "person.2.slash", tint: LangStyle.warning, text: L.t("two_person_no_profile"),
+                             action: (L.t("profiles"), { showProfiles = true }))
+            }
             if searchOpen || filtering || m.items.count > 5 { searchBar }
             conversation
             if m.pushToTalk && m.micOn { PushToTalkButton().padding(14) }
@@ -162,6 +181,7 @@ struct ContentView: View {
         }
         .onDisappear { if let t = scrollBox.token { NSEvent.removeMonitor(t); scrollBox.token = nil } }
         .onReceive(NotificationCenter.default.publisher(for: .showTips)) { _ in showTips = true }
+        .onReceive(NotificationCenter.default.publisher(for: .showProfiles)) { _ in showProfiles = true }
         .onReceive(NotificationCenter.default.publisher(for: .focusSearch)) { _ in
             searchOpen = true
             DispatchQueue.main.async { searchFocused = true }
@@ -421,6 +441,7 @@ struct MainToolbar: View {
             .popover(isPresented: $showCommands, arrowEdge: .bottom) {
                 CommandsList().padding(20).frame(minWidth: 520)
             }
+        if !PresetCatalog.all.isEmpty { PresetMenu() }
         Button { showProfiles = true } label: { Label(L.t("profiles"), systemImage: "person.crop.circle.badge.plus") }
             .help(L.t("profiles"))
             .accessibilityLabel(L.t("profiles"))
@@ -439,10 +460,7 @@ struct MainToolbar: View {
             Button(L.t("find") + " (⌘F)") { NotificationCenter.default.post(name: .focusSearch, object: nil) }
             Button(L.t("export") + " (⇧⌘E)") { exportConversation(m) }.disabled(m.items.isEmpty)
             Button(L.t("clear")) { confirmClear = true }.disabled(m.items.isEmpty)
-            Button(L.t("open_log")) {
-                NSWorkspace.shared.activateFileViewerSelecting([FileManager.default.homeDirectoryForCurrentUser
-                    .appendingPathComponent("Library/Logs/Dolmetscher/engine.log")])
-            }
+            Button(L.t("open_log")) { openLog() }
         } label: { Image(systemName: "ellipsis.circle") }
             .menuStyle(.borderlessButton).fixedSize()
             .help(L.t("more"))
@@ -450,6 +468,26 @@ struct MainToolbar: View {
         SettingsLink { Image(systemName: "gearshape") }
             .help(L.t("settings") + " (⌘,)")
             .accessibilityLabel(L.t("settings"))
+    }
+}
+
+/// Szenario-Preset wählen (Stil, Glossar, Schnellsätze für Hotel, Taxi, Arzt …).
+struct PresetMenu: View {
+    @EnvironmentObject var m: EngineModel
+    var body: some View {
+        Menu {
+            Picker(L.t("preset"), selection: $m.preset) {
+                Text(L.t("preset_none")).tag("")
+                ForEach(PresetCatalog.all) { Text($0.name).tag($0.id) }
+            }
+            .pickerStyle(.inline)
+        } label: {
+            Label(m.activePresetName ?? L.t("preset"), systemImage: "theatermasks")
+        }
+        .menuStyle(.borderlessButton).fixedSize()
+        .help(L.t("preset_help"))
+        .accessibilityLabel(L.t("preset"))
+        .accessibilityValue(m.activePresetName ?? L.t("preset_none"))
     }
 }
 
@@ -570,6 +608,16 @@ struct QuickPhraseBar: View {
                     .buttonStyle(.bordered)
                     .help(L.t("phrase_add_help"))
                     .accessibilityLabel(L.t("phrase_add_help"))
+                if let pr = PresetCatalog.all.first(where: { $0.id == m.preset }), m.activePreset != nil {
+                    ForEach(Array(pr.phrases.enumerated()), id: \.offset) { _, ph in
+                        Button(ph.en) { m.say(ph.en, lang: "en") }
+                            .buttonStyle(.bordered).tint(.accentColor)
+                            .disabled(!m.running)
+                            .help(ph.th)
+                            .accessibilityHint(L.t("preset_phrase_help"))
+                    }
+                    Divider().frame(height: 18)
+                }
                 ForEach(Array(phrases.enumerated()), id: \.offset) { i, p in
                     Button(p) { m.say(p, lang: Prefs.phraseLang(p)) }
                         .buttonStyle(.bordered)
@@ -614,6 +662,67 @@ struct PushToTalkButton: View {
             .accessibilityValue(holding ? L.t("talking") : "")
             .accessibilityAddTraits(.isButton)
             .accessibilityAction { if m.pttHolding { m.pttUp() } else { m.pttDown() } }
+    }
+}
+
+/// Engine-Log im Finder zeigen: engine.log (Ereignisse), sonst stderr.log, sonst den Log-Ordner
+/// (gibt es noch keine Datei, passierte vorher beim Klick gar nichts).
+@MainActor func openLog() {
+    let dir = EngineModel.logURL.deletingLastPathComponent()
+    let fm = FileManager.default
+    if let f = [dir.appendingPathComponent("engine.log"), EngineModel.logURL].first(where: { fm.fileExists(atPath: $0.path) }) {
+        NSWorkspace.shared.activateFileViewerSelecting([f])
+    } else {
+        try? fm.createDirectory(at: dir, withIntermediateDirectories: true)
+        NSWorkspace.shared.open(dir)
+    }
+}
+
+/// Schmaler Hinweis unter der Kopfzeile, optional mit einem Knopf und Schließen-Kreuz.
+struct NoticeBanner: View {
+    let icon: String
+    let tint: Color
+    let text: String
+    var action: (String, () -> Void)? = nil
+    var onClose: (() -> Void)? = nil
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon).foregroundStyle(tint).accessibilityHidden(true)
+            Text(text).font(.callout).fixedSize(horizontal: false, vertical: true).textSelection(.enabled)
+            Spacer(minLength: 8)
+            if let action { Button(action.0, action: action.1) }
+            if let onClose {
+                Button(action: onClose) { Image(systemName: "xmark") }
+                    .buttonStyle(.borderless)
+                    .help(L.t("hide")).accessibilityLabel(L.t("hide"))
+            }
+        }
+        .padding(.horizontal, 14).padding(.vertical, 8)
+        .background(tint.opacity(0.1))
+        .accessibilityElement(children: .contain)
+    }
+}
+
+/// Nach einer Korrektur: geänderte Wörter ins Vokabular des Stimmprofils übernehmen? (Engine schlägt nur vor.)
+struct VocabSuggestionBanner: View {
+    @EnvironmentObject var m: EngineModel
+    let words: [String]
+    let profile: String
+    @State private var saving = false
+
+    var body: some View {
+        NoticeBanner(icon: "text.badge.plus", tint: .accentColor,
+                     text: L.f("vocab_suggest", words.joined(separator: ", "), profile),
+                     action: (saving ? L.t("saving") : L.t("add"), {
+                        guard !saving else { return }
+                        saving = true
+                        ProfilesModel.appendVocab(profile: profile, words: words) { _ in
+                            saving = false
+                            m.vocabSuggestion = nil
+                        }
+                     }),
+                     onClose: { m.vocabSuggestion = nil })
     }
 }
 
@@ -697,4 +806,5 @@ struct TipsSheet: View {
 extension Notification.Name {
     static let showTips = Notification.Name("DolmetscherShowTips")
     static let focusSearch = Notification.Name("DolmetscherFocusSearch")
+    static let showProfiles = Notification.Name("DolmetscherShowProfiles")
 }

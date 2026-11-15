@@ -159,7 +159,9 @@ extension EngineModel {
         let settings = "Einstellungen: model=\(model), claude=\(llm) (\(llmModel)), lang=\(lang), ui=\(L.lang.rawValue), "
             + "mic=\(micText), denoise=\(denoise), zweiPersonen=\(twoPerson), logText=\(logText)"
         let engine = "Engine: state=\(state), ready=\(engineReady), neustarts=\(restartAttempts), "
-            + "ungültige Zeilen=\(malformedLines), langsamerStart=\(loadSlow)"
+            + "ungültige Zeilen=\(malformedLines), langsamerStart=\(loadSlow), "
+            + "version=\(engineVersion ?? "?"), protokollAbweichung=\(protocolMismatch.map(String.init) ?? "nein"), "
+            + "preset=\(preset.isEmpty ? "-" : preset), verlauf=\(history)" + (hwInfo.map { ", hw=\($0)" } ?? "")
         var lines: [String] = [ver]
         lines.append("macOS \(ProcessInfo.processInfo.operatingSystemVersionString), \(arch)")
         lines.append("Python: \(redact(Paths.python))" + (Paths.pythonIsFallback ? " (Ersatz, venv fehlt)" : "") + " – \(pyText)")

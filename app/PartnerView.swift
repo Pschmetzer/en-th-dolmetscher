@@ -112,13 +112,39 @@ struct PartnerView: View {
         .frame(minWidth: 480, minHeight: 320)
         .background(WindowAccessor { w in
             if window !== w {
+                w.identifier = Prefs.partnerWindowID
                 w.collectionBehavior.insert(.fullScreenPrimary)
                 w.backgroundColor = .black
                 window = w
             }
         })
+        // Bildschirm wachhalten, solange die Partnerin mitliest und zugehört wird
+        .onAppear { DispatchQueue.main.async { m.keepAwake(m.micOn) } }
+        .onDisappear { DispatchQueue.main.async { m.keepAwake(m.micOn) } }
+        .overlay(alignment: .bottom) { pendingLine }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)) { _ in
             screenCount = NSScreen.screens.count
+        }
+    }
+
+    /// Neuer Satz wird gerade erkannt/übersetzt: Originaltext (bzw. Teiltext) abgeblendet unten zeigen,
+    /// damit die alte Übersetzung nicht wie die Antwort auf den neuen Satz wirkt.
+    @ViewBuilder private var pendingLine: some View {
+        if m.running, let u = m.items.last, u.pending {
+            HStack(spacing: 12) {
+                ProgressView().controlSize(.small).tint(.gray)
+                if let p = u.partial, !p.isEmpty {
+                    Text(LangStyle.flag(u.lang) + "  " + p)
+                        .font(.system(size: 28, weight: .medium))
+                        .foregroundStyle(LangStyle.onBlack(u.lang).opacity(u.heard ? 0.8 : 0.55))
+                        .lineLimit(2).minimumScaleFactor(0.5)
+                } else {
+                    Text("…").font(.system(size: 28, weight: .bold)).foregroundStyle(.gray)
+                }
+            }
+            .padding(.horizontal, 32).padding(.bottom, 18)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(L.t("translating_placeholder"))
         }
     }
 

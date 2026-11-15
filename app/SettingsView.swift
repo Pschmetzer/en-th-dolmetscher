@@ -57,19 +57,24 @@ private struct GeneralSettings: View {
             }
             Section {
                 Picker(L.t("model_label"), selection: $m.model) {
+                    Text(L.t("model_auto")).tag("auto")
                     Text(L.t("model_small")).tag("small")
                     Text(L.t("model_medium")).tag("medium")
                     Text(L.t("model_best")).tag("best")
                 }
                 .accessibilityLabel(L.t("model_label"))
             } header: { Text(L.t("model_header")) } footer: {
-                Text(L.t("model_footer") + " " + L.t("restart_note"))
-                    .foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(L.t("model_footer") + " " + L.t("restart_note"))
+                    if m.model == "auto", let hw = m.hwInfo { Text(hw) }
+                }
+                .foregroundStyle(.secondary)
             }
             MicSection()
             RecognitionSection()
             Section {
                 Toggle(L.t("push_to_talk"), isOn: $m.pushToTalk)
+                    .help(L.t("push_to_talk_help"))
                 Toggle(L.t("earcons"), isOn: $m.earcons)
                 Toggle(isOn: $m.logText) {
                     VStack(alignment: .leading) { Text(L.t("log_text")); RestartNote() }
@@ -92,9 +97,62 @@ private struct GeneralSettings: View {
                 Toggle(L.t("announce_toggle"), isOn: $announce)
                     .help(L.t("announce_help"))
             }
+            HistorySection()
             MaintenanceSection()
         }
         .formStyle(.grouped)
+    }
+}
+
+/// Gesprächsverlauf (lokal, Standard aus): an/aus, exportieren, löschen. Die Engine schreibt und exportiert.
+private struct HistorySection: View {
+    @EnvironmentObject var m: EngineModel
+    @State private var confirmClear = false
+    @State private var note = ""
+    private static let formats = ["md", "csv", "srt", "vtt", "json", "anki"]
+
+    var body: some View {
+        Section {
+            Toggle(L.t("history"), isOn: $m.history)
+            HStack {
+                Menu(L.t("history_export")) {
+                    ForEach(Self.formats, id: \.self) { f in
+                        Button(f == "anki" ? "Anki (TSV)" : f.uppercased()) { export(f) }
+                    }
+                }
+                .fixedSize()
+                Button(L.t("history_clear"), role: .destructive) { confirmClear = true }
+                Spacer()
+                if !note.isEmpty { Text(note).font(.caption).foregroundStyle(.secondary) }
+            }
+        } header: { Text(L.t("history_header")) } footer: {
+            Text(L.t("history_footer")).foregroundStyle(.secondary)
+        }
+        .confirmationDialog(L.t("history_clear_confirm"), isPresented: $confirmClear, titleVisibility: .visible) {
+            Button(L.t("clear"), role: .destructive) {
+                note = ""
+                _ = EngineRunner.run(["--history-clear"], timeout: 30, onEvent: { _ in }, onExit: { note = L.t("done_short") })
+            }
+            Button(L.t("cancel"), role: .cancel) {}
+        }
+    }
+
+    private func export(_ fmt: String) {
+        let panel = NSSavePanel()
+        let ext = fmt == "anki" ? "txt" : fmt
+        panel.nameFieldStringValue = "Dolmetscher-history." + ext
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        note = ""
+        let started = EngineRunner.run(["--history-export", fmt, "--out", url.path], timeout: 60, onEvent: { _ in },
+                                       onExit: {
+            if FileManager.default.fileExists(atPath: url.path) {
+                note = L.t("done_short")
+                NSWorkspace.shared.activateFileViewerSelecting([url])
+            } else {
+                note = L.t("export_failed")
+            }
+        })
+        if started == nil { note = L.t("export_failed") }
     }
 }
 
@@ -311,12 +369,23 @@ private struct TranslationSettings: View {
                 }
                 Picker(selection: $m.llmModel) {
                     ForEach(EngineModel.llmModels, id: \.self) { Text($0).tag($0) }
+                    if !EngineModel.llmModels.contains(m.llmModel) { Text(m.llmModel).tag(m.llmModel) }
                 } label: {
                     VStack(alignment: .leading) { Text(L.t("llm_model")); RestartNote() }
                 }
                 .accessibilityLabel(L.t("llm_model"))
                 Picker(L.t("style"), selection: $m.llmStyle) {
                     ForEach(["casual", "neutral", "polite"], id: \.self) { Text(L.t("style_" + $0)).tag($0) }
+                }
+                if !PresetCatalog.all.isEmpty {
+                    Picker(L.t("preset"), selection: $m.preset) {
+                        Text(L.t("preset_none")).tag("")
+                        ForEach(PresetCatalog.all) { Text($0.name).tag($0.id) }
+                        if !m.preset.isEmpty && !PresetCatalog.all.contains(where: { $0.id == m.preset }) {
+                            Text(m.preset).tag(m.preset)
+                        }
+                    }
+                    .help(L.t("preset_help"))
                 }
                 if m.llmCostUSD > 0 {
                     LabeledContent(L.t("llm_cost"), value: String(format: "≈ $%.3f", m.llmCostUSD))
