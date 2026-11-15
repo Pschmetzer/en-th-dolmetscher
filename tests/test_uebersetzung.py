@@ -11,6 +11,7 @@ def _iso(monkeypatch):
     monkeypatch.setattr(d, "_CACHE", d.collections.OrderedDict())
     monkeypatch.setitem(d.LLM, "on", False)
     monkeypatch.setattr(d, "GLOSSARY", [])
+    monkeypatch.setattr(d, "_GLOSSARY_OWN", None)
     monkeypatch.setattr(d, "emit", lambda ev, **kw: None)
 
 
@@ -25,7 +26,8 @@ def _google_echo(seen, answer=None):
 
 # ---- 555 -----------------------------------------------------------------------------------------
 
-@pytest.mark.parametrize("text", ["ราคา 555 บาท", "ห้อง 555", "เที่ยวบิน 555 ช้า", "เบอร์ 555 นะ", "1,555 บาท"])
+@pytest.mark.parametrize("text", ["ราคา 555 บาท", "ห้อง 555", "เที่ยวบิน 555 ช้า", "เบอร์ 555 นะ", "1,555 บาท",
+                                  "โทรมา 081-555-1234", "โทรมา 081 555 1234"])
 def test_555_as_number_is_kept(monkeypatch, text):
     seen = []
     monkeypatch.setattr(d, "_get_json", _google_echo(seen, lambda q: "Price 555 baht"))
@@ -400,3 +402,26 @@ def test_hedge_default_depends_on_model(monkeypatch):
     fast = d._hedge_s()
     monkeypatch.setitem(d.LLM, "model", "claude-opus-5-5")
     assert d._hedge_s() > fast
+
+
+def test_preset_glossary_stays_claude_only(tmp_path, monkeypatch):
+    monkeypatch.setattr(d, "GLOSSARY_FILE", str(tmp_path / "g.txt"))
+    d.load_glossary("Nok => น้อก")
+    d.GLOSSARY.append(("room", "ห้อง"))                     # so hängt PresetState Preset-Wörter an
+    seen = []
+    monkeypatch.setattr(d, "_get_json", _google_echo(seen, lambda q: "Where is the bathroom?"))
+    d.translate("ห้องน้ำอยู่ไหน", "th", "en")
+    assert seen == ["ห้องน้ำอยู่ไหน"]
+    assert d.glossary_hits("room service") == [("room", "ห้อง")]  # Claude bekommt es weiter
+
+
+def test_claude_real_apology_kept():
+    assert d._check_llm("ขอโทษนะ ช่วยหน่อยได้ไหม", "Sorry, can you help me?", "en") == "Sorry, can you help me?"
+    with pytest.raises(d._Implausible):
+        d._check_llm("ขอโทษนะ", "I'm sorry, but I can't translate that.", "en")
+
+
+def test_split_sentences_keeps_abbreviations():
+    s = "Mr. Smith and Dr. Brown are waiting in the lobby downstairs. They want to talk about the room."
+    parts = d.split_sentences(s, "en")
+    assert parts[0].startswith("Mr. Smith and Dr. Brown") and len(parts) == 2

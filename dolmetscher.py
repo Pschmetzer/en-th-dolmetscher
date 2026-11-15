@@ -494,8 +494,8 @@ class _Implausible(ValueError):
 
 
 _LLM_PREFIX = re.compile(r"^\s*(?:translation|übersetzung|thai|english|คำแปล)\s*:\s*", re.I)
-_LLM_REFUSAL = re.compile(r"^\W*(?:i'?m sorry|i am sorry|sorry|i can(?:no|'|’)t|i cannot|i'?m unable|i am unable|"
-                          r"as an ai)\b.*\b(?:translat|help|assist|provide|comply|request)", re.I | re.S)
+_LLM_REFUSAL = re.compile(r"^\W*(?:(?:i'?m sorry|i am sorry|sorry|i can(?:no|'|’)t|i cannot|i'?m unable|i am unable)"
+                          r"\b.*\btranslat|as an ai\b)", re.I | re.S)
 
 
 def _check_llm(text, out, dst):
@@ -707,6 +707,7 @@ LLM_SYSTEM = (
 
 GLOSSARY_FILE = os.path.expanduser("~/Library/Application Support/Dolmetscher/glossary.txt")
 GLOSSARY = []                      # [(Wort, Übersetzung oder None = unverändert lassen)]
+_GLOSSARY_OWN = None               # Einträge aus der eigenen Datei (None = alle); Preset-Wörter nur für Claude
 
 
 def load_glossary(text=None):
@@ -729,7 +730,9 @@ def load_glossary(text=None):
         a, b = a.strip(), b.strip()
         if a:
             items.append((a, b if sep and b else None))
+    global _GLOSSARY_OWN
     GLOSSARY[:] = items[:200]
+    _GLOSSARY_OWN = frozenset(GLOSSARY)
     _cache_clear()                     # alte Übersetzungen kennen die neuen Einträge nicht
 
 
@@ -781,7 +784,10 @@ def _protect(text, dst):
     Dienste unverändert) und merken, was danach eingesetzt wird – die Übersetzung aus dem Glossar,
     sonst der Name unverändert. Auch rückwärts: steht die Übersetzung im Text, kommt das Wort zurück."""
     slots = []
+    own = _GLOSSARY_OWN
     for a, b in GLOSSARY:
+        if own is not None and (a, b) not in own:
+            continue                   # Preset-Allerweltswörter ("room => ห้อง") würden ห้องน้ำ zerreißen
         if len(slots) >= 20:
             break
         if _term_rx(a).search(text):
@@ -932,7 +938,7 @@ def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
     return out
 
 
-LAUGH = {"th": re.compile(r"(?<![\d.,:])5{3,}(?![\d.,:]?\d)|(?:ฮ่า\s*){2,}ๆ*|ฮ่า\s*ๆ+|(?:คิก\s*){2,}|คิก\s*ๆ+"),
+LAUGH = {"th": re.compile(r"(?<![\d.,:\-])5{3,}(?![\d.,:\-]?\d|\s\d)|(?:ฮ่า\s*){2,}ๆ*|ฮ่า\s*ๆ+|(?:คิก\s*){2,}|คิก\s*ๆ+"),
          "en": re.compile(r"\b(?:a?ha(?:ha)+h?|lol|lmao|hehe(?:he)*)\b", re.I)}
 LAUGH_OUT = {"th": "555", "en": "haha"}
 # "555" ist im Thai Lachen – aber nicht als Preis, Zimmer-, Flug- oder Telefonnummer
@@ -1319,7 +1325,8 @@ def split_sentences(s, lang, min_len=60):
     if lang == "th":   # Thai trennt Sätze/Phrasen mit Leerzeichen
         parts = re.split(r"(?<=[฀-๿\d])\s+(?=[฀-๿])", s)
     else:
-        parts = re.split(r"(?<=[.!?;])\s+", s)
+        parts = re.split(r"(?<!\bMr\.)(?<!\bMrs\.)(?<!\bMs\.)(?<!\bDr\.)(?<!\bSt\.)(?<!\bvs\.)(?<!\be\.g\.)"
+                         r"(?<!\bi\.e\.)(?<=[.!?;])\s+", s)        # "Mr. Smith" nicht zerteilen
     out, cur = [], ""
     for p in parts:                     # zu kurze Stücke zusammenfassen (natürlicher Klang)
         cur = f"{cur} {p}".strip() if cur else p
