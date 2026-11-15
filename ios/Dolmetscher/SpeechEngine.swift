@@ -14,6 +14,8 @@ enum SpeechEvent: Sendable {
     case utterance(en: Hypothesis?, th: Hypothesis?)
     /// Anruf, Siri, Kopfhörer an/ab: die Aufnahme ist abgerissen und muss neu gestartet werden.
     case interrupted
+    /// Anruf o. Ä. beginnt: Aufnahme ruht, bis `interrupted` (Ende) kommt.
+    case interruptionBegan
 }
 
 enum SpeechError: LocalizedError {
@@ -193,14 +195,12 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
     // Zustand nur auf `queue`
     private var recs: [LangRecognizer] = []
     private var muted = false
-    private var pause = 0.8
-    private var noise: Float = 0.004
-    private var speechRun = 0.0, silenceRun = 0.0, uttDur = 0.0, sincePartial = 0.0
-    private var inUtterance = false
+    private var gate = VoiceGate(pause: 0.8)
+    private var sincePartial = 0.0, sinceLevel = 0.0
     private var lastEnd: Task<Void, Never>?
     private var observers: [NSObjectProtocol] = []
 
-    init() { (events, emit) = AsyncStream<SpeechEvent>.makeStream(bufferingPolicy: .bufferingNewest(64)) }
+    init() { (events, emit) = AsyncStream<SpeechEvent>.makeStream(bufferingPolicy: .unbounded) }
 
     static func authorize() async -> Bool {
         guard await AVAudioApplication.requestRecordPermission() else { return false }
@@ -219,7 +219,7 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
         if let files = ProcessInfo.processInfo.environment["DOLMETSCHER_AUDIO_FILES"] {
             var made: [LangRecognizer] = []
             for l in langs { made.append(try await LangRecognizer(lang: l) { onDownload(l, $0) }) }
-            queue.sync { recs = made; pause = pauseSeconds; muted = false; inUtterance = false }
+            queue.sync { recs = made; gate = VoiceGate(pause: pauseSeconds); muted = false }
             Task.detached { [weak self] in await self?.play(files.split(separator: ":").map(String.init)) }
             return
         }
@@ -241,8 +241,11 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
         }
         let node = audio.inputNode
         let fmt = node.outputFormat(forBus: 0)
-        guard fmt.sampleRate > 0, fmt.channelCount > 0 else { throw SpeechError.noMicrophone }
-        queue.sync { recs = made; pause = pauseSeconds; muted = false; inUtterance = false }
+        guard fmt.sampleRate > 0, fmt.channelCount > 0 else {
+            for r in made { await r.shutdown() }
+            throw SpeechError.noMicrophone
+        }
+        queue.sync { recs = made; gate = VoiceGate(pause: pauseSeconds); muted = false }
         node.installTap(onBus: 0, bufferSize: 2048, format: fmt) { [weak self] buf, _ in
             // Der Puffer gehört dem System und gilt nur im Block: kopieren.
             guard let copy = AVAudioPCMBuffer(pcmFormat: buf.format, frameCapacity: buf.frameLength),
@@ -260,6 +263,7 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
         observers = [
             nc.addObserver(forName: AVAudioSession.interruptionNotification, object: nil, queue: nil) { [weak self] n in
                 let raw = n.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt
+                if raw == AVAudioSession.InterruptionType.began.rawValue { self?.emit.yield(.interruptionBegan) }
                 if raw == AVAudioSession.InterruptionType.ended.rawValue { self?.emit.yield(.interrupted) }
             },
             nc.addObserver(forName: .AVAudioEngineConfigurationChange, object: audio, queue: nil, using: lost),
@@ -329,11 +333,11 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
         }
     }
 
-    func setPause(_ seconds: Double) { queue.async { self.pause = seconds } }
+    func setPause(_ seconds: Double) { queue.async { self.gate.pause = seconds } }
 
     private func resetVAD() {
-        if inUtterance { emit.yield(.hearing(false)) }
-        inUtterance = false; speechRun = 0; silenceRun = 0; uttDur = 0
+        if gate.inUtterance { emit.yield(.hearing(false)) }
+        gate.reset()
     }
 
     private func process(_ buf: AVAudioPCMBuffer) {
@@ -344,28 +348,25 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
         let rms = (sum / Float(n)).squareRoot()
         let dur = Double(n) / buf.format.sampleRate
         for r in recs { r.feed(buf) }
-        emit.yield(.level(min(1, rms * 12)))
+        // Pegel für die Anzeige gedrosselt (~12/s), sonst baut die Oberfläche ständig neu auf.
+        sinceLevel += dur
+        if sinceLevel >= 0.08 { sinceLevel = 0; emit.yield(.level(min(1, rms * 12))) }
 
-        // Einfache Sprachpausen-Erkennung über die Lautstärke mit mitlaufendem Grundrauschen.
-        if rms > max(0.008, noise * 3.5) {
-            speechRun += dur; silenceRun = 0
-            if !inUtterance && speechRun >= 0.12 { inUtterance = true; uttDur = 0; emit.yield(.hearing(true)) }
-        } else {
-            silenceRun += dur; speechRun = 0
-            noise = noise * 0.95 + rms * 0.05
+        switch gate.step(rms: rms, dur: dur) {
+        case .started: emit.yield(.hearing(true))
+        case .ended: emit.yield(.hearing(false)); endUtterance(); return
+        case nil: break
         }
-        guard inUtterance else { return }
-        uttDur += dur; sincePartial += dur
+        guard gate.inUtterance else { return }
+        sincePartial += dur
         if sincePartial >= 0.25 {
             sincePartial = 0
             emit.yield(.partial(en: recs.first { $0.lang == .en }?.peek() ?? "",
                                 th: recs.first { $0.lang == .th }?.peek() ?? ""))
         }
-        if silenceRun >= pause || uttDur > 25 { endUtterance() }
     }
 
     private func endUtterance() {
-        resetVAD()
         let marks = recs.map { ($0, $0.position) }
         let prev = lastEnd
         lastEnd = Task {

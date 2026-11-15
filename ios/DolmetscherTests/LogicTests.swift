@@ -15,6 +15,7 @@ final class LogicTests: XCTestCase {
     func testFuzzyWakeNeedsCommand() {
         XCTAssertEqual(Commands.detect("Translate or pause"), .pause)
         XCTAssertNil(Commands.detect("Translate this for me"))
+        XCTAssertNil(Commands.detect("Translate: please stop here at the corner"))
     }
 
     func testNoWakeWordMeansTranslate() {
@@ -88,5 +89,46 @@ final class PolitenessTests: XCTestCase {
                 XCTAssertFalse(form.fillRoman(p.roman).contains("{"), p.en)
             }
         }
+    }
+}
+
+final class VoiceGateTests: XCTestCase {
+    private func feed(_ g: inout VoiceGate, rms: Float, seconds: Double, step: Double = 0.05) -> [VoiceGate.Event] {
+        var out: [VoiceGate.Event] = []
+        var t = 0.0
+        while t < seconds { if let e = g.step(rms: rms, dur: step) { out.append(e) }; t += step }
+        return out
+    }
+
+    func testQuietRoomSpeechThenPause() {
+        var g = VoiceGate(pause: 0.8)
+        XCTAssertEqual(feed(&g, rms: 0.002, seconds: 2), [])
+        XCTAssertEqual(feed(&g, rms: 0.08, seconds: 1.5), [.started])
+        XCTAssertEqual(feed(&g, rms: 0.002, seconds: 1.0), [.ended])
+    }
+
+    func testShortClickIsNotSpeech() {
+        var g = VoiceGate(pause: 0.8)
+        _ = feed(&g, rms: 0.002, seconds: 2)
+        XCTAssertEqual(feed(&g, rms: 0.2, seconds: 0.05), [])
+        XCTAssertFalse(g.inUtterance)
+    }
+
+    func testLoudStreetStillFindsEndOfSentence() {
+        var g = VoiceGate(pause: 0.8)
+        // dauerhafter Straßenlärm, nie still
+        XCTAssertEqual(feed(&g, rms: 0.04, seconds: 5), [])
+        XCTAssertEqual(feed(&g, rms: 0.2, seconds: 2), [.started])
+        // zurück auf Lärmpegel = Satzende, obwohl es nie leise wird
+        XCTAssertEqual(feed(&g, rms: 0.04, seconds: 1.2), [.ended])
+    }
+
+    func testMaxLengthCuts() {
+        var g = VoiceGate(pause: 0.8)
+        g.maxUtterance = 3
+        _ = feed(&g, rms: 0.002, seconds: 1)
+        let ev = feed(&g, rms: 0.1, seconds: 3.5)
+        XCTAssertEqual(ev.first, .started)
+        XCTAssertTrue(ev.contains(.ended))
     }
 }

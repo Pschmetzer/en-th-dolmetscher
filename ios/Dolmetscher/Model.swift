@@ -19,7 +19,7 @@ struct Entry: Identifiable, Codable, Equatable {
 }
 
 enum AppSheet: String, Identifiable {
-    case settings, phrasebook, photo, help
+    case settings, phrasebook, photo, help, emergency, baht
     var id: String { rawValue }
 }
 
@@ -45,6 +45,8 @@ final class InterpreterModel {
     /// Solange ein Sprachmodell geladen wird: Sprache und Fortschritt 0…1.
     var download: (lang: Lang, fraction: Double)?
     var favorites: [Phrase] = []
+    /// Anruf o. Ä.: Aufnahme ruht, geht danach von selbst weiter.
+    var interrupted = false
 
     var mode: Mode { didSet { save("mode", mode.rawValue); if phase == .listening { restart() } } }
     var pauseSeconds: Double { didSet { save("pauseSeconds", pauseSeconds); engine?.setPause(pauseSeconds) } }
@@ -61,6 +63,11 @@ final class InterpreterModel {
     var background: Bool { didSet { save("background", background) } }
     /// Mikrofon eines Bluetooth-Headsets verwenden (schlechtere Tonqualität, aber näher am Mund).
     var headset: Bool { didSet { save("headset", headset); if phase == .listening { restart() } } }
+    /// Verlauf aufbewahren: 0 = gar nicht speichern, sonst Tage (-1 = für immer).
+    var historyDays: Int { didSet { save("historyDays", historyDays); persist() } }
+    /// Thai-Ausgabe immer über den Lautsprecher, auch mit Kopfhörern (das Gegenüber soll es hören).
+    var thaiOnSpeaker: Bool { didSet { save("thaiOnSpeaker", thaiOnSpeaker) } }
+    var emergency: EmergencyInfo { didSet { Self.store(emergency, "emergency.json") } }
 
     @ObservationIgnored private var engine: (any SpeechEngine)?
     @ObservationIgnored private var listenTask: Task<Void, Never>?
@@ -76,6 +83,8 @@ final class InterpreterModel {
     @ObservationIgnored private var noticeTask: Task<Void, Never>?
     @ObservationIgnored private var idleTask: Task<Void, Never>?
     @ObservationIgnored private var lastActivity = Date()
+    /// Lief das Zuhören, als die App in den Hintergrund ging? Dann beim Zurückkommen weitermachen.
+    @ObservationIgnored private var resumeOnForeground = false
     @ObservationIgnored private let translator = Translator()
     @ObservationIgnored private let speaker = Speaker()
     @ObservationIgnored private let d = UserDefaults.standard
@@ -94,9 +103,13 @@ final class InterpreterModel {
         autoStopMinutes = d.object(forKey: "autoStopMinutes") as? Int ?? 10
         background = d.object(forKey: "background") as? Bool ?? false
         headset = d.object(forKey: "headset") as? Bool ?? false
+        historyDays = d.object(forKey: "historyDays") as? Int ?? 30
+        thaiOnSpeaker = d.object(forKey: "thaiOnSpeaker") as? Bool ?? true
+        emergency = Self.load(EmergencyInfo.self, "emergency.json") ?? EmergencyInfo()
         L10n.lang = uiLang
         Haptics.enabled = haptics
         entries = Self.load([Entry].self, "history.json") ?? []
+        pruneHistory()
         favorites = Self.load([Phrase].self, "favorites.json") ?? []
         Task { await refreshOffline() }
     }
@@ -184,7 +197,23 @@ final class InterpreterModel {
 
     /// App geht in den Hintergrund: ohne Hintergrund-Einstellung aufhören zuzuhören.
     func enteredBackground() {
-        if !background { stop() }
+        guard !background else { return }
+        resumeOnForeground = isListening || isBusy
+        stop()
+    }
+
+    /// Zurück im Vordergrund: weitermachen, wenn vorher zugehört wurde.
+    func enteredForeground() {
+        if resumeOnForeground { resumeOnForeground = false; start() }
+        pruneHistory()
+    }
+
+    private func pruneHistory() {
+        guard historyDays > 0 else { return }
+        let cutoff = Date().addingTimeInterval(-Double(historyDays) * 86_400)
+        let before = entries.count
+        entries.removeAll { $0.date < cutoff }
+        if entries.count != before { persist() }
     }
 
     private func watchIdle() {
@@ -213,15 +242,28 @@ final class InterpreterModel {
             let pick = LanguagePick.pick(en: Hypothesis(text: en, confidence: 0.5), th: Hypothesis(text: th, confidence: 0.5))
             partial = pick == .th ? th : en
         case .utterance(let en, let th): heard(en: en, th: th)
-        case .interrupted: if phase == .listening { restart() }
+        case .interruptionBegan:
+            interrupted = true
+            stopSpeaking()
+        case .interrupted:
+            interrupted = false
+            if phase == .listening { restart() }
         }
     }
 
     private func heard(en: Hypothesis?, th: Hypothesis?) {
         partial = ""
         lastActivity = Date()
+        // Nach „Translator“ allein darf der nächste Satz ein nackter Befehl sein – auch wenn der Thai-Erkenner
+        // für „pause“ etwas Plausibles liefert.
+        let awake = Date() < awakeUntil
+        if awake, let text = en?.text, let cmd = Commands.detect(text, awake: true) {
+            Haptics.command()
+            run(cmd)
+            return
+        }
         guard let lang = LanguagePick.pick(en: en, th: th) else { return }
-        if lang == .en, let text = en?.text, let cmd = Commands.detect(text, awake: Date() < awakeUntil) {
+        if lang == .en, let text = en?.text, let cmd = Commands.detect(text, awake: awake) {
             Haptics.command()
             run(cmd)
             return
@@ -402,9 +444,13 @@ final class InterpreterModel {
                 return
             }
             engine?.setMuted(true)
+            let session = AVAudioSession.sharedInstance()
             if engine == nil {
-                try? AVAudioSession.sharedInstance().setCategory(.playback, options: [.duckOthers])
-                try? AVAudioSession.sharedInstance().setActive(true)
+                try? session.setCategory(.playback, options: [.duckOthers])
+                try? session.setActive(true)
+            } else if lang == .th && thaiOnSpeaker {
+                // Mit Kopfhörern hört sonst nur man selbst die Thai-Ansage.
+                try? session.overrideOutputAudioPort(.speaker)
             }
             speakingID = id
             await speaker.speak(text, lang: lang, rate: r, volume: volume)
@@ -413,7 +459,15 @@ final class InterpreterModel {
             if pendingSpeech == 0 {
                 lastActivity = Date()
                 try? await Task.sleep(for: .milliseconds(400))   // Nachhall nicht als Sprache werten
-                if pendingSpeech == 0 { engine?.setMuted(false) }
+                if pendingSpeech == 0 {
+                    if let engine {
+                        try? session.overrideOutputAudioPort(.none)
+                        engine.setMuted(false)
+                    } else {
+                        // Nur vorgelesen, nicht zugehört: Musik/Navi wieder laut machen.
+                        try? session.setActive(false, options: .notifyOthersOnDeactivation)
+                    }
+                }
             }
         }
     }
@@ -439,17 +493,28 @@ final class InterpreterModel {
 
     private static func store<T: Encodable>(_ value: T, _ name: String) {
         if let data = try? JSONEncoder().encode(value) {
-            try? data.write(to: url(name), options: [.atomic, .completeFileProtection])
+            // „UnlessOpen“: auch bei gesperrtem Gerät (Hintergrund-Zuhören) speicherbar.
+            try? data.write(to: url(name), options: [.atomic, .completeFileProtectionUnlessOpen])
         }
     }
 
-    private func persist() { Self.store(entries, "history.json") }
+    private func persist() {
+        if historyDays == 0 {
+            try? FileManager.default.removeItem(at: Self.url("history.json"))
+        } else {
+            Self.store(entries, "history.json")
+        }
+    }
 
-    var transcript: String {
+    private static let stamp: DateFormatter = {
         let f = DateFormatter()
         f.dateStyle = .short; f.timeStyle = .short
-        return entries.map {
-            "[\(f.string(from: $0.date))] \($0.src == .en ? "EN" : "TH"): \($0.text)\n→ \($0.translation ?? "–")"
+        return f
+    }()
+
+    var transcript: String {
+        entries.map {
+            "[\(Self.stamp.string(from: $0.date))] \($0.src == .en ? "EN" : "TH"): \($0.text)\n→ \($0.translation ?? "–")"
         }.joined(separator: "\n\n")
     }
 }

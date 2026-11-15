@@ -62,7 +62,10 @@ enum Commands {
     /// `awake`: kurz zuvor fiel nur das Weckwort, der nächste Satz darf der Befehl ohne Weckwort sein.
     static func detect(_ text: String, awake: Bool = false) -> VoiceCommand? {
         if let r = rest(wake, text) { return parse(r) }
-        if let r = rest(wakeFuzzy, text), let k = parse(r), k != .wake { return k }
+        // Unscharf („Translate or pause“) nur, wenn danach kaum mehr kommt als der Befehl –
+        // sonst wäre „Translate: please stop here“ ein Befehl statt eines Satzes.
+        if let r = rest(wakeFuzzy, text), r.split(whereSeparator: { $0.isWhitespace }).count <= 3,
+           let k = parse(r), k != .wake { return k }
         if awake, let k = parse(text), k != .wake { return k }
         return nil
     }
@@ -161,5 +164,53 @@ enum Politeness: String, CaseIterable, Codable, Sendable {
         return template.replacingOccurrences(of: " {p}", with: p).replacingOccurrences(of: "{p}", with: p)
             .replacingOccurrences(of: " {q}", with: q).replacingOccurrences(of: "{q}", with: q)
             .replacingOccurrences(of: "{i} ", with: i).replacingOccurrences(of: "{i}", with: i)
+    }
+}
+
+/// Sprachpausen-Erkennung über die Lautstärke. Das Grundrauschen ist das Minimum der letzten Sekunden –
+/// so passt es sich auch an dauerhaften Lärm an (Straße, Tuk-Tuk), in dem es nie ganz still wird.
+struct VoiceGate {
+    enum Event: Equatable { case started, ended }
+
+    var pause: Double
+    var maxUtterance = 25.0
+    var minSpeech = 0.12
+    var window = 6.0
+    var factor: Float = 2.8
+    var minThreshold: Float = 0.008
+
+    private(set) var inUtterance = false
+    private(set) var noise: Float = 0.004
+    private var history: [(rms: Float, dur: Double)] = []
+    private var historyDur = 0.0
+    private var speechRun = 0.0, silenceRun = 0.0, uttDur = 0.0
+
+    init(pause: Double) { self.pause = pause }
+
+    var threshold: Float { max(minThreshold, noise * factor) }
+
+    mutating func reset() {
+        inUtterance = false; speechRun = 0; silenceRun = 0; uttDur = 0
+    }
+
+    mutating func step(rms: Float, dur: Double) -> Event? {
+        history.append((rms, dur)); historyDur += dur
+        while historyDur > window, history.count > 1 { historyDur -= history.removeFirst().dur }
+        // 10.-Perzentil statt hartem Minimum: einzelne Aussetzer (digitale Stille) sollen den Pegel nicht nullen.
+        let sorted = history.map(\.rms).sorted()
+        noise = max(0.0005, sorted[min(sorted.count - 1, sorted.count / 10)])
+
+        var event: Event?
+        if rms > threshold {
+            speechRun += dur; silenceRun = 0
+            if !inUtterance && speechRun >= minSpeech { inUtterance = true; uttDur = 0; event = .started }
+        } else {
+            silenceRun += dur; speechRun = 0
+        }
+        if inUtterance {
+            uttDur += dur
+            if silenceRun >= pause || uttDur > maxUtterance { reset(); event = .ended }
+        }
+        return event
     }
 }
