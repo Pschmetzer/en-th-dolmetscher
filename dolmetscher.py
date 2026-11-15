@@ -2186,6 +2186,7 @@ class Engine:
             emit("listening")
             return None
         self.awake_until = 0.0                  # längere Äußerung im Wake-Fenster: normal übersetzen, Fenster zu
+        self._wake_wait = False                 # … und nicht durch das spätere speak_done wieder öffnen
         other = {"en": "th", "th": "en"}.get(self.lock)
         if other and {"en": pe, "th": pt_all}[other] > 0.5:     # Sprach-Sperre: die andere Sprache ignorieren
             return self._drop(info, "gesperrt", uid, "nur " + ("Thai" if self.lock == "th" else "Englisch") + " aktiv")
@@ -2370,10 +2371,11 @@ class Engine:
         self.texts[uid] = (lang, text)
         if len(self.texts) > 200:
             self.texts.pop(next(iter(self.texts)))
-        if replaces:
-            self._forget(replaces)
+        old = self.__dict__.get("_hist_ids", {}).get(replaces) if replaces else None
         if not self.translate_dir.get(lang, True):
             # diese Sprache bleibt wie sie ist: nur anzeigen, nicht übersetzen, nicht vorlesen
+            if replaces:
+                self._forget(replaces)
             emit("utt", to=lang, out=text, tr=0.0, translated=False, provider="none",
                  text_latin=thai_latin(text) if lang == "th" else None, **base)
             emit("listening")
@@ -2383,7 +2385,10 @@ class Engine:
         if speak:
             tts_prepare_if_speaking()          # Vorrat auffrischen (lange Sätze, Schnellsätze, Korrekturen)
         try:
-            out = translate(text, lang, dst, history=tuple(self.history), alts=alts, polite=self.polite, meta=meta)
+            # ersetzte (falsche) Fassung nicht als Kontext mitschicken; entfernt wird sie erst bei Erfolg,
+            # damit die alte Blase bei einem Fehler weiter korrigierbar bleibt
+            hist = tuple(h for h in self.history if h is not old)
+            out = translate(text, lang, dst, history=hist, alts=alts, polite=self.polite, meta=meta)
             net_state("translate", True)
         except Exception as e:
             if "offline" in str(e):
@@ -2394,6 +2399,8 @@ class Engine:
             return None
         if dst == "th":
             out = fix_thai(out, self.polite)
+        if replaces:
+            self._forget(replaces)
         last = getattr(self, "last", None)
         # nur Vorgelesenes ist "repeat"-fähig; eine Korrektur eines älteren Satzes verdrängt nicht den neuesten
         if speak and not getattr(self, "mute", False) and (not replaces or last is None or last[2] == replaces):
@@ -2999,6 +3006,7 @@ class Mic:
         if mic_file and not os.path.isfile(mic_file):
             return self._fail(f"DOLMETSCHER_MIC_FILE nicht gefunden: {os.path.basename(mic_file)}", _retry,
                               "mic_file_missing")
+        dev = None if mic_file else resolve_mic(self.mic)   # kann ffmpeg abfragen: nicht unter dem Lock
         with self.lock:
             if self.on:
                 emit("mic", on=True)
@@ -3007,8 +3015,7 @@ class Mic:
             sess = self.sess
             # DOLMETSCHER_MIC_FILE: Audiodatei in Echtzeit statt Mikrofon (Ende-zu-Ende-Test)
             loop = ["-stream_loop", "-1"] if os.environ.get("DOLMETSCHER_MIC_LOOP") else []
-            src = ([*loop, "-re", "-i", mic_file] if mic_file else
-                   ["-f", "avfoundation", "-i", f":{resolve_mic(self.mic)}"])
+            src = ([*loop, "-re", "-i", mic_file] if mic_file else ["-f", "avfoundation", "-i", f":{dev}"])
             # leichte Vorverstärkung im ffmpeg, damit leise Stimmen mehr Pegel haben
             try:
                 ff = subprocess.Popen([FFMPEG, "-hide_banner", "-loglevel", "error", *src, "-af", mic_filter(DENOISE),

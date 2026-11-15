@@ -248,3 +248,29 @@ def test_mic_start_wachhund_beendet_haengendes_ffmpeg(ev, monkeypatch):
     assert d.time.monotonic() - t < 5
     err = [kw for x, kw in ev if x == "error"][-1]
     assert err["code"] == "mic_timeout" and ("mic", {"on": False}) in ev
+
+
+def test_fehlgeschlagene_korrektur_behaelt_alte_fassung(ev, monkeypatch):
+    """Schlägt die Übersetzung der Korrektur fehl, bleibt die alte Blase korrigierbar (Audio, Kontext)."""
+    e = _engine([("en", 0.9)], {"en": ("Where is it?", -0.2), "th": ("อยู่ที่ไหน", -0.3)})
+    monkeypatch.setattr(d, "translate", lambda *a, **k: "Where is it?")
+    e.recent["u1"] = (np.zeros(d.SR, np.float32), None)
+    e.deliver("u1", "en", "Where is it?", speak=False)
+    seen = {}
+
+    def boom(text, src, dst, history=(), **k):
+        seen["history"] = history
+        raise RuntimeError("offline")
+    monkeypatch.setattr(d, "translate", boom)
+    e.reassign("u1", "other")
+    assert "u1" in e.recent and len(e.history) == 1
+    assert seen["history"] == ()                     # alte Fassung nicht als Kontext
+    assert any(x == "dropped" and kw["code"] == "translate_failed" for x, kw in ev)
+
+
+def test_laengerer_satz_schliesst_wake_fenster_endgueltig(ev, monkeypatch):
+    e = _engine([("en", 0.95)], {"en": ("Where is the train station please?", -0.2), "th": ("x", -2.0)})
+    monkeypatch.setattr(d, "translate", lambda *a, **k: "สถานี")
+    e.command("")
+    e.process(AUDIO, speak=False, uid="u9")
+    assert e.awake_until == 0.0 and not e._wake_wait
