@@ -20,7 +20,7 @@ def test_thai_words_to_digits(src, out):
 
 @pytest.mark.parametrize("src", [
     "เรียบร้อยแล้ว", "ฉันสามารถไปได้", "ห้ามสูบบุหรี่", "ไปห้าง", "นั่งเก้าอี้", "ลดร้อยละ", "แสนดี",
-    "ความสัมพันธ์", "ศูนย์การค้า", "สองสามวัน",          # สองสาม = "ein paar", keine 23
+    "ความสัมพันธ์", "พันธมิตร", "ศูนย์การค้า", "สองสามวัน",          # สองสาม = "ein paar", keine 23
 ])
 def test_thai_falsche_freunde_bleiben(src):
     assert d.thai_words_to_digits(src) == src
@@ -41,6 +41,8 @@ def test_thai_falsche_freunde_bleiben(src):
     ("10% off, 300 baht", "ลดร้อยละ 10 ราคา 300 บาท", False),
     ("Done, 300 baht", "เรียบร้อยแล้ว 300 บาท", False),
     # englische Zahlwörter werden nicht umgerechnet: dann zählen Thai-Zahlwörter auch nicht (kein Fehlalarm)
+    ("Room 305 for 2 people", "ห้องสามศูนย์ห้า สองคน", False),      # Leerzeichen = Grenze
+    ("300 baht, 5 people", "ราคาสามร้อย ห้าคน", False),
     ("two hundred people, room 305", "สองร้อยคน ห้อง 305", False),
 ])
 def test_numbers_differ_thai_words(a, b, differ):

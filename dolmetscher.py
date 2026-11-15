@@ -1204,10 +1204,10 @@ _TH_DIGIT_W = {"ศูนย์": 0, "หนึ่ง": 1, "เอ็ด": 1, "�
 _TH_MULT_W = {"สิบ": 10, "ร้อย": 100, "พัน": 1000, "หมื่น": 10_000, "แสน": 100_000, "ล้าน": 1_000_000}
 # Wörter, die Zahlwörter enthalten, aber keine Zahl sind (ร้อยละ = Prozent, แสนดี = sehr gut, ...)
 _TH_NUM_FALSE = re.compile(r"(สามารถ|สามี|สามเณร|ห้าม|ห้าง|เก้าอี้|หกล้ม|ยี่ห้อ|เรียบร้อย|ร้อยละ|ร้อยเรียง|ร้อยกรอง"
-                           r"|สัมพันธ์|พันธ[ุ์ะ]|แสน(?=ดี|สวย|สุข|รู้|จะ|ง่าย|ยาก|เศร้า|ไกล|นาน|แพง|อร่อย)"
+                           r"|สัมพันธ์|พันธ|แสน(?=ดี|สวย|สุข|รู้|จะ|ง่าย|ยาก|เศร้า|ไกล|นาน|แพง|อร่อย)"
                            r"|ศูนย์(?=กลาง|การค้า|บริการ|ราชการ)|ล้านนา)")
 _TH_NUM_RUN = re.compile("(?:" + "|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], key=len, reverse=True))
-                         + r")(?:\s*(?:" + "|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], key=len, reverse=True))
+                         + r")(?:(?:" + "|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], key=len, reverse=True))
                          + "))*")
 _TH_TOKEN = re.compile("|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], key=len, reverse=True)))
 _SCALE = re.compile(r"(\d+(?:[.,]\d+)?)\s*(million|mio\.?|billion|พันล้าน|ล้าน)", re.I)
