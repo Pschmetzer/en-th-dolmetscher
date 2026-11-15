@@ -49,3 +49,39 @@ final class LogicTests: XCTestCase {
         XCTAssertEqual(LanguagePick.pick(en: h("I am very tired", 0.9), th: h("ไอแอมเวรี่ไทร์", 0.4)), .en)
     }
 }
+
+final class PolitenessTests: XCTestCase {
+    func testMaleReplacesFemaleParticles() {
+        XCTAssertEqual(Politeness.male.adjust("ขอโทษค่ะ สถานีรถไฟอยู่ที่ไหนคะ?"), "ขอโทษครับ สถานีรถไฟอยู่ที่ไหนครับ?")
+    }
+
+    func testFemaleUsesQuestionForm() {
+        XCTAssertEqual(Politeness.female.adjust("ราคาเท่าไหร่ครับ?"), "ราคาเท่าไหร่คะ?")
+        XCTAssertEqual(Politeness.female.adjust("ขอบคุณครับ"), "ขอบคุณค่ะ")
+    }
+
+    func testOffAndNoParticle() {
+        XCTAssertEqual(Politeness.off.adjust("ขอบคุณค่ะ"), "ขอบคุณค่ะ")
+        XCTAssertEqual(Politeness.male.adjust("ห้องน้ำอยู่ที่ไหน?"), "ห้องน้ำอยู่ที่ไหน?")
+    }
+
+    func testParticleInsideWordUntouched() {
+        // „ครับผม“ ist eine feste Wendung; mitten im Wort nichts ersetzen.
+        XCTAssertEqual(Politeness.female.adjust("ครับผม"), "ครับผม")
+    }
+
+    func testFill() {
+        XCTAssertEqual(Politeness.female.fill("{i}ไม่เข้าใจ{p} พูดได้ไหม{q}"), "ฉันไม่เข้าใจค่ะ พูดได้ไหมคะ")
+        XCTAssertEqual(Politeness.male.fillRoman("mai khao jai {p}"), "mai khao jai khrap")
+        XCTAssertEqual(Politeness.off.fillRoman("khop khun {p}"), "khop khun")
+    }
+
+    func testPhrasebookTemplatesAreFilled() {
+        for p in Phrasebook.builtIn {
+            for form in Politeness.allCases {
+                XCTAssertFalse(form.fill(p.th).contains("{"), p.en)
+                XCTAssertFalse(form.fillRoman(p.roman).contains("{"), p.en)
+            }
+        }
+    }
+}

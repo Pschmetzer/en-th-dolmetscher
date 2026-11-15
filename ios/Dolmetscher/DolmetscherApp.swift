@@ -3,7 +3,7 @@ import SwiftUI
 
 @main
 struct DolmetscherApp: App {
-    @State private var model = InterpreterModel()
+    @State private var model = InterpreterModel.shared
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
@@ -13,7 +13,7 @@ struct DolmetscherApp: App {
                 .id(model.uiLang)   // Sprache der App gewechselt: Texte neu aufbauen
                 .onChange(of: scenePhase) { _, phase in
                     // Im Hintergrund nicht weiter mithören.
-                    if phase == .background { model.stop() }
+                    if phase == .background { model.enteredBackground() }
                 }
         }
     }

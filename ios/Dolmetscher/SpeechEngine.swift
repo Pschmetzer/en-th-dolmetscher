@@ -28,10 +28,16 @@ enum SpeechError: LocalizedError {
     }
 }
 
+struct AudioOptions: Sendable {
+    /// Bluetooth-Headset als Mikrofon zulassen
+    var headset = false
+}
+
 protocol SpeechEngine: AnyObject, Sendable {
     var events: AsyncStream<SpeechEvent> { get }
     /// `onDownload`: Fortschritt 0…1, solange ein Sprachmodell geladen wird (einmalig je Sprache).
-    func start(langs: [Lang], pauseSeconds: Double, onDownload: @escaping @Sendable (Lang, Double) -> Void) async throws
+    func start(langs: [Lang], pauseSeconds: Double, options: AudioOptions,
+               onDownload: @escaping @Sendable (Lang, Double) -> Void) async throws
     func stop() async
     /// Halbduplex: während der Sprachausgabe wird das Mikrofon verworfen (sonst übersetzt die App sich selbst).
     func setMuted(_ on: Bool)
@@ -202,7 +208,8 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
         return true
     }
 
-    func start(langs: [Lang], pauseSeconds: Double, onDownload: @escaping @Sendable (Lang, Double) -> Void) async throws {
+    func start(langs: [Lang], pauseSeconds: Double, options: AudioOptions,
+               onDownload: @escaping @Sendable (Lang, Double) -> Void) async throws {
         #if DEBUG
         // Test ohne Mikrofon (der Simulator hat oft keins): Audiodateien statt Mikrofon einspielen.
         if let files = ProcessInfo.processInfo.environment["DOLMETSCHER_AUDIO_FILES"] {
@@ -216,7 +223,10 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
         guard await Self.authorize() else { throw SpeechError.denied }
         log.info("authorized")
         let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker])
+        var opts: AVAudioSession.CategoryOptions = [.defaultToSpeaker]
+        if options.headset { opts.insert(.allowBluetoothHFP) }
+        try session.setCategory(.playAndRecord, mode: .default, options: opts)
+        try session.setAllowHapticsAndSystemSoundsDuringRecording(true)
         try session.setActive(true)
         var made: [LangRecognizer] = []
         do {
@@ -250,6 +260,12 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
             },
             nc.addObserver(forName: .AVAudioEngineConfigurationChange, object: audio, queue: nil, using: lost),
             nc.addObserver(forName: AVAudioSession.mediaServicesWereResetNotification, object: nil, queue: nil, using: lost),
+            // Headset an/ab: neues Eingabeformat, die Aufnahme muss neu aufgebaut werden.
+            nc.addObserver(forName: AVAudioSession.routeChangeNotification, object: nil, queue: nil) { [weak self] n in
+                let raw = n.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt
+                let reason = raw.flatMap(AVAudioSession.RouteChangeReason.init(rawValue:))
+                if reason == .newDeviceAvailable || reason == .oldDeviceUnavailable { self?.emit.yield(.interrupted) }
+            },
         ]
     }
 
@@ -352,6 +368,15 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
             await prev?.value   // Reihenfolge der Äußerungen wahren
             await withTaskGroup(of: Void.self) { g in for (r, _) in marks { g.addTask { await r.finalize() } } }
             try? await Task.sleep(for: .milliseconds(120))   // letzte Ergebnisse einsammeln lassen
+            // Hat nur ein Erkenner schon Text, kurz auf den anderen warten – sonst gewinnt die
+            // schnellere Sprache, nur weil die andere noch rechnet (v. a. Thai beim ersten Satz).
+            if marks.count > 1 {
+                for _ in 0..<10 {
+                    let have = marks.map { !$0.0.peek().isEmpty }
+                    if have.allSatisfy({ $0 }) || !have.contains(true) { break }
+                    try? await Task.sleep(for: .milliseconds(80))
+                }
+            }
             var en: Hypothesis?, th: Hypothesis?
             for (r, mark) in marks {
                 let h = r.take(upTo: mark + 0.05)

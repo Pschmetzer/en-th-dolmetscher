@@ -1,4 +1,4 @@
-// Model.swift – Zustand der App: Zuhören, Sprachwahl, Befehle, Übersetzen, Vorlesen, Verlauf.
+// Model.swift – Zustand der App: Zuhören, Sprachwahl, Befehle, Übersetzen, Vorlesen, Verlauf, Satzbuch.
 import AVFoundation
 import Observation
 import SwiftUI
@@ -12,11 +12,21 @@ struct Entry: Identifiable, Codable, Equatable {
     var error: String?
     /// Was der Erkenner der anderen Sprache gehört hat – für „andere Sprache war gemeint“.
     var alt: String?
+    /// "apple" (offline), "google"/"mymemory" (online), "phrasebook"
     var provider: String?
+    /// Aussprache-Hilfe (nur Satzbuch)
+    var roman: String?
+}
+
+enum AppSheet: String, Identifiable {
+    case settings, phrasebook, photo, help
+    var id: String { rawValue }
 }
 
 @MainActor @Observable
 final class InterpreterModel {
+    static let shared = InterpreterModel()
+
     enum Phase: Equatable { case idle, loading, listening, failed(String) }
     enum Mode: String, CaseIterable { case auto, en, th
         var langs: [Lang] { self == .auto ? [.en, .th] : [self == .en ? .en : .th] }
@@ -30,10 +40,11 @@ final class InterpreterModel {
     var hearing = false
     var speakingID: UUID?
     var notice: String?
-    var showHelp = false
+    var sheet: AppSheet?
     var offlineReady = false
     /// Solange ein Sprachmodell geladen wird: Sprache und Fortschritt 0…1.
     var download: (lang: Lang, fraction: Double)?
+    var favorites: [Phrase] = []
 
     var mode: Mode { didSet { save("mode", mode.rawValue); if phase == .listening { restart() } } }
     var pauseSeconds: Double { didSet { save("pauseSeconds", pauseSeconds); engine?.setPause(pauseSeconds) } }
@@ -42,6 +53,14 @@ final class InterpreterModel {
     var allowOnline: Bool { didSet { save("allowOnline", allowOnline) } }
     var autoSpeak: Bool { didSet { save("autoSpeak", autoSpeak) } }
     var uiLang: String { didSet { save("uiLang", uiLang); L10n.lang = uiLang } }
+    var politeness: Politeness { didSet { save("politeness", politeness.rawValue) } }
+    var haptics: Bool { didSet { save("haptics", haptics); Haptics.enabled = haptics } }
+    /// Nach so vielen Minuten ohne Sprache von selbst stoppen (0 = nie) – spart Akku.
+    var autoStopMinutes: Int { didSet { save("autoStopMinutes", autoStopMinutes) } }
+    /// Weiter zuhören, wenn die App im Hintergrund ist oder der Bildschirm aus.
+    var background: Bool { didSet { save("background", background) } }
+    /// Mikrofon eines Bluetooth-Headsets verwenden (schlechtere Tonqualität, aber näher am Mund).
+    var headset: Bool { didSet { save("headset", headset); if phase == .listening { restart() } } }
 
     @ObservationIgnored private var engine: (any SpeechEngine)?
     @ObservationIgnored private var listenTask: Task<Void, Never>?
@@ -52,6 +71,8 @@ final class InterpreterModel {
     @ObservationIgnored private var stopTask: Task<Void, Never>?
     @ObservationIgnored private var awakeUntil = Date.distantPast
     @ObservationIgnored private var noticeTask: Task<Void, Never>?
+    @ObservationIgnored private var idleTask: Task<Void, Never>?
+    @ObservationIgnored private var lastActivity = Date()
     @ObservationIgnored private let translator = Translator()
     @ObservationIgnored private let speaker = Speaker()
     @ObservationIgnored private let d = UserDefaults.standard
@@ -65,8 +86,15 @@ final class InterpreterModel {
         allowOnline = d.object(forKey: "allowOnline") as? Bool ?? true
         autoSpeak = d.object(forKey: "autoSpeak") as? Bool ?? true
         uiLang = d.string(forKey: "uiLang") ?? L10n.systemLang()
+        politeness = Politeness(rawValue: d.string(forKey: "politeness") ?? "") ?? .male
+        haptics = d.object(forKey: "haptics") as? Bool ?? true
+        autoStopMinutes = d.object(forKey: "autoStopMinutes") as? Int ?? 10
+        background = d.object(forKey: "background") as? Bool ?? false
+        headset = d.object(forKey: "headset") as? Bool ?? false
         L10n.lang = uiLang
-        entries = Self.loadHistory()
+        Haptics.enabled = haptics
+        entries = Self.load([Entry].self, "history.json") ?? []
+        favorites = Self.load([Phrase].self, "favorites.json") ?? []
         Task { await refreshOffline() }
     }
 
@@ -93,10 +121,11 @@ final class InterpreterModel {
         let mine = generation
         let e = AppleSpeechEngine()
         let pendingStop = stopTask
+        let options = AudioOptions(headset: headset)
         Task {
             await pendingStop?.value   // die alte Aufnahme muss die Audio-Session erst freigeben
             do {
-                try await e.start(langs: mode.langs, pauseSeconds: pauseSeconds) { lang, f in
+                try await e.start(langs: mode.langs, pauseSeconds: pauseSeconds, options: options) { lang, f in
                     Task { @MainActor [weak self] in
                         if let self, self.generation == mine, self.phase == .loading { self.download = f < 1 ? (lang, f) : nil }
                     }
@@ -105,13 +134,20 @@ final class InterpreterModel {
                 guard generation == mine else { await e.stop(); return }   // inzwischen abgebrochen
                 engine = e
                 phase = .listening
+                lastActivity = Date()
+                Haptics.success()
                 UIApplication.shared.isIdleTimerDisabled = true
                 listenTask = Task { [weak self] in
                     for await ev in e.events { self?.handle(ev) }
                 }
+                watchIdle()
             } catch {
                 await e.stop()
-                if generation == mine { download = nil; phase = .failed(error.localizedDescription) }
+                if generation == mine {
+                    download = nil
+                    phase = .failed(error.localizedDescription)
+                    Haptics.error()
+                }
             }
         }
     }
@@ -119,6 +155,7 @@ final class InterpreterModel {
     func stop() {
         generation += 1
         download = nil
+        idleTask?.cancel()
         guard let e = engine else { phase = .idle; return }
         engine = nil
         listenTask?.cancel()
@@ -126,6 +163,7 @@ final class InterpreterModel {
         phase = .idle
         partial = ""; level = 0; hearing = false
         UIApplication.shared.isIdleTimerDisabled = false
+        Haptics.tap()
         stopTask = Task { await e.stop() }
     }
 
@@ -134,10 +172,32 @@ final class InterpreterModel {
         start()
     }
 
+    /// App geht in den Hintergrund: ohne Hintergrund-Einstellung aufhören zuzuhören.
+    func enteredBackground() {
+        if !background { stop() }
+    }
+
+    private func watchIdle() {
+        idleTask?.cancel()
+        idleTask = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(20))
+                guard let self, self.isListening, self.autoStopMinutes > 0 else { continue }
+                if Date().timeIntervalSince(self.lastActivity) > Double(self.autoStopMinutes) * 60 {
+                    self.stop()
+                    self.flash("💤 " + T("auto_stopped"))
+                    return
+                }
+            }
+        }
+    }
+
     private func handle(_ ev: SpeechEvent) {
         switch ev {
         case .level(let l): level = l
-        case .hearing(let h): hearing = h; if !h { partial = "" }
+        case .hearing(let h):
+            hearing = h
+            if h { lastActivity = Date() } else { partial = "" }
         case .partial(let en, let th):
             guard !paused else { return }
             let pick = LanguagePick.pick(en: Hypothesis(text: en, confidence: 0.5), th: Hypothesis(text: th, confidence: 0.5))
@@ -149,14 +209,17 @@ final class InterpreterModel {
 
     private func heard(en: Hypothesis?, th: Hypothesis?) {
         partial = ""
+        lastActivity = Date()
         guard let lang = LanguagePick.pick(en: en, th: th) else { return }
         if lang == .en, let text = en?.text, let cmd = Commands.detect(text, awake: Date() < awakeUntil) {
+            Haptics.command()
             run(cmd)
             return
         }
         guard !paused else { return }
         let text = (lang == .en ? en : th)?.text ?? ""
         let alt = (lang == .en ? th : en)?.text
+        Haptics.heard()
         add(Entry(src: lang, text: text, alt: alt))
     }
 
@@ -174,11 +237,11 @@ final class InterpreterModel {
         case .louder: volume = min(1, volume + 0.25); flash("🔊 " + T("cmd_louder_done"))
         case .quieter: volume = max(0.25, volume - 0.25); flash("🔉 " + T("cmd_quieter_done"))
         case .clear: clear()
-        case .help: showHelp = true
+        case .help: sheet = .help
         }
     }
 
-    private func flash(_ s: String) {
+    func flash(_ s: String) {
         notice = s
         noticeTask?.cancel()
         noticeTask = Task { try? await Task.sleep(for: .seconds(2.5)); if !Task.isCancelled { notice = nil } }
@@ -186,28 +249,44 @@ final class InterpreterModel {
 
     // MARK: Übersetzen
 
-    /// Getippter Satz oder Schnellsatz.
-    func submit(_ raw: String) {
+    /// Getippter Satz, Foto-Text oder Kurzbefehl.
+    func submit(_ raw: String, speak: Bool = true) {
         let text = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
-        add(Entry(src: LanguagePick.ofTyped(text), text: text))
+        add(Entry(src: LanguagePick.ofTyped(text), text: text), speak: speak)
     }
 
-    private func add(_ e: Entry) {
+    /// Satz aus dem Satzbuch: Übersetzung steht fest, kein Netz nötig.
+    func say(_ p: Phrase) {
+        let e = Entry(src: .en, text: p.en, translation: politeness.fill(p.th), provider: "phrasebook",
+                      roman: p.roman.isEmpty ? nil : politeness.fillRoman(p.roman))
         entries.append(e)
-        if entries.count > 200 { entries.removeFirst(entries.count - 200) }
-        translate(e.id)
+        trim()
+        persist()
+        speak(e)
     }
 
-    private func translate(_ id: UUID) {
+    private func add(_ e: Entry, speak: Bool = true) {
+        entries.append(e)
+        trim()
+        translate(e.id, speak: speak)
+    }
+
+    private func trim() {
+        if entries.count > 300 { entries.removeFirst(entries.count - 300) }
+    }
+
+    private func translate(_ id: UUID, speak: Bool = true) {
         guard let e = entries.first(where: { $0.id == id }) else { return }
         Task {
             do {
                 let r = try await translator.translate(e.text, from: e.src, allowOnline: allowOnline)
-                update(id) { $0.translation = r.text; $0.provider = r.provider; $0.error = nil }
-                if autoSpeak, let done = entries.first(where: { $0.id == id }) { speak(done) }
+                let out = e.src == .en ? politeness.adjust(r.text) : r.text
+                update(id) { $0.translation = out; $0.provider = r.provider; $0.error = nil }
+                if speak, autoSpeak, let done = entries.first(where: { $0.id == id }) { self.speak(done) }
             } catch {
                 update(id) { $0.error = error.localizedDescription }
+                Haptics.warning()
             }
             persist()
         }
@@ -226,9 +305,24 @@ final class InterpreterModel {
         translate(id)
     }
 
+    /// Erkannten Text von Hand korrigieren und neu übersetzen.
+    func edit(_ id: UUID, text: String) {
+        let t = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !t.isEmpty else { return }
+        stopSpeaking()
+        update(id) { $0.text = t; $0.src = LanguagePick.ofTyped(t); $0.translation = nil; $0.error = nil; $0.alt = nil; $0.roman = nil }
+        translate(id)
+    }
+
     func retry(_ id: UUID) {
         update(id) { $0.error = nil }
         translate(id)
+    }
+
+    func delete(_ id: UUID) {
+        if speakingID == id { stopSpeaking() }
+        entries.removeAll { $0.id == id }
+        persist()
     }
 
     func clear() {
@@ -237,14 +331,39 @@ final class InterpreterModel {
         persist()
     }
 
+    // MARK: Favoriten
+
+    private func phrase(for e: Entry) -> Phrase? {
+        guard let t = e.translation else { return nil }
+        let en = e.src == .en ? e.text : t
+        let th = e.src == .en ? t : e.text
+        return Phrase(en: en, th: th, roman: e.roman ?? "", category: "favorites")
+    }
+
+    func isFavorite(_ p: Phrase) -> Bool { favorites.contains { $0.en == p.en } }
+    func isFavorite(_ e: Entry) -> Bool { phrase(for: e).map(isFavorite) ?? false }
+
+    func toggleFavorite(_ p: Phrase) {
+        if isFavorite(p) { favorites.removeAll { $0.en == p.en } } else { favorites.insert(p, at: 0) }
+        Self.store(favorites, "favorites.json")
+        Haptics.tap()
+    }
+
+    func toggleFavorite(_ e: Entry) {
+        guard let p = phrase(for: e) else { return }
+        toggleFavorite(p)
+    }
+
     // MARK: Vorlesen (nacheinander; währenddessen hört das Mikrofon weg)
 
-    func speak(_ e: Entry) {
+    /// `slow`: langsamer als eingestellt, z. B. wenn das Gegenüber nicht mitkam.
+    func speak(_ e: Entry, slow: Bool = false) {
         guard let text = e.translation, !text.isEmpty else { return }
         let lang = e.src.other, id = e.id
         let prev = speakChain
         pendingSpeech += 1
         let gen = speechGeneration
+        let r = slow ? max(0.4, rate * 0.65) : rate
         speakChain = Task {
             await prev?.value
             guard gen == speechGeneration else {   // inzwischen gestoppt: Warteschlange verfällt
@@ -258,10 +377,11 @@ final class InterpreterModel {
                 try? AVAudioSession.sharedInstance().setActive(true)
             }
             speakingID = id
-            await speaker.speak(text, lang: lang, rate: rate, volume: volume)
+            await speaker.speak(text, lang: lang, rate: r, volume: volume)
             if speakingID == id { speakingID = nil }
             pendingSpeech -= 1
             if pendingSpeech == 0 {
+                lastActivity = Date()
                 try? await Task.sleep(for: .milliseconds(400))   // Nachhall nicht als Sprache werten
                 if pendingSpeech == 0 { engine?.setMuted(false) }
             }
@@ -274,26 +394,32 @@ final class InterpreterModel {
         speaker.stop()
     }
 
-    // MARK: Verlauf
+    // MARK: Speicher
 
-    private static var historyURL: URL {
+    private static func url(_ name: String) -> URL {
         let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir.appendingPathComponent("history.json")
+        return dir.appendingPathComponent(name)
     }
 
-    private static func loadHistory() -> [Entry] {
-        guard let data = try? Data(contentsOf: historyURL) else { return [] }
-        return (try? JSONDecoder().decode([Entry].self, from: data)) ?? []
+    private static func load<T: Decodable>(_ type: T.Type, _ name: String) -> T? {
+        guard let data = try? Data(contentsOf: url(name)) else { return nil }
+        return try? JSONDecoder().decode(T.self, from: data)
     }
 
-    private func persist() {
-        if let data = try? JSONEncoder().encode(entries) {
-            try? data.write(to: Self.historyURL, options: [.atomic, .completeFileProtection])
+    private static func store<T: Encodable>(_ value: T, _ name: String) {
+        if let data = try? JSONEncoder().encode(value) {
+            try? data.write(to: url(name), options: [.atomic, .completeFileProtection])
         }
     }
 
+    private func persist() { Self.store(entries, "history.json") }
+
     var transcript: String {
-        entries.map { "\($0.src == .en ? "EN" : "TH"): \($0.text)\n→ \($0.translation ?? "–")" }.joined(separator: "\n\n")
+        let f = DateFormatter()
+        f.dateStyle = .short; f.timeStyle = .short
+        return entries.map {
+            "[\(f.string(from: $0.date))] \($0.src == .en ? "EN" : "TH"): \($0.text)\n→ \($0.translation ?? "–")"
+        }.joined(separator: "\n\n")
     }
 }

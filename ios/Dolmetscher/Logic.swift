@@ -97,3 +97,55 @@ enum LanguagePick {
         return (th?.confidence ?? 0) + bias > (en?.confidence ?? 0) ? .th : .en
     }
 }
+
+/// Höflichkeitsform im Thai: Männer enden mit ครับ, Frauen mit ค่ะ (Frage: คะ). Übersetzer wählen oft willkürlich.
+enum Politeness: String, CaseIterable, Codable, Sendable {
+    case male, female, off
+
+    /// Satzende-Wort für Aussagen bzw. Fragen.
+    var statement: String { self == .male ? "ครับ" : self == .female ? "ค่ะ" : "" }
+    var question: String { self == .male ? "ครับ" : self == .female ? "คะ" : "" }
+    /// „ich“
+    var pronoun: String { self == .male ? "ผม" : "ฉัน" }
+
+    /// Höflichkeitswörter am Satzende an die gewählte Form anpassen. `.off` lässt den Text unverändert.
+    func adjust(_ thai: String) -> String {
+        guard self != .off else { return thai }
+        let particles = ["ครับ", "ค่ะ", "คะ", "ค๊ะ", "คับ"]
+        var out = ""
+        var rest = Substring(thai)
+        while !rest.isEmpty {
+            if let p = particles.first(where: { rest.hasPrefix($0) }) {
+                let after = rest.dropFirst(p.count)
+                // Nur am Wort-/Satzende ersetzen (danach Ende, Leerzeichen oder Satzzeichen).
+                let next = after.first
+                let atEnd = next == nil || next!.isWhitespace || "?!.,।".contains(next!)
+                if atEnd {
+                    let isQuestion = next == "?" || p == "คะ" || p == "ค๊ะ"
+                    out += isQuestion ? question : statement
+                    rest = after
+                    continue
+                }
+            }
+            out.append(rest.removeFirst())
+        }
+        return out
+    }
+
+    /// Platzhalter in Satzbuch-Texten: {p} Aussage-Ende, {q} Frage-Ende, {i} „ich“.
+    func fill(_ template: String) -> String {
+        template.replacingOccurrences(of: "{p}", with: statement)
+            .replacingOccurrences(of: "{q}", with: question)
+            .replacingOccurrences(of: "{i}", with: pronoun)
+    }
+
+    /// Umschrift der Platzhalter.
+    func fillRoman(_ template: String) -> String {
+        let p = self == .male ? " khrap" : self == .female ? " kha" : ""
+        let q = self == .male ? " khrap" : self == .female ? " kha" : ""
+        let i = self == .male ? "phom " : "chan "
+        return template.replacingOccurrences(of: " {p}", with: p).replacingOccurrences(of: "{p}", with: p)
+            .replacingOccurrences(of: " {q}", with: q).replacingOccurrences(of: "{q}", with: q)
+            .replacingOccurrences(of: "{i} ", with: i).replacingOccurrences(of: "{i}", with: i)
+    }
+}
