@@ -20,7 +20,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # 3.12: exakt die Versionen aus requirements.txt
+          # 3.12: exakt die Versionen aus requirements-dev.txt (Lock-Datei mit Hashes)
           - python: "3.12"
             pinned: true
           # 3.10: Mindestversion; die Pins (numpy 2.5 braucht >= 3.12) passen nicht, daher ungepinnt
@@ -34,16 +34,17 @@ jobs:
           python-version: ${{ matrix.python }}
           cache: pip
           cache-dependency-path: requirements*.txt
-      - name: Install dependencies (pinned)
+      - name: Install dependencies (pinned, hash-checked)
         if: matrix.pinned
-        run: python -m pip install -r requirements-dev.txt
+        run: python -m pip install --require-hashes -r requirements-dev.txt
       - name: Install dependencies (unpinned, minimum Python)
         if: ${{ !matrix.pinned }}
         run: |
-          sed -e 's/==.*//' -e '/^-r/d' -e '/^#/d' requirements.txt requirements-dev.txt > /tmp/unpinned.txt
-          python -m pip install -r /tmp/unpinned.txt
+          sed -e 's/==.*//' -e '/^-r/d' -e '/^#/d' -e '/^ *$/d' requirements.in requirements-dev.in > "$RUNNER_TEMP/unpinned.txt"
+          python -m pip install -r "$RUNNER_TEMP/unpinned.txt"
+      # -rs: Gründe übersprungener Tests im Log (z. B. fehlendes Silero-VAD/say), damit stilles Überspringen auffällt.
       - name: Run tests (no models, no network, no microphone)
-        run: python -m pytest -v
+        run: python -m pytest -v -rs
 
   lint:
     runs-on: ubuntu-latest
@@ -52,9 +53,11 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
-      - name: Install ruff (version from requirements-dev.txt)
-        run: python -m pip install "$(grep '^ruff==' requirements-dev.txt)"
+      - name: Install ruff (version from requirements-dev.in)
+        run: python -m pip install "$(grep '^ruff==' requirements-dev.in)"
       # bench/ und die Test-Infrastruktur sind sauber: hier darf nichts Neues hinzukommen.
+      - name: Icon script compiles (app/make_icon.py)
+        run: python -m py_compile app/make_icon.py
       - name: Ruff (blocking)
         run: ruff check --output-format=github bench/ tests/conftest.py
       # Engine, Profile und ältere Tests haben noch bekannte Befunde (E501, E741, ...): nur melden.
@@ -85,6 +88,23 @@ jobs:
           mkdir -p build
           swiftc -O -parse-as-library -o build/Dolmetscher app/*.swift
 
+  tools:
+    # Prototypen in tools/ (macOS 26 SDK) nur typprüfen, damit sie nicht unbemerkt veralten. Nicht blockierend:
+    # translate-helper braucht APIs aus SDK 26.4, der Runner kann ein älteres Xcode haben.
+    name: Typecheck tools/ (macOS 26, not blocking)
+    runs-on: macos-26
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Xcode
+        run: |
+          sudo xcode-select -s "$(ls -d /Applications/Xcode_26*.app /Applications/Xcode.app 2>/dev/null | sort -V | tail -1)"
+          xcrun swiftc --version
+      - name: apple-stt
+        run: xcrun swiftc -typecheck -swift-version 5 -target arm64-apple-macosx26.0 tools/apple-stt/main.swift
+      - name: translate-helper
+        run: xcrun swiftc -typecheck -parse-as-library -target arm64-apple-macosx26.0 tools/translate-helper/main.swift
+
   audit:
     name: Dependency audit (not blocking)
     runs-on: ubuntu-latest
@@ -94,7 +114,8 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
+      # requirements.txt enthält alle transitiven Pakete mit Hashes: es wird alles geprüft, nicht nur die direkten Pins.
       - name: pip-audit
         run: |
-          python -m pip install "$(grep '^pip-audit==' requirements-dev.txt)"
-          pip-audit --no-deps --disable-pip -r requirements.txt
+          python -m pip install "$(grep '^pip-audit==' requirements-dev.in)"
+          pip-audit --disable-pip --require-hashes -r requirements.txt

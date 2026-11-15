@@ -42,6 +42,15 @@ def new_id():
     return f"u{next(_IDS)}"
 VOICE = {"th": "Kanya", "en": "Samantha"}
 THAI_MODEL = "Vinxscribe/biodatlab-whisper-th-medium-faster"   # CTranslate2-Version von biodatlab/whisper-th-medium-combined
+# Feste Hugging-Face-Revisionen (Commit-SHA) der Modelle, die Engine und build.sh laden: ein später überschriebenes
+# Repo (Drittkonto!) wird so nicht unbemerkt übernommen. Anheben: SHA per https://huggingface.co/api/models/<repo>.
+# Schlüssel = Name, wie er an WhisperModel geht (Kurzname von faster-whisper oder Repo-ID).
+MODEL_REVISIONS = {
+    "small": "536b0662742c02347bc0e980a01041f333bce120",            # Systran/faster-whisper-small
+    "medium": "08e178d48790749d25932bbc082711ddcfdfbc4f",           # Systran/faster-whisper-medium
+    "large-v3-turbo": "0a363e9161cbc7ed1431c9597a8ceaf0c4f78fcf",   # mobiuslabsgmbh/faster-whisper-large-v3-turbo
+    THAI_MODEL: "704c0db154f842e8957a386323a69e70a630cb10",
+}
 TARGET = {"en": "th", "th": "en"}
 # Weckwort nur am Satzanfang: "Translator, pause" / "Hey translator resume"
 WAKE = re.compile(r"^\W*(?:hey|hi|ok|okay)?\W*translat(?:or|er)\b\W*(.*)$", re.I | re.S)
@@ -116,6 +125,18 @@ def parse_command(cmd):
         if hit:
             return _VOCAB[hit[0]]
     return None
+
+
+def match_wake(text):
+    """Weckwort am Satzanfang erkennen -> Rest nach dem Weckwort ("" bei bloßem "Translator") oder None.
+    Das unscharfe Weckwort ("Translate or pause") zählt nur, wenn ein echter Befehl folgt."""
+    m = WAKE.match(text)
+    if m:
+        return m.group(1)
+    fz = WAKE_FUZZY.match(text)
+    if fz and parse_command(fz.group(1)) not in (None, "wake"):
+        return fz.group(1)
+    return None
 # Neural-Stimmen: Thai passend zu ครับ (Mann) / ค่ะ (Frau)
 # Englisch: Aria statt Ava-Multilingual. Gemessen (Zeit bis zum ersten Ton): Aria/Jenny/Guy 0,4–0,7 s,
 # die Multilingual-Stimmen 1,5–4 s – dann sprang fast immer die macOS-Ersatzstimme ein.
@@ -128,11 +149,42 @@ VOICES = {"en": ["en-US-AriaNeural", "en-US-JennyNeural", "en-US-GuyNeural", "en
                  "en-US-AvaMultilingualNeural", "en-US-AndrewMultilingualNeural", "en-US-EmmaMultilingualNeural"],
           "th": ["th-TH-NiwatNeural", "th-TH-PremwadeeNeural"]}
 # typische Whisper-Halluzinationen bei Stille/Rauschen (nur wenn sie den ganzen Satz ausmachen)
-JUNK = {"thank you for watching", "thanks for watching", "subtitles by", "ขอบคุณที่รับชม",
-        "thank you very much for watching", "please subscribe",
-        "like and subscribe", "subtitles by the amara.org community",
-        "ขอบคุณครับ ที่รับชม", "ฝากกดติดตาม", "กดติดตามด้วยนะคะ", "สวัสดีครับ ยินดีต้อนรับสู่ช่อง",
-        "ซับไตเติ้ลโดย", "[music]", "(music)", "[เพลง]"}
+def _junk_norm(s):
+    """Für den Floskel-Vergleich: klein, ohne Satzzeichen und Leerraum (Thai schreibt ohnehin ohne)."""
+    return re.sub(r"[^\w\u0e00-\u0e7f]+|_", "", (s or "").lower())
+
+
+class _JunkSet(frozenset):
+    """Floskel-Liste, deren `in` normalisiert vergleicht ("Thanks for watching!", "ขอบคุณที่ติดตามรับชม
+    นะครับ") – ganze Äußerung, höchstens mit Höflichkeits-Anhang; nie als Präfix ("thanks for watching
+    the kids" bleibt)."""
+
+    def __init__(self, items):
+        super().__init__()
+        core = "|".join(re.escape(_junk_norm(x)) for x in sorted(items, key=len, reverse=True) if _junk_norm(x))
+        tail = "|".join(map(_junk_norm, ("นะครับ", "นะคะ", "ครับ", "ค่ะ", "คะ", "นะ", "จ้า", "ด้วย", "ทุกคน",
+                                         "everyone", "guys", "so much", "very much")))
+        self._rx = re.compile(f"(?:{core})(?:{tail})*")
+
+    def __contains__(self, s):
+        if not isinstance(s, str):
+            return super().__contains__(s)
+        n = _junk_norm(s)
+        return bool(n) and self._rx.fullmatch(n) is not None
+
+
+JUNK = _JunkSet({"thank you for watching", "thanks for watching", "subtitles by", "ขอบคุณที่รับชม",
+                 "thank you very much for watching", "please subscribe",
+                 "like and subscribe", "subtitles by the amara.org community",
+                 "ขอบคุณครับ ที่รับชม", "ฝากกดติดตาม", "กดติดตามด้วยนะคะ", "สวัสดีครับ ยินดีต้อนรับสู่ช่อง",
+                 "ซับไตเติ้ลโดย",
+                 "thanks for watching and see you next time", "see you in the next video",
+                 "subscribe to my channel", "please like and subscribe",
+                 "ขอบคุณที่ติดตามรับชม", "ขอบคุณที่ติดตาม", "ขอบคุณที่รับชมครับ", "อย่าลืมกดไลค์ กดแชร์",
+                 "อย่าลืมกดไลค์ กดแชร์ กดติดตาม", "อย่าลืมกดไลค์", "อย่าลืมกดติดตาม", "กดไลค์ กดแชร์ กดติดตาม",
+                 "ฝากกดไลค์ กดแชร์ กดติดตาม"})
+# "[Music]"/"[เพลง]" stehen bewusst nicht drin: ohne Klammern (die Aufrufstelle entfernt sie) wären es
+# echte Ein-Wort-Antworten ("Music?", "เพลง").
 JUNK_IF_SHORT = {"thank you", "you", "bye", "ขอบคุณครับ", "ขอบคุณค่ะ"}   # nur bei sehr leiser/kurzer Aufnahme
 def _find_tool(name, env=None):
     """Umgebungsvariable, dann PATH, dann die üblichen Homebrew-Orte (arm64 und Intel)."""
@@ -159,11 +211,30 @@ def emit(event, **kw):
         _wake_after_reply()
 
 
+def _json_default(o):
+    """numpy-Zahlen/-Arrays (VAD, Modell) und sonstige Typen JSON-fähig machen statt TypeError."""
+    if hasattr(o, "item") and getattr(o, "ndim", 0) == 0:
+        return o.item()
+    if hasattr(o, "tolist"):
+        return o.tolist()
+    if isinstance(o, (set, frozenset, tuple)):
+        return list(o)
+    return str(o)
+
+
 def _emit(event, **kw):
     if event == "utt":
         import history_store; history_store.RECORDER.utt(kw)       # nur wenn eingeschaltet (Standard: aus)
     if JSON:
-        print(json.dumps({"event": event, **kw}, ensure_ascii=False), flush=True)
+        try:
+            print(json.dumps({"event": event, **kw}, ensure_ascii=False, default=_json_default), flush=True)
+        except BrokenPipeError:                       # App weg (Pipe zu): geordnet beenden statt Thread-Absturz
+            STOP.set()
+        except ValueError:
+            if not getattr(sys.stdout, "closed", False):
+                raise
+            STOP.set()
+        return
     elif event in ("loading", "ready", "calibrating", "error"):
         print(f"{C['dim']}{kw.get('msg', event)}{C['off']}", flush=True)
     elif event == "listening":
@@ -179,6 +250,7 @@ LOGFILE = os.environ.get("DOLMETSCHER_LOG") or os.path.expanduser("~/Library/Log
 LOG_TEXT = False                  # --log-text: gesprochene/übersetzte Texte ins Log (Standard: aus)
 _TEXT_KEYS = ("text", "alt_text", "alts", "out", "would_say", "cmd_retry", "command", "reply")
 _LOGGER = None
+_LOGGER_LOCK = threading.Lock()
 
 
 class _PrivateRotatingHandler(logging.handlers.RotatingFileHandler):
@@ -213,6 +285,13 @@ def _errtxt(e):
 
 def _logger():
     """engine.log rotiert bei ~1 MB, es bleiben 2 Dateien (engine.log + engine.log.1)."""
+    if _LOGGER is not None:
+        return _LOGGER
+    with _LOGGER_LOCK:                       # zwei Threads dürfen nicht zwei Handler anhängen
+        return _make_logger()
+
+
+def _make_logger():
     global _LOGGER
     if _LOGGER is None:
         d = os.path.dirname(LOGFILE)
@@ -222,10 +301,13 @@ def _logger():
         except OSError:
             pass
         h = _PrivateRotatingHandler(LOGFILE, maxBytes=1_000_000, backupCount=1, encoding="utf-8")
-        h.setFormatter(logging.Formatter("%(asctime)s %(message)s", "%H:%M:%S"))
+        h.setFormatter(logging.Formatter("%(asctime)s %(message)s", "%Y-%m-%d %H:%M:%S"))
         lg = logging.getLogger("dolmetscher")
         lg.setLevel(logging.INFO)
         lg.propagate = False
+        for old in [x for x in lg.handlers if isinstance(x, _PrivateRotatingHandler)]:
+            lg.removeHandler(old)
+            old.close()
         lg.addHandler(h)
         _LOGGER = lg
     return _LOGGER
@@ -242,36 +324,110 @@ def log(d):
         pass
 
 
+class NotJSON(ValueError):
+    """Antwort war kein JSON (HTML-Fehlerseite, Captive Portal …)."""
+
+
+_POST_HOSTS = {"translate.googleapis.com", "api.mymemory.translated.net"}
+
+
+def _proxy_for(host):
+    """HTTPS-Proxy aus Umgebung/Systemeinstellung (wie urllib), außer der Host ist ausgenommen."""
+    try:
+        p = urllib.request.getproxies().get("https")
+        if not p or urllib.request.proxy_bypass(host):
+            return None
+        return urllib.parse.urlsplit(p if "://" in p else "http://" + p)
+    except Exception:
+        return None
+
+
 class KeepAlive:
-    """HTTPS-GET über eine offene Verbindung je Host (spart TLS-Handshake pro Satz, ~0,2–0,5 s)."""
+    """HTTPS über offene Verbindungen je Host (spart TLS-Handshake pro Satz, ~0,2–0,5 s).
+    Kein Lock während der Anfrage: ein hängendes MyMemory blockiert Google nicht, parallele Anfragen
+    an denselben Host bekommen eine zweite Verbindung. Der gesprochene Text (`q`) geht bei Google und
+    MyMemory per POST im Body statt in der URL (landet nicht in Proxy-/Server-URL-Logs)."""
+
+    POOL = 2                                           # so viele freie Verbindungen je Host behalten
 
     def __init__(self):
-        self.conns, self.lock = {}, threading.Lock()
+        self.idle, self.lock, self.no_post = {}, threading.Lock(), set()
+
+    def _new(self, host, timeout):
+        px = _proxy_for(host)
+        if px is None or not px.hostname:
+            return http.client.HTTPSConnection(host, timeout=timeout)
+        c = http.client.HTTPSConnection(px.hostname, px.port or 8080, timeout=timeout)
+        hdr = {}
+        if px.username:
+            import base64
+            cred = f"{urllib.parse.unquote(px.username)}:{urllib.parse.unquote(px.password or '')}"
+            hdr["Proxy-Authorization"] = "Basic " + base64.b64encode(cred.encode()).decode()
+        c.set_tunnel(host, 443, headers=hdr)
+        return c
+
+    def _take(self, host, timeout):
+        with self.lock:
+            lst = self.idle.get(host)
+            if lst:
+                return lst.pop(), True
+        return self._new(host, timeout), False
+
+    def _give(self, host, c):
+        with self.lock:
+            lst = self.idle.setdefault(host, [])
+            if len(lst) < self.POOL:
+                lst.append(c)
+                return
+        c.close()
+
+    def _split(self, u):
+        """GET-URL -> (Methode, Pfad, Body): bei Google/MyMemory wandert `q` in einen POST-Body."""
+        path = u.path + ("?" + u.query if u.query else "")
+        if u.netloc not in _POST_HOSTS or u.netloc in self.no_post or not u.query:
+            return "GET", path, None
+        qs = urllib.parse.parse_qsl(u.query, keep_blank_values=True)
+        text = [(k, v) for k, v in qs if k == "q"]
+        if not text:
+            return "GET", path, None
+        rest = urllib.parse.urlencode([(k, v) for k, v in qs if k != "q"])
+        return "POST", u.path + ("?" + rest if rest else ""), urllib.parse.urlencode(text).encode()
 
     def get_json(self, url, timeout):
         u = urllib.parse.urlsplit(url)
-        path = u.path + ("?" + u.query if u.query else "")
-        with self.lock:
-            for attempt in (0, 1):                     # tote Verbindung: einmal neu aufbauen
-                c = self.conns.get(u.netloc)
-                if c is None:
-                    c = self.conns[u.netloc] = http.client.HTTPSConnection(u.netloc, timeout=timeout)
-                c.timeout = timeout
-                if c.sock is not None:
-                    c.sock.settimeout(timeout)
-                try:
-                    c.request("GET", path, headers={"User-Agent": "Mozilla/5.0", "Connection": "keep-alive"})
-                    r = c.getresponse()
-                    body = r.read()
-                except (http.client.HTTPException, ConnectionError, OSError) as e:
-                    c.close()
-                    self.conns.pop(u.netloc, None)
-                    if attempt or isinstance(e, TimeoutError):
-                        raise urllib.error.URLError(e) from e
-                    continue
-                if r.status >= 400:
-                    raise urllib.error.HTTPError(url, r.status, r.reason, r.headers, None)
-                return json.loads(body)
+        host = u.netloc
+        method, path, body = self._split(u)
+        hdr = {"User-Agent": "Mozilla/5.0", "Connection": "keep-alive"}
+        if body is not None:
+            hdr["Content-Type"] = "application/x-www-form-urlencoded;charset=utf-8"
+        for attempt in (0, 1):                     # tote Verbindung: einmal neu aufbauen
+            c, reused = self._take(host, timeout)
+            c.timeout = timeout
+            if c.sock is not None:
+                c.sock.settimeout(timeout)
+            try:
+                c.request(method, path, body=body, headers=hdr)
+                r = c.getresponse()
+                data = r.read()
+            except (http.client.HTTPException, ConnectionError, OSError) as e:
+                c.close()
+                if attempt or not reused or isinstance(e, TimeoutError):
+                    raise urllib.error.URLError(e) from e
+                continue
+            if r.will_close:
+                c.close()
+            else:
+                self._give(host, c)
+            if method == "POST" and r.status in (404, 405, 411, 413, 415):
+                self.no_post.add(host)               # Dienst nimmt kein POST (mehr): künftig GET
+                return self.get_json(url, timeout)
+            if r.status >= 300:
+                raise urllib.error.HTTPError(url, r.status, r.reason, r.headers, None)
+            try:
+                return json.loads(data)
+            except ValueError:
+                ct = (r.getheader("Content-Type") or "?").split(";")[0][:40]
+                raise NotJSON(f"unerwartet: keine JSON-Antwort (HTTP {r.status}, {ct})") from None
 
 
 HTTP = KeepAlive()
@@ -283,16 +439,47 @@ def _get_json(url, timeout):
 
 _CACHE = collections.OrderedDict()           # (text, src, dst, provider-art) -> Übersetzung
 _CACHE_MAX = 300
+_CACHE_LOCK = threading.Lock()                # Arbeits-Thread liest/schreibt, Steuer-Thread leert
+
+
+def _cache_clear():
+    with _CACHE_LOCK:
+        _CACHE.clear()
+
+
+def _cache_get(key):
+    with _CACHE_LOCK:
+        v = _CACHE.get(key)
+        if v is not None:
+            _CACHE.move_to_end(key)
+        return v
+
+
+def _cache_put(key, val):
+    with _CACHE_LOCK:
+        _CACHE[key] = val
+        _CACHE.move_to_end(key)
+        while len(_CACHE) > _CACHE_MAX:
+            _CACHE.popitem(last=False)
 
 
 def _norm(s):
-    return re.sub(r"[\s.,!?。]+", " ", s.lower()).strip()
+    """Cache-Schlüssel: Groß/klein, Leerraum, . , 。 egal – ? und ! bleiben (Frage ≠ Aussage)."""
+    s = s.lower().replace("？", "?").replace("！", "!")
+    s = re.sub(r"[\s.,。]+", " ", s)
+    s = re.sub(r"\s*([?!])[\s?!]*", r"\1", s)                  # "geht's ? !" -> "geht's?"
+    return s.strip()
 
 
 def warm_translate():
     """TLS-Aufbau zu Google vorab, damit der erste Satz ihn nicht zahlt. Fehler still ignoriert."""
     try:
         _get_json("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=en&tl=th&q=hi", 4)
+    except Exception:
+        pass
+    try:                               # Claude-Client (import anthropic, ~0,5–1 s) nicht im ersten Satz bauen
+        if LLM["on"] and llm_available():
+            llm_client()
     except Exception:
         pass
 
@@ -307,9 +494,48 @@ def google_translate(text, src, dst):
     if not out.strip():
         raise ValueError("leere Antwort von Google")
     if dst == "th" and re.search(r"[A-Za-z]{3}", text) and not re.search(r"[฀-๿]", out):
+        if _looks_like_name(text) and out.strip().lower() == text.strip().lower():
+            return out                      # "Hotel California", "Grab": Namen bleiben, kein Fehler
         raise ValueError("Google gab den Text unübersetzt zurück")
-    if dst == "en" and re.search(r"[฀-๿]", out) and len(re.findall(r"[฀-๿]", out)) > len(out) / 2:
+    if dst == "en" and _mostly_thai(out):
         raise ValueError("Google gab Thai statt Englisch zurück")
+    return out
+
+
+def _mostly_thai(s):
+    return len(re.findall(r"[฀-๿]", s)) > len(s) / 2
+
+
+def _looks_like_name(text):
+    """Ein einzelnes Wort oder bis zu 4 groß geschriebene Wörter (Name, Marke, Ort)."""
+    words = re.findall(r"[A-Za-z][\w'’&-]*", text)
+    return len(words) == 1 or (0 < len(words) <= 4 and all(w[0].isupper() for w in words))
+
+
+class _Implausible(ValueError):
+    """Antwort passt nicht zur Aufgabe (falsche Schrift, Ablehnung, Anmerkungen) – kein Netzfehler."""
+
+
+_LLM_PREFIX = re.compile(r"^\s*(?:translation|übersetzung|thai|english|คำแปล)\s*:\s*", re.I)
+_LLM_REFUSAL = re.compile(r"^\W*(?:(?:i'?m sorry|i am sorry|sorry|i can(?:no|'|’)t|i cannot|i'?m unable|i am unable)"
+                          r"\b.*\btranslat|as an ai\b)", re.I | re.S)
+
+
+def _check_llm(text, out, dst):
+    """Claude-Ausgabe plausibilisieren wie Google: richtige Schrift, keine Ablehnung, keine Anmerkungen,
+    Länge passend. Sonst _Implausible – dann übersetzt Google den Satz (ohne Claude-Pause)."""
+    out = _LLM_PREFIX.sub("", out).strip().strip('"“”')
+    if not out:
+        raise _Implausible("unerwartet: leere Claude-Ausgabe")
+    if _LLM_REFUSAL.search(out) or re.search(r"\n\s*\(?(?:note|notes|hinweis|alternative)", out, re.I):
+        raise _Implausible("unerwartet: Claude-Ausgabe mit Ablehnung/Anmerkung")
+    if dst == "th" and re.search(r"[A-Za-z]{3}", text) and not re.search(r"[฀-๿]", out) \
+            and not _looks_like_name(text):
+        raise _Implausible("unerwartet: Claude-Ausgabe nicht auf Thai")
+    if dst == "en" and _mostly_thai(out):
+        raise _Implausible("unerwartet: Claude-Ausgabe nicht auf Englisch")
+    if len(out) > 3 * len(text) + 60:
+        raise _Implausible("unerwartet: Claude-Ausgabe zu lang")
     return out
 
 
@@ -437,17 +663,33 @@ LLM_BACKOFF = 60.0                 # s ohne Claude nach einem Fehler (dann direk
 KEYFILE = os.path.expanduser("~/Library/Application Support/Dolmetscher/anthropic_key")
 
 
+_LLM_CLIENT_LOCK = threading.Lock()
+
+
+def _private_keyfile():
+    """Schlüsseldatei darf nur der Nutzer lesen: sonst auf 0600 setzen und das melden."""
+    try:
+        mode = os.stat(KEYFILE).st_mode
+        if mode & 0o077:
+            os.chmod(KEYFILE, 0o600)
+            log({"llm": "schlüsseldatei war für andere lesbar, auf 0600 gesetzt"})
+    except OSError:
+        pass
+
+
 def llm_client():
     """Anthropic-Client, wenn das SDK installiert ist und ein Schlüssel vorliegt (Umgebung oder Datei)."""
-    if LLM["client"] is None:
-        import anthropic
-        key = os.environ.get("ANTHROPIC_API_KEY")
-        if not key and os.path.exists(KEYFILE):
-            with open(KEYFILE, encoding="utf-8") as f:
-                key = f.read().strip() or None
-        LLM["client"] = anthropic.Anthropic(api_key=key, timeout=5.0, max_retries=0) if key else \
-            anthropic.Anthropic(timeout=5.0, max_retries=0)
-    return LLM["client"]
+    with _LLM_CLIENT_LOCK:                       # Vorwärmen (Start) und Arbeits-Thread nicht doppelt
+        if LLM["client"] is None:
+            import anthropic
+            key = os.environ.get("ANTHROPIC_API_KEY")
+            if not key and os.path.exists(KEYFILE):
+                _private_keyfile()
+                with open(KEYFILE, encoding="utf-8") as f:
+                    key = f.read().strip() or None
+            LLM["client"] = anthropic.Anthropic(api_key=key, timeout=5.0, max_retries=0) if key else \
+                anthropic.Anthropic(timeout=5.0, max_retries=0)
+        return LLM["client"]
 
 
 _LLM_AVAIL = {"t": 0.0, "env": None, "v": False}
@@ -488,6 +730,7 @@ LLM_SYSTEM = (
 
 GLOSSARY_FILE = os.path.expanduser("~/Library/Application Support/Dolmetscher/glossary.txt")
 GLOSSARY = []                      # [(Wort, Übersetzung oder None = unverändert lassen)]
+_GLOSSARY_OWN = None               # Einträge aus der eigenen Datei (None = alle); Preset-Wörter nur für Claude
 
 
 def load_glossary(text=None):
@@ -501,24 +744,108 @@ def load_glossary(text=None):
             text = ""
     else:
         try:
-            os.makedirs(os.path.dirname(GLOSSARY_FILE), exist_ok=True)
-            with open(GLOSSARY_FILE, "w", encoding="utf-8") as f:
-                f.write(text)
+            _write_private(GLOSSARY_FILE, text)
         except OSError as e:
-            log({"glossary": "speichern fehlgeschlagen", "err": repr(e)[:120]})
+            log({"glossary": "speichern fehlgeschlagen", "err": _errtxt(e)})
     items = []
     for line in text.splitlines():
         a, sep, b = line.partition("=>")
         a, b = a.strip(), b.strip()
         if a:
             items.append((a, b if sep and b else None))
+    global _GLOSSARY_OWN
     GLOSSARY[:] = items[:200]
-    _CACHE.clear()                     # alte Übersetzungen kennen die neuen Einträge nicht
+    _GLOSSARY_OWN = frozenset(GLOSSARY)
+    _cache_clear()                     # alte Übersetzungen kennen die neuen Einträge nicht
+
+
+def _write_private(path, text):
+    """Atomar (Temp-Datei + os.replace) und nur für den Nutzer lesbar (0600): Namen/Orte sind privat,
+    ein Absturz beim Schreiben hinterlässt keine leere Datei."""
+    d = os.path.dirname(path)
+    os.makedirs(d, mode=0o700, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=d, prefix=".tmp_")            # mkstemp legt mit 0600 an
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(text)
+        os.chmod(tmp, 0o600)
+        os.replace(tmp, path)
+    except BaseException:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
+
+
+_ASCII_ALNUM = re.compile(r"[A-Za-z0-9]")
+
+
+@functools.lru_cache(maxsize=1024)
+def _term_rx(term):
+    """Suchmuster für einen Glossar-/Aussprache-Eintrag: lateinische Wörter nur als ganzes Wort
+    ("Pat" trifft nicht "path"), Thai (ohne Leerzeichen geschrieben) als Teilstring."""
+    pre = r"(?<![A-Za-z0-9])" if _ASCII_ALNUM.match(term[:1]) else ""
+    post = r"(?![A-Za-z0-9])" if _ASCII_ALNUM.match(term[-1:]) else ""
+    return re.compile(pre + re.escape(term) + post, re.I)
 
 
 def glossary_hits(text):
-    low = text.lower()
-    return [(a, b) for a, b in GLOSSARY if a.lower() in low]
+    return [(a, b) for a, b in GLOSSARY if _term_rx(a).search(text)]
+
+
+_SLOT = re.compile(r"\[\s*(\d{1,2})\s*\]")
+
+
+def _in_script(word, lang):
+    th = bool(re.search(r"[\u0e00-\u0e7f]", word))
+    return th if lang == "th" else not th
+
+
+def _protect(text, dst):
+    """Glossar für Google/MyMemory: Einträge durch Platzhalter [1], [2] … ersetzen (überstehen beide
+    Dienste unverändert) und merken, was danach eingesetzt wird – die Übersetzung aus dem Glossar,
+    sonst der Name unverändert. Auch rückwärts: steht die Übersetzung im Text, kommt das Wort zurück."""
+    slots = []
+    own = _GLOSSARY_OWN
+    for a, b in GLOSSARY:
+        if own is not None and (a, b) not in own:
+            continue                   # Preset-Allerweltswörter ("room => ห้อง") würden ห้องน้ำ zerreißen
+        if len(slots) >= 20:
+            break
+        if _term_rx(a).search(text):
+            find, val = a, (b if b and _in_script(b, dst) else a)
+        elif b and _in_script(a, dst) and _term_rx(b).search(text):
+            find, val = b, a
+        else:
+            continue
+        n = len(slots) + 1
+        new = _term_rx(find).sub(f" [{n}] ", text)
+        if new != text:
+            text = new
+            slots.append(val)
+    return re.sub(r"[ \t]{2,}", " ", text).strip(), slots
+
+
+def _restore(out, slots):
+    """Platzhalter zurücksetzen; None, wenn einer fehlt (dann ohne Platzhalter neu übersetzen)."""
+    found = {int(m.group(1)) for m in _SLOT.finditer(out)}
+    if not all(i in found for i in range(1, len(slots) + 1)):
+        return None
+    out = _SLOT.sub(lambda m: slots[int(m.group(1)) - 1] if 0 < int(m.group(1)) <= len(slots) else m.group(0), out)
+    out = re.sub(r"[ \t]+([.,!?;:])", r"\1", re.sub(r"[ \t]{2,}", " ", out))
+    return out.strip()
+
+
+def _mt(fn, text, src, dst, *extra):
+    """Google/MyMemory-Aufruf mit Glossar-Platzhaltern (Claude bekommt das Glossar im Prompt)."""
+    prot, slots = _protect(text, dst)
+    if not slots:
+        return fn(text, src, dst, *extra)
+    if not re.search(r"\w", _SLOT.sub("", prot)):             # nur Glossar-Einträge: nichts zu übersetzen
+        return _restore(prot, slots)
+    res = _restore(fn(prot, src, dst, *extra), slots)
+    return res if res is not None else fn(text, src, dst, *extra)
 
 
 PRESET = presets.PresetState()
@@ -531,7 +858,7 @@ def set_preset(eng, pid, quiet=False):
         log({"preset": "unbekannt", "id": str(pid)[:40]})
         return None
     p = PRESET.activate(pid, all_p, GLOSSARY, LLM, eng)
-    _CACHE.clear()                     # Stil und Glossar ändern die Übersetzung
+    _cache_clear()                     # Stil und Glossar ändern die Übersetzung
     if not quiet:
         emit("preset", id=p["id"] if p else None, name=p["names"]["en"] if p else None)
     return p["names"]["en"] if p else None
@@ -558,9 +885,13 @@ def load_pronounce(path=None):
 
 
 def apply_pronounce(text):
-    for a, b in PRONOUNCE:
-        text = re.sub(re.escape(a), lambda m: b, text, flags=re.I)
-    return text
+    """Ein Durchgang, längste Einträge zuerst, lateinische Wörter nur als ganzes Wort: "Pat => Pät"
+    ändert nicht "pattern", und eine Ersetzung wird nicht von der nächsten Regel erneut ersetzt."""
+    if not PRONOUNCE:
+        return text
+    items = sorted(PRONOUNCE, key=lambda x: -len(x[0]))
+    rx = re.compile("|".join(f"({_term_rx(a).pattern})" for a, _ in items), re.I)
+    return rx.sub(lambda m: items[m.lastindex - 1][1], text)
 
 
 STYLES = {
@@ -615,7 +946,12 @@ def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
     pin, pout = LLM_PRICE.get(LLM["model"], (4.0, 20.0))
     u = getattr(r, "usage", None)
     if u is not None:                               # Kosten mitzählen (Schätzung nach Preisliste)
-        LLM["usd"] += ((getattr(u, "input_tokens", 0) or 0) * pin + (getattr(u, "output_tokens", 0) or 0) * pout) / 1e6
+        def n(k):
+            v = getattr(u, k, 0)
+            return v if isinstance(v, (int, float)) else 0
+        # Prompt-Caching: Lesen kostet 0,1×, Schreiben 1,25× des Eingabepreises
+        LLM["usd"] += (n("input_tokens") * pin + n("cache_read_input_tokens") * pin * 0.1
+                       + n("cache_creation_input_tokens") * pin * 1.25 + n("output_tokens") * pout) / 1e6
         emit("llm_cost", usd=round(LLM["usd"], 4))
     if r.stop_reason != "end_turn":                    # refusal, max_tokens, … -> nie halbe Sätze vorlesen
         raise RuntimeError(f"Claude: stop_reason {r.stop_reason}")
@@ -625,9 +961,25 @@ def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
     return out
 
 
-LAUGH = {"th": re.compile(r"(?<!\d)5{3,}(?!\d)|(?:ฮ่า\s*){2,}ๆ*|ฮ่า\s*ๆ+|(?:คิก\s*){2,}|คิก\s*ๆ+"),
+LAUGH = {"th": re.compile(r"(?<![\d.,:\-])5{3,}(?![\d.,:\-]?\d|\s\d)|(?:ฮ่า\s*){2,}ๆ*|ฮ่า\s*ๆ+|(?:คิก\s*){2,}|คิก\s*ๆ+"),
          "en": re.compile(r"\b(?:a?ha(?:ha)+h?|lol|lmao|hehe(?:he)*)\b", re.I)}
 LAUGH_OUT = {"th": "555", "en": "haha"}
+# "555" ist im Thai Lachen – aber nicht als Preis, Zimmer-, Flug- oder Telefonnummer
+_NUM_BEFORE = re.compile(r"(?:ราคา|ห้อง|เบอร์|เลข(?:ที่)?|หมายเลข|เที่ยวบิน|โทร|ชั้น|ตึก|สาย|รถ|ซอย|บ้าน|โต๊ะ|ประตู|"
+                         r"room|flight|number|no\.?|bus|gate|table|price|[#$฿€£])\s*$", re.I)
+_NUM_AFTER = re.compile(r"^\s*(?:บาท|โมง|นาที|ชั่วโมง|วินาที|วัน|เดือน|ปี|คน|ชิ้น|อัน|ตัว|กิโล|กก|กม|เมตร|ม\.|ลิตร|"
+                        r"ดอลลาร์|เหรียญ|ยูโร|ครั้ง|หลัง|เล่ม|ใบ|แก้ว|จาน|ขวด|%|baht|thb|usd|dollars?|euros?|"
+                        r"km|kg|minutes?|hours?|days?|years?|people)", re.I)
+
+
+def _laugh_sub(text, repl=" "):
+    """Thai-Lachen ersetzen; ein 555 mit Zahl-/Einheitenkontext ("ห้อง 555", "555 บาท") bleibt stehen."""
+    def one(m):
+        s = m.group(0)
+        if s[0] == "5" and (_NUM_BEFORE.search(text[:m.start()]) or _NUM_AFTER.match(text[m.end():])):
+            return s
+        return repl
+    return LAUGH["th"].sub(one, text)
 
 
 FILLERS = {
@@ -658,7 +1010,9 @@ def translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
     text = strip_fillers(text, src)
     rx = LAUGH.get(src)
     if rx and rx.search(text):
-        rest = rx.sub(" ", text).strip(" ,.!")
+        rest = (_laugh_sub(text) if src == "th" else rx.sub(" ", text)).strip(" ,.!")
+        if rest == text.strip(" ,.!"):                 # nur 555 als Zahl, kein Lachen
+            return _translate(text, src, dst, history, alts, polite, meta)
         if not rest:
             if meta is not None:
                 meta.update(provider="none")
@@ -676,6 +1030,8 @@ def _llm_backoff(e):
     """Wie lange nach einem Claude-Fehler direkt Google? Kurz bei Zeitüberschreitung/400, lang bei Auth."""
     sc = getattr(e, "status_code", None)
     name = type(e).__name__
+    if isinstance(e, _Implausible):
+        return 0.0                                       # inhaltlich, kein Ausfall: nächster Satz wieder Claude
     if sc in (401, 403):
         return 300.0                                     # Schlüssel falsch: nicht jeden Satz neu versuchen
     if sc == 400 or isinstance(e, TimeoutError) or "Timeout" in name:
@@ -685,59 +1041,123 @@ def _llm_backoff(e):
     return LLM_BACKOFF
 
 
+# Hedging: antwortet Claude nicht binnen dieser Frist, übersetzt parallel Google; was zuerst brauchbar
+# da ist, wird genommen. Je Modell, weil Sonnet/Opus regelmäßig länger brauchen als Haiku.
+LLM["hedge_s"] = None                   # None = nach Modell (HEDGE_S), sonst feste Sekunden
+HEDGE_S = {"claude-haiku-5-5": 2.0, "claude-sonnet-5-5": 3.5, "claude-opus-5-5": 4.5}
+
+
+def _hedge_s():
+    v = LLM.get("hedge_s")
+    return float(v) if isinstance(v, (int, float)) else HEDGE_S.get(LLM["model"], 3.5)
+
+
+def _llm_failed(e):
+    LLM["err"] = _errtxt(e)
+    LLM["skip_until"] = time.time() + _llm_backoff(e)
+    log({"translate": "claude-fehler", "err": LLM["err"]})
+
+
+def _llm_late(fut):
+    """Claude kam nach dem Hedging zu spät: Fehler trotzdem für Backoff/Anzeige merken."""
+    e = fut.exception()
+    if e is not None:
+        _llm_failed(e)
+    else:
+        LLM["err"] = None
+
+
+def _claude_async(text, src, dst, history, alts, polite):
+    """Claude in eigenem Daemon-Thread (hängt nie das Beenden auf); schreibt nicht in `meta`."""
+    import concurrent.futures
+    fut = concurrent.futures.Future()
+
+    def run():
+        try:
+            fut.set_result(_check_llm(text, claude_translate(text, src, dst, history, alts, polite), dst))
+        except BaseException as e:      # noqa: BLE001 – geht als Ergebnis an den Aufrufer
+            fut.set_exception(e)
+    threading.Thread(target=run, daemon=True, name="claude").start()
+    return fut
+
+
 def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
     """Claude (wenn an und verfügbar) → Google (gtx) → MyMemory. Wirft eine Exception statt eine
     Fehlermeldung zu liefern. `meta` (dict) bekommt provider und cached."""
+    import concurrent.futures
     meta = meta if meta is not None else {}
     use_llm = LLM["on"] and time.time() >= LLM["skip_until"] and llm_available()
     key = _cache_key(text, src, dst, use_llm, polite)
-    if key in _CACHE and not (use_llm and history):        # mit Verlauf ist der Kontext jedes Mal anders
-        _CACHE.move_to_end(key)
-        meta.update(provider=_CACHE[key][1], cached=True)
-        return _CACHE[key][0]
-    out, e1 = None, None
+    hit = None if (use_llm and history) else _cache_get(key)   # mit Verlauf ist der Kontext jedes Mal anders
+    if hit is not None:
+        meta.update(provider=hit[1], cached=True)
+        return hit[0]
+    out, fut = None, None
     if use_llm:
+        fut = _claude_async(text, src, dst, history, alts, polite)
         try:
-            out = claude_translate(text, src, dst, history, alts, polite)
+            out = fut.result(timeout=_hedge_s())
+            fut = None
             meta["provider"] = "claude"
             LLM["err"] = None
+        except concurrent.futures.TimeoutError:
+            fut.add_done_callback(_llm_late)            # Claude läuft weiter, Google parallel
+            log({"translate": "claude-langsam", "hedge_s": _hedge_s()})
         except Exception as e:
-            LLM["err"] = _errtxt(e)
-            LLM["skip_until"] = time.time() + _llm_backoff(e)
-            log({"translate": "claude-fehler", "err": LLM["err"]})
+            fut = None
+            _llm_failed(e)
     if out is None:
-        now = time.time()
-        if now < _OFFLINE["until"]:                      # Schalter: nicht für jeden Satz 6+8 s warten
-            raise RuntimeError("offline – keine Internetverbindung")
-        if now >= _PROV["google"]["until"]:
-            try:
-                out = google_translate(text, src, dst)
-                meta["provider"] = "google"
-                _note_ok("google")
-            except Exception as e:
-                e1 = e
-                _note_fail("google", e)
-                log({"translate": "google-fehler", "err": _errtxt(e)})
-        if out is None:
-            if time.time() < _PROV["mymemory"]["until"]:
-                if e1 is not None:
-                    raise e1
-                raise RuntimeError("Übersetzung pausiert (Limit erreicht), gleich wieder")
-            try:
-                out = mymemory_translate(text, src, dst, e1)
-                meta["provider"] = "mymemory"
-                _note_ok("mymemory")
-            except Exception as e:
-                _note_fail("mymemory", e)
-                if "offline" in str(e):
-                    _OFFLINE["until"] = time.time() + OFFLINE_HOLD
+        try:
+            out = _mt_chain(text, src, dst, meta)
+        except Exception:
+            if fut is None:
                 raise
+            try:                                         # Google/MyMemory scheitern: doch auf Claude warten
+                out = fut.result(timeout=8)
+            except Exception:
+                pass
+            if out is None:
+                raise
+            meta["provider"] = "claude"
+        else:
+            if fut is not None and fut.done() and fut.exception() is None:
+                out, meta["provider"] = fut.result(), "claude"     # Claude kam doch noch rechtzeitig
     if use_llm and meta["provider"] != "claude":         # Google-Ersatz nicht als Claude-Ergebnis merken
         key = _cache_key(text, src, dst, False, polite)
-    _CACHE[key] = (out, meta["provider"])
-    if len(_CACHE) > _CACHE_MAX:
-        _CACHE.popitem(last=False)
+    _cache_put(key, (out, meta["provider"]))
     return out
+
+
+def _mt_chain(text, src, dst, meta):
+    """Google (gtx) → MyMemory, mit Backoff je Anbieter und Offline-Schalter."""
+    out, e1 = None, None
+    now = time.time()
+    if now < _OFFLINE["until"]:                      # Schalter: nicht für jeden Satz 6+8 s warten
+        raise RuntimeError("offline – keine Internetverbindung")
+    if now >= _PROV["google"]["until"]:
+        try:
+            out = _mt(google_translate, text, src, dst)
+            meta["provider"] = "google"
+            _note_ok("google")
+            return out
+        except Exception as e:
+            e1 = e
+            _note_fail("google", e)
+            log({"translate": "google-fehler", "err": _errtxt(e)})
+    if time.time() < _PROV["mymemory"]["until"]:
+        if e1 is not None:
+            raise e1
+        raise RuntimeError("Übersetzung pausiert (Limit erreicht), gleich wieder")
+    try:
+        out = _mt(mymemory_translate, text, src, dst, e1)
+        meta["provider"] = "mymemory"
+        _note_ok("mymemory")
+        return out
+    except Exception as e:
+        _note_fail("mymemory", e)
+        if "offline" in str(e):
+            _OFFLINE["until"] = time.time() + OFFLINE_HOLD
+        raise
 
 
 _TH_RX = re.compile(r"[\u0e00-\u0e7f]")
@@ -776,31 +1196,68 @@ _NUM = re.compile(r"\d+(?:[.,:]\d+)*")
 _THAI_DIGITS = str.maketrans("๐๑๒๓๔๕๖๗๘๙", "0123456789")
 
 
+_PM_TIME = re.compile(r"(?<![\d.:])(\d{1,2})(?::(\d{2}))?\s*([ap])\.?\s*m\b\.?", re.I)
+_TH_PM = re.compile(r"(?:บ่าย|เย็น)\s*(\d{1,2})(?::(\d{2}))?")
+
+
+def _time24(m, pm):
+    h, mi = int(m.group(1)), m.group(2) or "00"
+    if pm and h < 12:
+        h += 12
+    elif not pm and h == 12:
+        h = 0
+    return f"{h}:{mi}"
+
+
 def _numbers(s):
-    """Zahlen vergleichbar machen: 1.500/1,500 = Tausender (1500), 3:30 = 3.30 (Uhrzeit), aber 1.5 != 15."""
+    """Zahlen vergleichbar machen: 1.500/1,500 = Tausender (1500), 3:30 = 3.30 (Uhrzeit), aber 1.5 != 15;
+    2:30 PM = 14:30 (auch บ่าย 2:30), 9:00 = 9, 09 = 9. Thai-Lachen (555 ohne Zahlkontext) zählt nicht."""
+    s = _laugh_sub(s.translate(_THAI_DIGITS))
+    s = _PM_TIME.sub(lambda m: _time24(m, m.group(3).lower() == "p"), s)
+    s = _TH_PM.sub(lambda m: _time24(m, True), s)
     out = []
-    for x in _NUM.findall(s.translate(_THAI_DIGITS)):
+    for x in _NUM.findall(s):
         x = re.sub(r"(?<=\d)[.,](?=\d{3}(?!\d))", "", x)
-        out.append(re.sub(r"[.,:]", ".", x))
-    return sorted(x for x in out if not re.fullmatch(r"5{3,}", x))      # 555 = Lachen, keine Zahl
+        x = re.sub(r"[.,:]", ".", x)
+        x = re.sub(r"\.00$", "", x)                      # 9:00 = 9
+        out.append(re.sub(r"^0+(?=\d)", "", x))
+    return sorted(out)
 
 
 def numbers_differ(a, b):
-    """True, wenn Ziffern im Original und in der Übersetzung nicht übereinstimmen (Preise, Zeiten)."""
+    """True, wenn Zahlen im Original und in der Übersetzung nicht übereinstimmen (Preise, Zeiten).
+    Nur mit Zahlen auf beiden Seiten; einstellige Zahlen zählen nicht (oft als Wort übersetzt: 2 = สอง)."""
     na, nb = _numbers(a), _numbers(b)
-    return bool(na and nb) and na != nb
+    if not (na and nb):
+        return False
+    diff = set(na) ^ set(nb)
+    return any(len(re.sub(r"\D", "", x)) >= 2 for x in diff)
+
+
+_TH_CH = "\u0e01-\u0e4e"                     # Thai-Buchstaben/-Vokale/-Tonzeichen (ohne Ziffern)
+_HAIR = r"(?:ยาว|สั้น|ร่วง|หงอก|ขาว|ดำ|สี|เปีย|ตรง|หยิก|ม้า|เส้น|เผ้า|ทรง|ของ(?:คุณ|เธอ|เขา|แม่|พ่อ))"
 
 
 def fix_thai(s, polite):
-    """Google liefert 'ครับ/ค่ะ' – eine Form wählen, sonst liest Kanya den Schrägstrich vor."""
+    """Höflichkeit und Pronomen an die Stimme angleichen: Google liefert 'ครับ/ค่ะ' (Kanya liest den
+    Schrägstrich vor) oder einfach die Form des anderen Geschlechts. Mann: ครับ, ผม; Frau: ค่ะ/คะ, ฉัน.
+    Vorsichtig: คะ steckt in คะแนน, ผม heißt auch "Haar" (ตัดผม, ผมยาว) – das bleibt."""
     male = polite == "krub"
     s = re.sub(r"ครับ\s*/\s*ค่ะ|ค่ะ\s*/\s*ครับ", "ครับ" if male else "ค่ะ", s)
     s = re.sub(r"ครับ\s*/\s*คะ|คะ\s*/\s*ครับ", "ครับ" if male else "คะ", s)
-    s = re.sub(r"ผม\s*/\s*ฉัน|ฉัน\s*/\s*ผม", "ผม" if male else "ฉัน", s)
+    s = re.sub(r"ผม\s*/\s*(?:ดิ)?ฉัน|(?:ดิ)?ฉัน\s*/\s*ผม", "ผม" if male else "ฉัน", s)
     s = re.sub(r"คุณ\s*/\s*ท่าน|ท่าน\s*/\s*คุณ", "คุณ", s)
-    if not male:   # Frage endet mit คะ (hoher Ton), Aussage mit ค่ะ
+    end = f"(?![{_TH_CH}])"                           # Partikel steht am Wortende
+    if male:
+        s = re.sub(f"(?:ค่ะ|คะ|ค๊ะ){end}", "ครับ", s)
+        s = re.sub(r"(?:ดิ)?ฉัน(?!ท์)", "ผม", s)
+    else:
+        s = re.sub(f"ครับผม{end}|ครับ{end}", "ค่ะ", s)
+        s = re.sub(f"(?:(?<=^)|(?<=\\s)|(?<=ของ)|(?<=กับ)|(?<=ให้)|(?<=ว่า))ผม(?!\\s*{_HAIR})", "ฉัน", s)
+        # Frage endet mit คะ (hoher Ton), Aussage mit ค่ะ: nach Fragewort oder vor einem ?
         s = re.sub(r"((?:ไหม|มั้ย|หรือ(?:เปล่า)?|(?<!ไม่มี)(?<!ไม่เป็น)อะไร|ที่ไหน|ไหน|เมื่อไหร่|เมื่อไร|ทำไม|ยังไง|อย่างไร|กี่\S*|ใคร)\s*)ค่ะ"
                    r"(?=\s*[?？]?\s*$|\s)", r"\1คะ", s)
+        s = re.sub(r"ค่ะ(?=\s*[?？])|(?<=นะ)ค่ะ", "คะ", s)          # นะคะ, nie นะค่ะ
     return s
 
 
@@ -845,6 +1302,7 @@ def _warm(m):
 def _wm(model, **kw):
     """Modell von der Platte laden, ohne bei jedem Start beim Hub nachzufragen (Modelle liegen
     nach dem ersten Mal im Cache). Nur wenn es lokal fehlt: herunterladen."""
+    kw.setdefault("revision", MODEL_REVISIONS.get(model))   # eigene Pfade/Repo-IDs: None = wie bisher
     try:
         return WhisperModel(model, local_files_only=True, **kw)
     except Exception as e:
@@ -920,7 +1378,8 @@ def split_sentences(s, lang, min_len=60):
     if lang == "th":   # Thai trennt Sätze/Phrasen mit Leerzeichen
         parts = re.split(r"(?<=[฀-๿\d])\s+(?=[฀-๿])", s)
     else:
-        parts = re.split(r"(?<=[.!?;])\s+", s)
+        parts = re.split(r"(?<!\bMr\.)(?<!\bMrs\.)(?<!\bMs\.)(?<!\bDr\.)(?<!\bSt\.)(?<!\bvs\.)(?<!\be\.g\.)"
+                         r"(?<!\bi\.e\.)(?<=[.!?;])\s+", s)        # "Mr. Smith" nicht zerteilen
     out, cur = [], ""
     for p in parts:                     # zu kurze Stücke zusammenfassen (natürlicher Klang)
         cur = f"{cur} {p}".strip() if cur else p
@@ -2331,15 +2790,12 @@ class Engine:
             hw = stt(audio, "en", hotwords=HOTWORDS)[0]
             info["cmd_retry"] = hw
             en_text = hw or en_text
-        m = WAKE.match(en_text)
-        fz = None if m else WAKE_FUZZY.match(en_text)
-        if fz and parse_command(fz.group(1)) not in (None, "wake"):
-            m = fz                              # "Translate or pause" -> Befehl
+        woke = match_wake(en_text)              # "" = bloßes Weckwort, None = kein Weckwort
         if role == "other":
-            m = None                            # Partner-Stimme (Profil) gibt keine Befehle (auch nicht Wiedergabe)
-        if m or (role != "other" and time.monotonic() < self.awake_until and en_text
-                 and len(en_text.split()) <= 4):
-            cmd = m.group(1) if m else en_text
+            woke = None                         # Partner-Stimme (Profil) gibt keine Befehle (auch nicht Wiedergabe)
+        if woke is not None or (role != "other" and time.monotonic() < self.awake_until and en_text
+                                and len(en_text.split()) <= 4):
+            cmd = woke if woke is not None else en_text
             info["command"] = cmd
             log(info)
             emit("dropped", reason="befehl", code="command", id=uid)

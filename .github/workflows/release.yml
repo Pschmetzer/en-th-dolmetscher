@@ -31,7 +31,7 @@ jobs:
           echo "VERSION=${version}" >> "$GITHUB_ENV"
       - name: Run tests
         run: |
-          python -m pip install -r requirements-dev.txt
+          python -m pip install --require-hashes -r requirements-dev.txt
           python -m pytest -q
       - name: Build app (ad hoc signature, no model download)
         env:

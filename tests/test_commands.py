@@ -4,22 +4,13 @@ Der Import von dolmetscher lädt kein Whisper-Modell (nur `from faster_whisper i
 """
 import pytest
 
-from dolmetscher import WAKE, WAKE_FUZZY, parse_command
+from dolmetscher import WAKE, WAKE_FUZZY, _strip_punct, match_wake, parse_command
 
 
 def detect(text):
-    """Nachbau der Weckwort-Logik aus Engine (dolmetscher.py, Abschnitt "Sprachbefehle").
-
-    Gibt den erkannten Befehl zurück oder None, wenn kein Weckwort erkannt wurde.
-    Muss angepasst werden, falls sich die Logik in Engine ändert.
-    """
-    m = WAKE.match(text)
-    fz = None if m else WAKE_FUZZY.match(text)
-    if fz and parse_command(fz.group(1)) not in (None, "wake"):
-        m = fz
-    if not m:
-        return None
-    return parse_command(m.group(1).strip(" .,!?"))
+    """Befehl so, wie Engine ihn ausführt: echte Weckwort-Funktion + Satzzeichen weg + parse_command."""
+    rest = match_wake(text)
+    return None if rest is None else parse_command(_strip_punct(rest))
 
 
 # echte Verhörer aus Logs
@@ -88,3 +79,16 @@ def test_wake_regex_matches(text, rest):
 ])
 def test_wake_regex_rejects(text):
     assert WAKE.match(text) is None
+
+
+def test_bare_wake_word_is_empty_not_none():
+    # "" (bloßes Weckwort) darf nicht mit None (kein Weckwort) verwechselt werden: Engine öffnet sonst
+    # kein Befehlsfenster bzw. übersetzt "Translator." als Satz.
+    assert match_wake("Translator.") == ""
+    assert match_wake("Hey translator") == ""
+    assert match_wake("Hello there") is None
+
+
+def test_fuzzy_wake_without_command_is_none():
+    assert match_wake("Translate this menu for me") is None
+    assert match_wake("Translate or pause.") == "pause."

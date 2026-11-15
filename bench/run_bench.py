@@ -18,7 +18,9 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 SR = 16000
 AUDIO_EXT = (".wav", ".m4a", ".mp3", ".aiff", ".flac", ".ogg", ".caf")
-FFMPEG = os.environ.get("DOLMETSCHER_FFMPEG") or shutil.which("ffmpeg") or "/opt/homebrew/bin/ffmpeg"
+# Reihenfolge: Umgebungsvariable, PATH, Homebrew (Apple Silicon, dann Intel)
+FFMPEG = (os.environ.get("DOLMETSCHER_FFMPEG") or shutil.which("ffmpeg")
+          or next((p for p in ("/opt/homebrew/bin/ffmpeg", "/usr/local/bin/ffmpeg") if os.path.exists(p)), "ffmpeg"))
 
 # ---------------------------------------------------------------- Normalisierung / Metriken
 
