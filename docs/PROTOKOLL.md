@@ -146,3 +146,69 @@ Am Protokoll ändert sich nichts (keine neuen Ereignisse oder Felder). Verhalten
 - **Zweite Sprachprüfung:** Würde ein Satz als „weder Englisch noch Thai“ verworfen, obwohl Englisch oder
   Thai mindestens 5 % haben und die fremde Sprache unter 85 % liegt (typisch: Englisch mit Akzent, vom kleinen
   Modell für Deutsch/Spanisch gehalten), entscheidet das Hauptmodell. Log: `second_look`, `times.detect2`.
+
+## Beenden, Handshake, Härtung (Branch feat/verbesserungen-rundum, Engine-Seite)
+
+- `ready` hat zusätzlich `protocol` (Zahl, aktuell `1`) und `engine_version` (String).
+- stdin `{"ping": <id>}` -> Ereignis `pong` (mit derselben `id`, wenn Zahl/Text bis 64 Zeichen). Zeigt, dass die Steuerung lebt.
+- Ende von stdin (App beendet oder abgestürzt) beendet die Engine geordnet (Ausgabe stumm, ffmpeg beendet, Exit 0). SIGTERM/SIGINT ebenso; ein zweites Signal beendet sofort.
+- Steuerwerte: Wahrheitswerte nur `true`/`false` (auch `"true"`/`"false"`, `0`/`1`), anderes wird ignoriert. Unbekannte Stimme (`voice_en`/`voice_th`) -> `error`-Ereignis, Standardstimme. `glossary` max. 20000 Zeichen, `say`/`retranslate`-Text max. 1000 Zeichen, sonst `error`.
+- `mic` kann `reconnecting` (true) und `attempt` enthalten: die Quelle (Gerät) ist weggefallen, die Engine verbindet mit Wartezeit neu (bis 5 Versuche); danach `error` und (ohne `--idle`) Ende.
+- `error` bei Mikrofonproblemen nennt Zugriff verweigert / ffmpeg fehlt / Quelle ungültig.
+- `--profile-stdin`: Profilname und Wörter als eine JSON-Zeile von stdin statt per Startargument: `{"enroll": "Name", "enroll_lang": "en", "delete_profile": "Name", "vocab": ["Name", "wort1, wort2"]}`.
+- Befehle: `repeat` nutzt wie alle Befehle den gemeinsamen Abschluss (`command`-Ereignis, Log); „Clear“ leert auch Texte, Wiederholung und Roh-Audio im Speicher. Ein Folgesatz nach „Translator“ gilt nur bei höchstens 4 Wörtern als Befehl.
+
+## Hardware-Auswahl und Korrektur-Vorschläge
+
+- `--model auto` wählt Modell und Beam nach Chip/RAM (Standard bleibt `medium`). Stufen: `small` (Intel
+  oder unter 8 GB), `medium` (Apple Silicon ab 8 GB, Beam 1; ab 16 GB Beam 3), `best` (Pro/Max/Ultra ab 24 GB,
+  Beam 5). `DOLMETSCHER_BEAM` überschreibt den Beam. Ereignis `hwprofile`: `chip`, `ram_gb`, `model`, `beam`,
+  `reason` (kommt direkt nach `ready`).
+- `utt` mit `source: "edit"` (Antwort auf `retranslate`) trägt optional `suggest_vocab`: Liste von Wörtern, die
+  der Nutzer gegenüber dem alten erkannten Text geändert oder ergänzt hat (ohne Eigennamen, Zahlen, Einheiten;
+  Thai per pythainlp-Segmentierung, sonst Thai-Läufe). Nur ein Vorschlag: die Engine speichert nichts, die App
+  fragt den Nutzer und schickt es ggf. per `--vocab` bzw. Glossar.
+- Ungültige Profilnamen bei `--vocab`/`--enroll` ergeben ein `error`-Ereignis statt eines Tracebacks.
+
+## Szenario-Presets (Branch feat/presets)
+
+Presets sind Daten: `presets/*.json` neben der Engine (mitgeliefert: `travel`, `restaurant`, `hotel`, `taxi`,
+`doctor` (nur Verständigung, kein medizinischer Rat), `office`, `shopping`) und eigene Dateien in
+`$DOLMETSCHER_HOME/presets/` (Standard `~/Library/Application Support/Dolmetscher/presets/`; gleiche `id`
+überschreibt das mitgelieferte Preset, ungültige Dateien werden übersprungen). Aufbau je Datei:
+
+- `id` (a-z, 0-9, `_`, `-`, max. 32), `names` `{de, en, th}` (max. 40 Zeichen), `style` (`casual`/`neutral`/`polite`)
+- optional `polite` (`krub`/`ka`), `voice` `{en?, th?}` (Stimmnamen aus der Stimmenliste)
+- `glossary`: bis 100 Paare `{en, th}` (max. 60 Zeichen), gelten in beide Richtungen
+- `phrases`: bis 50 Schnellsätze `{en, th}` (max. 200 Zeichen), werden nur geliefert, nicht automatisch gesprochen
+
+Steuerfeld (stdin): `preset: "<id>"` setzt den Stil und fügt das Glossar zum eigenen hinzu (eigene Einträge
+haben Vorrang). `preset: "none"` (oder `null`) stellt Stil, Höflichkeit, Stimmen und Glossar von vorher wieder
+her. Eigene `style`/`glossary`-Änderungen während eines Presets werden zur neuen Basis. Unbekannte `id`: nichts
+ändert sich. Sprachbefehl: "Translator, hotel mode" / "preset taxi" / "preset off" (höchstens 5 Wörter).
+
+Ereignis `preset` beim Wechsel: `id` und `name` (englisch); beide `null` bei "kein Preset".
+
+## Gesprächsverlauf (optional, Standard: aus)
+
+Lokal, nur auf Wunsch. Modul `history_store.py`, Datei `history.sqlite` unter
+`$DOLMETSCHER_HOME` bzw. `~/Library/Application Support/Dolmetscher/` (Ordner 0700, Datei 0600).
+Gespeichert wird pro `utt`: Zeit (UTC), Quellsprache, Originaltext, Übersetzung, Umschrift,
+Konfidenz (`exp(lp)`), Anbieter, Sitzungs-ID. Eine Korrektur (`replaces`) ersetzt den alten Eintrag.
+Nichts davon geht ins Log.
+
+Aufnahme:
+
+| Argument / stdin-Feld | Wirkung |
+|---|---|
+| `--history` / `{"history": true\|false}` | Aufzeichnung an/aus (live umschaltbar) |
+| `--history-days N` / `{"history_days": N}` | beim Einschalten Einträge älter als N Tage löschen |
+
+Befehle (beenden sich sofort, laden keine Modelle):
+
+| Argument | Wirkung |
+|---|---|
+| `--history-export md\|json\|csv\|srt\|vtt\|anki [--history-session ID] [--out PFAD]` | Export nach stdout oder Datei (0600). `srt`/`vtt` ohne ID: neueste Sitzung, Zeiten relativ zum Sitzungsstart. `anki`: Tab-getrennt Phrase, Übersetzung, Umschrift |
+| `--history-search TEXT` | Volltextsuche (FTS5 trigram, sonst LIKE), JSON-Liste auf stdout |
+| `--history-purge TAGE` | ältere Einträge löschen, `{"deleted": n}` |
+| `--history-clear` | alles löschen, `{"deleted": n}` |

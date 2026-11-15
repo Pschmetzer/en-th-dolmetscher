@@ -4,6 +4,8 @@
 
 Hands-free speech interpreter for macOS: just talk. English is translated into Thai and Thai into English, and the translation is spoken aloud right away. The engine **detects the language by itself**, so there are no buttons to switch.
 
+Current version: 1.2 (the single source is `version` in `pyproject.toml`; `build.sh` writes it into the app). What leaves your Mac and when: [docs/DATENSCHUTZ.md](docs/DATENSCHUTZ.md) (German). How app and engine fit together: [docs/ARCHITEKTUR.md](docs/ARCHITEKTUR.md).
+
 - Speech recognition: [faster-whisper](https://github.com/SYSTRAN/faster-whisper), local on the Mac, on the Apple GPU (Metal) when available, otherwise CPU. Models: `small` (fast), `medium` (default), `best` (large-v3-turbo for English instead of medium, better with accents; ~1.6 GB download). Thai is transcribed with a Whisper model fine-tuned on Thai ([biodatlab/whisper-th-medium-combined](https://huggingface.co/biodatlab/whisper-th-medium-combined), CTranslate2 version, MIT), about 30 % fewer errors on quiet or distant Thai speech in our tests (synthetic Thai TTS clips, clean and degraded; real voices may differ – the profile score shows it)
 - Translation: Google Translate web endpoint (unofficial, falls back to MyMemory). Needs internet. Optional: translation with Claude (see below)
 - Speech output: natural Microsoft neural voices via the unofficial [edge-tts](https://github.com/rany2/edge-tts) library (Thai: Niwat / Premwadee, English: Aria; other voices selectable). The connection to the voice service is opened while you are still speaking, so the first sound comes about 0.1–0.2 s after the translation is ready. The translated text is sent to Microsoft for this. Falls back to macOS voices (`say`) when offline or if that service stops working (`--tts say` forces it)
@@ -41,7 +43,7 @@ Hands-free speech interpreter for macOS: just talk. English is translated into T
 
 ## Voice commands
 
-Talk to it like Siri: start with **"Translator, …"** (or "Hey translator, …"). Commands are never translated. In the app the list is shown in the empty conversation and behind the speech-bubble button in the toolbar.
+Talk to it like Siri: start with **"Translator, …"** (or "Hey translator, …"). Commands are spoken in English and are never translated; in noise or with a strong accent a command can be misheard. In the app the list is shown in the empty conversation and behind the speech-bubble button in the toolbar.
 
 | Say | Effect |
 |---|---|
@@ -57,7 +59,7 @@ Talk to it like Siri: start with **"Translator, …"** (or "Hey translator, …"
 | Translator, help | list the commands |
 | Translator. *(pause)* … | answers "Yes?" and takes the next sentence as a command |
 
-Commands only control the app. General questions (weather, facts) are not supported, since that would need an LLM.
+Say one command at a time. Commands only control the app. General questions (weather, facts) are not supported, since that would need an LLM.
 
 ## Voice profiles
 
@@ -76,7 +78,7 @@ Terminal: `python3 dolmetscher.py --enroll Nok --enroll-lang th`, `--profiles`, 
 ## Download and install (Mac app)
 
 1. Download the source of the [latest release](https://github.com/Pschmetzer/en-th-dolmetscher/releases/latest) (“Source code (zip)”) and unpack it, or `git clone https://github.com/Pschmetzer/en-th-dolmetscher.git`.
-2. Requirements: macOS 14+ on Apple Silicon, Xcode Command Line Tools (`xcode-select --install`), `brew install ffmpeg`, Python 3.
+2. Requirements: macOS 14+ on Apple Silicon, Xcode Command Line Tools (`xcode-select --install`), `brew install ffmpeg`, Python 3.10 or newer (3.12 recommended; the pinned versions in `requirements.txt` need 3.12). The build is Apple Silicon only (no universal binary: the bundled Python environment and the Metal GPU path are arm64).
 3. In the unpacked folder:
 
 ```bash
@@ -88,6 +90,8 @@ There is no ready-made `.app` to download: the app needs a local Python environm
 This creates a Python environment under `~/Library/Application Support/Dolmetscher/venv` with the pinned versions from `requirements.txt` (via `uv` if installed, else `pip`; re-running the script brings an existing environment back to those versions), downloads the `medium`, `small` and Thai models (once, ~3.5 GB) and installs `~/Applications/Dolmetscher.app`. Use an existing Python instead: `DOLMETSCHER_PYTHON=/path/to/python ./build.sh --install` (nothing is installed into it; it needs the packages from `requirements.txt`).
 
 Each rebuild is signed ad hoc, so macOS may ask for microphone access again. To avoid that, sign with a stable identity: `DOLMETSCHER_SIGN_IDENTITY="Dolmetscher Dev" ./build.sh --install` (see [CONTRIBUTING.md](CONTRIBUTING.md#stable-code-signing)).
+
+Maintainers can create a signed (and optionally notarized) release build with `DOLMETSCHER_SIGN_IDENTITY="Developer ID Application: …" ./build.sh --release`; it refuses to run without that identity and produces `build/Dolmetscher-<version>.zip` plus a `.sha256` file. See [CONTRIBUTING.md](CONTRIBUTING.md#release-build).
 
 The app bundle stores the Python and ffmpeg paths with `~` instead of your home folder, so it contains no user name; if ffmpeg is not found there, the app also looks in `/opt/homebrew/bin` and `/usr/local/bin`.
 
@@ -138,7 +142,7 @@ Microphone permission: System Settings → Privacy & Security → Microphone, or
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Tests: `pip install -r requirements-dev.txt && pytest` (no models, network or microphone needed). Lint: `ruff check dolmetscher.py profiles.py bench/`. Latency and quality benchmark: see [bench/README.md](bench/README.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md). Tests: `pip install -r requirements-dev.txt && pytest` (no models, network or microphone needed). Lint: `ruff check dolmetscher.py profiles.py bench/`. Latency and quality benchmark: see [bench/README.md](bench/README.md). Architecture: [docs/ARCHITEKTUR.md](docs/ARCHITEKTUR.md).
 
 ## License
 

@@ -1,7 +1,6 @@
 // Views.swift – Hauptfenster: Werkzeugleiste, Verlauf, Absturz-Hinweis, Erststart-Tipps.
 import SwiftUI
 import AppKit
-import UniformTypeIdentifiers
 
 enum Prefs {
     static let fontScale = "fontScale"
@@ -11,18 +10,80 @@ enum Prefs {
     static let translit = "translit"
     static let showQuick = "showQuickPhrases"
     static let quickPhrases = "quickPhrases"
+    static let showMenuBar = "showMenuBar"
+    static let spaceToggle = "spaceToggle"
+    static let announce = "announceTranslations"
     static let fontRange = 0.6...2.5
-    static let defaultPhrases = ""
+    /// Kennung des Hauptfensters (Leertaste-Kürzel, Scroll-Überwachung).
+    static let mainWindowID = NSUserInterfaceItemIdentifier("dolmetscher.main")
+    /// Schlüssel, die „Alle Einstellungen zurücksetzen“ löscht (Willkommensseite und Sprache bleiben bzw. werden gesetzt).
+    static let resettableKeys = [fontScale, alwaysOnTop, showDetails, translit, showQuick, quickPhrases,
+                                 showMenuBar, spaceToggle, announce]
+
+    /// Schnellsätze beim ersten Start: englische Sätze (werden ins Thai übersetzt) und thailändische (ins Englische).
+    /// Wer die Liste später leert, behält sie leer; nur ein nie gespeicherter Schlüssel zeigt diese Standardliste.
+    static let defaultPhrases = [
+        "Hello!", "Thank you very much", "Where is the toilet?", "How much is it?",
+        "Could you say that again, please?", "I don't understand",
+        "สวัสดี", "ขอบคุณมาก", "ช่วยพูดช้าๆ หน่อย", "ไม่เข้าใจ",
+    ].joined(separator: "\n")
+
     static func phrases(_ s: String) -> [String] {
         s.split(whereSeparator: \.isNewline).map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+    }
+
+    /// Sprache eines Schnellsatzes nach Schrift: Thai-Zeichen → "th", sonst "en" (Speicherformat bleibt eine Zeile pro Satz).
+    static func phraseLang(_ p: String) -> String {
+        p.unicodeScalars.contains { (0x0E00...0x0E7F).contains($0.value) } ? "th" : "en"
+    }
+
+    /// Schriftzoom um `d` ändern, auf 0,1 gerundet und auf den erlaubten Bereich begrenzt.
+    static func zoomed(_ scale: Double, _ d: Double) -> Double {
+        min(fontRange.upperBound, max(fontRange.lowerBound, ((scale + d) * 10).rounded() / 10))
     }
 }
 
 /// Farben für beide Sprachen – im Hauptfenster und in der Partner-Ansicht gleich.
+/// Im Hellmodus dunklere Töne (Text auf hellem Grund ≥ 4,5:1), im Dunkelmodus hellere; mit
+/// „Kontrast erhöhen“ jeweils noch kräftiger.
 enum LangStyle {
-    static func color(_ lang: String) -> Color { lang == "th" ? .orange : .blue }
+    private static func rgb(_ hex: UInt32) -> NSColor {
+        NSColor(srgbRed: CGFloat((hex >> 16) & 255) / 255, green: CGFloat((hex >> 8) & 255) / 255,
+                blue: CGFloat(hex & 255) / 255, alpha: 1)
+    }
+    private static func adaptive(light: UInt32, lightHC: UInt32, dark: UInt32, darkHC: UInt32) -> Color {
+        Color(nsColor: NSColor(name: nil) { ap in
+            switch ap.bestMatch(from: [.aqua, .darkAqua, .accessibilityHighContrastAqua, .accessibilityHighContrastDarkAqua]) {
+            case .some(.darkAqua): return rgb(dark)
+            case .some(.accessibilityHighContrastDarkAqua): return rgb(darkHC)
+            case .some(.accessibilityHighContrastAqua): return rgb(lightHC)
+            default: return rgb(light)
+            }
+        })
+    }
+    private static let orange = adaptive(light: 0xB45309, lightHC: 0x8A3F06, dark: 0xFFA94D, darkHC: 0xFFC285)
+    private static let blue = adaptive(light: 0x1D4ED8, lightHC: 0x1E3A8A, dark: 0x6EA8FF, darkHC: 0x9CC2FF)
+    /// Warnhinweise (kleiner Text auf getönter Blase).
+    static let warning = adaptive(light: 0xB45309, lightHC: 0x8A3F06, dark: 0xFFA94D, darkHC: 0xFFC285)
+
+    static func color(_ lang: String) -> Color { lang == "th" ? orange : blue }
+    /// Auf schwarzem Grund (Partner-Ansicht ist immer dunkel).
+    static func onBlack(_ lang: String) -> Color { lang == "th" ? Color(red: 1, green: 0.66, blue: 0.30) : Color(red: 0.43, green: 0.66, blue: 1) }
     static func flag(_ lang: String) -> String { lang == "th" ? "🇹🇭" : "🇬🇧" }
-    static func name(_ lang: String) -> String { lang == "th" ? "Thai" : "Englisch" }
+    static func name(_ lang: String) -> String { L.t(lang == "th" ? "thai" : "english") }
+}
+
+/// Text für VoiceOver mit Sprachkennung je Abschnitt (Thai-Abschnitte als "th"). SwiftUI kennt auf macOS kein
+/// `accessibilityLanguage`; die Kennung ist ein Hinweis (`languageIdentifier`), die automatische Spracherkennung von
+/// VoiceOver bleibt der Rückfall.
+func a11yAttributed(_ parts: [(String, String?)]) -> AttributedString {
+    var out = AttributedString()
+    for (text, lang) in parts {
+        var a = AttributedString(text)
+        if let lang { a.languageIdentifier = lang }
+        out += a
+    }
+    return out
 }
 
 /// Gibt Zugriff auf das NSWindow, in dem eine SwiftUI-Ansicht liegt.
@@ -43,24 +104,15 @@ func copyToPasteboard(_ s: String) {
     NSPasteboard.general.setString(s, forType: .string)
 }
 
-@MainActor
-func exportConversation(_ m: EngineModel) {
-    let md = UTType(filenameExtension: "md") ?? .plainText
-    let panel = NSSavePanel()
-    panel.title = "Gespräch exportieren"
-    panel.message = "Endung .md für Markdown, .txt für reinen Text"
-    panel.allowedContentTypes = [md, .plainText]
-    panel.allowsOtherFileTypes = true
-    let df = DateFormatter(); df.dateFormat = "yyyy-MM-dd HH-mm"
-    panel.nameFieldStringValue = "Gespräch \(df.string(from: Date())).md"
-    guard panel.runModal() == .OK, let url = panel.url else { return }
-    let markdown = url.pathExtension.lowercased() != "txt"
-    do { try m.transcript(markdown: markdown).write(to: url, atomically: true, encoding: .utf8) }
-    catch { NSAlert(error: error).runModal() }
+/// Hält das Scroll-Ereignis-Token (Klasse, damit @State es ohne Neuzeichnen verändern kann).
+private final class ScrollMonitorBox {
+    var token: Any?
+    var lastWheelUp = Date.distantPast
 }
 
 struct ContentView: View {
     @EnvironmentObject var m: EngineModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage(Prefs.fontScale) private var scale = 1.0
     @AppStorage(Prefs.alwaysOnTop) private var onTop = false
     @AppStorage(Prefs.tipsSeen) private var tipsSeen = false
@@ -69,29 +121,31 @@ struct ContentView: View {
     @State private var showProfiles = false
     @State private var correcting: Utterance?
     @State private var query = ""
-    @AppStorage("uiLang") private var uiLang = "de"
+    @State private var langFilter = ""          // "" = alle, "en", "th"
+    @State private var searchOpen = false
+    @State private var userScrolledUp = false   // Auto-Scroll pausiert, bis der Nutzer wieder unten ist
+    @State private var bottomVisible = true
+    @State private var scrollBox = ScrollMonitorBox()
+    @FocusState private var searchFocused: Bool
+    @AppStorage(L.key) private var uiLang = L.defaultCode
+
+    private var filtering: Bool { !query.isEmpty || !langFilter.isEmpty }
 
     var body: some View {
+        let _ = L.sync(uiLang)
         VStack(spacing: 0) {
             MainToolbar(showProfiles: $showProfiles)
             if showQuick { QuickPhraseBar() }
             Divider()
+            if m.micDenied { MicDeniedBanner() }
             if let log = m.crashLog { CrashBanner(log: log) }
-            if m.items.count > 5 || !query.isEmpty {
-                HStack {
-                    Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
-                    TextField(L.t("search"), text: $query).textFieldStyle(.plain)
-                    if !query.isEmpty {
-                        Button { query = "" } label: { Image(systemName: "xmark.circle.fill") }.buttonStyle(.borderless)
-                    }
-                }
-                .padding(.horizontal, 16).padding(.vertical, 6)
-            }
+            if searchOpen || filtering || m.items.count > 5 { searchBar }
             conversation
             if m.pushToTalk && m.micOn { PushToTalkButton().padding(14) }
         }
         .frame(minWidth: 620, minHeight: 460)
         .background(WindowAccessor { w in
+            w.identifier = Prefs.mainWindowID
             w.level = onTop ? .floating : .normal
             let t = "Dolmetscher · " + m.status
             if w.title != t { w.title = t }
@@ -100,17 +154,77 @@ struct ContentView: View {
         .sheet(isPresented: $showProfiles) { ProfilesView().environmentObject(m) }
         .sheet(item: $correcting) { CorrectSheet(u: $0).environmentObject(m) }
         .id(uiLang)                                   // Oberflächensprache sofort umschalten
-        .onChange(of: m.items.isEmpty) { if m.items.isEmpty { query = "" } }
+        .onChange(of: m.items.isEmpty) { if m.items.isEmpty { query = ""; langFilter = ""; userScrolledUp = false } }
         .onChange(of: uiLang) { m.refreshStatus() }
-        .onAppear { if !tipsSeen { showTips = true } }
+        .onAppear {
+            if !tipsSeen { showTips = true }
+            installScrollMonitor()
+        }
+        .onDisappear { if let t = scrollBox.token { NSEvent.removeMonitor(t); scrollBox.token = nil } }
         .onReceive(NotificationCenter.default.publisher(for: .showTips)) { _ in showTips = true }
+        .onReceive(NotificationCenter.default.publisher(for: .focusSearch)) { _ in
+            searchOpen = true
+            DispatchQueue.main.async { searchFocused = true }
+        }
     }
 
-    /// Verlauf, ggf. nach dem Suchtext gefiltert.
+    /// Erkennt Hochscrollen mit Mausrad/Trackpad: pausiert das automatische Mitscrollen.
+    private func installScrollMonitor() {
+        guard scrollBox.token == nil else { return }
+        let box = scrollBox
+        scrollBox.token = NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { e in
+            guard e.window?.identifier == Prefs.mainWindowID else { return e }
+            let dy = e.scrollingDeltaY
+            if dy > 0.5 {                       // Inhalt wandert nach unten = nach oben gescrollt
+                box.lastWheelUp = Date()
+                if !bottomVisible { userScrolledUp = true }
+            } else if dy < -0.5, bottomVisible {
+                userScrolledUp = false
+            }
+            return e
+        }
+    }
+
+    private var searchBar: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass").foregroundStyle(.secondary).accessibilityHidden(true)
+            TextField(L.t("search"), text: $query)
+                .textFieldStyle(.plain)
+                .focused($searchFocused)
+                .accessibilityLabel(L.t("search"))
+            Picker(L.t("language_filter"), selection: $langFilter) {
+                Text(L.t("filter_all")).tag("")
+                Text("EN").tag("en")
+                Text("TH").tag("th")
+            }
+            .pickerStyle(.segmented).labelsHidden().frame(width: 150)
+            .accessibilityLabel(L.t("language_filter"))
+            if searchOpen || filtering {
+                Button { query = ""; langFilter = ""; searchOpen = false; searchFocused = false } label: {
+                    Image(systemName: "xmark.circle.fill")
+                }
+                .buttonStyle(.borderless)
+                .help(L.t("close")).accessibilityLabel(L.t("close"))
+            }
+        }
+        .padding(.horizontal, 16).padding(.vertical, 6)
+        .onExitCommand { query = ""; langFilter = ""; searchOpen = false; searchFocused = false }
+    }
+
+    /// Verlauf, ggf. nach Suchtext und Sprache gefiltert.
     private var shown: [Utterance] {
-        guard !query.isEmpty else { return m.items }
-        return m.items.filter { $0.text.localizedCaseInsensitiveContains(query)
-                                || $0.out.localizedCaseInsensitiveContains(query) }
+        guard filtering else { return m.items }
+        return m.items.filter { u in
+            (langFilter.isEmpty || u.lang == langFilter)
+                && (query.isEmpty || u.text.localizedCaseInsensitiveContains(query)
+                    || u.out.localizedCaseInsensitiveContains(query))
+        }
+    }
+
+    private func scrollToEnd(_ sv: ScrollViewProxy, animated: Bool) {
+        guard let last = shown.last else { return }
+        if animated && !reduceMotion { withAnimation { sv.scrollTo(last.id, anchor: .bottom) } }
+        else { sv.scrollTo(last.id, anchor: .bottom) }
     }
 
     private var conversation: some View {
@@ -126,13 +240,36 @@ struct ContentView: View {
                             .equatable()
                             .id(u.id)
                     }
+                    // Marke am Ende: sichtbar = der Nutzer ist unten; verschwindet sie nach Hochscrollen, pausiert das Mitscrollen.
+                    Color.clear.frame(height: 1)
+                        .onAppear { bottomVisible = true; userScrolledUp = false }
+                        .onDisappear {
+                            bottomVisible = false
+                            if Date().timeIntervalSince(scrollBox.lastWheelUp) < 0.6 { userScrolledUp = true }
+                        }
                 }.padding(16)
             }
-            .onChange(of: m.items.last?.id) {   // auch wenn ein Platzhalter durch die fertige Blase ersetzt wird
-                if let last = m.items.last { withAnimation { sv.scrollTo(last.id, anchor: .bottom) } }
+            .onChange(of: shown.last?.id) {   // neue Blase
+                if !userScrolledUp { scrollToEnd(sv, animated: true) }
             }
-            .onChange(of: m.items.last?.partial) {   // Teiltext wächst: unten bleiben (ohne Animation, kommt oft)
-                if query.isEmpty, let last = m.items.last, last.pending { sv.scrollTo(last.id, anchor: .bottom) }
+            .onChange(of: shown.last?.pending) {   // Platzhalter wird zur fertigen Blase (gleiche id)
+                if !userScrolledUp { scrollToEnd(sv, animated: true) }
+            }
+            .onChange(of: shown.last?.partial) {   // Teiltext wächst: unten bleiben (ohne Animation, kommt oft)
+                if !userScrolledUp, let last = shown.last, last.pending { scrollToEnd(sv, animated: false) }
+            }
+            .overlay(alignment: .bottomTrailing) {
+                if userScrolledUp && !m.items.isEmpty {
+                    Button {
+                        userScrolledUp = false
+                        scrollToEnd(sv, animated: true)
+                    } label: {
+                        Label(L.t("jump_latest"), systemImage: "arrow.down.circle.fill")
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .padding(14)
+                    .accessibilityLabel(L.t("jump_latest"))
+                }
             }
         }
     }
@@ -181,9 +318,15 @@ struct EmptyState: View {
     var body: some View {
         VStack(spacing: 16) {
             HStack(spacing: 14) {
-                Text("🇬🇧 English").foregroundStyle(LangStyle.color("en"))
+                HStack(spacing: 6) {
+                    Text("🇬🇧").accessibilityHidden(true)
+                    Text("English").foregroundStyle(LangStyle.color("en"))
+                }
                 Image(systemName: "arrow.left.arrow.right").foregroundStyle(.secondary).accessibilityHidden(true)
-                Text("🇹🇭 ไทย").foregroundStyle(LangStyle.color("th"))
+                HStack(spacing: 6) {
+                    Text("🇹🇭").accessibilityHidden(true)
+                    Text("ไทย").foregroundStyle(LangStyle.color("th"))
+                }
             }
             .font(.system(size: 26, weight: .semibold))
             if m.loadingModel {
@@ -216,9 +359,11 @@ struct MainToolbar: View {
     @Environment(\.openWindow) private var openWindow
     @AppStorage(Prefs.fontScale) private var scale = 1.0
     @AppStorage(Prefs.alwaysOnTop) private var onTop = false
-    @AppStorage("uiLang") private var uiLang = "de"
+    @AppStorage(Prefs.spaceToggle) private var spaceToggle = true
+    @AppStorage(L.key) private var uiLang = L.defaultCode
     @Binding var showProfiles: Bool
     @State private var showCommands = false
+    @State private var confirmClear = false
 
     var body: some View {
         HStack(spacing: 12) {
@@ -228,11 +373,16 @@ struct MainToolbar: View {
             tools
         }
         .padding(14)
+        .confirmationDialog(L.t("clear_confirm"), isPresented: $confirmClear, titleVisibility: .visible) {
+            Button(L.t("clear"), role: .destructive) { m.items.removeAll() }
+            Button(L.t("cancel"), role: .cancel) {}
+        }
     }
 
     private var startButton: some View {
         // Start während des Ladens vorgemerkt: orange mit Fortschritt statt rot („läuft“ wäre gelogen)
         let queued = m.active && !m.micOn && m.loadingModel
+        let stateText = queued ? L.t("start_queued") : m.active ? L.t("state_listening") : L.t("stopped")
         return Button(action: m.toggle) {
             HStack(spacing: 8) {
                 if queued {
@@ -241,15 +391,15 @@ struct MainToolbar: View {
                     Image(systemName: m.active ? "stop.fill" : "mic.fill")
                 }
                 Text(queued ? L.t("start_queued") : m.active ? L.t("stop") : L.t("start"))
-                    .lineLimit(1).minimumScaleFactor(0.6)
+                    .lineLimit(1)
             }
-            .font(.title2.bold()).frame(width: 130, height: 34)
+            .font(.title2.bold()).frame(minWidth: 110, minHeight: 34).padding(.horizontal, 6)
         }
         .buttonStyle(.borderedProminent)
         .tint(queued ? .orange : m.active ? .red : .green)
-        .keyboardShortcut(.space, modifiers: [])
         .accessibilityLabel(m.active ? L.t("stop_engine") : L.t("start_engine"))
-        .accessibilityHint("Leertaste, ⌃⌥D")
+        .accessibilityValue(stateText)
+        .accessibilityHint(L.t(spaceToggle ? "start_hint" : "start_hint_nospace"))
     }
 
     private var lastReplayable: Utterance? {
@@ -283,11 +433,12 @@ struct MainToolbar: View {
                 ForEach(UILang.allCases) { Text($0.label).tag($0.rawValue) }
             }
             Toggle(L.t("always_on_top"), isOn: $onTop)
-            Button(L.t("font_bigger")) { scale = min(Prefs.fontRange.upperBound, ((scale + 0.1) * 10).rounded() / 10) }
-            Button(L.t("font_smaller")) { scale = max(Prefs.fontRange.lowerBound, ((scale - 0.1) * 10).rounded() / 10) }
+            Button(L.t("font_bigger")) { scale = Prefs.zoomed(scale, 0.1) }
+            Button(L.t("font_smaller")) { scale = Prefs.zoomed(scale, -0.1) }
             Divider()
+            Button(L.t("find") + " (⌘F)") { NotificationCenter.default.post(name: .focusSearch, object: nil) }
             Button(L.t("export") + " (⇧⌘E)") { exportConversation(m) }.disabled(m.items.isEmpty)
-            Button(L.t("clear")) { m.items.removeAll() }.disabled(m.items.isEmpty)
+            Button(L.t("clear")) { confirmClear = true }.disabled(m.items.isEmpty)
             Button(L.t("open_log")) {
                 NSWorkspace.shared.activateFileViewerSelecting([FileManager.default.homeDirectoryForCurrentUser
                     .appendingPathComponent("Library/Logs/Dolmetscher/engine.log")])
@@ -320,7 +471,7 @@ struct StatusCluster: View {
                 Text("\(m.backlog) " + L.t("waiting"))
                     .font(.caption.bold()).monospacedDigit()
                     .padding(.horizontal, 6).padding(.vertical, 2)
-                    .background(Color.orange.opacity(0.2), in: Capsule())
+                    .background(LangStyle.warning.opacity(0.2), in: Capsule())
                     .help(L.t("backlog_help") + " (\(m.backlogSTT) / \(m.backlogTTS))")
             }
             if !m.netDown.isEmpty {
@@ -329,11 +480,17 @@ struct StatusCluster: View {
                     .help(offlineHelp)
                     .accessibilityLabel(L.t("offline") + ": " + offlineHelp)
             }
+            if m.loadSlow {
+                Label(L.t("load_slow"), systemImage: "hourglass")
+                    .font(.caption).foregroundStyle(LangStyle.warning)
+                    .help(L.t("load_slow_help"))
+                    .accessibilityLabel(L.t("load_slow") + ". " + L.t("load_slow_help"))
+            }
             if let med = m.latencyMedian { LatencyBadge(median: med) }
             if m.llm && m.engineReady && !m.llmActive {
                 SettingsLink {
                     Label(L.t("llm_missing"), systemImage: "exclamationmark.circle")
-                        .font(.caption).foregroundStyle(.orange)
+                        .font(.caption).foregroundStyle(LangStyle.warning)
                 }
                 .buttonStyle(.plain)
                 .help(L.t("llm_missing_help"))
@@ -356,8 +513,8 @@ struct LatencyBadge: View {
     let median: Double
     var body: some View {
         let text = "⏱ " + fmtSeconds(median)
-        // bis 2 s fühlt sich das Gespräch flüssig an, ab 4 s stockt es
-        let color: Color = median <= 2 ? .green : median <= 4 ? .secondary : .orange
+        // bis 2 s fühlt sich das Gespräch flüssig an, ab 4 s stockt es (Zahl steht immer dabei, nicht nur Farbe)
+        let color: Color = median <= 2 ? .green : median <= 4 ? .secondary : LangStyle.warning
         Text(text)
             .font(.caption).monospacedDigit().foregroundStyle(color)
             .help(L.t("latency_help"))
@@ -374,6 +531,7 @@ func fmtSeconds(_ v: Double) -> String {
 /// Kleiner Pegelbalken (eigenes ObservableObject → nur diese Ansicht zeichnet ~7×/s neu).
 struct LevelBar: View {
     @ObservedObject var meter: LevelMeter
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var body: some View {
         ZStack(alignment: .bottom) {
             Capsule().fill(Color.secondary.opacity(0.2))
@@ -381,7 +539,7 @@ struct LevelBar: View {
                 .frame(height: max(2, 22 * meter.rms))
         }
         .frame(width: 6, height: 22)
-        .animation(.linear(duration: 0.12), value: meter.rms)
+        .animation(reduceMotion ? nil : .linear(duration: 0.12), value: meter.rms)
         .help(L.t("level"))
         .accessibilityElement()
         .accessibilityLabel(L.t("level"))
@@ -389,12 +547,20 @@ struct LevelBar: View {
     }
 }
 
-/// Leiste mit Schnellsätzen: Klick → Engine übersetzt und liest vor. „+“ legt eigene an, Rechtsklick löscht.
+/// Leiste mit Schnellsätzen: Klick → Engine übersetzt und liest vor (Thai-Sätze ins Englische).
+/// „+“ legt eigene an, Rechtsklick (oder VoiceOver-Aktion) löscht.
 struct QuickPhraseBar: View {
     @EnvironmentObject var m: EngineModel
     @AppStorage(Prefs.quickPhrases) private var raw = Prefs.defaultPhrases
     @State private var adding = false
     @State private var draft = ""
+
+    private func remove(_ i: Int) {
+        var l = Prefs.phrases(raw)
+        guard l.indices.contains(i) else { return }
+        l.remove(at: i)
+        raw = l.joined(separator: "\n")
+    }
 
     var body: some View {
         let phrases = Prefs.phrases(raw)
@@ -402,29 +568,29 @@ struct QuickPhraseBar: View {
             HStack(spacing: 8) {
                 Button { draft = ""; adding = true } label: { Image(systemName: "plus") }
                     .buttonStyle(.bordered)
-                    .help("Eigenen Schnellsatz hinzufügen")
+                    .help(L.t("phrase_add_help"))
+                    .accessibilityLabel(L.t("phrase_add_help"))
                 ForEach(Array(phrases.enumerated()), id: \.offset) { i, p in
-                    Button(p) { m.say(p) }
+                    Button(p) { m.say(p, lang: Prefs.phraseLang(p)) }
                         .buttonStyle(.bordered)
                         .disabled(!m.running)
                         .help(L.t("quick_phrase_help"))
                         .contextMenu {
-                            Button("Löschen", role: .destructive) {
-                                var l = phrases; l.remove(at: i); raw = l.joined(separator: "\n")
-                            }
+                            Button(L.t("delete"), role: .destructive) { remove(i) }
                         }
+                        .accessibilityAction(named: L.t("delete")) { remove(i) }
                 }
             }
             .padding(.horizontal, 14).padding(.bottom, 10)
         }
         .accessibilityLabel(L.t("quick_phrases"))
-        .alert("Neuer Schnellsatz (Englisch)", isPresented: $adding) {
-            TextField("Satz", text: $draft)
-            Button("Hinzufügen") {
+        .alert(L.t("phrase_new_title"), isPresented: $adding) {
+            TextField(L.t("sentence"), text: $draft)
+            Button(L.t("add")) {
                 let t = draft.trimmingCharacters(in: .whitespacesAndNewlines)
                 if !t.isEmpty { raw = (phrases + [t]).joined(separator: "\n") }
             }
-            Button("Abbrechen", role: .cancel) {}
+            Button(L.t("cancel"), role: .cancel) {}
         }
     }
 }
@@ -445,8 +611,25 @@ struct PushToTalkButton: View {
                 .onEnded { _ in m.pttUp() })
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(L.t("hold_to_talk"))
+            .accessibilityValue(holding ? L.t("talking") : "")
             .accessibilityAddTraits(.isButton)
             .accessibilityAction { if m.pttHolding { m.pttUp() } else { m.pttDown() } }
+    }
+}
+
+/// Mikrofon verweigert: Hinweis mit Knopf zu den Systemeinstellungen.
+struct MicDeniedBanner: View {
+    @EnvironmentObject var m: EngineModel
+    var body: some View {
+        HStack(spacing: 12) {
+            Label(L.t("nomic"), systemImage: "mic.slash.fill")
+                .font(.headline).foregroundStyle(.red)
+            Spacer()
+            Button(L.t("open_mic_settings")) { m.openMicrophoneSettings() }
+                .buttonStyle(.borderedProminent)
+        }
+        .padding(14)
+        .background(Color.red.opacity(0.08))
     }
 }
 
@@ -457,6 +640,7 @@ struct CrashBanner: View {
         VStack(alignment: .leading, spacing: 8) {
             Label(L.t("crash_banner"), systemImage: "exclamationmark.triangle.fill")
                 .font(.headline).foregroundStyle(.red)
+            Text(m.status).font(.callout)
             ScrollView {
                 Text(log).font(.system(size: 11, design: .monospaced))
                     .textSelection(.enabled)
@@ -479,24 +663,23 @@ struct CrashBanner: View {
     }
 }
 
+/// Willkommen beim ersten Start: Mikrofon, Bedienung, Sprachbefehle und – wichtig – welche Dienste Text erhalten.
 struct TipsSheet: View {
     var done: () -> Void
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
-            Text("Willkommen beim Dolmetscher").font(.title.bold())
-            tip("mic.fill", "Mikrofon erlauben",
-                "Beim ersten Start fragt macOS nach dem Mikrofon. Bitte erlauben – sonst hört der Dolmetscher nichts. Später änderbar unter Systemeinstellungen → Datenschutz → Mikrofon.")
-            tip("waveform", "Einfach sprechen",
-                "Die Sprache wird automatisch erkannt: Englisch wird ins Thai übersetzt, Thai ins Englische. Erkennt er falsch, die Sprache in den Einstellungen (⌘,) fest einstellen.")
-            tip("text.bubble", "Sprachbefehle mit „Translator“",
-                "„Translator, pause“ · „Translator, resume“ · „Translator, repeat“ · „Translator, English off“ · „Translator, Thai only“ · „Translator, help“")
+            Text(L.t("welcome_title")).font(.title.bold())
+            tip("mic.fill", L.t("tip_mic_title"), L.t("tip_mic_text"))
+            tip("waveform", L.t("tip_speak_title"), L.t("tip_speak_text"))
+            tip("text.bubble", L.t("tip_cmd_title"), L.t("tip_cmd_text"))
+            tip("lock.shield", L.t("privacy_title"), L.t("privacy_text"))
             HStack {
                 Spacer()
-                Button("Los geht’s", action: done).keyboardShortcut(.defaultAction)
+                Button(L.t("lets_go"), action: done).keyboardShortcut(.defaultAction)
             }
         }
         .padding(28)
-        .frame(width: 520)
+        .frame(width: 540)
     }
     private func tip(_ icon: String, _ title: String, _ text: String) -> some View {
         HStack(alignment: .top, spacing: 14) {
@@ -513,4 +696,5 @@ struct TipsSheet: View {
 
 extension Notification.Name {
     static let showTips = Notification.Name("DolmetscherShowTips")
+    static let focusSearch = Notification.Name("DolmetscherFocusSearch")
 }

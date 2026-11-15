@@ -1,0 +1,81 @@
+{
+  "id": "shopping",
+  "names": {
+    "de": "Einkaufen",
+    "en": "Shopping",
+    "th": "ช้อปปิ้ง"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "size",
+      "th": "ไซซ์"
+    },
+    {
+      "en": "discount",
+      "th": "ส่วนลด"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    },
+    {
+      "en": "cash",
+      "th": "เงินสด"
+    },
+    {
+      "en": "credit card",
+      "th": "บัตรเครดิต"
+    },
+    {
+      "en": "fitting room",
+      "th": "ห้องลองเสื้อ"
+    },
+    {
+      "en": "bag",
+      "th": "ถุง"
+    },
+    {
+      "en": "refund",
+      "th": "คืนเงิน"
+    },
+    {
+      "en": "cheaper",
+      "th": "ถูกกว่า"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "How much is this?",
+      "th": "อันนี้ราคาเท่าไหร่"
+    },
+    {
+      "en": "Do you have a bigger size?",
+      "th": "มีไซซ์ใหญ่กว่านี้ไหม"
+    },
+    {
+      "en": "Can I try this on?",
+      "th": "ลองใส่ได้ไหม"
+    },
+    {
+      "en": "Is there a discount?",
+      "th": "มีส่วนลดไหม"
+    },
+    {
+      "en": "Do you have a cheaper one?",
+      "th": "มีอันที่ถูกกว่านี้ไหม"
+    },
+    {
+      "en": "I will take this one.",
+      "th": "เอาอันนี้"
+    },
+    {
+      "en": "Can I pay by card?",
+      "th": "จ่ายด้วยบัตรได้ไหม"
+    },
+    {
+      "en": "Could I have a bag, please?",
+      "th": "ขอถุงหน่อย"
+    }
+  ]
+}

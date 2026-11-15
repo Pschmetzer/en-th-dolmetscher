@@ -1,0 +1,81 @@
+{
+  "id": "hotel",
+  "names": {
+    "de": "Hotel",
+    "en": "Hotel",
+    "th": "โรงแรม"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "reservation",
+      "th": "การจองห้อง"
+    },
+    {
+      "en": "check-in",
+      "th": "เช็คอิน"
+    },
+    {
+      "en": "check-out",
+      "th": "เช็คเอาท์"
+    },
+    {
+      "en": "room key",
+      "th": "กุญแจห้อง"
+    },
+    {
+      "en": "breakfast",
+      "th": "อาหารเช้า"
+    },
+    {
+      "en": "air conditioning",
+      "th": "เครื่องปรับอากาศ"
+    },
+    {
+      "en": "towel",
+      "th": "ผ้าเช็ดตัว"
+    },
+    {
+      "en": "Wi-Fi password",
+      "th": "รหัสผ่านไวไฟ"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have a reservation under the name Smith.",
+      "th": "ฉันจองห้องไว้ในชื่อสมิธ"
+    },
+    {
+      "en": "What time is check-out?",
+      "th": "เช็คเอาท์กี่โมง"
+    },
+    {
+      "en": "Is breakfast included?",
+      "th": "รวมอาหารเช้าไหม"
+    },
+    {
+      "en": "What is the Wi-Fi password?",
+      "th": "รหัสไวไฟคืออะไร"
+    },
+    {
+      "en": "The air conditioning is not working.",
+      "th": "เครื่องปรับอากาศไม่ทำงาน"
+    },
+    {
+      "en": "Could I have an extra towel, please?",
+      "th": "ขอผ้าเช็ดตัวเพิ่มหน่อย"
+    },
+    {
+      "en": "Could you keep my luggage until this afternoon?",
+      "th": "ฝากกระเป๋าไว้จนถึงบ่ายได้ไหม"
+    },
+    {
+      "en": "Could you call a taxi for me, please?",
+      "th": "ช่วยเรียกแท็กซี่ให้หน่อยได้ไหม"
+    }
+  ]
+}

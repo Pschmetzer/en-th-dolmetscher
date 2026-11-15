@@ -7,6 +7,8 @@ struct PartnerView: View {
     @State private var window: NSWindow?
     @State private var screenCount = NSScreen.screens.count
     @AppStorage(Prefs.translit) private var translit = true
+    @AppStorage(L.key) private var uiLang = L.defaultCode
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// Startschriftgröße aus Fenstergröße und Textlänge (minimumScaleFactor fängt den Rest ab).
     private func fontSize(for text: String, in size: CGSize) -> CGFloat {
@@ -16,13 +18,16 @@ struct PartnerView: View {
         return min(max(byArea, 28), min(h, 160))
     }
 
-    private var stateColor: Color {
-        if !m.running || m.paused { return .gray }
-        if m.busy { return .orange }
-        return m.micOn ? .green : .gray
+    /// Zustand nicht nur als Farbe: jedes Symbol hat eine eigene Form.
+    private var stateIcon: (name: String, color: Color) {
+        if !m.running { return ("stop.circle.fill", .gray) }
+        if m.paused { return ("pause.circle.fill", .gray) }
+        if m.busy { return ("ellipsis.circle.fill", Color(red: 1, green: 0.66, blue: 0.30)) }
+        return m.micOn ? ("mic.circle.fill", .green) : ("mic.slash.circle.fill", .gray)
     }
 
     var body: some View {
+        let _ = L.sync(uiLang)
         ZStack {
             Color.black.ignoresSafeArea()
             if !m.running {
@@ -41,9 +46,9 @@ struct PartnerView: View {
                         .font(.system(size: fs, weight: .bold))
                         .minimumScaleFactor(0.15)
                         .multilineTextAlignment(.center)
-                        .foregroundStyle(u.translated ? LangStyle.color(u.to) : .white)
+                        .foregroundStyle(u.translated ? LangStyle.onBlack(u.to) : .white)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .accessibilityLabel("\(LangStyle.name(u.to)): \(u.out)")
+                        .accessibilityLabel(Text(a11yAttributed([("\(LangStyle.name(u.to)): ", nil), (u.out, u.to)])))
                     if translit, u.translated, let latin = u.outLatin, !latin.isEmpty {
                         Text(latin)
                             .font(.system(size: fs * 0.4))
@@ -59,40 +64,42 @@ struct PartnerView: View {
                             .minimumScaleFactor(0.3)
                             .lineLimit(4)
                             .multilineTextAlignment(.center)
-                            .foregroundStyle(LangStyle.color(u.lang).opacity(0.85))
+                            .foregroundStyle(LangStyle.onBlack(u.lang).opacity(0.9))
                             .frame(maxWidth: .infinity)
-                            .accessibilityLabel("Original \(LangStyle.name(u.lang)): \(u.text)")
+                            .accessibilityLabel(Text(a11yAttributed([(L.t("original") + " \(LangStyle.name(u.lang)): ", nil), (u.text, u.lang)])))
                     }
                     Spacer(minLength: 0)
                 }
                 .padding(48)
                 }
                 .id(u.id)
-                .transition(.opacity)
+                .transition(reduceMotion ? .identity : .opacity)
             } else {
                 VStack(spacing: 20) {
-                    Text("กรุณาพูดได้เลย" + (m.polite == "ka" ? "ค่ะ" : "ครับ")).font(.system(size: 64, weight: .bold)).foregroundStyle(.orange)
-                    Text("Please speak").font(.system(size: 48, weight: .semibold)).foregroundStyle(.blue)
+                    Text("กรุณาพูดได้เลย" + (m.polite == "ka" ? "ค่ะ" : "ครับ")).font(.system(size: 64, weight: .bold))
+                        .foregroundStyle(LangStyle.onBlack("th"))
+                        .accessibilityLabel(Text(a11yAttributed([("กรุณาพูดได้เลย" + (m.polite == "ka" ? "ค่ะ" : "ครับ"), "th")])))
+                    Text("Please speak").font(.system(size: 48, weight: .semibold)).foregroundStyle(LangStyle.onBlack("en"))
                 }
                 .minimumScaleFactor(0.3)
                 .padding(48)
             }
             VStack {
                 HStack(spacing: 10) {
-                    Circle().fill(stateColor).frame(width: 10, height: 10)
-                        .accessibilityLabel(m.status)
+                    Image(systemName: stateIcon.name).foregroundStyle(stateIcon.color).font(.title3)
+                        .accessibilityLabel(L.t("status") + ": " + m.status)
                     Spacer()
                     if screenCount > 1 {
                         Button { moveToOtherScreen() } label: { Image(systemName: "display.2") }
-                            .help("Auf den anderen Bildschirm (Vollbild)")
-                            .accessibilityLabel("Auf den anderen Bildschirm verschieben")
+                            .help(L.t("partner_other_screen"))
+                            .accessibilityLabel(L.t("partner_other_screen"))
                     }
                     Button { window?.toggleFullScreen(nil) } label: {
                         Image(systemName: "arrow.up.left.and.arrow.down.right")
                     }
                     .keyboardShortcut("f", modifiers: [.command, .control])
-                    .help("Vollbild an/aus (⌃⌘F)")
-                    .accessibilityLabel("Vollbild umschalten")
+                    .help(L.t("partner_fullscreen") + " (⌃⌘F)")
+                    .accessibilityLabel(L.t("partner_fullscreen"))
                 }
                 .buttonStyle(.borderless)
                 .foregroundStyle(.gray)
@@ -101,7 +108,7 @@ struct PartnerView: View {
                 Spacer()
             }
         }
-        .animation(.easeInOut(duration: 0.25), value: m.items.last(where: { $0.translated && !$0.pending })?.id)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: m.items.last(where: { $0.translated && !$0.pending })?.id)
         .frame(minWidth: 480, minHeight: 320)
         .background(WindowAccessor { w in
             if window !== w {

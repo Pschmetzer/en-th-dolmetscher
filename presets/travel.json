@@ -1,0 +1,81 @@
+{
+  "id": "travel",
+  "names": {
+    "de": "Reisen",
+    "en": "Travel",
+    "th": "เดินทางท่องเที่ยว"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "passport",
+      "th": "หนังสือเดินทาง"
+    },
+    {
+      "en": "airport",
+      "th": "สนามบิน"
+    },
+    {
+      "en": "ticket",
+      "th": "ตั๋ว"
+    },
+    {
+      "en": "luggage",
+      "th": "กระเป๋าเดินทาง"
+    },
+    {
+      "en": "train station",
+      "th": "สถานีรถไฟ"
+    },
+    {
+      "en": "bus station",
+      "th": "สถานีขนส่ง"
+    },
+    {
+      "en": "ATM",
+      "th": "ตู้เอทีเอ็ม"
+    },
+    {
+      "en": "toilet",
+      "th": "ห้องน้ำ"
+    },
+    {
+      "en": "tourist information",
+      "th": "ศูนย์บริการนักท่องเที่ยว"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Excuse me, where is the toilet?",
+      "th": "ขอโทษนะ ห้องน้ำอยู่ที่ไหน"
+    },
+    {
+      "en": "How do I get to the airport?",
+      "th": "ไปสนามบินยังไงดี"
+    },
+    {
+      "en": "How much is a ticket to Chiang Mai?",
+      "th": "ตั๋วไปเชียงใหม่ราคาเท่าไหร่"
+    },
+    {
+      "en": "Could you write that down for me, please?",
+      "th": "ช่วยเขียนให้ดูหน่อยได้ไหม"
+    },
+    {
+      "en": "Do you speak English?",
+      "th": "พูดภาษาอังกฤษได้ไหม"
+    },
+    {
+      "en": "I am lost. Can you help me?",
+      "th": "ฉันหลงทาง ช่วยหน่อยได้ไหม"
+    },
+    {
+      "en": "Where can I change money?",
+      "th": "แลกเงินได้ที่ไหน"
+    },
+    {
+      "en": "Thank you very much for your help.",
+      "th": "ขอบคุณมากสำหรับความช่วยเหลือ"
+    }
+  ]
+}
