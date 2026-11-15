@@ -188,11 +188,30 @@ def emit(event, **kw):
         _emit(event, **kw)
 
 
+def _json_default(o):
+    """numpy-Zahlen/-Arrays (VAD, Modell) und sonstige Typen JSON-fähig machen statt TypeError."""
+    if hasattr(o, "item") and getattr(o, "ndim", 0) == 0:
+        return o.item()
+    if hasattr(o, "tolist"):
+        return o.tolist()
+    if isinstance(o, (set, frozenset, tuple)):
+        return list(o)
+    return str(o)
+
+
 def _emit(event, **kw):
     if event == "utt":
         import history_store; history_store.RECORDER.utt(kw)       # nur wenn eingeschaltet (Standard: aus)
     if JSON:
-        print(json.dumps({"event": event, **kw}, ensure_ascii=False), flush=True)
+        try:
+            print(json.dumps({"event": event, **kw}, ensure_ascii=False, default=_json_default), flush=True)
+        except BrokenPipeError:                       # App weg (Pipe zu): geordnet beenden statt Thread-Absturz
+            STOP.set()
+        except ValueError:
+            if not getattr(sys.stdout, "closed", False):
+                raise
+            STOP.set()
+        return
     elif event in ("loading", "ready", "calibrating", "error"):
         print(f"{C['dim']}{kw.get('msg', event)}{C['off']}", flush=True)
     elif event == "listening":
@@ -208,6 +227,7 @@ LOGFILE = os.environ.get("DOLMETSCHER_LOG") or os.path.expanduser("~/Library/Log
 LOG_TEXT = False                  # --log-text: gesprochene/übersetzte Texte ins Log (Standard: aus)
 _TEXT_KEYS = ("text", "alt_text", "alts", "out", "would_say", "cmd_retry", "command", "reply")
 _LOGGER = None
+_LOGGER_LOCK = threading.Lock()
 
 
 class _PrivateRotatingHandler(logging.handlers.RotatingFileHandler):
@@ -242,6 +262,13 @@ def _errtxt(e):
 
 def _logger():
     """engine.log rotiert bei ~1 MB, es bleiben 2 Dateien (engine.log + engine.log.1)."""
+    if _LOGGER is not None:
+        return _LOGGER
+    with _LOGGER_LOCK:                       # zwei Threads dürfen nicht zwei Handler anhängen
+        return _make_logger()
+
+
+def _make_logger():
     global _LOGGER
     if _LOGGER is None:
         d = os.path.dirname(LOGFILE)
@@ -251,10 +278,13 @@ def _logger():
         except OSError:
             pass
         h = _PrivateRotatingHandler(LOGFILE, maxBytes=1_000_000, backupCount=1, encoding="utf-8")
-        h.setFormatter(logging.Formatter("%(asctime)s %(message)s", "%H:%M:%S"))
+        h.setFormatter(logging.Formatter("%(asctime)s %(message)s", "%Y-%m-%d %H:%M:%S"))
         lg = logging.getLogger("dolmetscher")
         lg.setLevel(logging.INFO)
         lg.propagate = False
+        for old in [x for x in lg.handlers if isinstance(x, _PrivateRotatingHandler)]:
+            lg.removeHandler(old)
+            old.close()
         lg.addHandler(h)
         _LOGGER = lg
     return _LOGGER

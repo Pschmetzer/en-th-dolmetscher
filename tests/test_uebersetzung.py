@@ -188,7 +188,8 @@ def test_cost_counts_cache_tokens(monkeypatch):
     u = types.SimpleNamespace(input_tokens=1_000_000, output_tokens=0, cache_read_input_tokens=1_000_000,
                               cache_creation_input_tokens=1_000_000)
     r = types.SimpleNamespace(usage=u, stop_reason="end_turn", content=[types.SimpleNamespace(type="text", text="ok")])
-    monkeypatch.setattr(d, "llm_client", lambda: types.SimpleNamespace(messages=types.SimpleNamespace(create=lambda **k: r)))
+    client = types.SimpleNamespace(messages=types.SimpleNamespace(create=lambda **k: r))
+    monkeypatch.setattr(d, "llm_client", lambda: client)
     monkeypatch.setitem(d.LLM, "model", "claude-haiku-5-5")
     monkeypatch.setitem(d.LLM, "usd", 0.0)
     d.claude_translate("hi", "en", "th")
@@ -311,3 +312,45 @@ def test_keepalive_no_global_lock_during_request(ka):
     assert http.get_json("https://b.example/y", 3) == []              # kommt durch, obwohl A hängt
     release.set()
     t.join(2)
+
+
+# ---- _emit / _logger ---------------------------------------------------------------------------------
+
+def test_emit_numpy_and_broken_pipe(monkeypatch, capsys):
+    import json
+
+    import numpy as np
+    monkeypatch.setattr(d, "JSON", True)
+    d._emit("level", rms=np.float32(0.5), n=np.int64(3), arr=np.array([1, 2]))
+    assert json.loads(capsys.readouterr().out) == {"event": "level", "rms": 0.5, "n": 3, "arr": [1, 2]}
+
+    def boom(*a, **k):
+        raise BrokenPipeError
+    monkeypatch.setattr("builtins.print", boom)
+    monkeypatch.setattr(d, "STOP", d.threading.Event())
+    d._emit("x")
+    assert d.STOP.is_set()
+
+
+_ORIG_LOGGER = d._logger          # vor dem autouse-Null-Logger aus conftest gemerkt
+
+
+def test_logger_single_handler_with_date(tmp_path, monkeypatch):
+    import threading
+    monkeypatch.setattr(d, "LOGFILE", str(tmp_path / "e.log"))
+    monkeypatch.setattr(d, "_LOGGER", None)
+    lg = d.logging.getLogger("dolmetscher")
+    before = list(lg.handlers)
+    try:
+        ts = [threading.Thread(target=_ORIG_LOGGER) for _ in range(8)]
+        for t in ts:
+            t.start()
+        for t in ts:
+            t.join()
+        mine = [h for h in lg.handlers if isinstance(h, d._PrivateRotatingHandler)]
+        assert len(mine) == 1 and "%Y-%m-%d" in mine[0].formatter.datefmt
+    finally:
+        for h in lg.handlers[:]:
+            if h not in before:
+                lg.removeHandler(h)
+                h.close()
