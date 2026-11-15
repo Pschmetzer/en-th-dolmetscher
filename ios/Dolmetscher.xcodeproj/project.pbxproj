@@ -1,0 +1,272 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		D0000000000000000000C001 = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D0000000000000000000F001;
+			proxyType = 1;
+			remoteGlobalIDString = D0000000000000000000E001;
+			remoteInfo = Dolmetscher;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		D0000000000000000000A001 = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Dolmetscher.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D0000000000000000000A002 = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DolmetscherTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		D0000000000000000000B001 = {isa = PBXFileSystemSynchronizedRootGroup; path = Dolmetscher; sourceTree = "<group>"; };
+		D0000000000000000000B002 = {isa = PBXFileSystemSynchronizedRootGroup; path = DolmetscherTests; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D00000000000000000001001 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		D00000000000000000001002 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		D00000000000000000002001 = {
+			isa = PBXGroup;
+			children = (
+				D0000000000000000000B001,
+				D0000000000000000000B002,
+				D00000000000000000002002,
+			);
+			sourceTree = "<group>";
+		};
+		D00000000000000000002002 = {
+			isa = PBXGroup;
+			children = (
+				D0000000000000000000A001,
+				D0000000000000000000A002,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D0000000000000000000E001 = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D00000000000000000005002;
+			buildPhases = (
+				D00000000000000000003001,
+				D00000000000000000001001,
+				D00000000000000000004001,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				D0000000000000000000B001,
+			);
+			name = Dolmetscher;
+			productName = Dolmetscher;
+			productReference = D0000000000000000000A001;
+			productType = "com.apple.product-type.application";
+		};
+		D0000000000000000000E002 = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D00000000000000000005003;
+			buildPhases = (
+				D00000000000000000003002,
+				D00000000000000000001002,
+				D00000000000000000004002,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D0000000000000000000C002,
+			);
+			fileSystemSynchronizedGroups = (
+				D0000000000000000000B002,
+			);
+			name = DolmetscherTests;
+			productName = DolmetscherTests;
+			productReference = D0000000000000000000A002;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D0000000000000000000F001 = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					D0000000000000000000E001 = {CreatedOnToolsVersion = 26.0; };
+					D0000000000000000000E002 = {CreatedOnToolsVersion = 26.0; TestTargetID = D0000000000000000000E001; };
+				};
+			};
+			buildConfigurationList = D00000000000000000005001;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = D00000000000000000002001;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = D00000000000000000002002;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D0000000000000000000E001,
+				D0000000000000000000E002,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D00000000000000000004001 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		D00000000000000000004002 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D00000000000000000003001 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		D00000000000000000003002 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D0000000000000000000C002 = {
+			isa = PBXTargetDependency;
+			target = D0000000000000000000E001;
+			targetProxy = D0000000000000000000C001;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		D00000000000000000006001 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		D00000000000000000006002 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		D00000000000000000006003 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Dolmetscher;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
+				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Take a photo of a menu or sign so Dolmetscher can read and translate the text.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Dolmetscher listens to what is said so it can translate it.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Pick a photo of a menu or sign so Dolmetscher can read and translate the text.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Speech is turned into text on this device so it can be translated.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.dolmetscher.en-th.ios";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		D00000000000000000006004 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Dolmetscher;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
+				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Take a photo of a menu or sign so Dolmetscher can read and translate the text.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Dolmetscher listens to what is said so it can translate it.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Pick a photo of a menu or sign so Dolmetscher can read and translate the text.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Speech is turned into text on this device so it can be translated.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.dolmetscher.en-th.ios";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		D00000000000000000006005 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.dolmetscher.en-th.ios.tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Dolmetscher.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Dolmetscher";
+			};
+			name = Debug;
+		};
+		D00000000000000000006006 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.dolmetscher.en-th.ios.tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Dolmetscher.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Dolmetscher";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D00000000000000000005001 = {isa = XCConfigurationList; buildConfigurations = (D00000000000000000006001, D00000000000000000006002, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		D00000000000000000005002 = {isa = XCConfigurationList; buildConfigurations = (D00000000000000000006003, D00000000000000000006004, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		D00000000000000000005003 = {isa = XCConfigurationList; buildConfigurations = (D00000000000000000006005, D00000000000000000006006, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+/* End XCConfigurationList section */
+	};
+	rootObject = D0000000000000000000F001;
+}

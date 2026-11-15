@@ -147,3 +147,20 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Tests: `pip install -r requirements-dev.
 ## License
 
 MIT License. Dependencies keep their own licenses; notably [edge-tts](https://github.com/rany2/edge-tts) is LGPL-3.0. It is only installed as a dependency, not included in this repository or the app bundle.
+
+## iPhone app (`ios/`)
+
+A native SwiftUI companion app with the same idea: press Start and just talk, English ⇄ Thai, spoken back right away.
+It does not use the Python engine. Speech recognition runs on the device with Apple's `SpeechAnalyzer` (one recognizer
+per language on the same audio, the app picks the language), translation uses Apple's offline Translation framework
+when the language packs are installed and otherwise the same web translator as the Mac engine (can be switched off),
+and the voice comes from the system voices. Needs iOS 26 or newer and Xcode 26 or newer.
+
+```sh
+open ios/Dolmetscher.xcodeproj        # pick your team under Signing, then run on your iPhone
+xcodebuild test -project ios/Dolmetscher.xcodeproj -scheme Dolmetscher -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+```
+
+Without a microphone (Simulator), a debug build can play audio files instead:
+`SIMCTL_CHILD_DOLMETSCHER_AUDIO_FILES=/path/a.wav:/path/b.wav xcrun simctl launch booted io.github.dolmetscher.en-th.ios`.
+Apple's Translation framework does not work in the Simulator, so translations there always use the web translator.

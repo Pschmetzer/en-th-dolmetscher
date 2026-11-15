@@ -1,0 +1,160 @@
+// PhotoText.swift – Text aus Foto oder Kamera erkennen (Speisekarte, Schild) und übersetzen. Läuft auf dem Gerät.
+import PhotosUI
+import SwiftUI
+import Vision
+
+enum TextScanner {
+    /// Erkennt Textzeilen auf Thai und Englisch, von oben nach unten.
+    static func lines(in image: UIImage) async throws -> [String] {
+        guard let cg = image.cgImage else { return [] }
+        var req = RecognizeTextRequest()
+        req.recognitionLevel = .accurate
+        let wanted = [Locale.Language(identifier: "th-TH"), Locale.Language(identifier: "en-US")]
+        let supported = req.supportedRecognitionLanguages
+        let usable = wanted.filter { w in supported.contains { $0.languageCode == w.languageCode } }
+        req.recognitionLanguages = usable.isEmpty ? [Locale.Language(identifier: "en-US")] : usable
+        req.usesLanguageCorrection = true
+        let obs = try await req.perform(on: cg, orientation: CGImagePropertyOrientation(image.imageOrientation))
+        return obs
+            .sorted { $0.boundingBox.origin.y > $1.boundingBox.origin.y }
+            .compactMap { $0.topCandidates(1).first?.string.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+    }
+}
+
+extension CGImagePropertyOrientation {
+    init(_ o: UIImage.Orientation) {
+        switch o {
+        case .up: self = .up
+        case .down: self = .down
+        case .left: self = .left
+        case .right: self = .right
+        case .upMirrored: self = .upMirrored
+        case .downMirrored: self = .downMirrored
+        case .leftMirrored: self = .leftMirrored
+        case .rightMirrored: self = .rightMirrored
+        @unknown default: self = .up
+        }
+    }
+}
+
+/// Kamera über UIImagePickerController (SwiftUI hat keinen eigenen Kamera-Dialog).
+struct CameraPicker: UIViewControllerRepresentable {
+    var onImage: (UIImage) -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let c = UIImagePickerController()
+        c.sourceType = .camera
+        c.delegate = context.coordinator
+        return c
+    }
+
+    func updateUIViewController(_ c: UIImagePickerController, context: Context) {}
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+
+    final class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        let parent: CameraPicker
+        init(_ p: CameraPicker) { parent = p }
+        func imagePickerController(_ picker: UIImagePickerController,
+                                   didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+            if let img = info[.originalImage] as? UIImage { parent.onImage(img) }
+            parent.dismiss()
+        }
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { parent.dismiss() }
+    }
+}
+
+struct PhotoTextView: View {
+    @Environment(InterpreterModel.self) private var m
+    @Environment(\.dismiss) private var dismiss
+    @State private var item: PhotosPickerItem?
+    @State private var image: UIImage?
+    @State private var lines: [String] = []
+    @State private var picked: Set<Int> = []
+    @State private var busy = false
+    @State private var error: String?
+    @State private var camera = false
+
+    private var hasCamera: Bool { UIImagePickerController.isSourceTypeAvailable(.camera) }
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    HStack {
+                        if hasCamera {
+                            Button { camera = true } label: { Label(T("take_photo"), systemImage: "camera") }
+                            Spacer()
+                        }
+                        PhotosPicker(selection: $item, matching: .images) {
+                            Label(T("choose_photo"), systemImage: "photo.on.rectangle")
+                        }
+                    }
+                    .buttonStyle(.borderless)
+                }
+                if let image {
+                    Section {
+                        Image(uiImage: image).resizable().scaledToFit().frame(maxHeight: 220)
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+                if busy { Section { HStack { ProgressView(); Text(T("reading_text")) } } }
+                if let error { Section { Text("⚠️ " + error).foregroundStyle(.red) } }
+                if !lines.isEmpty {
+                    Section {
+                        ForEach(Array(lines.enumerated()), id: \.offset) { i, line in
+                            Button {
+                                if picked.contains(i) { picked.remove(i) } else { picked.insert(i) }
+                            } label: {
+                                HStack {
+                                    Image(systemName: picked.contains(i) ? "checkmark.circle.fill" : "circle")
+                                        .foregroundStyle(picked.contains(i) ? Color.accentColor : .secondary)
+                                    Text(line)
+                                }
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    } header: { Text(T("pick_lines")) }
+                }
+            }
+            .navigationTitle(T("photo_text"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button(T("cancel")) { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(T("translate")) {
+                        let chosen = picked.isEmpty ? lines : picked.sorted().map { lines[$0] }
+                        // Jede Zeile einzeln: Speisekarten sind Listen, keine Sätze.
+                        for line in chosen.prefix(30) { m.submit(line, speak: false) }
+                        dismiss()
+                    }
+                    .disabled(lines.isEmpty)
+                }
+            }
+            .onChange(of: item) { _, new in
+                guard let new else { return }
+                Task {
+                    if let data = try? await new.loadTransferable(type: Data.self), let img = UIImage(data: data) {
+                        await scan(img)
+                    }
+                }
+            }
+            .fullScreenCover(isPresented: $camera) {
+                CameraPicker { img in Task { await scan(img) } }.ignoresSafeArea()
+            }
+        }
+    }
+
+    private func scan(_ img: UIImage) async {
+        image = img
+        busy = true; error = nil; lines = []; picked = []
+        defer { busy = false }
+        do {
+            lines = try await TextScanner.lines(in: img)
+            if lines.isEmpty { error = T("no_text") }
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+}
