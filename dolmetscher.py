@@ -42,6 +42,15 @@ def new_id():
     return f"u{next(_IDS)}"
 VOICE = {"th": "Kanya", "en": "Samantha"}
 THAI_MODEL = "Vinxscribe/biodatlab-whisper-th-medium-faster"   # CTranslate2-Version von biodatlab/whisper-th-medium-combined
+# Feste Hugging-Face-Revisionen (Commit-SHA) der Modelle, die Engine und build.sh laden: ein später überschriebenes
+# Repo (Drittkonto!) wird so nicht unbemerkt übernommen. Anheben: SHA per https://huggingface.co/api/models/<repo>.
+# Schlüssel = Name, wie er an WhisperModel geht (Kurzname von faster-whisper oder Repo-ID).
+MODEL_REVISIONS = {
+    "small": "536b0662742c02347bc0e980a01041f333bce120",            # Systran/faster-whisper-small
+    "medium": "08e178d48790749d25932bbc082711ddcfdfbc4f",           # Systran/faster-whisper-medium
+    "large-v3-turbo": "0a363e9161cbc7ed1431c9597a8ceaf0c4f78fcf",   # mobiuslabsgmbh/faster-whisper-large-v3-turbo
+    THAI_MODEL: "704c0db154f842e8957a386323a69e70a630cb10",
+}
 TARGET = {"en": "th", "th": "en"}
 # Weckwort nur am Satzanfang: "Translator, pause" / "Hey translator resume"
 WAKE = re.compile(r"^\W*(?:hey|hi|ok|okay)?\W*translat(?:or|er)\b\W*(.*)$", re.I | re.S)
@@ -855,6 +864,7 @@ def _warm(m):
 def _wm(model, **kw):
     """Modell von der Platte laden, ohne bei jedem Start beim Hub nachzufragen (Modelle liegen
     nach dem ersten Mal im Cache). Nur wenn es lokal fehlt: herunterladen."""
+    kw.setdefault("revision", MODEL_REVISIONS.get(model))   # eigene Pfade/Repo-IDs: None = wie bisher
     try:
         return WhisperModel(model, local_files_only=True, **kw)
     except Exception as e:

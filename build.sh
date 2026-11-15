@@ -5,10 +5,11 @@
 #               in build/. Bricht ab, wenn DOLMETSCHER_SIGN_IDENTITY fehlt (kein Ad-hoc-Fallback).
 #   DOLMETSCHER_PYTHON=/pfad/zu/python  – vorhandenes Python mit faster-whisper verwenden
 #   sonst wird eine venv unter ~/Library/Application Support/Dolmetscher/venv angelegt
-#   und mit den Versionen aus requirements.txt bestückt (uv, falls vorhanden, sonst pip).
+#   und mit requirements.txt bestückt (alle Pakete fest, mit Hashes; uv, falls vorhanden, sonst pip; Python >= 3.12).
 #   DOLMETSCHER_SIGN_IDENTITY="Name"  – mit festem (z. B. selbstsignierten) Zertifikat signieren,
 #   damit macOS nach einem Neubau nicht erneut nach dem Mikrofon fragt (siehe CONTRIBUTING.md).
 #   DOLMETSCHER_SKIP_MODELS=1 – Modell-Download überspringen (nur CI/Strukturprüfung; die App lädt sie dann beim ersten Start)
+#   DOLMETSCHER_MODELS="medium small th" – welche Modelle vorab laden (Standard; zusätzlich möglich: best = large-v3-turbo)
 #   DOLMETSCHER_NOTARY_PROFILE="name" – nur mit --release: notarytool-Keychain-Profil
 #   (xcrun notarytool store-credentials), dann wird notarisiert und geheftet.
 # Version: aus pyproject.toml ([project] version); Build-Nummer: Anzahl der Git-Commits (sonst 1).
@@ -21,7 +22,7 @@ for arg in "$@"; do
   case "$arg" in
     --install) INSTALL=1 ;;
     --release) RELEASE=1 ;;
-    -h|--help) sed -n '2,17p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,/^set /p' "$0" | sed '$d'; exit 0 ;;
     *) echo "Unbekannte Option: $arg  (erlaubt: --install, --release)"; exit 2 ;;
   esac
 done
@@ -56,13 +57,18 @@ if [ -z "$PY" ]; then
   if [ ! -x "$PY" ]; then
     echo "→ Lege Python-Umgebung an …"
     mkdir -p "$SUPPORT"
-    if command -v uv >/dev/null; then uv venv -q "$SUPPORT/venv"; else python3 -m venv "$SUPPORT/venv"; fi
+    if command -v uv >/dev/null; then uv venv -q --python ">=3.12" "$SUPPORT/venv"
+    else "$(command -v python3.12 || command -v python3)" -m venv "$SUPPORT/venv"; fi
   fi
-  "$PY" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)' \
-    || { echo "Python >= 3.10 nötig, gefunden: $("$PY" -V 2>&1)"; exit 1; }
-  echo "→ Installiere Abhängigkeiten (requirements.txt) …"
-  if command -v uv >/dev/null; then uv pip install -q --python "$PY" -r requirements.txt
-  else "$PY" -m pip install -q --upgrade pip && "$PY" -m pip install -q -r requirements.txt; fi
+  # requirements.txt ist für Python >= 3.12 aufgelöst (numpy 2.5 braucht 3.12).
+  "$PY" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 12) else 1)' || {
+    echo "Python >= 3.12 nötig, die venv hat $("$PY" -V 2>&1)."
+    echo "Abhilfe: brew install python@3.12 (oder uv), dann  rm -rf \"$SUPPORT/venv\"  und ./build.sh erneut."
+    exit 1
+  }
+  echo "→ Installiere Abhängigkeiten (requirements.txt, mit Hash-Prüfung) …"
+  if command -v uv >/dev/null; then uv pip install -q --python "$PY" --require-hashes -r requirements.txt
+  else "$PY" -m pip install -q --require-hashes -r requirements.txt; fi
 fi
 "$PY" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)' \
   || { echo "Python >= 3.10 nötig, gefunden: $("$PY" -V 2>&1)"; exit 1; }
@@ -72,8 +78,22 @@ fi
 if [ "${DOLMETSCHER_SKIP_MODELS:-0}" = 1 ]; then
   echo "→ Modell-Download übersprungen (DOLMETSCHER_SKIP_MODELS=1, z. B. in CI)"
 else
-  echo "→ Lade Whisper-Modelle medium, small und Thai (~3,5 GB) (einmalig) …"
-  "$PY" -c "from faster_whisper import WhisperModel as W; W('medium', device='cpu', compute_type='int8'); W('small', device='cpu', compute_type='int8'); W('Vinxscribe/biodatlab-whisper-th-medium-faster', device='cpu', compute_type='int8')"
+  MODELS="${DOLMETSCHER_MODELS:-medium small th}"
+  echo "→ Lade Whisper-Modelle ($MODELS; medium+small+th ~3,5 GB, best +1,6 GB) (einmalig) …"
+  # Namen und feste Revisionen kommen aus dolmetscher.py (MODEL_REVISIONS), wie in der Engine.
+  # download_model lädt nur die Dateien (kein Modell im Speicher); fertige Dateien im Cache werden übersprungen.
+  "$PY" - "$MODELS" <<'PYEOF'
+import sys
+from faster_whisper.utils import download_model
+from dolmetscher import MODEL_REVISIONS, THAI_MODEL
+alias = {"th": THAI_MODEL, "best": "large-v3-turbo"}
+for arg in sys.argv[1].replace(",", " ").split():
+    name = alias.get(arg, arg)
+    if name not in MODEL_REVISIONS:
+        sys.exit(f"Unbekanntes Modell '{arg}' (erlaubt: small, medium, best, th)")
+    print(f"  {name} @ {MODEL_REVISIONS[name][:10]}", flush=True)
+    download_model(name, revision=MODEL_REVISIONS[name])
+PYEOF
 fi
 
 # Gebaut wird in einem temporären Verzeichnis; ein vorhandenes build/Dolmetscher.app
