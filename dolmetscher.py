@@ -1953,7 +1953,8 @@ class Engine:
             log({"tts": "say", "voice": self.voice[lang]})
             rc = run_cancellable(say_cmd(self.voice[lang], self.rate + boost, aiff, text), cancelled=cancelled)
             if rc != 0:
-                log({"tts": "say-fehler", "rc": rc})
+                if not (cancelled and cancelled()):
+                    log({"tts": "say-fehler", "rc": rc})       # rc None: Zeitgrenze überschritten
             elif os.path.exists(aiff) and not (cancelled and cancelled()):
                 wait_quiet(cancelled=cancelled)
                 if cancelled and cancelled():
