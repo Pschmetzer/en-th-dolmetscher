@@ -281,10 +281,36 @@ def _get_json(url, timeout):
 
 _CACHE = collections.OrderedDict()           # (text, src, dst, provider-art) -> Übersetzung
 _CACHE_MAX = 300
+_CACHE_LOCK = threading.Lock()                # Arbeits-Thread liest/schreibt, Steuer-Thread leert
+
+
+def _cache_clear():
+    with _CACHE_LOCK:
+        _CACHE.clear()
+
+
+def _cache_get(key):
+    with _CACHE_LOCK:
+        v = _CACHE.get(key)
+        if v is not None:
+            _CACHE.move_to_end(key)
+        return v
+
+
+def _cache_put(key, val):
+    with _CACHE_LOCK:
+        _CACHE[key] = val
+        _CACHE.move_to_end(key)
+        while len(_CACHE) > _CACHE_MAX:
+            _CACHE.popitem(last=False)
 
 
 def _norm(s):
-    return re.sub(r"[\s.,!?。]+", " ", s.lower()).strip()
+    """Cache-Schlüssel: Groß/klein, Leerraum, . , 。 egal – ? und ! bleiben (Frage ≠ Aussage)."""
+    s = s.lower().replace("？", "?").replace("！", "!")
+    s = re.sub(r"[\s.,。]+", " ", s)
+    s = re.sub(r"\s*([?!])[\s?!]*", r"\1", s)                  # "geht's ? !" -> "geht's?"
+    return s.strip()
 
 
 def warm_translate():
@@ -499,11 +525,9 @@ def load_glossary(text=None):
             text = ""
     else:
         try:
-            os.makedirs(os.path.dirname(GLOSSARY_FILE), exist_ok=True)
-            with open(GLOSSARY_FILE, "w", encoding="utf-8") as f:
-                f.write(text)
+            _write_private(GLOSSARY_FILE, text)
         except OSError as e:
-            log({"glossary": "speichern fehlgeschlagen", "err": repr(e)[:120]})
+            log({"glossary": "speichern fehlgeschlagen", "err": _errtxt(e)})
     items = []
     for line in text.splitlines():
         a, sep, b = line.partition("=>")
@@ -511,12 +535,93 @@ def load_glossary(text=None):
         if a:
             items.append((a, b if sep and b else None))
     GLOSSARY[:] = items[:200]
-    _CACHE.clear()                     # alte Übersetzungen kennen die neuen Einträge nicht
+    _cache_clear()                     # alte Übersetzungen kennen die neuen Einträge nicht
+
+
+def _write_private(path, text):
+    """Atomar (Temp-Datei + os.replace) und nur für den Nutzer lesbar (0600): Namen/Orte sind privat,
+    ein Absturz beim Schreiben hinterlässt keine leere Datei."""
+    d = os.path.dirname(path)
+    os.makedirs(d, mode=0o700, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=d, prefix=".tmp_")            # mkstemp legt mit 0600 an
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(text)
+        os.chmod(tmp, 0o600)
+        os.replace(tmp, path)
+    except BaseException:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
+
+
+_ASCII_ALNUM = re.compile(r"[A-Za-z0-9]")
+
+
+@functools.lru_cache(maxsize=1024)
+def _term_rx(term):
+    """Suchmuster für einen Glossar-/Aussprache-Eintrag: lateinische Wörter nur als ganzes Wort
+    ("Pat" trifft nicht "path"), Thai (ohne Leerzeichen geschrieben) als Teilstring."""
+    pre = r"(?<![A-Za-z0-9])" if _ASCII_ALNUM.match(term[:1]) else ""
+    post = r"(?![A-Za-z0-9])" if _ASCII_ALNUM.match(term[-1:]) else ""
+    return re.compile(pre + re.escape(term) + post, re.I)
 
 
 def glossary_hits(text):
-    low = text.lower()
-    return [(a, b) for a, b in GLOSSARY if a.lower() in low]
+    return [(a, b) for a, b in GLOSSARY if _term_rx(a).search(text)]
+
+
+_SLOT = re.compile(r"\[\s*(\d{1,2})\s*\]")
+
+
+def _in_script(word, lang):
+    th = bool(re.search(r"[\u0e00-\u0e7f]", word))
+    return th if lang == "th" else not th
+
+
+def _protect(text, dst):
+    """Glossar für Google/MyMemory: Einträge durch Platzhalter [1], [2] … ersetzen (überstehen beide
+    Dienste unverändert) und merken, was danach eingesetzt wird – die Übersetzung aus dem Glossar,
+    sonst der Name unverändert. Auch rückwärts: steht die Übersetzung im Text, kommt das Wort zurück."""
+    slots = []
+    for a, b in GLOSSARY:
+        if len(slots) >= 20:
+            break
+        if _term_rx(a).search(text):
+            find, val = a, (b if b and _in_script(b, dst) else a)
+        elif b and _in_script(a, dst) and _term_rx(b).search(text):
+            find, val = b, a
+        else:
+            continue
+        n = len(slots) + 1
+        new = _term_rx(find).sub(f" [{n}] ", text)
+        if new != text:
+            text = new
+            slots.append(val)
+    return re.sub(r"[ \t]{2,}", " ", text).strip(), slots
+
+
+def _restore(out, slots):
+    """Platzhalter zurücksetzen; None, wenn einer fehlt (dann ohne Platzhalter neu übersetzen)."""
+    found = {int(m.group(1)) for m in _SLOT.finditer(out)}
+    if not all(i in found for i in range(1, len(slots) + 1)):
+        return None
+    out = _SLOT.sub(lambda m: slots[int(m.group(1)) - 1] if 0 < int(m.group(1)) <= len(slots) else m.group(0), out)
+    out = re.sub(r"[ \t]+([.,!?;:])", r"\1", re.sub(r"[ \t]{2,}", " ", out))
+    return out.strip()
+
+
+def _mt(fn, text, src, dst, *extra):
+    """Google/MyMemory-Aufruf mit Glossar-Platzhaltern (Claude bekommt das Glossar im Prompt)."""
+    prot, slots = _protect(text, dst)
+    if not slots:
+        return fn(text, src, dst, *extra)
+    if not re.search(r"\w", _SLOT.sub("", prot)):             # nur Glossar-Einträge: nichts zu übersetzen
+        return _restore(prot, slots)
+    res = _restore(fn(prot, src, dst, *extra), slots)
+    return res if res is not None else fn(text, src, dst, *extra)
 
 
 PRESET = presets.PresetState()
@@ -529,7 +634,7 @@ def set_preset(eng, pid, quiet=False):
         log({"preset": "unbekannt", "id": str(pid)[:40]})
         return None
     p = PRESET.activate(pid, all_p, GLOSSARY, LLM, eng)
-    _CACHE.clear()                     # Stil und Glossar ändern die Übersetzung
+    _cache_clear()                     # Stil und Glossar ändern die Übersetzung
     if not quiet:
         emit("preset", id=p["id"] if p else None, name=p["names"]["en"] if p else None)
     return p["names"]["en"] if p else None
@@ -556,9 +661,13 @@ def load_pronounce(path=None):
 
 
 def apply_pronounce(text):
-    for a, b in PRONOUNCE:
-        text = re.sub(re.escape(a), lambda m: b, text, flags=re.I)
-    return text
+    """Ein Durchgang, längste Einträge zuerst, lateinische Wörter nur als ganzes Wort: "Pat => Pät"
+    ändert nicht "pattern", und eine Ersetzung wird nicht von der nächsten Regel erneut ersetzt."""
+    if not PRONOUNCE:
+        return text
+    items = sorted(PRONOUNCE, key=lambda x: -len(x[0]))
+    rx = re.compile("|".join(f"({_term_rx(a).pattern})" for a, _ in items), re.I)
+    return rx.sub(lambda m: items[m.lastindex - 1][1], text)
 
 
 STYLES = {
@@ -707,10 +816,10 @@ def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
     meta = meta if meta is not None else {}
     use_llm = LLM["on"] and time.time() >= LLM["skip_until"] and llm_available()
     key = _cache_key(text, src, dst, use_llm, polite)
-    if key in _CACHE and not (use_llm and history):        # mit Verlauf ist der Kontext jedes Mal anders
-        _CACHE.move_to_end(key)
-        meta.update(provider=_CACHE[key][1], cached=True)
-        return _CACHE[key][0]
+    hit = None if (use_llm and history) else _cache_get(key)   # mit Verlauf ist der Kontext jedes Mal anders
+    if hit is not None:
+        meta.update(provider=hit[1], cached=True)
+        return hit[0]
     out, e1 = None, None
     if use_llm:
         try:
@@ -727,7 +836,7 @@ def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
             raise RuntimeError("offline – keine Internetverbindung")
         if now >= _PROV["google"]["until"]:
             try:
-                out = google_translate(text, src, dst)
+                out = _mt(google_translate, text, src, dst)
                 meta["provider"] = "google"
                 _note_ok("google")
             except Exception as e:
@@ -740,7 +849,7 @@ def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
                     raise e1
                 raise RuntimeError("Übersetzung pausiert (Limit erreicht), gleich wieder")
             try:
-                out = mymemory_translate(text, src, dst, e1)
+                out = _mt(mymemory_translate, text, src, dst, e1)
                 meta["provider"] = "mymemory"
                 _note_ok("mymemory")
             except Exception as e:
@@ -750,9 +859,7 @@ def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
                 raise
     if use_llm and meta["provider"] != "claude":         # Google-Ersatz nicht als Claude-Ergebnis merken
         key = _cache_key(text, src, dst, False, polite)
-    _CACHE[key] = (out, meta["provider"])
-    if len(_CACHE) > _CACHE_MAX:
-        _CACHE.popitem(last=False)
+    _cache_put(key, (out, meta["provider"]))
     return out
 
 

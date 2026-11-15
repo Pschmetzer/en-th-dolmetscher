@@ -57,3 +57,76 @@ def test_555_as_laugh(monkeypatch, text, sent):
 ])
 def test_numbers_differ_robust(a, b, differ):
     assert d.numbers_differ(a, b) is differ
+
+
+# ---- Glossar -------------------------------------------------------------------------------------
+
+def test_glossary_hits_word_boundaries(monkeypatch):
+    monkeypatch.setattr(d, "GLOSSARY", [("Pat", None), ("Ao", "อ้อ"), ("สุขุมวิท", None)])
+    assert d.glossary_hits("the path to Patrick") == []
+    assert d.glossary_hits("also") == []
+    assert d.glossary_hits("Hi pat!") == [("Pat", None)]
+    assert d.glossary_hits("บ้านอยู่ที่สุขุมวิทนะ") == [("สุขุมวิท", None)]
+
+
+def test_glossary_placeholders_with_google(monkeypatch):
+    monkeypatch.setattr(d, "GLOSSARY", [("Nok", "น้อก"), ("Sukhumvit", None)])
+    seen = []
+    monkeypatch.setattr(d, "_get_json", _google_echo(seen, lambda q: "โทรหา [1] ที่ [2] พรุ่งนี้"))
+    out = d.translate("Call Nok in Sukhumvit tomorrow", "en", "th")
+    assert seen == ["Call [1] in [2] tomorrow"]
+    assert out == "โทรหา น้อก ที่ Sukhumvit พรุ่งนี้"
+
+
+def test_glossary_reverse_direction(monkeypatch):
+    monkeypatch.setattr(d, "GLOSSARY", [("Nok", "น้อก")])
+    seen = []
+    monkeypatch.setattr(d, "_get_json", _google_echo(seen, lambda q: "[1] is coming"))
+    assert d.translate("น้อก กำลังมา", "th", "en") == "Nok is coming"
+
+
+def test_glossary_placeholder_lost_retranslates(monkeypatch):
+    monkeypatch.setattr(d, "GLOSSARY", [("Nok", None)])
+    seen = []
+    monkeypatch.setattr(d, "_get_json", _google_echo(seen, lambda q: "สวัสดีนก" if "[1]" in q else "สวัสดี Nok"))
+    assert d.translate("Hello Nok", "en", "th") == "สวัสดี Nok"
+    assert seen == ["Hello [1]", "Hello Nok"]
+
+
+def test_glossary_only_names_skips_mt(monkeypatch):
+    monkeypatch.setattr(d, "GLOSSARY", [("Nok", "น้อก")])
+    monkeypatch.setattr(d, "_get_json", lambda u, t=0: pytest.fail("kein Netz nötig"))
+    assert d.translate("Nok!", "en", "th") == "น้อก!"
+
+
+def test_glossary_written_atomic_and_private(tmp_path, monkeypatch):
+    f = tmp_path / "sub" / "g.txt"
+    monkeypatch.setattr(d, "GLOSSARY_FILE", str(f))
+    d.load_glossary("Nok => น้อก\n")
+    assert f.read_text(encoding="utf-8") == "Nok => น้อก\n"
+    assert (f.stat().st_mode & 0o777) == 0o600
+    assert [p.name for p in f.parent.iterdir()] == ["g.txt"]          # keine Temp-Reste
+
+
+def test_pronounce_word_boundaries_single_pass(monkeypatch):
+    monkeypatch.setattr(d, "PRONOUNCE", [("Pat", "Pät"), ("Pät", "X"), ("New York", "Nju York")])
+    assert d.apply_pronounce("Pat likes the pattern in new york") == "Pät likes the pattern in Nju York"
+
+
+# ---- Cache ---------------------------------------------------------------------------------------
+
+def test_cache_key_keeps_question_mark(monkeypatch):
+    seen = []
+    monkeypatch.setattr(d, "_get_json", _google_echo(seen, lambda q: "คุณมาไหม" if "?" in q else "คุณมา"))
+    assert d.translate("You're coming.", "en", "th") == "คุณมา"
+    assert d.translate("You're coming?", "en", "th") == "คุณมาไหม"
+    meta = {}
+    assert d.translate("you're coming ?", "en", "th", meta=meta) == "คุณมาไหม" and meta.get("cached")
+    assert len(seen) == 2
+
+
+def test_cache_cleared_by_glossary(tmp_path, monkeypatch):
+    monkeypatch.setattr(d, "GLOSSARY_FILE", str(tmp_path / "g.txt"))
+    d._cache_put(("x", "en", "th", "mt", "krub"), ("y", "google"))
+    d.load_glossary("Nok")
+    assert d._cache_get(("x", "en", "th", "mt", "krub")) is None
