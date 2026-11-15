@@ -91,10 +91,9 @@ def test_engine_codes_known_to_app():
     assert emitted and not sorted(emitted - set(errs)), sorted(emitted - set(errs))
 
 
-def test_speaker_model_error_prefix_matches_engine():
-    # Engine sends no code for this error yet; the app matches the message prefix.
-    prefix = re.search(r'static let speakerErrorPrefix = "([^"]+)"', SWIFT).group(1)
-    assert f'emit("error", msg="{prefix}' in ENGINE
+def test_speaker_model_error_has_code():
+    # Die App erkennt den Stimmprofil-Fehler am Code (früher: Textanfang der Meldung).
+    assert re.search(r'emit\("error", code="profiles_failed",\s*msg="Stimmprofile nicht nutzbar', ENGINE)
 
 
 def test_speak_done_partial_and_delete_all():
@@ -102,3 +101,14 @@ def test_speak_done_partial_and_delete_all():
     assert 'emit("profiles_deleted_all"' in ENGINE and '"profiles_deleted_all"' in SWIFT
     assert '"--delete-all-profiles"' in SWIFT
     assert 'emit("pong"' in ENGINE and '["ping": ' in SWIFT
+
+
+def test_engine_app_nacharbeiten_contract():
+    """speak_text: App sendet, Engine liest, Doku nennt es; Profil-Fehler über Code statt Textanfang;
+    unsure-dropped liefert text/lang, die App liest sie für „Trotzdem übersetzen“ (retranslate)."""
+    assert '"speak_text"' in SWIFT and 'd.get("speak_text")' in ENGINE and "`speak_text`" in DOCS
+    assert 'code="profiles_failed"' in ENGINE and '"profiles_failed": "err_speaker_model"' in SWIFT
+    assert "speakerErrorPrefix" not in SWIFT
+    assert 'unsure = {"text": text, "lang": lang' in ENGINE
+    assert 'o["code"] as? String == "unsure"' in SWIFT and 'o["text"] as? String' in SWIFT
+    assert 'send(["retranslate": ["id": d.id, "text": d.text, "lang": d.lang]])' in SWIFT

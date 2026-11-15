@@ -108,7 +108,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `other_language` | weder Englisch noch Thai | Geräusch, Musik, andere Sprache |
 | `locked` | nur Thai aktiv / nur Englisch aktiv | Sprach-Sperre |
 | `paused` | pausiert | „Translator, pause“ aktiv |
-| `unsure` | unsicher | Erkennung zu unsicher; mit `text`, `lang`, `lp` |
+| `unsure` | unsicher | Erkennung zu unsicher; mit `text`, `lang`, `lp` (App bietet „Trotzdem übersetzen“ per `retranslate` mit dieser `id` an) |
 | `hallucination` | halluzination (…) | typische Whisper-Erfindung |
 | `filler` | floskel | „Thank you.“ u. ä. bei sehr leiser, kurzer Aufnahme |
 | `empty` | nichts erkannt | kein Text |
@@ -127,7 +127,8 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `model_offline` | Modell fehlt lokal und kann ohne Internet nicht geladen werden |
 | `translate_failed` | Übersetzung fehlgeschlagen (alle Anbieter) |
 | `reassign_expired`, `reassign_empty`, `reassign_invalid` | „Das war ich/sie“: Satz nicht mehr im Speicher / nichts erkannt / Anfrage ungültig |
-| `phrase_invalid`, `edit_invalid` | Schnellsatz bzw. Korrektur ungültig |
+| `phrase_invalid`, `edit_invalid`, `speak_invalid` | Schnellsatz, Korrektur bzw. Vorlesen (`speak_text`) ungültig |
+| `profiles_failed` | Stimmprofile/Sprechermodell nicht ladbar – Stimmerkennung aus; `msg` nennt die Ursache |
 | `voice_unknown`, `glossary_invalid` | Steuerwert ungültig |
 | `file_empty`, `file_failed` | `--file`: keine Audiodaten / Datei nicht lesbar |
 
@@ -166,6 +167,7 @@ Neu:
 | `stop_speaking` | true | laufende und wartende Ausgaben abbrechen |
 | `say` | `{"text": "...", "lang": "en"\|"th"}` | Schnellsatz: übersetzen und vorlesen wie eine Äußerung (`source: "phrase"`) |
 | `retranslate` | `{"id": "u7", "text": "korrigierter Text", "lang": "en"\|"th"}` | neu übersetzen und vorlesen; `utt` kommt mit `replaces: "u7"`, `source: "edit"` |
+| `speak_text` | `{"text": "...", "lang": "en"\|"th", "id": "u7"}` | fertigen Text nur vorlesen (Neural-Stimme, keine Übersetzung) – „Nochmal sprechen“; `id` optional, dann kommen `speaking`/`speak_done` mit dieser id (ohne `latency_s`). Ungültig: `error` `speak_invalid`. Nicht verwechseln mit `speak` (bool, stumm schalten) |
 | `reassign` | `{"id": "u7", "role": "me"\|"other"}` | „Das war ich/Partner“: Satz in der Sprache dieser Person (ich = Englisch, Partner = Thai) neu erkennen und übersetzen; `utt` kommt mit `replaces: "u7"`, `source: "reassign"`, `role`. Führt den Stimmabdruck des Profils nach (Gewicht 0,15). Behalten werden die letzten 30 Sätze |
 
 ## Tempo-Ausbau (Branch feat/tempo)

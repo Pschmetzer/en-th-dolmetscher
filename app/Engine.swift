@@ -137,6 +137,8 @@ final class EngineModel: NSObject, ObservableObject {
     @Published private(set) var engineHung = false
     /// Vorschlag nach einer Korrektur: geänderte Wörter ins Vokabular eines Stimmprofils übernehmen.
     @Published var vocabSuggestion: (words: [String], profile: String)?
+    /// Zuletzt als „zu unsicher“ verworfener Satz (`dropped` `unsure` mit `text`/`lang`): „Trotzdem übersetzen“.
+    @Published var unsureDrop: (id: String, text: String, lang: String)?
     /// Aktives Szenario-Preset laut Engine (`preset`-Ereignis): id und englischer Name; nil = keins.
     @Published private(set) var activePreset: (id: String, name: String)?
     /// Anzeigename des aktiven Presets in der Oberflächensprache.
@@ -766,7 +768,8 @@ final class EngineModel: NSObject, ObservableObject {
 
     /// Laufzeitzustand zurücksetzen (Start, Stopp, Absturz) – sonst bleibt z. B. „busy“ hängen.
     private func resetRuntime() {
-        pendingIDs.removeAll(); speakingIDs.removeAll()
+        pendingIDs.removeAll(); speakingIDs.removeAll(); engineReplayIDs.removeAll()
+        unsureDrop = nil
         items.removeAll { $0.pending }
         backlogSTT = 0; backlogTTS = 0
         netDown.removeAll()
@@ -981,7 +984,7 @@ final class EngineModel: NSObject, ObservableObject {
         case "speaking":
             let key = id ?? "?"
             speakingIDs.insert(key)
-            if let i = index(of: id) {
+            if !engineReplayIDs.contains(key), let i = index(of: id) {   // Wiederholung: Messwerte der Blase behalten
                 if let f = o["first_s"] as? Double { items[i].firstSound = f }
                 if let lat = (o["latency_s"] as? NSNumber)?.doubleValue {
                     items[i].latency = lat
@@ -991,7 +994,10 @@ final class EngineModel: NSObject, ObservableObject {
             status = L.t("speaking")
         case "speak_done":
             speakingIDs.remove(id ?? "?")
-            if o["skipped"] as? Bool == true, let i = index(of: id) { items[i].skipped = true }
+            // „Nochmal sprechen“ über die Engine: eine abgebrochene Wiederholung macht die Blase nicht „übersprungen“
+            let wasReplay = id.map { engineReplayIDs.remove($0) != nil } ?? false
+            if o["skipped"] as? Bool == true, !wasReplay, let i = index(of: id) { items[i].skipped = true }
+            if wasReplay, o["skipped"] as? Bool != true, let i = index(of: id) { items[i].skipped = false }
             if o["partial"] as? Bool == true, id != "cmd", let i = index(of: id) { items[i].cutOff = true }
             if !speakingNow { status = idleStatus }
             applyDeferredRestart()
@@ -1023,12 +1029,16 @@ final class EngineModel: NSObject, ObservableObject {
                 pendingIDs.remove("?")
             }
             if replayPausedEngine { break }   // Echo der eigenen Wiedergabe verworfen – Status nicht ändern
+            if o["code"] as? String == "unsure", let id, let text = o["text"] as? String, !text.isEmpty {
+                unsureDrop = (id, text, o["lang"] as? String ?? "")
+            }
             defer { applyDeferredRestart() }
             if speakingNow { break }
             if paused { status = Self.pausedText; break }
             // `command`: Antwort kommt als `command`; `translate_failed`: `error` folgt mit der Ursache
             if let t = Self.droppedText(o["code"] as? String) { status = t }
         case "utt":
+            if o["replaces"] as? String == unsureDrop?.id || o["source"] as? String == "mic" { unsureDrop = nil }
             addUtterance(o, id: id)
             applyDeferredRestart()
         case "roles":
@@ -1056,17 +1066,12 @@ final class EngineModel: NSObject, ObservableObject {
     static func errorText(code: String?, msg: String?) -> String {
         if let code, let key = errorKeys[code] { return L.t(key) }
         // Stimmerkennung (Sprechermodell) nicht ladbar – die Engine schickt dafür (noch) keinen Code
-        if code == nil, let msg, msg.hasPrefix(speakerErrorPrefix) {
-            let detail = msg.split(separator: ":", maxSplits: 1).dropFirst().first
-                .map { $0.trimmingCharacters(in: .whitespaces) } ?? ""
-            return L.t("err_speaker_model") + (detail.isEmpty ? "" : " (\(detail))")
-        }
         return msg ?? L.t("error_generic")
     }
-    static let speakerErrorPrefix = "Stimmprofile nicht nutzbar"
     /// Codes, deren `msg` eine wechselnde Ursache enthält: im Hinweis zusätzlich zum übersetzten Text zeigen.
     static let errorDetailCodes: Set<String> = ["translate_failed", "mic_failed", "mic_unavailable",
-                                                "mic_list_failed", "ffmpeg_missing", "file_failed", "file_empty"]
+                                                "mic_list_failed", "ffmpeg_missing", "file_failed", "file_empty",
+                                                "profiles_failed"]
     /// `error.code` (docs/PROTOKOLL.md) -> L10n-Schlüssel. Literale Schlüssel: tests/test_l10n_keys.py prüft sie.
     static let errorKeys: [String: String] = [
         "mic_denied": "err_mic_denied", "mic_unavailable": "err_mic_unavailable", "mic_no_data": "err_mic_no_data",
@@ -1078,6 +1083,7 @@ final class EngineModel: NSObject, ObservableObject {
         "phrase_invalid": "err_phrase_invalid", "edit_invalid": "err_edit_invalid",
         "voice_unknown": "err_voice_unknown", "glossary_invalid": "err_glossary_invalid",
         "file_empty": "err_file_empty", "file_failed": "err_file_failed",
+        "profiles_failed": "err_speaker_model", "speak_invalid": "err_speak_invalid",
     ]
     /// Status zu `dropped.code`; nil = Status nicht ändern.
     static func droppedText(_ code: String?) -> String? {
@@ -1286,6 +1292,13 @@ final class EngineModel: NSObject, ObservableObject {
         send(["retranslate": ["id": uid, "text": text, "lang": u.lang]])
     }
 
+    /// „Trotzdem übersetzen“: den als zu unsicher verworfenen Satz doch übersetzen und vorlesen.
+    func translateUnsure() {
+        guard let d = unsureDrop else { return }
+        unsureDrop = nil
+        send(["retranslate": ["id": d.id, "text": d.text, "lang": d.lang]])
+    }
+
     // MARK: Push-to-Talk
 
     private var pttWork: DispatchWorkItem?
@@ -1313,7 +1326,7 @@ final class EngineModel: NSObject, ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.9, execute: w)
     }
 
-    // MARK: Wiedergabe einer Sprechblase (lokal, ohne Engine)
+    // MARK: Wiedergabe einer Sprechblase (Engine-Neural-Stimme, sonst Systemstimme)
 
     private let synth = AVSpeechSynthesizer()
     @Published private(set) var replayingID: UUID?
@@ -1323,8 +1336,22 @@ final class EngineModel: NSObject, ObservableObject {
     /// Abschnitts – sofort fortsetzen würde das Echo der Wiedergabe doch noch übersetzen.
     private var resumeWork: DispatchWorkItem?
 
+    /// ids, die per `speak_text` nochmal vorgelesen werden (für `speak_done`).
+    private var engineReplayIDs: Set<String> = []
+
     func replay(_ u: Utterance) {
-        guard !u.pending else { return }
+        guard !u.pending, !u.out.isEmpty else { return }
+        // Läuft die Engine und spricht sie (nicht stumm): gleiche Neural-Stimme wie beim ersten Mal.
+        // Die Engine hört ihre eigene Ausgabe nicht mit – keine Pause nötig.
+        if running && engineReady && speak && ["en", "th"].contains(u.to) {
+            // laufende lokale Wiedergabe abbrechen; ihr didCancel setzt eine eigene Pause verzögert fort
+            if synth.isSpeaking { synth.stopSpeaking(at: .immediate) }
+            send(["stop_speaking": true])
+            var arg: [String: Any] = ["text": u.out, "lang": u.to]
+            if let uid = u.uid { arg["id"] = uid; engineReplayIDs.insert(uid) }
+            send(["speak_text": arg])
+            return
+        }
         synth.delegate = self
         resumeWork?.cancel(); resumeWork = nil
         if synth.isSpeaking { synth.stopSpeaking(at: .immediate) }

@@ -1211,9 +1211,55 @@ _TH_NUM_RUN = re.compile("(?:" + "|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], ke
                          + "))*")
 _TH_TOKEN = re.compile("|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], key=len, reverse=True)))
 _SCALE = re.compile(r"(\d+(?:[.,]\d+)?)\s*(million|mio\.?|billion|พันล้าน|ล้าน)", re.I)
-_EN_NUM_WORDS = re.compile(r"\b(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen"
-                           r"|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty"
-                           r"|sixty|seventy|eighty|ninety|hundred|thousand|dozen)\b", re.I)
+
+# Englische Zahlwörter ("three hundred fifty", "twenty-five") für den Zahlenvergleich in Ziffern
+_EN_UNIT_W = {"zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8,
+              "nine": 9}
+_EN_TEEN_W = {"ten": 10, "eleven": 11, "twelve": 12, "thirteen": 13, "fourteen": 14, "fifteen": 15,
+              "sixteen": 16, "seventeen": 17, "eighteen": 18, "nineteen": 19}
+_EN_TENS_W = {"twenty": 20, "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60, "seventy": 70, "eighty": 80,
+              "ninety": 90}
+_EN_SCALE_W = {"thousand": 1000, "million": 1_000_000, "billion": 1_000_000_000}
+_EN_W = "|".join([*_EN_UNIT_W, *_EN_TEEN_W, *_EN_TENS_W, "hundred", *_EN_SCALE_W])
+_EN_NUM_RUN = re.compile(rf"\b(?:{_EN_W})(?:[\s-]+(?:and[\s-]+)?(?:{_EN_W}))*\b", re.I)
+
+
+def _en_run_value(run):
+    """'three hundred and fifty' -> 350, 'twenty-five' -> 25, 'two thousand five hundred' -> 2500.
+    Unklare Folgen ('one fifty', 'two thirty' = Preis oder Uhrzeit?) -> None, bleiben als Wörter stehen."""
+    total, cur, last, last_scale = 0, 0, None, None
+    for t in re.split(r"[\s-]+", run.lower()):
+        if t == "and":
+            if last not in ("hundred", "scale"):
+                return None
+            continue
+        if t in _EN_UNIT_W:
+            if last not in (None, "hundred", "scale", "tens"):
+                return None
+            cur, last = cur + _EN_UNIT_W[t], "unit"
+        elif t in _EN_TEEN_W or t in _EN_TENS_W:
+            if last not in (None, "hundred", "scale"):
+                return None
+            cur += _EN_TEEN_W.get(t) or _EN_TENS_W[t]
+            last = "teen" if t in _EN_TEEN_W else "tens"
+        elif t == "hundred":
+            if last not in ("unit", "teen", "tens") or not 0 < cur < 100:
+                return None
+            cur, last = cur * 100, "hundred"
+        else:
+            m = _EN_SCALE_W[t]
+            if last in (None, "scale") or not cur or (last_scale and m >= last_scale):
+                return None
+            total, cur, last, last_scale = total + cur * m, 0, "scale", m
+    return total + cur
+
+
+def en_words_to_digits(s):
+    """Ausgeschriebene englische Zahlen in Ziffern: 'costs three hundred fifty baht' -> 'costs 350 baht'."""
+    def one(m):
+        v = _en_run_value(m.group(0))
+        return m.group(0) if v is None else str(v)
+    return _EN_NUM_RUN.sub(one, s)
 
 
 def _thai_run_value(run):
@@ -1273,8 +1319,12 @@ def _time24(m, pm):
 def _numbers(s, words=True):
     """Zahlen vergleichbar machen: 1.500/1,500 = Tausender (1500), 3:30 = 3.30 (Uhrzeit), aber 1.5 != 15;
     2:30 PM = 14:30 (auch บ่าย 2:30), 9:00 = 9, 09 = 9. Thai-Lachen (555 ohne Zahlkontext) zählt nicht.
-    words: ausgeschriebene Thai-Zahlen mitzählen (สามร้อยห้าสิบ = 350, บ่ายสองโมง = 14); 1.5 million = 1500000."""
-    s = _SCALE.sub(_scale_sub, s.translate(_THAI_DIGITS))       # zuerst "1.5 ล้าน", sonst zählt ล้าน allein
+    words: ausgeschriebene Zahlen mitzählen – Thai (สามร้อยห้าสิบ = 350, บ่ายสองโมง = 14) und Englisch
+    (three hundred fifty = 350); 1.5 million = 1500000."""
+    s = s.translate(_THAI_DIGITS)
+    if words:
+        s = en_words_to_digits(s)                                # vor _SCALE: "five million" ganz als Wortfolge
+    s = _SCALE.sub(_scale_sub, s)                                # zuerst "1.5 ล้าน", sonst zählt ล้าน allein
     if words:
         s = thai_words_to_digits(s)
     s = _laugh_sub(s)
@@ -1292,9 +1342,8 @@ def _numbers(s, words=True):
 def numbers_differ(a, b):
     """True, wenn Zahlen im Original und in der Übersetzung nicht übereinstimmen (Preise, Zeiten).
     Nur mit Zahlen auf beiden Seiten; einstellige Zahlen zählen nicht (oft als Wort übersetzt: 2 = สอง).
-    Thai-Zahlwörter zählen nur, wenn die Gegenseite keine englischen Zahlwörter hat (die werden nicht umgerechnet)."""
-    na = _numbers(a, words=not _EN_NUM_WORDS.search(b))
-    nb = _numbers(b, words=not _EN_NUM_WORDS.search(a))
+    Zahlwörter (Thai und Englisch) werden auf beiden Seiten in Ziffern umgerechnet."""
+    na, nb = _numbers(a), _numbers(b)
     if not (na and nb):
         return False
     diff = set(na) ^ set(nb)
@@ -2348,6 +2397,7 @@ CTRL_LOG_KEYS = frozenset({"tr_en", "tr_th", "lang", "polite", "speak", "paused"
                            "silence", "sensitivity", "style", "llm", "earcons", "fast_endpoint", "two_person",
                            "reload_profiles", "partial", "tts_race", "stop_speaking", "voice_en", "voice_th",
                            "ping"})                     # nur diese Steuerfelder (Werte) kommen ins Log
+TEXT_CTRL_KEYS = ("say", "retranslate", "speak_text")   # enthalten gesprochenen Text: nur mit LOG_TEXT ins Log
 GLOSSARY_MAX = 20000              # Zeichen
 PHRASE_MAX = 1000
 
@@ -2512,7 +2562,8 @@ class Engine:
             self.spk = None
             log({"profiles": "aus", "err": repr(e)[:200]})
             # nicht nur ins Log: sonst glaubt man, die Stimmerkennung laufe
-            emit("error", msg="Stimmprofile nicht nutzbar (Stimmerkennung aus): " + (str(e) or type(e).__name__)[:160])
+            emit("error", code="profiles_failed",
+                 msg="Stimmprofile nicht nutzbar (Stimmerkennung aus): " + (str(e) or type(e).__name__)[:160])
         me = self.spk.me() if self.spk else None
         emit("roles", me=me["name"] if me else None, on=self.two_person and me is not None)
 
@@ -3128,6 +3179,11 @@ class Engine:
         emit("thinking", id=uid)
         self.deliver(uid, lang, text, lp=0.0, source="phrase")
 
+    def speak_text(self, text, lang, uid=None):
+        """Fertigen Text nur vorlesen (Neural-Stimme, ohne Übersetzung) – „Nochmal sprechen“ der App.
+        Mit der id der Blase kommen `speaking`/`speak_done` mit dieser id (App zeigt die Wiedergabe an)."""
+        self.speaker.add(text, lang, uid or new_id())
+
     def retranslate(self, uid, text, lang):
         """Korrigierter Text aus der App: neu übersetzen und vorlesen; ersetzt die alte Blase."""
         text = (text or "").strip()
@@ -3345,6 +3401,15 @@ def apply_control(eng, d):
             else:
                 emit("error", code="phrase_invalid",
                      msg="Schnellsatz ungültig (Text leer/zu lang oder Sprache unbekannt)")
+        elif isinstance(d.get("speak_text"), dict):
+            s = d["speak_text"]
+            text, lang, uid = _text_arg(s.get("text")), s.get("lang"), s.get("id")
+            uid = _text_arg(uid, 64) if uid is not None else None
+            if text and lang in TARGET and (uid or s.get("id") is None):
+                later.append(lambda: eng.speak_text(text, lang, uid))    # nicht hinter der Erkennung warten
+            else:
+                emit("error", code="speak_invalid",
+                     msg="Vorlesen ungültig (Text leer/zu lang, Sprache unbekannt oder id ungültig)")
         elif isinstance(d.get("reassign"), dict):
             r = d["reassign"]
             uid = _text_arg(r.get("id"), 64)
@@ -3387,7 +3452,7 @@ def control_loop(eng, jobs=None):
                 except Exception as e:
                     log({"control": "fehler", "err": repr(e)[:200]})
                     continue
-                log({"control": {k: (v if k in CTRL_LOG_KEYS or (LOG_TEXT and k in ("say", "retranslate")) else "…")
+                log({"control": {k: (v if k in CTRL_LOG_KEYS or (LOG_TEXT and k in TEXT_CTRL_KEYS) else "…")
                                  for k, v in d.items()}})
                 if job:
                     if jobs is not None:
