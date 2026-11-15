@@ -2008,16 +2008,16 @@ class Engine:
         info.update(p_en=round(pe, 3), p_th=round(pt_raw, 3), p_th_eff=round(pt, 3), folded=folded,
                     top=[(k, round(v, 3)) for k, v in sorted(p.items(), key=lambda x: -x[1])[:3]])
         # --- Stimmprofil: wer spricht? Sprache des Profils hilft bei unsicherer Erkennung
-        who, hot = None, None
+        who, get_emb = None, None
         if self.spk:
+            get_emb = self.spk.lazy_embed(audio)         # ein Stimmmodell-Lauf für identify + classify
             try:
-                who, sim, scores = self.spk.identify(audio)
+                who, sim, scores = self.spk.identify(audio, emb=get_emb)
                 info.update(speaker=_pseud(who["name"]) if who else None,
                             spk_scores=list(scores.values())[:3])        # Profilnamen nicht ins Log
             except Exception as e:
                 log({"speaker": "fehler", "err": repr(e)[:200]})
         if who:
-            hot = " ".join(who.get("vocab", [])) or None
             pe2, pt2 = apply_profile_prior(probs, pe, pt, who.get("lang", "en"))
             if (pe2, pt2) != (pe, pt):
                 info["prior"] = who.get("lang", "en")
@@ -2032,7 +2032,7 @@ class Engine:
             last = getattr(self, "last_role", None)
             prev = last[0] if last and start - last[1] <= ROLE_PREV_GAP else None
             try:
-                r = self.spk.classify(audio, prev)
+                r = self.spk.classify(audio, prev, emb=get_emb)
                 role, emb = r["role"], r.get("emb")
                 info.update(role=role, role_how=r.get("how"), sim_me=r.get("sim_me"), sim_her=r.get("sim_her"))
             except Exception as e:
@@ -2044,13 +2044,23 @@ class Engine:
         elif role == "other":
             pe, pt = 0.0, 1.0
         segs = []
+
+        def hot_for(lng):
+            # eigene Wörter: erkanntes Profil, sonst Profil der Rolle, sonst alle Profile dieser Sprache
+            if not self.spk:
+                return None
+            try:
+                return self.spk.hotwords(lng, who, role)
+            except Exception as e:
+                log({"hotwords": "fehler", "err": repr(e)[:200]})
+                return None
         if self.lock in ("en", "th"):
             lang = self.lock
-            text, lp, segs = stt(audio, lang)
+            text, lp, segs = stt(audio, lang, hotwords=hot_for(lang))
             info.update(mode="lock")
         else:
             lang = "th" if pt > pe else "en"
-            text, lp, segs = stt(audio, lang, hotwords=hot if who and who.get("lang") == lang else None)
+            text, lp, segs = stt(audio, lang, hotwords=hot_for(lang))
             # unklar? beide Sprachen probieren und die sicherere nehmen
             times["stt"] = round(time.monotonic() - t0 - times["detect"], 2)
             # Gegenprobe in der anderen Sprache nur, wenn es wirklich unklar ist – und nicht bei Stau
@@ -2353,6 +2363,12 @@ def profile_cli(a):
     import profiles
     if a.profiles:
         emit("profiles", profiles=[profiles.public(p) for p in profiles.list_profiles()])
+    elif getattr(a, "delete_all_profiles", False):
+        try:
+            emit("profiles_deleted_all", ok=True, files=profiles.delete_all_profiles())
+        except OSError as e:
+            emit("profiles_deleted_all", ok=False, files=0)
+            emit("error", msg=f"Stimmdaten konnten nicht gelöscht werden: {e}")
     elif a.delete_profile:
         emit("profile_deleted", name=a.delete_profile, ok=profiles.delete_profile(a.delete_profile))
     elif a.vocab is not None:
@@ -3049,6 +3065,8 @@ if __name__ == "__main__":
     ap.add_argument("--enroll", metavar="NAME", help="Stimmprofil anlegen: 8 Sätze vorlesen")
     ap.add_argument("--enroll-lang", choices=["en", "th"], default="en")
     ap.add_argument("--delete-profile", metavar="NAME")
+    ap.add_argument("--delete-all-profiles", action="store_true",
+                    help="ALLE Stimmprofile samt Sicherungen löschen (Stimmabdrücke)")
     ap.add_argument("--vocab", nargs=2, metavar=("NAME", "WÖRTER"), help="eigene Wörter, kommagetrennt")
     ap.add_argument("--barge-in", action="store_true",
                     help="Sprechen unterbricht die Ausgabe (nur mit Kopfhörer!)")
@@ -3121,7 +3139,7 @@ if __name__ == "__main__":
     threading.Thread(target=thai_latin, args=("สวัสดี",), daemon=True).start()   # Umschrift vorwärmen
     signal.signal(signal.SIGTERM, shutdown)
     signal.signal(signal.SIGINT, shutdown)
-    if a.profiles or a.enroll or a.delete_profile or a.vocab is not None:
+    if a.profiles or a.enroll or a.delete_profile or a.delete_all_profiles or a.vocab is not None:
         profile_cli(a)
         sys.exit(0)
     if a.tts == "edge" and not a.mute:

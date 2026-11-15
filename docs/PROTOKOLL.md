@@ -58,6 +58,7 @@ API-Schlüssel: Umgebungsvariable `ANTHROPIC_API_KEY` oder Datei
 | `profiles` | `profiles` (Liste öffentlicher Profilfelder) | Antwort auf `--profiles` |
 | `profile_saved` | `profile` | nach `--enroll` bzw. `--vocab` |
 | `profile_deleted` | `name`, `ok` (bool) | Antwort auf `--delete-profile` |
+| `profiles_deleted_all` | `ok` (bool), `files` (Anzahl) | Antwort auf `--delete-all-profiles`: alle Profile samt Sicherungen (`.bak`) und Quarantäne-Kopien (`.bad`) gelöscht |
 
 ## Steuerung (stdin)
 
