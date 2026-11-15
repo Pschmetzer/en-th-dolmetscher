@@ -79,6 +79,7 @@ struct Bubble: View, Equatable {
         var tail = ""
         if u.lowConfidence { tail += ". " + L.t("low_conf") }
         if u.skipped { tail += ". " + L.t("not_spoken") }
+        if u.cutOff { tail += ". " + L.t("cut_off") }
         if !tail.isEmpty { parts.append((tail, nil)) }
         return a11yAttributed(parts)
     }
@@ -87,7 +88,8 @@ struct Bubble: View, Equatable {
         VStack(alignment: en ? .leading : .trailing, spacing: 6) {
             BubbleHeader(u: u, scale: scale, playing: playing)
             BubbleMain(u: u, scale: scale)
-            BubbleFooter(u: u, scale: scale, onCorrect: canCorrect ? { onCorrect(u) } : nil)
+            BubbleFooter(u: u, scale: scale, onCorrect: canCorrect ? { onCorrect(u) } : nil,
+                         onReplay: { m.replay(u) })
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: en ? .leading : .trailing)
@@ -211,6 +213,7 @@ private struct BubbleFooter: View {
     let u: Utterance
     let scale: Double
     var onCorrect: (() -> Void)? = nil
+    var onReplay: (() -> Void)? = nil
     @AppStorage(Prefs.showDetails) private var showDetails = false
 
     private static func sec(_ v: Double) -> String { fmtSeconds(v) }
@@ -229,12 +232,21 @@ private struct BubbleFooter: View {
 
     var body: some View {
         let showD = showDetails && !details.isEmpty
-        if u.skipped || u.lowConfidence || u.numWarn || u.provider == "mymemory" || showD {
+        if u.skipped || u.cutOff || u.lowConfidence || u.numWarn || u.provider == "mymemory" || showD {
             HStack(spacing: 10) {
                 if u.lang != "en" { Spacer(minLength: 0) }
                 if u.skipped {
                     Label(L.t("not_spoken"), systemImage: "speaker.slash")
                         .foregroundStyle(.secondary)
+                }
+                if u.cutOff && !u.skipped {
+                    Label(L.t("cut_off"), systemImage: "speaker.badge.exclamationmark")
+                        .foregroundStyle(LangStyle.warning)
+                    if let onReplay {
+                        Button(action: onReplay) { Label(L.t("speak_again"), systemImage: "arrow.counterclockwise") }
+                            .buttonStyle(.borderless)
+                            .help(L.t("speak_again_help"))
+                    }
                 }
                 if u.numWarn {
                     Label(L.t("num_warn"), systemImage: "number.circle").foregroundStyle(LangStyle.warning)

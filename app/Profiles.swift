@@ -123,6 +123,9 @@ final class ProfilesModel: ObservableObject {
     @Published var hint = ""
     @Published var finished: VoiceProfile?
     @Published var failed: String?
+    /// Ergebnis von „Alle Stimmdaten löschen“ (Hinweis unter der Liste); nil = nichts anzeigen.
+    @Published var deleteAllResult: String?
+    @Published var deletingAll = false
     private var proc: Process?
     /// Zähler je Aufnahme: das späte Ende einer abgebrochenen Aufnahme darf die neue nicht stören.
     private var enrollGen = 0
@@ -178,6 +181,29 @@ final class ProfilesModel: ObservableObject {
     func delete(_ p: VoiceProfile) {
         _ = EngineRunner.run([], request: ["delete_profile": p.name], timeout: 30, onEvent: { _ in },
                              onExit: { [weak self] in self?.reload() })
+    }
+
+    /// Alle Stimmprofile samt Sicherungen (.bak) und Quarantäne-Kopien (.bad) löschen (`--delete-all-profiles`).
+    func deleteAll() {
+        guard !deletingAll else { return }
+        deletingAll = true; deleteAllResult = nil
+        var result: (ok: Bool, files: Int)?
+        var err: String?
+        let started = EngineRunner.run(["--delete-all-profiles"], timeout: 30, onEvent: { o in
+            switch o["event"] as? String {
+            case "profiles_deleted_all":
+                result = (o["ok"] as? Bool ?? false, (o["files"] as? NSNumber)?.intValue ?? 0)
+            case "error": err = o["msg"] as? String
+            default: break
+            }
+        }, onExit: { [weak self] in
+            guard let self else { return }
+            self.deletingAll = false
+            if let r = result, r.ok { self.deleteAllResult = L.f("delete_all_done", r.files) }
+            else { self.deleteAllResult = L.t("delete_all_failed") + (err.map { " (\($0))" } ?? "") }
+            self.reload()   // meldet `.profilesChanged` – die laufende Engine lädt ihre Profile neu
+        })
+        if started == nil { deletingAll = false; deleteAllResult = L.t("delete_all_failed") }
     }
 
     func saveVocab(_ p: VoiceProfile, _ text: String) {
@@ -241,6 +267,7 @@ struct ProfilesView: View {
     @State private var newLang = "th"
     @State private var vocabEdit: [String: String] = [:]
     @State private var confirmDelete: VoiceProfile?
+    @State private var confirmDeleteAll = false
     /// Neues Profil trägt (bereinigt) den Namen eines vorhandenen: erst fragen, dann ersetzen.
     @State private var confirmReplace: VoiceProfile?
 
@@ -278,6 +305,16 @@ struct ProfilesView: View {
                     ForEach(pm.profiles) { p in row(p) }
                 }
             }
+            // Auch bei leerer Liste: es können Sicherungen (.bak) und Quarantäne-Kopien (.bad) übrig sein.
+            HStack {
+                if let r = pm.deleteAllResult { Text(r).font(.callout).foregroundStyle(.secondary) }
+                Spacer()
+                Button(role: .destructive) { confirmDeleteAll = true } label: {
+                    Label(L.t("delete_all_profiles"), systemImage: "trash.slash")
+                }
+                .disabled(pm.deletingAll)
+                .help(L.t("delete_all_help"))
+            }
             Divider()
             Text(L.t("new_profile")).font(.headline)
             HStack {
@@ -298,6 +335,10 @@ struct ProfilesView: View {
             get: { confirmDelete != nil }, set: { if !$0 { confirmDelete = nil } })) {
             Button(L.t("delete"), role: .destructive) { if let p = confirmDelete { pm.delete(p) }; confirmDelete = nil }
             Button(L.t("cancel"), role: .cancel) { confirmDelete = nil }
+        }
+        .confirmationDialog(L.t("delete_all_confirm"), isPresented: $confirmDeleteAll, titleVisibility: .visible) {
+            Button(L.t("delete_all_profiles"), role: .destructive) { confirmDeleteAll = false; pm.deleteAll() }
+            Button(L.t("cancel"), role: .cancel) { confirmDeleteAll = false }
         }
         .confirmationDialog(L.f("profile_replace", confirmReplace?.name ?? ""), isPresented: Binding(
             get: { confirmReplace != nil }, set: { if !$0 { confirmReplace = nil } }), titleVisibility: .visible) {
