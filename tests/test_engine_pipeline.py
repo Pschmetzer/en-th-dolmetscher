@@ -27,10 +27,13 @@ def _engine(probs, texts, role=None):
     class Spk:
         profiles = []
 
-        def identify(self, a):
+        def lazy_embed(self, a):
+            return lambda: None
+
+        def identify(self, a, emb=None):
             return None, 0.0, {}
 
-        def classify(self, a, prev=None):
+        def classify(self, a, prev=None, emb=None):
             return {"role": role, "how": "vergleich", "sim_me": 0.5, "sim_her": 0.5, "emb": None}
     e = d.Engine.__new__(d.Engine)
     e.m_det, e.m, e.m_th, e.lock, e.paused, e.awake_until = Det(), None, None, "auto", False, 0.0

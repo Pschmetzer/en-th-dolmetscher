@@ -31,6 +31,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `--profiles` | | Stimmprofile als `profiles` ausgeben |
 | `--enroll NAME`, `--enroll-lang en\|th` | `en` | Stimmprofil anlegen (8 Sätze vorlesen) |
 | `--delete-profile NAME` | | Stimmprofil löschen (`profile_deleted`) |
+| `--delete-all-profiles` | | alle Stimmprofile samt Sicherungen löschen (`profiles_deleted_all`) |
 | `--vocab NAME WÖRTER` | | eigene Wörter eines Profils, kommagetrennt (`profile_saved`) |
 | `--profile-stdin` | | Profilname/Wörter als JSON-Zeile von stdin statt argv (siehe unten) |
 | `--barge-in` | | Sprechen unterbricht die Ausgabe (nur mit Kopfhörer) |
