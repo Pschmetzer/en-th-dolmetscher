@@ -46,6 +46,59 @@ def test_history_export_formats_supported():
 
 def test_app_handles_events_it_relies_on():
     # Events the engine emits and the app must react to (others may be ignored).
-    for ev in ("ready", "mic", "utt", "heard", "roles", "preset", "hwprofile", "error"):
+    for ev in ("ready", "mic", "utt", "heard", "roles", "preset", "hwprofile", "error", "dropped",
+               "speak_done", "pong"):
         assert f'emit("{ev}"' in ENGINE, ev
         assert f'case "{ev}"' in SWIFT, ev
+
+
+DOCS = (ROOT / "docs" / "PROTOKOLL.md").read_text(encoding="utf-8")
+
+
+def _swift_dict(name):
+    m = re.search(r"static let " + name + r": \[String: String\] = \[(.*?)\n    \]", SWIFT, re.S)
+    assert m, name
+    return dict(re.findall(r'"([a-z_]+)": "([a-z_]+)"', m.group(1)))
+
+
+def _doc_codes(heading):
+    sec = DOCS.split(heading, 1)[1].split("\n### ", 1)[0].split("\n## ", 1)[0]
+    codes = set()
+    for line in sec.splitlines():
+        if line.startswith("| `") and not line.startswith("| `code`"):
+            codes |= set(re.findall(r"`([a-z_]+)`", line.split("|")[1]))
+    assert codes, heading
+    return codes
+
+
+def test_every_documented_code_is_localized():
+    """PROTOKOLL.md tables vs. app: each dropped/error code has its own text (or a deliberate rule)."""
+    from test_l10n_keys import parse_table
+    rows, _ = parse_table()
+    errs, drops = _swift_dict("errorKeys"), _swift_dict("droppedKeys")
+    missing = sorted(_doc_codes("### `error.code`") - set(errs))
+    assert not missing, f"error codes without app text: {missing}"
+    # command: answer comes as `command`; translate_failed: an `error` follows -> status unchanged
+    missing = sorted(_doc_codes("### `dropped.code`") - set(drops) - {"command", "translate_failed"})
+    assert not missing, f"dropped codes without app text: {missing}"
+    bad = sorted(k for k in list(errs.values()) + list(drops.values()) if k not in rows)
+    assert not bad, f"L10n keys missing: {bad}"
+
+
+def test_engine_codes_known_to_app():
+    errs = _swift_dict("errorKeys")
+    emitted = set(re.findall(r'emit\("error", code="([a-z_]+)"', ENGINE))
+    assert emitted and not sorted(emitted - set(errs)), sorted(emitted - set(errs))
+
+
+def test_speaker_model_error_prefix_matches_engine():
+    # Engine sends no code for this error yet; the app matches the message prefix.
+    prefix = re.search(r'static let speakerErrorPrefix = "([^"]+)"', SWIFT).group(1)
+    assert f'emit("error", msg="{prefix}' in ENGINE
+
+
+def test_speak_done_partial_and_delete_all():
+    assert 'done["partial"] = True' in ENGINE and 'o["partial"] as? Bool == true' in SWIFT
+    assert 'emit("profiles_deleted_all"' in ENGINE and '"profiles_deleted_all"' in SWIFT
+    assert '"--delete-all-profiles"' in SWIFT
+    assert 'emit("pong"' in ENGINE and '["ping": ' in SWIFT

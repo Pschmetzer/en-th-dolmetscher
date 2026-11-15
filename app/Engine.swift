@@ -35,6 +35,7 @@ struct Utterance: Identifiable, Equatable {
     var numWarn = false          // Ziffern in Original und Übersetzung stimmen nicht überein
     var alts: [String] = []      // andere Lesarten der Erkennung (nur bei unsicherem Thai mit Claude)
     var skipped = false          // wegen Rückstand nicht vorgelesen
+    var cutOff = false           // Vorlesen riss mitten im Satz ab (`speak_done.partial`)
     var pending = false          // Platzhalter: wird gerade erkannt/übersetzt
     let textLatin: String?
     let outLatin: String?
@@ -130,6 +131,10 @@ final class EngineModel: NSObject, ObservableObject {
     @Published private(set) var engineVersion: String?
     /// Letzter Engine-Fehler (bleibt sichtbar, bis er weggeklickt wird – der Status wird sofort überschrieben).
     @Published var lastError: (msg: String, date: Date)?
+    /// `ready.degraded`: Modelle, die nicht geladen werden konnten (Erkennung läuft schwächer).
+    @Published var degradedModels: [String] = []
+    /// Wachhund: Die Engine beantwortet `ping` seit über 30 s nicht (hängt vermutlich).
+    @Published private(set) var engineHung = false
     /// Vorschlag nach einer Korrektur: geänderte Wörter ins Vokabular eines Stimmprofils übernehmen.
     @Published var vocabSuggestion: (words: [String], profile: String)?
     /// Aktives Szenario-Preset laut Engine (`preset`-Ereignis): id und englischer Name; nil = keins.
@@ -774,6 +779,8 @@ final class EngineModel: NSObject, ObservableObject {
         hearingTimers.removeAll()
         rolesKnown = false; rolesMe = nil
         activePreset = nil
+        degradedModels = []
+        stopWatchdog()
     }
 
     /// Prozess beenden (Neustart, App-Ende). Der Zuhör-Wunsch bleibt – `restart()` braucht ihn.
@@ -855,6 +862,8 @@ final class EngineModel: NSObject, ObservableObject {
                 }
                 continue
             }
+            lastAlive = Date()
+            if engineHung { engineHung = false }
             handle(ev, obj)
         }
         if buffer.count > Self.maxLineBytes {
@@ -896,6 +905,8 @@ final class EngineModel: NSObject, ObservableObject {
             loadSlowWork?.cancel(); loadSlowWork = nil; loadSlow = false
             llmActive = o["llm"] as? Bool ?? false
             engineVersion = o["engine_version"] as? String
+            degradedModels = o["degraded"] as? [String] ?? []
+            startWatchdog()
             // Fehlt `protocol`, ist es eine ältere Engine (vor dem Handshake) – das ist kein Fehler.
             if let pv = (o["protocol"] as? NSNumber)?.intValue, pv != Self.protocolVersion { protocolMismatch = pv }
             else { protocolMismatch = nil }
@@ -964,7 +975,7 @@ final class EngineModel: NSObject, ObservableObject {
             pendingIDs.insert(key)
             if let id {
                 cancelHearingTimer(id)
-                if index(of: id) == nil { items.append(.placeholder(id)) }
+                if index(of: id) == nil { items.append(.placeholder(id)); trimItems() }
             }
             if !speakingNow { status = L.t("thinking") }
         case "speaking":
@@ -981,6 +992,7 @@ final class EngineModel: NSObject, ObservableObject {
         case "speak_done":
             speakingIDs.remove(id ?? "?")
             if o["skipped"] as? Bool == true, let i = index(of: id) { items[i].skipped = true }
+            if o["partial"] as? Bool == true, id != "cmd", let i = index(of: id) { items[i].cutOff = true }
             if !speakingNow { status = idleStatus }
             applyDeferredRestart()
         case "queue":
@@ -994,9 +1006,12 @@ final class EngineModel: NSObject, ObservableObject {
             let what = o["what"] as? String ?? "translate"
             if o["ok"] as? Bool ?? true { netDown.remove(what) } else { netDown.insert(what) }
         case "error":
-            let msg = o["msg"] as? String ?? L.t("error_generic")
+            let code = o["code"] as? String, raw = o["msg"] as? String
+            let msg = Self.errorText(code: code, msg: raw)
             status = "⚠️ " + msg
-            lastError = (msg, Date())
+            // Hinweis behält die Ursache der Engine (Ausnahme, Dateiname, Gerät) – nur dort, wo sie variiert
+            let detail = code.map { Self.errorDetailCodes.contains($0) } == true ? raw : nil
+            lastError = (msg + (detail.map { " – " + $0 } ?? ""), Date())
             Announcer.post(msg, force: true)
         case "command": applyCommand(o)
         case "dropped":
@@ -1010,7 +1025,9 @@ final class EngineModel: NSObject, ObservableObject {
             if replayPausedEngine { break }   // Echo der eigenen Wiedergabe verworfen – Status nicht ändern
             defer { applyDeferredRestart() }
             if speakingNow { break }
-            status = paused ? Self.pausedText : L.t("dropped")
+            if paused { status = Self.pausedText; break }
+            // `command`: Antwort kommt als `command`; `translate_failed`: `error` folgt mit der Ursache
+            if let t = Self.droppedText(o["code"] as? String) { status = t }
         case "utt":
             addUtterance(o, id: id)
             applyDeferredRestart()
@@ -1029,9 +1046,112 @@ final class EngineModel: NSObject, ObservableObject {
             applyingRemote = true   // Sprachbefehl „Translator, preset taxi“: Auswahl übernehmen, nicht zurückschicken
             if (pid ?? "") != preset { preset = pid ?? "" }
             applyingRemote = false
+        case "pong": pongSeen = true   // Lebenszeichen – `lastAlive` setzt schon `consume`
         case "llm_cost": llmCostUSD = (o["usd"] as? NSNumber)?.doubleValue ?? llmCostUSD
         default: break
         }
+    }
+
+    /// Fehlertext in der App-Sprache nach `error.code`; ohne bekannten Code der Text der Engine.
+    static func errorText(code: String?, msg: String?) -> String {
+        if let code, let key = errorKeys[code] { return L.t(key) }
+        // Stimmerkennung (Sprechermodell) nicht ladbar – die Engine schickt dafür (noch) keinen Code
+        if code == nil, let msg, msg.hasPrefix(speakerErrorPrefix) {
+            let detail = msg.split(separator: ":", maxSplits: 1).dropFirst().first
+                .map { $0.trimmingCharacters(in: .whitespaces) } ?? ""
+            return L.t("err_speaker_model") + (detail.isEmpty ? "" : " (\(detail))")
+        }
+        return msg ?? L.t("error_generic")
+    }
+    static let speakerErrorPrefix = "Stimmprofile nicht nutzbar"
+    /// Codes, deren `msg` eine wechselnde Ursache enthält: im Hinweis zusätzlich zum übersetzten Text zeigen.
+    static let errorDetailCodes: Set<String> = ["translate_failed", "mic_failed", "mic_unavailable",
+                                                "mic_list_failed", "ffmpeg_missing", "file_failed", "file_empty"]
+    /// `error.code` (docs/PROTOKOLL.md) -> L10n-Schlüssel. Literale Schlüssel: tests/test_l10n_keys.py prüft sie.
+    static let errorKeys: [String: String] = [
+        "mic_denied": "err_mic_denied", "mic_unavailable": "err_mic_unavailable", "mic_no_data": "err_mic_no_data",
+        "mic_timeout": "err_mic_timeout", "mic_failed": "err_mic_failed", "mic_not_found": "err_mic_not_found",
+        "mic_list_failed": "err_mic_list_failed", "mic_file_missing": "err_mic_file_missing",
+        "ffmpeg_missing": "err_ffmpeg_missing", "model_offline": "err_model_offline",
+        "translate_failed": "err_translate_failed", "reassign_expired": "err_reassign_expired",
+        "reassign_empty": "err_reassign_empty", "reassign_invalid": "err_reassign_invalid",
+        "phrase_invalid": "err_phrase_invalid", "edit_invalid": "err_edit_invalid",
+        "voice_unknown": "err_voice_unknown", "glossary_invalid": "err_glossary_invalid",
+        "file_empty": "err_file_empty", "file_failed": "err_file_failed",
+    ]
+    /// Status zu `dropped.code`; nil = Status nicht ändern.
+    static func droppedText(_ code: String?) -> String? {
+        switch code {
+        case "command", "translate_failed": return nil
+        case let c?: return droppedKeys[c].map { L.t($0) } ?? L.t("dropped")
+        case nil: return L.t("dropped")
+        }
+    }
+    static let droppedKeys: [String: String] = [
+        "too_short": "drop_too_short", "other_language": "drop_other_language", "locked": "drop_locked",
+        "paused": "paused", "unsure": "drop_unsure", "hallucination": "dropped", "filler": "dropped",
+        "empty": "dropped", "error": "drop_error", "other": "dropped",
+    ]
+
+    /// Obergrenze für die Sprechblasen im Speicher: älteste fertige Einträge fallen weg
+    /// (Platzhalter und die gerade vorgelesene Blase bleiben). Der Verlauf auf der Platte ist davon unberührt.
+    static let maxItems = 500
+    private func trimItems() {
+        let excess = items.count - Self.maxItems
+        guard excess > 0 else { return }
+        var drop = excess
+        items.removeAll { u in
+            guard drop > 0, !u.pending, u.id != replayingID else { return false }
+            drop -= 1
+            return true
+        }
+        indexCache.removeAll()
+    }
+
+    // MARK: Wachhund (ping/pong)
+
+    /// Letztes Lebenszeichen der Engine (jede gültige Zeile, nicht nur `pong`).
+    private var lastAlive = Date()
+    private var lastTick = Date()
+    private var pongSeen = false
+    private var pingCounter = 0
+    private var watchdogGen = 0
+    // Die Engine schreibt jede Steuerzeile ins Log: nicht öfter als alle 15 s pingen.
+    // 45 s Frist: Langsame Steueraktionen (z. B. Profile neu laden) laufen im selben Thread wie `pong`.
+    private static let pingEvery: TimeInterval = 15
+    private static let hungAfter: TimeInterval = 45
+
+    private func startWatchdog() {
+        watchdogGen += 1
+        lastAlive = Date(); lastTick = Date(); pongSeen = false; engineHung = false
+        scheduleWatchdogTick(watchdogGen)
+    }
+
+    private func stopWatchdog() {
+        watchdogGen += 1
+        engineHung = false
+    }
+
+    private func scheduleWatchdogTick(_ gen: Int) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.pingEvery) { [weak self] in
+            MainActor.assumeIsolated { self?.watchdogTick(gen) }
+        }
+    }
+
+    private func watchdogTick(_ gen: Int) {
+        guard gen == watchdogGen, running, engineReady else { return }
+        let now = Date()
+        // Ruhezustand/App Nap: großer Abstand zwischen zwei Ticks ist kein Hängen der Engine
+        if now.timeIntervalSince(lastTick) > Self.pingEvery * 2.5 { lastAlive = now }
+        lastTick = now
+        // Ältere Engines kennen `ping` nicht: erst nach dem ersten `pong` überwachen
+        if pongSeen, !engineHung, now.timeIntervalSince(lastAlive) > Self.hungAfter {
+            engineHung = true
+            Announcer.post(L.t("engine_hung"), force: true)
+        }
+        pingCounter += 1
+        send(["ping": pingCounter])
+        scheduleWatchdogTick(gen)
     }
 
     private func applyCommand(_ o: [String: Any]) {
@@ -1085,6 +1205,7 @@ final class EngineModel: NSObject, ObservableObject {
             items[i] = u
         } else {
             items.append(u)
+            trimItems()
         }
         if !u.out.isEmpty { Announcer.post(u.out) }
     }
@@ -1097,7 +1218,7 @@ final class EngineModel: NSObject, ObservableObject {
 
     /// Platzhalter für `id` anlegen (falls nötig) und die 3-s-Frist neu starten.
     private func touchPlaceholder(_ id: String) {
-        if index(of: id) == nil { items.append(.placeholder(id)) }
+        if index(of: id) == nil { items.append(.placeholder(id)); trimItems() }
         guard !pendingIDs.contains(id) else { return }   // schon in Erkennung – `utt`/`dropped` räumen auf
         scheduleHearingTimeout(id)
     }
