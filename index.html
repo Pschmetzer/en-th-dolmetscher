@@ -283,7 +283,7 @@ function stopRec() { if (rec) { const r = rec; rec = null; r.onend = null; try {
 function dropOutput() {        // Warteschlange verwerfen (Modus gewechselt, Pause)
   gen++;
   outChain = Promise.resolve(); outPending = 0; outNext = null;
-  if (TTS) TTS.cancel();
+  if (TTS && (TTS.speaking || TTS.pending)) TTS.cancel();   // kein cancel ohne Grund: stört das iOS-Entsperren
   speaking = false;
 }
 function setMode(m) {
@@ -379,7 +379,7 @@ function speakAsync(text, lang, g) {
   speaking = true;
   stopRec(); clearTimeout(restartTimer); restartTimer = null;
   setStatus('🔊 Spricht…');
-  TTS.cancel();                 // hängende Reste im Browser-Puffer entfernen
+  if (TTS.speaking || TTS.pending) TTS.cancel();   // hängende Reste im Browser-Puffer entfernen
   return splitText(text, 180).reduce((p, c) => p.then(() => speakChunk(c, lang, g)), Promise.resolve())
     .finally(() => { if (g === gen) { speaking = false; setTimeout(resumeIfIdle, 0); } });
 }
