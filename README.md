@@ -102,8 +102,8 @@ If the Thai voice is missing: System Settings → Accessibility → Spoken Conte
 ## Terminal only
 
 ```bash
-python3.12 -m pip install --require-hashes -r requirements.txt   # Python 3.12+, ideally in a venv
-python3 dolmetscher.py            # --model small|medium|best  --polite krub|ka  --mic 0  --barge-in  --llm  --log-text
+python3.12 -m venv .venv && .venv/bin/pip install --require-hashes -r requirements.txt   # Python 3.12+
+.venv/bin/python dolmetscher.py            # --model small|medium|best  --polite krub|ka  --mic 0  --barge-in  --llm  --log-text
 ```
 
 All options: `python3 dolmetscher.py --help`. The app ⇄ engine protocol is described in [docs/PROTOKOLL.md](docs/PROTOKOLL.md).
