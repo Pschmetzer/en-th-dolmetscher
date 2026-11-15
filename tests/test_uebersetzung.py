@@ -354,3 +354,49 @@ def test_logger_single_handler_with_date(tmp_path, monkeypatch):
             if h not in before:
                 lg.removeHandler(h)
                 h.close()
+
+
+# ---- Hedging: Claude langsam -> Google -------------------------------------------------------------
+
+@pytest.fixture
+def slow_claude(monkeypatch):
+    import threading
+    gate = threading.Event()
+    monkeypatch.setitem(d.LLM, "on", True)
+    monkeypatch.setitem(d.LLM, "skip_until", 0.0)
+    monkeypatch.setitem(d.LLM, "hedge_s", 0.05)
+    monkeypatch.setattr(d, "llm_available", lambda: True)
+
+    def claude(*a):
+        gate.wait(2)
+        return "ไปไหนมาครับ"
+    monkeypatch.setattr(d, "claude_translate", claude)
+    yield gate
+    gate.set()
+
+
+def test_hedge_takes_google_when_claude_slow(monkeypatch, slow_claude):
+    monkeypatch.setattr(d, "_get_json", lambda u, t=0: [[["ไปไหนมา", "x"]]])
+    meta = {}
+    t0 = d.time.monotonic()
+    assert d.translate("Where have you been?", "en", "th", meta=meta) == "ไปไหนมา"
+    assert meta["provider"] == "google" and d.time.monotonic() - t0 < 1.0
+    assert d._cache_get(d._cache_key("Where have you been?", "en", "th", False, "krub"))   # als MT gemerkt
+
+
+def test_hedge_waits_for_claude_when_mt_fails(monkeypatch, slow_claude):
+    def offline(u, t=0):
+        slow_claude.set()                       # Claude antwortet, während Google/MyMemory scheitern
+        raise d.urllib.error.URLError("no route")
+    monkeypatch.setattr(d, "_get_json", offline)
+    meta = {}
+    assert d.translate("Where have you been?", "en", "th", meta=meta) == "ไปไหนมาครับ"
+    assert meta["provider"] == "claude"
+
+
+def test_hedge_default_depends_on_model(monkeypatch):
+    monkeypatch.setitem(d.LLM, "hedge_s", None)
+    monkeypatch.setitem(d.LLM, "model", "claude-haiku-5-5")
+    fast = d._hedge_s()
+    monkeypatch.setitem(d.LLM, "model", "claude-opus-5-5")
+    assert d._hedge_s() > fast

@@ -1012,9 +1012,50 @@ def _llm_backoff(e):
     return LLM_BACKOFF
 
 
+# Hedging: antwortet Claude nicht binnen dieser Frist, übersetzt parallel Google; was zuerst brauchbar
+# da ist, wird genommen. Je Modell, weil Sonnet/Opus regelmäßig länger brauchen als Haiku.
+LLM["hedge_s"] = None                   # None = nach Modell (HEDGE_S), sonst feste Sekunden
+HEDGE_S = {"claude-haiku-5-5": 2.0, "claude-sonnet-5-5": 3.5, "claude-opus-5-5": 4.5}
+
+
+def _hedge_s():
+    v = LLM.get("hedge_s")
+    return float(v) if isinstance(v, (int, float)) else HEDGE_S.get(LLM["model"], 3.5)
+
+
+def _llm_failed(e):
+    LLM["err"] = _errtxt(e)
+    LLM["skip_until"] = time.time() + _llm_backoff(e)
+    log({"translate": "claude-fehler", "err": LLM["err"]})
+
+
+def _llm_late(fut):
+    """Claude kam nach dem Hedging zu spät: Fehler trotzdem für Backoff/Anzeige merken."""
+    e = fut.exception()
+    if e is not None:
+        _llm_failed(e)
+    else:
+        LLM["err"] = None
+
+
+def _claude_async(text, src, dst, history, alts, polite):
+    """Claude in eigenem Daemon-Thread (hängt nie das Beenden auf); schreibt nicht in `meta`."""
+    import concurrent.futures
+    fut = concurrent.futures.Future()
+
+    def run():
+        try:
+            fut.set_result(_check_llm(text, claude_translate(text, src, dst, history, alts, polite), dst))
+        except BaseException as e:      # noqa: BLE001 – geht als Ergebnis an den Aufrufer
+            fut.set_exception(e)
+    threading.Thread(target=run, daemon=True, name="claude").start()
+    return fut
+
+
 def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
     """Claude (wenn an und verfügbar) → Google (gtx) → MyMemory. Wirft eine Exception statt eine
     Fehlermeldung zu liefern. `meta` (dict) bekommt provider und cached."""
+    import concurrent.futures
     meta = meta if meta is not None else {}
     use_llm = LLM["on"] and time.time() >= LLM["skip_until"] and llm_available()
     key = _cache_key(text, src, dst, use_llm, polite)
@@ -1022,47 +1063,72 @@ def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
     if hit is not None:
         meta.update(provider=hit[1], cached=True)
         return hit[0]
-    out, e1 = None, None
+    out, fut = None, None
     if use_llm:
+        fut = _claude_async(text, src, dst, history, alts, polite)
         try:
-            out = _check_llm(text, claude_translate(text, src, dst, history, alts, polite), dst)
+            out = fut.result(timeout=_hedge_s())
+            fut = None
             meta["provider"] = "claude"
             LLM["err"] = None
+        except concurrent.futures.TimeoutError:
+            fut.add_done_callback(_llm_late)            # Claude läuft weiter, Google parallel
+            log({"translate": "claude-langsam", "hedge_s": _hedge_s()})
         except Exception as e:
-            LLM["err"] = _errtxt(e)
-            LLM["skip_until"] = time.time() + _llm_backoff(e)
-            log({"translate": "claude-fehler", "err": LLM["err"]})
+            fut = None
+            _llm_failed(e)
     if out is None:
-        now = time.time()
-        if now < _OFFLINE["until"]:                      # Schalter: nicht für jeden Satz 6+8 s warten
-            raise RuntimeError("offline – keine Internetverbindung")
-        if now >= _PROV["google"]["until"]:
-            try:
-                out = _mt(google_translate, text, src, dst)
-                meta["provider"] = "google"
-                _note_ok("google")
-            except Exception as e:
-                e1 = e
-                _note_fail("google", e)
-                log({"translate": "google-fehler", "err": _errtxt(e)})
-        if out is None:
-            if time.time() < _PROV["mymemory"]["until"]:
-                if e1 is not None:
-                    raise e1
-                raise RuntimeError("Übersetzung pausiert (Limit erreicht), gleich wieder")
-            try:
-                out = _mt(mymemory_translate, text, src, dst, e1)
-                meta["provider"] = "mymemory"
-                _note_ok("mymemory")
-            except Exception as e:
-                _note_fail("mymemory", e)
-                if "offline" in str(e):
-                    _OFFLINE["until"] = time.time() + OFFLINE_HOLD
+        try:
+            out = _mt_chain(text, src, dst, meta)
+        except Exception:
+            if fut is None:
                 raise
+            try:                                         # Google/MyMemory scheitern: doch auf Claude warten
+                out = fut.result(timeout=8)
+            except Exception:
+                pass
+            if out is None:
+                raise
+            meta["provider"] = "claude"
+        else:
+            if fut is not None and fut.done() and fut.exception() is None:
+                out, meta["provider"] = fut.result(), "claude"     # Claude kam doch noch rechtzeitig
     if use_llm and meta["provider"] != "claude":         # Google-Ersatz nicht als Claude-Ergebnis merken
         key = _cache_key(text, src, dst, False, polite)
     _cache_put(key, (out, meta["provider"]))
     return out
+
+
+def _mt_chain(text, src, dst, meta):
+    """Google (gtx) → MyMemory, mit Backoff je Anbieter und Offline-Schalter."""
+    out, e1 = None, None
+    now = time.time()
+    if now < _OFFLINE["until"]:                      # Schalter: nicht für jeden Satz 6+8 s warten
+        raise RuntimeError("offline – keine Internetverbindung")
+    if now >= _PROV["google"]["until"]:
+        try:
+            out = _mt(google_translate, text, src, dst)
+            meta["provider"] = "google"
+            _note_ok("google")
+            return out
+        except Exception as e:
+            e1 = e
+            _note_fail("google", e)
+            log({"translate": "google-fehler", "err": _errtxt(e)})
+    if time.time() < _PROV["mymemory"]["until"]:
+        if e1 is not None:
+            raise e1
+        raise RuntimeError("Übersetzung pausiert (Limit erreicht), gleich wieder")
+    try:
+        out = _mt(mymemory_translate, text, src, dst, e1)
+        meta["provider"] = "mymemory"
+        _note_ok("mymemory")
+        return out
+    except Exception as e:
+        _note_fail("mymemory", e)
+        if "offline" in str(e):
+            _OFFLINE["until"] = time.time() + OFFLINE_HOLD
+        raise
 
 
 _TH_RX = re.compile(r"[\u0e00-\u0e7f]")
