@@ -16,7 +16,6 @@ enum Prefs {
     static let fontRange = 0.6...2.5
     /// Kennung des Hauptfensters (Leertaste-Kürzel, Scroll-Überwachung).
     static let mainWindowID = NSUserInterfaceItemIdentifier("dolmetscher.main")
-    static let partnerWindowID = NSUserInterfaceItemIdentifier("dolmetscher.partner")
     /// Schlüssel, die „Alle Einstellungen zurücksetzen“ löscht (Willkommensseite und Sprache bleiben bzw. werden gesetzt).
     static let resettableKeys = [fontScale, alwaysOnTop, showDetails, translit, showQuick, quickPhrases,
                                  showMenuBar, spaceToggle, announce]
@@ -120,6 +119,8 @@ struct ContentView: View {
     @AppStorage(Prefs.showQuick) private var showQuick = true
     @State private var showTips = false
     @State private var showProfiles = false
+    /// Hinweis „Zwei-Personen-Modus ohne Profil“ für diese Sitzung weggeklickt.
+    @State private var twoPersonHintClosed = false
     @State private var correcting: Utterance?
     @State private var query = ""
     @State private var langFilter = ""          // "" = alle, "en", "th"
@@ -154,9 +155,9 @@ struct ContentView: View {
                              action: (L.t("show_log"), { openLog() }), onClose: { m.lastError = nil })
             }
             if let v = m.vocabSuggestion { VocabSuggestionBanner(words: v.words, profile: v.profile) }
-            if m.twoPersonIneffective {
+            if m.twoPersonIneffective && !twoPersonHintClosed {
                 NoticeBanner(icon: "person.2.slash", tint: LangStyle.warning, text: L.t("two_person_no_profile"),
-                             action: (L.t("profiles"), { showProfiles = true }))
+                             action: (L.t("profiles"), { showProfiles = true }), onClose: { twoPersonHintClosed = true })
             }
             if searchOpen || filtering || m.items.count > 5 { searchBar }
             conversation

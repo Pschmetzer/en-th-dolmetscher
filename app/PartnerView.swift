@@ -112,15 +112,14 @@ struct PartnerView: View {
         .frame(minWidth: 480, minHeight: 320)
         .background(WindowAccessor { w in
             if window !== w {
-                w.identifier = Prefs.partnerWindowID
                 w.collectionBehavior.insert(.fullScreenPrimary)
                 w.backgroundColor = .black
                 window = w
             }
         })
         // Bildschirm wachhalten, solange die Partnerin mitliest und zugehört wird
-        .onAppear { DispatchQueue.main.async { m.keepAwake(m.micOn) } }
-        .onDisappear { DispatchQueue.main.async { m.keepAwake(m.micOn) } }
+        .onAppear { m.partnerVisible = true }
+        .onDisappear { m.partnerVisible = false }
         .overlay(alignment: .bottom) { pendingLine }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)) { _ in
             screenCount = NSScreen.screens.count

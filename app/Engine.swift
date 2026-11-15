@@ -308,11 +308,23 @@ final class EngineModel: NSObject, ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8, execute: w)
     }
 
-    /// Zurückgestellten Neustart ausführen, sobald nichts mehr läuft.
+    /// Zurückgestellten Neustart ausführen, sobald 2 s lang nichts mehr läuft. Direkt nach `utt` ist die id
+    /// weder „busy“ noch „speaking“ – ohne die Frist ginge die letzte Ausgabe im Neustart unter.
+    private var deferredWork: DispatchWorkItem?
     private func applyDeferredRestart() {
-        guard restartDeferred, !inConversation, !micLent else { return }
-        restartDeferred = false
-        if needsRestart { restart() }
+        guard restartDeferred else { return }
+        deferredWork?.cancel()
+        let w = DispatchWorkItem { [weak self] in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.deferredWork = nil
+                guard self.restartDeferred, !self.inConversation, !self.micLent, self.state == .running else { return }
+                self.restartDeferred = false
+                if self.needsRestart { self.restart() }
+            }
+        }
+        deferredWork = w
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: w)
     }
 
     override init() {
@@ -729,12 +741,15 @@ final class EngineModel: NSObject, ObservableObject {
         Announcer.post(message, force: true)
     }
 
+    /// Partner-Ansicht offen (die Partnerin liest mit): Bildschirm wachhalten.
+    var partnerVisible = false { didSet { keepAwake(micOn) } }
+
     /// Solange zugehört wird: kein System-Ruhezustand und kein App Nap (Gespräch am Tisch, Fenster verdeckt).
     /// Der Bildschirm darf aus, außer die Partner-Ansicht ist offen (die Partnerin liest mit).
     private var awakeToken: NSObjectProtocol?
     private var awakeDisplay = false
     func keepAwake(_ on: Bool) {
-        let display = on && NSApp.windows.contains { $0.identifier == Prefs.partnerWindowID && $0.isVisible }
+        let display = on && partnerVisible
         if on, awakeToken != nil, display == awakeDisplay { return }
         if let t = awakeToken { ProcessInfo.processInfo.endActivity(t); awakeToken = nil }
         guard on else { return }

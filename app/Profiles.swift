@@ -59,9 +59,21 @@ enum EngineRunner {
         let inp = Pipe()
         p.standardInput = inp
         var buf = Data()
+        // onExit erst nach der letzten Zeile (Ende von stdout) – Lese- und Ende-Handler laufen auf
+        // verschiedenen Queues, sonst kann das Prozessende die letzte Antwort überholen.
+        var exited = false, closed = false, finished = false
+        let finish = {
+            guard exited && closed && !finished else { return }
+            finished = true
+            onExit()
+        }
         out.fileHandleForReading.readabilityHandler = { h in
             let d = h.availableData
-            if d.isEmpty { h.readabilityHandler = nil; return }
+            if d.isEmpty {
+                h.readabilityHandler = nil
+                DispatchQueue.main.async { closed = true; finish() }
+                return
+            }
             DispatchQueue.main.async {
                 buf.append(d)
                 if buf.count > 1_000_000 { buf = Data(); return }   // Zeile ohne Ende: verwerfen statt wachsen
@@ -72,7 +84,12 @@ enum EngineRunner {
                 }
             }
         }
-        p.terminationHandler = { _ in DispatchQueue.main.async { onExit() } }
+        p.terminationHandler = { _ in
+            DispatchQueue.main.async {
+                exited = true; finish()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { closed = true; finish() }   // stdout geerbt
+            }
+        }
         do { try p.run() } catch { return nil }
         if let request, var line = try? JSONSerialization.data(withJSONObject: request) {
             line.append(0x0A)
@@ -127,9 +144,11 @@ final class ProfilesModel: ObservableObject {
     /// Wörter an das Vokabular eines Profils anhängen (Vorschlag nach einer Korrektur).
     /// Liest die Profile frisch, weil `--vocab` die ganze Liste ersetzt.
     static func appendVocab(profile name: String, words: [String], done: @escaping (Bool) -> Void) {
-        _ = EngineRunner.run(["--profiles"], timeout: 30, onEvent: { o in
-            guard o["event"] as? String == "profiles", let arr = o["profiles"] as? [[String: Any]],
+        var handled = false   // Profil gefunden und Speichern gestartet; sonst meldet onExit den Fehlschlag
+        let started = EngineRunner.run(["--profiles"], timeout: 30, onEvent: { o in
+            guard !handled, o["event"] as? String == "profiles", let arr = o["profiles"] as? [[String: Any]],
                   let p = arr.map(parse).first(where: { $0.name == name }) else { return }
+            handled = true
             var list = p.vocab
             for w in words where !list.contains(where: { $0.caseInsensitiveCompare(w) == .orderedSame }) { list.append(w) }
             let r = EngineRunner.run([], request: ["vocab": [p.name, list.joined(separator: ", ")]], timeout: 30,
@@ -138,7 +157,8 @@ final class ProfilesModel: ObservableObject {
                 done(true)
             })
             if r == nil { done(false) }
-        })
+        }, onExit: { if !handled { done(false) } })
+        if started == nil { done(false) }
     }
 
     func reload() {
