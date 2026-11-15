@@ -73,7 +73,7 @@ jobs:
 
   swift:
     # Typecheck und vollständige Kompilierung aller Swift-Dateien; mindestens macOS 14 (LSMinimumSystemVersion).
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Typecheck Swift sources
