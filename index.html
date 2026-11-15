@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src https://translate.googleapis.com https://api.mymemory.translated.net; img-src data:; base-uri 'none'; form-action 'none'">
 <title>EN ⇄ TH Dolmetscher (Web Lite)</title>
 <style>
@@ -34,6 +35,8 @@
   #btnEN { background:var(--btn-en); } #btnTH { background:var(--btn-th); }
   button.mode.active { border-color:var(--fg); box-shadow:0 0 0 4px rgba(128,128,128,.25); animation:pulse 1.4s infinite; }
   @keyframes pulse { 50% { opacity:.8; } }
+  @media (prefers-reduced-motion: reduce) { button.mode.active { animation:none; } }
+  .retry { margin-left:10px; font-size:14px; font-style:normal; }
   button:focus-visible, input:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
   .opts { display:flex; gap:10px 18px; padding:0 0 10px; color:var(--mut); font-size:14px; flex-wrap:wrap; align-items:center; }
   .opts label { cursor:pointer; }
@@ -65,17 +68,17 @@
   <span id="status" role="status" aria-live="polite">Bereit</span>
 </header>
 <div class="note" role="note">
-  <b class="lite">Lite-Version – eingeschränkt.</b> Hier musst du die Sprache selbst wählen (<kbd>E</kbd>/<kbd>T</kbd>); Erkennung und Stimmen kommen vom Browser (nur Chrome).
+  <b class="lite">Lite-Version – eingeschränkt.</b> Hier musst du die Sprache selbst wählen (<kbd>E</kbd>/<kbd>T</kbd>); Erkennung und Stimmen kommen vom Browser: am besten <b>Chrome</b> (Computer, Android); <b>Safari</b> (Mac, iPhone) geht nur mit eingeschalteter Diktierfunktion und mit Einschränkungen; Firefox kann keine Spracherkennung. Nicht auf allen Geräten getestet.
   Die <b>Mac-App</b> ist deutlich besser: erkennt die Sprache automatisch, Sprachbefehle in beiden Sprachen, bessere Erkennung (Whisper), Neural-Stimmen, Stimmprofile, optional Übersetzung mit Claude.
   <a href="https://github.com/Pschmetzer/en-th-dolmetscher" target="_blank" rel="noopener">Mac-App &amp; Quellcode auf GitHub</a>
 </div>
 <div class="note" role="note" id="privacy">
-  <b>Datenschutz:</b> Die Spracherkennung macht Chrome – dabei wird dein <b>Audio an Googles Server gesendet</b>. Der erkannte Text geht zum Übersetzen an Google Translate (Ersatz: MyMemory). Die Mac-App erkennt Sprache dagegen lokal auf dem Gerät.
+  <b>Datenschutz:</b> Die Spracherkennung macht der Browser – Chrome sendet dein <b>Audio an Googles Server</b>, Safari an Apple (je nach Gerät auch lokal). Der erkannte Text geht zum Übersetzen an Google Translate (Ersatz: MyMemory). Die Mac-App erkennt Sprache dagegen lokal auf dem Gerät.
 </div>
 <div id="warn" role="alert"></div>
 <div class="controls">
-  <button class="mode" id="btnEN">🎙 Ich spreche (English) <kbd>E</kbd></button>
-  <button class="mode" id="btnTH">🎙 พูดภาษาไทย (Thai) <kbd>T</kbd></button>
+  <button class="mode" id="btnEN" type="button" aria-pressed="false">🎙 Ich spreche (English) <kbd>E</kbd></button>
+  <button class="mode" id="btnTH" type="button" aria-pressed="false">🎙 พูดภาษาไทย (Thai) <kbd>T</kbd></button>
 </div>
 <div class="opts">
   <label><input type="checkbox" id="dirEN" checked> Translate EN→TH</label>
@@ -101,6 +104,7 @@
 
 <script>
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const TTS = 'speechSynthesis' in window ? window.speechSynthesis : null;
 const $ = id => document.getElementById(id);
 const statusEl = $('status'), live = $('live'), log = $('log'), warn = $('warn');
 const MODES = {
@@ -110,18 +114,34 @@ const MODES = {
 let mode = null, rec = null, speaking = false, paused = false, voices = [];
 let rate = 0.95, lastOut = null;   // lastOut = { text, lang }
 let gen = 0;   // bumped on every mode change; stale callbacks (cancelled speech, late translations) check it
+// Ausgabe-Warteschlange: Übersetzungen laufen parallel, Vorlesen streng nacheinander in Satz-Reihenfolge.
+let outChain = Promise.resolve(), outPending = 0, outNext = null;
+// Neustart der Erkennung mit Wartezeit statt Endlosschleife
+const MAX_SOFT_ERR = 6, FETCH_TIMEOUT_MS = 6000, MAX_LOG = 200;
+let errCount = 0, quickEnds = 0, restartTimer = null;
+let lastFinal = { text: '', t: 0 };
 
-function showWarn(msg) { warn.style.display = 'block'; warn.innerHTML = msg; }
-if (!SR) showWarn('Dieser Browser hat keine Spracherkennung. Bitte <b>Google Chrome</b> verwenden.');
+const warnMsgs = [];
+function showWarn(msg) {          // msg: feste Texte (kein Nutzertext) – mehrere Warnungen bleiben sichtbar
+  if (!warnMsgs.includes(msg)) warnMsgs.push(msg);
+  warn.style.display = 'block';
+  warn.innerHTML = warnMsgs.map(m => '<div>' + m + '</div>').join('');
+}
+function setStatus(t) { if (statusEl.textContent !== t) statusEl.textContent = t; }   // keine Wiederholungs-Ansagen
+if (!SR) showWarn('Dieser Browser hat keine Spracherkennung (z. B. Firefox). Bitte <b>Chrome</b> (Computer, Android) oder <b>Safari</b> (Mac, iPhone, Diktierfunktion an) verwenden.');
+if (!TTS) { showWarn('Dieser Browser kann nicht vorlesen – Übersetzungen werden nur angezeigt.'); $('speak').checked = false; $('speak').disabled = true; }
 
 // ---- Voices ----
-function loadVoices() { voices = speechSynthesis.getVoices(); }
-speechSynthesis.onvoiceschanged = () => {
-  loadVoices();
-  if (!voices.some(v => v.lang.replace('_','-').startsWith('th')))
-    showWarn('Keine thailändische Stimme gefunden. macOS: Systemeinstellungen → Bedienungshilfen → Gesprochene Inhalte → Systemstimme → Stimmen verwalten → Thai (Kanya) laden.');
-};
-loadVoices();
+let voiceWarned = false;
+function loadVoices() {
+  voices = TTS ? TTS.getVoices() : [];
+  if (voiceWarned || !voices.length) return;      // leere Liste = noch nicht geladen (Chrome)
+  if (!voices.some(v => v.lang.replace('_','-').toLowerCase().startsWith('th'))) {
+    voiceWarned = true;
+    showWarn('Keine thailändische Stimme gefunden – Thai wird evtl. nicht vorgelesen. Mac: Systemeinstellungen → Bedienungshilfen → Gesprochene Inhalte → Systemstimme → Stimmen verwalten → Thai. iPhone: Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen → Thai. Android: Einstellungen → Text-in-Sprache → Sprachdaten Thai. Windows: Einstellungen → Zeit und Sprache → Sprache → Thai hinzufügen.');
+  }
+}
+if (TTS) { TTS.onvoiceschanged = loadVoices; loadVoices(); }
 function pickVoice(lang) {
   const l = lang.toLowerCase(), base = l.slice(0,2);
   return voices.find(v => v.lang.replace('_','-').toLowerCase() === l && /premium|enhanced|siri/i.test(v.name))
@@ -129,21 +149,44 @@ function pickVoice(lang) {
       || voices.find(v => v.lang.toLowerCase().startsWith(base));
 }
 
+// Lange Texte an Satzenden (sonst an Wortgrenzen) in Stücke <= max Zeichen teilen.
+function splitText(text, max) {
+  const out = []; let cur = '';
+  const flush = () => { if (cur.trim()) out.push(cur.trim()); cur = ''; };
+  const add = s => {
+    if ((cur + s).length <= max) { cur += s; return; }
+    flush();
+    if (s.length <= max) { cur = s; return; }
+    for (const w of s.split(/(\s+)/)) {
+      if ((cur + w).length > max) flush();
+      let x = w;
+      while (x.length > max) { out.push(x.slice(0, max)); x = x.slice(max); }
+      cur += x;
+    }
+  };
+  for (const s of (String(text).match(/[^.!?…]+[.!?…]*\s*|[.!?…]+\s*/g) || [])) add(s);
+  flush();
+  return out;
+}
+
 // ---- Translation (swap backend here) ----
-// Resolves to a translated string or throws. Never returns an error text.
-async function translate(text, from, to) {
+async function fetchJson(url) {   // mit Zeitlimit: ein hängender Dienst blockiert nicht, der Ersatz kommt dran
+  const ac = new AbortController();
+  const tm = setTimeout(() => ac.abort(), FETCH_TIMEOUT_MS);
   try {
-    const u = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`;
-    const r = await fetch(u);
-    if (!r.ok) throw new Error('gtx ' + r.status);
-    const j = await r.json();
+    const r = await fetch(url, { signal: ac.signal });
+    if (!r.ok) throw new Error('http ' + r.status);
+    return await r.json();
+  } finally { clearTimeout(tm); }
+}
+async function translateOne(text, from, to) {
+  try {
+    const j = await fetchJson(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`);
     const out = j[0].map(p => p[0]).join('').trim();
     if (!out) throw new Error('gtx empty');
     return out;
   } catch (e) {
-    const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`);
-    if (!r.ok) throw new Error('mymemory ' + r.status);
-    const j = await r.json();
+    const j = await fetchJson(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`);
     const out = (j.responseData && j.responseData.translatedText || '').trim();
     // MyMemory reports errors / quota in-band, sometimes with HTTP 200 and the message as "translation".
     if (Number(j.responseStatus) !== 200 || j.quotaFinished || !out
@@ -152,58 +195,117 @@ async function translate(text, from, to) {
     return out;
   }
 }
+// Resolves to a translated string or throws. Never returns an error text.
+// Lange Sätze stückweise (URL-Länge bei Google, 500-Zeichen-Grenze bei MyMemory).
+async function translate(text, from, to) {
+  const parts = [];
+  for (const piece of splitText(text, 300)) parts.push(await translateOne(piece, from, to));
+  if (!parts.length) throw new Error('empty');
+  return parts.join(' ');
+}
 
 // ---- Voice commands (EN mode only, start of final transcript) ----
-const CMD_RE = /^\s*(?:hey\s+)?translator[\s,.:;!-]*(pause|resume|repeat|slower|faster)\b[\s,.!?]*$/i;
+// Chrome hört oft "translate", "translater", "translator's" – alles gilt.
+const CMD_RE = /^\s*(?:hey\s+|ok(?:ay)?\s+)?translat(?:or|er|e)?(?:'?s)?[\s,.:;!-]*(pause|resume|repeat|slower|faster)\b[\s,.!?]*$/i;
 function parseCommand(text) { const m = CMD_RE.exec(text); return m ? m[1].toLowerCase() : null; }
 
 function runCommand(cmd) {
-  if (cmd === 'pause') { paused = true; speechSynthesis.cancel(); speaking = false; statusEl.textContent = '⏸ Pausiert – sage „Translator resume“'; }
-  else if (cmd === 'resume') { paused = false; statusEl.textContent = 'Hört zu (English)…'; }
-  else if (cmd === 'slower') { rate = Math.max(0.5, +(rate - 0.15).toFixed(2)); statusEl.textContent = 'Tempo ' + rate; }
-  else if (cmd === 'faster') { rate = Math.min(1.6, +(rate + 0.15).toFixed(2)); statusEl.textContent = 'Tempo ' + rate; }
+  if (cmd === 'pause') {
+    paused = true; dropOutput();
+    setStatus('⏸ Pausiert – sage „Translator resume“');
+    resumeIfIdle();             // Erkennung muss laufen, um "resume" zu hören
+  }
+  else if (cmd === 'resume') { paused = false; setStatus('Hört zu (English)…'); }
+  else if (cmd === 'slower') { rate = Math.max(0.5, +(rate - 0.15).toFixed(2)); setStatus('Tempo ' + rate); }
+  else if (cmd === 'faster') { rate = Math.min(1.6, +(rate + 0.15).toFixed(2)); setStatus('Tempo ' + rate); }
   else if (cmd === 'repeat') {
-    if (lastOut) speak(lastOut.text, lastOut.lang, mode);
-    else statusEl.textContent = 'Nichts zu wiederholen';
+    if (lastOut) { const o = lastOut; enqueueOutput(g => speakAsync(o.text, o.lang, g)); }
+    else setStatus('Nichts zu wiederholen');
   }
 }
 
 // ---- Recognition ----
+const HARD_ERR = {   // Neustart sinnlos: Modus beenden, klar sagen warum
+  'not-allowed': 'Mikrofon blockiert. Bitte in den Website-Einstellungen des Browsers erlauben (Chrome: Symbol links in der Adresszeile; Safari: Einstellungen für diese Website).',
+  'service-not-allowed': 'Spracherkennung nicht erlaubt. Safari/iPhone: Diktierfunktion einschalten (Einstellungen → Allgemein → Tastatur → Diktierfunktion). Chrome: Erkennung ist in diesem Browser/Profil gesperrt.',
+  'language-not-supported': 'Diese Sprache wird von der Spracherkennung dieses Browsers nicht unterstützt.',
+};
 function startRec() {
-  if (!SR || !mode || speaking) return;
-  rec = new SR();
-  rec.lang = MODES[mode].rec;
+  if (!SR || !mode || speaking || rec || document.hidden) return;   // im Hintergrund nicht neu starten
+  clearTimeout(restartTimer); restartTimer = null;
+  const r = new SR();
+  rec = r;
+  r.lang = MODES[mode].rec;
   live.lang = MODES[mode].from;
-  rec.continuous = true;
-  rec.interimResults = true;
-  rec.onresult = ev => {
+  r.continuous = true;
+  r.interimResults = true;
+  const started = Date.now();
+  let got = false, failed = false;
+  r.onresult = ev => {
+    got = true; errCount = 0; quickEnds = 0;
     let interim = '';
     for (let i = ev.resultIndex; i < ev.results.length; i++) {
-      const r = ev.results[i];
-      if (r.isFinal) handleFinal(r[0].transcript.trim());
-      else interim += r[0].transcript;
+      const x = ev.results[i];
+      if (x.isFinal) handleFinal(x[0].transcript.trim());
+      else interim += x[0].transcript;
     }
     live.textContent = interim || '…';
   };
-  rec.onerror = ev => {
-    if (ev.error === 'not-allowed') { showWarn('Mikrofon blockiert. In Chrome links in der Adresszeile erlauben.'); setMode(null); }
-    else if (ev.error !== 'no-speech' && ev.error !== 'aborted') statusEl.textContent = 'Fehler: ' + ev.error;
+  r.onerror = ev => {
+    if (HARD_ERR[ev.error]) { showWarn(HARD_ERR[ev.error]); setMode(null); return; }
+    if (ev.error === 'no-speech' || ev.error === 'aborted') return;   // Stille ist normal
+    failed = true; errCount++;
+    setStatus('Fehler: ' + ev.error + ' – neuer Versuch …');
   };
-  rec.onend = () => { rec = null; if (mode && !speaking) startRec(); };  // Chrome stops after silence
-  try { rec.start(); } catch {}
-  if (!paused) statusEl.textContent = mode === 'en' ? 'Hört zu (English)…' : 'กำลังฟัง (ไทย)…';
+  r.onend = () => {
+    if (rec !== r) return;
+    rec = null;
+    if (!failed && Date.now() - started > 3000) errCount = 0;
+    quickEnds = (!got && Date.now() - started < 1000) ? quickEnds + 1 : 0;   // endet sofort wieder: bremsen
+    scheduleRestart();
+  };
+  try { r.start(); }
+  catch (e) { rec = null; errCount++; setStatus('Fehler beim Start der Erkennung'); scheduleRestart(); return; }
+  if (!paused) setStatus(mode === 'en' ? 'Hört zu (English)…' : 'กำลังฟัง (ไทย)…');
+}
+function scheduleRestart() {
+  if (!mode || speaking || restartTimer) return;
+  if (errCount >= MAX_SOFT_ERR) {
+    showWarn('Die Spracherkennung antwortet nicht (Internet? Chrome braucht dafür eine Verbindung zu Google). Bitte später erneut <kbd>E</kbd>/<kbd>T</kbd> drücken.');
+    setMode(null); return;
+  }
+  const n = Math.max(errCount, quickEnds);
+  const delay = n ? Math.min(5000, 500 * 2 ** (n - 1)) : 0;   // 0,5 s → 1 → 2 → 4 → 5 s
+  restartTimer = setTimeout(() => { restartTimer = null; startRec(); }, delay);
 }
 function stopRec() { if (rec) { const r = rec; rec = null; r.onend = null; try { r.abort(); } catch {} } }
 
+function dropOutput() {        // Warteschlange verwerfen (Modus gewechselt, Pause)
+  gen++;
+  outChain = Promise.resolve(); outPending = 0; outNext = null;
+  if (TTS && (TTS.speaking || TTS.pending)) TTS.cancel();   // kein cancel ohne Grund: stört das iOS-Entsperren
+  speaking = false;
+}
 function setMode(m) {
   stopRec();
-  gen++;
-  speechSynthesis.cancel(); speaking = false;
+  clearTimeout(restartTimer); restartTimer = null;
+  dropOutput();
   mode = (m === mode) ? null : m;
-  paused = false;
-  for (const k in MODES) MODES[k].btn.classList.toggle('active', k === mode);
+  paused = false; errCount = 0; quickEnds = 0;
+  for (const k in MODES) {
+    MODES[k].btn.classList.toggle('active', k === mode);
+    MODES[k].btn.setAttribute('aria-pressed', k === mode ? 'true' : 'false');
+  }
   live.textContent = '…';
-  if (mode) startRec(); else statusEl.textContent = 'Gestoppt';
+  updateWakeLock();
+  if (mode) startRec(); else setStatus('Gestoppt');
+}
+// Nach der Ausgabe: Sprecher wechseln (Auto-Wechsel) oder weiter zuhören – nie während noch etwas spricht.
+function resumeIfIdle() {
+  if (!mode || speaking) return;
+  if (outPending === 0 && outNext && outNext !== mode) { const n = outNext; outNext = null; setMode(n); return; }
+  if (outPending === 0) outNext = null;
+  if (!rec && !restartTimer) startRec();
 }
 
 function addEntry(cls, orig, trans, isErr, from, to) {
@@ -218,12 +320,17 @@ function addEntry(cls, orig, trans, isErr, from, to) {
   t.textContent = trans; if (isErr) t.classList.add('err');
   if (!trans) t.style.display = 'none';
   log.appendChild(entry);
+  while (log.children.length > MAX_LOG) log.removeChild(log.firstChild);   // Speicher auf dem Handy schonen
   return t;
 }
 
-async function handleFinal(text) {
+function handleFinal(text) {
   if (!text) return;
-  const cur = mode, m = MODES[cur], g = gen;
+  const now = Date.now();                  // Android-Chrome liefert Finals manchmal doppelt
+  if (text === lastFinal.text && now - lastFinal.t < 1500) return;
+  lastFinal = { text, t: now };
+  const cur = mode, m = MODES[cur];
+  if (!m) return;
   live.textContent = '…';
   if (cur === 'en') {
     const cmd = parseCommand(text);
@@ -232,36 +339,86 @@ async function handleFinal(text) {
   if (paused) return;
   if (!m.dir.checked) { addEntry(cur, text, '', false, m.from); return; }  // direction off: text only, no translation, no speech
   const t = addEntry(cur, text, '…', false, m.from, m.to);
-  let out;
-  try { out = await translate(text, m.from, m.to); }
-  catch { t.textContent = 'Übersetzung gerade nicht verfügbar (Internet / Limit?)'; t.classList.add('err'); return; }  // no error text is displayed as translation or spoken
-  t.textContent = out; t.lang = m.to;
-  lastOut = { text: out, lang: m.tts };
-  $('partnerText').textContent = out; $('partnerText').lang = m.to;
-  if (g !== gen || paused) return;   // mode changed/stopped or paused meanwhile: show, but don't speak or switch back
-  const next = $('autoswitch').checked ? (cur === 'en' ? 'th' : 'en') : cur;
-  if ($('speak').checked) speak(out, m.tts, next);
-  else if (next !== mode) setMode(next);
+  deliver(t, text, m, $('autoswitch').checked ? (cur === 'en' ? 'th' : 'en') : cur);
 }
 
-function speak(text, lang, nextMode) {
-  speaking = true;
-  stopRec();                    // avoid the mic hearing the speaker
-  statusEl.textContent = '🔊 Spricht…';
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = lang;
-  const v = pickVoice(lang); if (v) u.voice = v;
-  u.rate = rate;
-  const g = gen;
-  const done = () => {
-    if (g !== gen) return;      // cancelled by a mode change: setMode already took over
-    speaking = false;
-    if (!mode) return;
-    if (nextMode !== mode) setMode(nextMode); else startRec();
-  };
-  u.onend = done; u.onerror = done;
-  speechSynthesis.speak(u);
+// Übersetzen (sofort, parallel) und Ausgabe in die Warteschlange (in Satz-Reihenfolge).
+function deliver(t, text, m, next) {
+  const job = translate(text, m.from, m.to).then(out => {
+    t.textContent = out; t.lang = m.to; t.classList.remove('err');
+    lastOut = { text: out, lang: m.tts };
+    $('partnerText').textContent = out; $('partnerText').lang = m.to;
+    return out;
+  }, () => {   // no error text is displayed as translation or spoken
+    t.textContent = 'Übersetzung gerade nicht verfügbar (Internet / Limit?)'; t.classList.add('err'); t.removeAttribute('lang');
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'small retry'; b.textContent = 'Erneut versuchen';
+    b.onclick = () => { t.textContent = '…'; t.classList.remove('err'); deliver(t, text, m, null); };
+    t.appendChild(b);
+    return null;
+  });
+  enqueueOutput(async g => {
+    const out = await job;
+    if (out === null || g !== gen || paused) return;   // mode changed/stopped or paused meanwhile: show, but don't speak or switch
+    if (next) outNext = next;
+    if ($('speak').checked) await speakAsync(out, m.tts, g);
+  });
 }
+function enqueueOutput(task) {
+  const g = gen;
+  outPending++;
+  outChain = outChain.then(() => g === gen ? task(g) : undefined)
+    .catch(e => console.warn(e))
+    .finally(() => { if (g !== gen) return; outPending--; if (outPending === 0) resumeIfIdle(); });
+}
+
+// Vorlesen: Mikro aus (kein Echo), Stücke < 180 Zeichen (Chrome bricht lange Texte ab), Watchdog gegen
+// ausbleibendes onend. Löst immer auf.
+function speakAsync(text, lang, g) {
+  if (!TTS || g !== gen) return Promise.resolve();
+  speaking = true;
+  stopRec(); clearTimeout(restartTimer); restartTimer = null;
+  setStatus('🔊 Spricht…');
+  if (TTS.speaking || TTS.pending) TTS.cancel();   // hängende Reste im Browser-Puffer entfernen
+  return splitText(text, 180).reduce((p, c) => p.then(() => speakChunk(c, lang, g)), Promise.resolve())
+    .finally(() => { if (g === gen) { speaking = false; setTimeout(resumeIfIdle, 0); } });
+}
+function speakChunk(text, lang, g) {
+  return new Promise(resolve => {
+    if (g !== gen) { resolve(); return; }
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang;
+    const v = pickVoice(lang); if (v) u.voice = v;
+    u.rate = rate;
+    let fin = false;
+    const done = () => { if (fin) return; fin = true; clearTimeout(wd); resolve(); };   // mehrfach sicher
+    const wd = setTimeout(() => { if (!fin) { try { TTS.cancel(); } catch {} done(); } },
+                          3000 + text.length * 120 / rate);
+    u.onend = done; u.onerror = done;
+    try { TTS.speak(u); } catch { done(); }
+  });
+}
+// iOS/Safari spielt Sprachausgabe erst, wenn speak() einmal direkt in einer Nutzergeste lief.
+let ttsUnlocked = false;
+function unlockTTS() {
+  if (!TTS || ttsUnlocked) return;
+  ttsUnlocked = true;
+  try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; TTS.speak(u); } catch {}
+}
+
+// Bildschirm wach halten, solange ein Modus aktiv ist (Handy: sonst stoppt die Erkennung).
+let wakeLock = null;
+async function updateWakeLock() {
+  try {
+    if (mode && !document.hidden && 'wakeLock' in navigator) {
+      if (!wakeLock) { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); }
+    } else if (wakeLock) { const w = wakeLock; wakeLock = null; await w.release(); }
+  } catch { wakeLock = null; }
+}
+document.addEventListener('visibilitychange', () => {
+  updateWakeLock();
+  if (!document.hidden) resumeIfIdle();
+});
 
 // ---- Partner view ----
 let partnerOpener = null;
@@ -279,17 +436,18 @@ function togglePartner(on) {
 $('btnPartner').onclick = () => togglePartner(true);
 $('btnPartnerClose').onclick = () => togglePartner(false);
 
-MODES.en.btn.onclick = () => setMode('en');
-MODES.th.btn.onclick = () => setMode('th');
+MODES.en.btn.onclick = () => { setMode('en'); unlockTTS(); };
+MODES.th.btn.onclick = () => { setMode('th'); unlockTTS(); };
 try { $('keysOn').checked = localStorage.getItem('keysOn') !== '0'; } catch {}
 $('keysOn').onchange = () => { try { localStorage.setItem('keysOn', $('keysOn').checked ? '1' : '0'); } catch {} };
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { togglePartner(false); return; }   // closing a dialog always works
   if (!$('keysOn').checked) return;                            // single-key shortcuts can be switched off (WCAG 2.1.4)
   if (e.target.tagName === 'INPUT' || e.ctrlKey || e.metaKey || e.altKey) return;
-  if (e.key === 'p' || e.key === 'P') togglePartner();
-  else if (e.key === 'e' || e.key === 'E') setMode('en');
-  else if (e.key === 't' || e.key === 'T') setMode('th');
+  // e.code: Kürzel gehen auch mit thailändischem Tastaturlayout
+  if (e.code === 'KeyP') togglePartner();
+  else if (e.code === 'KeyE') { setMode('en'); unlockTTS(); }
+  else if (e.code === 'KeyT') { setMode('th'); unlockTTS(); }
   else if (e.code === 'Space' && e.target.tagName !== 'BUTTON') { e.preventDefault(); if (mode) setMode(mode); }
 });
 </script>

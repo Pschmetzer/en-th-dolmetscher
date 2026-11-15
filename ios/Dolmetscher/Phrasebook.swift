@@ -86,7 +86,8 @@ struct PhrasebookView: View {
     private var shown: [Phrase] {
         let base = category == "favorites" ? m.favorites : Phrasebook.builtIn.filter { $0.category == category }
         guard !search.isEmpty else { return base }
-        let all = m.favorites + Phrasebook.builtIn
+        var seen = Set<String>()
+        let all = (m.favorites + Phrasebook.builtIn).filter { seen.insert($0.en).inserted }
         return all.filter { $0.en.localizedCaseInsensitiveContains(search) || $0.th.contains(search) }
     }
 

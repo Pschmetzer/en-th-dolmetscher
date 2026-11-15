@@ -14,6 +14,7 @@ struct DolmetscherApp: App {
                 .onChange(of: scenePhase) { _, phase in
                     // Im Hintergrund nicht weiter mithören.
                     if phase == .background { model.enteredBackground() }
+                    if phase == .active { model.enteredForeground() }
                 }
         }
     }

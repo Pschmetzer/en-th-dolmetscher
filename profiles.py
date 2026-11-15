@@ -259,11 +259,33 @@ def save_profile(p):
         _write_atomic(_target_path(p["name"]), p)
 
 
+MAX_BACKUPS = 2               # so viele .bak je Profil behalten (enthalten Stimmabdrücke)
+_SIDE_SUFFIXES = (".bak", ".bad")
+_ALL_SUFFIXES = (".json", ".bak", ".bad", ".tmp")
+
+
+def _side_files(path):
+    """Sicherungen/Quarantäne-Dateien genau dieses Profils (<datei>.json.<...>.bak|.bad), älteste zuerst.
+    Präfix-Vergleich statt glob: "Anna.json" trifft nie "Anna-<hash>.json.*"."""
+    base = os.path.basename(path) + "."
+    d = os.path.dirname(path)
+    try:
+        names = os.listdir(d)
+    except OSError:
+        return []
+    return [os.path.join(d, f) for f in sorted(names) if f.startswith(base) and f.endswith(_SIDE_SUFFIXES)]
+
+
 def delete_profile(name):
+    """Profil löschen – samt Sicherungen (.bak) und Quarantäne-Kopien (.bad): Stimmabdrücke sind
+    biometrische Daten und dürfen nach "Löschen" nicht als Kopie liegen bleiben."""
     with _locked():
         path = _locate(name)
         if not path:
             return False
+        for f in _side_files(path):
+            with contextlib.suppress(FileNotFoundError):
+                os.remove(f)
         try:
             os.remove(path)
             return True
@@ -271,14 +293,36 @@ def delete_profile(name):
             return False
 
 
+def delete_all_profiles():
+    """Alle Stimmdaten löschen (Profile, Sicherungen, Quarantäne, Reste). -> Anzahl gelöschter Dateien.
+    Die Sperrdatei bleibt (ein anderer Prozess kann sie halten), das Sprechermodell auch (keine
+    persönlichen Daten)."""
+    if not os.path.isdir(PROFILE_DIR):
+        return 0
+    n = 0
+    with _locked():
+        for f in os.listdir(PROFILE_DIR):
+            if f.startswith(".") or not f.endswith(_ALL_SUFFIXES):
+                continue
+            with contextlib.suppress(FileNotFoundError):
+                os.remove(os.path.join(PROFILE_DIR, f))
+                n += 1
+    return n
+
+
 def _backup(name):
-    """Altes Profil vor dem Überschreiben sichern (<datei>.json.<zeit>.bak, wird nicht als Profil geladen)."""
+    """Altes Profil vor dem Überschreiben sichern (<datei>.json.<zeit>.bak, wird nicht als Profil geladen).
+    Nur die letzten MAX_BACKUPS bleiben."""
     path = _locate(name)
     if not path:
         return None
     dest = "%s.%s.bak" % (path, _stamp())
     shutil.copy2(path, dest)
     os.chmod(dest, 0o600)
+    baks = [f for f in _side_files(path) if f.endswith(".bak")]
+    for f in baks[:-MAX_BACKUPS]:
+        with contextlib.suppress(OSError):
+            os.remove(f)
     return dest
 
 
@@ -477,13 +521,25 @@ class SpeakerID:
         r = self.classify(audio, prev)
         return r["role"], r.get("sim_me", 0.0)
 
-    def classify(self, audio, prev=None):
+    def lazy_embed(self, audio):
+        """-> Funktion, die den Stimmabdruck von `audio` beim ersten Aufruf berechnet und danach (auch
+        ein None-Ergebnis) wiederverwendet: identify() und classify() teilen sich so einen Modelllauf."""
+        memo = []
+
+        def get():
+            if not memo:
+                memo.append(self.embed(audio))
+            return memo[0]
+        return get
+
+    def classify(self, audio, prev=None, emb=None):
         """Wer spricht? -> {"role", "sim_me", "sim_her", "emb", "how"}. `prev` = Rolle der direkt
-        vorangehenden Äußerung (nur bei kurzer Pause), entscheidet knappe Fälle."""
+        vorangehenden Äußerung (nur bei kurzer Pause), entscheidet knappe Fälle. `emb` = optional
+        Funktion aus lazy_embed() (spart den zweiten Modelllauf)."""
         me = self.me()
         if me is None or audio.size < ROLE_MIN_SECONDS * SR:
             return {"role": None, "how": "kein profil" if me is None else "zu kurz"}
-        e = self.embed(audio)
+        e = emb() if emb else self.embed(audio)
         if e is None:
             return {"role": None, "how": "kein stimmabdruck"}
         me_e = self._emb_of(me)
@@ -531,11 +587,11 @@ class SpeakerID:
         self.reload()
         return ok
 
-    def identify(self, audio):
-        """-> (profile, similarity, scores) or (None, best_sim, scores)."""
+    def identify(self, audio, emb=None):
+        """-> (profile, similarity, scores) or (None, best_sim, scores). `emb` wie bei classify()."""
         if self.mat is None or audio.size < MIN_SECONDS * SR:
             return None, 0.0, {}
-        e = self.embed(audio)
+        e = emb() if emb else self.embed(audio)
         if e is None or e.shape[0] != self.mat.shape[1]:
             return None, 0.0, {}
         sims = self.mat @ e
@@ -550,6 +606,13 @@ class SpeakerID:
             return self.profiles[order[0]], best, scores
         return None, best, scores
 
+    def hotwords(self, lang, who=None, role=None):
+        """Eigene Wörter (Whisper-Hotwords) für die Erkennung in `lang`: zuerst das erkannte Profil,
+        dann das Profil der Rolle ("me"/"other"), dann alle übrigen Profile derselben Sprache.
+        Nur Profile der passenden Sprache; höchstens MAX_HOTWORDS Einträge. -> str oder None."""
+        return pick_hotwords(self.profiles, lang, who,
+                             self.me() if role == "me" else self.partner() if role == "other" else None)
+
 
 # Zwei Profile (ich = Englisch, Partnerin = Thai): Vergleich "klingt eher wie ich / wie sie".
 # Startwerte, noch nicht an echten Gesprächen gemessen – im Log stehen sim_me/sim_her pro Satz.
@@ -557,6 +620,23 @@ ROLE_PAIR_MIN = 0.55        # die bessere der beiden Ähnlichkeiten muss mindest
 ROLE_PAIR_MARGIN = 0.10     # und die andere um so viel schlagen
 ROLE_LEAN_MARGIN = 0.03     # knapper Vorsprung: nur zusammen mit dem vorherigen Sprecher
 ROLE_ME_FLOOR = 0.65        # "ich" nie darunter: fremde Stimmen erreichen bis 0,64 (falsch "ich" = Thai als Englisch gelesen)
+
+
+MAX_HOTWORDS = 2 * MAX_VOCAB
+
+
+def pick_hotwords(profs, lang, who=None, role_p=None):
+    """Reine Auswahlregel zu SpeakerID.hotwords() (testbar ohne Modell)."""
+    order = [p for p in (who, role_p) if p] + [p for p in profs or [] if p not in (who, role_p)]
+    out, seen = [], set()
+    for p in order:
+        if p.get("lang", "en") != lang:
+            continue
+        for w in p.get("vocab") or []:
+            if isinstance(w, str) and w.strip() and w.casefold() not in seen:
+                seen.add(w.casefold())
+                out.append(w.strip())
+    return " ".join(out[:MAX_HOTWORDS]) or None
 
 
 def decide_role(sim_me, sim_her, dur, me_min, prev=None):
