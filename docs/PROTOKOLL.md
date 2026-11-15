@@ -1,4 +1,4 @@
-# Engine ⇄ App: Protokoll (Stand Branch feat/latenz-thai-ui)
+# Engine ⇄ App: Protokoll (Version 1)
 
 Die Mac-App startet `dolmetscher.py --json …`. Die Engine schreibt **eine JSON-Zeile pro Ereignis** auf stdout.
 Die App schickt Einstellungen als **JSON-Zeilen auf stdin**. Unbekannte Felder werden auf beiden Seiten ignoriert.
@@ -12,56 +12,141 @@ Jede Äußerung hat eine `id` (String, z. B. `"u7"`). Die App darf den Status �
 
 ## Startargumente
 
-| Argument | Bedeutung |
-|---|---|
-| `--model small\|medium\|best` | wie bisher |
-| `--polite krub\|ka`, `--lang auto\|en\|th`, `--mute`, `--no-en`, `--no-th`, `--barge-in` | wie bisher |
-| `--mic INDEX` | Mikrofon (Index aus `--list-mics`) |
-| `--list-mics` | gibt `{"event":"mics","mics":[{"index":"0","name":"MacBook Pro Microphone"}]}` aus und beendet sich |
-| `--rate N` | Sprechtempo in %, −50 … 50 (Standard 0) |
-| `--volume F` | Lautstärke 0.2 … 2.0 (Standard 1.0) |
-| `--silence S` | Sekunden Stille bis Satzende, 0.4 … 2.0 (Standard 0.8) |
-| `--sensitivity low\|normal\|high` | Empfindlichkeit der Spracherkennung (VAD) |
-| `--denoise` | Rauschunterdrückung im Mikrofon-Filter |
-| `--voice-en NAME`, `--voice-th NAME` | Neural-Stimme (z. B. `en-US-JennyNeural`, `th-TH-PremwadeeNeural`); ohne Angabe: Englisch `en-US-AriaNeural`, Thai nach `--polite` |
-| `--llm` | Übersetzung mit Claude (braucht API-Schlüssel, sonst automatisch Google) |
-| `--llm-model ID` | Standard `claude-haiku-5-5` (günstig und schnell; `claude-sonnet-5-5` genauer) |
-| `--style casual\|neutral\|polite` | Ton der Claude-Übersetzung (Standard `casual`) |
-| `--earcons` | Signalton statt gesprochener Bestätigung bei Sprachbefehlen |
-| `--meter` | Pegel-Ereignisse `level` senden |
-| `--log-text` / `--no-log-text` | Gesprächstexte ins Log schreiben. **Standard jetzt: aus** |
+Die Tabelle wird per Test (`tests/test_protocol_docs.py`) mit `argparse` abgeglichen: jedes Argument muss
+hier stehen, Standardwerte in der Spalte „Standard“.
 
-API-Schlüssel: Umgebungsvariable `ANTHROPIC_API_KEY` oder Datei
-`~/Library/Application Support/Dolmetscher/anthropic_key` (nur der Schlüssel, Rechte 0600).
+| Argument | Standard | Bedeutung |
+|---|---|---|
+| `--model small\|medium\|best\|auto` | `medium` | Erkennungsmodell; `best` = large-v3-turbo + Thai-Modell, `auto` nach Chip/RAM (Ereignis `hwprofile`) |
+| `--device auto\|mps\|cpu` | `auto` | Rechengerät (Apple-GPU, sonst CPU) |
+| `--mic INDEX\|NAME\|default` | `0` | Mikrofon: Index aus `--list-mics`, besser der **Name** (Indizes verschieben sich, sobald AirPods/USB-Mikros dazukommen; der Name wird erst beim Öffnen auf den aktuellen Index abgebildet). Unbekannter Name: `error` `mic_not_found`, Standardmikrofon |
+| `--list-mics` | | gibt `{"event":"mics","mics":[{"index":"0","name":"MacBook Pro Microphone"}]}` aus und beendet sich; bei Fehler (ffmpeg fehlt/hängt) zuerst `error` (`mic_list_failed`), dann `mics` mit leerer Liste |
+| `--polite krub\|ka` | `krub` | Höflichkeitswort/Stimme Thai |
+| `--lang auto\|en\|th` | `auto` | Sprach-Sperre |
+| `--tts edge\|say` | `edge` | Neural-Stimme (edge-tts) oder macOS `say` |
+| `--file DATEI …` | | Dateien statt Mikrofon übersetzen (Test/Benchmark); lange Dateien werden an leisen Stellen in Stücke bis 30 s geteilt, eine kaputte Datei ergibt `error` (`file_empty`/`file_failed`) und bricht die übrigen nicht ab |
+| `--mute` | | nicht vorlesen |
+| `--json` | | Ereignisse als JSON-Zeilen (App), Steuerung über stdin |
+| `--no-en`, `--no-th` | | Englisch bzw. Thai nicht übersetzen (nur anzeigen) |
+| `--profiles` | | Stimmprofile als `profiles` ausgeben |
+| `--enroll NAME`, `--enroll-lang en\|th` | `en` | Stimmprofil anlegen (8 Sätze vorlesen) |
+| `--delete-profile NAME` | | Stimmprofil löschen (`profile_deleted`) |
+| `--vocab NAME WÖRTER` | | eigene Wörter eines Profils, kommagetrennt (`profile_saved`) |
+| `--profile-stdin` | | Profilname/Wörter als JSON-Zeile von stdin statt argv (siehe unten) |
+| `--barge-in` | | Sprechen unterbricht die Ausgabe (nur mit Kopfhörer) |
+| `--log-text` / `--no-log-text` | aus | Gesprächstexte ins Log schreiben |
+| `--rate N` | `0` | Sprechtempo in %, −50 … 50 |
+| `--volume F` | `1.0` | Lautstärke 0.2 … 2.0 |
+| `--silence S` | `0.7` | Sekunden Stille bis Satzende, 0.4 … 2.0 |
+| `--sensitivity low\|normal\|high` | `normal` | Empfindlichkeit der Sprach-Erkennung (VAD) |
+| `--denoise` | | Rauschunterdrückung im Mikrofon-Filter |
+| `--voice-en NAME`, `--voice-th NAME` | | Neural-Stimme (z. B. `en-US-JennyNeural`, `th-TH-PremwadeeNeural`); ohne Angabe: Englisch `en-US-AriaNeural`, Thai nach `--polite` |
+| `--llm` | | Übersetzung mit Claude (braucht API-Schlüssel, sonst automatisch Google) |
+| `--llm-model ID` | `claude-haiku-5-5` | günstig und schnell; `claude-sonnet-5-5` genauer |
+| `--style casual\|neutral\|polite` | `casual` | Ton der Claude-Übersetzung |
+| `--earcons` | | Signalton statt gesprochener Bestätigung bei Sprachbefehlen |
+| `--meter` | | Pegel-Ereignisse `level` senden |
+| `--no-two-person` | | Zwei-Personen-Modus aus |
+| `--fast-endpoint` / `--no-fast-endpoint` | aus | schnelles Satzende, nur Englisch |
+| `--no-pre` | | keine Vorab-Erkennung |
+| `--partial` / `--no-partial` | aus | Teiltext während des Sprechens |
+| `--tts-race S` | `1.4` | s bis die vorbereitete macOS-Stimme einspringt (0 = aus) |
+| `--idle` | | Modelle laden, Mikrofon erst mit `{"listen": true}` öffnen |
+| `--history` | | Gesprächsverlauf lokal speichern |
+| `--history-days N` | | Verlauf älter als N Tage beim Start löschen |
+| `--history-export FORMAT`, `--history-session ID`, `--out PFAD`, `--history-search TEXT`, `--history-purge TAGE`, `--history-clear` | | Verlaufs-Befehle (siehe „Gesprächsverlauf“) |
+
+### Umgebungsvariablen
+
+| Variable | Wirkung |
+|---|---|
+| `ANTHROPIC_API_KEY` (oder `ANTHROPIC_AUTH_TOKEN`) | Claude-Schlüssel; alternativ Datei `~/Library/Application Support/Dolmetscher/anthropic_key` (nur der Schlüssel, Rechte 0600) |
+| `DOLMETSCHER_BEAM` | Beam-Breite der Erkennung (Standard 1; überschreibt `--model auto`) |
+| `DOLMETSCHER_MIC_FILE` | Audiodatei in Echtzeit statt Mikrofon (Ende-zu-Ende-Test) |
+| `DOLMETSCHER_MIC_LOOP` | mit `DOLMETSCHER_MIC_FILE`: Datei endlos wiederholen |
+| `DOLMETSCHER_FFMPEG` | Pfad zu ffmpeg |
+| `DOLMETSCHER_HOME` | Ordner für Presets/Verlauf (Standard `~/Library/Application Support/Dolmetscher/`) |
+| `DOLMETSCHER_LOG` | Logdatei (Standard `~/Library/Logs/Dolmetscher/engine.log`) |
+| `DOLMETSCHER_DEBUG` | VAD-Diagnose ins Log |
+| `DOLMETSCHER_NULL_AUDIO` | keine Tonausgabe (Tests) |
+| `DOLMETSCHER_SPEAKER_MODEL`, `DOLMETSCHER_SPEAKER_MODEL_URL` | Stimmprofil-Modell aus Datei bzw. URL |
 
 ## Ereignisse (stdout)
 
 | event | Felder | Hinweis |
 |---|---|---|
-| `loading` | `msg` | |
+| `loading` | `msg`, `download` (optional, true: Modell wird einmalig heruntergeladen, kann Minuten dauern) | |
 | `llm_cost` | `usd` | geschätzte Claude-Kosten der Sitzung (nach Preisliste) |
-| `ready` | `msg`, `device`, `llm` (bool: Claude aktiv) | |
+| `ready` | `msg`, `device`, `llm` (bool: Claude aktiv), `protocol`, `engine_version`; optional `degraded` (Liste: `detect_model`, `thai_model` – Modell nicht geladen, Erkennung läuft schwächer über das Hauptmodell) | |
 | `listening` | | Mikrofon bereit; ändert den Sprech-Status nicht |
-| `hearing` | | jemand spricht gerade |
+| `hearing` | `id` (beim Mikrofon) | jemand spricht gerade; die `id` gilt für die ganze Äußerung |
 | `thinking` | `id` | Äußerung `id` wird erkannt/übersetzt → Platzhalter-Blase |
-| `dropped` | `reason`, `id` (optional) | Platzhalter `id` entfernen |
-| `utt` | `id`, `lang`, `to`, `text`, `out`, `stt`, `tr` (s), `lp` (Erkennungs-Konfidenz, log-prob, ≈ −0.1 sicher … −1.3 unsicher), `translated`, `provider` (`claude`\|`google`\|`mymemory`\|`none`), `speaker`, `replaces` (optional: id der korrigierten Blase), `source` (`mic`\|`phrase`\|`edit`); optional: `text_latin`/`out_latin` (lesbare RTGS-Umschrift für Thai, nur mit pythainlp), `alts` (andere Lesarten), `role` (`me`\|`other`), `num_warn` (Ziffern weichen ab) | |
+| `heard` | `id`, `lang`, `text`, `text_latin` (Thai, optional) | **neu:** erkannter Originaltext, sofort nach der Erkennung, noch vor der Übersetzung (Mikrofon und `reassign`). Die App füllt damit die Platzhalter-Blase; `utt` mit derselben `id` ergänzt die Übersetzung. Ältere Apps ignorieren das Ereignis |
+| `dropped` | `reason` (deutscher Freitext), `code` (stabil, siehe unten), `id`; bei `code` `unsure` zusätzlich `text`, `lang`, `lp` | Platzhalter `id` entfernen. Bei `unsure` kann die App den gehörten Text zeigen und „trotzdem übersetzen“ per `retranslate` anbieten |
+| `utt` | `id`, `lang`, `to`, `text`, `out`, `stt`, `tr` (s), `lp` (Erkennungs-Konfidenz, log-prob, ≈ −0.1 sicher … −1.3 unsicher), `translated`, `provider` (`claude`\|`google`\|`mymemory`\|`none`), `speaker`, `replaces` (optional: id der korrigierten Blase), `source` (`mic`\|`phrase`\|`edit`\|`reassign`); optional: `text_latin`/`out_latin` (lesbare RTGS-Umschrift für Thai, nur mit pythainlp), `alts` (andere Lesarten), `role` (`me`\|`other`), `num_warn` (Ziffern weichen ab), `ready_s`, `suggest_vocab`. Ohne Übersetzung (Richtung abgeschaltet): `translated: false`, `provider: "none"`, `out` = `text`, kein `out_latin`, kein Vorlesen | |
 | `speaking` | `id`, `first_s` (s bis zum ersten Ton) | nur wenn wirklich Ton kommt (nicht bei stumm, Überspringen, Abbruch vor dem ersten Ton); `id` = `"cmd"` bei Befehlsantworten und „repeat“ |
 | `speak_done` | `id`, `skipped` (bool), `interrupted` (bool) | kommt für jede eingereihte Ausgabe **genau einmal**, auch ohne vorheriges `speaking`; `skipped`: wegen Rückstand/Stopp nicht vorgelesen |
 | `queue` | `stt` (wartende Äußerungen), `tts` (wartende Ausgaben) | bei jeder Änderung |
 | `level` | `rms` (0…1, dBFS skaliert), `voice` (bool) | ~7×/s, nur mit `--meter` |
 | `net` | `ok` (bool), `what` (`translate`\|`tts`) | nur bei Zustandswechsel |
-| `command` | wie bisher + `rate`, `volume`, `voice_en`, `voice_th` | App speichert `rate`/`volume` dauerhaft |
-| `error` | `msg` | |
+| `command` | `text`, `reply`, `paused`, `lang`, `tr_en`, `tr_th`, `polite`, `rate`, `volume`, `voice_en`, `voice_th`; `clear` (true) nach „Translator, clear“ | App speichert `rate`/`volume` dauerhaft; bei `clear` Verlauf in der App leeren |
+| `error` | `msg` (deutscher Freitext), `code` (stabil, siehe unten; fehlt nur bei alten Meldungen) | |
 | `barge_in` | | |
-| `mics` | `mics` (Liste `{index, name}`) | Antwort auf `--list-mics` |
+| `mics` | `mics` (Liste `{index, name}`) | Antwort auf `--list-mics`; die App sollte den **Namen** speichern |
 | `profiles` | `profiles` (Liste öffentlicher Profilfelder) | Antwort auf `--profiles` |
 | `profile_saved` | `profile` | nach `--enroll` bzw. `--vocab` |
 | `profile_deleted` | `name`, `ok` (bool) | Antwort auf `--delete-profile` |
 
+### `dropped.code`
+
+| `code` | `reason` (Beispiel) | Bedeutung |
+|---|---|---|
+| `too_short` | zu kurz | unter 0,3 s Sprache |
+| `command` | befehl | Sprachbefehl erkannt (Antwort kommt als `command`) |
+| `other_language` | weder Englisch noch Thai | Geräusch, Musik, andere Sprache |
+| `locked` | nur Thai aktiv / nur Englisch aktiv | Sprach-Sperre |
+| `paused` | pausiert | „Translator, pause“ aktiv |
+| `unsure` | unsicher | Erkennung zu unsicher; mit `text`, `lang`, `lp` |
+| `hallucination` | halluzination (…) | typische Whisper-Erfindung |
+| `filler` | floskel | „Thank you.“ u. ä. bei sehr leiser, kurzer Aufnahme |
+| `empty` | nichts erkannt | kein Text |
+| `translate_failed` | übersetzung fehlgeschlagen | zusätzlich `error` mit `code` `translate_failed` |
+| `error` | fehler | interner Fehler bei diesem Satz |
+| `other` | | unbekannter Grund (App: allgemeine Meldung) |
+
+### `error.code`
+
+| `code` | Bedeutung |
+|---|---|
+| `mic_denied`, `mic_unavailable`, `mic_no_data`, `mic_timeout`, `mic_failed` | Mikrofon: Zugriff verweigert / Gerät ungültig / keine Daten / erster Block nicht binnen 10 s (Wachhund beendet ffmpeg) / Gerät nach Wiederverbinden weg |
+| `mic_not_found` | Mikrofon-Name unbekannt, Standardmikrofon wird genutzt |
+| `mic_list_failed` | `--list-mics` konnte ffmpeg nicht abfragen |
+| `mic_file_missing`, `ffmpeg_missing` | `DOLMETSCHER_MIC_FILE` fehlt / ffmpeg nicht startbar |
+| `model_offline` | Modell fehlt lokal und kann ohne Internet nicht geladen werden |
+| `translate_failed` | Übersetzung fehlgeschlagen (alle Anbieter) |
+| `reassign_expired`, `reassign_empty`, `reassign_invalid` | „Das war ich/sie“: Satz nicht mehr im Speicher / nichts erkannt / Anfrage ungültig |
+| `phrase_invalid`, `edit_invalid` | Schnellsatz bzw. Korrektur ungültig |
+| `voice_unknown`, `glossary_invalid` | Steuerwert ungültig |
+| `file_empty`, `file_failed` | `--file`: keine Audiodaten / Datei nicht lesbar |
+
+### Reihenfolge und Garantien
+
+- Je `id`: `hearing` (nur Mikrofon) → `thinking` → optional `heard` → **genau ein** `utt` oder `dropped`.
+  `dropped` für „zu kurz“ kommt ohne `thinking`, aber mit der `id` aus `hearing`.
+- `speak_done` kommt für jede eingereihte Ausgabe genau einmal (siehe oben).
+- `retranslate`/`reassign`: neue `id` mit `thinking` → `utt` mit `replaces`. Schlägt es fehl, kommt `dropped`
+  (neue `id`) bzw. `error` – die alte Blase bleibt dann stehen. Eine ersetzte Äußerung fällt aus dem
+  Claude-Kontext und wird von „Translator, repeat“ nicht mehr wiederholt.
+- Schnellsätze, Korrekturen und Mikrofon-Start aus der App werden vor wartenden Äußerungen bearbeitet.
+  Ab 3 wartenden Äußerungen spart die Engine Zusatz-Läufe (zweite Sprachprüfung, zweite Thai-Lesart).
+- Sprachbefehle nimmt die Engine nicht von der Partner-Stimme an (`role` `other` bei Stimmprofil).
+  Nach „Translator“ gilt ein Folgesatz (höchstens 4 Wörter) 6 s lang als Befehl – ab Ende des „Yes?“.
+- `say`/`retranslate`: Ist der Text klar Thai geschrieben (bzw. klar lateinisch bei `lang: "th"`), korrigiert
+  die Engine `lang`.
+
 ## Steuerung (stdin)
 
-Bisher: `tr_en`, `tr_th`, `lang`, `polite`, `speak`, `paused`.
+Grundfelder: `tr_en`, `tr_th` (bool), `lang` (`auto`\|`en`\|`th`), `polite` (`krub`\|`ka`), `speak` (bool, false = stumm), `paused` (bool), `listen` (bool, siehe unten), `ping`.
 
 Neu:
 
@@ -201,8 +286,8 @@ Aufnahme:
 
 | Argument / stdin-Feld | Wirkung |
 |---|---|
-| `--history` / `{"history": true\|false}` | Aufzeichnung an/aus (live umschaltbar) |
-| `--history-days N` / `{"history_days": N}` | beim Einschalten Einträge älter als N Tage löschen |
+| `--history` / `{"history": true\|false}` | Aufzeichnung an/aus (live umschaltbar; Steuerfeld `history`) |
+| `--history-days N` / `{"history_days": N}` | beim Einschalten Einträge älter als N Tage löschen (Steuerfeld `history_days`, zusammen mit `history`) |
 
 Befehle (beenden sich sofort, laden keine Modelle):
 
