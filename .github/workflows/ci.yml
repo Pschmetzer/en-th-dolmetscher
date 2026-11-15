@@ -20,7 +20,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # 3.12: exakt die Versionen aus requirements.txt
+          # 3.12: exakt die Versionen aus requirements-dev.txt (Lock-Datei mit Hashes)
           - python: "3.12"
             pinned: true
           # 3.10: Mindestversion; die Pins (numpy 2.5 braucht >= 3.12) passen nicht, daher ungepinnt
@@ -34,16 +34,17 @@ jobs:
           python-version: ${{ matrix.python }}
           cache: pip
           cache-dependency-path: requirements*.txt
-      - name: Install dependencies (pinned)
+      - name: Install dependencies (pinned, hash-checked)
         if: matrix.pinned
-        run: python -m pip install -r requirements-dev.txt
+        run: python -m pip install --require-hashes -r requirements-dev.txt
       - name: Install dependencies (unpinned, minimum Python)
         if: ${{ !matrix.pinned }}
         run: |
-          sed -e 's/==.*//' -e '/^-r/d' -e '/^#/d' requirements.txt requirements-dev.txt > /tmp/unpinned.txt
-          python -m pip install -r /tmp/unpinned.txt
+          sed -e 's/==.*//' -e '/^-r/d' -e '/^#/d' -e '/^ *$/d' requirements.in requirements-dev.in > "$RUNNER_TEMP/unpinned.txt"
+          python -m pip install -r "$RUNNER_TEMP/unpinned.txt"
+      # -rs: Gründe übersprungener Tests im Log (z. B. fehlendes Silero-VAD/say), damit stilles Überspringen auffällt.
       - name: Run tests (no models, no network, no microphone)
-        run: python -m pytest -v
+        run: python -m pytest -v -rs
 
   lint:
     runs-on: ubuntu-latest
@@ -52,8 +53,8 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
-      - name: Install ruff (version from requirements-dev.txt)
-        run: python -m pip install "$(grep '^ruff==' requirements-dev.txt)"
+      - name: Install ruff (version from requirements-dev.in)
+        run: python -m pip install "$(grep '^ruff==' requirements-dev.in)"
       # bench/ und die Test-Infrastruktur sind sauber: hier darf nichts Neues hinzukommen.
       - name: Ruff (blocking)
         run: ruff check --output-format=github bench/ tests/conftest.py
@@ -94,7 +95,8 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
+      # requirements.txt enthält alle transitiven Pakete mit Hashes: es wird alles geprüft, nicht nur die direkten Pins.
       - name: pip-audit
         run: |
-          python -m pip install "$(grep '^pip-audit==' requirements-dev.txt)"
-          pip-audit --no-deps --disable-pip -r requirements.txt
+          python -m pip install "$(grep '^pip-audit==' requirements-dev.in)"
+          pip-audit --disable-pip --require-hashes -r requirements.txt
