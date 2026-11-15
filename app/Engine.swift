@@ -984,7 +984,7 @@ final class EngineModel: NSObject, ObservableObject {
         case "speaking":
             let key = id ?? "?"
             speakingIDs.insert(key)
-            if let i = index(of: id) {
+            if !engineReplayIDs.contains(key), let i = index(of: id) {   // Wiederholung: Messwerte der Blase behalten
                 if let f = o["first_s"] as? Double { items[i].firstSound = f }
                 if let lat = (o["latency_s"] as? NSNumber)?.doubleValue {
                     items[i].latency = lat
