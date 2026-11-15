@@ -154,7 +154,11 @@ final class LangRecognizer: @unchecked Sendable {
         return err == nil && out.frameLength > 0 ? out : nil
     }
 
-    func finalize() async { try? await analyzer.finalize(through: nil) }
+    /// Bis zur angegebenen Stelle der eigenen Zeitachse abschließen (nil = alles bisher Verarbeitete).
+    func finalize(through seconds: Double? = nil) async {
+        let t = seconds.map { CMTime(seconds: $0, preferredTimescale: 48_000) }
+        try? await analyzer.finalize(through: t)
+    }
 
     /// Was bisher erkannt wurde, ohne es zu verbrauchen (für die Live-Anzeige).
     func peek() -> String {
@@ -366,7 +370,7 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
         let prev = lastEnd
         lastEnd = Task {
             await prev?.value   // Reihenfolge der Äußerungen wahren
-            await withTaskGroup(of: Void.self) { g in for (r, _) in marks { g.addTask { await r.finalize() } } }
+            await withTaskGroup(of: Void.self) { g in for (r, mark) in marks { g.addTask { await r.finalize(through: mark) } } }
             try? await Task.sleep(for: .milliseconds(120))   // letzte Ergebnisse einsammeln lassen
             // Hat nur ein Erkenner schon Text, kurz auf den anderen warten – sonst gewinnt die
             // schnellere Sprache, nur weil die andere noch rechnet (v. a. Thai beim ersten Satz).

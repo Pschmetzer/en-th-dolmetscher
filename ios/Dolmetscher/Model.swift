@@ -69,6 +69,9 @@ final class InterpreterModel {
     @ObservationIgnored private var generation = 0
     @ObservationIgnored private var speechGeneration = 0
     @ObservationIgnored private var stopTask: Task<Void, Never>?
+    @ObservationIgnored private var startTask: Task<Void, Never>?
+    /// Zähler je Eintrag: eine ältere Übersetzungsanfrage darf eine neuere nicht überschreiben.
+    @ObservationIgnored private var revisions: [UUID: Int] = [:]
     @ObservationIgnored private var awakeUntil = Date.distantPast
     @ObservationIgnored private var noticeTask: Task<Void, Never>?
     @ObservationIgnored private var idleTask: Task<Void, Never>?
@@ -122,7 +125,7 @@ final class InterpreterModel {
         let e = AppleSpeechEngine()
         let pendingStop = stopTask
         let options = AudioOptions(headset: headset)
-        Task {
+        startTask = Task {
             await pendingStop?.value   // die alte Aufnahme muss die Audio-Session erst freigeben
             do {
                 try await e.start(langs: mode.langs, pauseSeconds: pauseSeconds, options: options) { lang, f in
@@ -133,6 +136,8 @@ final class InterpreterModel {
                 download = nil
                 guard generation == mine else { await e.stop(); return }   // inzwischen abgebrochen
                 engine = e
+                // Läuft gerade eine Ausgabe (z. B. getippter Satz), soll die neue Aufnahme sie nicht hören.
+                if pendingSpeech > 0 { e.setMuted(true) }
                 phase = .listening
                 lastActivity = Date()
                 Haptics.success()
@@ -156,7 +161,12 @@ final class InterpreterModel {
         generation += 1
         download = nil
         idleTask?.cancel()
-        guard let e = engine else { phase = .idle; return }
+        guard let e = engine else {
+            // Start läuft noch (z. B. Modell-Download): der nächste Start wartet, bis er sauber abgebrochen ist.
+            if let st = startTask { stopTask = Task { await st.value } }
+            phase = .idle
+            return
+        }
         engine = nil
         listenTask?.cancel()
         stopSpeaking()
@@ -278,17 +288,32 @@ final class InterpreterModel {
 
     private func translate(_ id: UUID, speak: Bool = true) {
         guard let e = entries.first(where: { $0.id == id }) else { return }
-        Task {
+        let rev = (revisions[id] ?? 0) + 1
+        revisions[id] = rev
+        let job = Task { () -> String? in
             do {
                 let r = try await translator.translate(e.text, from: e.src, allowOnline: allowOnline)
                 let out = e.src == .en ? politeness.adjust(r.text) : r.text
+                guard revisions[id] == rev else { return nil }   // inzwischen geändert
                 update(id) { $0.translation = out; $0.provider = r.provider; $0.error = nil }
-                if speak, autoSpeak, let done = entries.first(where: { $0.id == id }) { self.speak(done) }
+                persist()
+                return out
             } catch {
+                guard revisions[id] == rev else { return nil }
                 update(id) { $0.error = error.localizedDescription }
                 Haptics.warning()
+                persist()
+                return nil
             }
-            persist()
+        }
+        // Gleich in die Vorlese-Reihe stellen: so bleibt die Reihenfolge des Gesprächs erhalten,
+        // auch wenn ein späterer Satz schneller übersetzt ist.
+        if speak, autoSpeak, !paused {
+            enqueueSpeech(id: id, lang: e.src.other, slow: false) { [weak self] in
+                let text = await job.value
+                guard let self, !self.paused, self.revisions[id] == rev else { return nil }
+                return text
+            }
         }
     }
 
@@ -359,14 +384,19 @@ final class InterpreterModel {
     /// `slow`: langsamer als eingestellt, z. B. wenn das Gegenüber nicht mitkam.
     func speak(_ e: Entry, slow: Bool = false) {
         guard let text = e.translation, !text.isEmpty else { return }
-        let lang = e.src.other, id = e.id
+        enqueueSpeech(id: e.id, lang: e.src.other, slow: slow) { text }
+    }
+
+    /// Stellt eine Ausgabe in die Reihe. `text` darf warten (z. B. bis die Übersetzung da ist); nil = überspringen.
+    private func enqueueSpeech(id: UUID, lang: Lang, slow: Bool, text produce: @escaping @MainActor () async -> String?) {
         let prev = speakChain
         pendingSpeech += 1
         let gen = speechGeneration
-        let r = slow ? max(0.4, rate * 0.65) : rate
         speakChain = Task {
             await prev?.value
-            guard gen == speechGeneration else {   // inzwischen gestoppt: Warteschlange verfällt
+            let text = gen == speechGeneration ? await produce() : nil
+            let r = slow ? max(0.4, rate * 0.65) : rate
+            guard gen == speechGeneration, let text, !text.isEmpty else {   // gestoppt oder nichts zu sagen
                 pendingSpeech -= 1
                 if pendingSpeech == 0 { engine?.setMuted(false) }
                 return

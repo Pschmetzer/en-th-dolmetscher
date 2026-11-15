@@ -60,9 +60,14 @@ final class PolitenessTests: XCTestCase {
         XCTAssertEqual(Politeness.female.adjust("ขอบคุณครับ"), "ขอบคุณค่ะ")
     }
 
-    func testOffAndNoParticle() {
+    func testOffAndMissingParticle() {
         XCTAssertEqual(Politeness.off.adjust("ขอบคุณค่ะ"), "ขอบคุณค่ะ")
-        XCTAssertEqual(Politeness.male.adjust("ห้องน้ำอยู่ที่ไหน?"), "ห้องน้ำอยู่ที่ไหน?")
+        XCTAssertEqual(Politeness.off.adjust("ราคาเท่าไหร่?"), "ราคาเท่าไหร่?")
+        XCTAssertEqual(Politeness.male.adjust("ห้องน้ำอยู่ที่ไหน?"), "ห้องน้ำอยู่ที่ไหนครับ?")
+        XCTAssertEqual(Politeness.female.adjust("ราคาเท่าไหร่?"), "ราคาเท่าไหร่คะ?")
+        XCTAssertEqual(Politeness.female.adjust("ฉันหิว"), "ฉันหิวค่ะ")
+        XCTAssertEqual(Politeness.male.adjust("ไปกันนะ"), "ไปกันนะ")
+        XCTAssertEqual(Politeness.male.adjust("Pad Thai 80"), "Pad Thai 80")
     }
 
     func testParticleInsideWordUntouched() {

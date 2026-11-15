@@ -294,7 +294,7 @@ struct Bubble: View {
                 } label: {
                     Image(systemName: m.speakingID == entry.id ? "stop.circle.fill" : "speaker.wave.2.fill")
                 }
-                .accessibilityLabel(T("replay"))
+                .accessibilityLabel(m.speakingID == entry.id ? T("stop_speaking") : T("replay"))
                 Button { m.speak(entry, slow: true) } label: { Image(systemName: "tortoise") }
                     .accessibilityLabel(T("replay_slow"))
                 Button { m.toggleFavorite(entry) } label: {

@@ -41,7 +41,12 @@ struct SettingsView: View {
                         Label(T("offline_ready"), systemImage: "checkmark.circle.fill").foregroundStyle(.green)
                     } else {
                         Button {
-                            download = .init(source: Translator.language(.en), target: Translator.language(.th))
+                            // Gleiche Konfiguration erneut anstoßen geht nur über invalidate().
+                            if download == nil {
+                                download = .init(source: Translator.language(.en), target: Translator.language(.th))
+                            } else {
+                                download?.invalidate()
+                            }
                         } label: { Label(T("offline_get"), systemImage: "arrow.down.circle") }
                     }
                     Toggle(T("online"), isOn: $m.allowOnline)

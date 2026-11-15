@@ -129,7 +129,21 @@ enum Politeness: String, CaseIterable, Codable, Sendable {
             }
             out.append(rest.removeFirst())
         }
-        return out
+        return ensureEnding(out)
+    }
+
+    /// Fehlt am Ende ein Höflichkeitswort, eins anhängen (vor ? ! .). So klingt jede Übersetzung höflich.
+    func ensureEnding(_ thai: String) -> String {
+        guard self != .off else { return thai }
+        var body = thai.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard LanguagePick.thaiShare(body) > 0.5 else { return thai }
+        var tail = ""
+        while let last = body.last, "?!.".contains(last) { tail = String(last) + tail; body.removeLast() }
+        body = body.trimmingCharacters(in: .whitespaces)
+        let particles = ["ครับ", "ค่ะ", "คะ", "ค๊ะ", "คับ", "นะ", "จ้ะ", "จ้า", "ครับผม"]
+        if particles.contains(where: { body.hasSuffix($0) }) { return thai }
+        let isQuestion = tail.contains("?") || ["ไหม", "หรือ", "ไหน", "อะไร", "เท่าไหร่", "เท่าไร", "กี่", "ใคร", "ทำไม", "อย่างไร", "ยังไง", "เมื่อไร", "เมื่อไหร่"].contains { body.hasSuffix($0) }
+        return body + (isQuestion ? question : statement) + tail
     }
 
     /// Platzhalter in Satzbuch-Texten: {p} Aussage-Ende, {q} Frage-Ende, {i} „ich“.
