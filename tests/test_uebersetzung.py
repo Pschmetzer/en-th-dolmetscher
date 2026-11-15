@@ -130,3 +130,34 @@ def test_cache_cleared_by_glossary(tmp_path, monkeypatch):
     d._cache_put(("x", "en", "th", "mt", "krub"), ("y", "google"))
     d.load_glossary("Nok")
     assert d._cache_get(("x", "en", "th", "mt", "krub")) is None
+
+
+# ---- fix_thai: Geschlecht konsequent ---------------------------------------------------------------
+
+@pytest.mark.parametrize("src, krub, ka", [
+    ("สวัสดีค่ะ", "สวัสดีครับ", "สวัสดีค่ะ"),
+    ("ผมหิวครับ", "ผมหิวครับ", "ฉันหิวค่ะ"),
+    ("ฉันชอบคะแนนนี้ค่ะ", "ผมชอบคะแนนนี้ครับ", "ฉันชอบคะแนนนี้ค่ะ"),     # คะแนน bleibt
+    ("ตัดผมแล้วครับ", "ตัดผมแล้วครับ", "ตัดผมแล้วค่ะ"),                  # ผม = Haar bleibt
+    ("ผมยาวมาก", "ผมยาวมาก", "ผมยาวมาก"),
+    ("ผม ไปก่อนนะครับ", "ผม ไปก่อนนะครับ", "ฉัน ไปก่อนนะคะ"),
+    ("คุณมาค่ะ?", "คุณมาครับ?", "คุณมาคะ?"),                             # ? aus dem Original
+    ("ครับผม", "ครับผม", "ค่ะ"),
+    ("ดิฉันชื่อน้อย", "ผมชื่อน้อย", "ดิฉันชื่อน้อย"),
+])
+def test_fix_thai_gender_consistent(src, krub, ka):
+    assert d.fix_thai(src, "krub") == krub
+    assert d.fix_thai(src, "ka") == ka
+
+
+# ---- JUNK ----------------------------------------------------------------------------------------
+
+@pytest.mark.parametrize("text", ["Thanks for watching!", "thank you for watching everyone",
+                                  "ขอบคุณที่ติดตามรับชมนะครับ", "อย่าลืมกดไลค์ กดแชร์", "Please subscribe."])
+def test_junk_variants(text):
+    assert text in d.JUNK
+
+
+@pytest.mark.parametrize("text", ["thanks for watching the kids", "hello", "", "Music festival", "ขอบคุณครับ"])
+def test_junk_keeps_real_speech(text):
+    assert text not in d.JUNK

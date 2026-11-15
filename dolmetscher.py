@@ -128,11 +128,42 @@ VOICES = {"en": ["en-US-AriaNeural", "en-US-JennyNeural", "en-US-GuyNeural", "en
                  "en-US-AvaMultilingualNeural", "en-US-AndrewMultilingualNeural", "en-US-EmmaMultilingualNeural"],
           "th": ["th-TH-NiwatNeural", "th-TH-PremwadeeNeural"]}
 # typische Whisper-Halluzinationen bei Stille/Rauschen (nur wenn sie den ganzen Satz ausmachen)
-JUNK = {"thank you for watching", "thanks for watching", "subtitles by", "ขอบคุณที่รับชม",
-        "thank you very much for watching", "please subscribe",
-        "like and subscribe", "subtitles by the amara.org community",
-        "ขอบคุณครับ ที่รับชม", "ฝากกดติดตาม", "กดติดตามด้วยนะคะ", "สวัสดีครับ ยินดีต้อนรับสู่ช่อง",
-        "ซับไตเติ้ลโดย", "[music]", "(music)", "[เพลง]"}
+def _junk_norm(s):
+    """Für den Floskel-Vergleich: klein, ohne Satzzeichen und Leerraum (Thai schreibt ohnehin ohne)."""
+    return re.sub(r"[^\w\u0e00-\u0e7f]+|_", "", (s or "").lower())
+
+
+class _JunkSet(frozenset):
+    """Floskel-Liste, deren `in` normalisiert vergleicht ("Thanks for watching!", "ขอบคุณที่ติดตามรับชม
+    นะครับ") – ganze Äußerung, höchstens mit Höflichkeits-Anhang; nie als Präfix ("thanks for watching
+    the kids" bleibt)."""
+
+    def __init__(self, items):
+        super().__init__()
+        core = "|".join(re.escape(_junk_norm(x)) for x in sorted(items, key=len, reverse=True) if _junk_norm(x))
+        tail = "|".join(map(_junk_norm, ("นะครับ", "นะคะ", "ครับ", "ค่ะ", "คะ", "นะ", "จ้า", "ด้วย", "ทุกคน",
+                                         "everyone", "guys", "so much", "very much")))
+        self._rx = re.compile(f"(?:{core})(?:{tail})*")
+
+    def __contains__(self, s):
+        if not isinstance(s, str):
+            return super().__contains__(s)
+        n = _junk_norm(s)
+        return bool(n) and self._rx.fullmatch(n) is not None
+
+
+JUNK = _JunkSet({"thank you for watching", "thanks for watching", "subtitles by", "ขอบคุณที่รับชม",
+                 "thank you very much for watching", "please subscribe",
+                 "like and subscribe", "subtitles by the amara.org community",
+                 "ขอบคุณครับ ที่รับชม", "ฝากกดติดตาม", "กดติดตามด้วยนะคะ", "สวัสดีครับ ยินดีต้อนรับสู่ช่อง",
+                 "ซับไตเติ้ลโดย",
+                 "thanks for watching and see you next time", "see you in the next video",
+                 "subscribe to my channel", "please like and subscribe",
+                 "ขอบคุณที่ติดตามรับชม", "ขอบคุณที่ติดตาม", "ขอบคุณที่รับชมครับ", "อย่าลืมกดไลค์ กดแชร์",
+                 "อย่าลืมกดไลค์ กดแชร์ กดติดตาม", "อย่าลืมกดไลค์", "อย่าลืมกดติดตาม", "กดไลค์ กดแชร์ กดติดตาม",
+                 "ฝากกดไลค์ กดแชร์ กดติดตาม"})
+# "[Music]"/"[เพลง]" stehen bewusst nicht drin: ohne Klammern (die Aufrufstelle entfernt sie) wären es
+# echte Ein-Wort-Antworten ("Music?", "เพลง").
 JUNK_IF_SHORT = {"thank you", "you", "bye", "ขอบคุณครับ", "ขอบคุณค่ะ"}   # nur bei sehr leiser/kurzer Aufnahme
 def _find_tool(name, env=None):
     """Umgebungsvariable, dann PATH, dann die üblichen Homebrew-Orte (arm64 und Intel)."""
@@ -937,16 +968,30 @@ def numbers_differ(a, b):
     return any(len(re.sub(r"\D", "", x)) >= 2 for x in diff)
 
 
+_TH_CH = "\u0e01-\u0e4e"                     # Thai-Buchstaben/-Vokale/-Tonzeichen (ohne Ziffern)
+_HAIR = r"(?:ยาว|สั้น|ร่วง|หงอก|ขาว|ดำ|สี|เปีย|ตรง|หยิก|ม้า|เส้น|เผ้า|ทรง|ของ(?:คุณ|เธอ|เขา|แม่|พ่อ))"
+
+
 def fix_thai(s, polite):
-    """Google liefert 'ครับ/ค่ะ' – eine Form wählen, sonst liest Kanya den Schrägstrich vor."""
+    """Höflichkeit und Pronomen an die Stimme angleichen: Google liefert 'ครับ/ค่ะ' (Kanya liest den
+    Schrägstrich vor) oder einfach die Form des anderen Geschlechts. Mann: ครับ, ผม; Frau: ค่ะ/คะ, ฉัน.
+    Vorsichtig: คะ steckt in คะแนน, ผม heißt auch "Haar" (ตัดผม, ผมยาว) – das bleibt."""
     male = polite == "krub"
     s = re.sub(r"ครับ\s*/\s*ค่ะ|ค่ะ\s*/\s*ครับ", "ครับ" if male else "ค่ะ", s)
     s = re.sub(r"ครับ\s*/\s*คะ|คะ\s*/\s*ครับ", "ครับ" if male else "คะ", s)
-    s = re.sub(r"ผม\s*/\s*ฉัน|ฉัน\s*/\s*ผม", "ผม" if male else "ฉัน", s)
+    s = re.sub(r"ผม\s*/\s*(?:ดิ)?ฉัน|(?:ดิ)?ฉัน\s*/\s*ผม", "ผม" if male else "ฉัน", s)
     s = re.sub(r"คุณ\s*/\s*ท่าน|ท่าน\s*/\s*คุณ", "คุณ", s)
-    if not male:   # Frage endet mit คะ (hoher Ton), Aussage mit ค่ะ
+    end = f"(?![{_TH_CH}])"                           # Partikel steht am Wortende
+    if male:
+        s = re.sub(f"(?:ค่ะ|คะ|ค๊ะ){end}", "ครับ", s)
+        s = re.sub(r"(?:ดิ)?ฉัน(?!ท์)", "ผม", s)
+    else:
+        s = re.sub(f"ครับผม{end}|ครับ{end}", "ค่ะ", s)
+        s = re.sub(f"(?:(?<=^)|(?<=\\s)|(?<=ของ)|(?<=กับ)|(?<=ให้)|(?<=ว่า))ผม(?!\\s*{_HAIR})", "ฉัน", s)
+        # Frage endet mit คะ (hoher Ton), Aussage mit ค่ะ: nach Fragewort oder vor einem ?
         s = re.sub(r"((?:ไหม|มั้ย|หรือ(?:เปล่า)?|(?<!ไม่มี)(?<!ไม่เป็น)อะไร|ที่ไหน|ไหน|เมื่อไหร่|เมื่อไร|ทำไม|ยังไง|อย่างไร|กี่\S*|ใคร)\s*)ค่ะ"
                    r"(?=\s*[?？]?\s*$|\s)", r"\1คะ", s)
+        s = re.sub(r"ค่ะ(?=\s*[?？])|(?<=นะ)ค่ะ", "คะ", s)          # นะคะ, nie นะค่ะ
     return s
 
 
