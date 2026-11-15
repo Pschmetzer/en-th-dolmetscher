@@ -35,6 +35,8 @@ struct ContentView: View {
                     Menu {
                         Button { m.sheet = .phrasebook } label: { Label(T("phrasebook"), systemImage: "book") }
                         Button { m.sheet = .photo } label: { Label(T("photo_text"), systemImage: "text.viewfinder") }
+                        Button { m.sheet = .emergency } label: { Label(T("emergency"), systemImage: "cross.case") }
+                        Button { m.sheet = .baht } label: { Label(T("baht_calc"), systemImage: "bahtsign.circle") }
                         Button { m.sheet = .help } label: { Label(T("commands"), systemImage: "text.bubble") }
                         ShareLink(item: m.transcript) { Label(T("share"), systemImage: "square.and.arrow.up") }
                             .disabled(m.entries.isEmpty)
@@ -51,6 +53,8 @@ struct ContentView: View {
                 case .settings: SettingsView()
                 case .phrasebook: PhrasebookView()
                 case .photo: PhotoTextView()
+                case .emergency: EmergencyView()
+                case .baht: BahtCalculatorView()
                 case .help:
                     NavigationStack {
                         ScrollView { CommandsCard().padding() }
@@ -101,6 +105,7 @@ struct ContentView: View {
             return "\(T("downloading")) \(LangStyle.flag(d.lang)) \(Int(d.fraction * 100)) %"
         case .failed(let e): return "⚠️ " + e
         case .listening:
+            if m.interrupted { return "📞 " + T("interrupted") }
             if m.paused { return "⏸ " + T("paused") }
             if m.speakingID != nil { return "🔊 " + T("speaking") }
             return m.hearing ? "🎙 " + T("hearing") : T("listening")
@@ -114,7 +119,7 @@ struct ContentView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
-                .lineLimit(2)
+                .lineLimit(3)
         }
         .frame(maxWidth: .infinity, minHeight: 22)
         .animation(.default, value: statusText)
@@ -186,17 +191,7 @@ struct ContentView: View {
                 .disabled(!m.isListening)
                 .accessibilityLabel(m.paused ? T("resume") : T("pause"))
 
-                Button { typing = false; m.toggle() } label: {
-                    HStack(spacing: 10) {
-                        Image(systemName: active ? "stop.fill" : "mic.fill")
-                        Text(active ? T("stop") : T("start"))
-                    }
-                    .font(.title3.bold())
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity, minHeight: 56)
-                    .background(active ? Color.red : Color.green, in: Capsule())
-                    .overlay(Capsule().stroke(.white.opacity(0.7), lineWidth: m.isListening ? CGFloat(m.level) * 6 : 0))
-                }
+                MicButton { typing = false }
 
                 Button {
                     m.speakingID != nil ? m.stopSpeaking() : m.run(.repeat)
@@ -214,11 +209,31 @@ struct ContentView: View {
         .background(.bar)
     }
 
-    private var active: Bool { m.isListening || m.isBusy }
-
     private func send() {
         m.submit(draft)
         draft = ""
+    }
+}
+
+/// Start/Stopp mit Pegel-Rand. Eigene View, damit der häufig wechselnde Pegel nur sie neu zeichnet.
+struct MicButton: View {
+    @Environment(InterpreterModel.self) private var m
+    var before: () -> Void = {}
+
+    var body: some View {
+        let active = m.isListening || m.isBusy
+        Button { before(); m.toggle() } label: {
+            HStack(spacing: 10) {
+                Image(systemName: active ? "stop.fill" : "mic.fill")
+                Text(active ? T("stop") : T("start"))
+            }
+            .font(.title3.bold())
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity, minHeight: 56)
+            .background(active ? Color.red : Color.green, in: Capsule())
+            .overlay(Capsule().stroke(.white.opacity(0.7), lineWidth: m.isListening ? CGFloat(m.level) * 6 : 0))
+        }
+        .accessibilityLabel(active ? T("stop") : T("start"))
     }
 }
 
@@ -281,6 +296,7 @@ struct Bubble: View {
             .overlay(RoundedRectangle(cornerRadius: 16).stroke(color.opacity(m.speakingID == entry.id ? 0.8 : 0), lineWidth: 2))
             .contentShape(RoundedRectangle(cornerRadius: 16))
             .onTapGesture { if entry.translation != nil { onBig() } }
+            .accessibilityAction(named: T("show_big")) { if entry.translation != nil { onBig() } }
             .contextMenu { menu }
             if entry.src == .en { Spacer(minLength: 36) }
         }
@@ -301,7 +317,7 @@ struct Bubble: View {
                     Image(systemName: m.isFavorite(entry) ? "star.fill" : "star")
                         .foregroundStyle(m.isFavorite(entry) ? Color.yellow : Color.secondary)
                 }
-                .accessibilityLabel(T("favorite"))
+                .accessibilityLabel(m.isFavorite(entry) ? T("unfavorite") : T("favorite"))
             }
             if let alt = entry.alt, !alt.isEmpty {
                 Button { m.swapLanguage(entry.id) } label: {
@@ -395,8 +411,20 @@ struct EmptyState: View {
             HStack(spacing: 12) {
                 Button { m.sheet = .phrasebook } label: { Label(T("phrasebook"), systemImage: "book") }
                 Button { m.sheet = .photo } label: { Label(T("photo_text"), systemImage: "text.viewfinder") }
+                Button { m.sheet = .emergency } label: { Label(T("emergency"), systemImage: "cross.case") }
             }
             .buttonStyle(.bordered)
+            .labelStyle(.titleAndIcon)
+            .font(.footnote)
+            if !m.offlineReady && m.allowOnline {
+                Button { m.sheet = .settings } label: {
+                    Label(T("online_hint"), systemImage: "globe")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.leading)
+                }
+                .buttonStyle(.plain)
+            }
             CommandsCard()
         }
         .padding(.top, 8)
@@ -454,6 +482,8 @@ struct PartnerView: View {
             }
         }
         .persistentSystemOverlays(.hidden)
+        .onAppear { UIApplication.shared.isIdleTimerDisabled = true }
+        .onDisappear { UIApplication.shared.isIdleTimerDisabled = m.isListening }
     }
 
     private func side(_ lang: Lang) -> some View {
@@ -494,14 +524,7 @@ struct PartnerView: View {
                     .accessibilityLabel(T("flip"))
             }
             Spacer()
-            Button { m.toggle() } label: {
-                Image(systemName: m.isListening || m.isBusy ? "stop.fill" : "mic.fill")
-                    .foregroundStyle(.white)
-                    .frame(width: 56, height: 56)
-                    .background(m.isListening || m.isBusy ? Color.red : Color.green, in: Circle())
-                    .overlay(Circle().stroke(.white.opacity(0.7), lineWidth: m.isListening ? CGFloat(m.level) * 6 : 0))
-            }
-            .accessibilityLabel(m.isListening ? T("stop") : T("start"))
+            MicButton().frame(maxWidth: 200)
             Spacer()
             Button(T("done")) { dismiss() }
         }
