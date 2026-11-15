@@ -101,9 +101,14 @@ def test_local_voice_cleanup_removes_file_and_skips_render(monkeypatch, tmpdir_i
         time.sleep(0.01)
     assert not os.path.exists(lv.path)
     audio = threading.Event()
-    audio.set()                                                # Neural-Ton schon da -> nicht rendern
+    threading.Timer(0.1, audio.set).start()                    # Neural-Ton kommt kurz danach -> nicht rendern
     lv2 = d.LocalVoice("hallo", "Samantha", 0, audio=audio)
     assert lv2.ready_path(2) is None and len(calls) == 1
+    monkeypatch.setitem(d.NET, "tts", False)                   # offline: sofort rendern, nicht warten
+    t = time.time()
+    lv3 = d.LocalVoice("hallo", "Samantha", 0, audio=threading.Event())
+    assert lv3.ready_path(2) and time.time() - t < d.LocalVoice.DELAY and len(calls) == 2
+    lv3.cleanup()
 
 
 # ---- edge-tts -----------------------------------------------------------------------------------

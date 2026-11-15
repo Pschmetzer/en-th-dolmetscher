@@ -1563,6 +1563,7 @@ class LocalVoice:
     wenn die Neural-Stimme hängt. Wird nur abgespielt, wenn edge-tts die Frist verpasst."""
 
     SLOTS = threading.BoundedSemaphore(2)   # höchstens so viele say-Renderings gleichzeitig (CPU für Whisper)
+    DELAY = 0.4                             # s auf den ersten Neural-Ton warten, bevor gerendert wird
 
     def __init__(self, text, voice, rate_pct, audio=None):
         self.done = threading.Event()
@@ -1574,6 +1575,8 @@ class LocalVoice:
 
         def run():
             try:
+                if audio is not None and NET.get("tts", True):
+                    audio.wait(self.DELAY)          # Neural kommt meist in ~0,3 s: dann gar nicht rendern
                 with self.SLOTS:
                     # Hat die Neural-Stimme inzwischen Ton geliefert (Normalfall), wird nichts gebraucht.
                     if self.dropped.is_set() or (audio is not None and audio.is_set()):
