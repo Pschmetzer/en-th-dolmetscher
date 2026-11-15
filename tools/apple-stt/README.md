@@ -1,5 +1,7 @@
 # apple-stt: Apples On-Device-Erkennung als Ersatz für faster-whisper?
 
+**Status: Prototyp/Messwerkzeug**, nicht in die Mac-Engine eingebaut. Die iPhone-App (`ios/`) nutzt `SpeechAnalyzer` direkt; die Messung unten ist älter als sie.
+
 Kommandozeilen-Werkzeug (Swift, macOS 26), das WAV-Dateien mit `DictationTranscriber` + `SpeechAnalyzer` transkribiert und JSON ausgibt.
 
 ```sh
@@ -9,7 +11,7 @@ xcrun swiftc -O -swift-version 5 -target arm64-apple-macosx26.0 tools/apple-stt/
 python bench/run_apple_stt.py r.json                   # CER/WER mit run_bench.error_rate, Vergleich mit Whisper
 ```
 
-`--realtime` spielt das Audio in 100-ms-Stücken im Echtzeittakt ein (wie ein Mikrofon). `ms_after_audio_end` = Zeit vom letzten Stück bis zum letzten endgültigen Ergebnis. `--skip-asset-check` ist nötig, weil `AssetInventory.status` auf diesem Mac auch für das tatsächlich installierte en-US „supported“ meldet. Es wird nie etwas heruntergeladen.
+`--realtime` spielt das Audio in 100-ms-Stücken im Echtzeittakt ein (wie ein Mikrofon). `ms_after_audio_end` = Zeit vom letzten Stück bis zum letzten endgültigen Ergebnis. `--skip-asset-check` ist nötig, weil `AssetInventory.status` auf dem Messrechner auch für das tatsächlich installierte en-US „supported“ meldet. Es wird nie etwas heruntergeladen.
 
 ## Ergebnis (bench/audio/clean, synthetische Stimmen)
 
@@ -20,7 +22,7 @@ python bench/run_apple_stt.py r.json                   # CER/WER mit run_bench.e
 
 - Ohne Echtzeittakt (ganze Datei sofort): 70–570 ms pro Datei, Analyzer-Vorbereitung ~80 ms (nach dem ersten Mal).
 - Berechtigung: Ein nacktes CLI funktioniert ohne Dialog und ohne .app-Bundle, obwohl `SFSpeechRecognizer.authorizationStatus()` = `notDetermined`.
-- Zeiten unsicher: Während der Messung lief die Dolmetscher-App (PID 57706, ~10 % CPU) und die Systemlast lag bei ~11 (anderer Prozess). Die Apple-Zeiten sind trotzdem so klein, dass das Ergebnis eindeutig ist.
+- Zeiten unsicher: Der Rechner war während der Messung durch andere Prozesse belastet. Die Apple-Zeiten sind trotzdem so klein, dass das Ergebnis eindeutig ist.
 - Whisper-Vergleich: `hyp` aus `bench/results/feat_medium_cpu.json`, neu bewertet mit derselben Funktion. Die dortigen Zeiten (CPU) sind nicht vergleichbar, daher die GPU-Angabe.
 - Fairness: Apple bekam die richtige Sprache vorgegeben, Whisper musste sie selbst erkennen. Die Testaudios stammen aus Apples eigener Sprachausgabe (`say`), was Apple begünstigen kann.
 
@@ -35,6 +37,6 @@ Thai-Audio mit en-US ergibt Unsinn („Chan non-crap“ für ฉันง่ว�
 ## Empfehlung
 
 - **Englisch: ja**, Apple kann Whisper ersetzen (gleiche Qualität, Latenz ~30 ms statt 1–2 s).
-- **Thai: offen**, bis die Assets installiert und die 28 Fälle gemessen sind. Erst bei CER ≤ ~4 % (Whisper-Niveau) umstellen.
+- **Thai: für die Mac-Engine offen**, bis die 28 Fälle mit installierten th-TH-Assets gemessen sind (Befehl oben). Erst bei CER ≤ ~4 % (Whisper-Niveau) umstellen.
 - Einbau: als dauerhaft laufender Unterprozess (`apple-stt --stream --locale …`), der 16-kHz-PCM über stdin bekommt und Teil-/Endergebnisse als JSON-Zeilen ausgibt. Analyzer pro Sprache einmal vorbereiten und halten. Whisper bleibt als Rückfall.
 - Sprachwechsel: Die Engine erkennt die Sprache heute über Whisper (`p_en`/`p_th`). Möglichkeiten: (a) zwei Analyzer (en-US, th-TH) parallel mit demselben Audio füttern und das Ergebnis mit höherer Konfidenz (`transcriptionConfidence`) bzw. Thai-Zeichenanteil nehmen; (b) Spracherkennung billig mit Whisper-tiny/`detect_language` auf den ersten ~1 s, dann den passenden Apple-Analyzer finalisieren; (c) Standard = zuletzt erkannte Sprache, Umschalten bei Unsinn/geringer Konfidenz.
