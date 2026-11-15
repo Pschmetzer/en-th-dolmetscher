@@ -165,6 +165,11 @@ struct ContentView: View {
                              action: (L.t("show_log"), { openLog() }), onClose: { m.lastError = nil })
             }
             if let v = m.vocabSuggestion { VocabSuggestionBanner(words: v.words, profile: v.profile) }
+            if let u = m.unsureDrop {
+                NoticeBanner(icon: "questionmark.bubble", tint: LangStyle.warning,
+                             text: L.f("unsure_offer", String(u.text.prefix(120))),
+                             action: (L.t("translate_anyway"), { m.translateUnsure() }), onClose: { m.unsureDrop = nil })
+            }
             if m.twoPersonIneffective && !twoPersonHintClosed {
                 NoticeBanner(icon: "person.2.slash", tint: LangStyle.warning, text: L.t("two_person_no_profile"),
                              action: (L.t("profiles"), { showProfiles = true }), onClose: { twoPersonHintClosed = true })
