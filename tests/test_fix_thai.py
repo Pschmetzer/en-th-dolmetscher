@@ -16,7 +16,7 @@ def test_fix_thai(src, krub, ka):
     assert fix_thai(src, "ka") == ka
 
 
-from dolmetscher import strip_fillers, thai_latin
+from dolmetscher import strip_fillers, thai_latin  # noqa: E402
 
 
 @pytest.mark.parametrize("src, want", [
@@ -56,7 +56,7 @@ def test_thai_latin():
     assert out and out.isascii()
 
 
-from dolmetscher import GLOSSARY, glossary_hits, load_glossary, numbers_differ
+from dolmetscher import GLOSSARY, glossary_hits, load_glossary, numbers_differ  # noqa: E402
 
 
 def test_numbers_differ():

@@ -143,7 +143,8 @@ def _fake_client(sent, raise_first=None):
             sent.append(kw)
             if raise_first is not None and Msgs.n == 1:
                 raise raise_first
-            return types.SimpleNamespace(stop_reason="end_turn", content=[types.SimpleNamespace(type="text", text="ok")])
+            return types.SimpleNamespace(stop_reason="end_turn",
+                                         content=[types.SimpleNamespace(type="text", text="ok")])
     return types.SimpleNamespace(messages=Msgs())
 
 

@@ -107,7 +107,8 @@ class Store:
             return []
         if self.fts and len(query) >= 3:
             ids = [r[0] for r in self.db.execute(
-                "SELECT rowid FROM utt_fts WHERE utt_fts MATCH ? ORDER BY rowid", ('"' + query.replace('"', '""') + '"',))]
+                "SELECT rowid FROM utt_fts WHERE utt_fts MATCH ? ORDER BY rowid",
+                ('"' + query.replace('"', '""') + '"',))]
             if not ids:
                 return []
             marks = ",".join("?" * len(ids))

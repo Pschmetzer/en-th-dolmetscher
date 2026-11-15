@@ -55,15 +55,11 @@ jobs:
           python-version: "3.12"
       - name: Install ruff (version from requirements-dev.in)
         run: python -m pip install "$(grep '^ruff==' requirements-dev.in)"
-      # bench/ und die Test-Infrastruktur sind sauber: hier darf nichts Neues hinzukommen.
       - name: Icon script compiles (app/make_icon.py)
         run: python -m py_compile app/make_icon.py
+      # Alle Python-Module im Hauptordner, bench/ und tests/ sind sauber: neue Befunde lassen den Lauf scheitern.
       - name: Ruff (blocking)
-        run: ruff check --output-format=github bench/ tests/conftest.py
-      # Engine, Profile und ältere Tests haben noch bekannte Befunde (E501, E741, ...): nur melden.
-      - name: Ruff (engine and older tests, not blocking)
-        continue-on-error: true
-        run: ruff check --output-format=github dolmetscher.py profiles.py tests/
+        run: ruff check --output-format=github ./*.py bench/ tests/
 
   shell:
     runs-on: ubuntu-latest

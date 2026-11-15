@@ -6,7 +6,6 @@ import queue
 import threading
 import time
 import types
-import urllib.error
 
 import numpy as np
 import pytest
@@ -132,8 +131,8 @@ def _eng():
     e = types.SimpleNamespace(translate_dir={"en": True, "th": True}, lock="auto", polite="krub", mute=False,
                               paused=False, rate=0, volume=1.0, voices={"en": None, "th": None}, earcons=False)
     e.stop_speaking = lambda: setattr(e, "stopped", True)
-    e.say_phrase = lambda t, l: setattr(e, "phrase", (t, l))
-    e.retranslate = lambda i, t, l: setattr(e, "fixed", (i, t, l))
+    e.say_phrase = lambda t, lg: setattr(e, "phrase", (t, lg))
+    e.retranslate = lambda i, t, lg: setattr(e, "fixed", (i, t, lg))
     return e
 
 
@@ -438,7 +437,8 @@ def _lang_engine(calls, probs, texts, role=None):
         t, lp = texts[lang]
         return t, lp, [types.SimpleNamespace(compression_ratio=1.1)]
     e._stt = fake_stt
-    e.deliver = lambda uid, lang, text, *a, **k: calls.append(("deliver", lang, text, k.get("role"))) or (lang, text, "x")
+    e.deliver = lambda uid, lang, text, *a, **k: (calls.append(("deliver", lang, text, k.get("role")))
+                                                  or (lang, text, "x"))
     return e
 
 
