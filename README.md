@@ -6,18 +6,18 @@ Hands-free speech interpreter for macOS: just talk. English is translated into T
 
 Current version: 1.2 (the single source is `version` in `pyproject.toml`; `build.sh` writes it into the app). What leaves your Mac and when: [docs/DATENSCHUTZ.md](docs/DATENSCHUTZ.md) (German). How app and engine fit together: [docs/ARCHITEKTUR.md](docs/ARCHITEKTUR.md).
 
-- Speech recognition: [faster-whisper](https://github.com/SYSTRAN/faster-whisper), local on the Mac, on the Apple GPU (Metal) when available, otherwise CPU. Models: `small` (fast), `medium` (default), `best` (large-v3-turbo for English instead of medium, better with accents; ~1.6 GB download). Thai is transcribed with a Whisper model fine-tuned on Thai ([biodatlab/whisper-th-medium-combined](https://huggingface.co/biodatlab/whisper-th-medium-combined), CTranslate2 version, MIT), about 30 % fewer errors on quiet or distant Thai speech in our tests (synthetic Thai TTS clips, clean and degraded; real voices may differ – the profile score shows it)
+- Speech recognition: [faster-whisper](https://github.com/SYSTRAN/faster-whisper), local on the Mac, on the Apple GPU (Metal) when available, otherwise CPU. Models: `small` (fast), `medium` (default), `best` (large-v3-turbo for English instead of medium, better with accents; ~1.6 GB download). Thai is transcribed with a Whisper model fine-tuned on Thai ([biodatlab/whisper-th-medium-combined](https://huggingface.co/biodatlab/whisper-th-medium-combined), Apache-2.0; the CTranslate2 version used here is marked MIT), about 30 % fewer errors on quiet or distant Thai speech in our tests (measured only on synthetic Thai TTS clips, clean and degraded – not on real speakers; real voices may differ, the profile score shows it). All Whisper models are downloaded from Hugging Face at a fixed revision (`MODEL_REVISIONS` in `dolmetscher.py`); model and package licenses: [docs/LIZENZEN.md](docs/LIZENZEN.md)
 - Translation: Google Translate web endpoint (unofficial, falls back to MyMemory). Needs internet. Optional: translation with Claude (see below)
-- Speech output: natural Microsoft neural voices via the unofficial [edge-tts](https://github.com/rany2/edge-tts) library (Thai: Niwat / Premwadee, English: Aria; other voices selectable). The connection to the voice service is opened while you are still speaking, so the first sound comes about 0.1–0.2 s after the translation is ready. The translated text is sent to Microsoft for this. Falls back to macOS voices (`say`) when offline or if that service stops working (`--tts say` forces it)
+- Speech output: natural Microsoft neural voices via the unofficial [edge-tts](https://github.com/rany2/edge-tts) library (Thai: Niwat / Premwadee, English: Aria; other voices selectable). The connection to the voice service is opened while you are still speaking, so the first sound starts soon after the translation is ready. The translated text is sent to Microsoft for this. Falls back to macOS voices (`say`) when offline or if that service stops working (`--tts say` forces it)
 - Asynchronous output: the next sentence is recognised and translated while the previous one is still being spoken. If too much piles up, the engine catches up by skipping older translations (they stay visible, just not read aloud)
-- Latency: roughly 3–5 s after the end of each sentence (recognition ~1.5–3 s on the GPU, translation ~1.5 s, voice ~1.5 s)
+- Latency: a few seconds after the end of each sentence; on the Apple GPU roughly 3–5 s (earlier hand measurement), CPU only clearly slower (benchmark `medium` on CPU, synthetic voices, Nov 2026: median 6.8 s, p90 8.5 s until the translation is ready; see [bench/README.md](bench/README.md))
 - Quiet speech: Silero voice activity detection plus input gain, so soft voices are picked up too
 - Only English and Thai: other languages (and noise) are ignored. An Auto / EN / TH picker locks the language if needed
 - Log for troubleshooting: `~/Library/Logs/Dolmetscher/engine.log`. Privacy: conversation text is **not** written to the log by default (`--log-text` turns it on)
 
 ## Translation with Claude (optional)
 
-`--llm` (or the switch in the app's settings) translates with Claude instead of Google: more natural, keeps context and politeness better. It needs an Anthropic API key and **costs a little per sentence** (billed to your Anthropic account). Key: environment variable `ANTHROPIC_API_KEY`, or a file `~/Library/Application Support/Dolmetscher/anthropic_key` containing only the key (`chmod 600`). Claude translation is on by default when a key is present (without a key the engine uses Google); turn it off in the settings. Default model `claude-haiku-5-5` (about 8 US cents per hour of conversation; `claude-sonnet-5-5` is more accurate at roughly 20× the price), change it with `--llm-model ID`. Tone: `--style casual|neutral|polite`. Own words and names go into the app settings (glossary). The app shows an estimated session cost. `python3 bench/run_translate.py` compares Google and Claude on idioms. Without a key, without the `anthropic` package or on errors the engine falls back to Google automatically.
+`--llm` (or the switch in the app's settings) translates with Claude instead of Google: more natural, keeps context and politeness better. It needs an Anthropic API key and **costs a little per sentence** (billed to your Anthropic account). Claude receives the recognised sentence together with the last few sentences as context (default 8) and your glossary ([docs/DATENSCHUTZ.md](docs/DATENSCHUTZ.md)). Key: environment variable `ANTHROPIC_API_KEY`, or a file `~/Library/Application Support/Dolmetscher/anthropic_key` containing only the key (`chmod 600`). Claude translation is on by default when a key is present (without a key the engine uses Google); turn it off in the settings. Default model `claude-haiku-5-5` (about 8 US cents per hour of conversation; `claude-sonnet-5-5` is more accurate at roughly 20× the price), change it with `--llm-model ID`. Tone: `--style casual|neutral|polite`. Own words and names go into the app settings (glossary). The app shows an estimated session cost. `python3 bench/run_translate.py` compares Google and Claude on idioms. Without a key, without the `anthropic` package or on errors the engine falls back to Google automatically.
 
 ## Mac app settings
 
@@ -78,7 +78,7 @@ Terminal: `python3 dolmetscher.py --enroll Nok --enroll-lang th`, `--profiles`, 
 ## Download and install (Mac app)
 
 1. Download the source of the [latest release](https://github.com/Pschmetzer/en-th-dolmetscher/releases/latest) (“Source code (zip)”) and unpack it, or `git clone https://github.com/Pschmetzer/en-th-dolmetscher.git`.
-2. Requirements: macOS 14+ on Apple Silicon, Xcode Command Line Tools (`xcode-select --install`), `brew install ffmpeg`, Python 3.10 or newer (3.12 recommended; the pinned versions in `requirements.txt` need 3.12). The build is Apple Silicon only (no universal binary: the bundled Python environment and the Metal GPU path are arm64).
+2. Requirements: macOS 14+ on Apple Silicon, Xcode Command Line Tools (`xcode-select --install`), `brew install ffmpeg` (not bundled with the app), Python 3.12 or newer (`brew install python@3.12`, or install [uv](https://docs.astral.sh/uv/), which fetches a matching Python itself; the macOS system Python 3.9 is too old). The engine itself runs on 3.10+, but the locked versions in `requirements.txt` need 3.12. The build is Apple Silicon only (no universal binary: the bundled Python environment and the Metal GPU path are arm64).
 3. In the unpacked folder:
 
 ```bash
@@ -87,7 +87,7 @@ Terminal: `python3 dolmetscher.py --enroll Nok --enroll-lang th`, `--profiles`, 
 
 There is no ready-made `.app` to download: the app needs a local Python environment and the speech models (~3.5 GB), which the script sets up on your Mac. The first run takes a few minutes; afterwards the app is in `~/Applications/Dolmetscher.app`.
 
-This creates a Python environment under `~/Library/Application Support/Dolmetscher/venv` with the pinned versions from `requirements.txt` (via `uv` if installed, else `pip`; re-running the script brings an existing environment back to those versions), downloads the `medium`, `small` and Thai models (once, ~3.5 GB) and installs `~/Applications/Dolmetscher.app`. Use an existing Python instead: `DOLMETSCHER_PYTHON=/path/to/python ./build.sh --install` (nothing is installed into it; it needs the packages from `requirements.txt`).
+This creates a Python environment under `~/Library/Application Support/Dolmetscher/venv` with the locked versions from `requirements.txt` (every package incl. dependencies, hash-checked; via `uv` if installed, else `pip`; re-running the script brings an existing environment back to those versions), downloads the `medium`, `small` and Thai models at their fixed revisions (once, ~3.5 GB; `DOLMETSCHER_MODELS="medium small th best"` also pre-loads `best`, +1.6 GB) and installs `~/Applications/Dolmetscher.app`. Use an existing Python instead: `DOLMETSCHER_PYTHON=/path/to/python ./build.sh --install` (nothing is installed into it; it needs the packages from `requirements.txt`).
 
 Each rebuild is signed ad hoc, so macOS may ask for microphone access again. To avoid that, sign with a stable identity: `DOLMETSCHER_SIGN_IDENTITY="Dolmetscher Dev" ./build.sh --install` (see [CONTRIBUTING.md](CONTRIBUTING.md#stable-code-signing)).
 
@@ -102,7 +102,7 @@ If the Thai voice is missing: System Settings → Accessibility → Spoken Conte
 ## Terminal only
 
 ```bash
-pip install -r requirements.txt
+python3.12 -m pip install --require-hashes -r requirements.txt   # Python 3.12+, ideally in a venv
 python3 dolmetscher.py            # --model small|medium|best  --polite krub|ka  --mic 0  --barge-in  --llm  --log-text
 ```
 
@@ -135,7 +135,9 @@ Serve it locally with `python3 -m http.server` and open it in Chrome.
 rm -rf ~/Applications/Dolmetscher.app
 rm -rf ~/Library/Application\ Support/Dolmetscher   # Python environment and settings
 rm -rf ~/Library/Logs/Dolmetscher
-rm -rf ~/.cache/huggingface/hub/models--Systran--faster-whisper-*   # Whisper models (shared with other apps using faster-whisper)
+rm -rf ~/.cache/huggingface/hub/models--Systran--faster-whisper-*   # Whisper models small/medium (shared with other apps using faster-whisper)
+rm -rf ~/.cache/huggingface/hub/models--Vinxscribe--biodatlab-whisper-th-medium-faster   # Thai model
+rm -rf ~/.cache/huggingface/hub/models--mobiuslabsgmbh--faster-whisper-large-v3-turbo   # only if you used --model best
 ```
 
 Microphone permission: System Settings → Privacy & Security → Microphone, or `tccutil reset Microphone io.github.dolmetscher.en-th`.
@@ -146,7 +148,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Tests: `pip install -r requirements-dev.
 
 ## License
 
-MIT License. Dependencies keep their own licenses; notably [edge-tts](https://github.com/rany2/edge-tts) is LGPL-3.0. It is only installed as a dependency, not included in this repository or the app bundle.
+MIT License. Dependencies keep their own licenses; notably [edge-tts](https://github.com/rany2/edge-tts) is LGPL-3.0. It is only installed as a dependency, not included in this repository or the app bundle. The speech models are downloaded on first use and are not part of this repository either. Licenses of models and packages, and the unofficial services used: [docs/LIZENZEN.md](docs/LIZENZEN.md).
 
 ## iPhone app (`ios/`)
 

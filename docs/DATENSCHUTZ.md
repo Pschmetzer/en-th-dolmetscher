@@ -21,7 +21,7 @@ Stand: Version 1.2. Gilt für die Mac-App und die Engine (`dolmetscher.py`); die
 | Derselbe Text | nur wenn Google fehlschlägt (Fallback) | **MyMemory** (`api.mymemory.translated.net`) |
 | **Übersetzter Text** zum Vorlesen | bei jeder gesprochenen Ausgabe mit Neural-Stimme (Standard) | **Microsoft** (Edge-Sprachdienst über `edge-tts`). Mit `--tts say` oder offline wird stattdessen die lokale macOS-Stimme benutzt und nichts gesendet. |
 | **Erkannter Text** samt den letzten Sätzen als Kontext (Standard 8) und dem Glossar zum Übersetzen | nur wenn Claude-Übersetzung eingeschaltet ist und ein API-Schlüssel vorhanden ist (`--llm`) | **Anthropic** (Claude API), abgerechnet über dein Anthropic-Konto. Der Schlüssel liegt in `ANTHROPIC_API_KEY` oder `~/Library/Application Support/Dolmetscher/anthropic_key` und wird nur an Anthropic gesendet. |
-| **Modell-Dateien herunterladen** (Anfrage, kein Gesprächsinhalt) | einmalig beim ersten Start bzw. beim Bauen | **Hugging Face** (Whisper-Modelle) und **GitHub** (WeSpeaker-Modell für Stimmprofile, Prüfsumme wird kontrolliert) |
+| **Modell-Dateien herunterladen** (Anfrage, kein Gesprächsinhalt) | einmalig beim ersten Start bzw. beim Bauen | **Hugging Face** (Whisper-Modelle, feste Revision je Modell, siehe [LIZENZEN.md](LIZENZEN.md)) und **GitHub** (WeSpeaker-Modell für Stimmprofile, Prüfsumme wird kontrolliert) |
 
 Wie bei jedem Netzwerkzugriff sehen die Dienste außerdem deine IP-Adresse. Es gibt keine eigene Telemetrie, keine Konten und keinen eigenen Server.
 
