@@ -623,9 +623,25 @@ def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
     return out
 
 
-LAUGH = {"th": re.compile(r"(?<!\d)5{3,}(?!\d)|(?:ฮ่า\s*){2,}ๆ*|ฮ่า\s*ๆ+|(?:คิก\s*){2,}|คิก\s*ๆ+"),
+LAUGH = {"th": re.compile(r"(?<![\d.,:])5{3,}(?![\d.,:]?\d)|(?:ฮ่า\s*){2,}ๆ*|ฮ่า\s*ๆ+|(?:คิก\s*){2,}|คิก\s*ๆ+"),
          "en": re.compile(r"\b(?:a?ha(?:ha)+h?|lol|lmao|hehe(?:he)*)\b", re.I)}
 LAUGH_OUT = {"th": "555", "en": "haha"}
+# "555" ist im Thai Lachen – aber nicht als Preis, Zimmer-, Flug- oder Telefonnummer
+_NUM_BEFORE = re.compile(r"(?:ราคา|ห้อง|เบอร์|เลข(?:ที่)?|หมายเลข|เที่ยวบิน|โทร|ชั้น|ตึก|สาย|รถ|ซอย|บ้าน|โต๊ะ|ประตู|"
+                         r"room|flight|number|no\.?|bus|gate|table|price|[#$฿€£])\s*$", re.I)
+_NUM_AFTER = re.compile(r"^\s*(?:บาท|โมง|นาที|ชั่วโมง|วินาที|วัน|เดือน|ปี|คน|ชิ้น|อัน|ตัว|กิโล|กก|กม|เมตร|ม\.|ลิตร|"
+                        r"ดอลลาร์|เหรียญ|ยูโร|ครั้ง|หลัง|เล่ม|ใบ|แก้ว|จาน|ขวด|%|baht|thb|usd|dollars?|euros?|"
+                        r"km|kg|minutes?|hours?|days?|years?|people)", re.I)
+
+
+def _laugh_sub(text, repl=" "):
+    """Thai-Lachen ersetzen; ein 555 mit Zahl-/Einheitenkontext ("ห้อง 555", "555 บาท") bleibt stehen."""
+    def one(m):
+        s = m.group(0)
+        if s[0] == "5" and (_NUM_BEFORE.search(text[:m.start()]) or _NUM_AFTER.match(text[m.end():])):
+            return s
+        return repl
+    return LAUGH["th"].sub(one, text)
 
 
 FILLERS = {
@@ -656,7 +672,9 @@ def translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
     text = strip_fillers(text, src)
     rx = LAUGH.get(src)
     if rx and rx.search(text):
-        rest = rx.sub(" ", text).strip(" ,.!")
+        rest = (_laugh_sub(text) if src == "th" else rx.sub(" ", text)).strip(" ,.!")
+        if rest == text.strip(" ,.!"):                 # nur 555 als Zahl, kein Lachen
+            return _translate(text, src, dst, history, alts, polite, meta)
         if not rest:
             if meta is not None:
                 meta.update(provider="none")
@@ -774,19 +792,42 @@ _NUM = re.compile(r"\d+(?:[.,:]\d+)*")
 _THAI_DIGITS = str.maketrans("๐๑๒๓๔๕๖๗๘๙", "0123456789")
 
 
+_PM_TIME = re.compile(r"(?<![\d.:])(\d{1,2})(?::(\d{2}))?\s*([ap])\.?\s*m\b\.?", re.I)
+_TH_PM = re.compile(r"(?:บ่าย|เย็น)\s*(\d{1,2})(?::(\d{2}))?")
+
+
+def _time24(m, pm):
+    h, mi = int(m.group(1)), m.group(2) or "00"
+    if pm and h < 12:
+        h += 12
+    elif not pm and h == 12:
+        h = 0
+    return f"{h}:{mi}"
+
+
 def _numbers(s):
-    """Zahlen vergleichbar machen: 1.500/1,500 = Tausender (1500), 3:30 = 3.30 (Uhrzeit), aber 1.5 != 15."""
+    """Zahlen vergleichbar machen: 1.500/1,500 = Tausender (1500), 3:30 = 3.30 (Uhrzeit), aber 1.5 != 15;
+    2:30 PM = 14:30 (auch บ่าย 2:30), 9:00 = 9, 09 = 9. Thai-Lachen (555 ohne Zahlkontext) zählt nicht."""
+    s = _laugh_sub(s.translate(_THAI_DIGITS))
+    s = _PM_TIME.sub(lambda m: _time24(m, m.group(3).lower() == "p"), s)
+    s = _TH_PM.sub(lambda m: _time24(m, True), s)
     out = []
-    for x in _NUM.findall(s.translate(_THAI_DIGITS)):
+    for x in _NUM.findall(s):
         x = re.sub(r"(?<=\d)[.,](?=\d{3}(?!\d))", "", x)
-        out.append(re.sub(r"[.,:]", ".", x))
-    return sorted(x for x in out if not re.fullmatch(r"5{3,}", x))      # 555 = Lachen, keine Zahl
+        x = re.sub(r"[.,:]", ".", x)
+        x = re.sub(r"\.00$", "", x)                      # 9:00 = 9
+        out.append(re.sub(r"^0+(?=\d)", "", x))
+    return sorted(out)
 
 
 def numbers_differ(a, b):
-    """True, wenn Ziffern im Original und in der Übersetzung nicht übereinstimmen (Preise, Zeiten)."""
+    """True, wenn Zahlen im Original und in der Übersetzung nicht übereinstimmen (Preise, Zeiten).
+    Nur mit Zahlen auf beiden Seiten; einstellige Zahlen zählen nicht (oft als Wort übersetzt: 2 = สอง)."""
     na, nb = _numbers(a), _numbers(b)
-    return bool(na and nb) and na != nb
+    if not (na and nb):
+        return False
+    diff = set(na) ^ set(nb)
+    return any(len(re.sub(r"\D", "", x)) >= 2 for x in diff)
 
 
 def fix_thai(s, polite):
