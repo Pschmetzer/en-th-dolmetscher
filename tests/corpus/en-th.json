@@ -1,0 +1,41 @@
+{
+  "pair": ["en", "th"],
+  "about": "Gemeinsamer Testkorpus Englisch/Thai: Satz, erwartete Übersetzung und was die Prüflogik dazu sagen muss. expect fehlt = alles false (gute Übersetzung).",
+  "cases": [
+    {"id": "en-th-01", "src": "en", "text": "The room costs 1,500 baht per night.", "translation": "ห้องราคาคืนละ 1,500 บาท"},
+    {"id": "en-th-02", "src": "en", "text": "I need 3 bottles of water.", "translation": "ฉันต้องการน้ำ 3 ขวด"},
+    {"id": "en-th-03", "src": "en", "text": "It costs three hundred fifty baht.", "translation": "ราคาสามร้อยห้าสิบบาท"},
+    {"id": "en-th-04", "src": "en", "text": "Room 555, please.", "translation": "ห้อง 555 ครับ"},
+    {"id": "en-th-05", "src": "en", "text": "The bus leaves at 8 o'clock in the evening.", "translation": "รถบัสออกตอนสองทุ่ม"},
+    {"id": "en-th-06", "src": "en", "text": "The house costs 1.5 million baht.", "translation": "บ้านราคา 1.5 ล้านบาท"},
+    {"id": "en-th-07", "src": "en", "text": "My phone number is 081 234 5678.", "translation": "เบอร์โทรของฉันคือ 081 234 5678"},
+    {"id": "en-th-08", "src": "en", "text": "Where is the nearest train station?", "translation": "สถานีรถไฟที่ใกล้ที่สุดอยู่ที่ไหน"},
+    {"id": "en-th-09", "src": "th", "text": "ราคา ๒๐๐ บาท", "translation": "It costs 200 baht."},
+    {"id": "en-th-10", "src": "th", "text": "555 ตลกมาก", "translation": "Hahaha, that's so funny."},
+    {"id": "en-th-11", "src": "th", "text": "ขอบคุณมากครับ", "translation": "Thank you very much."},
+    {"id": "en-th-12", "src": "th", "text": "เจอกันบ่ายสองโมง", "translation": "See you at 2 PM."},
+
+    {"id": "en-th-bad-01", "src": "en", "text": "The taxi costs 250 baht.", "translation": "แท็กซี่ราคา 350 บาท",
+     "expect": {"numbers_differ": true}},
+    {"id": "en-th-bad-02", "src": "en", "text": "We arrive on the 15th.", "translation": "เราจะถึงวันที่ 16",
+     "expect": {"numbers_differ": true}},
+    {"id": "en-th-bad-03", "src": "en", "text": "Where is the station?", "translation": "Where is the station?",
+     "expect": {"untranslated": true}},
+    {"id": "en-th-bad-04", "src": "th", "text": "ห้องน้ำอยู่ที่ไหน", "translation": "ห้องน้ำอยู่ที่ไหนคะ",
+     "expect": {"wrong_script": true}},
+    {"id": "en-th-bad-05", "src": "th", "text": "ราคาสามร้อยบาท", "translation": "It costs 30 baht.",
+     "expect": {"numbers_differ": true}}
+  ],
+  "norm": {
+    "same": [
+      ["How much is it?", "how much is it ?", "How much is it？"],
+      ["Thank you.", "thank you", "Thank  you ."],
+      ["ขอบคุณครับ", "ขอบคุณครับ。"]
+    ],
+    "different": [
+      ["How much is it?", "How much is it."],
+      ["It costs 1.5 baht", "It costs 15 baht"],
+      ["Go!", "Go?"]
+    ]
+  }
+}

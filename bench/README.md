@@ -69,7 +69,7 @@ als 20 Fällen steht die Fallzahl in der Meldung. Vor jedem Fall setzt der Lauf 
 letzte Rolle und Preset zurück – die Reihenfolge der Fälle beeinflusst das Ergebnis nicht mehr. Die Kennzahl `real`
 zählt eigene Aufnahmen (`bench/audio/real/`).
 
-Regressionsprüfung: Der Benchmark braucht Modelle, `say` und Netz und läuft deshalb nicht in CI. Vor einem Release lokal `--compare bench/results/baseline_main.json --fail-above 10` laufen lassen (Release-Checkliste in CONTRIBUTING.md).
+Regressionsprüfung: Der Benchmark braucht Modelle, `say` und Netz und läuft deshalb nicht im normalen CI-Lauf, nur von Hand: GitHub → Actions → **Benchmark** → *Run workflow* (`.github/workflows/bench.yml`, macOS-26-Runner; Modell, Sprache, `--repeat` und `--fail-above` wählbar; mit `medium` Vergleich gegen `baseline_main.json`; Ergebnis-JSON als Artefakt). Fehlt auf dem Runner die Stimme Kanya, misst der Lauf nur Englisch. Runner-Zeiten sind nicht mit der lokalen Baseline vergleichbar – aussagekräftig sind dort Fehlerraten und verworfene Sätze. Vor einem Release lokal `--compare bench/results/baseline_main.json --fail-above 10` laufen lassen (Release-Checkliste in CONTRIBUTING.md).
 
 ## Grenzen und eigene Aufnahmen
 

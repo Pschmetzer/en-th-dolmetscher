@@ -15,14 +15,16 @@ concurrency:
 # timeout-minutes an jedem Job: ein hängender Test oder Build blockiert den Runner nicht bis zum Standard-Limit (6 h).
 jobs:
   test:
-    name: Tests (Python ${{ matrix.python }})
-    runs-on: macos-latest
-    timeout-minutes: 30
+    # Reine Python-Tests auf Linux: startet ohne macOS-Warteschlange. Tests, die macOS-Werkzeuge brauchen
+    # (Marker "macos": say, swiftc, setup-env.sh auf Apple Silicon), laufen im Job "macos" unten.
+    name: Tests (Linux, Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
         include:
-          # 3.12: exakt die Versionen aus requirements-dev.txt (Lock-Datei mit Hashes)
+          # 3.12: exakt die Versionen aus requirements-dev.txt (Lock-Datei mit Hashes); misst die Abdeckung
           - python: "3.12"
             pinned: true
           # 3.10: Mindestversion; die Pins (numpy 2.5 braucht >= 3.12) passen nicht, daher ungepinnt
@@ -44,9 +46,45 @@ jobs:
         run: |
           sed -e 's/==.*//' -e '/^-r/d' -e '/^#/d' -e '/^ *$/d' requirements.in requirements-dev.in > "$RUNNER_TEMP/unpinned.txt"
           python -m pip install -r "$RUNNER_TEMP/unpinned.txt"
-      # -rs: Gründe übersprungener Tests im Log (z. B. fehlendes Silero-VAD/say), damit stilles Überspringen auffällt.
+      # -rs: Gründe übersprungener Tests im Log, damit stilles Überspringen auffällt. Zeitlimit je Test: pyproject.toml.
       - name: Run tests (no models, no network, no microphone)
-        run: python -m pytest -v -rs
+        if: ${{ !matrix.pinned }}
+        run: python -m pytest -rs -m "not macos" --durations=10
+      - name: Run tests with coverage
+        if: matrix.pinned
+        run: |
+          python -m pytest -rs -m "not macos" --durations=10 --cov --cov-report=term --cov-fail-under=77
+          python -m coverage report --format=markdown >> "$GITHUB_STEP_SUMMARY"
+
+  macos:
+    # Alles, was macOS braucht, in einem Job (eine macOS-Maschine statt drei): Tests mit Marker "macos",
+    # Typecheck und vollständige Kompilierung aller Swift-Dateien mit demselben Ziel wie build.sh (macOS 14,
+    # LSMinimumSystemVersion). macos-26: der arm64-Pool von macos-15 nahm Jobs zeitweise gar nicht an.
+    name: macOS (Swift + macOS-Tests)
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - name: Install dependencies (pinned, hash-checked)
+        run: python -m pip install --require-hashes -r requirements-dev.txt
+      # Keine Auswahl (Exit-Code 5) oder ein Fehler lassen den Job scheitern; -rs zeigt doch übersprungene Tests.
+      - name: Run macOS-only tests (say, swiftc, setup-env.sh)
+        run: python -m pytest -rs -m macos
+      - name: Typecheck Swift sources
+        run: |
+          swiftc --version
+          swiftc -typecheck -parse-as-library -target arm64-apple-macos14.0 app/*.swift
+      # Ohne -O: mit dem Swift 6.2 von macos-26 dauert der optimierte Lauf ~11 min statt ~1 min; Übersetzen und
+      # Linken (fehlende Symbole, Frameworks) prüft der Debug-Build genauso. -O baut build.sh für die echte App.
+      - name: Compile
+        run: |
+          mkdir -p build
+          swiftc -parse-as-library -target arm64-apple-macos14.0 -o build/Dolmetscher app/*.swift
 
   lint:
     runs-on: ubuntu-latest
@@ -73,39 +111,6 @@ jobs:
         run: bash -n build.sh
       - name: shellcheck
         run: shellcheck build.sh
-
-  swift:
-    # Typecheck und vollständige Kompilierung aller Swift-Dateien; mindestens macOS 14 (LSMinimumSystemVersion).
-    runs-on: macos-15
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Typecheck Swift sources
-        run: |
-          swiftc --version
-          swiftc -typecheck -parse-as-library app/*.swift
-      - name: Compile
-        run: |
-          mkdir -p build
-          swiftc -O -parse-as-library -o build/Dolmetscher app/*.swift
-
-  tools:
-    # Prototypen in tools/ (macOS 26 SDK) nur typprüfen, damit sie nicht unbemerkt veralten. Nicht blockierend:
-    # translate-helper braucht APIs aus SDK 26.4, der Runner kann ein älteres Xcode haben.
-    name: Typecheck tools/ (macOS 26, not blocking)
-    runs-on: macos-26
-    timeout-minutes: 20
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Xcode
-        run: |
-          sudo xcode-select -s "$(ls -d /Applications/Xcode_26*.app /Applications/Xcode.app 2>/dev/null | sort -V | tail -1)"
-          xcrun swiftc --version
-      - name: apple-stt
-        run: xcrun swiftc -typecheck -swift-version 5 -target arm64-apple-macosx26.0 tools/apple-stt/main.swift
-      - name: translate-helper
-        run: xcrun swiftc -typecheck -parse-as-library -target arm64-apple-macosx26.0 tools/translate-helper/main.swift
 
   audit:
     name: Dependency audit (not blocking)

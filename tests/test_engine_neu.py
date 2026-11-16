@@ -187,7 +187,7 @@ def test_speaker_skips_when_far_behind(monkeypatch, _iso):
 
 
 def test_speaker_flush_reports_skipped(monkeypatch, _iso):
-    gate = threading.Event()
+    gate, started = threading.Event(), threading.Event()
 
     class E:
         tts, mute, rate, volume = "say", False, 0, 1.0
@@ -196,10 +196,11 @@ def test_speaker_flush_reports_skipped(monkeypatch, _iso):
             return "x"
 
         def speak(self, *a, **k):
+            started.set()
             gate.wait(2)
     sp = d.Speaker(E())
     sp.add("a", "en", "a1")
-    time.sleep(0.05)
+    assert started.wait(5)                           # "a" wird gerade gesprochen (statt fester Wartezeit)
     sp.add("b", "en", "b1")
     assert sp.flush()
     gate.set()

@@ -17,3 +17,6 @@ DerivedData/
 tools/apple-stt/apple-stt
 /translate-helper
 tools/translate-helper/translate-helper
+.coverage
+.coverage.*
+coverage.xml

@@ -99,18 +99,30 @@ def _hedge_setup(monkeypatch, claude, google):
     monkeypatch.setattr(d, "_cache_get", lambda k: None)
     monkeypatch.setattr(d, "_cache_put", lambda k, v: None)
 
-    def fake_claude(text, src, dst, history, alts, polite):
-        f = concurrent.futures.Future()
+    waits = []                                   # Zeitlimits, mit denen _translate auf Claude wartet
 
-        def run():
-            delay, res = claude
-            time.sleep(delay)
+    class Fut(concurrent.futures.Future):
+        def result(self, timeout=None):
+            waits.append(timeout)
+            return super().result(timeout)
+
+    def fake_claude(text, src, dst, history, alts, polite):
+        f = Fut()
+        delay, res = claude
+
+        def done():
             if isinstance(res, Exception):
                 f.set_exception(res)
             else:
                 f.set_result(res)
-        threading.Thread(target=run, daemon=True).start()
+        if delay == 0:
+            done()                               # sofort fertig: unabhängig vom Thread-Takt des Rechners
+        elif delay is None:
+            release.append(done)                 # kommt erst nach den Prüfungen (Test gibt frei)
+        else:
+            threading.Timer(delay, done).start()
         return f
+    release = []
     monkeypatch.setattr(d, "_claude_async", fake_claude)
 
     def fake_mt(text, src, dst, meta, deadline=None):
@@ -119,6 +131,7 @@ def _hedge_setup(monkeypatch, claude, google):
         meta["provider"] = "google"
         return google
     monkeypatch.setattr(d, "_mt_chain", fake_mt)
+    return waits, release
 
 
 def test_hedge_claude_schnell(monkeypatch):
@@ -128,11 +141,15 @@ def test_hedge_claude_schnell(monkeypatch):
 
 
 def test_hedge_claude_langsam_google_gewinnt(monkeypatch):
-    _hedge_setup(monkeypatch, (0.5, "C"), "G")
+    waits, release = _hedge_setup(monkeypatch, (None, "C"), "G")   # Claude antwortet erst nach den Prüfungen
     meta = {}
-    t = time.monotonic()
-    assert d._translate("hi", "en", "th", meta=meta) == "G" and meta["provider"] == "google"
-    assert time.monotonic() - t < 0.4
+    try:
+        assert d._translate("hi", "en", "th", meta=meta) == "G" and meta["provider"] == "google"
+        # Nur die Hedging-Frist abgewartet, danach nie mehr auf Claude (statt Zeitmessung auf der echten Uhr)
+        assert waits == [d.LLM["hedge_s"]]
+    finally:
+        for f in release:
+            f()
 
 
 def test_hedge_google_fehlt_claude_kommt_spaet(monkeypatch):

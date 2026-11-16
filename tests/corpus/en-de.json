@@ -1,0 +1,25 @@
+{
+  "pair": ["en", "de"],
+  "about": "Englisch/Deutsch: gleiche (lateinische) Schrift, daher keine Schriftprüfung; Zahlen mit deutschem Tausenderpunkt und 24-Stunden-Uhr.",
+  "cases": [
+    {"id": "en-de-01", "src": "de", "text": "Der Zug fährt um 14:30 ab.", "translation": "The train leaves at 2:30 PM."},
+    {"id": "en-de-02", "src": "de", "text": "Das kostet 1.500 Euro.", "translation": "That costs 1,500 euros."},
+    {"id": "en-de-03", "src": "en", "text": "We need a table for 12 people.", "translation": "Wir brauchen einen Tisch für 12 Personen."},
+    {"id": "en-de-04", "src": "en", "text": "Good morning, how are you?", "translation": "Guten Morgen, wie geht es Ihnen?"},
+    {"id": "en-de-05", "src": "de", "text": "Wir treffen uns um 9:00.", "translation": "We meet at 9."},
+
+    {"id": "en-de-bad-01", "src": "de", "text": "Zimmer 12, bitte.", "translation": "Room 21, please.",
+     "expect": {"numbers_differ": true}},
+    {"id": "en-de-bad-02", "src": "en", "text": "Thank you very much.", "translation": "Thank you very much.",
+     "expect": {}, "note": "Gleiche Schrift: ein unübersetztes Echo ist an der Schrift nicht erkennbar (bewusst keine Meldung)."}
+  ],
+  "norm": {
+    "same": [
+      ["Wie geht's?", "wie geht's ?", "Wie geht's ? !"],
+      ["Das kostet 1,5 Euro.", "das kostet 1,5 euro"]
+    ],
+    "different": [
+      ["Das kostet 1,5 Euro", "Das kostet 1 5 Euro"]
+    ]
+  }
+}
