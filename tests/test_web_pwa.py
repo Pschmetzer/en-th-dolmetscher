@@ -123,6 +123,9 @@ async function ev(type, request) {
   const out = { cached: [...store.keys()].sort(), deleted };
   out.foreign = await ev('fetch', { method: 'GET', url: 'https://translate.googleapis.com/x', mode: 'cors' });
   out.post = await ev('fetch', { method: 'POST', url: 'https://example.org/app/x', mode: 'cors' });
+  await (await ev('fetch', { method: 'GET', url: 'https://example.org/app/?v=2', mode: 'navigate' }));
+  await (await ev('fetch', { method: 'GET', url: 'https://example.org/app/presets/taxi.json', mode: 'navigate' }));
+  await new Promise(r => setTimeout(r, 10));
   online = false;
   const nav = await ev('fetch', { method: 'GET', url: 'https://example.org/app/?x', mode: 'navigate' });
   out.offlineNav = (await nav).body;
@@ -145,5 +148,6 @@ def test_sw_behaviour_offline():
     assert all(u.startswith("https://example.org/app/") for u in out["cached"])
     assert out["deleted"] == ["dolmetscher-web-v1"]
     assert out["foreign"] is None and out["post"] is None      # kein respondWith: Browser macht es selbst
-    assert out["offlineNav"] == "net:https://example.org/app/index.html"
+    # App-Navigation frischt den Speicher auf, direkt geöffnete Presets überschreiben die App nicht
+    assert out["offlineNav"] == "net:https://example.org/app/?v=2"
     assert out["offlinePreset"] == "net:https://example.org/app/presets/taxi.json"

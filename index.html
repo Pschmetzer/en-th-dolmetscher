@@ -298,8 +298,11 @@ function buildModes() {
   $('voiceALabel').textContent = 'Stimme ' + LANGS[pair.a].de;
   $('voiceBLabel').textContent = 'Stimme ' + LANGS[pair.b].de;
   $('enVarWrap').style.display = (pair.a === 'en' || pair.b === 'en') ? '' : 'none';
-  $('btnYes').textContent = LANGS[pair.b].yes; $('btnYes').lang = pair.b;
-  $('btnNo').textContent = LANGS[pair.b].no; $('btnNo').lang = pair.b;
+  // Ja/Nein nicht nur über die Farbe: Zeichen + beide Sprachen (die Großansicht zeigt nur die Partnersprache)
+  for (const [id, w, de] of [['btnYes', 'yes', 'Ja'], ['btnNo', 'no', 'Nein']]) {
+    const b = $(id); b.textContent = (w === 'yes' ? '✓ ' : '✕ ') + de + ' · ';
+    const s = document.createElement('span'); s.lang = pair.b; s.textContent = LANGS[pair.b][w]; b.appendChild(s);
+  }
   $('partnerTitle').textContent = LANGS[pair.b].native; $('partnerTitle').lang = pair.b;
 }
 function fillLangSelects() {

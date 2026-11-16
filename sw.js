@@ -25,8 +25,10 @@ self.addEventListener('fetch', e => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;   // fremde Dienste: Browser direkt, nichts speichern
   if (req.mode === 'navigate') {                     // Seite: zuerst Netz (Updates), offline aus dem Speicher
+    // Nur die App selbst als index.html merken – nicht direkt geöffnete Presets, Doku oder sw.js.
+    const isApp = url.pathname === new URL(abs('./')).pathname || url.pathname === new URL(abs('index.html')).pathname;
     e.respondWith(fetch(req).then(r => {
-      if (r.ok) { const copy = r.clone(); caches.open(CACHE).then(c => c.put(abs('index.html'), copy)); }
+      if (r.ok && isApp) { const copy = r.clone(); caches.open(CACHE).then(c => c.put(abs('index.html'), copy)); }
       return r;
     }).catch(() => caches.match(abs('index.html')).then(r => r || caches.match(abs('./')))));
     return;
