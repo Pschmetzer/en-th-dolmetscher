@@ -322,6 +322,9 @@ final class EngineModel: NSObject, ObservableObject {
     private var loadSlowWork: DispatchWorkItem?
     /// Mikrofonname wird gerade in einen Index aufgelöst (Prozess startet danach).
     private var resolvingMic = false
+    /// Nur für den nächsten Start: gespeichertes Mikrofon nicht in der Liste -> Systemstandard ("default"),
+    /// ohne die Einstellung zu überschreiben (steckt man es wieder ein, gilt es beim nächsten Start wieder).
+    private var micOverride: String?
     /// Schreibzugriffe auf stdin der Engine laufen hier, nicht im Main-Thread.
     private let sendQueue = DispatchQueue(label: "dolmetscher.engine.stdin")
     /// App-Start: Engine einmal im Hintergrund laden.
@@ -621,7 +624,8 @@ final class EngineModel: NSObject, ObservableObject {
             if !voice(mineLang).isEmpty { args += ["--voice-mine", voice(mineLang)] }
             if !voice(partnerLang).isEmpty { args += ["--voice-partner", voice(partnerLang)] }
         }
-        if !mic.isEmpty { args += ["--mic", mic] }
+        let micArg = micOverride ?? mic
+        if !micArg.isEmpty { args += ["--mic", micArg] }
         if denoise { args.append("--denoise") }
         if llm { args.append("--llm") }
         if earcons { args.append("--earcons") }
@@ -639,6 +643,11 @@ final class EngineModel: NSObject, ObservableObject {
         guard Bundle.main.path(forResource: "dolmetscher", ofType: "py") != nil else {
             status = L.t("script_missing"); wantListen = false; return
         }
+        guard !Paths.pythonIsFallback else {
+            status = "⚠️ " + L.t("python_missing"); wantListen = false
+            lastError = (L.t("python_missing"), Date())
+            return
+        }
         guard !micName.isEmpty else { launchEngine(); return }
         resolvingMic = true
         status = L.t("mic_loading")
@@ -651,14 +660,22 @@ final class EngineModel: NSObject, ObservableObject {
                 self.launchEngine()
             }
         }
+        micOverride = nil
         let p = EngineRunner.run(["--list-mics"], timeout: 8, onEvent: { [weak self] o in
             guard o["event"] as? String == "mics", let list = o["mics"] as? [[String: Any]] else { return }
             MainActor.assumeIsolated {
                 guard let self else { return }
+                var found = false
                 for d in list where d["name"] as? String == self.micName {
                     let idx = (d["index"] as? String) ?? (d["index"] as? NSNumber)?.stringValue
                     if let idx, idx != self.mic { self.mic = idx }
+                    found = true
                     break
+                }
+                // Liste kam, Name fehlt (abgezogen): alter Index wäre jetzt evtl. ein anderes Gerät
+                if !found && !list.isEmpty {
+                    self.micOverride = "default"
+                    self.lastError = (L.t("err_mic_not_found") + " – " + self.micName, Date())
                 }
             }
         }, onExit: finish)
@@ -666,7 +683,7 @@ final class EngineModel: NSObject, ObservableObject {
     }
 
     private func launchEngine() {
-        guard state == .stopped,
+        guard state == .stopped, !Paths.pythonIsFallback,
               let script = Bundle.main.path(forResource: "dolmetscher", ofType: "py") else { return }
         signal(SIGPIPE, SIG_IGN)   // Schreiben in eine tote Pipe soll einen Fehler liefern, nicht die App beenden
         let p = Process()
@@ -1135,7 +1152,7 @@ final class EngineModel: NSObject, ObservableObject {
         "mic_timeout": "err_mic_timeout", "mic_failed": "err_mic_failed", "mic_not_found": "err_mic_not_found",
         "mic_list_failed": "err_mic_list_failed", "mic_file_missing": "err_mic_file_missing",
         "ffmpeg_missing": "err_ffmpeg_missing", "model_offline": "err_model_offline",
-        "translate_failed": "err_translate_failed", "reassign_expired": "err_reassign_expired",
+        "translate_failed": "err_translate_failed", "llm_billing": "err_llm_billing", "reassign_expired": "err_reassign_expired",
         "reassign_empty": "err_reassign_empty", "reassign_invalid": "err_reassign_invalid",
         "phrase_invalid": "err_phrase_invalid", "edit_invalid": "err_edit_invalid",
         "voice_unknown": "err_voice_unknown", "glossary_invalid": "err_glossary_invalid", "langs_invalid": "err_langs_invalid",
@@ -1342,6 +1359,17 @@ final class EngineModel: NSObject, ObservableObject {
     func stopSpeaking() {
         send(["stop_speaking": true])
         if synth.isSpeaking { synth.stopSpeaking(at: .immediate) }
+    }
+
+    /// Stimme probehören (Einstellungen): Beispielsatz der Sprache über `speak_text`, gleiche Neural-Stimme
+    /// wie im Gespräch. Nur bei laufender, nicht stummer Engine.
+    var canTestVoice: Bool { running && engineReady && speak }
+
+    func testVoice(_ code: String) {
+        guard canTestVoice, Langs.pair.contains(code),
+              let sample = Langs.all.first(where: { $0.code == code })?.pleaseSpeak else { return }
+        send(["stop_speaking": true])
+        send(["speak_text": ["text": sample, "lang": code]])
     }
 
     func say(_ text: String, lang: String = "en") {

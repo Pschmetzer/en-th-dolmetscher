@@ -13,7 +13,7 @@ Optionen: --model small|medium|base  --mic 0  --polite krub|ka  --json
           --voice-en/--voice-th NAME --llm [--llm-model ID] --earcons --meter --list-mics
 Protokoll Engine <-> App: docs/PROTOKOLL.md
 """
-import argparse, collections, functools, http.client, itertools, json, logging, logging.handlers, os, queue, re, \
+import argparse, collections, functools, html, http.client, itertools, json, logging, logging.handlers, os, queue, re, \
     shutil, signal, subprocess, sys, tempfile, threading, time, urllib.error, urllib.parse, urllib.request
 import numpy as np
 import presets
@@ -216,6 +216,8 @@ COMMANDS = [
 
 
 THAI_WORDS = ("thai", "tie", "ty", "tai", "thigh", "time", "type")        # Thai + typische Verhörer
+# schwache Verhörer ("this time", "type") zählen erst, wenn weder Englisch noch eine andere Sprache genannt ist
+_THAI_WEAK = tuple(w for w in THAI_WORDS if w != "thai")
 CMD_MAX_WORDS = 5                  # längere Äußerungen sind Gespräch, kein Befehl
 # kurze Alltagswörter: nur als (fast) einzelnes Wort ein Befehl, sonst Fehlalarm in normalen Sätzen
 _WEAK_CMD = {"he", "she", "man", "men", "post", "pass", "start", "stop", "pose", "pals", "pours", "pores"}
@@ -238,21 +240,24 @@ def parse_command(cmd):
     if pk: return pk                   # "hotel mode" / "preset taxi" -> "preset:<id>"
     # weitere Sprachen der Tabelle über ihren englischen Namen ("German only", "Spanish off")
     other = next((k for k, v in LANGS.items() if k not in ("en", "th") and has(v["name"].lower())), None)
-    if has("off", "don't translate", "do not translate", "no translation", "keep"):
-        if has(*THAI_WORDS): return "th_off"
-        if has("english", "inglish"): return "en_off"
-        if other: return f"{other}_off"
-    if has("on") and not has("only"):
-        if has(*THAI_WORDS): return "th_on"
-        if has("english", "inglish"): return "en_on"
-        if other: return f"{other}_on"
-    if has("only", "mode"):
-        if has(*THAI_WORDS):
-            return "thai"
-        if has("english", "inglish"):
-            return "english"
-        if other:
-            return f"only:{other}"
+    # "unmute"/"un-mute"/"unpause": vor allem anderen, sonst trifft \bmute\b (Pause) – das Gegenteil
+    if re.search(r"\bun[\s-]?(?:mute|pause)\b", c):
+        return "resume"
+
+    def which():
+        """Genannte Sprache: "thai" vor Englisch/anderen, schwache Thai-Verhörer ("this time") zuletzt."""
+        if has("thai"): return "th"
+        if has("english", "inglish"): return "en"
+        if other: return other
+        if len(words) <= 3 and has(*_THAI_WEAK): return "th"     # "Ty only", nicht "bus on time today"
+        return None
+    lg = which()
+    if lg and has("off", "don't translate", "do not translate", "no translation", "keep"):
+        return f"{lg}_off"
+    if lg and has("on") and not has("only"):
+        return f"{lg}_on"
+    if lg and has("only", "mode"):
+        return {"th": "thai", "en": "english"}.get(lg, f"only:{lg}")
     if has("translate both", "both ways", "both directions", "translate everything"):
         return "both_on"
     if has("auto", "automatic", "both", "otto"):
@@ -265,6 +270,8 @@ def parse_command(cmd):
                 return key
     # Ähnlichkeit als letzte Rettung: ganze Äußerung und jedes Wort einzeln probieren
     for cand in dict.fromkeys([c, *words]):
+        if len(cand) < 4:              # "see" ~ "sleep" (0,75): kurze Wörter nie unscharf
+            continue
         hit = difflib.get_close_matches(cand, _VOCAB_KEYS, n=1, cutoff=0.75)
         if hit:
             return _VOCAB[hit[0]]
@@ -352,6 +359,15 @@ def _find_tool(name, env=None):
 
 
 FFMPEG = _find_tool("ffmpeg", "DOLMETSCHER_FFMPEG")
+
+
+def check_ffmpeg():
+    """Beim Start: fehlt ffmpeg, gleich klar melden statt erst beim ersten Satz unklar zu scheitern."""
+    if os.path.isfile(FFMPEG) and os.access(FFMPEG, os.X_OK):
+        return True
+    emit("error", code="ffmpeg_missing", msg="ffmpeg fehlt – bitte installieren (brew install ffmpeg)")
+    log({"ffmpeg": "fehlt"})
+    return False
 SAY = "/usr/bin/say" if os.path.exists("/usr/bin/say") else (shutil.which("say") or "/usr/bin/say")
 
 C = {"en": "\033[1;34m", "th": "\033[1;33m", "dim": "\033[2m", "off": "\033[0m"}
@@ -359,13 +375,81 @@ JSON = False
 
 
 _EMIT_LOCK = threading.RLock()     # RLock: der Signal-Handler (Stopp) darf auch emit aufrufen
+# Ausgabe entkoppelt (nur im App-Betrieb, start_writer): emit() reiht die fertige JSON-Zeile ein, ein eigener
+# Thread schreibt. Liest die App die Pipe nicht, blockiert so nur der Writer – nie Erkennung, Steuerung
+# oder Stopp. Volle Warteschlange: Pegel/Teiltext zuerst verwerfen, gezählt.
+_OUT = {"q": None, "thread": None, "dropped": 0}
+OUT_MAX = 2000
+_OUT_LOSSY = frozenset({"level", "partial", "queue"})
 
 
 def emit(event, **kw):
     with _EMIT_LOCK:                   # Mikrofon- und Arbeits-Thread schreiben beide
-        _emit(event, **kw)
+        if _OUT["q"] is not None and JSON:
+            _record(event, kw)
+            _enqueue(event, _json_line(event, kw))
+        else:
+            _emit(event, **kw)
     if event == "speak_done" and kw.get("id") == "cmd":
         _wake_after_reply()
+
+
+def _enqueue(event, line):
+    q = _OUT["q"]
+    try:
+        q.put_nowait(line)
+    except queue.Full:
+        _OUT["dropped"] += 1
+        if event in _OUT_LOSSY:
+            return
+        try:                           # wichtiges Ereignis: lieber die älteste Zeile opfern
+            q.get_nowait()
+            q.task_done()
+            q.put_nowait(line)
+        except (queue.Empty, queue.Full):
+            pass
+
+
+def _writer_run(q, out=None):
+    while True:
+        line = q.get()
+        try:
+            if line is None:
+                return
+            f = out or sys.stdout
+            f.write(line + "\n")
+            f.flush()
+        except BrokenPipeError:        # App weg: geordnet beenden, Warteschlange weiter leeren
+            STOP.set()
+        except (ValueError, OSError):
+            STOP.set()
+        finally:
+            q.task_done()
+
+
+def start_writer():
+    """Ausgabe-Thread starten (App-Betrieb). Danach blockiert emit() nie mehr auf stdout."""
+    if _OUT["q"] is None:
+        _OUT["q"] = queue.Queue(maxsize=OUT_MAX)
+        _OUT["thread"] = threading.Thread(target=_writer_run, args=(_OUT["q"],), name="writer", daemon=True)
+        _OUT["thread"].start()
+        import atexit
+        atexit.register(flush_output)           # Absturz/sys.exit: letzte Meldungen (z. B. error) nicht verlieren
+
+
+def flush_output(timeout=1.5):
+    """Vor dem Beenden: eingereihte Zeilen höchstens `timeout` s lang ausgeben lassen (hängt nie)."""
+    q = _OUT["q"]
+    if q is None:
+        try:
+            sys.stdout.flush()
+        except (OSError, ValueError):
+            pass
+        return True
+    end = time.monotonic() + timeout
+    while q.unfinished_tasks and time.monotonic() < end:
+        time.sleep(0.01)
+    return not q.unfinished_tasks
 
 
 def _json_default(o):
@@ -379,12 +463,27 @@ def _json_default(o):
     return str(o)
 
 
+def _json_line(event, kw):
+    return json.dumps({"event": event, **kw}, ensure_ascii=False, default=_json_default)
+
+
+def _record(event, kw):
+    """Verlauf (nur wenn eingeschaltet). Ein Fehler (Platte voll, DB gesperrt) darf die Meldung an die App
+    nicht verhindern."""
+    if event != "utt":
+        return
+    try:
+        import history_store
+        history_store.RECORDER.utt(kw)
+    except Exception as e:
+        log({"history": "fehler", "err": _errtxt(e)})
+
+
 def _emit(event, **kw):
-    if event == "utt":
-        import history_store; history_store.RECORDER.utt(kw)       # nur wenn eingeschaltet (Standard: aus)
+    _record(event, kw)
     if JSON:
         try:
-            print(json.dumps({"event": event, **kw}, ensure_ascii=False, default=_json_default), flush=True)
+            print(_json_line(event, kw), flush=True)
         except BrokenPipeError:                       # App weg (Pipe zu): geordnet beenden statt Thread-Absturz
             STOP.set()
         except ValueError:
@@ -424,7 +523,8 @@ class _PrivateRotatingHandler(logging.handlers.RotatingFileHandler):
         return os.fdopen(fd, "a", encoding=self.encoding)
 
 
-_SAFE_MSG = re.compile(r"(Claude: stop_reason|MyMemory|offline|leere Antwort|Google gab|unerwartet|pausiert)")
+_SAFE_MSG = re.compile(r"(Claude: stop_reason|MyMemory|offline|leere Antwort|Google gab|unerwartet|pausiert"
+                       r"|Übersetzung pausiert)")
 
 
 def _errtxt(e):
@@ -532,6 +632,15 @@ class KeepAlive:
                 return lst.pop(), True
         return self._new(host, timeout), False
 
+    def _drop_idle(self, host):
+        with self.lock:
+            old = self.idle.pop(host, [])
+        for c in old:
+            try:
+                c.close()
+            except Exception:
+                pass
+
     def _give(self, host, c):
         with self.lock:
             lst = self.idle.setdefault(host, [])
@@ -560,7 +669,8 @@ class KeepAlive:
         if body is not None:
             hdr["Content-Type"] = "application/x-www-form-urlencoded;charset=utf-8"
         for attempt in (0, 1):                     # tote Verbindung: einmal neu aufbauen
-            c, reused = self._take(host, timeout)
+            # Versuch 2 nie aus dem Vorrat: nach dem Ruhezustand sind alle gemerkten Verbindungen tot
+            c, reused = self._take(host, timeout) if attempt == 0 else (self._new(host, timeout), False)
             c.timeout = timeout
             if c.sock is not None:
                 c.sock.settimeout(timeout)
@@ -572,6 +682,7 @@ class KeepAlive:
                 c.close()
                 if attempt or not reused or isinstance(e, TimeoutError):
                     raise urllib.error.URLError(e) from e
+                self._drop_idle(host)               # die übrigen gemerkten sind vermutlich ebenso tot
                 continue
             if r.will_close:
                 c.close()
@@ -625,7 +736,7 @@ def _cache_put(key, val):
 def _norm(s):
     """Cache-Schlüssel: Groß/klein, Leerraum, . , 。 egal – ? und ! bleiben (Frage ≠ Aussage)."""
     s = s.lower().replace("？", "?").replace("！", "!")
-    s = re.sub(r"[\s.,。]+", " ", s)
+    s = re.sub(r"(?:[\s。]|(?<!\d)[.,]|[.,](?!\d))+", " ", s)   # "1.5"/"1,5" bleiben (≠ "1 5")
     s = re.sub(r"\s*([?!])[\s?!]*", r"\1", s)                  # "geht's ? !" -> "geht's?"
     return s.strip()
 
@@ -761,14 +872,14 @@ def _split_bytes(text, limit=MYMEMORY_MAX_BYTES):
     return out
 
 
-def mymemory_translate(text, src, dst, e1=None):
-    return " ".join(_mymemory_one(p, src, dst, e1) for p in _split_bytes(text))
+def mymemory_translate(text, src, dst, e1=None, timeout=8.0):
+    return " ".join(_mymemory_one(p, src, dst, e1, timeout) for p in _split_bytes(text))
 
 
-def _mymemory_one(text, src, dst, e1=None):
+def _mymemory_one(text, src, dst, e1=None, timeout=8.0):
     try:
         d = _get_json(f"https://api.mymemory.translated.net/get?q={urllib.parse.quote(text)}"
-                      f"&langpair={mt_code(src)}|{mt_code(dst)}", 8)
+                      f"&langpair={mt_code(src)}|{mt_code(dst)}", timeout)
     except urllib.error.URLError as e2:
         if (isinstance(e1, urllib.error.URLError) and not isinstance(e1, urllib.error.HTTPError)
                 and not isinstance(e2, urllib.error.HTTPError)):
@@ -783,8 +894,10 @@ def _mymemory_one(text, src, dst, e1=None):
     # MyMemory meldet Kontingent/Fehler als Text in translatedText – nie vorlesen
     if (status != "200" or d.get("quotaFinished") or not out
             or re.match(r"(MYMEMORY WARNING|QUERY LENGTH LIMIT|INVALID|PLEASE SELECT)", out, re.I)):
-        raise RuntimeError(f"MyMemory-Fehler {status or '?'}: {str(d.get('responseDetails') or out)[:120]}")
-    return out
+        # Nur Status/Art melden: responseDetails/translatedText können den gesprochenen Satz zitieren
+        kind = " (Kontingent)" if d.get("quotaFinished") else ""
+        raise RuntimeError(f"MyMemory-Fehler {status if status.isdigit() else '?'}{kind}")
+    return html.unescape(out)
 
 
 # Backoff je Anbieter und Offline-Schalter: nach 429/Zeitüberschreitung/Verbindungsfehlern wird ein
@@ -1235,12 +1348,28 @@ def _cache_key(text, src, dst, use_llm, polite):
     return (_norm(text), src, dst, mode, polite if dst == "th" else "")
 
 
+LLM_BILLING_BACKOFF = 1800.0       # s: Guthaben/Kontingent leer – erst nach 30 min wieder versuchen
+_BILLING_RX = re.compile(r"credit balance|billing|payment|insufficient.{0,20}(credit|fund|quota)"
+                         r"|quota|spend(ing)? limit|usage limit", re.I)
+
+
+def _llm_billing(e):
+    """Abrechnungs-/Kontingentfehler (z. B. 400 „credit balance is too low“)? Der Text bleibt intern."""
+    if isinstance(e, _Implausible):
+        return False
+    sc = getattr(e, "status_code", None)
+    return sc == 402 or (sc in (400, 403, 429, None) and bool(_BILLING_RX.search(str(e))))
+
+
 def _llm_backoff(e):
-    """Wie lange nach einem Claude-Fehler direkt Google? Kurz bei Zeitüberschreitung/400, lang bei Auth."""
+    """Wie lange nach einem Claude-Fehler direkt Google? Kurz bei Zeitüberschreitung/400, lang bei Auth
+    und sehr lang bei leerem Guthaben/Kontingent."""
     sc = getattr(e, "status_code", None)
     name = type(e).__name__
     if isinstance(e, _Implausible):
         return 0.0                                       # inhaltlich, kein Ausfall: nächster Satz wieder Claude
+    if _llm_billing(e):
+        return LLM_BILLING_BACKOFF
     if sc in (401, 403):
         return 300.0                                     # Schlüssel falsch: nicht jeden Satz neu versuchen
     if sc == 400 or isinstance(e, TimeoutError) or "Timeout" in name:
@@ -1263,8 +1392,13 @@ def _hedge_s():
 
 def _llm_failed(e):
     LLM["err"] = _errtxt(e)
-    LLM["skip_until"] = time.time() + _llm_backoff(e)
-    log({"translate": "claude-fehler", "err": LLM["err"]})
+    wait = _llm_backoff(e)
+    LLM["skip_until"] = time.time() + wait
+    log({"translate": "claude-fehler", "err": LLM["err"], "pause_s": wait})
+    if wait >= LLM_BILLING_BACKOFF:
+        LLM["err"] += " Guthaben/Kontingent"
+        emit("error", code="llm_billing",
+             msg=f"Claude: Guthaben oder Kontingent erschöpft – übersetze {int(wait // 60)} min mit Google")
 
 
 def _llm_late(fut):
@@ -1302,6 +1436,7 @@ def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
         meta.update(provider=hit[1], cached=True)
         return hit[0]
     out, fut = None, None
+    deadline = time.monotonic() + TRANSLATE_BUDGET
     if use_llm:
         fut = _claude_async(text, src, dst, history, alts, polite)
         try:
@@ -1317,12 +1452,12 @@ def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
             _llm_failed(e)
     if out is None:
         try:
-            out = _mt_chain(text, src, dst, meta)
+            out = _mt_chain(text, src, dst, meta, deadline)
         except Exception:
             if fut is None:
                 raise
             try:                                         # Google/MyMemory scheitern: doch auf Claude warten
-                out = fut.result(timeout=8)
+                out = fut.result(timeout=max(0.5, min(8.0, deadline - time.monotonic())))
             except Exception:
                 pass
             if out is None:
@@ -1337,8 +1472,13 @@ def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
     return out
 
 
-def _mt_chain(text, src, dst, meta):
-    """Google (gtx) → MyMemory, mit Backoff je Anbieter und Offline-Schalter."""
+TRANSLATE_BUDGET = 12.0            # s je Satz insgesamt (sonst bis ~24 s Stille: Hedge + Google + MyMemory + Claude)
+MT_MIN_LEFT = 1.5                  # s: weniger Restzeit lohnt keinen weiteren Anbieter
+
+
+def _mt_chain(text, src, dst, meta, deadline=None):
+    """Google (gtx) → MyMemory, mit Backoff je Anbieter und Offline-Schalter. `deadline` (monotonic)
+    begrenzt die Gesamtzeit: MyMemory bekommt nur die Restzeit, bei zu wenig Rest gar keinen Versuch."""
     out, e1 = None, None
     now = time.time()
     if now < _OFFLINE["until"]:                      # Schalter: nicht für jeden Satz 6+8 s warten
@@ -1357,8 +1497,13 @@ def _mt_chain(text, src, dst, meta):
         if e1 is not None:
             raise e1
         raise RuntimeError("Übersetzung pausiert (Limit erreicht), gleich wieder")
+    left = None if deadline is None else deadline - time.monotonic()
+    if left is not None and left < MT_MIN_LEFT:
+        if e1 is not None:
+            raise e1
+        raise RuntimeError("Übersetzung pausiert (Zeitlimit je Satz erreicht)")
     try:
-        out = _mt(mymemory_translate, text, src, dst, e1)
+        out = _mt(mymemory_translate, text, src, dst, *((e1,) if left is None else (e1, min(8.0, left))))
         meta["provider"] = "mymemory"
         _note_ok("mymemory")
         return out
@@ -1646,6 +1791,13 @@ def apply_profile_prior(probs, pe, pt, plang, pair=None):
     return pe, pt
 
 
+def neither_pair_lang(pe, pt, role=None):
+    """Verwerfen als „weder A noch B“? Nicht bei sicher erkannter eigener Stimme (role "me"): Akzent
+    drückt dort oft die Spracherkennung, die Sprache steht über die Rolle ohnehin fest. "other" heißt nur
+    „nicht ich“ (auch Musik/Geräusch) und hebt das Verwerfen deshalb nicht auf."""
+    return pe + pt < MIN_LANG_P and role != "me"
+
+
 def role_lang(role, pair=None):
     """Sprache einer Rolle im Zwei-Personen-Modus. „ich“ ist das englische Stimmprofil (profiles.me()):
     mit Englisch im Paar also Englisch (auch bei th/en), sonst meine Sprache; „other“ die andere."""
@@ -1684,13 +1836,36 @@ def _wm(model, **kw):
         try:
             return WhisperModel(model, **kw)
         except Exception as e2:
-            if re.search(r"connect|resolve|offline|network|timed? ?out|unreachable", _errtxt(e2), re.I):
+            if is_offline_error(e2, stop=e):    # e (Modell nicht im Cache) ist nur Kontext, kein Netzfehler
                 emit("error", code="model_offline",
                      msg=f"Modell '{model}' fehlt und kann ohne Internet nicht geladen werden")
             raise
 
 
 _DOWNLOAD_SAID = {}
+# Netzfehler nach Klassenname (ohne harte Importe von requests/httpx/huggingface_hub): huggingface_hub meldet
+# fehlendes Netz als LocalEntryNotFoundError, requests als ConnectionError, socket als gaierror.
+_OFFLINE_TYPES = ("gaierror", "ConnectionError", "ConnectError", "ConnectTimeout", "TimeoutError", "Timeout",
+                  "ReadTimeout", "URLError", "LocalEntryNotFoundError", "OfflineModeIsEnabled", "NameResolutionError",
+                  "MaxRetryError", "NewConnectionError", "ClientConnectorError", "ClientConnectionError",
+                  "ServerDisconnectedError")
+
+
+def is_offline_error(e, stop=None):
+    """Liegt (irgendwo in der Ursachenkette) ein Netzfehler vor? Prüft Typen, nicht Fehlertexte.
+    `stop`: an dieser Ausnahme die Kette nicht weiter verfolgen (z. B. der vorige Fehlversuch im except-Block,
+    der sonst als __context__ mitzählt)."""
+    seen = set() if stop is None else {id(stop)}
+    while e is not None and id(e) not in seen:
+        seen.add(id(e))
+        if isinstance(e, urllib.error.HTTPError):       # Server antwortet (404 …): nicht offline
+            return False
+        if isinstance(e, (ConnectionError, TimeoutError, urllib.error.URLError)):
+            return True
+        if any(t.__name__ in _OFFLINE_TYPES for t in type(e).__mro__):
+            return True
+        e = e.__cause__ or e.__context__
+    return False
 
 
 def load_model(model, device):
@@ -1771,7 +1946,10 @@ def squash_repeats(text):
     """Wiederholungsschleifen kürzen statt den ganzen Satz zu verlieren:
     'สติ๊กฮ่าาาาาาา' -> 'สติ๊กฮ่าาา', 'ha ha ha ha ha ha' -> 'ha ha ha'."""
     text = re.sub(r"(\D)\1{3,}", r"\1\1\1", text)
-    text = re.sub(r"(.{2,12}?)(?:\s*\1){3,}", r"\1 \1 \1", text)
+    # Ziffernfolgen (Telefon "0808080808", Zimmer "11111111") nie kürzen – nur Schleifen mit Buchstaben
+    text = re.sub(r"(.{2,12}?)(?:\s*\1){3,}",
+                  lambda m: f"{m.group(1)} {m.group(1)} {m.group(1)}" if re.search(r"[^\W\d_]", m.group(1))
+                  else m.group(0), text)
     return text
 
 
@@ -2166,6 +2344,7 @@ TTS_CACHE = collections.OrderedDict()  # (Stimme, Tempo, Text) -> mp3: kurze, h�
 TTS_CACHE_MAX, TTS_CACHE_CHARS = 64, 120
 TTS_CACHE_BYTES = 8_000_000            # Obergrenze für alle gemerkten mp3 zusammen
 _TTS_CACHE_LOCK = threading.Lock()
+TTS_OFFLINE_PROBE = 0.8                # s: so lange darf die Neural-Stimme bei gemerktem Offline noch antworten
 TTS_RACE = 1.4                         # s: kommt die Neural-Stimme nicht, spricht die vorbereitete macOS-Stimme
 
 
@@ -2857,8 +3036,10 @@ class Engine:
             try:
                 if stream is None:
                     stream = EdgeStream(text, self.voice_for(lang), f"{_clamp_rate(5 + self.rate + boost):+d}%")
-                st = edge_play(stream, self.volume, on_start_part, cancelled,
-                               deadline=TTS_RACE if (local and TTS_RACE > 0) else None)
+                race = None
+                if local and TTS_RACE > 0:      # offline gemerkt: nur kurz probieren, dann gleich lokal
+                    race = TTS_RACE if NET.get("tts", True) else min(TTS_RACE, TTS_OFFLINE_PROBE)
+                st = edge_play(stream, self.volume, on_start_part, cancelled, deadline=race)
                 net_state("tts", True)
                 log({"tts": "edge", "voice": stream.voice, **st, "secs": round(time.time() - t, 2)})
                 return "partial" if st.get("partial") else None
@@ -2867,7 +3048,9 @@ class Engine:
                     log({"tts": "edge-abbruch", "err": repr(e)[:200]})
                     return "partial"
                 log({"tts": "edge-fehler" if not local else "edge-zu-langsam", "err": repr(e)[:200]})
-                if not local:
+                # auch im Wettlauf: echter Netzfehler = offline merken (Symbol, Ersatzstimme ohne Wartezeit);
+                # bloß zu langsam (Frist ohne Fehler) zählt nicht
+                if not local or is_offline_error(e):
                     net_state("tts", False)
             if local:                            # Wettlauf verloren: vorbereitete macOS-Stimme sofort
                 path = local.ready_path()
@@ -3157,7 +3340,7 @@ class Engine:
                 info.update(role=role, role_how=r.get("how"), sim_me=r.get("sim_me"), sim_her=r.get("sim_her"))
             except Exception as e:
                 log({"role": "fehler", "err": repr(e)[:200]})
-        if pe + pt < MIN_LANG_P:                  # keine der zwei Sprachen (Geräusch, Musik) -> ignorieren
+        if neither_pair_lang(pe, pt, role):       # keine der zwei Sprachen (Geräusch, Musik) -> ignorieren
             return self._drop(info, "andere Sprache", uid,
                               f"weder {lang_name(A, True)} noch {lang_name(B, True)}")
         if role in ("me", "other"):
@@ -3441,7 +3624,10 @@ class Engine:
             if "offline" in str(e):
                 net_state("translate", False)
             emit("dropped", reason="übersetzung fehlgeschlagen", code="translate_failed", id=uid)
-            emit("error", code="translate_failed", msg=f"Übersetzung fehlgeschlagen: {e}")
+            # nur Typ/Status/eigene Meldungen – Server-Texte können den Satz zitieren (Nr. 7)
+            own = isinstance(e, RuntimeError) and _SAFE_MSG.match(str(e))
+            emit("error", code="translate_failed",
+                 msg=f"Übersetzung fehlgeschlagen: {str(e)[:80] if own else _errtxt(e)}")
             emit("listening")
             return None
         if dst == "th":
@@ -4377,10 +4563,21 @@ def shutdown(*_):
     STOP.set()
     if not _LOOP["on"]:
         cleanup()
+        flush_output()
         sys.exit(0)
 
 
+def _utf8_stdio():
+    """Ohne UTF-8-Locale (App-Start ohne LANG) würde print bei Thai einen UnicodeEncodeError werfen."""
+    for f in (sys.stdout, sys.stderr):
+        try:
+            f.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError, OSError):
+            pass
+
+
 if __name__ == "__main__":
+    _utf8_stdio()
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default="medium", help="small | medium | best (large-v3-turbo für Englisch"
                     " + Thai-Modell) | auto (nach Chip/RAM)")
@@ -4472,6 +4669,11 @@ if __name__ == "__main__":
              msg=f"Sprachpaar ungültig ({str(a.langs)[:20]}) – nehme {','.join(DEFAULT_PAIR)}")
         set_pair(*DEFAULT_PAIR)
     if a.list_mics:
+        JSON = True                             # Antwort immer als JSON (auch die ffmpeg-Meldung)
+    _profile_only = bool(a.profiles or a.delete_profile or a.delete_all_profiles or a.vocab is not None)
+    if not _profile_only:
+        check_ffmpeg()                          # Mikrofon, --file, --list-mics und --enroll brauchen ffmpeg
+    if a.list_mics:
         JSON = True
         try:
             mics = list_mics()
@@ -4480,6 +4682,8 @@ if __name__ == "__main__":
             mics = []
         emit("mics", mics=mics)
         sys.exit(0)
+    if JSON:
+        start_writer()                          # ab hier blockiert keine Ausgabe mehr Erkennung oder Stopp
     SILENCE_END = max(0.4, min(2.0, a.silence))
     TTS_RACE = max(0.0, min(5.0, a.tts_race))
     FAST.update(pre=not a.no_pre, endpoint=a.fast_endpoint, partial=a.partial)
@@ -4551,5 +4755,5 @@ if __name__ == "__main__":
         work_loop(eng, jobs, speak=True)
         log({"engine": "beendet geordnet"})
         cleanup()
-        sys.stdout.flush()
+        flush_output()
         os._exit(0)                             # keine verwaisten Threads/Kindprozesse
