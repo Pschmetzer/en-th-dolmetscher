@@ -76,6 +76,22 @@
     {
       "en": "Could I have a receipt, please?",
       "th": "ขอใบเสร็จหน่อย"
+    },
+    {
+      "en": "Here is the address on my phone.",
+      "th": "นี่คือที่อยู่ในโทรศัพท์"
+    },
+    {
+      "en": "How much is it to go there?",
+      "th": "ไปที่นั่นเท่าไหร่"
+    },
+    {
+      "en": "Please drive more slowly.",
+      "th": "ช่วยขับช้าลงหน่อย"
+    },
+    {
+      "en": "Please take me to the nearest hospital.",
+      "th": "ช่วยไปส่งที่โรงพยาบาลที่ใกล้ที่สุด"
     }
   ]
 }

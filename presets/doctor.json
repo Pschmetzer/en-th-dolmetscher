@@ -76,6 +76,46 @@
     {
       "en": "Do you accept my insurance?",
       "th": "รับประกันของฉันไหม"
+    },
+    {
+      "en": "This is an emergency. Please call an ambulance (1669).",
+      "th": "นี่เป็นเหตุฉุกเฉิน ช่วยเรียกรถพยาบาลด้วย (1669)"
+    },
+    {
+      "en": "Where is the nearest hospital?",
+      "th": "โรงพยาบาลที่ใกล้ที่สุดอยู่ที่ไหน"
+    },
+    {
+      "en": "I have difficulty breathing.",
+      "th": "ฉันหายใจลำบาก"
+    },
+    {
+      "en": "I have chest pain.",
+      "th": "ฉันเจ็บหน้าอก"
+    },
+    {
+      "en": "I am allergic to penicillin.",
+      "th": "ฉันแพ้ยาเพนิซิลลิน"
+    },
+    {
+      "en": "I am allergic to peanuts and tree nuts.",
+      "th": "ฉันแพ้ถั่วลิสงและถั่วเปลือกแข็ง"
+    },
+    {
+      "en": "I am pregnant.",
+      "th": "ฉันตั้งครรภ์"
+    },
+    {
+      "en": "I take this medicine regularly.",
+      "th": "ฉันกินยานี้เป็นประจำ"
+    },
+    {
+      "en": "I have diabetes.",
+      "th": "ฉันเป็นเบาหวาน"
+    },
+    {
+      "en": "I have high blood pressure.",
+      "th": "ฉันเป็นความดันโลหิตสูง"
     }
   ]
 }

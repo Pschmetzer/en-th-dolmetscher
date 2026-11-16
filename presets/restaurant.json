@@ -76,6 +76,26 @@
     {
       "en": "Can I pay by card?",
       "th": "จ่ายด้วยบัตรได้ไหม"
+    },
+    {
+      "en": "I have a severe peanut allergy. Even a small amount is dangerous.",
+      "th": "ฉันแพ้ถั่วลิสงรุนแรง แม้แต่นิดเดียวก็อันตราย"
+    },
+    {
+      "en": "Please do not add any peanuts.",
+      "th": "กรุณาอย่าใส่ถั่วลิสงเลย"
+    },
+    {
+      "en": "I am allergic to shrimp and shellfish.",
+      "th": "ฉันแพ้กุ้งและหอย"
+    },
+    {
+      "en": "No chili at all, please.",
+      "th": "ไม่ใส่พริกเลย"
+    },
+    {
+      "en": "Does this contain fish sauce?",
+      "th": "อันนี้ใส่น้ำปลาไหม"
     }
   ]
 }

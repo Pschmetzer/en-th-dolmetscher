@@ -40,7 +40,15 @@
   button:focus-visible, input:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
   .opts { display:flex; gap:10px 18px; padding:0 0 10px; color:var(--mut); font-size:14px; flex-wrap:wrap; align-items:center; }
   .opts label { cursor:pointer; }
-  .small { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; }
+  .small { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; min-height:36px; }
+  .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+  #consent { max-width:min(520px, calc(100vw - 32px)); border:1px solid var(--line); border-radius:12px; background:var(--card); color:var(--fg); padding:18px; }
+  #consent::backdrop { background:rgba(0,0,0,.5); }
+  #consent h2 { font-size:18px; margin:0 0 8px; }
+  #consent p { margin:0 0 10px; font-size:15px; }
+  #consent .row { display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; margin-top:12px; }
+  #consent .row button { min-height:44px; padding:8px 16px; }
+  #consentOk { background:var(--btn-en); color:var(--btn-fg); border-color:transparent; font-weight:600; }
   #live { margin:0 0 12px; padding:14px 16px; background:var(--card); border-radius:10px; min-height:52px; font-size:22px; color:var(--mut); font-style:italic; overflow-wrap:anywhere; }
   #log { padding-bottom:24px; display:flex; flex-direction:column-reverse; gap:12px; }
   .entry { background:var(--card); border-radius:12px; padding:14px 18px; border-left:6px solid var(--en); overflow-wrap:anywhere; }
@@ -58,7 +66,14 @@
   #partner.on { display:flex; }
   #partner .bar { display:flex; justify-content:space-between; align-items:center; gap:12px; color:var(--mut); font-size:14px; }
   #partnerText { flex:1; display:flex; align-items:center; justify-content:center; text-align:center; font-weight:700; font-size:clamp(40px,11vw,160px); line-height:1.15; overflow-wrap:anywhere; padding:8px 0; }
-  @media (max-width:500px){ .trans{font-size:22px;} button.mode{min-width:100%;} }
+  @media (max-width:500px){
+    .trans, .entry.th .trans { font-size:22px; }
+    button.mode { min-width:100%; padding:18px; }
+    .opts { gap:4px 14px; }
+    .opts label { display:inline-flex; align-items:center; gap:6px; min-height:44px; }   /* Fingertipp-Ziel (WCAG 2.5.5) */
+    .opts input[type=checkbox] { width:22px; height:22px; }
+    .small { min-height:44px; }
+  }
 </style>
 </head>
 <body>
@@ -73,7 +88,7 @@
   <a href="https://github.com/Pschmetzer/en-th-dolmetscher" target="_blank" rel="noopener">Mac-App &amp; Quellcode auf GitHub</a>
 </div>
 <div class="note" role="note" id="privacy">
-  <b>Datenschutz:</b> Die Spracherkennung macht der Browser – Chrome sendet dein <b>Audio an Googles Server</b>, Safari an Apple (je nach Gerät auch lokal). Der erkannte Text geht zum Übersetzen an Google Translate (Ersatz: MyMemory). Die Mac-App erkennt Sprache dagegen lokal auf dem Gerät.
+  <b>Datenschutz:</b> Die Spracherkennung macht der Browser – Chrome sendet dein <b>Audio an Googles Server</b>, Safari an Apple (je nach Gerät auch lokal). Der erkannte Text geht zum Übersetzen an Google Translate (Ersatz: MyMemory). Die Mac-App erkennt Sprache dagegen lokal auf dem Gerät. <b>Pause</b> und <b>Stopp</b> schalten das Mikrofon ganz aus.
 </div>
 <div id="warn" role="alert"></div>
 <div class="controls">
@@ -91,11 +106,24 @@
 <details class="help">
   <summary>Tastenkürzel &amp; Sprachbefehle</summary>
   <p><kbd>E</kbd> English sprechen · <kbd>T</kbd> Thai sprechen · <kbd>Leertaste</kbd> Stopp · <kbd>P</kbd> Partneransicht · <kbd>Esc</kbd> Partneransicht schließen<br>
-  Sprachbefehle im EN-Modus, am Satzanfang (werden nie übersetzt): „Translator pause“, „resume“, „repeat“, „slower“, „faster“.</p>
+  Sprachbefehle im EN-Modus, als ganzer Satz (werden nie übersetzt): „Translator pause“ (Mikrofon aus – weiter mit <kbd>E</kbd>/<kbd>T</kbd> oder dem Knopf), „Translator repeat“, „slower“, „faster“.</p>
 </details>
 <div id="live" aria-live="off">…</div>
-<div id="log" role="log" aria-live="polite" aria-relevant="additions" aria-label="Übersetzungen"></div>
+<div id="log" role="log" aria-live="off" aria-label="Übersetzungen"></div>
+<div id="announce" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 </div>
+
+<dialog id="consent" aria-labelledby="consentTitle" aria-describedby="consentText">
+  <h2 id="consentTitle">Mikrofon einschalten?</h2>
+  <div id="consentText">
+    <p>Die Spracherkennung macht dein Browser: <b>Chrome sendet dein Audio an Google</b>, Safari an Apple. Der erkannte Text geht zum Übersetzen an <b>Google Translate</b> (Ersatz: MyMemory). Diese Seite hat keinen eigenen Server.</p>
+    <p>Bitte nicht für vertrauliche Gespräche nutzen. Die Zustimmung wird nur in diesem Browser gespeichert.</p>
+  </div>
+  <div class="row">
+    <button class="small" id="consentNo" type="button">Abbrechen</button>
+    <button class="small" id="consentOk" type="button">Einverstanden, Mikrofon an</button>
+  </div>
+</dialog>
 
 <div id="partner" role="dialog" aria-modal="true" aria-labelledby="partnerTitle" aria-hidden="true">
   <div class="bar"><span id="partnerTitle">Partneransicht – letzte Übersetzung</span><button class="small" id="btnPartnerClose" type="button">Schließen <kbd>Esc</kbd></button></div>
@@ -122,10 +150,17 @@ let errCount = 0, quickEnds = 0, restartTimer = null;
 let lastFinal = { text: '', t: 0 };
 
 const warnMsgs = [];
-function showWarn(msg) {          // msg: feste Texte (kein Nutzertext) – mehrere Warnungen bleiben sichtbar
-  if (!warnMsgs.includes(msg)) warnMsgs.push(msg);
-  warn.style.display = 'block';
+function renderWarn() {
+  warn.style.display = warnMsgs.length ? 'block' : 'none';
   warn.innerHTML = warnMsgs.map(m => '<div>' + m + '</div>').join('');
+}
+function showWarn(msg) {          // msg: feste Texte (kein Nutzertext) – mehrere Warnungen bleiben sichtbar
+  if (!warnMsgs.includes(msg)) { warnMsgs.push(msg); renderWarn(); }
+}
+function clearWarn(msgs) {        // erledigte Warnungen (z. B. Mikrofon inzwischen erlaubt) wieder entfernen
+  const n = warnMsgs.length;
+  for (const m of msgs) { const i = warnMsgs.indexOf(m); if (i >= 0) warnMsgs.splice(i, 1); }
+  if (warnMsgs.length !== n) renderWarn();
 }
 function setStatus(t) { if (statusEl.textContent !== t) statusEl.textContent = t; }   // keine Wiederholungs-Ansagen
 if (!SR) showWarn('Dieser Browser hat keine Spracherkennung (z. B. Firefox). Bitte <b>Chrome</b> (Computer, Android) oder <b>Safari</b> (Mac, iPhone, Diktierfunktion an) verwenden.');
@@ -170,6 +205,13 @@ function splitText(text, max) {
 }
 
 // ---- Translation (swap backend here) ----
+// MyMemory liefert HTML-Entities (&#39;, &quot;, &amp;). <textarea> parst nur Text: kein Markup, kein Skript.
+const entityBox = document.createElement('textarea');
+function decodeEntities(s) {
+  if (!/&(#\d+|#x[0-9a-f]+|[a-z]+);/i.test(s)) return s;
+  entityBox.innerHTML = s;
+  return entityBox.value;
+}
 async function fetchJson(url) {   // mit Zeitlimit: ein hängender Dienst blockiert nicht, der Ersatz kommt dran
   const ac = new AbortController();
   const tm = setTimeout(() => ac.abort(), FETCH_TIMEOUT_MS);
@@ -187,10 +229,10 @@ async function translateOne(text, from, to) {
     return out;
   } catch (e) {
     const j = await fetchJson(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`);
-    const out = (j.responseData && j.responseData.translatedText || '').trim();
+    const out = decodeEntities(String(j.responseData && j.responseData.translatedText || '')).trim();
     // MyMemory reports errors / quota in-band, sometimes with HTTP 200 and the message as "translation".
     if (Number(j.responseStatus) !== 200 || j.quotaFinished || !out
-        || /MYMEMORY WARNING|QUERY LENGTH LIMIT|INVALID LANGUAGE|PLEASE SELECT TWO DISTINCT/i.test(out))
+        || /MYMEMORY WARNING|QUERY LENGTH LIMIT|INVALID LANGUAGE|PLEASE SELECT TWO DISTINCT|NO QUERY SPECIFIED|IS AN INVALID|AUTO-?DETECT/i.test(out))
       throw new Error('mymemory unavailable');
     return out;
   }
@@ -211,11 +253,12 @@ function parseCommand(text) { const m = CMD_RE.exec(text); return m ? m[1].toLow
 
 function runCommand(cmd) {
   if (cmd === 'pause') {
-    paused = true; dropOutput();
-    setStatus('⏸ Pausiert – sage „Translator resume“');
-    resumeIfIdle();             // Erkennung muss laufen, um "resume" zu hören
+    // Pause = Mikrofon wirklich aus: Modus beenden, damit kein Neustart-Pfad (onend, Vorlesen, Sichtbarkeit)
+    // die Erkennung wieder startet und weiter Audio an Google geht. Weiter mit E/T oder dem Knopf.
+    setMode(null);
+    setStatus('⏸ Pausiert – Mikrofon aus. Weiter mit E/T oder dem Knopf');
   }
-  else if (cmd === 'resume') { paused = false; setStatus('Hört zu (English)…'); }
+  else if (cmd === 'resume') { setStatus('Läuft bereits'); }   // nur hörbar, solange nicht pausiert
   else if (cmd === 'slower') { rate = Math.max(0.5, +(rate - 0.15).toFixed(2)); setStatus('Tempo ' + rate); }
   else if (cmd === 'faster') { rate = Math.min(1.6, +(rate + 0.15).toFixed(2)); setStatus('Tempo ' + rate); }
   else if (cmd === 'repeat') {
@@ -230,6 +273,7 @@ const HARD_ERR = {   // Neustart sinnlos: Modus beenden, klar sagen warum
   'service-not-allowed': 'Spracherkennung nicht erlaubt. Safari/iPhone: Diktierfunktion einschalten (Einstellungen → Allgemein → Tastatur → Diktierfunktion). Chrome: Erkennung ist in diesem Browser/Profil gesperrt.',
   'language-not-supported': 'Diese Sprache wird von der Spracherkennung dieses Browsers nicht unterstützt.',
 };
+const NO_ANSWER = 'Die Spracherkennung antwortet nicht (Internet? Chrome braucht dafür eine Verbindung zu Google). Bitte später erneut <kbd>E</kbd>/<kbd>T</kbd> drücken.';
 function startRec() {
   if (!SR || !mode || speaking || rec || document.hidden) return;   // im Hintergrund nicht neu starten
   clearTimeout(restartTimer); restartTimer = null;
@@ -251,6 +295,7 @@ function startRec() {
     }
     live.textContent = interim || '…';
   };
+  r.onstart = () => clearWarn(Object.values(HARD_ERR).concat(NO_ANSWER));   // Mikrofon läuft: alte Warnungen weg
   r.onerror = ev => {
     if (HARD_ERR[ev.error]) { showWarn(HARD_ERR[ev.error]); setMode(null); return; }
     if (ev.error === 'no-speech' || ev.error === 'aborted') return;   // Stille ist normal
@@ -271,7 +316,7 @@ function startRec() {
 function scheduleRestart() {
   if (!mode || speaking || restartTimer) return;
   if (errCount >= MAX_SOFT_ERR) {
-    showWarn('Die Spracherkennung antwortet nicht (Internet? Chrome braucht dafür eine Verbindung zu Google). Bitte später erneut <kbd>E</kbd>/<kbd>T</kbd> drücken.');
+    showWarn(NO_ANSWER);
     setMode(null); return;
   }
   const n = Math.max(errCount, quickEnds);
@@ -306,6 +351,15 @@ function resumeIfIdle() {
   if (outPending === 0 && outNext && outNext !== mode) { const n = outNext; outNext = null; setMode(n); return; }
   if (outPending === 0) outNext = null;
   if (!rec && !restartTimer) startRec();
+}
+
+// Screenreader: nur fertige Übersetzungen ansagen (das Protokoll selbst ist stumm, sonst kämen „…“ und Zwischenstände).
+function announce(text, lang) {
+  const a = $('announce');
+  a.textContent = '';
+  const s = document.createElement('span');
+  s.lang = lang; s.textContent = text;
+  setTimeout(() => a.appendChild(s), 50);   // leeren, dann füllen: auch gleiche Texte werden erneut angesagt
 }
 
 function addEntry(cls, orig, trans, isErr, from, to) {
@@ -348,6 +402,7 @@ function deliver(t, text, m, next) {
     t.textContent = out; t.lang = m.to; t.classList.remove('err');
     lastOut = { text: out, lang: m.tts };
     $('partnerText').textContent = out; $('partnerText').lang = m.to;
+    announce(out, m.to);
     return out;
   }, () => {   // no error text is displayed as translation or spoken
     t.textContent = 'Übersetzung gerade nicht verfügbar (Internet / Limit?)'; t.classList.add('err'); t.removeAttribute('lang');
@@ -436,18 +491,54 @@ function togglePartner(on) {
 $('btnPartner').onclick = () => togglePartner(true);
 $('btnPartnerClose').onclick = () => togglePartner(false);
 
-MODES.en.btn.onclick = () => { setMode('en'); unlockTTS(); };
-MODES.th.btn.onclick = () => { setMode('th'); unlockTTS(); };
+// ---- Einwilligung vor dem ersten Mikrofon-Start (einmalig, im Browser gespeichert) ----
+let consentMem = false, consentWant = null, consentOpener = null;
+function hasConsent() {
+  if (consentMem) return true;
+  try { return localStorage.getItem('micConsent') === '1'; } catch { return false; }
+}
+function consentOpen() { const d = $('consent'); return !!(d.open || d.hasAttribute('open')); }
+// Modus wählen; beim ersten Mal vorher fragen. Läuft direkt in der Nutzergeste (iOS braucht das für unlockTTS).
+function chooseMode(m) {
+  if (m === mode || hasConsent()) { setMode(m); unlockTTS(); return; }   // Ausschalten braucht keine Zustimmung
+  if (consentOpen()) return;
+  consentWant = m; consentOpener = document.activeElement;
+  const d = $('consent');
+  if (typeof d.showModal === 'function') { d.showModal(); $('consentOk').focus(); }
+  else if (window.confirm($('consentText').textContent.replace(/\s+/g, ' ').trim())) acceptConsent();   // sehr alte Browser
+  else declineConsent();
+}
+function closeConsent() { const d = $('consent'); if (consentOpen() && typeof d.close === 'function') d.close(); }
+function acceptConsent() {
+  consentMem = true;
+  try { localStorage.setItem('micConsent', '1'); } catch {}
+  const m = consentWant; consentWant = null;
+  closeConsent();
+  if (m) { setMode(m); unlockTTS(); MODES[m].btn.focus(); }   // synchron in derselben Geste
+}
+function declineConsent() {
+  consentWant = null;
+  closeConsent();
+  setStatus('Mikrofon bleibt aus');
+  if (consentOpener && consentOpener.focus) consentOpener.focus();
+}
+$('consentOk').onclick = acceptConsent;
+$('consentNo').onclick = declineConsent;
+$('consent').addEventListener('cancel', e => { e.preventDefault(); declineConsent(); });   // Esc
+
+MODES.en.btn.onclick = () => chooseMode('en');
+MODES.th.btn.onclick = () => chooseMode('th');
 try { $('keysOn').checked = localStorage.getItem('keysOn') !== '0'; } catch {}
 $('keysOn').onchange = () => { try { localStorage.setItem('keysOn', $('keysOn').checked ? '1' : '0'); } catch {} };
 document.addEventListener('keydown', e => {
+  if (consentOpen()) return;                                   // Einwilligungsdialog offen: keine Kürzel (Esc schließt ihn)
   if (e.key === 'Escape') { togglePartner(false); return; }   // closing a dialog always works
   if (!$('keysOn').checked) return;                            // single-key shortcuts can be switched off (WCAG 2.1.4)
   if (e.target.tagName === 'INPUT' || e.ctrlKey || e.metaKey || e.altKey) return;
   // e.code: Kürzel gehen auch mit thailändischem Tastaturlayout
   if (e.code === 'KeyP') togglePartner();
-  else if (e.code === 'KeyE') { setMode('en'); unlockTTS(); }
-  else if (e.code === 'KeyT') { setMode('th'); unlockTTS(); }
+  else if (e.code === 'KeyE') chooseMode('en');
+  else if (e.code === 'KeyT') chooseMode('th');
   else if (e.code === 'Space' && e.target.tagName !== 'BUTTON') { e.preventDefault(); if (mode) setMode(mode); }
 });
 </script>
