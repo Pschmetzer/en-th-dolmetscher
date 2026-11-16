@@ -1,0 +1,286 @@
+// WhisperEngine.swift – optionale zweite Spracherkennung mit WhisperKit (on-device, Core ML).
+// Aufnahme über AudioCapture, Sprachpausen über VoiceGate; jede Äußerung (mit Pre-Roll) wird als Ganzes
+// erkannt: erst Sprache (nur en/th), dann Transkription mit erzwungener Sprache. Modelle lädt der Nutzer
+// selbst in den Einstellungen (WhisperStore) – ohne Modell bleibt die App bei Apples Erkennung.
+import AVFoundation
+import Observation
+import WhisperKit
+import os
+
+private let log = Logger(subsystem: "dolmetscher", category: "whisper")
+
+enum WhisperFailure: LocalizedError {
+    case noModel, loadFailed(String)
+    var errorDescription: String? {
+        switch self {
+        case .noModel: return T("whisper_no_model")
+        case .loadFailed(let s): return T("whisper_load_failed") + " (\(s))"
+        }
+    }
+}
+
+/// Ablage der Whisper-Modelle (Application Support, nicht im Backup) und Download/Löschen.
+@MainActor @Observable
+final class WhisperStore {
+    static let shared = WhisperStore()
+
+    /// Einstellung: Whisper statt Apple-Erkennung.
+    var enabled: Bool { didSet { UserDefaults.standard.set(enabled, forKey: "whisperEnabled") } }
+    /// Gewähltes Modell (Variante aus argmaxinc/whisperkit-coreml).
+    var selected: String { didSet { UserDefaults.standard.set(selected, forKey: "whisperModel") } }
+    /// Fortschritt 0…1 während eines Downloads.
+    var progress: Double?
+    var error: String?
+    private(set) var installed: String?
+
+    @ObservationIgnored private var task: Task<Void, Never>?
+
+    nonisolated static let repo = "argmaxinc/whisperkit-coreml"
+
+    nonisolated static var base: URL {
+        URL.applicationSupportDirectory.appending(path: "whisper", directoryHint: .isDirectory)
+    }
+
+    nonisolated static func folder(_ variant: String) -> URL {
+        base.appending(path: "models/\(repo)/\(variant)", directoryHint: .isDirectory)
+    }
+
+    /// Unterstützte Modelle dieses Geräts (lokale Tabelle von WhisperKit, kein Netz).
+    let choices: [String]
+    let recommended: String?
+
+    init() {
+        let support = WhisperKit.recommendedModels()
+        choices = WhisperCatalog.choices(supported: support.supported)
+        recommended = WhisperCatalog.defaultModel(recommended: support.default, supported: support.supported)
+        let d = UserDefaults.standard
+        enabled = d.bool(forKey: "whisperEnabled")
+        selected = d.string(forKey: "whisperModel") ?? recommended ?? "openai_whisper-base"
+        installed = d.string(forKey: "whisperInstalled")
+        if let i = installed, !Self.isComplete(i) { installed = nil; d.removeObject(forKey: "whisperInstalled") }
+        log.info("supported: \(support.supported.joined(separator: ","), privacy: .public) default: \(support.default, privacy: .public)")
+    }
+
+    nonisolated static func isComplete(_ variant: String) -> Bool {
+        let f = folder(variant)
+        return ["AudioEncoder.mlmodelc", "TextDecoder.mlmodelc", "MelSpectrogram.mlmodelc"].allSatisfy {
+            FileManager.default.fileExists(atPath: f.appending(path: $0).path)
+        }
+    }
+
+    /// Modell, das die Engine laden soll – nur wenn vollständig vorhanden.
+    var ready: String? { installed.flatMap { Self.isComplete($0) ? $0 : nil } }
+
+    var downloading: Bool { progress != nil }
+
+    func download() {
+        guard task == nil else { return }
+        let variant = selected
+        error = nil
+        progress = 0
+        task = Task {
+            defer { task = nil; progress = nil }
+            do {
+                try Self.prepareBase()
+                _ = try await WhisperKit.download(variant: variant, downloadBase: Self.base, from: Self.repo) { p in
+                    let f = p.fractionCompleted
+                    Task { @MainActor in if self.progress != nil { self.progress = min(0.95, f * 0.95) } }
+                }
+                try Task.checkCancellation()
+                // Einmal laden: holt den Tokenizer (sonst bräuchte der erste Start Internet) und lässt
+                // Core ML das Modell für dieses Gerät vorbereiten.
+                let kit = try await WhisperKit(Self.config(variant, download: true))
+                await kit.unloadModels()
+                if let old = installed, old != variant { try? FileManager.default.removeItem(at: Self.folder(old)) }
+                installed = variant
+                UserDefaults.standard.set(variant, forKey: "whisperInstalled")
+                try? Self.excludeFromBackup()
+            } catch is CancellationError {
+            } catch {
+                log.error("download failed: \(error.localizedDescription, privacy: .public)")
+                self.error = error.localizedDescription
+            }
+        }
+    }
+
+    func cancel() { task?.cancel() }
+
+    /// Alles löschen: Modelle, Tokenizer, Hub-Zwischenspeicher.
+    func deleteAll() {
+        task?.cancel()
+        try? FileManager.default.removeItem(at: Self.base)
+        installed = nil
+        UserDefaults.standard.removeObject(forKey: "whisperInstalled")
+    }
+
+    nonisolated static func config(_ variant: String, download: Bool) -> WhisperKitConfig {
+        WhisperKitConfig(model: variant, downloadBase: base, modelRepo: repo,
+                         modelFolder: download ? nil : folder(variant).path,
+                         tokenizerFolder: base,
+                         verbose: false, logLevel: .error,
+                         prewarm: false, load: true, download: download)
+    }
+
+    nonisolated private static func prepareBase() throws {
+        try FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
+        try excludeFromBackup()
+    }
+
+    nonisolated private static func excludeFromBackup() throws {
+        var url = base
+        var v = URLResourceValues()
+        v.isExcludedFromBackup = true
+        try url.setResourceValues(v)
+    }
+}
+
+final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
+    let events: AsyncStream<SpeechEvent>
+    private let emit: AsyncStream<SpeechEvent>.Continuation
+    private var capture: AudioCapture!
+    private var queue: DispatchQueue { capture.queue }
+    private let variant: String
+    private var kit: WhisperKit?
+    private var worker: Task<Void, Never>?
+    private let jobs: AsyncStream<Job>.Continuation
+    private let jobStream: AsyncStream<Job>
+
+    /// Höchstlänge einer Äußerung (Whisper verarbeitet 30-s-Fenster).
+    static let maxSeconds = 28.0
+    static let preRollSeconds = 0.4
+
+    struct Job: Sendable { var samples: [Float] }
+
+    // Zustand nur auf `queue`
+    private var langs: [Lang] = []
+    private var muted = false
+    private var running = false
+    private var gate = VoiceGate(pause: 0.8)
+    private var sinceLevel = 0.0
+    private var preRoll = PreRoll(seconds: preRollSeconds)
+    private var utterance: [Float] = []
+    private let resampler = Resampler16k()
+
+    init(variant: String) {
+        self.variant = variant
+        (events, emit) = AsyncStream<SpeechEvent>.makeStream(bufferingPolicy: .unbounded)
+        (jobStream, jobs) = AsyncStream<Job>.makeStream(bufferingPolicy: .unbounded)
+        let emit = emit
+        capture = AudioCapture(onBuffer: { [weak self] in self?.process($0) }, onEvent: { emit.yield($0) })
+        gate.maxUtterance = Self.maxSeconds - Self.preRollSeconds - 0.5
+    }
+
+    func start(langs: [Lang], pauseSeconds: Double, options: AudioOptions,
+               onDownload: @escaping @Sendable (Lang, Double) -> Void) async throws {
+        guard WhisperStore.isComplete(variant) else { throw WhisperFailure.noModel }
+        // Modell vor dem Mikrofon laden: scheitert es, läuft nichts und die App fällt auf Apple zurück.
+        let k: WhisperKit
+        do {
+            k = try await WhisperKit(WhisperStore.config(variant, download: false))
+        } catch {
+            log.error("load failed: \(error.localizedDescription, privacy: .public)")
+            throw WhisperFailure.loadFailed(error.localizedDescription)
+        }
+        kit = k
+        try await capture.activate(options: options)
+        try capture.checkInput()
+        queue.sync {
+            self.langs = langs; gate.pause = pauseSeconds; muted = false; running = true
+            preRoll.clear(); utterance = []
+        }
+        let stream = jobStream
+        // Eine Äußerung nach der anderen, in Reihenfolge, außerhalb der Audio-Queue.
+        worker = Task.detached { [weak self] in
+            for await job in stream {
+                guard let self else { return }
+                await self.recognize(job, kit: k, langs: langs)
+            }
+        }
+        try capture.begin()
+    }
+
+    func stop() async {
+        capture.end()
+        queue.sync { running = false; utterance = []; preRoll.clear() }
+        jobs.finish()
+        worker?.cancel()
+        await worker?.value
+        await kit?.unloadModels()
+        kit = nil
+        emit.finish()
+        capture.deactivate()
+    }
+
+    func setMuted(_ on: Bool) {
+        queue.async {
+            self.muted = on
+            // Reste verwerfen: Gehörtes vor/während der Ausgabe soll nicht als neue Äußerung erscheinen.
+            self.utterance = []
+            self.preRoll.clear()
+            self.resampler.reset()
+            if self.gate.inUtterance { self.emit.yield(.hearing(false)) }
+            self.gate.reset()
+        }
+    }
+
+    func setPause(_ seconds: Double) { queue.async { self.gate.pause = seconds } }
+
+    private func process(_ buf: AVAudioPCMBuffer) {
+        guard running, !muted, buf.frameLength > 0 else { return }
+        let rms = AudioCapture.rms(buf)
+        let dur = Double(buf.frameLength) / buf.format.sampleRate
+        let samples = resampler.convert(buf)
+        sinceLevel += dur
+        if sinceLevel >= 0.08 { sinceLevel = 0; emit.yield(.level(min(1, rms * 12))) }
+
+        let ev = gate.step(rms: rms, dur: dur)
+        if ev == .started {
+            utterance = preRoll.drain()
+            emit.yield(.hearing(true))
+            emit.yield(.partial(en: "", th: ""))   // keine Teiltexte: Whisper erkennt erst am Ende
+        }
+        if gate.inUtterance || ev == .ended {
+            utterance.append(contentsOf: samples)
+        } else {
+            preRoll.append(samples)
+        }
+        if ev == .ended || (gate.inUtterance && utterance.count >= Int(Self.maxSeconds * Resampler16k.rate)) {
+            if ev != .ended { gate.reset() }
+            emit.yield(.hearing(false))
+            let u = utterance
+            utterance = []
+            if !u.isEmpty { jobs.yield(Job(samples: u)) }
+        }
+    }
+
+    private func recognize(_ job: Job, kit: WhisperKit, langs: [Lang]) async {
+        let duration = Double(job.samples.count) / Resampler16k.rate
+        let rms = job.samples.isEmpty ? 0 : (job.samples.reduce(0) { $0 + $1 * $1 } / Float(job.samples.count)).squareRoot()
+        do {
+            var lang = langs.first ?? .en
+            if langs.count > 1 {
+                let (_, probs) = try await kit.detectLangauge(audioArray: job.samples)
+                lang = WhisperLang.choose(probs: probs, langs: langs)
+                log.info("lang en=\(probs["en"] ?? 0) th=\(probs["th"] ?? 0) -> \(lang.rawValue, privacy: .public)")
+            }
+            let opts = DecodingOptions(language: lang.rawValue, temperatureFallbackCount: 3,
+                                       usePrefillPrompt: true, detectLanguage: false, skipSpecialTokens: true,
+                                       withoutTimestamps: true, compressionRatioThreshold: 2.4,
+                                       logProbThreshold: -1.0, noSpeechThreshold: 0.6)
+            let results = try await kit.transcribe(audioArray: job.samples, decodeOptions: opts)
+            let raw = results.map(\.text).joined(separator: " ")
+            let segs = results.flatMap(\.segments)
+            lang = WhisperLang.resolve(reported: results.first?.language, chosen: lang, langs: langs)
+            guard let text = Hallucination.clean(raw, duration: duration, rms: rms,
+                                                 compressionRatios: segs.map { Double($0.compressionRatio) }) else {
+                log.info("dropped: \(raw, privacy: .private)")
+                return
+            }
+            let conf = segs.isEmpty ? 0.5 : exp(segs.map { Double($0.avgLogprob) }.reduce(0, +) / Double(segs.count))
+            let h = Hypothesis(text: text, confidence: conf)
+            emit.yield(.utterance(en: lang == .en ? h : nil, th: lang == .th ? h : nil))
+        } catch {
+            log.error("transcribe failed: \(error.localizedDescription, privacy: .public)")
+        }
+    }
+}

@@ -47,6 +47,10 @@ final class InterpreterModel {
     var favorites: [Phrase] = []
     /// Anruf o. Ä.: Aufnahme ruht, geht danach von selbst weiter.
     var interrupted = false
+    /// Whisper-Modell wird geladen (beim ersten Mal bereitet Core ML es vor – das dauert).
+    var whisperPreparing = false
+    /// Die laufende Aufnahme nutzt Whisper.
+    var usingWhisper = false
 
     var mode: Mode { didSet { save("mode", mode.rawValue); if phase == .listening { restart() } } }
     var pauseSeconds: Double { didSet { save("pauseSeconds", pauseSeconds); engine?.setPause(pauseSeconds) } }
@@ -135,20 +139,54 @@ final class InterpreterModel {
         paused = false
         generation += 1
         let mine = generation
-        let e = AppleSpeechEngine()
         let pendingStop = stopTask
         let options = AudioOptions(headset: headset)
+        let langs = mode.langs, pause = pauseSeconds
+        // Whisper nur auf Wunsch und nur mit vollständigem Modell – sonst Apple mit Hinweis.
+        let wantWhisper = WhisperStore.shared.enabled
+        let variant = WhisperStore.shared.ready
+        whisperPreparing = wantWhisper && variant != nil
         startTask = Task {
             await pendingStop?.value   // die alte Aufnahme muss die Audio-Session erst freigeben
+            var note: String?
+            var started: (any SpeechEngine)?
             do {
-                try await e.start(langs: mode.langs, pauseSeconds: pauseSeconds, options: options) { lang, f in
-                    Task { @MainActor [weak self] in
-                        if let self, self.generation == mine, self.phase == .loading { self.download = f < 1 ? (lang, f) : nil }
+                if wantWhisper, let variant {
+                    let w = WhisperSpeechEngine(variant: variant)
+                    do {
+                        try await w.start(langs: langs, pauseSeconds: pause, options: options) { _, _ in }
+                        started = w
+                    } catch let f as WhisperFailure {
+                        await w.stop()
+                        note = "⚠️ " + (f.errorDescription ?? "") + " – " + T("whisper_fallback")
+                    } catch {
+                        await w.stop()
+                        throw error
                     }
+                } else if wantWhisper {
+                    note = "⚠️ " + T("whisper_no_model") + " – " + T("whisper_fallback")
                 }
+                whisperPreparing = false
+                guard generation == mine else { await started?.stop(); return }   // inzwischen abgebrochen
+                if started == nil {
+                    let a = AppleSpeechEngine()
+                    do {
+                        try await a.start(langs: langs, pauseSeconds: pause, options: options) { lang, f in
+                            Task { @MainActor [weak self] in
+                                if let self, self.generation == mine, self.phase == .loading { self.download = f < 1 ? (lang, f) : nil }
+                            }
+                        }
+                    } catch {
+                        await a.stop()
+                        throw error
+                    }
+                    started = a
+                }
+                guard let e = started else { return }
                 download = nil
                 guard generation == mine else { await e.stop(); return }   // inzwischen abgebrochen
                 engine = e
+                usingWhisper = e is WhisperSpeechEngine
                 // Läuft gerade eine Ausgabe (z. B. getippter Satz), soll die neue Aufnahme sie nicht hören.
                 if pendingSpeech > 0 { e.setMuted(true) }
                 phase = .listening
@@ -159,8 +197,9 @@ final class InterpreterModel {
                     for await ev in e.events { self?.handle(ev) }
                 }
                 watchIdle()
+                if let note { flash(note, seconds: 6) }
             } catch {
-                await e.stop()
+                whisperPreparing = false
                 if generation == mine {
                     download = nil
                     phase = .failed(error.localizedDescription)
@@ -173,6 +212,8 @@ final class InterpreterModel {
     func stop() {
         generation += 1
         download = nil
+        whisperPreparing = false
+        usingWhisper = false
         idleTask?.cancel()
         guard let e = engine else {
             // Start läuft noch (z. B. Modell-Download): der nächste Start wartet, bis er sauber abgebrochen ist.
@@ -293,10 +334,10 @@ final class InterpreterModel {
         }
     }
 
-    func flash(_ s: String) {
+    func flash(_ s: String, seconds: Double = 2.5) {
         notice = s
         noticeTask?.cancel()
-        noticeTask = Task { try? await Task.sleep(for: .seconds(2.5)); if !Task.isCancelled { notice = nil } }
+        noticeTask = Task { try? await Task.sleep(for: .seconds(seconds)); if !Task.isCancelled { notice = nil } }
     }
 
     // MARK: Übersetzen
