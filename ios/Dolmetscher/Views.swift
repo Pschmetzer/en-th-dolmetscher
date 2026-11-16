@@ -49,7 +49,7 @@ struct ContentView: View {
                         ShareLink(item: m.transcript) { Label(T("share"), systemImage: "square.and.arrow.up") }
                             .disabled(m.visibleEntries.isEmpty)
                         Button(role: .destructive) { confirmClear = true } label: { Label(T("clear"), systemImage: "trash") }
-                            .disabled(m.entries.isEmpty)
+                            .disabled(m.visibleEntries.isEmpty)
                         Divider()
                         Button { m.sheet = .settings } label: { Label(T("settings"), systemImage: "gearshape") }
                     } label: { Image(systemName: "ellipsis.circle") }

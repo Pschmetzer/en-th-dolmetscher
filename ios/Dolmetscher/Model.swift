@@ -338,7 +338,8 @@ final class InterpreterModel {
         }
     }
 
-    func stop() {
+    /// `endConversation`: false bei einem Neustart (Moduswechsel, Kopfhörer) – dasselbe Gespräch läuft weiter.
+    func stop(endConversation: Bool = true) {
         generation += 1
         download = nil
         whisperPreparing = false
@@ -353,7 +354,7 @@ final class InterpreterModel {
         engine = nil
         listenTask?.cancel()
         stopSpeaking()
-        conversationEnded()
+        if endConversation { conversationEnded() }
         phase = .idle
         partial = ""; level = 0; hearing = false
         UIApplication.shared.isIdleTimerDisabled = false
@@ -363,7 +364,7 @@ final class InterpreterModel {
 
     private func restart() {
         let n = sessionTranslations
-        stop()
+        stop(endConversation: false)
         start()
         sessionTranslations = n   // Neustart (Moduswechsel, Kopfhörer) ist dasselbe Gespräch
     }
@@ -680,10 +681,13 @@ final class InterpreterModel {
 
     /// Ganzen Verlauf leeren – für einige Sekunden zurückholbar (Sprachbefehl „clear“ kann ein Verhörer sein).
     func clear() {
-        guard !entries.isEmpty else { return }
+        // Gesperrt: nur die sichtbaren Sätze – der verborgene Verlauf lässt sich nicht ohne Face ID löschen.
+        let gone = visibleEntries
+        guard !gone.isEmpty else { return }
         stopSpeaking()
-        undo.keep(entries, seconds: 8)
-        entries.removeAll()
+        undo.keep(gone, seconds: 8)
+        let ids = Set(gone.map(\.id))
+        entries.removeAll { ids.contains($0.id) }
         persist()
         canUndoClear = true
         flash("🗑 " + T("cleared"), seconds: 8)
@@ -700,7 +704,7 @@ final class InterpreterModel {
         undoTask?.cancel()
         canUndoClear = false
         guard let old = undo.take() else { return }
-        entries = old + entries
+        entries = (old + entries).sorted { $0.date < $1.date }
         trim()
         persist()
         flash("↩️ " + T("restored"))
