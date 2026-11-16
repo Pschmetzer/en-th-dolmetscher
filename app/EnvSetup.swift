@@ -151,6 +151,14 @@ final class EnvSetupModel: ObservableObject {
         }
     }
 
+    /// App wird beendet: setup-env.sh beenden und kurz warten, damit es die halbe Umgebung entfernt.
+    func terminateSetup() {
+        guard let p = proc, p.isRunning else { return }
+        p.terminate()
+        let end = Date().addingTimeInterval(3)
+        while p.isRunning && Date() < end { usleep(50_000) }
+    }
+
     /// Abschluss: Bildschirm schließen (die Engine läuft bereits).
     func finish() { visible = false; phase = .idle }
 
@@ -274,12 +282,13 @@ struct EnvSetupView: View {
             Spacer()
             switch s.phase {
             case .idle:
-                Button(L.t("envsetup_start")) { s.start(engine: m) }.keyboardShortcut(.defaultAction)
+                // bewusst ohne Return-Kürzel: startet einen großen Download (nur per Klick/Leertaste)
+                Button(L.t("envsetup_start")) { s.start(engine: m) }.buttonStyle(.borderedProminent)
             case .env, .models:
                 Button(L.t("envsetup_cancel")) { s.cancel(engine: m) }.keyboardShortcut(.cancelAction)
             case .failed(let kind):
                 if kind != "arch" && kind != "missing_parts" {
-                    Button(L.t("envsetup_retry")) { s.start(engine: m) }.keyboardShortcut(.defaultAction)
+                    Button(L.t("envsetup_retry")) { s.start(engine: m) }.buttonStyle(.borderedProminent)
                 }
             case .done:
                 Label(L.t("envsetup_done"), systemImage: "checkmark.seal.fill").foregroundStyle(.green)

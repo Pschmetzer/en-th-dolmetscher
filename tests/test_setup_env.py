@@ -103,6 +103,28 @@ def test_alter_stempel_wird_vor_dem_neuaufbau_entfernt(fake, tmp_path):
     assert "fail disk" in r.stdout and not (venv / ".dolmetscher-stamp").exists()
 
 
+def test_fremde_venv_wird_beiseitegelegt_nie_geloescht(fake, tmp_path):
+    """Eine venv mit fremdem Python (z. B. von build.sh mit conda angelegt) überlebt jede Einrichtung."""
+    venv = fake[2] / "venv"
+    (venv / "lib").mkdir(parents=True)
+    (venv / "pyvenv.cfg").write_text("home = /opt/miniconda3/bin\nversion_info = 3.12\n")
+    (venv / "lib" / "eigenes_paket.py").write_text("x = 1\n")
+    r = _run(fake, tmp_path, "disk")                      # auch wenn die Einrichtung danach scheitert
+    assert "fail disk" in r.stdout
+    kept = [d for d in fake[2].iterdir() if d.name.startswith("venv.vorher-")]
+    assert len(kept) == 1 and (kept[0] / "lib" / "eigenes_paket.py").exists()
+
+
+def test_eigene_venv_wird_neu_aufgebaut(fake, tmp_path):
+    sup = fake[2]
+    venv = sup / "venv"
+    venv.mkdir(parents=True)
+    (venv / "pyvenv.cfg").write_text(f"home = {sup}/python/cpython-3.12-macos-aarch64-none/bin\n")
+    r = _run(fake, tmp_path)
+    assert r.stdout.strip().endswith("done")
+    assert not [d for d in sup.iterdir() if d.name.startswith("venv.vorher-")]
+
+
 def test_abbrechen_beendet_sofort(fake, tmp_path):
     uv, stamp, sup = fake
     p = subprocess.Popen(["/usr/bin/env", "-i", *[f"{k}={v}" for k, v in _env(tmp_path, "slow").items()],

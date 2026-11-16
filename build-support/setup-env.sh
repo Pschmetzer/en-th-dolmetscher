@@ -41,7 +41,8 @@ on_term() {
   echo "fail cancelled"
   exit 130
 }
-trap on_term TERM INT
+trap on_term TERM INT HUP
+trap '' PIPE                                     # App weg (stdout zu): nicht mitten im Schritt sterben
 
 # Kindprozess im Hintergrund + wait: so wirkt Abbrechen (SIGTERM) sofort.
 run() { "$@" >>"$LOG" 2>&1 & CHILD=$!; wait "$CHILD"; local rc=$?; CHILD=""; return $rc; }
@@ -61,6 +62,13 @@ fail() {   # Fehlerart aus dem Log erraten, Teil-Umgebung entfernen
 [ -f "$LOCK" ] && [ -f "$STAMP" ] || { echo "Lock/Stempel fehlt" >>"$LOG"; echo "fail failed"; exit 1; }
 
 rm -f "$VENV/.dolmetscher-stamp"
+# Eine venv, die nicht auf das App-eigene Python zeigt (z. B. von build.sh mit conda/Homebrew-Python angelegt),
+# wird nie gelöscht, sondern beiseitegelegt (venv.vorher-DATUM) – nur App-eigene venvs werden neu aufgebaut.
+if [ -f "$VENV/pyvenv.cfg" ] && ! grep -q "^home = $SUPPORT/python/" "$VENV/pyvenv.cfg"; then
+  KEEP="$SUPPORT/venv.vorher-$(date +%Y%m%d-%H%M%S)"
+  mv "$VENV" "$KEEP" || { echo "fremde venv nicht verschiebbar: $VENV" >>"$LOG"; echo "fail failed"; exit 1; }
+  echo "fremde venv beiseitegelegt: $KEEP" >>"$LOG"
+fi
 echo "step python"
 run "$UV" venv --clear --quiet --python "$PY_VERSION" "$VENV" || fail
 

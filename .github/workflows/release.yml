@@ -38,7 +38,8 @@ jobs:
           DOLMETSCHER_PYTHON: python
           DOLMETSCHER_SKIP_MODELS: "1"
         run: |
-          brew install ffmpeg
+          # uv wird ins Bundle gelegt (Einrichtung beim ersten Start); Version wie UV_VERSION in build.sh
+          python -m pip install "uv==$(sed -n 's/^UV_VERSION="\(.*\)"/\1/p' build.sh)"
           ./build.sh
       - name: Package ZIP and SHA256
         run: |
