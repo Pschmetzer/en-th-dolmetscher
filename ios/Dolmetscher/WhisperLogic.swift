@@ -4,13 +4,14 @@ import AVFoundation
 import Foundation
 
 enum WhisperLang {
-    /// Wahl zwischen den aktiven Sprachen. Nur en/th zählen – Whisper kennt ~100 Sprachen und hält Thai
-    /// gern für Lao oder Khmer. Ist nur eine Sprache aktiv, gilt immer sie.
+    /// Wahl zwischen den aktiven Sprachen: nur deren Codes (`langs.map(\.rawValue)`) zählen – Whisper kennt
+    /// ~100 Sprachen und hält Thai gern für Lao oder Khmer. Ist nur eine Sprache aktiv, gilt immer sie.
     static func choose(probs: [String: Float], langs: [Lang]) -> Lang {
-        guard langs.count > 1 else { return langs.first ?? .en }
-        let en = probs[Lang.en.rawValue] ?? 0
-        let th = probs[Lang.th.rawValue] ?? 0
-        return th > en ? .th : .en
+        guard let first = langs.first else { return .en }
+        guard langs.count > 1 else { return first }
+        var best = first
+        for l in langs.dropFirst() where (probs[l.rawValue] ?? 0) > (probs[best.rawValue] ?? 0) { best = l }
+        return best
     }
 
     /// Hat das Transkript selbst eine erlaubte Sprache gemeldet, gilt sie; sonst die vorher gewählte.

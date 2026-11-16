@@ -261,7 +261,8 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
             if langs.count > 1 {
                 let (_, probs) = try await kit.detectLangauge(audioArray: job.samples)
                 lang = WhisperLang.choose(probs: probs, langs: langs)
-                log.info("lang en=\(probs["en"] ?? 0) th=\(probs["th"] ?? 0) -> \(lang.rawValue, privacy: .public)")
+                let shown = langs.map { "\($0.rawValue)=\(probs[$0.rawValue] ?? 0)" }.joined(separator: " ")
+                log.info("lang \(shown, privacy: .public) -> \(lang.rawValue, privacy: .public)")
             }
             let opts = DecodingOptions(language: lang.rawValue, temperatureFallbackCount: 3,
                                        usePrefillPrompt: true, detectLanguage: false, skipSpecialTokens: true,
