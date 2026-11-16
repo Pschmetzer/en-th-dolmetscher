@@ -234,7 +234,7 @@ def test_llm_billing_pauses_long_and_reports(monkeypatch):
     e = _ApiErr(400, "Your credit balance is too low to access the Anthropic API.")
     assert d._llm_backoff(e) == d.LLM_BILLING_BACKOFF
     d._llm_failed(e)
-    assert d.LLM["skip_until"] - time.time() > 1000
+    assert d.LLM["skip_until"] - time.monotonic() > 1000
     assert events and events[0][1]["code"] == "llm_billing"
     assert "credit balance" not in d.LLM["err"]
     assert d._llm_backoff(_ApiErr(400, "messages: field required")) == 10.0
