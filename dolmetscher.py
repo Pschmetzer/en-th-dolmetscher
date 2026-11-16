@@ -353,10 +353,16 @@ JUNK = _JunkSet({"thank you for watching", "thanks for watching", "subtitles by"
                  "sous-titres réalisés par la communauté d'amara.org",
                  "subtítulos realizados por la comunidad de amara.org",
                  "ondertiteling door de amara.org gemeenschap", "продолжение следует",
-                 "ご視聴ありがとうございました", "请不吝点赞 订阅 转发 打赏支持明镜与点点栏目"})
+                 "ご視聴ありがとうございました", "请不吝点赞 订阅 转发 打赏支持明镜与点点栏目",
+                 # Nr. 55
+                 "thank you for listening", "thanks for listening", "ขอบคุณที่ดู", "ขอบคุณที่รับฟัง",
+                 "ขอบคุณที่ดูจนจบ"})
+# Nr. 55: „Subtitles by <Name>“ – Abspann mit beliebigem Namen (bis 40 Zeichen, ganze Äußerung)
+_JUNK_BY = re.compile(r"(?:subtitles?|captions?|transcription|ซับไตเติ้ล|คำบรรยาย)by\w{1,40}|ซับไตเติ้ลโดย\w{1,40}")
 # "[Music]"/"[เพลง]" stehen bewusst nicht drin: ohne Klammern (die Aufrufstelle entfernt sie) wären es
 # echte Ein-Wort-Antworten ("Music?", "เพลง").
-JUNK_IF_SHORT = {"thank you", "you", "bye", "ขอบคุณครับ", "ขอบคุณค่ะ"}   # nur bei sehr leiser/kurzer Aufnahme
+# nur bei sehr leiser/kurzer Aufnahme
+JUNK_IF_SHORT = {"thank you", "you", "bye", "bye bye", "byebye", "bye-bye", "ขอบคุณครับ", "ขอบคุณค่ะ"}
 # Audio-Ein/Ausgabe: standardmäßig PyAV über avhelper.py (kein Homebrew nötig). Ein externes ffmpeg
 # wird nur noch genutzt, wenn DOLMETSCHER_FFMPEG ausdrücklich gesetzt ist (Rückwärtskompatibilität).
 FFMPEG = os.environ.get("DOLMETSCHER_FFMPEG") or None
@@ -671,12 +677,24 @@ def _make_logger():
     return _LOGGER
 
 
+def _redact(v, hide=False, depth=0):
+    """Nr. 62: Gesprächstext auch in verschachtelten Dicts/Listen ersetzen. hide: Wert steht unter einem
+    Textschlüssel – dann jeder String darin. Tiefe begrenzt (Zyklen, riesige Strukturen)."""
+    if depth > 6:
+        return "…"
+    if isinstance(v, str):
+        return f"<{len(v)} Zeichen>" if hide else v
+    if isinstance(v, dict):
+        return {k: _redact(x, hide or k in _TEXT_KEYS, depth + 1) for k, x in v.items()}
+    if isinstance(v, (list, tuple)):
+        return [_redact(x, hide, depth + 1) for x in v]
+    return v
+
+
 def log(d):
     try:
         if not LOG_TEXT:
-            d = {k: (f"<{len(v)} Zeichen>" if k in _TEXT_KEYS and isinstance(v, str) else
-                      [f"<{len(x)} Zeichen>" for x in v] if k in _TEXT_KEYS and isinstance(v, (list, tuple)) else v)
-                 for k, v in d.items()}
+            d = _redact(d)
         _logger().info(json.dumps(d, ensure_ascii=False))
     except Exception:
         pass
@@ -1561,6 +1579,13 @@ _NUM_AFTER = re.compile(r"^\s*(?:บาท|โมง|นาที|ชั่ว�
                         r"km|kg|minutes?|hours?|days?|years?|people)", re.I)
 
 
+def speak_form(text, lang):
+    """Nr. 52: Thai-Lachen „555“ (ohne Zahlkontext) als ฮ่าฮ่าฮ่า vorlesen statt „ห้าห้าห้า“; die Anzeige bleibt."""
+    if lang != "th" or "5" not in text:
+        return text
+    return re.sub(r"\s{2,}", " ", _laugh_sub(text, " ฮ่าฮ่าฮ่า ")).strip()
+
+
 def _laugh_sub(text, repl=" "):
     """Thai-Lachen ersetzen; ein 555 mit Zahl-/Einheitenkontext ("ห้อง 555", "555 บาท") bleibt stehen."""
     def one(m):
@@ -1628,6 +1653,15 @@ def _llm_billing(e):
     return sc == 402 or (sc in (400, 403, 429, None) and bool(_BILLING_RX.search(str(e))))
 
 
+def _llm_retry_after(e):
+    """retry-after (Sekunden) aus der Antwort des SDK-Fehlers, begrenzt auf 1 … 600 s; sonst None."""
+    try:
+        v = float(e.response.headers.get("retry-after"))
+    except (AttributeError, TypeError, ValueError):
+        return None
+    return min(max(v, 1.0), 600.0) if v == v else None
+
+
 def _llm_backoff(e):
     """Wie lange nach einem Claude-Fehler direkt Google? Kurz bei Zeitüberschreitung/400, lang bei Auth
     und sehr lang bei leerem Guthaben/Kontingent."""
@@ -1641,6 +1675,11 @@ def _llm_backoff(e):
         return 300.0                                     # Schlüssel falsch: nicht jeden Satz neu versuchen
     if sc == 400 or isinstance(e, TimeoutError) or "Timeout" in name:
         return 10.0
+    if sc in (429, 529):                                 # Nr. 57: Ratelimit/überlastet – Server-Vorgabe nutzen
+        ra = _llm_retry_after(e)
+        if ra is not None:
+            return ra
+        return LLM_BACKOFF if sc == 429 else 20.0
     if "Connection" in name:
         return 15.0
     return LLM_BACKOFF
@@ -1979,7 +2018,10 @@ _TH_NUM_RUN = re.compile("(?:" + "|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], ke
                          + r")(?:(?:" + "|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], key=len, reverse=True))
                          + "))*")
 _TH_TOKEN = re.compile("|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], key=len, reverse=True)))
-_SCALE = re.compile(r"(\d+(?:[.,]\d+)?)\s*(million|mio\.?|billion|พันล้าน|ล้าน)", re.I)
+_SCALE = re.compile(r"(\d+(?:[.,]\d+)?)\s*(million|mio\.?|billion|thousand|พันล้าน|ล้าน|แสน|หมื่น|พัน)"
+                    r"|(\d+(?:[.,]\d+)?)(k)\b", re.I)
+_SCALE_F = {"billion": 1e9, "พันล้าน": 1e9, "million": 1e6, "mio": 1e6, "mio.": 1e6, "ล้าน": 1e6, "แสน": 1e5,
+            "หมื่น": 1e4, "thousand": 1e3, "พัน": 1e3, "k": 1e3}
 
 # Englische Zahlwörter ("three hundred fifty", "twenty-five") für den Zahlenvergleich in Ziffern
 _EN_UNIT_W = {"zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8,
@@ -2066,10 +2108,10 @@ def thai_words_to_digits(s):
 
 
 def _scale_sub(m):
-    g = m.group(1)
+    """1.5 million / 1.5 ล้าน / 10k / 10 thousand / 2 หมื่น / 3 แสน -> Ziffern (Nr. 54)."""
+    g, unit = (m.group(1), m.group(2)) if m.group(1) else (m.group(3), m.group(4))
     n = float(g.replace(",", "") if re.fullmatch(r"\d{1,3},\d{3}", g) else g.replace(",", "."))
-    unit = m.group(2).lower()
-    return f"{round(n * (1e9 if unit in ('billion', 'พันล้าน') else 1e6))}"
+    return f"{round(n * _SCALE_F[unit.lower()])}"
 
 
 _PM_TIME = re.compile(r"(?<![\d.:])(\d{1,2})(?::(\d{2}))?\s*([ap])\.?\s*m\b\.?", re.I)
@@ -2185,7 +2227,12 @@ def numbers_differ(a, b):
                     mine.discard(x)
                     other.discard(y)
                     break
-    return any(len(re.sub(r"\D", "", x)) >= 2 for x in only_a | only_b)
+    if any(len(re.sub(r"\D", "", x)) >= 2 for x in only_a | only_b):
+        return True
+    # Nr. 53: einstellige Zahlen nur, wenn sie auf beiden Seiten als Ziffern dastehen („table for 2“ ->
+    # „โต๊ะ 3 ที่“); als Wort übersetzt (2 = สอง) zählen sie nach der Umrechnung ohnehin als gleich
+    da, db = set(_numbers(a, words=False)), set(_numbers(b, words=False))
+    return bool({x for x in only_a if x in da and x.isdigit()} and {y for y in only_b if y in db and y.isdigit()})
 
 
 _TH_CH = "\u0e01-\u0e4e"                     # Thai-Buchstaben/-Vokale/-Tonzeichen (ohne Ziffern)
@@ -2676,7 +2723,8 @@ class Player:
                 self.killed.discard(p)
                 if start is not None:
                     self.spans = (self.spans + [(start, time.time())])[-20:]
-                    log({"play_span": [round(start % 1000, 2), round(time.time() % 1000, 2)]})
+                    if DEBUG:          # Nr. 48: sonst verdrängt es echte Fehler aus dem Log
+                        log({"play_span": [round(start % 1000, 2), round(time.time() % 1000, 2)]})
 
     def run(self, cmd):
         self.wait(self.start(cmd))
@@ -2926,11 +2974,15 @@ def _ssml(text, voice, rate):
         return None
 
 
+WS_RECV_S = 8.0                        # s ohne neue Nachricht -> Verbindung gilt als hängend
+
+
 async def _ws_speak(ssml, put, stopped):
     """SSML über eine (möglichst schon offene) Verbindung senden, Audioblöcke an put() geben.
     Eine Vorrats-Verbindung kann der Server inzwischen geschlossen haben: kam noch kein Ton,
     einmal mit einer frisch geöffneten wiederholen."""
     import aiohttp
+    import asyncio
     for attempt in (0, 1):
         ws = _ws_take() if attempt == 0 else None
         pooled = ws is not None
@@ -2939,7 +2991,12 @@ async def _ws_speak(ssml, put, stopped):
             if ws is None:
                 ws = await _ws_open()
             await ws.send_str(ssml)
-            async for m in ws:
+            it = ws.__aiter__()
+            while True:                        # Nr. 36: hängt der Server, nicht bis cancel() warten
+                try:
+                    m = await asyncio.wait_for(it.__anext__(), WS_RECV_S)
+                except StopAsyncIteration:
+                    break
                 if stopped():
                     return pooled
                 if m.type == aiohttp.WSMsgType.TEXT:
@@ -3380,7 +3437,7 @@ class Speaker:
         item = {"id": uid, "lang": lang, "kind": kind, "parts": [], "t_end": t_end}
         if kind == "speech":
             boost = self.boost(behind)
-            for i, s in enumerate(split_sentences(apply_pronounce(text), lang)):
+            for i, s in enumerate(split_sentences(apply_pronounce(speak_form(text, lang)), lang)):
                 # Nur die ersten Teile sofort anfragen; die übrigen erst, wenn der vorige zu spielen
                 # beginnt (sonst viele Websockets + say-Prozesse gleichzeitig, mitten in der Erkennung).
                 stream, local = self._prepare(s, lang, boost) if i < self.PRESTART else (None, None)
@@ -4153,8 +4210,8 @@ class Engine:
                 info["drop"] = f"halluzination ({hall})"
                 text = ""
         low = _strip_punct(text).lower()
-        if text and (low in JUNK or (low in JUNK_IF_SHORT and (1.0 if rms is None else rms) < 0.01
-                                     and audio.size / SR < 1.5)):
+        if text and (low in JUNK or _JUNK_BY.fullmatch(_junk_norm(low))
+                     or (low in JUNK_IF_SHORT and (1.0 if rms is None else rms) < 0.01 and audio.size / SR < 1.5)):
             info["drop"] = "floskel"
             text = ""
         if not text:

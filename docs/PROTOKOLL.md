@@ -410,3 +410,9 @@ Neue Felder kommen nur dazu, `PROTOCOL` bleibt 1.
   nur bei fehlendem Netz (Offline-Schalter oder Netzfehler) und nur für ein laut `ready`-Zeile installiertes
   Sprachpaar; `utt.provider` ist dann `apple`. Höchstens 6 s je Satz, Start des Helfers höchstens 5 s
   (danach 60 s kein neuer Versuch). Das App-Bundle liefert den Helfer noch nicht mit.
+- **Verhalten ohne neue Felder:** Websocket der Neural-Stimme bricht nach 8 s ohne Nachricht ab (36);
+  `play_span` nur noch im Debug-Log (48); Thai-Lachen „555“ wird als ฮ่าฮ่าฮ่า vorgelesen, die Anzeige bleibt (52);
+  einstellige Zahlen zählen im Zahlenvergleich, wenn beide Seiten Ziffern tragen (53); `k`, `thousand`, พัน,
+  หมื่น, แสน hinter Ziffern werden umgerechnet (54); weitere Abspann-Floskeln, auch „Subtitles by <Name>“ (55);
+  Claude-429/529 nutzen `retry-after` (1 … 600 s), 529 ohne Angabe 20 s (57); das Log filtert Gesprächstext
+  auch in verschachtelten Werten (62).

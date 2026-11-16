@@ -111,3 +111,126 @@ def test_offline_mt_zeitgrenze(helper, monkeypatch):
     t = d.time.monotonic()
     assert mt.translate("hang", "en", "th") is None
     assert d.time.monotonic() - t < 3 and mt.proc is None   # hängender Helfer wird beendet
+
+
+# --- 62: Log-Filter rekursiv ---------------------------------------------------------------------------------
+
+def test_log_filter_verschachtelt(monkeypatch):
+    seen = []
+    monkeypatch.setattr(d, "LOG_TEXT", False)
+    monkeypatch.setattr(d, "_logger", lambda: types.SimpleNamespace(info=seen.append))
+    d.log({"utt": {"text": "geheim", "n": 3, "alts": [{"text": "auch geheim"}]}, "hyps": [{"out": "x y"}],
+           "ok": "bleibt"})
+    s = seen[-1]
+    assert "geheim" not in s and "x y" not in s and "bleibt" in s and '"n": 3' in s
+
+
+# --- 57: Retry-After bei Claude-429/529 --------------------------------------------------------------------
+
+def _api_err(code, ra=None):
+    e = Exception("x")
+    e.status_code = code
+    e.response = types.SimpleNamespace(headers={"retry-after": ra} if ra is not None else {})
+    return e
+
+
+def test_claude_backoff_nutzt_retry_after():
+    assert d._llm_backoff(_api_err(429, "7")) == 7.0
+    assert d._llm_backoff(_api_err(529, "2")) == 2.0
+    assert d._llm_backoff(_api_err(429)) == d.LLM_BACKOFF
+    assert d._llm_backoff(_api_err(529)) == 20.0          # überlastet: kürzer als Ratelimit
+    assert d._llm_backoff(_api_err(429, "99999")) == 600.0
+    assert d._llm_backoff(_api_err(429, "abc")) == d.LLM_BACKOFF
+
+
+# --- 53/54: Zahlenvergleich ----------------------------------------------------------------------------------
+
+@pytest.mark.parametrize("a,b,differ", [
+    ("table for 2", "โต๊ะสำหรับ 3 ที่", True),            # 53: beide Ziffern, einstellig
+    ("table for 2", "โต๊ะสำหรับสองที่", False),           # als Wort übersetzt
+    ("table for 2", "โต๊ะสำหรับ 2 ที่", False),
+    ("I have 2 kids", "ฉันมีลูก", False),                 # nur eine Seite mit Zahl
+    ("10k baht", "หนึ่งหมื่นบาท", False),                # 54
+    ("10k baht", "10,000 บาท", False),
+    ("10 thousand baht", "10000 บาท", False),
+    ("20k baht", "หนึ่งหมื่นบาท", True),
+    ("3 แสนบาท", "300,000 baht", False),
+    ("2 หมื่น", "20,000", False),
+    ("5 พันบาท", "5,000 baht", False),
+    ("1.5 ล้าน", "1.5 million", False),
+    ("5 km", "5 กิโลเมตร", False),                        # km ist kein k
+])
+def test_numbers_runde4(a, b, differ):
+    assert d.numbers_differ(a, b) is differ
+
+
+# --- 55: Floskeln ----------------------------------------------------------------------------------------------
+
+@pytest.mark.parametrize("t", ["Thanks for listening!", "ขอบคุณที่ดูนะคะ", "Subtitles by Somchai",
+                               "subtitles by the amara.org community"])
+def test_floskeln_runde4(t):
+    low = d._strip_punct(t).lower()
+    assert low in d.JUNK or d._JUNK_BY.fullmatch(d._junk_norm(low))
+
+
+def test_floskel_nur_ganze_aeusserung():
+    low = d._strip_punct("thanks for listening to my problem").lower()
+    assert low not in d.JUNK and not d._JUNK_BY.fullmatch(d._junk_norm("subtitles are bad"))
+
+
+# --- 52: 555 vorlesen ----------------------------------------------------------------------------------------
+
+def test_555_als_lachen_vorlesen():
+    assert d.speak_form("ตลกมาก 555", "th") == "ตลกมาก ฮ่าฮ่าฮ่า"
+    assert d.speak_form("ห้อง 555 ครับ", "th") == "ห้อง 555 ครับ"      # Zimmernummer bleibt
+    assert d.speak_form("555 baht", "en") == "555 baht"
+
+
+# --- 48: play_span nur im Debug ----------------------------------------------------------------------------
+
+def test_play_span_nur_debug(monkeypatch):
+    seen = []
+    monkeypatch.setattr(d, "log", seen.append)
+    monkeypatch.setattr(d, "DEBUG", False)
+    pl = d.Player()
+    class P:
+        def wait(self, timeout=None):
+            return 0
+    p = P()
+    pl.procs[p] = d.time.time()
+    pl.wait(p)
+    assert not any("play_span" in x for x in seen) and pl.spans
+
+
+# --- 36: Websocket-Zeitlimit je Nachricht -------------------------------------------------------------------
+
+def test_ws_haengt_nach_erstem_block(monkeypatch):
+    import asyncio
+
+    import aiohttp
+
+    class WS:
+        closed = False
+
+        async def send_str(self, s):
+            pass
+
+        def __aiter__(self):
+            async def gen():
+                yield types.SimpleNamespace(type=aiohttp.WSMsgType.BINARY, data=b"\x00\x02xxAUDIO")
+                await asyncio.sleep(30)                 # Server hängt
+                yield None
+            return gen()
+
+    monkeypatch.setitem(d._WS, "pool", [])
+
+    async def opened():
+        return WS()
+    monkeypatch.setattr(d, "_ws_open", opened)
+    monkeypatch.setattr(d, "_spawn", lambda c: c.close())
+    monkeypatch.setattr(d, "WS_RECV_S", 0.2)
+    got = []
+    t = d.time.monotonic()
+    with pytest.raises(asyncio.TimeoutError):
+        asyncio.run(d._ws_speak("<ssml/>", got.append, lambda: False))
+    assert got == [b"AUDIO"] and d.time.monotonic() - t < 3
