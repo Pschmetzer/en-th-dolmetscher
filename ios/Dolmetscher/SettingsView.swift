@@ -70,6 +70,10 @@ struct SettingsView: View {
                         } else if whisper.ready == whisper.selected {
                             Label(T("whisper_installed"), systemImage: "checkmark.circle.fill").foregroundStyle(.green)
                         } else {
+                            if let r = whisper.ready {
+                                Label(T("whisper_installed") + ": " + WhisperCatalog.label(r), systemImage: "checkmark.circle")
+                                    .foregroundStyle(.secondary)
+                            }
                             Button { whisper.download() } label: {
                                 Label(T("whisper_get") + Self.size(whisper.selected), systemImage: "arrow.down.circle")
                             }

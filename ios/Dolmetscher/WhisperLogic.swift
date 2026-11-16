@@ -101,7 +101,8 @@ enum Hallucination {
         let low = text.lowercased().trimmingCharacters(in: .punctuationCharacters.union(.whitespaces))
         if isJunk(text) { return nil }
         if junkIfShort.contains(low), rms < 0.01, duration < 1.5 { return nil }
-        return text.isEmpty ? nil : text
+        // Nur Satzzeichen („>>“, „(“, „…“) – Whisper liefert das gern bei Rauschen.
+        return norm(text).isEmpty ? nil : text
     }
 }
 
