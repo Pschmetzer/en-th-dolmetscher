@@ -1876,6 +1876,17 @@ def numbers_differ(a, b):
                 only_a.discard(x)
                 only_b.discard(y)
                 break
+    # volle Stunde gegen nackte Zahl („at 8“ / „um 8 Uhr“ = สองทุ่ม): ebenfalls im 12-Stunden-Abstand gleich
+    for times, mine, other in ((ta, only_a, only_b), (tb, only_b, only_a)):
+        for x in list(mine & times):
+            hx = _time_hm(x)
+            if not hx or hx[1]:
+                continue
+            for y in list(other):
+                if y.isdigit() and int(y) <= 24 and int(y) % 12 == hx[0] % 12:
+                    mine.discard(x)
+                    other.discard(y)
+                    break
     return any(len(re.sub(r"\D", "", x)) >= 2 for x in only_a | only_b)
 
 

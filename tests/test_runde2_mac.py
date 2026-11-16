@@ -23,7 +23,8 @@ def test_absturz_mitteilung_nur_ohne_fenster_und_mit_neustart():
 
 def test_auto_scroll_wertet_inhalt_statt_nur_mausrad():
     v = APP["Views.swift"]
-    assert "AutoScroll.userScrolledAway(now: Date(), lastWheelUp:" in v
+    assert "AutoScroll.userScrolledAway(" in v and "if !bottomVisible, AutoScroll" in v
+    assert "onChange(of: g.size.height) { scrollBox.lastContentChange = Date() }" in v   # Band/Fenster schrumpft
     assert ".onChange(of: shown.last) { scrollBox.lastContentChange = Date() }" in v
     rule = v.split("enum AutoScroll", 1)[1].split("\n}\n", 1)[0]
     assert "> contentGrace" in rule

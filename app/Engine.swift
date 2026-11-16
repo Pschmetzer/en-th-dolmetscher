@@ -238,7 +238,7 @@ final class EngineModel: NSObject, ObservableObject {
     @Published var llmBudget = ud.object(forKey: "llmBudget") as? Double ?? 0 {
         didSet {
             let v = min(10000, max(0, llmBudget.isFinite ? llmBudget : 0))
-            if v != llmBudget { llmBudget = v; return }
+            if v != llmBudget { llmBudget = v }   // Zuweisung im eigenen didSet löst es nicht erneut aus
             Self.ud.set(llmBudget, forKey: "llmBudget"); send(["llm_budget": llmBudget])
         }
     }

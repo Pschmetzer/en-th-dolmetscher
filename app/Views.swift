@@ -323,13 +323,21 @@ struct ContentView: View {
                         .onAppear { bottomVisible = true; userScrolledUp = false }
                         .onDisappear {
                             bottomVisible = false
-                            if AutoScroll.userScrolledAway(now: Date(), lastWheelUp: scrollBox.lastWheelUp,
-                                                           lastContentChange: scrollBox.lastContentChange) {
-                                userScrolledUp = true
+                            // einen Durchlauf später prüfen: Inhalts-/Größenänderung desselben Layouts zählt mit
+                            DispatchQueue.main.async {
+                                if !bottomVisible, AutoScroll.userScrolledAway(
+                                    now: Date(), lastWheelUp: scrollBox.lastWheelUp,
+                                    lastContentChange: scrollBox.lastContentChange) {
+                                    userScrolledUp = true
+                                }
                             }
                         }
                 }.padding(16)
             }
+            // Sichtfeld wird kleiner (Hinweisband erscheint, Fenster schrumpft): kein Hochscrollen des Nutzers
+            .background(GeometryReader { g in
+                Color.clear.onChange(of: g.size.height) { scrollBox.lastContentChange = Date() }
+            })
             .onChange(of: shown.last) { scrollBox.lastContentChange = Date() }   // Text/Übersetzung wächst
             .onChange(of: shown.count) { scrollBox.lastContentChange = Date() }
             .onChange(of: scale) { scrollBox.lastContentChange = Date() }

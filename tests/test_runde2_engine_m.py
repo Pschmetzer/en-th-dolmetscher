@@ -31,6 +31,8 @@ def ev(monkeypatch):
     ("quarter to nine", "8:45"),
     ("at midnight", "เที่ยงคืน"),
     ("1 pm", "บ่ายโมง"),
+    ("See you at 8", "เจอกันสองทุ่มนะ"),     # nackte Stunde gegen Thai-Zeit (vorher kein Alarm)
+    ("um 8 Uhr", "สองทุ่ม"),
 ])
 def test_uhrzeiten_gelten_als_gleich(a, b):
     assert not d.numbers_differ(a, b)
