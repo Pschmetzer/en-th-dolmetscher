@@ -79,10 +79,12 @@ jobs:
         run: |
           swiftc --version
           swiftc -typecheck -parse-as-library -target arm64-apple-macos14.0 app/*.swift
+      # Ohne -O: mit dem Swift 6.2 von macos-26 dauert der optimierte Lauf ~11 min statt ~1 min; Übersetzen und
+      # Linken (fehlende Symbole, Frameworks) prüft der Debug-Build genauso. -O baut build.sh für die echte App.
       - name: Compile
         run: |
           mkdir -p build
-          swiftc -O -parse-as-library -target arm64-apple-macos14.0 -o build/Dolmetscher app/*.swift
+          swiftc -parse-as-library -target arm64-apple-macos14.0 -o build/Dolmetscher app/*.swift
 
   lint:
     runs-on: ubuntu-latest
