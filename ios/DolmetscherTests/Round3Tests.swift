@@ -52,6 +52,8 @@ final class RomanizerTests: XCTestCase {
         XCTAssertEqual(r.split(separator: " ").count, 3, r)
         XCTAssertTrue(r.unicodeScalars.allSatisfy { $0.isASCII }, "nur ASCII: \(r)")
         XCTAssertTrue(r.hasSuffix("khrab"), r)
+        let city = try XCTUnwrap(Romanizer.latin("ตั๋วไปเชียงใหม่ราคาเท่าไหร่ครับ", .th))
+        XCTAssertTrue(city.unicodeScalars.allSatisfy { $0.isASCII }, "nur ASCII: \(city)")
     }
 
     func testChineseAndKorean() {

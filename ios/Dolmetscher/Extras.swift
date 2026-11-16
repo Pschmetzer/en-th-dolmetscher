@@ -30,6 +30,7 @@ enum Romanizer {
         guard Lang.th.scriptShare(w) > 0 else { return w }
         var s = w.applyingTransform(.toLatin, reverse: false) ?? w
         s = s.applyingTransform(.stripCombiningMarks, reverse: false) ?? s
+        s = s.applyingTransform(StringTransform("Latin-ASCII"), reverse: false) ?? s   // z. B. ı -> i
         return s.replacingOccurrences(of: "x", with: "o")
     }
 
