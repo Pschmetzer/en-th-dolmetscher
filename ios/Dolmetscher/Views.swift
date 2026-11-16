@@ -1,4 +1,5 @@
 // Views.swift – Hauptansicht: Kopf mit Sprachen und Status, Sprechblasen-Verlauf, Start-Knopf und Texteingabe.
+import StoreKit
 import SwiftUI
 
 enum LangStyle {
@@ -45,30 +46,16 @@ struct ContentView: View {
                             Button { m.sheet = .help } label: { Label(T("commands"), systemImage: "text.bubble") }
                         }
                         ShareLink(item: m.transcript) { Label(T("share"), systemImage: "square.and.arrow.up") }
-                            .disabled(m.entries.isEmpty)
+                            .disabled(m.visibleEntries.isEmpty)
                         Button(role: .destructive) { confirmClear = true } label: { Label(T("clear"), systemImage: "trash") }
-                            .disabled(m.entries.isEmpty)
+                            .disabled(m.visibleEntries.isEmpty)
                         Divider()
                         Button { m.sheet = .settings } label: { Label(T("settings"), systemImage: "gearshape") }
                     } label: { Image(systemName: "ellipsis.circle") }
                         .accessibilityLabel(T("more"))
                 }
             }
-            .sheet(item: $m.sheet) { s in
-                switch s {
-                case .settings: SettingsView()
-                case .phrasebook: PhrasebookView()
-                case .photo: PhotoTextView()
-                case .emergency: EmergencyView()
-                case .baht: BahtCalculatorView()
-                case .help:
-                    NavigationStack {
-                        ScrollView { CommandsCard().padding() }
-                            .toolbar { ToolbarItem(placement: .confirmationAction) { Button(T("done")) { m.sheet = nil } } }
-                    }
-                    .presentationDetents([.medium, .large])
-                }
-            }
+            .sheet(item: $m.sheet) { s in sheetView(s) }
             .confirmationDialog(T("clear_confirm"), isPresented: $confirmClear, titleVisibility: .visible) {
                 Button(T("clear"), role: .destructive) { m.clear() }
                 Button(T("cancel"), role: .cancel) {}
@@ -78,10 +65,36 @@ struct ContentView: View {
                 Button(T("cellular_wait"), role: .cancel) {}
             } message: { Text(T("cellular_msg")) }
             .fullScreenCover(isPresented: $showPartner) { PartnerView() }
+            .modifier(ReviewPrompt(covered: showPartner || big != nil))
+            #if DEBUG
+            .task { DebugScreens.apply(m, partner: $showPartner) }
+            #endif
             .fullScreenCover(item: $big) { e in BigTextView(entryID: e.id) }
             .alert(T("edit_text"), isPresented: Binding(get: { editing != nil }, set: { if !$0 { editing = nil } })) {
                 EditAlert(entry: editing) { text in if let e = editing { m.edit(e.id, text: text) } }
             }
+        }
+    }
+
+    @ViewBuilder private func sheetView(_ s: AppSheet) -> some View {
+        switch s {
+        case .settings: SettingsView()
+        case .phrasebook: PhrasebookView()
+        case .photo: PhotoTextView()
+        case .emergency: EmergencyView()
+        case .baht: BahtCalculatorView()
+        case .allergy: AllergyCardView()
+        case .privacy:
+            NavigationStack {
+                PrivacyView()
+                    .toolbar { ToolbarItem(placement: .confirmationAction) { Button(T("done")) { m.sheet = nil } } }
+            }
+        case .help:
+            NavigationStack {
+                ScrollView { CommandsCard().padding() }
+                    .toolbar { ToolbarItem(placement: .confirmationAction) { Button(T("done")) { m.sheet = nil } } }
+            }
+            .presentationDetents([.medium, .large])
         }
     }
 
@@ -150,6 +163,11 @@ struct ContentView: View {
                     .buttonStyle(.bordered)
                     .controlSize(.small)
             }
+            if m.micDenied, case .failed = m.phase, let url = URL(string: UIApplication.openSettingsURLString) {
+                Button(T("open_settings")) { UIApplication.shared.open(url) }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.small)
+            }
         }
         .frame(maxWidth: .infinity, minHeight: 22)
         .animation(.default, value: statusText)
@@ -162,10 +180,19 @@ struct ContentView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 12) {
-                    if m.entries.isEmpty && m.partial.isEmpty {
+                    if m.hiddenCount > 0 {
+                        Button { m.unlockHistory() } label: {
+                            Label(String(format: T("lock_hidden"), m.hiddenCount), systemImage: "lock.fill")
+                                .font(.footnote)
+                                .padding(.horizontal, 14).padding(.vertical, 8)
+                                .background(.quaternary, in: Capsule())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    if m.visibleEntries.isEmpty && m.partial.isEmpty && m.hiddenCount == 0 {
                         EmptyState { m.submit(T("example_sentence")) }
                     }
-                    ForEach(m.entries) { e in
+                    ForEach(m.visibleEntries) { e in
                         Bubble(entry: e, onBig: { big = e }, onEdit: { editing = e }).id(e.id)
                     }
                     if !m.partial.isEmpty {
@@ -245,6 +272,27 @@ struct ContentView: View {
     }
 }
 
+/// Bewertungsbitte nur, wenn nichts läuft und nichts offen ist (nie mitten im Gespräch).
+struct ReviewPrompt: ViewModifier {
+    @Environment(InterpreterModel.self) private var m
+    @Environment(\.requestReview) private var requestReview
+    let covered: Bool
+
+    private var ready: Bool { m.canAskReview && !covered }
+
+    func body(content: Content) -> some View {
+        content.onChange(of: ready) { _, ok in
+            guard ok else { return }
+            Task {
+                try? await Task.sleep(for: .seconds(1.5))
+                guard ready else { return }
+                m.reviewAsked()
+                requestReview()
+            }
+        }
+    }
+}
+
 /// Start/Stopp mit Pegel-Rand. Eigene View, damit der häufig wechselnde Pegel nur sie neu zeichnet.
 struct MicButton: View {
     @Environment(InterpreterModel.self) private var m
@@ -287,6 +335,7 @@ struct ProviderBadge: View {
         case "apple": Image(systemName: "iphone").accessibilityLabel(T("prov_offline"))
         case "phrasebook": Image(systemName: "book.closed").accessibilityLabel(T("phrasebook"))
         case "google", "mymemory": Image(systemName: "globe").accessibilityLabel(T("prov_online"))
+        case "card": Image(systemName: "hand.tap").accessibilityLabel(T("answer_cards"))
         default: EmptyView()
         }
     }
@@ -299,38 +348,92 @@ struct Bubble: View {
     var onEdit: () -> Void
 
     var body: some View {
-        let color = LangStyle.color(entry.target, m.pair)
-        let fromPartner = entry.src == m.pair.partner
+        let color: Color = LangStyle.color(entry.target, m.pair)
+        let fromPartner: Bool = entry.src == m.pair.partner
         HStack {
             if fromPartner { Spacer(minLength: 36) }
-            VStack(alignment: .leading, spacing: 6) {
-                Text("\(LangStyle.flag(entry.src)) \(entry.text)")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                if let t = entry.translation {
-                    Text(t)
-                        .font(.title3.weight(.semibold))
-                        .foregroundStyle(color)
-                    if let r = entry.roman { Text(r).font(.caption).italic().foregroundStyle(.secondary) }
-                } else if let err = entry.error {
-                    HStack {
-                        Text("⚠️ " + err).font(.callout).foregroundStyle(.red)
-                        Button(T("retry")) { m.retry(entry.id) }.buttonStyle(.bordered).controlSize(.small)
-                    }
-                } else {
-                    HStack(spacing: 6) { ProgressView().controlSize(.small); Text(T("translating")).font(.callout).foregroundStyle(.secondary) }
-                }
-                actions
-            }
-            .padding(12)
-            .background(color.opacity(0.12), in: RoundedRectangle(cornerRadius: 16))
-            .overlay(RoundedRectangle(cornerRadius: 16).stroke(color.opacity(m.speakingID == entry.id ? 0.8 : 0), lineWidth: 2))
-            .contentShape(RoundedRectangle(cornerRadius: 16))
-            .onTapGesture { if entry.translation != nil { onBig() } }
-            .accessibilityAction(named: T("show_big")) { if entry.translation != nil { onBig() } }
-            .contextMenu { menu }
+            accessible(card(color))
             if !fromPartner { Spacer(minLength: 36) }
         }
+    }
+
+    // Aufgeteilt in kleine Teile mit festen Typen – sonst braucht der Compiler zu lange (CI-Fehler).
+
+    @ViewBuilder private func translationPart(_ color: Color) -> some View {
+        if let t = entry.translation {
+            Text(t)
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(color)
+            RomanLine(text: roman)
+            if m.backCheck, let b = entry.back { BackLine(text: b, deviates: entry.backDeviates) }
+        } else if let err = entry.error {
+            HStack {
+                Text("⚠️ " + err).font(.callout).foregroundStyle(.red)
+                Button(T("retry")) { m.retry(entry.id) }.buttonStyle(.bordered).controlSize(.small)
+            }
+        } else {
+            HStack(spacing: 6) {
+                ProgressView().controlSize(.small)
+                Text(T("translating")).font(.callout).foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private func card(_ color: Color) -> some View {
+        let shape = RoundedRectangle(cornerRadius: 16)
+        let ring: Double = m.speakingID == entry.id ? 0.8 : 0
+        return VStack(alignment: .leading, spacing: 6) {
+            Text("\(LangStyle.flag(entry.src)) \(entry.text)")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            translationPart(color)
+            actions
+        }
+        .padding(12)
+        .background(color.opacity(0.12), in: shape)
+        .overlay(shape.stroke(color.opacity(ring), lineWidth: 2))
+        .contentShape(shape)
+        .onTapGesture { if entry.translation != nil { onBig() } }
+        .contextMenu { menu }
+    }
+
+    /// VoiceOver: eine Blase = ein Element; die Knöpfe als Aktionen.
+    private func accessible<V: View>(_ v: V) -> some View {
+        let done: Bool = entry.translation != nil
+        let traits: AccessibilityTraits = done ? .isButton : []
+        let hint: String = done ? T("show_big") : ""
+        return v
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(a11yLabel)
+            .accessibilityAddTraits(traits)
+            .accessibilityHint(hint)
+            .accessibilityAction { if done { onBig() } }
+            .accessibilityActions { a11yActions }
+    }
+
+    private var roman: String? { m.showRoman ? entry.romanized : entry.roman }
+
+    private var a11yLabel: String {
+        var parts = ["\(entry.src.name(in: L10n.lang)): \(entry.text)"]
+        if let t = entry.translation {
+            parts.append("\(entry.target.name(in: L10n.lang)): \(t)")
+            if m.backCheck, entry.backDeviates { parts.append(T("back_deviates")) }
+        }
+        else if let err = entry.error { parts.append(err) }
+        else { parts.append(T("translating")) }
+        return parts.joined(separator: ". ")
+    }
+
+    @ViewBuilder private var a11yActions: some View {
+        if entry.translation != nil {
+            Button(T("replay")) { m.speak(entry) }
+            Button(T("replay_slow")) { m.speak(entry, slow: true) }
+            Button(m.isFavorite(entry) ? T("unfavorite") : T("favorite")) { m.toggleFavorite(entry) }
+        }
+        if entry.error != nil { Button(T("retry")) { m.retry(entry.id) } }
+        if entry.alt?.isEmpty == false { Button(T("swap")) { m.swapLanguage(entry.id) } }
+        Button(T("edit_text"), action: onEdit)
+        Button(T("delete")) { m.delete(entry.id) }
     }
 
     private var actions: some View {
@@ -394,7 +497,7 @@ struct BigTextView: View {
                     .minimumScaleFactor(0.2)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(LangStyle.color(e?.target ?? m.pair.partner, m.pair))
-                if let r = e?.roman { Text(r).font(.title3).italic().foregroundStyle(.secondary) }
+                RomanLine(text: m.showRoman ? e?.romanized : e?.roman, font: .title3)
                 Text(e?.text ?? "").font(.title3).foregroundStyle(.secondary).multilineTextAlignment(.center)
             }
             .padding(24)
@@ -488,84 +591,35 @@ struct CommandsCard: View {
     }
 }
 
-/// Für das Gegenüber: groß (eine Person liest) oder geteilt (Handy liegt zwischen beiden, obere Hälfte gedreht).
-struct PartnerView: View {
-    @Environment(InterpreterModel.self) private var m
-    @Environment(\.dismiss) private var dismiss
-    @AppStorage("partnerFlipped") private var flipped = false
-    @AppStorage("partnerSplit") private var split = true
+/// Umschrift unter einer Übersetzung (eigene View: hält den Ausdruck in `Bubble` für den Compiler klein).
+struct RomanLine: View {
+    let text: String?
+    var font: Font = .caption
+    var body: some View {
+        if let text { Text(text).font(font).italic().foregroundStyle(.secondary) }
+    }
+}
 
-    /// Letzter Satz in der gewünschten Sprache (Original oder Übersetzung).
-    private func latest(in lang: Lang) -> String? {
-        guard let e = m.entries.last(where: { $0.translation != nil }) else { return nil }
-        if e.src == lang { return e.text }
-        return e.target == lang ? e.translation : nil
+/// Rückübersetzung, bei Abweichung orange mit Warnzeichen.
+struct BackLine: View {
+    let text: String
+    let deviates: Bool
+
+    private var icon: String { deviates ? "exclamationmark.triangle.fill" : "arrow.uturn.backward" }
+    private var tint: Color { deviates ? .orange : .secondary }
+    private var label: String {
+        let head: String = T("back_label") + ": " + text
+        return deviates ? T("back_deviates") + ". " + head : head
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            if split {
-                side(m.pair.partner).rotationEffect(.degrees(180))
-                Divider()
-                controls
-                Divider()
-                side(m.pair.mine)
-            } else {
-                single.rotationEffect(.degrees(flipped ? 180 : 0))
-                Divider()
-                controls
-            }
+        HStack(alignment: .firstTextBaseline, spacing: 4) {
+            Image(systemName: icon)
+            Text(text)
         }
-        .persistentSystemOverlays(.hidden)
-        .onAppear { UIApplication.shared.isIdleTimerDisabled = true }
-        .onDisappear { UIApplication.shared.isIdleTimerDisabled = m.isListening }
-    }
-
-    private func side(_ lang: Lang) -> some View {
-        // Platzhalter in der Sprache dieser Seite (soweit die Oberfläche sie kennt), sonst Flagge + Mikrofon.
-        Text(latest(in: lang) ?? L10n.text("just_talk", lang: lang.rawValue) ?? "\(lang.flag) 🎙")
-            .font(.system(size: 48, weight: .bold))
-            .minimumScaleFactor(0.2)
-            .multilineTextAlignment(.center)
-            .foregroundStyle(latest(in: lang) == nil ? Color.secondary : LangStyle.color(lang, m.pair))
-            .padding(20)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(LangStyle.color(lang, m.pair).opacity(0.06))
-    }
-
-    private var single: some View {
-        Group {
-            if let e = m.entries.last(where: { $0.translation != nil }), let t = e.translation {
-                Text(t)
-                    .font(.system(size: 64, weight: .bold))
-                    .minimumScaleFactor(0.25)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(LangStyle.color(e.target, m.pair))
-            } else {
-                Text(T("partner_empty")).font(.title2).foregroundStyle(.secondary).multilineTextAlignment(.center)
-            }
-        }
-        .padding(24)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
-    private var controls: some View {
-        HStack {
-            Button { split.toggle() } label: {
-                Image(systemName: split ? "rectangle" : "rectangle.split.1x2")
-            }
-            .accessibilityLabel(T("split_view"))
-            if !split {
-                Button { flipped.toggle() } label: { Image(systemName: "arrow.up.arrow.down") }
-                    .accessibilityLabel(T("flip"))
-            }
-            Spacer()
-            MicButton().frame(maxWidth: 200)
-            Spacer()
-            Button(T("done")) { dismiss() }
-        }
-        .font(.title3)
-        .padding(.horizontal)
-        .padding(.vertical, 8)
+        .font(.caption)
+        .foregroundStyle(tint)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(label)
     }
 }

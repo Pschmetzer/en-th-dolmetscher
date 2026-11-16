@@ -21,12 +21,19 @@ struct Entry: Identifiable, Codable, Equatable {
     var provider: String?
     /// Aussprache-Hilfe (nur Satzbuch)
     var roman: String?
+    /// Rückübersetzung der Übersetzung in die Ausgangssprache (nur auf dem Gerät) – zur Kontrolle.
+    var back: String?
+
+    /// Umschrift: die geprüfte aus dem Satzbuch, sonst automatisch (th/ja/ko/zh).
+    var romanized: String? { roman ?? translation.flatMap { Romanizer.latin($0, target) } }
+    /// Rückübersetzung weicht deutlich ab – Übersetzung prüfen.
+    var backDeviates: Bool { back.map { BackCheck.deviates(original: text, back: $0) } ?? false }
 
     var target: Lang { dst ?? (src == .th ? .en : .th) }
 }
 
 enum AppSheet: String, Identifiable {
-    case settings, phrasebook, photo, help, emergency, baht
+    case settings, phrasebook, photo, help, emergency, baht, allergy, privacy
     var id: String { rawValue }
 }
 
@@ -60,6 +67,10 @@ final class InterpreterModel {
     var canUndoClear = false
     /// Sprachmodell müsste über Mobilfunk geladen werden: erst fragen.
     var cellularDownloadPrompt = false
+    /// Mikrofon oder Spracherkennung verweigert: Knopf „Einstellungen öffnen“ zeigen.
+    var micDenied = false
+    /// „Jetzt Sie“ / „Jetzt ich“: diese Sprache wird als Nächstes erwartet (bis zum nächsten Satz oder Ablauf).
+    var expected: Lang?
 
     var pair: LangPair {
         didSet {
@@ -91,6 +102,19 @@ final class InterpreterModel {
     /// Thai-Ausgabe immer über den Lautsprecher, auch mit Kopfhörern (das Gegenüber soll es hören).
     var thaiOnSpeaker: Bool { didSet { save("thaiOnSpeaker", thaiOnSpeaker) } }
     var emergency: EmergencyInfo { didSet { files.store(emergency, "emergency.json") } }
+    /// Rückübersetzung (offline) unter jeder Übersetzung anzeigen.
+    var backCheck: Bool { didSet { save("backCheck", backCheck); if !backCheck { clearBack() } } }
+    /// Umschrift unter Thai/Japanisch/Koreanisch/Chinesisch.
+    var showRoman: Bool { didSet { save("showRoman", showRoman) } }
+    /// Älteren Verlauf erst nach Face ID / Code zeigen.
+    var lockHistory: Bool { didSet { save("lockHistory", lockHistory); if !lockHistory { historyUnlocked = true } } }
+    /// Gesperrt: Einträge vor diesem Zeitpunkt sind verborgen, bis entsperrt wird.
+    var historyUnlocked = true
+    @ObservationIgnored private var lockedBefore = Date()
+    /// Jetzt wäre ein guter Moment für die Bewertungsbitte (die Ansicht fragt, wenn nichts offen ist).
+    var reviewDue = false
+    @ObservationIgnored private var review = ReviewGate.load(.standard)
+    @ObservationIgnored private var sessionTranslations = 0
 
     @ObservationIgnored private var engine: (any SpeechEngine)?
     @ObservationIgnored private var listenTask: Task<Void, Never>?
@@ -120,6 +144,8 @@ final class InterpreterModel {
     @ObservationIgnored private var lastRecognizerFailure = Date.distantPast
     /// Einmal erlaubt: Sprachmodell trotz Mobilfunk laden.
     @ObservationIgnored private var cellularAllowed = false
+    @ObservationIgnored private var expectedUntil = Date.distantPast
+    @ObservationIgnored private var expectTask: Task<Void, Never>?
 
     /// Standard „aus“: ohne ausdrückliche Erlaubnis gehen keine Gespräche an Google/MyMemory.
     nonisolated static func allowOnlineSetting(_ d: UserDefaults = .standard) -> Bool { d.object(forKey: "allowOnline") as? Bool ?? false }
@@ -147,6 +173,10 @@ final class InterpreterModel {
         historyDays = d.object(forKey: "historyDays") as? Int ?? 30
         thaiOnSpeaker = d.object(forKey: "thaiOnSpeaker") as? Bool ?? true
         emergency = files.load(EmergencyInfo.self, "emergency.json").value ?? EmergencyInfo()
+        backCheck = d.object(forKey: "backCheck") as? Bool ?? true
+        showRoman = d.object(forKey: "showRoman") as? Bool ?? true
+        lockHistory = d.object(forKey: "lockHistory") as? Bool ?? false
+        historyUnlocked = !lockHistory
         L10n.lang = uiLang
         Haptics.enabled = haptics
         loadHistory()
@@ -221,6 +251,8 @@ final class InterpreterModel {
         guard !isBusy, !isListening else { return }
         phase = .loading
         paused = false
+        micDenied = false
+        sessionTranslations = 0
         generation += 1
         let mine = generation
         let pendingStop = stopTask
@@ -298,6 +330,7 @@ final class InterpreterModel {
                 whisperPreparing = false
                 if generation == mine {
                     download = nil
+                    if case .denied? = error as? SpeechError { micDenied = true }
                     phase = .failed(error.localizedDescription)
                     Haptics.error()
                 }
@@ -305,7 +338,8 @@ final class InterpreterModel {
         }
     }
 
-    func stop() {
+    /// `endConversation`: false bei einem Neustart (Moduswechsel, Kopfhörer) – dasselbe Gespräch läuft weiter.
+    func stop(endConversation: Bool = true) {
         generation += 1
         download = nil
         whisperPreparing = false
@@ -320,6 +354,7 @@ final class InterpreterModel {
         engine = nil
         listenTask?.cancel()
         stopSpeaking()
+        if endConversation { conversationEnded() }
         phase = .idle
         partial = ""; level = 0; hearing = false
         UIApplication.shared.isIdleTimerDisabled = false
@@ -328,9 +363,31 @@ final class InterpreterModel {
     }
 
     private func restart() {
-        stop()
+        let n = sessionTranslations
+        stop(endConversation: false)
         start()
+        sessionTranslations = n   // Neustart (Moduswechsel, Kopfhörer) ist dasselbe Gespräch
     }
+
+    /// Ende eines Gesprächs: zählt für die Bewertungsbitte.
+    private func conversationEnded() {
+        review.conversationEnded(translations: sessionTranslations)
+        sessionTranslations = 0
+        review.save(d)
+        if review.shouldAsk(version: Self.version, busy: false) { reviewDue = true }
+    }
+
+    nonisolated static var version: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0" }
+
+    /// Die Ansicht hat gefragt (oder fragt jetzt) – höchstens einmal je Version.
+    func reviewAsked() {
+        reviewDue = false
+        review.asked(version: Self.version)
+        review.save(d)
+    }
+
+    /// Nie mitten im Gespräch fragen.
+    var canAskReview: Bool { reviewDue && phase == .idle && speakingID == nil && sheet == nil }
 
     /// Nach Rückfrage: Sprachmodell trotz Mobilfunk laden.
     func startAllowingCellular() {
@@ -340,6 +397,7 @@ final class InterpreterModel {
 
     /// App geht in den Hintergrund: ohne Hintergrund-Einstellung aufhören zuzuhören.
     func enteredBackground() {
+        lockNow()
         guard !background else { return }
         resumeOnForeground = isListening || isBusy
         stop()
@@ -383,7 +441,7 @@ final class InterpreterModel {
         case .partial(let seen):
             guard !paused else { return }
             // Gleiche Wahl wie für den fertigen Satz (Schrift, echte Konfidenz) – nicht immer Englisch.
-            partial = LanguagePick.pick(seen, pair: pair).flatMap { seen[$0]?.text } ?? ""
+            partial = LanguagePick.pick(seen, pair: pair, bias: turnBias, expect: activeExpectation).flatMap { seen[$0]?.text } ?? ""
         case .utterance(let heard): self.heard(heard)
         case .failed(let why):
             guard phase == .listening else { return }
@@ -420,7 +478,8 @@ final class InterpreterModel {
             run(cmd)
             return
         }
-        guard let lang = LanguagePick.pick(hyps, pair: pair), pair.contains(lang) else { return }
+        guard let lang = LanguagePick.pick(hyps, pair: pair, bias: turnBias, expect: activeExpectation),
+              pair.contains(lang) else { return }
         if commands, lang == .en, let text = hyps[.en]?.text, let cmd = Commands.detect(text, awake: awake) {
             Haptics.command()
             run(cmd)
@@ -429,11 +488,42 @@ final class InterpreterModel {
         guard !paused else { return }
         let text = hyps[lang]?.text ?? ""
         let alt = hyps[pair.other(lang)]?.text
+        clearExpectation()
         Haptics.heard()
         add(Entry(src: lang, dst: pair.other(lang), text: text, alt: alt))
         #if DEBUG
         debugLog.info("heard \(lang.rawValue, privacy: .public): \(text, privacy: .public)")
         #endif
+    }
+
+    /// Gesprächs-Hinweis für die Sprachwahl: die andere Sprache des letzten gesprochenen Satzes.
+    private var turnBias: Lang? {
+        LanguagePick.turnBias(lastSpoken: entries.last(where: { $0.provider != "phrasebook" })?.src, pair: pair)
+    }
+
+    private var activeExpectation: Lang? { Date() < expectedUntil ? expected : nil }
+
+    /// „Jetzt Sie“: der nächste Satz kommt in `lang`. Läuft nur ein Erkenner der anderen Sprache, wird umgeschaltet
+    /// (kostet einen Neustart); im Automatik-Modus genügt der Hinweis an die Sprachwahl.
+    func expectSpeaker(_ lang: Lang) {
+        guard pair.contains(lang) else { return }
+        expected = lang
+        expectedUntil = Date().addingTimeInterval(20)
+        if !mode.langs(pair).contains(lang) { mode = lang == pair.mine ? .mine : .partner }
+        if !isListening && !isBusy { start() }
+        Haptics.tap()
+        expectTask?.cancel()
+        expectTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(20))
+            guard !Task.isCancelled else { return }
+            self?.expected = nil
+        }
+    }
+
+    private func clearExpectation() {
+        expectTask?.cancel()
+        expected = nil
+        expectedUntil = .distantPast
     }
 
     // MARK: Befehle
@@ -444,7 +534,7 @@ final class InterpreterModel {
         case .wake: flash("👂 " + T("say_command"))
         case .pause: paused = true; stopSpeaking(); flash("⏸ " + T("paused"))
         case .resume: paused = false; flash("▶️ " + T("resumed"))
-        case .repeat: if let last = entries.last(where: { $0.translation != nil }) { speak(last) }
+        case .repeat: if let last = visibleEntries.last(where: { $0.translation != nil }) { speak(last) }
         case .slower: rate = max(0.5, rate - 0.15); flash("🐢 " + T("cmd_slower_done"))
         case .faster: rate = min(1.5, rate + 0.15); flash("🐇 " + T("cmd_faster_done"))
         case .louder: volume = min(1, volume + 0.25); flash("🔊 " + T("cmd_louder_done"))
@@ -497,7 +587,8 @@ final class InterpreterModel {
         if entries.count > 300 { entries.removeFirst(entries.count - 300) }
     }
 
-    private func translate(_ id: UUID, speak: Bool = true) {
+    /// `force`: auch vorlesen, wenn „Automatisch vorlesen“ aus ist (Kurzbefehl „Sage …“).
+    private func translate(_ id: UUID, speak: Bool = true, force: Bool = false) {
         guard let e = entries.first(where: { $0.id == id }) else { return }
         let rev = (revisions[id] ?? 0) + 1
         revisions[id] = rev
@@ -506,8 +597,14 @@ final class InterpreterModel {
                 let r = try await translator.translate(e.text, from: e.src, to: e.target, allowOnline: allowOnline)
                 let out = e.target == .th ? politeness.adjust(r.text) : r.text
                 guard revisions[id] == rev else { return nil }   // inzwischen geändert
-                update(id) { $0.translation = out; $0.provider = r.provider; $0.error = nil }
+                update(id) { $0.translation = out; $0.provider = r.provider; $0.error = nil; $0.back = nil }
                 persist()
+                if speak { sessionTranslations += 1 }
+                if backCheck { backTranslate(id, rev: rev, text: out, from: e.target, to: e.src) }
+                // VoiceOver: Übersetzung ansagen, wenn sie nicht ohnehin vorgelesen wird.
+                if UIAccessibility.isVoiceOverRunning && !(speak && autoSpeak && !paused) {
+                    AccessibilityNotification.Announcement(T("a11y_ready") + ": " + out).post()
+                }
                 return out
             } catch {
                 guard revisions[id] == rev else { return nil }
@@ -519,13 +616,30 @@ final class InterpreterModel {
         }
         // Gleich in die Vorlese-Reihe stellen: so bleibt die Reihenfolge des Gesprächs erhalten,
         // auch wenn ein späterer Satz schneller übersetzt ist.
-        if speak, autoSpeak, !paused {
+        if speak, autoSpeak || force, !paused {
             enqueueSpeech(id: id, lang: e.target, slow: false) { [weak self] in
                 let text = await job.value
                 guard let self, !self.paused, self.revisions[id] == rev else { return nil }
                 return text
             }
         }
+    }
+
+    /// Übersetzung zurück in die Ausgangssprache – nur mit Offline-Paket (nichts geht dafür ins Netz),
+    /// ohne Vorlesen. Fehlt das Paket, still überspringen.
+    private func backTranslate(_ id: UUID, rev: Int, text: String, from: Lang, to: Lang) {
+        Task {
+            guard await Translator.offlineInstalled(from: from, to: to),
+                  let r = try? await translator.translate(text, from: from, to: to, allowOnline: false),
+                  revisions[id] == rev, backCheck else { return }
+            update(id) { $0.back = r.text }
+            persist()
+        }
+    }
+
+    private func clearBack() {
+        for i in entries.indices { entries[i].back = nil }
+        persist()
     }
 
     private func update(_ id: UUID, _ change: (inout Entry) -> Void) {
@@ -567,10 +681,13 @@ final class InterpreterModel {
 
     /// Ganzen Verlauf leeren – für einige Sekunden zurückholbar (Sprachbefehl „clear“ kann ein Verhörer sein).
     func clear() {
-        guard !entries.isEmpty else { return }
+        // Gesperrt: nur die sichtbaren Sätze – der verborgene Verlauf lässt sich nicht ohne Face ID löschen.
+        let gone = visibleEntries
+        guard !gone.isEmpty else { return }
         stopSpeaking()
-        undo.keep(entries, seconds: 8)
-        entries.removeAll()
+        undo.keep(gone, seconds: 8)
+        let ids = Set(gone.map(\.id))
+        entries.removeAll { ids.contains($0.id) }
         persist()
         canUndoClear = true
         flash("🗑 " + T("cleared"), seconds: 8)
@@ -587,10 +704,95 @@ final class InterpreterModel {
         undoTask?.cancel()
         canUndoClear = false
         guard let old = undo.take() else { return }
-        entries = old + entries
+        entries = (old + entries).sorted { $0.date < $1.date }
         trim()
         persist()
         flash("↩️ " + T("restored"))
+    }
+
+    // MARK: Antwortkarten, Kurzbefehle
+
+    /// Das Gegenüber tippt eine Antwortkarte (Ja/Nein/Weiß nicht): feste Sätze, kein Netz, sofort vorgelesen.
+    func answer(_ key: PartnerKey) {
+        let src = pair.partner, dst = pair.mine
+        let e = Entry(src: src, dst: dst, text: PartnerPhrases.text(key, src), translation: PartnerPhrases.text(key, dst), provider: "card")
+        addFixed(e)
+    }
+
+    /// Antwortkarte „Zahl“: Ziffern, für Thai zusätzlich als Zahlwort.
+    func answerNumber(_ digits: String) {
+        guard !digits.isEmpty else { return }
+        let src = pair.partner, dst = pair.mine
+        let e = Entry(src: src, dst: dst, text: NumberCard.spoken(digits, in: src), translation: NumberCard.spoken(digits, in: dst), provider: "card")
+        addFixed(e)
+    }
+
+    private func addFixed(_ e: Entry) {
+        entries.append(e)
+        trim()
+        persist()
+        sessionTranslations += 1
+        clearExpectation()
+        Haptics.heard()
+        if autoSpeak { speak(e) }
+    }
+
+    /// Kurzbefehl „Sage in Partnersprache“: Text aus meiner Sprache übersetzen und laut vorlesen.
+    func sayInPartner(_ raw: String) {
+        let text = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else { return }
+        let e = Entry(src: pair.mine, dst: pair.partner, text: text)
+        entries.append(e)
+        trim()
+        translate(e.id, speak: true, force: true)
+    }
+
+    // MARK: Verlauf sperren (Face ID)
+
+    /// Sichtbare Einträge: gesperrt nur die seit dem Sperren neuen.
+    var visibleEntries: [Entry] {
+        guard lockHistory, !historyUnlocked else { return entries }
+        return entries.filter { $0.date >= lockedBefore }
+    }
+
+    var hiddenCount: Int { entries.count - visibleEntries.count }
+
+    func lockNow() {
+        guard lockHistory else { return }
+        historyUnlocked = false
+        lockedBefore = Date()
+    }
+
+    func unlockHistory() {
+        Task {
+            if await DeviceAuth.authenticate(reason: T("lock_reason")) { historyUnlocked = true }
+        }
+    }
+
+    // MARK: Notfallkarte übersetzen
+
+    /// Einzelner Text ohne Verlaufseintrag (Allergie-Karte in nicht hinterlegter Sprache).
+    func translateText(_ text: String, from: Lang, to: Lang) async -> String? {
+        try? await translator.translate(text, from: from, to: to, allowOnline: allowOnline).text
+    }
+
+    /// Freitext der Notfallkarte (Allergien, Medizinisches) in die Partnersprache – als „maschinell“ gekennzeichnet.
+    func translateEmergency() async {
+        let to = pair.partner
+        var out: [String: String] = [:]
+        var failed = false
+        for (key, value) in emergency.translatable where !value.isEmpty {
+            // Die Karte schreibt man in der eigenen Sprache; steht schon die Partnersprache da, bleibt es so.
+            let src = LanguagePick.ofTyped(value, pair: pair, fallback: pair.mine)
+            if src == to { out[key] = value; continue }
+            if let r = try? await translator.translate(value, from: src, to: to, allowOnline: allowOnline) {
+                out[key] = to == .th ? politeness.ensureEnding(r.text) : r.text
+            } else { failed = true }
+        }
+        emergency.translated = out
+        emergency.translatedLang = to.rawValue
+        emergency.translatedSource = emergency.translatableHash
+        if failed { flash("⚠️ " + T(allowOnline ? "err_translate" : "err_offline_missing"), seconds: 5) }
     }
 
     // MARK: Favoriten
@@ -701,7 +903,7 @@ final class InterpreterModel {
     }()
 
     var transcript: String {
-        entries.map {
+        visibleEntries.map {
             "[\(Self.stamp.string(from: $0.date))] \($0.src.rawValue.uppercased())→\($0.target.rawValue.uppercased()): \($0.text)\n→ \($0.translation ?? "–")"
         }.joined(separator: "\n\n")
     }

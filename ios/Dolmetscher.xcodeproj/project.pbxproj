@@ -212,6 +212,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Take a photo of a menu or sign so Dolmetscher can read and translate the text.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Face ID unlocks your conversation history if you turn on the history lock.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Dolmetscher listens to what is said so it can translate it.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Pick a photo of a menu or sign so Dolmetscher can read and translate the text.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Speech is turned into text on this device so it can be translated.";
@@ -240,6 +241,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Take a photo of a menu or sign so Dolmetscher can read and translate the text.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Face ID unlocks your conversation history if you turn on the history lock.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Dolmetscher listens to what is said so it can translate it.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Pick a photo of a menu or sign so Dolmetscher can read and translate the text.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Speech is turned into text on this device so it can be translated.";

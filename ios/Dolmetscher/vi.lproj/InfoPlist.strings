@@ -2,3 +2,4 @@
 "NSSpeechRecognitionUsageDescription" = "Giọng nói được chuyển thành văn bản ngay trên thiết bị này để có thể dịch.";
 "NSCameraUsageDescription" = "Chụp ảnh thực đơn hoặc biển báo để Dolmetscher đọc và dịch văn bản.";
 "NSPhotoLibraryUsageDescription" = "Chọn ảnh thực đơn hoặc biển báo để Dolmetscher đọc và dịch văn bản.";
+"NSFaceIDUsageDescription" = "Face ID mở khóa lịch sử hội thoại khi bạn bật khóa lịch sử.";

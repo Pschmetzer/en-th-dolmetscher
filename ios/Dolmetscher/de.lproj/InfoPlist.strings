@@ -2,3 +2,4 @@
 "NSSpeechRecognitionUsageDescription" = "Sprache wird auf diesem Gerät in Text umgewandelt, damit sie übersetzt werden kann.";
 "NSCameraUsageDescription" = "Fotografiere eine Speisekarte oder ein Schild, damit Dolmetscher den Text lesen und übersetzen kann.";
 "NSPhotoLibraryUsageDescription" = "Wähle ein Foto einer Speisekarte oder eines Schilds, damit Dolmetscher den Text lesen und übersetzen kann.";
+"NSFaceIDUsageDescription" = "Face ID entsperrt deinen Gesprächsverlauf, wenn du die Verlaufssperre einschaltest.";
