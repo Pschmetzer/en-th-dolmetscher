@@ -2,36 +2,185 @@
 
 # Dolmetscher EN ⇄ TH
 
-Hands-free speech interpreter for macOS: just talk. English is translated into Thai and Thai into English, and the translation is spoken aloud right away. The engine **detects the language by itself**, so there are no buttons to switch.
+A hands-free speech interpreter: just talk. What you say is translated into your partner's language and spoken aloud right away, and their answer comes back in yours. The app **detects which of the two languages is being spoken**, so there are no buttons to switch. English ⇄ Thai is the default, but you can pick any pair of [19 languages](#languages).
 
-Current version: 1.2 (the single source is `version` in `pyproject.toml`; `build.sh` writes it into the app). What leaves your Mac and when: [docs/DATENSCHUTZ.md](docs/DATENSCHUTZ.md) (German). How app and engine fit together: [docs/ARCHITEKTUR.md](docs/ARCHITEKTUR.md).
+| Platform | What it is | Speech recognition | Translation |
+|---|---|---|---|
+| **Mac** (Apple Silicon, macOS 14+) | Full app with menu bar, voice commands, voice profiles, Claude translation | local (Whisper) | online (Google, MyMemory or Claude) |
+| **iPhone** (iOS 26+) | Native companion app, built yourself in Xcode | on the device (Apple, optionally Whisper) | on the device (Apple), online only if you allow it |
+| **Browser** (Chrome) | [Web Lite](https://pschmetzer.github.io/en-th-dolmetscher/): one HTML file, English ⇄ Thai only | browser service (Google in Chrome) | online (Google, MyMemory) |
 
-- Speech recognition: [faster-whisper](https://github.com/SYSTRAN/faster-whisper), local on the Mac, on the Apple GPU (Metal) when available, otherwise CPU. Models: `small` (fast), `medium` (default), `best` (large-v3-turbo for English instead of medium, better with accents; ~1.6 GB download). Thai is transcribed with a Whisper model fine-tuned on Thai ([biodatlab/whisper-th-medium-combined](https://huggingface.co/biodatlab/whisper-th-medium-combined), Apache-2.0; the CTranslate2 version used here is marked MIT), about 30 % fewer errors on quiet or distant Thai speech in our tests (measured only on synthetic Thai TTS clips, clean and degraded – not on real speakers; real voices may differ, the profile score shows it). All Whisper models are downloaded from Hugging Face at a fixed revision (`MODEL_REVISIONS` in `dolmetscher.py`); model and package licenses: [docs/LIZENZEN.md](docs/LIZENZEN.md)
-- Translation: Google Translate web endpoint (unofficial, falls back to MyMemory). Needs internet. Optional: translation with Claude (see below)
-- Speech output: natural Microsoft neural voices via the unofficial [edge-tts](https://github.com/rany2/edge-tts) library (Thai: Niwat / Premwadee, English: Aria; other voices selectable). The connection to the voice service is opened while you are still speaking, so the first sound starts soon after the translation is ready. The translated text is sent to Microsoft for this. Falls back to macOS voices (`say`) when offline or if that service stops working (`--tts say` forces it)
-- Asynchronous output: the next sentence is recognised and translated while the previous one is still being spoken. If too much piles up, the engine catches up by skipping older translations (they stay visible, just not read aloud)
-- Latency: a few seconds after the end of each sentence; on the Apple GPU roughly 3–5 s (earlier hand measurement), CPU only clearly slower (benchmark `medium` on CPU, synthetic voices, Nov 2026: median 6.8 s, p90 8.5 s until the translation is ready; see [bench/README.md](bench/README.md))
-- Quiet speech: Silero voice activity detection plus input gain, so soft voices are picked up too
-- One language pair at a time: by default English and Thai; other languages (and noise) are ignored. An Auto / EN / TH picker locks the language if needed
-- **Other languages** (new): pick *My language* and *Partner's language* in the settings (or `--langs de,th`). Supported: English, Thai, German, Spanish, French, Italian, Portuguese, Dutch, Russian, Chinese (Mandarin), Japanese, Korean, Vietnamese, Indonesian, Arabic, Hindi, Turkish, Polish, Ukrainian – every pair, e.g. German ⇄ Thai or Spanish ⇄ Japanese. Detection still only chooses between the two languages of the pair. Without a choice nothing changes (English ⇄ Thai). Thai-specific features (ครับ/ค่ะ politeness, 555 laughter, Thai number words, the Thai Whisper model) only apply when Thai is in the pair. Voice commands are English and only work when English is in the pair. Voice profiles are still recorded in English or Thai. Quality for the new languages is untested on real speakers (recognition thresholds are not calibrated yet); the voice list was checked against `edge-tts --list-voices` (Nov 2026)
-- Log for troubleshooting: `~/Library/Logs/Dolmetscher/engine.log`. Privacy: conversation text is **not** written to the log by default (`--log-text` turns it on)
+**Privacy in one paragraph.** There are no accounts, no telemetry and no server of our own. On the Mac, audio never leaves the computer: recognition runs locally and only the recognised *text* is sent for translation (Google, fallback MyMemory, or Claude if you turned it on) and the translated text for the natural voice (Microsoft). On the iPhone, recognition and – once the offline language packs are installed – translation run entirely on the device; online translation is off by default. The browser version relies on the browser's speech service, which sends audio to Google (Chrome). Voice profiles and the conversation history (Mac: off by default; iPhone: kept 30 days by default, adjustable) stay on your device. Details per platform: [docs/DATENSCHUTZ.md](docs/DATENSCHUTZ.md) (German).
 
-## Translation with Claude (optional)
+Current version: 1.2 (single source: `version` in `pyproject.toml`). What changed since: [CHANGELOG.md](CHANGELOG.md).
 
-`--llm` (or the switch in the app's settings) translates with Claude instead of Google: more natural, keeps context and politeness better. It needs an Anthropic API key and **costs a little per sentence** (billed to your Anthropic account). Claude receives the recognised sentence together with the last few sentences as context (default 8) and your glossary ([docs/DATENSCHUTZ.md](docs/DATENSCHUTZ.md)). Key: environment variable `ANTHROPIC_API_KEY`, or a file `~/Library/Application Support/Dolmetscher/anthropic_key` containing only the key (`chmod 600`). Claude translation is on by default when a key is present (without a key the engine uses Google); turn it off in the settings. Default model `claude-haiku-5-5` (about 8 US cents per hour of conversation; `claude-sonnet-5-5` is more accurate at roughly 20× the price), change it with `--llm-model ID`. Tone: `--style casual|neutral|polite`. Own words and names go into the app settings (glossary). The app shows an estimated session cost and the month so far; a **monthly limit** (`--llm-budget USD`, in the app settings) switches to Google until the end of the month once reached. `python3 bench/run_translate.py` compares Google and Claude on idioms. Without a key, without the `anthropic` package or on errors the engine falls back to Google automatically.
+- [Install on the Mac](#install-on-the-mac)
+- [iPhone app](#iphone-app)
+- [Browser version](#browser-version-web-lite)
+- [Languages](#languages)
+- [Using the Mac app](#using-the-mac-app) · [Voice commands](#voice-commands) · [Voice profiles](#voice-profiles) · [Troubleshooting](#troubleshooting)
+- [For developers](#for-developers)
 
-## Mac app settings
+## Install on the Mac
 
-- **Header bar**: direction (auto / only one language), read aloud on/off and a field to **type a sentence** (translated and spoken, for noisy places)
-- **Microphone** (`--mic`, list with `--list-mics`; switching in the app takes effect immediately, no restart), **speaking rate** (`--rate`, −50 … 50 %), **volume** (`--volume`, 0.2 … 2.0), **language pair** (`--langs MINE,PARTNER`), **voices** per language (`--voice-en`, `--voice-th`, for other pairs `--voice-mine`, `--voice-partner`)
-- **Pause at end of sentence** (`--silence`, 0.4 … 2.0 s), **sensitivity** (`--sensitivity low|normal|high`), **noise suppression** (`--denoise`)
-- **Earcons**: a short tone instead of a spoken confirmation for voice commands (`--earcons`)
-- **Push-to-talk**, **menu bar** icon, global shortcuts **⌃⌥D** start/stop (⌃⌥Space is the macOS input-source switch) and **⌃⌥P** pause
-- **Quick phrases**: tap a saved sentence, it is translated and spoken like a spoken one
-- **Correct & retranslate**: fix a misrecognised bubble, it is translated and spoken again
-- **Thai transliteration** (readable RTGS spelling word by word with `pythainlp`, otherwise ICU) for Thai text, and a **confidence marker** on bubbles the recogniser was unsure about
+There is no ready-made download yet; you build the app from source. That takes one command.
 
-## Troubleshooting
+1. Requirements: a Mac with **Apple Silicon** (M1 or later, no Intel), macOS 14 or newer, the Xcode Command Line Tools (`xcode-select --install`) and [uv](https://docs.astral.sh/uv/) (`brew install uv` or the installer from astral.sh). **Homebrew Python and ffmpeg are not needed.**
+2. Get the code: `git clone https://github.com/Pschmetzer/en-th-dolmetscher.git` (or “Code → Download ZIP” on GitHub) and open the folder in Terminal.
+3. Build and install:
+
+   ```bash
+   ./build.sh --install
+   ```
+
+   This installs `~/Applications/Dolmetscher.app`. On the build Mac it also prepares the Python environment and downloads the speech models (`medium`, `small` and the Thai model, about 3.5 GB once), so the app starts straight away.
+4. Open the app, press **Start** (or the space bar) and allow microphone access.
+
+**First start on another Mac.** The app bundle is self-contained: it ships `uv` and a lock file, but no Python. If you copy the app to a Mac without that environment, it opens a **setup screen** on first start. It shows the download size (~0.4 GB for the environment, ~3.5 GB including the default models) and your free disk space, then downloads its own Python 3.12, installs the locked packages (hash-checked, wheels only) into `~/Library/Application Support/Dolmetscher/` and finally the speech models, each with a progress bar. You can cancel and retry; it says clearly when there is no internet, not enough space or when the Mac is an Intel Mac. After an app update with changed packages it sets the environment up again by itself; the settings also have a button to set it up anew.
+
+**Microphone permission after rebuilds.** Each rebuild is signed ad hoc, so macOS may ask for the microphone again. Sign with a stable identity to avoid that: `DOLMETSCHER_SIGN_IDENTITY="Dolmetscher Dev" ./build.sh --install` ([how to create one](CONTRIBUTING.md#stable-code-signing)).
+
+**Missing Thai system voice** (only used when the online voice is unavailable): System Settings → Accessibility → Spoken Content → System Voice → Manage Voices → Thai (Kanya).
+
+More build options (extra models with `DOLMETSCHER_MODELS="medium small th best"`, skipping models with `DOLMETSCHER_SKIP_MODELS=1`, using another Python with `DOLMETSCHER_PYTHON`, signed release builds): [CONTRIBUTING.md](CONTRIBUTING.md#release-build).
+
+### Uninstall
+
+```bash
+rm -rf ~/Applications/Dolmetscher.app
+rm -rf ~/Library/Application\ Support/Dolmetscher   # Python environment (incl. its own Python), settings, profiles, history
+rm -rf ~/Library/Logs/Dolmetscher
+rm -rf ~/.cache/huggingface/hub/models--Systran--faster-whisper-*   # Whisper small/medium (shared with other apps using faster-whisper)
+rm -rf ~/.cache/huggingface/hub/models--Vinxscribe--biodatlab-whisper-th-medium-faster   # Thai model
+rm -rf ~/.cache/huggingface/hub/models--mobiuslabsgmbh--faster-whisper-large-v3-turbo   # only if you used --model best
+```
+
+Microphone permission: System Settings → Privacy & Security → Microphone, or `tccutil reset Microphone io.github.dolmetscher.en-th`.
+
+## iPhone app
+
+A native SwiftUI app in `ios/` with the same idea: press Start and just talk. It does not use the Python engine.
+
+- **Recognition** on the device with Apple's speech recognition. Optionally **Whisper** (WhisperKit): switch it on in the settings and download a model once (only when you tap download; size and Wi-Fi hint are shown). Without a model the app falls back to Apple's recognition.
+- **Translation** on the device with Apple's Translation framework once the offline language packs for your pair are installed. If a pack is missing, it can use Google Translate (fallback MyMemory) – but only if you turn on **“Online translator as fallback”** (off by default).
+- **Voice** from the iOS system voices. Also: phrasebook, text from photos, partner view, emergency screen, Baht calculator, Siri shortcuts.
+- **Interface** in 10 languages (de, en, th, es, fr, ja, ko, zh-Hans, vi, id; the 7 newest are machine-translated and not yet reviewed).
+
+Needs iOS 26 and Xcode 26 or newer. There is no App Store version yet: build it yourself with your own Apple ID – step by step in [ios/README.md](ios/README.md).
+
+## Browser version (Web Lite)
+
+Live: https://pschmetzer.github.io/en-th-dolmetscher/ — `index.html` is a single file, no build step, no external scripts. **English ⇄ Thai only.** It uses the browser's Web Speech API (best in Chrome; Firefox has no speech recognition), so you pick the language yourself (buttons or keys `E`, `T`). The Mac app is better: automatic language detection, voice commands in both languages, better recognition.
+
+- Asks for consent once before the microphone starts for the first time.
+- Per-direction switches “Translate EN→TH” / “Translate TH→EN”: a switched-off direction is only shown, not translated or spoken.
+- Voice commands in EN mode at the start of a sentence: “Translator pause / resume / repeat / slower / faster”. *Pause* stops recognition completely (no more audio goes to the speech service); continue with `E`/`T` or the buttons.
+- Partner view (`P`): full screen, only the latest translation in huge type (`Esc` closes). Keys: `E` English, `T` Thai, `Space` stop.
+- Translation: Google endpoint, MyMemory as fallback. Error or quota messages are never shown or spoken as a translation.
+- Dark/light theme follows the system; works at phone width; finished translations are announced to screen readers.
+
+Run it locally with `python3 -m http.server` and open it in Chrome.
+
+## Languages
+
+Pick *My language* and *Partner's language*. Every pair of these 19 languages works; detection only chooses between the two languages of the pair. Without a choice it stays English ⇄ Thai.
+
+| Language | Code | Mac | iPhone | Web |
+|---|---|:-:|:-:|:-:|
+| English | `en` | ✓ | ✓ | ✓ |
+| Thai | `th` | ✓ | ✓ | ✓ |
+| German | `de` | ✓ | ✓ | – |
+| Spanish | `es` | ✓ | ✓ | – |
+| French | `fr` | ✓ | ✓ | – |
+| Italian | `it` | ✓ | ✓ | – |
+| Portuguese | `pt` | ✓ | ✓ | – |
+| Dutch | `nl` | ✓ | ✓ | – |
+| Russian | `ru` | ✓ | ✓ | – |
+| Chinese (Mandarin) | `zh` | ✓ | ✓ | – |
+| Japanese | `ja` | ✓ | ✓ | – |
+| Korean | `ko` | ✓ | ✓ | – |
+| Vietnamese | `vi` | ✓ | ✓ | – |
+| Indonesian | `id` | ✓ | ✓ | – |
+| Arabic | `ar` | ✓ | ✓ | – |
+| Hindi | `hi` | ✓ | ✓ | – |
+| Turkish | `tr` | ✓ | ✓ | – |
+| Polish | `pl` | ✓ | ✓ | – |
+| Ukrainian | `uk` | ✓ | ✓ | – |
+
+- **iPhone:** the list depends on the device. Languages without on-device recognition are hidden; ⬇︎ means a model, language pack or voice still has to be downloaded, 🌐 means Apple cannot translate the pair on the device (online only). For pairs written in the same script (e.g. English ⇄ German, Russian ⇄ Ukrainian, Chinese ⇄ Japanese) “Automatic” is hidden and you choose the direction by tapping.
+- **Only with Thai in the pair:** ครับ/ค่ะ politeness, the Thai Whisper model, 555 laughter, Thai number words and Thai transliteration (Mac); politeness, Baht calculator, Thai emergency numbers and the built-in phrasebook (iPhone).
+- **Only with English in the pair:** the wake word and voice commands (“Translator, …”), on Mac and iPhone.
+- **Voice profiles** (Mac) are still recorded in English or Thai.
+- The new languages are **not yet tested with real speakers**; recognition thresholds are not calibrated for them. The Mac voice list was checked against `edge-tts --list-voices` (Nov 2026).
+
+## Using the Mac app
+
+How it works: the microphone is cut into sentences (Silero voice activity detection, also picks up soft voices), each sentence is recognised locally by [faster-whisper](https://github.com/SYSTRAN/faster-whisper) (Apple GPU via Metal when available, otherwise CPU), translated and read aloud. The next sentence is recognised while the previous one is still being spoken; if too much piles up, older translations are shown but not read aloud.
+
+- **Recognition models:** `small` (fast), `medium` (default), `best` (large-v3-turbo as the main model instead of medium, better with accents, ~1.6 GB extra). Thai uses a model fine-tuned on Thai ([biodatlab/whisper-th-medium-combined](https://huggingface.co/biodatlab/whisper-th-medium-combined)), about 30 % fewer errors on quiet or distant Thai speech in our tests (synthetic voices only). All models are downloaded from Hugging Face at a fixed revision; licenses: [docs/LIZENZEN.md](docs/LIZENZEN.md).
+- **Translation:** Google Translate web endpoint (unofficial), fallback MyMemory, or Claude (see below). If the numbers in a translation do not match the original (prices, times, room numbers), the engine asks the other service and keeps the version whose numbers match; otherwise the bubble shows a warning.
+- **Voice:** natural Microsoft neural voices via the unofficial [edge-tts](https://github.com/rany2/edge-tts) library; falls back to the macOS voices (`say`) when offline or if that service stops working (`--tts say` forces it).
+- **Latency:** a few seconds after the end of each sentence; on the Apple GPU roughly 3–5 s, on CPU clearly slower (benchmark `medium` on CPU, synthetic voices, Nov 2026: median 6.8 s, p90 8.5 s until the translation is ready; [bench/README.md](bench/README.md)).
+- **Offline:** recognition keeps working, but translation and the neural voices need the network. The app shows the network state; nothing is translated offline. Failed translations get a “Try again” button and are retried automatically when the network is back.
+
+### Settings
+
+- **Header bar:** direction (automatic / only one language), read aloud on/off and a field to **type a sentence** (translated and spoken, for noisy places).
+- **Language pair** (`--langs MINE,PARTNER`), **microphone** (`--mic`, name or number; switching takes effect immediately), **speaking rate** (`--rate`, −50 … 50 %), **volume** (`--volume`, 0.2 … 2.0), **voices** per language.
+- **Pause at end of sentence** (`--silence`), **sensitivity** (`--sensitivity low|normal|high`), **noise suppression** (`--denoise`).
+- **Earcons** (`--earcons`): a short tone instead of a spoken confirmation for voice commands.
+- **Push-to-talk**, **menu bar** icon, global shortcuts **⌃⌥D** start/stop and **⌃⌥P** pause.
+- **Quick phrases** and **scenario presets** (doctor, restaurant, taxi, travel – including emergency phrases such as allergies or a lost passport).
+- **Correct & retranslate** a misrecognised bubble; **“Translate anyway”** for a sentence the recogniser was unsure about; **“Speak again”** for a bubble that was cut off.
+- **Thai transliteration** (readable RTGS spelling) and a **confidence marker** on uncertain bubbles.
+- **Partner view** with large type; bubbles can be navigated with the keyboard (Tab, Enter, Esc, ⌘C); text size can be zoomed.
+- **Conversation history** (off by default, `--history`), exportable as Markdown, JSON, CSV, subtitles or Anki cards.
+- App language: Deutsch, English, ไทย.
+
+### Translation with Claude (optional)
+
+`--llm` (or the switch in the settings) translates with Claude instead of Google: more natural, keeps context and politeness better. It needs an Anthropic API key and **costs a little per sentence** (billed to your Anthropic account). Claude receives the recognised sentence, the last few sentences as context (default 8) and your glossary ([docs/DATENSCHUTZ.md](docs/DATENSCHUTZ.md)).
+
+- Key: environment variable `ANTHROPIC_API_KEY`, or a file `~/Library/Application Support/Dolmetscher/anthropic_key` containing only the key (`chmod 600`). With a key, Claude translation is on by default; turn it off in the settings.
+- Default model `claude-haiku-5-5` (about 8 US cents per hour of conversation; `claude-sonnet-5-5` is more accurate at roughly 20× the price), change it with `--llm-model ID`. Tone: `--style casual|neutral|polite`.
+- The app shows the estimated cost of the session and the month. A **monthly limit** (`--llm-budget USD`) switches to Google until the end of the month once reached.
+- If Claude's answer looks wrong (wrong script, a refusal, a comment), Google translates that sentence. Without a key, without the `anthropic` package or on errors the engine falls back to Google automatically.
+
+### Voice commands
+
+Talk to it like Siri: start with **“Translator, …”** (or “Hey translator, …”). Commands are spoken in English, are never translated and only work when English is one of the two languages of the pair. Besides Thai/English, the English language names work too (“Translator, German only”, “Translator, Spanish off”). In noise or with a strong accent a command can be misheard.
+
+| Say | Effect |
+|---|---|
+| Translator, pause / resume (also “unmute”, “unpause”) | stop translating / start again (it keeps listening for commands) |
+| Translator, repeat | say the last translation again |
+| Translator, slower / faster | speaking rate |
+| Translator, louder / quieter | volume |
+| Translator, Thai only / English only / auto | lock the language or detect automatically |
+| Translator, female voice / male voice | Thai voice and politeness particle (ค่ะ / ครับ) |
+| Translator, English off / Thai off | that language is only shown, not translated or spoken |
+| Translator, English on / Thai on / translate both | turn a direction back on |
+| Translator, clear | clear the conversation |
+| Translator, help | list the commands |
+| Translator. *(pause)* … | answers “Yes?” and takes the next sentence as a command |
+
+Say one command at a time. Commands only control the app; general questions are not supported.
+
+### Voice profiles
+
+Each person reads 8 short sentences once (about a minute) in **Voice profiles**. The guide runs fully in Thai for Thai profiles, so a Thai speaker can do it alone. A profile gives:
+
+- **who is speaking**: their name appears on the bubble;
+- **the right language**: the person's language decides when detection is unsure, so short Thai sentences are no longer dropped;
+- **own words**: names, companies, places, passed to Whisper as hints;
+- **a politeness form** per person (ครับ/ค่ะ);
+- **a quality score**: how well the engine understood the sentences.
+
+It does *not* retrain the model. Voiceprints are biometric data: they are stored only on this Mac (`~/Library/Application Support/Dolmetscher/profiles/`, readable only by you) and can be deleted one by one or all at once (“Delete all voice data”) in the app. Speaker recognition uses [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) with the WeSpeaker ResNet34 model (~25 MB, downloaded on first use, checksum-verified).
+
+Terminal: `python3 dolmetscher.py --enroll Nok --enroll-lang th`, `--profiles`, `--vocab Nok "Sukhumvit, Siam"`, `--delete-profile Nok`, `--delete-all-profiles`.
+
+### Troubleshooting
 
 | Problem | Setting / fix |
 |---|---|
@@ -39,132 +188,48 @@ Current version: 1.2 (the single source is `version` in `pyproject.toml`; `build
 | The app translates its own voice (echo) | Use headphones; with headphones `--barge-in` also lets you interrupt the translation by talking |
 | Translation sounds stiff | Translate with Claude (`--llm`) and set the tone to casual (`--style casual`) |
 | Thai is recognised unreliably | Create a voice profile for the speaker and use `--model best` |
-| Latency too high | Turn partial text off (`--partial` is off by default and can delay recognition) and use `--model small` |
-| No internet | Recognition runs locally, but translation (Google/MyMemory/Claude) and the neural voices need the network; the app shows the state, nothing is translated or spoken offline |
-| Own names or words are translated wrongly | Add them to the glossary in the app settings (stored in `~/Library/Application Support/Dolmetscher/glossary.txt`) |
+| Latency too high | Use `--model small`; keep partial text off (`--partial` is off by default) |
+| No internet | Recognition runs locally, but translation and the neural voices need the network |
+| Own names or words are translated wrongly | Add them to the glossary in the settings (`~/Library/Application Support/Dolmetscher/glossary.txt`) |
+| Setup screen fails | Check the internet connection and free space, then “Retry”; details in `~/Library/Application Support/Dolmetscher/setup.log` |
 
-## Voice commands
-
-Talk to it like Siri: start with **"Translator, …"** (or "Hey translator, …"). Commands are spoken in English and are never translated, and they only work when English is one of the two languages of the pair. Besides Thai/English, the English language names work too ("Translator, German only", "Translator, Spanish off"); in noise or with a strong accent a command can be misheard. In the app the list is shown in the empty conversation and behind the speech-bubble button in the toolbar.
-
-| Say | Effect |
-|---|---|
-| Translator, pause / resume | stop translating / start again (it keeps listening for commands) |
-| Translator, repeat | say the last translation again |
-| Translator, slower / faster | speaking rate |
-| Translator, louder / quieter | volume |
-| Translator, Thai only / English only / auto | lock the language or detect automatically |
-| Translator, female voice / male voice | Thai voice and politeness particle (ค่ะ / ครับ) |
-| Translator, English off / Thai off | that language is only shown, not translated or spoken (e.g. you speak English, only your partner's Thai is translated) |
-| Translator, English on / Thai on / translate both | turn a direction back on |
-| Translator, clear | clear the conversation |
-| Translator, help | list the commands |
-| Translator. *(pause)* … | answers "Yes?" and takes the next sentence as a command |
-
-Say one command at a time. Commands only control the app. General questions (weather, facts) are not supported, since that would need an LLM.
-
-## Voice profiles
-
-Each person reads 8 short sentences once (about a minute) in **Voice profiles**. The guide runs fully in Thai for Thai profiles, so a Thai speaker can do it alone. The app language can be switched between ไทย / English / Deutsch.
-
-A profile gives:
-- **who is speaking**: their name appears on the bubble
-- **the right language**: the person's language decides when detection is unsure, so short Thai sentences are no longer dropped
-- **own words**: names, companies, places, passed to Whisper as hints
-- **a quality score**: how well the engine understood the sentences
-
-It does *not* retrain the model on the voice. Voiceprints are biometric data. They are stored only on this Mac (`~/Library/Application Support/Dolmetscher/profiles/`, readable only by you) and can be deleted in the app. Speaker recognition uses [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) with the WeSpeaker ResNet34 model (~25 MB, downloaded on first use, checksum-verified).
-
-Terminal: `python3 dolmetscher.py --enroll Nok --enroll-lang th`, `--profiles`, `--vocab Nok "Sukhumvit, Siam"`, `--delete-profile Nok`.
-
-## Download and install (Mac app)
-
-1. Download the source of the [latest release](https://github.com/Pschmetzer/en-th-dolmetscher/releases/latest) (“Source code (zip)”) and unpack it, or `git clone https://github.com/Pschmetzer/en-th-dolmetscher.git`.
-2. Requirements for building: macOS 14+ on **Apple Silicon** (M1 or later), Xcode Command Line Tools (`xcode-select --install`) and [uv](https://docs.astral.sh/uv/) (`brew install uv`; release builds pin the version in `build.sh`). ffmpeg and Homebrew Python are **no longer needed**: audio runs through PyAV, which is part of the locked environment.
-3. In the unpacked folder:
-
-```bash
-./build.sh --install
-```
-
-**The app is self-contained and Apple Silicon only** (arm64, no Intel / universal build: the Python wheels and the Metal GPU path are arm64). It ships `uv` (`Contents/Helpers/uv`, signed), the lock file `requirements.txt` and a setup script, but no frozen Python. On a Mac without the environment (for example another Mac without Homebrew or Python) the app opens a **setup screen** on first start: it shows the download size (~0.4 GB environment + models, ~3.5 GB for the default choice) and the free disk space, then downloads a uv-managed Python 3.12 and installs the locked packages (hash-checked, wheels only) into `~/Library/Application Support/Dolmetscher/venv`, and finally downloads the speech models with a progress bar. It can be cancelled and retried and says clearly when there is no internet. After an app update with a changed lock file the environment is synchronised again (a stamp of lock hash, Python version and architecture decides). The Info.plist contains no paths of the build machine.
-
-On the build machine, `./build.sh` (without `--release`) also creates or syncs that environment directly (via `uv`, else `pip`; re-running it brings the environment back to the locked versions), writes the stamp, downloads the `medium`, `small` and Thai models at their fixed revisions (once, ~3.5 GB; `DOLMETSCHER_MODELS="medium small th best"` also pre-loads `best`, +1.6 GB; `DOLMETSCHER_SKIP_MODELS=1` skips it) and installs `~/Applications/Dolmetscher.app`, so the app starts without the setup screen. Developers can point the app at another Python: `DOLMETSCHER_PYTHON` in the app's environment or `defaults write io.github.dolmetscher.en-th DolmetscherPython /path/to/python` (never modified by the app; it needs the packages from `requirements.txt`).
-
-Each rebuild is signed ad hoc, so macOS may ask for microphone access again. To avoid that, sign with a stable identity: `DOLMETSCHER_SIGN_IDENTITY="Dolmetscher Dev" ./build.sh --install` (see [CONTRIBUTING.md](CONTRIBUTING.md#stable-code-signing)).
-
-Maintainers can create a signed (and optionally notarized) release build with `DOLMETSCHER_SIGN_IDENTITY="Developer ID Application: …" ./build.sh --release`; it refuses to run without that identity and produces `build/Dolmetscher-<version>.zip` plus a `.sha256` file. See [CONTRIBUTING.md](CONTRIBUTING.md#release-build).
-
-Audio (microphone via AVFoundation, playback via AudioToolbox, the microphone list and `--file`) runs through PyAV's bundled LGPL FFmpeg libraries (`avhelper.py`). An external ffmpeg is only used when `DOLMETSCHER_FFMPEG=/path/to/ffmpeg` is set explicitly.
-
-Open the app, press **Start** (or the space bar) and allow microphone access.
-
-If the Thai voice is missing: System Settings → Accessibility → Spoken Content → System Voice → Manage Voices → Thai (Kanya).
+- Laptop speakers: audio that arrives while the translation is playing (plus ~300 ms of reverb) is discarded, so the engine doesn't translate its own voice. Speech during recognition and translation is queued, so a quick answer is not lost. `--barge-in` is for headphones only.
+- Log: `~/Library/Logs/Dolmetscher/engine.log`, rotated at about 1 MB. Conversation text is **not** logged unless you start with `--log-text` (remove personal content before sharing a log).
+- If the engine crashes while the app window is closed, macOS shows a notification with a “Restart” action.
 
 ## Terminal only
 
 ```bash
-python3.12 -m venv .venv && .venv/bin/pip install --require-hashes -r requirements.txt   # Python 3.12+
-.venv/bin/python dolmetscher.py            # --model small|medium|best  --polite krub|ka  --mic 0  --barge-in  --llm  --log-text
+uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python --require-hashes -r requirements.txt
+.venv/bin/python dolmetscher.py   # --langs de,th  --model small|medium|best  --polite krub|ka  --mic 0  --barge-in  --llm  --log-text
 ```
 
-All options: `python3 dolmetscher.py --help`. The app ⇄ engine protocol is described in [docs/PROTOKOLL.md](docs/PROTOKOLL.md).
+All options: `python dolmetscher.py --help`. Audio runs through PyAV (`avhelper.py`); an external ffmpeg is only used when `DOLMETSCHER_FFMPEG=/path/to/ffmpeg` is set. The app ⇄ engine protocol is described in [docs/PROTOKOLL.md](docs/PROTOKOLL.md).
 
-## Browser version
-
-Live: https://pschmetzer.github.io/en-th-dolmetscher/ — `index.html` is the **Web Lite** version: a single file, no build step, no external scripts. It uses Chrome's Web Speech API, so you pick the language yourself (buttons / keys `E`, `T`). The Mac app is better: automatic language detection, voice commands in both languages, better recognition.
-
-Web Lite features:
-- Per-direction switches "Translate EN→TH" / "Translate TH→EN". When a direction is off, only the recognized text is shown (no translation, no speech).
-- Voice commands in EN mode, at the start of a sentence, never translated: "Translator pause / resume / repeat / slower / faster".
-- Partner view (`P`): full screen, only the latest translation in huge type (`Esc` closes).
-- Dark/light theme follows the system; works at phone width.
-- Keys: `E` English, `T` Thai, `Space` stop, `P` partner view, `Esc` close it.
-- Translation: Google endpoint, MyMemory as fallback. Error or quota messages are never shown or spoken as a translation.
-
-Serve it locally with `python3 -m http.server` and open it in Chrome.
-
-## Notes
-
-- Laptop speakers: only audio that arrives while the translation is playing (plus ~300 ms of reverb) is discarded, so the engine doesn't translate its own voice. Speech during recognition and translation is queued and handled in order, so a quick answer is not lost.
-- `--barge-in` (headphones only): talking while the translation plays stops it immediately. On speakers the engine would interrupt itself.
-- Log: `~/Library/Logs/Dolmetscher/engine.log`, rotated at about 1 MB (2 files kept). Recognised and translated text is left out by default; `--log-text` writes it (useful for bug reports, remove personal content before sharing).
-- `--polite krub|ka` picks the Thai politeness particle (ครับ/ค่ะ) and the pronoun (ผม/ฉัน).
-
-## Uninstall
+## For developers
 
 ```bash
-rm -rf ~/Applications/Dolmetscher.app
-rm -rf ~/Library/Application\ Support/Dolmetscher   # Python environment (incl. the uv-managed Python) and settings
-rm -rf ~/Library/Logs/Dolmetscher
-rm -rf ~/.cache/huggingface/hub/models--Systran--faster-whisper-*   # Whisper models small/medium (shared with other apps using faster-whisper)
-rm -rf ~/.cache/huggingface/hub/models--Vinxscribe--biodatlab-whisper-th-medium-faster   # Thai model
-rm -rf ~/.cache/huggingface/hub/models--mobiuslabsgmbh--faster-whisper-large-v3-turbo   # only if you used --model best
+uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python --require-hashes -r requirements-dev.txt
+.venv/bin/python -m pytest                       # no models, network or microphone needed
+.venv/bin/ruff check ./*.py bench/ tests/        # same paths as CI
+swiftc -typecheck -parse-as-library app/*.swift  # Mac app, without building
 ```
 
-Microphone permission: System Settings → Privacy & Security → Microphone, or `tccutil reset Microphone io.github.dolmetscher.en-th`.
+iPhone tests: see [ios/README.md](ios/README.md#tests).
 
-## Contributing
+| Path | Content |
+|---|---|
+| `dolmetscher.py` | Engine: microphone → VAD → Whisper → translation → voice; `--json` speaks the protocol with the app |
+| `profiles.py`, `presets.py` + `presets/`, `history_store.py`, `hwprofile.py`, `correction_learning.py`, `avhelper.py` | Voice profiles, scenario presets, history, model choice, correction hints, audio via PyAV |
+| `app/` | SwiftUI Mac app (built by `build.sh` with `swiftc`) |
+| `build.sh`, `build-support/` | Build, signing, first-start setup (`setup-env.sh`) |
+| `ios/` | iPhone app (Xcode project, own CI workflow) |
+| `index.html` | Web Lite |
+| `bench/`, `tests/`, `tools/` | Benchmark, pytest tests, prototypes for Apple's on-device APIs |
+| `docs/` | [ARCHITEKTUR](docs/ARCHITEKTUR.md), [PROTOKOLL](docs/PROTOKOLL.md), [DATENSCHUTZ](docs/DATENSCHUTZ.md), [LIZENZEN](docs/LIZENZEN.md) (German) |
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Tests: `pip install -r requirements-dev.txt && pytest` (no models, network or microphone needed). Lint: `ruff check dolmetscher.py profiles.py bench/`. Latency and quality benchmark: see [bench/README.md](bench/README.md). Architecture: [docs/ARCHITEKTUR.md](docs/ARCHITEKTUR.md).
+Contribution rules, lock files, signing and releases: [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-MIT License. Dependencies keep their own licenses; notably [edge-tts](https://github.com/rany2/edge-tts) is LGPL-3.0. It is only installed as a dependency, not included in this repository or the app bundle. The speech models are downloaded on first use and are not part of this repository either. Licenses of models and packages, and the unofficial services used: [docs/LIZENZEN.md](docs/LIZENZEN.md).
-
-## iPhone app (`ios/`)
-
-A native SwiftUI companion app with the same idea: press Start and just talk, English ⇄ Thai, spoken back right away.
-It does not use the Python engine. Speech recognition runs on the device with Apple's `SpeechAnalyzer` (one recognizer
-per language on the same audio, the app picks the language), translation uses Apple's offline Translation framework
-when the language packs are installed and otherwise the same web translator as the Mac engine (can be switched off),
-and the voice comes from the system voices. Needs iOS 26 or newer and Xcode 26 or newer.
-
-```sh
-open ios/Dolmetscher.xcodeproj        # pick your team under Signing, then run on your iPhone
-xcodebuild test -project ios/Dolmetscher.xcodeproj -scheme Dolmetscher -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
-```
-
-Without a microphone (Simulator), a debug build can play audio files instead:
-`SIMCTL_CHILD_DOLMETSCHER_AUDIO_FILES=/path/a.wav:/path/b.wav xcrun simctl launch booted io.github.dolmetscher.en-th.ios`.
-Apple's Translation framework does not work in the Simulator, so translations there always use the web translator.
+MIT License. Dependencies keep their own licenses; notably [edge-tts](https://github.com/rany2/edge-tts) is LGPL-3.0. It is only installed as a dependency, not included in this repository or the app bundle. Speech models are downloaded on first use and are not part of this repository either. Licenses of models, packages and the unofficial services used: [docs/LIZENZEN.md](docs/LIZENZEN.md).
