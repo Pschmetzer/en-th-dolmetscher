@@ -28,6 +28,7 @@ struct EmergencyView: View {
         @Bindable var m = m
         NavigationStack {
             List {
+                if m.features.thaiExtras {
                 Section {
                     ForEach(ThaiEmergency.numbers, id: \.number) { n in
                         if let url = URL(string: "tel:\(n.number)") {
@@ -46,6 +47,7 @@ struct EmergencyView: View {
                         }
                     }
                 } header: { Text(T("emergency_numbers")) }
+                }
 
                 Section {
                     if editing {
@@ -73,14 +75,16 @@ struct EmergencyView: View {
         }
     }
 
-    /// Zweisprachige Karte: Thai-Überschriften (fest), Inhalte so wie eingegeben.
+    /// Karte zum Zeigen: mit Thai im Paar Thai-Überschriften (fest), sonst in der Sprache der Oberfläche.
+    /// Inhalte so wie eingegeben.
     private var card: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            row("ชื่อ · Name", m.emergency.name)
-            row("โรงแรม / ที่พัก · Hotel", m.emergency.hotel)
-            row("แพ้ · Allergies", m.emergency.allergies)
-            row("ข้อมูลทางการแพทย์ · Medical", m.emergency.medical)
-            row("ติดต่อ · Contact", m.emergency.contact)
+        let thai = m.features.thaiExtras
+        return VStack(alignment: .leading, spacing: 10) {
+            row(thai ? "ชื่อ · Name" : T("em_name"), m.emergency.name)
+            row(thai ? "โรงแรม / ที่พัก · Hotel" : T("em_hotel"), m.emergency.hotel)
+            row(thai ? "แพ้ · Allergies" : T("em_allergies"), m.emergency.allergies)
+            row(thai ? "ข้อมูลทางการแพทย์ · Medical" : T("em_medical"), m.emergency.medical)
+            row(thai ? "ติดต่อ · Contact" : T("em_contact"), m.emergency.contact)
         }
         .padding(.vertical, 6)
     }
@@ -103,14 +107,15 @@ struct BahtCalculatorView: View {
     @State private var baht = ""
     @FocusState private var focused: Bool
 
-    private var amount: Double? { Double(baht.replacingOccurrences(of: ",", with: ".")) }
+    /// „1,200“ = 1200 (Tausender-Komma wie auf Thai-Preisschildern), „12,5“ = 12.5.
+    private var amount: Double? { AmountParser.parse(baht) }
 
     var body: some View {
         NavigationStack {
             Form {
                 Section {
                     TextField("฿", text: $baht)
-                        .keyboardType(.decimalPad)
+                        .keyboardType(.numbersAndPunctuation)
                         .font(.largeTitle.monospacedDigit())
                         .focused($focused)
                     if let a = amount {

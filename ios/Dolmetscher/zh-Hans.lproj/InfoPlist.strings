@@ -1,0 +1,4 @@
+"NSMicrophoneUsageDescription" = "Dolmetscher 需要聆听对话内容，以便进行翻译。";
+"NSSpeechRecognitionUsageDescription" = "语音会在本设备上转换为文字，以便进行翻译。";
+"NSCameraUsageDescription" = "拍摄菜单或标牌的照片，Dolmetscher 即可识别并翻译其中的文字。";
+"NSPhotoLibraryUsageDescription" = "选取菜单或标牌的照片，Dolmetscher 即可识别并翻译其中的文字。";

@@ -1,0 +1,29 @@
+Dolmetscher es un intérprete en directo y manos libres para viajar – pensado para Tailandia, preparado para 19 idiomas.
+
+Deja el iPhone sobre la mesa y habla sin más. La app oye quién habla, reconoce el idioma, traduce y lee la traducción en voz alta. Sin botones de por medio, sin cuenta, sin registro.
+
+SIN CONEXIÓN Y PRIVADO
+• El reconocimiento de voz siempre se hace en tu iPhone.
+• Con los paquetes de idioma sin conexión de Apple, la traducción funciona sin internet – en el mercado, en la isla, en el autobús nocturno.
+• La traducción en línea está desactivada por defecto. Solo si la activas se envía texto a un traductor en línea.
+• Tu conversación se queda en este iPhone, y tú decides cuánto tiempo se guarda.
+
+INTÉRPRETE EN DIRECTO
+• Elige tu idioma y el de tu interlocutor. Inglés ⇄ tailandés funciona desde el primer momento.
+• Detección automática del idioma cuando los dos usan escrituras distintas (por ejemplo, inglés y tailandés, alemán y japonés).
+• Vista del interlocutor: letra grande para la otra persona, o pantalla dividida con el móvil entre los dos.
+• Muestra una traducción a pantalla completa a taxistas y camareros.
+• Escribe una frase o traduce el texto de una foto de una carta o un cartel.
+
+HECHO PARA TAILANDIA
+• Terminaciones de cortesía ครับ / ค่ะ elegidas según tú – los traductores suelen confundirlas.
+• Guía de frases con frases en tailandés listas y su pronunciación, funciona al instante sin conexión.
+• Números de emergencia de Tailandia y una tarjeta de emergencia para enseñar (hotel, alergias, datos médicos).
+• Calculadora de baht con tu propio tipo de cambio – sin necesidad de internet.
+• Atajo para el botón de acción: una frase de emergencia en tailandés en voz alta.
+
+MANOS LIBRES
+• Di "Translator, pause", "repeat", "slower" o "louder" (con inglés en el par).
+• Funciona con Siri y la app Atajos.
+
+Idiomas: inglés, tailandés, alemán, español, francés, italiano, portugués, neerlandés, ruso, chino, japonés, coreano, vietnamita, indonesio, árabe, hindi, turco, polaco y ucraniano. Cuáles funcionan sin conexión depende de lo que admita tu iPhone; la app solo ofrece idiomas que realmente puede reconocer, traducir y pronunciar.

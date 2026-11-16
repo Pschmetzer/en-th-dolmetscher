@@ -123,6 +123,13 @@
 				Base,
 				de,
 				th,
+				es,
+				fr,
+				ja,
+				ko,
+				"zh-Hans",
+				vi,
+				id,
 			);
 			mainGroup = D00000000000000000002001;
 			minimizedProjectReferenceProxies = 1;
