@@ -104,7 +104,11 @@ final class EngineModel: NSObject, ObservableObject {
     @Published private(set) var speakingIDs: Set<String> = []
     var busy: Bool { !pendingIDs.isEmpty }
     var speakingNow: Bool { !speakingIDs.isEmpty }
-    @Published var paused = false
+    @Published var paused = false {
+        didSet {   // Nr. 365 – nicht bei Push-to-Talk (jeder Tastendruck schaltet Pause)
+            if paused != oldValue && !pushToTalk { Announcer.post(L.t(paused ? "a11y_paused" : "a11y_resumed")) }
+        }
+    }
     /// Rückstand laut `queue`-Ereignis.
     @Published private(set) var backlogSTT = 0
     @Published private(set) var backlogTTS = 0
@@ -1064,6 +1068,7 @@ final class EngineModel: NSObject, ObservableObject {
             engineVersion = o["engine_version"] as? String
             degradedModels = o["degraded"] as? [String] ?? []
             startWatchdog()
+            Announcer.post(L.t("a11y_ready"))   // Nr. 365
             // Fehlt `protocol`, ist es eine ältere Engine (vor dem Handshake) – das ist kein Fehler.
             if let pv = (o["protocol"] as? NSNumber)?.intValue, pv != Self.protocolVersion { protocolMismatch = pv }
             else { protocolMismatch = nil }
@@ -1089,6 +1094,7 @@ final class EngineModel: NSObject, ObservableObject {
             let on = o["on"] as? Bool ?? false
             let first = !micKnown
             micKnown = true
+            if on != micOn { Announcer.post(L.t(on ? "a11y_mic_on" : "a11y_mic_off")) }   // Nr. 365
             micOn = on
             keepAwake(on)
             if first && !on && wantListen && !micLent {
@@ -1170,8 +1176,11 @@ final class EngineModel: NSObject, ObservableObject {
             let what = o["what"] as? String ?? "translate"
             if o["ok"] as? Bool ?? true {
                 // Netz wieder da: den zuletzt gescheiterten Satz einmal automatisch neu übersetzen
-                if netDown.remove(what) != nil && what == "translate" && failedDrop != nil { retryFailed() }
-            } else { netDown.insert(what) }
+                if netDown.remove(what) != nil {
+                    Announcer.post(L.t("a11y_online"))   // Nr. 365
+                    if what == "translate" && failedDrop != nil { retryFailed() }
+                }
+            } else if netDown.insert(what).inserted { Announcer.post(L.t("a11y_offline")) }
         case "missed":
             missedHint = L.t(o["why"] as? String == "cut" ? "missed_cut" : "missed_overlap")
             missedWork?.cancel()

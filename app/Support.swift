@@ -161,7 +161,11 @@ extension EngineModel {
         let micText: String = micName.isEmpty ? (self.mic.isEmpty ? "Standard" : "#" + self.mic) : micName
         let ver = "Dolmetscher " + version + " (" + (info?["CFBundleVersion"] as? String ?? "?") + ")"
         let settings = "Einstellungen: model=\(model), claude=\(llm) (\(llmModel)), lang=\(lang), ui=\(L.lang.rawValue), "
-            + "mic=\(micText), denoise=\(denoise), zweiPersonen=\(twoPerson), logText=\(logText)"
+            + "mic=\(micText), denoise=\(denoise), zweiPersonen=\(twoPerson), logText=\(logText), "
+            + "silence=\(silence), sensitivity=\(sensitivity), ttsRace=\(ttsRace), fastEndpoint=\(fastEndpoint), "
+            + "partialText=\(partialText), rate=\(rate), volume=\(volume), "
+            + "ausgabe=\(outputDevice.isEmpty ? "Standard" : (outputDeviceName.isEmpty ? "UID" : outputDeviceName)), "
+            + "kürzelFehler=\(HotKeys.shared.failures.isEmpty ? "-" : HotKeys.shared.failures.joined(separator: "/"))"
         let engine = "Engine: state=\(state), ready=\(engineReady), neustarts=\(restartAttempts), "
             + "ungültige Zeilen=\(malformedLines), langsamerStart=\(loadSlow), "
             + "version=\(engineVersion ?? "?"), protokollAbweichung=\(protocolMismatch.map(String.init) ?? "nein"), "

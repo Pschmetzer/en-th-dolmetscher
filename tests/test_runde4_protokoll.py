@@ -51,7 +51,8 @@ def _top_level_keys(src, start):
         c = src[i]
         if c == '"':
             j = src.index('"', i + 1)
-            if depth == 0 and re.match(r'\s*:', src[j + 1:]):
+            before = src[:i].rstrip()[-1:]          # Schlüssel stehen nach `[` oder `,` (nicht im ?: -Ausdruck)
+            if depth == 0 and before in ("[", ",", "") and re.match(r'\s*:', src[j + 1:]):
                 keys.append(src[i + 1:j])
             i = j + 1
             continue
@@ -67,9 +68,9 @@ def _top_level_keys(src, start):
 
 def test_app_sendet_nur_bekannte_steuerfelder():
     sent = set()
-    for m in re.finditer(r'send\(\[', SWIFT):
+    for m in re.finditer(r'(?:send|push)\(\[', SWIFT):
         sent |= {k for k in _top_level_keys(SWIFT, m.end()) if re.fullmatch(r"[a-z_]+", k)}
-    assert {"llm", "mic", "output_device"} <= sent
+    assert {"llm", "mic", "output_device", "rate", "volume"} <= sent
     assert not sent - d.CTRL_KEYS, sorted(sent - d.CTRL_KEYS)
 
 

@@ -346,7 +346,9 @@ private struct RecognitionSection: View {
             HStack {
                 Text(L.t("silence"))
                 Slider(value: $m.silence, in: 0.4...2.0, step: 0.1)
+                    .help(L.t("silence_help"))
                     .accessibilityLabel(L.t("silence"))
+                    .accessibilityHint(L.t("silence_help"))
                     .accessibilityValue(fmtSeconds(m.silence))
                 Text(fmtSeconds(m.silence)).monospacedDigit().frame(width: 44, alignment: .trailing)
             }
@@ -356,6 +358,7 @@ private struct RecognitionSection: View {
                 Text(L.t("sens_high")).tag("high")
             }
             .accessibilityLabel(L.t("sensitivity"))
+            .help(L.t("sensitivity_help"))
             Toggle(isOn: $m.denoise) {
                 VStack(alignment: .leading) { Text(L.t("denoise")); RestartNote() }
             }
