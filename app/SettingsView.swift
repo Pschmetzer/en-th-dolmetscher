@@ -235,8 +235,8 @@ private struct MicSection: View {
 
     private var selection: Binding<String> {
         Binding(get: { m.mic }, set: { new in
-            m.mic = new
-            m.micName = mics.first { $0.index == new }?.name ?? ""   // „Systemstandard“ hat keinen Namen
+            // „Systemstandard“ hat keinen Namen; Wechsel live ohne Neustart (Steuerfeld `mic`)
+            m.selectMic(index: new, name: mics.first { $0.index == new }?.name ?? "")
         })
     }
 
@@ -260,7 +260,6 @@ private struct MicSection: View {
                         .accessibilityLabel(L.t("mic_reload"))
                 }
             }
-            RestartNote()
         }
         .onAppear { if mics.isEmpty { load() } }
         .onDisappear { proc?.terminate(); proc = nil }
@@ -429,6 +428,21 @@ private struct TranslationSettings: View {
                 }
                 if m.llmCostUSD > 0 {
                     LabeledContent(L.t("llm_cost"), value: String(format: "≈ $%.3f", m.llmCostUSD))
+                }
+                // Kostenbremse (Nr. 16): darüber übersetzt Google bis Monatsende
+                LabeledContent {
+                    HStack(spacing: 4) {
+                        Text("$").foregroundStyle(.secondary)
+                        TextField(L.t("llm_budget"), value: $m.llmBudget, format: .number.precision(.fractionLength(0...2)))
+                            .multilineTextAlignment(.trailing).frame(width: 80).labelsHidden()
+                            .accessibilityLabel(L.t("llm_budget"))
+                    }
+                } label: {
+                    VStack(alignment: .leading) {
+                        Text(L.t("llm_budget"))
+                        Text(m.llmMonthUSD > 0 ? L.f("llm_budget_month", m.llmMonthUSD) : L.t("llm_budget_help"))
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
                 }
             }
             Section {

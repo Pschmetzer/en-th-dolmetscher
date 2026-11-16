@@ -23,3 +23,11 @@ def _reset_net_backoff():
     d.reset_net_backoff()
     yield
     d.reset_net_backoff()
+
+
+@pytest.fixture(autouse=True)
+def _llm_spend_tmp(monkeypatch, tmp_path):
+    """Claude-Monatskosten nie in die echte Datei schreiben; Zustand je Test frisch."""
+    monkeypatch.setattr(d, "LLM_SPEND_FILE", str(tmp_path / "llm_spend.json"))
+    monkeypatch.setattr(d, "_SPEND", {"month": None, "usd": 0.0, "warned": None})
+    monkeypatch.setitem(d.LLM, "budget", 0.0)

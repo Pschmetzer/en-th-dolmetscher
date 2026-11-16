@@ -32,6 +32,39 @@ struct PartnerView: View {
         return m.micOn ? ("mic.circle.fill", .green) : ("mic.slash.circle.fill", .gray)
     }
 
+    /// Pause oder Mikrofon aus: großes Band statt nur grauem Symbol (Nr. 347), damit die Partnerin sieht,
+    /// dass gerade nicht übersetzt wird. Text-Schlüssel der L10n.
+    private var stopBanner: (icon: String, key: String)? {
+        guard m.running else { return nil }
+        if m.paused { return ("pause.circle.fill", "partner_banner_paused") }
+        if !m.micOn { return ("mic.slash.circle.fill", "partner_banner_mic_off") }
+        return nil
+    }
+
+    /// Partnersprache, wenn die Oberfläche sie kann (de/en/th), sonst die eingestellte Oberflächensprache.
+    private var partnerUI: UILang? { UILang(rawValue: m.partnerLang) }
+
+    @ViewBuilder private func stopBannerView(_ b: (icon: String, key: String)) -> some View {
+        let main = L.t(b.key, partnerUI)
+        let mine = L.t(b.key)
+        VStack(spacing: 6) {
+            Label(main, systemImage: b.icon)
+                .font(.system(size: 40, weight: .bold))
+            if mine != main {
+                Text(mine).font(.system(size: 24, weight: .semibold)).opacity(0.85)
+            }
+        }
+        .minimumScaleFactor(0.4)
+        .multilineTextAlignment(.center)
+        .foregroundStyle(.black)
+        .padding(.horizontal, 28).padding(.vertical, 16)
+        .frame(maxWidth: .infinity)
+        .background(Color(red: 1, green: 0.78, blue: 0.30), in: RoundedRectangle(cornerRadius: 18))
+        .padding(.horizontal, 24)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.updatesFrequently)
+    }
+
     var body: some View {
         let _ = L.sync(uiLang)
         ZStack {
@@ -114,6 +147,7 @@ struct PartnerView: View {
                 .foregroundStyle(.gray)
                 .font(.title2)
                 .padding(14)
+                if let b = stopBanner { stopBannerView(b) }
                 Spacer()
             }
         }

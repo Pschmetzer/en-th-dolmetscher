@@ -36,6 +36,11 @@ enum Prefs {
     /// "th", sonst "en"); Speicherformat bleibt eine Zeile pro Satz.
     static func phraseLang(_ p: String) -> String { Langs.guessLang(p) }
 
+    /// Schriftgröße mit eigenem Zoom (⌘+/⌘−) – für alle Bereiche, nicht nur die Sprechblasen (Nr. 353).
+    static func scaled(_ base: CGFloat, _ scale: Double) -> CGFloat {
+        base * CGFloat(min(fontRange.upperBound, max(fontRange.lowerBound, scale)))
+    }
+
     /// Schriftzoom um `d` ändern, auf 0,1 gerundet und auf den erlaubten Bereich begrenzt.
     static func zoomed(_ scale: Double, _ d: Double) -> Double {
         min(fontRange.upperBound, max(fontRange.lowerBound, ((scale + d) * 10).rounded() / 10))
@@ -139,6 +144,7 @@ struct ContentView: View {
         let _ = L.sync(uiLang)
         VStack(spacing: 0) {
             MainToolbar(showProfiles: $showProfiles)
+            ConversationBar()
             if showQuick { QuickPhraseBar() }
             Divider()
             if m.micDenied { MicDeniedBanner() }
@@ -171,6 +177,15 @@ struct ContentView: View {
                 NoticeBanner(icon: "questionmark.bubble", tint: LangStyle.warning,
                              text: L.f("unsure_offer", String(u.text.prefix(120))),
                              action: (L.t("translate_anyway"), { m.translateUnsure() }), onClose: { m.unsureDrop = nil })
+            }
+            if let f = m.failedDrop {
+                NoticeBanner(icon: "arrow.clockwise.circle", tint: LangStyle.warning,
+                             text: L.f("failed_offer", String(f.text.prefix(120))),
+                             action: (L.t("retry"), { m.retryFailed() }), onClose: { m.failedDrop = nil })
+            }
+            if let h = m.missedHint {
+                NoticeBanner(icon: "ear.trianglebadge.exclamationmark", tint: LangStyle.warning, text: h,
+                             onClose: { m.missedHint = nil })
             }
             if m.twoPersonIneffective && !twoPersonHintClosed {
                 NoticeBanner(icon: "person.2.slash", tint: LangStyle.warning, text: L.t("two_person_no_profile"),
@@ -486,6 +501,53 @@ struct MainToolbar: View {
         SettingsLink { Image(systemName: "gearshape") }
             .help(L.t("settings") + " (⌘,)")
             .accessibilityLabel(L.t("settings"))
+    }
+}
+
+/// Zweite Kopfzeile (Nr. 344/345): Richtung (Auto / nur eine Sprache des Paars), Vorlesen an/aus und
+/// ein Feld für frei getippte Sätze (übersetzen und vorlesen wie ein Schnellsatz, für laute Umgebungen).
+struct ConversationBar: View {
+    @EnvironmentObject var m: EngineModel
+    @AppStorage(Prefs.fontScale) private var scale = 1.0
+    @State private var draft = ""
+    @FocusState private var typing: Bool
+
+    private func send() {
+        if m.sayTyped(draft) { draft = "" }
+    }
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Picker(L.t("direction"), selection: $m.lang) {
+                Text(L.t("dir_auto")).tag("auto")
+                ForEach(Langs.pair, id: \.self) { c in
+                    Text(Langs.flag(c) + " " + L.f("dir_only", c.uppercased())).tag(c)
+                }
+            }
+            .pickerStyle(.segmented).labelsHidden().fixedSize()
+            .help(L.t("direction_help"))
+            .accessibilityLabel(L.t("direction"))
+            Toggle(isOn: $m.speak) {
+                Image(systemName: m.speak ? "speaker.wave.2.fill" : "speaker.slash.fill")
+            }
+            .toggleStyle(.button)
+            .help(L.t("speak_toggle"))
+            .accessibilityLabel(L.t("speak_toggle"))
+            .accessibilityValue(m.speak ? L.t("on") : L.t("off"))
+            TextField(L.t("type_prompt"), text: $draft)
+                .textFieldStyle(.roundedBorder)
+                .focused($typing)
+                .onSubmit(send)
+                .disabled(!m.running)
+                .accessibilityLabel(L.t("type_prompt"))
+                .onChange(of: draft) { if draft.count > 1000 { draft = String(draft.prefix(1000)) } }
+            Button(action: send) { Image(systemName: "paperplane.fill") }
+                .disabled(!m.running || draft.trimmingCharacters(in: .whitespaces).isEmpty)
+                .help(L.t("type_send"))
+                .accessibilityLabel(L.t("type_send"))
+        }
+        .font(.system(size: Prefs.scaled(13, scale)))
+        .padding(.horizontal, 14).padding(.bottom, 8)
     }
 }
 
