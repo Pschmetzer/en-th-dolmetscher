@@ -18,6 +18,12 @@ struct PartnerView: View {
         return min(max(byArea, 28), min(h, 160))
     }
 
+    /// „Bitte sprechen“ in einer Sprache des Paars; Thai mit dem Höflichkeitswort der Einstellung.
+    private func pleaseSpeak(_ code: String) -> String {
+        let s = Langs.info(code)?.pleaseSpeak ?? "Please speak"
+        return code == "th" ? s + (m.polite == "ka" ? "ค่ะ" : "ครับ") : s
+    }
+
     /// Zustand nicht nur als Farbe: jedes Symbol hat eine eigene Form.
     private var stateIcon: (name: String, color: Color) {
         if !m.running { return ("stop.circle.fill", .gray) }
@@ -76,10 +82,13 @@ struct PartnerView: View {
                 .transition(reduceMotion ? .identity : .opacity)
             } else {
                 VStack(spacing: 20) {
-                    Text("กรุณาพูดได้เลย" + (m.polite == "ka" ? "ค่ะ" : "ครับ")).font(.system(size: 64, weight: .bold))
-                        .foregroundStyle(LangStyle.onBlack("th"))
-                        .accessibilityLabel(Text(a11yAttributed([("กรุณาพูดได้เลย" + (m.polite == "ka" ? "ค่ะ" : "ครับ"), "th")])))
-                    Text("Please speak").font(.system(size: 48, weight: .semibold)).foregroundStyle(LangStyle.onBlack("en"))
+                    // groß in der Partnersprache (Thai mit Höflichkeitswort), darunter in meiner Sprache
+                    Text(pleaseSpeak(m.partnerLang)).font(.system(size: 64, weight: .bold))
+                        .foregroundStyle(LangStyle.onBlack(m.partnerLang))
+                        .accessibilityLabel(Text(a11yAttributed([(pleaseSpeak(m.partnerLang), m.partnerLang)])))
+                    Text(pleaseSpeak(m.mineLang)).font(.system(size: 48, weight: .semibold))
+                        .foregroundStyle(LangStyle.onBlack(m.mineLang))
+                        .accessibilityLabel(Text(a11yAttributed([(pleaseSpeak(m.mineLang), m.mineLang)])))
                 }
                 .minimumScaleFactor(0.3)
                 .padding(48)

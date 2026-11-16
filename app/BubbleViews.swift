@@ -24,9 +24,9 @@ struct Bubble: View, Equatable {
         if u.pending { PlaceholderBubble(u: u, scale: scale) } else { content }
     }
 
-    private var en: Bool { u.lang == "en" }
+    private var en: Bool { Langs.isMine(u.lang) }   // meine Seite (Standard: Englisch)
     private var canReassign: Bool { twoPerson && u.source != "phrase" && u.source != "edit" }
-    private func reassign() { m.reassign(u, role: u.lang == "th" ? "me" : "other") }
+    private func reassign() { m.reassign(u, role: Langs.reassignRole(u.lang)) }
 
     /// Solange diese Blase vorgelesen wird: deutlicher Abbrechen-Knopf direkt an der Blase.
     private var stopButton: some View {
@@ -51,8 +51,8 @@ struct Bubble: View, Equatable {
                 .help(L.t("correct")).accessibilityLabel(L.t("correct"))
             if canReassign {
                 Button(action: reassign) { Image(systemName: "arrow.left.arrow.right") }
-                    .help(L.t(u.lang == "th" ? "reassign_me" : "reassign_other"))
-                    .accessibilityLabel(L.t(u.lang == "th" ? "reassign_me" : "reassign_other"))
+                    .help(L.t(Langs.reassignRole(u.lang) == "me" ? "reassign_me" : "reassign_other"))
+                    .accessibilityLabel(L.t(Langs.reassignRole(u.lang) == "me" ? "reassign_me" : "reassign_other"))
             }
             Button { copyToPasteboard(u.out) } label: { Image(systemName: "doc.on.doc") }
                 .help(L.t("copy_translation")).accessibilityLabel(L.t("copy_translation"))
@@ -139,7 +139,7 @@ struct Bubble: View, Equatable {
         Divider()
         Button(L.t("correct")) { onCorrect(u) }.disabled(!canCorrect)
         if canReassign {
-            Button(L.t(u.lang == "th" ? "reassign_me" : "reassign_other"), action: reassign).disabled(!canCorrect)
+            Button(L.t(Langs.reassignRole(u.lang) == "me" ? "reassign_me" : "reassign_other"), action: reassign).disabled(!canCorrect)
         }
         ForEach(Array(u.alts.enumerated()), id: \.offset) { _, alt in
             Button(L.t("alt_reading") + ": " + alt) { m.retranslate(u, text: alt) }.disabled(!canCorrect)
@@ -165,7 +165,7 @@ private struct BubbleHeader: View {
     }
 
     var body: some View {
-        let en = u.lang == "en"
+        let en = Langs.isMine(u.lang)
         VStack(alignment: en ? .leading : .trailing, spacing: 2) {
             HStack(spacing: 6) {
                 if !en { Spacer(minLength: 0) }
@@ -192,7 +192,7 @@ private struct BubbleMain: View {
     @AppStorage(Prefs.translit) private var translit = true
 
     var body: some View {
-        let en = u.lang == "en"
+        let en = Langs.isMine(u.lang)
         VStack(alignment: en ? .leading : .trailing, spacing: 2) {
             Text(u.out)
                 .font(.system(size: 30 * scale, weight: .semibold))
@@ -234,7 +234,7 @@ private struct BubbleFooter: View {
         let showD = showDetails && !details.isEmpty
         if u.skipped || u.cutOff || u.lowConfidence || u.numWarn || u.provider == "mymemory" || showD {
             HStack(spacing: 10) {
-                if u.lang != "en" { Spacer(minLength: 0) }
+                if !Langs.isMine(u.lang) { Spacer(minLength: 0) }
                 if u.skipped {
                     Label(L.t("not_spoken"), systemImage: "speaker.slash")
                         .foregroundStyle(.secondary)
@@ -263,7 +263,7 @@ private struct BubbleFooter: View {
                     }
                 }
                 if showD { Text(details).foregroundStyle(.secondary).monospacedDigit() }
-                if u.lang == "en" { Spacer(minLength: 0) }
+                if Langs.isMine(u.lang) { Spacer(minLength: 0) }
             }
             .font(.system(size: max(12, 11 * scale)))
         }
@@ -301,7 +301,7 @@ private struct PlaceholderBubble: View {
     /// Teiltext (`partial`, kursiv) oder schon fertig erkannter Originaltext (`heard`, aufrecht, mit Umschrift),
     /// während die Übersetzung noch läuft.
     private func partialBody(_ p: String) -> some View {
-        let en = u.lang != "th"
+        let en = Langs.isMine(u.lang)
         return HStack(alignment: .firstTextBaseline, spacing: 8) {
             if !en { Spacer(minLength: 0) }
             ProgressView().controlSize(.small)

@@ -42,9 +42,9 @@ extension EngineModel {
         day.calendar = Calendar(identifier: .gregorian)
         day.locale = Locale(identifier: L.lang.rawValue)
         let title = L.f("export_title", day.string(from: Date()))
-        func who(_ u: Utterance) -> String { u.lang == "en" ? "🇬🇧 EN" : "🇹🇭 TH" }
+        func who(_ u: Utterance) -> String { Langs.flag(u.lang) + " " + u.lang.uppercased() }
         func arrow(_ u: Utterance) -> String {
-            u.translated ? (u.to == "th" ? "🇹🇭 TH" : "🇬🇧 EN") : "(" + L.t("not_translated") + ")"
+            u.translated ? Langs.flag(u.to) + " " + u.to.uppercased() : "(" + L.t("not_translated") + ")"
         }
         switch format {
         case .markdown, .text:

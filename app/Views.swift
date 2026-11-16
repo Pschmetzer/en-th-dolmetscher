@@ -32,10 +32,9 @@ enum Prefs {
         s.split(whereSeparator: \.isNewline).map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
     }
 
-    /// Sprache eines Schnellsatzes nach Schrift: Thai-Zeichen → "th", sonst "en" (Speicherformat bleibt eine Zeile pro Satz).
-    static func phraseLang(_ p: String) -> String {
-        p.unicodeScalars.contains { (0x0E00...0x0E7F).contains($0.value) } ? "th" : "en"
-    }
+    /// Sprache eines Schnellsatzes nach Schrift, nur zwischen den zwei Sprachen des Paars (Standard: Thai-Zeichen →
+    /// "th", sonst "en"); Speicherformat bleibt eine Zeile pro Satz.
+    static func phraseLang(_ p: String) -> String { Langs.guessLang(p) }
 
     /// Schriftzoom um `d` ändern, auf 0,1 gerundet und auf den erlaubten Bereich begrenzt.
     static func zoomed(_ scale: Double, _ d: Double) -> Double {
@@ -66,11 +65,14 @@ enum LangStyle {
     /// Warnhinweise (kleiner Text auf getönter Blase).
     static let warning = adaptive(light: 0xB45309, lightHC: 0x8A3F06, dark: 0xFFA94D, darkHC: 0xFFC285)
 
-    static func color(_ lang: String) -> Color { lang == "th" ? orange : blue }
+    /// Farbe nach Seite: Partnersprache orange, meine Sprache blau (Standard: Thai orange, Englisch blau).
+    static func color(_ lang: String) -> Color { Langs.isMine(lang) ? blue : orange }
     /// Auf schwarzem Grund (Partner-Ansicht ist immer dunkel).
-    static func onBlack(_ lang: String) -> Color { lang == "th" ? Color(red: 1, green: 0.66, blue: 0.30) : Color(red: 0.43, green: 0.66, blue: 1) }
-    static func flag(_ lang: String) -> String { lang == "th" ? "🇹🇭" : "🇬🇧" }
-    static func name(_ lang: String) -> String { L.t(lang == "th" ? "thai" : "english") }
+    static func onBlack(_ lang: String) -> Color {
+        Langs.isMine(lang) ? Color(red: 0.43, green: 0.66, blue: 1) : Color(red: 1, green: 0.66, blue: 0.30)
+    }
+    static func flag(_ lang: String) -> String { Langs.flag(lang) }
+    static func name(_ lang: String) -> String { Langs.name(lang) }
 }
 
 /// Text für VoiceOver mit Sprachkennung je Abschnitt (Thai-Abschnitte als "th"). SwiftUI kennt auf macOS kein
@@ -123,7 +125,7 @@ struct ContentView: View {
     @State private var twoPersonHintClosed = false
     @State private var correcting: Utterance?
     @State private var query = ""
-    @State private var langFilter = ""          // "" = alle, "en", "th"
+    @State private var langFilter = ""          // "" = alle, sonst eine Sprache des Paars
     @State private var searchOpen = false
     @State private var userScrolledUp = false   // Auto-Scroll pausiert, bis der Nutzer wieder unten ist
     @State private var bottomVisible = true
@@ -230,8 +232,7 @@ struct ContentView: View {
                 .accessibilityLabel(L.t("search"))
             Picker(L.t("language_filter"), selection: $langFilter) {
                 Text(L.t("filter_all")).tag("")
-                Text("EN").tag("en")
-                Text("TH").tag("th")
+                ForEach(Langs.pair, id: \.self) { Text($0.uppercased()).tag($0) }
             }
             .pickerStyle(.segmented).labelsHidden().frame(width: 150)
             .accessibilityLabel(L.t("language_filter"))
@@ -355,13 +356,14 @@ struct EmptyState: View {
         VStack(spacing: 16) {
             HStack(spacing: 14) {
                 HStack(spacing: 6) {
-                    Text("🇬🇧").accessibilityHidden(true)
-                    Text("English").foregroundStyle(LangStyle.color("en"))
+                    Text(Langs.flag(m.mineLang)).accessibilityHidden(true)
+                    Text(m.mineLang == "en" ? "English" : Langs.name(m.mineLang)).foregroundStyle(LangStyle.color(m.mineLang))
                 }
                 Image(systemName: "arrow.left.arrow.right").foregroundStyle(.secondary).accessibilityHidden(true)
                 HStack(spacing: 6) {
-                    Text("🇹🇭").accessibilityHidden(true)
-                    Text("ไทย").foregroundStyle(LangStyle.color("th"))
+                    Text(Langs.flag(m.partnerLang)).accessibilityHidden(true)
+                    Text(m.partnerLang == "th" ? "ไทย" : Langs.name(m.partnerLang))
+                        .foregroundStyle(LangStyle.color(m.partnerLang))
                 }
             }
             .font(.system(size: 26, weight: .semibold))
@@ -625,11 +627,13 @@ struct QuickPhraseBar: View {
                     .help(L.t("phrase_add_help"))
                     .accessibilityLabel(L.t("phrase_add_help"))
                 if let pr = PresetCatalog.all.first(where: { $0.id == m.preset }), m.activePreset != nil {
+                    // Preset-Sätze gibt es auf Englisch und Thai: nur mit einer der beiden Sprachen im Paar
                     ForEach(Array(pr.phrases.enumerated()), id: \.offset) { _, ph in
-                        Button(ph.en) { m.say(ph.en, lang: "en") }
+                        let useTH = !Langs.hasEnglish && Langs.hasThai
+                        Button(useTH ? ph.th : ph.en) { m.say(useTH ? ph.th : ph.en, lang: useTH ? "th" : "en") }
                             .buttonStyle(.bordered).tint(.accentColor)
-                            .disabled(!m.running)
-                            .help(ph.th)
+                            .disabled(!m.running || !(Langs.hasEnglish || Langs.hasThai))
+                            .help(useTH ? ph.en : ph.th)
                             .accessibilityHint(L.t("preset_phrase_help"))
                     }
                     Divider().frame(height: 18)
