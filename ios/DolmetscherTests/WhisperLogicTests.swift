@@ -4,16 +4,19 @@ import XCTest
 
 /// Reine Whisper-Teile – lädt nie ein Modell.
 final class WhisperLogicTests: XCTestCase {
-    func testChooseOnlyComparesEnglishAndThai() {
-        // Lao hat die höchste Wahrscheinlichkeit, zählt aber nicht.
-        XCTAssertEqual(WhisperLang.choose(probs: ["lo": 0.6, "th": 0.3, "en": 0.1], langs: [.en, .th]), .th)
-        XCTAssertEqual(WhisperLang.choose(probs: ["en": 0.5, "th": 0.4], langs: [.en, .th]), .en)
-        XCTAssertEqual(WhisperLang.choose(probs: ["de": 0.9], langs: [.en, .th]), .en)
+    func testChooseOnlyCountsActivePair() {
+        // WhisperKit liefert nur die Log-Wahrscheinlichkeit der erkannten Sprache.
+        XCTAssertEqual(WhisperLang.choose(probs: ["en": -0.004], langs: [.en, .th]), .en)
+        XCTAssertEqual(WhisperLang.choose(probs: ["th": -0.2], langs: [.en, .th]), .th)
+        XCTAssertEqual(WhisperLang.choose(probs: ["en": -2.0, "th": -0.5], langs: [.en, .th]), .th)
+        // Lao erkannt: zählt nicht, Entscheidung per Probe-Transkription
+        XCTAssertNil(WhisperLang.choose(probs: ["lo": -0.1], langs: [.en, .th]))
+        XCTAssertEqual(WhisperLang.best(scores: [(.en, -1.2), (.th, -0.4)]), .th)
     }
 
     func testSingleLanguageIsForced() {
-        XCTAssertEqual(WhisperLang.choose(probs: ["en": 0.99], langs: [.th]), .th)
-        XCTAssertEqual(WhisperLang.choose(probs: ["th": 0.99], langs: [.en]), .en)
+        XCTAssertEqual(WhisperLang.choose(probs: ["en": -0.01], langs: [.th]), .th)
+        XCTAssertEqual(WhisperLang.choose(probs: ["th": -0.01], langs: [.en]), .en)
     }
 
     func testResolveReportedLanguage() {
