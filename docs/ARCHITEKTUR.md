@@ -30,9 +30,10 @@
 | `load-*` | Whisper-Modelle parallel laden (`Engine.__init__`) |
 | `speaker` (`Speaker`) | Sprachausgabe in eigener Warteschlange; Aufholmodus (schneller sprechen) und Überspringen alter Ausgaben bei Rückstand |
 | `tts` (Event-Loop für `edge-tts`), `tts-warmup`, `say-prerender` | Verbindung zur Neural-Stimme schon während des Sprechens öffnen, Fallback `say` vorbereiten |
+| `writer` | schreibt bei `--json` die Ereignisse aus einer Warteschlange (2000 Zeilen) nach stdout, damit `emit()` nie blockiert; bei Überlauf fallen zuerst `level`, `partial` und `queue` weg |
 | kurzlebige Threads | Aufwärmen von Übersetzung und Thai-Umschrift beim Start |
 
-Ablauf eines Satzes: Mikrofon → VAD (Satzende nach `--silence`) → Sprache bestimmen (Whisper-Wahrscheinlichkeiten, ggf. Stimmprofil, Sperre `--lang`) → Erkennung (englisches oder Thai-Modell) → Befehlserkennung („Translator, …“, wird nie übersetzt) → Übersetzung (Claude, sonst Google, sonst MyMemory) → Ausgabe an den `speaker`. Erkennung und Übersetzung des nächsten Satzes laufen, während der vorige noch gesprochen wird. Die Echo-Sperre verwirft Audio, das während der eigenen Ausgabe plus Nachhall eintrifft.
+Ablauf eines Satzes: Mikrofon → VAD (Satzende nach `--silence`) → Sprache bestimmen (Whisper-Wahrscheinlichkeiten, nur zwischen den zwei Sprachen des Paars `--langs`, ggf. Stimmprofil, Sperre `--lang`) → Erkennung (Hauptmodell; das Thai-Modell nur, wenn Thai im Paar ist) → `heard` an die App → Befehlserkennung („Translator, …“, nur mit Englisch im Paar, wird nie übersetzt) → Übersetzung (Claude, sonst Google, sonst MyMemory; weichen Zahlen ab, fragt `recheck_numbers` den jeweils anderen Anbieter) → Ausgabe an den `speaker`. Erkennung und Übersetzung des nächsten Satzes laufen, während der vorige noch gesprochen wird. Die Echo-Sperre verwirft Audio, das während der eigenen Ausgabe plus Nachhall eintrifft.
 
 ## Zustände
 
@@ -40,7 +41,7 @@ Es gibt zwei getrennte Zustände, die man nicht vermischen darf:
 
 - **Prozess** (`EngineState` in `app/Engine.swift`): `stopped` → `starting` (Prozess läuft, Modelle laden, bis `ready`) → `running`. Drückt der Nutzer Start, bevor `ready` kam, merkt sich die App den Wunsch und sendet ihn bei `ready`.
 - **Äußerung** (je `id`): Platzhalter-Blase bei `thinking` → `utt` mit Text und Übersetzung → `speaking` (nur wenn wirklich Ton kommt) → `speak_done` (genau einmal, auch bei Überspringen oder Abbruch). `dropped` entfernt den Platzhalter. Der Status „spricht“ wird nur über `speaking`/`speak_done` gesetzt, nicht über `listening`.
-- Dazu kommen Schalter der Engine: pausiert (die Engine hört weiter auf Befehle), Sprachsperre `auto|en|th`, Richtungen EN→TH / TH→EN einzeln abschaltbar, stumm.
+- Dazu kommen Schalter der Engine: pausiert (die Engine hört weiter auf Befehle), Sprachsperre auf eine Sprache des Paars oder automatisch, Richtungen je Paarsprache einzeln abschaltbar (`tr_mine`/`tr_partner` bzw. `tr_<code>`), stumm. Das Sprachpaar selbst (`langs`: `mine`, `partner`) lässt sich zur Laufzeit wechseln; Standard ist en/th. Die Sprachtabelle `LANGS` in `dolmetscher.py` (19 Sprachen: Name, Schrift, Stimmen, Schwellen, Code für die Übersetzungsdienste) ist die einzige Quelle dafür.
 
 ## Dateien
 
@@ -64,4 +65,8 @@ DOLMETSCHER_DEMO=1 open -n ~/Applications/Dolmetscher.app   # oder die Binärdat
 
 ## Tests
 
-`tests/` importiert `dolmetscher.py` direkt, ohne Modelle, Netz oder Mikrofon. `tests/conftest.py` sorgt dafür, dass kein Test ins echte `engine.log` schreibt. Die Swift-Seite wird in CI nur typgeprüft und kompiliert.
+`tests/` importiert `dolmetscher.py` direkt, ohne Modelle, Netz oder Mikrofon. `tests/conftest.py` sorgt dafür, dass kein Test ins echte `engine.log` schreibt. Die Mac-App wird in CI typgeprüft und kompiliert; Verträge zwischen App und Engine (Ereignisse, Codes in `docs/PROTOKOLL.md`) prüfen Python-Tests wie `tests/test_app_engine_contract.py`.
+
+## iPhone-App
+
+`ios/` ist eine eigene SwiftUI-App ohne Python-Engine: `AudioCapture` (Mikrofon, Unterbrechungen) speist entweder `AppleSpeechEngine` (SpeechAnalyzer, ein Erkenner je Paarsprache) oder `WhisperSpeechEngine` (WhisperKit, optional). Übersetzung in `Translator.swift` (Apple Translation auf dem Gerät, sonst optional Google/MyMemory), Zustand in `Model.swift`, Sprachen in `Languages.swift`. Bauen und Testen: [ios/README.md](../ios/README.md).
