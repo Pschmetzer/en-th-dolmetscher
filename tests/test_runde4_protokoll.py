@@ -103,6 +103,15 @@ def test_history_days_ungueltig(ev, monkeypatch, tmp_path):
     monkeypatch.setattr(history_store, "Store", lambda: real(str(tmp_path / "h.db")))
     d.history_enable(True, -1)
     assert [k["code"] for e, k in ev if e == "error"] == ["history_days_invalid"] and rec.on
+    ev.clear()
+    d.history_enable(True, 0)                  # 0 = nie löschen: kein Fehler
+    d.history_enable(True, None)
+    assert not [e for e, _ in ev if e == "error"]
+
+
+def test_offline_uebersetzung_meldet_nicht_online():
+    """Nr. 28/165: ein Apple-Ergebnis heißt „kein Netz“ – sonst meldete die App „Internet wieder da“."""
+    assert 'net_state("translate", meta.get("provider") != "apple")' in SRC
 
 
 def test_history_schreibfehler_einmal_melden(monkeypatch):

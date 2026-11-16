@@ -167,15 +167,18 @@ def test_numbers_runde4(a, b, differ):
 # --- 55: Floskeln ----------------------------------------------------------------------------------------------
 
 @pytest.mark.parametrize("t", ["Thanks for listening!", "ขอบคุณที่ดูนะคะ", "Subtitles by Somchai",
-                               "subtitles by the amara.org community"])
+                               "Subtitles by Somchai Jaidee", "subtitles by the amara.org community"])
 def test_floskeln_runde4(t):
     low = d._strip_punct(t).lower()
-    assert low in d.JUNK or d._JUNK_BY.fullmatch(d._junk_norm(low))
+    assert low in d.JUNK or d.junk_by(low)
 
 
-def test_floskel_nur_ganze_aeusserung():
-    low = d._strip_punct("thanks for listening to my problem").lower()
-    assert low not in d.JUNK and not d._JUNK_BY.fullmatch(d._junk_norm("subtitles are bad"))
+@pytest.mark.parametrize("t", ["thanks for listening to my problem", "subtitles are bad",
+                               "Subtitles by hand are really hard", "Transcription by hand is slow",
+                               "Captions by default are on"])
+def test_echte_saetze_bleiben(t):
+    low = d._strip_punct(t).lower()
+    assert low not in d.JUNK and not d.junk_by(low)
 
 
 # --- 52: 555 vorlesen ----------------------------------------------------------------------------------------

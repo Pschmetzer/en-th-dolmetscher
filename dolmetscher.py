@@ -357,8 +357,13 @@ JUNK = _JunkSet({"thank you for watching", "thanks for watching", "subtitles by"
                  # Nr. 55
                  "thank you for listening", "thanks for listening", "ขอบคุณที่ดู", "ขอบคุณที่รับฟัง",
                  "ขอบคุณที่ดูจนจบ"})
-# Nr. 55: „Subtitles by <Name>“ – Abspann mit beliebigem Namen (bis 40 Zeichen, ganze Äußerung)
-_JUNK_BY = re.compile(r"(?:subtitles?|captions?|transcription|ซับไตเติ้ล|คำบรรยาย)by\w{1,40}|ซับไตเติ้ลโดย\w{1,40}")
+# Nr. 55: „Subtitles by <Name>“ – Abspann mit kurzem Namen. Nur ganze, kurze Äußerungen (junk_by): „Subtitles by
+# hand are hard“ ist echte Sprache und bleibt.
+_JUNK_BY = re.compile(r"subtitles?by\w{1,20}|(?:ซับไตเติ้ล|คำบรรยาย)โดย\w{1,20}")
+
+
+def junk_by(text):
+    return len(text.split()) <= 4 and _JUNK_BY.fullmatch(_junk_norm(text)) is not None
 # "[Music]"/"[เพลง]" stehen bewusst nicht drin: ohne Klammern (die Aufrufstelle entfernt sie) wären es
 # echte Ein-Wort-Antworten ("Music?", "เพลง").
 # nur bei sehr leiser/kurzer Aufnahme
@@ -4234,7 +4239,7 @@ class Engine:
                 info["drop"] = f"halluzination ({hall})"
                 text = ""
         low = _strip_punct(text).lower()
-        if text and (low in JUNK or _JUNK_BY.fullmatch(_junk_norm(low))
+        if text and (low in JUNK or junk_by(low)
                      or (low in JUNK_IF_SHORT and (1.0 if rms is None else rms) < 0.01 and audio.size / SR < 1.5)):
             info["drop"] = "floskel"
             text = ""
@@ -4428,7 +4433,8 @@ class Engine:
             hist = tuple(h for h in self.history if h is not old)
             polite = polite or self.polite      # Person mit eigener Form (Profil) vor der Einstellung
             out = translate(text, lang, dst, history=hist, alts=alts, polite=polite, meta=meta)
-            net_state("translate", True)
+            # Offline-Übersetzung (Apple) heißt: kein Netz – nicht als „wieder online“ melden
+            net_state("translate", meta.get("provider") != "apple")
             if numbers_differ(text, out):      # Zahlen weichen ab: zweiter Anbieter entscheidet (Nr. 25)
                 out = recheck_numbers(text, lang, dst, out, meta, hist, alts, polite)
         except Exception as e:
@@ -4891,7 +4897,7 @@ def history_enable(on, days=None):
     import history_store
     rec = history_store.RECORDER
     rec.on_error = _history_write_failed
-    if days is not None and history_store.valid_days(days) is None:
+    if days not in (None, 0) and history_store.valid_days(days) is None:   # 0 = nie löschen
         emit("error", code="history_days_invalid", msg="Aufbewahrungsdauer ungültig – es wird nichts gelöscht")
     if not rec.enable(on, days) and on:
         emit("error", code="history_failed", msg="Verlauf kann nicht gespeichert werden – Aufzeichnung aus")
