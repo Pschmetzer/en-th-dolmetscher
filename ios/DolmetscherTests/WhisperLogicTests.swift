@@ -51,6 +51,9 @@ final class WhisperLogicTests: XCTestCase {
     func testStripMarkers() {
         XCTAssertEqual(Hallucination.stripMarkers("[Music] Hello (laughs) there ♪"), "Hello there")
         XCTAssertNil(Hallucination.clean("[BLANK_AUDIO]", duration: 2, rms: 0.1, compressionRatios: []))
+        for junk in [">>", "(", "...", " - "] {
+            XCTAssertNil(Hallucination.clean(junk, duration: 2, rms: 0.1, compressionRatios: []), junk)
+        }
     }
 
     func testPreRollKeepsLastSamples() {
