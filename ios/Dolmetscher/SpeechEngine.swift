@@ -1,6 +1,6 @@
 // SpeechEngine.swift – Mikrofon -> Äußerungen. Apples On-Device-Erkennung (SpeechAnalyzer), je Sprache ein
 // Erkenner auf demselben Audio; die Sprachwahl trifft das Modell (LanguagePick). Hinter einem Protokoll,
-// damit sich später z. B. Whisper einsetzen lässt.
+// damit sich Whisper (WhisperEngine.swift) einsetzen lässt. Die Aufnahme selbst steckt in AudioCapture.
 import AVFoundation
 import Speech
 import os
@@ -190,135 +190,43 @@ final class LangRecognizer: @unchecked Sendable {
 final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
     let events: AsyncStream<SpeechEvent>
     private let emit: AsyncStream<SpeechEvent>.Continuation
-    private let audio = AVAudioEngine()
-    private let queue = DispatchQueue(label: "dolmetscher.speech")
+    private var capture: AudioCapture!
+    private var queue: DispatchQueue { capture.queue }
     // Zustand nur auf `queue`
     private var recs: [LangRecognizer] = []
     private var muted = false
     private var gate = VoiceGate(pause: 0.8)
     private var sincePartial = 0.0, sinceLevel = 0.0
     private var lastEnd: Task<Void, Never>?
-    private var observers: [NSObjectProtocol] = []
 
-    init() { (events, emit) = AsyncStream<SpeechEvent>.makeStream(bufferingPolicy: .unbounded) }
-
-    static func authorize() async -> Bool {
-        guard await AVAudioApplication.requestRecordPermission() else { return false }
-        // Die Erkennung läuft auf dem Gerät (SpeechAnalyzer). Die Freigabe wird trotzdem erfragt; ob sie
-        // zwingend ist, entscheidet das System beim Start – eine Ablehnung führt dort zu einer Fehlermeldung.
-        _ = await withCheckedContinuation { (c: CheckedContinuation<SFSpeechRecognizerAuthorizationStatus, Never>) in
-            SFSpeechRecognizer.requestAuthorization { c.resume(returning: $0) }
-        }
-        return true
+    init() {
+        (events, emit) = AsyncStream<SpeechEvent>.makeStream(bufferingPolicy: .unbounded)
+        let emit = emit
+        capture = AudioCapture(onBuffer: { [weak self] in self?.process($0) }, onEvent: { emit.yield($0) })
     }
 
     func start(langs: [Lang], pauseSeconds: Double, options: AudioOptions,
                onDownload: @escaping @Sendable (Lang, Double) -> Void) async throws {
-        #if DEBUG
-        // Test ohne Mikrofon (der Simulator hat oft keins): Audiodateien statt Mikrofon einspielen.
-        if let files = ProcessInfo.processInfo.environment["DOLMETSCHER_AUDIO_FILES"] {
-            var made: [LangRecognizer] = []
-            for l in langs { made.append(try await LangRecognizer(lang: l) { onDownload(l, $0) }) }
-            queue.sync { recs = made; gate = VoiceGate(pause: pauseSeconds); muted = false }
-            Task.detached { [weak self] in await self?.play(files.split(separator: ":").map(String.init)) }
-            return
-        }
-        #endif
-        guard await Self.authorize() else { throw SpeechError.denied }
-        log.info("authorized")
-        let session = AVAudioSession.sharedInstance()
-        var opts: AVAudioSession.CategoryOptions = [.defaultToSpeaker]
-        if options.headset { opts.insert(.allowBluetoothHFP) }
-        try session.setCategory(.playAndRecord, mode: .default, options: opts)
-        try session.setAllowHapticsAndSystemSoundsDuringRecording(true)
-        try session.setActive(true)
+        try await capture.activate(options: options)
         var made: [LangRecognizer] = []
         do {
             for l in langs { made.append(try await LangRecognizer(lang: l) { onDownload(l, $0) }) }
+            try capture.checkInput()
         } catch {
             for r in made { await r.shutdown() }
             throw error
         }
-        let node = audio.inputNode
-        let fmt = node.outputFormat(forBus: 0)
-        guard fmt.sampleRate > 0, fmt.channelCount > 0 else {
-            for r in made { await r.shutdown() }
-            throw SpeechError.noMicrophone
-        }
         queue.sync { recs = made; gate = VoiceGate(pause: pauseSeconds); muted = false }
-        node.installTap(onBus: 0, bufferSize: 2048, format: fmt) { [weak self] buf, _ in
-            // Der Puffer gehört dem System und gilt nur im Block: kopieren.
-            guard let copy = AVAudioPCMBuffer(pcmFormat: buf.format, frameCapacity: buf.frameLength),
-                  let src = buf.floatChannelData, let dst = copy.floatChannelData else { return }
-            copy.frameLength = buf.frameLength
-            for c in 0..<Int(buf.format.channelCount) {
-                dst[c].update(from: src[c], count: Int(buf.frameLength))
-            }
-            self?.queue.async { self?.process(copy) }
-        }
-        audio.prepare()
-        try audio.start()
-        let nc = NotificationCenter.default
-        let lost: @Sendable (Notification) -> Void = { [weak self] _ in self?.emit.yield(.interrupted) }
-        observers = [
-            nc.addObserver(forName: AVAudioSession.interruptionNotification, object: nil, queue: nil) { [weak self] n in
-                let raw = n.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt
-                if raw == AVAudioSession.InterruptionType.began.rawValue { self?.emit.yield(.interruptionBegan) }
-                if raw == AVAudioSession.InterruptionType.ended.rawValue { self?.emit.yield(.interrupted) }
-            },
-            nc.addObserver(forName: .AVAudioEngineConfigurationChange, object: audio, queue: nil, using: lost),
-            nc.addObserver(forName: AVAudioSession.mediaServicesWereResetNotification, object: nil, queue: nil, using: lost),
-            // Headset an/ab: neues Eingabeformat, die Aufnahme muss neu aufgebaut werden.
-            nc.addObserver(forName: AVAudioSession.routeChangeNotification, object: nil, queue: nil) { [weak self] n in
-                let raw = n.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt
-                let reason = raw.flatMap(AVAudioSession.RouteChangeReason.init(rawValue:))
-                if reason == .newDeviceAvailable || reason == .oldDeviceUnavailable { self?.emit.yield(.interrupted) }
-            },
-        ]
+        try capture.begin()
     }
 
     func stop() async {
-        observers.forEach(NotificationCenter.default.removeObserver)
-        observers = []
-        if audio.isRunning {
-            audio.inputNode.removeTap(onBus: 0)
-            audio.stop()
-        }
+        capture.end()
         let old = queue.sync { () -> [LangRecognizer] in let r = recs; recs = []; return r }
         for r in old { await r.shutdown() }
         emit.finish()
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        capture.deactivate()
     }
-
-    #if DEBUG
-    /// Spielt Dateien im Echtzeittakt in dieselbe Verarbeitung wie das Mikrofon, mit Stille dazwischen.
-    private func play(_ paths: [String]) async {
-        for path in paths {
-            guard let file = try? AVAudioFile(forReading: URL(fileURLWithPath: path)),
-                  let all = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: AVAudioFrameCount(file.length)),
-                  (try? file.read(into: all)) != nil, let src = all.floatChannelData else {
-                log.error("cannot read \(path)"); continue
-            }
-            let fmt = file.processingFormat
-            let chunk = AVAudioFrameCount(fmt.sampleRate / 10)
-            let silence = AVAudioFrameCount(fmt.sampleRate * 7)
-            var pos: AVAudioFrameCount = 0
-            while pos < all.frameLength + silence {
-                guard let buf = AVAudioPCMBuffer(pcmFormat: fmt, frameCapacity: chunk), let dst = buf.floatChannelData else { return }
-                buf.frameLength = chunk
-                for c in 0..<Int(fmt.channelCount) {
-                    for i in 0..<Int(chunk) {
-                        let j = Int(pos) + i
-                        dst[c][i] = j < Int(all.frameLength) ? src[c][j] : 0
-                    }
-                }
-                pos += chunk
-                queue.async { self.process(buf) }
-                try? await Task.sleep(for: .milliseconds(100))
-            }
-        }
-    }
-    #endif
 
     func setMuted(_ on: Bool) {
         queue.async {
@@ -341,12 +249,9 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
     }
 
     private func process(_ buf: AVAudioPCMBuffer) {
-        guard !muted, !recs.isEmpty, let ch = buf.floatChannelData, buf.frameLength > 0 else { return }
-        let n = Int(buf.frameLength)
-        var sum: Float = 0
-        for i in 0..<n { let v = ch[0][i]; sum += v * v }
-        let rms = (sum / Float(n)).squareRoot()
-        let dur = Double(n) / buf.format.sampleRate
+        guard !muted, !recs.isEmpty, buf.floatChannelData != nil, buf.frameLength > 0 else { return }
+        let rms = AudioCapture.rms(buf)
+        let dur = Double(buf.frameLength) / buf.format.sampleRate
         for r in recs { r.feed(buf) }
         // Pegel für die Anzeige gedrosselt (~12/s), sonst baut die Oberfläche ständig neu auf.
         sinceLevel += dur
