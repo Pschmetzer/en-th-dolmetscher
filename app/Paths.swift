@@ -135,10 +135,13 @@ enum Paths {
 /// Anthropic-API-Schlüssel im macOS-Schlüsselbund (Nr. 23); Inhalt wird nie angezeigt oder geloggt.
 /// Die Engine liest ihn nicht selbst (keine ACL-Abfrage durch `security`): die App reicht ihn beim Start jedes
 /// Engine-Prozesses als `ANTHROPIC_API_KEY` durch (`Paths.engineEnvironment`). Die frühere Datei
-/// `anthropic_key` (0600) wird beim ersten Start übernommen und erst gelöscht, wenn der Schlüsselbund denselben
-/// Wert zurückliefert. Fehlt der Schlüsselbund (Fehler beim Schreiben), bleibt die Datei als Rückfall.
+/// `anthropic_key` (0600) wird beim Start übernommen. Sie bleibt, solange der Schlüsselbund den Wert nicht
+/// nachweislich zurückliefert, und wird auch danach nie gelöscht, sondern in `anthropic_key.migrated` (0600)
+/// umbenannt: Rückfall für den Start im Terminal und für Builds, deren Signatur den Schlüsselbund-Zugriff verliert
+/// (Ad-hoc-Signatur). Die Engine liest beide Dateien, wenn kein `ANTHROPIC_API_KEY` gesetzt ist.
 enum APIKeyStore {
     static let url = Paths.support.appendingPathComponent("anthropic_key")
+    static let migratedURL = Paths.support.appendingPathComponent("anthropic_key.migrated")
     static let service = "Dolmetscher"
     static let account = "anthropic"
 
@@ -147,7 +150,9 @@ enum APIKeyStore {
          kSecAttrService as String: service, kSecAttrAccount as String: account]
     }
 
-    static var fileExists: Bool { FileManager.default.fileExists(atPath: url.path) }
+    static var fileExists: Bool {
+        FileManager.default.fileExists(atPath: url.path) || FileManager.default.fileExists(atPath: migratedURL.path)
+    }
     /// Nur Attribute abfragen (kein Geheimnis lesen): löst keine Zugriffsabfrage aus.
     static var exists: Bool {
         var q = baseQuery
@@ -170,7 +175,11 @@ enum APIKeyStore {
 
     private static func readUncached() -> String? {
         if let k = keychainRead() { return k }
-        guard let s = try? String(contentsOf: url, encoding: .utf8) else { return nil }
+        return readFile(url) ?? readFile(migratedURL)
+    }
+
+    private static func readFile(_ u: URL) -> String? {
+        guard let s = try? String(contentsOf: u, encoding: .utf8) else { return nil }
         let k = s.trimmingCharacters(in: .whitespacesAndNewlines)
         return k.isEmpty ? nil : k
     }
@@ -193,10 +202,11 @@ enum APIKeyStore {
         guard !k.isEmpty else { return false }
         cached = nil
         if keychainWrite(k), keychainRead() == k {
-            try? FileManager.default.removeItem(at: url)
+            // Rückfall-Datei auf denselben (neuen) Stand bringen, nie ersatzlos löschen
+            if writeFile(k, to: migratedURL) { try? FileManager.default.removeItem(at: url) }
             return true
         }
-        return writeFile(k)
+        return writeFile(k, to: url)
     }
 
     static func keychainWrite(_ k: String) -> Bool {
@@ -213,21 +223,27 @@ enum APIKeyStore {
         return st == errSecSuccess
     }
 
-    /// Einmalige Übernahme der alten Datei in den Schlüsselbund (beim App-Start).
+    /// Übernahme der alten Datei in den Schlüsselbund (beim App-Start). Erst wenn der Schlüsselbund denselben
+    /// Wert nachweislich zurückliefert, wird die Datei in `anthropic_key.migrated` (0600) umbenannt – nie gelöscht.
     static func migrate() {
-        guard fileExists, let s = try? String(contentsOf: url, encoding: .utf8) else { return }
-        let k = s.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !k.isEmpty else { return }
-        if keychainRead() == k || (keychainWrite(k) && keychainRead() == k) {
-            try? FileManager.default.removeItem(at: url)
+        guard let k = readFile(url) else { return }
+        cached = nil
+        guard keychainRead() == k || (keychainWrite(k) && keychainRead() == k) else { return }   // Datei bleibt
+        let fm = FileManager.default
+        try? fm.removeItem(at: migratedURL)                // älterer Stand; die aktuelle Datei ersetzt ihn
+        do {
+            try fm.moveItem(at: url, to: migratedURL)
+            chmod(migratedURL.path, 0o600)
+        } catch {
+            // Umbenennen gescheitert: Datei bleibt unter dem alten Namen (Engine liest sie weiter)
         }
     }
 
     /// Rückfall: Datei so schreiben, dass sie zu keinem Zeitpunkt für andere lesbar ist.
-    private static func writeFile(_ k: String) -> Bool {
+    private static func writeFile(_ k: String, to target: URL) -> Bool {
         let fm = FileManager.default
         try? fm.createDirectory(at: Paths.support, withIntermediateDirectories: true)
-        let fd = open(url.path, O_WRONLY | O_CREAT | O_TRUNC, 0o600)
+        let fd = open(target.path, O_WRONLY | O_CREAT | O_TRUNC, 0o600)
         guard fd >= 0 else { return false }
         defer { close(fd) }
         fchmod(fd, 0o600)   // falls die Datei schon mit anderen Rechten existierte
@@ -244,5 +260,6 @@ enum APIKeyStore {
         cached = nil
         SecItemDelete(baseQuery as CFDictionary)
         try? FileManager.default.removeItem(at: url)
+        try? FileManager.default.removeItem(at: migratedURL)   // Nutzer will den Schlüssel ganz entfernen
     }
 }

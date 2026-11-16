@@ -1008,17 +1008,32 @@ LLM = {"on": False, "model": "claude-haiku-5-5", "client": None, "err": None, "s
 LLM["context"] = 8                 # so viele letzte Sätze (Verlauf) gehen als Kontext an Claude
 LLM_BACKOFF = 60.0                 # s ohne Claude nach einem Fehler (dann direkt Google)
 KEYFILE = os.path.expanduser("~/Library/Application Support/Dolmetscher/anthropic_key")
+# Die Mac-App legt den Schlüssel in den Schlüsselbund (Nr. 23) und benennt die Datei danach in
+# `anthropic_key.migrated` um, statt sie zu löschen: Rückfall für den Start im Terminal ohne ANTHROPIC_API_KEY.
+MIGRATED_SUFFIX = ".migrated"
 
 
 _LLM_CLIENT_LOCK = threading.Lock()
 
 
-def _private_keyfile():
+def key_file():
+    """Vorhandene, nicht leere Schlüsseldatei: zuerst `anthropic_key`, sonst `anthropic_key.migrated`."""
+    for p in (KEYFILE, KEYFILE + MIGRATED_SUFFIX):
+        try:
+            if os.path.getsize(p) > 0:
+                return p
+        except OSError:
+            pass
+    return None
+
+
+def _private_keyfile(path=None):
     """Schlüsseldatei darf nur der Nutzer lesen: sonst auf 0600 setzen und das melden."""
+    path = path or KEYFILE
     try:
-        mode = os.stat(KEYFILE).st_mode
+        mode = os.stat(path).st_mode
         if mode & 0o077:
-            os.chmod(KEYFILE, 0o600)
+            os.chmod(path, 0o600)
             log({"llm": "schlüsseldatei war für andere lesbar, auf 0600 gesetzt"})
     except OSError:
         pass
@@ -1030,9 +1045,10 @@ def llm_client():
         if LLM["client"] is None:
             import anthropic
             key = os.environ.get("ANTHROPIC_API_KEY")
-            if not key and os.path.exists(KEYFILE):
-                _private_keyfile()
-                with open(KEYFILE, encoding="utf-8") as f:
+            kf = None if key else key_file()
+            if kf:
+                _private_keyfile(kf)
+                with open(kf, encoding="utf-8") as f:
                     key = f.read().strip() or None
             LLM["client"] = anthropic.Anthropic(api_key=key, timeout=5.0, max_retries=0) if key else \
                 anthropic.Anthropic(timeout=5.0, max_retries=0)
@@ -1050,7 +1066,7 @@ def llm_available():
         return _LLM_AVAIL["v"]
     try:
         import anthropic  # noqa: F401
-        v = bool(env[0] or env[1] or (os.path.exists(KEYFILE) and os.path.getsize(KEYFILE) > 0))
+        v = bool(env[0] or env[1] or key_file())
     except ImportError:
         v = False
     _LLM_AVAIL.update(t=now, env=env, v=v)

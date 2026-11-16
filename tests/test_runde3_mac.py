@@ -16,10 +16,16 @@ def test_schluesselbund_statt_datei():
     p = src("Paths.swift")
     assert "SecItemAdd" in p and "SecItemUpdate" in p and "errSecDuplicateItem" in p
     assert "kSecAttrAccessibleAfterFirstUnlock" in p
-    # Datei erst löschen, wenn der Schlüsselbund denselben Wert zurückliefert
-    assert re.search(r"keychainRead\(\) == k[^\n]*\{\s*\n\s*try\? FileManager\.default\.removeItem\(at: url\)", p)
-    # Rückfall Datei bleibt (Schreiben und Lesen)
-    assert "writeFile(k)" in p and "contentsOf: url" in p
+    # Migration: Datei nie ersatzlos löschen – nur nach nachweislich lesbarem Eintrag umbenennen (0600)
+    mig = p[p.index("static func migrate()"):p.index("private static func writeFile")]
+    assert "removeItem(at: url)" not in mig
+    assert "guard keychainRead() == k || (keychainWrite(k) && keychainRead() == k) else { return }" in mig
+    assert "moveItem(at: url, to: migratedURL)" in mig and "chmod(migratedURL.path, 0o600)" in mig
+    assert 'appendingPathComponent("anthropic_key.migrated")' in p
+    # Speichern: Rückfall-Datei bekommt den neuen Schlüssel, bevor die alte weg ist
+    assert "if writeFile(k, to: migratedURL) { try? FileManager.default.removeItem(at: url) }" in p
+    # Lesen: Schlüsselbund, dann beide Dateien
+    assert "readFile(url) ?? readFile(migratedURL)" in p
     # Engine bekommt den Schlüssel per Umgebung, eine gesetzte Umgebungsvariable hat Vorrang
     assert 'if env["ANTHROPIC_API_KEY"] == nil, let k = APIKeyStore.read()' in p
     assert "APIKeyStore.migrate()" in src("DolmetscherApp.swift")

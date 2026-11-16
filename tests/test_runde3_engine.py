@@ -427,6 +427,33 @@ def test_retranslate_lernt_nur_wenn_an(tmp_path, monkeypatch, ev):
     assert gf.read_text(encoding="utf-8") == "Hilton\n"      # John stand (klein) schon im erkannten Text
 
 
+# --- 23: Schlüsseldatei nach der Migration bleibt Rückfall -----------------------------------------------
+
+def test_schluessel_rueckfall_auf_migrierte_datei(tmp_path, monkeypatch):
+    kf = tmp_path / "anthropic_key"
+    monkeypatch.setattr(d, "KEYFILE", str(kf))
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
+    assert d.key_file() is None
+    mig = tmp_path / "anthropic_key.migrated"
+    mig.write_text("sk-ant-alt\n")
+    mig.chmod(0o644)
+    assert d.key_file() == str(mig)
+    seen = {}
+    fake = type("A", (), {"Anthropic": lambda *a, **k: seen.update(k) or object()})
+    monkeypatch.setitem(d.sys.modules, "anthropic", fake)
+    monkeypatch.setitem(d.LLM, "client", None)
+    d.llm_client()
+    assert seen["api_key"] == "sk-ant-alt" and (mig.stat().st_mode & 0o777) == 0o600
+    kf.write_text("sk-ant-neu")                       # die ursprüngliche Datei hat Vorrang
+    assert d.key_file() == str(kf)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-env")   # Umgebung (Schlüsselbund über die App) zuerst
+    monkeypatch.setitem(d.LLM, "client", None)
+    d.llm_client()
+    assert seen["api_key"] == "sk-ant-env"
+    monkeypatch.setitem(d.LLM, "client", None)
+
+
 # --- MIN_LOGPROB je Sprache ------------------------------------------------------------------------------
 
 def test_min_logprob_defaults_je_sprache():
