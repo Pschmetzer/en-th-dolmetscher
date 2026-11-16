@@ -2,3 +2,4 @@
 "NSSpeechRecognitionUsageDescription" = "번역을 위해 음성을 이 기기에서 텍스트로 변환합니다.";
 "NSCameraUsageDescription" = "메뉴판이나 표지판 사진을 찍으면 Dolmetscher가 텍스트를 읽고 번역합니다.";
 "NSPhotoLibraryUsageDescription" = "메뉴판이나 표지판 사진을 선택하면 Dolmetscher가 텍스트를 읽고 번역합니다.";
+"NSFaceIDUsageDescription" = "기록 잠금을 켜면 Face ID로 대화 기록의 잠금을 해제합니다.";

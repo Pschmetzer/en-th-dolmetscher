@@ -2,3 +2,4 @@
 "NSSpeechRecognitionUsageDescription" = "La parole est transcrite en texte sur cet appareil afin de pouvoir être traduite.";
 "NSCameraUsageDescription" = "Prenez en photo un menu ou un panneau pour que Dolmetscher en lise et traduise le texte.";
 "NSPhotoLibraryUsageDescription" = "Choisissez la photo d'un menu ou d'un panneau pour que Dolmetscher en lise et traduise le texte.";
+"NSFaceIDUsageDescription" = "Face ID déverrouille ton historique de conversation si tu actives le verrouillage de l'historique.";

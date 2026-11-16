@@ -41,4 +41,13 @@ jobs:
           print(ids[0] if ids else "")')
           test -n "$UDID" || { echo "kein iPhone-Simulator"; exit 1; }
           xcodebuild test -project Dolmetscher.xcodeproj -scheme Dolmetscher \
-            -destination "id=$UDID" -derivedDataPath build/sim CODE_SIGNING_ALLOWED=NO
+            -destination "id=$UDID" -derivedDataPath build/sim CODE_SIGNING_ALLOWED=NO \
+            -resultBundlePath build/Tests.xcresult
+      - name: Test-Ergebnisse hochladen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-test-results
+          path: ios/build/Tests.xcresult
+          if-no-files-found: ignore
+          retention-days: 14

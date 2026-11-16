@@ -88,7 +88,12 @@ enum LanguagePick {
     /// Konfidenzen sind zwischen Sprachen nur grob vergleichbar, deshalb zuerst harte Hinweise:
     /// das Weckwort (nur mit Englisch im Paar) und die Schrift (ein Thai-Erkenner, der lateinisch
     /// schreibt, hat Englisch gehört).
-    static func pick(_ hyps: [Lang: Hypothesis], pair: LangPair, commands: Bool? = nil) -> Lang? {
+    ///
+    /// `expect`: „Jetzt Sie“ wurde getippt – diese Sprache gewinnt, sofern die Schrift nicht klar dagegen spricht.
+    /// `bias`: weicher Hinweis aus dem Gesprächsverlauf (nach einem Satz in A kommt meist B) – zählt nur bei
+    /// knapper Konfidenz.
+    static func pick(_ hyps: [Lang: Hypothesis], pair: LangPair, commands: Bool? = nil,
+                     bias: Lang? = nil, expect: Lang? = nil) -> Lang? {
         let texts = hyps.compactMapValues { h -> String? in
             let t = h.text.trimmingCharacters(in: .whitespacesAndNewlines)
             return t.isEmpty ? nil : t
@@ -103,14 +108,25 @@ enum LanguagePick {
             if ok.count == 1 { return ok[0] }
             if !ok.isEmpty { cands = ok }
         }
-        // Konfidenz; bei Gleichstand die höhere Schrift-Treue, dann die Reihenfolge im Paar.
+        if let expect, cands.contains(expect) { return expect }
+        // Konfidenz (+ Bonus für die erwartete Sprache); bei Gleichstand die höhere Schrift-Treue, dann die Reihenfolge im Paar.
+        func conf(_ l: Lang) -> Double { (hyps[l]?.confidence ?? 0) + (l == bias ? biasBonus : 0) }
         return cands.max { a, b in
-            let ca = hyps[a]?.confidence ?? 0, cb = hyps[b]?.confidence ?? 0
+            let ca = conf(a), cb = conf(b)
             if ca != cb { return ca < cb }
             let sa = a.scriptShare(texts[a]!), sb = b.scriptShare(texts[b]!)
             if sa != sb { return sa < sb }
             return (order.firstIndex(of: a) ?? 0) > (order.firstIndex(of: b) ?? 0)
         }
+    }
+
+    /// So viel Konfidenz ist der Gesprächs-Hinweis wert: entscheidet nur knappe Fälle.
+    static let biasBonus = 0.08
+
+    /// Wer spricht als Nächstes vermutlich? Die andere Sprache des letzten Satzes (Gespräch wechselt ab).
+    static func turnBias(lastSpoken: Lang?, pair: LangPair) -> Lang? {
+        guard let l = lastSpoken, pair.contains(l) else { return nil }
+        return pair.other(l)
     }
 
     /// Alte Form (en/th) – für Tests und als Regressionsschutz.

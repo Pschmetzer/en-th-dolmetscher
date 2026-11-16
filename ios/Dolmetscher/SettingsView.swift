@@ -55,21 +55,7 @@ struct SettingsView: View {
                     voiceRow(m.pair.partner)
                 } header: { Text(T("voices")) } footer: { Text(T("voices_note")) }
 
-                Section {
-                    if m.offlineReady {
-                        Label(T("offline_ready"), systemImage: "checkmark.circle.fill").foregroundStyle(.green)
-                    } else {
-                        Button {
-                            // Gleiche Konfiguration erneut anstoßen geht nur über invalidate().
-                            if download == nil {
-                                download = .init(source: Translator.language(m.pair.mine), target: Translator.language(m.pair.partner))
-                            } else {
-                                download?.invalidate()
-                            }
-                        } label: { Label(T("offline_get"), systemImage: "arrow.down.circle") }
-                    }
-                    Toggle(T("online"), isOn: $m.allowOnline)
-                } header: { Text(T("sec_translation")) } footer: { Text(T("online_off_note")) }
+                translationSection
 
                 Section {
                     Toggle(T("whisper_use"), isOn: $whisper.enabled)
@@ -122,15 +108,7 @@ struct SettingsView: View {
                     Toggle(T("thai_speaker"), isOn: $m.thaiOnSpeaker)
                 } header: { Text(T("sec_listening")) } footer: { Text(T("listening_note")) }
 
-                Section {
-                    Picker(T("history_keep"), selection: $m.historyDays) {
-                        Text(T("history_none")).tag(0)
-                        Text(T("history_1d")).tag(1)
-                        Text(T("history_7d")).tag(7)
-                        Text(T("history_30d")).tag(30)
-                        Text(T("history_forever")).tag(-1)
-                    }
-                } header: { Text(T("sec_privacy")) } footer: { Text(T("history_note")) }
+                privacySection
 
                 Section {
                     Picker(T("ui_lang"), selection: $m.uiLang) {
@@ -158,6 +136,56 @@ struct SettingsView: View {
                 partnerLevels = await LangCheck.levels(with: p.mine)
             }
         }
+    }
+
+    private var translationSection: some View {
+        @Bindable var m = m
+        return Section {
+            if m.offlineReady {
+                Label(T("offline_ready"), systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+            } else {
+                Button {
+                    // Gleiche Konfiguration erneut anstoßen geht nur über invalidate().
+                    if download == nil {
+                        download = .init(source: Translator.language(m.pair.mine), target: Translator.language(m.pair.partner))
+                    } else {
+                        download?.invalidate()
+                    }
+                } label: { Label(T("offline_get"), systemImage: "arrow.down.circle") }
+            }
+            Toggle(T("online"), isOn: $m.allowOnline)
+            Toggle(T("back_check"), isOn: $m.backCheck)
+            Toggle(T("show_roman"), isOn: $m.showRoman)
+        } header: { Text(T("sec_translation")) } footer: {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(T("online_off_note"))
+                Text(T("back_check_note"))
+            }
+        }
+    }
+
+    private var privacySection: some View {
+        @Bindable var m = m
+        return Section {
+            Picker(T("history_keep"), selection: $m.historyDays) {
+                Text(T("history_none")).tag(0)
+                Text(T("history_1d")).tag(1)
+                Text(T("history_7d")).tag(7)
+                Text(T("history_30d")).tag(30)
+                Text(T("history_forever")).tag(-1)
+            }
+            if DeviceAuth.available {
+                Toggle(T("lock_history"), isOn: lockBinding)
+            }
+            NavigationLink { PrivacyView() } label: { Label(T("privacy_overview"), systemImage: "hand.raised") }
+        } header: { Text(T("sec_privacy")) } footer: { Text(T("history_note")) }
+    }
+
+    /// Ein- und Ausschalten nur nach erfolgreicher Prüfung (sonst hebt jeder die Sperre auf).
+    private var lockBinding: Binding<Bool> {
+        Binding(get: { m.lockHistory }, set: { (on: Bool) in
+            Task { if await DeviceAuth.authenticate(reason: T("lock_reason")) { m.lockHistory = on } }
+        })
     }
 
     private func setPair(mine: Lang? = nil, partner: Lang? = nil) {
