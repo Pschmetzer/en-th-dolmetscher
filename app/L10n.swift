@@ -586,6 +586,8 @@ enum L {
                "en": "The change will apply once the conversation pauses (microphone off).",
                "th": "การเปลี่ยนแปลงจะมีผลเมื่อหยุดสนทนา (ปิดไมค์)"],
         "reload_now": ["de": "Jetzt neu laden", "en": "Reload now", "th": "โหลดใหม่ตอนนี้"],
+        "mic_reconnecting_long": ["de": "🎙 Mikrofon weg – neuer Versuch alle 10 s (Versuch %d) …", "en": "🎙 Microphone gone – retrying every 10 s (attempt %d) …",
+               "th": "🎙 ไมโครโฟนหลุด – ลองใหม่ทุก 10 วินาที (ครั้งที่ %d) …"],
         "mic_reconnecting": ["de": "🎙 Mikrofon wird neu verbunden (Versuch %d/%d) …",
                "en": "🎙 Reconnecting microphone (attempt %d/%d) …",
                "th": "🎙 กำลังเชื่อมต่อไมค์ใหม่ (ครั้งที่ %d/%d) …"],

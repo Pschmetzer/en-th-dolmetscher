@@ -470,36 +470,41 @@ class SpeakerID:
 
     def reload(self):
         """Profile laden, Embeddings einmal normalisieren/vorberechnen; unpassende (andere Modell-ID oder
-        Dimension, NaN, leer) werden übersprungen und in self.skipped gemeldet."""
-        self.skipped = []
+        Dimension, NaN, leer) werden übersprungen und in self.skipped gemeldet.
+        Nr. 198: alles in lokalen Variablen bauen und am Ende in einem Zug zuweisen – ein Leser im
+        Arbeits-Thread sieht nie profiles und mat aus verschiedenen Ständen."""
+        skipped = []
         cands = []
         for p in list_profiles():
             emb = p.get("embedding")
             if not emb:
                 continue
             if p.get("embedding_model") not in (None, EMBED_MODEL_ID):
-                self.skipped.append((p["name"], "anderes Modell"))
+                skipped.append((p["name"], "anderes Modell"))
                 continue
             try:
                 a = np.asarray(emb, dtype=np.float32)
             except (ValueError, TypeError):
-                self.skipped.append((p["name"], "unlesbar"))
+                skipped.append((p["name"], "unlesbar"))
                 continue
             if a.ndim != 1 or not np.isfinite(a).all() or np.linalg.norm(a) < 1e-6:
-                self.skipped.append((p["name"], "ungültig"))
+                skipped.append((p["name"], "ungültig"))
                 continue
             cands.append((p, a))
         dim = getattr(getattr(self, "ex", None), "dim", None)
         if not isinstance(dim, int) and cands:
             dim = Counter(len(a) for _, a in cands).most_common(1)[0][0]
-        self.profiles, self._emb = [], {}
+        profiles, emb = [], {}
         for p, a in cands:
             if len(a) != dim:
-                self.skipped.append((p["name"], "falsche Dimension %d != %s" % (len(a), dim)))
+                skipped.append((p["name"], "falsche Dimension %d != %s" % (len(a), dim)))
                 continue
-            self.profiles.append(p)
-            self._emb[p["name"]] = a / np.linalg.norm(a)
-        self.mat = np.stack([self._emb[p["name"]] for p in self.profiles]) if self.profiles else None
+            profiles.append(p)
+            emb[p["name"]] = a / np.linalg.norm(a)
+        mat = np.stack([emb[p["name"]] for p in profiles]) if profiles else None
+        # identify() liest profiles und mat über _state (ein Zugriff, immer zusammengehörig)
+        self._state = (profiles, emb, mat)
+        self.profiles, self._emb, self.mat, self.skipped = profiles, emb, mat, skipped
 
     def _emb_of(self, p):
         e = getattr(self, "_emb", {}).get(p["name"])
@@ -608,21 +613,23 @@ class SpeakerID:
 
     def identify(self, audio, emb=None):
         """-> (profile, similarity, scores) or (None, best_sim, scores). `emb` wie bei classify()."""
-        if self.mat is None or audio.size < MIN_SECONDS * SR:
+        st = getattr(self, "_state", None)       # ein Lesezugriff: profiles und mat aus demselben reload()
+        profiles, mat = (st[0], st[2]) if st is not None else (self.profiles, self.mat)
+        if mat is None or audio.size < MIN_SECONDS * SR:
             return None, 0.0, {}
         e = emb() if emb else self.embed(audio)
-        if e is None or e.shape[0] != self.mat.shape[1]:
+        if e is None or e.shape[0] != mat.shape[1]:
             return None, 0.0, {}
-        sims = self.mat @ e
+        sims = mat @ e
         order = np.argsort(-sims)
-        scores = {self.profiles[i]["name"]: round(float(sims[i]), 3) for i in order}
+        scores = {profiles[i]["name"]: round(float(sims[i]), 3) for i in order}
         best = float(sims[order[0]])
         if len(order) > 1:
             ok = best >= MIN_SIM and best - float(sims[order[1]]) >= MIN_MARGIN
         else:
             ok = best >= MIN_SIM_SINGLE               # kein Vergleichswert -> höhere Hürde
         if ok:
-            return self.profiles[order[0]], best, scores
+            return profiles[order[0]], best, scores
         return None, best, scores
 
     def hotwords(self, lang, who=None, role=None):

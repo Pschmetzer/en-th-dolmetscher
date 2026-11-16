@@ -297,7 +297,7 @@ def test_check_ffmpeg_reports_missing(monkeypatch, tmp_path):
 class _Local:
     voice = "Kanya"
 
-    def ready_path(self):
+    def ready_path(self, cancelled=None):     # Runde 4, Nr. 169: Abbruch während des Wartens
         return "/tmp/x.aiff"
 
 

@@ -88,11 +88,11 @@ def test_clean_tmp_removes_own_dir_and_old_leftovers(tmpdir_iso):
 def test_local_voice_cleanup_removes_file_and_skips_render(monkeypatch, tmpdir_iso):
     calls = []
 
-    def fake_run(cmd, **kw):
+    def fake_run(cmd, **kw):                  # Runde 4, Nr. 170: abbrechbar über run_cancellable
         calls.append(cmd)
         open(cmd[cmd.index("-o") + 1], "wb").write(b"aiff")
-        return types.SimpleNamespace(returncode=0)
-    monkeypatch.setattr(d.subprocess, "run", fake_run)
+        return 0
+    monkeypatch.setattr(d, "run_cancellable", fake_run)
     lv = d.LocalVoice("hallo", "Samantha", 0)
     assert lv.ready_path(2) and os.path.exists(lv.path)
     lv.cleanup()

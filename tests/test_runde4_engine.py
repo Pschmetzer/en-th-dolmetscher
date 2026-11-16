@@ -234,3 +234,85 @@ def test_ws_haengt_nach_erstem_block(monkeypatch):
     with pytest.raises(asyncio.TimeoutError):
         asyncio.run(d._ws_speak("<ssml/>", got.append, lambda: False))
     assert got == [b"AUDIO"] and d.time.monotonic() - t < 3
+
+
+# --- 169/170: macOS-Ersatzstimme abbrechbar ---------------------------------------------------------------
+
+def test_ready_path_bricht_bei_stopp_ab(monkeypatch):
+    import threading
+    started = threading.Event()
+
+    def slow(cmd, cancelled=None, **kw):
+        started.set()
+        while not cancelled():
+            d.time.sleep(0.01)
+        return None
+    monkeypatch.setattr(d, "run_cancellable", slow)
+    lv = d.LocalVoice("hallo", "Samantha", 0)
+    assert started.wait(2)
+    flag = {"stop": False}
+    threading.Timer(0.1, lambda: flag.update(stop=True)).start()
+    t = d.time.monotonic()
+    assert lv.ready_path(6.0, cancelled=lambda: flag["stop"]) is None
+    assert d.time.monotonic() - t < 1.0                        # nicht die vollen 6 s
+    d.CANCEL["gen"] += 1                                        # Stopp/Barge-in beendet auch das Rendern
+    assert lv.done.wait(2)
+
+
+def test_local_voice_rendert_mit_echtem_abbruch(monkeypatch, tmp_path):
+    """run_cancellable mit langem Kindprozess: Stopp beendet ihn sofort."""
+    flag = {"stop": False}
+    import threading
+    threading.Timer(0.1, lambda: flag.update(stop=True)).start()
+    t = d.time.monotonic()
+    assert d.run_cancellable(["/bin/sleep", "10"], cancelled=lambda: flag["stop"]) is None
+    assert d.time.monotonic() - t < 2
+
+
+# --- 192: Mikrofon verbindet dauerhaft neu ---------------------------------------------------------------
+
+def test_mic_reconnect_gibt_nicht_auf(monkeypatch, ev):
+    m = d.Mic.__new__(d.Mic)
+    m.stops = 0
+    tries = []
+
+    def start(_retry=False):
+        tries.append(1)
+        return len(tries) >= 8                                  # erst nach 8 Versuchen wieder da
+    m.start = start
+    m._fail = lambda *a: pytest.fail("darf nicht aufgeben")
+    waits = []
+    monkeypatch.setattr(d.STOP, "wait", lambda t: waits.append(t) or False)
+    m._reconnect(0)
+    assert len(tries) == 8
+    assert waits[:5] == [1.0, 2.0, 4.0, 8.0, 10.0] and set(waits[5:]) == {d.MIC_RETRY_SLOW}
+    assert [k["attempt"] for e, k in ev if e == "mic"] == list(range(1, 9))
+
+
+def test_mic_reconnect_endet_bei_nutzerstopp(monkeypatch):
+    m = d.Mic.__new__(d.Mic)
+    m.stops = 1                                                 # Nutzer hat inzwischen gestoppt
+    m.start = lambda _retry=False: pytest.fail("kein Versuch mehr")
+    monkeypatch.setattr(d, "emit", lambda *a, **k: None)
+    monkeypatch.setattr(d.STOP, "wait", lambda t: False)
+    m._reconnect(0)
+
+
+# --- 198: Profile atomar neu laden -------------------------------------------------------------------------
+
+def test_profile_reload_atomar(tmp_path, monkeypatch):
+    import numpy as np
+
+    import profiles
+    monkeypatch.setattr(profiles, "PROFILE_DIR", str(tmp_path))
+    profiles.save_profile({"name": "A", "lang": "en", "embedding": [1.0, 0.0], "vocab": []})
+    spk = profiles.SpeakerID.__new__(profiles.SpeakerID)
+    spk.reload()
+    assert [p["name"] for p in spk._state[0]] == ["A"] and spk._state[2].shape == (1, 2)
+    old = spk._state
+    profiles.save_profile({"name": "B", "lang": "th", "embedding": [0.0, 1.0], "vocab": []})
+    spk.reload()
+    assert old[2].shape == (1, 2) and spk._state[2].shape == (2, 2)   # alter Stand unverändert
+    spk.embed = lambda a: np.array([0.0, 1.0], dtype=np.float32)
+    p, sim, _ = spk.identify(np.zeros(int(profiles.SR * 3), dtype=np.float32))
+    assert p["name"] == "B" and sim > 0.99

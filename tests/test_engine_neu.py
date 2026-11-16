@@ -320,7 +320,7 @@ def test_race_falls_back_to_prepared_local_voice(monkeypatch, tmp_path):
 
         def cancel(self):
             pass
-    local = types.SimpleNamespace(voice="Samantha", ready_path=lambda timeout=6.0: str(aiff))
+    local = types.SimpleNamespace(voice="Samantha", ready_path=lambda timeout=6.0, cancelled=None: str(aiff))
     started = []
     e = types.SimpleNamespace(mute=False, tts="edge", volume=1.0, rate=0)
     d.Engine.speak(e, "hi", "en", stream=SlowStream(), on_start=started.append, local=local)

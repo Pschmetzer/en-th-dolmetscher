@@ -305,7 +305,7 @@ Am Protokoll ändert sich nichts (keine neuen Ereignisse oder Felder). Verhalten
 - stdin `{"ping": <id>}` -> Ereignis `pong` (mit derselben `id`, wenn Zahl/Text bis 64 Zeichen). Zeigt, dass die Steuerung lebt.
 - Ende von stdin (App beendet oder abgestürzt) beendet die Engine geordnet (Ausgabe stumm, ffmpeg beendet, Exit 0). SIGTERM/SIGINT ebenso; ein zweites Signal beendet sofort.
 - Steuerwerte: Wahrheitswerte nur `true`/`false` (auch `"true"`/`"false"`, `0`/`1`), anderes wird ignoriert. Unbekannte Stimme (`voice_en`/`voice_th`) -> `error`-Ereignis, Standardstimme. `glossary` max. 20000 Zeichen, `say`/`retranslate`-Text max. 1000 Zeichen, sonst `error`.
-- `mic` kann `reconnecting` (true) und `attempt` enthalten: die Quelle (Gerät) ist weggefallen, die Engine verbindet mit Wartezeit neu (bis 5 Versuche); danach `error` und (ohne `--idle`) Ende.
+- `mic` kann `reconnecting` (true) und `attempt` enthalten: die Quelle (Gerät) ist weggefallen, die Engine verbindet mit Wartezeit neu (5 schnelle Versuche, danach alle 10 s, bis es klappt oder der Nutzer `listen: false` sendet; Runde 4, Nr. 192 – vorher nach 5 Versuchen `error` und Ende).
 - `error` bei Mikrofonproblemen nennt Zugriff verweigert / ffmpeg fehlt / Quelle ungültig.
 - `--profile-stdin`: Profilname und Wörter als eine JSON-Zeile von stdin statt per Startargument: `{"enroll": "Name", "enroll_lang": "en", "delete_profile": "Name", "vocab": ["Name", "wort1, wort2"], "polite": ["Name", "krub"|"ka"|""]}`.
 - Befehle: `repeat` nutzt wie alle Befehle den gemeinsamen Abschluss (`command`-Ereignis, Log); „Clear“ leert auch Texte, Wiederholung und Roh-Audio im Speicher. Ein Folgesatz nach „Translator“ gilt nur bei höchstens 4 Wörtern als Befehl.
@@ -426,3 +426,6 @@ Neue Felder kommen nur dazu, `PROTOCOL` bleibt 1.
 - **Neue Ereignisse/Felder:** `profile_adapted`, `learning_reset`, `control_ignored` (182, 188), `llm` {`on`,
   `available`} nach dem Steuerfeld `llm` (190), `error.retry_in_s` bei `translate_failed` (66). Profil-Fehler tragen
   jetzt Codes (184); Verlauf meldet `history_failed`/`history_days_invalid` statt still auszugehen (191).
+- **Robustheit:** Die vorab gerenderte macOS-Ersatzstimme bricht bei Stopp/Barge-in ab, auch während die
+  Ausgabe auf sie wartet (169/170). Das Mikrofon verbindet nach 5 schnellen Versuchen dauerhaft alle 10 s neu
+  (192; `mic.attempt` zählt weiter). Stimmprofile werden atomar neu geladen (198).

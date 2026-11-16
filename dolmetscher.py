@@ -3327,6 +3327,13 @@ def say_cmd(voice, rate_pct, path, text):
     return [SAY, "-v", voice, "-r", str(rate), "-o", path, "--", text]
 
 
+def _rm_quiet(path):
+    try:
+        os.remove(path)
+    except OSError:
+        pass
+
+
 def run_cancellable(cmd, timeout=SAY_TIMEOUT, cancelled=None, step=0.05):
     """Kindprozess (kein Abspielen, sperrt also nicht das Mikrofon) mit Zeitgrenze; Stopp/Barge-in
     beendet ihn sofort. Rückgabe: Exit-Code, None bei Abbruch/Zeitüberschreitung."""
@@ -3363,6 +3370,10 @@ class LocalVoice:
         os.close(fd)
         os.remove(self.path)
         self.voice = voice
+        gen = CANCEL["gen"]
+
+        def cancelled():                        # Nr. 170: Stopp/Barge-in beendet auch das Vorab-Rendern
+            return self.dropped.is_set() or CANCEL["gen"] != gen
 
         def run():
             try:
@@ -3372,18 +3383,23 @@ class LocalVoice:
                     # Hat die Neural-Stimme inzwischen Ton geliefert (Normalfall), wird nichts gebraucht.
                     if self.dropped.is_set() or (audio is not None and audio.is_set()):
                         return
-                    r = subprocess.run(say_cmd(voice, rate_pct, self.path, text), capture_output=True,
-                                       timeout=SAY_TIMEOUT)
-                    if r.returncode != 0:
-                        log({"tts": "lokal-vorab-fehler", "rc": r.returncode})
+                    rc = run_cancellable(say_cmd(voice, rate_pct, self.path, text), cancelled=cancelled)
+                    if rc is None and cancelled():
+                        _rm_quiet(self.path)            # halb geschriebene Datei nie abspielen
+                    elif rc != 0:
+                        log({"tts": "lokal-vorab-fehler", "rc": rc})
             except Exception as e:
                 log({"tts": "lokal-vorab-fehler", "err": _errtxt(e)})
             finally:
                 self.done.set()
         threading.Thread(target=run, name="say-prerender", daemon=True).start()
 
-    def ready_path(self, timeout=6.0):
-        self.done.wait(timeout)
+    def ready_path(self, timeout=6.0, cancelled=None):
+        """Nr. 169: Stopp/Barge-in während des Wartens beendet das Warten sofort (-> None)."""
+        end = time.monotonic() + timeout
+        while not self.done.wait(min(0.05, max(0.0, end - time.monotonic()))):
+            if (cancelled and cancelled()) or time.monotonic() >= end:
+                return None
         return self.path if os.path.exists(self.path) and os.path.getsize(self.path) > 0 else None
 
     def cleanup(self):
@@ -3810,7 +3826,7 @@ class Engine:
                 if not local or is_offline_error(e):
                     net_state("tts", False)
             if local:                            # Wettlauf verloren: vorbereitete macOS-Stimme sofort
-                path = local.ready_path()
+                path = local.ready_path(cancelled=cancelled)
                 if path and not (cancelled and cancelled()):
                     wait_quiet(cancelled=cancelled)
                     if cancelled and cancelled():
@@ -5384,17 +5400,23 @@ class Mic:
         return True
 
     def _reconnect(self, stops):
-        """Mikrofon-Quelle weg (Gerät abgezogen, Schlaf): bis zu MIC_RETRIES Versuche mit Wartezeit."""
-        for n in range(1, MIC_RETRIES + 1):
+        """Mikrofon-Quelle weg (Gerät abgezogen, Schlaf): erst MIC_RETRIES schnelle Versuche (1, 2, 4, 8 s),
+        danach dauerhaft alle MIC_RETRY_SLOW s, bis es klappt, der Nutzer stoppt oder die Engine endet
+        (Nr. 192: ein Bluetooth-Aussetzer oder längerer Ruhezustand beendet nicht mehr die Sitzung)."""
+        n = 0
+        while True:
+            n += 1
             emit("mic", on=False, reconnecting=True, attempt=n)
-            if STOP.wait(min(10.0, 2.0 ** (n - 1))) or stops != self.stops:
+            wait = min(MIC_RETRY_SLOW, 2.0 ** (n - 1)) if n <= MIC_RETRIES else MIC_RETRY_SLOW
+            if STOP.wait(wait) or stops != self.stops:
                 return                         # Beenden oder Nutzer hat das Mikrofon selbst gestoppt
             try:
                 if self.start(_retry=True):
                     return
             except Exception as e:
                 log({"mic": "reconnect-fehler", "err": repr(e)[:200]})
-        self._fail("Mikrofon nicht mehr erreichbar", False)
+            if n == MIC_RETRIES:
+                log({"mic": "weiter alle %.0f s" % MIC_RETRY_SLOW})
 
     @staticmethod
     def _kill(ff):
@@ -5445,7 +5467,8 @@ MIC = None
 MIC_PENDING = {"mic": None}       # Steuerfeld `mic` vor dem Laden: gilt beim Anlegen des Mikrofons
 MIC_START_TIMEOUT = 10.0         # s bis der erste Mikrofon-Block da sein muss (Wachhund)
 FRAMES_MAX = 1000                # Mikrofon-Blöcke (~32 s) – älteste fliegen raus statt unbegrenzt zu wachsen
-MIC_RETRIES = 5
+MIC_RETRIES = 5                          # schnelle Versuche, danach alle MIC_RETRY_SLOW s
+MIC_RETRY_SLOW = 10.0
 
 
 class WorkQueue(queue.Queue):

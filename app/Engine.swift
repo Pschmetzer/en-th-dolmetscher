@@ -1083,7 +1083,7 @@ final class EngineModel: NSObject, ObservableObject {
         case "mic":
             if o["reconnecting"] as? Bool == true {   // Gerät weg, Engine verbindet neu – Zuhör-Zustand bleibt
                 let n = (o["attempt"] as? NSNumber)?.intValue ?? 1
-                status = L.f("mic_reconnecting", n, 5)
+                status = n <= 5 ? L.f("mic_reconnecting", n, 5) : L.f("mic_reconnecting_long", n)
                 break
             }
             let on = o["on"] as? Bool ?? false

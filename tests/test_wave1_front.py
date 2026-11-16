@@ -228,15 +228,15 @@ def test_clamp_rate():
 def test_local_voice_uses_dashdash_and_private_dir(monkeypatch):
     seen = {}
 
-    def fake_run(cmd, **kw):
+    def fake_run(cmd, **kw):                  # Runde 4, Nr. 170: abbrechbar über run_cancellable
         seen["cmd"], seen["kw"] = cmd, kw
-        return types.SimpleNamespace(returncode=1)
-    monkeypatch.setattr(d.subprocess, "run", fake_run)
+        return 1
+    monkeypatch.setattr(d, "run_cancellable", fake_run)
     lv = d.LocalVoice("-v evil", "Samantha", 900)
     lv.done.wait(2)
     cmd = seen["cmd"]
     assert cmd[cmd.index("--") + 1] == "-v evil" and cmd[-1] == "-v evil"
-    assert seen["kw"]["timeout"] and os.path.dirname(lv.path) == d.private_tmp()
+    assert callable(seen["kw"]["cancelled"]) and os.path.dirname(lv.path) == d.private_tmp()
     assert int(cmd[cmd.index("-r") + 1]) <= 185 * 2
 
 
