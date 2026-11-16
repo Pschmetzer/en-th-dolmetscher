@@ -327,6 +327,10 @@ private struct VoiceSettings: View {
             if !cur.isEmpty && !list.contains(cur) { Text(EngineModel.voiceLabel(cur)).tag(cur) }
         }
         .accessibilityLabel(title)
+        // Stimme sofort probehören (Beispielsatz in dieser Sprache, ohne Übersetzung)
+        Button { m.testVoice(code) } label: { Label(L.t("voice_test"), systemImage: "play.circle") }
+            .disabled(!m.canTestVoice)
+            .help(m.canTestVoice ? L.t("voice_test") : L.t("voice_test_needs_engine"))
     }
     private var rateBinding: Binding<Double> {
         Binding(get: { Double(m.rate) }, set: { m.rate = Int($0.rounded()) })

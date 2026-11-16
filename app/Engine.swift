@@ -1361,6 +1361,17 @@ final class EngineModel: NSObject, ObservableObject {
         if synth.isSpeaking { synth.stopSpeaking(at: .immediate) }
     }
 
+    /// Stimme probehören (Einstellungen): Beispielsatz der Sprache über `speak_text`, gleiche Neural-Stimme
+    /// wie im Gespräch. Nur bei laufender, nicht stummer Engine.
+    var canTestVoice: Bool { running && engineReady && speak }
+
+    func testVoice(_ code: String) {
+        guard canTestVoice, Langs.pair.contains(code),
+              let sample = Langs.all.first(where: { $0.code == code })?.pleaseSpeak else { return }
+        send(["stop_speaking": true])
+        send(["speak_text": ["text": sample, "lang": code]])
+    }
+
     func say(_ text: String, lang: String = "en") {
         send(["say": ["text": text, "lang": lang]])
     }

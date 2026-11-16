@@ -147,7 +147,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `mic_denied`, `mic_unavailable`, `mic_no_data`, `mic_timeout`, `mic_failed` | Mikrofon: Zugriff verweigert / Gerät ungültig / keine Daten / erster Block nicht binnen 10 s (Wachhund beendet ffmpeg) / Gerät nach Wiederverbinden weg |
 | `mic_not_found` | Mikrofon-Name unbekannt, Standardmikrofon wird genutzt |
 | `mic_list_failed` | `--list-mics` konnte ffmpeg nicht abfragen |
-| `mic_file_missing`, `ffmpeg_missing` | `DOLMETSCHER_MIC_FILE` fehlt / ffmpeg nicht startbar |
+| `mic_file_missing`, `ffmpeg_missing` | `DOLMETSCHER_MIC_FILE` fehlt / ffmpeg fehlt (gleich beim Start gemeldet) oder ist nicht startbar |
 | `model_offline` | Modell fehlt lokal und kann ohne Internet nicht geladen werden |
 | `translate_failed` | Übersetzung fehlgeschlagen (alle Anbieter) |
 | `llm_billing` | Claude-API: Guthaben oder Kontingent erschöpft – 30 min nur Google/MyMemory, dann neuer Versuch |

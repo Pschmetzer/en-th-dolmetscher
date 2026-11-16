@@ -353,3 +353,17 @@ def test_neither_pair_lang_respects_own_voice():
     assert d.neither_pair_lang(low, low, "other")        # „nicht ich“ kann auch Musik sein
     assert not d.neither_pair_lang(low, low, "me")
     assert not d.neither_pair_lang(0.6, 0.3, None)
+
+
+# ---- Nr. 15: genutzte edge-tts-Interna existieren noch (schlägt beim Update sofort an) ----------------
+
+def test_edge_tts_internals_present(monkeypatch):
+    from edge_tts import communicate as ec
+    for name in ("WSS_URL", "WSS_HEADERS", "SEC_MS_GEC_VERSION", "DRM", "TTSConfig", "mkssml", "escape",
+                 "remove_incompatible_characters", "ssml_headers_plus_data", "connect_id", "date_to_string",
+                 "_SSL_CTX"):
+        assert hasattr(ec, name), f"edge_tts.communicate.{name} fehlt – eigener Websocket-Weg prüfen"
+    assert callable(ec.DRM.generate_sec_ms_gec) and callable(ec.DRM.headers_with_muid)
+    monkeypatch.setitem(d._WS, "ok", True)
+    msg = d._ssml("Hello", "en-US-AriaNeural", "+0%")
+    assert msg and "AriaNeural" in msg and "<speak" in msg and d._WS["ok"] is True
