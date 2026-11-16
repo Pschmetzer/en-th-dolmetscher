@@ -367,3 +367,24 @@ def test_edge_tts_internals_present(monkeypatch):
     monkeypatch.setitem(d._WS, "ok", True)
     msg = d._ssml("Hello", "en-US-AriaNeural", "+0%")
     assert msg and "AriaNeural" in msg and "<speak" in msg and d._WS["ok"] is True
+
+
+class LocalEntryNotFoundError(Exception):
+    pass
+
+
+@pytest.mark.parametrize("download_err, offline", [(OSError(28, "No space left"), False),
+                                                    (ConnectionError("no route"), True)])
+def test_wm_model_offline_only_for_network(monkeypatch, download_err, offline):
+    events = []
+    monkeypatch.setattr(d, "emit", lambda ev, **kw: events.append(kw.get("code")))
+    monkeypatch.setattr(d, "_DOWNLOAD_SAID", {})
+
+    def wm(model, local_files_only=False, **kw):
+        if local_files_only:
+            raise LocalEntryNotFoundError("not cached")
+        raise download_err
+    monkeypatch.setattr(d, "WhisperModel", wm)
+    with pytest.raises(type(download_err)):
+        d._wm("tiny", device="cpu")
+    assert ("model_offline" in events) is offline

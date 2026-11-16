@@ -1836,7 +1836,7 @@ def _wm(model, **kw):
         try:
             return WhisperModel(model, **kw)
         except Exception as e2:
-            if is_offline_error(e2):
+            if is_offline_error(e2, stop=e):    # e (Modell nicht im Cache) ist nur Kontext, kein Netzfehler
                 emit("error", code="model_offline",
                      msg=f"Modell '{model}' fehlt und kann ohne Internet nicht geladen werden")
             raise
@@ -1851,9 +1851,11 @@ _OFFLINE_TYPES = ("gaierror", "ConnectionError", "ConnectError", "ConnectTimeout
                   "ServerDisconnectedError")
 
 
-def is_offline_error(e):
-    """Liegt (irgendwo in der Ursachenkette) ein Netzfehler vor? Prüft Typen, nicht Fehlertexte."""
-    seen = set()
+def is_offline_error(e, stop=None):
+    """Liegt (irgendwo in der Ursachenkette) ein Netzfehler vor? Prüft Typen, nicht Fehlertexte.
+    `stop`: an dieser Ausnahme die Kette nicht weiter verfolgen (z. B. der vorige Fehlversuch im except-Block,
+    der sonst als __context__ mitzählt)."""
+    seen = set() if stop is None else {id(stop)}
     while e is not None and id(e) not in seen:
         seen.add(id(e))
         if isinstance(e, urllib.error.HTTPError):       # Server antwortet (404 …): nicht offline
@@ -3623,7 +3625,9 @@ class Engine:
                 net_state("translate", False)
             emit("dropped", reason="übersetzung fehlgeschlagen", code="translate_failed", id=uid)
             # nur Typ/Status/eigene Meldungen – Server-Texte können den Satz zitieren (Nr. 7)
-            emit("error", code="translate_failed", msg=f"Übersetzung fehlgeschlagen: {_errtxt(e)}")
+            own = isinstance(e, RuntimeError) and _SAFE_MSG.match(str(e))
+            emit("error", code="translate_failed",
+                 msg=f"Übersetzung fehlgeschlagen: {str(e)[:80] if own else _errtxt(e)}")
             emit("listening")
             return None
         if dst == "th":

@@ -161,7 +161,8 @@ private struct HistorySection: View {
         .confirmationDialog(L.t("history_clear_confirm"), isPresented: $confirmClear, titleVisibility: .visible) {
             Button(L.t("clear"), role: .destructive) {
                 note = ""
-                _ = EngineRunner.run(["--history-clear"], timeout: 30, onEvent: { _ in }, onExit: { note = L.t("done_short") })
+                let p = EngineRunner.run(["--history-clear"], timeout: 30, onEvent: { _ in }, onExit: { note = L.t("done_short") })
+                if p == nil { note = Paths.pythonIsFallback ? L.t("python_missing") : L.t("script_missing") }
             }
             Button(L.t("cancel"), role: .cancel) {}
         }
@@ -182,7 +183,7 @@ private struct HistorySection: View {
                 note = L.t("export_failed")
             }
         })
-        if started == nil { note = L.t("export_failed") }
+        if started == nil { note = Paths.pythonIsFallback ? L.t("python_missing") : L.t("export_failed") }
     }
 }
 

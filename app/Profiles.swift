@@ -244,7 +244,7 @@ final class ProfilesModel: ObservableObject {
                                     self.proc = nil; self.reload()
                                     onDone()
                                 })
-        if proc == nil { failed = L.t("engine_missing", forced); onDone() }
+        if proc == nil { failed = L.t(Paths.pythonIsFallback ? "python_missing" : "engine_missing", forced); onDone() }
     }
 
     func cancel() { proc?.terminate(); proc = nil; enrolling = false }
