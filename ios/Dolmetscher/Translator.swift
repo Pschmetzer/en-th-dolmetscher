@@ -74,6 +74,16 @@ enum MyMemory {
 actor Translator {
     private var sessions: [String: TranslationSession] = [:]
     private var breaker = CircuitBreaker()
+    private let http: URLSession
+    private let isOnline: @Sendable () -> Bool
+    private let useApple: Bool
+
+    /// Für Tests: eigene URLSession (URLProtocol-Stub), Netzstatus und ohne Apple-Übersetzung.
+    init(http: URLSession = .shared, isOnline: @escaping @Sendable () -> Bool = { NetStatus.shared.online }, useApple: Bool = true) {
+        self.http = http
+        self.isOnline = isOnline
+        self.useApple = useApple
+    }
 
     static func language(_ l: Lang) -> Locale.Language { Locale.Language(identifier: l.translationCode) }
 
@@ -84,7 +94,7 @@ actor Translator {
 
     func translate(_ text: String, from: Lang, to: Lang, allowOnline: Bool) async throws -> TranslationResult {
         let key = "\(from.rawValue)>\(to.rawValue)"
-        if await Self.offlineInstalled(from: from, to: to) {
+        if useApple, await Self.offlineInstalled(from: from, to: to) {
             do {
                 let s = sessions[key] ?? TranslationSession(installedSource: Self.language(from), target: Self.language(to))
                 sessions[key] = s
@@ -95,7 +105,7 @@ actor Translator {
             }
         }
         guard allowOnline else { throw TranslateError.offlineMissing }
-        guard NetStatus.shared.online else { throw TranslateError.noNetwork }
+        guard isOnline() else { throw TranslateError.noNetwork }
         guard breaker.allows(at: Date()) else { throw TranslateError.cooldown }
         if let out = try? await google(text, from: from, to: to), !out.isEmpty {
             breaker.succeeded()
@@ -109,7 +119,8 @@ actor Translator {
         throw TranslateError.failed
     }
 
-    private func form(_ items: [String: String]) -> Data {
+    /// Formular-Kodierung: „+“ muss als %2B raus, sonst wird es beim Server zum Leerzeichen.
+    static func form(_ items: [String: String]) -> Data {
         var c = URLComponents()
         c.queryItems = items.map { URLQueryItem(name: $0.key, value: $0.value) }
         return Data((c.percentEncodedQuery ?? "").replacingOccurrences(of: "+", with: "%2B").utf8)
@@ -120,8 +131,8 @@ actor Translator {
         req.httpMethod = "POST"
         req.timeoutInterval = 4
         req.setValue("application/x-www-form-urlencoded;charset=utf-8", forHTTPHeaderField: "Content-Type")
-        req.httpBody = form(["sl": from.mtCode, "tl": to.mtCode, "q": text])
-        let (data, _) = try await URLSession.shared.data(for: req)
+        req.httpBody = Self.form(["sl": from.mtCode, "tl": to.mtCode, "q": text])
+        let (data, _) = try await http.data(for: req)
         guard let root = try JSONSerialization.jsonObject(with: data) as? [Any],
               let parts = root.first as? [[Any]] else { return "" }
         return parts.compactMap { $0.first as? String }.joined()
@@ -133,7 +144,7 @@ actor Translator {
                         URLQueryItem(name: "langpair", value: "\(from.mtCode)|\(to.mtCode)")]
         var req = URLRequest(url: c.url!)
         req.timeoutInterval = 4
-        let (data, _) = try await URLSession.shared.data(for: req)
+        let (data, _) = try await http.data(for: req)
         return MyMemory.parse(data)
     }
 }

@@ -3,3 +3,4 @@
 "NSCameraUsageDescription" = "ถ่ายรูปเมนูหรือป้ายเพื่อให้แอปอ่านและแปลข้อความ";
 "NSPhotoLibraryUsageDescription" = "เลือกรูปเมนูหรือป้ายเพื่อให้แอปอ่านและแปลข้อความ";
 "NSFaceIDUsageDescription" = "Face ID ใช้ปลดล็อกประวัติการสนทนาของคุณ เมื่อคุณเปิดการล็อกประวัติ";
+"NSLocationWhenInUseUsageDescription" = "ตำแหน่งของคุณแสดงเฉพาะในหน้าฉุกเฉิน เพื่อบอกผู้ช่วยเหลือว่าคุณอยู่ที่ไหน และจะไม่ถูกส่งออกจาก iPhone";

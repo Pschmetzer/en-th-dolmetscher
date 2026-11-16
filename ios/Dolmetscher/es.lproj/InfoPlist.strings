@@ -3,3 +3,4 @@
 "NSCameraUsageDescription" = "Haz una foto de una carta o un cartel para que Dolmetscher lea y traduzca el texto.";
 "NSPhotoLibraryUsageDescription" = "Elige una foto de una carta o un cartel para que Dolmetscher lea y traduzca el texto.";
 "NSFaceIDUsageDescription" = "Face ID desbloquea tu historial de conversación si activas el bloqueo del historial.";
+"NSLocationWhenInUseUsageDescription" = "Tu ubicación solo aparece en la pantalla de emergencia, para que puedas decir a quien te ayude dónde estás. Nunca sale del iPhone.";
