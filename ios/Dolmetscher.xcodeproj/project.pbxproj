@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D00000000000000000007001 /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = D00000000000000000009001 /* WhisperKit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		D0000000000000000000C001 = {
 			isa = PBXContainerItemProxy;
@@ -27,7 +31,7 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		D00000000000000000001001 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		D00000000000000000001001 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (D00000000000000000007001 /* WhisperKit in Frameworks */, ); runOnlyForDeploymentPostprocessing = 0; };
 		D00000000000000000001002 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXFrameworksBuildPhase section */
 
@@ -69,6 +73,9 @@
 				D0000000000000000000B001,
 			);
 			name = Dolmetscher;
+			packageProductDependencies = (
+				D00000000000000000009001 /* WhisperKit */,
+			);
 			productName = Dolmetscher;
 			productReference = D0000000000000000000A001;
 			productType = "com.apple.product-type.application";
@@ -119,6 +126,9 @@
 			);
 			mainGroup = D00000000000000000002001;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				D00000000000000000008001 /* XCRemoteSwiftPackageReference "WhisperKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D00000000000000000002002;
 			projectDirPath = "";
@@ -269,6 +279,25 @@
 		D00000000000000000005002 = {isa = XCConfigurationList; buildConfigurations = (D00000000000000000006003, D00000000000000000006004, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 		D00000000000000000005003 = {isa = XCConfigurationList; buildConfigurations = (D00000000000000000006005, D00000000000000000006006, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D00000000000000000008001 /* XCRemoteSwiftPackageReference "WhisperKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/argmaxinc/WhisperKit";
+			requirement = {
+				kind = exactVersion;
+				version = 1.1.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D00000000000000000009001 /* WhisperKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D00000000000000000008001 /* XCRemoteSwiftPackageReference "WhisperKit" */;
+			productName = WhisperKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D0000000000000000000F001;
 }
