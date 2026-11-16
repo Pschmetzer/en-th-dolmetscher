@@ -275,3 +275,81 @@ def test_offline_error_by_type():
     assert d.is_offline_error(urllib.error.URLError("x"))
     assert not d.is_offline_error(urllib.error.HTTPError("u", 404, "nf", {}, None))
     assert not d.is_offline_error(ValueError("bad model name"))
+
+
+# ---- Nr. 12: ffmpeg fehlt -> sofort melden -------------------------------------------------------------
+
+def test_check_ffmpeg_reports_missing(monkeypatch, tmp_path):
+    events = []
+    monkeypatch.setattr(d, "emit", lambda ev, **kw: events.append((ev, kw)))
+    monkeypatch.setattr(d, "FFMPEG", str(tmp_path / "nope" / "ffmpeg"))
+    assert d.check_ffmpeg() is False
+    assert events == [("error", {"code": "ffmpeg_missing", "msg": events[0][1]["msg"]})]
+    exe = tmp_path / "ffmpeg"
+    exe.write_text("#!/bin/sh\n")
+    exe.chmod(0o755)
+    monkeypatch.setattr(d, "FFMPEG", str(exe))
+    assert d.check_ffmpeg() is True and len(events) == 1
+
+
+# ---- Nr. 155: Neural-Stimme offline auch im Wettlauf merken -------------------------------------------
+
+class _Local:
+    voice = "Kanya"
+
+    def ready_path(self):
+        return "/tmp/x.aiff"
+
+
+class _Stream:
+    voice, cached = "th-TH-NiwatNeural", None
+
+    def cancel(self):
+        pass
+
+
+def _speaker_engine():
+    eng = object.__new__(d.Engine)
+    eng.mute, eng.tts, eng.volume, eng.rate = False, "edge", 1.0, 0
+    return eng
+
+
+def test_tts_offline_marked_in_race(monkeypatch):
+    events, deadlines = [], []
+    monkeypatch.setattr(d, "emit", lambda ev, **kw: events.append((ev, kw)))
+    monkeypatch.setattr(d, "NET", {"translate": True, "tts": True})
+    monkeypatch.setattr(d, "wait_quiet", lambda **k: 0.0)
+    monkeypatch.setattr(d.PLAYER, "run", lambda cmd: 0)
+
+    def offline(stream, vol, on_start=None, cancelled=None, deadline=None):
+        deadlines.append(deadline)
+        raise ConnectionError("no route")
+    monkeypatch.setattr(d, "edge_play", offline)
+    eng = _speaker_engine()
+    eng.speak("hi", "th", stream=_Stream(), local=_Local())
+    assert d.NET["tts"] is False and ("net", {"ok": False, "what": "tts"}) in events
+    eng.speak("hi", "th", stream=_Stream(), local=_Local())
+    assert deadlines == [d.TTS_RACE, min(d.TTS_RACE, d.TTS_OFFLINE_PROBE)]   # offline: kürzer warten
+
+
+def test_tts_slow_is_not_offline(monkeypatch):
+    monkeypatch.setattr(d, "emit", lambda ev, **kw: None)
+    monkeypatch.setattr(d, "NET", {"translate": True, "tts": True})
+    monkeypatch.setattr(d, "wait_quiet", lambda **k: 0.0)
+    monkeypatch.setattr(d.PLAYER, "run", lambda cmd: 0)
+
+    def slow(*a, **k):
+        raise RuntimeError("edge-tts lieferte keine Audiodaten")
+    monkeypatch.setattr(d, "edge_play", slow)
+    _speaker_engine().speak("hi", "th", stream=_Stream(), local=_Local())
+    assert d.NET["tts"] is True
+
+
+# ---- Nr. 156: eigene Stimme nicht als „weder … noch …“ verwerfen ---------------------------------------
+
+def test_neither_pair_lang_respects_own_voice():
+    low = d.MIN_LANG_P / 3
+    assert d.neither_pair_lang(low, low, None)
+    assert d.neither_pair_lang(low, low, "other")        # „nicht ich“ kann auch Musik sein
+    assert not d.neither_pair_lang(low, low, "me")
+    assert not d.neither_pair_lang(0.6, 0.3, None)

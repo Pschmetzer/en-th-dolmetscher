@@ -359,6 +359,15 @@ def _find_tool(name, env=None):
 
 
 FFMPEG = _find_tool("ffmpeg", "DOLMETSCHER_FFMPEG")
+
+
+def check_ffmpeg():
+    """Beim Start: fehlt ffmpeg, gleich klar melden statt erst beim ersten Satz unklar zu scheitern."""
+    if os.path.isfile(FFMPEG) and os.access(FFMPEG, os.X_OK):
+        return True
+    emit("error", code="ffmpeg_missing", msg="ffmpeg fehlt – bitte installieren (brew install ffmpeg)")
+    log({"ffmpeg": "fehlt"})
+    return False
 SAY = "/usr/bin/say" if os.path.exists("/usr/bin/say") else (shutil.which("say") or "/usr/bin/say")
 
 C = {"en": "\033[1;34m", "th": "\033[1;33m", "dim": "\033[2m", "off": "\033[0m"}
@@ -1782,6 +1791,13 @@ def apply_profile_prior(probs, pe, pt, plang, pair=None):
     return pe, pt
 
 
+def neither_pair_lang(pe, pt, role=None):
+    """Verwerfen als „weder A noch B“? Nicht bei sicher erkannter eigener Stimme (role "me"): Akzent
+    drückt dort oft die Spracherkennung, die Sprache steht über die Rolle ohnehin fest. "other" heißt nur
+    „nicht ich“ (auch Musik/Geräusch) und hebt das Verwerfen deshalb nicht auf."""
+    return pe + pt < MIN_LANG_P and role != "me"
+
+
 def role_lang(role, pair=None):
     """Sprache einer Rolle im Zwei-Personen-Modus. „ich“ ist das englische Stimmprofil (profiles.me()):
     mit Englisch im Paar also Englisch (auch bei th/en), sonst meine Sprache; „other“ die andere."""
@@ -1831,7 +1847,8 @@ _DOWNLOAD_SAID = {}
 # fehlendes Netz als LocalEntryNotFoundError, requests als ConnectionError, socket als gaierror.
 _OFFLINE_TYPES = ("gaierror", "ConnectionError", "ConnectError", "ConnectTimeout", "TimeoutError", "Timeout",
                   "ReadTimeout", "URLError", "LocalEntryNotFoundError", "OfflineModeIsEnabled", "NameResolutionError",
-                  "MaxRetryError", "NewConnectionError")
+                  "MaxRetryError", "NewConnectionError", "ClientConnectorError", "ClientConnectionError",
+                  "ServerDisconnectedError")
 
 
 def is_offline_error(e):
@@ -2325,6 +2342,7 @@ TTS_CACHE = collections.OrderedDict()  # (Stimme, Tempo, Text) -> mp3: kurze, h�
 TTS_CACHE_MAX, TTS_CACHE_CHARS = 64, 120
 TTS_CACHE_BYTES = 8_000_000            # Obergrenze für alle gemerkten mp3 zusammen
 _TTS_CACHE_LOCK = threading.Lock()
+TTS_OFFLINE_PROBE = 0.8                # s: so lange darf die Neural-Stimme bei gemerktem Offline noch antworten
 TTS_RACE = 1.4                         # s: kommt die Neural-Stimme nicht, spricht die vorbereitete macOS-Stimme
 
 
@@ -3016,8 +3034,10 @@ class Engine:
             try:
                 if stream is None:
                     stream = EdgeStream(text, self.voice_for(lang), f"{_clamp_rate(5 + self.rate + boost):+d}%")
-                st = edge_play(stream, self.volume, on_start_part, cancelled,
-                               deadline=TTS_RACE if (local and TTS_RACE > 0) else None)
+                race = None
+                if local and TTS_RACE > 0:      # offline gemerkt: nur kurz probieren, dann gleich lokal
+                    race = TTS_RACE if NET.get("tts", True) else min(TTS_RACE, TTS_OFFLINE_PROBE)
+                st = edge_play(stream, self.volume, on_start_part, cancelled, deadline=race)
                 net_state("tts", True)
                 log({"tts": "edge", "voice": stream.voice, **st, "secs": round(time.time() - t, 2)})
                 return "partial" if st.get("partial") else None
@@ -3026,7 +3046,9 @@ class Engine:
                     log({"tts": "edge-abbruch", "err": repr(e)[:200]})
                     return "partial"
                 log({"tts": "edge-fehler" if not local else "edge-zu-langsam", "err": repr(e)[:200]})
-                if not local:
+                # auch im Wettlauf: echter Netzfehler = offline merken (Symbol, Ersatzstimme ohne Wartezeit);
+                # bloß zu langsam (Frist ohne Fehler) zählt nicht
+                if not local or is_offline_error(e):
                     net_state("tts", False)
             if local:                            # Wettlauf verloren: vorbereitete macOS-Stimme sofort
                 path = local.ready_path()
@@ -3316,7 +3338,7 @@ class Engine:
                 info.update(role=role, role_how=r.get("how"), sim_me=r.get("sim_me"), sim_her=r.get("sim_her"))
             except Exception as e:
                 log({"role": "fehler", "err": repr(e)[:200]})
-        if pe + pt < MIN_LANG_P:                  # keine der zwei Sprachen (Geräusch, Musik) -> ignorieren
+        if neither_pair_lang(pe, pt, role):       # keine der zwei Sprachen (Geräusch, Musik) -> ignorieren
             return self._drop(info, "andere Sprache", uid,
                               f"weder {lang_name(A, True)} noch {lang_name(B, True)}")
         if role in ("me", "other"):
@@ -4642,6 +4664,11 @@ if __name__ == "__main__":
         emit("error", code="langs_invalid",
              msg=f"Sprachpaar ungültig ({str(a.langs)[:20]}) – nehme {','.join(DEFAULT_PAIR)}")
         set_pair(*DEFAULT_PAIR)
+    if a.list_mics:
+        JSON = True                             # Antwort immer als JSON (auch die ffmpeg-Meldung)
+    _profile_only = bool(a.profiles or a.delete_profile or a.delete_all_profiles or a.vocab is not None)
+    if not _profile_only:
+        check_ffmpeg()                          # Mikrofon, --file, --list-mics und --enroll brauchen ffmpeg
     if a.list_mics:
         JSON = True
         try:
