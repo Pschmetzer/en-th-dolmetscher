@@ -1,0 +1,130 @@
+{
+  "id": "transport",
+  "names": {
+    "de": "Fähre / Bus / Zug",
+    "en": "Ferry / bus / train",
+    "th": "เรือ / รถเมล์ / รถไฟ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Auf Fähren den Platz der Schwimmwesten merken; bei hohem Wellengang lieber warten. Schlafwagen im Zug früh buchen. Gepäck nicht unbeaufsichtigt lassen.",
+    "en": "On ferries, note where the life jackets are; in rough seas, consider waiting. Book sleeper trains early. Do not leave luggage unattended."
+  },
+  "glossary": [
+    {
+      "en": "ferry",
+      "th": "เรือ"
+    },
+    {
+      "en": "pier",
+      "th": "ท่าเรือ"
+    },
+    {
+      "en": "platform",
+      "th": "ชานชาลา"
+    },
+    {
+      "en": "train station",
+      "th": "สถานีรถไฟ"
+    },
+    {
+      "en": "bus stop",
+      "th": "ป้ายรถเมล์"
+    },
+    {
+      "en": "ticket",
+      "th": "ตั๋ว"
+    },
+    {
+      "en": "sleeper",
+      "th": "ตู้นอน"
+    },
+    {
+      "en": "life jacket",
+      "th": "เสื้อชูชีพ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Where are the life jackets?",
+      "th": "เสื้อชูชีพอยู่ที่ไหน",
+      "critical": true
+    },
+    {
+      "en": "Where can I buy a ticket?",
+      "th": "ซื้อตั๋วได้ที่ไหน"
+    },
+    {
+      "en": "One ticket to Bangkok, please.",
+      "th": "ขอตั๋วไปกรุงเทพหนึ่งใบ"
+    },
+    {
+      "en": "A return ticket, please.",
+      "th": "ขอตั๋วไปกลับ"
+    },
+    {
+      "en": "Where is the bus stop?",
+      "th": "ป้ายรถเมล์อยู่ที่ไหน"
+    },
+    {
+      "en": "Does this bus go to the city centre?",
+      "th": "รถเมล์คันนี้ไปตัวเมืองไหม"
+    },
+    {
+      "en": "Where is the nearest BTS station?",
+      "th": "สถานีบีทีเอสที่ใกล้ที่สุดอยู่ที่ไหน"
+    },
+    {
+      "en": "Which platform does the train leave from?",
+      "th": "รถไฟออกชานชาลาไหน"
+    },
+    {
+      "en": "Where do I change trains?",
+      "th": "ต้องเปลี่ยนรถไฟที่ไหน"
+    },
+    {
+      "en": "A sleeper, lower berth, please.",
+      "th": "ขอตู้นอน เตียงล่าง"
+    },
+    {
+      "en": "Is the train delayed?",
+      "th": "รถไฟล่าช้าไหม"
+    },
+    {
+      "en": "What time does the next ferry leave?",
+      "th": "เรือเที่ยวต่อไปออกกี่โมง"
+    },
+    {
+      "en": "Where does the ferry to the island leave from?",
+      "th": "เรือไปเกาะออกที่ไหน"
+    },
+    {
+      "en": "Does the ferry still run when the sea is rough?",
+      "th": "ถ้าคลื่นแรงเรือยังออกไหม"
+    },
+    {
+      "en": "How long is the journey?",
+      "th": "ใช้เวลาเดินทางนานเท่าไหร่"
+    },
+    {
+      "en": "Is this seat taken?",
+      "th": "ที่นั่งนี้มีคนนั่งไหม"
+    },
+    {
+      "en": "Please tell me when we arrive.",
+      "th": "ถึงแล้วช่วยบอกด้วย"
+    },
+    {
+      "en": "I missed my stop.",
+      "th": "เลยป้ายแล้ว"
+    },
+    {
+      "en": "Where can I put my luggage?",
+      "th": "วางกระเป๋าไว้ที่ไหนได้"
+    },
+    {
+      "en": "I feel seasick.",
+      "th": "เมาเรือ"
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+{
+  "id": "spa",
+  "names": {
+    "de": "Massage / Spa",
+    "en": "Massage / spa",
+    "th": "นวด / สปา"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Thai-Massage ist kräftig: „เบาๆ“ heißt sanfter. Schwangerschaft, Bluthochdruck oder Verletzungen vorher sagen. Trinkgeld von 50–100 Baht ist üblich.",
+    "en": "Thai massage is firm: \"เบาๆ\" means softer. Mention pregnancy, high blood pressure or injuries first. A tip of 50–100 baht is common."
+  },
+  "glossary": [
+    {
+      "en": "massage",
+      "th": "นวด"
+    },
+    {
+      "en": "Thai massage",
+      "th": "นวดแผนไทย"
+    },
+    {
+      "en": "foot massage",
+      "th": "นวดเท้า"
+    },
+    {
+      "en": "oil massage",
+      "th": "นวดน้ำมัน"
+    },
+    {
+      "en": "shoulder",
+      "th": "ไหล่"
+    },
+    {
+      "en": "back",
+      "th": "หลัง"
+    },
+    {
+      "en": "neck",
+      "th": "คอ"
+    },
+    {
+      "en": "tip",
+      "th": "ทิป"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please stop, it hurts.",
+      "th": "หยุดก่อน เจ็บ",
+      "critical": true
+    },
+    {
+      "en": "I am pregnant.",
+      "th": "กำลังตั้งครรภ์",
+      "critical": true
+    },
+    {
+      "en": "I have a back injury. Please be careful.",
+      "th": "หลังบาดเจ็บอยู่ ช่วยระวังด้วย",
+      "critical": true
+    },
+    {
+      "en": "I have high blood pressure.",
+      "th": "เป็นความดันโลหิตสูง",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to some oils.",
+      "th": "แพ้น้ำมันบางชนิด",
+      "critical": true
+    },
+    {
+      "en": "Softer, please.",
+      "th": "เบาๆ หน่อย"
+    },
+    {
+      "en": "Stronger, please.",
+      "th": "แรงขึ้นอีกหน่อย"
+    },
+    {
+      "en": "That is just right.",
+      "th": "กำลังดี"
+    },
+    {
+      "en": "How much is a one-hour Thai massage?",
+      "th": "นวดแผนไทยหนึ่งชั่วโมงเท่าไหร่"
+    },
+    {
+      "en": "I would like a foot massage.",
+      "th": "ขอนวดเท้า"
+    },
+    {
+      "en": "I would like an oil massage.",
+      "th": "ขอนวดน้ำมัน"
+    },
+    {
+      "en": "Two hours, please.",
+      "th": "ขอสองชั่วโมง"
+    },
+    {
+      "en": "Please do not massage my neck.",
+      "th": "ไม่ต้องนวดคอ"
+    },
+    {
+      "en": "Please focus on my shoulders.",
+      "th": "ช่วยนวดไหล่เยอะๆ หน่อย"
+    },
+    {
+      "en": "Do I need to book?",
+      "th": "ต้องจองไหม"
+    },
+    {
+      "en": "Do I need to change clothes?",
+      "th": "ต้องเปลี่ยนเสื้อผ้าไหม"
+    },
+    {
+      "en": "Could I have a female therapist?",
+      "th": "ขอหมอนวดผู้หญิงได้ไหม"
+    },
+    {
+      "en": "I am a bit cold.",
+      "th": "รู้สึกหนาวนิดหน่อย"
+    },
+    {
+      "en": "Thank you, that was great.",
+      "th": "ขอบคุณ ดีมาก"
+    }
+  ]
+}

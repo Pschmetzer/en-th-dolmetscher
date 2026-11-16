@@ -29,7 +29,7 @@
     },
     {
       "en": "air conditioning",
-      "th": "เครื่องปรับอากาศ"
+      "th": "แอร์"
     },
     {
       "en": "towel",
@@ -42,12 +42,20 @@
     {
       "en": "receipt",
       "th": "ใบเสร็จ"
+    },
+    {
+      "en": "safe",
+      "th": "ตู้เซฟ"
+    },
+    {
+      "en": "tax invoice",
+      "th": "ใบกำกับภาษี"
     }
   ],
   "phrases": [
     {
       "en": "I have a reservation under the name Smith.",
-      "th": "ฉันจองห้องไว้ในชื่อสมิธ"
+      "th": "จองห้องไว้ในชื่อสมิธ"
     },
     {
       "en": "What time is check-out?",
@@ -63,7 +71,7 @@
     },
     {
       "en": "The air conditioning is not working.",
-      "th": "เครื่องปรับอากาศไม่ทำงาน"
+      "th": "แอร์เสีย"
     },
     {
       "en": "Could I have an extra towel, please?",
@@ -76,6 +84,42 @@
     {
       "en": "Could you call a taxi for me, please?",
       "th": "ช่วยเรียกแท็กซี่ให้หน่อยได้ไหม"
+    },
+    {
+      "en": "Could I check out later?",
+      "th": "ขอเช็คเอาท์ช้าได้ไหม"
+    },
+    {
+      "en": "The room is too noisy. Could I change rooms?",
+      "th": "ห้องเสียงดังมาก ขอเปลี่ยนห้องได้ไหม"
+    },
+    {
+      "en": "There is no hot water.",
+      "th": "ไม่มีน้ำร้อน"
+    },
+    {
+      "en": "How do I use the safe?",
+      "th": "ตู้เซฟใช้ยังไง"
+    },
+    {
+      "en": "I lost my room key.",
+      "th": "ทำกุญแจห้องหาย"
+    },
+    {
+      "en": "Could I have a wake-up call at 6 a.m.?",
+      "th": "ขอโทรปลุกตอนหกโมงเช้าได้ไหม"
+    },
+    {
+      "en": "Do you have an airport transfer?",
+      "th": "มีรถรับส่งสนามบินไหม"
+    },
+    {
+      "en": "Here is my passport.",
+      "th": "นี่พาสปอร์ต"
+    },
+    {
+      "en": "Could I have a tax invoice in my company's name?",
+      "th": "ขอใบกำกับภาษีในนามบริษัทได้ไหม"
     }
   ]
 }

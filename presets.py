@@ -12,7 +12,7 @@ import re
 STYLE_KEYS = ("casual", "neutral", "polite")
 ID_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,31}$")
 MAX_GLOSSARY, MAX_PHRASES = 100, 50
-MAX_NAME, MAX_TERM, MAX_PHRASE = 40, 60, 200
+MAX_NAME, MAX_TERM, MAX_PHRASE, MAX_NOTE = 40, 60, 200, 500
 last_errors = {}                          # Dateipfad -> Fehlertext des letzten load_all()
 
 
@@ -57,7 +57,14 @@ def validate(d):
         for i, it in enumerate(items):
             if not (isinstance(it, dict) and _text(it.get("en"), limit) and _text(it.get("th"), limit)):
                 err.append(f"{key}[{i}] braucht en und th (1-{limit} Zeichen)")
-    extra = set(d) - {"id", "names", "style", "polite", "voice", "glossary", "phrases"}
+            elif key == "phrases" and "critical" in it and not isinstance(it["critical"], bool):
+                err.append(f"phrases[{i}].critical muss true oder false sein")
+    note = d.get("note")                  # optional: Kultur-/Sicherheitshinweis {de, en, th?}
+    if "note" in d and not (isinstance(note, dict) and set(note) <= {"de", "en", "th"}
+                            and all(_text(note.get(k), MAX_NOTE) for k in ("de", "en"))
+                            and all(_text(v, MAX_NOTE) for v in note.values())):
+        err.append(f"note muss {{de, en, th?}} mit Texten (1-{MAX_NOTE} Zeichen) sein")
+    extra = set(d) - {"id", "names", "style", "polite", "voice", "note", "glossary", "phrases"}
     if extra:
         err.append("unbekannte Felder: " + ", ".join(sorted(extra)))
     return err

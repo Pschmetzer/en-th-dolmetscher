@@ -1,0 +1,138 @@
+{
+  "id": "pharmacy",
+  "names": {
+    "de": "Apotheke",
+    "en": "Pharmacy",
+    "th": "ร้านขายยา"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Viele Medikamente gibt es ohne Rezept; nach dem Apotheker (เภสัชกร) fragen. Kein medizinischer Rat. Notruf Rettung: 1669.",
+    "en": "Many medicines are sold without prescription; ask for the pharmacist. Not medical advice. Ambulance: 1669."
+  },
+  "glossary": [
+    {
+      "en": "pharmacy",
+      "th": "ร้านขายยา"
+    },
+    {
+      "en": "pharmacist",
+      "th": "เภสัชกร"
+    },
+    {
+      "en": "tablet",
+      "th": "ยาเม็ด"
+    },
+    {
+      "en": "prescription",
+      "th": "ใบสั่งยา"
+    },
+    {
+      "en": "side effect",
+      "th": "ผลข้างเคียง"
+    },
+    {
+      "en": "ointment",
+      "th": "ยาทา"
+    },
+    {
+      "en": "painkiller",
+      "th": "ยาแก้ปวด"
+    },
+    {
+      "en": "antibiotic",
+      "th": "ยาปฏิชีวนะ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am allergic to penicillin.",
+      "th": "แพ้ยาเพนิซิลลิน",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to aspirin.",
+      "th": "แพ้ยาแอสไพริน",
+      "critical": true
+    },
+    {
+      "en": "I am pregnant. Is this medicine safe?",
+      "th": "กำลังตั้งครรภ์ ยานี้ปลอดภัยไหม",
+      "critical": true
+    },
+    {
+      "en": "Is this medicine safe for children?",
+      "th": "ยานี้เด็กกินได้ไหม",
+      "critical": true
+    },
+    {
+      "en": "Can I take this together with my regular medicine?",
+      "th": "กินยานี้คู่กับยาที่กินประจำได้ไหม",
+      "critical": true
+    },
+    {
+      "en": "Is there a pharmacist here?",
+      "th": "มีเภสัชกรอยู่ไหม"
+    },
+    {
+      "en": "I need something for diarrhea.",
+      "th": "ขอยาแก้ท้องเสีย"
+    },
+    {
+      "en": "I need something for a headache.",
+      "th": "ขอยาแก้ปวดหัว"
+    },
+    {
+      "en": "I need something for a fever.",
+      "th": "ขอยาลดไข้"
+    },
+    {
+      "en": "I need something for a cough.",
+      "th": "ขอยาแก้ไอ"
+    },
+    {
+      "en": "I have a sore throat. What do you recommend?",
+      "th": "เจ็บคอ มียาอะไรแนะนำไหม"
+    },
+    {
+      "en": "Do you have something for mosquito bites?",
+      "th": "มียาทาแก้คันยุงกัดไหม"
+    },
+    {
+      "en": "Do you have something for sunburn?",
+      "th": "มียาทาแก้ผิวไหม้แดดไหม"
+    },
+    {
+      "en": "Do you have something for motion sickness?",
+      "th": "มียาแก้เมารถเมาเรือไหม"
+    },
+    {
+      "en": "Do you have mosquito repellent?",
+      "th": "มียากันยุงไหม"
+    },
+    {
+      "en": "Do you have oral rehydration salts?",
+      "th": "มีผงเกลือแร่ไหม"
+    },
+    {
+      "en": "Do you have plasters?",
+      "th": "มีพลาสเตอร์ปิดแผลไหม"
+    },
+    {
+      "en": "Do I need a prescription?",
+      "th": "ต้องมีใบสั่งยาไหม"
+    },
+    {
+      "en": "How many times a day?",
+      "th": "กินวันละกี่ครั้ง"
+    },
+    {
+      "en": "Before or after meals?",
+      "th": "กินก่อนหรือหลังอาหาร"
+    },
+    {
+      "en": "Does this make you drowsy?",
+      "th": "ยานี้กินแล้วง่วงไหม"
+    }
+  ]
+}

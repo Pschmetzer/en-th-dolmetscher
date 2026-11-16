@@ -6,6 +6,10 @@
     "th": "แท็กซี่"
   },
   "style": "polite",
+  "note": {
+    "de": "Auf Taxameter bestehen oder den Preis vor der Fahrt festmachen. Maut für die Expressway zahlt meist der Fahrgast. Aufrunden ist als Trinkgeld üblich.",
+    "en": "Insist on the meter or agree on the price before the ride. Expressway tolls are usually paid by the passenger. Rounding up is a common tip."
+  },
   "glossary": [
     {
       "en": "meter",
@@ -46,16 +50,21 @@
   ],
   "phrases": [
     {
+      "en": "Please take me to the nearest hospital.",
+      "th": "ช่วยไปส่งที่โรงพยาบาลที่ใกล้ที่สุด",
+      "critical": true
+    },
+    {
       "en": "Please use the meter.",
       "th": "รบกวนเปิดมิเตอร์ด้วย"
     },
     {
       "en": "To this address, please.",
-      "th": "ไปที่อยู่นี้หน่อย"
+      "th": "ไปที่นี่หน่อย"
     },
     {
       "en": "How long will it take?",
-      "th": "ใช้เวลาประมาณเท่าไหร่"
+      "th": "ใช้เวลานานเท่าไหร่"
     },
     {
       "en": "Please turn left here.",
@@ -90,8 +99,36 @@
       "th": "ช่วยขับช้าลงหน่อย"
     },
     {
-      "en": "Please take me to the nearest hospital.",
-      "th": "ช่วยไปส่งที่โรงพยาบาลที่ใกล้ที่สุด"
+      "en": "To the airport, please.",
+      "th": "ไปสนามบินหน่อย"
+    },
+    {
+      "en": "Please take the expressway.",
+      "th": "ขึ้นทางด่วนได้เลย"
+    },
+    {
+      "en": "Please do not take the expressway.",
+      "th": "ไม่ต้องขึ้นทางด่วน"
+    },
+    {
+      "en": "Please turn right here.",
+      "th": "เลี้ยวขวาตรงนี้หน่อย"
+    },
+    {
+      "en": "Can you make a U-turn here?",
+      "th": "กลับรถตรงนี้ได้ไหม"
+    },
+    {
+      "en": "I am in a hurry.",
+      "th": "กำลังรีบ"
+    },
+    {
+      "en": "Keep the change.",
+      "th": "ไม่ต้องทอน"
+    },
+    {
+      "en": "Could you open the trunk, please?",
+      "th": "ช่วยเปิดท้ายรถให้หน่อย"
     }
   ]
 }

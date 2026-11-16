@@ -1,0 +1,116 @@
+{
+  "id": "bank",
+  "names": {
+    "de": "Bank / Geldautomat",
+    "en": "Bank / ATM",
+    "th": "ธนาคาร / ตู้เอทีเอ็ม"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Thailändische Geldautomaten verlangen für ausländische Karten meist 220–250 Baht pro Abhebung. Umrechnung durch den Automaten (DCC) ablehnen und in Baht abrechnen. Zum Geldwechsel Reisepass mitnehmen.",
+    "en": "Thai ATMs usually charge foreign cards 220–250 baht per withdrawal. Decline conversion by the ATM (DCC) and pay in baht. Bring your passport to exchange money."
+  },
+  "glossary": [
+    {
+      "en": "ATM",
+      "th": "ตู้เอทีเอ็ม"
+    },
+    {
+      "en": "exchange rate",
+      "th": "อัตราแลกเปลี่ยน"
+    },
+    {
+      "en": "fee",
+      "th": "ค่าธรรมเนียม"
+    },
+    {
+      "en": "baht",
+      "th": "บาท"
+    },
+    {
+      "en": "account",
+      "th": "บัญชี"
+    },
+    {
+      "en": "transfer",
+      "th": "โอนเงิน"
+    },
+    {
+      "en": "withdraw",
+      "th": "ถอนเงิน"
+    },
+    {
+      "en": "banknote",
+      "th": "ธนบัตร"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "The ATM kept my card.",
+      "th": "ตู้เอทีเอ็มกลืนบัตร",
+      "critical": true
+    },
+    {
+      "en": "My card was stolen. Please block it.",
+      "th": "บัตรถูกขโมย ช่วยอายัดบัตรให้หน่อย",
+      "critical": true
+    },
+    {
+      "en": "The money did not come out, but my account was charged.",
+      "th": "เงินไม่ออกมา แต่ถูกตัดเงินในบัญชีแล้ว",
+      "critical": true
+    },
+    {
+      "en": "Where is the nearest ATM?",
+      "th": "ตู้เอทีเอ็มที่ใกล้ที่สุดอยู่ที่ไหน"
+    },
+    {
+      "en": "Can I withdraw money with this card?",
+      "th": "บัตรนี้ถอนเงินได้ไหม"
+    },
+    {
+      "en": "The ATM is not working.",
+      "th": "ตู้เอทีเอ็มเสีย"
+    },
+    {
+      "en": "I would like to exchange euros into baht.",
+      "th": "ขอแลกเงินยูโรเป็นเงินบาท"
+    },
+    {
+      "en": "Where can I exchange money?",
+      "th": "แลกเงินที่ช่องไหน"
+    },
+    {
+      "en": "What is the exchange rate today?",
+      "th": "วันนี้อัตราแลกเปลี่ยนเท่าไหร่"
+    },
+    {
+      "en": "Is there a fee?",
+      "th": "มีค่าธรรมเนียมไหม"
+    },
+    {
+      "en": "How much is the fee?",
+      "th": "ค่าธรรมเนียมเท่าไหร่"
+    },
+    {
+      "en": "Do you need my passport?",
+      "th": "ต้องใช้พาสปอร์ตไหม"
+    },
+    {
+      "en": "Could I have smaller notes, please?",
+      "th": "ขอแบงก์ย่อยได้ไหม"
+    },
+    {
+      "en": "Could you count it again, please?",
+      "th": "ช่วยนับอีกครั้งได้ไหม"
+    },
+    {
+      "en": "Can I transfer money here?",
+      "th": "โอนเงินที่นี่ได้ไหม"
+    },
+    {
+      "en": "Could I have a receipt, please?",
+      "th": "ขอใบเสร็จหน่อย"
+    }
+  ]
+}

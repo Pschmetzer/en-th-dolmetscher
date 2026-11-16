@@ -1,0 +1,117 @@
+{
+  "id": "temple",
+  "names": {
+    "de": "Tempel / Kultur",
+    "en": "Temple / culture",
+    "th": "วัด / วัฒนธรรม"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Schultern und Knie bedecken, vor Tempelgebäuden und Wohnungen Schuhe ausziehen. Füße nie auf Menschen oder Buddha-Figuren richten, Köpfe nicht berühren; Frauen berühren Mönche nicht. Den Wai-Gruß (Hände wie zum Gebet) erwidern. Über die Königsfamilie nur respektvoll sprechen. Trinkgeld ist nicht Pflicht.",
+    "en": "Cover shoulders and knees, take off shoes before temple buildings and homes. Never point your feet at people or Buddha images, do not touch heads; women do not touch monks. Return a wai greeting (palms together). Speak about the royal family only respectfully. Tipping is not required."
+  },
+  "glossary": [
+    {
+      "en": "temple",
+      "th": "วัด"
+    },
+    {
+      "en": "monk",
+      "th": "พระ"
+    },
+    {
+      "en": "Buddha image",
+      "th": "พระพุทธรูป"
+    },
+    {
+      "en": "make merit",
+      "th": "ทำบุญ"
+    },
+    {
+      "en": "incense",
+      "th": "ธูป"
+    },
+    {
+      "en": "shoes",
+      "th": "รองเท้า"
+    },
+    {
+      "en": "entrance fee",
+      "th": "ค่าเข้าชม"
+    },
+    {
+      "en": "wai",
+      "th": "ไหว้"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Is it okay to take photos here?",
+      "th": "ถ่ายรูปที่นี่ได้ไหม"
+    },
+    {
+      "en": "Is it okay to use the flash?",
+      "th": "ใช้แฟลชได้ไหม"
+    },
+    {
+      "en": "Do I need to take off my shoes?",
+      "th": "ต้องถอดรองเท้าไหม"
+    },
+    {
+      "en": "Where can I leave my shoes?",
+      "th": "วางรองเท้าไว้ที่ไหน"
+    },
+    {
+      "en": "Can I borrow something to cover my shoulders?",
+      "th": "ขอยืมผ้าคลุมไหล่ได้ไหม"
+    },
+    {
+      "en": "Is this clothing okay to go inside?",
+      "th": "แต่งตัวแบบนี้เข้าไปได้ไหม"
+    },
+    {
+      "en": "May I go inside?",
+      "th": "เข้าไปข้างในได้ไหม"
+    },
+    {
+      "en": "Is it okay to sit here?",
+      "th": "นั่งตรงนี้ได้ไหม"
+    },
+    {
+      "en": "Is there an entrance fee?",
+      "th": "มีค่าเข้าชมไหม"
+    },
+    {
+      "en": "What time does the temple close?",
+      "th": "วัดปิดกี่โมง"
+    },
+    {
+      "en": "What is the name of this temple?",
+      "th": "วัดนี้ชื่ออะไร"
+    },
+    {
+      "en": "How old is this temple?",
+      "th": "วัดนี้อายุกี่ปี"
+    },
+    {
+      "en": "Where is the main hall?",
+      "th": "วิหารอยู่ที่ไหน"
+    },
+    {
+      "en": "Where can I buy flowers and incense?",
+      "th": "ซื้อดอกไม้ธูปเทียนได้ที่ไหน"
+    },
+    {
+      "en": "Where can I make a donation?",
+      "th": "ทำบุญได้ที่ไหน"
+    },
+    {
+      "en": "Is there a guide who speaks English?",
+      "th": "มีไกด์พูดภาษาอังกฤษไหม"
+    },
+    {
+      "en": "Sorry, I did not know.",
+      "th": "ขอโทษ ไม่ทราบมาก่อน"
+    }
+  ]
+}
