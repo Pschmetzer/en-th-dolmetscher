@@ -14,6 +14,11 @@ enum DebugScreens {
         case "privacy": m.sheet = .privacy
         case "emergency": m.sheet = .emergency
         case "allergy": m.sheet = .allergy
+        case "prep": m.sheet = .prep
+        case "places": m.sheet = .places
+        case "helpnow": m.sheet = .helpNow
+        case "baht": m.sheet = .baht
+        case "widgets": m.sheet = .widgetPreview
         default: break
         }
     }
@@ -36,6 +41,31 @@ enum DebugScreens {
         e.bloodType = "A+"
         e.allergens = [.peanut, .shellfish]
         m.emergency = e
+        m.places = [Place(name: "Riverside Hotel", local: "โรงแรมริเวอร์ไซด์ ถนนเจริญกรุง"),
+                    Place(name: "Airport BKK", local: "สนามบินสุวรรณภูมิ")]
+    }
+}
+/// Schnellsätze-Widget und Live-Aktivität in der App zeigen – für Screenshots im Simulator.
+struct WidgetPreviewScreen: View {
+    private let state = ListeningActivityAttributes.ContentState(
+        status: .hearing, statusText: T("hearing"), source: "How much is a ticket to Chiang Mai?",
+        translation: "ตั๋วไปเชียงใหม่ราคาเท่าไหร่ครับ", srcFlag: "🇬🇧", dstFlag: "🇹🇭")
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                QuickPhrasesView(entry: .make(ids: [], female: false), family: .systemSmall)
+                    .padding(12).frame(width: 170, height: 170)
+                    .background(.fill.tertiary, in: RoundedRectangle(cornerRadius: 22))
+                QuickPhrasesView(entry: .make(ids: [], female: false), family: .systemMedium)
+                    .padding(12).frame(width: 364, height: 170)
+                    .background(.fill.tertiary, in: RoundedRectangle(cornerRadius: 22))
+                LiveLockView(pair: "🇬🇧 ⇄ 🇹🇭", state: state)
+                    .padding().frame(width: 364)
+                    .background(Color.black.opacity(0.75), in: RoundedRectangle(cornerRadius: 22))
+            }
+            .padding()
+        }
     }
 }
 #endif

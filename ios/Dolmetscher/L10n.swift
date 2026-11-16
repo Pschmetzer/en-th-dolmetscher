@@ -304,10 +304,13 @@ enum L10n {
 }
 
 func T(_ key: String) -> String {
-    L10n.text(key, lang: L10n.lang) ?? L10n.table[key]?["en"] ?? key
+    L10n.text(key, lang: L10n.lang) ?? L10n.text(key, lang: "en") ?? key
 }
 
 extension L10n {
     /// Text in einer bestimmten Sprache, nil wenn es ihn dort nicht gibt (kein Rückfall).
-    static func text(_ key: String, lang: String) -> String? { table[key]?[lang] ?? extra[lang]?[key] }
+    static func text(_ key: String, lang: String) -> String? { table[key]?[lang] ?? extra[lang]?[key] ?? round4[key]?[lang] }
+
+    /// Alle Schlüssel (Grundtabelle und Runde 4).
+    static var allKeys: Set<String> { Set(table.keys).union(round4.keys) }
 }

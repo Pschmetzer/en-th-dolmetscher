@@ -33,7 +33,10 @@ struct Entry: Identifiable, Codable, Equatable {
 }
 
 enum AppSheet: String, Identifiable {
-    case settings, phrasebook, photo, help, emergency, baht, allergy, privacy
+    case settings, phrasebook, photo, help, emergency, baht, allergy, privacy, prep, places, helpNow
+    #if DEBUG
+    case widgetPreview
+    #endif
     var id: String { rawValue }
 }
 
@@ -71,6 +74,18 @@ final class InterpreterModel {
     var micDenied = false
     /// „Jetzt Sie“ / „Jetzt ich“: diese Sprache wird als Nächstes erwartet (bis zum nächsten Satz oder Ablauf).
     var expected: Lang?
+    /// Satz ist zu Ende gesprochen, Ergebnis kommt gleich: Vorschau stehen lassen („Übersetze …“).
+    var finishing = false
+    /// Auto-Stopp steht kurz bevor (30 s): Hinweis mit „Weiter“.
+    var idleWarning = false
+    /// iPhone ist heiß: nur eine Sprache, keine Live-Vorschau.
+    var hot = false
+    /// Push-to-talk: Knopf wird gerade gehalten.
+    var pttHeld = false
+    /// Kurzbefehl „Letzte Übersetzung groß“: diese Blase groß zeigen.
+    var bigRequest: UUID?
+    /// Gespeicherte Ziele (Taxi, Tuk-Tuk).
+    var places: [Place] = [] { didSet { files.store(places, "places.json") } }
 
     var pair: LangPair {
         didSet {
@@ -102,6 +117,10 @@ final class InterpreterModel {
     /// Thai-Ausgabe immer über den Lautsprecher, auch mit Kopfhörern (das Gegenüber soll es hören).
     var thaiOnSpeaker: Bool { didSet { save("thaiOnSpeaker", thaiOnSpeaker) } }
     var emergency: EmergencyInfo { didSet { files.store(emergency, "emergency.json") } }
+    /// Halten zum Sprechen statt Dauer-Zuhören (spart Akku, sicherer in Menschenmengen).
+    var pushToTalk: Bool { didSet { save("pushToTalk", pushToTalk); applyMute() } }
+    /// Live-Aktivität (Sperrbildschirm, Dynamic Island) beim Zuhören.
+    var liveActivity: Bool { didSet { save("liveActivity", liveActivity); liveUpdate() } }
     /// Rückübersetzung (offline) unter jeder Übersetzung anzeigen.
     var backCheck: Bool { didSet { save("backCheck", backCheck); if !backCheck { clearBack() } } }
     /// Umschrift unter Thai/Japanisch/Koreanisch/Chinesisch.
@@ -146,6 +165,17 @@ final class InterpreterModel {
     @ObservationIgnored private var cellularAllowed = false
     @ObservationIgnored private var expectedUntil = Date.distantPast
     @ObservationIgnored private var expectTask: Task<Void, Never>?
+    @ObservationIgnored private var finishingTask: Task<Void, Never>?
+    /// Für Tests: andere Spracherkennung einsetzen (Standard: Apple).
+    @ObservationIgnored var makeEngine: @MainActor () -> any SpeechEngine = { AppleSpeechEngine() }
+    /// Für Tests: Sprachmodell-Prüfung und Whisper überspringen.
+    @ObservationIgnored var checkModels = true
+    @ObservationIgnored private var lastMute: Bool?
+    @ObservationIgnored private var pttDraining = false
+    @ObservationIgnored private var drainTask: Task<Void, Never>?
+    @ObservationIgnored private var autoSeq = 0
+    /// Bei Hitze von „Automatisch“ umgeschaltet: beim Abkühlen zurück.
+    @ObservationIgnored private var coolSwitched = false
 
     /// Standard „aus“: ohne ausdrückliche Erlaubnis gehen keine Gespräche an Google/MyMemory.
     nonisolated static func allowOnlineSetting(_ d: UserDefaults = .standard) -> Bool { d.object(forKey: "allowOnline") as? Bool ?? false }
@@ -176,17 +206,24 @@ final class InterpreterModel {
         backCheck = d.object(forKey: "backCheck") as? Bool ?? true
         showRoman = d.object(forKey: "showRoman") as? Bool ?? true
         lockHistory = d.object(forKey: "lockHistory") as? Bool ?? false
+        pushToTalk = d.object(forKey: "pushToTalk") as? Bool ?? false
+        liveActivity = d.object(forKey: "liveActivity") as? Bool ?? true
         historyUnlocked = !lockHistory
         L10n.lang = uiLang
         Haptics.enabled = haptics
         loadHistory()
         loadFavorites()
+        places = files.load([Place].self, "places.json").value ?? []
         pruneHistory()
         Task { await refreshOffline() }
         // Gerät war beim Start gesperrt: nach dem Entsperren nachladen.
         NotificationCenter.default.addObserver(forName: UIApplication.protectedDataDidBecomeAvailableNotification,
                                                object: nil, queue: .main) { _ in
             Task { @MainActor in InterpreterModel.shared.reloadIfBlocked() }
+        }
+        NotificationCenter.default.addObserver(forName: ProcessInfo.thermalStateDidChangeNotification,
+                                               object: nil, queue: .main) { _ in
+            Task { @MainActor in InterpreterModel.shared.thermalChanged() }
         }
         #if DEBUG
         // Test im Simulator: mit DOLMETSCHER_AUDIO_FILES gleich loslegen.
@@ -261,7 +298,7 @@ final class InterpreterModel {
         let cellularOK = cellularAllowed
         cellularAllowed = false
         // Whisper nur auf Wunsch und nur mit vollständigem Modell – sonst Apple mit Hinweis.
-        let wantWhisper = WhisperStore.shared.enabled
+        let wantWhisper = checkModels && WhisperStore.shared.enabled
         let variant = WhisperStore.shared.ready
         whisperPreparing = wantWhisper && variant != nil
         startTask = Task {
@@ -289,7 +326,7 @@ final class InterpreterModel {
                 if started == nil {
                     // Fehlt ein Sprachmodell, lädt das System es jetzt (einmalig, groß): nicht ungefragt über
                     // Mobilfunk/Roaming und ohne Netz mit klarer Meldung statt Hängen.
-                    if AudioCapture.debugFiles == nil, await LangRecognizer.needsDownload(langs) {
+                    if checkModels, AudioCapture.debugFiles == nil, await LangRecognizer.needsDownload(langs) {
                         let net = NetStatus.shared
                         if !net.online { throw SpeechError.downloadOffline }
                         if net.expensive && !cellularOK {
@@ -297,7 +334,7 @@ final class InterpreterModel {
                             return
                         }
                     }
-                    let a = AppleSpeechEngine()
+                    let a = makeEngine()
                     do {
                         try await a.start(langs: langs, pauseSeconds: pause, options: options) { lang, f in
                             Task { @MainActor [weak self] in
@@ -315,9 +352,11 @@ final class InterpreterModel {
                 guard generation == mine else { await e.stop(); return }   // inzwischen abgebrochen
                 engine = e
                 usingWhisper = e is WhisperSpeechEngine
-                // Läuft gerade eine Ausgabe (z. B. getippter Satz), soll die neue Aufnahme sie nicht hören.
-                if pendingSpeech > 0 { e.setMuted(true) }
+                // Läuft gerade eine Ausgabe (z. B. getippter Satz), soll die neue Aufnahme sie nicht hören;
+                // bei Push-to-talk hört sie erst beim Halten zu.
+                lastMute = nil
                 phase = .listening
+                applyMute()
                 lastActivity = Date()
                 Haptics.success()
                 UIApplication.shared.isIdleTimerDisabled = true
@@ -325,6 +364,8 @@ final class InterpreterModel {
                     for await ev in e.events { self?.handle(ev) }
                 }
                 watchIdle()
+                liveUpdate()
+                if hot { flash("🌡 " + T("hot_single"), seconds: 5) }
                 if let note { flash(note, seconds: 6) }
             } catch {
                 whisperPreparing = false
@@ -352,11 +393,13 @@ final class InterpreterModel {
             return
         }
         engine = nil
+        lastMute = nil
         listenTask?.cancel()
         stopSpeaking()
         if endConversation { conversationEnded() }
         phase = .idle
-        partial = ""; level = 0; hearing = false
+        partial = ""; level = 0; hearing = false; finishing = false; idleWarning = false; pttHeld = false
+        if endConversation { LiveActivityController.shared.end() }
         UIApplication.shared.isIdleTimerDisabled = false
         Haptics.tap()
         stopTask = Task { await e.stop() }
@@ -421,9 +464,14 @@ final class InterpreterModel {
         idleTask?.cancel()
         idleTask = Task { [weak self] in
             while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(20))
-                guard let self, self.isListening, self.autoStopMinutes > 0 else { continue }
-                if Date().timeIntervalSince(self.lastActivity) > Double(self.autoStopMinutes) * 60 {
+                try? await Task.sleep(for: .seconds(5))
+                guard let self, self.isListening else { continue }
+                let limit = IdlePolicy.limit(minutes: self.autoStopMinutes, lowPower: ProcessInfo.processInfo.isLowPowerModeEnabled)
+                switch IdlePolicy.state(idle: Date().timeIntervalSince(self.lastActivity), limit: limit) {
+                case .ok: self.idleWarning = false
+                case .warn:
+                    if !self.idleWarning { self.idleWarning = true; Haptics.warning() }
+                case .stop:
                     self.stop()
                     self.flash("💤 " + T("auto_stopped"))
                     return
@@ -432,14 +480,32 @@ final class InterpreterModel {
         }
     }
 
+    /// Jede Bedienung zählt als Aktivität – der Auto-Stopp soll nicht mitten in der Benutzung zuschlagen.
+    func touch() {
+        lastActivity = Date()
+        idleWarning = false
+    }
+
     private func handle(_ ev: SpeechEvent) {
         switch ev {
         case .level(let l): level = l
         case .hearing(let h):
             hearing = h
-            if h { lastActivity = Date() } else { partial = "" }
+            if h {
+                touch(); finishing = false
+            } else if !partial.isEmpty {
+                // Satz zu Ende: Vorschau mit „Übersetze …“ stehen lassen, bis das Ergebnis da ist.
+                finishing = true
+                finishingTask?.cancel()
+                finishingTask = Task { [weak self] in
+                    try? await Task.sleep(for: .seconds(3))
+                    guard !Task.isCancelled, let self, self.finishing else { return }
+                    self.finishing = false; self.partial = ""
+                }
+            }
+            liveUpdate()
         case .partial(let seen):
-            guard !paused else { return }
+            guard !paused, !hot else { return }   // heiß: keine Live-Vorschau (spart Rechenzeit)
             // Gleiche Wahl wie für den fertigen Satz (Schrift, echte Konfidenz) – nicht immer Englisch.
             partial = LanguagePick.pick(seen, pair: pair, bias: turnBias, expect: activeExpectation).flatMap { seen[$0]?.text } ?? ""
         case .utterance(let heard): self.heard(heard)
@@ -467,7 +533,9 @@ final class InterpreterModel {
 
     private func heard(_ hyps: [Lang: Hypothesis]) {
         partial = ""
-        lastActivity = Date()
+        finishing = false
+        touch()
+        if pttDraining { pttDraining = false; drainTask?.cancel(); applyMute() }
         let pair = pair
         let commands = features.voiceCommands
         // Nach „Translator“ allein darf der nächste Satz ein nackter Befehl sein – auch wenn der Erkenner
@@ -532,8 +600,8 @@ final class InterpreterModel {
         awakeUntil = cmd == .wake ? Date().addingTimeInterval(6) : .distantPast
         switch cmd {
         case .wake: flash("👂 " + T("say_command"))
-        case .pause: paused = true; stopSpeaking(); flash("⏸ " + T("paused"))
-        case .resume: paused = false; flash("▶️ " + T("resumed"))
+        case .pause: paused = true; stopSpeaking(); flash("⏸ " + T("paused")); liveUpdate()
+        case .resume: paused = false; flash("▶️ " + T("resumed")); liveUpdate()
         case .repeat: if let last = visibleEntries.last(where: { $0.translation != nil }) { speak(last) }
         case .slower: rate = max(0.5, rate - 0.15); flash("🐢 " + T("cmd_slower_done"))
         case .faster: rate = min(1.5, rate + 0.15); flash("🐇 " + T("cmd_faster_done"))
@@ -556,6 +624,7 @@ final class InterpreterModel {
     func submit(_ raw: String, speak: Bool = true) {
         let text = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
+        touch()
         let src = typedLang(text)
         add(Entry(src: src, dst: pair.other(src), text: text), speak: speak)
     }
@@ -567,6 +636,7 @@ final class InterpreterModel {
 
     /// Satz aus dem Satzbuch: Übersetzung steht fest, kein Netz nötig.
     func say(_ p: Phrase) {
+        touch()
         let src = p.srcLang, dst = p.dstLang
         let fixed = dst == .th ? politeness.fill(p.th) : p.th
         let roman = p.roman.isEmpty ? nil : (dst == .th ? politeness.fillRoman(p.roman) : p.roman)
@@ -578,6 +648,20 @@ final class InterpreterModel {
     }
 
     private func add(_ e: Entry, speak: Bool = true) {
+        // „Satzbuch zuerst“: passt der Satz auf einen geprüften Satz, dessen Thai-Fassung nehmen (offline, sofort).
+        if e.target == .th, features.thaiExtras, let p = Phrasebook.match(e.text, lang: e.src) {
+            var fixed = e
+            fixed.translation = politeness.fill(p.th)
+            fixed.roman = p.roman.isEmpty ? nil : politeness.fillRoman(p.roman)
+            fixed.provider = "phrasebook"
+            entries.append(fixed)
+            trim()
+            persist()
+            if speak { sessionTranslations += 1 }
+            liveUpdate()
+            if speak, autoSpeak, !paused { self.speak(fixed) }
+            return
+        }
         entries.append(e)
         trim()
         translate(e.id, speak: speak)
@@ -600,6 +684,7 @@ final class InterpreterModel {
                 update(id) { $0.translation = out; $0.provider = r.provider; $0.error = nil; $0.back = nil }
                 persist()
                 if speak { sessionTranslations += 1 }
+                liveUpdate()
                 if backCheck { backTranslate(id, rev: rev, text: out, from: e.target, to: e.src) }
                 // VoiceOver: Übersetzung ansagen, wenn sie nicht ohnehin vorgelesen wird.
                 if UIAccessibility.isVoiceOverRunning && !(speak && autoSpeak && !paused) {
@@ -617,9 +702,13 @@ final class InterpreterModel {
         // Gleich in die Vorlese-Reihe stellen: so bleibt die Reihenfolge des Gesprächs erhalten,
         // auch wenn ein späterer Satz schneller übersetzt ist.
         if speak, autoSpeak || force, !paused {
+            autoSeq += 1
+            let seq = autoSeq
             enqueueSpeech(id: id, lang: e.target, slow: false) { [weak self] in
                 let text = await job.value
                 guard let self, !self.paused, self.revisions[id] == rev else { return nil }
+                // Stau: liegen schon zwei neuere Sätze an, diesen nicht mehr vorlesen (steht ja im Verlauf).
+                if !force, SpeechBacklog.skip(seq: seq, latest: self.autoSeq) { self.flash("⏭ " + T("speech_skipped")); return nil }
                 return text
             }
         }
@@ -728,6 +817,7 @@ final class InterpreterModel {
     }
 
     private func addFixed(_ e: Entry) {
+        touch()
         entries.append(e)
         trim()
         persist()
@@ -847,30 +937,40 @@ final class InterpreterModel {
             let r = slow ? max(0.4, rate * 0.65) : rate
             guard gen == speechGeneration, let text, !text.isEmpty else {   // gestoppt oder nichts zu sagen
                 pendingSpeech -= 1
-                if pendingSpeech == 0 { engine?.setMuted(false) }
+                if pendingSpeech == 0 { applyMute() }
                 return
             }
-            engine?.setMuted(true)
+            applyMute()
             let session = AVAudioSession.sharedInstance()
+            let toPartner = lang == pair.partner && thaiOnSpeaker
             if engine == nil {
-                try? session.setCategory(.playback, options: [.duckOthers])
-                try? session.setActive(true)
-            } else if lang == pair.partner && thaiOnSpeaker {
+                // Getippt oder Satzbuch: für das Gegenüber auch mit Kopfhörern über den Lautsprecher.
+                if toPartner {
+                    try? session.setCategory(.playAndRecord, options: [.duckOthers, .defaultToSpeaker, .allowBluetoothA2DP])
+                    try? session.setActive(true)
+                    try? session.overrideOutputAudioPort(.speaker)
+                } else {
+                    try? session.setCategory(.playback, options: [.duckOthers])
+                    try? session.setActive(true)
+                }
+            } else if toPartner {
                 // Mit Kopfhörern hört sonst nur man selbst die Ansage für das Gegenüber.
                 try? session.overrideOutputAudioPort(.speaker)
             }
             speakingID = id
+            liveUpdate()
             await speaker.speak(text, lang: lang, rate: r, volume: loud ? 1 : volume)
-            if speakingID == id { speakingID = nil }
+            if speakingID == id { speakingID = nil; liveUpdate() }
             pendingSpeech -= 1
             if pendingSpeech == 0 {
                 lastActivity = Date()
                 try? await Task.sleep(for: .milliseconds(400))   // Nachhall nicht als Sprache werten
                 if pendingSpeech == 0 {
-                    if let engine {
+                    if engine != nil {
                         try? session.overrideOutputAudioPort(.none)
-                        engine.setMuted(false)
+                        applyMute()
                     } else {
+                        try? session.overrideOutputAudioPort(.none)
                         // Nur vorgelesen, nicht zugehört: Musik/Navi wieder laut machen.
                         try? session.setActive(false, options: .notifyOthersOnDeactivation)
                     }
@@ -883,6 +983,109 @@ final class InterpreterModel {
     func stopSpeaking() {
         speechGeneration += 1
         speaker.stop()
+    }
+
+    // MARK: Push-to-talk, Wärme, Live-Aktivität
+
+    /// Eine Quelle für die Stummschaltung: während der Ausgabe immer, bei Push-to-talk außer beim Halten
+    /// (und kurz danach, bis der Satz abgeschlossen ist).
+    var shouldMute: Bool { pendingSpeech > 0 || (pushToTalk && !pttHeld && !pttDraining) }
+
+    private func applyMute() {
+        guard let engine else { return }
+        let m = shouldMute
+        guard m != lastMute else { return }
+        lastMute = m
+        engine.setMuted(m)
+    }
+
+    /// Knopf gedrückt: zuhören (startet bei Bedarf).
+    func pttPress() {
+        touch()
+        pttHeld = true
+        drainTask?.cancel()
+        pttDraining = false
+        if !isListening && !isBusy { start() }
+        applyMute()
+        Haptics.tap()
+        liveUpdate()
+    }
+
+    /// Knopf losgelassen: Satz sofort abschließen, danach wieder taub.
+    func pttRelease() {
+        guard pttHeld else { return }
+        pttHeld = false
+        pttDraining = true
+        engine?.flush()
+        drainTask?.cancel()
+        drainTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(2.5))   // so lange darf das Ergebnis brauchen
+            guard !Task.isCancelled, let self else { return }
+            self.pttDraining = false
+            self.applyMute()
+        }
+        liveUpdate()
+    }
+
+    /// Wärme: ab „ernst“ nur noch eine Sprache (halbe Rechenlast), beim Abkühlen zurück auf Automatisch.
+    func thermalChanged(_ state: ProcessInfo.ThermalState = ProcessInfo.processInfo.thermalState) {
+        let isHot = EnergyPolicy.hot(state)
+        guard isHot != hot else { return }
+        hot = isHot
+        if isHot {
+            if mode == .auto {
+                coolSwitched = true
+                let last = entries.last(where: { $0.provider != "phrasebook" })?.src
+                mode = EnergyPolicy.coolMode(pair: pair, lastSpoken: last)
+            }
+            partial = ""
+            Haptics.warning()
+            flash("🌡 " + T("hot_single"), seconds: 6)
+        } else if coolSwitched {
+            coolSwitched = false
+            if pair.distinguishable { mode = .auto }
+            flash("✅ " + T("cool_again"))
+        }
+    }
+
+    /// Schnellsätze-Widget: eingebauten Satz (id = Englisch) vorlesen.
+    func sayBuiltIn(_ id: String) {
+        guard let p = Phrasebook.builtIn.first(where: { $0.en == id }) ?? favorites.first(where: { $0.en == id }) else { return }
+        say(p)
+    }
+
+    /// Kurzbefehl „Letzte Übersetzung groß zeigen“.
+    func showLastBig() {
+        bigRequest = visibleEntries.last(where: { $0.translation != nil })?.id
+        touch()
+    }
+
+    /// Live-Aktivität (Sperrbildschirm, Dynamic Island) auf den aktuellen Stand bringen.
+    func liveUpdate() {
+        guard liveActivity, isListening else {
+            if !liveActivity { LiveActivityController.shared.end() }
+            return
+        }
+        let last = visibleEntries.last { $0.translation != nil }
+        let status: ListeningActivityAttributes.Status = paused ? .paused
+            : speakingID != nil ? .speaking
+            : (pushToTalk && !pttHeld) ? .ready
+            : hearing ? .hearing : .listening
+        let state = ListeningActivityAttributes.ContentState(
+            status: status, statusText: liveStatusText(status),
+            source: last?.text ?? "", translation: last?.translation ?? "",
+            srcFlag: last?.src.flag ?? pair.mine.flag, dstFlag: last?.target.flag ?? pair.partner.flag)
+        LiveActivityController.shared.update(state, pair: "\(pair.mine.flag) ⇄ \(pair.partner.flag)")
+    }
+
+    private func liveStatusText(_ s: ListeningActivityAttributes.Status) -> String {
+        switch s {
+        case .listening: return T("listening")
+        case .hearing: return T("hearing")
+        case .speaking: return T("speaking")
+        case .paused: return T("paused_plain")
+        case .ready: return T("ptt_hint")
+        }
     }
 
     // MARK: Speicher

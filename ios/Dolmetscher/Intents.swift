@@ -2,18 +2,6 @@
 import AppIntents
 import Foundation
 
-struct StartInterpreterIntent: AppIntent {
-    static let title: LocalizedStringResource = "Start interpreting"
-    static let description = IntentDescription("Opens Dolmetscher and starts listening.")
-    static let supportedModes: IntentModes = .foreground
-
-    @MainActor
-    func perform() async throws -> some IntentResult {
-        InterpreterModel.shared.start()
-        return .result()
-    }
-}
-
 struct OpenPhrasebookIntent: AppIntent {
     static let title: LocalizedStringResource = "Open phrasebook"
     static let supportedModes: IntentModes = .foreground
@@ -94,6 +82,19 @@ struct OpenEmergencyCardIntent: AppIntent {
     }
 }
 
+/// Zeigt die letzte Übersetzung bildschirmfüllend (Taxi: Aktionstaste drücken, Handy hinhalten).
+struct ShowLastTranslationIntent: AppIntent {
+    static let title: LocalizedStringResource = "Show last translation"
+    static let description = IntentDescription("Shows the last translation full screen, ready to show someone.")
+    static let supportedModes: IntentModes = .foreground
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        InterpreterModel.shared.showLastBig()
+        return .result()
+    }
+}
+
 struct DolmetscherShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(intent: StartInterpreterIntent(),
@@ -111,6 +112,9 @@ struct DolmetscherShortcuts: AppShortcutsProvider {
         AppShortcut(intent: OpenEmergencyCardIntent(),
                     phrases: ["Open \(.applicationName) emergency card", "Show my \(.applicationName) emergency card"],
                     shortTitle: "Emergency card", systemImageName: "cross.case")
+        AppShortcut(intent: ShowLastTranslationIntent(),
+                    phrases: ["Show last \(.applicationName) translation", "Show it big with \(.applicationName)"],
+                    shortTitle: "Show last translation", systemImageName: "arrow.up.left.and.arrow.down.right")
         AppShortcut(intent: EmergencyPhraseIntent(),
                     phrases: ["\(.applicationName) emergency", "Emergency with \(.applicationName)"],
                     shortTitle: "Emergency phrase", systemImageName: "sos")
