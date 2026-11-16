@@ -1,13 +1,31 @@
-// L10n.swift – Texte der Oberfläche in Deutsch, Englisch und Thai (wie die Mac-App).
+// L10n.swift – Texte der Oberfläche in Deutsch, Englisch und Thai (wie die Mac-App); weitere Sprachen
+// (maschinell übersetzt) in L10n+Extra.swift.
 import Foundation
 
 enum L10n {
     nonisolated(unsafe) static var lang = systemLang()
 
-    static func systemLang() -> String {
-        let p = Locale.preferredLanguages.first ?? "en"
-        return p.hasPrefix("de") ? "de" : p.hasPrefix("th") ? "th" : "en"
+    /// Sprachen der Oberfläche (Codes wie die .lproj-Ordner).
+    static let languages = ["de", "en", "th", "es", "fr", "ja", "ko", "zh-Hans", "vi", "id"]
+
+    static func systemLang() -> String { match(Locale.preferredLanguages) }
+
+    /// Erste bevorzugte Sprache, die die App kann ("zh-Hans-CN" -> "zh-Hans", "de-AT" -> "de"); sonst Englisch.
+    static func match(_ preferred: [String]) -> String {
+        for p in preferred {
+            if p.hasPrefix("zh") {
+                // Traditionelles Chinesisch gibt es nicht – lieber Englisch als die falsche Schrift.
+                if p.hasPrefix("zh-Hans") || p == "zh" || p.hasPrefix("zh-CN") || p.hasPrefix("zh-SG") { return "zh-Hans" }
+                continue
+            }
+            let code = String(p.prefix { $0 != "-" && $0 != "_" })
+            if languages.contains(code) { return code }
+        }
+        return "en"
     }
+
+    /// Die Oberflächensprache als Sprache der Sprachtabelle ("zh-Hans" -> zh), falls es eine ist.
+    static var asLang: Lang? { Lang(rawValue: lang == "zh-Hans" ? "zh" : lang) }
 
     static let table: [String: [String: String]] = [
         "start": ["de": "Start", "en": "Start", "th": "เริ่ม"],
@@ -242,10 +260,10 @@ enum L10n {
 }
 
 func T(_ key: String) -> String {
-    L10n.table[key]?[L10n.lang] ?? L10n.table[key]?["en"] ?? key
+    L10n.text(key, lang: L10n.lang) ?? L10n.table[key]?["en"] ?? key
 }
 
 extension L10n {
     /// Text in einer bestimmten Sprache, nil wenn es ihn dort nicht gibt (kein Rückfall).
-    static func text(_ key: String, lang: String) -> String? { table[key]?[lang] }
+    static func text(_ key: String, lang: String) -> String? { table[key]?[lang] ?? extra[lang]?[key] }
 }

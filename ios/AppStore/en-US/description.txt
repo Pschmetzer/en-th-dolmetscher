@@ -1,0 +1,29 @@
+Dolmetscher is a hands-free live interpreter for travelling – built for Thailand, ready for 19 languages.
+
+Put the iPhone on the table and just talk. The app hears who is speaking, picks the language, translates and reads the translation out loud. No buttons in between, no account, no sign-up.
+
+OFFLINE AND PRIVATE
+• Speech recognition always runs on your iPhone.
+• With Apple's offline language packs, translation works without internet – at the market, on the island, on the night bus.
+• Online translation is off by default. Only if you switch it on is text sent to an online translator.
+• Your conversation stays on this iPhone, and you decide how long it is kept.
+
+LIVE INTERPRETER
+• Choose your language and your partner's language. English ⇄ Thai is ready out of the box.
+• Automatic language detection when both languages use different scripts (for example English and Thai, German and Japanese).
+• Partner view: big text for the other person, or a split screen with the phone lying between you.
+• Show a translation full screen for taxi drivers and waiters.
+• Type a sentence or translate text from a photo of a menu or sign.
+
+MADE FOR THAILAND
+• Polite endings ครับ / ค่ะ chosen to match you – translators often mix them up.
+• Phrasebook with ready Thai sentences and pronunciation, works instantly offline.
+• Thai emergency numbers and an emergency card to show (hotel, allergies, medical info).
+• Baht calculator with your own exchange rate – no internet needed.
+• Shortcut for the Action button: a loud Thai emergency phrase.
+
+HANDS-FREE
+• Say "Translator, pause", "repeat", "slower" or "louder" (with English in the pair).
+• Works with Siri and the Shortcuts app.
+
+Languages: English, Thai, German, Spanish, French, Italian, Portuguese, Dutch, Russian, Chinese, Japanese, Korean, Vietnamese, Indonesian, Arabic, Hindi, Turkish, Polish, Ukrainian. Which ones work offline depends on what your iPhone supports; the app only offers languages it can actually recognise, translate and speak.
