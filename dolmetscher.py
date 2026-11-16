@@ -4373,16 +4373,21 @@ def set_langs(eng, mine, partner):
     return True
 
 
-# Rückübersetzung (Kontrolle für den Sprecher): nach `utt` kommt `back` {id, text}. Nur Google/MyMemory –
-# kostet kein Claude-Guthaben und blockiert weder Blase noch Ton (eigener Thread). Standard aus.
+# Rückübersetzung (Kontrolle für den Sprecher): nach `utt` kommt `back` {id, text}. Nur Google direkt –
+# kostet kein Claude-Guthaben, blockiert weder Blase noch Ton (eigener Thread) und läuft bewusst an Backoff und
+# Offline-Schalter vorbei: ein Fehler dieser Zusatzanfrage darf die nächste echte Übersetzung nicht bremsen.
+# Steht Google gerade im Backoff/offline, entfällt sie. Standard aus.
 BACK = {"on": False}
 BACK_TIMEOUT = 5.0
 
 
 def back_translate_async(uid, out, dst, src):
     def run():
+        now = time.monotonic()
+        if now < _OFFLINE["until"] or now < _PROV["google"]["until"]:
+            return
         try:
-            txt = _mt_chain(out, dst, src, {}, time.monotonic() + BACK_TIMEOUT)
+            txt = google_translate(out, dst, src)
         except Exception as e:                 # noqa: BLE001 – optional, nur ins Log
             log({"back": "fehler", "err": _errtxt(e)})
             return

@@ -323,10 +323,10 @@ def test_dropped_code_stopped_vertrag():
 def test_rueckuebersetzung_ereignis(monkeypatch, ev):
     calls = []
 
-    def mt(text, src, dst, meta, deadline=None):
+    def mt(text, src, dst):
         calls.append((text, src, dst))
         return "I'm sleepy. "
-    monkeypatch.setattr(d, "_mt_chain", mt)
+    monkeypatch.setattr(d, "google_translate", mt)
     th = []
     real = threading.Thread
     monkeypatch.setattr(d.threading, "Thread", lambda *a, **k: th.append(real(*a, **k)) or th[-1])
@@ -338,14 +338,27 @@ def test_rueckuebersetzung_ereignis(monkeypatch, ev):
 
 def test_rueckuebersetzung_fehler_still(monkeypatch, ev):
     def mt(*a, **k):
-        raise RuntimeError("offline")
-    monkeypatch.setattr(d, "_mt_chain", mt)
+        raise TimeoutError()
+    monkeypatch.setattr(d, "google_translate", mt)
     th = []
     real = threading.Thread
     monkeypatch.setattr(d.threading, "Thread", lambda *a, **k: th.append(real(*a, **k)) or th[-1])
     d.back_translate_async("u5", "x", "th", "en")
     th[0].join(2)
     assert not [e for e, _ in ev if e in ("back", "error")]
+    assert d._PROV["google"]["until"] == 0.0 and d._OFFLINE["until"] == 0.0   # kein Backoff für echte Sätze
+
+
+def test_rueckuebersetzung_entfaellt_im_backoff(monkeypatch, ev):
+    called = []
+    monkeypatch.setattr(d, "google_translate", lambda *a: called.append(a) or "x")
+    d._PROV["google"]["until"] = time.monotonic() + 60
+    th = []
+    real = threading.Thread
+    monkeypatch.setattr(d.threading, "Thread", lambda *a, **k: th.append(real(*a, **k)) or th[-1])
+    d.back_translate_async("u5", "x", "th", "en")
+    th[0].join(2)
+    assert not called and not [e for e, _ in ev if e == "back"]
 
 
 def test_deliver_ruft_rueckuebersetzung_nur_wenn_an(monkeypatch, ev):
