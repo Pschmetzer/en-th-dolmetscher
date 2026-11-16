@@ -1965,6 +1965,14 @@ def _offline_mt(text, src, dst, err, meta):
     return out
 
 
+def translate_retry_in():
+    """Nr. 66: Sekunden, bis wieder ein Online-Anbieter versucht wird (0 = sofort): der frühere von Google und
+    MyMemory, mindestens bis der Offline-Schalter abläuft."""
+    now = time.monotonic()
+    nxt = max(min(_PROV["google"]["until"], _PROV["mymemory"]["until"]), _OFFLINE["until"])
+    return int(round(nxt - now)) if nxt - now >= 1 else 0
+
+
 def _is_conn_error(e):
     """Reiner Verbindungsfehler (kein HTTP-Status): DNS, kein Netz, Zeitüberschreitung."""
     return isinstance(e, urllib.error.URLError) and not isinstance(e, urllib.error.HTTPError)
@@ -4263,7 +4271,8 @@ class Engine:
             if (p and sim is not None and sim >= LEARN_MIN_SIM
                     and time.monotonic() - last.get(role, -1e9) >= LEARN_EVERY_S):
                 last[role] = time.monotonic()           # learn() schreibt die Profildatei: höchstens alle 30 s
-                self.spk.learn(p["name"], emb, LEARN_W_AUTO)
+                if self.spk.learn(p["name"], emb, LEARN_W_AUTO):
+                    emit("profile_adapted", name=p["name"], role=role)   # Nr. 182: nicht mehr unsichtbar
         except Exception as e:
             log({"learn": "fehler", "err": repr(e)[:200]})
 
@@ -4414,8 +4423,10 @@ class Engine:
                  text=text, lang=lang)
             # nur Typ/Status/eigene Meldungen – Server-Texte können den Satz zitieren (Nr. 7)
             own = isinstance(e, RuntimeError) and _SAFE_MSG.match(str(e))
+            wait = translate_retry_in()
             emit("error", code="translate_failed",
-                 msg=f"Übersetzung fehlgeschlagen: {str(e)[:80] if own else _errtxt(e)}")
+                 msg=f"Übersetzung fehlgeschlagen: {str(e)[:80] if own else _errtxt(e)}",
+                 **({"retry_in_s": wait} if wait else {}))
             emit("listening")
             return None
         if dst == "th":
@@ -4539,34 +4550,36 @@ def profile_cli(a):
             emit("profiles_deleted_all", ok=True, files=profiles.delete_all_profiles())
         except OSError as e:
             emit("profiles_deleted_all", ok=False, files=0)
-            emit("error", msg=f"Stimmdaten konnten nicht gelöscht werden: {e}")
+            emit("error", code="profile_delete_failed", msg=f"Stimmdaten konnten nicht gelöscht werden: {e}")
     elif a.delete_profile:
         emit("profile_deleted", name=a.delete_profile, ok=profiles.delete_profile(a.delete_profile))
+    elif getattr(a, "reset_learning", None):
+        emit("learning_reset", name=a.reset_learning, ok=bool(profiles.reset_learning(a.reset_learning)))
     elif getattr(a, "profile_polite", None) is not None:
         try:
             p = profiles.set_polite(a.profile_polite[0], a.profile_polite[1])
         except profiles.ProfileNameError as e:
-            emit("error", msg=f"Ungültiger Profilname: {e}")
+            emit("error", code="profile_name_invalid", msg=f"Ungültiger Profilname: {e}")
             return
         except (KeyError, ValueError):
-            emit("error", msg=f"Profil oder Höflichkeitsform ungültig: {a.profile_polite[0]}")
+            emit("error", code="profile_invalid", msg=f"Profil oder Höflichkeitsform ungültig: {a.profile_polite[0]}")
             return
         emit("profile_saved", profile=profiles.public(p))
     elif a.vocab is not None:
         try:
             p = profiles.set_vocab(a.vocab[0], re.split(r"[,\n]", a.vocab[1]))
         except profiles.ProfileNameError as e:
-            emit("error", msg=f"Ungültiger Profilname: {e}")
+            emit("error", code="profile_name_invalid", msg=f"Ungültiger Profilname: {e}")
             return
         except KeyError:
-            emit("error", msg=f"Profil nicht gefunden: {a.vocab[0]}")
+            emit("error", code="profile_not_found", msg=f"Profil nicht gefunden: {a.vocab[0]}")
             return
         emit("profile_saved", profile=profiles.public(p))
     elif a.enroll:
         try:
             profiles._safe(a.enroll)
         except profiles.ProfileNameError as e:
-            emit("error", msg=f"Ungültiger Profilname: {e}")
+            emit("error", code="profile_name_invalid", msg=f"Ungültiger Profilname: {e}")
             return
         emit("loading", msg="Lade Modelle für das Stimmprofil …")
         spk = profiles.SpeakerID()
@@ -4640,6 +4653,16 @@ def back_translate_async(uid, out, dst, src):
 
 def _text_arg(v, limit=PHRASE_MAX):
     return v.strip() if isinstance(v, str) and 0 < len(v.strip()) <= limit else None
+
+
+# Nr. 188: alle Steuerfelder, die apply_control kennt (Tippfehler im App-Code -> Ereignis control_ignored).
+CTRL_KEYS = frozenset({
+    "langs", "tr_mine", "tr_partner", "lang", "polite", "speak", "paused", "listen", "mic", "rate", "volume",
+    "silence", "sensitivity", "style", "glossary", "preset", "llm", "llm_budget", "earcons", "slow",
+    "back_translate", "learn_glossary", "output_device", "get_state", "fast_endpoint", "two_person",
+    "reload_profiles", "partial", "history", "history_days", "tts_race", "stop_speaking", "ping", "say",
+    "speak_text", "reassign", "retranslate", "reset_learning"}) | {f"tr_{k}" for k in LANGS} | {
+    f"voice_{k}" for k in LANGS}
 
 
 def apply_control(eng, d):
@@ -4726,6 +4749,8 @@ def apply_control(eng, d):
         if ok:
             LLM["on"] = v
             LLM["client"] = None               # Schlüssel evtl. neu gespeichert -> neu einlesen
+            _LLM_AVAIL["t"] = 0.0
+            later.append(lambda v=v: emit("llm", on=v, available=bool(llm_available())))   # Nr. 190
         n = _clamp(d.get("llm_budget"), 0.0, 10000.0)
         if n is not None:
             LLM["budget"] = float(n)           # USD je Monat, 0 = keine Grenze (Nr. 16)
@@ -4744,6 +4769,12 @@ def apply_control(eng, d):
                 later.append(lambda ov=ov: set_output_device(ov))
             else:
                 emit("error", code="output_invalid", msg="Ausgabegerät-Angabe ungültig – Gerät unverändert")
+        if "reset_learning" in d:             # Nr. 182: nachgeführten Stimmabdruck verwerfen
+            nm = _text_arg(d["reset_learning"], 80) if isinstance(d["reset_learning"], str) else None
+            if nm:
+                later.append(lambda nm=nm: reset_learning(eng, nm))
+            else:
+                emit("error", code="profile_name_invalid", msg="Profilname ungültig")
         ok, v = _flag(d, "get_state")
         if ok and v:
             later.append(eng.emit_snapshot)    # Nr. 189: Zustand auf Anfrage (App-Neustart/Reconnect)
@@ -4761,7 +4792,7 @@ def apply_control(eng, d):
         ok, v = _flag(d, "history")
         if ok:
             days = d.get("history_days")
-            later.append(lambda v=v, days=days: __import__("history_store").RECORDER.enable(v, days))
+            later.append(lambda v=v, days=days: history_enable(v, days))
         n = _clamp(d.get("tts_race"), 0.0, 5.0)
         if n is not None: TTS_RACE = float(n)
         ok, v = _flag(d, "stop_speaking")
@@ -4803,6 +4834,9 @@ def apply_control(eng, d):
                                                     r.get("lang") if isinstance(r.get("lang"), str) else ""))
             else:
                 emit("error", code="edit_invalid", msg="Korrektur ungültig (Text leer oder zu lang)")
+    unknown = sorted(k for k in d if k not in CTRL_KEYS)
+    if unknown:                                # Nr. 188: nicht still ignorieren
+        emit("control_ignored", keys=[str(k)[:40] for k in unknown[:10]])
     for fn in later:                           # Nr. 186: eine scheiternde Aktion verhindert die übrigen nicht
         try:
             fn()
@@ -4823,6 +4857,32 @@ def _run_all(fns):
             fn()
         except Exception as e:                 # noqa: BLE001
             log({"control": "aufgabe fehlgeschlagen", "err": _errtxt(e)})
+
+
+def reset_learning(eng, name):
+    """Stimmabdruck eines Profils auf den Stand beim Anlegen zurücksetzen -> learning_reset {name, ok}."""
+    spk = getattr(eng, "spk", None)
+    if spk is not None and hasattr(spk, "reset_learning"):
+        ok = spk.reset_learning(name)
+    else:
+        import profiles
+        ok = profiles.reset_learning(name)
+    emit("learning_reset", name=name, ok=bool(ok))
+
+
+def history_enable(on, days=None):
+    """Nr. 191: Verlauf an/aus; scheitert die Datenbank oder ist history_days ungültig, nicht still."""
+    import history_store
+    rec = history_store.RECORDER
+    rec.on_error = _history_write_failed
+    if days is not None and history_store.valid_days(days) is None:
+        emit("error", code="history_days_invalid", msg="Aufbewahrungsdauer ungültig – es wird nichts gelöscht")
+    if not rec.enable(on, days) and on:
+        emit("error", code="history_failed", msg="Verlauf kann nicht gespeichert werden – Aufzeichnung aus")
+
+
+def _history_write_failed():
+    emit("error", code="history_failed", msg="Verlauf kann nicht gespeichert werden – Aufzeichnung aus")
 
 
 def _stdin_lines():
@@ -5638,11 +5698,13 @@ if __name__ == "__main__":
         v = req.get("polite")
         if isinstance(v, list) and len(v) == 2 and all(isinstance(x, str) for x in v):
             a.profile_polite = v
+        if isinstance(req.get("reset_learning"), str):
+            a.reset_learning = req["reset_learning"]
     import history_store
     if history_store.wants_cli(a):
         sys.exit(history_store.run_cli(a))
     if a.history:
-        history_store.RECORDER.enable(True, a.history_days)
+        history_enable(True, a.history_days)
     JSON, BARGE_IN, LOG_TEXT, METER, DENOISE = a.json, a.barge_in, a.log_text, a.meter, a.denoise
     _lp = (a.langs or "").split(",")
     if not (len(_lp) == 2 and set_pair(*_lp)):
@@ -5680,7 +5742,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, shutdown)
     signal.signal(signal.SIGINT, shutdown)
     if (a.profiles or a.enroll or a.delete_profile or a.delete_all_profiles or a.vocab is not None
-            or a.profile_polite is not None):
+            or a.profile_polite is not None or getattr(a, "reset_learning", None)):
         profile_cli(a)
         sys.exit(0)
     if a.tts == "edge" and not a.mute:

@@ -1181,7 +1181,8 @@ final class EngineModel: NSObject, ObservableObject {
         case "error":
             let code = o["code"] as? String, raw = o["msg"] as? String
             if code == "model_offline" { modelOffline = true; download = nil }
-            let msg = Self.errorText(code: code, msg: raw)
+            var msg = Self.errorText(code: code, msg: raw)
+            if let s = (o["retry_in_s"] as? NSNumber)?.intValue, s > 0 { msg += " " + L.f("retry_in", s) }   // Nr. 66
             status = "⚠️ " + msg
             // Hinweis behält die Ursache der Engine (Ausnahme, Dateiname, Gerät) – nur dort, wo sie variiert
             let detail = code.map { Self.errorDetailCodes.contains($0) } == true ? raw : nil
@@ -1242,6 +1243,12 @@ final class EngineModel: NSObject, ObservableObject {
                 }
                 status = L.f("glossary_learned", added.joined(separator: ", "))
             }
+        case "llm":   // Nr. 190: Claude eingeschaltet, aber kein Schlüssel -> sichtbar statt still Google
+            if o["on"] as? Bool == true, o["available"] as? Bool == false {
+                lastError = (L.t("llm_unavailable"), Date())
+            }
+        case "control_ignored":   // Nr. 188: App schickt ein Feld, das die Engine nicht kennt (ältere Engine?)
+            NSLog("Dolmetscher: Engine ignorierte Steuerfelder %@", (o["keys"] as? [String] ?? []).joined(separator: ","))
         case "llm_cost":
             llmCostUSD = (o["usd"] as? NSNumber)?.doubleValue ?? llmCostUSD
             llmMonthUSD = (o["month_usd"] as? NSNumber)?.doubleValue ?? llmMonthUSD
@@ -1265,6 +1272,9 @@ final class EngineModel: NSObject, ObservableObject {
         "mic_timeout": "err_mic_timeout", "mic_failed": "err_mic_failed", "mic_not_found": "err_mic_not_found",
         "output_not_found": "err_output_not_found", "output_unsupported": "err_output_unsupported",
         "output_invalid": "err_output_not_found", "offline_mt_missing": "err_offline_mt_missing",
+        "profile_name_invalid": "err_profile_name_invalid", "profile_invalid": "err_profile_invalid",
+        "profile_not_found": "err_profile_not_found", "profile_delete_failed": "err_profile_delete_failed",
+        "history_failed": "err_history_failed", "history_days_invalid": "err_history_days_invalid",
         "mic_list_failed": "err_mic_list_failed", "mic_file_missing": "err_mic_file_missing",
         "ffmpeg_missing": "err_ffmpeg_missing", "audio_missing": "err_audio_missing", "model_offline": "err_model_offline",
         "translate_failed": "err_translate_failed", "llm_billing": "err_llm_billing", "reassign_expired": "err_reassign_expired",

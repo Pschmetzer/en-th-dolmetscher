@@ -127,12 +127,16 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `level` | `rms` (0…1, dBFS skaliert), `voice` (bool) | ~7×/s, nur mit `--meter` |
 | `net` | `ok` (bool), `what` (`translate`\|`tts`) | nur bei Zustandswechsel |
 | `command` | `text`, `reply`, `paused`, `lang`, `tr_en`, `tr_th`, `polite`, `rate`, `volume`, `voice_en`, `voice_th` (fehlende Sprache: `true`/`""`), `langs` (`{"mine", "partner"}`), `tr` und `voices` (Code → Wert, je Sprache des Paars); `clear` (true) nach „Translator, clear“ | App speichert `rate`/`volume` dauerhaft; bei `clear` Verlauf in der App leeren |
-| `error` | `msg` (deutscher Freitext), `code` (stabil, siehe unten; fehlt nur bei alten Meldungen) | |
+| `error` | `msg` (deutscher Freitext), `code` (stabil, siehe unten), bei `translate_failed` optional `retry_in_s` (s bis zum nächsten Online-Versuch, wenn alle Anbieter pausieren) | |
 | `barge_in` | | |
 | `mics` | `mics` (Liste `{index, name}`) | Antwort auf `--list-mics`; die App sollte den **Namen** speichern |
 | `profiles` | `profiles` (Liste öffentlicher Profilfelder) | Antwort auf `--profiles` |
 | `profile_saved` | `profile` | nach `--enroll` bzw. `--vocab` |
 | `profile_deleted` | `name`, `ok` (bool) | Antwort auf `--delete-profile` |
+| `profile_adapted` | `name`, `role` (`me`\|`other`) | Stimmabdruck wurde nach einem sicher erkannten Satz nachgeführt (höchstens alle 30 s je Rolle) |
+| `learning_reset` | `name`, `ok` (bool) | Antwort auf Steuerfeld `reset_learning` bzw. `--profile-stdin` `{"reset_learning": NAME}`; `ok` false: kein nachgeführter Abdruck vorhanden |
+| `control_ignored` | `keys` (höchstens 10 unbekannte Steuerfelder) | Steuerzeile enthielt Felder, die die Engine nicht kennt (Tippfehler, ältere Engine) |
+| `llm` | `on`, `available` (bool) | Antwort auf Steuerfeld `llm`: `available` false = kein Schlüssel/kein `anthropic`, übersetzt wird dann mit Google |
 | `profiles_deleted_all` | `ok` (bool), `files` (Anzahl) | Antwort auf `--delete-all-profiles`: alle Profile samt Sicherungen (`.bak`) und Quarantäne-Kopien (`.bad`) gelöscht |
 
 ### `dropped.code`
@@ -160,6 +164,8 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `mic_denied`, `mic_unavailable`, `mic_no_data`, `mic_timeout`, `mic_failed` | Mikrofon: Zugriff verweigert / Gerät ungültig / keine Daten / erster Block nicht binnen 10 s (Wachhund beendet ffmpeg) / Gerät nach Wiederverbinden weg |
 | `mic_not_found` | Mikrofon-Name unbekannt, Standardmikrofon wird genutzt |
 | `output_not_found`, `output_invalid`, `output_unsupported` | Ausgabegerät unbekannt (Systemstandard wird genutzt) / Steuerwert `output_device` ungültig / mit `DOLMETSCHER_FFMPEG` nicht wählbar |
+| `profile_name_invalid`, `profile_invalid`, `profile_not_found`, `profile_delete_failed` | Profil-Aufrufe: Name ungültig / Profil oder Höflichkeitsform ungültig / Profil fehlt / Stimmdaten nicht löschbar |
+| `history_failed`, `history_days_invalid` | Verlauf: Datenbank nicht nutzbar (Aufzeichnung aus) / `history_days` ungültig (es wird nichts gelöscht) |
 | `offline_mt_missing` | `--offline-translator`: `translate-helper` nicht gefunden oder nicht ausführbar – ohne Netz keine Übersetzung |
 | `mic_list_failed` | `--list-mics` konnte ffmpeg nicht abfragen |
 | `mic_file_missing`, `ffmpeg_missing` | `DOLMETSCHER_MIC_FILE` fehlt / das per `DOLMETSCHER_FFMPEG` gesetzte ffmpeg fehlt (gleich beim Start gemeldet) oder ist nicht startbar |
@@ -223,6 +229,7 @@ Neu:
 | `slow` | bool | „Langsam und deutlich“: Ausgabe SLOW_RATE (−25) Prozentpunkte langsamer (zusammen nie unter −50), kein Aufhol-Tempo, nie überspringen; Claude bekommt den Zusatz „einfache Wörter, kurze Sätze“ (eigener Cache-Schlüssel) |
 | `back_translate` | bool | Rückübersetzung als Ereignis `back` an/aus (Standard aus; kostet je Satz eine Google-Anfrage) |
 | `learn_glossary` | bool | Eigennamen aus Korrekturen (`retranslate`) automatisch ins Glossar (Standard an) |
+| `reset_learning` | string (Profilname) | nachgeführten Stimmabdruck verwerfen (Stand beim Anlegen); Antwort `learning_reset` |
 | `get_state` | true | Zustand als Ereignis `state` senden |
 | `reassign` | `{"id": "u7", "role": "me"\|"other"}` | „Das war ich/Partner“: Satz in der Sprache dieser Person (ich = Englisch bzw. meine Sprache, Partner = die andere Sprache des Paars) neu erkennen und übersetzen; `utt` kommt mit `replaces: "u7"`, `source: "reassign"`, `role`. Führt den Stimmabdruck des Profils nach (Gewicht 0,15). Behalten werden die letzten 30 Sätze |
 
@@ -416,3 +423,6 @@ Neue Felder kommen nur dazu, `PROTOCOL` bleibt 1.
   หมื่น, แสน hinter Ziffern werden umgerechnet (54); weitere Abspann-Floskeln, auch „Subtitles by <Name>“ (55);
   Claude-429/529 nutzen `retry-after` (1 … 600 s), 529 ohne Angabe 20 s (57); das Log filtert Gesprächstext
   auch in verschachtelten Werten (62).
+- **Neue Ereignisse/Felder:** `profile_adapted`, `learning_reset`, `control_ignored` (182, 188), `llm` {`on`,
+  `available`} nach dem Steuerfeld `llm` (190), `error.retry_in_s` bei `translate_failed` (66). Profil-Fehler tragen
+  jetzt Codes (184); Verlauf meldet `history_failed`/`history_days_invalid` statt still auszugehen (191).

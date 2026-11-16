@@ -249,8 +249,10 @@ class Recorder:
         self.session = uuid.uuid4().hex[:12]
         self.store = None
         self.keep_days = None
+        self.on_error = None                        # Nr. 191: Rückmeldung an die Engine (ohne Text)
 
     def enable(self, on=True, keep_days=None):
+        """-> True, wenn der Verlauf im gewünschten Zustand ist; False, wenn die Datenbank nicht geht."""
         self.on = bool(on)
         if keep_days is not None:
             self.keep_days = valid_days(keep_days)   # ungültig (0, negativ …): nicht löschen, Verlauf bleibt an
@@ -261,6 +263,8 @@ class Recorder:
                     self.store.purge(self.keep_days)
             except Exception:
                 self.on = False
+                return False
+        return True
 
     def utt(self, kw):
         if not self.on or not self.store or not kw.get("text"):
@@ -273,7 +277,12 @@ class Recorder:
                 conf=round(math.exp(lp), 3) if lp < 0 else None, provider=kw.get("provider"),
                 session=self.session, uid=kw.get("id"), replaces=kw.get("replaces"))
         except Exception:
-            pass
+            self.on = False                         # Platte voll, Datei weg …: nicht bei jedem Satz neu scheitern
+            if self.on_error:
+                try:
+                    self.on_error()
+                except Exception:
+                    pass
 
 
 RECORDER = Recorder()
