@@ -116,9 +116,21 @@ struct Bubble: View, Equatable {
         }
         .help(helpText)
         .contextMenu { menu }
+        // Tastatur (Nr. 354): Tab erreicht die Blase; Enter liest vor, E korrigiert, ⌘C kopiert die Übersetzung
+        .focusable()
+        .onKeyPress(.return) { if playing { m.stopSpeaking() } else { m.replay(u) }; return .handled }
+        .onKeyPress(.escape) { guard playing else { return .ignored }; m.stopSpeaking(); return .handled }
+        .onKeyPress(characters: CharacterSet(charactersIn: "eEcC")) { press in
+            switch press.characters.lowercased() {
+            case "e" where canCorrect: onCorrect(u); return .handled
+            case "c" where press.modifiers.isEmpty: copyToPasteboard(u.out); return .handled
+            default: return .ignored
+            }
+        }
+        .onCopyCommand { [NSItemProvider(object: u.out as NSString)] }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(a11yText))
-        .accessibilityHint(playing ? L.t("stop_speaking") : L.t("click_replay"))
+        .accessibilityHint(playing ? L.t("stop_speaking") : L.t("click_replay") + ". " + L.t("bubble_keys"))
         .accessibilityAction(named: L.t("stop_speaking")) { m.stopSpeaking() }
         .accessibilityAction(named: L.t("read_aloud")) { m.replay(u) }
         .accessibilityAction(named: L.t("copy_translation")) { copyToPasteboard(u.out) }

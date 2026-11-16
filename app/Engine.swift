@@ -409,6 +409,9 @@ final class EngineModel: NSObject, ObservableObject {
 
     override init() {
         super.init()
+        // Absturz bei geschlossenem Fenster: macOS-Mitteilung mit „Neu starten“ (Nr. 351)
+        CrashNotifier.shared.onRestart = { [weak self] in self?.restart() }
+        CrashNotifier.shared.install()
         // Stimmprofil angelegt/gelöscht: laufende Engine lädt die Profile neu (kein Neustart nötig)
         NotificationCenter.default.addObserver(forName: .profilesChanged, object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated { self?.send(["reload_profiles": true]) }
@@ -843,6 +846,7 @@ final class EngineModel: NSObject, ObservableObject {
         status = message
         crashLog = tail
         Announcer.post(message, force: true)
+        CrashNotifier.shared.notifyStopped(message)
     }
 
     /// Partner-Ansicht offen (die Partnerin liest mit): Bildschirm wachhalten.

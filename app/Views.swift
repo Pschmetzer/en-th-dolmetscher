@@ -115,6 +115,30 @@ func copyToPasteboard(_ s: String) {
 private final class ScrollMonitorBox {
     var token: Any?
     var lastWheelUp = Date.distantPast
+    /// Letzte Änderung am Inhalt (neue/wachsende Blase): verschwindet die Endmarke kurz danach, war es der Inhalt,
+    /// sonst hat der Nutzer gescrollt – egal ob Mausrad, Scrollbalken oder Tastatur (Nr. 352).
+    var lastContentChange = Date.distantPast
+}
+
+/// Schrift mit dem eigenen Zoom (⌘+/⌘−) für Statuszeile, Hinweisbänder, Schnellsätze, Leerzustand (Nr. 353).
+struct ScaledFont: ViewModifier {
+    @AppStorage(Prefs.fontScale) private var scale = 1.0
+    let base: CGFloat
+    let weight: Font.Weight
+    init(_ base: CGFloat, _ weight: Font.Weight = .regular) { self.base = base; self.weight = weight }
+    func body(content: Content) -> some View { content.font(.system(size: Prefs.scaled(base, scale), weight: weight)) }
+}
+
+extension View {
+    func scaledFont(_ base: CGFloat, _ weight: Font.Weight = .regular) -> some View { modifier(ScaledFont(base, weight)) }
+}
+
+/// Reine Regel (testbar ohne Ansicht): Endmarke verschwunden – hat der Nutzer hochgescrollt?
+enum AutoScroll {
+    static let contentGrace: TimeInterval = 0.5
+    static func userScrolledAway(now: Date, lastWheelUp: Date, lastContentChange: Date) -> Bool {
+        now.timeIntervalSince(lastWheelUp) < 0.6 || now.timeIntervalSince(lastContentChange) > contentGrace
+    }
 }
 
 struct ContentView: View {
@@ -202,7 +226,9 @@ struct ContentView: View {
             let t = "Dolmetscher · " + m.status
             if w.title != t { w.title = t }
         })
-        .sheet(isPresented: $showTips) { TipsSheet { tipsSeen = true; showTips = false } }
+        .sheet(isPresented: $showTips) {
+            TipsSheet(model: m.model, thai: Langs.hasThai) { tipsSeen = true; showTips = false }
+        }
         .sheet(isPresented: $showProfiles) { ProfilesView().environmentObject(m) }
         .sheet(item: $correcting) { CorrectSheet(u: $0).environmentObject(m) }
         .id(uiLang)                                   // Oberflächensprache sofort umschalten
@@ -297,10 +323,16 @@ struct ContentView: View {
                         .onAppear { bottomVisible = true; userScrolledUp = false }
                         .onDisappear {
                             bottomVisible = false
-                            if Date().timeIntervalSince(scrollBox.lastWheelUp) < 0.6 { userScrolledUp = true }
+                            if AutoScroll.userScrolledAway(now: Date(), lastWheelUp: scrollBox.lastWheelUp,
+                                                           lastContentChange: scrollBox.lastContentChange) {
+                                userScrolledUp = true
+                            }
                         }
                 }.padding(16)
             }
+            .onChange(of: shown.last) { scrollBox.lastContentChange = Date() }   // Text/Übersetzung wächst
+            .onChange(of: shown.count) { scrollBox.lastContentChange = Date() }
+            .onChange(of: scale) { scrollBox.lastContentChange = Date() }
             .onChange(of: shown.last?.id) {   // neue Blase
                 if !userScrolledUp { scrollToEnd(sv, animated: true) }
             }
@@ -381,7 +413,7 @@ struct EmptyState: View {
                         .foregroundStyle(LangStyle.color(m.partnerLang))
                 }
             }
-            .font(.system(size: 26, weight: .semibold))
+            .scaledFont(26, .semibold)
             if m.loadingModel {
                 HStack(spacing: 8) {
                     ProgressView().controlSize(.small)
@@ -392,7 +424,7 @@ struct EmptyState: View {
                 Text(L.t("empty")).foregroundStyle(.secondary)
             }
             Text(L.t("empty_example"))
-                .font(.title3)
+                .scaledFont(15)
                 .padding(.horizontal, 14).padding(.vertical, 8)
                 .background(Color.secondary.opacity(0.1), in: Capsule())
             CommandsList()
@@ -401,6 +433,7 @@ struct EmptyState: View {
                 .padding(.top, 8)
         }
         .multilineTextAlignment(.center)
+        .scaledFont(13)
         .frame(maxWidth: 640)
         .padding(.top, 40)
     }
@@ -508,7 +541,6 @@ struct MainToolbar: View {
 /// ein Feld für frei getippte Sätze (übersetzen und vorlesen wie ein Schnellsatz, für laute Umgebungen).
 struct ConversationBar: View {
     @EnvironmentObject var m: EngineModel
-    @AppStorage(Prefs.fontScale) private var scale = 1.0
     @State private var draft = ""
     @FocusState private var typing: Bool
 
@@ -546,7 +578,7 @@ struct ConversationBar: View {
                 .help(L.t("type_send"))
                 .accessibilityLabel(L.t("type_send"))
         }
-        .font(.system(size: Prefs.scaled(13, scale)))
+        .scaledFont(13)
         .padding(.horizontal, 14).padding(.bottom, 8)
     }
 }
@@ -583,7 +615,7 @@ struct StatusCluster: View {
     var body: some View {
         HStack(spacing: 8) {
             if m.micOn { LevelBar(meter: m.meter) }
-            Text(m.status).font(.headline).lineLimit(2).help(m.status)
+            Text(m.status).scaledFont(13, .semibold).lineLimit(2).help(m.status)
                 .accessibilityLabel(L.t("status") + ": " + m.status)
             if m.backlog > 0 {
                 Text("\(m.backlog) " + L.t("waiting"))
@@ -712,6 +744,7 @@ struct QuickPhraseBar: View {
                 }
             }
             .padding(.horizontal, 14).padding(.bottom, 10)
+            .scaledFont(13)
         }
         .accessibilityLabel(L.t("quick_phrases"))
         .alert(L.t("phrase_new_title"), isPresented: $adding) {
@@ -771,7 +804,7 @@ struct NoticeBanner: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon).foregroundStyle(tint).accessibilityHidden(true)
-            Text(text).font(.callout).fixedSize(horizontal: false, vertical: true).textSelection(.enabled)
+            Text(text).scaledFont(12).fixedSize(horizontal: false, vertical: true).textSelection(.enabled)
             Spacer(minLength: 8)
             if let action { Button(action.0, action: action.1) }
             if let onClose {
@@ -856,6 +889,8 @@ struct CrashBanner: View {
 
 /// Willkommen beim ersten Start: Mikrofon, Bedienung, Sprachbefehle und – wichtig – welche Dienste Text erhalten.
 struct TipsSheet: View {
+    var model = "medium"
+    var thai = true
     var done: () -> Void
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -864,6 +899,7 @@ struct TipsSheet: View {
             tip("waveform", L.t("tip_speak_title"), L.t("tip_speak_text"))
             tip("text.bubble", L.t("tip_cmd_title"), L.t("tip_cmd_text"))
             tip("lock.shield", L.t("privacy_title"), L.t("privacy_text"))
+            SetupChecklist(model: model, thai: thai)
             HStack {
                 Spacer()
                 Button(L.t("lets_go"), action: done).keyboardShortcut(.defaultAction)

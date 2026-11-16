@@ -93,6 +93,9 @@ private struct GeneralSettings: View {
                     Text(L.t("model_best")).tag("best")
                 }
                 .accessibilityLabel(L.t("model_label"))
+                // Nr. 356: schon im Cache oder lädt beim ersten Start nach?
+                Text(ModelCache.hint(model: m.model, thai: Langs.hasThai))
+                    .font(.caption).foregroundStyle(.secondary)
             } header: { Text(L.t("model_header")) } footer: {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(L.t("model_footer") + " " + L.t("restart_note"))
