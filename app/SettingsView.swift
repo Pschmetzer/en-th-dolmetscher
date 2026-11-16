@@ -33,6 +33,23 @@ private struct RestartNote: View {
 
 private struct GeneralSettings: View {
     @EnvironmentObject var m: EngineModel
+
+    /// Übersetzen-Schalter je Sprache des Paars (en/th mit den bisherigen Texten).
+    @ViewBuilder private func trToggle(_ code: String) -> some View {
+        let to = code == m.mineLang ? m.partnerLang : m.mineLang
+        let label = code == "en" && to == "th" ? L.t("tr_en_toggle") : code == "th" && to == "en" ? L.t("tr_th_toggle")
+            : L.f("tr_lang_toggle", Langs.name(code), Langs.name(to))
+        let help = code == "en" && to == "th" ? L.t("tr_en_help") : code == "th" && to == "en" ? L.t("tr_th_help")
+            : L.f("tr_lang_help", Langs.name(code))
+        Toggle(Langs.flag(code) + " → " + Langs.flag(to) + "  " + label,
+               isOn: Binding(get: { m.tr(code) }, set: { m.setTr(code, $0) }))
+            .help(help)
+            .accessibilityLabel(label)
+    }
+
+    private func onlyLabel(_ code: String) -> String {
+        code == "en" ? L.t("only_en") : code == "th" ? L.t("only_th") : L.f("only_lang", Langs.flag(code), Langs.name(code))
+    }
     @ObservedObject private var hk = HotKeys.shared
     @AppStorage(Prefs.showMenuBar) private var showMenuBar = true
     @AppStorage(Prefs.spaceToggle) private var spaceToggle = true
@@ -40,17 +57,30 @@ private struct GeneralSettings: View {
 
     var body: some View {
         Form {
+            Section(L.t("lang_pair")) {
+                Picker(L.t("lang_mine"), selection: $m.mineLang) {
+                    ForEach(Langs.codes, id: \.self) { Text(Langs.label($0)).tag($0) }
+                }
+                .help(L.t("lang_mine_help"))
+                .accessibilityLabel(L.t("lang_mine"))
+                Picker(L.t("lang_partner"), selection: $m.partnerLang) {
+                    ForEach(Langs.codes, id: \.self) { Text(Langs.label($0)).tag($0) }
+                }
+                .help(L.t("lang_partner_help"))
+                .accessibilityLabel(L.t("lang_partner"))
+                if !Langs.hasEnglish {
+                    Text(L.t("lang_no_commands")).font(.callout).foregroundStyle(.secondary)
+                }
+            }
             Section(L.t("tab_translation")) {
-                Toggle("🇬🇧 → 🇹🇭  " + L.t("tr_en_toggle"), isOn: $m.trEN)
-                    .help(L.t("tr_en_help"))
-                    .accessibilityLabel(L.t("tr_en_toggle"))
-                Toggle("🇹🇭 → 🇬🇧  " + L.t("tr_th_toggle"), isOn: $m.trTH)
-                    .help(L.t("tr_th_help"))
-                    .accessibilityLabel(L.t("tr_th_toggle"))
+                ForEach([m.mineLang, m.partnerLang], id: \.self) { code in
+                    trToggle(code)
+                }
                 Picker(L.t("recognition_lang"), selection: $m.lang) {
                     Text(L.t("auto")).tag("auto")
-                    Text(L.t("only_en")).tag("en")
-                    Text(L.t("only_th")).tag("th")
+                    ForEach([m.mineLang, m.partnerLang], id: \.self) { code in
+                        Text(onlyLabel(code)).tag(code)
+                    }
                 }
                 .help(L.t("recognition_lang_help"))
                 .accessibilityLabel(L.t("recognition_lang"))
@@ -284,6 +314,20 @@ private struct RecognitionSection: View {
 
 private struct VoiceSettings: View {
     @EnvironmentObject var m: EngineModel
+
+    /// Stimmenauswahl je Sprache des Paars (en/th mit den bisherigen Texten; Thai-Standard nach Höflichkeitsform).
+    @ViewBuilder private func voicePicker(_ code: String) -> some View {
+        let title = code == "en" ? L.t("voice_en") : code == "th" ? L.t("voice_th") : L.f("voice_lang", Langs.name(code))
+        let list = EngineModel.voices(code)
+        let cur = m.voice(code)
+        Picker(title, selection: Binding(get: { m.voice(code) }, set: { m.setVoice(code, $0) })) {
+            Text(code == "en" ? L.t("voice_default") : code == "th" ? L.t("voice_th_default") : L.t("voice_lang_default"))
+                .tag("")
+            ForEach(list, id: \.self) { Text(EngineModel.voiceLabel($0)).tag($0) }
+            if !cur.isEmpty && !list.contains(cur) { Text(EngineModel.voiceLabel(cur)).tag(cur) }
+        }
+        .accessibilityLabel(title)
+    }
     private var rateBinding: Binding<Double> {
         Binding(get: { Double(m.rate) }, set: { m.rate = Int($0.rounded()) })
     }
@@ -293,11 +337,13 @@ private struct VoiceSettings: View {
             Section {
                 Toggle(L.t("speak_toggle"), isOn: $m.speak)
                     .accessibilityLabel(L.t("speak_toggle"))
-                Picker(L.t("polite_label"), selection: $m.polite) {
-                    Text(L.t("polite_krub")).tag("krub")
-                    Text(L.t("polite_ka")).tag("ka")
+                if m.mineLang == "th" || m.partnerLang == "th" {   // Thai-Höflichkeit nur mit Thai im Paar
+                    Picker(L.t("polite_label"), selection: $m.polite) {
+                        Text(L.t("polite_krub")).tag("krub")
+                        Text(L.t("polite_ka")).tag("ka")
+                    }
+                    .accessibilityLabel(L.t("polite_a11y"))
                 }
-                .accessibilityLabel(L.t("polite_a11y"))
             }
             Section {
                 HStack {
@@ -316,18 +362,7 @@ private struct VoiceSettings: View {
                 }
             }
             Section {
-                Picker(L.t("voice_en"), selection: $m.voiceEN) {
-                    Text(L.t("voice_default")).tag("")
-                    ForEach(EngineModel.voicesEN, id: \.self) { Text(EngineModel.voiceLabel($0)).tag($0) }
-                    if !m.voiceEN.isEmpty && !EngineModel.voicesEN.contains(m.voiceEN) { Text(EngineModel.voiceLabel(m.voiceEN)).tag(m.voiceEN) }
-                }
-                .accessibilityLabel(L.t("voice_en"))
-                Picker(L.t("voice_th"), selection: $m.voiceTH) {
-                    Text(L.t("voice_th_default")).tag("")
-                    ForEach(EngineModel.voicesTH, id: \.self) { Text(EngineModel.voiceLabel($0)).tag($0) }
-                    if !m.voiceTH.isEmpty && !EngineModel.voicesTH.contains(m.voiceTH) { Text(EngineModel.voiceLabel(m.voiceTH)).tag(m.voiceTH) }
-                }
-                .accessibilityLabel(L.t("voice_th"))
+                ForEach([m.mineLang, m.partnerLang], id: \.self) { code in voicePicker(code) }
             }
             TTSRaceSection()
         }

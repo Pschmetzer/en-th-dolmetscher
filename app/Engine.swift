@@ -55,7 +55,7 @@ struct Utterance: Identifiable, Equatable {
     }
 
     static func placeholder(_ uid: String) -> Utterance {
-        Utterance(uid: uid, lang: "en", to: "th", text: "", out: "", pending: true)
+        Utterance(uid: uid, lang: Langs.mine, to: Langs.partner, text: "", out: "", pending: true)
     }
 
     var secs: Double { stt + tr }
@@ -158,6 +158,52 @@ final class EngineModel: NSObject, ObservableObject {
     @Published var speak = ud.object(forKey: "speak") as? Bool ?? true { didSet { Self.ud.set(speak, forKey: "speak"); send(["speak": speak]) } }
     @Published var trEN = ud.object(forKey: "trEN") as? Bool ?? true { didSet { Self.ud.set(trEN, forKey: "trEN"); push(["tr_en": trEN]) } }
     @Published var trTH = ud.object(forKey: "trTH") as? Bool ?? true { didSet { Self.ud.set(trTH, forKey: "trTH"); push(["tr_th": trTH]) } }
+    /// Sprachpaar: meine Sprache + Partnersprache (Standard en + th; alte Installationen ohne Schlüssel: en/th).
+    /// Gleiche Sprache auf beiden Seiten wird durch Tauschen verhindert. Live per `langs` an die Engine.
+    @Published var mineLang = Langs.mine {
+        didSet {
+            if mineLang == partnerLang { partnerLang = oldValue }
+            pairChanged()
+        }
+    }
+    @Published var partnerLang = Langs.partner {
+        didSet {
+            if partnerLang == mineLang { mineLang = oldValue }
+            pairChanged()
+        }
+    }
+    private func pairChanged() {
+        guard mineLang != partnerLang else { return }
+        Self.ud.set(mineLang, forKey: "mineLang"); Self.ud.set(partnerLang, forKey: "partnerLang")
+        Langs.mine = mineLang; Langs.partner = partnerLang
+        if lang != "auto" && !Langs.pair.contains(lang) { lang = "auto" }
+        push(langsMessage())
+    }
+    /// Paar samt gespeicherten Richtungen/Stimmen beider Sprachen in einer Zeile (`langs` wirkt zuerst):
+    /// sonst setzte die Engine neue Paarsprachen auf „übersetzen“ und Standardstimme zurück.
+    func langsMessage() -> [String: Any] {
+        var d: [String: Any] = ["langs": ["mine": mineLang, "partner": partnerLang]]
+        for c in [mineLang, partnerLang] { d["tr_\(c)"] = tr(c); d["voice_\(c)"] = voice(c) }
+        return d
+    }
+    /// Übersetzen je Sprache und Neural-Stimme je Sprache. Englisch/Thai bleiben in trEN/trTH bzw.
+    /// voiceEN/voiceTH (gespeicherte Werte gelten weiter), die übrigen Sprachen stehen in diesen Tabellen.
+    @Published var trByLang = ud.dictionary(forKey: "trByLang") as? [String: Bool] ?? [:] {
+        didSet { Self.ud.set(trByLang, forKey: "trByLang") }
+    }
+    @Published var voiceByLang = ud.dictionary(forKey: "voiceByLang") as? [String: String] ?? [:] {
+        didSet { Self.ud.set(voiceByLang, forKey: "voiceByLang") }
+    }
+    func tr(_ code: String) -> Bool { code == "en" ? trEN : code == "th" ? trTH : (trByLang[code] ?? true) }
+    func setTr(_ code: String, _ v: Bool) {
+        if code == "en" { trEN = v } else if code == "th" { trTH = v }
+        else { trByLang[code] = v; push(["tr_\(code)": v]) }
+    }
+    func voice(_ code: String) -> String { code == "en" ? voiceEN : code == "th" ? voiceTH : (voiceByLang[code] ?? "") }
+    func setVoice(_ code: String, _ v: String) {
+        if code == "en" { voiceEN = v } else if code == "th" { voiceTH = v }
+        else { voiceByLang[code] = v; push(["voice_\(code)": v]) }
+    }
     @Published var polite = ud.string(forKey: "polite") ?? "krub" { didSet { Self.ud.set(polite, forKey: "polite"); push(["polite": polite]) } }
     @Published var model = EngineModel.initialModel() { didSet { Self.ud.set(model, forKey: "model"); scheduleRestart() } }
     @Published var lang = ud.string(forKey: "lang") ?? "auto" { didSet { Self.ud.set(lang, forKey: "lang"); push(["lang": lang]) } }
@@ -243,11 +289,9 @@ final class EngineModel: NSObject, ObservableObject {
 
     // Nur Stimmen, die schnell antworten (gemessen: erster Ton nach 0,4–0,7 s). Die Multilingual-Stimmen
     // brauchen 1,5–4 s und stehen deshalb nicht mehr zur Wahl; eine gespeicherte Auswahl bleibt gültig.
-    static let voicesEN = ["en-US-AriaNeural", "en-US-JennyNeural", "en-US-MichelleNeural", "en-US-AvaNeural",
-                           "en-US-EmmaNeural", "en-US-GuyNeural", "en-US-AndrewNeural", "en-US-BrianNeural",
-                           "en-GB-RyanNeural"]
-    static let voicesTH = ["th-TH-NiwatNeural", "th-TH-PremwadeeNeural"]
-    private static let maleVoices: Set<String> = ["Guy", "Andrew", "Brian", "Ryan", "Niwat", "Christopher", "Eric"]
+    // Stimmen je Sprache: Sprachtabelle (app/Languages.swift).
+    static func voices(_ code: String) -> [String] { Langs.info(code)?.voices ?? [] }
+    private static let maleVoices = Langs.maleVoices
 
     /// „en-US-AriaNeural“ → „Aria ♀ · US“ (lesbarer Name für die Stimmenauswahl).
     static func voiceLabel(_ v: String) -> String {
@@ -555,7 +599,8 @@ final class EngineModel: NSObject, ObservableObject {
     private static func f2(_ v: Double) -> String { String(format: "%.2f", v) }
 
     private func launchArgs(_ script: String) -> [String] {
-        var args = ["-u", script, "--json", "--idle", "--model", model, "--polite", polite, "--lang", lang, "--meter",
+        let lock = lang == "auto" || Langs.pair.contains(lang) ? lang : "auto"
+        var args = ["-u", script, "--json", "--idle", "--model", model, "--polite", polite, "--lang", lock, "--meter",
                     "--rate", String(rate), "--volume", Self.f2(volume),
                     "--silence", Self.f2(silence), "--sensitivity", sensitivity,
                     "--llm-model", llmModel, "--style", llmStyle, logText ? "--log-text" : "--no-log-text",
@@ -564,12 +609,20 @@ final class EngineModel: NSObject, ObservableObject {
         if !twoPerson { args.append("--no-two-person") }
         args.append(partialText ? "--partial" : "--no-partial")   // Engine-Standard ist aus
         if !speak { args.append("--mute") }
-        if !trEN { args.append("--no-en") }
-        if !trTH { args.append("--no-th") }
+        if Langs.isDefaultPair {               // en/th: dieselben Argumente wie vor der Mehrsprachigkeit
+            if !trEN { args.append("--no-en") }
+            if !trTH { args.append("--no-th") }
+            if !voiceEN.isEmpty { args += ["--voice-en", voiceEN] }
+            if !voiceTH.isEmpty { args += ["--voice-th", voiceTH] }
+        } else {
+            args += ["--langs", "\(mineLang),\(partnerLang)"]
+            if !tr(mineLang) { args.append("--no-mine") }
+            if !tr(partnerLang) { args.append("--no-partner") }
+            if !voice(mineLang).isEmpty { args += ["--voice-mine", voice(mineLang)] }
+            if !voice(partnerLang).isEmpty { args += ["--voice-partner", voice(partnerLang)] }
+        }
         if !mic.isEmpty { args += ["--mic", mic] }
         if denoise { args.append("--denoise") }
-        if !voiceEN.isEmpty { args += ["--voice-en", voiceEN] }
-        if !voiceTH.isEmpty { args += ["--voice-th", voiceTH] }
         if llm { args.append("--llm") }
         if earcons { args.append("--earcons") }
         if history { args.append("--history") }
@@ -914,6 +967,10 @@ final class EngineModel: NSObject, ObservableObject {
             if let pv = (o["protocol"] as? NSNumber)?.intValue, pv != Self.protocolVersion { protocolMismatch = pv }
             else { protocolMismatch = nil }
             if !preset.isEmpty { send(["preset": preset]) }
+            // Paar während des Ladens geändert: nachreichen (ältere Engines ohne `langs` kennen nur en/th)
+            if let p = o["langs"] as? [String: String], p["mine"] != mineLang || p["partner"] != partnerLang {
+                send(langsMessage())
+            }
             if pushToTalk && !pttHolding { setPaused(true) }
             if wantListen && !micLent {
                 if canListen { send(["listen": true]) }   // sonst beim ersten `mic`-Ereignis
@@ -1081,7 +1138,7 @@ final class EngineModel: NSObject, ObservableObject {
         "translate_failed": "err_translate_failed", "reassign_expired": "err_reassign_expired",
         "reassign_empty": "err_reassign_empty", "reassign_invalid": "err_reassign_invalid",
         "phrase_invalid": "err_phrase_invalid", "edit_invalid": "err_edit_invalid",
-        "voice_unknown": "err_voice_unknown", "glossary_invalid": "err_glossary_invalid",
+        "voice_unknown": "err_voice_unknown", "glossary_invalid": "err_glossary_invalid", "langs_invalid": "err_langs_invalid",
         "file_empty": "err_file_empty", "file_failed": "err_file_failed",
         "profiles_failed": "err_speaker_model", "speak_invalid": "err_speak_invalid",
     ]
@@ -1164,6 +1221,17 @@ final class EngineModel: NSObject, ObservableObject {
         applyingRemote = true
         defer { applyingRemote = false }
         if o["clear"] as? Bool == true { items.removeAll() }
+        if let p = o["langs"] as? [String: Any], let mi = Langs.valid(p["mine"] as? String),
+           let pa = Langs.valid(p["partner"] as? String), mi != pa, (mi, pa) != (mineLang, partnerLang) {
+            mineLang = mi                      // gleiche Sprache auf beiden Seiten tauscht didSet weg
+            if partnerLang != pa { partnerLang = pa }
+        }
+        if let t = o["tr"] as? [String: Bool] {
+            for (k, v) in t where k != "en" && k != "th" && trByLang[k] ?? true != v { trByLang[k] = v }
+        }
+        if let vs = o["voices"] as? [String: String] {
+            for (k, v) in vs where k != "en" && k != "th" && voiceByLang[k] ?? "" != v { voiceByLang[k] = v }
+        }
         if let l = o["lang"] as? String, l != lang { lang = l }
         if let p = o["polite"] as? String, p != polite { polite = p }
         if let v = o["tr_en"] as? Bool, v != trEN { trEN = v }
@@ -1180,10 +1248,10 @@ final class EngineModel: NSObject, ObservableObject {
     }
 
     private func addUtterance(_ o: [String: Any], id: String?) {
-        let l = o["lang"] as? String ?? "en"
+        let l = o["lang"] as? String ?? Langs.mine
         let translated = o["translated"] as? Bool ?? true
         var u = Utterance(uid: id, translated: translated, speaker: o["speaker"] as? String, lang: l,
-                          to: o["to"] as? String ?? (translated ? (l == "en" ? "th" : "en") : l),
+                          to: o["to"] as? String ?? (translated ? Langs.target(l) : l),
                           text: o["text"] as? String ?? "", out: o["out"] as? String ?? "",
                           stt: o["stt"] as? Double ?? 0, tr: o["tr"] as? Double ?? 0,
                           lp: o["lp"] as? Double, provider: o["provider"] as? String,
@@ -1201,7 +1269,7 @@ final class EngineModel: NSObject, ObservableObject {
             if u.speaker == nil { u.speaker = items[i].speaker }
             // Korrektur: geänderte Wörter als Vokabular vorschlagen (nur fragen, nie automatisch speichern)
             if let sv = o["suggest_vocab"] as? [String], !sv.isEmpty,
-               let target = items[i].speaker ?? (l == "en" ? rolesMe : nil) {
+               let target = items[i].speaker ?? (l == Langs.meLang ? rolesMe : nil) {
                 vocabSuggestion = (Array(sv.prefix(10)), target)
             }
             items[i] = u
@@ -1343,7 +1411,7 @@ final class EngineModel: NSObject, ObservableObject {
         guard !u.pending, !u.out.isEmpty else { return }
         // Läuft die Engine und spricht sie (nicht stumm): gleiche Neural-Stimme wie beim ersten Mal.
         // Die Engine hört ihre eigene Ausgabe nicht mit – keine Pause nötig.
-        if running && engineReady && speak && ["en", "th"].contains(u.to) {
+        if running && engineReady && speak && Langs.pair.contains(u.to) {
             // laufende lokale Wiedergabe abbrechen; ihr didCancel setzt eine eigene Pause verzögert fort
             if synth.isSpeaking { synth.stopSpeaking(at: .immediate) }
             send(["stop_speaking": true])
@@ -1357,7 +1425,7 @@ final class EngineModel: NSObject, ObservableObject {
         if synth.isSpeaking { synth.stopSpeaking(at: .immediate) }
         if speakingNow { send(["stop_speaking": true]) }   // sonst sprechen Engine und Wiedergabe gleichzeitig
         let s = AVSpeechUtterance(string: u.out)
-        let code = u.to == "th" ? "th-TH" : "en-US"
+        let code = Langs.bcp47(u.to)
         guard let voice = AVSpeechSynthesisVoice(language: code) else {
             // Ohne installierte Stimme spräche AVSpeech Thai mit einer fremden Stimme (Stille oder Unsinn).
             status = L.t(u.to == "th" ? "no_thai_voice" : "no_voice")
@@ -1397,6 +1465,7 @@ final class EngineModel: NSObject, ObservableObject {
     /// im Speicher stehen. API-Schlüsseldatei, Glossar, Stimmprofile und Verlauf bleiben unberührt.
     func resetAllSettings() {
         speak = true; trEN = true; trTH = true; polite = "krub"; lang = "auto"
+        mineLang = Langs.defaultMine; partnerLang = Langs.defaultPartner; trByLang = [:]; voiceByLang = [:]
         rate = 0; volume = 1.0; voiceEN = ""; voiceTH = ""
         silence = 0.8; sensitivity = "normal"; earcons = false; llmStyle = "casual"; llm = true
         ttsRace = 1.4; fastEndpoint = false; twoPerson = true; partialText = false

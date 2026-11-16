@@ -10,6 +10,26 @@ Deshalb kann `thinking` für Satz 2 kommen, während Satz 1 noch `speaking` ist.
 Jede Äußerung hat eine `id` (String, z. B. `"u7"`). Die App darf den Status „spricht“ nur über
 `speaking`/`speak_done` setzen bzw. zurücksetzen, **nicht** über `listening`.
 
+## Sprachpaar (mehrsprachig)
+
+Die Engine dolmetscht zwischen **zwei** Sprachen: „meine Sprache“ (`mine`, Rolle „ich“) und „Partnersprache“
+(`partner`). Standard ist `en` + `th` – ohne Angabe verhält sich alles wie früher. Die Erkennung wählt nur
+zwischen den zwei Sprachen des Paars; andere Sprachen gelten als `other_language`.
+
+- Start: `--langs MEINE,PARTNER` (z. B. `--langs de,th`), zur Laufzeit `{"langs": {"mine": "de", "partner": "th"}}`.
+  Ungültig (unbekannter Code, zweimal dieselbe Sprache): `error` `langs_invalid`, das Paar bleibt (beim Start: `en,th`).
+- Bestätigung: Ereignis `langs` (`mine`, `partner`); `ready` und `command` tragen `langs` ebenfalls.
+- Codes (Sprachtabelle `LANGS` in `dolmetscher.py`): `en` `th` `de` `es` `fr` `it` `pt` `nl` `ru` `zh` `ja` `ko`
+  `vi` `id` `ar` `hi` `tr` `pl` `uk`. Ereignisse tragen weiter `lang`/`to` als Code.
+- Thai-Sonderlogik (ครับ/ค่ะ nach `polite`, 555 = Lachen, Thai-Füllwörter, Thai-Zahlwörter, Thai-Satztrennung,
+  asiatische Erkennungs-Labels zählen als Thai, Thai-Modell) greift nur mit Thai im Paar.
+- Sprachbefehle („Translator, …“) sind Englisch und werden **nur mit Englisch im Paar** ausgewertet. Neben
+  „Thai only“/„English only“ versteht die Engine die englischen Namen der Tabelle („German only“, „Spanish off“).
+- Zwei-Personen-Modus und Stimmprofile: Profile werden weiter auf Englisch oder Thai angelegt (`--enroll-lang`).
+  Rolle „ich“ (englisches Profil) = Englisch, wenn Englisch im Paar ist, sonst meine Sprache; „other“ = die andere.
+- Schrift-Plausibilität (Übersetzung „unübersetzt“ oder in falscher Schrift) nur bei Sprachen mit getrennter
+  Schrift (en/th, de/ja, es/ru …); bei gleicher Schrift (de/es, ru/uk, zh/ja) entfällt sie.
+
 ## Startargumente
 
 Die Tabelle wird per Test (`tests/test_protocol_docs.py`) mit `argparse` abgeglichen: jedes Argument muss
@@ -22,12 +42,14 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `--mic INDEX\|NAME\|default` | `0` | Mikrofon: Index aus `--list-mics`, besser der **Name** (Indizes verschieben sich, sobald AirPods/USB-Mikros dazukommen; der Name wird erst beim Öffnen auf den aktuellen Index abgebildet). Unbekannter Name: `error` `mic_not_found`, Standardmikrofon |
 | `--list-mics` | | gibt `{"event":"mics","mics":[{"index":"0","name":"MacBook Pro Microphone"}]}` aus und beendet sich; bei Fehler (ffmpeg fehlt/hängt) zuerst `error` (`mic_list_failed`), dann `mics` mit leerer Liste |
 | `--polite krub\|ka` | `krub` | Höflichkeitswort/Stimme Thai |
-| `--lang auto\|en\|th` | `auto` | Sprach-Sperre |
+| `--langs MEINE,PARTNER` | `en,th` | Sprachpaar (siehe „Sprachpaar“) |
+| `--lang auto\|CODE` | `auto` | Sprach-Sperre auf eine Sprache des Paars (sonst `auto`) |
 | `--tts edge\|say` | `edge` | Neural-Stimme (edge-tts) oder macOS `say` |
 | `--file DATEI …` | | Dateien statt Mikrofon übersetzen (Test/Benchmark); lange Dateien werden an leisen Stellen in Stücke bis 30 s geteilt, eine kaputte Datei ergibt `error` (`file_empty`/`file_failed`) und bricht die übrigen nicht ab |
 | `--mute` | | nicht vorlesen |
 | `--json` | | Ereignisse als JSON-Zeilen (App), Steuerung über stdin |
 | `--no-en`, `--no-th` | | Englisch bzw. Thai nicht übersetzen (nur anzeigen) |
+| `--no-mine`, `--no-partner` | | meine Sprache bzw. Partnersprache nicht übersetzen (nur anzeigen) |
 | `--profiles` | | Stimmprofile als `profiles` ausgeben |
 | `--enroll NAME`, `--enroll-lang en\|th` | `en` | Stimmprofil anlegen (8 Sätze vorlesen) |
 | `--delete-profile NAME` | | Stimmprofil löschen (`profile_deleted`) |
@@ -42,6 +64,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `--sensitivity low\|normal\|high` | `normal` | Empfindlichkeit der Sprach-Erkennung (VAD) |
 | `--denoise` | | Rauschunterdrückung im Mikrofon-Filter |
 | `--voice-en NAME`, `--voice-th NAME` | | Neural-Stimme (z. B. `en-US-JennyNeural`, `th-TH-PremwadeeNeural`); ohne Angabe: Englisch `en-US-AriaNeural`, Thai nach `--polite` |
+| `--voice-mine NAME`, `--voice-partner NAME` | | Neural-Stimme für meine Sprache bzw. die Partnersprache (aus `LANGS`); ohne Angabe: Partnersprache nach `--polite` (Mann/Frau), meine Sprache Frauenstimme, Englisch Aria |
 | `--llm` | | Übersetzung mit Claude (braucht API-Schlüssel, sonst automatisch Google) |
 | `--llm-model ID` | `claude-haiku-5-5` | günstig und schnell; `claude-sonnet-5-5` genauer |
 | `--style casual\|neutral\|polite` | `casual` | Ton der Claude-Übersetzung |
@@ -78,7 +101,8 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 |---|---|---|
 | `loading` | `msg`, `download` (optional, true: Modell wird einmalig heruntergeladen, kann Minuten dauern) | |
 | `llm_cost` | `usd` | geschätzte Claude-Kosten der Sitzung (nach Preisliste) |
-| `ready` | `msg`, `device`, `llm` (bool: Claude aktiv), `protocol`, `engine_version`; optional `degraded` (Liste: `detect_model`, `thai_model` – Modell nicht geladen, Erkennung läuft schwächer über das Hauptmodell) | |
+| `ready` | `msg`, `device`, `llm` (bool: Claude aktiv), `protocol`, `engine_version`, `langs` (`{"mine", "partner"}`); optional `degraded` (Liste: `detect_model`, `thai_model` – Modell nicht geladen, Erkennung läuft schwächer über das Hauptmodell) | |
+| `langs` | `mine`, `partner` | Sprachpaar nach `{"langs": …}` geändert |
 | `listening` | | Mikrofon bereit; ändert den Sprech-Status nicht |
 | `hearing` | `id` (beim Mikrofon) | jemand spricht gerade; die `id` gilt für die ganze Äußerung |
 | `thinking` | `id` | Äußerung `id` wird erkannt/übersetzt → Platzhalter-Blase |
@@ -90,7 +114,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `queue` | `stt` (wartende Äußerungen), `tts` (wartende Ausgaben) | bei jeder Änderung |
 | `level` | `rms` (0…1, dBFS skaliert), `voice` (bool) | ~7×/s, nur mit `--meter` |
 | `net` | `ok` (bool), `what` (`translate`\|`tts`) | nur bei Zustandswechsel |
-| `command` | `text`, `reply`, `paused`, `lang`, `tr_en`, `tr_th`, `polite`, `rate`, `volume`, `voice_en`, `voice_th`; `clear` (true) nach „Translator, clear“ | App speichert `rate`/`volume` dauerhaft; bei `clear` Verlauf in der App leeren |
+| `command` | `text`, `reply`, `paused`, `lang`, `tr_en`, `tr_th`, `polite`, `rate`, `volume`, `voice_en`, `voice_th` (fehlende Sprache: `true`/`""`), `langs` (`{"mine", "partner"}`), `tr` und `voices` (Code → Wert, je Sprache des Paars); `clear` (true) nach „Translator, clear“ | App speichert `rate`/`volume` dauerhaft; bei `clear` Verlauf in der App leeren |
 | `error` | `msg` (deutscher Freitext), `code` (stabil, siehe unten; fehlt nur bei alten Meldungen) | |
 | `barge_in` | | |
 | `mics` | `mics` (Liste `{index, name}`) | Antwort auf `--list-mics`; die App sollte den **Namen** speichern |
@@ -105,8 +129,8 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 |---|---|---|
 | `too_short` | zu kurz | unter 0,3 s Sprache |
 | `command` | befehl | Sprachbefehl erkannt (Antwort kommt als `command`) |
-| `other_language` | weder Englisch noch Thai | Geräusch, Musik, andere Sprache |
-| `locked` | nur Thai aktiv / nur Englisch aktiv | Sprach-Sperre |
+| `other_language` | weder Englisch noch Thai (bzw. die Namen des Paars) | Geräusch, Musik, andere Sprache |
+| `locked` | nur Thai aktiv / nur Englisch aktiv / nur Deutsch aktiv … | Sprach-Sperre |
 | `paused` | pausiert | „Translator, pause“ aktiv |
 | `unsure` | unsicher | Erkennung zu unsicher; mit `text`, `lang`, `lp` (App bietet „Trotzdem übersetzen“ per `retranslate` mit dieser `id` an) |
 | `hallucination` | halluzination (…) | typische Whisper-Erfindung |
@@ -130,6 +154,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `phrase_invalid`, `edit_invalid`, `speak_invalid` | Schnellsatz, Korrektur bzw. Vorlesen (`speak_text`) ungültig |
 | `profiles_failed` | Stimmprofile/Sprechermodell nicht ladbar – Stimmerkennung aus; `msg` nennt die Ursache |
 | `voice_unknown`, `glossary_invalid` | Steuerwert ungültig |
+| `langs_invalid` | Sprachpaar ungültig (unbekannter Code oder zweimal dieselbe Sprache); Paar unverändert |
 | `file_empty`, `file_failed` | `--file`: keine Audiodaten / Datei nicht lesbar |
 
 ### Reihenfolge und Garantien
@@ -144,12 +169,13 @@ hier stehen, Standardwerte in der Spalte „Standard“.
   Ab 3 wartenden Äußerungen spart die Engine Zusatz-Läufe (zweite Sprachprüfung, zweite Thai-Lesart).
 - Sprachbefehle nimmt die Engine nicht von der Partner-Stimme an (`role` `other` bei Stimmprofil).
   Nach „Translator“ gilt ein Folgesatz (höchstens 4 Wörter) 6 s lang als Befehl – ab Ende des „Yes?“.
-- `say`/`retranslate`: Ist der Text klar Thai geschrieben (bzw. klar lateinisch bei `lang: "th"`), korrigiert
-  die Engine `lang`.
+- `say`/`retranslate`: Ist der Text klar in der eigenen Schrift einer Paarsprache geschrieben (Thai, Japanisch,
+  Russisch …; bzw. klar in der Schrift der anderen bei `lang` = so eine Sprache), korrigiert die Engine `lang`.
+  Bei gleicher Schrift (de/es) gilt die Angabe der App.
 
 ## Steuerung (stdin)
 
-Grundfelder: `tr_en`, `tr_th` (bool), `lang` (`auto`\|`en`\|`th`), `polite` (`krub`\|`ka`), `speak` (bool, false = stumm), `paused` (bool), `listen` (bool, siehe unten), `ping`.
+Grundfelder: `langs` (`{"mine": CODE, "partner": CODE}`, zuerst angewandt), `tr_en`, `tr_th` (bool; allgemein `tr_<code>` für jede Sprache der Tabelle, `tr_mine`, `tr_partner`), `lang` (`auto` oder eine Sprache des Paars), `polite` (`krub`\|`ka`), `speak` (bool, false = stumm), `paused` (bool), `listen` (bool, siehe unten), `ping`.
 
 Neu:
 
@@ -159,16 +185,16 @@ Neu:
 | `volume` | float | Lautstärke |
 | `silence` | float | Satzende-Pause |
 | `sensitivity` | `low\|normal\|high` | VAD-Schwellen |
-| `voice_en`, `voice_th` | string | Stimme (leer = Standard) |
+| `voice_en`, `voice_th` | string | Stimme (leer = Standard); allgemein `voice_<code>` für jede Sprache der Tabelle |
 | `llm` | bool | Claude-Übersetzung an/aus |
 | `style` | `casual`\|`neutral`\|`polite` | Ton der Claude-Übersetzung |
 | `glossary` | string | eigene Wörter, eine Zeile `Wort => Übersetzung` oder nur `Name` |
 | `earcons` | bool | Signaltöne statt Sprache bei Befehlen |
 | `stop_speaking` | true | laufende und wartende Ausgaben abbrechen |
-| `say` | `{"text": "...", "lang": "en"\|"th"}` | Schnellsatz: übersetzen und vorlesen wie eine Äußerung (`source: "phrase"`) |
+| `say` | `{"text": "...", "lang": CODE}` (Sprache des Paars, Standard `en`) | Schnellsatz: übersetzen und vorlesen wie eine Äußerung (`source: "phrase"`) |
 | `retranslate` | `{"id": "u7", "text": "korrigierter Text", "lang": "en"\|"th"}` | neu übersetzen und vorlesen; `utt` kommt mit `replaces: "u7"`, `source: "edit"` |
-| `speak_text` | `{"text": "...", "lang": "en"\|"th", "id": "u7"}` | fertigen Text nur vorlesen (Neural-Stimme, keine Übersetzung) – „Nochmal sprechen“; `id` optional, dann kommen `speaking`/`speak_done` mit dieser id (ohne `latency_s`). Ungültig: `error` `speak_invalid`. Nicht verwechseln mit `speak` (bool, stumm schalten) |
-| `reassign` | `{"id": "u7", "role": "me"\|"other"}` | „Das war ich/Partner“: Satz in der Sprache dieser Person (ich = Englisch, Partner = Thai) neu erkennen und übersetzen; `utt` kommt mit `replaces: "u7"`, `source: "reassign"`, `role`. Führt den Stimmabdruck des Profils nach (Gewicht 0,15). Behalten werden die letzten 30 Sätze |
+| `speak_text` | `{"text": "...", "lang": CODE (Sprache des Paars), "id": "u7"}` | fertigen Text nur vorlesen (Neural-Stimme, keine Übersetzung) – „Nochmal sprechen“; `id` optional, dann kommen `speaking`/`speak_done` mit dieser id (ohne `latency_s`). Ungültig: `error` `speak_invalid`. Nicht verwechseln mit `speak` (bool, stumm schalten) |
+| `reassign` | `{"id": "u7", "role": "me"\|"other"}` | „Das war ich/Partner“: Satz in der Sprache dieser Person (ich = Englisch bzw. meine Sprache, Partner = die andere Sprache des Paars) neu erkennen und übersetzen; `utt` kommt mit `replaces: "u7"`, `source: "reassign"`, `role`. Führt den Stimmabdruck des Profils nach (Gewicht 0,15). Behalten werden die letzten 30 Sätze |
 
 ## Tempo-Ausbau (Branch feat/tempo)
 
