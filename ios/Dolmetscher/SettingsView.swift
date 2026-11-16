@@ -106,6 +106,8 @@ struct SettingsView: View {
                     Toggle(T("background"), isOn: $m.background)
                     Toggle(T("headset"), isOn: $m.headset)
                     Toggle(T("thai_speaker"), isOn: $m.thaiOnSpeaker)
+                    Toggle(T("ptt"), isOn: $m.pushToTalk)
+                    Toggle(T("live_activity"), isOn: $m.liveActivity)
                 } header: { Text(T("sec_listening")) } footer: { Text(T("listening_note")) }
 
                 privacySection
@@ -141,6 +143,7 @@ struct SettingsView: View {
     private var translationSection: some View {
         @Bindable var m = m
         return Section {
+            NavigationLink { TravelPrepList().environment(\.inPanel, true) } label: { Label(T("prep_title"), systemImage: "checklist") }
             if m.offlineReady {
                 Label(T("offline_ready"), systemImage: "checkmark.circle.fill").foregroundStyle(.green)
             } else {

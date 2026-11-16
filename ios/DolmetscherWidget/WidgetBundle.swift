@@ -1,4 +1,4 @@
-// WidgetBundle.swift – Erweiterung für Home-Bildschirm, Kontrollzentrum und Live-Aktivität.
+// WidgetBundle.swift – Erweiterung: Schnellsätze-Widget, Steuerelement im Kontrollzentrum, Live-Aktivität.
 import SwiftUI
 import WidgetKit
 
@@ -6,18 +6,20 @@ import WidgetKit
 struct DolmetscherWidgets: WidgetBundle {
     var body: some Widget {
         QuickPhrasesWidget()
+        StartControl()
+        ListeningLiveActivity()
     }
 }
 
-struct QuickPhrasesWidget: Widget {
-    var body: some WidgetConfiguration {
-        StaticConfiguration(kind: "QuickPhrases", provider: Placeholder()) { _ in Text("Dolmetscher") }
+/// Steuerelement „Dolmetscher starten“ (Kontrollzentrum, Sperrbildschirm, Aktionstaste).
+struct StartControl: ControlWidget {
+    var body: some ControlWidgetConfiguration {
+        StaticControlConfiguration(kind: "io.github.dolmetscher.start") {
+            ControlWidgetButton(action: StartInterpreterIntent()) {
+                Label(WidgetTexts.text("w_start"), systemImage: "mic.fill")
+            }
+        }
+        .displayName(LocalizedStringResource(stringLiteral: WidgetTexts.text("w_start")))
+        .description(LocalizedStringResource(stringLiteral: WidgetTexts.text("w_start_d")))
     }
-}
-
-struct Placeholder: TimelineProvider {
-    struct E: TimelineEntry { var date = Date() }
-    func placeholder(in context: Context) -> E { E() }
-    func getSnapshot(in context: Context, completion: @escaping (E) -> Void) { completion(E()) }
-    func getTimeline(in context: Context, completion: @escaping (Timeline<E>) -> Void) { completion(Timeline(entries: [E()], policy: .never)) }
 }
