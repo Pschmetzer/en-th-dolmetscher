@@ -101,6 +101,7 @@ struct ContentView: View {
         switch m.phase {
         case .idle: return T("idle")
         case .loading:
+            if m.whisperPreparing { return T("whisper_preparing") }
             guard let d = m.download else { return T("loading") }
             return "\(T("downloading")) \(LangStyle.flag(d.lang)) \(Int(d.fraction * 100)) %"
         case .failed(let e): return "⚠️ " + e

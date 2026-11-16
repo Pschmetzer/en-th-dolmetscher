@@ -6,6 +6,7 @@ import Translation
 struct SettingsView: View {
     @Environment(InterpreterModel.self) private var m
     @Environment(\.dismiss) private var dismiss
+    @State private var whisper = WhisperStore.shared
     @State private var download: TranslationSession.Configuration?
 
     var body: some View {
@@ -53,6 +54,41 @@ struct SettingsView: View {
                 } header: { Text(T("sec_translation")) } footer: { Text(T("online_note")) }
 
                 Section {
+                    Toggle(T("whisper_use"), isOn: $whisper.enabled)
+                    if whisper.enabled {
+                        Picker(T("whisper_model"), selection: $whisper.selected) {
+                            ForEach(whisper.choices, id: \.self) { v in
+                                Text(WhisperCatalog.label(v) + Self.size(v)).tag(v)
+                            }
+                        }
+                        .disabled(whisper.downloading)
+                        if let p = whisper.progress {
+                            HStack {
+                                ProgressView(value: p)
+                                Button(T("whisper_cancel")) { whisper.cancel() }.buttonStyle(.borderless)
+                            }
+                        } else if whisper.ready == whisper.selected {
+                            Label(T("whisper_installed"), systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+                        } else {
+                            Button { whisper.download() } label: {
+                                Label(T("whisper_get") + Self.size(whisper.selected), systemImage: "arrow.down.circle")
+                            }
+                        }
+                        if let e = whisper.error { Text("⚠️ " + e).font(.footnote).foregroundStyle(.red) }
+                        if whisper.ready != nil {
+                            Button(T("whisper_delete"), role: .destructive) { whisper.deleteAll() }
+                                .disabled(whisper.downloading)
+                        }
+                    }
+                } header: { Text(T("sec_recognition")) } footer: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(T("whisper_note"))
+                        if whisper.enabled { Text(T("whisper_wifi")) }
+                        if whisper.enabled && m.background { Text(T("whisper_bg_warn")).foregroundStyle(.orange) }
+                    }
+                }
+
+                Section {
                     Picker(T("auto_stop"), selection: $m.autoStopMinutes) {
                         Text(T("never")).tag(0)
                         Text("5 min").tag(5)
@@ -94,6 +130,10 @@ struct SettingsView: View {
             }
             .task { await m.refreshOffline() }
         }
+    }
+
+    private static func size(_ variant: String) -> String {
+        WhisperCatalog.sizeMB(variant).map { " (~\($0) MB)" } ?? ""
     }
 
     private func voiceRow(_ lang: Lang) -> some View {
