@@ -12,7 +12,8 @@ Current version: 1.2 (the single source is `version` in `pyproject.toml`; `build
 - Asynchronous output: the next sentence is recognised and translated while the previous one is still being spoken. If too much piles up, the engine catches up by skipping older translations (they stay visible, just not read aloud)
 - Latency: a few seconds after the end of each sentence; on the Apple GPU roughly 3–5 s (earlier hand measurement), CPU only clearly slower (benchmark `medium` on CPU, synthetic voices, Nov 2026: median 6.8 s, p90 8.5 s until the translation is ready; see [bench/README.md](bench/README.md))
 - Quiet speech: Silero voice activity detection plus input gain, so soft voices are picked up too
-- Only English and Thai: other languages (and noise) are ignored. An Auto / EN / TH picker locks the language if needed
+- One language pair at a time: by default English and Thai; other languages (and noise) are ignored. An Auto / EN / TH picker locks the language if needed
+- **Other languages** (new): pick *My language* and *Partner's language* in the settings (or `--langs de,th`). Supported: English, Thai, German, Spanish, French, Italian, Portuguese, Dutch, Russian, Chinese (Mandarin), Japanese, Korean, Vietnamese, Indonesian, Arabic, Hindi, Turkish, Polish, Ukrainian – every pair, e.g. German ⇄ Thai or Spanish ⇄ Japanese. Detection still only chooses between the two languages of the pair. Without a choice nothing changes (English ⇄ Thai). Thai-specific features (ครับ/ค่ะ politeness, 555 laughter, Thai number words, the Thai Whisper model) only apply when Thai is in the pair. Voice commands are English and only work when English is in the pair. Voice profiles are still recorded in English or Thai. Quality for the new languages is untested on real speakers (recognition thresholds are not calibrated yet); the voice list was checked against `edge-tts --list-voices` (Nov 2026)
 - Log for troubleshooting: `~/Library/Logs/Dolmetscher/engine.log`. Privacy: conversation text is **not** written to the log by default (`--log-text` turns it on)
 
 ## Translation with Claude (optional)
@@ -21,7 +22,7 @@ Current version: 1.2 (the single source is `version` in `pyproject.toml`; `build
 
 ## Mac app settings
 
-- **Microphone** (`--mic`, list with `--list-mics`), **speaking rate** (`--rate`, −50 … 50 %), **volume** (`--volume`, 0.2 … 2.0), **voices** for English and Thai (`--voice-en`, `--voice-th`)
+- **Microphone** (`--mic`, list with `--list-mics`), **speaking rate** (`--rate`, −50 … 50 %), **volume** (`--volume`, 0.2 … 2.0), **language pair** (`--langs MINE,PARTNER`), **voices** per language (`--voice-en`, `--voice-th`, for other pairs `--voice-mine`, `--voice-partner`)
 - **Pause at end of sentence** (`--silence`, 0.4 … 2.0 s), **sensitivity** (`--sensitivity low|normal|high`), **noise suppression** (`--denoise`)
 - **Earcons**: a short tone instead of a spoken confirmation for voice commands (`--earcons`)
 - **Push-to-talk**, **menu bar** icon, global shortcuts **⌃⌥D** start/stop (⌃⌥Space is the macOS input-source switch) and **⌃⌥P** pause
@@ -43,7 +44,7 @@ Current version: 1.2 (the single source is `version` in `pyproject.toml`; `build
 
 ## Voice commands
 
-Talk to it like Siri: start with **"Translator, …"** (or "Hey translator, …"). Commands are spoken in English and are never translated; in noise or with a strong accent a command can be misheard. In the app the list is shown in the empty conversation and behind the speech-bubble button in the toolbar.
+Talk to it like Siri: start with **"Translator, …"** (or "Hey translator, …"). Commands are spoken in English and are never translated, and they only work when English is one of the two languages of the pair. Besides Thai/English, the English language names work too ("Translator, German only", "Translator, Spanish off"); in noise or with a strong accent a command can be misheard. In the app the list is shown in the empty conversation and behind the speech-bubble button in the toolbar.
 
 | Say | Effect |
 |---|---|
