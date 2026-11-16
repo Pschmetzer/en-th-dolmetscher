@@ -359,13 +359,81 @@ JSON = False
 
 
 _EMIT_LOCK = threading.RLock()     # RLock: der Signal-Handler (Stopp) darf auch emit aufrufen
+# Ausgabe entkoppelt (nur im App-Betrieb, start_writer): emit() reiht die fertige JSON-Zeile ein, ein eigener
+# Thread schreibt. Liest die App die Pipe nicht, blockiert so nur der Writer – nie Erkennung, Steuerung
+# oder Stopp. Volle Warteschlange: Pegel/Teiltext zuerst verwerfen, gezählt.
+_OUT = {"q": None, "thread": None, "dropped": 0}
+OUT_MAX = 2000
+_OUT_LOSSY = frozenset({"level", "partial", "queue"})
 
 
 def emit(event, **kw):
     with _EMIT_LOCK:                   # Mikrofon- und Arbeits-Thread schreiben beide
-        _emit(event, **kw)
+        if _OUT["q"] is not None and JSON:
+            _record(event, kw)
+            _enqueue(event, _json_line(event, kw))
+        else:
+            _emit(event, **kw)
     if event == "speak_done" and kw.get("id") == "cmd":
         _wake_after_reply()
+
+
+def _enqueue(event, line):
+    q = _OUT["q"]
+    try:
+        q.put_nowait(line)
+    except queue.Full:
+        _OUT["dropped"] += 1
+        if event in _OUT_LOSSY:
+            return
+        try:                           # wichtiges Ereignis: lieber die älteste Zeile opfern
+            q.get_nowait()
+            q.task_done()
+            q.put_nowait(line)
+        except (queue.Empty, queue.Full):
+            pass
+
+
+def _writer_run(q, out=None):
+    while True:
+        line = q.get()
+        try:
+            if line is None:
+                return
+            f = out or sys.stdout
+            f.write(line + "\n")
+            f.flush()
+        except BrokenPipeError:        # App weg: geordnet beenden, Warteschlange weiter leeren
+            STOP.set()
+        except (ValueError, OSError):
+            STOP.set()
+        finally:
+            q.task_done()
+
+
+def start_writer():
+    """Ausgabe-Thread starten (App-Betrieb). Danach blockiert emit() nie mehr auf stdout."""
+    if _OUT["q"] is None:
+        _OUT["q"] = queue.Queue(maxsize=OUT_MAX)
+        _OUT["thread"] = threading.Thread(target=_writer_run, args=(_OUT["q"],), name="writer", daemon=True)
+        _OUT["thread"].start()
+        import atexit
+        atexit.register(flush_output)           # Absturz/sys.exit: letzte Meldungen (z. B. error) nicht verlieren
+
+
+def flush_output(timeout=1.5):
+    """Vor dem Beenden: eingereihte Zeilen höchstens `timeout` s lang ausgeben lassen (hängt nie)."""
+    q = _OUT["q"]
+    if q is None:
+        try:
+            sys.stdout.flush()
+        except (OSError, ValueError):
+            pass
+        return True
+    end = time.monotonic() + timeout
+    while q.unfinished_tasks and time.monotonic() < end:
+        time.sleep(0.01)
+    return not q.unfinished_tasks
 
 
 def _json_default(o):
@@ -379,12 +447,27 @@ def _json_default(o):
     return str(o)
 
 
+def _json_line(event, kw):
+    return json.dumps({"event": event, **kw}, ensure_ascii=False, default=_json_default)
+
+
+def _record(event, kw):
+    """Verlauf (nur wenn eingeschaltet). Ein Fehler (Platte voll, DB gesperrt) darf die Meldung an die App
+    nicht verhindern."""
+    if event != "utt":
+        return
+    try:
+        import history_store
+        history_store.RECORDER.utt(kw)
+    except Exception as e:
+        log({"history": "fehler", "err": _errtxt(e)})
+
+
 def _emit(event, **kw):
-    if event == "utt":
-        import history_store; history_store.RECORDER.utt(kw)       # nur wenn eingeschaltet (Standard: aus)
+    _record(event, kw)
     if JSON:
         try:
-            print(json.dumps({"event": event, **kw}, ensure_ascii=False, default=_json_default), flush=True)
+            print(_json_line(event, kw), flush=True)
         except BrokenPipeError:                       # App weg (Pipe zu): geordnet beenden statt Thread-Absturz
             STOP.set()
         except ValueError:
@@ -4377,10 +4460,21 @@ def shutdown(*_):
     STOP.set()
     if not _LOOP["on"]:
         cleanup()
+        flush_output()
         sys.exit(0)
 
 
+def _utf8_stdio():
+    """Ohne UTF-8-Locale (App-Start ohne LANG) würde print bei Thai einen UnicodeEncodeError werfen."""
+    for f in (sys.stdout, sys.stderr):
+        try:
+            f.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError, OSError):
+            pass
+
+
 if __name__ == "__main__":
+    _utf8_stdio()
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default="medium", help="small | medium | best (large-v3-turbo für Englisch"
                     " + Thai-Modell) | auto (nach Chip/RAM)")
@@ -4480,6 +4574,8 @@ if __name__ == "__main__":
             mics = []
         emit("mics", mics=mics)
         sys.exit(0)
+    if JSON:
+        start_writer()                          # ab hier blockiert keine Ausgabe mehr Erkennung oder Stopp
     SILENCE_END = max(0.4, min(2.0, a.silence))
     TTS_RACE = max(0.0, min(5.0, a.tts_race))
     FAST.update(pre=not a.no_pre, endpoint=a.fast_endpoint, partial=a.partial)
@@ -4551,5 +4647,5 @@ if __name__ == "__main__":
         work_loop(eng, jobs, speak=True)
         log({"engine": "beendet geordnet"})
         cleanup()
-        sys.stdout.flush()
+        flush_output()
         os._exit(0)                             # keine verwaisten Threads/Kindprozesse

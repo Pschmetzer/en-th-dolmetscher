@@ -172,6 +172,10 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 - `say`/`retranslate`: Ist der Text klar in der eigenen Schrift einer Paarsprache geschrieben (Thai, Japanisch,
   Russisch …; bzw. klar in der Schrift der anderen bei `lang` = so eine Sprache), korrigiert die Engine `lang`.
   Bei gleicher Schrift (de/es) gilt die Angabe der App.
+- stdout ist UTF-8 (unabhängig von der Locale). Mit `--json` schreibt ein eigener Thread: liest die App die
+  Pipe nicht, blockiert nur dieser, nie Erkennung oder Stopp. Läuft die Warteschlange (2000 Zeilen) voll,
+  fallen zuerst `level`/`partial`/`queue` weg, danach die ältesten Zeilen. Beim Beenden wartet die Engine
+  höchstens 1,5 s auf das Leeren.
 
 ## Steuerung (stdin)
 
