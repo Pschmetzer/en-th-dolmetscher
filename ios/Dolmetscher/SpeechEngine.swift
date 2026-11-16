@@ -48,6 +48,8 @@ protocol SpeechEngine: AnyObject, Sendable {
     /// Halbduplex: während der Sprachausgabe wird das Mikrofon verworfen (sonst übersetzt die App sich selbst).
     func setMuted(_ on: Bool)
     func setPause(_ seconds: Double)
+    /// Push-to-talk losgelassen: die laufende Äußerung sofort abschließen, ohne auf die Pause zu warten.
+    func flush()
 }
 
 /// Ein Erkenner für eine Sprache. Zeitachse = Sekunden des ihm zugeführten Audios.
@@ -240,9 +242,22 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
         var made: [LangRecognizer] = []
         do {
             let emit = emit
-            for l in langs {
-                made.append(try await LangRecognizer(lang: l, onDownload: { onDownload(l, $0) },
+            // Beide Erkenner gleichzeitig laden – halbiert die Startzeit im Automatik-Modus.
+            made = try await withThrowingTaskGroup(of: (Int, LangRecognizer).self) { g in
+                for (i, l) in langs.enumerated() {
+                    g.addTask {
+                        (i, try await LangRecognizer(lang: l, onDownload: { onDownload(l, $0) },
                                                      onError: { emit.yield(.failed($0)) }))
+                    }
+                }
+                var got: [(Int, LangRecognizer)] = []
+                do {
+                    for try await r in g { got.append(r) }
+                } catch {
+                    for (_, r) in got { await r.shutdown() }
+                    throw error
+                }
+                return got.sorted { $0.0 < $1.0 }.map(\.1)
             }
             try capture.checkInput()
         } catch {
@@ -275,6 +290,16 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
     }
 
     func setPause(_ seconds: Double) { queue.async { self.gate.pause = seconds } }
+
+    func flush() {
+        queue.async {
+            guard !self.muted, !self.recs.isEmpty else { return }
+            let heardSomething = self.gate.inUtterance || self.recs.contains { $0.peek() != nil }
+            if self.gate.inUtterance { self.emit.yield(.hearing(false)) }
+            self.gate.reset()
+            if heardSomething { self.endUtterance() }
+        }
+    }
 
     private func resetVAD() {
         if gate.inUtterance { emit.yield(.hearing(false)) }

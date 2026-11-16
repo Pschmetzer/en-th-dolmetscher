@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		D00000000000000000007001 /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = D00000000000000000009001 /* WhisperKit */; };
+		D00000000000000000007002 /* DolmetscherWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D0000000000000000000A003; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -18,21 +19,46 @@
 			remoteGlobalIDString = D0000000000000000000E001;
 			remoteInfo = Dolmetscher;
 		};
+		D0000000000000000000C003 = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D0000000000000000000F001;
+			proxyType = 1;
+			remoteGlobalIDString = D0000000000000000000E003;
+			remoteInfo = DolmetscherWidget;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D0000000000000000000D001 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				D00000000000000000007002 /* DolmetscherWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		D0000000000000000000A001 = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Dolmetscher.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0000000000000000000A002 = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DolmetscherTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D0000000000000000000A003 = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DolmetscherWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D0000000000000000000B001 = {isa = PBXFileSystemSynchronizedRootGroup; path = Dolmetscher; sourceTree = "<group>"; };
 		D0000000000000000000B002 = {isa = PBXFileSystemSynchronizedRootGroup; path = DolmetscherTests; sourceTree = "<group>"; };
+		D0000000000000000000B003 = {isa = PBXFileSystemSynchronizedRootGroup; path = Shared; sourceTree = "<group>"; };
+		D0000000000000000000B004 = {isa = PBXFileSystemSynchronizedRootGroup; path = DolmetscherWidget; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		D00000000000000000001001 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (D00000000000000000007001 /* WhisperKit in Frameworks */, ); runOnlyForDeploymentPostprocessing = 0; };
 		D00000000000000000001002 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		D00000000000000000001003 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -41,6 +67,8 @@
 			children = (
 				D0000000000000000000B001,
 				D0000000000000000000B002,
+				D0000000000000000000B003,
+				D0000000000000000000B004,
 				D00000000000000000002002,
 			);
 			sourceTree = "<group>";
@@ -50,6 +78,7 @@
 			children = (
 				D0000000000000000000A001,
 				D0000000000000000000A002,
+				D0000000000000000000A003,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -64,13 +93,16 @@
 				D00000000000000000003001,
 				D00000000000000000001001,
 				D00000000000000000004001,
+				D0000000000000000000D001 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				D0000000000000000000C004,
 			);
 			fileSystemSynchronizedGroups = (
 				D0000000000000000000B001,
+				D0000000000000000000B003,
 			);
 			name = Dolmetscher;
 			packageProductDependencies = (
@@ -101,6 +133,27 @@
 			productReference = D0000000000000000000A002;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		D0000000000000000000E003 = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D00000000000000000005004;
+			buildPhases = (
+				D00000000000000000003003,
+				D00000000000000000001003,
+				D00000000000000000004003,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				D0000000000000000000B003,
+				D0000000000000000000B004,
+			);
+			name = DolmetscherWidget;
+			productName = DolmetscherWidget;
+			productReference = D0000000000000000000A003;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -113,6 +166,7 @@
 				TargetAttributes = {
 					D0000000000000000000E001 = {CreatedOnToolsVersion = 26.0; };
 					D0000000000000000000E002 = {CreatedOnToolsVersion = 26.0; TestTargetID = D0000000000000000000E001; };
+					D0000000000000000000E003 = {CreatedOnToolsVersion = 26.0; };
 				};
 			};
 			buildConfigurationList = D00000000000000000005001;
@@ -143,6 +197,7 @@
 			targets = (
 				D0000000000000000000E001,
 				D0000000000000000000E002,
+				D0000000000000000000E003,
 			);
 		};
 /* End PBXProject section */
@@ -150,11 +205,13 @@
 /* Begin PBXResourcesBuildPhase section */
 		D00000000000000000004001 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		D00000000000000000004002 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		D00000000000000000004003 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		D00000000000000000003001 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		D00000000000000000003002 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		D00000000000000000003003 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -162,6 +219,11 @@
 			isa = PBXTargetDependency;
 			target = D0000000000000000000E001;
 			targetProxy = D0000000000000000000C001;
+		};
+		D0000000000000000000C004 = {
+			isa = PBXTargetDependency;
+			target = D0000000000000000000E003;
+			targetProxy = D0000000000000000000C003;
 		};
 /* End PBXTargetDependency section */
 
@@ -216,6 +278,10 @@
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Dolmetscher listens to what is said so it can translate it.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Pick a photo of a menu or sign so Dolmetscher can read and translate the text.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Speech is turned into text on this device so it can be translated.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your position is shown only on the emergency screen, so you can tell helpers where you are. It never leaves the iPhone.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -224,7 +290,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.dolmetscher.en-th.ios";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -245,6 +311,10 @@
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Dolmetscher listens to what is said so it can translate it.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Pick a photo of a menu or sign so Dolmetscher can read and translate the text.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Speech is turned into text on this device so it can be translated.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your position is shown only on the emergency screen, so you can tell helpers where you are. It never leaves the iPhone.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -253,7 +323,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.dolmetscher.en-th.ios";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -265,7 +335,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.dolmetscher.en-th.ios.tests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Dolmetscher.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Dolmetscher";
 			};
 			name = Debug;
@@ -278,8 +348,48 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.dolmetscher.en-th.ios.tests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Dolmetscher.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Dolmetscher";
+			};
+			name = Release;
+		};
+		D00000000000000000006007 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Widget-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Dolmetscher;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.dolmetscher.en-th.ios.widget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) WIDGET_EXT";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D00000000000000000006008 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Widget-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Dolmetscher;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.dolmetscher.en-th.ios.widget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) WIDGET_EXT";
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -289,6 +399,7 @@
 		D00000000000000000005001 = {isa = XCConfigurationList; buildConfigurations = (D00000000000000000006001, D00000000000000000006002, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 		D00000000000000000005002 = {isa = XCConfigurationList; buildConfigurations = (D00000000000000000006003, D00000000000000000006004, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 		D00000000000000000005003 = {isa = XCConfigurationList; buildConfigurations = (D00000000000000000006005, D00000000000000000006006, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		D00000000000000000005004 = {isa = XCConfigurationList; buildConfigurations = (D00000000000000000006007, D00000000000000000006008, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */

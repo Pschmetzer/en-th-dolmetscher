@@ -61,7 +61,8 @@ enum Commands {
         // sonst wäre „Translate: please stop here“ ein Befehl statt eines Satzes.
         if let r = rest(wakeFuzzy, text), r.split(whereSeparator: { $0.isWhitespace }).count <= 3,
            let k = parse(r), k != .wake { return k }
-        if awake, let k = parse(text), k != .wake { return k }
+        // Nach dem Weckwort allein nur kurze Sätze als Befehl – „A quiet room please“ ist keiner.
+        if awake, text.split(whereSeparator: { $0.isWhitespace }).count <= 3, let k = parse(text), k != .wake { return k }
         return nil
     }
 }
