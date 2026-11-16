@@ -257,24 +257,41 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
         let duration = Double(job.samples.count) / Resampler16k.rate
         let rms = job.samples.isEmpty ? 0 : (job.samples.reduce(0) { $0 + $1 * $1 } / Float(job.samples.count)).squareRoot()
         do {
-            var lang = langs.first ?? .en
-            if langs.count > 1 {
-                let (_, probs) = try await kit.detectLangauge(audioArray: job.samples)
-                lang = WhisperLang.choose(probs: probs, langs: langs)
-                let shown = langs.map { "\($0.rawValue)=\(probs[$0.rawValue] ?? 0)" }.joined(separator: " ")
-                log.info("lang \(shown, privacy: .public) -> \(lang.rawValue, privacy: .public)")
+            func run(_ l: Lang) async throws -> [TranscriptionResult] {
+                let opts = DecodingOptions(language: l.rawValue, temperatureFallbackCount: 3,
+                                           usePrefillPrompt: true, detectLanguage: false, skipSpecialTokens: true,
+                                           withoutTimestamps: true, compressionRatioThreshold: 2.4,
+                                           logProbThreshold: -1.0, noSpeechThreshold: 0.6)
+                return try await kit.transcribe(audioArray: job.samples, decodeOptions: opts)
             }
-            let opts = DecodingOptions(language: lang.rawValue, temperatureFallbackCount: 3,
-                                       usePrefillPrompt: true, detectLanguage: false, skipSpecialTokens: true,
-                                       withoutTimestamps: true, compressionRatioThreshold: 2.4,
-                                       logProbThreshold: -1.0, noSpeechThreshold: 0.6)
-            let results = try await kit.transcribe(audioArray: job.samples, decodeOptions: opts)
+            func score(_ r: [TranscriptionResult]) -> Double {
+                let segs = r.flatMap(\.segments)
+                return segs.isEmpty ? -.infinity : segs.map { Double($0.avgLogprob) }.reduce(0, +) / Double(segs.count)
+            }
+            var lang = langs.first ?? .en
+            var results: [TranscriptionResult]
+            if langs.count > 1 {
+                let (top, probs) = try await kit.detectLangauge(audioArray: job.samples)
+                if let l = WhisperLang.choose(probs: probs, langs: langs) {
+                    lang = l
+                    results = try await run(l)
+                } else {
+                    // Keine Sprache des Paars erkannt (z. B. Lao statt Thai): jede probehalber erzwingen.
+                    var tries: [(Lang, [TranscriptionResult])] = []
+                    for l in langs { tries.append((l, try await run(l))) }
+                    lang = WhisperLang.best(scores: tries.map { ($0.0, score($0.1)) }) ?? lang
+                    results = tries.first { $0.0 == lang }?.1 ?? []
+                }
+                log.info("lang detected \(top, privacy: .public) -> \(lang.rawValue, privacy: .public)")
+            } else {
+                results = try await run(lang)
+            }
             let raw = results.map(\.text).joined(separator: " ")
             let segs = results.flatMap(\.segments)
             lang = WhisperLang.resolve(reported: results.first?.language, chosen: lang, langs: langs)
             guard let text = Hallucination.clean(raw, duration: duration, rms: rms,
                                                  compressionRatios: segs.map { Double($0.compressionRatio) }) else {
-                log.info("dropped: \(raw, privacy: .private)")
+                log.info("dropped \(lang.rawValue, privacy: .public): \(raw, privacy: .private)")
                 return
             }
             let conf = segs.isEmpty ? 0.5 : exp(segs.map { Double($0.avgLogprob) }.reduce(0, +) / Double(segs.count))
