@@ -8,9 +8,10 @@ def test_english_replacement():
     assert cl.suggest_vocab("send the invoice to the clinic", "send the invoice to the kliniq", "en") == ["kliniq"]
 
 
-def test_proper_names_numbers_units_skipped():
+def test_numbers_units_skipped_proper_names_kept():
+    # Nr. 209: Eigennamen sind die wertvollsten Vokabeln (früher fälschlich verworfen); "John" stand schon da
     out = cl.suggest_vocab("meet john at five", "meet John Smith at 5 kg tomorrow", "en")
-    assert out == ["tomorrow"]
+    assert out == ["Smith", "tomorrow"]
 
 
 def test_identical_and_empty():
