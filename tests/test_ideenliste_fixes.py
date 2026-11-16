@@ -114,3 +114,25 @@ def test_utf8_stdio_reconfigures(monkeypatch):
     d._utf8_stdio()
     print("สวัสดี", file=w, flush=True)
     assert buf.getvalue().decode("utf-8").strip() == "สวัสดี"
+
+
+# ---- Nr. 1, 2, 14: Sprachbefehle ohne Fehlalarm --------------------------------------------------------
+
+@pytest.mark.parametrize("cmd, expected", [
+    ("don't translate English this time", "en_off"),   # Nr. 1: "time" ist kein Thai
+    ("English off this time", "en_off"),
+    ("English only this time", "english"),
+    ("type only", "thai"),                               # Verhörer allein gilt weiter
+    ("Ty only", "thai"),
+    ("Thai off", "th_off"),
+    ("unmute", "resume"),                                # Nr. 2: nicht "pause"
+    ("un-mute", "resume"),
+    ("un mute please", "resume"),
+    ("unpause", "resume"),
+    ("mute", "pause"),
+    ("the bus is on time", None),                        # Nr. 14: Alltagssätze sind keine Befehle
+    ("see you next time", None),
+    ("what type is it", None),
+])
+def test_command_false_alarms(cmd, expected):
+    assert d.parse_command(cmd) == expected

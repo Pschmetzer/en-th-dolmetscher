@@ -216,6 +216,8 @@ COMMANDS = [
 
 
 THAI_WORDS = ("thai", "tie", "ty", "tai", "thigh", "time", "type")        # Thai + typische Verhörer
+# schwache Verhörer ("this time", "type") zählen erst, wenn weder Englisch noch eine andere Sprache genannt ist
+_THAI_WEAK = tuple(w for w in THAI_WORDS if w != "thai")
 CMD_MAX_WORDS = 5                  # längere Äußerungen sind Gespräch, kein Befehl
 # kurze Alltagswörter: nur als (fast) einzelnes Wort ein Befehl, sonst Fehlalarm in normalen Sätzen
 _WEAK_CMD = {"he", "she", "man", "men", "post", "pass", "start", "stop", "pose", "pals", "pours", "pores"}
@@ -238,21 +240,24 @@ def parse_command(cmd):
     if pk: return pk                   # "hotel mode" / "preset taxi" -> "preset:<id>"
     # weitere Sprachen der Tabelle über ihren englischen Namen ("German only", "Spanish off")
     other = next((k for k, v in LANGS.items() if k not in ("en", "th") and has(v["name"].lower())), None)
-    if has("off", "don't translate", "do not translate", "no translation", "keep"):
-        if has(*THAI_WORDS): return "th_off"
-        if has("english", "inglish"): return "en_off"
-        if other: return f"{other}_off"
-    if has("on") and not has("only"):
-        if has(*THAI_WORDS): return "th_on"
-        if has("english", "inglish"): return "en_on"
-        if other: return f"{other}_on"
-    if has("only", "mode"):
-        if has(*THAI_WORDS):
-            return "thai"
-        if has("english", "inglish"):
-            return "english"
-        if other:
-            return f"only:{other}"
+    # "unmute"/"un-mute"/"unpause": vor allem anderen, sonst trifft \bmute\b (Pause) – das Gegenteil
+    if re.search(r"\bun[\s-]?(?:mute|pause)\b", c):
+        return "resume"
+
+    def which():
+        """Genannte Sprache: "thai" vor Englisch/anderen, schwache Thai-Verhörer ("this time") zuletzt."""
+        if has("thai"): return "th"
+        if has("english", "inglish"): return "en"
+        if other: return other
+        if len(words) <= 3 and has(*_THAI_WEAK): return "th"     # "Ty only", nicht "bus on time today"
+        return None
+    lg = which()
+    if lg and has("off", "don't translate", "do not translate", "no translation", "keep"):
+        return f"{lg}_off"
+    if lg and has("on") and not has("only"):
+        return f"{lg}_on"
+    if lg and has("only", "mode"):
+        return {"th": "thai", "en": "english"}.get(lg, f"only:{lg}")
     if has("translate both", "both ways", "both directions", "translate everything"):
         return "both_on"
     if has("auto", "automatic", "both", "otto"):
@@ -265,6 +270,8 @@ def parse_command(cmd):
                 return key
     # Ähnlichkeit als letzte Rettung: ganze Äußerung und jedes Wort einzeln probieren
     for cand in dict.fromkeys([c, *words]):
+        if len(cand) < 4:              # "see" ~ "sleep" (0,75): kurze Wörter nie unscharf
+            continue
         hit = difflib.get_close_matches(cand, _VOCAB_KEYS, n=1, cutoff=0.75)
         if hit:
             return _VOCAB[hit[0]]
