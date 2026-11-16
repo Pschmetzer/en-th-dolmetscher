@@ -41,6 +41,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `--device auto\|mps\|cpu` | `auto` | Rechengerät (Apple-GPU, sonst CPU) |
 | `--mic INDEX\|NAME\|default` | `0` | Mikrofon: Index aus `--list-mics`, besser der **Name** (Indizes verschieben sich, sobald AirPods/USB-Mikros dazukommen; der Name wird erst beim Öffnen auf den aktuellen Index abgebildet). Unbekannter Name: `error` `mic_not_found`, Standardmikrofon |
 | `--output-device UID\|NAME\|INDEX` | `` | Ausgabegerät für alle Sprachausgaben (CoreAudio-UID bevorzugt, sonst Name oder Index; leer = Systemstandard). Unbekannt: `error` `output_not_found`, Systemstandard |
+| `--offline-translator [PFAD]` | | Offline-Übersetzung ohne Netz über `translate-helper` (Apple Translation, on-device): nur wenn Google/MyMemory wegen fehlenden Netzes scheitern und das Sprachpaar installiert ist (`provider: "apple"`, nicht gecacht). Ohne Pfad: `DOLMETSCHER_TRANSLATE_HELPER`, sonst `translate-helper` neben `dolmetscher.py`. Fehlt der Helfer: `error` `offline_mt_missing` |
 | `--list-mics` | | gibt `{"event":"mics","mics":[{"index":"0","name":"MacBook Pro Microphone"}]}` aus und beendet sich; bei Fehler (ffmpeg fehlt/hängt) zuerst `error` (`mic_list_failed`), dann `mics` mit leerer Liste |
 | `--polite krub\|ka` | `krub` | Höflichkeitswort/Stimme Thai |
 | `--langs MEINE,PARTNER` | `en,th` | Sprachpaar (siehe „Sprachpaar“) |
@@ -119,7 +120,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `thinking` | `id` | Äußerung `id` wird erkannt/übersetzt → Platzhalter-Blase |
 | `heard` | `id`, `lang`, `text`, `text_latin` (Thai, optional) | **neu:** erkannter Originaltext, sofort nach der Erkennung, noch vor der Übersetzung (Mikrofon und `reassign`). Die App füllt damit die Platzhalter-Blase; `utt` mit derselben `id` ergänzt die Übersetzung. Ältere Apps ignorieren das Ereignis |
 | `dropped` | `reason` (deutscher Freitext), `code` (stabil, siehe unten), `id`; bei `code` `unsure` zusätzlich `text`, `lang`, `lp`; bei `translate_failed` zusätzlich `text`, `lang` | Platzhalter `id` entfernen. Bei `unsure` kann die App den gehörten Text zeigen und „trotzdem übersetzen“ per `retranslate` anbieten, bei `translate_failed` „Erneut versuchen“ (ebenfalls `retranslate`) |
-| `utt` | `id`, `lang`, `to`, `text`, `out`, `stt`, `tr` (s), `lp` (Erkennungs-Konfidenz, log-prob, ≈ −0.1 sicher … −1.3 unsicher), `translated`, `provider` (`claude`\|`google`\|`mymemory`\|`none`), `speaker`, `replaces` (optional: id der korrigierten Blase), `source` (`mic`\|`phrase`\|`edit`\|`reassign`); optional: `text_latin`/`out_latin` (lesbare RTGS-Umschrift für Thai, nur mit pythainlp), `alts` (andere Lesarten), `role` (`me`\|`other`), `num_warn` (Ziffern weichen ab), `ready_s`, `suggest_vocab`. Ohne Übersetzung (Richtung abgeschaltet): `translated: false`, `provider: "none"`, `out` = `text`, kein `out_latin`, kein Vorlesen | |
+| `utt` | `id`, `lang`, `to`, `text`, `out`, `stt`, `tr` (s), `lp` (Erkennungs-Konfidenz, log-prob, ≈ −0.1 sicher … −1.3 unsicher), `translated`, `provider` (`claude`\|`google`\|`mymemory`\|`apple`\|`none`), `speaker`, `replaces` (optional: id der korrigierten Blase), `source` (`mic`\|`phrase`\|`edit`\|`reassign`); optional: `text_latin`/`out_latin` (lesbare RTGS-Umschrift für Thai, nur mit pythainlp), `alts` (andere Lesarten), `role` (`me`\|`other`), `num_warn` (Ziffern weichen ab), `ready_s`, `suggest_vocab`. Ohne Übersetzung (Richtung abgeschaltet): `translated: false`, `provider: "none"`, `out` = `text`, kein `out_latin`, kein Vorlesen | |
 | `speaking` | `id`, `first_s` (s bis zum ersten Ton) | nur wenn wirklich Ton kommt (nicht bei stumm, Überspringen, Abbruch vor dem ersten Ton); `id` = `"cmd"` bei Befehlsantworten und „repeat“ |
 | `speak_done` | `id`, `skipped` (bool), `interrupted` (bool), optional `partial` (true) | kommt für jede eingereihte Ausgabe **genau einmal**, auch ohne vorheriges `speaking`; `skipped`: wegen Rückstand/Stopp nicht vorgelesen; `partial`: Neural-Stimme riss mitten im Satz ab (nur teilweise vorgelesen, App kann Wiederholen anbieten) |
 | `queue` | `stt` (wartende Äußerungen), `tts` (wartende Ausgaben) | bei jeder Änderung |
@@ -159,6 +160,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `mic_denied`, `mic_unavailable`, `mic_no_data`, `mic_timeout`, `mic_failed` | Mikrofon: Zugriff verweigert / Gerät ungültig / keine Daten / erster Block nicht binnen 10 s (Wachhund beendet ffmpeg) / Gerät nach Wiederverbinden weg |
 | `mic_not_found` | Mikrofon-Name unbekannt, Standardmikrofon wird genutzt |
 | `output_not_found`, `output_invalid`, `output_unsupported` | Ausgabegerät unbekannt (Systemstandard wird genutzt) / Steuerwert `output_device` ungültig / mit `DOLMETSCHER_FFMPEG` nicht wählbar |
+| `offline_mt_missing` | `--offline-translator`: `translate-helper` nicht gefunden oder nicht ausführbar – ohne Netz keine Übersetzung |
 | `mic_list_failed` | `--list-mics` konnte ffmpeg nicht abfragen |
 | `mic_file_missing`, `ffmpeg_missing` | `DOLMETSCHER_MIC_FILE` fehlt / das per `DOLMETSCHER_FFMPEG` gesetzte ffmpeg fehlt (gleich beim Start gemeldet) oder ist nicht startbar |
 | `audio_missing` | Audio-Baustein fehlt: PyAV (`av`) nicht importierbar oder `avhelper.py` fehlt (gleich beim Start gemeldet) – Python-Umgebung neu einrichten |
@@ -404,3 +406,7 @@ Neue Felder kommen nur dazu, `PROTOCOL` bleibt 1.
   Eingänge). Die Geräte-Nummer wird erst kurz vor dem Abspielen ermittelt (Hot-Plug). Mit `DOLMETSCHER_FFMPEG`
   gilt der Systemstandard (`error` `output_unsupported`). Die lokale Vorlese-Stimme der Mac-App
   (AVSpeechSynthesizer) folgt der Einstellung nicht.
+- **Offline-Übersetzung (Nr. 28/165):** `--offline-translator [PFAD]` (opt-in). Dritte Stufe nach Google/MyMemory,
+  nur bei fehlendem Netz (Offline-Schalter oder Netzfehler) und nur für ein laut `ready`-Zeile installiertes
+  Sprachpaar; `utt.provider` ist dann `apple`. Höchstens 6 s je Satz, Start des Helfers höchstens 5 s
+  (danach 60 s kein neuer Versuch). Das App-Bundle liefert den Helfer noch nicht mit.

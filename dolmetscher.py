@@ -1720,14 +1720,20 @@ def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
     if out is None:
         try:
             out = _mt_chain(text, src, dst, meta, deadline)
-        except Exception:
+        except Exception as e:
             if fut is None:
+                off = _offline_mt(text, src, dst, e, meta)
+                if off:
+                    return off                           # nicht cachen: online ist besser
                 raise
             try:                                         # Google/MyMemory scheitern: doch auf Claude warten
                 out = fut.result(timeout=max(0.5, min(8.0, deadline - time.monotonic())))
             except Exception:
                 pass
             if out is None:
+                off = _offline_mt(text, src, dst, e, meta)
+                if off:
+                    return off
                 raise
             meta["provider"] = "claude"
         else:
@@ -1809,6 +1815,115 @@ def _mt_chain(text, src, dst, meta, deadline=None):
             # Nr. 33: Google im Backoff übersprungen (e1 None) und MyMemory nicht erreichbar -> offline
             _OFFLINE["until"] = time.monotonic() + OFFLINE_HOLD
         raise
+
+
+# Nr. 28/165: Offline-Übersetzung über tools/translate-helper (Apple Translation, on-device). Dritte Stufe nur,
+# wenn Google/MyMemory wegen fehlenden Netzes scheitern – nie statt eines erreichbaren Online-Anbieters.
+# Opt-in: --offline-translator PFAD oder DOLMETSCHER_TRANSLATE_HELPER; ohne Pfad sucht die Engine
+# `translate-helper` neben dolmetscher.py (sobald das App-Bundle ihn mitliefert). Ergebnisse werden nicht
+# gecacht (online ist die Qualität besser). Sprachpakete installiert der Nutzer in den Systemeinstellungen.
+OFFLINE_MT_TIMEOUT = 6.0           # s je Satz
+OFFLINE_MT_START = 5.0             # s bis zur ready-Zeile
+
+
+class OfflineMT:
+    def __init__(self):
+        self.path, self.on = None, False
+        self.proc, self.pairs, self.n = None, {}, 0
+        self.lock = threading.Lock()
+        self.failed_at = None                       # Start gescheitert: nicht bei jedem Satz neu versuchen
+
+    def configure(self, path=None, on=False):
+        here = os.path.join(os.path.dirname(os.path.abspath(__file__)), "translate-helper")
+        cand = path or os.environ.get("DOLMETSCHER_TRANSLATE_HELPER") or (here if os.path.exists(here) else None)
+        self.path = cand if cand and os.path.isfile(cand) and os.access(cand, os.X_OK) else None
+        self.on = bool(on and self.path)
+        if on and not self.path:
+            log({"offline_mt": "helfer fehlt", "path": cand})
+        return self.on
+
+    def _start(self):
+        if self.proc is not None and self.proc.poll() is None:
+            return True
+        if self.failed_at is not None and time.monotonic() - self.failed_at < 60:
+            return False
+        try:
+            self.proc = subprocess.Popen([self.path], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                         stderr=subprocess.DEVNULL)
+            hello = self._readline(OFFLINE_MT_START)
+            self.pairs = (hello or {}).get("pairs") or {}
+            if not (hello or {}).get("ready"):
+                raise RuntimeError((hello or {}).get("error") or "keine ready-Zeile")
+            log({"offline_mt": "bereit", "pairs": self.pairs})
+            self.failed_at = None
+            return True
+        except Exception as e:                       # noqa: BLE001 – optionaler Baustein
+            log({"offline_mt": "start fehlgeschlagen", "err": _errtxt(e)})
+            self.close()
+            self.failed_at = time.monotonic()
+            return False
+
+    def _readline(self, timeout):
+        import select
+        end = time.monotonic() + timeout
+        buf = b""
+        fd = self.proc.stdout.fileno()
+        while not buf.endswith(b"\n"):
+            left = end - time.monotonic()
+            if left <= 0 or not select.select([fd], [], [], left)[0]:
+                raise TimeoutError("translate-helper antwortet nicht")
+            chunk = os.read(fd, 65536)
+            if not chunk:
+                raise RuntimeError("translate-helper beendet")
+            buf += chunk
+        return json.loads(buf.decode("utf-8", "replace").splitlines()[-1])
+
+    def close(self):
+        p, self.proc = self.proc, None
+        if p is not None:
+            try:
+                p.kill()
+            except OSError:
+                pass
+
+    def translate(self, text, src, dst):
+        """-> Übersetzung oder None (aus, Sprachpaar nicht installiert, Fehler)."""
+        if not self.on:
+            return None
+        with self.lock:
+            if not self._start() or self.pairs.get(f"{src}-{dst}") != "installed":
+                return None
+            self.n += 1
+            try:
+                self.proc.stdin.write((json.dumps({"id": self.n, "text": text, "src": src, "dst": dst},
+                                                  ensure_ascii=False) + "\n").encode("utf-8"))
+                self.proc.stdin.flush()
+                while True:
+                    r = self._readline(OFFLINE_MT_TIMEOUT)
+                    if r.get("id") == self.n:
+                        break
+            except Exception as e:                   # noqa: BLE001
+                log({"offline_mt": "fehler", "err": _errtxt(e)})
+                self.close()
+                return None
+        out = (r.get("out") or "").strip()
+        if not out:
+            log({"offline_mt": "fehler", "err": str(r.get("error") or "leer")[:80]})
+            return None
+        return out
+
+
+OFFLINE_MT = OfflineMT()
+
+
+def _offline_mt(text, src, dst, err, meta):
+    """Nach gescheiterter Online-Kette: nur bei fehlendem Netz die Offline-Übersetzung versuchen."""
+    if not OFFLINE_MT.on or not (time.monotonic() < _OFFLINE["until"] or is_offline_error(err)):
+        return None
+    out = OFFLINE_MT.translate(text, src, dst)
+    if out:
+        meta.update(provider="apple", cached=False)
+    return out
 
 
 def _is_conn_error(e):
@@ -5378,6 +5493,8 @@ if __name__ == "__main__":
     ap.add_argument("--mic", default="0")
     ap.add_argument("--output-device", default="", help="Ausgabegerät: UID, Name oder Index")
     ap.add_argument("--list-mics", action="store_true", help="Mikrofone als JSON ausgeben")
+    ap.add_argument("--offline-translator", nargs="?", const="", default=None,
+                    help="Offline-Übersetzung (Apple) ohne Netz; optional Pfad zu translate-helper")
     ap.add_argument("--polite", choices=["krub", "ka"], default="krub")
     ap.add_argument("--file", nargs="*")
     ap.add_argument("--mute", action="store_true")
@@ -5532,6 +5649,8 @@ if __name__ == "__main__":
     SLOW["on"], BACK["on"], LEARN["glossary"] = a.slow, a.back_translate, not a.no_learn_glossary
     if a.output_device:
         set_output_device(a.output_device)
+    if a.offline_translator is not None and not OFFLINE_MT.configure(a.offline_translator or None, on=True):
+        emit("error", code="offline_mt_missing", msg="Offline-Übersetzer (translate-helper) nicht gefunden")
     if a.no_two_person:
         eng.two_person = False
     if a.no_en: eng.translate_dir["en"] = False

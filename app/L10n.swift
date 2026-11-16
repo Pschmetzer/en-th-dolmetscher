@@ -662,6 +662,8 @@ enum L {
                "th": "ไม่พบอุปกรณ์เสียงออกที่เลือก – ใช้ค่าเริ่มต้นของระบบแทน"],
         "err_output_unsupported": ["de": "Ausgabegerät mit eigenem ffmpeg nicht wählbar – Systemstandard", "en": "Output device can't be chosen with a custom ffmpeg – using the system default",
                "th": "เลือกอุปกรณ์เสียงออกไม่ได้เมื่อใช้ ffmpeg ของตัวเอง – ใช้ค่าเริ่มต้นของระบบ"],
+        "err_offline_mt_missing": ["de": "Offline-Übersetzer nicht gefunden – ohne Internet keine Übersetzung", "en": "Offline translator not found – no translation without internet",
+               "th": "ไม่พบตัวแปลแบบออฟไลน์ – ไม่มีอินเทอร์เน็ตจะแปลไม่ได้"],
         "err_mic_not_found": ["de": "Gewähltes Mikrofon nicht gefunden – Standardmikrofon wird genutzt", "en": "Selected microphone not found – using the default microphone",
                "th": "ไม่พบไมโครโฟนที่เลือก – ใช้ไมโครโฟนเริ่มต้นแทน"],
         "err_mic_list_failed": ["de": "Mikrofonliste nicht abrufbar", "en": "Could not list microphones",
