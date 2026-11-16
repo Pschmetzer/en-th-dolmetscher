@@ -288,7 +288,9 @@ def run_cli(a):
             text = export(st.rows(session), a.history_export)
             if a.out:
                 fd = os.open(a.out, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-                with os.fdopen(fd, "w", encoding="utf-8", newline="") as f:
+                # CSV mit BOM (utf-8-sig): Excel erkennt sonst UTF-8 nicht (Thai/Umlaute als Zeichensalat)
+                enc = "utf-8-sig" if a.history_export == "csv" else "utf-8"
+                with os.fdopen(fd, "w", encoding=enc, newline="") as f:
                     f.write(text)
             else:
                 print(text, end="")

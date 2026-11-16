@@ -83,3 +83,13 @@ def test_cli_purge_invalid(st, capsys):
     assert len(st.rows()) == 2
     assert hs.run_cli(_args(history_purge=30.0)) == 0
     assert json.loads(capsys.readouterr().out) == {"deleted": 1}
+
+
+def test_cli_csv_export_has_bom(st, tmp_path):
+    out = tmp_path / "h.csv"
+    assert hs.run_cli(_args(history_export="csv", out=str(out))) == 0
+    raw = out.read_bytes()
+    assert raw.startswith(b"\xef\xbb\xbf") and "ใหม่".encode() in raw
+    js = tmp_path / "h.json"
+    assert hs.run_cli(_args(history_export="json", out=str(js))) == 0
+    assert not js.read_bytes().startswith(b"\xef\xbb\xbf")

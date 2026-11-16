@@ -118,7 +118,9 @@ func exportConversation(_ m: EngineModel) {
     panel.nameFieldStringValue = L.t("export_filename") + " \(df.string(from: Date())).md"
     guard panel.runModal() == .OK, let url = panel.url else { return }
     let format = ExportFormat.from(extension: url.pathExtension)
-    do { try m.transcript(format).write(to: url, atomically: true, encoding: .utf8) }
+    // CSV mit UTF-8-BOM: Excel liest die Datei sonst als Windows-1252 (Thai und Umlaute als Zeichensalat)
+    let text = (format == .csv ? "\u{FEFF}" : "") + m.transcript(format)
+    do { try text.write(to: url, atomically: true, encoding: .utf8) }
     catch { NSAlert(error: error).runModal() }
 }
 
