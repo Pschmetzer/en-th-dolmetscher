@@ -90,7 +90,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `DOLMETSCHER_BEAM` | Beam-Breite der Erkennung (Standard 1; überschreibt `--model auto`) |
 | `DOLMETSCHER_MIC_FILE` | Audiodatei in Echtzeit statt Mikrofon (Ende-zu-Ende-Test) |
 | `DOLMETSCHER_MIC_LOOP` | mit `DOLMETSCHER_MIC_FILE`: Datei endlos wiederholen |
-| `DOLMETSCHER_FFMPEG` | Pfad zu ffmpeg |
+| `DOLMETSCHER_FFMPEG` | optional: externes ffmpeg statt PyAV für Aufnahme, Wiedergabe und `--file` (nur wenn gesetzt; Standard ist `avhelper.py` mit PyAV) |
 | `DOLMETSCHER_HOME` | Ordner für Presets/Verlauf (Standard `~/Library/Application Support/Dolmetscher/`) |
 | `DOLMETSCHER_LOG` | Logdatei (Standard `~/Library/Logs/Dolmetscher/engine.log`) |
 | `DOLMETSCHER_DEBUG` | VAD-Diagnose ins Log |
@@ -102,6 +102,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | event | Felder | Hinweis |
 |---|---|---|
 | `loading` | `msg`, `download` (optional, true: Modell wird einmalig heruntergeladen, kann Minuten dauern) | |
+| `download_progress` | `model` (Name wie `--model` bzw. Repo-ID), `done_mb` (bereits auf der Platte), `total_mb` (Gesamtgröße laut Hub, sonst Schätzung; `null`, wenn unbekannt), `final` (bool: Download dieses Modells fertig) | nur während ein fehlendes Modell geladen wird (nach `loading` mit `download: true`), höchstens ~2×/s und nur bei Änderung. Gezählt werden die Bytes im Hugging-Face-Cache (auch `.incomplete`), deshalb funktioniert es auch mit hf-xet. Ältere Apps ignorieren das Ereignis |
 | `llm_cost` | `usd`, `month_usd` | geschätzte Claude-Kosten der Sitzung bzw. des Kalendermonats (nach Preisliste, über Neustarts) |
 | `missed` | `why` (`cut`\|`overlap`), `dur` (s Ausgabe), `rms` | Während der eigenen Sprachausgabe wurde vermutlich gesprochen und der Teil verworfen (Halbduplex): `cut` = ein Satz lief noch, als die Ausgabe begann (der Anfang wird übersetzt, der Rest fehlt); `overlap` = direkt nach Ende der Ausgabe (und des Nachhalls) ist schon Sprache da. Höchstens einmal je Ausgabe; nie mit `--barge-in`. Echo der eigenen Stimme löst es nicht aus (während der Sperre wird nichts gemessen), ein Gespräch über Lautsprecher kann aber trotzdem `overlap` melden |
 | `ready` | `msg`, `device`, `llm` (bool: Claude aktiv), `protocol`, `engine_version`, `langs` (`{"mine", "partner"}`); optional `degraded` (Liste: `detect_model`, `thai_model` – Modell nicht geladen, Erkennung läuft schwächer über das Hauptmodell) | |
@@ -150,7 +151,8 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `mic_denied`, `mic_unavailable`, `mic_no_data`, `mic_timeout`, `mic_failed` | Mikrofon: Zugriff verweigert / Gerät ungültig / keine Daten / erster Block nicht binnen 10 s (Wachhund beendet ffmpeg) / Gerät nach Wiederverbinden weg |
 | `mic_not_found` | Mikrofon-Name unbekannt, Standardmikrofon wird genutzt |
 | `mic_list_failed` | `--list-mics` konnte ffmpeg nicht abfragen |
-| `mic_file_missing`, `ffmpeg_missing` | `DOLMETSCHER_MIC_FILE` fehlt / ffmpeg fehlt (gleich beim Start gemeldet) oder ist nicht startbar |
+| `mic_file_missing`, `ffmpeg_missing` | `DOLMETSCHER_MIC_FILE` fehlt / das per `DOLMETSCHER_FFMPEG` gesetzte ffmpeg fehlt (gleich beim Start gemeldet) oder ist nicht startbar |
+| `audio_missing` | Audio-Baustein fehlt: PyAV (`av`) nicht importierbar oder `avhelper.py` fehlt (gleich beim Start gemeldet) – Python-Umgebung neu einrichten |
 | `model_offline` | Modell fehlt lokal und kann ohne Internet nicht geladen werden |
 | `translate_failed` | Übersetzung fehlgeschlagen (alle Anbieter) |
 | `llm_billing` | Claude-API: Guthaben oder Kontingent erschöpft – 30 min nur Google/MyMemory, dann neuer Versuch |

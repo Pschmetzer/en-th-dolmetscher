@@ -80,22 +80,22 @@ Terminal: `python3 dolmetscher.py --enroll Nok --enroll-lang th`, `--profiles`, 
 ## Download and install (Mac app)
 
 1. Download the source of the [latest release](https://github.com/Pschmetzer/en-th-dolmetscher/releases/latest) (“Source code (zip)”) and unpack it, or `git clone https://github.com/Pschmetzer/en-th-dolmetscher.git`.
-2. Requirements: macOS 14+ on Apple Silicon, Xcode Command Line Tools (`xcode-select --install`), `brew install ffmpeg` (not bundled with the app), Python 3.12 or newer (`brew install python@3.12`, or install [uv](https://docs.astral.sh/uv/), which fetches a matching Python itself; the macOS system Python 3.9 is too old). The engine itself runs on 3.10+, but the locked versions in `requirements.txt` need 3.12. The build is Apple Silicon only (no universal binary: the bundled Python environment and the Metal GPU path are arm64).
+2. Requirements for building: macOS 14+ on **Apple Silicon** (M1 or later), Xcode Command Line Tools (`xcode-select --install`) and [uv](https://docs.astral.sh/uv/) (`brew install uv`; release builds pin the version in `build.sh`). ffmpeg and Homebrew Python are **no longer needed**: audio runs through PyAV, which is part of the locked environment.
 3. In the unpacked folder:
 
 ```bash
 ./build.sh --install
 ```
 
-There is no ready-made `.app` to download: the app needs a local Python environment and the speech models (~3.5 GB), which the script sets up on your Mac. The first run takes a few minutes; afterwards the app is in `~/Applications/Dolmetscher.app`.
+**The app is self-contained and Apple Silicon only** (arm64, no Intel / universal build: the Python wheels and the Metal GPU path are arm64). It ships `uv` (`Contents/Helpers/uv`, signed), the lock file `requirements.txt` and a setup script, but no frozen Python. On a Mac without the environment (for example another Mac without Homebrew or Python) the app opens a **setup screen** on first start: it shows the download size (~0.4 GB environment + models, ~3.5 GB for the default choice) and the free disk space, then downloads a uv-managed Python 3.12 and installs the locked packages (hash-checked, wheels only) into `~/Library/Application Support/Dolmetscher/venv`, and finally downloads the speech models with a progress bar. It can be cancelled and retried and says clearly when there is no internet. After an app update with a changed lock file the environment is synchronised again (a stamp of lock hash, Python version and architecture decides). The Info.plist contains no paths of the build machine.
 
-This creates a Python environment under `~/Library/Application Support/Dolmetscher/venv` with the locked versions from `requirements.txt` (every package incl. dependencies, hash-checked; via `uv` if installed, else `pip`; re-running the script brings an existing environment back to those versions), downloads the `medium`, `small` and Thai models at their fixed revisions (once, ~3.5 GB; `DOLMETSCHER_MODELS="medium small th best"` also pre-loads `best`, +1.6 GB) and installs `~/Applications/Dolmetscher.app`. Use an existing Python instead: `DOLMETSCHER_PYTHON=/path/to/python ./build.sh --install` (nothing is installed into it; it needs the packages from `requirements.txt`).
+On the build machine, `./build.sh` (without `--release`) also creates or syncs that environment directly (via `uv`, else `pip`; re-running it brings the environment back to the locked versions), writes the stamp, downloads the `medium`, `small` and Thai models at their fixed revisions (once, ~3.5 GB; `DOLMETSCHER_MODELS="medium small th best"` also pre-loads `best`, +1.6 GB; `DOLMETSCHER_SKIP_MODELS=1` skips it) and installs `~/Applications/Dolmetscher.app`, so the app starts without the setup screen. Developers can point the app at another Python: `DOLMETSCHER_PYTHON` in the app's environment or `defaults write io.github.dolmetscher.en-th DolmetscherPython /path/to/python` (never modified by the app; it needs the packages from `requirements.txt`).
 
 Each rebuild is signed ad hoc, so macOS may ask for microphone access again. To avoid that, sign with a stable identity: `DOLMETSCHER_SIGN_IDENTITY="Dolmetscher Dev" ./build.sh --install` (see [CONTRIBUTING.md](CONTRIBUTING.md#stable-code-signing)).
 
 Maintainers can create a signed (and optionally notarized) release build with `DOLMETSCHER_SIGN_IDENTITY="Developer ID Application: …" ./build.sh --release`; it refuses to run without that identity and produces `build/Dolmetscher-<version>.zip` plus a `.sha256` file. See [CONTRIBUTING.md](CONTRIBUTING.md#release-build).
 
-The app bundle stores the Python and ffmpeg paths with `~` instead of your home folder, so it contains no user name; if ffmpeg is not found there, the app also looks in `/opt/homebrew/bin` and `/usr/local/bin`.
+Audio (microphone via AVFoundation, playback via AudioToolbox, the microphone list and `--file`) runs through PyAV's bundled LGPL FFmpeg libraries (`avhelper.py`). An external ffmpeg is only used when `DOLMETSCHER_FFMPEG=/path/to/ffmpeg` is set explicitly.
 
 Open the app, press **Start** (or the space bar) and allow microphone access.
 
@@ -135,7 +135,7 @@ Serve it locally with `python3 -m http.server` and open it in Chrome.
 
 ```bash
 rm -rf ~/Applications/Dolmetscher.app
-rm -rf ~/Library/Application\ Support/Dolmetscher   # Python environment and settings
+rm -rf ~/Library/Application\ Support/Dolmetscher   # Python environment (incl. the uv-managed Python) and settings
 rm -rf ~/Library/Logs/Dolmetscher
 rm -rf ~/.cache/huggingface/hub/models--Systran--faster-whisper-*   # Whisper models small/medium (shared with other apps using faster-whisper)
 rm -rf ~/.cache/huggingface/hub/models--Vinxscribe--biodatlab-whisper-th-medium-faster   # Thai model

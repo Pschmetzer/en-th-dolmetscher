@@ -116,6 +116,11 @@ final class EngineModel: NSObject, ObservableObject {
     @Published var crashLog: String?
     /// Mikrofon-Zugriff verweigert (Knopf „Systemeinstellungen öffnen“).
     @Published private(set) var micDenied = false
+    /// Laufender Modell-Download laut `download_progress` (nil = keiner).
+    struct Download: Equatable { let model: String; let done: Int; let total: Int? }
+    @Published private(set) var download: Download?
+    /// Engine meldete `model_offline` (Modell fehlt, kein Internet) – für den Einrichtungs-Bildschirm.
+    @Published private(set) var modelOffline = false
     /// Modell lädt seit mehr als 120 s ohne `ready`.
     @Published private(set) var loadSlow = false
     /// Stimmprofile laut `roles`: Name des englischen Profils („ich“) bzw. nil, wenn es keins gibt.
@@ -505,7 +510,16 @@ final class EngineModel: NSObject, ObservableObject {
         guard !booted else { return }
         booted = true
         if ProcessInfo.processInfo.environment["DOLMETSCHER_DEMO"] != nil { return }
+        // Ohne eingerichtete Umgebung startet der Einrichtungs-Bildschirm die Engine danach selbst.
+        if Paths.pythonIsFallback { status = L.t("python_missing"); return }
         startEngine()
+    }
+
+    /// Engine beenden und nicht neu starten (Einrichtung: Abbrechen bzw. vor dem Austausch der venv).
+    func stopEngine() {
+        wantListen = false
+        listenBeforeCrash = false
+        stopProcess()
     }
 
     /// Start/Stopp-Knopf, Menüleiste, ⌃⌥D.
@@ -716,6 +730,7 @@ final class EngineModel: NSObject, ObservableObject {
         guard state == .stopped, !Paths.pythonIsFallback,
               let script = Bundle.main.path(forResource: "dolmetscher", ofType: "py") else { return }
         signal(SIGPIPE, SIG_IGN)   // Schreiben in eine tote Pipe soll einen Fehler liefern, nicht die App beenden
+        modelOffline = false
         let p = Process()
         p.executableURL = URL(fileURLWithPath: Paths.python)
         p.arguments = launchArgs(script)
@@ -907,6 +922,7 @@ final class EngineModel: NSObject, ObservableObject {
         loadSlowWork?.cancel(); loadSlowWork = nil; loadSlow = false
         state = .stopped
         engineReady = false; micOn = false; micKnown = false
+        download = nil
         launchedSignature = nil
         replayPausedEngine = false
         resumeWork?.cancel(); resumeWork = nil
@@ -1004,8 +1020,15 @@ final class EngineModel: NSObject, ObservableObject {
             let msg = o["msg"] as? String ?? ""
             status = L.t("loading") + (msg.contains("Thai") ? " (ไทย)" : msg.contains("turbo") ? " (EN+)" : "")
                 + (wantListen ? " " + L.t("then_start") : "")
+        case "download_progress":
+            if let model = o["model"] as? String {
+                let name = model.split(separator: "/").last.map(String.init) ?? model
+                download = Download(model: name, done: (o["done_mb"] as? NSNumber)?.intValue ?? 0,
+                                    total: (o["total_mb"] as? NSNumber)?.intValue)
+            }
         case "ready":
             engineReady = true
+            download = nil
             loadSlowWork?.cancel(); loadSlowWork = nil; loadSlow = false
             llmActive = o["llm"] as? Bool ?? false
             engineVersion = o["engine_version"] as? String
@@ -1127,6 +1150,7 @@ final class EngineModel: NSObject, ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + 6, execute: w)
         case "error":
             let code = o["code"] as? String, raw = o["msg"] as? String
+            if code == "model_offline" { modelOffline = true; download = nil }
             let msg = Self.errorText(code: code, msg: raw)
             status = "⚠️ " + msg
             // Hinweis behält die Ursache der Engine (Ausnahme, Dateiname, Gerät) – nur dort, wo sie variiert
@@ -1196,7 +1220,7 @@ final class EngineModel: NSObject, ObservableObject {
         "mic_denied": "err_mic_denied", "mic_unavailable": "err_mic_unavailable", "mic_no_data": "err_mic_no_data",
         "mic_timeout": "err_mic_timeout", "mic_failed": "err_mic_failed", "mic_not_found": "err_mic_not_found",
         "mic_list_failed": "err_mic_list_failed", "mic_file_missing": "err_mic_file_missing",
-        "ffmpeg_missing": "err_ffmpeg_missing", "model_offline": "err_model_offline",
+        "ffmpeg_missing": "err_ffmpeg_missing", "audio_missing": "err_audio_missing", "model_offline": "err_model_offline",
         "translate_failed": "err_translate_failed", "llm_billing": "err_llm_billing", "reassign_expired": "err_reassign_expired",
         "reassign_empty": "err_reassign_empty", "reassign_invalid": "err_reassign_invalid",
         "phrase_invalid": "err_phrase_invalid", "edit_invalid": "err_edit_invalid",

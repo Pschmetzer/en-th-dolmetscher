@@ -16,6 +16,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ n: Notification) {
         MainActor.assumeIsolated {
             HotKeys.shared.uninstall()
+            EnvSetupModel.shared.terminateSetup()   // halbe Einrichtung abbrechen und aufräumen lassen
             EngineModel.shared.shutdown()
         }
     }

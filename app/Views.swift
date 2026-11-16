@@ -143,6 +143,7 @@ enum AutoScroll {
 
 struct ContentView: View {
     @EnvironmentObject var m: EngineModel
+    @ObservedObject private var setup = EnvSetupModel.shared
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage(Prefs.fontScale) private var scale = 1.0
     @AppStorage(Prefs.alwaysOnTop) private var onTop = false
@@ -167,6 +168,9 @@ struct ContentView: View {
     var body: some View {
         let _ = L.sync(uiLang)
         VStack(spacing: 0) {
+          if setup.visible {
+            EnvSetupView(s: setup)        // Erststart / nach App-Update: Umgebung + Modelle
+          } else {
             MainToolbar(showProfiles: $showProfiles)
             ConversationBar()
             if showQuick { QuickPhraseBar() }
@@ -185,6 +189,7 @@ struct ContentView: View {
                 NoticeBanner(icon: "exclamationmark.octagon.fill", tint: .red, text: L.t("engine_hung"),
                              action: (L.t("reload_now"), { m.restart() }))
             }
+            if let d = m.download { DownloadBanner(d: d) }
             if !m.degradedModels.isEmpty {
                 NoticeBanner(icon: "gauge.with.dots.needle.33percent", tint: LangStyle.warning,
                              text: L.f("degraded_models", m.degradedModels.map { L.t($0 == "thai_model" ? "degraded_thai"
@@ -218,6 +223,7 @@ struct ContentView: View {
             if searchOpen || filtering || m.items.count > 5 { searchBar }
             conversation
             if m.pushToTalk && m.micOn { PushToTalkButton().padding(14) }
+          }
         }
         .frame(minWidth: 620, minHeight: 460)
         .background(WindowAccessor { w in
@@ -234,8 +240,9 @@ struct ContentView: View {
         .id(uiLang)                                   // Oberflächensprache sofort umschalten
         .onChange(of: m.items.isEmpty) { if m.items.isEmpty { query = ""; langFilter = ""; userScrolledUp = false } }
         .onChange(of: uiLang) { m.refreshStatus() }
+        .onChange(of: setup.visible) { if !setup.visible && !tipsSeen { showTips = true } }
         .onAppear {
-            if !tipsSeen { showTips = true }
+            if !tipsSeen && !setup.visible { showTips = true }
             installScrollMonitor()
         }
         .onDisappear { if let t = scrollBox.token { NSEvent.removeMonitor(t); scrollBox.token = nil } }

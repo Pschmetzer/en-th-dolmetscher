@@ -193,6 +193,7 @@ private struct HistorySection: View {
 /// Diagnosebericht kopieren, Einstellungen zurücksetzen, Log zeigen.
 private struct MaintenanceSection: View {
     @EnvironmentObject var m: EngineModel
+    @Environment(\.openWindow) private var openWindow
     @State private var confirmReset = false
     @State private var copied = false
     @State private var checking = false
@@ -214,6 +215,15 @@ private struct MaintenanceSection: View {
                 if copied { Label(L.t("diag_copied"), systemImage: "checkmark").foregroundStyle(.green) }
                 Spacer()
                 Button(L.t("show_log")) { NSWorkspace.shared.activateFileViewerSelecting([EngineModel.logURL]) }
+            }
+            HStack {
+                // Eigene venv neu aufbauen (z. B. nach audio_missing); ein Entwickler-Python bleibt unberührt.
+                Button(L.t("envsetup_redo")) {
+                    EnvSetupModel.shared.redo()
+                    openWindow(id: "main")
+                }
+                .disabled(EnvSetupModel.shared.running)
+                Spacer()
             }
             HStack {
                 Button(L.t("reset_all"), role: .destructive) { confirmReset = true }

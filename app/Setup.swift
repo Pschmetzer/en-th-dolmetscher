@@ -43,7 +43,7 @@ enum ModelCache {
     }
 }
 
-/// „Alles bereit?“ im Willkommensdialog: Python-Umgebung, ffmpeg, Modelle, Mikrofon, Claude-Schlüssel.
+/// „Alles bereit?“ im Willkommensdialog: Python-Umgebung, Modelle, Mikrofon, Claude-Schlüssel (Audio über PyAV, kein ffmpeg).
 struct SetupChecklist: View {
     let model: String
     let thai: Bool
@@ -60,7 +60,6 @@ struct SetupChecklist: View {
         let mic = AVCaptureDevice.authorizationStatus(for: .audio)
         return [
             Row(id: "python", ok: !Paths.pythonIsFallback, text: L.t(Paths.pythonIsFallback ? "setup_python_missing" : "setup_python_ok")),
-            Row(id: "ffmpeg", ok: Paths.ffmpeg != nil, text: L.t(Paths.ffmpeg != nil ? "setup_ffmpeg_ok" : "setup_ffmpeg_missing")),
             Row(id: "models", ok: gb.map { $0 == 0 }, text: ModelCache.hint(model: model, thai: thai, cached: cached)),
             Row(id: "mic", ok: mic == .authorized ? true : mic == .notDetermined ? nil : false,
                 text: L.t(mic == .authorized ? "setup_mic_ok" : mic == .notDetermined ? "setup_mic_ask" : "setup_mic_denied")),

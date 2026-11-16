@@ -1,45 +1,74 @@
-// Paths.swift – Pfade zu Python/ffmpeg (Info.plist mit "~" erlaubt, sonst Fallbacks) und API-Schlüsseldatei.
+// Paths.swift – Python der Engine (Dev-Override → eigene venv mit Stempel → Einrichtung), Umgebung und API-Schlüsseldatei.
+// Die Info.plist enthält keine Pfade der Bau-Maschine; ffmpeg wird nicht mehr gesucht (Audio über PyAV).
 import Foundation
 
 enum Paths {
     static let support = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent("Library/Application Support/Dolmetscher")
 
-    private static func info(_ key: String) -> String? {
-        guard let s = Bundle.main.object(forInfoDictionaryKey: key) as? String, !s.isEmpty else { return nil }
-        return (s as NSString).expandingTildeInPath
-    }
-
-    private static func firstExecutable(_ candidates: [String?]) -> String? {
-        candidates.compactMap { $0 }.first { FileManager.default.isExecutableFile(atPath: $0) }
-    }
-
     private static var home: String { FileManager.default.homeDirectoryForCurrentUser.path }
 
-    /// Python für die Engine: Info-Wert DolmetscherPython → venv in Application Support → /usr/bin/python3.
-    /// Der letzte Wert ist nur ein Platzhalter: `pythonIsFallback` verhindert, dass er gestartet wird
-    /// (ohne Command-Line-Tools öffnet er einen Xcode-Installationsdialog, mit fehlen die Pakete).
-    static var python: String {
-        firstExecutable([info("DolmetscherPython"),
-                         support.appendingPathComponent("venv/bin/python").path]) ?? "/usr/bin/python3"
+    /// Eigene venv (setup-env.sh legt sie an) und ihr Stempel.
+    static var venv: URL { support.appendingPathComponent("venv") }
+    static var venvPython: String { venv.appendingPathComponent("bin/python").path }
+    static var venvStamp: URL { venv.appendingPathComponent(EnvLogic.stampName) }
+
+    /// Mitgelieferte Einrichtung: uv (Contents/Helpers), Lock, erwarteter Stempel, Skript (Contents/Resources).
+    static var bundledUV: String? {
+        let p = Bundle.main.bundleURL.appendingPathComponent("Contents/Helpers/uv").path
+        return FileManager.default.isExecutableFile(atPath: p) ? p : nil
+    }
+    static var bundledLock: String? { Bundle.main.path(forResource: "requirements", ofType: "txt") }
+    static var bundledStamp: String? { Bundle.main.path(forResource: "env-stamp", ofType: nil) }
+    static var setupScript: String? { Bundle.main.path(forResource: "setup-env", ofType: "sh") }
+
+    /// Dev-Override: DOLMETSCHER_PYTHON aus der Umgebung der App oder die Einstellung „DolmetscherPython“
+    /// (`defaults write io.github.dolmetscher.en-th DolmetscherPython /pfad/zu/python`). Wird nie verändert.
+    static var pythonOverride: String? {
+        ProcessInfo.processInfo.environment["DOLMETSCHER_PYTHON"] ?? UserDefaults.standard.string(forKey: "DolmetscherPython")
     }
 
-    /// true, wenn die bevorzugte Python-Umgebung (venv/Info-Wert) fehlt und nur /usr/bin/python3 bleibt.
-    static var pythonIsFallback: Bool { python == "/usr/bin/python3" }
+    /// Stempel der venv passt zum Bundle (sonst: Einrichtung bzw. Aktualisierung nach App-Update).
+    static var venvStampOK: Bool {
+        let expected = bundledStamp.flatMap { try? String(contentsOfFile: $0, encoding: .utf8) }
+        let actual = try? String(contentsOf: venvStamp, encoding: .utf8)
+        return EnvLogic.stampMatches(expected: expected, actual: actual)
+    }
 
-    /// Suchpfade für Werkzeuge wie ffmpeg: Homebrew (ARM/Intel), MacPorts, asdf, ~/.local.
+    static var pythonSource: EnvLogic.PythonSource {
+        EnvLogic.resolvePython(override: pythonOverride, venvPython: venvPython, stampOK: venvStampOK,
+                               isExecutable: { FileManager.default.isExecutableFile(atPath: $0) })
+    }
+
+    /// Python für die Engine. Ohne eingerichtete Umgebung ein harmloser Platzhalter: `pythonIsFallback`
+    /// verhindert jeden Start (nie /usr/bin/python3 – ohne Command-Line-Tools öffnet das einen Xcode-Dialog).
+    static var python: String {
+        switch pythonSource {
+        case .override(let p), .venv(let p): return p
+        case .none: return "/usr/bin/false"
+        }
+    }
+
+    /// true, wenn keine passende Python-Umgebung da ist (Einrichtungs-Bildschirm zeigen).
+    static var pythonIsFallback: Bool { pythonSource == .none }
+
+    /// Suchpfade für Hilfsprogramme der Engine (afplay/say liegen in /usr/bin).
     static var searchDirs: [String] {
         ["/opt/homebrew/bin", "/opt/local/bin", "/usr/local/bin",
          home + "/.asdf/shims", home + "/.asdf/bin", home + "/.local/bin"]
     }
 
-    /// ffmpeg: Info-Wert DolmetscherFFmpeg → bekannte Installationsorte.
-    static var ffmpeg: String? {
-        firstExecutable([info("DolmetscherFFmpeg")] + searchDirs.map { $0 + "/ffmpeg" })
+    /// Externes ffmpeg nur, wenn ausdrücklich gesetzt (DOLMETSCHER_FFMPEG); sonst PyAV.
+    static var ffmpegOverride: String? {
+        ProcessInfo.processInfo.environment["DOLMETSCHER_FFMPEG"].flatMap { $0.isEmpty ? nil : $0 }
     }
 
+    /// .pyc-Dateien nie ins (signierte) App-Bundle schreiben: eigener Ordner unter Application Support.
+    static var pycachePrefix: String { support.appendingPathComponent("pycache").path }
+
     /// Variablen, die die Engine wirklich braucht. Alles andere aus der Umgebung der App
-    /// (z. B. geerbte Tokens, PYTHON*-Overrides) bleibt draußen.
+    /// (z. B. geerbte Tokens, PYTHON*-Overrides) bleibt draußen. DOLMETSCHER_FFMPEG kommt nur durch,
+    /// wenn er in der Umgebung der App gesetzt ist (Präfix DOLMETSCHER_).
     private static let envExact: Set<String> = [
         "HOME", "USER", "LOGNAME", "TMPDIR", "LANG", "SHELL", "ANTHROPIC_API_KEY",
         "XDG_CACHE_HOME", "XDG_CONFIG_HOME", "OMP_NUM_THREADS", "TOKENIZERS_PARALLELISM",
@@ -57,7 +86,8 @@ enum Paths {
             env[k] = v
         }
         env["PATH"] = (searchDirs + ["/usr/bin", "/bin"]).joined(separator: ":")
-        if let ff = ffmpeg { env["DOLMETSCHER_FFMPEG"] = ff }
+        // Die Whitelist lässt PYTHON* bewusst nicht durch – deshalb hier ausdrücklich setzen.
+        env["PYTHONPYCACHEPREFIX"] = pycachePrefix
         return env
     }
 
