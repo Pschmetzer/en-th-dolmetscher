@@ -179,6 +179,7 @@ struct SettingsView: View {
         let name = "\(l.flag) \(l.native)"
         switch level {
         case .needsDownload: return name + " ⬇︎ " + T("lang_download")
+        case .onlineOnly: return name + " 🌐 " + T("lang_online_only")
         case .unavailable: return name + " – " + T("lang_unavailable")
         default: return name
         }

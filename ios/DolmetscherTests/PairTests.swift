@@ -175,6 +175,6 @@ final class GatingTests: XCTestCase {
         XCTAssertEqual(LangLevel.of(recognizer: .installed, translation: .downloadable, voice: true), .needsDownload)
         XCTAssertEqual(LangLevel.of(recognizer: .installed, translation: .installed, voice: false), .needsDownload)
         XCTAssertEqual(LangLevel.of(recognizer: .unsupported, translation: .installed, voice: true), .unavailable)
-        XCTAssertEqual(LangLevel.of(recognizer: .installed, translation: .unsupported, voice: true), .unavailable)
+        XCTAssertEqual(LangLevel.of(recognizer: .installed, translation: .unsupported, voice: true), .onlineOnly)
     }
 }

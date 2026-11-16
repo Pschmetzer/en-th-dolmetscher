@@ -15,11 +15,14 @@ enum LangLevel: Equatable, Sendable {
     case ready
     /// geht, aber Sprachmodell, Übersetzungspaket oder Stimme muss erst geladen werden (Netz)
     case needsDownload
-    /// fehlt Erkennung oder Übersetzung ganz: nicht anbieten
+    /// Apple übersetzt dieses Paar nicht auf dem Gerät: nur mit Online-Übersetzung (Netz)
+    case onlineOnly
+    /// keine On-Device-Erkennung: nicht anbieten
     case unavailable
 
     static func of(recognizer: Readiness, translation: Readiness, voice: Bool) -> LangLevel {
-        if recognizer == .unsupported || translation == .unsupported { return .unavailable }
+        if recognizer == .unsupported { return .unavailable }
+        if translation == .unsupported { return .onlineOnly }
         if recognizer == .installed && translation == .installed && voice { return .ready }
         return .needsDownload
     }

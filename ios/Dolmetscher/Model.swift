@@ -161,6 +161,10 @@ final class InterpreterModel {
         #if DEBUG
         // Test im Simulator: mit DOLMETSCHER_AUDIO_FILES gleich loslegen.
         if ProcessInfo.processInfo.environment["DOLMETSCHER_AUTOSTART"] != nil { Task { @MainActor in self.start() } }
+        // Verfügbarkeit aller Sprachen ins Log (Kategorie „langs“) – was kann dieses Gerät wirklich?
+        if ProcessInfo.processInfo.environment["DOLMETSCHER_LOG_LANGS"] != nil {
+            Task.detached { _ = await LangCheck.levels(with: .en); _ = await LangCheck.level(.en, with: .th) }
+        }
         #endif
     }
 
