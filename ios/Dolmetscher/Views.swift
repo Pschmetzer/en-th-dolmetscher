@@ -2,9 +2,10 @@
 import SwiftUI
 
 enum LangStyle {
-    static func color(_ l: Lang) -> Color { l == .th ? .orange : .blue }
-    static func flag(_ l: Lang) -> String { l == .th ? "🇹🇭" : "🇬🇧" }
-    static func name(_ l: Lang) -> String { l == .th ? "ไทย" : "English" }
+    /// Meine Sprache blau, Partnersprache orange (wie bisher Englisch/Thai).
+    static func color(_ l: Lang, _ pair: LangPair) -> Color { l == pair.partner ? .orange : .blue }
+    static func flag(_ l: Lang) -> String { l.flag }
+    static func name(_ l: Lang) -> String { l.native }
 }
 
 struct ContentView: View {
@@ -13,6 +14,7 @@ struct ContentView: View {
     @State private var big: Entry?
     @State private var editing: Entry?
     @State private var draft = ""
+    @State private var confirmClear = false
     @FocusState private var typing: Bool
 
     var body: some View {
@@ -36,11 +38,15 @@ struct ContentView: View {
                         Button { m.sheet = .phrasebook } label: { Label(T("phrasebook"), systemImage: "book") }
                         Button { m.sheet = .photo } label: { Label(T("photo_text"), systemImage: "text.viewfinder") }
                         Button { m.sheet = .emergency } label: { Label(T("emergency"), systemImage: "cross.case") }
-                        Button { m.sheet = .baht } label: { Label(T("baht_calc"), systemImage: "bahtsign.circle") }
-                        Button { m.sheet = .help } label: { Label(T("commands"), systemImage: "text.bubble") }
+                        if m.features.thaiExtras {
+                            Button { m.sheet = .baht } label: { Label(T("baht_calc"), systemImage: "bahtsign.circle") }
+                        }
+                        if m.features.voiceCommands {
+                            Button { m.sheet = .help } label: { Label(T("commands"), systemImage: "text.bubble") }
+                        }
                         ShareLink(item: m.transcript) { Label(T("share"), systemImage: "square.and.arrow.up") }
                             .disabled(m.entries.isEmpty)
-                        Button(role: .destructive) { m.clear() } label: { Label(T("clear"), systemImage: "trash") }
+                        Button(role: .destructive) { confirmClear = true } label: { Label(T("clear"), systemImage: "trash") }
                             .disabled(m.entries.isEmpty)
                         Divider()
                         Button { m.sheet = .settings } label: { Label(T("settings"), systemImage: "gearshape") }
@@ -63,6 +69,14 @@ struct ContentView: View {
                     .presentationDetents([.medium, .large])
                 }
             }
+            .confirmationDialog(T("clear_confirm"), isPresented: $confirmClear, titleVisibility: .visible) {
+                Button(T("clear"), role: .destructive) { m.clear() }
+                Button(T("cancel"), role: .cancel) {}
+            }
+            .alert(T("cellular_title"), isPresented: $m.cellularDownloadPrompt) {
+                Button(T("cellular_go")) { m.startAllowingCellular() }
+                Button(T("cellular_wait"), role: .cancel) {}
+            } message: { Text(T("cellular_msg")) }
             .fullScreenCover(isPresented: $showPartner) { PartnerView() }
             .fullScreenCover(item: $big) { e in BigTextView(entryID: e.id) }
             .alert(T("edit_text"), isPresented: Binding(get: { editing != nil }, set: { if !$0 { editing = nil } })) {
@@ -76,20 +90,30 @@ struct ContentView: View {
     private var header: some View {
         @Bindable var m = m
         return VStack(spacing: 10) {
+            let p = m.pair
             HStack(spacing: 12) {
-                Text("\(LangStyle.flag(.en)) English").foregroundStyle(LangStyle.color(.en))
+                Text("\(p.mine.flag) \(p.mine.native)").foregroundStyle(LangStyle.color(p.mine, p))
                 Image(systemName: "arrow.left.arrow.right").foregroundStyle(.secondary)
-                Text("\(LangStyle.flag(.th)) ไทย").foregroundStyle(LangStyle.color(.th))
+                Text("\(p.partner.flag) \(p.partner.native)").foregroundStyle(LangStyle.color(p.partner, p))
             }
             .font(.title2.bold())
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
             .accessibilityElement(children: .combine)
             Picker(T("direction"), selection: $m.mode) {
-                Text(T("mode_auto")).tag(InterpreterModel.Mode.auto)
-                Text("\(LangStyle.flag(.en)) → \(LangStyle.flag(.th))").tag(InterpreterModel.Mode.en)
-                Text("\(LangStyle.flag(.th)) → \(LangStyle.flag(.en))").tag(InterpreterModel.Mode.th)
+                if p.distinguishable { Text(T("mode_auto")).tag(Direction.auto) }
+                Text("\(p.mine.flag) → \(p.partner.flag)").tag(Direction.mine)
+                Text("\(p.partner.flag) → \(p.mine.flag)").tag(Direction.partner)
             }
             .pickerStyle(.segmented)
             .disabled(m.isBusy)
+            if !p.distinguishable {
+                // Gleiche Schrift (z. B. en/de): die Sprache lässt sich nicht sicher erkennen.
+                Text(T("same_script_hint"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
             statusLine
         }
         .padding(.horizontal)
@@ -101,12 +125,13 @@ struct ContentView: View {
         switch m.phase {
         case .idle: return T("idle")
         case .loading:
+            if m.whisperPreparing { return T("whisper_preparing") }
             guard let d = m.download else { return T("loading") }
             return "\(T("downloading")) \(LangStyle.flag(d.lang)) \(Int(d.fraction * 100)) %"
         case .failed(let e): return "⚠️ " + e
         case .listening:
             if m.interrupted { return "📞 " + T("interrupted") }
-            if m.paused { return "⏸ " + T("paused") }
+            if m.paused { return "⏸ " + T(m.features.voiceCommands ? "paused" : "paused_plain") }
             if m.speakingID != nil { return "🔊 " + T("speaking") }
             return m.hearing ? "🎙 " + T("hearing") : T("listening")
         }
@@ -120,6 +145,11 @@ struct ContentView: View {
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .lineLimit(3)
+            if m.canUndoClear {
+                Button(T("undo")) { m.undoClear() }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+            }
         }
         .frame(maxWidth: .infinity, minHeight: 22)
         .animation(.default, value: statusText)
@@ -133,7 +163,7 @@ struct ContentView: View {
             ScrollView {
                 LazyVStack(spacing: 12) {
                     if m.entries.isEmpty && m.partial.isEmpty {
-                        EmptyState { m.submit("Where is the toilet?") }
+                        EmptyState { m.submit(T("example_sentence")) }
                     }
                     ForEach(m.entries) { e in
                         Bubble(entry: e, onBig: { big = e }, onEdit: { editing = e }).id(e.id)
@@ -269,9 +299,10 @@ struct Bubble: View {
     var onEdit: () -> Void
 
     var body: some View {
-        let color = LangStyle.color(entry.src.other)
+        let color = LangStyle.color(entry.target, m.pair)
+        let fromPartner = entry.src == m.pair.partner
         HStack {
-            if entry.src == .th { Spacer(minLength: 36) }
+            if fromPartner { Spacer(minLength: 36) }
             VStack(alignment: .leading, spacing: 6) {
                 Text("\(LangStyle.flag(entry.src)) \(entry.text)")
                     .font(.subheadline)
@@ -298,7 +329,7 @@ struct Bubble: View {
             .onTapGesture { if entry.translation != nil { onBig() } }
             .accessibilityAction(named: T("show_big")) { if entry.translation != nil { onBig() } }
             .contextMenu { menu }
-            if entry.src == .en { Spacer(minLength: 36) }
+            if !fromPartner { Spacer(minLength: 36) }
         }
     }
 
@@ -321,7 +352,7 @@ struct Bubble: View {
             }
             if let alt = entry.alt, !alt.isEmpty {
                 Button { m.swapLanguage(entry.id) } label: {
-                    Label(LangStyle.flag(entry.src.other), systemImage: "arrow.triangle.2.circlepath")
+                    Label(LangStyle.flag(entry.target), systemImage: "arrow.triangle.2.circlepath")
                 }
                 .accessibilityLabel(T("swap"))
             }
@@ -362,7 +393,7 @@ struct BigTextView: View {
                     .font(.system(size: 72, weight: .bold))
                     .minimumScaleFactor(0.2)
                     .multilineTextAlignment(.center)
-                    .foregroundStyle(LangStyle.color(e?.src.other ?? .th))
+                    .foregroundStyle(LangStyle.color(e?.target ?? m.pair.partner, m.pair))
                 if let r = e?.roman { Text(r).font(.title3).italic().foregroundStyle(.secondary) }
                 Text(e?.text ?? "").font(.title3).foregroundStyle(.secondary).multilineTextAlignment(.center)
             }
@@ -396,18 +427,21 @@ struct EmptyState: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Text(T("empty_hint"))
+            Text(String(format: T("empty_hint_pair"), m.pair.mine.name(in: L10n.lang), m.pair.partner.name(in: L10n.lang)))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+            // Beispielsatz nur, wenn die Sprache der Oberfläche im Paar ist (sonst würde er falsch erkannt).
+            if let ui = L10n.asLang, m.pair.contains(ui) {
             Button(action: tryExample) {
-                Text(T("empty_example"))
+                Text(String(format: T("empty_example_fmt"), T("example_sentence")))
                     .font(.headline)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
                     .background(.quaternary, in: Capsule())
             }
             .buttonStyle(.plain)
+            }
             HStack(spacing: 12) {
                 Button { m.sheet = .phrasebook } label: { Label(T("phrasebook"), systemImage: "book") }
                 Button { m.sheet = .photo } label: { Label(T("photo_text"), systemImage: "text.viewfinder") }
@@ -416,16 +450,16 @@ struct EmptyState: View {
             .buttonStyle(.bordered)
             .labelStyle(.titleAndIcon)
             .font(.footnote)
-            if !m.offlineReady && m.allowOnline {
+            if !m.offlineReady {
                 Button { m.sheet = .settings } label: {
-                    Label(T("online_hint"), systemImage: "globe")
+                    Label(T(m.allowOnline ? "online_hint" : "offline_hint"), systemImage: m.allowOnline ? "globe" : "arrow.down.circle")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.leading)
                 }
                 .buttonStyle(.plain)
             }
-            CommandsCard()
+            if m.features.voiceCommands { CommandsCard() }
         }
         .padding(.top, 8)
     }
@@ -464,17 +498,18 @@ struct PartnerView: View {
     /// Letzter Satz in der gewünschten Sprache (Original oder Übersetzung).
     private func latest(in lang: Lang) -> String? {
         guard let e = m.entries.last(where: { $0.translation != nil }) else { return nil }
-        return e.src == lang ? e.text : e.translation
+        if e.src == lang { return e.text }
+        return e.target == lang ? e.translation : nil
     }
 
     var body: some View {
         VStack(spacing: 0) {
             if split {
-                side(.th).rotationEffect(.degrees(180))
+                side(m.pair.partner).rotationEffect(.degrees(180))
                 Divider()
                 controls
                 Divider()
-                side(.en)
+                side(m.pair.mine)
             } else {
                 single.rotationEffect(.degrees(flipped ? 180 : 0))
                 Divider()
@@ -487,14 +522,15 @@ struct PartnerView: View {
     }
 
     private func side(_ lang: Lang) -> some View {
-        Text(latest(in: lang) ?? (lang == .th ? "พูดได้เลย" : "Just talk"))
+        // Platzhalter in der Sprache dieser Seite (soweit die Oberfläche sie kennt), sonst Flagge + Mikrofon.
+        Text(latest(in: lang) ?? L10n.text("just_talk", lang: lang.rawValue) ?? "\(lang.flag) 🎙")
             .font(.system(size: 48, weight: .bold))
             .minimumScaleFactor(0.2)
             .multilineTextAlignment(.center)
-            .foregroundStyle(latest(in: lang) == nil ? Color.secondary : LangStyle.color(lang))
+            .foregroundStyle(latest(in: lang) == nil ? Color.secondary : LangStyle.color(lang, m.pair))
             .padding(20)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(LangStyle.color(lang).opacity(0.06))
+            .background(LangStyle.color(lang, m.pair).opacity(0.06))
     }
 
     private var single: some View {
@@ -504,7 +540,7 @@ struct PartnerView: View {
                     .font(.system(size: 64, weight: .bold))
                     .minimumScaleFactor(0.25)
                     .multilineTextAlignment(.center)
-                    .foregroundStyle(LangStyle.color(e.src.other))
+                    .foregroundStyle(LangStyle.color(e.target, m.pair))
             } else {
                 Text(T("partner_empty")).font(.title2).foregroundStyle(.secondary).multilineTextAlignment(.center)
             }

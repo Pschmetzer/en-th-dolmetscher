@@ -4,12 +4,12 @@ import SwiftUI
 import Vision
 
 enum TextScanner {
-    /// Erkennt Textzeilen auf Thai und Englisch, von oben nach unten.
-    static func lines(in image: UIImage) async throws -> [String] {
+    /// Erkennt Textzeilen in den Sprachen des Paars (Partnersprache zuerst), von oben nach unten.
+    static func lines(in image: UIImage, langs: [Lang] = [.th, .en]) async throws -> [String] {
         guard let cg = image.cgImage else { return [] }
         var req = RecognizeTextRequest()
         req.recognitionLevel = .accurate
-        let wanted = [Locale.Language(identifier: "th-TH"), Locale.Language(identifier: "en-US")]
+        let wanted = langs.map { Locale.Language(identifier: $0.voiceLocale) }
         let supported = req.supportedRecognitionLanguages
         let usable = wanted.filter { w in supported.contains { $0.languageCode == w.languageCode } }
         req.recognitionLanguages = usable.isEmpty ? [Locale.Language(identifier: "en-US")] : usable
@@ -151,7 +151,7 @@ struct PhotoTextView: View {
         busy = true; error = nil; lines = []; picked = []
         defer { busy = false }
         do {
-            lines = try await TextScanner.lines(in: img)
+            lines = try await TextScanner.lines(in: img, langs: [m.pair.partner, m.pair.mine])
             if lines.isEmpty { error = T("no_text") }
         } catch {
             self.error = error.localizedDescription

@@ -14,12 +14,18 @@ final class Speaker: NSObject, AVSpeechSynthesizerDelegate {
     }
 
     static func voice(_ lang: Lang) -> AVSpeechSynthesisVoice? {
-        let prefix = lang == .en ? "en" : "th"
-        let all = AVSpeechSynthesisVoice.speechVoices().filter { $0.language.hasPrefix(prefix) }
-        let preferred = lang == .en ? "en-US" : "th-TH"
+        let code = lang.rawValue
+        let all = AVSpeechSynthesisVoice.speechVoices().filter { $0.language == code || $0.language.hasPrefix(code + "-") }
+        let preferred = lang.voiceLocale
         return all.max { a, b in
             (a.quality.rawValue, a.language == preferred ? 1 : 0) < (b.quality.rawValue, b.language == preferred ? 1 : 0)
         } ?? AVSpeechSynthesisVoice(language: preferred)
+    }
+
+    /// Gibt es auf dem Gerät überhaupt eine Stimme für die Sprache?
+    static func hasVoice(_ lang: Lang) -> Bool {
+        let code = lang.rawValue
+        return AVSpeechSynthesisVoice.speechVoices().contains { $0.language == code || $0.language.hasPrefix(code + "-") }
     }
 
     /// `rate`: 1 = normal (0.5 … 1.5), `volume`: 0 … 1.

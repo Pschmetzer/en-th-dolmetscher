@@ -1,0 +1,4 @@
+"NSMicrophoneUsageDescription" = "Dolmetscher écoute ce qui est dit afin de pouvoir le traduire.";
+"NSSpeechRecognitionUsageDescription" = "La parole est transcrite en texte sur cet appareil afin de pouvoir être traduite.";
+"NSCameraUsageDescription" = "Prenez en photo un menu ou un panneau pour que Dolmetscher en lise et traduise le texte.";
+"NSPhotoLibraryUsageDescription" = "Choisissez la photo d'un menu ou d'un panneau pour que Dolmetscher en lise et traduise le texte.";
