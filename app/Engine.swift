@@ -104,7 +104,11 @@ final class EngineModel: NSObject, ObservableObject {
     @Published private(set) var speakingIDs: Set<String> = []
     var busy: Bool { !pendingIDs.isEmpty }
     var speakingNow: Bool { !speakingIDs.isEmpty }
-    @Published var paused = false
+    @Published var paused = false {
+        didSet {   // Nr. 365 – nicht bei Push-to-Talk (jeder Tastendruck schaltet Pause)
+            if paused != oldValue && !pushToTalk { Announcer.post(L.t(paused ? "a11y_paused" : "a11y_resumed")) }
+        }
+    }
     /// Rückstand laut `queue`-Ereignis.
     @Published private(set) var backlogSTT = 0
     @Published private(set) var backlogTTS = 0
@@ -316,6 +320,16 @@ final class EngineModel: NSObject, ObservableObject {
     /// Wert für das Steuerfeld `mic`: Name, sonst Index, sonst Systemstandard.
     static func micControlValue(index: String, name: String) -> String {
         !name.isEmpty ? name : (!index.isEmpty ? index : "default")
+    }
+    /// Ausgabegerät (Nr. 24/357): CoreAudio-UID, leer = Systemstandard. Live per Steuerfeld `output_device`.
+    @Published var outputDevice = ud.string(forKey: "outputDevice") ?? "" {
+        didSet {
+            guard outputDevice != oldValue else { return }
+            Self.ud.set(outputDevice, forKey: "outputDevice"); send(["output_device": outputDevice])
+        }
+    }
+    @Published var outputDeviceName = ud.string(forKey: "outputDeviceName") ?? "" {
+        didSet { Self.ud.set(outputDeviceName, forKey: "outputDeviceName") }
     }
     @Published var denoise = ud.bool(forKey: "denoise") { didSet { Self.ud.set(denoise, forKey: "denoise"); scheduleRestart() } }
     @Published var logText = ud.bool(forKey: "logText") { didSet { Self.ud.set(logText, forKey: "logText"); scheduleRestart() } }
@@ -681,6 +695,7 @@ final class EngineModel: NSObject, ObservableObject {
         }
         let micArg = micOverride ?? mic
         if !micArg.isEmpty { args += ["--mic", micArg] }
+        if !outputDevice.isEmpty { args += ["--output-device", outputDevice] }
         if denoise { args.append("--denoise") }
         if llm { args.append("--llm") }
         if earcons { args.append("--earcons") }
@@ -1053,6 +1068,7 @@ final class EngineModel: NSObject, ObservableObject {
             engineVersion = o["engine_version"] as? String
             degradedModels = o["degraded"] as? [String] ?? []
             startWatchdog()
+            Announcer.post(L.t("a11y_ready"))   // Nr. 365
             // Fehlt `protocol`, ist es eine ältere Engine (vor dem Handshake) – das ist kein Fehler.
             if let pv = (o["protocol"] as? NSNumber)?.intValue, pv != Self.protocolVersion { protocolMismatch = pv }
             else { protocolMismatch = nil }
@@ -1072,12 +1088,13 @@ final class EngineModel: NSObject, ObservableObject {
         case "mic":
             if o["reconnecting"] as? Bool == true {   // Gerät weg, Engine verbindet neu – Zuhör-Zustand bleibt
                 let n = (o["attempt"] as? NSNumber)?.intValue ?? 1
-                status = L.f("mic_reconnecting", n, 5)
+                status = n <= 5 ? L.f("mic_reconnecting", n, 5) : L.f("mic_reconnecting_long", n)
                 break
             }
             let on = o["on"] as? Bool ?? false
             let first = !micKnown
             micKnown = true
+            if on != micOn { Announcer.post(L.t(on ? "a11y_mic_on" : "a11y_mic_off")) }   // Nr. 365
             micOn = on
             keepAwake(on)
             if first && !on && wantListen && !micLent {
@@ -1159,8 +1176,11 @@ final class EngineModel: NSObject, ObservableObject {
             let what = o["what"] as? String ?? "translate"
             if o["ok"] as? Bool ?? true {
                 // Netz wieder da: den zuletzt gescheiterten Satz einmal automatisch neu übersetzen
-                if netDown.remove(what) != nil && what == "translate" && failedDrop != nil { retryFailed() }
-            } else { netDown.insert(what) }
+                if netDown.remove(what) != nil {
+                    Announcer.post(L.t("a11y_online"))   // Nr. 365
+                    if what == "translate" && failedDrop != nil { retryFailed() }
+                }
+            } else if netDown.insert(what).inserted { Announcer.post(L.t("a11y_offline")) }
         case "missed":
             missedHint = L.t(o["why"] as? String == "cut" ? "missed_cut" : "missed_overlap")
             missedWork?.cancel()
@@ -1170,7 +1190,8 @@ final class EngineModel: NSObject, ObservableObject {
         case "error":
             let code = o["code"] as? String, raw = o["msg"] as? String
             if code == "model_offline" { modelOffline = true; download = nil }
-            let msg = Self.errorText(code: code, msg: raw)
+            var msg = Self.errorText(code: code, msg: raw)
+            if let s = (o["retry_in_s"] as? NSNumber)?.intValue, s > 0 { msg += " " + L.f("retry_in", s) }   // Nr. 66
             status = "⚠️ " + msg
             // Hinweis behält die Ursache der Engine (Ausnahme, Dateiname, Gerät) – nur dort, wo sie variiert
             let detail = code.map { Self.errorDetailCodes.contains($0) } == true ? raw : nil
@@ -1231,6 +1252,12 @@ final class EngineModel: NSObject, ObservableObject {
                 }
                 status = L.f("glossary_learned", added.joined(separator: ", "))
             }
+        case "llm":   // Nr. 190: Claude eingeschaltet, aber kein Schlüssel -> sichtbar statt still Google
+            if o["on"] as? Bool == true, o["available"] as? Bool == false {
+                lastError = (L.t("llm_unavailable"), Date())
+            }
+        case "control_ignored":   // Nr. 188: App schickt ein Feld, das die Engine nicht kennt (ältere Engine?)
+            NSLog("Dolmetscher: Engine ignorierte Steuerfelder %@", (o["keys"] as? [String] ?? []).joined(separator: ","))
         case "llm_cost":
             llmCostUSD = (o["usd"] as? NSNumber)?.doubleValue ?? llmCostUSD
             llmMonthUSD = (o["month_usd"] as? NSNumber)?.doubleValue ?? llmMonthUSD
@@ -1252,6 +1279,11 @@ final class EngineModel: NSObject, ObservableObject {
     static let errorKeys: [String: String] = [
         "mic_denied": "err_mic_denied", "mic_unavailable": "err_mic_unavailable", "mic_no_data": "err_mic_no_data",
         "mic_timeout": "err_mic_timeout", "mic_failed": "err_mic_failed", "mic_not_found": "err_mic_not_found",
+        "output_not_found": "err_output_not_found", "output_unsupported": "err_output_unsupported",
+        "output_invalid": "err_output_not_found", "offline_mt_missing": "err_offline_mt_missing",
+        "profile_name_invalid": "err_profile_name_invalid", "profile_invalid": "err_profile_invalid",
+        "profile_not_found": "err_profile_not_found", "profile_delete_failed": "err_profile_delete_failed",
+        "history_failed": "err_history_failed", "history_days_invalid": "err_history_days_invalid",
         "mic_list_failed": "err_mic_list_failed", "mic_file_missing": "err_mic_file_missing",
         "ffmpeg_missing": "err_ffmpeg_missing", "audio_missing": "err_audio_missing", "model_offline": "err_model_offline",
         "translate_failed": "err_translate_failed", "llm_billing": "err_llm_billing", "reassign_expired": "err_reassign_expired",

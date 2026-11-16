@@ -353,10 +353,21 @@ JUNK = _JunkSet({"thank you for watching", "thanks for watching", "subtitles by"
                  "sous-titres réalisés par la communauté d'amara.org",
                  "subtítulos realizados por la comunidad de amara.org",
                  "ondertiteling door de amara.org gemeenschap", "продолжение следует",
-                 "ご視聴ありがとうございました", "请不吝点赞 订阅 转发 打赏支持明镜与点点栏目"})
+                 "ご視聴ありがとうございました", "请不吝点赞 订阅 转发 打赏支持明镜与点点栏目",
+                 # Nr. 55
+                 "thank you for listening", "thanks for listening", "ขอบคุณที่ดู", "ขอบคุณที่รับฟัง",
+                 "ขอบคุณที่ดูจนจบ"})
+# Nr. 55: „Subtitles by <Name>“ – Abspann mit kurzem Namen. Nur ganze, kurze Äußerungen (junk_by): „Subtitles by
+# hand are hard“ ist echte Sprache und bleibt.
+_JUNK_BY = re.compile(r"subtitles?by\w{1,20}|(?:ซับไตเติ้ล|คำบรรยาย)โดย\w{1,20}")
+
+
+def junk_by(text):
+    return len(text.split()) <= 4 and _JUNK_BY.fullmatch(_junk_norm(text)) is not None
 # "[Music]"/"[เพลง]" stehen bewusst nicht drin: ohne Klammern (die Aufrufstelle entfernt sie) wären es
 # echte Ein-Wort-Antworten ("Music?", "เพลง").
-JUNK_IF_SHORT = {"thank you", "you", "bye", "ขอบคุณครับ", "ขอบคุณค่ะ"}   # nur bei sehr leiser/kurzer Aufnahme
+# nur bei sehr leiser/kurzer Aufnahme
+JUNK_IF_SHORT = {"thank you", "you", "bye", "bye bye", "byebye", "bye-bye", "ขอบคุณครับ", "ขอบคุณค่ะ"}
 # Audio-Ein/Ausgabe: standardmäßig PyAV über avhelper.py (kein Homebrew nötig). Ein externes ffmpeg
 # wird nur noch genutzt, wenn DOLMETSCHER_FFMPEG ausdrücklich gesetzt ist (Rückwärtskompatibilität).
 FFMPEG = os.environ.get("DOLMETSCHER_FFMPEG") or None
@@ -378,6 +389,58 @@ def capture_cmd(dev=None, path=None, af="", loop=False, realtime=False):
     src = (["--file", path, *(["--loop"] if loop else []), *(["--realtime"] if realtime else [])] if path
            else ["--device", str(dev)])
     return avhelper_cmd("capture", *src, "--af", af, "--rate", str(SR))
+
+
+# Nr. 24/357: Ausgabegerät (CoreAudio-UID, Name oder Index; "" = Systemstandard). Gilt für alle eigenen
+# Wiedergabewege über avhelper.py (Neural-Stimme, macOS-Stimme, Signalton). Mit DOLMETSCHER_FFMPEG
+# (altes ffmpeg/afplay) bleibt es beim Systemstandard.
+OUTPUT = {"device": ""}
+AFPLAY = "/usr/bin/afplay"
+
+
+def file_play_cmd(path, volume):
+    """Audiodatei (aiff von `say`, Signalton, gepuffertes mp3) abspielen: mit gewähltem Ausgabegerät über
+    avhelper.py, sonst wie bisher afplay."""
+    if OUTPUT["device"] and not FFMPEG:
+        return avhelper_cmd("play", "--file", path, "--volume", f"{volume:.2f}", "--device", OUTPUT["device"])
+    return [AFPLAY, "-v", f"{volume:.2f}", path]
+
+
+def list_outputs():
+    """CoreAudio-Geräte als [{index, name, uid}] (avhelper.py; enthält auch reine Eingänge)."""
+    r = subprocess.run(avhelper_cmd("list"), capture_output=True, text=True, timeout=10)
+    lines = [ln for ln in (r.stdout or "").splitlines() if ln.startswith("{")]
+    if not lines:
+        raise RuntimeError((r.stderr or "keine Antwort").strip()[-200:])
+    return json.loads(lines[-1]).get("outputs", [])
+
+
+def set_output_device(dev, check=True):
+    """Ausgabegerät setzen. check: im Hintergrund prüfen, ob es das Gerät gibt (sonst error output_not_found;
+    avhelper spielt dann über den Systemstandard)."""
+    dev = (dev or "").strip()
+    if dev.lower() == "default":
+        dev = ""
+    OUTPUT["device"] = dev
+    log({"output_device": dev or "standard"})
+    if FFMPEG and dev:
+        emit("error", code="output_unsupported",
+             msg="Ausgabegerät nur mit PyAV wählbar (DOLMETSCHER_FFMPEG gesetzt) – Systemstandard")
+        return
+    if not (check and dev):
+        return
+
+    def run():
+        import avhelper as _avh
+        try:
+            outs = list_outputs()
+        except Exception as e:                  # noqa: BLE001 – nur Prüfung
+            log({"output_device": "liste-fehler", "err": _errtxt(e)})
+            return
+        if outs and _avh.match_output(outs, dev) is None and OUTPUT["device"] == dev:
+            emit("error", code="output_not_found",
+                 msg="Ausgabegerät nicht gefunden – Systemstandard wird genutzt")
+    threading.Thread(target=run, name="output-check", daemon=True).start()
 
 
 def check_ffmpeg():
@@ -619,12 +682,24 @@ def _make_logger():
     return _LOGGER
 
 
+def _redact(v, hide=False, depth=0):
+    """Nr. 62: Gesprächstext auch in verschachtelten Dicts/Listen ersetzen. hide: Wert steht unter einem
+    Textschlüssel – dann jeder String darin. Tiefe begrenzt (Zyklen, riesige Strukturen)."""
+    if depth > 6:
+        return "…"
+    if isinstance(v, str):
+        return f"<{len(v)} Zeichen>" if hide else v
+    if isinstance(v, dict):
+        return {k: _redact(x, hide or k in _TEXT_KEYS, depth + 1) for k, x in v.items()}
+    if isinstance(v, (list, tuple)):
+        return [_redact(x, hide, depth + 1) for x in v]
+    return v
+
+
 def log(d):
     try:
         if not LOG_TEXT:
-            d = {k: (f"<{len(v)} Zeichen>" if k in _TEXT_KEYS and isinstance(v, str) else
-                      [f"<{len(x)} Zeichen>" for x in v] if k in _TEXT_KEYS and isinstance(v, (list, tuple)) else v)
-                 for k, v in d.items()}
+            d = _redact(d)
         _logger().info(json.dumps(d, ensure_ascii=False))
     except Exception:
         pass
@@ -1509,6 +1584,13 @@ _NUM_AFTER = re.compile(r"^\s*(?:บาท|โมง|นาที|ชั่ว�
                         r"km|kg|minutes?|hours?|days?|years?|people)", re.I)
 
 
+def speak_form(text, lang):
+    """Nr. 52: Thai-Lachen „555“ (ohne Zahlkontext) als ฮ่าฮ่าฮ่า vorlesen statt „ห้าห้าห้า“; die Anzeige bleibt."""
+    if lang != "th" or "5" not in text:
+        return text
+    return re.sub(r"\s{2,}", " ", _laugh_sub(text, " ฮ่าฮ่าฮ่า ")).strip()
+
+
 def _laugh_sub(text, repl=" "):
     """Thai-Lachen ersetzen; ein 555 mit Zahl-/Einheitenkontext ("ห้อง 555", "555 บาท") bleibt stehen."""
     def one(m):
@@ -1576,6 +1658,15 @@ def _llm_billing(e):
     return sc == 402 or (sc in (400, 403, 429, None) and bool(_BILLING_RX.search(str(e))))
 
 
+def _llm_retry_after(e):
+    """retry-after (Sekunden) aus der Antwort des SDK-Fehlers, begrenzt auf 1 … 600 s; sonst None."""
+    try:
+        v = float(e.response.headers.get("retry-after"))
+    except (AttributeError, TypeError, ValueError):
+        return None
+    return min(max(v, 1.0), 600.0) if v == v else None
+
+
 def _llm_backoff(e):
     """Wie lange nach einem Claude-Fehler direkt Google? Kurz bei Zeitüberschreitung/400, lang bei Auth
     und sehr lang bei leerem Guthaben/Kontingent."""
@@ -1589,6 +1680,11 @@ def _llm_backoff(e):
         return 300.0                                     # Schlüssel falsch: nicht jeden Satz neu versuchen
     if sc == 400 or isinstance(e, TimeoutError) or "Timeout" in name:
         return 10.0
+    if sc in (429, 529):                                 # Nr. 57: Ratelimit/überlastet – Server-Vorgabe nutzen
+        ra = _llm_retry_after(e)
+        if ra is not None:
+            return ra
+        return LLM_BACKOFF if sc == 429 else 20.0
     if "Connection" in name:
         return 15.0
     return LLM_BACKOFF
@@ -1668,14 +1764,20 @@ def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
     if out is None:
         try:
             out = _mt_chain(text, src, dst, meta, deadline)
-        except Exception:
+        except Exception as e:
             if fut is None:
+                off = _offline_mt(text, src, dst, e, meta)
+                if off:
+                    return off                           # nicht cachen: online ist besser
                 raise
             try:                                         # Google/MyMemory scheitern: doch auf Claude warten
                 out = fut.result(timeout=max(0.5, min(8.0, deadline - time.monotonic())))
             except Exception:
                 pass
             if out is None:
+                off = _offline_mt(text, src, dst, e, meta)
+                if off:
+                    return off
                 raise
             meta["provider"] = "claude"
         else:
@@ -1759,6 +1861,123 @@ def _mt_chain(text, src, dst, meta, deadline=None):
         raise
 
 
+# Nr. 28/165: Offline-Übersetzung über tools/translate-helper (Apple Translation, on-device). Dritte Stufe nur,
+# wenn Google/MyMemory wegen fehlenden Netzes scheitern – nie statt eines erreichbaren Online-Anbieters.
+# Opt-in: --offline-translator PFAD oder DOLMETSCHER_TRANSLATE_HELPER; ohne Pfad sucht die Engine
+# `translate-helper` neben dolmetscher.py (sobald das App-Bundle ihn mitliefert). Ergebnisse werden nicht
+# gecacht (online ist die Qualität besser). Sprachpakete installiert der Nutzer in den Systemeinstellungen.
+OFFLINE_MT_TIMEOUT = 6.0           # s je Satz
+OFFLINE_MT_START = 5.0             # s bis zur ready-Zeile
+
+
+class OfflineMT:
+    def __init__(self):
+        self.path, self.on = None, False
+        self.proc, self.pairs, self.n = None, {}, 0
+        self.lock = threading.Lock()
+        self.failed_at = None                       # Start gescheitert: nicht bei jedem Satz neu versuchen
+
+    def configure(self, path=None, on=False):
+        here = os.path.join(os.path.dirname(os.path.abspath(__file__)), "translate-helper")
+        cand = path or os.environ.get("DOLMETSCHER_TRANSLATE_HELPER") or (here if os.path.exists(here) else None)
+        self.path = cand if cand and os.path.isfile(cand) and os.access(cand, os.X_OK) else None
+        self.on = bool(on and self.path)
+        if on and not self.path:
+            log({"offline_mt": "helfer fehlt", "path": cand})
+        return self.on
+
+    def _start(self):
+        if self.proc is not None and self.proc.poll() is None:
+            return True
+        if self.failed_at is not None and time.monotonic() - self.failed_at < 60:
+            return False
+        try:
+            self.proc = subprocess.Popen([self.path], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                         stderr=subprocess.DEVNULL)
+            hello = self._readline(OFFLINE_MT_START)
+            self.pairs = (hello or {}).get("pairs") or {}
+            if not (hello or {}).get("ready"):
+                raise RuntimeError((hello or {}).get("error") or "keine ready-Zeile")
+            log({"offline_mt": "bereit", "pairs": self.pairs})
+            self.failed_at = None
+            return True
+        except Exception as e:                       # noqa: BLE001 – optionaler Baustein
+            log({"offline_mt": "start fehlgeschlagen", "err": _errtxt(e)})
+            self.close()
+            self.failed_at = time.monotonic()
+            return False
+
+    def _readline(self, timeout):
+        import select
+        end = time.monotonic() + timeout
+        buf = b""
+        fd = self.proc.stdout.fileno()
+        while not buf.endswith(b"\n"):
+            left = end - time.monotonic()
+            if left <= 0 or not select.select([fd], [], [], left)[0]:
+                raise TimeoutError("translate-helper antwortet nicht")
+            chunk = os.read(fd, 65536)
+            if not chunk:
+                raise RuntimeError("translate-helper beendet")
+            buf += chunk
+        return json.loads(buf.decode("utf-8", "replace").splitlines()[-1])
+
+    def close(self):
+        p, self.proc = self.proc, None
+        if p is not None:
+            try:
+                p.kill()
+            except OSError:
+                pass
+
+    def translate(self, text, src, dst):
+        """-> Übersetzung oder None (aus, Sprachpaar nicht installiert, Fehler)."""
+        if not self.on:
+            return None
+        with self.lock:
+            if not self._start() or self.pairs.get(f"{src}-{dst}") != "installed":
+                return None
+            self.n += 1
+            try:
+                self.proc.stdin.write((json.dumps({"id": self.n, "text": text, "src": src, "dst": dst},
+                                                  ensure_ascii=False) + "\n").encode("utf-8"))
+                self.proc.stdin.flush()
+                while True:
+                    r = self._readline(OFFLINE_MT_TIMEOUT)
+                    if r.get("id") == self.n:
+                        break
+            except Exception as e:                   # noqa: BLE001
+                log({"offline_mt": "fehler", "err": _errtxt(e)})
+                self.close()
+                return None
+        out = (r.get("out") or "").strip()
+        if not out:
+            log({"offline_mt": "fehler", "err": str(r.get("error") or "leer")[:80]})
+            return None
+        return out
+
+
+OFFLINE_MT = OfflineMT()
+
+
+def _offline_mt(text, src, dst, err, meta):
+    """Nach gescheiterter Online-Kette: nur bei fehlendem Netz die Offline-Übersetzung versuchen."""
+    if not OFFLINE_MT.on or not (time.monotonic() < _OFFLINE["until"] or is_offline_error(err)):
+        return None
+    out = OFFLINE_MT.translate(text, src, dst)
+    if out:
+        meta.update(provider="apple", cached=False)
+    return out
+
+
+def translate_retry_in():
+    """Nr. 66: Sekunden, bis wieder ein Online-Anbieter versucht wird (0 = sofort): der frühere von Google und
+    MyMemory, mindestens bis der Offline-Schalter abläuft."""
+    now = time.monotonic()
+    nxt = max(min(_PROV["google"]["until"], _PROV["mymemory"]["until"]), _OFFLINE["until"])
+    return int(round(nxt - now)) if nxt - now >= 1 else 0
+
+
 def _is_conn_error(e):
     """Reiner Verbindungsfehler (kein HTTP-Status): DNS, kein Netz, Zeitüberschreitung."""
     return isinstance(e, urllib.error.URLError) and not isinstance(e, urllib.error.HTTPError)
@@ -1812,7 +2031,10 @@ _TH_NUM_RUN = re.compile("(?:" + "|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], ke
                          + r")(?:(?:" + "|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], key=len, reverse=True))
                          + "))*")
 _TH_TOKEN = re.compile("|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], key=len, reverse=True)))
-_SCALE = re.compile(r"(\d+(?:[.,]\d+)?)\s*(million|mio\.?|billion|พันล้าน|ล้าน)", re.I)
+_SCALE = re.compile(r"(\d+(?:[.,]\d+)?)\s*(million|mio\.?|billion|thousand|พันล้าน|ล้าน|แสน|หมื่น|พัน)"
+                    r"|(\d+(?:[.,]\d+)?)(k)\b", re.I)
+_SCALE_F = {"billion": 1e9, "พันล้าน": 1e9, "million": 1e6, "mio": 1e6, "mio.": 1e6, "ล้าน": 1e6, "แสน": 1e5,
+            "หมื่น": 1e4, "thousand": 1e3, "พัน": 1e3, "k": 1e3}
 
 # Englische Zahlwörter ("three hundred fifty", "twenty-five") für den Zahlenvergleich in Ziffern
 _EN_UNIT_W = {"zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8,
@@ -1899,10 +2121,10 @@ def thai_words_to_digits(s):
 
 
 def _scale_sub(m):
-    g = m.group(1)
+    """1.5 million / 1.5 ล้าน / 10k / 10 thousand / 2 หมื่น / 3 แสน -> Ziffern (Nr. 54)."""
+    g, unit = (m.group(1), m.group(2)) if m.group(1) else (m.group(3), m.group(4))
     n = float(g.replace(",", "") if re.fullmatch(r"\d{1,3},\d{3}", g) else g.replace(",", "."))
-    unit = m.group(2).lower()
-    return f"{round(n * (1e9 if unit in ('billion', 'พันล้าน') else 1e6))}"
+    return f"{round(n * _SCALE_F[unit.lower()])}"
 
 
 _PM_TIME = re.compile(r"(?<![\d.:])(\d{1,2})(?::(\d{2}))?\s*([ap])\.?\s*m\b\.?", re.I)
@@ -2018,7 +2240,12 @@ def numbers_differ(a, b):
                     mine.discard(x)
                     other.discard(y)
                     break
-    return any(len(re.sub(r"\D", "", x)) >= 2 for x in only_a | only_b)
+    if any(len(re.sub(r"\D", "", x)) >= 2 for x in only_a | only_b):
+        return True
+    # Nr. 53: einstellige Zahlen nur, wenn sie auf beiden Seiten als Ziffern dastehen („table for 2“ ->
+    # „โต๊ะ 3 ที่“); als Wort übersetzt (2 = สอง) zählen sie nach der Umrechnung ohnehin als gleich
+    da, db = set(_numbers(a, words=False)), set(_numbers(b, words=False))
+    return bool({x for x in only_a if x in da and x.isdigit()} and {y for y in only_b if y in db and y.isdigit()})
 
 
 _TH_CH = "\u0e01-\u0e4e"                     # Thai-Buchstaben/-Vokale/-Tonzeichen (ohne Ziffern)
@@ -2444,8 +2671,9 @@ class Player:
 
     def start(self, cmd, **kw):
         if NULL_AUDIO:                 # Tests: kompletter Ausgabe-Pfad, aber ohne Ton
-            cmd = ["/bin/sleep", "1"] if cmd[0].endswith("afplay") else ["/bin/cat"]
+            cmd = ["/bin/sleep", "1"] if cmd[0].endswith("afplay") or "--file" in cmd else ["/bin/cat"]
         warm = self._warmable(cmd, kw)
+        kw.setdefault("stdin", subprocess.DEVNULL)   # nie das Steuer-stdin der Engine erben
         with self.lock:                # Start und Eintragen unter einem Lock: stop() kann dazwischen nichts verpassen
             p = self._take_standby(cmd) if warm else None
             if p is None:
@@ -2508,7 +2736,8 @@ class Player:
                 self.killed.discard(p)
                 if start is not None:
                     self.spans = (self.spans + [(start, time.time())])[-20:]
-                    log({"play_span": [round(start % 1000, 2), round(time.time() % 1000, 2)]})
+                    if DEBUG:          # Nr. 48: sonst verdrängt es echte Fehler aus dem Log
+                        log({"play_span": [round(start % 1000, 2), round(time.time() % 1000, 2)]})
 
     def run(self, cmd):
         self.wait(self.start(cmd))
@@ -2758,11 +2987,15 @@ def _ssml(text, voice, rate):
         return None
 
 
+WS_RECV_S = 8.0                        # s ohne neue Nachricht -> Verbindung gilt als hängend
+
+
 async def _ws_speak(ssml, put, stopped):
     """SSML über eine (möglichst schon offene) Verbindung senden, Audioblöcke an put() geben.
     Eine Vorrats-Verbindung kann der Server inzwischen geschlossen haben: kam noch kein Ton,
     einmal mit einer frisch geöffneten wiederholen."""
     import aiohttp
+    import asyncio
     for attempt in (0, 1):
         ws = _ws_take() if attempt == 0 else None
         pooled = ws is not None
@@ -2771,7 +3004,12 @@ async def _ws_speak(ssml, put, stopped):
             if ws is None:
                 ws = await _ws_open()
             await ws.send_str(ssml)
-            async for m in ws:
+            it = ws.__aiter__()
+            while True:                        # Nr. 36: hängt der Server, nicht bis cancel() warten
+                try:
+                    m = await asyncio.wait_for(it.__anext__(), WS_RECV_S)
+                except StopAsyncIteration:
+                    break
                 if stopped():
                     return pooled
                 if m.type == aiohttp.WSMsgType.TEXT:
@@ -2831,7 +3069,8 @@ def pipe_player(volume):
     DOLMETSCHER_FFMPEG wie früher ffmpeg -> AudioToolbox, sonst ffplay, sonst None (afplay)."""
     global _PIPE_PLAYER
     if not FFMPEG:
-        return avhelper_cmd("play", "--volume", f"{volume:.2f}")
+        dev = ["--device", OUTPUT["device"]] if OUTPUT["device"] else []
+        return avhelper_cmd("play", "--volume", f"{volume:.2f}", *dev)
     with _PIPE_PLAYER_LOCK:                    # Vorwärmen und erster Satz: nur einmal nachsehen
         miss = _PIPE_PLAYER_MISS["t"]
         if _PIPE_PLAYER == "" and miss is not None and time.monotonic() - miss >= PIPE_PLAYER_RETRY_S:
@@ -3062,7 +3301,7 @@ def edge_play(stream, volume, on_start=None, cancelled=None, deadline=None):
                 stats["play_start_s"] = round(time.time() - t0, 2)
                 if on_start:
                     on_start(stats["play_start_s"])
-                PLAYER.run(["/usr/bin/afplay", "-v", f"{volume:.2f}", mp3])
+                PLAYER.run(file_play_cmd(mp3, volume))
             finally:
                 os.remove(mp3)
     finally:
@@ -3091,6 +3330,13 @@ def say_cmd(voice, rate_pct, path, text):
     läse say ihn sonst als Option und spräche nichts."""
     rate = max(50, int(185 * (1 + _clamp_rate(rate_pct) / 100)))
     return [SAY, "-v", voice, "-r", str(rate), "-o", path, "--", text]
+
+
+def _rm_quiet(path):
+    try:
+        os.remove(path)
+    except OSError:
+        pass
 
 
 def run_cancellable(cmd, timeout=SAY_TIMEOUT, cancelled=None, step=0.05):
@@ -3129,6 +3375,10 @@ class LocalVoice:
         os.close(fd)
         os.remove(self.path)
         self.voice = voice
+        gen = CANCEL["gen"]
+
+        def cancelled():                        # Nr. 170: Stopp/Barge-in beendet auch das Vorab-Rendern
+            return self.dropped.is_set() or CANCEL["gen"] != gen
 
         def run():
             try:
@@ -3138,18 +3388,23 @@ class LocalVoice:
                     # Hat die Neural-Stimme inzwischen Ton geliefert (Normalfall), wird nichts gebraucht.
                     if self.dropped.is_set() or (audio is not None and audio.is_set()):
                         return
-                    r = subprocess.run(say_cmd(voice, rate_pct, self.path, text), capture_output=True,
-                                       timeout=SAY_TIMEOUT)
-                    if r.returncode != 0:
-                        log({"tts": "lokal-vorab-fehler", "rc": r.returncode})
+                    rc = run_cancellable(say_cmd(voice, rate_pct, self.path, text), cancelled=cancelled)
+                    if rc is None and cancelled():
+                        _rm_quiet(self.path)            # halb geschriebene Datei nie abspielen
+                    elif rc != 0:
+                        log({"tts": "lokal-vorab-fehler", "rc": rc})
             except Exception as e:
                 log({"tts": "lokal-vorab-fehler", "err": _errtxt(e)})
             finally:
                 self.done.set()
         threading.Thread(target=run, name="say-prerender", daemon=True).start()
 
-    def ready_path(self, timeout=6.0):
-        self.done.wait(timeout)
+    def ready_path(self, timeout=6.0, cancelled=None):
+        """Nr. 169: Stopp/Barge-in während des Wartens beendet das Warten sofort (-> None)."""
+        end = time.monotonic() + timeout
+        while not self.done.wait(min(0.05, max(0.0, end - time.monotonic()))):
+            if (cancelled and cancelled()) or time.monotonic() >= end:
+                return None
         return self.path if os.path.exists(self.path) and os.path.getsize(self.path) > 0 else None
 
     def cleanup(self):
@@ -3211,7 +3466,7 @@ class Speaker:
         item = {"id": uid, "lang": lang, "kind": kind, "parts": [], "t_end": t_end}
         if kind == "speech":
             boost = self.boost(behind)
-            for i, s in enumerate(split_sentences(apply_pronounce(text), lang)):
+            for i, s in enumerate(split_sentences(apply_pronounce(speak_form(text, lang)), lang)):
                 # Nur die ersten Teile sofort anfragen; die übrigen erst, wenn der vorige zu spielen
                 # beginnt (sonst viele Websockets + say-Prozesse gleichzeitig, mitten in der Erkennung).
                 stream, local = self._prepare(s, lang, boost) if i < self.PRESTART else (None, None)
@@ -3282,7 +3537,7 @@ class Speaker:
         if it["kind"] == "earcon":
             wait_quiet()
             emit("speaking", id=uid, first_s=0.0)
-            PLAYER.run(["/usr/bin/afplay", "-v", f"{eng.volume:.2f}", EARCON])
+            PLAYER.run(file_play_cmd(EARCON, eng.volume))
             emit("speak_done", id=uid, skipped=False, interrupted=False)
             return
         started = {"v": False}
@@ -3576,7 +3831,7 @@ class Engine:
                 if not local or is_offline_error(e):
                     net_state("tts", False)
             if local:                            # Wettlauf verloren: vorbereitete macOS-Stimme sofort
-                path = local.ready_path()
+                path = local.ready_path(cancelled=cancelled)
                 if path and not (cancelled and cancelled()):
                     wait_quiet(cancelled=cancelled)
                     if cancelled and cancelled():
@@ -3584,7 +3839,7 @@ class Engine:
                     log({"tts": "lokal", "voice": local.voice, "after_s": round(time.time() - t, 2)})
                     if on_start:
                         on_start(round(time.time() - t, 2))
-                    PLAYER.run(["/usr/bin/afplay", "-v", f"{self.volume:.2f}", path])
+                    PLAYER.run(file_play_cmd(path, self.volume))
                     return
         fd, aiff = tempfile.mkstemp(prefix="dolmetscher_say_", suffix=".aiff", dir=private_tmp())
         os.close(fd)
@@ -3601,7 +3856,7 @@ class Engine:
                     return
                 if on_start:
                     on_start(round(time.time() - t, 2))
-                PLAYER.run(["/usr/bin/afplay", "-v", f"{self.volume:.2f}", aiff])
+                PLAYER.run(file_play_cmd(aiff, self.volume))
         finally:
             if os.path.exists(aiff):
                 os.remove(aiff)
@@ -3984,8 +4239,8 @@ class Engine:
                 info["drop"] = f"halluzination ({hall})"
                 text = ""
         low = _strip_punct(text).lower()
-        if text and (low in JUNK or (low in JUNK_IF_SHORT and (1.0 if rms is None else rms) < 0.01
-                                     and audio.size / SR < 1.5)):
+        if text and (low in JUNK or junk_by(low)
+                     or (low in JUNK_IF_SHORT and (1.0 if rms is None else rms) < 0.01 and audio.size / SR < 1.5)):
             info["drop"] = "floskel"
             text = ""
         if not text:
@@ -4037,7 +4292,8 @@ class Engine:
             if (p and sim is not None and sim >= LEARN_MIN_SIM
                     and time.monotonic() - last.get(role, -1e9) >= LEARN_EVERY_S):
                 last[role] = time.monotonic()           # learn() schreibt die Profildatei: höchstens alle 30 s
-                self.spk.learn(p["name"], emb, LEARN_W_AUTO)
+                if self.spk.learn(p["name"], emb, LEARN_W_AUTO):
+                    emit("profile_adapted", name=p["name"], role=role)   # Nr. 182: nicht mehr unsichtbar
         except Exception as e:
             log({"learn": "fehler", "err": repr(e)[:200]})
 
@@ -4177,7 +4433,8 @@ class Engine:
             hist = tuple(h for h in self.history if h is not old)
             polite = polite or self.polite      # Person mit eigener Form (Profil) vor der Einstellung
             out = translate(text, lang, dst, history=hist, alts=alts, polite=polite, meta=meta)
-            net_state("translate", True)
+            # Offline-Übersetzung (Apple) heißt: kein Netz – nicht als „wieder online“ melden
+            net_state("translate", meta.get("provider") != "apple")
             if numbers_differ(text, out):      # Zahlen weichen ab: zweiter Anbieter entscheidet (Nr. 25)
                 out = recheck_numbers(text, lang, dst, out, meta, hist, alts, polite)
         except Exception as e:
@@ -4188,8 +4445,10 @@ class Engine:
                  text=text, lang=lang)
             # nur Typ/Status/eigene Meldungen – Server-Texte können den Satz zitieren (Nr. 7)
             own = isinstance(e, RuntimeError) and _SAFE_MSG.match(str(e))
+            wait = translate_retry_in()
             emit("error", code="translate_failed",
-                 msg=f"Übersetzung fehlgeschlagen: {str(e)[:80] if own else _errtxt(e)}")
+                 msg=f"Übersetzung fehlgeschlagen: {str(e)[:80] if own else _errtxt(e)}",
+                 **({"retry_in_s": wait} if wait else {}))
             emit("listening")
             return None
         if dst == "th":
@@ -4313,34 +4572,36 @@ def profile_cli(a):
             emit("profiles_deleted_all", ok=True, files=profiles.delete_all_profiles())
         except OSError as e:
             emit("profiles_deleted_all", ok=False, files=0)
-            emit("error", msg=f"Stimmdaten konnten nicht gelöscht werden: {e}")
+            emit("error", code="profile_delete_failed", msg=f"Stimmdaten konnten nicht gelöscht werden: {e}")
     elif a.delete_profile:
         emit("profile_deleted", name=a.delete_profile, ok=profiles.delete_profile(a.delete_profile))
+    elif getattr(a, "reset_learning", None):
+        emit("learning_reset", name=a.reset_learning, ok=bool(profiles.reset_learning(a.reset_learning)))
     elif getattr(a, "profile_polite", None) is not None:
         try:
             p = profiles.set_polite(a.profile_polite[0], a.profile_polite[1])
         except profiles.ProfileNameError as e:
-            emit("error", msg=f"Ungültiger Profilname: {e}")
+            emit("error", code="profile_name_invalid", msg=f"Ungültiger Profilname: {e}")
             return
         except (KeyError, ValueError):
-            emit("error", msg=f"Profil oder Höflichkeitsform ungültig: {a.profile_polite[0]}")
+            emit("error", code="profile_invalid", msg=f"Profil oder Höflichkeitsform ungültig: {a.profile_polite[0]}")
             return
         emit("profile_saved", profile=profiles.public(p))
     elif a.vocab is not None:
         try:
             p = profiles.set_vocab(a.vocab[0], re.split(r"[,\n]", a.vocab[1]))
         except profiles.ProfileNameError as e:
-            emit("error", msg=f"Ungültiger Profilname: {e}")
+            emit("error", code="profile_name_invalid", msg=f"Ungültiger Profilname: {e}")
             return
         except KeyError:
-            emit("error", msg=f"Profil nicht gefunden: {a.vocab[0]}")
+            emit("error", code="profile_not_found", msg=f"Profil nicht gefunden: {a.vocab[0]}")
             return
         emit("profile_saved", profile=profiles.public(p))
     elif a.enroll:
         try:
             profiles._safe(a.enroll)
         except profiles.ProfileNameError as e:
-            emit("error", msg=f"Ungültiger Profilname: {e}")
+            emit("error", code="profile_name_invalid", msg=f"Ungültiger Profilname: {e}")
             return
         emit("loading", msg="Lade Modelle für das Stimmprofil …")
         spk = profiles.SpeakerID()
@@ -4414,6 +4675,16 @@ def back_translate_async(uid, out, dst, src):
 
 def _text_arg(v, limit=PHRASE_MAX):
     return v.strip() if isinstance(v, str) and 0 < len(v.strip()) <= limit else None
+
+
+# Nr. 188: alle Steuerfelder, die apply_control kennt (Tippfehler im App-Code -> Ereignis control_ignored).
+CTRL_KEYS = frozenset({
+    "langs", "tr_mine", "tr_partner", "lang", "polite", "speak", "paused", "listen", "mic", "rate", "volume",
+    "silence", "sensitivity", "style", "glossary", "preset", "llm", "llm_budget", "earcons", "slow",
+    "back_translate", "learn_glossary", "output_device", "get_state", "fast_endpoint", "two_person",
+    "reload_profiles", "partial", "history", "history_days", "tts_race", "stop_speaking", "ping", "say",
+    "speak_text", "reassign", "retranslate", "reset_learning"}) | {f"tr_{k}" for k in LANGS} | {
+    f"voice_{k}" for k in LANGS}
 
 
 def apply_control(eng, d):
@@ -4500,6 +4771,8 @@ def apply_control(eng, d):
         if ok:
             LLM["on"] = v
             LLM["client"] = None               # Schlüssel evtl. neu gespeichert -> neu einlesen
+            _LLM_AVAIL["t"] = 0.0
+            later.append(lambda v=v: emit("llm", on=v, available=bool(llm_available())))   # Nr. 190
         n = _clamp(d.get("llm_budget"), 0.0, 10000.0)
         if n is not None:
             LLM["budget"] = float(n)           # USD je Monat, 0 = keine Grenze (Nr. 16)
@@ -4512,6 +4785,18 @@ def apply_control(eng, d):
         if ok: BACK["on"] = v
         ok, v = _flag(d, "learn_glossary")
         if ok: LEARN["glossary"] = v
+        if "output_device" in d:              # Nr. 24/357: Ausgabegerät (UID, Name, Index oder "" = Standard)
+            ov = d["output_device"]
+            if isinstance(ov, str) and len(ov) <= 300:
+                later.append(lambda ov=ov: set_output_device(ov))
+            else:
+                emit("error", code="output_invalid", msg="Ausgabegerät-Angabe ungültig – Gerät unverändert")
+        if "reset_learning" in d:             # Nr. 182: nachgeführten Stimmabdruck verwerfen
+            nm = _text_arg(d["reset_learning"], 80) if isinstance(d["reset_learning"], str) else None
+            if nm:
+                later.append(lambda nm=nm: reset_learning(eng, nm))
+            else:
+                emit("error", code="profile_name_invalid", msg="Profilname ungültig")
         ok, v = _flag(d, "get_state")
         if ok and v:
             later.append(eng.emit_snapshot)    # Nr. 189: Zustand auf Anfrage (App-Neustart/Reconnect)
@@ -4529,7 +4814,7 @@ def apply_control(eng, d):
         ok, v = _flag(d, "history")
         if ok:
             days = d.get("history_days")
-            later.append(lambda v=v, days=days: __import__("history_store").RECORDER.enable(v, days))
+            later.append(lambda v=v, days=days: history_enable(v, days))
         n = _clamp(d.get("tts_race"), 0.0, 5.0)
         if n is not None: TTS_RACE = float(n)
         ok, v = _flag(d, "stop_speaking")
@@ -4571,6 +4856,9 @@ def apply_control(eng, d):
                                                     r.get("lang") if isinstance(r.get("lang"), str) else ""))
             else:
                 emit("error", code="edit_invalid", msg="Korrektur ungültig (Text leer oder zu lang)")
+    unknown = sorted(k for k in d if k not in CTRL_KEYS)
+    if unknown:                                # Nr. 188: nicht still ignorieren
+        emit("control_ignored", keys=[str(k)[:40] for k in unknown[:10]])
     for fn in later:                           # Nr. 186: eine scheiternde Aktion verhindert die übrigen nicht
         try:
             fn()
@@ -4591,6 +4879,32 @@ def _run_all(fns):
             fn()
         except Exception as e:                 # noqa: BLE001
             log({"control": "aufgabe fehlgeschlagen", "err": _errtxt(e)})
+
+
+def reset_learning(eng, name):
+    """Stimmabdruck eines Profils auf den Stand beim Anlegen zurücksetzen -> learning_reset {name, ok}."""
+    spk = getattr(eng, "spk", None)
+    if spk is not None and hasattr(spk, "reset_learning"):
+        ok = spk.reset_learning(name)
+    else:
+        import profiles
+        ok = profiles.reset_learning(name)
+    emit("learning_reset", name=name, ok=bool(ok))
+
+
+def history_enable(on, days=None):
+    """Nr. 191: Verlauf an/aus; scheitert die Datenbank oder ist history_days ungültig, nicht still."""
+    import history_store
+    rec = history_store.RECORDER
+    rec.on_error = _history_write_failed
+    if days not in (None, 0) and history_store.valid_days(days) is None:   # 0 = nie löschen
+        emit("error", code="history_days_invalid", msg="Aufbewahrungsdauer ungültig – es wird nichts gelöscht")
+    if not rec.enable(on, days) and on:
+        emit("error", code="history_failed", msg="Verlauf kann nicht gespeichert werden – Aufzeichnung aus")
+
+
+def _history_write_failed():
+    emit("error", code="history_failed", msg="Verlauf kann nicht gespeichert werden – Aufzeichnung aus")
 
 
 def _stdin_lines():
@@ -5092,17 +5406,23 @@ class Mic:
         return True
 
     def _reconnect(self, stops):
-        """Mikrofon-Quelle weg (Gerät abgezogen, Schlaf): bis zu MIC_RETRIES Versuche mit Wartezeit."""
-        for n in range(1, MIC_RETRIES + 1):
+        """Mikrofon-Quelle weg (Gerät abgezogen, Schlaf): erst MIC_RETRIES schnelle Versuche (1, 2, 4, 8 s),
+        danach dauerhaft alle MIC_RETRY_SLOW s, bis es klappt, der Nutzer stoppt oder die Engine endet
+        (Nr. 192: ein Bluetooth-Aussetzer oder längerer Ruhezustand beendet nicht mehr die Sitzung)."""
+        n = 0
+        while True:
+            n += 1
             emit("mic", on=False, reconnecting=True, attempt=n)
-            if STOP.wait(min(10.0, 2.0 ** (n - 1))) or stops != self.stops:
+            wait = min(MIC_RETRY_SLOW, 2.0 ** (n - 1)) if n <= MIC_RETRIES else MIC_RETRY_SLOW
+            if STOP.wait(wait) or stops != self.stops:
                 return                         # Beenden oder Nutzer hat das Mikrofon selbst gestoppt
             try:
                 if self.start(_retry=True):
                     return
             except Exception as e:
                 log({"mic": "reconnect-fehler", "err": repr(e)[:200]})
-        self._fail("Mikrofon nicht mehr erreichbar", False)
+            if n == MIC_RETRIES:
+                log({"mic": "weiter alle %.0f s" % MIC_RETRY_SLOW})
 
     @staticmethod
     def _kill(ff):
@@ -5153,7 +5473,8 @@ MIC = None
 MIC_PENDING = {"mic": None}       # Steuerfeld `mic` vor dem Laden: gilt beim Anlegen des Mikrofons
 MIC_START_TIMEOUT = 10.0         # s bis der erste Mikrofon-Block da sein muss (Wachhund)
 FRAMES_MAX = 1000                # Mikrofon-Blöcke (~32 s) – älteste fliegen raus statt unbegrenzt zu wachsen
-MIC_RETRIES = 5
+MIC_RETRIES = 5                          # schnelle Versuche, danach alle MIC_RETRY_SLOW s
+MIC_RETRY_SLOW = 10.0
 
 
 class WorkQueue(queue.Queue):
@@ -5316,7 +5637,10 @@ if __name__ == "__main__":
                     " + Thai-Modell) | auto (nach Chip/RAM)")
     ap.add_argument("--device", choices=["auto", "mps", "cpu"], default="auto")
     ap.add_argument("--mic", default="0")
+    ap.add_argument("--output-device", default="", help="Ausgabegerät: UID, Name oder Index")
     ap.add_argument("--list-mics", action="store_true", help="Mikrofone als JSON ausgeben")
+    ap.add_argument("--offline-translator", nargs="?", const="", default=None,
+                    help="Offline-Übersetzung (Apple) ohne Netz; optional Pfad zu translate-helper")
     ap.add_argument("--polite", choices=["krub", "ka"], default="krub")
     ap.add_argument("--file", nargs="*")
     ap.add_argument("--mute", action="store_true")
@@ -5403,11 +5727,13 @@ if __name__ == "__main__":
         v = req.get("polite")
         if isinstance(v, list) and len(v) == 2 and all(isinstance(x, str) for x in v):
             a.profile_polite = v
+        if isinstance(req.get("reset_learning"), str):
+            a.reset_learning = req["reset_learning"]
     import history_store
     if history_store.wants_cli(a):
         sys.exit(history_store.run_cli(a))
     if a.history:
-        history_store.RECORDER.enable(True, a.history_days)
+        history_enable(True, a.history_days)
     JSON, BARGE_IN, LOG_TEXT, METER, DENOISE = a.json, a.barge_in, a.log_text, a.meter, a.denoise
     _lp = (a.langs or "").split(",")
     if not (len(_lp) == 2 and set_pair(*_lp)):
@@ -5445,7 +5771,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, shutdown)
     signal.signal(signal.SIGINT, shutdown)
     if (a.profiles or a.enroll or a.delete_profile or a.delete_all_profiles or a.vocab is not None
-            or a.profile_polite is not None):
+            or a.profile_polite is not None or getattr(a, "reset_learning", None)):
         profile_cli(a)
         sys.exit(0)
     if a.tts == "edge" and not a.mute:
@@ -5469,6 +5795,10 @@ if __name__ == "__main__":
     eng.mute = a.mute
     eng.earcons = a.earcons
     SLOW["on"], BACK["on"], LEARN["glossary"] = a.slow, a.back_translate, not a.no_learn_glossary
+    if a.output_device:
+        set_output_device(a.output_device)
+    if a.offline_translator is not None and not OFFLINE_MT.configure(a.offline_translator or None, on=True):
+        emit("error", code="offline_mt_missing", msg="Offline-Übersetzer (translate-helper) nicht gefunden")
     if a.no_two_person:
         eng.two_person = False
     if a.no_en: eng.translate_dir["en"] = False

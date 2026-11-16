@@ -104,6 +104,7 @@ private struct GeneralSettings: View {
                 .foregroundStyle(.secondary)
             }
             MicSection()
+            OutputSection()
             RecognitionSection()
             Section {
                 Toggle(L.t("push_to_talk"), isOn: $m.pushToTalk)
@@ -174,7 +175,10 @@ private struct HistorySection: View {
         .confirmationDialog(L.t("history_clear_confirm"), isPresented: $confirmClear, titleVisibility: .visible) {
             Button(L.t("clear"), role: .destructive) {
                 note = ""
-                let p = EngineRunner.run(["--history-clear"], timeout: 30, onEvent: { _ in }, onExit: { note = L.t("done_short") })
+                var ok = false   // Nr. 387: nur mit Antwort der Engine „Fertig“ (nicht bei Fehler/Zeitlimit)
+                let p = EngineRunner.run(["--history-clear"], timeout: 30, onEvent: { o in
+                    if o["deleted"] != nil { ok = true }
+                }, onExit: { note = ok ? L.t("done_short") : L.t("history_clear_failed") })
                 if p == nil { note = Paths.pythonIsFallback ? L.t("python_missing") : L.t("script_missing") }
             }
             Button(L.t("cancel"), role: .cancel) {}
@@ -187,9 +191,11 @@ private struct HistorySection: View {
         panel.nameFieldStringValue = "Dolmetscher-history." + ext
         guard panel.runModal() == .OK, let url = panel.url else { return }
         note = ""
-        let started = EngineRunner.run(["--history-export", fmt, "--out", url.path], timeout: 60, onEvent: { _ in },
-                                       onExit: {
-            if FileManager.default.fileExists(atPath: url.path) {
+        var ok = false   // Nr. 388: Erfolg nur mit `exported` der Engine – eine schon vorhandene Datei zählt nicht
+        let started = EngineRunner.run(["--history-export", fmt, "--out", url.path], timeout: 60, onEvent: { o in
+            if o["exported"] as? Bool == true { ok = true }
+        }, onExit: {
+            if ok && FileManager.default.fileExists(atPath: url.path) {
                 note = L.t("done_short")
                 NSWorkspace.shared.activateFileViewerSelecting([url])
             } else {
@@ -303,6 +309,40 @@ private struct MicSection: View {
     }
 }
 
+/// Ausgabegerät (Nr. 24/357): Liste aus CoreAudio, Wechsel live ohne Neustart (Steuerfeld `output_device`).
+private struct OutputSection: View {
+    @EnvironmentObject var m: EngineModel
+    @State private var outputs: [AudioOutputs.Device] = []
+
+    private var selection: Binding<String> {
+        Binding(get: { m.outputDevice }, set: { new in
+            m.outputDeviceName = outputs.first { $0.uid == new }?.name ?? ""
+            m.outputDevice = new
+        })
+    }
+
+    var body: some View {
+        Section {
+            HStack {
+                Picker(L.t("output_device"), selection: selection) {
+                    Text(L.t("output_default")).tag("")
+                    ForEach(outputs, id: \.uid) { Text($0.name).tag($0.uid) }
+                    if !m.outputDevice.isEmpty && !outputs.contains(where: { $0.uid == m.outputDevice }) {
+                        Text(m.outputDeviceName.isEmpty ? m.outputDevice : m.outputDeviceName).tag(m.outputDevice)
+                    }
+                }
+                .accessibilityLabel(L.t("output_device"))
+                .help(L.t("output_device_help"))
+                Button { outputs = AudioOutputs.list() } label: { Image(systemName: "arrow.clockwise") }
+                    .buttonStyle(.borderless)
+                    .help(L.t("mic_reload"))
+                    .accessibilityLabel(L.t("mic_reload"))
+            }
+        }
+        .onAppear { outputs = AudioOutputs.list() }
+    }
+}
+
 /// Satzende-Pause, Empfindlichkeit, Rauschunterdrückung.
 private struct RecognitionSection: View {
     @EnvironmentObject var m: EngineModel
@@ -311,7 +351,9 @@ private struct RecognitionSection: View {
             HStack {
                 Text(L.t("silence"))
                 Slider(value: $m.silence, in: 0.4...2.0, step: 0.1)
+                    .help(L.t("silence_help"))
                     .accessibilityLabel(L.t("silence"))
+                    .accessibilityHint(L.t("silence_help"))
                     .accessibilityValue(fmtSeconds(m.silence))
                 Text(fmtSeconds(m.silence)).monospacedDigit().frame(width: 44, alignment: .trailing)
             }
@@ -321,6 +363,7 @@ private struct RecognitionSection: View {
                 Text(L.t("sens_high")).tag("high")
             }
             .accessibilityLabel(L.t("sensitivity"))
+            .help(L.t("sensitivity_help"))
             Toggle(isOn: $m.denoise) {
                 VStack(alignment: .leading) { Text(L.t("denoise")); RestartNote() }
             }

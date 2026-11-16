@@ -306,14 +306,15 @@ struct ContentView: View {
         }
     }
 
-    private func scrollToEnd(_ sv: ScrollViewProxy, animated: Bool) {
-        guard let last = shown.last else { return }
+    private func scrollToEnd(_ sv: ScrollViewProxy, animated: Bool, last: Utterance? = nil) {
+        guard let last = last ?? shown.last else { return }
         if animated && !reduceMotion { withAnimation { sv.scrollTo(last.id, anchor: .bottom) } }
         else { sv.scrollTo(last.id, anchor: .bottom) }
     }
 
     private var conversation: some View {
         ScrollViewReader { sv in
+            let shown = self.shown   // Nr. 369: Filter (bis 500 Blasen, localizedCaseInsensitive) einmal je Durchlauf
             ScrollView {
                 LazyVStack(spacing: 12) {
                     if m.items.isEmpty { EmptyState() }
@@ -349,13 +350,13 @@ struct ContentView: View {
             .onChange(of: shown.count) { scrollBox.lastContentChange = Date() }
             .onChange(of: scale) { scrollBox.lastContentChange = Date() }
             .onChange(of: shown.last?.id) {   // neue Blase
-                if !userScrolledUp { scrollToEnd(sv, animated: true) }
+                if !userScrolledUp { scrollToEnd(sv, animated: true, last: shown.last) }
             }
             .onChange(of: shown.last?.pending) {   // Platzhalter wird zur fertigen Blase (gleiche id)
-                if !userScrolledUp { scrollToEnd(sv, animated: true) }
+                if !userScrolledUp { scrollToEnd(sv, animated: true, last: shown.last) }
             }
             .onChange(of: shown.last?.partial) {   // Teiltext wächst: unten bleiben (ohne Animation, kommt oft)
-                if !userScrolledUp, let last = shown.last, last.pending { scrollToEnd(sv, animated: false) }
+                if !userScrolledUp, let last = shown.last, last.pending { scrollToEnd(sv, animated: false, last: last) }
             }
             .overlay(alignment: .bottomTrailing) {
                 if userScrolledUp && !m.items.isEmpty {
@@ -829,6 +830,7 @@ struct NoticeBanner: View {
         .padding(.horizontal, 14).padding(.vertical, 8)
         .background(tint.opacity(0.1))
         .accessibilityElement(children: .contain)
+        .onAppear { Announcer.post(text) }   // Nr. 367: VoiceOver erfährt vom neuen Hinweis
     }
 }
 
@@ -873,6 +875,7 @@ struct MicDeniedBanner: View {
 struct CrashBanner: View {
     @EnvironmentObject var m: EngineModel
     let log: String
+    @State private var diagCopied = false
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Label(L.t("crash_banner"), systemImage: "exclamationmark.triangle.fill")
@@ -891,6 +894,13 @@ struct CrashBanner: View {
                     .buttonStyle(.borderedProminent)
                 Button(L.t("show_log")) { NSWorkspace.shared.activateFileViewerSelecting([EngineModel.logURL]) }
                 Button(L.t("copy")) { copyToPasteboard(log) }
+                Button(diagCopied ? L.t("diag_copied") : L.t("diag_copy")) {   // Nr. 372: genau hier gebraucht
+                    Paths.checkPython { result in
+                        copyToPasteboard(m.diagnosticReport(python: result))
+                        diagCopied = true
+                    }
+                }
+                .help(L.t("diag_help"))
                 Spacer()
                 Button(L.t("hide")) { m.crashLog = nil }
             }
