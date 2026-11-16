@@ -156,3 +156,48 @@ final class PartnerPhraseTests: XCTestCase {
         XCTAssertFalse(off.warning.hasSuffix("ครับ"), off.warning)
     }
 }
+
+final class EmergencyMigrationTests: XCTestCase {
+    func testOldCardStillLoads() throws {
+        // Format vor Runde 3: ohne Blutgruppe, Allergene, Übersetzungen
+        let json = #"{"name":"Alex","hotel":"Riverside","allergies":"Peanuts","medical":"","contact":"+49 1"}"#
+        let e = try JSONDecoder().decode(EmergencyInfo.self, from: Data(json.utf8))
+        XCTAssertEqual(e.name, "Alex")
+        XCTAssertEqual(e.allergies, "Peanuts")
+        XCTAssertEqual(e.bloodType, "")
+        XCTAssertEqual(e.allergens, [])
+        XCTAssertFalse(e.isEmpty)
+    }
+
+    func testUnknownAllergenIsSkipped() throws {
+        let json = #"{"allergens":["peanut","sesame"]}"#
+        let e = try JSONDecoder().decode(EmergencyInfo.self, from: Data(json.utf8))
+        XCTAssertEqual(e.allergens, [.peanut])
+    }
+
+    func testTranslationGoesStaleWhenTextChanges() throws {
+        var e = EmergencyInfo()
+        e.allergies = "Peanuts"
+        e.translated = ["allergies": "ถั่วลิสง"]
+        e.translatedLang = "th"
+        e.translatedSource = e.translatableHash
+        XCTAssertEqual(e.translation(for: "allergies", lang: .th), "ถั่วลิสง")
+        XCTAssertNil(e.translation(for: "allergies", lang: .ja))
+        let back = try JSONDecoder().decode(EmergencyInfo.self, from: JSONEncoder().encode(e))
+        XCTAssertEqual(back, e)
+        e.allergies = "Peanuts, shrimp"
+        XCTAssertNil(e.translation(for: "allergies", lang: .th))
+    }
+
+    func testEntryRomanizationAndBackCheck() throws {
+        var e = Entry(src: .en, dst: .th, text: "Please take me to the airport", translation: "กรุณาพาไปสนามบินครับ")
+        XCTAssertNotNil(e.romanized)
+        e.roman = "ka-ru-na"
+        XCTAssertEqual(e.romanized, "ka-ru-na", "Satzbuch-Umschrift hat Vorrang")
+        XCTAssertFalse(e.backDeviates)
+        e.back = "Bring the plane to me"
+        XCTAssertTrue(e.backDeviates)
+        let old = #"{"id":"6F9619FF-8B86-D011-B42D-00C04FC964FF","date":0,"src":"en","text":"Hi"}"#
+        XCTAssertNil(try JSONDecoder().decode(Entry.self, from: Data(old.utf8)).back)
+    }
+}
