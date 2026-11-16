@@ -2,3 +2,4 @@
 "NSSpeechRecognitionUsageDescription" = "La voz se convierte en texto en este dispositivo para poder traducirla.";
 "NSCameraUsageDescription" = "Haz una foto de una carta o un cartel para que Dolmetscher lea y traduzca el texto.";
 "NSPhotoLibraryUsageDescription" = "Elige una foto de una carta o un cartel para que Dolmetscher lea y traduzca el texto.";
+"NSFaceIDUsageDescription" = "Face ID desbloquea tu historial de conversación si activas el bloqueo del historial.";

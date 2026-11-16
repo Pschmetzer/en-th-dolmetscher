@@ -69,7 +69,14 @@ struct SettingsView: View {
                         } label: { Label(T("offline_get"), systemImage: "arrow.down.circle") }
                     }
                     Toggle(T("online"), isOn: $m.allowOnline)
-                } header: { Text(T("sec_translation")) } footer: { Text(T("online_off_note")) }
+                    Toggle(T("back_check"), isOn: $m.backCheck)
+                    Toggle(T("show_roman"), isOn: $m.showRoman)
+                } header: { Text(T("sec_translation")) } footer: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(T("online_off_note"))
+                        Text(T("back_check_note"))
+                    }
+                }
 
                 Section {
                     Toggle(T("whisper_use"), isOn: $whisper.enabled)
@@ -130,6 +137,13 @@ struct SettingsView: View {
                         Text(T("history_30d")).tag(30)
                         Text(T("history_forever")).tag(-1)
                     }
+                    if DeviceAuth.available {
+                        Toggle(T("lock_history"), isOn: Binding(get: { m.lockHistory }, set: { on in
+                            // Ein- und Ausschalten nur nach erfolgreicher Prüfung (sonst hebt jeder die Sperre auf).
+                            Task { if await DeviceAuth.authenticate(reason: T("lock_reason")) { m.lockHistory = on } }
+                        }))
+                    }
+                    NavigationLink { PrivacyView() } label: { Label(T("privacy_overview"), systemImage: "hand.raised") }
                 } header: { Text(T("sec_privacy")) } footer: { Text(T("history_note")) }
 
                 Section {

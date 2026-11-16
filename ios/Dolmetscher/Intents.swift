@@ -65,6 +65,35 @@ struct EmergencyPhraseIntent: AppIntent {
     }
 }
 
+/// Sagt einen Text laut in der Partnersprache (Taxi, Kellner): übersetzt aus meiner Sprache und liest vor.
+/// Öffnet die App, damit Ausgabe und Verlauf sicher funktionieren.
+struct SayInPartnerLanguageIntent: AppIntent {
+    static let title: LocalizedStringResource = "Say in partner's language"
+    static let description = IntentDescription("Translates a text from your language into your partner's language and says it out loud.")
+    static let supportedModes: IntentModes = .foreground
+
+    @Parameter(title: "Text")
+    var text: String
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        InterpreterModel.shared.sayInPartner(text)
+        return .result()
+    }
+}
+
+/// Öffnet die Notfallkarte (Allergien, Medizinisches, Kontakt – in der Partnersprache übersetzt).
+struct OpenEmergencyCardIntent: AppIntent {
+    static let title: LocalizedStringResource = "Open emergency card"
+    static let supportedModes: IntentModes = .foreground
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        InterpreterModel.shared.sheet = .emergency
+        return .result()
+    }
+}
+
 struct DolmetscherShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(intent: StartInterpreterIntent(),
@@ -76,6 +105,12 @@ struct DolmetscherShortcuts: AppShortcutsProvider {
         AppShortcut(intent: TranslateTextIntent(),
                     phrases: ["Translate with \(.applicationName)"],
                     shortTitle: "Translate text", systemImageName: "character.bubble")
+        AppShortcut(intent: SayInPartnerLanguageIntent(),
+                    phrases: ["Say with \(.applicationName)", "Say it in my partner's language with \(.applicationName)"],
+                    shortTitle: "Say in partner's language", systemImageName: "speaker.wave.2.bubble")
+        AppShortcut(intent: OpenEmergencyCardIntent(),
+                    phrases: ["Open \(.applicationName) emergency card", "Show my \(.applicationName) emergency card"],
+                    shortTitle: "Emergency card", systemImageName: "cross.case")
         AppShortcut(intent: EmergencyPhraseIntent(),
                     phrases: ["\(.applicationName) emergency", "Emergency with \(.applicationName)"],
                     shortTitle: "Emergency phrase", systemImageName: "sos")

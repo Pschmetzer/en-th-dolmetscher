@@ -1,4 +1,5 @@
 // Views.swift – Hauptansicht: Kopf mit Sprachen und Status, Sprechblasen-Verlauf, Start-Knopf und Texteingabe.
+import StoreKit
 import SwiftUI
 
 enum LangStyle {
@@ -16,6 +17,7 @@ struct ContentView: View {
     @State private var draft = ""
     @State private var confirmClear = false
     @FocusState private var typing: Bool
+    @Environment(\.requestReview) private var requestReview
 
     var body: some View {
         @Bindable var m = m
@@ -45,7 +47,7 @@ struct ContentView: View {
                             Button { m.sheet = .help } label: { Label(T("commands"), systemImage: "text.bubble") }
                         }
                         ShareLink(item: m.transcript) { Label(T("share"), systemImage: "square.and.arrow.up") }
-                            .disabled(m.entries.isEmpty)
+                            .disabled(m.visibleEntries.isEmpty)
                         Button(role: .destructive) { confirmClear = true } label: { Label(T("clear"), systemImage: "trash") }
                             .disabled(m.entries.isEmpty)
                         Divider()
@@ -61,6 +63,12 @@ struct ContentView: View {
                 case .photo: PhotoTextView()
                 case .emergency: EmergencyView()
                 case .baht: BahtCalculatorView()
+                case .allergy: AllergyCardView()
+                case .privacy:
+                    NavigationStack {
+                        PrivacyView()
+                            .toolbar { ToolbarItem(placement: .confirmationAction) { Button(T("done")) { m.sheet = nil } } }
+                    }
                 case .help:
                     NavigationStack {
                         ScrollView { CommandsCard().padding() }
@@ -78,6 +86,19 @@ struct ContentView: View {
                 Button(T("cellular_wait"), role: .cancel) {}
             } message: { Text(T("cellular_msg")) }
             .fullScreenCover(isPresented: $showPartner) { PartnerView() }
+            // Bewertungsbitte nur, wenn nichts läuft und nichts offen ist (nie mitten im Gespräch).
+            .onChange(of: m.canAskReview && !showPartner && big == nil) { _, ok in
+                guard ok else { return }
+                Task {
+                    try? await Task.sleep(for: .seconds(1.5))
+                    guard m.canAskReview, !showPartner, big == nil else { return }
+                    m.reviewAsked()
+                    requestReview()
+                }
+            }
+            #if DEBUG
+            .task { DebugScreens.apply(m, partner: $showPartner) }
+            #endif
             .fullScreenCover(item: $big) { e in BigTextView(entryID: e.id) }
             .alert(T("edit_text"), isPresented: Binding(get: { editing != nil }, set: { if !$0 { editing = nil } })) {
                 EditAlert(entry: editing) { text in if let e = editing { m.edit(e.id, text: text) } }
@@ -167,10 +188,19 @@ struct ContentView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 12) {
-                    if m.entries.isEmpty && m.partial.isEmpty {
+                    if m.hiddenCount > 0 {
+                        Button { m.unlockHistory() } label: {
+                            Label(String(format: T("lock_hidden"), m.hiddenCount), systemImage: "lock.fill")
+                                .font(.footnote)
+                                .padding(.horizontal, 14).padding(.vertical, 8)
+                                .background(.quaternary, in: Capsule())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    if m.visibleEntries.isEmpty && m.partial.isEmpty && m.hiddenCount == 0 {
                         EmptyState { m.submit(T("example_sentence")) }
                     }
-                    ForEach(m.entries) { e in
+                    ForEach(m.visibleEntries) { e in
                         Bubble(entry: e, onBig: { big = e }, onEdit: { editing = e }).id(e.id)
                     }
                     if !m.partial.isEmpty {
@@ -292,6 +322,7 @@ struct ProviderBadge: View {
         case "apple": Image(systemName: "iphone").accessibilityLabel(T("prov_offline"))
         case "phrasebook": Image(systemName: "book.closed").accessibilityLabel(T("phrasebook"))
         case "google", "mymemory": Image(systemName: "globe").accessibilityLabel(T("prov_online"))
+        case "card": Image(systemName: "hand.tap").accessibilityLabel(T("answer_cards"))
         default: EmptyView()
         }
     }
@@ -316,7 +347,17 @@ struct Bubble: View {
                     Text(t)
                         .font(.title3.weight(.semibold))
                         .foregroundStyle(color)
-                    if let r = entry.roman { Text(r).font(.caption).italic().foregroundStyle(.secondary) }
+                    if let r = m.showRoman ? entry.romanized : entry.roman { Text(r).font(.caption).italic().foregroundStyle(.secondary) }
+                    if m.backCheck, let b = entry.back {
+                        let off = entry.backDeviates
+                        HStack(alignment: .firstTextBaseline, spacing: 4) {
+                            Image(systemName: off ? "exclamationmark.triangle.fill" : "arrow.uturn.backward")
+                            Text(b)
+                        }
+                        .font(.caption)
+                        .foregroundStyle(off ? Color.orange : Color.secondary)
+                        .accessibilityLabel((off ? T("back_deviates") + ". " : "") + T("back_label") + ": " + b)
+                    }
                 } else if let err = entry.error {
                     HStack {
                         Text("⚠️ " + err).font(.callout).foregroundStyle(.red)
@@ -346,7 +387,10 @@ struct Bubble: View {
 
     private var a11yLabel: String {
         var parts = ["\(entry.src.name(in: L10n.lang)): \(entry.text)"]
-        if let t = entry.translation { parts.append("\(entry.target.name(in: L10n.lang)): \(t)") }
+        if let t = entry.translation {
+            parts.append("\(entry.target.name(in: L10n.lang)): \(t)")
+            if m.backCheck, entry.backDeviates { parts.append(T("back_deviates")) }
+        }
         else if let err = entry.error { parts.append(err) }
         else { parts.append(T("translating")) }
         return parts.joined(separator: ". ")
@@ -425,7 +469,7 @@ struct BigTextView: View {
                     .minimumScaleFactor(0.2)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(LangStyle.color(e?.target ?? m.pair.partner, m.pair))
-                if let r = e?.roman { Text(r).font(.title3).italic().foregroundStyle(.secondary) }
+                if let r = m.showRoman ? e?.romanized : e?.roman { Text(r).font(.title3).italic().foregroundStyle(.secondary) }
                 Text(e?.text ?? "").font(.title3).foregroundStyle(.secondary).multilineTextAlignment(.center)
             }
             .padding(24)
@@ -516,87 +560,5 @@ struct CommandsCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
         .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 16))
-    }
-}
-
-/// Für das Gegenüber: groß (eine Person liest) oder geteilt (Handy liegt zwischen beiden, obere Hälfte gedreht).
-struct PartnerView: View {
-    @Environment(InterpreterModel.self) private var m
-    @Environment(\.dismiss) private var dismiss
-    @AppStorage("partnerFlipped") private var flipped = false
-    @AppStorage("partnerSplit") private var split = true
-
-    /// Letzter Satz in der gewünschten Sprache (Original oder Übersetzung).
-    private func latest(in lang: Lang) -> String? {
-        guard let e = m.entries.last(where: { $0.translation != nil }) else { return nil }
-        if e.src == lang { return e.text }
-        return e.target == lang ? e.translation : nil
-    }
-
-    var body: some View {
-        VStack(spacing: 0) {
-            if split {
-                side(m.pair.partner).rotationEffect(.degrees(180))
-                Divider()
-                controls
-                Divider()
-                side(m.pair.mine)
-            } else {
-                single.rotationEffect(.degrees(flipped ? 180 : 0))
-                Divider()
-                controls
-            }
-        }
-        .persistentSystemOverlays(.hidden)
-        .onAppear { UIApplication.shared.isIdleTimerDisabled = true }
-        .onDisappear { UIApplication.shared.isIdleTimerDisabled = m.isListening }
-    }
-
-    private func side(_ lang: Lang) -> some View {
-        // Platzhalter in der Sprache dieser Seite (soweit die Oberfläche sie kennt), sonst Flagge + Mikrofon.
-        Text(latest(in: lang) ?? L10n.text("just_talk", lang: L10n.uiCode(lang)) ?? "\(lang.flag) 🎙")
-            .font(.system(size: 48, weight: .bold))
-            .minimumScaleFactor(0.2)
-            .multilineTextAlignment(.center)
-            .foregroundStyle(latest(in: lang) == nil ? Color.secondary : LangStyle.color(lang, m.pair))
-            .padding(20)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(LangStyle.color(lang, m.pair).opacity(0.06))
-    }
-
-    private var single: some View {
-        Group {
-            if let e = m.entries.last(where: { $0.translation != nil }), let t = e.translation {
-                Text(t)
-                    .font(.system(size: 64, weight: .bold))
-                    .minimumScaleFactor(0.25)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(LangStyle.color(e.target, m.pair))
-            } else {
-                Text(T("partner_empty")).font(.title2).foregroundStyle(.secondary).multilineTextAlignment(.center)
-            }
-        }
-        .padding(24)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
-    private var controls: some View {
-        HStack {
-            Button { split.toggle() } label: {
-                Image(systemName: split ? "rectangle" : "rectangle.split.1x2")
-            }
-            .accessibilityLabel(T("split_view"))
-            if !split {
-                Button { flipped.toggle() } label: { Image(systemName: "arrow.up.arrow.down") }
-                    .accessibilityLabel(T("flip"))
-            }
-            Spacer()
-            MicButton().frame(maxWidth: 200)
-            Spacer()
-            Button(T("done")) { dismiss() }
-        }
-        .font(.title3)
-        .padding(.horizontal)
-        .padding(.vertical, 8)
     }
 }

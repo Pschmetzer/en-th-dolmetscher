@@ -2,3 +2,4 @@
 "NSSpeechRecognitionUsageDescription" = "เสียงพูดจะถูกแปลงเป็นข้อความบนเครื่องนี้เพื่อนำไปแปล";
 "NSCameraUsageDescription" = "ถ่ายรูปเมนูหรือป้ายเพื่อให้แอปอ่านและแปลข้อความ";
 "NSPhotoLibraryUsageDescription" = "เลือกรูปเมนูหรือป้ายเพื่อให้แอปอ่านและแปลข้อความ";
+"NSFaceIDUsageDescription" = "Face ID ใช้ปลดล็อกประวัติการสนทนาของคุณ เมื่อคุณเปิดการล็อกประวัติ";
