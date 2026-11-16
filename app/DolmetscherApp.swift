@@ -125,7 +125,10 @@ struct DolmetscherApp: App {
     @AppStorage(Prefs.showMenuBar) private var showMenuBar = true
     @AppStorage(L.key) private var uiLang = L.defaultCode
 
-    init() { _ = L.lang }   // Standardsprache festlegen, bevor die erste Ansicht @AppStorage liest
+    init() {
+        _ = L.lang              // Standardsprache festlegen, bevor die erste Ansicht @AppStorage liest
+        APIKeyStore.migrate()   // alte Schlüsseldatei in den Schlüsselbund (Nr. 23), vor dem ersten Engine-Start
+    }
 
     private var menuIcon: String {
         guard model.active else { return "waveform.circle" }

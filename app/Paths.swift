@@ -1,6 +1,7 @@
 // Paths.swift – Python der Engine (Dev-Override → eigene venv mit Stempel → Einrichtung), Umgebung und API-Schlüsseldatei.
 // Die Info.plist enthält keine Pfade der Bau-Maschine; ffmpeg wird nicht mehr gesucht (Audio über PyAV).
 import Foundation
+import Security
 
 enum Paths {
     static let support = FileManager.default.homeDirectoryForCurrentUser
@@ -88,6 +89,8 @@ enum Paths {
         env["PATH"] = (searchDirs + ["/usr/bin", "/bin"]).joined(separator: ":")
         // Die Whitelist lässt PYTHON* bewusst nicht durch – deshalb hier ausdrücklich setzen.
         env["PYTHONPYCACHEPREFIX"] = pycachePrefix
+        // Schlüssel aus dem Schlüsselbund (Nr. 23); ein in der App-Umgebung gesetzter Schlüssel hat Vorrang
+        if env["ANTHROPIC_API_KEY"] == nil, let k = APIKeyStore.read() { env["ANTHROPIC_API_KEY"] = k }
         return env
     }
 
@@ -129,17 +132,81 @@ enum Paths {
     }
 }
 
-/// Anthropic-API-Schlüssel als Datei (nur der Schlüssel, Rechte 0600). Inhalt wird nie gelesen oder angezeigt.
+/// Anthropic-API-Schlüssel im macOS-Schlüsselbund (Nr. 23); Inhalt wird nie angezeigt oder geloggt.
+/// Die Engine liest ihn nicht selbst (keine ACL-Abfrage durch `security`): die App reicht ihn beim Start jedes
+/// Engine-Prozesses als `ANTHROPIC_API_KEY` durch (`Paths.engineEnvironment`). Die frühere Datei
+/// `anthropic_key` (0600) wird beim ersten Start übernommen und erst gelöscht, wenn der Schlüsselbund denselben
+/// Wert zurückliefert. Fehlt der Schlüsselbund (Fehler beim Schreiben), bleibt die Datei als Rückfall.
 enum APIKeyStore {
     static let url = Paths.support.appendingPathComponent("anthropic_key")
+    static let service = "Dolmetscher"
+    static let account = "anthropic"
 
-    static var exists: Bool { FileManager.default.fileExists(atPath: url.path) }
+    private static var baseQuery: [String: Any] {
+        [kSecClass as String: kSecClassGenericPassword,
+         kSecAttrService as String: service, kSecAttrAccount as String: account]
+    }
 
-    /// Schreibt den Schlüssel so, dass die Datei zu keinem Zeitpunkt für andere lesbar ist.
+    static var fileExists: Bool { FileManager.default.fileExists(atPath: url.path) }
+    static var exists: Bool { keychainRead() != nil || fileExists }
+
+    /// Schlüssel für die Engine: Schlüsselbund, sonst (Rückfall) die alte Datei.
+    static func read() -> String? {
+        if let k = keychainRead() { return k }
+        guard let s = try? String(contentsOf: url, encoding: .utf8) else { return nil }
+        let k = s.trimmingCharacters(in: .whitespacesAndNewlines)
+        return k.isEmpty ? nil : k
+    }
+
+    static func keychainRead() -> String? {
+        var q = baseQuery
+        q[kSecReturnData as String] = true
+        q[kSecMatchLimit as String] = kSecMatchLimitOne
+        var out: AnyObject?
+        guard SecItemCopyMatching(q as CFDictionary, &out) == errSecSuccess, let d = out as? Data,
+              let k = String(data: d, encoding: .utf8), !k.isEmpty else { return nil }
+        return k
+    }
+
+    /// In den Schlüsselbund schreiben (vorhandenen Eintrag ersetzen); erst nach erfolgreichem Zurücklesen die
+    /// alte Datei löschen. Klappt der Schlüsselbund nicht, wird wie früher die Datei (0600) geschrieben.
     @discardableResult
     static func save(_ key: String) -> Bool {
         let k = key.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !k.isEmpty else { return false }
+        if keychainWrite(k), keychainRead() == k {
+            try? FileManager.default.removeItem(at: url)
+            return true
+        }
+        return writeFile(k)
+    }
+
+    static func keychainWrite(_ k: String) -> Bool {
+        let data = Data(k.utf8)
+        let attrs: [String: Any] = [kSecValueData as String: data,
+                                    kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock]
+        var add = baseQuery
+        attrs.forEach { add[$0.key] = $0.value }
+        add[kSecAttrLabel as String] = "Dolmetscher – Anthropic API"
+        let st = SecItemAdd(add as CFDictionary, nil)
+        if st == errSecDuplicateItem {
+            return SecItemUpdate(baseQuery as CFDictionary, attrs as CFDictionary) == errSecSuccess
+        }
+        return st == errSecSuccess
+    }
+
+    /// Einmalige Übernahme der alten Datei in den Schlüsselbund (beim App-Start).
+    static func migrate() {
+        guard fileExists, let s = try? String(contentsOf: url, encoding: .utf8) else { return }
+        let k = s.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !k.isEmpty else { return }
+        if keychainRead() == k || (keychainWrite(k) && keychainRead() == k) {
+            try? FileManager.default.removeItem(at: url)
+        }
+    }
+
+    /// Rückfall: Datei so schreiben, dass sie zu keinem Zeitpunkt für andere lesbar ist.
+    private static func writeFile(_ k: String) -> Bool {
         let fm = FileManager.default
         try? fm.createDirectory(at: Paths.support, withIntermediateDirectories: true)
         let fd = open(url.path, O_WRONLY | O_CREAT | O_TRUNC, 0o600)
@@ -150,5 +217,13 @@ enum APIKeyStore {
         return bytes.withUnsafeBytes { write(fd, $0.baseAddress, $0.count) } == bytes.count
     }
 
-    static func remove() { try? FileManager.default.removeItem(at: url) }
+    /// Format-Hinweis (Nr. 390): Anthropic-Schlüssel beginnen mit `sk-ant-` (falsche Zwischenablage?).
+    static func looksValid(_ key: String) -> Bool {
+        key.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("sk-ant-")
+    }
+
+    static func remove() {
+        SecItemDelete(baseQuery as CFDictionary)
+        try? FileManager.default.removeItem(at: url)
+    }
 }

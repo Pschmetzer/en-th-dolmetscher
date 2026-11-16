@@ -204,6 +204,7 @@ private struct BubbleMain: View {
     let u: Utterance
     let scale: Double
     @AppStorage(Prefs.translit) private var translit = true
+    @AppStorage("backTranslate") private var showBack = false
 
     var body: some View {
         let en = Langs.isMine(u.lang)
@@ -217,6 +218,13 @@ private struct BubbleMain: View {
                 Text(latin)
                     .font(.system(size: 14 * scale)).italic().foregroundStyle(.secondary)
                     .multilineTextAlignment(en ? .leading : .trailing)
+            }
+            if showBack, let back = u.back {   // Rückübersetzung: klein, zur Kontrolle
+                Text("↩︎ " + back)
+                    .font(.system(size: 12 * scale)).foregroundStyle(.secondary)
+                    .multilineTextAlignment(en ? .leading : .trailing)
+                    .textSelection(.enabled)
+                    .accessibilityLabel(L.t("back_translate") + ": " + back)
             }
         }
     }
