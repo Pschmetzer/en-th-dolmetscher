@@ -4679,13 +4679,13 @@ def list_mics():
 
 
 def decode_file(path):
-    """Audiodatei -> float32 mono in SR. Mit DOLMETSCHER_FFMPEG wie früher per ffmpeg, sonst PyAV."""
-    if FFMPEG:
-        raw = subprocess.run([FFMPEG, "-loglevel", "error", "-i", path, "-ar", str(SR), "-ac", "1",
-                              "-f", "s16le", "-"], capture_output=True, timeout=600).stdout
-        return np.frombuffer(raw[:len(raw) // 2 * 2], dtype=np.int16).astype(np.float32) / 32768
-    from faster_whisper import decode_audio
-    return decode_audio(path, sampling_rate=SR).astype(np.float32)
+    """Audiodatei -> float32 mono in SR, über denselben Kindprozess wie die Aufnahme (avhelper.py bzw.
+    DOLMETSCHER_FFMPEG) – unabhängig von faster-whispers decode_audio und dessen PyAV-Anforderungen."""
+    r = subprocess.run(capture_cmd(path=path), capture_output=True, timeout=600)
+    if r.returncode != 0 and not r.stdout:
+        raise RuntimeError((r.stderr or b"").decode("utf-8", "replace").strip()[-200:] or "Dekodieren fehlgeschlagen")
+    raw = r.stdout
+    return np.frombuffer(raw[:len(raw) // 2 * 2], dtype=np.int16).astype(np.float32) / 32768
 
 
 def resolve_mic(mic):
