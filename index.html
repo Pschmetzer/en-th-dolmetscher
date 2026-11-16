@@ -96,6 +96,7 @@
   #partner .bar .btns { display:flex; gap:8px; }
   #partner .bar .small { min-height:44px; min-width:44px; font-size:20px; }
   #partnerText { flex:1; display:flex; align-items:center; justify-content:center; text-align:center; font-weight:700; font-size:clamp(40px,11vw,160px); line-height:1.15; overflow-wrap:anywhere; padding:8px 0; }
+  #partnerText.yes, #partnerText.no { font-size:clamp(80px,28vw,260px); }
   #partnerText.yes { color:var(--yes); } #partnerText.no { color:var(--no); }
   @media (max-width:500px){
     .trans { font-size:22px; }
@@ -358,7 +359,8 @@ if (!SR) {
   showWarn(NO_SR);
   for (const k in MODES) { MODES[k].btn.disabled = true; MODES[k].btn.title = 'Keine Spracherkennung in diesem Browser'; }
 }
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+  || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);   // iPadOS meldet sich als Mac
 if (isIOS) showWarn('iPhone/iPad: Die Spracherkennung im Browser ist dort unzuverlässig. Besser die iPhone-App nutzen (Ordner <b>ios/</b> im Quellcode auf GitHub). Satzbuch und Zeige-Karten gehen hier aber gut.');
 if (!TTS) { showWarn('Dieser Browser kann nicht vorlesen – Übersetzungen werden nur angezeigt.'); $('speak').checked = false; $('speak').disabled = true; }
 

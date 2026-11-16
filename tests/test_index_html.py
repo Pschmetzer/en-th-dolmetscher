@@ -52,7 +52,8 @@ def test_consent_before_microphone():
     # Jeder Mikrofon-Start durch Nutzer läuft über chooseMode, nicht direkt über setMode.
     assert "chooseMode(k); };" in SCRIPT and "if (!hasConsent()) { chooseMode(k); return; }" in func("pttStart")
     assert "if (SR) chooseMode('a')" in SCRIPT and "if (SR) chooseMode('b')" in SCRIPT
-    assert "setMode(" not in SCRIPT.split("document.addEventListener('keydown'", 1)[1].split("if (mode) setMode(mode)")[0]
+    keys = SCRIPT.split("document.addEventListener('keydown'", 1)[1]
+    assert "setMode(" not in keys.split("if (mode) setMode(mode)")[0]   # Start nur über chooseMode (Einwilligung)
     assert "localStorage.setItem('micConsent'" in func("acceptConsent")
     assert "if (consentOpen()) return;" in SCRIPT.split("document.addEventListener('keydown'", 1)[1]
 
