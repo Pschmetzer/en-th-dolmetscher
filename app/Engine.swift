@@ -1081,7 +1081,7 @@ final class EngineModel: NSObject, ObservableObject {
         "translate_failed": "err_translate_failed", "reassign_expired": "err_reassign_expired",
         "reassign_empty": "err_reassign_empty", "reassign_invalid": "err_reassign_invalid",
         "phrase_invalid": "err_phrase_invalid", "edit_invalid": "err_edit_invalid",
-        "voice_unknown": "err_voice_unknown", "glossary_invalid": "err_glossary_invalid",
+        "voice_unknown": "err_voice_unknown", "glossary_invalid": "err_glossary_invalid", "langs_invalid": "err_langs_invalid",
         "file_empty": "err_file_empty", "file_failed": "err_file_failed",
         "profiles_failed": "err_speaker_model", "speak_invalid": "err_speak_invalid",
     ]

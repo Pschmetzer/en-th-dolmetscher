@@ -632,6 +632,8 @@ enum L {
                "th": "ประโยคด่วนไม่ถูกต้อง (ว่างหรือไม่ทราบภาษา)"],
         "err_edit_invalid": ["de": "Korrektur ungültig (leer oder zu lang)", "en": "Correction invalid (empty or too long)",
                "th": "การแก้ไขไม่ถูกต้อง (ว่างหรือยาวเกินไป)"],
+        "err_langs_invalid": ["de": "Sprachpaar ungültig – bisheriges Paar bleibt", "en": "Invalid language pair – keeping the current pair",
+               "th": "คู่ภาษาไม่ถูกต้อง – ใช้คู่ภาษาเดิม"],
         "err_voice_unknown": ["de": "Unbekannte Stimme – Standardstimme wird genutzt", "en": "Unknown voice – using the default voice",
                "th": "ไม่รู้จักเสียงนี้ – ใช้เสียงเริ่มต้นแทน"],
         "err_glossary_invalid": ["de": "Glossar ungültig oder zu lang – nicht übernommen", "en": "Glossary invalid or too long – not applied",
