@@ -3,9 +3,16 @@
 #   --install   danach nach ~/Applications kopieren
 #   --release   Release-Bau: Developer-ID-Signatur mit Hardened Runtime, optional Notarisierung, ZIP + SHA256
 #               in build/. Bricht ab, wenn DOLMETSCHER_SIGN_IDENTITY fehlt (kein Ad-hoc-Fallback).
-#   DOLMETSCHER_PYTHON=/pfad/zu/python  – vorhandenes Python mit faster-whisper verwenden
-#   sonst wird eine venv unter ~/Library/Application Support/Dolmetscher/venv angelegt
-#   und mit requirements.txt bestückt (alle Pakete fest, mit Hashes; uv, falls vorhanden, sonst pip; Python >= 3.12).
+# Die App ist eigenständig (nur Apple Silicon): Sie bringt uv (Contents/Helpers/uv), den Lock
+# (requirements.txt) und setup-env.sh mit und richtet die Python-Umgebung beim ersten Start selbst ein
+# (uv-verwaltetes Python 3.12 + Pakete nach ~/Library/Application Support/Dolmetscher/venv). Audio läuft
+# über PyAV – kein Homebrew, kein ffmpeg. Die Info.plist enthält keine Pfade dieser Maschine.
+# Zum Bauen nötig: Xcode-Command-Line-Tools und uv (Version UV_VERSION unten; brew install uv).
+#   DOLMETSCHER_PYTHON=/pfad/zu/python  – Bau-Prüfung und Modell-Download mit diesem Python (wird nie verändert).
+#   Zur Laufzeit nutzt die App ein Entwickler-Python nur über DOLMETSCHER_PYTHON in ihrer Umgebung oder
+#   `defaults write io.github.dolmetscher.en-th DolmetscherPython /pfad/zu/python`.
+#   Ohne DOLMETSCHER_PYTHON (nur ohne --release): die venv unter Application Support wird angelegt bzw. mit
+#   requirements.txt abgeglichen (Hashes) und bekommt den Stempel – die App startet dann ohne Einrichtung.
 #   DOLMETSCHER_SIGN_IDENTITY="Name"  – mit festem (z. B. selbstsignierten) Zertifikat signieren,
 #   damit macOS nach einem Neubau nicht erneut nach dem Mikrofon fragt (siehe CONTRIBUTING.md).
 #   DOLMETSCHER_SKIP_MODELS=1 – Modell-Download überspringen (nur CI/Strukturprüfung; die App lädt sie dann beim ersten Start)
@@ -48,16 +55,36 @@ BUILD_NO="$(git rev-list --count HEAD 2>/dev/null || true)"
 case "$BUILD_NO" in ''|*[!0-9]*) BUILD_NO=1 ;; esac
 YEAR="$(date +%Y)"
 
-FFMPEG="$(command -v ffmpeg || true)"
-[ -n "$FFMPEG" ] || { echo "ffmpeg fehlt:  brew install ffmpeg"; exit 1; }
+# uv wird mitgeliefert (fest gepinnte Version; Mindest-macOS des Binarys <= LSMinimumSystemVersion).
+UV_VERSION="0.12.7"
+MIN_MACOS="14.0"
+[ "$(uname -m)" = arm64 ] || { echo "Gebaut wird nur auf Apple Silicon (die App ist arm64-only)."; exit 1; }
+UV_BIN="$(command -v uv || true)"
+[ -n "$UV_BIN" ] && UV_BIN="$(realpath "$UV_BIN")"     # Homebrew-Symlink auflösen: das Binary selbst kopieren
+if [ -z "$UV_BIN" ]; then
+  [ "$RELEASE" = 1 ] && { echo "uv fehlt (brew install uv) – ohne uv kann die App ihre Umgebung nicht einrichten."; exit 1; }
+  echo "Hinweis: uv fehlt – die App kann ihre Umgebung auf anderen Macs nicht selbst einrichten (brew install uv)."
+else
+  UV_HAVE="$("$UV_BIN" --version | awk '{print $2}')"
+  if [ "$UV_HAVE" != "$UV_VERSION" ]; then
+    [ "$RELEASE" = 1 ] && { echo "uv $UV_HAVE gefunden, Release braucht uv $UV_VERSION (UV_VERSION in build.sh)."; exit 1; }
+    echo "Hinweis: uv $UV_HAVE statt $UV_VERSION – für Releases die gepinnte Version nutzen."
+  fi
+  UV_MINOS="$(vtool -show-build "$UV_BIN" 2>/dev/null | awk '/minos/ {print $2; exit}')"
+  if [ -n "$UV_MINOS" ] && [ "$(printf '%s\n%s\n' "$UV_MINOS" "$MIN_MACOS" | sort -V | tail -n 1)" != "$MIN_MACOS" ]; then
+    echo "uv braucht macOS $UV_MINOS, die App verspricht $MIN_MACOS – anderes uv-Binary nutzen."; exit 1
+  fi
+fi
 
 PY="${DOLMETSCHER_PYTHON:-}"
+OWN_VENV=0
 if [ -z "$PY" ]; then
+  OWN_VENV=1
   PY="$SUPPORT/venv/bin/python"
   if [ ! -x "$PY" ]; then
     echo "→ Lege Python-Umgebung an …"
     mkdir -p "$SUPPORT"
-    if command -v uv >/dev/null; then uv venv -q --python ">=3.12" "$SUPPORT/venv"
+    if [ -n "$UV_BIN" ]; then "$UV_BIN" venv -q --python 3.12 "$SUPPORT/venv"
     else "$(command -v python3.12 || command -v python3)" -m venv "$SUPPORT/venv"; fi
   fi
   # requirements.txt ist für Python >= 3.12 aufgelöst (numpy 2.5 braucht 3.12).
@@ -66,14 +93,30 @@ if [ -z "$PY" ]; then
     echo "Abhilfe: brew install python@3.12 (oder uv), dann  rm -rf \"$SUPPORT/venv\"  und ./build.sh erneut."
     exit 1
   }
-  echo "→ Installiere Abhängigkeiten (requirements.txt, mit Hash-Prüfung) …"
-  if command -v uv >/dev/null; then uv pip install -q --python "$PY" --require-hashes -r requirements.txt
+  # Bei jedem Bau abgleichen (installiert nur Abweichendes), damit der Stempel unten stimmt.
+  echo "→ Gleiche Abhängigkeiten ab (requirements.txt, mit Hash-Prüfung) …"
+  if [ -n "$UV_BIN" ]; then "$UV_BIN" pip install -q --python "$PY" --require-hashes -r requirements.txt
   else "$PY" -m pip install -q --require-hashes -r requirements.txt; fi
 fi
 "$PY" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)' \
   || { echo "Python >= 3.10 nötig, gefunden: $("$PY" -V 2>&1)"; exit 1; }
 "$PY" -c "import faster_whisper" || { echo "faster-whisper fehlt in $PY"; exit 1; }
+"$PY" -c "import av" || { echo "PyAV (av) fehlt in $PY – Audio läuft über PyAV"; exit 1; }
 "$PY" -c "import edge_tts" 2>/dev/null || echo "Hinweis: edge-tts fehlt in $PY – es wird die macOS-Stimme genutzt (pip install edge-tts)"
+
+# Eigene venv (nicht DOLMETSCHER_PYTHON): Stempel schreiben, damit die App sie ohne Einrichtung nutzt.
+# Nur bei Python 3.12 – sonst richtet die App beim Start eine eigene (uv-verwaltete) Umgebung ein.
+if [ "$OWN_VENV" = 1 ]; then
+  if "$PY" -c 'import sys; sys.exit(0 if sys.version_info[:2] == (3, 12) else 1)'; then
+    build-support/make-stamp.sh requirements.txt > "$SUPPORT/venv/.dolmetscher-stamp"
+  else
+    rm -f "$SUPPORT/venv/.dolmetscher-stamp"
+    echo "Hinweis: $PY ist nicht Python 3.12 – die App richtet beim ersten Start ihre Umgebung neu ein."
+  fi
+else
+  echo "Hinweis: DOLMETSCHER_PYTHON wird nur für den Bau genutzt; für die App:"
+  echo "  defaults write io.github.dolmetscher.en-th DolmetscherPython \"$PY\""
+fi
 
 if [ "${DOLMETSCHER_SKIP_MODELS:-0}" = 1 ]; then
   echo "→ Modell-Download übersprungen (DOLMETSCHER_SKIP_MODELS=1, z. B. in CI)"
@@ -105,8 +148,18 @@ NEWAPP="$STAGE/Dolmetscher.app"
 
 echo "→ Kompiliere (Version $VERSION, Build $BUILD_NO) …"
 mkdir -p "$NEWAPP/Contents/MacOS" "$NEWAPP/Contents/Resources"
-swiftc -O -parse-as-library -o "$NEWAPP/Contents/MacOS/Dolmetscher" app/*.swift
-cp dolmetscher.py profiles.py presets.py history_store.py hwprofile.py correction_learning.py "$NEWAPP/Contents/Resources/"
+swiftc -O -parse-as-library -target "arm64-apple-macos$MIN_MACOS" -o "$NEWAPP/Contents/MacOS/Dolmetscher" app/*.swift
+cp dolmetscher.py avhelper.py profiles.py presets.py history_store.py hwprofile.py correction_learning.py \
+   "$NEWAPP/Contents/Resources/"
+# Einrichtung: Lock, Stempel (Lock-Hash + Python + Architektur), Skript, uv.
+cp requirements.txt "$NEWAPP/Contents/Resources/requirements.txt"
+cp build-support/setup-env.sh "$NEWAPP/Contents/Resources/setup-env.sh"
+build-support/make-stamp.sh requirements.txt > "$NEWAPP/Contents/Resources/env-stamp"
+if [ -n "$UV_BIN" ]; then
+  mkdir -p "$NEWAPP/Contents/Helpers"
+  cp "$UV_BIN" "$NEWAPP/Contents/Helpers/uv"
+  chmod 755 "$NEWAPP/Contents/Helpers/uv"
+fi
 cp -R presets "$NEWAPP/Contents/Resources/presets"
 cp app/AppIcon.icns "$NEWAPP/Contents/Resources/"
 
@@ -119,14 +172,7 @@ write_strings de "Der Dolmetscher hört zu, um Englisch und Thai zu übersetzen.
 write_strings en "The interpreter listens to translate English and Thai."
 write_strings th "ตัวแปลภาษาฟังเสียงของคุณเพื่อแปลระหว่างภาษาอังกฤษและภาษาไทย"
 
-# Pfade unter $HOME als "~/…" einbetten (die App expandiert die Tilde), damit die
-# Info.plist keinen Benutzernamen enthält. ffmpeg: die App sucht zusätzlich in
-# /opt/homebrew/bin und /usr/local/bin.
-# shellcheck disable=SC2088  # die Tilde soll wörtlich in die Info.plist
-tilde() { case "$1" in "$HOME"/*) printf '~/%s' "${1#"$HOME"/}" ;; *) printf '%s' "$1" ;; esac; }
-xml() { local s="${1//&/&amp;}"; s="${s//</&lt;}"; printf '%s' "${s//>/&gt;}"; }
-PY_PLIST="$(xml "$(tilde "$PY")")"
-FFMPEG_PLIST="$(xml "$(tilde "$FFMPEG")")"
+# Keine Pfade dieser Maschine in der Info.plist: die App findet Python selbst (Paths.swift).
 
 cat > "$NEWAPP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -142,26 +188,36 @@ cat > "$NEWAPP/Contents/Info.plist" <<PLIST
   <key>CFBundleVersion</key><string>$BUILD_NO</string>
   <key>CFBundleDevelopmentRegion</key><string>de</string>
   <key>CFBundleLocalizations</key><array><string>de</string><string>en</string><string>th</string></array>
-  <key>LSMinimumSystemVersion</key><string>14.0</string>
+  <key>LSMinimumSystemVersion</key><string>$MIN_MACOS</string>
+  <key>LSArchitecturePriority</key><array><string>arm64</string></array>
+  <key>LSRequiresNativeExecution</key><true/>
   <key>LSApplicationCategoryType</key><string>public.app-category.utilities</string>
   <key>NSHumanReadableCopyright</key><string>Copyright © $YEAR Dolmetscher contributors. MIT License.</string>
   <key>NSHighResolutionCapable</key><true/>
   <key>NSMicrophoneUsageDescription</key><string>Der Dolmetscher hört zu, um Englisch und Thai zu übersetzen.</string>
-  <key>DolmetscherPython</key><string>$PY_PLIST</string>
-  <key>DolmetscherFFmpeg</key><string>$FFMPEG_PLIST</string>
 </dict></plist>
 PLIST
 plutil -lint "$NEWAPP/Contents/Info.plist" >/dev/null
 
-# Ohne --deep: das Bundle enthält keine verschachtelten Bundles oder Frameworks.
+# Von innen nach außen signieren (kein --deep beim Signieren): zuerst Contents/Helpers/uv, dann das Bundle.
+# Prüfen mit --deep: jede verschachtelte Signatur muss gültig sein.
 SIGN="${DOLMETSCHER_SIGN_IDENTITY:--}"
+UV_IN="$NEWAPP/Contents/Helpers/uv"
 if [ "$RELEASE" = 1 ]; then
+  [ -f "$UV_IN" ] && codesign -s "$SIGN" --force --options runtime --timestamp \
+    --identifier io.github.dolmetscher.en-th.uv "$UV_IN"
   codesign -s "$SIGN" --force --options runtime --timestamp --entitlements "$ENTITLEMENTS" "$NEWAPP"
-elif ! codesign -s "$SIGN" --force "$NEWAPP"; then
-  echo "Signieren mit '$SIGN' fehlgeschlagen (Meldung oben) – nutze Ad-hoc-Signatur"
-  codesign -s - --force "$NEWAPP"
+else
+  if [ -f "$UV_IN" ] && ! codesign -s "$SIGN" --force --identifier io.github.dolmetscher.en-th.uv "$UV_IN"; then
+    codesign -s - --force --identifier io.github.dolmetscher.en-th.uv "$UV_IN"
+  fi
+  if ! codesign -s "$SIGN" --force "$NEWAPP"; then
+    echo "Signieren mit '$SIGN' fehlgeschlagen (Meldung oben) – nutze Ad-hoc-Signatur"
+    [ -f "$UV_IN" ] && codesign -s - --force --identifier io.github.dolmetscher.en-th.uv "$UV_IN"
+    codesign -s - --force "$NEWAPP"
+  fi
 fi
-codesign --verify --strict --verbose=2 "$NEWAPP"
+codesign --verify --deep --strict --verbose=2 "$NEWAPP"
 
 # Erst jetzt das alte Bundle ersetzen.
 rm -rf "$APP"

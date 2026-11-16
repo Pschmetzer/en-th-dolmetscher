@@ -26,7 +26,7 @@ Alle Whisper-Modelle werden mit fester Revision geladen (`MODEL_REVISIONS` in `d
 | onnxruntime | MIT | |
 | tokenizers, huggingface-hub | Apache-2.0 | |
 | numpy | BSD-3-Clause (mit MIT-/Zlib-/0BSD-/CC0-Anteilen) | |
-| av (PyAV) | BSD-3-Clause | Die Wheels bringen FFmpeg-Bibliotheken mit (LGPL; ob GPL-Teile enthalten sind, vor einer Weitergabe prüfen). |
+| av (PyAV) | BSD-3-Clause | Ersetzt seit dem eigenständigen App-Bau das externe ffmpeg (Aufnahme, Wiedergabe, Mikrofonliste, `--file`; `avhelper.py`). Das Wheel bringt FFmpeg 8 als LGPL-3.0-Build mit (`library_meta`: „LGPL version 3 or later“, kein `--enable-gpl`), legt aber zusätzlich `libx264`/`libx265` (GPL) als Dylibs bei. Genutzt werden nur Audio-Teile. Das Wheel liegt **nicht** im App-Bundle: Die App lädt es beim Einrichten von PyPI auf den Mac des Nutzers (wie bisher `build.sh`). Wer PyAV selbst weiterverteilt, muss LGPL/GPL der Dylibs beachten. |
 | edge-tts | LGPL-3.0 | nur als Abhängigkeit installiert, nicht im Repo/App-Bundle |
 | sherpa-onnx | Apache-2.0 | |
 | anthropic | Apache-2.0 | optional (`--llm`) |
@@ -39,7 +39,8 @@ Transitive Pakete stehen mit Version und Hash in `requirements.txt`, darunter z.
 
 | Was | Lizenz/Bedingungen |
 |---|---|
-| ffmpeg (`brew install ffmpeg`) | nicht mitgeliefert. Homebrew-Builds enthalten GPL-Teile; wer ein Bundle mit ffmpeg weitergibt, muss LGPL/GPL beachten. |
+| uv (Astral) | MIT oder Apache-2.0. **Im App-Bundle mitgeliefert** (`Contents/Helpers/uv`, mit der App-Identität signiert); richtet beim ersten Start Python und die Pakete ein. Das von uv geladene Python (python-build-standalone) steht unter der PSF-Lizenz und liegt in `~/Library/Application Support/Dolmetscher/python`. |
+| ffmpeg | nicht mehr nötig und nicht mitgeliefert. Nur wenn `DOLMETSCHER_FFMPEG` gesetzt ist, nutzt die Engine ein vorhandenes ffmpeg (Homebrew-Builds enthalten GPL-Teile). |
 | Google-Translate-Web-Endpunkt | inoffiziell, keine API-Vereinbarung; kann jederzeit wegfallen oder gesperrt werden (Rückfall MyMemory). |
 | MyMemory | öffentliche API mit Tageskontingent, eigene Nutzungsbedingungen. |
 | Microsoft-Sprachdienst über `edge-tts` | inoffizieller Zugang zum Vorlesedienst von Microsoft Edge, von Microsoft nicht für andere Programme freigegeben (Risiko: Sperre oder Änderung; Rückfall `say`). |
