@@ -5,6 +5,7 @@
     python bench/run_bench.py --model small --device cpu --only th
     python bench/run_bench.py --cases th01,th02 --compare bench/results/baseline_main.json
     python bench/run_bench.py --repeat 5 --compare baseline.json --fail-above 10   # Exit 2 bei >10 % Verschlechterung
+    python bench/run_bench.py --negatives                  # zusätzlich Negativfälle (Rauschen, Musik, Fremdsprache)
 
 Audio: bench/audio/real/<id>.* (eigene Aufnahmen, bevorzugt), sonst --audio-dir
 (Standard bench/audio/clean, erzeugt von make_audio.py).
@@ -177,7 +178,9 @@ def load_engine_module(cap):
 RESET = {"paused": False, "awake_until": 0.0, "lock": "auto", "rate": 0, "volume": 1.0, "mute": False}
 
 
-def reset_state(eng, keep_profiles):
+def reset_state(eng, keep_profiles, d=None):
+    """Vor jedem Fall: Ergebnisse dürfen nicht von der Reihenfolge abhängen (Nr. 210) – auch Verlauf
+    (Claude-Kontext), letzte Rolle, Texte, Übersetzungs-Cache und Preset zurücksetzen."""
     for k, v in RESET.items():
         if hasattr(eng, k):
             try:
@@ -188,6 +191,22 @@ def reset_state(eng, keep_profiles):
         eng.translate_dir = {"en": True, "th": True}
     if not keep_profiles and hasattr(eng, "spk"):
         eng.spk = None
+    for name in ("history", "_hist_ids", "texts", "recent"):
+        v = getattr(eng, name, None)
+        if hasattr(v, "clear"):
+            v.clear()
+    for name in ("last", "last_role"):
+        if hasattr(eng, name):
+            setattr(eng, name, None)
+    if d is not None:
+        if hasattr(d, "_cache_clear"):
+            d._cache_clear()
+        preset = getattr(d, "PRESET", None)
+        if getattr(preset, "active", None) and hasattr(d, "set_preset"):
+            try:
+                d.set_preset(eng, None, quiet=True)
+            except Exception:
+                pass
 
 
 def call_process(eng, audio):
@@ -199,7 +218,7 @@ def call_process(eng, audio):
 
 def run_case(d, eng, cap, case, audio, keep_profiles, retries=1):
     for attempt in range(retries + 1):
-        reset_state(eng, keep_profiles)
+        reset_state(eng, keep_profiles, d)
         cap.reset()
         t0 = time.time()
         err = None
@@ -282,6 +301,7 @@ def summarize(results):
             "stt_mean_s": round(statistics.mean(stt), 2) if stt else None,
             "tr_mean_s": round(statistics.mean(tr), 2) if tr else None,
             "overlap_mean": round(statistics.mean(ov), 3) if ov else None,
+            "real": sum(r.get("audio_src") == "real" for r in rs),     # eigene Aufnahmen statt `say`
         }
         if cmd:
             out[lang]["commands_ok"] = f"{sum(r['command_ok'] for r in cmd)}/{len(cmd)}"
@@ -321,26 +341,63 @@ def device_info():
     return info
 
 
+# Regressionsprüfung (Nr. 211/212): Zeiten nur über die Erkennung (stt_mean_s) – total_* enthält die
+# Netz-Übersetzung und schwankt mit dem Netz. Unter MIN_ABS gilt eine Verschlechterung als Rauschen; das
+# verhindert auch rel = ∞ bei Basiswert 0 (z. B. dropped 0 -> 1 ist erst ab MIN_ABS eine Regression).
+REGRESSION_KEYS = {"lang_acc": True, "exact": True, "overlap_mean": True, "err_mean": False,
+                   "err_mean_capped": False, "stt_mean_s": False, "dropped": False, "false_accept": False}
+MIN_ABS = {"lang_acc": 0.05, "exact": 2, "overlap_mean": 0.03, "err_mean": 0.01, "err_mean_capped": 0.01,
+           "stt_mean_s": 0.1, "dropped": 2, "false_accept": 1}
+
+
 def regressions(cur, old, limit_pct):
-    """Kennzahlen, die gegenüber der Baseline um mehr als limit_pct Prozent schlechter wurden."""
-    higher_better = {"lang_acc": True, "exact": True, "overlap_mean": True, "err_mean": False,
-                     "err_mean_capped": False, "total_median_s": False, "total_p90_s": False, "dropped": False}
+    """Kennzahlen, die gegenüber der Baseline um mehr als limit_pct Prozent (und mindestens MIN_ABS)
+    schlechter wurden. Bei Basiswert 0 zählt nur die absolute Schwelle."""
     bad = []
     for lang, b in cur["summary"].items():
         a = old["summary"].get(lang)
         if not a:
             continue
-        for k, hb in higher_better.items():
+        for k, hb in REGRESSION_KEYS.items():
             va, vb = a.get(k), b.get(k)
             if not isinstance(va, (int, float)) or not isinstance(vb, (int, float)):
                 continue
             worse = (va - vb) if hb else (vb - va)
-            if worse <= 0:
+            if worse <= 0 or worse < MIN_ABS.get(k, 0):
                 continue
-            rel = worse / va * 100 if va else float("inf")
-            if rel > limit_pct:
-                bad.append(f"{lang}.{k}: {va:g} -> {vb:g} ({rel:+.1f} %)")
+            rel = worse / abs(va) * 100 if va else None
+            if rel is None or rel > limit_pct:
+                n = b.get("n")
+                note = f", n={n}" if isinstance(n, int) and n < 20 else ""
+                bad.append(f"{lang}.{k}: {va:g} -> {vb:g} ("
+                           + (f"{rel:+.1f} %" if rel is not None else "vorher 0") + f"{note})")
     return bad
+
+
+def summarize_negatives(results):
+    """Negativfälle: jede übersetzte Äußerung ist ein Fehlalarm (false_accept)."""
+    if not results:
+        return None
+    codes = {}
+    for r in results:
+        if r.get("dropped_code"):
+            codes[r["dropped_code"]] = codes.get(r["dropped_code"], 0) + 1
+    return {"n": len(results), "false_accept": sum(bool(r.get("accepted")) for r in results),
+            "dropped": sum(bool(r.get("dropped_code")) for r in results), "codes": codes}
+
+
+def run_negative(eng, cap, case, audio, keep_profiles, d=None):
+    reset_state(eng, keep_profiles, d)
+    cap.reset()
+    try:
+        call_process(eng, audio)
+    except Exception as e:
+        return {"id": case["id"], "kind": case["kind"], "accepted": False, "error": repr(e)[:200]}
+    utts = [kw for ev, kw in cap.events if ev == "utt"]
+    drops = [kw.get("code") for ev, kw in cap.events if ev == "dropped"]
+    return {"id": case["id"], "kind": case["kind"], "accepted": bool(utts),
+            "hyp": (utts[-1].get("text") if utts else None), "hyp_lang": (utts[-1].get("lang") if utts else None),
+            "dropped_code": drops[-1] if drops else None}
 
 
 def fmt(v, nd=3):
@@ -353,6 +410,8 @@ def print_summary(summ, meta):
             "Zeit Med.", "Zeit p90", "STT Ø", "Übers. Ø", "Überlapp Ø"]
     print(" | ".join(head))
     for lang, s in summ.items():
+        if lang not in ("th", "en"):
+            continue
         print(" | ".join([
             f"{lang} ({'CER' if lang == 'th' else 'WER'})", str(s["n"]), f"{s['lang_acc'] * 100:.0f} %",
             f"{s['err_mean'] * 100:.1f} %", f"{s.get('err_mean_capped', s['err_mean']) * 100:.1f} %",
@@ -434,6 +493,8 @@ def main():
                     help="jeden Fall N-mal verarbeiten; Zeiten als Median/p95 (Standard 1)")
     ap.add_argument("--fail-above", type=float, default=None, metavar="PROZENT",
                     help="Exit-Code 2, wenn eine Kennzahl gegenüber --compare um mehr als PROZENT schlechter wird")
+    ap.add_argument("--negatives", action="store_true",
+                    help="zusätzlich Negativfälle (negatives.json, Audio: make_audio.py --negatives)")
     ap.add_argument("--rescore", default=None,
                     help="vorhandene Ergebnis-JSON nur neu bewerten (ohne Engine), z. B. nach Metrik-Änderung")
     a = ap.parse_args()
@@ -487,6 +548,18 @@ def main():
     device = getattr(eng, "device", a.device)
     print(f"Engine geladen: model={a.model} device={device} in {load_s:.1f} s, {len(todo)} Fälle")
 
+    neg_results = []
+    if a.negatives:
+        for c in json.loads((HERE / "negatives.json").read_text()):
+            p, _ = find_audio(c["id"], HERE / "audio" / "negatives")
+            if p is None:
+                print(f"! {c['id']}: keine Audiodatei (erst bench/make_audio.py --negatives)")
+                continue
+            r = run_negative(eng, cap, c, load_audio(p), a.profiles, d)
+            neg_results.append(r)
+            print(f"[neg] {c['id']:12s} {'ÜBERSETZT: ' + str(r.get('hyp'))[:50] if r['accepted'] else 'verworfen'}"
+                  f"  ({r.get('dropped_code') or r.get('error') or '–'})", flush=True)
+
     results = []
     for i, (c, p, src) in enumerate(todo, 1):
         audio = load_audio(p)
@@ -511,11 +584,17 @@ def main():
     except Exception:
         pass
     doc = {"meta": meta, "summary": summarize(results), "results": results}
+    neg = summarize_negatives(neg_results)
+    if neg:
+        doc["summary"]["neg"] = neg
+        doc["negatives"] = neg_results
     out = Path(a.json_out) if a.json_out else HERE / "results" / f"{now:%Y-%m-%d_%H%M}_{a.model}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(doc, ensure_ascii=False, indent=1))
 
     print_summary(doc["summary"], meta)
+    if neg:
+        print(f"Negativfälle: {neg['false_accept']}/{neg['n']} fälschlich übersetzt, Gründe {neg['codes']}")
     print_worst(results, a.worst)
     if a.compare:
         print_compare(doc, a.compare)
