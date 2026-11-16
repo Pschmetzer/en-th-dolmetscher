@@ -1,7 +1,7 @@
 # Lizenzen von Modellen, Paketen und Diensten
 
-Stand: November 2026. Der Code dieses Repos steht unter MIT (`LICENSE`). Modelle und Pakete werden **nicht** mitgeliefert:
-`build.sh` bzw. die App laden sie auf dem eigenen Mac herunter. Wer die App oder Modelle weitergibt, muss die Lizenzen
+Stand: November 2026. Der Code dieses Repos steht unter MIT (`LICENSE`). Die Mac-App liefert Modelle und Python-Pakete **nicht** mit:
+`build.sh` bzw. die App laden sie auf dem eigenen Mac herunter (die iPhone-App linkt dagegen WhisperKit ein, siehe unten). Wer die App oder Modelle weitergibt, muss die Lizenzen
 unten selbst prüfen. Angaben aus den Modellkarten (Hugging Face) bzw. den Paket-Metadaten; keine Rechtsberatung.
 
 ## Sprachmodelle
@@ -22,6 +22,7 @@ Alle Whisper-Modelle werden mit fester Revision geladen (`MODEL_REVISIONS` in `d
 | Was | Verwendung | Quelle | Lizenz |
 |---|---|---|---|
 | WhisperKit 1.1.1 | optionale Spracherkennung (Swift-Paket, in die App gelinkt; Revision in `Package.resolved`) | [argmaxinc/WhisperKit](https://github.com/argmaxinc/WhisperKit) | MIT |
+| swift-argument-parser | nur Abhängigkeit von WhisperKit beim Auflösen, nicht in die App gelinkt | [apple/swift-argument-parser](https://github.com/apple/swift-argument-parser) | Apache-2.0 |
 | Whisper-Modelle für WhisperKit | nur nach Tippen auf „Modell laden“, **ohne** feste Revision | [argmaxinc/whisperkit-coreml](https://huggingface.co/argmaxinc/whisperkit-coreml) (Core-ML-Umwandlung von OpenAI Whisper) | OpenAI Whisper: MIT; Angaben der Modellkarte vor Weitergabe prüfen |
 
 Apples Spracherkennung, Übersetzung und Stimmen sind Teil von iOS.

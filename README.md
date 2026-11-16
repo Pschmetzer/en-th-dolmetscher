@@ -10,7 +10,7 @@ A hands-free speech interpreter: just talk. What you say is translated into your
 | **iPhone** (iOS 26+) | Native companion app, built yourself in Xcode | on the device (Apple, optionally Whisper) | on the device (Apple), online only if you allow it |
 | **Browser** (Chrome) | [Web Lite](https://pschmetzer.github.io/en-th-dolmetscher/): one HTML file, English ⇄ Thai only | browser service (Google in Chrome) | online (Google, MyMemory) |
 
-**Privacy in one paragraph.** There are no accounts, no telemetry and no server of our own. On the Mac, audio never leaves the computer: recognition runs locally and only the recognised *text* is sent for translation (Google, fallback MyMemory, or Claude if you turned it on) and the translated text for the natural voice (Microsoft). On the iPhone, recognition and – once the offline language packs are installed – translation run entirely on the device; online translation is off by default. The browser version relies on the browser's speech service, which sends audio to Google (Chrome). Voice profiles and the optional conversation history stay on your device. Details per platform: [docs/DATENSCHUTZ.md](docs/DATENSCHUTZ.md) (German).
+**Privacy in one paragraph.** There are no accounts, no telemetry and no server of our own. On the Mac, audio never leaves the computer: recognition runs locally and only the recognised *text* is sent for translation (Google, fallback MyMemory, or Claude if you turned it on) and the translated text for the natural voice (Microsoft). On the iPhone, recognition and – once the offline language packs are installed – translation run entirely on the device; online translation is off by default. The browser version relies on the browser's speech service, which sends audio to Google (Chrome). Voice profiles and the conversation history (Mac: off by default; iPhone: kept 30 days by default, adjustable) stay on your device. Details per platform: [docs/DATENSCHUTZ.md](docs/DATENSCHUTZ.md) (German).
 
 Current version: 1.2 (single source: `version` in `pyproject.toml`). What changed since: [CHANGELOG.md](CHANGELOG.md).
 
@@ -195,7 +195,7 @@ Terminal: `python3 dolmetscher.py --enroll Nok --enroll-lang th`, `--profiles`, 
 
 - Laptop speakers: audio that arrives while the translation is playing (plus ~300 ms of reverb) is discarded, so the engine doesn't translate its own voice. Speech during recognition and translation is queued, so a quick answer is not lost. `--barge-in` is for headphones only.
 - Log: `~/Library/Logs/Dolmetscher/engine.log`, rotated at about 1 MB. Conversation text is **not** logged unless you start with `--log-text` (remove personal content before sharing a log).
-- If the app is closed and the engine crashes, macOS shows a notification with a “Restart” action.
+- If the engine crashes while the app window is closed, macOS shows a notification with a “Restart” action.
 
 ## Terminal only
 
