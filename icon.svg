@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#1d4ed8"/>
+  <path d="M96 128h200a40 40 0 0 1 40 40v96a40 40 0 0 1-40 40h-96l-64 52v-52h-40a40 40 0 0 1-40-40v-96a40 40 0 0 1 40-40z" fill="#fff"/>
+  <path d="M376 216h40a40 40 0 0 1 40 40v88a40 40 0 0 1-40 40h-24v48l-60-48h-80a40 40 0 0 1-40-40v-24h96a68 68 0 0 0 68-68z" fill="#f59e0b"/>
+  <text x="196" y="242" font-family="Helvetica, Arial, sans-serif" font-size="96" font-weight="700" fill="#1d4ed8" text-anchor="middle">A⇄</text>
+</svg>
