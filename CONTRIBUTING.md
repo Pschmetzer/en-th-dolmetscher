@@ -9,7 +9,9 @@ Thanks for helping! Issues and pull requests are welcome.
 - `presets.py`, `presets/*.json` – scenario presets and phrase packs (data). `history_store.py` – optional local conversation history. `hwprofile.py` – picks a model for `--model auto`. `correction_learning.py` – suggestions from corrected bubbles.
 - `app/*.swift` – SwiftUI Mac app that starts the engine (`Engine.swift`: process and protocol, `Views.swift`/`BubbleViews.swift`/`SettingsView.swift`: UI, `L10n.swift`: de/en/th strings). Built by `build.sh` with `swiftc` (all Swift files in `app/`). `app/make_icon.py` draws the icon.
 - `build-support/` – entitlements for the release build, `setup-env.sh` (the app's first-start environment setup with the bundled uv) and `make-stamp.sh` (environment stamp: lock hash, Python version, architecture).
-- `ios/` – separate iPhone app (Xcode project, own CI workflow `ios.yml`); it does not use the Python engine.
+- `ios/` – separate iPhone app (Xcode project, own CI workflow `ios.yml`); it does not use the Python engine. Build, signing, Whisper models and debug switches: [ios/README.md](ios/README.md).
+- `avhelper.py` – audio via PyAV (microphone, playback, microphone list) as a child process; replaces the external ffmpeg.
+- `CHANGELOG.md` – user-facing changes; add a line under *Unreleased* for anything a user would notice.
 - `docs/PROTOKOLL.md` – JSON protocol between app and engine (events on stdout, settings on stdin).
 - `docs/ARCHITEKTUR.md` – process model, threads, states, demo mode. `docs/DATENSCHUTZ.md` – what leaves the Mac, when and to whom (update it when you add a network call).
 - `index.html` – browser version (Web Lite, GitHub Pages).
@@ -20,11 +22,11 @@ Thanks for helping! Issues and pull requests are welcome.
 
 ## Development setup
 
-You need Python 3.12 or newer (`brew install python@3.12`; the macOS system Python 3.9 is too old) – the lock files are resolved for 3.12. The engine code itself stays compatible with 3.10 (CI checks it with unpinned packages).
+You need Python 3.12 or newer – the lock files are resolved for 3.12. The easiest way is [uv](https://docs.astral.sh/uv/), which you need for `build.sh` anyway and which downloads Python 3.12 by itself (`brew install python@3.12` works too; the macOS system Python 3.9 is too old). The engine code itself stays compatible with 3.10 (CI checks it with unpinned packages).
 
 ```bash
-python3.12 -m venv .venv && . .venv/bin/activate        # or: uv venv --python 3.12 .venv
-pip install --require-hashes -r requirements-dev.txt     # or: uv pip install --require-hashes -r requirements-dev.txt
+uv venv --python 3.12 .venv && . .venv/bin/activate     # or: python3.12 -m venv .venv && . .venv/bin/activate
+uv pip install --require-hashes -r requirements-dev.txt  # or: pip install --require-hashes -r requirements-dev.txt
 pytest
 ruff check ./*.py bench/ tests/                         # same paths as CI
 ```
@@ -57,6 +59,7 @@ If you change events or settings between app and engine, update `docs/PROTOKOLL.
 ## Pull requests
 
 - CI (GitHub Actions) runs the tests (Python 3.12 with the hash-locked versions, Python 3.10 with unpinned ones; `-rs` lists why tests were skipped), ruff, shellcheck for `build.sh`, a Swift typecheck and compile, and a non-blocking `pip-audit` over all locked packages (including transitive ones). The iPhone app has its own workflow (`ios.yml`). Ruff is blocking for all Python modules in the top folder, `bench/` and `tests/`. Every job has a `timeout-minutes` limit, so a hanging test fails the run instead of blocking a runner for hours. Tests, ruff, shellcheck and compile must be green. Dependabot proposes updates for the Actions and the pinned Python packages weekly.
+- Machine-translated UI text is marked as such: the iPhone strings in es, fr, ja, ko, zh-Hans, vi and id and the App Store texts in `ios/AppStore/` (all locales except en-US) are unreviewed. Native-speaker reviews are very welcome.
 - Thai text (UI strings in `app/L10n.swift`, the phrases and glossaries in `presets/*.json`, the Thai parts of `bench/cases.json`, voice-guide texts): have a Thai speaker review it before merging, or say in the PR that it is machine-translated and unreviewed. Native review matters most for politeness particles (ครับ/ค่ะ), formal vs. casual register and anything shown to a Thai speaker without an English fallback.
 - Run `./build.sh --install` and try the app with a real conversation for changes to the engine or the app.
 - Don't commit personal paths, names, email addresses or logs.
@@ -77,13 +80,13 @@ The certificate only works on your Mac and is not a Developer ID: it does not ma
 
 `./build.sh --release` needs a **Developer ID Application** certificate in your keychain and `DOLMETSCHER_SIGN_IDENTITY` set to its name; without it the script stops (no ad hoc fallback). It signs with the hardened runtime (`--options runtime --timestamp`) and the entitlements in `build-support/Dolmetscher.entitlements` (microphone access), verifies the signature and writes `build/Dolmetscher-<version>.zip` and `…zip.sha256`. If `DOLMETSCHER_NOTARY_PROFILE` names a `notarytool` keychain profile (`xcrun notarytool store-credentials`), the app is notarized and stapled first. The version comes from `pyproject.toml`, the build number from the number of Git commits. Bump the version in `pyproject.toml` only, then tag `v<version>`.
 
-The bundle is self-contained (Apple Silicon only): `Contents/Helpers/uv` (the pinned `UV_VERSION` from `build.sh`; its minimum macOS is checked against `LSMinimumSystemVersion`) is signed first with the hardened runtime, then the app; `codesign --verify --deep --strict` checks both. Entitlements: only `com.apple.security.device.audio-input` – without it the microphone delivers silence under the hardened runtime. Python runs as a separate process with its own signature, so `disable-library-validation` is not needed (the app process loads no Python libraries). `PYTHONPYCACHEPREFIX` keeps `.pyc` files out of the bundle. Test a release build on a Mac without Homebrew/Python: the setup screen must appear, set up the environment and download the models.
+The bundle is self-contained (Apple Silicon only): `Contents/Helpers/uv` (the pinned `UV_VERSION` from `build.sh`; its minimum macOS is checked against `LSMinimumSystemVersion`) is signed first with the hardened runtime, then the app; `codesign --verify --deep --strict` checks both. Entitlements: only `com.apple.security.device.audio-input` – without it the microphone delivers silence under the hardened runtime. Python runs as a separate process with its own signature, so `disable-library-validation` is not needed (the app process loads no Python libraries). `PYTHONPYCACHEPREFIX` keeps `.pyc` files out of the bundle. Test a release build on a Mac without Homebrew/Python: the setup screen must appear, set up the environment and download the models (setup log: `~/Library/Application Support/Dolmetscher/setup.log`).
 
 The `Release` workflow in GitHub Actions only builds an unsigned ZIP with a SHA256 file as a workflow artifact; it has no signing secrets.
 
 ### Release checklist
 
-1. Version in `pyproject.toml` bumped; CI green on `main`.
+1. Version in `pyproject.toml` bumped; *Unreleased* in `CHANGELOG.md` renamed to the version and date; CI green on `main`.
 2. Benchmark against the baseline on an otherwise idle Mac (needs models, `say` and network, so it does not run in CI):
    `python bench/run_bench.py --model medium --device cpu --repeat 3 --compare bench/results/baseline_main.json --fail-above 10`.
    If a model, `MODEL_REVISIONS`, the metric or `bench/cases.json` changed on purpose, replace the baseline in the same PR and say why.

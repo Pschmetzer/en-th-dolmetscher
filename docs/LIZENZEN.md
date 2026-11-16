@@ -1,7 +1,7 @@
 # Lizenzen von Modellen, Paketen und Diensten
 
-Stand: November 2026. Der Code dieses Repos steht unter MIT (`LICENSE`). Modelle und Pakete werden **nicht** mitgeliefert:
-`build.sh` bzw. die App laden sie auf dem eigenen Mac herunter. Wer die App oder Modelle weitergibt, muss die Lizenzen
+Stand: November 2026. Der Code dieses Repos steht unter MIT (`LICENSE`). Die Mac-App liefert Modelle und Python-Pakete **nicht** mit:
+`build.sh` bzw. die App laden sie auf dem eigenen Mac herunter (die iPhone-App linkt dagegen WhisperKit ein, siehe unten). Wer die App oder Modelle weitergibt, muss die Lizenzen
 unten selbst prüfen. Angaben aus den Modellkarten (Hugging Face) bzw. den Paket-Metadaten; keine Rechtsberatung.
 
 ## Sprachmodelle
@@ -16,6 +16,16 @@ Alle Whisper-Modelle werden mit fester Revision geladen (`MODEL_REVISIONS` in `d
 | Thai-Whisper | Thai-Erkennung | [Vinxscribe/biodatlab-whisper-th-medium-faster](https://huggingface.co/Vinxscribe/biodatlab-whisper-th-medium-faster) (Drittkonto, CTranslate2-Umwandlung) | Umwandlung als MIT gekennzeichnet; **das Ausgangsmodell [biodatlab/whisper-th-medium-combined](https://huggingface.co/biodatlab/whisper-th-medium-combined) steht unter Apache-2.0** (gilt für die Gewichte weiter; bei Weitergabe Lizenz- und Hinweispflichten beachten) |
 | Silero-VAD | Sprach-Aktivitätserkennung | im Paket `faster-whisper` enthalten ([snakers4/silero-vad](https://github.com/snakers4/silero-vad)) | MIT |
 | WeSpeaker ResNet34 (VoxCeleb) | Stimmprofile (Sprechererkennung) | [sherpa-onnx-Release](https://github.com/k2-fsa/sherpa-onnx/releases), SHA-256 geprüft (`profiles.py`) | Code von WeSpeaker: Apache-2.0. Die vortrainierten Modelle folgen laut [WeSpeaker-Doku](https://github.com/wenet-e2e/wespeaker/blob/master/docs/pretrained.md) der Lizenz des Datensatzes: VoxCeleb = CC BY 4.0 (Namensnennung nötig). |
+
+## iPhone-App (`ios/`)
+
+| Was | Verwendung | Quelle | Lizenz |
+|---|---|---|---|
+| WhisperKit 1.1.1 | optionale Spracherkennung (Swift-Paket, in die App gelinkt; Revision in `Package.resolved`) | [argmaxinc/WhisperKit](https://github.com/argmaxinc/WhisperKit) | MIT |
+| swift-argument-parser | nur Abhängigkeit von WhisperKit beim Auflösen, nicht in die App gelinkt | [apple/swift-argument-parser](https://github.com/apple/swift-argument-parser) | Apache-2.0 |
+| Whisper-Modelle für WhisperKit | nur nach Tippen auf „Modell laden“, **ohne** feste Revision | [argmaxinc/whisperkit-coreml](https://huggingface.co/argmaxinc/whisperkit-coreml) (Core-ML-Umwandlung von OpenAI Whisper) | OpenAI Whisper: MIT; Angaben der Modellkarte vor Weitergabe prüfen |
+
+Apples Spracherkennung, Übersetzung und Stimmen sind Teil von iOS.
 
 ## Python-Pakete (direkte Abhängigkeiten, `requirements.in`)
 
