@@ -13,8 +13,9 @@ Optionen: --model small|medium|base  --mic 0  --polite krub|ka  --json
           --voice-en/--voice-th NAME --llm [--llm-model ID] --earcons --meter --list-mics
 Protokoll Engine <-> App: docs/PROTOKOLL.md
 """
-import argparse, collections, functools, html, http.client, io, itertools, json, logging, logging.handlers, math, \
-    os, queue, re, shutil, signal, subprocess, sys, tempfile, threading, time, urllib.error, urllib.parse, urllib.request
+import argparse, collections, functools, html, http.client, io, itertools, json, logging, logging.handlers, \
+    math, os, queue, re, shutil, signal, subprocess, sys, tempfile, threading, time, urllib.error, urllib.parse, \
+    urllib.request
 import numpy as np
 import presets
 from faster_whisper import WhisperModel
@@ -3324,7 +3325,7 @@ def report_queue():
             emit("queue", stt=cur[0], tts=cur[1])
 
 
-import glob, hashlib, math  # noqa: E402
+import glob, hashlib  # noqa: E402
 
 ENGINE_VERSION = "1.2"
 PROTOCOL = 1                      # Version des Engine-App-Protokolls (docs/PROTOKOLL.md)
