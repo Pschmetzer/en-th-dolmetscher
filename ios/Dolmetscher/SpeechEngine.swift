@@ -10,8 +10,11 @@ private let log = Logger(subsystem: "dolmetscher", category: "speech")
 enum SpeechEvent: Sendable {
     case level(Float)
     case hearing(Bool)
-    case partial(en: String, th: String)
-    case utterance(en: Hypothesis?, th: Hypothesis?)
+    /// Bisher Erkanntes je Sprache (Live-Vorschau), mit echter Konfidenz.
+    case partial([Lang: Hypothesis])
+    case utterance([Lang: Hypothesis])
+    /// Ein Erkenner ist ausgefallen: die Aufnahme liefert nichts mehr und muss neu gestartet werden.
+    case failed(String)
     /// Anruf, Siri, Kopfhörer an/ab: die Aufnahme ist abgerissen und muss neu gestartet werden.
     case interrupted
     /// Anruf o. Ä. beginnt: Aufnahme ruht, bis `interrupted` (Ende) kommt.
@@ -19,13 +22,14 @@ enum SpeechEvent: Sendable {
 }
 
 enum SpeechError: LocalizedError {
-    case unsupported(Lang), noModel(Lang), noMicrophone, denied
+    case unsupported(Lang), noModel(Lang), noMicrophone, denied, downloadOffline
     var errorDescription: String? {
         switch self {
         case .unsupported(let l): return T("err_unsupported") + " (\(l.rawValue))"
         case .noModel(let l): return T("err_no_model") + " (\(l.rawValue))"
         case .noMicrophone: return T("err_no_mic")
         case .denied: return T("err_denied")
+        case .downloadOffline: return T("err_model_offline")
         }
     }
 }
@@ -62,15 +66,28 @@ final class LangRecognizer: @unchecked Sendable {
     private var fedSeconds = 0.0
     private var consumedUpTo = 0.0
     private var reader: Task<Void, Never>?
+    private var shutDown = false
+    var isShutDown: Bool { lock.lock(); defer { lock.unlock() }; return shutDown }
 
     static func locale(for lang: Lang) async -> Locale? {
         let all = await DictationTranscriber.supportedLocales
-        let region = lang == .en ? "US" : "TH"
-        return all.first { $0.language.languageCode?.identifier == lang.rawValue && $0.region?.identifier == region }
+        return all.first { $0.language.languageCode?.identifier == lang.rawValue && $0.region?.identifier == lang.region }
             ?? all.first { $0.language.languageCode?.identifier == lang.rawValue }
     }
 
-    init(lang: Lang, onDownload: @escaping @Sendable (Double) -> Void) async throws {
+    /// Muss für `langs` noch ein Sprachmodell geladen werden (braucht Internet)?
+    static func needsDownload(_ langs: [Lang]) async -> Bool {
+        let installed = await DictationTranscriber.installedLocales
+        for l in langs {
+            guard let loc = await locale(for: l) else { continue }
+            if !installed.contains(where: { $0.identifier(.bcp47) == loc.identifier(.bcp47) }) { return true }
+        }
+        return false
+    }
+
+    /// `onError`: der Erkenner ist ausgefallen (nicht beim normalen Beenden).
+    init(lang: Lang, onDownload: @escaping @Sendable (Double) -> Void,
+         onError: @escaping @Sendable (String) -> Void = { _ in }) async throws {
         log.info("\(lang.rawValue): locale?")
         guard let locale = await Self.locale(for: lang) else { throw SpeechError.unsupported(lang) }
         log.info("\(lang.rawValue): locale \(locale.identifier)")
@@ -115,7 +132,13 @@ final class LangRecognizer: @unchecked Sendable {
                     self?.absorb(Piece(start: r.range.start.seconds, text: String(r.text.characters),
                                        conf: n > 0 ? sum / n : 0.5), final: r.isFinal)
                 }
-            } catch {}
+            } catch is CancellationError {
+            } catch {
+                // Beim Beenden (shutdown) bricht der Leser ebenfalls ab – das ist kein Ausfall.
+                guard let self, !self.isShutDown else { return }
+                log.error("\(lang.rawValue): recognizer failed: \(error.localizedDescription, privacy: .public)")
+                onError(error.localizedDescription)
+            }
         }
     }
 
@@ -162,10 +185,13 @@ final class LangRecognizer: @unchecked Sendable {
         try? await analyzer.finalize(through: t)
     }
 
-    /// Was bisher erkannt wurde, ohne es zu verbrauchen (für die Live-Anzeige).
-    func peek() -> String {
+    /// Was bisher erkannt wurde, ohne es zu verbrauchen (für die Live-Anzeige), mit mittlerer Konfidenz.
+    func peek() -> Hypothesis? {
         lock.lock(); defer { lock.unlock() }
-        return (finals.map(\.text) + [volatile?.text ?? ""]).joined().trimmingCharacters(in: .whitespacesAndNewlines)
+        let parts = finals + (volatile.map { [$0] } ?? [])
+        let text = parts.map(\.text).joined().trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else { return nil }
+        return Hypothesis(text: text, confidence: parts.map(\.conf).reduce(0, +) / Double(parts.count))
     }
 
     /// Alles, was vor `upTo` begann, entnehmen.
@@ -180,7 +206,10 @@ final class LangRecognizer: @unchecked Sendable {
         return Hypothesis(text: text, confidence: parts.map(\.conf).reduce(0, +) / Double(parts.count))
     }
 
+    private func markShutDown() { lock.lock(); shutDown = true; lock.unlock() }
+
     func shutdown() async {
+        markShutDown()
         input.finish()
         await analyzer.cancelAndFinishNow()
         reader?.cancel()
@@ -210,7 +239,11 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
         try await capture.activate(options: options)
         var made: [LangRecognizer] = []
         do {
-            for l in langs { made.append(try await LangRecognizer(lang: l) { onDownload(l, $0) }) }
+            let emit = emit
+            for l in langs {
+                made.append(try await LangRecognizer(lang: l, onDownload: { onDownload(l, $0) },
+                                                     onError: { emit.yield(.failed($0)) }))
+            }
             try capture.checkInput()
         } catch {
             for r in made { await r.shutdown() }
@@ -266,8 +299,9 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
         sincePartial += dur
         if sincePartial >= 0.25 {
             sincePartial = 0
-            emit.yield(.partial(en: recs.first { $0.lang == .en }?.peek() ?? "",
-                                th: recs.first { $0.lang == .th }?.peek() ?? ""))
+            var seen: [Lang: Hypothesis] = [:]
+            for r in recs { seen[r.lang] = r.peek() }
+            emit.yield(.partial(seen))
         }
     }
 
@@ -282,17 +316,14 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
             // schnellere Sprache, nur weil die andere noch rechnet (v. a. Thai beim ersten Satz).
             if marks.count > 1 {
                 for _ in 0..<10 {
-                    let have = marks.map { !$0.0.peek().isEmpty }
+                    let have = marks.map { $0.0.peek() != nil }
                     if have.allSatisfy({ $0 }) || !have.contains(true) { break }
                     try? await Task.sleep(for: .milliseconds(80))
                 }
             }
-            var en: Hypothesis?, th: Hypothesis?
-            for (r, mark) in marks {
-                let h = r.take(upTo: mark + 0.05)
-                if r.lang == .en { en = h } else { th = h }
-            }
-            if en != nil || th != nil { self.emit.yield(.utterance(en: en, th: th)) }
+            var heard: [Lang: Hypothesis] = [:]
+            for (r, mark) in marks { heard[r.lang] = r.take(upTo: mark + 0.05) }
+            if !heard.isEmpty { self.emit.yield(.utterance(heard)) }
         }
     }
 }

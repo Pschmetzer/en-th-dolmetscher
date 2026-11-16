@@ -1,0 +1,4 @@
+"NSMicrophoneUsageDescription" = "Dolmetscher nghe những gì được nói để có thể dịch.";
+"NSSpeechRecognitionUsageDescription" = "Giọng nói được chuyển thành văn bản ngay trên thiết bị này để có thể dịch.";
+"NSCameraUsageDescription" = "Chụp ảnh thực đơn hoặc biển báo để Dolmetscher đọc và dịch văn bản.";
+"NSPhotoLibraryUsageDescription" = "Chọn ảnh thực đơn hoặc biển báo để Dolmetscher đọc và dịch văn bản.";

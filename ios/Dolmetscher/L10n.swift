@@ -1,13 +1,31 @@
-// L10n.swift – Texte der Oberfläche in Deutsch, Englisch und Thai (wie die Mac-App).
+// L10n.swift – Texte der Oberfläche in Deutsch, Englisch und Thai (wie die Mac-App); weitere Sprachen
+// (maschinell übersetzt) in L10n+Extra.swift.
 import Foundation
 
 enum L10n {
     nonisolated(unsafe) static var lang = systemLang()
 
-    static func systemLang() -> String {
-        let p = Locale.preferredLanguages.first ?? "en"
-        return p.hasPrefix("de") ? "de" : p.hasPrefix("th") ? "th" : "en"
+    /// Sprachen der Oberfläche (Codes wie die .lproj-Ordner).
+    static let languages = ["de", "en", "th", "es", "fr", "ja", "ko", "zh-Hans", "vi", "id"]
+
+    static func systemLang() -> String { match(Locale.preferredLanguages) }
+
+    /// Erste bevorzugte Sprache, die die App kann ("zh-Hans-CN" -> "zh-Hans", "de-AT" -> "de"); sonst Englisch.
+    static func match(_ preferred: [String]) -> String {
+        for p in preferred {
+            if p.hasPrefix("zh") {
+                // Traditionelles Chinesisch gibt es nicht – lieber Englisch als die falsche Schrift.
+                if p.hasPrefix("zh-Hans") || p == "zh" || p.hasPrefix("zh-CN") || p.hasPrefix("zh-SG") { return "zh-Hans" }
+                continue
+            }
+            let code = String(p.prefix { $0 != "-" && $0 != "_" })
+            if languages.contains(code) { return code }
+        }
+        return "en"
     }
+
+    /// Die Oberflächensprache als Sprache der Sprachtabelle ("zh-Hans" -> zh), falls es eine ist.
+    static var asLang: Lang? { Lang(rawValue: lang == "zh-Hans" ? "zh" : lang) }
 
     static let table: [String: [String: String]] = [
         "start": ["de": "Start", "en": "Start", "th": "เริ่ม"],
@@ -135,6 +153,24 @@ enum L10n {
         "voices_note": ["de": "Bessere Stimmen: Einstellungen › Bedienungshilfen › Gesprochene Inhalte › Stimmen › Thai bzw. Englisch – eine „verbesserte“ Stimme laden.",
                         "en": "Better voices: Settings › Accessibility › Spoken Content › Voices › Thai or English – download an “enhanced” voice.",
                         "th": "เสียงที่ดีกว่า: การตั้งค่า › การช่วยการเข้าถึง › เนื้อหาที่พูด › เสียง › ภาษาไทย"],
+        "sec_recognition": ["de": "Spracherkennung", "en": "Speech recognition", "th": "การรู้จำเสียง"],
+        "whisper_use": ["de": "Whisper verwenden (experimentell)", "en": "Use Whisper (experimental)", "th": "ใช้ Whisper (ทดลอง)"],
+        "whisper_model": ["de": "Modell", "en": "Model", "th": "โมเดล"],
+        "whisper_get": ["de": "Modell laden", "en": "Download model", "th": "ดาวน์โหลดโมเดล"],
+        "whisper_wifi": ["de": "Am besten im WLAN laden.", "en": "Best downloaded over Wi-Fi.", "th": "ควรดาวน์โหลดผ่าน Wi-Fi"],
+        "whisper_cancel": ["de": "Abbrechen", "en": "Cancel", "th": "ยกเลิก"],
+        "whisper_installed": ["de": "Installiert", "en": "Installed", "th": "ติดตั้งแล้ว"],
+        "whisper_delete": ["de": "Whisper-Modell löschen", "en": "Delete Whisper model", "th": "ลบโมเดล Whisper"],
+        "whisper_note": ["de": "Standard ist Apples Erkennung. Whisper erkennt ganze Sätze erst nach der Pause (keine Live-Anzeige) und braucht mehr Akku und Speicher. Fehlt das Modell oder lässt es sich nicht laden, nutzt die App Apples Erkennung.",
+                         "en": "Apple's recognition is the default. Whisper recognizes whole sentences only after the pause (no live text) and uses more battery and memory. If the model is missing or fails to load, the app uses Apple's recognition.",
+                         "th": "ค่าเริ่มต้นคือการรู้จำเสียงของ Apple  Whisper จะแปลงเสียงทั้งประโยคหลังหยุดพูด (ไม่มีข้อความสด) และใช้แบตเตอรี่และหน่วยความจำมากกว่า หากไม่มีโมเดลหรือโหลดไม่สำเร็จ แอปจะใช้การรู้จำของ Apple"],
+        "whisper_bg_warn": ["de": "Achtung: Whisper im Hintergrund braucht viel Akku und kann vom System beendet werden.",
+                            "en": "Note: Whisper in the background drains the battery and may be stopped by the system.",
+                            "th": "หมายเหตุ: Whisper ในเบื้องหลังใช้แบตเตอรี่มากและระบบอาจหยุดการทำงาน"],
+        "whisper_preparing": ["de": "Whisper-Modell wird vorbereitet …", "en": "Preparing Whisper model …", "th": "กำลังเตรียมโมเดล Whisper …"],
+        "whisper_no_model": ["de": "Kein Whisper-Modell geladen", "en": "No Whisper model downloaded", "th": "ยังไม่ได้ดาวน์โหลดโมเดล Whisper"],
+        "whisper_load_failed": ["de": "Whisper-Modell ließ sich nicht laden", "en": "Whisper model failed to load", "th": "โหลดโมเดล Whisper ไม่สำเร็จ"],
+        "whisper_fallback": ["de": "nutze Apple-Erkennung", "en": "using Apple recognition", "th": "ใช้การรู้จำของ Apple"],
         "sec_listening": ["de": "Zuhören", "en": "Listening", "th": "การฟัง"],
         "auto_stop": ["de": "Automatisch stoppen nach Stille", "en": "Auto-stop after silence", "th": "หยุดอัตโนมัติเมื่อเงียบ"],
         "never": ["de": "Nie", "en": "Never", "th": "ไม่เลย"],
@@ -164,7 +200,7 @@ enum L10n {
         "baht_amount": ["de": "Betrag in Baht", "en": "Amount in baht", "th": "จำนวนเงินบาท"],
         "baht_rate": ["de": "Kurs", "en": "Rate", "th": "อัตรา"],
         "baht_note": ["de": "Kurs selbst eintragen (z. B. vom Wechselschalter) – funktioniert ohne Internet.", "en": "Enter the rate yourself (e.g. from the exchange booth) – works offline.", "th": "กรอกอัตราเอง ใช้ได้แบบออฟไลน์"],
-        "thai_speaker": ["de": "Thai immer über den Lautsprecher", "en": "Thai always through the speaker", "th": "ภาษาไทยออกลำโพงเสมอ"],
+        "thai_speaker": ["de": "Partnersprache immer über den Lautsprecher", "en": "Partner language always through the speaker", "th": "ภาษาของคู่สนทนาออกลำโพงเสมอ"],
         "sec_privacy": ["de": "Datenschutz", "en": "Privacy", "th": "ความเป็นส่วนตัว"],
         "history_keep": ["de": "Verlauf aufbewahren", "en": "Keep conversation", "th": "เก็บบทสนทนา"],
         "history_none": ["de": "Nicht speichern", "en": "Don't save", "th": "ไม่บันทึก"],
@@ -173,9 +209,61 @@ enum L10n {
         "history_30d": ["de": "30 Tage", "en": "30 days", "th": "30 วัน"],
         "history_forever": ["de": "Immer", "en": "Forever", "th": "ตลอดไป"],
         "history_note": ["de": "Der Verlauf liegt verschlüsselt nur auf diesem iPhone.", "en": "The conversation is stored encrypted on this iPhone only.", "th": "บทสนทนาถูกเก็บแบบเข้ารหัสในเครื่องนี้เท่านั้น"],
+        "just_talk": ["de": "Sprich einfach", "en": "Just talk", "th": "พูดได้เลย"],
+        "example_sentence": ["de": "Wo ist die Toilette?", "en": "Where is the toilet?", "th": "ห้องน้ำอยู่ที่ไหน"],
+        "empty_example_fmt": ["de": "Sag z. B.: „%@“", "en": "Try saying: \"%@\"", "th": "ลองพูดว่า: \"%@\""],
+        "empty_hint_pair": ["de": "%1$@ wird übersetzt in %2$@ und umgekehrt – und sofort vorgelesen.",
+                            "en": "%1$@ is translated into %2$@ and back – and spoken right away.",
+                            "th": "แปล%1$@เป็น%2$@ และกลับกัน แล้วพูดออกมาทันที"],
+        "same_script_hint": ["de": "Beide Sprachen nutzen dieselbe Schrift – die App kann sie nicht sicher unterscheiden. Richtung oben per Tippen wählen.",
+                             "en": "Both languages use the same script, so the app cannot tell them apart reliably. Tap above to choose the direction.",
+                             "th": "ทั้งสองภาษาใช้ตัวอักษรแบบเดียวกัน แอปแยกไม่ได้แน่นอน แตะด้านบนเพื่อเลือกทิศทาง"],
+        "paused_plain": ["de": "Pausiert", "en": "Paused", "th": "หยุดชั่วคราว"],
+        "undo": ["de": "Rückgängig", "en": "Undo", "th": "เลิกทำ"],
+        "clear_confirm": ["de": "Ganzen Verlauf leeren?", "en": "Clear the whole conversation?", "th": "ล้างบทสนทนาทั้งหมดหรือไม่?"],
+        "cleared": ["de": "Verlauf geleert", "en": "Conversation cleared", "th": "ล้างบทสนทนาแล้ว"],
+        "restored": ["de": "Verlauf wiederhergestellt", "en": "Conversation restored", "th": "กู้คืนบทสนทนาแล้ว"],
+        "cellular_title": ["de": "Sprachmodell über Mobilfunk laden?", "en": "Download speech model over cellular?",
+                           "th": "ดาวน์โหลดโมเดลเสียงผ่านเครือข่ายมือถือหรือไม่?"],
+        "cellular_msg": ["de": "Für diese Sprache fehlt noch das Sprachmodell. Der einmalige Download kann groß sein und im Roaming Geld kosten. Besser im WLAN laden.",
+                         "en": "The speech model for this language is not on the iPhone yet. The one-time download can be large and may cost money when roaming. Wi-Fi is better.",
+                         "th": "ยังไม่มีโมเดลเสียงสำหรับภาษานี้ การดาวน์โหลดครั้งเดียวอาจมีขนาดใหญ่และเสียค่าโรมมิ่ง แนะนำให้ใช้ Wi-Fi"],
+        "cellular_go": ["de": "Trotzdem laden", "en": "Download anyway", "th": "ดาวน์โหลดเลย"],
+        "cellular_wait": ["de": "Später im WLAN", "en": "Later on Wi-Fi", "th": "ภายหลังผ่าน Wi-Fi"],
+        "err_model_offline": ["de": "Das Sprachmodell muss einmalig geladen werden – dafür Internet (am besten WLAN) einschalten.",
+                              "en": "The speech model has to be downloaded once – please connect to the internet (Wi-Fi is best).",
+                              "th": "ต้องดาวน์โหลดโมเดลเสียงหนึ่งครั้ง – โปรดเชื่อมต่ออินเทอร์เน็ต (แนะนำ Wi-Fi)"],
+        "err_recognizer": ["de": "Spracherkennung ausgefallen – bitte neu starten", "en": "Speech recognition stopped – please start again",
+                           "th": "การรู้จำเสียงหยุดทำงาน – โปรดเริ่มใหม่"],
+        "recognizer_restarted": ["de": "Spracherkennung neu gestartet", "en": "Speech recognition restarted", "th": "เริ่มการรู้จำเสียงใหม่แล้ว"],
+        "err_no_network": ["de": "Kein Internet – nur Offline-Sprachpakete übersetzen ohne Netz", "en": "No internet – only offline language packs work without a connection",
+                           "th": "ไม่มีอินเทอร์เน็ต – ใช้ได้เฉพาะชุดภาษาออฟไลน์"],
+        "err_online_cooldown": ["de": "Online-Übersetzer gerade nicht erreichbar – gleich nochmal versuchen", "en": "Online translator unreachable right now – try again shortly",
+                                "th": "ตัวแปลออนไลน์ไม่ตอบสนอง – ลองอีกครั้งในไม่ช้า"],
+        "offline_hint": ["de": "Offline-Sprachpakete fehlen. Tippen, um sie zu laden (oder Online-Übersetzung erlauben).",
+                         "en": "Offline language packs are missing. Tap to download them (or allow online translation).",
+                         "th": "ไม่มีชุดภาษาออฟไลน์ แตะเพื่อดาวน์โหลด (หรืออนุญาตการแปลออนไลน์)"],
+        "sec_langs": ["de": "Sprachen", "en": "Languages", "th": "ภาษา"],
+        "lang_mine": ["de": "Meine Sprache", "en": "My language", "th": "ภาษาของฉัน"],
+        "lang_partner": ["de": "Partnersprache", "en": "Partner language", "th": "ภาษาของคู่สนทนา"],
+        "lang_download": ["de": "braucht Download", "en": "needs download", "th": "ต้องดาวน์โหลด"],
+        "lang_note": ["de": "Angeboten wird nur, was dieses iPhone erkennen, übersetzen und vorlesen kann. ⬇︎ = Sprachmodell, Übersetzungspaket oder Stimme fehlt noch und wird einmalig geladen (Internet nötig). 🌐 = Apple übersetzt dieses Paar nicht auf dem Gerät – nur mit Online-Übersetzung. Thai-Extras (Höflichkeit, Baht, Notrufnummern, Satzbuch) gibt es nur mit Thai, Sprachbefehle nur mit Englisch im Paar.",
+                      "en": "Only languages this iPhone can recognise, translate and speak are offered. ⬇︎ = speech model, translation pack or voice is still missing and will be downloaded once (internet needed). 🌐 = Apple cannot translate this pair on the device – online translation only. Thai extras (politeness, baht, emergency numbers, phrasebook) need Thai, voice commands need English in the pair.",
+                      "th": "แสดงเฉพาะภาษาที่ iPhone นี้รู้จำ แปล และอ่านออกเสียงได้ ⬇︎ = ยังไม่มีโมเดลเสียง ชุดแปล หรือเสียงพูด ต้องดาวน์โหลดครั้งเดียว (ต้องใช้อินเทอร์เน็ต) 🌐 = แปลบนเครื่องไม่ได้ ต้องใช้การแปลออนไลน์ ฟังก์ชันภาษาไทยมีเฉพาะเมื่อมีภาษาไทย คำสั่งเสียงเฉพาะเมื่อมีภาษาอังกฤษ"],
+        "lang_online_only": ["de": "nur online übersetzbar", "en": "online translation only", "th": "แปลได้เฉพาะออนไลน์"],
+        "lang_unavailable": ["de": "Auf diesem iPhone nicht verfügbar", "en": "Not available on this iPhone", "th": "ไม่มีในเครื่องนี้"],
+        "online_off_note": ["de": "Aus (Standard): Alles bleibt auf dem iPhone. An: Fehlt ein Offline-Paket, geht der Text an Google Translate (Ersatz: MyMemory). Die Spracherkennung läuft immer auf dem Gerät.",
+                            "en": "Off (default): everything stays on the iPhone. On: if an offline pack is missing, the text is sent to Google Translate (fallback: MyMemory). Speech recognition always runs on the device.",
+                            "th": "ปิด (ค่าเริ่มต้น): ทุกอย่างอยู่ในเครื่อง เปิด: หากไม่มีชุดภาษาออฟไลน์ ข้อความจะถูกส่งไปยัง Google Translate (สำรอง: MyMemory) การรู้จำเสียงทำงานบนเครื่องเสมอ"],
+        "sos_title": ["de": "Notruf-Satz", "en": "Emergency phrase", "th": "ประโยคฉุกเฉิน"],
     ]
 }
 
 func T(_ key: String) -> String {
-    L10n.table[key]?[L10n.lang] ?? L10n.table[key]?["en"] ?? key
+    L10n.text(key, lang: L10n.lang) ?? L10n.table[key]?["en"] ?? key
+}
+
+extension L10n {
+    /// Text in einer bestimmten Sprache, nil wenn es ihn dort nicht gibt (kein Rückfall).
+    static func text(_ key: String, lang: String) -> String? { table[key]?[lang] ?? extra[lang]?[key] }
 }
