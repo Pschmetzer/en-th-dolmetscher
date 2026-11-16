@@ -37,10 +37,42 @@ def _skip(tok, sentence_start):
         return len(tok) < 2                      # einzelne Zeichen sind kein Wort
     if len(tok) < 3:
         return True
-    # Eigenname: Großbuchstabe mitten im Satz (am Satzanfang nicht unterscheidbar)
-    if not sentence_start and tok[0].isupper() and not tok.isupper():
-        return True
+    # Nr. 209: Eigennamen (Großbuchstabe mitten im Satz) bleiben drin – sie sind als Vokabel am wertvollsten
     return False
+
+
+# Kein Eigenname, obwohl großgeschrieben (Wochentage, Monate, Anreden, Pronomen)
+_NOT_NAMES = {"i", "i'm", "i'll", "i've", "i'd", "monday", "tuesday", "wednesday", "thursday", "friday",
+              "saturday", "sunday", "january", "february", "march", "april", "may", "june", "july", "august",
+              "september", "october", "november", "december", "mr", "mrs", "ms", "dr", "ok", "okay",
+              "english", "thai", "god"}
+
+
+def proper_names(old, new, lang="en", limit=3):
+    """Eigennamen, die erst durch die Korrektur dazukamen (Großbuchstabe mitten im Satz, lateinische
+    Schrift, im Original in keiner Schreibweise vorhanden). Kandidaten fürs Glossar („Name“ = unverändert
+    lassen). Thai hat keine Großschreibung: dort nie etwas. Wörter am Satzanfang sind nicht unterscheidbar."""
+    if lang == "th" or _THAI.search(new or ""):
+        return []
+    old_low = {t.lower() for t in tokenize(old, lang)}
+    out, seen = [], set()
+    starts = {0}
+    toks = _WORD.findall(new or "")
+    # Satzanfänge: erstes Wort und Wörter nach . ! ?
+    pos = 0
+    for i, t in enumerate(toks):
+        j = (new or "").find(t, pos)
+        if i and re.search(r"[.!?]\s*$", (new or "")[pos:j]):
+            starts.add(i)
+        pos = j + len(t)
+    for i, t in enumerate(toks):
+        low = t.lower()
+        if (i in starts or not t[0].isupper() or t.isupper() or len(t) < 2 or _NUM.search(t)
+                or low in _NOT_NAMES or low in old_low or low in seen):
+            continue
+        seen.add(low)
+        out.append(t)
+    return out[:limit]
 
 
 def suggest_vocab(old, new, lang="en", limit=MAX_SUGGEST):

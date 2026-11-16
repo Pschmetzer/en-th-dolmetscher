@@ -78,8 +78,8 @@ def test_every_documented_code_is_localized():
     errs, drops = _swift_dict("errorKeys"), _swift_dict("droppedKeys")
     missing = sorted(_doc_codes("### `error.code`") - set(errs))
     assert not missing, f"error codes without app text: {missing}"
-    # command: answer comes as `command`; translate_failed: an `error` follows -> status unchanged
-    missing = sorted(_doc_codes("### `dropped.code`") - set(drops) - {"command", "translate_failed"})
+    # command: answer comes as `command`; translate_failed: an `error` follows; stopped: silent -> status unchanged
+    missing = sorted(_doc_codes("### `dropped.code`") - set(drops) - {"command", "translate_failed", "stopped"})
     assert not missing, f"dropped codes without app text: {missing}"
     bad = sorted(k for k in list(errs.values()) + list(drops.values()) if k not in rows)
     assert not bad, f"L10n keys missing: {bad}"

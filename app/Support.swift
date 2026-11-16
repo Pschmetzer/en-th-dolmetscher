@@ -6,13 +6,15 @@ import UniformTypeIdentifiers
 
 /// Neue Übersetzungen und Fehler per VoiceOver ansagen (nur wenn VoiceOver läuft; in den Einstellungen abschaltbar).
 enum Announcer {
-    static func post(_ text: String, force: Bool = false) {
+    /// `lang` (BCP 47, z. B. "th-TH"): VoiceOver liest den Text mit der Stimme dieser Sprache (Nr. 366).
+    static func post(_ text: String, force: Bool = false, lang: String? = nil) {
         guard !text.isEmpty,
               UserDefaults.standard.object(forKey: Prefs.announce) as? Bool ?? true,
               NSWorkspace.shared.isVoiceOverEnabled else { return }
         let level: NSAccessibilityPriorityLevel = force ? .high : .medium
+        let value: Any = lang.map { NSAttributedString(string: text, attributes: [.accessibilityLanguage: $0]) } ?? text
         NSAccessibility.post(element: NSApp as Any, notification: .announcementRequested,
-                             userInfo: [.announcement: text, .priority: level.rawValue])
+                             userInfo: [.announcement: value, .priority: level.rawValue])
     }
 }
 

@@ -109,6 +109,16 @@ private struct GeneralSettings: View {
                 Toggle(L.t("push_to_talk"), isOn: $m.pushToTalk)
                     .help(L.t("push_to_talk_help"))
                 Toggle(L.t("earcons"), isOn: $m.earcons)
+                Toggle(isOn: $m.slowMode) {
+                    VStack(alignment: .leading) {
+                        Text(L.t("slow_mode"))
+                        Text(L.t("slow_mode_help")).font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+                Toggle(L.t("back_translate"), isOn: $m.backTranslate)
+                    .help(L.t("back_translate_help"))
+                Toggle(L.t("learn_glossary"), isOn: $m.learnGlossary)
+                    .help(L.t("learn_glossary_help"))
                 Toggle(isOn: $m.logText) {
                     VStack(alignment: .leading) { Text(L.t("log_text")); RestartNote() }
                 }
@@ -469,13 +479,14 @@ private struct TranslationSettings: View {
     }
 }
 
-/// API-Schlüssel eingeben und als Datei (0600) speichern. Der Schlüssel wird nie angezeigt oder geloggt.
+/// API-Schlüssel eingeben und im Schlüsselbund speichern (Rückfall: Datei 0600). Er wird nie angezeigt oder geloggt.
 /// Ein „Schlüssel testen“-Knopf fehlt absichtlich: Er würde den Schlüssel lesen und an die API senden.
 private struct APIKeySection: View {
     @EnvironmentObject var m: EngineModel
     @State private var key = ""
     @State private var exists = APIKeyStore.exists
     @State private var failed = false
+    @State private var formatWarn = false
 
     var body: some View {
         Section {
@@ -484,6 +495,8 @@ private struct APIKeySection: View {
             HStack {
                 if failed {
                     Label(L.t("key_failed"), systemImage: "xmark.octagon").foregroundStyle(.red)
+                } else if exists && formatWarn {
+                    Label(L.t("key_format_warn"), systemImage: "exclamationmark.triangle").foregroundStyle(.orange)
                 } else if exists {
                     Label(L.t("key_saved"), systemImage: "key.fill").foregroundStyle(.green)
                 } else {
@@ -492,7 +505,7 @@ private struct APIKeySection: View {
                 Spacer()
                 if exists {
                     Button(L.t("key_remove"), role: .destructive) {
-                        APIKeyStore.remove(); exists = APIKeyStore.exists; m.keyVersion += 1
+                        APIKeyStore.remove(); exists = APIKeyStore.exists; formatWarn = false; m.keyVersion += 1
                     }
                 }
                 Button(L.t("save"), action: save).disabled(key.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
@@ -502,6 +515,7 @@ private struct APIKeySection: View {
     }
 
     private func save() {
+        formatWarn = !APIKeyStore.looksValid(key)   // Nr. 390: trotzdem speichern, nur warnen
         let ok = APIKeyStore.save(key)
         key = ""                      // Eingabe sofort verwerfen
         failed = !ok

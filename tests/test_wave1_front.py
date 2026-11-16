@@ -101,7 +101,7 @@ def test_429_pauses_google_and_uses_retry_after(monkeypatch):
     monkeypatch.setattr(d, "_get_json", gj)
     assert d.translate("hello there", "en", "th") == "สวัสดี"
     n_google = sum("googleapis" in c for c in calls)
-    assert 5 < d._PROV["google"]["until"] - d.time.time() <= 7.5
+    assert 5 < d._PROV["google"]["until"] - d.time.monotonic() <= 7.5
     assert d.translate("good evening", "en", "th") == "สวัสดี"
     assert sum("googleapis" in c for c in calls) == n_google         # Google bleibt ausgesetzt
 

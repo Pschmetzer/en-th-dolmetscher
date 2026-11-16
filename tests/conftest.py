@@ -26,6 +26,13 @@ def _reset_net_backoff():
 
 
 @pytest.fixture(autouse=True)
+def _glossary_tmp(monkeypatch, tmp_path):
+    """Glossar-Lernen (Standard an) schreibt die Glossar-Datei: nie die echte im Nutzerordner."""
+    monkeypatch.setattr(d, "GLOSSARY_FILE", str(tmp_path / "glossary.txt"))
+    monkeypatch.setattr(d, "GLOSSARY", [])
+
+
+@pytest.fixture(autouse=True)
 def _llm_spend_tmp(monkeypatch, tmp_path):
     """Claude-Monatskosten nie in die echte Datei schreiben; Zustand je Test frisch."""
     monkeypatch.setattr(d, "LLM_SPEND_FILE", str(tmp_path / "llm_spend.json"))

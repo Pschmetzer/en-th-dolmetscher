@@ -70,6 +70,9 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `--llm-budget USD` | `0.0` | Claude-Monatslimit in US-Dollar (0 = keins). Darüber übersetzt Google bis Monatsende; einmal `error` `llm_budget`. Monatssumme in `llm_spend.json` (0600) im Application-Support-Ordner |
 | `--style casual\|neutral\|polite` | `casual` | Ton der Claude-Übersetzung |
 | `--earcons` | | Signalton statt gesprochener Bestätigung bei Sprachbefehlen |
+| `--slow` | | „Langsam und deutlich“ (wie Steuerfeld `slow`) |
+| `--back-translate` | | Rückübersetzung als Ereignis `back` (wie Steuerfeld `back_translate`) |
+| `--no-learn-glossary` | | Eigennamen aus Korrekturen nicht ins Glossar übernehmen (Standard: an) |
 | `--meter` | | Pegel-Ereignisse `level` senden |
 | `--no-two-person` | | Zwei-Personen-Modus aus |
 | `--fast-endpoint` / `--no-fast-endpoint` | aus | schnelles Satzende, nur Englisch |
@@ -86,7 +89,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 
 | Variable | Wirkung |
 |---|---|
-| `ANTHROPIC_API_KEY` (oder `ANTHROPIC_AUTH_TOKEN`) | Claude-Schlüssel; alternativ Datei `~/Library/Application Support/Dolmetscher/anthropic_key` (nur der Schlüssel, Rechte 0600) |
+| `ANTHROPIC_API_KEY` (oder `ANTHROPIC_AUTH_TOKEN`) | Claude-Schlüssel. Die Mac-App speichert ihn im Schlüsselbund (Dienst `Dolmetscher`, Konto `anthropic`) und setzt ihn beim Start jedes Engine-Prozesses als `ANTHROPIC_API_KEY`; die Engine ruft `security` nie selbst auf. Die alte Datei bleibt erhalten, bis der Schlüsselbund-Eintrag nachweislich lesbar ist, und wird dann in `anthropic_key.migrated` (0600) umbenannt, nie gelöscht. Rückfall ohne `ANTHROPIC_API_KEY` (Terminal, Schlüsselbund nicht erreichbar): Datei `~/Library/Application Support/Dolmetscher/anthropic_key` (nur der Schlüssel, Rechte 0600), sonst `anthropic_key.migrated` im selben Ordner |
 | `DOLMETSCHER_BEAM` | Beam-Breite der Erkennung (Standard 1; überschreibt `--model auto`) |
 | `DOLMETSCHER_MIC_FILE` | Audiodatei in Echtzeit statt Mikrofon (Ende-zu-Ende-Test) |
 | `DOLMETSCHER_MIC_LOOP` | mit `DOLMETSCHER_MIC_FILE`: Datei endlos wiederholen |
@@ -103,6 +106,9 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 |---|---|---|
 | `loading` | `msg`, `download` (optional, true: Modell wird einmalig heruntergeladen, kann Minuten dauern) | |
 | `download_progress` | `model` (Name wie `--model` bzw. Repo-ID), `done_mb` (bereits auf der Platte), `total_mb` (Gesamtgröße laut Hub, sonst Schätzung; `null`, wenn unbekannt), `final` (bool: Download dieses Modells fertig) | nur während ein fehlendes Modell geladen wird (nach `loading` mit `download: true`), höchstens ~2×/s und nur bei Änderung. Gezählt werden die Bytes im Hugging-Face-Cache (auch `.incomplete`), deshalb funktioniert es auch mit hf-xet. Ältere Apps ignorieren das Ereignis |
+| `back` | `id`, `text`, `lang` | optional, nur mit `back_translate`/`--back-translate`: Rückübersetzung der Übersetzung von `id` in die gesprochene Sprache `lang` (Google/MyMemory, nie Claude). Kommt **nach** dem `utt` derselben `id`, ohne Garantie (Fehler: nur Log); bei unbekannter `id` ignorieren |
+| `state` | wie `command` ohne `text`/`reply`, dazu `mute`, `earcons`, `preset`, `llm` (`{"on", "available", "style"}`), `slow`, `back_translate`, `learn_glossary`, `mic_on` | Antwort auf `{"get_state": true}` (App-Neustart/Reconnect); ändert keinen Status |
+| `glossary` | `text` (ganzes eigenes Glossar), `added` (neue Namen) | Engine hat Eigennamen aus einer Korrektur ins Glossar übernommen (Datei schon geschrieben). Die App hängt `added` an ihren Text an (nicht überschreiben: ungesendete eigene Änderungen) |
 | `llm_cost` | `usd`, `month_usd` | geschätzte Claude-Kosten der Sitzung bzw. des Kalendermonats (nach Preisliste, über Neustarts) |
 | `missed` | `why` (`cut`\|`overlap`), `dur` (s Ausgabe), `rms` | Während der eigenen Sprachausgabe wurde vermutlich gesprochen und der Teil verworfen (Halbduplex): `cut` = ein Satz lief noch, als die Ausgabe begann (der Anfang wird übersetzt, der Rest fehlt); `overlap` = direkt nach Ende der Ausgabe (und des Nachhalls) ist schon Sprache da. Höchstens einmal je Ausgabe; nie mit `--barge-in`. Echo der eigenen Stimme löst es nicht aus (während der Sperre wird nichts gemessen), ein Gespräch über Lautsprecher kann aber trotzdem `overlap` melden |
 | `ready` | `msg`, `device`, `llm` (bool: Claude aktiv), `protocol`, `engine_version`, `langs` (`{"mine", "partner"}`); optional `degraded` (Liste: `detect_model`, `thai_model` – Modell nicht geladen, Erkennung läuft schwächer über das Hauptmodell) | |
@@ -142,6 +148,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `empty` | nichts erkannt | kein Text |
 | `translate_failed` | übersetzung fehlgeschlagen | zusätzlich `error` mit `code` `translate_failed`; mit `text`, `lang` für „Erneut versuchen“ |
 | `error` | fehler | interner Fehler bei diesem Satz |
+| `stopped` | gestoppt | Mikrofon gestoppt, bevor die Äußerung bearbeitet wurde (Platzhalter entfernen, kein Hinweis) |
 | `other` | | unbekannter Grund (App: allgemeine Meldung) |
 
 ### `error.code`
@@ -208,6 +215,10 @@ Neu:
 | `speak_text` | `{"text": "...", "lang": CODE (Sprache des Paars), "id": "u7"}` | fertigen Text nur vorlesen (Neural-Stimme, keine Übersetzung) – „Nochmal sprechen“; `id` optional, dann kommen `speaking`/`speak_done` mit dieser id (ohne `latency_s`). Ungültig: `error` `speak_invalid`. Nicht verwechseln mit `speak` (bool, stumm schalten) |
 | `mic` | string (Index, Gerätename oder `default`) | Mikrofon zur Laufzeit wechseln, ohne Modelle neu zu laden: ist es an, öffnet die Engine ffmpeg mit dem neuen Gerät neu (danach `mic` `on: true`; wartende Äußerungen des alten Geräts verfallen, laufende Ausgaben nicht); ist es aus, gilt das Gerät beim nächsten `listen`. Vor `ready` gesendet: gilt, sobald das Mikrofon angelegt wird. Unbekannter Name: `error` `mic_not_found`, Standardmikrofon |
 | `llm_budget` | float (USD, 0 … 10000) | Claude-Monatslimit wie `--llm-budget`; 0 = keine Grenze |
+| `slow` | bool | „Langsam und deutlich“: Ausgabe SLOW_RATE (−25) Prozentpunkte langsamer (zusammen nie unter −50), kein Aufhol-Tempo, nie überspringen; Claude bekommt den Zusatz „einfache Wörter, kurze Sätze“ (eigener Cache-Schlüssel) |
+| `back_translate` | bool | Rückübersetzung als Ereignis `back` an/aus (Standard aus; kostet je Satz eine Google-Anfrage) |
+| `learn_glossary` | bool | Eigennamen aus Korrekturen (`retranslate`) automatisch ins Glossar (Standard an) |
+| `get_state` | true | Zustand als Ereignis `state` senden |
 | `reassign` | `{"id": "u7", "role": "me"\|"other"}` | „Das war ich/Partner“: Satz in der Sprache dieser Person (ich = Englisch bzw. meine Sprache, Partner = die andere Sprache des Paars) neu erkennen und übersetzen; `utt` kommt mit `replaces: "u7"`, `source: "reassign"`, `role`. Führt den Stimmabdruck des Profils nach (Gewicht 0,15). Behalten werden die letzten 30 Sätze |
 
 ## Tempo-Ausbau (Branch feat/tempo)
@@ -355,3 +366,27 @@ Befehle (beenden sich sofort, laden keine Modelle):
   und lädt herunter. Andere Ladefehler (Gerät, Compute-Typ) gehen ohne Netzzugriff an den Rückfall.
 - **edge-tts:** Beim Start prüft ein Selbsttest die genutzten Interna (Version gepinnt in `requirements.in`);
   schlägt er fehl, läuft die Neural-Stimme gleich über den alten Weg (Log `tts_ws`).
+
+## Runde 3 (Ideenliste)
+
+Neue Felder kommen nur dazu, `PROTOCOL` bleibt 1.
+
+- **Rückübersetzung:** eigenes Ereignis `back` nach `utt` (wie `heard` vor `utt`), damit weder Blase noch Ton auf
+  die zweite Anfrage warten. Standard aus.
+- **Langsam und deutlich:** Steuerfeld `slow`, Start `--slow`.
+- **Glossar lernt aus Korrekturen:** Schreibt der Nutzer bei `retranslate` einen Eigennamen (Großbuchstabe mitten im
+  Satz, lateinische Schrift, im erkannten Text in keiner Schreibweise vorhanden; nicht Wochentage, Monate, „I“), kommt
+  er als Zeile `Name` (unverändert lassen, zugleich Erkennungs-Hotword) ins eigene Glossar – höchstens 3 je Korrektur,
+  nie über 200 Einträge. Danach `glossary` {`text`, `added`}. Die Vokabel-Vorschläge `suggest_vocab` enthalten jetzt
+  auch Eigennamen (vorher fälschlich verworfen).
+- **Steuerzeilen:** Mehrere Aufgaben in einer Zeile (z. B. `listen` + `say`) laufen alle (früher nur die letzte).
+  Scheitert eine Aktion, laufen die übrigen trotzdem. stdin wird als UTF-8 mit Ersatzzeichen gelesen.
+- **JSON:** NaN/±Infinity werden als `null` gesendet (vorher ungültiges JSON).
+- **Erkennung:** Grenze „zu schnell“ je Schrift (`MAX_CPS`: Latein 22, Thai 26, Han 13, Kana 16, Hangul 13 Zeichen/s);
+  `MIN_LOGPROB` für ja/zh/ko/tr/uk/id −1.1, vi/ar/hi −1.2 (vorher alle −1.0).
+- **Netz:** Ein 404/405/413 auf POST sperrt POST nur 10 min; Backoff-Zeiten laufen auf `time.monotonic()`; Offline
+  wird auch erkannt, wenn Google im Backoff übersprungen wurde.
+- **Cache:** Claude-Ergebnisse mit Gesprächskontext werden nicht gecacht; der Sprachbefehl „clear“ leert auch den
+  Übersetzungs- und den Sprach-Cache.
+- **Temp-Dateien:** Reste abgestürzter Läufe werden schon beim Start gelöscht (eigenes Verzeichnis trägt die PID).
+- **Verlauf:** Schreiben unter Lock in einer Transaktion.

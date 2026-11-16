@@ -80,13 +80,22 @@ struct AppCommands: Commands {
             Toggle(L.t("always_on_top"), isOn: $onTop)
                 .keyboardShortcut("t", modifiers: [.command, .option])
             Divider()
+            // Nr. 376: Start/Stopp und Pause mit sichtbarem Kürzel im Menü
+            Button(model.active ? L.t("stop") : L.t("start")) { model.toggle() }
+                .keyboardShortcut(.return, modifiers: .command)
             Button(model.paused ? L.t("resume") : L.t("pause")) { model.togglePause() }
+                .keyboardShortcut("p", modifiers: .command)
                 .disabled(!model.running)
             Button(L.t("stop_speaking")) { model.stopSpeaking() }
                 .keyboardShortcut(".", modifiers: .command)
                 .disabled(!model.running)
+            // Nr. 375: letzte Übersetzung nochmal sprechen
+            Button(L.t("replay_last")) { model.replayLast() }
+                .keyboardShortcut("r", modifiers: .command)
+                .disabled(model.lastReplayable == nil)
             Divider()
         }
+        CommandGroup(replacing: .printItem) {}   // kein Drucken: ⌘P ist Pause
         CommandGroup(replacing: .help) {
             Button(L.t("tips_show")) { NotificationCenter.default.post(name: .showTips, object: nil) }
         }
@@ -125,7 +134,10 @@ struct DolmetscherApp: App {
     @AppStorage(Prefs.showMenuBar) private var showMenuBar = true
     @AppStorage(L.key) private var uiLang = L.defaultCode
 
-    init() { _ = L.lang }   // Standardsprache festlegen, bevor die erste Ansicht @AppStorage liest
+    init() {
+        _ = L.lang              // Standardsprache festlegen, bevor die erste Ansicht @AppStorage liest
+        APIKeyStore.migrate()   // alte Schlüsseldatei in den Schlüsselbund (Nr. 23), vor dem ersten Engine-Start
+    }
 
     private var menuIcon: String {
         guard model.active else { return "waveform.circle" }

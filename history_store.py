@@ -11,6 +11,7 @@ import json
 import math
 import os
 import sqlite3
+import threading
 import time
 import uuid
 from datetime import datetime, timezone
@@ -36,6 +37,8 @@ class Store:
             os.close(os.open(self.path, os.O_CREAT | os.O_WRONLY, 0o600))
         os.chmod(self.path, 0o600)
         self.db = sqlite3.connect(self.path, check_same_thread=False)
+        # Nr. 204: eine Verbindung für mehrere Threads – Schreibvorgänge nur unter Lock und als eine Transaktion
+        self.lock = threading.RLock()
         # Gelöschte Zeilen mit Nullen überschreiben statt nur freizugeben (gilt pro Verbindung).
         self.db.execute("PRAGMA secure_delete = ON")
         self.db.execute("""CREATE TABLE IF NOT EXISTS utt (
@@ -63,24 +66,28 @@ class Store:
 
     def add(self, text, translation=None, lang=None, translit=None, conf=None, provider=None,
             session="", ts=None, uid=None, replaces=None):
-        if replaces:
-            self._delete_where("uid = ?", (replaces,))
-        cur = self.db.execute(
-            "INSERT INTO utt (uid, ts, session, lang, text, translation, translit, conf, provider) "
-            "VALUES (?,?,?,?,?,?,?,?,?)",
-            (uid, time.time() if ts is None else ts, session, lang, text, translation, translit, conf, provider))
-        if self.fts:
-            self.db.execute("INSERT INTO utt_fts (rowid, text, translation) VALUES (?,?,?)",
-                            (cur.lastrowid, text or "", translation or ""))
-        self.db.commit()
-        return cur.lastrowid
+        # Ersetzen, Einfügen und Suchindex in einer Transaktion: ein Absturz dazwischen verliert oder
+        # verdoppelt keine Zeile (with self.db: commit bzw. rollback)
+        with self.lock, self.db:
+            if replaces:
+                self._delete_rows("uid = ?", (replaces,))
+            cur = self.db.execute(
+                "INSERT INTO utt (uid, ts, session, lang, text, translation, translit, conf, provider) "
+                "VALUES (?,?,?,?,?,?,?,?,?)",
+                (uid, time.time() if ts is None else ts, session, lang, text, translation, translit, conf, provider))
+            if self.fts:
+                self.db.execute("INSERT INTO utt_fts (rowid, text, translation) VALUES (?,?,?)",
+                                (cur.lastrowid, text or "", translation or ""))
+            return cur.lastrowid
 
-    def _delete_where(self, where, args):
+    def _delete_rows(self, where, args):
         if self.fts:
             self.db.execute(f"DELETE FROM utt_fts WHERE rowid IN (SELECT id FROM utt WHERE {where})", args)
-        n = self.db.execute(f"DELETE FROM utt WHERE {where}", args).rowcount
-        self.db.commit()
-        return n
+        return self.db.execute(f"DELETE FROM utt WHERE {where}", args).rowcount
+
+    def _delete_where(self, where, args):
+        with self.lock, self.db:
+            return self._delete_rows(where, args)
 
     def purge(self, days):
         """Einträge älter als `days` Tage löschen; Anzahl zurück. `days` muss eine endliche Zahl > 0 sein
@@ -101,13 +108,14 @@ class Store:
     def _compact(self):
         """Nach dem Löschen: FTS-Index zusammenführen und Datei neu schreiben, damit gelöschte Texte nicht in
         freien Seiten oder alten Index-Segmenten lesbar bleiben."""
-        try:
-            if self.fts:
-                self.db.execute("INSERT INTO utt_fts(utt_fts) VALUES('optimize')")
-                self.db.commit()
-            self.db.execute("VACUUM")
-        except sqlite3.Error:
-            pass
+        with self.lock:
+            try:
+                if self.fts:
+                    self.db.execute("INSERT INTO utt_fts(utt_fts) VALUES('optimize')")
+                    self.db.commit()
+                self.db.execute("VACUUM")
+            except sqlite3.Error:
+                pass
 
     def rows(self, session=None):
         q, args = "SELECT * FROM utt", ()

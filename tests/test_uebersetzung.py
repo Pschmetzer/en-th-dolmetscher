@@ -178,7 +178,7 @@ def test_implausible_claude_falls_back_to_google(monkeypatch, claude_out):
     monkeypatch.setattr(d, "_get_json", lambda u, t=0: [[["สวัสดีครับ", "x"]]])
     meta = {}
     assert d.translate("Hello, how are you today?", "en", "th", meta=meta) == "สวัสดีครับ"
-    assert meta["provider"] == "google" and d.LLM["skip_until"] <= d.time.time()   # keine Claude-Pause
+    assert meta["provider"] == "google" and d.LLM["skip_until"] <= d.time.monotonic()   # keine Claude-Pause
 
 
 def test_claude_translation_prefix_stripped(monkeypatch):

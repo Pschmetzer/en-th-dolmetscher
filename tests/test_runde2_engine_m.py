@@ -151,7 +151,7 @@ def test_hedge_claude_fehler_sofort_google(monkeypatch, ev):
     _hedge_setup(monkeypatch, (0.0, RuntimeError("claude kaputt")), "G")
     meta = {}
     assert d._translate("hi", "en", "th", meta=meta) == "G"
-    assert d.LLM["skip_until"] > time.time()          # Backoff gesetzt
+    assert d.LLM["skip_until"] > time.monotonic()          # Backoff gesetzt
 
 
 # --- 17 ---------------------------------------------------------------------------------------------------

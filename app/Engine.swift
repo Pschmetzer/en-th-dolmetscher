@@ -33,6 +33,7 @@ struct Utterance: Identifiable, Equatable {
     var source: String?
     var role: String?            // "me" / "other" im Zwei-Personen-Modus
     var numWarn = false          // Ziffern in Original und Übersetzung stimmen nicht überein
+    var back: String?            // Rückübersetzung (`back`), nur mit „Rückübersetzung zeigen“
     var alts: [String] = []      // andere Lesarten der Erkennung (nur bei unsicherem Thai mit Claude)
     var skipped = false          // wegen Rückstand nicht vorgelesen
     var cutOff = false           // Vorlesen riss mitten im Satz ab (`speak_done.partial`)
@@ -234,6 +235,16 @@ final class EngineModel: NSObject, ObservableObject {
     @Published var silence = ud.object(forKey: "silence") as? Double ?? 0.8 { didSet { Self.ud.set(silence, forKey: "silence"); send(["silence": silence]) } }
     @Published var sensitivity = ud.string(forKey: "sensitivity") ?? "normal" { didSet { Self.ud.set(sensitivity, forKey: "sensitivity"); send(["sensitivity": sensitivity]) } }
     @Published var earcons = ud.bool(forKey: "earcons") { didSet { Self.ud.set(earcons, forKey: "earcons"); send(["earcons": earcons]) } }
+    /// „Langsam und deutlich“: langsamere Ausgabe, einfachere Wortwahl (Claude), nie überspringen.
+    @Published var slowMode = ud.bool(forKey: "slowMode") { didSet { Self.ud.set(slowMode, forKey: "slowMode"); send(["slow": slowMode]) } }
+    /// Rückübersetzung klein unter der Übersetzung (Kontrolle, ob richtig verstanden).
+    @Published var backTranslate = ud.bool(forKey: "backTranslate") {
+        didSet { Self.ud.set(backTranslate, forKey: "backTranslate"); send(["back_translate": backTranslate]) }
+    }
+    /// Eigennamen aus Korrekturen automatisch ins Glossar übernehmen (Standard an).
+    @Published var learnGlossary = (ud.object(forKey: "learnGlossary") as? Bool) ?? true {
+        didSet { Self.ud.set(learnGlossary, forKey: "learnGlossary"); send(["learn_glossary": learnGlossary]) }
+    }
     @Published var llmStyle = ud.string(forKey: "llmStyle") ?? "casual" { didSet { Self.ud.set(llmStyle, forKey: "llmStyle"); send(["style": llmStyle]) } }
     /// Geschätzte Claude-Kosten dieser Sitzung in US-Dollar (nach Preisliste, von der Engine gezählt).
     @Published private(set) var llmCostUSD = 0.0
@@ -673,6 +684,9 @@ final class EngineModel: NSObject, ObservableObject {
         if denoise { args.append("--denoise") }
         if llm { args.append("--llm") }
         if earcons { args.append("--earcons") }
+        if slowMode { args.append("--slow") }
+        if backTranslate { args.append("--back-translate") }
+        if !learnGlossary { args.append("--no-learn-glossary") }
         if history { args.append("--history") }
         return args
     }
@@ -982,8 +996,13 @@ final class EngineModel: NSObject, ObservableObject {
                 }
                 continue
             }
-            lastAlive = Date()
-            if engineHung { engineHung = false }
+            // Nr. 362: nach dem ersten `pong` zählt nur `pong` als Lebenszeichen – `level` (~7/s) kommt aus dem
+            // Mikrofon-Thread und liefe auch bei hängendem Steuer-Thread weiter. Ältere Engines ohne `pong`:
+            // jede Zeile (der Wachhund ist dort ohnehin aus).
+            if !pongSeen || ev == "pong" {
+                lastAlive = Date()
+                if engineHung { engineHung = false }
+            }
             handle(ev, obj)
         }
         if buffer.count > Self.maxLineBytes {
@@ -1198,6 +1217,20 @@ final class EngineModel: NSObject, ObservableObject {
             if (pid ?? "") != preset { preset = pid ?? "" }
             applyingRemote = false
         case "pong": pongSeen = true   // Lebenszeichen – `lastAlive` setzt schon `consume`
+        case "back":   // Rückübersetzung kommt nach `utt`; unbekannte id (Blase schon weg): ignorieren
+            if let t = o["text"] as? String, !t.isEmpty, let i = index(of: id) { items[i].back = t }
+        case "glossary":   // Engine hat Namen aus einer Korrektur gelernt: nur die neuen Zeilen anhängen, damit
+                           // noch nicht gesendete eigene Änderungen am Glossar erhalten bleiben
+            if let added = o["added"] as? [String], !added.isEmpty {
+                let have = Set(glossary.split(separator: "\n").map {
+                    $0.components(separatedBy: "=>")[0].trimmingCharacters(in: .whitespaces).lowercased() })
+                let new = added.filter { !have.contains($0.lowercased()) }
+                if !new.isEmpty {
+                    glossary = (glossary.isEmpty || glossary.hasSuffix("\n") ? glossary : glossary + "\n")
+                        + new.joined(separator: "\n") + "\n"
+                }
+                status = L.f("glossary_learned", added.joined(separator: ", "))
+            }
         case "llm_cost":
             llmCostUSD = (o["usd"] as? NSNumber)?.doubleValue ?? llmCostUSD
             llmMonthUSD = (o["month_usd"] as? NSNumber)?.doubleValue ?? llmMonthUSD
@@ -1232,7 +1265,7 @@ final class EngineModel: NSObject, ObservableObject {
     /// Status zu `dropped.code`; nil = Status nicht ändern.
     static func droppedText(_ code: String?) -> String? {
         switch code {
-        case "command", "translate_failed": return nil
+        case "command", "translate_failed", "stopped": return nil
         case let c?: return droppedKeys[c].map { L.t($0) } ?? L.t("dropped")
         case nil: return L.t("dropped")
         }
@@ -1260,7 +1293,7 @@ final class EngineModel: NSObject, ObservableObject {
 
     // MARK: Wachhund (ping/pong)
 
-    /// Letztes Lebenszeichen der Engine (jede gültige Zeile, nicht nur `pong`).
+    /// Letztes Lebenszeichen der Engine: `pong` (vor dem ersten `pong` jede gültige Zeile).
     private var lastAlive = Date()
     private var lastTick = Date()
     private var pongSeen = false
@@ -1368,7 +1401,7 @@ final class EngineModel: NSObject, ObservableObject {
             items.append(u)
             trimItems()
         }
-        if !u.out.isEmpty { Announcer.post(u.out) }
+        if !u.out.isEmpty { Announcer.post(u.out, lang: Langs.bcp47(u.to)) }
     }
 
     // MARK: Platzhalter mit Teiltext
@@ -1443,15 +1476,23 @@ final class EngineModel: NSObject, ObservableObject {
     }
 
     func say(_ text: String, lang: String = "en") {
+        // Nr. 361: erst nach `ready` – sonst puffert die Engine den Satz und spricht ihn später unerwartet
+        guard engineReady else { return }
         send(["say": ["text": text, "lang": lang]])
     }
+
+    /// Letzte vorlesbare Übersetzung (Kopfzeile, Menü ⌘R).
+    var lastReplayable: Utterance? { items.last { !$0.pending && !$0.out.isEmpty } }
+
+    /// „Letzte Übersetzung nochmal sprechen“ (Nr. 375).
+    func replayLast() { if let u = lastReplayable { replay(u) } }
 
     /// Frei getippter Satz (Kopfzeile, Nr. 345): Sprache aus der Schrift raten, sonst meine Sprache.
     /// Höchstens 1000 Zeichen (Grenze der Engine). -> false bei leerem Text.
     @discardableResult
     func sayTyped(_ raw: String) -> Bool {
         let text = String(raw.trimmingCharacters(in: .whitespacesAndNewlines).prefix(1000))
-        guard !text.isEmpty, running else { return false }
+        guard !text.isEmpty, engineReady else { return false }
         let g = Langs.guessLang(text)
         say(text, lang: Langs.pair.contains(g) ? g : mineLang)
         return true
@@ -1549,12 +1590,20 @@ final class EngineModel: NSObject, ObservableObject {
             return
         }
         s.voice = voice
-        s.rate = AVSpeechUtteranceDefaultSpeechRate * 0.95
+        // Nr. 363: Sprechtempo (−50 … 50 %) und Lautstärke aus den Einstellungen statt fester Werte
+        s.rate = Self.localRate(rate)
+        s.volume = Float(min(1, max(0.1, volume)))
         if running && micOn && !paused && !replayPausedEngine {
             send(["paused": true]); replayPausedEngine = true
         }
         replayingID = u.id
         synth.speak(s)
+    }
+
+    /// Tempo der Einstellungen (−50 … 50 %) auf die AVSpeech-Skala, innerhalb ihrer Grenzen.
+    nonisolated static func localRate(_ pct: Int) -> Float {
+        let r = AVSpeechUtteranceDefaultSpeechRate * 0.95 * (1 + Float(max(-50, min(50, pct))) / 100)
+        return min(AVSpeechUtteranceMaximumSpeechRate, max(AVSpeechUtteranceMinimumSpeechRate, r))
     }
 
     fileprivate func replayFinished() {
@@ -1584,6 +1633,7 @@ final class EngineModel: NSObject, ObservableObject {
         mineLang = Langs.defaultMine; partnerLang = Langs.defaultPartner; trByLang = [:]; voiceByLang = [:]
         rate = 0; volume = 1.0; voiceEN = ""; voiceTH = ""
         silence = 0.8; sensitivity = "normal"; earcons = false; llmStyle = "casual"; llm = true
+        slowMode = false; backTranslate = false; learnGlossary = true
         ttsRace = 1.4; fastEndpoint = false; twoPerson = true; partialText = false
         llmModel = "claude-haiku-5-5"; mic = ""; micName = ""; denoise = false; logText = false
         pushToTalk = false; model = "medium"; preset = ""; history = false

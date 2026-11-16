@@ -1,0 +1,11 @@
+[
+  {"id": "neg_silence", "kind": "silence", "dur": 2.0, "note": "Stille (Raumrauschen sehr leise)"},
+  {"id": "neg_pink", "kind": "pink", "dur": 2.5, "note": "rosa Rauschen, Lüfter/Klimaanlage"},
+  {"id": "neg_hum", "kind": "hum", "dur": 2.0, "note": "Netzbrummen 50 Hz mit Obertönen"},
+  {"id": "neg_music", "kind": "music", "dur": 3.0, "note": "Akkordfolge (Hintergrundmusik ohne Gesang)"},
+  {"id": "neg_cough", "kind": "cough", "dur": 1.5, "note": "zwei kurze Rauschstöße wie Husten"},
+  {"id": "neg_clicks", "kind": "clicks", "dur": 2.0, "note": "Tastaturklicks"},
+  {"id": "neg_de", "kind": "foreign", "voice": "Anna", "text": "Entschuldigung, wo ist hier der Bahnhof?", "note": "Fremdsprache (Paar en/th)"},
+  {"id": "neg_ja", "kind": "foreign", "voice": "Kyoko", "text": "すみません、駅はどこですか。", "note": "Fremdsprache, asiatisch (darf nicht als Thai gelten)"},
+  {"id": "neg_es", "kind": "foreign", "voice": "Mónica", "text": "Perdón, ¿dónde está la estación?", "note": "Fremdsprache"}
+]

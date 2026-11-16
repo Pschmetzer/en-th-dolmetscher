@@ -86,3 +86,22 @@ def test_recorder_off_by_default_and_on(tmp_path, monkeypatch):
     r.enable(False)
     r.utt({"text": "nope", "out": "x", "translated": True})
     assert len(r.store.rows()) == 1
+
+
+def test_gleichzeitiges_schreiben_aus_threads(tmp_path):
+    """Nr. 204: eine Verbindung, mehrere Threads – jede Zeile genau einmal, Suchindex passt dazu."""
+    import threading
+    s = hs.Store(str(tmp_path / "h.sqlite"))
+
+    def worker(n):
+        for i in range(50):
+            s.add(f"t{n}-{i}", "x", lang="en", uid=f"u{n}-{i}")
+    ts = [threading.Thread(target=worker, args=(n,)) for n in range(4)]
+    [t.start() for t in ts]
+    [t.join() for t in ts]
+    assert len(s.rows()) == 200
+    if s.fts:
+        assert s.db.execute("SELECT count(*) FROM utt_fts").fetchone()[0] == 200
+    s.add("neu", "y", uid="n1", replaces="u0-0")       # Ersetzen + Einfügen in einer Transaktion
+    assert len(s.rows()) == 200 and not [r for r in s.rows() if r["uid"] == "u0-0"]
+    s.close()
