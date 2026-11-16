@@ -147,9 +147,10 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `mic_denied`, `mic_unavailable`, `mic_no_data`, `mic_timeout`, `mic_failed` | Mikrofon: Zugriff verweigert / Gerät ungültig / keine Daten / erster Block nicht binnen 10 s (Wachhund beendet ffmpeg) / Gerät nach Wiederverbinden weg |
 | `mic_not_found` | Mikrofon-Name unbekannt, Standardmikrofon wird genutzt |
 | `mic_list_failed` | `--list-mics` konnte ffmpeg nicht abfragen |
-| `mic_file_missing`, `ffmpeg_missing` | `DOLMETSCHER_MIC_FILE` fehlt / ffmpeg nicht startbar |
+| `mic_file_missing`, `ffmpeg_missing` | `DOLMETSCHER_MIC_FILE` fehlt / ffmpeg fehlt (gleich beim Start gemeldet) oder ist nicht startbar |
 | `model_offline` | Modell fehlt lokal und kann ohne Internet nicht geladen werden |
 | `translate_failed` | Übersetzung fehlgeschlagen (alle Anbieter) |
+| `llm_billing` | Claude-API: Guthaben oder Kontingent erschöpft – 30 min nur Google/MyMemory, dann neuer Versuch |
 | `reassign_expired`, `reassign_empty`, `reassign_invalid` | „Das war ich/sie“: Satz nicht mehr im Speicher / nichts erkannt / Anfrage ungültig |
 | `phrase_invalid`, `edit_invalid`, `speak_invalid` | Schnellsatz, Korrektur bzw. Vorlesen (`speak_text`) ungültig |
 | `profiles_failed` | Stimmprofile/Sprechermodell nicht ladbar – Stimmerkennung aus; `msg` nennt die Ursache |
@@ -172,6 +173,10 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 - `say`/`retranslate`: Ist der Text klar in der eigenen Schrift einer Paarsprache geschrieben (Thai, Japanisch,
   Russisch …; bzw. klar in der Schrift der anderen bei `lang` = so eine Sprache), korrigiert die Engine `lang`.
   Bei gleicher Schrift (de/es) gilt die Angabe der App.
+- stdout ist UTF-8 (unabhängig von der Locale). Mit `--json` schreibt ein eigener Thread: liest die App die
+  Pipe nicht, blockiert nur dieser, nie Erkennung oder Stopp. Läuft die Warteschlange (2000 Zeilen) voll,
+  fallen zuerst `level`/`partial`/`queue` weg, danach die ältesten Zeilen. Beim Beenden wartet die Engine
+  höchstens 1,5 s auf das Leeren.
 
 ## Steuerung (stdin)
 

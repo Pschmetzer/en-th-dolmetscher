@@ -17,6 +17,8 @@ enum Paths {
     private static var home: String { FileManager.default.homeDirectoryForCurrentUser.path }
 
     /// Python für die Engine: Info-Wert DolmetscherPython → venv in Application Support → /usr/bin/python3.
+    /// Der letzte Wert ist nur ein Platzhalter: `pythonIsFallback` verhindert, dass er gestartet wird
+    /// (ohne Command-Line-Tools öffnet er einen Xcode-Installationsdialog, mit fehlen die Pakete).
     static var python: String {
         firstExecutable([info("DolmetscherPython"),
                          support.appendingPathComponent("venv/bin/python").path]) ?? "/usr/bin/python3"

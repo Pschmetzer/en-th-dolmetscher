@@ -48,7 +48,8 @@ enum EngineRunner {
     static func run(_ args: [String], request: [String: Any]? = nil, timeout: TimeInterval? = nil,
                     onEvent: @escaping ([String: Any]) -> Void,
                     onExit: @escaping () -> Void = {}) -> Process? {
-        guard let script = Bundle.main.path(forResource: "dolmetscher", ofType: "py") else { return nil }
+        guard let script = Bundle.main.path(forResource: "dolmetscher", ofType: "py"),
+              !Paths.pythonIsFallback else { return nil }       // ohne venv: kein /usr/bin/python3 (Xcode-Dialog)
         let p = Process()
         p.executableURL = URL(fileURLWithPath: Paths.python)
         p.arguments = ["-u", script, "--json"] + (request != nil ? ["--profile-stdin"] : []) + args
@@ -243,7 +244,7 @@ final class ProfilesModel: ObservableObject {
                                     self.proc = nil; self.reload()
                                     onDone()
                                 })
-        if proc == nil { failed = L.t("engine_missing", forced); onDone() }
+        if proc == nil { failed = L.t(Paths.pythonIsFallback ? "python_missing" : "engine_missing", forced); onDone() }
     }
 
     func cancel() { proc?.terminate(); proc = nil; enrolling = false }

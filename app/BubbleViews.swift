@@ -43,13 +43,18 @@ struct Bubble: View, Equatable {
         .accessibilityLabel(L.t("stop_speaking"))
     }
 
-    /// Korrektur-Knöpfe: immer erreichbar (Tastatur-Fokus, Touchpad ohne Hover), blass im Ruhezustand,
-    /// deutlich bei Maus-Hover.
+    /// Vorlesen- und Korrektur-Knöpfe: immer erreichbar (Tastatur-Fokus, Touchpad ohne Hover), blass im
+    /// Ruhezustand, deutlich bei Maus-Hover. Vorlesen hat einen eigenen Knopf: ein Klick in den Text markiert
+    /// nur (textSelection) und liest nicht versehentlich laut vor.
     private var quickActions: some View {
         HStack(spacing: 2) {
-            Button { onCorrect(u) } label: { Image(systemName: "pencil") }
-                .help(L.t("correct")).accessibilityLabel(L.t("correct"))
-            if canReassign {
+            Button { m.replay(u) } label: { Image(systemName: "play.fill") }
+                .help(L.t("read_aloud")).accessibilityLabel(L.t("read_aloud"))
+            if canCorrect {
+                Button { onCorrect(u) } label: { Image(systemName: "pencil") }
+                    .help(L.t("correct")).accessibilityLabel(L.t("correct"))
+            }
+            if canCorrect && canReassign {
                 Button(action: reassign) { Image(systemName: "arrow.left.arrow.right") }
                     .help(L.t(Langs.reassignRole(u.lang) == "me" ? "reassign_me" : "reassign_other"))
                     .accessibilityLabel(L.t(Langs.reassignRole(u.lang) == "me" ? "reassign_me" : "reassign_other"))
@@ -99,13 +104,11 @@ struct Bubble: View, Equatable {
                 RoundedRectangle(cornerRadius: 14).strokeBorder(LangStyle.warning, lineWidth: 2)
             }
         }
-        .contentShape(RoundedRectangle(cornerRadius: 14))
-        .onTapGesture { if playing { m.stopSpeaking() } else { m.replay(u) } }   // zweiter Klick bricht ab
         .overlay(alignment: en ? .topTrailing : .topLeading) {
             if playing {
-                stopButton                       // versehentlich angetippt: sofort abbrechen
-            } else if canCorrect {
-                quickActions
+                stopButton                       // läuft gerade: sofort abbrechen
+            } else {
+                quickActions                     // ▶ Vorlesen (eigener Knopf statt Klick auf die ganze Blase)
             }
         }
         .onHover { h in
@@ -115,7 +118,6 @@ struct Bubble: View, Equatable {
         .contextMenu { menu }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(a11yText))
-        .accessibilityAddTraits(.isButton)
         .accessibilityHint(playing ? L.t("stop_speaking") : L.t("click_replay"))
         .accessibilityAction(named: L.t("stop_speaking")) { m.stopSpeaking() }
         .accessibilityAction(named: L.t("read_aloud")) { m.replay(u) }
