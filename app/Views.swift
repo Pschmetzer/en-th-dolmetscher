@@ -503,9 +503,7 @@ struct MainToolbar: View {
         .accessibilityHint(L.t(spaceToggle ? "start_hint" : "start_hint_nospace"))
     }
 
-    private var lastReplayable: Utterance? {
-        m.items.last { !$0.pending && !$0.out.isEmpty }
-    }
+    private var lastReplayable: Utterance? { m.lastReplayable }
 
     @ViewBuilder private var tools: some View {
         Button { m.stopSpeaking() } label: { Image(systemName: "speaker.slash") }
@@ -585,11 +583,11 @@ struct ConversationBar: View {
                 .textFieldStyle(.roundedBorder)
                 .focused($typing)
                 .onSubmit(send)
-                .disabled(!m.running)
+                .disabled(!m.engineReady)
                 .accessibilityLabel(L.t("type_prompt"))
                 .onChange(of: draft) { if draft.count > 1000 { draft = String(draft.prefix(1000)) } }
             Button(action: send) { Image(systemName: "paperplane.fill") }
-                .disabled(!m.running || draft.trimmingCharacters(in: .whitespaces).isEmpty)
+                .disabled(!m.engineReady || draft.trimmingCharacters(in: .whitespaces).isEmpty)
                 .help(L.t("type_send"))
                 .accessibilityLabel(L.t("type_send"))
         }
@@ -741,7 +739,7 @@ struct QuickPhraseBar: View {
                         let useTH = !Langs.hasEnglish && Langs.hasThai
                         Button(useTH ? ph.th : ph.en) { m.say(useTH ? ph.th : ph.en, lang: useTH ? "th" : "en") }
                             .buttonStyle(.bordered).tint(.accentColor)
-                            .disabled(!m.running || !(Langs.hasEnglish || Langs.hasThai))
+                            .disabled(!m.engineReady || !(Langs.hasEnglish || Langs.hasThai))
                             .help(useTH ? ph.en : ph.th)
                             .accessibilityHint(L.t("preset_phrase_help"))
                     }
@@ -750,7 +748,7 @@ struct QuickPhraseBar: View {
                 ForEach(Array(phrases.enumerated()), id: \.offset) { i, p in
                     Button(p) { m.say(p, lang: Prefs.phraseLang(p)) }
                         .buttonStyle(.bordered)
-                        .disabled(!m.running)
+                        .disabled(!m.engineReady)
                         .help(L.t("quick_phrase_help"))
                         .contextMenu {
                             Button(L.t("delete"), role: .destructive) { remove(i) }

@@ -996,8 +996,13 @@ final class EngineModel: NSObject, ObservableObject {
                 }
                 continue
             }
-            lastAlive = Date()
-            if engineHung { engineHung = false }
+            // Nr. 362: nach dem ersten `pong` zählt nur `pong` als Lebenszeichen – `level` (~7/s) kommt aus dem
+            // Mikrofon-Thread und liefe auch bei hängendem Steuer-Thread weiter. Ältere Engines ohne `pong`:
+            // jede Zeile (der Wachhund ist dort ohnehin aus).
+            if !pongSeen || ev == "pong" {
+                lastAlive = Date()
+                if engineHung { engineHung = false }
+            }
             handle(ev, obj)
         }
         if buffer.count > Self.maxLineBytes {
@@ -1288,7 +1293,7 @@ final class EngineModel: NSObject, ObservableObject {
 
     // MARK: Wachhund (ping/pong)
 
-    /// Letztes Lebenszeichen der Engine (jede gültige Zeile, nicht nur `pong`).
+    /// Letztes Lebenszeichen der Engine: `pong` (vor dem ersten `pong` jede gültige Zeile).
     private var lastAlive = Date()
     private var lastTick = Date()
     private var pongSeen = false
@@ -1396,7 +1401,7 @@ final class EngineModel: NSObject, ObservableObject {
             items.append(u)
             trimItems()
         }
-        if !u.out.isEmpty { Announcer.post(u.out) }
+        if !u.out.isEmpty { Announcer.post(u.out, lang: Langs.bcp47(u.to)) }
     }
 
     // MARK: Platzhalter mit Teiltext
@@ -1471,15 +1476,23 @@ final class EngineModel: NSObject, ObservableObject {
     }
 
     func say(_ text: String, lang: String = "en") {
+        // Nr. 361: erst nach `ready` – sonst puffert die Engine den Satz und spricht ihn später unerwartet
+        guard engineReady else { return }
         send(["say": ["text": text, "lang": lang]])
     }
+
+    /// Letzte vorlesbare Übersetzung (Kopfzeile, Menü ⌘R).
+    var lastReplayable: Utterance? { items.last { !$0.pending && !$0.out.isEmpty } }
+
+    /// „Letzte Übersetzung nochmal sprechen“ (Nr. 375).
+    func replayLast() { if let u = lastReplayable { replay(u) } }
 
     /// Frei getippter Satz (Kopfzeile, Nr. 345): Sprache aus der Schrift raten, sonst meine Sprache.
     /// Höchstens 1000 Zeichen (Grenze der Engine). -> false bei leerem Text.
     @discardableResult
     func sayTyped(_ raw: String) -> Bool {
         let text = String(raw.trimmingCharacters(in: .whitespacesAndNewlines).prefix(1000))
-        guard !text.isEmpty, running else { return false }
+        guard !text.isEmpty, engineReady else { return false }
         let g = Langs.guessLang(text)
         say(text, lang: Langs.pair.contains(g) ? g : mineLang)
         return true
@@ -1577,12 +1590,20 @@ final class EngineModel: NSObject, ObservableObject {
             return
         }
         s.voice = voice
-        s.rate = AVSpeechUtteranceDefaultSpeechRate * 0.95
+        // Nr. 363: Sprechtempo (−50 … 50 %) und Lautstärke aus den Einstellungen statt fester Werte
+        s.rate = Self.localRate(rate)
+        s.volume = Float(min(1, max(0.1, volume)))
         if running && micOn && !paused && !replayPausedEngine {
             send(["paused": true]); replayPausedEngine = true
         }
         replayingID = u.id
         synth.speak(s)
+    }
+
+    /// Tempo der Einstellungen (−50 … 50 %) auf die AVSpeech-Skala, innerhalb ihrer Grenzen.
+    nonisolated static func localRate(_ pct: Int) -> Float {
+        let r = AVSpeechUtteranceDefaultSpeechRate * 0.95 * (1 + Float(max(-50, min(50, pct))) / 100)
+        return min(AVSpeechUtteranceMaximumSpeechRate, max(AVSpeechUtteranceMinimumSpeechRate, r))
     }
 
     fileprivate func replayFinished() {

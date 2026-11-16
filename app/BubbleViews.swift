@@ -380,7 +380,7 @@ struct CorrectSheet: View {
                 Button(L.t("cancel")) { dismiss() }.keyboardShortcut(.cancelAction)
                 Button(L.t("translate_again"), action: submit)
                     .keyboardShortcut(.defaultAction)
-                    .disabled(trimmed.isEmpty || !m.running)
+                    .disabled(trimmed.isEmpty || !m.engineReady)
             }
         }
         .padding(24)
@@ -391,7 +391,7 @@ struct CorrectSheet: View {
     private var trimmed: String { text.trimmingCharacters(in: .whitespacesAndNewlines) }
 
     private func submit() {
-        guard !trimmed.isEmpty, m.running else { return }
+        guard !trimmed.isEmpty, m.engineReady else { return }
         m.retranslate(u, text: trimmed)
         dismiss()
     }
