@@ -12,10 +12,12 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# timeout-minutes an jedem Job: ein hängender Test oder Build blockiert den Runner nicht bis zum Standard-Limit (6 h).
 jobs:
   test:
     name: Tests (Python ${{ matrix.python }})
     runs-on: macos-latest
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -48,6 +50,7 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
@@ -63,6 +66,7 @@ jobs:
 
   shell:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Check build script syntax
@@ -73,6 +77,7 @@ jobs:
   swift:
     # Typecheck und vollständige Kompilierung aller Swift-Dateien; mindestens macOS 14 (LSMinimumSystemVersion).
     runs-on: macos-15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Typecheck Swift sources
@@ -89,6 +94,7 @@ jobs:
     # translate-helper braucht APIs aus SDK 26.4, der Runner kann ein älteres Xcode haben.
     name: Typecheck tools/ (macOS 26, not blocking)
     runs-on: macos-26
+    timeout-minutes: 20
     continue-on-error: true
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -104,6 +110,7 @@ jobs:
   audit:
     name: Dependency audit (not blocking)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     continue-on-error: true
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

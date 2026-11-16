@@ -26,7 +26,7 @@ You need Python 3.12 or newer (`brew install python@3.12`; the macOS system Pyth
 python3.12 -m venv .venv && . .venv/bin/activate        # or: uv venv --python 3.12 .venv
 pip install --require-hashes -r requirements-dev.txt     # or: uv pip install --require-hashes -r requirements-dev.txt
 pytest
-ruff check dolmetscher.py profiles.py bench/
+ruff check ./*.py bench/ tests/                         # same paths as CI
 ```
 
 Ruff settings are in `pyproject.toml` (E, F, W, line length 120; the compact one-line style is allowed).
@@ -56,8 +56,8 @@ If you change events or settings between app and engine, update `docs/PROTOKOLL.
 
 ## Pull requests
 
-- CI (GitHub Actions) runs the tests (Python 3.12 with the hash-locked versions, Python 3.10 with unpinned ones; `-rs` lists why tests were skipped), ruff, shellcheck for `build.sh`, a Swift typecheck and compile, and a non-blocking `pip-audit` over all locked packages (including transitive ones). The iPhone app has its own workflow (`ios.yml`). Ruff is blocking for `bench/` and `tests/conftest.py`; for the engine and the older tests it only reports (known E501/E741 findings). Tests, shellcheck and compile must be green. Dependabot proposes updates for the Actions and the pinned Python packages weekly.
-- Thai text (UI strings in `app/L10n.swift`, the Thai parts of `bench/cases.json`, voice-guide texts): have a Thai speaker review it before merging, or say in the PR that it is machine-translated and unreviewed. Native review matters most for politeness particles (ครับ/ค่ะ), formal vs. casual register and anything shown to a Thai speaker without an English fallback.
+- CI (GitHub Actions) runs the tests (Python 3.12 with the hash-locked versions, Python 3.10 with unpinned ones; `-rs` lists why tests were skipped), ruff, shellcheck for `build.sh`, a Swift typecheck and compile, and a non-blocking `pip-audit` over all locked packages (including transitive ones). The iPhone app has its own workflow (`ios.yml`). Ruff is blocking for all Python modules in the top folder, `bench/` and `tests/`. Every job has a `timeout-minutes` limit, so a hanging test fails the run instead of blocking a runner for hours. Tests, ruff, shellcheck and compile must be green. Dependabot proposes updates for the Actions and the pinned Python packages weekly.
+- Thai text (UI strings in `app/L10n.swift`, the phrases and glossaries in `presets/*.json`, the Thai parts of `bench/cases.json`, voice-guide texts): have a Thai speaker review it before merging, or say in the PR that it is machine-translated and unreviewed. Native review matters most for politeness particles (ครับ/ค่ะ), formal vs. casual register and anything shown to a Thai speaker without an English fallback.
 - Run `./build.sh --install` and try the app with a real conversation for changes to the engine or the app.
 - Don't commit personal paths, names, email addresses or logs.
 

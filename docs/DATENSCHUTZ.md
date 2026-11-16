@@ -1,6 +1,6 @@
 # Datenschutz: was den Mac verlässt und was nicht
 
-Stand: Version 1.2. Gilt für die Mac-App und die Engine (`dolmetscher.py`); die Browser-Version steht ganz unten.
+Stand: Version 1.2. Gilt für die Mac-App und die Engine (`dolmetscher.py`); iPhone-App und Browser-Version stehen weiter unten.
 
 ## Bleibt lokal
 
@@ -12,6 +12,17 @@ Stand: Version 1.2. Gilt für die Mac-App und die Engine (`dolmetscher.py`); die
 | **Wörterbuch/Glossar, Einstellungen, Schnellsätze** | Dateien unter `~/Library/Application Support/Dolmetscher/` bzw. App-Einstellungen. |
 | **Log** | `~/Library/Logs/Dolmetscher/engine.log`. Gesprächstexte stehen **nicht** drin, außer mit `--log-text`. |
 | **Thai-Umschrift** | `pythainlp` bzw. ICU, lokal. |
+| **Gesprächsverlauf** (nur mit `--history`, Standard: aus) | Siehe nächster Abschnitt. |
+
+## Gesprächsverlauf (`--history`)
+
+- **Standard: aus.** Aufgezeichnet wird nur, wenn du `--history` startest bzw. die App ihn einschaltet (`{"history": true}`).
+- **Was:** erkannter Text, Übersetzung, Umschrift, Sprache, Konfidenz, Übersetzungsdienst und Zeitpunkt jeder Äußerung. **Kein Audio.**
+- **Wo:** `~/Library/Application Support/Dolmetscher/history.sqlite` (oder `$DOLMETSCHER_HOME`), Ordner 0700, Datei 0600. Die Texte liegen **im Klartext** in der Datei (nicht verschlüsselt) und landen damit auch in Backups (z. B. Time Machine), solange du den Ordner nicht ausschließt.
+- **Aufbewahrung:** `--history-days N` löscht beim Start Einträge, die älter als N Tage sind. Ohne Angabe bleibt alles, bis du es löschst. 0 oder negative Werte werden ignoriert (sie löschen nicht alles).
+- **Löschen:** `--history-purge N` (älter als N Tage, N > 0) oder `--history-clear` (alles). Gelöschte Zeilen werden in der Datei überschrieben (`PRAGMA secure_delete`), Suchindex und Datei danach neu geschrieben (`VACUUM`), damit sie nicht in freien Bereichen lesbar bleiben. Kopien in Backups löscht das nicht.
+- **Export:** `--history-export md|json|csv|srt|vtt|anki` schreibt auf stdout oder mit `--out PFAD` in eine neue Datei mit Rechten 0600. Was du exportierst und weitergibst, liegt dann außerhalb der App.
+- Gesendet wird aus dem Verlauf nichts.
 
 ## Verlässt den Mac
 
@@ -27,12 +38,22 @@ Wie bei jedem Netzwerkzugriff sehen die Dienste außerdem deine IP-Adresse. Es g
 
 Willst du nichts senden: Es gibt dafür keinen reinen Offline-Modus der Übersetzung. Ohne Netz läuft nur die Erkennung, die App zeigt dann den Netzstatus an, und nichts wird übersetzt oder gesprochen.
 
+## iPhone-App (`ios/`)
+
+- **Spracherkennung**: auf dem Gerät (Apple SpeechAnalyzer). Das Audio wird nicht gesendet und nicht gespeichert.
+- **Übersetzung**: zuerst mit Apples Übersetzung **auf dem Gerät**, wenn die Offline-Sprachpakete EN/TH installiert sind. Sonst, nur wenn „Online-Übersetzung“ erlaubt ist (Standard: an), geht der erkannte Text an **Google Translate** (`translate.googleapis.com`, per POST im Anfrage-Body) und ersatzweise an **MyMemory** (`api.mymemory.translated.net`, per GET: der Text steht dabei **in der URL**). In der Liste zeigt ein Globus-Symbol, welche Sätze online übersetzt wurden.
+- **Sprachausgabe** und **Text aus Fotos**: Systemstimmen und Texterkennung auf dem Gerät.
+- **Verlauf**: Die App speichert Gespräche lokal in `history.json` im App-Ordner (Application Support, iOS-Dateischutz), standardmäßig **30 Tage**; einstellbar, 0 schaltet das Speichern ab und löscht die Datei. Notfall-Infos und Favoriten liegen ebenfalls nur lokal.
+- Keine Konten, keine eigene Telemetrie (siehe `ios/Dolmetscher/PrivacyInfo.xcprivacy`).
+
 ## Browser-Version (`index.html`, Web Lite)
 
-- **Spracherkennung**: nutzt die Web Speech API von **Chrome**. Chrome sendet das Mikrofon-Audio dafür an Googles Spracherkennungsdienst (nicht von uns kontrollierbar, siehe die Datenschutzhinweise von Chrome/Google). Andere Browser ohne diese API funktionieren nicht.
-- **Übersetzung**: derselbe erkannte Text geht direkt aus dem Browser an Google Translate, ersatzweise MyMemory.
+- **Vor dem ersten Mikrofon-Start** fragt die Seite einmal um Zustimmung (im Browser gespeichert, `localStorage`).
+- **Spracherkennung**: nutzt die Web Speech API des Browsers. **Chrome** sendet das Mikrofon-Audio an Googles Spracherkennungsdienst, **Safari** an Apple (je nach Gerät auch lokal); beides ist nicht von uns kontrollierbar. Firefox hat keine Spracherkennung. **Pause** und **Stopp** beenden die Erkennung ganz, danach wird kein Audio mehr gesendet.
+- **Übersetzung**: der erkannte Text geht direkt aus dem Browser an Google Translate, ersatzweise MyMemory, jeweils per GET, also **in der URL** der Anfrage.
 - **Sprachausgabe**: lokale Browser-Stimmen (Web Speech Synthesis), je nach Browser/System.
-- Die Seite hat keine eigenen Skripte von Dritten und keinen eigenen Server.
+- **Gespeichert** werden nur Einstellungen (Tastenkürzel an/aus, Zustimmung) im Browser; die Gesprächsliste verschwindet beim Schließen der Seite.
+- Die Seite hat keine Skripte von Dritten und keinen eigenen Server (Content-Security-Policy erlaubt nur die beiden Übersetzungsdienste).
 
 ## Hinweise für Berichte und Fehlersuche
 

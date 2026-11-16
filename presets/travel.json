@@ -76,6 +76,26 @@
     {
       "en": "Thank you very much for your help.",
       "th": "ขอบคุณมากสำหรับความช่วยเหลือ"
+    },
+    {
+      "en": "Help!",
+      "th": "ช่วยด้วย"
+    },
+    {
+      "en": "Please call the police.",
+      "th": "ช่วยเรียกตำรวจด้วย"
+    },
+    {
+      "en": "Where is the nearest hospital?",
+      "th": "โรงพยาบาลที่ใกล้ที่สุดอยู่ที่ไหน"
+    },
+    {
+      "en": "I lost my passport.",
+      "th": "ฉันทำพาสปอร์ตหาย"
+    },
+    {
+      "en": "My wallet was stolen.",
+      "th": "กระเป๋าสตางค์ของฉันถูกขโมย"
     }
   ]
 }

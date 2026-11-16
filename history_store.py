@@ -36,6 +36,8 @@ class Store:
             os.close(os.open(self.path, os.O_CREAT | os.O_WRONLY, 0o600))
         os.chmod(self.path, 0o600)
         self.db = sqlite3.connect(self.path, check_same_thread=False)
+        # Gelöschte Zeilen mit Nullen überschreiben statt nur freizugeben (gilt pro Verbindung).
+        self.db.execute("PRAGMA secure_delete = ON")
         self.db.execute("""CREATE TABLE IF NOT EXISTS utt (
             id INTEGER PRIMARY KEY AUTOINCREMENT, uid TEXT, ts REAL NOT NULL, session TEXT NOT NULL,
             lang TEXT, text TEXT, translation TEXT, translit TEXT, conf REAL, provider TEXT)""")
@@ -48,9 +50,13 @@ class Store:
         try:
             self.db.execute("CREATE VIRTUAL TABLE IF NOT EXISTS utt_fts USING fts5("
                             "text, translation, tokenize='trigram')")
-            return True
         except sqlite3.Error:
             return False
+        try:   # FTS5 entfernt Gelöschtes sonst erst beim Zusammenführen aus dem Index (SQLite >= 3.42)
+            self.db.execute("INSERT INTO utt_fts(utt_fts, rank) VALUES('secure-delete', 1)")
+        except sqlite3.Error:
+            pass
+        return True
 
     def close(self):
         self.db.close()
@@ -77,16 +83,31 @@ class Store:
         return n
 
     def purge(self, days):
-        """Einträge älter als `days` Tage löschen; Anzahl zurück."""
-        return self._delete_where("ts < ?", (time.time() - float(days) * 86400,))
+        """Einträge älter als `days` Tage löschen; Anzahl zurück. `days` muss eine endliche Zahl > 0 sein
+        (0, negativ oder inf würden sonst den ganzen Verlauf löschen) – sonst ValueError."""
+        days = valid_days(days)
+        if days is None:
+            raise ValueError("Tage müssen eine Zahl größer 0 sein")
+        n = self._delete_where("ts < ?", (time.time() - days * 86400,))
+        if n:
+            self._compact()
+        return n
 
     def clear(self):
         n = self._delete_where("1 = 1", ())
+        self._compact()
+        return n
+
+    def _compact(self):
+        """Nach dem Löschen: FTS-Index zusammenführen und Datei neu schreiben, damit gelöschte Texte nicht in
+        freien Seiten oder alten Index-Segmenten lesbar bleiben."""
         try:
+            if self.fts:
+                self.db.execute("INSERT INTO utt_fts(utt_fts) VALUES('optimize')")
+                self.db.commit()
             self.db.execute("VACUUM")
         except sqlite3.Error:
             pass
-        return n
 
     def rows(self, session=None):
         q, args = "SELECT * FROM utt", ()
@@ -119,6 +140,17 @@ class Store:
         cur = self.db.execute(f"SELECT * FROM utt WHERE {where} ORDER BY ts DESC, id DESC LIMIT ?", (*args, limit))
         cols = [c[0] for c in cur.description]
         return [dict(zip(cols, r)) for r in cur.fetchall()]
+
+
+def valid_days(days):
+    """Aufbewahrungsdauer als float, wenn endlich und > 0; sonst None (auch für Text, bool, nan, inf)."""
+    if isinstance(days, bool):
+        return None
+    try:
+        d = float(days)
+    except (TypeError, ValueError):
+        return None
+    return d if math.isfinite(d) and d > 0 else None
 
 
 # ---------------------------------------------------------------- Export
@@ -213,7 +245,7 @@ class Recorder:
     def enable(self, on=True, keep_days=None):
         self.on = bool(on)
         if keep_days is not None:
-            self.keep_days = keep_days
+            self.keep_days = valid_days(keep_days)   # ungültig (0, negativ …): nicht löschen, Verlauf bleibt an
         if self.on:
             try:
                 self.store = self.store or Store()
@@ -265,6 +297,9 @@ def run_cli(a):
                                "text": r["text"], "translation": r["translation"]}
                               for r in st.search(a.history_search)], ensure_ascii=False))
         elif a.history_purge is not None:
+            if valid_days(a.history_purge) is None:
+                print(json.dumps({"error": "history_purge braucht eine Zahl größer 0"}))
+                return 2
             print(json.dumps({"deleted": st.purge(a.history_purge)}))
         elif a.history_clear:
             print(json.dumps({"deleted": st.clear()}))
