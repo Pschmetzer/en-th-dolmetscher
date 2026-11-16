@@ -10,6 +10,8 @@ struct VoiceProfile: Identifiable, Hashable {
     let created: String
     let errorRate: Double?
     var vocab: [String]
+    /// Höflichkeitsform der Person für Thai-Ausgaben ("krub"/"ka"), nil = Einstellung der App (Nr. 162).
+    var polite: String? = nil
 }
 
 enum EngineRunner {
@@ -176,7 +178,7 @@ final class ProfilesModel: ObservableObject {
     static func parse(_ d: [String: Any]) -> VoiceProfile {
         VoiceProfile(name: d["name"] as? String ?? "?", lang: d["lang"] as? String ?? "en",
                      created: d["created"] as? String ?? "", errorRate: d["error_rate"] as? Double,
-                     vocab: d["vocab"] as? [String] ?? [])
+                     vocab: d["vocab"] as? [String] ?? [], polite: d["polite"] as? String)
     }
 
     func delete(_ p: VoiceProfile) {
@@ -211,6 +213,15 @@ final class ProfilesModel: ObservableObject {
             self.reload()   // meldet `.profilesChanged` – die laufende Engine lädt ihre Profile neu
         })
         if started == nil { deletingAll = false; deleteAllResult = L.t("delete_all_failed") }
+    }
+
+    /// Höflichkeitsform speichern ("" = wie Einstellung); wirkt nach `reload_profiles` sofort.
+    func savePolite(_ p: VoiceProfile, _ v: String) {
+        _ = EngineRunner.run([], request: ["polite": [p.name, v]], timeout: 30, onEvent: { _ in },
+                             onExit: { [weak self] in
+            self?.reload()
+            NotificationCenter.default.post(name: .profilesChanged, object: nil)
+        })
     }
 
     func saveVocab(_ p: VoiceProfile, _ text: String) {
@@ -381,6 +392,13 @@ struct ProfilesView: View {
                 Button(L.t("save")) { pm.saveVocab(p, vocabEdit[p.name] ?? ""); vocabEdit[p.name] = nil }
                     .disabled(vocabEdit[p.name] == nil)
             }
+            Picker(L.t("profile_polite"), selection: Binding(
+                get: { p.polite ?? "" }, set: { pm.savePolite(p, $0) })) {
+                Text(L.t("profile_polite_default")).tag("")
+                Text("ครับ (♂)").tag("krub")
+                Text("ค่ะ (♀)").tag("ka")
+            }
+            .help(L.t("profile_polite_help"))
         }
         .padding(12)
         .background(Color.secondary.opacity(0.1), in: RoundedRectangle(cornerRadius: 12))

@@ -350,7 +350,26 @@ def set_vocab(name, words):
     return p
 
 
-PUBLIC_KEYS = ("name", "lang", "created", "self_similarity", "role_me_min", "vocab", "error_rate",
+def set_polite(name, polite):
+    """Höflichkeitsform der Person für Thai-Ausgaben (krub/ka); "", "-" oder None entfernt sie (dann gilt
+    die Einstellung der App). Unbekannter Wert: ValueError, unbekanntes Profil: KeyError."""
+    if polite in ("", "-", None):
+        polite = None
+    elif polite not in ("krub", "ka"):
+        raise ValueError(polite)
+    with _locked():
+        p = get_profile(name)
+        if not p:
+            raise KeyError(name)
+        if polite:
+            p["polite"] = polite
+        else:
+            p.pop("polite", None)
+        save_profile(p)
+    return p
+
+
+PUBLIC_KEYS = ("name", "lang", "created", "self_similarity", "role_me_min", "vocab", "error_rate", "polite",
                "enroll_results", "adapted", "schema_version", "embedding_model")
 
 
@@ -794,6 +813,8 @@ def enroll(name, lang, record_one, transcribe, emit, spk=None):
             "error_rate": round(float(np.mean([r["err"] for r in rows])), 3),
             "enroll_results": rows,
         }
+        if old.get("polite") in ("krub", "ka"):          # Neu-Aufnahme behält die Höflichkeitsform
+            p["polite"] = old["polite"]
         save_profile(p)
     emit("enroll_done", profile=public(p))
     return p

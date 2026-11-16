@@ -743,5 +743,10 @@ enum L {
                "th": "หยุดชั่วคราว – ไม่ได้แปล"],
         "partner_banner_mic_off": ["de": "Mikrofon aus – es wird nicht übersetzt", "en": "Microphone off – not translating",
                "th": "ปิดไมโครโฟน – ไม่ได้แปล"],
+        "profile_polite": ["de": "Höflichkeitsform auf Thai", "en": "Thai politeness form", "th": "คำลงท้ายภาษาไทย"],
+        "profile_polite_default": ["de": "Wie Einstellung", "en": "As in settings", "th": "ตามการตั้งค่า"],
+        "profile_polite_help": ["de": "Spricht diese Person, endet ihre Thai-Übersetzung mit ihrer eigenen Form (ครับ/ค่ะ)",
+               "en": "When this person speaks, the Thai translation uses their own form (ครับ/ค่ะ)",
+               "th": "เมื่อคนนี้พูด คำแปลภาษาไทยจะใช้คำลงท้ายของเขาเอง (ครับ/ค่ะ)"],
     ]
 }

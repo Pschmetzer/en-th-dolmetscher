@@ -77,6 +77,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `--partial` / `--no-partial` | aus | Teiltext während des Sprechens |
 | `--tts-race S` | `1.4` | s bis die vorbereitete macOS-Stimme einspringt (0 = aus) |
 | `--idle` | | Modelle laden, Mikrofon erst mit `{"listen": true}` öffnen |
+| `--profile-polite NAME FORM` | | Höflichkeitsform der Person für Thai-Ausgaben (`krub`, `ka`, `-` = wie Einstellung); antwortet mit `profile_saved`. Spricht diese Person (erkanntes Profil oder Rolle), endet die Thai-Übersetzung mit ihrer Form statt mit `--polite` |
 | `--history` | | Gesprächsverlauf lokal speichern |
 | `--history-days N` | | Verlauf älter als N Tage beim Start löschen |
 | `--history-export FORMAT`, `--history-session ID`, `--out PFAD`, `--history-search TEXT`, `--history-purge TAGE`, `--history-clear` | | Verlaufs-Befehle (siehe „Gesprächsverlauf“) |
@@ -281,7 +282,7 @@ Am Protokoll ändert sich nichts (keine neuen Ereignisse oder Felder). Verhalten
 - Steuerwerte: Wahrheitswerte nur `true`/`false` (auch `"true"`/`"false"`, `0`/`1`), anderes wird ignoriert. Unbekannte Stimme (`voice_en`/`voice_th`) -> `error`-Ereignis, Standardstimme. `glossary` max. 20000 Zeichen, `say`/`retranslate`-Text max. 1000 Zeichen, sonst `error`.
 - `mic` kann `reconnecting` (true) und `attempt` enthalten: die Quelle (Gerät) ist weggefallen, die Engine verbindet mit Wartezeit neu (bis 5 Versuche); danach `error` und (ohne `--idle`) Ende.
 - `error` bei Mikrofonproblemen nennt Zugriff verweigert / ffmpeg fehlt / Quelle ungültig.
-- `--profile-stdin`: Profilname und Wörter als eine JSON-Zeile von stdin statt per Startargument: `{"enroll": "Name", "enroll_lang": "en", "delete_profile": "Name", "vocab": ["Name", "wort1, wort2"]}`.
+- `--profile-stdin`: Profilname und Wörter als eine JSON-Zeile von stdin statt per Startargument: `{"enroll": "Name", "enroll_lang": "en", "delete_profile": "Name", "vocab": ["Name", "wort1, wort2"], "polite": ["Name", "krub"|"ka"|""]}`.
 - Befehle: `repeat` nutzt wie alle Befehle den gemeinsamen Abschluss (`command`-Ereignis, Log); „Clear“ leert auch Texte, Wiederholung und Roh-Audio im Speicher. Ein Folgesatz nach „Translator“ gilt nur bei höchstens 4 Wörtern als Befehl.
 
 ## Hardware-Auswahl und Korrektur-Vorschläge
@@ -338,3 +339,17 @@ Befehle (beenden sich sofort, laden keine Modelle):
 | `--history-search TEXT` | Volltextsuche (FTS5 trigram, sonst LIKE), JSON-Liste auf stdout |
 | `--history-purge TAGE` | ältere Einträge löschen, `{"deleted": n}` |
 | `--history-clear` | alles löschen, `{"deleted": n}` |
+
+## Runde 2 (Ideenliste): Verhalten ohne neue Felder
+
+- **Hotwords:** Whisper bekommt eigene Wörter der Stimmprofile und zusätzlich Glossar-/Preset-Begriffe in der
+  Schrift der jeweiligen Sprache (höchstens 300 Zeichen). Die Vorab-Erkennung nutzt dieselben Hotwords wie die
+  eigentliche Erkennung und wird deshalb auch mit Profil-Vokabular wiederverwendet.
+- **Zahlenvergleich (`num_warn`):** Uhrzeiten in Worten zählen als Uhrzeit (Thai: ตี, โมงเช้า, บ่าย…โมง,
+  โมงเย็น, ทุ่ม, เที่ยง, เที่ยงคืน, ครึ่ง; Englisch: half past, quarter past/to, o'clock, noon, midnight) und
+  gelten im 12-Stunden-Abstand als gleich. Weichen Zahlen ab, fragt die Engine den jeweils anderen Anbieter
+  (Claude ↔ Google/MyMemory, höchstens 4 s) und nimmt die zahlentreue Fassung (`provider` nennt dann diesen).
+- **Modelle laden:** Nur wenn ein Modell im lokalen Cache fehlt, meldet die Engine `loading` mit `download`
+  und lädt herunter. Andere Ladefehler (Gerät, Compute-Typ) gehen ohne Netzzugriff an den Rückfall.
+- **edge-tts:** Beim Start prüft ein Selbsttest die genutzten Interna (Version gepinnt in `requirements.in`);
+  schlägt er fehl, läuft die Neural-Stimme gleich über den alten Weg (Log `tts_ws`).

@@ -1564,7 +1564,34 @@ def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
     return out
 
 
-TRANSLATE_BUDGET = 12.0            # s je Satz insgesamt (sonst bis ~24 s Stille: Hedge + Google + MyMemory + Claude)
+RECHECK_S = 4.0                    # s für die Gegenprobe bei abweichenden Zahlen
+
+
+def recheck_numbers(text, src, dst, out, meta, history=(), alts=(), polite="krub"):
+    """Zahlen in der Übersetzung weichen ab (numbers_differ): den jeweils anderen Anbieter fragen
+    (Claude ↔ Google/MyMemory) und die zahlentreue Fassung nehmen. Kein zweiter Anbieter, Fehler oder
+    auch dort abweichend: die erste Fassung bleibt (die App zeigt dann num_warn)."""
+    first = meta.get("provider")
+    alt, m2 = None, {}
+    try:
+        if first == "claude":
+            alt = _mt_chain(text, src, dst, m2, time.monotonic() + RECHECK_S)
+        elif (first in ("google", "mymemory") and LLM["on"] and time.time() >= LLM["skip_until"]
+              and llm_available() and not llm_over_budget()):
+            alt = _claude_async(text, src, dst, history, alts, polite).result(timeout=RECHECK_S)
+            m2["provider"] = "claude"
+    except Exception as e:                       # noqa: BLE001 – Gegenprobe ist optional
+        log({"recheck": "fehler", "err": _errtxt(e)})
+        return out
+    ok = alt is not None and not numbers_differ(text, alt)
+    log({"recheck": {"first": first, "second": m2.get("provider"), "used": bool(ok)}})
+    if not ok:
+        return out
+    meta.update(provider=m2.get("provider"), cached=False, rechecked=True)
+    return alt
+
+
+TRANSLATE_BUDGET = 12.0           # s je Satz insgesamt (sonst bis ~24 s Stille: Hedge + Google + MyMemory + Claude)
 MT_MIN_LEFT = 1.5                  # s: weniger Restzeit lohnt keinen weiteren Anbieter
 
 
@@ -1760,7 +1787,40 @@ def _time24(m, pm):
     return f"{h}:{mi}"
 
 
-def _numbers(s, words=True):
+_HALF = r"(\s*ครึ่ง)?"
+_CLOCK_RULES = (
+    # Thai (Zahlwörter sind schon Ziffern): สองทุ่ม = 20:00, ตีสาม = 3:00, ห้าโมงเย็น = 17:00, …
+    (re.compile(r"เที่ยง\s*คืน|สองยาม"), lambda m: " 0:00 "),
+    (re.compile(r"(\d{1,2})\s*ทุ่ม" + _HALF), lambda m: _hm(18 + int(m.group(1)), m.group(2))),
+    (re.compile(r"ตี\s*(\d{1,2})" + _HALF), lambda m: _hm(int(m.group(1)), m.group(2))),
+    (re.compile(r"(?:บ่าย\s*)?(\d{1,2})\s*โมง\s*เย็น" + _HALF), lambda m: _hm(int(m.group(1)) + 12, m.group(2))),
+    (re.compile(r"บ่าย\s*(\d{1,2})\s*โมง" + _HALF), lambda m: _hm(int(m.group(1)) + 12, m.group(2))),
+    (re.compile(r"บ่าย\s*โมง" + _HALF), lambda m: _hm(13, m.group(1))),
+    (re.compile(r"(\d{1,2})\s*โมง\s*(?:เช้า)?" + _HALF), lambda m: _hm(int(m.group(1)), m.group(2))),
+    (re.compile(r"เที่ยง(?:\s*วัน)?" + _HALF), lambda m: _hm(12, m.group(1))),
+    # Englisch: half past 3 = 3:30, quarter to 4 = 3:45, 8 o'clock = 8:00, noon, midnight
+    (re.compile(r"\bhalf\s+past\s+(\d{1,2})\b", re.I), lambda m: f" {int(m.group(1))}:30 "),
+    (re.compile(r"\b(?:a\s+)?quarter\s+past\s+(\d{1,2})\b", re.I), lambda m: f" {int(m.group(1))}:15 "),
+    (re.compile(r"\b(?:a\s+)?quarter\s+to\s+(\d{1,2})\b", re.I), lambda m: f" {(int(m.group(1)) - 1) % 24}:45 "),
+    (re.compile(r"\b(\d{1,2})\s*o['’]?\s*clock\b", re.I), lambda m: f" {int(m.group(1))}:00 "),
+    (re.compile(r"\bmidnight\b", re.I), lambda m: " 0:00 "),
+    (re.compile(r"\b(?:noon|midday)\b", re.I), lambda m: " 12:00 "),
+)
+
+
+def _hm(h, half):
+    return f" {h % 24}:{'30' if half else '00'} "
+
+
+def clock_words_to_24h(s):
+    """Uhrzeiten in Worten als H:MM (für den Zahlenvergleich). Thai-Sechs-Stunden-System und englische
+    Wendungen; „half past 3 pm“ bleibt mit pm stehen und wird danach von _PM_TIME umgerechnet."""
+    for rx, fn in _CLOCK_RULES:
+        s = rx.sub(fn, s)
+    return s
+
+
+def _numbers(s, words=True, times=None):
     """Zahlen vergleichbar machen: 1.500/1,500 = Tausender (1500), 3:30 = 3.30 (Uhrzeit), aber 1.5 != 15;
     2:30 PM = 14:30 (auch บ่าย 2:30), 9:00 = 9, 09 = 9. Thai-Lachen (555 ohne Zahlkontext) zählt nicht.
     words: ausgeschriebene Zahlen mitzählen – Thai (สามร้อยห้าสิบ = 350, บ่ายสองโมง = 14) und Englisch
@@ -1773,26 +1833,50 @@ def _numbers(s, words=True):
         s = thai_words_to_digits(s)
     if thai_active():
         s = _laugh_sub(s)                                        # 555 = Lachen gibt es nur im Thai
+    s = clock_words_to_24h(s)                                    # ทุ่ม/ตี/โมงเย็น, half past … (Nr. 21)
     s = _PM_TIME.sub(lambda m: _time24(m, m.group(3).lower() == "p"), s)
     s = _TH_PM.sub(lambda m: _time24(m, True), s)
     out = []
     for x in _NUM.findall(s):
+        is_time = ":" in x
         x = re.sub(r"(?<=\d)[.,](?=\d{3}(?!\d))", "", x)
         x = re.sub(r"[.,:]", ".", x)
         x = re.sub(r"\.00$", "", x)                      # 9:00 = 9
-        out.append(re.sub(r"^0+(?=\d)", "", x))
+        x = re.sub(r"^0+(?=\d)", "", x)
+        out.append(x)
+        if is_time and times is not None:
+            times.add(x)
     return sorted(out)
+
+
+def _time_hm(tok):
+    """'20' -> (20, 0), '3.30' -> (3, 30); keine Uhrzeit -> None."""
+    m = re.fullmatch(r"(\d{1,2})(?:\.(\d{2}))?", tok)
+    if not m or int(m.group(1)) > 24 or int(m.group(2) or 0) > 59:
+        return None
+    return int(m.group(1)) % 24, int(m.group(2) or 0)
 
 
 def numbers_differ(a, b):
     """True, wenn Zahlen im Original und in der Übersetzung nicht übereinstimmen (Preise, Zeiten).
     Nur mit Zahlen auf beiden Seiten; einstellige Zahlen zählen nicht (oft als Wort übersetzt: 2 = สอง).
-    Zahlwörter (Thai und Englisch) werden auf beiden Seiten in Ziffern umgerechnet."""
-    na, nb = _numbers(a), _numbers(b)
+    Zahlwörter (Thai und Englisch) werden auf beiden Seiten in Ziffern umgerechnet. Uhrzeiten gelten
+    auch im 12-Stunden-Abstand als gleich (Nr. 21: „8 o'clock“ = สองทุ่ม = 20:00), weil eine Seite oft
+    ohne a.m./p.m. auskommt."""
+    ta, tb = set(), set()
+    na, nb = _numbers(a, times=ta), _numbers(b, times=tb)
     if not (na and nb):
         return False
-    diff = set(na) ^ set(nb)
-    return any(len(re.sub(r"\D", "", x)) >= 2 for x in diff)
+    only_a, only_b = set(na) - set(nb), set(nb) - set(na)
+    for x in list(only_a & ta):
+        hx = _time_hm(x)
+        for y in list(only_b & tb):
+            hy = _time_hm(y)
+            if hx and hy and hx[1] == hy[1] and hx[0] % 12 == hy[0] % 12:
+                only_a.discard(x)
+                only_b.discard(y)
+                break
+    return any(len(re.sub(r"\D", "", x)) >= 2 for x in only_a | only_b)
 
 
 _TH_CH = "\u0e01-\u0e4e"                     # Thai-Buchstaben/-Vokale/-Tonzeichen (ohne Ziffern)
@@ -1921,6 +2005,10 @@ def _wm(model, **kw):
     try:
         return WhisperModel(model, local_files_only=True, **kw)
     except Exception as e:
+        if not missing_locally(e):
+            # Gerät/Compute-Typ nicht unterstützt, defekte Datei …: kein „Lade herunter“ und kein Netz (Nr. 17)
+            log({"model": model, "download": False, "err": _errtxt(e)})
+            raise
         log({"model": model, "download": True, "err": _errtxt(e)})
         if not _DOWNLOAD_SAID.get(model):         # MPS- und CPU-Versuch: nur einmal melden
             _DOWNLOAD_SAID[model] = True
@@ -1935,6 +2023,20 @@ def _wm(model, **kw):
 
 
 _DOWNLOAD_SAID = {}
+_MISSING_TYPES = ("LocalEntryNotFoundError", "EntryNotFoundError", "FileNotFoundError", "OfflineModeIsEnabled",
+                  "RepositoryNotFoundError", "RevisionNotFoundError")
+_MISSING_RX = re.compile(r"local_files_only|cannot find the requested files|not (?:found|exist)[^.]{0,40}cache"
+                         r"|no such file|snapshot|not in (?:the )?cache|nicht im cache", re.I)
+
+
+def missing_locally(e):
+    """Fehlt das Modell nur im lokalen Cache (dann lohnt das Herunterladen)? Prüft die ganze Ursachenkette."""
+    seen = 0
+    while e is not None and seen < 6:
+        if type(e).__name__ in _MISSING_TYPES or _MISSING_RX.search(str(e)):
+            return True
+        e, seen = e.__cause__ or e.__context__, seen + 1
+    return False
 # Netzfehler nach Klassenname (ohne harte Importe von requests/httpx/huggingface_hub): huggingface_hub meldet
 # fehlendes Netz als LocalEntryNotFoundError, requests als ConnectionError, socket als gaierror.
 _OFFLINE_TYPES = ("gaierror", "ConnectionError", "ConnectError", "ConnectTimeout", "TimeoutError", "Timeout",
@@ -2325,6 +2427,38 @@ def _ws_result(ok):
 def _ws_usable():
     with _WS_HEALTH_LOCK:
         return _WS["ok"] and time.monotonic() >= _WS_HEALTH["off_until"]
+
+
+_EC_NEEDED = ("WSS_URL", "WSS_HEADERS", "SEC_MS_GEC_VERSION", "DRM", "_SSL_CTX", "connect_id", "date_to_string",
+              "escape", "remove_incompatible_characters", "ssml_headers_plus_data", "mkssml", "TTSConfig")
+
+
+def edge_tts_selftest():
+    """Beim Start (Nr. 20): sind die genutzten edge-tts-Interna (Version gepinnt in requirements.in) noch da
+    und baut _ssml() eine gültige Nachricht? Sonst den Schnellweg gleich abschalten (alter Weg bleibt) und
+    die Ursache ins Log schreiben, statt erst beim ersten Satz still umzuschalten. -> True/False."""
+    try:
+        from edge_tts import communicate as ec
+        missing = [n for n in _EC_NEEDED if not hasattr(ec, n)]
+        if missing:
+            raise AttributeError("fehlt: " + ", ".join(missing))
+        for n in ("generate_sec_ms_gec", "headers_with_muid"):
+            if not callable(getattr(ec.DRM, n, None)):
+                raise AttributeError("DRM." + n)
+        msg = ec.ssml_headers_plus_data(ec.connect_id(), ec.date_to_string(), ec.mkssml(
+            ec.TTSConfig("en-US-AriaNeural", "+0%", "+0%", "+0Hz", "SentenceBoundary"), ec.escape("ok")))
+        if "<speak" not in msg or "AriaNeural" not in msg:
+            raise ValueError("SSML unerwartet")
+    except Exception as e:                     # noqa: BLE001 – jede Abweichung schaltet nur den Schnellweg ab
+        _WS["ok"] = False
+        try:
+            import importlib.metadata as md
+            ver = md.version("edge-tts")
+        except Exception:
+            ver = "?"
+        log({"tts_ws": "selbsttest fehlgeschlagen – alter Weg", "edge_tts": ver, "err": _errtxt(e)})
+        return False
+    return True
 
 
 def _ssml(text, voice, rate):
@@ -3566,7 +3700,19 @@ class Engine:
             self._learn_auto(role, info, audio.size / SR, emb)
         return self.deliver(uid, lang, text, lp, time.monotonic() - t0, speak=speak, t_end=t_end,
                             speaker=who["name"] if who else None, alts=alts,
-                            role=role if role in ("me", "other") else None)
+                            role=role if role in ("me", "other") else None, polite=self._speaker_polite(who, role))
+
+    def _speaker_polite(self, who, role):
+        """Höflichkeitsform nach der sprechenden Person (Nr. 162): Feld `polite` des erkannten Profils, sonst des
+        Profils der Rolle; ohne Angabe None (dann gilt die Einstellung)."""
+        p = who
+        if p is None and self.spk and role in ("me", "other"):
+            try:
+                p = self.spk.me() if role == "me" else self.spk.partner()
+            except Exception:
+                p = None
+        v = (p or {}).get("polite")
+        return v if v in ("krub", "ka") else None
 
     def _learn_auto(self, role, info, dur, emb):
         """Sehr sicher zugeordnete, längere Sätze führen den Stimmabdruck langsam nach."""
@@ -3683,7 +3829,7 @@ class Engine:
             emit("partial", id=uid, text=text, lang=lang)
 
     def deliver(self, uid, lang, text, lp=0.0, stt_s=0.0, speak=True, speaker=None, alts=(), t_end=None,
-                source="mic", replaces=None, role=None, extra=None):
+                source="mic", replaces=None, role=None, extra=None, polite=None):
         """Übersetzen, Blase melden, vorlesen (asynchron). Gemeinsam für Mikrofon, Schnellsätze und
         Korrekturen."""
         t1 = time.monotonic()
@@ -3717,8 +3863,11 @@ class Engine:
             # ersetzte (falsche) Fassung nicht als Kontext mitschicken; entfernt wird sie erst bei Erfolg,
             # damit die alte Blase bei einem Fehler weiter korrigierbar bleibt
             hist = tuple(h for h in self.history if h is not old)
-            out = translate(text, lang, dst, history=hist, alts=alts, polite=self.polite, meta=meta)
+            polite = polite or self.polite      # Person mit eigener Form (Profil) vor der Einstellung
+            out = translate(text, lang, dst, history=hist, alts=alts, polite=polite, meta=meta)
             net_state("translate", True)
+            if numbers_differ(text, out):      # Zahlen weichen ab: zweiter Anbieter entscheidet (Nr. 25)
+                out = recheck_numbers(text, lang, dst, out, meta, hist, alts, polite)
         except Exception as e:
             if "offline" in str(e):
                 net_state("translate", False)
@@ -3732,7 +3881,7 @@ class Engine:
             emit("listening")
             return None
         if dst == "th":
-            out = fix_thai(out, self.polite, question=lang != "th" and text.rstrip().endswith(("?", "？", "؟")))
+            out = fix_thai(out, polite, question=lang != "th" and text.rstrip().endswith(("?", "？", "؟")))
         if replaces:
             self._forget(replaces)
         last = getattr(self, "last", None)
@@ -3852,6 +4001,16 @@ def profile_cli(a):
             emit("error", msg=f"Stimmdaten konnten nicht gelöscht werden: {e}")
     elif a.delete_profile:
         emit("profile_deleted", name=a.delete_profile, ok=profiles.delete_profile(a.delete_profile))
+    elif getattr(a, "profile_polite", None) is not None:
+        try:
+            p = profiles.set_polite(a.profile_polite[0], a.profile_polite[1])
+        except profiles.ProfileNameError as e:
+            emit("error", msg=f"Ungültiger Profilname: {e}")
+            return
+        except (KeyError, ValueError):
+            emit("error", msg=f"Profil oder Höflichkeitsform ungültig: {a.profile_polite[0]}")
+            return
+        emit("profile_saved", profile=profiles.public(p))
     elif a.vocab is not None:
         try:
             p = profiles.set_vocab(a.vocab[0], re.split(r"[,\n]", a.vocab[1]))
@@ -4762,6 +4921,8 @@ if __name__ == "__main__":
     ap.add_argument("--delete-all-profiles", action="store_true",
                     help="ALLE Stimmprofile samt Sicherungen löschen (Stimmabdrücke)")
     ap.add_argument("--vocab", nargs=2, metavar=("NAME", "WÖRTER"), help="eigene Wörter, kommagetrennt")
+    ap.add_argument("--profile-polite", nargs=2, metavar=("NAME", "FORM"),
+                    help="Höflichkeitsform der Person für Thai-Ausgaben: krub, ka oder - (wie Einstellung)")
     ap.add_argument("--barge-in", action="store_true",
                     help="Sprechen unterbricht die Ausgabe (nur mit Kopfhörer!)")
     ap.add_argument("--log-text", action=argparse.BooleanOptionalAction, default=False,
@@ -4817,6 +4978,9 @@ if __name__ == "__main__":
         v = req.get("vocab")
         if isinstance(v, list) and len(v) == 2 and all(isinstance(x, str) for x in v):
             a.vocab = v
+        v = req.get("polite")
+        if isinstance(v, list) and len(v) == 2 and all(isinstance(x, str) for x in v):
+            a.profile_polite = v
     import history_store
     if history_store.wants_cli(a):
         sys.exit(history_store.run_cli(a))
@@ -4830,7 +4994,8 @@ if __name__ == "__main__":
         set_pair(*DEFAULT_PAIR)
     if a.list_mics:
         JSON = True                             # Antwort immer als JSON (auch die ffmpeg-Meldung)
-    _profile_only = bool(a.profiles or a.delete_profile or a.delete_all_profiles or a.vocab is not None)
+    _profile_only = bool(a.profiles or a.delete_profile or a.delete_all_profiles or a.vocab is not None
+                         or a.profile_polite is not None)
     if not _profile_only:
         check_ffmpeg()                          # Mikrofon, --file, --list-mics und --enroll brauchen ffmpeg
     if a.list_mics:
@@ -4856,11 +5021,13 @@ if __name__ == "__main__":
     threading.Thread(target=thai_latin, args=("สวัสดี",), daemon=True).start()   # Umschrift vorwärmen
     signal.signal(signal.SIGTERM, shutdown)
     signal.signal(signal.SIGINT, shutdown)
-    if a.profiles or a.enroll or a.delete_profile or a.delete_all_profiles or a.vocab is not None:
+    if (a.profiles or a.enroll or a.delete_profile or a.delete_all_profiles or a.vocab is not None
+            or a.profile_polite is not None):
         profile_cli(a)
         sys.exit(0)
     if a.tts == "edge" and not a.mute:
         tts_warmup()                            # parallel zum Laden des Modells
+    edge_tts_selftest()                # Nr. 20: Schnellweg der Neural-Stimme früh prüfen (nur Log)
     model, hw = a.model, None
     if model == "auto":
         import hwprofile
