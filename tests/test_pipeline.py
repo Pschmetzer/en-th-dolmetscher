@@ -92,6 +92,7 @@ def _say(voice, text, path):
     return d.decode_file(str(path))
 
 
+@pytest.mark.macos
 @pytest.mark.skipif(not shutil.which("say"), reason="braucht macOS say")
 def test_segmenter_keeps_speech_and_drops_own_voice(tmp_path):
     pytest.importorskip("faster_whisper.vad")

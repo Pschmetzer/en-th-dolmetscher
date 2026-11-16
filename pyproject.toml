@@ -18,3 +18,18 @@ ignore = ["E401", "E701", "E702", "E731"]
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+# pytest-timeout: kein Test darf länger als 60 s laufen (längster heute ~4 s); hängende Threads brechen ab,
+# statt den CI-Runner bis zu dessen Limit zu blockieren. Einzelne Tests heben das per @pytest.mark.timeout an.
+timeout = 60
+addopts = "--strict-markers"
+markers = [
+    "macos: braucht macOS-Werkzeuge (say, swiftc, Apple-Silicon-uv); läuft in CI im macOS-Job (pytest -m macos)",
+]
+
+[tool.coverage.run]
+# Abdeckung der Engine-Module (CI misst sie im Linux-Lauf, Python 3.12): pytest --cov
+source = ["dolmetscher", "profiles", "history_store", "correction_learning", "hwprofile", "avhelper"]
+
+[tool.coverage.report]
+show_missing = false
+skip_covered = false

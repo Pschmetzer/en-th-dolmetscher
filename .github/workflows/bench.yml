@@ -1,0 +1,95 @@
+name: Benchmark
+
+# Nur manuell (Actions -> Benchmark -> Run workflow): der Lauf lädt Whisper-Modelle (Hunderte MB), braucht macOS
+# `say` und Netz für die Übersetzung. Der normale CI-Lauf lädt nie ein Modell; dort prüfen tests/test_bench.py
+# und tests/test_corpus.py nur die Metrik- und Textlogik.
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: "Whisper-Modell"
+        type: choice
+        options: [small, medium]
+        default: small
+      only:
+        description: "Nur eine Sprache (all = alle Fälle)"
+        type: choice
+        options: [all, en, th]
+        default: all
+      repeat:
+        description: "Wiederholungen je Fall (Median)"
+        default: "1"
+      fail_above:
+        description: "Nur mit medium: Exit 2 ab so viel Prozent Verschlechterung (leer = nur vergleichen; Zeiten des Runners weichen von der lokalen Baseline ab)"
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bench-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  bench:
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Install dependencies (pinned, hash-checked)
+        run: python -m pip install --require-hashes -r requirements.txt
+      - name: ffmpeg
+        run: command -v ffmpeg || brew install ffmpeg
+      # Modell-Cache: Schlüssel aus MODEL_REVISIONS (feste Hugging-Face-Commits), nicht aus ganz dolmetscher.py.
+      - name: Model cache key
+        id: key
+        run: echo "rev=$(sed -n '/^MODEL_REVISIONS/,/^}/p' dolmetscher.py | shasum | cut -c1-16)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/huggingface
+          key: hf-${{ inputs.model }}-${{ steps.key.outputs.rev }}
+      # Die Thai-Stimme Kanya fehlt auf manchen Runner-Images: dann nur Englisch messen statt abzubrechen.
+      - name: Voices
+        id: voices
+        env:
+          ONLY: ${{ inputs.only }}
+        run: |
+          only="$ONLY"
+          if [ "$only" != "en" ] && ! say -v '?' | grep -q '^Kanya '; then
+            echo "::warning::macOS-Stimme Kanya fehlt auf dem Runner: es werden nur die englischen Fälle gemessen."
+            only=en
+          fi
+          echo "only=$only" >> "$GITHUB_OUTPUT"
+      - name: Make audio
+        run: python bench/make_audio.py
+      - name: Run benchmark
+        env:
+          MODEL: ${{ inputs.model }}
+          ONLY: ${{ steps.voices.outputs.only }}
+          REPEAT: ${{ inputs.repeat }}
+          FAIL_ABOVE: ${{ inputs.fail_above }}
+        run: |
+          set -o pipefail
+          args=(--model "$MODEL" --device cpu --repeat "$REPEAT" --json-out "bench/results/ci_${MODEL}.json")
+          [ "$ONLY" = all ] || args+=(--only "$ONLY")
+          # Die Baseline ist mit medium gemessen: nur dann vergleichen und Regressionen als Fehler werten.
+          if [ "$MODEL" = medium ]; then
+            args+=(--compare bench/results/baseline_main.json)
+            [ -z "$FAIL_ABOVE" ] || args+=(--fail-above "$FAIL_ABOVE")
+          fi
+          python bench/run_bench.py "${args[@]}" | tee "$RUNNER_TEMP/bench.txt"
+      - name: Summary
+        if: always()
+        run: |
+          { echo '```'; tail -n 60 "$RUNNER_TEMP/bench.txt" 2>/dev/null; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: bench-${{ inputs.model }}
+          path: bench/results/ci_*.json
+          if-no-files-found: ignore

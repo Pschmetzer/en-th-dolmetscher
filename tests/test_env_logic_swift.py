@@ -72,7 +72,9 @@ exit(failures == 0 ? 0 : 1)
 '''
 
 
+@pytest.mark.macos
 @pytest.mark.skipif(not shutil.which("swiftc"), reason="swiftc fehlt")
+@pytest.mark.timeout(660)                                      # swiftc-Lauf bis 600 s
 def test_env_logic_swift(tmp_path):
     main = tmp_path / "main.swift"
     main.write_text(MAIN)

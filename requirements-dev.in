@@ -2,6 +2,8 @@
 #   uv pip compile requirements-dev.in -c requirements.txt --universal --python-version 3.12 --generate-hashes -o requirements-dev.txt
 -r requirements.in
 pytest==9.2.0
+# Zeitlimit je Test (Standard in pyproject.toml): ein hängender Thread-Test blockiert CI nicht stundenlang
+pytest-timeout==2.4.0
 ruff==0.17.5
 # optional: Abdeckung lokal messen mit  pytest --cov=dolmetscher --cov=profiles
 pytest-cov==7.1.0
