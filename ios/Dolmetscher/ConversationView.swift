@@ -107,7 +107,7 @@ struct ConversationSide: View {
         .animation(.default, value: expecting)
     }
 
-    private struct Line: Identifiable {
+    struct Line: Identifiable {
         let entry: Entry
         let text: String
         let own: Bool
@@ -126,22 +126,8 @@ struct ConversationSide: View {
                             .multilineTextAlignment(.center)
                             .frame(maxWidth: .infinity, minHeight: 80)
                     }
-                    ForEach(shown) { l in
-                        Button { m.speak(l.entry) } label: {
-                            VStack(alignment: l.own ? .trailing : .leading, spacing: 2) {
-                                Text(l.text)
-                                    .font(l.own ? .body : .title2.weight(.bold))
-                                    .foregroundStyle(l.own ? Color.secondary : color)
-                                    .multilineTextAlignment(l.own ? .trailing : .leading)
-                                if !l.own, m.showRoman, let r = Romanizer.latin(l.text, lang) {
-                                    Text(r).font(.caption).italic().foregroundStyle(.secondary)
-                                }
-                            }
-                            .frame(maxWidth: .infinity, alignment: l.own ? .trailing : .leading)
-                        }
-                        .buttonStyle(.plain)
-                        .id(l.id)
-                        .accessibilityHint(T("replay"))
+                    ForEach(shown) { (l: Line) in
+                        LineRow(entry: l.entry, text: l.text, own: l.own, lang: lang, color: color).id(l.id)
                     }
                     // Live-Untertitel: was gerade gesprochen wird (auch für Hörgeschädigte)
                     if !m.partial.isEmpty || (m.hearing && m.isListening) {
@@ -199,6 +185,35 @@ struct ConversationSide: View {
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(expecting ? .isSelected : [])
+    }
+}
+
+/// Ein Satz in einer Hälfte: Antipp spricht ihn erneut.
+struct LineRow: View {
+    @Environment(InterpreterModel.self) private var m
+    let entry: Entry
+    let text: String
+    let own: Bool
+    let lang: Lang
+    let color: Color
+
+    var body: some View {
+        let align: HorizontalAlignment = own ? .trailing : .leading
+        let frameAlign: Alignment = own ? .trailing : .leading
+        let tint: Color = own ? .secondary : color
+        let roman: String? = !own && m.showRoman ? Romanizer.latin(text, lang) : nil
+        Button { m.speak(entry) } label: {
+            VStack(alignment: align, spacing: 2) {
+                Text(text)
+                    .font(own ? .body : .title2.weight(.bold))
+                    .foregroundStyle(tint)
+                    .multilineTextAlignment(own ? .trailing : .leading)
+                RomanLine(text: roman)
+            }
+            .frame(maxWidth: .infinity, alignment: frameAlign)
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint(T("replay"))
     }
 }
 

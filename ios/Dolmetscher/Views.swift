@@ -17,7 +17,6 @@ struct ContentView: View {
     @State private var draft = ""
     @State private var confirmClear = false
     @FocusState private var typing: Bool
-    @Environment(\.requestReview) private var requestReview
 
     var body: some View {
         @Bindable var m = m
@@ -56,27 +55,7 @@ struct ContentView: View {
                         .accessibilityLabel(T("more"))
                 }
             }
-            .sheet(item: $m.sheet) { s in
-                switch s {
-                case .settings: SettingsView()
-                case .phrasebook: PhrasebookView()
-                case .photo: PhotoTextView()
-                case .emergency: EmergencyView()
-                case .baht: BahtCalculatorView()
-                case .allergy: AllergyCardView()
-                case .privacy:
-                    NavigationStack {
-                        PrivacyView()
-                            .toolbar { ToolbarItem(placement: .confirmationAction) { Button(T("done")) { m.sheet = nil } } }
-                    }
-                case .help:
-                    NavigationStack {
-                        ScrollView { CommandsCard().padding() }
-                            .toolbar { ToolbarItem(placement: .confirmationAction) { Button(T("done")) { m.sheet = nil } } }
-                    }
-                    .presentationDetents([.medium, .large])
-                }
-            }
+            .sheet(item: $m.sheet) { s in sheetView(s) }
             .confirmationDialog(T("clear_confirm"), isPresented: $confirmClear, titleVisibility: .visible) {
                 Button(T("clear"), role: .destructive) { m.clear() }
                 Button(T("cancel"), role: .cancel) {}
@@ -86,16 +65,7 @@ struct ContentView: View {
                 Button(T("cellular_wait"), role: .cancel) {}
             } message: { Text(T("cellular_msg")) }
             .fullScreenCover(isPresented: $showPartner) { PartnerView() }
-            // Bewertungsbitte nur, wenn nichts läuft und nichts offen ist (nie mitten im Gespräch).
-            .onChange(of: m.canAskReview && !showPartner && big == nil) { _, ok in
-                guard ok else { return }
-                Task {
-                    try? await Task.sleep(for: .seconds(1.5))
-                    guard m.canAskReview, !showPartner, big == nil else { return }
-                    m.reviewAsked()
-                    requestReview()
-                }
-            }
+            .modifier(ReviewPrompt(covered: showPartner || big != nil))
             #if DEBUG
             .task { DebugScreens.apply(m, partner: $showPartner) }
             #endif
@@ -103,6 +73,28 @@ struct ContentView: View {
             .alert(T("edit_text"), isPresented: Binding(get: { editing != nil }, set: { if !$0 { editing = nil } })) {
                 EditAlert(entry: editing) { text in if let e = editing { m.edit(e.id, text: text) } }
             }
+        }
+    }
+
+    @ViewBuilder private func sheetView(_ s: AppSheet) -> some View {
+        switch s {
+        case .settings: SettingsView()
+        case .phrasebook: PhrasebookView()
+        case .photo: PhotoTextView()
+        case .emergency: EmergencyView()
+        case .baht: BahtCalculatorView()
+        case .allergy: AllergyCardView()
+        case .privacy:
+            NavigationStack {
+                PrivacyView()
+                    .toolbar { ToolbarItem(placement: .confirmationAction) { Button(T("done")) { m.sheet = nil } } }
+            }
+        case .help:
+            NavigationStack {
+                ScrollView { CommandsCard().padding() }
+                    .toolbar { ToolbarItem(placement: .confirmationAction) { Button(T("done")) { m.sheet = nil } } }
+            }
+            .presentationDetents([.medium, .large])
         }
     }
 
@@ -280,6 +272,27 @@ struct ContentView: View {
     }
 }
 
+/// Bewertungsbitte nur, wenn nichts läuft und nichts offen ist (nie mitten im Gespräch).
+struct ReviewPrompt: ViewModifier {
+    @Environment(InterpreterModel.self) private var m
+    @Environment(\.requestReview) private var requestReview
+    let covered: Bool
+
+    private var ready: Bool { m.canAskReview && !covered }
+
+    func body(content: Content) -> some View {
+        content.onChange(of: ready) { _, ok in
+            guard ok else { return }
+            Task {
+                try? await Task.sleep(for: .seconds(1.5))
+                guard ready else { return }
+                m.reviewAsked()
+                requestReview()
+            }
+        }
+    }
+}
+
 /// Start/Stopp mit Pegel-Rand. Eigene View, damit der häufig wechselnde Pegel nur sie neu zeichnet.
 struct MicButton: View {
     @Environment(InterpreterModel.self) private var m
@@ -335,55 +348,70 @@ struct Bubble: View {
     var onEdit: () -> Void
 
     var body: some View {
-        let color = LangStyle.color(entry.target, m.pair)
-        let fromPartner = entry.src == m.pair.partner
+        let color: Color = LangStyle.color(entry.target, m.pair)
+        let fromPartner: Bool = entry.src == m.pair.partner
         HStack {
             if fromPartner { Spacer(minLength: 36) }
-            VStack(alignment: .leading, spacing: 6) {
-                Text("\(LangStyle.flag(entry.src)) \(entry.text)")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                if let t = entry.translation {
-                    Text(t)
-                        .font(.title3.weight(.semibold))
-                        .foregroundStyle(color)
-                    if let r = m.showRoman ? entry.romanized : entry.roman { Text(r).font(.caption).italic().foregroundStyle(.secondary) }
-                    if m.backCheck, let b = entry.back {
-                        let off = entry.backDeviates
-                        HStack(alignment: .firstTextBaseline, spacing: 4) {
-                            Image(systemName: off ? "exclamationmark.triangle.fill" : "arrow.uturn.backward")
-                            Text(b)
-                        }
-                        .font(.caption)
-                        .foregroundStyle(off ? Color.orange : Color.secondary)
-                        .accessibilityLabel((off ? T("back_deviates") + ". " : "") + T("back_label") + ": " + b)
-                    }
-                } else if let err = entry.error {
-                    HStack {
-                        Text("⚠️ " + err).font(.callout).foregroundStyle(.red)
-                        Button(T("retry")) { m.retry(entry.id) }.buttonStyle(.bordered).controlSize(.small)
-                    }
-                } else {
-                    HStack(spacing: 6) { ProgressView().controlSize(.small); Text(T("translating")).font(.callout).foregroundStyle(.secondary) }
-                }
-                actions
-            }
-            .padding(12)
-            .background(color.opacity(0.12), in: RoundedRectangle(cornerRadius: 16))
-            .overlay(RoundedRectangle(cornerRadius: 16).stroke(color.opacity(m.speakingID == entry.id ? 0.8 : 0), lineWidth: 2))
-            .contentShape(RoundedRectangle(cornerRadius: 16))
-            .onTapGesture { if entry.translation != nil { onBig() } }
-            .contextMenu { menu }
-            // VoiceOver: eine Blase = ein Element; die Knöpfe als Aktionen.
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(a11yLabel)
-            .accessibilityAddTraits(entry.translation != nil ? .isButton : [])
-            .accessibilityHint(entry.translation != nil ? T("show_big") : "")
-            .accessibilityAction { if entry.translation != nil { onBig() } }
-            .accessibilityActions { a11yActions }
+            accessible(card(color))
             if !fromPartner { Spacer(minLength: 36) }
         }
     }
+
+    // Aufgeteilt in kleine Teile mit festen Typen – sonst braucht der Compiler zu lange (CI-Fehler).
+
+    @ViewBuilder private func translationPart(_ color: Color) -> some View {
+        if let t = entry.translation {
+            Text(t)
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(color)
+            RomanLine(text: roman)
+            if m.backCheck, let b = entry.back { BackLine(text: b, deviates: entry.backDeviates) }
+        } else if let err = entry.error {
+            HStack {
+                Text("⚠️ " + err).font(.callout).foregroundStyle(.red)
+                Button(T("retry")) { m.retry(entry.id) }.buttonStyle(.bordered).controlSize(.small)
+            }
+        } else {
+            HStack(spacing: 6) {
+                ProgressView().controlSize(.small)
+                Text(T("translating")).font(.callout).foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private func card(_ color: Color) -> some View {
+        let shape = RoundedRectangle(cornerRadius: 16)
+        let ring: Double = m.speakingID == entry.id ? 0.8 : 0
+        return VStack(alignment: .leading, spacing: 6) {
+            Text("\(LangStyle.flag(entry.src)) \(entry.text)")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            translationPart(color)
+            actions
+        }
+        .padding(12)
+        .background(color.opacity(0.12), in: shape)
+        .overlay(shape.stroke(color.opacity(ring), lineWidth: 2))
+        .contentShape(shape)
+        .onTapGesture { if entry.translation != nil { onBig() } }
+        .contextMenu { menu }
+    }
+
+    /// VoiceOver: eine Blase = ein Element; die Knöpfe als Aktionen.
+    private func accessible<V: View>(_ v: V) -> some View {
+        let done: Bool = entry.translation != nil
+        let traits: AccessibilityTraits = done ? .isButton : []
+        let hint: String = done ? T("show_big") : ""
+        return v
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(a11yLabel)
+            .accessibilityAddTraits(traits)
+            .accessibilityHint(hint)
+            .accessibilityAction { if done { onBig() } }
+            .accessibilityActions { a11yActions }
+    }
+
+    private var roman: String? { m.showRoman ? entry.romanized : entry.roman }
 
     private var a11yLabel: String {
         var parts = ["\(entry.src.name(in: L10n.lang)): \(entry.text)"]
@@ -469,7 +497,7 @@ struct BigTextView: View {
                     .minimumScaleFactor(0.2)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(LangStyle.color(e?.target ?? m.pair.partner, m.pair))
-                if let r = m.showRoman ? e?.romanized : e?.roman { Text(r).font(.title3).italic().foregroundStyle(.secondary) }
+                RomanLine(text: m.showRoman ? e?.romanized : e?.roman, font: .title3)
                 Text(e?.text ?? "").font(.title3).foregroundStyle(.secondary).multilineTextAlignment(.center)
             }
             .padding(24)
@@ -560,5 +588,38 @@ struct CommandsCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
         .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+/// Umschrift unter einer Übersetzung (eigene View: hält den Ausdruck in `Bubble` für den Compiler klein).
+struct RomanLine: View {
+    let text: String?
+    var font: Font = .caption
+    var body: some View {
+        if let text { Text(text).font(font).italic().foregroundStyle(.secondary) }
+    }
+}
+
+/// Rückübersetzung, bei Abweichung orange mit Warnzeichen.
+struct BackLine: View {
+    let text: String
+    let deviates: Bool
+
+    private var icon: String { deviates ? "exclamationmark.triangle.fill" : "arrow.uturn.backward" }
+    private var tint: Color { deviates ? .orange : .secondary }
+    private var label: String {
+        let head: String = T("back_label") + ": " + text
+        return deviates ? T("back_deviates") + ". " + head : head
+    }
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 4) {
+            Image(systemName: icon)
+            Text(text)
+        }
+        .font(.caption)
+        .foregroundStyle(tint)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(label)
     }
 }

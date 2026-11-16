@@ -93,23 +93,7 @@ struct EmergencyView: View {
                 } header: { Text(T("emergency_numbers")) }
                 }
 
-                Section {
-                    ForEach(Allergen.allCases, id: \.self) { a in
-                        Toggle(isOn: Binding(get: { m.emergency.allergens.contains(a) },
-                                             set: { on in
-                                                 m.emergency.allergens.removeAll { $0 == a }
-                                                 if on { m.emergency.allergens = Allergen.allCases.filter { $0 == a || m.emergency.allergens.contains($0) } }
-                                             })) {
-                            Text(a.name(L10n.asLang ?? .en) ?? a.name(.en)!)
-                        }
-                    }
-                    Button { showAllergy = true } label: {
-                        Label(String(format: T("allergy_show"), m.pair.partner.name(in: L10n.lang)), systemImage: "allergens")
-                            .font(.headline)
-                    }
-                    .disabled(m.emergency.allergens.isEmpty)
-                } header: { Text(T("allergy_card")) } footer: { Text(T("allergy_note")) }
-
+                allergySection
                 Section {
                     if editing {
                         TextField(T("em_name"), text: $m.emergency.name)
@@ -149,6 +133,29 @@ struct EmergencyView: View {
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button(T("done")) { dismiss() } } }
             .fullScreenCover(isPresented: $showAllergy) { AllergyCardView() }
         }
+    }
+
+    private func allergen(_ a: Allergen) -> Binding<Bool> {
+        Binding(get: { m.emergency.allergens.contains(a) },
+                set: { on in
+                    var set = Set(m.emergency.allergens)
+                    if on { set.insert(a) } else { set.remove(a) }
+                    m.emergency.allergens = Allergen.allCases.filter(set.contains)   // feste Reihenfolge
+                })
+    }
+
+    private var allergySection: some View {
+        let ui: Lang = L10n.asLang ?? .en
+        let partner: String = m.pair.partner.name(in: L10n.lang)
+        return Section {
+            ForEach(Allergen.allCases, id: \.self) { (a: Allergen) in
+                Toggle(a.name(ui) ?? a.name(.en) ?? a.rawValue, isOn: allergen(a))
+            }
+            Button { showAllergy = true } label: {
+                Label(String(format: T("allergy_show"), partner), systemImage: "allergens").font(.headline)
+            }
+            .disabled(m.emergency.allergens.isEmpty)
+        } header: { Text(T("allergy_card")) } footer: { Text(T("allergy_note")) }
     }
 
     private var hasCardText: Bool {
