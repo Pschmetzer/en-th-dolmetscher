@@ -184,6 +184,8 @@ extension L10n {
             "lang_unavailable": "No disponible en este iPhone",
             "online_off_note": "Desactivado (predeterminado): todo se queda en el iPhone. Activado: si falta un paquete sin conexión, el texto se envía a Google Translate (alternativa: MyMemory). El reconocimiento de voz siempre se hace en el dispositivo.",
             "sos_title": "Frase de emergencia",
+            "a11y_ready": "Traducción lista",
+            "open_settings": "Abrir Ajustes",
         ],
         "fr": [
             "start": "Démarrer",
@@ -364,6 +366,8 @@ extension L10n {
             "lang_unavailable": "Non disponible sur cet iPhone",
             "online_off_note": "Désactivé (par défaut) : tout reste sur l'iPhone. Activé : si un pack hors ligne manque, le texte est envoyé à Google Translate (secours : MyMemory). La reconnaissance vocale se fait toujours sur l'appareil.",
             "sos_title": "Phrase d'urgence",
+            "a11y_ready": "Traduction prête",
+            "open_settings": "Ouvrir Réglages",
         ],
         "ja": [
             "start": "開始",
@@ -544,6 +548,8 @@ extension L10n {
             "lang_unavailable": "このiPhoneでは使用できません",
             "online_off_note": "オフ（標準）：すべてiPhone内で処理されます。オン：オフラインパックがない場合、テキストはGoogle Translate（予備：MyMemory）に送信されます。音声認識は常にデバイス上で行われます。",
             "sos_title": "緊急フレーズ",
+            "a11y_ready": "翻訳ができました",
+            "open_settings": "設定を開く",
         ],
         "ko": [
             "start": "시작",
@@ -724,6 +730,8 @@ extension L10n {
             "lang_unavailable": "이 iPhone에서 사용할 수 없음",
             "online_off_note": "끔(기본값): 모든 것이 iPhone에만 머뭅니다. 켬: 오프라인 팩이 없으면 텍스트가 Google Translate로 전송됩니다(대체: MyMemory). 음성 인식은 항상 기기에서 실행됩니다.",
             "sos_title": "응급 문구",
+            "a11y_ready": "번역 완료",
+            "open_settings": "설정 열기",
         ],
         "zh-Hans": [
             "start": "开始",
@@ -904,6 +912,8 @@ extension L10n {
             "lang_unavailable": "此 iPhone 不支持",
             "online_off_note": "关闭（默认）：所有内容都留在 iPhone 上。开启：缺少离线语言包时，文本会发送到 Google Translate（备用：MyMemory）。语音识别始终在设备上进行。",
             "sos_title": "紧急求助用语",
+            "a11y_ready": "翻译完成",
+            "open_settings": "打开设置",
         ],
         "vi": [
             "start": "Bắt đầu",
@@ -1084,6 +1094,8 @@ extension L10n {
             "lang_unavailable": "Không khả dụng trên iPhone này",
             "online_off_note": "Tắt (mặc định): mọi thứ ở lại trên iPhone. Bật: nếu thiếu gói ngoại tuyến, văn bản được gửi tới Google Translate (dự phòng: MyMemory). Nhận dạng giọng nói luôn chạy trên thiết bị.",
             "sos_title": "Câu khẩn cấp",
+            "a11y_ready": "Đã dịch xong",
+            "open_settings": "Mở Cài đặt",
         ],
         "id": [
             "start": "Mulai",
@@ -1264,6 +1276,8 @@ extension L10n {
             "lang_unavailable": "Tidak tersedia di iPhone ini",
             "online_off_note": "Mati (bawaan): semuanya tetap di iPhone. Nyala: jika paket offline tidak ada, teks dikirim ke Google Translate (cadangan: MyMemory). Pengenalan suara selalu berjalan di perangkat.",
             "sos_title": "Frasa darurat",
+            "a11y_ready": "Terjemahan siap",
+            "open_settings": "Buka Pengaturan",
         ],
     ]
 }

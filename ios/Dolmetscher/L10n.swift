@@ -27,6 +27,9 @@ enum L10n {
     /// Die Oberflächensprache als Sprache der Sprachtabelle ("zh-Hans" -> zh), falls es eine ist.
     static var asLang: Lang? { Lang(rawValue: lang == "zh-Hans" ? "zh" : lang) }
 
+    /// Code der Oberflächen-Tabelle für eine Sprache des Paars (zh -> "zh-Hans").
+    static func uiCode(_ l: Lang) -> String { l == .zh ? "zh-Hans" : l.rawValue }
+
     static let table: [String: [String: String]] = [
         "start": ["de": "Start", "en": "Start", "th": "เริ่ม"],
         "stop": ["de": "Stopp", "en": "Stop", "th": "หยุด"],
@@ -256,6 +259,8 @@ enum L10n {
                             "en": "Off (default): everything stays on the iPhone. On: if an offline pack is missing, the text is sent to Google Translate (fallback: MyMemory). Speech recognition always runs on the device.",
                             "th": "ปิด (ค่าเริ่มต้น): ทุกอย่างอยู่ในเครื่อง เปิด: หากไม่มีชุดภาษาออฟไลน์ ข้อความจะถูกส่งไปยัง Google Translate (สำรอง: MyMemory) การรู้จำเสียงทำงานบนเครื่องเสมอ"],
         "sos_title": ["de": "Notruf-Satz", "en": "Emergency phrase", "th": "ประโยคฉุกเฉิน"],
+        "a11y_ready": ["de": "Übersetzung bereit", "en": "Translation ready", "th": "แปลเสร็จแล้ว"],
+        "open_settings": ["de": "Einstellungen öffnen", "en": "Open Settings", "th": "เปิดการตั้งค่า"],
     ]
 }
 

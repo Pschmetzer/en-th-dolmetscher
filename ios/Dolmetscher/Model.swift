@@ -60,6 +60,10 @@ final class InterpreterModel {
     var canUndoClear = false
     /// Sprachmodell müsste über Mobilfunk geladen werden: erst fragen.
     var cellularDownloadPrompt = false
+    /// Mikrofon oder Spracherkennung verweigert: Knopf „Einstellungen öffnen“ zeigen.
+    var micDenied = false
+    /// „Jetzt Sie“ / „Jetzt ich“: diese Sprache wird als Nächstes erwartet (bis zum nächsten Satz oder Ablauf).
+    var expected: Lang?
 
     var pair: LangPair {
         didSet {
@@ -120,6 +124,8 @@ final class InterpreterModel {
     @ObservationIgnored private var lastRecognizerFailure = Date.distantPast
     /// Einmal erlaubt: Sprachmodell trotz Mobilfunk laden.
     @ObservationIgnored private var cellularAllowed = false
+    @ObservationIgnored private var expectedUntil = Date.distantPast
+    @ObservationIgnored private var expectTask: Task<Void, Never>?
 
     /// Standard „aus“: ohne ausdrückliche Erlaubnis gehen keine Gespräche an Google/MyMemory.
     nonisolated static func allowOnlineSetting(_ d: UserDefaults = .standard) -> Bool { d.object(forKey: "allowOnline") as? Bool ?? false }
@@ -221,6 +227,7 @@ final class InterpreterModel {
         guard !isBusy, !isListening else { return }
         phase = .loading
         paused = false
+        micDenied = false
         generation += 1
         let mine = generation
         let pendingStop = stopTask
@@ -298,6 +305,7 @@ final class InterpreterModel {
                 whisperPreparing = false
                 if generation == mine {
                     download = nil
+                    if case .denied? = error as? SpeechError { micDenied = true }
                     phase = .failed(error.localizedDescription)
                     Haptics.error()
                 }
@@ -383,7 +391,7 @@ final class InterpreterModel {
         case .partial(let seen):
             guard !paused else { return }
             // Gleiche Wahl wie für den fertigen Satz (Schrift, echte Konfidenz) – nicht immer Englisch.
-            partial = LanguagePick.pick(seen, pair: pair).flatMap { seen[$0]?.text } ?? ""
+            partial = LanguagePick.pick(seen, pair: pair, bias: turnBias, expect: activeExpectation).flatMap { seen[$0]?.text } ?? ""
         case .utterance(let heard): self.heard(heard)
         case .failed(let why):
             guard phase == .listening else { return }
@@ -420,7 +428,8 @@ final class InterpreterModel {
             run(cmd)
             return
         }
-        guard let lang = LanguagePick.pick(hyps, pair: pair), pair.contains(lang) else { return }
+        guard let lang = LanguagePick.pick(hyps, pair: pair, bias: turnBias, expect: activeExpectation),
+              pair.contains(lang) else { return }
         if commands, lang == .en, let text = hyps[.en]?.text, let cmd = Commands.detect(text, awake: awake) {
             Haptics.command()
             run(cmd)
@@ -429,11 +438,42 @@ final class InterpreterModel {
         guard !paused else { return }
         let text = hyps[lang]?.text ?? ""
         let alt = hyps[pair.other(lang)]?.text
+        clearExpectation()
         Haptics.heard()
         add(Entry(src: lang, dst: pair.other(lang), text: text, alt: alt))
         #if DEBUG
         debugLog.info("heard \(lang.rawValue, privacy: .public): \(text, privacy: .public)")
         #endif
+    }
+
+    /// Gesprächs-Hinweis für die Sprachwahl: die andere Sprache des letzten gesprochenen Satzes.
+    private var turnBias: Lang? {
+        LanguagePick.turnBias(lastSpoken: entries.last(where: { $0.provider != "phrasebook" })?.src, pair: pair)
+    }
+
+    private var activeExpectation: Lang? { Date() < expectedUntil ? expected : nil }
+
+    /// „Jetzt Sie“: der nächste Satz kommt in `lang`. Läuft nur ein Erkenner der anderen Sprache, wird umgeschaltet
+    /// (kostet einen Neustart); im Automatik-Modus genügt der Hinweis an die Sprachwahl.
+    func expectSpeaker(_ lang: Lang) {
+        guard pair.contains(lang) else { return }
+        expected = lang
+        expectedUntil = Date().addingTimeInterval(20)
+        if !mode.langs(pair).contains(lang) { mode = lang == pair.mine ? .mine : .partner }
+        if !isListening && !isBusy { start() }
+        Haptics.tap()
+        expectTask?.cancel()
+        expectTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(20))
+            guard !Task.isCancelled else { return }
+            self?.expected = nil
+        }
+    }
+
+    private func clearExpectation() {
+        expectTask?.cancel()
+        expected = nil
+        expectedUntil = .distantPast
     }
 
     // MARK: Befehle
@@ -508,6 +548,10 @@ final class InterpreterModel {
                 guard revisions[id] == rev else { return nil }   // inzwischen geändert
                 update(id) { $0.translation = out; $0.provider = r.provider; $0.error = nil }
                 persist()
+                // VoiceOver: Übersetzung ansagen, wenn sie nicht ohnehin vorgelesen wird.
+                if UIAccessibility.isVoiceOverRunning && !(speak && autoSpeak && !paused) {
+                    AccessibilityNotification.Announcement(T("a11y_ready") + ": " + out).post()
+                }
                 return out
             } catch {
                 guard revisions[id] == rev else { return nil }

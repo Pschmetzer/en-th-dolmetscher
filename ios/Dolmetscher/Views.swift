@@ -150,6 +150,11 @@ struct ContentView: View {
                     .buttonStyle(.bordered)
                     .controlSize(.small)
             }
+            if m.micDenied, case .failed = m.phase, let url = URL(string: UIApplication.openSettingsURLString) {
+                Button(T("open_settings")) { UIApplication.shared.open(url) }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.small)
+            }
         }
         .frame(maxWidth: .infinity, minHeight: 22)
         .animation(.default, value: statusText)
@@ -327,10 +332,36 @@ struct Bubble: View {
             .overlay(RoundedRectangle(cornerRadius: 16).stroke(color.opacity(m.speakingID == entry.id ? 0.8 : 0), lineWidth: 2))
             .contentShape(RoundedRectangle(cornerRadius: 16))
             .onTapGesture { if entry.translation != nil { onBig() } }
-            .accessibilityAction(named: T("show_big")) { if entry.translation != nil { onBig() } }
             .contextMenu { menu }
+            // VoiceOver: eine Blase = ein Element; die Knöpfe als Aktionen.
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(a11yLabel)
+            .accessibilityAddTraits(entry.translation != nil ? .isButton : [])
+            .accessibilityHint(entry.translation != nil ? T("show_big") : "")
+            .accessibilityAction { if entry.translation != nil { onBig() } }
+            .accessibilityActions { a11yActions }
             if !fromPartner { Spacer(minLength: 36) }
         }
+    }
+
+    private var a11yLabel: String {
+        var parts = ["\(entry.src.name(in: L10n.lang)): \(entry.text)"]
+        if let t = entry.translation { parts.append("\(entry.target.name(in: L10n.lang)): \(t)") }
+        else if let err = entry.error { parts.append(err) }
+        else { parts.append(T("translating")) }
+        return parts.joined(separator: ". ")
+    }
+
+    @ViewBuilder private var a11yActions: some View {
+        if entry.translation != nil {
+            Button(T("replay")) { m.speak(entry) }
+            Button(T("replay_slow")) { m.speak(entry, slow: true) }
+            Button(m.isFavorite(entry) ? T("unfavorite") : T("favorite")) { m.toggleFavorite(entry) }
+        }
+        if entry.error != nil { Button(T("retry")) { m.retry(entry.id) } }
+        if entry.alt?.isEmpty == false { Button(T("swap")) { m.swapLanguage(entry.id) } }
+        Button(T("edit_text"), action: onEdit)
+        Button(T("delete")) { m.delete(entry.id) }
     }
 
     private var actions: some View {
@@ -523,7 +554,7 @@ struct PartnerView: View {
 
     private func side(_ lang: Lang) -> some View {
         // Platzhalter in der Sprache dieser Seite (soweit die Oberfläche sie kennt), sonst Flagge + Mikrofon.
-        Text(latest(in: lang) ?? L10n.text("just_talk", lang: lang.rawValue) ?? "\(lang.flag) 🎙")
+        Text(latest(in: lang) ?? L10n.text("just_talk", lang: L10n.uiCode(lang)) ?? "\(lang.flag) 🎙")
             .font(.system(size: 48, weight: .bold))
             .minimumScaleFactor(0.2)
             .multilineTextAlignment(.center)

@@ -25,6 +25,27 @@ final class L10nTests: XCTestCase {
         }
     }
 
+    /// Jedes `T("…")` im Code muss es in der Tabelle geben – sonst sieht man den rohen Schlüssel.
+    func testEveryUsedKeyExists() throws {
+        let dir = ios.appendingPathComponent("Dolmetscher")
+        let files = try FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil)
+            .filter { $0.pathExtension == "swift" && !$0.lastPathComponent.hasPrefix("L10n") }
+        XCTAssertGreaterThan(files.count, 10)
+        let direct = try NSRegularExpression(pattern: #"\bT\("([^"\\]+)"\)"#)
+        let ternary = try NSRegularExpression(pattern: #"\bT\([^()"]*\?\s*"([^"]+)"\s*:\s*"([^"]+)"\s*\)"#)
+        var used = Set<String>()
+        for f in files {
+            let s = try String(contentsOf: f, encoding: .utf8)
+            let r = NSRange(s.startIndex..., in: s)
+            for m in direct.matches(in: s, range: r) { used.insert(String(s[Range(m.range(at: 1), in: s)!])) }
+            for m in ternary.matches(in: s, range: r) {
+                used.insert(String(s[Range(m.range(at: 1), in: s)!])); used.insert(String(s[Range(m.range(at: 2), in: s)!]))
+            }
+        }
+        XCTAssertGreaterThan(used.count, 100)
+        for k in used.sorted() { XCTAssertNotNil(L10n.table[k], "T(\"\(k)\") fehlt in L10n.table") }
+    }
+
     func testSystemLanguageMatch() {
         XCTAssertEqual(L10n.match(["zh-Hans-CN"]), "zh-Hans")
         XCTAssertEqual(L10n.match(["zh-Hant-TW", "ja-JP"]), "ja")
