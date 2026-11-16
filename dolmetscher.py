@@ -2047,7 +2047,8 @@ def _wm(model, **kw):
             _DOWNLOAD_SAID[model] = True
             emit("loading", msg=f"Lade Modell '{model}' herunter (einmalig, bis ~1,5 GB) …", download=True)
         try:
-            return WhisperModel(model, **kw)
+            with DownloadProgress(model, kw.get("revision")):
+                return WhisperModel(model, **kw)
         except Exception as e2:
             if is_offline_error(e2, stop=e):    # e (Modell nicht im Cache) ist nur Kontext, kein Netzfehler
                 emit("error", code="model_offline",
@@ -2056,6 +2057,88 @@ def _wm(model, **kw):
 
 
 _DOWNLOAD_SAID = {}
+# Ungefähre Größe (MB) der Modelldateien, falls der Hub die genaue Größe nicht liefert (offline/Fehler).
+MODEL_SIZE_MB = {"small": 486, "medium": 1531, "large-v3-turbo": 1622, THAI_MODEL: 1532}
+
+
+def model_repo(model):
+    """Modellname wie in WhisperModel ("small", "Org/Name") -> Repo-ID im Hugging-Face-Hub."""
+    if "/" in model:
+        return model
+    try:
+        from faster_whisper.utils import _MODELS
+        return _MODELS.get(model, model)
+    except Exception:
+        return model
+
+
+def _hub_blobs(repo):
+    from huggingface_hub import constants
+    return os.path.join(constants.HF_HUB_CACHE, "models--" + repo.replace("/", "--"), "blobs")
+
+
+def _dir_bytes(path):
+    """Summe der Dateigrößen (inkl. *.incomplete eines laufenden Downloads); fehlt der Ordner: 0."""
+    try:
+        return sum(e.stat().st_size for e in os.scandir(path) if e.is_file())
+    except OSError:
+        return 0
+
+
+def _hub_total_mb(repo, revision):
+    """Genaue Größe der Dateien, die faster-whisper lädt (wie download_model: allow_patterns); None bei Fehler."""
+    try:
+        import fnmatch
+        from huggingface_hub import HfApi
+        info = HfApi().model_info(repo, revision=revision, files_metadata=True, timeout=10)
+        pats = ("config.json", "preprocessor_config.json", "model.bin", "tokenizer.json", "vocabulary.*")
+        size = sum(f.size or 0 for f in info.siblings if any(fnmatch.fnmatch(f.rfilename, p) for p in pats))
+        return round(size / 1e6) or None
+    except Exception:
+        return None
+
+
+class DownloadProgress:
+    """Während ein Modell heruntergeladen wird: Bytes im HF-Cache zählen und `download_progress` melden
+    (faster-whisper schaltet tqdm ab, hf-xet umgeht es ohnehin – deshalb zählt die Platte)."""
+    INTERVAL = 0.5
+
+    def __init__(self, model, revision=None):
+        self.model, self.repo, self.revision = model, model_repo(model), revision
+        self.total = MODEL_SIZE_MB.get(model) or MODEL_SIZE_MB.get(self.repo)
+        self.stop = threading.Event()
+        self.last = None
+
+    def _tick(self, final=False):
+        done = round(_dir_bytes(_hub_blobs(self.repo)) / 1e6)
+        if self.total and not final:
+            done = min(done, self.total)
+        if final and self.total and done >= self.total * 0.9:
+            done = self.total                        # fertig: die Anzeige endet bei 100 %
+        state = (done, self.total, final)
+        if state != self.last:
+            self.last = state
+            emit("download_progress", model=self.model, done_mb=done, total_mb=self.total, final=final)
+
+    def _run(self):
+        exact = _hub_total_mb(self.repo, self.revision)
+        if exact:
+            self.total = exact
+        while not self.stop.wait(self.INTERVAL):
+            self._tick()
+
+    def __enter__(self):
+        self._tick()
+        self.thread = threading.Thread(target=self._run, name="download-progress", daemon=True)
+        self.thread.start()
+        return self
+
+    def __exit__(self, et, ev, tb):
+        self.stop.set()
+        self.thread.join(timeout=2)
+        if et is None:
+            self._tick(final=True)
+        return False
 _MISSING_TYPES = ("LocalEntryNotFoundError", "EntryNotFoundError", "FileNotFoundError", "OfflineModeIsEnabled",
                   "RepositoryNotFoundError", "RevisionNotFoundError")
 _MISSING_RX = re.compile(r"local_files_only|cannot find the requested files|not (?:found|exist)[^.]{0,40}cache"
