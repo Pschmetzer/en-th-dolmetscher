@@ -715,7 +715,7 @@ def _cache_put(key, val):
 def _norm(s):
     """Cache-Schlüssel: Groß/klein, Leerraum, . , 。 egal – ? und ! bleiben (Frage ≠ Aussage)."""
     s = s.lower().replace("？", "?").replace("！", "!")
-    s = re.sub(r"[\s.,。]+", " ", s)
+    s = re.sub(r"(?:[\s。]|(?<!\d)[.,]|[.,](?!\d))+", " ", s)   # "1.5"/"1,5" bleiben (≠ "1 5")
     s = re.sub(r"\s*([?!])[\s?!]*", r"\1", s)                  # "geht's ? !" -> "geht's?"
     return s.strip()
 
@@ -1861,7 +1861,10 @@ def squash_repeats(text):
     """Wiederholungsschleifen kürzen statt den ganzen Satz zu verlieren:
     'สติ๊กฮ่าาาาาาา' -> 'สติ๊กฮ่าาา', 'ha ha ha ha ha ha' -> 'ha ha ha'."""
     text = re.sub(r"(\D)\1{3,}", r"\1\1\1", text)
-    text = re.sub(r"(.{2,12}?)(?:\s*\1){3,}", r"\1 \1 \1", text)
+    # Ziffernfolgen (Telefon "0808080808", Zimmer "11111111") nie kürzen – nur Schleifen mit Buchstaben
+    text = re.sub(r"(.{2,12}?)(?:\s*\1){3,}",
+                  lambda m: f"{m.group(1)} {m.group(1)} {m.group(1)}" if re.search(r"[^\W\d_]", m.group(1))
+                  else m.group(0), text)
     return text
 
 

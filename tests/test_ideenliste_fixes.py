@@ -136,3 +136,23 @@ def test_utf8_stdio_reconfigures(monkeypatch):
 ])
 def test_command_false_alarms(cmd, expected):
     assert d.parse_command(cmd) == expected
+
+
+# ---- Nr. 3: Cache-Schlüssel, Nr. 4: Ziffernfolgen ------------------------------------------------------
+
+def test_norm_keeps_decimal_point():
+    assert d._norm("1.5") != d._norm("1 5")
+    assert d._norm("It costs 1,5 baht.") == "it costs 1,5 baht"
+    assert d._norm("Hello, world.") == d._norm("hello world")
+    assert d._norm("ok 。 fine") == "ok fine"
+    assert d._norm("geht's ? !") == "geht's?"
+
+
+@pytest.mark.parametrize("text", ["0808080808", "11111111", "Call 0812121212 please", "๐๘๐๘๐๘๐๘๐๘"])
+def test_squash_keeps_digit_runs(text):
+    assert d.squash_repeats(text) == text
+
+
+def test_squash_still_cuts_loops():
+    assert d.squash_repeats("ha ha ha ha ha ha") == "ha ha ha"
+    assert d.squash_repeats("สติ๊กฮ่าาาาาาา") == "สติ๊กฮ่าาา"
