@@ -13,7 +13,7 @@ Optionen: --model small|medium|base  --mic 0  --polite krub|ka  --json
           --voice-en/--voice-th NAME --llm [--llm-model ID] --earcons --meter --list-mics
 Protokoll Engine <-> App: docs/PROTOKOLL.md
 """
-import argparse, collections, functools, http.client, itertools, json, logging, logging.handlers, os, queue, re, \
+import argparse, collections, functools, html, http.client, itertools, json, logging, logging.handlers, os, queue, re, \
     shutil, signal, subprocess, sys, tempfile, threading, time, urllib.error, urllib.parse, urllib.request
 import numpy as np
 import presets
@@ -514,7 +514,8 @@ class _PrivateRotatingHandler(logging.handlers.RotatingFileHandler):
         return os.fdopen(fd, "a", encoding=self.encoding)
 
 
-_SAFE_MSG = re.compile(r"(Claude: stop_reason|MyMemory|offline|leere Antwort|Google gab|unerwartet|pausiert)")
+_SAFE_MSG = re.compile(r"(Claude: stop_reason|MyMemory|offline|leere Antwort|Google gab|unerwartet|pausiert"
+                       r"|Übersetzung pausiert)")
 
 
 def _errtxt(e):
@@ -622,6 +623,15 @@ class KeepAlive:
                 return lst.pop(), True
         return self._new(host, timeout), False
 
+    def _drop_idle(self, host):
+        with self.lock:
+            old = self.idle.pop(host, [])
+        for c in old:
+            try:
+                c.close()
+            except Exception:
+                pass
+
     def _give(self, host, c):
         with self.lock:
             lst = self.idle.setdefault(host, [])
@@ -650,7 +660,8 @@ class KeepAlive:
         if body is not None:
             hdr["Content-Type"] = "application/x-www-form-urlencoded;charset=utf-8"
         for attempt in (0, 1):                     # tote Verbindung: einmal neu aufbauen
-            c, reused = self._take(host, timeout)
+            # Versuch 2 nie aus dem Vorrat: nach dem Ruhezustand sind alle gemerkten Verbindungen tot
+            c, reused = self._take(host, timeout) if attempt == 0 else (self._new(host, timeout), False)
             c.timeout = timeout
             if c.sock is not None:
                 c.sock.settimeout(timeout)
@@ -662,6 +673,7 @@ class KeepAlive:
                 c.close()
                 if attempt or not reused or isinstance(e, TimeoutError):
                     raise urllib.error.URLError(e) from e
+                self._drop_idle(host)               # die übrigen gemerkten sind vermutlich ebenso tot
                 continue
             if r.will_close:
                 c.close()
@@ -851,14 +863,14 @@ def _split_bytes(text, limit=MYMEMORY_MAX_BYTES):
     return out
 
 
-def mymemory_translate(text, src, dst, e1=None):
-    return " ".join(_mymemory_one(p, src, dst, e1) for p in _split_bytes(text))
+def mymemory_translate(text, src, dst, e1=None, timeout=8.0):
+    return " ".join(_mymemory_one(p, src, dst, e1, timeout) for p in _split_bytes(text))
 
 
-def _mymemory_one(text, src, dst, e1=None):
+def _mymemory_one(text, src, dst, e1=None, timeout=8.0):
     try:
         d = _get_json(f"https://api.mymemory.translated.net/get?q={urllib.parse.quote(text)}"
-                      f"&langpair={mt_code(src)}|{mt_code(dst)}", 8)
+                      f"&langpair={mt_code(src)}|{mt_code(dst)}", timeout)
     except urllib.error.URLError as e2:
         if (isinstance(e1, urllib.error.URLError) and not isinstance(e1, urllib.error.HTTPError)
                 and not isinstance(e2, urllib.error.HTTPError)):
@@ -873,8 +885,10 @@ def _mymemory_one(text, src, dst, e1=None):
     # MyMemory meldet Kontingent/Fehler als Text in translatedText – nie vorlesen
     if (status != "200" or d.get("quotaFinished") or not out
             or re.match(r"(MYMEMORY WARNING|QUERY LENGTH LIMIT|INVALID|PLEASE SELECT)", out, re.I)):
-        raise RuntimeError(f"MyMemory-Fehler {status or '?'}: {str(d.get('responseDetails') or out)[:120]}")
-    return out
+        # Nur Status/Art melden: responseDetails/translatedText können den gesprochenen Satz zitieren
+        kind = " (Kontingent)" if d.get("quotaFinished") else ""
+        raise RuntimeError(f"MyMemory-Fehler {status if status.isdigit() else '?'}{kind}")
+    return html.unescape(out)
 
 
 # Backoff je Anbieter und Offline-Schalter: nach 429/Zeitüberschreitung/Verbindungsfehlern wird ein
@@ -1325,12 +1339,28 @@ def _cache_key(text, src, dst, use_llm, polite):
     return (_norm(text), src, dst, mode, polite if dst == "th" else "")
 
 
+LLM_BILLING_BACKOFF = 1800.0       # s: Guthaben/Kontingent leer – erst nach 30 min wieder versuchen
+_BILLING_RX = re.compile(r"credit balance|billing|payment|insufficient.{0,20}(credit|fund|quota)"
+                         r"|quota|spend(ing)? limit|usage limit", re.I)
+
+
+def _llm_billing(e):
+    """Abrechnungs-/Kontingentfehler (z. B. 400 „credit balance is too low“)? Der Text bleibt intern."""
+    if isinstance(e, _Implausible):
+        return False
+    sc = getattr(e, "status_code", None)
+    return sc == 402 or (sc in (400, 403, 429, None) and bool(_BILLING_RX.search(str(e))))
+
+
 def _llm_backoff(e):
-    """Wie lange nach einem Claude-Fehler direkt Google? Kurz bei Zeitüberschreitung/400, lang bei Auth."""
+    """Wie lange nach einem Claude-Fehler direkt Google? Kurz bei Zeitüberschreitung/400, lang bei Auth
+    und sehr lang bei leerem Guthaben/Kontingent."""
     sc = getattr(e, "status_code", None)
     name = type(e).__name__
     if isinstance(e, _Implausible):
         return 0.0                                       # inhaltlich, kein Ausfall: nächster Satz wieder Claude
+    if _llm_billing(e):
+        return LLM_BILLING_BACKOFF
     if sc in (401, 403):
         return 300.0                                     # Schlüssel falsch: nicht jeden Satz neu versuchen
     if sc == 400 or isinstance(e, TimeoutError) or "Timeout" in name:
@@ -1353,8 +1383,13 @@ def _hedge_s():
 
 def _llm_failed(e):
     LLM["err"] = _errtxt(e)
-    LLM["skip_until"] = time.time() + _llm_backoff(e)
-    log({"translate": "claude-fehler", "err": LLM["err"]})
+    wait = _llm_backoff(e)
+    LLM["skip_until"] = time.time() + wait
+    log({"translate": "claude-fehler", "err": LLM["err"], "pause_s": wait})
+    if wait >= LLM_BILLING_BACKOFF:
+        LLM["err"] += " Guthaben/Kontingent"
+        emit("error", code="llm_billing",
+             msg=f"Claude: Guthaben oder Kontingent erschöpft – übersetze {int(wait // 60)} min mit Google")
 
 
 def _llm_late(fut):
@@ -1392,6 +1427,7 @@ def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
         meta.update(provider=hit[1], cached=True)
         return hit[0]
     out, fut = None, None
+    deadline = time.monotonic() + TRANSLATE_BUDGET
     if use_llm:
         fut = _claude_async(text, src, dst, history, alts, polite)
         try:
@@ -1407,12 +1443,12 @@ def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
             _llm_failed(e)
     if out is None:
         try:
-            out = _mt_chain(text, src, dst, meta)
+            out = _mt_chain(text, src, dst, meta, deadline)
         except Exception:
             if fut is None:
                 raise
             try:                                         # Google/MyMemory scheitern: doch auf Claude warten
-                out = fut.result(timeout=8)
+                out = fut.result(timeout=max(0.5, min(8.0, deadline - time.monotonic())))
             except Exception:
                 pass
             if out is None:
@@ -1427,8 +1463,13 @@ def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
     return out
 
 
-def _mt_chain(text, src, dst, meta):
-    """Google (gtx) → MyMemory, mit Backoff je Anbieter und Offline-Schalter."""
+TRANSLATE_BUDGET = 12.0            # s je Satz insgesamt (sonst bis ~24 s Stille: Hedge + Google + MyMemory + Claude)
+MT_MIN_LEFT = 1.5                  # s: weniger Restzeit lohnt keinen weiteren Anbieter
+
+
+def _mt_chain(text, src, dst, meta, deadline=None):
+    """Google (gtx) → MyMemory, mit Backoff je Anbieter und Offline-Schalter. `deadline` (monotonic)
+    begrenzt die Gesamtzeit: MyMemory bekommt nur die Restzeit, bei zu wenig Rest gar keinen Versuch."""
     out, e1 = None, None
     now = time.time()
     if now < _OFFLINE["until"]:                      # Schalter: nicht für jeden Satz 6+8 s warten
@@ -1447,8 +1488,13 @@ def _mt_chain(text, src, dst, meta):
         if e1 is not None:
             raise e1
         raise RuntimeError("Übersetzung pausiert (Limit erreicht), gleich wieder")
+    left = None if deadline is None else deadline - time.monotonic()
+    if left is not None and left < MT_MIN_LEFT:
+        if e1 is not None:
+            raise e1
+        raise RuntimeError("Übersetzung pausiert (Zeitlimit je Satz erreicht)")
     try:
-        out = _mt(mymemory_translate, text, src, dst, e1)
+        out = _mt(mymemory_translate, text, src, dst, *((e1,) if left is None else (e1, min(8.0, left))))
         meta["provider"] = "mymemory"
         _note_ok("mymemory")
         return out
@@ -1774,13 +1820,33 @@ def _wm(model, **kw):
         try:
             return WhisperModel(model, **kw)
         except Exception as e2:
-            if re.search(r"connect|resolve|offline|network|timed? ?out|unreachable", _errtxt(e2), re.I):
+            if is_offline_error(e2):
                 emit("error", code="model_offline",
                      msg=f"Modell '{model}' fehlt und kann ohne Internet nicht geladen werden")
             raise
 
 
 _DOWNLOAD_SAID = {}
+# Netzfehler nach Klassenname (ohne harte Importe von requests/httpx/huggingface_hub): huggingface_hub meldet
+# fehlendes Netz als LocalEntryNotFoundError, requests als ConnectionError, socket als gaierror.
+_OFFLINE_TYPES = ("gaierror", "ConnectionError", "ConnectError", "ConnectTimeout", "TimeoutError", "Timeout",
+                  "ReadTimeout", "URLError", "LocalEntryNotFoundError", "OfflineModeIsEnabled", "NameResolutionError",
+                  "MaxRetryError", "NewConnectionError")
+
+
+def is_offline_error(e):
+    """Liegt (irgendwo in der Ursachenkette) ein Netzfehler vor? Prüft Typen, nicht Fehlertexte."""
+    seen = set()
+    while e is not None and id(e) not in seen:
+        seen.add(id(e))
+        if isinstance(e, urllib.error.HTTPError):       # Server antwortet (404 …): nicht offline
+            return False
+        if isinstance(e, (ConnectionError, TimeoutError, urllib.error.URLError)):
+            return True
+        if any(t.__name__ in _OFFLINE_TYPES for t in type(e).__mro__):
+            return True
+        e = e.__cause__ or e.__context__
+    return False
 
 
 def load_model(model, device):
@@ -3534,7 +3600,8 @@ class Engine:
             if "offline" in str(e):
                 net_state("translate", False)
             emit("dropped", reason="übersetzung fehlgeschlagen", code="translate_failed", id=uid)
-            emit("error", code="translate_failed", msg=f"Übersetzung fehlgeschlagen: {e}")
+            # nur Typ/Status/eigene Meldungen – Server-Texte können den Satz zitieren (Nr. 7)
+            emit("error", code="translate_failed", msg=f"Übersetzung fehlgeschlagen: {_errtxt(e)}")
             emit("listening")
             return None
         if dst == "th":

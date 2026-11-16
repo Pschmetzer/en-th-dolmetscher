@@ -156,3 +156,122 @@ def test_squash_keeps_digit_runs(text):
 def test_squash_still_cuts_loops():
     assert d.squash_repeats("ha ha ha ha ha ha") == "ha ha ha"
     assert d.squash_repeats("สติ๊กฮ่าาาาาาา") == "สติ๊กฮ่าาา"
+
+
+# ---- Nr. 6: frische Verbindung im zweiten Versuch ------------------------------------------------------
+
+class _FakeResp:
+    status, reason, headers, will_close = 200, "OK", {}, False
+
+    def read(self):
+        return b'{"ok": 1}'
+
+    def getheader(self, k, default=None):
+        return default
+
+
+class _FakeConn:
+    def __init__(self, dead):
+        self.dead, self.sock, self.timeout, self.closed = dead, None, None, False
+
+    def request(self, *a, **k):
+        if self.dead:
+            raise ConnectionResetError(54, "reset")
+
+    def getresponse(self):
+        return _FakeResp()
+
+    def close(self):
+        self.closed = True
+
+
+def test_pool_second_attempt_uses_fresh_connection(monkeypatch):
+    ka = d.KeepAlive()
+    dead = [_FakeConn(True), _FakeConn(True)]           # nach dem Ruhezustand: beide gemerkten tot
+    ka.idle["example.org"] = list(dead)
+    made = []
+
+    def new(host, timeout):
+        c = _FakeConn(False)
+        made.append(c)
+        return c
+    monkeypatch.setattr(ka, "_new", new)
+    assert ka.get_json("https://example.org/x", 2) == {"ok": 1}
+    assert len(made) == 1 and all(c.closed for c in dead)
+
+
+# ---- Nr. 7, 8: MyMemory -------------------------------------------------------------------------------
+
+def test_mymemory_error_has_no_text(monkeypatch):
+    secret = "my secret sentence"
+    monkeypatch.setattr(d, "_get_json", lambda u, t=0: {"responseData": {"translatedText": secret},
+                                                       "responseStatus": 403, "responseDetails": secret})
+    with pytest.raises(RuntimeError) as ei:
+        d.mymemory_translate("hello", "en", "th")
+    assert secret not in str(ei.value) and str(ei.value).startswith("MyMemory-Fehler 403")
+    assert secret not in d._errtxt(ei.value)
+
+
+def test_mymemory_unescapes_entities(monkeypatch):
+    monkeypatch.setattr(d, "_get_json", lambda u, t=0: {
+        "responseData": {"translatedText": "it&#39;s &quot;ok&quot; &amp; fine"}, "responseStatus": 200})
+    assert d.mymemory_translate("x", "en", "th") == 'it\'s "ok" & fine'
+
+
+# ---- Nr. 9: Claude-Guthaben leer ----------------------------------------------------------------------
+
+class _ApiErr(Exception):
+    def __init__(self, sc, msg):
+        super().__init__(msg)
+        self.status_code = sc
+
+
+def test_llm_billing_pauses_long_and_reports(monkeypatch):
+    events = []
+    monkeypatch.setattr(d, "emit", lambda ev, **kw: events.append((ev, kw)))
+    monkeypatch.setitem(d.LLM, "skip_until", 0.0)
+    monkeypatch.setitem(d.LLM, "err", None)
+    e = _ApiErr(400, "Your credit balance is too low to access the Anthropic API.")
+    assert d._llm_backoff(e) == d.LLM_BILLING_BACKOFF
+    d._llm_failed(e)
+    assert d.LLM["skip_until"] - time.time() > 1000
+    assert events and events[0][1]["code"] == "llm_billing"
+    assert "credit balance" not in d.LLM["err"]
+    assert d._llm_backoff(_ApiErr(400, "messages: field required")) == 10.0
+
+
+# ---- Nr. 19: Gesamtzeit je Satz -----------------------------------------------------------------------
+
+def test_mt_chain_skips_mymemory_without_time(monkeypatch):
+    called = []
+
+    def g(*a):
+        raise ValueError("x")
+    monkeypatch.setattr(d, "google_translate", g)
+    monkeypatch.setattr(d, "mymemory_translate", lambda *a: called.append(a) or "ok")
+    with pytest.raises(ValueError):
+        d._mt_chain("hello", "en", "th", {}, deadline=time.monotonic() + 0.5)
+    assert not called
+    assert d._mt_chain("hello", "en", "th", {}, deadline=time.monotonic() + 10) == "ok"
+    assert called[-1][-1] <= 8.0                        # MyMemory bekommt höchstens die Restzeit
+
+
+# ---- Nr. 5: model_offline über Fehlertypen -------------------------------------------------------------
+
+def test_offline_error_by_type():
+    import socket
+    import urllib.error
+
+    class LocalEntryNotFoundError(Exception):
+        pass
+    assert d.is_offline_error(LocalEntryNotFoundError("x"))
+    try:
+        try:
+            raise socket.gaierror(8, "nodename nor servname provided")
+        except OSError as inner:
+            raise RuntimeError("wrapped") from inner
+    except RuntimeError as e:
+        assert d.is_offline_error(e)
+    assert d.is_offline_error(urllib.error.URLError("x"))
+    assert not d.is_offline_error(urllib.error.HTTPError("u", 404, "nf", {}, None))
+    assert not d.is_offline_error(ValueError("bad model name"))

@@ -150,6 +150,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `mic_file_missing`, `ffmpeg_missing` | `DOLMETSCHER_MIC_FILE` fehlt / ffmpeg nicht startbar |
 | `model_offline` | Modell fehlt lokal und kann ohne Internet nicht geladen werden |
 | `translate_failed` | Übersetzung fehlgeschlagen (alle Anbieter) |
+| `llm_billing` | Claude-API: Guthaben oder Kontingent erschöpft – 30 min nur Google/MyMemory, dann neuer Versuch |
 | `reassign_expired`, `reassign_empty`, `reassign_invalid` | „Das war ich/sie“: Satz nicht mehr im Speicher / nichts erkannt / Anfrage ungültig |
 | `phrase_invalid`, `edit_invalid`, `speak_invalid` | Schnellsatz, Korrektur bzw. Vorlesen (`speak_text`) ungültig |
 | `profiles_failed` | Stimmprofile/Sprechermodell nicht ladbar – Stimmerkennung aus; `msg` nennt die Ursache |
