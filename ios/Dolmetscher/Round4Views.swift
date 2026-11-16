@@ -32,16 +32,22 @@ struct ToolsPanel: View {
     @Environment(InterpreterModel.self) private var m
     @State private var tool = "phrasebook"
 
-    private var tools: [(key: String, icon: String)] {
-        var t: [(String, String)] = [("phrasebook", "book"), ("places", "mappin.and.ellipse"), ("emergency", "cross.case")]
-        if m.features.thaiExtras { t.append(("baht_calc", "bahtsign.circle")) }
+    private struct Tool: Identifiable {
+        var id: String
+        var icon: String
+    }
+
+    private var tools: [Tool] {
+        var t: [Tool] = [Tool(id: "phrasebook", icon: "book"), Tool(id: "places", icon: "mappin.and.ellipse"),
+                         Tool(id: "emergency", icon: "cross.case")]
+        if m.features.thaiExtras { t.append(Tool(id: "baht_calc", icon: "bahtsign.circle")) }
         return t
     }
 
     var body: some View {
         VStack(spacing: 0) {
             Picker(T("tools"), selection: $tool) {
-                ForEach(tools, id: \.key) { t in Image(systemName: t.icon).accessibilityLabel(T(t.key)).tag(t.key) }
+                ForEach(tools) { (t: Tool) in Image(systemName: t.icon).accessibilityLabel(T(t.id)).tag(t.id) }
             }
             .pickerStyle(.segmented)
             .padding(10)
@@ -76,7 +82,7 @@ struct TravelPrepList: View {
     var body: some View {
             List {
                 Section {
-                    Text(T("prep_intro"))
+                    Text(T("prep_intro")).fixedSize(horizontal: false, vertical: true)
                     Label(T("prep_wifi"), systemImage: "wifi").foregroundStyle(.secondary)
                 }
                 Section(T("prep_steps")) {
@@ -375,7 +381,7 @@ struct HelpNowView: View {
     }
 }
 
-private struct DialRow: View {
+struct DialRow: View {
     let number: String, en: String, th: String, icon: String
     var body: some View {
         if let url = URL(string: "tel:\(number)") {

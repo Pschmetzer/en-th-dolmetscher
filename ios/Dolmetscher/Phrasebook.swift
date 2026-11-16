@@ -32,9 +32,10 @@ enum Phrasebook {
     /// Klein, ohne Satzzeichen und Füllwörter („please“, „bitte“) – für den Vergleich getippter Sätze.
     static func normalize(_ s: String) -> String {
         let fillers: Set<String> = ["please", "bitte", "a", "the", "ein", "eine"]
-        let words = s.lowercased().folding(options: [.diacriticInsensitive], locale: nil)
-            .map { $0.isLetter || $0.isNumber ? $0 : " " }
-        return String(words).split(separator: " ").map(String.init).filter { !fillers.contains($0) }.joined(separator: " ")
+        let folded: String = s.lowercased().folding(options: [.diacriticInsensitive], locale: nil)
+        let cleaned: [Character] = folded.map { (c: Character) -> Character in c.isLetter || c.isNumber ? c : " " }
+        let words: [String] = String(cleaned).split(separator: " ").map(String.init)
+        return words.filter { !fillers.contains($0) }.joined(separator: " ")
     }
 
     /// „Satzbuch zuerst“: passt ein englischer (oder deutscher) Satz fast genau auf einen Satz im Satzbuch?
@@ -73,7 +74,10 @@ struct PhrasebookView: View {
     @State private var search = ""
 
     /// Eingebaute Sätze sind Englisch -> Thai: nur mit Thai im Paar.
-    private var builtIn: [Phrase] { m.features.thaiExtras ? Phrasebook.builtIn : [] }
+    private var builtIn: [Phrase] {
+        if m.features.thaiExtras { return Phrasebook.builtIn }
+        return []
+    }
 
     private var shown: [Phrase] {
         let base = category == "favorites" ? m.favorites : builtIn.filter { $0.category == category }

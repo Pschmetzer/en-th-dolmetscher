@@ -83,11 +83,7 @@ struct ContentView: View {
             .task { DebugScreens.apply(m, partner: $showPartner) }
             #endif
             .fullScreenCover(item: $big) { e in BigTextView(entryID: e.id) }
-            .onChange(of: m.bigRequest) { _, id in
-                guard let id, let e = m.entries.first(where: { $0.id == id }) else { return }
-                m.bigRequest = nil
-                big = e
-            }
+            .onChange(of: m.bigRequest) { _, id in showRequested(id) }
             .task { firstLaunch() }
             .alert(T("edit_text"), isPresented: Binding(get: { editing != nil }, set: { if !$0 { editing = nil } })) {
                 EditAlert(entry: editing) { text in if let e = editing { m.edit(e.id, text: text) } }
@@ -102,6 +98,13 @@ struct ContentView: View {
             history
             bottomBar
         }
+    }
+
+    /// Kurzbefehl „Letzte Übersetzung groß“.
+    private func showRequested(_ id: UUID?) {
+        guard let id, let e = m.entries.first(where: { $0.id == id }) else { return }
+        m.bigRequest = nil
+        big = e
     }
 
     /// Beim ersten Start einmal die Reise-Vorbereitung zeigen (Offline-Pakete, Berechtigungen).
@@ -120,6 +123,9 @@ struct ContentView: View {
         case .prep: TravelPrepView()
         case .places: PlacesView()
         case .helpNow: HelpNowView()
+        #if DEBUG
+        case .widgetPreview: WidgetPreviewScreen()
+        #endif
         case .settings: SettingsView()
         case .phrasebook: PhrasebookView()
         case .photo: PhotoTextView()

@@ -48,27 +48,6 @@ struct QuickPhrasesConfig: WidgetConfigurationIntent {
     var female: Bool
 }
 
-struct PhraseItem: Hashable {
-    var id: String
-    var gloss: String
-    var thai: String
-}
-
-struct QuickPhrasesEntry: TimelineEntry {
-    var date = Date()
-    var items: [PhraseItem]
-
-    static let defaultIDs = ["Hello", "Thank you", "How much is this?", "Not spicy, please"]
-
-    static func make(ids: [String], female: Bool) -> QuickPhrasesEntry {
-        let list = (ids.isEmpty ? defaultIDs : ids).compactMap { id in PhraseData.all.first { $0.en == id } }
-        let items = list.map {
-            PhraseItem(id: $0.en, gloss: PhraseData.gloss($0, ui: WidgetTexts.lang), thai: PhraseData.fill($0.th, female: female))
-        }
-        return QuickPhrasesEntry(items: items)
-    }
-}
-
 struct QuickPhrasesProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> QuickPhrasesEntry { .make(ids: [], female: false) }
 
@@ -84,7 +63,7 @@ struct QuickPhrasesProvider: AppIntentTimelineProvider {
 struct QuickPhrasesWidget: Widget {
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: "QuickPhrases", intent: QuickPhrasesConfig.self, provider: QuickPhrasesProvider()) { entry in
-            QuickPhrasesView(entry: entry)
+            QuickPhrasesFamilyView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
         .configurationDisplayName(WidgetTexts.text("w_phrases"))
@@ -93,37 +72,11 @@ struct QuickPhrasesWidget: Widget {
     }
 }
 
-struct QuickPhrasesView: View {
+
+/// Liest die Widget-Größe aus der Umgebung (die geteilte Ansicht bekommt sie als Wert – so lässt sie sich
+/// auch in der App für Screenshots zeigen).
+struct QuickPhrasesFamilyView: View {
     @Environment(\.widgetFamily) private var family
     let entry: QuickPhrasesEntry
-
-    private var shown: [PhraseItem] { Array(entry.items.prefix(family == .systemSmall ? 2 : 4)) }
-    private var columns: [GridItem] {
-        family == .systemMedium ? [GridItem(.flexible()), GridItem(.flexible())] : [GridItem(.flexible())]
-    }
-
-    var body: some View {
-        LazyVGrid(columns: columns, spacing: 6) {
-            ForEach(shown, id: \.self) { p in PhraseButton(item: p) }
-        }
-    }
-}
-
-struct PhraseButton: View {
-    let item: PhraseItem
-
-    var body: some View {
-        Button(intent: SayPhraseIntent(phraseID: item.id)) {
-            VStack(alignment: .leading, spacing: 1) {
-                Text(item.thai).font(.subheadline.weight(.semibold)).foregroundStyle(.orange)
-                Text(item.gloss).font(.caption2).foregroundStyle(.secondary)
-            }
-            .lineLimit(1)
-            .minimumScaleFactor(0.7)
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .buttonStyle(.plain)
-        .padding(6)
-        .background(.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
-    }
+    var body: some View { QuickPhrasesView(entry: entry, family: family) }
 }

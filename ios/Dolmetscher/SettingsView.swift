@@ -96,19 +96,7 @@ struct SettingsView: View {
                     }
                 }
 
-                Section {
-                    Picker(T("auto_stop"), selection: $m.autoStopMinutes) {
-                        Text(T("never")).tag(0)
-                        Text("5 min").tag(5)
-                        Text("10 min").tag(10)
-                        Text("30 min").tag(30)
-                    }
-                    Toggle(T("background"), isOn: $m.background)
-                    Toggle(T("headset"), isOn: $m.headset)
-                    Toggle(T("thai_speaker"), isOn: $m.thaiOnSpeaker)
-                    Toggle(T("ptt"), isOn: $m.pushToTalk)
-                    Toggle(T("live_activity"), isOn: $m.liveActivity)
-                } header: { Text(T("sec_listening")) } footer: { Text(T("listening_note")) }
+                listeningSection
 
                 privacySection
 
@@ -138,6 +126,23 @@ struct SettingsView: View {
                 partnerLevels = await LangCheck.levels(with: p.mine)
             }
         }
+    }
+
+    private var listeningSection: some View {
+        @Bindable var m = m
+        return Section {
+            Picker(T("auto_stop"), selection: $m.autoStopMinutes) {
+                Text(T("never")).tag(0)
+                Text("5 min").tag(5)
+                Text("10 min").tag(10)
+                Text("30 min").tag(30)
+            }
+            Toggle(T("background"), isOn: $m.background)
+            Toggle(T("headset"), isOn: $m.headset)
+            Toggle(T("thai_speaker"), isOn: $m.thaiOnSpeaker)
+            Toggle(T("ptt"), isOn: $m.pushToTalk)
+            Toggle(T("live_activity"), isOn: $m.liveActivity)
+        } header: { Text(T("sec_listening")) } footer: { Text(T("listening_note")) }
     }
 
     private var translationSection: some View {

@@ -74,31 +74,7 @@ struct EmergencyView: View {
         @Bindable var m = m
         NavigationStack {
             List {
-                if m.features.thaiExtras {
-                Section {
-                    Button { m.sheet = .helpNow } label: {
-                        Label(T("help_now"), systemImage: "sos").font(.headline).foregroundStyle(.red)
-                    }
-                }
-                Section {
-                    ForEach(ThaiEmergency.numbers, id: \.number) { n in
-                        if let url = URL(string: "tel:\(n.number)") {
-                            Link(destination: url) {
-                                HStack(spacing: 14) {
-                                    Image(systemName: n.icon).foregroundStyle(.red).frame(width: 28)
-                                    VStack(alignment: .leading) {
-                                        Text(n.en).font(.headline)
-                                        Text(n.th).font(.subheadline).foregroundStyle(.secondary)
-                                    }
-                                    Spacer()
-                                    Text(n.number).font(.title2.monospacedDigit().bold())
-                                }
-                            }
-                            .accessibilityLabel("\(n.en), \(n.number)")
-                        }
-                    }
-                } header: { Text(T("emergency_numbers")) }
-                }
+                if m.features.thaiExtras { thaiSections }
 
                 allergySection
                 Section {
@@ -140,6 +116,18 @@ struct EmergencyView: View {
             .doneToolbar { dismiss() }
             .fullScreenCover(isPresented: $showAllergy) { AllergyCardView() }
         }
+    }
+
+    /// Hilfe-Bildschirm und Notrufnummern (nur mit Thai im Paar).
+    @ViewBuilder private var thaiSections: some View {
+        Section {
+            Button { m.sheet = .helpNow } label: {
+                Label(T("help_now"), systemImage: "sos").font(.headline).foregroundStyle(.red)
+            }
+        }
+        Section {
+            ForEach(ThaiEmergency.numbers, id: \.number) { n in DialRow(number: n.number, en: n.en, th: n.th, icon: n.icon) }
+        } header: { Text(T("emergency_numbers")) }
     }
 
     private func allergen(_ a: Allergen) -> Binding<Bool> {
