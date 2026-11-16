@@ -2,11 +2,16 @@
 import AVFoundation
 import Observation
 import SwiftUI
+import os
+
+private let debugLog = Logger(subsystem: "dolmetscher", category: "model")
 
 struct Entry: Identifiable, Codable, Equatable {
     var id = UUID()
     var date = Date()
     var src: Lang
+    /// Zielsprache. Fehlt in alten Verläufen (nur en/th): dann die jeweils andere der beiden.
+    var dst: Lang?
     var text: String
     var translation: String?
     var error: String?
@@ -16,6 +21,8 @@ struct Entry: Identifiable, Codable, Equatable {
     var provider: String?
     /// Aussprache-Hilfe (nur Satzbuch)
     var roman: String?
+
+    var target: Lang { dst ?? (src == .th ? .en : .th) }
 }
 
 enum AppSheet: String, Identifiable {
@@ -28,9 +35,6 @@ final class InterpreterModel {
     static let shared = InterpreterModel()
 
     enum Phase: Equatable { case idle, loading, listening, failed(String) }
-    enum Mode: String, CaseIterable { case auto, en, th
-        var langs: [Lang] { self == .auto ? [.en, .th] : [self == .en ? .en : .th] }
-    }
 
     var phase: Phase = .idle
     var paused = false
@@ -52,7 +56,22 @@ final class InterpreterModel {
     /// Die laufende Aufnahme nutzt Whisper.
     var usingWhisper = false
 
-    var mode: Mode { didSet { save("mode", mode.rawValue); if phase == .listening { restart() } } }
+    /// Kurz nach „Verlauf leeren“: zurückholbar.
+    var canUndoClear = false
+    /// Sprachmodell müsste über Mobilfunk geladen werden: erst fragen.
+    var cellularDownloadPrompt = false
+
+    var pair: LangPair {
+        didSet {
+            guard pair != oldValue else { return }
+            save("langMine", pair.mine.rawValue); save("langPartner", pair.partner.rawValue)
+            if mode.effective(pair) != mode { mode = mode.effective(pair) }
+            if phase == .listening { restart() }
+            Task { await refreshOffline() }
+        }
+    }
+    var features: PairFeatures { pair.features }
+    var mode: Direction { didSet { save("mode", mode.rawValue); if phase == .listening && oldValue != mode { restart() } } }
     var pauseSeconds: Double { didSet { save("pauseSeconds", pauseSeconds); engine?.setPause(pauseSeconds) } }
     var rate: Double { didSet { save("rate", rate) } }
     var volume: Double { didSet { save("volume", volume) } }
@@ -71,7 +90,7 @@ final class InterpreterModel {
     var historyDays: Int { didSet { save("historyDays", historyDays); persist() } }
     /// Thai-Ausgabe immer über den Lautsprecher, auch mit Kopfhörern (das Gegenüber soll es hören).
     var thaiOnSpeaker: Bool { didSet { save("thaiOnSpeaker", thaiOnSpeaker) } }
-    var emergency: EmergencyInfo { didSet { Self.store(emergency, "emergency.json") } }
+    var emergency: EmergencyInfo { didSet { files.store(emergency, "emergency.json") } }
 
     @ObservationIgnored private var engine: (any SpeechEngine)?
     @ObservationIgnored private var listenTask: Task<Void, Never>?
@@ -92,14 +111,32 @@ final class InterpreterModel {
     @ObservationIgnored private let translator = Translator()
     @ObservationIgnored private let speaker = Speaker()
     @ObservationIgnored private let d = UserDefaults.standard
+    @ObservationIgnored private let files: JSONStore
+    /// Verlauf/Favoriten waren beim Start nicht lesbar (gesperrtes Gerät): nie mit leerer Liste überschreiben.
+    @ObservationIgnored private var historyBlocked = false
+    @ObservationIgnored private var favoritesBlocked = false
+    @ObservationIgnored private var undo = UndoBuffer<[Entry]>()
+    @ObservationIgnored private var undoTask: Task<Void, Never>?
+    @ObservationIgnored private var lastRecognizerFailure = Date.distantPast
+    /// Einmal erlaubt: Sprachmodell trotz Mobilfunk laden.
+    @ObservationIgnored private var cellularAllowed = false
 
-    init() {
+    /// Standard „aus“: ohne ausdrückliche Erlaubnis gehen keine Gespräche an Google/MyMemory.
+    nonisolated static func allowOnlineSetting(_ d: UserDefaults = .standard) -> Bool { d.object(forKey: "allowOnline") as? Bool ?? false }
+    nonisolated static func pairSetting(_ d: UserDefaults = .standard) -> LangPair {
+        LangPair.load(mine: d.string(forKey: "langMine"), partner: d.string(forKey: "langPartner"))
+    }
+
+    init(files: JSONStore = .standard) {
         let d = UserDefaults.standard
-        mode = Mode(rawValue: d.string(forKey: "mode") ?? "") ?? .auto
+        self.files = files
+        let pair = Self.pairSetting(d)
+        self.pair = pair
+        mode = Direction.migrate(d.string(forKey: "mode"), pair: pair).effective(pair)
         pauseSeconds = d.object(forKey: "pauseSeconds") as? Double ?? 0.8
         rate = d.object(forKey: "rate") as? Double ?? 1.0
         volume = d.object(forKey: "volume") as? Double ?? 1.0
-        allowOnline = d.object(forKey: "allowOnline") as? Bool ?? true
+        allowOnline = Self.allowOnlineSetting(d)
         autoSpeak = d.object(forKey: "autoSpeak") as? Bool ?? true
         uiLang = d.string(forKey: "uiLang") ?? L10n.systemLang()
         politeness = Politeness(rawValue: d.string(forKey: "politeness") ?? "") ?? .male
@@ -109,14 +146,56 @@ final class InterpreterModel {
         headset = d.object(forKey: "headset") as? Bool ?? false
         historyDays = d.object(forKey: "historyDays") as? Int ?? 30
         thaiOnSpeaker = d.object(forKey: "thaiOnSpeaker") as? Bool ?? true
-        emergency = Self.load(EmergencyInfo.self, "emergency.json") ?? EmergencyInfo()
+        emergency = files.load(EmergencyInfo.self, "emergency.json").value ?? EmergencyInfo()
         L10n.lang = uiLang
         Haptics.enabled = haptics
-        entries = Self.load([Entry].self, "history.json") ?? []
+        loadHistory()
+        loadFavorites()
         pruneHistory()
-        favorites = Self.load([Phrase].self, "favorites.json") ?? []
         Task { await refreshOffline() }
+        // Gerät war beim Start gesperrt: nach dem Entsperren nachladen.
+        NotificationCenter.default.addObserver(forName: UIApplication.protectedDataDidBecomeAvailableNotification,
+                                               object: nil, queue: .main) { _ in
+            Task { @MainActor in InterpreterModel.shared.reloadIfBlocked() }
+        }
+        #if DEBUG
+        // Test im Simulator: mit DOLMETSCHER_AUDIO_FILES gleich loslegen.
+        if ProcessInfo.processInfo.environment["DOLMETSCHER_AUTOSTART"] != nil { Task { @MainActor in self.start() } }
+        #endif
     }
+
+    private func loadHistory() {
+        switch files.load([Entry].self, "history.json") {
+        case .ok(let e): entries = e + entries; historyBlocked = false
+        case .missing: historyBlocked = false
+        case .corrupt: files.quarantine("history.json"); historyBlocked = false
+        case .unreadable: historyBlocked = true
+        }
+    }
+
+    private func loadFavorites() {
+        switch files.load([Phrase].self, "favorites.json") {
+        case .ok(let f): favorites = f + favorites.filter { n in !f.contains { $0.en == n.en } }; favoritesBlocked = false
+        case .missing: favoritesBlocked = false
+        case .corrupt: files.quarantine("favorites.json"); favoritesBlocked = false
+        case .unreadable: favoritesBlocked = true
+        }
+    }
+
+    /// Dateien waren nicht lesbar (gesperrt gestartet): jetzt laden, Neues dahinter behalten und speichern.
+    func reloadIfBlocked() {
+        if historyBlocked {
+            loadHistory()
+            if !historyBlocked { persist() }
+        }
+        if favoritesBlocked {
+            loadFavorites()
+            if !favoritesBlocked { files.store(favorites, "favorites.json") }
+        }
+    }
+
+    /// Für Tests: blockiert das Speichern gerade?
+    var isHistoryBlocked: Bool { historyBlocked }
 
     private func save(_ key: String, _ value: Any) { d.set(value, forKey: key) }
 
@@ -124,8 +203,9 @@ final class InterpreterModel {
     var isListening: Bool { phase == .listening }
 
     func refreshOffline() async {
-        let a = await Translator.offlineInstalled(from: .en)
-        let b = await Translator.offlineInstalled(from: .th)
+        let p = pair
+        let a = await Translator.offlineInstalled(from: p.mine, to: p.partner)
+        let b = await Translator.offlineInstalled(from: p.partner, to: p.mine)
         offlineReady = a && b
     }
 
@@ -141,7 +221,9 @@ final class InterpreterModel {
         let mine = generation
         let pendingStop = stopTask
         let options = AudioOptions(headset: headset)
-        let langs = mode.langs, pause = pauseSeconds
+        let langs = mode.langs(pair), pause = pauseSeconds
+        let cellularOK = cellularAllowed
+        cellularAllowed = false
         // Whisper nur auf Wunsch und nur mit vollständigem Modell – sonst Apple mit Hinweis.
         let wantWhisper = WhisperStore.shared.enabled
         let variant = WhisperStore.shared.ready
@@ -169,6 +251,16 @@ final class InterpreterModel {
                 whisperPreparing = false
                 guard generation == mine else { await started?.stop(); return }   // inzwischen abgebrochen
                 if started == nil {
+                    // Fehlt ein Sprachmodell, lädt das System es jetzt (einmalig, groß): nicht ungefragt über
+                    // Mobilfunk/Roaming und ohne Netz mit klarer Meldung statt Hängen.
+                    if AudioCapture.debugFiles == nil, await LangRecognizer.needsDownload(langs) {
+                        let net = NetStatus.shared
+                        if !net.online { throw SpeechError.downloadOffline }
+                        if net.expensive && !cellularOK {
+                            if generation == mine { phase = .idle; cellularDownloadPrompt = true }
+                            return
+                        }
+                    }
                     let a = AppleSpeechEngine()
                     do {
                         try await a.start(langs: langs, pauseSeconds: pause, options: options) { lang, f in
@@ -236,6 +328,12 @@ final class InterpreterModel {
         start()
     }
 
+    /// Nach Rückfrage: Sprachmodell trotz Mobilfunk laden.
+    func startAllowingCellular() {
+        cellularAllowed = true
+        start()
+    }
+
     /// App geht in den Hintergrund: ohne Hintergrund-Einstellung aufhören zuzuhören.
     func enteredBackground() {
         guard !background else { return }
@@ -278,11 +376,24 @@ final class InterpreterModel {
         case .hearing(let h):
             hearing = h
             if h { lastActivity = Date() } else { partial = "" }
-        case .partial(let en, let th):
+        case .partial(let seen):
             guard !paused else { return }
-            let pick = LanguagePick.pick(en: Hypothesis(text: en, confidence: 0.5), th: Hypothesis(text: th, confidence: 0.5))
-            partial = pick == .th ? th : en
-        case .utterance(let en, let th): heard(en: en, th: th)
+            // Gleiche Wahl wie für den fertigen Satz (Schrift, echte Konfidenz) – nicht immer Englisch.
+            partial = LanguagePick.pick(seen, pair: pair).flatMap { seen[$0]?.text } ?? ""
+        case .utterance(let heard): self.heard(heard)
+        case .failed(let why):
+            guard phase == .listening else { return }
+            // Ein Erkenner ist ausgefallen: einmal neu starten; fällt er gleich wieder aus, Fehler zeigen.
+            let again = Date().timeIntervalSince(lastRecognizerFailure) < 60
+            lastRecognizerFailure = Date()
+            if again {
+                stop()
+                phase = .failed(T("err_recognizer") + " (\(why))")
+                Haptics.error()
+            } else {
+                restart()
+                flash("⚠️ " + T("recognizer_restarted"), seconds: 4)
+            }
         case .interruptionBegan:
             interrupted = true
             stopSpeaking()
@@ -292,28 +403,33 @@ final class InterpreterModel {
         }
     }
 
-    private func heard(en: Hypothesis?, th: Hypothesis?) {
+    private func heard(_ hyps: [Lang: Hypothesis]) {
         partial = ""
         lastActivity = Date()
-        // Nach „Translator“ allein darf der nächste Satz ein nackter Befehl sein – auch wenn der Thai-Erkenner
-        // für „pause“ etwas Plausibles liefert.
+        let pair = pair
+        let commands = features.voiceCommands
+        // Nach „Translator“ allein darf der nächste Satz ein nackter Befehl sein – auch wenn der Erkenner
+        // der anderen Sprache für „pause“ etwas Plausibles liefert.
         let awake = Date() < awakeUntil
-        if awake, let text = en?.text, let cmd = Commands.detect(text, awake: true) {
+        if commands, awake, let text = hyps[.en]?.text, let cmd = Commands.detect(text, awake: true) {
             Haptics.command()
             run(cmd)
             return
         }
-        guard let lang = LanguagePick.pick(en: en, th: th) else { return }
-        if lang == .en, let text = en?.text, let cmd = Commands.detect(text, awake: awake) {
+        guard let lang = LanguagePick.pick(hyps, pair: pair), pair.contains(lang) else { return }
+        if commands, lang == .en, let text = hyps[.en]?.text, let cmd = Commands.detect(text, awake: awake) {
             Haptics.command()
             run(cmd)
             return
         }
         guard !paused else { return }
-        let text = (lang == .en ? en : th)?.text ?? ""
-        let alt = (lang == .en ? th : en)?.text
+        let text = hyps[lang]?.text ?? ""
+        let alt = hyps[pair.other(lang)]?.text
         Haptics.heard()
-        add(Entry(src: lang, text: text, alt: alt))
+        add(Entry(src: lang, dst: pair.other(lang), text: text, alt: alt))
+        #if DEBUG
+        debugLog.info("heard \(lang.rawValue, privacy: .public): \(text, privacy: .public)")
+        #endif
     }
 
     // MARK: Befehle
@@ -346,13 +462,21 @@ final class InterpreterModel {
     func submit(_ raw: String, speak: Bool = true) {
         let text = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
-        add(Entry(src: LanguagePick.ofTyped(text), text: text), speak: speak)
+        let src = typedLang(text)
+        add(Entry(src: src, dst: pair.other(src), text: text), speak: speak)
+    }
+
+    /// Sprache eines getippten Textes; bei gleicher Schrift gilt die eingestellte Richtung.
+    private func typedLang(_ text: String) -> Lang {
+        LanguagePick.ofTyped(text, pair: pair, fallback: mode.effective(pair) == .partner ? pair.partner : pair.mine)
     }
 
     /// Satz aus dem Satzbuch: Übersetzung steht fest, kein Netz nötig.
     func say(_ p: Phrase) {
-        let e = Entry(src: .en, text: p.en, translation: politeness.fill(p.th), provider: "phrasebook",
-                      roman: p.roman.isEmpty ? nil : politeness.fillRoman(p.roman))
+        let src = p.srcLang, dst = p.dstLang
+        let fixed = dst == .th ? politeness.fill(p.th) : p.th
+        let roman = p.roman.isEmpty ? nil : (dst == .th ? politeness.fillRoman(p.roman) : p.roman)
+        let e = Entry(src: src, dst: dst, text: p.en, translation: fixed, provider: "phrasebook", roman: roman)
         entries.append(e)
         trim()
         persist()
@@ -375,8 +499,8 @@ final class InterpreterModel {
         revisions[id] = rev
         let job = Task { () -> String? in
             do {
-                let r = try await translator.translate(e.text, from: e.src, allowOnline: allowOnline)
-                let out = e.src == .en ? politeness.adjust(r.text) : r.text
+                let r = try await translator.translate(e.text, from: e.src, to: e.target, allowOnline: allowOnline)
+                let out = e.target == .th ? politeness.adjust(r.text) : r.text
                 guard revisions[id] == rev else { return nil }   // inzwischen geändert
                 update(id) { $0.translation = out; $0.provider = r.provider; $0.error = nil }
                 persist()
@@ -392,7 +516,7 @@ final class InterpreterModel {
         // Gleich in die Vorlese-Reihe stellen: so bleibt die Reihenfolge des Gesprächs erhalten,
         // auch wenn ein späterer Satz schneller übersetzt ist.
         if speak, autoSpeak, !paused {
-            enqueueSpeech(id: id, lang: e.src.other, slow: false) { [weak self] in
+            enqueueSpeech(id: id, lang: e.target, slow: false) { [weak self] in
                 let text = await job.value
                 guard let self, !self.paused, self.revisions[id] == rev else { return nil }
                 return text
@@ -409,7 +533,7 @@ final class InterpreterModel {
     func swapLanguage(_ id: UUID) {
         guard let e = entries.first(where: { $0.id == id }), let alt = e.alt, !alt.isEmpty else { return }
         stopSpeaking()
-        update(id) { $0.alt = e.text; $0.text = alt; $0.src = e.src.other; $0.translation = nil; $0.error = nil }
+        update(id) { $0.alt = e.text; $0.text = alt; $0.src = e.target; $0.dst = e.src; $0.translation = nil; $0.error = nil }
         translate(id)
     }
 
@@ -418,7 +542,11 @@ final class InterpreterModel {
         let t = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !t.isEmpty else { return }
         stopSpeaking()
-        update(id) { $0.text = t; $0.src = LanguagePick.ofTyped(t); $0.translation = nil; $0.error = nil; $0.alt = nil; $0.roman = nil }
+        // Sprache neu bestimmen – bei gleicher Schrift bleibt die bisherige Richtung des Eintrags.
+        let old = entries.first { $0.id == id }
+        let src = pair.distinguishable ? typedLang(t) : (old?.src ?? typedLang(t))
+        let dst = pair.contains(src) ? pair.other(src) : (old?.target ?? pair.other(src))
+        update(id) { $0.text = t; $0.src = src; $0.dst = dst; $0.translation = nil; $0.error = nil; $0.alt = nil; $0.roman = nil }
         translate(id)
     }
 
@@ -433,19 +561,45 @@ final class InterpreterModel {
         persist()
     }
 
+    /// Ganzen Verlauf leeren – für einige Sekunden zurückholbar (Sprachbefehl „clear“ kann ein Verhörer sein).
     func clear() {
+        guard !entries.isEmpty else { return }
         stopSpeaking()
+        undo.keep(entries, seconds: 8)
         entries.removeAll()
         persist()
+        canUndoClear = true
+        flash("🗑 " + T("cleared"), seconds: 8)
+        undoTask?.cancel()
+        undoTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(8))
+            guard !Task.isCancelled, let self else { return }
+            self.canUndoClear = false
+            self.undo.drop()
+        }
+    }
+
+    func undoClear() {
+        undoTask?.cancel()
+        canUndoClear = false
+        guard let old = undo.take() else { return }
+        entries = old + entries
+        trim()
+        persist()
+        flash("↩️ " + T("restored"))
     }
 
     // MARK: Favoriten
 
     private func phrase(for e: Entry) -> Phrase? {
         guard let t = e.translation else { return nil }
-        let en = e.src == .en ? e.text : t
-        let th = e.src == .en ? t : e.text
-        return Phrase(en: en, th: th, roman: e.roman ?? "", category: "favorites")
+        if e.src == .en && e.target == .th {
+            return Phrase(en: e.text, th: t, roman: e.roman ?? "", category: "favorites")
+        }
+        if e.src == .th && e.target == .en {
+            return Phrase(en: t, th: e.text, roman: e.roman ?? "", category: "favorites")
+        }
+        return Phrase(en: e.text, th: t, roman: e.roman ?? "", category: "favorites", src: e.src, dst: e.target)
     }
 
     func isFavorite(_ p: Phrase) -> Bool { favorites.contains { $0.en == p.en } }
@@ -453,7 +607,7 @@ final class InterpreterModel {
 
     func toggleFavorite(_ p: Phrase) {
         if isFavorite(p) { favorites.removeAll { $0.en == p.en } } else { favorites.insert(p, at: 0) }
-        Self.store(favorites, "favorites.json")
+        if !favoritesBlocked { files.store(favorites, "favorites.json") }
         Haptics.tap()
     }
 
@@ -467,11 +621,17 @@ final class InterpreterModel {
     /// `slow`: langsamer als eingestellt, z. B. wenn das Gegenüber nicht mitkam.
     func speak(_ e: Entry, slow: Bool = false) {
         guard let text = e.translation, !text.isEmpty else { return }
-        enqueueSpeech(id: e.id, lang: e.src.other, slow: slow) { text }
+        enqueueSpeech(id: e.id, lang: e.target, slow: slow) { text }
+    }
+
+    /// Fester Satz laut ausgeben (Notruf-Kurzbefehl), unabhängig vom Verlauf.
+    func announce(_ text: String, lang: Lang) {
+        enqueueSpeech(id: UUID(), lang: lang, slow: false, loud: true) { text }
     }
 
     /// Stellt eine Ausgabe in die Reihe. `text` darf warten (z. B. bis die Übersetzung da ist); nil = überspringen.
-    private func enqueueSpeech(id: UUID, lang: Lang, slow: Bool, text produce: @escaping @MainActor () async -> String?) {
+    private func enqueueSpeech(id: UUID, lang: Lang, slow: Bool, loud: Bool = false,
+                               text produce: @escaping @MainActor () async -> String?) {
         let prev = speakChain
         pendingSpeech += 1
         let gen = speechGeneration
@@ -489,12 +649,12 @@ final class InterpreterModel {
             if engine == nil {
                 try? session.setCategory(.playback, options: [.duckOthers])
                 try? session.setActive(true)
-            } else if lang == .th && thaiOnSpeaker {
-                // Mit Kopfhörern hört sonst nur man selbst die Thai-Ansage.
+            } else if lang == pair.partner && thaiOnSpeaker {
+                // Mit Kopfhörern hört sonst nur man selbst die Ansage für das Gegenüber.
                 try? session.overrideOutputAudioPort(.speaker)
             }
             speakingID = id
-            await speaker.speak(text, lang: lang, rate: r, volume: volume)
+            await speaker.speak(text, lang: lang, rate: r, volume: loud ? 1 : volume)
             if speakingID == id { speakingID = nil }
             pendingSpeech -= 1
             if pendingSpeech == 0 {
@@ -521,29 +681,12 @@ final class InterpreterModel {
 
     // MARK: Speicher
 
-    private static func url(_ name: String) -> URL {
-        let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir.appendingPathComponent(name)
-    }
-
-    private static func load<T: Decodable>(_ type: T.Type, _ name: String) -> T? {
-        guard let data = try? Data(contentsOf: url(name)) else { return nil }
-        return try? JSONDecoder().decode(T.self, from: data)
-    }
-
-    private static func store<T: Encodable>(_ value: T, _ name: String) {
-        if let data = try? JSONEncoder().encode(value) {
-            // „UnlessOpen“: auch bei gesperrtem Gerät (Hintergrund-Zuhören) speicherbar.
-            try? data.write(to: url(name), options: [.atomic, .completeFileProtectionUnlessOpen])
-        }
-    }
-
-    private func persist() {
+    func persist() {
         if historyDays == 0 {
-            try? FileManager.default.removeItem(at: Self.url("history.json"))
-        } else {
-            Self.store(entries, "history.json")
+            files.remove("history.json")
+        } else if !historyBlocked {
+            // War die Datei beim Start nicht lesbar, nie mit der (unvollständigen) Liste überschreiben.
+            files.store(entries, "history.json")
         }
     }
 
@@ -555,7 +698,7 @@ final class InterpreterModel {
 
     var transcript: String {
         entries.map {
-            "[\(Self.stamp.string(from: $0.date))] \($0.src == .en ? "EN" : "TH"): \($0.text)\n→ \($0.translation ?? "–")"
+            "[\(Self.stamp.string(from: $0.date))] \($0.src.rawValue.uppercased())→\($0.target.rawValue.uppercased()): \($0.text)\n→ \($0.translation ?? "–")"
         }.joined(separator: "\n\n")
     }
 }

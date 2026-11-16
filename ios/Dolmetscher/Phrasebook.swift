@@ -9,6 +9,12 @@ struct Phrase: Identifiable, Codable, Hashable, Sendable {
     /// ungefähre Aussprache, gleiche Platzhalter
     var roman: String
     var category: String
+    /// Nur bei Favoriten aus anderen Sprachpaaren gesetzt; sonst en -> th (eingebautes Satzbuch).
+    var src: Lang? = nil
+    var dst: Lang? = nil
+
+    var srcLang: Lang { src ?? .en }
+    var dstLang: Lang { dst ?? .th }
 }
 
 enum Phrasebook {
@@ -83,11 +89,14 @@ struct PhrasebookView: View {
     @State private var category = "favorites"
     @State private var search = ""
 
+    /// Eingebaute Sätze sind Englisch -> Thai: nur mit Thai im Paar.
+    private var builtIn: [Phrase] { m.features.thaiExtras ? Phrasebook.builtIn : [] }
+
     private var shown: [Phrase] {
-        let base = category == "favorites" ? m.favorites : Phrasebook.builtIn.filter { $0.category == category }
+        let base = category == "favorites" ? m.favorites : builtIn.filter { $0.category == category }
         guard !search.isEmpty else { return base }
         var seen = Set<String>()
-        let all = (m.favorites + Phrasebook.builtIn).filter { seen.insert($0.en).inserted }
+        let all = (m.favorites + builtIn).filter { seen.insert($0.en).inserted }
         return all.filter { $0.en.localizedCaseInsensitiveContains(search) || $0.th.contains(search) }
     }
 
@@ -97,7 +106,9 @@ struct PhrasebookView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
                         chip("favorites", icon: "star.fill")
-                        ForEach(Phrasebook.categories, id: \.key) { chip($0.key, icon: $0.icon) }
+                        if m.features.thaiExtras {
+                            ForEach(Phrasebook.categories, id: \.key) { chip($0.key, icon: $0.icon) }
+                        }
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 8)
@@ -115,9 +126,11 @@ struct PhrasebookView: View {
                         } label: {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(p.en).font(.headline)
-                                Text(m.politeness.fill(p.th)).font(.title3).foregroundStyle(LangStyle.color(.th))
+                                Text(p.dstLang == .th ? m.politeness.fill(p.th) : p.th).font(.title3)
+                                    .foregroundStyle(LangStyle.color(p.dstLang, m.pair))
                                 if !p.roman.isEmpty {
-                                    Text(m.politeness.fillRoman(p.roman)).font(.caption).foregroundStyle(.secondary).italic()
+                                    Text(p.dstLang == .th ? m.politeness.fillRoman(p.roman) : p.roman)
+                                        .font(.caption).foregroundStyle(.secondary).italic()
                                 }
                             }
                             .padding(.vertical, 2)
@@ -138,7 +151,7 @@ struct PhrasebookView: View {
             .navigationTitle(T("phrasebook"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button(T("done")) { dismiss() } } }
-            .onAppear { if m.favorites.isEmpty { category = "basics" } }
+            .onAppear { if m.favorites.isEmpty && m.features.thaiExtras { category = "basics" } }
         }
     }
 

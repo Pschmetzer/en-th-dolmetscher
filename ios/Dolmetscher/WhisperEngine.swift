@@ -237,7 +237,7 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
         if ev == .started {
             utterance = preRoll.drain()
             emit.yield(.hearing(true))
-            emit.yield(.partial(en: "", th: ""))   // keine Teiltexte: Whisper erkennt erst am Ende
+            emit.yield(.partial([:]))   // keine Teiltexte: Whisper erkennt erst am Ende
         }
         if gate.inUtterance || ev == .ended {
             utterance.append(contentsOf: samples)
@@ -296,7 +296,7 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
             }
             let conf = segs.isEmpty ? 0.5 : exp(segs.map { Double($0.avgLogprob) }.reduce(0, +) / Double(segs.count))
             let h = Hypothesis(text: text, confidence: conf)
-            emit.yield(.utterance(en: lang == .en ? h : nil, th: lang == .th ? h : nil))
+            emit.yield(.utterance([lang: h]))
         } catch {
             log.error("transcribe failed: \(error.localizedDescription, privacy: .public)")
         }

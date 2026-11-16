@@ -1,11 +1,6 @@
 // Logic.swift – reine Logik ohne Geräte-APIs: Sprachen, Sprachbefehle, Sprachwahl. Unit-getestet.
 import Foundation
 
-enum Lang: String, Codable, CaseIterable, Sendable {
-    case en, th
-    var other: Lang { self == .en ? .th : .en }
-}
-
 /// Ein Erkennungsergebnis einer Sprache für eine Äußerung.
 struct Hypothesis: Equatable, Sendable {
     var text: String
@@ -73,31 +68,57 @@ enum Commands {
 
 enum LanguagePick {
     /// Anteil thailändischer Schriftzeichen an allen Buchstaben.
-    static func thaiShare(_ s: String) -> Double {
-        var thai = 0, letters = 0
-        for u in s.unicodeScalars where u.properties.isAlphabetic {
-            letters += 1
-            if (0x0E00...0x0E7F).contains(u.value) { thai += 1 }
-        }
-        return letters == 0 ? 0 : Double(thai) / Double(letters)
+    static func thaiShare(_ s: String) -> Double { Lang.th.scriptShare(s) }
+
+    /// Sprache eines getippten Textes: die Sprache des Paars, deren Schrift den größten Anteil hat.
+    /// Bei gleicher Schrift (en/de) entscheidet die eingestellte Richtung (`fallback`).
+    static func ofTyped(_ s: String, pair: LangPair = .standard, fallback: Lang? = nil) -> Lang {
+        let base = fallback ?? pair.mine
+        guard pair.distinguishable else { return base }
+        let m = pair.mine.scriptShare(s), p = pair.partner.scriptShare(s)
+        if m == 0 && p == 0 { return base }
+        // Wie früher bei en/th: schon ein Drittel nicht-lateinischer Schrift zählt (lateinische Namen
+        // und Marken stehen oft mitten im Thai-Satz).
+        let nonLatin = pair.langs.filter { !$0.scripts.contains(.latin) && $0.scriptShare(s) > 0.3 }
+        if nonLatin.count == 1 { return nonLatin[0] }
+        return p > m ? pair.partner : pair.mine
     }
 
-    /// Sprache eines getippten Textes.
-    static func ofTyped(_ s: String) -> Lang { thaiShare(s) > 0.3 ? .th : .en }
+    /// Alle Erkenner haben dieselbe Äußerung gehört – welcher hat recht?
+    /// Konfidenzen sind zwischen Sprachen nur grob vergleichbar, deshalb zuerst harte Hinweise:
+    /// das Weckwort (nur mit Englisch im Paar) und die Schrift (ein Thai-Erkenner, der lateinisch
+    /// schreibt, hat Englisch gehört).
+    static func pick(_ hyps: [Lang: Hypothesis], pair: LangPair, commands: Bool? = nil) -> Lang? {
+        let texts = hyps.compactMapValues { h -> String? in
+            let t = h.text.trimmingCharacters(in: .whitespacesAndNewlines)
+            return t.isEmpty ? nil : t
+        }
+        let order = pair.langs.filter { texts[$0] != nil } + texts.keys.filter { !pair.contains($0) }.sorted { $0.rawValue < $1.rawValue }
+        guard let first = order.first else { return nil }
+        if order.count == 1 { return first }
+        if commands ?? pair.features.voiceCommands, let e = texts[.en], Commands.detect(e) != nil { return .en }
+        var cands = order
+        if pair.distinguishable {
+            let ok = cands.filter { $0.scriptShare(texts[$0]!) >= 0.5 }
+            if ok.count == 1 { return ok[0] }
+            if !ok.isEmpty { cands = ok }
+        }
+        // Konfidenz; bei Gleichstand die höhere Schrift-Treue, dann die Reihenfolge im Paar.
+        return cands.max { a, b in
+            let ca = hyps[a]?.confidence ?? 0, cb = hyps[b]?.confidence ?? 0
+            if ca != cb { return ca < cb }
+            let sa = a.scriptShare(texts[a]!), sb = b.scriptShare(texts[b]!)
+            if sa != sb { return sa < sb }
+            return (order.firstIndex(of: a) ?? 0) > (order.firstIndex(of: b) ?? 0)
+        }
+    }
 
-    /// Beide Erkenner haben dieselbe Äußerung gehört – welcher hat recht?
-    /// Konfidenzen sind zwischen Sprachen nur grob vergleichbar, deshalb zuerst harte Hinweise.
-    /// `bias` > 0 bevorzugt Thai, < 0 Englisch.
-    static func pick(en: Hypothesis?, th: Hypothesis?, bias: Double = 0) -> Lang? {
-        let e = en.map { $0.text.trimmingCharacters(in: .whitespacesAndNewlines) } ?? ""
-        let t = th.map { $0.text.trimmingCharacters(in: .whitespacesAndNewlines) } ?? ""
-        if e.isEmpty && t.isEmpty { return nil }
-        if t.isEmpty { return .en }
-        if e.isEmpty { return .th }
-        if Commands.detect(e) != nil { return .en }
-        // Der Thai-Erkenner schreibt englische Wörter oft lateinisch: dann war es Englisch.
-        if thaiShare(t) < 0.5 { return .en }
-        return (th?.confidence ?? 0) + bias > (en?.confidence ?? 0) ? .th : .en
+    /// Alte Form (en/th) – für Tests und als Regressionsschutz.
+    static func pick(en: Hypothesis?, th: Hypothesis?) -> Lang? {
+        var h: [Lang: Hypothesis] = [:]
+        h[.en] = en
+        h[.th] = th
+        return pick(h, pair: .standard)
     }
 }
 
