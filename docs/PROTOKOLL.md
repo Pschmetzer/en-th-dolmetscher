@@ -90,7 +90,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `DOLMETSCHER_BEAM` | Beam-Breite der Erkennung (Standard 1; überschreibt `--model auto`) |
 | `DOLMETSCHER_MIC_FILE` | Audiodatei in Echtzeit statt Mikrofon (Ende-zu-Ende-Test) |
 | `DOLMETSCHER_MIC_LOOP` | mit `DOLMETSCHER_MIC_FILE`: Datei endlos wiederholen |
-| `DOLMETSCHER_FFMPEG` | Pfad zu ffmpeg |
+| `DOLMETSCHER_FFMPEG` | optional: externes ffmpeg statt PyAV für Aufnahme, Wiedergabe und `--file` (nur wenn gesetzt; Standard ist `avhelper.py` mit PyAV) |
 | `DOLMETSCHER_HOME` | Ordner für Presets/Verlauf (Standard `~/Library/Application Support/Dolmetscher/`) |
 | `DOLMETSCHER_LOG` | Logdatei (Standard `~/Library/Logs/Dolmetscher/engine.log`) |
 | `DOLMETSCHER_DEBUG` | VAD-Diagnose ins Log |
@@ -150,7 +150,8 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `mic_denied`, `mic_unavailable`, `mic_no_data`, `mic_timeout`, `mic_failed` | Mikrofon: Zugriff verweigert / Gerät ungültig / keine Daten / erster Block nicht binnen 10 s (Wachhund beendet ffmpeg) / Gerät nach Wiederverbinden weg |
 | `mic_not_found` | Mikrofon-Name unbekannt, Standardmikrofon wird genutzt |
 | `mic_list_failed` | `--list-mics` konnte ffmpeg nicht abfragen |
-| `mic_file_missing`, `ffmpeg_missing` | `DOLMETSCHER_MIC_FILE` fehlt / ffmpeg fehlt (gleich beim Start gemeldet) oder ist nicht startbar |
+| `mic_file_missing`, `ffmpeg_missing` | `DOLMETSCHER_MIC_FILE` fehlt / das per `DOLMETSCHER_FFMPEG` gesetzte ffmpeg fehlt (gleich beim Start gemeldet) oder ist nicht startbar |
+| `audio_missing` | Audio-Baustein fehlt: PyAV (`av`) nicht importierbar oder `avhelper.py` fehlt (gleich beim Start gemeldet) – Python-Umgebung neu einrichten |
 | `model_offline` | Modell fehlt lokal und kann ohne Internet nicht geladen werden |
 | `translate_failed` | Übersetzung fehlgeschlagen (alle Anbieter) |
 | `llm_billing` | Claude-API: Guthaben oder Kontingent erschöpft – 30 min nur Google/MyMemory, dann neuer Versuch |

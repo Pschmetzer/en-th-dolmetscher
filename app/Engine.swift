@@ -1196,7 +1196,7 @@ final class EngineModel: NSObject, ObservableObject {
         "mic_denied": "err_mic_denied", "mic_unavailable": "err_mic_unavailable", "mic_no_data": "err_mic_no_data",
         "mic_timeout": "err_mic_timeout", "mic_failed": "err_mic_failed", "mic_not_found": "err_mic_not_found",
         "mic_list_failed": "err_mic_list_failed", "mic_file_missing": "err_mic_file_missing",
-        "ffmpeg_missing": "err_ffmpeg_missing", "model_offline": "err_model_offline",
+        "ffmpeg_missing": "err_ffmpeg_missing", "audio_missing": "err_audio_missing", "model_offline": "err_model_offline",
         "translate_failed": "err_translate_failed", "llm_billing": "err_llm_billing", "reassign_expired": "err_reassign_expired",
         "reassign_empty": "err_reassign_empty", "reassign_invalid": "err_reassign_invalid",
         "phrase_invalid": "err_phrase_invalid", "edit_invalid": "err_edit_invalid",

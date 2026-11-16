@@ -5,7 +5,7 @@ Hört dauerhaft aufs Mikrofon, erkennt selbst, welche der zwei Sprachen des Paar
 wird, übersetzt und spricht die Übersetzung sofort laut aus. Paar: --langs MEINE,PARTNER
 (z. B. de,th); unterstützte Sprachen: LANGS.
 
-Start:  python3 dolmetscher.py   (benötigt: pip install faster-whisper, ffmpeg)
+Start:  python3 dolmetscher.py   (benötigt: pip install -r requirements.txt; Audio über PyAV, kein ffmpeg)
 Optionen: --model small|medium|base  --mic 0  --polite krub|ka  --json
           --langs en,th  --lang auto|en|th  --tts edge|say  --file test.wav  --mute
           --barge-in (nur mit Kopfhörer)  --log-text/--no-log-text
@@ -350,24 +350,46 @@ JUNK = _JunkSet({"thank you for watching", "thanks for watching", "subtitles by"
 # "[Music]"/"[เพลง]" stehen bewusst nicht drin: ohne Klammern (die Aufrufstelle entfernt sie) wären es
 # echte Ein-Wort-Antworten ("Music?", "เพลง").
 JUNK_IF_SHORT = {"thank you", "you", "bye", "ขอบคุณครับ", "ขอบคุณค่ะ"}   # nur bei sehr leiser/kurzer Aufnahme
-def _find_tool(name, env=None):
-    """Umgebungsvariable, dann PATH, dann die üblichen Homebrew-Orte (arm64 und Intel)."""
-    cand = os.environ.get(env) if env else None
-    return (cand or shutil.which(name)
-            or next((p for p in (f"/opt/homebrew/bin/{name}", f"/usr/local/bin/{name}") if os.path.exists(p)), None)
-            or f"/opt/homebrew/bin/{name}")
+# Audio-Ein/Ausgabe: standardmäßig PyAV über avhelper.py (kein Homebrew nötig). Ein externes ffmpeg
+# wird nur noch genutzt, wenn DOLMETSCHER_FFMPEG ausdrücklich gesetzt ist (Rückwärtskompatibilität).
+FFMPEG = os.environ.get("DOLMETSCHER_FFMPEG") or None
+AVHELPER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "avhelper.py")
 
 
-FFMPEG = _find_tool("ffmpeg", "DOLMETSCHER_FFMPEG")
+def avhelper_cmd(*args):
+    """Kindprozess für avhelper.py mit demselben Python wie die Engine (-B: keine .pyc ins App-Bundle)."""
+    return [sys.executable, "-B", AVHELPER, *args]
+
+
+def capture_cmd(dev=None, path=None, af="", loop=False, realtime=False):
+    """Befehl, der s16le mono in SR auf stdout liefert: Mikrofon (dev) oder Datei (path)."""
+    if FFMPEG:
+        src = ([*(["-stream_loop", "-1"] if loop else []), *(["-re"] if realtime else []), "-i", path] if path
+               else ["-f", "avfoundation", "-i", f":{dev}"])
+        return [FFMPEG, "-hide_banner", "-loglevel", "error", *src, *(["-af", af] if af else []),
+                "-ar", str(SR), "-ac", "1", "-f", "s16le", "-"]
+    src = (["--file", path, *(["--loop"] if loop else []), *(["--realtime"] if realtime else [])] if path
+           else ["--device", str(dev)])
+    return avhelper_cmd("capture", *src, "--af", af, "--rate", str(SR))
 
 
 def check_ffmpeg():
-    """Beim Start: fehlt ffmpeg, gleich klar melden statt erst beim ersten Satz unklar zu scheitern."""
-    if os.path.isfile(FFMPEG) and os.access(FFMPEG, os.X_OK):
+    """Beim Start: fehlt die Audio-Schicht (PyAV bzw. das gesetzte ffmpeg), gleich klar melden statt erst
+    beim ersten Satz unklar zu scheitern."""
+    if FFMPEG:
+        if os.path.isfile(FFMPEG) and os.access(FFMPEG, os.X_OK):
+            return True
+        emit("error", code="ffmpeg_missing", msg="ffmpeg fehlt – DOLMETSCHER_FFMPEG zeigt auf keine ausführbare Datei")
+        log({"ffmpeg": "fehlt"})
+        return False
+    import importlib.util
+    if os.path.isfile(AVHELPER) and importlib.util.find_spec("av") is not None:
         return True
-    emit("error", code="ffmpeg_missing", msg="ffmpeg fehlt – bitte installieren (brew install ffmpeg)")
-    log({"ffmpeg": "fehlt"})
+    emit("error", code="audio_missing", msg="Audio-Baustein (PyAV) fehlt – Python-Umgebung neu einrichten")
+    log({"av": "fehlt"})
     return False
+
+
 SAY = "/usr/bin/say" if os.path.exists("/usr/bin/say") else (shutil.which("say") or "/usr/bin/say")
 
 C = {"en": "\033[1;34m", "th": "\033[1;33m", "dim": "\033[2m", "off": "\033[0m"}
@@ -2216,10 +2238,49 @@ class Player:
     def start(self, cmd, **kw):
         if NULL_AUDIO:                 # Tests: kompletter Ausgabe-Pfad, aber ohne Ton
             cmd = ["/bin/sleep", "1"] if cmd[0].endswith("afplay") else ["/bin/cat"]
+        warm = self._warmable(cmd, kw)
         with self.lock:                # Start und Eintragen unter einem Lock: stop() kann dazwischen nichts verpassen
-            p = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=_child_stderr(), **kw)
+            p = self._take_standby(cmd) if warm else None
+            if p is None:
+                p = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=_child_stderr(), **kw)
             self.procs[p] = time.time()
+        if warm:                       # nächsten Abspiel-Prozess schon vorbereiten (Python + PyAV laden)
+            threading.Thread(target=self._spawn_standby, args=(cmd,), name="player-standby", daemon=True).start()
         return p
+
+    # Vorgewärmter avhelper-Abspielprozess: Python-Start und `import av` (~0,15 s) liegen so nicht im
+    # zeitkritischen Weg bis zum ersten Ton. Er wartet auf stdin; endet die Engine, endet er mit EOF.
+    _standby = None                    # (cmd, Popen)
+
+    @staticmethod
+    def _warmable(cmd, kw):
+        return (not FFMPEG and len(cmd) > 3 and cmd[2] == AVHELPER and cmd[3] == "play"
+                and kw.get("stdin") is subprocess.PIPE and set(kw) == {"stdin"})
+
+    def _take_standby(self, cmd):
+        sb, self._standby = self._standby, None
+        if sb and sb[0] == cmd and sb[1].poll() is None:
+            return sb[1]
+        if sb:
+            self._discard(sb[1])
+        return None
+
+    @staticmethod
+    def _discard(p):
+        try:
+            p.stdin.close()            # EOF: beendet sich ohne Ton
+        except OSError:
+            pass
+
+    def _spawn_standby(self, cmd):
+        try:
+            p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=_child_stderr())
+        except OSError:
+            return
+        with self.lock:
+            old, self._standby = self._standby, (cmd, p)
+        if old:
+            self._discard(old[1])
 
     WAIT_MAX = 180.0                   # s: Notbremse, falls ein Kindprozess hängt
 
@@ -2546,8 +2607,10 @@ def tts_warmup():
             log({"tts_warmup": "fehler", "err": _errtxt(e)})
     for i in range(2):
         threading.Thread(target=run, args=(i,), name="tts-warmup", daemon=True).start()
-    # `ffmpeg -devices` (bis 5 s) nicht erst beim ersten Satz, mitten im zeitkritischen Weg
-    threading.Thread(target=pipe_player, args=(1.0,), name="player-warmup", daemon=True).start()
+    # `ffmpeg -devices` (bis 5 s) nicht erst beim ersten Satz, mitten im zeitkritischen Weg (nur mit
+    # DOLMETSCHER_FFMPEG); mit PyAV hält Player.start einen vorgewärmten Abspiel-Prozess bereit.
+    if FFMPEG:
+        threading.Thread(target=pipe_player, args=(1.0,), name="player-warmup", daemon=True).start()
 
 
 _PIPE_PLAYER = None
@@ -2555,8 +2618,11 @@ _PIPE_PLAYER_LOCK = threading.Lock()
 
 
 def pipe_player(volume):
-    """mp3 von stdin sofort abspielen: ffmpeg -> AudioToolbox, sonst ffplay, sonst None."""
+    """mp3 von stdin sofort abspielen: avhelper.py (PyAV -> AudioToolbox); mit gesetztem
+    DOLMETSCHER_FFMPEG wie früher ffmpeg -> AudioToolbox, sonst ffplay, sonst None (afplay)."""
     global _PIPE_PLAYER
+    if not FFMPEG:
+        return avhelper_cmd("play", "--volume", f"{volume:.2f}")
     with _PIPE_PLAYER_LOCK:                    # Vorwärmen und erster Satz: nur einmal nachsehen
         if _PIPE_PLAYER is None:
             try:
@@ -3958,9 +4024,7 @@ class Engine:
 def record_one(mic="0", timeout=20.0):
     """Ein gesprochener Satz vom Mikrofon (für das Anlegen von Stimmprofilen). Ein Wachhund beendet
     ffmpeg nach timeout+2 s: Lesen blockiert sonst endlos (Zugriff verweigert, Gerät hängt)."""
-    ff = subprocess.Popen([FFMPEG, "-hide_banner", "-loglevel", "error", "-f", "avfoundation",
-                           "-i", f":{resolve_mic(mic)}", "-af", "highpass=f=80,volume=6dB,alimiter=limit=0.95",
-                           "-ar", str(SR), "-ac", "1", "-f", "s16le", "-"], stdout=subprocess.PIPE)
+    ff = subprocess.Popen(capture_cmd(dev=resolve_mic(mic), af=mic_filter(False)), stdout=subprocess.PIPE)
     wd = threading.Timer(timeout + 2.0, Mic._kill, args=(ff,))
     wd.daemon = True
     wd.start()
@@ -4508,7 +4572,13 @@ DENOISE = False
 
 
 def list_mics():
-    """Audio-Eingänge von AVFoundation (ffmpeg) als [{index, name}]."""
+    """Audio-Eingänge von AVFoundation als [{index, name}] (avhelper.py bzw. DOLMETSCHER_FFMPEG)."""
+    if not FFMPEG:
+        r = subprocess.run(avhelper_cmd("list"), capture_output=True, text=True, timeout=10)
+        lines = [ln for ln in (r.stdout or "").splitlines() if ln.startswith("{")]
+        if not lines:
+            raise RuntimeError((r.stderr or "keine Antwort").strip()[-200:])
+        return json.loads(lines[-1])["mics"]
     r = subprocess.run([FFMPEG, "-hide_banner", "-f", "avfoundation", "-list_devices", "true", "-i", ""],
                        capture_output=True, text=True, timeout=10)
     mics, audio = [], False
@@ -4523,6 +4593,16 @@ def list_mics():
         if audio and m:
             mics.append({"index": m.group(1), "name": m.group(2).strip()})
     return mics
+
+
+def decode_file(path):
+    """Audiodatei -> float32 mono in SR. Mit DOLMETSCHER_FFMPEG wie früher per ffmpeg, sonst PyAV."""
+    if FFMPEG:
+        raw = subprocess.run([FFMPEG, "-loglevel", "error", "-i", path, "-ar", str(SR), "-ac", "1",
+                              "-f", "s16le", "-"], capture_output=True, timeout=600).stdout
+        return np.frombuffer(raw[:len(raw) // 2 * 2], dtype=np.int16).astype(np.float32) / 32768
+    from faster_whisper import decode_audio
+    return decode_audio(path, sampling_rate=SR).astype(np.float32)
 
 
 def resolve_mic(mic):
@@ -4609,15 +4689,15 @@ class Mic:
             self.sess += 1
             sess = self.sess
             # DOLMETSCHER_MIC_FILE: Audiodatei in Echtzeit statt Mikrofon (Ende-zu-Ende-Test)
-            loop = ["-stream_loop", "-1"] if os.environ.get("DOLMETSCHER_MIC_LOOP") else []
-            src = ([*loop, "-re", "-i", mic_file] if mic_file else ["-f", "avfoundation", "-i", f":{dev}"])
-            # leichte Vorverstärkung im ffmpeg, damit leise Stimmen mehr Pegel haben
+            loop = bool(os.environ.get("DOLMETSCHER_MIC_LOOP"))
+            # leichte Vorverstärkung im Filter, damit leise Stimmen mehr Pegel haben
+            cmd = (capture_cmd(path=mic_file, af=mic_filter(DENOISE), loop=loop, realtime=True) if mic_file
+                   else capture_cmd(dev=dev, af=mic_filter(DENOISE)))
             try:
-                ff = subprocess.Popen([FFMPEG, "-hide_banner", "-loglevel", "error", *src, "-af", mic_filter(DENOISE),
-                                       "-ar", str(SR), "-ac", "1", "-f", "s16le", "-"],
-                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                ff = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             except OSError as e:
-                return self._fail(f"ffmpeg nicht startbar: {e}", _retry, "ffmpeg_missing")
+                return self._fail(f"Audio-Aufnahme nicht startbar: {e}", _retry,
+                                  "ffmpeg_missing" if FFMPEG else "audio_missing")
             self.ff = ff
         err = collections.deque(maxlen=10)
 
@@ -5008,7 +5088,7 @@ if __name__ == "__main__":
     _profile_only = bool(a.profiles or a.delete_profile or a.delete_all_profiles or a.vocab is not None
                          or a.profile_polite is not None)
     if not _profile_only:
-        check_ffmpeg()                          # Mikrofon, --file, --list-mics und --enroll brauchen ffmpeg
+        check_ffmpeg()                          # Mikrofon, --file, --list-mics und --enroll brauchen Audio
     if a.list_mics:
         JSON = True
         try:
@@ -5066,12 +5146,10 @@ if __name__ == "__main__":
     if a.json and not a.file:
         control_loop(eng, jobs)
     if a.file:
-        for f in a.file:   # per ffmpeg dekodieren (unabhängig von der PyAV-Version)
+        for f in a.file:   # PyAV (über faster-whisper) bzw. DOLMETSCHER_FFMPEG dekodieren
             name = os.path.basename(f)
             try:
-                raw = subprocess.run([FFMPEG, "-loglevel", "error", "-i", f, "-ar", str(SR), "-ac", "1",
-                                      "-f", "s16le", "-"], capture_output=True, timeout=600).stdout
-                audio = np.frombuffer(raw[:len(raw) // 2 * 2], dtype=np.int16).astype(np.float32) / 32768
+                audio = decode_file(f)
                 if audio.size < MIN_UTT * SR:
                     emit("error", code="file_empty", msg=f"{name}: keine Audiodaten")
                     continue

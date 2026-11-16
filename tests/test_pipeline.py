@@ -89,12 +89,10 @@ def _say(voice, text, path):
         subprocess.run(["say", "-v", voice, "-o", str(path), text], check=True, capture_output=True)
     except subprocess.CalledProcessError:
         pytest.skip(f"Stimme {voice} nicht installiert")
-    raw = subprocess.run([d.FFMPEG, "-loglevel", "error", "-i", str(path), "-ar", str(d.SR), "-ac", "1",
-                          "-f", "s16le", "-"], capture_output=True, check=True).stdout
-    return np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768
+    return d.decode_file(str(path))
 
 
-@pytest.mark.skipif(not shutil.which("say") or not shutil.which(d.FFMPEG), reason="braucht macOS say + ffmpeg")
+@pytest.mark.skipif(not shutil.which("say"), reason="braucht macOS say")
 def test_segmenter_keeps_speech_and_drops_own_voice(tmp_path):
     pytest.importorskip("faster_whisper.vad")
     a = _say("Samantha", "Excuse me, where is the nearest train station?", tmp_path / "a.aiff")
