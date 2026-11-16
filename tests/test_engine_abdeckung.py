@@ -204,15 +204,17 @@ def _mic(results):
     return m
 
 
-def test_reconnect_backoff_bis_aufgeben(monkeypatch, ev):
-    stop = _FakeStop()
+def test_reconnect_backoff_gibt_nicht_auf(monkeypatch, ev):
+    # Nr. 192: nach den schnellen Versuchen weiter alle MIC_RETRY_SLOW s, bis Beenden/Erfolg – kein Aufgeben.
+    stop = _FakeStop(stop_at=8)                                        # Engine endet während Versuch 8
     monkeypatch.setattr(d, "STOP", stop)
-    monkeypatch.setattr(d, "MIC_RETRIES", 6)
+    monkeypatch.setattr(d, "MIC_RETRIES", 5)
+    monkeypatch.setattr(d, "MIC_RETRY_SLOW", 10.0)
     m = _mic([False, RuntimeError("Gerät weg")])
     d.Mic._reconnect(m, 3)
-    assert stop.waits == [1.0, 2.0, 4.0, 8.0, 10.0, 10.0]               # verdoppelt, gedeckelt bei 10 s
-    assert m.starts == 6 and m.failed == [("Mikrofon nicht mehr erreichbar", False)]
-    assert [kw["attempt"] for e, kw in ev if e == "mic"] == [1, 2, 3, 4, 5, 6]
+    assert stop.waits == [1.0, 2.0, 4.0, 8.0, 10.0, 10.0, 10.0, 10.0]   # verdoppelt, dann dauerhaft 10 s
+    assert m.starts == 7 and m.failed == []
+    assert [kw["attempt"] for e, kw in ev if e == "mic"] == [1, 2, 3, 4, 5, 6, 7, 8]
     assert all(kw == {"on": False, "reconnecting": True, "attempt": kw["attempt"]} for e, kw in ev if e == "mic")
 
 
