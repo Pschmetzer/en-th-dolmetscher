@@ -2,26 +2,34 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src https://translate.googleapis.com https://api.mymemory.translated.net; img-src data:; base-uri 'none'; form-action 'none'">
-<title>EN ⇄ TH Dolmetscher (Web Lite)</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self' https://translate.googleapis.com https://api.mymemory.translated.net; img-src 'self' data:; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="theme-color" content="#1d4ed8">
+<meta name="description" content="Dolmetscher im Browser: Sprechen, übersetzen, vorlesen, Satzbuch mit Zeige-Karten (auch offline).">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Dolmetscher (Web Lite)</title>
 <style>
   :root {
     --bg:#f6f7f9; --card:#ffffff; --fg:#14171f; --mut:#5d6475; --line:#dfe2e8;
     --en:#2563eb; --th:#d97706; --btn-en:#1d4ed8; --btn-th:#b45309; --btn-fg:#fff;
     --note-bg:#eef4ff; --note-line:#bcd0fa; --warn-bg:#fde8e8; --kbd:#e8eaf0; --focus:#2563eb;
+    --yes:#15803d; --no:#b91c1c;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg:#0f1115; --card:#1a1d24; --fg:#eef0f4; --mut:#9aa0b0; --line:#262a33;
       --en:#3b82f6; --th:#f59e0b; --btn-en:#1e3a8a; --btn-th:#78350f;
       --note-bg:#17233d; --note-line:#2c4271; --warn-bg:#4c1d1d; --kbd:#333a47; --focus:#8ab4ff;
+      --yes:#166534; --no:#991b1b;
     }
   }
   * { box-sizing:border-box; }
   html, body { overflow-x:hidden; }
-  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.4 -apple-system,system-ui,sans-serif; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.4 -apple-system,system-ui,sans-serif;
+         padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
   .wrap { padding-left:16px; padding-right:16px; max-width:1000px; margin:0 auto; }
   header { display:flex; gap:12px; align-items:center; justify-content:space-between; padding:14px 0; flex-wrap:wrap; }
   h1 { font-size:18px; margin:0; }
@@ -29,86 +37,150 @@
   .note { background:var(--note-bg); border:1px solid var(--note-line); border-radius:10px; padding:10px 14px; font-size:14px; margin-bottom:12px; }
   .note a { color:var(--focus); }
   .note .lite { display:block; font-size:16px; margin-bottom:2px; }
+  #offline { display:none; }
+  .pair { display:flex; gap:8px 14px; align-items:center; flex-wrap:wrap; padding:0 0 12px; font-size:14px; color:var(--mut); }
+  .pair label { display:inline-flex; gap:6px; align-items:center; }
+  select { font:inherit; color:var(--fg); background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 8px; min-height:36px; max-width:100%; }
   .controls { display:flex; gap:12px; padding:4px 0 12px; flex-wrap:wrap; }
   button { font:inherit; color:inherit; }
-  button.mode { flex:1; min-width:220px; padding:22px; font-size:20px; font-weight:600; border:3px solid transparent; border-radius:14px; cursor:pointer; color:var(--btn-fg); }
-  #btnEN { background:var(--btn-en); } #btnTH { background:var(--btn-th); }
+  button.mode { flex:1; min-width:220px; padding:22px; font-size:20px; font-weight:600; border:3px solid transparent; border-radius:14px; cursor:pointer; color:var(--btn-fg);
+                touch-action:none; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
+  button.mode:disabled { opacity:.45; cursor:not-allowed; }
+  #btnA { background:var(--btn-en); } #btnB { background:var(--btn-th); }
   button.mode.active { border-color:var(--fg); box-shadow:0 0 0 4px rgba(128,128,128,.25); animation:pulse 1.4s infinite; }
   @keyframes pulse { 50% { opacity:.8; } }
   @media (prefers-reduced-motion: reduce) { button.mode.active { animation:none; } }
   .retry { margin-left:10px; font-size:14px; font-style:normal; }
-  button:focus-visible, input:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
+  button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
   .opts { display:flex; gap:10px 18px; padding:0 0 10px; color:var(--mut); font-size:14px; flex-wrap:wrap; align-items:center; }
   .opts label { cursor:pointer; }
   .small { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; min-height:36px; }
   .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+  details.box { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px 14px; margin-bottom:12px; }
+  details.box > summary { cursor:pointer; font-weight:600; min-height:32px; display:flex; align-items:center; }
+  .row { display:flex; gap:8px 14px; flex-wrap:wrap; align-items:center; margin:8px 0; font-size:14px; }
+  .row label { display:inline-flex; gap:6px; align-items:center; }
+  #cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; margin:8px 0 4px; }
+  .card { text-align:left; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px 12px; cursor:pointer; min-height:56px; overflow-wrap:anywhere; }
+  .card .t { display:block; font-size:18px; font-weight:600; margin-top:2px; }
+  .card .s { display:block; font-size:13px; color:var(--mut); }
+  .yn { font-size:20px; font-weight:700; color:#fff; border:0; border-radius:10px; padding:10px 22px; min-height:48px; cursor:pointer; }
+  .yn.yes { background:var(--yes); } .yn.no { background:var(--no); }
+  #pbMsg { color:var(--mut); font-size:13px; }
   #consent { max-width:min(520px, calc(100vw - 32px)); border:1px solid var(--line); border-radius:12px; background:var(--card); color:var(--fg); padding:18px; }
   #consent::backdrop { background:rgba(0,0,0,.5); }
   #consent h2 { font-size:18px; margin:0 0 8px; }
   #consent p { margin:0 0 10px; font-size:15px; }
-  #consent .row { display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; margin-top:12px; }
+  #consent .row { justify-content:flex-end; margin-top:12px; }
   #consent .row button { min-height:44px; padding:8px 16px; }
   #consentOk { background:var(--btn-en); color:var(--btn-fg); border-color:transparent; font-weight:600; }
   #live { margin:0 0 12px; padding:14px 16px; background:var(--card); border-radius:10px; min-height:52px; font-size:22px; color:var(--mut); font-style:italic; overflow-wrap:anywhere; }
+  .logtools { display:flex; gap:8px; flex-wrap:wrap; margin:0 0 10px; }
   #log { padding-bottom:24px; display:flex; flex-direction:column-reverse; gap:12px; }
   .entry { background:var(--card); border-radius:12px; padding:14px 18px; border-left:6px solid var(--en); overflow-wrap:anywhere; }
-  .entry.th { border-left-color:var(--th); }
+  .entry.b { border-left-color:var(--th); }
   .entry.cmd { border-left-color:var(--mut); opacity:.8; }
   .orig { color:var(--mut); font-size:16px; }
   .trans { font-size:30px; font-weight:600; margin-top:6px; }
-  .entry.th .trans { font-size:28px; }
   .trans.err { font-size:16px; font-weight:400; color:var(--mut); font-style:italic; }
+  .badge { display:inline-block; font-size:12px; font-weight:400; font-style:normal; color:var(--mut); border:1px solid var(--line); border-radius:6px; padding:0 6px; margin-left:8px; vertical-align:middle; }
+  .entry .acts { margin-top:6px; display:flex; gap:8px; flex-wrap:wrap; }
   #warn { display:none; margin:0 0 12px; padding:12px 16px; background:var(--warn-bg); border-radius:10px; }
   kbd { background:var(--kbd); padding:1px 6px; border-radius:4px; font-size:13px; font-family:inherit; }
   .help { color:var(--mut); font-size:13px; padding-bottom:12px; }
   .help summary { cursor:pointer; }
-  #partner { display:none; position:fixed; inset:0; z-index:10; background:var(--bg); color:var(--fg); flex-direction:column; padding:16px; }
+  #partner { display:none; position:fixed; inset:0; z-index:10; background:var(--bg); color:var(--fg); flex-direction:column;
+             padding:max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
   #partner.on { display:flex; }
   #partner .bar { display:flex; justify-content:space-between; align-items:center; gap:12px; color:var(--mut); font-size:14px; }
+  #partner .bar .btns { display:flex; gap:8px; }
+  #partner .bar .small { min-height:44px; min-width:44px; font-size:20px; }
   #partnerText { flex:1; display:flex; align-items:center; justify-content:center; text-align:center; font-weight:700; font-size:clamp(40px,11vw,160px); line-height:1.15; overflow-wrap:anywhere; padding:8px 0; }
+  #partnerText.yes, #partnerText.no { font-size:clamp(80px,28vw,260px); }
+  #partnerText.yes { color:var(--yes); } #partnerText.no { color:var(--no); }
   @media (max-width:500px){
-    .trans, .entry.th .trans { font-size:22px; }
+    .trans { font-size:22px; }
     button.mode { min-width:100%; padding:18px; }
     .opts { gap:4px 14px; }
-    .opts label { display:inline-flex; align-items:center; gap:6px; min-height:44px; }   /* Fingertipp-Ziel (WCAG 2.5.5) */
+    .opts label, .row label { display:inline-flex; align-items:center; gap:6px; min-height:44px; }   /* Fingertipp-Ziel (WCAG 2.5.5) */
     .opts input[type=checkbox] { width:22px; height:22px; }
-    .small { min-height:44px; }
+    .small, select { min-height:44px; }
+    #cards { grid-template-columns:1fr; }
   }
 </style>
 </head>
 <body>
 <div class="wrap" id="main">
 <header>
-  <h1>🇬🇧 EN ⇄ TH 🇹🇭 Dolmetscher <small style="color:var(--mut);font-weight:400">Web Lite</small></h1>
-  <span id="status" role="status" aria-live="polite">Bereit</span>
+  <h1>🌐 Dolmetscher <small style="color:var(--mut);font-weight:400">Web Lite</small></h1>
+  <span id="status" aria-live="off">Bereit</span>
 </header>
 <div class="note" role="note">
-  <b class="lite">Lite-Version – eingeschränkt.</b> Hier musst du die Sprache selbst wählen (<kbd>E</kbd>/<kbd>T</kbd>); Erkennung und Stimmen kommen vom Browser: am besten <b>Chrome</b> (Computer, Android); <b>Safari</b> (Mac, iPhone) geht nur mit eingeschalteter Diktierfunktion und mit Einschränkungen; Firefox kann keine Spracherkennung. Nicht auf allen Geräten getestet.
-  Die <b>Mac-App</b> ist deutlich besser: erkennt die Sprache automatisch, Sprachbefehle in beiden Sprachen, bessere Erkennung (Whisper), Neural-Stimmen, Stimmprofile, optional Übersetzung mit Claude.
-  <a href="https://github.com/Pschmetzer/en-th-dolmetscher" target="_blank" rel="noopener">Mac-App &amp; Quellcode auf GitHub</a>
+  <b class="lite">Lite-Version – eingeschränkt.</b> Hier wählst du selbst, wer spricht (<kbd>E</kbd>/<kbd>T</kbd> oder die Knöpfe); Erkennung und Stimmen kommen vom Browser: am besten <b>Chrome</b> (Computer, Android); <b>Safari</b> (Mac, iPhone) geht nur mit eingeschalteter Diktierfunktion und mit Einschränkungen; Firefox kann keine Spracherkennung. Nicht auf allen Geräten getestet.
+  Die <b>Mac-App</b> ist deutlich besser: erkennt die Sprache automatisch, Sprachbefehle, bessere Erkennung (Whisper), Neural-Stimmen, Stimmprofile, optional Übersetzung mit Claude.
+  <a href="https://github.com/Pschmetzer/en-th-dolmetscher" target="_blank" rel="noopener">Mac-/iPhone-App &amp; Quellcode auf GitHub</a>
 </div>
 <div class="note" role="note" id="privacy">
-  <b>Datenschutz:</b> Die Spracherkennung macht der Browser – Chrome sendet dein <b>Audio an Googles Server</b>, Safari an Apple (je nach Gerät auch lokal). Der erkannte Text geht zum Übersetzen an Google Translate (Ersatz: MyMemory). Die Mac-App erkennt Sprache dagegen lokal auf dem Gerät. <b>Pause</b> und <b>Stopp</b> schalten das Mikrofon ganz aus.
+  <b>Datenschutz:</b> Die Spracherkennung macht der Browser – Chrome sendet dein <b>Audio an Googles Server</b>, Safari an Apple (je nach Gerät auch lokal). Der erkannte Text geht zum Übersetzen an Google Translate (Ersatz: MyMemory). Die Mac-App erkennt Sprache dagegen lokal auf dem Gerät. <b>Pause</b> und <b>Stopp</b> schalten das Mikrofon ganz aus. Das Satzbuch (unten) funktioniert ohne Mikrofon und für Englisch/Thai auch offline.
 </div>
+<div class="note" role="status" id="offline">Offline: Übersetzen und Spracherkennung gehen gerade nicht. Das Satzbuch mit Zeige-Karten funktioniert weiter.</div>
 <div id="warn" role="alert"></div>
+<div class="pair">
+  <label>Ich spreche <select id="langA" aria-label="Meine Sprache"></select></label>
+  <button class="small" id="btnSwap" type="button" aria-label="Sprachen tauschen" title="Sprachen tauschen">⇄</button>
+  <label>Partner spricht <select id="langB" aria-label="Sprache des Partners"></select></label>
+  <label id="enVarWrap">Englisch-Akzent <select id="enVar" aria-label="Englisch-Variante für die Erkennung">
+    <option value="en-US">USA</option><option value="en-GB">Großbritannien</option><option value="en-AU">Australien</option><option value="en-IN">Indien</option>
+  </select></label>
+</div>
 <div class="controls">
-  <button class="mode" id="btnEN" type="button" aria-pressed="false">🎙 Ich spreche (English) <kbd>E</kbd></button>
-  <button class="mode" id="btnTH" type="button" aria-pressed="false">🎙 พูดภาษาไทย (Thai) <kbd>T</kbd></button>
+  <button class="mode" id="btnA" type="button" aria-pressed="false">🎙 English <kbd>E</kbd></button>
+  <button class="mode" id="btnB" type="button" aria-pressed="false">🎙 ไทย <kbd>T</kbd></button>
 </div>
 <div class="opts">
-  <label><input type="checkbox" id="dirEN" checked> Translate EN→TH</label>
-  <label><input type="checkbox" id="dirTH" checked> Translate TH→EN</label>
+  <label><input type="checkbox" id="dirA" checked> <span id="dirAText">Übersetzen A→B</span></label>
+  <label><input type="checkbox" id="dirB" checked> <span id="dirBText">Übersetzen B→A</span></label>
   <label><input type="checkbox" id="speak" checked> Übersetzung vorlesen</label>
   <label><input type="checkbox" id="autoswitch"> Nach jedem Satz Sprecher wechseln</label>
+  <label><input type="checkbox" id="ptt"> Halten zum Sprechen</label>
   <label><input type="checkbox" id="keysOn" checked> Einzeltasten-Kürzel (E, T, P, Leertaste)</label>
   <button class="small" id="btnPartner" type="button">Partneransicht <kbd>P</kbd></button>
 </div>
+<details class="box" id="voiceBox">
+  <summary>Stimme &amp; Tempo</summary>
+  <div class="row">
+    <label><input type="range" id="rate" min="0.5" max="1.6" step="0.05" value="0.95"> Tempo <output id="rateOut" for="rate">0.95</output></label>
+  </div>
+  <div class="row">
+    <label><span id="voiceALabel">Stimme A</span> <select id="voiceA"></select></label>
+    <button class="small" id="testA" type="button">Hörprobe</button>
+  </div>
+  <div class="row">
+    <label><span id="voiceBLabel">Stimme B</span> <select id="voiceB"></select></label>
+    <button class="small" id="testB" type="button">Hörprobe</button>
+  </div>
+</details>
+<details class="box" id="pbBox" open>
+  <summary>Satzbuch &amp; Zeige-Karten (ohne Mikrofon)</summary>
+  <div class="row">
+    <label>Thema <select id="presetSel"></select></label>
+    <button class="yn yes" id="btnYes" type="button">Ja</button>
+    <button class="yn no" id="btnNo" type="button">Nein</button>
+  </div>
+  <div id="pbMsg" role="status"></div>
+  <div id="cards"></div>
+</details>
 <details class="help">
   <summary>Tastenkürzel &amp; Sprachbefehle</summary>
-  <p><kbd>E</kbd> English sprechen · <kbd>T</kbd> Thai sprechen · <kbd>Leertaste</kbd> Stopp · <kbd>P</kbd> Partneransicht · <kbd>Esc</kbd> Partneransicht schließen<br>
-  Sprachbefehle im EN-Modus, als ganzer Satz (werden nie übersetzt): „Translator pause“ (Mikrofon aus – weiter mit <kbd>E</kbd>/<kbd>T</kbd> oder dem Knopf), „Translator repeat“, „slower“, „faster“.</p>
+  <p><kbd>E</kbd> bzw. <kbd>1</kbd> ich spreche · <kbd>T</kbd> bzw. <kbd>2</kbd> Partner spricht · <kbd>Leertaste</kbd> Stopp · <kbd>P</kbd> Partneransicht · <kbd>Esc</kbd> Partneransicht schließen<br>
+  „Halten zum Sprechen“: Knopf gedrückt halten, sprechen, loslassen – praktisch bei Lärm. Per Tastatur bleibt es beim Umschalten.<br>
+  Sprachbefehle, wenn Englisch gesprochen wird, als ganzer Satz (werden nie übersetzt): „Translator pause“ (Mikrofon aus – weiter mit <kbd>E</kbd>/<kbd>T</kbd> oder dem Knopf), „Translator repeat“, „slower“, „faster“.</p>
 </details>
 <div id="live" aria-live="off">…</div>
+<div class="logtools">
+  <button class="small" id="btnCopy" type="button">Verlauf kopieren</button>
+  <button class="small" id="btnSave" type="button">Verlauf speichern (.txt)</button>
+</div>
 <div id="log" role="log" aria-live="off" aria-label="Übersetzungen"></div>
 <div id="announce" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 </div>
@@ -126,8 +198,9 @@
 </dialog>
 
 <div id="partner" role="dialog" aria-modal="true" aria-labelledby="partnerTitle" aria-hidden="true">
-  <div class="bar"><span id="partnerTitle">Partneransicht – letzte Übersetzung</span><button class="small" id="btnPartnerClose" type="button">Schließen <kbd>Esc</kbd></button></div>
-  <div id="partnerText" lang="th" aria-live="polite">…</div>
+  <div class="bar"><span id="partnerTitle">ไทย</span>
+    <span class="btns"><button class="small" id="btnPartnerSpeak" type="button" aria-label="Vorlesen / Read aloud">🔊</button><button class="small" id="btnPartnerClose" type="button" aria-label="Schließen / Close">✕</button></span></div>
+  <div id="partnerText" lang="th" dir="auto" aria-live="polite">…</div>
 </div>
 
 <script>
@@ -135,19 +208,139 @@ const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const TTS = 'speechSynthesis' in window ? window.speechSynthesis : null;
 const $ = id => document.getElementById(id);
 const statusEl = $('status'), live = $('live'), log = $('log'), warn = $('warn');
-const MODES = {
-  en: { rec: 'en-US', from: 'en', to: 'th', tts: 'th-TH', btn: $('btnEN'), dir: $('dirEN') },
-  th: { rec: 'th-TH', from: 'th', to: 'en', tts: 'en-US', btn: $('btnTH'), dir: $('dirTH') },
+
+// ---- Sprachtabelle: gespiegelt aus dolmetscher.py (LANGS, SCRIPTS); tests/test_web_langs.py prüft die Gleichheit ----
+const SCRIPTS = {"latin": "A-Za-zÀ-ɏḀ-ỿ", "thai": "฀-๿", "cyrillic": "Ѐ-ӿ", "han": "㐀-䶿一-鿿豈-﫿", "kana": "぀-ヿㇰ-ㇿ", "hangul": "ᄀ-ᇿ㄰-㆏가-힯", "arabic": "؀-ۿݐ-ݿﭐ-﷿ﹰ-﻿", "devanagari": "ऀ-ॿ"};
+const LANGS = {
+  "en": {"name": "English", "de": "Englisch", "script": ["latin"], "loc": "en-US", "native": "English", "yes": "Yes", "no": "No"},
+  "th": {"name": "Thai", "de": "Thai", "script": ["thai"], "loc": "th-TH", "native": "ไทย", "yes": "ใช่", "no": "ไม่ใช่"},
+  "de": {"name": "German", "de": "Deutsch", "script": ["latin"], "loc": "de-DE", "native": "Deutsch", "yes": "Ja", "no": "Nein"},
+  "es": {"name": "Spanish", "de": "Spanisch", "script": ["latin"], "loc": "es-ES", "native": "Español", "yes": "Sí", "no": "No"},
+  "fr": {"name": "French", "de": "Französisch", "script": ["latin"], "loc": "fr-FR", "native": "Français", "yes": "Oui", "no": "Non"},
+  "it": {"name": "Italian", "de": "Italienisch", "script": ["latin"], "loc": "it-IT", "native": "Italiano", "yes": "Sì", "no": "No"},
+  "pt": {"name": "Portuguese", "de": "Portugiesisch", "script": ["latin"], "loc": "pt-BR", "native": "Português", "yes": "Sim", "no": "Não"},
+  "nl": {"name": "Dutch", "de": "Niederländisch", "script": ["latin"], "loc": "nl-NL", "native": "Nederlands", "yes": "Ja", "no": "Nee"},
+  "ru": {"name": "Russian", "de": "Russisch", "script": ["cyrillic"], "loc": "ru-RU", "native": "Русский", "yes": "Да", "no": "Нет"},
+  "zh": {"name": "Chinese", "de": "Chinesisch", "script": ["han"], "loc": "zh-CN", "native": "中文", "yes": "是", "no": "不是", "mt": "zh-CN"},
+  "ja": {"name": "Japanese", "de": "Japanisch", "script": ["kana", "han"], "loc": "ja-JP", "native": "日本語", "yes": "はい", "no": "いいえ"},
+  "ko": {"name": "Korean", "de": "Koreanisch", "script": ["hangul"], "loc": "ko-KR", "native": "한국어", "yes": "네", "no": "아니요"},
+  "vi": {"name": "Vietnamese", "de": "Vietnamesisch", "script": ["latin"], "loc": "vi-VN", "native": "Tiếng Việt", "yes": "Có", "no": "Không"},
+  "id": {"name": "Indonesian", "de": "Indonesisch", "script": ["latin"], "loc": "id-ID", "native": "Bahasa Indonesia", "yes": "Ya", "no": "Tidak"},
+  "ar": {"name": "Arabic", "de": "Arabisch", "script": ["arabic"], "loc": "ar-SA", "native": "العربية", "yes": "نعم", "no": "لا"},
+  "hi": {"name": "Hindi", "de": "Hindi", "script": ["devanagari"], "loc": "hi-IN", "native": "हिन्दी", "yes": "हाँ", "no": "नहीं"},
+  "tr": {"name": "Turkish", "de": "Türkisch", "script": ["latin"], "loc": "tr-TR", "native": "Türkçe", "yes": "Evet", "no": "Hayır"},
+  "pl": {"name": "Polish", "de": "Polnisch", "script": ["latin"], "loc": "pl-PL", "native": "Polski", "yes": "Tak", "no": "Nie"},
+  "uk": {"name": "Ukrainian", "de": "Ukrainisch", "script": ["cyrillic"], "loc": "uk-UA", "native": "Українська", "yes": "Так", "no": "Ні"}
 };
+const DEFAULT_PAIR = ['en', 'th'];
+// Satzbuch: presets/*.json (zur Laufzeit geladen, vom Service Worker zwischengespeichert)
+const PRESET_IDS = ['taxi', 'hotel', 'restaurant', 'shopping', 'travel', 'doctor', 'office'];
+
+// ---- Schrift-Plausibilität (wie dolmetscher.py: scripts_distinct, script_share, _untranslated, _wrong_script, text_lang) ----
+const SCRIPT_RX = {}, SCRIPT_RX_G = {}, SCRIPT_RUN3 = {};
+for (const k in LANGS) {
+  const cls = '[' + LANGS[k].script.map(s => SCRIPTS[s]).join('') + ']';
+  SCRIPT_RX[k] = new RegExp(cls, 'u'); SCRIPT_RX_G[k] = new RegExp(cls, 'gu'); SCRIPT_RUN3[k] = new RegExp(cls + '{3}', 'u');
+}
+const isLatin = l => LANGS[l].script.includes('latin');
+function scriptsDistinct(a, b) {
+  return !!(LANGS[a] && LANGS[b]) && !LANGS[a].script.some(s => LANGS[b].script.includes(s));
+}
+function scriptShare(text, lang) {
+  const letters = [...String(text)].filter(c => /\p{L}/u.test(c));
+  if (!letters.length || !SCRIPT_RX[lang]) return 0;
+  return letters.filter(c => SCRIPT_RX[lang].test(c)).length / letters.length;
+}
+function untranslated(text, out, src, dst) {   // Ziel mit eigener Schrift, Ausgabe ohne ein Zeichen davon
+  if (!scriptsDistinct(src, dst) || isLatin(dst)) return false;
+  return SCRIPT_RUN3[src].test(text) && !SCRIPT_RX[dst].test(out);
+}
+function wrongScript(out, src, dst) {          // lateinisches Ziel, Ausgabe überwiegend in der Quellschrift
+  if (!scriptsDistinct(src, dst) || !isLatin(dst)) return false;
+  return (String(out).match(SCRIPT_RX_G[src]) || []).length > String(out).length / 2;
+}
+function implausible(text, out, src, dst) { return untranslated(text, out, src, dst) || wrongScript(out, src, dst); }
+function textLang(text, lang, a, b) {          // gesprochene Sprache an der Schrift erkennen (nur innerhalb des Paars)
+  if (![...String(text)].some(c => /\p{L}/u.test(c)) || !scriptsDistinct(a, b)) return lang;
+  for (const x of [a, b]) if (!isLatin(x) && scriptShare(text, x) > 0.5) return x;
+  if ((lang === a || lang === b) && !isLatin(lang) && scriptShare(text, lang) === 0) {
+    const o = lang === a ? b : a;
+    if (scriptShare(text, o) > 0.8) return o;
+  }
+  return lang;
+}
+const mtCode = l => LANGS[l].mt || l;
+
+// ---- Einstellungen (im Browser gemerkt) ----
+const settings = (() => { try { return JSON.parse(localStorage.getItem('webSettings') || '{}') || {}; } catch { return {}; } })();
+function saveSettings() { try { localStorage.setItem('webSettings', JSON.stringify(settings)); } catch {} }
+let pair = { a: LANGS[settings.a] ? settings.a : DEFAULT_PAIR[0], b: LANGS[settings.b] ? settings.b : DEFAULT_PAIR[1] };
+if (pair.a === pair.b) pair = { a: DEFAULT_PAIR[0], b: DEFAULT_PAIR[1] };
+for (const id of ['dirA', 'dirB', 'speak', 'autoswitch', 'ptt']) {
+  if (typeof settings[id] === 'boolean') $(id).checked = settings[id];
+  $(id).addEventListener('change', () => { settings[id] = $(id).checked; saveSettings(); });
+}
+
+const MODES = { a: { btn: $('btnA'), dir: $('dirA') }, b: { btn: $('btnB'), dir: $('dirB') } };
+function recLocale(l) { return l === 'en' ? ($('enVar').value || 'en-US') : LANGS[l].loc; }
+function buildModes() {
+  for (const [k, o] of [['a', 'b'], ['b', 'a']]) {
+    const src = pair[k], dst = pair[o];
+    Object.assign(MODES[k], { src, dst, rec: recLocale(src), from: mtCode(src), to: mtCode(dst), tts: recLocale(dst) });
+    const b = MODES[k].btn;
+    b.textContent = '🎙 ' + LANGS[src].native + ' ';
+    b.lang = src;
+    const kb = document.createElement('kbd'); kb.textContent = k === 'a' ? 'E' : 'T'; b.appendChild(kb);
+    b.setAttribute('aria-label', (k === 'a' ? 'Ich spreche ' : 'Partner spricht ') + LANGS[src].de);
+  }
+  $('dirAText').textContent = 'Übersetzen ' + LANGS[pair.a].de + ' → ' + LANGS[pair.b].de;
+  $('dirBText').textContent = 'Übersetzen ' + LANGS[pair.b].de + ' → ' + LANGS[pair.a].de;
+  $('voiceALabel').textContent = 'Stimme ' + LANGS[pair.a].de;
+  $('voiceBLabel').textContent = 'Stimme ' + LANGS[pair.b].de;
+  $('enVarWrap').style.display = (pair.a === 'en' || pair.b === 'en') ? '' : 'none';
+  // Ja/Nein nicht nur über die Farbe: Zeichen + beide Sprachen (die Großansicht zeigt nur die Partnersprache)
+  for (const [id, w, de] of [['btnYes', 'yes', 'Ja'], ['btnNo', 'no', 'Nein']]) {
+    const b = $(id); b.textContent = (w === 'yes' ? '✓ ' : '✕ ') + de + ' · ';
+    const s = document.createElement('span'); s.lang = pair.b; s.textContent = LANGS[pair.b][w]; b.appendChild(s);
+  }
+  $('partnerTitle').textContent = LANGS[pair.b].native; $('partnerTitle').lang = pair.b;
+}
+function fillLangSelects() {
+  for (const [id, k] of [['langA', 'a'], ['langB', 'b']]) {
+    const s = $(id); s.textContent = '';
+    for (const code in LANGS) {
+      const o = document.createElement('option');
+      o.value = code; o.textContent = LANGS[code].de + ' – ' + LANGS[code].native;
+      s.appendChild(o);
+    }
+    s.value = pair[k];
+  }
+}
+function setPair(a, b) {
+  if (!LANGS[a] || !LANGS[b]) return;
+  if (a === b) b = (a === pair.a) ? pair.b : pair.a;   // gleiche Sprache auf beiden Seiten: die andere Seite tauscht
+  if (a === b) b = a === 'en' ? 'th' : 'en';
+  if (mode) setMode(null);
+  pair = { a, b }; settings.a = a; settings.b = b; saveSettings();
+  $('langA').value = a; $('langB').value = b;
+  buildModes(); fillVoiceSelects(); renderCards(); loadVoices();
+}
+$('langA').onchange = () => setPair($('langA').value, $('langB').value);
+$('langB').onchange = () => setPair($('langA').value, $('langB').value);
+$('btnSwap').onclick = () => setPair(pair.b, pair.a);
+if (settings.enVar) $('enVar').value = settings.enVar;
+$('enVar').onchange = () => { settings.enVar = $('enVar').value; saveSettings(); if (mode) setMode(null); buildModes(); fillVoiceSelects(); };
+
 let mode = null, rec = null, speaking = false, paused = false, voices = [];
-let rate = 0.95, lastOut = null;   // lastOut = { text, lang }
+let rate = (+settings.rate >= 0.5 && +settings.rate <= 1.6) ? +settings.rate : 0.95, lastOut = null;   // lastOut = { text, lang }
 let gen = 0;   // bumped on every mode change; stale callbacks (cancelled speech, late translations) check it
 // Ausgabe-Warteschlange: Übersetzungen laufen parallel, Vorlesen streng nacheinander in Satz-Reihenfolge.
 let outChain = Promise.resolve(), outPending = 0, outNext = null;
 // Neustart der Erkennung mit Wartezeit statt Endlosschleife
-const MAX_SOFT_ERR = 6, FETCH_TIMEOUT_MS = 6000, MAX_LOG = 200;
+const MAX_SOFT_ERR = 6, FETCH_TIMEOUT_MS = 6000, MAX_LOG = 200, MAX_SHARE = 500;
 let errCount = 0, quickEnds = 0, restartTimer = null;
 let lastFinal = { text: '', t: 0 };
+let pttActive = null, pttReleased = false;   // Halten zum Sprechen
 
 const warnMsgs = [];
 function renderWarn() {
@@ -162,27 +355,65 @@ function clearWarn(msgs) {        // erledigte Warnungen (z. B. Mikrofon inzwisc
   for (const m of msgs) { const i = warnMsgs.indexOf(m); if (i >= 0) warnMsgs.splice(i, 1); }
   if (warnMsgs.length !== n) renderWarn();
 }
-function setStatus(t) { if (statusEl.textContent !== t) statusEl.textContent = t; }   // keine Wiederholungs-Ansagen
-if (!SR) showWarn('Dieser Browser hat keine Spracherkennung (z. B. Firefox). Bitte <b>Chrome</b> (Computer, Android) oder <b>Safari</b> (Mac, iPhone, Diktierfunktion an) verwenden.');
+// Statuszeile ist stumm (wechselt bei jedem Satz); nur wichtige Zustände werden dem Screenreader angesagt.
+function setStatus(t, say) { if (statusEl.textContent !== t) statusEl.textContent = t; if (say) announce(t, 'de'); }
+const NO_SR = 'Dieser Browser hat keine Spracherkennung (z. B. Firefox). Bitte <b>Chrome</b> (Computer, Android) oder <b>Safari</b> (Mac, iPhone, Diktierfunktion an) verwenden. Das Satzbuch unten geht trotzdem.';
+if (!SR) {
+  showWarn(NO_SR);
+  for (const k in MODES) { MODES[k].btn.disabled = true; MODES[k].btn.title = 'Keine Spracherkennung in diesem Browser'; }
+}
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+  || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);   // iPadOS meldet sich als Mac
+if (isIOS) showWarn('iPhone/iPad: Die Spracherkennung im Browser ist dort unzuverlässig. Besser die iPhone-App nutzen (Ordner <b>ios/</b> im Quellcode auf GitHub). Satzbuch und Zeige-Karten gehen hier aber gut.');
 if (!TTS) { showWarn('Dieser Browser kann nicht vorlesen – Übersetzungen werden nur angezeigt.'); $('speak').checked = false; $('speak').disabled = true; }
 
 // ---- Voices ----
-let voiceWarned = false;
+const voiceWarned = new Set();
+const voiceLang = v => v.lang.replace('_', '-').toLowerCase();
 function loadVoices() {
   voices = TTS ? TTS.getVoices() : [];
-  if (voiceWarned || !voices.length) return;      // leere Liste = noch nicht geladen (Chrome)
-  if (!voices.some(v => v.lang.replace('_','-').toLowerCase().startsWith('th'))) {
-    voiceWarned = true;
-    showWarn('Keine thailändische Stimme gefunden – Thai wird evtl. nicht vorgelesen. Mac: Systemeinstellungen → Bedienungshilfen → Gesprochene Inhalte → Systemstimme → Stimmen verwalten → Thai. iPhone: Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen → Thai. Android: Einstellungen → Text-in-Sprache → Sprachdaten Thai. Windows: Einstellungen → Zeit und Sprache → Sprache → Thai hinzufügen.');
+  fillVoiceSelects();
+  if (!voices.length) return;      // leere Liste = noch nicht geladen (Chrome)
+  for (const l of [pair.a, pair.b]) {
+    if (voiceWarned.has(l) || voices.some(v => voiceLang(v).startsWith(l))) continue;
+    voiceWarned.add(l);
+    showWarn('Keine Stimme für <b>' + LANGS[l].de + '</b> gefunden – wird evtl. nicht vorgelesen. Mac: Systemeinstellungen → Bedienungshilfen → Gesprochene Inhalte → Systemstimme → Stimmen verwalten. iPhone: Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen. Android: Einstellungen → Text-in-Sprache → Sprachdaten. Windows: Einstellungen → Zeit und Sprache → Sprache hinzufügen.');
   }
+}
+function fillVoiceSelects() {
+  for (const [id, k] of [['voiceA', 'a'], ['voiceB', 'b']]) {
+    const s = $(id), l = pair[k];
+    s.textContent = '';
+    const auto = document.createElement('option'); auto.value = ''; auto.textContent = 'Automatisch'; s.appendChild(auto);
+    for (const v of voices.filter(v => voiceLang(v).startsWith(l))) {
+      const o = document.createElement('option'); o.value = v.voiceURI; o.textContent = v.name + ' (' + v.lang + ')'; s.appendChild(o);
+    }
+    const want = (settings.voices || {})[l];
+    if (want && [...s.options].some(o => o.value === want)) s.value = want;
+  }
+}
+for (const [id, k] of [['voiceA', 'a'], ['voiceB', 'b']]) {
+  $(id).onchange = () => { settings.voices = Object.assign({}, settings.voices, { [pair[k]]: $(id).value }); saveSettings(); };
 }
 if (TTS) { TTS.onvoiceschanged = loadVoices; loadVoices(); }
 function pickVoice(lang) {
-  const l = lang.toLowerCase(), base = l.slice(0,2);
-  return voices.find(v => v.lang.replace('_','-').toLowerCase() === l && /premium|enhanced|siri/i.test(v.name))
-      || voices.find(v => v.lang.replace('_','-').toLowerCase() === l)
-      || voices.find(v => v.lang.toLowerCase().startsWith(base));
+  const l = lang.toLowerCase(), base = l.slice(0, 2);
+  const want = (settings.voices || {})[base];
+  return (want && voices.find(v => v.voiceURI === want))
+      || voices.find(v => voiceLang(v) === l && /premium|enhanced|siri/i.test(v.name))
+      || voices.find(v => voiceLang(v) === l)
+      || voices.find(v => voiceLang(v).startsWith(base));
 }
+$('rate').value = String(rate); $('rateOut').textContent = rate.toFixed(2);
+function setRate(r) { rate = r; $('rate').value = String(r); $('rateOut').textContent = r.toFixed(2); settings.rate = r; saveSettings(); }
+$('rate').oninput = () => setRate(+$('rate').value);
+const SAMPLE = { en: 'Hello, how are you?', th: 'สวัสดีครับ สบายดีไหม', de: 'Hallo, wie geht es dir?' };
+async function sampleText(l) {
+  if (SAMPLE[l]) return SAMPLE[l];
+  try { return (await translate(SAMPLE.en, 'en', l)).text; } catch { return LANGS[l].native; }
+}
+$('testA').onclick = async () => { unlockTTS(); const t = await sampleText(pair.a); enqueueOutput(g => speakAsync(t, recLocale(pair.a), g)); };
+$('testB').onclick = async () => { unlockTTS(); const t = await sampleText(pair.b); enqueueOutput(g => speakAsync(t, recLocale(pair.b), g)); };
 
 // Lange Texte an Satzenden (sonst an Wortgrenzen) in Stücke <= max Zeichen teilen.
 function splitText(text, max) {
@@ -199,7 +430,7 @@ function splitText(text, max) {
       cur += x;
     }
   };
-  for (const s of (String(text).match(/[^.!?…]+[.!?…]*\s*|[.!?…]+\s*/g) || [])) add(s);
+  for (const s of (String(text).match(/[^.!?…。？！]+[.!?…。？！]*\s*|[.!?…。？！]+\s*/g) || [])) add(s);
   flush();
   return out;
 }
@@ -221,32 +452,43 @@ async function fetchJson(url) {   // mit Zeitlimit: ein hängender Dienst blocki
     return await r.json();
   } finally { clearTimeout(tm); }
 }
-async function translateOne(text, from, to) {
-  try {
-    const j = await fetchJson(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`);
-    const out = j[0].map(p => p[0]).join('').trim();
-    if (!out) throw new Error('gtx empty');
-    return out;
-  } catch (e) {
-    const j = await fetchJson(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`);
-    const out = decodeEntities(String(j.responseData && j.responseData.translatedText || '')).trim();
-    // MyMemory reports errors / quota in-band, sometimes with HTTP 200 and the message as "translation".
-    if (Number(j.responseStatus) !== 200 || j.quotaFinished || !out
-        || /MYMEMORY WARNING|QUERY LENGTH LIMIT|INVALID LANGUAGE|PLEASE SELECT TWO DISTINCT|NO QUERY SPECIFIED|IS AN INVALID|AUTO-?DETECT/i.test(out))
-      throw new Error('mymemory unavailable');
-    return out;
-  }
+async function viaGoogle(text, from, to) {
+  const j = await fetchJson(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`);
+  const out = j[0].map(p => p[0]).join('').trim();
+  if (!out) throw new Error('gtx empty');
+  return out;                                   // Google-Text wird nicht verändert
 }
-// Resolves to a translated string or throws. Never returns an error text.
-// Lange Sätze stückweise (URL-Länge bei Google, 500-Zeichen-Grenze bei MyMemory).
-async function translate(text, from, to) {
-  const parts = [];
-  for (const piece of splitText(text, 300)) parts.push(await translateOne(piece, from, to));
+async function viaMyMemory(text, from, to) {
+  const j = await fetchJson(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`);
+  const out = decodeEntities(String(j.responseData && j.responseData.translatedText || '')).trim();
+  // MyMemory reports errors / quota in-band, sometimes with HTTP 200 and the message as "translation".
+  if (Number(j.responseStatus) !== 200 || j.quotaFinished || !out
+      || /MYMEMORY WARNING|QUERY LENGTH LIMIT|INVALID LANGUAGE|PLEASE SELECT TWO DISTINCT|NO QUERY SPECIFIED|IS AN INVALID|AUTO-?DETECT/i.test(out))
+    throw new Error('mymemory unavailable');
+  return out;
+}
+// src/dst = Sprachcodes der Tabelle. Unplausible Google-Ausgabe (falsche Schrift) -> Ersatz versuchen;
+// ist der auch nichts, bleibt Google. Ergebnis: { text, via: 'google' | 'mymemory' }.
+async function translateOne(text, src, dst) {
+  const from = mtCode(src), to = mtCode(dst);
+  let g = null;
+  try { g = await viaGoogle(text, from, to); } catch {}
+  if (g !== null && !implausible(text, g, src, dst)) return { text: g, via: 'google' };
+  try {
+    const m = await viaMyMemory(text, from, to);
+    if (g === null || !implausible(text, m, src, dst)) return { text: m, via: 'mymemory' };
+  } catch (e) { if (g === null) throw e; }
+  return { text: g, via: 'google' };
+}
+// Resolves to { text, via } or throws. Never returns an error text.
+// Lange Sätze stückweise (URL-Länge bei Google, 500-Zeichen-Grenze bei MyMemory), Stücke parallel.
+async function translate(text, src, dst) {
+  const parts = await Promise.all(splitText(text, 300).map(p => translateOne(p, src, dst)));
   if (!parts.length) throw new Error('empty');
-  return parts.join(' ');
+  return { text: parts.map(p => p.text).join(' '), via: parts.some(p => p.via === 'mymemory') ? 'mymemory' : 'google' };
 }
 
-// ---- Voice commands (EN mode only, start of final transcript) ----
+// ---- Voice commands (nur wenn Englisch gesprochen wird; ganzer Satz) ----
 // Chrome hört oft "translate", "translater", "translator's" – alles gilt.
 const CMD_RE = /^\s*(?:hey\s+|ok(?:ay)?\s+)?translat(?:or|er|e)?(?:'?s)?[\s,.:;!-]*(pause|resume|repeat|slower|faster)\b[\s,.!?]*$/i;
 function parseCommand(text) { const m = CMD_RE.exec(text); return m ? m[1].toLowerCase() : null; }
@@ -256,14 +498,14 @@ function runCommand(cmd) {
     // Pause = Mikrofon wirklich aus: Modus beenden, damit kein Neustart-Pfad (onend, Vorlesen, Sichtbarkeit)
     // die Erkennung wieder startet und weiter Audio an Google geht. Weiter mit E/T oder dem Knopf.
     setMode(null);
-    setStatus('⏸ Pausiert – Mikrofon aus. Weiter mit E/T oder dem Knopf');
+    setStatus('⏸ Pausiert – Mikrofon aus. Weiter mit E/T oder dem Knopf', true);
   }
   else if (cmd === 'resume') { setStatus('Läuft bereits'); }   // nur hörbar, solange nicht pausiert
-  else if (cmd === 'slower') { rate = Math.max(0.5, +(rate - 0.15).toFixed(2)); setStatus('Tempo ' + rate); }
-  else if (cmd === 'faster') { rate = Math.min(1.6, +(rate + 0.15).toFixed(2)); setStatus('Tempo ' + rate); }
+  else if (cmd === 'slower') { setRate(Math.max(0.5, +(rate - 0.15).toFixed(2))); setStatus('Tempo ' + rate, true); }
+  else if (cmd === 'faster') { setRate(Math.min(1.6, +(rate + 0.15).toFixed(2))); setStatus('Tempo ' + rate, true); }
   else if (cmd === 'repeat') {
     if (lastOut) { const o = lastOut; enqueueOutput(g => speakAsync(o.text, o.lang, g)); }
-    else setStatus('Nichts zu wiederholen');
+    else setStatus('Nichts zu wiederholen', true);
   }
 }
 
@@ -272,15 +514,16 @@ const HARD_ERR = {   // Neustart sinnlos: Modus beenden, klar sagen warum
   'not-allowed': 'Mikrofon blockiert. Bitte in den Website-Einstellungen des Browsers erlauben (Chrome: Symbol links in der Adresszeile; Safari: Einstellungen für diese Website).',
   'service-not-allowed': 'Spracherkennung nicht erlaubt. Safari/iPhone: Diktierfunktion einschalten (Einstellungen → Allgemein → Tastatur → Diktierfunktion). Chrome: Erkennung ist in diesem Browser/Profil gesperrt.',
   'language-not-supported': 'Diese Sprache wird von der Spracherkennung dieses Browsers nicht unterstützt.',
+  'audio-capture': 'Kein Mikrofon gefunden. Bitte ein Mikrofon anschließen bzw. in den Systemeinstellungen für den Browser freigeben, dann erneut drücken.',
 };
 const NO_ANSWER = 'Die Spracherkennung antwortet nicht (Internet? Chrome braucht dafür eine Verbindung zu Google). Bitte später erneut <kbd>E</kbd>/<kbd>T</kbd> drücken.';
 function startRec() {
-  if (!SR || !mode || speaking || rec || document.hidden) return;   // im Hintergrund nicht neu starten
+  if (!SR || !mode || speaking || rec || document.hidden || pttReleased) return;   // im Hintergrund nicht neu starten
   clearTimeout(restartTimer); restartTimer = null;
   const r = new SR();
   rec = r;
   r.lang = MODES[mode].rec;
-  live.lang = MODES[mode].from;
+  live.lang = MODES[mode].src;
   r.continuous = true;
   r.interimResults = true;
   const started = Date.now();
@@ -290,7 +533,7 @@ function startRec() {
     let interim = '';
     for (let i = ev.resultIndex; i < ev.results.length; i++) {
       const x = ev.results[i];
-      if (x.isFinal) handleFinal(x[0].transcript.trim());
+      if (x.isFinal) handleFinal(x[0].transcript.trim(), x[0].confidence);
       else interim += x[0].transcript;
     }
     live.textContent = interim || '…';
@@ -311,9 +554,10 @@ function startRec() {
   };
   try { r.start(); }
   catch (e) { rec = null; errCount++; setStatus('Fehler beim Start der Erkennung'); scheduleRestart(); return; }
-  if (!paused) setStatus(mode === 'en' ? 'Hört zu (English)…' : 'กำลังฟัง (ไทย)…');
+  if (!paused) setStatus('🎙 ' + LANGS[MODES[mode].src].native + ' …');
 }
 function scheduleRestart() {
+  if (pttReleased) { resumeIfIdle(); return; }   // Halten zum Sprechen: losgelassen, kein Neustart
   if (!mode || speaking || restartTimer) return;
   if (errCount >= MAX_SOFT_ERR) {
     showWarn(NO_ANSWER);
@@ -336,18 +580,22 @@ function setMode(m) {
   clearTimeout(restartTimer); restartTimer = null;
   dropOutput();
   mode = (m === mode) ? null : m;
-  paused = false; errCount = 0; quickEnds = 0;
+  paused = false; errCount = 0; quickEnds = 0; pttReleased = false;
   for (const k in MODES) {
     MODES[k].btn.classList.toggle('active', k === mode);
     MODES[k].btn.setAttribute('aria-pressed', k === mode ? 'true' : 'false');
   }
   live.textContent = '…';
   updateWakeLock();
-  if (mode) startRec(); else setStatus('Gestoppt');
+  if (mode) startRec(); else setStatus($('ptt').checked ? 'Bereit – Knopf halten und sprechen' : 'Gestoppt', true);
 }
 // Nach der Ausgabe: Sprecher wechseln (Auto-Wechsel) oder weiter zuhören – nie während noch etwas spricht.
 function resumeIfIdle() {
   if (!mode || speaking) return;
+  if (pttReleased) {           // Halten zum Sprechen: nach Erkennung + Ausgabe ganz aus
+    if (!rec && outPending === 0) setMode(null);
+    return;
+  }
   if (outPending === 0 && outNext && outNext !== mode) { const n = outNext; outNext = null; setMode(n); return; }
   if (outPending === 0) outNext = null;
   if (!rec && !restartTimer) startRec();
@@ -361,11 +609,13 @@ function announce(text, lang) {
   s.lang = lang; s.textContent = text;
   setTimeout(() => a.appendChild(s), 50);   // leeren, dann füllen: auch gleiche Texte werden erneut angesagt
 }
+function badge(el, text) { const b = document.createElement('span'); b.className = 'badge'; b.lang = 'de'; b.textContent = text; el.appendChild(b); return b; }
 
+let trimWarned = false;
 function addEntry(cls, orig, trans, isErr, from, to) {
   const entry = document.createElement('div');
   entry.className = 'entry ' + cls;
-  entry.innerHTML = `<div class="orig"></div><div class="trans"></div>`;
+  entry.innerHTML = `<div class="orig" dir="auto"></div><div class="trans" dir="auto"></div>`;
   const o = entry.querySelector('.orig');
   o.textContent = orig;
   if (from) o.lang = from;                 // screen readers pick the right voice
@@ -374,38 +624,50 @@ function addEntry(cls, orig, trans, isErr, from, to) {
   t.textContent = trans; if (isErr) t.classList.add('err');
   if (!trans) t.style.display = 'none';
   log.appendChild(entry);
+  if (log.children.length > MAX_LOG && !trimWarned) { trimWarned = true; setStatus('Ältere Einträge werden entfernt – bei Bedarf „Verlauf speichern“', true); }
   while (log.children.length > MAX_LOG) log.removeChild(log.firstChild);   // Speicher auf dem Handy schonen
   return t;
 }
 
-function handleFinal(text) {
+function handleFinal(text, conf) {
   if (!text) return;
   const now = Date.now();                  // Android-Chrome liefert Finals manchmal doppelt
   if (text === lastFinal.text && now - lastFinal.t < 1500) return;
   lastFinal = { text, t: now };
-  const cur = mode, m = MODES[cur];
-  if (!m) return;
+  let cur = mode;
+  if (!MODES[cur]) return;
   live.textContent = '…';
-  if (cur === 'en') {
+  if (MODES[cur].src === 'en') {
     const cmd = parseCommand(text);
     if (cmd) { addEntry('cmd', '⌘ ' + text, '', false, 'en'); runCommand(cmd); return; }  // never translated
   }
   if (paused) return;
-  if (!m.dir.checked) { addEntry(cur, text, '', false, m.from); return; }  // direction off: text only, no translation, no speech
-  const t = addEntry(cur, text, '…', false, m.from, m.to);
-  deliver(t, text, m, $('autoswitch').checked ? (cur === 'en' ? 'th' : 'en') : cur);
+  // Schrift passt klar zur anderen Sprache des Paars (falscher Knopf): in die richtige Richtung übersetzen.
+  const real = textLang(text, MODES[cur].src, pair.a, pair.b), swapped = real !== MODES[cur].src;
+  if (swapped) cur = cur === 'a' ? 'b' : 'a';
+  const m = MODES[cur];
+  if (!m.dir.checked) { addEntry(cur, text, '', false, m.src); return; }  // direction off: text only, no translation, no speech
+  const t = addEntry(cur, text, '…', false, m.src, m.dst);
+  const o = t.previousElementSibling;
+  if (conf > 0 && conf < 0.5) badge(o, 'unsicher erkannt – bitte wiederholen?');
+  if (swapped) badge(o, 'als ' + LANGS[m.src].de + ' erkannt');
+  deliver(t, text, m, $('autoswitch').checked ? (mode === 'a' ? 'b' : 'a') : mode);
 }
 
 // Übersetzen (sofort, parallel) und Ausgabe in die Warteschlange (in Satz-Reihenfolge).
 function deliver(t, text, m, next) {
-  const job = translate(text, m.from, m.to).then(out => {
-    t.textContent = out; t.lang = m.to; t.classList.remove('err');
+  const job = translate(text, m.src, m.dst).then(res => {
+    const out = res.text;
+    t.textContent = out; t.lang = m.dst; t.classList.remove('err');
+    if (res.via === 'mymemory') badge(t, 'Ersatzdienst – Qualität geringer');
+    addActions(t, out, m.dst);
     lastOut = { text: out, lang: m.tts };
-    $('partnerText').textContent = out; $('partnerText').lang = m.to;
-    announce(out, m.to);
+    if (m.dst === pair.b) { setPartnerText(out, m.dst); }   // Partneransicht zeigt nur die Sprache des Partners
+    announce(out, m.dst);
     return out;
   }, () => {   // no error text is displayed as translation or spoken
-    t.textContent = 'Übersetzung gerade nicht verfügbar (Internet / Limit?)'; t.classList.add('err'); t.removeAttribute('lang');
+    t.textContent = navigator.onLine === false ? 'Offline – Übersetzung nicht möglich' : 'Übersetzung gerade nicht verfügbar (Internet / Limit?)';
+    t.classList.add('err'); t.removeAttribute('lang');
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'small retry'; b.textContent = 'Erneut versuchen';
     b.onclick = () => { t.textContent = '…'; t.classList.remove('err'); deliver(t, text, m, null); };
@@ -419,6 +681,15 @@ function deliver(t, text, m, next) {
     if ($('speak').checked) await speakAsync(out, m.tts, g);
   });
 }
+function addActions(t, text, lang) {
+  const row = document.createElement('div'); row.className = 'acts';
+  const show = document.createElement('button'); show.type = 'button'; show.className = 'small'; show.textContent = 'Groß zeigen';
+  show.onclick = () => showBig(text, lang);
+  const share = document.createElement('button'); share.type = 'button'; share.className = 'small'; share.textContent = 'Als Link teilen';
+  share.onclick = () => shareText(text, lang);
+  row.append(show, share);
+  t.after(row);
+}
 function enqueueOutput(task) {
   const g = gen;
   outPending++;
@@ -429,13 +700,16 @@ function enqueueOutput(task) {
 
 // Vorlesen: Mikro aus (kein Echo), Stücke < 180 Zeichen (Chrome bricht lange Texte ab), Watchdog gegen
 // ausbleibendes onend. Löst immer auf.
+const wait = ms => new Promise(r => setTimeout(r, ms));
 function speakAsync(text, lang, g) {
   if (!TTS || g !== gen) return Promise.resolve();
   speaking = true;
   stopRec(); clearTimeout(restartTimer); restartTimer = null;
-  setStatus('🔊 Spricht…');
-  if (TTS.speaking || TTS.pending) TTS.cancel();   // hängende Reste im Browser-Puffer entfernen
-  return splitText(text, 180).reduce((p, c) => p.then(() => speakChunk(c, lang, g)), Promise.resolve())
+  setStatus('🔊 …');
+  let pre = Promise.resolve();
+  // hängende Reste im Browser-Puffer entfernen; direkt nach cancel() verschluckt Chrome sonst manchmal die Ausgabe
+  if (TTS.speaking || TTS.pending) { TTS.cancel(); pre = wait(60); }
+  return splitText(text, 180).reduce((p, c) => p.then(() => speakChunk(c, lang, g)), pre)
     .finally(() => { if (g === gen) { speaking = false; setTimeout(resumeIfIdle, 0); } });
 }
 function speakChunk(text, lang, g) {
@@ -460,6 +734,11 @@ function unlockTTS() {
   ttsUnlocked = true;
   try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; TTS.speak(u); } catch {}
 }
+function sayNow(text, lang) {   // Satzbuch, Hörprobe, Vorlesen in der Großansicht
+  if (!TTS) return;
+  unlockTTS();
+  enqueueOutput(g => speakAsync(text, recLocale(lang), g));
+}
 
 // Bildschirm wach halten, solange ein Modus aktiv ist (Handy: sonst stoppt die Erkennung).
 let wakeLock = null;
@@ -475,8 +754,14 @@ document.addEventListener('visibilitychange', () => {
   if (!document.hidden) resumeIfIdle();
 });
 
-// ---- Partner view ----
-let partnerOpener = null;
+// ---- Partner view / Großansicht ----
+let partnerOpener = null, bigText = null;   // bigText = { text, lang } der aktuellen Anzeige
+function setPartnerText(text, lang, cls) {
+  const p = $('partnerText');
+  p.textContent = text; p.lang = lang; p.className = cls || '';
+  bigText = { text, lang };
+  $('partnerTitle').textContent = LANGS[lang] ? LANGS[lang].native : ''; $('partnerTitle').lang = lang;
+}
 function togglePartner(on) {
   const el = $('partner');
   const want = on === undefined ? !el.classList.contains('on') : on;
@@ -488,8 +773,110 @@ function togglePartner(on) {
   if (want) $('btnPartnerClose').focus();
   else if (partnerOpener && partnerOpener.focus) partnerOpener.focus();
 }
+function showBig(text, lang, cls) { setPartnerText(text, lang, cls); togglePartner(true); }
 $('btnPartner').onclick = () => togglePartner(true);
 $('btnPartnerClose').onclick = () => togglePartner(false);
+$('btnPartnerSpeak').onclick = () => { if (bigText) sayNow(bigText.text, bigText.lang); };
+
+// ---- Satzbuch & Zeige-Karten (presets/*.json; ohne Mikrofon, Englisch/Thai auch offline) ----
+const presetCache = {};
+const pbTrans = (() => { try { return JSON.parse(localStorage.getItem('pbTrans') || '{}') || {}; } catch { return {}; } })();
+async function loadPreset(id) {
+  if (!presetCache[id]) {
+    presetCache[id] = fetch('presets/' + id + '.json').then(r => { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+      .catch(e => { delete presetCache[id]; throw e; });
+  }
+  return presetCache[id];
+}
+async function phraseIn(p, lang) {        // Satz in `lang`: aus dem Preset, sonst einmal übersetzt und gemerkt
+  if (p[lang]) return p[lang];
+  const key = lang + '|' + p.en;
+  if (pbTrans[key]) return pbTrans[key];
+  const out = (await translate(p.en, 'en', lang)).text;
+  pbTrans[key] = out;
+  try { localStorage.setItem('pbTrans', JSON.stringify(pbTrans)); } catch {}
+  return out;
+}
+function fillPresetSelect() {
+  const s = $('presetSel');
+  for (const id of PRESET_IDS) { const o = document.createElement('option'); o.value = id; o.textContent = id; s.appendChild(o); }
+  if (PRESET_IDS.includes(settings.preset)) s.value = settings.preset;
+  s.onchange = () => { settings.preset = s.value; saveSettings(); renderCards(); };
+  // Namen nachladen (Deutsch), ohne die Liste zu blockieren
+  for (const o of s.options) loadPreset(o.value).then(d => { o.textContent = (d.names && (d.names.de || d.names.en)) || o.value; }, () => {});
+}
+let cardsGen = 0;
+async function renderCards() {
+  const my = ++cardsGen, id = $('presetSel').value, box = $('cards'), msg = $('pbMsg');
+  let d;
+  try { d = await loadPreset(id); }
+  catch { if (my === cardsGen) { box.textContent = ''; msg.textContent = 'Satzbuch nicht verfügbar (offline und noch nie geladen?).'; } return; }
+  if (my !== cardsGen) return;
+  box.textContent = ''; msg.textContent = '';
+  const a = pair.a, b = pair.b;
+  if (!(b in (d.phrases[0] || {}))) msg.textContent = 'Sätze in ' + LANGS[b].de + ' werden beim ersten Tippen übersetzt (Internet nötig), danach gemerkt.';
+  for (const p of d.phrases) {
+    const c = document.createElement('button');
+    c.type = 'button'; c.className = 'card';
+    const s = document.createElement('span'); s.className = 's'; s.textContent = p[a] || p.en; s.lang = p[a] ? a : 'en'; s.dir = 'auto';
+    const t = document.createElement('span'); t.className = 't'; t.lang = b; t.dir = 'auto';
+    t.textContent = p[b] || pbTrans[b + '|' + p.en] || '…';
+    c.append(s, t);
+    c.onclick = async () => {
+      let out;
+      try { out = await phraseIn(p, b); }
+      catch { msg.textContent = 'Übersetzung nicht verfügbar (offline?) – Englisch wird gezeigt.'; showBig(p.en, 'en'); return; }
+      t.textContent = out;
+      showBig(out, b);
+      if ($('speak').checked) sayNow(out, b);
+    };
+    box.appendChild(c);
+  }
+}
+$('btnYes').onclick = () => { const l = pair.b; showBig(LANGS[l].yes, l, 'yes'); if ($('speak').checked) sayNow(LANGS[l].yes, l); };
+$('btnNo').onclick = () => { const l = pair.b; showBig(LANGS[l].no, l, 'no'); if ($('speak').checked) sayNow(LANGS[l].no, l); };
+
+// ---- Teilen per Link: Text steht nur im #-Teil (geht nie an einen Server) und wird beim Öffnen nur angezeigt ----
+function shareUrl(text, lang) {
+  return location.origin + location.pathname + '#show=' + encodeURIComponent(String(text).slice(0, MAX_SHARE)) + '&l=' + encodeURIComponent(lang);
+}
+function parseShare(hash) {
+  const q = new URLSearchParams(String(hash || '').replace(/^#/, ''));
+  const text = (q.get('show') || '').slice(0, MAX_SHARE).trim(), lang = q.get('l');
+  return text && LANGS[lang] ? { text, lang } : null;
+}
+async function shareText(text, lang) {
+  const url = shareUrl(text, lang);
+  try { if (navigator.share) { await navigator.share({ url }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  try { await navigator.clipboard.writeText(url); setStatus('Link kopiert', true); }
+  catch { window.prompt('Link kopieren:', url); }
+}
+function openFromHash() {
+  const s = parseShare(location.hash);
+  if (s) showBig(s.text, s.lang);   // nur anzeigen: kein Mikrofon, kein Vorlesen ohne Tippen
+}
+window.addEventListener('hashchange', openFromHash);
+
+// ---- Verlauf kopieren / speichern ----
+function logText() {
+  return [...log.children].map(e => {
+    const o = e.querySelector('.orig'), t = e.querySelector('.trans');
+    const tt = t && t.style.display !== 'none' && !t.classList.contains('err') ? t.firstChild && t.firstChild.textContent : '';
+    return (o ? o.firstChild.textContent : '') + (tt ? '\n→ ' + tt : '');
+  }).join('\n\n');
+}
+$('btnCopy').onclick = async () => {
+  const s = logText(); if (!s) { setStatus('Verlauf ist leer', true); return; }
+  try { await navigator.clipboard.writeText(s); setStatus('Verlauf kopiert', true); } catch { setStatus('Kopieren nicht erlaubt – bitte „speichern“', true); }
+};
+$('btnSave').onclick = () => {
+  const s = logText(); if (!s) { setStatus('Verlauf ist leer', true); return; }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([s + '\n'], { type: 'text/plain;charset=utf-8' }));
+  a.download = 'dolmetscher-' + new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-') + '.txt';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
 
 // ---- Einwilligung vor dem ersten Mikrofon-Start (einmalig, im Browser gespeichert) ----
 let consentMem = false, consentWant = null, consentOpener = null;
@@ -514,33 +901,75 @@ function acceptConsent() {
   try { localStorage.setItem('micConsent', '1'); } catch {}
   const m = consentWant; consentWant = null;
   closeConsent();
+  if (m && $('ptt').checked) { unlockTTS(); setStatus('Bereit – Knopf halten und sprechen', true); MODES[m].btn.focus(); return; }
   if (m) { setMode(m); unlockTTS(); MODES[m].btn.focus(); }   // synchron in derselben Geste
 }
 function declineConsent() {
   consentWant = null;
   closeConsent();
-  setStatus('Mikrofon bleibt aus');
+  setStatus('Mikrofon bleibt aus', true);
   if (consentOpener && consentOpener.focus) consentOpener.focus();
 }
 $('consentOk').onclick = acceptConsent;
 $('consentNo').onclick = declineConsent;
 $('consent').addEventListener('cancel', e => { e.preventDefault(); declineConsent(); });   // Esc
 
-MODES.en.btn.onclick = () => chooseMode('en');
-MODES.th.btn.onclick = () => chooseMode('th');
+// ---- Halten zum Sprechen (Push-to-talk): drücken = Mikro an, loslassen = Satz fertig, danach aus ----
+function pttStart(k) {
+  if (!hasConsent()) { chooseMode(k); return; }        // erstes Mal: Einwilligung, danach erneut halten
+  pttActive = k;
+  if (mode !== k) setMode(k);
+  else { pttReleased = false; if (!rec && !speaking) startRec(); }
+  unlockTTS();
+}
+function pttEnd(k) {
+  if (pttActive !== k) return;
+  pttActive = null; pttReleased = true;
+  if (rec) { try { rec.stop(); } catch {} }   // stop() statt abort(): der letzte Satz wird noch geliefert
+  else resumeIfIdle();
+}
+for (const k in MODES) {
+  const b = MODES[k].btn;
+  b.onclick = e => { if ($('ptt').checked && e.detail !== 0) return; chooseMode(k); };   // Tastatur (detail 0): umschalten
+  b.addEventListener('pointerdown', e => {
+    if (!$('ptt').checked || b.disabled || e.button > 0) return;
+    e.preventDefault();
+    try { b.setPointerCapture(e.pointerId); } catch {}
+    pttStart(k);
+  });
+  for (const t of ['pointerup', 'pointercancel', 'lostpointercapture']) b.addEventListener(t, () => pttEnd(k));
+  b.addEventListener('contextmenu', e => { if ($('ptt').checked) e.preventDefault(); });
+}
+$('ptt').addEventListener('change', () => { if (mode) setMode(null); });
+
 try { $('keysOn').checked = localStorage.getItem('keysOn') !== '0'; } catch {}
 $('keysOn').onchange = () => { try { localStorage.setItem('keysOn', $('keysOn').checked ? '1' : '0'); } catch {} };
+function isTyping(t) {   // Kürzel nur aus, wo getippt/gewählt wird – nicht nach einem Klick auf eine Checkbox
+  return t.tagName === 'SELECT' || t.tagName === 'TEXTAREA' || t.isContentEditable
+      || (t.tagName === 'INPUT' && !/^(checkbox|radio|range|button)$/.test(t.type));
+}
 document.addEventListener('keydown', e => {
   if (consentOpen()) return;                                   // Einwilligungsdialog offen: keine Kürzel (Esc schließt ihn)
   if (e.key === 'Escape') { togglePartner(false); return; }   // closing a dialog always works
   if (!$('keysOn').checked) return;                            // single-key shortcuts can be switched off (WCAG 2.1.4)
-  if (e.target.tagName === 'INPUT' || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (isTyping(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
   // e.code: Kürzel gehen auch mit thailändischem Tastaturlayout
-  if (e.code === 'KeyP') togglePartner();
-  else if (e.code === 'KeyE') chooseMode('en');
-  else if (e.code === 'KeyT') chooseMode('th');
-  else if (e.code === 'Space' && e.target.tagName !== 'BUTTON') { e.preventDefault(); if (mode) setMode(mode); }
+  if (e.code === 'KeyP') { togglePartner(); return; }
+  if ($('partner').classList.contains('on')) return;          // Partneransicht offen: dahinter nichts umschalten
+  if (e.code === 'KeyE' || e.code === 'Digit1') { if (SR) chooseMode('a'); }
+  else if (e.code === 'KeyT' || e.code === 'Digit2') { if (SR) chooseMode('b'); }
+  else if (e.code === 'Space' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') { e.preventDefault(); if (mode) setMode(mode); }
 });
+
+// ---- Offline-Hinweis und Service Worker (installierbar, Satzbuch offline) ----
+function updateOnline() { $('offline').style.display = navigator.onLine === false ? 'block' : 'none'; }
+window.addEventListener('online', updateOnline); window.addEventListener('offline', updateOnline);
+updateOnline();
+if ('serviceWorker' in navigator && window.isSecureContext && /^https?:$/.test(location.protocol)) {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(e => console.warn('sw', e)); });
+}
+
+fillLangSelects(); buildModes(); fillPresetSelect(); renderCards(); openFromHash();
 </script>
 </body>
 </html>
