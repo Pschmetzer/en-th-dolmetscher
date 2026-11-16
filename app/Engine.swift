@@ -317,6 +317,16 @@ final class EngineModel: NSObject, ObservableObject {
     static func micControlValue(index: String, name: String) -> String {
         !name.isEmpty ? name : (!index.isEmpty ? index : "default")
     }
+    /// Ausgabegerät (Nr. 24/357): CoreAudio-UID, leer = Systemstandard. Live per Steuerfeld `output_device`.
+    @Published var outputDevice = ud.string(forKey: "outputDevice") ?? "" {
+        didSet {
+            guard outputDevice != oldValue else { return }
+            Self.ud.set(outputDevice, forKey: "outputDevice"); send(["output_device": outputDevice])
+        }
+    }
+    @Published var outputDeviceName = ud.string(forKey: "outputDeviceName") ?? "" {
+        didSet { Self.ud.set(outputDeviceName, forKey: "outputDeviceName") }
+    }
     @Published var denoise = ud.bool(forKey: "denoise") { didSet { Self.ud.set(denoise, forKey: "denoise"); scheduleRestart() } }
     @Published var logText = ud.bool(forKey: "logText") { didSet { Self.ud.set(logText, forKey: "logText"); scheduleRestart() } }
     /// Wird nach dem Speichern/Löschen des API-Schlüssels erhöht (Engine liest ihn nur beim Start).
@@ -681,6 +691,7 @@ final class EngineModel: NSObject, ObservableObject {
         }
         let micArg = micOverride ?? mic
         if !micArg.isEmpty { args += ["--mic", micArg] }
+        if !outputDevice.isEmpty { args += ["--output-device", outputDevice] }
         if denoise { args.append("--denoise") }
         if llm { args.append("--llm") }
         if earcons { args.append("--earcons") }
@@ -1252,6 +1263,8 @@ final class EngineModel: NSObject, ObservableObject {
     static let errorKeys: [String: String] = [
         "mic_denied": "err_mic_denied", "mic_unavailable": "err_mic_unavailable", "mic_no_data": "err_mic_no_data",
         "mic_timeout": "err_mic_timeout", "mic_failed": "err_mic_failed", "mic_not_found": "err_mic_not_found",
+        "output_not_found": "err_output_not_found", "output_unsupported": "err_output_unsupported",
+        "output_invalid": "err_output_not_found",
         "mic_list_failed": "err_mic_list_failed", "mic_file_missing": "err_mic_file_missing",
         "ffmpeg_missing": "err_ffmpeg_missing", "audio_missing": "err_audio_missing", "model_offline": "err_model_offline",
         "translate_failed": "err_translate_failed", "llm_billing": "err_llm_billing", "reassign_expired": "err_reassign_expired",

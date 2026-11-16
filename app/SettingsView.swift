@@ -104,6 +104,7 @@ private struct GeneralSettings: View {
                 .foregroundStyle(.secondary)
             }
             MicSection()
+            OutputSection()
             RecognitionSection()
             Section {
                 Toggle(L.t("push_to_talk"), isOn: $m.pushToTalk)
@@ -300,6 +301,40 @@ private struct MicSection: View {
             }
         }, onExit: { loading = false; proc = nil })
         if proc == nil { loading = false }
+    }
+}
+
+/// Ausgabegerät (Nr. 24/357): Liste aus CoreAudio, Wechsel live ohne Neustart (Steuerfeld `output_device`).
+private struct OutputSection: View {
+    @EnvironmentObject var m: EngineModel
+    @State private var outputs: [AudioOutputs.Device] = []
+
+    private var selection: Binding<String> {
+        Binding(get: { m.outputDevice }, set: { new in
+            m.outputDeviceName = outputs.first { $0.uid == new }?.name ?? ""
+            m.outputDevice = new
+        })
+    }
+
+    var body: some View {
+        Section {
+            HStack {
+                Picker(L.t("output_device"), selection: selection) {
+                    Text(L.t("output_default")).tag("")
+                    ForEach(outputs, id: \.uid) { Text($0.name).tag($0.uid) }
+                    if !m.outputDevice.isEmpty && !outputs.contains(where: { $0.uid == m.outputDevice }) {
+                        Text(m.outputDeviceName.isEmpty ? m.outputDevice : m.outputDeviceName).tag(m.outputDevice)
+                    }
+                }
+                .accessibilityLabel(L.t("output_device"))
+                .help(L.t("output_device_help"))
+                Button { outputs = AudioOutputs.list() } label: { Image(systemName: "arrow.clockwise") }
+                    .buttonStyle(.borderless)
+                    .help(L.t("mic_reload"))
+                    .accessibilityLabel(L.t("mic_reload"))
+            }
+        }
+        .onAppear { outputs = AudioOutputs.list() }
     }
 }
 

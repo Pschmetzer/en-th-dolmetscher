@@ -380,6 +380,58 @@ def capture_cmd(dev=None, path=None, af="", loop=False, realtime=False):
     return avhelper_cmd("capture", *src, "--af", af, "--rate", str(SR))
 
 
+# Nr. 24/357: Ausgabegerät (CoreAudio-UID, Name oder Index; "" = Systemstandard). Gilt für alle eigenen
+# Wiedergabewege über avhelper.py (Neural-Stimme, macOS-Stimme, Signalton). Mit DOLMETSCHER_FFMPEG
+# (altes ffmpeg/afplay) bleibt es beim Systemstandard.
+OUTPUT = {"device": ""}
+AFPLAY = "/usr/bin/afplay"
+
+
+def file_play_cmd(path, volume):
+    """Audiodatei (aiff von `say`, Signalton, gepuffertes mp3) abspielen: mit gewähltem Ausgabegerät über
+    avhelper.py, sonst wie bisher afplay."""
+    if OUTPUT["device"] and not FFMPEG:
+        return avhelper_cmd("play", "--file", path, "--volume", f"{volume:.2f}", "--device", OUTPUT["device"])
+    return [AFPLAY, "-v", f"{volume:.2f}", path]
+
+
+def list_outputs():
+    """CoreAudio-Geräte als [{index, name, uid}] (avhelper.py; enthält auch reine Eingänge)."""
+    r = subprocess.run(avhelper_cmd("list"), capture_output=True, text=True, timeout=10)
+    lines = [ln for ln in (r.stdout or "").splitlines() if ln.startswith("{")]
+    if not lines:
+        raise RuntimeError((r.stderr or "keine Antwort").strip()[-200:])
+    return json.loads(lines[-1]).get("outputs", [])
+
+
+def set_output_device(dev, check=True):
+    """Ausgabegerät setzen. check: im Hintergrund prüfen, ob es das Gerät gibt (sonst error output_not_found;
+    avhelper spielt dann über den Systemstandard)."""
+    dev = (dev or "").strip()
+    if dev.lower() == "default":
+        dev = ""
+    OUTPUT["device"] = dev
+    log({"output_device": dev or "standard"})
+    if FFMPEG and dev:
+        emit("error", code="output_unsupported",
+             msg="Ausgabegerät nur mit PyAV wählbar (DOLMETSCHER_FFMPEG gesetzt) – Systemstandard")
+        return
+    if not (check and dev):
+        return
+
+    def run():
+        import avhelper as _avh
+        try:
+            outs = list_outputs()
+        except Exception as e:                  # noqa: BLE001 – nur Prüfung
+            log({"output_device": "liste-fehler", "err": _errtxt(e)})
+            return
+        if outs and _avh.match_output(outs, dev) is None and OUTPUT["device"] == dev:
+            emit("error", code="output_not_found",
+                 msg="Ausgabegerät nicht gefunden – Systemstandard wird genutzt")
+    threading.Thread(target=run, name="output-check", daemon=True).start()
+
+
 def check_ffmpeg():
     """Beim Start: fehlt die Audio-Schicht (PyAV bzw. das gesetzte ffmpeg), gleich klar melden statt erst
     beim ersten Satz unklar zu scheitern."""
@@ -2444,8 +2496,9 @@ class Player:
 
     def start(self, cmd, **kw):
         if NULL_AUDIO:                 # Tests: kompletter Ausgabe-Pfad, aber ohne Ton
-            cmd = ["/bin/sleep", "1"] if cmd[0].endswith("afplay") else ["/bin/cat"]
+            cmd = ["/bin/sleep", "1"] if cmd[0].endswith("afplay") or "--file" in cmd else ["/bin/cat"]
         warm = self._warmable(cmd, kw)
+        kw.setdefault("stdin", subprocess.DEVNULL)   # nie das Steuer-stdin der Engine erben
         with self.lock:                # Start und Eintragen unter einem Lock: stop() kann dazwischen nichts verpassen
             p = self._take_standby(cmd) if warm else None
             if p is None:
@@ -2831,7 +2884,8 @@ def pipe_player(volume):
     DOLMETSCHER_FFMPEG wie früher ffmpeg -> AudioToolbox, sonst ffplay, sonst None (afplay)."""
     global _PIPE_PLAYER
     if not FFMPEG:
-        return avhelper_cmd("play", "--volume", f"{volume:.2f}")
+        dev = ["--device", OUTPUT["device"]] if OUTPUT["device"] else []
+        return avhelper_cmd("play", "--volume", f"{volume:.2f}", *dev)
     with _PIPE_PLAYER_LOCK:                    # Vorwärmen und erster Satz: nur einmal nachsehen
         miss = _PIPE_PLAYER_MISS["t"]
         if _PIPE_PLAYER == "" and miss is not None and time.monotonic() - miss >= PIPE_PLAYER_RETRY_S:
@@ -3062,7 +3116,7 @@ def edge_play(stream, volume, on_start=None, cancelled=None, deadline=None):
                 stats["play_start_s"] = round(time.time() - t0, 2)
                 if on_start:
                     on_start(stats["play_start_s"])
-                PLAYER.run(["/usr/bin/afplay", "-v", f"{volume:.2f}", mp3])
+                PLAYER.run(file_play_cmd(mp3, volume))
             finally:
                 os.remove(mp3)
     finally:
@@ -3282,7 +3336,7 @@ class Speaker:
         if it["kind"] == "earcon":
             wait_quiet()
             emit("speaking", id=uid, first_s=0.0)
-            PLAYER.run(["/usr/bin/afplay", "-v", f"{eng.volume:.2f}", EARCON])
+            PLAYER.run(file_play_cmd(EARCON, eng.volume))
             emit("speak_done", id=uid, skipped=False, interrupted=False)
             return
         started = {"v": False}
@@ -3584,7 +3638,7 @@ class Engine:
                     log({"tts": "lokal", "voice": local.voice, "after_s": round(time.time() - t, 2)})
                     if on_start:
                         on_start(round(time.time() - t, 2))
-                    PLAYER.run(["/usr/bin/afplay", "-v", f"{self.volume:.2f}", path])
+                    PLAYER.run(file_play_cmd(path, self.volume))
                     return
         fd, aiff = tempfile.mkstemp(prefix="dolmetscher_say_", suffix=".aiff", dir=private_tmp())
         os.close(fd)
@@ -3601,7 +3655,7 @@ class Engine:
                     return
                 if on_start:
                     on_start(round(time.time() - t, 2))
-                PLAYER.run(["/usr/bin/afplay", "-v", f"{self.volume:.2f}", aiff])
+                PLAYER.run(file_play_cmd(aiff, self.volume))
         finally:
             if os.path.exists(aiff):
                 os.remove(aiff)
@@ -4512,6 +4566,12 @@ def apply_control(eng, d):
         if ok: BACK["on"] = v
         ok, v = _flag(d, "learn_glossary")
         if ok: LEARN["glossary"] = v
+        if "output_device" in d:              # Nr. 24/357: Ausgabegerät (UID, Name, Index oder "" = Standard)
+            ov = d["output_device"]
+            if isinstance(ov, str) and len(ov) <= 300:
+                later.append(lambda ov=ov: set_output_device(ov))
+            else:
+                emit("error", code="output_invalid", msg="Ausgabegerät-Angabe ungültig – Gerät unverändert")
         ok, v = _flag(d, "get_state")
         if ok and v:
             later.append(eng.emit_snapshot)    # Nr. 189: Zustand auf Anfrage (App-Neustart/Reconnect)
@@ -5316,6 +5376,7 @@ if __name__ == "__main__":
                     " + Thai-Modell) | auto (nach Chip/RAM)")
     ap.add_argument("--device", choices=["auto", "mps", "cpu"], default="auto")
     ap.add_argument("--mic", default="0")
+    ap.add_argument("--output-device", default="", help="Ausgabegerät: UID, Name oder Index")
     ap.add_argument("--list-mics", action="store_true", help="Mikrofone als JSON ausgeben")
     ap.add_argument("--polite", choices=["krub", "ka"], default="krub")
     ap.add_argument("--file", nargs="*")
@@ -5469,6 +5530,8 @@ if __name__ == "__main__":
     eng.mute = a.mute
     eng.earcons = a.earcons
     SLOW["on"], BACK["on"], LEARN["glossary"] = a.slow, a.back_translate, not a.no_learn_glossary
+    if a.output_device:
+        set_output_device(a.output_device)
     if a.no_two_person:
         eng.two_person = False
     if a.no_en: eng.translate_dir["en"] = False

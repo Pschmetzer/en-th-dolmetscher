@@ -40,6 +40,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `--model small\|medium\|best\|auto` | `medium` | Erkennungsmodell; `best` = large-v3-turbo + Thai-Modell, `auto` nach Chip/RAM (Ereignis `hwprofile`) |
 | `--device auto\|mps\|cpu` | `auto` | Rechengerät (Apple-GPU, sonst CPU) |
 | `--mic INDEX\|NAME\|default` | `0` | Mikrofon: Index aus `--list-mics`, besser der **Name** (Indizes verschieben sich, sobald AirPods/USB-Mikros dazukommen; der Name wird erst beim Öffnen auf den aktuellen Index abgebildet). Unbekannter Name: `error` `mic_not_found`, Standardmikrofon |
+| `--output-device UID\|NAME\|INDEX` | `` | Ausgabegerät für alle Sprachausgaben (CoreAudio-UID bevorzugt, sonst Name oder Index; leer = Systemstandard). Unbekannt: `error` `output_not_found`, Systemstandard |
 | `--list-mics` | | gibt `{"event":"mics","mics":[{"index":"0","name":"MacBook Pro Microphone"}]}` aus und beendet sich; bei Fehler (ffmpeg fehlt/hängt) zuerst `error` (`mic_list_failed`), dann `mics` mit leerer Liste |
 | `--polite krub\|ka` | `krub` | Höflichkeitswort/Stimme Thai |
 | `--langs MEINE,PARTNER` | `en,th` | Sprachpaar (siehe „Sprachpaar“) |
@@ -157,6 +158,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 |---|---|
 | `mic_denied`, `mic_unavailable`, `mic_no_data`, `mic_timeout`, `mic_failed` | Mikrofon: Zugriff verweigert / Gerät ungültig / keine Daten / erster Block nicht binnen 10 s (Wachhund beendet ffmpeg) / Gerät nach Wiederverbinden weg |
 | `mic_not_found` | Mikrofon-Name unbekannt, Standardmikrofon wird genutzt |
+| `output_not_found`, `output_invalid`, `output_unsupported` | Ausgabegerät unbekannt (Systemstandard wird genutzt) / Steuerwert `output_device` ungültig / mit `DOLMETSCHER_FFMPEG` nicht wählbar |
 | `mic_list_failed` | `--list-mics` konnte ffmpeg nicht abfragen |
 | `mic_file_missing`, `ffmpeg_missing` | `DOLMETSCHER_MIC_FILE` fehlt / das per `DOLMETSCHER_FFMPEG` gesetzte ffmpeg fehlt (gleich beim Start gemeldet) oder ist nicht startbar |
 | `audio_missing` | Audio-Baustein fehlt: PyAV (`av`) nicht importierbar oder `avhelper.py` fehlt (gleich beim Start gemeldet) – Python-Umgebung neu einrichten |
@@ -214,6 +216,7 @@ Neu:
 | `retranslate` | `{"id": "u7", "text": "korrigierter Text", "lang": "en"\|"th"}` | neu übersetzen und vorlesen; `utt` kommt mit `replaces: "u7"`, `source: "edit"` |
 | `speak_text` | `{"text": "...", "lang": CODE (Sprache des Paars), "id": "u7"}` | fertigen Text nur vorlesen (Neural-Stimme, keine Übersetzung) – „Nochmal sprechen“; `id` optional, dann kommen `speaking`/`speak_done` mit dieser id (ohne `latency_s`). Ungültig: `error` `speak_invalid`. Nicht verwechseln mit `speak` (bool, stumm schalten) |
 | `mic` | string (Index, Gerätename oder `default`) | Mikrofon zur Laufzeit wechseln, ohne Modelle neu zu laden: ist es an, öffnet die Engine ffmpeg mit dem neuen Gerät neu (danach `mic` `on: true`; wartende Äußerungen des alten Geräts verfallen, laufende Ausgaben nicht); ist es aus, gilt das Gerät beim nächsten `listen`. Vor `ready` gesendet: gilt, sobald das Mikrofon angelegt wird. Unbekannter Name: `error` `mic_not_found`, Standardmikrofon |
+| `output_device` | string (CoreAudio-UID, Name, Index; `""`/`default` = Systemstandard) | Ausgabegerät zur Laufzeit wechseln; gilt ab der nächsten Ausgabe für Neural-Stimme, macOS-Stimme und Signalton. Unbekannt: `error` `output_not_found` |
 | `llm_budget` | float (USD, 0 … 10000) | Claude-Monatslimit wie `--llm-budget`; 0 = keine Grenze |
 | `slow` | bool | „Langsam und deutlich“: Ausgabe SLOW_RATE (−25) Prozentpunkte langsamer (zusammen nie unter −50), kein Aufhol-Tempo, nie überspringen; Claude bekommt den Zusatz „einfache Wörter, kurze Sätze“ (eigener Cache-Schlüssel) |
 | `back_translate` | bool | Rückübersetzung als Ereignis `back` an/aus (Standard aus; kostet je Satz eine Google-Anfrage) |
@@ -390,3 +393,14 @@ Neue Felder kommen nur dazu, `PROTOCOL` bleibt 1.
   Übersetzungs- und den Sprach-Cache.
 - **Temp-Dateien:** Reste abgestürzter Läufe werden schon beim Start gelöscht (eigenes Verzeichnis trägt die PID).
 - **Verlauf:** Schreiben unter Lock in einer Transaktion.
+
+## Runde 4 (Ideenliste)
+
+Neue Felder kommen nur dazu, `PROTOCOL` bleibt 1.
+
+- **Ausgabegerät (Nr. 24/357):** Start `--output-device`, Steuerfeld `output_device`. Alle eigenen Wiedergabewege
+  laufen dann über `avhelper.py play` (`--device`, für Dateien `--file`); ohne Gerät bleibt `afplay` für Dateien.
+  `avhelper.py list` liefert zusätzlich `outputs` [{`index`, `name`, `uid`}] (alle CoreAudio-Geräte, auch reine
+  Eingänge). Die Geräte-Nummer wird erst kurz vor dem Abspielen ermittelt (Hot-Plug). Mit `DOLMETSCHER_FFMPEG`
+  gilt der Systemstandard (`error` `output_unsupported`). Die lokale Vorlese-Stimme der Mac-App
+  (AVSpeechSynthesizer) folgt der Einstellung nicht.
