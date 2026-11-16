@@ -330,6 +330,13 @@ struct ProviderBadge: View {
 
 struct Bubble: View {
     @Environment(InterpreterModel.self) private var m
+
+    private func backColor(_ off: Bool) -> Color { off ? Color.orange : Color.secondary }
+    private func backA11yLabel(_ off: Bool, _ b: String) -> String {
+        let warn: String = off ? T("back_deviates") + ". " : ""
+        let label: String = T("back_label")
+        return warn + label + ": " + b
+    }
     let entry: Entry
     var onBig: () -> Void
     var onEdit: () -> Void
@@ -355,8 +362,8 @@ struct Bubble: View {
                             Text(b)
                         }
                         .font(.caption)
-                        .foregroundStyle(off ? Color.orange : Color.secondary)
-                        .accessibilityLabel((off ? T("back_deviates") + ". " : "") + T("back_label") + ": " + b)
+                        .foregroundStyle(backColor(off))
+                        .accessibilityLabel(backA11yLabel(off, b))
                     }
                 } else if let err = entry.error {
                     HStack {
