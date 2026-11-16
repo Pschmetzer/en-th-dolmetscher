@@ -432,7 +432,7 @@ struct EmptyState: View {
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
             // Beispielsatz nur, wenn die Sprache der Oberfläche im Paar ist (sonst würde er falsch erkannt).
-            if let ui = Lang(rawValue: L10n.lang), m.pair.contains(ui) {
+            if let ui = L10n.asLang, m.pair.contains(ui) {
             Button(action: tryExample) {
                 Text(String(format: T("empty_example_fmt"), T("example_sentence")))
                     .font(.headline)

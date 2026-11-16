@@ -134,9 +134,10 @@ struct SettingsView: View {
 
                 Section {
                     Picker(T("ui_lang"), selection: $m.uiLang) {
-                        Text("Deutsch").tag("de")
-                        Text("English").tag("en")
-                        Text("ไทย").tag("th")
+                        ForEach(L10n.languages, id: \.self) { code in
+                            // Eigenname der Sprache („Deutsch“, „ไทย“, „简体中文“)
+                            Text(Locale(identifier: code).localizedString(forIdentifier: code)?.capitalized(with: Locale(identifier: code)) ?? code).tag(code)
+                        }
                     }
                 } footer: {
                     Text(T("shortcuts_note"))

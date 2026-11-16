@@ -1,0 +1,4 @@
+"NSMicrophoneUsageDescription" = "Dolmetscherは話された内容を翻訳するために音声を聞き取ります。";
+"NSSpeechRecognitionUsageDescription" = "翻訳のため、音声はこのデバイス上でテキストに変換されます。";
+"NSCameraUsageDescription" = "メニューや看板を撮影すると、Dolmetscherが文字を読み取って翻訳します。";
+"NSPhotoLibraryUsageDescription" = "メニューや看板の写真を選ぶと、Dolmetscherが文字を読み取って翻訳します。";

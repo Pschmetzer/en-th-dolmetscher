@@ -1,0 +1,4 @@
+"NSMicrophoneUsageDescription" = "Dolmetscher mendengarkan apa yang diucapkan agar dapat menerjemahkannya.";
+"NSSpeechRecognitionUsageDescription" = "Ucapan diubah menjadi teks di perangkat ini agar dapat diterjemahkan.";
+"NSCameraUsageDescription" = "Ambil foto menu atau papan petunjuk agar Dolmetscher dapat membaca dan menerjemahkan teksnya.";
+"NSPhotoLibraryUsageDescription" = "Pilih foto menu atau papan petunjuk agar Dolmetscher dapat membaca dan menerjemahkan teksnya.";

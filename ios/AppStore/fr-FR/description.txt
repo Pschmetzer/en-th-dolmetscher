@@ -1,0 +1,29 @@
+Dolmetscher est un interprète en direct mains libres pour voyager – conçu pour la Thaïlande, prêt pour 19 langues.
+
+Posez l'iPhone sur la table et parlez, tout simplement. L'app entend qui parle, reconnaît la langue, traduit et lit la traduction à voix haute. Aucun bouton entre deux phrases, aucun compte, aucune inscription.
+
+HORS LIGNE ET PRIVÉ
+• La reconnaissance vocale se fait toujours sur votre iPhone.
+• Avec les packs de langue hors ligne d'Apple, la traduction fonctionne sans Internet – au marché, sur l'île, dans le bus de nuit.
+• La traduction en ligne est désactivée par défaut. Le texte n'est envoyé à un traducteur en ligne que si vous l'activez.
+• Votre conversation reste sur cet iPhone, et vous décidez combien de temps elle est conservée.
+
+INTERPRÈTE EN DIRECT
+• Choisissez votre langue et celle de votre interlocuteur. Anglais ⇄ thaï est prêt dès le départ.
+• Détection automatique de la langue quand les deux langues ont des écritures différentes (par exemple anglais et thaï, allemand et japonais).
+• Vue interlocuteur : texte en grand pour l'autre personne, ou écran partagé avec le téléphone posé entre vous.
+• Affichez une traduction en plein écran pour les chauffeurs de taxi et les serveurs.
+• Saisissez une phrase ou traduisez le texte d'une photo de menu ou de panneau.
+
+PENSÉ POUR LA THAÏLANDE
+• Formules de politesse ครับ / ค่ะ choisies selon vous – les traducteurs les confondent souvent.
+• Guide de conversation avec des phrases thaïes prêtes à l'emploi et leur prononciation, disponible aussitôt hors ligne.
+• Numéros d'urgence thaïlandais et une fiche d'urgence à montrer (hôtel, allergies, infos médicales).
+• Convertisseur de baht avec votre propre taux de change – sans Internet.
+• Raccourci pour le bouton Action : une phrase d'urgence en thaï, lue fort.
+
+MAINS LIBRES
+• Dites "Translator, pause", "repeat", "slower" ou "louder" (avec l'anglais dans la paire).
+• Fonctionne avec Siri et l'app Raccourcis.
+
+Langues : anglais, thaï, allemand, espagnol, français, italien, portugais, néerlandais, russe, chinois, japonais, coréen, vietnamien, indonésien, arabe, hindi, turc, polonais, ukrainien. Les langues disponibles hors ligne dépendent de ce que votre iPhone prend en charge ; l'app ne propose que les langues qu'elle peut réellement reconnaître, traduire et prononcer.

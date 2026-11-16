@@ -1,0 +1,29 @@
+Dolmetscher là trình phiên dịch trực tiếp rảnh tay cho chuyến đi – thiết kế cho Thái Lan, hỗ trợ 19 ngôn ngữ.
+
+Đặt iPhone lên bàn và cứ thế nói chuyện. Ứng dụng nghe ai đang nói, nhận ra ngôn ngữ, dịch và đọc to bản dịch. Không cần bấm nút ở giữa, không tài khoản, không đăng ký.
+
+NGOẠI TUYẾN VÀ RIÊNG TƯ
+• Nhận dạng giọng nói luôn chạy trên iPhone của bạn.
+• Với gói ngôn ngữ ngoại tuyến của Apple, việc dịch hoạt động không cần internet – ở chợ, trên đảo, trên xe khách đêm.
+• Dịch trực tuyến mặc định tắt. Chỉ khi bạn bật lên, văn bản mới được gửi tới trình dịch trực tuyến.
+• Cuộc trò chuyện ở lại trên iPhone này, và bạn quyết định lưu bao lâu.
+
+PHIÊN DỊCH TRỰC TIẾP
+• Chọn ngôn ngữ của bạn và của người đối diện. Anh ⇄ Thái dùng được ngay.
+• Tự nhận diện ngôn ngữ khi hai ngôn ngữ dùng hệ chữ khác nhau (ví dụ Anh và Thái, Đức và Nhật).
+• Màn hình đối phương: chữ lớn cho người kia, hoặc chia đôi màn hình khi đặt điện thoại nằm giữa hai người.
+• Hiện bản dịch toàn màn hình cho tài xế taxi và nhân viên phục vụ.
+• Nhập câu bằng bàn phím hoặc dịch văn bản từ ảnh thực đơn, biển báo.
+
+DÀNH CHO THÁI LAN
+• Đuôi câu lịch sự ครับ / ค่ะ chọn đúng theo bạn – trình dịch thường nhầm lẫn.
+• Sổ tay hội thoại với câu tiếng Thái sẵn có kèm cách phát âm, dùng ngay khi ngoại tuyến.
+• Số khẩn cấp ở Thái Lan và thẻ khẩn cấp để đưa người khác xem (khách sạn, dị ứng, thông tin y tế).
+• Máy tính baht với tỷ giá do bạn nhập – không cần internet.
+• Phím tắt cho nút Tác vụ: một câu khẩn cấp tiếng Thái đọc thật to.
+
+RẢNH TAY
+• Nói "Translator, pause", "repeat", "slower" hoặc "louder" (khi cặp ngôn ngữ có tiếng Anh).
+• Hoạt động với Siri và ứng dụng Phím tắt.
+
+Ngôn ngữ: Anh, Thái, Đức, Tây Ban Nha, Pháp, Ý, Bồ Đào Nha, Hà Lan, Nga, Trung, Nhật, Hàn, Việt, Indonesia, Ả Rập, Hindi, Thổ Nhĩ Kỳ, Ba Lan, Ukraina. Ngôn ngữ nào dùng được ngoại tuyến tùy vào iPhone của bạn; ứng dụng chỉ hiển thị những ngôn ngữ mà máy thực sự nhận dạng, dịch và đọc được.
