@@ -40,7 +40,7 @@ def test_app_standardpaar_und_alte_schluessel():
 
 
 def test_app_sendet_langs_im_protokollformat():
-    assert 'push(["langs": ["mine": mineLang, "partner": partnerLang]])' in SWIFT
+    assert '["langs": ["mine": mineLang, "partner": partnerLang]]' in SWIFT and "push(langsMessage())" in SWIFT
     assert 'd.get("langs")' in (ROOT / "dolmetscher.py").read_text(encoding="utf-8") or '"langs" in d' in \
         (ROOT / "dolmetscher.py").read_text(encoding="utf-8")
     assert '{"langs": {"mine": "de", "partner": "th"}}' in DOCS

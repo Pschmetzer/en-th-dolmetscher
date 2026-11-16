@@ -177,7 +177,14 @@ final class EngineModel: NSObject, ObservableObject {
         Self.ud.set(mineLang, forKey: "mineLang"); Self.ud.set(partnerLang, forKey: "partnerLang")
         Langs.mine = mineLang; Langs.partner = partnerLang
         if lang != "auto" && !Langs.pair.contains(lang) { lang = "auto" }
-        push(["langs": ["mine": mineLang, "partner": partnerLang]])
+        push(langsMessage())
+    }
+    /// Paar samt gespeicherten Richtungen/Stimmen beider Sprachen in einer Zeile (`langs` wirkt zuerst):
+    /// sonst setzte die Engine neue Paarsprachen auf „übersetzen“ und Standardstimme zurück.
+    func langsMessage() -> [String: Any] {
+        var d: [String: Any] = ["langs": ["mine": mineLang, "partner": partnerLang]]
+        for c in [mineLang, partnerLang] { d["tr_\(c)"] = tr(c); d["voice_\(c)"] = voice(c) }
+        return d
     }
     /// Übersetzen je Sprache und Neural-Stimme je Sprache. Englisch/Thai bleiben in trEN/trTH bzw.
     /// voiceEN/voiceTH (gespeicherte Werte gelten weiter), die übrigen Sprachen stehen in diesen Tabellen.
@@ -962,7 +969,7 @@ final class EngineModel: NSObject, ObservableObject {
             if !preset.isEmpty { send(["preset": preset]) }
             // Paar während des Ladens geändert: nachreichen (ältere Engines ohne `langs` kennen nur en/th)
             if let p = o["langs"] as? [String: String], p["mine"] != mineLang || p["partner"] != partnerLang {
-                send(["langs": ["mine": mineLang, "partner": partnerLang]])
+                send(langsMessage())
             }
             if pushToTalk && !pttHolding { setPaused(true) }
             if wantListen && !micLent {
