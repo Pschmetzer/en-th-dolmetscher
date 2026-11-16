@@ -139,6 +139,11 @@ final class EngineModel: NSObject, ObservableObject {
     @Published var vocabSuggestion: (words: [String], profile: String)?
     /// Zuletzt als „zu unsicher“ verworfener Satz (`dropped` `unsure` mit `text`/`lang`): „Trotzdem übersetzen“.
     @Published var unsureDrop: (id: String, text: String, lang: String)?
+    /// Übersetzung fehlgeschlagen (Netz/Anbieter): Satz zum erneuten Versuchen (Nr. 161).
+    @Published var failedDrop: (id: String, text: String, lang: String)?
+    /// Während der eigenen Ausgabe wurde vermutlich gesprochen (Ereignis `missed`), kurz einblenden.
+    @Published var missedHint: String?
+    private var missedWork: DispatchWorkItem?
     /// Aktives Szenario-Preset laut Engine (`preset`-Ereignis): id und englischer Name; nil = keins.
     @Published private(set) var activePreset: (id: String, name: String)?
     /// Anzeigename des aktiven Presets in der Oberflächensprache.
@@ -227,6 +232,16 @@ final class EngineModel: NSObject, ObservableObject {
     @Published var llmStyle = ud.string(forKey: "llmStyle") ?? "casual" { didSet { Self.ud.set(llmStyle, forKey: "llmStyle"); send(["style": llmStyle]) } }
     /// Geschätzte Claude-Kosten dieser Sitzung in US-Dollar (nach Preisliste, von der Engine gezählt).
     @Published private(set) var llmCostUSD = 0.0
+    /// Geschätzte Claude-Kosten im laufenden Monat (über Neustarts, von der Engine gezählt).
+    @Published private(set) var llmMonthUSD = 0.0
+    /// Claude-Monatslimit in US-Dollar (0 = keins): darüber übersetzt die Engine mit Google (Nr. 16).
+    @Published var llmBudget = ud.object(forKey: "llmBudget") as? Double ?? 0 {
+        didSet {
+            let v = min(10000, max(0, llmBudget.isFinite ? llmBudget : 0))
+            if v != llmBudget { llmBudget = v }   // Zuweisung im eigenen didSet löst es nicht erneut aus
+            Self.ud.set(llmBudget, forKey: "llmBudget"); send(["llm_budget": llmBudget])
+        }
+    }
     /// Eigene Wörter/Namen für die Claude-Übersetzung (eine Zeile: `Wort => Übersetzung` oder nur `Name`).
     static let glossaryURL = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent("Library/Application Support/Dolmetscher/glossary.txt")
@@ -273,8 +288,19 @@ final class EngineModel: NSObject, ObservableObject {
     // Nur beim Start wirksam – Änderung startet den Prozess neu (Zuhör-Zustand bleibt).
     @Published var llmModel = ud.string(forKey: "llmModel") ?? "claude-haiku-5-5" { didSet { Self.ud.set(llmModel, forKey: "llmModel"); scheduleRestart() } }
     /// Gewähltes Mikrofon: Index (Fallback) und Name (stabil – Indizes ändern sich beim Ein-/Ausstecken).
-    @Published var mic = ud.string(forKey: "mic") ?? "" { didSet { Self.ud.set(mic, forKey: "mic"); scheduleRestart() } }
-    @Published var micName = ud.string(forKey: "micName") ?? "" { didSet { Self.ud.set(micName, forKey: "micName"); scheduleRestart() } }
+    /// Ändern ohne Neustart: `selectMic` schickt das Steuerfeld `mic` (Nr. 158).
+    @Published var mic = ud.string(forKey: "mic") ?? "" { didSet { Self.ud.set(mic, forKey: "mic") } }
+    @Published var micName = ud.string(forKey: "micName") ?? "" { didSet { Self.ud.set(micName, forKey: "micName") } }
+    /// Mikrofon wählen (Einstellungen): live per Steuerfeld `mic` – Name bevorzugt (Indizes verschieben sich).
+    func selectMic(index: String, name: String) {
+        guard index != mic || name != micName else { return }
+        mic = index; micName = name; micOverride = nil
+        send(["mic": Self.micControlValue(index: index, name: name)])   // auch während des Ladens
+    }
+    /// Wert für das Steuerfeld `mic`: Name, sonst Index, sonst Systemstandard.
+    static func micControlValue(index: String, name: String) -> String {
+        !name.isEmpty ? name : (!index.isEmpty ? index : "default")
+    }
     @Published var denoise = ud.bool(forKey: "denoise") { didSet { Self.ud.set(denoise, forKey: "denoise"); scheduleRestart() } }
     @Published var logText = ud.bool(forKey: "logText") { didSet { Self.ud.set(logText, forKey: "logText"); scheduleRestart() } }
     /// Wird nach dem Speichern/Löschen des API-Schlüssels erhöht (Engine liest ihn nur beim Start).
@@ -307,7 +333,7 @@ final class EngineModel: NSObject, ObservableObject {
 
     /// Einstellungen, die nur beim Start gelesen werden – Vergleich mit dem Stand beim Start.
     private var restartSignature: String {
-        "\(model)|\(mic)|\(micName)|\(denoise)|\(llmModel)|\(logText)|\(keyVersion)"
+        "\(model)|\(denoise)|\(llmModel)|\(logText)|\(keyVersion)"   // Mikrofon: live per `mic`
     }
     @Published private var launchedSignature: String?
     var needsRestart: Bool { state != .stopped && launchedSignature != nil && launchedSignature != restartSignature }
@@ -383,6 +409,9 @@ final class EngineModel: NSObject, ObservableObject {
 
     override init() {
         super.init()
+        // Absturz bei geschlossenem Fenster: macOS-Mitteilung mit „Neu starten“ (Nr. 351)
+        CrashNotifier.shared.onRestart = { [weak self] in self?.restart() }
+        CrashNotifier.shared.install()
         // Stimmprofil angelegt/gelöscht: laufende Engine lädt die Profile neu (kein Neustart nötig)
         NotificationCenter.default.addObserver(forName: .profilesChanged, object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated { self?.send(["reload_profiles": true]) }
@@ -606,7 +635,8 @@ final class EngineModel: NSObject, ObservableObject {
         var args = ["-u", script, "--json", "--idle", "--model", model, "--polite", polite, "--lang", lock, "--meter",
                     "--rate", String(rate), "--volume", Self.f2(volume),
                     "--silence", Self.f2(silence), "--sensitivity", sensitivity,
-                    "--llm-model", llmModel, "--style", llmStyle, logText ? "--log-text" : "--no-log-text",
+                    "--llm-model", llmModel, "--llm-budget", Self.f2(llmBudget), "--style", llmStyle,
+                    logText ? "--log-text" : "--no-log-text",
                     "--tts-race", Self.f2(ttsRace)]
         args.append(fastEndpoint ? "--fast-endpoint" : "--no-fast-endpoint")   // Engine-Standard ist aus
         if !twoPerson { args.append("--no-two-person") }
@@ -816,6 +846,7 @@ final class EngineModel: NSObject, ObservableObject {
         status = message
         crashLog = tail
         Announcer.post(message, force: true)
+        CrashNotifier.shared.notifyStopped(message)
     }
 
     /// Partner-Ansicht offen (die Partnerin liest mit): Bildschirm wachhalten.
@@ -1084,7 +1115,16 @@ final class EngineModel: NSObject, ObservableObject {
             if meter.voice { lastVoiceAt = Date() }
         case "net":
             let what = o["what"] as? String ?? "translate"
-            if o["ok"] as? Bool ?? true { netDown.remove(what) } else { netDown.insert(what) }
+            if o["ok"] as? Bool ?? true {
+                // Netz wieder da: den zuletzt gescheiterten Satz einmal automatisch neu übersetzen
+                if netDown.remove(what) != nil && what == "translate" && failedDrop != nil { retryFailed() }
+            } else { netDown.insert(what) }
+        case "missed":
+            missedHint = L.t(o["why"] as? String == "cut" ? "missed_cut" : "missed_overlap")
+            missedWork?.cancel()
+            let w = DispatchWorkItem { [weak self] in MainActor.assumeIsolated { self?.missedHint = nil } }
+            missedWork = w
+            DispatchQueue.main.asyncAfter(deadline: .now() + 6, execute: w)
         case "error":
             let code = o["code"] as? String, raw = o["msg"] as? String
             let msg = Self.errorText(code: code, msg: raw)
@@ -1105,6 +1145,9 @@ final class EngineModel: NSObject, ObservableObject {
             if replayPausedEngine { break }   // Echo der eigenen Wiedergabe verworfen – Status nicht ändern
             if o["code"] as? String == "unsure", let id, let text = o["text"] as? String, !text.isEmpty {
                 unsureDrop = (id, text, o["lang"] as? String ?? "")
+            }
+            if o["code"] as? String == "translate_failed", let id, let text = o["text"] as? String, !text.isEmpty {
+                failedDrop = (id, text, o["lang"] as? String ?? "")
             }
             defer { applyDeferredRestart() }
             if speakingNow { break }
@@ -1131,7 +1174,9 @@ final class EngineModel: NSObject, ObservableObject {
             if (pid ?? "") != preset { preset = pid ?? "" }
             applyingRemote = false
         case "pong": pongSeen = true   // Lebenszeichen – `lastAlive` setzt schon `consume`
-        case "llm_cost": llmCostUSD = (o["usd"] as? NSNumber)?.doubleValue ?? llmCostUSD
+        case "llm_cost":
+            llmCostUSD = (o["usd"] as? NSNumber)?.doubleValue ?? llmCostUSD
+            llmMonthUSD = (o["month_usd"] as? NSNumber)?.doubleValue ?? llmMonthUSD
         default: break
         }
     }
@@ -1158,6 +1203,7 @@ final class EngineModel: NSObject, ObservableObject {
         "voice_unknown": "err_voice_unknown", "glossary_invalid": "err_glossary_invalid", "langs_invalid": "err_langs_invalid",
         "file_empty": "err_file_empty", "file_failed": "err_file_failed",
         "profiles_failed": "err_speaker_model", "speak_invalid": "err_speak_invalid",
+        "llm_budget": "err_llm_budget", "mic_invalid": "err_mic_invalid",
     ]
     /// Status zu `dropped.code`; nil = Status nicht ändern.
     static func droppedText(_ code: String?) -> String? {
@@ -1374,6 +1420,24 @@ final class EngineModel: NSObject, ObservableObject {
 
     func say(_ text: String, lang: String = "en") {
         send(["say": ["text": text, "lang": lang]])
+    }
+
+    /// Frei getippter Satz (Kopfzeile, Nr. 345): Sprache aus der Schrift raten, sonst meine Sprache.
+    /// Höchstens 1000 Zeichen (Grenze der Engine). -> false bei leerem Text.
+    @discardableResult
+    func sayTyped(_ raw: String) -> Bool {
+        let text = String(raw.trimmingCharacters(in: .whitespacesAndNewlines).prefix(1000))
+        guard !text.isEmpty, running else { return false }
+        let g = Langs.guessLang(text)
+        say(text, lang: Langs.pair.contains(g) ? g : mineLang)
+        return true
+    }
+
+    /// „Erneut versuchen“ nach gescheiterter Übersetzung (Nr. 161).
+    func retryFailed() {
+        guard let d = failedDrop else { return }
+        failedDrop = nil
+        send(["retranslate": ["id": d.id, "text": d.text, "lang": d.lang]])
     }
 
     /// „Das war ich / Das war Partner“: Engine erkennt den Satz in der Sprache dieser Person neu
