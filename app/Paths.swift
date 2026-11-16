@@ -148,10 +148,27 @@ enum APIKeyStore {
     }
 
     static var fileExists: Bool { FileManager.default.fileExists(atPath: url.path) }
-    static var exists: Bool { keychainRead() != nil || fileExists }
+    /// Nur Attribute abfragen (kein Geheimnis lesen): löst keine Zugriffsabfrage aus.
+    static var exists: Bool {
+        var q = baseQuery
+        q[kSecReturnAttributes as String] = true
+        q[kSecMatchLimit as String] = kSecMatchLimitOne
+        return SecItemCopyMatching(q as CFDictionary, nil) == errSecSuccess || fileExists
+    }
+
+    /// Einmal je App-Sitzung gelesen (jeder Engine-Start bräuchte sonst einen Schlüsselbund-Zugriff);
+    /// Speichern und Entfernen setzen den Zwischenspeicher zurück.
+    private nonisolated(unsafe) static var cached: String??
 
     /// Schlüssel für die Engine: Schlüsselbund, sonst (Rückfall) die alte Datei.
     static func read() -> String? {
+        if let c = cached { return c }
+        let v = readUncached()
+        cached = .some(v)
+        return v
+    }
+
+    private static func readUncached() -> String? {
         if let k = keychainRead() { return k }
         guard let s = try? String(contentsOf: url, encoding: .utf8) else { return nil }
         let k = s.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -174,6 +191,7 @@ enum APIKeyStore {
     static func save(_ key: String) -> Bool {
         let k = key.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !k.isEmpty else { return false }
+        cached = nil
         if keychainWrite(k), keychainRead() == k {
             try? FileManager.default.removeItem(at: url)
             return true
@@ -223,6 +241,7 @@ enum APIKeyStore {
     }
 
     static func remove() {
+        cached = nil
         SecItemDelete(baseQuery as CFDictionary)
         try? FileManager.default.removeItem(at: url)
     }
