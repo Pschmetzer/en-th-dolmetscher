@@ -429,3 +429,5 @@ Neue Felder kommen nur dazu, `PROTOCOL` bleibt 1.
 - **Robustheit:** Die vorab gerenderte macOS-Ersatzstimme bricht bei Stopp/Barge-in ab, auch während die
   Ausgabe auf sie wartet (169/170). Das Mikrofon verbindet nach 5 schnellen Versuchen dauerhaft alle 10 s neu
   (192; `mic.attempt` zählt weiter). Stimmprofile werden atomar neu geladen (198).
+- **Verlauf-CLI:** `--history-export … --out PFAD` meldet Erfolg als JSON-Zeile `{"exported": true, "bytes": N}`
+  (388); die App zeigt „Fertig“ bei Export und Löschen nur noch mit dieser bzw. der `deleted`-Antwort (387/388).

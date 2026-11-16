@@ -309,6 +309,8 @@ def run_cli(a):
                 enc = "utf-8-sig" if a.history_export == "csv" else "utf-8"
                 with os.fdopen(fd, "w", encoding=enc, newline="") as f:
                     f.write(text)
+                # Nr. 388: Erfolg ausdrücklich melden (die App prüfte nur, ob die Datei existiert)
+                print(json.dumps({"exported": True, "bytes": len(text.encode(enc))}), flush=True)
             else:
                 print(text, end="")
         elif a.history_search is not None:

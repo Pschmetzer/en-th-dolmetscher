@@ -697,6 +697,8 @@ enum L {
         "a11y_resumed": ["de": "Geht weiter", "en": "Resumed", "th": "ทำงานต่อ"],
         "a11y_offline": ["de": "Keine Internetverbindung", "en": "No internet connection", "th": "ไม่มีการเชื่อมต่ออินเทอร์เน็ต"],
         "a11y_online": ["de": "Internet wieder da", "en": "Internet is back", "th": "อินเทอร์เน็ตกลับมาแล้ว"],
+        "history_clear_failed": ["de": "Löschen fehlgeschlagen – bitte erneut versuchen", "en": "Deleting failed – please try again",
+               "th": "ลบไม่สำเร็จ – โปรดลองอีกครั้ง"],
         "err_mic_not_found": ["de": "Gewähltes Mikrofon nicht gefunden – Standardmikrofon wird genutzt", "en": "Selected microphone not found – using the default microphone",
                "th": "ไม่พบไมโครโฟนที่เลือก – ใช้ไมโครโฟนเริ่มต้นแทน"],
         "err_mic_list_failed": ["de": "Mikrofonliste nicht abrufbar", "en": "Could not list microphones",

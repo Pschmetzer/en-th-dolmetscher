@@ -48,6 +48,29 @@ def test_absturz_banner_mit_diagnosebericht():
     assert "diagnosticReport(python:" in crash and 'L.t("diag_copy")' in crash
 
 
+def test_verlauf_loeschen_und_export_pruefen_ergebnis():
+    """Nr. 387/388: „Fertig“ nur mit Antwort der Engine, nicht weil der Prozess endete oder die Datei existierte."""
+    s = src("SettingsView.swift")
+    assert 'o["deleted"] != nil' in s and 'L.t("history_clear_failed")' in s
+    assert 'o["exported"] as? Bool == true' in s and "if ok && FileManager.default.fileExists" in s
+
+
+def test_export_meldet_erfolg(tmp_path, monkeypatch, capsys):
+    import argparse
+    import json
+
+    import history_store as hs
+    monkeypatch.setenv("DOLMETSCHER_HOME", str(tmp_path / "home"))
+    st = hs.Store(str(tmp_path / "h.db"))
+    st.add("hallo", "สวัสดี", lang="de")
+    st.close()
+    monkeypatch.setattr(hs, "Store", lambda real=hs.Store: real(str(tmp_path / "h.db")))
+    a = argparse.Namespace(history_export="md", history_search=None, history_purge=None, history_clear=False,
+                           history_session=None, out=str(tmp_path / "x.md"))
+    assert hs.run_cli(a) == 0
+    assert json.loads(capsys.readouterr().out)["exported"] is True
+
+
 def test_erklaerungen_und_bericht():
     s = src("SettingsView.swift")
     assert 'L.t("silence_help")' in s and 'L.t("sensitivity_help")' in s

@@ -175,7 +175,10 @@ private struct HistorySection: View {
         .confirmationDialog(L.t("history_clear_confirm"), isPresented: $confirmClear, titleVisibility: .visible) {
             Button(L.t("clear"), role: .destructive) {
                 note = ""
-                let p = EngineRunner.run(["--history-clear"], timeout: 30, onEvent: { _ in }, onExit: { note = L.t("done_short") })
+                var ok = false   // Nr. 387: nur mit Antwort der Engine „Fertig“ (nicht bei Fehler/Zeitlimit)
+                let p = EngineRunner.run(["--history-clear"], timeout: 30, onEvent: { o in
+                    if o["deleted"] != nil { ok = true }
+                }, onExit: { note = ok ? L.t("done_short") : L.t("history_clear_failed") })
                 if p == nil { note = Paths.pythonIsFallback ? L.t("python_missing") : L.t("script_missing") }
             }
             Button(L.t("cancel"), role: .cancel) {}
@@ -188,9 +191,11 @@ private struct HistorySection: View {
         panel.nameFieldStringValue = "Dolmetscher-history." + ext
         guard panel.runModal() == .OK, let url = panel.url else { return }
         note = ""
-        let started = EngineRunner.run(["--history-export", fmt, "--out", url.path], timeout: 60, onEvent: { _ in },
-                                       onExit: {
-            if FileManager.default.fileExists(atPath: url.path) {
+        var ok = false   // Nr. 388: Erfolg nur mit `exported` der Engine – eine schon vorhandene Datei zählt nicht
+        let started = EngineRunner.run(["--history-export", fmt, "--out", url.path], timeout: 60, onEvent: { o in
+            if o["exported"] as? Bool == true { ok = true }
+        }, onExit: {
+            if ok && FileManager.default.fileExists(atPath: url.path) {
                 note = L.t("done_short")
                 NSWorkspace.shared.activateFileViewerSelecting([url])
             } else {
