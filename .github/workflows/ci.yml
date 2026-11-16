@@ -58,9 +58,10 @@ jobs:
 
   macos:
     # Alles, was macOS braucht, in einem Job (eine macOS-Maschine statt drei): Tests mit Marker "macos",
-    # Typecheck und vollständige Kompilierung aller Swift-Dateien; mindestens macOS 14 (LSMinimumSystemVersion).
+    # Typecheck und vollständige Kompilierung aller Swift-Dateien mit demselben Ziel wie build.sh (macOS 14,
+    # LSMinimumSystemVersion). macos-26: der arm64-Pool von macos-15 nahm Jobs zeitweise gar nicht an.
     name: macOS (Swift + macOS-Tests)
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -77,11 +78,11 @@ jobs:
       - name: Typecheck Swift sources
         run: |
           swiftc --version
-          swiftc -typecheck -parse-as-library app/*.swift
+          swiftc -typecheck -parse-as-library -target arm64-apple-macos14.0 app/*.swift
       - name: Compile
         run: |
           mkdir -p build
-          swiftc -O -parse-as-library -o build/Dolmetscher app/*.swift
+          swiftc -O -parse-as-library -target arm64-apple-macos14.0 -o build/Dolmetscher app/*.swift
 
   lint:
     runs-on: ubuntu-latest
