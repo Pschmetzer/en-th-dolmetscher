@@ -166,8 +166,12 @@ extension EngineModel {
             + "preset=\(preset.isEmpty ? "-" : preset), verlauf=\(history)" + (hwInfo.map { ", hw=\($0)" } ?? "")
         var lines: [String] = [ver]
         lines.append("macOS \(ProcessInfo.processInfo.operatingSystemVersionString), \(arch)")
-        lines.append("Python: \(redact(Paths.python))" + (Paths.pythonIsFallback ? " (Ersatz, venv fehlt)" : "") + " – \(pyText)")
-        lines.append("ffmpeg: " + (Paths.ffmpeg.map(redact) ?? "nicht gefunden"))
+        let src: String = { switch Paths.pythonSource {
+            case .override: return " (Entwickler-Override)"
+            case .venv: return " (eigene venv, Stempel passt)"
+            case .none: return " (keine eingerichtete Umgebung)" } }()
+        lines.append("Python: \(redact(Paths.python))" + src + " – \(pyText)")
+        lines.append("Audio: " + (Paths.ffmpegOverride.map { "ffmpeg " + redact($0) + " (DOLMETSCHER_FFMPEG)" } ?? "PyAV (avhelper.py)"))
         lines.append("Modelle im Cache: " + (models.isEmpty ? "keine" : models.joined(separator: ", ")))
         lines.append(settings)
         lines.append("API-Schlüssel gespeichert: " + (APIKeyStore.exists ? "ja" : "nein"))
