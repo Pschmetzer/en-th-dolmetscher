@@ -27,7 +27,9 @@ def db_path():
     return os.path.join(home_dir(), "history.sqlite")
 
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
+# v2 (Runde 6, Nr. 205/206): t_begin (Sprechbeginn, für Untertitel), role (me/other), speaker (Profilname)
+V2_COLUMNS = (("t_begin", "REAL"), ("role", "TEXT"), ("speaker", "TEXT"))
 
 
 class Store:
@@ -58,8 +60,13 @@ class Store:
         v = self.db.execute("PRAGMA user_version").fetchone()[0]
         if v > SCHEMA_VERSION:
             raise sqlite3.DatabaseError(f"Verlauf hat Schema {v}, diese Version kennt {SCHEMA_VERSION}")
+        if v < 2:
+            # v0 -> v1: nur die Version (Tabellen oben sind v1); v1 -> v2: neue Spalten (Nr. 205/206)
+            have = {r[1] for r in self.db.execute("PRAGMA table_info(utt)")}
+            for col, typ in V2_COLUMNS:
+                if col not in have:
+                    self.db.execute(f"ALTER TABLE utt ADD COLUMN {col} {typ}")
         if v < SCHEMA_VERSION:
-            # v0 -> v1: nur die Version setzen (Tabellen oben sind schon v1)
             self.db.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
 
     def _init_fts(self):
@@ -79,16 +86,17 @@ class Store:
         self.db.close()
 
     def add(self, text, translation=None, lang=None, translit=None, conf=None, provider=None,
-            session="", ts=None, uid=None, replaces=None):
+            session="", ts=None, uid=None, replaces=None, t_begin=None, role=None, speaker=None):
         # Ersetzen, Einfügen und Suchindex in einer Transaktion: ein Absturz dazwischen verliert oder
         # verdoppelt keine Zeile (with self.db: commit bzw. rollback)
         with self.lock, self.db:
             if replaces:
                 self._delete_rows("uid = ?", (replaces,))
             cur = self.db.execute(
-                "INSERT INTO utt (uid, ts, session, lang, text, translation, translit, conf, provider) "
-                "VALUES (?,?,?,?,?,?,?,?,?)",
-                (uid, time.time() if ts is None else ts, session, lang, text, translation, translit, conf, provider))
+                "INSERT INTO utt (uid, ts, session, lang, text, translation, translit, conf, provider, t_begin, role,"
+                " speaker) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                (uid, time.time() if ts is None else ts, session, lang, text, translation, translit, conf, provider,
+                 t_begin, role, speaker))
             if self.fts:
                 self.db.execute("INSERT INTO utt_fts (rowid, text, translation) VALUES (?,?,?)",
                                 (cur.lastrowid, text or "", translation or ""))
@@ -190,22 +198,31 @@ def _flat(s):
     return " ".join((s or "").split())
 
 
+def _start(r):
+    """Nr. 205: Sprechbeginn, wenn gespeichert (ab Schema 2), sonst Zeitpunkt der fertigen Übersetzung."""
+    tb = r.get("t_begin")
+    return tb if isinstance(tb, (int, float)) and math.isfinite(tb) and tb <= r["ts"] else r["ts"]
+
+
 def _cues(rows):
     """[(start, end, text)] relativ zum Sitzungsstart; Ende = Beginn der nächsten Äußerung (max. 7 s)."""
     starts = {}
     for r in rows:
-        starts[r["session"]] = min(starts.get(r["session"], r["ts"]), r["ts"])
+        starts[r["session"]] = min(starts.get(r["session"], _start(r)), _start(r))
     out = []
     for i, r in enumerate(rows):
-        s = r["ts"] - starts[r["session"]]
+        s = _start(r) - starts[r["session"]]
         own = min(7.0, max(1.5, 0.06 * len(r["text"] or "")))
         nxt = rows[i + 1] if i + 1 < len(rows) and rows[i + 1]["session"] == r["session"] else None
-        e = s + own if nxt is None else min(s + own, max(s + 0.5, nxt["ts"] - starts[r["session"]]))
+        e = s + own if nxt is None else min(s + own, max(s + 0.5, _start(nxt) - starts[r["session"]]))
         body = r["text"] or ""
         if r["translation"] and r["translation"] != r["text"]:
             body += "\n" + r["translation"]
         out.append((s, e, body))
     return out
+
+
+WHO = ("role", "speaker")
 
 
 def export(rows, fmt):
@@ -215,15 +232,18 @@ def export(rows, fmt):
     if fmt == "json":
         return json.dumps([{"time": _iso(r["ts"]), "session": r["session"], "lang": r["lang"], "text": r["text"],
                             "translation": r["translation"], "translit": r["translit"],
-                            "confidence": r["conf"], "provider": r["provider"]} for r in rows],
+                            "confidence": r["conf"], "provider": r["provider"],
+                            **{k: r[k] for k in WHO if r.get(k)}} for r in rows],
                           ensure_ascii=False, indent=2) + "\n"
     if fmt == "csv":
         buf = io.StringIO()
         w = csv.writer(buf, lineterminator="\n")
-        w.writerow(["time", "session", "lang", "text", "translation", "translit", "confidence", "provider"])
+        who = [k for k in WHO if any(r.get(k) for r in rows)]   # Nr. 206: Spalten nur, wenn bekannt
+        w.writerow(["time", "session", "lang", "text", "translation", "translit", "confidence", "provider", *who])
         for r in rows:
             w.writerow([_iso(r["ts"]), r["session"], r["lang"], r["text"], r["translation"] or "",
-                        r["translit"] or "", "" if r["conf"] is None else r["conf"], r["provider"] or ""])
+                        r["translit"] or "", "" if r["conf"] is None else r["conf"], r["provider"] or "",
+                        *(r.get(k) or "" for k in who)])
         return buf.getvalue()
     if fmt == "anki":
         lines = ["#separator:tab", "#html:false"]
@@ -245,6 +265,8 @@ def export(rows, fmt):
             cur = r["session"]
             lines += [f"## Sitzung {cur} ({_iso(r['ts'])})", ""]
         tag = (r["lang"] or "?").upper()
+        who = r.get("speaker") or {"me": "ich", "other": "Partner"}.get(r.get("role") or "")
+        tag += f" · {_flat(who)}" if who else ""                 # Nr. 206: wer hat was gesagt
         lines.append(f"- **{_iso(r['ts'])[11:19]}** [{tag}] {_flat(r['text'])}")
         if r["translation"] and _flat(r["translation"]) != _flat(r["text"]):
             tl = f" ({_flat(r['translit'])})" if r["translit"] else ""
@@ -289,7 +311,9 @@ class Recorder:
                 kw["text"], kw.get("out") if kw.get("translated") else None, lang=kw.get("lang"),
                 translit=kw.get("text_latin") or kw.get("out_latin"),
                 conf=round(math.exp(lp), 3) if lp < 0 else None, provider=kw.get("provider"),
-                session=self.session, uid=kw.get("id"), replaces=kw.get("replaces"))
+                session=self.session, uid=kw.get("id"), replaces=kw.get("replaces"), t_begin=_t_begin(kw),
+                role=kw.get("role") if kw.get("role") in ("me", "other") else None,
+                speaker=kw.get("speaker") if isinstance(kw.get("speaker"), str) else None)
         except Exception:
             self.on = False                         # Platte voll, Datei weg …: nicht bei jedem Satz neu scheitern
             if self.on_error:
@@ -297,6 +321,15 @@ class Recorder:
                     self.on_error()
                 except Exception:
                     pass
+
+
+def _t_begin(kw, now=None):
+    """Sprechbeginn aus `utt`: jetzt − ready_s (Satzende bis Übersetzung) − dur (Länge der Äußerung)."""
+    ready, dur = kw.get("ready_s"), kw.get("dur")
+    if not all(isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x) and x >= 0
+               for x in (ready, dur)):
+        return None
+    return (time.time() if now is None else now) - ready - dur
 
 
 RECORDER = Recorder()

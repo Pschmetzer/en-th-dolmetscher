@@ -13,6 +13,7 @@ STYLE_KEYS = ("casual", "neutral", "polite")
 ID_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,31}$")
 MAX_GLOSSARY, MAX_PHRASES = 100, 50
 MAX_NAME, MAX_TERM, MAX_PHRASE, MAX_NOTE = 40, 60, 200, 500
+MAX_HOTWORDS, MAX_HINT = 30, 300          # Nr. 243: eigene Whisper-Hotwords und Ton-Hinweis für Claude
 last_errors = {}                          # Dateipfad -> Fehlertext des letzten load_all()
 overridden = []                           # ids, die ein Nutzer-Preset beim letzten load_all() ersetzt hat
 
@@ -65,7 +66,13 @@ def validate(d):
                             and all(_text(note.get(k), MAX_NOTE) for k in ("de", "en"))
                             and all(_text(v, MAX_NOTE) for v in note.values())):
         err.append(f"note muss {{de, en, th?}} mit Texten (1-{MAX_NOTE} Zeichen) sein")
-    extra = set(d) - {"id", "names", "style", "polite", "voice", "note", "glossary", "phrases"}
+    hw = d.get("hotwords", [])
+    if not (isinstance(hw, list) and len(hw) <= MAX_HOTWORDS and all(_text(w, MAX_TERM) for w in hw)):
+        err.append(f"hotwords muss eine Liste mit höchstens {MAX_HOTWORDS} Begriffen (1-{MAX_TERM} Zeichen) sein")
+    if "llm_hint" in d and not _text(d["llm_hint"], MAX_HINT):
+        err.append(f"llm_hint muss ein Text mit 1-{MAX_HINT} Zeichen sein")
+    extra = set(d) - {"id", "names", "style", "polite", "voice", "note", "glossary", "phrases", "hotwords",
+                      "llm_hint"}
     if extra:
         err.append("unbekannte Felder: " + ", ".join(sorted(extra)))
     return err
@@ -138,6 +145,7 @@ class PresetState:
     def __init__(self):
         self.active = None
         self.saved = None
+        self.hotwords, self.hint = [], None      # Nr. 243: aus dem aktiven Preset
 
     def activate(self, pid, presets, glossary, llm, eng, glossary_limit=200):
         """Preset anwenden (pid=None/"none": zurück). Gibt das Preset oder None zurück.
@@ -152,8 +160,11 @@ class PresetState:
             glossary[:] = self.saved["glossary"]
             self.saved = None
         self.active = None
+        self.hotwords, self.hint = [], None
         if p is None:
             return None
+        self.hotwords = [w.strip() for w in p.get("hotwords", [])]
+        self.hint = p["llm_hint"].strip() if p.get("llm_hint") else None
         self.saved = {"style": llm["style"], "polite": eng.polite, "glossary": list(glossary),
                       "voices": {k: eng.voices.get(k) for k in ("en", "th")}}
         self.active = pid

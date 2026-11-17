@@ -73,6 +73,9 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `--style casual\|neutral\|polite` | `casual` | Ton der Claude-Übersetzung |
 | `--earcons` | | Signalton statt gesprochener Bestätigung bei Sprachbefehlen |
 | `--slow` | | „Langsam und deutlich“ (wie Steuerfeld `slow`) |
+| `--let-finish S` | `0.0` | „Ausreden lassen“: nach dem Satzende so viele Sekunden Ruhe abwarten, bevor vorgelesen wird (0 … 5; wie Steuerfeld `let_finish`) |
+| `--catch-up skip\|fast\|off` | `skip` | Verhalten bei Rückstand (wie Steuerfeld `catch_up`) |
+| `--beam N` | `0` | Beam-Breite der Erkennung 1 … 5 (wie Steuerfeld `beam`); 0 = `DOLMETSCHER_BEAM` bzw. Hardware-Profil |
 | `--private` | | Privatmodus: keine Aufwärm-Anfragen an Google/Microsoft beim Start; lehnt ein Anbieter POST ab, kein Rückfall auf GET mit dem Text in der URL (Übersetzung scheitert dann mit `translate_failed`) |
 | `--back-translate` | | Rückübersetzung als Ereignis `back` (wie Steuerfeld `back_translate`) |
 | `--no-learn-glossary` | | Eigennamen aus Korrekturen nicht ins Glossar übernehmen (Standard: an) |
@@ -103,6 +106,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `DOLMETSCHER_CPU_THREADS` | Threads des CPU-Modells (Standard: Zahl der Performance-Kerne, `hw.perflevel0.physicalcpu`; höchstens 16) |
 | `DOLMETSCHER_MYMEMORY_EMAIL` | E-Mail-Adresse für MyMemory (Parameter `de`, höheres Tageslimit); nur lokal setzen, nie ins Repo. Treffer mit `match` unter 0,5 werden nicht vorgelesen (nächster Anbieter bzw. `translate_failed`) |
 | `DOLMETSCHER_DEBUG` | VAD-Diagnose ins Log |
+| `DOLMETSCHER_TUNE` | Feineinstellung ohne Neubau, z. B. `MIN_UTT=0.4,MAX_UTT=12`. Erlaubt: `MIN_UTT` (0,1–2), `MAX_UTT` (3–30), `MIN_LANG_P` (0,05–0,9), `SECOND_LOOK_MIN` (0–0,5), `SECOND_LOOK_TOP` (0,5–1), `HEDGE` (0,2–5), `FIRST_DEADLINE` (0,5–10); Werte werden auf den Bereich begrenzt, Unbekanntes steht im Log und wird ignoriert |
 | `DOLMETSCHER_NULL_AUDIO` | keine Tonausgabe (Tests) |
 | `DOLMETSCHER_SPEAKER_MODEL`, `DOLMETSCHER_SPEAKER_MODEL_URL` | Stimmprofil-Modell aus Datei bzw. URL |
 
@@ -177,6 +181,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `audio_missing` | Audio-Baustein fehlt: PyAV (`av`) nicht importierbar oder `avhelper.py` fehlt (gleich beim Start gemeldet) – Python-Umgebung neu einrichten |
 | `model_offline` | Modell fehlt lokal und kann ohne Internet nicht geladen werden |
 | `translate_failed` | Übersetzung fehlgeschlagen (alle Anbieter) |
+| `python_env_broken` | Pflichtmodul fehlt beim Laden der Modelle (kaputte Python-Umgebung); `module` = Modulname. Die Engine beendet sich danach mit Exit-Code 3, die App startet sie nicht neu und zeigt den Hinweis zum Neu-Einrichten |
 | `vad_failed` | Selbsttest der Sprach-Aktivitätserkennung (Silero-VAD aus faster-whisper) beim Start gescheitert – Python-Umgebung neu einrichten |
 | `llm_billing` | Claude-API: Guthaben oder Kontingent erschöpft – 30 min nur Google/MyMemory, dann neuer Versuch |
 | `llm_budget` | eigenes Claude-Monatslimit (`--llm-budget`/`llm_budget`) erreicht – bis Monatsende Google/MyMemory; einmal je Monat |

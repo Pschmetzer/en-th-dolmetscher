@@ -385,6 +385,7 @@ final class EngineModel: NSObject, ObservableObject {
     private var restartWork: DispatchWorkItem?
     /// Auto-Neustart nach Absturz: Zähler (zurück auf 0 nach 60 s stabiler Laufzeit oder bei Start durch den Nutzer).
     private(set) var restartAttempts = 0
+    private var envBrokenReported = false   // Nr. 402: Engine meldete `python_env_broken` vor dem Beenden
     private static let maxRestartAttempts = 3
     private var backoffWork: DispatchWorkItem?
     private var loadSlowWork: DispatchWorkItem?
@@ -877,8 +878,9 @@ final class EngineModel: NSObject, ObservableObject {
         loadSlowWork?.cancel(); loadSlowWork = nil; loadSlow = false
         resetRuntime()
         let signaled = reason == .uncaughtSignal
-        let envBroken = !wasReady && (tail.contains("No module named") || tail.contains("ModuleNotFoundError")
-            || tail.contains("ImportError"))
+        let envBroken = envBrokenReported || (!wasReady && (tail.contains("No module named")
+            || tail.contains("ModuleNotFoundError") || tail.contains("ImportError")))   // Logsuche nur für alte Engines
+        envBrokenReported = false
         let message: String
         if envBroken { message = L.t("crash_env") }
         else if signaled && code == SIGKILL { message = L.t("crash_oom") }
@@ -1204,6 +1206,7 @@ final class EngineModel: NSObject, ObservableObject {
         case "error":
             let code = o["code"] as? String, raw = o["msg"] as? String
             if code == "model_offline" { modelOffline = true; download = nil }
+            if code == "python_env_broken" { envBrokenReported = true }   // Nr. 402: Code statt Logsuche
             var msg = Self.errorText(code: code, msg: raw)
             if let s = (o["retry_in_s"] as? NSNumber)?.intValue, s > 0 { msg += " " + L.f("retry_in", s) }   // Nr. 66
             status = "⚠️ " + msg
@@ -1297,7 +1300,7 @@ final class EngineModel: NSObject, ObservableObject {
         "mic_timeout": "err_mic_timeout", "mic_failed": "err_mic_failed", "mic_not_found": "err_mic_not_found",
         "output_not_found": "err_output_not_found", "output_unsupported": "err_output_unsupported",
         "output_invalid": "err_output_not_found", "offline_mt_missing": "err_offline_mt_missing",
-        "preset_invalid": "err_preset_invalid", "vad_failed": "err_vad_failed",
+        "preset_invalid": "err_preset_invalid", "vad_failed": "err_vad_failed", "python_env_broken": "crash_env",
         "profile_name_invalid": "err_profile_name_invalid", "profile_invalid": "err_profile_invalid",
         "profile_not_found": "err_profile_not_found", "profile_delete_failed": "err_profile_delete_failed",
         "history_failed": "err_history_failed", "history_days_invalid": "err_history_days_invalid",
