@@ -152,6 +152,8 @@ mkdir -p "$NEWAPP/Contents/MacOS" "$NEWAPP/Contents/Resources"
 swiftc -O -parse-as-library -target "arm64-apple-macos$MIN_MACOS" -o "$NEWAPP/Contents/MacOS/Dolmetscher" app/*.swift
 cp dolmetscher.py avhelper.py profiles.py presets.py history_store.py hwprofile.py correction_learning.py \
    "$NEWAPP/Contents/Resources/"
+# Gemeinsame Sprachtabelle: Engine (neben dolmetscher.py) und App (Bundle.main) lesen dieselbe Datei.
+cp languages.json "$NEWAPP/Contents/Resources/languages.json"
 # Einrichtung: Lock, Stempel (Lock-Hash + Python + Architektur), Skript, uv.
 cp requirements.txt "$NEWAPP/Contents/Resources/requirements.txt"
 cp build-support/setup-env.sh "$NEWAPP/Contents/Resources/setup-env.sh"
