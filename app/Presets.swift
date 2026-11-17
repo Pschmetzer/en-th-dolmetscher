@@ -6,8 +6,10 @@ import Foundation
 struct Preset: Identifiable, Equatable {
     let id: String
     let names: [String: String]
-    /// Schnellsätze des Presets: englischer und thailändischer Text.
-    let phrases: [(en: String, th: String)]
+    /// Schnellsätze des Presets: englischer und thailändischer Text; `critical` = wichtiger Satz (hervorheben).
+    let phrases: [(en: String, th: String, critical: Bool)]
+    /// Kultur-/Sicherheitshinweis {de, en, th?} (leer = keiner).
+    let note: [String: String]
 
     var name: String { names[L.lang.rawValue] ?? names["en"] ?? id }
 
@@ -21,10 +23,26 @@ struct Preset: Identifiable, Equatable {
         self.id = id
         self.names = names.mapValues { String($0.prefix(40)) }
         let raw = json["phrases"] as? [[String: Any]] ?? []
-        phrases = raw.prefix(50).compactMap { d in
+        phrases = Self.parsePhrases(raw)
+        note = Self.parseNote(json["note"])
+    }
+
+    /// Wie die Engine (presets.app_fields): höchstens 50 Sätze, Texte gekürzt.
+    static func parsePhrases(_ raw: [[String: Any]]) -> [(en: String, th: String, critical: Bool)] {
+        raw.prefix(50).compactMap { d in
             guard let en = d["en"] as? String, let th = d["th"] as? String else { return nil }
-            return (String(en.prefix(200)), String(th.prefix(200)))
+            return (String(en.prefix(200)), String(th.prefix(200)), d["critical"] as? Bool ?? false)
         }
+    }
+
+    static func parseNote(_ v: Any?) -> [String: String] {
+        ((v as? [String: Any]) ?? [:]).compactMapValues { ($0 as? String).map { String($0.prefix(500)) } }
+    }
+
+    /// Hinweis in der Oberflächensprache, sonst Englisch; nil = keiner.
+    static func noteText(_ note: [String: String]) -> String? {
+        let t = note[L.lang.rawValue] ?? note["en"]
+        return (t?.isEmpty ?? true) ? nil : t
     }
 }
 

@@ -718,6 +718,7 @@ struct QuickPhraseBar: View {
     @AppStorage(Prefs.quickPhrases) private var raw = Prefs.defaultPhrases
     @State private var adding = false
     @State private var draft = ""
+    @State private var showNote = false
 
     private func remove(_ i: Int) {
         var l = Prefs.phrases(raw)
@@ -735,13 +736,33 @@ struct QuickPhraseBar: View {
                     .help(L.t("phrase_add_help"))
                     .accessibilityLabel(L.t("phrase_add_help"))
                 if let pr = PresetCatalog.all.first(where: { $0.id == m.preset }), m.activePreset != nil {
-                    // Preset-Sätze gibt es auf Englisch und Thai: nur mit einer der beiden Sprachen im Paar
-                    ForEach(Array(pr.phrases.enumerated()), id: \.offset) { _, ph in
+                    // Hinweis und Sätze aus dem Ereignis der Engine, sonst aus der Datei (z. B. nach Neuverbinden).
+                    let note = Preset.noteText(m.activePresetNote ?? pr.note)
+                    let list = m.activePresetPhrases ?? pr.phrases
+                    if let note {
+                        Button { showNote.toggle() } label: { Image(systemName: "info.circle") }
+                            .buttonStyle(.bordered)
+                            .help(note)
+                            .accessibilityLabel(L.t("preset_note"))
+                            .popover(isPresented: $showNote) {
+                                Text(note).padding(12).frame(width: 320, alignment: .leading)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .textSelection(.enabled)
+                            }
+                    }
+                    // Preset-Sätze gibt es auf Englisch und Thai: nur mit einer der beiden Sprachen im Paar.
+                    // Kritische Sätze (Notfall, Allergie …) zuerst, rot und mit Warnsymbol.
+                    let ordered = list.filter(\.critical) + list.filter { !$0.critical }
+                    ForEach(Array(ordered.enumerated()), id: \.offset) { _, ph in
                         let useTH = !Langs.hasEnglish && Langs.hasThai
-                        Button(useTH ? ph.th : ph.en) { m.say(useTH ? ph.th : ph.en, lang: useTH ? "th" : "en") }
-                            .buttonStyle(.bordered).tint(.accentColor)
+                        let text = useTH ? ph.th : ph.en
+                        Button { m.say(text, lang: useTH ? "th" : "en") } label: {
+                            if ph.critical { Label(text, systemImage: "exclamationmark.triangle.fill") } else { Text(text) }
+                        }
+                            .buttonStyle(.bordered).tint(ph.critical ? .red : .accentColor)
                             .disabled(!m.engineReady || !(Langs.hasEnglish || Langs.hasThai))
                             .help(useTH ? ph.en : ph.th)
+                            .accessibilityLabel(ph.critical ? L.t("preset_critical") + ": " + text : text)
                             .accessibilityHint(L.t("preset_phrase_help"))
                     }
                     Divider().frame(height: 18)

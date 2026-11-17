@@ -156,6 +156,9 @@ final class EngineModel: NSObject, ObservableObject {
     private var missedWork: DispatchWorkItem?
     /// Aktives Szenario-Preset laut Engine (`preset`-Ereignis): id und englischer Name; nil = keins.
     @Published private(set) var activePreset: (id: String, name: String)?
+    /// Kulturhinweis und Schnellsätze des aktiven Presets laut Ereignis (`note`, `phrases`); nil = aus der Datei.
+    @Published private(set) var activePresetNote: [String: String]?
+    @Published private(set) var activePresetPhrases: [(en: String, th: String, critical: Bool)]?
     /// Anzeigename des aktiven Presets in der Oberflächensprache.
     var activePresetName: String? {
         guard let a = activePreset else { return nil }
@@ -332,6 +335,11 @@ final class EngineModel: NSObject, ObservableObject {
         didSet { Self.ud.set(outputDeviceName, forKey: "outputDeviceName") }
     }
     @Published var denoise = ud.bool(forKey: "denoise") { didSet { Self.ud.set(denoise, forKey: "denoise"); scheduleRestart() } }
+    /// Offline-Übersetzung (Apple, on-device) als Rückfall ohne Netz. Standard an, wenn der Helfer im Bundle liegt
+    /// und das System ihn ausführen kann (macOS 26.4+). Nur beim Start gelesen (`--offline-translator`).
+    @Published var offlineMT = (ud.object(forKey: "offlineMT") as? Bool) ?? (Paths.bundledTranslateHelper != nil) {
+        didSet { Self.ud.set(offlineMT, forKey: "offlineMT"); scheduleRestart() }
+    }
     @Published var logText = ud.bool(forKey: "logText") { didSet { Self.ud.set(logText, forKey: "logText"); scheduleRestart() } }
     /// Wird nach dem Speichern/Löschen des API-Schlüssels erhöht (Engine liest ihn nur beim Start).
     @Published var keyVersion = 0 { didSet { scheduleRestart() } }
@@ -363,7 +371,7 @@ final class EngineModel: NSObject, ObservableObject {
 
     /// Einstellungen, die nur beim Start gelesen werden – Vergleich mit dem Stand beim Start.
     private var restartSignature: String {
-        "\(model)|\(denoise)|\(llmModel)|\(logText)|\(keyVersion)"   // Mikrofon: live per `mic`
+        "\(model)|\(denoise)|\(llmModel)|\(logText)|\(keyVersion)|\(offlineMT)"   // Mikrofon: live per `mic`
     }
     @Published private var launchedSignature: String?
     var needsRestart: Bool { state != .stopped && launchedSignature != nil && launchedSignature != restartSignature }
@@ -703,6 +711,7 @@ final class EngineModel: NSObject, ObservableObject {
         if backTranslate { args.append("--back-translate") }
         if !learnGlossary { args.append("--no-learn-glossary") }
         if history { args.append("--history") }
+        if offlineMT, let helper = Paths.bundledTranslateHelper { args += ["--offline-translator", helper] }
         return args
     }
 
@@ -1234,6 +1243,8 @@ final class EngineModel: NSObject, ObservableObject {
         case "preset":
             let pid = o["id"] as? String
             activePreset = pid.map { ($0, o["name"] as? String ?? $0) }
+            activePresetNote = o["note"].map { Preset.parseNote($0) }
+            activePresetPhrases = (o["phrases"] as? [[String: Any]]).map { Preset.parsePhrases($0) }
             applyingRemote = true   // Sprachbefehl „Translator, preset taxi“: Auswahl übernehmen, nicht zurückschicken
             if (pid ?? "") != preset { preset = pid ?? "" }
             applyingRemote = false
@@ -1274,13 +1285,14 @@ final class EngineModel: NSObject, ObservableObject {
     /// Codes, deren `msg` eine wechselnde Ursache enthält: im Hinweis zusätzlich zum übersetzten Text zeigen.
     static let errorDetailCodes: Set<String> = ["translate_failed", "mic_failed", "mic_unavailable",
                                                 "mic_list_failed", "ffmpeg_missing", "file_failed", "file_empty",
-                                                "profiles_failed"]
+                                                "profiles_failed", "preset_invalid"]
     /// `error.code` (docs/PROTOKOLL.md) -> L10n-Schlüssel. Literale Schlüssel: tests/test_l10n_keys.py prüft sie.
     static let errorKeys: [String: String] = [
         "mic_denied": "err_mic_denied", "mic_unavailable": "err_mic_unavailable", "mic_no_data": "err_mic_no_data",
         "mic_timeout": "err_mic_timeout", "mic_failed": "err_mic_failed", "mic_not_found": "err_mic_not_found",
         "output_not_found": "err_output_not_found", "output_unsupported": "err_output_unsupported",
         "output_invalid": "err_output_not_found", "offline_mt_missing": "err_offline_mt_missing",
+        "preset_invalid": "err_preset_invalid",
         "profile_name_invalid": "err_profile_name_invalid", "profile_invalid": "err_profile_invalid",
         "profile_not_found": "err_profile_not_found", "profile_delete_failed": "err_profile_delete_failed",
         "history_failed": "err_history_failed", "history_days_invalid": "err_history_days_invalid",
@@ -1668,6 +1680,7 @@ final class EngineModel: NSObject, ObservableObject {
         slowMode = false; backTranslate = false; learnGlossary = true
         ttsRace = 1.4; fastEndpoint = false; twoPerson = true; partialText = false
         llmModel = "claude-haiku-5-5"; mic = ""; micName = ""; denoise = false; logText = false
+        offlineMT = Paths.bundledTranslateHelper != nil
         pushToTalk = false; model = "medium"; preset = ""; history = false
         for k in Prefs.resettableKeys { Self.ud.removeObject(forKey: k) }
         Self.ud.set(L.defaultCode, forKey: L.key)

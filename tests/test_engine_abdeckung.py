@@ -86,8 +86,7 @@ def test_pick_voice(monkeypatch, lang, voices, want):
     assert d.pick_voice(lang) == want
 
 
-@pytest.mark.xfail(strict=True, reason="pick_voice prüft die Tabellenstimme per Teilstring (`v not in out`): "
-                   "'Milena2' gilt als installierte 'Milena' – Fehler, Produktcode hier nicht geändert")
+# Runde 5: exakter Namensvergleich – „Milena2“ gilt nicht als installierte „Milena“.
 def test_pick_voice_tabellenstimme_als_teilstring_gilt_nicht_als_installiert(monkeypatch):
     monkeypatch.setattr(d, "_say_voices", lambda: "Milena2            ru_RU    # Привет\n" + SAY_LIST)
     assert d.pick_voice("ru") == "Milena2"

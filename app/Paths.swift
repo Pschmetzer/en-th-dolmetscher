@@ -19,6 +19,15 @@ enum Paths {
         let p = Bundle.main.bundleURL.appendingPathComponent("Contents/Helpers/uv").path
         return FileManager.default.isExecutableFile(atPath: p) ? p : nil
     }
+    /// Mitgelieferter translate-helper (Apple Translation, on-device; Contents/Helpers). Läuft erst ab macOS 26.4 –
+    /// auf älteren Systemen gilt er als nicht vorhanden (der Helfer würde nur „macOS 26.4 nötig“ melden).
+    static var bundledTranslateHelper: String? {
+        let p = Bundle.main.bundleURL.appendingPathComponent("Contents/Helpers/translate-helper").path
+        guard FileManager.default.isExecutableFile(atPath: p),
+              ProcessInfo.processInfo.isOperatingSystemAtLeast(OperatingSystemVersion(majorVersion: 26, minorVersion: 4, patchVersion: 0))
+        else { return nil }
+        return p
+    }
     static var bundledLock: String? { Bundle.main.path(forResource: "requirements", ofType: "txt") }
     static var bundledStamp: String? { Bundle.main.path(forResource: "env-stamp", ofType: nil) }
     static var setupScript: String? { Bundle.main.path(forResource: "setup-env", ofType: "sh") }

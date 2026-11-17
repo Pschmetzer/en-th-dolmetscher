@@ -41,7 +41,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `--device auto\|mps\|cpu` | `auto` | Rechengerät (Apple-GPU, sonst CPU) |
 | `--mic INDEX\|NAME\|default` | `0` | Mikrofon: Index aus `--list-mics`, besser der **Name** (Indizes verschieben sich, sobald AirPods/USB-Mikros dazukommen; der Name wird erst beim Öffnen auf den aktuellen Index abgebildet). Unbekannter Name: `error` `mic_not_found`, Standardmikrofon |
 | `--output-device UID\|NAME\|INDEX` | `` | Ausgabegerät für alle Sprachausgaben (CoreAudio-UID bevorzugt, sonst Name oder Index; leer = Systemstandard). Unbekannt: `error` `output_not_found`, Systemstandard |
-| `--offline-translator [PFAD]` | | Offline-Übersetzung ohne Netz über `translate-helper` (Apple Translation, on-device): nur wenn Google/MyMemory wegen fehlenden Netzes scheitern und das Sprachpaar installiert ist (`provider: "apple"`, nicht gecacht). Ohne Pfad: `DOLMETSCHER_TRANSLATE_HELPER`, sonst `translate-helper` neben `dolmetscher.py`. Fehlt der Helfer: `error` `offline_mt_missing` |
+| `--offline-translator [PFAD]` | | Offline-Übersetzung ohne Netz über `translate-helper` (Apple Translation, on-device): nur wenn Google/MyMemory wegen fehlenden Netzes scheitern und das Sprachpaar installiert ist (`provider: "apple"`, nicht gecacht). Ohne Pfad: `DOLMETSCHER_TRANSLATE_HELPER`, sonst `translate-helper` neben `dolmetscher.py` oder im App-Bundle unter `Contents/Helpers/` (build.sh legt ihn dort ab, signiert mit Hardened Runtime; die Mac-App übergibt den Pfad, Einstellung „Offline-Übersetzung (Apple) als Rückfall“, Standard an ab macOS 26.4). Fehlt der Helfer: `error` `offline_mt_missing` |
 | `--list-mics` | | gibt `{"event":"mics","mics":[{"index":"0","name":"MacBook Pro Microphone"}]}` aus und beendet sich; bei Fehler (ffmpeg fehlt/hängt) zuerst `error` (`mic_list_failed`), dann `mics` mit leerer Liste |
 | `--polite krub\|ka` | `krub` | Höflichkeitswort/Stimme Thai |
 | `--langs MEINE,PARTNER` | `en,th` | Sprachpaar (siehe „Sprachpaar“) |
@@ -166,6 +166,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `output_not_found`, `output_invalid`, `output_unsupported` | Ausgabegerät unbekannt (Systemstandard wird genutzt) / Steuerwert `output_device` ungültig / mit `DOLMETSCHER_FFMPEG` nicht wählbar |
 | `profile_name_invalid`, `profile_invalid`, `profile_not_found`, `profile_delete_failed` | Profil-Aufrufe: Name ungültig / Profil oder Höflichkeitsform ungültig / Profil fehlt / Stimmdaten nicht löschbar |
 | `history_failed`, `history_days_invalid` | Verlauf: Datenbank nicht nutzbar (Aufzeichnung aus) / `history_days` ungültig (es wird nichts gelöscht) |
+| `preset_invalid` | Beim Laden der Presets (Wechsel per `preset`) waren Dateien ungültig und wurden übersprungen; `files` = Dateinamen, Details im Log. Je Fehlerbild einmal |
 | `offline_mt_missing` | `--offline-translator`: `translate-helper` nicht gefunden oder nicht ausführbar – ohne Netz keine Übersetzung |
 | `mic_list_failed` | `--list-mics` konnte ffmpeg nicht abfragen |
 | `mic_file_missing`, `ffmpeg_missing` | `DOLMETSCHER_MIC_FILE` fehlt / das per `DOLMETSCHER_FFMPEG` gesetzte ffmpeg fehlt (gleich beim Start gemeldet) oder ist nicht startbar |
@@ -339,7 +340,14 @@ haben Vorrang). `preset: "none"` (oder `null`) stellt Stil, Höflichkeit, Stimme
 her. Eigene `style`/`glossary`-Änderungen während eines Presets werden zur neuen Basis. Unbekannte `id`: nichts
 ändert sich. Sprachbefehl: "Translator, hotel mode" / "preset taxi" / "preset off" (höchstens 5 Wörter).
 
-Ereignis `preset` beim Wechsel: `id` und `name` (englisch); beide `null` bei "kein Preset".
+- optional `note` `{de, en, th?}` (max. 500 Zeichen): Kultur- bzw. Sicherheitshinweis zum Szenario
+- optional je Schnellsatz `critical: true`: wichtiger Satz (Notfall, Allergie, Polizei), die App hebt ihn hervor
+
+Ereignis `preset` beim Wechsel: `id` und `name` (englisch), `note` (`{de, en, th?}` oder `null`) und `phrases`
+(`[{en, th, critical}]`, Reihenfolge wie in der Datei); `id`/`name`/`note` `null` und `phrases` `[]` bei
+"kein Preset". Die Mac-App zeigt den Hinweis in der Oberflächensprache (sonst Englisch) über ein ⓘ in der
+Schnellsatz-Leiste und stellt kritische Sätze vorn und rot mit Warnsymbol dar (VoiceOver: „Wichtig“). Nach einem
+Neuverbinden (`state` kennt nur die id) liest sie dieselben Felder aus `presets/*.json`.
 
 ## Gesprächsverlauf (optional, Standard: aus)
 

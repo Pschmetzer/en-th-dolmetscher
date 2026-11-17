@@ -1404,18 +1404,35 @@ def _mt(fn, text, src, dst, *extra):
 
 
 PRESET = presets.PresetState()
+_PRESET_REPORTED = {"errors": None}
+
+
+def _report_preset_problems():
+    """Nr. 201: ungültige Preset-Dateien einmal je Fehlerbild als `error` `preset_invalid` melden (nur Dateinamen,
+    Details im Log); ein Nutzer-Preset, das ein mitgeliefertes ersetzt, steht im Log."""
+    if presets.overridden:
+        log({"preset": "ersetzt", "ids": sorted(presets.overridden)})
+    errs = {os.path.basename(k): v for k, v in presets.last_errors.items()}
+    key = tuple(sorted(errs))
+    if key == _PRESET_REPORTED["errors"]:
+        return
+    _PRESET_REPORTED["errors"] = key
+    if errs:
+        log({"preset": "ungültig", "errors": errs})
+        emit("error", code="preset_invalid", msg="Preset-Dateien ungültig: " + ", ".join(key)[:200], files=list(key))
 
 
 def set_preset(eng, pid, quiet=False):
     """Szenario-Preset an/aus (pid None/"none" = zurück). Gibt den Namen (en) oder None zurück."""
     all_p = presets.load_all()
+    _report_preset_problems()
     if pid not in (None, "", "none") and pid not in all_p:
         log({"preset": "unbekannt", "id": str(pid)[:40]})
         return None
     p = PRESET.activate(pid, all_p, GLOSSARY, LLM, eng)
     _cache_clear()                     # Stil und Glossar ändern die Übersetzung
     if not quiet:
-        emit("preset", id=p["id"] if p else None, name=p["names"]["en"] if p else None)
+        emit("preset", id=p["id"] if p else None, name=p["names"]["en"] if p else None, **presets.app_fields(p))
     return p["names"]["en"] if p else None
 
 
@@ -1864,7 +1881,7 @@ def _mt_chain(text, src, dst, meta, deadline=None):
 # Nr. 28/165: Offline-Übersetzung über tools/translate-helper (Apple Translation, on-device). Dritte Stufe nur,
 # wenn Google/MyMemory wegen fehlenden Netzes scheitern – nie statt eines erreichbaren Online-Anbieters.
 # Opt-in: --offline-translator PFAD oder DOLMETSCHER_TRANSLATE_HELPER; ohne Pfad sucht die Engine
-# `translate-helper` neben dolmetscher.py (sobald das App-Bundle ihn mitliefert). Ergebnisse werden nicht
+# `translate-helper` neben dolmetscher.py bzw. in Contents/Helpers des App-Bundles (build.sh). Ergebnisse werden nicht
 # gecacht (online ist die Qualität besser). Sprachpakete installiert der Nutzer in den Systemeinstellungen.
 OFFLINE_MT_TIMEOUT = 6.0           # s je Satz
 OFFLINE_MT_START = 5.0             # s bis zur ready-Zeile
@@ -1877,9 +1894,19 @@ class OfflineMT:
         self.lock = threading.Lock()
         self.failed_at = None                       # Start gescheitert: nicht bei jedem Satz neu versuchen
 
+    @staticmethod
+    def bundled():
+        """translate-helper aus dem App-Bundle (Contents/Helpers, neben Contents/Resources/dolmetscher.py) oder
+        direkt neben dolmetscher.py (Entwicklung); None, wenn keiner da ist."""
+        base = os.path.dirname(os.path.abspath(__file__))
+        for p in (os.path.join(base, "translate-helper"),
+                  os.path.join(os.path.dirname(base), "Helpers", "translate-helper")):
+            if os.path.isfile(p):
+                return p
+        return None
+
     def configure(self, path=None, on=False):
-        here = os.path.join(os.path.dirname(os.path.abspath(__file__)), "translate-helper")
-        cand = path or os.environ.get("DOLMETSCHER_TRANSLATE_HELPER") or (here if os.path.exists(here) else None)
+        cand = path or os.environ.get("DOLMETSCHER_TRANSLATE_HELPER") or self.bundled()
         self.path = cand if cand and os.path.isfile(cand) and os.access(cand, os.X_OK) else None
         self.on = bool(on and self.path)
         if on and not self.path:
@@ -2300,13 +2327,18 @@ def pick_voice(lang):
     if not out:
         return v
     loc = (LANGS.get(lang) or LANGS["en"])["locale"]
-    for line in out.splitlines():                      # bessere Stimmen bevorzugen
-        if loc in line and re.search(r"Premium|Enhanced|Erweitert", line):
-            return line.split(loc)[0].strip()
-    if v not in out:
-        for line in out.splitlines():
-            if loc in line:
-                return line.split(loc)[0].strip()
+    voices = []                                        # (Name, Locale) je Zeile; Name exakt, nie per Teilstring
+    for line in out.splitlines():
+        m = re.match(r"^(.*?)\s+([a-z]{2,3}_[A-Za-z0-9]+)\s", line + " ")
+        if m:
+            voices.append((m.group(1).strip(), m.group(2)))
+    for name, vl in voices:                            # bessere Stimmen bevorzugen
+        if vl == loc and re.search(r"Premium|Enhanced|Erweitert", name):
+            return name
+    if v not in {name for name, _ in voices}:
+        for name, vl in voices:
+            if vl == loc:
+                return name
     return v
 
 

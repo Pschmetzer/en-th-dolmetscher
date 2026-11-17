@@ -14,6 +14,7 @@ ID_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,31}$")
 MAX_GLOSSARY, MAX_PHRASES = 100, 50
 MAX_NAME, MAX_TERM, MAX_PHRASE, MAX_NOTE = 40, 60, 200, 500
 last_errors = {}                          # Dateipfad -> Fehlertext des letzten load_all()
+overridden = []                           # ids, die ein Nutzer-Preset beim letzten load_all() ersetzt hat
 
 
 def home():
@@ -74,6 +75,7 @@ def load_all():
     """{id: preset}. Nutzer-Verzeichnis überschreibt das App-Verzeichnis."""
     out = {}
     last_errors.clear()
+    overridden.clear()
     for folder in (app_dir(), user_dir()):
         try:
             files = sorted(f for f in os.listdir(folder) if f.endswith(".json"))
@@ -91,8 +93,21 @@ def load_all():
             if err:
                 last_errors[path] = "; ".join(err)
                 continue
+            if d["id"] in out and folder == user_dir():
+                overridden.append(d["id"])
             out[d["id"]] = d
     return out
+
+
+def app_fields(preset):
+    """Felder für die App im `preset`-Ereignis: Kulturhinweis `note` ({de, en, th?} oder None) und die
+    Schnellsätze `phrases` [{en, th, critical}] – kritische Sätze (Notfall, Allergie …) hebt die App hervor."""
+    if not preset:
+        return {"note": None, "phrases": []}
+    note = preset.get("note")
+    return {"note": dict(note) if isinstance(note, dict) else None,
+            "phrases": [{"en": ph["en"], "th": ph["th"], "critical": bool(ph.get("critical"))}
+                        for ph in preset.get("phrases", [])]}
 
 
 def glossary_entries(preset):

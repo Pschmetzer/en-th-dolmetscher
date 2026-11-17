@@ -122,13 +122,14 @@ def test_apply_control_preset_and_event(capsys, monkeypatch):
     monkeypatch.setitem(D.LLM, "style", "casual")
     D.apply_control(eng, {"preset": "hotel"})
     out = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
-    assert out == {"event": "preset", "id": "hotel", "name": "Hotel"}
+    assert {k: out[k] for k in ("event", "id", "name")} == {"event": "preset", "id": "hotel", "name": "Hotel"}
+    assert out["phrases"] and all(set(ph) == {"en", "th", "critical"} for ph in out["phrases"])   # Runde 5
     assert D.LLM["style"] == "polite" and any(a == "check-in" for a, _ in D.GLOSSARY)
     D.apply_control(eng, {"style": "neutral"})            # Nutzeränderung wird Basis, Preset bleibt aktiv
     assert D.PRESET.active == "hotel"
     D.apply_control(eng, {"preset": "none"})
     out = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
-    assert out == {"event": "preset", "id": None, "name": None}
+    assert out == {"event": "preset", "id": None, "name": None, "note": None, "phrases": []}
     assert D.LLM["style"] == "neutral" and D.GLOSSARY == [("Pim", None)]
     D.apply_control(eng, {"preset": "nope"})              # unbekannt: nichts ändern, kein Event
     assert D.PRESET.active is None
