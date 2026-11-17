@@ -50,6 +50,7 @@ struct ContentView: View {
                         Button { m.sheet = .photo } label: { Label(T("photo_text"), systemImage: "text.viewfinder") }
                         Button { m.sheet = .emergency } label: { Label(T("emergency"), systemImage: "cross.case") }
                         Button { m.sheet = .places } label: { Label(T("places"), systemImage: "mappin.and.ellipse") }
+                        Button { m.sheet = .learn } label: { Label(T("learn"), systemImage: "rectangle.stack") }
                         if m.features.thaiExtras {
                             Button { m.sheet = .helpNow } label: { Label(T("help_now"), systemImage: "sos") }
                             Button { m.sheet = .baht } label: { Label(T("baht_calc"), systemImage: "bahtsign.circle") }
@@ -122,6 +123,7 @@ struct ContentView: View {
         switch s {
         case .prep: TravelPrepView()
         case .places: PlacesView()
+        case .learn: LearnView()
         case .helpNow: HelpNowView()
         #if DEBUG
         case .widgetPreview: WidgetPreviewScreen()

@@ -42,6 +42,12 @@ struct JSONStore: Sendable {
     }
 
     func remove(_ name: String) { try? FileManager.default.removeItem(at: url(name)) }
+
+    /// Dateien entfernen, deren Name so beginnt – auch beiseitegelegte Kopien („history.json.corrupt-…“).
+    func removeAll(prefixes: [String]) {
+        let names = (try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? []
+        for n in names where prefixes.contains(where: { n.hasPrefix($0) }) { remove(n) }
+    }
 }
 
 /// Zuletzt Gelöschtes für eine Weile zurückholbar halten („Verlauf leeren“ – ein Verhörer genügt).

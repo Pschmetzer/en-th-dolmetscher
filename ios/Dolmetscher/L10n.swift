@@ -309,8 +309,10 @@ func T(_ key: String) -> String {
 
 extension L10n {
     /// Text in einer bestimmten Sprache, nil wenn es ihn dort nicht gibt (kein Rückfall).
-    static func text(_ key: String, lang: String) -> String? { table[key]?[lang] ?? extra[lang]?[key] ?? round4[key]?[lang] }
+    static func text(_ key: String, lang: String) -> String? {
+        table[key]?[lang] ?? extra[lang]?[key] ?? round4[key]?[lang] ?? round5[key]?[lang]
+    }
 
-    /// Alle Schlüssel (Grundtabelle und Runde 4).
-    static var allKeys: Set<String> { Set(table.keys).union(round4.keys) }
+    /// Alle Schlüssel (Grundtabelle, Runde 4 und 5).
+    static var allKeys: Set<String> { Set(table.keys).union(round4.keys).union(round5.keys) }
 }

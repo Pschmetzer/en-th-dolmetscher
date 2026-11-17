@@ -11,6 +11,7 @@ struct SettingsView: View {
     /// Verfügbarkeit je Sprache gegen die jeweils andere Seite des Paars.
     @State private var mineLevels: [Lang: LangLevel] = [:]
     @State private var partnerLevels: [Lang: LangLevel] = [:]
+    @State private var confirmWipe = false
 
     var body: some View {
         @Bindable var m = m
@@ -99,6 +100,10 @@ struct SettingsView: View {
                 listeningSection
 
                 privacySection
+
+                dataSection
+
+                AboutSection()
 
                 Section {
                     Picker(T("ui_lang"), selection: $m.uiLang) {
@@ -189,6 +194,26 @@ struct SettingsView: View {
         } header: { Text(T("sec_privacy")) } footer: { Text(T("history_note")) }
     }
 
+    /// Alle Daten löschen (568) – mit Rückfrage; bei gesperrtem Verlauf erst Face ID.
+    private var dataSection: some View {
+        Section {
+            Button(T("wipe_all"), role: .destructive) { confirmWipe = true }
+                .confirmationDialog(T("wipe_all"), isPresented: $confirmWipe, titleVisibility: .visible) {
+                    Button(T("wipe_all"), role: .destructive, action: wipe)
+                    Button(T("cancel"), role: .cancel) {}
+                } message: { Text(T("wipe_confirm")) }
+        } footer: { Text(T("wipe_note")) }
+    }
+
+    private func wipe() {
+        Task {
+            if m.lockHistory, DeviceAuth.available, !(await DeviceAuth.authenticate(reason: T("lock_reason"))) { return }
+            m.wipeAll()
+            Haptics.success()
+            dismiss()
+        }
+    }
+
     /// Ein- und Ausschalten nur nach erfolgreicher Prüfung (sonst hebt jeder die Sperre auf).
     private var lockBinding: Binding<Bool> {
         Binding(get: { m.lockHistory }, set: { (on: Bool) in
@@ -249,5 +274,32 @@ struct SettingsView: View {
                 .accessibilityLabel(title)
                 .accessibilityValue(text)
         }
+    }
+}
+
+/// Info (572): Version, Datenschutzerklärung, Lizenzen, Quellcode.
+private struct AboutSection: View {
+    private static let repo = "https://github.com/Pschmetzer/en-th-dolmetscher"
+
+    private var version: String {
+        let i = Bundle.main.infoDictionary
+        let v = i?["CFBundleShortVersionString"] as? String ?? "?"
+        let b = i?["CFBundleVersion"] as? String ?? "?"
+        return "\(v) (\(b))"
+    }
+
+    var body: some View {
+        Section {
+            LabeledContent(T("app_version"), value: version)
+            link("privacy_policy", "docs/DATENSCHUTZ.md", icon: "hand.raised")
+            link("licenses", "docs/LIZENZEN.md", icon: "doc.text")
+            link("source_code", "", icon: "chevron.left.forwardslash.chevron.right")
+            link("support", "issues", icon: "questionmark.bubble")
+        } header: { Text(T("sec_about")) }
+    }
+
+    private func link(_ key: String, _ path: String, icon: String) -> some View {
+        let tail = path.isEmpty ? "" : (path.hasPrefix("docs/") ? "/blob/main/" + path : "/" + path)
+        return Link(destination: URL(string: Self.repo + tail)!) { Label(T(key), systemImage: icon) }
     }
 }

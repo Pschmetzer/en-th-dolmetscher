@@ -5,6 +5,8 @@ Native SwiftUI app: press Start and just talk. It interprets between *My languag
 - Recognition: Apple's on-device speech recognition (`SpeechAnalyzer`, one recognizer per language on the same audio), optionally Whisper via [WhisperKit](https://github.com/argmaxinc/WhisperKit) 1.1.1.
 - Translation: Apple's Translation framework on the device; Google Translate / MyMemory only if “Online translator as fallback” is switched on (off by default).
 - Voice: iOS system voices.
+- Phrasebook: built-in sentences (`Shared/phrases.json`, also used by the widget) plus the scenario packs from `../presets/*.json` (same files as the Mac app; the Xcode project copies the folder into the bundle as `presets/`). Each pack shows its cultural note; safety-critical sentences are marked and listed first.
+- Learn: favorites and translated sentences become flashcards with a simple Leitner schedule, stored only on the device (`learn.json`).
 - Privacy: [docs/DATENSCHUTZ.md](../docs/DATENSCHUTZ.md#iphone-app-ios) (German), `Dolmetscher/PrivacyInfo.xcprivacy`.
 
 ## Requirements
@@ -46,6 +48,7 @@ Only in **Debug** builds (`#if DEBUG`), ignored in Release. Set them in Xcode (*
 |---|---|
 | `DOLMETSCHER_AUDIO_FILES` | Colon-separated list of audio files that are played into the recognizer instead of the microphone (the Simulator often has no microphone). |
 | `DOLMETSCHER_AUTOSTART` | Any value: press Start automatically after launch. Meant for use together with `DOLMETSCHER_AUDIO_FILES`. |
+| `DOLMETSCHER_DEMO`, `DOLMETSCHER_SCREEN` | Demo conversation in memory; open a screen directly (`partner`, `settings`, `places`, `learn`, `phrasebook`, …, see `DebugScreens.swift`). `DOLMETSCHER_PB_CATEGORY=pack.doctor` picks the phrasebook category. |
 | `DOLMETSCHER_LOG_LANGS` | Any value: writes what this device supports per language (recognition, translation, voice) to the log, subsystem `dolmetscher`, category `langs`. |
 
 ```sh
@@ -67,7 +70,7 @@ Unit tests live in `DolmetscherTests/` (`LogicTests`, `PairTests`, `WhisperLogic
 
 ## Localisation
 
-The interface is available in de, en, th, es, fr, ja, ko, zh-Hans, vi and id (`L10n.swift`, `L10n+Extra.swift`, permission texts in `*.lproj/InfoPlist.strings`). The app picks the first preferred device language it supports; Traditional Chinese gets English. The wake word and voice commands (“Translator, pause”) stay English on purpose. **es, fr, ja, ko, zh-Hans, vi and id are machine-translated and not reviewed by native speakers.** `L10nTests` checks that every key exists in all languages.
+The interface is available in de, en, th, es, fr, ja, ko, zh-Hans, vi and id (`L10n.swift`, `L10n+Extra.swift`, `L10n+R4.swift`, `L10n+R5.swift`, permission texts in `*.lproj/InfoPlist.strings`). The app picks the first preferred device language it supports; Traditional Chinese gets English. The wake word and voice commands (“Translator, pause”) stay English on purpose. **es, fr, ja, ko, zh-Hans, vi and id are machine-translated and not reviewed by native speakers.** `L10nTests` checks that every key exists in all languages.
 
 ## App Store texts
 
