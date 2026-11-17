@@ -1,6 +1,7 @@
 // SettingsView.swift – Einstellungsfenster (⌘,). Eine Unteransicht pro Reiter/Abschnitt,
 // damit der Typprüfer schnell bleibt.
 import SwiftUI
+import ServiceManagement
 
 struct SettingsView: View {
     @EnvironmentObject var m: EngineModel
@@ -53,6 +54,7 @@ private struct GeneralSettings: View {
     @ObservedObject private var hk = HotKeys.shared
     @AppStorage(Prefs.showMenuBar) private var showMenuBar = true
     @AppStorage(Prefs.spaceToggle) private var spaceToggle = true
+    @AppStorage(Prefs.listenOnLaunch) private var listenOnLaunch = false
     @AppStorage(Prefs.announce) private var announce = true
 
     var body: some View {
@@ -116,6 +118,25 @@ private struct GeneralSettings: View {
                         Text(L.t("slow_mode_help")).font(.caption).foregroundStyle(.secondary)
                     }
                 }
+                // Runde 6: Ausreden lassen (69), Rückstand (171), Schnell/Genau (176)
+                Picker(L.t("let_finish"), selection: $m.letFinish) {
+                    Text(L.t("off")).tag(0.0)
+                    ForEach([0.5, 1.0, 1.5, 2.0, 3.0], id: \.self) { Text(fmtSeconds($0)).tag($0) }
+                }
+                .help(L.t("let_finish_help"))
+                Picker(L.t("catch_up"), selection: $m.catchUp) {
+                    Text(L.t("catch_up_skip")).tag("skip")
+                    Text(L.t("catch_up_fast")).tag("fast")
+                    Text(L.t("catch_up_off")).tag("off")
+                }
+                .help(L.t("catch_up_help"))
+                Picker(L.t("beam"), selection: $m.beam) {
+                    Text(L.t("beam_auto")).tag(0)
+                    Text(L.t("beam_fast")).tag(1)
+                    Text(L.t("beam_balanced")).tag(3)
+                    Text(L.t("beam_accurate")).tag(5)
+                }
+                .help(L.t("beam_help"))
                 Toggle(L.t("back_translate"), isOn: $m.backTranslate)
                     .help(L.t("back_translate_help"))
                 Toggle(L.t("learn_glossary"), isOn: $m.learnGlossary)
@@ -156,11 +177,38 @@ private struct GeneralSettings: View {
                     .help(L.t("space_toggle_help"))
                 Toggle(L.t("announce_toggle"), isOn: $announce)
                     .help(L.t("announce_help"))
+                Toggle(L.t("listen_on_launch"), isOn: $listenOnLaunch)   // Nr. 377
+                    .help(L.t("listen_on_launch_help"))
+                LoginItemToggle()
             }
             HistorySection()
             MaintenanceSection()
         }
         .formStyle(.grouped)
+    }
+}
+
+/// Nr. 377: „Beim Anmelden starten“ über SMAppService (macOS 13+). Der Zustand kommt vom System, nicht aus
+/// UserDefaults; scheitert die Anmeldung (z. B. Ad-hoc-Signatur), steht der Grund darunter.
+private struct LoginItemToggle: View {
+    @State private var on = SMAppService.mainApp.status == .enabled
+    @State private var note: String?
+
+    var body: some View {
+        Toggle(isOn: Binding(get: { on }, set: { want in
+            do {
+                if want { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() }
+                note = SMAppService.mainApp.status == .requiresApproval ? L.t("login_item_approve") : nil
+            } catch {
+                note = L.t("login_item_failed") + " " + error.localizedDescription
+            }
+            on = SMAppService.mainApp.status == .enabled
+        })) {
+            VStack(alignment: .leading) {
+                Text(L.t("login_item"))
+                if let note { Text(note).font(.caption).foregroundStyle(.secondary) }
+            }
+        }
     }
 }
 
@@ -244,7 +292,7 @@ private struct MaintenanceSection: View {
                 .disabled(checking)
                 .help(L.t("diag_help"))
                 if checking { ProgressView().controlSize(.small) }
-                if copied { Label(L.t("diag_copied"), systemImage: "checkmark").foregroundStyle(.green) }
+                if copied { Label(L.t("diag_copied"), systemImage: "checkmark").foregroundStyle(LangStyle.success) }
                 Spacer()
                 Button(L.t("show_log")) { NSWorkspace.shared.activateFileViewerSelecting([EngineModel.logURL]) }
             }
@@ -303,6 +351,15 @@ private struct MicSection: View {
                         .buttonStyle(.borderless)
                         .help(L.t("mic_reload"))
                         .accessibilityLabel(L.t("mic_reload"))
+                }
+            }
+            // Nr. 413: Live-Pegel zum Prüfen des gewählten Mikrofons (kommt nur, solange zugehört wird)
+            HStack(spacing: 8) {
+                Text(L.t("level"))
+                if m.micOn {
+                    LevelBar(meter: m.meter)
+                } else {
+                    Text(L.t("mic_level_off")).font(.caption).foregroundStyle(.secondary)
                 }
             }
         }
@@ -486,7 +543,7 @@ private struct TranslationSettings: View {
                 if m.running && m.llm {
                     Label(m.llmActive ? L.t("llm_active") : L.t("llm_inactive"),
                           systemImage: m.llmActive ? "checkmark.circle" : "exclamationmark.circle")
-                        .foregroundStyle(m.llmActive ? Color.green : LangStyle.warning)
+                        .foregroundStyle(m.llmActive ? LangStyle.success : LangStyle.warning)
                 }
                 Picker(selection: $m.llmModel) {
                     ForEach(EngineModel.llmModels, id: \.self) { Text($0).tag($0) }
@@ -555,9 +612,9 @@ private struct APIKeySection: View {
                 if failed {
                     Label(L.t("key_failed"), systemImage: "xmark.octagon").foregroundStyle(.red)
                 } else if exists && formatWarn {
-                    Label(L.t("key_format_warn"), systemImage: "exclamationmark.triangle").foregroundStyle(.orange)
+                    Label(L.t("key_format_warn"), systemImage: "exclamationmark.triangle").foregroundStyle(LangStyle.warning)
                 } else if exists {
-                    Label(L.t("key_saved"), systemImage: "key.fill").foregroundStyle(.green)
+                    Label(L.t("key_saved"), systemImage: "key.fill").foregroundStyle(LangStyle.success)
                 } else {
                     Text(L.t("key_missing")).foregroundStyle(.secondary)
                 }

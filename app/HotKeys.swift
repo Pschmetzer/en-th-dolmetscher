@@ -64,6 +64,7 @@ final class HotKeys: ObservableObject {
     }
 
     /// ⌃⌥D = Start/Stopp (⌃⌥Leertaste ist in macOS der Eingabequellen-Wechsel), ⌃⌥P = Pause/Fortsetzen,
+    /// ⌃⌥S = Vorlesen abbrechen, ⌃⌥R = letzte Übersetzung nochmal,
     /// ⌃⌥T halten = sprechen (nur im Push-to-Talk-Modus belegt, damit es anderen Programmen sonst nicht fehlt).
     /// Erneutes Aufrufen meldet erst ab und registriert dann neu.
     func install(for model: EngineModel) {
@@ -72,6 +73,9 @@ final class HotKeys: ObservableObject {
         failures = []
         register(id: 1, keyCode: kVK_ANSI_D, modifiers: Self.ctrlOpt, name: "⌃⌥D") { [weak model] in model?.toggle() }
         register(id: 2, keyCode: kVK_ANSI_P, modifiers: Self.ctrlOpt, name: "⌃⌥P") { [weak model] in model?.togglePause() }
+        // Nr. 379: im Gespräch am nötigsten, auch wenn die App im Hintergrund ist
+        register(id: 4, keyCode: kVK_ANSI_S, modifiers: Self.ctrlOpt, name: "⌃⌥S") { [weak model] in model?.stopSpeaking() }
+        register(id: 5, keyCode: kVK_ANSI_R, modifiers: Self.ctrlOpt, name: "⌃⌥R") { [weak model] in model?.replayLast() }
         if model.pushToTalk {
             register(id: 3, keyCode: kVK_ANSI_T, modifiers: Self.ctrlOpt, name: "⌃⌥T",
                      onRelease: { [weak model] in model?.pttUp() }) { [weak model] in model?.pttDown() }

@@ -73,7 +73,7 @@ struct SetupChecklist: View {
             ForEach(rows) { r in
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Image(systemName: r.ok == true ? "checkmark.circle.fill" : r.ok == false ? "xmark.octagon.fill" : "info.circle")
-                        .foregroundStyle(r.ok == true ? Color.green : r.ok == false ? Color.red : Color.secondary)
+                        .foregroundStyle(r.ok == true ? LangStyle.success : r.ok == false ? Color.red : Color.secondary)
                         .accessibilityHidden(true)
                     Text(r.text).fixedSize(horizontal: false, vertical: true)
                 }

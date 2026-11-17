@@ -470,6 +470,9 @@ Neue Felder kommen nur dazu, `PROTOCOL` bleibt 1.
   `speaker`; ältere Datenbanken werden beim Öffnen ergänzt. Export: Markdown zeigt „ich“/„Partner“ bzw. den
   Profilnamen, CSV hängt `role`/`speaker` an, JSON hat die Felder nur, wenn sie bekannt sind (206).
 - **Preset-Felder** `hotwords` und `llm_hint` (243), siehe „Szenario-Presets“.
+- **Stimmprofil anlegen** (420): `enroll_retry` trägt zusätzlich `code` (`too_short`, `other_sentence`, `skipped`),
+  `enroll_failed` `code` (`too_few`, `inconsistent`). `reason` bleibt (deutsch, fürs Log); die App zeigt den Grund
+  über `code` in der Sprache des Assistenten.
 - **Fehlercode `python_env_broken`** (402) mit `module`; Exit-Code 3. Die App erkennt die kaputte Umgebung daran
   und sucht im Log nur noch für ältere Engines nach „No module named“.
 - **Verhalten ohne neue Felder:** `faster_whisper` wird erst beim Laden importiert, `loading` kommt sofort (42);

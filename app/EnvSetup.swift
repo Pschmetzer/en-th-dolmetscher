@@ -239,7 +239,7 @@ struct EnvSetupView: View {
         HStack(alignment: .top, spacing: 10) {
             Group {
                 switch st {
-                case .ok: Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                case .ok: Image(systemName: "checkmark.circle.fill").foregroundStyle(LangStyle.success)
                 case .pending: Image(systemName: "circle").foregroundStyle(.secondary)
                 case .active: ProgressView().controlSize(.small)
                 }
@@ -291,7 +291,7 @@ struct EnvSetupView: View {
                     Button(L.t("envsetup_retry")) { s.start(engine: m) }.buttonStyle(.borderedProminent)
                 }
             case .done:
-                Label(L.t("envsetup_done"), systemImage: "checkmark.seal.fill").foregroundStyle(.green)
+                Label(L.t("envsetup_done"), systemImage: "checkmark.seal.fill").foregroundStyle(LangStyle.success)
                 Button(L.t("envsetup_continue")) { s.finish() }.keyboardShortcut(.defaultAction)
             }
         }

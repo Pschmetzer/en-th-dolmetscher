@@ -117,6 +117,12 @@ struct MenuBarContent: View {
             .disabled(!m.running)
         Button(L.t("stop_speaking")) { m.stopSpeaking() }
             .disabled(!m.running)
+        if m.mineLang == "th" || m.partnerLang == "th" {   // Nr. 374
+            Picker(L.t("polite_label"), selection: $m.polite) {
+                Text(L.t("polite_krub")).tag("krub")
+                Text(L.t("polite_ka")).tag("ka")
+            }
+        }
         Divider()
         Button(L.t("show_window")) {
             openWindow(id: "main")
@@ -139,15 +145,22 @@ struct DolmetscherApp: App {
         APIKeyStore.migrate()   // alte Schlüsseldatei in den Schlüsselbund (Nr. 23), vor dem ersten Engine-Start
     }
 
+    /// Nr. 360: Absturz, Fehler, Laden und Offline sind am Symbol erkennbar, nicht nur aus/an/pausiert.
     private var menuIcon: String {
+        if model.crashLog != nil || model.engineHung { return "exclamationmark.triangle" }
+        if model.loadingModel { return "hourglass.circle" }
+        if !model.netDown.isEmpty { return "wifi.slash" }
         guard model.active else { return "waveform.circle" }
         return model.paused ? "pause.circle" : "waveform.circle.fill"
     }
 
     /// Zustand für VoiceOver: das Symbol ändert nur Form und Füllung.
     private var menuState: String {
-        guard model.active else { return L.t("stopped") }
-        return model.paused ? L.t("state_paused") : L.t("state_listening")
+        if model.crashLog != nil || model.engineHung { return L.t("menu_state_problem") }
+        if model.loadingModel { return L.t("menu_state_loading") }
+        let base: String
+        if !model.active { base = L.t("stopped") } else { base = model.paused ? L.t("state_paused") : L.t("state_listening") }
+        return model.netDown.isEmpty ? base : base + ", " + L.t("menu_state_offline")
     }
 
     var body: some Scene {

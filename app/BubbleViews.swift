@@ -62,12 +62,13 @@ struct Bubble: View, Equatable {
             Button { copyToPasteboard(u.out) } label: { Image(systemName: "doc.on.doc") }
                 .help(L.t("copy_translation")).accessibilityLabel(L.t("copy_translation"))
         }
-        .buttonStyle(.borderless)
-        .font(.system(size: 13))
-        .padding(.horizontal, 6).padding(.vertical, 4)
+        .buttonStyle(QuickActionStyle())
+        .font(.system(size: 15))
+        .padding(.horizontal, 4).padding(.vertical, 2)
         .background(.regularMaterial, in: Capsule())
+        .overlay(Capsule().strokeBorder(Color.secondary.opacity(0.35)))
         .padding(8)
-        .opacity(hovering ? 1 : 0.5)
+        .opacity(hovering ? 1 : 0.85)      // Nr. 381: auch im Ruhezustand gut lesbar
     }
     private var helpText: String {
         (u.lowConfidence ? L.t("low_conf") + " – " + L.t("click_replay") : L.t("click_replay"))
@@ -135,6 +136,15 @@ struct Bubble: View, Equatable {
         .accessibilityAction(named: L.t("read_aloud")) { m.replay(u) }
         .accessibilityAction(named: L.t("copy_translation")) { copyToPasteboard(u.out) }
         .accessibilityAction(named: L.t("correct")) { if canCorrect { onCorrect(u) } }
+        // Nr. 382: was sonst nur im Kontextmenü steht (children .ignore macht es für VoiceOver schwer erreichbar)
+        .accessibilityAction(named: L.t(Langs.reassignRole(u.lang) == "me" ? "reassign_me" : "reassign_other")) {
+            if canCorrect && canReassign { reassign() }
+        }
+        .accessibilityAction(named: L.t("alt_reading")) {
+            if canCorrect, let alt = u.alts.first { m.retranslate(u, text: alt) }
+        }
+        .accessibilityAction(named: L.t("save_phrase")) { saveQuickPhrase(u.text) }
+        .accessibilityAction(named: L.t("delete_bubble")) { m.deleteItem(u) }
     }
 
     private func saveQuickPhrase(_ s: String) {
@@ -161,6 +171,19 @@ struct Bubble: View, Equatable {
         Button(L.t("save_phrase")) { saveQuickPhrase(u.text) }
         Button(L.t("read_aloud")) { m.replay(u) }
         Button(L.t("stop_speaking")) { m.stopSpeaking() }
+        Divider()
+        Button(L.t("delete_bubble"), role: .destructive) { m.deleteItem(u) }   // Nr. 383
+    }
+}
+
+/// Nr. 381: Trefferfläche mindestens 24 × 24 pt, deutliche Rückmeldung beim Drücken.
+private struct QuickActionStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .frame(minWidth: 26, minHeight: 26)
+            .contentShape(Rectangle())
+            .foregroundStyle(.primary)
+            .opacity(configuration.isPressed ? 0.5 : 1)
     }
 }
 
@@ -375,6 +398,19 @@ struct CorrectSheet: View {
                 .font(.title3)
                 .onSubmit(submit)
             Text(L.t("correct_hint")).font(.callout).foregroundStyle(.secondary)
+            if !u.alts.isEmpty {
+                // Nr. 384: andere Lesarten der Erkennung als Vorschläge (vorher nur im Kontextmenü)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(L.t("alt_suggestions")).font(.callout.bold())
+                    ForEach(Array(u.alts.enumerated()), id: \.offset) { _, alt in
+                        Button { text = alt } label: {
+                            Label(alt, systemImage: "text.badge.checkmark").multilineTextAlignment(.leading)
+                        }
+                        .buttonStyle(.link)
+                        .accessibilityLabel(L.t("alt_reading") + ": " + alt)
+                    }
+                }
+            }
             HStack {
                 Spacer()
                 Button(L.t("cancel")) { dismiss() }.keyboardShortcut(.cancelAction)

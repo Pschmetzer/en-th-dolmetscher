@@ -9,13 +9,17 @@ struct PartnerView: View {
     @AppStorage(Prefs.translit) private var translit = true
     @AppStorage(L.key) private var uiLang = L.defaultCode
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// Nr. 385: Gespräch am Tisch (Laptop zwischen beiden) – Inhalt um 180° drehen; eigene Schriftgröße.
+    @AppStorage("partnerRotated") private var rotated = false
+    @AppStorage("partnerZoom") private var zoom = 1.0
+    private static let zoomRange = 0.5...2.0
 
     /// Startschriftgröße aus Fenstergröße und Textlänge (minimumScaleFactor fängt den Rest ab).
     private func fontSize(for text: String, in size: CGSize) -> CGFloat {
         let n = CGFloat(max(text.count, 1))
         let w = max(size.width - 96, 100), h = max(size.height * 0.6, 100)
         let byArea = (w * h / (n * 0.9)).squareRoot()
-        return min(max(byArea, 28), min(h, 160))
+        return min(max(byArea, 28), min(h, 160)) * CGFloat(zoom)
     }
 
     /// „Bitte sprechen“ in einer Sprache des Paars; Thai mit dem Höflichkeitswort der Einstellung.
@@ -69,6 +73,7 @@ struct PartnerView: View {
         let _ = L.sync(uiLang)
         ZStack {
             Color.black.ignoresSafeArea()
+            Group {
             if !m.running {
                 Text(L.t("partner_not_started"))
                     .font(.system(size: 48, weight: .semibold))
@@ -99,7 +104,7 @@ struct PartnerView: View {
                     }
                     if u.translated {
                         Text(LangStyle.flag(u.lang) + "  " + u.text)
-                            .font(.system(size: 44, weight: .medium))
+                            .font(.system(size: 44 * zoom, weight: .medium))
                             .minimumScaleFactor(0.3)
                             .lineLimit(4)
                             .multilineTextAlignment(.center)
@@ -126,11 +131,20 @@ struct PartnerView: View {
                 .minimumScaleFactor(0.3)
                 .padding(48)
             }
+            }
+            .rotationEffect(.degrees(rotated ? 180 : 0))
             VStack {
                 HStack(spacing: 10) {
                     Image(systemName: stateIcon.name).foregroundStyle(stateIcon.color).font(.title3)
                         .accessibilityLabel(L.t("status") + ": " + m.status)
                     Spacer()
+                    Button { zoom = max(Self.zoomRange.lowerBound, zoom - 0.1) } label: { Image(systemName: "textformat.size.smaller") }
+                        .help(L.t("font_smaller")).accessibilityLabel(L.t("font_smaller"))
+                    Button { zoom = min(Self.zoomRange.upperBound, zoom + 0.1) } label: { Image(systemName: "textformat.size.larger") }
+                        .help(L.t("font_bigger")).accessibilityLabel(L.t("font_bigger"))
+                    Button { rotated.toggle() } label: { Image(systemName: "rotate.right") }
+                        .help(L.t("partner_rotate")).accessibilityLabel(L.t("partner_rotate"))
+                        .accessibilityValue(rotated ? L.t("on") : L.t("off"))
                     if screenCount > 1 {
                         Button { moveToOtherScreen() } label: { Image(systemName: "display.2") }
                             .help(L.t("partner_other_screen"))
