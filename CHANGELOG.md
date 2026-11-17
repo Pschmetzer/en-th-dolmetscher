@@ -4,7 +4,7 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased (after 1.2, November 2026)
 
-Pull requests #16–#35. Not yet published as a release.
+Pull requests #16–#47. Not yet published as a release.
 
 ### Highlights
 
@@ -12,6 +12,11 @@ Pull requests #16–#35. Not yet published as a release.
 - **The Mac app installs itself** on a Mac without Homebrew or Python: a setup screen downloads everything it needs on first start (#35).
 - **Whisper on the iPhone** as an optional, more robust speech recognition (#27, #30).
 - **iPhone app in 10 interface languages** and App Store texts prepared (#33).
+- **Conversation mode on the iPhone** (#38, #46): split screen, the top half turned around for the person opposite, each half in its own language; answer cards (yes, no, don't know, number) work without a network.
+- **Widgets, Live Activity and iPad** (#42): quick-phrase widget, a “Start interpreter” control, the current sentence on the lock screen; on the iPad the app shows the conversation and a tools column side by side.
+- **Learning mode** on iPhone and in the browser (#45, #46): saved and translated sentences become flashcards, stored only on your device.
+- **Nine new phrase packs with cultural notes** (#40): pharmacy, police, bank, spa, temple, flat rental, scooter, transport and lost child; safety-critical sentences come first and are marked on every platform (#45, #46, #47).
+- **Browser version in 19 languages and installable as an app** (#37), with an offline phrasebook.
 
 ### Engine (speech recognition, translation, voice – used by the Mac app)
 
@@ -26,6 +31,13 @@ Pull requests #16–#35. Not yet published as a release.
 - **“Speak again” with the natural voice** (#26) instead of the system voice.
 - **Conversation history** (#28, #31): deleting really overwrites the deleted text in the database; invalid retention values are rejected; a full disk no longer loses the current sentence.
 - **Audio without ffmpeg** (#35): microphone, playback and file input run through PyAV, which is installed with the other packages.
+- **Back-translation** (#39, optional, off by default): the translation is translated back with Google and shown small underneath, so you can see whether the meaning survived.
+- **“Slow and clear” mode** (#39): slower voice, simpler words with Claude, nothing skipped.
+- **The glossary learns from corrections** (#39): names you fix by hand are added to the glossary (can be switched off).
+- **Offline translation with Apple** (#43, #47): without a network, the Mac can translate on the device with Apple's translation (macOS 26.4 or newer, language packs installed). The helper now ships inside the app.
+- **Choose the speaker** (#43): every sound, including the system voice and signal tones, can go to a chosen output device, switchable while running.
+- **Private mode** (#47, `--private`): no warm-up requests at start, and the text never ends up in a web address.
+- **More robust** (#39, #43, #47): the microphone keeps trying to reconnect instead of giving up; the Claude service's “try again later” times are respected; a speech-detection self-test at start; the log file is rotated; Thai laughter “555” is read as laughter; more single digits and Thai number words are compared; several smaller fixes from the idea list.
 
 ### Mac app
 
@@ -33,6 +45,10 @@ Pull requests #16–#35. Not yet published as a release.
 - **Language pair in the settings** (#29): two pickers, per-language translate switches, voices and lock.
 - **Uses everything the engine reports** (#24, #26): localized error messages, “only partly read aloud” with a “Speak again” button, “Translate anyway” for unsure sentences, “Try again” for failed translations (automatic when the network is back), a hint when a model could not be loaded, and a watchdog that notices a hanging engine.
 - **No lost lines, no interrupted conversations** (#23): the last messages before an engine crash are kept; changing a setting during a conversation waits for a quiet moment before restarting the engine; the Mac stays awake while listening; global push-to-talk.
+- **API key in the Keychain** (#39): the Claude key is now stored in the macOS Keychain. An old key file is kept as `anthropic_key.migrated` instead of being deleted.
+- **New settings** (#39, #43, #47): back-translation, slow mode, output device, “Offline translation (Apple) as fallback”, private mode, “Reset learning”; menu shortcuts ⌘↩ start/stop, ⌘P pause, ⌘R repeat last.
+- **Phrase packs in the app** (#47): each pack shows its cultural note (ⓘ), important sentences are red, come first and are announced as “Important” by VoiceOver.
+- **VoiceOver and messages** (#39, #43, #47): states and banners are announced in the right language; “done” for delete and export only when the engine confirms; a menu with log and restart when loading takes long; a hint when a shortcut could not be registered.
 - **Usability** (#34): header bar with direction, read-aloud switch and a field to type a sentence; large “Paused / Microphone off” banner in the partner view; keyboard navigation for bubbles; text zoom; auto-scroll that respects where you scrolled; a notification with “Restart” if the engine crashes while the window is closed; a “Ready?” checklist in the welcome dialog; the model picker shows how much would still be downloaded.
 
 ### iPhone app
@@ -42,21 +58,42 @@ Pull requests #16–#35. Not yet published as a release.
 - **19 languages** (#32): language pair like on the Mac; only languages the device can actually recognize are offered, with markers for missing downloads and online-only pairs; Thai-only and English-only features are shown only when they apply. Old history and favourites keep working.
 - **Interface in 10 languages** (#33): de, en, th plus es, fr, ja, ko, zh-Hans, vi, id (machine-translated, not yet reviewed), including the permission texts; App Store texts for 10 store languages in `ios/AppStore/`.
 - **Online translation is off by default** (#32): without the switch “Online translator as fallback”, everything stays on the iPhone.
+- **Conversation mode** (#38, #46): split screen with the partner's half turned around, live text on both sides, big “Your turn” buttons; hold your own half to talk.
+- **Answer cards** (#38): yes, no, don't know and a number pad for the person opposite, in all 19 languages, spoken right away and without network.
+- **Translation help** (#38): back-translation under each translation (on the device, ⚠️ when the meaning drifted) and transliteration for Thai, Japanese, Korean and Chinese; both can be switched off.
+- **Emergency** (#38, #42): emergency card with blood type, insurance and embassy; allergy card in 10 languages; a “Help now” screen with a large Thai help sentence, hotel address, your coordinates and direct dialling.
+- **Privacy** (#38, #46): privacy overview in the settings; history can be locked with Face ID; “Delete all data” removes history, favourites, emergency card, destinations, learning progress and settings.
+- **Widgets and Live Activity** (#42): quick-phrase widget (small, medium, large), a “Start interpreter” control for Control Center, lock screen and Action button, and a Live Activity with the last sentence and a stop button (can be switched off).
+- **iPad** (#42): runs on iPad in all orientations; on wide screens the conversation and a tools column (phrasebook, destinations, emergency, Baht) sit side by side.
+- **Phrasebook** (#42, #46): sentences moved to a shared file with German glosses and new categories; the 16 scenario packs from the Mac are included, with cultural notes and important sentences first. “Phrasebook first”: if what you typed or said matches a checked sentence, that version is used. Important sentences only match exactly, a “not” is never matched loosely.
+- **Learning mode** (#46): favourites and translated sentences become flashcards (5 boxes: now, 1, 3, 7, 14 days), stored only on the iPhone.
+- **Travel helpers** (#42, #46): a “Ready to travel?” checklist (microphone, recognisers, language packs, voices); destinations for taxi and tuk-tuk with a large “please take me here” display and Apple Maps link; scan a business card or sign to fill in a destination; a dish lexicon under photo text; prices also shown in your home currency.
+- **Other** (#38, #42, #46): push-to-talk, Siri shortcuts “Say in partner language”, “Open emergency card” and “Show last translation”, a warning 30 s before auto-stop, less work when the phone gets hot, an info section with version, licences and source code.
 
 ### Web (browser version)
 
 - **No endless restarts** (#19): permission and language errors stop with a clear message; other errors retry with increasing pauses.
+- **19 languages** (#37): same language pair choice as on Mac and iPhone, plus a choice of English accent for recognition.
+- **Installable app (PWA)** (#37): add it to the home screen; the page and the phrasebook also open without a network (translation still needs one).
+- **Phrasebook and show cards** (#37, #45): tap a sentence to show it full screen and read it aloud; yes/no cards in the partner's language; each pack shows its cultural note and important sentences first, marked “⚠ Wichtig”.
+- **Learning mode** (#45): star sentences to make flashcards (Leitner, 5 boxes), stored only in this browser; optional automatic adding of recent sentences (off by default).
+- **More control** (#37, #45): voice and speed choice with preview, volume slider, voice commands “louder”, “quieter”, “clear” and “help”, a visible stop button, larger or smaller text in the big view, headphone mode (you can talk over the voice), copy or save the conversation, share a sentence as a link.
+- **Fixes** (#37): the last sentence is no longer lost when you release push-to-talk; the partner view shows only the partner's language; uncertain sentences are marked; the fallback service is labelled.
 - **Privacy and accessibility** (#28): asks for consent before the microphone starts; “Translator pause” really stops recognition (no more audio to Google); screen readers announce finished translations; bigger tap targets on phones; MyMemory answers no longer show HTML codes.
 
 ### Phrases and presets
 
 - **Emergency phrases** (#28) in the doctor, restaurant, taxi and travel presets: emergency number, allergies (peanuts, shellfish), chest pain, pregnancy, lost passport, stolen wallet and more.
+- **Nine new packs** (#40): pharmacy, police, bank, spa, temple, flat rental, scooter, transport and lost child (show-me sentences with blanks).
+- **Cultural notes and important sentences** (#40): packs can carry a short note (e.g. temple etiquette) and mark safety-critical sentences, which always come first. Existing packs were reworked (more natural Thai, more symptoms, vegan/halal/MSG in the restaurant).
+- The Thai sentences are machine-written and **not yet checked by native speakers**; see [docs/PRESETS.md](docs/PRESETS.md).
 
 ### Infrastructure and documentation
 
 - **Reproducible installs** (#21): speech models pinned to fixed versions; all Python packages locked with checksums; security audit includes indirect packages.
 - **Code quality** (#16, #21, #25, #28): pytest and ruff updated; ruff checks all modules and blocks merges; CI jobs have time limits; the wake-word tests run against the real code.
-- **Documentation**: license overview `docs/LIZENZEN.md` (#21), privacy overview per platform `docs/DATENSCHUTZ.md` (#28 and later), protocol checked against the code by tests (#20), iPhone guide `ios/README.md` and this changelog.
+- **Tests and CI** (#41, #44): time-dependent tests made stable, a time limit per test, Python tests on Linux (faster), coverage with a lower limit, a shared test corpus in six language pairs, and a benchmark that only runs on demand.
+- **Documentation**: phrase pack format and contribution guide `docs/PRESETS.md` (#40); license overview `docs/LIZENZEN.md` (#21), privacy overview per platform `docs/DATENSCHUTZ.md` (#28 and later), protocol checked against the code by tests (#20), iPhone guide `ios/README.md` and this changelog.
 
 ## 1.2 and earlier
 
