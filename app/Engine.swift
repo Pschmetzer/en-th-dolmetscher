@@ -254,7 +254,7 @@ final class EngineModel: NSObject, ObservableObject {
     }
     /// Nr. 176: Beam-Breite der Erkennung (0 = automatisch: Umgebung/Hardware-Profil, 1 schnell … 5 genau).
     @Published var beam = ud.integer(forKey: "beam") {
-        didSet { Self.ud.set(beam, forKey: "beam"); if beam > 0 { send(["beam": beam]) } }
+        didSet { Self.ud.set(beam, forKey: "beam"); send(["beam": beam]) }   // 0: Engine kehrt zum Startwert zurück
     }
     /// Rückübersetzung klein unter der Übersetzung (Kontrolle, ob richtig verstanden).
     @Published var backTranslate = ud.bool(forKey: "backTranslate") {

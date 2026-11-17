@@ -1585,8 +1585,9 @@ _TH_MALE = re.compile(r"ครับ|คับ|กระผม")
 
 def thai_speaker_sex(text):
     """Nr. 51: Geschlecht der Thai sprechenden Person aus Höflichkeitspartikeln ("female"/"male"/None).
-    Nur eindeutige Fälle: beide Formen im Satz (Zitat) oder keine -> None. คะแนน (Punkte) zählt nicht."""
-    t = re.sub(r"คะแนน", "", text or "")
+    Nur eindeutige Fälle: beide Formen im Satz (Zitat) oder keine -> None. คะแนน (Punkte), บังคับ, คับแคบ … zählen
+    nicht."""
+    t = re.sub(r"คะแนน|บังคับ|คับแคบ|คับคั่ง|คับข้อง", "", text or "")
     f, m = bool(_TH_FEMALE.search(t)), bool(_TH_MALE.search(t))
     return "female" if f and not m else "male" if m and not f else None
 
@@ -5118,9 +5119,9 @@ def apply_control(eng, d):
         if n is not None: LET_FINISH["s"] = float(n)          # Nr. 69
         if d.get("catch_up") in CATCH_UP_MODES:
             CATCH_UP["mode"] = d["catch_up"]                  # Nr. 171
-        n = _clamp(d.get("beam"), 1, 5)
-        if n is not None and hasattr(eng, "beam"):
-            eng.beam = int(n)                                 # Nr. 176: Schnell (1) … Genau (5), live
+        n = _clamp(d.get("beam"), 0, 5)
+        if n is not None and hasattr(eng, "beam"):            # Nr. 176: Schnell (1) … Genau (5), live;
+            eng.beam = int(n) or getattr(eng, "beam_default", eng.beam)   # 0 = zurück zum Startwert
         ok, v = _flag(d, "stop_speaking")
         if ok and v:
             later.append(eng.stop_speaking)
@@ -6128,6 +6129,7 @@ if __name__ == "__main__":
             eng.beam = hw["beam"]
         emit("hwprofile", chip=hw["chip"], ram_gb=hw["ram_gb"], model=model, beam=eng.beam, reason=hw["reason"])
         log({"hwprofile": hw})
+    eng.beam_default = eng.beam                         # Steuerfeld `beam: 0` kehrt hierher zurück
     _start = {"rate": a.rate, "volume": a.volume, "voice_en": a.voice_en, "voice_th": a.voice_th}
     if a.voice_mine is not None: _start[f"voice_{PAIR[0]}"] = a.voice_mine
     if a.voice_partner is not None: _start[f"voice_{PAIR[1]}"] = a.voice_partner

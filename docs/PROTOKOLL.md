@@ -242,9 +242,9 @@ Neu:
 | `learn_glossary` | bool | Eigennamen aus Korrekturen (`retranslate`) automatisch ins Glossar (Standard an) |
 | `reset_learning` | string (Profilname) | nachgeführten Stimmabdruck verwerfen (Stand beim Anlegen); Antwort `learning_reset` |
 | `get_state` | true | Zustand als Ereignis `state` senden |
-| `let_finish` | float (s, 0 … 5) | „Ausreden lassen“: nach dem Satzende so lange Ruhe abwarten, bevor vorgelesen wird; spricht jemand weiter, beginnt die Wartezeit neu (höchstens bis `MAX_UTT`). 0 = aus (Standard) |
+| `let_finish` | float (s, 0 … 5) | „Ausreden lassen“: nach dem Satzende so lange Ruhe abwarten, bevor vorgelesen wird; spricht jemand weiter, beginnt die Wartezeit neu (höchstens bis `MAX_UTT`). 0 = aus (Standard). Mit `--barge-in` (Kopfhörer) wartet die Ausgabe wie bisher nie |
 | `catch_up` | `skip`\|`fast`\|`off` | Rückstand: `skip` (Standard) = schneller sprechen und ab 3 wartenden Ausgaben ältere überspringen, `fast` = nur schneller, nie überspringen, `off` = weder noch. `slow` gewinnt (nie schneller, nie überspringen) |
-| `beam` | int (1 … 5) | Beam-Breite der Erkennung live: 1 schnell, 5 genau (Standard 1 bzw. Hardware-Profil) |
+| `beam` | int (0 … 5) | Beam-Breite der Erkennung live: 1 schnell, 5 genau; 0 = zurück zum Startwert (`--beam`, `DOLMETSCHER_BEAM` bzw. Hardware-Profil) |
 | `reassign` | `{"id": "u7", "role": "me"\|"other"}` | „Das war ich/Partner“: Satz in der Sprache dieser Person (ich = Englisch bzw. meine Sprache, Partner = die andere Sprache des Paars) neu erkennen und übersetzen; `utt` kommt mit `replaces: "u7"`, `source: "reassign"`, `role`. Führt den Stimmabdruck des Profils nach (Gewicht 0,15). Behalten werden die letzten 30 Sätze |
 
 ## Tempo-Ausbau (Branch feat/tempo)

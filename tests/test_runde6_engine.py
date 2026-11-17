@@ -92,7 +92,8 @@ def test_engine_waermt_thai_modell_mit_th():
 @pytest.mark.parametrize("text, sex", [
     ("ไปไหนคะ", "female"), ("ขอบคุณค่ะ", "female"), ("ดิฉันชื่อแพร", "female"),
     ("ได้ครับ", "male"), ("กระผมขอโทษ", "male"),
-    ("คะแนนดีมาก", None), ("ไปไหน", None), ("เขาบอกว่าครับ ฉันตอบว่าค่ะ", None), ("", None),
+    ("คะแนนดีมาก", None), ("ไปไหน", None), ("ต้องบังคับใช้กฎ", None), ("ห้องคับแคบค่ะ", "female"),
+    ("เขาบอกว่าครับ ฉันตอบว่าค่ะ", None), ("", None),
 ])
 def test_thai_speaker_sex(text, sex):
     assert d.thai_speaker_sex(text) == sex
@@ -203,6 +204,9 @@ def test_steuerfelder_runde6(ev, monkeypatch):
     assert d.LET_FINISH["s"] == d.LET_FINISH_MAX and d.CATCH_UP["mode"] == "fast" and eng.beam == 3
     d.apply_control(eng, {"let_finish": "x", "catch_up": "nie", "beam": 99})
     assert d.LET_FINISH["s"] == d.LET_FINISH_MAX and d.CATCH_UP["mode"] == "fast" and eng.beam == 5
+    eng.beam_default = 2
+    d.apply_control(eng, {"beam": 0})                   # „Automatisch“: zurück zum Startwert
+    assert eng.beam == 2
     assert not [e for e, _ in ev if e == "control_ignored"]
     assert {"let_finish", "catch_up", "beam"} <= d.CTRL_KEYS & d.CTRL_LOG_KEYS
 
