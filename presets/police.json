@@ -1,0 +1,131 @@
+{
+  "id": "police",
+  "names": {
+    "de": "Polizei / Diebstahl",
+    "en": "Police / theft",
+    "th": "ตำรวจ / ของถูกขโมย"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Tourist Police 1155 (Englisch), Polizei 191. Für die Versicherung ein Protokoll (ใบแจ้งความ) und eine Kopie verlangen. Ruhig und höflich bleiben; laut werden schadet.",
+    "en": "Tourist police 1155 (English), police 191. Ask for a police report (ใบแจ้งความ) and a copy for your insurance. Stay calm and polite; raising your voice does not help."
+  },
+  "glossary": [
+    {
+      "en": "police",
+      "th": "ตำรวจ"
+    },
+    {
+      "en": "tourist police",
+      "th": "ตำรวจท่องเที่ยว"
+    },
+    {
+      "en": "police station",
+      "th": "สถานีตำรวจ"
+    },
+    {
+      "en": "police report",
+      "th": "ใบแจ้งความ"
+    },
+    {
+      "en": "stolen",
+      "th": "ถูกขโมย"
+    },
+    {
+      "en": "passport",
+      "th": "พาสปอร์ต"
+    },
+    {
+      "en": "embassy",
+      "th": "สถานทูต"
+    },
+    {
+      "en": "witness",
+      "th": "พยาน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Help! Please call the police.",
+      "th": "ช่วยด้วย ช่วยเรียกตำรวจด้วย",
+      "critical": true
+    },
+    {
+      "en": "Please call the tourist police (1155).",
+      "th": "ช่วยโทรหาตำรวจท่องเที่ยว 1155 ด้วย",
+      "critical": true
+    },
+    {
+      "en": "Please call an ambulance (1669).",
+      "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true
+    },
+    {
+      "en": "I have been attacked and I am hurt.",
+      "th": "ถูกทำร้ายร่างกาย ได้รับบาดเจ็บ",
+      "critical": true
+    },
+    {
+      "en": "I have been robbed.",
+      "th": "ถูกปล้น",
+      "critical": true
+    },
+    {
+      "en": "Someone is following me.",
+      "th": "มีคนตามมา",
+      "critical": true
+    },
+    {
+      "en": "My bag was stolen.",
+      "th": "กระเป๋าถูกขโมย"
+    },
+    {
+      "en": "My phone was stolen.",
+      "th": "โทรศัพท์ถูกขโมย"
+    },
+    {
+      "en": "My credit card was stolen. I need to block it.",
+      "th": "บัตรเครดิตถูกขโมย ต้องอายัดบัตร"
+    },
+    {
+      "en": "I lost my passport.",
+      "th": "ทำพาสปอร์ตหาย"
+    },
+    {
+      "en": "It happened about an hour ago.",
+      "th": "เกิดขึ้นประมาณหนึ่งชั่วโมงที่แล้ว"
+    },
+    {
+      "en": "It happened here.",
+      "th": "เกิดขึ้นตรงนี้"
+    },
+    {
+      "en": "Where is the nearest police station?",
+      "th": "สถานีตำรวจที่ใกล้ที่สุดอยู่ที่ไหน"
+    },
+    {
+      "en": "I need a police report for my insurance.",
+      "th": "ต้องการใบแจ้งความเพื่อใช้กับประกัน"
+    },
+    {
+      "en": "Could I have a copy of the report?",
+      "th": "ขอสำเนาใบแจ้งความได้ไหม"
+    },
+    {
+      "en": "Is there someone who speaks English?",
+      "th": "มีใครพูดภาษาอังกฤษได้ไหม"
+    },
+    {
+      "en": "I need an interpreter.",
+      "th": "ต้องการล่าม"
+    },
+    {
+      "en": "Please contact my embassy.",
+      "th": "ช่วยติดต่อสถานทูตให้หน่อย"
+    },
+    {
+      "en": "I did not do anything wrong.",
+      "th": "ไม่ได้ทำอะไรผิด"
+    }
+  ]
+}

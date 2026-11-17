@@ -6,6 +6,10 @@
     "th": "พบแพทย์ (ช่วยสื่อสารเท่านั้น)"
   },
   "style": "polite",
+  "note": {
+    "de": "Nur zur Verständigung, kein medizinischer Rat. Notruf Rettungsdienst: 1669. Allergien und Dauermedikamente zuerst zeigen.",
+    "en": "For communication only, not medical advice. Ambulance: 1669. Show allergies and regular medication first."
+  },
   "glossary": [
     {
       "en": "appointment",
@@ -46,12 +50,52 @@
   ],
   "phrases": [
     {
+      "en": "I am allergic to this medicine.",
+      "th": "แพ้ยานี้",
+      "critical": true
+    },
+    {
+      "en": "This is an emergency. Please call an ambulance (1669).",
+      "th": "นี่เป็นเหตุฉุกเฉิน ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true
+    },
+    {
+      "en": "I have difficulty breathing.",
+      "th": "หายใจลำบาก",
+      "critical": true
+    },
+    {
+      "en": "I have chest pain.",
+      "th": "เจ็บหน้าอก",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to penicillin.",
+      "th": "แพ้ยาเพนิซิลลิน",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to peanuts and tree nuts.",
+      "th": "แพ้ถั่วลิสงและถั่วเปลือกแข็ง",
+      "critical": true
+    },
+    {
+      "en": "I am pregnant.",
+      "th": "กำลังตั้งครรภ์",
+      "critical": true
+    },
+    {
+      "en": "I have diabetes.",
+      "th": "เป็นเบาหวาน",
+      "critical": true
+    },
+    {
       "en": "I would like to see a doctor.",
-      "th": "ฉันอยากพบแพทย์"
+      "th": "อยากพบแพทย์"
     },
     {
       "en": "I have an appointment.",
-      "th": "ฉันมีนัด"
+      "th": "มีนัดไว้"
     },
     {
       "en": "It hurts here.",
@@ -59,11 +103,7 @@
     },
     {
       "en": "I have been feeling unwell since yesterday.",
-      "th": "ฉันรู้สึกไม่สบายตั้งแต่เมื่อวาน"
-    },
-    {
-      "en": "I am allergic to this medicine.",
-      "th": "ฉันแพ้ยานี้"
+      "th": "รู้สึกไม่สบายตั้งแต่เมื่อวาน"
     },
     {
       "en": "Could you speak more slowly, please?",
@@ -75,47 +115,47 @@
     },
     {
       "en": "Do you accept my insurance?",
-      "th": "รับประกันของฉันไหม"
-    },
-    {
-      "en": "This is an emergency. Please call an ambulance (1669).",
-      "th": "นี่เป็นเหตุฉุกเฉิน ช่วยเรียกรถพยาบาลด้วย (1669)"
+      "th": "ใช้ประกันสุขภาพนี้ได้ไหม"
     },
     {
       "en": "Where is the nearest hospital?",
       "th": "โรงพยาบาลที่ใกล้ที่สุดอยู่ที่ไหน"
     },
     {
-      "en": "I have difficulty breathing.",
-      "th": "ฉันหายใจลำบาก"
-    },
-    {
-      "en": "I have chest pain.",
-      "th": "ฉันเจ็บหน้าอก"
-    },
-    {
-      "en": "I am allergic to penicillin.",
-      "th": "ฉันแพ้ยาเพนิซิลลิน"
-    },
-    {
-      "en": "I am allergic to peanuts and tree nuts.",
-      "th": "ฉันแพ้ถั่วลิสงและถั่วเปลือกแข็ง"
-    },
-    {
-      "en": "I am pregnant.",
-      "th": "ฉันตั้งครรภ์"
-    },
-    {
       "en": "I take this medicine regularly.",
-      "th": "ฉันกินยานี้เป็นประจำ"
-    },
-    {
-      "en": "I have diabetes.",
-      "th": "ฉันเป็นเบาหวาน"
+      "th": "กินยานี้เป็นประจำ"
     },
     {
       "en": "I have high blood pressure.",
-      "th": "ฉันเป็นความดันโลหิตสูง"
+      "th": "เป็นความดันโลหิตสูง"
+    },
+    {
+      "en": "I have been vomiting.",
+      "th": "อาเจียน"
+    },
+    {
+      "en": "I have diarrhea.",
+      "th": "ท้องเสีย"
+    },
+    {
+      "en": "I feel dizzy.",
+      "th": "เวียนหัว"
+    },
+    {
+      "en": "How many times a day should I take this?",
+      "th": "ต้องกินยานี้วันละกี่ครั้ง"
+    },
+    {
+      "en": "Before or after meals?",
+      "th": "กินก่อนหรือหลังอาหาร"
+    },
+    {
+      "en": "I need a medical certificate for my insurance.",
+      "th": "ขอใบรับรองแพทย์สำหรับประกันด้วย"
+    },
+    {
+      "en": "Could you write that down, please?",
+      "th": "ช่วยเขียนให้หน่อยได้ไหม"
     }
   ]
 }

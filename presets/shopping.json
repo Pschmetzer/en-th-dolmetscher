@@ -6,6 +6,10 @@
     "th": "ช้อปปิ้ง"
   },
   "style": "polite",
+  "note": {
+    "de": "Auf Märkten ist freundliches Handeln üblich, in Kaufhäusern nicht. Lächeln, nicht laut werden. VAT Refund nur in Geschäften mit Schild und mit Reisepass.",
+    "en": "Friendly bargaining is normal at markets, not in department stores. Smile and stay calm. VAT refund only in shops with the sign and with your passport."
+  },
   "glossary": [
     {
       "en": "size",
@@ -67,7 +71,7 @@
     },
     {
       "en": "I will take this one.",
-      "th": "เอาอันนี้"
+      "th": "ขอเอาอันนี้"
     },
     {
       "en": "Can I pay by card?",
@@ -76,6 +80,42 @@
     {
       "en": "Could I have a bag, please?",
       "th": "ขอถุงหน่อย"
+    },
+    {
+      "en": "Can you lower the price a little?",
+      "th": "ลดหน่อยได้ไหม"
+    },
+    {
+      "en": "That is too expensive.",
+      "th": "แพงไป"
+    },
+    {
+      "en": "I am just looking.",
+      "th": "ดูเฉยๆ"
+    },
+    {
+      "en": "Do you have another colour?",
+      "th": "มีสีอื่นไหม"
+    },
+    {
+      "en": "Could you gift-wrap it, please?",
+      "th": "ช่วยห่อของขวัญให้หน่อยได้ไหม"
+    },
+    {
+      "en": "Is this genuine?",
+      "th": "ของแท้ไหม"
+    },
+    {
+      "en": "Could I have the VAT refund form, please?",
+      "th": "ขอเอกสารขอคืนภาษี VAT Refund ด้วย"
+    },
+    {
+      "en": "Where do I pay?",
+      "th": "จ่ายเงินที่ไหน"
+    },
+    {
+      "en": "I do not need a bag.",
+      "th": "ไม่รับถุง"
     }
   ]
 }

@@ -8,7 +8,8 @@ import dolmetscher as D
 import presets as P
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SHIPPED = {"travel", "restaurant", "hotel", "taxi", "doctor", "office", "shopping"}
+SHIPPED = {"travel", "restaurant", "hotel", "taxi", "doctor", "office", "shopping", "pharmacy", "police", "bank",
+           "spa", "temple", "rental", "scooter", "transport", "lostchild"}
 
 
 @pytest.fixture(autouse=True)

@@ -5,7 +5,11 @@
     "en": "Office",
     "th": "ที่ทำงาน"
   },
-  "style": "neutral",
+  "style": "polite",
+  "note": {
+    "de": "Visitenkarten mit beiden Händen geben und annehmen und kurz ansehen. Ranghöhere zuerst grüßen; offene Kritik vor anderen vermeiden.",
+    "en": "Give and receive business cards with both hands and look at them briefly. Greet senior people first; avoid open criticism in front of others."
+  },
   "glossary": [
     {
       "en": "meeting",
@@ -71,11 +75,35 @@
     },
     {
       "en": "I agree with that.",
-      "th": "ฉันเห็นด้วย"
+      "th": "เห็นด้วย"
     },
     {
       "en": "Thank you for your time.",
       "th": "ขอบคุณที่สละเวลา"
+    },
+    {
+      "en": "Here is my business card.",
+      "th": "นี่นามบัตร"
+    },
+    {
+      "en": "May I introduce my colleague?",
+      "th": "ขอแนะนำเพื่อนร่วมงาน"
+    },
+    {
+      "en": "What are the payment terms?",
+      "th": "เงื่อนไขการชำระเงินเป็นอย่างไร"
+    },
+    {
+      "en": "Could we schedule a meeting next week?",
+      "th": "ขอนัดประชุมสัปดาห์หน้าได้ไหม"
+    },
+    {
+      "en": "Sorry I am late.",
+      "th": "ขอโทษที่มาสาย"
+    },
+    {
+      "en": "Sorry to interrupt.",
+      "th": "ขอโทษที่ขัดจังหวะ"
     }
   ]
 }

@@ -6,6 +6,10 @@
     "th": "เดินทางท่องเที่ยว"
   },
   "style": "polite",
+  "note": {
+    "de": "Notrufe: Polizei 191, Rettung 1669, Tourist Police 1155 (Englisch). Den Wai-Gruß (Hände wie zum Gebet) mit einem kurzen Wai oder Lächeln erwidern.",
+    "en": "Emergency: police 191, ambulance 1669, tourist police 1155 (English). Return a wai greeting with a short wai or a smile."
+  },
   "glossary": [
     {
       "en": "passport",
@@ -46,8 +50,28 @@
   ],
   "phrases": [
     {
+      "en": "Help!",
+      "th": "ช่วยด้วย",
+      "critical": true
+    },
+    {
+      "en": "Please call the police.",
+      "th": "ช่วยเรียกตำรวจด้วย",
+      "critical": true
+    },
+    {
+      "en": "Where is the nearest hospital?",
+      "th": "โรงพยาบาลที่ใกล้ที่สุดอยู่ที่ไหน",
+      "critical": true
+    },
+    {
+      "en": "Please call an ambulance (1669).",
+      "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true
+    },
+    {
       "en": "Excuse me, where is the toilet?",
-      "th": "ขอโทษนะ ห้องน้ำอยู่ที่ไหน"
+      "th": "ขอโทษ ห้องน้ำอยู่ที่ไหน"
     },
     {
       "en": "How do I get to the airport?",
@@ -67,7 +91,7 @@
     },
     {
       "en": "I am lost. Can you help me?",
-      "th": "ฉันหลงทาง ช่วยหน่อยได้ไหม"
+      "th": "หลงทาง ช่วยหน่อยได้ไหม"
     },
     {
       "en": "Where can I change money?",
@@ -78,24 +102,28 @@
       "th": "ขอบคุณมากสำหรับความช่วยเหลือ"
     },
     {
-      "en": "Help!",
-      "th": "ช่วยด้วย"
-    },
-    {
-      "en": "Please call the police.",
-      "th": "ช่วยเรียกตำรวจด้วย"
-    },
-    {
-      "en": "Where is the nearest hospital?",
-      "th": "โรงพยาบาลที่ใกล้ที่สุดอยู่ที่ไหน"
-    },
-    {
       "en": "I lost my passport.",
-      "th": "ฉันทำพาสปอร์ตหาย"
+      "th": "ทำพาสปอร์ตหาย"
     },
     {
       "en": "My wallet was stolen.",
-      "th": "กระเป๋าสตางค์ของฉันถูกขโมย"
+      "th": "กระเป๋าสตางค์ถูกขโมย"
+    },
+    {
+      "en": "Where is the nearest BTS station?",
+      "th": "สถานีบีทีเอสที่ใกล้ที่สุดอยู่ที่ไหน"
+    },
+    {
+      "en": "Does this bus go to the city centre?",
+      "th": "รถเมล์คันนี้ไปตัวเมืองไหม"
+    },
+    {
+      "en": "Where can I buy a SIM card?",
+      "th": "ซื้อซิมการ์ดได้ที่ไหน"
+    },
+    {
+      "en": "Please contact my embassy.",
+      "th": "ช่วยติดต่อสถานทูตให้หน่อย"
     }
   ]
 }

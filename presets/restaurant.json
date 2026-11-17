@@ -6,6 +6,10 @@
     "th": "ร้านอาหาร"
   },
   "style": "polite",
+  "note": {
+    "de": "Trinkgeld ist nicht Pflicht; in Restaurants mit Bedienung Kleingeld liegen lassen ist üblich. Bei Allergien den Satz zeigen und auf Bestätigung warten.",
+    "en": "Tipping is not required; leaving small change is common where there is table service. For allergies, show the sentence and wait for confirmation."
+  },
   "glossary": [
     {
       "en": "menu",
@@ -46,6 +50,26 @@
   ],
   "phrases": [
     {
+      "en": "I am allergic to peanuts.",
+      "th": "แพ้ถั่วลิสง",
+      "critical": true
+    },
+    {
+      "en": "I have a severe peanut allergy. Even a small amount is dangerous.",
+      "th": "แพ้ถั่วลิสงรุนแรง แม้แต่นิดเดียวก็อันตราย",
+      "critical": true
+    },
+    {
+      "en": "Please do not add any peanuts.",
+      "th": "กรุณาอย่าใส่ถั่วลิสงเลย",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to shrimp and shellfish.",
+      "th": "แพ้กุ้งและหอย",
+      "critical": true
+    },
+    {
       "en": "A table for two, please.",
       "th": "ขอโต๊ะสำหรับสองคนหน่อย"
     },
@@ -55,11 +79,7 @@
     },
     {
       "en": "Not spicy, please.",
-      "th": "ไม่เผ็ดนะ"
-    },
-    {
-      "en": "I am allergic to peanuts.",
-      "th": "ฉันแพ้ถั่วลิสง"
+      "th": "ขอไม่เผ็ด"
     },
     {
       "en": "What do you recommend?",
@@ -78,24 +98,52 @@
       "th": "จ่ายด้วยบัตรได้ไหม"
     },
     {
-      "en": "I have a severe peanut allergy. Even a small amount is dangerous.",
-      "th": "ฉันแพ้ถั่วลิสงรุนแรง แม้แต่นิดเดียวก็อันตราย"
-    },
-    {
-      "en": "Please do not add any peanuts.",
-      "th": "กรุณาอย่าใส่ถั่วลิสงเลย"
-    },
-    {
-      "en": "I am allergic to shrimp and shellfish.",
-      "th": "ฉันแพ้กุ้งและหอย"
-    },
-    {
       "en": "No chili at all, please.",
       "th": "ไม่ใส่พริกเลย"
     },
     {
       "en": "Does this contain fish sauce?",
       "th": "อันนี้ใส่น้ำปลาไหม"
+    },
+    {
+      "en": "No MSG, please.",
+      "th": "ไม่ใส่ผงชูรส"
+    },
+    {
+      "en": "No fish sauce, please.",
+      "th": "ไม่ใส่น้ำปลา"
+    },
+    {
+      "en": "I am vegetarian.",
+      "th": "กินมังสวิรัติ"
+    },
+    {
+      "en": "Do you have vegan (jay) food?",
+      "th": "มีอาหารเจไหม"
+    },
+    {
+      "en": "Is there halal food?",
+      "th": "มีอาหารฮาลาลไหม"
+    },
+    {
+      "en": "Is there pork in this?",
+      "th": "อันนี้มีหมูไหม"
+    },
+    {
+      "en": "No ice, please.",
+      "th": "ไม่ใส่น้ำแข็ง"
+    },
+    {
+      "en": "It is delicious.",
+      "th": "อร่อยมาก"
+    },
+    {
+      "en": "I am full.",
+      "th": "อิ่มแล้ว"
+    },
+    {
+      "en": "Can we pay separately?",
+      "th": "แยกบิลได้ไหม"
     }
   ]
 }
