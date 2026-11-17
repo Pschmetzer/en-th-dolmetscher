@@ -752,8 +752,9 @@ struct QuickPhraseBar: View {
                     .accessibilityLabel(L.t("phrase_add_help"))
                 if let pr = PresetCatalog.all.first(where: { $0.id == m.preset }), m.activePreset != nil {
                     // Hinweis und Sätze aus dem Ereignis der Engine, sonst aus der Datei (z. B. nach Neuverbinden).
-                    let note = Preset.noteText(m.activePresetNote ?? pr.note)
-                    let list = m.activePresetPhrases ?? pr.phrases
+                    let fromEvent = m.activePreset?.id == pr.id
+                    let note = Preset.noteText((fromEvent ? m.activePresetNote : nil) ?? pr.note)
+                    let list = (fromEvent ? m.activePresetPhrases : nil) ?? pr.phrases
                     if let note {
                         Button { showNote.toggle() } label: { Image(systemName: "info.circle") }
                             .buttonStyle(.bordered)

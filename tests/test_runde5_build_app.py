@@ -78,7 +78,8 @@ def test_app_liest_note_und_critical():
     pr, eng, views = SWIFT["Presets.swift"], SWIFT["Engine.swift"], SWIFT["Views.swift"]
     assert 'json["note"]' in pr and 'd["critical"] as? Bool' in pr
     assert 'o["note"]' in eng and 'o["phrases"]' in eng            # Ereignis `preset`
-    assert "Preset.noteText(m.activePresetNote ?? pr.note)" in views
+    assert "Preset.noteText((fromEvent ? m.activePresetNote : nil) ?? pr.note)" in views
+    assert "let fromEvent = m.activePreset?.id == pr.id" in views
     assert "list.filter(\\.critical)" in views and "exclamationmark.triangle.fill" in views
     assert 'L.t("preset_critical")' in views                        # VoiceOver, nicht nur Farbe
     assert "`critical: true`" in DOCS and "`note`" in DOCS

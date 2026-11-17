@@ -57,7 +57,7 @@ class Store:
         `if v < N: ALTER TABLE …` dazu; eine Datenbank aus einer neueren Version wird nicht angefasst."""
         v = self.db.execute("PRAGMA user_version").fetchone()[0]
         if v > SCHEMA_VERSION:
-            raise RuntimeError(f"Verlauf hat Schema {v}, diese Version kennt {SCHEMA_VERSION}")
+            raise sqlite3.DatabaseError(f"Verlauf hat Schema {v}, diese Version kennt {SCHEMA_VERSION}")
         if v < SCHEMA_VERSION:
             # v0 -> v1: nur die Version setzen (Tabellen oben sind schon v1)
             self.db.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")

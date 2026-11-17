@@ -940,7 +940,7 @@ final class EngineModel: NSObject, ObservableObject {
         for w in hearingTimers.values { w.cancel() }
         hearingTimers.removeAll()
         rolesKnown = false; rolesMe = nil
-        activePreset = nil
+        activePreset = nil; activePresetNote = nil; activePresetPhrases = nil
         degradedModels = []
         stopWatchdog()
     }

@@ -124,8 +124,10 @@ def test_privatmodus_kein_get_mit_text(monkeypatch):
     ka.no_post["translate.googleapis.com"] = time.monotonic() + 60
     assert ka._split(u)[0] == "GET"                        # ohne Privatmodus: Rückfall wie bisher
     monkeypatch.setitem(d.PRIVATE, "on", True)
-    with pytest.raises(urllib.error.URLError):
+    with pytest.raises(urllib.error.HTTPError) as ei:
         ka._split(u)
+    assert "geheim" not in ei.value.filename
+    assert not d._is_conn_error(ei.value) and not d.is_offline_error(ei.value)   # kein falsches „offline“
 
 
 def test_privatmodus_post_abgelehnt_wirft_statt_get(monkeypatch):
@@ -305,7 +307,7 @@ def test_history_schema_version(tmp_path):
     s.db.execute("PRAGMA user_version = 99")
     s.db.commit()
     s.close()
-    with pytest.raises(RuntimeError, match="Schema 99"):
+    with pytest.raises(hs.sqlite3.DatabaseError, match="Schema 99"):
         hs.Store(str(tmp_path / "h.sqlite"))
 
 

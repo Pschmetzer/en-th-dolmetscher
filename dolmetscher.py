@@ -805,7 +805,9 @@ class KeepAlive:
         """GET-URL -> (Methode, Pfad, Body): bei Google/MyMemory wandert `q` in einen POST-Body."""
         path = u.path + ("?" + u.query if u.query else "")
         if u.netloc in _POST_HOSTS and PRIVATE["on"] and self._post_blocked(u.netloc):
-            raise urllib.error.URLError("POST abgelehnt – Privatmodus: kein GET mit Text in der URL")
+            # HTTPError (kein URLError): sonst gälte es als Verbindungsfehler, also „offline“
+            raise urllib.error.HTTPError(f"{u.scheme}://{u.netloc}{u.path}", 405,
+                                         "POST abgelehnt – Privatmodus: kein GET mit Text in der URL", {}, None)
         if u.netloc not in _POST_HOSTS or self._post_blocked(u.netloc) or not u.query:
             return "GET", path, None
         qs = urllib.parse.parse_qsl(u.query, keep_blank_values=True)
