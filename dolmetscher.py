@@ -660,6 +660,21 @@ def _logger():
         return _make_logger()
 
 
+def log_rotation(env=None):
+    """Nr. 71: Loggröße (MB) und Zahl der Sicherungen aus DOLMETSCHER_LOG_MB / DOLMETSCHER_LOG_BACKUPS
+    (Standard 1 MB x 3; Grenzen 0,1-50 MB, 1-10 Sicherungen; Unsinn -> Standard)."""
+    env = os.environ if env is None else env
+
+    def num(key, default, lo, hi, cast):
+        try:
+            v = cast(env.get(key, default))
+        except (TypeError, ValueError):
+            return default
+        return min(hi, max(lo, v)) if v == v else default        # NaN -> Standard
+
+    return num("DOLMETSCHER_LOG_MB", 1.0, 0.1, 50.0, float), num("DOLMETSCHER_LOG_BACKUPS", 3, 1, 10, int)
+
+
 def _make_logger():
     global _LOGGER
     if _LOGGER is None:
@@ -669,7 +684,8 @@ def _make_logger():
             os.chmod(d, 0o700)
         except OSError:
             pass
-        h = _PrivateRotatingHandler(LOGFILE, maxBytes=1_000_000, backupCount=1, encoding="utf-8")
+        mb, keep = log_rotation()
+        h = _PrivateRotatingHandler(LOGFILE, maxBytes=int(mb * 1_000_000), backupCount=keep, encoding="utf-8")
         h.setFormatter(logging.Formatter("%(asctime)s %(message)s", "%Y-%m-%d %H:%M:%S"))
         lg = logging.getLogger("dolmetscher")
         lg.setLevel(logging.INFO)
@@ -710,6 +726,9 @@ class NotJSON(ValueError):
 
 
 _POST_HOSTS = {"translate.googleapis.com", "api.mymemory.translated.net"}
+# Nr. 61/63: --private – keine Aufwärm-Anfragen an Google/Microsoft beim Start, und lehnt ein Anbieter POST ab,
+# kein Rückfall auf GET (der gesprochene Text stünde sonst in der URL, also in Proxy-/Server-Logs).
+PRIVATE = {"on": False}
 
 
 def _proxy_for(host):
@@ -785,6 +804,8 @@ class KeepAlive:
     def _split(self, u):
         """GET-URL -> (Methode, Pfad, Body): bei Google/MyMemory wandert `q` in einen POST-Body."""
         path = u.path + ("?" + u.query if u.query else "")
+        if u.netloc in _POST_HOSTS and PRIVATE["on"] and self._post_blocked(u.netloc):
+            raise urllib.error.URLError("POST abgelehnt – Privatmodus: kein GET mit Text in der URL")
         if u.netloc not in _POST_HOSTS or self._post_blocked(u.netloc) or not u.query:
             return "GET", path, None
         qs = urllib.parse.parse_qsl(u.query, keep_blank_values=True)
@@ -823,6 +844,9 @@ class KeepAlive:
                 self._give(host, c)
             if method == "POST" and r.status in (404, 405, 411, 413, 415):
                 self.no_post[host] = time.monotonic() + self.NO_POST_TTL   # vorerst GET
+                if PRIVATE["on"]:
+                    raise urllib.error.HTTPError(url.split("?")[0], r.status, "POST abgelehnt (Privatmodus)",
+                                                 r.headers, None)
                 return self.get_json(url, timeout)
             if r.status >= 300:
                 raise urllib.error.HTTPError(url, r.status, r.reason, r.headers, None)
@@ -1009,10 +1033,19 @@ def mymemory_translate(text, src, dst, e1=None, timeout=8.0):
     return " ".join(_mymemory_one(p, src, dst, e1, timeout) for p in _split_bytes(text))
 
 
+MYMEMORY_MIN_MATCH = 0.5            # Nr. 56: schwächere Treffer (oft fremdes Translation-Memory) nicht vorlesen
+
+
+def _mymemory_extra():
+    """Nr. 64: DOLMETSCHER_MYMEMORY_EMAIL (nur lokal, nie im Repo) hebt das Tageslimit (Parameter `de`)."""
+    mail = (os.environ.get("DOLMETSCHER_MYMEMORY_EMAIL") or "").strip()
+    return "&de=" + urllib.parse.quote(mail) if re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", mail) else ""
+
+
 def _mymemory_one(text, src, dst, e1=None, timeout=8.0):
     try:
         d = _get_json(f"https://api.mymemory.translated.net/get?q={urllib.parse.quote(text)}"
-                      f"&langpair={mt_code(src)}|{mt_code(dst)}", timeout)
+                      f"&langpair={mt_code(src)}|{mt_code(dst)}{_mymemory_extra()}", timeout)
     except urllib.error.URLError as e2:
         if (isinstance(e1, urllib.error.URLError) and not isinstance(e1, urllib.error.HTTPError)
                 and not isinstance(e2, urllib.error.HTTPError)):
@@ -1030,6 +1063,9 @@ def _mymemory_one(text, src, dst, e1=None, timeout=8.0):
         # Nur Status/Art melden: responseDetails/translatedText können den gesprochenen Satz zitieren
         kind = " (Kontingent)" if d.get("quotaFinished") else ""
         raise RuntimeError(f"MyMemory-Fehler {status if status.isdigit() else '?'}{kind}")
+    match = rd.get("match") if isinstance(rd, dict) else None
+    if isinstance(match, (int, float)) and not isinstance(match, bool) and 0 <= match < MYMEMORY_MIN_MATCH:
+        raise RuntimeError(f"MyMemory: schwacher Treffer ({match:.2f})")
     return html.unescape(out)
 
 
@@ -2546,6 +2582,19 @@ def is_offline_error(e, stop=None):
     return False
 
 
+def cpu_kw():
+    """Nr. 47: CPU-Modell mit so vielen Threads wie Performance-Kerne (Apple Silicon), statt des
+    CTranslate2-Standards (4). DOLMETSCHER_CPU_THREADS überschreibt; 0/unbekannt = Standard."""
+    try:
+        n = int(os.environ.get("DOLMETSCHER_CPU_THREADS") or 0)
+    except ValueError:
+        n = 0
+    if n <= 0:
+        import hwprofile
+        n = hwprofile.perf_cores()
+    return {"cpu_threads": min(n, 16)} if n >= 2 else {}
+
+
 def load_model(model, device):
     """Apple-GPU (MPS) wenn möglich – ca. 2-4x schneller –, sonst CPU."""
     if device in ("auto", "mps"):
@@ -2557,7 +2606,7 @@ def load_model(model, device):
             log({"mps": "nicht verfügbar", "err": _errtxt(e)})
             if device == "mps":
                 raise
-    m = _wm(model, device="cpu", compute_type="int8")
+    m = _wm(model, device="cpu", compute_type="int8", **cpu_kw())
     try:
         _warm(m)
     except Exception as e:
@@ -2812,8 +2861,10 @@ DEBUG = bool(os.environ.get("DOLMETSCHER_DEBUG"))
 CANCEL = {"gen": 0}                    # Stopp/Barge-in/Stumm erhöhen -> laufende Ausgabe bricht ab
 
 
-def wait_quiet(limit=5.0, cancelled=None):
-    """Nicht in eine laufende Äußerung hineinsprechen (sonst würde sie abgeschnitten)."""
+def wait_quiet(limit=None, cancelled=None):
+    """Nicht in eine laufende Äußerung hineinsprechen (sonst würde sie abgeschnitten). Nr. 30: Standardgrenze
+    MAX_UTT – länger kann eine Äußerung nicht laufen, sie wird dort geteilt (vorher fest 5 s)."""
+    limit = MAX_UTT if limit is None else limit
     t = time.time()
     while HEARING.is_set() and time.time() - t < limit and not BARGE_IN and not (cancelled and cancelled()):
         time.sleep(0.03)
@@ -4330,11 +4381,23 @@ class Engine:
             log({"learn": "fehler", "err": repr(e)[:200]})
 
     def _remember(self, uid, audio, emb):
-        """Roh-Audio für "Das war ich/sie" behalten – begrenzt auf RECENT_MAX Sätze."""
+        """Roh-Audio für "Das war ich/sie" behalten – begrenzt auf RECENT_MAX Sätze und (Nr. 174) RECENT_TTL
+        Sekunden: Gesprächsaudio bleibt nicht unbegrenzt im Speicher."""
         recent = self.__dict__.setdefault("recent", collections.OrderedDict())   # Tests bauen Engine ohne __init__
+        stamps = self.__dict__.setdefault("_recent_t", {})
         recent[uid] = (audio, emb)
+        stamps[uid] = time.monotonic()
+        self._expire_recent()
         while len(recent) > RECENT_MAX:
-            recent.popitem(last=False)
+            stamps.pop(recent.popitem(last=False)[0], None)
+
+    def _expire_recent(self):
+        recent = self.__dict__.setdefault("recent", collections.OrderedDict())
+        stamps = self.__dict__.setdefault("_recent_t", {})
+        cut = time.monotonic() - RECENT_TTL
+        for uid in [u for u in recent if stamps.get(u, cut) < cut]:
+            recent.pop(uid, None)
+            stamps.pop(uid, None)
 
     def _forget(self, uid):
         """Ersetzte Äußerung (Korrektur) aus Kontext und "repeat" nehmen: sonst stünde die falsch
@@ -4352,6 +4415,7 @@ class Engine:
     def reassign(self, uid, role):
         """'Das war ich' / 'Das war sie' aus der App: Satz in der richtigen Sprache neu erkennen,
         neu übersetzen (ersetzt die Blase) und den Stimmabdruck deutlich nachführen."""
+        self._expire_recent()
         if role not in ("me", "other") or uid not in self.recent:
             emit("error", code="reassign_expired", msg="Satz nicht mehr im Speicher – bitte neu sprechen")
             return
@@ -5006,6 +5070,21 @@ class StreamVAD:
         return float(out.reshape(-1)[0])
 
 
+def vad_selftest():
+    """Nr. 194: StreamVAD nutzt interne faster-whisper-API (get_vad_model, Zustand h/c). Beim Start einmal mit
+    Stille prüfen; bricht ein Update sie, gleich `error` `vad_failed` statt eines späten Absturzes. -> bool."""
+    try:
+        v = StreamVAD()
+        p = v(np.zeros(StreamVAD.N, dtype=np.float32))
+        if not (0.0 <= p <= 1.0) or v.h.shape != (1, 1, 128):
+            raise ValueError(f"unerwartete Ausgabe {p!r}")
+        return True
+    except Exception as e:                                # noqa: BLE001 – Ursache melden, nicht abstürzen
+        log({"vad": "selbsttest fehlgeschlagen", "err": _errtxt(e)})
+        emit("error", code="vad_failed", msg="Spracherkennung (VAD) nicht nutzbar – Python-Umgebung neu einrichten")
+        return False
+
+
 def quietest_cut(buf, look_back_s=4.0, fdur=StreamVAD.N / SR):
     """Index des leisesten Frames in den letzten look_back_s Sekunden (dort wird ein zu langer
     Abschnitt geteilt, statt mitten im Wort)."""
@@ -5020,6 +5099,7 @@ def quietest_cut(buf, look_back_s=4.0, fdur=StreamVAD.N / SR):
 METER = False
 ROLE_PREV_GAP = 3.0              # s: bis zu dieser Pause entscheidet der vorherige Sprecher knappe Fälle
 RECENT_MAX = 30                 # so viele letzte Sätze (Audio) für "Das war ich/sie" behalten
+RECENT_TTL = 300.0              # s: älteres Audio wird verworfen (Nr. 174)
 LEARN_MIN_S = 2.0               # Stimmabdruck nur aus Sätzen ab dieser Länge nachführen
 LEARN_MIN_SIM = 0.80            # … und nur bei sehr sicherer Zuordnung
 LEARN_FIX_MIN_S = 1.5           # nach Korrektur nur aus Sätzen ab dieser Länge lernen (wie beim Anlegen)
@@ -5717,6 +5797,9 @@ if __name__ == "__main__":
     ap.add_argument("--earcons", action="store_true", help="Signalton statt gesprochener Bestätigung")
     ap.add_argument("--slow", action="store_true",
                     help="Langsam und deutlich: langsamere Ausgabe, einfachere Wortwahl (Claude), nie überspringen")
+    ap.add_argument("--private", action="store_true",
+                    help="Privatmodus: keine Aufwärm-Anfragen an Google/Microsoft beim Start, kein GET-Rückfall "
+                         "mit dem Text in der URL")
     ap.add_argument("--back-translate", action="store_true",
                     help="Rückübersetzung (Google) als Ereignis `back` nach jeder Übersetzung")
     ap.add_argument("--no-learn-glossary", action="store_true",
@@ -5798,7 +5881,9 @@ if __name__ == "__main__":
     LLM["budget"] = max(0.0, float(a.llm_budget or 0.0))
     load_glossary()
     load_pronounce()
-    threading.Thread(target=warm_translate, daemon=True).start()
+    PRIVATE["on"] = bool(a.private)
+    if not PRIVATE["on"]:
+        threading.Thread(target=warm_translate, daemon=True).start()
     threading.Thread(target=thai_latin, args=("สวัสดี",), daemon=True).start()   # Umschrift vorwärmen
     signal.signal(signal.SIGTERM, shutdown)
     signal.signal(signal.SIGINT, shutdown)
@@ -5806,9 +5891,10 @@ if __name__ == "__main__":
             or a.profile_polite is not None or getattr(a, "reset_learning", None)):
         profile_cli(a)
         sys.exit(0)
-    if a.tts == "edge" and not a.mute:
+    if a.tts == "edge" and not a.mute and not PRIVATE["on"]:
         tts_warmup()                            # parallel zum Laden des Modells
     edge_tts_selftest()                # Nr. 20: Schnellweg der Neural-Stimme früh prüfen (nur Log)
+    vad_selftest()                     # Nr. 194
     model, hw = a.model, None
     if model == "auto":
         import hwprofile

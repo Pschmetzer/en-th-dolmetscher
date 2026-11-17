@@ -73,6 +73,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `--style casual\|neutral\|polite` | `casual` | Ton der Claude-Übersetzung |
 | `--earcons` | | Signalton statt gesprochener Bestätigung bei Sprachbefehlen |
 | `--slow` | | „Langsam und deutlich“ (wie Steuerfeld `slow`) |
+| `--private` | | Privatmodus: keine Aufwärm-Anfragen an Google/Microsoft beim Start; lehnt ein Anbieter POST ab, kein Rückfall auf GET mit dem Text in der URL (Übersetzung scheitert dann mit `translate_failed`) |
 | `--back-translate` | | Rückübersetzung als Ereignis `back` (wie Steuerfeld `back_translate`) |
 | `--no-learn-glossary` | | Eigennamen aus Korrekturen nicht ins Glossar übernehmen (Standard: an) |
 | `--meter` | | Pegel-Ereignisse `level` senden |
@@ -98,6 +99,9 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `DOLMETSCHER_FFMPEG` | optional: externes ffmpeg statt PyAV für Aufnahme, Wiedergabe und `--file` (nur wenn gesetzt; Standard ist `avhelper.py` mit PyAV) |
 | `DOLMETSCHER_HOME` | Ordner für Presets/Verlauf (Standard `~/Library/Application Support/Dolmetscher/`) |
 | `DOLMETSCHER_LOG` | Logdatei (Standard `~/Library/Logs/Dolmetscher/engine.log`) |
+| `DOLMETSCHER_LOG_MB`, `DOLMETSCHER_LOG_BACKUPS` | Log-Rotation: Größe in MB (Standard 1, 0,1–50) und Zahl der Sicherungen (Standard 3, 1–10) |
+| `DOLMETSCHER_CPU_THREADS` | Threads des CPU-Modells (Standard: Zahl der Performance-Kerne, `hw.perflevel0.physicalcpu`; höchstens 16) |
+| `DOLMETSCHER_MYMEMORY_EMAIL` | E-Mail-Adresse für MyMemory (Parameter `de`, höheres Tageslimit); nur lokal setzen, nie ins Repo. Treffer mit `match` unter 0,5 werden nicht vorgelesen (nächster Anbieter bzw. `translate_failed`) |
 | `DOLMETSCHER_DEBUG` | VAD-Diagnose ins Log |
 | `DOLMETSCHER_NULL_AUDIO` | keine Tonausgabe (Tests) |
 | `DOLMETSCHER_SPEAKER_MODEL`, `DOLMETSCHER_SPEAKER_MODEL_URL` | Stimmprofil-Modell aus Datei bzw. URL |
@@ -173,6 +177,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `audio_missing` | Audio-Baustein fehlt: PyAV (`av`) nicht importierbar oder `avhelper.py` fehlt (gleich beim Start gemeldet) – Python-Umgebung neu einrichten |
 | `model_offline` | Modell fehlt lokal und kann ohne Internet nicht geladen werden |
 | `translate_failed` | Übersetzung fehlgeschlagen (alle Anbieter) |
+| `vad_failed` | Selbsttest der Sprach-Aktivitätserkennung (Silero-VAD aus faster-whisper) beim Start gescheitert – Python-Umgebung neu einrichten |
 | `llm_billing` | Claude-API: Guthaben oder Kontingent erschöpft – 30 min nur Google/MyMemory, dann neuer Versuch |
 | `llm_budget` | eigenes Claude-Monatslimit (`--llm-budget`/`llm_budget`) erreicht – bis Monatsende Google/MyMemory; einmal je Monat |
 | `mic_invalid` | Steuerfeld `mic` ungültig (kein Text/keine Zahl); Gerät unverändert |

@@ -340,6 +340,10 @@ final class EngineModel: NSObject, ObservableObject {
     @Published var offlineMT = (ud.object(forKey: "offlineMT") as? Bool) ?? (Paths.bundledTranslateHelper != nil) {
         didSet { Self.ud.set(offlineMT, forKey: "offlineMT"); scheduleRestart() }
     }
+    /// Privatmodus (`--private`): keine Aufwärm-Anfragen, kein GET-Rückfall mit Text in der URL. Nur beim Start.
+    @Published var privateMode = ud.bool(forKey: "privateMode") {
+        didSet { Self.ud.set(privateMode, forKey: "privateMode"); scheduleRestart() }
+    }
     @Published var logText = ud.bool(forKey: "logText") { didSet { Self.ud.set(logText, forKey: "logText"); scheduleRestart() } }
     /// Wird nach dem Speichern/Löschen des API-Schlüssels erhöht (Engine liest ihn nur beim Start).
     @Published var keyVersion = 0 { didSet { scheduleRestart() } }
@@ -371,7 +375,7 @@ final class EngineModel: NSObject, ObservableObject {
 
     /// Einstellungen, die nur beim Start gelesen werden – Vergleich mit dem Stand beim Start.
     private var restartSignature: String {
-        "\(model)|\(denoise)|\(llmModel)|\(logText)|\(keyVersion)|\(offlineMT)"   // Mikrofon: live per `mic`
+        "\(model)|\(denoise)|\(llmModel)|\(logText)|\(keyVersion)|\(offlineMT)|\(privateMode)"   // Mikrofon: live per `mic`
     }
     @Published private var launchedSignature: String?
     var needsRestart: Bool { state != .stopped && launchedSignature != nil && launchedSignature != restartSignature }
@@ -711,6 +715,7 @@ final class EngineModel: NSObject, ObservableObject {
         if backTranslate { args.append("--back-translate") }
         if !learnGlossary { args.append("--no-learn-glossary") }
         if history { args.append("--history") }
+        if privateMode { args.append("--private") }
         if offlineMT, let helper = Paths.bundledTranslateHelper { args += ["--offline-translator", helper] }
         return args
     }
@@ -1292,7 +1297,7 @@ final class EngineModel: NSObject, ObservableObject {
         "mic_timeout": "err_mic_timeout", "mic_failed": "err_mic_failed", "mic_not_found": "err_mic_not_found",
         "output_not_found": "err_output_not_found", "output_unsupported": "err_output_unsupported",
         "output_invalid": "err_output_not_found", "offline_mt_missing": "err_offline_mt_missing",
-        "preset_invalid": "err_preset_invalid",
+        "preset_invalid": "err_preset_invalid", "vad_failed": "err_vad_failed",
         "profile_name_invalid": "err_profile_name_invalid", "profile_invalid": "err_profile_invalid",
         "profile_not_found": "err_profile_not_found", "profile_delete_failed": "err_profile_delete_failed",
         "history_failed": "err_history_failed", "history_days_invalid": "err_history_days_invalid",
@@ -1323,6 +1328,9 @@ final class EngineModel: NSObject, ObservableObject {
     /// Obergrenze für die Sprechblasen im Speicher: älteste fertige Einträge fallen weg
     /// (Platzhalter und die gerade vorgelesene Blase bleiben). Der Verlauf auf der Platte ist davon unberührt.
     static let maxItems = 500
+    /// Nr. 364: so viele alte Blasen sind seit dem letzten Leeren weggefallen (Export-Hinweis).
+    @Published private(set) var trimmedCount = 0
+    func resetTrimmed() { trimmedCount = 0 }
     private func trimItems() {
         let excess = items.count - Self.maxItems
         guard excess > 0 else { return }
@@ -1332,6 +1340,7 @@ final class EngineModel: NSObject, ObservableObject {
             drop -= 1
             return true
         }
+        trimmedCount += excess - drop
         indexCache.removeAll()
     }
 
@@ -1384,7 +1393,7 @@ final class EngineModel: NSObject, ObservableObject {
     private func applyCommand(_ o: [String: Any]) {
         applyingRemote = true
         defer { applyingRemote = false }
-        if o["clear"] as? Bool == true { items.removeAll() }
+        if o["clear"] as? Bool == true { items.removeAll(); trimmedCount = 0 }
         if let p = o["langs"] as? [String: Any], let mi = Langs.valid(p["mine"] as? String),
            let pa = Langs.valid(p["partner"] as? String), mi != pa, (mi, pa) != (mineLang, partnerLang) {
             mineLang = mi                      // gleiche Sprache auf beiden Seiten tauscht didSet weg
@@ -1680,7 +1689,7 @@ final class EngineModel: NSObject, ObservableObject {
         slowMode = false; backTranslate = false; learnGlossary = true
         ttsRace = 1.4; fastEndpoint = false; twoPerson = true; partialText = false
         llmModel = "claude-haiku-5-5"; mic = ""; micName = ""; denoise = false; logText = false
-        offlineMT = Paths.bundledTranslateHelper != nil
+        offlineMT = Paths.bundledTranslateHelper != nil; privateMode = false
         pushToTalk = false; model = "medium"; preset = ""; history = false
         for k in Prefs.resettableKeys { Self.ud.removeObject(forKey: k) }
         Self.ud.set(L.defaultCode, forKey: L.key)

@@ -132,6 +132,13 @@ private struct GeneralSettings: View {
                 Toggle(isOn: $m.logText) {
                     VStack(alignment: .leading) { Text(L.t("log_text")); RestartNote() }
                 }
+                Toggle(isOn: $m.privateMode) {
+                    VStack(alignment: .leading) {
+                        Text(L.t("private_mode"))
+                        Text(L.t("private_mode_help")).font(.caption).foregroundStyle(.secondary)
+                        RestartNote()
+                    }
+                }
             } footer: {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(L.t("hotkeys_note")).foregroundStyle(.secondary)

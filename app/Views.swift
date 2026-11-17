@@ -144,6 +144,8 @@ enum AutoScroll {
 struct ContentView: View {
     @EnvironmentObject var m: EngineModel
     @ObservedObject private var setup = EnvSetupModel.shared
+    @ObservedObject private var hotKeys = HotKeys.shared
+    @State private var hotKeysDismissed = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage(Prefs.fontScale) private var scale = 1.0
     @AppStorage(Prefs.alwaysOnTop) private var onTop = false
@@ -190,6 +192,12 @@ struct ContentView: View {
                              action: (L.t("reload_now"), { m.restart() }))
             }
             if let d = m.download { DownloadBanner(d: d) }
+            if !hotKeys.failures.isEmpty && !hotKeysDismissed {   // Nr. 378: einmal sichtbar, nicht nur in den Einstellungen
+                NoticeBanner(icon: "keyboard.badge.exclamationmark", tint: LangStyle.warning,
+                             text: L.t("hotkeys_failed") + " " + hotKeys.failures.joined(separator: ", "),
+                             action: (L.t("retry"), { HotKeys.shared.retryIfNeeded() }),
+                             onClose: { hotKeysDismissed = true })
+            }
             if !m.degradedModels.isEmpty {
                 NoticeBanner(icon: "gauge.with.dots.needle.33percent", tint: LangStyle.warning,
                              text: L.f("degraded_models", m.degradedModels.map { L.t($0 == "thai_model" ? "degraded_thai"
@@ -476,7 +484,7 @@ struct MainToolbar: View {
         }
         .padding(14)
         .confirmationDialog(L.t("clear_confirm"), isPresented: $confirmClear, titleVisibility: .visible) {
-            Button(L.t("clear"), role: .destructive) { m.items.removeAll() }
+            Button(L.t("clear"), role: .destructive) { m.items.removeAll(); m.resetTrimmed() }
             Button(L.t("cancel"), role: .cancel) {}
         }
     }
@@ -645,10 +653,17 @@ struct StatusCluster: View {
                     .accessibilityLabel(L.t("offline") + ": " + offlineHelp)
             }
             if m.loadSlow {
-                Label(L.t("load_slow"), systemImage: "hourglass")
-                    .font(.caption).foregroundStyle(LangStyle.warning)
-                    .help(L.t("load_slow_help"))
-                    .accessibilityLabel(L.t("load_slow") + ". " + L.t("load_slow_help"))
+                // Nr. 368: nicht nur ein Etikett – Log und Neustart direkt anbieten
+                Menu {
+                    Button(L.t("show_log")) { openLog() }
+                    Button(L.t("restart")) { m.restart() }
+                } label: {
+                    Label(L.t("load_slow"), systemImage: "hourglass")
+                        .font(.caption).foregroundStyle(LangStyle.warning)
+                }
+                .menuStyle(.borderlessButton).fixedSize()
+                .help(L.t("load_slow_help"))
+                .accessibilityLabel(L.t("load_slow") + ". " + L.t("load_slow_help"))
             }
             if let med = m.latencyMedian { LatencyBadge(median: med) }
             if m.llm && m.engineReady && !m.llmActive {
