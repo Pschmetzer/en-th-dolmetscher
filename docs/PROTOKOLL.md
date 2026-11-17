@@ -117,7 +117,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `loading` | `msg`, `download` (optional, true: Modell wird einmalig heruntergeladen, kann Minuten dauern) | |
 | `download_progress` | `model` (Name wie `--model` bzw. Repo-ID), `done_mb` (bereits auf der Platte), `total_mb` (Gesamtgröße laut Hub, sonst Schätzung; `null`, wenn unbekannt), `final` (bool: Download dieses Modells fertig) | nur während ein fehlendes Modell geladen wird (nach `loading` mit `download: true`), höchstens ~2×/s und nur bei Änderung. Gezählt werden die Bytes im Hugging-Face-Cache (auch `.incomplete`), deshalb funktioniert es auch mit hf-xet. Ältere Apps ignorieren das Ereignis |
 | `back` | `id`, `text`, `lang` | optional, nur mit `back_translate`/`--back-translate`: Rückübersetzung der Übersetzung von `id` in die gesprochene Sprache `lang` (Google/MyMemory, nie Claude). Kommt **nach** dem `utt` derselben `id`, ohne Garantie (Fehler: nur Log); bei unbekannter `id` ignorieren |
-| `state` | wie `command` ohne `text`/`reply`, dazu `mute`, `earcons`, `preset`, `llm` (`{"on", "available", "style"}`), `slow`, `back_translate`, `learn_glossary`, `mic_on` | Antwort auf `{"get_state": true}` (App-Neustart/Reconnect); ändert keinen Status |
+| `state` | wie `command` ohne `text`/`reply`, dazu `mute`, `earcons`, `preset`, `llm` (`{"on", "available", "style"}`), `slow`, `back_translate`, `learn_glossary`, `mic_on`, `let_finish`, `catch_up`, `beam`, `latency` (siehe „Runde 6“) | Antwort auf `{"get_state": true}` (App-Neustart/Reconnect); ändert keinen Status |
 | `glossary` | `text` (ganzes eigenes Glossar), `added` (neue Namen) | Engine hat Eigennamen aus einer Korrektur ins Glossar übernommen (Datei schon geschrieben). Die App hängt `added` an ihren Text an (nicht überschreiben: ungesendete eigene Änderungen) |
 | `llm_cost` | `usd`, `month_usd` | geschätzte Claude-Kosten der Sitzung bzw. des Kalendermonats (nach Preisliste, über Neustarts) |
 | `missed` | `why` (`cut`\|`overlap`), `dur` (s Ausgabe), `rms` | Während der eigenen Sprachausgabe wurde vermutlich gesprochen und der Teil verworfen (Halbduplex): `cut` = ein Satz lief noch, als die Ausgabe begann (der Anfang wird übersetzt, der Rest fehlt); `overlap` = direkt nach Ende der Ausgabe (und des Nachhalls) ist schon Sprache da. Höchstens einmal je Ausgabe; nie mit `--barge-in`. Echo der eigenen Stimme löst es nicht aus (während der Sperre wird nichts gemessen), ein Gespräch über Lautsprecher kann aber trotzdem `overlap` melden |
@@ -128,7 +128,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `thinking` | `id` | Äußerung `id` wird erkannt/übersetzt → Platzhalter-Blase |
 | `heard` | `id`, `lang`, `text`, `text_latin` (Thai, optional) | **neu:** erkannter Originaltext, sofort nach der Erkennung, noch vor der Übersetzung (Mikrofon und `reassign`). Die App füllt damit die Platzhalter-Blase; `utt` mit derselben `id` ergänzt die Übersetzung. Ältere Apps ignorieren das Ereignis |
 | `dropped` | `reason` (deutscher Freitext), `code` (stabil, siehe unten), `id`; bei `code` `unsure` zusätzlich `text`, `lang`, `lp`; bei `translate_failed` zusätzlich `text`, `lang` | Platzhalter `id` entfernen. Bei `unsure` kann die App den gehörten Text zeigen und „trotzdem übersetzen“ per `retranslate` anbieten, bei `translate_failed` „Erneut versuchen“ (ebenfalls `retranslate`) |
-| `utt` | `id`, `lang`, `to`, `text`, `out`, `stt`, `tr` (s), `lp` (Erkennungs-Konfidenz, log-prob, ≈ −0.1 sicher … −1.3 unsicher), `translated`, `provider` (`claude`\|`google`\|`mymemory`\|`apple`\|`none`), `speaker`, `replaces` (optional: id der korrigierten Blase), `source` (`mic`\|`phrase`\|`edit`\|`reassign`); optional: `text_latin`/`out_latin` (lesbare RTGS-Umschrift für Thai, nur mit pythainlp), `alts` (andere Lesarten), `role` (`me`\|`other`), `num_warn` (Ziffern weichen ab), `ready_s`, `suggest_vocab`. Ohne Übersetzung (Richtung abgeschaltet): `translated: false`, `provider: "none"`, `out` = `text`, kein `out_latin`, kein Vorlesen | |
+| `utt` | `id`, `lang`, `to`, `text`, `out`, `stt`, `tr` (s), `lp` (Erkennungs-Konfidenz, log-prob, ≈ −0.1 sicher … −1.3 unsicher), `translated`, `provider` (`claude`\|`google`\|`mymemory`\|`apple`\|`none`), `speaker`, `replaces` (optional: id der korrigierten Blase), `source` (`mic`\|`phrase`\|`edit`\|`reassign`); optional: `text_latin`/`out_latin` (lesbare RTGS-Umschrift für Thai, nur mit pythainlp), `alts` (andere Lesarten), `role` (`me`\|`other`), `num_warn` (Ziffern weichen ab), `ready_s`, `dur` (s, Länge der Äußerung; nur Mikrofon), `suggest_vocab`. Ohne Übersetzung (Richtung abgeschaltet): `translated: false`, `provider: "none"`, `out` = `text`, kein `out_latin`, kein Vorlesen | |
 | `speaking` | `id`, `first_s` (s bis zum ersten Ton) | nur wenn wirklich Ton kommt (nicht bei stumm, Überspringen, Abbruch vor dem ersten Ton); `id` = `"cmd"` bei Befehlsantworten und „repeat“ |
 | `speak_done` | `id`, `skipped` (bool), `interrupted` (bool), optional `partial` (true) | kommt für jede eingereihte Ausgabe **genau einmal**, auch ohne vorheriges `speaking`; `skipped`: wegen Rückstand/Stopp nicht vorgelesen; `partial`: Neural-Stimme riss mitten im Satz ab (nur teilweise vorgelesen, App kann Wiederholen anbieten) |
 | `queue` | `stt` (wartende Äußerungen), `tts` (wartende Ausgaben) | bei jeder Änderung |
@@ -242,6 +242,9 @@ Neu:
 | `learn_glossary` | bool | Eigennamen aus Korrekturen (`retranslate`) automatisch ins Glossar (Standard an) |
 | `reset_learning` | string (Profilname) | nachgeführten Stimmabdruck verwerfen (Stand beim Anlegen); Antwort `learning_reset` |
 | `get_state` | true | Zustand als Ereignis `state` senden |
+| `let_finish` | float (s, 0 … 5) | „Ausreden lassen“: nach dem Satzende so lange Ruhe abwarten, bevor vorgelesen wird; spricht jemand weiter, beginnt die Wartezeit neu (höchstens bis `MAX_UTT`). 0 = aus (Standard) |
+| `catch_up` | `skip`\|`fast`\|`off` | Rückstand: `skip` (Standard) = schneller sprechen und ab 3 wartenden Ausgaben ältere überspringen, `fast` = nur schneller, nie überspringen, `off` = weder noch. `slow` gewinnt (nie schneller, nie überspringen) |
+| `beam` | int (1 … 5) | Beam-Breite der Erkennung live: 1 schnell, 5 genau (Standard 1 bzw. Hardware-Profil) |
 | `reassign` | `{"id": "u7", "role": "me"\|"other"}` | „Das war ich/Partner“: Satz in der Sprache dieser Person (ich = Englisch bzw. meine Sprache, Partner = die andere Sprache des Paars) neu erkennen und übersetzen; `utt` kommt mit `replaces: "u7"`, `source: "reassign"`, `role`. Führt den Stimmabdruck des Profils nach (Gewicht 0,15). Behalten werden die letzten 30 Sätze |
 
 ## Tempo-Ausbau (Branch feat/tempo)
@@ -352,6 +355,9 @@ her. Eigene `style`/`glossary`-Änderungen während eines Presets werden zur neu
 
 - optional `note` `{de, en, th?}` (max. 500 Zeichen): Kultur- bzw. Sicherheitshinweis zum Szenario
 - optional je Schnellsatz `critical: true`: wichtiger Satz (Notfall, Allergie, Polizei), die App hebt ihn hervor
+- optional `hotwords`: bis 30 Begriffe (max. 60 Zeichen) als zusätzliche Whisper-Hotwords, je nach Schrift für
+  die passende Sprache (Runde 6, Nr. 243)
+- optional `llm_hint` (max. 300 Zeichen): Hinweis zu Ton und Fachwörtern für Claude, solange das Preset aktiv ist
 
 Ereignis `preset` beim Wechsel: `id` und `name` (englisch), `note` (`{de, en, th?}` oder `null`) und `phrases`
 (`[{en, th, critical}]`, Reihenfolge wie in der Datei); `id`/`name`/`note` `null` und `phrases` `[]` bei
@@ -364,7 +370,8 @@ Neuverbinden (`state` kennt nur die id) liest sie dieselben Felder aus `presets/
 Lokal, nur auf Wunsch. Modul `history_store.py`, Datei `history.sqlite` unter
 `$DOLMETSCHER_HOME` bzw. `~/Library/Application Support/Dolmetscher/` (Ordner 0700, Datei 0600).
 Gespeichert wird pro `utt`: Zeit (UTC), Quellsprache, Originaltext, Übersetzung, Umschrift,
-Konfidenz (`exp(lp)`), Anbieter, Sitzungs-ID. Eine Korrektur (`replaces`) ersetzt den alten Eintrag.
+Konfidenz (`exp(lp)`), Anbieter, Sitzungs-ID, ab Schema 2 auch Sprechbeginn (`t_begin` = Zeitpunkt − `ready_s` −
+`dur`), Rolle (`me`/`other`) und Profilname. Eine Korrektur (`replaces`) ersetzt den alten Eintrag.
 Nichts davon geht ins Log.
 
 Aufnahme:
@@ -449,3 +456,26 @@ Neue Felder kommen nur dazu, `PROTOCOL` bleibt 1.
   (192; `mic.attempt` zählt weiter). Stimmprofile werden atomar neu geladen (198).
 - **Verlauf-CLI:** `--history-export … --out PFAD` meldet Erfolg als JSON-Zeile `{"exported": true, "bytes": N}`
   (388); die App zeigt „Fertig“ bei Export und Löschen nur noch mit dieser bzw. der `deleted`-Antwort (387/388).
+
+## Runde 6 (Ideenliste)
+
+Neue Felder kommen nur dazu, `PROTOCOL` bleibt 1.
+
+- **Neue Steuerfelder/Startargumente:** `let_finish`/`--let-finish` (69), `catch_up`/`--catch-up` (171),
+  `beam`/`--beam` (176); alle drei stehen auch in `state`.
+- **`state.latency`** (70): `{stt|tr|sound: {n, p50, p90}}` über die letzten 50 Mikrofon-Sätze (Erkennung,
+  Übersetzung, Satzende bis erster Ton, Sekunden). Fehlende Reihen fehlen im Objekt. Nur Zahlen, kein Text.
+- **`utt.dur`** (205): Länge der Äußerung in Sekunden. Der Verlauf berechnet daraus den Sprechbeginn; `srt`/`vtt`
+  laufen damit nicht mehr dem Ton nach. Verlauf Schema 2 (`PRAGMA user_version` 2) mit `t_begin`, `role`,
+  `speaker`; ältere Datenbanken werden beim Öffnen ergänzt. Export: Markdown zeigt „ich“/„Partner“ bzw. den
+  Profilnamen, CSV hängt `role`/`speaker` an, JSON hat die Felder nur, wenn sie bekannt sind (206).
+- **Preset-Felder** `hotwords` und `llm_hint` (243), siehe „Szenario-Presets“.
+- **Fehlercode `python_env_broken`** (402) mit `module`; Exit-Code 3. Die App erkennt die kaputte Umgebung daran
+  und sucht im Log nur noch für ältere Engines nach „No module named“.
+- **Verhalten ohne neue Felder:** `faster_whisper` wird erst beim Laden importiert, `loading` kommt sofort (42);
+  das Thai-Modell wärmt auf Thai auf (46); Claude erfährt bei Thai→Englisch das Geschlecht aus ค่ะ/คะ/ครับ (51);
+  der zuletzt vorgelesene lange Satz bleibt für „repeat“ gespeichert, auch offline (67); die Hedge-Zeit folgt der
+  gemessenen Claude-Dauer (p90 × 1,2 der letzten 20, 1 s … 1,5 × Modellwert) (74); `DOLMETSCHER_TUNE` (81);
+  das Anlegen eines Stimmprofils normalisiert wie der Betrieb (177); ครับ/ค่ะ vs. คะ erkennt englische Fragen
+  auch ohne „?“ an Fragewort bzw. vorangestelltem Hilfsverb (181); `process` liest die Stimmprofile einmal je
+  Satz, ein `reload_profiles` mittendrin stört nicht mehr (221).
