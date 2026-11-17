@@ -30,7 +30,7 @@ def test_build_signiert_helfer_mit_hardened_runtime_vor_dem_bundle():
     assert 'sign_helpers "$SIGN" --timestamp' in BUILD          # Release: mit Zeitstempel
     assert "sign_helpers \"$SIGN\" || sign_helpers -" in BUILD  # Ad-hoc-Rückfall auch für die Helfer
     assert BUILD.index('sign_helpers "$SIGN" --timestamp') < BUILD.index("--entitlements \"$ENTITLEMENTS\" \"$NEWAPP\"")
-    assert "flags=.*runtime" in BUILD                              # Prüfung nach dem Signieren
+    assert "*flags=*runtime*)" in BUILD                              # Prüfung nach dem Signieren
 
 
 def test_build_install_beendet_laufende_app():

@@ -247,8 +247,11 @@ else
   fi
 fi
 if [ -f "$TH_IN" ]; then
-  codesign -d --verbose=2 "$TH_IN" 2>&1 | grep -q 'flags=.*runtime' \
-    || { echo "translate-helper ist nicht mit Hardened Runtime signiert"; exit 1; }
+  TH_SIG="$(codesign -d --verbose=2 "$TH_IN" 2>&1 || true)"   # erst lesen: grep -q in der Pipe + pipefail = SIGPIPE
+  case "$TH_SIG" in
+    *flags=*runtime*) ;;
+    *) echo "translate-helper ist nicht mit Hardened Runtime signiert"; exit 1 ;;
+  esac
 fi
 codesign --verify --deep --strict --verbose=2 "$NEWAPP"
 
