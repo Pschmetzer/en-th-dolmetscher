@@ -1,7 +1,7 @@
 import Foundation
 
-/// Eine Sprache der Engine-Sprachtabelle (`LANGS` in dolmetscher.py; Codes und Stimmen prüft
-/// tests/test_mehrsprachig_app.py gegen die Engine).
+/// Eine Sprache der gemeinsamen Sprachtabelle `languages.json` (liegt im App-Bundle neben dolmetscher.py;
+/// Engine, iPhone und Web lesen dieselbe Datei – tests/test_languages_json.py).
 struct LangInfo {
     let code: String
     let flag: String
@@ -17,54 +17,7 @@ struct LangInfo {
 
 /// Sprachtabelle und aktives Paar („meine Sprache“ + „Partnersprache“, Standard en + th).
 enum Langs {
-    static let all: [LangInfo] = [
-        LangInfo(code: "en", flag: "🇬🇧", bcp47: "en-US", script: [],
-                 voices: ["en-US-AriaNeural", "en-US-JennyNeural", "en-US-MichelleNeural", "en-US-AvaNeural",
-                          "en-US-EmmaNeural", "en-US-GuyNeural", "en-US-AndrewNeural", "en-US-BrianNeural",
-                          "en-GB-RyanNeural"], pleaseSpeak: "Please speak"),
-        LangInfo(code: "th", flag: "🇹🇭", bcp47: "th-TH", script: [0x0E00...0x0E7F],
-                 voices: ["th-TH-NiwatNeural", "th-TH-PremwadeeNeural"], pleaseSpeak: "กรุณาพูดได้เลย"),
-        LangInfo(code: "de", flag: "🇩🇪", bcp47: "de-DE", script: [],
-                 voices: ["de-DE-ChristophNeural", "de-DE-TanjaNeural", "de-AT-JonasNeural", "de-AT-IngridNeural",
-                          "de-CH-JanNeural", "de-CH-LeniNeural"], pleaseSpeak: "Bitte sprechen Sie"),
-        LangInfo(code: "es", flag: "🇪🇸", bcp47: "es-ES", script: [],
-                 voices: ["es-ES-AlvaroNeural", "es-ES-ElviraNeural", "es-MX-JorgeNeural", "es-MX-DaliaNeural"],
-                 pleaseSpeak: "Hable, por favor"),
-        LangInfo(code: "fr", flag: "🇫🇷", bcp47: "fr-FR", script: [],
-                 voices: ["fr-FR-HenriNeural", "fr-FR-DeniseNeural", "fr-FR-EloiseNeural"],
-                 pleaseSpeak: "Parlez, s'il vous plaît"),
-        LangInfo(code: "it", flag: "🇮🇹", bcp47: "it-IT", script: [],
-                 voices: ["it-IT-DiegoNeural", "it-IT-ElsaNeural", "it-IT-IsabellaNeural"], pleaseSpeak: "Parli pure"),
-        LangInfo(code: "pt", flag: "🇧🇷", bcp47: "pt-BR", script: [],
-                 voices: ["pt-BR-AntonioNeural", "pt-BR-FranciscaNeural", "pt-PT-DuarteNeural", "pt-PT-RaquelNeural"],
-                 pleaseSpeak: "Pode falar"),
-        LangInfo(code: "nl", flag: "🇳🇱", bcp47: "nl-NL", script: [],
-                 voices: ["nl-NL-MaartenNeural", "nl-NL-ColetteNeural", "nl-NL-FennaNeural"], pleaseSpeak: "Spreek maar"),
-        LangInfo(code: "ru", flag: "🇷🇺", bcp47: "ru-RU", script: [0x0400...0x04FF],
-                 voices: ["ru-RU-DmitryNeural", "ru-RU-SvetlanaNeural"], pleaseSpeak: "Говорите, пожалуйста"),
-        LangInfo(code: "zh", flag: "🇨🇳", bcp47: "zh-CN", script: [0x3400...0x4DBF, 0x4E00...0x9FFF],
-                 voices: ["zh-CN-YunxiNeural", "zh-CN-XiaoxiaoNeural", "zh-CN-YunyangNeural", "zh-CN-XiaoyiNeural"],
-                 pleaseSpeak: "请说"),
-        LangInfo(code: "ja", flag: "🇯🇵", bcp47: "ja-JP", script: [0x3040...0x30FF, 0x4E00...0x9FFF],
-                 voices: ["ja-JP-KeitaNeural", "ja-JP-NanamiNeural"], pleaseSpeak: "どうぞお話しください"),
-        LangInfo(code: "ko", flag: "🇰🇷", bcp47: "ko-KR", script: [0xAC00...0xD7AF, 0x1100...0x11FF, 0x3130...0x318F],
-                 voices: ["ko-KR-InJoonNeural", "ko-KR-SunHiNeural"], pleaseSpeak: "말씀하세요"),
-        LangInfo(code: "vi", flag: "🇻🇳", bcp47: "vi-VN", script: [],
-                 voices: ["vi-VN-NamMinhNeural", "vi-VN-HoaiMyNeural"], pleaseSpeak: "Mời bạn nói"),
-        LangInfo(code: "id", flag: "🇮🇩", bcp47: "id-ID", script: [],
-                 voices: ["id-ID-ArdiNeural", "id-ID-GadisNeural"], pleaseSpeak: "Silakan bicara"),
-        LangInfo(code: "ar", flag: "🇸🇦", bcp47: "ar-SA", script: [0x0600...0x06FF, 0x0750...0x077F],
-                 voices: ["ar-SA-HamedNeural", "ar-SA-ZariyahNeural", "ar-EG-ShakirNeural", "ar-EG-SalmaNeural"],
-                 pleaseSpeak: "تفضل بالكلام"),
-        LangInfo(code: "hi", flag: "🇮🇳", bcp47: "hi-IN", script: [0x0900...0x097F],
-                 voices: ["hi-IN-MadhurNeural", "hi-IN-SwaraNeural"], pleaseSpeak: "कृपया बोलिए"),
-        LangInfo(code: "tr", flag: "🇹🇷", bcp47: "tr-TR", script: [],
-                 voices: ["tr-TR-AhmetNeural", "tr-TR-EmelNeural"], pleaseSpeak: "Lütfen konuşun"),
-        LangInfo(code: "pl", flag: "🇵🇱", bcp47: "pl-PL", script: [],
-                 voices: ["pl-PL-MarekNeural", "pl-PL-ZofiaNeural"], pleaseSpeak: "Proszę mówić"),
-        LangInfo(code: "uk", flag: "🇺🇦", bcp47: "uk-UA", script: [0x0400...0x04FF],
-                 voices: ["uk-UA-OstapNeural", "uk-UA-PolinaNeural"], pleaseSpeak: "Говоріть, будь ласка"),
-    ]
+    static let all: [LangInfo] = LangTable.load(Bundle.main.url(forResource: "languages", withExtension: "json"))
     static let codes = all.map(\.code)
     static let defaultMine = "en", defaultPartner = "th"
     /// Männliche Stimmen (für „♂“ in der Stimmenauswahl).
@@ -117,5 +70,51 @@ enum Langs {
         for c in [partner, mine] where inScript(text, c) { return c }
         for c in [mine, partner] where info(c)?.script.isEmpty == true { return c }
         return mine
+    }
+}
+
+/// Liest `languages.json` (Format: tests/test_languages_json.py) in die Form von `LangInfo`.
+enum LangTable {
+    private struct File: Decodable {
+        let scripts: [String: [String]]
+        let languages: [Row]
+    }
+    private struct Row: Decodable {
+        struct Edge: Decodable { let voices: [String] }
+        struct Phrases: Decodable { let please_speak: String }
+        let code, flag, locale: String
+        let scripts: [String]
+        let edge: Edge
+        let app_voices: [String]?
+        let phrases: Phrases
+    }
+
+    /// "0E00-0E7F" -> 0x0E00...0x0E7F
+    static func range(_ s: String) -> ClosedRange<UInt32>? {
+        let p = s.split(separator: "-")
+        guard p.count == 2, let a = UInt32(p[0], radix: 16), let b = UInt32(p[1], radix: 16), a <= b else { return nil }
+        return a...b
+    }
+
+    static func parse(_ data: Data) -> [LangInfo]? {
+        guard let f = try? JSONDecoder().decode(File.self, from: data), !f.languages.isEmpty else { return nil }
+        return f.languages.map { r in
+            // Lateinische Schrift = leer (guessLang: „ohne eigene Schrift“)
+            let script = r.scripts.contains("latin") ? [] : r.scripts.flatMap { (f.scripts[$0] ?? []).compactMap(range) }
+            return LangInfo(code: r.code, flag: r.flag, bcp47: r.locale.replacingOccurrences(of: "_", with: "-"),
+                            script: script, voices: r.app_voices ?? r.edge.voices, pleaseSpeak: r.phrases.please_speak)
+        }
+    }
+
+    /// Aus dem Bundle; fehlt die Datei (nur bei kaputtem Build), bleibt wenigstens das Standardpaar en/th.
+    static func load(_ url: URL?) -> [LangInfo] {
+        if let url, let data = try? Data(contentsOf: url), let all = parse(data) { return all }
+        NSLog("Dolmetscher: languages.json fehlt im Bundle – nur Englisch/Thai")
+        return [
+            LangInfo(code: "en", flag: "🇬🇧", bcp47: "en-US", script: [],
+                     voices: ["en-US-AriaNeural", "en-US-GuyNeural"], pleaseSpeak: "Please speak"),
+            LangInfo(code: "th", flag: "🇹🇭", bcp47: "th-TH", script: [0x0E00...0x0E7F],
+                     voices: ["th-TH-NiwatNeural", "th-TH-PremwadeeNeural"], pleaseSpeak: "กรุณาพูดได้เลย"),
+        ]
     }
 }

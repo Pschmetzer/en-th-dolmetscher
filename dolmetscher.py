@@ -42,6 +42,9 @@ _IDS = itertools.count(1)
 def new_id():
     return f"u{next(_IDS)}"
 # --- Sprachtabelle ------------------------------------------------------------------------------------
+# Quelle für alle Plattformen ist languages.json im Repo (Engine, Mac-App, iPhone, Web lesen dieselbe Datei;
+# build.sh legt sie neben dieses Skript ins Bundle). Die Tabelle hier ist nur die eingebaute Kopie für den
+# Fall, dass die Datei fehlt – tests/test_languages_json.py prüft, dass beide gleich sind.
 # Eine Zeile je Sprache: Name (englisch: Claude-Prompt, Sprachbefehle; deutsch: Log/dropped-Gründe),
 # Schrift (SCRIPTS, für die Plausibilität „Ausgabe in falscher Schrift“), edge-tts-Stimmen (m/w = Standard
 # nach Geschlecht, voices = auswählbar), macOS-Stimme mit Locale (`say`, Rückfall), MIN_LOGPROB-Standard
@@ -50,7 +53,7 @@ def new_id():
 # sind nicht gemessen, sondern nach Whisper-Trainingsmenge/Fehlerrate gestaffelt (LANG_MIN_LP): viel Material
 # (de/es/fr/it/pt/nl/ru/pl) wie Englisch −1.0; mittel (ja/zh/ko/tr/uk/id) −1.1; tonal/wenig Material (vi/ar/hi)
 # −1.2 – sonst verwirft der Filter dort echte Sätze als „unsicher“.
-SCRIPTS = {
+_BUILTIN_SCRIPTS = {
     "latin": "A-Za-zÀ-ɏḀ-ỿ",
     "thai": "฀-๿",
     "cyrillic": "Ѐ-ӿ",
@@ -68,7 +71,7 @@ def _lang(name, de, script, m, f, say, locale, voices=(), min_lp=-1.0, mt=None):
             "min_lp": min_lp, "mt": mt}
 
 
-LANGS = {
+_BUILTIN_LANGS = {
     # Englisch: Aria statt Ava-Multilingual. Gemessen (Zeit bis zum ersten Ton): Aria/Jenny/Guy 0,4–0,7 s,
     # die Multilingual-Stimmen 1,5–4 s – dann sprang fast immer die macOS-Ersatzstimme ein. Die stehen nur
     # noch für gespeicherte Einstellungen in der Liste.
@@ -113,8 +116,33 @@ LANGS = {
 LANG_MIN_LP = {"ja": -1.1, "zh": -1.1, "ko": -1.1, "tr": -1.1, "uk": -1.1, "id": -1.1,
                "vi": -1.2, "ar": -1.2, "hi": -1.2}
 for _c, _v in LANG_MIN_LP.items():
-    LANGS[_c]["min_lp"] = _v
-DEFAULT_PAIR = ("en", "th")
+    _BUILTIN_LANGS[_c]["min_lp"] = _v
+LANGS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "languages.json")
+
+
+def _range_class(ranges):
+    """["0E00-0E7F", …] -> Zeichenklassen-Inhalt "\u0e00-\u0e7f…" (wie die eingebauten SCRIPTS)."""
+    return "".join(chr(int(a, 16)) + "-" + chr(int(b, 16)) for a, b in (r.split("-") for r in ranges))
+
+
+def load_lang_table(path=LANGS_FILE):
+    """(SCRIPTS, LANGS, DEFAULT_PAIR) aus languages.json; nur wenn die Datei fehlt, die eingebaute Kopie.
+    Eine kaputte Datei ist ein Fehler (kein stiller Rückfall)."""
+    try:
+        with open(path, encoding="utf-8") as f:
+            raw = json.load(f)
+    except FileNotFoundError:
+        return dict(_BUILTIN_SCRIPTS), {k: dict(v) for k, v in _BUILTIN_LANGS.items()}, ("en", "th")
+    scripts = {k: _range_class(v) for k, v in raw["scripts"].items()}
+    langs = {}
+    for v in raw["languages"]:
+        e, mac = v["edge"], v["macos"]
+        langs[v["code"]] = _lang(v["names"]["en"], v["names"]["de"], "+".join(v["scripts"]), e["m"], e["f"],
+                                 mac["voice"], mac["locale"], e["voices"], v["min_logprob"], v.get("mt"))
+    return scripts, langs, tuple(raw["default_pair"])
+
+
+SCRIPTS, LANGS, DEFAULT_PAIR = load_lang_table()
 MIN_LOGPROB = {k: v["min_lp"] for k, v in LANGS.items()}
 VOICE = {k: v["say"] for k, v in LANGS.items()}                 # macOS-Stimme (Rückfall ohne edge-tts)
 _SCRIPT_RX = {k: re.compile("[" + "".join(SCRIPTS[s] for s in v["script"]) + "]") for k, v in LANGS.items()}

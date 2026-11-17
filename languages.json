@@ -1,0 +1,675 @@
+{
+  "version": 1,
+  "default_pair": [
+    "en",
+    "th"
+  ],
+  "scripts": {
+    "latin": [
+      "0041-005A",
+      "0061-007A",
+      "00C0-024F",
+      "1E00-1EFF"
+    ],
+    "thai": [
+      "0E00-0E7F"
+    ],
+    "cyrillic": [
+      "0400-04FF"
+    ],
+    "han": [
+      "3400-4DBF",
+      "4E00-9FFF",
+      "F900-FAFF"
+    ],
+    "kana": [
+      "3040-30FF",
+      "31F0-31FF"
+    ],
+    "hangul": [
+      "1100-11FF",
+      "3130-318F",
+      "AC00-D7AF"
+    ],
+    "arabic": [
+      "0600-06FF",
+      "0750-077F",
+      "FB50-FDFF",
+      "FE70-FEFF"
+    ],
+    "devanagari": [
+      "0900-097F"
+    ]
+  },
+  "languages": [
+    {
+      "code": "en",
+      "names": {
+        "en": "English",
+        "de": "Englisch",
+        "native": "English"
+      },
+      "flag": "🇬🇧",
+      "scripts": [
+        "latin"
+      ],
+      "locale": "en_US",
+      "edge": {
+        "m": "en-US-GuyNeural",
+        "f": "en-US-AriaNeural",
+        "voices": [
+          "en-US-GuyNeural",
+          "en-US-AriaNeural",
+          "en-US-JennyNeural",
+          "en-US-MichelleNeural",
+          "en-US-AvaNeural",
+          "en-US-EmmaNeural",
+          "en-US-AndrewNeural",
+          "en-US-BrianNeural",
+          "en-GB-RyanNeural",
+          "en-GB-SoniaNeural",
+          "en-US-AvaMultilingualNeural",
+          "en-US-AndrewMultilingualNeural",
+          "en-US-EmmaMultilingualNeural"
+        ]
+      },
+      "macos": {
+        "voice": "Samantha",
+        "locale": "en_US"
+      },
+      "min_logprob": -1.0,
+      "app_voices": [
+        "en-US-AriaNeural",
+        "en-US-JennyNeural",
+        "en-US-MichelleNeural",
+        "en-US-AvaNeural",
+        "en-US-EmmaNeural",
+        "en-US-GuyNeural",
+        "en-US-AndrewNeural",
+        "en-US-BrianNeural",
+        "en-GB-RyanNeural"
+      ],
+      "phrases": {
+        "please_speak": "Please speak",
+        "yes": "Yes",
+        "no": "No"
+      }
+    },
+    {
+      "code": "th",
+      "names": {
+        "en": "Thai",
+        "de": "Thai",
+        "native": "ไทย"
+      },
+      "flag": "🇹🇭",
+      "scripts": [
+        "thai"
+      ],
+      "locale": "th_TH",
+      "edge": {
+        "m": "th-TH-NiwatNeural",
+        "f": "th-TH-PremwadeeNeural",
+        "voices": [
+          "th-TH-NiwatNeural",
+          "th-TH-PremwadeeNeural"
+        ]
+      },
+      "macos": {
+        "voice": "Kanya",
+        "locale": "th_TH"
+      },
+      "min_logprob": -1.3,
+      "phrases": {
+        "please_speak": "กรุณาพูดได้เลย",
+        "yes": "ใช่",
+        "no": "ไม่ใช่"
+      }
+    },
+    {
+      "code": "de",
+      "names": {
+        "en": "German",
+        "de": "Deutsch",
+        "native": "Deutsch"
+      },
+      "flag": "🇩🇪",
+      "scripts": [
+        "latin"
+      ],
+      "locale": "de_DE",
+      "edge": {
+        "m": "de-DE-ChristophNeural",
+        "f": "de-DE-TanjaNeural",
+        "voices": [
+          "de-DE-ChristophNeural",
+          "de-DE-TanjaNeural",
+          "de-AT-JonasNeural",
+          "de-AT-IngridNeural",
+          "de-CH-JanNeural",
+          "de-CH-LeniNeural"
+        ]
+      },
+      "macos": {
+        "voice": "Anna",
+        "locale": "de_DE"
+      },
+      "min_logprob": -1.0,
+      "phrases": {
+        "please_speak": "Bitte sprechen Sie",
+        "yes": "Ja",
+        "no": "Nein"
+      }
+    },
+    {
+      "code": "es",
+      "names": {
+        "en": "Spanish",
+        "de": "Spanisch",
+        "native": "Español"
+      },
+      "flag": "🇪🇸",
+      "scripts": [
+        "latin"
+      ],
+      "locale": "es_ES",
+      "edge": {
+        "m": "es-ES-AlvaroNeural",
+        "f": "es-ES-ElviraNeural",
+        "voices": [
+          "es-ES-AlvaroNeural",
+          "es-ES-ElviraNeural",
+          "es-MX-JorgeNeural",
+          "es-MX-DaliaNeural"
+        ]
+      },
+      "macos": {
+        "voice": "Mónica",
+        "locale": "es_ES"
+      },
+      "min_logprob": -1.0,
+      "phrases": {
+        "please_speak": "Hable, por favor",
+        "yes": "Sí",
+        "no": "No"
+      }
+    },
+    {
+      "code": "fr",
+      "names": {
+        "en": "French",
+        "de": "Französisch",
+        "native": "Français"
+      },
+      "flag": "🇫🇷",
+      "scripts": [
+        "latin"
+      ],
+      "locale": "fr_FR",
+      "edge": {
+        "m": "fr-FR-HenriNeural",
+        "f": "fr-FR-DeniseNeural",
+        "voices": [
+          "fr-FR-HenriNeural",
+          "fr-FR-DeniseNeural",
+          "fr-FR-EloiseNeural"
+        ]
+      },
+      "macos": {
+        "voice": "Thomas",
+        "locale": "fr_FR"
+      },
+      "min_logprob": -1.0,
+      "phrases": {
+        "please_speak": "Parlez, s'il vous plaît",
+        "yes": "Oui",
+        "no": "Non"
+      }
+    },
+    {
+      "code": "it",
+      "names": {
+        "en": "Italian",
+        "de": "Italienisch",
+        "native": "Italiano"
+      },
+      "flag": "🇮🇹",
+      "scripts": [
+        "latin"
+      ],
+      "locale": "it_IT",
+      "edge": {
+        "m": "it-IT-DiegoNeural",
+        "f": "it-IT-ElsaNeural",
+        "voices": [
+          "it-IT-DiegoNeural",
+          "it-IT-ElsaNeural",
+          "it-IT-IsabellaNeural"
+        ]
+      },
+      "macos": {
+        "voice": "Alice",
+        "locale": "it_IT"
+      },
+      "min_logprob": -1.0,
+      "phrases": {
+        "please_speak": "Parli pure",
+        "yes": "Sì",
+        "no": "No"
+      }
+    },
+    {
+      "code": "pt",
+      "names": {
+        "en": "Portuguese",
+        "de": "Portugiesisch",
+        "native": "Português"
+      },
+      "flag": "🇧🇷",
+      "scripts": [
+        "latin"
+      ],
+      "locale": "pt_BR",
+      "edge": {
+        "m": "pt-BR-AntonioNeural",
+        "f": "pt-BR-FranciscaNeural",
+        "voices": [
+          "pt-BR-AntonioNeural",
+          "pt-BR-FranciscaNeural",
+          "pt-PT-DuarteNeural",
+          "pt-PT-RaquelNeural"
+        ]
+      },
+      "macos": {
+        "voice": "Luciana",
+        "locale": "pt_BR"
+      },
+      "min_logprob": -1.0,
+      "phrases": {
+        "please_speak": "Pode falar",
+        "yes": "Sim",
+        "no": "Não"
+      }
+    },
+    {
+      "code": "nl",
+      "names": {
+        "en": "Dutch",
+        "de": "Niederländisch",
+        "native": "Nederlands"
+      },
+      "flag": "🇳🇱",
+      "scripts": [
+        "latin"
+      ],
+      "locale": "nl_NL",
+      "edge": {
+        "m": "nl-NL-MaartenNeural",
+        "f": "nl-NL-ColetteNeural",
+        "voices": [
+          "nl-NL-MaartenNeural",
+          "nl-NL-ColetteNeural",
+          "nl-NL-FennaNeural"
+        ]
+      },
+      "macos": {
+        "voice": "Xander",
+        "locale": "nl_NL"
+      },
+      "min_logprob": -1.0,
+      "phrases": {
+        "please_speak": "Spreek maar",
+        "yes": "Ja",
+        "no": "Nee"
+      }
+    },
+    {
+      "code": "ru",
+      "names": {
+        "en": "Russian",
+        "de": "Russisch",
+        "native": "Русский"
+      },
+      "flag": "🇷🇺",
+      "scripts": [
+        "cyrillic"
+      ],
+      "locale": "ru_RU",
+      "edge": {
+        "m": "ru-RU-DmitryNeural",
+        "f": "ru-RU-SvetlanaNeural",
+        "voices": [
+          "ru-RU-DmitryNeural",
+          "ru-RU-SvetlanaNeural"
+        ]
+      },
+      "macos": {
+        "voice": "Milena",
+        "locale": "ru_RU"
+      },
+      "min_logprob": -1.0,
+      "phrases": {
+        "please_speak": "Говорите, пожалуйста",
+        "yes": "Да",
+        "no": "Нет"
+      }
+    },
+    {
+      "code": "zh",
+      "names": {
+        "en": "Chinese",
+        "de": "Chinesisch",
+        "native": "中文"
+      },
+      "flag": "🇨🇳",
+      "scripts": [
+        "han"
+      ],
+      "locale": "zh_CN",
+      "edge": {
+        "m": "zh-CN-YunxiNeural",
+        "f": "zh-CN-XiaoxiaoNeural",
+        "voices": [
+          "zh-CN-YunxiNeural",
+          "zh-CN-XiaoxiaoNeural",
+          "zh-CN-YunyangNeural",
+          "zh-CN-XiaoyiNeural"
+        ]
+      },
+      "macos": {
+        "voice": "Tingting",
+        "locale": "zh_CN"
+      },
+      "min_logprob": -1.1,
+      "mt": "zh-CN",
+      "apple_translation": "zh-Hans",
+      "phrases": {
+        "please_speak": "请说",
+        "yes": "是",
+        "no": "不是"
+      }
+    },
+    {
+      "code": "ja",
+      "names": {
+        "en": "Japanese",
+        "de": "Japanisch",
+        "native": "日本語"
+      },
+      "flag": "🇯🇵",
+      "scripts": [
+        "kana",
+        "han"
+      ],
+      "locale": "ja_JP",
+      "edge": {
+        "m": "ja-JP-KeitaNeural",
+        "f": "ja-JP-NanamiNeural",
+        "voices": [
+          "ja-JP-KeitaNeural",
+          "ja-JP-NanamiNeural"
+        ]
+      },
+      "macos": {
+        "voice": "Kyoko",
+        "locale": "ja_JP"
+      },
+      "min_logprob": -1.1,
+      "phrases": {
+        "please_speak": "どうぞお話しください",
+        "yes": "はい",
+        "no": "いいえ"
+      }
+    },
+    {
+      "code": "ko",
+      "names": {
+        "en": "Korean",
+        "de": "Koreanisch",
+        "native": "한국어"
+      },
+      "flag": "🇰🇷",
+      "scripts": [
+        "hangul"
+      ],
+      "locale": "ko_KR",
+      "edge": {
+        "m": "ko-KR-InJoonNeural",
+        "f": "ko-KR-SunHiNeural",
+        "voices": [
+          "ko-KR-InJoonNeural",
+          "ko-KR-SunHiNeural"
+        ]
+      },
+      "macos": {
+        "voice": "Yuna",
+        "locale": "ko_KR"
+      },
+      "min_logprob": -1.1,
+      "phrases": {
+        "please_speak": "말씀하세요",
+        "yes": "네",
+        "no": "아니요"
+      }
+    },
+    {
+      "code": "vi",
+      "names": {
+        "en": "Vietnamese",
+        "de": "Vietnamesisch",
+        "native": "Tiếng Việt"
+      },
+      "flag": "🇻🇳",
+      "scripts": [
+        "latin"
+      ],
+      "locale": "vi_VN",
+      "edge": {
+        "m": "vi-VN-NamMinhNeural",
+        "f": "vi-VN-HoaiMyNeural",
+        "voices": [
+          "vi-VN-NamMinhNeural",
+          "vi-VN-HoaiMyNeural"
+        ]
+      },
+      "macos": {
+        "voice": "Linh",
+        "locale": "vi_VN"
+      },
+      "min_logprob": -1.2,
+      "phrases": {
+        "please_speak": "Mời bạn nói",
+        "yes": "Có",
+        "no": "Không"
+      }
+    },
+    {
+      "code": "id",
+      "names": {
+        "en": "Indonesian",
+        "de": "Indonesisch",
+        "native": "Bahasa Indonesia"
+      },
+      "flag": "🇮🇩",
+      "scripts": [
+        "latin"
+      ],
+      "locale": "id_ID",
+      "edge": {
+        "m": "id-ID-ArdiNeural",
+        "f": "id-ID-GadisNeural",
+        "voices": [
+          "id-ID-ArdiNeural",
+          "id-ID-GadisNeural"
+        ]
+      },
+      "macos": {
+        "voice": "Damayanti",
+        "locale": "id_ID"
+      },
+      "min_logprob": -1.1,
+      "phrases": {
+        "please_speak": "Silakan bicara",
+        "yes": "Ya",
+        "no": "Tidak"
+      }
+    },
+    {
+      "code": "ar",
+      "names": {
+        "en": "Arabic",
+        "de": "Arabisch",
+        "native": "العربية"
+      },
+      "flag": "🇸🇦",
+      "scripts": [
+        "arabic"
+      ],
+      "locale": "ar_SA",
+      "edge": {
+        "m": "ar-SA-HamedNeural",
+        "f": "ar-SA-ZariyahNeural",
+        "voices": [
+          "ar-SA-HamedNeural",
+          "ar-SA-ZariyahNeural",
+          "ar-EG-ShakirNeural",
+          "ar-EG-SalmaNeural"
+        ]
+      },
+      "macos": {
+        "voice": "Majed",
+        "locale": "ar_001"
+      },
+      "min_logprob": -1.2,
+      "phrases": {
+        "please_speak": "تفضل بالكلام",
+        "yes": "نعم",
+        "no": "لا"
+      }
+    },
+    {
+      "code": "hi",
+      "names": {
+        "en": "Hindi",
+        "de": "Hindi",
+        "native": "हिन्दी"
+      },
+      "flag": "🇮🇳",
+      "scripts": [
+        "devanagari"
+      ],
+      "locale": "hi_IN",
+      "edge": {
+        "m": "hi-IN-MadhurNeural",
+        "f": "hi-IN-SwaraNeural",
+        "voices": [
+          "hi-IN-MadhurNeural",
+          "hi-IN-SwaraNeural"
+        ]
+      },
+      "macos": {
+        "voice": "Lekha",
+        "locale": "hi_IN"
+      },
+      "min_logprob": -1.2,
+      "phrases": {
+        "please_speak": "कृपया बोलिए",
+        "yes": "हाँ",
+        "no": "नहीं"
+      }
+    },
+    {
+      "code": "tr",
+      "names": {
+        "en": "Turkish",
+        "de": "Türkisch",
+        "native": "Türkçe"
+      },
+      "flag": "🇹🇷",
+      "scripts": [
+        "latin"
+      ],
+      "locale": "tr_TR",
+      "edge": {
+        "m": "tr-TR-AhmetNeural",
+        "f": "tr-TR-EmelNeural",
+        "voices": [
+          "tr-TR-AhmetNeural",
+          "tr-TR-EmelNeural"
+        ]
+      },
+      "macos": {
+        "voice": "Yelda",
+        "locale": "tr_TR"
+      },
+      "min_logprob": -1.1,
+      "phrases": {
+        "please_speak": "Lütfen konuşun",
+        "yes": "Evet",
+        "no": "Hayır"
+      }
+    },
+    {
+      "code": "pl",
+      "names": {
+        "en": "Polish",
+        "de": "Polnisch",
+        "native": "Polski"
+      },
+      "flag": "🇵🇱",
+      "scripts": [
+        "latin"
+      ],
+      "locale": "pl_PL",
+      "edge": {
+        "m": "pl-PL-MarekNeural",
+        "f": "pl-PL-ZofiaNeural",
+        "voices": [
+          "pl-PL-MarekNeural",
+          "pl-PL-ZofiaNeural"
+        ]
+      },
+      "macos": {
+        "voice": "Zosia",
+        "locale": "pl_PL"
+      },
+      "min_logprob": -1.0,
+      "phrases": {
+        "please_speak": "Proszę mówić",
+        "yes": "Tak",
+        "no": "Nie"
+      }
+    },
+    {
+      "code": "uk",
+      "names": {
+        "en": "Ukrainian",
+        "de": "Ukrainisch",
+        "native": "Українська"
+      },
+      "flag": "🇺🇦",
+      "scripts": [
+        "cyrillic"
+      ],
+      "locale": "uk_UA",
+      "edge": {
+        "m": "uk-UA-OstapNeural",
+        "f": "uk-UA-PolinaNeural",
+        "voices": [
+          "uk-UA-OstapNeural",
+          "uk-UA-PolinaNeural"
+        ]
+      },
+      "macos": {
+        "voice": "Lesya",
+        "locale": "uk_UA"
+      },
+      "min_logprob": -1.1,
+      "phrases": {
+        "please_speak": "Говоріть, будь ласка",
+        "yes": "Так",
+        "no": "Ні"
+      }
+    }
+  ]
+}

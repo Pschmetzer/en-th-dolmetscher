@@ -249,38 +249,39 @@ const TTS = 'speechSynthesis' in window ? window.speechSynthesis : null;
 const $ = id => document.getElementById(id);
 const statusEl = $('status'), live = $('live'), log = $('log'), warn = $('warn');
 
-// ---- Sprachtabelle: gespiegelt aus dolmetscher.py (LANGS, SCRIPTS); tests/test_web_langs.py prüft die Gleichheit ----
-const SCRIPTS = {"latin": "A-Za-zÀ-ɏḀ-ỿ", "thai": "฀-๿", "cyrillic": "Ѐ-ӿ", "han": "㐀-䶿一-鿿豈-﫿", "kana": "぀-ヿㇰ-ㇿ", "hangul": "ᄀ-ᇿ㄰-㆏가-힯", "arabic": "؀-ۿݐ-ݿﭐ-﷿ﹰ-﻿", "devanagari": "ऀ-ॿ"};
-const LANGS = {
-  "en": {"name": "English", "de": "Englisch", "script": ["latin"], "loc": "en-US", "native": "English", "yes": "Yes", "no": "No"},
-  "th": {"name": "Thai", "de": "Thai", "script": ["thai"], "loc": "th-TH", "native": "ไทย", "yes": "ใช่", "no": "ไม่ใช่"},
-  "de": {"name": "German", "de": "Deutsch", "script": ["latin"], "loc": "de-DE", "native": "Deutsch", "yes": "Ja", "no": "Nein"},
-  "es": {"name": "Spanish", "de": "Spanisch", "script": ["latin"], "loc": "es-ES", "native": "Español", "yes": "Sí", "no": "No"},
-  "fr": {"name": "French", "de": "Französisch", "script": ["latin"], "loc": "fr-FR", "native": "Français", "yes": "Oui", "no": "Non"},
-  "it": {"name": "Italian", "de": "Italienisch", "script": ["latin"], "loc": "it-IT", "native": "Italiano", "yes": "Sì", "no": "No"},
-  "pt": {"name": "Portuguese", "de": "Portugiesisch", "script": ["latin"], "loc": "pt-BR", "native": "Português", "yes": "Sim", "no": "Não"},
-  "nl": {"name": "Dutch", "de": "Niederländisch", "script": ["latin"], "loc": "nl-NL", "native": "Nederlands", "yes": "Ja", "no": "Nee"},
-  "ru": {"name": "Russian", "de": "Russisch", "script": ["cyrillic"], "loc": "ru-RU", "native": "Русский", "yes": "Да", "no": "Нет"},
-  "zh": {"name": "Chinese", "de": "Chinesisch", "script": ["han"], "loc": "zh-CN", "native": "中文", "yes": "是", "no": "不是", "mt": "zh-CN"},
-  "ja": {"name": "Japanese", "de": "Japanisch", "script": ["kana", "han"], "loc": "ja-JP", "native": "日本語", "yes": "はい", "no": "いいえ"},
-  "ko": {"name": "Korean", "de": "Koreanisch", "script": ["hangul"], "loc": "ko-KR", "native": "한국어", "yes": "네", "no": "아니요"},
-  "vi": {"name": "Vietnamese", "de": "Vietnamesisch", "script": ["latin"], "loc": "vi-VN", "native": "Tiếng Việt", "yes": "Có", "no": "Không"},
-  "id": {"name": "Indonesian", "de": "Indonesisch", "script": ["latin"], "loc": "id-ID", "native": "Bahasa Indonesia", "yes": "Ya", "no": "Tidak"},
-  "ar": {"name": "Arabic", "de": "Arabisch", "script": ["arabic"], "loc": "ar-SA", "native": "العربية", "yes": "نعم", "no": "لا"},
-  "hi": {"name": "Hindi", "de": "Hindi", "script": ["devanagari"], "loc": "hi-IN", "native": "हिन्दी", "yes": "हाँ", "no": "नहीं"},
-  "tr": {"name": "Turkish", "de": "Türkisch", "script": ["latin"], "loc": "tr-TR", "native": "Türkçe", "yes": "Evet", "no": "Hayır"},
-  "pl": {"name": "Polish", "de": "Polnisch", "script": ["latin"], "loc": "pl-PL", "native": "Polski", "yes": "Tak", "no": "Nie"},
-  "uk": {"name": "Ukrainian", "de": "Ukrainisch", "script": ["cyrillic"], "loc": "uk-UA", "native": "Українська", "yes": "Так", "no": "Ні"}
-};
+// ---- Sprachtabelle: languages.json (dieselbe Datei wie Engine, Mac- und iPhone-App; tests/test_languages_json.py) ----
+// Wird beim Start geladen (offline aus dem Service-Worker-Speicher) und in diese Objekte übernommen.
+const SCRIPTS = {}, LANGS = {};
+const hexRange = r => r.split('-').map(h => String.fromCodePoint(parseInt(h, 16))).join('-');
+function applyLangTable(t) {
+  for (const [k, rs] of Object.entries(t.scripts)) SCRIPTS[k] = rs.map(hexRange).join('');
+  for (const l of t.languages) {
+    LANGS[l.code] = { name: l.names.en, de: l.names.de, script: l.scripts, loc: l.locale.replace('_', '-'),
+      native: l.names.native, yes: l.phrases.yes, no: l.phrases.no };
+    if (l.mt) LANGS[l.code].mt = l.mt;
+  }
+  buildScriptRx();
+}
+// Notfall (Datei weder im Netz noch im Speicher): nur das Standardpaar
+const LANG_FALLBACK = { scripts: { latin: ['0041-005A', '0061-007A', '00C0-024F', '1E00-1EFF'], thai: ['0E00-0E7F'] }, languages: [
+  { code: 'en', names: { en: 'English', de: 'Englisch', native: 'English' }, scripts: ['latin'], locale: 'en_US', phrases: { yes: 'Yes', no: 'No' } },
+  { code: 'th', names: { en: 'Thai', de: 'Thai', native: 'ไทย' }, scripts: ['thai'], locale: 'th_TH', phrases: { yes: 'ใช่', no: 'ไม่ใช่' } }] };
+function loadLangTable() {
+  return fetch('languages.json').then(r => { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+    .catch(e => { console.warn('languages.json', e); showWarn('Sprachtabelle nicht geladen – nur Englisch/Thai verfügbar.'); return LANG_FALLBACK; })
+    .then(applyLangTable);
+}
 const DEFAULT_PAIR = ['en', 'th'];
 // Satzbuch: presets/*.json (zur Laufzeit geladen, vom Service Worker zwischengespeichert)
 const PRESET_IDS = ['taxi', 'hotel', 'restaurant', 'shopping', 'travel', 'doctor', 'office', 'pharmacy', 'police', 'bank', 'spa', 'temple', 'rental', 'scooter', 'transport', 'lostchild'];
 
 // ---- Schrift-Plausibilität (wie dolmetscher.py: scripts_distinct, script_share, _untranslated, _wrong_script, text_lang) ----
 const SCRIPT_RX = {}, SCRIPT_RX_G = {}, SCRIPT_RUN3 = {};
-for (const k in LANGS) {
-  const cls = '[' + LANGS[k].script.map(s => SCRIPTS[s]).join('') + ']';
-  SCRIPT_RX[k] = new RegExp(cls, 'u'); SCRIPT_RX_G[k] = new RegExp(cls, 'gu'); SCRIPT_RUN3[k] = new RegExp(cls + '{3}', 'u');
+function buildScriptRx() {
+  for (const k in LANGS) {
+    const cls = '[' + LANGS[k].script.map(s => SCRIPTS[s]).join('') + ']';
+    SCRIPT_RX[k] = new RegExp(cls, 'u'); SCRIPT_RX_G[k] = new RegExp(cls, 'gu'); SCRIPT_RUN3[k] = new RegExp(cls + '{3}', 'u');
+  }
 }
 const isLatin = l => LANGS[l].script.includes('latin');
 function scriptsDistinct(a, b) {
@@ -314,8 +315,11 @@ const mtCode = l => LANGS[l].mt || l;
 // ---- Einstellungen (im Browser gemerkt) ----
 const settings = (() => { try { return JSON.parse(localStorage.getItem('webSettings') || '{}') || {}; } catch { return {}; } })();
 function saveSettings() { try { localStorage.setItem('webSettings', JSON.stringify(settings)); } catch {} }
-let pair = { a: LANGS[settings.a] ? settings.a : DEFAULT_PAIR[0], b: LANGS[settings.b] ? settings.b : DEFAULT_PAIR[1] };
-if (pair.a === pair.b) pair = { a: DEFAULT_PAIR[0], b: DEFAULT_PAIR[1] };
+let pair = { a: DEFAULT_PAIR[0], b: DEFAULT_PAIR[1] };
+function initPair() {   // nach dem Laden der Sprachtabelle: gemerktes Paar, wenn gültig
+  pair = { a: LANGS[settings.a] ? settings.a : DEFAULT_PAIR[0], b: LANGS[settings.b] ? settings.b : DEFAULT_PAIR[1] };
+  if (pair.a === pair.b) pair = { a: DEFAULT_PAIR[0], b: DEFAULT_PAIR[1] };
+}
 for (const id of ['dirA', 'dirB', 'speak', 'autoswitch', 'ptt', 'duplex', 'learnRecent']) {
   if (typeof settings[id] === 'boolean') $(id).checked = settings[id];
   $(id).addEventListener('change', () => { settings[id] = $(id).checked; saveSettings(); });
@@ -437,7 +441,6 @@ function fillVoiceSelects() {
 for (const [id, k] of [['voiceA', 'a'], ['voiceB', 'b']]) {
   $(id).onchange = () => { settings.voices = Object.assign({}, settings.voices, { [pair[k]]: $(id).value }); saveSettings(); };
 }
-if (TTS) { TTS.onvoiceschanged = loadVoices; loadVoices(); }
 function pickVoice(lang) {
   const l = lang.toLowerCase(), base = l.slice(0, 2);
   const want = (settings.voices || {})[base];
@@ -1194,7 +1197,11 @@ if ('serviceWorker' in navigator && window.isSecureContext && /^https?:$/.test(l
   window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(e => console.warn('sw', e)); });
 }
 
-fillLangSelects(); buildModes(); fillPresetSelect(); renderCards(); learnRender(); openFromHash();
+loadLangTable().then(() => {
+  initPair();
+  if (TTS) { TTS.onvoiceschanged = loadVoices; loadVoices(); }
+  fillLangSelects(); buildModes(); fillPresetSelect(); renderCards(); learnRender(); openFromHash();
+});
 </script>
 </body>
 </html>
