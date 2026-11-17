@@ -1,9 +1,9 @@
 // Service Worker der Web-Version: macht die Seite installierbar und das Satzbuch offline nutzbar.
 // Nur eigene Dateien (gleicher Ursprung, GET). Übersetzungs-Anfragen (Google, MyMemory) laufen nie hier durch
 // und werden nie gespeichert. Neue Version: CACHE hochzählen.
-const CACHE = 'dolmetscher-web-v5';
+const CACHE = 'dolmetscher-web-v6';
 const PRESET_IDS = ['taxi', 'hotel', 'restaurant', 'shopping', 'travel', 'doctor', 'office', 'pharmacy', 'police', 'bank', 'spa', 'temple', 'rental', 'scooter', 'transport', 'lostchild'];
-const CORE = ['./', 'index.html', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png']
+const CORE = ['./', 'index.html', 'languages.json', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png']
   .concat(PRESET_IDS.map(id => 'presets/' + id + '.json'));
 const abs = u => new URL(u, self.registration.scope).href;   // GitHub Pages liegt unter /en-th-dolmetscher/
 
@@ -33,7 +33,7 @@ self.addEventListener('fetch', e => {
     }).catch(() => caches.match(abs('index.html')).then(r => r || caches.match(abs('./')))));
     return;
   }
-  // Presets, Icons, Manifest: sofort aus dem Speicher, im Hintergrund auffrischen
+  // Sprachtabelle, Presets, Icons, Manifest: sofort aus dem Speicher, im Hintergrund auffrischen
   e.respondWith(caches.open(CACHE).then(c => c.match(req, { ignoreSearch: true }).then(hit => {
     const net = fetch(req).then(r => { if (r.ok) c.put(req, r.clone()); return r; });
     if (hit) { e.waitUntil(net.catch(() => {})); return hit; }

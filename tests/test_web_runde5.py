@@ -106,7 +106,9 @@ def test_sw_cache_bumped():
 # --- Logik in node -----------------------------------------------------------------------------------
 
 PRELUDE = "\n".join([
-    _line("const LANGS ="), "let pair = { a: 'de', b: 'th' };", _line("const CMD_RE"),
+    "const SCRIPTS = {}, LANGS = {};", _line("const hexRange"), _line("const SCRIPT_RX ="), _func("buildScriptRx"),
+    _func("applyLangTable"), f"applyLangTable({(ROOT / 'languages.json').read_text(encoding='utf-8')});",
+    "let pair = { a: 'de', b: 'th' };", _line("const CMD_RE"),
     _line("const LEARN_KEY"), re.search(r"^const LEARN_DAYS.*$", SCRIPT, re.M).group(0),
     *(_func(n) for n in ("learnSide", "learnParse", "learnItem", "learnKey", "learnAdd", "learnRemove",
                          "leitnerNext", "learnDue", "criticalFirst", "presetNote", "parseCommand")),

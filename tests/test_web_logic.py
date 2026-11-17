@@ -27,9 +27,11 @@ def _line(prefix):
     return m.group(0)
 
 
+# Sprachtabelle wie im Browser: languages.json über applyLangTable (statt fetch)
+LANG_JSON = (ROOT / "languages.json").read_text(encoding="utf-8")
 PRELUDE = "\n".join([
-    _line("const SCRIPTS ="), _line("const LANGS ="), _line("const MAX_SOFT_ERR"),
-    re.search(r"^const SCRIPT_RX = .*?^\}", SCRIPT, re.S | re.M).group(0),
+    _line("const SCRIPTS ="), _line("const hexRange"), _line("const MAX_SOFT_ERR"),
+    _line("const SCRIPT_RX ="), _func("buildScriptRx"), _func("applyLangTable"), f"applyLangTable({LANG_JSON});",
     _line("const isLatin"), _line("const CMD_RE"),
     *(_func(n) for n in ("scriptsDistinct", "scriptShare", "untranslated", "wrongScript", "implausible",
                          "textLang", "splitText", "parseCommand", "parseShare")),
