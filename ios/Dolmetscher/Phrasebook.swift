@@ -151,16 +151,21 @@ struct PhrasebookView: View {
     }
 
     private var chips: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                chip("favorites", title: T("cat_favorites"), icon: "star.fill")
-                if m.features.thaiExtras {
-                    ForEach(Phrasebook.categories, id: \.key) { chip($0.key, title: T("cat_" + $0.key), icon: $0.icon) }
-                    ForEach(Phrasebook.packs) { chip($0.key, title: $0.name(L10n.lang), icon: $0.icon) }
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    chip("favorites", title: T("cat_favorites"), icon: "star.fill")
+                    if m.features.thaiExtras {
+                        ForEach(Phrasebook.categories, id: \.key) { chip($0.key, title: T("cat_" + $0.key), icon: $0.icon) }
+                        ForEach(Phrasebook.packs) { chip($0.key, title: $0.name(L10n.lang), icon: $0.icon) }
+                    }
                 }
+                .padding(.horizontal)
+                .padding(.vertical, 8)
             }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
+            // Gewählte Kategorie sichtbar halten (16 Pakete passen nicht in eine Zeile).
+            .onChange(of: category) { _, c in withAnimation { proxy.scrollTo(c, anchor: .center) } }
+            .task { proxy.scrollTo(category, anchor: .center) }
         }
     }
 
@@ -195,6 +200,7 @@ struct PhrasebookView: View {
                 .foregroundStyle(on ? .white : .primary)
         }
         .buttonStyle(.plain)
+        .id(key)
     }
 }
 
