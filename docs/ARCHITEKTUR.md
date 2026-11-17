@@ -16,6 +16,7 @@
 - Die App ist nur Oberfläche. Sie startet die Engine als Kindprozess und liest stdout zeilenweise. Mikrofon, Erkennung, Übersetzung und Ton gehören der Engine.
 - Welches Python (`Paths.swift`, Logik in `EnvLogic.swift`): Dev-Override (`DOLMETSCHER_PYTHON` bzw. Einstellung `DolmetscherPython`) → eigene venv `~/Library/Application Support/Dolmetscher/venv`, aber nur, wenn ihr Stempel `.dolmetscher-stamp` gleich `Contents/Resources/env-stamp` ist (Lock-Hash, Python 3.12, arm64) → sonst Einrichtungs-Bildschirm (`EnvSetup.swift`). Nie `/usr/bin/python3`. Die Info.plist enthält keine Pfade der Bau-Maschine.
 - Einrichtung: `setup-env.sh` (aus `build-support/`) mit dem mitgelieferten, signierten `Contents/Helpers/uv`: uv-verwaltetes Python 3.12 nach `…/Dolmetscher/python`, `uv pip sync --require-hashes --no-build` mit dem mitgelieferten `requirements.txt`, Stempel zuletzt. Danach startet die App die Engine, die fehlende Modelle lädt und `download_progress` meldet. Nur Apple Silicon.
+- Offline-Übersetzung: `Contents/Helpers/translate-helper` (aus `tools/translate-helper`, Ziel macOS 26.0, Hardened Runtime, eigener Identifier). build.sh überspringt ihn, wenn das SDK fehlt. Die App übergibt ihn ab macOS 26.4 per `--offline-translator` (Einstellung, Standard an); die Engine findet ihn sonst selbst über `../Helpers` neben `Contents/Resources/dolmetscher.py`.
 - Bundle-Signatur bleibt heil: die App setzt `PYTHONPYCACHEPREFIX` auf `…/Dolmetscher/pycache`, Hilfsprozesse laufen mit `python -B`.
 - Ein Fehler in der Engine stürzt die App nicht ab; die App kann den Prozess beenden und neu starten (`EngineModel.restart()`), etwa wenn sich Startargumente ändern (Mikrofon, Modell, Stimme). Reine Laufzeit-Einstellungen (Tempo, Lautstärke, Sperre auf eine Sprache, Pause) gehen als JSON auf stdin, ohne Neustart.
 - Unbekannte JSON-Felder werden auf beiden Seiten ignoriert, so bleiben ältere und neuere Teile kompatibel.
@@ -51,7 +52,7 @@ Es gibt zwei getrennte Zustände, die man nicht vermischen darf:
 | `profiles.py` | Stimmprofile (Sprechererkennung per sherpa-onnx), Vokabular-Hinweise |
 | `app/*.swift` | SwiftUI-App: `Engine.swift` (Prozess, Ereignisse), `Views`/`BubbleViews`/`SettingsView`, `L10n.swift` (de/en/th), `HotKeys.swift`, `PartnerView.swift` |
 | `avhelper.py` | Audio über PyAV als Kindprozess (wie früher ffmpeg): `capture` (s16le auf stdout), `play` (mp3 von stdin → AudioToolbox, vorgewärmt), `list` (Mikrofone) |
-| `build.sh` | baut `build/Dolmetscher.app` (swiftc, Info.plist, uv + Lock + Stempel + `setup-env.sh` ins Bundle, Signatur von innen nach außen), optional `--install`/`--release` |
+| `build.sh` | baut `build/Dolmetscher.app` (swiftc, Info.plist, uv + translate-helper + Lock + Stempel + `setup-env.sh` ins Bundle, Signatur von innen nach außen), optional `--install` (beendet eine laufende App vorher) / `--release` |
 | `build-support/` | Entitlements, `setup-env.sh` (Einrichtung), `make-stamp.sh` (Stempel) |
 | `bench/` | Benchmark für Erkennung und Übersetzung |
 
