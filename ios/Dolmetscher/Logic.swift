@@ -59,7 +59,8 @@ enum Commands {
         if let r = rest(wake, text) { return parse(r) }
         // Unscharf („Translate or pause“) nur, wenn danach kaum mehr kommt als der Befehl –
         // sonst wäre „Translate: please stop here“ ein Befehl statt eines Satzes.
-        if let r = rest(wakeFuzzy, text), r.split(whereSeparator: { $0.isWhitespace }).count <= 3,
+        // Höchstens zwei Wörter: „Translate: please stop here“ (drei) war vorher doch ein Befehl (Korpus-Test 578).
+        if let r = rest(wakeFuzzy, text), r.split(whereSeparator: { $0.isWhitespace }).count <= 2,
            let k = parse(r), k != .wake { return k }
         // Nach dem Weckwort allein nur kurze Sätze als Befehl – „A quiet room please“ ist keiner.
         if awake, text.split(whereSeparator: { $0.isWhitespace }).count <= 3, let k = parse(text), k != .wake { return k }
@@ -205,6 +206,16 @@ enum Politeness: String, CaseIterable, Codable, Sendable {
     }
 }
 
+/// Empfindlichkeit der Spracherkennung (598). „Normal“ entspricht den bisherigen festen Werten.
+enum Sensitivity: String, CaseIterable, Sendable {
+    case quiet, normal, loud
+
+    /// Wie weit über dem Grundrauschen Sprache liegen muss.
+    var factor: Float { self == .quiet ? 2.0 : self == .loud ? 3.8 : 2.8 }
+    /// Untergrenze der Schwelle (leise Bluetooth-Mikrofone brauchen weniger).
+    var minThreshold: Float { self == .quiet ? 0.004 : self == .loud ? 0.014 : 0.008 }
+}
+
 /// Sprachpausen-Erkennung über die Lautstärke. Das Grundrauschen ist das Minimum der letzten Sekunden –
 /// so passt es sich auch an dauerhaften Lärm an (Straße, Tuk-Tuk), in dem es nie ganz still wird.
 struct VoiceGate {
@@ -224,6 +235,17 @@ struct VoiceGate {
     private var speechRun = 0.0, silenceRun = 0.0, uttDur = 0.0
 
     init(pause: Double) { self.pause = pause }
+
+    init(pause: Double, sensitivity: Sensitivity) {
+        self.pause = pause
+        apply(sensitivity)
+    }
+
+    /// 598: Schwellen je Umgebung – leise (Bluetooth-Mikrofon, ruhiger Raum) bis laut (Markt).
+    mutating func apply(_ s: Sensitivity) {
+        factor = s.factor
+        minThreshold = s.minThreshold
+    }
 
     var threshold: Float { max(minThreshold, noise * factor) }
 

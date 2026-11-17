@@ -22,8 +22,11 @@ enum DebugScreens {
         case "helpnow": m.sheet = .helpNow
         case "baht": m.sheet = .baht
         case "widgets": m.sheet = .widgetPreview
+        case "summary": m.sheet = .summary
         default: break
         }
+        // Kulturhinweis zeigen, z. B. DOLMETSCHER_CULTURE=temple
+        if let c = env["DOLMETSCHER_CULTURE"] { m.cultureHint = c }
     }
 
     private static func seed(_ m: InterpreterModel) {

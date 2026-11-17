@@ -24,7 +24,7 @@ Native SwiftUI app for iPhone and iPad: press Start and just talk. It interprets
 | Travel | “Ready to travel?” checklist, taxi destinations with business-card scan and Apple Maps link, Baht calculator, dish lexicon under photo text |
 | Widgets | quick-phrase widget (small/medium/large), control for Control Center, lock screen and Action button, Live Activity and Dynamic Island |
 | iPad | all orientations; conversation and a tools column side by side on wide screens |
-| Privacy | online translation off by default, Face ID lock for the history, privacy overview in the settings, “Delete all data” |
+| Privacy | online translation off by default, Face ID lock for the history, history/favorites/emergency card excluded from iCloud backup, hidden in the app switcher, Live Activity off by default and without sentences while the iPhone is locked, privacy overview in the settings, “Delete all data” |
 
 ## Requirements
 
@@ -65,7 +65,7 @@ Only in **Debug** builds (`#if DEBUG`), ignored in Release. Set them in Xcode (*
 |---|---|
 | `DOLMETSCHER_AUDIO_FILES` | Colon-separated list of audio files that are played into the recognizer instead of the microphone (the Simulator often has no microphone). |
 | `DOLMETSCHER_AUTOSTART` | Any value: press Start automatically after launch. Meant for use together with `DOLMETSCHER_AUDIO_FILES`. |
-| `DOLMETSCHER_DEMO`, `DOLMETSCHER_SCREEN` | Demo conversation in memory; open a screen directly (`partner`, `settings`, `places`, `learn`, `phrasebook`, …, see `DebugScreens.swift`). `DOLMETSCHER_PB_CATEGORY=pack.doctor` picks the phrasebook category. |
+| `DOLMETSCHER_DEMO`, `DOLMETSCHER_SCREEN` | Demo conversation in memory; open a screen directly (`partner`, `settings`, `places`, `learn`, `phrasebook`, …, see `DebugScreens.swift`). `DOLMETSCHER_PB_CATEGORY=pack.doctor` picks the phrasebook category; `DOLMETSCHER_CULTURE=temple` shows the cultural tip banner. |
 | `DOLMETSCHER_LOG_LANGS` | Any value: writes what this device supports per language (recognition, translation, voice) to the log, subsystem `dolmetscher`, category `langs`. |
 
 ```sh

@@ -4,7 +4,10 @@ import SwiftUI
 
 enum LangStyle {
     /// Meine Sprache blau, Partnersprache orange (wie bisher Englisch/Thai).
-    static func color(_ l: Lang, _ pair: LangPair) -> Color { l == pair.partner ? .orange : .blue }
+    static func color(_ l: Lang, _ pair: LangPair) -> Color { l == pair.partner ? partnerColor : .blue }
+    /// 584: Orange auf hellem Grund hat nur ca. 2:1 Kontrast – im hellen Modus ein dunkleres Orange (ca. 4,6:1).
+    static let partnerColor = Color(UIColor { $0.userInterfaceStyle == .dark ? .systemOrange
+        : UIColor(red: 0.70, green: 0.33, blue: 0.0, alpha: 1) })
     static func flag(_ l: Lang) -> String { l.flag }
     static func name(_ l: Lang) -> String { l.native }
 }
@@ -18,6 +21,11 @@ struct ContentView: View {
     @State private var confirmClear = false
     @State private var atEnd = true
     @State private var unseen = false
+    @State private var askPoliteness = false
+    /// 592: zuletzt beanstandeter Text – ein zweites Senden geht dann durch.
+    @State private var warnedDraft: String?
+    @ScaledMetric(relativeTo: .title3) private var roundButton: CGFloat = 52
+    @AppStorage("politenessAsked") private var politenessAsked = false
     @AppStorage("prepShown") private var prepShown = false
     @Environment(\.horizontalSizeClass) private var sizeClass
     @FocusState private var typing: Bool
@@ -59,8 +67,7 @@ struct ContentView: View {
                         if m.features.voiceCommands {
                             Button { m.sheet = .help } label: { Label(T("commands"), systemImage: "text.bubble") }
                         }
-                        ShareLink(item: m.transcript) { Label(T("share"), systemImage: "square.and.arrow.up") }
-                            .disabled(m.visibleEntries.isEmpty)
+                        ShareSummaryItems()
                         Button(role: .destructive) { confirmClear = true } label: { Label(T("clear"), systemImage: "trash") }
                             .disabled(m.visibleEntries.isEmpty)
                         Divider()
@@ -69,7 +76,7 @@ struct ContentView: View {
                         .accessibilityLabel(T("more"))
                 }
             }
-            .sheet(item: $m.sheet) { s in sheetView(s) }
+            .sheet(item: $m.sheet) { s in sheetView(s).modifier(ShieldWhenInactive()) }
             .confirmationDialog(T("clear_confirm"), isPresented: $confirmClear, titleVisibility: .visible) {
                 Button(T("clear"), role: .destructive) { m.clear() }
                 Button(T("cancel"), role: .cancel) {}
@@ -78,14 +85,21 @@ struct ContentView: View {
                 Button(T("cellular_go")) { m.startAllowingCellular() }
                 Button(T("cellular_wait"), role: .cancel) {}
             } message: { Text(T("cellular_msg")) }
-            .fullScreenCover(isPresented: $showPartner) { PartnerView() }
+            .fullScreenCover(isPresented: $showPartner) { PartnerView().modifier(ShieldWhenInactive()) }
             .modifier(ReviewPrompt(covered: showPartner || big != nil))
             #if DEBUG
             .task { DebugScreens.apply(m, partner: $showPartner) }
             #endif
-            .fullScreenCover(item: $big) { e in BigTextView(entryID: e.id) }
+            .fullScreenCover(item: $big) { e in BigTextView(entryID: e.id).modifier(ShieldWhenInactive()) }
             .onChange(of: m.bigRequest) { _, id in showRequested(id) }
             .task { firstLaunch() }
+            // 587: nach der Reise-Vorbereitung (erster Start) einmal nach der Höflichkeitsform fragen.
+            .onChange(of: m.sheet) { _, s in if s == nil { askPolitenessOnce() } }
+            .confirmationDialog(T("politeness_ask"), isPresented: $askPoliteness, titleVisibility: .visible) {
+                Button(T("pol_male")) { m.politeness = .male }
+                Button(T("pol_female")) { m.politeness = .female }
+                Button(T("pol_off")) { m.politeness = .off }
+            } message: { Text(T("politeness_note")) }
             .alert(T("edit_text"), isPresented: Binding(get: { editing != nil }, set: { if !$0 { editing = nil } })) {
                 EditAlert(entry: editing) { text in if let e = editing { m.edit(e.id, text: text) } }
             }
@@ -96,6 +110,14 @@ struct ContentView: View {
         VStack(spacing: 0) {
             header
             Divider()
+            if let id = m.cultureHint, let p = Phrasebook.packs.first(where: { $0.id == id }) {
+                CultureHintBanner(pack: p, open: {
+                    m.phrasebookStart = p.key
+                    m.cultureHint = nil
+                    m.sheet = .phrasebook
+                }, close: { m.cultureHint = nil })
+                .padding(.top, 8)
+            }
             history
             bottomBar
         }
@@ -114,9 +136,17 @@ struct ContentView: View {
         let env = ProcessInfo.processInfo.environment
         if env["DOLMETSCHER_SCREEN"] != nil || env["DOLMETSCHER_DEMO"] != nil || env["XCTestConfigurationFilePath"] != nil { return }
         #endif
+        if prepShown { askPolitenessOnce() }
         guard !prepShown else { return }
         prepShown = true
         if m.sheet == nil { m.sheet = .prep }
+    }
+
+    /// 587: Höflichkeitsform einmal fragen statt still „männlich“ – nicht, wenn schon eine gewählt ist.
+    private func askPolitenessOnce() {
+        guard !politenessAsked, m.features.thaiExtras else { return }
+        politenessAsked = true
+        if UserDefaults.standard.object(forKey: "politeness") == nil { askPoliteness = true }
     }
 
     @ViewBuilder private func sheetView(_ s: AppSheet) -> some View {
@@ -133,6 +163,7 @@ struct ContentView: View {
         case .photo: PhotoTextView()
         case .emergency: EmergencyView()
         case .baht: BahtCalculatorView()
+        case .summary: SummaryView()
         case .allergy: AllergyCardView()
         case .privacy:
             NavigationStack {
@@ -246,7 +277,8 @@ struct ContentView: View {
                         .buttonStyle(.plain)
                     }
                     if m.visibleEntries.isEmpty && m.partial.isEmpty && m.hiddenCount == 0 {
-                        EmptyState { m.submit(T("example_sentence")) }
+                        // 641: Beispiel nur zeigen, nicht gleich laut vorlesen (leise Räume).
+                        EmptyState { m.submit(T("example_sentence"), speak: false) }
                     }
                     ForEach(m.visibleEntries) { e in
                         Bubble(entry: e, onBig: { big = e }, onEdit: { editing = e }).id(e.id)
@@ -315,7 +347,16 @@ struct ContentView: View {
                     .focused($typing)
                     .submitLabel(.send)
                     .onSubmit(send)
-                if !draft.isEmpty {
+                if draft.isEmpty {
+                    // 591: Chat-Antwort (Line, Grab) einfügen und gleich übersetzen.
+                    PasteButton(payloadType: String.self) { items in
+                        guard let text = items.first else { return }
+                        Task { @MainActor in m.submit(text) }
+                    }
+                    .labelStyle(.iconOnly)
+                    .buttonBorderShape(.circle)
+                    .accessibilityLabel(T("paste_translate"))
+                } else {
                     Button(action: send) { Image(systemName: "arrow.up.circle.fill").font(.title) }
                         .accessibilityLabel(T("translate"))
                 }
@@ -333,7 +374,7 @@ struct ContentView: View {
                     m.speakingID != nil ? m.stopSpeaking() : m.run(.repeat)
                 } label: {
                     Image(systemName: m.speakingID != nil ? "speaker.slash.fill" : "arrow.counterclockwise")
-                        .frame(width: 52, height: 52)
+                        .frame(width: roundButton, height: roundButton)
                         .background(.quaternary, in: Circle())
                 }
                 .disabled(m.entries.isEmpty)
@@ -350,7 +391,7 @@ struct ContentView: View {
         if m.pushToTalk {
             Button { m.stop() } label: {
                 Image(systemName: "stop.fill")
-                    .frame(width: 52, height: 52)
+                    .frame(width: roundButton, height: roundButton)
                     .background(.quaternary, in: Circle())
             }
             .disabled(!m.isListening && !m.isBusy)
@@ -360,7 +401,7 @@ struct ContentView: View {
                 m.run(m.paused ? .resume : .pause)
             } label: {
                 Image(systemName: m.paused ? "play.fill" : "pause.fill")
-                    .frame(width: 52, height: 52)
+                    .frame(width: roundButton, height: roundButton)
                     .background(.quaternary, in: Circle())
             }
             .disabled(!m.isListening)
@@ -369,6 +410,14 @@ struct ContentView: View {
     }
 
     private func send() {
+        // 592: dritte Sprache (z. B. Deutsch bei Englisch ⇄ Thai) – einmal warnen, beim zweiten Senden übersetzen.
+        if warnedDraft != draft, let code = TypedLanguageCheck.foreign(draft, pair: m.pair) {
+            warnedDraft = draft
+            let name = Locale(identifier: m.uiLang).localizedString(forLanguageCode: code) ?? code
+            m.flash("⚠️ " + String(format: T("typed_foreign"), name, m.pair.mine.name(in: m.uiLang), m.pair.partner.name(in: m.uiLang)), seconds: 6)
+            return
+        }
+        warnedDraft = nil
         m.submit(draft)
         draft = ""
     }
@@ -782,7 +831,7 @@ struct BackLine: View {
     let deviates: Bool
 
     private var icon: String { deviates ? "exclamationmark.triangle.fill" : "arrow.uturn.backward" }
-    private var tint: Color { deviates ? .orange : .secondary }
+    private var tint: Color { deviates ? LangStyle.partnerColor : .secondary }
     private var label: String {
         let head: String = T("back_label") + ": " + text
         return deviates ? T("back_deviates") + ". " + head : head
@@ -797,5 +846,20 @@ struct BackLine: View {
         .foregroundStyle(tint)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(label)
+    }
+}
+
+/// Menüeinträge „Teilen“ (581: Text erst beim Teilen gebaut) und „Zusammenfassung“ (nur wenn verfügbar).
+private struct ShareSummaryItems: View {
+    @Environment(InterpreterModel.self) private var m
+
+    var body: some View {
+        let export = TranscriptExport(entries: m.visibleEntries, lang: m.uiLang)
+        ShareLink(item: export, preview: SharePreview(T("share"))) { Label(T("share"), systemImage: "square.and.arrow.up") }
+            .disabled(m.visibleEntries.isEmpty)
+        if m.summaryEnabled && ConversationSummary.available(for: m.pair.mine) {
+            Button { m.sheet = .summary } label: { Label(T("summary"), systemImage: "text.append") }
+                .disabled(m.visibleEntries.count < 2)
+        }
     }
 }

@@ -37,6 +37,8 @@ enum SpeechError: LocalizedError {
 struct AudioOptions: Sendable {
     /// Bluetooth-Headset als Mikrofon zulassen
     var headset = false
+    /// 598: Empfindlichkeit der Pausen-Erkennung (Faktor über dem Grundrauschen).
+    var sensitivity: Sensitivity = .normal
 }
 
 protocol SpeechEngine: AnyObject, Sendable {
@@ -264,7 +266,7 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
             for r in made { await r.shutdown() }
             throw error
         }
-        queue.sync { recs = made; gate = VoiceGate(pause: pauseSeconds); muted = false }
+        queue.sync { recs = made; gate = VoiceGate(pause: pauseSeconds, sensitivity: options.sensitivity); muted = false }
         try capture.begin()
     }
 

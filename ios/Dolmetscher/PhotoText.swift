@@ -69,6 +69,7 @@ struct PhotoTextView: View {
     @Environment(InterpreterModel.self) private var m
     @Environment(\.dismiss) private var dismiss
     @State private var item: PhotosPickerItem?
+    @State private var load: Task<Void, Never>?
     @State private var image: UIImage?
     @State private var lines: [String] = []
     @State private var picked: Set<Int> = []
@@ -137,10 +138,15 @@ struct PhotoTextView: View {
             }
             .onChange(of: item) { _, new in
                 guard let new else { return }
-                Task {
-                    if let data = try? await new.loadTransferable(type: Data.self), let img = UIImage(data: data) {
+                // 632: ein späteres Foto ersetzt ein früheres; dasselbe Foto lässt sich erneut wählen.
+                load?.cancel()
+                load = Task {
+                    // 582: verkleinert laden statt 12–48 MP in voller Größe.
+                    if let data = try? await new.loadTransferable(type: Data.self), !Task.isCancelled,
+                       let img = PhotoDownsample.image(from: data) {
                         await scan(img)
                     }
+                    if item == new { item = nil }
                 }
             }
             .fullScreenCover(isPresented: $camera) {

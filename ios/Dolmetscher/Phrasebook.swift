@@ -123,6 +123,8 @@ struct PhrasebookView: View {
 
     private func matches(_ p: Phrase) -> Bool {
         if p.en.localizedCaseInsensitiveContains(search) || p.th.contains(search) { return true }
+        // 662: auch die Umschrift („khop khun“) finden.
+        if (Phrasebook.roman(p, politeness: m.politeness) ?? "").localizedCaseInsensitiveContains(search) { return true }
         return (p.de ?? "").localizedCaseInsensitiveContains(search)
     }
 
@@ -152,6 +154,7 @@ struct PhrasebookView: View {
 
     private func pickStart() {
         if m.favorites.isEmpty && m.features.thaiExtras { category = "basics" }
+        if let c = m.phrasebookStart { category = c; m.phrasebookStart = nil }
         #if DEBUG
         if let c = ProcessInfo.processInfo.environment["DOLMETSCHER_PB_CATEGORY"] { category = c }
         #endif
@@ -177,15 +180,20 @@ struct PhrasebookView: View {
     }
 
     private func row(_ p: Phrase) -> some View {
+        // 590: Sheet bleibt offen – mehrere Sätze nacheinander (Bestellung); Langdruck zeigt groß.
         Button {
             m.say(p)
             Haptics.tap()
-            dismiss()
         } label: {
             PhraseRow(phrase: p, thai: p.dstLang == .th ? m.politeness.fill(p.th) : p.th,
                       roman: Phrasebook.roman(p, politeness: m.politeness), color: LangStyle.color(p.dstLang, m.pair))
         }
         .buttonStyle(.plain)
+        .contextMenu {
+            Button { m.say(p); m.showLastBig(); dismiss() } label: {
+                Label(T("show_big"), systemImage: "arrow.up.left.and.arrow.down.right")
+            }
+        }
         .listRowBackground(p.isCritical ? Color.red.opacity(0.08) : nil)
         .swipeActions {
             if m.isFavorite(p) {

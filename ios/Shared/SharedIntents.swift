@@ -66,6 +66,8 @@ struct ListeningActivityAttributes: ActivityAttributes {
         var translation: String
         var srcFlag: String
         var dstFlag: String
+        /// Gerät gesperrt: Sätze ausgelassen, nur der Status (optional, damit ältere Zustände lesbar bleiben).
+        var hidden: Bool? = nil
     }
 
     /// „🇬🇧 ⇄ 🇹🇭“
