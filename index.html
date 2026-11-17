@@ -16,14 +16,14 @@
     --bg:#f6f7f9; --card:#ffffff; --fg:#14171f; --mut:#5d6475; --line:#dfe2e8;
     --en:#2563eb; --th:#d97706; --btn-en:#1d4ed8; --btn-th:#b45309; --btn-fg:#fff;
     --note-bg:#eef4ff; --note-line:#bcd0fa; --warn-bg:#fde8e8; --kbd:#e8eaf0; --focus:#2563eb;
-    --yes:#15803d; --no:#b91c1c;
+    --yes:#15803d; --no:#b91c1c; --crit:#b91c1c; --star:#b45309;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg:#0f1115; --card:#1a1d24; --fg:#eef0f4; --mut:#9aa0b0; --line:#262a33;
       --en:#3b82f6; --th:#f59e0b; --btn-en:#1e3a8a; --btn-th:#78350f;
       --note-bg:#17233d; --note-line:#2c4271; --warn-bg:#4c1d1d; --kbd:#333a47; --focus:#8ab4ff;
-      --yes:#166534; --no:#991b1b;
+      --yes:#166534; --no:#991b1b; --crit:#f87171; --star:#fbbf24;
     }
   }
   * { box-sizing:border-box; }
@@ -61,7 +61,19 @@
   .row { display:flex; gap:8px 14px; flex-wrap:wrap; align-items:center; margin:8px 0; font-size:14px; }
   .row label { display:inline-flex; gap:6px; align-items:center; }
   #cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; margin:8px 0 4px; }
-  .card { text-align:left; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px 12px; cursor:pointer; min-height:56px; overflow-wrap:anywhere; }
+  .cardwrap { position:relative; display:flex; }
+  .card { flex:1; width:100%; text-align:left; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px 50px 10px 12px; cursor:pointer; min-height:56px; overflow-wrap:anywhere; }
+  .card.crit { border:2px solid var(--crit); }
+  .card .crit-b { display:block; font-size:12px; font-weight:700; color:var(--crit); }
+  .star { position:absolute; top:4px; right:4px; min-width:44px; min-height:44px; background:transparent; border:0; border-radius:8px; font-size:22px; cursor:pointer; color:var(--mut); }
+  .star[aria-pressed="true"] { color:var(--star); }
+  #pbNote { margin:8px 0 4px; }
+  #pbNote[hidden], #learnCard[hidden], .learn-card [hidden] { display:none; }
+  .learn-card { background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:16px; margin:8px 0; text-align:center; overflow-wrap:anywhere; }
+  .learn-card .front { font-size:20px; font-weight:600; }
+  .learn-card .back { font-size:28px; font-weight:700; margin-top:10px; color:var(--th); }
+  .learn-card .row { justify-content:center; }
+  #learnInfo, #learnMsg { color:var(--mut); font-size:13px; }
   .card .t { display:block; font-size:18px; font-weight:600; margin-top:2px; }
   .card .s { display:block; font-size:13px; color:var(--mut); }
   .yn { font-size:20px; font-weight:700; color:#fff; border:0; border-radius:10px; padding:10px 22px; min-height:48px; cursor:pointer; }
@@ -95,8 +107,9 @@
   #partner .bar { display:flex; justify-content:space-between; align-items:center; gap:12px; color:var(--mut); font-size:14px; }
   #partner .bar .btns { display:flex; gap:8px; }
   #partner .bar .small { min-height:44px; min-width:44px; font-size:20px; }
-  #partnerText { flex:1; display:flex; align-items:center; justify-content:center; text-align:center; font-weight:700; font-size:clamp(40px,11vw,160px); line-height:1.15; overflow-wrap:anywhere; padding:8px 0; }
-  #partnerText.yes, #partnerText.no { font-size:clamp(80px,28vw,260px); }
+  #partnerText { flex:1; min-height:0; overflow-y:auto; display:flex; align-items:center; align-items:safe center; justify-content:center; text-align:center; font-weight:700;
+                 font-size:calc(clamp(40px,11vw,160px) * var(--pscale, 1)); line-height:1.15; overflow-wrap:anywhere; padding:8px 0; }
+  #partnerText.yes, #partnerText.no { font-size:calc(clamp(80px,28vw,260px) * var(--pscale, 1)); }
   #partnerText.yes { color:var(--yes); } #partnerText.no { color:var(--no); }
   @media (max-width:500px){
     .trans { font-size:22px; }
@@ -121,7 +134,7 @@
   <a href="https://github.com/Pschmetzer/en-th-dolmetscher" target="_blank" rel="noopener">Mac-/iPhone-App &amp; Quellcode auf GitHub</a>
 </div>
 <div class="note" role="note" id="privacy">
-  <b>Datenschutz:</b> Die Spracherkennung macht der Browser – Chrome sendet dein <b>Audio an Googles Server</b>, Safari an Apple (je nach Gerät auch lokal). Der erkannte Text geht zum Übersetzen an Google Translate (Ersatz: MyMemory). Die Mac-App erkennt Sprache dagegen lokal auf dem Gerät. <b>Pause</b> und <b>Stopp</b> schalten das Mikrofon ganz aus. Das Satzbuch (unten) funktioniert ohne Mikrofon und für Englisch/Thai auch offline.
+  <b>Datenschutz:</b> Die Spracherkennung macht der Browser – Chrome sendet dein <b>Audio an Googles Server</b>, Safari an Apple (je nach Gerät auch lokal). Der erkannte Text geht zum Übersetzen an Google Translate (Ersatz: MyMemory). Die Mac-App erkennt Sprache dagegen lokal auf dem Gerät. <b>Pause</b> und <b>Stopp</b> schalten das Mikrofon ganz aus. Das Satzbuch (unten) funktioniert ohne Mikrofon und für Englisch/Thai auch offline. <b>Lernkarten</b> (★ gemerkte und, nur wenn eingeschaltet, zuletzt übersetzte Sätze) bleiben nur in diesem Browser; „Alle Lernkarten löschen“ entfernt sie.
 </div>
 <div class="note" role="status" id="offline">Offline: Übersetzen und Spracherkennung gehen gerade nicht. Das Satzbuch mit Zeige-Karten funktioniert weiter.</div>
 <div id="warn" role="alert"></div>
@@ -143,13 +156,16 @@
   <label><input type="checkbox" id="speak" checked> Übersetzung vorlesen</label>
   <label><input type="checkbox" id="autoswitch"> Nach jedem Satz Sprecher wechseln</label>
   <label><input type="checkbox" id="ptt"> Halten zum Sprechen</label>
+  <label><input type="checkbox" id="duplex"> Kopfhörer: beim Vorlesen weiter zuhören (Unterbrechen)</label>
   <label><input type="checkbox" id="keysOn" checked> Einzeltasten-Kürzel (E, T, P, Leertaste)</label>
+  <button class="small" id="btnStop" type="button" disabled>⏹ Stopp <kbd>Leertaste</kbd></button>
   <button class="small" id="btnPartner" type="button">Partneransicht <kbd>P</kbd></button>
 </div>
 <details class="box" id="voiceBox">
   <summary>Stimme &amp; Tempo</summary>
   <div class="row">
     <label><input type="range" id="rate" min="0.5" max="1.6" step="0.05" value="0.95"> Tempo <output id="rateOut" for="rate">0.95</output></label>
+    <label><input type="range" id="vol" min="0.2" max="1" step="0.1" value="1"> Lautstärke <output id="volOut" for="vol">100 %</output></label>
   </div>
   <div class="row">
     <label><span id="voiceALabel">Stimme A</span> <select id="voiceA"></select></label>
@@ -167,14 +183,38 @@
     <button class="yn yes" id="btnYes" type="button">Ja</button>
     <button class="yn no" id="btnNo" type="button">Nein</button>
   </div>
+  <div id="pbNote" class="note" role="note" hidden></div>
   <div id="pbMsg" role="status"></div>
   <div id="cards"></div>
 </details>
-<details class="help">
+<details class="box" id="learnBox">
+  <summary>Lernen: Karteikarten (<span id="learnDue">0</span> fällig)</summary>
+  <p id="learnInfo">Mit ☆ gemerkte Sätze (Satzbuch, Verlauf) werden zu Karteikarten: vorne deine Sprache, hinten die Sprache des Partners. Gewusst = später wieder (1, 3, 7, 14 Tage), nicht gewusst = gleich nochmal.</p>
+  <div class="row">
+    <label><input type="checkbox" id="learnRecent"> Zuletzt übersetzte Sätze automatisch aufnehmen</label>
+  </div>
+  <div class="row">
+    <button class="small" id="learnAddPreset" type="button">Aktuelles Thema aufnehmen</button>
+    <button class="small" id="learnClear" type="button">Alle Lernkarten löschen</button>
+  </div>
+  <div id="learnMsg" role="status"></div>
+  <div id="learnCard" class="learn-card" hidden>
+    <div class="front" id="learnFront" dir="auto"></div>
+    <div class="back" id="learnBack" dir="auto" hidden></div>
+    <div class="row">
+      <button class="small" id="learnShow" type="button">Aufdecken</button>
+      <button class="small" id="learnSpeak" type="button">🔊 Vorlesen</button>
+      <button class="yn no" id="learnNo" type="button" hidden>Nochmal</button>
+      <button class="yn yes" id="learnYes" type="button" hidden>Gewusst</button>
+    </div>
+    <div id="learnBoxNr" class="s"></div>
+  </div>
+</details>
+<details class="help" id="helpBox">
   <summary>Tastenkürzel &amp; Sprachbefehle</summary>
-  <p><kbd>E</kbd> bzw. <kbd>1</kbd> ich spreche · <kbd>T</kbd> bzw. <kbd>2</kbd> Partner spricht · <kbd>Leertaste</kbd> Stopp · <kbd>P</kbd> Partneransicht · <kbd>Esc</kbd> Partneransicht schließen<br>
+  <p><kbd>E</kbd> bzw. <kbd>1</kbd> ich spreche · <kbd>T</kbd> bzw. <kbd>2</kbd> Partner spricht · <kbd>Leertaste</kbd> oder „Stopp“ beendet · <kbd>P</kbd> Partneransicht · <kbd>Esc</kbd> schließt die Partneransicht, sonst Stopp. Alles geht auch ohne Kürzel mit <kbd>Tab</kbd> und den Knöpfen.<br>
   „Halten zum Sprechen“: Knopf gedrückt halten, sprechen, loslassen – praktisch bei Lärm. Per Tastatur bleibt es beim Umschalten.<br>
-  Sprachbefehle, wenn Englisch gesprochen wird, als ganzer Satz (werden nie übersetzt): „Translator pause“ (Mikrofon aus – weiter mit <kbd>E</kbd>/<kbd>T</kbd> oder dem Knopf), „Translator repeat“, „slower“, „faster“.</p>
+  Sprachbefehle, wenn Englisch gesprochen wird, als ganzer Satz (werden nie übersetzt): „Translator pause“ (Mikrofon aus – weiter mit <kbd>E</kbd>/<kbd>T</kbd> oder dem Knopf), „Translator repeat“, „slower“, „faster“, „louder“, „quieter“, „clear“ (Verlauf leeren), „help“ (diese Hilfe).</p>
 </details>
 <div id="live" aria-live="off">…</div>
 <div class="logtools">
@@ -199,7 +239,7 @@
 
 <div id="partner" role="dialog" aria-modal="true" aria-labelledby="partnerTitle" aria-hidden="true">
   <div class="bar"><span id="partnerTitle">ไทย</span>
-    <span class="btns"><button class="small" id="btnPartnerSpeak" type="button" aria-label="Vorlesen / Read aloud">🔊</button><button class="small" id="btnPartnerClose" type="button" aria-label="Schließen / Close">✕</button></span></div>
+    <span class="btns"><button class="small" id="btnFontDown" type="button" aria-label="Schrift kleiner / Smaller text">A−</button><button class="small" id="btnFontUp" type="button" aria-label="Schrift größer / Larger text">A+</button><button class="small" id="btnPartnerSpeak" type="button" aria-label="Vorlesen / Read aloud">🔊</button><button class="small" id="btnPartnerClose" type="button" aria-label="Schließen / Close">✕</button></span></div>
   <div id="partnerText" lang="th" dir="auto" aria-live="polite">…</div>
 </div>
 
@@ -276,7 +316,7 @@ const settings = (() => { try { return JSON.parse(localStorage.getItem('webSetti
 function saveSettings() { try { localStorage.setItem('webSettings', JSON.stringify(settings)); } catch {} }
 let pair = { a: LANGS[settings.a] ? settings.a : DEFAULT_PAIR[0], b: LANGS[settings.b] ? settings.b : DEFAULT_PAIR[1] };
 if (pair.a === pair.b) pair = { a: DEFAULT_PAIR[0], b: DEFAULT_PAIR[1] };
-for (const id of ['dirA', 'dirB', 'speak', 'autoswitch', 'ptt']) {
+for (const id of ['dirA', 'dirB', 'speak', 'autoswitch', 'ptt', 'duplex', 'learnRecent']) {
   if (typeof settings[id] === 'boolean') $(id).checked = settings[id];
   $(id).addEventListener('change', () => { settings[id] = $(id).checked; saveSettings(); });
 }
@@ -341,6 +381,8 @@ const MAX_SOFT_ERR = 6, FETCH_TIMEOUT_MS = 6000, MAX_LOG = 200, MAX_SHARE = 500;
 let errCount = 0, quickEnds = 0, restartTimer = null;
 let lastFinal = { text: '', t: 0 };
 let pttActive = null, pttReleased = false;   // Halten zum Sprechen
+let barge = 0;   // Unterbrechen (Kopfhörer): hochgezählt, wenn während des Vorlesens ein neuer Satz kommt
+const duplex = () => $('duplex').checked && !!TTS;
 
 const warnMsgs = [];
 function renderWarn() {
@@ -407,6 +449,10 @@ function pickVoice(lang) {
 $('rate').value = String(rate); $('rateOut').textContent = rate.toFixed(2);
 function setRate(r) { rate = r; $('rate').value = String(r); $('rateOut').textContent = r.toFixed(2); settings.rate = r; saveSettings(); }
 $('rate').oninput = () => setRate(+$('rate').value);
+let vol = (+settings.vol >= 0.2 && +settings.vol <= 1) ? +settings.vol : 1;
+function setVol(v) { vol = Math.round(Math.min(1, Math.max(0.2, v)) * 10) / 10; $('vol').value = String(vol); $('volOut').textContent = Math.round(vol * 100) + ' %'; settings.vol = vol; saveSettings(); }
+setVol(vol);
+$('vol').oninput = () => setVol(+$('vol').value);
 const SAMPLE = { en: 'Hello, how are you?', th: 'สวัสดีครับ สบายดีไหม', de: 'Hallo, wie geht es dir?' };
 async function sampleText(l) {
   if (SAMPLE[l]) return SAMPLE[l];
@@ -490,7 +536,7 @@ async function translate(text, src, dst) {
 
 // ---- Voice commands (nur wenn Englisch gesprochen wird; ganzer Satz) ----
 // Chrome hört oft "translate", "translater", "translator's" – alles gilt.
-const CMD_RE = /^\s*(?:hey\s+|ok(?:ay)?\s+)?translat(?:or|er|e)?(?:'?s)?[\s,.:;!-]*(pause|resume|repeat|slower|faster)\b[\s,.!?]*$/i;
+const CMD_RE = /^\s*(?:hey\s+|ok(?:ay)?\s+)?translat(?:or|er|e)?(?:'?s)?[\s,.:;!-]*(pause|resume|repeat|slower|faster|louder|quieter|clear|help)\b[\s,.!?]*$/i;
 function parseCommand(text) { const m = CMD_RE.exec(text); return m ? m[1].toLowerCase() : null; }
 
 function runCommand(cmd) {
@@ -503,6 +549,10 @@ function runCommand(cmd) {
   else if (cmd === 'resume') { setStatus('Läuft bereits'); }   // nur hörbar, solange nicht pausiert
   else if (cmd === 'slower') { setRate(Math.max(0.5, +(rate - 0.15).toFixed(2))); setStatus('Tempo ' + rate, true); }
   else if (cmd === 'faster') { setRate(Math.min(1.6, +(rate + 0.15).toFixed(2))); setStatus('Tempo ' + rate, true); }
+  else if (cmd === 'louder') { setVol(vol + 0.2); setStatus('Lautstärke ' + Math.round(vol * 100) + ' %', true); }
+  else if (cmd === 'quieter') { setVol(vol - 0.2); setStatus('Lautstärke ' + Math.round(vol * 100) + ' %', true); }
+  else if (cmd === 'clear') { clearLog(); setStatus('Verlauf geleert', true); }
+  else if (cmd === 'help') { $('helpBox').open = true; setStatus('Hilfe geöffnet', true); }
   else if (cmd === 'repeat') {
     if (lastOut) { const o = lastOut; enqueueOutput(g => speakAsync(o.text, o.lang, g)); }
     else setStatus('Nichts zu wiederholen', true);
@@ -518,7 +568,7 @@ const HARD_ERR = {   // Neustart sinnlos: Modus beenden, klar sagen warum
 };
 const NO_ANSWER = 'Die Spracherkennung antwortet nicht (Internet? Chrome braucht dafür eine Verbindung zu Google). Bitte später erneut <kbd>E</kbd>/<kbd>T</kbd> drücken.';
 function startRec() {
-  if (!SR || !mode || speaking || rec || document.hidden || pttReleased) return;   // im Hintergrund nicht neu starten
+  if (!SR || !mode || (speaking && !duplex()) || rec || document.hidden || pttReleased) return;   // im Hintergrund nicht neu starten
   clearTimeout(restartTimer); restartTimer = null;
   const r = new SR();
   rec = r;
@@ -533,7 +583,7 @@ function startRec() {
     let interim = '';
     for (let i = ev.resultIndex; i < ev.results.length; i++) {
       const x = ev.results[i];
-      if (x.isFinal) handleFinal(x[0].transcript.trim(), x[0].confidence);
+      if (x.isFinal) { if (speaking && duplex()) bargeIn(); handleFinal(x[0].transcript.trim(), x[0].confidence); }
       else interim += x[0].transcript;
     }
     live.textContent = interim || '…';
@@ -558,7 +608,7 @@ function startRec() {
 }
 function scheduleRestart() {
   if (pttReleased) { resumeIfIdle(); return; }   // Halten zum Sprechen: losgelassen, kein Neustart
-  if (!mode || speaking || restartTimer) return;
+  if (!mode || (speaking && !duplex()) || restartTimer) return;
   if (errCount >= MAX_SOFT_ERR) {
     showWarn(NO_ANSWER);
     setMode(null); return;
@@ -586,6 +636,7 @@ function setMode(m) {
     MODES[k].btn.setAttribute('aria-pressed', k === mode ? 'true' : 'false');
   }
   live.textContent = '…';
+  $('btnStop').disabled = !mode;
   updateWakeLock();
   if (mode) startRec(); else setStatus($('ptt').checked ? 'Bereit – Knopf halten und sprechen' : 'Gestoppt', true);
 }
@@ -629,6 +680,8 @@ function addEntry(cls, orig, trans, isErr, from, to) {
   return t;
 }
 
+function clearLog() { log.textContent = ''; trimWarned = false; }
+
 function handleFinal(text, conf) {
   if (!text) return;
   const now = Date.now();                  // Android-Chrome liefert Finals manchmal doppelt
@@ -660,7 +713,9 @@ function deliver(t, text, m, next) {
     const out = res.text;
     t.textContent = out; t.lang = m.dst; t.classList.remove('err');
     if (res.via === 'mymemory') badge(t, 'Ersatzdienst – Qualität geringer');
-    addActions(t, out, m.dst);
+    const item = learnItem(text, m.src, out, m.dst);
+    addActions(t, out, m.dst, item);
+    if ($('learnRecent').checked && item) learnStore(learnAdd(learnList, item, Date.now(), 'rec'));
     lastOut = { text: out, lang: m.tts };
     if (m.dst === pair.b) { setPartnerText(out, m.dst); }   // Partneransicht zeigt nur die Sprache des Partners
     announce(out, m.dst);
@@ -681,8 +736,9 @@ function deliver(t, text, m, next) {
     if ($('speak').checked) await speakAsync(out, m.tts, g);
   });
 }
-function addActions(t, text, lang) {
+function addActions(t, text, lang, item) {
   const row = document.createElement('div'); row.className = 'acts';
+  if (item) row.appendChild(starButton(() => item, async () => item, 'small'));
   const show = document.createElement('button'); show.type = 'button'; show.className = 'small'; show.textContent = 'Groß zeigen';
   show.onclick = () => showBig(text, lang);
   const share = document.createElement('button'); share.type = 'button'; share.className = 'small'; share.textContent = 'Als Link teilen';
@@ -704,12 +760,13 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
 function speakAsync(text, lang, g) {
   if (!TTS || g !== gen) return Promise.resolve();
   speaking = true;
-  stopRec(); clearTimeout(restartTimer); restartTimer = null;
+  if (!duplex()) { stopRec(); clearTimeout(restartTimer); restartTimer = null; }   // ohne Kopfhörer: kein Echo
   setStatus('🔊 …');
+  const b0 = barge;
   let pre = Promise.resolve();
   // hängende Reste im Browser-Puffer entfernen; direkt nach cancel() verschluckt Chrome sonst manchmal die Ausgabe
   if (TTS.speaking || TTS.pending) { TTS.cancel(); pre = wait(60); }
-  return splitText(text, 180).reduce((p, c) => p.then(() => speakChunk(c, lang, g)), pre)
+  return splitText(text, 180).reduce((p, c) => p.then(() => barge === b0 ? speakChunk(c, lang, g) : undefined), pre)
     .finally(() => { if (g === gen) { speaking = false; setTimeout(resumeIfIdle, 0); } });
 }
 function speakChunk(text, lang, g) {
@@ -718,7 +775,7 @@ function speakChunk(text, lang, g) {
     const u = new SpeechSynthesisUtterance(text);
     u.lang = lang;
     const v = pickVoice(lang); if (v) u.voice = v;
-    u.rate = rate;
+    u.rate = rate; u.volume = vol;
     let fin = false;
     const done = () => { if (fin) return; fin = true; clearTimeout(wd); resolve(); };   // mehrfach sicher
     const wd = setTimeout(() => { if (!fin) { try { TTS.cancel(); } catch {} done(); } },
@@ -726,6 +783,11 @@ function speakChunk(text, lang, g) {
     u.onend = done; u.onerror = done;
     try { TTS.speak(u); } catch { done(); }
   });
+}
+// Kopfhörer-Modus: neuer Satz während des Vorlesens bricht die laufende Ausgabe ab (wie --barge-in der Mac-App).
+function bargeIn() {
+  barge++;
+  if (TTS && (TTS.speaking || TTS.pending)) TTS.cancel();
 }
 // iOS/Safari spielt Sprachausgabe erst, wenn speak() einmal direkt in einer Nutzergeste lief.
 let ttsUnlocked = false;
@@ -777,6 +839,16 @@ function showBig(text, lang, cls) { setPartnerText(text, lang, cls); togglePartn
 $('btnPartner').onclick = () => togglePartner(true);
 $('btnPartnerClose').onclick = () => togglePartner(false);
 $('btnPartnerSpeak').onclick = () => { if (bigText) sayNow(bigText.text, bigText.lang); };
+// Schriftgröße der Großansicht (lange Sätze: kleiner und scrollen)
+let pscale = (+settings.pscale >= 0.4 && +settings.pscale <= 2) ? +settings.pscale : 1;
+function setScale(v) {
+  pscale = Math.round(Math.min(2, Math.max(0.4, v)) * 100) / 100;
+  $('partnerText').style.setProperty('--pscale', String(pscale));
+  settings.pscale = pscale; saveSettings();
+}
+$('partnerText').style.setProperty('--pscale', String(pscale));
+$('btnFontDown').onclick = () => setScale(pscale - 0.15);
+$('btnFontUp').onclick = () => setScale(pscale + 0.15);
 
 // ---- Satzbuch & Zeige-Karten (presets/*.json; ohne Mikrofon, Englisch/Thai auch offline) ----
 const presetCache = {};
@@ -813,15 +885,22 @@ async function renderCards() {
   catch { if (my === cardsGen) { box.textContent = ''; msg.textContent = 'Satzbuch nicht verfügbar (offline und noch nie geladen?).'; } return; }
   if (my !== cardsGen) return;
   box.textContent = ''; msg.textContent = '';
+  const nt = presetNote(d);   // Kulturhinweis des Pakets (nur Text)
+  $('pbNote').textContent = nt ? 'ℹ️ ' + nt : ''; $('pbNote').hidden = !nt;
   const a = pair.a, b = pair.b;
   if (!(b in (d.phrases[0] || {}))) msg.textContent = 'Sätze in ' + LANGS[b].de + ' werden beim ersten Tippen übersetzt (Internet nötig), danach gemerkt.';
-  for (const p of d.phrases) {
+  for (const p of criticalFirst(d.phrases)) {
+    const w = document.createElement('div'); w.className = 'cardwrap';
     const c = document.createElement('button');
-    c.type = 'button'; c.className = 'card';
+    c.type = 'button'; c.className = 'card' + (p.critical ? ' crit' : '');
+    if (p.critical) { const k = document.createElement('span'); k.className = 'crit-b'; k.lang = 'de'; k.textContent = '⚠ Wichtig'; c.appendChild(k); }
     const s = document.createElement('span'); s.className = 's'; s.textContent = p[a] || p.en; s.lang = p[a] ? a : 'en'; s.dir = 'auto';
     const t = document.createElement('span'); t.className = 't'; t.lang = b; t.dir = 'auto';
     t.textContent = p[b] || pbTrans[b + '|' + p.en] || '…';
     c.append(s, t);
+    const front = p[a] || p.en, fl = p[a] ? a : 'en';
+    w.append(c, starButton(() => { const bt = p[b] || pbTrans[b + '|' + p.en]; return bt ? learnItem(front, fl, bt, b) : null; },
+                           async () => learnItem(front, fl, await phraseIn(p, b), b), 'star'));
     c.onclick = async () => {
       let out;
       try { out = await phraseIn(p, b); }
@@ -830,11 +909,151 @@ async function renderCards() {
       showBig(out, b);
       if ($('speak').checked) sayNow(out, b);
     };
-    box.appendChild(c);
+    box.appendChild(w);
   }
+}
+function presetNote(d) {
+  const n = d && d.note;
+  if (!n || typeof n !== 'object') return '';
+  const t = n[pair.a] || n.de || n.en || '';
+  return typeof t === 'string' ? t.trim() : '';
+}
+function criticalFirst(list) {   // stabile Kopie: wichtige Sätze (critical) zuerst, sonst Reihenfolge des Pakets
+  return (Array.isArray(list) ? list : []).map((p, i) => [p, i])
+    .sort((x, y) => (!!y[0].critical - !!x[0].critical) || (x[1] - y[1])).map(x => x[0]);
 }
 $('btnYes').onclick = () => { const l = pair.b; showBig(LANGS[l].yes, l, 'yes'); if ($('speak').checked) sayNow(LANGS[l].yes, l); };
 $('btnNo').onclick = () => { const l = pair.b; showBig(LANGS[l].no, l, 'no'); if ($('speak').checked) sayNow(LANGS[l].no, l); };
+
+// ---- Lernmodus: Karteikarten mit einfachem Leitner-Plan (nur localStorage dieses Browsers) ----
+const LEARN_KEY = 'learnV1', LEARN_MAX = 200, LEARN_TXT = 500, DAY = 864e5;
+const LEARN_DAYS = [0, 1, 3, 7, 14];   // Fach 1..5: Tage bis zur nächsten Abfrage
+function learnSide(x) {
+  return !!x && typeof x.t === 'string' && x.t.trim() !== '' && x.t.length <= LEARN_TXT && typeof x.l === 'string' && Object.hasOwn(LANGS, x.l);
+}
+function learnParse(raw) {   // gespeicherte Daten prüfen: kaputte oder fremde Einträge werden verworfen
+  let v;
+  try { v = JSON.parse(raw || '[]'); } catch { return []; }
+  if (!Array.isArray(v)) return [];
+  return v.filter(c => c && typeof c === 'object' && learnSide(c.a) && learnSide(c.b))
+    .map(c => ({ a: { t: c.a.t, l: c.a.l }, b: { t: c.b.t, l: c.b.l },
+                 box: Number.isInteger(c.box) && c.box >= 1 && c.box <= 5 ? c.box : 1,
+                 due: Number.isFinite(c.due) ? c.due : 0, fav: c.fav === true, rec: c.rec === true,
+                 add: Number.isFinite(c.add) ? c.add : 0 }))
+    .slice(-LEARN_MAX);
+}
+function learnItem(text, src, out, dst) {   // Vorderseite = meine Sprache, Rückseite = Sprache des Partners
+  const x = { t: String(text || '').trim().slice(0, LEARN_TXT), l: src }, y = { t: String(out || '').trim().slice(0, LEARN_TXT), l: dst };
+  if (!learnSide(x) || !learnSide(y) || src === dst) return null;
+  return dst === pair.a ? { a: y, b: x } : { a: x, b: y };
+}
+function learnKey(c) { return c.a.l + '|' + c.a.t + '|' + c.b.l + '|' + c.b.t; }
+function learnAdd(list, item, now, kind) {   // kind 'fav' (gemerkt) oder 'rec' (zuletzt übersetzt); neue Liste, ohne Doppelte
+  const k = learnKey(item), old = list.find(c => learnKey(c) === k);
+  if (old) return list.map(c => c === old ? Object.assign({}, c, { [kind]: true }) : c);
+  const out = list.concat([{ a: item.a, b: item.b, box: 1, due: now, fav: kind === 'fav', rec: kind === 'rec', add: now }]);
+  while (out.length > LEARN_MAX) {   // voll: zuerst die ältesten nicht gemerkten entfernen
+    const i = out.findIndex(c => !c.fav);
+    out.splice(i >= 0 ? i : 0, 1);
+  }
+  return out;
+}
+function learnRemove(list, item) { const k = learnKey(item); return list.filter(c => learnKey(c) !== k); }
+function leitnerNext(card, ok, now) {   // gewusst: ein Fach weiter; nicht gewusst: zurück in Fach 1 (gleich nochmal)
+  const box = ok ? Math.min(5, card.box + 1) : 1;
+  return Object.assign({}, card, { box, due: now + LEARN_DAYS[box - 1] * DAY });
+}
+function learnDue(list, now) {   // fällige Karten: niedrigstes Fach zuerst, dann am längsten fällig
+  return list.filter(c => c.due <= now).sort((x, y) => (x.box - y.box) || (x.due - y.due));
+}
+let learnList = (() => { try { return learnParse(localStorage.getItem(LEARN_KEY)); } catch { return []; } })();
+let learnCur = null, learnShownKey = null;
+function learnStore(list) {
+  learnList = list;
+  try { localStorage.setItem(LEARN_KEY, JSON.stringify(list)); } catch {}
+  learnRender(); syncStars();
+}
+function learnReveal(on) {
+  $('learnBack').hidden = !on; $('learnShow').hidden = on;
+  $('learnYes').hidden = !on; $('learnNo').hidden = !on;
+}
+function learnRender() {
+  const due = learnDue(learnList, Date.now());
+  $('learnDue').textContent = String(due.length);
+  if (learnCur && !learnList.some(c => learnKey(c) === learnKey(learnCur))) learnCur = null;
+  if (!learnCur) learnCur = due[0] || null;
+  if (!learnCur) {
+    $('learnCard').hidden = true; learnShownKey = null;
+    $('learnMsg').textContent = learnList.length ? 'Alles gelernt – die nächsten Karten sind später fällig.' : 'Noch keine Lernkarten: bei einem Satz ☆ antippen.';
+    return;
+  }
+  $('learnCard').hidden = false; $('learnMsg').textContent = '';
+  const f = $('learnFront'), b = $('learnBack');
+  f.textContent = learnCur.a.t; f.lang = learnCur.a.l;
+  b.textContent = learnCur.b.t; b.lang = learnCur.b.l;
+  $('learnBoxNr').textContent = 'Fach ' + learnCur.box + ' von 5 · Rückseite: ' + LANGS[learnCur.b.l].de;
+  if (learnShownKey !== learnKey(learnCur)) { learnShownKey = learnKey(learnCur); learnReveal(false); }
+}
+function learnAnswer(ok) {
+  if (!learnCur) return;
+  const k = learnKey(learnCur), now = Date.now();
+  learnCur = null; learnShownKey = null;
+  learnStore(learnList.map(c => learnKey(c) === k ? leitnerNext(c, ok, now) : c));
+  if (!$('learnCard').hidden) $('learnShow').focus();
+}
+$('learnShow').onclick = () => {
+  if (!learnCur) return;
+  learnReveal(true); $('learnYes').focus();
+  if ($('speak').checked) sayNow(learnCur.b.t, learnCur.b.l);
+};
+$('learnSpeak').onclick = () => { if (learnCur) sayNow(learnCur.b.t, learnCur.b.l); };
+$('learnYes').onclick = () => learnAnswer(true);
+$('learnNo').onclick = () => learnAnswer(false);
+$('learnClear').onclick = () => {
+  if (!learnList.length) { $('learnMsg').textContent = 'Keine Lernkarten gespeichert.'; return; }
+  if (!window.confirm('Alle ' + learnList.length + ' Lernkarten in diesem Browser löschen?')) return;
+  learnCur = null; learnStore([]);
+  try { localStorage.removeItem(LEARN_KEY); } catch {}
+};
+$('learnAddPreset').onclick = async () => {
+  let d;
+  try { d = await loadPreset($('presetSel').value); } catch { $('learnMsg').textContent = 'Thema nicht verfügbar (offline?).'; return; }
+  const a = pair.a, b = pair.b, now = Date.now();
+  let list = learnList, n = 0, miss = 0;
+  for (const p of criticalFirst(d.phrases)) {
+    const bt = p[b] || pbTrans[b + '|' + p.en];
+    const it = bt ? learnItem(p[a] || p.en, p[a] ? a : 'en', bt, b) : null;
+    if (!it) { miss++; continue; }
+    list = learnAdd(list, it, now, 'fav'); n++;
+  }
+  learnStore(list);
+  $('learnMsg').textContent = n + ' Karten aufgenommen.' + (miss ? ' ' + miss + ' Sätze fehlen in ' + LANGS[b].de + ': erst im Satzbuch antippen (übersetzt sie einmal).' : '');
+};
+// ☆-Knöpfe (Satzbuch, Verlauf): peek() liefert die Karte ohne Netz (für den Zustand), get() notfalls mit Übersetzung
+function learnHas(it) { const k = learnKey(it); return learnList.some(c => c.fav && learnKey(c) === k); }
+function starState(b) {
+  let it = null;
+  try { it = b._peek(); } catch {}
+  const on = !!it && learnHas(it), small = b.classList.contains('small');
+  b.textContent = (on ? '★' : '☆') + (small ? (on ? ' Gemerkt' : ' Merken') : '');
+  b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  if (!small) b.setAttribute('aria-label', 'Zum Lernen merken');
+}
+function starButton(peek, get, cls) {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = cls + ' starbtn'; b._peek = peek;
+  b.onclick = async () => {
+    let it = null;
+    try { it = await get(); } catch {}
+    if (!it) { setStatus('Merken nicht möglich – Übersetzung fehlt (offline?)', true); return; }
+    const on = learnHas(it);
+    learnStore(on ? learnRemove(learnList, it) : learnAdd(learnList, it, Date.now(), 'fav'));
+    setStatus(on ? 'Lernkarte entfernt' : 'Als Lernkarte gemerkt', true);
+  };
+  starState(b);
+  return b;
+}
+function syncStars() { for (const b of document.querySelectorAll('.starbtn')) starState(b); }
 
 // ---- Teilen per Link: Text steht nur im #-Teil (geht nie an einen Server) und wird beim Öffnen nur angezeigt ----
 function shareUrl(text, lang) {
@@ -941,6 +1160,7 @@ for (const k in MODES) {
   b.addEventListener('contextmenu', e => { if ($('ptt').checked) e.preventDefault(); });
 }
 $('ptt').addEventListener('change', () => { if (mode) setMode(null); });
+$('btnStop').onclick = () => { if (mode) setMode(null); };
 
 try { $('keysOn').checked = localStorage.getItem('keysOn') !== '0'; } catch {}
 $('keysOn').onchange = () => { try { localStorage.setItem('keysOn', $('keysOn').checked ? '1' : '0'); } catch {} };
@@ -950,7 +1170,10 @@ function isTyping(t) {   // Kürzel nur aus, wo getippt/gewählt wird – nicht 
 }
 document.addEventListener('keydown', e => {
   if (consentOpen()) return;                                   // Einwilligungsdialog offen: keine Kürzel (Esc schließt ihn)
-  if (e.key === 'Escape') { togglePartner(false); return; }   // closing a dialog always works
+  if (e.key === 'Escape') {                                    // closing a dialog always works; sonst Stopp (WCAG 2.1.1)
+    if ($('partner').classList.contains('on')) togglePartner(false); else if (mode) chooseMode(mode);
+    return;
+  }
   if (!$('keysOn').checked) return;                            // single-key shortcuts can be switched off (WCAG 2.1.4)
   if (isTyping(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
   // e.code: Kürzel gehen auch mit thailändischem Tastaturlayout
@@ -969,7 +1192,7 @@ if ('serviceWorker' in navigator && window.isSecureContext && /^https?:$/.test(l
   window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(e => console.warn('sw', e)); });
 }
 
-fillLangSelects(); buildModes(); fillPresetSelect(); renderCards(); openFromHash();
+fillLangSelects(); buildModes(); fillPresetSelect(); renderCards(); learnRender(); openFromHash();
 </script>
 </body>
 </html>
