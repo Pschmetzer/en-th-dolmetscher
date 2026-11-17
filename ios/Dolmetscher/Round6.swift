@@ -230,3 +230,12 @@ struct SummaryView: View {
         }
     }
 }
+
+/// Live-Aktivität und Datenschutz: Standard aus, auf dem gesperrten Gerät nur der Status, keine Sätze.
+enum LivePrivacy {
+    /// Ohne gespeicherten Wert: neue Installation -> aus; bestehende Nutzer (hatten „an“ als Standard) -> an.
+    static func initialSetting(stored: Bool?, existingUser: Bool) -> Bool { stored ?? existingUser }
+
+    /// Satz für die Live-Aktivität: gesperrt leer (die Ansicht zeigt dann „erst nach dem Entsperren“).
+    static func text(_ s: String?, locked: Bool) -> String { locked ? "" : (s ?? "") }
+}

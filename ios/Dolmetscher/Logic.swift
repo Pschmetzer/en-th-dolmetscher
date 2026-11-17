@@ -59,7 +59,8 @@ enum Commands {
         if let r = rest(wake, text) { return parse(r) }
         // Unscharf („Translate or pause“) nur, wenn danach kaum mehr kommt als der Befehl –
         // sonst wäre „Translate: please stop here“ ein Befehl statt eines Satzes.
-        if let r = rest(wakeFuzzy, text), r.split(whereSeparator: { $0.isWhitespace }).count <= 3,
+        // Höchstens zwei Wörter: „Translate: please stop here“ (drei) war vorher doch ein Befehl (Korpus-Test 578).
+        if let r = rest(wakeFuzzy, text), r.split(whereSeparator: { $0.isWhitespace }).count <= 2,
            let k = parse(r), k != .wake { return k }
         // Nach dem Weckwort allein nur kurze Sätze als Befehl – „A quiet room please“ ist keiner.
         if awake, text.split(whereSeparator: { $0.isWhitespace }).count <= 3, let k = parse(text), k != .wake { return k }

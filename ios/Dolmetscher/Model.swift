@@ -238,7 +238,10 @@ final class InterpreterModel {
         showRoman = d.object(forKey: "showRoman") as? Bool ?? true
         lockHistory = d.object(forKey: "lockHistory") as? Bool ?? false
         pushToTalk = d.object(forKey: "pushToTalk") as? Bool ?? false
-        liveActivity = d.object(forKey: "liveActivity") as? Bool ?? true
+        // Standard „aus“ (Sätze auf dem Sperrbildschirm). Wer die App schon nutzte, behält die bisherige Einstellung.
+        liveActivity = LivePrivacy.initialSetting(stored: d.object(forKey: "liveActivity") as? Bool,
+                                                  existingUser: d.object(forKey: "prepShown") != nil)
+        d.set(liveActivity, forKey: "liveActivity")
         historyUnlocked = !lockHistory
         L10n.lang = uiLang
         Haptics.enabled = haptics
@@ -251,7 +254,12 @@ final class InterpreterModel {
         // Gerät war beim Start gesperrt: nach dem Entsperren nachladen.
         NotificationCenter.default.addObserver(forName: UIApplication.protectedDataDidBecomeAvailableNotification,
                                                object: nil, queue: .main) { _ in
-            Task { @MainActor in InterpreterModel.shared.reloadIfBlocked() }
+            Task { @MainActor in InterpreterModel.shared.reloadIfBlocked(); InterpreterModel.shared.liveUpdate() }
+        }
+        // Gerät gesperrt: Live-Aktivität ohne Sätze.
+        NotificationCenter.default.addObserver(forName: UIApplication.protectedDataWillBecomeUnavailableNotification,
+                                               object: nil, queue: .main) { _ in
+            Task { @MainActor in InterpreterModel.shared.liveUpdate(locked: true) }
         }
         NotificationCenter.default.addObserver(forName: ProcessInfo.thermalStateDidChangeNotification,
                                                object: nil, queue: .main) { _ in
@@ -1190,20 +1198,23 @@ final class InterpreterModel {
     }
 
     /// Live-Aktivität (Sperrbildschirm, Dynamic Island) auf den aktuellen Stand bringen.
-    func liveUpdate() {
+    func liveUpdate(locked: Bool? = nil) {
         guard liveActivity, isListening else {
             if !liveActivity { LiveActivityController.shared.end() }
             return
         }
         let last = visibleEntries.last { $0.translation != nil }
+        let isLocked = locked ?? !UIApplication.shared.isProtectedDataAvailable
         let status: ListeningActivityAttributes.Status = paused ? .paused
             : speakingID != nil ? .speaking
             : (pushToTalk && !pttHeld) ? .ready
             : hearing ? .hearing : .listening
-        let state = ListeningActivityAttributes.ContentState(
+        var state = ListeningActivityAttributes.ContentState(
             status: status, statusText: liveStatusText(status),
-            source: last?.text ?? "", translation: last?.translation ?? "",
+            source: LivePrivacy.text(last?.text, locked: isLocked),
+            translation: LivePrivacy.text(last?.translation, locked: isLocked),
             srcFlag: last?.src.flag ?? pair.mine.flag, dstFlag: last?.target.flag ?? pair.partner.flag)
+        state.hidden = isLocked ? true : nil
         LiveActivityController.shared.update(state, pair: "\(pair.mine.flag) ⇄ \(pair.partner.flag)")
     }
 

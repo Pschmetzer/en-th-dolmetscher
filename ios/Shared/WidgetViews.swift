@@ -81,9 +81,12 @@ struct StopButton: View {
 struct LastSentence: View {
     let state: ListeningActivityAttributes.ContentState
     var lines = 3
+    @Environment(\.redactionReasons) private var redaction
 
     var body: some View {
-        if state.translation.isEmpty {
+        if redaction.contains(.privacy) || state.hidden == true {
+            Text(WidgetTexts.text("w_hidden")).font(.subheadline).foregroundStyle(.secondary)
+        } else if state.translation.isEmpty {
             Text(WidgetTexts.text("w_waiting")).font(.subheadline).foregroundStyle(.secondary)
         } else {
             VStack(alignment: .leading, spacing: 2) {
@@ -91,6 +94,8 @@ struct LastSentence: View {
                 Text("\(state.srcFlag) \(state.source)").font(.caption).foregroundStyle(.secondary).lineLimit(1)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            // Gesperrtes Gerät: das System verdeckt die Sätze (die App schickt dann ohnehin keine).
+            .privacySensitive()
         }
     }
 }

@@ -153,7 +153,7 @@ struct SettingsView: View {
                 Text(T("sens_normal")).tag(Sensitivity.normal)
                 Text(T("sens_loud")).tag(Sensitivity.loud)
             }
-        } header: { Text(T("sec_listening")) } footer: { Text(T("listening_note") + "\n" + T("sensitivity_note")) }
+        } header: { Text(T("sec_listening")) } footer: { Text(T("listening_note") + "\n" + T("sensitivity_note") + "\n" + T("live_activity_note")) }
     }
 
     private var translationSection: some View {
