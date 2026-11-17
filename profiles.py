@@ -762,7 +762,7 @@ def enroll(name, lang, record_one, transcribe, emit, spk=None):
         for attempt in range(3):                  # bis zu 3 Versuche pro Satz
             audio = record_one()
             if audio is None or audio.size < ENROLL_MIN_SECONDS * SR:
-                emit("enroll_retry", i=i, reason="zu kurz")
+                emit("enroll_retry", i=i, reason="zu kurz", code="too_short")
                 continue
             hyp = transcribe(audio, lang)
             er = error_rate(sent, hyp, lang)
@@ -774,9 +774,9 @@ def enroll(name, lang, record_one, transcribe, emit, spk=None):
             other = min((error_rate(o, hyp, lang) for o in sents if o != sent), default=1.0)
             if er <= 0.85 and not other < er - 0.2:
                 break
-            emit("enroll_retry", i=i, reason="anderer Satz gehört")
+            emit("enroll_retry", i=i, reason="anderer Satz gehört", code="other_sentence")
         if best is None:                          # Satz übersprungen; Gesamtergebnis zählt unten
-            emit("enroll_retry", i=i, reason="übersprungen")
+            emit("enroll_retry", i=i, reason="übersprungen", code="skipped")
             continue
         er, audio, hyp = best
         e = spk.embed(audio)
@@ -785,11 +785,12 @@ def enroll(name, lang, record_one, transcribe, emit, spk=None):
             auds.append(audio)
         rows.append({"ref": sent, "hyp": hyp, "err": round(min(er, 1.0), 3)})
     if len(embs) < ENROLL_MIN_USABLE:
-        emit("enroll_failed", reason="zu wenige brauchbare Aufnahmen")
+        emit("enroll_failed", reason="zu wenige brauchbare Aufnahmen", code="too_few")
         return None
     keep = _drop_outliers(embs)
     if len(keep) < ENROLL_MIN_USABLE:
-        emit("enroll_failed", reason="zu wenige brauchbare Aufnahmen (Stimme uneinheitlich)")
+        emit("enroll_failed", reason="zu wenige brauchbare Aufnahmen (Stimme uneinheitlich)",
+             code="inconsistent")
         return None
     embs, auds = [embs[k] for k in keep], [auds[k] for k in keep]
     e = np.mean(embs, axis=0)

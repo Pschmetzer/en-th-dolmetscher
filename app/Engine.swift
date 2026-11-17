@@ -244,6 +244,18 @@ final class EngineModel: NSObject, ObservableObject {
     @Published var earcons = ud.bool(forKey: "earcons") { didSet { Self.ud.set(earcons, forKey: "earcons"); send(["earcons": earcons]) } }
     /// „Langsam und deutlich“: langsamere Ausgabe, einfachere Wortwahl (Claude), nie überspringen.
     @Published var slowMode = ud.bool(forKey: "slowMode") { didSet { Self.ud.set(slowMode, forKey: "slowMode"); send(["slow": slowMode]) } }
+    /// Nr. 69: „Ausreden lassen“ – Sekunden Ruhe nach dem Satzende, bevor vorgelesen wird (0 = aus).
+    @Published var letFinish = ud.double(forKey: "letFinish") {
+        didSet { Self.ud.set(letFinish, forKey: "letFinish"); send(["let_finish": letFinish]) }
+    }
+    /// Nr. 171: Rückstand – "skip" (schneller + überspringen), "fast" (nur schneller), "off".
+    @Published var catchUp = ud.string(forKey: "catchUp") ?? "skip" {
+        didSet { Self.ud.set(catchUp, forKey: "catchUp"); send(["catch_up": catchUp]) }
+    }
+    /// Nr. 176: Beam-Breite der Erkennung (0 = automatisch: Umgebung/Hardware-Profil, 1 schnell … 5 genau).
+    @Published var beam = ud.integer(forKey: "beam") {
+        didSet { Self.ud.set(beam, forKey: "beam"); send(["beam": beam]) }   // 0: Engine kehrt zum Startwert zurück
+    }
     /// Rückübersetzung klein unter der Übersetzung (Kontrolle, ob richtig verstanden).
     @Published var backTranslate = ud.bool(forKey: "backTranslate") {
         didSet { Self.ud.set(backTranslate, forKey: "backTranslate"); send(["back_translate": backTranslate]) }
@@ -385,6 +397,7 @@ final class EngineModel: NSObject, ObservableObject {
     private var restartWork: DispatchWorkItem?
     /// Auto-Neustart nach Absturz: Zähler (zurück auf 0 nach 60 s stabiler Laufzeit oder bei Start durch den Nutzer).
     private(set) var restartAttempts = 0
+    private var envBrokenReported = false   // Nr. 402: Engine meldete `python_env_broken` vor dem Beenden
     private static let maxRestartAttempts = 3
     private var backoffWork: DispatchWorkItem?
     private var loadSlowWork: DispatchWorkItem?
@@ -550,6 +563,8 @@ final class EngineModel: NSObject, ObservableObject {
         // Ohne eingerichtete Umgebung startet der Einrichtungs-Bildschirm die Engine danach selbst.
         if Paths.pythonIsFallback { status = L.t("python_missing"); return }
         startEngine()
+        // Nr. 377: Wunsch merken – gesendet wird `listen` erst nach `ready`
+        if Self.ud.bool(forKey: Prefs.listenOnLaunch) { startListening() }
     }
 
     /// Engine beenden und nicht neu starten (Einrichtung: Abbrechen bzw. vor dem Austausch der venv).
@@ -712,6 +727,9 @@ final class EngineModel: NSObject, ObservableObject {
         if llm { args.append("--llm") }
         if earcons { args.append("--earcons") }
         if slowMode { args.append("--slow") }
+        if letFinish > 0 { args += ["--let-finish", String(letFinish)] }
+        if catchUp != "skip" { args += ["--catch-up", catchUp] }
+        if beam > 0 { args += ["--beam", String(beam)] }
         if backTranslate { args.append("--back-translate") }
         if !learnGlossary { args.append("--no-learn-glossary") }
         if history { args.append("--history") }
@@ -877,8 +895,9 @@ final class EngineModel: NSObject, ObservableObject {
         loadSlowWork?.cancel(); loadSlowWork = nil; loadSlow = false
         resetRuntime()
         let signaled = reason == .uncaughtSignal
-        let envBroken = !wasReady && (tail.contains("No module named") || tail.contains("ModuleNotFoundError")
-            || tail.contains("ImportError"))
+        let envBroken = envBrokenReported || (!wasReady && (tail.contains("No module named")
+            || tail.contains("ModuleNotFoundError") || tail.contains("ImportError")))   // Logsuche nur für alte Engines
+        envBrokenReported = false
         let message: String
         if envBroken { message = L.t("crash_env") }
         else if signaled && code == SIGKILL { message = L.t("crash_oom") }
@@ -1204,6 +1223,7 @@ final class EngineModel: NSObject, ObservableObject {
         case "error":
             let code = o["code"] as? String, raw = o["msg"] as? String
             if code == "model_offline" { modelOffline = true; download = nil }
+            if code == "python_env_broken" { envBrokenReported = true }   // Nr. 402: Code statt Logsuche
             var msg = Self.errorText(code: code, msg: raw)
             if let s = (o["retry_in_s"] as? NSNumber)?.intValue, s > 0 { msg += " " + L.f("retry_in", s) }   // Nr. 66
             status = "⚠️ " + msg
@@ -1297,7 +1317,7 @@ final class EngineModel: NSObject, ObservableObject {
         "mic_timeout": "err_mic_timeout", "mic_failed": "err_mic_failed", "mic_not_found": "err_mic_not_found",
         "output_not_found": "err_output_not_found", "output_unsupported": "err_output_unsupported",
         "output_invalid": "err_output_not_found", "offline_mt_missing": "err_offline_mt_missing",
-        "preset_invalid": "err_preset_invalid", "vad_failed": "err_vad_failed",
+        "preset_invalid": "err_preset_invalid", "vad_failed": "err_vad_failed", "python_env_broken": "crash_env",
         "profile_name_invalid": "err_profile_name_invalid", "profile_invalid": "err_profile_invalid",
         "profile_not_found": "err_profile_not_found", "profile_delete_failed": "err_profile_delete_failed",
         "history_failed": "err_history_failed", "history_days_invalid": "err_history_days_invalid",
@@ -1331,6 +1351,14 @@ final class EngineModel: NSObject, ObservableObject {
     /// Nr. 364: so viele alte Blasen sind seit dem letzten Leeren weggefallen (Export-Hinweis).
     @Published private(set) var trimmedCount = 0
     func resetTrimmed() { trimmedCount = 0 }
+    /// Nr. 383: einzelne Blase löschen (Fehlerkennung, Datenschutz). Läuft sie gerade, wird das Vorlesen beendet.
+    /// Nur in der App: der Verlauf (falls an) und der Gesprächskontext der Engine bleiben, bis „Alles löschen“.
+    func deleteItem(_ u: Utterance) {
+        if u.id == replayingID || (u.uid.map { speakingIDs.contains($0) } ?? false) { stopSpeaking() }
+        items.removeAll { $0.id == u.id }
+        indexCache.removeAll()
+        Announcer.post(L.t("bubble_deleted"))
+    }
     private func trimItems() {
         let excess = items.count - Self.maxItems
         guard excess > 0 else { return }
@@ -1686,7 +1714,7 @@ final class EngineModel: NSObject, ObservableObject {
         mineLang = Langs.defaultMine; partnerLang = Langs.defaultPartner; trByLang = [:]; voiceByLang = [:]
         rate = 0; volume = 1.0; voiceEN = ""; voiceTH = ""
         silence = 0.8; sensitivity = "normal"; earcons = false; llmStyle = "casual"; llm = true
-        slowMode = false; backTranslate = false; learnGlossary = true
+        slowMode = false; backTranslate = false; learnGlossary = true; letFinish = 0; catchUp = "skip"; beam = 0
         ttsRace = 1.4; fastEndpoint = false; twoPerson = true; partialText = false
         llmModel = "claude-haiku-5-5"; mic = ""; micName = ""; denoise = false; logText = false
         offlineMT = Paths.bundledTranslateHelper != nil; privateMode = false

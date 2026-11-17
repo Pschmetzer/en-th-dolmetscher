@@ -13,12 +13,13 @@ enum Prefs {
     static let showMenuBar = "showMenuBar"
     static let spaceToggle = "spaceToggle"
     static let announce = "announceTranslations"
+    static let listenOnLaunch = "listenOnLaunch"   // Nr. 377: beim App-Start gleich zuhören
     static let fontRange = 0.6...2.5
     /// Kennung des Hauptfensters (Leertaste-Kürzel, Scroll-Überwachung).
     static let mainWindowID = NSUserInterfaceItemIdentifier("dolmetscher.main")
     /// Schlüssel, die „Alle Einstellungen zurücksetzen“ löscht (Willkommensseite und Sprache bleiben bzw. werden gesetzt).
     static let resettableKeys = [fontScale, alwaysOnTop, showDetails, translit, showQuick, quickPhrases,
-                                 showMenuBar, spaceToggle, announce]
+                                 showMenuBar, spaceToggle, announce, listenOnLaunch]
 
     /// Schnellsätze beim ersten Start: englische Sätze (werden ins Thai übersetzt) und thailändische (ins Englische).
     /// Wer die Liste später leert, behält sie leer; nur ein nie gespeicherter Schlüssel zeigt diese Standardliste.
@@ -69,6 +70,13 @@ enum LangStyle {
     private static let blue = adaptive(light: 0x1D4ED8, lightHC: 0x1E3A8A, dark: 0x6EA8FF, darkHC: 0x9CC2FF)
     /// Warnhinweise (kleiner Text auf getönter Blase).
     static let warning = adaptive(light: 0xB45309, lightHC: 0x8A3F06, dark: 0xFFA94D, darkHC: 0xFFC285)
+    /// Nr. 370: „gut“-Grün für Text und Pegel (System-Grün hat auf hellem Grund nur ~2,3:1).
+    static let success = adaptive(light: 0x15803D, lightHC: 0x14532D, dark: 0x4ADE80, darkHC: 0x86EFAC)
+    /// Nr. 371: feste, dunkle Füllfarben für Knöpfe mit weißer Schrift (≥ 4,5:1 in beiden Modi).
+    static let fillGreen = Color(nsColor: rgb(0x15803D))
+    static let fillOrange = Color(nsColor: rgb(0xB45309))
+    static let fillRed = Color(nsColor: rgb(0xB91C1C))
+    static let fillBlue = Color(nsColor: rgb(0x1D4ED8))
 
     /// Farbe nach Seite: Partnersprache orange, meine Sprache blau (Standard: Thai orange, Englisch blau).
     static func color(_ lang: String) -> Color { Langs.isMine(lang) ? blue : orange }
@@ -447,10 +455,17 @@ struct EmptyState: View {
             } else {
                 Text(L.t("empty")).foregroundStyle(.secondary)
             }
-            Text(L.t("empty_example"))
-                .scaledFont(15)
-                .padding(.horizontal, 14).padding(.vertical, 8)
-                .background(Color.secondary.opacity(0.1), in: Capsule())
+            // Nr. 399: Beispielsatz anklickbar – Probe-Übersetzung prüft Übersetzung und Lautsprecher ohne Mikrofon
+            Button { m.say("Where is the toilet?", lang: "en") } label: {
+                Label(L.t("empty_example"), systemImage: "play.circle")
+                    .scaledFont(15)
+                    .padding(.horizontal, 14).padding(.vertical, 8)
+                    .background(Color.secondary.opacity(0.1), in: Capsule())
+            }
+            .buttonStyle(.plain)
+            .disabled(!m.engineReady || !(m.mineLang == "en" || m.partnerLang == "en"))
+            .help(L.t("empty_example_help"))
+            .accessibilityHint(L.t("empty_example_help"))
             CommandsList()
                 .padding(16)
                 .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 14))
@@ -506,7 +521,7 @@ struct MainToolbar: View {
             .font(.title2.bold()).frame(minWidth: 110, minHeight: 34).padding(.horizontal, 6)
         }
         .buttonStyle(.borderedProminent)
-        .tint(queued ? .orange : m.active ? .red : .green)
+        .tint(queued ? LangStyle.fillOrange : m.active ? LangStyle.fillRed : LangStyle.fillGreen)   // Nr. 371
         .accessibilityLabel(m.active ? L.t("stop_engine") : L.t("start_engine"))
         .accessibilityValue(stateText)
         .accessibilityHint(L.t(spaceToggle ? "start_hint" : "start_hint_nospace"))
@@ -588,6 +603,15 @@ struct ConversationBar: View {
             .help(L.t("speak_toggle"))
             .accessibilityLabel(L.t("speak_toggle"))
             .accessibilityValue(m.speak ? L.t("on") : L.t("off"))
+            if m.mineLang == "th" || m.partnerLang == "th" {   // Nr. 374: Höflichkeitsform direkt im Hauptfenster
+                Picker(L.t("polite_label"), selection: $m.polite) {
+                    Text("ครับ").tag("krub")
+                    Text("ค่ะ").tag("ka")
+                }
+                .pickerStyle(.segmented).labelsHidden().fixedSize()
+                .help(L.t("polite_a11y"))
+                .accessibilityLabel(L.t("polite_a11y"))
+            }
             TextField(L.t("type_prompt"), text: $draft)
                 .textFieldStyle(.roundedBorder)
                 .focused($typing)
@@ -693,7 +717,7 @@ struct LatencyBadge: View {
     var body: some View {
         let text = "⏱ " + fmtSeconds(median)
         // bis 2 s fühlt sich das Gespräch flüssig an, ab 4 s stockt es (Zahl steht immer dabei, nicht nur Farbe)
-        let color: Color = median <= 2 ? .green : median <= 4 ? .secondary : LangStyle.warning
+        let color: Color = median <= 2 ? LangStyle.success : median <= 4 ? .secondary : LangStyle.warning
         Text(text)
             .font(.caption).monospacedDigit().foregroundStyle(color)
             .help(L.t("latency_help"))
@@ -714,7 +738,7 @@ struct LevelBar: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             Capsule().fill(Color.secondary.opacity(0.2))
-            Capsule().fill(meter.voice ? Color.green : Color.secondary)
+            Capsule().fill(meter.voice ? LangStyle.success : Color.secondary)
                 .frame(height: max(2, 22 * meter.rms))
         }
         .frame(width: 6, height: 22)
@@ -818,7 +842,7 @@ struct PushToTalkButton: View {
             .font(.title2.bold())
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity, minHeight: 60)
-            .background(holding ? Color.red : Color.accentColor, in: RoundedRectangle(cornerRadius: 14))
+            .background(holding ? LangStyle.fillRed : LangStyle.fillBlue, in: RoundedRectangle(cornerRadius: 14))
             .contentShape(RoundedRectangle(cornerRadius: 14))
             .gesture(DragGesture(minimumDistance: 0)
                 .onChanged { _ in m.pttDown() }

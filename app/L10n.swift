@@ -31,8 +31,10 @@ enum L {
         let ud = UserDefaults.standard
         if ud.string(forKey: key) == nil { ud.set(defaultCode, forKey: key) }   // @AppStorage und L sind so immer einig
         cached = UILang(rawValue: ud.string(forKey: key) ?? "") ?? UILang(rawValue: defaultCode) ?? .en
-        NotificationCenter.default.addObserver(forName: UserDefaults.didChangeNotification, object: nil, queue: nil) { _ in
-            sync(UserDefaults.standard.string(forKey: key) ?? "")
+        // Nr. 380: auf dem Haupt-Thread (kein Datenrennen um `cached`); sync() tut nur bei geänderter Sprache etwas
+        NotificationCenter.default.addObserver(forName: UserDefaults.didChangeNotification, object: nil, queue: .main) { _ in
+            let code = UserDefaults.standard.string(forKey: key) ?? ""
+            if code != cached.rawValue { sync(code) }
         }
     }
 
@@ -330,9 +332,9 @@ enum L {
         "restart_note": ["de": "Änderung lädt die Engine neu", "en": "Changing this reloads the engine",
                          "th": "การเปลี่ยนจะโหลดเครื่องแปลใหม่"],
         "font_size": ["de": "Schriftgröße", "en": "Font size", "th": "ขนาดตัวอักษร"],
-        "hotkeys_note": ["de": "Globale Tastenkürzel: ⌃⌥D Start/Stopp, ⌃⌥P Pause/Fortsetzen, ⌃⌥T halten = sprechen (Push-to-Talk)",
-                         "en": "Global shortcuts: ⌃⌥D start/stop, ⌃⌥P pause/resume, hold ⌃⌥T to talk (push-to-talk)",
-                         "th": "ปุ่มลัด: ⌃⌥D เริ่ม/หยุด, ⌃⌥P หยุดชั่วคราว/ทำต่อ, กด ⌃⌥T ค้างไว้เพื่อพูด (กดค้างเพื่อพูด)"],
+        "hotkeys_note": ["de": "Globale Tastenkürzel: ⌃⌥D Start/Stopp, ⌃⌥P Pause/Fortsetzen, ⌃⌥S Vorlesen abbrechen, ⌃⌥R letzte nochmal, ⌃⌥T halten = sprechen (Push-to-Talk)",
+                         "en": "Global shortcuts: ⌃⌥D start/stop, ⌃⌥P pause/resume, ⌃⌥S stop speaking, ⌃⌥R repeat last, hold ⌃⌥T to talk (push-to-talk)",
+                         "th": "ปุ่มลัด: ⌃⌥D เริ่ม/หยุด, ⌃⌥P หยุดชั่วคราว/ทำต่อ, ⌃⌥S หยุดอ่าน, ⌃⌥R พูดประโยคล่าสุดอีกครั้ง, กด ⌃⌥T ค้างไว้เพื่อพูด (กดค้างเพื่อพูด)"],
         // Tempo-Ausbau
         "then_start": ["de": "– startet danach", "en": "– starts afterwards", "th": "– จะเริ่มหลังจากนั้น"],
         "ready_press_start": ["de": "Bereit – Start drücken", "en": "Ready – press Start", "th": "พร้อมแล้ว – กดเริ่ม"],
@@ -912,5 +914,39 @@ enum L {
         "profile_polite_help": ["de": "Spricht diese Person, endet ihre Thai-Übersetzung mit ihrer eigenen Form (ครับ/ค่ะ)",
                "en": "When this person speaks, the Thai translation uses their own form (ครับ/ค่ะ)",
                "th": "เมื่อคนนี้พูด คำแปลภาษาไทยจะใช้คำลงท้ายของเขาเอง (ครับ/ค่ะ)"],
+        // Runde 6 (Ideenliste)
+        "menu_state_problem": ["de": "Problem – Fenster öffnen", "en": "Problem – open the window", "th": "มีปัญหา – เปิดหน้าต่าง"],
+        "menu_state_loading": ["de": "Lädt …", "en": "Loading …", "th": "กำลังโหลด …"],
+        "menu_state_offline": ["de": "ohne Internet", "en": "offline", "th": "ไม่มีอินเทอร์เน็ต"],
+        "listen_on_launch": ["de": "Beim Start gleich zuhören", "en": "Start listening on launch", "th": "เริ่มฟังทันทีเมื่อเปิดแอป"],
+        "listen_on_launch_help": ["de": "Das Mikrofon geht an, sobald die Modelle geladen sind", "en": "The microphone turns on as soon as the models are loaded", "th": "ไมโครโฟนจะเปิดทันทีที่โหลดโมเดลเสร็จ"],
+        "login_item": ["de": "Beim Anmelden starten", "en": "Open at login", "th": "เปิดเมื่อเข้าสู่ระบบ"],
+        "login_item_approve": ["de": "Bitte in Systemeinstellungen > Allgemein > Anmeldeobjekte erlauben", "en": "Please allow it in System Settings > General > Login Items", "th": "กรุณาอนุญาตในการตั้งค่าระบบ > ทั่วไป > รายการเข้าสู่ระบบ"],
+        "login_item_failed": ["de": "Nicht möglich:", "en": "Not possible:", "th": "ทำไม่ได้:"],
+        "delete_bubble": ["de": "Diese Blase löschen", "en": "Delete this bubble", "th": "ลบข้อความนี้"],
+        "bubble_deleted": ["de": "Blase gelöscht", "en": "Bubble deleted", "th": "ลบข้อความแล้ว"],
+        "alt_suggestions": ["de": "Andere Lesarten (anklicken zum Übernehmen):", "en": "Other readings (click to use):", "th": "คำที่อาจได้ยิน (คลิกเพื่อใช้):"],
+        "partner_rotate": ["de": "Ansicht um 180° drehen (Gegenüber am Tisch)", "en": "Rotate view 180° (person across the table)", "th": "หมุนจอ 180° (คนที่นั่งตรงข้าม)"],
+        "empty_example_help": ["de": "Klicken: Probe-Übersetzung – prüft Übersetzung und Lautsprecher", "en": "Click: test translation – checks translation and speaker", "th": "คลิก: ทดลองแปล – ตรวจการแปลและลำโพง"],
+        "mic_level_off": ["de": "Pegel erscheint, sobald zugehört wird", "en": "Level shows while listening", "th": "ระดับเสียงจะแสดงขณะกำลังฟัง"],
+        "vocab_save_failed": ["de": "Wörter nicht gespeichert – Eingabe bleibt erhalten", "en": "Words not saved – your input is kept", "th": "บันทึกคำไม่สำเร็จ – ข้อความที่พิมพ์ยังอยู่"],
+        "enroll_too_short": ["de": "zu kurz", "en": "too short", "th": "สั้นเกินไป"],
+        "enroll_other_sentence": ["de": "anderer Satz gehört", "en": "heard a different sentence", "th": "ได้ยินประโยคอื่น"],
+        "enroll_skipped": ["de": "Satz übersprungen", "en": "sentence skipped", "th": "ข้ามประโยคนี้"],
+        "enroll_too_few": ["de": "Zu wenige brauchbare Aufnahmen", "en": "Too few usable recordings", "th": "เสียงที่ใช้ได้น้อยเกินไป"],
+        "enroll_inconsistent": ["de": "Zu wenige brauchbare Aufnahmen (Stimme uneinheitlich)", "en": "Too few usable recordings (voice inconsistent)", "th": "เสียงที่ใช้ได้น้อยเกินไป (เสียงไม่สม่ำเสมอ)"],
+        "let_finish": ["de": "Ausreden lassen", "en": "Let them finish", "th": "รอให้พูดจบ"],
+        "let_finish_help": ["de": "Nach dem Satzende so lange Ruhe abwarten, bevor vorgelesen wird – unterbricht nicht bei kurzen Denkpausen", "en": "Wait this long after a sentence ends before speaking – avoids interrupting short pauses", "th": "รอความเงียบตามเวลานี้หลังจบประโยคก่อนอ่านออกเสียง – ไม่ขัดจังหวะเวลาหยุดคิดสั้นๆ"],
+        "catch_up": ["de": "Bei Rückstand", "en": "When falling behind", "th": "เมื่อแปลตามไม่ทัน"],
+        "catch_up_help": ["de": "Was passiert, wenn mehrere Übersetzungen warten", "en": "What happens when several translations are waiting", "th": "สิ่งที่เกิดขึ้นเมื่อมีคำแปลรออยู่หลายประโยค"],
+        "catch_up_skip": ["de": "Schneller sprechen und alte überspringen", "en": "Speak faster and skip old ones", "th": "พูดเร็วขึ้นและข้ามประโยคเก่า"],
+        "catch_up_fast": ["de": "Nur schneller sprechen, nie überspringen", "en": "Only speak faster, never skip", "th": "พูดเร็วขึ้นเท่านั้น ไม่ข้าม"],
+        "catch_up_off": ["de": "Normal weitersprechen", "en": "Keep normal pace", "th": "พูดตามปกติ"],
+        "beam": ["de": "Erkennung", "en": "Recognition", "th": "การจดจำเสียง"],
+        "beam_help": ["de": "Schnell = kürzere Wartezeit, Genau = weniger Erkennungsfehler (wirkt sofort)", "en": "Fast = shorter wait, Accurate = fewer recognition errors (applies immediately)", "th": "เร็ว = รอน้อยลง, แม่นยำ = จดจำผิดน้อยลง (มีผลทันที)"],
+        "beam_auto": ["de": "Automatisch", "en": "Automatic", "th": "อัตโนมัติ"],
+        "beam_fast": ["de": "Schnell", "en": "Fast", "th": "เร็ว"],
+        "beam_balanced": ["de": "Ausgewogen", "en": "Balanced", "th": "สมดุล"],
+        "beam_accurate": ["de": "Genau", "en": "Accurate", "th": "แม่นยำ"],
     ]
 }

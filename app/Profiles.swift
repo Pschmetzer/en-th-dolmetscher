@@ -239,9 +239,22 @@ final class ProfilesModel: ObservableObject {
         })
     }
 
-    func saveVocab(_ p: VoiceProfile, _ text: String) {
-        _ = EngineRunner.run([], request: ["vocab": [p.name, text]], timeout: 30, onEvent: { _ in },
-                             onExit: { [weak self] in self?.reload() })
+    /// Nr. 396: `onDone(true)` erst nach `profile_saved`; bei Fehlschlag `false` – die Eingabe bleibt dann stehen.
+    func saveVocab(_ p: VoiceProfile, _ text: String, onDone: @escaping (Bool) -> Void = { _ in }) {
+        var ok = false
+        let started = EngineRunner.run([], request: ["vocab": [p.name, text]], timeout: 30, onEvent: { [weak self] o in
+            guard o["event"] as? String == "profile_saved" else { return }
+            ok = true
+            // gespeicherten Stand sofort zeigen, nicht erst nach reload() (Feld sprang sonst kurz zurück)
+            if let d = o["profile"] as? [String: Any], let self {
+                let np = Self.parse(d)
+                if let i = self.profiles.firstIndex(where: { $0.name == np.name }) { self.profiles[i] = np }
+            }
+        }, onExit: { [weak self] in
+            self?.reload()
+            onDone(ok)
+        })
+        if started == nil { onDone(false) }
     }
 
     /// Thai-Profil -> Assistent auf Thai; sonst App-Sprache (Englisch, falls die App auf Thai steht).
@@ -275,16 +288,32 @@ final class ProfilesModel: ObservableObject {
 
     func cancel() { proc?.terminate(); proc = nil; enrolling = false }
 
+    /// Nr. 420: Codes aus `enroll_retry`/`enroll_failed` -> L10n-Schlüssel.
+    static let retryKeys = ["too_short": "enroll_too_short", "other_sentence": "enroll_other_sentence",
+                            "skipped": "enroll_skipped"]
+    static let failKeys = ["too_few": "enroll_too_few", "inconsistent": "enroll_inconsistent"]
+
     private func handle(_ o: [String: Any]) {
         switch o["event"] as? String {
         case "enroll_prompt":
             step = o["i"] as? Int ?? step; steps = o["n"] as? Int ?? steps
             sentence = o["sentence"] as? String ?? ""; heard = ""; hint = L.t("tip_quiet", forced)
+            // Nr. 398: VoiceOver sagt den nächsten Satz an (sonst ändert er sich still)
+            Announcer.post("\(L.t("sentence", forced)) \(step) \(L.t("of", forced)) \(steps): \(sentence)", force: true)
         case "hearing": hint = "👂 …"
-        case "enroll_heard": heard = o["heard"] as? String ?? ""
-        case "enroll_retry": hint = L.t("again", forced)
-        case "enroll_failed": failed = o["reason"] as? String ?? "?"
-        case "enroll_done": if let p = o["profile"] as? [String: Any] { finished = Self.parse(p) }
+        case "enroll_heard":
+            heard = o["heard"] as? String ?? ""
+            Announcer.post(L.t("heard", forced) + " " + heard, force: true)
+        case "enroll_retry":
+            // Nr. 420: Grund in der Sprache des Assistenten (Engine liefert `code`, `reason` bleibt deutsch fürs Log)
+            hint = L.t("again", forced) + (Self.retryKeys[o["code"] as? String ?? ""].map { " – " + L.t($0, forced) } ?? "")
+            Announcer.post(hint, force: true)
+        case "enroll_failed":
+            failed = Self.failKeys[o["code"] as? String ?? ""].map { L.t($0, forced) } ?? (o["reason"] as? String ?? "?")
+            Announcer.post(L.t("failed", forced) + ": " + (failed ?? ""), force: true)
+        case "enroll_done":
+            if let p = o["profile"] as? [String: Any] { finished = Self.parse(p) }
+            Announcer.post(L.t("done", forced), force: true)
         case "error": failed = EngineModel.errorText(code: o["code"] as? String, msg: o["msg"] as? String)
         default: break
         }
@@ -299,6 +328,8 @@ struct ProfilesView: View {
     @State private var newName = ""
     @State private var newLang = "th"
     @State private var vocabEdit: [String: String] = [:]
+    @State private var vocabSaving: Set<String> = []
+    @State private var vocabError: [String: String] = [:]
     @State private var confirmDelete: VoiceProfile?
     @State private var confirmDeleteAll = false
     /// Neues Profil trägt (bereinigt) den Namen eines vorhandenen: erst fragen, dann ersetzen.
@@ -406,8 +437,19 @@ struct ProfilesView: View {
                 TextField(L.t("vocab"), text: Binding(
                     get: { vocabEdit[p.name] ?? p.vocab.joined(separator: ", ") },
                     set: { vocabEdit[p.name] = $0 }))
-                Button(L.t("save")) { pm.saveVocab(p, vocabEdit[p.name] ?? ""); vocabEdit[p.name] = nil }
-                    .disabled(vocabEdit[p.name] == nil)
+                Button(L.t("save")) {
+                    // Nr. 396: Eingabe erst nach Erfolg verwerfen; bei Fehler bleibt sie stehen, mit Meldung
+                    let name = p.name, text = vocabEdit[name] ?? ""
+                    vocabSaving.insert(name); vocabError[name] = nil
+                    pm.saveVocab(p, text) { ok in
+                        vocabSaving.remove(name)
+                        if ok { if vocabEdit[name] == text { vocabEdit[name] = nil } } else { vocabError[name] = L.t("vocab_save_failed") }
+                    }
+                }
+                .disabled(vocabEdit[p.name] == nil || vocabSaving.contains(p.name))
+            }
+            if let err = vocabError[p.name] {
+                Label(err, systemImage: "exclamationmark.triangle").font(.caption).foregroundStyle(LangStyle.warning)
             }
             Picker(L.t("profile_polite"), selection: Binding(
                 get: { p.polite ?? "" }, set: { pm.savePolite(p, $0) })) {
@@ -437,7 +479,7 @@ struct EnrollView: View {
         VStack(spacing: 22) {
             if let p = pm.finished {
                 Spacer()
-                Text("✅").font(.system(size: 64))
+                Text("✅").font(.system(size: 64)).accessibilityHidden(true)   // Nr. 398: Status steht im Text
                 Text(L.t("done", f)).font(.largeTitle.bold())
                 if let e = p.errorRate {
                     Text("\(Int(max(0, 1 - e) * 100)) % \(L.t("understood", f))").font(.title2)
@@ -447,6 +489,7 @@ struct EnrollView: View {
             } else if let err = pm.failed {
                 Spacer()
                 Text("⚠️ " + L.t("failed", f)).font(.title.bold())
+                    .accessibilityLabel(L.t("failed", f))
                 Text(err).foregroundStyle(.secondary)
                 Spacer()
                 Button(L.t("close", f)) { pm.enrolling = false }.controlSize(.large)
