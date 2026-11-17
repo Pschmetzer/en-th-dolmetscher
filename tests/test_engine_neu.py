@@ -187,7 +187,7 @@ def test_speaker_skips_when_far_behind(monkeypatch, _iso):
 
 
 def test_speaker_flush_reports_skipped(monkeypatch, _iso):
-    gate = threading.Event()
+    gate, started = threading.Event(), threading.Event()
 
     class E:
         tts, mute, rate, volume = "say", False, 0, 1.0
@@ -196,10 +196,11 @@ def test_speaker_flush_reports_skipped(monkeypatch, _iso):
             return "x"
 
         def speak(self, *a, **k):
+            started.set()
             gate.wait(2)
     sp = d.Speaker(E())
     sp.add("a", "en", "a1")
-    time.sleep(0.05)
+    assert started.wait(5)                           # "a" wird gerade gesprochen (statt fester Wartezeit)
     sp.add("b", "en", "b1")
     assert sp.flush()
     gate.set()
@@ -320,7 +321,7 @@ def test_race_falls_back_to_prepared_local_voice(monkeypatch, tmp_path):
 
         def cancel(self):
             pass
-    local = types.SimpleNamespace(voice="Samantha", ready_path=lambda timeout=6.0: str(aiff))
+    local = types.SimpleNamespace(voice="Samantha", ready_path=lambda timeout=6.0, cancelled=None: str(aiff))
     started = []
     e = types.SimpleNamespace(mute=False, tts="edge", volume=1.0, rate=0)
     d.Engine.speak(e, "hi", "en", stream=SlowStream(), on_start=started.append, local=local)

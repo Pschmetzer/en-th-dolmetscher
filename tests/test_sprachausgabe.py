@@ -88,26 +88,36 @@ def test_clean_tmp_removes_own_dir_and_old_leftovers(tmpdir_iso):
 def test_local_voice_cleanup_removes_file_and_skips_render(monkeypatch, tmpdir_iso):
     calls = []
 
-    def fake_run(cmd, **kw):
+    def fake_run(cmd, **kw):                  # Runde 4, Nr. 170: abbrechbar über run_cancellable
         calls.append(cmd)
         open(cmd[cmd.index("-o") + 1], "wb").write(b"aiff")
-        return types.SimpleNamespace(returncode=0)
-    monkeypatch.setattr(d.subprocess, "run", fake_run)
+        return 0
+    monkeypatch.setattr(d, "run_cancellable", fake_run)
     lv = d.LocalVoice("hallo", "Samantha", 0)
-    assert lv.ready_path(2) and os.path.exists(lv.path)
+    assert lv.ready_path(10) and os.path.exists(lv.path)
     lv.cleanup()
-    t = time.time()
-    while os.path.exists(lv.path) and time.time() - t < 2:
+    t = time.monotonic()
+    while os.path.exists(lv.path) and time.monotonic() - t < 10:   # Aufräum-Thread; endet sofort nach dem Löschen
         time.sleep(0.01)
     assert not os.path.exists(lv.path)
+    # Großzügige Frist statt 0,4 s: der Neural-Ton (Timer 0,1 s) kommt auch auf langsamen Runnern sicher innerhalb
+    # der Frist. Die Aussage bleibt dieselbe: kommt der Ton während des Wartens, wird nicht gerendert.
+    monkeypatch.setattr(d.LocalVoice, "DELAY", 30)
     audio = threading.Event()
     threading.Timer(0.1, audio.set).start()                    # Neural-Ton kommt kurz danach -> nicht rendern
     lv2 = d.LocalVoice("hallo", "Samantha", 0, audio=audio)
-    assert lv2.ready_path(2) is None and len(calls) == 1
+    assert lv2.ready_path(10) is None and len(calls) == 1
+
+    class NeverWait(threading.Event):
+        """Offline darf gar nicht auf den Neural-Ton gewartet werden (statt einer Messung auf der echten Uhr)."""
+        waited = False
+
+        def wait(self, timeout=None):
+            NeverWait.waited = True
+            return super().wait(timeout)
     monkeypatch.setitem(d.NET, "tts", False)                   # offline: sofort rendern, nicht warten
-    t = time.time()
-    lv3 = d.LocalVoice("hallo", "Samantha", 0, audio=threading.Event())
-    assert lv3.ready_path(2) and time.time() - t < d.LocalVoice.DELAY and len(calls) == 2
+    lv3 = d.LocalVoice("hallo", "Samantha", 0, audio=NeverWait())
+    assert lv3.ready_path(10) and len(calls) == 2 and not NeverWait.waited
     lv3.cleanup()
 
 

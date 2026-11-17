@@ -40,6 +40,8 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `--model small\|medium\|best\|auto` | `medium` | Erkennungsmodell; `best` = large-v3-turbo + Thai-Modell, `auto` nach Chip/RAM (Ereignis `hwprofile`) |
 | `--device auto\|mps\|cpu` | `auto` | Rechengerät (Apple-GPU, sonst CPU) |
 | `--mic INDEX\|NAME\|default` | `0` | Mikrofon: Index aus `--list-mics`, besser der **Name** (Indizes verschieben sich, sobald AirPods/USB-Mikros dazukommen; der Name wird erst beim Öffnen auf den aktuellen Index abgebildet). Unbekannter Name: `error` `mic_not_found`, Standardmikrofon |
+| `--output-device UID\|NAME\|INDEX` | `` | Ausgabegerät für alle Sprachausgaben (CoreAudio-UID bevorzugt, sonst Name oder Index; leer = Systemstandard). Unbekannt: `error` `output_not_found`, Systemstandard |
+| `--offline-translator [PFAD]` | | Offline-Übersetzung ohne Netz über `translate-helper` (Apple Translation, on-device): nur wenn Google/MyMemory wegen fehlenden Netzes scheitern und das Sprachpaar installiert ist (`provider: "apple"`, nicht gecacht). Ohne Pfad: `DOLMETSCHER_TRANSLATE_HELPER`, sonst `translate-helper` neben `dolmetscher.py`. Fehlt der Helfer: `error` `offline_mt_missing` |
 | `--list-mics` | | gibt `{"event":"mics","mics":[{"index":"0","name":"MacBook Pro Microphone"}]}` aus und beendet sich; bei Fehler (ffmpeg fehlt/hängt) zuerst `error` (`mic_list_failed`), dann `mics` mit leerer Liste |
 | `--polite krub\|ka` | `krub` | Höflichkeitswort/Stimme Thai |
 | `--langs MEINE,PARTNER` | `en,th` | Sprachpaar (siehe „Sprachpaar“) |
@@ -118,19 +120,23 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `thinking` | `id` | Äußerung `id` wird erkannt/übersetzt → Platzhalter-Blase |
 | `heard` | `id`, `lang`, `text`, `text_latin` (Thai, optional) | **neu:** erkannter Originaltext, sofort nach der Erkennung, noch vor der Übersetzung (Mikrofon und `reassign`). Die App füllt damit die Platzhalter-Blase; `utt` mit derselben `id` ergänzt die Übersetzung. Ältere Apps ignorieren das Ereignis |
 | `dropped` | `reason` (deutscher Freitext), `code` (stabil, siehe unten), `id`; bei `code` `unsure` zusätzlich `text`, `lang`, `lp`; bei `translate_failed` zusätzlich `text`, `lang` | Platzhalter `id` entfernen. Bei `unsure` kann die App den gehörten Text zeigen und „trotzdem übersetzen“ per `retranslate` anbieten, bei `translate_failed` „Erneut versuchen“ (ebenfalls `retranslate`) |
-| `utt` | `id`, `lang`, `to`, `text`, `out`, `stt`, `tr` (s), `lp` (Erkennungs-Konfidenz, log-prob, ≈ −0.1 sicher … −1.3 unsicher), `translated`, `provider` (`claude`\|`google`\|`mymemory`\|`none`), `speaker`, `replaces` (optional: id der korrigierten Blase), `source` (`mic`\|`phrase`\|`edit`\|`reassign`); optional: `text_latin`/`out_latin` (lesbare RTGS-Umschrift für Thai, nur mit pythainlp), `alts` (andere Lesarten), `role` (`me`\|`other`), `num_warn` (Ziffern weichen ab), `ready_s`, `suggest_vocab`. Ohne Übersetzung (Richtung abgeschaltet): `translated: false`, `provider: "none"`, `out` = `text`, kein `out_latin`, kein Vorlesen | |
+| `utt` | `id`, `lang`, `to`, `text`, `out`, `stt`, `tr` (s), `lp` (Erkennungs-Konfidenz, log-prob, ≈ −0.1 sicher … −1.3 unsicher), `translated`, `provider` (`claude`\|`google`\|`mymemory`\|`apple`\|`none`), `speaker`, `replaces` (optional: id der korrigierten Blase), `source` (`mic`\|`phrase`\|`edit`\|`reassign`); optional: `text_latin`/`out_latin` (lesbare RTGS-Umschrift für Thai, nur mit pythainlp), `alts` (andere Lesarten), `role` (`me`\|`other`), `num_warn` (Ziffern weichen ab), `ready_s`, `suggest_vocab`. Ohne Übersetzung (Richtung abgeschaltet): `translated: false`, `provider: "none"`, `out` = `text`, kein `out_latin`, kein Vorlesen | |
 | `speaking` | `id`, `first_s` (s bis zum ersten Ton) | nur wenn wirklich Ton kommt (nicht bei stumm, Überspringen, Abbruch vor dem ersten Ton); `id` = `"cmd"` bei Befehlsantworten und „repeat“ |
 | `speak_done` | `id`, `skipped` (bool), `interrupted` (bool), optional `partial` (true) | kommt für jede eingereihte Ausgabe **genau einmal**, auch ohne vorheriges `speaking`; `skipped`: wegen Rückstand/Stopp nicht vorgelesen; `partial`: Neural-Stimme riss mitten im Satz ab (nur teilweise vorgelesen, App kann Wiederholen anbieten) |
 | `queue` | `stt` (wartende Äußerungen), `tts` (wartende Ausgaben) | bei jeder Änderung |
 | `level` | `rms` (0…1, dBFS skaliert), `voice` (bool) | ~7×/s, nur mit `--meter` |
 | `net` | `ok` (bool), `what` (`translate`\|`tts`) | nur bei Zustandswechsel |
 | `command` | `text`, `reply`, `paused`, `lang`, `tr_en`, `tr_th`, `polite`, `rate`, `volume`, `voice_en`, `voice_th` (fehlende Sprache: `true`/`""`), `langs` (`{"mine", "partner"}`), `tr` und `voices` (Code → Wert, je Sprache des Paars); `clear` (true) nach „Translator, clear“ | App speichert `rate`/`volume` dauerhaft; bei `clear` Verlauf in der App leeren |
-| `error` | `msg` (deutscher Freitext), `code` (stabil, siehe unten; fehlt nur bei alten Meldungen) | |
+| `error` | `msg` (deutscher Freitext), `code` (stabil, siehe unten), bei `translate_failed` optional `retry_in_s` (s bis zum nächsten Online-Versuch, wenn alle Anbieter pausieren) | |
 | `barge_in` | | |
 | `mics` | `mics` (Liste `{index, name}`) | Antwort auf `--list-mics`; die App sollte den **Namen** speichern |
 | `profiles` | `profiles` (Liste öffentlicher Profilfelder) | Antwort auf `--profiles` |
 | `profile_saved` | `profile` | nach `--enroll` bzw. `--vocab` |
 | `profile_deleted` | `name`, `ok` (bool) | Antwort auf `--delete-profile` |
+| `profile_adapted` | `name`, `role` (`me`\|`other`) | Stimmabdruck wurde nach einem sicher erkannten Satz nachgeführt (höchstens alle 30 s je Rolle) |
+| `learning_reset` | `name`, `ok` (bool) | Antwort auf Steuerfeld `reset_learning` bzw. `--profile-stdin` `{"reset_learning": NAME}`; `ok` false: kein nachgeführter Abdruck vorhanden |
+| `control_ignored` | `keys` (höchstens 10 unbekannte Steuerfelder) | Steuerzeile enthielt Felder, die die Engine nicht kennt (Tippfehler, ältere Engine) |
+| `llm` | `on`, `available` (bool) | Antwort auf Steuerfeld `llm`: `available` false = kein Schlüssel/kein `anthropic`, übersetzt wird dann mit Google |
 | `profiles_deleted_all` | `ok` (bool), `files` (Anzahl) | Antwort auf `--delete-all-profiles`: alle Profile samt Sicherungen (`.bak`) und Quarantäne-Kopien (`.bad`) gelöscht |
 
 ### `dropped.code`
@@ -157,6 +163,10 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 |---|---|
 | `mic_denied`, `mic_unavailable`, `mic_no_data`, `mic_timeout`, `mic_failed` | Mikrofon: Zugriff verweigert / Gerät ungültig / keine Daten / erster Block nicht binnen 10 s (Wachhund beendet ffmpeg) / Gerät nach Wiederverbinden weg |
 | `mic_not_found` | Mikrofon-Name unbekannt, Standardmikrofon wird genutzt |
+| `output_not_found`, `output_invalid`, `output_unsupported` | Ausgabegerät unbekannt (Systemstandard wird genutzt) / Steuerwert `output_device` ungültig / mit `DOLMETSCHER_FFMPEG` nicht wählbar |
+| `profile_name_invalid`, `profile_invalid`, `profile_not_found`, `profile_delete_failed` | Profil-Aufrufe: Name ungültig / Profil oder Höflichkeitsform ungültig / Profil fehlt / Stimmdaten nicht löschbar |
+| `history_failed`, `history_days_invalid` | Verlauf: Datenbank nicht nutzbar (Aufzeichnung aus) / `history_days` ungültig (es wird nichts gelöscht) |
+| `offline_mt_missing` | `--offline-translator`: `translate-helper` nicht gefunden oder nicht ausführbar – ohne Netz keine Übersetzung |
 | `mic_list_failed` | `--list-mics` konnte ffmpeg nicht abfragen |
 | `mic_file_missing`, `ffmpeg_missing` | `DOLMETSCHER_MIC_FILE` fehlt / das per `DOLMETSCHER_FFMPEG` gesetzte ffmpeg fehlt (gleich beim Start gemeldet) oder ist nicht startbar |
 | `audio_missing` | Audio-Baustein fehlt: PyAV (`av`) nicht importierbar oder `avhelper.py` fehlt (gleich beim Start gemeldet) – Python-Umgebung neu einrichten |
@@ -214,10 +224,12 @@ Neu:
 | `retranslate` | `{"id": "u7", "text": "korrigierter Text", "lang": "en"\|"th"}` | neu übersetzen und vorlesen; `utt` kommt mit `replaces: "u7"`, `source: "edit"` |
 | `speak_text` | `{"text": "...", "lang": CODE (Sprache des Paars), "id": "u7"}` | fertigen Text nur vorlesen (Neural-Stimme, keine Übersetzung) – „Nochmal sprechen“; `id` optional, dann kommen `speaking`/`speak_done` mit dieser id (ohne `latency_s`). Ungültig: `error` `speak_invalid`. Nicht verwechseln mit `speak` (bool, stumm schalten) |
 | `mic` | string (Index, Gerätename oder `default`) | Mikrofon zur Laufzeit wechseln, ohne Modelle neu zu laden: ist es an, öffnet die Engine ffmpeg mit dem neuen Gerät neu (danach `mic` `on: true`; wartende Äußerungen des alten Geräts verfallen, laufende Ausgaben nicht); ist es aus, gilt das Gerät beim nächsten `listen`. Vor `ready` gesendet: gilt, sobald das Mikrofon angelegt wird. Unbekannter Name: `error` `mic_not_found`, Standardmikrofon |
+| `output_device` | string (CoreAudio-UID, Name, Index; `""`/`default` = Systemstandard) | Ausgabegerät zur Laufzeit wechseln; gilt ab der nächsten Ausgabe für Neural-Stimme, macOS-Stimme und Signalton. Unbekannt: `error` `output_not_found` |
 | `llm_budget` | float (USD, 0 … 10000) | Claude-Monatslimit wie `--llm-budget`; 0 = keine Grenze |
 | `slow` | bool | „Langsam und deutlich“: Ausgabe SLOW_RATE (−25) Prozentpunkte langsamer (zusammen nie unter −50), kein Aufhol-Tempo, nie überspringen; Claude bekommt den Zusatz „einfache Wörter, kurze Sätze“ (eigener Cache-Schlüssel) |
 | `back_translate` | bool | Rückübersetzung als Ereignis `back` an/aus (Standard aus; kostet je Satz eine Google-Anfrage) |
 | `learn_glossary` | bool | Eigennamen aus Korrekturen (`retranslate`) automatisch ins Glossar (Standard an) |
+| `reset_learning` | string (Profilname) | nachgeführten Stimmabdruck verwerfen (Stand beim Anlegen); Antwort `learning_reset` |
 | `get_state` | true | Zustand als Ereignis `state` senden |
 | `reassign` | `{"id": "u7", "role": "me"\|"other"}` | „Das war ich/Partner“: Satz in der Sprache dieser Person (ich = Englisch bzw. meine Sprache, Partner = die andere Sprache des Paars) neu erkennen und übersetzen; `utt` kommt mit `replaces: "u7"`, `source: "reassign"`, `role`. Führt den Stimmabdruck des Profils nach (Gewicht 0,15). Behalten werden die letzten 30 Sätze |
 
@@ -293,7 +305,7 @@ Am Protokoll ändert sich nichts (keine neuen Ereignisse oder Felder). Verhalten
 - stdin `{"ping": <id>}` -> Ereignis `pong` (mit derselben `id`, wenn Zahl/Text bis 64 Zeichen). Zeigt, dass die Steuerung lebt.
 - Ende von stdin (App beendet oder abgestürzt) beendet die Engine geordnet (Ausgabe stumm, ffmpeg beendet, Exit 0). SIGTERM/SIGINT ebenso; ein zweites Signal beendet sofort.
 - Steuerwerte: Wahrheitswerte nur `true`/`false` (auch `"true"`/`"false"`, `0`/`1`), anderes wird ignoriert. Unbekannte Stimme (`voice_en`/`voice_th`) -> `error`-Ereignis, Standardstimme. `glossary` max. 20000 Zeichen, `say`/`retranslate`-Text max. 1000 Zeichen, sonst `error`.
-- `mic` kann `reconnecting` (true) und `attempt` enthalten: die Quelle (Gerät) ist weggefallen, die Engine verbindet mit Wartezeit neu (bis 5 Versuche); danach `error` und (ohne `--idle`) Ende.
+- `mic` kann `reconnecting` (true) und `attempt` enthalten: die Quelle (Gerät) ist weggefallen, die Engine verbindet mit Wartezeit neu (5 schnelle Versuche, danach alle 10 s, bis es klappt oder der Nutzer `listen: false` sendet; Runde 4, Nr. 192 – vorher nach 5 Versuchen `error` und Ende).
 - `error` bei Mikrofonproblemen nennt Zugriff verweigert / ffmpeg fehlt / Quelle ungültig.
 - `--profile-stdin`: Profilname und Wörter als eine JSON-Zeile von stdin statt per Startargument: `{"enroll": "Name", "enroll_lang": "en", "delete_profile": "Name", "vocab": ["Name", "wort1, wort2"], "polite": ["Name", "krub"|"ka"|""]}`.
 - Befehle: `repeat` nutzt wie alle Befehle den gemeinsamen Abschluss (`command`-Ereignis, Log); „Clear“ leert auch Texte, Wiederholung und Roh-Audio im Speicher. Ein Folgesatz nach „Translator“ gilt nur bei höchstens 4 Wörtern als Befehl.
@@ -390,3 +402,32 @@ Neue Felder kommen nur dazu, `PROTOCOL` bleibt 1.
   Übersetzungs- und den Sprach-Cache.
 - **Temp-Dateien:** Reste abgestürzter Läufe werden schon beim Start gelöscht (eigenes Verzeichnis trägt die PID).
 - **Verlauf:** Schreiben unter Lock in einer Transaktion.
+
+## Runde 4 (Ideenliste)
+
+Neue Felder kommen nur dazu, `PROTOCOL` bleibt 1.
+
+- **Ausgabegerät (Nr. 24/357):** Start `--output-device`, Steuerfeld `output_device`. Alle eigenen Wiedergabewege
+  laufen dann über `avhelper.py play` (`--device`, für Dateien `--file`); ohne Gerät bleibt `afplay` für Dateien.
+  `avhelper.py list` liefert zusätzlich `outputs` [{`index`, `name`, `uid`}] (alle CoreAudio-Geräte, auch reine
+  Eingänge). Die Geräte-Nummer wird erst kurz vor dem Abspielen ermittelt (Hot-Plug). Mit `DOLMETSCHER_FFMPEG`
+  gilt der Systemstandard (`error` `output_unsupported`). Die lokale Vorlese-Stimme der Mac-App
+  (AVSpeechSynthesizer) folgt der Einstellung nicht.
+- **Offline-Übersetzung (Nr. 28/165):** `--offline-translator [PFAD]` (opt-in). Dritte Stufe nach Google/MyMemory,
+  nur bei fehlendem Netz (Offline-Schalter oder Netzfehler) und nur für ein laut `ready`-Zeile installiertes
+  Sprachpaar; `utt.provider` ist dann `apple`. Höchstens 6 s je Satz, Start des Helfers höchstens 5 s
+  (danach 60 s kein neuer Versuch). Das App-Bundle liefert den Helfer noch nicht mit.
+- **Verhalten ohne neue Felder:** Websocket der Neural-Stimme bricht nach 8 s ohne Nachricht ab (36);
+  `play_span` nur noch im Debug-Log (48); Thai-Lachen „555“ wird als ฮ่าฮ่าฮ่า vorgelesen, die Anzeige bleibt (52);
+  einstellige Zahlen zählen im Zahlenvergleich, wenn beide Seiten Ziffern tragen (53); `k`, `thousand`, พัน,
+  หมื่น, แสน hinter Ziffern werden umgerechnet (54); weitere Abspann-Floskeln, auch „Subtitles by <Name>“ (55);
+  Claude-429/529 nutzen `retry-after` (1 … 600 s), 529 ohne Angabe 20 s (57); das Log filtert Gesprächstext
+  auch in verschachtelten Werten (62).
+- **Neue Ereignisse/Felder:** `profile_adapted`, `learning_reset`, `control_ignored` (182, 188), `llm` {`on`,
+  `available`} nach dem Steuerfeld `llm` (190), `error.retry_in_s` bei `translate_failed` (66). Profil-Fehler tragen
+  jetzt Codes (184); Verlauf meldet `history_failed`/`history_days_invalid` statt still auszugehen (191).
+- **Robustheit:** Die vorab gerenderte macOS-Ersatzstimme bricht bei Stopp/Barge-in ab, auch während die
+  Ausgabe auf sie wartet (169/170). Das Mikrofon verbindet nach 5 schnellen Versuchen dauerhaft alle 10 s neu
+  (192; `mic.attempt` zählt weiter). Stimmprofile werden atomar neu geladen (198).
+- **Verlauf-CLI:** `--history-export … --out PFAD` meldet Erfolg als JSON-Zeile `{"exported": true, "bytes": N}`
+  (388); die App zeigt „Fertig“ bei Export und Löschen nur noch mit dieser bzw. der `deleted`-Antwort (387/388).

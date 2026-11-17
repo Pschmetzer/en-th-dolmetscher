@@ -16,17 +16,27 @@ struct ContentView: View {
     @State private var editing: Entry?
     @State private var draft = ""
     @State private var confirmClear = false
+    @State private var atEnd = true
+    @State private var unseen = false
+    @AppStorage("prepShown") private var prepShown = false
+    @Environment(\.horizontalSizeClass) private var sizeClass
     @FocusState private var typing: Bool
 
+    /// iPad (breit): Gespräch links, Werkzeuge rechts (eigene Spalte außerhalb des NavigationStack).
     var body: some View {
-        @Bindable var m = m
-        NavigationStack {
-            VStack(spacing: 0) {
-                header
-                Divider()
-                history
-                bottomBar
+        HStack(spacing: 0) {
+            main
+            if sizeClass == .regular {
+                Divider().ignoresSafeArea()
+                ToolsPanel().frame(width: 380)
             }
+        }
+    }
+
+    private var main: some View {
+        @Bindable var m = m
+        return NavigationStack {
+            conversation
             .navigationTitle("Dolmetscher")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -39,9 +49,12 @@ struct ContentView: View {
                         Button { m.sheet = .phrasebook } label: { Label(T("phrasebook"), systemImage: "book") }
                         Button { m.sheet = .photo } label: { Label(T("photo_text"), systemImage: "text.viewfinder") }
                         Button { m.sheet = .emergency } label: { Label(T("emergency"), systemImage: "cross.case") }
+                        Button { m.sheet = .places } label: { Label(T("places"), systemImage: "mappin.and.ellipse") }
                         if m.features.thaiExtras {
+                            Button { m.sheet = .helpNow } label: { Label(T("help_now"), systemImage: "sos") }
                             Button { m.sheet = .baht } label: { Label(T("baht_calc"), systemImage: "bahtsign.circle") }
                         }
+                        Button { m.sheet = .prep } label: { Label(T("prep_title"), systemImage: "checklist") }
                         if m.features.voiceCommands {
                             Button { m.sheet = .help } label: { Label(T("commands"), systemImage: "text.bubble") }
                         }
@@ -70,14 +83,49 @@ struct ContentView: View {
             .task { DebugScreens.apply(m, partner: $showPartner) }
             #endif
             .fullScreenCover(item: $big) { e in BigTextView(entryID: e.id) }
+            .onChange(of: m.bigRequest) { _, id in showRequested(id) }
+            .task { firstLaunch() }
             .alert(T("edit_text"), isPresented: Binding(get: { editing != nil }, set: { if !$0 { editing = nil } })) {
                 EditAlert(entry: editing) { text in if let e = editing { m.edit(e.id, text: text) } }
             }
         }
     }
 
+    private var conversation: some View {
+        VStack(spacing: 0) {
+            header
+            Divider()
+            history
+            bottomBar
+        }
+    }
+
+    /// Kurzbefehl „Letzte Übersetzung groß“.
+    private func showRequested(_ id: UUID?) {
+        guard let id, let e = m.entries.first(where: { $0.id == id }) else { return }
+        m.bigRequest = nil
+        big = e
+    }
+
+    /// Beim ersten Start einmal die Reise-Vorbereitung zeigen (Offline-Pakete, Berechtigungen).
+    private func firstLaunch() {
+        #if DEBUG
+        let env = ProcessInfo.processInfo.environment
+        if env["DOLMETSCHER_SCREEN"] != nil || env["DOLMETSCHER_DEMO"] != nil || env["XCTestConfigurationFilePath"] != nil { return }
+        #endif
+        guard !prepShown else { return }
+        prepShown = true
+        if m.sheet == nil { m.sheet = .prep }
+    }
+
     @ViewBuilder private func sheetView(_ s: AppSheet) -> some View {
         switch s {
+        case .prep: TravelPrepView()
+        case .places: PlacesView()
+        case .helpNow: HelpNowView()
+        #if DEBUG
+        case .widgetPreview: WidgetPreviewScreen()
+        #endif
         case .settings: SettingsView()
         case .phrasebook: PhrasebookView()
         case .photo: PhotoTextView()
@@ -134,6 +182,7 @@ struct ContentView: View {
     }
 
     private var statusText: String {
+        if m.idleWarning { return "💤 " + T("idle_warn") }
         if let n = m.notice { return n }
         switch m.phase {
         case .idle: return T("idle")
@@ -158,6 +207,11 @@ struct ContentView: View {
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .lineLimit(3)
+            if m.idleWarning {
+                Button(T("idle_continue")) { m.touch() }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.small)
+            }
             if m.canUndoClear {
                 Button(T("undo")) { m.undoClear() }
                     .buttonStyle(.bordered)
@@ -196,30 +250,58 @@ struct ContentView: View {
                         Bubble(entry: e, onBig: { big = e }, onEdit: { editing = e }).id(e.id)
                     }
                     if !m.partial.isEmpty {
-                        Text(m.partial)
-                            .font(.callout)
-                            .foregroundStyle(.secondary)
-                            .padding(10)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .id("partial")
+                        PartialLine(text: m.partial, finishing: m.finishing).id("partial")
                     }
                     Color.clear.frame(height: 1).id("end")
                 }
                 .padding()
             }
             .scrollDismissesKeyboard(.interactively)
-            .onChange(of: m.entries.count) { withAnimation { proxy.scrollTo("end", anchor: .bottom) } }
-            .onChange(of: m.entries.last?.translation) { withAnimation { proxy.scrollTo("end", anchor: .bottom) } }
-            .onChange(of: m.partial) { proxy.scrollTo("end", anchor: .bottom) }
+            // Nur mitlaufen, wenn man ohnehin unten ist – sonst „Neu“-Knopf statt Sprung beim Lesen.
+            .onScrollGeometryChange(for: Bool.self) { g in
+                g.contentOffset.y + g.containerSize.height >= g.contentSize.height - 80
+            } action: { _, end in
+                atEnd = end
+                if end { unseen = false }
+            }
+            .onChange(of: m.entries.count) { follow(proxy, animated: true) }
+            .onChange(of: m.entries.last?.translation) { follow(proxy, animated: true) }
+            .onChange(of: m.partial) { follow(proxy, animated: false) }
             .onAppear { proxy.scrollTo("end", anchor: .bottom) }
+            .overlay(alignment: .bottom) {
+                if unseen {
+                    Button {
+                        unseen = false
+                        withAnimation { proxy.scrollTo("end", anchor: .bottom) }
+                    } label: { Label(T("new_below"), systemImage: "arrow.down") }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.small)
+                        .padding(.bottom, 8)
+                }
+            }
         }
+    }
+
+    private func follow(_ proxy: ScrollViewProxy, animated: Bool) {
+        guard atEnd else { unseen = true; return }
+        if animated { withAnimation { proxy.scrollTo("end", anchor: .bottom) } } else { proxy.scrollTo("end", anchor: .bottom) }
     }
 
     // MARK: Fuß
 
+    private var suggestions: [Phrase] {
+        m.features.thaiExtras ? Phrasebook.suggestions(draft) : []
+    }
+
     private var bottomBar: some View {
         VStack(spacing: 10) {
             Divider()
+            if !suggestions.isEmpty {
+                SuggestionChips(phrases: suggestions) { p in
+                    m.say(p)
+                    draft = ""
+                }
+            }
             HStack(spacing: 8) {
                 Button { m.sheet = .phrasebook } label: { Image(systemName: "book").font(.title3) }
                     .accessibilityLabel(T("phrasebook"))
@@ -238,17 +320,12 @@ struct ContentView: View {
             }
             .padding(.horizontal)
             HStack(spacing: 16) {
-                Button {
-                    m.run(m.paused ? .resume : .pause)
-                } label: {
-                    Image(systemName: m.paused ? "play.fill" : "pause.fill")
-                        .frame(width: 52, height: 52)
-                        .background(.quaternary, in: Circle())
+                leftButton
+                if m.pushToTalk {
+                    TalkButton { typing = false }
+                } else {
+                    MicButton { typing = false }
                 }
-                .disabled(!m.isListening)
-                .accessibilityLabel(m.paused ? T("resume") : T("pause"))
-
-                MicButton { typing = false }
 
                 Button {
                     m.speakingID != nil ? m.stopSpeaking() : m.run(.repeat)
@@ -266,9 +343,104 @@ struct ContentView: View {
         .background(.bar)
     }
 
+    /// Pause/Weiter; bei Push-to-talk stattdessen „Zuhören beenden“.
+    @ViewBuilder private var leftButton: some View {
+        if m.pushToTalk {
+            Button { m.stop() } label: {
+                Image(systemName: "stop.fill")
+                    .frame(width: 52, height: 52)
+                    .background(.quaternary, in: Circle())
+            }
+            .disabled(!m.isListening && !m.isBusy)
+            .accessibilityLabel(T("stop"))
+        } else {
+            Button {
+                m.run(m.paused ? .resume : .pause)
+            } label: {
+                Image(systemName: m.paused ? "play.fill" : "pause.fill")
+                    .frame(width: 52, height: 52)
+                    .background(.quaternary, in: Circle())
+            }
+            .disabled(!m.isListening)
+            .accessibilityLabel(m.paused ? T("resume") : T("pause"))
+        }
+    }
+
     private func send() {
         m.submit(draft)
         draft = ""
+    }
+}
+
+/// Live-Vorschau; nach Satzende mit „Übersetze …“, bis die Blase erscheint.
+struct PartialLine: View {
+    let text: String
+    let finishing: Bool
+
+    var body: some View {
+        VStack(spacing: 4) {
+            Text(text).font(.callout).foregroundStyle(.secondary)
+            if finishing {
+                HStack(spacing: 6) {
+                    ProgressView().controlSize(.mini)
+                    Text(T("translating")).font(.caption).foregroundStyle(.secondary)
+                }
+            }
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .center)
+    }
+}
+
+/// Satzbuch-Vorschläge beim Tippen: geprüfte Thai-Fassung mit einem Tipp.
+struct SuggestionChips: View {
+    let phrases: [Phrase]
+    var pick: (Phrase) -> Void
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(phrases) { p in
+                    Button { pick(p) } label: {
+                        Label(p.gloss, systemImage: "book.closed")
+                            .font(.footnote)
+                            .padding(.horizontal, 10).padding(.vertical, 6)
+                            .background(.orange.opacity(0.15), in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityHint(T("suggest_hint"))
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+}
+
+/// Push-to-talk: halten = zuhören, loslassen = übersetzen.
+struct TalkButton: View {
+    @Environment(InterpreterModel.self) private var m
+    var before: () -> Void = {}
+
+    private var held: Bool { m.pttHeld }
+    private var label: String { held ? T("ptt_release") : (m.isBusy ? T("loading") : T("ptt_hold")) }
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: held ? "waveform" : "mic.fill")
+            Text(label).lineLimit(1).minimumScaleFactor(0.7)
+        }
+        .font(.title3.bold())
+        .foregroundStyle(.white)
+        .frame(maxWidth: .infinity, minHeight: 56)
+        .background(held ? Color.red : Color.blue, in: Capsule())
+        .overlay(Capsule().stroke(.white.opacity(0.7), lineWidth: held ? CGFloat(m.level) * 6 : 0))
+        .onLongPressGesture(minimumDuration: 0, maximumDistance: 80, perform: {}, onPressingChanged: { pressing in
+            if pressing { before(); m.pttPress() } else { m.pttRelease() }
+        })
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(label)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction { held ? m.pttRelease() : m.pttPress() }
     }
 }
 
@@ -365,6 +537,7 @@ struct Bubble: View {
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(color)
             RomanLine(text: roman)
+            if m.features.thaiExtras { PriceLine(text: entry.text + " " + t) }
             if m.backCheck, let b = entry.back { BackLine(text: b, deviates: entry.backDeviates) }
         } else if let err = entry.error {
             HStack {
@@ -503,7 +676,7 @@ struct BigTextView: View {
             .padding(24)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .rotationEffect(.degrees(flipped ? 180 : 0))
-            .onTapGesture { dismiss() }
+            // Kein Schließen per Tipp: wer dem Fahrer das Handy reicht, schließt sonst versehentlich.
             Divider()
             HStack(spacing: 28) {
                 Button { flipped.toggle() } label: { Image(systemName: "arrow.up.arrow.down") }
@@ -519,7 +692,8 @@ struct BigTextView: View {
             .padding()
         }
         .persistentSystemOverlays(.hidden)
-        .onAppear { UIApplication.shared.isIdleTimerDisabled = true }
+        .modifier(FullBrightness())
+        .onAppear { UIApplication.shared.isIdleTimerDisabled = true; m.touch() }
         .onDisappear { UIApplication.shared.isIdleTimerDisabled = m.isListening }
     }
 }
@@ -554,7 +728,7 @@ struct EmptyState: View {
             .labelStyle(.titleAndIcon)
             .font(.footnote)
             if !m.offlineReady {
-                Button { m.sheet = .settings } label: {
+                Button { m.sheet = .prep } label: {
                     Label(T(m.allowOnline ? "online_hint" : "offline_hint"), systemImage: m.allowOnline ? "globe" : "arrow.down.circle")
                         .font(.footnote)
                         .foregroundStyle(.secondary)

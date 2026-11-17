@@ -225,6 +225,17 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
 
     func setPause(_ seconds: Double) { queue.async { self.gate.pause = seconds } }
 
+    func flush() {
+        queue.async {
+            guard self.running, !self.muted, self.gate.inUtterance else { return }
+            self.gate.reset()
+            self.emit.yield(.hearing(false))
+            let u = self.utterance
+            self.utterance = []
+            if !u.isEmpty { self.jobs.yield(Job(samples: u)) }
+        }
+    }
+
     private func process(_ buf: AVAudioPCMBuffer) {
         guard running, !muted, buf.frameLength > 0 else { return }
         let rms = AudioCapture.rms(buf)

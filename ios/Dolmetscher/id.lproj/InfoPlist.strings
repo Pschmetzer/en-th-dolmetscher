@@ -3,3 +3,4 @@
 "NSCameraUsageDescription" = "Ambil foto menu atau papan petunjuk agar Dolmetscher dapat membaca dan menerjemahkan teksnya.";
 "NSPhotoLibraryUsageDescription" = "Pilih foto menu atau papan petunjuk agar Dolmetscher dapat membaca dan menerjemahkan teksnya.";
 "NSFaceIDUsageDescription" = "Face ID membuka kunci riwayat percakapan jika Anda menyalakan kunci riwayat.";
+"NSLocationWhenInUseUsageDescription" = "Lokasi Anda hanya ditampilkan di layar darurat agar Anda bisa memberi tahu penolong di mana Anda berada. Lokasi tidak pernah keluar dari iPhone.";

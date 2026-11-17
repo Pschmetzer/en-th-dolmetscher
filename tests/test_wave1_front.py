@@ -99,9 +99,12 @@ def test_429_pauses_google_and_uses_retry_after(monkeypatch):
             raise urllib.error.HTTPError(url, 429, "x", {"Retry-After": "7"}, None)
         return {"responseData": {"translatedText": "สวัสดี"}, "responseStatus": 200}
     monkeypatch.setattr(d, "_get_json", gj)
+    t0 = d.time.monotonic()
     assert d.translate("hello there", "en", "th") == "สวัสดี"
+    t1 = d.time.monotonic()
     n_google = sum("googleapis" in c for c in calls)
-    assert 5 < d._PROV["google"]["until"] - d.time.monotonic() <= 7.5
+    # Pause genau Retry-After (7 s) ab dem Fehler: unabhängig davon, wie langsam der Rechner ist
+    assert t0 + 7 <= d._PROV["google"]["until"] <= t1 + 7
     assert d.translate("good evening", "en", "th") == "สวัสดี"
     assert sum("googleapis" in c for c in calls) == n_google         # Google bleibt ausgesetzt
 
@@ -228,15 +231,15 @@ def test_clamp_rate():
 def test_local_voice_uses_dashdash_and_private_dir(monkeypatch):
     seen = {}
 
-    def fake_run(cmd, **kw):
+    def fake_run(cmd, **kw):                  # Runde 4, Nr. 170: abbrechbar über run_cancellable
         seen["cmd"], seen["kw"] = cmd, kw
-        return types.SimpleNamespace(returncode=1)
-    monkeypatch.setattr(d.subprocess, "run", fake_run)
+        return 1
+    monkeypatch.setattr(d, "run_cancellable", fake_run)
     lv = d.LocalVoice("-v evil", "Samantha", 900)
     lv.done.wait(2)
     cmd = seen["cmd"]
     assert cmd[cmd.index("--") + 1] == "-v evil" and cmd[-1] == "-v evil"
-    assert seen["kw"]["timeout"] and os.path.dirname(lv.path) == d.private_tmp()
+    assert callable(seen["kw"]["cancelled"]) and os.path.dirname(lv.path) == d.private_tmp()
     assert int(cmd[cmd.index("-r") + 1]) <= 185 * 2
 
 
@@ -252,9 +255,14 @@ def test_player_wait_watchdog(monkeypatch):
     p = d.Player()
     monkeypatch.setattr(d.Player, "WAIT_MAX", 0.3)
     proc = p.start(["/bin/sleep", "30"])
-    t = d.time.time()
-    p.wait(proc)
-    assert d.time.time() - t < 5 and proc.poll() is not None and not p.playing()
+    try:
+        t = d.time.monotonic()
+        p.wait(proc)
+        assert d.time.monotonic() - t < 5 and proc.poll() is not None and not p.playing()
+    finally:
+        if proc.poll() is None:                      # kein Zombie-Prozess, falls die Prüfung scheitert
+            proc.kill()
+            proc.wait()
 
 
 def test_produce_always_sends_end_marker(monkeypatch):

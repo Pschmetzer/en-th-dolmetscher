@@ -22,7 +22,29 @@ final class L10nTests: XCTestCase {
             if let extra = L10n.extra[lang] {
                 XCTAssertEqual(Set(extra.keys), Set(L10n.table.keys), "\(lang): überzählige/fehlende Schlüssel")
             }
+            for (key, row) in L10n.round4 {
+                let text = row[lang] ?? ""
+                XCTAssertFalse(text.trimmingCharacters(in: .whitespaces).isEmpty, "\(lang): \(key) fehlt (Runde 4)")
+                XCTAssertEqual(placeholders(text), placeholders(row["en"] ?? ""), "\(lang): \(key) Platzhalter")
+            }
         }
+        XCTAssertTrue(Set(L10n.round4.keys).isDisjoint(with: L10n.table.keys), "Schlüssel doppelt in table und round4")
+    }
+
+    /// Texte der Widget-Erweiterung: jede Sprache, nicht leer.
+    func testWidgetTextsComplete() {
+        XCTAssertEqual(Set(WidgetTexts.languages), Set(L10n.languages))
+        for (key, row) in WidgetTexts.table {
+            for lang in L10n.languages {
+                XCTAssertFalse((row[lang] ?? "").isEmpty, "Widget \(lang): \(key)")
+            }
+        }
+    }
+
+    /// Dynamische Schlüssel („cat_“ + Kategorie, „dish_“ + Hinweis) gibt es auch.
+    func testDynamicKeysExist() {
+        for c in Phrasebook.categories { XCTAssertNotNil(L10n.text("cat_" + c.key, lang: "en"), "cat_\(c.key)") }
+        for n in Dish.Note.allCases { XCTAssertNotNil(L10n.text("dish_" + n.rawValue, lang: "en"), "dish_\(n.rawValue)") }
     }
 
     /// Jedes `T("…")` im Code muss es in der Tabelle geben – sonst sieht man den rohen Schlüssel.
@@ -43,7 +65,7 @@ final class L10nTests: XCTestCase {
             }
         }
         XCTAssertGreaterThan(used.count, 100)
-        for k in used.sorted() { XCTAssertNotNil(L10n.table[k], "T(\"\(k)\") fehlt in L10n.table") }
+        for k in used.sorted() { XCTAssertTrue(L10n.allKeys.contains(k), "T(\"\(k)\") fehlt in L10n.table/round4") }
     }
 
     func testSystemLanguageMatch() {
@@ -58,7 +80,7 @@ final class L10nTests: XCTestCase {
     func testInfoPlistStringsInEveryLanguage() throws {
         let keys: Set = ["NSMicrophoneUsageDescription", "NSSpeechRecognitionUsageDescription",
                          "NSCameraUsageDescription", "NSPhotoLibraryUsageDescription",
-                         "NSFaceIDUsageDescription"]
+                         "NSFaceIDUsageDescription", "NSLocationWhenInUseUsageDescription"]
         for lang in L10n.languages where lang != "en" {   // Englisch steht in den Build-Einstellungen
             let url = ios.appendingPathComponent("Dolmetscher/\(lang).lproj/InfoPlist.strings")
             let dict = try XCTUnwrap(NSDictionary(contentsOf: url) as? [String: String], lang)

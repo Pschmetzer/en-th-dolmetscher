@@ -58,6 +58,8 @@ enum ThaiEmergency {
         ("1155", "Tourist police (English)", "ตำรวจท่องเที่ยว", "person.badge.shield.checkmark.fill"),
         ("191", "Police", "ตำรวจ", "shield.fill"),
         ("199", "Fire", "ดับเพลิง", "flame.fill"),
+        ("1193", "Highway police", "ตำรวจทางหลวง", "car.fill"),
+        ("1672", "Tourist hotline (TAT)", "สายด่วนการท่องเที่ยว (ททท.)", "info.circle.fill"),
     ]
 }
 
@@ -72,26 +74,7 @@ struct EmergencyView: View {
         @Bindable var m = m
         NavigationStack {
             List {
-                if m.features.thaiExtras {
-                Section {
-                    ForEach(ThaiEmergency.numbers, id: \.number) { n in
-                        if let url = URL(string: "tel:\(n.number)") {
-                            Link(destination: url) {
-                                HStack(spacing: 14) {
-                                    Image(systemName: n.icon).foregroundStyle(.red).frame(width: 28)
-                                    VStack(alignment: .leading) {
-                                        Text(n.en).font(.headline)
-                                        Text(n.th).font(.subheadline).foregroundStyle(.secondary)
-                                    }
-                                    Spacer()
-                                    Text(n.number).font(.title2.monospacedDigit().bold())
-                                }
-                            }
-                            .accessibilityLabel("\(n.en), \(n.number)")
-                        }
-                    }
-                } header: { Text(T("emergency_numbers")) }
-                }
+                if m.features.thaiExtras { thaiSections }
 
                 allergySection
                 Section {
@@ -130,9 +113,21 @@ struct EmergencyView: View {
             }
             .navigationTitle(T("emergency"))
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button(T("done")) { dismiss() } } }
+            .doneToolbar { dismiss() }
             .fullScreenCover(isPresented: $showAllergy) { AllergyCardView() }
         }
+    }
+
+    /// Hilfe-Bildschirm und Notrufnummern (nur mit Thai im Paar).
+    @ViewBuilder private var thaiSections: some View {
+        Section {
+            Button { m.sheet = .helpNow } label: {
+                Label(T("help_now"), systemImage: "sos").font(.headline).foregroundStyle(.red)
+            }
+        }
+        Section {
+            ForEach(ThaiEmergency.numbers, id: \.number) { n in DialRow(number: n.number, en: n.en, th: n.th, icon: n.icon) }
+        } header: { Text(T("emergency_numbers")) }
     }
 
     private func allergen(_ a: Allergen) -> Binding<Bool> {
@@ -273,6 +268,7 @@ struct AllergyCardView: View {
 /// Einfacher Rechner Baht ⇄ eigene Währung mit selbst eingetragenem Kurs (kein Netz nötig).
 struct BahtCalculatorView: View {
     @Environment(\.dismiss) private var dismiss
+    @State private var showPrice = false
     @AppStorage("fxRate") private var rate = 0.026        // 1 THB in Heimatwährung
     @AppStorage("fxCode") private var code = "EUR"
     @State private var baht = ""
@@ -280,6 +276,13 @@ struct BahtCalculatorView: View {
 
     /// „1,200“ = 1200 (Tausender-Komma wie auf Thai-Preisschildern), „12,5“ = 12.5.
     private var amount: Double? { AmountParser.parse(baht) }
+
+    /// Im Währungsformat der Oberflächensprache (Komma, Symbol-Stellung); unbekannter Code: Zahl plus Code.
+    private func home(_ thb: Double) -> String {
+        let v = thb * rate
+        guard code.count == 3 else { return String(format: "%.2f %@", v, code) }
+        return v.formatted(.currency(code: code.uppercased()).locale(Locale(identifier: L10n.lang)))
+    }
 
     var body: some View {
         NavigationStack {
@@ -290,9 +293,14 @@ struct BahtCalculatorView: View {
                         .font(.largeTitle.monospacedDigit())
                         .focused($focused)
                     if let a = amount {
-                        Text(String(format: "≈ %.2f %@", a * rate, code))
+                        Text("≈ " + home(a))
                             .font(.title.bold().monospacedDigit())
                             .foregroundStyle(.blue)
+                        if a >= 1, a < 1_000_000_000, let w = ThaiNumber.words(Int(a)) {
+                            Text(w + "บาท").font(.title3).foregroundStyle(.orange)
+                        }
+                        Button { showPrice = true } label: { Label(T("price_show"), systemImage: "rectangle.expand.vertical") }
+                            .disabled(a < 1 || a >= 1_000_000_000)
                     }
                 } header: { Text(T("baht_amount")) }
 
@@ -310,15 +318,18 @@ struct BahtCalculatorView: View {
                         HStack {
                             Text("฿ \(Int(b))").monospacedDigit()
                             Spacer()
-                            Text(String(format: "%.2f %@", b * rate, code)).foregroundStyle(.secondary).monospacedDigit()
+                            Text(home(b)).foregroundStyle(.secondary).monospacedDigit()
                         }
                     }
                 } header: { Text(T("baht_rate")) } footer: { Text(T("baht_note")) }
             }
             .navigationTitle(T("baht_calc"))
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button(T("done")) { dismiss() } } }
+            .doneToolbar { dismiss() }
             .onAppear { focused = true }
+            .fullScreenCover(isPresented: $showPrice) {
+                PriceShowView(amount: Int(amount ?? 0), home: amount.map(home))
+            }
         }
     }
 }

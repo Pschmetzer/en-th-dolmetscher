@@ -12,6 +12,8 @@ struct VoiceProfile: Identifiable, Hashable {
     var vocab: [String]
     /// Höflichkeitsform der Person für Thai-Ausgaben ("krub"/"ka"), nil = Einstellung der App (Nr. 162).
     var polite: String? = nil
+    /// So oft wurde der Stimmabdruck im Betrieb nachgeführt (Nr. 182).
+    var adapted: Int = 0
 }
 
 enum EngineRunner {
@@ -178,7 +180,8 @@ final class ProfilesModel: ObservableObject {
     static func parse(_ d: [String: Any]) -> VoiceProfile {
         VoiceProfile(name: d["name"] as? String ?? "?", lang: d["lang"] as? String ?? "en",
                      created: d["created"] as? String ?? "", errorRate: d["error_rate"] as? Double,
-                     vocab: d["vocab"] as? [String] ?? [], polite: d["polite"] as? String)
+                     vocab: d["vocab"] as? [String] ?? [], polite: d["polite"] as? String,
+                     adapted: (d["adapted"] as? NSNumber)?.intValue ?? 0)
     }
 
     func delete(_ p: VoiceProfile) {
@@ -202,7 +205,7 @@ final class ProfilesModel: ObservableObject {
             switch o["event"] as? String {
             case "profiles_deleted_all":
                 result = (o["ok"] as? Bool ?? false, (o["files"] as? NSNumber)?.intValue ?? 0)
-            case "error": err = o["msg"] as? String
+            case "error": err = EngineModel.errorText(code: o["code"] as? String, msg: o["msg"] as? String)
             default: break
             }
         }, onExit: { [weak self] in
@@ -221,6 +224,14 @@ final class ProfilesModel: ObservableObject {
                              onExit: { [weak self] in
             self?.reload()
             NotificationCenter.default.post(name: .profilesChanged, object: nil)
+        })
+    }
+
+    /// Nr. 182: nachgeführten Stimmabdruck verwerfen (Stand beim Anlegen).
+    func resetLearning(_ p: VoiceProfile) {
+        _ = EngineRunner.run([], request: ["reset_learning": p.name], timeout: 30, onEvent: { _ in },
+                             onExit: { [weak self] in
+            self?.reload()   // meldet `.profilesChanged` – die laufende Engine lädt neu
         })
     }
 
@@ -270,7 +281,7 @@ final class ProfilesModel: ObservableObject {
         case "enroll_retry": hint = L.t("again", forced)
         case "enroll_failed": failed = o["reason"] as? String ?? "?"
         case "enroll_done": if let p = o["profile"] as? [String: Any] { finished = Self.parse(p) }
-        case "error": failed = o["msg"] as? String
+        case "error": failed = EngineModel.errorText(code: o["code"] as? String, msg: o["msg"] as? String)
         default: break
         }
     }
@@ -399,6 +410,13 @@ struct ProfilesView: View {
                 Text("ค่ะ (♀)").tag("ka")
             }
             .help(L.t("profile_polite_help"))
+            if p.adapted > 0 {
+                HStack {
+                    Text(L.f("profile_adapted_n", p.adapted)).font(.caption).foregroundStyle(.secondary)
+                    Button(L.t("reset_learning")) { pm.resetLearning(p) }
+                        .help(L.t("reset_learning_help"))
+                }
+            }
         }
         .padding(12)
         .background(Color.secondary.opacity(0.1), in: RoundedRectangle(cornerRadius: 12))

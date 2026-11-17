@@ -241,14 +241,24 @@ def test_mic_start_wachhund_beendet_haengendes_ffmpeg(ev, monkeypatch):
     """Erster Read blockiert (Berechtigungsdialog/hängendes Gerät): nach MIC_START_TIMEOUT error + mic off."""
     monkeypatch.setattr(d, "MIC_START_TIMEOUT", 0.3)
     monkeypatch.delenv("DOLMETSCHER_MIC_FILE", raising=False)
-    real = subprocess.Popen
-    monkeypatch.setattr(d.subprocess, "Popen", lambda *a, **k: real(["sleep", "30"], stdout=subprocess.PIPE,
-                                                                     stderr=subprocess.PIPE))
+    real, procs = subprocess.Popen, []
+
+    def popen(*a, **k):
+        procs.append(real(["sleep", "30"], stdout=subprocess.PIPE, stderr=subprocess.PIPE))
+        return procs[-1]
+    monkeypatch.setattr(d.subprocess, "Popen", popen)
     eng = types.SimpleNamespace(stop_speaking=lambda: None)
     m = d.Mic(eng, "0", queue.Queue(), idle=True)
-    t = d.time.monotonic()
-    assert m.start() is False
-    assert d.time.monotonic() - t < 5
+    try:
+        t = d.time.monotonic()
+        assert m.start() is False
+        assert d.time.monotonic() - t < 5
+        assert procs and all(p.poll() is not None for p in procs)    # der Wachhund hat ffmpeg beendet
+    finally:
+        for p in procs:                                             # kein Zombie, falls die Prüfung scheitert
+            if p.poll() is None:
+                p.kill()
+                p.wait()
     err = [kw for x, kw in ev if x == "error"][-1]
     assert err["code"] == "mic_timeout" and ("mic", {"on": False}) in ev
 

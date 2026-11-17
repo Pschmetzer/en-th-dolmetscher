@@ -23,8 +23,9 @@ STAMP = ROOT / "build-support" / "make-stamp.sh"
 LOCK = ROOT / "requirements.txt"
 CLEAN_PATH = "/usr/bin:/bin:/usr/sbin:/sbin"
 
-pytestmark = pytest.mark.skipif(sys.platform != "darwin" or platform.machine() != "arm64",
-                                reason="setup-env.sh: nur macOS auf Apple Silicon")
+pytestmark = [pytest.mark.macos,
+              pytest.mark.skipif(sys.platform != "darwin" or platform.machine() != "arm64",
+                                 reason="setup-env.sh: nur macOS auf Apple Silicon")]
 
 FAKE_UV = r"""#!/bin/bash
 # Fake-uv: protokolliert Aufrufe und Umgebung, verhält sich je nach $FAKE_MODE
@@ -185,6 +186,7 @@ def _engine_events(cmd, env, until, timeout):
 
 
 @pytest.mark.skipif(os.environ.get("DOLMETSCHER_E2E_SETUP") != "1", reason="schwer: DOLMETSCHER_E2E_SETUP=1")
+@pytest.mark.timeout(2400)                                     # Einrichtung bis 1800 s + Engine-Start 240 s
 def test_e2e_einrichtung_unter_env_i_und_engine_handshake(tmp_path):
     uv = _real_uv()
     if not uv:

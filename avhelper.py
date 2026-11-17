@@ -6,14 +6,15 @@ FFmpeg mit (avfoundation-Eingang, audiotoolbox-Ausgang, Filter) – Homebrew ist
 
   capture  (--device IDX|default|NAME | --file PFAD [--loop] [--realtime]) [--af KETTE] [--rate 16000]
            -> s16le mono auf stdout (wie ``ffmpeg … -f s16le -``)
-  play     [--volume 1.0]   mp3 von stdin sofort über AudioToolbox abspielen
-  list     -> eine JSON-Zeile {"mics": [{"index", "name"}]} auf stdout
+  play     [--volume 1.0] [--device UID|NAME|IDX] [--file PFAD]
+           mp3 von stdin (oder eine Audiodatei, z. B. aiff von `say`) sofort über AudioToolbox abspielen;
+           --device wählt das Ausgabegerät (CoreAudio-UID, Name oder Index), unbekannt -> Systemstandard
+  list     -> eine JSON-Zeile {"mics": [{"index", "name"}], "outputs": [{"index", "name", "uid"}]} auf stdout
 
 Fehler gehen als Klartext nach stderr (die Engine klassifiziert sie wie früher ffmpeg-Meldungen).
 """
 import argparse, json, os, re, signal, sys, time
 
-signal.signal(signal.SIGPIPE, signal.SIG_DFL)   # Leser weg (Stopp): still beenden statt Traceback
 
 
 def _av():
@@ -140,16 +141,90 @@ class _Stdin:
         return os.read(0, n)
 
 
+_OUT_RX = re.compile(r"^\[(\d+)\]\s+(.*)$")
+
+
+def parse_outputs(lines):
+    """audiotoolbox-Geräteliste ("[1]   MacBook Pro-Lautsprecher, BuiltInSpeakerDevice") -> [{index, name, uid}].
+    Die Liste enthält alle CoreAudio-Geräte (auch reine Eingänge); der Index ist der für audio_device_index."""
+    out = []
+    for line in lines:
+        m = _OUT_RX.match(str(line).strip())
+        if m:
+            name, sep, uid = m.group(2).rpartition(", ")
+            if not sep:
+                name, uid = m.group(2), ""
+            out.append({"index": m.group(1), "name": name.strip(), "uid": uid.strip()})
+    return out
+
+
+def list_outputs(av):
+    """CoreAudio-Geräte über audiotoolbox (list_devices). Schreibt nur den Kopf, spielt nichts ab."""
+    av.logging.set_level(av.logging.INFO)
+    try:
+        with av.logging.Capture(local=False) as logs:
+            try:
+                o = av.open("", "w", format="audiotoolbox", options={"list_devices": "true"})
+                o.add_stream("pcm_f32le", rate=24000, layout="mono")
+                o.start_encoding()
+                o.close()
+            except Exception:
+                pass
+    finally:
+        av.logging.set_level(av.logging.ERROR)
+    return parse_outputs(m for _lvl, _name, m in logs)
+
+
+def match_output(outputs, want):
+    """UID (genau), dann Name (genau, dann ohne Groß/klein), dann reiner Index -> Index als str, sonst None."""
+    w = (want or "").strip()
+    if not w or w.lower() == "default":
+        return None
+    for key in ("uid", "name"):
+        for o in outputs:
+            if o[key] and o[key] == w:
+                return o["index"]
+    for o in outputs:
+        if o["name"].lower() == w.lower():
+            return o["index"]
+    if w.isdigit() and any(o["index"] == w for o in outputs):
+        return w
+    return None
+
+
+def resolve_output(av, want):
+    """Gewünschtes Ausgabegerät -> audio_device_index; unbekannt: Hinweis auf stderr, Systemstandard."""
+    if not (want or "").strip() or want.strip().lower() == "default":
+        return None
+    idx = match_output(list_outputs(av), want)
+    if idx is None:
+        print(f"output device not found: {want}", file=sys.stderr, flush=True)
+    return idx
+
+
+OUT_STALE_S = 30.0                              # so lange gilt die vorab ermittelte Geräte-Nummer (Hot-Plug)
+
+
 def play(a):
     av = _av()                                  # vorab laden: als Bereitschaftsprozess wartet er erst hier
-    head = os.read(0, 65536)
-    if not head:                                # sofort geschlossen (verworfen/abgebrochen): still beenden
-        return
-    try:
-        inp = av.open(_Stdin(head), format="mp3",
-                      options={"probesize": "32", "analyzeduration": "0", "fflags": "nobuffer"})
-    except Exception as e:
-        sys.exit(f"cannot decode mp3: {e}")
+    dev = getattr(a, "device", None)
+    idx, t_idx = resolve_output(av, dev), time.monotonic()   # vorab, nicht im Weg zum ersten Ton
+    if getattr(a, "file", None):
+        try:
+            inp = av.open(a.file)
+        except Exception as e:
+            sys.exit(f"cannot open file: {e}")
+    else:
+        head = os.read(0, 65536)
+        if not head:                            # sofort geschlossen (verworfen/abgebrochen): still beenden
+            return
+        if dev and time.monotonic() - t_idx > OUT_STALE_S:   # lange gewartet: AirPods evtl. neu verbunden
+            idx = resolve_output(av, dev)
+        try:
+            inp = av.open(_Stdin(head), format="mp3",
+                          options={"probesize": "32", "analyzeduration": "0", "fflags": "nobuffer"})
+        except Exception as e:
+            sys.exit(f"cannot decode mp3: {e}")
     ist = inp.streams.audio[0]
     out, ost, rs = None, None, None
     vol = max(0.0, min(2.0, a.volume))
@@ -157,7 +232,14 @@ def play(a):
     for fr in _frames(av, inp, ist):
         if out is None:
             rate = fr.sample_rate or 24000
-            out = av.open("", "w", format="audiotoolbox")
+            opts = {"audio_device_index": idx} if idx is not None else {}
+            try:
+                out = av.open("", "w", format="audiotoolbox", options=opts)
+            except Exception:
+                if not opts:
+                    raise
+                print(f"output device failed: {dev}", file=sys.stderr, flush=True)
+                out = av.open("", "w", format="audiotoolbox")   # Gerät weg: lieber Standard als stumm
             ost = out.add_stream("pcm_f32le", rate=rate, layout="mono")
             rs = av.AudioResampler(format="flt", layout="mono", rate=rate)
         fr.pts = None
@@ -204,10 +286,16 @@ def list_devices(_a):
         except Exception:
             pass                                # list_devices „scheitert“ immer, die Liste steht im Log
     av.logging.set_level(av.logging.ERROR)
-    print(json.dumps({"mics": parse_devices(str(m) for _lvl, _name, m in logs)}), flush=True)
+    mics = parse_devices(str(m) for _lvl, _name, m in logs)
+    try:
+        outputs = list_outputs(av)
+    except Exception:
+        outputs = []
+    print(json.dumps({"mics": mics, "outputs": outputs}), flush=True)
 
 
 def main(argv=None):
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)   # Leser weg (Stopp): still beenden statt Traceback
     ap = argparse.ArgumentParser(prog="avhelper")
     sub = ap.add_subparsers(dest="cmd", required=True)
     c = sub.add_parser("capture")
@@ -219,6 +307,8 @@ def main(argv=None):
     c.add_argument("--rate", type=int, default=16000)
     p = sub.add_parser("play")
     p.add_argument("--volume", type=float, default=1.0)
+    p.add_argument("--device", default="")
+    p.add_argument("--file")
     sub.add_parser("list")
     a = ap.parse_args(argv)
     try:

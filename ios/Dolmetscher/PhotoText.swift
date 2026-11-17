@@ -110,7 +110,10 @@ struct PhotoTextView: View {
                                 HStack {
                                     Image(systemName: picked.contains(i) ? "checkmark.circle.fill" : "circle")
                                         .foregroundStyle(picked.contains(i) ? Color.accentColor : .secondary)
-                                    Text(line)
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(line)
+                                        LineHints(line: line)
+                                    }
                                 }
                             }
                             .buttonStyle(.plain)

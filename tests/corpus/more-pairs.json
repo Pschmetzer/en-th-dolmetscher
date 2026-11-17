@@ -1,0 +1,27 @@
+{
+  "pair": null,
+  "about": "Weitere Paare mit getrennten Schriften (Japanisch, Chinesisch, Koreanisch, Russisch): Schrift-Plausibilität und Zahlen außerhalb von Thai. pair = null: jeder Fall bringt src/dst mit.",
+  "cases": [
+    {"id": "en-ja-01", "src": "en", "dst": "ja", "text": "How much is this?", "translation": "これはいくらですか？"},
+    {"id": "en-ja-02", "src": "ja", "dst": "en", "text": "駅はどこですか？", "translation": "Where is the station?"},
+    {"id": "en-zh-01", "src": "en", "dst": "zh", "text": "A table for four at 19:00, please.", "translation": "请给我们19:00的四人桌。"},
+    {"id": "en-ko-01", "src": "ko", "dst": "en", "text": "감사합니다", "translation": "Thank you."},
+    {"id": "de-ru-01", "src": "de", "dst": "ru", "text": "Ich komme um 10 Uhr.", "translation": "Я приду в 10 часов."},
+    {"id": "de-ru-02", "src": "ru", "dst": "de", "text": "Сколько стоит билет?", "translation": "Wie viel kostet die Fahrkarte?"},
+
+    {"id": "en-ja-bad-01", "src": "en", "dst": "ja", "text": "Good morning", "translation": "Good morning",
+     "expect": {"untranslated": true}},
+    {"id": "en-ja-bad-02", "src": "ja", "dst": "en", "text": "ありがとうございます", "translation": "ありがとうございます",
+     "expect": {"wrong_script": true}},
+    {"id": "de-ru-bad-01", "src": "de", "dst": "ru", "text": "Zimmer 214", "translation": "Номер 241",
+     "expect": {"numbers_differ": true}},
+    {"id": "de-ru-bad-02", "src": "ru", "dst": "de", "text": "Где вокзал?", "translation": "Где вокзал?",
+     "expect": {"wrong_script": true}}
+  ],
+  "norm": {
+    "same": [
+      ["駅はどこですか？", "駅はどこですか?"]
+    ],
+    "different": []
+  }
+}
