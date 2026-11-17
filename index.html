@@ -713,12 +713,13 @@ function deliver(t, text, m, next) {
     const out = res.text;
     t.textContent = out; t.lang = m.dst; t.classList.remove('err');
     if (res.via === 'mymemory') badge(t, 'Ersatzdienst – Qualität geringer');
-    const item = learnItem(text, m.src, out, m.dst);
-    addActions(t, out, m.dst, item);
-    if ($('learnRecent').checked && item) learnStore(learnAdd(learnList, item, Date.now(), 'rec'));
     lastOut = { text: out, lang: m.tts };
     if (m.dst === pair.b) { setPartnerText(out, m.dst); }   // Partneransicht zeigt nur die Sprache des Partners
     announce(out, m.dst);
+    let item = null;   // Lernkarten zuletzt: ein Fehler dort darf Anzeige und Vorlesen nie verhindern
+    try { item = learnItem(text, m.src, out, m.dst); } catch {}
+    addActions(t, out, m.dst, item);
+    try { if ($('learnRecent').checked && item) learnStore(learnAdd(learnList, item, Date.now(), 'rec')); } catch {}
     return out;
   }, () => {   // no error text is displayed as translation or spoken
     t.textContent = navigator.onLine === false ? 'Offline – Übersetzung nicht möglich' : 'Übersetzung gerade nicht verfügbar (Internet / Limit?)';
@@ -886,6 +887,7 @@ async function renderCards() {
   if (my !== cardsGen) return;
   box.textContent = ''; msg.textContent = '';
   const nt = presetNote(d);   // Kulturhinweis des Pakets (nur Text)
+  if (nt) $('pbNote').lang = d.note[pair.a] ? pair.a : d.note.de ? 'de' : 'en';   // Screenreader: richtige Stimme
   $('pbNote').textContent = nt ? 'ℹ️ ' + nt : ''; $('pbNote').hidden = !nt;
   const a = pair.a, b = pair.b;
   if (!(b in (d.phrases[0] || {}))) msg.textContent = 'Sätze in ' + LANGS[b].de + ' werden beim ersten Tippen übersetzt (Internet nötig), danach gemerkt.';
@@ -929,7 +931,7 @@ $('btnNo').onclick = () => { const l = pair.b; showBig(LANGS[l].no, l, 'no'); if
 const LEARN_KEY = 'learnV1', LEARN_MAX = 200, LEARN_TXT = 500, DAY = 864e5;
 const LEARN_DAYS = [0, 1, 3, 7, 14];   // Fach 1..5: Tage bis zur nächsten Abfrage
 function learnSide(x) {
-  return !!x && typeof x.t === 'string' && x.t.trim() !== '' && x.t.length <= LEARN_TXT && typeof x.l === 'string' && Object.hasOwn(LANGS, x.l);
+  return !!x && typeof x.t === 'string' && x.t.trim() !== '' && x.t.length <= LEARN_TXT && typeof x.l === 'string' && Object.prototype.hasOwnProperty.call(LANGS, x.l);
 }
 function learnParse(raw) {   // gespeicherte Daten prüfen: kaputte oder fremde Einträge werden verworfen
   let v;
@@ -1171,7 +1173,7 @@ function isTyping(t) {   // Kürzel nur aus, wo getippt/gewählt wird – nicht 
 document.addEventListener('keydown', e => {
   if (consentOpen()) return;                                   // Einwilligungsdialog offen: keine Kürzel (Esc schließt ihn)
   if (e.key === 'Escape') {                                    // closing a dialog always works; sonst Stopp (WCAG 2.1.1)
-    if ($('partner').classList.contains('on')) togglePartner(false); else if (mode) chooseMode(mode);
+    if ($('partner').classList.contains('on')) togglePartner(false); else if (mode && !isTyping(e.target)) chooseMode(mode);
     return;
   }
   if (!$('keysOn').checked) return;                            // single-key shortcuts can be switched off (WCAG 2.1.4)
