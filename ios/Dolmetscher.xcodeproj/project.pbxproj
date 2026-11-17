@@ -10,6 +10,7 @@
 		D00000000000000000007001 /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = D00000000000000000009001 /* WhisperKit */; };
 		D00000000000000000007002 /* DolmetscherWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D0000000000000000000A003; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D00000000000000000007003 /* presets in Resources */ = {isa = PBXBuildFile; fileRef = D0000000000000000000A004 /* presets */; };
+		D00000000000000000007004 /* languages.json in Resources */ = {isa = PBXBuildFile; fileRef = D0000000000000000000A005 /* languages.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +49,7 @@
 		D0000000000000000000A002 = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DolmetscherTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0000000000000000000A003 = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DolmetscherWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0000000000000000000A004 /* presets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = presets; path = ../presets; sourceTree = SOURCE_ROOT; };
+		D0000000000000000000A005 /* languages.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = languages.json; path = ../languages.json; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -72,6 +74,7 @@
 				D0000000000000000000B003,
 				D0000000000000000000B004,
 				D0000000000000000000A004 /* presets */,
+				D0000000000000000000A005 /* languages.json */,
 				D00000000000000000002002,
 			);
 			sourceTree = "<group>";
@@ -206,7 +209,7 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		D00000000000000000004001 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (D00000000000000000007003 /* presets in Resources */, ); runOnlyForDeploymentPostprocessing = 0; };
+		D00000000000000000004001 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (D00000000000000000007003 /* presets in Resources */, D00000000000000000007004 /* languages.json in Resources */, ); runOnlyForDeploymentPostprocessing = 0; };
 		D00000000000000000004002 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		D00000000000000000004003 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXResourcesBuildPhase section */
