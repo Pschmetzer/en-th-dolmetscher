@@ -65,7 +65,7 @@ Only in **Debug** builds (`#if DEBUG`), ignored in Release. Set them in Xcode (*
 |---|---|
 | `DOLMETSCHER_AUDIO_FILES` | Colon-separated list of audio files that are played into the recognizer instead of the microphone (the Simulator often has no microphone). |
 | `DOLMETSCHER_AUTOSTART` | Any value: press Start automatically after launch. Meant for use together with `DOLMETSCHER_AUDIO_FILES`. |
-| `DOLMETSCHER_DEMO`, `DOLMETSCHER_SCREEN` | Demo conversation in memory; open a screen directly (`partner`, `settings`, `places`, `learn`, `phrasebook`, …, see `DebugScreens.swift`). `DOLMETSCHER_PB_CATEGORY=pack.doctor` picks the phrasebook category. |
+| `DOLMETSCHER_DEMO`, `DOLMETSCHER_SCREEN` | Demo conversation in memory; open a screen directly (`partner`, `settings`, `places`, `learn`, `phrasebook`, …, see `DebugScreens.swift`). `DOLMETSCHER_PB_CATEGORY=pack.doctor` picks the phrasebook category; `DOLMETSCHER_CULTURE=temple` shows the cultural tip banner. |
 | `DOLMETSCHER_LOG_LANGS` | Any value: writes what this device supports per language (recognition, translation, voice) to the log, subsystem `dolmetscher`, category `langs`. |
 
 ```sh
