@@ -134,6 +134,10 @@ struct SettingsView: View {
         }
     }
 
+    private var listeningFooter: String {
+        [T("listening_note"), T("sensitivity_note"), T("live_activity_note")].joined(separator: "\n")
+    }
+
     private var listeningSection: some View {
         @Bindable var m = m
         return Section {
@@ -153,7 +157,7 @@ struct SettingsView: View {
                 Text(T("sens_normal")).tag(Sensitivity.normal)
                 Text(T("sens_loud")).tag(Sensitivity.loud)
             }
-        } header: { Text(T("sec_listening")) } footer: { Text(T("listening_note") + "\n" + T("sensitivity_note") + "\n" + T("live_activity_note")) }
+        } header: { Text(T("sec_listening")) } footer: { Text(listeningFooter) }
     }
 
     private var translationSection: some View {

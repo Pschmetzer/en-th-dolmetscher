@@ -124,6 +124,16 @@ struct CultureHintBanner: View {
     }
 }
 
+/// 567: Sichtschutz auch über Sheets und Vollbild-Ansichten (Notfallkarte, Partner-Ansicht, Groß-Ansicht).
+struct ShieldWhenInactive: ViewModifier {
+    @Environment(InterpreterModel.self) private var m
+    @Environment(\.scenePhase) private var phase
+
+    func body(content: Content) -> some View {
+        content.overlay { if m.privacyShield && phase != .active { PrivacyShield() } }
+    }
+}
+
 /// 567: Sichtschutz für den App-Umschalter.
 struct PrivacyShield: View {
     var body: some View {

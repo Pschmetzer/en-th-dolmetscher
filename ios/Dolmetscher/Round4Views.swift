@@ -264,7 +264,7 @@ private struct PlaceRow: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(place.name).font(.headline)
             if !place.local.isEmpty && place.local != place.name {
-                Text(place.local).font(.subheadline).foregroundStyle(.orange)
+                Text(place.local).font(.subheadline).foregroundStyle(LangStyle.partnerColor)
             }
         }
     }
@@ -464,7 +464,7 @@ struct PriceShowView: View {
         VStack(spacing: 0) {
             VStack(spacing: 16) {
                 Text("฿ " + amount.formatted()).font(.system(size: 80, weight: .heavy).monospacedDigit()).minimumScaleFactor(0.3)
-                Text(words).font(.system(size: 40, weight: .bold)).foregroundStyle(.orange).minimumScaleFactor(0.3)
+                Text(words).font(.system(size: 40, weight: .bold)).foregroundStyle(LangStyle.partnerColor).minimumScaleFactor(0.3)
                 if let home { Text("≈ " + home).font(.title2).foregroundStyle(.secondary) }
             }
             .multilineTextAlignment(.center)
@@ -531,7 +531,7 @@ private struct DishLine: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 1) {
             Text("🍲 \(name) (\(dish.roman))").font(.caption.weight(.semibold))
-            if !dish.notes.isEmpty { Text(notes).font(.caption2).foregroundStyle(.orange) }
+            if !dish.notes.isEmpty { Text(notes).font(.caption2).foregroundStyle(LangStyle.partnerColor) }
         }
     }
 }

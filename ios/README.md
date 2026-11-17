@@ -24,7 +24,7 @@ Native SwiftUI app for iPhone and iPad: press Start and just talk. It interprets
 | Travel | “Ready to travel?” checklist, taxi destinations with business-card scan and Apple Maps link, Baht calculator, dish lexicon under photo text |
 | Widgets | quick-phrase widget (small/medium/large), control for Control Center, lock screen and Action button, Live Activity and Dynamic Island |
 | iPad | all orientations; conversation and a tools column side by side on wide screens |
-| Privacy | online translation off by default, Face ID lock for the history, privacy overview in the settings, “Delete all data” |
+| Privacy | online translation off by default, Face ID lock for the history, history/favorites/emergency card excluded from iCloud backup, hidden in the app switcher, Live Activity off by default and without sentences while the iPhone is locked, privacy overview in the settings, “Delete all data” |
 
 ## Requirements
 

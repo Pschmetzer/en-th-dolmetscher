@@ -76,7 +76,7 @@ struct ContentView: View {
                         .accessibilityLabel(T("more"))
                 }
             }
-            .sheet(item: $m.sheet) { s in sheetView(s) }
+            .sheet(item: $m.sheet) { s in sheetView(s).modifier(ShieldWhenInactive()) }
             .confirmationDialog(T("clear_confirm"), isPresented: $confirmClear, titleVisibility: .visible) {
                 Button(T("clear"), role: .destructive) { m.clear() }
                 Button(T("cancel"), role: .cancel) {}
@@ -85,14 +85,16 @@ struct ContentView: View {
                 Button(T("cellular_go")) { m.startAllowingCellular() }
                 Button(T("cellular_wait"), role: .cancel) {}
             } message: { Text(T("cellular_msg")) }
-            .fullScreenCover(isPresented: $showPartner) { PartnerView() }
+            .fullScreenCover(isPresented: $showPartner) { PartnerView().modifier(ShieldWhenInactive()) }
             .modifier(ReviewPrompt(covered: showPartner || big != nil))
             #if DEBUG
             .task { DebugScreens.apply(m, partner: $showPartner) }
             #endif
-            .fullScreenCover(item: $big) { e in BigTextView(entryID: e.id) }
+            .fullScreenCover(item: $big) { e in BigTextView(entryID: e.id).modifier(ShieldWhenInactive()) }
             .onChange(of: m.bigRequest) { _, id in showRequested(id) }
             .task { firstLaunch() }
+            // 587: nach der Reise-Vorbereitung (erster Start) einmal nach der Höflichkeitsform fragen.
+            .onChange(of: m.sheet) { _, s in if s == nil { askPolitenessOnce() } }
             .confirmationDialog(T("politeness_ask"), isPresented: $askPoliteness, titleVisibility: .visible) {
                 Button(T("pol_male")) { m.politeness = .male }
                 Button(T("pol_female")) { m.politeness = .female }
@@ -134,14 +136,17 @@ struct ContentView: View {
         let env = ProcessInfo.processInfo.environment
         if env["DOLMETSCHER_SCREEN"] != nil || env["DOLMETSCHER_DEMO"] != nil || env["XCTestConfigurationFilePath"] != nil { return }
         #endif
-        // 587: Höflichkeitsform einmal fragen statt still „männlich“ (nach der Reise-Vorbereitung).
-        if !politenessAsked && m.features.thaiExtras {
-            politenessAsked = true
-            if prepShown { askPoliteness = true }
-        }
+        if prepShown { askPolitenessOnce() }
         guard !prepShown else { return }
         prepShown = true
         if m.sheet == nil { m.sheet = .prep }
+    }
+
+    /// 587: Höflichkeitsform einmal fragen statt still „männlich“ – nicht, wenn schon eine gewählt ist.
+    private func askPolitenessOnce() {
+        guard !politenessAsked, m.features.thaiExtras else { return }
+        politenessAsked = true
+        if UserDefaults.standard.object(forKey: "politeness") == nil { askPoliteness = true }
     }
 
     @ViewBuilder private func sheetView(_ s: AppSheet) -> some View {
@@ -826,7 +831,7 @@ struct BackLine: View {
     let deviates: Bool
 
     private var icon: String { deviates ? "exclamationmark.triangle.fill" : "arrow.uturn.backward" }
-    private var tint: Color { deviates ? .orange : .secondary }
+    private var tint: Color { deviates ? LangStyle.partnerColor : .secondary }
     private var label: String {
         let head: String = T("back_label") + ": " + text
         return deviates ? T("back_deviates") + ". " + head : head
