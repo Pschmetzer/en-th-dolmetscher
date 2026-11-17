@@ -3,9 +3,9 @@ name: iOS
 on:
   push:
     branches: [main]
-    paths: ["ios/**", "presets/**", ".github/workflows/ios.yml"]
+    paths: ["ios/**", "presets/**", "languages.json", ".github/workflows/ios.yml"]
   pull_request:
-    paths: ["ios/**", "presets/**", ".github/workflows/ios.yml"]
+    paths: ["ios/**", "presets/**", "languages.json", ".github/workflows/ios.yml"]
 
 permissions:
   contents: read
