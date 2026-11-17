@@ -4,9 +4,13 @@
 > noch nicht von Muttersprachlern geprüft. Sie sind für den Notbehelf gedacht, nicht als verbindliche Übersetzung.
 > Das Arzt- und das Apotheken-Paket helfen nur bei der Verständigung und ersetzen keinen medizinischen Rat.
 
-Ein Paket ist eine JSON-Datei in `presets/`. Die Engine (`presets.py`), die Mac-App (`app/Presets.swift`) und
-die Web-Version (`index.html`, Satzbuch und Zeige-Karten) lesen dieselben Dateien. Eigene Pakete liegen in
+Ein Paket ist eine JSON-Datei in `presets/`. Die Engine (`presets.py`), die Mac-App (`app/Presets.swift`), die
+Web-Version (`index.html`, Satzbuch und Zeige-Karten) und die iPhone-App lesen dieselben Dateien. Eigene Pakete liegen in
 `$DOLMETSCHER_HOME/presets/`; gleiche `id` ersetzt das mitgelieferte Paket.
+
+Die iPhone-App liest den Ordner `presets/` ebenfalls (als Ordner-Referenz im Xcode-Projekt). Jedes Paket
+erscheint dort als eigener Abschnitt im Satzbuch mit Kulturhinweis; `critical`-Sätze stehen oben und greifen bei
+„Satzbuch zuerst“ nur bei genauem Treffer.
 
 ## Format
 
@@ -81,3 +85,41 @@ kennen, ignorieren sie.
 | `pharmacy` | มีผงเกลือแร่ไหม | gängiges Wort für Elektrolytpulver? |
 | `shopping` | ขอเอกสารขอคืนภาษี VAT Refund ด้วย | doppeltes ขอ, Formulierung im Laden üblich? |
 | `doctor` | ใช้ประกันสุขภาพนี้ได้ไหม | ersetzt „รับประกันของฉันไหม“ (mehrdeutig, Garantie) |
+
+## Muttersprachler gesucht
+
+Fast alle Texte in Thai und in den neueren Oberflächensprachen sind maschinell bzw. mit KI-Hilfe entstanden.
+Muttersprachlich geprüft ist bisher **nichts davon** (Ausnahme: Deutsch und Englisch). Wer Thai oder eine der
+Sprachen unten spricht, hilft sehr, wenn er die Dateien gegenliest. Schon ein einzelner korrigierter Satz zählt.
+
+So geht's: Issue oder Pull Request auf GitHub, mit Datei, alter und neuer Fassung und kurzer Begründung
+(z. B. „klingt unhöflich“, „sagt man so nicht“). Bitte dazuschreiben, welche Sprache du als Muttersprache sprichst.
+Am wichtigsten sind die Sätze mit `critical` und die Tabelle [Unsichere Sätze](#unsichere-sätze-bitte-zuerst-prüfen).
+
+**Thai**
+
+| Datei | Inhalt |
+|---|---|
+| `presets/*.json` | 16 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
+| `ios/Shared/phrases.json` | eingebautes Satzbuch der iPhone-App und des Widgets |
+| `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten, „Sie sind dran“, Allergie-Karte |
+| `ios/Dolmetscher/Round4Views.swift` | Hilfesatz auf dem Bildschirm „Hilfe – jetzt“ |
+| `ios/Dolmetscher/L10n+R4.swift` | Gerichte-Lexikon (`dish_*`) und weitere Texte |
+| `ios/Dolmetscher/L10n.swift`, `L10n+Extra.swift`, `L10n+R4.swift`, `L10n+R5.swift` | Thai-Oberfläche der iPhone-App |
+| `ios/Shared/WidgetTexts.swift` | Texte der Widgets und der Live-Aktivität |
+| `ios/Dolmetscher/th.lproj/InfoPlist.strings` | Texte der Berechtigungsabfragen (Mikrofon, Standort, Face ID …) |
+| `ios/AppStore/th/` | App-Store-Texte |
+| `app/L10n.swift` | Thai-Oberfläche der Mac-App |
+| `index.html` | Ja/Nein-Karten (`LANGS`) der Web-Version |
+
+**Oberflächensprachen der iPhone-App: es, fr, ja, ko, zh-Hans, vi, id**
+
+| Datei | Inhalt |
+|---|---|
+| `ios/Dolmetscher/L10n.swift`, `L10n+Extra.swift`, `L10n+R4.swift`, `L10n+R5.swift` | alle Texte der Oberfläche, Paketnamen (`packNames`) |
+| `ios/Shared/WidgetTexts.swift` | Widgets und Live-Aktivität |
+| `ios/Dolmetscher/<sprache>.lproj/InfoPlist.strings` | Berechtigungsabfragen |
+| `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten und Allergie-Karte (dort in allen 19 Sprachen) |
+| `ios/AppStore/<locale>/` | App-Store-Texte (auch `de-DE` und `th` sind maschinell übersetzt) |
+
+Wer Code nicht anfassen will: Ein Screenshot aus der App mit der richtigen Fassung reicht auch.
