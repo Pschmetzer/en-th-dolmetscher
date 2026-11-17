@@ -14,11 +14,16 @@ struct Phrase: Identifiable, Codable, Hashable, Sendable {
     var dst: Lang? = nil
     /// Deutsche Glosse (eingebautes Satzbuch).
     var de: String? = nil
+    /// Sicherheitskritischer Satz aus einem Szenario-Paket. Optional, damit alte favorites.json lesbar bleiben.
+    var critical: Bool? = nil
+    /// Szenario-Paket (presets/<id>.json), aus dem der Satz stammt.
+    var pack: String? = nil
 
     var srcLang: Lang { src ?? .en }
     var dstLang: Lang { dst ?? .th }
     /// Überschrift in der Oberflächensprache (Deutsch, sonst Englisch).
     var gloss: String { L10n.lang == "de" ? (de ?? en) : en }
+    var isCritical: Bool { critical == true }
 }
 
 enum Phrasebook {
@@ -27,6 +32,29 @@ enum Phrasebook {
     /// Aus Shared/phrases.json (auch im Widget gebündelt).
     static let builtIn: [Phrase] = PhraseData.all.map {
         Phrase(en: $0.en, th: $0.th, roman: $0.roman, category: $0.category, de: $0.de)
+    }
+
+    /// Szenario-Pakete aus presets/*.json (Kulturhinweis, kritische Sätze zuerst).
+    static let packs: [ScenarioPack] = ScenarioPack.load(Bundle.main)
+
+    /// Eingebaut + Pakete. Eingebaute zuerst: bei gleichem englischen Satz gewinnt die Fassung mit Höflichkeitsform.
+    static let all: [Phrase] = builtIn + packs.flatMap(\.asPhrases)
+
+    /// Sätze einer Kategorie (eingebaut oder „pack.<id>“).
+    static func phrases(in category: String, from list: [Phrase] = all) -> [Phrase] {
+        list.filter { $0.category == category }
+    }
+
+    /// Umschrift zum Anzeigen: die geprüfte, sonst automatisch (Paket-Sätze haben keine eigene).
+    static func roman(_ p: Phrase, politeness: Politeness) -> String? {
+        if !p.roman.isEmpty { return p.dstLang == .th ? politeness.fillRoman(p.roman) : p.roman }
+        return Romanizer.latin(p.th, p.dstLang)
+    }
+
+    /// Doppelte englische Sätze entfernen, erste Fassung behalten.
+    static func unique(_ list: [Phrase]) -> [Phrase] {
+        var seen = Set<String>()
+        return list.filter { seen.insert($0.en).inserted }
     }
 
     /// Klein, ohne Satzzeichen und Füllwörter („please“, „bitte“) – für den Vergleich getippter Sätze.
@@ -40,7 +68,7 @@ enum Phrasebook {
 
     /// „Satzbuch zuerst“: passt ein englischer (oder deutscher) Satz fast genau auf einen Satz im Satzbuch?
     /// Dann die geprüfte Thai-Fassung statt maschineller Übersetzung.
-    static func match(_ text: String, lang: Lang, in list: [Phrase] = builtIn) -> Phrase? {
+    static func match(_ text: String, lang: Lang, in list: [Phrase] = all) -> Phrase? {
         guard lang == .en || lang == .de else { return nil }
         let n = normalize(text)
         guard n.count >= 2 else { return nil }
@@ -59,10 +87,10 @@ enum Phrasebook {
     }
 
     /// Vorschläge beim Tippen (ab 3 Zeichen): Sätze, die den Text enthalten.
-    static func suggestions(_ text: String, in list: [Phrase] = builtIn, limit: Int = 3) -> [Phrase] {
+    static func suggestions(_ text: String, in list: [Phrase] = all, limit: Int = 3) -> [Phrase] {
         let n = normalize(text)
         guard n.count >= 3 else { return [] }
-        let hits = list.filter { normalize($0.en).contains(n) || normalize($0.de ?? "").contains(n) }
+        let hits = unique(list).filter { normalize($0.en).contains(n) || normalize($0.de ?? "").contains(n) }
         return Array(hits.prefix(limit))
     }
 }
@@ -73,66 +101,37 @@ struct PhrasebookView: View {
     @State private var category = "favorites"
     @State private var search = ""
 
-    /// Eingebaute Sätze sind Englisch -> Thai: nur mit Thai im Paar.
-    private var builtIn: [Phrase] {
-        if m.features.thaiExtras { return Phrasebook.builtIn }
-        return []
-    }
+    /// Eingebaute Sätze und Pakete sind Englisch -> Thai: nur mit Thai im Paar.
+    private var available: [Phrase] { m.features.thaiExtras ? Phrasebook.all : [] }
+
+    private var pack: ScenarioPack? { Phrasebook.packs.first { $0.key == category } }
 
     private var shown: [Phrase] {
-        let base = category == "favorites" ? m.favorites : builtIn.filter { $0.category == category }
-        guard !search.isEmpty else { return base }
-        var seen = Set<String>()
-        let all = (m.favorites + builtIn).filter { seen.insert($0.en).inserted }
-        return all.filter {
-            $0.en.localizedCaseInsensitiveContains(search) || $0.th.contains(search) || ($0.de ?? "").localizedCaseInsensitiveContains(search)
+        guard search.isEmpty else {
+            let all: [Phrase] = Phrasebook.unique(m.favorites + available)
+            return all.filter(matches)
         }
+        return category == "favorites" ? m.favorites : Phrasebook.phrases(in: category, from: available)
+    }
+
+    private func matches(_ p: Phrase) -> Bool {
+        if p.en.localizedCaseInsensitiveContains(search) || p.th.contains(search) { return true }
+        return (p.de ?? "").localizedCaseInsensitiveContains(search)
     }
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        chip("favorites", icon: "star.fill")
-                        if m.features.thaiExtras {
-                            ForEach(Phrasebook.categories, id: \.key) { chip($0.key, icon: $0.icon) }
-                        }
-                    }
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
-                }
+                chips
                 List {
+                    if search.isEmpty, let note = pack?.noteText(L10n.lang) {
+                        PackNote(text: note)
+                    }
                     if shown.isEmpty {
                         Text(category == "favorites" ? T("fav_empty") : T("nothing_found"))
                             .foregroundStyle(.secondary)
                     }
-                    ForEach(shown) { p in
-                        Button {
-                            m.say(p)
-                            Haptics.tap()
-                            dismiss()
-                        } label: {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(p.gloss).font(.headline)
-                                Text(p.dstLang == .th ? m.politeness.fill(p.th) : p.th).font(.title3)
-                                    .foregroundStyle(LangStyle.color(p.dstLang, m.pair))
-                                if !p.roman.isEmpty {
-                                    Text(p.dstLang == .th ? m.politeness.fillRoman(p.roman) : p.roman)
-                                        .font(.caption).foregroundStyle(.secondary).italic()
-                                }
-                            }
-                            .padding(.vertical, 2)
-                        }
-                        .buttonStyle(.plain)
-                        .swipeActions {
-                            if m.isFavorite(p) {
-                                Button(role: .destructive) { m.toggleFavorite(p) } label: { Label(T("unfavorite"), systemImage: "star.slash") }
-                            } else {
-                                Button { m.toggleFavorite(p) } label: { Label(T("favorite"), systemImage: "star") }.tint(.yellow)
-                            }
-                        }
-                    }
+                    ForEach(shown) { p in row(p) }
                 }
                 .listStyle(.plain)
             }
@@ -140,19 +139,101 @@ struct PhrasebookView: View {
             .navigationTitle(T("phrasebook"))
             .navigationBarTitleDisplayMode(.inline)
             .doneToolbar { dismiss() }
-            .onAppear { if m.favorites.isEmpty && m.features.thaiExtras { category = "basics" } }
+            .onAppear(perform: pickStart)
         }
     }
 
-    private func chip(_ key: String, icon: String) -> some View {
-        Button { category = key } label: {
-            Label(T("cat_" + key), systemImage: icon)
+    private func pickStart() {
+        if m.favorites.isEmpty && m.features.thaiExtras { category = "basics" }
+        #if DEBUG
+        if let c = ProcessInfo.processInfo.environment["DOLMETSCHER_PB_CATEGORY"] { category = c }
+        #endif
+    }
+
+    private var chips: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                chip("favorites", title: T("cat_favorites"), icon: "star.fill")
+                if m.features.thaiExtras {
+                    ForEach(Phrasebook.categories, id: \.key) { chip($0.key, title: T("cat_" + $0.key), icon: $0.icon) }
+                    ForEach(Phrasebook.packs) { chip($0.key, title: $0.name(L10n.lang), icon: $0.icon) }
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+        }
+    }
+
+    private func row(_ p: Phrase) -> some View {
+        Button {
+            m.say(p)
+            Haptics.tap()
+            dismiss()
+        } label: {
+            PhraseRow(phrase: p, thai: p.dstLang == .th ? m.politeness.fill(p.th) : p.th,
+                      roman: Phrasebook.roman(p, politeness: m.politeness), color: LangStyle.color(p.dstLang, m.pair))
+        }
+        .buttonStyle(.plain)
+        .listRowBackground(p.isCritical ? Color.red.opacity(0.08) : nil)
+        .swipeActions {
+            if m.isFavorite(p) {
+                Button(role: .destructive) { m.toggleFavorite(p) } label: { Label(T("unfavorite"), systemImage: "star.slash") }
+            } else {
+                Button { m.toggleFavorite(p) } label: { Label(T("favorite"), systemImage: "star") }.tint(.yellow)
+            }
+        }
+    }
+
+    private func chip(_ key: String, title: String, icon: String) -> some View {
+        let on = category == key
+        return Button { category = key } label: {
+            Label(title, systemImage: icon)
                 .font(.subheadline.weight(.medium))
                 .padding(.horizontal, 12)
                 .padding(.vertical, 7)
-                .background(category == key ? Color.accentColor : Color.secondary.opacity(0.15), in: Capsule())
-                .foregroundStyle(category == key ? .white : .primary)
+                .background(on ? Color.accentColor : Color.secondary.opacity(0.15), in: Capsule())
+                .foregroundStyle(on ? .white : .primary)
         }
         .buttonStyle(.plain)
     }
 }
+
+/// Kulturhinweis eines Pakets über den Sätzen.
+private struct PackNote: View {
+    let text: String
+    var body: some View {
+        Label { Text(text).font(.footnote) } icon: { Image(systemName: "info.circle.fill").foregroundStyle(.blue) }
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.blue.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
+            .listRowSeparator(.hidden)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(T("pack_note") + ": " + text)
+    }
+}
+
+/// Ein Satz: Glosse, Übersetzung, Umschrift; kritische Sätze rot markiert.
+private struct PhraseRow: View {
+    let phrase: Phrase
+    let thai: String
+    let roman: String?
+    let color: Color
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 8) {
+            if phrase.isCritical {
+                Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.red)
+                    .accessibilityLabel(T("critical"))
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(phrase.gloss).font(.headline)
+                Text(thai).font(.title3).foregroundStyle(color)
+                if let roman, !roman.isEmpty {
+                    Text(roman).font(.caption).foregroundStyle(.secondary).italic()
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+}
+
