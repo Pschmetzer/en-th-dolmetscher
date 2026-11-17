@@ -32,10 +32,18 @@ final class L10nTests: XCTestCase {
                 XCTAssertFalse(text.trimmingCharacters(in: .whitespaces).isEmpty, "\(lang): \(key) fehlt (Runde 5)")
                 XCTAssertEqual(placeholders(text), placeholders(row["en"] ?? ""), "\(lang): \(key) Platzhalter")
             }
+            for (key, row) in L10n.round6 {
+                let text = row[lang] ?? ""
+                XCTAssertFalse(text.trimmingCharacters(in: .whitespaces).isEmpty, "\(lang): \(key) fehlt (Runde 6)")
+                XCTAssertEqual(placeholders(text), placeholders(row["en"] ?? ""), "\(lang): \(key) Platzhalter")
+            }
         }
         XCTAssertTrue(Set(L10n.round4.keys).isDisjoint(with: L10n.table.keys), "Schlüssel doppelt in table und round4")
         XCTAssertTrue(Set(L10n.round5.keys).isDisjoint(with: L10n.table.keys), "Schlüssel doppelt in table und round5")
         XCTAssertTrue(Set(L10n.round5.keys).isDisjoint(with: L10n.round4.keys), "Schlüssel doppelt in round4 und round5")
+        for (name, other) in [("table", Set(L10n.table.keys)), ("round4", Set(L10n.round4.keys)), ("round5", Set(L10n.round5.keys))] {
+            XCTAssertTrue(Set(L10n.round6.keys).isDisjoint(with: other), "Schlüssel doppelt in \(name) und round6")
+        }
     }
 
     /// Texte der Widget-Erweiterung: jede Sprache, nicht leer.

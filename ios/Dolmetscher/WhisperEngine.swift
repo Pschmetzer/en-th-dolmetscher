@@ -185,7 +185,7 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
         try await capture.activate(options: options)
         try capture.checkInput()
         queue.sync {
-            self.langs = langs; gate.pause = pauseSeconds; muted = false; running = true
+            self.langs = langs; gate.pause = pauseSeconds; gate.apply(options.sensitivity); muted = false; running = true
             preRoll.clear(); utterance = []
         }
         let stream = jobStream

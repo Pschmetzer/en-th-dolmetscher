@@ -1,9 +1,15 @@
 // L10n.swift – Texte der Oberfläche in Deutsch, Englisch und Thai (wie die Mac-App); weitere Sprachen
 // (maschinell übersetzt) in L10n+Extra.swift.
 import Foundation
+import Observation
 
 enum L10n {
-    nonisolated(unsafe) static var lang = systemLang()
+    /// Sprache der Oberfläche. Beobachtbar (555): Ansichten, die `T()` lesen, zeichnen sich bei einem Wechsel
+    /// neu, ohne dass der ganze Baum neu entsteht (Sheets bleiben offen). Mit Sperre (650: Lesen aus Hintergrund-Threads).
+    static var lang: String {
+        get { UILanguage.shared.code }
+        set { UILanguage.shared.code = newValue }
+    }
 
     /// Sprachen der Oberfläche (Codes wie die .lproj-Ordner).
     static let languages = ["de", "en", "th", "es", "fr", "ja", "ko", "zh-Hans", "vi", "id"]
@@ -310,9 +316,27 @@ func T(_ key: String) -> String {
 extension L10n {
     /// Text in einer bestimmten Sprache, nil wenn es ihn dort nicht gibt (kein Rückfall).
     static func text(_ key: String, lang: String) -> String? {
-        table[key]?[lang] ?? extra[lang]?[key] ?? round4[key]?[lang] ?? round5[key]?[lang]
+        table[key]?[lang] ?? extra[lang]?[key] ?? round4[key]?[lang] ?? round5[key]?[lang] ?? round6[key]?[lang]
     }
 
     /// Alle Schlüssel (Grundtabelle, Runde 4 und 5).
-    static var allKeys: Set<String> { Set(table.keys).union(round4.keys).union(round5.keys) }
+    static var allKeys: Set<String> { Set(table.keys).union(round4.keys).union(round5.keys).union(round6.keys) }
+}
+
+/// Beobachtbarer Speicher für `L10n.lang`.
+@Observable
+final class UILanguage: @unchecked Sendable {
+    static let shared = UILanguage()
+    @ObservationIgnored private let lock = NSLock()
+    @ObservationIgnored private var stored = L10n.systemLang()
+
+    var code: String {
+        get {
+            access(keyPath: \.code)
+            return lock.withLock { stored }
+        }
+        set {
+            withMutation(keyPath: \.code) { lock.withLock { stored = newValue } }
+        }
+    }
 }

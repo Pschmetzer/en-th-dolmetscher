@@ -32,7 +32,29 @@ struct JSONStore: Sendable {
         guard let data = try? JSONEncoder().encode(value) else { return false }
         // „UntilFirstUserAuthentication“: nach dem ersten Entsperren seit dem Neustart lesbar – auch wenn die
         // App gesperrt startet (Siri, Action-Taste) oder im Hintergrund zuhört.
-        return (try? data.write(to: url(name), options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])) != nil
+        var u = url(name)
+        guard (try? data.write(to: u, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])) != nil else { return false }
+        // Nicht ins iCloud-/Computer-Backup (566): „bleibt nur auf diesem iPhone“. `.atomic` ersetzt die Datei,
+        // daher nach jedem Schreiben neu setzen.
+        var rv = URLResourceValues()
+        rv.isExcludedFromBackup = true
+        try? u.setResourceValues(rv)
+        return true
+    }
+
+    /// Liste tolerant laden (604): ein kaputter oder unbekannter Eintrag kostet nur diesen Eintrag, nicht alles.
+    /// Fehlen Einträge, bleibt eine Sicherung `name.bak-…` liegen, bevor neu geschrieben wird.
+    func loadLossy<T: Decodable>(_ type: T.Type, _ name: String) -> Loaded<[T]> {
+        let u = url(name)
+        guard FileManager.default.fileExists(atPath: u.path) else { return .missing }
+        guard let data = try? Data(contentsOf: u) else { return .unreadable }
+        guard let rows = try? JSONDecoder().decode([Lossy<T>].self, from: data) else { return .corrupt }
+        let ok = rows.compactMap(\.value)
+        if ok.count < rows.count {
+            let stamp = Int(Date().timeIntervalSince1970)
+            try? FileManager.default.copyItem(at: u, to: url("\(name).bak-\(stamp)"))
+        }
+        return .ok(ok)
     }
 
     /// Kaputte Datei beiseitelegen statt überschreiben.
@@ -48,6 +70,12 @@ struct JSONStore: Sendable {
         let names = (try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? []
         for n in names where prefixes.contains(where: { n.hasPrefix($0) }) { remove(n) }
     }
+}
+
+/// Ein Listeneintrag, der beim Dekodieren scheitern darf (nil statt Abbruch der ganzen Liste).
+struct Lossy<T: Decodable>: Decodable {
+    let value: T?
+    init(from decoder: Decoder) throws { value = try? T(from: decoder) }
 }
 
 /// Zuletzt Gelöschtes für eine Weile zurückholbar halten („Verlauf leeren“ – ein Verhörer genügt).

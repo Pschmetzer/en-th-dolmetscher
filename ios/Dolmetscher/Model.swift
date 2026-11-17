@@ -33,7 +33,7 @@ struct Entry: Identifiable, Codable, Equatable {
 }
 
 enum AppSheet: String, Identifiable {
-    case settings, phrasebook, photo, help, emergency, baht, allergy, privacy, prep, places, helpNow, learn
+    case settings, phrasebook, photo, help, emergency, baht, allergy, privacy, prep, places, helpNow, learn, summary
     #if DEBUG
     case widgetPreview
     #endif
@@ -105,6 +105,23 @@ final class InterpreterModel {
     var volume: Double { didSet { save("volume", volume) } }
     var allowOnline: Bool { didSet { save("allowOnline", allowOnline) } }
     var autoSpeak: Bool { didSet { save("autoSpeak", autoSpeak) } }
+    /// 589: Übersetzungen in meine Sprache auch vorlesen (sonst nur anzeigen – man liest selbst).
+    var autoSpeakMine: Bool { didSet { save("autoSpeakMine", autoSpeakMine) } }
+    /// 598: Empfindlichkeit der Spracherkennung (ruhig / normal / laut), greift beim nächsten Start.
+    var sensitivity: Sensitivity { didSet { save("sensitivity", sensitivity.rawValue); if phase == .listening && oldValue != sensitivity { restart() } } }
+    /// 567: Im App-Umschalter das Gespräch verdecken.
+    var privacyShield: Bool { didSet { save("privacyShield", privacyShield) } }
+    /// Gesprächszusammenfassung mit Apple Intelligence (auf dem Gerät), abschaltbar.
+    var summaryEnabled: Bool { didSet { save("summaryEnabled", summaryEnabled) } }
+    /// Kulturhinweis passend zum Gespräch (Paket-Hinweise aus presets/), abschaltbar.
+    var cultureHints: Bool { didSet { save("cultureHints", cultureHints); if !cultureHints { cultureHint = nil } } }
+    /// Gerade angezeigter Kulturhinweis: Paket-ID.
+    var cultureHint: String?
+    /// Satzbuch beim nächsten Öffnen in dieser Kategorie zeigen (Kulturhinweis -> Paket).
+    @ObservationIgnored var phrasebookStart: String?
+    @ObservationIgnored private var cultureShown: Set<String> = []
+    /// 906: „Langsam und deutlich“ – langsamer und mit Pausen zwischen Satzteilen.
+    var clearSpeech: Bool { didSet { save("clearSpeech", clearSpeech) } }
     var uiLang: String { didSet { save("uiLang", uiLang); L10n.lang = uiLang } }
     var politeness: Politeness { didSet { save("politeness", politeness.rawValue) } }
     var haptics: Bool { didSet { save("haptics", haptics); Haptics.enabled = haptics } }
@@ -118,7 +135,8 @@ final class InterpreterModel {
     var historyDays: Int { didSet { save("historyDays", historyDays); persist() } }
     /// Thai-Ausgabe immer über den Lautsprecher, auch mit Kopfhörern (das Gegenüber soll es hören).
     var thaiOnSpeaker: Bool { didSet { save("thaiOnSpeaker", thaiOnSpeaker) } }
-    var emergency: EmergencyInfo { didSet { files.store(emergency, "emergency.json") } }
+    /// Gespeichert wird entprellt (563): nicht bei jedem Tastendruck im Formular.
+    var emergency: EmergencyInfo { didSet { scheduleWrite(.emergency) } }
     /// Halten zum Sprechen statt Dauer-Zuhören (spart Akku, sicherer in Menschenmengen).
     var pushToTalk: Bool { didSet { save("pushToTalk", pushToTalk); applyMute() } }
     /// Live-Aktivität (Sperrbildschirm, Dynamic Island) beim Zuhören.
@@ -157,6 +175,10 @@ final class InterpreterModel {
     @ObservationIgnored private let speaker = Speaker()
     @ObservationIgnored private let d = UserDefaults.standard
     @ObservationIgnored private let files: JSONStore
+    @ObservationIgnored private var writeTask: Task<Void, Never>?
+    @ObservationIgnored private var quietWarnedAt = Date.distantPast
+    @ObservationIgnored private var onlineFallbackNoted = false
+    @ObservationIgnored private var pendingWrites: Set<PendingWrite> = []
     /// Verlauf/Favoriten waren beim Start nicht lesbar (gesperrtes Gerät): nie mit leerer Liste überschreiben.
     @ObservationIgnored private var historyBlocked = false
     @ObservationIgnored private var favoritesBlocked = false
@@ -197,6 +219,12 @@ final class InterpreterModel {
         volume = d.object(forKey: "volume") as? Double ?? 1.0
         allowOnline = Self.allowOnlineSetting(d)
         autoSpeak = d.object(forKey: "autoSpeak") as? Bool ?? true
+        autoSpeakMine = d.object(forKey: "autoSpeakMine") as? Bool ?? true
+        clearSpeech = d.object(forKey: "clearSpeech") as? Bool ?? false
+        sensitivity = Sensitivity(rawValue: d.string(forKey: "sensitivity") ?? "") ?? .normal
+        privacyShield = d.object(forKey: "privacyShield") as? Bool ?? true
+        summaryEnabled = d.object(forKey: "summaryEnabled") as? Bool ?? true
+        cultureHints = d.object(forKey: "cultureHints") as? Bool ?? true
         uiLang = d.string(forKey: "uiLang") ?? L10n.systemLang()
         politeness = Politeness(rawValue: d.string(forKey: "politeness") ?? "") ?? .male
         haptics = d.object(forKey: "haptics") as? Bool ?? true
@@ -240,7 +268,7 @@ final class InterpreterModel {
     }
 
     private func loadHistory() {
-        switch files.load([Entry].self, "history.json") {
+        switch files.loadLossy(Entry.self, "history.json") {
         case .ok(let e): entries = e + entries; historyBlocked = false
         case .missing: historyBlocked = false
         case .corrupt: files.quarantine("history.json"); historyBlocked = false
@@ -307,7 +335,7 @@ final class InterpreterModel {
         generation += 1
         let mine = generation
         let pendingStop = stopTask
-        let options = AudioOptions(headset: headset)
+        let options = AudioOptions(headset: headset, sensitivity: sensitivity)
         let langs = mode.langs(pair), pause = pauseSeconds
         let cellularOK = cellularAllowed
         cellularAllowed = false
@@ -455,6 +483,7 @@ final class InterpreterModel {
     /// App geht in den Hintergrund: ohne Hintergrund-Einstellung aufhören zuzuhören.
     func enteredBackground() {
         lockNow()
+        persistNow()
         guard !background else { return }
         resumeOnForeground = isListening || isBusy
         stop()
@@ -628,6 +657,8 @@ final class InterpreterModel {
 
     func flash(_ s: String, seconds: Double = 2.5) {
         notice = s
+        // 583: VoiceOver-Nutzer erfahren Hinweise sonst nicht.
+        if UIAccessibility.isVoiceOverRunning { AccessibilityNotification.Announcement(s).post() }
         noticeTask?.cancel()
         noticeTask = Task { try? await Task.sleep(for: .seconds(seconds)); if !Task.isCancelled { notice = nil } }
     }
@@ -669,11 +700,12 @@ final class InterpreterModel {
             fixed.roman = p.roman.isEmpty ? nil : politeness.fillRoman(p.roman)
             fixed.provider = "phrasebook"
             entries.append(fixed)
+            noteCulture(fixed.text, fixed.translation)
             trim()
             persist()
             if speak { sessionTranslations += 1 }
             liveUpdate()
-            if speak, autoSpeak, !paused { self.speak(fixed) }
+            if speak, autoSpeaks(fixed.target), !paused { self.speak(fixed) }
             return
         }
         entries.append(e)
@@ -697,11 +729,13 @@ final class InterpreterModel {
                 guard revisions[id] == rev else { return nil }   // inzwischen geändert
                 update(id) { $0.translation = out; $0.provider = r.provider; $0.error = nil; $0.back = nil }
                 persist()
+                noteCulture(e.text, out)
+                noteOnlineFallback(r.provider)
                 if speak { sessionTranslations += 1 }
                 liveUpdate()
                 if backCheck { backTranslate(id, rev: rev, text: out, from: e.target, to: e.src) }
                 // VoiceOver: Übersetzung ansagen, wenn sie nicht ohnehin vorgelesen wird.
-                if UIAccessibility.isVoiceOverRunning && !(speak && autoSpeak && !paused) {
+                if UIAccessibility.isVoiceOverRunning && !(speak && autoSpeaks(e.target) && !paused) {
                     AccessibilityNotification.Announcement(T("a11y_ready") + ": " + out).post()
                 }
                 return out
@@ -715,7 +749,7 @@ final class InterpreterModel {
         }
         // Gleich in die Vorlese-Reihe stellen: so bleibt die Reihenfolge des Gesprächs erhalten,
         // auch wenn ein späterer Satz schneller übersetzt ist.
-        if speak, autoSpeak || force, !paused {
+        if speak, autoSpeaks(e.target) || force, !paused {
             autoSeq += 1
             let seq = autoSeq
             enqueueSpeech(id: id, lang: e.target, slow: false) { [weak self] in
@@ -838,7 +872,7 @@ final class InterpreterModel {
         sessionTranslations += 1
         clearExpectation()
         Haptics.heard()
-        if autoSpeak { speak(e) }
+        if autoSpeaks(e.target) { speak(e) }
     }
 
     /// Kurzbefehl „Sage in Partnersprache“: Text aus meiner Sprache übersetzen und laut vorlesen.
@@ -961,6 +995,8 @@ final class InterpreterModel {
         undo.drop(); undoTask?.cancel(); canUndoClear = false
         historyBlocked = false; favoritesBlocked = false; learnBlocked = false
         entries = []; favorites = []; places = []; learn = LeitnerDeck(); emergency = EmergencyInfo()
+        // Kein verspätetes Schreiben darf Gelöschtes zurückbringen.
+        dropPendingWrites()
         files.removeAll(prefixes: ["history.json", "favorites.json", "emergency.json", "places.json", "learn.json"])
         if let domain { UserDefaults.standard.removePersistentDomain(forName: domain) }
         flash("🗑 " + T("wipe_done"))
@@ -988,14 +1024,19 @@ final class InterpreterModel {
         speakChain = Task {
             await prev?.value
             let text = gen == speechGeneration ? await produce() : nil
-            let r = slow ? max(0.4, rate * 0.65) : rate
+            let r = slow ? max(0.4, rate * 0.65) : clearSpeech ? min(rate, 0.8) : rate
+            let session = AVAudioSession.sharedInstance()
             guard gen == speechGeneration, let text, !text.isEmpty else {   // gestoppt oder nichts zu sagen
                 pendingSpeech -= 1
-                if pendingSpeech == 0 { applyMute() }
+                if pendingSpeech == 0 {
+                    applyMute()
+                    // 630: Ein vorheriger Satz hat Musik/Navi leiser gestellt – auch beim Abbruch wieder freigeben.
+                    if engine == nil { try? session.setActive(false, options: .notifyOthersOnDeactivation) }
+                }
                 return
             }
             applyMute()
-            let session = AVAudioSession.sharedInstance()
+            warnIfQuiet(session)
             let toPartner = lang == pair.partner && thaiOnSpeaker
             if engine == nil {
                 // Getippt oder Satzbuch: für das Gegenüber auch mit Kopfhörern über den Lautsprecher.
@@ -1013,7 +1054,7 @@ final class InterpreterModel {
             }
             speakingID = id
             liveUpdate()
-            await speaker.speak(text, lang: lang, rate: r, volume: loud ? 1 : volume)
+            await speaker.speak(text, lang: lang, rate: r, volume: loud ? 1 : volume, clear: clearSpeech || slow)
             if speakingID == id { speakingID = nil; liveUpdate() }
             pendingSpeech -= 1
             if pendingSpeech == 0 {
@@ -1032,6 +1073,32 @@ final class InterpreterModel {
             }
         }
     }
+
+    /// 593: Gerätelautstärke sehr leise – sonst merkt man erst nach dem Satz, dass nichts zu hören war.
+    private func warnIfQuiet(_ session: AVAudioSession) {
+        guard VolumeHint.tooQuiet(session.outputVolume), Date() > quietWarnedAt.addingTimeInterval(60) else { return }
+        quietWarnedAt = Date()
+        flash("🔈 " + T("volume_low"), seconds: 4)
+    }
+
+    /// Kulturhinweis passend zum Gespräch (Tempel, Arzt, Taxi …): je Paket einmal pro Sitzung.
+    func noteCulture(_ text: String, _ translation: String?) {
+        guard cultureHints, features.thaiExtras, cultureHint == nil else { return }
+        let all = text + " " + (translation ?? "")
+        guard let p = CultureHint.pack(for: all, packs: Phrasebook.packs, skip: cultureShown) else { return }
+        cultureShown.insert(p.id)
+        cultureHint = p.id
+    }
+
+    /// 565: Offline-Übersetzung fiel aus und es ging online – einmal je Sitzung deutlich sagen.
+    private func noteOnlineFallback(_ provider: String) {
+        guard provider == "google" || provider == "mymemory", offlineReady, !onlineFallbackNoted else { return }
+        onlineFallbackNoted = true
+        flash("🌐 " + T("online_fallback_used"), seconds: 5)
+    }
+
+    /// Automatisch vorlesen in diese Sprache? (589: in meine Sprache abschaltbar.)
+    func autoSpeaks(_ target: Lang) -> Bool { autoSpeak && (target != pair.mine || autoSpeakMine) }
 
     /// Bricht den laufenden Satz ab und verwirft alle, die noch warten.
     func stopSpeaking() {
@@ -1152,24 +1219,52 @@ final class InterpreterModel {
 
     // MARK: Speicher
 
-    func persist() {
-        if historyDays == 0 {
-            files.remove("history.json")
-        } else if !historyBlocked {
-            // War die Datei beim Start nicht lesbar, nie mit der (unvollständigen) Liste überschreiben.
-            files.store(entries, "history.json")
+    enum PendingWrite { case history, emergency }
+
+    /// Verlauf speichern – entprellt und außerhalb des Hauptthreads (563). `persistNow()` schreibt sofort.
+    func persist() { scheduleWrite(.history) }
+
+    private func scheduleWrite(_ w: PendingWrite) {
+        pendingWrites.insert(w)
+        writeTask?.cancel()
+        writeTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(600))
+            guard !Task.isCancelled else { return }
+            self?.persistNow()
         }
     }
 
-    private static let stamp: DateFormatter = {
-        let f = DateFormatter()
-        f.dateStyle = .short; f.timeStyle = .short
-        return f
-    }()
-
-    var transcript: String {
-        visibleEntries.map {
-            "[\(Self.stamp.string(from: $0.date))] \($0.src.rawValue.uppercased())→\($0.target.rawValue.uppercased()): \($0.text)\n→ \($0.translation ?? "–")"
-        }.joined(separator: "\n\n")
+    /// Ausstehendes sofort schreiben (Hintergrund, Tests). Geschrieben wird der Stand von jetzt.
+    func persistNow() {
+        writeTask?.cancel(); writeTask = nil
+        let todo = pendingWrites
+        pendingWrites = []
+        let f = files
+        if todo.contains(.history) {
+            if historyDays == 0 {
+                Self.io.async { f.remove("history.json") }
+            } else if !historyBlocked {
+                // War die Datei beim Start nicht lesbar, nie mit der (unvollständigen) Liste überschreiben.
+                let snapshot = entries
+                Self.io.async { f.store(snapshot, "history.json") }
+            }
+        }
+        if todo.contains(.emergency) {
+            let card = emergency
+            Self.io.async { f.store(card, "emergency.json") }
+        }
     }
+
+    /// Ausstehendes verwerfen und warten, bis laufende Schreibvorgänge fertig sind (vor „Alle Daten löschen“).
+    private func dropPendingWrites() {
+        writeTask?.cancel(); writeTask = nil
+        pendingWrites = []
+        Self.io.sync {}
+    }
+
+    /// Eine Reihe für alle Schreibvorgänge: Reihenfolge bleibt erhalten, der Hauptthread wartet nicht.
+    nonisolated static let io = DispatchQueue(label: "dolmetscher.store", qos: .utility)
+
+    /// Verlauf als Text (Teilen baut ihn erst beim Teilen, siehe `TranscriptExport`).
+    var transcript: String { TranscriptExport.text(visibleEntries, lang: uiLang) }
 }

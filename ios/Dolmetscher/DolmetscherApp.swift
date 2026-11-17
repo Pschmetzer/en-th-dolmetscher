@@ -10,7 +10,12 @@ struct DolmetscherApp: App {
         WindowGroup {
             ContentView()
                 .environment(model)
-                .id(model.uiLang)   // Sprache der App gewechselt: Texte neu aufbauen
+                // 555: kein `.id(uiLang)` mehr – `T()` ist beobachtbar, Sheets und Entwürfe bleiben erhalten.
+                .environment(\.locale, Locale(identifier: model.uiLang))
+                .overlay {
+                    // 567: Im App-Umschalter kein Gesprächsinhalt.
+                    if model.privacyShield && scenePhase != .active { PrivacyShield() }
+                }
                 .onChange(of: scenePhase) { _, phase in
                     // Im Hintergrund nicht weiter mithören.
                     if phase == .background { model.enteredBackground() }

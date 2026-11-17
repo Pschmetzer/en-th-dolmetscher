@@ -42,6 +42,7 @@ struct SettingsView: View {
 
                 Section(T("sec_speech")) {
                     Toggle(T("auto_speak"), isOn: $m.autoSpeak)
+                    SpeechOptionsRows()
                     slider(T("silence"), value: $m.pauseSeconds, range: 0.4...2.0, step: 0.1,
                            text: String(format: "%.1f s", m.pauseSeconds))
                     slider(T("rate"), value: $m.rate, range: 0.5...1.5, step: 0.05,
@@ -147,7 +148,12 @@ struct SettingsView: View {
             Toggle(T("thai_speaker"), isOn: $m.thaiOnSpeaker)
             Toggle(T("ptt"), isOn: $m.pushToTalk)
             Toggle(T("live_activity"), isOn: $m.liveActivity)
-        } header: { Text(T("sec_listening")) } footer: { Text(T("listening_note")) }
+            Picker(T("sensitivity"), selection: $m.sensitivity) {
+                Text(T("sens_quiet")).tag(Sensitivity.quiet)
+                Text(T("sens_normal")).tag(Sensitivity.normal)
+                Text(T("sens_loud")).tag(Sensitivity.loud)
+            }
+        } header: { Text(T("sec_listening")) } footer: { Text(T("listening_note") + "\n" + T("sensitivity_note")) }
     }
 
     private var translationSection: some View {
@@ -189,6 +195,12 @@ struct SettingsView: View {
             }
             if DeviceAuth.available {
                 Toggle(T("lock_history"), isOn: lockBinding)
+            }
+            Toggle(T("privacy_shield"), isOn: $m.privacyShield)
+            Toggle(T("culture_hints"), isOn: $m.cultureHints)
+            Toggle(T("summary_toggle"), isOn: $m.summaryEnabled)
+            if m.summaryEnabled, let why = ConversationSummary.unavailableReason(for: m.pair.mine) {
+                Text(why).font(.footnote).foregroundStyle(.secondary)
             }
             NavigationLink { PrivacyView() } label: { Label(T("privacy_overview"), systemImage: "hand.raised") }
         } header: { Text(T("sec_privacy")) } footer: { Text(T("history_note")) }
@@ -301,5 +313,19 @@ private struct AboutSection: View {
     private func link(_ key: String, _ path: String, icon: String) -> some View {
         let tail = path.isEmpty ? "" : (path.hasPrefix("docs/") ? "/blob/main/" + path : "/" + path)
         return Link(destination: URL(string: Self.repo + tail)!) { Label(T(key), systemImage: icon) }
+    }
+}
+
+/// Vorlesen je Richtung (589) und „Langsam und deutlich“ (906) – eigene Ansicht, hält den Typprüfer klein.
+private struct SpeechOptionsRows: View {
+    @Environment(InterpreterModel.self) private var m
+
+    var body: some View {
+        @Bindable var m = m
+        let mine = String(format: T("auto_speak_mine"), m.pair.mine.name(in: m.uiLang))
+        return Group {
+            if m.autoSpeak { Toggle(mine, isOn: $m.autoSpeakMine) }
+            Toggle(T("clear_speech"), isOn: $m.clearSpeech)
+        }
     }
 }
