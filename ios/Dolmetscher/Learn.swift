@@ -66,7 +66,7 @@ struct LeitnerDeck: Codable, Equatable, Sendable {
     /// Fach 1: gleich nochmal (ans Ende der Runde); sonst ab Tagesbeginn + Abstand, damit „morgen“ auch morgen früh heißt.
     static func dueDate(box: Int, from now: Date, calendar: Calendar = .current) -> Date {
         let days = intervals[max(0, min(intervals.count - 1, box - 1))]
-        guard days > 0 else { return now.addingTimeInterval(60) }
+        guard days > 0 else { return now }   // gleich wieder dran, hinter den schon fälligen
         let start = calendar.startOfDay(for: now)
         return calendar.date(byAdding: .day, value: days, to: start) ?? now.addingTimeInterval(Double(days) * 86_400)
     }

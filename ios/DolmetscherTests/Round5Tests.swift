@@ -19,8 +19,10 @@ final class ScenarioPackTests: XCTestCase {
         }
     }
 
+    /// Neue Pakete (z. B. aus einem reinen presets-PR) dürfen ohne Übersetzung kommen – dann gilt Englisch.
+    /// Wer in L10n.packNames steht, muss vollständig sein.
     func testPackNameInEveryLanguage() {
-        for p in Phrasebook.packs {
+        for p in Phrasebook.packs where L10n.packNames[p.id] != nil {
             for lang in L10n.languages {
                 let has = p.names[lang] != nil || L10n.packNames[p.id]?[lang] != nil
                 XCTAssertTrue(has, "\(p.id): Name fehlt in \(lang)")
@@ -50,7 +52,12 @@ final class ScenarioPackTests: XCTestCase {
         let shared = Phrasebook.match("Do you speak English?", lang: .en)
         XCTAssertNil(shared?.pack)
         XCTAssertTrue(shared?.th.contains("{q}") ?? false)
-        XCTAssertEqual(Phrasebook.suggestions("speak english", limit: 10).filter { $0.en == "Do you speak English?" }.count, 1)
+        // Kritische Sätze nur genau – eine Verneinung darf nie zur geprüften Gegenteil-Fassung werden.
+        XCTAssertNil(Phrasebook.match("I am not allergic to this medicine.", lang: .en))
+        XCTAssertNil(Phrasebook.match("I am allergic to this medicin", lang: .en), "kritisch: kein Tippfehler-Treffer")
+        XCTAssertNotNil(Phrasebook.match("Where is the toilett?", lang: .en), "unkritisch: Tippfehler erlaubt")
+        XCTAssertTrue(Phrasebook.negated(Phrasebook.normalize("I don't want ice")))
+                XCTAssertEqual(Phrasebook.suggestions("speak english", limit: 10).filter { $0.en == "Do you speak English?" }.count, 1)
     }
 
     func testPackRomanizedAutomatically() throws {
@@ -120,7 +127,7 @@ final class LeitnerTests: XCTestCase {
         XCTAssertEqual(d.cards[0].due, cal.date(byAdding: .day, value: 14, to: cal.startOfDay(for: t0)))
         d.answer(id, knew: false, now: t0, calendar: cal)
         XCTAssertEqual(d.cards[0].box, 1)
-        XCTAssertEqual(d.due(now: t0.addingTimeInterval(61)).count, 1, "Nochmal: gleich wieder dran")
+        XCTAssertEqual(d.due(now: t0).count, 1, "Nochmal: gleich wieder dran")
         XCTAssertEqual(d.counts, [1, 0, 0, 0, 0])
     }
 
@@ -236,6 +243,7 @@ final class Round5ModelTests: XCTestCase {
         m.places = [Place(name: "Hotel", local: "โรงแรม")]
         var e = EmergencyInfo(); e.name = "A"; m.emergency = e
         m.syncLearn()
+        try Data("x".utf8).write(to: dir.appendingPathComponent("emergency.json.corrupt-1"))
         m.wipeAll(domain: nil)
         XCTAssertTrue(m.entries.isEmpty && m.favorites.isEmpty && m.places.isEmpty && m.learn.cards.isEmpty)
         XCTAssertEqual(m.emergency.name, "")

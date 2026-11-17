@@ -961,7 +961,7 @@ final class InterpreterModel {
         undo.drop(); undoTask?.cancel(); canUndoClear = false
         historyBlocked = false; favoritesBlocked = false; learnBlocked = false
         entries = []; favorites = []; places = []; learn = LeitnerDeck(); emergency = EmergencyInfo()
-        for name in ["history.json", "favorites.json", "emergency.json", "places.json", "learn.json"] { files.remove(name) }
+        files.removeAll(prefixes: ["history.json", "favorites.json", "emergency.json", "places.json", "learn.json"])
         if let domain { UserDefaults.standard.removePersistentDomain(forName: domain) }
         flash("🗑 " + T("wipe_done"))
     }

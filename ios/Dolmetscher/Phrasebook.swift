@@ -78,12 +78,19 @@ enum Phrasebook {
             let k = normalize(key)
             guard !k.isEmpty else { continue }
             if k == n { return p }
-            // nur bei längeren Sätzen unscharf (Tippfehler), kurze müssen genau passen
-            guard n.count >= 10 else { continue }
+            // nur bei längeren Sätzen unscharf (Tippfehler), kurze müssen genau passen;
+            // sicherheitskritische Sätze nur genau, und nie über eine Verneinung hinweg („not allergic“ ≠ „allergic“).
+            guard n.count >= 10, !p.isCritical, negated(k) == negated(n) else { continue }
             let sim = BackCheck.similarity(k, n)
             if sim >= 0.9, sim > (best?.1 ?? 0) { best = (p, sim) }
         }
         return best?.0
+    }
+
+    /// Enthält der (normalisierte) Satz eine Verneinung?
+    static func negated(_ normalized: String) -> Bool {
+        let words: Set<String> = ["not", "no", "never", "dont", "don", "t", "cant", "isnt", "doesnt", "nicht", "kein", "keine", "keinen", "nie"]
+        return normalized.split(separator: " ").contains { words.contains(String($0)) }
     }
 
     /// Vorschläge beim Tippen (ab 3 Zeichen): Sätze, die den Text enthalten.
