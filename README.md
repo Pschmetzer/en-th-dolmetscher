@@ -7,19 +7,42 @@ A hands-free speech interpreter: just talk. What you say is translated into your
 | Platform | What it is | Speech recognition | Translation |
 |---|---|---|---|
 | **Mac** (Apple Silicon, macOS 14+) | Full app with menu bar, voice commands, voice profiles, Claude translation | local (Whisper) | online (Google, MyMemory or Claude) |
-| **iPhone** (iOS 26+) | Native companion app, built yourself in Xcode | on the device (Apple, optionally Whisper) | on the device (Apple), online only if you allow it |
-| **Browser** (Chrome) | [Web Lite](https://pschmetzer.github.io/en-th-dolmetscher/): one HTML file, English ⇄ Thai only | browser service (Google in Chrome) | online (Google, MyMemory) |
+| **iPhone / iPad** (iOS 26+) | Native companion app with widgets, built yourself in Xcode | on the device (Apple, optionally Whisper) | on the device (Apple), online only if you allow it |
+| **Browser** (Chrome) | [Web Lite](https://pschmetzer.github.io/en-th-dolmetscher/): one HTML file, installable as an app (PWA) | browser service (Google in Chrome) | online (Google, MyMemory) |
 
-**Privacy in one paragraph.** There are no accounts, no telemetry and no server of our own. On the Mac, audio never leaves the computer: recognition runs locally and only the recognised *text* is sent for translation (Google, fallback MyMemory, or Claude if you turned it on) and the translated text for the natural voice (Microsoft). On the iPhone, recognition and – once the offline language packs are installed – translation run entirely on the device; online translation is off by default. The browser version relies on the browser's speech service, which sends audio to Google (Chrome). Voice profiles and the conversation history (Mac: off by default; iPhone: kept 30 days by default, adjustable) stay on your device. Details per platform: [docs/DATENSCHUTZ.md](docs/DATENSCHUTZ.md) (German).
+**Privacy in one paragraph.** There are no accounts, no telemetry and no server of our own. On the Mac, audio never leaves the computer: recognition runs locally and only the recognised *text* is sent for translation (Google, fallback MyMemory, or Claude if you turned it on) and the translated text for the natural voice (Microsoft). On the iPhone, recognition and – once the offline language packs are installed – translation run entirely on the device; online translation is off by default. Flashcards (iPhone, browser) are stored only on your device. The browser version relies on the browser's speech service, which sends audio to Google (Chrome). Voice profiles and the conversation history (Mac: off by default; iPhone: kept 30 days by default, adjustable) stay on your device. Details per platform: [docs/DATENSCHUTZ.md](docs/DATENSCHUTZ.md) (German).
 
 Current version: 1.2 (single source: `version` in `pyproject.toml`). What changed since: [CHANGELOG.md](CHANGELOG.md).
 
+- [Features at a glance](#features-at-a-glance)
 - [Install on the Mac](#install-on-the-mac)
 - [iPhone app](#iphone-app)
 - [Browser version](#browser-version-web-lite)
 - [Languages](#languages)
 - [Using the Mac app](#using-the-mac-app) · [Voice commands](#voice-commands) · [Voice profiles](#voice-profiles) · [Troubleshooting](#troubleshooting)
 - [For developers](#for-developers)
+
+## Features at a glance
+
+| Feature | Mac | iPhone / iPad | Browser |
+|---|:-:|:-:|:-:|
+| Automatic detection of who speaks which language | ✓ | ✓ | – (you tap the side) |
+| 19 languages, any pair | ✓ | ✓ | ✓ |
+| Translation on the device, without internet | ✓ (Apple, macOS 26.4+, as fallback) | ✓ (Apple, default) | – |
+| Claude translation (optional, paid) | ✓ | – | – |
+| Back-translation to check the meaning | ✓ (online, optional) | ✓ (on the device) | – |
+| Conversation mode (split screen, partner half turned around) | – | ✓ | – |
+| Partner view with large type | ✓ | ✓ | ✓ |
+| Answer cards (yes / no / don't know / number) | – | ✓ | ✓ (yes / no) |
+| Phrasebook with 16 scenario packs, cultural notes, important sentences first | ✓ | ✓ | ✓ (also offline) |
+| Learning mode (flashcards) | – | ✓ | ✓ |
+| Voice commands (“Translator, …”) | ✓ | ✓ | ✓ (subset) |
+| Push-to-talk | ✓ | ✓ | ✓ |
+| Emergency screen and emergency card | – | ✓ | – |
+| Widgets, Live Activity, Control Center button | – | ✓ | – |
+| Voice profiles (who is speaking) | ✓ | – | – |
+| Choice of output device (speaker / headphones) | ✓ | – | – |
+| Conversation history | ✓ (off by default) | ✓ (30 days by default) | – (copy or save by hand) |
 
 ## Install on the Mac
 
@@ -63,20 +86,30 @@ A native SwiftUI app in `ios/` with the same idea: press Start and just talk. It
 
 - **Recognition** on the device with Apple's speech recognition. Optionally **Whisper** (WhisperKit): switch it on in the settings and download a model once (only when you tap download; size and Wi-Fi hint are shown). Without a model the app falls back to Apple's recognition.
 - **Translation** on the device with Apple's Translation framework once the offline language packs for your pair are installed. If a pack is missing, it can use Google Translate (fallback MyMemory) – but only if you turn on **“Online translator as fallback”** (off by default).
-- **Voice** from the iOS system voices. Also: phrasebook, text from photos, partner view, emergency screen, Baht calculator, Siri shortcuts.
+- **Voice** from the iOS system voices.
+- **Conversation mode**: split screen for a table conversation, the partner's half is turned around; each half shows the conversation in its own language. **Answer cards** (yes, no, don't know, number) let the other person answer without speaking.
+- **Phrasebook** with the 16 scenario packs of the Mac app: each pack shows a short cultural note, important sentences (allergies, emergency) are marked red and come first. Sentences that match the phrasebook use the checked version (“phrasebook first”).
+- **Learning mode**: favourites and translated sentences become flashcards, stored only on the device.
+- **Widgets**: quick phrases on the home screen, a “Start interpreter” button for Control Center, lock screen and Action button, and a **Live Activity** with the last sentence (can be switched off).
+- **iPad**: conversation on the left, tools (phrasebook, destinations, emergency, Baht) on the right.
+- Also: back-translation and transliteration, emergency screen and allergy card, “Help now” with your location, taxi destinations (with business card scan), text from photos, Baht calculator, Siri shortcuts, Face ID lock for the history, “Delete all data”.
 - **Interface** in 10 languages (de, en, th, es, fr, ja, ko, zh-Hans, vi, id; the 7 newest are machine-translated and not yet reviewed).
 
 Needs iOS 26 and Xcode 26 or newer. There is no App Store version yet: build it yourself with your own Apple ID – step by step in [ios/README.md](ios/README.md).
 
 ## Browser version (Web Lite)
 
-Live: https://pschmetzer.github.io/en-th-dolmetscher/ — `index.html` is a single file, no build step, no external scripts. **English ⇄ Thai only.** It uses the browser's Web Speech API (best in Chrome; Firefox has no speech recognition), so you pick the language yourself (buttons or keys `E`, `T`). The Mac app is better: automatic language detection, voice commands in both languages, better recognition.
+Live: https://pschmetzer.github.io/en-th-dolmetscher/ — `index.html` is a single file, no build step, no external scripts. Same 19 languages as the apps (English ⇄ Thai by default). It uses the browser's Web Speech API (best in Chrome; Firefox has no speech recognition), so you pick who speaks yourself (buttons or keys `E` for your language, `T` for the partner's). The Mac app is better: automatic language detection, voice commands in both languages, better recognition.
 
 - Asks for consent once before the microphone starts for the first time.
 - Per-direction switches “Translate EN→TH” / “Translate TH→EN”: a switched-off direction is only shown, not translated or spoken.
 - Voice commands in EN mode at the start of a sentence: “Translator pause / resume / repeat / slower / faster”. *Pause* stops recognition completely (no more audio goes to the speech service); continue with `E`/`T` or the buttons.
 - Partner view (`P`): full screen, only the latest translation in huge type (`Esc` closes). Keys: `E` English, `T` Thai, `Space` stop.
 - Translation: Google endpoint, MyMemory as fallback. Error or quota messages are never shown or spoken as a translation.
+- **Installable (PWA)**: “Add to home screen”; the page and the phrasebook also open offline (translation needs the network).
+- **Phrasebook** with the scenario packs, cultural notes and important sentences first; tap a sentence to show it full screen and read it aloud; yes/no cards for the partner.
+- **Learning mode**: star sentences (☆) to turn them into flashcards, stored only in this browser.
+- Voice and speed choice, volume, headphone mode (talk over the voice), copy or save the conversation, share a sentence as a link.
 - Dark/light theme follows the system; works at phone width; finished translations are announced to screen readers.
 
 Run it locally with `python3 -m http.server` and open it in Chrome.
@@ -89,23 +122,23 @@ Pick *My language* and *Partner's language*. Every pair of these 19 languages wo
 |---|---|:-:|:-:|:-:|
 | English | `en` | ✓ | ✓ | ✓ |
 | Thai | `th` | ✓ | ✓ | ✓ |
-| German | `de` | ✓ | ✓ | – |
-| Spanish | `es` | ✓ | ✓ | – |
-| French | `fr` | ✓ | ✓ | – |
-| Italian | `it` | ✓ | ✓ | – |
-| Portuguese | `pt` | ✓ | ✓ | – |
-| Dutch | `nl` | ✓ | ✓ | – |
-| Russian | `ru` | ✓ | ✓ | – |
-| Chinese (Mandarin) | `zh` | ✓ | ✓ | – |
-| Japanese | `ja` | ✓ | ✓ | – |
-| Korean | `ko` | ✓ | ✓ | – |
-| Vietnamese | `vi` | ✓ | ✓ | – |
-| Indonesian | `id` | ✓ | ✓ | – |
-| Arabic | `ar` | ✓ | ✓ | – |
-| Hindi | `hi` | ✓ | ✓ | – |
-| Turkish | `tr` | ✓ | ✓ | – |
-| Polish | `pl` | ✓ | ✓ | – |
-| Ukrainian | `uk` | ✓ | ✓ | – |
+| German | `de` | ✓ | ✓ | ✓ |
+| Spanish | `es` | ✓ | ✓ | ✓ |
+| French | `fr` | ✓ | ✓ | ✓ |
+| Italian | `it` | ✓ | ✓ | ✓ |
+| Portuguese | `pt` | ✓ | ✓ | ✓ |
+| Dutch | `nl` | ✓ | ✓ | ✓ |
+| Russian | `ru` | ✓ | ✓ | ✓ |
+| Chinese (Mandarin) | `zh` | ✓ | ✓ | ✓ |
+| Japanese | `ja` | ✓ | ✓ | ✓ |
+| Korean | `ko` | ✓ | ✓ | ✓ |
+| Vietnamese | `vi` | ✓ | ✓ | ✓ |
+| Indonesian | `id` | ✓ | ✓ | ✓ |
+| Arabic | `ar` | ✓ | ✓ | ✓ |
+| Hindi | `hi` | ✓ | ✓ | ✓ |
+| Turkish | `tr` | ✓ | ✓ | ✓ |
+| Polish | `pl` | ✓ | ✓ | ✓ |
+| Ukrainian | `uk` | ✓ | ✓ | ✓ |
 
 - **iPhone:** the list depends on the device. Languages without on-device recognition are hidden; ⬇︎ means a model, language pack or voice still has to be downloaded, 🌐 means Apple cannot translate the pair on the device (online only). For pairs written in the same script (e.g. English ⇄ German, Russian ⇄ Ukrainian, Chinese ⇄ Japanese) “Automatic” is hidden and you choose the direction by tapping.
 - **Only with Thai in the pair:** ครับ/ค่ะ politeness, the Thai Whisper model, 555 laughter, Thai number words and Thai transliteration (Mac); politeness, Baht calculator, Thai emergency numbers and the built-in phrasebook (iPhone).
@@ -121,7 +154,7 @@ How it works: the microphone is cut into sentences (Silero voice activity detect
 - **Translation:** Google Translate web endpoint (unofficial), fallback MyMemory, or Claude (see below). If the numbers in a translation do not match the original (prices, times, room numbers), the engine asks the other service and keeps the version whose numbers match; otherwise the bubble shows a warning.
 - **Voice:** natural Microsoft neural voices via the unofficial [edge-tts](https://github.com/rany2/edge-tts) library; falls back to the macOS voices (`say`) when offline or if that service stops working (`--tts say` forces it).
 - **Latency:** a few seconds after the end of each sentence; on the Apple GPU roughly 3–5 s, on CPU clearly slower (benchmark `medium` on CPU, synthetic voices, Nov 2026: median 6.8 s, p90 8.5 s until the translation is ready; [bench/README.md](bench/README.md)).
-- **Offline:** recognition keeps working, but translation and the neural voices need the network. The app shows the network state; nothing is translated offline. Failed translations get a “Try again” button and are retried automatically when the network is back.
+- **Offline:** recognition keeps working. With “Offline translation (Apple) as fallback” (on by default on macOS 26.4 or newer, language packs from System Settings) sentences are translated on the Mac and read by the macOS voice; otherwise nothing is translated offline. The app shows the network state. Failed translations get a “Try again” button and are retried automatically when the network is back.
 
 ### Settings
 
@@ -129,8 +162,10 @@ How it works: the microphone is cut into sentences (Silero voice activity detect
 - **Language pair** (`--langs MINE,PARTNER`), **microphone** (`--mic`, name or number; switching takes effect immediately), **speaking rate** (`--rate`, −50 … 50 %), **volume** (`--volume`, 0.2 … 2.0), **voices** per language.
 - **Pause at end of sentence** (`--silence`), **sensitivity** (`--sensitivity low|normal|high`), **noise suppression** (`--denoise`).
 - **Earcons** (`--earcons`): a short tone instead of a spoken confirmation for voice commands.
+- **Output device**: speaker or headphones for all sounds, switchable while running.
+- **Back-translation** (`--back-translate`, off by default), **slow and clear** (`--slow`), **glossary learns from corrections** (on by default), **private mode** (`--private`: no warm-up requests, text never in a URL).
 - **Push-to-talk**, **menu bar** icon, global shortcuts **⌃⌥D** start/stop and **⌃⌥P** pause.
-- **Quick phrases** and **scenario presets** (doctor, restaurant, taxi, travel – including emergency phrases such as allergies or a lost passport).
+- **Quick phrases** and **scenario presets** (16 packs, e.g. doctor, pharmacy, police, restaurant, taxi, temple, lost child): each pack has a cultural note (ⓘ), important sentences such as allergies come first and are marked red. Format and contributing: [docs/PRESETS.md](docs/PRESETS.md).
 - **Correct & retranslate** a misrecognised bubble; **“Translate anyway”** for a sentence the recogniser was unsure about; **“Speak again”** for a bubble that was cut off.
 - **Thai transliteration** (readable RTGS spelling) and a **confidence marker** on uncertain bubbles.
 - **Partner view** with large type; bubbles can be navigated with the keyboard (Tab, Enter, Esc, ⌘C); text size can be zoomed.
@@ -141,7 +176,7 @@ How it works: the microphone is cut into sentences (Silero voice activity detect
 
 `--llm` (or the switch in the settings) translates with Claude instead of Google: more natural, keeps context and politeness better. It needs an Anthropic API key and **costs a little per sentence** (billed to your Anthropic account). Claude receives the recognised sentence, the last few sentences as context (default 8) and your glossary ([docs/DATENSCHUTZ.md](docs/DATENSCHUTZ.md)).
 
-- Key: environment variable `ANTHROPIC_API_KEY`, or a file `~/Library/Application Support/Dolmetscher/anthropic_key` containing only the key (`chmod 600`). With a key, Claude translation is on by default; turn it off in the settings.
+- Key: enter it in the settings; the app stores it in the macOS **Keychain**. An older key file `~/Library/Application Support/Dolmetscher/anthropic_key` is moved there on start and kept as `anthropic_key.migrated`. In the terminal: environment variable `ANTHROPIC_API_KEY`, or that file (`chmod 600`). With a key, Claude translation is on by default; turn it off in the settings.
 - Default model `claude-haiku-5-5` (about 8 US cents per hour of conversation; `claude-sonnet-5-5` is more accurate at roughly 20× the price), change it with `--llm-model ID`. Tone: `--style casual|neutral|polite`.
 - The app shows the estimated cost of the session and the month. A **monthly limit** (`--llm-budget USD`) switches to Google until the end of the month once reached.
 - If Claude's answer looks wrong (wrong script, a refusal, a comment), Google translates that sentence. Without a key, without the `anthropic` package or on errors the engine falls back to Google automatically.
@@ -226,9 +261,13 @@ iPhone tests: see [ios/README.md](ios/README.md#tests).
 | `ios/` | iPhone app (Xcode project, own CI workflow) |
 | `index.html` | Web Lite |
 | `bench/`, `tests/`, `tools/` | Benchmark, pytest tests, prototypes for Apple's on-device APIs |
-| `docs/` | [ARCHITEKTUR](docs/ARCHITEKTUR.md), [PROTOKOLL](docs/PROTOKOLL.md), [DATENSCHUTZ](docs/DATENSCHUTZ.md), [LIZENZEN](docs/LIZENZEN.md) (German) |
+| `docs/` | [ARCHITEKTUR](docs/ARCHITEKTUR.md), [PROTOKOLL](docs/PROTOKOLL.md), [DATENSCHUTZ](docs/DATENSCHUTZ.md), [LIZENZEN](docs/LIZENZEN.md), [PRESETS](docs/PRESETS.md) (German) |
 
 Contribution rules, lock files, signing and releases: [CONTRIBUTING.md](CONTRIBUTING.md).
+
+### Native speakers wanted
+
+All Thai sentences and most interface texts were written with machine help and **have not been checked by native speakers**. If you speak Thai, Spanish, French, Japanese, Korean, Chinese, Vietnamese or Indonesian, please read through the files listed in [docs/PRESETS.md](docs/PRESETS.md#muttersprachler-gesucht) and open an issue or pull request with corrections – even a single fixed sentence helps.
 
 ## License
 
