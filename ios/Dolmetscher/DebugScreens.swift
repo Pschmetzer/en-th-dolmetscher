@@ -1,5 +1,6 @@
 // DebugScreens.swift – nur DEBUG: Bildschirme für Screenshots im Simulator direkt öffnen, mit Beispiel-Gespräch.
-// DOLMETSCHER_DEMO=1 füllt den Verlauf (nur im Speicher), DOLMETSCHER_SCREEN=partner|answers|settings|privacy|emergency|allergy.
+// DOLMETSCHER_DEMO=1 füllt den Verlauf (nur im Speicher), DOLMETSCHER_SCREEN=partner|answers|settings|privacy|emergency|allergy|learn|phrasebook
+// (DOLMETSCHER_PB_CATEGORY=pack.doctor wählt die Kategorie).
 #if DEBUG
 import SwiftUI
 
@@ -16,6 +17,8 @@ enum DebugScreens {
         case "allergy": m.sheet = .allergy
         case "prep": m.sheet = .prep
         case "places": m.sheet = .places
+        case "learn": m.sheet = .learn
+        case "phrasebook": m.sheet = .phrasebook
         case "helpnow": m.sheet = .helpNow
         case "baht": m.sheet = .baht
         case "widgets": m.sheet = .widgetPreview

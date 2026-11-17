@@ -2,6 +2,7 @@
 // Standort, Preis zeigen, Preis-Hinweis in der Blase, Werkzeug-Spalte fürs iPad.
 import AVFoundation
 import CoreLocation
+import PhotosUI
 import SwiftUI
 import Translation
 
@@ -39,7 +40,7 @@ struct ToolsPanel: View {
 
     private var tools: [Tool] {
         var t: [Tool] = [Tool(id: "phrasebook", icon: "book"), Tool(id: "places", icon: "mappin.and.ellipse"),
-                         Tool(id: "emergency", icon: "cross.case")]
+                         Tool(id: "emergency", icon: "cross.case"), Tool(id: "learn", icon: "rectangle.stack")]
         if m.features.thaiExtras { t.append(Tool(id: "baht_calc", icon: "bahtsign.circle")) }
         return t
     }
@@ -59,6 +60,7 @@ struct ToolsPanel: View {
     @ViewBuilder private var content: some View {
         switch tool {
         case "places": PlacesView()
+        case "learn": LearnView()
         case "emergency": EmergencyView()
         case "baht_calc": BahtCalculatorView()
         default: PhrasebookView()
@@ -177,6 +179,10 @@ struct PlacesView: View {
     @State private var name = ""
     @State private var local = ""
     @State private var shown: Place?
+    @State private var photo: PhotosPickerItem?
+    @State private var camera = false
+    @State private var scanning = false
+    @State private var scanError: String?
 
     var body: some View {
         NavigationStack {
@@ -189,16 +195,57 @@ struct PlacesView: View {
                         .buttonStyle(.plain)
                 }
                 .onDelete { m.places.remove(atOffsets: $0) }
-                Section(T("places_add")) {
+                Section {
                     TextField(T("places_name"), text: $name)
                     TextField(T("places_local"), text: $local, axis: .vertical)
+                    scanRow
                     Button(T("places_save"), action: add).disabled(name.isEmpty && local.isEmpty)
+                } header: { Text(T("places_add")) } footer: {
+                    if let scanError { Text("⚠️ " + scanError) } else { Text(T("places_scan_note")) }
                 }
             }
             .navigationTitle(T("places"))
             .navigationBarTitleDisplayMode(.inline)
             .doneToolbar { dismiss() }
             .fullScreenCover(item: $shown) { p in PlaceBigView(place: p) }
+            .fullScreenCover(isPresented: $camera) {
+                CameraPicker { img in Task { await scan(img) } }.ignoresSafeArea()
+            }
+            .onChange(of: photo) { _, new in
+                guard let new else { return }
+                Task {
+                    if let data = try? await new.loadTransferable(type: Data.self), let img = UIImage(data: data) { await scan(img) }
+                    photo = nil
+                }
+            }
+        }
+    }
+
+    /// Visitenkarte oder Schild abfotografieren: Text auf dem Gerät erkennen und in die Felder übernehmen.
+    private var scanRow: some View {
+        HStack {
+            if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                Button { camera = true } label: { Label(T("places_scan"), systemImage: "camera.viewfinder") }
+                Spacer()
+            }
+            PhotosPicker(selection: $photo, matching: .images) { Label(T("choose_photo"), systemImage: "photo") }
+            if scanning { ProgressView().padding(.leading, 6) }
+        }
+        .buttonStyle(.borderless)
+    }
+
+    private func scan(_ img: UIImage) async {
+        scanning = true; scanError = nil
+        defer { scanning = false }
+        do {
+            let lines = try await TextScanner.lines(in: img, langs: [m.pair.partner, m.pair.mine])
+            let found = PlaceScan.split(lines, local: m.pair.partner)
+            if found.name.isEmpty && found.local.isEmpty { scanError = T("no_text"); return }
+            if name.isEmpty { name = found.name }
+            if !found.local.isEmpty { local = found.local }
+            Haptics.success()
+        } catch {
+            scanError = error.localizedDescription
         }
     }
 

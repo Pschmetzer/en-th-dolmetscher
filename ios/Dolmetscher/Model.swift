@@ -33,7 +33,7 @@ struct Entry: Identifiable, Codable, Equatable {
 }
 
 enum AppSheet: String, Identifiable {
-    case settings, phrasebook, photo, help, emergency, baht, allergy, privacy, prep, places, helpNow
+    case settings, phrasebook, photo, help, emergency, baht, allergy, privacy, prep, places, helpNow, learn
     #if DEBUG
     case widgetPreview
     #endif
@@ -86,6 +86,8 @@ final class InterpreterModel {
     var bigRequest: UUID?
     /// Gespeicherte Ziele (Taxi, Tuk-Tuk).
     var places: [Place] = [] { didSet { files.store(places, "places.json") } }
+    /// Lernmodus: Karteikasten (Leitner), lokal in learn.json.
+    var learn = LeitnerDeck() { didSet { if !learnBlocked { files.store(learn, "learn.json") } } }
 
     var pair: LangPair {
         didSet {
@@ -158,6 +160,7 @@ final class InterpreterModel {
     /// Verlauf/Favoriten waren beim Start nicht lesbar (gesperrtes Gerät): nie mit leerer Liste überschreiben.
     @ObservationIgnored private var historyBlocked = false
     @ObservationIgnored private var favoritesBlocked = false
+    @ObservationIgnored private var learnBlocked = false
     @ObservationIgnored private var undo = UndoBuffer<[Entry]>()
     @ObservationIgnored private var undoTask: Task<Void, Never>?
     @ObservationIgnored private var lastRecognizerFailure = Date.distantPast
@@ -214,6 +217,7 @@ final class InterpreterModel {
         loadHistory()
         loadFavorites()
         places = files.load([Place].self, "places.json").value ?? []
+        loadLearn()
         pruneHistory()
         Task { await refreshOffline() }
         // Gerät war beim Start gesperrt: nach dem Entsperren nachladen.
@@ -253,6 +257,15 @@ final class InterpreterModel {
         }
     }
 
+    private func loadLearn() {
+        switch files.load(LeitnerDeck.self, "learn.json") {
+        case .ok(let deck): learnBlocked = false; learn = deck
+        case .missing: learnBlocked = false
+        case .corrupt: files.quarantine("learn.json"); learnBlocked = false
+        case .unreadable: learnBlocked = true
+        }
+    }
+
     /// Dateien waren nicht lesbar (gesperrt gestartet): jetzt laden, Neues dahinter behalten und speichern.
     func reloadIfBlocked() {
         if historyBlocked {
@@ -263,6 +276,7 @@ final class InterpreterModel {
             loadFavorites()
             if !favoritesBlocked { files.store(favorites, "favorites.json") }
         }
+        if learnBlocked { loadLearn() }
     }
 
     /// Für Tests: blockiert das Speichern gerade?
@@ -912,6 +926,46 @@ final class InterpreterModel {
         toggleFavorite(p)
     }
 
+    // MARK: Lernmodus
+
+    /// Mögliche Karten: Favoriten und Sätze aus Gesprächen (gesperrter Verlauf bleibt außen vor).
+    var learnSources: [LeitnerDeck.Source] {
+        let favs = favorites.map { LeitnerDeck.Source.from($0, politeness: politeness) }
+        let talk = visibleEntries.suffix(300).compactMap { LeitnerDeck.Source.from($0, pair: pair) }
+        return favs + talk.reversed()
+    }
+
+    func syncLearn() {
+        guard !learnBlocked else { return }
+        var deck = learn
+        if deck.sync(learnSources) > 0 { learn = deck }
+    }
+
+    func answerCard(_ id: String, knew: Bool) {
+        touch()
+        learn.answer(id, knew: knew)
+    }
+
+    /// Rückseite einer Karte vorlesen.
+    func announceCard(_ c: LeitnerDeck.Card) {
+        touch()
+        enqueueSpeech(id: UUID(), lang: c.lang, slow: true) { c.back }
+    }
+
+    // MARK: Alle Daten löschen (568)
+
+    /// Verlauf, Favoriten, Notfallkarte, Ziele, Lernstand und Einstellungen vom Gerät entfernen.
+    /// `domain`: Einstellungen dieser App (Tests: nil, damit die Einstellungen des Testlaufs bleiben).
+    func wipeAll(domain: String? = Bundle.main.bundleIdentifier) {
+        stop()
+        undo.drop(); undoTask?.cancel(); canUndoClear = false
+        historyBlocked = false; favoritesBlocked = false; learnBlocked = false
+        entries = []; favorites = []; places = []; learn = LeitnerDeck(); emergency = EmergencyInfo()
+        for name in ["history.json", "favorites.json", "emergency.json", "places.json", "learn.json"] { files.remove(name) }
+        if let domain { UserDefaults.standard.removePersistentDomain(forName: domain) }
+        flash("🗑 " + T("wipe_done"))
+    }
+
     // MARK: Vorlesen (nacheinander; währenddessen hört das Mikrofon weg)
 
     /// `slow`: langsamer als eingestellt, z. B. wenn das Gegenüber nicht mitkam.
@@ -1009,6 +1063,14 @@ final class InterpreterModel {
         applyMute()
         Haptics.tap()
         liveUpdate()
+    }
+
+    /// Konversationsmodus mit Push-to-talk (537): Halten einer Hälfte legt die Sprache fest und hört zu.
+    /// Erst die Sprache festlegen (kann einen Neustart auslösen, der `pttHeld` zurücksetzt), dann drücken.
+    func holdToSpeak(_ lang: Lang) {
+        guard pair.contains(lang) else { return }
+        expectSpeaker(lang)
+        pttPress()
     }
 
     /// Knopf losgelassen: Satz sofort abschließen, danach wieder taub.

@@ -169,6 +169,26 @@ struct Place: Codable, Identifiable, Equatable, Sendable {
     static func takeMeThai(_ polite: Politeness) -> String { polite.fill("ช่วยพาไปที่นี่หน่อย{p}") }
 }
 
+/// Visitenkarte oder Schild per Textscan (547): Zeilen in der Landesschrift werden Name/Adresse zum Zeigen,
+/// die erste andere Zeile der eigene Name. Telefonnummern, Mail und Web bleiben draußen.
+enum PlaceScan {
+    static func split(_ lines: [String], local lang: Lang) -> (name: String, local: String) {
+        let useful = lines.map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty && !isContact($0) }
+        let localLines = useful.filter { lang.scriptShare($0) > 0.5 }
+        let other = useful.filter { lang.scriptShare($0) <= 0.5 }
+        return (other.first ?? "", localLines.prefix(4).joined(separator: "\n"))
+    }
+
+    /// Telefon, E-Mail, Web: für den Fahrer nutzlos.
+    static func isContact(_ s: String) -> Bool {
+        let l = s.lowercased()
+        if l.contains("@") || l.contains("www.") || l.contains("http") || l.contains(".com") { return true }
+        let digits = s.filter(\.isNumber).count
+        let letters = s.filter(\.isLetter).count
+        return digits >= 6 && digits > letters * 2
+    }
+}
+
 /// Kleines Offline-Lexikon thailändischer Gerichte – maschinelle Übersetzung ist bei Speisenamen unzuverlässig.
 struct Dish: Equatable, Sendable {
     enum Note: String, CaseIterable, Sendable { case spicy, peanut, fishSauce, shrimpPaste, seafood, pork }

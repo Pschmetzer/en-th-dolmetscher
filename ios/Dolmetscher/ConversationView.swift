@@ -170,21 +170,43 @@ struct ConversationSide: View {
         .tint(tint)
     }
 
-    private func turnButton(_ color: Color) -> some View {
-        Button { m.expectSpeaker(lang) } label: {
-            HStack(spacing: 10) {
-                Image(systemName: "mic.fill")
-                Text(isPartner ? PartnerPhrases.text(.nowYou, lang) : T("now_me"))
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.6)
-            }
-            .font(.title3.bold())
-            .foregroundStyle(.white)
-            .frame(maxWidth: .infinity, minHeight: 54)
-            .background(color.opacity(expecting ? 1 : 0.75), in: Capsule())
+    @ViewBuilder private func turnButton(_ color: Color) -> some View {
+        if m.pushToTalk {
+            holdButton(color)
+        } else {
+            Button { m.expectSpeaker(lang) } label: { turnLabel(color, active: expecting, icon: "mic.fill") }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(expecting ? .isSelected : [])
         }
-        .buttonStyle(.plain)
-        .accessibilityAddTraits(expecting ? .isSelected : [])
+    }
+
+    private var turnTitle: String { isPartner ? PartnerPhrases.text(.nowYou, lang) : T("now_me") }
+
+    private func turnLabel(_ color: Color, active: Bool, icon: String) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: icon)
+            Text(turnTitle)
+                .lineLimit(2)
+                .minimumScaleFactor(0.6)
+        }
+        .font(.title3.bold())
+        .foregroundStyle(.white)
+        .frame(maxWidth: .infinity, minHeight: 54)
+        .background(color.opacity(active ? 1 : 0.75), in: Capsule())
+    }
+
+    /// Push-to-talk je Hälfte (537): Halten = in dieser Sprache zuhören, Loslassen = Satz abschließen.
+    private func holdButton(_ color: Color) -> some View {
+        let held = m.pttHeld && m.expected == lang
+        return turnLabel(color, active: held, icon: held ? "waveform" : "hand.tap.fill")
+            .overlay(Capsule().stroke(.white.opacity(0.8), lineWidth: held ? 3 : 0))
+            .onLongPressGesture(minimumDuration: 0, maximumDistance: 80, perform: {}, onPressingChanged: { pressing in
+                if pressing { m.holdToSpeak(lang) } else { m.pttRelease() }
+            })
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(turnTitle + ", " + T(held ? "ptt_release" : "ptt_hold"))
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAction { held ? m.pttRelease() : m.holdToSpeak(lang) }
     }
 }
 
