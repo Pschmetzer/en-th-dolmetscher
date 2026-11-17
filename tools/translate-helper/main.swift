@@ -1,9 +1,11 @@
 // translate-helper: Apple Translation (on-device) als stdin/stdout-Dienst, ohne SwiftUI.
 //
 // Bauen:  swiftc -O -parse-as-library -o /tmp/translate-helper tools/translate-helper/main.swift
-// Start:  translate-helper [--check] [--fast]
-//   --check  nur Status der Sprachpaare ausgeben und beenden
-//   --fast   Strategie .lowLatency statt Standard (macOS 26.4+)
+// Start:  translate-helper [--check] [--fast] [--timeout S]
+//   --check    nur Status der Sprachpaare ausgeben und beenden
+//   --fast     Strategie .lowLatency statt Standard (macOS 26.4+)
+//   --timeout  Sekunden je Anfrage (Standard 5): danach {"id":…,"error":"timeout"}, Sitzung wird neu gebaut,
+//              damit eine hängende Anfrage nicht alle folgenden blockiert (Nr. 218)
 //
 // Protokoll (eine JSON-Zeile pro Nachricht):
 //   Start  -> {"ready":true,"pairs":{"en-th":"installed|supported|unsupported","th-en":"..."}}
@@ -24,6 +26,15 @@ struct TranslateHelper {
         }
     }
 }
+
+/// Nimmt genau ein Ergebnis an (Übersetzung oder Zeitüberschreitung, was zuerst kommt).
+final class Once: @unchecked Sendable {
+    private let lock = NSLock()
+    private var done = false
+    func take() -> Bool { lock.lock(); defer { lock.unlock() }; if done { return false }; done = true; return true }
+}
+
+struct HelperTimeout: Error {}
 
 @available(macOS 26.4, *)
 enum Helper {
@@ -56,7 +67,27 @@ enum Helper {
         return out
     }
 
+    /// translate() mit Zeitgrenze. Die Übersetzung läuft als eigene Task: hängt sie, wird sie abgebrochen und die
+    /// Antwort kommt trotzdem nach `timeout` Sekunden (eine Task-Gruppe würde auf das Kind warten).
+    static func translate(_ s: TranslationSession, _ text: String, timeout: Double) async throws -> String {
+        try await withCheckedThrowingContinuation { (cont: CheckedContinuation<String, Error>) in
+            let once = Once()
+            let work = Task {
+                do {
+                    let r = try await s.translate(text).targetText
+                    if once.take() { cont.resume(returning: r) }
+                } catch {
+                    if once.take() { cont.resume(throwing: error) }
+                }
+            }
+            DispatchQueue.global().asyncAfter(deadline: .now() + timeout) {
+                if once.take() { work.cancel(); cont.resume(throwing: HelperTimeout()) }
+            }
+        }
+    }
+
     static func describe(_ error: Error) -> String {
+        if error is HelperTimeout { return "timeout" }
         if TranslationError.notInstalled ~= error {
             return "notInstalled: Sprachpaket fehlt (Systemeinstellungen > Allgemein > Sprache & Region > Übersetzungssprachen)"
         }
@@ -69,6 +100,10 @@ enum Helper {
     static func run() async {
         let args = CommandLine.arguments
         let fast = args.contains("--fast")
+        var timeout = 5.0
+        if let i = args.firstIndex(of: "--timeout"), i + 1 < args.count, let v = Double(args[i + 1]), v > 0 {
+            timeout = min(v, 120)
+        }
         let status = await pairStatus(fast: fast)
 
         if args.contains("--check") {
@@ -113,9 +148,9 @@ enum Helper {
                 }
                 let t0 = DispatchTime.now().uptimeNanoseconds
                 do {
-                    let resp = try await session(src, dst).translate(text)
+                    let out = try await translate(session(src, dst), text, timeout: timeout)
                     let ms = Int((DispatchTime.now().uptimeNanoseconds - t0) / 1_000_000)
-                    emit(["id": id, "out": resp.targetText, "ms": ms])
+                    emit(["id": id, "out": out, "ms": ms])
                 } catch {
                     // Kaputte Sitzung verwerfen, nächste Anfrage baut neu.
                     sessions["\(src)-\(dst)"] = nil

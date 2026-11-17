@@ -27,6 +27,18 @@ def detect(run=None, machine=None):
             "arm64": machine == "arm64"}
 
 
+def perf_cores(run=None):
+    """Performance-Kerne (Apple Silicon: hw.perflevel0.physicalcpu, sonst hw.physicalcpu); 0 = unbekannt."""
+    for key in ("hw.perflevel0.physicalcpu", "hw.physicalcpu"):
+        try:
+            n = int(_sysctl(key, run) or 0)
+        except ValueError:
+            n = 0
+        if n > 0:
+            return n
+    return 0
+
+
 def recommend(info):
     """-> {"model": small|medium|best, "beam": int, "reason": str}."""
     ram, chip = info.get("ram_gb") or 0, (info.get("chip") or "").lower()

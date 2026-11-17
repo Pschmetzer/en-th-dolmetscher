@@ -119,6 +119,8 @@ enum EngineRunner {
 @MainActor
 final class ProfilesModel: ObservableObject {
     @Published var profiles: [VoiceProfile] = []
+    /// Nr. 395: true bis zur ersten Antwort von `--profiles` (sonst stünde kurz „Keine Profile“ da).
+    @Published var loading = true
     @Published var enrolling = false
     @Published var enrollLang = "th"
     @Published var step = 0
@@ -170,11 +172,13 @@ final class ProfilesModel: ObservableObject {
     }
 
     func reload() {
-        _ = EngineRunner.run(["--profiles"], timeout: 30, onEvent: { [weak self] o in
+        let r = EngineRunner.run(["--profiles"], timeout: 30, onEvent: { [weak self] o in
             guard o["event"] as? String == "profiles", let arr = o["profiles"] as? [[String: Any]] else { return }
             self?.profiles = arr.map(Self.parse)
+            self?.loading = false
             NotificationCenter.default.post(name: .profilesChanged, object: nil)
-        })
+        }, onExit: { [weak self] in self?.loading = false })
+        if r == nil { loading = false }
     }
 
     static func parse(_ d: [String: Any]) -> VoiceProfile {
@@ -330,7 +334,9 @@ struct ProfilesView: View {
             Text(L.t("profiles_intro")).foregroundStyle(.secondary)
             ScrollView {
                 VStack(spacing: 10) {
-                    if pm.profiles.isEmpty { Text(L.t("no_profiles")).foregroundStyle(.secondary).padding() }
+                    if pm.profiles.isEmpty && pm.loading {
+                        ProgressView().controlSize(.small).padding().accessibilityLabel(L.t("profiles_loading"))
+                    } else if pm.profiles.isEmpty { Text(L.t("no_profiles")).foregroundStyle(.secondary).padding() }
                     ForEach(pm.profiles) { p in row(p) }
                 }
             }
@@ -459,6 +465,8 @@ struct EnrollView: View {
                     Text(L.t("read_this", f)).font(.title3).foregroundStyle(.secondary)
                     Text(pm.sentence)
                         .font(.system(size: 40, weight: .semibold))
+                        .minimumScaleFactor(0.4)        // Nr. 397: lange Thai-Sätze passen ins feste Fenster
+                        .lineLimit(4)
                         .multilineTextAlignment(.center)
                         .padding(24)
                         .frame(maxWidth: .infinity)

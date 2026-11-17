@@ -16,6 +16,7 @@
 #   DOLMETSCHER_SIGN_IDENTITY="Name"  – mit festem (z. B. selbstsignierten) Zertifikat signieren,
 #   damit macOS nach einem Neubau nicht erneut nach dem Mikrofon fragt (siehe CONTRIBUTING.md).
 #   DOLMETSCHER_SKIP_MODELS=1 – Modell-Download überspringen (nur CI/Strukturprüfung; die App lädt sie dann beim ersten Start)
+#   DOLMETSCHER_SKIP_TRANSLATE_HELPER=1 – translate-helper (Offline-Übersetzung, macOS 26.4+) nicht bauen
 #   DOLMETSCHER_MODELS="medium small th" – welche Modelle vorab laden (Standard; zusätzlich möglich: best = large-v3-turbo)
 #   DOLMETSCHER_NOTARY_PROFILE="name" – nur mit --release: notarytool-Keychain-Profil
 #   (xcrun notarytool store-credentials), dann wird notarisiert und geheftet.
@@ -160,6 +161,22 @@ if [ -n "$UV_BIN" ]; then
   cp "$UV_BIN" "$NEWAPP/Contents/Helpers/uv"
   chmod 755 "$NEWAPP/Contents/Helpers/uv"
 fi
+# Offline-Übersetzung (Apple Translation): translate-helper nach Contents/Helpers. Er nutzt APIs ab macOS 26.4 und
+# wird deshalb mit eigenem Ziel (26.0) gebaut; die App selbst bleibt bei MIN_MACOS. Fehlt das SDK (älteres Xcode),
+# wird er übersprungen – die App läuft dann ohne Offline-Übersetzung (die Einstellung ist ausgegraut).
+HELPER_MIN_MACOS="26.0"
+TH_IN="$NEWAPP/Contents/Helpers/translate-helper"
+if [ "${DOLMETSCHER_SKIP_TRANSLATE_HELPER:-0}" = 1 ]; then
+  echo "→ translate-helper übersprungen (DOLMETSCHER_SKIP_TRANSLATE_HELPER=1)"
+else
+  echo "→ Kompiliere translate-helper (macOS $HELPER_MIN_MACOS+) …"
+  mkdir -p "$NEWAPP/Contents/Helpers"
+  if ! swiftc -O -parse-as-library -target "arm64-apple-macos$HELPER_MIN_MACOS" -o "$TH_IN" \
+       tools/translate-helper/main.swift; then
+    rm -f "$TH_IN"
+    echo "Hinweis: translate-helper ließ sich nicht bauen (SDK für macOS $HELPER_MIN_MACOS nötig) – ohne Offline-Übersetzung."
+  fi
+fi
 cp -R presets "$NEWAPP/Contents/Resources/presets"
 cp app/AppIcon.icns "$NEWAPP/Contents/Resources/"
 
@@ -199,23 +216,42 @@ cat > "$NEWAPP/Contents/Info.plist" <<PLIST
 PLIST
 plutil -lint "$NEWAPP/Contents/Info.plist" >/dev/null
 
-# Von innen nach außen signieren (kein --deep beim Signieren): zuerst Contents/Helpers/uv, dann das Bundle.
-# Prüfen mit --deep: jede verschachtelte Signatur muss gültig sein.
+# Von innen nach außen signieren (kein --deep beim Signieren): zuerst die Helfer in Contents/Helpers (uv,
+# translate-helper), dann das Bundle. Prüfen mit --deep: jede verschachtelte Signatur muss gültig sein.
+# translate-helper läuft immer mit Hardened Runtime (braucht keine Ausnahmen: kein Netz, kein Mikrofon).
 SIGN="${DOLMETSCHER_SIGN_IDENTITY:--}"
 UV_IN="$NEWAPP/Contents/Helpers/uv"
+sign_helpers() {   # Identität, weitere codesign-Optionen (Release: --timestamp)
+  local id="$1"; shift
+  if [ -f "$UV_IN" ]; then
+    if [ "$RELEASE" = 1 ]; then
+      codesign -s "$id" --force --options runtime "$@" --identifier io.github.dolmetscher.en-th.uv "$UV_IN" || return 1
+    else
+      codesign -s "$id" --force "$@" --identifier io.github.dolmetscher.en-th.uv "$UV_IN" || return 1
+    fi
+  fi
+  if [ -f "$TH_IN" ]; then
+    codesign -s "$id" --force --options runtime "$@" \
+      --identifier io.github.dolmetscher.en-th.translate-helper "$TH_IN" || return 1
+  fi
+}
 if [ "$RELEASE" = 1 ]; then
-  [ -f "$UV_IN" ] && codesign -s "$SIGN" --force --options runtime --timestamp \
-    --identifier io.github.dolmetscher.en-th.uv "$UV_IN"
+  sign_helpers "$SIGN" --timestamp
   codesign -s "$SIGN" --force --options runtime --timestamp --entitlements "$ENTITLEMENTS" "$NEWAPP"
 else
-  if [ -f "$UV_IN" ] && ! codesign -s "$SIGN" --force --identifier io.github.dolmetscher.en-th.uv "$UV_IN"; then
-    codesign -s - --force --identifier io.github.dolmetscher.en-th.uv "$UV_IN"
-  fi
+  sign_helpers "$SIGN" || sign_helpers -
   if ! codesign -s "$SIGN" --force "$NEWAPP"; then
     echo "Signieren mit '$SIGN' fehlgeschlagen (Meldung oben) – nutze Ad-hoc-Signatur"
-    [ -f "$UV_IN" ] && codesign -s - --force --identifier io.github.dolmetscher.en-th.uv "$UV_IN"
+    sign_helpers -
     codesign -s - --force "$NEWAPP"
   fi
+fi
+if [ -f "$TH_IN" ]; then
+  TH_SIG="$(codesign -d --verbose=2 "$TH_IN" 2>&1 || true)"   # erst lesen: grep -q in der Pipe + pipefail = SIGPIPE
+  case "$TH_SIG" in
+    *flags=*runtime*) ;;
+    *) echo "translate-helper ist nicht mit Hardened Runtime signiert"; exit 1 ;;
+  esac
 fi
 codesign --verify --deep --strict --verbose=2 "$NEWAPP"
 
@@ -242,6 +278,19 @@ if [ "$RELEASE" = 1 ]; then
 fi
 
 if [ "$INSTALL" = 1 ]; then
+  # Nr. 393: Läuft die installierte App noch, liefe ihre Engine aus dem gelöschten Bundle weiter: erst beenden.
+  RUNNING="$HOME/Applications/Dolmetscher.app/Contents/MacOS/Dolmetscher"
+  if pgrep -f "$RUNNING" >/dev/null 2>&1; then
+    echo "→ Beende die laufende Dolmetscher.app …"
+    osascript -e 'quit app id "io.github.dolmetscher.en-th"' >/dev/null 2>&1 || true
+    for _ in 1 2 3 4 5 6 7 8 9 10; do
+      pgrep -f "$RUNNING" >/dev/null 2>&1 || break
+      sleep 0.5
+    done
+    if pgrep -f "$RUNNING" >/dev/null 2>&1; then
+      echo "Dolmetscher.app läuft noch – bitte beenden und ./build.sh --install erneut starten."; exit 1
+    fi
+  fi
   mkdir -p "$HOME/Applications"
   rm -rf "$HOME/Applications/Dolmetscher.app"
   cp -R "$APP" "$HOME/Applications/"

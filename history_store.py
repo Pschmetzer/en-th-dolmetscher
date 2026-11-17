@@ -27,6 +27,9 @@ def db_path():
     return os.path.join(home_dir(), "history.sqlite")
 
 
+SCHEMA_VERSION = 1
+
+
 class Store:
     def __init__(self, path=None):
         self.path = path or db_path()
@@ -46,7 +49,18 @@ class Store:
             lang TEXT, text TEXT, translation TEXT, translit TEXT, conf REAL, provider TEXT)""")
         self.db.execute("CREATE INDEX IF NOT EXISTS utt_ts ON utt(ts)")
         self.fts = self._init_fts()
+        self._migrate()
         self.db.commit()
+
+    def _migrate(self):
+        """Nr. 207: Schema-Version (PRAGMA user_version). Neue Spalten kommen hier als Schritt
+        `if v < N: ALTER TABLE …` dazu; eine Datenbank aus einer neueren Version wird nicht angefasst."""
+        v = self.db.execute("PRAGMA user_version").fetchone()[0]
+        if v > SCHEMA_VERSION:
+            raise sqlite3.DatabaseError(f"Verlauf hat Schema {v}, diese Version kennt {SCHEMA_VERSION}")
+        if v < SCHEMA_VERSION:
+            # v0 -> v1: nur die Version setzen (Tabellen oben sind schon v1)
+            self.db.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
 
     def _init_fts(self):
         # trigram: Teilstring-Suche auch für Thai (ohne Leerzeichen); fehlt FTS5/trigram -> LIKE

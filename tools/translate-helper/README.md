@@ -1,5 +1,10 @@
 # translate-helper (Prototyp)
 
+**Seit Runde 5 im App-Bundle:** `build.sh` baut ihn (Ziel macOS 26.0) nach `Contents/Helpers/translate-helper`,
+signiert mit Hardened Runtime. Die Mac-App schaltet die Offline-Übersetzung ab macOS 26.4 standardmäßig ein
+(Einstellung „Offline-Übersetzung (Apple) als Rückfall“). Jede Anfrage hat eine Zeitgrenze (`--timeout`, Standard 5 s):
+danach `{"id":…,"error":"timeout"}` und eine neue Sitzung.
+
 Apples Translation-Framework (on-device, offline, kostenlos) als Kommandozeilen-Dienst für EN⇄TH, **ohne SwiftUI**.
 
 ## Ergebnis

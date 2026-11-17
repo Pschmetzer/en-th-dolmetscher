@@ -114,6 +114,7 @@ func exportConversation(_ m: EngineModel) {
     let panel = NSSavePanel()
     panel.title = L.t("export")
     panel.message = L.t("export_message")
+        + (m.trimmedCount > 0 ? "\n" + L.f("export_trimmed", EngineModel.maxItems, m.trimmedCount) : "")
     panel.allowedContentTypes = ExportFormat.allCases.map(\.contentType)
     panel.allowsOtherFileTypes = true
     let df = DateFormatter(); df.dateFormat = "yyyy-MM-dd HH-mm"

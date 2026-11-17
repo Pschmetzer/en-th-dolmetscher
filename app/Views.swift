@@ -144,6 +144,8 @@ enum AutoScroll {
 struct ContentView: View {
     @EnvironmentObject var m: EngineModel
     @ObservedObject private var setup = EnvSetupModel.shared
+    @ObservedObject private var hotKeys = HotKeys.shared
+    @State private var hotKeysDismissed = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage(Prefs.fontScale) private var scale = 1.0
     @AppStorage(Prefs.alwaysOnTop) private var onTop = false
@@ -190,6 +192,12 @@ struct ContentView: View {
                              action: (L.t("reload_now"), { m.restart() }))
             }
             if let d = m.download { DownloadBanner(d: d) }
+            if !hotKeys.failures.isEmpty && !hotKeysDismissed {   // Nr. 378: einmal sichtbar, nicht nur in den Einstellungen
+                NoticeBanner(icon: "keyboard.badge.exclamationmark", tint: LangStyle.warning,
+                             text: L.t("hotkeys_failed") + " " + hotKeys.failures.joined(separator: ", "),
+                             action: (L.t("retry"), { HotKeys.shared.retryIfNeeded() }),
+                             onClose: { hotKeysDismissed = true })
+            }
             if !m.degradedModels.isEmpty {
                 NoticeBanner(icon: "gauge.with.dots.needle.33percent", tint: LangStyle.warning,
                              text: L.f("degraded_models", m.degradedModels.map { L.t($0 == "thai_model" ? "degraded_thai"
@@ -476,7 +484,7 @@ struct MainToolbar: View {
         }
         .padding(14)
         .confirmationDialog(L.t("clear_confirm"), isPresented: $confirmClear, titleVisibility: .visible) {
-            Button(L.t("clear"), role: .destructive) { m.items.removeAll() }
+            Button(L.t("clear"), role: .destructive) { m.items.removeAll(); m.resetTrimmed() }
             Button(L.t("cancel"), role: .cancel) {}
         }
     }
@@ -645,10 +653,17 @@ struct StatusCluster: View {
                     .accessibilityLabel(L.t("offline") + ": " + offlineHelp)
             }
             if m.loadSlow {
-                Label(L.t("load_slow"), systemImage: "hourglass")
-                    .font(.caption).foregroundStyle(LangStyle.warning)
-                    .help(L.t("load_slow_help"))
-                    .accessibilityLabel(L.t("load_slow") + ". " + L.t("load_slow_help"))
+                // Nr. 368: nicht nur ein Etikett – Log und Neustart direkt anbieten
+                Menu {
+                    Button(L.t("show_log")) { openLog() }
+                    Button(L.t("restart")) { m.restart() }
+                } label: {
+                    Label(L.t("load_slow"), systemImage: "hourglass")
+                        .font(.caption).foregroundStyle(LangStyle.warning)
+                }
+                .menuStyle(.borderlessButton).fixedSize()
+                .help(L.t("load_slow_help"))
+                .accessibilityLabel(L.t("load_slow") + ". " + L.t("load_slow_help"))
             }
             if let med = m.latencyMedian { LatencyBadge(median: med) }
             if m.llm && m.engineReady && !m.llmActive {
@@ -718,6 +733,7 @@ struct QuickPhraseBar: View {
     @AppStorage(Prefs.quickPhrases) private var raw = Prefs.defaultPhrases
     @State private var adding = false
     @State private var draft = ""
+    @State private var showNote = false
 
     private func remove(_ i: Int) {
         var l = Prefs.phrases(raw)
@@ -735,13 +751,34 @@ struct QuickPhraseBar: View {
                     .help(L.t("phrase_add_help"))
                     .accessibilityLabel(L.t("phrase_add_help"))
                 if let pr = PresetCatalog.all.first(where: { $0.id == m.preset }), m.activePreset != nil {
-                    // Preset-Sätze gibt es auf Englisch und Thai: nur mit einer der beiden Sprachen im Paar
-                    ForEach(Array(pr.phrases.enumerated()), id: \.offset) { _, ph in
+                    // Hinweis und Sätze aus dem Ereignis der Engine, sonst aus der Datei (z. B. nach Neuverbinden).
+                    let fromEvent = m.activePreset?.id == pr.id
+                    let note = Preset.noteText((fromEvent ? m.activePresetNote : nil) ?? pr.note)
+                    let list = (fromEvent ? m.activePresetPhrases : nil) ?? pr.phrases
+                    if let note {
+                        Button { showNote.toggle() } label: { Image(systemName: "info.circle") }
+                            .buttonStyle(.bordered)
+                            .help(note)
+                            .accessibilityLabel(L.t("preset_note"))
+                            .popover(isPresented: $showNote) {
+                                Text(note).padding(12).frame(width: 320, alignment: .leading)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .textSelection(.enabled)
+                            }
+                    }
+                    // Preset-Sätze gibt es auf Englisch und Thai: nur mit einer der beiden Sprachen im Paar.
+                    // Kritische Sätze (Notfall, Allergie …) zuerst, rot und mit Warnsymbol.
+                    let ordered = list.filter(\.critical) + list.filter { !$0.critical }
+                    ForEach(Array(ordered.enumerated()), id: \.offset) { _, ph in
                         let useTH = !Langs.hasEnglish && Langs.hasThai
-                        Button(useTH ? ph.th : ph.en) { m.say(useTH ? ph.th : ph.en, lang: useTH ? "th" : "en") }
-                            .buttonStyle(.bordered).tint(.accentColor)
+                        let text = useTH ? ph.th : ph.en
+                        Button { m.say(text, lang: useTH ? "th" : "en") } label: {
+                            if ph.critical { Label(text, systemImage: "exclamationmark.triangle.fill") } else { Text(text) }
+                        }
+                            .buttonStyle(.bordered).tint(ph.critical ? .red : .accentColor)
                             .disabled(!m.engineReady || !(Langs.hasEnglish || Langs.hasThai))
                             .help(useTH ? ph.en : ph.th)
+                            .accessibilityLabel(ph.critical ? L.t("preset_critical") + ": " + text : text)
                             .accessibilityHint(L.t("preset_phrase_help"))
                     }
                     Divider().frame(height: 18)

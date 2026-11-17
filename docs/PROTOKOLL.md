@@ -41,7 +41,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `--device auto\|mps\|cpu` | `auto` | Rechengerät (Apple-GPU, sonst CPU) |
 | `--mic INDEX\|NAME\|default` | `0` | Mikrofon: Index aus `--list-mics`, besser der **Name** (Indizes verschieben sich, sobald AirPods/USB-Mikros dazukommen; der Name wird erst beim Öffnen auf den aktuellen Index abgebildet). Unbekannter Name: `error` `mic_not_found`, Standardmikrofon |
 | `--output-device UID\|NAME\|INDEX` | `` | Ausgabegerät für alle Sprachausgaben (CoreAudio-UID bevorzugt, sonst Name oder Index; leer = Systemstandard). Unbekannt: `error` `output_not_found`, Systemstandard |
-| `--offline-translator [PFAD]` | | Offline-Übersetzung ohne Netz über `translate-helper` (Apple Translation, on-device): nur wenn Google/MyMemory wegen fehlenden Netzes scheitern und das Sprachpaar installiert ist (`provider: "apple"`, nicht gecacht). Ohne Pfad: `DOLMETSCHER_TRANSLATE_HELPER`, sonst `translate-helper` neben `dolmetscher.py`. Fehlt der Helfer: `error` `offline_mt_missing` |
+| `--offline-translator [PFAD]` | | Offline-Übersetzung ohne Netz über `translate-helper` (Apple Translation, on-device): nur wenn Google/MyMemory wegen fehlenden Netzes scheitern und das Sprachpaar installiert ist (`provider: "apple"`, nicht gecacht). Ohne Pfad: `DOLMETSCHER_TRANSLATE_HELPER`, sonst `translate-helper` neben `dolmetscher.py` oder im App-Bundle unter `Contents/Helpers/` (build.sh legt ihn dort ab, signiert mit Hardened Runtime; die Mac-App übergibt den Pfad, Einstellung „Offline-Übersetzung (Apple) als Rückfall“, Standard an ab macOS 26.4). Fehlt der Helfer: `error` `offline_mt_missing` |
 | `--list-mics` | | gibt `{"event":"mics","mics":[{"index":"0","name":"MacBook Pro Microphone"}]}` aus und beendet sich; bei Fehler (ffmpeg fehlt/hängt) zuerst `error` (`mic_list_failed`), dann `mics` mit leerer Liste |
 | `--polite krub\|ka` | `krub` | Höflichkeitswort/Stimme Thai |
 | `--langs MEINE,PARTNER` | `en,th` | Sprachpaar (siehe „Sprachpaar“) |
@@ -73,6 +73,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `--style casual\|neutral\|polite` | `casual` | Ton der Claude-Übersetzung |
 | `--earcons` | | Signalton statt gesprochener Bestätigung bei Sprachbefehlen |
 | `--slow` | | „Langsam und deutlich“ (wie Steuerfeld `slow`) |
+| `--private` | | Privatmodus: keine Aufwärm-Anfragen an Google/Microsoft beim Start; lehnt ein Anbieter POST ab, kein Rückfall auf GET mit dem Text in der URL (Übersetzung scheitert dann mit `translate_failed`) |
 | `--back-translate` | | Rückübersetzung als Ereignis `back` (wie Steuerfeld `back_translate`) |
 | `--no-learn-glossary` | | Eigennamen aus Korrekturen nicht ins Glossar übernehmen (Standard: an) |
 | `--meter` | | Pegel-Ereignisse `level` senden |
@@ -98,6 +99,9 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `DOLMETSCHER_FFMPEG` | optional: externes ffmpeg statt PyAV für Aufnahme, Wiedergabe und `--file` (nur wenn gesetzt; Standard ist `avhelper.py` mit PyAV) |
 | `DOLMETSCHER_HOME` | Ordner für Presets/Verlauf (Standard `~/Library/Application Support/Dolmetscher/`) |
 | `DOLMETSCHER_LOG` | Logdatei (Standard `~/Library/Logs/Dolmetscher/engine.log`) |
+| `DOLMETSCHER_LOG_MB`, `DOLMETSCHER_LOG_BACKUPS` | Log-Rotation: Größe in MB (Standard 1, 0,1–50) und Zahl der Sicherungen (Standard 3, 1–10) |
+| `DOLMETSCHER_CPU_THREADS` | Threads des CPU-Modells (Standard: Zahl der Performance-Kerne, `hw.perflevel0.physicalcpu`; höchstens 16) |
+| `DOLMETSCHER_MYMEMORY_EMAIL` | E-Mail-Adresse für MyMemory (Parameter `de`, höheres Tageslimit); nur lokal setzen, nie ins Repo. Treffer mit `match` unter 0,5 werden nicht vorgelesen (nächster Anbieter bzw. `translate_failed`) |
 | `DOLMETSCHER_DEBUG` | VAD-Diagnose ins Log |
 | `DOLMETSCHER_NULL_AUDIO` | keine Tonausgabe (Tests) |
 | `DOLMETSCHER_SPEAKER_MODEL`, `DOLMETSCHER_SPEAKER_MODEL_URL` | Stimmprofil-Modell aus Datei bzw. URL |
@@ -166,12 +170,14 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `output_not_found`, `output_invalid`, `output_unsupported` | Ausgabegerät unbekannt (Systemstandard wird genutzt) / Steuerwert `output_device` ungültig / mit `DOLMETSCHER_FFMPEG` nicht wählbar |
 | `profile_name_invalid`, `profile_invalid`, `profile_not_found`, `profile_delete_failed` | Profil-Aufrufe: Name ungültig / Profil oder Höflichkeitsform ungültig / Profil fehlt / Stimmdaten nicht löschbar |
 | `history_failed`, `history_days_invalid` | Verlauf: Datenbank nicht nutzbar (Aufzeichnung aus) / `history_days` ungültig (es wird nichts gelöscht) |
+| `preset_invalid` | Beim Laden der Presets (Wechsel per `preset`) waren Dateien ungültig und wurden übersprungen; `files` = Dateinamen, Details im Log. Je Fehlerbild einmal |
 | `offline_mt_missing` | `--offline-translator`: `translate-helper` nicht gefunden oder nicht ausführbar – ohne Netz keine Übersetzung |
 | `mic_list_failed` | `--list-mics` konnte ffmpeg nicht abfragen |
 | `mic_file_missing`, `ffmpeg_missing` | `DOLMETSCHER_MIC_FILE` fehlt / das per `DOLMETSCHER_FFMPEG` gesetzte ffmpeg fehlt (gleich beim Start gemeldet) oder ist nicht startbar |
 | `audio_missing` | Audio-Baustein fehlt: PyAV (`av`) nicht importierbar oder `avhelper.py` fehlt (gleich beim Start gemeldet) – Python-Umgebung neu einrichten |
 | `model_offline` | Modell fehlt lokal und kann ohne Internet nicht geladen werden |
 | `translate_failed` | Übersetzung fehlgeschlagen (alle Anbieter) |
+| `vad_failed` | Selbsttest der Sprach-Aktivitätserkennung (Silero-VAD aus faster-whisper) beim Start gescheitert – Python-Umgebung neu einrichten |
 | `llm_billing` | Claude-API: Guthaben oder Kontingent erschöpft – 30 min nur Google/MyMemory, dann neuer Versuch |
 | `llm_budget` | eigenes Claude-Monatslimit (`--llm-budget`/`llm_budget`) erreicht – bis Monatsende Google/MyMemory; einmal je Monat |
 | `mic_invalid` | Steuerfeld `mic` ungültig (kein Text/keine Zahl); Gerät unverändert |
@@ -339,7 +345,14 @@ haben Vorrang). `preset: "none"` (oder `null`) stellt Stil, Höflichkeit, Stimme
 her. Eigene `style`/`glossary`-Änderungen während eines Presets werden zur neuen Basis. Unbekannte `id`: nichts
 ändert sich. Sprachbefehl: "Translator, hotel mode" / "preset taxi" / "preset off" (höchstens 5 Wörter).
 
-Ereignis `preset` beim Wechsel: `id` und `name` (englisch); beide `null` bei "kein Preset".
+- optional `note` `{de, en, th?}` (max. 500 Zeichen): Kultur- bzw. Sicherheitshinweis zum Szenario
+- optional je Schnellsatz `critical: true`: wichtiger Satz (Notfall, Allergie, Polizei), die App hebt ihn hervor
+
+Ereignis `preset` beim Wechsel: `id` und `name` (englisch), `note` (`{de, en, th?}` oder `null`) und `phrases`
+(`[{en, th, critical}]`, Reihenfolge wie in der Datei); `id`/`name`/`note` `null` und `phrases` `[]` bei
+"kein Preset". Die Mac-App zeigt den Hinweis in der Oberflächensprache (sonst Englisch) über ein ⓘ in der
+Schnellsatz-Leiste und stellt kritische Sätze vorn und rot mit Warnsymbol dar (VoiceOver: „Wichtig“). Nach einem
+Neuverbinden (`state` kennt nur die id) liest sie dieselben Felder aus `presets/*.json`.
 
 ## Gesprächsverlauf (optional, Standard: aus)
 

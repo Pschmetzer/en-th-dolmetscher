@@ -120,8 +120,24 @@ private struct GeneralSettings: View {
                     .help(L.t("back_translate_help"))
                 Toggle(L.t("learn_glossary"), isOn: $m.learnGlossary)
                     .help(L.t("learn_glossary_help"))
+                Toggle(isOn: $m.offlineMT) {
+                    VStack(alignment: .leading) {
+                        Text(L.t("offline_mt"))
+                        Text(L.t(Paths.bundledTranslateHelper == nil ? "offline_mt_missing_help" : "offline_mt_help"))
+                            .font(.caption).foregroundStyle(.secondary)
+                        RestartNote()
+                    }
+                }
+                .disabled(Paths.bundledTranslateHelper == nil)
                 Toggle(isOn: $m.logText) {
                     VStack(alignment: .leading) { Text(L.t("log_text")); RestartNote() }
+                }
+                Toggle(isOn: $m.privateMode) {
+                    VStack(alignment: .leading) {
+                        Text(L.t("private_mode"))
+                        Text(L.t("private_mode_help")).font(.caption).foregroundStyle(.secondary)
+                        RestartNote()
+                    }
                 }
             } footer: {
                 VStack(alignment: .leading, spacing: 4) {
