@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self' https://translate.googleapis.com https://api.mymemory.translated.net; img-src 'self' data:; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
-<meta name="theme-color" content="#1d4ed8">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#1d4ed8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Dolmetscher im Browser: Sprechen, übersetzen, vorlesen, Satzbuch mit Zeige-Karten (auch offline).">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -16,24 +18,25 @@
     --bg:#f6f7f9; --card:#ffffff; --fg:#14171f; --mut:#5d6475; --line:#dfe2e8;
     --en:#2563eb; --th:#d97706; --btn-en:#1d4ed8; --btn-th:#b45309; --btn-fg:#fff;
     --note-bg:#eef4ff; --note-line:#bcd0fa; --warn-bg:#fde8e8; --kbd:#e8eaf0; --focus:#2563eb;
-    --yes:#15803d; --no:#b91c1c; --crit:#b91c1c; --star:#b45309;
+    --yes:#15803d; --no:#b91c1c; --crit:#b91c1c; --star:#b45309; --th-text:#b45309;
+    color-scheme:light dark;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg:#0f1115; --card:#1a1d24; --fg:#eef0f4; --mut:#9aa0b0; --line:#262a33;
       --en:#3b82f6; --th:#f59e0b; --btn-en:#1e3a8a; --btn-th:#78350f;
       --note-bg:#17233d; --note-line:#2c4271; --warn-bg:#4c1d1d; --kbd:#333a47; --focus:#8ab4ff;
-      --yes:#166534; --no:#991b1b; --crit:#f87171; --star:#fbbf24;
+      --yes:#166534; --no:#991b1b; --crit:#f87171; --star:#fbbf24; --th-text:#f59e0b;
     }
   }
   * { box-sizing:border-box; }
   html, body { overflow-x:hidden; }
-  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.4 -apple-system,system-ui,sans-serif;
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.4 -apple-system,system-ui,"Thonburi","Sarabun","Noto Sans Thai",sans-serif;
          padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
   .wrap { padding-left:16px; padding-right:16px; max-width:1000px; margin:0 auto; }
   header { display:flex; gap:12px; align-items:center; justify-content:space-between; padding:14px 0; flex-wrap:wrap; }
   h1 { font-size:18px; margin:0; }
-  #status { color:var(--mut); font-size:14px; }
+  #status, #swState { color:var(--mut); font-size:14px; }
   .note { background:var(--note-bg); border:1px solid var(--note-line); border-radius:10px; padding:10px 14px; font-size:14px; margin-bottom:12px; }
   .note a { color:var(--focus); }
   .note .lite { display:block; font-size:16px; margin-bottom:2px; }
@@ -44,7 +47,8 @@
   .controls { display:flex; gap:12px; padding:4px 0 12px; flex-wrap:wrap; }
   button { font:inherit; color:inherit; }
   button.mode { flex:1; min-width:220px; padding:22px; font-size:20px; font-weight:600; border:3px solid transparent; border-radius:14px; cursor:pointer; color:var(--btn-fg);
-                touch-action:none; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
+                -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
+  body.ptt button.mode { touch-action:none; }   /* nur bei "Halten zum Sprechen": sonst bleibt Scrollen über den Knöpfen möglich */
   button.mode:disabled { opacity:.45; cursor:not-allowed; }
   #btnA { background:var(--btn-en); } #btnB { background:var(--btn-th); }
   button.mode.active { border-color:var(--fg); box-shadow:0 0 0 4px rgba(128,128,128,.25); animation:pulse 1.4s infinite; }
@@ -71,10 +75,11 @@
   #pbNote[hidden], #learnCard[hidden], .learn-card [hidden] { display:none; }
   .learn-card { background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:16px; margin:8px 0; text-align:center; overflow-wrap:anywhere; }
   .learn-card .front { font-size:20px; font-weight:600; }
-  .learn-card .back { font-size:28px; font-weight:700; margin-top:10px; color:var(--th); }
+  .learn-card .back { font-size:28px; font-weight:700; margin-top:10px; color:var(--th-text); }
   .learn-card .row { justify-content:center; }
   #learnInfo, #learnMsg { color:var(--mut); font-size:13px; }
   .card .t { display:block; font-size:18px; font-weight:600; margin-top:2px; }
+  .card .mt-b { display:block; font-size:11px; color:var(--mut); margin-top:2px; }
   .card .s { display:block; font-size:13px; color:var(--mut); }
   .yn { font-size:20px; font-weight:700; color:#fff; border:0; border-radius:10px; padding:10px 22px; min-height:48px; cursor:pointer; }
   .yn.yes { background:var(--yes); } .yn.no { background:var(--no); }
@@ -109,6 +114,8 @@
   #partner .bar .small { min-height:44px; min-width:44px; font-size:20px; }
   #partnerText { flex:1; min-height:0; overflow-y:auto; display:flex; align-items:center; align-items:safe center; justify-content:center; text-align:center; font-weight:700;
                  font-size:calc(clamp(40px,11vw,160px) * var(--pscale, 1)); line-height:1.15; overflow-wrap:anywhere; padding:8px 0; }
+  #partnerText:lang(th) { line-height:1.45; }   /* gestapelte Tonmarken und Vokale brauchen Luft */
+  #partnerNote { font-size:13px; color:var(--mut); text-align:center; padding:2px 0; }
   #partnerText.yes, #partnerText.no { font-size:calc(clamp(80px,28vw,260px) * var(--pscale, 1)); }
   #partnerText.yes { color:var(--yes); } #partnerText.no { color:var(--no); }
   @media (max-width:500px){
@@ -123,10 +130,12 @@
 </style>
 </head>
 <body>
+<noscript><p style="padding:16px;font-size:18px">Diese Seite braucht JavaScript. / This page needs JavaScript.</p></noscript>
 <div class="wrap" id="main">
 <header>
   <h1>🌐 Dolmetscher <small style="color:var(--mut);font-weight:400">Web Lite</small></h1>
   <span id="status" aria-live="off">Bereit</span>
+  <span id="swState" role="status"></span>
 </header>
 <div class="note" role="note">
   <b class="lite">Lite-Version – eingeschränkt.</b> Hier wählst du selbst, wer spricht (<kbd>E</kbd>/<kbd>T</kbd> oder die Knöpfe); Erkennung und Stimmen kommen vom Browser: am besten <b>Chrome</b> (Computer, Android); <b>Safari</b> (Mac, iPhone) geht nur mit eingeschalteter Diktierfunktion und mit Einschränkungen; Firefox kann keine Spracherkennung. Nicht auf allen Geräten getestet.
@@ -134,9 +143,10 @@
   <a href="https://github.com/Pschmetzer/en-th-dolmetscher" target="_blank" rel="noopener">Mac-/iPhone-App &amp; Quellcode auf GitHub</a>
 </div>
 <div class="note" role="note" id="privacy">
-  <b>Datenschutz:</b> Die Spracherkennung macht der Browser – Chrome sendet dein <b>Audio an Googles Server</b>, Safari an Apple (je nach Gerät auch lokal). Der erkannte Text geht zum Übersetzen an Google Translate (Ersatz: MyMemory). Die Mac-App erkennt Sprache dagegen lokal auf dem Gerät. <b>Pause</b> und <b>Stopp</b> schalten das Mikrofon ganz aus. Das Satzbuch (unten) funktioniert ohne Mikrofon und für Englisch/Thai auch offline. <b>Lernkarten</b> (★ gemerkte und, nur wenn eingeschaltet, zuletzt übersetzte Sätze) bleiben nur in diesem Browser; „Alle Lernkarten löschen“ entfernt sie.
+  <b>Datenschutz:</b> Die Spracherkennung macht der Browser – Chrome sendet dein <b>Audio an Googles Server</b>, Safari an Apple (je nach Gerät auch lokal). Der erkannte Text geht zum Übersetzen an Google Translate (Ersatz: MyMemory). Die Mac-App erkennt Sprache dagegen lokal auf dem Gerät. <b>Pause</b> und <b>Stopp</b> schalten das Mikrofon ganz aus. Das Satzbuch (unten) funktioniert ohne Mikrofon und für Englisch/Thai auch offline; in anderen Sprachen werden Sätze beim ersten Tippen an Google Translate gesendet (Karte als „automatisch übersetzt“ markiert). <b>Lernkarten</b> (★ gemerkte und, nur wenn eingeschaltet, zuletzt übersetzte Sätze) bleiben nur in diesem Browser; „Alle Lernkarten löschen“ entfernt sie.
 </div>
 <div class="note" role="status" id="offline">Offline: Übersetzen und Spracherkennung gehen gerade nicht. Das Satzbuch mit Zeige-Karten funktioniert weiter.</div>
+<div class="note" role="status" id="swNote" hidden></div>
 <div id="warn" role="alert"></div>
 <div class="pair">
   <label>Ich spreche <select id="langA" aria-label="Meine Sprache"></select></label>
@@ -240,6 +250,7 @@
 <div id="partner" role="dialog" aria-modal="true" aria-labelledby="partnerTitle" aria-hidden="true">
   <div class="bar"><span id="partnerTitle">ไทย</span>
     <span class="btns"><button class="small" id="btnFontDown" type="button" aria-label="Schrift kleiner / Smaller text">A−</button><button class="small" id="btnFontUp" type="button" aria-label="Schrift größer / Larger text">A+</button><button class="small" id="btnPartnerSpeak" type="button" aria-label="Vorlesen / Read aloud">🔊</button><button class="small" id="btnPartnerClose" type="button" aria-label="Schließen / Close">✕</button></span></div>
+  <div id="partnerNote" hidden><span lang="de">Geteilter Text, von der App nicht geprüft.</span> <span lang="en">Shared text, not checked by the app.</span> <span lang="th">ข้อความที่แชร์มา แอปไม่ได้ตรวจสอบ</span></div>
   <div id="partnerText" lang="th" dir="auto" aria-live="polite">…</div>
 </div>
 
@@ -324,6 +335,9 @@ for (const id of ['dirA', 'dirB', 'speak', 'autoswitch', 'ptt', 'duplex', 'learn
   if (typeof settings[id] === 'boolean') $(id).checked = settings[id];
   $(id).addEventListener('change', () => { settings[id] = $(id).checked; saveSettings(); });
 }
+
+function syncPtt() { document.body.classList.toggle('ptt', $('ptt').checked); }
+$('ptt').addEventListener('change', syncPtt); syncPtt();
 
 const MODES = { a: { btn: $('btnA'), dir: $('dirA') }, b: { btn: $('btnB'), dir: $('dirB') } };
 function recLocale(l) { return l === 'en' ? ($('enVar').value || 'en-US') : LANGS[l].loc; }
@@ -464,6 +478,24 @@ async function sampleText(l) {
 $('testA').onclick = async () => { unlockTTS(); const t = await sampleText(pair.a); enqueueOutput(g => speakAsync(t, recLocale(pair.a), g)); };
 $('testB').onclick = async () => { unlockTTS(); const t = await sampleText(pair.b); enqueueOutput(g => speakAsync(t, recLocale(pair.b), g)); };
 
+// Harter Schnitt (Text ohne Leerzeichen, z. B. Thai): möglichst an einer Wortgrenze, nie vor einem Kombinationszeichen
+// (Tonmarke, Vokal) und nie mitten in einem Surrogatpaar. Liefert die Länge des ersten Stücks (1..max).
+function cutLen(x, max) {
+  try {
+    if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+      let last = 0;
+      for (const g of new Intl.Segmenter(undefined, { granularity: 'word' }).segment(x.slice(0, max + 1))) {
+        const e = g.index + g.segment.length;
+        if (e > max) break;
+        last = e;
+      }
+      if (last > 0) return last;
+    }
+  } catch {}
+  let n = max;
+  while (n > 1 && (/\p{M}/u.test(x[n]) || (x.charCodeAt(n - 1) >= 0xD800 && x.charCodeAt(n - 1) <= 0xDBFF))) n--;
+  return n;
+}
 // Lange Texte an Satzenden (sonst an Wortgrenzen) in Stücke <= max Zeichen teilen.
 function splitText(text, max) {
   const out = []; let cur = '';
@@ -475,7 +507,7 @@ function splitText(text, max) {
     for (const w of s.split(/(\s+)/)) {
       if ((cur + w).length > max) flush();
       let x = w;
-      while (x.length > max) { out.push(x.slice(0, max)); x = x.slice(max); }
+      while (x.length > max) { const k = cutLen(x, max); out.push(x.slice(0, k)); x = x.slice(k); }
       cur += x;
     }
   };
@@ -806,40 +838,46 @@ function sayNow(text, lang) {   // Satzbuch, Hörprobe, Vorlesen in der Großans
   enqueueOutput(g => speakAsync(text, recLocale(lang), g));
 }
 
-// Bildschirm wach halten, solange ein Modus aktiv ist (Handy: sonst stoppt die Erkennung).
+// Bildschirm wach halten, solange ein Modus aktiv oder die Großansicht offen ist (Handy: sonst stoppt die Erkennung bzw. wird die Karte dunkel).
 let wakeLock = null;
 async function updateWakeLock() {
   try {
-    if (mode && !document.hidden && 'wakeLock' in navigator) {
+    if ((mode || $('partner').classList.contains('on')) && !document.hidden && 'wakeLock' in navigator) {
       if (!wakeLock) { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); }
     } else if (wakeLock) { const w = wakeLock; wakeLock = null; await w.release(); }
   } catch { wakeLock = null; }
 }
 document.addEventListener('visibilitychange', () => {
   updateWakeLock();
-  if (!document.hidden) resumeIfIdle();
+  if (!document.hidden) { resumeIfIdle(); learnRender(); }
 });
 
 // ---- Partner view / Großansicht ----
 let partnerOpener = null, bigText = null;   // bigText = { text, lang } der aktuellen Anzeige
-function setPartnerText(text, lang, cls) {
+function setPartnerText(text, lang, cls, shared) {
   const p = $('partnerText');
   p.textContent = text; p.lang = lang; p.className = cls || '';
   bigText = { text, lang };
+  $('partnerNote').hidden = !shared;
   $('partnerTitle').textContent = LANGS[lang] ? LANGS[lang].native : ''; $('partnerTitle').lang = lang;
 }
-function togglePartner(on) {
+function togglePartner(on, fromPop) {
   const el = $('partner');
   const want = on === undefined ? !el.classList.contains('on') : on;
   if (want === el.classList.contains('on')) return;
-  if (want) partnerOpener = document.activeElement;
+  if (want) { partnerOpener = document.activeElement; try { history.pushState({ big: 1 }, ''); } catch {} }   // Zurück-Taste schließt die Großansicht
   el.classList.toggle('on', want);
   el.setAttribute('aria-hidden', want ? 'false' : 'true');
   $('main').inert = want;                  // dialog is modal: nothing behind it is reachable (focus trap)
   if (want) $('btnPartnerClose').focus();
-  else if (partnerOpener && partnerOpener.focus) partnerOpener.focus();
+  else {
+    if (partnerOpener && partnerOpener.focus) partnerOpener.focus();
+    if (!fromPop) { try { if (history.state && history.state.big) history.back(); } catch {} }
+  }
+  updateWakeLock();
 }
-function showBig(text, lang, cls) { setPartnerText(text, lang, cls); togglePartner(true); }
+window.addEventListener('popstate', () => { if ($('partner').classList.contains('on')) togglePartner(false, true); });
+function showBig(text, lang, cls, shared) { setPartnerText(text, lang, cls, shared); togglePartner(true); }
 $('btnPartner').onclick = () => togglePartner(true);
 $('btnPartnerClose').onclick = () => togglePartner(false);
 $('btnPartnerSpeak').onclick = () => { if (bigText) sayNow(bigText.text, bigText.lang); };
@@ -903,6 +941,7 @@ async function renderCards() {
     const t = document.createElement('span'); t.className = 't'; t.lang = b; t.dir = 'auto';
     t.textContent = p[b] || pbTrans[b + '|' + p.en] || '…';
     c.append(s, t);
+    if (!p[b]) { const m = document.createElement('span'); m.className = 'mt-b'; m.lang = 'de'; m.textContent = '🤖 automatisch übersetzt, nicht geprüft'; c.appendChild(m); }
     const front = p[a] || p.en, fl = p[a] ? a : 'en';
     w.append(c, starButton(() => { const bt = p[b] || pbTrans[b + '|' + p.en]; return bt ? learnItem(front, fl, bt, b) : null; },
                            async () => learnItem(front, fl, await phraseIn(p, b), b), 'star'));
@@ -932,6 +971,7 @@ $('btnNo').onclick = () => { const l = pair.b; showBig(LANGS[l].no, l, 'no'); if
 
 // ---- Lernmodus: Karteikarten mit einfachem Leitner-Plan (nur localStorage dieses Browsers) ----
 const LEARN_KEY = 'learnV1', LEARN_MAX = 200, LEARN_TXT = 500, DAY = 864e5;
+const RETRY_MS = 10 * 60000;   // falsch beantwortet: nicht sofort wieder dieselbe Karte
 const LEARN_DAYS = [0, 1, 3, 7, 14];   // Fach 1..5: Tage bis zur nächsten Abfrage
 function learnSide(x) {
   return !!x && typeof x.t === 'string' && x.t.trim() !== '' && x.t.length <= LEARN_TXT && typeof x.l === 'string' && Object.prototype.hasOwnProperty.call(LANGS, x.l);
@@ -964,9 +1004,11 @@ function learnAdd(list, item, now, kind) {   // kind 'fav' (gemerkt) oder 'rec' 
   return out;
 }
 function learnRemove(list, item) { const k = learnKey(item); return list.filter(c => learnKey(c) !== k); }
-function leitnerNext(card, ok, now) {   // gewusst: ein Fach weiter; nicht gewusst: zurück in Fach 1 (gleich nochmal)
+function leitnerNext(card, ok, now) {   // gewusst: ein Fach weiter (fällig am Kalendertag); nicht gewusst: Fach 1, nach 10 Minuten wieder
   const box = ok ? Math.min(5, card.box + 1) : 1;
-  return Object.assign({}, card, { box, due: now + LEARN_DAYS[box - 1] * DAY });
+  if (!ok) return Object.assign({}, card, { box, due: now + RETRY_MS });   // erst nach einer Weile wieder, nicht sofort
+  const d = new Date(now); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + LEARN_DAYS[box - 1]);   // Kalendertag (lokal), nicht 24-h-Spanne
+  return Object.assign({}, card, { box, due: LEARN_DAYS[box - 1] ? d.getTime() : now });
 }
 function learnDue(list, now) {   // fällige Karten: niedrigstes Fach zuerst, dann am längsten fällig
   return list.filter(c => c.due <= now).sort((x, y) => (x.box - y.box) || (x.due - y.due));
@@ -976,8 +1018,10 @@ let learnCur = null, learnShownKey = null;
 function learnStore(list) {
   learnList = list;
   try { localStorage.setItem(LEARN_KEY, JSON.stringify(list)); } catch {}
+  try { if (list.length && navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch {}   // Safari räumt sonst nach 7 Tagen
   learnRender(); syncStars();
 }
+setInterval(() => { if (!document.hidden) learnRender(); }, 60000);   // "fällig" auch bei offen gelassener Seite aktuell
 function learnReveal(on) {
   $('learnBack').hidden = !on; $('learnShow').hidden = on;
   $('learnYes').hidden = !on; $('learnNo').hidden = !on;
@@ -1077,7 +1121,10 @@ async function shareText(text, lang) {
 }
 function openFromHash() {
   const s = parseShare(location.hash);
-  if (s) showBig(s.text, s.lang);   // nur anzeigen: kein Mikrofon, kein Vorlesen ohne Tippen
+  if (s) {   // nur anzeigen: kein Mikrofon, kein Vorlesen ohne Tippen
+    try { history.replaceState(null, '', location.pathname + location.search); } catch {}   // Satz nicht in Adresszeile/Verlauf lassen
+    showBig(s.text, s.lang, '', true);
+  }
 }
 window.addEventListener('hashchange', openFromHash);
 
@@ -1103,10 +1150,11 @@ $('btnSave').onclick = () => {
 };
 
 // ---- Einwilligung vor dem ersten Mikrofon-Start (einmalig, im Browser gespeichert) ----
+const CONSENT_VER = '1';   // bei geänderten Dialogtext/Datenfluss erhöhen (und docs/DATENSCHUTZ.md anpassen): alte Zustimmung gilt dann nicht mehr
 let consentMem = false, consentWant = null, consentOpener = null;
 function hasConsent() {
   if (consentMem) return true;
-  try { return localStorage.getItem('micConsent') === '1'; } catch { return false; }
+  try { return localStorage.getItem('micConsent') === CONSENT_VER; } catch { return false; }
 }
 function consentOpen() { const d = $('consent'); return !!(d.open || d.hasAttribute('open')); }
 // Modus wählen; beim ersten Mal vorher fragen. Läuft direkt in der Nutzergeste (iOS braucht das für unlockTTS).
@@ -1122,7 +1170,7 @@ function chooseMode(m) {
 function closeConsent() { const d = $('consent'); if (consentOpen() && typeof d.close === 'function') d.close(); }
 function acceptConsent() {
   consentMem = true;
-  try { localStorage.setItem('micConsent', '1'); } catch {}
+  try { localStorage.setItem('micConsent', CONSENT_VER); } catch {}
   const m = consentWant; consentWant = null;
   closeConsent();
   if (m && $('ptt').checked) { unlockTTS(); setStatus('Bereit – Knopf halten und sprechen', true); MODES[m].btn.focus(); return; }
@@ -1194,7 +1242,24 @@ function updateOnline() { $('offline').style.display = navigator.onLine === fals
 window.addEventListener('online', updateOnline); window.addEventListener('offline', updateOnline);
 updateOnline();
 if ('serviceWorker' in navigator && window.isSecureContext && /^https?:$/.test(location.protocol)) {
-  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(e => console.warn('sw', e)); });
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {   // neue Version übernommen: nie von selbst neu laden
+    if (!hadController) return;
+    const n = $('swNote'); n.textContent = 'Neue Version geladen. ';
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'small'; b.textContent = 'Seite neu laden';
+    b.onclick = () => location.reload(); n.appendChild(b); n.hidden = false;
+  });
+  navigator.serviceWorker.addEventListener('message', e => {   // Antwort des Workers: wie viele Dateien sind offline bereit
+    const d = e.data;
+    if (!d || d.type !== 'offline-status' || !Number.isInteger(d.ok) || !Number.isInteger(d.total)) return;
+    const st = $('swState');
+    st.textContent = d.ok >= d.total ? '✓ Offline bereit' : 'Offline unvollständig (' + d.ok + '/' + d.total + ') – einmal mit Netz neu laden';
+  });
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').then(() => navigator.serviceWorker.ready)
+      .then(reg => { if (reg.active) reg.active.postMessage({ type: 'offline-status' }); })
+      .catch(e => console.warn('sw', e));
+  });
 }
 
 loadLangTable().then(() => {

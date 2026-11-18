@@ -34,7 +34,7 @@ PRELUDE = "\n".join([
     _line("const SCRIPT_RX ="), _func("buildScriptRx"), _func("applyLangTable"), f"applyLangTable({LANG_JSON});",
     _line("const isLatin"), _line("const CMD_RE"),
     *(_func(n) for n in ("scriptsDistinct", "scriptShare", "untranslated", "wrongScript", "implausible",
-                         "textLang", "splitText", "parseCommand", "parseShare")),
+                         "textLang", "cutLen", "splitText", "parseCommand", "parseShare")),
 ])
 
 
@@ -46,6 +46,10 @@ CASES = [
     # splitText
     ("splitText('a'.repeat(400), 180).map(p => p.length)", [180, 180, 40]),
     ("splitText('', 300)", []),
+    # Thai ohne Leerzeichen: nie vor einem Kombinationszeichen schneiden, nichts geht verloren
+    ("(() => { const t = 'กรุงเทพมหานครอมรรัตนโกสินทร์'.repeat(8); const p = splitText(t, 30);"
+     " return [p.join('') === t, p.every(x => x.length <= 30),"
+     " p.every(x => !/^\\p{M}/u.test(x))]; })()", [True, True, True]),
     ("splitText('你好。今天天气很好。'.repeat(30), 50).length > 1", True),            # CJK-Satzzeichen
     (f"splitText({json.dumps(LONG)}, 180).every(p => p.length <= 180)", True),
     (f"splitText({json.dumps(LONG)}, 180).join(' ').split(/\\s+/).join(' ')", LONG.strip()),

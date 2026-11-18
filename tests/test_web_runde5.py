@@ -110,6 +110,7 @@ PRELUDE = "\n".join([
     _func("applyLangTable"), f"applyLangTable({(ROOT / 'languages.json').read_text(encoding='utf-8')});",
     "let pair = { a: 'de', b: 'th' };", _line("const CMD_RE"),
     _line("const LEARN_KEY"), re.search(r"^const LEARN_DAYS.*$", SCRIPT, re.M).group(0),
+    re.search(r"^const RETRY_MS.*$", SCRIPT, re.M).group(0),
     *(_func(n) for n in ("learnSide", "learnParse", "learnItem", "learnKey", "learnAdd", "learnRemove",
                          "leitnerNext", "learnDue", "criticalFirst", "presetNote", "parseCommand")),
 ])
@@ -136,10 +137,15 @@ CASES = [
     ("learnItem('Hallo', 'xx', 'สวัสดี', 'th')", None),
     ("learnItem('a'.repeat(900), 'de', 'b', 'th').a.t.length", 500),
     # Leitner
-    (f"leitnerNext({{...{json.dumps(CARD)}, box: 1, due: 0}}, true, 1000)", {**CARD, "box": 2, "due": 1000 + DAY}),
-    (f"leitnerNext({{...{json.dumps(CARD)}, box: 4, due: 0}}, true, 0).due", 14 * DAY),
+    # richtig: fällig am lokalen Kalendertag (Mitternacht), unabhängig von der Zeitzone
+    (f"const N = Date.UTC(2026, 5, 15, 12), c = leitnerNext({{...{json.dumps(CARD)}, box: 1, due: 0}}, true, N); "
+     "const d = new Date(c.due); [c.box, d.getHours(), d.getMinutes(), c.due > N, c.due - N <= 2 * 86400000]",
+     [2, 0, 0, True, True]),
+    (f"const N = Date.UTC(2026, 5, 15, 12), c = leitnerNext({{...{json.dumps(CARD)}, box: 4, due: 0}}, true, N); "
+     "[c.box, c.due - N >= 13 * 86400000, c.due - N <= 15 * 86400000]", [5, True, True]),
     (f"leitnerNext({{...{json.dumps(CARD)}, box: 5, due: 0}}, true, 0).box", 5),
-    (f"leitnerNext({{...{json.dumps(CARD)}, box: 4, due: 0}}, false, 7)", {**CARD, "box": 1, "due": 7}),
+    # falsch: Fach 1, aber erst nach 10 Minuten wieder (nicht sofort dieselbe Karte)
+    (f"leitnerNext({{...{json.dumps(CARD)}, box: 4, due: 0}}, false, 7)", {**CARD, "box": 1, "due": 7 + 600000}),
     ("learnDue([{box: 2, due: 1, id: 'x'}, {box: 1, due: 5, id: 'y'}, {box: 1, due: 3, id: 'z'}, "
      "{box: 1, due: 99, id: 'later'}], 10).map(c => c.id)", ["z", "y", "x"]),
     # Hinzufügen: keine Doppelten, Merken setzt fav, voll -> ältester ungemerkter fliegt
