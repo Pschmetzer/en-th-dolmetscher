@@ -132,3 +132,14 @@ def test_process_drops_echo(echo, monkeypatch):
     e.process(np.full(d.SR * 2, 0.05, dtype=np.float32), speak=False, uid="e1")
     drop = [kw for n, kw in events if n == "dropped"]
     assert drop and drop[0]["reason"] == "echo" and drop[0]["code"] == "other" and "heard" not in [n for n, _ in events]
+
+
+def test_split_sentences_keeps_abbreviations_together():
+    t = "The office is open from 9 a.m. to 5 p.m. every day and we also close for lunch on Sunday afternoon."
+    assert d.split_sentences(t, "en") == [t]
+    t = "Please ask Prof. Brown about it, he is here. They are in room no. 5 near the lobby of the main building."
+    out = d.split_sentences(t, "en")
+    assert out[0].endswith("he is here.") and out[1].startswith("They are")
+    t = "Es kostet ca. 500 Baht, z. B. mit Frühstück und Abendessen. Das ist günstig und die Lage ist sehr gut hier."
+    assert d.split_sentences(t, "de")[0].endswith("Abendessen.")
+    assert d.split_sentences("Wait. Then go. Now please leave the building quickly and quietly, thank you.", "en")

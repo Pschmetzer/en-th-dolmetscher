@@ -3282,6 +3282,25 @@ def normalize(audio, target_rms=0.06, max_gain=10.0, peak=0.95, min_rms=0.003, f
     return np.clip(audio * g, -1.0, 1.0).astype(audio.dtype, copy=False), pk
 
 
+# Runde 8: Kürzel, nach deren Punkt kein Satz endet ("9 a.m. to 5 p.m.", "ca. 500", "z. B.", "Prof. Brown")
+_ABBREV = frozenset({"a.m.", "p.m.", "ca.", "z.", "b.", "bzw.", "usw.", "etc.", "approx.", "no.", "nr.", "prof.", "jr.",
+                     "sr.", "inc.", "co.", "ltd.", "mt.", "vs.", "u.a.", "d.h.", "evtl.", "tel.", "str.", "dr.", "mr.",
+                     "mrs.", "ms.", "st.", "e.g.", "i.e.", "etc"})
+
+
+def _rejoin_abbrev(parts):
+    """Teile wieder verbinden, wenn der Satz nur an einem Kürzel oder vor einem Kleinbuchstaben „endete“."""
+    out = []
+    for p in parts:
+        if out:
+            last = out[-1].split()[-1].casefold() if out[-1].split() else ""
+            if last in _ABBREV or (out[-1].endswith(".") and p[:1].islower() and p[:1].isalpha()):
+                out[-1] += " " + p
+                continue
+        out.append(p)
+    return out
+
+
 def split_sentences(s, lang, min_len=60):
     """Lange Ausgaben satzweise vorlesen: der erste Satz klingt früher, der Rest wird vorab geladen."""
     s = s.strip()
@@ -3294,6 +3313,8 @@ def split_sentences(s, lang, min_len=60):
     else:
         parts = re.split(r"(?<!\bMr\.)(?<!\bMrs\.)(?<!\bMs\.)(?<!\bDr\.)(?<!\bSt\.)(?<!\bvs\.)(?<!\be\.g\.)"
                          r"(?<!\bi\.e\.)(?<=[.!?;।॥؟؛۔…])\s+", s)   # "Mr. Smith" bleibt; Hindi/Arabisch/Urdu
+    if lang not in ("th", "zh", "ja"):
+        parts = _rejoin_abbrev(parts)
     out, cur = [], ""
     for p in parts:                     # zu kurze Stücke zusammenfassen (natürlicher Klang)
         cur = f"{cur} {p}".strip() if cur else p
