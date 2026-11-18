@@ -252,7 +252,7 @@
     <button class="yn no" id="btnNo" type="button">Nein</button>
   </div>
   <div class="row">
-    <label><span data-i18n="pbSearch">Satz suchen</span> <input id="pbQ" type="search" aria-keyshortcuts="/" size="20" maxlength="60" autocomplete="off" enterkeyhint="search"></label>
+    <label><input id="pbQ" type="search" aria-keyshortcuts="/" size="20" maxlength="60" autocomplete="off" enterkeyhint="search"> <span data-i18n="pbSearch">Satz suchen</span></label>
     <button class="small" id="pbFav" type="button" aria-pressed="false" data-i18n="favOnly">Nur Favoriten ☆</button>
     <span id="pbCount" role="status"></span>
   </div>
@@ -356,7 +356,7 @@
   <button class="small" id="btnCsv" type="button" data-i18n="saveCsv">Verlauf als .csv</button>
   <button class="small" id="btnShareLog" type="button" data-i18n="logShare">Verlauf teilen</button>
   <button class="small" id="btnClearLog" type="button" data-i18n="logClear">Verlauf leeren</button>
-  <label><span class="sr-only" id="logQLabel">Verlauf durchsuchen</span><input id="logQ" type="search" size="18" maxlength="60" autocomplete="off" enterkeyhint="search"></label>
+  <label><input id="logQ" type="search" size="18" maxlength="60" autocomplete="off" enterkeyhint="search"><span class="sr-only" id="logQLabel">Verlauf durchsuchen</span></label>
   <span id="logCount" role="status"></span>
 </div>
 <div id="log" role="list" aria-live="off" aria-label="Übersetzungen, neueste zuerst"></div>
@@ -803,7 +803,7 @@ function loadLangTable() {   // nach 3 s ohne Antwort mit dem Notfall-Paar start
 function refreshLangUi() { initPair(); fillLangSelects(); buildModes(); fillVoiceSelects(); renderCards(); }
 const DEFAULT_PAIR = ['en', 'th'];
 // Satzbuch: presets/*.json (zur Laufzeit geladen, vom Service Worker zwischengespeichert)
-const PRESET_IDS = ['doctor', 'police', 'lostchild', 'pharmacy', 'dentist', 'taxi', 'places', 'airport', 'transport', 'travel', 'hotel', 'restaurant', 'shopping', 'bank', 'answers', 'access', 'spa', 'temple', 'island', 'scooter', 'rental', 'services', 'coworking', 'office'];
+const PRESET_IDS = ['doctor', 'police', 'lostchild', 'pharmacy', 'dentist', 'taxi', 'places', 'airport', 'transport', 'travel', 'hotel', 'restaurant', 'shopping', 'bank', 'answers', 'access', 'spa', 'temple', 'island', 'scooter', 'rental', 'services', 'coworking', 'office', 'diving', 'emergency', 'kids', 'market', 'nomad', 'school', 'sport', 'visa', 'work'];
 
 // ---- Schrift-Plausibilität (wie dolmetscher.py: scripts_distinct, script_share, _untranslated, _wrong_script, text_lang) ----
 const SCRIPT_RX = {}, SCRIPT_RX_G = {}, SCRIPT_RUN3 = {};
