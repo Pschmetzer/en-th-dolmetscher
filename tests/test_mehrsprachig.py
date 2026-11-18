@@ -46,7 +46,8 @@ def _eng(**kw):
 def test_sprachtabelle_vollstaendig():
     assert set(d.LANGS) == CODES
     assert d.DEFAULT_PAIR == ("en", "th")
-    whisper = set(__import__("faster_whisper.tokenizer", fromlist=["_LANGUAGE_CODES"])._LANGUAGE_CODES)
+    tokenizer = pytest.importorskip("faster_whisper.tokenizer", reason="faster-whisper fehlt (requirements-dev.txt)")
+    whisper = set(tokenizer._LANGUAGE_CODES)
     for code, v in d.LANGS.items():
         assert code in whisper, code
         assert v["name"] and v["de"] and v["say"], code
