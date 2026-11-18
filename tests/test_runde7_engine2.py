@@ -211,3 +211,110 @@ def test_glossar_lernen_schaltet_preset_im_fehlerfall_wieder_an(monkeypatch):
     with pytest.raises(OSError):
         d.learn_glossary_names(object(), ["Neuname"])
     assert calls == [None, "hotel"]
+
+
+# ---- Teil 4: Hinweise, Tuning, Untertitel, Suche, Akku ---
+
+def test_tuning_je_szenario_setzen_und_zurueck(monkeypatch):
+    monkeypatch.setattr(d, "SILENCE_END", 0.7)
+    monkeypatch.setattr(d, "_TUNING_SAVED", {})
+    monkeypatch.setitem(d.LET_FINISH, "s", 0.0)
+    monkeypatch.setitem(d.CATCH_UP, "mode", "skip")
+    e = types.SimpleNamespace(rate=0)
+    p = {"tuning": {"silence": 1.5, "let_finish": 1.0, "catch_up": "off", "rate": -20, "sensitivity": "high"}}
+    d._apply_preset_tuning(e, p)
+    assert d.SILENCE_END == 1.5 and d.LET_FINISH["s"] == 1.0 and d.CATCH_UP["mode"] == "off" and e.rate == -20
+    d._apply_preset_tuning(e, None)
+    assert d.SILENCE_END == 0.7 and d.LET_FINISH["s"] == 0.0 and d.CATCH_UP["mode"] == "skip" and e.rate == 0
+
+
+def test_preset_tuning_wird_validiert():
+    import presets as P
+    base = {"id": "t", "names": {"de": "T", "en": "T", "th": "T"}, "style": "casual"}
+    assert P.validate({**base, "tuning": {"silence": 1.0, "catch_up": "fast"}}) == []
+    assert P.validate({**base, "tuning": {"silence": 99}})
+    assert P.validate({**base, "tuning": {"unbekannt": 1}})
+    assert P.validate({**base, "tuning": {"sensitivity": "extrem"}})
+
+
+def test_tunable_klassenwerte(monkeypatch):
+    monkeypatch.setattr(d.Speaker, "SKIP_AT", 3)
+    done = d.apply_tuning("SKIP_AT=5,WAKE_S=9,PRE_AT=99")
+    assert d.Speaker.SKIP_AT == 5 and done["WAKE_S"] == 9.0 and done["PRE_AT"] == 1.5
+    d.Speaker.SKIP_AT = 3
+
+
+def test_hint_selten_und_langsam_erkannt(monkeypatch, ev):
+    monkeypatch.setattr(d, "_HINT_T", {})
+    for _ in range(10):
+        d.lat_add("sound", 9.0)
+    hints = [k for e, k in ev if e == "hint"]
+    assert len(hints) == 1 and hints[0]["code"] == "slow" and hints[0]["what"] == "sound"
+    for k in d.LAT:
+        d.LAT[k].clear()
+
+
+def test_mikrofon_zu_leise_hinweis(monkeypatch, ev):
+    monkeypatch.setattr(d, "_HINT_T", {})
+    monkeypatch.setattr(d, "_SHORTS", d.collections.deque(maxlen=6))
+    for _ in range(6):
+        d._note_short(0.005)
+    assert [k["code"] for e, k in ev if e == "hint"] == ["mic_far"]
+
+
+def test_ersatzstimme_wird_einmal_gemeldet(monkeypatch, ev):
+    monkeypatch.setattr(d, "_TTS_FB", {"on": False})
+    d._tts_fallback("offline")
+    d._tts_fallback("slow")
+    assert [k for e, k in ev if e == "tts_fallback"] == [{"reason": "offline"}]
+
+
+def test_suche_mit_kontext_und_filter(tmp_path):
+    import history_store as hs
+    st = hs.Store(str(tmp_path / "h.sqlite"))
+    for i, t in enumerate(["eins", "zwei Nadel", "drei", "vier"]):
+        st.add(t, "x", lang="de" if i != 3 else "en", session="s", ts=10.0 + i)
+    hit = st.search("Nadel", context=1)
+    assert [c["text"] for c in hit[0]["context"]] == ["eins", "drei"]
+    assert st.search("Nadel", lang="en") == []
+    assert len(st.search("Nadel", lang="de")) == 1
+    st.close()
+
+
+def test_verlauf_ohne_sprechernamen(tmp_path):
+    import history_store as hs
+    rec = hs.Recorder()
+    rec.store, rec.on, rec.store_speakers = hs.Store(str(tmp_path / "h.sqlite")), True, False
+    rec.utt({"text": "hi", "speaker": "Patrick", "role": "me"})
+    row = rec.store.rows()[0]
+    assert row["speaker"] is None and row["role"] == "me"
+
+
+def test_untertitel_aus_dateiposition(tmp_path, monkeypatch, ev):
+    import history_store as hs
+    monkeypatch.setattr(d, "private_tmp", lambda: str(tmp_path))
+    monkeypatch.setattr(hs, "RECORDER", hs.Recorder())
+    store = d._subtitle_recorder(str(tmp_path / "o.srt"))
+    rec = hs.RECORDER
+    rec.file_pos = 4.0
+    rec.utt({"text": "Hello", "out": "Hallo", "translated": True, "lang": "en", "dur": 2.0, "ready_s": 30.0})
+    rec.file_pos = 9.0
+    rec.utt({"text": "Bye", "out": "Tschüss", "translated": True, "lang": "en", "dur": 1.0, "ready_s": 30.0})
+    d._write_subtitles(store, str(tmp_path / "o.srt"))
+    srt = (tmp_path / "o.srt").read_text(encoding="utf-8")
+    assert "00:00:00,000 --> " in srt and "00:00:06,000 --> " in srt and "Hallo" in srt
+    assert [k for e, k in ev if e == "subtitles"][0]["cues"] == 2
+
+
+def test_akku_spart(monkeypatch):
+    import hwprofile
+    rec = {"model": "best", "beam": 5, "reason": "x"}
+    out = hwprofile.adjust_for_power(rec, True)
+    assert out["model"] == "medium" and out["beam"] == 1 and hwprofile.adjust_for_power(rec, False) == rec
+    run = lambda cmd, **k: types.SimpleNamespace(stdout="Now drawing from 'Battery Power'")  # noqa: E731
+    assert hwprofile.on_battery(run) is True
+
+
+def test_say_modus_rendert_vorab():
+    src = open(d.__file__, encoding="utf-8").read()
+    assert 'elif eng.tts == "say" and not eng.mute' in src

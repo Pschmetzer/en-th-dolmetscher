@@ -56,3 +56,25 @@ def recommend(info):
 def auto_choice(run=None, machine=None):
     info = detect(run, machine)
     return {**info, **recommend(info)}
+
+
+def on_battery(run=None):
+    """Läuft der Mac im Akkubetrieb (pmset -g batt: "Battery Power")? Unbekannt/Fehler: False."""
+    run = run or subprocess.run
+    try:
+        r = run(["pmset", "-g", "batt"], capture_output=True, text=True, timeout=3)
+        return "battery power" in (r.stdout or "").lower()
+    except Exception:
+        return False
+
+
+def adjust_for_power(rec, battery):
+    """Im Akkubetrieb eine Stufe sparsamer: Beam 1, `best` -> `medium` (Wärme/Laufzeit)."""
+    if not battery:
+        return rec
+    out = dict(rec)
+    out["beam"] = 1
+    if out["model"] == "best":
+        out["model"] = "medium"
+    out["reason"] += " (Akkubetrieb: sparsamer)"
+    return out

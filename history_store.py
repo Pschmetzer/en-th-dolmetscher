@@ -165,7 +165,29 @@ class Store:
         return self.db.execute("SELECT session, MIN(ts), COUNT(*) FROM utt GROUP BY session "
                                "ORDER BY MIN(ts) DESC").fetchall()
 
-    def search(self, query, limit=200):
+    def search(self, query, limit=200, context=0, lang=None, session=None, since=None):
+        """Treffer (neueste zuerst). context=N: je Treffer `context` = bis zu N Zeilen davor/danach aus derselben
+        Sitzung; lang/session/since (Unix-Zeit) filtern."""
+        rows = self._search(query, limit if not (lang or session or since) else max(limit, 5000))
+        if lang:
+            rows = [r for r in rows if r.get("lang") == lang]
+        if session:
+            rows = [r for r in rows if r.get("session") == session]
+        if since is not None:
+            rows = [r for r in rows if r["ts"] >= since]
+        rows = rows[:limit]
+        n = max(0, min(int(context or 0), 10))
+        if n:
+            for r in rows:
+                near = self.db.execute(
+                    "SELECT * FROM utt WHERE session = ? AND id BETWEEN ? AND ? AND id != ? ORDER BY id",
+                    (r["session"], r["id"] - n, r["id"] + n, r["id"]))
+                cols = [c[0] for c in near.description]
+                r["context"] = [{"id": x["id"], "lang": x["lang"], "text": x["text"], "translation": x["translation"]}
+                                for x in (dict(zip(cols, y)) for y in near.fetchall())]
+        return rows
+
+    def _search(self, query, limit=200):
         query = (query or "").strip()
         if not query:
             return []
@@ -314,7 +336,7 @@ class Recorder:
     def _roll(self, now):
         """Neue Sitzung nach langer Pause oder Tageswechsel (Untertitel-Export nimmt sonst Tage am Stück);
         stündlich die Aufbewahrungsfrist durchsetzen."""
-        if self.last_t is not None and (now - self.last_t > self.SESSION_GAP_S
+        if not self.fixed_session and self.last_t is not None and (now - self.last_t > self.SESSION_GAP_S
                                         or time.localtime(now).tm_yday != time.localtime(self.last_t).tm_yday):
             self.session = uuid.uuid4().hex[:12]
         self.last_t = now
@@ -353,11 +375,15 @@ class Recorder:
 
     # Engine-Betrieb: Schreiben in eigenem Thread (SQLite-Commit mit fsync hält sonst den Ausgabe-Lock von emit)
     async_mode = False
+    store_speakers = True                           # False: Profilnamen nicht in die Datenbank schreiben
+    file_pos = None                                 # --file: Position (s) in der Datei statt Wanduhr (Untertitel)
+    file_base = 0.0
+    fixed_session = False                           # --subtitles: eine Sitzung für die ganze Datei
 
     def utt(self, kw):
         if not self.on or not self.store or not kw.get("text"):
             return
-        now = time.time()
+        now = time.time() if self.file_pos is None else self.file_base + self.file_pos
         if self.async_mode:
             self._queue().put((kw, now))
             return
@@ -397,9 +423,9 @@ class Recorder:
                 translit=kw.get("text_latin") or kw.get("out_latin"),
                 conf=round(math.exp(lp), 3) if lp < 0 else None, provider=kw.get("provider"),
                 session=self.session, uid=kw.get("id"), replaces=kw.get("replaces"), ts=now,
-                t_begin=_t_begin(kw, now),
+                t_begin=_t_begin(kw, now, self.file_pos is not None),
                 role=kw.get("role") if kw.get("role") in ("me", "other") else None,
-                speaker=kw.get("speaker") if isinstance(kw.get("speaker"), str) else None)
+                speaker=kw.get("speaker") if self.store_speakers and isinstance(kw.get("speaker"), str) else None)
             self.fails = 0
         except sqlite3.OperationalError as e:
             if "locked" in str(e).lower() or "busy" in str(e).lower():
@@ -419,9 +445,10 @@ class Recorder:
                 pass
 
 
-def _t_begin(kw, now=None):
-    """Sprechbeginn aus `utt`: jetzt − ready_s (Satzende bis Übersetzung) − dur (Länge der Äußerung)."""
-    ready, dur = kw.get("ready_s"), kw.get("dur")
+def _t_begin(kw, now=None, file_mode=False):
+    """Sprechbeginn aus `utt`: jetzt − ready_s (Satzende bis Übersetzung) − dur (Länge der Äußerung).
+    Dateimodus: `now` ist schon das Ende der Äußerung in der Datei, also nur − dur."""
+    ready, dur = (0.0 if file_mode else kw.get("ready_s")), kw.get("dur")
     if not all(isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x) and x >= 0
                for x in (ready, dur)):
         return None
@@ -461,9 +488,13 @@ def run_cli(a):
         elif getattr(a, "history_sessions", False):   # [{id, start, count}] – neueste zuerst
             print(json.dumps([{"id": sid, "start": _iso(ts), "count": n} for sid, ts, n in st.sessions()]))
         elif a.history_search is not None:
+            ctx = getattr(a, "history_context", 0) or 0
+            hits = st.search(a.history_search, context=ctx, lang=getattr(a, "history_lang", None),
+                             session=a.history_session)
             print(json.dumps([{"time": _iso(r["ts"]), "session": r["session"], "lang": r["lang"],
-                               "text": r["text"], "translation": r["translation"]}
-                              for r in st.search(a.history_search)], ensure_ascii=False))
+                               "text": r["text"], "translation": r["translation"],
+                               **({"context": r["context"]} if "context" in r else {})}
+                              for r in hits], ensure_ascii=False))
         elif a.history_purge is not None:
             if valid_days(a.history_purge) is None:
                 print(json.dumps({"error": "history_purge braucht eine Zahl größer 0"}))

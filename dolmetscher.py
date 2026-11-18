@@ -1762,6 +1762,37 @@ def _report_preset_problems():
         emit("error", code="preset_invalid", msg="Preset-Dateien ungültig: " + ", ".join(key)[:200], files=list(key))
 
 
+_TUNING_SAVED = {}
+
+
+def _apply_preset_tuning(eng, p):
+    """Szenario-Tuning (silence, sensitivity, let_finish, catch_up, rate) setzen; „kein Preset“ stellt den Stand
+    davor wieder her."""
+    global SILENCE_END
+    if _TUNING_SAVED:
+        sv = dict(_TUNING_SAVED)
+        _TUNING_SAVED.clear()
+        SILENCE_END = sv["silence"]
+        VAD["start"], VAD["keep"] = sv["vad"]
+        LET_FINISH["s"], CATCH_UP["mode"] = sv["let_finish"], sv["catch_up"]
+        eng.rate = sv["rate"]
+    t = (p or {}).get("tuning")
+    if not t:
+        return
+    _TUNING_SAVED.update(silence=SILENCE_END, vad=(VAD["start"], VAD["keep"]), let_finish=LET_FINISH["s"],
+                         catch_up=CATCH_UP["mode"], rate=eng.rate)
+    if "silence" in t:
+        SILENCE_END = float(t["silence"])
+    if t.get("sensitivity") in SENSITIVITY:
+        VAD["start"], VAD["keep"] = SENSITIVITY[t["sensitivity"]]
+    if "let_finish" in t:
+        LET_FINISH["s"] = float(t["let_finish"])
+    if t.get("catch_up") in CATCH_UP_MODES:
+        CATCH_UP["mode"] = t["catch_up"]
+    if "rate" in t:
+        eng.rate = int(t["rate"])
+
+
 def set_preset(eng, pid, quiet=False):
     """Szenario-Preset an/aus (pid None/"none" = zurück). Gibt den Namen (en) oder None zurück."""
     all_p = presets.load_all()
@@ -1770,6 +1801,7 @@ def set_preset(eng, pid, quiet=False):
         log({"preset": "unbekannt", "id": str(pid)[:40]})
         return None
     p = PRESET.activate(pid, all_p, GLOSSARY, LLM, eng, voices=VOICES)
+    _apply_preset_tuning(eng, p)
     _cache_clear()                     # Stil und Glossar ändern die Übersetzung
     if not quiet:
         emit("preset", id=p["id"] if p else None, name=p["names"]["en"] if p else None, **presets.app_fields(p))
@@ -3463,6 +3495,16 @@ def _spawn(coro):
     return t
 
 
+_TTS_FB = {"on": False}
+
+
+def _tts_fallback(reason):
+    """Ersatzstimme (macOS) statt Neural-Stimme: einmal je Wechsel melden, damit die App "Ersatzstimme aktiv" zeigt."""
+    if not _TTS_FB["on"]:
+        _TTS_FB["on"] = True
+        emit("tts_fallback", reason=reason)
+
+
 def net_state(what, ok, retry_in_s=None):
     """Online/Offline-Wechsel einmal melden (App zeigt dann ein Symbol). what: translate | tts | llm;
     retry_in_s (nur bei llm, wenn pausiert): Sekunden bis zum nächsten Claude-Versuch."""
@@ -4113,10 +4155,28 @@ LAT = {k: collections.deque(maxlen=LAT_N) for k in ("stt", "tr", "sound")}
 _LAT_LOCK = threading.Lock()
 
 
+_HINT_T = {}
+HINT_EVERY_S = 300.0               # derselbe Hinweis höchstens alle 5 min
+SLOW_P90_S = {"sound": 5.0, "tr": 4.0, "stt": 5.0}
+
+
+def hint(code, **kw):
+    """Ereignis `hint`: einmalig/selten ein Tipp an den Nutzer (Code, die App lokalisiert)."""
+    now = time.monotonic()
+    if now - _HINT_T.get(code, -1e9) >= HINT_EVERY_S:
+        _HINT_T[code] = now
+        emit("hint", code=code, **kw)
+
+
 def lat_add(kind, seconds):
     if isinstance(seconds, (int, float)) and math.isfinite(seconds) and seconds >= 0:
         with _LAT_LOCK:
             LAT[kind].append(float(seconds))
+        lim = SLOW_P90_S.get(kind)
+        if lim and len(LAT[kind]) >= 8:            # dauerhaft langsam: Tipp (kleineres Modell, Beam 1, TTS_RACE)
+            p90 = lat_summary().get(kind, {}).get("p90")
+            if p90 and p90 > lim:
+                hint("slow", what=kind, p90=p90)
 
 
 def lat_summary():
@@ -4169,6 +4229,8 @@ class Speaker:
                 log({"tts": "vorab-fehler", "err": _errtxt(e)})
             if TTS_RACE > 0 and stream is not None and stream.cached is None:
                 local = LocalVoice(s, _say_voice(eng, lang), eng.rate + boost, audio=stream.audio)
+        elif eng.tts == "say" and not eng.mute:           # --tts say: Teilsätze vorab rendern (keine Pausen dazwischen)
+            local = LocalVoice(s, _say_voice(eng, lang), eng.rate + boost, audio=None)
         return stream, local
 
     def boost(self, behind):
@@ -4577,6 +4639,7 @@ class Engine:
                     race = TTS_RACE if NET.get("tts", True) else min(TTS_RACE, TTS_OFFLINE_PROBE)
                 st = edge_play(stream, self.volume, on_start_part, cancelled, deadline=race)
                 net_state("tts", True)
+                _TTS_FB["on"] = False
                 log({"tts": "edge", "voice": stream.voice, **st, "secs": round(time.time() - t, 2)})
                 return "partial" if st.get("partial") else None
             except Exception as e:
@@ -4595,10 +4658,21 @@ class Engine:
                     if cancelled and cancelled():
                         return
                     log({"tts": "lokal", "voice": local.voice, "after_s": round(time.time() - t, 2)})
+                    _tts_fallback("offline" if not NET.get("tts", True) else "slow")
                     if on_start:
                         on_start(round(time.time() - t, 2))
                     PLAYER.run(file_play_cmd(path, self.volume))
                     return
+        if self.tts != "edge" and local:             # vorab gerendert (Speaker._prepare): sofort abspielen
+            path = local.ready_path(timeout=SAY_TIMEOUT + 2, cancelled=cancelled)
+            if path and not (cancelled and cancelled()):
+                wait_quiet(cancelled=cancelled)
+                if cancelled and cancelled():
+                    return
+                if on_start:
+                    on_start(round(time.time() - t, 2))
+                PLAYER.run(file_play_cmd(path, self.volume))
+                return
         fd, aiff = tempfile.mkstemp(prefix="dolmetscher_say_", suffix=".aiff", dir=private_tmp())
         os.close(fd)
         try:
@@ -5401,7 +5475,10 @@ _REC_ERR = {"said": False}
 # jeweils auf den Bereich begrenzt; Unbekanntes oder Ungültiges steht im Log und wird ignoriert.
 TUNABLE = {"MIN_UTT": (0.1, 2.0), "MAX_UTT": (3.0, 30.0), "MIN_LANG_P": (0.05, 0.9),
            "SECOND_LOOK_MIN": (0.0, 0.5), "SECOND_LOOK_TOP": (0.5, 1.0), "HEDGE": (0.2, 5.0),
-           "FIRST_DEADLINE": (0.5, 10.0)}
+           "FIRST_DEADLINE": (0.5, 10.0),
+           # Runde 7: weitere Stellschrauben (Klassenwerte der Sprachausgabe werden über setattr gesetzt)
+           "WAKE_S": (2.0, 20.0), "ROLE_PREV_GAP": (0.5, 10.0), "DEGRADE_AT": (1, 10), "PRE_AT": (0.1, 1.5)}
+TUNABLE_SPEAKER = {"SKIP_AT": (2, 10), "PRESTART": (1, 5), "FAST_BOOST": (0, 50)}   # Klassenwerte von Speaker
 
 
 def apply_tuning(spec=None):
@@ -5415,11 +5492,17 @@ def apply_tuning(spec=None):
             v = float(val)
         except ValueError:
             v = None
-        if name not in TUNABLE or v is None or not math.isfinite(v):
+        if (name not in TUNABLE and name not in TUNABLE_SPEAKER) or v is None or not math.isfinite(v):
             bad.append(name[:30])
             continue
-        lo, hi = TUNABLE[name]
-        globals()[name] = done[name] = max(lo, min(hi, v))
+        lo, hi = TUNABLE.get(name) or TUNABLE_SPEAKER[name]
+        v = max(lo, min(hi, v))
+        if name in TUNABLE_SPEAKER:
+            v = int(v)
+            setattr(Speaker, name, v)
+        else:
+            globals()[name] = v
+        done[name] = v
     if done or bad:
         log({"tune": done, **({"ignored": bad} if bad else {})})
     return done
@@ -5590,7 +5673,7 @@ CTRL_KEYS = frozenset({
     "speak_text", "reassign", "retranslate", "reset_learning"}) | {f"tr_{k}" for k in LANGS} | {
     f"voice_{k}" for k in LANGS}
 
-CTRL_KEYS |= {"let_finish", "catch_up", "beam", "llm_retry", "clear", "cache_persist"}   # Runde 6/7
+CTRL_KEYS |= {"let_finish", "catch_up", "beam", "llm_retry", "clear", "cache_persist", "history_speakers"}   # Runde 6/7
 
 
 def apply_control(eng, d):
@@ -5689,6 +5772,10 @@ def apply_control(eng, d):
             LLM["client"] = None
             llm_reset_backoff()
             _LLM_AVAIL["t"] = 0.0
+        ok, v = _flag(d, "history_speakers")
+        if ok:
+            import history_store
+            history_store.RECORDER.store_speakers = v      # False: keine Profilnamen in die Verlaufsdatenbank
         ok, v = _flag(d, "cache_persist")
         if ok:
             later.append(lambda v=v: cache_persist(v))
@@ -5834,6 +5921,36 @@ def history_enable(on, days=None):
         emit("error", code="history_days_invalid", msg="Aufbewahrungsdauer ungültig – es wird nichts gelöscht")
     if not rec.enable(on, days) and on:
         emit("error", code="history_failed", msg="Verlauf kann nicht gespeichert werden – Aufzeichnung aus")
+
+
+def _history_file_pos(pos):
+    import history_store
+    rec = history_store.RECORDER
+    if rec.on:
+        rec.file_pos = pos
+
+
+def _subtitle_recorder(path):
+    """--subtitles: flüchtige Datenbank im privaten Temp-Ordner (0700) für diesen Lauf; danach Export."""
+    import history_store
+    store = history_store.Store(os.path.join(private_tmp(), "subtitles.sqlite"))
+    rec = history_store.RECORDER
+    rec.store, rec.on, rec.async_mode = store, True, False
+    rec.file_base, rec.file_pos = 1_000_000.0, 0.0
+    rec.session, rec.fixed_session = "datei", True
+    return store
+
+
+def _write_subtitles(store, path):
+    import history_store
+    fmt = "vtt" if str(path).lower().endswith(".vtt") else "srt"
+    text = history_store.export(store.rows("datei"), fmt)
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    os.fchmod(fd, 0o600)
+    with os.fdopen(fd, "w", encoding="utf-8", newline="") as f:
+        f.write(text)
+    store.close()
+    emit("subtitles", path=os.path.basename(str(path)), cues=text.count("-->"))
 
 
 def _sensitivity_name():
@@ -6034,6 +6151,7 @@ def segmenter(read, utts, sess=0, on_end=None):
             report_queue()
         else:
             log({"drop": "zu kurz", "speech": round(sp, 2), "rms": round(peak_rms, 4)})
+            _note_short(peak_rms)
             emit("dropped", reason="zu kurz", code="too_short", id=uid)
             emit("listening")
 
@@ -6521,6 +6639,17 @@ def _note_overrun():
         emit("overrun", frames=dropped, total=_OVERRUN["n"])
 
 
+_SHORTS = collections.deque(maxlen=6)
+
+
+def _note_short(peak_rms):
+    """Viele sehr leise, zu kurze Äußerungen kurz hintereinander: Mikrofon wohl zu weit weg/zu leise -> `hint`."""
+    now = time.monotonic()
+    _SHORTS.append((now, peak_rms))
+    if len(_SHORTS) == _SHORTS.maxlen and now - _SHORTS[0][0] <= 90.0 and max(r for _, r in _SHORTS) < 0.02:
+        hint("mic_far")
+
+
 def work_loop(eng, utts, speak):
     """Arbeitet die Warteschlange ab: Äußerungen (audio, rms, t_end, reason) und App-Aufgaben
     ("job", fn). Ein Fehler in einem Satz beendet die Engine nicht."""
@@ -6749,9 +6878,13 @@ if __name__ == "__main__":
     ap.add_argument("--history-days", type=int, default=None, help="Verlauf älter als N Tage beim Start löschen")
     ap.add_argument("--history-export", metavar="FORMAT", choices=["md", "json", "csv", "srt", "vtt", "anki"])
     ap.add_argument("--history-session", metavar="ID")
+    ap.add_argument("--subtitles", metavar="PFAD", help="mit --file: Untertitel (.srt/.vtt), ohne Sprachausgabe")
     ap.add_argument("--history-sessions", action="store_true", help="Sitzungen des Verlaufs als JSON auflisten")
     ap.add_argument("--out", metavar="PFAD", help="Zieldatei für --history-export (sonst stdout)")
     ap.add_argument("--history-search", metavar="TEXT")
+    ap.add_argument("--history-context", metavar="N", type=int, default=0,
+                    help="bei --history-search je Treffer N Zeilen davor/danach mitliefern")
+    ap.add_argument("--history-lang", metavar="CODE", help="bei --history-search nur diese Sprache")
     ap.add_argument("--history-purge", metavar="TAGE", type=float)
     ap.add_argument("--history-clear", action="store_true", help="gesamten Verlauf löschen")
     a = ap.parse_args()
@@ -6832,6 +6965,7 @@ if __name__ == "__main__":
     if model == "auto":
         import hwprofile
         hw = hwprofile.auto_choice()
+        hw = {**hw, **hwprofile.adjust_for_power(hw, hwprofile.on_battery())}   # Akkubetrieb: sparsamer
         model = hw["model"]
     try:
         eng = Engine(model, a.polite, a.lang if a.lang in ("auto", *PAIR) else "auto", a.tts, a.device)
@@ -6864,8 +6998,12 @@ if __name__ == "__main__":
     if a.no_mine: eng.translate_dir[PAIR[0]] = False
     if a.no_partner: eng.translate_dir[PAIR[1]] = False
     jobs = WorkQueue()
+    sub_store = None
     if a.file:
         CATCH_UP["mode"] = "off"                # Dateimodus: nie Sätze überspringen oder hetzen
+        if a.subtitles:
+            a.mute = True                       # nur Untertitel, keine Sprachausgabe
+            sub_store = _subtitle_recorder(a.subtitles)
     if a.json and not a.file:
         control_loop(eng, jobs)
     if a.file:
@@ -6876,7 +7014,10 @@ if __name__ == "__main__":
                 if audio.size < MIN_UTT * SR:
                     emit("error", code="file_empty", msg=f"{name}: keine Audiodaten")
                     continue
+                pos = 0.0
                 for chunk in split_long(audio):    # lange Dateien an leisen Stellen teilen
+                    pos += chunk.size / SR
+                    _history_file_pos(pos)         # Verlauf/Untertitel: Zeit = Position in der Datei
                     while not a.mute and eng.speaker.pending() >= 2 and not STOP.is_set():
                         time.sleep(0.1)            # Vorlesen nachkommen lassen: kein Satz wird übersprungen
                     eng.process(chunk, speak=not a.mute)
@@ -6884,6 +7025,8 @@ if __name__ == "__main__":
                 log({"file": "fehler", "err": _errtxt(e)})
                 emit("error", code="file_failed", msg=f"{name}: {_errtxt(e)}")
         eng.speaker.wait_idle(timeout=6 * 3600)  # Ausgaben zu Ende spielen (lange Dateien), dann beenden
+        if sub_store is not None:
+            _write_subtitles(sub_store, a.subtitles)
     else:
         idle = a.idle if MIC_PENDING.get("listen") is None else not MIC_PENDING["listen"]
         MIC = Mic(eng, MIC_PENDING["mic"] or a.mic, jobs, idle=idle)

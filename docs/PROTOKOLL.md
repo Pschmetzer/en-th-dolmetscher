@@ -89,7 +89,8 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `--profile-polite NAME FORM` | | Höflichkeitsform der Person für Thai-Ausgaben (`krub`, `ka`, `-` = wie Einstellung); antwortet mit `profile_saved`. Spricht diese Person (erkanntes Profil oder Rolle), endet die Thai-Übersetzung mit ihrer Form statt mit `--polite` |
 | `--history` | | Gesprächsverlauf lokal speichern |
 | `--history-days N` | | Verlauf älter als N Tage beim Start löschen |
-| `--history-export FORMAT`, `--history-session ID`, `--history-sessions`, `--out PFAD`, `--history-search TEXT`, `--history-purge TAGE`, `--history-clear` | | Verlaufs-Befehle (siehe „Gesprächsverlauf“) |
+| `--subtitles PFAD` | | mit `--file`: Untertitel (`.srt`/`.vtt`, Zeiten = Position in der Datei) ohne Sprachausgabe; am Ende Ereignis `subtitles` |
+| `--history-export FORMAT`, `--history-session ID`, `--history-sessions`, `--out PFAD`, `--history-search TEXT`, `--history-context N`, `--history-lang CODE`, `--history-purge TAGE`, `--history-clear` | | Verlaufs-Befehle (siehe „Gesprächsverlauf“) |
 
 ### Umgebungsvariablen
 
@@ -585,3 +586,19 @@ App-Pipe nicht schnell genug abnahm, siehe Log).
 - `llm_cost.price_known` (bool): Modell steht in der Preisliste (sonst Schätzung mit dem Opus-Preis).
 - **Claude-Anrede** (E1-20): der Prompt nennt je Zielsprache die Anrede nach dem Stil (de du/Sie, es tú/usted, fr tu/vous,
   ja einfache/höfliche Form, ko 반말/존댓말 …). **Fragen ohne „?“** erkennt die Engine jetzt auch für de, es, fr (ครับ/คะ).
+
+- **`history_speakers`** (Steuerfeld, bool, Standard an): `false` schreibt keine Profilnamen in die Verlaufsdatenbank
+  (Rolle `me`/`other` bleibt).
+- **`hint`** `{code, …}` (selten, je Code höchstens alle 5 min): `slow` (`what` = `stt`\|`tr`\|`sound`, `p90`: Latenz dauerhaft
+  hoch – kleineres Modell, Beam 1, `tts_race`), `mic_far` (viele sehr leise, zu kurze Äußerungen: Mikrofon näher oder
+  Empfindlichkeit anheben). Die App lokalisiert über `code`.
+- **`tts_fallback`** `{reason: "offline"\|"slow"}`: die macOS-Ersatzstimme statt der Neural-Stimme spricht; einmal je Wechsel,
+  bis die Neural-Stimme wieder Ton liefert.
+- **`subtitles`** `{path, cues}`: `--file … --subtitles` fertig geschrieben.
+- **Preset-Feld `tuning`** (optional): `{silence 0.4-2, sensitivity low|normal|high, let_finish 0-5, catch_up
+  skip|fast|off, rate -50…50}` – gilt, solange das Preset aktiv ist; „kein Preset“ stellt den Stand davor wieder her.
+- **`--tts say`** rendert Teilsätze vorab (keine Pausen dazwischen). **`--model auto`** wählt im Akkubetrieb eine Stufe
+  sparsamer (Beam 1, `best` → `medium`). `DOLMETSCHER_TUNE` kennt zusätzlich `WAKE_S`, `ROLE_PREV_GAP`, `DEGRADE_AT`,
+  `PRE_AT`, `SKIP_AT`, `PRESTART`, `FAST_BOOST`.
+- **`--history-search`** liefert mit `--history-context N` je Treffer `context` (N Zeilen davor/danach derselben Sitzung)
+  und filtert mit `--history-lang`/`--history-session`.

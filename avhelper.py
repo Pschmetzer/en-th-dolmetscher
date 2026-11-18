@@ -102,14 +102,17 @@ def _write(b):
 
 def _frames(av, container, stream):
     """Dekodierte Frames; Geräte liefern zwischendurch EAGAIN (noch keine Daten) – dann kurz warten."""
+    idle = 0.0
     while True:
         try:
             for pkt in container.demux(stream):  # am Ende kommt ein Flush-Paket (leert den Decoder)
                 for fr in pkt.decode():
+                    idle = 0.0                  # Daten da: wieder kurz schlafen, sobald es stockt
                     yield fr
             return
         except av.error.BlockingIOError:        # beendet den demux-Generator: neu ansetzen
-            time.sleep(0.005)
+            idle = min(0.02, idle * 1.5) if idle else 0.005    # adaptiv: 5 -> 20 ms, weniger Aufwachen im Leerlauf
+            time.sleep(idle)
 
 
 def capture(a):

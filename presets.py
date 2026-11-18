@@ -14,6 +14,9 @@ ID_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,31}$")
 MAX_GLOSSARY, MAX_PHRASES = 100, 50
 MAX_NAME, MAX_TERM, MAX_PHRASE, MAX_NOTE = 40, 60, 200, 500
 MAX_HOTWORDS, MAX_HINT = 30, 300          # Nr. 243: eigene Whisper-Hotwords und Ton-Hinweis für Claude
+# Runde 7: tuning = {silence, sensitivity, let_finish, catch_up, rate} je Szenario (Bereiche wie die Steuerfelder)
+TUNING_RANGES = {"silence": (0.4, 2.0), "let_finish": (0.0, 5.0), "rate": (-50, 50),
+                 "sensitivity": ("low", "normal", "high"), "catch_up": ("skip", "fast", "off")}
 last_errors = {}                          # Dateipfad -> Fehlertext des letzten load_all()
 overridden = []                           # ids, die ein Nutzer-Preset beim letzten load_all() ersetzt hat
 
@@ -71,8 +74,19 @@ def validate(d):
         err.append(f"hotwords muss eine Liste mit höchstens {MAX_HOTWORDS} Begriffen (1-{MAX_TERM} Zeichen) sein")
     if "llm_hint" in d and not _text(d["llm_hint"], MAX_HINT):
         err.append(f"llm_hint muss ein Text mit 1-{MAX_HINT} Zeichen sein")
+    tun = d.get("tuning")                 # Runde 7: optionale Szenario-Einstellungen
+    if "tuning" in d:
+        ok = isinstance(tun, dict) and set(tun) <= set(TUNING_RANGES)
+        for k, v in (tun.items() if isinstance(tun, dict) else ()):
+            rng = TUNING_RANGES.get(k)
+            if rng and isinstance(rng[0], (int, float)):
+                ok = ok and isinstance(v, (int, float)) and not isinstance(v, bool) and rng[0] <= v <= rng[1]
+            elif rng:
+                ok = ok and isinstance(v, str) and v in rng
+        if not ok:
+            err.append("tuning ungültig (erlaubt: " + ", ".join(sorted(TUNING_RANGES)) + ")")
     extra = set(d) - {"id", "names", "style", "polite", "voice", "note", "glossary", "phrases", "hotwords",
-                      "llm_hint"}
+                      "llm_hint", "tuning"}
     if extra:
         err.append("unbekannte Felder: " + ", ".join(sorted(extra)))
     return err
