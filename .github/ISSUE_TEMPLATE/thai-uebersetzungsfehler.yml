@@ -1,0 +1,57 @@
+name: Thai-Übersetzungsfehler
+description: Eine Übersetzung, ein Satz im Phrasenpaket oder eine Aussprache ins oder aus dem Thai ist falsch, unhöflich oder unnatürlich.
+title: "Thai: "
+labels: ["sprache"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke! Die Thai-Sätze sind maschinell erstellt und noch nicht von Muttersprachlern geprüft (siehe docs/MUTTERSPRACHLER.md).
+        Bitte keine persönlichen Daten und keine echten Gespräche eintragen, ein nachgestellter Beispielsatz genügt.
+  - type: dropdown
+    id: where
+    attributes:
+      label: Wo ist es aufgefallen?
+      options:
+        - Phrasenpaket (Satz aus einem Paket)
+        - Live-Übersetzung
+        - Aussprache / Umschrift
+        - Höflichkeitsform (ครับ / ค่ะ)
+        - Zahlen, Preise oder Uhrzeiten
+    validations:
+      required: true
+  - type: input
+    id: pack
+    attributes:
+      label: Paket (id), falls aus dem Phrasenpaket
+      placeholder: taxi
+  - type: input
+    id: source
+    attributes:
+      label: Ausgangssatz
+    validations:
+      required: true
+  - type: input
+    id: shown
+    attributes:
+      label: Angezeigtes Thai
+    validations:
+      required: true
+  - type: input
+    id: better
+    attributes:
+      label: Besserer Vorschlag
+  - type: dropdown
+    id: native
+    attributes:
+      label: Sprichst du Thai als Muttersprache?
+      options:
+        - Ja
+        - Nein, aber fließend
+        - Nein
+    validations:
+      required: true
+  - type: textarea
+    id: comment
+    attributes:
+      label: Was stimmt nicht? (zu förmlich, zu locker, falsche Bedeutung, falscher Ton)
