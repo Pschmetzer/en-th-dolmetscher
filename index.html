@@ -422,7 +422,7 @@
 
 <div id="partner" role="dialog" aria-modal="true" aria-labelledby="partnerTitle" aria-hidden="true">
   <div class="bar"><span id="partnerTitle">ไทย</span>
-    <span class="btns"><span class="seq" id="seqBar" hidden><button class="small" id="btnPrev" type="button" aria-label="Vorherige Karte">‹</button><span id="seqPos"></span><button class="small" id="btnNext" type="button" aria-label="Nächste Karte">›</button></span><button class="small" id="btnReport" type="button" aria-label="Falsch? Melden" hidden>⚑</button><button class="small" id="btnFontDown" type="button" aria-label="Schrift kleiner / Smaller text">A−</button><button class="small" id="btnFontUp" type="button" aria-label="Schrift größer / Larger text">A+</button><button class="small" id="btnPartnerSlow" type="button" aria-label="Langsam vorlesen / Read slowly">🐢</button><button class="small" id="btnPartnerSpeak" type="button" aria-label="Vorlesen / Read aloud">🔊</button><button class="small" id="btnPartnerShow" type="button" aria-label="Vorzeigen / Show full screen">⛶</button><button class="small" id="btnPartnerShare" type="button" aria-label="Link teilen / Share link" hidden>🔗</button><button class="small" id="btnPartnerClose" type="button" aria-label="Schließen / Close">✕</button></span></div>
+    <span class="btns"><span class="seq" id="seqBar" hidden><button class="small" id="btnPrev" type="button" aria-label="Vorherige Karte">‹</button><span id="seqPos"></span><button class="small" id="btnNext" type="button" aria-label="Nächste Karte">›</button></span><button class="small" id="btnReport" type="button" aria-label="Falsch? Melden" hidden>⚑</button><button class="small" id="btnFontDown" type="button" aria-label="Schrift kleiner / Smaller text">A−</button><button class="small" id="btnFontUp" type="button" aria-label="Schrift größer / Larger text">A+</button><button class="small" id="btnPartnerSlow" type="button" aria-label="Langsam vorlesen / Read slowly">🐢</button><button class="small" id="btnPartnerSpeak" type="button" aria-label="Vorlesen / Read aloud">🔊</button><button class="small" id="btnPartnerShow" type="button" aria-label="Vorzeigen / Show full screen">⛶</button><button class="small" id="btnPartnerShare" type="button" aria-label="Link teilen / Share link" hidden>🔗</button><button class="small" id="btnPartnerShareTx" type="button" aria-label="Text teilen / Share text">📤</button><button class="small" id="btnPartnerClose" type="button" aria-label="Schließen / Close">✕</button></span></div>
   <div id="partnerNote" hidden><span lang="de">Geteilter Text, von der App nicht geprüft.</span> <span lang="en">Shared text, not checked by the app.</span> <span lang="th">ข้อความที่แชร์มา แอปไม่ได้ตรวจสอบ</span></div>
   <div id="partnerText" lang="th" dir="auto" aria-live="polite">…</div>
 </div>
@@ -438,6 +438,8 @@ const statusEl = $('status'), live = $('live'), log = $('log'), warn = $('warn')
 
 const STR = {
  "de": {
+  "shareTxLbl": "Übersetzung als Text teilen",
+  "sharedWait": "Geteilter Text wartet im Eingabefeld und wird übersetzt, sobald das Netz zurück ist.",
   "lite": "\n  <b class=\"lite\">Lite-Version – eingeschränkt.</b> Hier wählst du selbst, wer spricht (<kbd>E</kbd>/<kbd>T</kbd> oder die Knöpfe); Erkennung und Stimmen kommen vom Browser: am besten <b>Chrome</b> (Computer, Android); <b>Safari</b> (Mac, iPhone) geht nur mit eingeschalteter Diktierfunktion und mit Einschränkungen; Firefox kann keine Spracherkennung. Nicht auf allen Geräten getestet.\n  Die <b>Mac-App</b> ist deutlich besser: erkennt die Sprache automatisch, Sprachbefehle, bessere Erkennung (Whisper), Neural-Stimmen, Stimmprofile, optional Übersetzung mit Claude.\n  <a href=\"https://github.com/Pschmetzer/en-th-dolmetscher\" target=\"_blank\" rel=\"noopener\">Mac-/iPhone-App &amp; Quellcode auf GitHub</a>\n",
   "privacy": "\n  <b>Datenschutz:</b> Die Spracherkennung macht der Browser – Chrome sendet dein <b>Audio an Googles Server</b>, Safari an Apple (je nach Gerät auch lokal). Der erkannte Text geht zum Übersetzen an Google Translate (Ersatz: MyMemory). Die Mac-App erkennt Sprache dagegen lokal auf dem Gerät. <b>Pause</b> und <b>Stopp</b> schalten das Mikrofon ganz aus. Das Satzbuch (unten) funktioniert ohne Mikrofon und für Englisch/Thai auch offline; in anderen Sprachen werden Sätze beim ersten Tippen an Google Translate gesendet (Karte als „automatisch übersetzt“ markiert). <b>Lernkarten</b> (★ gemerkte und, nur wenn eingeschaltet, zuletzt übersetzte Sätze) bleiben nur in diesem Browser; „Alle Lernkarten löschen“ entfernt sie.\n",
   "offline": "Offline: Übersetzen und Spracherkennung gehen gerade nicht. Das Satzbuch mit Zeige-Karten funktioniert weiter.",
@@ -719,6 +721,8 @@ const STR = {
   "topicNow": "Thema: {n}"
  },
  "en": {
+  "shareTxLbl": "Share translation as text",
+  "sharedWait": "Shared text is waiting in the input box and will be translated once the network is back.",
   "lite": "\n  <b class=\"lite\">Lite version – limited.</b> Here you choose who speaks (<kbd>E</kbd>/<kbd>T</kbd> or the buttons); recognition and voices come from the browser: best in <b>Chrome</b> (computer, Android); <b>Safari</b> (Mac, iPhone) works only with dictation switched on and with limits; Firefox has no speech recognition. Not tested on all devices.\n  The <b>Mac app</b> is much better: detects the language automatically, voice commands, better recognition (Whisper), neural voices, voice profiles, optional translation with Claude.\n  <a href=\"https://github.com/Pschmetzer/en-th-dolmetscher\" target=\"_blank\" rel=\"noopener\">Mac/iPhone app &amp; source code on GitHub</a>\n",
   "privacy": "\n  <b>Privacy:</b> Speech recognition is done by the browser – Chrome sends your <b>audio to Google's servers</b>, Safari to Apple (partly on the device, depending on the device). The recognised text goes to Google Translate (fallback: MyMemory). The Mac app recognises speech on the device instead. <b>Pause</b> and <b>Stop</b> switch the microphone off completely. The phrasebook (below) works without a microphone and offline for English/Thai; in other languages, phrases are sent to Google Translate the first time you tap them (card marked “machine translated”). <b>Study cards</b> (★ saved and, only if switched on, recently translated sentences) stay in this browser only; “Delete all study cards” removes them.\n",
   "offline": "Offline: translation and speech recognition are unavailable right now. The phrasebook with show-cards still works.",
@@ -1000,6 +1004,8 @@ const STR = {
   "topicNow": "Topic: {n}"
  },
  "th": {
+  "shareTxLbl": "แชร์คำแปลเป็นข้อความ",
+  "sharedWait": "ข้อความที่แชร์มารออยู่ในช่องป้อนและจะแปลเมื่อมีเครือข่ายอีกครั้ง",
   "lite": "\n  <b class=\"lite\">เวอร์ชัน Lite – ใช้งานได้จำกัด</b> ที่นี่คุณเลือกเองว่าใครพูด (<kbd>E</kbd>/<kbd>T</kbd> หรือปุ่ม) การรู้จำเสียงและเสียงอ่านมาจากเบราว์เซอร์: ดีที่สุดบน <b>Chrome</b> (คอมพิวเตอร์, Android); <b>Safari</b> (Mac, iPhone) ใช้ได้เมื่อเปิดการพิมพ์ด้วยเสียงและมีข้อจำกัด; Firefox ไม่มีการรู้จำเสียง ยังไม่ได้ทดสอบกับทุกอุปกรณ์\n  <b>แอป Mac</b> ดีกว่ามาก: ตรวจจับภาษาอัตโนมัติ คำสั่งเสียง การรู้จำเสียงที่ดีกว่า (Whisper) เสียงอ่านแบบ Neural โปรไฟล์เสียง และแปลด้วย Claude ได้\n  <a href=\"https://github.com/Pschmetzer/en-th-dolmetscher\" target=\"_blank\" rel=\"noopener\">แอป Mac/iPhone และซอร์สโค้ดบน GitHub</a>\n",
   "privacy": "\n  <b>ความเป็นส่วนตัว:</b> การรู้จำเสียงทำโดยเบราว์เซอร์ – Chrome ส่ง<b>เสียงของคุณไปยังเซิร์ฟเวอร์ของ Google</b> Safari ส่งไปยัง Apple (บางอุปกรณ์ทำบนเครื่อง) ข้อความที่รู้จำได้จะถูกส่งไปแปลที่ Google Translate (สำรอง: MyMemory) แอป Mac รู้จำเสียงบนเครื่องแทน <b>หยุดชั่วคราว</b>และ<b>หยุด</b>จะปิดไมโครโฟนทั้งหมด สมุดวลี (ด้านล่าง) ใช้ได้โดยไม่ต้องใช้ไมโครโฟน และออฟไลน์ได้สำหรับอังกฤษ/ไทย ภาษาอื่นจะส่งประโยคไปที่ Google Translate เมื่อแตะครั้งแรก (การ์ดมีป้าย “แปลโดยเครื่อง”) <b>การ์ดเรียน</b> (★ ประโยคที่บันทึก และประโยคที่แปลล่าสุดเฉพาะเมื่อเปิดไว้) อยู่ในเบราว์เซอร์นี้เท่านั้น “ลบการ์ดเรียนทั้งหมด” จะลบออก\n",
   "offline": "ออฟไลน์: ตอนนี้แปลและรู้จำเสียงไม่ได้ สมุดวลีและการ์ดแสดงยังใช้ได้",
@@ -1300,7 +1306,7 @@ function applyUi() {   // statische Texte nach data-i18n / data-i18n-html setzen
   $('pbQ').setAttribute('aria-label', t('pbSearchHint'));
   $('logQ').setAttribute('aria-label', t('logQ')); $('logQLabel').textContent = t('logQ'); $('helpBox').querySelector('summary').title = t('helpKey');
   for (const [id, key] of [['langA', 'aLangA'], ['langB', 'aLangB'], ['btnSwap', 'aSwap'], ['enVar', 'aEnVar'], ['btnTextDown', 'fsDown'], ['btnTextUp', 'fsUp'],
-                           ['btnPartnerSlow', 'slowLbl'], ['btnPartnerShow', 'showLbl'], ['btnPartnerShare', 'favShareLbl'], ['topicPrev', 'topicPrev'], ['topicNext', 'topicNext']]) {
+                           ['btnPartnerSlow', 'slowLbl'], ['btnPartnerShow', 'showLbl'], ['btnPartnerShare', 'favShareLbl'], ['btnPartnerShareTx', 'shareTxLbl'], ['topicPrev', 'topicPrev'], ['topicNext', 'topicNext']]) {
     const e = $(id); if (e) { e.setAttribute('aria-label', t(key)); e.title = t(key); }
   }
   updateThemeBtn();
@@ -2493,6 +2499,11 @@ async function openFav(f) {
     showBig(out, f.lang, '', false, { pack: f.pack, en: p.en, th: out, lang: f.lang, idx: f.idx });
   } catch { showWarn(t('favLinkBad')); }
 }
+$('btnPartnerShareTx').onclick = async () => {   // Übersetzung als Text teilen, ohne Teilen-Dialog in die Zwischenablage
+  if (!bigText) return;
+  try { if (navigator.share) { await navigator.share({ text: bigText.text }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  copyText(bigText.text);
+};
 $('btnPartnerShare').onclick = () => { if (bigCtx && bigCtx.idx >= 0) shareFav(bigCtx.pack, bigCtx.idx, bigCtx.lang, bigCtx.en); };
 function openFromHash() {
   if (applyDeepLink()) return;
@@ -3134,6 +3145,7 @@ $('learnPractice').onclick = () => {
 };
 
 // ---- Deep-Links, geteilte Texte, Installationshinweis ----
+let sharedPending = null;   // geteilter Text, der noch auf Netz wartet
 function applyDeepLink() {
   const d = parseDeepLink(location.hash, location.search, PRESET_IDS);
   if (!d.preset && !d.incoming) return false;
@@ -3145,7 +3157,9 @@ function applyDeepLink() {
   }
   if (d.incoming) {   // aus einer anderen App geteilt: übersetzen und groß zeigen, nichts speichern
     const src = textLang(d.incoming, pair.b, pair.a, pair.b), dst = src === pair.a ? pair.b : pair.a;
-    translate(d.incoming, src, dst).then(r => showBig(r.text, dst), () => showWarn(t('sharedFail')));
+    $('typeIn').value = d.incoming.slice(0, 500);   // bleibt im Eingabefeld, falls die Übersetzung scheitert
+    sharedPending = d.incoming;
+    translate(d.incoming, src, dst).then(r => { sharedPending = null; if ($('typeIn').value === d.incoming.slice(0, 500)) $('typeIn').value = ''; showBig(r.text, dst); }, () => { $('typeBox').open = true; showWarn(t(navigator.onLine === false ? 'sharedWait' : 'sharedFail')); });
   }
   return true;
 }
@@ -3207,6 +3221,7 @@ function updateOnline() {
     if (on && 'serviceWorker' in navigator && navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage({ type: 'offline-status' });
   }
 }
+window.addEventListener('online', () => { if (sharedPending) { const x = sharedPending; sharedPending = null; $('typeIn').value = x; typeSubmit(true); } });
 window.addEventListener('online', updateOnline); window.addEventListener('offline', updateOnline);
 updateOnline();
 if ('serviceWorker' in navigator && window.isSecureContext && /^https?:$/.test(location.protocol)) {
