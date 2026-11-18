@@ -737,7 +737,9 @@ struct ConversationBar: View {
                 .focused($typing)
                 .onSubmit(send)
                 .disabled(!m.engineReady)
+                .help(m.engineReady ? L.t("type_prompt") : L.t("type_wait"))
                 .accessibilityLabel(L.t("type_prompt"))
+                .accessibilityHint(m.engineReady ? "" : L.t("type_wait"))
                 .onChange(of: draft) { if draft.count > 1000 { draft = String(draft.prefix(1000)) } }
             Button(action: send) { Image(systemName: "paperplane.fill") }
                 .disabled(!m.engineReady || draft.trimmingCharacters(in: .whitespaces).isEmpty)
@@ -1100,6 +1102,7 @@ struct MicDeniedBanner: View {
         }
         .padding(14)
         .background(Color.red.opacity(0.08))
+        .accessibilityElement(children: .contain)
     }
 }
 

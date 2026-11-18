@@ -244,6 +244,7 @@ enum L {
         "phrases_empty_hint": ["de": "Mit + legst du eigene Schnellsätze an.", "en": "Use + to add your own quick phrases.", "th": "ใช้ + เพื่อเพิ่มประโยคด่วนของคุณเอง"],
         "chat_empty_start": ["de": "Drücke Start (⌘↩) und sprich, oder tippe einen Satz (⌘L).", "en": "Press Start (⌘↩) and speak, or type a sentence (⌘L).", "th": "กดเริ่ม (⌘↩) แล้วพูด หรือพิมพ์ประโยค (⌘L)"],
         "show_shortcuts": ["de": "Tastenkürzel anzeigen", "en": "Show keyboard shortcuts", "th": "แสดงแป้นพิมพ์ลัด"],
+        "type_wait": ["de": "Das Eingabefeld ist frei, sobald die Sprachmodelle geladen sind.", "en": "The text field is available once the speech models have loaded.", "th": "ช่องพิมพ์จะใช้ได้เมื่อโหลดโมเดลเสียงเสร็จ"],
         "more": ["de": "Mehr", "en": "More", "th": "เพิ่มเติม"],
         "low_conf": ["de": "unsichere Erkennung", "en": "uncertain recognition", "th": "การรับรู้เสียงไม่แน่นอน"],
         "click_replay": ["de": "▶ an der Blase liest erneut vor", "en": "▶ on the bubble reads it aloud again",

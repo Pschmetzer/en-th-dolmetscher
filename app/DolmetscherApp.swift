@@ -243,6 +243,11 @@ struct MenuBarContent: View {
             openWindow(id: "main")
             NSApp.activate(ignoringOtherApps: true)
         }
+        Button(L.t("glossary_add_title") + " …") {
+            openWindow(id: "main")
+            NSApp.activate(ignoringOtherApps: true)
+            NotificationCenter.default.post(name: .showGlossaryAdd, object: nil)
+        }
         Button(L.t("partner_view")) { openWindow(id: "partner"); NSApp.activate(ignoringOtherApps: true) }
         Button(L.t("caption_title")) { openWindow(id: "caption"); NSApp.activate(ignoringOtherApps: true) }
         Button(L.t("settings") + " …") {
