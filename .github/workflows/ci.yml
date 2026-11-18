@@ -55,6 +55,11 @@ jobs:
         run: |
           python -m pytest -rs -m "not macos" --durations=10 --cov --cov-report=term --cov-fail-under=77
           python -m coverage report --format=markdown >> "$GITHUB_STEP_SUMMARY"
+      - name: Summary on failure
+        if: failure()
+        run: |
+          echo "### Tests rot (Python ${{ matrix.python }})" >> "$GITHUB_STEP_SUMMARY"
+          echo "Lokal nachstellen: \`tools/check_all.sh\` (ruff + pytest wie in der CI). Details im Schritt davor." >> "$GITHUB_STEP_SUMMARY"
 
   macos:
     # Alles, was macOS braucht, in einem Job (eine macOS-Maschine statt drei): Tests mit Marker "macos",
@@ -85,6 +90,9 @@ jobs:
         run: |
           mkdir -p build
           swiftc -parse-as-library -target arm64-apple-macos14.0 -o build/Dolmetscher app/*.swift
+      - name: Summary on failure
+        if: failure()
+        run: echo "### macOS-Job rot: Tests (Marker macos), Swift-Typecheck oder Kompilierung; siehe den roten Schritt." >> "$GITHUB_STEP_SUMMARY"
 
   lint:
     runs-on: ubuntu-latest
@@ -94,6 +102,8 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.in
       - name: Install ruff (version from requirements-dev.in)
         run: python -m pip install "$(grep '^ruff==' requirements-dev.in)"
       - name: Icon script compiles (app/make_icon.py)
@@ -147,6 +157,8 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.in
       # requirements.txt enthält alle transitiven Pakete mit Hashes: es wird alles geprüft, nicht nur die direkten Pins.
       - name: pip-audit
         run: |
