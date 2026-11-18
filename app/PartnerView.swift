@@ -12,6 +12,8 @@ struct PartnerView: View {
     /// Nr. 385: Gespräch am Tisch (Laptop zwischen beiden) – Inhalt um 180° drehen; eigene Schriftgröße.
     @AppStorage("partnerRotated") private var rotated = false
     @AppStorage("partnerZoom") private var zoom = 1.0
+    /// Wie viele Übersetzungen zurückgeblättert wird (0 = die neueste); springt bei neuer Übersetzung zurück.
+    @State private var back = 0
     @AppStorage(Prefs.hideFromCapture) private var hideCapture = false
     private static let zoomRange = 0.5...2.0
 
@@ -44,6 +46,14 @@ struct PartnerView: View {
         if m.paused { return ("pause.circle.fill", "partner_banner_paused") }
         if !m.micOn { return ("mic.slash.circle.fill", "partner_banner_mic_off") }
         return nil
+    }
+
+    private var finished: [Utterance] { m.items.filter { $0.translated && !$0.pending } }
+    /// Angezeigte Übersetzung: die neueste oder, nach Zurückblättern, eine ältere.
+    private var shownItem: Utterance? {
+        let f = finished
+        if f.isEmpty { return m.items.last(where: { !$0.pending }) }
+        return f[max(0, f.count - 1 - min(back, f.count - 1))]
     }
 
     /// Partnersprache, wenn die Oberfläche sie kann (de/en/th), sonst die eingestellte Oberflächensprache.
@@ -99,7 +109,7 @@ struct PartnerView: View {
                     .foregroundStyle(.gray)
                     .multilineTextAlignment(.center)
                     .padding(48)
-            } else if let u = m.items.last(where: { $0.translated && !$0.pending }) ?? m.items.last(where: { !$0.pending }) {
+            } else if let u = shownItem {
                 GeometryReader { geo in
                 VStack(spacing: 28) {
                     Spacer(minLength: 0)
@@ -156,6 +166,14 @@ struct PartnerView: View {
                     Image(systemName: stateIcon.name).foregroundStyle(stateIcon.color).font(.title3)
                         .accessibilityLabel(L.t("status") + ": " + m.status)
                     Spacer()
+                    Button { back = min(back + 1, max(0, finished.count - 1)) } label: { Image(systemName: "chevron.left") }
+                        .disabled(back >= finished.count - 1)
+                        .keyboardShortcut(.leftArrow, modifiers: [])
+                        .help(L.t("partner_prev")).accessibilityLabel(L.t("partner_prev"))
+                    Button { back = max(0, back - 1) } label: { Image(systemName: "chevron.right") }
+                        .disabled(back == 0)
+                        .keyboardShortcut(.rightArrow, modifiers: [])
+                        .help(L.t("partner_next")).accessibilityLabel(L.t("partner_next"))
                     Button { zoom = max(Self.zoomRange.lowerBound, zoom - 0.1) } label: { Image(systemName: "textformat.size.smaller") }
                         .help(L.t("font_smaller")).accessibilityLabel(L.t("font_smaller"))
                     Button { zoom = min(Self.zoomRange.upperBound, zoom + 0.1) } label: { Image(systemName: "textformat.size.larger") }
@@ -192,6 +210,7 @@ struct PartnerView: View {
         }
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: m.items.last(where: { $0.translated && !$0.pending })?.id)
         .frame(minWidth: 480, minHeight: 320)
+        .onChange(of: m.items.last(where: { $0.translated && !$0.pending })?.id) { back = 0 }
         .background(WindowAccessor { w in
             if window !== w {
                 w.collectionBehavior.insert(.fullScreenPrimary)

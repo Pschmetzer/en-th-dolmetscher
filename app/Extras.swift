@@ -169,22 +169,46 @@ struct WhatsNewSheet: View {
 /// Schmales Fenster mit der letzten Übersetzung (für Videoanrufe); Schriftgröße wie die Partner-Ansicht.
 struct CaptionView: View {
     @EnvironmentObject var m: EngineModel
-    @AppStorage("partnerZoom") private var zoom = 1.0
+    @AppStorage("captionZoom") private var zoom = 1.0
+    @AppStorage("captionOriginal") private var showOriginal = false
+    @AppStorage("captionOpacity") private var opacity = 1.0
     var body: some View {
         let last = m.items.last { !$0.pending && !$0.out.isEmpty }
-        Text(last?.out ?? "")
-            .font(.system(size: 28 * zoom, weight: .semibold))
-            .multilineTextAlignment(.center)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(14)
-            .background(.ultraThinMaterial)
-            .background(WindowAccessor { w in
-                w.level = .floating
-                w.isMovableByWindowBackground = true
-                w.collectionBehavior.insert(.canJoinAllSpaces)
-                w.sharingType = UserDefaults.standard.bool(forKey: Prefs.hideFromCapture) ? .none : .readOnly
-            })
-            .accessibilityLabel(last?.out ?? L.t("caption_title"))
+        VStack(spacing: 4) {
+            if last == nil {
+                Text(L.t("chat_empty_start")).font(.system(size: 16 * zoom)).foregroundStyle(.secondary)
+            }
+            Text(last?.out ?? "")
+                .font(.system(size: 28 * zoom, weight: .semibold))
+                .minimumScaleFactor(0.4)
+            if showOriginal, let o = last?.text {
+                Text(o).font(.system(size: 15 * zoom)).foregroundStyle(.secondary).lineLimit(2)
+            }
+        }
+        .multilineTextAlignment(.center)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(14)
+        .background(.ultraThinMaterial)
+        .opacity(opacity)
+        .contextMenu {   // Größe, Original und Durchsichtigkeit direkt am Untertitel-Fenster
+            Button(L.t("font_bigger")) { zoom = min(2.5, zoom + 0.15) }
+            Button(L.t("font_smaller")) { zoom = max(0.6, zoom - 0.15) }
+            Toggle(L.t("caption_original"), isOn: $showOriginal)
+            Picker(L.t("caption_opacity"), selection: $opacity) {
+                ForEach([1.0, 0.85, 0.7, 0.5], id: \.self) { Text("\(Int($0 * 100)) %").tag($0) }
+            }
+            Divider()
+            Button(L.t("copy_last")) { if let o = last?.out { copyToPasteboard(o) } }.disabled(last == nil)
+        }
+        .background(WindowAccessor { w in
+            w.level = .floating
+            w.isMovableByWindowBackground = true
+            w.collectionBehavior.insert(.canJoinAllSpaces)
+            w.sharingType = UserDefaults.standard.bool(forKey: Prefs.hideFromCapture) ? .none : .readOnly
+            if w.frameAutosaveName.isEmpty { w.setFrameAutosaveName("DolmetscherCaptionWindow") }
+        })
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(last.map { $0.out + (showOriginal ? ". " + $0.text : "") } ?? L.t("caption_title"))
     }
 }
 
