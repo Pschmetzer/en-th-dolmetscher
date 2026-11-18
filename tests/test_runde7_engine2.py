@@ -408,3 +408,10 @@ def test_sprachtabelle_schema_pflichtfelder():
         assert {"en", "de", "native"} <= set(lang["names"])
         optional_seen |= set(lang) - required
     assert optional_seen <= {"flag", "app_voices", "mt", "apple_translation"}, optional_seen
+
+
+def test_keine_wiederholungssperre_fuer_doppelungssprachen():
+    src = open(d.__file__, encoding="utf-8").read()
+    assert 'NO_REP_PENALTY = frozenset({"zh", "ja", "ko", "id", "vi", "ms"})' in src
+    assert "elif lang in NO_REP_PENALTY" in src
+    assert {"zh", "ja", "ko", "id", "vi"} <= d.NO_REP_PENALTY and "en" not in d.NO_REP_PENALTY

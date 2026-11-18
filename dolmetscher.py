@@ -45,6 +45,7 @@ SENSITIVITY = {"low": (0.55, 0.35), "normal": (0.4, 0.25), "high": (0.3, 0.18)} 
 VAD = {"start": 0.4, "keep": 0.25}
 # Leises/entferntes Thai erkennt Whisper oft als eine andere asiatische Sprache (Log: ja 0,66 / zh 0,72,
 # th 0,01). Diese Wahrscheinlichkeiten zählen deshalb zu Thai; europäische Sprachen bleiben gefiltert.
+NO_REP_PENALTY = frozenset({"zh", "ja", "ko", "id", "vi", "ms"})   # Sprachen mit gewollten Wiederholungen
 ASIAN_AS_TH = ("zh", "yue", "ja", "ko", "vi", "lo", "km", "my", "bo", "si")   # nur nicht-lateinische Schriften
 FOLDED_TH_LOGPROB = -0.6          # strenger, wenn Thai nur über diesen Umweg zustande kam (Rauschen)
 _IDS = itertools.count(1)
@@ -4930,6 +4931,9 @@ class Engine:
         cap = int(min(440, 24 + 14 * dur))
         if lang == "th":
             kw = dict(repetition_penalty=1.0, no_repeat_ngram_size=0, vad_filter=False)
+        elif lang in NO_REP_PENALTY:      # legitime Doppelungen (orang-orang, 看看, 谢谢): keine Wiederholungssperre
+            kw = dict(repetition_penalty=1.0, no_repeat_ngram_size=0,
+                      vad_filter=True, vad_parameters={"threshold": 0.1})
         else:
             kw = dict(repetition_penalty=1.1, no_repeat_ngram_size=4,
                       vad_filter=True, vad_parameters={"threshold": 0.1})
