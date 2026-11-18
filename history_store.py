@@ -340,7 +340,7 @@ class Recorder:
         self.on_error = None                        # Nr. 191: Rückmeldung an die Engine (ohne Text)
         self.fails = 0                              # aufeinanderfolgende vorübergehende Fehler (Datenbank gesperrt)
         self.last_t = None                          # letzte Äußerung (neue Sitzung nach Pause/Tageswechsel)
-        self.last_purge = 0.0
+        self.last_purge = -self.PURGE_EVERY_S   # monotonic() kann auf frisch gestarteten Rechnern < 3600 sein
 
     SESSION_GAP_S = 1800.0                          # Pause ab der eine neue Sitzung beginnt
     PURGE_EVERY_S = 3600.0                          # Aufbewahrungsfrist auch bei tagelang laufender Engine

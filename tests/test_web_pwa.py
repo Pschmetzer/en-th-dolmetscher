@@ -145,7 +145,7 @@ async function ev(type, request) {
 def test_sw_behaviour_offline():
     """Service Worker in node mit Attrappen: Vorab-Speicher relativ zum Scope, fremde Anfragen unberührt,
     offline Seite und Satzbuch aus dem Speicher, alte eigene Caches weg (fremde bleiben)."""
-    r = subprocess.run(["node", "-e", SW_HARNESS.replace("%SW%", SW)], capture_output=True, text=True, timeout=60)
+    r = subprocess.run(["node", "-"], input=SW_HARNESS.replace("%SW%", SW), capture_output=True, text=True, timeout=60)
     assert r.returncode == 0, r.stderr
     out = json.loads(r.stdout)
     assert "https://example.org/app/index.html" in out["cached"]
