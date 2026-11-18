@@ -204,6 +204,12 @@ Pull requests #16–#47. Not yet published as a release.
 - CodeQL, changelog check, quick phrase-pack job, Makefile, dev container, pre-commit; action versions pinned by commit; release job with time limit; `shellcheck` also for `build-support/`.
 - Docs: web architecture, hosting, browser matrix, version states (`docs/VERSIONEN.md`).
 
+**Web (round 14)**
+
+- **Show mode:** a button (or `V`) in the big view turns the sentence into huge, high-contrast text on black; the screen stays on and a tap, Enter, Space or Esc closes it. The size follows the sentence length.
+- **Share a favourite as a link:** starred phrasebook sentences and the big view get a link button (`S`); the link holds only the pack ID, the sentence number, the language and a checksum, never text or conversation. On opening, pack, number, language and checksum are checked; a mismatch shows a message instead of a wrong sentence. The Web Share dialog is used if present, otherwise the clipboard, otherwise a copy prompt.
+- **Not added:** saving a sentence as an image. Thai in a canvas could not be checked here (line breaks inside words, stacked tone marks), so it was left out.
+
 **Web (round 11)**
 - **New:** manifest with `id`, `dir`, categories, `display_override`, launch handler; shortcuts and the share target (GET to the static page) are checked without a server. Icons stay “any”: a maskable icon needs a separate image with a safe zone.
 - **New:** “✓ Installed as app” label when the page runs as an installed app, announced once after installing; install hint texts now in German, English and Thai.
