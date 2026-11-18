@@ -108,9 +108,13 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Check build script syntax
-        run: bash -n build.sh
+        run: |
+          bash -n build.sh
+          for f in build-support/*.sh; do bash -n "$f"; done
       - name: shellcheck
-        run: shellcheck build.sh
+        run: |
+          shellcheck build.sh
+          shellcheck --severity=warning build-support/*.sh   # setup-env.sh: Stil-Hinweise (info) nicht blockierend
 
   audit:
     name: Dependency audit (not blocking)
