@@ -3,9 +3,21 @@
   "short_name": "Dolmetscher",
   "description": "Sprechen, übersetzen, vorlesen – mit Satzbuch und Zeige-Karten, auch offline.",
   "lang": "de",
+  "dir": "ltr",
+  "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
+  "categories": [
+    "travel",
+    "utilities",
+    "education"
+  ],
   "background_color": "#f6f7f9",
   "theme_color": "#1d4ed8",
   "icons": [
@@ -86,5 +98,9 @@
       "text": "text",
       "url": "url"
     }
+  },
+  "prefer_related_applications": false,
+  "launch_handler": {
+    "client_mode": "navigate-existing"
   }
 }
