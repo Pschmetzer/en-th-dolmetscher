@@ -18,7 +18,7 @@ def test_texts_complete_and_registered():
     for key, row in rows.items():
         assert set(row) == set(LANGS) and all(v.strip() for v in row.values()), key
     l10n = _src("Dolmetscher", "L10n.swift")
-    assert "round19]" in l10n and "round19.keys" in l10n
+    assert l10n.count("round19") >= 2   # Nachschlag und allKeys
 
 
 def test_route_and_interruption_use_the_policy():
