@@ -174,6 +174,9 @@ Pull requests #16–#47. Not yet published as a release.
 **Engine (round 15)**
 - **Fixed:** speech output no longer asks the voice for text without anything to say (empty, only punctuation or emoji); emoji are not read out; very long sentences without punctuation are split into chunks of at most 300 characters; Thai digits (๑๒๓) and the abbreviations กทม. and ฯลฯ are spoken correctly; a preset's tempo is limited to -50..+50 % like the speed setting
 
+**Engine (round 18)**
+- **Fixed:** a long sentence is split into pieces for Google and the pieces are now requested in parallel (up to 3, order kept, 8 s in total) instead of one after another; the persistent translation cache is written in a background thread, so the sentence no longer waits for the disk; an expired pre-opened voice connection is closed instead of being left open.
+
 **iPhone app**
 - **New:** retries sentences that failed to translate when the network returns; error bubbles have buttons (open Settings for a denied microphone); copied text is removed from the clipboard after 2 minutes; optional hiding of the conversation during screen recording; “Recent” category in the phrasebook; share favourites; learning mode with daily count, streak, “Practise all cards” and progress reset; iPad keyboard shortcuts; VoiceOver Magic Tap and copy action.
 - **Fixed:** the study log keeps only recent days; Dynamic Type scales icon widths.

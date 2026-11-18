@@ -1,6 +1,7 @@
 """Runde 7, zweiter Teil (Engine): Mikrofon, Ausgabe-Pipe, Verlauf asynchron/WAL, Hilfsprozesse."""
 import queue
 import sqlite3
+import time
 import types
 
 import pytest
@@ -138,6 +139,10 @@ def test_cache_auf_platte_opt_in(monkeypatch, tmp_path):
     assert not f.exists()                                     # Standard: nichts auf der Platte
     d.cache_persist(True)
     d._cache_put(("how are you", "en", "de", "mt", ""), ("wie geht's", "google"))
+    for _ in range(100):                                      # Runde 18: geschrieben wird im Hintergrund-Thread
+        if f.exists():
+            break
+        time.sleep(0.02)
     assert f.exists() and oct(f.stat().st_mode & 0o777) == "0o600"
     d._cache_clear()                                          # "clear" löscht auch die Datei
     assert not f.exists()

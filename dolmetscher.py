@@ -1102,8 +1102,10 @@ def _cache_put(key, val):
         _CACHE.move_to_end(key)
         while len(_CACHE) > _CACHE_MAX:
             _CACHE.popitem(last=False)
-    if _CACHE_DISK["on"]:
-        _cache_save()
+    if _CACHE_DISK["on"] and time.monotonic() - _CACHE_DISK["saved"] >= 5.0:
+        # JSON + fsync nicht im Übersetzungs-Thread (der Satz wartet sonst auf die Platte)
+        _CACHE_DISK["saved"] = time.monotonic()           # vor dem Start: kein zweiter Thread für denselben Zeitraum
+        threading.Thread(target=_cache_save, args=(True,), name="cache-save", daemon=True).start()
 
 
 # Opt-in (Steuerfeld `cache_persist`): Übersetzungs-Cache übersteht den Neustart – Standardsätze gehen dann auch ohne
@@ -1200,15 +1202,30 @@ def _google_one(text, src, dst, timeout):
     return "".join(p[0] for p in data[0] if isinstance(p, list) and p and isinstance(p[0], str))
 
 
-def google_translate(text, src, dst):
-    pieces = _split_bytes(text, GOOGLE_MAX_BYTES)
-    deadline = time.monotonic() + GOOGLE_TOTAL_S
-    outs = []
-    for i, p in enumerate(pieces):
-        left = deadline - time.monotonic()
-        if left <= 0.5 and i:
+GOOGLE_PARALLEL = 3                # so viele Teilstücke eines langen Satzes gleichzeitig
+
+
+def _google_pieces(pieces, src, dst):
+    """Teilstücke gleichzeitig anfragen (Reihenfolge bleibt), zusammen höchstens GOOGLE_TOTAL_S; nacheinander
+    zahlte ein langer Satz jede Antwortzeit einzeln."""
+    if len(pieces) == 1:
+        return [_google_one(pieces[0], src, dst, 6)]
+    import concurrent.futures
+    t = max(1.0, min(6.0, GOOGLE_TOTAL_S))
+    ex = concurrent.futures.ThreadPoolExecutor(max_workers=min(len(pieces), GOOGLE_PARALLEL),
+                                               thread_name_prefix="google")
+    try:
+        futs = [ex.submit(_google_one, p, src, dst, t) for p in pieces]
+        _, pending = concurrent.futures.wait(futs, timeout=GOOGLE_TOTAL_S)
+        if pending:
             raise RuntimeError("Google: Zeitbudget aufgebraucht")
-        outs.append(_google_one(p, src, dst, 6 if len(pieces) == 1 else max(1.0, min(6.0, left))))
+        return [f.result() for f in futs]
+    finally:
+        ex.shutdown(wait=False, cancel_futures=True)
+
+
+def google_translate(text, src, dst):
+    outs = _google_pieces(_split_bytes(text, GOOGLE_MAX_BYTES), src, dst)
     out = _join_pieces(outs, dst)
     if not out.strip():
         raise ValueError("leere Antwort von Google")
@@ -4097,6 +4114,8 @@ def _ws_take():
         ws, t = _WS["pool"].pop()
         if not ws.closed and now - t <= WS_MAX_AGE:
             return ws
+        if not ws.closed:
+            _spawn(_ws_close(ws))                 # abgelaufen: schließen, nicht offen liegen lassen
     return None
 
 
