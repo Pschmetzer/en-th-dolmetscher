@@ -266,6 +266,17 @@
    "reviewed": false
   },
   {
+   "id": "atm-bank-card",
+   "names": {
+    "de": "Geldautomat: Karte und Limit",
+    "en": "ATM: card and limit",
+    "th": "ตู้เอทีเอ็ม: บัตรและวงเงิน"
+   },
+   "phrases": 18,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
    "id": "baby",
    "names": {
     "de": "Baby und Kleinkind",
@@ -310,6 +321,28 @@
    "reviewed": false
   },
   {
+   "id": "cinema-concert",
+   "names": {
+    "de": "Kino und Konzert",
+    "en": "Cinema and concert",
+    "th": "โรงหนังและคอนเสิร์ต"
+   },
+   "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "dating-small-talk",
+   "names": {
+    "de": "Smalltalk und Kennenlernen",
+    "en": "Small talk and getting to know",
+    "th": "คุยเล่นและทำความรู้จัก"
+   },
+   "phrases": 19,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
    "id": "diving",
    "names": {
     "de": "Tauchen und Schnorcheln",
@@ -318,6 +351,17 @@
    },
    "phrases": 16,
    "critical": 5,
+   "reviewed": false
+  },
+  {
+   "id": "elephant-sanctuary",
+   "names": {
+    "de": "Elefantenschutzgebiet",
+    "en": "Elephant sanctuary",
+    "th": "ศูนย์ดูแลช้าง"
+   },
+   "phrases": 18,
+   "critical": 4,
    "reviewed": false
   },
   {
@@ -376,6 +420,17 @@
    "reviewed": false
   },
   {
+   "id": "immigration-90day",
+   "names": {
+    "de": "Immigration: 90-Tage-Meldung",
+    "en": "Immigration: 90-day report",
+    "th": "ตม.: รายงานตัว 90 วัน"
+   },
+   "phrases": 18,
+   "critical": 3,
+   "reviewed": false
+  },
+  {
    "id": "kids",
    "names": {
     "de": "Reisen mit Kindern",
@@ -395,6 +450,17 @@
    },
    "phrases": 19,
    "critical": 1,
+   "reviewed": false
+  },
+  {
+   "id": "lost-passport",
+   "names": {
+    "de": "Reisepass verloren",
+    "en": "Lost passport",
+    "th": "หนังสือเดินทางหาย"
+   },
+   "phrases": 20,
+   "critical": 4,
    "reviewed": false
   },
   {
@@ -439,6 +505,17 @@
    },
    "phrases": 18,
    "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "motorbike-accident",
+   "names": {
+    "de": "Motorrad-Unfall",
+    "en": "Motorbike accident",
+    "th": "อุบัติเหตุมอเตอร์ไซค์"
+   },
+   "phrases": 19,
+   "critical": 5,
    "reviewed": false
   },
   {
@@ -526,6 +603,39 @@
     "th": "อาหารริมทาง"
    },
    "phrases": 20,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "tailor-custom",
+   "names": {
+    "de": "Maßschneider",
+    "en": "Custom tailor",
+    "th": "ช่างตัดเสื้อสั่งตัด"
+   },
+   "phrases": 18,
+   "critical": 3,
+   "reviewed": false
+  },
+  {
+   "id": "thai-cooking-class",
+   "names": {
+    "de": "Thai-Kochkurs",
+    "en": "Thai cooking class",
+    "th": "คอร์สทำอาหารไทย"
+   },
+   "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "tuk-tuk-songthaew",
+   "names": {
+    "de": "Tuk-Tuk und Songthaew",
+    "en": "Tuk-tuk and songthaew",
+    "th": "ตุ๊กตุ๊กและสองแถว"
+   },
+   "phrases": 17,
    "critical": 4,
    "reviewed": false
   },

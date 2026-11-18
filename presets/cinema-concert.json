@@ -1,0 +1,117 @@
+{
+  "id": "cinema-concert",
+  "names": {
+    "de": "Kino und Konzert",
+    "en": "Cinema and concert",
+    "th": "โรงหนังและคอนเสิร์ต"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "ticket",
+      "th": "ตั๋ว"
+    },
+    {
+      "en": "seat",
+      "th": "ที่นั่ง"
+    },
+    {
+      "en": "subtitles",
+      "th": "คำบรรยาย"
+    },
+    {
+      "en": "soundtrack",
+      "th": "ซาวด์แทร็ก"
+    },
+    {
+      "en": "stage",
+      "th": "เวที"
+    },
+    {
+      "en": "exit",
+      "th": "ทางออก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "There is a fire. Where is the exit?",
+      "th": "ไฟไหม้ ทางออกอยู่ที่ไหน",
+      "critical": true
+    },
+    {
+      "en": "I feel faint. I need to go outside.",
+      "th": "รู้สึกจะเป็นลม ขอออกไปข้างนอก",
+      "critical": true
+    },
+    {
+      "en": "Please call a doctor.",
+      "th": "ช่วยเรียกแพทย์หน่อย",
+      "critical": true
+    },
+    {
+      "en": "My bag was stolen.",
+      "th": "กระเป๋าถูกขโมย",
+      "critical": true
+    },
+    {
+      "en": "Two tickets, please.",
+      "th": "ขอตั๋วสองใบ"
+    },
+    {
+      "en": "Which film starts next?",
+      "th": "หนังเรื่องไหนเริ่มรอบต่อไป"
+    },
+    {
+      "en": "Is it in English with Thai subtitles?",
+      "th": "เป็นเสียงภาษาอังกฤษพร้อมคำบรรยายภาษาไทยไหม"
+    },
+    {
+      "en": "Is the film dubbed in Thai?",
+      "th": "หนังพากย์ไทยไหม"
+    },
+    {
+      "en": "Can I choose my seat?",
+      "th": "เลือกที่นั่งได้ไหม"
+    },
+    {
+      "en": "Please two seats next to each other.",
+      "th": "ขอที่นั่งสองที่ติดกัน"
+    },
+    {
+      "en": "Where is the entrance for this hall?",
+      "th": "ทางเข้าโรงนี้อยู่ที่ไหน"
+    },
+    {
+      "en": "It is very cold in here.",
+      "th": "ในนี้หนาวมาก"
+    },
+    {
+      "en": "Where can I buy popcorn and a drink?",
+      "th": "ซื้อป๊อปคอร์นและเครื่องดื่มได้ที่ไหน"
+    },
+    {
+      "en": "What time does the concert start?",
+      "th": "คอนเสิร์ตเริ่มกี่โมง"
+    },
+    {
+      "en": "Can I bring a camera?",
+      "th": "เอากล้องเข้าไปได้ไหม"
+    },
+    {
+      "en": "Can I take photos or videos?",
+      "th": "ถ่ายรูปหรือวิดีโอได้ไหม"
+    },
+    {
+      "en": "Where is the toilet?",
+      "th": "ห้องน้ำอยู่ที่ไหน"
+    },
+    {
+      "en": "Where is the cloakroom?",
+      "th": "ที่ฝากของอยู่ที่ไหน"
+    }
+  ],
+  "note": {
+    "de": "Im Kino steht vor dem Film die Königshymne, alle stehen auf. Die Klimaanlage ist kalt, eine Jacke hilft. Filme laufen oft synchronisiert; für Originalton „Soundtrack“ (Thai: ซาวด์แทร็ก) mit Untertiteln wählen. Bei Konzerten Ticket nur an offiziellen Stellen kaufen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "In Thai cinemas the royal anthem plays before the film and everyone stands. The air conditioning is cold, so bring a jacket. Films are often dubbed; choose the soundtrack version with subtitles for the original audio. For concerts buy tickets only from official sellers. Thai lines machine-made, not checked by native speakers."
+  }
+}

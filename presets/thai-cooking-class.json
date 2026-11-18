@@ -1,0 +1,117 @@
+{
+  "id": "thai-cooking-class",
+  "names": {
+    "de": "Thai-Kochkurs",
+    "en": "Thai cooking class",
+    "th": "คอร์สทำอาหารไทย"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "recipe",
+      "th": "สูตรอาหาร"
+    },
+    {
+      "en": "chili",
+      "th": "พริก"
+    },
+    {
+      "en": "wok",
+      "th": "กระทะ"
+    },
+    {
+      "en": "fish sauce",
+      "th": "น้ำปลา"
+    },
+    {
+      "en": "lemongrass",
+      "th": "ตะไคร้"
+    },
+    {
+      "en": "coconut milk",
+      "th": "กะทิ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am allergic to peanuts.",
+      "th": "แพ้ถั่วลิสง",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to shellfish.",
+      "th": "แพ้อาหารทะเลที่มีเปลือก",
+      "critical": true
+    },
+    {
+      "en": "I cut myself. Do you have a plaster?",
+      "th": "มีดบาดมือ มีพลาสเตอร์ไหม",
+      "critical": true
+    },
+    {
+      "en": "I burned my hand.",
+      "th": "มือโดนน้ำร้อนลวก",
+      "critical": true
+    },
+    {
+      "en": "I am vegetarian.",
+      "th": "กินมังสวิรัติ"
+    },
+    {
+      "en": "Please make it not spicy.",
+      "th": "ไม่เผ็ด"
+    },
+    {
+      "en": "A little spicy, please.",
+      "th": "เผ็ดนิดเดียว"
+    },
+    {
+      "en": "Does this contain fish sauce?",
+      "th": "อันนี้ใส่น้ำปลาไหม"
+    },
+    {
+      "en": "What time does the class start?",
+      "th": "คอร์สเริ่มกี่โมง"
+    },
+    {
+      "en": "Do we visit the market first?",
+      "th": "ไปตลาดก่อนไหม"
+    },
+    {
+      "en": "How many dishes do we cook?",
+      "th": "จะทำอาหารกี่อย่าง"
+    },
+    {
+      "en": "What is this herb called?",
+      "th": "สมุนไพรนี้เรียกว่าอะไร"
+    },
+    {
+      "en": "Can I write down the recipe?",
+      "th": "จดสูตรอาหารได้ไหม"
+    },
+    {
+      "en": "Can you send me the recipes by email?",
+      "th": "ช่วยส่งสูตรอาหารทางอีเมลให้หน่อย"
+    },
+    {
+      "en": "Where can I wash my hands?",
+      "th": "ล้างมือได้ที่ไหน"
+    },
+    {
+      "en": "Can I take the leftovers with me?",
+      "th": "ห่อกลับบ้านได้ไหม"
+    },
+    {
+      "en": "Can I take photos while cooking?",
+      "th": "ถ่ายรูปตอนทำอาหารได้ไหม"
+    },
+    {
+      "en": "This was delicious. Thank you.",
+      "th": "อร่อยมาก ขอบคุณ"
+    }
+  ],
+  "note": {
+    "de": "Allergien und Schärfe vor Kursbeginn angeben: Thai-Küche enthält oft Erdnuss, Fischsauce, Garnelenpaste und Krabbenfleisch. Viele Kurse beginnen mit einem Marktbesuch; feste Schuhe und Haare zusammenbinden. Nach dem Kurs gibt es Rezepte, meist auch zum Mitnehmen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Tell the teacher about allergies and spice before the class: Thai cooking often uses peanuts, fish sauce, shrimp paste and crab. Many classes start with a market visit; wear closed shoes and tie your hair back. You usually get the recipes to take home. Thai lines machine-made, not checked by native speakers."
+  }
+}

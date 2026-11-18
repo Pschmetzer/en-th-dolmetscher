@@ -1,0 +1,118 @@
+{
+  "id": "atm-bank-card",
+  "names": {
+    "de": "Geldautomat: Karte und Limit",
+    "en": "ATM: card and limit",
+    "th": "ตู้เอทีเอ็ม: บัตรและวงเงิน"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "card",
+      "th": "บัตร"
+    },
+    {
+      "en": "PIN",
+      "th": "รหัสผ่าน"
+    },
+    {
+      "en": "limit",
+      "th": "วงเงิน"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    },
+    {
+      "en": "hotline",
+      "th": "สายด่วน"
+    },
+    {
+      "en": "branch",
+      "th": "สาขา"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "The ATM kept my card.",
+      "th": "ตู้เอทีเอ็มกลืนบัตร",
+      "critical": true
+    },
+    {
+      "en": "Please block my card now.",
+      "th": "ช่วยอายัดบัตรให้ทันทีหน่อย",
+      "critical": true
+    },
+    {
+      "en": "The money did not come out, but my account was charged.",
+      "th": "เงินไม่ออกมา แต่ถูกตัดเงินในบัญชีแล้ว",
+      "critical": true
+    },
+    {
+      "en": "Someone is watching me at the ATM.",
+      "th": "มีคนจ้องมองตอนกดเงินที่ตู้",
+      "critical": true
+    },
+    {
+      "en": "My card was stolen. Please block it.",
+      "th": "บัตรถูกขโมย ช่วยอายัดบัตรให้หน่อย",
+      "critical": true
+    },
+    {
+      "en": "Can you call the bank hotline for me?",
+      "th": "ช่วยโทรหาสายด่วนธนาคารให้หน่อย"
+    },
+    {
+      "en": "Which bank does this ATM belong to?",
+      "th": "ตู้นี้เป็นของธนาคารอะไร"
+    },
+    {
+      "en": "What is the daily withdrawal limit?",
+      "th": "วงเงินถอนต่อวันเท่าไหร่"
+    },
+    {
+      "en": "What is the limit per withdrawal?",
+      "th": "วงเงินถอนต่อครั้งเท่าไหร่"
+    },
+    {
+      "en": "Can you raise my limit?",
+      "th": "ช่วยเพิ่มวงเงินให้ได้ไหม"
+    },
+    {
+      "en": "The screen says the limit was exceeded.",
+      "th": "หน้าจอแจ้งว่าเกินวงเงิน"
+    },
+    {
+      "en": "Can I get my card back today?",
+      "th": "วันนี้รับบัตรคืนได้ไหม"
+    },
+    {
+      "en": "Where is the nearest branch?",
+      "th": "สาขาที่ใกล้ที่สุดอยู่ที่ไหน"
+    },
+    {
+      "en": "I need a receipt for this problem.",
+      "th": "ขอใบเสร็จเรื่องปัญหานี้ด้วย"
+    },
+    {
+      "en": "Please do not convert the amount into my currency.",
+      "th": "ไม่ต้องแปลงสกุลเงิน คิดเป็นบาท"
+    },
+    {
+      "en": "How much is the fee for this withdrawal?",
+      "th": "ค่าธรรมเนียมการถอนครั้งนี้เท่าไหร่"
+    },
+    {
+      "en": "Please check my account balance.",
+      "th": "ช่วยเช็คยอดเงินในบัญชีให้หน่อย"
+    },
+    {
+      "en": "Can I use my passport as identification?",
+      "th": "ใช้พาสปอร์ตเป็นบัตรยืนยันตัวตนได้ไหม"
+    }
+  ],
+  "note": {
+    "de": "Bei verschluckter Karte nicht weggehen: die Bank-Hotline am Automaten anrufen, Karte per App sperren und mit Reisepass in die Filiale. Das Abhebelimit pro Vorgang liegt oft bei 20.000–30.000 Baht; Gebühr 220 Baht pro Abhebung. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "If the ATM keeps your card, do not walk away: call the bank hotline on the machine, freeze the card in your app and go to the branch with your passport. The limit per withdrawal is often 20,000-30,000 baht, with a 220 baht fee. Thai lines machine-made, not checked by native speakers."
+  }
+}
