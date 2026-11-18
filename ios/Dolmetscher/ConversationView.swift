@@ -325,6 +325,9 @@ struct LineRow: View {
     let lang: Lang
     let color: Color
     var scale: Double = 1
+    @ScaledMetric(relativeTo: .body) private var scaledOwn: CGFloat = 17
+    @ScaledMetric(relativeTo: .title2) private var scaledOther: CGFloat = 22
+    private var scaledBase: CGFloat { own ? scaledOwn : scaledOther }
 
     var body: some View {
         let align: HorizontalAlignment = own ? .trailing : .leading
@@ -334,7 +337,7 @@ struct LineRow: View {
         Button { m.speak(entry) } label: {
             VStack(alignment: align, spacing: 2) {
                 Text(ConversationLogic.highlighted(text))
-                    .font(.system(size: (own ? 17 : 22) * scale, weight: own ? .regular : .bold))
+                    .font(.system(size: scaledBase * scale, weight: own ? .regular : .bold))
                     .foregroundStyle(tint)
                     .multilineTextAlignment(own ? .trailing : .leading)
                 RomanLine(text: roman)
