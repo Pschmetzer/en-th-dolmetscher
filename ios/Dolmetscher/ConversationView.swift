@@ -71,6 +71,7 @@ struct PartnerView: View {
 
 /// Eine Hälfte des Konversationsmodus: alles in `lang`.
 struct ConversationSide: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(InterpreterModel.self) private var m
     let lang: Lang
     let isPartner: Bool
@@ -104,7 +105,7 @@ struct ConversationSide: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(color.opacity(expecting ? 0.14 : 0.05))
         .overlay(Rectangle().stroke(color.opacity(expecting ? 0.8 : 0), lineWidth: 3))
-        .animation(.default, value: expecting)
+        .animation(Motion.animation(reduce: reduceMotion), value: expecting)
     }
 
     struct Line: Identifiable {
@@ -141,7 +142,7 @@ struct ConversationSide: View {
                 }
                 .padding(.vertical, 4)
             }
-            .onChange(of: shown.last?.id) { withAnimation { proxy.scrollTo(shown.last?.id, anchor: .bottom) } }
+            .onChange(of: shown.last?.id) { withAnimation(Motion.animation(reduce: reduceMotion)) { proxy.scrollTo(shown.last?.id, anchor: .bottom) } }
             .onChange(of: m.partial) { proxy.scrollTo("live", anchor: .bottom) }
             .onAppear { proxy.scrollTo(shown.last?.id, anchor: .bottom) }
         }
@@ -247,7 +248,7 @@ struct NumberPad: View {
     var onDone: () -> Void
     var onCancel: () -> Void
 
-    private let keys: [[String]] = [["1", "2", "3"], ["4", "5", "6"], ["7", "8", "9"], ["000", "0", "✓"]]
+    private let keys: [[String]] = [["1", "2", "3"], ["4", "5", "6"], ["7", "8", "9"], ["0", "000", ".", "✓"]]
 
     var body: some View {
         VStack(spacing: 6) {
@@ -267,7 +268,7 @@ struct NumberPad: View {
                 HStack(spacing: 6) {
                     ForEach(row, id: \.self) { k in
                         Button { press(k) } label: {
-                            Text(k).font(.title2.bold().monospacedDigit()).frame(maxWidth: .infinity, minHeight: 36)
+                            Text(k).font(.title2.bold().monospacedDigit()).frame(maxWidth: .infinity, minHeight: 44)
                         }
                         .buttonStyle(.bordered)
                         .tint(k == "✓" ? .green : .primary)

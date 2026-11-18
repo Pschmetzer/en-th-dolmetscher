@@ -348,6 +348,12 @@ final class LocationFinder: NSObject, CLLocationManagerDelegate {
     private let manager = CLLocationManager()
     var location: CLLocation?
     var denied = false
+    /// Keine Position bekommen (Fehler oder Zeitüberschreitung) – die Ansicht bietet „Nochmal“ an.
+    var failed = false
+    /// „Genauen Standort“ ist aus: Koordinaten können Kilometer danebenliegen.
+    var approximate: Bool { manager.accuracyAuthorization == .reducedAccuracy }
+    private var timeout: Task<Void, Never>?
+    static let timeoutSeconds = 15.0
 
     override init() {
         super.init()
@@ -356,10 +362,21 @@ final class LocationFinder: NSObject, CLLocationManagerDelegate {
     }
 
     func locate() {
+        failed = false
         switch manager.authorizationStatus {
         case .notDetermined: manager.requestWhenInUseAuthorization()
         case .denied, .restricted: denied = true
-        default: manager.requestLocation()
+        default: request()
+        }
+    }
+
+    private func request() {
+        manager.requestLocation()
+        timeout?.cancel()
+        timeout = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(Self.timeoutSeconds))
+            guard !Task.isCancelled, let self, self.location == nil else { return }
+            self.failed = true
         }
     }
 
@@ -367,16 +384,18 @@ final class LocationFinder: NSObject, CLLocationManagerDelegate {
         let status = manager.authorizationStatus
         Task { @MainActor in
             self.denied = status == .denied || status == .restricted
-            if status == .authorizedWhenInUse || status == .authorizedAlways { self.manager.requestLocation() }
+            if status == .authorizedWhenInUse || status == .authorizedAlways { self.request() }
         }
     }
 
     nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         let l = locations.last
-        Task { @MainActor in self.location = l }
+        Task { @MainActor in self.location = l; self.failed = false; self.timeout?.cancel() }
     }
 
-    nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {}
+    nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        Task { @MainActor in if self.location == nil { self.failed = true } }
+    }
 
     /// „13.75630, 100.50180“ – so liest es jeder Helfer und jede Karten-App.
     static func text(_ l: CLLocation) -> String {
@@ -420,8 +439,14 @@ struct HelpNowView: View {
         if let l = finder.location {
             Text(LocationFinder.text(l)).font(.title2.monospacedDigit().bold()).textSelection(.enabled)
             Text(String(format: T("help_accuracy"), Int(l.horizontalAccuracy))).font(.footnote).foregroundStyle(.secondary)
+            if finder.approximate {
+                Text(T("help_location_approx")).font(.footnote).foregroundStyle(.orange)
+            }
         } else if finder.denied {
             Text(T("help_location_denied")).foregroundStyle(.secondary)
+        } else if finder.failed {
+            Text(T("help_location_failed")).foregroundStyle(.secondary)
+            Button(T("retry")) { finder.locate() }
         } else {
             HStack { ProgressView(); Text(T("help_locating")).foregroundStyle(.secondary) }
         }
@@ -514,6 +539,8 @@ struct LineHints: View {
         if !dishes.isEmpty || !years.isEmpty {
             VStack(alignment: .leading, spacing: 2) {
                 ForEach(dishes, id: \.th) { d in DishLine(dish: d) }
+                // Fehlt ein Hinweis, heißt das nicht „ohne Allergene“ – gerade bei Erdnuss und Meeresfrüchten.
+                if !dishes.isEmpty { Text(T("dish_incomplete")).font(.caption2).foregroundStyle(.secondary) }
                 ForEach(years, id: \.self) { y in
                     Label(T("buddhist_year") + " " + y, systemImage: "calendar").font(.caption).foregroundStyle(.secondary)
                 }

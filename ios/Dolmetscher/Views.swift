@@ -13,6 +13,7 @@ enum LangStyle {
 }
 
 struct ContentView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(InterpreterModel.self) private var m
     @State private var showPartner = false
     @State private var big: Entry?
@@ -257,7 +258,7 @@ struct ContentView: View {
             }
         }
         .frame(maxWidth: .infinity, minHeight: 22)
-        .animation(.default, value: statusText)
+        .animation(Motion.animation(reduce: reduceMotion), value: statusText)
         .accessibilityAddTraits(.updatesFrequently)
     }
 
@@ -306,7 +307,7 @@ struct ContentView: View {
                 if unseen {
                     Button {
                         unseen = false
-                        withAnimation { proxy.scrollTo("end", anchor: .bottom) }
+                        withAnimation(Motion.animation(reduce: reduceMotion)) { proxy.scrollTo("end", anchor: .bottom) }
                     } label: { Label(T("new_below"), systemImage: "arrow.down") }
                         .buttonStyle(.borderedProminent)
                         .controlSize(.small)
@@ -318,7 +319,7 @@ struct ContentView: View {
 
     private func follow(_ proxy: ScrollViewProxy, animated: Bool) {
         guard atEnd else { unseen = true; return }
-        if animated { withAnimation { proxy.scrollTo("end", anchor: .bottom) } } else { proxy.scrollTo("end", anchor: .bottom) }
+        if animated { withAnimation(Motion.animation(reduce: reduceMotion)) { proxy.scrollTo("end", anchor: .bottom) } } else { proxy.scrollTo("end", anchor: .bottom) }
     }
 
     // MARK: Fuß
@@ -337,9 +338,9 @@ struct ContentView: View {
                 }
             }
             HStack(spacing: 8) {
-                Button { m.sheet = .phrasebook } label: { Image(systemName: "book").font(.title3) }
+                Button { m.sheet = .phrasebook } label: { Image(systemName: "book").font(.title3).frame(minWidth: 44, minHeight: 44) }
                     .accessibilityLabel(T("phrasebook"))
-                Button { m.sheet = .photo } label: { Image(systemName: "text.viewfinder").font(.title3) }
+                Button { m.sheet = .photo } label: { Image(systemName: "text.viewfinder").font(.title3).frame(minWidth: 44, minHeight: 44) }
                     .accessibilityLabel(T("photo_text"))
                 TextField(T("type_hint"), text: $draft, axis: .vertical)
                     .lineLimit(1...3)
@@ -440,6 +441,9 @@ struct PartialLine: View {
         }
         .padding(10)
         .frame(maxWidth: .infinity, alignment: .center)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(text.isEmpty ? T("translating") : String(format: T("hearing_now"), text))
+        .accessibilityAddTraits(.updatesFrequently)
     }
 }
 
@@ -544,7 +548,7 @@ private struct EditAlert: View {
     @State private var text = ""
 
     var body: some View {
-        TextField("", text: $text)
+        TextField(T("edit_text"), text: $text)
             .onAppear { text = entry?.text ?? "" }
         Button(T("translate")) { onSave(text) }
         Button(T("cancel"), role: .cancel) {}
@@ -569,6 +573,8 @@ struct Bubble: View {
     let entry: Entry
     var onBig: () -> Void
     var onEdit: () -> Void
+    @AppStorage("fxRate") private var fxRate = FXDefaults.rate(for: FXDefaults.code())
+    @AppStorage("fxCode") private var fxCode = FXDefaults.code()
 
     var body: some View {
         let color: Color = LangStyle.color(entry.target, m.pair)
@@ -637,15 +643,18 @@ struct Bubble: View {
 
     private var roman: String? { m.showRoman ? entry.romanized : entry.roman }
 
-    private var a11yLabel: String {
-        var parts = ["\(entry.src.name(in: L10n.lang)): \(entry.text)"]
-        if let t = entry.translation {
-            parts.append("\(entry.target.name(in: L10n.lang)): \(t)")
-            if m.backCheck, entry.backDeviates { parts.append(T("back_deviates")) }
-        }
-        else if let err = entry.error { parts.append(err) }
-        else { parts.append(T("translating")) }
-        return parts.joined(separator: ". ")
+    private var a11yLabel: Text {
+        var extras: [String] = []
+        if entry.translation != nil {
+            if m.backCheck, entry.backDeviates { extras.append(T("back_deviates")) }
+            // RomanLine und PriceLine fehlen sonst für VoiceOver und Sprachsteuerung.
+            if m.features.thaiExtras, let t = entry.translation,
+               let price = PriceSpotter.line(PriceSpotter.amounts(in: entry.text + " " + t), rate: fxRate, code: fxCode,
+                                             locale: Locale(identifier: L10n.lang)) { extras.append(price) }
+        } else if let err = entry.error { extras.append(err) }
+        else { extras.append(T("translating")) }
+        return A11yLabel.text(A11yLabel.build(src: entry.src, text: entry.text, target: entry.target,
+                                              translation: entry.translation, extras: extras, uiLang: L10n.lang))
     }
 
     @ViewBuilder private var a11yActions: some View {
