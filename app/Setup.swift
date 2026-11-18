@@ -86,7 +86,7 @@ struct SetupChecklist: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(L.t("setup_title")).font(.headline)
+            Text(L.t("setup_title")).font(.headline).accessibilityAddTraits(.isHeader)
             ForEach(rows) { r in
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Image(systemName: r.ok == true ? "checkmark.circle.fill" : r.ok == false ? "xmark.octagon.fill" : "info.circle")

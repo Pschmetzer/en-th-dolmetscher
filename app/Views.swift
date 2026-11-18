@@ -1100,6 +1100,7 @@ struct MicDeniedBanner: View {
             VStack(alignment: .leading, spacing: 2) {
                 Label(L.t("nomic"), systemImage: "mic.slash.fill")
                     .font(.headline).foregroundStyle(.red)
+                    .accessibilityAddTraits(.isHeader)
                 Text(L.t("nomic_action")).font(.caption).foregroundStyle(.secondary)
             }
             Spacer()
@@ -1120,6 +1121,7 @@ struct CrashBanner: View {
         VStack(alignment: .leading, spacing: 8) {
             Label(L.t("crash_banner"), systemImage: "exclamationmark.triangle.fill")
                 .font(.headline).foregroundStyle(.red)
+                .accessibilityAddTraits(.isHeader)
             Text(m.status).font(.callout)
             ScrollView {
                 Text(log).font(.system(size: 11, design: .monospaced))
