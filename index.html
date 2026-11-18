@@ -2318,7 +2318,7 @@ let learnList = (() => { try { return learnParse(localStorage.getItem(LEARN_KEY)
 let learnCur = null, learnShownKey = null;
 function learnStore(list) {
   learnList = list;
-  try { localStorage.setItem(LEARN_KEY, JSON.stringify(list)); } catch { storageFull(); }
+  try { localStorage.setItem(LEARN_KEY, JSON.stringify(list)); } catch { setStatus(t('mcStorageFull'), true); }
   try { if (list.length && navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch {}   // Safari räumt sonst nach 7 Tagen
   learnRender(); syncStars(); renderFavOrder();
 }
