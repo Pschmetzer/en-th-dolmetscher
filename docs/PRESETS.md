@@ -42,7 +42,7 @@ kennen, ignorieren sie.
 1. Datei `presets/<id>.json` anlegen (Vorlage: ein vorhandenes Paket), 15–25 praxisnahe Sätze, kritische zuerst.
 2. `python -m pytest tests/test_presets.py tests/test_presets_inhalt.py` ausführen.
 3. Für die Web-Version die `id` in `PRESET_IDS` von `index.html` und `sw.js` eintragen
-   (`tests/test_web_pwa.py` prüft, dass die Listen zum Ordner passen).
+   (`tests/test_web_pwa.py` prüft, dass die Listen zum Ordner passen), dann `python3 tools/make_presets_index.py` ausführen (erzeugt `presets-index.json`; `tests/test_runde7_web_presets.py` prüft, dass sie aktuell ist). Das JSON-Schema für Editoren liegt in `docs/presets.schema.json`.
 4. Im Pull Request vermerken, ob ein Muttersprachler die Thai-Sätze geprüft hat.
 
 ## Pakete
@@ -53,7 +53,7 @@ kennen, ignorieren sie.
 | `pharmacy` | Apotheke | Allergien, Schwangerschaft, Kinder, Wechselwirkung |
 | `police` | Polizei / Diebstahl | Hilfe, Tourist Police 1155, Rettung, Überfall, Verfolgung |
 | `lostchild` | Kind verloren (Zeige-Sätze) | fast alle; Sätze mit หนู zeigt das Kind |
-| `restaurant` | Restaurant | Erdnuss- und Schalentierallergie |
+| `restaurant` | Restaurant | Allergien: Erdnuss, Schalentiere, Ei, Milch, Weizen, Soja, Sesam, Fisch, Sellerie |
 | `travel` | Reise | Hilfe, Polizei, Rettung, Krankenhaus |
 | `taxi` | Taxi | Fahrt ins Krankenhaus |
 | `bank` | Bank / Geldautomat | Karte eingezogen, Karte gestohlen, Geld nicht ausgegeben |
@@ -61,12 +61,18 @@ kennen, ignorieren sie.
 | `scooter` | Werkstatt / Roller | Unfall, Verletzte, Bremsen |
 | `transport` | Fähre / Bus / Zug | Schwimmwesten |
 | `rental` | Wohnung mieten | Gasgeruch |
-| `temple` | Tempel / Kultur | – |
-| `hotel` | Hotel | – |
-| `shopping` | Einkaufen | – |
-| `office` | Büro | – |
+| `temple` | Tempel / Kultur | Schwächegefühl |
+| `hotel` | Hotel | Feuer, Arzt nötig |
+| `shopping` | Einkaufen | Polizei rufen |
+| `office` | Büro | Unwohlsein, Arzt rufen |
 | `dentist` | Zahnarzt (nur Verständigung) | Zahnschmerz, Schwellung, Allergien, Stopp |
 | `airport` | Flughafen und Gepäck | Rollstuhl, medizinische Hilfe |
+| `answers` | Antworten und Höfliches | Hilfe |
+| `services` | Wäscherei, Friseur, Schneider | – |
+| `island` | Inselausflug und Tauchen | nicht schwimmen können, medizinische Hilfe, Rettungsweste |
+| `access` | Barrierefreiheit | Hilfe benötigt |
+| `coworking` | Coworking und Langzeitmiete | – |
+| `places` | Orte: Bangkok, Phuket, Chiang Mai | – |
 
 ## Unsichere Sätze (bitte zuerst prüfen)
 
@@ -102,7 +108,7 @@ Am wichtigsten sind die Sätze mit `critical` und die Tabelle [Unsichere Sätze]
 
 | Datei | Inhalt |
 |---|---|
-| `presets/*.json` | 18 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
+| `presets/*.json` | 24 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
 | `ios/Shared/phrases.json` | eingebautes Satzbuch der iPhone-App und des Widgets |
 | `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten, „Sie sind dran“, Allergie-Karte |
 | `ios/Dolmetscher/Round4Views.swift` | Hilfesatz auf dem Bildschirm „Hilfe – jetzt“ |

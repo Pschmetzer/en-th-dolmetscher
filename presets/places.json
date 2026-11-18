@@ -1,0 +1,113 @@
+{
+  "id": "places",
+  "names": {
+    "de": "Orte: Bangkok, Phuket, Chiang Mai",
+    "en": "Places: Bangkok, Phuket, Chiang Mai",
+    "th": "สถานที่ยอดนิยม"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Ziele als Thai-Schrift zeigen: Fahrer erkennen sie sofort. Bei gleichnamigen Orten (z. B. Wat Pho) Stadt dazusagen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Show destinations in Thai script: drivers recognise them at once. For places with the same name add the city. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "airport",
+      "th": "สนามบิน"
+    },
+    {
+      "en": "temple",
+      "th": "วัด"
+    },
+    {
+      "en": "market",
+      "th": "ตลาด"
+    },
+    {
+      "en": "station",
+      "th": "สถานี"
+    },
+    {
+      "en": "beach",
+      "th": "หาด"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Suvarnabhumi Airport, please.",
+      "th": "ไปสนามบินสุวรรณภูมิ"
+    },
+    {
+      "en": "Don Mueang Airport, please.",
+      "th": "ไปสนามบินดอนเมือง"
+    },
+    {
+      "en": "Khao San Road, please.",
+      "th": "ไปถนนข้าวสาร"
+    },
+    {
+      "en": "Chatuchak Market, please.",
+      "th": "ไปตลาดจตุจักร"
+    },
+    {
+      "en": "Siam Paragon, please.",
+      "th": "ไปสยามพารากอน"
+    },
+    {
+      "en": "The Grand Palace, please.",
+      "th": "ไปพระบรมมหาราชวัง"
+    },
+    {
+      "en": "Wat Pho, please.",
+      "th": "ไปวัดโพธิ์"
+    },
+    {
+      "en": "Wat Arun, please.",
+      "th": "ไปวัดอรุณ"
+    },
+    {
+      "en": "Yaowarat (Chinatown), please.",
+      "th": "ไปเยาวราช"
+    },
+    {
+      "en": "Asiatique, please.",
+      "th": "ไปเอเชียทีค"
+    },
+    {
+      "en": "Mo Chit bus terminal, please.",
+      "th": "ไปสถานีขนส่งหมอชิต"
+    },
+    {
+      "en": "Krung Thep Aphiwat station, please.",
+      "th": "ไปสถานีกรุงเทพอภิวัฒน์"
+    },
+    {
+      "en": "Phuket Airport, please.",
+      "th": "ไปสนามบินภูเก็ต"
+    },
+    {
+      "en": "Patong Beach, please.",
+      "th": "ไปหาดป่าตอง"
+    },
+    {
+      "en": "Phuket Old Town, please.",
+      "th": "ไปเมืองเก่าภูเก็ต"
+    },
+    {
+      "en": "Chiang Mai Airport, please.",
+      "th": "ไปสนามบินเชียงใหม่"
+    },
+    {
+      "en": "Chiang Mai Old City, please.",
+      "th": "ไปเมืองเก่าเชียงใหม่"
+    },
+    {
+      "en": "Nimmanhaemin Road, please.",
+      "th": "ไปถนนนิมมานเหมินท์"
+    },
+    {
+      "en": "Doi Suthep, please.",
+      "th": "ไปดอยสุเทพ"
+    }
+  ]
+}

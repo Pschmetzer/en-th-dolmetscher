@@ -1,0 +1,117 @@
+{
+  "id": "coworking",
+  "names": {
+    "de": "Coworking und Langzeitmiete",
+    "en": "Coworking and long-term stay",
+    "th": "โคเวิร์กกิ้งและเช่ายาว"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Internetgeschwindigkeit vor Vertragsabschluss selbst testen. Für Visa oder Bank oft nötig: Rechnung mit Namen und Wohnsitzbescheinigung vom Vermieter. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Test the internet speed yourself before signing. For visas or banks you often need an invoice in your name and a residence certificate from the landlord. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "deposit",
+      "th": "ค่ามัดจำ"
+    },
+    {
+      "en": "monthly",
+      "th": "รายเดือน"
+    },
+    {
+      "en": "electricity",
+      "th": "ค่าไฟ"
+    },
+    {
+      "en": "Wi-Fi",
+      "th": "ไวไฟ"
+    },
+    {
+      "en": "invoice",
+      "th": "ใบแจ้งหนี้"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Is the internet fast?",
+      "th": "อินเทอร์เน็ตเร็วไหม"
+    },
+    {
+      "en": "What is the Wi-Fi speed?",
+      "th": "ความเร็วไวไฟเท่าไร"
+    },
+    {
+      "en": "Can I test the connection?",
+      "th": "ขอทดสอบความเร็วอินเทอร์เน็ตได้ไหม"
+    },
+    {
+      "en": "Is there a monthly price?",
+      "th": "มีราคารายเดือนไหม"
+    },
+    {
+      "en": "Is electricity included?",
+      "th": "รวมค่าไฟไหม"
+    },
+    {
+      "en": "Is water included?",
+      "th": "รวมค่าน้ำไหม"
+    },
+    {
+      "en": "How much is the deposit?",
+      "th": "ค่ามัดจำเท่าไหร่"
+    },
+    {
+      "en": "Could I have an invoice?",
+      "th": "ขอใบแจ้งหนี้ได้ไหม"
+    },
+    {
+      "en": "Could I have a tax invoice?",
+      "th": "ขอใบกำกับภาษีได้ไหม"
+    },
+    {
+      "en": "Could you give me a residence certificate?",
+      "th": "ช่วยออกหนังสือรับรองที่พักให้ได้ไหม"
+    },
+    {
+      "en": "Is there a desk and a good chair?",
+      "th": "มีโต๊ะและเก้าอี้ที่นั่งสบายไหม"
+    },
+    {
+      "en": "Is it quiet here?",
+      "th": "ที่นี่เงียบไหม"
+    },
+    {
+      "en": "Is the power stable?",
+      "th": "ไฟฟ้าเสถียรไหม"
+    },
+    {
+      "en": "Are there power cuts?",
+      "th": "ไฟดับบ่อยไหม"
+    },
+    {
+      "en": "Is air conditioning included?",
+      "th": "รวมแอร์ไหม"
+    },
+    {
+      "en": "Can I use the meeting room?",
+      "th": "ใช้ห้องประชุมได้ไหม"
+    },
+    {
+      "en": "Is there a printer?",
+      "th": "มีเครื่องพิมพ์ไหม"
+    },
+    {
+      "en": "What are the opening hours?",
+      "th": "เปิดกี่โมงถึงกี่โมง"
+    },
+    {
+      "en": "What is the minimum rental period?",
+      "th": "เช่าขั้นต่ำกี่เดือน"
+    },
+    {
+      "en": "Can I cancel at any time?",
+      "th": "ยกเลิกเมื่อไรก็ได้ไหม"
+    }
+  ]
+}

@@ -70,6 +70,41 @@
       "critical": true
     },
     {
+      "en": "I am allergic to eggs.",
+      "th": "แพ้ไข่",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to milk.",
+      "th": "แพ้นม",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to wheat and gluten.",
+      "th": "แพ้แป้งสาลีและกลูเตน",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to soy.",
+      "th": "แพ้ถั่วเหลือง",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to sesame.",
+      "th": "แพ้งา",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to fish.",
+      "th": "แพ้ปลา",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to celery.",
+      "th": "แพ้คื่นช่าย",
+      "critical": true
+    },
+    {
       "en": "A table for two, please.",
       "th": "ขอโต๊ะสำหรับสองคนหน่อย"
     },

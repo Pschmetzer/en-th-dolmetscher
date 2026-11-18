@@ -1,0 +1,108 @@
+{
+  "id": "island",
+  "names": {
+    "de": "Inselausflug und Tauchen",
+    "en": "Island trip and diving",
+    "th": "ทริปเกาะและดำน้ำ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Vor dem Ausflug Rettungswesten, Treffpunkt und Rückfahrzeit klären. Bei Wellengang und nach Alkohol nicht ins Wasser. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Before the trip check life jackets, meeting point and return time. Stay out of the water in rough seas or after alcohol. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "boat",
+      "th": "เรือ"
+    },
+    {
+      "en": "life jacket",
+      "th": "เสื้อชูชีพ"
+    },
+    {
+      "en": "snorkel",
+      "th": "อุปกรณ์ดำน้ำตื้น"
+    },
+    {
+      "en": "island",
+      "th": "เกาะ"
+    },
+    {
+      "en": "pier",
+      "th": "ท่าเรือ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I cannot swim.",
+      "th": "ว่ายน้ำไม่เป็น",
+      "critical": true
+    },
+    {
+      "en": "I need medical help.",
+      "th": "ต้องการความช่วยเหลือทางการแพทย์",
+      "critical": true
+    },
+    {
+      "en": "Could I have a life jacket, please?",
+      "th": "ขอเสื้อชูชีพหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I get seasick.",
+      "th": "เมาเรือ"
+    },
+    {
+      "en": "Where is the meeting point?",
+      "th": "จุดนัดพบอยู่ที่ไหน"
+    },
+    {
+      "en": "What time does the boat leave?",
+      "th": "เรือออกกี่โมง"
+    },
+    {
+      "en": "What time is the last boat back?",
+      "th": "เรือเที่ยวสุดท้ายกลับกี่โมง"
+    },
+    {
+      "en": "How long is the trip?",
+      "th": "ทริปนี้ใช้เวลานานเท่าไร"
+    },
+    {
+      "en": "Is the sea calm today?",
+      "th": "วันนี้ทะเลสงบไหม"
+    },
+    {
+      "en": "Is lunch included in the price?",
+      "th": "ราคานี้รวมอาหารกลางวันไหม"
+    },
+    {
+      "en": "Is the snorkel gear included?",
+      "th": "รวมอุปกรณ์ดำน้ำตื้นไหม"
+    },
+    {
+      "en": "I have not dived for a long time.",
+      "th": "ไม่ได้ดำน้ำมานานแล้ว"
+    },
+    {
+      "en": "Is it safe to swim here?",
+      "th": "ว่ายน้ำตรงนี้ปลอดภัยไหม"
+    },
+    {
+      "en": "Are there jellyfish?",
+      "th": "มีแมงกะพรุนไหม"
+    },
+    {
+      "en": "Please do not go too fast.",
+      "th": "ช่วยอย่าขับเร็วเกินไป"
+    },
+    {
+      "en": "Can I get a refund if the trip is cancelled?",
+      "th": "ถ้ายกเลิกทริปขอคืนเงินได้ไหม"
+    },
+    {
+      "en": "Where can I rent a snorkel?",
+      "th": "เช่าอุปกรณ์ดำน้ำได้ที่ไหน"
+    }
+  ]
+}
