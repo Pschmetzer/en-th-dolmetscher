@@ -98,7 +98,7 @@ def test_warnings_can_be_cleared():
 
 def test_status_line_is_quiet():
     assert re.search(r'id="status"[^>]*aria-live="off"', HTML)
-    assert "announce(t, 'de')" in func("setStatus")
+    assert "announce(msg, UI)" in func("setStatus")
 
 
 def test_hard_errors_and_no_recognition():
