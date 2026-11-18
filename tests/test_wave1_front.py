@@ -80,7 +80,7 @@ def test_mymemory_splits_long_text(monkeypatch):
         return {"responseData": {"translatedText": "x"}, "responseStatus": 200}
     monkeypatch.setattr(d, "_get_json", gj)
     text = " ".join(f"Sentence number {i} is here." for i in range(60))
-    out = d.mymemory_translate(text, "en", "th")
+    out = d.mymemory_translate(text, "en", "de")
     assert len(seen) > 1 and all(len(q.encode()) <= 500 for q in seen) and out.count("x") == len(seen)
     assert " ".join(seen) == text
 

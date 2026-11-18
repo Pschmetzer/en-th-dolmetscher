@@ -119,10 +119,10 @@ def test_mymemory_zeitbudget_aufgebraucht_bricht_ab(monkeypatch):
 
 
 def test_mymemory_thai_ohne_leerzeichen_zusammen(monkeypatch):
-    monkeypatch.setattr(d, "_mymemory_one", lambda p, s, t, e1, timeout: "ก")
+    monkeypatch.setattr(d, "_mymemory_one", lambda p, s, t, e1, timeout: "ก" if t == "th" else "k")
     monkeypatch.setattr(d, "_split_bytes", lambda text: ["a", "b"])
     assert d.mymemory_translate("x", "en", "th") == "กก"
-    assert d.mymemory_translate("x", "th", "en") == "ก ก"
+    assert d.mymemory_translate("x", "th", "en") == "k k"
 
 
 # ---- Claude: Timeout, Backoff, Kontext (E1 8-10, 12, 19, 51) ---------------------------------------------------

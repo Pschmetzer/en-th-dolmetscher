@@ -1120,23 +1120,54 @@ def warm_translate():
         pass
 
 
-def google_translate(text, src, dst):
+GOOGLE_MAX_BYTES = 500             # je Anfrage (GET): Thai wird URL-kodiert 3x so lang (URL unter ~2000 Zeichen)
+GOOGLE_TOTAL_S = 8.0               # s für alle Stücke eines Satzes zusammen
+
+
+def _join_pieces(outs, dst):
+    """Teilübersetzungen verbinden; Thai/Chinesisch/Japanisch ohne Leerzeichen (sonst "ยิน ดี")."""
+    no_space = any(sc in LANGS[dst]["script"] for sc in ("thai", "han", "kana"))
+    return ("" if no_space else " ").join(outs)
+
+
+def _echoed(text, out, src, dst):
+    """Gleiche Schrift (de/en …): der Anbieter gab einen längeren Satz unverändert zurück. Kurze Texte und Namen
+    ("Hotel California") bleiben erlaubt."""
+    if scripts_distinct(src, dst) or len(re.findall(r"[^\W\d_]{2,}", text)) < 4 or _looks_like_name(text):
+        return False
+    return _norm(out) == _norm(text)
+
+
+def _google_one(text, src, dst, timeout):
     u = ("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t"
          f"&sl={mt_code(src)}&tl={mt_code(dst)}&q={urllib.parse.quote(text)}")
-    data = _get_json(u, 6)
+    data = _get_json(u, timeout)
     if not (isinstance(data, list) and data and isinstance(data[0], list)):
         raise ValueError("unerwartetes Antwortformat von Google")
-    out = "".join(p[0] for p in data[0] if isinstance(p, list) and p and isinstance(p[0], str))
+    return "".join(p[0] for p in data[0] if isinstance(p, list) and p and isinstance(p[0], str))
+
+
+def google_translate(text, src, dst):
+    pieces = _split_bytes(text, GOOGLE_MAX_BYTES)
+    deadline = time.monotonic() + GOOGLE_TOTAL_S
+    outs = []
+    for i, p in enumerate(pieces):
+        left = deadline - time.monotonic()
+        if left <= 0.5 and i:
+            raise RuntimeError("Google: Zeitbudget aufgebraucht")
+        outs.append(_google_one(p, src, dst, 6 if len(pieces) == 1 else max(1.0, min(6.0, left))))
+    out = _join_pieces(outs, dst)
     if not out.strip():
         raise ValueError("leere Antwort von Google")
     if _untranslated(text, out, src, dst):
         if _looks_like_name(text) and out.strip().lower() == text.strip().lower():
             return out                      # "Hotel California", "Grab": Namen bleiben, kein Fehler
         raise ValueError("Google gab den Text unübersetzt zurück")
+    if _echoed(text, out, src, dst):
+        raise ValueError("Google gab den Text unübersetzt zurück")
     if _wrong_script(out, src, dst):
         raise ValueError(f"Google gab {lang_name(src, True)} statt {lang_name(dst, True)} zurück")
     return out
-
 
 
 def _untranslated(text, out, src, dst):
@@ -1183,6 +1214,10 @@ def _looks_like_name(text):
     if len(words) > 1 and any(w.lower() in _NAME_STOP for w in words):
         return False
     return len(words) == 1 or (0 < len(words) <= 4 and all(w[0].isupper() for w in words))
+
+
+class _BadClaudeAnswer(RuntimeError):
+    """Claude antwortete, aber unbrauchbar (leer, abgeschnitten, Ablehnung): inhaltlich, kein Ausfall."""
 
 
 class _Implausible(ValueError):
@@ -1288,9 +1323,12 @@ def mymemory_translate(text, src, dst, e1=None, timeout=8.0):
         if left <= 0.5 and i:
             raise RuntimeError("MyMemory: Zeitbudget aufgebraucht")
         outs.append(_mymemory_one(p, src, dst, e1, max(1.0, left)))
-    # Thai/Chinesisch/Japanisch ohne Leerzeichen zusammenfügen (sonst "ยิน ดี")
-    no_space = any(sc in LANGS[dst]["script"] for sc in ("thai", "han", "kana"))
-    return ("" if no_space else " ").join(outs)
+    out = _join_pieces(outs, dst)
+    # wie bei Google: unverändert zurückgegebener oder falschschriftiger Text ist keine Übersetzung
+    if (_untranslated(text, out, src, dst) and not _looks_like_name(text)) or _echoed(text, out, src, dst) \
+            or _wrong_script(out, src, dst):
+        raise RuntimeError("MyMemory: Text unübersetzt oder falsche Sprache")
+    return out
 
 
 MYMEMORY_MIN_MATCH = 0.5            # Nr. 56: schwächere Treffer (oft fremdes Translation-Memory) nicht vorlesen
@@ -2081,10 +2119,10 @@ def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
         emit("llm_cost", usd=round(LLM["usd"], 4), month_usd=round(_SPEND["usd"], 4),
              price_known=LLM["model"] in LLM_PRICE)
     if r.stop_reason != "end_turn":                    # refusal, max_tokens, … -> nie halbe Sätze vorlesen
-        raise RuntimeError(f"Claude: stop_reason {r.stop_reason}")
+        raise _BadClaudeAnswer(f"Claude: stop_reason {r.stop_reason}")
     out = _strip_quotes("".join(b.text for b in r.content if b.type == "text"))
     if not out:
-        raise RuntimeError("leere Antwort von Claude")
+        raise _BadClaudeAnswer("leere Antwort von Claude")
     return fit_thai_particles(out, polite) if dst == "th" else out
 
 
@@ -2249,7 +2287,7 @@ def _llm_backoff(e):
     und sehr lang bei leerem Guthaben/Kontingent."""
     sc = getattr(e, "status_code", None)
     name = type(e).__name__
-    if isinstance(e, _Implausible):
+    if isinstance(e, (_Implausible, _BadClaudeAnswer)):
         return 0.0                                       # inhaltlich, kein Ausfall: nächster Satz wieder Claude
     if _llm_billing(e):
         return LLM_BILLING_BACKOFF
@@ -2999,10 +3037,33 @@ def _time_hm(tok):
     return int(m.group(1)) % 24, int(m.group(2) or 0)
 
 
+_NUMV = r"(-?\d+(?:\.\d+)?)"
+_UNIT_RULES = (
+    (re.compile(_NUMV + r"\s*(?:°\s*F\b|degrees?\s+fahrenheit\b|องศาฟาเรนไฮต์)", re.I),
+     lambda v: f"{round((v - 32) * 5 / 9)}°C"),
+    (re.compile(_NUMV + r"\s*(?:°\s*C\b|degrees?\s+celsius\b|องศาเซลเซียส|องศา)", re.I), lambda v: f"{round(v)}°C"),
+    (re.compile(_NUMV + r"\s*(?:miles?\b|ไมล์)", re.I), lambda v: f"{round(v * 1.609, 1):g} km"),
+    (re.compile(_NUMV + r"\s*(?:km\b|kilomet(?:er|re)s?\b|กิโลเมตร)", re.I), lambda v: f"{round(v, 1):g} km"),
+    (re.compile(_NUMV + r"\s*(?:lbs?\b|pounds?\s+(?:of\s+)?weight\b)", re.I),
+     lambda v: f"{round(v * 0.4536, 1):g} kg"),
+    (re.compile(_NUMV + r"\s*(?:kg\b|kilograms?\b|กิโลกรัม)", re.I), lambda v: f"{round(v, 1):g} kg"),
+)
+
+
+def canon_units(s):
+    """Maßeinheiten für den Zahlenvergleich vereinheitlichen: °F -> °C, Meilen -> km, lb -> kg (gerundet),
+    damit „86 °F“ gegen „30 องศาเซลเซียส“ keine Abweichung ist. Fehlt die Einheit, bleibt der Text."""
+    s = (s or "").translate(_THAI_DIGITS)
+    for rx, fn in _UNIT_RULES:
+        s = rx.sub(lambda m, fn=fn: " " + fn(float(m.group(1))) + " ", s)
+    return s
+
+
 def numbers_differ(a, b):
     """Wie _numbers_differ, aber Monatsnamen- und Halbstunden-Regeln sind reine Gleichwertigkeiten: eine Abweichung
     zählt nur, wenn sie auch ohne sie besteht ("am 25. Dezember" gegen "25 ธันวาคม" bleibt unauffällig)."""
-    return (_numbers_differ(a, b, True) and _numbers_differ(a, b, False)) or currency_mismatch(a, b)
+    ua, ub = canon_units(a), canon_units(b)
+    return (_numbers_differ(ua, ub, True) and _numbers_differ(ua, ub, False)) or currency_mismatch(a, b)
 
 
 def _numbers_detail(a, b):
