@@ -2602,6 +2602,11 @@ _NUM = re.compile(r"\d+(?:[.,:]\d+)*")
 # Tausendergruppen mit Leerzeichen (Whisper/Französisch/Russisch: "1 500", "12 345 678"): erste Gruppe 1-3 Ziffern
 # ohne führende Null (Telefon "081 234" bleibt), jede weitere genau 3, danach keine Ziffer/Dezimal-/Uhr-Trenner
 _GROUPED = re.compile(r"(?<![\d.,:/-])[1-9]\d{0,2}(?:[ \u00a0\u202f\u2009]\d{3})+(?![\d]|[.,:]\d)")
+def _digits_only(s):
+    return re.sub(r"\D", "", s)
+
+
+_LAUGH_TAIL = re.compile(r"[ \u00a0\u202f\u2009]555$")      # "100 555": Thai-Lachen nach der Zahl, keine Gruppe
 # Monatsnamen -> Monatsnummer ("25 ธันวาคม 2026" = "25/12/2026" = "25 December 2026")
 _TH_MONTHS = ("มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน",
               "ตุลาคม", "พฤศจิกายน", "ธันวาคม")
@@ -2802,7 +2807,8 @@ def _numbers(s, words=True, times=None, equiv=True):
     words: ausgeschriebene Zahlen mitzählen – Thai (สามร้อยห้าสิบ = 350, บ่ายสองโมง = 14) und Englisch
     (three hundred fifty = 350); 1.5 million = 1500000."""
     s = s.translate(_THAI_DIGITS)
-    s = _GROUPED.sub(lambda m: re.sub(r"\D", "", m.group(0)), s)   # "1 500 000" / "1\u202f500" = 1500000
+    # "1 500 000" / "1\u202f500" = 1500000
+    s = _GROUPED.sub(lambda m: m.group(0) if _LAUGH_TAIL.search(m.group(0)) else _digits_only(m.group(0)), s)
     s = _dates_to_numbers(s, equiv)                              # BE-Jahr -543, Monatsnamen -> 1-12
     if words:
         s = en_words_to_digits(s)                                # vor _SCALE: "five million" ganz als Wortfolge

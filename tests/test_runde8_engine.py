@@ -69,3 +69,8 @@ def test_history_search_short_query_ignores_case_beyond_ascii(tmp_path):
     assert [r["text"] for r in s.search("Ü")] == ["Über die Brücke"]
     assert s.search("100%") == []                  # Platzhalter werden nicht als Muster gelesen
     s.close()
+
+
+def test_thai_laugh_after_a_number_is_not_a_digit_group():
+    assert not d.numbers_differ("ราคา 100 555", "price 100 haha")
+    assert d._numbers("2 555 000") == ["2555000"]
