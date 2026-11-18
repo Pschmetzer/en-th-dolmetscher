@@ -111,15 +111,9 @@ def test_pack_has_no_duplicates_after_normalising(pid):
         assert len(pairs) == len(set(pairs)), (pid, kind)
 
 
-_STALE = {"shopping": "docs/PRESETS.md nennt noch den alten Satz mit „VAT Refund“; presets/shopping.json hat "
-                      "seit #59 ภาษีมูลค่าเพิ่ม (Zeile 121 der Doku)"}
-
-
 def _unsure_rows():
     rows = re.findall(r"^\| `([a-z0-9_-]+)` \| ([^|]+?) \|", _section("Unsichere Sätze (bitte zuerst prüfen)"), re.M)
-    return [pytest.param(pid, sent, id=f"{pid}-{i}",
-                         marks=[pytest.mark.xfail(strict=True, reason=_STALE[pid])] if pid in _STALE else [])
-            for i, (pid, sent) in enumerate(rows)]
+    return [pytest.param(pid, sent, id=f"{pid}-{i}") for i, (pid, sent) in enumerate(rows)]
 
 
 @pytest.mark.parametrize("pid, sentence", _unsure_rows())
