@@ -11,8 +11,21 @@ struct PartnerView: View {
     @AppStorage("partnerSplit") private var split = true
 
     var body: some View {
+        GeometryReader { geo in
         VStack(spacing: 0) {
-            if split {
+            if split && ConversationLogic.sideBySide(width: geo.size.width, height: geo.size.height) {
+                // Querformat/iPad: nebeneinander, die Steuerung darunter.
+                HStack(spacing: 0) {
+                    ConversationSide(lang: m.pair.partner, isPartner: true)
+                        .rotationEffect(.degrees(180))
+                        .accessibilitySortPriority(1)
+                    Divider()
+                    ConversationSide(lang: m.pair.mine, isPartner: false)
+                        .accessibilitySortPriority(2)
+                }
+                Divider()
+                controls
+            } else if split {
                 ConversationSide(lang: m.pair.partner, isPartner: true)
                     .rotationEffect(.degrees(180))
                     .accessibilitySortPriority(1)   // gedreht: VoiceOver liest zuerst die eigene (untere) Hälfte
@@ -27,9 +40,10 @@ struct PartnerView: View {
                 controls
             }
         }
+        }
         .persistentSystemOverlays(.hidden)
         .modifier(FullBrightness())
-        .onAppear { UIApplication.shared.isIdleTimerDisabled = true }
+        .onAppear { UIApplication.shared.isIdleTimerDisabled = true }   // Bildschirm bleibt an
         .onDisappear { UIApplication.shared.isIdleTimerDisabled = m.isListening }
     }
 
@@ -82,6 +96,20 @@ struct ConversationSide: View {
     let isPartner: Bool
     @State private var digits: String?
     @State private var reply = ""
+    @AppStorage("convFontStepMine") private var fontMine = ConversationLogic.defaultFontStep
+    @AppStorage("convFontStepPartner") private var fontPartner = ConversationLogic.defaultFontStep
+
+    private var fontStep: Int { ConversationLogic.clampStep(isPartner ? fontPartner : fontMine) }
+    private func bumpFont(_ d: Int) {
+        let n = ConversationLogic.stepped(fontStep, by: d)
+        if isPartner { fontPartner = n } else { fontMine = n }
+        Haptics.tap()
+    }
+
+    private var sideState: ConversationLogic.SideState {
+        ConversationLogic.state(expecting: expecting, listening: m.isListening, hearing: m.hearing,
+                                translating: m.finishing && expecting, speaking: m.speakingID != nil)
+    }
 
     /// Satz in der Sprache dieser Seite: was hier gesagt wurde (Original) oder was für hier übersetzt wurde.
     private func line(_ e: Entry) -> (text: String, own: Bool)? {
@@ -102,6 +130,7 @@ struct ConversationSide: View {
                           onDone: { m.answerNumber(d); digits = nil },
                           onCancel: { digits = nil })
             } else {
+                toolbar
                 messages(color)
                 if isPartner { answerCards; replyField }
             }
@@ -118,6 +147,48 @@ struct ConversationSide: View {
         .animation(Motion.animation(reduce: reduceMotion), value: expecting)
     }
 
+    /// Zustand (Text + Symbol), Schriftgröße, Sprachwechsel, Wiederholen und Langsam dieser Hälfte.
+    private var toolbar: some View {
+        let st = sideState
+        let last = ConversationLogic.lastSpeakable(m.visibleEntries, lang: lang)
+        return VStack(spacing: 4) {
+            HStack(spacing: 6) {
+                Label(L10n.text(ConversationLogic.textKey(st), lang: L10n.uiCode(lang)) ?? T(ConversationLogic.textKey(st)),
+                      systemImage: ConversationLogic.icon(st))
+                    .font(.footnote.weight(.semibold))
+                    .lineLimit(1).minimumScaleFactor(0.6)
+                    .accessibilityLabel(T(ConversationLogic.textKey(st)))
+                Spacer()
+                Menu {
+                    ForEach(Lang.all.filter { $0 != m.pair.other(lang) }, id: \.self) { l in
+                        Button("\(l.flag) \(l.native)") { setLang(l) }
+                    }
+                } label: { Text("\(lang.flag) \(lang.native)").font(.footnote).minTapTarget() }
+                    .accessibilityLabel(T("conv_language"))
+            }
+            HStack(spacing: 6) {
+                Button { bumpFont(-1) } label: { Image(systemName: "textformat.size.smaller").minTapTarget() }
+                    .disabled(fontStep == 0).accessibilityLabel(T("conv_font_smaller"))
+                Button { bumpFont(1) } label: { Image(systemName: "textformat.size.larger").minTapTarget() }
+                    .disabled(fontStep == ConversationLogic.fontScales.count - 1).accessibilityLabel(T("conv_font_larger"))
+                Spacer()
+                Button { if let e = last { m.speak(e) } } label: { Label(T("conv_repeat"), systemImage: "arrow.counterclockwise").labelStyle(.titleAndIcon) }
+                    .disabled(last == nil)
+                Button { if let e = last { m.speak(e, slow: true) } } label: { Label(T("conv_slow"), systemImage: "tortoise.fill").labelStyle(.titleAndIcon) }
+                    .disabled(last == nil)
+            }
+            .font(.footnote)
+            .buttonStyle(.bordered)
+        }
+    }
+
+    private func setLang(_ l: Lang) {
+        var p = m.pair
+        if isPartner { p.partner = l } else { p.mine = l }
+        m.pair = p
+        Haptics.tap()
+    }
+
     struct Line: Identifiable {
         let entry: Entry
         let text: String
@@ -126,7 +197,7 @@ struct ConversationSide: View {
     }
 
     private func messages(_ color: Color) -> some View {
-        let shown = Array(m.visibleEntries.compactMap { e in line(e).map { Line(entry: e, text: $0.text, own: $0.own) } }.suffix(6))
+        let shown = m.visibleEntries.compactMap { e in line(e).map { Line(entry: e, text: $0.text, own: $0.own) } }   // ganzer Verlauf, scrollbar
         return ScrollViewReader { proxy in
             ScrollView {
                 VStack(spacing: 8) {
@@ -138,7 +209,7 @@ struct ConversationSide: View {
                             .frame(maxWidth: .infinity, minHeight: 80)
                     }
                     ForEach(shown) { (l: Line) in
-                        LineRow(entry: l.entry, text: l.text, own: l.own, lang: lang, color: color).id(l.id)
+                        LineRow(entry: l.entry, text: l.text, own: l.own, lang: lang, color: color, scale: ConversationLogic.scale(step: fontStep)).id(l.id)
                     }
                     // Live-Untertitel: was gerade gesprochen wird (auch für Hörgeschädigte)
                     if !m.partial.isEmpty || (m.hearing && m.isListening) {
@@ -209,6 +280,8 @@ struct ConversationSide: View {
         } else {
             Button { m.expectSpeaker(lang) } label: { turnLabel(color, active: expecting, icon: "mic.fill") }
                 .buttonStyle(.plain)
+                .disabled(ConversationLogic.turnLocked(speaking: m.speakingID != nil))   // Echo: nicht beim eigenen Sprechen
+                .opacity(m.speakingID != nil ? 0.5 : 1)
                 .accessibilityAddTraits(expecting ? .isSelected : [])
         }
     }
@@ -251,6 +324,7 @@ struct LineRow: View {
     let own: Bool
     let lang: Lang
     let color: Color
+    var scale: Double = 1
 
     var body: some View {
         let align: HorizontalAlignment = own ? .trailing : .leading
@@ -259,8 +333,8 @@ struct LineRow: View {
         let roman: String? = !own && m.showRoman ? Romanizer.latin(text, lang) : nil
         Button { m.speak(entry) } label: {
             VStack(alignment: align, spacing: 2) {
-                Text(text)
-                    .font(own ? .body : .title2.weight(.bold))
+                Text(ConversationLogic.highlighted(text))
+                    .font(.system(size: (own ? 17 : 22) * scale, weight: own ? .regular : .bold))
                     .foregroundStyle(tint)
                     .multilineTextAlignment(own ? .trailing : .leading)
                 RomanLine(text: roman)
