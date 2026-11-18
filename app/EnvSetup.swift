@@ -296,7 +296,7 @@ struct EnvSetupView: View {
             .frame(width: 20)
             .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 4) {
-                Text(title).font(.headline)
+                Text(title).font(.headline).accessibilityAddTraits(.isHeader)
                 if case .active(let text, let frac) = st {
                     Text(text).font(.callout).foregroundStyle(.secondary)
                     if let frac { ProgressView(value: frac) } else { ProgressView().progressViewStyle(.linear) }
@@ -304,6 +304,15 @@ struct EnvSetupView: View {
             }
         }
         .accessibilityElement(children: .combine)
+        .accessibilityValue(L.t(stepKey(st)))
+    }
+
+    private func stepKey(_ st: RowState) -> String {
+        switch st {
+        case .ok: return "a11y_step_done"
+        case .pending: return "a11y_step_pending"
+        case .active: return "a11y_step_active"
+        }
     }
 
     private func failure(_ kind: String) -> some View {

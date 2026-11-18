@@ -1,0 +1,125 @@
+{
+  "id": "lost-passport",
+  "names": {
+    "de": "Reisepass verloren",
+    "en": "Lost passport",
+    "th": "หนังสือเดินทางหาย"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "passport",
+      "th": "หนังสือเดินทาง"
+    },
+    {
+      "en": "embassy",
+      "th": "สถานทูต"
+    },
+    {
+      "en": "police report",
+      "th": "ใบแจ้งความ"
+    },
+    {
+      "en": "copy",
+      "th": "สำเนา"
+    },
+    {
+      "en": "photo",
+      "th": "รูปถ่าย"
+    },
+    {
+      "en": "emergency passport",
+      "th": "หนังสือเดินทางฉุกเฉิน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I lost my passport.",
+      "th": "ทำพาสปอร์ตหาย",
+      "critical": true
+    },
+    {
+      "en": "My passport was stolen.",
+      "th": "พาสปอร์ตถูกขโมย",
+      "critical": true
+    },
+    {
+      "en": "I need to make a police report.",
+      "th": "ต้องการแจ้งความ",
+      "critical": true
+    },
+    {
+      "en": "I need the report for my embassy.",
+      "th": "ต้องใช้ใบแจ้งความไปสถานทูต",
+      "critical": true
+    },
+    {
+      "en": "Please call the Tourist Police.",
+      "th": "ช่วยโทรหาตำรวจท่องเที่ยวหน่อย"
+    },
+    {
+      "en": "Where is the nearest police station?",
+      "th": "สถานีตำรวจที่ใกล้ที่สุดอยู่ที่ไหน"
+    },
+    {
+      "en": "Where is my embassy?",
+      "th": "สถานทูตอยู่ที่ไหน"
+    },
+    {
+      "en": "I have a copy of my passport.",
+      "th": "มีสำเนาหนังสือเดินทาง"
+    },
+    {
+      "en": "I need an emergency passport.",
+      "th": "ต้องการหนังสือเดินทางฉุกเฉิน"
+    },
+    {
+      "en": "Where can I get passport photos?",
+      "th": "ถ่ายรูปติดหนังสือเดินทางได้ที่ไหน"
+    },
+    {
+      "en": "How long does a new passport take?",
+      "th": "ทำหนังสือเดินทางใหม่ใช้เวลานานแค่ไหน"
+    },
+    {
+      "en": "Please write down the report number.",
+      "th": "ช่วยเขียนเลขที่ใบแจ้งความให้หน่อย"
+    },
+    {
+      "en": "Can I leave the country with this paper?",
+      "th": "ออกนอกประเทศด้วยเอกสารนี้ได้ไหม"
+    },
+    {
+      "en": "I also lost my departure card.",
+      "th": "บัตรขาออกก็หายด้วย"
+    },
+    {
+      "en": "What do I need to tell immigration?",
+      "th": "ต้องแจ้งอะไรกับสำนักงานตรวจคนเข้าเมืองบ้าง"
+    },
+    {
+      "en": "Can you help me look in the lost and found?",
+      "th": "ช่วยหาที่แผนกของหายหน่อยได้ไหม"
+    },
+    {
+      "en": "Please check the camera footage.",
+      "th": "ช่วยตรวจดูกล้องวงจรปิดหน่อย"
+    },
+    {
+      "en": "I can pay the fee in cash.",
+      "th": "จ่ายค่าธรรมเนียมเป็นเงินสดได้"
+    },
+    {
+      "en": "Is the office open today?",
+      "th": "วันนี้สำนักงานเปิดไหม"
+    },
+    {
+      "en": "Thank you for your help.",
+      "th": "ขอบคุณมากที่ช่วย"
+    }
+  ],
+  "note": {
+    "de": "Zuerst bei der nächsten Polizeistation (oder Tourist Police 1155) eine Verlustanzeige holen, dann zur Botschaft für einen Ersatz- oder Notpass. Mitbringen: Passfoto, Kopie des Passes, Anzeige. Bei Visum und Einreisestempel danach zur Immigration. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "First get a loss report at the nearest police station (or Tourist Police 1155), then go to your embassy for a replacement or emergency passport. Bring photos, a copy of the passport and the report. Afterwards visit immigration about your visa and entry stamp. Thai lines machine-made, not checked by native speakers."
+  }
+}
