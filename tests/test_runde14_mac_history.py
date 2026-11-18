@@ -152,8 +152,8 @@ def test_history_verdrahtung_und_texte():
 
 
 def test_engine_dateien_unveraendert_im_commit():
-    # Runde 14 fasst weder dolmetscher.py noch history_store.py an (Diff gegen origin/main, wenn vorhanden)
-    r = subprocess.run(["git", "diff", "--name-only", "origin/main", "--", "dolmetscher.py", "history_store.py"],
+    # Runde 14 fasst history_store.py nicht an (dolmetscher.py ändern spätere Runden) (Diff gegen origin/main, wenn vorhanden)
+    r = subprocess.run(["git", "diff", "--name-only", "origin/main", "--", "history_store.py"],
                        cwd=ROOT, capture_output=True, text=True)
     if r.returncode == 0:
         assert r.stdout.strip() == ""
