@@ -207,6 +207,10 @@ Pull requests #16–#47. Not yet published as a release.
 - **Fixed (accessibility audit):** page now has a `main` landmark and section headings; tap targets (buttons, selects, summaries, tiles, speak buttons) are at least 44 px on every screen size, not only on phones.
 - **Tests:** heading order, landmarks, focus order, live regions, colour contrast of all colour tokens (light and dark) and tap target sizes are checked statically.
 
+**Web (round 13)**
+- **New:** study mode: backup file (`.json`, v1) now carries cards and daily statistics; loading validates every field (known fields only, control characters removed, wrong files rejected, no script or prototype keys) and merges without duplicates. Nothing leaves the device.
+- **New:** study deck per topic pack, a real daily limit for new cards, four ratings (1 again, 2 hard, 3 knew it, 4 easy) by Leitner box with a tested planning function (`leitnerGrade`), Thai romanization on the back when the pack provides it, statistics with streak and cards per box, and “reset study progress” with a confirmation (cards are kept). Texts in German, English and Thai.
+
 ## 1.2 and earlier
 
 See the [commit history](https://github.com/Pschmetzer/en-th-dolmetscher/commits/main) up to pull request #15.
