@@ -1,0 +1,117 @@
+{
+  "id": "elephant-sanctuary",
+  "names": {
+    "de": "Elefantenschutzgebiet",
+    "en": "Elephant sanctuary",
+    "th": "ศูนย์ดูแลช้าง"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "elephant",
+      "th": "ช้าง"
+    },
+    {
+      "en": "mahout",
+      "th": "ควาญช้าง"
+    },
+    {
+      "en": "sanctuary",
+      "th": "ศูนย์ดูแลช้าง"
+    },
+    {
+      "en": "banana",
+      "th": "กล้วย"
+    },
+    {
+      "en": "mud",
+      "th": "โคลน"
+    },
+    {
+      "en": "trunk",
+      "th": "งวงช้าง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Help! The elephant is coming close.",
+      "th": "ช่วยด้วย ช้างเข้ามาใกล้",
+      "critical": true
+    },
+    {
+      "en": "Someone is hurt. Please call a doctor.",
+      "th": "มีคนบาดเจ็บ ช่วยเรียกหมอด้วย",
+      "critical": true
+    },
+    {
+      "en": "I feel dizzy from the heat.",
+      "th": "รู้สึกเวียนหัวเพราะอากาศร้อน",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to insect bites.",
+      "th": "แพ้แมลงกัดต่อย",
+      "critical": true
+    },
+    {
+      "en": "Do you offer elephant riding?",
+      "th": "ที่นี่มีให้ขี่ช้างไหม"
+    },
+    {
+      "en": "I do not want to ride the elephants.",
+      "th": "ไม่ต้องการขี่ช้าง"
+    },
+    {
+      "en": "Are the elephants rescued?",
+      "th": "ช้างที่นี่ได้รับการช่วยเหลือมาใช่ไหม"
+    },
+    {
+      "en": "Where can I stand safely?",
+      "th": "ยืนตรงไหนถึงจะปลอดภัย"
+    },
+    {
+      "en": "Can I feed the elephants?",
+      "th": "ให้อาหารช้างได้ไหม"
+    },
+    {
+      "en": "How many bananas can I give?",
+      "th": "ให้กล้วยได้กี่ลูก"
+    },
+    {
+      "en": "Is it safe to touch the elephant?",
+      "th": "จับช้างปลอดภัยไหม"
+    },
+    {
+      "en": "Where is the toilet?",
+      "th": "ห้องน้ำอยู่ที่ไหน"
+    },
+    {
+      "en": "Where can I wash off the mud?",
+      "th": "ล้างโคลนได้ที่ไหน"
+    },
+    {
+      "en": "Is the lunch included?",
+      "th": "รวมอาหารกลางวันไหม"
+    },
+    {
+      "en": "Do you have a change of clothes?",
+      "th": "มีชุดเปลี่ยนไหม"
+    },
+    {
+      "en": "What time does the tour end?",
+      "th": "ทัวร์จบกี่โมง"
+    },
+    {
+      "en": "Can you take a photo of us?",
+      "th": "ช่วยถ่ายรูปให้หน่อย"
+    },
+    {
+      "en": "Thank you, the elephants are wonderful.",
+      "th": "ขอบคุณ ช้างน่ารักมาก"
+    }
+  ],
+  "note": {
+    "de": "Auf Reiten und Shows verzichten: seriöse Schutzgebiete bieten nur Beobachten, Füttern und Waschen an. Immer Abstand zu den Tieren und Anweisungen der Mahouts (Elefantenführer) folgen; nie hinter einen Elefanten treten. Feste Schuhe, Mückenschutz und Wechselkleidung mitnehmen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Skip riding and circus shows: genuine sanctuaries only offer watching, feeding and bathing. Keep your distance and follow the mahout's instructions; never walk behind an elephant. Bring closed shoes, insect repellent and a change of clothes. Thai lines machine-made, not checked by native speakers."
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "id": "tuk-tuk-songthaew",
+  "names": {
+    "de": "Tuk-Tuk und Songthaew",
+    "en": "Tuk-tuk and songthaew",
+    "th": "ตุ๊กตุ๊กและสองแถว"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "tuk-tuk",
+      "th": "ตุ๊กตุ๊ก"
+    },
+    {
+      "en": "songthaew",
+      "th": "สองแถว"
+    },
+    {
+      "en": "fare",
+      "th": "ค่าโดยสาร"
+    },
+    {
+      "en": "bell",
+      "th": "กริ่ง"
+    },
+    {
+      "en": "route",
+      "th": "เส้นทาง"
+    },
+    {
+      "en": "change",
+      "th": "เงินทอน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please stop here. I want to get off.",
+      "th": "ช่วยจอดตรงนี้ ขอลง",
+      "critical": true
+    },
+    {
+      "en": "Please do not drive to another place.",
+      "th": "ขออย่าไปที่อื่น",
+      "critical": true
+    },
+    {
+      "en": "Let me out now.",
+      "th": "ขอลงเดี๋ยวนี้",
+      "critical": true
+    },
+    {
+      "en": "Please take me to the hospital.",
+      "th": "ช่วยพาไปโรงพยาบาลหน่อย",
+      "critical": true
+    },
+    {
+      "en": "How much to the old town?",
+      "th": "ไปเมืองเก่าเท่าไหร่"
+    },
+    {
+      "en": "That is too expensive.",
+      "th": "แพงไป"
+    },
+    {
+      "en": "Can you do it for less?",
+      "th": "ลดราคาได้ไหม"
+    },
+    {
+      "en": "Please use the meter.",
+      "th": "รบกวนเปิดมิเตอร์ด้วย"
+    },
+    {
+      "en": "I agree on this price.",
+      "th": "ตกลงราคานี้"
+    },
+    {
+      "en": "Does this songthaew go to the market?",
+      "th": "สองแถวคันนี้ไปตลาดไหม"
+    },
+    {
+      "en": "How much per person?",
+      "th": "คนละเท่าไหร่"
+    },
+    {
+      "en": "Please tell me when we arrive.",
+      "th": "ถึงแล้วช่วยบอกด้วย"
+    },
+    {
+      "en": "Where is the bell?",
+      "th": "กริ่งอยู่ที่ไหน"
+    },
+    {
+      "en": "I only want to go there, no shopping stops.",
+      "th": "ไปที่นั่นอย่างเดียว ไม่แวะซื้อของ"
+    },
+    {
+      "en": "Can you wait for me and take me back?",
+      "th": "รอแล้วพากลับได้ไหม"
+    },
+    {
+      "en": "Do you have change?",
+      "th": "มีเงินทอนไหม"
+    },
+    {
+      "en": "Please drive slower.",
+      "th": "ช่วยขับช้าลงหน่อย"
+    }
+  ],
+  "note": {
+    "de": "Preis vor dem Einsteigen vereinbaren, denn Tuk-Tuks haben kein Taxameter. Ein Songthaew mit Linie kostet meist 10–30 Baht pro Person, ein gechartertes deutlich mehr. Zum Aussteigen die Klingel drücken. Angebote für „kostenlose“ Ausflüge enden oft in Schneider- oder Juwelierläden. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Agree the price before you get in; tuk-tuks have no meter. A line songthaew usually costs 10-30 baht per person, a chartered one much more. Press the bell to get off. Offers of a cheap sightseeing tour often end at tailor or jewellery shops. Thai lines machine-made, not checked by native speakers."
+  }
+}
