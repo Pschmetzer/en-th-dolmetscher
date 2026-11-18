@@ -198,6 +198,9 @@ Pull requests #16–#47. Not yet published as a release.
 **iPhone app (round 17)**
 - **New:** three more Siri/Shortcuts actions (read the last translation again, swap the language pair, say a phrasebook phrase found by keyword) and two Control Centre / Lock Screen controls (swap languages, read last translation); texts in all 10 languages, logic in `ShortcutLogic.swift` with tests. No new target or entitlement.
 
+**iPhone app (round 18)**
+- **New:** conversation history as its own list (menu, “History”): search in sentence and translation, filters by language pair, period (today, 7, 30 days) and favourites, grouping by day, multi-select to share or delete, swipe to delete or favourite, undo after deleting, an empty state with a next step, and a note on how long sentences are kept with a shortcut to the setting. Texts in all 10 languages (de/en/th by hand, the rest machine-translated); logic in `HistoryLogic.swift` with unit tests, `tests/test_runde18_ios_history.py`.
+
 **Web**
 - **New:** phrasebook search (`/`), favourites filter, copy button on every translation; history search, CSV export, share and clear with confirmation; learning progress bar, review schedule and arrow keys; “Delete all local data”; hints for a blocked microphone and for going offline; `?` opens help.
 - **Fixed:** a shadowed `t()` raised an error on every finished translation and on critical phrases; high-contrast, forced-colors and reduced-motion styles; Safari text-size and zoom behaviour.
