@@ -133,6 +133,7 @@ enum Phrasebook {
 struct PhrasebookView: View {
     @Environment(InterpreterModel.self) private var m
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var category = "favorites"
     @State private var search = ""
 
@@ -215,7 +216,7 @@ struct PhrasebookView: View {
                 .padding(.vertical, 8)
             }
             // Gewählte Kategorie sichtbar halten (16 Pakete passen nicht in eine Zeile).
-            .onChange(of: category) { _, c in withAnimation { proxy.scrollTo(c, anchor: .center) } }
+            .onChange(of: category) { _, c in withAnimation(Motion.animation(reduce: reduceMotion)) { proxy.scrollTo(c, anchor: .center) } }
             .task { proxy.scrollTo(category, anchor: .center) }
         }
     }
@@ -240,7 +241,7 @@ struct PhrasebookView: View {
                 Label(T("show_big"), systemImage: "arrow.up.left.and.arrow.down.right")
             }
         }
-        .listRowBackground(p.isCritical ? Color.red.opacity(0.08) : nil)
+        .listRowBackground(p.isCritical ? StatusColor.error.opacity(0.08) : nil)
         .swipeActions {
             if m.isFavorite(p) {
                 Button(role: .destructive) { m.toggleFavorite(p) } label: { Label(T("unfavorite"), systemImage: "star.slash") }
@@ -269,10 +270,10 @@ struct PhrasebookView: View {
 private struct PackNote: View {
     let text: String
     var body: some View {
-        Label { Text(text).font(.footnote) } icon: { Image(systemName: "info.circle.fill").foregroundStyle(.blue) }
+        Label { Text(text).font(.footnote) } icon: { Image(systemName: "info.circle.fill").foregroundStyle(StatusColor.info) }
             .padding(10)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.blue.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
+            .background(StatusColor.info.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
             .listRowSeparator(.hidden)
             .accessibilityElement(children: .combine)
             .accessibilityLabel(T("pack_note") + ": " + text)
@@ -289,7 +290,7 @@ private struct PhraseRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
             if phrase.isCritical {
-                Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.red)
+                Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(StatusColor.error)
                     .accessibilityLabel(T("critical"))
             }
             VStack(alignment: .leading, spacing: 4) {

@@ -97,7 +97,7 @@ struct EmergencyView: View {
                             } label: {
                                 HStack {
                                     Label(String(format: T("em_translate"), m.pair.partner.name(in: L10n.lang)), systemImage: "character.bubble")
-                                    if translating { Spacer(); ProgressView() }
+                                    if translating { Spacer(); ProgressView().accessibilityLabel(T("translating")) }
                                 }
                             }
                             .disabled(translating)
@@ -122,7 +122,8 @@ struct EmergencyView: View {
     @ViewBuilder private var thaiSections: some View {
         Section {
             Button { m.sheet = .helpNow } label: {
-                Label(T("help_now"), systemImage: "sos").font(.headline).foregroundStyle(.red)
+                Label(T("help_now"), systemImage: "sos").font(.headline).foregroundStyle(StatusColor.error)
+                    .accessibilityAddTraits(.isHeader)
             }
         }
         Section {
@@ -192,7 +193,7 @@ struct EmergencyView: View {
                 if let field, let t = m.emergency.translation(for: field, lang: m.pair.partner), t != value {
                     Text(t).font(.title3.weight(.semibold)).textSelection(.enabled)
                     Text(value).font(.subheadline).foregroundStyle(.secondary)
-                    Label(T("machine_translated"), systemImage: "exclamationmark.triangle").font(.caption2).foregroundStyle(.orange)
+                    Label(T("machine_translated"), systemImage: "exclamationmark.triangle").font(.caption2).foregroundStyle(StatusColor.warning)
                 } else {
                     Text(value).font(.title3.weight(.semibold)).textSelection(.enabled)
                 }
@@ -222,14 +223,14 @@ struct AllergyCardView: View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
-                    Label("⚠️", systemImage: "allergens").labelStyle(.iconOnly).font(.system(size: scaled54)).foregroundStyle(.red)
+                    Label("⚠️", systemImage: "allergens").labelStyle(.iconOnly).font(.system(size: scaled54)).foregroundStyle(StatusColor.error)
                     if let fixed {
-                        Text(fixed.title).font(.system(size: scaled40, weight: .heavy)).foregroundStyle(.red)
+                        Text(fixed.title).font(.system(size: scaled40, weight: .heavy)).foregroundStyle(StatusColor.error)
                         Text(fixed.warning).font(.title2.weight(.semibold))
                     } else {
                         if let machine {
-                            Text(machine).font(.system(size: scaled34, weight: .heavy)).foregroundStyle(.red)
-                            Label(T("machine_translated"), systemImage: "exclamationmark.triangle").font(.footnote).foregroundStyle(.orange)
+                            Text(machine).font(.system(size: scaled34, weight: .heavy)).foregroundStyle(StatusColor.error)
+                            Label(T("machine_translated"), systemImage: "exclamationmark.triangle").font(.footnote).foregroundStyle(StatusColor.warning)
                         }
                         if let english {
                             Text(english.title).font(.title.bold())
@@ -247,12 +248,12 @@ struct AllergyCardView: View {
             .rotationEffect(.degrees(flipped ? 180 : 0))
             Divider()
             HStack(spacing: 28) {
-                Button { flipped.toggle() } label: { Image(systemName: "arrow.up.arrow.down") }
+                Button { flipped.toggle() } label: { Image(systemName: "arrow.up.arrow.down").minTapTarget() }
                     .accessibilityLabel(T("flip"))
                 Button {
                     if let fixed { m.announce(fixed.title + " " + fixed.warning, lang: partner) }
                     else if let machine { m.announce(machine, lang: partner) }
-                } label: { Image(systemName: "speaker.wave.2.fill") }
+                } label: { Image(systemName: "speaker.wave.2.fill").minTapTarget() }
                     .accessibilityLabel(T("replay"))
                 Spacer()
                 Button(T("done")) { dismiss() }
@@ -288,6 +289,7 @@ enum FXDefaults {
 /// Einfacher Rechner Baht ⇄ eigene Währung mit selbst eingetragenem Kurs (kein Netz nötig).
 struct BahtCalculatorView: View {
     @Environment(\.dismiss) private var dismiss
+    @ScaledMetric(relativeTo: .body) private var codeWidth: CGFloat = 56
     @State private var showPrice = false
     @AppStorage("fxRate") private var rate = FXDefaults.rate(for: FXDefaults.code())   // 1 THB in Heimatwährung
     @AppStorage("fxCode") private var code = FXDefaults.code()
@@ -330,9 +332,9 @@ struct BahtCalculatorView: View {
                     if let a = amount {
                         Text("≈ " + home(a))
                             .font(.title.bold().monospacedDigit())
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(StatusColor.info)
                         if a >= 1, a < 1_000_000_000, let w = ThaiNumber.words(Int(a)) {
-                            Text(w + "บาท").font(.title3).foregroundStyle(.orange)
+                            Text(w + "บาท").font(.title3).foregroundStyle(StatusColor.warning)
                         }
                         Button { showPrice = true } label: { Label(T("price_show"), systemImage: "rectangle.expand.vertical") }
                             .disabled(a < 1 || a >= 1_000_000_000)
@@ -346,7 +348,7 @@ struct BahtCalculatorView: View {
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                         TextField("EUR", text: $code)
-                            .frame(width: 56)
+                            .frame(minWidth: codeWidth)
                             .textInputAutocapitalization(.characters)
                     }
                     ForEach([20.0, 50, 100, 500, 1000], id: \.self) { b in
