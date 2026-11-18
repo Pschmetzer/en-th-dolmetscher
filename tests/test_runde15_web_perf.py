@@ -58,8 +58,8 @@ def test_texts_in_three_languages():
 def test_sw_install_shell_then_packs_on_message_and_old_packs_kept():
     out = _node(r"""
 const store = new Map(), handlers = {}; const resp = b => ({ ok: true, status: 200, body: b, clone() { return resp(b); } });
-const mk = () => new Map(); const caches_ = { 'dolmetscher-web-v13': mk(), 'dolmetscher-web-v14': mk() };
-caches_['dolmetscher-web-v13'].set('https://x.test/a/presets/doctor.json', resp('old'));
+const mk = () => new Map(); const caches_ = { 'dolmetscher-web-v1': mk(), [CUR]: mk() };
+caches_['dolmetscher-web-v1'].set('https://x.test/a/presets/doctor.json', resp('old'));
 let inflight = 0, maxIn = 0;
 globalThis.self = { registration: { scope: 'https://x.test/a/' }, location: { origin: 'https://x.test' }, addEventListener: (t, f) => { handlers[t] = f; }, skipWaiting: async () => {}, clients: { claim: async () => {} } };
 globalThis.fetch = async u => { inflight++; maxIn = Math.max(maxIn, inflight); await new Promise(r => setTimeout(r, 2)); inflight--; return resp('net:' + (u.url || u)); };
@@ -68,7 +68,7 @@ globalThis.caches = { open, keys: async () => Object.keys(caches_), delete: asyn
 (async () => {
   %SW%
   const w = []; handlers.install({ waitUntil: p => w.push(p) }); await Promise.all(w);
-  const n = caches_['dolmetscher-web-v14']; const out = {};
+  const n = caches_[CUR]; const out = {};
   out.afterInstall = [...n.keys()].filter(k => k.includes('/presets/') && !k.includes('index')).length;
   out.kept = n.get('https://x.test/a/presets/doctor.json').body;
   const posted = []; const w2 = [];
@@ -77,7 +77,7 @@ globalThis.caches = { open, keys: async () => Object.keys(caches_), delete: asyn
   out.total = PRESET_IDS.length; out.maxIn = maxIn; out.last = posted[posted.length - 1];
   process.stdout.write(JSON.stringify(out));
 })();
-""".replace("%SW%", SW))
+""".replace("%SW%", SW).replace("[CUR]", "[" + repr(re.search(r"const CACHE = '([^']+)'", SW).group(1)) + "]").replace("caches_[CUR]", "caches_[" + repr(re.search(r"const CACHE = '([^']+)'", SW).group(1)) + "]"))
     assert out["afterInstall"] == 1 and out["kept"] == "old"      # nur das uebernommene alte Paket, nichts neu geladen
     assert out["afterFill"] == out["total"] and out["maxIn"] <= 4
     assert out["last"]["ok"] == out["last"]["total"] and out["last"]["loading"] is False
