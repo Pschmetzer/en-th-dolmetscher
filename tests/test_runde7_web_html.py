@@ -26,7 +26,8 @@ def _contrast(a, b):
 
 def test_text_tokens_have_contrast_in_both_schemes():
     light = _tokens(re.search(r":root \{(.*?)\n  \}", HTML, re.S).group(1))
-    dark = _tokens(re.search(r"prefers-color-scheme: dark\) \{\s*:root \{(.*?)\n    \}", HTML, re.S).group(1))
+    dark_re = r"prefers-color-scheme: dark\) \{\s*:root:not\(\[data-theme=\"light\"\]\) \{(.*?)\n    \}"
+    dark = _tokens(re.search(dark_re, HTML, re.S).group(1))
     for name, tok in (("hell", light), ("dunkel", dark)):
         for fg in ("fg", "mut", "th-text", "crit", "star"):
             assert _contrast(tok[fg], tok["bg"]) >= 4.5, (name, fg, _contrast(tok[fg], tok["bg"]))

@@ -1120,23 +1120,54 @@ def warm_translate():
         pass
 
 
-def google_translate(text, src, dst):
+GOOGLE_MAX_BYTES = 500             # je Anfrage (GET): Thai wird URL-kodiert 3x so lang (URL unter ~2000 Zeichen)
+GOOGLE_TOTAL_S = 8.0               # s für alle Stücke eines Satzes zusammen
+
+
+def _join_pieces(outs, dst):
+    """Teilübersetzungen verbinden; Thai/Chinesisch/Japanisch ohne Leerzeichen (sonst "ยิน ดี")."""
+    no_space = any(sc in LANGS[dst]["script"] for sc in ("thai", "han", "kana"))
+    return ("" if no_space else " ").join(outs)
+
+
+def _echoed(text, out, src, dst):
+    """Gleiche Schrift (de/en …): der Anbieter gab einen längeren Satz unverändert zurück. Kurze Texte und Namen
+    ("Hotel California") bleiben erlaubt."""
+    if scripts_distinct(src, dst) or len(re.findall(r"[^\W\d_]{2,}", text)) < 4 or _looks_like_name(text):
+        return False
+    return _norm(out) == _norm(text)
+
+
+def _google_one(text, src, dst, timeout):
     u = ("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t"
          f"&sl={mt_code(src)}&tl={mt_code(dst)}&q={urllib.parse.quote(text)}")
-    data = _get_json(u, 6)
+    data = _get_json(u, timeout)
     if not (isinstance(data, list) and data and isinstance(data[0], list)):
         raise ValueError("unerwartetes Antwortformat von Google")
-    out = "".join(p[0] for p in data[0] if isinstance(p, list) and p and isinstance(p[0], str))
+    return "".join(p[0] for p in data[0] if isinstance(p, list) and p and isinstance(p[0], str))
+
+
+def google_translate(text, src, dst):
+    pieces = _split_bytes(text, GOOGLE_MAX_BYTES)
+    deadline = time.monotonic() + GOOGLE_TOTAL_S
+    outs = []
+    for i, p in enumerate(pieces):
+        left = deadline - time.monotonic()
+        if left <= 0.5 and i:
+            raise RuntimeError("Google: Zeitbudget aufgebraucht")
+        outs.append(_google_one(p, src, dst, 6 if len(pieces) == 1 else max(1.0, min(6.0, left))))
+    out = _join_pieces(outs, dst)
     if not out.strip():
         raise ValueError("leere Antwort von Google")
     if _untranslated(text, out, src, dst):
         if _looks_like_name(text) and out.strip().lower() == text.strip().lower():
             return out                      # "Hotel California", "Grab": Namen bleiben, kein Fehler
         raise ValueError("Google gab den Text unübersetzt zurück")
+    if _echoed(text, out, src, dst):
+        raise ValueError("Google gab den Text unübersetzt zurück")
     if _wrong_script(out, src, dst):
         raise ValueError(f"Google gab {lang_name(src, True)} statt {lang_name(dst, True)} zurück")
     return out
-
 
 
 def _untranslated(text, out, src, dst):
@@ -1183,6 +1214,10 @@ def _looks_like_name(text):
     if len(words) > 1 and any(w.lower() in _NAME_STOP for w in words):
         return False
     return len(words) == 1 or (0 < len(words) <= 4 and all(w[0].isupper() for w in words))
+
+
+class _BadClaudeAnswer(RuntimeError):
+    """Claude antwortete, aber unbrauchbar (leer, abgeschnitten, Ablehnung): inhaltlich, kein Ausfall."""
 
 
 class _Implausible(ValueError):
@@ -1288,9 +1323,12 @@ def mymemory_translate(text, src, dst, e1=None, timeout=8.0):
         if left <= 0.5 and i:
             raise RuntimeError("MyMemory: Zeitbudget aufgebraucht")
         outs.append(_mymemory_one(p, src, dst, e1, max(1.0, left)))
-    # Thai/Chinesisch/Japanisch ohne Leerzeichen zusammenfügen (sonst "ยิน ดี")
-    no_space = any(sc in LANGS[dst]["script"] for sc in ("thai", "han", "kana"))
-    return ("" if no_space else " ").join(outs)
+    out = _join_pieces(outs, dst)
+    # wie bei Google: unverändert zurückgegebener oder falschschriftiger Text ist keine Übersetzung
+    if (_untranslated(text, out, src, dst) and not _looks_like_name(text)) or _echoed(text, out, src, dst) \
+            or _wrong_script(out, src, dst):
+        raise RuntimeError("MyMemory: Text unübersetzt oder falsche Sprache")
+    return out
 
 
 MYMEMORY_MIN_MATCH = 0.5            # Nr. 56: schwächere Treffer (oft fremdes Translation-Memory) nicht vorlesen
@@ -1949,12 +1987,73 @@ REGISTER = {
 }
 
 
-def register_hint(dst, style):
-    """Satz zur Anrede in der Zielsprache nach dem Stil (casual = informell, sonst formell); leer ohne Eintrag."""
+# Runde 11: Höflichkeitsstufe unabhängig vom Szenario-Stil. "auto" = wie bisher aus `style` abgeleitet
+# (casual -> informal, neutral/polite -> formelle Anrede), die Stufe kann also nur zusätzlich verfeinern.
+FORMALITY = ("auto", "informal", "neutral", "polite")
+LLM["formality"] = "auto"
+JA_LEVEL = {
+    "informal": "plain/casual form (no keigo)",
+    "neutral": "polite desu/masu form (teineigo) without honorific or humble keigo",
+    "polite": "polite desu/masu form with sonkeigo/kenjougo (full keigo) where fitting",
+}
+KO_LEVEL = {"informal": "informal speech (반말)", "neutral": "polite speech (해요체)",
+            "polite": "formal polite speech (합쇼체)"}
+TH_LEVEL = {
+    "informal": "casual spoken Thai; particles like นะ/จ้า/เนอะ are fine, polite ครับ/ค่ะ only where natural",
+    "neutral": "everyday polite Thai; add the polite particle to requests, thanks and greetings, not to every clause",
+    "polite": "courteous Thai; end every sentence with the polite particle and prefer ขอ/กรุณา/รบกวน for requests",
+}
+
+
+def effective_formality(style, formality="auto"):
+    """Stufe informal/neutral/polite: explizite Wahl vor dem Stil (casual -> informal, neutral -> neutral,
+    polite -> polite)."""
+    if formality in ("informal", "neutral", "polite"):
+        return formality
+    return {"casual": "informal", "polite": "polite"}.get(style, "neutral")
+
+
+def register_hint(dst, style, formality="auto"):
+    """Satz zur Anrede in der Zielsprache; leer ohne Eintrag. Ohne `formality` wie bisher: casual = informell,
+    sonst formell. Mit Stufe: ja/ko/th je drei Stufen, andere Sprachen du/Sie (informal) oder Sie (sonst)."""
+    lvl = effective_formality(style, formality)
+    if dst == "th":
+        return f" Register in Thai: {TH_LEVEL[lvl]}." if formality != "auto" else ""
     r = REGISTER.get(dst)
     if not r:
         return ""
-    return f" Address form in {lang_name(dst)}: use {r[0] if style == 'casual' else r[1]}."
+    if formality == "auto":
+        return f" Address form in {lang_name(dst)}: use {r[0] if style == 'casual' else r[1]}."
+    form = {"ja": JA_LEVEL, "ko": KO_LEVEL}.get(dst, {}).get(lvl) or (r[0] if lvl == "informal" else r[1])
+    return f" Address form in {lang_name(dst)}: use {form}."
+
+
+_TH_Q_END = re.compile(r"(ไหม|มั้ย|หรือ|เหรอ|หรือเปล่า|รึเปล่า|อะไร|ไหน|ใคร|เท่าไร|เท่าไหร่|เมื่อไร|เมื่อไหร่|ทำไม"
+                       r"|อย่างไร|ยังไง|กี่\S*|\?)\s*$")
+_TH_KA = re.compile(r"ค่ะ|คะ(?!แนน|ยั้น|เน)")
+_TH_KRUB = re.compile(r"ครับ|(?<!บัง)คับ(?!แคบ|คั่ง|ข้อง)")
+
+
+def fit_thai_particles(text, polite):
+    """Runde 11: Thai-Partikel an das Sprechergeschlecht anpassen (deterministisch, nach Claude). krub: ค่ะ/คะ ->
+    ครับ; ka: ครับ -> ค่ะ (Frage am Satzende: คะ). Enthält ein Text beide Formen (Zitat), bleibt er
+    unverändert, ebenso Text ohne Partikel."""
+    if not text or polite not in ("krub", "ka"):
+        return text
+    t = re.sub(r"คะแนน|บังคับ|คับแคบ|คับคั่ง|คับข้อง", "", text)
+    has_ka, has_krub = bool(_TH_KA.search(t)), bool(_TH_KRUB.search(t))
+    if has_ka and has_krub:
+        return text
+    if polite == "krub" and has_ka:
+        return _TH_KA.sub("ครับ", text)
+    if polite == "ka" and has_krub:
+        def sub(m):
+            before = text[:m.start()].rstrip().split("\n")[-1]
+            after = text[m.end():].lstrip()
+            q = bool(_TH_Q_END.search(before)) and not after[:1].isalnum()
+            return "คะ" if q else "ค่ะ"
+        return _TH_KRUB.sub(sub, text)
+    return text
 
 
 def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
@@ -1992,7 +2091,7 @@ def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
     kw = dict(model=LLM["model"], max_tokens=512,
               system=[{"type": "text", "text": static, "cache_control": {"type": "ephemeral"}},
                       {"type": "text", "text": STYLES.get(LLM["style"], STYLES["casual"])
-                       + register_hint(dst, LLM["style"]) + (SLOW_PROMPT if SLOW["on"] else "")}],
+                       + register_hint(dst, LLM["style"], LLM["formality"]) + (SLOW_PROMPT if SLOW["on"] else "")}],
               messages=[{"role": "user", "content": "\n\n".join(parts)}])
     if not LLM.get("no_effort"):
         kw["output_config"] = {"effort": "low"}
@@ -2020,11 +2119,11 @@ def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
         emit("llm_cost", usd=round(LLM["usd"], 4), month_usd=round(_SPEND["usd"], 4),
              price_known=LLM["model"] in LLM_PRICE)
     if r.stop_reason != "end_turn":                    # refusal, max_tokens, … -> nie halbe Sätze vorlesen
-        raise RuntimeError(f"Claude: stop_reason {r.stop_reason}")
+        raise _BadClaudeAnswer(f"Claude: stop_reason {r.stop_reason}")
     out = _strip_quotes("".join(b.text for b in r.content if b.type == "text"))
     if not out:
-        raise RuntimeError("leere Antwort von Claude")
-    return out
+        raise _BadClaudeAnswer("leere Antwort von Claude")
+    return fit_thai_particles(out, polite) if dst == "th" else out
 
 
 LAUGH = {"th": re.compile(r"(?<![\d.,:\-])5{3,}(?![\d.,:\-]?\d|\s\d)|(?:ฮ่า\s*){2,}ๆ*|ฮ่า\s*ๆ+|(?:คิก\s*){2,}|คิก\s*ๆ+"),
@@ -2154,7 +2253,10 @@ def translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
 
 
 def _cache_key(text, src, dst, use_llm, polite):
-    mode = f"llm:{LLM['model']}:{LLM['style']}{':slow' if SLOW['on'] else ''}" if use_llm else "mt"
+    mode = "mt"
+    if use_llm:
+        lvl = f":{LLM['formality']}" if LLM["formality"] != "auto" else ""
+        mode = f"llm:{LLM['model']}:{LLM['style']}{lvl}{':slow' if SLOW['on'] else ''}"
     return (_norm(text), src, dst, mode, polite if dst == "th" else "")
 
 
@@ -2185,7 +2287,7 @@ def _llm_backoff(e):
     und sehr lang bei leerem Guthaben/Kontingent."""
     sc = getattr(e, "status_code", None)
     name = type(e).__name__
-    if isinstance(e, _Implausible):
+    if isinstance(e, (_Implausible, _BadClaudeAnswer)):
         return 0.0                                       # inhaltlich, kein Ausfall: nächster Satz wieder Claude
     if _llm_billing(e):
         return LLM_BILLING_BACKOFF
@@ -2935,10 +3037,33 @@ def _time_hm(tok):
     return int(m.group(1)) % 24, int(m.group(2) or 0)
 
 
+_NUMV = r"(-?\d+(?:\.\d+)?)"
+_UNIT_RULES = (
+    (re.compile(_NUMV + r"\s*(?:°\s*F\b|degrees?\s+fahrenheit\b|องศาฟาเรนไฮต์)", re.I),
+     lambda v: f"{round((v - 32) * 5 / 9)}°C"),
+    (re.compile(_NUMV + r"\s*(?:°\s*C\b|degrees?\s+celsius\b|องศาเซลเซียส|องศา)", re.I), lambda v: f"{round(v)}°C"),
+    (re.compile(_NUMV + r"\s*(?:miles?\b|ไมล์)", re.I), lambda v: f"{round(v * 1.609, 1):g} km"),
+    (re.compile(_NUMV + r"\s*(?:km\b|kilomet(?:er|re)s?\b|กิโลเมตร)", re.I), lambda v: f"{round(v, 1):g} km"),
+    (re.compile(_NUMV + r"\s*(?:lbs?\b|pounds?\s+(?:of\s+)?weight\b)", re.I),
+     lambda v: f"{round(v * 0.4536, 1):g} kg"),
+    (re.compile(_NUMV + r"\s*(?:kg\b|kilograms?\b|กิโลกรัม)", re.I), lambda v: f"{round(v, 1):g} kg"),
+)
+
+
+def canon_units(s):
+    """Maßeinheiten für den Zahlenvergleich vereinheitlichen: °F -> °C, Meilen -> km, lb -> kg (gerundet),
+    damit „86 °F“ gegen „30 องศาเซลเซียส“ keine Abweichung ist. Fehlt die Einheit, bleibt der Text."""
+    s = (s or "").translate(_THAI_DIGITS)
+    for rx, fn in _UNIT_RULES:
+        s = rx.sub(lambda m, fn=fn: " " + fn(float(m.group(1))) + " ", s)
+    return s
+
+
 def numbers_differ(a, b):
     """Wie _numbers_differ, aber Monatsnamen- und Halbstunden-Regeln sind reine Gleichwertigkeiten: eine Abweichung
     zählt nur, wenn sie auch ohne sie besteht ("am 25. Dezember" gegen "25 ธันวาคม" bleibt unauffällig)."""
-    return (_numbers_differ(a, b, True) and _numbers_differ(a, b, False)) or currency_mismatch(a, b)
+    ua, ub = canon_units(a), canon_units(b)
+    return (_numbers_differ(ua, ub, True) and _numbers_differ(ua, ub, False)) or currency_mismatch(a, b)
 
 
 def _numbers_detail(a, b):
@@ -4641,7 +4766,8 @@ STOP = threading.Event()          # gesetzt von SIGTERM/SIGINT oder stdin-Ende -
 _CTRL_LOCK = threading.RLock()    # Steuer-Thread (apply_control) und Arbeits-Thread schreiben dieselben Felder
 _BAD_JSON = {"n": 0, "t": 0.0}
 CTRL_LOG_KEYS = frozenset({"tr_en", "tr_th", "lang", "polite", "speak", "paused", "listen", "rate", "volume",
-                           "silence", "sensitivity", "style", "llm", "earcons", "fast_endpoint", "two_person",
+                           "silence", "sensitivity", "style", "formality", "speaker_sex", "llm", "earcons",
+                           "fast_endpoint", "two_person",
                            "reload_profiles", "partial", "tts_race", "stop_speaking", "voice_en", "voice_th",
                            "ping", "langs", "tr_mine", "tr_partner", "llm_budget"}
                           | {f"tr_{k}" for k in LANGS} | {f"voice_{k}" for k in LANGS})
@@ -5094,7 +5220,8 @@ class Engine:
         Schalter, die sonst nur die App setzt."""
         emit("state", **self.state_fields(), mute=bool(getattr(self, "mute", False)),
              earcons=bool(getattr(self, "earcons", False)), preset=PRESET.active,
-             llm={"on": bool(LLM["on"]), "available": bool(llm_available()), "style": LLM["style"]},
+             llm={"on": bool(LLM["on"]), "available": bool(llm_available()), "style": LLM["style"],
+                  "formality": LLM["formality"]},
              slow=SLOW["on"], back_translate=BACK["on"], learn_glossary=LEARN["glossary"], echo_guard=ECHO["on"],
              mic_on=bool(MIC is not None and getattr(MIC, "on", False)),
              let_finish=LET_FINISH["s"], catch_up=CATCH_UP["mode"], beam=getattr(self, "beam", None),
@@ -5940,7 +6067,8 @@ def _text_arg(v, limit=PHRASE_MAX):
 # Nr. 188: alle Steuerfelder, die apply_control kennt (Tippfehler im App-Code -> Ereignis control_ignored).
 CTRL_KEYS = frozenset({
     "langs", "tr_mine", "tr_partner", "lang", "polite", "speak", "paused", "listen", "mic", "rate", "volume",
-    "silence", "sensitivity", "style", "glossary", "preset", "llm", "llm_budget", "earcons", "slow",
+    "silence", "sensitivity", "style", "formality", "speaker_sex", "glossary", "preset", "llm", "llm_budget",
+    "earcons", "slow",
     "back_translate", "learn_glossary", "output_device", "get_state", "fast_endpoint", "two_person",
     "reload_profiles", "partial", "history", "history_days", "tts_race", "stop_speaking", "ping", "say",
     "speak_text", "reassign", "retranslate", "reset_learning"}) | {f"tr_{k}" for k in LANGS} | {
@@ -5975,6 +6103,10 @@ def apply_control(eng, d):
         if v: eng.lock = v
         v = _choice(d, "polite", ("krub", "ka"))
         if v: eng.polite = v
+        v = _choice(d, "speaker_sex", ("male", "female"))          # Runde 11: Klartext-Alias für polite
+        if v: eng.polite = "krub" if v == "male" else "ka"
+        v = _choice(d, "formality", FORMALITY)
+        if v: LLM["formality"] = v
         ok, v = _flag(d, "speak")
         if ok:
             eng.mute = not v
