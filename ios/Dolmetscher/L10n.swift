@@ -316,11 +316,11 @@ func T(_ key: String) -> String {
 extension L10n {
     /// Text in einer bestimmten Sprache, nil wenn es ihn dort nicht gibt (kein Rückfall).
     static func text(_ key: String, lang: String) -> String? {
-        table[key]?[lang] ?? extra[lang]?[key] ?? round4[key]?[lang] ?? round5[key]?[lang] ?? round6[key]?[lang] ?? round7[key]?[lang] ?? round8[key]?[lang] ?? round9[key]?[lang] ?? round13[key]?[lang]
+        table[key]?[lang] ?? extra[lang]?[key] ?? round4[key]?[lang] ?? round5[key]?[lang] ?? round6[key]?[lang] ?? round7[key]?[lang] ?? round8[key]?[lang] ?? round9[key]?[lang] ?? round13[key]?[lang] ?? round14[key]?[lang]
     }
 
     /// Alle Schlüssel (Grundtabelle, Runde 4 und 5).
-    static var allKeys: Set<String> { Set(table.keys).union(round4.keys).union(round5.keys).union(round6.keys).union(round7.keys).union(round8.keys).union(round9.keys).union(round13.keys) }
+    static var allKeys: Set<String> { Set(table.keys).union(round4.keys).union(round5.keys).union(round6.keys).union(round7.keys).union(round8.keys).union(round9.keys).union(round13.keys).union(round14.keys) }
 }
 
 /// Beobachtbarer Speicher für `L10n.lang`.
