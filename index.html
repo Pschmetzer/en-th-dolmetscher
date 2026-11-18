@@ -311,10 +311,22 @@
   <p class="note" data-i18n="myNote">Eigene Sätze nur in diesem Browser. Adresse in Thai-Schrift aus Maps oder von der Unterkunft einfügen; „Bitte hierher bringen“ zeigt sie mit dem Satz für den Fahrer.</p>
   <div class="row">
     <label><input id="myLabel" maxlength="40" size="14"> <span data-i18n="name">Name</span></label>
-    <label style="flex:1;min-width:200px">Text <textarea id="myText" rows="2" maxlength="200" style="width:100%"></textarea></label>
+    <label><input id="myGrp" maxlength="24" size="10" autocomplete="off"> <span data-i18n="mcGroup">Gruppe</span></label>
+    <label style="flex:1;min-width:200px"><span data-i18n="mcText">Text</span> <textarea id="myText" rows="2" maxlength="200" style="width:100%"></textarea></label>
+    <label style="flex:1;min-width:200px"><span data-i18n="mcTr">Übersetzung</span> <textarea id="myTr" rows="2" maxlength="200" style="width:100%"></textarea></label>
+  </div>
+  <div class="row">
+    <button class="small" id="myTranslate" type="button" data-i18n="mcTranslate">Übersetzen</button>
     <button class="small" id="myAdd" type="button" data-i18n="save">Speichern</button>
+    <button class="small" id="myCancel" type="button" data-i18n="mcCancel" hidden>Abbrechen</button>
+    <button class="small" id="myExport" type="button" data-i18n="mcExport">Exportieren</button>
+    <button class="small" id="myImport" type="button" data-i18n="mcImport">Importieren</button>
+    <span hidden><label><input type="file" id="myFile" accept="application/json,.json"> Datei</label></span>
+    <label><select id="myGrpSel"></select> <span data-i18n="mcFilter">Gruppe zeigen</span></label>
   </div>
   <div id="myList"></div>
+  <p class="note"><b data-i18n="mcFavOrder">Favoriten ordnen</b></p>
+  <div id="favOrder"></div>
 </details>
 <details class="box" id="allergyBox">
   <summary data-i18n="allergySum">Allergie- und Notfallkarte</summary>
@@ -410,7 +422,7 @@
 
 <div id="partner" role="dialog" aria-modal="true" aria-labelledby="partnerTitle" aria-hidden="true">
   <div class="bar"><span id="partnerTitle">ไทย</span>
-    <span class="btns"><span class="seq" id="seqBar" hidden><button class="small" id="btnPrev" type="button" aria-label="Vorherige Karte">‹</button><span id="seqPos"></span><button class="small" id="btnNext" type="button" aria-label="Nächste Karte">›</button></span><button class="small" id="btnReport" type="button" aria-label="Falsch? Melden" hidden>⚑</button><button class="small" id="btnFontDown" type="button" aria-label="Schrift kleiner / Smaller text">A−</button><button class="small" id="btnFontUp" type="button" aria-label="Schrift größer / Larger text">A+</button><button class="small" id="btnPartnerSlow" type="button" aria-label="Langsam vorlesen / Read slowly">🐢</button><button class="small" id="btnPartnerSpeak" type="button" aria-label="Vorlesen / Read aloud">🔊</button><button class="small" id="btnPartnerShow" type="button" aria-label="Vorzeigen / Show full screen">⛶</button><button class="small" id="btnPartnerShare" type="button" aria-label="Link teilen / Share link" hidden>🔗</button><button class="small" id="btnPartnerClose" type="button" aria-label="Schließen / Close">✕</button></span></div>
+    <span class="btns"><span class="seq" id="seqBar" hidden><button class="small" id="btnPrev" type="button" aria-label="Vorherige Karte">‹</button><span id="seqPos"></span><button class="small" id="btnNext" type="button" aria-label="Nächste Karte">›</button></span><button class="small" id="btnReport" type="button" aria-label="Falsch? Melden" hidden>⚑</button><button class="small" id="btnFontDown" type="button" aria-label="Schrift kleiner / Smaller text">A−</button><button class="small" id="btnFontUp" type="button" aria-label="Schrift größer / Larger text">A+</button><button class="small" id="btnPartnerSlow" type="button" aria-label="Langsam vorlesen / Read slowly">🐢</button><button class="small" id="btnPartnerSpeak" type="button" aria-label="Vorlesen / Read aloud">🔊</button><button class="small" id="btnPartnerShow" type="button" aria-label="Vorzeigen / Show full screen">⛶</button><button class="small" id="btnPartnerShare" type="button" aria-label="Link teilen / Share link" hidden>🔗</button><button class="small" id="btnPartnerShareTx" type="button" aria-label="Text teilen / Share text">📤</button><button class="small" id="btnPartnerClose" type="button" aria-label="Schließen / Close">✕</button></span></div>
   <div id="partnerNote" hidden><span lang="de">Geteilter Text, von der App nicht geprüft.</span> <span lang="en">Shared text, not checked by the app.</span> <span lang="th">ข้อความที่แชร์มา แอปไม่ได้ตรวจสอบ</span></div>
   <div id="partnerText" lang="th" dir="auto" aria-live="polite">…</div>
 </div>
@@ -426,6 +438,8 @@ const statusEl = $('status'), live = $('live'), log = $('log'), warn = $('warn')
 
 const STR = {
  "de": {
+  "shareTxLbl": "Übersetzung als Text teilen",
+  "sharedWait": "Geteilter Text wartet im Eingabefeld und wird übersetzt, sobald das Netz zurück ist.",
   "lite": "\n  <b class=\"lite\">Lite-Version – eingeschränkt.</b> Hier wählst du selbst, wer spricht (<kbd>E</kbd>/<kbd>T</kbd> oder die Knöpfe); Erkennung und Stimmen kommen vom Browser: am besten <b>Chrome</b> (Computer, Android); <b>Safari</b> (Mac, iPhone) geht nur mit eingeschalteter Diktierfunktion und mit Einschränkungen; Firefox kann keine Spracherkennung. Nicht auf allen Geräten getestet.\n  Die <b>Mac-App</b> ist deutlich besser: erkennt die Sprache automatisch, Sprachbefehle, bessere Erkennung (Whisper), Neural-Stimmen, Stimmprofile, optional Übersetzung mit Claude.\n  <a href=\"https://github.com/Pschmetzer/en-th-dolmetscher\" target=\"_blank\" rel=\"noopener\">Mac-/iPhone-App &amp; Quellcode auf GitHub</a>\n",
   "privacy": "\n  <b>Datenschutz:</b> Die Spracherkennung macht der Browser – Chrome sendet dein <b>Audio an Googles Server</b>, Safari an Apple (je nach Gerät auch lokal). Der erkannte Text geht zum Übersetzen an Google Translate (Ersatz: MyMemory). Die Mac-App erkennt Sprache dagegen lokal auf dem Gerät. <b>Pause</b> und <b>Stopp</b> schalten das Mikrofon ganz aus. Das Satzbuch (unten) funktioniert ohne Mikrofon und für Englisch/Thai auch offline; in anderen Sprachen werden Sätze beim ersten Tippen an Google Translate gesendet (Karte als „automatisch übersetzt“ markiert). <b>Lernkarten</b> (★ gemerkte und, nur wenn eingeschaltet, zuletzt übersetzte Sätze) bleiben nur in diesem Browser; „Alle Lernkarten löschen“ entfernt sie.\n",
   "offline": "Offline: Übersetzen und Spracherkennung gehen gerade nicht. Das Satzbuch mit Zeige-Karten funktioniert weiter.",
@@ -630,7 +644,33 @@ const STR = {
   "mcBring": "Bitte hierher bringen",
   "mcShare": "Teilen",
   "mcDelete": "Löschen",
-  "mcMax": "Höchstens 30 eigene Karten",
+  "mcMax": "Höchstens {n} eigene Karten",
+  "mcGroup": "Gruppe",
+  "mcText": "Text",
+  "mcTr": "Übersetzung",
+  "mcTranslate": "Übersetzen",
+  "mcCancel": "Abbrechen",
+  "mcExport": "Exportieren",
+  "mcImport": "Importieren",
+  "mcFilter": "Gruppe zeigen",
+  "mcFavOrder": "Favoriten ordnen",
+  "mcFavEmpty": "Noch keine Favoriten – bei einem Satz ☆ antippen.",
+  "mcAllGroups": "Alle Gruppen",
+  "mcEmpty": "Noch keine eigenen Karten – oben Name und Text eingeben und speichern.",
+  "mcShowTr": "Übersetzung zeigen",
+  "mcEdit": "Bearbeiten",
+  "mcUp": "{n} nach oben",
+  "mcDown": "{n} nach unten",
+  "mcMoved": "{n}: Platz {p} von {c}",
+  "mcEditing": "{n} wird bearbeitet",
+  "mcTranslating": "Übersetze …",
+  "mcTranslated": "Übersetzt – bei Bedarf von Hand korrigieren",
+  "mcTranslateFail": "Übersetzung nicht möglich – Text von Hand eintragen",
+  "mcNoneExport": "Keine eigenen Karten zum Exportieren",
+  "mcExported": "{n} Karten exportiert",
+  "mcFileBad": "Datei unbrauchbar oder zu groß",
+  "mcImported": "{n} Karten übernommen, {m} übersprungen",
+  "mcStorageFull": "Speicher voll – nichts gespeichert. Alte Karten oder Verlauf löschen.",
   "mcNeed": "Name und Text eingeben",
   "pbSeqHint": "Karten antippen zum Auswählen, dann „Folge zeigen“.",
   "pbSeqNone": "Erst Karten auswählen.",
@@ -681,6 +721,8 @@ const STR = {
   "topicNow": "Thema: {n}"
  },
  "en": {
+  "shareTxLbl": "Share translation as text",
+  "sharedWait": "Shared text is waiting in the input box and will be translated once the network is back.",
   "lite": "\n  <b class=\"lite\">Lite version – limited.</b> Here you choose who speaks (<kbd>E</kbd>/<kbd>T</kbd> or the buttons); recognition and voices come from the browser: best in <b>Chrome</b> (computer, Android); <b>Safari</b> (Mac, iPhone) works only with dictation switched on and with limits; Firefox has no speech recognition. Not tested on all devices.\n  The <b>Mac app</b> is much better: detects the language automatically, voice commands, better recognition (Whisper), neural voices, voice profiles, optional translation with Claude.\n  <a href=\"https://github.com/Pschmetzer/en-th-dolmetscher\" target=\"_blank\" rel=\"noopener\">Mac/iPhone app &amp; source code on GitHub</a>\n",
   "privacy": "\n  <b>Privacy:</b> Speech recognition is done by the browser – Chrome sends your <b>audio to Google's servers</b>, Safari to Apple (partly on the device, depending on the device). The recognised text goes to Google Translate (fallback: MyMemory). The Mac app recognises speech on the device instead. <b>Pause</b> and <b>Stop</b> switch the microphone off completely. The phrasebook (below) works without a microphone and offline for English/Thai; in other languages, phrases are sent to Google Translate the first time you tap them (card marked “machine translated”). <b>Study cards</b> (★ saved and, only if switched on, recently translated sentences) stay in this browser only; “Delete all study cards” removes them.\n",
   "offline": "Offline: translation and speech recognition are unavailable right now. The phrasebook with show-cards still works.",
@@ -885,7 +927,33 @@ const STR = {
   "mcBring": "Please take me here",
   "mcShare": "Share",
   "mcDelete": "Delete",
-  "mcMax": "At most 30 own cards",
+  "mcMax": "At most {n} own cards",
+  "mcGroup": "Group",
+  "mcText": "Text",
+  "mcTr": "Translation",
+  "mcTranslate": "Translate",
+  "mcCancel": "Cancel",
+  "mcExport": "Export",
+  "mcImport": "Import",
+  "mcFilter": "Show group",
+  "mcFavOrder": "Order favourites",
+  "mcFavEmpty": "No favourites yet – tap ☆ on a phrase.",
+  "mcAllGroups": "All groups",
+  "mcEmpty": "No own cards yet – enter a name and text above and save.",
+  "mcShowTr": "Show translation",
+  "mcEdit": "Edit",
+  "mcUp": "Move {n} up",
+  "mcDown": "Move {n} down",
+  "mcMoved": "{n}: position {p} of {c}",
+  "mcEditing": "Editing {n}",
+  "mcTranslating": "Translating …",
+  "mcTranslated": "Translated – correct it by hand if needed",
+  "mcTranslateFail": "Could not translate – type the text by hand",
+  "mcNoneExport": "No own cards to export",
+  "mcExported": "{n} cards exported",
+  "mcFileBad": "File unusable or too large",
+  "mcImported": "{n} cards added, {m} skipped",
+  "mcStorageFull": "Storage full – nothing saved. Delete old cards or history.",
   "mcNeed": "Enter a name and a text",
   "pbSeqHint": "Tap cards to select them, then “Show sequence”.",
   "pbSeqNone": "Select cards first.",
@@ -936,6 +1004,8 @@ const STR = {
   "topicNow": "Topic: {n}"
  },
  "th": {
+  "shareTxLbl": "แชร์คำแปลเป็นข้อความ",
+  "sharedWait": "ข้อความที่แชร์มารออยู่ในช่องป้อนและจะแปลเมื่อมีเครือข่ายอีกครั้ง",
   "lite": "\n  <b class=\"lite\">เวอร์ชัน Lite – ใช้งานได้จำกัด</b> ที่นี่คุณเลือกเองว่าใครพูด (<kbd>E</kbd>/<kbd>T</kbd> หรือปุ่ม) การรู้จำเสียงและเสียงอ่านมาจากเบราว์เซอร์: ดีที่สุดบน <b>Chrome</b> (คอมพิวเตอร์, Android); <b>Safari</b> (Mac, iPhone) ใช้ได้เมื่อเปิดการพิมพ์ด้วยเสียงและมีข้อจำกัด; Firefox ไม่มีการรู้จำเสียง ยังไม่ได้ทดสอบกับทุกอุปกรณ์\n  <b>แอป Mac</b> ดีกว่ามาก: ตรวจจับภาษาอัตโนมัติ คำสั่งเสียง การรู้จำเสียงที่ดีกว่า (Whisper) เสียงอ่านแบบ Neural โปรไฟล์เสียง และแปลด้วย Claude ได้\n  <a href=\"https://github.com/Pschmetzer/en-th-dolmetscher\" target=\"_blank\" rel=\"noopener\">แอป Mac/iPhone และซอร์สโค้ดบน GitHub</a>\n",
   "privacy": "\n  <b>ความเป็นส่วนตัว:</b> การรู้จำเสียงทำโดยเบราว์เซอร์ – Chrome ส่ง<b>เสียงของคุณไปยังเซิร์ฟเวอร์ของ Google</b> Safari ส่งไปยัง Apple (บางอุปกรณ์ทำบนเครื่อง) ข้อความที่รู้จำได้จะถูกส่งไปแปลที่ Google Translate (สำรอง: MyMemory) แอป Mac รู้จำเสียงบนเครื่องแทน <b>หยุดชั่วคราว</b>และ<b>หยุด</b>จะปิดไมโครโฟนทั้งหมด สมุดวลี (ด้านล่าง) ใช้ได้โดยไม่ต้องใช้ไมโครโฟน และออฟไลน์ได้สำหรับอังกฤษ/ไทย ภาษาอื่นจะส่งประโยคไปที่ Google Translate เมื่อแตะครั้งแรก (การ์ดมีป้าย “แปลโดยเครื่อง”) <b>การ์ดเรียน</b> (★ ประโยคที่บันทึก และประโยคที่แปลล่าสุดเฉพาะเมื่อเปิดไว้) อยู่ในเบราว์เซอร์นี้เท่านั้น “ลบการ์ดเรียนทั้งหมด” จะลบออก\n",
   "offline": "ออฟไลน์: ตอนนี้แปลและรู้จำเสียงไม่ได้ สมุดวลีและการ์ดแสดงยังใช้ได้",
@@ -1140,7 +1210,33 @@ const STR = {
   "mcBring": "ช่วยพาไปที่นี่",
   "mcShare": "แชร์",
   "mcDelete": "ลบ",
-  "mcMax": "การ์ดของตัวเองได้สูงสุด 30 ใบ",
+  "mcMax": "การ์ดของตัวเองได้สูงสุด {n} ใบ",
+  "mcGroup": "กลุ่ม",
+  "mcText": "ข้อความ",
+  "mcTr": "คำแปล",
+  "mcTranslate": "แปล",
+  "mcCancel": "ยกเลิก",
+  "mcExport": "ส่งออก",
+  "mcImport": "นำเข้า",
+  "mcFilter": "แสดงกลุ่ม",
+  "mcFavOrder": "จัดลำดับรายการโปรด",
+  "mcFavEmpty": "ยังไม่มีรายการโปรด – แตะ ☆ ที่ประโยค",
+  "mcAllGroups": "ทุกกลุ่ม",
+  "mcEmpty": "ยังไม่มีการ์ดของตัวเอง – ใส่ชื่อและข้อความด้านบนแล้วบันทึก",
+  "mcShowTr": "แสดงคำแปล",
+  "mcEdit": "แก้ไข",
+  "mcUp": "เลื่อน {n} ขึ้น",
+  "mcDown": "เลื่อน {n} ลง",
+  "mcMoved": "{n}: ลำดับที่ {p} จาก {c}",
+  "mcEditing": "กำลังแก้ไข {n}",
+  "mcTranslating": "กำลังแปล …",
+  "mcTranslated": "แปลแล้ว – แก้ด้วยตัวเองได้",
+  "mcTranslateFail": "แปลไม่ได้ – พิมพ์ข้อความเอง",
+  "mcNoneExport": "ไม่มีการ์ดให้ส่งออก",
+  "mcExported": "ส่งออก {n} ใบ",
+  "mcFileBad": "ไฟล์ใช้ไม่ได้หรือใหญ่เกินไป",
+  "mcImported": "เพิ่ม {n} ใบ ข้าม {m} ใบ",
+  "mcStorageFull": "พื้นที่เต็ม – ไม่ได้บันทึก ลบการ์ดหรือประวัติเก่า",
   "mcNeed": "ใส่ชื่อและข้อความ",
   "pbSeqHint": "แตะการ์ดเพื่อเลือก แล้วกด “แสดงเป็นชุด”",
   "pbSeqNone": "เลือกการ์ดก่อน",
@@ -1210,7 +1306,7 @@ function applyUi() {   // statische Texte nach data-i18n / data-i18n-html setzen
   $('pbQ').setAttribute('aria-label', t('pbSearchHint'));
   $('logQ').setAttribute('aria-label', t('logQ')); $('logQLabel').textContent = t('logQ'); $('helpBox').querySelector('summary').title = t('helpKey');
   for (const [id, key] of [['langA', 'aLangA'], ['langB', 'aLangB'], ['btnSwap', 'aSwap'], ['enVar', 'aEnVar'], ['btnTextDown', 'fsDown'], ['btnTextUp', 'fsUp'],
-                           ['btnPartnerSlow', 'slowLbl'], ['btnPartnerShow', 'showLbl'], ['btnPartnerShare', 'favShareLbl'], ['topicPrev', 'topicPrev'], ['topicNext', 'topicNext']]) {
+                           ['btnPartnerSlow', 'slowLbl'], ['btnPartnerShow', 'showLbl'], ['btnPartnerShare', 'favShareLbl'], ['btnPartnerShareTx', 'shareTxLbl'], ['topicPrev', 'topicPrev'], ['topicNext', 'topicNext']]) {
     const e = $(id); if (e) { e.setAttribute('aria-label', t(key)); e.title = t(key); }
   }
   updateThemeBtn();
@@ -1246,7 +1342,7 @@ function loadLangTable() {   // nach 3 s ohne Antwort mit dem Notfall-Paar start
 function refreshLangUi() { initPair(); fillLangSelects(); buildModes(); fillVoiceSelects(); renderCards(); }
 const DEFAULT_PAIR = ['en', 'th'];
 // Satzbuch: presets/*.json (zur Laufzeit geladen, vom Service Worker zwischengespeichert)
-const PRESET_IDS = ['doctor', 'police', 'lostchild', 'pharmacy', 'dentist', 'taxi', 'places', 'airport', 'transport', 'travel', 'hotel', 'restaurant', 'shopping', 'bank', 'answers', 'access', 'spa', 'temple', 'island', 'scooter', 'rental', 'services', 'coworking', 'office', 'atm-bank-card', 'baby', 'beach', 'bus-train', 'car-rental', 'cinema-concert', 'dating-small-talk', 'diving', 'elephant-sanctuary', 'emergency', 'festival', 'gym', 'hiking', 'hospital', 'immigration-90day', 'kids', 'laundry-repair', 'lost-passport', 'market', 'massage', 'mobile-sim', 'monk', 'motorbike-accident', 'nightlife', 'nomad', 'pets', 'pharmacy-otc', 'photo', 'school', 'sport', 'street-food', 'tailor-custom', 'thai-cooking-class', 'tuk-tuk-songthaew', 'visa', 'wedding', 'work'];
+const PRESET_IDS = ['doctor', 'police', 'lostchild', 'pharmacy', 'dentist', 'taxi', 'places', 'airport', 'transport', 'travel', 'hotel', 'restaurant', 'shopping', 'bank', 'answers', 'access', 'spa', 'temple', 'island', 'scooter', 'rental', 'services', 'coworking', 'office', 'atm-bank-card', 'baby', 'beach', 'buddhist-ceremony', 'bus-train', 'car-rental', 'cinema-concert', 'dating-small-talk', 'diving', 'elephant-sanctuary', 'emergency', 'ferry-boat', 'festival', 'gym', 'hiking', 'hospital', 'hostel-dorm', 'immigration-90day', 'island-hopping', 'kids', 'laundry-deposit', 'laundry-repair', 'lost-passport', 'market', 'massage', 'mobile-sim', 'monk', 'motorbike-accident', 'muay-thai-gym', 'night-market-bargain', 'nightlife', 'nomad', 'pets', 'pharmacy-otc', 'photo', 'rice-field-village', 'school', 'snorkel-boat-tour', 'sport', 'street-food', 'tailor-custom', 'thai-cooking-class', 'tuk-tuk-songthaew', 'vegan-vegetarian', 'visa', 'wedding', 'work'];
 
 // ---- Schrift-Plausibilität (wie dolmetscher.py: scripts_distinct, script_share, _untranslated, _wrong_script, text_lang) ----
 const SCRIPT_RX = {}, SCRIPT_RX_G = {}, SCRIPT_RUN3 = {};
@@ -2202,9 +2298,9 @@ let learnList = (() => { try { return learnParse(localStorage.getItem(LEARN_KEY)
 let learnCur = null, learnShownKey = null;
 function learnStore(list) {
   learnList = list;
-  try { localStorage.setItem(LEARN_KEY, JSON.stringify(list)); } catch {}
+  try { localStorage.setItem(LEARN_KEY, JSON.stringify(list)); } catch { setStatus(t('mcStorageFull'), true); }
   try { if (list.length && navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch {}   // Safari räumt sonst nach 7 Tagen
-  learnRender(); syncStars();
+  learnRender(); syncStars(); renderFavOrder();
 }
 setInterval(() => { if (!document.hidden) learnRender(); }, 60000);   // "fällig" auch bei offen gelassener Seite aktuell
 function learnGrade(grade) { if (learnCur && !$('learnYes').hidden) learnAnswer(grade); }
@@ -2403,6 +2499,11 @@ async function openFav(f) {
     showBig(out, f.lang, '', false, { pack: f.pack, en: p.en, th: out, lang: f.lang, idx: f.idx });
   } catch { showWarn(t('favLinkBad')); }
 }
+$('btnPartnerShareTx').onclick = async () => {   // Übersetzung als Text teilen, ohne Teilen-Dialog in die Zwischenablage
+  if (!bigText) return;
+  try { if (navigator.share) { await navigator.share({ text: bigText.text }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  copyText(bigText.text);
+};
 $('btnPartnerShare').onclick = () => { if (bigCtx && bigCtx.idx >= 0) shareFav(bigCtx.pack, bigCtx.idx, bigCtx.lang, bigCtx.en); };
 function openFromHash() {
   if (applyDeepLink()) return;
@@ -2611,12 +2712,53 @@ function pbTransLoad(raw, now) {   // gemerkte Übersetzungen: alte Form (Text) 
   if (keys.length > PBT_MAX) for (const k of keys.sort((a, b) => out[a].ts - out[b].ts).slice(0, keys.length - PBT_MAX)) delete out[k];
   return out;
 }
-function myCardsParse(raw) {   // eigene Karten: Name, Text, Sprache; höchstens 30
+// MY_MAX, MY_RAW, MY_TXT: gleiche Werte wie in myCardsParse (die Funktion steht für sich)
+const MY_KEY = 'myCardsV1', MY_MAX = 30, MY_RAW = 200000, MY_TXT = 200, MY_SCAN = 200;
+function myCardsParse(raw, one) {   // eigene Karten aus dem Speicher (höchstens 30); one: schon geparste Einzelkarte prüfen -> Karte oder null
+  const MAX = 30, RAW = 200000, LBL = 40, TXT = 200, GRP = 24;
+  const known = l => typeof l === 'string' && Object.prototype.hasOwnProperty.call(LANGS, l);
+  const str = v => typeof v === 'string' ? v.replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/ {2,}/g, ' ').trim() : '';   // Steuerzeichen raus
+  const clean = c => {   // nur bekannte Felder; zu langer Text wird verworfen, nicht gekürzt
+    if (!c || typeof c !== 'object' || Array.isArray(c)) return null;
+    const label = str(c.label).slice(0, LBL), text = str(c.text), tr = str(c.tr), grp = str(c.grp).slice(0, GRP);
+    if (!label || !text || text.length > TXT || !known(c.lang)) return null;
+    const out = { label, text, lang: c.lang };
+    if (tr && tr.length <= TXT && known(c.trl)) { out.tr = tr; out.trl = c.trl; }
+    if (grp) out.grp = grp;
+    return out;
+  };
+  if (one) return clean(raw);
+  if (typeof raw === 'string' && raw.length > RAW) return [];
   let v; try { v = JSON.parse(raw || '[]'); } catch { return []; }
   if (!Array.isArray(v)) return [];
-  return v.filter(c => c && typeof c.label === 'string' && c.label.trim() && typeof c.text === 'string' && c.text.trim()
-      && c.text.length <= 200 && typeof c.lang === 'string' && Object.prototype.hasOwnProperty.call(LANGS, c.lang))
-    .map(c => ({ label: c.label.trim().slice(0, 40), text: c.text.trim(), lang: c.lang })).slice(0, 30);
+  return v.slice(0, MAX * 4).map(clean).filter(Boolean).slice(0, MAX);
+}
+function myClean(c) {
+  return myCardsParse(c, true);
+}
+function myMove(list, i, j) {   // neue Liste mit vertauschten Plätzen i und j; ungültig: unverändert
+  if (!Number.isInteger(i) || !Number.isInteger(j) || i < 0 || j < 0 || i >= list.length || j >= list.length || i === j) return list;
+  const out = list.slice(); out[i] = list[j]; out[j] = list[i]; return out;
+}
+function myExport(list) { return JSON.stringify({ kind: 'dolmetscher-my-cards', v: 1, cards: list.map(myClean).filter(Boolean) }, null, 1); }
+function myImport(raw, cur) {   // Sicherungsdatei prüfen und anhängen: { list, added, skipped } oder null bei unbrauchbarer Datei
+  if (typeof raw !== 'string' || !raw.trim() || raw.length > MY_RAW) return null;
+  let v; try { v = JSON.parse(raw, (k, x) => k === '__proto__' ? undefined : x); } catch { return null; }
+  if (v && typeof v === 'object' && !Array.isArray(v)) { if (v.kind !== 'dolmetscher-my-cards' || v.v !== 1) return null; v = v.cards; }
+  if (!Array.isArray(v)) return null;
+  const list = cur.slice(), seen = new Set(list.map(c => c.label + '\u0000' + c.text));
+  let added = 0, skipped = Math.max(0, v.length - MY_SCAN);
+  for (const x of v.slice(0, MY_SCAN)) {
+    const c = myClean(x);
+    if (!c || seen.has(c.label + '\u0000' + c.text) || list.length >= MY_MAX) { skipped++; continue; }
+    seen.add(c.label + '\u0000' + c.text); list.push(c); added++;
+  }
+  return { list, added, skipped };
+}
+function myGroups(list) { return Array.from(new Set(list.map(c => c.grp).filter(Boolean))).sort((x, y) => x.localeCompare(y)); }
+function favMove(list, key, dir) {   // Favorit um einen Platz unter den Favoriten verschieben (Nicht-Favoriten bleiben stehen)
+  const at = list.map((c, i) => c.fav ? i : -1).filter(i => i >= 0), p = at.findIndex(i => learnKey(list[i]) === key), q = p + dir;
+  return p < 0 || q < 0 || q >= at.length ? list : myMove(list, at[p], at[q]);
 }
 function allergyCard(sel, data) {   // Auswahl -> Karte in Thai/Englisch (Allergien, Erkrankungen, Blutgruppe)
   const ids = (sel && sel.ids) || [];
@@ -2704,29 +2846,109 @@ $('typeIn').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shift
 })();
 
 // ---- Meine Karten ----
-let myCards = (() => { try { return myCardsParse(localStorage.getItem('myCardsV1')); } catch { return []; } })();
-function myStore() { try { localStorage.setItem('myCardsV1', JSON.stringify(myCards)); } catch {} renderMine(); }
+let myCards = (() => { try { return myCardsParse(localStorage.getItem(MY_KEY)); } catch { return []; } })();
+let myEdit = -1, myFilter = '';
+function mySave(next) {   // erst speichern, dann übernehmen: bei vollem Speicher bleibt die Liste, wie sie war
+  try { localStorage.setItem(MY_KEY, JSON.stringify(next)); } catch { setStatus(t('mcStorageFull'), true); return false; }
+  myCards = next; renderMine(); return true;
+}
+function focusMove(box, key, dir) {   // nach dem Verschieben den Knopf wieder fokussieren (Tastatur, VoiceOver)
+  const row = Array.from(box.children).find(r => r.dataset.k === key); if (!row) return;
+  const bs = row.querySelectorAll('button.mv'), want = bs[dir < 0 ? 0 : 1], other = bs[dir < 0 ? 1 : 0];
+  (want && !want.disabled ? want : other || want).focus();
+}
+function moveBtn(r, up, name, on, fn) {
+  const x = document.createElement('button'); x.type = 'button'; x.className = 'small mv'; x.textContent = up ? '↑' : '↓';
+  x.setAttribute('aria-label', t(up ? 'mcUp' : 'mcDown', { n: name })); x.title = x.getAttribute('aria-label'); x.disabled = !on; x.onclick = fn; r.appendChild(x);
+}
 function renderMine() {
+  const sel = $('myGrpSel'), groups = myGroups(myCards);
+  if (myFilter && !groups.includes(myFilter)) myFilter = '';
+  sel.textContent = '';
+  for (const g of [''].concat(groups)) { const o = document.createElement('option'); o.value = g; o.textContent = g || t('mcAllGroups'); sel.appendChild(o); }
+  sel.value = myFilter;
   for (const box of [$('myList'), document.getElementById('myInline')]) {
     if (!box) continue;
     box.textContent = '';
-    myCards.forEach((c, i) => {
-      const r = document.createElement('div'); r.className = 'mycard';
+    const vis = myCards.map((c, i) => i).filter(i => !myFilter || myCards[i].grp === myFilter);
+    if (box.id === 'myList' && !myCards.length) { const e = document.createElement('p'); e.className = 'note'; e.textContent = t('mcEmpty'); box.appendChild(e); }
+    vis.forEach((i, pos) => {
+      const c = myCards[i];
+      const r = document.createElement('div'); r.className = 'mycard'; r.dataset.k = String(i);
       const b = document.createElement('b'); b.textContent = c.label; r.appendChild(b);
+      if (c.grp && box.id === 'myList') { const g = document.createElement('span'); g.className = 'note'; g.textContent = c.grp; r.appendChild(g); }
       const mk = (txt, fn) => { const x = document.createElement('button'); x.type = 'button'; x.className = 'small'; x.textContent = txt; x.onclick = fn; r.appendChild(x); };
       mk(t('mcShow'), () => showBig(c.text, c.lang));
+      if (c.tr) mk(t('mcShowTr'), () => showBig(c.tr, c.trl));
       if (c.lang === 'th') mk(t('mcBring'), () => showBig('พาไปที่นี่หน่อย\n' + c.text, 'th'));
-      if (box.id === 'myList') { mk(t('mcShare'), () => shareText(c.text, c.lang)); mk(t('mcDelete'), () => { myCards.splice(i, 1); myStore(); }); }
+      if (box.id === 'myList') {
+        mk(t('mcShare'), () => shareText(c.text, c.lang));
+        mk(t('mcEdit'), () => myEditStart(i));
+        mk(t('mcDelete'), () => { const nx = myCards.slice(); nx.splice(i, 1); if (mySave(nx) && myEdit >= 0) myEditEnd(); });
+        const move = d => { const j = vis[pos + d]; const nx = myMove(myCards, i, j); if (nx !== myCards && mySave(nx)) { setStatus(t('mcMoved', { n: c.label, p: pos + d + 1, c: vis.length }), true); focusMove($('myList'), String(j), d); } };
+        moveBtn(r, true, c.label, pos > 0, () => move(-1)); moveBtn(r, false, c.label, pos < vis.length - 1, () => move(1));
+      }
       box.appendChild(r);
     });
   }
 }
+function renderFavOrder() {
+  const box = $('favOrder'); if (!box) return;
+  box.textContent = '';
+  const favs = learnList.filter(c => c.fav);
+  if (!favs.length) { const e = document.createElement('p'); e.className = 'note'; e.textContent = t('mcFavEmpty'); box.appendChild(e); return; }
+  favs.forEach((c, pos) => {
+    const k = learnKey(c), name = c.b.t.slice(0, 40);
+    const r = document.createElement('div'); r.className = 'mycard'; r.dataset.k = k;
+    const b = document.createElement('b'); b.textContent = c.a.t; b.lang = c.a.l; const o = document.createElement('span'); o.textContent = c.b.t; o.lang = c.b.l;
+    r.append(b, o);
+    const move = d => { learnStore(favMove(learnList, k, d)); setStatus(t('mcMoved', { n: name, p: pos + d + 1, c: favs.length }), true); focusMove($('favOrder'), k, d); };
+    moveBtn(r, true, name, pos > 0, () => move(-1)); moveBtn(r, false, name, pos < favs.length - 1, () => move(1));
+    box.appendChild(r);
+  });
+}
+function myLangOf(text) { return scriptShare(text, 'th') > 0.5 ? 'th' : pair.b; }
+function myEditStart(i) {
+  const c = myCards[i]; if (!c) return;
+  myEdit = i; $('myLabel').value = c.label; $('myGrp').value = c.grp || ''; $('myText').value = c.text; $('myTr').value = c.tr || '';
+  $('myCancel').hidden = false; $('myLabel').focus(); setStatus(t('mcEditing', { n: c.label }), true);
+}
+function myEditEnd() {
+  myEdit = -1; for (const id of ['myLabel', 'myGrp', 'myText', 'myTr']) $(id).value = ''; $('myCancel').hidden = true;
+}
+$('myCancel').onclick = () => myEditEnd();
+$('myGrpSel').onchange = () => { myFilter = $('myGrpSel').value; renderMine(); };
+$('myTranslate').onclick = async () => {
+  const text = $('myText').value.trim();
+  if (!text) { setStatus(t('mcNeed'), true); return; }
+  const src = myLangOf(text), dst = src === pair.b ? pair.a : pair.b;
+  setStatus(t('mcTranslating'));
+  try { const out = await translate(text, src, dst); $('myTr').value = out.text.slice(0, MY_TXT); setStatus(t('mcTranslated'), true); }
+  catch { setStatus(t('mcTranslateFail'), true); }
+};
 $('myAdd').onclick = () => {
-  const label = $('myLabel').value.trim(), text = $('myText').value.trim();
-  if (!label || !text) { setStatus(t('mcNeed'), true); return; }
-  if (myCards.length >= 30) { setStatus(t('mcMax'), true); return; }
-  myCards.push({ label: label.slice(0, 40), text: text.slice(0, 200), lang: scriptShare(text, 'th') > 0.5 ? 'th' : pair.b });
-  $('myLabel').value = ''; $('myText').value = ''; myStore();
+  const text = $('myText').value.trim(), tr = $('myTr').value.trim();
+  const c = myClean({ label: $('myLabel').value, text, lang: myLangOf(text), grp: $('myGrp').value, tr, trl: (myLangOf(text) === pair.b ? pair.a : pair.b) });
+  if (!c) { setStatus(t('mcNeed'), true); return; }
+  if (myEdit < 0 && myCards.length >= MY_MAX) { setStatus(t('mcMax', { n: MY_MAX }), true); return; }
+  const nx = myCards.slice();
+  if (myEdit >= 0 && myEdit < nx.length) nx[myEdit] = c; else nx.push(c);
+  if (mySave(nx)) myEditEnd();
+};
+$('myExport').onclick = () => { if (!myCards.length) { setStatus(t('mcNoneExport'), true); return; } download('dolmetscher-eigene-saetze.json', myExport(myCards), 'application/json'); setStatus(t('mcExported', { n: myCards.length }), true); };
+$('myImport').onclick = () => $('myFile').click();
+$('myFile').onchange = () => {
+  const f = $('myFile').files[0]; $('myFile').value = '';
+  if (!f || f.size > MY_RAW) { setStatus(t('mcFileBad'), true); return; }
+  const r = new FileReader();
+  r.onload = () => {
+    const res = myImport(String(r.result), myCards);
+    if (!res) { setStatus(t('mcFileBad'), true); return; }
+    if (res.added && !mySave(res.list)) return;
+    setStatus(t('mcImported', { n: res.added, m: res.skipped }), true);
+  };
+  r.onerror = () => setStatus(t('mcFileBad'), true);
+  r.readAsText(f);
 };
 
 // ---- Allergie- und Notfallkarte ----
@@ -2923,6 +3145,7 @@ $('learnPractice').onclick = () => {
 };
 
 // ---- Deep-Links, geteilte Texte, Installationshinweis ----
+let sharedPending = null;   // geteilter Text, der noch auf Netz wartet
 function applyDeepLink() {
   const d = parseDeepLink(location.hash, location.search, PRESET_IDS);
   if (!d.preset && !d.incoming) return false;
@@ -2934,7 +3157,9 @@ function applyDeepLink() {
   }
   if (d.incoming) {   // aus einer anderen App geteilt: übersetzen und groß zeigen, nichts speichern
     const src = textLang(d.incoming, pair.b, pair.a, pair.b), dst = src === pair.a ? pair.b : pair.a;
-    translate(d.incoming, src, dst).then(r => showBig(r.text, dst), () => showWarn(t('sharedFail')));
+    $('typeIn').value = d.incoming.slice(0, 500);   // bleibt im Eingabefeld, falls die Übersetzung scheitert
+    sharedPending = d.incoming;
+    translate(d.incoming, src, dst).then(r => { sharedPending = null; if ($('typeIn').value === d.incoming.slice(0, 500)) $('typeIn').value = ''; showBig(r.text, dst); }, () => { $('typeBox').open = true; showWarn(t(navigator.onLine === false ? 'sharedWait' : 'sharedFail')); });
   }
   return true;
 }
@@ -2996,6 +3221,7 @@ function updateOnline() {
     if (on && 'serviceWorker' in navigator && navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage({ type: 'offline-status' });
   }
 }
+window.addEventListener('online', () => { if (sharedPending) { const x = sharedPending; sharedPending = null; $('typeIn').value = x; typeSubmit(true); } });
 window.addEventListener('online', updateOnline); window.addEventListener('offline', updateOnline);
 updateOnline();
 if ('serviceWorker' in navigator && window.isSecureContext && /^https?:$/.test(location.protocol)) {
@@ -3075,7 +3301,7 @@ applyUi(); renderAppState();
 loadLangTable().then(() => {
   initPair();
   if (TTS) { TTS.onvoiceschanged = loadVoices; loadVoices(); }
-  fillLangSelects(); buildModes(); fillPresetSelect(); renderRecent(); renderCards(); renderMine(); loadAllergens(); learnRender(); openFromHash();
+  fillLangSelects(); buildModes(); fillPresetSelect(); renderRecent(); renderCards(); renderMine(); renderFavOrder(); loadAllergens(); learnRender(); openFromHash();
 });
 </script>
 </body>

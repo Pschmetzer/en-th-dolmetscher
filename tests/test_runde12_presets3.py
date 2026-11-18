@@ -38,10 +38,10 @@ def test_thai_neutral(pid):
 
 
 def test_pack_count_and_web_lists():
-    assert len(ALL) == 61
+    assert len(ALL) == 71
     for name in ("index.html", "sw.js"):
         text = (ROOT / name).read_text(encoding="utf-8")
         for pid in IDS:
             assert "'%s'" % pid in text
-    assert "61 Phrasenpakete" in (ROOT / "docs" / "PRESETS.md").read_text(encoding="utf-8")
-    assert "61 phrase packs" in (ROOT / "README.md").read_text(encoding="utf-8")
+    assert "71 Phrasenpakete" in (ROOT / "docs" / "PRESETS.md").read_text(encoding="utf-8")
+    assert "71 phrase packs" in (ROOT / "README.md").read_text(encoding="utf-8")

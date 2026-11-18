@@ -37,7 +37,7 @@ struct Entry: Identifiable, Codable, Equatable {
 }
 
 enum AppSheet: String, Identifiable {
-    case settings, phrasebook, photo, help, emergency, baht, allergy, privacy, prep, places, helpNow, learn, summary
+    case settings, phrasebook, photo, help, emergency, baht, allergy, privacy, prep, places, helpNow, learn, summary, welcome
     #if DEBUG
     case widgetPreview
     #endif
