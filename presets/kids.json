@@ -1,0 +1,109 @@
+{
+  "id": "kids",
+  "names": {
+    "de": "Reisen mit Kindern",
+    "en": "Travelling with children",
+    "th": "เที่ยวกับเด็ก"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Thailänder sind sehr kinderfreundlich, Kinder werden oft angesprochen oder berührt; Kopf gilt aber als besonders – höflich ablehnen, wenn es stört. Kindersitze im Taxi sind selten, besser selbst mitbringen. Sonne, Wasser und Zugänge zum Pool im Blick behalten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Thai people are very child-friendly and may talk to or touch your child; the head is special, so politely decline if it bothers you. Car seats in taxis are rare, so bring your own. Watch sun, water and pool access. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "child",
+      "th": "เด็ก"
+    },
+    {
+      "en": "baby",
+      "th": "ทารก"
+    },
+    {
+      "en": "child seat",
+      "th": "คาร์ซีท"
+    },
+    {
+      "en": "diaper",
+      "th": "ผ้าอ้อม"
+    },
+    {
+      "en": "high chair",
+      "th": "เก้าอี้เด็ก"
+    },
+    {
+      "en": "stroller",
+      "th": "รถเข็นเด็ก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My child is allergic.",
+      "th": "ลูกแพ้อาหาร",
+      "critical": true
+    },
+    {
+      "en": "My child is lost.",
+      "th": "ลูกหาย",
+      "critical": true
+    },
+    {
+      "en": "My child needs a doctor.",
+      "th": "ลูกต้องพบแพทย์",
+      "critical": true
+    },
+    {
+      "en": "My child cannot swim.",
+      "th": "ลูกว่ายน้ำไม่เป็น",
+      "critical": true
+    },
+    {
+      "en": "My child has a fever.",
+      "th": "ลูกมีไข้"
+    },
+    {
+      "en": "Do you have a children's menu?",
+      "th": "มีเมนูเด็กไหม"
+    },
+    {
+      "en": "Do you have a high chair?",
+      "th": "มีเก้าอี้เด็กไหม"
+    },
+    {
+      "en": "Can you warm the milk, please?",
+      "th": "ช่วยอุ่นนมให้หน่อย"
+    },
+    {
+      "en": "No spicy food for the child.",
+      "th": "เด็กกินเผ็ดไม่ได้"
+    },
+    {
+      "en": "Do you have a child seat?",
+      "th": "มีคาร์ซีทไหม"
+    },
+    {
+      "en": "Is there a baby changing room?",
+      "th": "มีห้องเปลี่ยนผ้าอ้อมไหม"
+    },
+    {
+      "en": "Where can I buy diapers?",
+      "th": "ซื้อผ้าอ้อมได้ที่ไหน"
+    },
+    {
+      "en": "Is there a playground nearby?",
+      "th": "แถวนี้มีสนามเด็กเล่นไหม"
+    },
+    {
+      "en": "Is there a children's price?",
+      "th": "มีราคาสำหรับเด็กไหม"
+    },
+    {
+      "en": "How old must the child be?",
+      "th": "เด็กต้องอายุเท่าไหร่"
+    },
+    {
+      "en": "Please do not touch my child's head.",
+      "th": "ช่วยอย่าจับหัวลูกหน่อย"
+    }
+  ]
+}

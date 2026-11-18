@@ -1,0 +1,120 @@
+{
+  "id": "emergency",
+  "names": {
+    "de": "Reise-Notfälle",
+    "en": "Travel emergencies",
+    "th": "เหตุฉุกเฉินระหว่างเดินทาง"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Notrufe in Thailand: 191 Polizei, 199 Feuerwehr, 1669 Rettungsdienst, 1155 Tourist Police (auch Englisch). Zuerst den Ort nennen, dann das Problem. Bei Verlust des Passes Anzeige bei der Polizei und Termin bei der Botschaft. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Emergency numbers in Thailand: 191 police, 199 fire, 1669 ambulance, 1155 Tourist Police (English spoken). Say the place first, then the problem. After a lost passport get a police report and contact your embassy. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "ambulance",
+      "th": "รถพยาบาล"
+    },
+    {
+      "en": "embassy",
+      "th": "สถานทูต"
+    },
+    {
+      "en": "police report",
+      "th": "ใบแจ้งความ"
+    },
+    {
+      "en": "fire",
+      "th": "ไฟไหม้"
+    },
+    {
+      "en": "hospital",
+      "th": "โรงพยาบาล"
+    },
+    {
+      "en": "insurance",
+      "th": "ประกัน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Help me!",
+      "th": "ช่วยด้วย",
+      "critical": true
+    },
+    {
+      "en": "Please call an ambulance.",
+      "th": "ช่วยเรียกรถพยาบาลหน่อย",
+      "critical": true
+    },
+    {
+      "en": "There is a fire!",
+      "th": "ไฟไหม้",
+      "critical": true
+    },
+    {
+      "en": "I think I was drugged.",
+      "th": "คิดว่าโดนวางยา",
+      "critical": true
+    },
+    {
+      "en": "Someone is following me.",
+      "th": "มีคนตามมา",
+      "critical": true
+    },
+    {
+      "en": "There has been an accident.",
+      "th": "เกิดอุบัติเหตุ",
+      "critical": true
+    },
+    {
+      "en": "I cannot breathe.",
+      "th": "หายใจไม่ออก",
+      "critical": true
+    },
+    {
+      "en": "Where is the nearest hospital?",
+      "th": "โรงพยาบาลที่ใกล้ที่สุดอยู่ที่ไหน"
+    },
+    {
+      "en": "My passport was stolen.",
+      "th": "พาสปอร์ตถูกขโมย"
+    },
+    {
+      "en": "My phone was stolen.",
+      "th": "โทรศัพท์ถูกขโมย"
+    },
+    {
+      "en": "I lost my wallet.",
+      "th": "กระเป๋าสตางค์หาย"
+    },
+    {
+      "en": "I need a police report for my insurance.",
+      "th": "ต้องการใบแจ้งความเพื่อใช้กับประกัน"
+    },
+    {
+      "en": "Please call my embassy.",
+      "th": "ช่วยโทรหาสถานทูตหน่อย"
+    },
+    {
+      "en": "I have travel insurance.",
+      "th": "มีประกันการเดินทาง"
+    },
+    {
+      "en": "Is it safe here?",
+      "th": "ที่นี่ปลอดภัยไหม"
+    },
+    {
+      "en": "Do you speak English?",
+      "th": "พูดภาษาอังกฤษได้ไหม"
+    },
+    {
+      "en": "Can I use your phone, please?",
+      "th": "ขอยืมโทรศัพท์หน่อย"
+    },
+    {
+      "en": "I need to call my family.",
+      "th": "ต้องโทรหาครอบครัว"
+    }
+  ]
+}

@@ -73,6 +73,15 @@ kennen, ignorieren sie.
 | `access` | Barrierefreiheit | Hilfe benötigt |
 | `coworking` | Coworking und Langzeitmiete | – |
 | `places` | Orte: Bangkok, Phuket, Chiang Mai | – |
+| `emergency` | Reise-Notfälle | Hilfe, Rettung, Feuer, Betäubung, Verfolgung, Unfall, Atemnot |
+| `work` | Arbeit und Handwerk | Gefahr, Verletzung, Strom aus, Gasgeruch |
+| `school` | Schule und Kita | Allergie, Medikamente, Rückruf |
+| `visa` | Behörden und Visum | – |
+| `sport` | Sport und Fitness | Verletzung, Schwindel, Herzproblem |
+| `nomad` | Digitale Nomaden | – |
+| `diving` | Tauchen und Schnorcheln | Ohren, Luftmangel, Aufstieg, Unwohlsein, Asthma |
+| `market` | Markt und Handeln | Erdnuss-, Schalentier-Allergie |
+| `kids` | Reisen mit Kindern | Allergie, Kind verloren, Arzt, nicht schwimmen können |
 
 ## Unsichere Sätze (bitte zuerst prüfen)
 
@@ -108,7 +117,7 @@ Am wichtigsten sind die Sätze mit `critical` und die Tabelle [Unsichere Sätze]
 
 | Datei | Inhalt |
 |---|---|
-| `presets/*.json` | 24 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
+| `presets/*.json` | 33 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
 | `ios/Shared/phrases.json` | eingebautes Satzbuch der iPhone-App und des Widgets |
 | `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten, „Sie sind dran“, Allergie-Karte |
 | `ios/Dolmetscher/Round4Views.swift` | Hilfesatz auf dem Bildschirm „Hilfe – jetzt“ |
