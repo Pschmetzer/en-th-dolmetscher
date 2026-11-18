@@ -22,7 +22,7 @@ Native SwiftUI app for iPhone and iPad: press Start and just talk. It interprets
 | Learning mode | flashcards from favourites and translated sentences, Leitner boxes (now, 1, 3, 7, 14 days), local `learn.json` |
 | Emergency | emergency screen with Thai numbers, emergency card, allergy card, “Help now” with your coordinates |
 | Travel | “Ready to travel?” checklist, taxi destinations with business-card scan and Apple Maps link, Baht calculator, dish lexicon under photo text |
-| Widgets | quick-phrase widget (small/medium/large), control for Control Center, lock screen and Action button, Live Activity and Dynamic Island |
+| Widgets | quick-phrase widget (small/medium/large, Lock Screen rectangular/inline/circular; own phrases or a rotating category, no conversation data), control for Control Center, lock screen and Action button, Live Activity and Dynamic Island |
 | iPad | all orientations; conversation and a tools column side by side on wide screens |
 | Privacy | online translation off by default, Face ID lock for the history, history/favorites/emergency card excluded from iCloud backup, hidden in the app switcher, Live Activity off by default and without sentences while the iPhone is locked, privacy overview in the settings, “Delete all data” |
 
