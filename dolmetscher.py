@@ -325,6 +325,8 @@ def _negated_command(c, words):
         if ws & {"slow", "slowly"}:
             return "faster"
         return "none"                                    # "too ..." ohne bekanntes Maß: nichts tun
+    if re.match(r"^(?:please\s+)?(?:don'?t|do\s+not|never)\b", c) and "translat" not in c:
+        return "none"                                    # "don't stop", "do not repeat": nie das Gegenteil ausführen
     if re.search(r"\b(?:don't|dont|do\s+not|no)\s+translat\w*", c) and not any(
             re.search(rf"\b{re.escape(x)}\b", c) for x in ("thai", "english", "both")) and not any(
             v["name"].lower() in c for v in LANGS.values()):
@@ -1156,6 +1158,14 @@ def _check_llm(text, out, dst, src=None):
 MYMEMORY_MAX_BYTES = 450           # MyMemory lehnt Anfragen über 500 Byte ab
 
 
+def _thai_cut_ok(prev, nxt):
+    """Darf zwischen zwei Zeichen geschnitten werden? Nicht vor Folgevokalen/Tonzeichen (hängen am Vorgänger) und
+    nicht nach Vorderen Vokalen เ แ โ ใ ไ (U+0E40-0E44, gehören zum folgenden Konsonanten)."""
+    if "\u0e40" <= prev <= "\u0e44":
+        return False
+    return not ("\u0e30" <= nxt <= "\u0e4e" and not "\u0e40" <= nxt <= "\u0e44")
+
+
 _NO_SPACE_RX = re.compile(r"[\u0e00-\u0e7f\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]")   # Schriften ohne Leerzeichen
 
 
@@ -1178,17 +1188,12 @@ def _split_bytes(text, limit=MYMEMORY_MAX_BYTES):
                     cur = ""
                 chunk = ""
                 for ch in w:
-                    # nicht vor Thai-Vokal-/Tonzeichen schneiden (U+0E30-U+0E4E hängen am Vorgänger)
-                    if size(chunk + ch) > limit and not ("\u0e30" <= ch <= "\u0e4e" and chunk):
-                        pieces.append(chunk)
-                        chunk = ""
-                    elif size(chunk + ch) > limit:
-                        k = len(chunk) - 1                 # Konsonant mit seinen Vokal-/Tonzeichen zusammenlassen
-                        while k > 0 and "\u0e30" <= chunk[k] <= "\u0e4e":
+                    if size(chunk + ch) > limit and chunk:
+                        k = len(chunk)                     # Schnittstelle suchen, die kein Thai-Zeichenpaar trennt
+                        while k > 1 and not _thai_cut_ok(chunk[k - 1], chunk[k] if k < len(chunk) else ch):
                             k -= 1
-                        if k > 0:
-                            pieces.append(chunk[:k])
-                            chunk = chunk[k:]
+                        pieces.append(chunk[:k])
+                        chunk = chunk[k:]
                     chunk += ch
                 cur = chunk
             elif size(f"{cur} {w}".strip()) > limit:
@@ -2091,6 +2096,7 @@ def _llm_late(fut):
         _llm_failed(e)
     else:
         LLM["err"] = None
+        LLM["billing_told"] = False
 
 
 def _claude_async(text, src, dst, history, alts, polite):
@@ -2131,6 +2137,7 @@ def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
             fut = None
             meta["provider"] = "claude"
             LLM["err"] = None
+            LLM["billing_told"] = False                 # Claude geht wieder: nächste Erschöpfung wird erneut gemeldet
         except concurrent.futures.TimeoutError:
             fut.add_done_callback(_llm_late)            # Claude läuft weiter, Google parallel
             log({"translate": "claude-langsam", "hedge_s": hedge})
@@ -2413,8 +2420,12 @@ _EN_MONTH_RX = re.compile(r"\b(" + "|".join(_EN_MONTHS) + r")\b")          # gro
 _BE_YEAR = re.compile("(?:" + "|".join(_TH_MONTHS) + r"|ปี|พ\.ศ\.|\bB\.?E\.?)\s*(2[4-7]\d\d)\b")
 
 
-def _dates_to_numbers(s):
+def _dates_to_numbers(s, equiv=True):
+    """BE-Jahr immer; Monatsnamen -> 1-12 nur als Gleichwertigkeitsregel (equiv): sie kennt nicht alle Sprachen und
+    Kurzformen (ธ.ค., Dezember) – numbers_differ meldet nur, was auch ohne sie abweicht."""
     s = _BE_YEAR.sub(lambda m: m.group(0)[: m.start(1) - m.start(0)] + str(int(m.group(1)) - 543), s)
+    if not equiv:
+        return s
     s = _TH_MONTH_RX.sub(lambda m: f" {_TH_MONTHS.index(m.group(1)) + 1} ", s)
     return _EN_MONTH_RX.sub(lambda m: f" {_EN_MONTHS.index(m.group(1)) + 1} ", s)
 # Thai-, arabisch-indische (zwei Formen), Devanagari- und vollbreite Ziffern -> 0-9 (Zahlenvergleich)
@@ -2550,12 +2561,15 @@ def _time24(m, pm):
 
 
 _HALF = r"(\s*ครึ่ง)?"
-_CLOCK_RULES = (
-    # Dauer: "1 ชั่วโมงครึ่ง" / "an hour and a half" = 1 Stunde 30 Minuten (wie "1 hour 30 minutes")
+# Dauer: "1 ชั่วโมงครึ่ง" / "an hour and a half" = 1 Stunde 30 Minuten (wie "1 hour 30 minutes"). Nur
+# Gleichwertigkeitsregel (equiv): "two and a half hours" ist damit nicht erfasst, also nie allein melden.
+_HALF_HOUR_RULES = (
     (re.compile(r"(\d{1,2})\s*ชั่วโมง\s*ครึ่ง"), lambda m: f" {m.group(1)} 30 "),
     (re.compile(r"ชั่วโมง\s*ครึ่ง"), lambda m: " 1 30 "),
     (re.compile(r"\b(\d{1,2})\s+hours?\s+and\s+a\s+half\b|\b(an?)\s+hour\s+and\s+a\s+half\b", re.I),
      lambda m: f" {m.group(1) or 1} 30 "),
+)
+_CLOCK_RULES = (
     # Thai (Zahlwörter sind schon Ziffern): สองทุ่ม = 20:00, ตีสาม = 3:00, ห้าโมงเย็น = 17:00, …
     (re.compile(r"เที่ยง\s*คืน|สองยาม"), lambda m: " 0:00 "),
     (re.compile(r"(\d{1,2})\s*ทุ่ม" + _HALF), lambda m: _hm(18 + int(m.group(1)), m.group(2))),
@@ -2579,21 +2593,21 @@ def _hm(h, half):
     return f" {h % 24}:{'30' if half else '00'} "
 
 
-def clock_words_to_24h(s):
+def clock_words_to_24h(s, equiv=True):
     """Uhrzeiten in Worten als H:MM (für den Zahlenvergleich). Thai-Sechs-Stunden-System und englische
     Wendungen; „half past 3 pm“ bleibt mit pm stehen und wird danach von _PM_TIME umgerechnet."""
-    for rx, fn in _CLOCK_RULES:
+    for rx, fn in ((*_HALF_HOUR_RULES, *_CLOCK_RULES) if equiv else _CLOCK_RULES):
         s = rx.sub(fn, s)
     return s
 
 
-def _numbers(s, words=True, times=None):
+def _numbers(s, words=True, times=None, equiv=True):
     """Zahlen vergleichbar machen: 1.500/1,500 = Tausender (1500), 3:30 = 3.30 (Uhrzeit), aber 1.5 != 15;
     2:30 PM = 14:30 (auch บ่าย 2:30), 9:00 = 9, 09 = 9. Thai-Lachen (555 ohne Zahlkontext) zählt nicht.
     words: ausgeschriebene Zahlen mitzählen – Thai (สามร้อยห้าสิบ = 350, บ่ายสองโมง = 14) und Englisch
     (three hundred fifty = 350); 1.5 million = 1500000."""
     s = s.translate(_THAI_DIGITS)
-    s = _dates_to_numbers(s)                                     # BE-Jahr -543, Monatsnamen -> 1-12
+    s = _dates_to_numbers(s, equiv)                              # BE-Jahr -543, Monatsnamen -> 1-12
     if words:
         s = en_words_to_digits(s)                                # vor _SCALE: "five million" ganz als Wortfolge
     s = _SCALE.sub(_scale_sub, s)                                # zuerst "1.5 ล้าน", sonst zählt ล้าน allein
@@ -2601,7 +2615,7 @@ def _numbers(s, words=True, times=None):
         s = thai_words_to_digits(s)
     if thai_active():
         s = _laugh_sub(s)                                        # 555 = Lachen gibt es nur im Thai
-    s = clock_words_to_24h(s)                                    # ทุ่ม/ตี/โมงเย็น, half past … (Nr. 21)
+    s = clock_words_to_24h(s, equiv)                             # ทุ่ม/ตี/โมงเย็น, half past … (Nr. 21)
     s = _PM_TIME.sub(lambda m: _time24(m, m.group(3).lower() == "p"), s)
     s = _TH_PM.sub(lambda m: _time24(m, True), s)
     out = []
@@ -2626,13 +2640,19 @@ def _time_hm(tok):
 
 
 def numbers_differ(a, b):
+    """Wie _numbers_differ, aber Monatsnamen- und Halbstunden-Regeln sind reine Gleichwertigkeiten: eine Abweichung
+    zählt nur, wenn sie auch ohne sie besteht ("am 25. Dezember" gegen "25 ธันวาคม" bleibt unauffällig)."""
+    return _numbers_differ(a, b, True) and _numbers_differ(a, b, False)
+
+
+def _numbers_differ(a, b, equiv=True):
     """True, wenn Zahlen im Original und in der Übersetzung nicht übereinstimmen (Preise, Zeiten).
     Nur mit Zahlen auf beiden Seiten; einstellige Zahlen zählen nicht (oft als Wort übersetzt: 2 = สอง).
     Zahlwörter (Thai und Englisch) werden auf beiden Seiten in Ziffern umgerechnet. Uhrzeiten gelten
     auch im 12-Stunden-Abstand als gleich (Nr. 21: „8 o'clock“ = สองทุ่ม = 20:00), weil eine Seite oft
     ohne a.m./p.m. auskommt."""
     ta, tb = set(), set()
-    na, nb = _numbers(a, times=ta), _numbers(b, times=tb)
+    na, nb = _numbers(a, times=ta, equiv=equiv), _numbers(b, times=tb, equiv=equiv)
     if not (na and nb):
         return False
     only_a, only_b = set(na) - set(nb), set(nb) - set(na)

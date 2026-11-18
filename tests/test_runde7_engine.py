@@ -43,6 +43,7 @@ def _eng(**kw):
     ("play", "resume"), ("go ahead", "resume"), ("carry on", "resume"), ("can you start again", "resume"),
     ("one more time", "repeat"), ("what did you say", "repeat"), ("once more", "repeat"),
     ("volume 3", None), ("speed 5", None),
+    ("don't stop", None), ("do not repeat", None), ("never pause", None), ("please don't pause", None),
     ("louder", "louder"), ("pause", "pause"), ("unmute", "resume"), ("translate both", "both_on"),
 ])
 def test_parse_command_negation_und_varianten(text, want):
@@ -79,7 +80,15 @@ def test_split_bytes_thai_schneidet_nicht_vor_vokalzeichen():
     parts = d._split_bytes(t, 200)
     assert "".join(parts) == t                           # keine Leerzeichen eingefügt
     assert all(len(p.encode()) <= 200 for p in parts)
-    assert all(not ("ะ" <= p[0] <= "๎") for p in parts)
+    assert all(not ("\u0e30" <= p[0] <= "\u0e3a" or "\u0e47" <= p[0] <= "\u0e4e") for p in parts)
+
+
+def test_split_bytes_thai_fuehrende_vokale_bleiben_beim_konsonanten():
+    for t in ("ได้" * 300, "เมื่อไหร่" * 100, "โรงแรมอยู่ที่ไหน" * 40):
+        parts = d._split_bytes(t, 200)
+        assert "".join(parts) == t
+        assert all(not ("\u0e40" <= p[-1] <= "\u0e44") for p in parts)       # nie nach เ แ โ ใ ไ geschnitten
+        assert all(not ("\u0e30" <= p[0] <= "\u0e3a" or "\u0e47" <= p[0] <= "\u0e4e") for p in parts)
 
 
 def test_split_bytes_cjk_satzende_ohne_leerzeichen():
@@ -159,6 +168,19 @@ def test_llm_billing_meldung_nur_einmal(monkeypatch, ev):
     assert [e for e, _ in ev].count("error") == 1
 
 
+def test_billing_meldung_nach_erfolg_wieder_moeglich(monkeypatch, ev):
+    monkeypatch.setitem(d.LLM, "skip_until", 0.0)
+    monkeypatch.setitem(d.LLM, "billing_told", False)
+    d._llm_failed(RuntimeError("credit balance is too low"))
+    assert d.LLM["billing_told"] is True
+    fut = types.SimpleNamespace(exception=lambda: None)
+    d._llm_late(fut)                                           # verspäteter Erfolg
+    assert d.LLM["billing_told"] is False
+    monkeypatch.setitem(d.LLM, "skip_until", 0.0)
+    d._llm_failed(RuntimeError("credit balance is too low"))
+    assert [e for e, _ in ev].count("error") == 2
+
+
 def test_schluesseltausch_setzt_pause_zurueck(monkeypatch, ev):
     monkeypatch.setitem(d.LLM, "skip_until", time.monotonic() + 1800)
     monkeypatch.setitem(d.LLM, "err", "credit balance")
@@ -214,6 +236,11 @@ def test_hedge_wird_einmal_gelesen():
     ("It costs a hundred baht", "ราคา 100 บาท", False),
     ("half a million baht", "500000 บาท", False),
     ("It costs a thousand", "ราคาหนึ่งพันบาท", False),
+    # Gleichwertigkeitsregeln (Monat, Halbstunde) melden nie allein: fremde Sprache/Kurzform bleibt unauffällig
+    ("am 25. Dezember", "25 ธันวาคม", False),
+    ("on December 25", "25 ธ.ค.", False),
+    ("It takes two and a half hours", "ใช้เวลาสองชั่วโมงครึ่ง", False),
+    ("on December 25", "26 ธันวาคม", True),                     # echte Abweichung bleibt gemeldet
 ])
 def test_zahlenpruefung_runde7(a, b, differ):
     assert d.numbers_differ(a, b) is differ
@@ -608,6 +635,7 @@ def test_recorder_neue_sitzung_nach_pause_und_stuendliches_purge():
     rec.keep_days = 7.0
     first = rec.session
     rec._roll(1_000_000.0)
+    rec._purge_thread.join(5)
     assert rec.session == first and purged == [7.0]
     rec._roll(1_000_000.0 + 60)
     assert rec.session == first
@@ -615,6 +643,7 @@ def test_recorder_neue_sitzung_nach_pause_und_stuendliches_purge():
     assert rec.session != first
     rec.last_purge = time.monotonic() - hs.Recorder.PURGE_EVERY_S - 1
     rec._roll(1_000_000.0 + 60 + hs.Recorder.SESSION_GAP_S + 20)
+    rec._purge_thread.join(5)
     assert len(purged) == 2
 
 

@@ -311,7 +311,18 @@ class Recorder:
         mono = time.monotonic()
         if self.keep_days and self.store and mono - self.last_purge >= self.PURGE_EVERY_S:
             self.last_purge = mono
-            self.store.purge(self.keep_days)
+            # eigener Thread: VACUUM/Löschen hält sonst den Ausgabe-Lock (emit) und die Aufzeichnung läuft weiter,
+            # auch wenn das Aufräumen scheitert
+            self._purge_thread = threading.Thread(target=self._purge_bg, args=(self.store, self.keep_days),
+                                                  name="history-purge", daemon=True)
+            self._purge_thread.start()
+
+    @staticmethod
+    def _purge_bg(store, days):
+        try:
+            store.purge(days)
+        except Exception:
+            pass
 
     def enable(self, on=True, keep_days=None):
         """-> True, wenn der Verlauf im gewünschten Zustand ist; False, wenn die Datenbank nicht geht."""
