@@ -1949,12 +1949,73 @@ REGISTER = {
 }
 
 
-def register_hint(dst, style):
-    """Satz zur Anrede in der Zielsprache nach dem Stil (casual = informell, sonst formell); leer ohne Eintrag."""
+# Runde 11: Höflichkeitsstufe unabhängig vom Szenario-Stil. "auto" = wie bisher aus `style` abgeleitet
+# (casual -> informal, neutral/polite -> formelle Anrede), die Stufe kann also nur zusätzlich verfeinern.
+FORMALITY = ("auto", "informal", "neutral", "polite")
+LLM["formality"] = "auto"
+JA_LEVEL = {
+    "informal": "plain/casual form (no keigo)",
+    "neutral": "polite desu/masu form (teineigo) without honorific or humble keigo",
+    "polite": "polite desu/masu form with sonkeigo/kenjougo (full keigo) where fitting",
+}
+KO_LEVEL = {"informal": "informal speech (반말)", "neutral": "polite speech (해요체)",
+            "polite": "formal polite speech (합쇼체)"}
+TH_LEVEL = {
+    "informal": "casual spoken Thai; particles like นะ/จ้า/เนอะ are fine, polite ครับ/ค่ะ only where natural",
+    "neutral": "everyday polite Thai; add the polite particle to requests, thanks and greetings, not to every clause",
+    "polite": "courteous Thai; end every sentence with the polite particle and prefer ขอ/กรุณา/รบกวน for requests",
+}
+
+
+def effective_formality(style, formality="auto"):
+    """Stufe informal/neutral/polite: explizite Wahl vor dem Stil (casual -> informal, neutral -> neutral,
+    polite -> polite)."""
+    if formality in ("informal", "neutral", "polite"):
+        return formality
+    return {"casual": "informal", "polite": "polite"}.get(style, "neutral")
+
+
+def register_hint(dst, style, formality="auto"):
+    """Satz zur Anrede in der Zielsprache; leer ohne Eintrag. Ohne `formality` wie bisher: casual = informell,
+    sonst formell. Mit Stufe: ja/ko/th je drei Stufen, andere Sprachen du/Sie (informal) oder Sie (sonst)."""
+    lvl = effective_formality(style, formality)
+    if dst == "th":
+        return f" Register in Thai: {TH_LEVEL[lvl]}." if formality != "auto" else ""
     r = REGISTER.get(dst)
     if not r:
         return ""
-    return f" Address form in {lang_name(dst)}: use {r[0] if style == 'casual' else r[1]}."
+    if formality == "auto":
+        return f" Address form in {lang_name(dst)}: use {r[0] if style == 'casual' else r[1]}."
+    form = {"ja": JA_LEVEL, "ko": KO_LEVEL}.get(dst, {}).get(lvl) or (r[0] if lvl == "informal" else r[1])
+    return f" Address form in {lang_name(dst)}: use {form}."
+
+
+_TH_Q_END = re.compile(r"(ไหม|มั้ย|หรือ|เหรอ|หรือเปล่า|รึเปล่า|อะไร|ไหน|ใคร|เท่าไร|เท่าไหร่|เมื่อไร|เมื่อไหร่|ทำไม"
+                       r"|อย่างไร|ยังไง|กี่\S*|\?)\s*$")
+_TH_KA = re.compile(r"ค่ะ|คะ(?!แนน|ยั้น|เน)")
+_TH_KRUB = re.compile(r"ครับ|(?<!บัง)คับ(?!แคบ|คั่ง|ข้อง)")
+
+
+def fit_thai_particles(text, polite):
+    """Runde 11: Thai-Partikel an das Sprechergeschlecht anpassen (deterministisch, nach Claude). krub: ค่ะ/คะ ->
+    ครับ; ka: ครับ -> ค่ะ (Frage am Satzende: คะ). Enthält ein Text beide Formen (Zitat), bleibt er
+    unverändert, ebenso Text ohne Partikel."""
+    if not text or polite not in ("krub", "ka"):
+        return text
+    t = re.sub(r"คะแนน|บังคับ|คับแคบ|คับคั่ง|คับข้อง", "", text)
+    has_ka, has_krub = bool(_TH_KA.search(t)), bool(_TH_KRUB.search(t))
+    if has_ka and has_krub:
+        return text
+    if polite == "krub" and has_ka:
+        return _TH_KA.sub("ครับ", text)
+    if polite == "ka" and has_krub:
+        def sub(m):
+            before = text[:m.start()].rstrip().split("\n")[-1]
+            after = text[m.end():].lstrip()
+            q = bool(_TH_Q_END.search(before)) and not after[:1].isalnum()
+            return "คะ" if q else "ค่ะ"
+        return _TH_KRUB.sub(sub, text)
+    return text
 
 
 def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
@@ -1992,7 +2053,7 @@ def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
     kw = dict(model=LLM["model"], max_tokens=512,
               system=[{"type": "text", "text": static, "cache_control": {"type": "ephemeral"}},
                       {"type": "text", "text": STYLES.get(LLM["style"], STYLES["casual"])
-                       + register_hint(dst, LLM["style"]) + (SLOW_PROMPT if SLOW["on"] else "")}],
+                       + register_hint(dst, LLM["style"], LLM["formality"]) + (SLOW_PROMPT if SLOW["on"] else "")}],
               messages=[{"role": "user", "content": "\n\n".join(parts)}])
     if not LLM.get("no_effort"):
         kw["output_config"] = {"effort": "low"}
@@ -2024,7 +2085,7 @@ def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
     out = _strip_quotes("".join(b.text for b in r.content if b.type == "text"))
     if not out:
         raise RuntimeError("leere Antwort von Claude")
-    return out
+    return fit_thai_particles(out, polite) if dst == "th" else out
 
 
 LAUGH = {"th": re.compile(r"(?<![\d.,:\-])5{3,}(?![\d.,:\-]?\d|\s\d)|(?:ฮ่า\s*){2,}ๆ*|ฮ่า\s*ๆ+|(?:คิก\s*){2,}|คิก\s*ๆ+"),
@@ -2154,7 +2215,10 @@ def translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
 
 
 def _cache_key(text, src, dst, use_llm, polite):
-    mode = f"llm:{LLM['model']}:{LLM['style']}{':slow' if SLOW['on'] else ''}" if use_llm else "mt"
+    mode = "mt"
+    if use_llm:
+        lvl = f":{LLM['formality']}" if LLM["formality"] != "auto" else ""
+        mode = f"llm:{LLM['model']}:{LLM['style']}{lvl}{':slow' if SLOW['on'] else ''}"
     return (_norm(text), src, dst, mode, polite if dst == "th" else "")
 
 
@@ -4641,7 +4705,8 @@ STOP = threading.Event()          # gesetzt von SIGTERM/SIGINT oder stdin-Ende -
 _CTRL_LOCK = threading.RLock()    # Steuer-Thread (apply_control) und Arbeits-Thread schreiben dieselben Felder
 _BAD_JSON = {"n": 0, "t": 0.0}
 CTRL_LOG_KEYS = frozenset({"tr_en", "tr_th", "lang", "polite", "speak", "paused", "listen", "rate", "volume",
-                           "silence", "sensitivity", "style", "llm", "earcons", "fast_endpoint", "two_person",
+                           "silence", "sensitivity", "style", "formality", "speaker_sex", "llm", "earcons", "fast_endpoint",
+                           "two_person",
                            "reload_profiles", "partial", "tts_race", "stop_speaking", "voice_en", "voice_th",
                            "ping", "langs", "tr_mine", "tr_partner", "llm_budget"}
                           | {f"tr_{k}" for k in LANGS} | {f"voice_{k}" for k in LANGS})
@@ -5094,7 +5159,8 @@ class Engine:
         Schalter, die sonst nur die App setzt."""
         emit("state", **self.state_fields(), mute=bool(getattr(self, "mute", False)),
              earcons=bool(getattr(self, "earcons", False)), preset=PRESET.active,
-             llm={"on": bool(LLM["on"]), "available": bool(llm_available()), "style": LLM["style"]},
+             llm={"on": bool(LLM["on"]), "available": bool(llm_available()), "style": LLM["style"],
+                  "formality": LLM["formality"]},
              slow=SLOW["on"], back_translate=BACK["on"], learn_glossary=LEARN["glossary"], echo_guard=ECHO["on"],
              mic_on=bool(MIC is not None and getattr(MIC, "on", False)),
              let_finish=LET_FINISH["s"], catch_up=CATCH_UP["mode"], beam=getattr(self, "beam", None),
@@ -5940,7 +6006,8 @@ def _text_arg(v, limit=PHRASE_MAX):
 # Nr. 188: alle Steuerfelder, die apply_control kennt (Tippfehler im App-Code -> Ereignis control_ignored).
 CTRL_KEYS = frozenset({
     "langs", "tr_mine", "tr_partner", "lang", "polite", "speak", "paused", "listen", "mic", "rate", "volume",
-    "silence", "sensitivity", "style", "glossary", "preset", "llm", "llm_budget", "earcons", "slow",
+    "silence", "sensitivity", "style", "formality", "speaker_sex", "glossary", "preset", "llm", "llm_budget",
+    "earcons", "slow",
     "back_translate", "learn_glossary", "output_device", "get_state", "fast_endpoint", "two_person",
     "reload_profiles", "partial", "history", "history_days", "tts_race", "stop_speaking", "ping", "say",
     "speak_text", "reassign", "retranslate", "reset_learning"}) | {f"tr_{k}" for k in LANGS} | {
@@ -5975,6 +6042,10 @@ def apply_control(eng, d):
         if v: eng.lock = v
         v = _choice(d, "polite", ("krub", "ka"))
         if v: eng.polite = v
+        v = _choice(d, "speaker_sex", ("male", "female"))          # Runde 11: Klartext-Alias für polite
+        if v: eng.polite = "krub" if v == "male" else "ka"
+        v = _choice(d, "formality", FORMALITY)
+        if v: LLM["formality"] = v
         ok, v = _flag(d, "speak")
         if ok:
             eng.mute = not v

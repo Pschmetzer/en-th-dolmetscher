@@ -230,6 +230,8 @@ Neu:
 | `voice_en`, `voice_th` | string | Stimme (leer = Standard); allgemein `voice_<code>` für jede Sprache der Tabelle |
 | `llm` | bool | Claude-Übersetzung an/aus |
 | `style` | `casual`\|`neutral`\|`polite` | Ton der Claude-Übersetzung |
+| `formality` | `auto`\|`informal`\|`neutral`\|`polite` | Höflichkeitsstufe der Claude-Übersetzung (Runde 11), unabhängig von `style`; `auto` (Standard) = wie bisher aus `style` (casual → informell, sonst formell) |
+| `speaker_sex` | `male`\|`female` | Geschlecht der Person, die Thai ausgibt: Klartext-Alias für `polite` (`male` = `krub`, `female` = `ka`); wirkt auf Thai-Partikel in Prompt und Nachbearbeitung |
 | `glossary` | string | eigene Wörter, eine Zeile `Wort => Übersetzung` oder nur `Name` |
 | `earcons` | bool | Signaltöne statt Sprache bei Befehlen |
 | `stop_speaking` | true | laufende und wartende Ausgaben abbrechen |
@@ -585,6 +587,13 @@ App-Pipe nicht schnell genug abnahm, siehe Log).
 - **`utt.num_diff`** (E1-50): wenn `num_warn` gesetzt ist, `{src: [...], out: [...]}` mit den Zahlen, die nur im Original bzw. nur in der
   Übersetzung stehen (normalisiert, höchstens 8 je Seite), damit die App genau sie markieren kann.
 - `llm_cost.price_known` (bool): Modell steht in der Preisliste (sonst Schätzung mit dem Opus-Preis).
+- **Höflichkeitsstufe** (Runde 11): `formality` und `speaker_sex` sind neue, optionale Steuerfelder; ältere Apps senden sie nicht
+  und die Engine ignoriert sie dort wie jedes unbekannte Feld (Apps, die sie senden, an einer älteren Engine bekommen
+  `control_ignored`). `formality` gibt dem Prompt je Zielsprache aus der Anrede-Tabelle eine Stufe vor: de Sie/du,
+  fr vous/tu, es usted/tú …, ja einfache Form / desu-masu (Teineigo) / volles Keigo, ko 반말/해요체/합쇼체, th lockeres
+  / alltägliches / förmliches Thai. Die Sprachtabelle `languages.json` wird nur gelesen. Nach Claude ordnet die
+  Engine bei Zielsprache Thai die Partikel dem Sprechergeschlecht zu (ค่ะ/คะ ↔ ครับ, Frage am Satzende คะ); Text mit
+  beiden Formen oder ohne Partikel bleibt unverändert. `state.llm` enthält zusätzlich `formality`.
 - **Claude-Anrede** (E1-20): der Prompt nennt je Zielsprache die Anrede nach dem Stil (de du/Sie, es tú/usted, fr tu/vous,
   ja einfache/höfliche Form, ko 반말/존댓말 …). **Fragen ohne „?“** erkennt die Engine jetzt auch für de, es, fr (ครับ/คะ).
 
