@@ -21,20 +21,31 @@
     --yes:#15803d; --no:#b91c1c; --crit:#b91c1c; --star:#b45309; --th-text:#b45309;
     color-scheme:light dark;
   }
+  :root[data-theme="light"] { color-scheme:light; }
+  :root[data-theme="dark"] { color-scheme:dark; }
   @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme="light"]) {
       --bg:#0f1115; --card:#1a1d24; --fg:#eef0f4; --mut:#9aa0b0; --line:#262a33;
       --en:#3b82f6; --th:#f59e0b; --btn-en:#1e3a8a; --btn-th:#78350f;
       --note-bg:#17233d; --note-line:#2c4271; --warn-bg:#4c1d1d; --kbd:#333a47; --focus:#8ab4ff;
       --yes:#166534; --no:#991b1b; --crit:#f87171; --star:#fbbf24; --th-text:#f59e0b;
     }
   }
+  :root[data-theme="dark"] {   /* manuell gewählt: gleiche Farben wie oben, auch wenn das Gerät hell ist */
+    --bg:#0f1115; --card:#1a1d24; --fg:#eef0f4; --mut:#9aa0b0; --line:#262a33;
+    --en:#3b82f6; --th:#f59e0b; --btn-en:#1e3a8a; --btn-th:#78350f;
+    --note-bg:#17233d; --note-line:#2c4271; --warn-bg:#4c1d1d; --kbd:#333a47; --focus:#8ab4ff;
+    --yes:#166534; --no:#991b1b; --crit:#f87171; --star:#fbbf24; --th-text:#f59e0b;
+  }
   * { box-sizing:border-box; }
   select, input, textarea, button { max-width:100%; }
   kbd { white-space:nowrap; }
   body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.4 -apple-system,system-ui,"Thonburi","Sarabun","Noto Sans Thai",sans-serif;
          padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
-  .wrap { padding-left:16px; padding-right:16px; max-width:1000px; margin:0 auto; }
+  .wrap { padding-left:16px; padding-right:16px; max-width:1000px; margin:0 auto; zoom:var(--ui-scale, 1); }   /* Schriftgröße A−/A+ */
+  .tools { display:inline-flex; gap:6px; }
+  #pbRecentRow { align-items:center; font-size:14px; color:var(--mut); }
+  #pbRecent { display:inline-flex; flex-wrap:wrap; gap:6px; }
   header { display:flex; gap:12px; align-items:center; justify-content:space-between; padding:14px 0; flex-wrap:wrap; }
   h1 { font-size:18px; margin:0; }
   #status, #swState { color:var(--mut); font-size:14px; }
@@ -151,7 +162,9 @@
   .mycard b { flex:1; min-width:120px; overflow-wrap:anywhere; }
   #printSheet { display:none; }
   #installNote button, #swNote button { margin-left:6px; }
+  @page { margin:12mm; }
   @media print {
+    .skip, #warn, #announce { display:none !important; }
     #main, #partner, dialog, noscript { display:none !important; }
     #printSheet { display:block; color:#000; background:#fff; }
     #printSheet h1 { font-size:20px; } #printSheet table { width:100%; border-collapse:collapse; }
@@ -181,6 +194,7 @@
   <h1>🌐 Dolmetscher <small style="color:var(--mut);font-weight:400">Web Lite</small></h1>
   <span id="status" aria-live="off">Bereit</span>
   <select id="uiLang" aria-label="Sprache der Oberfläche / Interface language / ภาษาหน้าจอ"><option value="de">Deutsch</option><option value="en">English</option><option value="th">ไทย</option></select>
+  <span class="tools"><button class="small" id="btnTheme" type="button">◐</button><button class="small" id="btnTextDown" type="button">A−</button><button class="small" id="btnTextUp" type="button">A+</button></span>
   <span id="swState" role="status"></span>
 </header>
 <div class="note" role="note" data-i18n-html="lite">
@@ -248,9 +262,11 @@
   <summary data-i18n-html="pbSum">Satzbuch &amp; Zeige-Karten (ohne Mikrofon)</summary>
   <div class="row">
     <label><span data-i18n="topic">Thema</span> <select id="presetSel"></select></label>
+    <button class="small" id="topicPrev" type="button">‹</button><button class="small" id="topicNext" type="button">›</button>
     <button class="yn yes" id="btnYes" type="button">Ja</button>
     <button class="yn no" id="btnNo" type="button">Nein</button>
   </div>
+  <div class="row" id="pbRecentRow" hidden><span data-i18n="recentTopics">Zuletzt benutzt:</span> <span id="pbRecent"></span></div>
   <div class="row">
     <label><input id="pbQ" type="search" aria-keyshortcuts="/" size="20" maxlength="60" autocomplete="off" enterkeyhint="search"> <span data-i18n="pbSearch">Satz suchen</span></label>
     <button class="small" id="pbFav" type="button" aria-pressed="false" data-i18n="favOnly">Nur Favoriten ☆</button>
@@ -377,7 +393,7 @@
 
 <div id="partner" role="dialog" aria-modal="true" aria-labelledby="partnerTitle" aria-hidden="true">
   <div class="bar"><span id="partnerTitle">ไทย</span>
-    <span class="btns"><span class="seq" id="seqBar" hidden><button class="small" id="btnPrev" type="button" aria-label="Vorherige Karte">‹</button><span id="seqPos"></span><button class="small" id="btnNext" type="button" aria-label="Nächste Karte">›</button></span><button class="small" id="btnReport" type="button" aria-label="Falsch? Melden" hidden>⚑</button><button class="small" id="btnFontDown" type="button" aria-label="Schrift kleiner / Smaller text">A−</button><button class="small" id="btnFontUp" type="button" aria-label="Schrift größer / Larger text">A+</button><button class="small" id="btnPartnerSpeak" type="button" aria-label="Vorlesen / Read aloud">🔊</button><button class="small" id="btnPartnerClose" type="button" aria-label="Schließen / Close">✕</button></span></div>
+    <span class="btns"><span class="seq" id="seqBar" hidden><button class="small" id="btnPrev" type="button" aria-label="Vorherige Karte">‹</button><span id="seqPos"></span><button class="small" id="btnNext" type="button" aria-label="Nächste Karte">›</button></span><button class="small" id="btnReport" type="button" aria-label="Falsch? Melden" hidden>⚑</button><button class="small" id="btnFontDown" type="button" aria-label="Schrift kleiner / Smaller text">A−</button><button class="small" id="btnFontUp" type="button" aria-label="Schrift größer / Larger text">A+</button><button class="small" id="btnPartnerSlow" type="button" aria-label="Langsam vorlesen / Read slowly">🐢</button><button class="small" id="btnPartnerSpeak" type="button" aria-label="Vorlesen / Read aloud">🔊</button><button class="small" id="btnPartnerClose" type="button" aria-label="Schließen / Close">✕</button></span></div>
   <div id="partnerNote" hidden><span lang="de">Geteilter Text, von der App nicht geprüft.</span> <span lang="en">Shared text, not checked by the app.</span> <span lang="th">ข้อความที่แชร์มา แอปไม่ได้ตรวจสอบ</span></div>
   <div id="partnerText" lang="th" dir="auto" aria-live="polite">…</div>
 </div>
@@ -510,7 +526,124 @@ const STR = {
   "offlineReady": "✓ Offline bereit",
   "offlinePart": "Offline unvollständig ({a}/{b}) – einmal mit Netz neu laden",
   "dueLine": "Heute {a} · letzte 7 Tage {b} · Serie {c} Tage · Fach 5: {d}",
-  "listenPrompt": "🔊 Anhören und Bedeutung raten"
+  "listenPrompt": "🔊 Anhören und Bedeutung raten",
+  "langTableFail": "Sprachtabelle nicht geladen – nur Englisch/Thai verfügbar.",
+  "errGeneric": "Etwas ist schiefgelaufen.",
+  "errCopyBtn": "Fehlerinfo kopieren",
+  "errGenericNote": "(für einen GitHub-Bericht; es wird nichts gesendet)",
+  "errCopied": "Fehlerinfo kopiert",
+  "iosWarn": "iPhone/iPad: Die Spracherkennung im Browser ist dort unzuverlässig. Besser die iPhone-App nutzen (Ordner <b>ios/</b> im Quellcode auf GitHub). Satzbuch und Zeige-Karten gehen hier aber gut.",
+  "noTts": "Dieser Browser kann nicht vorlesen – Übersetzungen werden nur angezeigt.",
+  "noVoice": "Keine Stimme für <b>{l}</b> gefunden – wird evtl. nicht vorgelesen. Mac: Systemeinstellungen → Bedienungshilfen → Gesprochene Inhalte → Systemstimme → Stimmen verwalten. iPhone: Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen. Android: Einstellungen → Text-in-Sprache → Sprachdaten. Windows: Einstellungen → Zeit und Sprache → Sprache hinzufügen.",
+  "voiceAuto": "Automatisch",
+  "cmdPaused": "⏸ Pausiert – Mikrofon aus. Weiter mit E/T oder dem Knopf",
+  "cmdRunning": "Läuft bereits",
+  "cmdTempo": "Tempo {n}",
+  "cmdVolume": "Lautstärke {n} %",
+  "cmdCleared": "Verlauf geleert",
+  "cmdHelp": "Hilfe geöffnet",
+  "cmdNothing": "Nichts zu wiederholen",
+  "errNotAllowed": "Mikrofon blockiert. Bitte in den Website-Einstellungen des Browsers erlauben (Chrome: Symbol links in der Adresszeile; Safari: Einstellungen für diese Website).",
+  "errServiceNotAllowed": "Spracherkennung nicht erlaubt. Safari/iPhone: Diktierfunktion einschalten (Einstellungen → Allgemein → Tastatur → Diktierfunktion). Chrome: Erkennung ist in diesem Browser/Profil gesperrt.",
+  "errLangNotSupported": "Diese Sprache wird von der Spracherkennung dieses Browsers nicht unterstützt.",
+  "errAudioCapture": "Kein Mikrofon gefunden. Bitte ein Mikrofon anschließen bzw. in den Systemeinstellungen für den Browser freigeben, dann erneut drücken.",
+  "errLocalHint": " Lokale Erkennung ist für diese Sprache evtl. nicht verfügbar: Schalter „Nur auf dem Gerät“ ausschalten.",
+  "noAnswer": "Die Spracherkennung antwortet nicht (Internet? Chrome braucht dafür eine Verbindung zu Google). Bitte später erneut <kbd>E</kbd>/<kbd>T</kbd> drücken.",
+  "btnType": "Stattdessen tippen",
+  "statusErr": "Fehler: {e} – neuer Versuch …",
+  "statusStartFail": "Fehler beim Start der Erkennung",
+  "statusGoogleDown": "Google gerade nicht erreichbar, nutze Ersatzdienst",
+  "statusReadyPtt": "Bereit – Knopf halten und sprechen",
+  "statusStopped": "Gestoppt",
+  "statusMicOff": "Mikrofon bleibt aus",
+  "logTrimmed": "Ältere Einträge werden entfernt – bei Bedarf „Verlauf speichern“",
+  "slowNet": "… dauert länger – Netz prüfen",
+  "viaFallback": "Ersatzdienst – Qualität geringer",
+  "notTranslated": "nicht übersetzt?",
+  "lowConf": "unsicher erkannt – bitte wiederholen?",
+  "heardAs": "als {l} erkannt",
+  "againLbl": "Nochmal vorlesen",
+  "speakOnlyLbl": "Nur vorlesen",
+  "speakOnlyTitle": "Nur vorlesen (ohne Großansicht)",
+  "pbUnavailable": "Satzbuch nicht verfügbar (offline und noch nie geladen?).",
+  "trUnavailable": "Übersetzung nicht verfügbar (offline?).",
+  "trUnavailableEn": "Übersetzung nicht verfügbar (offline?) – Englisch wird gezeigt.",
+  "topicUnavailable": "Thema nicht verfügbar (offline?).",
+  "learnAllDone": "Alles gelernt – die nächsten Karten sind später fällig.",
+  "learnEmpty": "Noch keine Lernkarten: bei einem Satz ☆ antippen.",
+  "learnBoxNr": "Fach {n} von 5 · Rückseite: {l}",
+  "learnClearConfirm": "Alle {n} Lernkarten in diesem Browser löschen?",
+  "learnNoneSaved": "Keine Lernkarten gespeichert.",
+  "learnNoneExport": "Keine Lernkarten zum Sichern.",
+  "learnAdded": "{n} Karten aufgenommen.",
+  "learnMissing": " {m} Sätze fehlen in {l}: erst im Satzbuch antippen (übersetzt sie einmal).",
+  "learnSaveFail": "Merken nicht möglich – Übersetzung fehlt (offline?)",
+  "learnRemoved": "Lernkarte entfernt",
+  "learnSaved": "Als Lernkarte gemerkt",
+  "starLbl": "Zum Lernen merken",
+  "starOn": " Gemerkt",
+  "starOff": " Merken",
+  "learnFileBad": "Datei fehlt oder zu groß.",
+  "learnLoaded": "{n} neue Karten geladen (von {m} gültigen).",
+  "practiceConsent": "Bitte zuerst einmal einen Mikrofon-Modus starten (Einwilligung).",
+  "practicePrompt": "🎙 Sprich den Satz nach …",
+  "practiceHeard": "Erkannt: „{h}“ – Übereinstimmung {s} %. Die Erkennung ist nur ein Anhaltspunkt (Töne werden nicht geprüft).",
+  "practiceErr": "Nachsprechen nicht möglich ({e}).",
+  "practiceFail": "Nachsprechen nicht möglich.",
+  "linkCopied": "Link kopiert",
+  "linkCopyPrompt": "Link kopieren:",
+  "logEmpty": "Verlauf ist leer",
+  "logCopied": "Verlauf kopiert",
+  "logCopyDenied": "Kopieren nicht erlaubt – bitte „speichern“",
+  "mcShow": "Zeigen",
+  "mcBring": "Bitte hierher bringen",
+  "mcShare": "Teilen",
+  "mcDelete": "Löschen",
+  "mcMax": "Höchstens 30 eigene Karten",
+  "mcNeed": "Name und Text eingeben",
+  "pbSeqHint": "Karten antippen zum Auswählen, dann „Folge zeigen“.",
+  "pbSeqNone": "Erst Karten auswählen.",
+  "reportConfirm": "Fehler an dieser Karte melden? Es öffnet sich eine GitHub-Seite mit vorbefülltem Text. Es wird nichts automatisch gesendet.",
+  "printNote": "Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+  "printMissing": " {m} Sätze fehlen in dieser Sprache (erst im Satzbuch antippen).",
+  "pbNoSaved": "Keine gemerkten Übersetzungen.",
+  "pbWipeConfirm": "{n} gemerkte Übersetzungen in diesem Browser löschen?",
+  "pbWiped": "Gemerkte Übersetzungen gelöscht.",
+  "preBtn": "Alle Themen ins {l} vorübersetzen",
+  "preCancel": "Abbrechen ({a}/{b})",
+  "preBusy": "Übersetze Sätze (maschinell, Google Translate) … {a} von {b}",
+  "preDone": "{a} von {b} Sätzen übersetzt und auf dem Gerät gemerkt (maschinell, ungeprüft).",
+  "allergyNoData": "Daten nicht geladen (offline und noch nie geladen?)",
+  "nothingFound": "Nichts gefunden.",
+  "sharedFail": "Geteilten Text nicht übersetzt (offline oder Limit).",
+  "installApp": "Als App installieren: schneller Start, Lernstand bleibt erhalten. ",
+  "installIos": "Tipp: Teilen-Symbol, dann „Zum Home-Bildschirm“ – so bleiben Lernkarten und Einstellungen erhalten. ",
+  "installBtn": "Installieren",
+  "closeBtn": "Schließen",
+  "variantLbl": "Variante {l}",
+  "callLbl": "{label} {num} anrufen",
+  "emRescue": "Rettung",
+  "emPolice": "Polizei",
+  "emFire": "Feuerwehr",
+  "aLangA": "Meine Sprache",
+  "aLangB": "Sprache des Partners",
+  "aSwap": "Sprachen tauschen",
+  "aEnVar": "Englisch-Variante für die Erkennung",
+  "noSr": "Spracherkennung fehlt: Dieser Browser kann nicht zuhören (z. B. Firefox). So geht es trotzdem: <b>1.</b> <b>Chrome</b> oder <b>Edge</b> (Computer, Android) bzw. <b>Safari</b> (Mac, iPhone, Diktierfunktion an) öffnen. <b>2.</b> Hier <b>tippen statt sprechen</b>. <b>3.</b> Das <b>Satzbuch</b> nutzen – es braucht kein Mikrofon.",
+  "noSrTitle": "Keine Spracherkennung in diesem Browser – bitte tippen oder das Satzbuch nutzen",
+  "toPhrasebook": "Zum Satzbuch",
+  "themeAuto": "Design: automatisch (folgt dem Gerät)",
+  "themeLight": "Design: hell",
+  "themeDark": "Design: dunkel",
+  "fsDown": "Schrift kleiner",
+  "fsUp": "Schrift größer",
+  "fsSet": "Schriftgröße {n} %",
+  "slowBtn": "🐢 Langsam",
+  "slowLbl": "Langsam vorlesen",
+  "topicPrev": "Vorheriges Thema",
+  "topicNext": "Nächstes Thema",
+  "recentTopics": "Zuletzt benutzt:",
+  "topicNow": "Thema: {n}"
  },
  "en": {
   "lite": "\n  <b class=\"lite\">Lite version – limited.</b> Here you choose who speaks (<kbd>E</kbd>/<kbd>T</kbd> or the buttons); recognition and voices come from the browser: best in <b>Chrome</b> (computer, Android); <b>Safari</b> (Mac, iPhone) works only with dictation switched on and with limits; Firefox has no speech recognition. Not tested on all devices.\n  The <b>Mac app</b> is much better: detects the language automatically, voice commands, better recognition (Whisper), neural voices, voice profiles, optional translation with Claude.\n  <a href=\"https://github.com/Pschmetzer/en-th-dolmetscher\" target=\"_blank\" rel=\"noopener\">Mac/iPhone app &amp; source code on GitHub</a>\n",
@@ -630,7 +763,124 @@ const STR = {
   "offlineReady": "✓ Ready offline",
   "offlinePart": "Offline incomplete ({a}/{b}) – reload once with a connection",
   "dueLine": "Today {a} · last 7 days {b} · streak {c} days · box 5: {d}",
-  "listenPrompt": "🔊 Listen and guess the meaning"
+  "listenPrompt": "🔊 Listen and guess the meaning",
+  "langTableFail": "Language table not loaded – only English/Thai available.",
+  "errGeneric": "Something went wrong.",
+  "errCopyBtn": "Copy error info",
+  "errGenericNote": "(for a GitHub report; nothing is sent)",
+  "errCopied": "Error info copied",
+  "iosWarn": "iPhone/iPad: speech recognition in the browser is unreliable there. Better use the iPhone app (folder <b>ios/</b> in the source code on GitHub). The phrasebook and show cards work well here, though.",
+  "noTts": "This browser cannot read aloud – translations are only shown.",
+  "noVoice": "No voice found for <b>{l}</b> – it may not be read aloud. Mac: System Settings → Accessibility → Spoken Content → System Voice → Manage Voices. iPhone: Settings → Accessibility → Spoken Content → Voices. Android: Settings → Text-to-speech → Voice data. Windows: Settings → Time &amp; Language → Add a language.",
+  "voiceAuto": "Automatic",
+  "cmdPaused": "⏸ Paused – microphone off. Continue with E/T or the button",
+  "cmdRunning": "Already running",
+  "cmdTempo": "Speed {n}",
+  "cmdVolume": "Volume {n} %",
+  "cmdCleared": "History cleared",
+  "cmdHelp": "Help opened",
+  "cmdNothing": "Nothing to repeat",
+  "errNotAllowed": "Microphone blocked. Please allow it in the browser's site settings (Chrome: icon at the left of the address bar; Safari: settings for this website).",
+  "errServiceNotAllowed": "Speech recognition not allowed. Safari/iPhone: turn on Dictation (Settings → General → Keyboard → Enable Dictation). Chrome: recognition is blocked in this browser/profile.",
+  "errLangNotSupported": "This language is not supported by this browser's speech recognition.",
+  "errAudioCapture": "No microphone found. Please connect a microphone or allow the browser to use it in the system settings, then press again.",
+  "errLocalHint": " On-device recognition may not be available for this language: turn off the “Only on this device” switch.",
+  "noAnswer": "Speech recognition is not responding (internet? Chrome needs a connection to Google for it). Please press <kbd>E</kbd>/<kbd>T</kbd> again later – or type or use the phrasebook meanwhile.",
+  "btnType": "Type instead",
+  "statusErr": "Error: {e} – trying again …",
+  "statusStartFail": "Could not start recognition",
+  "statusGoogleDown": "Google is unreachable right now, using the fallback service",
+  "statusReadyPtt": "Ready – hold the button and speak",
+  "statusStopped": "Stopped",
+  "statusMicOff": "Microphone stays off",
+  "logTrimmed": "Older entries are being removed – use “Save history” if needed",
+  "slowNet": "… taking longer – check the network",
+  "viaFallback": "Fallback service – lower quality",
+  "notTranslated": "not translated?",
+  "lowConf": "unsure recognition – please repeat?",
+  "heardAs": "recognised as {l}",
+  "againLbl": "Read aloud again",
+  "speakOnlyLbl": "Read aloud only",
+  "speakOnlyTitle": "Read aloud only (without the big view)",
+  "pbUnavailable": "Phrasebook not available (offline and never loaded?).",
+  "trUnavailable": "Translation not available (offline?).",
+  "trUnavailableEn": "Translation not available (offline?) – showing English.",
+  "topicUnavailable": "Topic not available (offline?).",
+  "learnAllDone": "All learned – the next cards are due later.",
+  "learnEmpty": "No flashcards yet: tap ☆ on a phrase.",
+  "learnBoxNr": "Box {n} of 5 · back side: {l}",
+  "learnClearConfirm": "Delete all {n} flashcards in this browser?",
+  "learnNoneSaved": "No flashcards saved.",
+  "learnNoneExport": "No flashcards to back up.",
+  "learnAdded": "{n} cards added.",
+  "learnMissing": " {m} phrases are missing in {l}: tap them in the phrasebook first (translates them once).",
+  "learnSaveFail": "Cannot save – translation missing (offline?)",
+  "learnRemoved": "Flashcard removed",
+  "learnSaved": "Saved as flashcard",
+  "starLbl": "Save for learning",
+  "starOn": " Saved",
+  "starOff": " Save",
+  "learnFileBad": "File missing or too large.",
+  "learnLoaded": "{n} new cards loaded (of {m} valid).",
+  "practiceConsent": "Please start a microphone mode once first (consent).",
+  "practicePrompt": "🎙 Repeat the sentence …",
+  "practiceHeard": "Heard: “{h}” – match {s} %. Recognition is only a rough guide (tones are not checked).",
+  "practiceErr": "Repeating is not possible ({e}).",
+  "practiceFail": "Repeating is not possible.",
+  "linkCopied": "Link copied",
+  "linkCopyPrompt": "Copy link:",
+  "logEmpty": "History is empty",
+  "logCopied": "History copied",
+  "logCopyDenied": "Copying not allowed – please use “Save”",
+  "mcShow": "Show",
+  "mcBring": "Please take me here",
+  "mcShare": "Share",
+  "mcDelete": "Delete",
+  "mcMax": "At most 30 own cards",
+  "mcNeed": "Enter a name and a text",
+  "pbSeqHint": "Tap cards to select them, then “Show sequence”.",
+  "pbSeqNone": "Select cards first.",
+  "reportConfirm": "Report a mistake on this card? A GitHub page opens with prefilled text. Nothing is sent automatically.",
+  "printNote": "Phrases machine-generated, not checked by native speakers.",
+  "printMissing": " {m} phrases are missing in this language (tap them in the phrasebook first).",
+  "pbNoSaved": "No saved translations.",
+  "pbWipeConfirm": "Delete {n} saved translations in this browser?",
+  "pbWiped": "Saved translations deleted.",
+  "preBtn": "Pre-translate all topics into {l}",
+  "preCancel": "Cancel ({a}/{b})",
+  "preBusy": "Translating phrases (machine, Google Translate) … {a} of {b}",
+  "preDone": "{a} of {b} phrases translated and saved on this device (machine, unchecked).",
+  "allergyNoData": "Data not loaded (offline and never loaded?)",
+  "nothingFound": "Nothing found.",
+  "sharedFail": "Shared text not translated (offline or limit).",
+  "installApp": "Install as an app: faster start, learning progress is kept. ",
+  "installIos": "Tip: Share icon, then “Add to Home Screen” – this keeps flashcards and settings. ",
+  "installBtn": "Install",
+  "closeBtn": "Close",
+  "variantLbl": "Variant {l}",
+  "callLbl": "Call {label} {num}",
+  "emRescue": "Ambulance",
+  "emPolice": "Police",
+  "emFire": "Fire brigade",
+  "aLangA": "My language",
+  "aLangB": "Partner's language",
+  "aSwap": "Swap languages",
+  "aEnVar": "English variant for recognition",
+  "noSr": "Speech recognition missing: this browser cannot listen (e.g. Firefox). You can still go on: <b>1.</b> open <b>Chrome</b> or <b>Edge</b> (computer, Android) or <b>Safari</b> (Mac, iPhone, dictation on). <b>2.</b> <b>Type instead of speaking</b> here. <b>3.</b> Use the <b>phrasebook</b> – it needs no microphone.",
+  "noSrTitle": "No speech recognition in this browser – please type or use the phrasebook",
+  "toPhrasebook": "Go to phrasebook",
+  "themeAuto": "Theme: automatic (follows the device)",
+  "themeLight": "Theme: light",
+  "themeDark": "Theme: dark",
+  "fsDown": "Smaller text",
+  "fsUp": "Larger text",
+  "fsSet": "Text size {n} %",
+  "slowBtn": "🐢 Slowly",
+  "slowLbl": "Read aloud slowly",
+  "topicPrev": "Previous topic",
+  "topicNext": "Next topic",
+  "recentTopics": "Recently used:",
+  "topicNow": "Topic: {n}"
  },
  "th": {
   "lite": "\n  <b class=\"lite\">เวอร์ชัน Lite – ใช้งานได้จำกัด</b> ที่นี่คุณเลือกเองว่าใครพูด (<kbd>E</kbd>/<kbd>T</kbd> หรือปุ่ม) การรู้จำเสียงและเสียงอ่านมาจากเบราว์เซอร์: ดีที่สุดบน <b>Chrome</b> (คอมพิวเตอร์, Android); <b>Safari</b> (Mac, iPhone) ใช้ได้เมื่อเปิดการพิมพ์ด้วยเสียงและมีข้อจำกัด; Firefox ไม่มีการรู้จำเสียง ยังไม่ได้ทดสอบกับทุกอุปกรณ์\n  <b>แอป Mac</b> ดีกว่ามาก: ตรวจจับภาษาอัตโนมัติ คำสั่งเสียง การรู้จำเสียงที่ดีกว่า (Whisper) เสียงอ่านแบบ Neural โปรไฟล์เสียง และแปลด้วย Claude ได้\n  <a href=\"https://github.com/Pschmetzer/en-th-dolmetscher\" target=\"_blank\" rel=\"noopener\">แอป Mac/iPhone และซอร์สโค้ดบน GitHub</a>\n",
@@ -750,7 +1000,124 @@ const STR = {
   "offlineReady": "✓ พร้อมใช้งานออฟไลน์",
   "offlinePart": "ออฟไลน์ไม่ครบ ({a}/{b}) – โหลดใหม่หนึ่งครั้งขณะออนไลน์",
   "dueLine": "วันนี้ {a} · 7 วันล่าสุด {b} · ต่อเนื่อง {c} วัน · กล่อง 5: {d}",
-  "listenPrompt": "🔊 ฟังแล้วเดาความหมาย"
+  "listenPrompt": "🔊 ฟังแล้วเดาความหมาย",
+  "langTableFail": "โหลดตารางภาษาไม่สำเร็จ – ใช้ได้เฉพาะอังกฤษ/ไทย",
+  "errGeneric": "เกิดข้อผิดพลาดบางอย่าง",
+  "errCopyBtn": "คัดลอกข้อมูลข้อผิดพลาด",
+  "errGenericNote": "(สำหรับรายงานบน GitHub ระบบไม่ส่งอะไรออกไป)",
+  "errCopied": "คัดลอกข้อมูลข้อผิดพลาดแล้ว",
+  "iosWarn": "iPhone/iPad: การรู้จำเสียงในเบราว์เซอร์ไม่น่าเชื่อถือ ควรใช้แอป iPhone (โฟลเดอร์ <b>ios/</b> ในซอร์สโค้ดบน GitHub) แต่สมุดวลีและการ์ดแสดงใช้ได้ดี",
+  "noTts": "เบราว์เซอร์นี้อ่านออกเสียงไม่ได้ – แสดงคำแปลเป็นข้อความเท่านั้น",
+  "noVoice": "ไม่พบเสียงสำหรับ <b>{l}</b> – อาจอ่านออกเสียงไม่ได้ Mac: การตั้งค่าระบบ → การช่วยการเข้าถึง → เนื้อหาที่พูด → เสียงของระบบ → จัดการเสียง iPhone: การตั้งค่า → การช่วยการเข้าถึง → เนื้อหาที่พูด → เสียง Android: การตั้งค่า → เปลี่ยนข้อความเป็นคำพูด → ข้อมูลเสียง Windows: การตั้งค่า → เวลาและภาษา → เพิ่มภาษา",
+  "voiceAuto": "อัตโนมัติ",
+  "cmdPaused": "⏸ หยุดชั่วคราว – ปิดไมโครโฟน ไปต่อด้วย E/T หรือปุ่ม",
+  "cmdRunning": "ทำงานอยู่แล้ว",
+  "cmdTempo": "ความเร็ว {n}",
+  "cmdVolume": "ระดับเสียง {n} %",
+  "cmdCleared": "ล้างประวัติแล้ว",
+  "cmdHelp": "เปิดวิธีใช้แล้ว",
+  "cmdNothing": "ไม่มีอะไรให้พูดซ้ำ",
+  "errNotAllowed": "ไมโครโฟนถูกบล็อก โปรดอนุญาตในการตั้งค่าเว็บไซต์ของเบราว์เซอร์ (Chrome: ไอคอนทางซ้ายของแถบที่อยู่ Safari: การตั้งค่าสำหรับเว็บไซต์นี้)",
+  "errServiceNotAllowed": "ไม่อนุญาตให้รู้จำเสียง Safari/iPhone: เปิดการป้อนด้วยเสียง (การตั้งค่า → ทั่วไป → แป้นพิมพ์ → เปิดการป้อนด้วยเสียง) Chrome: การรู้จำเสียงถูกบล็อกในเบราว์เซอร์/โปรไฟล์นี้",
+  "errLangNotSupported": "การรู้จำเสียงของเบราว์เซอร์นี้ไม่รองรับภาษานี้",
+  "errAudioCapture": "ไม่พบไมโครโฟน โปรดเชื่อมต่อไมโครโฟนหรืออนุญาตให้เบราว์เซอร์ใช้ในการตั้งค่าระบบ แล้วกดอีกครั้ง",
+  "errLocalHint": " อาจไม่มีการรู้จำเสียงบนอุปกรณ์สำหรับภาษานี้: ปิดสวิตช์ “เฉพาะบนอุปกรณ์”",
+  "noAnswer": "การรู้จำเสียงไม่ตอบสนอง (อินเทอร์เน็ต? Chrome ต้องเชื่อมต่อ Google) โปรดกด <kbd>E</kbd>/<kbd>T</kbd> ใหม่ภายหลัง – หรือพิมพ์/ใช้สมุดวลีไปก่อน",
+  "btnType": "พิมพ์แทน",
+  "statusErr": "ข้อผิดพลาด: {e} – กำลังลองใหม่ …",
+  "statusStartFail": "เริ่มการรู้จำเสียงไม่สำเร็จ",
+  "statusGoogleDown": "ติดต่อ Google ไม่ได้ในขณะนี้ ใช้บริการสำรอง",
+  "statusReadyPtt": "พร้อม – กดปุ่มค้างไว้แล้วพูด",
+  "statusStopped": "หยุดแล้ว",
+  "statusMicOff": "ไมโครโฟนยังคงปิดอยู่",
+  "logTrimmed": "กำลังลบรายการเก่า – ถ้าต้องการให้ “บันทึกประวัติ”",
+  "slowNet": "… ใช้เวลานาน – ตรวจสอบเครือข่าย",
+  "viaFallback": "บริการสำรอง – คุณภาพต่ำกว่า",
+  "notTranslated": "ไม่ได้แปล?",
+  "lowConf": "ไม่แน่ใจว่าฟังถูก – พูดซ้ำไหม?",
+  "heardAs": "ตรวจพบเป็น {l}",
+  "againLbl": "อ่านออกเสียงอีกครั้ง",
+  "speakOnlyLbl": "อ่านออกเสียงอย่างเดียว",
+  "speakOnlyTitle": "อ่านออกเสียงอย่างเดียว (ไม่เปิดมุมมองขยาย)",
+  "pbUnavailable": "ไม่มีสมุดวลี (ออฟไลน์และไม่เคยโหลดมาก่อน?)",
+  "trUnavailable": "ไม่มีคำแปล (ออฟไลน์?)",
+  "trUnavailableEn": "ไม่มีคำแปล (ออฟไลน์?) – แสดงเป็นภาษาอังกฤษ",
+  "topicUnavailable": "ไม่มีหัวข้อนี้ (ออฟไลน์?)",
+  "learnAllDone": "เรียนครบแล้ว – การ์ดถัดไปจะถึงกำหนดภายหลัง",
+  "learnEmpty": "ยังไม่มีบัตรคำ: แตะ ☆ ที่ประโยค",
+  "learnBoxNr": "ช่อง {n} จาก 5 · ด้านหลัง: {l}",
+  "learnClearConfirm": "ลบบัตรคำทั้ง {n} ใบในเบราว์เซอร์นี้หรือไม่?",
+  "learnNoneSaved": "ไม่มีบัตรคำที่บันทึกไว้",
+  "learnNoneExport": "ไม่มีบัตรคำให้สำรอง",
+  "learnAdded": "เพิ่มการ์ด {n} ใบแล้ว",
+  "learnMissing": " ขาด {m} ประโยคใน {l}: แตะในสมุดวลีก่อน (แปลหนึ่งครั้ง)",
+  "learnSaveFail": "บันทึกไม่ได้ – ไม่มีคำแปล (ออฟไลน์?)",
+  "learnRemoved": "ลบบัตรคำแล้ว",
+  "learnSaved": "บันทึกเป็นบัตรคำแล้ว",
+  "starLbl": "บันทึกไว้เรียน",
+  "starOn": " บันทึกแล้ว",
+  "starOff": " บันทึก",
+  "learnFileBad": "ไม่มีไฟล์หรือไฟล์ใหญ่เกินไป",
+  "learnLoaded": "โหลดการ์ดใหม่ {n} ใบ (จากที่ใช้ได้ {m} ใบ)",
+  "practiceConsent": "โปรดเริ่มโหมดไมโครโฟนสักครั้งก่อน (การยินยอม)",
+  "practicePrompt": "🎙 พูดประโยคตาม …",
+  "practiceHeard": "ได้ยิน: “{h}” – ตรงกัน {s} % การรู้จำเสียงเป็นเพียงแนวทาง (ไม่ตรวจวรรณยุกต์)",
+  "practiceErr": "พูดตามไม่ได้ ({e})",
+  "practiceFail": "พูดตามไม่ได้",
+  "linkCopied": "คัดลอกลิงก์แล้ว",
+  "linkCopyPrompt": "คัดลอกลิงก์:",
+  "logEmpty": "ประวัติว่างเปล่า",
+  "logCopied": "คัดลอกประวัติแล้ว",
+  "logCopyDenied": "ไม่อนุญาตให้คัดลอก – โปรดใช้ “บันทึก”",
+  "mcShow": "แสดง",
+  "mcBring": "ช่วยพาไปที่นี่",
+  "mcShare": "แชร์",
+  "mcDelete": "ลบ",
+  "mcMax": "การ์ดของตัวเองได้สูงสุด 30 ใบ",
+  "mcNeed": "ใส่ชื่อและข้อความ",
+  "pbSeqHint": "แตะการ์ดเพื่อเลือก แล้วกด “แสดงเป็นชุด”",
+  "pbSeqNone": "เลือกการ์ดก่อน",
+  "reportConfirm": "รายงานข้อผิดพลาดของการ์ดนี้หรือไม่? จะเปิดหน้า GitHub พร้อมข้อความที่กรอกไว้ ระบบไม่ส่งอะไรโดยอัตโนมัติ",
+  "printNote": "ประโยคสร้างโดยเครื่อง ไม่ได้ตรวจโดยเจ้าของภาษา",
+  "printMissing": " ขาด {m} ประโยคในภาษานี้ (แตะในสมุดวลีก่อน)",
+  "pbNoSaved": "ไม่มีคำแปลที่บันทึกไว้",
+  "pbWipeConfirm": "ลบคำแปลที่บันทึกไว้ {n} รายการในเบราว์เซอร์นี้หรือไม่?",
+  "pbWiped": "ลบคำแปลที่บันทึกไว้แล้ว",
+  "preBtn": "แปลล่วงหน้าทุกหัวข้อเป็น{l}",
+  "preCancel": "ยกเลิก ({a}/{b})",
+  "preBusy": "กำลังแปลประโยค (เครื่อง, Google Translate) … {a} จาก {b}",
+  "preDone": "แปลแล้ว {a} จาก {b} ประโยคและบันทึกบนอุปกรณ์ (เครื่อง, ไม่ได้ตรวจ)",
+  "allergyNoData": "ไม่ได้โหลดข้อมูล (ออฟไลน์และไม่เคยโหลดมาก่อน?)",
+  "nothingFound": "ไม่พบอะไร",
+  "sharedFail": "ไม่ได้แปลข้อความที่แชร์ (ออฟไลน์หรือเกินขีดจำกัด)",
+  "installApp": "ติดตั้งเป็นแอป: เปิดเร็วขึ้น และความคืบหน้าการเรียนยังอยู่ ",
+  "installIos": "เคล็ดลับ: แตะไอคอนแชร์ แล้ว “เพิ่มไปยังหน้าจอโฮม” – บัตรคำและการตั้งค่าจะอยู่ต่อ ",
+  "installBtn": "ติดตั้ง",
+  "closeBtn": "ปิด",
+  "variantLbl": "ตัวเลือก {l}",
+  "callLbl": "โทร {label} {num}",
+  "emRescue": "รถพยาบาล",
+  "emPolice": "ตำรวจ",
+  "emFire": "ดับเพลิง",
+  "aLangA": "ภาษาของฉัน",
+  "aLangB": "ภาษาของคู่สนทนา",
+  "aSwap": "สลับภาษา",
+  "aEnVar": "สำเนียงอังกฤษสำหรับการรู้จำเสียง",
+  "noSr": "ไม่มีการรู้จำเสียง: เบราว์เซอร์นี้ฟังเสียงไม่ได้ (เช่น Firefox) แต่ยังทำได้ดังนี้: <b>1.</b> เปิดด้วย <b>Chrome</b> หรือ <b>Edge</b> (คอมพิวเตอร์, Android) หรือ <b>Safari</b> (Mac, iPhone, เปิดการป้อนด้วยเสียง) <b>2.</b> <b>พิมพ์แทนการพูด</b>ที่นี่ <b>3.</b> ใช้<b>สมุดวลี</b> – ไม่ต้องใช้ไมโครโฟน",
+  "noSrTitle": "เบราว์เซอร์นี้ไม่มีการรู้จำเสียง – โปรดพิมพ์หรือใช้สมุดวลี",
+  "toPhrasebook": "ไปที่สมุดวลี",
+  "themeAuto": "ธีม: อัตโนมัติ (ตามอุปกรณ์)",
+  "themeLight": "ธีม: สว่าง",
+  "themeDark": "ธีม: มืด",
+  "fsDown": "ตัวอักษรเล็กลง",
+  "fsUp": "ตัวอักษรใหญ่ขึ้น",
+  "fsSet": "ขนาดตัวอักษร {n} %",
+  "slowBtn": "🐢 ช้า ๆ",
+  "slowLbl": "อ่านออกเสียงช้า ๆ",
+  "topicPrev": "หัวข้อก่อนหน้า",
+  "topicNext": "หัวข้อถัดไป",
+  "recentTopics": "ใช้ล่าสุด:",
+  "topicNow": "หัวข้อ: {n}"
  }
 };
 const UI_LANGS = ['de', 'en', 'th'];
@@ -771,6 +1138,11 @@ function applyUi() {   // statische Texte nach data-i18n / data-i18n-html setzen
   document.documentElement.lang = UI;
   $('pbQ').setAttribute('aria-label', t('pbSearchHint'));
   $('logQ').setAttribute('aria-label', t('logQ')); $('logQLabel').textContent = t('logQ'); $('helpBox').querySelector('summary').title = t('helpKey');
+  for (const [id, key] of [['langA', 'aLangA'], ['langB', 'aLangB'], ['btnSwap', 'aSwap'], ['enVar', 'aEnVar'], ['btnTextDown', 'fsDown'], ['btnTextUp', 'fsUp'],
+                           ['btnPartnerSlow', 'slowLbl'], ['topicPrev', 'topicPrev'], ['topicNext', 'topicNext']]) {
+    const e = $(id); if (e) { e.setAttribute('aria-label', t(key)); e.title = t(key); }
+  }
+  updateThemeBtn();
   for (const e of document.querySelectorAll('[data-i18n]')) e.textContent = t(e.dataset.i18n);
   for (const e of document.querySelectorAll('[data-i18n-html]')) e.innerHTML = t(e.dataset.i18nHtml);   // nur eigene, feste Texte
 }
@@ -797,8 +1169,8 @@ function loadLangTable() {   // nach 3 s ohne Antwort mit dem Notfall-Paar start
   return Promise.race([late, slow]).then(t => {
     if (t) return applyLangTable(t);
     applyLangTable(LANG_FALLBACK);
-    late.then(j => { applyLangTable(j); refreshLangUi(); }, () => showWarn('Sprachtabelle nicht geladen – nur Englisch/Thai verfügbar.'));
-  }, e => { console.warn('languages.json', e); showWarn('Sprachtabelle nicht geladen – nur Englisch/Thai verfügbar.'); applyLangTable(LANG_FALLBACK); });
+    late.then(j => { applyLangTable(j); refreshLangUi(); }, () => showWarn(t('langTableFail')));
+  }, e => { console.warn('languages.json', e); showWarn(t('langTableFail')); applyLangTable(LANG_FALLBACK); });
 }
 function refreshLangUi() { initPair(); fillLangSelects(); buildModes(); fillVoiceSelects(); renderCards(); }
 const DEFAULT_PAIR = ['en', 'th'];
@@ -935,12 +1307,13 @@ let errInfo = '';
 function onGlobalError(msg, where) {   // Skriptfehler: Hinweis und Fehlerinfo zum Kopieren (nichts wird gesendet)
   if (errInfo) return;
   errInfo = String(msg).slice(0, 300) + ' @ ' + String(where || '').slice(0, 120) + ' | ' + navigator.userAgent.slice(0, 160);
-  showWarn('Etwas ist schiefgelaufen. <button type="button" class="small" data-act="copyerr">Fehlerinfo kopieren</button> (für einen GitHub-Bericht; es wird nichts gesendet)');
+  showWarn(t('errGeneric') + ' <button type="button" class="small" data-act="copyerr">' + t('errCopyBtn') + '</button> ' + t('errGenericNote'));
 }
 window.addEventListener('error', e => onGlobalError(e.message, (e.filename || '').split('/').pop() + ':' + e.lineno));
 window.addEventListener('unhandledrejection', e => onGlobalError(e.reason && e.reason.message || e.reason, 'promise'));
-function showWarn(msg) {          // msg: feste Texte (kein Nutzertext) – mehrere Warnungen bleiben sichtbar
-  if (!warnMsgs.includes(msg)) { warnMsgs.push(msg); renderWarn(); }
+const warnKinds = new Map();   // Text -> Art ('rec' = Erkennungsfehler): so lassen sich Warnungen auch nach Sprachwechsel entfernen
+function showWarn(msg, kind) {    // msg: feste Texte (kein Nutzertext) – mehrere Warnungen bleiben sichtbar
+  if (!warnMsgs.includes(msg)) { warnMsgs.push(msg); if (kind) warnKinds.set(msg, kind); renderWarn(); }
 }
 function clearWarn(msgs) {        // erledigte Warnungen (z. B. Mikrofon inzwischen erlaubt) wieder entfernen
   const n = warnMsgs.length;
@@ -948,16 +1321,16 @@ function clearWarn(msgs) {        // erledigte Warnungen (z. B. Mikrofon inzwisc
   if (warnMsgs.length !== n) renderWarn();
 }
 // Statuszeile ist stumm (wechselt bei jedem Satz); nur wichtige Zustände werden dem Screenreader angesagt.
-function setStatus(t, say) { if (statusEl.textContent !== t) statusEl.textContent = t; if (say) announce(t, 'de'); }
-const NO_SR = 'Dieser Browser hat keine Spracherkennung (z. B. Firefox). Bitte <b>Chrome</b> (Computer, Android) oder <b>Safari</b> (Mac, iPhone, Diktierfunktion an) verwenden. Das Satzbuch unten geht trotzdem.';
-if (!SR) {
-  showWarn(NO_SR + ' <button type="button" class="small" data-act="type">Stattdessen tippen</button>');
-  for (const k in MODES) { MODES[k].btn.disabled = true; MODES[k].btn.title = 'Keine Spracherkennung in diesem Browser'; }
+function setStatus(msg, say) { if (statusEl.textContent !== msg) statusEl.textContent = msg; if (say) announce(msg, UI); }
+const warnBtn = (act, key) => ' <button type="button" class="small" data-act="' + act + '">' + t(key) + '</button>';
+if (!SR) {   // Hinweis mit Handlungsvorschlag: anderer Browser, tippen statt sprechen, Satzbuch (braucht kein Mikrofon)
+  showWarn(t('noSr') + warnBtn('type', 'btnType') + warnBtn('phrasebook', 'toPhrasebook'));
+  for (const k in MODES) { MODES[k].btn.disabled = true; MODES[k].btn.title = t('noSrTitle'); }
 }
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
   || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);   // iPadOS meldet sich als Mac
-if (isIOS) showWarn('iPhone/iPad: Die Spracherkennung im Browser ist dort unzuverlässig. Besser die iPhone-App nutzen (Ordner <b>ios/</b> im Quellcode auf GitHub). Satzbuch und Zeige-Karten gehen hier aber gut.');
-if (!TTS) { showWarn('Dieser Browser kann nicht vorlesen – Übersetzungen werden nur angezeigt.'); $('speak').checked = false; $('speak').disabled = true; }
+if (isIOS) showWarn(t('iosWarn'));
+if (!TTS) { showWarn(t('noTts')); $('speak').checked = false; $('speak').disabled = true; }
 
 // ---- Voices ----
 const voiceWarned = new Set();
@@ -969,14 +1342,14 @@ function loadVoices() {
   for (const l of [pair.a, pair.b]) {
     if (voiceWarned.has(l) || voices.some(v => voiceLang(v).startsWith(l))) continue;
     voiceWarned.add(l);
-    showWarn('Keine Stimme für <b>' + lname(l) + '</b> gefunden – wird evtl. nicht vorgelesen. Mac: Systemeinstellungen → Bedienungshilfen → Gesprochene Inhalte → Systemstimme → Stimmen verwalten. iPhone: Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen. Android: Einstellungen → Text-in-Sprache → Sprachdaten. Windows: Einstellungen → Zeit und Sprache → Sprache hinzufügen.');
+    showWarn(t('noVoice', { l: lname(l) }));
   }
 }
 function fillVoiceSelects() {
   for (const [id, k] of [['voiceA', 'a'], ['voiceB', 'b']]) {
     const s = $(id), l = pair[k];
     s.textContent = '';
-    const auto = document.createElement('option'); auto.value = ''; auto.textContent = 'Automatisch'; s.appendChild(auto);
+    const auto = document.createElement('option'); auto.value = ''; auto.textContent = t('voiceAuto'); s.appendChild(auto);
     for (const v of voices.filter(v => voiceLang(v).startsWith(l))) {
       const o = document.createElement('option'); o.value = v.voiceURI; o.textContent = v.name + ' (' + v.lang + ')'; s.appendChild(o);
     }
@@ -1105,7 +1478,7 @@ async function translateOne(text, src, dst) {
     try { g = await viaGoogle(text, from, to); netGuard.good('google'); } catch (e) { netGuard.fail('google', Date.now()); ge = errTxt(e); }
   } else ge = 'pausiert';
   if (g !== null && !implausible(text, g, src, dst)) return { text: g, via: 'google' };
-  if (g === null) setStatus('Google gerade nicht erreichbar, nutze Ersatzdienst');
+  if (g === null) setStatus(t('statusGoogleDown'));
   if (netGuard.ok('mymemory', Date.now())) {
     try {
       const m = await viaMyMemory(text, from, to); netGuard.good('mymemory');
@@ -1134,30 +1507,29 @@ function runCommand(cmd) {
     // Pause = Mikrofon wirklich aus: Modus beenden, damit kein Neustart-Pfad (onend, Vorlesen, Sichtbarkeit)
     // die Erkennung wieder startet und weiter Audio an Google geht. Weiter mit E/T oder dem Knopf.
     setMode(null);
-    setStatus('⏸ Pausiert – Mikrofon aus. Weiter mit E/T oder dem Knopf', true);
+    setStatus(t('cmdPaused'), true);
   }
-  else if (cmd === 'resume') { setStatus('Läuft bereits'); }   // nur hörbar, solange nicht pausiert
-  else if (cmd === 'slower') { setRate(Math.max(0.5, +(rate - 0.15).toFixed(2))); setStatus('Tempo ' + rate, true); }
-  else if (cmd === 'faster') { setRate(Math.min(1.6, +(rate + 0.15).toFixed(2))); setStatus('Tempo ' + rate, true); }
-  else if (cmd === 'louder') { setVol(vol + 0.2); setStatus('Lautstärke ' + Math.round(vol * 100) + ' %', true); }
-  else if (cmd === 'quieter') { setVol(vol - 0.2); setStatus('Lautstärke ' + Math.round(vol * 100) + ' %', true); }
-  else if (cmd === 'clear') { clearLog(); setStatus('Verlauf geleert', true); }
-  else if (cmd === 'help') { $('helpBox').open = true; setStatus('Hilfe geöffnet', true); }
+  else if (cmd === 'resume') { setStatus(t('cmdRunning')); }   // nur hörbar, solange nicht pausiert
+  else if (cmd === 'slower') { setRate(Math.max(0.5, +(rate - 0.15).toFixed(2))); setStatus(t('cmdTempo', { n: rate }), true); }
+  else if (cmd === 'faster') { setRate(Math.min(1.6, +(rate + 0.15).toFixed(2))); setStatus(t('cmdTempo', { n: rate }), true); }
+  else if (cmd === 'louder') { setVol(vol + 0.2); setStatus(t('cmdVolume', { n: Math.round(vol * 100) }), true); }
+  else if (cmd === 'quieter') { setVol(vol - 0.2); setStatus(t('cmdVolume', { n: Math.round(vol * 100) }), true); }
+  else if (cmd === 'clear') { clearLog(); setStatus(t('cmdCleared'), true); }
+  else if (cmd === 'help') { $('helpBox').open = true; setStatus(t('cmdHelp'), true); }
   else if (cmd === 'repeat') {
     if (lastOut) { const o = lastOut; enqueueOutput(g => speakAsync(o.text, o.lang, g)); }
-    else setStatus('Nichts zu wiederholen', true);
+    else setStatus(t('cmdNothing'), true);
   }
 }
 
 // ---- Recognition ----
-const HARD_ERR = {   // Neustart sinnlos: Modus beenden, klar sagen warum
-  'not-allowed': 'Mikrofon blockiert. Bitte in den Website-Einstellungen des Browsers erlauben (Chrome: Symbol links in der Adresszeile; Safari: Einstellungen für diese Website).',
-  'service-not-allowed': 'Spracherkennung nicht erlaubt. Safari/iPhone: Diktierfunktion einschalten (Einstellungen → Allgemein → Tastatur → Diktierfunktion). Chrome: Erkennung ist in diesem Browser/Profil gesperrt.',
-  'language-not-supported': 'Diese Sprache wird von der Spracherkennung dieses Browsers nicht unterstützt.',
-  'audio-capture': 'Kein Mikrofon gefunden. Bitte ein Mikrofon anschließen bzw. in den Systemeinstellungen für den Browser freigeben, dann erneut drücken.',
+const HARD_ERR = {   // Neustart sinnlos: Modus beenden, klar sagen warum (Wert = Schlüssel in STR)
+  'not-allowed': 'errNotAllowed',
+  'service-not-allowed': 'errServiceNotAllowed',
+  'language-not-supported': 'errLangNotSupported',
+  'audio-capture': 'errAudioCapture',
 };
-const ERR_BTNS = ' <button type="button" class="small" data-act="retry">Erneut versuchen</button> <button type="button" class="small" data-act="type">Stattdessen tippen</button>';
-const NO_ANSWER = 'Die Spracherkennung antwortet nicht (Internet? Chrome braucht dafür eine Verbindung zu Google). Bitte später erneut <kbd>E</kbd>/<kbd>T</kbd> drücken.';
+const errBtns = () => warnBtn('retry', 'retry') + warnBtn('type', 'btnType') + warnBtn('phrasebook', 'toPhrasebook');
 function startRec() {
   if (!SR || !mode || (speaking && !duplex()) || rec || document.hidden || pttReleased) return;   // im Hintergrund nicht neu starten
   clearTimeout(restartTimer); restartTimer = null;
@@ -1180,15 +1552,15 @@ function startRec() {
     }
     live.textContent = interim || '…';
   };
-  r.onstart = () => clearWarn(warnMsgs.filter(m => m.endsWith(ERR_BTNS) || Object.values(HARD_ERR).includes(m) || m === NO_ANSWER));   // Mikrofon läuft: alte Warnungen weg
+  r.onstart = () => clearWarn(warnMsgs.filter(m => warnKinds.get(m) === 'rec'));   // Mikrofon läuft: alte Warnungen weg
   r.onerror = ev => {
     if (HARD_ERR[ev.error]) {
-      showWarn(HARD_ERR[ev.error] + (ev.error === 'language-not-supported' && $('localRec').checked ? ' Lokale Erkennung ist für diese Sprache evtl. nicht verfügbar: Schalter „Nur auf dem Gerät“ ausschalten.' : '') + ERR_BTNS);
+      showWarn(t(HARD_ERR[ev.error]) + (ev.error === 'language-not-supported' && $('localRec').checked ? t('errLocalHint') : '') + errBtns(), 'rec');
       setMode(null); return;
     }
     if (ev.error === 'no-speech' || ev.error === 'aborted') return;   // Stille ist normal
     failed = true; errCount++;
-    setStatus('Fehler: ' + ev.error + ' – neuer Versuch …');
+    setStatus(t('statusErr', { e: ev.error }));
   };
   r.onend = () => {
     if (rec !== r) return;
@@ -1198,14 +1570,14 @@ function startRec() {
     scheduleRestart();
   };
   try { r.start(); }
-  catch (e) { rec = null; errCount++; setStatus('Fehler beim Start der Erkennung'); scheduleRestart(); return; }
+  catch (e) { rec = null; errCount++; setStatus(t('statusStartFail')); scheduleRestart(); return; }
   if (!paused) setStatus('🎙 ' + LANGS[MODES[mode].src].native + ' …');
 }
 function scheduleRestart() {
   if (pttReleased) { resumeIfIdle(); return; }   // Halten zum Sprechen: losgelassen, kein Neustart
   if (!mode || (speaking && !duplex()) || restartTimer) return;
   if (errCount >= MAX_SOFT_ERR) {
-    showWarn(NO_ANSWER);
+    showWarn(t('noAnswer') + errBtns(), 'rec');
     setMode(null); return;
   }
   const n = Math.max(errCount, quickEnds);
@@ -1234,7 +1606,7 @@ function setMode(m) {
   document.title = titleFor(mode, BASE_TITLE, t('titleListen'));
   $('btnStop').disabled = !mode;
   updateWakeLock();
-  if (mode) startRec(); else setStatus($('ptt').checked ? 'Bereit – Knopf halten und sprechen' : 'Gestoppt', true);
+  if (mode) startRec(); else setStatus($('ptt').checked ? t('statusReadyPtt') : t('statusStopped'), true);
 }
 // Nach der Ausgabe: Sprecher wechseln (Auto-Wechsel) oder weiter zuhören – nie während noch etwas spricht.
 function resumeIfIdle() {
@@ -1256,12 +1628,12 @@ function announce(text, lang) {
   s.lang = lang; s.textContent = text;
   setTimeout(() => a.appendChild(s), 50);   // leeren, dann füllen: auch gleiche Texte werden erneut angesagt
 }
-function badge(el, text) { const b = document.createElement('span'); b.className = 'badge'; b.lang = 'de'; b.textContent = text; el.appendChild(b); return b; }
+function badge(el, text) { const b = document.createElement('span'); b.className = 'badge'; b.lang = UI; b.textContent = text; el.appendChild(b); return b; }
 
 warn.addEventListener('click', e => {
   const a = e.target.closest && e.target.closest('[data-act]'); if (!a) return;
   const act = a.dataset.act;
-  if (act === 'copyerr') { try { navigator.clipboard.writeText(errInfo); setStatus('Fehlerinfo kopiert', true); } catch { window.prompt('Fehlerinfo kopieren:', errInfo); } }
+  if (act === 'copyerr') { try { navigator.clipboard.writeText(errInfo); setStatus(t('errCopied'), true); } catch { window.prompt(t('errCopyBtn') + ':', errInfo); } }
   else if (act === 'type') { $('typeBox').open = true; $('typeIn').focus(); }
   else if (act === 'phrasebook') { $('pbBox').open = true; $('pbBox').scrollIntoView({ block: 'start' }); $('pbQ').focus(); }
   else if (act === 'retry') { clearWarn(warnMsgs.slice()); if (!mode) chooseMode('a'); }
@@ -1274,15 +1646,15 @@ function addEntry(cls, orig, trans, isErr, from, to) {
   const o = entry.querySelector('.orig');
   o.textContent = orig;
   if (from) o.lang = from;                 // screen readers pick the right voice
-  const t = entry.querySelector('.trans');
-  if (to && !isErr) t.lang = to;
-  t.textContent = trans; if (isErr) t.classList.add('err');
-  if (!trans) t.style.display = 'none';
+  const tt = entry.querySelector('.trans');
+  if (to && !isErr) tt.lang = to;
+  tt.textContent = trans; if (isErr) tt.classList.add('err');
+  if (!trans) tt.style.display = 'none';
   entry.setAttribute('role', 'listitem');
   log.prepend(entry);
-  if (log.children.length > MAX_LOG && !trimWarned) { trimWarned = true; setStatus('Ältere Einträge werden entfernt – bei Bedarf „Verlauf speichern“', true); }
+  if (log.children.length > MAX_LOG && !trimWarned) { trimWarned = true; setStatus(t('logTrimmed'), true); }
   while (log.children.length > MAX_LOG) log.removeChild(log.lastChild);   // Speicher auf dem Handy schonen
-  return t;
+  return tt;
 }
 
 function clearLog() { log.textContent = ''; trimWarned = false; }
@@ -1305,24 +1677,24 @@ function handleFinal(text, conf) {
   if (swapped) cur = cur === 'a' ? 'b' : 'a';
   const m = MODES[cur];
   if (!m.dir.checked) { addEntry(cur, text, '', false, m.src); return; }  // direction off: text only, no translation, no speech
-  const t = addEntry(cur, text, '…', false, m.src, m.dst);
-  const o = t.previousElementSibling;
-  if (conf > 0 && conf < 0.5) badge(o, 'unsicher erkannt – bitte wiederholen?');
-  if (swapped) badge(o, 'als ' + lname(m.src) + ' erkannt');
-  deliver(t, text, m, $('autoswitch').checked ? (mode === 'a' ? 'b' : 'a') : mode);
+  const tr = addEntry(cur, text, '…', false, m.src, m.dst);
+  const o = tr.previousElementSibling;
+  if (conf > 0 && conf < 0.5) badge(o, t('lowConf'));
+  if (swapped) badge(o, t('heardAs', { l: lname(m.src) }));
+  deliver(tr, text, m, $('autoswitch').checked ? (mode === 'a' ? 'b' : 'a') : mode);
 }
 
 // Übersetzen (sofort, parallel) und Ausgabe in die Warteschlange (in Satz-Reihenfolge).
 function deliver(el, text, m, next) {   // el = Übersetzungszeile; t() bleibt die Übersetzungsfunktion
   const my = el._job = (el._job || 0) + 1;
-  const slow3 = setTimeout(() => { if (el._job === my && el.textContent === '…') el.textContent = '… dauert länger – Netz prüfen'; }, 3000);
+  const slow3 = setTimeout(() => { if (el._job === my && el.textContent === '…') el.textContent = t('slowNet'); }, 3000);
   const job = translate(text, m.src, m.dst).then(res => {
     clearTimeout(slow3);
     if (el._job !== my) return null;
     const out = res.text;
     el.textContent = out; el.lang = m.dst; el.classList.remove('err');
-    if (res.via === 'mymemory') badge(el, 'Ersatzdienst – Qualität geringer');
-    if (res.same) badge(el, 'nicht übersetzt?');
+    if (res.via === 'mymemory') badge(el, t('viaFallback'));
+    if (res.same) badge(el, t('notTranslated'));
     lastOut = { text: out, lang: m.tts };
     if (m.dst === pair.b) { setPartnerText(out, m.dst); }   // Partneransicht zeigt nur die Sprache des Partners
     announce(out, m.dst);
@@ -1359,10 +1731,14 @@ function addActions(el, text, lang, item) {   // el = Übersetzungszeile; t() bl
   const share = document.createElement('button'); share.type = 'button'; share.className = 'small'; share.textContent = t('shareLink');
   share.onclick = () => shareText(text, lang);
   const again = document.createElement('button'); again.type = 'button'; again.className = 'small'; again.textContent = t('again2');
-  again.setAttribute('aria-label', 'Nochmal vorlesen'); again.onclick = () => sayNow(text, lang);
+  again.setAttribute('aria-label', t('againLbl')); again.onclick = () => sayNow(text, lang);
   const copy = document.createElement('button'); copy.type = 'button'; copy.className = 'small'; copy.textContent = t('copyBtn');
   copy.onclick = () => copyText(text);
-  row.append(again, show, share, copy);
+  const slowB = document.createElement('button'); slowB.type = 'button'; slowB.className = 'small'; slowB.textContent = t('slowBtn');
+  slowB.setAttribute('aria-label', t('slowLbl')); slowB.onclick = () => sayNow(text, lang, true);
+  if (TTS) row.append(again, slowB);
+  else row.append(again);
+  row.append(show, share, copy);
   el.after(row);
 }
 function enqueueOutput(task) {
@@ -1376,7 +1752,8 @@ function enqueueOutput(task) {
 // Vorlesen: Mikro aus (kein Echo), Stücke < 180 Zeichen (Chrome bricht lange Texte ab), Watchdog gegen
 // ausbleibendes onend. Löst immer auf.
 const wait = ms => new Promise(r => setTimeout(r, ms));
-function speakAsync(text, lang, g) {
+const SLOW_FACTOR = 0.6;   // "Langsam": Tempo × 0,6
+function speakAsync(text, lang, g, slow) {
   if (!TTS || g !== gen) return Promise.resolve();
   speaking = true;
   if (!duplex()) { stopRec(); clearTimeout(restartTimer); restartTimer = null; }   // ohne Kopfhörer: kein Echo
@@ -1385,20 +1762,21 @@ function speakAsync(text, lang, g) {
   let pre = Promise.resolve();
   // hängende Reste im Browser-Puffer entfernen; direkt nach cancel() verschluckt Chrome sonst manchmal die Ausgabe
   if (TTS.speaking || TTS.pending) { TTS.cancel(); pre = wait(60); }
-  return splitText(text, 180).reduce((p, c) => p.then(() => barge === b0 ? speakChunk(c, lang, g) : undefined), pre)
+  return splitText(text, 180).reduce((p, c) => p.then(() => barge === b0 ? speakChunk(c, lang, g, slow) : undefined), pre)
     .finally(() => { if (g === gen) { speaking = false; setTimeout(resumeIfIdle, 0); } });
 }
-function speakChunk(text, lang, g) {
+function speakChunk(text, lang, g, slow) {
   return new Promise(resolve => {
     if (g !== gen) { resolve(); return; }
     const u = new SpeechSynthesisUtterance(text);
     u.lang = lang;
     const v = pickVoice(lang); if (v) u.voice = v;
-    u.rate = rate; u.volume = vol;
+    const eff = slow ? Math.max(0.3, rate * SLOW_FACTOR) : rate;
+    u.rate = eff; u.volume = vol;
     let fin = false;
     const done = () => { if (fin) return; fin = true; clearTimeout(wd); resolve(); };   // mehrfach sicher
     const wd = setTimeout(() => { if (!fin) { try { TTS.cancel(); } catch {} done(); } },
-                          3000 + text.length * 120 / rate);
+                          3000 + text.length * 120 / eff);
     u.onend = done; u.onerror = done;
     try { TTS.speak(u); } catch { done(); }
   });
@@ -1415,10 +1793,10 @@ function unlockTTS() {
   ttsUnlocked = true;
   try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; TTS.speak(u); } catch {}
 }
-function sayNow(text, lang) {   // Satzbuch, Hörprobe, Vorlesen in der Großansicht
+function sayNow(text, lang, slow) {   // Satzbuch, Hörprobe, Vorlesen in der Großansicht (slow: langsam)
   if (!TTS) return;
   unlockTTS();
-  enqueueOutput(g => speakAsync(text, recLocale(lang), g));
+  enqueueOutput(g => speakAsync(text, recLocale(lang), g, slow));
 }
 
 // Bildschirm wach halten, solange ein Modus aktiv oder die Großansicht offen ist (Handy: sonst stoppt die Erkennung bzw. wird die Karte dunkel).
@@ -1467,6 +1845,7 @@ function showBig(text, lang, cls, shared, ctx) { setPartnerText(text, lang, cls,
 $('btnPartner').onclick = () => togglePartner(true);
 $('btnPartnerClose').onclick = () => togglePartner(false);
 $('btnPartnerSpeak').onclick = () => { if (bigText) sayNow(bigText.text, bigText.lang); };
+$('btnPartnerSlow').onclick = () => { if (bigText) sayNow(bigText.text, bigText.lang, true); };
 // Schriftgröße der Großansicht (lange Sätze: kleiner und scrollen)
 let pscale = (+settings.pscale >= 0.4 && +settings.pscale <= 2) ? +settings.pscale : 1;
 function setScale(v) {
@@ -1523,8 +1902,9 @@ function fillPresetSelect() {
 function renderEmerg(id) {   // Notrufnummern als eigener, nicht einklappbarer Block mit tel:-Links
   const e = $('pbEmerg'), list = EMERGENCY[id] || [];
   e.textContent = ''; e.hidden = !list.length;
-  for (const [label, num] of list) {
-    const a = document.createElement('a'); a.href = 'tel:' + num; a.textContent = '📞 ' + num; a.title = label; a.setAttribute('aria-label', label + ' ' + num + ' anrufen');
+  for (const [key, num] of list) {
+    const label = /^em[A-Z]/.test(key) ? t(key) : key;   // Namen der Notdienste je Oberflächensprache, Eigennamen bleiben
+    const a = document.createElement('a'); a.href = 'tel:' + num; a.textContent = '📞 ' + num; a.title = label; a.setAttribute('aria-label', t('callLbl', { label, num }));
     const s = document.createElement('small'); s.textContent = ' ' + label; a.appendChild(s); e.appendChild(a);
   }
 }
@@ -1532,13 +1912,36 @@ function useCount(id) {   // wie oft ein Thema benutzt wurde: Reihenfolge der Th
   let u = {}; try { u = JSON.parse(localStorage.getItem('pbUse') || '{}') || {}; } catch {}
   u[id] = (u[id] | 0) + 1;
   try { localStorage.setItem('pbUse', JSON.stringify(u)); } catch {}
+  recentPush(id); renderRecent();
 }
+const RECENT_MAX = 4;
+function recentList() { return Array.isArray(settings.recent) ? settings.recent.filter(x => typeof x === 'string') : []; }
+function recentPush(id) { settings.recent = [id].concat(recentList().filter(x => x !== id)).slice(0, RECENT_MAX); saveSettings(); }
+function topicName(id) { return presetMeta[id] ? (presetMeta[id].de || presetMeta[id].en) : id; }
+function renderRecent() {   // zuletzt benutzte Themen als Schnellwahl (nur solche, die es gibt)
+  const box = $('pbRecent'), sel = $('presetSel'), ids = recentList().filter(id => [...sel.options].some(o => o.value === id));
+  box.textContent = ''; $('pbRecentRow').hidden = ids.length < 2;
+  for (const id of ids) {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'small'; b.textContent = topicName(id);
+    b.setAttribute('aria-pressed', String(sel.value === id));
+    b.onclick = () => { sel.value = id; sel.dispatchEvent(new Event('change')); b.focus(); };
+    box.appendChild(b);
+  }
+}
+function stepTopic(d) {   // Kategorien-Navigation: vorheriges/nächstes Thema, am Ende wieder von vorn
+  const sel = $('presetSel'), n = sel.options.length; if (!n) return;
+  sel.selectedIndex = (sel.selectedIndex + d + n) % n;
+  sel.dispatchEvent(new Event('change'));
+  setStatus(t('topicNow', { n: sel.options[sel.selectedIndex].textContent }), true);
+}
+$('topicPrev').onclick = () => stepTopic(-1);
+$('topicNext').onclick = () => stepTopic(1);
 let cardsGen = 0;
 async function renderCards() {
   const my = ++cardsGen, id = $('presetSel').value, box = $('cards'), msg = $('pbMsg');
   let d;
   try { d = await loadPreset(id); }
-  catch { if (my === cardsGen) { box.textContent = ''; msg.textContent = 'Satzbuch nicht verfügbar (offline und noch nie geladen?).'; } return; }
+  catch { if (my === cardsGen) { box.textContent = ''; msg.textContent = t('pbUnavailable'); } return; }
   if (my !== cardsGen) return;
   box.textContent = ''; msg.textContent = ''; seqMode = false; $('pbSeq').setAttribute('aria-pressed', 'false'); $('pbSeq').textContent = t('pbSeq'); $('pbSeqGo').hidden = true;
   renderEmerg(id);
@@ -1562,9 +1965,9 @@ async function renderCards() {
     w.append(c, starButton(() => { const bt = p[b] || pbGet(b + '|' + p.en); return bt ? learnItem(front, fl, bt, b) : null; },
                            async () => learnItem(front, fl, await phraseIn(p, b), b), 'star'));
     const sp = document.createElement('button'); sp.type = 'button'; sp.className = 'speakc'; sp.textContent = '🔊';
-    sp.setAttribute('aria-label', 'Nur vorlesen'); sp.title = 'Nur vorlesen (ohne Großansicht)';
+    sp.setAttribute('aria-label', t('speakOnlyLbl')); sp.title = t('speakOnlyTitle');
     sp.onclick = async () => {
-      try { sayNow(await phraseIn(p, b), b); } catch { msg.textContent = 'Übersetzung nicht verfügbar (offline?).'; }
+      try { sayNow(await phraseIn(p, b), b); } catch { msg.textContent = t('trUnavailable'); }
     };
     w.appendChild(sp);
     c._p = p;
@@ -1572,7 +1975,7 @@ async function renderCards() {
       if (seqMode) { c.classList.toggle('sel'); return; }
       let out;
       try { out = await phraseIn(p, b); }
-      catch { msg.textContent = 'Übersetzung nicht verfügbar (offline?) – Englisch wird gezeigt.'; showBig(p.en, 'en'); return; }
+      catch { msg.textContent = t('trUnavailableEn'); showBig(p.en, 'en'); return; }
       tt.textContent = out;
       showBig(out, b, '', false, { pack: id, en: p.en, th: out, lang: b });
       useCount(id);
@@ -1662,14 +2065,14 @@ function learnRender() {
   if (!learnCur) learnCur = due[0] || null;
   if (!learnCur) {
     $('learnCard').hidden = true; learnShownKey = null;
-    $('learnMsg').textContent = learnList.length ? 'Alles gelernt – die nächsten Karten sind später fällig.' : 'Noch keine Lernkarten: bei einem Satz ☆ antippen.';
+    $('learnMsg').textContent = learnList.length ? t('learnAllDone') : t('learnEmpty');
     return;
   }
   $('learnCard').hidden = false; $('learnMsg').textContent = '';
   const f = $('learnFront'), b = $('learnBack');
   f.textContent = learnCur.a.t; f.lang = learnCur.a.l;
   b.textContent = learnCur.b.t; b.lang = learnCur.b.l;
-  $('learnBoxNr').textContent = 'Fach ' + learnCur.box + ' von 5 · Rückseite: ' + lname(learnCur.b.l);
+  $('learnBoxNr').textContent = t('learnBoxNr', { n: learnCur.box, l: lname(learnCur.b.l) });
   if (learnShownKey !== learnKey(learnCur)) {
     learnShownKey = learnKey(learnCur); learnReveal(false); $('learnPracticeOut').textContent = '';
     if ($('learnListen').checked && !document.hidden) sayNow(learnCur.b.t, learnCur.b.l);
@@ -1693,14 +2096,14 @@ $('learnSpeak').onclick = () => { if (learnCur) sayNow(learnCur.b.t, learnCur.b.
 $('learnYes').onclick = () => learnAnswer(true);
 $('learnNo').onclick = () => learnAnswer(false);
 $('learnClear').onclick = () => {
-  if (!learnList.length) { $('learnMsg').textContent = 'Keine Lernkarten gespeichert.'; return; }
-  if (!window.confirm('Alle ' + learnList.length + ' Lernkarten in diesem Browser löschen?')) return;
+  if (!learnList.length) { $('learnMsg').textContent = t('learnNoneSaved'); return; }
+  if (!window.confirm(t('learnClearConfirm', { n: learnList.length }))) return;
   learnCur = null; learnStore([]);
   try { localStorage.removeItem(LEARN_KEY); } catch {}
 };
 $('learnAddPreset').onclick = async () => {
   let d;
-  try { d = await loadPreset($('presetSel').value); } catch { $('learnMsg').textContent = 'Thema nicht verfügbar (offline?).'; return; }
+  try { d = await loadPreset($('presetSel').value); } catch { $('learnMsg').textContent = t('topicUnavailable'); return; }
   const a = pair.a, b = pair.b, now = Date.now();
   let list = learnList, n = 0, miss = 0;
   for (const p of criticalFirst(d.phrases)) {
@@ -1711,7 +2114,7 @@ $('learnAddPreset').onclick = async () => {
     list = learnAdd(list, it, spreadDue(n, per, now), 'fav'); n++;   // nur so viele neue Karten pro Tag fällig, der Rest verteilt
   }
   learnStore(list);
-  $('learnMsg').textContent = n + ' Karten aufgenommen.' + (miss ? ' ' + miss + ' Sätze fehlen in ' + lname(b) + ': erst im Satzbuch antippen (übersetzt sie einmal).' : '');
+  $('learnMsg').textContent = t('learnAdded', { n }) + (miss ? t('learnMissing', { m: miss, l: lname(b) }) : '');
 };
 // ☆-Knöpfe (Satzbuch, Verlauf): peek() liefert die Karte ohne Netz (für den Zustand), get() notfalls mit Übersetzung
 function learnHas(it) { const k = learnKey(it); return learnList.some(c => c.fav && learnKey(c) === k); }
@@ -1719,9 +2122,9 @@ function starState(b) {
   let it = null;
   try { it = b._peek(); } catch {}
   const on = !!it && learnHas(it), small = b.classList.contains('small');
-  b.textContent = (on ? '★' : '☆') + (small ? (on ? ' Gemerkt' : ' Merken') : '');
+  b.textContent = (on ? '★' : '☆') + (small ? t(on ? 'starOn' : 'starOff') : '');
   b.setAttribute('aria-pressed', on ? 'true' : 'false');
-  if (!small) b.setAttribute('aria-label', 'Zum Lernen merken');
+  if (!small) b.setAttribute('aria-label', t('starLbl'));
 }
 function starButton(peek, get, cls) {
   const b = document.createElement('button');
@@ -1729,10 +2132,10 @@ function starButton(peek, get, cls) {
   b.onclick = async () => {
     let it = null;
     try { it = await get(); } catch {}
-    if (!it) { setStatus('Merken nicht möglich – Übersetzung fehlt (offline?)', true); return; }
+    if (!it) { setStatus(t('learnSaveFail'), true); return; }
     const on = learnHas(it);
     learnStore(on ? learnRemove(learnList, it) : learnAdd(learnList, it, Date.now(), 'fav'));
-    setStatus(on ? 'Lernkarte entfernt' : 'Als Lernkarte gemerkt', true);
+    setStatus(t(on ? 'learnRemoved' : 'learnSaved'), true);
   };
   starState(b);
   return b;
@@ -1789,8 +2192,8 @@ function parseShare(hash) {
 async function shareText(text, lang) {
   const url = shareUrl(text, lang);
   try { if (navigator.share) { await navigator.share({ url }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
-  try { await navigator.clipboard.writeText(url); setStatus('Link kopiert', true); }
-  catch { window.prompt('Link kopieren:', url); }
+  try { await navigator.clipboard.writeText(url); setStatus(t('linkCopied'), true); }
+  catch { window.prompt(t('linkCopyPrompt'), url); }
 }
 function openFromHash() {
   if (applyDeepLink()) return;
@@ -1811,11 +2214,11 @@ function logText() {
   }).join('\n\n');
 }
 $('btnCopy').onclick = async () => {
-  const s = logText(); if (!s) { setStatus('Verlauf ist leer', true); return; }
-  try { await navigator.clipboard.writeText(s); setStatus('Verlauf kopiert', true); } catch { setStatus('Kopieren nicht erlaubt – bitte „speichern“', true); }
+  const s = logText(); if (!s) { setStatus(t('logEmpty'), true); return; }
+  try { await navigator.clipboard.writeText(s); setStatus(t('logCopied'), true); } catch { setStatus(t('logCopyDenied'), true); }
 };
 $('btnSave').onclick = () => {
-  const s = logText(); if (!s) { setStatus('Verlauf ist leer', true); return; }
+  const s = logText(); if (!s) { setStatus(t('logEmpty'), true); return; }
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([s + '\n'], { type: 'text/plain;charset=utf-8' }));
   a.download = 'dolmetscher-' + new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-') + '.txt';
@@ -1840,16 +2243,16 @@ let logQTimer = null;
 $('logQ').addEventListener('input', () => { clearTimeout(logQTimer); logQTimer = setTimeout(applyLogFilter, 300); });
 $('logQ').addEventListener('keydown', e => { if (e.key === 'Escape' && $('logQ').value) { e.stopPropagation(); $('logQ').value = ''; applyLogFilter(); } });
 $('btnCsv').onclick = () => {
-  const rows = logRows(); if (!rows.length) { setStatus('Verlauf ist leer', true); return; }
+  const rows = logRows(); if (!rows.length) { setStatus(t('logEmpty'), true); return; }
   download('dolmetscher-' + new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-') + '.csv', '\ufeff' + logCsv(rows), 'text/csv;charset=utf-8');   // BOM: Excel liest Thai richtig
 };
 $('btnShareLog').onclick = async () => {
-  const s = logText(); if (!s) { setStatus('Verlauf ist leer', true); return; }
+  const s = logText(); if (!s) { setStatus(t('logEmpty'), true); return; }
   try { if (navigator.share) { await navigator.share({ text: s }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
   copyText(s);   // ohne Teilen-Dialog: in die Zwischenablage
 };
 $('btnClearLog').onclick = () => {
-  if (!log.children.length) { setStatus('Verlauf ist leer', true); return; }
+  if (!log.children.length) { setStatus(t('logEmpty'), true); return; }
   if (!window.confirm(t('logClearConfirm'))) return;
   clearLog(); $('logQ').value = ''; applyLogFilter(); setStatus(t('logCleared'), true); $('btnCopy').focus();   // Fokus bleibt in der Werkzeugleiste
 };
@@ -1878,13 +2281,13 @@ function acceptConsent() {
   try { localStorage.setItem('micConsent', CONSENT_VER); } catch {}
   const m = consentWant; consentWant = null;
   closeConsent();
-  if (m && $('ptt').checked) { unlockTTS(); setStatus('Bereit – Knopf halten und sprechen', true); MODES[m].btn.focus(); return; }
+  if (m && $('ptt').checked) { unlockTTS(); setStatus(t('statusReadyPtt'), true); MODES[m].btn.focus(); return; }
   if (m) { setMode(m); unlockTTS(); MODES[m].btn.focus(); }   // synchron in derselben Geste
 }
 function declineConsent() {
   consentWant = null;
   closeConsent();
-  setStatus('Mikrofon bleibt aus', true);
+  setStatus(t('statusMicOff'), true);
   if (consentOpener && consentOpener.focus) consentOpener.focus();
 }
 $('consentOk').onclick = acceptConsent;
@@ -2049,11 +2452,11 @@ function similarity(a, b) {   // 0..1 nach Levenshtein, Satzzeichen/Leerraum/Gro
   return 1 - prev[t.length] / Math.max(s.length, t.length);
 }
 const EMERGENCY = {   // Notrufnummern je Paket (Thailand); als tel:-Link, nicht einklappbar
-  doctor: [['Rettung', '1669']], pharmacy: [['Rettung', '1669']], dentist: [['Rettung', '1669']], airport: [['Rettung', '1669']],
-  access: [['Rettung', '1669']], spa: [['Rettung', '1669']], island: [['Rettung', '1669'], ['Tourist Police', '1155']],
-  police: [['Tourist Police', '1155'], ['Polizei', '191'], ['Rettung', '1669']], lostchild: [['Tourist Police', '1155'], ['Polizei', '191']],
-  travel: [['Rettung', '1669'], ['Polizei', '191'], ['Tourist Police', '1155']], hotel: [['Rettung', '1669'], ['Feuerwehr', '199'], ['Tourist Police', '1155']],
-  scooter: [['Rettung', '1669'], ['Polizei', '191']], transport: [['Tourist Police', '1155']],
+  doctor: [['emRescue', '1669']], pharmacy: [['emRescue', '1669']], dentist: [['emRescue', '1669']], airport: [['emRescue', '1669']],
+  access: [['emRescue', '1669']], spa: [['emRescue', '1669']], island: [['emRescue', '1669'], ['Tourist Police', '1155']],
+  police: [['Tourist Police', '1155'], ['emPolice', '191'], ['emRescue', '1669']], lostchild: [['Tourist Police', '1155'], ['emPolice', '191']],
+  travel: [['emRescue', '1669'], ['emPolice', '191'], ['Tourist Police', '1155']], hotel: [['emRescue', '1669'], ['emFire', '199'], ['Tourist Police', '1155']],
+  scooter: [['emRescue', '1669'], ['emPolice', '191']], transport: [['Tourist Police', '1155']],
 };
 const ISSUE_URL = 'https://github.com/Pschmetzer/en-th-dolmetscher/issues/new';
 function reportUrl(ctx) {   // vorbefülltes GitHub-Formular (Paket, Satz, Anzeige); nichts wird automatisch gesendet
@@ -2098,17 +2501,17 @@ function renderMine() {
       const r = document.createElement('div'); r.className = 'mycard';
       const b = document.createElement('b'); b.textContent = c.label; r.appendChild(b);
       const mk = (txt, fn) => { const x = document.createElement('button'); x.type = 'button'; x.className = 'small'; x.textContent = txt; x.onclick = fn; r.appendChild(x); };
-      mk('Zeigen', () => showBig(c.text, c.lang));
-      if (c.lang === 'th') mk('Bitte hierher bringen', () => showBig('พาไปที่นี่หน่อย\n' + c.text, 'th'));
-      if (box.id === 'myList') { mk('Teilen', () => shareText(c.text, c.lang)); mk('Löschen', () => { myCards.splice(i, 1); myStore(); }); }
+      mk(t('mcShow'), () => showBig(c.text, c.lang));
+      if (c.lang === 'th') mk(t('mcBring'), () => showBig('พาไปที่นี่หน่อย\n' + c.text, 'th'));
+      if (box.id === 'myList') { mk(t('mcShare'), () => shareText(c.text, c.lang)); mk(t('mcDelete'), () => { myCards.splice(i, 1); myStore(); }); }
       box.appendChild(r);
     });
   }
 }
 $('myAdd').onclick = () => {
   const label = $('myLabel').value.trim(), text = $('myText').value.trim();
-  if (!label || !text) { setStatus('Name und Text eingeben', true); return; }
-  if (myCards.length >= 30) { setStatus('Höchstens 30 eigene Karten', true); return; }
+  if (!label || !text) { setStatus(t('mcNeed'), true); return; }
+  if (myCards.length >= 30) { setStatus(t('mcMax'), true); return; }
   myCards.push({ label: label.slice(0, 40), text: text.slice(0, 200), lang: scriptShare(text, 'th') > 0.5 ? 'th' : pair.b });
   $('myLabel').value = ''; $('myText').value = ''; myStore();
 };
@@ -2138,7 +2541,7 @@ function loadAllergens() {
   fetch('allergens.json').then(r => r.json()).then(d => {
     allergyData = d; allergyTiles('allergyTiles', d.allergies); allergyTiles('condTiles', d.conditions);
     $('bloodSel').value = allergySel.blood || ''; $('rhSel').value = allergySel.rh || ''; allergyRender();
-  }).catch(() => { $('allergyOut').textContent = 'Daten nicht geladen (offline und noch nie geladen?)'; });
+  }).catch(() => { $('allergyOut').textContent = t('allergyNoData'); });
 }
 $('bloodSel').onchange = () => { allergySel.blood = $('bloodSel').value; allergySave(); };
 $('rhSel').onchange = () => { allergySel.rh = $('rhSel').value; allergySave(); };
@@ -2159,13 +2562,13 @@ function glossRender() {
   glossLoad().then(all => {
     box.textContent = '';
     const hits = all.filter(g => !q || g.en.toLowerCase().includes(q) || g.th.includes(q)).slice(0, 60);
-    if (!hits.length) { box.textContent = 'Nichts gefunden.'; return; }
+    if (!hits.length) { box.textContent = t('nothingFound'); return; }
     for (const g of hits) {
       const r = document.createElement('div'); r.className = 'mycard';
       const b = document.createElement('b'); b.lang = 'th'; b.textContent = g.th; const e = document.createElement('span'); e.lang = 'en'; e.textContent = g.en;
       r.append(b, e);
       const mk = (txt, fn) => { const x = document.createElement('button'); x.type = 'button'; x.className = 'small'; x.textContent = txt; x.onclick = fn; r.appendChild(x); };
-      mk('Zeigen', () => showBig(g.th, 'th')); mk('🔊', () => sayNow(g.th, 'th'));
+      mk(t('mcShow'), () => showBig(g.th, 'th')); mk('🔊', () => sayNow(g.th, 'th'));
       if (LANGS.en && LANGS.th) r.appendChild(starButton(() => learnItem(g.en, 'en', g.th, 'th'), async () => learnItem(g.en, 'en', g.th, 'th'), 'small'));
       box.appendChild(r);
     }
@@ -2188,11 +2591,11 @@ $('pbSeq').onclick = () => {
   seqMode = !seqMode; $('pbSeq').setAttribute('aria-pressed', String(seqMode)); $('pbSeqGo').hidden = !seqMode;
   $('pbSeq').textContent = seqMode ? t('pbSeqEnd') : t('pbSeq');
   if (!seqMode) for (const c of document.querySelectorAll('#cards .card.sel')) c.classList.remove('sel');
-  $('pbMsg').textContent = seqMode ? 'Karten antippen zum Auswählen, dann „Folge zeigen“.' : '';
+  $('pbMsg').textContent = seqMode ? t('pbSeqHint') : '';
 };
 $('pbSeqGo').onclick = async () => {
   const cards = [...document.querySelectorAll('#cards .card.sel')];
-  if (!cards.length) { $('pbMsg').textContent = 'Erst Karten auswählen.'; return; }
+  if (!cards.length) { $('pbMsg').textContent = t('pbSeqNone'); return; }
   const b = pair.b;
   seq = await Promise.all(cards.map(async c => {
     let out; try { out = await phraseIn(c._p, b); } catch { return { text: c._p.en, lang: 'en' }; }
@@ -2202,10 +2605,10 @@ $('pbSeqGo').onclick = async () => {
 };
 $('btnReport').onclick = () => {
   if (!bigCtx) return;
-  if (window.confirm('Fehler an dieser Karte melden? Es öffnet sich eine GitHub-Seite mit vorbefülltem Text. Es wird nichts automatisch gesendet.')) window.open(reportUrl(bigCtx), '_blank', 'noopener');
+  if (window.confirm(t('reportConfirm'))) window.open(reportUrl(bigCtx), '_blank', 'noopener');
 };
 $('pbPrint').onclick = async () => {
-  let d; try { d = await loadPreset($('presetSel').value); } catch { $('pbMsg').textContent = 'Thema nicht verfügbar (offline?).'; return; }
+  let d; try { d = await loadPreset($('presetSel').value); } catch { $('pbMsg').textContent = t('topicUnavailable'); return; }
   const sh = $('printSheet'), b = pair.b, a = pair.a;
   sh.textContent = '';
   const h = document.createElement('h1'); h.textContent = (d.names.de || d.names.en) + ' – ' + LANGS[b].native; sh.appendChild(h);
@@ -2218,21 +2621,21 @@ $('pbPrint').onclick = async () => {
     tr.append(c1, c2); tb.appendChild(tr);
   }
   sh.appendChild(tb);
-  const f = document.createElement('p'); f.className = 'sm'; f.lang = 'de';
-  f.textContent = 'Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.' + (miss ? ' ' + miss + ' Sätze fehlen in dieser Sprache (erst im Satzbuch antippen).' : '');
+  const f = document.createElement('p'); f.className = 'sm'; f.lang = UI;
+  f.textContent = t('printNote') + (miss ? t('printMissing', { m: miss }) : '');
   sh.appendChild(f);
   window.print();
 };
 $('pbClear').onclick = () => {
   const n = Object.keys(pbTrans).length;
-  if (!n) { $('pbMsg').textContent = 'Keine gemerkten Übersetzungen.'; return; }
-  if (!window.confirm(n + ' gemerkte Übersetzungen in diesem Browser löschen?')) return;
+  if (!n) { $('pbMsg').textContent = t('pbNoSaved'); return; }
+  if (!window.confirm(t('pbWipeConfirm', { n }))) return;
   for (const k of Object.keys(pbTrans)) delete pbTrans[k];
   try { localStorage.removeItem('pbTrans'); } catch {}
-  renderCards(); $('pbMsg').textContent = 'Gemerkte Übersetzungen gelöscht.';
+  renderCards(); $('pbMsg').textContent = t('pbWiped');
 };
 let preAbort = false;
-function updatePreBtn() { $('pbPre').hidden = ['en', 'th'].includes(pair.b); $('pbPre').textContent = 'Alle Themen ins ' + (LANGS[pair.b] ? lname(pair.b) : '') + ' vorübersetzen'; }
+function updatePreBtn() { $('pbPre').hidden = ['en', 'th'].includes(pair.b); $('pbPre').textContent = t('preBtn', { l: LANGS[pair.b] ? lname(pair.b) : '' }); }
 $('pbPre').onclick = async () => {
   if ($('pbPre').dataset.run === '1') { preAbort = true; return; }
   const b = pair.b; preAbort = false; $('pbPre').dataset.run = '1';
@@ -2241,13 +2644,13 @@ $('pbPre').onclick = async () => {
   let done = 0;
   for (const p of jobs) {
     if (preAbort || pair.b !== b) break;
-    $('pbPre').textContent = 'Abbrechen (' + done + '/' + jobs.length + ')';
-    $('pbMsg').textContent = 'Übersetze Sätze (maschinell, Google Translate) … ' + done + ' von ' + jobs.length;
+    $('pbPre').textContent = t('preCancel', { a: done, b: jobs.length });
+    $('pbMsg').textContent = t('preBusy', { a: done, b: jobs.length });
     try { await phraseIn(p, b); } catch { break; }
     done++; await wait(1000);
   }
   $('pbPre').dataset.run = ''; updatePreBtn(); renderCards();
-  $('pbMsg').textContent = done + ' von ' + jobs.length + ' Sätzen übersetzt und auf dem Gerät gemerkt (maschinell, ungeprüft).';
+  $('pbMsg').textContent = t('preDone', { a: done, b: jobs.length });
 };
 
 // ---- Lernen: Hören zuerst, Sichern, Statistik, Nachsprechen ----
@@ -2266,13 +2669,13 @@ function download(name, text, type) {
   a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name;
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
-$('learnExport').onclick = () => { if (!learnList.length) { $('learnMsg').textContent = 'Keine Lernkarten zum Sichern.'; return; } download('dolmetscher-lernkarten.json', JSON.stringify(learnList), 'application/json'); };
-$('learnTsv').onclick = () => { if (!learnList.length) { $('learnMsg').textContent = 'Keine Lernkarten zum Sichern.'; return; } download('dolmetscher-lernkarten.tsv', learnTsv(learnList), 'text/tab-separated-values'); };
+$('learnExport').onclick = () => { if (!learnList.length) { $('learnMsg').textContent = t('learnNoneExport'); return; } download('dolmetscher-lernkarten.json', JSON.stringify(learnList), 'application/json'); };
+$('learnTsv').onclick = () => { if (!learnList.length) { $('learnMsg').textContent = t('learnNoneExport'); return; } download('dolmetscher-lernkarten.tsv', learnTsv(learnList), 'text/tab-separated-values'); };
 $('learnImport').onclick = () => $('learnFile').click();
 $('learnFile').onchange = () => {
-  const f = $('learnFile').files[0]; if (!f || f.size > 2e6) { $('learnMsg').textContent = 'Datei fehlt oder zu groß.'; return; }
+  const f = $('learnFile').files[0]; if (!f || f.size > 2e6) { $('learnMsg').textContent = t('learnFileBad'); return; }
   const r = new FileReader();
-  r.onload = () => { const imp = learnParse(String(r.result)); const before = learnList.length; learnStore(learnMerge(learnList, imp)); $('learnMsg').textContent = (learnList.length - before) + ' neue Karten geladen (von ' + imp.length + ' gültigen).'; $('learnFile').value = ''; };
+  r.onload = () => { const imp = learnParse(String(r.result)); const before = learnList.length; learnStore(learnMerge(learnList, imp)); $('learnMsg').textContent = t('learnLoaded', { n: learnList.length - before, m: imp.length }); $('learnFile').value = ''; };
   r.readAsText(f);
 };
 for (const id of ['learnListen']) {
@@ -2284,17 +2687,17 @@ $('learnNew').addEventListener('change', () => { settings.learnNew = Math.max(1,
 if (SR) $('learnPractice').hidden = false;
 $('learnPractice').onclick = () => {
   if (!learnCur) return;
-  if (!hasConsent()) { $('learnPracticeOut').textContent = 'Bitte zuerst einmal einen Mikrofon-Modus starten (Einwilligung).'; return; }
+  if (!hasConsent()) { $('learnPracticeOut').textContent = t('practiceConsent'); return; }
   const card = learnCur, r = new SR(), out = $('learnPracticeOut');
   r.lang = recLocale(card.b.l); r.continuous = false; r.interimResults = false;
   if ($('localRec').checked && 'processLocally' in r) r.processLocally = true;
-  out.textContent = '🎙 Sprich den Satz nach …';
+  out.textContent = t('practicePrompt');
   r.onresult = ev => {
     const heard = ev.results[0][0].transcript, sim = Math.round(similarity(heard, card.b.t) * 100);
-    out.textContent = 'Erkannt: „' + heard + '“ – Übereinstimmung ' + sim + ' %. Die Erkennung ist nur ein Anhaltspunkt (Töne werden nicht geprüft).';
+    out.textContent = t('practiceHeard', { h: heard, s: sim });
   };
-  r.onerror = ev => { out.textContent = 'Nachsprechen nicht möglich (' + ev.error + ').'; };
-  try { r.start(); } catch { out.textContent = 'Nachsprechen nicht möglich.'; }
+  r.onerror = ev => { out.textContent = t('practiceErr', { e: ev.error }); };
+  try { r.start(); } catch { out.textContent = t('practiceFail'); }
 };
 
 // ---- Deep-Links, geteilte Texte, Installationshinweis ----
@@ -2309,7 +2712,7 @@ function applyDeepLink() {
   }
   if (d.incoming) {   // aus einer anderen App geteilt: übersetzen und groß zeigen, nichts speichern
     const src = textLang(d.incoming, pair.b, pair.a, pair.b), dst = src === pair.a ? pair.b : pair.a;
-    translate(d.incoming, src, dst).then(r => showBig(r.text, dst), () => showWarn('Geteilten Text nicht übersetzt (offline oder Limit).'));
+    translate(d.incoming, src, dst).then(r => showBig(r.text, dst), () => showWarn(t('sharedFail')));
   }
   return true;
 }
@@ -2323,10 +2726,10 @@ function maybeInstallHint() {
   const n = $('installNote'); n.textContent = '';
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
   if (!installPrompt && !ios) return;
-  n.append(installPrompt ? 'Als App installieren: schneller Start, Lernstand bleibt erhalten. ' : 'Tipp: Teilen-Symbol, dann „Zum Home-Bildschirm“ – so bleiben Lernkarten und Einstellungen erhalten. ');
-  const mk = (t, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'small'; b.textContent = t; b.onclick = fn; n.appendChild(b); };
-  if (installPrompt) mk('Installieren', () => { installPrompt.prompt(); n.hidden = true; });
-  mk('Schließen', () => { n.hidden = true; try { localStorage.setItem('installHint', '1'); } catch {} });
+  n.append(t(installPrompt ? 'installApp' : 'installIos'));
+  const mk = (label, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'small'; b.textContent = label; b.onclick = fn; n.appendChild(b); };
+  if (installPrompt) mk(t('installBtn'), () => { installPrompt.prompt(); n.hidden = true; });
+  mk(t('closeBtn'), () => { n.hidden = true; try { localStorage.setItem('installHint', '1'); } catch {} });
   n.hidden = false;
 }
 
@@ -2342,7 +2745,7 @@ function buildVariants() {
   for (const l of [pair.a, pair.b]) {
     if (!VARIANTS[l] || !LANGS[l]) continue;
     const lab = document.createElement('label'); lab.textContent = lname(l) + ': ';
-    const sel = document.createElement('select'); sel.setAttribute('aria-label', 'Variante ' + lname(l));
+    const sel = document.createElement('select'); sel.setAttribute('aria-label', t('variantLbl', { l: lname(l) }));
     for (const [code, name] of VARIANTS[l]) { const o = document.createElement('option'); o.value = code; o.textContent = name; sel.appendChild(o); }
     sel.value = recLocale(l);
     sel.onchange = () => { settings.vars = Object.assign({}, settings.vars, { [l]: sel.value }); saveSettings(); if (mode) setMode(null); buildModes(); fillVoiceSelects(); };
@@ -2410,16 +2813,33 @@ if (navigator.permissions && navigator.permissions.query) {   // Mikrofon schon 
     check(); ps.onchange = check;
   }).catch(() => {});   // Safari/Firefox kennen die Abfrage nicht: dann greift die Fehlermeldung beim Start
 }
+// ---- Runde 9: Design (automatisch/hell/dunkel) und Schriftgröße, gemerkt in den Einstellungen ----
+const THEMES = ['auto', 'light', 'dark'], THEME_ICON = { auto: '◐', light: '☀', dark: '☾' }, THEME_KEY = { auto: 'themeAuto', light: 'themeLight', dark: 'themeDark' };
+let theme = THEMES.includes(settings.theme) ? settings.theme : 'auto';
+function applyTheme() { if (theme === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.dataset.theme = theme; }
+function updateThemeBtn() { const b = $('btnTheme'); if (!b) return; b.textContent = THEME_ICON[theme]; b.setAttribute('aria-label', t(THEME_KEY[theme])); b.title = t(THEME_KEY[theme]); }
+$('btnTheme').onclick = () => { theme = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length]; settings.theme = theme; saveSettings(); applyTheme(); updateThemeBtn(); setStatus(t(THEME_KEY[theme]), true); };
+applyTheme();
+const FS_MIN = 0.85, FS_MAX = 1.6, FS_STEP = 0.15;
+let uiScale = (+settings.fs >= FS_MIN && +settings.fs <= FS_MAX) ? +settings.fs : 1;
+function setUiScale(v) {
+  uiScale = Math.round(Math.min(FS_MAX, Math.max(FS_MIN, v)) * 100) / 100;
+  document.documentElement.style.setProperty('--ui-scale', String(uiScale));
+  settings.fs = uiScale; saveSettings(); setStatus(t('fsSet', { n: Math.round(uiScale * 100) }), true);
+}
+document.documentElement.style.setProperty('--ui-scale', String(uiScale));
+$('btnTextDown').onclick = () => setUiScale(uiScale - FS_STEP);
+$('btnTextUp').onclick = () => setUiScale(uiScale + FS_STEP);
 $('uiLang').value = UI;
 $('uiLang').onchange = () => {
   UI = $('uiLang').value; settings.ui = UI; saveSettings(); applyUi();
-  if (LANGS[pair.a]) { fillLangSelects(); buildModes(); fillPresetSelect(); renderCards(); statsRender(); updatePreBtn(); }
+  if (LANGS[pair.a]) { fillLangSelects(); buildModes(); fillPresetSelect(); renderCards(); statsRender(); updatePreBtn(); renderRecent(); }
 };
 applyUi();
 loadLangTable().then(() => {
   initPair();
   if (TTS) { TTS.onvoiceschanged = loadVoices; loadVoices(); }
-  fillLangSelects(); buildModes(); fillPresetSelect(); renderCards(); renderMine(); loadAllergens(); learnRender(); openFromHash();
+  fillLangSelects(); buildModes(); fillPresetSelect(); renderRecent(); renderCards(); renderMine(); loadAllergens(); learnRender(); openFromHash();
 });
 </script>
 </body>
