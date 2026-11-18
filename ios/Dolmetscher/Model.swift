@@ -461,6 +461,7 @@ final class InterpreterModel {
                 // bei Push-to-talk hört sie erst beim Halten zu.
                 lastMute = nil
                 phase = .listening
+                voiceOverSay("a11y_started")
                 applyMute()
                 lastActivity = Date()
                 Haptics.success()
@@ -478,6 +479,7 @@ final class InterpreterModel {
                     download = nil
                     if case .denied? = error as? SpeechError { micDenied = true }
                     phase = .failed(error.localizedDescription)
+                    voiceOverSay("a11y_failed", detail: error.localizedDescription)
                     Haptics.error()
                 }
             }
@@ -506,6 +508,7 @@ final class InterpreterModel {
         partial = ""; level = 0; hearing = false; finishing = false; idleWarning = false; pttHeld = false
         if endConversation { LiveActivityController.shared.end() }
         UIApplication.shared.isIdleTimerDisabled = false
+        if endConversation { voiceOverSay("a11y_stopped") }
         Haptics.tap()
         // Abbau auch dann zu Ende führen, wenn iOS die App gleich einfriert (sonst bleibt der Mikrofonpunkt hängen).
         let bg = UIApplication.shared.beginBackgroundTask(withName: "stop-listening")
@@ -651,6 +654,7 @@ final class InterpreterModel {
             if again {
                 stop()
                 phase = .failed(T("err_recognizer") + " (\(why))")
+                voiceOverSay("a11y_failed", detail: T("err_recognizer"))
                 Haptics.error()
             } else {
                 restart()
@@ -784,6 +788,12 @@ final class InterpreterModel {
         }
     }
 
+    /// Ansage für VoiceOver ohne sichtbaren Hinweis (Start, Stopp, Fehler): sonst erfährt man Statuswechsel nur am Bildschirm.
+    func voiceOverSay(_ key: String, detail: String? = nil) {
+        guard UIAccessibility.isVoiceOverRunning else { return }
+        AccessibilityNotification.Announcement(detail.map { T(key) + ": " + $0 } ?? T(key)).post()
+    }
+
     func flash(_ s: String, seconds: Double = 2.5) {
         notice = s
         // 583: VoiceOver-Nutzer erfahren Hinweise sonst nicht.
@@ -885,6 +895,7 @@ final class InterpreterModel {
             } catch {
                 guard revisions[id] == rev else { return nil }
                 update(id) { $0.error = error.localizedDescription }
+                voiceOverSay("a11y_translation_failed", detail: error.localizedDescription)
                 Haptics.warning()
                 persist()
                 return nil

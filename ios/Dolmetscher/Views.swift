@@ -4,10 +4,14 @@ import SwiftUI
 
 enum LangStyle {
     /// Meine Sprache blau, Partnersprache orange (wie bisher Englisch/Thai).
-    static func color(_ l: Lang, _ pair: LangPair) -> Color { l == pair.partner ? partnerColor : .blue }
+    static func color(_ l: Lang, _ pair: LangPair) -> Color { l == pair.partner ? partnerColor : StatusColor.info }
     /// 584: Orange auf hellem Grund hat nur ca. 2:1 Kontrast – im hellen Modus ein dunkleres Orange (ca. 4,6:1).
     static let partnerColor = Color(UIColor { $0.userInterfaceStyle == .dark ? .systemOrange
         : UIColor(red: 0.70, green: 0.33, blue: 0.0, alpha: 1) })
+    /// Fläche mit weißer Schrift (Zug-Knopf): feste dunkle Töne, in beiden Modi mindestens 4,5:1 gegen Weiß.
+    static func fill(_ l: Lang, _ pair: LangPair) -> Color {
+        l == pair.partner ? Color(red: 0.70, green: 0.33, blue: 0.0) : StatusColor.infoFill
+    }
     static func flag(_ l: Lang) -> String { l.flag }
     static func name(_ l: Lang) -> String { l.native }
 }
@@ -61,7 +65,7 @@ struct ContentView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button { showPartner = true } label: { Image(systemName: "person.2.wave.2") }
+                    Button { showPartner = true } label: { Image(systemName: "person.2.wave.2").minTapTarget() }
                         .accessibilityLabel(T("partner"))
                 }
                 ToolbarItem(placement: .topBarTrailing) {
@@ -84,7 +88,7 @@ struct ContentView: View {
                             .disabled(m.visibleEntries.isEmpty)
                         Divider()
                         Button { m.sheet = .settings } label: { Label(T("settings"), systemImage: "gearshape") }
-                    } label: { Image(systemName: "ellipsis.circle") }
+                    } label: { Image(systemName: "ellipsis.circle").minTapTarget() }
                         .accessibilityLabel(T("more"))
                 }
             }
@@ -222,7 +226,7 @@ struct ContentView: View {
             } label: {
                 HStack(spacing: 12) {
                     Text("\(p.mine.flag) \(p.mine.native)").foregroundStyle(LangStyle.color(p.mine, p))
-                    Image(systemName: "arrow.left.arrow.right").foregroundStyle(.secondary)
+                    Image(systemName: "arrow.left.arrow.right").foregroundStyle(.secondary).accessibilityHidden(true)
                     Text("\(p.partner.flag) \(p.partner.native)").foregroundStyle(LangStyle.color(p.partner, p))
                 }
                 .font(.title2.bold())
@@ -272,7 +276,7 @@ struct ContentView: View {
 
     private var statusLine: some View {
         HStack(spacing: 8) {
-            if m.isBusy { ProgressView().controlSize(.small) }
+            if m.isBusy { ProgressView().controlSize(.small).accessibilityHidden(true) }
             Text(statusText)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
@@ -375,9 +379,9 @@ struct ContentView: View {
                 }
             }
             HStack(spacing: 8) {
-                Button { m.sheet = .phrasebook } label: { Image(systemName: "book").font(.title3).frame(minWidth: 44, minHeight: 44) }
+                Button { m.sheet = .phrasebook } label: { Image(systemName: "book").font(.title3).minTapTarget() }
                     .accessibilityLabel(T("phrasebook"))
-                Button { m.sheet = .photo } label: { Image(systemName: "text.viewfinder").font(.title3).frame(minWidth: 44, minHeight: 44) }
+                Button { m.sheet = .photo } label: { Image(systemName: "text.viewfinder").font(.title3).minTapTarget() }
                     .accessibilityLabel(T("photo_text"))
                 TextField(T("type_hint"), text: $draft, axis: .vertical)
                     .lineLimit(1...3)
@@ -395,7 +399,7 @@ struct ContentView: View {
                     .buttonBorderShape(.circle)
                     .accessibilityLabel(T("paste_translate"))
                 } else {
-                    Button(action: send) { Image(systemName: "arrow.up.circle.fill").font(.title) }
+                    Button(action: send) { Image(systemName: "arrow.up.circle.fill").font(.title).minTapTarget() }
                         .accessibilityLabel(T("translate"))
                 }
             }
@@ -497,7 +501,7 @@ struct SuggestionChips: View {
                         Label(p.gloss, systemImage: "book.closed")
                             .font(.footnote)
                             .padding(.horizontal, 10).padding(.vertical, 6)
-                            .background(.orange.opacity(0.15), in: Capsule())
+                            .background(StatusColor.warning.opacity(0.15), in: Capsule())
                     }
                     .buttonStyle(.plain)
                     .accessibilityHint(T("suggest_hint"))
@@ -524,7 +528,7 @@ struct TalkButton: View {
         .font(.title3.bold())
         .foregroundStyle(.white)
         .frame(maxWidth: .infinity, minHeight: 56)
-        .background(held ? Color.red : Color.blue, in: Capsule())
+        .background(held ? StatusColor.errorFill : StatusColor.infoFill, in: Capsule())
         .overlay(Capsule().stroke(.white.opacity(0.7), lineWidth: held ? CGFloat(m.level) * 6 : 0))
         .modifier(PushGesture(tapMode: m.pttTapMode, held: held,
                               press: { before(); m.pttPress() }, release: { m.pttRelease() }))
@@ -571,7 +575,7 @@ struct MicButton: View {
             .font(.title3.bold())
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity, minHeight: 56)
-            .background(active ? Color.red : Color.green, in: Capsule())
+            .background(active ? StatusColor.errorFill : StatusColor.okFill, in: Capsule())
             .overlay(Capsule().stroke(.white.opacity(0.7), lineWidth: m.isListening ? CGFloat(m.level) * 6 : 0))
         }
         .accessibilityLabel(active ? T("stop") : T("start"))
@@ -635,7 +639,7 @@ struct Bubble: View {
             if m.backCheck, let b = entry.back { BackLine(text: b, deviates: entry.backDeviates) }
         } else if let err = entry.error {
             VStack(alignment: .leading, spacing: 6) {
-                Text("⚠️ " + err).font(.callout).foregroundStyle(.red)
+                Text("⚠️ " + err).font(.callout).foregroundStyle(StatusColor.error)
                 HStack {
                     Button(T("retry")) { m.retry(entry.id) }.buttonStyle(.bordered).controlSize(.small)
                     switch ErrorAdvice.action(for: err) {
@@ -724,14 +728,15 @@ struct Bubble: View {
                 Button {
                     m.speakingID == entry.id ? m.stopSpeaking() : m.speak(entry)
                 } label: {
-                    Image(systemName: m.speakingID == entry.id ? "stop.circle.fill" : "speaker.wave.2.fill")
+                    Image(systemName: m.speakingID == entry.id ? "stop.circle.fill" : "speaker.wave.2.fill").minTapTarget()
                 }
                 .accessibilityLabel(m.speakingID == entry.id ? T("stop_speaking") : T("replay"))
-                Button { m.speak(entry, slow: true) } label: { Image(systemName: "tortoise") }
+                Button { m.speak(entry, slow: true) } label: { Image(systemName: "tortoise").minTapTarget() }
                     .accessibilityLabel(T("replay_slow"))
                 Button { m.toggleFavorite(entry) } label: {
                     Image(systemName: m.isFavorite(entry) ? "star.fill" : "star")
-                        .foregroundStyle(m.isFavorite(entry) ? Color.yellow : Color.secondary)
+                        .foregroundStyle(m.isFavorite(entry) ? StatusColor.warning : Color.secondary)
+                        .minTapTarget()
                 }
                 .accessibilityLabel(m.isFavorite(entry) ? T("unfavorite") : T("favorite"))
             }
@@ -789,11 +794,11 @@ struct BigTextView: View {
             // Kein Schließen per Tipp: wer dem Fahrer das Handy reicht, schließt sonst versehentlich.
             Divider()
             HStack(spacing: 28) {
-                Button { flipped.toggle() } label: { Image(systemName: "arrow.up.arrow.down") }
+                Button { flipped.toggle() } label: { Image(systemName: "arrow.up.arrow.down").minTapTarget() }
                     .accessibilityLabel(T("flip"))
-                Button { if let e { m.speak(e) } } label: { Image(systemName: "speaker.wave.2.fill") }
+                Button { if let e { m.speak(e) } } label: { Image(systemName: "speaker.wave.2.fill").minTapTarget() }
                     .accessibilityLabel(T("replay"))
-                Button { if let e { m.speak(e, slow: true) } } label: { Image(systemName: "tortoise.fill") }
+                Button { if let e { m.speak(e, slow: true) } } label: { Image(systemName: "tortoise.fill").minTapTarget() }
                     .accessibilityLabel(T("replay_slow"))
                 Spacer()
                 Button(T("done")) { dismiss() }
