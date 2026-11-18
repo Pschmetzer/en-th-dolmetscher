@@ -54,8 +54,9 @@ Claude translation is optional and costs per sentence (billed by Anthropic). Wit
 
 1. Use headphones. That is the safest fix.
 2. On laptop speakers the engine discards audio that arrives while the translation plays (plus about 300 ms of reverb). With too many false recognitions lower the sensitivity (`--sensitivity low`) and turn on noise suppression (`--denoise`).
-3. `--barge-in` (interrupt by talking) is for headphones only.
-4. The output device (speaker or headphones) can be chosen in the settings, also while running.
+3. In addition the echo guard (`echo_guard`, on by default) drops recognised sentences that almost equal one of the last spoken sentences; it keeps them in memory only and stores nothing.
+4. `--barge-in` (interrupt by talking) is for headphones only.
+5. The output device (speaker or headphones) can be chosen in the settings, also while running.
 
 ## Setup fails (Mac, first start)
 

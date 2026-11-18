@@ -24,8 +24,18 @@ final class EnvSetupModel: ObservableObject {
     private var buffer = Data()
     static let logURL = Paths.support.appendingPathComponent("setup.log")
 
+    /// Merker „Einrichtung begonnen, nicht beendet“: nach Abbruch oder Absturz geht sie beim nächsten Start weiter.
+    static let startedKey = "setupStarted"
+    /// Der Bildschirm erscheint, weil eine frühere Einrichtung unterbrochen wurde (Hinweistext „setzt fort“).
+    let resumed: Bool
+
     private init() {
-        visible = Paths.pythonIsFallback
+        let started = UserDefaults.standard.bool(forKey: Self.startedKey)
+        let missing = ModelCache.missingGB(model: EngineModel.savedModel, thai: Langs.hasThai, cached: ModelCache.cached())
+        let again = OnboardingLogic.interrupted(started: started, envMissing: Paths.pythonIsFallback, missingGB: missing)
+        if started && !again { UserDefaults.standard.removeObject(forKey: Self.startedKey) }
+        resumed = again
+        visible = Paths.pythonIsFallback || again
     }
 
     /// Eine vorhandene, aber veraltete venv (anderer Lock nach App-Update) – anderer Einleitungstext.
@@ -77,6 +87,7 @@ final class EnvSetupModel: ObservableObject {
     func start(engine: EngineModel) {
         if case .env = phase { return }
         if proc?.isRunning == true { return }     // Nr. 2: altes Skript räumt noch auf – nie zwei zugleich
+        UserDefaults.standard.set(true, forKey: Self.startedKey)
         guard Self.spaceOK(envMissing: envMissing || visibleRedo,
                            modelsGB: Self.modelsGB(model: engine.model, thai: Langs.hasThai)) else {
             phase = .failed(kind: "no_space"); return
@@ -163,7 +174,7 @@ final class EnvSetupModel: ObservableObject {
     /// Engine meldet ready bzw. einen Modellfehler (aus der Ansicht beobachtet).
     func engineChanged(_ engine: EngineModel) {
         guard case .models = phase else { return }
-        if engine.engineReady { phase = .done }
+        if engine.engineReady { phase = .done; UserDefaults.standard.removeObject(forKey: Self.startedKey) }
         else if engine.modelOffline { phase = .failed(kind: "offline"); engine.stopEngine() }
     }
 
@@ -186,7 +197,10 @@ final class EnvSetupModel: ObservableObject {
     }
 
     /// Abschluss: Bildschirm schließen (die Engine läuft bereits).
-    func finish() { visible = false; phase = .idle }
+    func finish() {
+        UserDefaults.standard.removeObject(forKey: Self.startedKey)
+        visible = false; phase = .idle
+    }
 
     var running: Bool {
         switch phase { case .env, .models: return true; default: return false }
@@ -208,6 +222,10 @@ struct EnvSetupView: View {
                 .foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             if Paths.pythonOverride != nil, case .override = Paths.pythonSource {
                 Label(L.t("envsetup_dev"), systemImage: "hammer").font(.callout)
+            }
+            if s.resumed, case .idle = s.phase {
+                Label(L.t("envsetup_resume"), systemImage: "arrow.clockwise.circle").font(.callout)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             sizeLine
             progressRows
@@ -310,9 +328,15 @@ struct EnvSetupView: View {
             default: return "envsetup_failed"
             }
         }()
-        return Label(L.t(key), systemImage: kind == "offline" ? "wifi.slash" : "exclamationmark.triangle.fill")
-            .foregroundStyle(kind == "cancelled" ? Color.secondary : LangStyle.warning)
-            .fixedSize(horizontal: false, vertical: true)
+        return VStack(alignment: .leading, spacing: 6) {
+            Label(L.t(key), systemImage: kind == "offline" ? "wifi.slash" : "exclamationmark.triangle.fill")
+                .foregroundStyle(kind == "cancelled" ? Color.secondary : LangStyle.warning)
+            Text(L.t(OnboardingLogic.nextStepKey(kind: kind))).font(.callout).foregroundStyle(.secondary)
+            if OnboardingLogic.canShrinkModel(kind: kind, model: m.model) {
+                Button(L.t("envsetup_smaller")) { m.model = "small"; s.start(engine: m) }
+            }
+        }
+        .fixedSize(horizontal: false, vertical: true)
     }
 
     private var buttons: some View {
