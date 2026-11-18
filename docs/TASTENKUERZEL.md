@@ -31,6 +31,7 @@ Wenn ein anderes Programm ein Kürzel schon belegt, zeigt die App einen Hinweis 
 | ⌘+ / ⌘- / ⌘0 | Schrift größer / kleiner / zurücksetzen (⌘= wirkt wie ⌘+) |
 | ⇧⌘P | Partneransicht öffnen |
 | ⌥⌘T | Fenster immer im Vordergrund |
+| ⌥⌘K | Sprachpaar tauschen |
 | ⇧⌘E | Gespräch exportieren |
 | ⌥⌘Z | Löschen rückgängig machen |
 | ⇧⌘C | letzte Übersetzung kopieren |

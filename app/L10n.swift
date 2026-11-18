@@ -1143,6 +1143,11 @@ enum L {
                "th": "เมื่อคนนี้พูด คำแปลภาษาไทยจะใช้คำลงท้ายของเขาเอง (ครับ/ค่ะ)"],
         // Runde 6 (Ideenliste)
         "menu_state_problem": ["de": "Problem – Fenster öffnen", "en": "Problem – open the window", "th": "มีปัญหา – เปิดหน้าต่าง"],
+        "menu_state_speaking": ["de": "Spricht", "en": "Speaking", "th": "กำลังพูด"],
+        "menu_swap_pair": ["de": "Sprachpaar tauschen", "en": "Swap language pair", "th": "สลับคู่ภาษา"],
+        "menu_engine_status": ["de": "Engine: %@", "en": "Engine: %@", "th": "เอนจิน: %@"],
+        "menu_copy_last_vo": ["de": "Letzte Übersetzung in die Zwischenablage kopieren", "en": "Copy the last translation to the clipboard", "th": "คัดลอกคำแปลล่าสุดไปยังคลิปบอร์ด"],
+        "menu_swap_vo": ["de": "Meine Sprache und Partnersprache vertauschen", "en": "Swap my language and the partner's language", "th": "สลับภาษาของฉันกับภาษาของคู่สนทนา"],
         "menu_state_loading": ["de": "Lädt …", "en": "Loading …", "th": "กำลังโหลด …"],
         "menu_state_offline": ["de": "ohne Internet", "en": "offline", "th": "ไม่มีอินเทอร์เน็ต"],
         "listen_on_launch": ["de": "Beim Start gleich zuhören", "en": "Start listening on launch", "th": "เริ่มฟังทันทีเมื่อเปิดแอป"],

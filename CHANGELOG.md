@@ -18,6 +18,11 @@ Pull requests #16–#47. Not yet published as a release.
 - **Nine new phrase packs with cultural notes** (#40): pharmacy, police, bank, spa, temple, flat rental, scooter, transport and lost child; safety-critical sentences come first and are marked on every platform (#45, #46, #47).
 - **Browser version in 19 languages and installable as an app** (#37), with an offline phrasebook.
 
+### Web (round 15)
+
+- **Faster install and start:** the service worker now precaches only the app shell; the phrase packs are downloaded in the background after start (4 at a time, only online and not in data-saver mode). “Ready offline” still appears once all packs are stored; packs from the previous version are carried over, so there is no offline gap on updates.
+- **Browser storage full** is reported instead of failing silently; stored translations drop the oldest quarter and retry. Glossary and “translate all” load packs at most 6 at a time. Size budget test added (index.html ≤ 232 KB).
+
 ### Engine (speech recognition, translation, voice – used by the Mac app)
 
 - **Language pairs** (#29): any pair of English, Thai, German, Spanish, French, Italian, Portuguese, Dutch, Russian, Chinese, Japanese, Korean, Vietnamese, Indonesian, Arabic, Hindi, Turkish, Polish and Ukrainian. Thai-specific extras (ครับ/ค่ะ, 555 laughter, Thai numbers, the Thai model) are only active when Thai is in the pair; voice commands only when English is.
@@ -47,6 +52,10 @@ Pull requests #16–#47. Not yet published as a release.
 ### Web (round 16)
 
 - **Own phrases and favourites** (browser): the “My cards” box now edits cards, adds an optional translation (via the existing translation chain, correctable by hand) and a group label with a group filter, keeps the 30-card limit, and reorders cards and starred favourites with up/down buttons (keyboard and screen-reader friendly, position announced). Cards export and import as JSON (validated: size limit, control characters removed, unknown fields and `__proto__` dropped, duplicates skipped). A full browser storage is reported instead of silently losing the change. Texts in German, English and Thai; `tests/test_runde16_web_favorites.py`.
+
+### Mac app (round 17)
+
+- **Menu bar and Dock**: the menu bar icon now has its own shape for listening, speaking, paused, offline, loading and error, each with a spoken text alternative (logic in `MenuBarLogic.swift`, tested with `swiftc`). The menu shows the engine status, start/stop, swap language pair and copy last translation. New command “Swap language pair” (⌥⌘K) with VoiceOver names; the Dock menu gained copy last translation and swap pair.
 
 ### Mac app (round 16)
 
@@ -116,6 +125,8 @@ Pull requests #16–#47. Not yet published as a release.
 
 ### Infrastructure and documentation
 
+- **iPhone logic tests** (round 16): `Round16Tests.swift` covers edge cases of CSV export, phrasebook search, speech rate, history retention and undo, privacy switches, learning plan (Leitner), language-pair switching, the quick-phrase widget and number and back-translation checks; `tests/test_runde16_ios_tests.py` checks the file statically.
+- **Test suite upkeep** (round 17): tests that need faster-whisper or PyAV skip with a clear reason when the package is missing, the LLM cache test no longer needs the `anthropic` SDK, and the one-off `git diff origin/main` test is gone; the iPhone onboarding uses `StatusColor` instead of raw system colours; `tools/check_all.sh` also runs script syntax, shellcheck and the phrase-pack checks like CI.
 - **Review tools** (round 16): `tools/review_export.py`, `review_import.py` and `review_status.py` turn the pack phrases into a review sheet (CSV or Markdown) for native speakers, import corrections with a dry-run diff and keep `reviewed` per pack honest; `tests/test_runde16_review_tools.py`.
 - **Thai documentation** (round 13): `docs/th/` with README, quick start, FAQ and short privacy notes for Thai users, flagged as machine-translated and not checked by native speakers; `tests/test_runde13_docs_th.py` checks links, paths and the pack and language counts.
 - **Reproducible installs** (#21): speech models pinned to fixed versions; all Python packages locked with checksums; security audit includes indirect packages.
@@ -184,6 +195,8 @@ Pull requests #16–#47. Not yet published as a release.
 
 **iPhone app (round 15)**
 - **New:** conversation mode per half: font size, language switch without leaving, “Repeat” and “Slow” buttons, a scrollable full history with numbers highlighted, a state line with text and icon (ready, listening, translating, speaking) that does not rely on colour, side-by-side layout in landscape and on iPad; the turn button is locked and the device’s own output is not recognised again (echo check against the last spoken sentences); the screen stays on. Logic in `ConversationLogic.swift` with XCTest; new texts in all 10 languages (de/en/th by hand, the rest machine-translated).
+**iPhone app (round 17)**
+- **New:** three more Siri/Shortcuts actions (read the last translation again, swap the language pair, say a phrasebook phrase found by keyword) and two Control Centre / Lock Screen controls (swap languages, read last translation); texts in all 10 languages, logic in `ShortcutLogic.swift` with tests. No new target or entitlement.
 
 **Web**
 - **New:** phrasebook search (`/`), favourites filter, copy button on every translation; history search, CSV export, share and clear with confirmation; learning progress bar, review schedule and arrow keys; “Delete all local data”; hints for a blocked microphone and for going offline; `?` opens help.

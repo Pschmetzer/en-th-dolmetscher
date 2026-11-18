@@ -316,17 +316,16 @@ func T(_ key: String) -> String {
 extension L10n {
     /// Text in einer bestimmten Sprache, nil wenn es ihn dort nicht gibt (kein Rückfall).
     static func text(_ key: String, lang: String) -> String? {
-        let a: String? = table[key]?[lang] ?? extra[lang]?[key] ?? round4[key]?[lang] ?? round5[key]?[lang] ?? round6[key]?[lang] ?? round7[key]?[lang] ?? round8[key]?[lang]
-        let b: String? = round9[key]?[lang] ?? round13[key]?[lang] ?? round14[key]?[lang] ?? round15[key]?[lang]
-        return a ?? b
+        if let t = table[key]?[lang] ?? extra[lang]?[key] { return t }
+        let early: [[String: [String: String]]] = [round4, round5, round6, round7, round8]
+        for r in early { if let t = r[key]?[lang] { return t } }
+        let late: [[String: [String: String]]] = [round9, round13, round14, round15, round17]
+        for r in late { if let t = r[key]?[lang] { return t } }
+        return nil
     }
 
     /// Alle Schlüssel (Grundtabelle, Runde 4 und 5).
-    static var allKeys: Set<String> {
-        let first = Set(table.keys).union(round4.keys).union(round5.keys).union(round6.keys).union(round7.keys).union(round8.keys)
-        let second = Set(round9.keys).union(round13.keys).union(round14.keys).union(round15.keys)
-        return first.union(second)
-    }
+    static var allKeys: Set<String> { Set(table.keys).union(round4.keys).union(round5.keys).union(round6.keys).union(round7.keys).union(round8.keys).union(round9.keys).union(round13.keys).union(round14.keys).union(round15.keys).union(round17.keys) }
 }
 
 /// Beobachtbarer Speicher für `L10n.lang`.
