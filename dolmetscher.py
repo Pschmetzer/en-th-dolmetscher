@@ -1863,8 +1863,9 @@ def _apply_preset_tuning(eng, p):
         LET_FINISH["s"] = float(t["let_finish"])
     if t.get("catch_up") in CATCH_UP_MODES:
         CATCH_UP["mode"] = t["catch_up"]
-    if "rate" in t:
-        eng.rate = int(t["rate"])
+    n = _clamp(t.get("rate"), -50, 50)                 # Runde 15: wie das Steuerfeld rate (kein 999 %, kein Text)
+    if n is not None:
+        eng.rate = int(n)
 
 
 def set_preset(eng, pid, quiet=False):
@@ -2196,9 +2197,45 @@ _CUR_AMOUNT = re.compile(r"([฿$€£])\s?(\d+(?:[.,]\d+)*)")
 _DEGREE = re.compile(r"(?<=\d)\s?°\s?([CF])\b")
 
 
+_EMOJI = re.compile("[\U0001F000-\U0001FAFF\u2600-\u27BF\u2B50\u2B55\uFE0F\u200D\u20E3]+")
+_THAI_DIGITS = str.maketrans("๐๑๒๓๔๕๖๗๘๙", "0123456789")
+_TH_ABBREV = [(re.compile(a), b) for a, b in (
+    (r"กทม\.?(?=\s|$)", "กรุงเทพมหานคร"), (r"ฯลฯ", "และอื่นๆ"), (r"(?<=\s)น\.(?=\s*\d)", "นาฬิกา"))]
+MAX_SPEAK_CHARS = 300             # längere Teile einer Ausgabe werden geteilt (edge-tts/say: Frist, Abbruchrisiko)
+
+
+def speakable(text):
+    """Gibt es etwas zu sprechen? Nur Satzzeichen/Leerraum würden edge-tts „NoAudioReceived“ werfen lassen
+    und `say` ein Klicken sprechen lassen."""
+    return any(c.isalnum() for c in text)
+
+
+def chunk_long(parts, lang, limit=None):
+    """Teile über `limit` Zeichen (Satz ohne Satzzeichen, Thai ohne Leerzeichen) an Wort-/Kommagrenzen teilen,
+    sonst hart; nichts geht verloren."""
+    limit = limit or MAX_SPEAK_CHARS
+    out = []
+    for p in parts:
+        while len(p) > limit:
+            cut = max(p.rfind(" ", 0, limit), p.rfind(",", 0, limit) + 1, p.rfind("，", 0, limit) + 1,
+                      p.rfind("、", 0, limit) + 1)
+            if cut < limit // 3:
+                cut = limit
+            out.append(p[:cut].strip())
+            p = p[cut:].strip() if cut != limit or p[cut:cut + 1].isspace() else p[cut:]
+        out.append(p)
+    return [x for x in out if x]
+
+
 def speak_form(text, lang):
     """Nr. 52: Thai-Lachen „555“ (ohne Zahlkontext) als ฮ่าฮ่าฮ่า vorlesen statt „ห้าห้าห้า“; die Anzeige bleibt.
     Runde 8: ฿/$/€/£ vor einer Zahl und °C/°F als Wort (Zahl zuerst, wie man sie sagt)."""
+    if _EMOJI.search(text):                           # Runde 15: Emoji nie vorlesen („grinsendes Gesicht“)
+        text = re.sub(r"[ \t]{2,}", " ", _EMOJI.sub("", text)).strip()
+    if lang == "th":
+        text = text.translate(_THAI_DIGITS)
+        for rx, word in _TH_ABBREV:
+            text = rx.sub(word, text)
     cur = _SPEAK_CUR.get(lang)
     if cur and _CUR_AMOUNT.search(text):
         text = _CUR_AMOUNT.sub(lambda m: f"{m.group(2)} {cur[m.group(1)]}", text)
@@ -4749,7 +4786,8 @@ class Speaker:
         if kind == "speech":
             note_spoken(text, lang)
             boost = self.boost(behind)
-            for i, s in enumerate(split_sentences(apply_pronounce(speak_form(text, lang)), lang)):
+            sentences = chunk_long(split_sentences(apply_pronounce(speak_form(text, lang)), lang), lang)
+            for i, s in enumerate(p for p in sentences if speakable(p)):
                 # Nur die ersten Teile sofort anfragen; die übrigen erst, wenn der vorige zu spielen
                 # beginnt (sonst viele Websockets + say-Prozesse gleichzeitig, mitten in der Erkennung).
                 stream, local = self._prepare(s, lang, boost) if i < self.PRESTART else (None, None)
