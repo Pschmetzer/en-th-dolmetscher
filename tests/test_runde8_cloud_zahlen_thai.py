@@ -115,8 +115,6 @@ def test_numbers_differ_is_symmetric_for_plain_numbers():
         assert d.numbers_differ(a, b) == d.numbers_differ(b, a)
 
 
-@pytest.mark.xfail(strict=True, reason="Telefonnummer 0812345678 gegen 081-234-5678 wird als Zahlenabweichung "
-                                       "gemeldet (Bindestriche zerlegen die Nummer, führende Null fällt weg)")
 def test_phone_number_with_dashes_is_not_a_number_mismatch():
     assert d.numbers_differ("call 0812345678", "โทร 081-234-5678") is False
 

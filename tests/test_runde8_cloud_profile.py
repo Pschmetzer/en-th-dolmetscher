@@ -239,8 +239,6 @@ def test_clean_vocab_nfc_normalises_and_dedupes():
     assert profiles.clean_vocab(["Café", "Café"]) == ["Café"]
 
 
-@pytest.mark.xfail(strict=True, reason="clean_vocab([None, ...]) nimmt None als Wort „None“ ins Vokabular auf "
-                                       "(str(None)); ungültige Einträge sollten übersprungen werden")
 def test_clean_vocab_skips_none_entries():
     assert profiles.clean_vocab([None, "ok"]) == ["ok"]
 

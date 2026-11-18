@@ -47,7 +47,7 @@ def test_equivalent_numbers_do_not_differ(a, b):
 
 def test_space_grouping_does_not_hide_real_differences():
     assert d.numbers_differ("1 500", "1600")
-    assert d._numbers("081 234 5678") == ["234", "5678", "81"]     # Telefon: führende Null, keine Gruppe
+    assert d._numbers("081 234 5678") == ["812345678"]             # Telefon: eine Nummer (Runde 9)
     assert d._numbers("2026 12 25") == ["12", "2026", "25"]         # Datum bleibt getrennt
 
 
