@@ -2752,9 +2752,42 @@ _EN_MONTH_RX = re.compile(r"\b(" + "|".join(_EN_MONTHS) + r")\b")          # gro
 _BE_YEAR = re.compile("(?:" + "|".join(_TH_MONTHS) + r"|ปี|พ\.ศ\.|\bB\.?E\.?)\s*(2[4-7]\d\d)\b")
 
 
+# Runde 14: Kurzformen der Monate, Zahlendaten (25/12/2026, 25.12.2026, 2026-12-25, US 12/25/2026) und
+# zweistelliges BE-Jahr ("25 ธ.ค. 69" = 25.12.2026)
+_TH_MONTH_ABBR = ("ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค.")
+_TH_ABBR_RX = re.compile("|".join(re.escape(x) for x in _TH_MONTH_ABBR))
+_EN_ABBR = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+_EN_ABBR_RX = re.compile(r"(?:(?<=\d\s)|(?<=\d))(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sept?|Oct|Nov|Dec)\b\.?"
+                         r"|\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sept?|Oct|Nov|Dec)\b\.?(?=\s*\d)")
+_NUM_DATE = re.compile(r"(?<![\d.,:/-])(\d{1,2})([/.])(\d{1,2})\2(\d{4})(?![\d]|[./]\d)"
+                       r"|(?<![\d.,:/-])(\d{4})-(\d{1,2})-(\d{1,2})(?![\d]|-\d)")
+_BE_2DIGIT = re.compile(r"(\d{1,2}\s*(?:" + "|".join(_TH_MONTHS) + r")\s*)(4[3-9]|[5-9]\d)\b"
+                        r"(?![\d:.]|\s*(?:คน|บาท|ห้อง|น\.|นาที|ชั่วโมง|วัน|ครั้ง|%))")
+
+
+def _num_date_sub(m):
+    if m.group(1):
+        d, mo, y = int(m.group(1)), int(m.group(3)), int(m.group(4))
+        if mo > 12 >= d:                                  # 12/25/2026: US-Reihenfolge, sonst Tag/Monat
+            d, mo = mo, d
+    else:
+        y, mo, d = int(m.group(5)), int(m.group(6)), int(m.group(7))
+    if not (1 <= d <= 31 and 1 <= mo <= 12):
+        return m.group(0)
+    return f" {d} {mo} {y - 543 if 2400 <= y <= 2700 else y} "
+
+
+def _abbr_to_full(s):
+    s = _TH_ABBR_RX.sub(lambda m: _TH_MONTHS[_TH_MONTH_ABBR.index(m.group(0))], s)
+    return _EN_ABBR_RX.sub(lambda m: " " + _EN_MONTHS[_EN_ABBR.index((m.group(1) or m.group(2))[:3])] + " ", s)
+
+
 def _dates_to_numbers(s, equiv=True):
     """BE-Jahr immer; Monatsnamen -> 1-12 nur als Gleichwertigkeitsregel (equiv): sie kennt nicht alle Sprachen und
     Kurzformen (ธ.ค., Dezember) – numbers_differ meldet nur, was auch ohne sie abweicht."""
+    s = _abbr_to_full(s)
+    s = _BE_2DIGIT.sub(lambda m: m.group(1) + str(1957 + int(m.group(2))), s)
+    s = _NUM_DATE.sub(_num_date_sub, s) if equiv else s
     s = _BE_YEAR.sub(lambda m: m.group(0)[: m.start(1) - m.start(0)] + str(int(m.group(1)) - 543), s)
     if not equiv:
         return s
@@ -2828,6 +2861,38 @@ _EN_HALF_A = re.compile(r"\bhalf\s+an?\s+(hundred|thousand|million|billion)\b", 
 _EN_A_SCALE = re.compile(r"\b(?:an?|one)\s+(hundred|thousand|million|billion)\b", re.I)
 
 
+_EN_ORD_UNIT = {"first": 1, "second": 2, "third": 3, "fourth": 4, "fifth": 5, "sixth": 6, "seventh": 7, "eighth": 8,
+                "ninth": 9, "tenth": 10, "eleventh": 11, "twelfth": 12}
+_EN_ORD_BIG = {"thirteenth": 13, "fourteenth": 14, "fifteenth": 15, "sixteenth": 16, "seventeenth": 17,
+               "eighteenth": 18, "nineteenth": 19, "twentieth": 20, "thirtieth": 30}
+_EN_ORD_NOUN = (r"(?=[\s-]+(?:floor|room|day|place|row|level|gate|exit|avenue|street|anniversary|birthday|stage|"
+                r"platform|terminal|door|of\s+(?:" + "|".join(_EN_MONTHS) + r"))\b)")
+_EN_ORD_RX = re.compile(r"\b(?:(twenty|thirty)[\s-]+(" + "|".join(list(_EN_ORD_UNIT)[:9]) + r")\b"
+                        r"|(" + "|".join(_EN_ORD_BIG) + r")\b"
+                        r"|(" + "|".join(_EN_ORD_UNIT) + r")\b" + _EN_ORD_NOUN + r")", re.I)
+
+
+def _en_ord_sub(m):
+    if m.group(1):
+        return f" {_EN_TENS_W[m.group(1).lower()] + _EN_ORD_UNIT[m.group(2).lower()]} "
+    if m.group(3):
+        return f" {_EN_ORD_BIG[m.group(3).lower()]} "
+    return f" {_EN_ORD_UNIT[m.group(4).lower()]} "
+
+
+_EN_DIG_OH = "|".join([*_EN_UNIT_W])
+_EN_OH_RUN = re.compile(rf"\b(?:{_EN_DIG_OH})(?:[\s-]+(?:{_EN_DIG_OH}|oh))*?[\s-]+oh(?:[\s-]+(?:{_EN_DIG_OH}|oh))*"
+                        rf"[\s-]+(?:{_EN_DIG_OH})\b", re.I)
+
+
+def en_ordinals_to_digits(s):
+    """Runde 14: 'the twenty-fifth of December' -> 25, 'third floor' -> 3 (erste bis zwölfte nur mit Nomen:
+    'first of all', 'a second' bleiben); 'room three oh five' -> 305 (Ziffernfolge mit „oh“)."""
+    s = _EN_ORD_RX.sub(_en_ord_sub, s)
+    return _EN_OH_RUN.sub(lambda m: " " + "".join(
+        "0" if t.lower() == "oh" else str(_EN_UNIT_W[t.lower()]) for t in re.split(r"[\s-]+", m.group(0))) + " ", s)
+
+
 def en_words_to_digits(s):
     """Ausgeschriebene englische Zahlen in Ziffern: 'costs three hundred fifty baht' -> 'costs 350 baht'.
     Auch 'a hundred' = 100, 'a thousand' = 1000, 'half a million' = 500000."""
@@ -2849,7 +2914,7 @@ def _thai_run_value(run):
         if len(toks) == 2:
             return None                                  # สองสาม = "ein paar", keine 23
         return int("".join(str(_TH_DIGIT_W[t]) for t in toks))
-    total, seg, pend = 0, 0, None
+    total, seg, pend, last_mult = 0, 0, None, 0
     for t in toks:
         if t in _TH_DIGIT_W:
             if pend is not None:
@@ -2857,10 +2922,12 @@ def _thai_run_value(run):
             pend = _TH_DIGIT_W[t]
         elif t == "ล้าน":
             total = (total + seg + (pend or 0) or 1) * 1_000_000
-            seg, pend = 0, None
+            seg, pend, last_mult = 0, None, 1_000_000
         else:
             seg += (1 if pend is None else pend) * _TH_MULT_W[t]
-            pend = None
+            pend, last_mult = None, _TH_MULT_W[t]
+    if pend is not None and last_mult >= 1000:
+        return total + seg + pend * last_mult // 10      # Runde 14: "พันห้า" = 1500, "สามล้านห้า" = 3,500,000
     return total + seg + (pend or 0)
 
 
@@ -3034,7 +3101,7 @@ def _numbers(s, words=True, times=None, equiv=True):
         s = _GROUPED.sub(lambda m: m.group(0) if _LAUGH_TAIL.search(m.group(0)) else _digits_only(m.group(0)), s)
     s = _dates_to_numbers(s, equiv)                              # BE-Jahr -543, Monatsnamen -> 1-12
     if words:
-        s = en_words_to_digits(s)                                # vor _SCALE: "five million" ganz als Wortfolge
+        s = en_words_to_digits(en_ordinals_to_digits(s))         # vor _SCALE: "five million" ganz als Wortfolge
     s = _SCALE.sub(_scale_sub, s)                                # zuerst "1.5 ล้าน", sonst zählt ล้าน allein
     if words:
         s = thai_words_to_digits(s)
@@ -3088,11 +3155,40 @@ def canon_units(s):
     return s
 
 
+_WEEKDAYS_EN = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
+_WEEKDAYS_TH = ("จันทร์", "อังคาร", "พุธ", "พฤหัส", "ศุกร์", "เสาร์", "อาทิตย์")
+_WEEKDAY_RX = re.compile(r"\b(" + "|".join(_WEEKDAYS_EN) + r")s?\b|วัน(" + "|".join(_WEEKDAYS_TH) + ")", re.I)
+_MONTH_ANY_RX = re.compile("(" + "|".join(_TH_MONTHS) + r")|\b(January|February|April|June|July|September|October|"
+                           r"November|December)\b|\d\s*(March|May|August)\b|\b(March|May|August)\b\s*\d")
+
+
+def _day_month_names(s):
+    """(Wochentage, Monate) als Indexmengen, Thai und Englisch; Kurzformen über _abbr_to_full."""
+    s = _abbr_to_full(s or "")
+    days = {(_WEEKDAYS_EN.index(m.group(1).lower()) if m.group(1) else _WEEKDAYS_TH.index(m.group(2)))
+            for m in _WEEKDAY_RX.finditer(s)}
+    months = set()
+    for m in _MONTH_ANY_RX.finditer(s):
+        if m.group(1):
+            months.add(_TH_MONTHS.index(m.group(1)))
+        else:
+            months.add(_EN_MONTHS.index((m.group(2) or m.group(3) or m.group(4)).capitalize()))
+    return days, months
+
+
+def names_mismatch(a, b):
+    """Runde 14: Wochentag oder Monat widerspricht („Monday“ gegen วันอังคาร, „March 3“ gegen 3 เมษายน). Nur ein
+    echter Widerspruch zählt – nennt eine Seite mehr Tage/Monate als die andere, ist das keine Abweichung."""
+    (da, ma), (db, mb) = _day_month_names(a), _day_month_names(b)
+    return any(x and y and not (x <= y or y <= x) for x, y in ((da, db), (ma, mb)))
+
+
 def numbers_differ(a, b):
     """Wie _numbers_differ, aber Monatsnamen- und Halbstunden-Regeln sind reine Gleichwertigkeiten: eine Abweichung
     zählt nur, wenn sie auch ohne sie besteht ("am 25. Dezember" gegen "25 ธันวาคม" bleibt unauffällig)."""
     ua, ub = canon_units(a), canon_units(b)
-    return (_numbers_differ(ua, ub, True) and _numbers_differ(ua, ub, False)) or currency_mismatch(a, b)
+    return ((_numbers_differ(ua, ub, True) and _numbers_differ(ua, ub, False)) or currency_mismatch(a, b)
+            or names_mismatch(a, b))
 
 
 def _numbers_detail(a, b):
