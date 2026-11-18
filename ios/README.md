@@ -18,11 +18,11 @@ Native SwiftUI app for iPhone and iPad: press Start and just talk. It interprets
 | Conversation mode | split screen, the partner's half turned around, each half in its own language; hold your own half to talk |
 | Answer cards | yes, no, don't know, number pad – in all 19 languages, offline, read aloud at once |
 | Translation help | back-translation on the device (⚠️ when the meaning drifted), transliteration for th/ja/ko/zh, “phrasebook first” for checked sentences |
-| Phrasebook | built-in sentences plus 16 scenario packs with cultural notes; important sentences red and first; favourites |
+| Phrasebook | built-in sentences plus 51 scenario packs with cultural notes; important sentences red and first; favourites |
 | Learning mode | flashcards from favourites and translated sentences, Leitner boxes (now, 1, 3, 7, 14 days), local `learn.json` |
 | Emergency | emergency screen with Thai numbers, emergency card, allergy card, “Help now” with your coordinates |
 | Travel | “Ready to travel?” checklist, taxi destinations with business-card scan and Apple Maps link, Baht calculator, dish lexicon under photo text |
-| Widgets | quick-phrase widget (small/medium/large), control for Control Center, lock screen and Action button, Live Activity and Dynamic Island |
+| Widgets | quick-phrase widget (small/medium/large, Lock Screen rectangular/inline/circular; own phrases or a rotating category, no conversation data), control for Control Center, lock screen and Action button, Live Activity and Dynamic Island |
 | iPad | all orientations; conversation and a tools column side by side on wide screens |
 | Privacy | online translation off by default, Face ID lock for the history, history/favorites/emergency card excluded from iCloud backup, hidden in the app switcher, Live Activity off by default and without sentences while the iPhone is locked, privacy overview in the settings, “Delete all data” |
 
@@ -83,11 +83,11 @@ xcodebuild test -project ios/Dolmetscher.xcodeproj -scheme Dolmetscher \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' CODE_SIGNING_ALLOWED=NO
 ```
 
-Unit tests live in `DolmetscherTests/` (`LogicTests`, `PairTests`, `WhisperLogicTests`, `FixTests`, `L10nTests`, `Round3Tests`, `Round4Tests`, `Round5Tests`). CI runs the same in `.github/workflows/ios.yml` (device build without signing plus Simulator tests).
+Unit tests live in `DolmetscherTests/` (`LogicTests`, `PairTests`, `WhisperLogicTests`, `FixTests`, `L10nTests`, `Round3Tests` bis `Round9Tests`). CI runs the same in `.github/workflows/ios.yml` (device build without signing plus Simulator tests).
 
 ## Localisation
 
-The interface is available in de, en, th, es, fr, ja, ko, zh-Hans, vi and id (`L10n.swift`, `L10n+Extra.swift`, `L10n+R4.swift`, `L10n+R5.swift`, permission texts in `*.lproj/InfoPlist.strings`). The app picks the first preferred device language it supports; Traditional Chinese gets English. The wake word and voice commands (“Translator, pause”) stay English on purpose. **es, fr, ja, ko, zh-Hans, vi and id are machine-translated and not reviewed by native speakers** – reviewers are very welcome, the file list is in [docs/PRESETS.md](../docs/PRESETS.md#muttersprachler-gesucht). `L10nTests` checks that every key exists in all languages.
+The interface is available in de, en, th, es, fr, ja, ko, zh-Hans, vi and id (`L10n.swift`, `L10n+Extra.swift`, `L10n+R4.swift` bis `L10n+R9.swift`, permission texts in `*.lproj/InfoPlist.strings`). The app picks the first preferred device language it supports; Traditional Chinese gets English. The wake word and voice commands (“Translator, pause”) stay English on purpose. **es, fr, ja, ko, zh-Hans, vi and id are machine-translated and not reviewed by native speakers** – reviewers are very welcome, the file list is in [docs/PRESETS.md](../docs/PRESETS.md#muttersprachler-gesucht). `L10nTests` checks that every key exists in all languages.
 
 ## App Store texts
 
