@@ -202,7 +202,7 @@ struct PermissionBanner: View {
                 }
                 .padding(12)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(.orange.opacity(0.15), in: RoundedRectangle(cornerRadius: 12))
+                .background(StatusColor.warning.opacity(0.15), in: RoundedRectangle(cornerRadius: 12))
                 .padding(.horizontal)
                 .padding(.top, 8)
                 .accessibilityElement(children: .contain)
