@@ -420,6 +420,17 @@
    "reviewed": false
   },
   {
+   "id": "mobile-sim",
+   "names": {
+    "de": "SIM, Internet und Handy",
+    "en": "SIM, internet and phone",
+    "th": "ซิม อินเทอร์เน็ต และมือถือ"
+   },
+   "phrases": 18,
+   "critical": 3,
+   "reviewed": false
+  },
+  {
    "id": "monk",
    "names": {
     "de": "Mönche und Tempelbesuch",
@@ -458,6 +469,17 @@
     "de": "Haustiere",
     "en": "Pets",
     "th": "สัตว์เลี้ยง"
+   },
+   "phrases": 18,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
+   "id": "pharmacy-otc",
+   "names": {
+    "de": "Apotheke: rezeptfreie Mittel",
+    "en": "Pharmacy: over the counter",
+    "th": "ร้านขายยา: ยาสามัญ"
    },
    "phrases": 18,
    "critical": 5,

@@ -96,6 +96,8 @@ kennen, ignorieren sie.
 | `nightlife` | Nachtleben und Bars | kritische Sätze zuerst |
 | `festival` | Feste (Songkran, Loy Krathong) | kritische Sätze zuerst |
 | `laundry-repair` | Schneider, Schuster, Handyreparatur | kritische Sätze zuerst |
+| `pharmacy-otc` | Apotheke: rezeptfreie Mittel (nur Verständigung) | Allergien, Schwangerschaft, Kinder, Wechselwirkung, Rezept |
+| `mobile-sim` | SIM, Internet und Handy | Handy gestohlen, Handy verloren, SIM sperren |
 | `monk` | Mönche und Tempelbesuch | 4 kritische Sätze zuerst |
 | `hospital` | Krankenhaus | 5 kritische Sätze zuerst |
 
@@ -133,7 +135,7 @@ Am wichtigsten sind die Sätze mit `critical` und die Tabelle [Unsichere Sätze]
 
 | Datei | Inhalt |
 |---|---|
-| `presets/*.json` | 49 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
+| `presets/*.json` | 51 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
 | `ios/Shared/phrases.json` | eingebautes Satzbuch der iPhone-App und des Widgets |
 | `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten, „Sie sind dran“, Allergie-Karte |
 | `ios/Dolmetscher/Round4Views.swift` | Hilfesatz auf dem Bildschirm „Hilfe – jetzt“ |

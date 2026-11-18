@@ -1,0 +1,116 @@
+{
+  "id": "mobile-sim",
+  "names": {
+    "de": "SIM, Internet und Handy",
+    "en": "SIM, internet and phone",
+    "th": "ซิม อินเทอร์เน็ต และมือถือ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Für eine SIM-Karte wird der Reisepass verlangt. Am Flughafen gibt es Tourist-SIMs von AIS, True und dtac; Preise vergleichen. E-SIM geht nur mit passendem Handy. Notruf funktioniert auch ohne Guthaben. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "A SIM card needs your passport. Airports sell tourist SIMs from AIS, True and dtac; compare prices. An eSIM needs a compatible phone. Emergency calls work without credit. Thai sentences machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "SIM card",
+      "th": "ซิมการ์ด"
+    },
+    {
+      "en": "data package",
+      "th": "แพ็กเกจอินเทอร์เน็ต"
+    },
+    {
+      "en": "top up",
+      "th": "เติมเงิน"
+    },
+    {
+      "en": "wifi",
+      "th": "ไวไฟ"
+    },
+    {
+      "en": "charger",
+      "th": "ที่ชาร์จ"
+    },
+    {
+      "en": "phone screen",
+      "th": "หน้าจอโทรศัพท์"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My phone was stolen.",
+      "th": "โทรศัพท์ถูกขโมย",
+      "critical": true
+    },
+    {
+      "en": "I lost my phone.",
+      "th": "ทำโทรศัพท์หาย",
+      "critical": true
+    },
+    {
+      "en": "Please block my SIM card.",
+      "th": "ช่วยระงับซิมการ์ดให้หน่อย",
+      "critical": true
+    },
+    {
+      "en": "I need a SIM card with data.",
+      "th": "ต้องการซิมการ์ดที่มีอินเทอร์เน็ต"
+    },
+    {
+      "en": "How much is the monthly data package?",
+      "th": "แพ็กเกจเน็ตรายเดือนราคาเท่าไหร่"
+    },
+    {
+      "en": "Do you need my passport?",
+      "th": "ต้องใช้พาสปอร์ตไหม"
+    },
+    {
+      "en": "Can I top up online?",
+      "th": "เติมเงินออนไลน์ได้ไหม"
+    },
+    {
+      "en": "Do you have an eSIM?",
+      "th": "มีอีซิมไหม"
+    },
+    {
+      "en": "Does this phone work with this SIM?",
+      "th": "มือถือเครื่องนี้ใช้ซิมนี้ได้ไหม"
+    },
+    {
+      "en": "How many days is it valid?",
+      "th": "ใช้ได้กี่วัน"
+    },
+    {
+      "en": "How much data is included?",
+      "th": "มีอินเทอร์เน็ตให้เท่าไหร่"
+    },
+    {
+      "en": "What is the wifi password?",
+      "th": "รหัสไวไฟคืออะไร"
+    },
+    {
+      "en": "The internet is not working.",
+      "th": "อินเทอร์เน็ตใช้ไม่ได้"
+    },
+    {
+      "en": "Can you set it up for me?",
+      "th": "ช่วยตั้งค่าให้หน่อยได้ไหม"
+    },
+    {
+      "en": "Where can I buy a charger?",
+      "th": "ซื้อที่ชาร์จได้ที่ไหน"
+    },
+    {
+      "en": "The screen is cracked. Can you repair it?",
+      "th": "หน้าจอแตก ซ่อมได้ไหม"
+    },
+    {
+      "en": "How long will the repair take?",
+      "th": "ซ่อมนานเท่าไหร่"
+    },
+    {
+      "en": "Where is the nearest phone shop?",
+      "th": "ร้านมือถือที่ใกล้ที่สุดอยู่ที่ไหน"
+    }
+  ]
+}

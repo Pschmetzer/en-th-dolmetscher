@@ -1,8 +1,0 @@
-bus-train
-beach
-hiking
-street-food
-massage
-nightlife
-festival
-laundry-repair

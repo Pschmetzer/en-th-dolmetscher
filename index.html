@@ -803,7 +803,7 @@ function loadLangTable() {   // nach 3 s ohne Antwort mit dem Notfall-Paar start
 function refreshLangUi() { initPair(); fillLangSelects(); buildModes(); fillVoiceSelects(); renderCards(); }
 const DEFAULT_PAIR = ['en', 'th'];
 // Satzbuch: presets/*.json (zur Laufzeit geladen, vom Service Worker zwischengespeichert)
-const PRESET_IDS = ['doctor', 'police', 'lostchild', 'pharmacy', 'dentist', 'taxi', 'places', 'airport', 'transport', 'travel', 'hotel', 'restaurant', 'shopping', 'bank', 'answers', 'access', 'spa', 'temple', 'island', 'scooter', 'rental', 'services', 'coworking', 'office', 'baby', 'car-rental', 'diving', 'emergency', 'gym', 'hospital', 'kids', 'market', 'monk', 'nomad', 'pets', 'photo', 'school', 'sport', 'visa', 'wedding', 'work'];
+const PRESET_IDS = ['doctor', 'police', 'lostchild', 'pharmacy', 'dentist', 'taxi', 'places', 'airport', 'transport', 'travel', 'hotel', 'restaurant', 'shopping', 'bank', 'answers', 'access', 'spa', 'temple', 'island', 'scooter', 'rental', 'services', 'coworking', 'office', 'baby', 'beach', 'bus-train', 'car-rental', 'diving', 'emergency', 'festival', 'gym', 'hiking', 'hospital', 'kids', 'laundry-repair', 'market', 'massage', 'mobile-sim', 'monk', 'nightlife', 'nomad', 'pets', 'pharmacy-otc', 'photo', 'school', 'sport', 'street-food', 'visa', 'wedding', 'work'];
 
 // ---- Schrift-Plausibilität (wie dolmetscher.py: scripts_distinct, script_share, _untranslated, _wrong_script, text_lang) ----
 const SCRIPT_RX = {}, SCRIPT_RX_G = {}, SCRIPT_RUN3 = {};
