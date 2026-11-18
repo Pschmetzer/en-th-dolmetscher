@@ -655,6 +655,7 @@ struct MainToolbar: View {
             Picker(L.t("ui_language"), selection: $uiLang) {
                 ForEach(UILang.allCases) { Text($0.label).tag($0.rawValue) }
             }
+            .help(L.t("sh_ui_language"))
             Toggle(L.t("always_on_top"), isOn: $onTop)
             Button(L.t("font_bigger")) { scale = Prefs.zoomed(scale, 0.1) }
             Button(L.t("font_smaller")) { scale = Prefs.zoomed(scale, -0.1) }

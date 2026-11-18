@@ -271,6 +271,7 @@ struct DolmetscherApp: App {
     init() {
         _ = L.lang              // Standardsprache festlegen, bevor die erste Ansicht @AppStorage liest
         APIKeyStore.migrate()   // alte Schlüsseldatei in den Schlüsselbund (Nr. 23), vor dem ersten Engine-Start
+        SettingsTracker.shared.start()   // Runde 15: „Zuletzt geändert“ auch außerhalb des Einstellungsfensters
     }
 
     /// Nr. 360: Absturz, Fehler, Laden und Offline sind am Symbol erkennbar, nicht nur aus/an/pausiert.
