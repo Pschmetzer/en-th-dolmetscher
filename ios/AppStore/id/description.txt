@@ -27,3 +27,5 @@ TANPA SENTUHAN
 • Berfungsi dengan Siri dan app Pintasan.
 
 Bahasa: Inggris, Thai, Jerman, Spanyol, Prancis, Italia, Portugis, Belanda, Rusia, Tionghoa, Jepang, Korea, Vietnam, Indonesia, Arab, Hindi, Turki, Polandia, Ukraina. Bahasa yang berfungsi offline tergantung pada dukungan iPhone Anda; aplikasi hanya menawarkan bahasa yang benar-benar dapat dikenali, diterjemahkan, dan diucapkan.
+
+Membutuhkan iOS 26 atau lebih baru.

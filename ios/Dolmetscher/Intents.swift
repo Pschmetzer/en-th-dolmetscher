@@ -26,13 +26,25 @@ struct TranslateTextIntent: AppIntent {
         let pair = InterpreterModel.pairSetting(d)
         let src = LanguagePick.ofTyped(text, pair: pair)
         let online = InterpreterModel.allowOnlineSetting(d)
-        var out = try await Translator().translate(text, from: src, to: pair.other(src), allowOnline: online).text
+        var out: String
+        do {
+            out = try await Translator().translate(text, from: src, to: pair.other(src), allowOnline: online).text
+        } catch {
+            // Kurzbefehle zeigen sonst nur „Der Vorgang konnte nicht abgeschlossen werden“.
+            throw TranslateIntentError(message: (error as? LocalizedError)?.errorDescription ?? T("err_translate"))
+        }
         if pair.other(src) == .th {
             let form = Politeness(rawValue: d.string(forKey: "politeness") ?? "") ?? .male
             out = form.adjust(out)
         }
         return .result(value: out, dialog: "\(out)")
     }
+}
+
+/// Fehler für Kurzbefehle mit verständlichem Text (Sprachpaket fehlt, kein Netz, …).
+struct TranslateIntentError: Error, CustomLocalizedStringResourceConvertible {
+    let message: String
+    var localizedStringResource: LocalizedStringResource { "\(message)" }
 }
 
 /// Notruf in Thailand: öffnet die Notrufnummern und sagt laut „Hilfe! Ich brauche die Polizei“ auf Thai.

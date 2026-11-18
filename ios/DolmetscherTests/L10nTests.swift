@@ -37,10 +37,18 @@ final class L10nTests: XCTestCase {
                 XCTAssertFalse(text.trimmingCharacters(in: .whitespaces).isEmpty, "\(lang): \(key) fehlt (Runde 6)")
                 XCTAssertEqual(placeholders(text), placeholders(row["en"] ?? ""), "\(lang): \(key) Platzhalter")
             }
+            for (key, row) in L10n.round7 {
+                let text = row[lang] ?? ""
+                XCTAssertFalse(text.trimmingCharacters(in: .whitespaces).isEmpty, "\(lang): \(key) fehlt (Runde 7)")
+                XCTAssertEqual(placeholders(text), placeholders(row["en"] ?? ""), "\(lang): \(key) Platzhalter")
+            }
         }
         XCTAssertTrue(Set(L10n.round4.keys).isDisjoint(with: L10n.table.keys), "Schlüssel doppelt in table und round4")
         XCTAssertTrue(Set(L10n.round5.keys).isDisjoint(with: L10n.table.keys), "Schlüssel doppelt in table und round5")
         XCTAssertTrue(Set(L10n.round5.keys).isDisjoint(with: L10n.round4.keys), "Schlüssel doppelt in round4 und round5")
+        for (name, other) in [("table", Set(L10n.table.keys)), ("round4", Set(L10n.round4.keys)), ("round5", Set(L10n.round5.keys)), ("round6", Set(L10n.round6.keys))] {
+            XCTAssertTrue(Set(L10n.round7.keys).isDisjoint(with: other), "Schlüssel doppelt in \(name) und round7")
+        }
         for (name, other) in [("table", Set(L10n.table.keys)), ("round4", Set(L10n.round4.keys)), ("round5", Set(L10n.round5.keys))] {
             XCTAssertTrue(Set(L10n.round6.keys).isDisjoint(with: other), "Schlüssel doppelt in \(name) und round6")
         }
@@ -101,6 +109,18 @@ final class L10nTests: XCTestCase {
             let dict = try XCTUnwrap(NSDictionary(contentsOf: url) as? [String: String], lang)
             XCTAssertEqual(Set(dict.keys), keys, lang)
         }
+    }
+
+    func testAppStoreReviewNotesAndKeywords() throws {
+        let notes = try String(contentsOf: ios.appendingPathComponent("AppStore/en-US/review_notes.txt"), encoding: .utf8)
+        XCTAssertTrue(notes.contains("UIBackgroundModes"), "Review-Notiz muss den Hintergrund-Audiomodus begründen")
+        // Wörter aus Name und Untertitel zählen schon dort: nicht noch einmal in den Schlüsselwörtern.
+        let name = try String(contentsOf: ios.appendingPathComponent("AppStore/en-US/name.txt"), encoding: .utf8)
+        let sub = try String(contentsOf: ios.appendingPathComponent("AppStore/en-US/subtitle.txt"), encoding: .utf8)
+        let words = Set((name + " " + sub).lowercased().split { !$0.isLetter }.map(String.init))
+        let kw = try String(contentsOf: ios.appendingPathComponent("AppStore/en-US/keywords.txt"), encoding: .utf8)
+            .trimmingCharacters(in: .whitespacesAndNewlines).split(separator: ",").map(String.init)
+        XCTAssertEqual(kw.filter { words.contains($0) }, [])
     }
 
     func testAppStoreTexts() throws {

@@ -38,7 +38,7 @@ Native SwiftUI app for iPhone and iPad: press Start and just talk. It interprets
 2. Xcode → Settings → Accounts: add your Apple ID.
 3. Select the target **Dolmetscher** → *Signing & Capabilities*:
    - *Team*: your (personal) team. The project has no team set, so this is always needed.
-   - *Bundle Identifier*: change `io.github.dolmetscher.en-th.ios` to something unique, e.g. `com.yourname.dolmetscher`. A personal team cannot use an identifier that is already registered by someone else.
+   - *Bundle Identifier*: change `com.pschmetzer.dolmetscher` to something unique, e.g. `com.yourname.dolmetscher`. A personal team cannot use an identifier that is already registered by someone else.
 4. Connect the iPhone, select it as run destination and press **Run** (⌘R). On the iPhone, the first time: Settings → General → VPN & Device Management → trust your developer certificate, and turn on Developer Mode if iOS asks for it.
 5. Allow microphone and speech recognition when the app asks.
 
@@ -70,7 +70,7 @@ Only in **Debug** builds (`#if DEBUG`), ignored in Release. Set them in Xcode (*
 
 ```sh
 SIMCTL_CHILD_DOLMETSCHER_AUDIO_FILES=/path/a.wav:/path/b.wav SIMCTL_CHILD_DOLMETSCHER_AUTOSTART=1 \
-  xcrun simctl launch booted io.github.dolmetscher.en-th.ios
+  xcrun simctl launch booted com.pschmetzer.dolmetscher
 xcrun simctl spawn booted log stream --predicate 'subsystem == "dolmetscher"'   # app log
 ```
 

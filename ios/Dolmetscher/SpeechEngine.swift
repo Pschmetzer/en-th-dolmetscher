@@ -19,6 +19,8 @@ enum SpeechEvent: Sendable {
     case interrupted
     /// Anruf o. Ä. beginnt: Aufnahme ruht, bis `interrupted` (Ende) kommt.
     case interruptionBegan
+    /// Unterbrechung vorbei, iOS rät aber vom automatischen Weiterhören ab: der Nutzer startet selbst.
+    case interruptionEndedNoResume
 }
 
 enum SpeechError: LocalizedError {
@@ -39,6 +41,10 @@ struct AudioOptions: Sendable {
     var headset = false
     /// 598: Empfindlichkeit der Pausen-Erkennung (Faktor über dem Grundrauschen).
     var sensitivity: Sensitivity = .normal
+    /// Gewählter Eingang (UID aus `availableInputs`), nil = automatisch.
+    var preferredInput: String?
+    /// Echo-/Rauschunterdrückung des Systems (iOS 18.2+), wenn verfügbar.
+    var echoCancel = false
 }
 
 protocol SpeechEngine: AnyObject, Sendable {
@@ -108,7 +114,9 @@ final class LangRecognizer: @unchecked Sendable {
                 }
             }
             defer { watch.cancel() }
-            try await req.downloadAndInstall()
+            // Stopp während des Downloads: sofort zurück (der Download läuft im Hintergrund weiter).
+            nonisolated(unsafe) let request = req
+            try await abandonable { try await request.downloadAndInstall() }
             onDownload(1)
         }
         log.info("\(lang.rawValue): assets ok")

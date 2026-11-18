@@ -43,6 +43,15 @@ enum PhotoDownsample {
         guard let cg = CGImageSourceCreateThumbnailAtIndex(src, 0, thumb) else { return nil }
         return UIImage(cgImage: cg)
     }
+
+    /// Kamerafotos (12 bis 48 MP) auf dieselbe Größe bringen wie Mediathek-Fotos: weniger Speicher, Zeit und Wärme.
+    /// Bereits kleine Bilder bleiben unverändert; die Ausrichtung wird dabei eingerechnet.
+    static func image(_ img: UIImage, maxPixels: Int = maxPixels) -> UIImage {
+        let longest = max(img.size.width * img.scale, img.size.height * img.scale)
+        guard longest > CGFloat(maxPixels), let data = img.jpegData(compressionQuality: 0.9),
+              let small = image(from: data, maxPixels: maxPixels) else { return img }
+        return small
+    }
 }
 
 /// 581/647: Verlauf zum Teilen – erst beim Teilen gebaut, Datum in der Sprache der App.
@@ -54,7 +63,7 @@ struct TranscriptExport: Transferable {
         let f = DateFormatter()
         f.locale = Locale(identifier: lang)
         f.dateStyle = .short; f.timeStyle = .short
-        return entries.map {
+        return entries.filter { $0.photo != true }.map {
             "[\(f.string(from: $0.date))] \($0.src.rawValue.uppercased())→\($0.target.rawValue.uppercased()): \($0.text)\n→ \($0.translation ?? "–")"
         }.joined(separator: "\n\n")
     }
@@ -187,9 +196,24 @@ enum ConversationSummary {
         }
     }
 
+    /// Halbiert den Text (neuere Zeilen bleiben), wenn er das Kontextfenster sprengt; nil, wenn nichts mehr zu kürzen ist.
+    static func shrink(_ lines: [String]) -> [String]? {
+        lines.count >= 4 ? Array(lines.suffix(lines.count / 2)) : nil
+    }
+
     static func summarize(_ lines: [String], language: String) async throws -> String {
         let session = LanguageModelSession(instructions: instructions(language: language))
-        return try await session.respond(to: prompt(lines)).content
+        do {
+            let out = try await session.respond(to: prompt(lines)).content
+            try Task.checkCancellation()
+            return out
+        } catch let error as LanguageModelSession.GenerationError {
+            // Thai und Co. brauchen viele Token: mit den neueren Zeilen noch einmal versuchen.
+            if case .exceededContextWindowSize = error, let fewer = shrink(lines) {
+                return try await summarize(fewer, language: language)
+            }
+            throw error
+        }
     }
 }
 
