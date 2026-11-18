@@ -95,6 +95,7 @@ Pull requests #16–#47. Not yet published as a release.
 - **Code quality** (#16, #21, #25, #28): pytest and ruff updated; ruff checks all modules and blocks merges; CI jobs have time limits; the wake-word tests run against the real code.
 - **Tests and CI** (#41, #44): time-dependent tests made stable, a time limit per test, Python tests on Linux (faster), coverage with a lower limit, a shared test corpus in six language pairs, and a benchmark that only runs on demand.
 - **Documentation**: phrase pack format and contribution guide `docs/PRESETS.md` (#40); license overview `docs/LIZENZEN.md` (#21), privacy overview per platform `docs/DATENSCHUTZ.md` (#28 and later), protocol checked against the code by tests (#20), iPhone guide `ios/README.md` and this changelog.
+- **Documentation matched to the code** (round 11): shortcuts (Mac menus and iPhone), architecture file list, privacy notes (clipboard, screen recording, echo guard, Live Activity) and the pack and language counts; `tests/test_runde11_docs_abgleich.py` checks the numbers against the files.
 
 ### Round 8: engine, iPhone, web, phrase packs
 
@@ -107,9 +108,16 @@ Pull requests #16–#47. Not yet published as a release.
 - **Fixed:** sentence splitting no longer cuts “9 a.m. to 5 p.m.”, “z. B.”, “Prof. Brown”; history short search ignores case for accents; dropped HTTP responses and DNS errors trigger the backoff.
 - **Changed:** glossary files accept `#` comments (engine only), ignore duplicates, a BOM and entries over 120 characters.
 
+**Engine (round 11)**
+- **New:** politeness level (`formality`: informal / neutral / polite) and speaker sex (`speaker_sex`) as optional controls; the prompt asks for du/Sie, tu/vous, tú/usted, plain/desu-masu/keigo (ja), 반말/해요체/합쇼체 (ko) or casual/everyday/courteous Thai, and Thai output gets its ครับ/ค่ะ/คะ particles matched to the speaker afterwards. Default `auto` behaves as before.
+
 **Engine (round 9)**
 - **Fixed:** a pack id with a trailing newline passed validation; `None` in a vocabulary list became the word “None”; the same phone number written with dashes or spaces was reported as a number mismatch.
 - **New:** the number check understands fractions (“1/2”, “2 and a half”, ครึ่ง), currencies (a price in baht against dollars is a mismatch) and times of day (“3 in the afternoon” = บ่ายสาม).
+- **New:** the number check treats °F/°C, miles/km and lb/kg as equal after rounding (“86 °F” = “30 องศาเซลเซียส”), real differences are still reported.
+
+**Engine (round 11)**
+- **Fixed:** very long sentences no longer fail at Google (request is split); Google or MyMemory returning the sentence unchanged or in the wrong language is no longer read aloud (next provider tried); an empty, cut-off or refused Claude answer no longer pauses Claude for a minute.
 
 **iPhone app**
 - **New:** retries sentences that failed to translate when the network returns; error bubbles have buttons (open Settings for a denied microphone); copied text is removed from the clipboard after 2 minutes; optional hiding of the conversation during screen recording; “Recent” category in the phrasebook; share favourites; learning mode with daily count, streak, “Practise all cards” and progress reset; iPad keyboard shortcuts; VoiceOver Magic Tap and copy action.
@@ -118,12 +126,19 @@ Pull requests #16–#47. Not yet published as a release.
 **iPhone app (round 10)**
 - **New:** a five-step quick guide in the help (start, conversation mode, repeat slowly, privacy, keyboard and VoiceOver); iPad tools column between 320 and 440 pt and ⌘/ opens the help; haptics when repeating slowly and in conversation mode (share, turn).
 
+**iPhone app (round 11)**
+- **New:** quick-phrases widget on the Lock Screen (rectangular, inline, and a circular “Start” button) next to small, medium and large; the phrases can come from a phrasebook category that rotates hourly; the language pair is shown; an error note when the phrasebook cannot be read.
+- **Changed:** the widget stays free of conversation content (no favourites or history, no App Group); larger text shows fewer, taller phrases, VoiceOver reads each phrase with a hint; new texts in all 10 languages (de/en/th by hand, the rest machine-translated).
+
 **Web**
 - **New:** phrasebook search (`/`), favourites filter, copy button on every translation; history search, CSV export, share and clear with confirmation; learning progress bar, review schedule and arrow keys; “Delete all local data”; hints for a blocked microphone and for going offline; `?` opens help.
 - **Fixed:** a shadowed `t()` raised an error on every finished translation and on critical phrases; high-contrast, forced-colors and reduced-motion styles; Safari text-size and zoom behaviour.
 
 **Mac app**
 - **New:** the toolbar folds into an overflow menu in narrow windows; model download progress in the empty state, status line and menu bar; error band with a suggested action and buttons per error code, plus a network band; history search shows the hit count and exports only the hits; bubbles can be shared, shown large and have extra VoiceOver actions; glossary quick entry (⌥⌘G); shortcuts ⇧⌘C, ⌥⌘L, ⌥⌘S, ⌘L, ⌘/ with an overview sheet; menu bar extra (direction, speak on/off, copy recent translations) and Dock menu; subtitle window with context menu (size, original, transparency) and remembered position; partner view pages through earlier translations; searchable settings; the main window remembers size and place.
+
+**Web (round 9)**
+- **New:** about 115 messages moved into the translation table (de/en/th) with a test that forbids new fixed German strings in the logic; the “no speech recognition” hint has three steps and buttons (“Type instead”, “To the phrasebook”); design Auto/Light/Dark and font size A−/A+; “Slowly” button (speed ×0.6) on cards and in the large view; previous/next topic and a “Recently used” shortcut; print styles for phrase cards.
 
 **Phrase packs**
 - **New:** nine packs with cultural notes: emergency, work, school, visa, sport, nomad, diving, market, kids (Thai machine-translated, not yet checked by a native speaker), plus eight more: car-rental, pets, baby, gym, wedding, photo, monk, hospital (41 in total).
