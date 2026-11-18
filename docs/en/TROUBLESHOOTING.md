@@ -2,6 +2,10 @@
 
 Look at the log first: `~/Library/Logs/Dolmetscher/engine.log` (rotated at about 1 MB). Conversation text is only in it if the engine ran with `--log-text`; remove personal content before sharing a log. The first-time setup log is `~/Library/Application Support/Dolmetscher/setup.log`. German version: [FEHLERHILFE.md](../FEHLERHILFE.md).
 
+## Self-test and diagnosis (Mac)
+
+Help > "Self-test …" checks microphone, speaker, network, speech models and the Python engine and says what to do for each line. "Copy diagnostic report" puts a report for an issue on the clipboard: no conversation text, keys, home path or user name.
+
 ## Microphone
 
 **"No microphone access" (Mac)**

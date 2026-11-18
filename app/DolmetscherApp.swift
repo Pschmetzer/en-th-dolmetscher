@@ -235,6 +235,7 @@ struct AppCommands: Commands {
         CommandGroup(replacing: .printItem) {}   // kein Drucken: ⌘P ist Pause
         CommandGroup(replacing: .help) {
             Button(L.t("tips_show")) { NotificationCenter.default.post(name: .showTips, object: nil) }
+            Button(L.t("selftest_open")) { NotificationCenter.default.post(name: .showSelfTest, object: nil) }
             Button(L.t("show_shortcuts")) { NotificationCenter.default.post(name: .showShortcuts, object: nil) }
                 .keyboardShortcut("/", modifiers: .command)
         }
