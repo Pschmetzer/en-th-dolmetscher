@@ -42,6 +42,12 @@ enum WidgetTexts {
                     "es": "Puede estar desactualizado: abre la app", "fr": "Peut être obsolète – ouvrez l’app", "ja": "情報が古い可能性があります – アプリを開く",
                     "ko": "오래된 정보일 수 있음 – 앱 열기", "zh-Hans": "可能已过期 – 请打开应用", "vi": "Có thể đã cũ – hãy mở ứng dụng",
                     "id": "Mungkin kedaluwarsa – buka aplikasi"],
+        "w_pair_a11y": ["de": "Englisch nach Thai", "en": "English to Thai", "th": "อังกฤษเป็นไทย", "es": "Inglés a tailandés", "fr": "Anglais vers thaï",
+                           "ja": "英語からタイ語へ", "ko": "영어에서 태국어로", "zh-Hans": "英语到泰语", "vi": "Tiếng Anh sang tiếng Thái", "id": "Inggris ke Thai"],
+        "w_empty": ["de": "Satzbuch nicht verfügbar – Dolmetscher öffnen", "en": "Phrasebook unavailable – open Dolmetscher", "th": "ไม่มีวลีให้ใช้ – เปิด Dolmetscher", "es": "Frases no disponibles: abre Dolmetscher", "fr": "Phrases indisponibles – ouvrez Dolmetscher",
+                       "ja": "フレーズを読み込めません – Dolmetscherを開く", "ko": "문장을 불러올 수 없음 – Dolmetscher 열기", "zh-Hans": "无法加载短句 – 请打开 Dolmetscher", "vi": "Không có câu nào – hãy mở Dolmetscher", "id": "Frasa tidak tersedia – buka Dolmetscher"],
+        "w_say_hint": ["de": "Öffnet Dolmetscher und spricht den Satz", "en": "Opens Dolmetscher and speaks the phrase", "th": "เปิด Dolmetscher และพูดประโยคนี้", "es": "Abre Dolmetscher y dice la frase", "fr": "Ouvre Dolmetscher et dit la phrase",
+                          "ja": "Dolmetscherを開いて文を読み上げます", "ko": "Dolmetscher를 열고 문장을 말합니다", "zh-Hans": "打开 Dolmetscher 并说出这句话", "vi": "Mở Dolmetscher và nói câu này", "id": "Membuka Dolmetscher dan mengucapkan frasa"],
     ]
 
     /// Erste bevorzugte Systemsprache, die es gibt; sonst Englisch.

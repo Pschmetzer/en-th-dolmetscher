@@ -562,6 +562,9 @@ final class EngineModel: NSObject, ObservableObject {
     }
 
     /// Einmalige Umstellung alter Installationen von "small" auf das genauere "medium".
+    /// Gespeicherte Modellwahl (für den Erststart, bevor ein EngineModel existiert).
+    static var savedModel: String { initialModel() }
+
     private static func initialModel() -> String {
         if !ud.bool(forKey: "migratedToMedium") {
             ud.set(true, forKey: "migratedToMedium")

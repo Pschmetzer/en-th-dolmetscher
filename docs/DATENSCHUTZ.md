@@ -74,7 +74,7 @@ Willst du nichts senden: Ohne Netz läuft die Erkennung weiter. Übersetzt wird 
 - **Verlauf**: Die App speichert Gespräche lokal in `history.json` im App-Ordner (Application Support, iOS-Dateischutz), standardmäßig **30 Tage**; einstellbar, 0 schaltet das Speichern ab und löscht die Datei. Notfallkarte, Favoriten und Ziele liegen ebenfalls nur lokal (`emergency.json`, `favorites.json`, `places.json`). Der Verlauf lässt sich per Face ID sperren; gesperrt bleiben ältere Sätze verborgen.
 - **Lernkarten**: Favoriten und übersetzte Sätze, die du ins Lernen übernimmst, liegen mit dem Lernstand nur auf dem Gerät in `learn.json` (gleicher Dateischutz). Sätze aus dem gesperrten Verlauf kommen nicht in die Karten.
 - **Widgets und Steuerelement**: Das Schnellsätze-Widget zeigt nur Sätze aus dem eingebauten Satzbuch (`phrases.json` im Widget selbst). Es liest weder Verlauf noch Einstellungen der App (kein gemeinsamer App-Group-Speicher).
-- **Live-Aktivität** (Standard: an, abschaltbar in den Einstellungen): Beim Zuhören zeigen Sperrbildschirm und Dynamic Island den letzten Satz samt Übersetzung. Sie sind dort **ohne Entsperren lesbar**. Wer das nicht will, schaltet die Live-Aktivität aus.
+- **Live-Aktivität** (Standard bei neuer Installation: aus, einschaltbar in den Einstellungen; wer die App vor dieser Änderung nutzte, behält seine bisherige Wahl): Beim Zuhören zeigen Sperrbildschirm und Dynamic Island den letzten Satz samt Übersetzung. Solange das iPhone gesperrt ist, bleibt der Satz leer („erst nach dem Entsperren“); lesbar ist er erst entsperrt.
 - **Alle Daten löschen** (Einstellungen, mit Rückfrage, bei gesperrtem Verlauf erst Face ID): entfernt Verlauf, Favoriten, Notfallkarte, Ziele, Lernstand und alle Einstellungen, auch Sicherungskopien beschädigter Dateien. Geladene Whisper-Modelle bleiben; die löscht „Löschen“ im Whisper-Abschnitt. Kopien in Backups des iPhones löscht das nicht.
 - Keine Konten, keine eigene Telemetrie (siehe `ios/Dolmetscher/PrivacyInfo.xcprivacy`).
 
@@ -117,7 +117,7 @@ Wer Logs teilt: `--log-text` schreibt erkannte und übersetzte Sätze in die Log
 ## Ergänzungen Runde 7 (Mac, iPhone, Web)
 
 - **Mac, URL-Schema `dolmetscher://`:** andere Programme können Start, Stopp, Pause und „Satz sprechen“ auslösen. Beim ersten Aufruf fragt die App nach; Text höchstens 1000 Zeichen.
-- **Mac, Bildschirmaufnahme:** Der Schalter „Fenster vor Bildschirmaufnahme verbergen“ schließt die App-Fenster aus Aufnahmen und Screenshots aus (`sharingType = .none`). Standard: aus.
+- **Mac, Bildschirmaufnahme:** Der Schalter „Fenster vor Bildschirmaufnahme und Screen-Sharing verbergen“ schließt die App-Fenster aus Aufnahmen und Screenshots aus (`sharingType = .none`). Standard: aus.
 - **Mac, Audiodateien:** Beim Übersetzen einer Datei läuft ein eigener Engine-Prozess; Ergebnisse stehen nur im Verlauf der App.
 - **Mac, API-Schlüssel:** Der Schlüssel geht nur an den Engine-Prozess, nicht an Hilfsprozesse. Der Schlüsselbund-Eintrag gilt nur für dieses Gerät. Klartext-Schlüsseldateien werden in Release-Builds gelöscht.
 - **iPhone, Wechselkurs (optional, Standard aus):** Die Kursabfrage sendet nur den Währungscode an `api.frankfurter.dev`; keine Sätze, keine Gerätekennung.
@@ -126,3 +126,11 @@ Wer Logs teilt: `--log-text` schreibt erkannte und übersetzte Sätze in die Log
 - **iPhone, Lernkarten:** folgen der Verlaufseinstellung und der Face-ID-Sperre, haben ein Verfallsdatum und lassen sich löschen.
 - **Web:** Texteingabe, „Meine Karten“ (Adresse, Hotel) und die Lernkarten bleiben nur in diesem Browser. „Falsch? Melden“ öffnet ein vorbefülltes GitHub-Formular; gesendet wird nur, was du dort selbst abschickst.
 
+
+## Ergänzungen Runde 8 bis 10 (Zwischenablage, Bildschirmaufnahme, Echo-Schutz)
+
+- **iPhone, Zwischenablage** (`SecureCopy` in `ios/Dolmetscher/Round8.swift`): „Kopieren“ legt den Text nur auf dieses Gerät (kein Universal Clipboard). Mit dem Schalter „Kopierte Texte nach 2 Minuten löschen“ (Standard: an) löscht iOS den Eintrag nach 120 Sekunden von selbst.
+- **Mac, Zwischenablage:** Kopieren (Blase, ⇧⌘C, Menüleiste) schreibt gewöhnlich in die allgemeine Zwischenablage; die App löscht sie nicht selbst und schränkt sie nicht auf das Gerät ein.
+- **iPhone, Bildschirmaufnahme:** Der Schalter „Bei Bildschirmaufnahme und Spiegelung verbergen“ (Standard: aus) deckt die App ab, solange der Bildschirm aufgenommen oder gespiegelt wird (`UIScreen.isCaptured`). Unabhängig davon verbirgt „Im App-Umschalter verbergen“ (Standard: an) die App in der App-Vorschau.
+- **Mac, Bildschirmaufnahme:** siehe oben (Runde 7); der Schalter gilt für Hauptfenster, Partneransicht und Untertitelfenster.
+- **Echo-Schutz** (`echo_guard`, Standard: an): Die Engine merkt sich die letzten acht vorgelesenen Sätze (normalisiert, nur im Arbeitsspeicher, 25 Sekunden lang wirksam), um erkannte Wiederholungen der eigenen Ausgabe zu verwerfen. Davon wird nichts auf die Platte geschrieben, nichts gesendet und nichts in Verlauf oder Log übernommen; beim Beenden der Engine ist es weg.
