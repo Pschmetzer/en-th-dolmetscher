@@ -15,14 +15,31 @@ struct PartnerView: View {
     /// Wie viele Übersetzungen zurückgeblättert wird (0 = die neueste); springt bei neuer Übersetzung zurück.
     @State private var back = 0
     @AppStorage(Prefs.hideFromCapture) private var hideCapture = false
-    private static let zoomRange = 0.5...2.0
+    private static let zoomRange = PartnerLogic.zoomRange
+    /// Hoher Kontrast: reines Weiß auf Schwarz, Zahlen gelb; die Sprachfarben fallen weg (Name steht ohnehin als Text da).
+    @AppStorage("partnerContrast") private var highContrast = false
+    /// Präsentationsmodus: Leiste ausgeblendet, nur Text und die beiden Bitten.
+    @State private var presentation = false
+    @AppStorage("partnerFullscreen") private var wasFullscreen = false
 
     /// Startschriftgröße aus Fenstergröße und Textlänge (minimumScaleFactor fängt den Rest ab).
     private func fontSize(for text: String, in size: CGSize) -> CGFloat {
-        let n = CGFloat(max(text.count, 1))
-        let w = max(size.width - 96, 100), h = max(size.height * 0.6, 100)
-        let byArea = (w * h / (n * 0.9)).squareRoot()
-        return min(max(byArea, 28), min(h, 160)) * CGFloat(zoom)
+        CGFloat(PartnerLogic.fontSize(length: text.count, width: size.width, height: size.height)) * CGFloat(zoom)
+    }
+
+    private func langColor(_ code: String) -> Color { highContrast ? .white : LangStyle.onBlack(code) }
+
+    /// Text mit hervorgehobenen Zahlen (fett, unterstrichen, gelb), damit Preise und Uhrzeiten sofort auffallen.
+    private func numbered(_ text: String, base: Color) -> Text {
+        var out = Text("")
+        for seg in PartnerLogic.segments(text) {
+            if seg.isNumber {
+                out = out + Text(seg.text).fontWeight(.black).underline().foregroundColor(Color(red: 1, green: 0.9, blue: 0.2))
+            } else {
+                out = out + Text(seg.text).foregroundColor(base)
+            }
+        }
+        return out
     }
 
     /// „Bitte sprechen“ in einer Sprache des Paars; Thai mit dem Höflichkeitswort der Einstellung.
@@ -60,7 +77,7 @@ struct PartnerView: View {
     private var partnerUI: UILang? { UILang(rawValue: m.partnerLang) }
 
     /// Große Schaltfläche, Beschriftung in der Partnersprache (de/en/th, sonst Englisch) und darunter in meiner.
-    @ViewBuilder private func partnerButton(_ key: String, icon: String, action: @escaping () -> Void) -> some View {
+    @ViewBuilder private func partnerButton(_ key: String, icon: String, shortcut: KeyEquivalent, action: @escaping () -> Void) -> some View {
         let main = L.t(key, partnerUI ?? .en)
         Button(action: action) {
             VStack(spacing: 2) {
@@ -73,6 +90,8 @@ struct PartnerView: View {
             .background(Color(white: 0.22), in: RoundedRectangle(cornerRadius: 16))
         }
         .buttonStyle(.plain)
+        .keyboardShortcut(shortcut, modifiers: [])
+        .help(main + " (" + shortcut.character.uppercased() + ")")
         .accessibilityLabel(main)
     }
 
@@ -114,11 +133,14 @@ struct PartnerView: View {
                 VStack(spacing: 28) {
                     Spacer(minLength: 0)
                     let fs = fontSize(for: u.out, in: geo.size)
-                    Text(u.out)
+                    Text(LangStyle.flag(u.to) + " " + LangStyle.name(u.to))   // Sprache auch als Text, nicht nur als Farbe
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundStyle(Color(white: highContrast ? 1 : 0.7))
+                        .accessibilityHidden(true)
+                    numbered(u.out, base: u.translated ? langColor(u.to) : .white)
                         .font(.system(size: fs, weight: .bold))
                         .minimumScaleFactor(0.15)
                         .multilineTextAlignment(.center)
-                        .foregroundStyle(u.translated ? LangStyle.onBlack(u.to) : .white)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .accessibilityLabel(Text(a11yAttributed([("\(LangStyle.name(u.to)): ", nil), (u.out, u.to)])))
                     if translit, u.translated, let latin = u.outLatin, !latin.isEmpty {
@@ -127,16 +149,15 @@ struct PartnerView: View {
                             .minimumScaleFactor(0.3)
                             .lineLimit(3)
                             .multilineTextAlignment(.center)
-                            .foregroundStyle(Color(white: 0.7))
+                            .foregroundStyle(Color(white: highContrast ? 1 : 0.7))
                             .frame(maxWidth: .infinity)
                     }
                     if u.translated {
-                        Text(LangStyle.flag(u.lang) + "  " + u.text)
+                        (Text(LangStyle.flag(u.lang) + "  ") + numbered(u.text, base: langColor(u.lang).opacity(highContrast ? 1 : 0.9)))
                             .font(.system(size: 44 * zoom, weight: .medium))
                             .minimumScaleFactor(0.3)
                             .lineLimit(4)
                             .multilineTextAlignment(.center)
-                            .foregroundStyle(LangStyle.onBlack(u.lang).opacity(0.9))
                             .frame(maxWidth: .infinity)
                             .accessibilityLabel(Text(a11yAttributed([(L.t("original") + " \(LangStyle.name(u.lang)): ", nil), (u.text, u.lang)])))
                     }
@@ -150,10 +171,10 @@ struct PartnerView: View {
                 VStack(spacing: 20) {
                     // groß in der Partnersprache (Thai mit Höflichkeitswort), darunter in meiner Sprache
                     Text(pleaseSpeak(m.partnerLang)).font(.system(size: 64, weight: .bold))
-                        .foregroundStyle(LangStyle.onBlack(m.partnerLang))
+                        .foregroundStyle(langColor(m.partnerLang))
                         .accessibilityLabel(Text(a11yAttributed([(pleaseSpeak(m.partnerLang), m.partnerLang)])))
                     Text(pleaseSpeak(m.mineLang)).font(.system(size: 48, weight: .semibold))
-                        .foregroundStyle(LangStyle.onBlack(m.mineLang))
+                        .foregroundStyle(langColor(m.mineLang))
                         .accessibilityLabel(Text(a11yAttributed([(pleaseSpeak(m.mineLang), m.mineLang)])))
                 }
                 .minimumScaleFactor(0.3)
@@ -162,6 +183,7 @@ struct PartnerView: View {
             }
             .rotationEffect(.degrees(rotated ? 180 : 0))
             VStack {
+                if !presentation {
                 HStack(spacing: 10) {
                     Image(systemName: stateIcon.name).foregroundStyle(stateIcon.color).font(.title3)
                         .accessibilityLabel(L.t("status") + ": " + m.status)
@@ -178,6 +200,12 @@ struct PartnerView: View {
                         .help(L.t("font_smaller")).accessibilityLabel(L.t("font_smaller"))
                     Button { zoom = min(Self.zoomRange.upperBound, zoom + 0.1) } label: { Image(systemName: "textformat.size.larger") }
                         .help(L.t("font_bigger")).accessibilityLabel(L.t("font_bigger"))
+                    Button { highContrast.toggle() } label: { Image(systemName: "circle.lefthalf.filled") }
+                        .help(L.t("partner_contrast")).accessibilityLabel(L.t("partner_contrast"))
+                        .accessibilityValue(highContrast ? L.t("on") : L.t("off"))
+                    Button { presentation = true } label: { Image(systemName: "rectangle.on.rectangle") }
+                        .keyboardShortcut("p", modifiers: [])
+                        .help(L.t("partner_presentation") + " (P)").accessibilityLabel(L.t("partner_presentation"))
                     Button { rotated.toggle() } label: { Image(systemName: "rotate.right") }
                         .help(L.t("partner_rotate")).accessibilityLabel(L.t("partner_rotate"))
                         .accessibilityValue(rotated ? L.t("on") : L.t("off"))
@@ -197,12 +225,20 @@ struct PartnerView: View {
                 .foregroundStyle(.gray)
                 .font(.title2)
                 .padding(14)
+                }
                 if let b = stopBanner { stopBannerView(b) }
                 Spacer()
+                if presentation {   // Esc holt die Leiste zurück
+                    Button { presentation = false } label: { Image(systemName: "xmark.circle") }
+                        .keyboardShortcut(.escape, modifiers: [])
+                        .buttonStyle(.borderless).foregroundStyle(.gray).font(.title2)
+                        .help(L.t("partner_presentation_end")).accessibilityLabel(L.t("partner_presentation_end"))
+                        .frame(maxWidth: .infinity, alignment: .trailing).padding(.horizontal, 14)
+                }
                 if m.running {   // Nr. 36: die Partnerin kann um Wiederholung / langsameres Sprechen bitten
                     HStack(spacing: 16) {
-                        partnerButton("partner_again", icon: "arrow.counterclockwise") { m.replayLast() }
-                        partnerButton("partner_slower", icon: "tortoise") { m.partnerAsks("partner_asks_slower") }
+                        partnerButton("partner_again", icon: "arrow.counterclockwise", shortcut: "r") { m.replayLast() }
+                        partnerButton("partner_slower", icon: "tortoise", shortcut: "s") { m.partnerAsks("partner_asks_slower") }
                     }
                     .padding(.horizontal, 24).padding(.bottom, 18)
                 }
@@ -215,6 +251,10 @@ struct PartnerView: View {
             if window !== w {
                 w.collectionBehavior.insert(.fullScreenPrimary)
                 w.backgroundColor = .black
+                w.setFrameAutosaveName("PartnerWindow")   // Größe und Bildschirm merken (zweiter Bildschirm)
+                if wasFullscreen, !w.styleMask.contains(.fullScreen) {
+                    DispatchQueue.main.async { w.toggleFullScreen(nil) }
+                }
                 w.sharingType = hideCapture ? .none : .readOnly
                 window = w
             }
@@ -223,6 +263,8 @@ struct PartnerView: View {
         .onAppear { m.partnerVisible = true }
         .onDisappear { m.partnerVisible = false }
         .overlay(alignment: .bottom) { pendingLine }
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didEnterFullScreenNotification)) { _ in wasFullscreen = true }
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didExitFullScreenNotification)) { _ in wasFullscreen = false }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)) { _ in
             screenCount = NSScreen.screens.count
         }
