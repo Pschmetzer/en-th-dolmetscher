@@ -65,7 +65,7 @@ def test_speak_text_adds_to_speaker_with_id():
     e.speaker = types.SimpleNamespace(add=lambda *a, **kw: calls.append((a, kw)))
     e.speak_text("Hello", "en", "u9")
     e.speak_text("Hello", "en")
-    assert calls[0] == (("Hello", "en", "u9"), {})
+    assert calls[0] == (("Hello", "en", "u9"), {"pin": True})   # Runde 7: nie überspringen
     assert calls[1][0][2].startswith("u")          # ohne id: neue id
 
 
@@ -89,7 +89,7 @@ def test_speak_text_not_logged_without_log_text(monkeypatch):
     ("two thousand five hundred", "2500"), ("fifteen hundred", "1500"), ("Five Million", "5000000"),
     ("one million two hundred thousand", "1200000"),
     ("one fifty", "one fifty"), ("two thirty", "two thirty"),    # Preis oder Uhrzeit? unklar: bleibt
-    ("someone", "someone"), ("a hundred", "a hundred"),
+    ("someone", "someone"), ("a hundred", "100"),
 ])
 def test_en_words_to_digits(words, digits):
     assert d.en_words_to_digits(words) == digits

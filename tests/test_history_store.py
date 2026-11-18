@@ -54,8 +54,12 @@ def test_export_md_anki_exact(st):
         "# Gesprächsverlauf\n\n## Sitzung s1 (2023-11-14T22:13:20.000Z)\n\n"
         "- **22:13:20** [EN] Hello there\n  → สวัสดี\n"
         "- **22:13:24** [TH] ไปไหนครับ\n  → Where are you going? (pai nai khrap)\n")
-    assert hs.export(rows, "anki") == ("#separator:tab\n#html:false\nHello there\tสวัสดี\t\n"
-                                       "ไปไหนครับ\tWhere are you going?\tpai nai khrap\n")
+    anki = hs.export(rows, "anki").split("\n")              # Runde 7: mit GUID, Stapel und Tags (erneuter Import)
+    assert anki[:5] == ["#separator:tab", "#html:false", "#guid column:1", "#deck:Dolmetscher", "#tags column:5"]
+    f1, f2 = anki[5].split("\t"), anki[6].split("\t")
+    assert f1[1:4] == ["Hello there", "สวัสดี", ""] and f1[4] == "lang_en session_s1"
+    assert f2[1:4] == ["ไปไหนครับ", "Where are you going?", "pai nai khrap"] and f1[0] != f2[0]
+    assert hs.export(rows, "anki") == "\n".join(anki)         # GUIDs sind stabil
 
 
 def test_purge_and_clear(st):

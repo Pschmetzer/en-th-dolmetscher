@@ -38,3 +38,9 @@ def _llm_spend_tmp(monkeypatch, tmp_path):
     monkeypatch.setattr(d, "LLM_SPEND_FILE", str(tmp_path / "llm_spend.json"))
     monkeypatch.setattr(d, "_SPEND", {"month": None, "usd": 0.0, "warned": None})
     monkeypatch.setitem(d.LLM, "budget", 0.0)
+
+
+@pytest.fixture(autouse=True)
+def _pseud_salt_fixed(monkeypatch):
+    """Das Log-Pseudonym nutzt ein Salz aus dem Datenordner: Tests legen nie die echte Datei an."""
+    monkeypatch.setattr(d, "_PSEUD_SALT", {"v": "test-salt-0123456789"})

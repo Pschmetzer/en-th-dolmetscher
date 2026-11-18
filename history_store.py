@@ -6,6 +6,7 @@ Speichert Äußerungen in einer SQLite-Datei unter
 (`--history` bzw. stdin `{"history": true}`). Texte landen nie im Log.
 """
 import csv
+import hashlib
 import io
 import json
 import math
@@ -36,16 +37,24 @@ class Store:
     def __init__(self, path=None):
         self.path = path or db_path()
         d = os.path.dirname(self.path)
+        fresh = not os.path.isdir(d)
         os.makedirs(d, mode=0o700, exist_ok=True)
-        os.chmod(d, 0o700)
+        if fresh:                                      # nie die Rechte eines vorhandenen Ordners ändern
+            os.chmod(d, 0o700)
         if not os.path.exists(self.path):
             os.close(os.open(self.path, os.O_CREAT | os.O_WRONLY, 0o600))
         os.chmod(self.path, 0o600)
-        self.db = sqlite3.connect(self.path, check_same_thread=False)
+        # busy-Timeout 10 s: ein parallel laufender Export/Löschlauf sperrt die Datenbank nur kurz
+        self.db = sqlite3.connect(self.path, check_same_thread=False, timeout=10.0)
         # Nr. 204: eine Verbindung für mehrere Threads – Schreibvorgänge nur unter Lock und als eine Transaktion
         self.lock = threading.RLock()
         # Gelöschte Zeilen mit Nullen überschreiben statt nur freizugeben (gilt pro Verbindung).
         self.db.execute("PRAGMA secure_delete = ON")
+        try:                                           # WAL: Leser (Export) blockieren den Schreiber nicht
+            self.db.execute("PRAGMA journal_mode = WAL")
+            self.db.execute("PRAGMA synchronous = NORMAL")
+        except sqlite3.Error:
+            pass
         self.db.execute("""CREATE TABLE IF NOT EXISTS utt (
             id INTEGER PRIMARY KEY AUTOINCREMENT, uid TEXT, ts REAL NOT NULL, session TEXT NOT NULL,
             lang TEXT, text TEXT, translation TEXT, translit TEXT, conf REAL, provider TEXT)""")
@@ -83,6 +92,10 @@ class Store:
         return True
 
     def close(self):
+        try:
+            self.db.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+        except sqlite3.Error:
+            pass
         self.db.close()
 
     def add(self, text, translation=None, lang=None, translit=None, conf=None, provider=None,
@@ -136,6 +149,7 @@ class Store:
                     self.db.execute("INSERT INTO utt_fts(utt_fts) VALUES('optimize')")
                     self.db.commit()
                 self.db.execute("VACUUM")
+                self.db.execute("PRAGMA wal_checkpoint(TRUNCATE)")    # gelöschter Text nicht in der WAL-Datei lassen
             except sqlite3.Error:
                 pass
 
@@ -147,23 +161,47 @@ class Store:
         cols = [c[0] for c in cur.description]
         return [dict(zip(cols, r)) for r in cur.fetchall()]
 
+    def last_translation(self):
+        """Letzte Zeile mit Übersetzung ({lang, translation}) oder None."""
+        r = self.db.execute("SELECT lang, translation FROM utt WHERE translation IS NOT NULL AND translation != '' "
+                            "ORDER BY ts DESC, id DESC LIMIT 1").fetchone()
+        return {"lang": r[0], "translation": r[1]} if r else None
+
     def sessions(self):
         """[(session, start_ts, count)] – neueste zuerst."""
         return self.db.execute("SELECT session, MIN(ts), COUNT(*) FROM utt GROUP BY session "
                                "ORDER BY MIN(ts) DESC").fetchall()
 
-    def search(self, query, limit=200):
+    def search(self, query, limit=200, context=0, lang=None, session=None, since=None):
+        """Treffer (neueste zuerst). context=N: je Treffer `context` = bis zu N Zeilen davor/danach aus derselben
+        Sitzung; lang/session/since (Unix-Zeit) filtern."""
+        rows = self._search(query, limit if not (lang or session or since) else max(limit, 5000))
+        if lang:
+            rows = [r for r in rows if r.get("lang") == lang]
+        if session:
+            rows = [r for r in rows if r.get("session") == session]
+        if since is not None:
+            rows = [r for r in rows if r["ts"] >= since]
+        rows = rows[:limit]
+        n = max(0, min(int(context or 0), 10))
+        if n:
+            for r in rows:
+                near = self.db.execute(
+                    "SELECT * FROM utt WHERE session = ? AND id BETWEEN ? AND ? AND id != ? ORDER BY id",
+                    (r["session"], r["id"] - n, r["id"] + n, r["id"]))
+                cols = [c[0] for c in near.description]
+                r["context"] = [{"id": x["id"], "lang": x["lang"], "text": x["text"], "translation": x["translation"]}
+                                for x in (dict(zip(cols, y)) for y in near.fetchall())]
+        return rows
+
+    def _search(self, query, limit=200):
         query = (query or "").strip()
         if not query:
             return []
         if self.fts and len(query) >= 3:
-            ids = [r[0] for r in self.db.execute(
-                "SELECT rowid FROM utt_fts WHERE utt_fts MATCH ? ORDER BY rowid",
-                ('"' + query.replace('"', '""') + '"',))]
-            if not ids:
-                return []
-            marks = ",".join("?" * len(ids))
-            where, args = f"id IN ({marks})", ids
+            # Unterabfrage statt Liste von Treffer-IDs: kein "too many SQL variables" bei häufigen Trigrammen
+            where = "id IN (SELECT rowid FROM utt_fts WHERE utt_fts MATCH ?)"
+            args = ('"' + query.replace('"', '""') + '"',)
         else:
             like = "%" + query.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
             where, args = "text LIKE ? ESCAPE '\\' OR translation LIKE ? ESCAPE '\\'", (like, like)
@@ -194,6 +232,13 @@ def _clock(sec, sep):
     return f"{ms // 3600000:02d}:{ms // 60000 % 60:02d}:{ms // 1000 % 60:02d}{sep}{ms % 1000:03d}"
 
 
+def _csv_safe(v):
+    """Excel/Numbers führen Zellen aus, die mit = + - @ (oder Tab/CR) beginnen, als Formel aus: ' voranstellen."""
+    if isinstance(v, str) and v[:1] in ("=", "+", "-", "@", "\t", "\r"):
+        return "'" + v
+    return v
+
+
 def _flat(s):
     return " ".join((s or "").split())
 
@@ -215,9 +260,9 @@ def _cues(rows):
         own = min(7.0, max(1.5, 0.06 * len(r["text"] or "")))
         nxt = rows[i + 1] if i + 1 < len(rows) and rows[i + 1]["session"] == r["session"] else None
         e = s + own if nxt is None else min(s + own, max(s + 0.5, _start(nxt) - starts[r["session"]]))
-        body = r["text"] or ""
-        if r["translation"] and r["translation"] != r["text"]:
-            body += "\n" + r["translation"]
+        body = _flat(r["text"])                    # eine Leerzeile würde den Cue beenden
+        if r["translation"] and _flat(r["translation"]) != body:
+            body += "\n" + _flat(r["translation"])
         out.append((s, e, body))
     return out
 
@@ -241,15 +286,19 @@ def export(rows, fmt):
         who = [k for k in WHO if any(r.get(k) for r in rows)]   # Nr. 206: Spalten nur, wenn bekannt
         w.writerow(["time", "session", "lang", "text", "translation", "translit", "confidence", "provider", *who])
         for r in rows:
-            w.writerow([_iso(r["ts"]), r["session"], r["lang"], r["text"], r["translation"] or "",
-                        r["translit"] or "", "" if r["conf"] is None else r["conf"], r["provider"] or "",
-                        *(r.get(k) or "" for k in who)])
+            w.writerow([_csv_safe(v) for v in (
+                _iso(r["ts"]), r["session"], r["lang"], r["text"], r["translation"] or "",
+                r["translit"] or "", "" if r["conf"] is None else r["conf"], r["provider"] or "",
+                *(r.get(k) or "" for k in who))])
         return buf.getvalue()
     if fmt == "anki":
-        lines = ["#separator:tab", "#html:false"]
+        # GUID (erneuter Import aktualisiert statt zu verdoppeln), Stapel und Tags (Sprache, Sitzung)
+        lines = ["#separator:tab", "#html:false", "#guid column:1", "#deck:Dolmetscher", "#tags column:5"]
         for r in rows:
             if r["translation"] and _flat(r["translation"]) != _flat(r["text"]):
-                lines.append(f"{_flat(r['text'])}\t{_flat(r['translation'])}\t{_flat(r['translit'])}")
+                guid = hashlib.sha1(f"{r['session']}|{r['ts']}|{r['text']}".encode("utf-8")).hexdigest()[:16]
+                tags = f"lang_{(r['lang'] or 'x').lower()} session_{r['session']}".replace("\t", " ")
+                lines.append(f"{guid}\t{_flat(r['text'])}\t{_flat(r['translation'])}\t{_flat(r['translit'])}\t{tags}")
         return "\n".join(lines) + "\n"
     if fmt in ("srt", "vtt"):
         sep = "," if fmt == "srt" else "."
@@ -286,9 +335,41 @@ class Recorder:
         self.store = None
         self.keep_days = None
         self.on_error = None                        # Nr. 191: Rückmeldung an die Engine (ohne Text)
+        self.fails = 0                              # aufeinanderfolgende vorübergehende Fehler (Datenbank gesperrt)
+        self.last_t = None                          # letzte Äußerung (neue Sitzung nach Pause/Tageswechsel)
+        self.last_purge = 0.0
+
+    SESSION_GAP_S = 1800.0                          # Pause ab der eine neue Sitzung beginnt
+    PURGE_EVERY_S = 3600.0                          # Aufbewahrungsfrist auch bei tagelang laufender Engine
+    MAX_FAILS = 3
+
+    def _roll(self, now):
+        """Neue Sitzung nach langer Pause oder Tageswechsel (Untertitel-Export nimmt sonst Tage am Stück);
+        stündlich die Aufbewahrungsfrist durchsetzen."""
+        if not self.fixed_session and self.last_t is not None and (now - self.last_t > self.SESSION_GAP_S
+                                        or time.localtime(now).tm_yday != time.localtime(self.last_t).tm_yday):
+            self.session = uuid.uuid4().hex[:12]
+        self.last_t = now
+        mono = time.monotonic()
+        if self.keep_days and self.store and mono - self.last_purge >= self.PURGE_EVERY_S:
+            self.last_purge = mono
+            # eigener Thread: VACUUM/Löschen hält sonst den Ausgabe-Lock (emit) und die Aufzeichnung läuft weiter,
+            # auch wenn das Aufräumen scheitert
+            self._purge_thread = threading.Thread(target=self._purge_bg, args=(self.store, self.keep_days),
+                                                  name="history-purge", daemon=True)
+            self._purge_thread.start()
+
+    @staticmethod
+    def _purge_bg(store, days):
+        try:
+            store.purge(days)
+        except Exception:
+            pass
 
     def enable(self, on=True, keep_days=None):
         """-> True, wenn der Verlauf im gewünschten Zustand ist; False, wenn die Datenbank nicht geht."""
+        if not on:
+            self.flush()                             # erst fertig schreiben, dann aus
         self.on = bool(on)
         if keep_days is not None:
             self.keep_days = valid_days(keep_days)   # ungültig (0, negativ …): nicht löschen, Verlauf bleibt an
@@ -302,30 +383,82 @@ class Recorder:
                 return False
         return True
 
+    # Engine-Betrieb: Schreiben in eigenem Thread (SQLite-Commit mit fsync hält sonst den Ausgabe-Lock von emit)
+    async_mode = False
+    store_speakers = True                           # False: Profilnamen nicht in die Datenbank schreiben
+    file_pos = None                                 # --file: Position (s) in der Datei statt Wanduhr (Untertitel)
+    file_base = 0.0
+    fixed_session = False                           # --subtitles: eine Sitzung für die ganze Datei
+
     def utt(self, kw):
         if not self.on or not self.store or not kw.get("text"):
             return
+        now = time.time() if self.file_pos is None else self.file_base + self.file_pos
+        if self.async_mode:
+            self._queue().put((kw, now))
+            return
+        self._write(kw, now)
+
+    def _queue(self):
+        import queue
+        q = getattr(self, "_q", None)
+        if q is None:
+            q = self._q = queue.Queue()
+
+            def work():
+                while True:
+                    item = q.get()
+                    try:
+                        if item is not None:
+                            self._write(*item)
+                    finally:
+                        q.task_done()
+            threading.Thread(target=work, name="history-writer", daemon=True).start()
+        return q
+
+    def flush(self):
+        """Wartende Schreibvorgänge abwarten (Ausschalten, Export, Beenden)."""
+        q = getattr(self, "_q", None)
+        if q is not None:
+            q.join()
+
+    def _write(self, kw, now):
+        if not self.on or not self.store:
+            return
         try:
+            self._roll(now)
             lp = kw.get("lp") or 0.0
             self.store.add(
                 kw["text"], kw.get("out") if kw.get("translated") else None, lang=kw.get("lang"),
                 translit=kw.get("text_latin") or kw.get("out_latin"),
                 conf=round(math.exp(lp), 3) if lp < 0 else None, provider=kw.get("provider"),
-                session=self.session, uid=kw.get("id"), replaces=kw.get("replaces"), t_begin=_t_begin(kw),
+                session=self.session, uid=kw.get("id"), replaces=kw.get("replaces"), ts=now,
+                t_begin=_t_begin(kw, now, self.file_pos is not None),
                 role=kw.get("role") if kw.get("role") in ("me", "other") else None,
-                speaker=kw.get("speaker") if isinstance(kw.get("speaker"), str) else None)
+                speaker=kw.get("speaker") if self.store_speakers and isinstance(kw.get("speaker"), str) else None)
+            self.fails = 0
+        except sqlite3.OperationalError as e:
+            if "locked" in str(e).lower() or "busy" in str(e).lower():
+                self.fails += 1                     # Export läuft nebenher: diese Zeile fehlt, Aufzeichnung bleibt an
+                if self.fails < self.MAX_FAILS:
+                    return
+            self._fail()
         except Exception:
-            self.on = False                         # Platte voll, Datei weg …: nicht bei jedem Satz neu scheitern
-            if self.on_error:
-                try:
-                    self.on_error()
-                except Exception:
-                    pass
+            self._fail()
+
+    def _fail(self):
+        self.on = False                             # Platte voll, Datei weg …: nicht bei jedem Satz neu scheitern
+        if self.on_error:
+            try:
+                self.on_error()
+            except Exception:
+                pass
 
 
-def _t_begin(kw, now=None):
-    """Sprechbeginn aus `utt`: jetzt − ready_s (Satzende bis Übersetzung) − dur (Länge der Äußerung)."""
-    ready, dur = kw.get("ready_s"), kw.get("dur")
+def _t_begin(kw, now=None, file_mode=False):
+    """Sprechbeginn aus `utt`: jetzt − ready_s (Satzende bis Übersetzung) − dur (Länge der Äußerung).
+    Dateimodus: `now` ist schon das Ende der Äußerung in der Datei, also nur − dur."""
+    ready, dur = (0.0 if file_mode else kw.get("ready_s")), kw.get("dur")
     if not all(isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x) and x >= 0
                for x in (ready, dur)):
         return None
@@ -338,7 +471,8 @@ RECORDER = Recorder()
 # ---------------------------------------------------------------- CLI
 
 def wants_cli(a):
-    return bool(a.history_export or a.history_search is not None or a.history_purge is not None or a.history_clear)
+    return bool(a.history_export or a.history_search is not None or a.history_purge is not None or a.history_clear
+                or getattr(a, "history_sessions", False))
 
 
 def run_cli(a):
@@ -352,6 +486,7 @@ def run_cli(a):
             text = export(st.rows(session), a.history_export)
             if a.out:
                 fd = os.open(a.out, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+                os.fchmod(fd, 0o600)                  # auch eine schon vorhandene Zieldatei: nur für den Nutzer
                 # CSV mit BOM (utf-8-sig): Excel erkennt sonst UTF-8 nicht (Thai/Umlaute als Zeichensalat)
                 enc = "utf-8-sig" if a.history_export == "csv" else "utf-8"
                 with os.fdopen(fd, "w", encoding=enc, newline="") as f:
@@ -360,10 +495,16 @@ def run_cli(a):
                 print(json.dumps({"exported": True, "bytes": len(text.encode(enc))}), flush=True)
             else:
                 print(text, end="")
+        elif getattr(a, "history_sessions", False):   # [{id, start, count}] – neueste zuerst
+            print(json.dumps([{"id": sid, "start": _iso(ts), "count": n} for sid, ts, n in st.sessions()]))
         elif a.history_search is not None:
+            ctx = getattr(a, "history_context", 0) or 0
+            hits = st.search(a.history_search, context=ctx, lang=getattr(a, "history_lang", None),
+                             session=a.history_session)
             print(json.dumps([{"time": _iso(r["ts"]), "session": r["session"], "lang": r["lang"],
-                               "text": r["text"], "translation": r["translation"]}
-                              for r in st.search(a.history_search)], ensure_ascii=False))
+                               "text": r["text"], "translation": r["translation"],
+                               **({"context": r["context"]} if "context" in r else {})}
+                              for r in hits], ensure_ascii=False))
         elif a.history_purge is not None:
             if valid_days(a.history_purge) is None:
                 print(json.dumps({"error": "history_purge braucht eine Zahl größer 0"}))

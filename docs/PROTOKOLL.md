@@ -89,13 +89,15 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `--profile-polite NAME FORM` | | Höflichkeitsform der Person für Thai-Ausgaben (`krub`, `ka`, `-` = wie Einstellung); antwortet mit `profile_saved`. Spricht diese Person (erkanntes Profil oder Rolle), endet die Thai-Übersetzung mit ihrer Form statt mit `--polite` |
 | `--history` | | Gesprächsverlauf lokal speichern |
 | `--history-days N` | | Verlauf älter als N Tage beim Start löschen |
-| `--history-export FORMAT`, `--history-session ID`, `--out PFAD`, `--history-search TEXT`, `--history-purge TAGE`, `--history-clear` | | Verlaufs-Befehle (siehe „Gesprächsverlauf“) |
+| `--subtitles PFAD` | | mit `--file`: Untertitel (`.srt`/`.vtt`, Zeiten = Position in der Datei) ohne Sprachausgabe; am Ende Ereignis `subtitles` |
+| `--history-export FORMAT`, `--history-session ID`, `--history-sessions`, `--out PFAD`, `--history-search TEXT`, `--history-context N`, `--history-lang CODE`, `--history-purge TAGE`, `--history-clear` | | Verlaufs-Befehle (siehe „Gesprächsverlauf“) |
 
 ### Umgebungsvariablen
 
 | Variable | Wirkung |
 |---|---|
 | `ANTHROPIC_API_KEY` (oder `ANTHROPIC_AUTH_TOKEN`) | Claude-Schlüssel. Die Mac-App speichert ihn im Schlüsselbund (Dienst `Dolmetscher`, Konto `anthropic`) und setzt ihn beim Start jedes Engine-Prozesses als `ANTHROPIC_API_KEY`; die Engine ruft `security` nie selbst auf. Die alte Datei bleibt erhalten, bis der Schlüsselbund-Eintrag nachweislich lesbar ist, und wird dann in `anthropic_key.migrated` (0600) umbenannt, nie gelöscht. Rückfall ohne `ANTHROPIC_API_KEY` (Terminal, Schlüsselbund nicht erreichbar): Datei `~/Library/Application Support/Dolmetscher/anthropic_key` (nur der Schlüssel, Rechte 0600), sonst `anthropic_key.migrated` im selben Ordner |
+| `DOLMETSCHER_LLM_PRICES` | JSON `{"modell": [eingabe, ausgabe]}` (USD je Mio. Token): überschreibt/ergänzt die eingebaute Preisliste der Claude-Kosten; `llm_cost.price_known` sagt, ob das Modell in der Liste steht |
 | `DOLMETSCHER_BEAM` | Beam-Breite der Erkennung (Standard 1; überschreibt `--model auto`) |
 | `DOLMETSCHER_MIC_FILE` | Audiodatei in Echtzeit statt Mikrofon (Ende-zu-Ende-Test) |
 | `DOLMETSCHER_MIC_LOOP` | mit `DOLMETSCHER_MIC_FILE`: Datei endlos wiederholen |
@@ -482,3 +484,126 @@ Neue Felder kommen nur dazu, `PROTOCOL` bleibt 1.
   das Anlegen eines Stimmprofils normalisiert wie der Betrieb (177); ครับ/ค่ะ vs. คะ erkennt englische Fragen
   auch ohne „?“ an Fragewort bzw. vorangestelltem Hilfsverb (181); `process` liest die Stimmprofile einmal je
   Satz, ein `reload_profiles` mittendrin stört nicht mehr (221).
+
+## Runde 7 (Engine)
+
+Nur additiv: neue Ereignisse, Felder und Codes, keine bestehenden ändern sich. `PROTOCOL` bleibt 1. Eine App, die
+sie nicht kennt, kann sie ignorieren.
+
+### Neue Steuerfelder
+
+| Feld | Wert | Wirkung |
+|---|---|---|
+| `clear` | `true` | Gesprächskontext und Texte im Speicher leeren (wie der Sprachbefehl „clear“, Mac-Punkt 9): Verlauf für Claude, „repeat“, Roh-Audio, Übersetzungs- und Sprach-Cache, **dazu wartende und laufende Sprachausgabe** (sie enthält den Text als Audio). Antwort: Ereignis `cleared`. Der gespeicherte Verlauf (`history`) bleibt unberührt, dafür gibt es `--history-clear` |
+| `llm_retry` | `true` | Claude sofort wieder versuchen: verwirft die Pause nach einem Fehler/„Guthaben leer“ und den Client (neuer Schlüssel). `llm` (an/aus) setzt die Pause ebenfalls zurück |
+
+`history_days` wirkt jetzt auch allein (ohne `history`): ändert die Aufbewahrungsfrist und setzt sie gleich
+durch (`0` = nie löschen, Ungültiges: `error` `history_days_invalid`).
+
+### Neue Ereignisse
+
+| Ereignis | Felder | Bedeutung |
+|---|---|---|
+| `cleared` | | Antwort auf `{"clear": true}` |
+| `control_invalid` | `key`, `reason` (`value`) | Ein **bekanntes** Steuerfeld hatte einen ungültigen Wert (falscher Typ, unbekannte Auswahl: `lang`, `polite`, `sensitivity`, `style`, `catch_up`). Der Rest der Zeile wird trotzdem angewendet. Früher still ignoriert bzw. `TypeError` bei Liste/Objekt |
+| `overrun` | `frames`, `total` | Mikrofon-Puffer übergelaufen: Audio-Blöcke gingen verloren (Lücke mitten im Wort bei CPU-Spitze). Höchstens alle 5 s |
+| `profiles_skipped` | `skipped` (`[{name, reason}]`, höchstens 10) | Stimmprofile, die nicht geladen wurden (anderes Erkennungsmodell, ungültig); die Stimmerkennung läuft dafür nicht |
+| `captive_portal` | `msg` | Ein API-Host lieferte HTML bzw. eine Weiterleitung (Anmeldeseite im Hotel-/Flughafen-WLAN). Höchstens einmal je Minute; der Anbieter pausiert dann 15 s, statt jeden Satz zu versuchen. Die App kann „Im WLAN anmelden“ zeigen. Bewusst kein `error` (ältere Apps kennen den Code nicht) |
+| `llm_budget_warn` | `usd`, `limit` | einmal je Monat bei 80 % des `llm_budget`-Limits (davor kam nur die Meldung beim Erreichen) |
+
+`state` (Antwort auf `get_state`) enthält zusätzlich `silence`, `sensitivity` (`low`\|`normal`\|`high`),
+`fast_endpoint`, `partial`, `tts_race`, `two_person`, `history` (bool) und `events_dropped` (Zeilen, die die
+App-Pipe nicht schnell genug abnahm, siehe Log).
+
+### Neue Codes
+
+- `dropped.code` `backlog`: Die Arbeits-Warteschlange war voll (mehr als 15 wartende Äußerungen, z. B. bei
+  Netz-/Übersetzungsstau); die **älteste** wurde verworfen. Der Platzhalter der App kann entfernt werden.
+- `error.code` `languages_invalid`: `languages.json` unlesbar/unvollständig; kommt als JSON-Zeile **vor** `ready`,
+  danach beendet sich die Engine mit Exit-Code 4.
+- `dropped.code` `error` kommt jetzt auch bei einem Verarbeitungsfehler im Arbeits-Thread (früher fehlte `code`).
+
+### Stimmprofil mit gewähltem Mikrofon und Rauschunterdrückung
+
+`--profile-stdin` kennt zwei weitere Schlüssel für `enroll` (sie wirken wie die Startargumente `--mic` und
+`--denoise`; die Argumente selbst gehen weiterhin):
+
+```json
+{"enroll": "Name", "enroll_lang": "en", "mic": "MacBook Pro Microphone", "denoise": true}
+```
+
+- `mic`: Name oder Index wie bei `--mic`; fehlt er, gilt `--mic` bzw. `0`.
+- `denoise`: dieselbe Rauschunterdrückung wie im Betrieb (`afftdn`). Fehlt der Schlüssel, gilt `--denoise`.
+- Mit `--meter` kommen beim Aufnehmen `level`-Ereignisse (`rms`, `voice`), damit die App einen Pegel zeigen und
+  „zu leise/zu laut“ melden kann. Der Ablauf (`enroll_prompt`, `enroll_retry`, `enroll_done` …) ist unverändert.
+
+### Verhalten ohne neue Felder
+
+- **Sprachbefehle:** „too loud“ = leiser, „too quiet“ = lauter, „not so fast“ = langsamer, „don't translate“ ohne
+  Sprache = Pause, „mute off“/„sound on“ = weiter, „mute on“/„sound off“ = Pause; „play“, „go ahead“, „carry on“,
+  „start again“ = weiter; „one more time“, „once more“, „what did you say“ = wiederholen. „volume 3“ ist kein
+  Befehl mehr (früher „lauter“).
+- **Schnellsätze, „Nochmal sprechen“, „repeat“ und Befehlsantworten** werden im Aufhol-Modus `skip` nie mehr
+  übersprungen; ein ausdrücklich ausgelöster Notfall-Satz geht nicht verloren.
+- **Neuerkennung `reassign`:** gleiche Schutzfilter wie bei Äußerungen (Halluzination, Floskel, Wiederholung),
+  Höflichkeitsform des Profils; der Stimmabdruck wird erst nachgeführt, wenn etwas erkannt wurde.
+- **Ungültige Stimme** (`voice_*`) behält die bisherige Wahl (nur `error` `voice_unknown`); Preset-Stimmen, die
+  nicht in der Stimmenliste stehen, werden ignoriert; ein Preset-Ende stellt Stil/Höflichkeit/Stimmen nur zurück,
+  wenn sie noch den Preset-Wert haben.
+- **Claude:** Zeitlimit je Modell (mindestens 5 s, sonst 2 × Hedge-Zeit), eine lange Pause („Guthaben leer“) wird
+  von einem späteren kurzen Fehler nicht mehr verkürzt, `llm_billing` nur beim Übergang.
+- **Utterance-IDs** tragen ein Kennzeichen des Engine-Laufs (`u<run>-<n>`, z. B. `uk3f-12`): nach einem Neustart
+  treffen alte und neue IDs nicht mehr aufeinander. Die App behandelt IDs ohnehin als undurchsichtigen Text.
+- **Zahlenprüfung:** buddhistisches Jahr (2569 = 2026), Monatsnamen = 1-12, „ชั่วโมงครึ่ง“ = 1:30, „a hundred“,
+  „half a million“.
+- **Verlauf:** neue Sitzung nach 30 min Pause oder Tageswechsel; Aufbewahrungsfrist stündlich; kurze
+  Datenbank-Sperren (parallel laufender Export) schalten die Aufzeichnung nicht mehr ab (erst nach drei Fehlern in
+  Folge); CSV schützt gegen Formelinjektion (`'` vor `=`, `+`, `-`, `@`); `--history-sessions` listet Sitzungen
+  als JSON `[{"id", "start", "count"}]`.
+
+
+### Runde 7, zweiter Teil
+
+- **Zahlbefehle** (E1-5): „translator, volume 3“ und „speed 5“ (Skala 0-10; Lautstärke 0 = 0,2 … 10 = 2,0; Tempo 5 = normal,
+  je Stufe 10 %). Ohne Zahl bleiben „louder/quieter/slower/faster“ in festen Schritten. Der Befehlsschlüssel in
+  `command` ist `volume:N` bzw. `speed:N`.
+- **`net`** hat jetzt auch `what: "llm"` (Claude pausiert nach einem Fehler) und dabei `retry_in_s` (Sekunden bis zum
+  nächsten Claude-Versuch); `ok: true`, sobald Claude wieder antwortet.
+- **Mikrofon-Reconnect** wechselt bei einem verschwundenen *benannten* Gerät nicht mehr aufs Standardmikrofon; die
+  Engine wartet (`mic` `reconnecting`) auf das Gerät.
+- **`--file`**: Sätze werden nie übersprungen (Aufhol-Modus aus, Verarbeitung wartet aufs Vorlesen, kein 120-s-Limit).
+- **Ausgabe-Pipe**: ist sie voll, werden zuerst Pegel/Teiltext-Zeilen verworfen, dann erst die älteste Zeile.
+- **Verlauf**: SQLite im WAL-Modus (Export blockiert die Aufzeichnung nicht); nach Löschen wird die WAL-Datei
+  geleert. Schreiben läuft im Engine-Betrieb in einem eigenen Thread (nicht mehr im Ausgabe-Lock).
+- **Hilfsprozesse**: der Apple-Offline-Übersetzer-Helfer wird nach 5 min Leerlauf und beim Beenden beendet; die
+  Neural-Stimme öffnet nach zwei Fehlschlägen 30 s lang keine neuen Verbindungen.
+
+- **`cache_persist`** (Steuerfeld, bool): Übersetzungs-Cache übersteht den Neustart (Datei `translation_cache.json` im Datenordner,
+  0600, höchstens 300 Einträge). Standard aus; ausschalten oder `clear` löscht die Datei. So gehen schon übersetzte
+  Standardsätze auch ohne Netz.
+- **`utt.num_diff`** (E1-50): wenn `num_warn` gesetzt ist, `{src: [...], out: [...]}` mit den Zahlen, die nur im Original bzw. nur in der
+  Übersetzung stehen (normalisiert, höchstens 8 je Seite), damit die App genau sie markieren kann.
+- `llm_cost.price_known` (bool): Modell steht in der Preisliste (sonst Schätzung mit dem Opus-Preis).
+- **Claude-Anrede** (E1-20): der Prompt nennt je Zielsprache die Anrede nach dem Stil (de du/Sie, es tú/usted, fr tu/vous,
+  ja einfache/höfliche Form, ko 반말/존댓말 …). **Fragen ohne „?“** erkennt die Engine jetzt auch für de, es, fr (ครับ/คะ).
+
+- **`history_speakers`** (Steuerfeld, bool, Standard an): `false` schreibt keine Profilnamen in die Verlaufsdatenbank
+  (Rolle `me`/`other` bleibt).
+- **`hint`** `{code, …}` (selten, je Code höchstens alle 5 min): `slow` (`what` = `stt`\|`tr`\|`sound`, `p90`: Latenz dauerhaft
+  hoch – kleineres Modell, Beam 1, `tts_race`), `mic_far` (viele sehr leise, zu kurze Äußerungen: Mikrofon näher oder
+  Empfindlichkeit anheben). Die App lokalisiert über `code`.
+- **`tts_fallback`** `{reason: "offline"\|"slow"}`: die macOS-Ersatzstimme statt der Neural-Stimme spricht; einmal je Wechsel,
+  bis die Neural-Stimme wieder Ton liefert.
+- **`subtitles`** `{path, cues}`: `--file … --subtitles` fertig geschrieben.
+- **Preset-Feld `tuning`** (optional): `{silence 0.4-2, sensitivity low|normal|high, let_finish 0-5, catch_up
+  skip|fast|off, rate -50…50}` – gilt, solange das Preset aktiv ist; „kein Preset“ stellt den Stand davor wieder her.
+- **`--tts say`** rendert Teilsätze vorab (keine Pausen dazwischen). **`--model auto`** wählt im Akkubetrieb eine Stufe
+  sparsamer (Beam 1, `best` → `medium`). `DOLMETSCHER_TUNE` kennt zusätzlich `WAKE_S`, `ROLE_PREV_GAP`, `DEGRADE_AT`,
+  `PRE_AT`, `SKIP_AT`, `PRESTART`, `FAST_BOOST`.
+- **`--history-search`** liefert mit `--history-context N` je Treffer `context` (N Zeilen davor/danach derselben Sitzung)
+  und filtert mit `--history-lang`/`--history-session`.
+- **Notfall-Phrasen** (`critical` im Preset): beim Aktivieren rendert die Engine sie (en und th, nur mit Neural-Stimme, nicht im
+  Privatmodus/stumm) im Hintergrund in den Sprach-Cache (Speicher). Wird derselbe Text später gesprochen, kommt der Ton ohne
+  Latenz und ohne Netz. Der Cache liegt nur im Speicher (nicht auf der Platte).
+- **`repeat` nach Neustart**: ist der Verlauf an, merkt sich die Engine beim Start/Einschalten die letzte Übersetzung wieder.
+- **Privatmodus** lädt das Sprechermodell nicht nach; **Anki-Export** hat `#guid column`, `#deck` und Tags (Sprache, Sitzung).

@@ -75,6 +75,25 @@ class Chain:
         return b"".join(out)
 
 
+    def flush(self):
+        """Reste von Filter und Resampler am Dateiende (sonst fehlen die letzten Millisekunden)."""
+        out = []
+        try:
+            if self.filters and self.graph is not None:
+                self.graph.push(None)
+                while True:
+                    try:
+                        f = self.graph.pull()
+                    except (self.av.error.BlockingIOError, self.av.error.EOFError):
+                        break
+                    f.pts = None
+                    out += [bytes(o.planes[0])[:o.samples * 2] for o in self.rs.resample(f)]
+            out += [bytes(o.planes[0])[:o.samples * 2] for o in self.rs.resample(None)]
+        except Exception:                           # noqa: BLE001 – Flush ist best effort
+            pass
+        return b"".join(out)
+
+
 def _write(b):
     if b:
         sys.stdout.buffer.write(b)
@@ -83,14 +102,17 @@ def _write(b):
 
 def _frames(av, container, stream):
     """Dekodierte Frames; Geräte liefern zwischendurch EAGAIN (noch keine Daten) – dann kurz warten."""
+    idle = 0.0
     while True:
         try:
             for pkt in container.demux(stream):  # am Ende kommt ein Flush-Paket (leert den Decoder)
                 for fr in pkt.decode():
+                    idle = 0.0                  # Daten da: wieder kurz schlafen, sobald es stockt
                     yield fr
             return
         except av.error.BlockingIOError:        # beendet den demux-Generator: neu ansetzen
-            time.sleep(0.005)
+            idle = min(0.02, idle * 1.5) if idle else 0.005    # adaptiv: 5 -> 20 ms, weniger Aufwachen im Leerlauf
+            time.sleep(idle)
 
 
 def capture(a):
@@ -102,6 +124,8 @@ def capture(a):
                 c = av.open(a.file)
             except Exception as e:
                 sys.exit(f"cannot open file: {e}")
+            if not c.streams.audio:
+                sys.exit("no audio stream")             # sonst IndexError-Traceback als Fehlermeldung
             st = c.streams.audio[0]
             t0, n = time.monotonic(), 0
             for fr in _frames(av, c, st):
@@ -113,6 +137,7 @@ def capture(a):
                     ahead = n / a.rate - (time.monotonic() - t0)
                     if ahead > 0:
                         time.sleep(ahead)
+            _write(chain.flush())
             c.close()
             if not a.loop:
                 return
@@ -205,6 +230,30 @@ def resolve_output(av, want):
 OUT_STALE_S = 30.0                              # so lange gilt die vorab ermittelte Geräte-Nummer (Hot-Plug)
 
 
+def _soft_limit(x, vol):
+    """Lautstärke anwenden; über 1,0 ein weicher Begrenzer (tanh) statt hartem Abschneiden (Verzerrung)."""
+    if vol == 1.0:
+        return x
+    y = x * vol
+    peak = float(abs(y).max()) if y.size else 0.0
+    if peak <= 1.0:
+        return y
+    knee = 0.8                                      # bis dahin unverändert, darüber tanh-Rundung bis 1,0
+    import numpy as np
+    out = y.copy()
+    big = abs(y) > knee
+    out[big] = np.sign(y[big]) * (knee + (1 - knee) * np.tanh((abs(y[big]) - knee) / (1 - knee)))
+    return out
+
+
+def _mux_frame(av, np, r, vol, rate, ost, out):
+    x = _soft_limit(r.to_ndarray().astype(np.float32), vol)
+    o = av.AudioFrame.from_ndarray(x.reshape(1, -1), format="flt", layout="mono")
+    o.sample_rate = rate
+    for p in ost.encode(o):
+        out.mux(p)
+
+
 def play(a):
     av = _av()                                  # vorab laden: als Bereitschaftsprozess wartet er erst hier
     dev = getattr(a, "device", None)
@@ -225,6 +274,8 @@ def play(a):
                           options={"probesize": "32", "analyzeduration": "0", "fflags": "nobuffer"})
         except Exception as e:
             sys.exit(f"cannot decode mp3: {e}")
+    if not inp.streams.audio:
+        sys.exit("no audio stream")
     ist = inp.streams.audio[0]
     out, ost, rs = None, None, None
     vol = max(0.0, min(2.0, a.volume))
@@ -244,14 +295,10 @@ def play(a):
             rs = av.AudioResampler(format="flt", layout="mono", rate=rate)
         fr.pts = None
         for r in rs.resample(fr):
-            x = r.to_ndarray().astype(np.float32)
-            if vol != 1.0:
-                x = np.clip(x * vol, -1.0, 1.0)
-            o = av.AudioFrame.from_ndarray(x.reshape(1, -1), format="flt", layout="mono")
-            o.sample_rate = rate
-            for p in ost.encode(o):
-                out.mux(p)
+            _mux_frame(av, np, r, vol, rate, ost, out)
     if out is not None:
+        for r in rs.resample(None):                 # Rest des Resamplers: sonst fehlen die letzten Millisekunden
+            _mux_frame(av, np, r, vol, rate, ost, out)
         for p in ost.encode(None):
             out.mux(p)
         out.close()                             # wartet, bis der Ton zu Ende gespielt ist

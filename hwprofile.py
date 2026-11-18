@@ -23,8 +23,9 @@ def detect(run=None, machine=None):
         ram = int(_sysctl("hw.memsize", run) or 0) / 2 ** 30
     except ValueError:
         ram = 0.0
-    return {"chip": _sysctl("machdep.cpu.brand_string", run), "ram_gb": round(ram, 1),
-            "arm64": machine == "arm64"}
+    # Unter Rosetta meldet platform.machine() "x86_64", obwohl ein Apple-Chip läuft: sysctl fragen
+    arm64 = machine == "arm64" or _sysctl("hw.optional.arm64", run) == "1"
+    return {"chip": _sysctl("machdep.cpu.brand_string", run), "ram_gb": round(ram, 1), "arm64": arm64}
 
 
 def perf_cores(run=None):
@@ -55,3 +56,25 @@ def recommend(info):
 def auto_choice(run=None, machine=None):
     info = detect(run, machine)
     return {**info, **recommend(info)}
+
+
+def on_battery(run=None):
+    """Läuft der Mac im Akkubetrieb (pmset -g batt: "Battery Power")? Unbekannt/Fehler: False."""
+    run = run or subprocess.run
+    try:
+        r = run(["pmset", "-g", "batt"], capture_output=True, text=True, timeout=3)
+        return "battery power" in (r.stdout or "").lower()
+    except Exception:
+        return False
+
+
+def adjust_for_power(rec, battery):
+    """Im Akkubetrieb eine Stufe sparsamer: Beam 1, `best` -> `medium` (Wärme/Laufzeit)."""
+    if not battery:
+        return rec
+    out = dict(rec)
+    out["beam"] = 1
+    if out["model"] == "best":
+        out["model"] = "medium"
+    out["reason"] += " (Akkubetrieb: sparsamer)"
+    return out

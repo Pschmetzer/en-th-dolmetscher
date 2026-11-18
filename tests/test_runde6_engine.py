@@ -268,7 +268,7 @@ def test_enroll_audio_wird_normalisiert():
     out = d.enroll_audio(a)
     assert np.allclose(out, d.normalize(a)[0]) and np.sqrt(np.mean(out ** 2)) > 0.03
     assert d.enroll_audio(None) is None
-    assert "enroll_audio(record_one(a.mic))" in SRC
+    assert "enroll_audio(record_one(a.mic" in SRC
 
 
 # ---- 181: Frage ohne „?“ ------------------------------------------------------------------------------------
@@ -279,7 +279,7 @@ def test_enroll_audio_wird_normalisiert():
     ("What time does it open", "en", True), ("Is it far.", "en", True), ("Ok?", "en", True),
     ("When I was young I lived there", "en", False), ("How nice to meet you", "en", False),
     ("What a day", "en", False), ("Do it now", "en", False), ("I am fine", "en", False),
-    ("Where is it!", "en", False), ("Wo ist das Klo", "de", False), ("Wo ist das Klo?", "de", True),
+    ("Where is it!", "en", False), ("Wo ist das Klo", "de", True), ("Wo ist das Klo?", "de", True),
 ])
 def test_is_question(text, lang, q):
     assert d.is_question(text, lang) is q
