@@ -43,19 +43,22 @@
       "critical": true
     },
     {
-      "en": "I lost the refund form.",
-      "th": "ทำแบบฟอร์มขอคืนภาษีหาย",
-      "critical": true
-    },
-    {
       "en": "My flight leaves soon. Please hurry.",
       "th": "เครื่องบินใกล้ออกแล้ว ช่วยเร่งด้วย",
       "critical": true
     },
     {
-      "en": "I do not have the receipt.",
-      "th": "ไม่มีใบเสร็จ",
+      "en": "Do I show the goods before check-in?",
+      "th": "ต้องแสดงสินค้าก่อนเช็กอินไหม",
       "critical": true
+    },
+    {
+      "en": "I lost the refund form.",
+      "th": "ทำแบบฟอร์มขอคืนภาษีหาย"
+    },
+    {
+      "en": "I do not have the receipt.",
+      "th": "ไม่มีใบเสร็จ"
     },
     {
       "en": "Is VAT refund available here?",
@@ -80,10 +83,6 @@
     {
       "en": "Where is the VAT refund counter?",
       "th": "เคาน์เตอร์ขอคืนภาษีอยู่ที่ไหน"
-    },
-    {
-      "en": "Do I show the goods before check-in?",
-      "th": "ต้องแสดงสินค้าก่อนเช็กอินไหม"
     },
     {
       "en": "Can I get the refund in cash?",

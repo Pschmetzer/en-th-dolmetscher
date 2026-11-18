@@ -55,7 +55,8 @@
     },
     {
       "en": "Please call the Tourist Police.",
-      "th": "ช่วยโทรหาตำรวจท่องเที่ยวหน่อย"
+      "th": "ช่วยโทรหาตำรวจท่องเที่ยวหน่อย",
+      "critical": true
     },
     {
       "en": "Where is the nearest police station?",
@@ -119,7 +120,7 @@
     }
   ],
   "note": {
-    "de": "Zuerst bei der nächsten Polizeistation (oder Tourist Police 1155) eine Verlustanzeige holen, dann zur Botschaft für einen Ersatz- oder Notpass. Mitbringen: Passfoto, Kopie des Passes, Anzeige. Bei Visum und Einreisestempel danach zur Immigration. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "de": "Zuerst bei der nächsten Polizeistation (oder Touristenpolizei 1155) eine Verlustanzeige holen, dann zur Botschaft für einen Ersatz- oder Notpass. Mitbringen: Passfoto, Kopie des Passes, Anzeige. Bei Visum und Einreisestempel danach zur Immigration. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
     "en": "First get a loss report at the nearest police station (or Tourist Police 1155), then go to your embassy for a replacement or emergency passport. Bring photos, a copy of the passport and the report. Afterwards visit immigration about your visa and entry stamp. Thai lines machine-made, not checked by native speakers."
   }
 }

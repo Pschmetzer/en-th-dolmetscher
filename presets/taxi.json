@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Auf Taxameter bestehen oder den Preis vor der Fahrt festmachen. Maut für die Expressway zahlt meist der Fahrgast. Aufrunden ist als Trinkgeld üblich.",
-    "en": "Insist on the meter or agree on the price before the ride. Expressway tolls are usually paid by the passenger. Rounding up is a common tip."
+    "de": "Auf Taxameter bestehen oder den Preis vor der Fahrt festlegen. Maut für den Expressway zahlt meist der Fahrgast. Aufrunden ist als Trinkgeld üblich. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Insist on the meter or agree on the price before the ride. Expressway tolls are usually paid by the passenger. Rounding up is a common tip. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -127,7 +127,7 @@
       "th": "ไม่ต้องทอน"
     },
     {
-      "en": "Could you open the trunk, please?",
+      "en": "Could you open the boot, please?",
       "th": "ช่วยเปิดท้ายรถให้หน่อย"
     }
   ]

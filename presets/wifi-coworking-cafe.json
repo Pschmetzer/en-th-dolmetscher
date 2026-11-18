@@ -38,11 +38,6 @@
   ],
   "phrases": [
     {
-      "en": "Could you watch my bag, please?",
-      "th": "ช่วยดูกระเป๋าให้หน่อย",
-      "critical": true
-    },
-    {
       "en": "My laptop was stolen.",
       "th": "แล็ปท็อปถูกขโมย",
       "critical": true
@@ -56,6 +51,10 @@
       "en": "Please call the police.",
       "th": "ช่วยเรียกตำรวจด้วย",
       "critical": true
+    },
+    {
+      "en": "Could you watch my bag, please?",
+      "th": "ช่วยดูกระเป๋าให้หน่อย"
     },
     {
       "en": "What is the Wi-Fi password?",

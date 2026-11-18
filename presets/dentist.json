@@ -40,7 +40,7 @@
       "th": "เอกซเรย์"
     },
     {
-      "en": "anesthetic",
+      "en": "anaesthetic",
       "th": "ยาชา"
     }
   ],
@@ -56,7 +56,7 @@
       "critical": true
     },
     {
-      "en": "I am allergic to anesthetic.",
+      "en": "I am allergic to anaesthetic.",
       "th": "แพ้ยาชา",
       "critical": true
     },
@@ -95,7 +95,7 @@
       "th": "เหงือกมีเลือดออก"
     },
     {
-      "en": "Please give me a local anesthetic.",
+      "en": "Please give me a local anaesthetic.",
       "th": "ช่วยฉีดยาชาให้หน่อย"
     },
     {

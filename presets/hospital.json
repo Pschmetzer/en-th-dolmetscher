@@ -60,7 +60,8 @@
     },
     {
       "en": "Where is the emergency room?",
-      "th": "ห้องฉุกเฉินอยู่ที่ไหน"
+      "th": "ห้องฉุกเฉินอยู่ที่ไหน",
+      "critical": true
     },
     {
       "en": "I have travel insurance.",
@@ -112,7 +113,7 @@
     }
   ],
   "note": {
-    "de": "Nur Verständigung, kein medizinischer Rat. Private Krankenhäuser haben internationale Abteilungen, Reisekrankenversicherung und Pass bereithalten. Rettung 1669, Tourist Police 1155. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "de": "Nur zur Verständigung, kein medizinischer Rat. Private Krankenhäuser haben internationale Abteilungen, Reisekrankenversicherung und Pass bereithalten. Rettung 1669, Touristenpolizei 1155. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
     "en": "For communication only, not medical advice. Private hospitals have international departments; keep travel insurance and passport ready. Ambulance 1669, tourist police 1155. Thai lines machine-made, not checked by native speakers."
   }
 }
