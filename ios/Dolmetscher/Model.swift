@@ -494,6 +494,7 @@ final class InterpreterModel {
     /// `endConversation`: false bei einem Neustart (Moduswechsel, Kopfhörer) – dasselbe Gespräch läuft weiter.
     func stop(endConversation: Bool = true) {
         generation += 1
+        interrupted = false   // die Beobachter sind weg: ein Ende-Ereignis käme nie, die Anzeige bliebe sonst auf „Anruf“
         download = nil
         whisperPreparing = false
         usingWhisper = false
@@ -609,7 +610,8 @@ final class InterpreterModel {
                 try? await Task.sleep(for: .seconds(5))
                 guard let self, self.isListening else { continue }
                 let limit = IdlePolicy.limit(minutes: self.autoStopMinutes, lowPower: ProcessInfo.processInfo.isLowPowerModeEnabled)
-                switch IdlePolicy.state(idle: Date().timeIntervalSince(self.lastActivity), limit: limit) {
+                let idle = AudioSessionPolicy.effectiveIdle(Date().timeIntervalSince(self.lastActivity), interrupted: self.interrupted)
+                switch IdlePolicy.state(idle: idle, limit: limit) {
                 case .ok: self.idleWarning = false
                 case .warn:
                     if !self.idleWarning { self.idleWarning = true; Haptics.warning() }
@@ -679,11 +681,22 @@ final class InterpreterModel {
             if phase == .listening {
                 Haptics.warning()
                 flash("🎧 " + T("route_lost"), seconds: 5)
-                restart()
+                if AudioSessionPolicy.mayRebuild(interrupted: interrupted) { restart() }
             }
+        case .outputRouteLost:
+            stopSpeaking()
+            if phase == .listening { Haptics.warning(); flash("🎧 " + T("route_output_lost"), seconds: 5) }
+        case .rebuild:
+            // Während eines Anrufs scheitert der Neuaufbau; nach dessen Ende kommt ein eigener Neustart.
+            if phase == .listening, AudioSessionPolicy.mayRebuild(interrupted: interrupted) { restart(); liveUpdate() }
         case .interrupted:
+            let wasPaused = interrupted
             interrupted = false
-            if phase == .listening { restart(); liveUpdate() }
+            touch()
+            if phase == .listening {
+                restart(); liveUpdate()
+                if wasPaused { flash("▶ " + T("interrupt_resumed"), seconds: 3) }
+            }
         case .interruptionEndedNoResume:
             interrupted = false
             if phase == .listening {

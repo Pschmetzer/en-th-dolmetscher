@@ -120,6 +120,7 @@ final class AudioCapture: @unchecked Sendable {
         let nc = NotificationCenter.default
         let debounce = routeDebounce
         let lost: @Sendable (Notification) -> Void = { _ in debounce.fire { emit(.interrupted) } }
+        let rebuild: @Sendable (Notification) -> Void = { _ in debounce.fire { emit(.rebuild) } }
         observers = [
             nc.addObserver(forName: AVAudioSession.interruptionNotification, object: nil, queue: nil) { n in
                 let raw = n.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt
@@ -131,14 +132,21 @@ final class AudioCapture: @unchecked Sendable {
                     else { emit(.interruptionEndedNoResume) }
                 }
             },
-            nc.addObserver(forName: .AVAudioEngineConfigurationChange, object: audio, queue: nil, using: lost),
+            nc.addObserver(forName: .AVAudioEngineConfigurationChange, object: audio, queue: nil, using: rebuild),
             nc.addObserver(forName: AVAudioSession.mediaServicesWereResetNotification, object: nil, queue: nil, using: lost),
             // Headset an/ab: neues Eingabeformat, die Aufnahme muss neu aufgebaut werden.
             nc.addObserver(forName: AVAudioSession.routeChangeNotification, object: nil, queue: nil) { n in
                 let raw = n.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt
                 let reason = raw.flatMap(AVAudioSession.RouteChangeReason.init(rawValue:))
-                if reason == .oldDeviceUnavailable { debounce.fire { emit(.routeLost) } }
-                else if reason == .newDeviceAvailable { debounce.fire { emit(.interrupted) } }
+                let before = (n.userInfo?[AVAudioSessionRouteChangePreviousRouteKey] as? AVAudioSessionRouteDescription)?.inputs.map(\.uid) ?? []
+                let after = AVAudioSession.sharedInstance().currentRoute.inputs.map(\.uid)
+                let kind: RouteReason = reason == .oldDeviceUnavailable ? .oldDeviceUnavailable : reason == .newDeviceAvailable ? .newDeviceAvailable : .other
+                switch AudioSessionPolicy.routeAction(reason: kind, inputsBefore: before, inputsAfter: after) {
+                case .ignore: break
+                case .outputLost: emit(.outputRouteLost)
+                case .inputLost: debounce.fire { emit(.routeLost) }
+                case .rebuild: debounce.fire { emit(.rebuild) }
+                }
             },
         ]
     }

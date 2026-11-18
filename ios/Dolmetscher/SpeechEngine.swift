@@ -23,6 +23,10 @@ enum SpeechEvent: Sendable {
     case interruptionEndedNoResume
     /// Kopfhörer/Headset wurde abgezogen: Wiedergabe anhalten, Hinweis zeigen, Aufnahme neu aufbauen.
     case routeLost
+    /// Nur ein Ausgabegerät (Kopfhörer ohne Mikrofon) wurde abgezogen: Vorlesen anhalten, Aufnahme läuft weiter.
+    case outputRouteLost
+    /// Anderes Eingabegerät oder neues Format: Aufnahme neu aufbauen – nicht während einer Unterbrechung.
+    case rebuild
 }
 
 enum SpeechError: LocalizedError {

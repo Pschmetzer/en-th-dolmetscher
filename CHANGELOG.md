@@ -211,6 +211,9 @@ Pull requests #16–#47. Not yet published as a release.
 **iPhone app (round 17)**
 - **New:** three more Siri/Shortcuts actions (read the last translation again, swap the language pair, say a phrasebook phrase found by keyword) and two Control Centre / Lock Screen controls (swap languages, read last translation); texts in all 10 languages, logic in `ShortcutLogic.swift` with tests. No new target or entitlement.
 
+**iPhone app (round 19)**
+- **Fixed:** the audio session no longer rebuilds the microphone when only an output device (headphones without a microphone) comes or goes, the pause indicator no longer stays on “call” after stopping during an interruption, a route or configuration change during a call no longer triggers a failing restart, and the auto-stop timer does not run while a call or Siri holds the microphone. Listening resuming after an interruption is announced. Logic in `AudioSessionPolicy.swift` with tests, texts in all 10 languages (de/en/th by hand, the rest machine-translated).
+
 **Web**
 - **New:** phrasebook search (`/`), favourites filter, copy button on every translation; history search, CSV export, share and clear with confirmation; learning progress bar, review schedule and arrow keys; “Delete all local data”; hints for a blocked microphone and for going offline; `?` opens help.
 - **Fixed:** a shadowed `t()` raised an error on every finished translation and on critical phrases; high-contrast, forced-colors and reduced-motion styles; Safari text-size and zoom behaviour.
