@@ -325,7 +325,7 @@ extension L10n {
     }
 
     /// Alle Schlüssel (Grundtabelle, Runde 4 und 5).
-    static var allKeys: Set<String> { Set(table.keys).union(round4.keys).union(round5.keys).union(round6.keys).union(round7.keys).union(round8.keys).union(round9.keys).union(round13.keys).union(round14.keys).union(round16.keys).union(round17.keys) }
+    static var allKeys: Set<String> { Set(table.keys).union(round4.keys).union(round5.keys).union(round6.keys).union(round7.keys).union(round8.keys).union(round9.keys).union(round13.keys).union(round14.keys).union(round15.keys).union(round16.keys).union(round17.keys) }
 }
 
 /// Beobachtbarer Speicher für `L10n.lang`.
