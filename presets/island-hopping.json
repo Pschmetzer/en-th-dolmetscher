@@ -1,0 +1,117 @@
+{
+  "id": "island-hopping",
+  "names": {
+    "de": "Inselhopping",
+    "en": "Island hopping",
+    "th": "ทัวร์เที่ยวหลายเกาะ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Vor der Tour Treffpunkt, Rückfahrzeit und Nationalpark-Gebühr klären; die Gebühr ist oft nicht im Preis. Nach Alkohol und bei Wellengang nicht ins Wasser. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Before the tour confirm the meeting point, the return time and the national park fee, which is often not in the price. Stay out of the water after alcohol and in rough seas. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "island hopping",
+      "th": "ทัวร์เที่ยวหลายเกาะ"
+    },
+    {
+      "en": "longtail boat",
+      "th": "เรือหางยาว"
+    },
+    {
+      "en": "national park fee",
+      "th": "ค่าเข้าอุทยาน"
+    },
+    {
+      "en": "jellyfish",
+      "th": "แมงกะพรุน"
+    },
+    {
+      "en": "return trip",
+      "th": "เที่ยวกลับ"
+    },
+    {
+      "en": "meeting point",
+      "th": "จุดนัดพบ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I cannot swim.",
+      "th": "ว่ายน้ำไม่เป็น",
+      "critical": true
+    },
+    {
+      "en": "I need medical help.",
+      "th": "ต้องการความช่วยเหลือทางการแพทย์",
+      "critical": true
+    },
+    {
+      "en": "Could I have a life jacket, please?",
+      "th": "ขอเสื้อชูชีพหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I was stung by a jellyfish.",
+      "th": "โดนแมงกะพรุนต่อย",
+      "critical": true
+    },
+    {
+      "en": "Which islands does the tour visit?",
+      "th": "ทัวร์ไปเกาะไหนบ้าง"
+    },
+    {
+      "en": "How many islands are included?",
+      "th": "รวมกี่เกาะ"
+    },
+    {
+      "en": "What time does the boat return?",
+      "th": "เรือกลับกี่โมง"
+    },
+    {
+      "en": "Where do we meet?",
+      "th": "นัดพบกันที่ไหน"
+    },
+    {
+      "en": "How long do we stay on each island?",
+      "th": "อยู่แต่ละเกาะนานเท่าไหร่"
+    },
+    {
+      "en": "Is the national park fee included?",
+      "th": "ค่าเข้าอุทยานรวมแล้วไหม"
+    },
+    {
+      "en": "Is lunch included?",
+      "th": "รวมอาหารกลางวันไหม"
+    },
+    {
+      "en": "Can I leave my bag on the boat?",
+      "th": "ฝากกระเป๋าไว้บนเรือได้ไหม"
+    },
+    {
+      "en": "Is there a ferry between the islands?",
+      "th": "มีเรือข้ามระหว่างเกาะไหม"
+    },
+    {
+      "en": "Is the beach safe for swimming?",
+      "th": "หาดนี้ว่ายน้ำปลอดภัยไหม"
+    },
+    {
+      "en": "Please wait for me, I am coming back.",
+      "th": "ช่วยรอด้วย กำลังกลับไป"
+    },
+    {
+      "en": "Where is the toilet?",
+      "th": "ห้องน้ำอยู่ที่ไหน"
+    },
+    {
+      "en": "Is there drinking water on the boat?",
+      "th": "บนเรือมีน้ำดื่มไหม"
+    },
+    {
+      "en": "Can I book a private longtail boat?",
+      "th": "จองเรือหางยาวส่วนตัวได้ไหม"
+    }
+  ]
+}

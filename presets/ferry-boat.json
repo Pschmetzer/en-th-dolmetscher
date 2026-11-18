@@ -1,0 +1,117 @@
+{
+  "id": "ferry-boat",
+  "names": {
+    "de": "Fähre und Boot",
+    "en": "Ferry and boat",
+    "th": "เรือเฟอร์รี่และเรือโดยสาร"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Auf Booten gilt: Rettungswesten suchen, bevor die Fahrt beginnt. Bei hohem Wellengang fahren Fähren oft nicht; nach der letzten Rückfahrt fragen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "On boats find the life jackets before departure. In rough seas ferries often do not run; ask about the last return trip. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "ferry",
+      "th": "เรือ"
+    },
+    {
+      "en": "pier",
+      "th": "ท่าเรือ"
+    },
+    {
+      "en": "ticket",
+      "th": "ตั๋ว"
+    },
+    {
+      "en": "deck",
+      "th": "ดาดฟ้าเรือ"
+    },
+    {
+      "en": "life jacket",
+      "th": "เสื้อชูชีพ"
+    },
+    {
+      "en": "seasick",
+      "th": "เมาเรือ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I cannot swim.",
+      "th": "ว่ายน้ำไม่เป็น",
+      "critical": true
+    },
+    {
+      "en": "Someone fell into the water!",
+      "th": "มีคนตกน้ำ",
+      "critical": true
+    },
+    {
+      "en": "Where are the life jackets?",
+      "th": "เสื้อชูชีพอยู่ที่ไหน",
+      "critical": true
+    },
+    {
+      "en": "I need medical help.",
+      "th": "ต้องการความช่วยเหลือทางการแพทย์",
+      "critical": true
+    },
+    {
+      "en": "Which pier does the ferry leave from?",
+      "th": "เรือออกจากท่าไหน"
+    },
+    {
+      "en": "What time is the next ferry?",
+      "th": "เรือเที่ยวต่อไปกี่โมง"
+    },
+    {
+      "en": "How long is the crossing?",
+      "th": "ข้ามไปใช้เวลานานเท่าไหร่"
+    },
+    {
+      "en": "One ticket to the island, please.",
+      "th": "ขอตั๋วไปเกาะหนึ่งใบ"
+    },
+    {
+      "en": "What time is the last boat back?",
+      "th": "เรือเที่ยวสุดท้ายกลับกี่โมง"
+    },
+    {
+      "en": "Is the sea rough today?",
+      "th": "วันนี้ทะเลมีคลื่นแรงไหม"
+    },
+    {
+      "en": "I feel seasick.",
+      "th": "เมาเรือ"
+    },
+    {
+      "en": "Do you have seasickness tablets?",
+      "th": "มียาแก้เมาเรือไหม"
+    },
+    {
+      "en": "Where can I put my luggage?",
+      "th": "วางกระเป๋าไว้ที่ไหนได้"
+    },
+    {
+      "en": "Can I take my motorbike on the ferry?",
+      "th": "เอามอเตอร์ไซค์ขึ้นเรือได้ไหม"
+    },
+    {
+      "en": "Where is the toilet?",
+      "th": "ห้องน้ำอยู่ที่ไหน"
+    },
+    {
+      "en": "Can I sit on the upper deck?",
+      "th": "นั่งชั้นบนได้ไหม"
+    },
+    {
+      "en": "Please tell me when we arrive.",
+      "th": "ถึงแล้วช่วยบอกด้วย"
+    },
+    {
+      "en": "Can I sit inside, out of the sun?",
+      "th": "ขอนั่งในที่ร่มได้ไหม"
+    }
+  ]
+}
