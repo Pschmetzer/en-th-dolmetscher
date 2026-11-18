@@ -1,0 +1,116 @@
+{
+  "id": "post-office-parcel",
+  "names": {
+    "de": "Post und Paket",
+    "en": "Post office and parcels",
+    "th": "ไปรษณีย์และพัสดุ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Pakete bis etwa 20 kg gehen bei Thailand Post per EMS oder Seefracht. Inhalt offen vorzeigen, der Schalter verpackt gegen kleine Gebühr. Zoll-Zettel in Englisch ausfüllen; Batterien, Flüssigkeiten und Tiere sind oft nicht erlaubt. Sendungsnummer aufheben. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Thailand Post takes parcels up to about 20 kg by EMS or sea mail. Show the contents openly; the counter packs for a small fee. Fill the customs slip in English; batteries, liquids and animals are often not allowed. Keep the tracking number. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "parcel",
+      "th": "พัสดุ"
+    },
+    {
+      "en": "stamp",
+      "th": "แสตมป์"
+    },
+    {
+      "en": "tracking number",
+      "th": "เลขพัสดุ"
+    },
+    {
+      "en": "customs form",
+      "th": "แบบฟอร์มศุลกากร"
+    },
+    {
+      "en": "by air",
+      "th": "ทางอากาศ"
+    },
+    {
+      "en": "by sea",
+      "th": "ทางเรือ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "It is fragile. Please handle with care.",
+      "th": "ของแตกง่าย ช่วยระวังด้วย",
+      "critical": true
+    },
+    {
+      "en": "There is a battery inside.",
+      "th": "มีแบตเตอรี่อยู่ข้างใน",
+      "critical": true
+    },
+    {
+      "en": "There is no liquid inside.",
+      "th": "ไม่มีของเหลวข้างใน",
+      "critical": true
+    },
+    {
+      "en": "I need to send a parcel.",
+      "th": "ต้องการส่งพัสดุ"
+    },
+    {
+      "en": "I would like to send this to Germany.",
+      "th": "ต้องการส่งไปเยอรมนี"
+    },
+    {
+      "en": "How much is it by air?",
+      "th": "ส่งทางอากาศราคาเท่าไร"
+    },
+    {
+      "en": "How much is it by sea?",
+      "th": "ส่งทางเรือราคาเท่าไร"
+    },
+    {
+      "en": "How long will it take?",
+      "th": "ใช้เวลานานเท่าไหร่"
+    },
+    {
+      "en": "Could you pack it for me?",
+      "th": "ช่วยห่อให้หน่อยได้ไหม"
+    },
+    {
+      "en": "Do you have a box?",
+      "th": "มีกล่องไหม"
+    },
+    {
+      "en": "Which form do I fill in?",
+      "th": "ต้องกรอกแบบฟอร์มไหน"
+    },
+    {
+      "en": "Could you help me with the form?",
+      "th": "ช่วยกรอกแบบฟอร์มให้หน่อยได้ไหม"
+    },
+    {
+      "en": "Could I have a tracking number?",
+      "th": "ขอเลขพัสดุหน่อย"
+    },
+    {
+      "en": "Can I insure it?",
+      "th": "ทำประกันพัสดุได้ไหม"
+    },
+    {
+      "en": "Could I have a receipt?",
+      "th": "ขอใบเสร็จด้วย"
+    },
+    {
+      "en": "I would like to buy stamps.",
+      "th": "ต้องการซื้อแสตมป์"
+    },
+    {
+      "en": "Where is the nearest post office?",
+      "th": "ที่ทำการไปรษณีย์ใกล้ที่สุดอยู่ที่ไหน"
+    },
+    {
+      "en": "Is there a parcel for me?",
+      "th": "มีพัสดุที่ส่งมาให้ไหม"
+    }
+  ]
+}

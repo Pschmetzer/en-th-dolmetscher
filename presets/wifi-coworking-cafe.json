@@ -1,0 +1,113 @@
+{
+  "id": "wifi-coworking-cafe",
+  "names": {
+    "de": "WLAN-Café und Arbeiten",
+    "en": "Wi-Fi cafe and working",
+    "th": "คาเฟ่ไวไฟสำหรับทำงาน"
+  },
+  "style": "polite",
+  "note": {
+    "de": "In Laptop-Cafés gilt: Mindestens ein Getränk pro paar Stunden bestellen. Das WLAN-Passwort steht auf dem Bon oder hängt an der Wand. Steckdosen sind begrenzt, Laptop nie unbeaufsichtigt lassen. In öffentlichen Netzen kein Online-Banking ohne VPN. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "In laptop cafes order at least one drink every few hours. The Wi-Fi password is on the receipt or the wall. Sockets are limited; never leave your laptop unattended. Avoid online banking on public networks without a VPN. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "password",
+      "th": "รหัสผ่าน"
+    },
+    {
+      "en": "power socket",
+      "th": "ปลั๊กไฟ"
+    },
+    {
+      "en": "laptop",
+      "th": "แล็ปท็อป"
+    },
+    {
+      "en": "charger",
+      "th": "ที่ชาร์จ"
+    },
+    {
+      "en": "table",
+      "th": "โต๊ะ"
+    },
+    {
+      "en": "bill",
+      "th": "บิล"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Could you watch my bag, please?",
+      "th": "ช่วยดูกระเป๋าให้หน่อย",
+      "critical": true
+    },
+    {
+      "en": "My laptop was stolen.",
+      "th": "แล็ปท็อปถูกขโมย",
+      "critical": true
+    },
+    {
+      "en": "I lost my charger.",
+      "th": "ทำที่ชาร์จหาย",
+      "critical": true
+    },
+    {
+      "en": "Please call the police.",
+      "th": "ช่วยเรียกตำรวจด้วย",
+      "critical": true
+    },
+    {
+      "en": "What is the Wi-Fi password?",
+      "th": "รหัสไวไฟคืออะไร"
+    },
+    {
+      "en": "The Wi-Fi does not work.",
+      "th": "ไวไฟใช้ไม่ได้"
+    },
+    {
+      "en": "The connection is very slow.",
+      "th": "สัญญาณช้ามาก"
+    },
+    {
+      "en": "Is there a table with a power socket?",
+      "th": "มีโต๊ะที่มีปลั๊กไฟไหม"
+    },
+    {
+      "en": "Could I borrow a charger?",
+      "th": "ขอยืมที่ชาร์จหน่อยได้ไหม"
+    },
+    {
+      "en": "Can I work here for a few hours?",
+      "th": "นั่งทำงานที่นี่สองสามชั่วโมงได้ไหม"
+    },
+    {
+      "en": "Do I need to order every hour?",
+      "th": "ต้องสั่งทุกชั่วโมงไหม"
+    },
+    {
+      "en": "Is it quiet here?",
+      "th": "ที่นี่เงียบไหม"
+    },
+    {
+      "en": "Could you turn the music down?",
+      "th": "ช่วยลดเสียงเพลงหน่อยได้ไหม"
+    },
+    {
+      "en": "Do you have a quiet room?",
+      "th": "มีห้องเงียบไหม"
+    },
+    {
+      "en": "Is the air conditioning on?",
+      "th": "เปิดแอร์อยู่ไหม"
+    },
+    {
+      "en": "What time do you close?",
+      "th": "ร้านปิดกี่โมง"
+    },
+    {
+      "en": "Could I have the bill, please?",
+      "th": "ขอบิลหน่อย"
+    }
+  ]
+}

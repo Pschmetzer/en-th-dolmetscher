@@ -1,0 +1,113 @@
+{
+  "id": "bicycle-rental",
+  "names": {
+    "de": "Fahrradverleih",
+    "en": "Bicycle rental",
+    "th": "เช่าจักรยาน"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Räder vor dem Mieten auf Bremsen, Reifen und Licht prüfen und Kratzer per Foto festhalten. Helme sind oft nicht inklusive. Verkehr ist links, Motorroller und Lastwagen rücksichtslos: lieber ruhige Wege und früh am Tag fahren. Keinen Pass als Pfand hinterlegen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Check brakes, tyres and lights before renting and photograph scratches. Helmets are often not included. Traffic keeps left, scooters and trucks are careless: choose quiet roads and ride early. Do not leave your passport as a deposit. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "bicycle",
+      "th": "จักรยาน"
+    },
+    {
+      "en": "helmet",
+      "th": "หมวกกันน็อก"
+    },
+    {
+      "en": "lock",
+      "th": "ที่ล็อก"
+    },
+    {
+      "en": "brakes",
+      "th": "เบรก"
+    },
+    {
+      "en": "deposit",
+      "th": "เงินมัดจำ"
+    },
+    {
+      "en": "flat tire",
+      "th": "ยางแบน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "The brakes do not work well.",
+      "th": "เบรกไม่ค่อยดี",
+      "critical": true
+    },
+    {
+      "en": "I had an accident. I need help.",
+      "th": "เกิดอุบัติเหตุ ต้องการความช่วยเหลือ",
+      "critical": true
+    },
+    {
+      "en": "Could I have a helmet, please?",
+      "th": "ขอหมวกกันน็อกด้วย",
+      "critical": true
+    },
+    {
+      "en": "I do not want to leave my passport.",
+      "th": "ไม่อยากฝากหนังสือเดินทางไว้",
+      "critical": true
+    },
+    {
+      "en": "I would like to rent a bicycle.",
+      "th": "ต้องการเช่าจักรยาน"
+    },
+    {
+      "en": "How much per day?",
+      "th": "วันละเท่าไหร่"
+    },
+    {
+      "en": "How much per hour?",
+      "th": "ชั่วโมงละเท่าไร"
+    },
+    {
+      "en": "Is there a deposit?",
+      "th": "มีเงินมัดจำไหม"
+    },
+    {
+      "en": "Does it have a lock?",
+      "th": "มีที่ล็อกไหม"
+    },
+    {
+      "en": "Does the bike have lights?",
+      "th": "จักรยานมีไฟไหม"
+    },
+    {
+      "en": "Could you adjust the seat?",
+      "th": "ช่วยปรับเบาะให้หน่อย"
+    },
+    {
+      "en": "Is there a bike with gears?",
+      "th": "มีจักรยานเกียร์ไหม"
+    },
+    {
+      "en": "I have a flat tire.",
+      "th": "ยางแบน"
+    },
+    {
+      "en": "Where can I get it repaired?",
+      "th": "ซ่อมได้ที่ไหน"
+    },
+    {
+      "en": "Is there a cycle path here?",
+      "th": "แถวนี้มีเลนจักรยานไหม"
+    },
+    {
+      "en": "Which road is quiet?",
+      "th": "ถนนไหนเงียบ"
+    },
+    {
+      "en": "Until what time must I return it?",
+      "th": "ต้องคืนก่อนกี่โมง"
+    }
+  ]
+}

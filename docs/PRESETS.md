@@ -120,6 +120,16 @@ kennen, ignorieren sie.
 | `hostel-dorm` | Hostel und Schlafsaal | Diebstahl, Polizei, Feuer, Arzt |
 | `laundry-deposit` | Wäsche und Kaution | Pass nicht als Pfand, Quittung, Kaution zurück, Kleidung fehlt |
 | `vegan-vegetarian` | Vegetarisch, vegan und Allergene | schwere Allergie, Erdnuss, Nüsse, Soja, Sesam, Weizen, Schalentiere, Arzt |
+| `visa-extension` | Visumverlängerung | überzogen, Ablaufdatum, Verlängerung, Strafe |
+| `tax-refund` | VAT-Rückerstattung | Tasche gestohlen, Formular verloren, Flug, Beleg fehlt |
+| `car-wash-repair` | Autowäsche und Werkstatt | Panne, Bremsen, Reifen, Abschleppwagen |
+| `bicycle-rental` | Fahrradverleih | Bremsen, Unfall, Helm, Pass nicht als Pfand |
+| `yoga-retreat` | Yoga-Retreat | Rückenverletzung, schwanger, Schwindel, schwere Allergie |
+| `kids-playground` | Spielplatz und Kinderwelt | Kind vermisst, Sturz, Arzt, Allergie |
+| `bakery-cafe` | Bäckerei und Café | schwere Allergie, Erdnuss, Weizen, Nüsse |
+| `convenience-store-7eleven` | Kiosk und 7-Eleven | Erdnuss, Apotheke, halal, Schwein |
+| `post-office-parcel` | Post und Paket | zerbrechlich, Batterie, keine Flüssigkeit |
+| `wifi-coworking-cafe` | WLAN-Café und Arbeiten | Tasche bewachen, Laptop gestohlen, Ladegerät, Polizei |
 
 ## Unsichere Sätze (bitte zuerst prüfen)
 
@@ -155,7 +165,7 @@ Am wichtigsten sind die Sätze mit `critical` und die Tabelle [Unsichere Sätze]
 
 | Datei | Inhalt |
 |---|---|
-| `presets/*.json` | 71 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
+| `presets/*.json` | 81 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
 | `ios/Shared/phrases.json` | eingebautes Satzbuch der iPhone-App und des Widgets |
 | `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten, „Sie sind dran“, Allergie-Karte |
 | `ios/Dolmetscher/Round4Views.swift` | Hilfesatz auf dem Bildschirm „Hilfe – jetzt“ |
