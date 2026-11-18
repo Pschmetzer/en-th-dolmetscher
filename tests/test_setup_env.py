@@ -39,6 +39,7 @@ case "$1" in
     chmod +x "$dir/bin/python" ;;
   pip)
     [ "$FAKE_MODE" = offline ] && { echo "error: Request failed after 3 retries: connection refused" >&2; exit 1; }
+    [ "$FAKE_MODE" = integrity ] && { echo "error: Failed to download x: Hash mismatch, expected sha256:a got sha256:b" >&2; exit 1; }
     [ "$FAKE_MODE" = disk ] && { echo "error: No space left on device (os error 28)" >&2; exit 1; }
     [ "$FAKE_MODE" = slow ] && sleep 30
     exit 0 ;;
@@ -88,7 +89,7 @@ def test_einrichtung_schritte_und_stempel_zuletzt(fake, tmp_path):
 
 
 @pytest.mark.parametrize("mode,kind", [("offline", "offline"), ("offline-venv", "offline"), ("disk", "disk"),
-                                       ("badpy", "failed")])
+                                       ("integrity", "integrity"), ("badpy", "failed")])
 def test_fehlerart_und_teilumgebung_entfernt(fake, tmp_path, mode, kind):
     r = _run(fake, tmp_path, mode)
     assert r.returncode == 1 and r.stdout.strip().splitlines()[-1] == f"fail {kind}"

@@ -45,7 +45,7 @@ enum EnvLogic {
     enum SetupEvent: Equatable {
         case step(String)       // python | packages | verify
         case done
-        case fail(String)       // offline | disk | arch | cancelled | failed
+        case fail(String)       // offline | disk | integrity | arch | cancelled | failed
     }
 
     static func parseSetupLine(_ line: String) -> SetupEvent? {

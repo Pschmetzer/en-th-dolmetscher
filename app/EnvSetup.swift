@@ -11,7 +11,7 @@ final class EnvSetupModel: ObservableObject {
         case idle                     // noch nicht gestartet (Größe/Freiplatz anzeigen)
         case env(step: String)        // setup-env.sh läuft
         case models                   // Engine lädt fehlende Modelle
-        case failed(kind: String)     // offline | disk | arch | cancelled | failed | missing_parts | no_space
+        case failed(kind: String)     // offline | disk | integrity | arch | cancelled | failed | missing_parts | no_space
         case done
     }
 
@@ -51,6 +51,7 @@ final class EnvSetupModel: ObservableObject {
     /// Einrichtung starten: erst die Umgebung (falls nötig), dann die Modelle über die Engine.
     func start(engine: EngineModel) {
         if case .env = phase { return }
+        if proc?.isRunning == true { return }     // Nr. 2: altes Skript räumt noch auf – nie zwei zugleich
         let need = EnvLogic.requiredGB(envMissing: envMissing || visibleRedo,
                                        modelsGB: Self.modelsGB(model: engine.model, thai: Langs.hasThai))
         guard EnvLogic.enoughSpace(freeBytes: Self.freeBytes(), requiredGB: need) else {
@@ -262,6 +263,7 @@ struct EnvSetupView: View {
             switch kind {
             case "offline": return "envsetup_offline"
             case "disk": return "envsetup_disk"
+            case "integrity": return "envsetup_integrity"
             case "no_space": return "envsetup_no_space"
             case "arch": return "envsetup_arch"
             case "cancelled": return "envsetup_cancelled"

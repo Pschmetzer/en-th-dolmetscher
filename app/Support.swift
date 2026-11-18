@@ -147,11 +147,7 @@ extension EngineModel {
         case .noModule: pyText = "faster_whisper fehlt"
         case .failed(let e): pyText = "Fehler: " + redact(e)
         }
-        let hub = ProcessInfo.processInfo.environment["HF_HOME"].map { $0 + "/hub" }
-            ?? NSHomeDirectory() + "/.cache/huggingface/hub"
-        let models = ((try? FileManager.default.contentsOfDirectory(atPath: hub)) ?? [])
-            .filter { $0.hasPrefix("models--") }.map { String($0.dropFirst(8)).replacingOccurrences(of: "--", with: "/") }
-            .sorted()
+        let models = ModelCache.cached().sorted()
         let micAuth: String
         switch AVCaptureDevice.authorizationStatus(for: .audio) {
         case .authorized: micAuth = "erlaubt"

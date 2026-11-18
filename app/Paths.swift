@@ -89,17 +89,20 @@ enum Paths {
     private static let envPrefixes = ["DOLMETSCHER_", "LC_", "HF_", "HUGGINGFACE_", "CT2_", "KMP_"]
 
     /// Umgebung für jeden Start von dolmetscher.py (Whitelist, siehe oben).
-    static func engineEnvironment() -> [String: String] {
+    /// `includeKey`: nur der Engine-Prozess braucht den Claude-Schlüssel (Nr. 13); Hilfsaufrufe (Mikrofonliste,
+    /// Profile, Verlauf, Python-Prüfung) bekommen ihn nicht und lösen keinen Schlüsselbund-Zugriff aus.
+    static func engineEnvironment(includeKey: Bool = false) -> [String: String] {
         var env: [String: String] = [:]
         for (k, v) in ProcessInfo.processInfo.environment
         where envExact.contains(k) || envPrefixes.contains(where: { k.hasPrefix($0) }) {
             env[k] = v
         }
+        if !includeKey { env["ANTHROPIC_API_KEY"] = nil }
         env["PATH"] = (searchDirs + ["/usr/bin", "/bin"]).joined(separator: ":")
         // Die Whitelist lässt PYTHON* bewusst nicht durch – deshalb hier ausdrücklich setzen.
         env["PYTHONPYCACHEPREFIX"] = pycachePrefix
         // Schlüssel aus dem Schlüsselbund (Nr. 23); ein in der App-Umgebung gesetzter Schlüssel hat Vorrang
-        if env["ANTHROPIC_API_KEY"] == nil, let k = APIKeyStore.read() { env["ANTHROPIC_API_KEY"] = k }
+        if includeKey, env["ANTHROPIC_API_KEY"] == nil, let k = APIKeyStore.read() { env["ANTHROPIC_API_KEY"] = k }
         return env
     }
 
@@ -221,7 +224,7 @@ enum APIKeyStore {
     static func keychainWrite(_ k: String) -> Bool {
         let data = Data(k.utf8)
         let attrs: [String: Any] = [kSecValueData as String: data,
-                                    kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock]
+                                    kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly]
         var add = baseQuery
         attrs.forEach { add[$0.key] = $0.value }
         add[kSecAttrLabel as String] = "Dolmetscher – Anthropic API"
@@ -235,6 +238,11 @@ enum APIKeyStore {
     /// Übernahme der alten Datei in den Schlüsselbund (beim App-Start). Erst wenn der Schlüsselbund denselben
     /// Wert nachweislich zurückliefert, wird die Datei in `anthropic_key.migrated` (0600) umbenannt – nie gelöscht.
     static func migrate() {
+        // Nr. 16: vorhandenen Eintrag einmalig auf „nur dieses Gerät“ (kein Backup-/Geräte-Transfer) umstellen
+        let flag = "keychainThisDeviceOnly"
+        if !UserDefaults.standard.bool(forKey: flag), let kk = keychainRead() {
+            if keychainWrite(kk) { UserDefaults.standard.set(true, forKey: flag) }
+        }
         guard let k = readFile(url) else { return }
         cached = nil
         guard keychainRead() == k || (keychainWrite(k) && keychainRead() == k) else { return }   // Datei bleibt

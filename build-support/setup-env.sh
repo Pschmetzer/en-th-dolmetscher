@@ -48,8 +48,9 @@ trap '' PIPE                                     # App weg (stdout zu): nicht mi
 run() { "$@" >>"$LOG" 2>&1 & CHILD=$!; wait "$CHILD"; local rc=$?; CHILD=""; return $rc; }
 
 fail() {   # Fehlerart aus dem Log erraten, Teil-Umgebung entfernen
-  local kind=failed
+  local kind=failed      # integrity vor offline: ein Hash-Fehler ist kein Netzproblem (Wiederholen hilft nicht)
   if grep -qiE "no space left|ENOSPC|disk full" "$LOG"; then kind=disk
+  elif grep -qiE "hash mismatch|checksum|hashes? do(es)? not match|digest mismatch" "$LOG"; then kind=integrity
   elif grep -qiE "dns|resolve|network|connect(ion)? (refused|reset|error|failed)|timed out|timeout|offline|unreachable|tls|certificate|failed to fetch|failed to download|request failed" "$LOG"; then kind=offline
   fi
   cleanup_partial
