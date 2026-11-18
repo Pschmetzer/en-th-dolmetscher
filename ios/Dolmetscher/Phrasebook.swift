@@ -2,7 +2,10 @@
 import SwiftUI
 
 struct Phrase: Identifiable, Codable, Hashable, Sendable {
-    var id: String { en }
+    /// Für `ForEach`: ein Satz kann in mehreren Szenario-Paketen oder für mehrere Sprachpaare vorkommen.
+    var id: String { (pack ?? "") + "|" + favoriteKey }
+    /// Identität eines Favoriten: Sprachpaar und Quelltext (nicht das Paket, aus dem er stammt).
+    var favoriteKey: String { "\(srcLang.rawValue)>\(dstLang.rawValue)|\(en)" }
     var en: String
     /// Thai mit Platzhaltern {p} {q} {i} (siehe Politeness.fill)
     var th: String

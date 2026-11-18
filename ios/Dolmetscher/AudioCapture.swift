@@ -7,11 +7,36 @@ import os
 
 private let log = Logger(subsystem: "dolmetscher", category: "capture")
 
+/// Fasst rasch aufeinanderfolgende Ereignisse zusammen: Nach dem letzten `fire` läuft der Block nach `delay` genau einmal.
+/// Beim Anstecken von AirPods kommen Routen-, Konfigurations- und Format-Wechsel dicht hintereinander.
+final class TrailingDebounce: @unchecked Sendable {
+    private let lock = NSLock()
+    private var generation = 0
+    private let delay: TimeInterval
+    private let queue: DispatchQueue
+
+    init(delay: TimeInterval, queue: DispatchQueue = .global(qos: .userInitiated)) {
+        self.delay = delay
+        self.queue = queue
+    }
+
+    func fire(_ block: @escaping @Sendable () -> Void) {
+        let g: Int = lock.withLock { generation += 1; return generation }
+        queue.asyncAfter(deadline: .now() + delay) { [weak self] in
+            guard let self, self.lock.withLock({ self.generation == g }) else { return }
+            block()
+        }
+    }
+
+    func cancel() { lock.withLock { generation += 1 } }
+}
+
 final class AudioCapture: @unchecked Sendable {
     let queue = DispatchQueue(label: "dolmetscher.speech")
     private let audio = AVAudioEngine()
     private var observers: [NSObjectProtocol] = []
     private var player: Task<Void, Never>?
+    private let routeDebounce = TrailingDebounce(delay: 0.5)
     private let onBuffer: (AVAudioPCMBuffer) -> Void
     private let onEvent: @Sendable (SpeechEvent) -> Void
 
@@ -46,7 +71,8 @@ final class AudioCapture: @unchecked Sendable {
         guard await Self.authorize() else { throw SpeechError.denied }
         log.info("authorized")
         let session = AVAudioSession.sharedInstance()
-        var opts: AVAudioSession.CategoryOptions = [.defaultToSpeaker]
+        // A2DP: Kopfhörer bekommen die Ausgabe auch ohne Headset-Mikrofon in voller Qualität.
+        var opts: AVAudioSession.CategoryOptions = [.defaultToSpeaker, .allowBluetoothA2DP]
         if options.headset { opts.insert(.allowBluetoothHFP) }
         try session.setCategory(.playAndRecord, mode: .default, options: opts)
         try session.setAllowHapticsAndSystemSoundsDuringRecording(true)
@@ -85,12 +111,13 @@ final class AudioCapture: @unchecked Sendable {
         try audio.start()
         let emit = onEvent
         let nc = NotificationCenter.default
-        let lost: @Sendable (Notification) -> Void = { _ in emit(.interrupted) }
+        let debounce = routeDebounce
+        let lost: @Sendable (Notification) -> Void = { _ in debounce.fire { emit(.interrupted) } }
         observers = [
             nc.addObserver(forName: AVAudioSession.interruptionNotification, object: nil, queue: nil) { n in
                 let raw = n.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt
                 if raw == AVAudioSession.InterruptionType.began.rawValue { emit(.interruptionBegan) }
-                if raw == AVAudioSession.InterruptionType.ended.rawValue { emit(.interrupted) }
+                if raw == AVAudioSession.InterruptionType.ended.rawValue { debounce.fire { emit(.interrupted) } }
             },
             nc.addObserver(forName: .AVAudioEngineConfigurationChange, object: audio, queue: nil, using: lost),
             nc.addObserver(forName: AVAudioSession.mediaServicesWereResetNotification, object: nil, queue: nil, using: lost),
@@ -98,7 +125,7 @@ final class AudioCapture: @unchecked Sendable {
             nc.addObserver(forName: AVAudioSession.routeChangeNotification, object: nil, queue: nil) { n in
                 let raw = n.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt
                 let reason = raw.flatMap(AVAudioSession.RouteChangeReason.init(rawValue:))
-                if reason == .newDeviceAvailable || reason == .oldDeviceUnavailable { emit(.interrupted) }
+                if reason == .newDeviceAvailable || reason == .oldDeviceUnavailable { debounce.fire { emit(.interrupted) } }
             },
         ]
     }
@@ -107,6 +134,7 @@ final class AudioCapture: @unchecked Sendable {
     func end() {
         observers.forEach(NotificationCenter.default.removeObserver)
         observers = []
+        routeDebounce.cancel()
         player?.cancel()
         player = nil
         if audio.isRunning {

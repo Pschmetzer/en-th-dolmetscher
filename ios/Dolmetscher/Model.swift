@@ -286,7 +286,7 @@ final class InterpreterModel {
 
     private func loadFavorites() {
         switch files.load([Phrase].self, "favorites.json") {
-        case .ok(let f): favorites = f + favorites.filter { n in !f.contains { $0.en == n.en } }; favoritesBlocked = false
+        case .ok(let f): favorites = f + favorites.filter { n in !f.contains { $0.favoriteKey == n.favoriteKey } }; favoritesBlocked = false
         case .missing: favoritesBlocked = false
         case .corrupt: files.quarantine("favorites.json"); favoritesBlocked = false
         case .unreadable: favoritesBlocked = true
@@ -452,7 +452,12 @@ final class InterpreterModel {
         if endConversation { LiveActivityController.shared.end() }
         UIApplication.shared.isIdleTimerDisabled = false
         Haptics.tap()
-        stopTask = Task { await e.stop() }
+        // Abbau auch dann zu Ende führen, wenn iOS die App gleich einfriert (sonst bleibt der Mikrofonpunkt hängen).
+        let bg = UIApplication.shared.beginBackgroundTask(withName: "stop-listening")
+        stopTask = Task {
+            await e.stop()
+            UIApplication.shared.endBackgroundTask(bg)
+        }
     }
 
     private func restart() {
@@ -722,8 +727,18 @@ final class InterpreterModel {
     }
 
     private func trim() {
-        if entries.count > 300 { entries.removeFirst(entries.count - 300) }
+        if entries.count > 300 { entries.removeFirst(entries.count - 300); pruneRevisions() }
     }
+
+    /// Zähler gelöschter oder gekappter Einträge verwerfen (sonst wächst `revisions` bei Dauerbetrieb ohne Grenze).
+    private func pruneRevisions() {
+        guard revisions.count > entries.count else { return }
+        let live = Set(entries.map(\.id))
+        revisions = revisions.filter { live.contains($0.key) }
+    }
+
+    /// Nur für Tests.
+    var revisionCount: Int { revisions.count }
 
     /// `force`: auch vorlesen, wenn „Automatisch vorlesen“ aus ist (Kurzbefehl „Sage …“).
     private func translate(_ id: UUID, speak: Bool = true, force: Bool = false) {
@@ -821,6 +836,7 @@ final class InterpreterModel {
     func delete(_ id: UUID) {
         if speakingID == id { stopSpeaking() }
         entries.removeAll { $0.id == id }
+        pruneRevisions()
         persist()
     }
 
@@ -833,6 +849,7 @@ final class InterpreterModel {
         undo.keep(gone, seconds: 8)
         let ids = Set(gone.map(\.id))
         entries.removeAll { ids.contains($0.id) }
+        pruneRevisions()
         persist()
         canUndoClear = true
         flash("🗑 " + T("cleared"), seconds: 8)
@@ -954,11 +971,11 @@ final class InterpreterModel {
         return Phrase(en: e.text, th: t, roman: e.roman ?? "", category: "favorites", src: e.src, dst: e.target)
     }
 
-    func isFavorite(_ p: Phrase) -> Bool { favorites.contains { $0.en == p.en } }
+    func isFavorite(_ p: Phrase) -> Bool { favorites.contains { $0.favoriteKey == p.favoriteKey } }
     func isFavorite(_ e: Entry) -> Bool { phrase(for: e).map(isFavorite) ?? false }
 
     func toggleFavorite(_ p: Phrase) {
-        if isFavorite(p) { favorites.removeAll { $0.en == p.en } } else { favorites.insert(p, at: 0) }
+        if isFavorite(p) { favorites.removeAll { $0.favoriteKey == p.favoriteKey } } else { favorites.insert(p, at: 0) }
         if !favoritesBlocked { files.store(favorites, "favorites.json") }
         Haptics.tap()
     }

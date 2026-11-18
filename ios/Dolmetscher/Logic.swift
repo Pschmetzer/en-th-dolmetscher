@@ -254,11 +254,15 @@ struct VoiceGate {
     }
 
     mutating func step(rms: Float, dur: Double) -> Event? {
-        history.append((rms, dur)); historyDur += dur
-        while historyDur > window, history.count > 1 { historyDur -= history.removeFirst().dur }
-        // 10.-Perzentil statt hartem Minimum: einzelne Aussetzer (digitale Stille) sollen den Pegel nicht nullen.
-        let sorted = history.map(\.rms).sorted()
-        noise = max(0.0005, sorted[min(sorted.count - 1, sorted.count / 10)])
+        // Während einer Äußerung bleibt die Rauschschätzung stehen: Wer länger fast ohne Pause spricht, soll den
+        // Grundpegel nicht auf Sprachniveau heben (sonst gelten leise Satzteile als Stille und der Satz endet zu früh).
+        if !inUtterance {
+            history.append((rms, dur)); historyDur += dur
+            while historyDur > window, history.count > 1 { historyDur -= history.removeFirst().dur }
+            // 10.-Perzentil statt hartem Minimum: einzelne Aussetzer (digitale Stille) sollen den Pegel nicht nullen.
+            let sorted = history.map(\.rms).sorted()
+            noise = max(0.0005, sorted[min(sorted.count - 1, sorted.count / 10)])
+        }
 
         var event: Event?
         if rms > threshold {

@@ -10,13 +10,14 @@ struct TranslationResult: Sendable {
 }
 
 enum TranslateError: LocalizedError, Equatable {
-    case offlineMissing, failed, noNetwork, cooldown
+    case offlineMissing, failed, noNetwork, cooldown, rateLimited
     var errorDescription: String? {
         switch self {
         case .offlineMissing: return T("err_offline_missing")
         case .failed: return T("err_translate")
         case .noNetwork: return T("err_no_network")
         case .cooldown: return T("err_online_cooldown")
+        case .rateLimited: return T("err_online_limit")
         }
     }
 }
@@ -46,11 +47,37 @@ final class NetStatus: @unchecked Sendable {
 /// brauchbares Netz (Markt, Insel) jeder Satz erneut auf die Zeitüberschreitung.
 struct CircuitBreaker: Sendable {
     var cooldown: TimeInterval = 20
+    /// Nach „Limit erreicht“ (HTTP 429) deutlich länger pausieren.
+    var rateLimitCooldown: TimeInterval = 300
     private(set) var openUntil: Date = .distantPast
 
     func allows(at now: Date) -> Bool { now >= openUntil }
-    mutating func failed(at now: Date) { openUntil = now.addingTimeInterval(cooldown) }
+    mutating func failed(at now: Date, rateLimited: Bool = false) {
+        openUntil = now.addingTimeInterval(rateLimited ? rateLimitCooldown : cooldown)
+    }
     mutating func succeeded() { openUntil = .distantPast }
+}
+
+/// Zeitlimit für eine Operation. Ohne Ergebnis nach `seconds` kommt `nil` zurück (die Operation wird abgebrochen).
+/// Verhindert, dass eine hängende Übersetzung die ganze Sprachausgabe blockiert.
+func withTimeout<T: Sendable>(seconds: Double, _ operation: @escaping @Sendable () async throws -> T) async rethrows -> T? {
+    try await withThrowingTaskGroup(of: T?.self) { group in
+        group.addTask { try await operation() }
+        group.addTask { try? await Task.sleep(for: .seconds(seconds)); return nil }
+        defer { group.cancelAll() }
+        return try await group.next() ?? nil
+    }
+}
+
+/// HTTP-Antwort der Online-Übersetzer: 429 (Limit) und 5xx sind Fehler, auch wenn ein JSON-Text mitkommt.
+enum OnlineStatus: Equatable {
+    case ok, rateLimited, failed
+
+    static func of(_ response: URLResponse?) -> OnlineStatus {
+        guard let code = (response as? HTTPURLResponse)?.statusCode else { return .ok }
+        if code == 429 { return .rateLimited }
+        return (200..<300).contains(code) ? .ok : .failed
+    }
 }
 
 /// Antwort von MyMemory auswerten. Bei Fehlern (zu lang, Tageslimit) steht der Fehlertext in
@@ -85,6 +112,9 @@ actor Translator {
         self.useApple = useApple
     }
 
+    /// Längstens so lange auf die Apple-Übersetzung eines Satzes warten.
+    static let appleTimeout = 8.0
+
     static func language(_ l: Lang) -> Locale.Language { Locale.Language(identifier: l.translationCode) }
 
     /// Sind die Offline-Sprachpakete für diese Richtung installiert?
@@ -98,8 +128,13 @@ actor Translator {
             do {
                 let s = sessions[key] ?? TranslationSession(installedSource: Self.language(from), target: Self.language(to))
                 sessions[key] = s
-                let out = try await s.translate(text).targetText
-                if !out.isEmpty { return TranslationResult(text: out, provider: "apple") }
+                // Zeitlimit: hängt die Apple-Übersetzung, soll nicht die ganze Sprachausgabe stehen.
+                if let out = try await withTimeout(seconds: Self.appleTimeout, { try await s.translate(text).targetText }) {
+                    if !out.isEmpty { return TranslationResult(text: out, provider: "apple") }
+                } else {
+                    sessions[key] = nil
+                    if !allowOnline { throw TranslateError.failed }
+                }
             } catch {
                 sessions[key] = nil
             }
@@ -107,16 +142,24 @@ actor Translator {
         guard allowOnline else { throw TranslateError.offlineMissing }
         guard isOnline() else { throw TranslateError.noNetwork }
         guard breaker.allows(at: Date()) else { throw TranslateError.cooldown }
-        if let out = try? await google(text, from: from, to: to), !out.isEmpty {
-            breaker.succeeded()
-            return TranslationResult(text: out, provider: "google")
+        var limited = false
+        do {
+            let out = try await google(text, from: from, to: to)
+            if !out.isEmpty {
+                breaker.succeeded()
+                return TranslationResult(text: out, provider: "google")
+            }
+        } catch OnlineError.rateLimited { limited = true } catch {}
+        if MyMemory.fits(text) {
+            do {
+                if let out = try await myMemory(text, from: from, to: to) {
+                    breaker.succeeded()
+                    return TranslationResult(text: out, provider: "mymemory")
+                }
+            } catch OnlineError.rateLimited { limited = true } catch {}
         }
-        if MyMemory.fits(text), let out = try? await myMemory(text, from: from, to: to) {
-            breaker.succeeded()
-            return TranslationResult(text: out, provider: "mymemory")
-        }
-        breaker.failed(at: Date())
-        throw TranslateError.failed
+        breaker.failed(at: Date(), rateLimited: limited)
+        throw limited ? TranslateError.rateLimited : TranslateError.failed
     }
 
     /// Formular-Kodierung: „+“ muss als %2B raus, sonst wird es beim Server zum Leerzeichen.
@@ -126,13 +169,24 @@ actor Translator {
         return Data((c.percentEncodedQuery ?? "").replacingOccurrences(of: "+", with: "%2B").utf8)
     }
 
+    private enum OnlineError: Error { case rateLimited, http }
+
+    private static func check(_ response: URLResponse) throws {
+        switch OnlineStatus.of(response) {
+        case .ok: return
+        case .rateLimited: throw OnlineError.rateLimited
+        case .failed: throw OnlineError.http
+        }
+    }
+
     private func google(_ text: String, from: Lang, to: Lang) async throws -> String {
         var req = URLRequest(url: URL(string: "https://translate.googleapis.com/translate_a/single?client=gtx&dt=t")!)
         req.httpMethod = "POST"
         req.timeoutInterval = 4
         req.setValue("application/x-www-form-urlencoded;charset=utf-8", forHTTPHeaderField: "Content-Type")
         req.httpBody = Self.form(["sl": from.mtCode, "tl": to.mtCode, "q": text])
-        let (data, _) = try await http.data(for: req)
+        let (data, response) = try await http.data(for: req)
+        try Self.check(response)
         guard let root = try JSONSerialization.jsonObject(with: data) as? [Any],
               let parts = root.first as? [[Any]] else { return "" }
         return parts.compactMap { $0.first as? String }.joined()
@@ -144,7 +198,8 @@ actor Translator {
                         URLQueryItem(name: "langpair", value: "\(from.mtCode)|\(to.mtCode)")]
         var req = URLRequest(url: c.url!)
         req.timeoutInterval = 4
-        let (data, _) = try await http.data(for: req)
+        let (data, response) = try await http.data(for: req)
+        try Self.check(response)
         return MyMemory.parse(data)
     }
 }

@@ -265,12 +265,28 @@ struct AllergyCardView: View {
     }
 }
 
+/// Startwerte des Baht-Rechners nach Währung der Region des Geräts (ungefähre Kurse, der Nutzer trägt seinen eigenen ein).
+enum FXDefaults {
+    /// 1 THB in der Währung – grobe Richtwerte, nur als Vorbelegung.
+    static let rates: [String: Double] = [
+        "EUR": 0.026, "USD": 0.028, "GBP": 0.022, "CHF": 0.025, "JPY": 4.3, "CNY": 0.2, "KRW": 40,
+        "AUD": 0.043, "CAD": 0.039, "SGD": 0.037, "INR": 2.5, "VND": 700, "IDR": 480, "RUB": 2.6,
+    ]
+
+    static func code(for locale: Locale = .current) -> String {
+        if let c = locale.currency?.identifier, rates[c] != nil { return c }
+        return "EUR"
+    }
+
+    static func rate(for code: String) -> Double { rates[code] ?? 0.026 }
+}
+
 /// Einfacher Rechner Baht ⇄ eigene Währung mit selbst eingetragenem Kurs (kein Netz nötig).
 struct BahtCalculatorView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showPrice = false
-    @AppStorage("fxRate") private var rate = 0.026        // 1 THB in Heimatwährung
-    @AppStorage("fxCode") private var code = "EUR"
+    @AppStorage("fxRate") private var rate = FXDefaults.rate(for: FXDefaults.code())   // 1 THB in Heimatwährung
+    @AppStorage("fxCode") private var code = FXDefaults.code()
     @State private var baht = ""
     @FocusState private var focused: Bool
 

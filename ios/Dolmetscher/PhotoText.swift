@@ -1,4 +1,5 @@
 // PhotoText.swift – Text aus Foto oder Kamera erkennen (Speisekarte, Schild) und übersetzen. Läuft auf dem Gerät.
+import AVFoundation
 import PhotosUI
 import SwiftUI
 import Vision
@@ -76,8 +77,17 @@ struct PhotoTextView: View {
     @State private var busy = false
     @State private var error: String?
     @State private var camera = false
+    @State private var cameraDenied = false
 
     private var hasCamera: Bool { UIImagePickerController.isSourceTypeAvailable(.camera) }
+
+    /// Kamera-Knopf: bei verweigerter Freigabe ein Hinweis mit Weg in die Einstellungen statt einer leeren Ansicht.
+    private func openCamera() {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .denied, .restricted: error = T("camera_denied"); cameraDenied = true
+        default: cameraDenied = false; camera = true
+        }
+    }
 
     var body: some View {
         NavigationStack {
@@ -85,7 +95,7 @@ struct PhotoTextView: View {
                 Section {
                     HStack {
                         if hasCamera {
-                            Button { camera = true } label: { Label(T("take_photo"), systemImage: "camera") }
+                            Button { openCamera() } label: { Label(T("take_photo"), systemImage: "camera") }
                             Spacer()
                         }
                         PhotosPicker(selection: $item, matching: .images) {
@@ -101,7 +111,14 @@ struct PhotoTextView: View {
                     }
                 }
                 if busy { Section { HStack { ProgressView(); Text(T("reading_text")) } } }
-                if let error { Section { Text("⚠️ " + error).foregroundStyle(.red) } }
+                if let error {
+                    Section {
+                        Text("⚠️ " + error).foregroundStyle(.red)
+                        if cameraDenied, let url = URL(string: UIApplication.openSettingsURLString) {
+                            Button(T("open_settings")) { UIApplication.shared.open(url) }
+                        }
+                    }
+                }
                 if !lines.isEmpty {
                     Section {
                         ForEach(Array(lines.enumerated()), id: \.offset) { i, line in
@@ -150,14 +167,14 @@ struct PhotoTextView: View {
                 }
             }
             .fullScreenCover(isPresented: $camera) {
-                CameraPicker { img in Task { await scan(img) } }.ignoresSafeArea()
+                CameraPicker { img in Task { await scan(PhotoDownsample.image(img)) } }.ignoresSafeArea()
             }
         }
     }
 
     private func scan(_ img: UIImage) async {
         image = img
-        busy = true; error = nil; lines = []; picked = []
+        busy = true; error = nil; cameraDenied = false; lines = []; picked = []
         defer { busy = false }
         do {
             lines = try await TextScanner.lines(in: img, langs: [m.pair.partner, m.pair.mine])

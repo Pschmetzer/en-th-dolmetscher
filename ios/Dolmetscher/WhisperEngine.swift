@@ -148,6 +148,11 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
     /// Höchstlänge einer Äußerung (Whisper verarbeitet 30-s-Fenster).
     static let maxSeconds = 28.0
     static let preRollSeconds = 0.4
+    /// Wartende Äußerungen, bevor die ältesten verworfen werden.
+    static let maxQueuedJobs = 2
+    /// So viele Erkennungsfehler in Folge gelten als Ausfall (Oberfläche zeigt dann einen Fehler, Neustart läuft).
+    static let maxConsecutiveFailures = 3
+    private var failures = 0   // nur im Worker
 
     struct Job: Sendable { var samples: [Float] }
 
@@ -164,7 +169,9 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
     init(variant: String) {
         self.variant = variant
         (events, emit) = AsyncStream<SpeechEvent>.makeStream(bufferingPolicy: .unbounded)
-        (jobStream, jobs) = AsyncStream<Job>.makeStream(bufferingPolicy: .unbounded)
+        // Begrenzt: ist das Modell langsamer als die Sprache, fallen die ältesten Äußerungen weg statt minutenlang
+        // aufzulaufen (wie `SpeechBacklog` bei Apple).
+        (jobStream, jobs) = AsyncStream<Job>.makeStream(bufferingPolicy: .bufferingNewest(Self.maxQueuedJobs))
         let emit = emit
         capture = AudioCapture(onBuffer: { [weak self] in self?.process($0) }, onEvent: { emit.yield($0) })
         gate.maxUtterance = Self.maxSeconds - Self.preRollSeconds - 0.5
@@ -307,9 +314,15 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
             }
             let conf = segs.isEmpty ? 0.5 : exp(segs.map { Double($0.avgLogprob) }.reduce(0, +) / Double(segs.count))
             let h = Hypothesis(text: text, confidence: conf)
+            failures = 0
             emit.yield(.utterance([lang: h]))
         } catch {
             log.error("transcribe failed: \(error.localizedDescription, privacy: .public)")
+            failures += 1
+            if failures >= Self.maxConsecutiveFailures {
+                failures = 0
+                emit.yield(.failed("Whisper: " + error.localizedDescription))
+            }
         }
     }
 }
