@@ -266,6 +266,17 @@
    "reviewed": false
   },
   {
+   "id": "animal-bite-rabies",
+   "names": {
+    "de": "Tierbisse und Stiche",
+    "en": "Animal bites and stings",
+    "th": "สัตว์กัดและต่อย"
+   },
+   "phrases": 16,
+   "critical": 7,
+   "reviewed": false
+  },
+  {
    "id": "atm-bank-card",
    "names": {
     "de": "Geldautomat: Karte und Limit",
@@ -293,6 +304,17 @@
     "de": "Bäckerei und Café",
     "en": "Bakery and cafe",
     "th": "ร้านเบเกอรี่และคาเฟ่"
+   },
+   "phrases": 17,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "bangkok-skytrain",
+   "names": {
+    "de": "Skytrain und U-Bahn",
+    "en": "Skytrain and metro",
+    "th": "รถไฟฟ้าบีทีเอสและเอ็มอาร์ที"
    },
    "phrases": 17,
    "critical": 4,
@@ -453,6 +475,61 @@
    "reviewed": false
   },
   {
+   "id": "flight-delay-change",
+   "names": {
+    "de": "Flugverspätung und Umbuchung",
+    "en": "Flight delay and rebooking",
+    "th": "เที่ยวบินล่าช้าและเปลี่ยนตั๋ว"
+   },
+   "phrases": 16,
+   "critical": 3,
+   "reviewed": false
+  },
+  {
+   "id": "floating-market",
+   "names": {
+    "de": "Schwimmender Markt",
+    "en": "Floating market",
+    "th": "ตลาดน้ำ"
+   },
+   "phrases": 16,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "food-allergy",
+   "names": {
+    "de": "Nahrungsmittelallergie",
+    "en": "Food allergy",
+    "th": "แพ้อาหารรุนแรง"
+   },
+   "phrases": 17,
+   "critical": 9,
+   "reviewed": false
+  },
+  {
+   "id": "food-delivery",
+   "names": {
+    "de": "Essenslieferung",
+    "en": "Food delivery",
+    "th": "สั่งอาหารเดลิเวอรี"
+   },
+   "phrases": 17,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "grab-ride-hailing",
+   "names": {
+    "de": "Fahrdienst-App (Grab, Bolt)",
+    "en": "Ride-hailing app (Grab, Bolt)",
+    "th": "แอปเรียกรถ แกร็บและโบลท์"
+   },
+   "phrases": 17,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
    "id": "gym",
    "names": {
     "de": "Fitnessstudio",
@@ -515,6 +592,17 @@
     "th": "ทัวร์เที่ยวหลายเกาะ"
    },
    "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "jet-ski-rental",
+   "names": {
+    "de": "Jetski und Wassersport",
+    "en": "Jet ski and water sports",
+    "th": "เจ็ตสกีและกีฬาทางน้ำ"
+   },
+   "phrases": 16,
    "critical": 4,
    "reviewed": false
   },
@@ -615,6 +703,17 @@
    },
    "phrases": 18,
    "critical": 3,
+   "reviewed": false
+  },
+  {
+   "id": "monsoon-flood-storm",
+   "names": {
+    "de": "Regen, Flut und Sturm",
+    "en": "Rain, flood and storm",
+    "th": "ฝน น้ำท่วม และพายุ"
+   },
+   "phrases": 16,
+   "critical": 4,
    "reviewed": false
   },
   {
@@ -801,6 +900,17 @@
     "th": "คอร์สทำอาหารไทย"
    },
    "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "travel-insurance-claim",
+   "names": {
+    "de": "Reiseversicherung: Schaden melden",
+    "en": "Travel insurance claim",
+    "th": "เคลมประกันการเดินทาง"
+   },
+   "phrases": 16,
    "critical": 4,
    "reviewed": false
   },

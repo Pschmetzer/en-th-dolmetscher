@@ -1,0 +1,109 @@
+{
+  "id": "monsoon-flood-storm",
+  "names": {
+    "de": "Regen, Flut und Sturm",
+    "en": "Rain, flood and storm",
+    "th": "ฝน น้ำท่วม และพายุ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "In der Regenzeit, etwa von Mai bis Oktober, plötzliche Güsse und Überschwemmungen einplanen. Nie durch Hochwasser waten oder fahren, wegen Strom und offenen Gullys. Bei Sturm fahren Boote und Fähren oft nicht, Hinweise von Hotel und Wetterdienst beachten und im Notfall 1669 (Rettung) oder 191 (Polizei) rufen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "In the rainy season, roughly May to October, expect sudden downpours and floods. Never wade or drive through floodwater because of live cables and open drains. In storms boats and ferries often do not run, so follow the hotel and weather service and in an emergency call 1669 (ambulance) or 191 (police). Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "flood",
+      "th": "น้ำท่วม"
+    },
+    {
+      "en": "storm",
+      "th": "พายุ"
+    },
+    {
+      "en": "torch",
+      "th": "ไฟฉาย"
+    },
+    {
+      "en": "shelter",
+      "th": "ที่หลบภัย"
+    },
+    {
+      "en": "drinking water",
+      "th": "น้ำดื่ม"
+    },
+    {
+      "en": "forecast",
+      "th": "พยากรณ์อากาศ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "The water is rising. We need to leave.",
+      "th": "น้ำกำลังขึ้น ต้องรีบออกไป",
+      "critical": true
+    },
+    {
+      "en": "We are trapped by the water.",
+      "th": "ติดอยู่ในน้ำท่วม",
+      "critical": true
+    },
+    {
+      "en": "This is an emergency. Please call an ambulance (1669).",
+      "th": "นี่เป็นเหตุฉุกเฉิน ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true
+    },
+    {
+      "en": "Please call the police (191).",
+      "th": "ช่วยโทรแจ้งตำรวจ 191 ด้วย",
+      "critical": true
+    },
+    {
+      "en": "Is the road flooded?",
+      "th": "ถนนน้ำท่วมไหม"
+    },
+    {
+      "en": "Is there a storm warning?",
+      "th": "มีประกาศเตือนพายุไหม"
+    },
+    {
+      "en": "Will the ferry run today?",
+      "th": "วันนี้เรือข้ามฟากออกไหม"
+    },
+    {
+      "en": "When will the rain stop?",
+      "th": "ฝนจะหยุดเมื่อไร"
+    },
+    {
+      "en": "Is it safe to go out?",
+      "th": "ออกไปข้างนอกปลอดภัยไหม"
+    },
+    {
+      "en": "Where is the nearest shelter?",
+      "th": "ที่หลบภัยที่ใกล้ที่สุดอยู่ที่ไหน"
+    },
+    {
+      "en": "Do you have a torch?",
+      "th": "มีไฟฉายไหม"
+    },
+    {
+      "en": "Do you have drinking water?",
+      "th": "มีน้ำดื่มไหม"
+    },
+    {
+      "en": "There is no electricity.",
+      "th": "ไฟดับ"
+    },
+    {
+      "en": "Please do not drive through the water.",
+      "th": "ไม่ควรขับผ่านน้ำท่วม"
+    },
+    {
+      "en": "Please check the weather forecast.",
+      "th": "ช่วยดูพยากรณ์อากาศให้หน่อย"
+    },
+    {
+      "en": "Can I stay another night?",
+      "th": "ขออยู่ต่ออีกคืนได้ไหม"
+    }
+  ]
+}

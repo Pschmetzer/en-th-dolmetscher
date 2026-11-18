@@ -1,0 +1,113 @@
+{
+  "id": "bangkok-skytrain",
+  "names": {
+    "de": "Skytrain und U-Bahn",
+    "en": "Skytrain and metro",
+    "th": "รถไฟฟ้าบีทีเอสและเอ็มอาร์ที"
+  },
+  "style": "polite",
+  "note": {
+    "de": "BTS (Skytrain) und MRT (U-Bahn) sind getrennte Systeme mit eigenen Tickets, beim Umsteigen geht man meist neu durch die Sperre. Im Gedränge Taschen vorn tragen und geschlossen halten. Essen und Trinken sind im Zug verboten, Plätze an der Tür gehören Mönchen, Älteren und Schwangeren. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "BTS (Skytrain) and MRT (metro) are separate systems with their own tickets, and you usually go through a new gate when changing. In a crowd carry your bag in front and keep it closed. Eating and drinking are not allowed on trains, and seats by the door are for monks, the elderly and pregnant women. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "station",
+      "th": "สถานี"
+    },
+    {
+      "en": "platform",
+      "th": "ชานชาลา"
+    },
+    {
+      "en": "ticket",
+      "th": "ตั๋ว"
+    },
+    {
+      "en": "exit",
+      "th": "ทางออก"
+    },
+    {
+      "en": "interchange",
+      "th": "จุดเปลี่ยนสาย"
+    },
+    {
+      "en": "last train",
+      "th": "รถไฟขบวนสุดท้าย"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Someone has fainted on the platform.",
+      "th": "มีคนเป็นลมที่ชานชาลา",
+      "critical": true
+    },
+    {
+      "en": "Please call the station staff.",
+      "th": "ช่วยเรียกเจ้าหน้าที่สถานีด้วย",
+      "critical": true
+    },
+    {
+      "en": "Someone is harassing me on the train.",
+      "th": "มีคนคุกคามบนรถไฟ",
+      "critical": true
+    },
+    {
+      "en": "My bag has been stolen.",
+      "th": "กระเป๋าถูกขโมย",
+      "critical": true
+    },
+    {
+      "en": "Which line goes to the airport?",
+      "th": "สายไหนไปสนามบิน"
+    },
+    {
+      "en": "Where do I change trains?",
+      "th": "ต้องเปลี่ยนรถไฟที่ไหน"
+    },
+    {
+      "en": "Is this train going towards the airport?",
+      "th": "รถไฟขบวนนี้ไปสนามบินไหม"
+    },
+    {
+      "en": "Which station is nearest to this place?",
+      "th": "สถานีไหนใกล้ที่นี่ที่สุด"
+    },
+    {
+      "en": "Where is the ticket machine?",
+      "th": "เครื่องขายตั๋วอยู่ที่ไหน"
+    },
+    {
+      "en": "Can you give me change for the ticket machine?",
+      "th": "ขอแลกเหรียญสำหรับเครื่องขายตั๋วได้ไหม"
+    },
+    {
+      "en": "Where can I top up my card?",
+      "th": "เติมเงินบัตรได้ที่ไหน"
+    },
+    {
+      "en": "My card does not work at the gate.",
+      "th": "บัตรใช้ที่ประตูไม่ได้"
+    },
+    {
+      "en": "Which exit is for the shopping mall?",
+      "th": "ทางออกไหนไปห้างสรรพสินค้า"
+    },
+    {
+      "en": "What time is the last train?",
+      "th": "รถไฟขบวนสุดท้ายกี่โมง"
+    },
+    {
+      "en": "I left my bag on the train.",
+      "th": "ลืมกระเป๋าไว้บนรถไฟ"
+    },
+    {
+      "en": "Excuse me, I need to get off here.",
+      "th": "ขอทางหน่อย จะลงสถานีนี้"
+    },
+    {
+      "en": "Is there a lift?",
+      "th": "มีลิฟต์ไหม"
+    }
+  ]
+}

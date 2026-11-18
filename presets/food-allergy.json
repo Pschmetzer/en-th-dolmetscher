@@ -1,0 +1,118 @@
+{
+  "id": "food-allergy",
+  "names": {
+    "de": "Nahrungsmittelallergie",
+    "en": "Food allergy",
+    "th": "แพ้อาหารรุนแรง"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Bei schwerer Allergie die Karte vor der Bestellung zeigen und fragen, ob im selben Wok oder Öl gekocht wird. Fischsauce, Austernsauce, Garnelenpaste und Erdnussöl stecken in vielen Gerichten. Bei Atemnot sofort 1669 (Rettung) rufen und das Notfallset bereithalten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "With a severe allergy show the card before ordering and ask whether the same wok or oil is used. Fish sauce, oyster sauce, shrimp paste and peanut oil are in many dishes. If breathing is difficult call 1669 (ambulance) at once and keep your emergency kit ready. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "allergy",
+      "th": "อาการแพ้"
+    },
+    {
+      "en": "nuts",
+      "th": "ถั่ว"
+    },
+    {
+      "en": "shrimp paste",
+      "th": "กะปิ"
+    },
+    {
+      "en": "fish sauce",
+      "th": "น้ำปลา"
+    },
+    {
+      "en": "oyster sauce",
+      "th": "ซอสหอยนางรม"
+    },
+    {
+      "en": "adrenaline pen",
+      "th": "ปากกาฉีดอะดรีนาลีน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am having an allergic reaction.",
+      "th": "กำลังมีอาการแพ้",
+      "critical": true
+    },
+    {
+      "en": "I cannot breathe.",
+      "th": "หายใจไม่ออก",
+      "critical": true
+    },
+    {
+      "en": "My throat is swelling.",
+      "th": "คอบวม",
+      "critical": true
+    },
+    {
+      "en": "This is an emergency. Please call an ambulance (1669).",
+      "th": "นี่เป็นเหตุฉุกเฉิน ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true
+    },
+    {
+      "en": "I have an adrenaline pen in my bag.",
+      "th": "มีปากกาฉีดอะดรีนาลีนอยู่ในกระเป๋า",
+      "critical": true
+    },
+    {
+      "en": "Please help me use my adrenaline pen.",
+      "th": "ช่วยฉีดปากกาอะดรีนาลีนให้หน่อย",
+      "critical": true
+    },
+    {
+      "en": "I have a severe allergy.",
+      "th": "มีอาการแพ้รุนแรง",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to peanuts.",
+      "th": "แพ้ถั่วลิสง",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to shrimp and shellfish.",
+      "th": "แพ้กุ้งและหอย",
+      "critical": true
+    },
+    {
+      "en": "Does this dish contain nuts?",
+      "th": "จานนี้มีถั่วไหม"
+    },
+    {
+      "en": "Is it cooked in peanut oil?",
+      "th": "ปรุงด้วยน้ำมันถั่วลิสงไหม"
+    },
+    {
+      "en": "Does it contain shrimp paste?",
+      "th": "มีกะปิไหม"
+    },
+    {
+      "en": "Does the sauce contain fish sauce or oyster sauce?",
+      "th": "ซอสนี้มีน้ำปลาหรือซอสหอยนางรมไหม"
+    },
+    {
+      "en": "Please wash the wok first.",
+      "th": "ช่วยล้างกระทะก่อนด้วย"
+    },
+    {
+      "en": "Please ask the chef.",
+      "th": "ช่วยถามพ่อครัวให้หน่อย"
+    },
+    {
+      "en": "Please read the ingredients to me.",
+      "th": "ช่วยอ่านส่วนผสมให้ฟังหน่อย"
+    },
+    {
+      "en": "I will not eat it if you are not sure.",
+      "th": "ถ้าไม่แน่ใจ จะไม่กิน"
+    }
+  ]
+}

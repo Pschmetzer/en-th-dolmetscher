@@ -130,6 +130,16 @@ kennen, ignorieren sie.
 | `convenience-store-7eleven` | Kiosk und 7-Eleven | Erdnuss, Apotheke, halal, Schwein |
 | `post-office-parcel` | Post und Paket | zerbrechlich, Batterie, keine Flüssigkeit |
 | `wifi-coworking-cafe` | WLAN-Café und Arbeiten | Tasche bewachen, Laptop gestohlen, Ladegerät, Polizei |
+| `bangkok-skytrain` | Skytrain und U-Bahn | Ohnmacht, Personal, Belästigung, Diebstahl |
+| `food-allergy` | Nahrungsmittelallergie | Allergische Reaktion, Atemnot, Notfallset, Notruf |
+| `grab-ride-hailing` | Fahrdienst-App (Grab, Bolt) | falsches Auto, unsicher, anhalten, Tempo |
+| `food-delivery` | Essenslieferung | Allergie, Garnelen, Übelkeit nach dem Essen |
+| `floating-market` | Schwimmender Markt | Schwimmweste, Sturz ins Wasser, Wassereinbruch |
+| `jet-ski-rental` | Jetski und Wassersport | Pass nicht hinterlegen, Touristenpolizei, Bedrohung |
+| `animal-bite-rabies` | Tierbisse und Stiche | Hund, Affe, Schlange, Tollwutimpfung, Notruf |
+| `travel-insurance-claim` | Reiseversicherung: Schaden melden | Notruf, Krankenhaus, Arzt, erst behandeln |
+| `flight-delay-change` | Flugverspätung und Umbuchung | Medikamente, Unwohlsein, Arzt |
+| `monsoon-flood-storm` | Regen, Flut und Sturm | Wasser steigt, eingeschlossen, Notruf, Polizei |
 
 ## Unsichere Sätze (bitte zuerst prüfen)
 
@@ -165,7 +175,7 @@ Am wichtigsten sind die Sätze mit `critical` und die Tabelle [Unsichere Sätze]
 
 | Datei | Inhalt |
 |---|---|
-| `presets/*.json` | 81 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
+| `presets/*.json` | 91 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
 | `ios/Shared/phrases.json` | eingebautes Satzbuch der iPhone-App und des Widgets |
 | `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten, „Sie sind dran“, Allergie-Karte |
 | `ios/Dolmetscher/Round4Views.swift` | Hilfesatz auf dem Bildschirm „Hilfe – jetzt“ |

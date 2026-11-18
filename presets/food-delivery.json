@@ -1,0 +1,113 @@
+{
+  "id": "food-delivery",
+  "names": {
+    "de": "Essenslieferung",
+    "en": "Food delivery",
+    "th": "สั่งอาหารเดลิเวอรี"
+  },
+  "style": "polite",
+  "note": {
+    "de": "In der App Adresse mit Gebäude, Stockwerk und Zimmer angeben, der Fahrer ruft oft an. Allergien in das Hinweisfeld schreiben und nicht allein darauf vertrauen. Bei Barzahlung passendes Geld bereithalten, in Wohnanlagen wartet der Fahrer meist am Empfang. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "In the app give the address with building, floor and room, and the rider often phones. Write allergies in the notes field and do not rely on that alone. For cash have the right money ready, and in apartment blocks the rider usually waits at reception. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "delivery",
+      "th": "ส่งอาหาร"
+    },
+    {
+      "en": "order",
+      "th": "ออเดอร์"
+    },
+    {
+      "en": "rider",
+      "th": "ไรเดอร์"
+    },
+    {
+      "en": "reception",
+      "th": "เคาน์เตอร์ต้อนรับ"
+    },
+    {
+      "en": "gate",
+      "th": "ประตูรั้ว"
+    },
+    {
+      "en": "cash on delivery",
+      "th": "เก็บเงินปลายทาง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have a food allergy.",
+      "th": "แพ้อาหาร",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to peanuts.",
+      "th": "แพ้ถั่วลิสง",
+      "critical": true
+    },
+    {
+      "en": "This contains shrimp. I am allergic to shrimp.",
+      "th": "มีกุ้ง แพ้กุ้ง",
+      "critical": true
+    },
+    {
+      "en": "I feel sick after eating this food.",
+      "th": "กินอาหารนี้แล้วรู้สึกไม่สบาย",
+      "critical": true
+    },
+    {
+      "en": "Please leave the food at the door.",
+      "th": "วางอาหารไว้หน้าห้องด้วย"
+    },
+    {
+      "en": "Please leave it at reception.",
+      "th": "ฝากไว้ที่เคาน์เตอร์ต้อนรับด้วย"
+    },
+    {
+      "en": "Please call me when you arrive.",
+      "th": "โทรหาด้วยเมื่อถึง"
+    },
+    {
+      "en": "I cannot find the building.",
+      "th": "หาตึกไม่เจอ"
+    },
+    {
+      "en": "Please bring it to the main gate.",
+      "th": "ช่วยนำมาที่ประตูรั้วหน้าด้วย"
+    },
+    {
+      "en": "Where are you now?",
+      "th": "ตอนนี้อยู่ที่ไหน"
+    },
+    {
+      "en": "How long will it take?",
+      "th": "ใช้เวลานานเท่าไหร่"
+    },
+    {
+      "en": "The order is wrong.",
+      "th": "ออเดอร์ผิด"
+    },
+    {
+      "en": "One item is missing.",
+      "th": "ของขาดไปหนึ่งอย่าง"
+    },
+    {
+      "en": "The food is cold.",
+      "th": "อาหารเย็นแล้ว"
+    },
+    {
+      "en": "Not spicy, please.",
+      "th": "ขอไม่เผ็ด"
+    },
+    {
+      "en": "I will pay cash on delivery.",
+      "th": "จ่ายเงินสดปลายทาง"
+    },
+    {
+      "en": "Do you have change?",
+      "th": "มีเงินทอนไหม"
+    }
+  ]
+}

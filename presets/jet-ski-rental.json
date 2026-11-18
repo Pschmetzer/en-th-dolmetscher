@@ -1,0 +1,109 @@
+{
+  "id": "jet-ski-rental",
+  "names": {
+    "de": "Jetski und Wassersport",
+    "en": "Jet ski and water sports",
+    "th": "เจ็ตสกีและกีฬาทางน้ำ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Beim Jetski-Verleih gibt es oft Streit um angebliche Schäden. Vor der Fahrt das Gerät rundum fotografieren, Preis und Haftung schriftlich geben lassen und nie den Reisepass hinterlegen. Bei Erpressung oder Drohung die Touristenpolizei unter 1155 rufen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Jet ski hire often ends in disputes over claimed damage. Before riding photograph the machine from all sides, get the price and liability in writing and never leave your passport as security. If you are threatened or pressured call the tourist police on 1155. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "jet ski",
+      "th": "เจ็ตสกี"
+    },
+    {
+      "en": "life jacket",
+      "th": "เสื้อชูชีพ"
+    },
+    {
+      "en": "damage",
+      "th": "ความเสียหาย"
+    },
+    {
+      "en": "contract",
+      "th": "สัญญา"
+    },
+    {
+      "en": "scratch",
+      "th": "รอยขีดข่วน"
+    },
+    {
+      "en": "engine",
+      "th": "เครื่องยนต์"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I will not leave my passport as a deposit.",
+      "th": "ไม่วางพาสปอร์ตเป็นมัดจำ",
+      "critical": true
+    },
+    {
+      "en": "Please call the tourist police (1155).",
+      "th": "ช่วยโทรหาตำรวจท่องเที่ยว 1155 ด้วย",
+      "critical": true
+    },
+    {
+      "en": "Please give me a life jacket.",
+      "th": "ขอเสื้อชูชีพ",
+      "critical": true
+    },
+    {
+      "en": "I feel threatened. Please stay away.",
+      "th": "รู้สึกถูกข่มขู่ ช่วยถอยห่างด้วย",
+      "critical": true
+    },
+    {
+      "en": "I want to photograph the jet ski first.",
+      "th": "ขอถ่ายรูปเจ็ตสกีก่อน"
+    },
+    {
+      "en": "There is already a scratch here.",
+      "th": "มีรอยขีดข่วนตรงนี้อยู่แล้ว"
+    },
+    {
+      "en": "How much per half hour?",
+      "th": "ครึ่งชั่วโมงเท่าไร"
+    },
+    {
+      "en": "Please write the price on paper.",
+      "th": "ช่วยเขียนราคาลงกระดาษ"
+    },
+    {
+      "en": "Is insurance included?",
+      "th": "รวมประกันไหม"
+    },
+    {
+      "en": "I want to read the contract.",
+      "th": "ขอดูสัญญา"
+    },
+    {
+      "en": "Please show me how to stop the engine.",
+      "th": "ช่วยสอนวิธีดับเครื่อง"
+    },
+    {
+      "en": "Where am I allowed to ride?",
+      "th": "ขับได้ตรงไหน"
+    },
+    {
+      "en": "I did not cause this damage.",
+      "th": "ความเสียหายนี้ไม่ได้เกิดจากการใช้ของเรา"
+    },
+    {
+      "en": "I will not pay for old damage.",
+      "th": "จะไม่จ่ายค่าเสียหายเก่า"
+    },
+    {
+      "en": "Please give me a receipt.",
+      "th": "ขอใบเสร็จ"
+    },
+    {
+      "en": "I want to speak to the manager.",
+      "th": "ขอพบผู้จัดการ"
+    }
+  ]
+}
