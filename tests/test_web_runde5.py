@@ -35,7 +35,7 @@ def _line(prefix):
 def test_note_and_critical_rendering():
     rc = _func("renderCards")
     assert "presetNote(d)" in rc and "$('pbNote').textContent" in rc and "innerHTML" not in rc
-    assert "criticalFirst(d.phrases)" in rc and "' crit'" in rc and "⚠ Wichtig" in rc   # nicht nur Farbe
+    assert "criticalFirst(d.phrases)" in rc and "' crit'" in rc and "t('important')" in rc and "⚠ Wichtig" in HTML   # nicht nur Farbe
     assert '<div id="pbNote" class="note" role="note" hidden></div>' in HTML
     assert "d.phrases.sort" not in SCRIPT                  # Preset-Objekt wird geteilt (presetCache): nie umsortieren
 
@@ -57,7 +57,7 @@ def test_learn_storage_is_guarded():
     assert ok_branch.index("announce(out, m.dst)") < ok_branch.index("learnItem(")   # Lernkarten nie vor der Ausgabe
     assert "Object.hasOwn(" not in SCRIPT                 # ältere Browser (Safari < 15.4)
     assert '<label><input type="checkbox" id="learnRecent">' in HTML   # Standard: aus
-    assert "Lernkarten" in re.search(r'id="privacy">(.*?)</div>', HTML, re.S).group(1)
+    assert "Lernkarten" in re.search(r'id="privacy"[^>]*>(.*?)</div>', HTML, re.S).group(1)
     assert "learnStore([])" in SCRIPT and "removeItem(LEARN_KEY)" in SCRIPT
 
 
@@ -91,7 +91,7 @@ def test_partner_font_scale_and_scroll():
 
 
 def test_visible_stop_and_escape():
-    assert '<button class="small" id="btnStop" type="button" disabled>' in HTML
+    assert '<button class="small" id="btnStop" type="button" disabled' in HTML
     assert "$('btnStop').disabled = !mode" in _func("setMode")
     keys = SCRIPT.split("document.addEventListener('keydown'", 1)[1]
     esc = keys.split("if (!$('keysOn').checked)", 1)[0]

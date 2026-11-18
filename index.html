@@ -159,26 +159,27 @@
 <header>
   <h1>🌐 Dolmetscher <small style="color:var(--mut);font-weight:400">Web Lite</small></h1>
   <span id="status" aria-live="off">Bereit</span>
+  <select id="uiLang" aria-label="Sprache der Oberfläche / Interface language / ภาษาหน้าจอ"><option value="de">Deutsch</option><option value="en">English</option><option value="th">ไทย</option></select>
   <span id="swState" role="status"></span>
 </header>
-<div class="note" role="note">
+<div class="note" role="note" data-i18n-html="lite">
   <b class="lite">Lite-Version – eingeschränkt.</b> Hier wählst du selbst, wer spricht (<kbd>E</kbd>/<kbd>T</kbd> oder die Knöpfe); Erkennung und Stimmen kommen vom Browser: am besten <b>Chrome</b> (Computer, Android); <b>Safari</b> (Mac, iPhone) geht nur mit eingeschalteter Diktierfunktion und mit Einschränkungen; Firefox kann keine Spracherkennung. Nicht auf allen Geräten getestet.
   Die <b>Mac-App</b> ist deutlich besser: erkennt die Sprache automatisch, Sprachbefehle, bessere Erkennung (Whisper), Neural-Stimmen, Stimmprofile, optional Übersetzung mit Claude.
   <a href="https://github.com/Pschmetzer/en-th-dolmetscher" target="_blank" rel="noopener">Mac-/iPhone-App &amp; Quellcode auf GitHub</a>
 </div>
-<div class="note" role="note" id="privacy">
+<div class="note" role="note" id="privacy" data-i18n-html="privacy">
   <b>Datenschutz:</b> Die Spracherkennung macht der Browser – Chrome sendet dein <b>Audio an Googles Server</b>, Safari an Apple (je nach Gerät auch lokal). Der erkannte Text geht zum Übersetzen an Google Translate (Ersatz: MyMemory). Die Mac-App erkennt Sprache dagegen lokal auf dem Gerät. <b>Pause</b> und <b>Stopp</b> schalten das Mikrofon ganz aus. Das Satzbuch (unten) funktioniert ohne Mikrofon und für Englisch/Thai auch offline; in anderen Sprachen werden Sätze beim ersten Tippen an Google Translate gesendet (Karte als „automatisch übersetzt“ markiert). <b>Lernkarten</b> (★ gemerkte und, nur wenn eingeschaltet, zuletzt übersetzte Sätze) bleiben nur in diesem Browser; „Alle Lernkarten löschen“ entfernt sie.
 </div>
-<div class="note" role="status" id="offline">Offline: Übersetzen und Spracherkennung gehen gerade nicht. Das Satzbuch mit Zeige-Karten funktioniert weiter.</div>
+<div class="note" role="status" id="offline" data-i18n="offline">Offline: Übersetzen und Spracherkennung gehen gerade nicht. Das Satzbuch mit Zeige-Karten funktioniert weiter.</div>
 <div class="note" role="status" id="swNote" hidden></div>
 <div class="note" role="note" id="installNote" hidden></div>
 <div id="warn" role="alert"></div>
 <div class="pair">
-  <label>Ich spreche <select id="langA" aria-label="Meine Sprache"></select></label>
+  <label><span data-i18n="iSpeak">Ich spreche</span> <select id="langA" aria-label="Meine Sprache"></select></label>
   <button class="small" id="btnSwap" type="button" aria-label="Sprachen tauschen" title="Sprachen tauschen">⇄</button>
-  <label>Partner spricht <select id="langB" aria-label="Sprache des Partners"></select></label>
+  <label><span data-i18n="partnerSpeaks">Partner spricht</span> <select id="langB" aria-label="Sprache des Partners"></select></label>
   <span id="varWrap"></span>
-  <label id="enVarWrap">Englisch-Akzent <select id="enVar" aria-label="Englisch-Variante für die Erkennung">
+  <label id="enVarWrap"><span data-i18n="enAccent">Englisch-Akzent</span> <select id="enVar" aria-label="Englisch-Variante für die Erkennung">
     <option value="en-US">USA</option><option value="en-GB">Großbritannien</option><option value="en-AU">Australien</option><option value="en-IN">Indien</option>
   </select></label>
 </div>
@@ -189,43 +190,43 @@
 <div class="opts">
   <label><input type="checkbox" id="dirA" checked> <span id="dirAText">Übersetzen A→B</span></label>
   <label><input type="checkbox" id="dirB" checked> <span id="dirBText">Übersetzen B→A</span></label>
-  <label><input type="checkbox" id="speak" checked> Übersetzung vorlesen</label>
-  <label><input type="checkbox" id="autoswitch"> Nach jedem Satz Sprecher wechseln</label>
-  <label><input type="checkbox" id="ptt"> Halten zum Sprechen</label>
-  <span id="localRecWrap" hidden><label><input type="checkbox" id="localRec"> Nur auf dem Gerät erkennen (Chrome, nicht für jede Sprache)</label></span>
-  <label><input type="checkbox" id="duplex"> Kopfhörer: beim Vorlesen weiter zuhören (Unterbrechen)</label>
-  <label><input type="checkbox" id="keysOn" checked> Einzeltasten-Kürzel (E, T, P, Leertaste)</label>
-  <button class="small" id="btnStop" type="button" disabled>⏹ Stopp <kbd>Leertaste</kbd></button>
-  <button class="small" id="btnPartner" type="button">Partneransicht <kbd>P</kbd></button>
+  <label><input type="checkbox" id="speak" checked> <span data-i18n="speak">Übersetzung vorlesen</span></label>
+  <label><input type="checkbox" id="autoswitch"> <span data-i18n="autoswitch">Nach jedem Satz Sprecher wechseln</span></label>
+  <label><input type="checkbox" id="ptt"> <span data-i18n="ptt">Halten zum Sprechen</span></label>
+  <span id="localRecWrap" hidden><label><input type="checkbox" id="localRec"> <span data-i18n="localRec">Nur auf dem Gerät erkennen (Chrome, nicht für jede Sprache)</span></label></span>
+  <label><input type="checkbox" id="duplex"> <span data-i18n="duplex">Kopfhörer: beim Vorlesen weiter zuhören (Unterbrechen)</span></label>
+  <label><input type="checkbox" id="keysOn" checked> <span data-i18n="keysOn">Einzeltasten-Kürzel (E, T, P, Leertaste)</span></label>
+  <button class="small" id="btnStop" type="button" disabled data-i18n-html="stop">⏹ Stopp <kbd>Leertaste</kbd></button>
+  <button class="small" id="btnPartner" type="button" data-i18n-html="partnerView">Partneransicht <kbd>P</kbd></button>
 </div>
 <details class="box" id="voiceBox">
-  <summary>Stimme &amp; Tempo</summary>
+  <summary data-i18n-html="voiceSum">Stimme &amp; Tempo</summary>
   <div class="row">
-    <label><input type="range" id="rate" min="0.5" max="1.6" step="0.05" value="0.95"> Tempo <output id="rateOut" for="rate">0.95</output></label>
-    <label><input type="range" id="vol" min="0.2" max="1" step="0.1" value="1"> Lautstärke <output id="volOut" for="vol">100 %</output></label>
+    <label><input type="range" id="rate" min="0.5" max="1.6" step="0.05" value="0.95"> <span data-i18n="rate">Tempo</span> <output id="rateOut" for="rate">0.95</output></label>
+    <label><input type="range" id="vol" min="0.2" max="1" step="0.1" value="1"> <span data-i18n="vol">Lautstärke</span> <output id="volOut" for="vol">100 %</output></label>
   </div>
   <div class="row">
     <label><span id="voiceALabel">Stimme A</span> <select id="voiceA"></select></label>
-    <button class="small" id="testA" type="button">Hörprobe</button>
+    <button class="small" id="testA" type="button" data-i18n="test">Hörprobe</button>
   </div>
   <div class="row">
     <label><span id="voiceBLabel">Stimme B</span> <select id="voiceB"></select></label>
-    <button class="small" id="testB" type="button">Hörprobe</button>
+    <button class="small" id="testB" type="button" data-i18n="test">Hörprobe</button>
   </div>
 </details>
 <details class="box" id="typeBox">
-  <summary>Texteingabe statt Sprechen</summary>
-  <div class="row"><label style="flex:1;min-width:220px">Text <textarea id="typeIn" rows="2" maxlength="500" style="width:100%"></textarea></label></div>
+  <summary data-i18n-html="typeSum">Texteingabe statt Sprechen</summary>
+  <div class="row"><label style="flex:1;min-width:220px"><span data-i18n="text">Text</span> <textarea id="typeIn" rows="2" maxlength="500" style="width:100%"></textarea></label></div>
   <div class="row">
-    <label><input type="checkbox" id="typeIsB"> Text ist in <span id="typeBName">B</span></label>
-    <button class="small" id="typeGo" type="button">Übersetzen</button>
-    <button class="small" id="typeBig" type="button">Übersetzen und groß zeigen</button>
+    <label><input type="checkbox" id="typeIsB"> <span data-i18n="typeIsB">Text ist in</span> <span id="typeBName">B</span></label>
+    <button class="small" id="typeGo" type="button" data-i18n="translate">Übersetzen</button>
+    <button class="small" id="typeBig" type="button" data-i18n="translateBig">Übersetzen und groß zeigen</button>
   </div>
 </details>
 <details class="box" id="pbBox" open>
-  <summary>Satzbuch &amp; Zeige-Karten (ohne Mikrofon)</summary>
+  <summary data-i18n-html="pbSum">Satzbuch &amp; Zeige-Karten (ohne Mikrofon)</summary>
   <div class="row">
-    <label>Thema <select id="presetSel"></select></label>
+    <label><span data-i18n="topic">Thema</span> <select id="presetSel"></select></label>
     <button class="yn yes" id="btnYes" type="button">Ja</button>
     <button class="yn no" id="btnNo" type="button">Nein</button>
   </div>
@@ -235,65 +236,65 @@
   <div class="row">
     <button class="small" id="pbSeq" type="button" aria-pressed="false">Folge wählen</button>
     <button class="small" id="pbSeqGo" type="button" hidden>Folge zeigen</button>
-    <button class="small" id="pbPrint" type="button">Thema drucken / PDF</button>
+    <button class="small" id="pbPrint" type="button" data-i18n="pbPrint">Thema drucken / PDF</button>
     <button class="small" id="pbPre" type="button" hidden>Alle Themen vorübersetzen</button>
-    <button class="small" id="pbClear" type="button">Gemerkte Übersetzungen löschen</button>
+    <button class="small" id="pbClear" type="button" data-i18n="pbClear">Gemerkte Übersetzungen löschen</button>
   </div>
   <div id="pbMsg" role="status"></div>
   <div id="cards"></div>
 </details>
 <details class="box" id="numBox">
-  <summary>Zahlen und Preise (Handeln, Taxi, Markt)</summary>
+  <summary data-i18n-html="numSum">Zahlen und Preise (Handeln, Taxi, Markt)</summary>
   <div class="row">
-    <label><input id="numIn" inputmode="numeric" maxlength="9" size="10" autocomplete="off"> Betrag</label>
+    <label><input id="numIn" inputmode="numeric" maxlength="9" size="10" autocomplete="off"> <span data-i18n="amount">Betrag</span></label>
     <label><select id="numUnit" aria-label="Einheit"><option value="฿">฿ Baht</option><option value="">ohne Einheit</option></select></label>
-    <button class="small" id="numShow" type="button">Groß zeigen</button>
-    <button class="small" id="numSay" type="button">🔊 Vorlesen</button>
+    <button class="small" id="numShow" type="button" data-i18n="showBig">Groß zeigen</button>
+    <button class="small" id="numSay" type="button" data-i18n="read">🔊 Vorlesen</button>
   </div>
   <div id="numOut" class="big-out" lang="th"></div>
-  <p class="note">Gegenüber handelt? Gerät weitergeben: Der Betrag steht groß in Ziffern, das Gegenüber tippt seinen Preis selbst ein. Thai-Zahlwörter sind maschinell erzeugt und unverbindlich.</p>
-  <details><summary>Thai-Ziffern lesen (Schilder, Taxameter)</summary><div id="digitTab" class="tiles" lang="th"></div></details>
+  <p class="note" data-i18n="numNote">Gegenüber handelt? Gerät weitergeben: Der Betrag steht groß in Ziffern, das Gegenüber tippt seinen Preis selbst ein. Thai-Zahlwörter sind maschinell erzeugt und unverbindlich.</p>
+  <details><summary data-i18n="digitsSum">Thai-Ziffern lesen (Schilder, Taxameter)</summary><div id="digitTab" class="tiles" lang="th"></div></details>
 </details>
 <details class="box" id="myBox">
-  <summary>Meine Karten (Hotel, Adresse, Treffpunkt)</summary>
-  <p class="note">Eigene Sätze nur in diesem Browser. Adresse in Thai-Schrift aus Maps oder von der Unterkunft einfügen; „Bitte hierher bringen“ zeigt sie mit dem Satz für den Fahrer.</p>
+  <summary data-i18n="mySum">Meine Karten (Hotel, Adresse, Treffpunkt)</summary>
+  <p class="note" data-i18n="myNote">Eigene Sätze nur in diesem Browser. Adresse in Thai-Schrift aus Maps oder von der Unterkunft einfügen; „Bitte hierher bringen“ zeigt sie mit dem Satz für den Fahrer.</p>
   <div class="row">
-    <label><input id="myLabel" maxlength="40" size="14"> Name</label>
+    <label><input id="myLabel" maxlength="40" size="14"> <span data-i18n="name">Name</span></label>
     <label style="flex:1;min-width:200px">Text <textarea id="myText" rows="2" maxlength="200" style="width:100%"></textarea></label>
-    <button class="small" id="myAdd" type="button">Speichern</button>
+    <button class="small" id="myAdd" type="button" data-i18n="save">Speichern</button>
   </div>
   <div id="myList"></div>
 </details>
 <details class="box" id="allergyBox">
-  <summary>Allergie- und Notfallkarte</summary>
+  <summary data-i18n="allergySum">Allergie- und Notfallkarte</summary>
   <p class="note"><b>Thai maschinell erstellt, nicht von Muttersprachlern geprüft.</b> Vor Gebrauch prüfen lassen. Die Karte ersetzt keine ärztliche Information.</p>
   <div class="row"><b>Allergien</b></div><div id="allergyTiles" class="tiles"></div>
   <div class="row"><b>Erkrankungen</b></div><div id="condTiles" class="tiles"></div>
   <div class="row"><label>Blutgruppe <select id="bloodSel"><option value="">–</option><option>A</option><option>B</option><option>AB</option><option>O</option></select></label>
     <label>Rhesus <select id="rhSel"><option value="">–</option><option value="บวก">+</option><option value="ลบ">−</option></select></label></div>
   <div id="allergyOut" class="big-out" lang="th"></div><div id="allergyEn" class="note" lang="en"></div>
-  <div class="row"><button class="small" id="allergyShow" type="button">Karte groß zeigen</button></div>
+  <div class="row"><button class="small" id="allergyShow" type="button" data-i18n="allergyShow">Karte groß zeigen</button></div>
 </details>
 <details class="box" id="glossBox">
-  <summary>Wörterbuch (Englisch ⇄ Thai, alle Themen)</summary>
-  <div class="row"><label><input id="glossQ" type="search" size="18" autocomplete="off"> Suche</label></div>
+  <summary data-i18n="glossSum">Wörterbuch (Englisch ⇄ Thai, alle Themen)</summary>
+  <div class="row"><label><input id="glossQ" type="search" size="18" autocomplete="off"> <span data-i18n="search">Suche</span></label></div>
   <div id="glossList"></div>
 </details>
 <details class="box" id="learnBox">
   <summary>Lernen: Karteikarten (<span id="learnDue">0</span> fällig)</summary>
   <p id="learnInfo">Mit ☆ gemerkte Sätze (Satzbuch, Verlauf) werden zu Karteikarten: vorne deine Sprache, hinten die Sprache des Partners. Gewusst = später wieder (1, 3, 7, 14 Tage), nicht gewusst = gleich nochmal.</p>
   <div class="row">
-    <label><input type="checkbox" id="learnRecent"> Zuletzt übersetzte Sätze automatisch aufnehmen</label>
-    <label><input type="checkbox" id="learnListen"> Hören zuerst</label>
-    <label><input type="number" id="learnNew" min="1" max="50" value="10" style="width:4em"> Neue Karten pro Tag</label>
+    <label><input type="checkbox" id="learnRecent"> <span data-i18n="learnRecent">Zuletzt übersetzte Sätze automatisch aufnehmen</span></label>
+    <label><input type="checkbox" id="learnListen"> <span data-i18n="learnListen">Hören zuerst</span></label>
+    <label><input type="number" id="learnNew" min="1" max="50" value="10" style="width:4em"> <span data-i18n="learnNew">Neue Karten pro Tag</span></label>
   </div>
   <div id="learnStats" role="status"></div>
   <div class="row">
-    <button class="small" id="learnAddPreset" type="button">Aktuelles Thema aufnehmen</button>
-    <button class="small" id="learnClear" type="button">Alle Lernkarten löschen</button>
-    <button class="small" id="learnExport" type="button">Sichern (.json)</button>
-    <button class="small" id="learnTsv" type="button">Als Anki-Text (.tsv)</button>
-    <button class="small" id="learnImport" type="button">Sicherung laden</button>
+    <button class="small" id="learnAddPreset" type="button" data-i18n="learnAddPreset">Aktuelles Thema aufnehmen</button>
+    <button class="small" id="learnClear" type="button" data-i18n="learnClear">Alle Lernkarten löschen</button>
+    <button class="small" id="learnExport" type="button" data-i18n="learnExport">Sichern (.json)</button>
+    <button class="small" id="learnTsv" type="button" data-i18n="learnTsv">Als Anki-Text (.tsv)</button>
+    <button class="small" id="learnImport" type="button" data-i18n="learnImport">Sicherung laden</button>
     <span hidden><label><input type="file" id="learnFile" accept="application/json,.json"> Sicherungsdatei</label></span>
   </div>
   <div id="learnMsg" role="status"></div>
@@ -301,40 +302,40 @@
     <div class="front" id="learnFront" dir="auto"></div>
     <div class="back" id="learnBack" dir="auto" hidden></div>
     <div class="row">
-      <button class="small" id="learnShow" type="button">Aufdecken</button>
-      <button class="small" id="learnSpeak" type="button">🔊 Vorlesen</button>
-      <button class="small" id="learnPractice" type="button" hidden>🎙 Nachsprechen</button>
-      <button class="yn no" id="learnNo" type="button" hidden>Nochmal</button>
-      <button class="yn yes" id="learnYes" type="button" hidden>Gewusst</button>
+      <button class="small" id="learnShow" type="button" data-i18n="learnShow">Aufdecken</button>
+      <button class="small" id="learnSpeak" type="button" data-i18n="read">🔊 Vorlesen</button>
+      <button class="small" id="learnPractice" type="button" hidden data-i18n="learnPractice">🎙 Nachsprechen</button>
+      <button class="yn no" id="learnNo" type="button" hidden data-i18n="again">Nochmal</button>
+      <button class="yn yes" id="learnYes" type="button" hidden data-i18n="knew">Gewusst</button>
     </div>
     <div id="learnBoxNr" class="s"></div>
     <div id="learnPracticeOut" class="s" role="status"></div>
   </div>
 </details>
 <details class="help" id="helpBox">
-  <summary>Tastenkürzel &amp; Sprachbefehle</summary>
-  <p><kbd>E</kbd> bzw. <kbd>1</kbd> ich spreche · <kbd>T</kbd> bzw. <kbd>2</kbd> Partner spricht · <kbd>Leertaste</kbd> oder „Stopp“ beendet · <kbd>P</kbd> Partneransicht · <kbd>Esc</kbd> schließt die Partneransicht, sonst Stopp. Alles geht auch ohne Kürzel mit <kbd>Tab</kbd> und den Knöpfen.<br>
+  <summary data-i18n-html="helpSum">Tastenkürzel &amp; Sprachbefehle</summary>
+  <p data-i18n-html="helpBody"><kbd>E</kbd> bzw. <kbd>1</kbd> ich spreche · <kbd>T</kbd> bzw. <kbd>2</kbd> Partner spricht · <kbd>Leertaste</kbd> oder „Stopp“ beendet · <kbd>P</kbd> Partneransicht · <kbd>Esc</kbd> schließt die Partneransicht, sonst Stopp. Alles geht auch ohne Kürzel mit <kbd>Tab</kbd> und den Knöpfen.<br>
   „Halten zum Sprechen“: Knopf gedrückt halten, sprechen, loslassen – praktisch bei Lärm. Per Tastatur bleibt es beim Umschalten.<br>
   Sprachbefehle, wenn Englisch gesprochen wird, als ganzer Satz (werden nie übersetzt): „Translator pause“ (Mikrofon aus – weiter mit <kbd>E</kbd>/<kbd>T</kbd> oder dem Knopf), „Translator repeat“, „slower“, „faster“, „louder“, „quieter“, „clear“ (Verlauf leeren), „help“ (diese Hilfe).</p>
 </details>
 <div id="live" aria-live="off">…</div>
 <div class="logtools">
-  <button class="small" id="btnCopy" type="button">Verlauf kopieren</button>
-  <button class="small" id="btnSave" type="button">Verlauf speichern (.txt)</button>
+  <button class="small" id="btnCopy" type="button" data-i18n="copyLog">Verlauf kopieren</button>
+  <button class="small" id="btnSave" type="button" data-i18n="saveLog">Verlauf speichern (.txt)</button>
 </div>
 <div id="log" role="list" aria-live="off" aria-label="Übersetzungen, neueste zuerst"></div>
 <div id="announce" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 </div>
 
 <dialog id="consent" aria-labelledby="consentTitle" aria-describedby="consentText">
-  <h2 id="consentTitle">Mikrofon einschalten?</h2>
+  <h2 id="consentTitle" data-i18n="consentTitle">Mikrofon einschalten?</h2>
   <div id="consentText">
     <p>Die Spracherkennung macht dein Browser: <b>Chrome sendet dein Audio an Google</b>, Safari an Apple. Der erkannte Text geht zum Übersetzen an <b>Google Translate</b> (Ersatz: MyMemory). Diese Seite hat keinen eigenen Server.</p>
     <p>Bitte nicht für vertrauliche Gespräche nutzen. Die Zustimmung wird nur in diesem Browser gespeichert.</p>
   </div>
   <div class="row">
-    <button class="small" id="consentNo" type="button">Abbrechen</button>
-    <button class="small" id="consentOk" type="button">Einverstanden, Mikrofon an</button>
+    <button class="small" id="consentNo" type="button" data-i18n="cancel">Abbrechen</button>
+    <button class="small" id="consentOk" type="button" data-i18n="consentOk">Einverstanden, Mikrofon an</button>
   </div>
 </dialog>
 
@@ -353,6 +354,294 @@ const TTS = 'speechSynthesis' in window ? window.speechSynthesis : null;
 const $ = id => document.getElementById(id);
 const statusEl = $('status'), live = $('live'), log = $('log'), warn = $('warn');
 
+const STR = {
+ "de": {
+  "lite": "\n  <b class=\"lite\">Lite-Version – eingeschränkt.</b> Hier wählst du selbst, wer spricht (<kbd>E</kbd>/<kbd>T</kbd> oder die Knöpfe); Erkennung und Stimmen kommen vom Browser: am besten <b>Chrome</b> (Computer, Android); <b>Safari</b> (Mac, iPhone) geht nur mit eingeschalteter Diktierfunktion und mit Einschränkungen; Firefox kann keine Spracherkennung. Nicht auf allen Geräten getestet.\n  Die <b>Mac-App</b> ist deutlich besser: erkennt die Sprache automatisch, Sprachbefehle, bessere Erkennung (Whisper), Neural-Stimmen, Stimmprofile, optional Übersetzung mit Claude.\n  <a href=\"https://github.com/Pschmetzer/en-th-dolmetscher\" target=\"_blank\" rel=\"noopener\">Mac-/iPhone-App &amp; Quellcode auf GitHub</a>\n",
+  "privacy": "\n  <b>Datenschutz:</b> Die Spracherkennung macht der Browser – Chrome sendet dein <b>Audio an Googles Server</b>, Safari an Apple (je nach Gerät auch lokal). Der erkannte Text geht zum Übersetzen an Google Translate (Ersatz: MyMemory). Die Mac-App erkennt Sprache dagegen lokal auf dem Gerät. <b>Pause</b> und <b>Stopp</b> schalten das Mikrofon ganz aus. Das Satzbuch (unten) funktioniert ohne Mikrofon und für Englisch/Thai auch offline; in anderen Sprachen werden Sätze beim ersten Tippen an Google Translate gesendet (Karte als „automatisch übersetzt“ markiert). <b>Lernkarten</b> (★ gemerkte und, nur wenn eingeschaltet, zuletzt übersetzte Sätze) bleiben nur in diesem Browser; „Alle Lernkarten löschen“ entfernt sie.\n",
+  "offline": "Offline: Übersetzen und Spracherkennung gehen gerade nicht. Das Satzbuch mit Zeige-Karten funktioniert weiter.",
+  "iSpeak": "Ich spreche",
+  "partnerSpeaks": "Partner spricht",
+  "enAccent": "Englisch-Akzent",
+  "speak": "Übersetzung vorlesen",
+  "autoswitch": "Nach jedem Satz Sprecher wechseln",
+  "ptt": "Halten zum Sprechen",
+  "localRec": "Nur auf dem Gerät erkennen (Chrome, nicht für jede Sprache)",
+  "duplex": "Kopfhörer: beim Vorlesen weiter zuhören (Unterbrechen)",
+  "keysOn": "Einzeltasten-Kürzel (E, T, P, Leertaste)",
+  "stop": "⏹ Stopp <kbd>Leertaste</kbd>",
+  "partnerView": "Partneransicht <kbd>P</kbd>",
+  "voiceSum": "Stimme &amp; Tempo",
+  "rate": "Tempo",
+  "vol": "Lautstärke",
+  "test": "Hörprobe",
+  "typeSum": "Texteingabe statt Sprechen",
+  "text": "Text",
+  "typeIsB": "Text ist in",
+  "translate": "Übersetzen",
+  "translateBig": "Übersetzen und groß zeigen",
+  "pbSum": "Satzbuch &amp; Zeige-Karten (ohne Mikrofon)",
+  "topic": "Thema",
+  "pbPrint": "Thema drucken / PDF",
+  "pbClear": "Gemerkte Übersetzungen löschen",
+  "numSum": "Zahlen und Preise (Handeln, Taxi, Markt)",
+  "amount": "Betrag",
+  "showBig": "Groß zeigen",
+  "read": "🔊 Vorlesen",
+  "numNote": "Gegenüber handelt? Gerät weitergeben: Der Betrag steht groß in Ziffern, das Gegenüber tippt seinen Preis selbst ein. Thai-Zahlwörter sind maschinell erzeugt und unverbindlich.",
+  "digitsSum": "Thai-Ziffern lesen (Schilder, Taxameter)",
+  "mySum": "Meine Karten (Hotel, Adresse, Treffpunkt)",
+  "myNote": "Eigene Sätze nur in diesem Browser. Adresse in Thai-Schrift aus Maps oder von der Unterkunft einfügen; „Bitte hierher bringen“ zeigt sie mit dem Satz für den Fahrer.",
+  "name": "Name",
+  "save": "Speichern",
+  "allergySum": "Allergie- und Notfallkarte",
+  "allergyShow": "Karte groß zeigen",
+  "glossSum": "Wörterbuch (Englisch ⇄ Thai, alle Themen)",
+  "search": "Suche",
+  "learnRecent": "Zuletzt übersetzte Sätze automatisch aufnehmen",
+  "learnListen": "Hören zuerst",
+  "learnNew": "Neue Karten pro Tag",
+  "learnAddPreset": "Aktuelles Thema aufnehmen",
+  "learnClear": "Alle Lernkarten löschen",
+  "learnExport": "Sichern (.json)",
+  "learnTsv": "Als Anki-Text (.tsv)",
+  "learnImport": "Sicherung laden",
+  "learnShow": "Aufdecken",
+  "learnPractice": "🎙 Nachsprechen",
+  "again": "Nochmal",
+  "knew": "Gewusst",
+  "helpSum": "Tastenkürzel &amp; Sprachbefehle",
+  "copyLog": "Verlauf kopieren",
+  "saveLog": "Verlauf speichern (.txt)",
+  "consentTitle": "Mikrofon einschalten?",
+  "cancel": "Abbrechen",
+  "consentOk": "Einverstanden, Mikrofon an",
+  "helpBody": "<kbd>E</kbd> bzw. <kbd>1</kbd> ich spreche · <kbd>T</kbd> bzw. <kbd>2</kbd> Partner spricht · <kbd>Leertaste</kbd> oder „Stopp“ beendet · <kbd>P</kbd> Partneransicht · <kbd>Esc</kbd> schließt die Partneransicht, sonst Stopp. Alles geht auch ohne Kürzel mit <kbd>Tab</kbd> und den Knöpfen.<br>\n  „Halten zum Sprechen“: Knopf gedrückt halten, sprechen, loslassen – praktisch bei Lärm. Per Tastatur bleibt es beim Umschalten.<br>\n  Sprachbefehle, wenn Englisch gesprochen wird, als ganzer Satz (werden nie übersetzt): „Translator pause“ (Mikrofon aus – weiter mit <kbd>E</kbd>/<kbd>T</kbd> oder dem Knopf), „Translator repeat“, „slower“, „faster“, „louder“, „quieter“, „clear“ (Verlauf leeren), „help“ (diese Hilfe).",
+  "ready": "Bereit",
+  "stopped": "Gestoppt",
+  "yes": "Ja",
+  "no": "Nein",
+  "iSpeakLbl": "Ich spreche ",
+  "partnerSpeaksLbl": "Partner spricht ",
+  "dirText": "Übersetzen {a} → {b}",
+  "voiceLbl": "Stimme {a}",
+  "pbMissing": "Sätze in {l} werden beim ersten Tippen übersetzt (Internet nötig), danach gemerkt.",
+  "machine": "🤖 automatisch übersetzt, nicht geprüft",
+  "important": "⚠ Wichtig",
+  "pbSeq": "Folge wählen",
+  "pbSeqEnd": "Auswahl beenden",
+  "pbSeqGo": "Folge zeigen",
+  "translateFail": "Übersetzung gerade nicht verfügbar (Internet / Limit?)",
+  "offlineFail": "Offline – Übersetzung nicht möglich",
+  "retry": "Erneut versuchen",
+  "showBigBtn": "Groß zeigen",
+  "shareLink": "Als Link teilen",
+  "again2": "🔊 Nochmal",
+  "sharedNote": "Geteilter Text, von der App nicht geprüft.",
+  "newVersion": "Neue Version geladen. ",
+  "reload": "Seite neu laden",
+  "offlineReady": "✓ Offline bereit",
+  "offlinePart": "Offline unvollständig ({a}/{b}) – einmal mit Netz neu laden",
+  "dueLine": "Heute {a} · letzte 7 Tage {b} · Serie {c} Tage · Fach 5: {d}",
+  "listenPrompt": "🔊 Anhören und Bedeutung raten"
+ },
+ "en": {
+  "lite": "\n  <b class=\"lite\">Lite version – limited.</b> Here you choose who speaks (<kbd>E</kbd>/<kbd>T</kbd> or the buttons); recognition and voices come from the browser: best in <b>Chrome</b> (computer, Android); <b>Safari</b> (Mac, iPhone) works only with dictation switched on and with limits; Firefox has no speech recognition. Not tested on all devices.\n  The <b>Mac app</b> is much better: detects the language automatically, voice commands, better recognition (Whisper), neural voices, voice profiles, optional translation with Claude.\n  <a href=\"https://github.com/Pschmetzer/en-th-dolmetscher\" target=\"_blank\" rel=\"noopener\">Mac/iPhone app &amp; source code on GitHub</a>\n",
+  "privacy": "\n  <b>Privacy:</b> Speech recognition is done by the browser – Chrome sends your <b>audio to Google's servers</b>, Safari to Apple (partly on the device, depending on the device). The recognised text goes to Google Translate (fallback: MyMemory). The Mac app recognises speech on the device instead. <b>Pause</b> and <b>Stop</b> switch the microphone off completely. The phrasebook (below) works without a microphone and offline for English/Thai; in other languages, phrases are sent to Google Translate the first time you tap them (card marked “machine translated”). <b>Study cards</b> (★ saved and, only if switched on, recently translated sentences) stay in this browser only; “Delete all study cards” removes them.\n",
+  "offline": "Offline: translation and speech recognition are unavailable right now. The phrasebook with show-cards still works.",
+  "iSpeak": "I speak",
+  "partnerSpeaks": "Partner speaks",
+  "enAccent": "English accent",
+  "speak": "Read translation aloud",
+  "autoswitch": "Switch speaker after each sentence",
+  "ptt": "Hold to speak",
+  "localRec": "Recognise on this device only (Chrome, not every language)",
+  "duplex": "Headphones: keep listening while reading aloud (interrupt)",
+  "keysOn": "Single-key shortcuts (E, T, P, space)",
+  "stop": "⏹ Stop <kbd>Space</kbd>",
+  "partnerView": "Partner view <kbd>P</kbd>",
+  "voiceSum": "Voice &amp; speed",
+  "rate": "Speed",
+  "vol": "Volume",
+  "test": "Preview",
+  "typeSum": "Typing instead of speaking",
+  "text": "Text",
+  "typeIsB": "Text is in",
+  "translate": "Translate",
+  "translateBig": "Translate and show large",
+  "pbSum": "Phrasebook &amp; show-cards (no microphone)",
+  "topic": "Topic",
+  "pbPrint": "Print topic / PDF",
+  "pbClear": "Delete saved translations",
+  "numSum": "Numbers and prices (haggling, taxi, market)",
+  "amount": "Amount",
+  "showBig": "Show large",
+  "read": "🔊 Read aloud",
+  "numNote": "Haggling? Hand over the device: the amount is shown large in digits and the other person types their own price. Thai number words are machine-generated and not binding.",
+  "digitsSum": "Reading Thai digits (signs, taxi meter)",
+  "mySum": "My cards (hotel, address, meeting point)",
+  "myNote": "Own phrases stay in this browser. Paste the address in Thai script from Maps or from your accommodation; “Take me here” shows it with the sentence for the driver.",
+  "name": "Name",
+  "save": "Save",
+  "allergySum": "Allergy and emergency card",
+  "allergyShow": "Show card large",
+  "glossSum": "Dictionary (English ⇄ Thai, all topics)",
+  "search": "Search",
+  "learnRecent": "Automatically add recently translated sentences",
+  "learnListen": "Listen first",
+  "learnNew": "New cards per day",
+  "learnAddPreset": "Add current topic",
+  "learnClear": "Delete all study cards",
+  "learnExport": "Back up (.json)",
+  "learnTsv": "As Anki text (.tsv)",
+  "learnImport": "Load backup",
+  "learnShow": "Reveal",
+  "learnPractice": "🎙 Repeat aloud",
+  "again": "Again",
+  "knew": "Knew it",
+  "helpSum": "Keyboard shortcuts &amp; voice commands",
+  "copyLog": "Copy history",
+  "saveLog": "Save history (.txt)",
+  "consentTitle": "Switch the microphone on?",
+  "cancel": "Cancel",
+  "consentOk": "Agree, microphone on",
+  "helpBody": "<kbd>E</kbd> or <kbd>1</kbd> I speak · <kbd>T</kbd> or <kbd>2</kbd> partner speaks · <kbd>Space</kbd> or “Stop” ends · <kbd>P</kbd> partner view · <kbd>Esc</kbd> closes the partner view, otherwise stops. Everything also works without shortcuts using <kbd>Tab</kbd> and the buttons.<br>\n  “Hold to speak”: hold the button, speak, release – handy in noisy places. With the keyboard it stays a toggle.<br>\n  Voice commands, when English is spoken, as a whole sentence (never translated): “Translator pause” (microphone off – continue with <kbd>E</kbd>/<kbd>T</kbd> or the button), “Translator repeat”, “slower”, “faster”, “louder”, “quieter”, “clear” (empty history), “help” (this help).",
+  "ready": "Ready",
+  "stopped": "Stopped",
+  "yes": "Yes",
+  "no": "No",
+  "iSpeakLbl": "I speak ",
+  "partnerSpeaksLbl": "Partner speaks ",
+  "dirText": "Translate {a} → {b}",
+  "voiceLbl": "Voice {a}",
+  "pbMissing": "Phrases in {l} are translated the first time you tap them (internet needed), then saved.",
+  "machine": "🤖 machine translated, not checked",
+  "important": "⚠ Important",
+  "pbSeq": "Choose a sequence",
+  "pbSeqEnd": "End selection",
+  "pbSeqGo": "Show sequence",
+  "translateFail": "Translation currently unavailable (internet / limit?)",
+  "offlineFail": "Offline – translation not possible",
+  "retry": "Try again",
+  "showBigBtn": "Show large",
+  "shareLink": "Share as link",
+  "again2": "🔊 Again",
+  "sharedNote": "Shared text, not checked by the app.",
+  "newVersion": "New version loaded. ",
+  "reload": "Reload page",
+  "offlineReady": "✓ Ready offline",
+  "offlinePart": "Offline incomplete ({a}/{b}) – reload once with a connection",
+  "dueLine": "Today {a} · last 7 days {b} · streak {c} days · box 5: {d}",
+  "listenPrompt": "🔊 Listen and guess the meaning"
+ },
+ "th": {
+  "lite": "\n  <b class=\"lite\">เวอร์ชัน Lite – ใช้งานได้จำกัด</b> ที่นี่คุณเลือกเองว่าใครพูด (<kbd>E</kbd>/<kbd>T</kbd> หรือปุ่ม) การรู้จำเสียงและเสียงอ่านมาจากเบราว์เซอร์: ดีที่สุดบน <b>Chrome</b> (คอมพิวเตอร์, Android); <b>Safari</b> (Mac, iPhone) ใช้ได้เมื่อเปิดการพิมพ์ด้วยเสียงและมีข้อจำกัด; Firefox ไม่มีการรู้จำเสียง ยังไม่ได้ทดสอบกับทุกอุปกรณ์\n  <b>แอป Mac</b> ดีกว่ามาก: ตรวจจับภาษาอัตโนมัติ คำสั่งเสียง การรู้จำเสียงที่ดีกว่า (Whisper) เสียงอ่านแบบ Neural โปรไฟล์เสียง และแปลด้วย Claude ได้\n  <a href=\"https://github.com/Pschmetzer/en-th-dolmetscher\" target=\"_blank\" rel=\"noopener\">แอป Mac/iPhone และซอร์สโค้ดบน GitHub</a>\n",
+  "privacy": "\n  <b>ความเป็นส่วนตัว:</b> การรู้จำเสียงทำโดยเบราว์เซอร์ – Chrome ส่ง<b>เสียงของคุณไปยังเซิร์ฟเวอร์ของ Google</b> Safari ส่งไปยัง Apple (บางอุปกรณ์ทำบนเครื่อง) ข้อความที่รู้จำได้จะถูกส่งไปแปลที่ Google Translate (สำรอง: MyMemory) แอป Mac รู้จำเสียงบนเครื่องแทน <b>หยุดชั่วคราว</b>และ<b>หยุด</b>จะปิดไมโครโฟนทั้งหมด สมุดวลี (ด้านล่าง) ใช้ได้โดยไม่ต้องใช้ไมโครโฟน และออฟไลน์ได้สำหรับอังกฤษ/ไทย ภาษาอื่นจะส่งประโยคไปที่ Google Translate เมื่อแตะครั้งแรก (การ์ดมีป้าย “แปลโดยเครื่อง”) <b>การ์ดเรียน</b> (★ ประโยคที่บันทึก และประโยคที่แปลล่าสุดเฉพาะเมื่อเปิดไว้) อยู่ในเบราว์เซอร์นี้เท่านั้น “ลบการ์ดเรียนทั้งหมด” จะลบออก\n",
+  "offline": "ออฟไลน์: ตอนนี้แปลและรู้จำเสียงไม่ได้ สมุดวลีและการ์ดแสดงยังใช้ได้",
+  "iSpeak": "ฉันพูด",
+  "partnerSpeaks": "คู่สนทนาพูด",
+  "enAccent": "สำเนียงอังกฤษ",
+  "speak": "อ่านคำแปลออกเสียง",
+  "autoswitch": "สลับผู้พูดหลังแต่ละประโยค",
+  "ptt": "กดค้างเพื่อพูด",
+  "localRec": "รู้จำเสียงบนเครื่องเท่านั้น (Chrome ไม่ทุกภาษา)",
+  "duplex": "หูฟัง: ฟังต่อขณะอ่านออกเสียง (ขัดจังหวะได้)",
+  "keysOn": "ปุ่มลัดแบบกดปุ่มเดียว (E, T, P, spacebar)",
+  "stop": "⏹ หยุด <kbd>Spacebar</kbd>",
+  "partnerView": "มุมมองคู่สนทนา <kbd>P</kbd>",
+  "voiceSum": "เสียงและความเร็ว",
+  "rate": "ความเร็ว",
+  "vol": "ระดับเสียง",
+  "test": "ลองฟัง",
+  "typeSum": "พิมพ์แทนการพูด",
+  "text": "ข้อความ",
+  "typeIsB": "ข้อความเป็นภาษา",
+  "translate": "แปล",
+  "translateBig": "แปลและแสดงตัวใหญ่",
+  "pbSum": "สมุดวลีและการ์ดแสดง (ไม่ใช้ไมโครโฟน)",
+  "topic": "หัวข้อ",
+  "pbPrint": "พิมพ์หัวข้อ / PDF",
+  "pbClear": "ลบคำแปลที่บันทึกไว้",
+  "numSum": "ตัวเลขและราคา (ต่อราคา แท็กซี่ ตลาด)",
+  "amount": "จำนวนเงิน",
+  "showBig": "แสดงตัวใหญ่",
+  "read": "🔊 อ่านออกเสียง",
+  "numNote": "ต่อราคาอยู่? ส่งเครื่องให้อีกฝ่าย: จำนวนเงินแสดงเป็นตัวเลขใหญ่ และอีกฝ่ายพิมพ์ราคาของตนเอง คำอ่านตัวเลขภาษาไทยสร้างโดยเครื่องและไม่ผูกพัน",
+  "digitsSum": "อ่านเลขไทย (ป้าย มิเตอร์แท็กซี่)",
+  "mySum": "การ์ดของฉัน (โรงแรม ที่อยู่ จุดนัดพบ)",
+  "myNote": "ประโยคของคุณอยู่ในเบราว์เซอร์นี้เท่านั้น วางที่อยู่เป็นอักษรไทยจาก Maps หรือที่พัก “พาไปที่นี่” จะแสดงที่อยู่พร้อมประโยคสำหรับคนขับ",
+  "name": "ชื่อ",
+  "save": "บันทึก",
+  "allergySum": "การ์ดแพ้อาหารและฉุกเฉิน",
+  "allergyShow": "แสดงการ์ดตัวใหญ่",
+  "glossSum": "พจนานุกรม (อังกฤษ ⇄ ไทย ทุกหัวข้อ)",
+  "search": "ค้นหา",
+  "learnRecent": "เพิ่มประโยคที่แปลล่าสุดโดยอัตโนมัติ",
+  "learnListen": "ฟังก่อน",
+  "learnNew": "การ์ดใหม่ต่อวัน",
+  "learnAddPreset": "เพิ่มหัวข้อปัจจุบัน",
+  "learnClear": "ลบการ์ดเรียนทั้งหมด",
+  "learnExport": "สำรองข้อมูล (.json)",
+  "learnTsv": "เป็นข้อความ Anki (.tsv)",
+  "learnImport": "โหลดข้อมูลสำรอง",
+  "learnShow": "เปิดดู",
+  "learnPractice": "🎙 พูดตาม",
+  "again": "อีกครั้ง",
+  "knew": "จำได้",
+  "helpSum": "ปุ่มลัดและคำสั่งเสียง",
+  "copyLog": "คัดลอกประวัติ",
+  "saveLog": "บันทึกประวัติ (.txt)",
+  "consentTitle": "เปิดไมโครโฟนหรือไม่?",
+  "cancel": "ยกเลิก",
+  "consentOk": "ตกลง เปิดไมโครโฟน",
+  "helpBody": "<kbd>E</kbd> หรือ <kbd>1</kbd> ฉันพูด · <kbd>T</kbd> หรือ <kbd>2</kbd> คู่สนทนาพูด · <kbd>Spacebar</kbd> หรือ “Stop” เพื่อหยุด · <kbd>P</kbd> มุมมองคู่สนทนา · <kbd>Esc</kbd> ปิดมุมมองคู่สนทนา มิฉะนั้นหยุด ใช้ได้ทุกอย่างโดยไม่ต้องใช้ปุ่มลัดด้วย <kbd>Tab</kbd> และปุ่มต่างๆ<br>\n  “กดค้างเพื่อพูด”: กดปุ่มค้าง พูด แล้วปล่อย – สะดวกในที่เสียงดัง ด้วยคีย์บอร์ดยังเป็นการสลับเปิด/ปิด<br>\n  คำสั่งเสียงเมื่อพูดภาษาอังกฤษ เป็นประโยคเต็ม (ไม่แปล): “Translator pause” (ปิดไมโครโฟน – ต่อด้วย <kbd>E</kbd>/<kbd>T</kbd> หรือปุ่ม), “Translator repeat”, “slower”, “faster”, “louder”, “quieter”, “clear” (ล้างประวัติ), “help” (วิธีใช้นี้)",
+  "ready": "พร้อม",
+  "stopped": "หยุดแล้ว",
+  "yes": "ใช่",
+  "no": "ไม่",
+  "iSpeakLbl": "ฉันพูด ",
+  "partnerSpeaksLbl": "คู่สนทนาพูด ",
+  "dirText": "แปล {a} → {b}",
+  "voiceLbl": "เสียง {a}",
+  "pbMissing": "ประโยคใน {l} จะถูกแปลเมื่อแตะครั้งแรก (ต้องใช้อินเทอร์เน็ต) แล้วบันทึกไว้",
+  "machine": "🤖 แปลโดยเครื่อง ยังไม่ได้ตรวจสอบ",
+  "important": "⚠ สำคัญ",
+  "pbSeq": "เลือกลำดับ",
+  "pbSeqEnd": "สิ้นสุดการเลือก",
+  "pbSeqGo": "แสดงลำดับ",
+  "translateFail": "ตอนนี้แปลไม่ได้ (อินเทอร์เน็ต / ขีดจำกัด?)",
+  "offlineFail": "ออฟไลน์ – แปลไม่ได้",
+  "retry": "ลองอีกครั้ง",
+  "showBigBtn": "แสดงตัวใหญ่",
+  "shareLink": "แชร์เป็นลิงก์",
+  "again2": "🔊 อีกครั้ง",
+  "sharedNote": "ข้อความที่แชร์มา แอปไม่ได้ตรวจสอบ",
+  "newVersion": "โหลดเวอร์ชันใหม่แล้ว ",
+  "reload": "โหลดหน้าใหม่",
+  "offlineReady": "✓ พร้อมใช้งานออฟไลน์",
+  "offlinePart": "ออฟไลน์ไม่ครบ ({a}/{b}) – โหลดใหม่หนึ่งครั้งขณะออนไลน์",
+  "dueLine": "วันนี้ {a} · 7 วันล่าสุด {b} · ต่อเนื่อง {c} วัน · กล่อง 5: {d}",
+  "listenPrompt": "🔊 ฟังแล้วเดาความหมาย"
+ }
+};
+const UI_LANGS = ['de', 'en', 'th'];
+function pickUi() {   // gemerkte Wahl, sonst Browser-Sprache (de/th), sonst Englisch
+  let v = null; try { v = JSON.parse(localStorage.getItem('webSettings') || '{}').ui; } catch {}
+  if (UI_LANGS.includes(v)) return v;
+  const n = String((navigator.language || 'de')).slice(0, 2).toLowerCase();
+  return UI_LANGS.includes(n) ? n : 'en';
+}
+let UI = pickUi();
+function t(key, vars) {
+  let x = (STR[UI] && STR[UI][key]) || STR.de[key] || key;
+  if (vars) for (const k in vars) x = x.split('{' + k + '}').join(vars[k]);
+  return x;
+}
+const lname = l => !LANGS[l] ? l : UI === 'de' ? LANGS[l].de : LANGS[l].name;
+function applyUi() {   // statische Texte nach data-i18n / data-i18n-html setzen
+  document.documentElement.lang = UI;
+  for (const e of document.querySelectorAll('[data-i18n]')) e.textContent = t(e.dataset.i18n);
+  for (const e of document.querySelectorAll('[data-i18n-html]')) e.innerHTML = t(e.dataset.i18nHtml);   // nur eigene, feste Texte
+}
 // ---- Sprachtabelle: languages.json (dieselbe Datei wie Engine, Mac- und iPhone-App; tests/test_languages_json.py) ----
 // Wird beim Start geladen (offline aus dem Service-Worker-Speicher) und in diese Objekte übernommen.
 const SCRIPTS = {}, LANGS = {};
@@ -451,17 +740,17 @@ function buildModes() {
     b.textContent = '🎙 ' + LANGS[src].native + ' ';
     b.lang = src;
     const kb = document.createElement('kbd'); kb.textContent = k === 'a' ? 'E' : 'T'; b.appendChild(kb);
-    b.setAttribute('aria-label', (k === 'a' ? 'Ich spreche ' : 'Partner spricht ') + LANGS[src].de);
+    b.setAttribute('aria-label', (k === 'a' ? t('iSpeakLbl') : t('partnerSpeaksLbl')) + lname(src));
   }
-  $('dirAText').textContent = 'Übersetzen ' + LANGS[pair.a].de + ' → ' + LANGS[pair.b].de;
-  $('dirBText').textContent = 'Übersetzen ' + LANGS[pair.b].de + ' → ' + LANGS[pair.a].de;
-  $('voiceALabel').textContent = 'Stimme ' + LANGS[pair.a].de;
-  $('voiceBLabel').textContent = 'Stimme ' + LANGS[pair.b].de;
+  $('dirAText').textContent = t('dirText', { a: lname(pair.a), b: lname(pair.b) });
+  $('dirBText').textContent = t('dirText', { a: lname(pair.b), b: lname(pair.a) });
+  $('voiceALabel').textContent = t('voiceLbl', { a: lname(pair.a) });
+  $('voiceBLabel').textContent = t('voiceLbl', { a: lname(pair.b) });
   $('enVarWrap').style.display = (pair.a === 'en' || pair.b === 'en') ? '' : 'none';
-  buildVariants(); updatePreBtn(); $('typeBName').textContent = LANGS[pair.b].de;
+  buildVariants(); updatePreBtn(); $('typeBName').textContent = lname(pair.b);
   // Ja/Nein nicht nur über die Farbe: Zeichen + beide Sprachen (die Großansicht zeigt nur die Partnersprache)
-  for (const [id, w, de] of [['btnYes', 'yes', 'Ja'], ['btnNo', 'no', 'Nein']]) {
-    const b = $(id); b.textContent = (w === 'yes' ? '✓ ' : '✕ ') + de + ' · ';
+  for (const [id, w] of [['btnYes', 'yes'], ['btnNo', 'no']]) {
+    const b = $(id); b.textContent = (w === 'yes' ? '✓ ' : '✕ ') + t(w) + ' · ';
     const s = document.createElement('span'); s.lang = pair.b; s.textContent = LANGS[pair.b][w]; b.appendChild(s);
   }
   $('partnerTitle').textContent = LANGS[pair.b].native; $('partnerTitle').lang = pair.b;
@@ -471,7 +760,7 @@ function fillLangSelects() {
     const s = $(id); s.textContent = '';
     for (const code in LANGS) {
       const o = document.createElement('option');
-      o.value = code; o.textContent = LANGS[code].de + ' – ' + LANGS[code].native;
+      o.value = code; o.textContent = lname(code) + ' – ' + LANGS[code].native;
       s.appendChild(o);
     }
     s.value = pair[k];
@@ -548,7 +837,7 @@ function loadVoices() {
   for (const l of [pair.a, pair.b]) {
     if (voiceWarned.has(l) || voices.some(v => voiceLang(v).startsWith(l))) continue;
     voiceWarned.add(l);
-    showWarn('Keine Stimme für <b>' + LANGS[l].de + '</b> gefunden – wird evtl. nicht vorgelesen. Mac: Systemeinstellungen → Bedienungshilfen → Gesprochene Inhalte → Systemstimme → Stimmen verwalten. iPhone: Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen. Android: Einstellungen → Text-in-Sprache → Sprachdaten. Windows: Einstellungen → Zeit und Sprache → Sprache hinzufügen.');
+    showWarn('Keine Stimme für <b>' + lname(l) + '</b> gefunden – wird evtl. nicht vorgelesen. Mac: Systemeinstellungen → Bedienungshilfen → Gesprochene Inhalte → Systemstimme → Stimmen verwalten. iPhone: Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen. Android: Einstellungen → Text-in-Sprache → Sprachdaten. Windows: Einstellungen → Zeit und Sprache → Sprache hinzufügen.');
   }
 }
 function fillVoiceSelects() {
@@ -885,7 +1174,7 @@ function handleFinal(text, conf) {
   const t = addEntry(cur, text, '…', false, m.src, m.dst);
   const o = t.previousElementSibling;
   if (conf > 0 && conf < 0.5) badge(o, 'unsicher erkannt – bitte wiederholen?');
-  if (swapped) badge(o, 'als ' + LANGS[m.src].de + ' erkannt');
+  if (swapped) badge(o, 'als ' + lname(m.src) + ' erkannt');
   deliver(t, text, m, $('autoswitch').checked ? (mode === 'a' ? 'b' : 'a') : mode);
 }
 
@@ -911,11 +1200,11 @@ function deliver(t, text, m, next) {
   }, e => {   // no error text is displayed as translation or spoken
     clearTimeout(slow3);
     if (t._job !== my) return null;
-    t.textContent = navigator.onLine === false ? 'Offline – Übersetzung nicht möglich' : 'Übersetzung gerade nicht verfügbar (Internet / Limit?)';
+    t.textContent = navigator.onLine === false ? t('offlineFail') : t('translateFail');
     t.classList.add('err'); t.removeAttribute('lang');
     if (e && e.detail) badge(t, e.detail);   // Anbieter und Grund (z. B. http 429): zum Kopieren für Fehlerberichte
     const b = document.createElement('button');
-    b.type = 'button'; b.className = 'small retry'; b.textContent = 'Erneut versuchen';
+    b.type = 'button'; b.className = 'small retry'; b.textContent = t('retry');
     b.onclick = () => { netGuard.reset(); t.textContent = '…'; t.classList.remove('err'); deliver(t, text, m, null); };
     t.appendChild(b);
     return null;
@@ -931,11 +1220,11 @@ function deliver(t, text, m, next) {
 function addActions(t, text, lang, item) {
   const row = document.createElement('div'); row.className = 'acts';
   if (item) row.appendChild(starButton(() => item, async () => item, 'small'));
-  const show = document.createElement('button'); show.type = 'button'; show.className = 'small'; show.textContent = 'Groß zeigen';
+  const show = document.createElement('button'); show.type = 'button'; show.className = 'small'; show.textContent = t('showBigBtn');
   show.onclick = () => showBig(text, lang);
-  const share = document.createElement('button'); share.type = 'button'; share.className = 'small'; share.textContent = 'Als Link teilen';
+  const share = document.createElement('button'); share.type = 'button'; share.className = 'small'; share.textContent = t('shareLink');
   share.onclick = () => shareText(text, lang);
-  const again = document.createElement('button'); again.type = 'button'; again.className = 'small'; again.textContent = '🔊 Nochmal';
+  const again = document.createElement('button'); again.type = 'button'; again.className = 'small'; again.textContent = t('again2');
   again.setAttribute('aria-label', 'Nochmal vorlesen'); again.onclick = () => sayNow(text, lang);
   row.append(again, show, share);
   t.after(row);
@@ -1114,24 +1403,24 @@ async function renderCards() {
   try { d = await loadPreset(id); }
   catch { if (my === cardsGen) { box.textContent = ''; msg.textContent = 'Satzbuch nicht verfügbar (offline und noch nie geladen?).'; } return; }
   if (my !== cardsGen) return;
-  box.textContent = ''; msg.textContent = ''; seqMode = false; $('pbSeq').setAttribute('aria-pressed', 'false'); $('pbSeq').textContent = 'Folge wählen'; $('pbSeqGo').hidden = true;
+  box.textContent = ''; msg.textContent = ''; seqMode = false; $('pbSeq').setAttribute('aria-pressed', 'false'); $('pbSeq').textContent = t('pbSeq'); $('pbSeqGo').hidden = true;
   renderEmerg(id);
   const nt = presetNote(d);   // Kulturhinweis des Pakets (nur Text)
   if (nt) $('pbNote').lang = d.note[pair.a] ? pair.a : d.note.de ? 'de' : 'en';   // Screenreader: richtige Stimme
   $('pbNote').textContent = nt ? 'ℹ️ ' + nt : ''; $('pbNote').hidden = !nt;
   const a = pair.a, b = pair.b;
   const mi = $('myInline'); if (mi) { mi.hidden = id !== 'taxi' || !myCards.length; renderMine(); }
-  if (!(b in (d.phrases[0] || {}))) msg.textContent = 'Sätze in ' + LANGS[b].de + ' werden beim ersten Tippen übersetzt (Internet nötig), danach gemerkt.';
+  if (!(b in (d.phrases[0] || {}))) msg.textContent = t('pbMissing', { l: lname(b) });
   for (const p of criticalFirst(d.phrases)) {
     const w = document.createElement('div'); w.className = 'cardwrap';
     const c = document.createElement('button');
     c.type = 'button'; c.className = 'card' + (p.critical ? ' crit' : '');
-    if (p.critical) { const k = document.createElement('span'); k.className = 'crit-b'; k.lang = 'de'; k.textContent = '⚠ Wichtig'; c.appendChild(k); }
+    if (p.critical) { const k = document.createElement('span'); k.className = 'crit-b'; k.lang = 'de'; k.textContent = t('important'); c.appendChild(k); }
     const s = document.createElement('span'); s.className = 's'; s.textContent = p[a] || p.en; s.lang = p[a] ? a : 'en'; s.dir = 'auto';
     const t = document.createElement('span'); t.className = 't'; t.lang = b; t.dir = 'auto';
     t.textContent = p[b] || pbGet(b + '|' + p.en) || '…';
     c.append(s, t);
-    if (!p[b]) { const m = document.createElement('span'); m.className = 'mt-b'; m.lang = 'de'; m.textContent = '🤖 automatisch übersetzt, nicht geprüft'; c.appendChild(m); }
+    if (!p[b]) { const m = document.createElement('span'); m.className = 'mt-b'; m.lang = 'de'; m.textContent = t('machine'); c.appendChild(m); }
     const front = p[a] || p.en, fl = p[a] ? a : 'en';
     w.append(c, starButton(() => { const bt = p[b] || pbGet(b + '|' + p.en); return bt ? learnItem(front, fl, bt, b) : null; },
                            async () => learnItem(front, fl, await phraseIn(p, b), b), 'star'));
@@ -1222,7 +1511,7 @@ function learnStore(list) {
 }
 setInterval(() => { if (!document.hidden) learnRender(); }, 60000);   // "fällig" auch bei offen gelassener Seite aktuell
 function learnReveal(on) {
-  if (learnCur) { const f = $('learnFront'); f.textContent = $('learnListen').checked && !on ? '🔊 Anhören und Bedeutung raten' : learnCur.a.t; f.lang = $('learnListen').checked && !on ? 'de' : learnCur.a.l; }
+  if (learnCur) { const f = $('learnFront'); f.textContent = $('learnListen').checked && !on ? t('listenPrompt') : learnCur.a.t; f.lang = $('learnListen').checked && !on ? 'de' : learnCur.a.l; }
   $('learnBack').hidden = !on; $('learnShow').hidden = on;
   $('learnYes').hidden = !on; $('learnNo').hidden = !on;
 }
@@ -1241,7 +1530,7 @@ function learnRender() {
   const f = $('learnFront'), b = $('learnBack');
   f.textContent = learnCur.a.t; f.lang = learnCur.a.l;
   b.textContent = learnCur.b.t; b.lang = learnCur.b.l;
-  $('learnBoxNr').textContent = 'Fach ' + learnCur.box + ' von 5 · Rückseite: ' + LANGS[learnCur.b.l].de;
+  $('learnBoxNr').textContent = 'Fach ' + learnCur.box + ' von 5 · Rückseite: ' + lname(learnCur.b.l);
   if (learnShownKey !== learnKey(learnCur)) {
     learnShownKey = learnKey(learnCur); learnReveal(false); $('learnPracticeOut').textContent = '';
     if ($('learnListen').checked && !document.hidden) sayNow(learnCur.b.t, learnCur.b.l);
@@ -1283,7 +1572,7 @@ $('learnAddPreset').onclick = async () => {
     list = learnAdd(list, it, spreadDue(n, per, now), 'fav'); n++;   // nur so viele neue Karten pro Tag fällig, der Rest verteilt
   }
   learnStore(list);
-  $('learnMsg').textContent = n + ' Karten aufgenommen.' + (miss ? ' ' + miss + ' Sätze fehlen in ' + LANGS[b].de + ': erst im Satzbuch antippen (übersetzt sie einmal).' : '');
+  $('learnMsg').textContent = n + ' Karten aufgenommen.' + (miss ? ' ' + miss + ' Sätze fehlen in ' + lname(b) + ': erst im Satzbuch antippen (übersetzt sie einmal).' : '');
 };
 // ☆-Knöpfe (Satzbuch, Verlauf): peek() liefert die Karte ohne Netz (für den Zustand), get() notfalls mit Übersetzung
 function learnHas(it) { const k = learnKey(it); return learnList.some(c => c.fav && learnKey(c) === k); }
@@ -1687,7 +1976,7 @@ $('btnPrev').onclick = () => seqStep(-1); $('btnNext').onclick = () => seqStep(1
 document.addEventListener('keydown', e => { if (seq && $('partner').classList.contains('on')) { if (e.key === 'ArrowRight') seqStep(1); else if (e.key === 'ArrowLeft') seqStep(-1); } });
 $('pbSeq').onclick = () => {
   seqMode = !seqMode; $('pbSeq').setAttribute('aria-pressed', String(seqMode)); $('pbSeqGo').hidden = !seqMode;
-  $('pbSeq').textContent = seqMode ? 'Auswahl beenden' : 'Folge wählen';
+  $('pbSeq').textContent = seqMode ? t('pbSeqEnd') : t('pbSeq');
   if (!seqMode) for (const c of document.querySelectorAll('#cards .card.sel')) c.classList.remove('sel');
   $('pbMsg').textContent = seqMode ? 'Karten antippen zum Auswählen, dann „Folge zeigen“.' : '';
 };
@@ -1733,7 +2022,7 @@ $('pbClear').onclick = () => {
   renderCards(); $('pbMsg').textContent = 'Gemerkte Übersetzungen gelöscht.';
 };
 let preAbort = false;
-function updatePreBtn() { $('pbPre').hidden = ['en', 'th'].includes(pair.b); $('pbPre').textContent = 'Alle Themen ins ' + (LANGS[pair.b] ? LANGS[pair.b].de : '') + ' vorübersetzen'; }
+function updatePreBtn() { $('pbPre').hidden = ['en', 'th'].includes(pair.b); $('pbPre').textContent = 'Alle Themen ins ' + (LANGS[pair.b] ? lname(pair.b) : '') + ' vorübersetzen'; }
 $('pbPre').onclick = async () => {
   if ($('pbPre').dataset.run === '1') { preAbort = true; return; }
   const b = pair.b; preAbort = false; $('pbPre').dataset.run = '1';
@@ -1755,7 +2044,7 @@ $('pbPre').onclick = async () => {
 let learnStats = (() => { try { const v = JSON.parse(localStorage.getItem('learnStatsV1') || '{}'); return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; } catch { return {}; } })();
 function statsRender() {
   const s = statsSummary(learnStats, learnList, Date.now());
-  $('learnStats').textContent = 'Heute ' + s.today + ' · letzte 7 Tage ' + s.week.join('/') + ' · Serie ' + s.streak + ' Tage · Fach 5: ' + s.box5;
+  $('learnStats').textContent = t('dueLine', { a: s.today, b: s.week.join('/'), c: s.streak, d: s.box5 });
 }
 function download(name, text, type) {
   const a = document.createElement('a');
@@ -1837,8 +2126,8 @@ function buildVariants() {
   const w = $('varWrap'); w.textContent = '';
   for (const l of [pair.a, pair.b]) {
     if (!VARIANTS[l] || !LANGS[l]) continue;
-    const lab = document.createElement('label'); lab.textContent = LANGS[l].de + ': ';
-    const sel = document.createElement('select'); sel.setAttribute('aria-label', 'Variante ' + LANGS[l].de);
+    const lab = document.createElement('label'); lab.textContent = lname(l) + ': ';
+    const sel = document.createElement('select'); sel.setAttribute('aria-label', 'Variante ' + lname(l));
     for (const [code, name] of VARIANTS[l]) { const o = document.createElement('option'); o.value = code; o.textContent = name; sel.appendChild(o); }
     sel.value = recLocale(l);
     sel.onchange = () => { settings.vars = Object.assign({}, settings.vars, { [l]: sel.value }); saveSettings(); if (mode) setMode(null); buildModes(); fillVoiceSelects(); };
@@ -1856,15 +2145,15 @@ if ('serviceWorker' in navigator && window.isSecureContext && /^https?:$/.test(l
   const hadController = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener('controllerchange', () => {   // neue Version übernommen: nie von selbst neu laden
     if (!hadController) return;
-    const n = $('swNote'); n.textContent = 'Neue Version geladen. ';
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'small'; b.textContent = 'Seite neu laden';
+    const n = $('swNote'); n.textContent = t('newVersion');
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'small'; b.textContent = t('reload');
     b.onclick = () => location.reload(); n.appendChild(b); n.hidden = false;
   });
   navigator.serviceWorker.addEventListener('message', e => {   // Antwort des Workers: wie viele Dateien sind offline bereit
     const d = e.data;
     if (!d || d.type !== 'offline-status' || !Number.isInteger(d.ok) || !Number.isInteger(d.total)) return;
     const st = $('swState');
-    st.textContent = d.ok >= d.total ? '✓ Offline bereit' : 'Offline unvollständig (' + d.ok + '/' + d.total + ') – einmal mit Netz neu laden';
+    st.textContent = d.ok >= d.total ? t('offlineReady') : t('offlinePart', { a: d.ok, b: d.total });
   });
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js').then(() => navigator.serviceWorker.ready)
@@ -1873,6 +2162,12 @@ if ('serviceWorker' in navigator && window.isSecureContext && /^https?:$/.test(l
   });
 }
 
+$('uiLang').value = UI;
+$('uiLang').onchange = () => {
+  UI = $('uiLang').value; settings.ui = UI; saveSettings(); applyUi();
+  if (LANGS[pair.a]) { fillLangSelects(); buildModes(); fillPresetSelect(); renderCards(); statsRender(); updatePreBtn(); }
+};
+applyUi();
 loadLangTable().then(() => {
   initPair();
   if (TTS) { TTS.onvoiceschanged = loadVoices; loadVoices(); }

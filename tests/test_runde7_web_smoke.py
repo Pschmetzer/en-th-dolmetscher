@@ -38,7 +38,7 @@ function el(id) {
 globalThis.window = globalThis; globalThis.addEventListener = () => {};
 globalThis.document = {
   getElementById: id => els[id] || (els[id] = el(id)), createElement: () => el(), querySelector: () => el(), querySelectorAll: () => [],
-  addEventListener() {}, body: el(), hidden: false, activeElement: el(),
+  addEventListener() {}, body: el(), documentElement: el(), hidden: false, activeElement: el(),
 };
 Object.defineProperty(globalThis, 'navigator', { value: { onLine: true, userAgent: 'node', language: 'de', clipboard: { writeText: async () => {} } }, configurable: true });
 globalThis.localStorage = { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); }, removeItem: k => { delete store[k]; } };
