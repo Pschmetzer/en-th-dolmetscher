@@ -188,7 +188,7 @@ struct ContentView: View {
             let p = m.pair
             Menu {
                 // Schnellwechsel: die zuletzt benutzten Paare, ohne in die Einstellungen zu gehen.
-                ForEach(RecentPairs.load(from: UserDefaults.standard).filter { $0 != p }, id: \.self) { q in
+                ForEach(Array(RecentPairs.load(from: UserDefaults.standard).filter { $0 != p }.enumerated()), id: \.offset) { _, q in
                     Button("\(q.mine.flag) \(q.mine.native) ⇄ \(q.partner.flag) \(q.partner.native)") { m.pair = q }
                 }
             } label: {

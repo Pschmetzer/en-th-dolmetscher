@@ -250,6 +250,43 @@ final class Round7Tests: XCTestCase {
         XCTAssertNil(WhisperSize.requiredBytes(sizeMB: nil))
     }
 
+    func testRecentPairsKeepOrderWithoutDuplicates() {
+        let d = UserDefaults(suiteName: "r7-recent-\(UUID().uuidString)")!
+        let a = LangPair(mine: .en, partner: .th), b = LangPair(mine: .de, partner: .th), c = LangPair(mine: .en, partner: .ja)
+        RecentPairs.remember(a, current: b, in: d)
+        RecentPairs.remember(b, current: c, in: d)
+        RecentPairs.remember(c, current: a, in: d)
+        let list = RecentPairs.load(from: d)
+        XCTAssertEqual(list.first, c, "zuletzt verlassenes Paar zuerst")
+        XCTAssertEqual(list.count, 3)
+        XCTAssertEqual(Set(list.map { "\($0.mine.rawValue)\($0.partner.rawValue)" }).count, 3)
+    }
+
+    func testCSVExportHasBOMQuotesAndSkipsPhotos() {
+        var photo = Entry(src: .en, dst: .th, text: "Menu", translation: "เมนู"); photo.photo = true
+        let e = Entry(src: .en, dst: .th, text: "Say \"hi\", ok", translation: "สวัสดี")
+        let csv = TranscriptCSV.csv([e, photo])
+        XCTAssertTrue(csv.hasPrefix("\u{FEFF}date,from,to,text,translation"))
+        XCTAssertTrue(csv.contains("\"Say \"\"hi\"\", ok\""))
+        XCTAssertTrue(csv.contains("สวัสดี"))
+        XCTAssertFalse(csv.contains("Menu"))
+    }
+
+    func testFXParse() {
+        let json = #"{"amount":1.0,"base":"THB","date":"2026-11-17","rates":{"EUR":0.0268}}"#
+        XCTAssertEqual(FXFetch.parse(Data(json.utf8), code: "eur")?.rate, 0.0268)
+        XCTAssertEqual(FXFetch.parse(Data(json.utf8), code: "EUR")?.date, "2026-11-17")
+        XCTAssertNil(FXFetch.parse(Data(json.utf8), code: "USD"))
+        XCTAssertNil(FXFetch.parse(Data("{}".utf8), code: "EUR"))
+    }
+
+    func testMachineRomanizationIsMarkedApproximate() {
+        var e = Entry(src: .en, dst: .th, text: "Hello", translation: "สวัสดี")
+        XCTAssertTrue(e.romanIsApproximate)
+        e.roman = "sawatdee"
+        XCTAssertFalse(e.romanIsApproximate)
+    }
+
     func testReduceMotionDropsAnimation() {
         XCTAssertNil(Motion.animation(reduce: true))
         XCTAssertNotNil(Motion.animation(reduce: false))
