@@ -132,6 +132,10 @@ Pull requests #16–#47. Not yet published as a release.
 - **Tools and docs:** `tools/export_phrasebook.py` (CSV, Markdown, printable cards, Anki), `tools/check_presets.py`, `tools/preset_stats.py`; FAQ, troubleshooting, quick start, shortcuts and voice commands in German and English; issue templates, `SECURITY.md`, store texts, six new test corpora.
 - **Infrastructure:** shellcheck without severity limit for `build-support/*.sh`.
 
+### Mac app (round 11)
+
+- **New:** the welcome dialog walks through first start: why the microphone is needed with an allow button (or a link to System Settings when blocked), language pair, recognition model with a recommendation for this Mac's chip and memory, optional Claude key, and a “say something” test; “Remind me later” hides it for a day. An interrupted setup continues on the next start, and every setup error names the next step (with “smaller model” when space is short).
+
 ### Round 7: Mac app, iPhone app, web, phrase packs, CI
 
 **Mac app**
