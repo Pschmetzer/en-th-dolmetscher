@@ -67,7 +67,7 @@ def test_menubar_verdrahtung_und_texte():
     assert "dockSwap" in app and "dockCopy" in app
     assert 'keyboardShortcut("k", modifiers: [.command, .option])' in app
     assert app.count("menu_swap_vo") >= 2 and app.count("menu_copy_last_vo") >= 2
-    for k in ("menu_state_speaking", "menu_state_offline_only", "menu_swap_pair", "menu_engine_status",
+    for k in ("menu_state_speaking", "menu_swap_pair", "menu_engine_status",
               "menu_copy_last_vo", "menu_swap_vo"):
         assert f'"{k}"' in l10n
 

@@ -45,7 +45,7 @@ enum MenuBarLogic {
         switch s {
         case .error: return "menu_state_problem"
         case .loading: return "menu_state_loading"
-        case .offline: return "menu_state_offline_only"
+        case .offline: return "menu_state_offline"
         case .stopped: return "stopped"
         case .paused: return "state_paused"
         case .listening: return "state_listening"

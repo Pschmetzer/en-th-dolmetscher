@@ -317,10 +317,14 @@ struct DolmetscherApp: App {
     }
 
     /// Nr. 360 / Runde 17: Fehler, Laden, Offline, Hören, Sprechen und Pause haben je eine eigene Form.
-    private var menuIcon: String { MenuBarLogic.symbol(MenuBarLogic.status(model.menuInput)) }
+    private var menuIcon: String { MenuBarLogic.symbol(menuStatus) }
+
+    /// Fehler (model.crashLog != nil), Laden (model.loadingModel) und Offline (model.netDown.isEmpty) vor dem Normalbetrieb.
+    private var menuStatus: MenuBarStatus { MenuBarLogic.status(model.menuInput) }
 
     /// Zustand für VoiceOver: das Symbol ändert nur Form und Füllung.
-    private var menuState: String { L.t(MenuBarLogic.labelKey(MenuBarLogic.status(model.menuInput))) }
+    /// Offline heißt "menu_state_offline" (VoiceOver).
+    private var menuState: String { L.t(MenuBarLogic.labelKey(menuStatus)) }
 
     var body: some Scene {
         let _ = L.sync(uiLang)
