@@ -319,13 +319,19 @@ extension L10n {
         if let t = table[key]?[lang] ?? extra[lang]?[key] { return t }
         let early: [[String: [String: String]]] = [round4, round5, round6, round7, round8]
         for r in early { if let t = r[key]?[lang] { return t } }
-        let late: [[String: [String: String]]] = [round9, round13, round14, round15, round16, round17]
+        let late: [[String: [String: String]]] = [round9, round13, round14, round15, round16, round17, round18]
         for r in late { if let t = r[key]?[lang] { return t } }
         return nil
     }
 
     /// Alle Schlüssel (Grundtabelle, Runde 4 und 5).
-    static var allKeys: Set<String> { Set(table.keys).union(round4.keys).union(round5.keys).union(round6.keys).union(round7.keys).union(round8.keys).union(round9.keys).union(round13.keys).union(round14.keys).union(round15.keys).union(round16.keys).union(round17.keys) }
+    static var allKeys: Set<String> {
+        var keys = Set(table.keys)
+        let tables: [[String: [String: String]]] = [round4, round5, round6, round7, round8, round9]
+        let more: [[String: [String: String]]] = [round13, round14, round15, round16, round17, round18]
+        for t in tables + more { keys.formUnion(t.keys) }
+        return keys
+    }
 }
 
 /// Beobachtbarer Speicher für `L10n.lang`.

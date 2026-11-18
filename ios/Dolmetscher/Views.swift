@@ -83,6 +83,7 @@ struct ContentView: View {
                         if m.features.voiceCommands {
                             Button { m.sheet = .help } label: { Label(T("commands"), systemImage: "text.bubble") }
                         }
+                        Button { m.sheet = .history } label: { Label(T("hs_title"), systemImage: "clock.arrow.circlepath") }
                         ShareSummaryItems()
                         Button(role: .destructive) { confirmClear = true } label: { Label(T("clear"), systemImage: "trash") }
                             .disabled(m.visibleEntries.isEmpty)
@@ -190,6 +191,7 @@ struct ContentView: View {
         case .emergency: EmergencyView()
         case .baht: BahtCalculatorView()
         case .summary: SummaryView()
+        case .history: HistoryView()
         case .allergy: AllergyCardView()
         case .privacy:
             NavigationStack {
