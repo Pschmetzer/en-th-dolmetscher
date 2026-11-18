@@ -13,7 +13,7 @@ Optionen: --model small|medium|base  --mic 0  --polite krub|ka  --json
           --voice-en/--voice-th NAME --llm [--llm-model ID] --earcons --meter --list-mics
 Protokoll Engine <-> App: docs/PROTOKOLL.md
 """
-import argparse, collections, functools, html, http.client, io, itertools, json, logging, logging.handlers, \
+import argparse, collections, difflib, functools, html, http.client, io, itertools, json, logging, logging.handlers, \
     math, os, queue, re, shutil, signal, subprocess, sys, tempfile, threading, time, urllib.error, urllib.parse, \
     urllib.request
 import numpy as np
@@ -4256,6 +4256,43 @@ HINT_EVERY_S = 300.0               # derselbe Hinweis höchstens alle 5 min
 SLOW_P90_S = {"sound": 5.0, "tr": 4.0, "stt": 5.0}
 
 
+# Runde 8: Text-Echo-Schutz. Fängt das Mikrofon den Nachhall der eigenen Stimme auf (Lautsprecher, Raum), steht
+# der gerade vorgelesene Satz kurz danach als „Gesprochenes“ im Text. Gleiche Sprache, fast gleicher Wortlaut,
+# kurz nach dem Vorlesen und nicht ganz kurz -> verwerfen. Abschaltbar (`echo_guard`), Standard an.
+ECHO = {"on": True}
+ECHO_WINDOW_S = 25.0               # so lange nach dem Vorlesen gilt ein ähnlicher Satz als Echo
+ECHO_MIN_CHARS = 14                # kürzere Sätze („ok“, „ขอบคุณครับ“) sind oft echte Wiederholungen
+ECHO_RATIO = 0.88
+_SPOKEN = collections.deque(maxlen=8)          # (monotonic, lang, normalisierter Text)
+
+
+def _echo_norm(s):
+    return re.sub(r"[^\w]+|_", "", (s or "").casefold())
+
+
+def note_spoken(text, lang, now=None):
+    """Vorgelesenen Text für den Echo-Schutz merken."""
+    n = _echo_norm(text)
+    if n:
+        _SPOKEN.append((time.monotonic() if now is None else now, lang, n))
+
+
+def is_echo(text, lang, now=None):
+    """True, wenn `text` (erkannt in `lang`) fast genau dem zuletzt vorgelesenen Satz entspricht."""
+    if not ECHO["on"]:
+        return False
+    n = _echo_norm(text)
+    if len(n) < ECHO_MIN_CHARS:
+        return False
+    now = time.monotonic() if now is None else now
+    for t, lng, spoken in list(_SPOKEN):
+        if lng != lang or now - t > ECHO_WINDOW_S or now < t:
+            continue
+        if difflib.SequenceMatcher(None, n, spoken, autojunk=False).ratio() >= ECHO_RATIO:
+            return True
+    return False
+
+
 def hint(code, **kw):
     """Ereignis `hint`: einmalig/selten ein Tipp an den Nutzer (Code, die App lokalisiert)."""
     now = time.monotonic()
@@ -4343,6 +4380,7 @@ class Speaker:
             behind = len(self.items) + (1 if self.busy else 0)
         item = {"id": uid, "lang": lang, "kind": kind, "parts": [], "t_end": t_end, "pin": pin}
         if kind == "speech":
+            note_spoken(text, lang)
             boost = self.boost(behind)
             for i, s in enumerate(split_sentences(apply_pronounce(speak_form(text, lang)), lang)):
                 # Nur die ersten Teile sofort anfragen; die übrigen erst, wenn der vorige zu spielen
@@ -4940,7 +4978,7 @@ class Engine:
         emit("state", **self.state_fields(), mute=bool(getattr(self, "mute", False)),
              earcons=bool(getattr(self, "earcons", False)), preset=PRESET.active,
              llm={"on": bool(LLM["on"]), "available": bool(llm_available()), "style": LLM["style"]},
-             slow=SLOW["on"], back_translate=BACK["on"], learn_glossary=LEARN["glossary"],
+             slow=SLOW["on"], back_translate=BACK["on"], learn_glossary=LEARN["glossary"], echo_guard=ECHO["on"],
              mic_on=bool(MIC is not None and getattr(MIC, "on", False)),
              let_finish=LET_FINISH["s"], catch_up=CATCH_UP["mode"], beam=getattr(self, "beam", None),
              latency=lat_summary(),                   # Runde 6: Nr. 69, 171, 176, 70
@@ -5212,6 +5250,9 @@ class Engine:
         if text and (low in JUNK or junk_by(low)
                      or (low in JUNK_IF_SHORT and (1.0 if rms is None else rms) < 0.01 and audio.size / SR < 1.5)):
             info["drop"] = "floskel"
+            text = ""
+        if text and is_echo(text, lang):
+            info["drop"] = "echo"
             text = ""
         if not text:
             reason = info.get("drop", "nichts erkannt")
@@ -5789,6 +5830,7 @@ CTRL_KEYS = frozenset({
     f"voice_{k}" for k in LANGS}
 
 CTRL_KEYS |= {"let_finish", "catch_up", "beam", "llm_retry", "clear", "cache_persist", "history_speakers"}   # Runde 6/7
+CTRL_KEYS |= {"echo_guard"}                                                                         # Runde 8
 
 
 def apply_control(eng, d):
@@ -5909,6 +5951,8 @@ def apply_control(eng, d):
         if ok: BACK["on"] = v
         ok, v = _flag(d, "learn_glossary")
         if ok: LEARN["glossary"] = v
+        ok, v = _flag(d, "echo_guard")
+        if ok: ECHO["on"] = v                  # Runde 8: Nachhall der eigenen Stimme verwerfen
         if "output_device" in d:              # Nr. 24/357: Ausgabegerät (UID, Name, Index oder "" = Standard)
             ov = d["output_device"]
             if isinstance(ov, str) and len(ov) <= 300:

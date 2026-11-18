@@ -74,3 +74,61 @@ def test_history_search_short_query_ignores_case_beyond_ascii(tmp_path):
 def test_thai_laugh_after_a_number_is_not_a_digit_group():
     assert not d.numbers_differ("ราคา 100 555", "price 100 haha")
     assert d._numbers("2 555 000") == ["2555000"]
+
+
+# ---- Text-Echo-Schutz ------------------------------------------------------------------------------------------
+
+@pytest.fixture
+def echo(monkeypatch):
+    monkeypatch.setattr(d, "_SPOKEN", __import__("collections").deque(maxlen=8))
+    monkeypatch.setitem(d.ECHO, "on", True)
+    return d
+
+
+def test_echo_of_own_voice_is_detected(echo):
+    d.note_spoken("Where is the nearest pharmacy?", "en", now=100.0)
+    assert d.is_echo("where is the nearest pharmacy", "en", now=103.0)
+    assert d.is_echo("Where is the nearest pharmacy please", "en", now=103.0)
+
+
+def test_echo_needs_same_language_recent_and_long_enough(echo):
+    d.note_spoken("Where is the nearest pharmacy?", "en", now=100.0)
+    assert not d.is_echo("Where is the nearest pharmacy?", "th", now=101.0)
+    assert not d.is_echo("Where is the nearest pharmacy?", "en", now=100.0 + d.ECHO_WINDOW_S + 1)
+    assert not d.is_echo("Where is the nearest bank?", "en", now=101.0)
+    d.note_spoken("Thank you", "en", now=100.0)
+    assert not d.is_echo("Thank you", "en", now=101.0)          # kurze Sätze sind oft echte Wiederholungen
+
+
+def test_echo_guard_can_be_switched_off(echo, monkeypatch):
+    d.note_spoken("Where is the nearest pharmacy?", "en", now=100.0)
+    monkeypatch.setitem(d.ECHO, "on", False)
+    assert not d.is_echo("Where is the nearest pharmacy?", "en", now=101.0)
+
+
+def test_echo_thai_without_spaces(echo):
+    d.note_spoken("ร้านขายยาที่ใกล้ที่สุดอยู่ที่ไหนคะ", "th", now=10.0)
+    assert d.is_echo("ร้านขายยาที่ใกล้ที่สุดอยู่ที่ไหน", "th", now=12.0)
+
+
+def test_echo_control_and_state(echo, monkeypatch):
+    eng = d.Engine.__new__(d.Engine)
+    monkeypatch.setattr(d, "emit", lambda *a, **k: None)
+    d.apply_control(eng, {"echo_guard": False})
+    assert d.ECHO["on"] is False
+    d.apply_control(eng, {"echo_guard": True})
+    assert d.ECHO["on"] is True and "echo_guard" in d.CTRL_KEYS
+    assert d.drop_code("echo") == "other"
+
+
+def test_process_drops_echo(echo, monkeypatch):
+    import numpy as np
+    from test_engine_pipeline import _engine
+    events = []
+    monkeypatch.setattr(d, "emit", lambda e, **kw: events.append((e, kw)))
+    monkeypatch.setitem(d.LLM, "on", False)
+    e = _engine([("en", 0.95)], {"en": ("Where is the nearest pharmacy?", -0.2), "th": ("x", -2.0)})
+    d.note_spoken("Where is the nearest pharmacy?", "en")
+    e.process(np.full(d.SR * 2, 0.05, dtype=np.float32), speak=False, uid="e1")
+    drop = [kw for n, kw in events if n == "dropped"]
+    assert drop and drop[0]["reason"] == "echo" and drop[0]["code"] == "other" and "heard" not in [n for n, _ in events]
