@@ -18,14 +18,14 @@ ORDER = ["doctor", "police", "lostchild", "pharmacy", "dentist", "taxi", "places
          "scooter", "rental", "services", "coworking", "office"]
 
 
-def build():
+def build(root=ROOT):
     old = {}
-    f = ROOT / "presets-index.json"
+    f = pathlib.Path(root) / "presets-index.json"
     if f.exists():
         data = json.loads(f.read_text(encoding="utf-8"))
         old = {p["id"]: p.get("reviewed", False) for p in data.get("packs", [])}
     packs = {}
-    for p in (ROOT / "presets").glob("*.json"):
+    for p in (pathlib.Path(root) / "presets").glob("*.json"):
         d = json.loads(p.read_text(encoding="utf-8"))
         packs[d["id"]] = {"id": d["id"], "names": d["names"], "phrases": len(d.get("phrases", [])),
                           "critical": sum(1 for x in d.get("phrases", []) if x.get("critical")),
