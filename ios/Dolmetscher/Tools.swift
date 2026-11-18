@@ -301,7 +301,7 @@ struct BahtCalculatorView: View {
     @State private var fxBusy = false
 
     private func fetchRate() async {
-        guard fxAuto, code.count == 3, let url = FXFetch.url(code: code) else { return }
+        guard fxAuto, !OfflineMode.setting(), code.count == 3, let url = FXFetch.url(code: code) else { return }
         fxBusy = true
         defer { fxBusy = false }
         var req = URLRequest(url: url); req.timeoutInterval = 6

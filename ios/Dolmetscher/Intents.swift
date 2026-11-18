@@ -25,7 +25,7 @@ struct TranslateTextIntent: AppIntent {
         let d = UserDefaults.standard
         let pair = InterpreterModel.pairSetting(d)
         let src = LanguagePick.ofTyped(text, pair: pair)
-        let online = InterpreterModel.allowOnlineSetting(d)
+        let online = OfflineMode.allowsOnline(allowOnline: InterpreterModel.allowOnlineSetting(d), offlineOnly: OfflineMode.setting(d))
         var out: String
         do {
             out = try await Translator().translate(text, from: src, to: pair.other(src), allowOnline: online).text

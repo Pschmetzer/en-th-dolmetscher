@@ -26,7 +26,8 @@ def test_round9_texts_complete_and_registered():
         assert set(row) == set(LANGS), key
         assert all(t.strip() for t in row.values()), key
     l10n = _src("Dolmetscher", "L10n.swift")
-    assert "round9[key]" in l10n and "round9.keys" in l10n
+    registered = l10n[l10n.index("static func text("):]
+    assert re.search(r"\bround9\b", registered)   # Nachschlag und allKeys kennen die Tabelle, egal in welcher Schreibweise
 
 
 def test_round9_keys_are_new():

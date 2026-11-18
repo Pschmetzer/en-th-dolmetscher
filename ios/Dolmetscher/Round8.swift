@@ -112,7 +112,7 @@ enum ErrorAdvice {
     /// (der Fehlertext steht im Eintrag in der Sprache von damals).
     static func action(for error: String) -> Action {
         func matches(_ key: String) -> Bool { L10n.languages.contains { L10n.text(key, lang: $0) == error } }
-        if matches("err_offline_missing") { return .appSettings }
+        if matches("err_offline_missing") || matches("err_offline_only") { return .appSettings }
         if matches("err_denied") || matches("err_no_mic") { return .systemSettings }
         return .none
     }
