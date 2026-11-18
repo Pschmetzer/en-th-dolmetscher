@@ -54,7 +54,20 @@
   #btnA { background:var(--btn-en); } #btnB { background:var(--btn-th); }
   button.mode.active { border-color:var(--fg); box-shadow:0 0 0 4px rgba(128,128,128,.25); animation:pulse 1.4s infinite; }
   @keyframes pulse { 50% { opacity:.8; } }
-  @media (prefers-reduced-motion: reduce) { button.mode.active { animation:none; } }
+  @media (prefers-reduced-motion: reduce) {
+    button.mode.active { animation:none; }
+    *, *::before, *::after { scroll-behavior:auto !important; transition-duration:.01ms !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; }
+  }
+  @media (prefers-contrast: more) { :root { --mut:var(--fg); --line:var(--fg); } .card, .entry, .tile { border:2px solid var(--fg); } }
+  @media (forced-colors: active) {   /* Windows-Hochkontrast: Systemfarben, Zustände nicht nur über Farbe */
+    button.mode.active, .tile[aria-pressed="true"], .card.sel { outline:3px solid Highlight; forced-color-adjust:none; background:Highlight; color:HighlightText; }
+    .entry { border:1px solid CanvasText; }
+  }
+  .skip { position:absolute; left:8px; top:-100px; z-index:20; background:var(--card); color:var(--fg); border:2px solid var(--focus); border-radius:8px; padding:10px 14px; }
+  .skip:focus { top:8px; }
+  #pbQ { font:inherit; color:var(--fg); background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 8px; min-height:44px; min-width:0; }
+  #pbCount { color:var(--mut); font-size:14px; }
+  .cardwrap[hidden] { display:none; }
   .retry { margin-left:10px; font-size:14px; font-style:normal; }
   button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
   .opts { display:flex; gap:10px 18px; padding:0 0 10px; color:var(--mut); font-size:14px; flex-wrap:wrap; align-items:center; }
@@ -155,6 +168,7 @@
 </head>
 <body>
 <noscript><p style="padding:16px;font-size:18px">Diese Seite braucht JavaScript. / This page needs JavaScript.</p></noscript>
+<a class="skip" id="skipLink" href="#pbBox" data-i18n="skipLink">Zum Satzbuch springen</a>
 <div class="wrap" id="main">
 <header>
   <h1>🌐 Dolmetscher <small style="color:var(--mut);font-weight:400">Web Lite</small></h1>
@@ -229,6 +243,10 @@
     <label><span data-i18n="topic">Thema</span> <select id="presetSel"></select></label>
     <button class="yn yes" id="btnYes" type="button">Ja</button>
     <button class="yn no" id="btnNo" type="button">Nein</button>
+  </div>
+  <div class="row">
+    <label><span data-i18n="pbSearch">Satz suchen</span> <input id="pbQ" type="search" size="20" maxlength="60" autocomplete="off" enterkeyhint="search"></label>
+    <span id="pbCount" role="status"></span>
   </div>
   <div id="pbEmerg" class="emerg" hidden></div>
   <div id="myInline" hidden></div>
@@ -436,6 +454,14 @@ const STR = {
   "showBigBtn": "Groß zeigen",
   "shareLink": "Als Link teilen",
   "again2": "🔊 Nochmal",
+  "skipLink": "Zum Satzbuch springen",
+  "pbSearch": "Satz suchen",
+  "pbNoMatch": "Kein Satz passt zu „{q}“ – anderes Wort versuchen oder Suche leeren.",
+  "pbCount": "{n} von {m} Sätzen",
+  "copyBtn": "📋 Kopieren",
+  "copied": "Kopiert",
+  "copyFail": "Kopieren nicht erlaubt – bitte Text markieren",
+  "pbSearchHint": "Suche im Satzbuch (Taste /)",
   "sharedNote": "Geteilter Text, von der App nicht geprüft.",
   "newVersion": "Neue Version geladen. ",
   "reload": "Seite neu laden",
@@ -525,6 +551,14 @@ const STR = {
   "showBigBtn": "Show large",
   "shareLink": "Share as link",
   "again2": "🔊 Again",
+  "skipLink": "Skip to phrasebook",
+  "pbSearch": "Find phrase",
+  "pbNoMatch": "No phrase matches \"{q}\" – try another word or clear the search.",
+  "pbCount": "{n} of {m} phrases",
+  "copyBtn": "📋 Copy",
+  "copied": "Copied",
+  "copyFail": "Copying not allowed – please select the text",
+  "pbSearchHint": "Search the phrasebook (key /)",
   "sharedNote": "Shared text, not checked by the app.",
   "newVersion": "New version loaded. ",
   "reload": "Reload page",
@@ -614,6 +648,14 @@ const STR = {
   "showBigBtn": "แสดงตัวใหญ่",
   "shareLink": "แชร์เป็นลิงก์",
   "again2": "🔊 อีกครั้ง",
+  "skipLink": "ข้ามไปที่สมุดวลี",
+  "pbSearch": "ค้นหาประโยค",
+  "pbNoMatch": "ไม่พบประโยคที่ตรงกับ \"{q}\" – ลองคำอื่นหรือล้างช่องค้นหา",
+  "pbCount": "{n} จาก {m} ประโยค",
+  "copyBtn": "📋 คัดลอก",
+  "copied": "คัดลอกแล้ว",
+  "copyFail": "คัดลอกไม่ได้ – โปรดเลือกข้อความเอง",
+  "pbSearchHint": "ค้นหาในสมุดวลี (ปุ่ม /)",
   "sharedNote": "ข้อความที่แชร์มา แอปไม่ได้ตรวจสอบ",
   "newVersion": "โหลดเวอร์ชันใหม่แล้ว ",
   "reload": "โหลดหน้าใหม่",
@@ -639,6 +681,7 @@ function t(key, vars) {
 const lname = l => !LANGS[l] ? l : UI === 'de' ? LANGS[l].de : LANGS[l].name;
 function applyUi() {   // statische Texte nach data-i18n / data-i18n-html setzen
   document.documentElement.lang = UI;
+  $('pbQ').setAttribute('aria-label', t('pbSearchHint'));
   for (const e of document.querySelectorAll('[data-i18n]')) e.textContent = t(e.dataset.i18n);
   for (const e of document.querySelectorAll('[data-i18n-html]')) e.innerHTML = t(e.dataset.i18nHtml);   // nur eigene, feste Texte
 }
@@ -1217,7 +1260,7 @@ function deliver(t, text, m, next) {
   });
   return job;
 }
-function addActions(t, text, lang, item) {
+function addActions(el, text, lang, item) {   // el = Übersetzungszeile; t() bleibt die Übersetzungsfunktion
   const row = document.createElement('div'); row.className = 'acts';
   if (item) row.appendChild(starButton(() => item, async () => item, 'small'));
   const show = document.createElement('button'); show.type = 'button'; show.className = 'small'; show.textContent = t('showBigBtn');
@@ -1226,8 +1269,10 @@ function addActions(t, text, lang, item) {
   share.onclick = () => shareText(text, lang);
   const again = document.createElement('button'); again.type = 'button'; again.className = 'small'; again.textContent = t('again2');
   again.setAttribute('aria-label', 'Nochmal vorlesen'); again.onclick = () => sayNow(text, lang);
-  row.append(again, show, share);
-  t.after(row);
+  const copy = document.createElement('button'); copy.type = 'button'; copy.className = 'small'; copy.textContent = t('copyBtn');
+  copy.onclick = () => copyText(text);
+  row.append(again, show, share, copy);
+  el.after(row);
 }
 function enqueueOutput(task) {
   const g = gen;
@@ -1441,8 +1486,10 @@ async function renderCards() {
       useCount(id);
       if ($('speak').checked) sayNow(out, b);
     };
+    w.dataset.q = [p.en, p[a], p[b], pbGet(b + '|' + p.en)].filter(Boolean).join(' ');
     box.appendChild(w);
   }
+  applyPbFilter();
 }
 function presetNote(d) {
   const n = d && d.note;
@@ -1601,6 +1648,23 @@ function starButton(peek, get, cls) {
 function syncStars() { for (const b of document.querySelectorAll('.starbtn')) starState(b); }
 
 // ---- Teilen per Link: Text steht nur im #-Teil (geht nie an einen Server) und wird beim Öffnen nur angezeigt ----
+async function copyText(text) {   // nur Zwischenablage des Geräts, nichts wird gesendet
+  try { await navigator.clipboard.writeText(text); setStatus(t('copied'), true); }
+  catch { setStatus(t('copyFail'), true); }
+}
+function pbNorm(s) { return String(s || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim(); }
+function pbMatch(hay, q) {   // alle Suchwörter müssen vorkommen (Groß/Klein und Akzente egal); leere Suche trifft alles
+  const n = pbNorm(q); if (!n) return true;
+  const h = pbNorm(hay);
+  return n.split(' ').every(w => h.includes(w));
+}
+function applyPbFilter() {   // blendet Karten aus, die nicht zur Suche passen; zählt für den Screenreader
+  const q = $('pbQ').value, ws = document.querySelectorAll('#cards .cardwrap');
+  let n = 0;
+  for (const w of ws) { const ok = pbMatch(w.dataset.q || '', q); w.hidden = !ok; if (ok) n++; }
+  const cnt = $('pbCount');
+  cnt.textContent = !pbNorm(q) ? '' : !ws.length ? '' : n ? t('pbCount', { n, m: ws.length }) : t('pbNoMatch', { q: q.trim() });
+}
 function shareUrl(text, lang) {
   return location.origin + location.pathname + '#show=' + encodeURIComponent(String(text).slice(0, MAX_SHARE)) + '&l=' + encodeURIComponent(lang);
 }
@@ -1727,6 +1791,7 @@ document.addEventListener('keydown', e => {
   if (!$('keysOn').checked) return;                            // single-key shortcuts can be switched off (WCAG 2.1.4)
   if (isTyping(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
   // e.code: Kürzel gehen auch mit thailändischem Tastaturlayout
+  if (e.key === '/' && !$('partner').classList.contains('on')) { e.preventDefault(); $('pbBox').open = true; $('pbQ').focus(); return; }
   if (e.code === 'KeyP') { togglePartner(); return; }
   if (e.code === 'KeyL' && !$('partner').classList.contains('on') && log.firstElementChild) { log.firstElementChild.tabIndex = -1; log.firstElementChild.focus(); return; }   // zum neuesten Eintrag springen
   if ($('partner').classList.contains('on')) return;          // Partneransicht offen: dahinter nichts umschalten
@@ -2162,6 +2227,9 @@ if ('serviceWorker' in navigator && window.isSecureContext && /^https?:$/.test(l
   });
 }
 
+let pbQTimer = null;
+$('pbQ').addEventListener('input', () => { clearTimeout(pbQTimer); pbQTimer = setTimeout(applyPbFilter, 300); });   // Tastendruck entprellt
+$('pbQ').addEventListener('keydown', e => { if (e.key === 'Escape' && $('pbQ').value) { e.stopPropagation(); $('pbQ').value = ''; applyPbFilter(); } });
 $('uiLang').value = UI;
 $('uiLang').onchange = () => {
   UI = $('uiLang').value; settings.ui = UI; saveSettings(); applyUi();
