@@ -192,6 +192,8 @@ final class EngineModel: NSObject, ObservableObject {
     }
     private func pairChanged() {
         guard mineLang != partnerLang else { return }
+        // Tausch (Nr. 11): didSet der Gegenseite hat das Paar schon gemeldet – nicht doppelt senden
+        guard (Langs.mine, Langs.partner) != (mineLang, partnerLang) else { return }
         Self.ud.set(mineLang, forKey: "mineLang"); Self.ud.set(partnerLang, forKey: "partnerLang")
         Langs.mine = mineLang; Langs.partner = partnerLang
         if lang != "auto" && !Langs.pair.contains(lang) { lang = "auto" }
@@ -331,6 +333,10 @@ final class EngineModel: NSObject, ObservableObject {
         guard index != mic || name != micName else { return }
         mic = index; micName = name; micOverride = nil
         send(["mic": Self.micControlValue(index: index, name: name)])   // auch während des Ladens
+    }
+    /// Mikrofon- und Rauschfilter-Argumente für die Stimmprofil-Aufnahme (gleiches Gerät wie im Betrieb).
+    var enrollArgs: [String] {
+        ["--mic", micOverride ?? Self.micControlValue(index: mic, name: micName)] + (denoise ? ["--denoise"] : [])
     }
     /// Wert für das Steuerfeld `mic`: Name, sonst Index, sonst Systemstandard.
     static func micControlValue(index: String, name: String) -> String {
@@ -795,7 +801,7 @@ final class EngineModel: NSObject, ObservableObject {
         let p = Process()
         p.executableURL = URL(fileURLWithPath: Paths.python)
         p.arguments = launchArgs(script)
-        p.environment = Paths.engineEnvironment()
+        p.environment = Paths.engineEnvironment(includeKey: true)
 
         let out = Pipe()
         p.standardOutput = out
@@ -953,6 +959,7 @@ final class EngineModel: NSObject, ObservableObject {
         netDown.removeAll()
         llmActive = false
         llmCostUSD = 0
+        latencies.removeAll(); latencyMedian = nil
         meter.reset()
         keepAwake(false)
         pttWork?.cancel(); pttWork = nil
@@ -1359,6 +1366,13 @@ final class EngineModel: NSObject, ObservableObject {
         indexCache.removeAll()
         Announcer.post(L.t("bubble_deleted"))
     }
+    /// „Alles löschen“ (Nr. 9): Anzeige leeren und der Engine das Vergessen von Kontext/Texten sagen.
+    /// Ältere Engines ignorieren das unbekannte Feld `clear`.
+    func clearAll() {
+        items.removeAll(); trimmedCount = 0; indexCache.removeAll()
+        unsureDrop = nil; failedDrop = nil; vocabSuggestion = nil
+        send(["clear": true])
+    }
     private func trimItems() {
         let excess = items.count - Self.maxItems
         guard excess > 0 else { return }
@@ -1719,6 +1733,7 @@ final class EngineModel: NSObject, ObservableObject {
         llmModel = "claude-haiku-5-5"; mic = ""; micName = ""; denoise = false; logText = false
         offlineMT = Paths.bundledTranslateHelper != nil; privateMode = false
         pushToTalk = false; model = "medium"; preset = ""; history = false
+        outputDevice = ""; outputDeviceName = ""; llmBudget = 0
         for k in Prefs.resettableKeys { Self.ud.removeObject(forKey: k) }
         Self.ud.set(L.defaultCode, forKey: L.key)
         L.sync(L.defaultCode)

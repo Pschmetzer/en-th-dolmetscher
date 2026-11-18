@@ -261,12 +261,12 @@ final class ProfilesModel: ObservableObject {
     var forced: UILang { enrollLang == "th" ? .th : (L.lang == .th ? .en : L.lang) }
 
     /// `onDone` läuft, sobald der Aufnahme-Prozess beendet ist (Mikrofon wieder frei).
-    func startEnroll(name: String, lang: String, model: String, onDone: @escaping () -> Void = {}) {
+    func startEnroll(name: String, lang: String, model: String, extraArgs: [String] = [], onDone: @escaping () -> Void = {}) {
         enrolling = true; enrollLang = lang; step = 0; sentence = ""; heard = ""; finished = nil; failed = nil
         hint = L.t("prep", forced)
         enrollGen += 1
         let gen = enrollGen
-        proc = EngineRunner.run(["--model", model], request: ["enroll": name, "enroll_lang": lang],
+        proc = EngineRunner.run(["--model", model] + extraArgs, request: ["enroll": name, "enroll_lang": lang],
                                 onEvent: { [weak self] o in
                                     guard let self, self.enrollGen == gen else { return }
                                     self.handle(o)
@@ -339,7 +339,7 @@ struct ProfilesView: View {
         let name = newName.trimmingCharacters(in: .whitespaces)
         guard !name.isEmpty else { return }
         m.lendMic()                      // Mikrofon freigeben (Engine bleibt geladen)
-        pm.startEnroll(name: name, lang: newLang, model: m.model, onDone: { m.returnMic() })
+        pm.startEnroll(name: name, lang: newLang, model: m.model, extraArgs: m.enrollArgs, onDone: { m.returnMic() })
         newName = ""
     }
 
@@ -427,7 +427,7 @@ struct ProfilesView: View {
                 Spacer()
                 Button(L.t("redo")) {
                     m.lendMic()
-                    pm.startEnroll(name: p.name, lang: p.lang, model: m.model, onDone: { m.returnMic() })
+                    pm.startEnroll(name: p.name, lang: p.lang, model: m.model, extraArgs: m.enrollArgs, onDone: { m.returnMic() })
                 }
                 Button(role: .destructive) { confirmDelete = p } label: { Image(systemName: "trash") }
                     .help(L.t("delete"))

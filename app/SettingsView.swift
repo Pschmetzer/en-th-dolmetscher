@@ -194,6 +194,12 @@ private struct LoginItemToggle: View {
     @State private var on = SMAppService.mainApp.status == .enabled
     @State private var note: String?
 
+    private func refresh() {
+        let st = SMAppService.mainApp.status
+        on = st == .enabled
+        note = st == .requiresApproval ? L.t("login_item_approve") : nil
+    }
+
     var body: some View {
         Toggle(isOn: Binding(get: { on }, set: { want in
             do {
@@ -209,6 +215,8 @@ private struct LoginItemToggle: View {
                 if let note { Text(note).font(.caption).foregroundStyle(.secondary) }
             }
         }
+        .onAppear { refresh() }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in refresh() }
     }
 }
 

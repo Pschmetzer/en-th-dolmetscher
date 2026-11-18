@@ -11,13 +11,15 @@ struct Bubble: View, Equatable {
     let playing: Bool
     let running: Bool
     let twoPerson: Bool
+    /// Sprachpaar (Nr. 7): Seite und Farbe hängen an den globalen `Langs`; ohne diesen Wert bliebe die Blase nach einem Paarwechsel stehen.
+    var pairKey = ""
     var onCorrect: (Utterance) -> Void = { _ in }
     @State private var hovering = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     nonisolated static func == (a: Bubble, b: Bubble) -> Bool {
         a.u == b.u && a.scale == b.scale && a.playing == b.playing && a.running == b.running
-            && a.twoPerson == b.twoPerson
+            && a.twoPerson == b.twoPerson && a.pairKey == b.pairKey
     }
 
     var body: some View {
@@ -83,6 +85,9 @@ struct Bubble: View, Equatable {
             parts.append((". " + L.t("not_translated"), nil))
         }
         var tail = ""
+        if let who = u.speaker ?? u.role, !who.isEmpty { parts.insert((who + ": ", nil), at: 0) }
+        if u.numWarn { tail += ". " + L.t("num_warn") }
+        if u.provider == "mymemory" { tail += ". " + L.t("weak_mt") }
         if u.lowConfidence { tail += ". " + L.t("low_conf") }
         if u.skipped { tail += ". " + L.t("not_spoken") }
         if u.cutOff { tail += ". " + L.t("cut_off") }

@@ -19,7 +19,7 @@ enum Prefs {
     static let mainWindowID = NSUserInterfaceItemIdentifier("dolmetscher.main")
     /// Schlüssel, die „Alle Einstellungen zurücksetzen“ löscht (Willkommensseite und Sprache bleiben bzw. werden gesetzt).
     static let resettableKeys = [fontScale, alwaysOnTop, showDetails, translit, showQuick, quickPhrases,
-                                 showMenuBar, spaceToggle, announce, listenOnLaunch]
+                                 showMenuBar, spaceToggle, announce, listenOnLaunch, "partnerRotated", "partnerZoom"]
 
     /// Schnellsätze beim ersten Start: englische Sätze (werden ins Thai übersetzt) und thailändische (ins Englische).
     /// Wer die Liste später leert, behält sie leer; nur ein nie gespeicherter Schlüssel zeigt diese Standardliste.
@@ -337,7 +337,7 @@ struct ContentView: View {
                     ForEach(shown) { u in
                         Bubble(m: m, u: u, scale: scale,
                                playing: m.replayingID == u.id || (u.uid.map { m.speakingIDs.contains($0) } ?? false),
-                               running: m.running, twoPerson: m.twoPerson,
+                               running: m.running, twoPerson: m.twoPerson, pairKey: m.mineLang + m.partnerLang,
                                onCorrect: { correcting = $0 })
                             .equatable()
                             .id(u.id)
@@ -499,7 +499,7 @@ struct MainToolbar: View {
         }
         .padding(14)
         .confirmationDialog(L.t("clear_confirm"), isPresented: $confirmClear, titleVisibility: .visible) {
-            Button(L.t("clear"), role: .destructive) { m.items.removeAll(); m.resetTrimmed() }
+            Button(L.t("clear"), role: .destructive) { m.clearAll() }
             Button(L.t("cancel"), role: .cancel) {}
         }
     }
