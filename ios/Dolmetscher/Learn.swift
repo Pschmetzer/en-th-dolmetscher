@@ -131,10 +131,12 @@ struct LearnView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var revealed = false
     @State private var now = Date()
+    @State private var practiceAll = false
+    @State private var confirmReset = false
     @ScaledMetric(relativeTo: .largeTitle) private var iconSize: CGFloat = 48
 
     private var card: LeitnerDeck.Card? {
-        let open: [LeitnerDeck.Card] = m.learn.due(now: now)
+        let open: [LeitnerDeck.Card] = practiceAll ? m.learn.practice() : m.learn.due(now: now)
         return open.first
     }
 
@@ -158,12 +160,27 @@ struct LearnView: View {
             .navigationBarTitleDisplayMode(.inline)
             .doneToolbar { dismiss() }
             .toolbar {
+                if !m.learnLocked, !m.learn.cards.isEmpty {
+                    ToolbarItem(placement: .secondaryAction) {
+                        Menu {
+                            Toggle(T("learn_practice"), isOn: $practiceAll)
+                            Button(role: .destructive) { confirmReset = true } label: {
+                                Label(T("learn_reset"), systemImage: "arrow.counterclockwise")
+                            }
+                        } label: { Image(systemName: "ellipsis.circle") }
+                        .accessibilityLabel(T("more"))
+                    }
+                }
                 if !m.learnLocked, let card {
                     ToolbarItem(placement: .primaryAction) {
                         Button(role: .destructive) { m.removeCard(card.id); revealed = false } label: { Image(systemName: "trash") }
                             .accessibilityLabel(T("learn_delete"))
                     }
                 }
+            }
+            .confirmationDialog(T("learn_reset_ask"), isPresented: $confirmReset, titleVisibility: .visible) {
+                Button(T("learn_reset"), role: .destructive) { m.resetLearnProgress(); revealed = false; now = Date() }
+                Button(T("cancel"), role: .cancel) {}
             }
             .onAppear { m.syncLearn(); now = Date() }
             .onChange(of: m.learnLocked) { _, locked in if !locked { m.syncLearn() } }
@@ -263,6 +280,7 @@ private struct CardFace: View {
             if revealed {
                 Divider()
                 Text(card.back).font(.largeTitle.bold()).foregroundStyle(.orange).multilineTextAlignment(.center)
+                    .accessibilityLabel(A11yLabel.spoken(card.back, card.lang))
                     .minimumScaleFactor(0.4)
                 if let r = card.roman, !r.isEmpty {
                     Text(r).font(.title3).italic().foregroundStyle(.secondary).multilineTextAlignment(.center)
