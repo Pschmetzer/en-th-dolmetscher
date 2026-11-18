@@ -20,14 +20,31 @@ enum ModelCache {
         }
     }
 
-    static var hubDir: String {
-        ProcessInfo.processInfo.environment["HF_HOME"].map { $0 + "/hub" } ?? NSHomeDirectory() + "/.cache/huggingface/hub"
+    /// Cache-Ordner wie huggingface_hub: HF_HUB_CACHE, dann HF_HOME/hub, dann XDG_CACHE_HOME/huggingface/hub (Nr. 4).
+    static func hubDir(env: [String: String] = ProcessInfo.processInfo.environment,
+                       home: String = NSHomeDirectory()) -> String {
+        func set(_ k: String) -> String? { env[k].flatMap { $0.isEmpty ? nil : $0 } }
+        if let d = set("HF_HUB_CACHE") { return d }
+        if let h = set("HF_HOME") { return h + "/hub" }
+        if let x = set("XDG_CACHE_HOME") { return x + "/huggingface/hub" }
+        return home + "/.cache/huggingface/hub"
+    }
+    static var hubDir: String { hubDir() }
+
+    /// Ein Modellordner gilt erst als geladen, wenn ein Snapshot mit Inhalt da ist und kein Blob mehr
+    /// `.incomplete` heißt (Nr. 3): der Ordner entsteht schon beim Start des Downloads.
+    static func isComplete(modelDir: String) -> Bool {
+        let fm = FileManager.default
+        let blobs = (try? fm.contentsOfDirectory(atPath: modelDir + "/blobs")) ?? []
+        if blobs.contains(where: { $0.hasSuffix(".incomplete") }) { return false }
+        let snaps = (try? fm.contentsOfDirectory(atPath: modelDir + "/snapshots")) ?? []
+        return snaps.contains { !((try? fm.contentsOfDirectory(atPath: modelDir + "/snapshots/" + $0)) ?? []).isEmpty }
     }
 
-    /// Repo-IDs im Hugging-Face-Cache ("models--Org--Name" -> "Org/Name").
+    /// Repo-IDs im Hugging-Face-Cache ("models--Org--Name" -> "Org/Name"), nur vollständig geladene.
     static func cached(in dir: String = hubDir) -> Set<String> {
         let names = (try? FileManager.default.contentsOfDirectory(atPath: dir)) ?? []
-        return Set(names.filter { $0.hasPrefix("models--") }
+        return Set(names.filter { $0.hasPrefix("models--") && isComplete(modelDir: dir + "/" + $0) }
             .map { String($0.dropFirst(8)).replacingOccurrences(of: "--", with: "/") })
     }
 

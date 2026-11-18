@@ -50,6 +50,11 @@
   ],
   "phrases": [
     {
+      "en": "I feel unwell. Please call a doctor.",
+      "th": "รู้สึกไม่สบาย ช่วยเรียกแพทย์ให้หน่อย",
+      "critical": true
+    },
+    {
       "en": "Nice to meet you.",
       "th": "ยินดีที่ได้รู้จัก"
     },

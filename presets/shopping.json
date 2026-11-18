@@ -50,6 +50,11 @@
   ],
   "phrases": [
     {
+      "en": "Please call the police.",
+      "th": "ช่วยเรียกตำรวจด้วย",
+      "critical": true
+    },
+    {
       "en": "How much is this?",
       "th": "อันนี้ราคาเท่าไหร่"
     },

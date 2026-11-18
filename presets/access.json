@@ -1,0 +1,114 @@
+{
+  "id": "access",
+  "names": {
+    "de": "Barrierefreiheit",
+    "en": "Accessibility",
+    "th": "การเข้าถึงสำหรับผู้พิการ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Vor dem Besuch nach Stufen, Aufzug und Rampe fragen; viele Gehwege und Gebäude sind nicht stufenfrei. Hilfe wird meist gern gegeben. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Ask about steps, lifts and ramps before visiting; many pavements and buildings are not step-free. Help is usually offered gladly. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "lift",
+      "th": "ลิฟต์"
+    },
+    {
+      "en": "ramp",
+      "th": "ทางลาด"
+    },
+    {
+      "en": "stairs",
+      "th": "บันไดขึ้น"
+    },
+    {
+      "en": "wheelchair",
+      "th": "รถเข็น"
+    },
+    {
+      "en": "guide dog",
+      "th": "สุนัขนำทาง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I need assistance, please.",
+      "th": "ต้องการความช่วยเหลือ",
+      "critical": true
+    },
+    {
+      "en": "I use a wheelchair.",
+      "th": "ใช้รถเข็น"
+    },
+    {
+      "en": "Is there a lift?",
+      "th": "มีลิฟต์ไหม"
+    },
+    {
+      "en": "Are there steps?",
+      "th": "มีบันไดไหม"
+    },
+    {
+      "en": "Is there a ramp?",
+      "th": "มีทางลาดไหม"
+    },
+    {
+      "en": "Is the entrance step-free?",
+      "th": "ทางเข้าไม่มีขั้นบันไดใช่ไหม"
+    },
+    {
+      "en": "Is there an accessible toilet?",
+      "th": "มีห้องน้ำสำหรับผู้พิการไหม"
+    },
+    {
+      "en": "I walk with a stick.",
+      "th": "ใช้ไม้เท้า"
+    },
+    {
+      "en": "I cannot climb stairs.",
+      "th": "ขึ้นบันไดไม่ได้"
+    },
+    {
+      "en": "I am blind. Please guide me.",
+      "th": "ตาบอด ช่วยนำทางให้หน่อย"
+    },
+    {
+      "en": "I have a guide dog.",
+      "th": "มีสุนัขนำทาง"
+    },
+    {
+      "en": "Is a guide dog allowed?",
+      "th": "สุนัขนำทางเข้าได้ไหม"
+    },
+    {
+      "en": "I am hard of hearing. Please write it down.",
+      "th": "หูไม่ค่อยได้ยิน ช่วยเขียนให้หน่อย"
+    },
+    {
+      "en": "Please speak slowly and face me.",
+      "th": "ช่วยพูดช้าๆ โดยหันหน้ามาทางนี้"
+    },
+    {
+      "en": "I need a seat, please.",
+      "th": "ขอที่นั่งหน่อย"
+    },
+    {
+      "en": "Could you help me with the door?",
+      "th": "ช่วยเปิดประตูให้หน่อย"
+    },
+    {
+      "en": "Could you carry my bag?",
+      "th": "ช่วยถือกระเป๋าให้หน่อย"
+    },
+    {
+      "en": "I need a ground floor room.",
+      "th": "ต้องการห้องชั้นล่าง"
+    },
+    {
+      "en": "Could you call a wheelchair-accessible taxi?",
+      "th": "ช่วยเรียกแท็กซี่ที่รับรถเข็นได้ไหม"
+    }
+  ]
+}

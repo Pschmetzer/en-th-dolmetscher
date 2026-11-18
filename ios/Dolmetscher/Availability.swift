@@ -58,8 +58,12 @@ enum LangCheck {
 
     /// Alle Sprachen gegen `other` prüfen (für die Auswahlliste).
     static func levels(with other: Lang) async -> [Lang: LangLevel] {
-        var out: [Lang: LangLevel] = [:]
-        for l in Lang.all where l != other { out[l] = await level(l, with: other) }
-        return out
+        // Parallel: 19 Sprachen nacheinander zu prüfen ließ das Öffnen der Einstellungen träge wirken.
+        await withTaskGroup(of: (Lang, LangLevel).self) { group in
+            for l in Lang.all where l != other { group.addTask { (l, await level(l, with: other)) } }
+            var out: [Lang: LangLevel] = [:]
+            for await (l, v) in group { out[l] = v }
+            return out
+        }
     }
 }

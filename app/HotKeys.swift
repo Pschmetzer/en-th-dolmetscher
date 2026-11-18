@@ -71,8 +71,16 @@ final class HotKeys: ObservableObject {
         self.model = model
         uninstall()
         failures = []
-        register(id: 1, keyCode: kVK_ANSI_D, modifiers: Self.ctrlOpt, name: "⌃⌥D") { [weak model] in model?.toggle() }
-        register(id: 2, keyCode: kVK_ANSI_P, modifiers: Self.ctrlOpt, name: "⌃⌥P") { [weak model] in model?.togglePause() }
+        register(id: 1, keyCode: kVK_ANSI_D, modifiers: Self.ctrlOpt, name: "⌃⌥D") { [weak model] in
+            guard let model else { return }
+            let was = model.active; model.toggle()
+            HUD.show(L.t(was ? "stopped" : "state_listening"))   // Nr. 32
+        }
+        register(id: 2, keyCode: kVK_ANSI_P, modifiers: Self.ctrlOpt, name: "⌃⌥P") { [weak model] in
+            guard let model else { return }
+            let was = model.paused; model.togglePause()
+            HUD.show(L.t(was ? "state_listening" : "state_paused"))   // Nr. 32
+        }
         // Nr. 379: im Gespräch am nötigsten, auch wenn die App im Hintergrund ist
         register(id: 4, keyCode: kVK_ANSI_S, modifiers: Self.ctrlOpt, name: "⌃⌥S") { [weak model] in model?.stopSpeaking() }
         register(id: 5, keyCode: kVK_ANSI_R, modifiers: Self.ctrlOpt, name: "⌃⌥R") { [weak model] in model?.replayLast() }

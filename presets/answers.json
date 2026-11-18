@@ -1,0 +1,118 @@
+{
+  "id": "answers",
+  "names": {
+    "de": "Antworten und Höfliches",
+    "en": "Answers and courtesies",
+    "th": "คำตอบและคำสุภาพ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Kurze Zeige-Karten für Alltag: Danke, Entschuldigung, nicht verstanden, bitte aufschreiben. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Short show-cards for everyday use: thanks, sorry, not understood, please write it down. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "thank you",
+      "th": "ขอบคุณ"
+    },
+    {
+      "en": "sorry",
+      "th": "ขอโทษ"
+    },
+    {
+      "en": "please",
+      "th": "กรุณา"
+    },
+    {
+      "en": "slowly",
+      "th": "ช้าๆ"
+    },
+    {
+      "en": "write",
+      "th": "เขียน"
+    },
+    {
+      "en": "map",
+      "th": "แผนที่"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I need help.",
+      "th": "ต้องการความช่วยเหลือ",
+      "critical": true
+    },
+    {
+      "en": "Thank you.",
+      "th": "ขอบคุณ"
+    },
+    {
+      "en": "Sorry.",
+      "th": "ขอโทษ"
+    },
+    {
+      "en": "Excuse me.",
+      "th": "ขออนุญาต"
+    },
+    {
+      "en": "I do not know.",
+      "th": "ไม่ทราบ"
+    },
+    {
+      "en": "I do not understand.",
+      "th": "ไม่เข้าใจ"
+    },
+    {
+      "en": "Please speak slowly.",
+      "th": "ช่วยพูดช้าๆ หน่อย"
+    },
+    {
+      "en": "Please say it again.",
+      "th": "ช่วยพูดอีกครั้งหน่อย"
+    },
+    {
+      "en": "Please write it down.",
+      "th": "ช่วยเขียนให้หน่อย"
+    },
+    {
+      "en": "How much is it?",
+      "th": "ราคาเท่าไร"
+    },
+    {
+      "en": "Please wait a moment.",
+      "th": "รอสักครู่"
+    },
+    {
+      "en": "No, thank you.",
+      "th": "ไม่เอา ขอบคุณ"
+    },
+    {
+      "en": "That is correct.",
+      "th": "ถูกต้อง"
+    },
+    {
+      "en": "That is not correct.",
+      "th": "ไม่ถูกต้อง"
+    },
+    {
+      "en": "Do you speak English?",
+      "th": "พูดภาษาอังกฤษได้ไหม"
+    },
+    {
+      "en": "Where is the toilet?",
+      "th": "ห้องน้ำอยู่ที่ไหน"
+    },
+    {
+      "en": "Can you show me on the map?",
+      "th": "ช่วยชี้บนแผนที่ให้หน่อย"
+    },
+    {
+      "en": "Please call this number.",
+      "th": "ช่วยโทรเบอร์นี้ให้หน่อย"
+    },
+    {
+      "en": "Is it far from here?",
+      "th": "ไกลจากที่นี่ไหม"
+    }
+  ]
+}

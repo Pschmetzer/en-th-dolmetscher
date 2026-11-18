@@ -1,0 +1,269 @@
+{
+ "version": 1,
+ "packs": [
+  {
+   "id": "doctor",
+   "names": {
+    "de": "Arzt (nur Verständigung)",
+    "en": "Doctor (communication only)",
+    "th": "พบแพทย์ (ช่วยสื่อสารเท่านั้น)"
+   },
+   "phrases": 25,
+   "critical": 8,
+   "reviewed": false
+  },
+  {
+   "id": "police",
+   "names": {
+    "de": "Polizei / Diebstahl",
+    "en": "Police / theft",
+    "th": "ตำรวจ / ของถูกขโมย"
+   },
+   "phrases": 19,
+   "critical": 6,
+   "reviewed": false
+  },
+  {
+   "id": "lostchild",
+   "names": {
+    "de": "Kind verloren (Zeige-Sätze)",
+    "en": "Lost child (show cards)",
+    "th": "เด็กพลัดหลง (บัตรแสดง)"
+   },
+   "phrases": 19,
+   "critical": 16,
+   "reviewed": false
+  },
+  {
+   "id": "pharmacy",
+   "names": {
+    "de": "Apotheke",
+    "en": "Pharmacy",
+    "th": "ร้านขายยา"
+   },
+   "phrases": 21,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
+   "id": "dentist",
+   "names": {
+    "de": "Zahnarzt",
+    "en": "Dentist",
+    "th": "ทันตแพทย์"
+   },
+   "phrases": 19,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
+   "id": "taxi",
+   "names": {
+    "de": "Taxi",
+    "en": "Taxi",
+    "th": "แท็กซี่"
+   },
+   "phrases": 20,
+   "critical": 1,
+   "reviewed": false
+  },
+  {
+   "id": "places",
+   "names": {
+    "de": "Orte: Bangkok, Phuket, Chiang Mai",
+    "en": "Places: Bangkok, Phuket, Chiang Mai",
+    "th": "สถานที่ยอดนิยม"
+   },
+   "phrases": 19,
+   "critical": 0,
+   "reviewed": false
+  },
+  {
+   "id": "airport",
+   "names": {
+    "de": "Flughafen und Gepäck",
+    "en": "Airport and luggage",
+    "th": "สนามบินและสัมภาระ"
+   },
+   "phrases": 18,
+   "critical": 2,
+   "reviewed": false
+  },
+  {
+   "id": "transport",
+   "names": {
+    "de": "Fähre / Bus / Zug",
+    "en": "Ferry / bus / train",
+    "th": "เรือ / รถเมล์ / รถไฟ"
+   },
+   "phrases": 20,
+   "critical": 1,
+   "reviewed": false
+  },
+  {
+   "id": "travel",
+   "names": {
+    "de": "Reisen",
+    "en": "Travel",
+    "th": "เดินทางท่องเที่ยว"
+   },
+   "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "hotel",
+   "names": {
+    "de": "Hotel",
+    "en": "Hotel",
+    "th": "โรงแรม"
+   },
+   "phrases": 19,
+   "critical": 2,
+   "reviewed": false
+  },
+  {
+   "id": "restaurant",
+   "names": {
+    "de": "Restaurant",
+    "en": "Restaurant",
+    "th": "ร้านอาหาร"
+   },
+   "phrases": 30,
+   "critical": 11,
+   "reviewed": false
+  },
+  {
+   "id": "shopping",
+   "names": {
+    "de": "Einkaufen",
+    "en": "Shopping",
+    "th": "ช้อปปิ้ง"
+   },
+   "phrases": 18,
+   "critical": 1,
+   "reviewed": false
+  },
+  {
+   "id": "bank",
+   "names": {
+    "de": "Bank / Geldautomat",
+    "en": "Bank / ATM",
+    "th": "ธนาคาร / ตู้เอทีเอ็ม"
+   },
+   "phrases": 16,
+   "critical": 3,
+   "reviewed": false
+  },
+  {
+   "id": "answers",
+   "names": {
+    "de": "Antworten und Höfliches",
+    "en": "Answers and courtesies",
+    "th": "คำตอบและคำสุภาพ"
+   },
+   "phrases": 19,
+   "critical": 1,
+   "reviewed": false
+  },
+  {
+   "id": "access",
+   "names": {
+    "de": "Barrierefreiheit",
+    "en": "Accessibility",
+    "th": "การเข้าถึงสำหรับผู้พิการ"
+   },
+   "phrases": 19,
+   "critical": 1,
+   "reviewed": false
+  },
+  {
+   "id": "spa",
+   "names": {
+    "de": "Massage / Spa",
+    "en": "Massage / spa",
+    "th": "นวด / สปา"
+   },
+   "phrases": 19,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
+   "id": "temple",
+   "names": {
+    "de": "Tempel / Kultur",
+    "en": "Temple / culture",
+    "th": "วัด / วัฒนธรรม"
+   },
+   "phrases": 18,
+   "critical": 1,
+   "reviewed": false
+  },
+  {
+   "id": "island",
+   "names": {
+    "de": "Inselausflug und Tauchen",
+    "en": "Island trip and diving",
+    "th": "ทริปเกาะและดำน้ำ"
+   },
+   "phrases": 17,
+   "critical": 3,
+   "reviewed": false
+  },
+  {
+   "id": "scooter",
+   "names": {
+    "de": "Werkstatt / Roller",
+    "en": "Garage / scooter",
+    "th": "อู่ซ่อมรถ / มอเตอร์ไซค์"
+   },
+   "phrases": 19,
+   "critical": 3,
+   "reviewed": false
+  },
+  {
+   "id": "rental",
+   "names": {
+    "de": "Wohnung mieten",
+    "en": "Renting a flat",
+    "th": "เช่าห้อง / คอนโด"
+   },
+   "phrases": 20,
+   "critical": 1,
+   "reviewed": false
+  },
+  {
+   "id": "services",
+   "names": {
+    "de": "Wäscherei, Friseur, Schneider",
+    "en": "Laundry, hairdresser, tailor",
+    "th": "ซักรีด ตัดผม ตัดเสื้อ"
+   },
+   "phrases": 17,
+   "critical": 0,
+   "reviewed": false
+  },
+  {
+   "id": "coworking",
+   "names": {
+    "de": "Coworking und Langzeitmiete",
+    "en": "Coworking and long-term stay",
+    "th": "โคเวิร์กกิ้งและเช่ายาว"
+   },
+   "phrases": 20,
+   "critical": 0,
+   "reviewed": false
+  },
+  {
+   "id": "office",
+   "names": {
+    "de": "Büro",
+    "en": "Office",
+    "th": "ที่ทำงาน"
+   },
+   "phrases": 15,
+   "critical": 1,
+   "reviewed": false
+  }
+ ]
+}

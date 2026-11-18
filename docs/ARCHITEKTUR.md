@@ -56,6 +56,36 @@ Es gibt zwei getrennte Zustände, die man nicht vermischen darf:
 | `build-support/` | Entitlements, `setup-env.sh` (Einrichtung), `make-stamp.sh` (Stempel) |
 | `bench/` | Benchmark für Erkennung und Übersetzung |
 
+## Web Lite (`index.html`)
+
+Eine Datei ohne Build, Skripte nur inline (Content-Security-Policy erlaubt keine fremden Skripte). Zustände:
+
+- `mode` (`null`, `'a'`, `'b'`): wer spricht. `setMode` stoppt Erkennung und Ausgabe, erhöht `gen` und startet `startRec`.
+- `gen`: Zähler; verspätete Rückrufe (Übersetzung, Sprachausgabe) vergleichen ihn und verwerfen sich bei Abweichung.
+- `outChain` / `outPending` / `outNext`: Übersetzungen laufen parallel, Vorlesen strikt nacheinander in Satzreihenfolge.
+- `rec`: laufende `SpeechRecognition`; `pttReleased`: bei „Halten zum Sprechen“ nach dem Loslassen kein Neustart.
+- Anbieter-Sicherung `netGuard`: nach zwei Fehlern wird Google bzw. MyMemory 60 s übersprungen.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Aus
+    Aus --> Hoert: Knopf/Taste (nach Einwilligung)
+    Hoert --> Uebersetzt: Endergebnis erkannt
+    Uebersetzt --> Spricht: Vorlesen an (Mikro aus ohne Kopfhoerer)
+    Spricht --> Hoert: outPending == 0
+    Spricht --> Aus: Auto-Wechsel (outNext) schaltet den anderen Modus ein
+    Hoert --> Aus: Stopp / Pause / harter Fehler
+    Hoert --> Hoert: Neustart mit Wartezeit (scheduleRestart)
+```
+
+Weitere Teile: Großansicht (`togglePartner`, History-Eintrag für die Zurück-Taste), Satzbuch (`renderCards`, Pakete aus
+`presets/`, Namen aus `presets-index.json`), Lernkarten (Leitner, `localStorage`), Zahlenkarte (`thaiNumber`), Allergiekarte
+(`allergens.json`), Oberfläche in drei Sprachen (`STR`, `t()`, `data-i18n`). Reine Logik steht als Top-Level-Funktion, damit
+die Tests sie mit node herauslösen können (`tests/_webhelpers.py`).
+
+Lokal testen: `python3 -m http.server 8000` oder `make web`. Tests: `make test-web` (braucht node). Wer Dateien ändert,
+die der Service Worker vorab speichert (`CORE` in `sw.js`), erhöht `CACHE`.
+
 ## Demo-Modus (`DOLMETSCHER_DEMO`)
 
 Setzt man die Umgebungsvariable `DOLMETSCHER_DEMO` (irgendein Wert, z. B. `1`) beim Start der App, füllt `EngineModel` den Verlauf mit festen Beispiel-Blasen (Englisch, Thai, unsicher erkannt, übersprungen, Platzhalter). Außerdem startet `boot()` die Engine nicht (`app/Engine.swift` kehrt früh zurück): kein Python-Prozess, kein Mikrofon, kein Netz. Der Modus ist nur für Screenshots und Oberflächentests gedacht. Beispiel:

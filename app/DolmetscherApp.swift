@@ -13,6 +13,34 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         !(UserDefaults.standard.object(forKey: Prefs.showMenuBar) as? Bool ?? true)
     }
 
+    /// Nr. 19: ⌘Q mitten im Gespräch (Mikrofon an, Übersetzung läuft, Ausgabe) erst nach Rückfrage.
+    func applicationShouldTerminate(_ s: NSApplication) -> NSApplication.TerminateReply {
+        let inUse = MainActor.assumeIsolated { () -> Bool in
+            let m = EngineModel.shared
+            return m.micOn || m.busy || m.speakingNow
+        }
+        guard inUse else { return .terminateNow }
+        let a = NSAlert()
+        a.messageText = L.t("quit_confirm_title")
+        a.informativeText = L.t("quit_confirm_text")
+        a.addButton(withTitle: L.t("quit"))
+        a.addButton(withTitle: L.t("cancel"))
+        let canExport = MainActor.assumeIsolated { !EngineModel.shared.items.isEmpty }
+        if canExport { a.addButton(withTitle: L.t("export") + " …") }
+        switch a.runModal() {
+        case .alertFirstButtonReturn: return .terminateNow
+        case .alertThirdButtonReturn:
+            MainActor.assumeIsolated { exportConversation(EngineModel.shared) }
+            return .terminateCancel
+        default: return .terminateCancel
+        }
+    }
+
+    /// Nr. 53: dolmetscher://…
+    func application(_ app: NSApplication, open urls: [URL]) {
+        MainActor.assumeIsolated { for u in urls { URLCommands.handle(u) } }
+    }
+
     func applicationWillTerminate(_ n: Notification) {
         MainActor.assumeIsolated {
             HotKeys.shared.uninstall()
@@ -27,6 +55,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         MainActor.assumeIsolated {
             HotKeys.shared.install(for: EngineModel.shared)
             EngineModel.shared.boot()   // Modelle im Hintergrund laden (Mikrofon aus)
+            SystemEvents.install()      // Aufwachen (Nr. 21), Geräte ein-/ausgesteckt (Nr. 27)
+        }
+        // Nr. 18: Hauptfenster zu = Mikrofon aus (Einstellung, Standard an); sonst hört die App unbemerkt weiter
+        NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: nil, queue: .main) { n in
+            guard let w = n.object as? NSWindow, w.identifier == Prefs.mainWindowID,
+                  UserDefaults.standard.object(forKey: Prefs.stopMicOnClose) as? Bool ?? true else { return }
+            MainActor.assumeIsolated { if EngineModel.shared.active { EngineModel.shared.stopListening() } }
         }
         NotificationCenter.default.addObserver(forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main) { _ in
             MainActor.assumeIsolated { HotKeys.shared.retryIfNeeded() }
@@ -58,9 +93,42 @@ struct AppCommands: Commands {
     @AppStorage(Prefs.fontScale) private var scale = 1.0
     @AppStorage(Prefs.alwaysOnTop) private var onTop = false
     @AppStorage(L.key) private var uiLang = L.defaultCode   // Menüs neu aufbauen, wenn die Sprache wechselt
+    @AppStorage(Prefs.quickPhrases) private var quickRaw = Prefs.pairDefaults
+
+    /// Preset-Sätze wie in der Schnellsatz-Leiste (Nr. 35): (Text, Sprache) in der Reihenfolge „kritisch zuerst“.
+    private var presetPhrases: [(String, String)] {
+        guard let pr = PresetCatalog.all.first(where: { $0.id == model.preset }), model.activePreset != nil else { return [] }
+        let fromEvent = model.activePreset?.id == pr.id
+        let list = (fromEvent ? model.activePresetPhrases : nil) ?? pr.phrases
+        let useTH = !Langs.hasEnglish && Langs.hasThai
+        return (list.filter(\.critical) + list.filter { !$0.critical }).map { (useTH ? $0.th : $0.en, useTH ? "th" : "en") }
+    }
 
     var body: some Commands {
         let _ = L.sync(uiLang)
+        CommandMenu(L.t("quick_phrases")) {   // Nr. 35: ⌘1–⌘9 (eigene Sätze), ⌥⌘1–⌥⌘9 (Preset-Sätze)
+            ForEach(Array(Prefs.phrases(quickRaw).prefix(9).enumerated()), id: \.offset) { i, p in
+                Button(p) { model.say(p, lang: Prefs.phraseLang(p)) }
+                    .keyboardShortcut(KeyEquivalent(Character("\(i + 1)")), modifiers: .command)
+                    .disabled(!model.engineReady)
+            }
+            let pp = presetPhrases
+            if !pp.isEmpty { Divider() }
+            ForEach(Array(pp.prefix(9).enumerated()), id: \.offset) { i, p in
+                Button(p.0) { model.say(p.0, lang: p.1) }
+                    .keyboardShortcut(KeyEquivalent(Character("\(i + 1)")), modifiers: [.command, .option])
+                    .disabled(!model.engineReady)
+            }
+        }
+        CommandGroup(before: .saveItem) {   // Nr. 51
+            Button(L.t("file_translate") + " …") { chooseAudioFileToTranslate(model) }
+                .disabled(model.fileBusy)
+        }
+        CommandGroup(after: .undoRedo) {    // Nr. 34
+            Button(L.t("undo_delete")) { model.undoDelete() }
+                .keyboardShortcut("z", modifiers: [.command, .option])
+                .disabled(model.deletedBubble == nil)
+        }
         CommandGroup(replacing: .saveItem) {
             Button(L.t("export") + " …") { exportConversation(model) }
                 .keyboardShortcut("e", modifiers: [.command, .shift])
@@ -77,6 +145,7 @@ struct AppCommands: Commands {
             Divider()
             Button(L.t("partner_view")) { openWindow(id: "partner") }
                 .keyboardShortcut("p", modifiers: [.command, .shift])
+            Button(L.t("caption_title")) { openWindow(id: "caption") }   // Nr. 52
             Toggle(L.t("always_on_top"), isOn: $onTop)
                 .keyboardShortcut("t", modifiers: [.command, .option])
             Divider()
@@ -174,6 +243,12 @@ struct DolmetscherApp: App {
             PartnerView().environmentObject(model)
         }
         .defaultSize(width: 1000, height: 640)
+
+        Window(L.t("caption_title"), id: "caption") {
+            CaptionView().environmentObject(model)
+        }
+        .defaultSize(width: 760, height: 130)
+        .windowStyle(.hiddenTitleBar)
 
         Settings {
             SettingsView().environmentObject(model)

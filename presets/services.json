@@ -1,0 +1,105 @@
+{
+  "id": "services",
+  "names": {
+    "de": "Wäscherei, Friseur, Schneider",
+    "en": "Laundry, hairdresser, tailor",
+    "th": "ซักรีด ตัดผม ตัดเสื้อ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Beim Maßanzug Preis, Stoff und Zahl der Anproben vorher festhalten; Preis pro Kilo bei der Wäscherei vorher erfragen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "For a tailored suit agree price, fabric and number of fittings beforehand; ask the price per kilo at the laundry. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "laundry",
+      "th": "ซักรีด"
+    },
+    {
+      "en": "haircut",
+      "th": "ตัดผม"
+    },
+    {
+      "en": "tailor",
+      "th": "ช่างตัดเสื้อ"
+    },
+    {
+      "en": "iron",
+      "th": "รีด"
+    },
+    {
+      "en": "fitting",
+      "th": "ลองชุด"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Where can I do laundry?",
+      "th": "ซักผ้าได้ที่ไหน"
+    },
+    {
+      "en": "How much per kilo?",
+      "th": "กิโลละเท่าไร"
+    },
+    {
+      "en": "When will it be ready?",
+      "th": "เสร็จเมื่อไร"
+    },
+    {
+      "en": "Please wash this separately.",
+      "th": "ช่วยซักแยกให้หน่อย"
+    },
+    {
+      "en": "Please iron it.",
+      "th": "ช่วยรีดให้หน่อย"
+    },
+    {
+      "en": "Do not use hot water.",
+      "th": "อย่าใช้น้ำร้อน"
+    },
+    {
+      "en": "Please do not use bleach.",
+      "th": "ไม่ใช้น้ำยาฟอกขาว"
+    },
+    {
+      "en": "I need express service.",
+      "th": "ต้องการแบบด่วน"
+    },
+    {
+      "en": "A haircut, please.",
+      "th": "ขอตัดผม"
+    },
+    {
+      "en": "Just a trim, please.",
+      "th": "ขอเล็มนิดหน่อย"
+    },
+    {
+      "en": "Not too short, please.",
+      "th": "ขออย่าสั้นเกินไป"
+    },
+    {
+      "en": "Please wash my hair.",
+      "th": "ช่วยสระผมให้หน่อย"
+    },
+    {
+      "en": "Could you take my measurements?",
+      "th": "ช่วยวัดตัวให้หน่อย"
+    },
+    {
+      "en": "How many days for a tailored suit?",
+      "th": "ตัดสูทใช้เวลากี่วัน"
+    },
+    {
+      "en": "Please agree the price before you start.",
+      "th": "ขอตกลงราคาก่อนเริ่มทำ"
+    },
+    {
+      "en": "Could I have a fitting first?",
+      "th": "ขอลองชุดก่อนได้ไหม"
+    },
+    {
+      "en": "Could you alter this?",
+      "th": "ช่วยแก้ขนาดให้หน่อยได้ไหม"
+    }
+  ]
+}

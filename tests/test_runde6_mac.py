@@ -111,7 +111,7 @@ def test_l10n_beobachter_main():
 def test_voiceover_aktionen_und_loeschen():
     for key in ("alt_reading", "save_phrase", "delete_bubble"):
         assert f'.accessibilityAction(named: L.t("{key}"))' in BUBBLES
-    assert 'reassign_me" : "reassign_other")) {' in BUBBLES
+    assert 'L.reassign(Langs.reassignRole(u.lang))) {' in BUBBLES   # Nr. 41: Text mit Sprachnamen des Paars
     assert "func deleteItem(_ u: Utterance)" in ENGINE and "m.deleteItem(u)" in BUBBLES
 
 

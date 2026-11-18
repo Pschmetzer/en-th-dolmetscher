@@ -64,7 +64,8 @@ final class RomanizerTests: XCTestCase {
     func testOnlyForScriptLanguages() {
         XCTAssertNil(Romanizer.latin("Hello", .en))
         XCTAssertNil(Romanizer.latin("Hello", .th))   // kein Thai im Text
-        XCTAssertNil(Romanizer.latin("Привет", .ru))   // nicht vorgesehen
+        XCTAssertNil(Romanizer.latin("Привет", .en))   // Kyrillisch gilt nur für ru/uk
+        XCTAssertEqual(Romanizer.latin("Привет", .ru), "Privet")   // Runde 7: auch ru/uk/ar/hi
     }
 }
 

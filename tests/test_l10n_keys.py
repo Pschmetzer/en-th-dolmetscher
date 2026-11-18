@@ -93,7 +93,11 @@ def test_used_keys_exist():
 def test_no_unused_keys():
     rows, _ = parse_table()
     src = "\n".join(f.read_text(encoding="utf-8") for f in APP.glob("*.swift") if f.name != "L10n.swift")
+    l10n = (APP / "L10n.swift").read_text(encoding="utf-8")
+    src += l10n[:l10n.index("static let table")]   # Hilfsfunktionen in L10n.swift (tp, reassign) nennen Schlüssel
     literals = set(re.findall(r'"([A-Za-z0-9_]+)"', src))
-    dynamic_prefixes = ("style_",)   # L.t("style_" + name)
-    unused = sorted(k for k in rows if k not in literals and not k.startswith(dynamic_prefixes))
+    dynamic_prefixes = ("style_", "offline_pack_")   # L.t("style_" + name), L.t("offline_pack_" + status)
+    # L.tp("x") lädt "x_pair" (Sprachnamen als Platzhalter, tests/test_runde7_mac_contract.py prüft die Paare)
+    unused = sorted(k for k in rows if k not in literals and not k.startswith(dynamic_prefixes)
+                    and not (k.endswith("_pair") and k[:-5] in literals))
     assert not unused, f"Unused L10n keys (remove or use): {unused}"

@@ -265,7 +265,8 @@ final class Round5ModelTests: XCTestCase {
         m.holdToSpeak(m.pair.partner)
         XCTAssertTrue(m.pttHeld, "Halten bleibt nach Neustart bestehen")
         XCTAssertEqual(m.expected, m.pair.partner)
-        XCTAssertTrue(m.mode.langs(m.pair).contains(m.pair.partner))
+        XCTAssertEqual(m.mode, .mine, "gespeicherter Modus bleibt unverändert")
+        XCTAssertEqual(m.listenOverride, .partner, "nur vorübergehend auf die Partnersprache gehört")
         await wait("hört wieder zu") { m.isListening }
         XCTAssertEqual(fake.muted.last, false, "beim Halten offen")
         m.pttRelease()

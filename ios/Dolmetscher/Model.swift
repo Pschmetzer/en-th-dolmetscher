@@ -23,9 +23,13 @@ struct Entry: Identifiable, Codable, Equatable {
     var roman: String?
     /// Rückübersetzung der Übersetzung in die Ausgangssprache (nur auf dem Gerät) – zur Kontrolle.
     var back: String?
+    /// Aus einem Foto (Speisekarte, Schild): kein Gespräch – nicht im Export und nicht im Lernkasten.
+    var photo: Bool?
 
-    /// Umschrift: die geprüfte aus dem Satzbuch, sonst automatisch (th/ja/ko/zh).
+    /// Umschrift: die geprüfte aus dem Satzbuch, sonst automatisch (th/ja/ko/zh/ru/uk/ar/hi).
     var romanized: String? { roman ?? translation.flatMap { Romanizer.latin($0, target) } }
+    /// Die Umschrift ist maschinell (grobe Lautschrift), nicht die geprüfte aus dem Satzbuch.
+    var romanIsApproximate: Bool { roman == nil && romanized != nil }
     /// Rückübersetzung weicht deutlich ab – Übersetzung prüfen.
     var backDeviates: Bool { back.map { BackCheck.deviates(original: text, back: $0) } ?? false }
 
@@ -93,13 +97,18 @@ final class InterpreterModel {
         didSet {
             guard pair != oldValue else { return }
             save("langMine", pair.mine.rawValue); save("langPartner", pair.partner.rawValue)
+            RecentPairs.remember(oldValue, current: pair, in: d)
             if mode.effective(pair) != mode { mode = mode.effective(pair) }
             if phase == .listening { restart() }
             Task { await refreshOffline() }
         }
     }
     var features: PairFeatures { pair.features }
-    var mode: Direction { didSet { save("mode", mode.rawValue); if phase == .listening && oldValue != mode { restart() } } }
+    var mode: Direction { didSet { save("mode", mode.rawValue); listenOverride = nil; if phase == .listening && oldValue != mode { restart() } } }
+    /// „Jetzt Sie/Jetzt ich“: vorübergehend andere Erkenner als der gespeicherte Modus. Wird nie gespeichert und
+    /// nach der Erwartungszeit wieder aufgehoben (der Nutzer landet nicht ungewollt in „nur Thai“).
+    @ObservationIgnored var listenOverride: Direction?
+    private var listenMode: Direction { listenOverride ?? mode }
     var pauseSeconds: Double { didSet { save("pauseSeconds", pauseSeconds); engine?.setPause(pauseSeconds) } }
     var rate: Double { didSet { save("rate", rate) } }
     var volume: Double { didSet { save("volume", volume) } }
@@ -123,6 +132,14 @@ final class InterpreterModel {
     /// 906: „Langsam und deutlich“ – langsamer und mit Pausen zwischen Satzteilen.
     var clearSpeech: Bool { didSet { save("clearSpeech", clearSpeech) } }
     var uiLang: String { didSet { save("uiLang", uiLang); L10n.lang = uiLang } }
+    @ObservationIgnored var uiLangFollowsSystem = true
+
+    /// Der Nutzer wählt die Oberflächensprache selbst: ab jetzt folgt sie nicht mehr dem System.
+    func chooseUILang(_ code: String) {
+        uiLangFollowsSystem = false
+        save("uiLangFollowsSystem", false)
+        uiLang = code
+    }
     var politeness: Politeness { didSet { save("politeness", politeness.rawValue) } }
     var haptics: Bool { didSet { save("haptics", haptics); Haptics.enabled = haptics } }
     /// Nach so vielen Minuten ohne Sprache von selbst stoppen (0 = nie) – spart Akku.
@@ -132,13 +149,21 @@ final class InterpreterModel {
     /// Mikrofon eines Bluetooth-Headsets verwenden (schlechtere Tonqualität, aber näher am Mund).
     var headset: Bool { didSet { save("headset", headset); if phase == .listening { restart() } } }
     /// Verlauf aufbewahren: 0 = gar nicht speichern, sonst Tage (-1 = für immer).
-    var historyDays: Int { didSet { save("historyDays", historyDays); persist() } }
+    var historyDays: Int { didSet { save("historyDays", historyDays); persist(); pruneHistory() } }
     /// Thai-Ausgabe immer über den Lautsprecher, auch mit Kopfhörern (das Gegenüber soll es hören).
     var thaiOnSpeaker: Bool { didSet { save("thaiOnSpeaker", thaiOnSpeaker) } }
     /// Gespeichert wird entprellt (563): nicht bei jedem Tastendruck im Formular.
     var emergency: EmergencyInfo { didSet { scheduleWrite(.emergency) } }
     /// Halten zum Sprechen statt Dauer-Zuhören (spart Akku, sicherer in Menschenmengen).
     var pushToTalk: Bool { didSet { save("pushToTalk", pushToTalk); applyMute() } }
+    /// Halten-zum-Sprechen per Tippen: Tippen startet, noch einmal Tippen beendet (Motorik, Switch Control).
+    /// Gewähltes Mikrofon (UID), nil = automatisch; greift beim nächsten Start.
+    var micUID: String? { didSet { if let u = micUID { save("micUID", u) } else { d.removeObject(forKey: "micUID") }; if phase == .listening && oldValue != micUID { restart() } } }
+    /// Echo-/Rauschunterdrückung des Systems beim Zuhören (iOS 18.2+).
+    var echoCancel: Bool { didSet { save("echoCancel", echoCancel); if phase == .listening && oldValue != echoCancel { restart() } } }
+    /// Favoriten in der Spotlight-Suche des iPhones (aus, solange der Nutzer es nicht einschaltet).
+    var spotlight: Bool { didSet { save("spotlight", spotlight); SpotlightIndexer.update(favorites, enabled: spotlight) } }
+    var pttTapMode: Bool { didSet { save("pttTapMode", pttTapMode) } }
     /// Live-Aktivität (Sperrbildschirm, Dynamic Island) beim Zuhören.
     var liveActivity: Bool { didSet { save("liveActivity", liveActivity); liveUpdate() } }
     /// Rückübersetzung (offline) unter jeder Übersetzung anzeigen.
@@ -225,7 +250,11 @@ final class InterpreterModel {
         privacyShield = d.object(forKey: "privacyShield") as? Bool ?? true
         summaryEnabled = d.object(forKey: "summaryEnabled") as? Bool ?? true
         cultureHints = d.object(forKey: "cultureHints") as? Bool ?? true
-        uiLang = d.string(forKey: "uiLang") ?? L10n.systemLang()
+        // Folgt der Nutzer der Systemsprache (nie selbst gewählt), gilt die aktuelle iOS-App-Sprache.
+        let storedUI = d.string(forKey: "uiLang")
+        let follows = d.object(forKey: "uiLangFollowsSystem") as? Bool ?? (storedUI == nil || storedUI == L10n.systemLang())
+        uiLangFollowsSystem = follows
+        uiLang = follows ? L10n.systemLang() : (storedUI ?? L10n.systemLang())
         politeness = Politeness(rawValue: d.string(forKey: "politeness") ?? "") ?? .male
         haptics = d.object(forKey: "haptics") as? Bool ?? true
         autoStopMinutes = d.object(forKey: "autoStopMinutes") as? Int ?? 10
@@ -238,6 +267,10 @@ final class InterpreterModel {
         showRoman = d.object(forKey: "showRoman") as? Bool ?? true
         lockHistory = d.object(forKey: "lockHistory") as? Bool ?? false
         pushToTalk = d.object(forKey: "pushToTalk") as? Bool ?? false
+        pttTapMode = d.object(forKey: "pttTapMode") as? Bool ?? false
+        micUID = d.string(forKey: "micUID")
+        spotlight = d.object(forKey: "spotlight") as? Bool ?? false
+        echoCancel = d.object(forKey: "echoCancel") as? Bool ?? false
         // Standard „aus“ (Sätze auf dem Sperrbildschirm). Wer die App schon nutzte, behält die bisherige Einstellung.
         liveActivity = LivePrivacy.initialSetting(stored: d.object(forKey: "liveActivity") as? Bool,
                                                   existingUser: d.object(forKey: "prepShown") != nil)
@@ -250,6 +283,7 @@ final class InterpreterModel {
         places = files.load([Place].self, "places.json").value ?? []
         loadLearn()
         pruneHistory()
+        ensurePruneTimer()
         Task { await refreshOffline() }
         // Gerät war beim Start gesperrt: nach dem Entsperren nachladen.
         NotificationCenter.default.addObserver(forName: UIApplication.protectedDataDidBecomeAvailableNotification,
@@ -286,7 +320,7 @@ final class InterpreterModel {
 
     private func loadFavorites() {
         switch files.load([Phrase].self, "favorites.json") {
-        case .ok(let f): favorites = f + favorites.filter { n in !f.contains { $0.en == n.en } }; favoritesBlocked = false
+        case .ok(let f): favorites = f + favorites.filter { n in !f.contains { $0.favoriteKey == n.favoriteKey } }; favoritesBlocked = false
         case .missing: favoritesBlocked = false
         case .corrupt: files.quarantine("favorites.json"); favoritesBlocked = false
         case .unreadable: favoritesBlocked = true
@@ -343,8 +377,8 @@ final class InterpreterModel {
         generation += 1
         let mine = generation
         let pendingStop = stopTask
-        let options = AudioOptions(headset: headset, sensitivity: sensitivity)
-        let langs = mode.langs(pair), pause = pauseSeconds
+        let options = AudioOptions(headset: headset, sensitivity: sensitivity, preferredInput: micUID, echoCancel: echoCancel)
+        let langs = listenMode.langs(pair), pause = pauseSeconds
         let cellularOK = cellularAllowed
         cellularAllowed = false
         // Whisper nur auf Wunsch und nur mit vollständigem Modell – sonst Apple mit Hinweis.
@@ -438,7 +472,7 @@ final class InterpreterModel {
         idleTask?.cancel()
         guard let e = engine else {
             // Start läuft noch (z. B. Modell-Download): der nächste Start wartet, bis er sauber abgebrochen ist.
-            if let st = startTask { stopTask = Task { await st.value } }
+            if let st = startTask { st.cancel(); stopTask = Task { await st.value } }
             phase = .idle
             return
         }
@@ -452,7 +486,12 @@ final class InterpreterModel {
         if endConversation { LiveActivityController.shared.end() }
         UIApplication.shared.isIdleTimerDisabled = false
         Haptics.tap()
-        stopTask = Task { await e.stop() }
+        // Abbau auch dann zu Ende führen, wenn iOS die App gleich einfriert (sonst bleibt der Mikrofonpunkt hängen).
+        let bg = UIApplication.shared.beginBackgroundTask(withName: "stop-listening")
+        stopTask = Task {
+            await e.stop()
+            UIApplication.shared.endBackgroundTask(bg)
+        }
     }
 
     private func restart() {
@@ -501,15 +540,37 @@ final class InterpreterModel {
     func enteredForeground() {
         if resumeOnForeground { resumeOnForeground = false; start() }
         pruneHistory()
+        if uiLangFollowsSystem, L10n.systemLang() != uiLang { uiLang = L10n.systemLang() }
     }
 
-    private func pruneHistory() {
+    private func pruneHistory(now: Date = Date()) {
+        pruneLearn(now: now)
         guard historyDays > 0 else { return }
-        let cutoff = Date().addingTimeInterval(-Double(historyDays) * 86_400)
+        let cutoff = now.addingTimeInterval(-Double(historyDays) * 86_400)
         let before = entries.count
         entries.removeAll { $0.date < cutoff }
-        if entries.count != before { persist() }
+        if entries.count != before { pruneRevisions(); persist() }
     }
+
+    /// Karten aus Gesprächen leben nicht länger als der Verlauf: „gar nicht speichern“ = keine, sonst nach `historyDays`.
+    private func pruneLearn(now: Date) {
+        guard !learnBlocked, historyDays >= 0 else { return }
+        let cutoff = historyDays == 0 ? Date.distantFuture : now.addingTimeInterval(-Double(historyDays) * 86_400)
+        var deck = learn
+        if deck.pruneTalk(olderThan: cutoff) > 0 { learn = deck }
+    }
+
+    /// Aufbewahrung auch im Dauerbetrieb (Vordergrund, Zuhören): stündlich, nicht erst beim nächsten Vordergrundwechsel.
+    private func ensurePruneTimer() {
+        guard pruneTimer == nil else { return }
+        pruneTimer = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(3600))
+                self?.pruneHistory()
+            }
+        }
+    }
+    @ObservationIgnored private var pruneTimer: Task<Void, Never>?
 
     private func watchIdle() {
         idleTask?.cancel()
@@ -579,6 +640,12 @@ final class InterpreterModel {
         case .interrupted:
             interrupted = false
             if phase == .listening { restart() }
+        case .interruptionEndedNoResume:
+            interrupted = false
+            if phase == .listening {
+                stop(endConversation: false)
+                flash("⏸ " + T("tap_start_again"), seconds: 6)
+            }
         }
     }
 
@@ -628,7 +695,10 @@ final class InterpreterModel {
         guard pair.contains(lang) else { return }
         expected = lang
         expectedUntil = Date().addingTimeInterval(20)
-        if !mode.langs(pair).contains(lang) { mode = lang == pair.mine ? .mine : .partner }
+        if let o = ListenOverride.needed(for: lang, mode: listenMode, pair: pair) {
+            listenOverride = o
+            if phase == .listening { restart() }
+        }
         if !isListening && !isBusy { start() }
         Haptics.tap()
         expectTask?.cancel()
@@ -636,6 +706,7 @@ final class InterpreterModel {
             try? await Task.sleep(for: .seconds(20))
             guard !Task.isCancelled else { return }
             self?.expected = nil
+            self?.releaseOverride()
         }
     }
 
@@ -643,6 +714,21 @@ final class InterpreterModel {
         expectTask?.cancel()
         expected = nil
         expectedUntil = .distantPast
+        if listenOverride != nil { Task { [weak self] in try? await Task.sleep(for: .seconds(1)); self?.releaseOverride() } }
+    }
+
+    /// Vorübergehenden Erkenner-Wechsel zurücknehmen – aber nie mitten im Satz oder in der Sprachausgabe (ein Neustart
+    /// würde beides abbrechen); dann in 3 s noch einmal versuchen.
+    private func releaseOverride(attempt: Int = 0) {
+        guard listenOverride != nil else { return }
+        let busy = hearing || finishing || speakingID != nil || pendingSpeech > 0
+        if busy && attempt < 10 {
+            Task { [weak self] in try? await Task.sleep(for: .seconds(3)); self?.releaseOverride(attempt: attempt + 1) }
+            return
+        }
+        let before = listenMode.langs(pair)
+        listenOverride = nil
+        if phase == .listening, mode.langs(pair) != before { restart() }
     }
 
     // MARK: Befehle
@@ -674,12 +760,15 @@ final class InterpreterModel {
     // MARK: Übersetzen
 
     /// Getippter Satz, Foto-Text oder Kurzbefehl.
-    func submit(_ raw: String, speak: Bool = true) {
+    /// `from`: der Satz stammt ausdrücklich von dieser Seite (Tastatur des Gegenübers im Partnerbereich).
+    func submit(_ raw: String, speak: Bool = true, photo: Bool = false, from: Lang? = nil) {
         let text = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
         touch()
-        let src = typedLang(text)
-        add(Entry(src: src, dst: pair.other(src), text: text), speak: speak)
+        let src = from.flatMap { pair.contains($0) ? $0 : nil } ?? typedLang(text)
+        var e = Entry(src: src, dst: pair.other(src), text: text)
+        if photo { e.photo = true }
+        add(e, speak: speak)
     }
 
     /// Sprache eines getippten Textes; bei gleicher Schrift gilt die eingestellte Richtung.
@@ -722,8 +811,19 @@ final class InterpreterModel {
     }
 
     private func trim() {
-        if entries.count > 300 { entries.removeFirst(entries.count - 300) }
+        let cap = Retention.cap(days: historyDays)
+        if entries.count > cap { entries.removeFirst(entries.count - cap); pruneRevisions() }
     }
+
+    /// Zähler gelöschter oder gekappter Einträge verwerfen (sonst wächst `revisions` bei Dauerbetrieb ohne Grenze).
+    private func pruneRevisions() {
+        guard revisions.count > entries.count else { return }
+        let live = Set(entries.map(\.id))
+        revisions = revisions.filter { live.contains($0.key) }
+    }
+
+    /// Nur für Tests.
+    var revisionCount: Int { revisions.count }
 
     /// `force`: auch vorlesen, wenn „Automatisch vorlesen“ aus ist (Kurzbefehl „Sage …“).
     private func translate(_ id: UUID, speak: Bool = true, force: Bool = false) {
@@ -821,6 +921,7 @@ final class InterpreterModel {
     func delete(_ id: UUID) {
         if speakingID == id { stopSpeaking() }
         entries.removeAll { $0.id == id }
+        pruneRevisions()
         persist()
     }
 
@@ -833,6 +934,7 @@ final class InterpreterModel {
         undo.keep(gone, seconds: 8)
         let ids = Set(gone.map(\.id))
         entries.removeAll { ids.contains($0.id) }
+        pruneRevisions()
         persist()
         canUndoClear = true
         flash("🗑 " + T("cleared"), seconds: 8)
@@ -954,12 +1056,18 @@ final class InterpreterModel {
         return Phrase(en: e.text, th: t, roman: e.roman ?? "", category: "favorites", src: e.src, dst: e.target)
     }
 
-    func isFavorite(_ p: Phrase) -> Bool { favorites.contains { $0.en == p.en } }
+    /// Lernkasten hinter derselben Sperre wie der Verlauf (er enthält Sätze aus Gesprächen).
+    var learnLocked: Bool { lockHistory && !historyUnlocked }
+    /// Sperre ist an, aber das Gerät hat keinen Code mehr: der Verlauf ist offen – das muss sichtbar sein.
+    var lockInactive: Bool { lockHistory && !DeviceAuth.available }
+
+    func isFavorite(_ p: Phrase) -> Bool { favorites.contains { $0.favoriteKey == p.favoriteKey } }
     func isFavorite(_ e: Entry) -> Bool { phrase(for: e).map(isFavorite) ?? false }
 
     func toggleFavorite(_ p: Phrase) {
-        if isFavorite(p) { favorites.removeAll { $0.en == p.en } } else { favorites.insert(p, at: 0) }
+        if isFavorite(p) { favorites.removeAll { $0.favoriteKey == p.favoriteKey } } else { favorites.insert(p, at: 0) }
         if !favoritesBlocked { files.store(favorites, "favorites.json") }
+        if spotlight { SpotlightIndexer.update(favorites, enabled: true) }
         Haptics.tap()
     }
 
@@ -973,12 +1081,19 @@ final class InterpreterModel {
     /// Mögliche Karten: Favoriten und Sätze aus Gesprächen (gesperrter Verlauf bleibt außen vor).
     var learnSources: [LeitnerDeck.Source] {
         let favs = favorites.map { LeitnerDeck.Source.from($0, politeness: politeness) }
-        let talk = visibleEntries.suffix(300).compactMap { LeitnerDeck.Source.from($0, pair: pair) }
+        // „Verlauf nicht speichern“ gilt auch für den Lernkasten: keine Karten aus Gesprächen.
+        let talk = historyDays == 0 ? [] : visibleEntries.suffix(300).compactMap { LeitnerDeck.Source.from($0, pair: pair) }
         return favs + talk.reversed()
     }
 
+    func removeCard(_ id: String) {
+        var deck = learn
+        deck.dismiss(id)
+        learn = deck
+    }
+
     func syncLearn() {
-        guard !learnBlocked else { return }
+        guard !learnBlocked, !learnLocked else { return }
         var deck = learn
         if deck.sync(learnSources) > 0 { learn = deck }
     }

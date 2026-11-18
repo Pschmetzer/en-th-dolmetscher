@@ -13,6 +13,7 @@ enum LangStyle {
 }
 
 struct ContentView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(InterpreterModel.self) private var m
     @State private var showPartner = false
     @State private var big: Entry?
@@ -185,14 +186,22 @@ struct ContentView: View {
         @Bindable var m = m
         return VStack(spacing: 10) {
             let p = m.pair
-            HStack(spacing: 12) {
-                Text("\(p.mine.flag) \(p.mine.native)").foregroundStyle(LangStyle.color(p.mine, p))
-                Image(systemName: "arrow.left.arrow.right").foregroundStyle(.secondary)
-                Text("\(p.partner.flag) \(p.partner.native)").foregroundStyle(LangStyle.color(p.partner, p))
+            Menu {
+                // Schnellwechsel: die zuletzt benutzten Paare, ohne in die Einstellungen zu gehen.
+                ForEach(Array(RecentPairs.load(from: UserDefaults.standard).filter { $0 != p }.enumerated()), id: \.offset) { _, q in
+                    Button("\(q.mine.flag) \(q.mine.native) ⇄ \(q.partner.flag) \(q.partner.native)") { m.pair = q }
+                }
+            } label: {
+                HStack(spacing: 12) {
+                    Text("\(p.mine.flag) \(p.mine.native)").foregroundStyle(LangStyle.color(p.mine, p))
+                    Image(systemName: "arrow.left.arrow.right").foregroundStyle(.secondary)
+                    Text("\(p.partner.flag) \(p.partner.native)").foregroundStyle(LangStyle.color(p.partner, p))
+                }
+                .font(.title2.bold())
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
             }
-            .font(.title2.bold())
-            .lineLimit(1)
-            .minimumScaleFactor(0.6)
+            .disabled(m.isBusy || RecentPairs.load(from: UserDefaults.standard).filter { $0 != p }.isEmpty)
             .accessibilityElement(children: .combine)
             Picker(T("direction"), selection: $m.mode) {
                 if p.distinguishable { Text(T("mode_auto")).tag(Direction.auto) }
@@ -257,7 +266,7 @@ struct ContentView: View {
             }
         }
         .frame(maxWidth: .infinity, minHeight: 22)
-        .animation(.default, value: statusText)
+        .animation(Motion.animation(reduce: reduceMotion), value: statusText)
         .accessibilityAddTraits(.updatesFrequently)
     }
 
@@ -306,7 +315,7 @@ struct ContentView: View {
                 if unseen {
                     Button {
                         unseen = false
-                        withAnimation { proxy.scrollTo("end", anchor: .bottom) }
+                        withAnimation(Motion.animation(reduce: reduceMotion)) { proxy.scrollTo("end", anchor: .bottom) }
                     } label: { Label(T("new_below"), systemImage: "arrow.down") }
                         .buttonStyle(.borderedProminent)
                         .controlSize(.small)
@@ -318,7 +327,7 @@ struct ContentView: View {
 
     private func follow(_ proxy: ScrollViewProxy, animated: Bool) {
         guard atEnd else { unseen = true; return }
-        if animated { withAnimation { proxy.scrollTo("end", anchor: .bottom) } } else { proxy.scrollTo("end", anchor: .bottom) }
+        if animated { withAnimation(Motion.animation(reduce: reduceMotion)) { proxy.scrollTo("end", anchor: .bottom) } } else { proxy.scrollTo("end", anchor: .bottom) }
     }
 
     // MARK: Fuß
@@ -337,9 +346,9 @@ struct ContentView: View {
                 }
             }
             HStack(spacing: 8) {
-                Button { m.sheet = .phrasebook } label: { Image(systemName: "book").font(.title3) }
+                Button { m.sheet = .phrasebook } label: { Image(systemName: "book").font(.title3).frame(minWidth: 44, minHeight: 44) }
                     .accessibilityLabel(T("phrasebook"))
-                Button { m.sheet = .photo } label: { Image(systemName: "text.viewfinder").font(.title3) }
+                Button { m.sheet = .photo } label: { Image(systemName: "text.viewfinder").font(.title3).frame(minWidth: 44, minHeight: 44) }
                     .accessibilityLabel(T("photo_text"))
                 TextField(T("type_hint"), text: $draft, axis: .vertical)
                     .lineLimit(1...3)
@@ -440,6 +449,9 @@ struct PartialLine: View {
         }
         .padding(10)
         .frame(maxWidth: .infinity, alignment: .center)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(text.isEmpty ? T("translating") : String(format: T("hearing_now"), text))
+        .accessibilityAddTraits(.updatesFrequently)
     }
 }
 
@@ -485,9 +497,8 @@ struct TalkButton: View {
         .frame(maxWidth: .infinity, minHeight: 56)
         .background(held ? Color.red : Color.blue, in: Capsule())
         .overlay(Capsule().stroke(.white.opacity(0.7), lineWidth: held ? CGFloat(m.level) * 6 : 0))
-        .onLongPressGesture(minimumDuration: 0, maximumDistance: 80, perform: {}, onPressingChanged: { pressing in
-            if pressing { before(); m.pttPress() } else { m.pttRelease() }
-        })
+        .modifier(PushGesture(tapMode: m.pttTapMode, held: held,
+                              press: { before(); m.pttPress() }, release: { m.pttRelease() }))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(label)
         .accessibilityAddTraits(.isButton)
@@ -535,6 +546,7 @@ struct MicButton: View {
             .overlay(Capsule().stroke(.white.opacity(0.7), lineWidth: m.isListening ? CGFloat(m.level) * 6 : 0))
         }
         .accessibilityLabel(active ? T("stop") : T("start"))
+        .accessibilityInputLabels(active ? [T("stop"), "Stop", "Stopp"] : [T("start"), "Start", "Listen"])
     }
 }
 
@@ -544,7 +556,7 @@ private struct EditAlert: View {
     @State private var text = ""
 
     var body: some View {
-        TextField("", text: $text)
+        TextField(T("edit_text"), text: $text)
             .onAppear { text = entry?.text ?? "" }
         Button(T("translate")) { onSave(text) }
         Button(T("cancel"), role: .cancel) {}
@@ -569,6 +581,8 @@ struct Bubble: View {
     let entry: Entry
     var onBig: () -> Void
     var onEdit: () -> Void
+    @AppStorage("fxRate") private var fxRate = FXDefaults.rate(for: FXDefaults.code())
+    @AppStorage("fxCode") private var fxCode = FXDefaults.code()
 
     var body: some View {
         let color: Color = LangStyle.color(entry.target, m.pair)
@@ -587,7 +601,7 @@ struct Bubble: View {
             Text(t)
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(color)
-            RomanLine(text: roman)
+            RomanLine(text: roman, approximate: m.showRoman && entry.romanIsApproximate)
             if m.features.thaiExtras { PriceLine(text: entry.text + " " + t) }
             if m.backCheck, let b = entry.back { BackLine(text: b, deviates: entry.backDeviates) }
         } else if let err = entry.error {
@@ -637,15 +651,18 @@ struct Bubble: View {
 
     private var roman: String? { m.showRoman ? entry.romanized : entry.roman }
 
-    private var a11yLabel: String {
-        var parts = ["\(entry.src.name(in: L10n.lang)): \(entry.text)"]
-        if let t = entry.translation {
-            parts.append("\(entry.target.name(in: L10n.lang)): \(t)")
-            if m.backCheck, entry.backDeviates { parts.append(T("back_deviates")) }
-        }
-        else if let err = entry.error { parts.append(err) }
-        else { parts.append(T("translating")) }
-        return parts.joined(separator: ". ")
+    private var a11yLabel: Text {
+        var extras: [String] = []
+        if entry.translation != nil {
+            if m.backCheck, entry.backDeviates { extras.append(T("back_deviates")) }
+            // RomanLine und PriceLine fehlen sonst für VoiceOver und Sprachsteuerung.
+            if m.features.thaiExtras, let t = entry.translation,
+               let price = PriceSpotter.line(PriceSpotter.amounts(in: entry.text + " " + t), rate: fxRate, code: fxCode,
+                                             locale: Locale(identifier: L10n.lang)) { extras.append(price) }
+        } else if let err = entry.error { extras.append(err) }
+        else { extras.append(T("translating")) }
+        return A11yLabel.text(A11yLabel.build(src: entry.src, text: entry.text, target: entry.target,
+                                              translation: entry.translation, extras: extras, uiLang: L10n.lang))
     }
 
     @ViewBuilder private var a11yActions: some View {
@@ -707,6 +724,7 @@ struct Bubble: View {
 
 /// Eine Übersetzung bildschirmfüllend – zum Zeigen (Taxifahrer, Kellner).
 struct BigTextView: View {
+    @ScaledMetric(relativeTo: .largeTitle) private var scaled72: CGFloat = 72
     @Environment(InterpreterModel.self) private var m
     @Environment(\.dismiss) private var dismiss
     let entryID: UUID
@@ -717,7 +735,7 @@ struct BigTextView: View {
         VStack(spacing: 0) {
             VStack(spacing: 16) {
                 Text(e?.translation ?? "")
-                    .font(.system(size: 72, weight: .bold))
+                    .font(.system(size: scaled72, weight: .bold))
                     .minimumScaleFactor(0.2)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(LangStyle.color(e?.target ?? m.pair.partner, m.pair))
@@ -820,8 +838,10 @@ struct CommandsCard: View {
 struct RomanLine: View {
     let text: String?
     var font: Font = .caption
+    /// Maschinelle Umschrift: „≈“ davor, als grobe Lautschrift erkennbar.
+    var approximate = false
     var body: some View {
-        if let text { Text(text).font(font).italic().foregroundStyle(.secondary) }
+        if let text { Text((approximate ? "≈ " : "") + text).font(font).italic().foregroundStyle(.secondary) }
     }
 }
 
@@ -857,6 +877,10 @@ private struct ShareSummaryItems: View {
         let export = TranscriptExport(entries: m.visibleEntries, lang: m.uiLang)
         ShareLink(item: export, preview: SharePreview(T("share"))) { Label(T("share"), systemImage: "square.and.arrow.up") }
             .disabled(m.visibleEntries.isEmpty)
+        ShareLink(item: TranscriptCSV(entries: m.visibleEntries), preview: SharePreview("Dolmetscher.csv")) {
+            Label(T("export_csv"), systemImage: "tablecells")
+        }
+        .disabled(m.visibleEntries.isEmpty)
         if m.summaryEnabled && ConversationSummary.available(for: m.pair.mine) {
             Button { m.sheet = .summary } label: { Label(T("summary"), systemImage: "text.append") }
                 .disabled(m.visibleEntries.count < 2)

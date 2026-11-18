@@ -35,7 +35,8 @@ def _line(prefix):
 def test_note_and_critical_rendering():
     rc = _func("renderCards")
     assert "presetNote(d)" in rc and "$('pbNote').textContent" in rc and "innerHTML" not in rc
-    assert "criticalFirst(d.phrases)" in rc and "' crit'" in rc and "⚠ Wichtig" in rc   # nicht nur Farbe
+    assert "criticalFirst(d.phrases)" in rc and "' crit'" in rc   # nicht nur Farbe
+    assert "t('important')" in rc and "⚠ Wichtig" in HTML
     assert '<div id="pbNote" class="note" role="note" hidden></div>' in HTML
     assert "d.phrases.sort" not in SCRIPT                  # Preset-Objekt wird geteilt (presetCache): nie umsortieren
 
@@ -51,13 +52,13 @@ def test_learn_storage_is_guarded():
     assert "try { localStorage.setItem(LEARN_KEY" in _func("learnStore")
     assert "try { return learnParse(localStorage.getItem(LEARN_KEY)); } catch { return []; }" in SCRIPT
     d = _func("deliver")
-    ok_branch = d.split("}, () => {", 1)[0]
+    ok_branch = d.split("}, e => {", 1)[0]
     assert "learnRecent" in ok_branch                      # nur echte Übersetzungen, nie Fehlertexte
-    assert "learnRecent" not in d.split("}, () => {", 1)[1]
+    assert "learnRecent" not in d.split("}, e => {", 1)[1]
     assert ok_branch.index("announce(out, m.dst)") < ok_branch.index("learnItem(")   # Lernkarten nie vor der Ausgabe
     assert "Object.hasOwn(" not in SCRIPT                 # ältere Browser (Safari < 15.4)
     assert '<label><input type="checkbox" id="learnRecent">' in HTML   # Standard: aus
-    assert "Lernkarten" in re.search(r'id="privacy">(.*?)</div>', HTML, re.S).group(1)
+    assert "Lernkarten" in re.search(r'id="privacy"[^>]*>(.*?)</div>', HTML, re.S).group(1)
     assert "learnStore([])" in SCRIPT and "removeItem(LEARN_KEY)" in SCRIPT
 
 
@@ -91,7 +92,7 @@ def test_partner_font_scale_and_scroll():
 
 
 def test_visible_stop_and_escape():
-    assert '<button class="small" id="btnStop" type="button" disabled>' in HTML
+    assert '<button class="small" id="btnStop" type="button" disabled' in HTML
     assert "$('btnStop').disabled = !mode" in _func("setMode")
     keys = SCRIPT.split("document.addEventListener('keydown'", 1)[1]
     esc = keys.split("if (!$('keysOn').checked)", 1)[0]
@@ -110,6 +111,7 @@ PRELUDE = "\n".join([
     _func("applyLangTable"), f"applyLangTable({(ROOT / 'languages.json').read_text(encoding='utf-8')});",
     "let pair = { a: 'de', b: 'th' };", _line("const CMD_RE"),
     _line("const LEARN_KEY"), re.search(r"^const LEARN_DAYS.*$", SCRIPT, re.M).group(0),
+    re.search(r"^const RETRY_MS.*$", SCRIPT, re.M).group(0),
     *(_func(n) for n in ("learnSide", "learnParse", "learnItem", "learnKey", "learnAdd", "learnRemove",
                          "leitnerNext", "learnDue", "criticalFirst", "presetNote", "parseCommand")),
 ])
@@ -136,10 +138,15 @@ CASES = [
     ("learnItem('Hallo', 'xx', 'สวัสดี', 'th')", None),
     ("learnItem('a'.repeat(900), 'de', 'b', 'th').a.t.length", 500),
     # Leitner
-    (f"leitnerNext({{...{json.dumps(CARD)}, box: 1, due: 0}}, true, 1000)", {**CARD, "box": 2, "due": 1000 + DAY}),
-    (f"leitnerNext({{...{json.dumps(CARD)}, box: 4, due: 0}}, true, 0).due", 14 * DAY),
+    # richtig: fällig am lokalen Kalendertag (Mitternacht), unabhängig von der Zeitzone
+    (f"const N = Date.UTC(2026, 5, 15, 12), c = leitnerNext({{...{json.dumps(CARD)}, box: 1, due: 0}}, true, N); "
+     "const d = new Date(c.due); [c.box, d.getHours(), d.getMinutes(), c.due > N, c.due - N <= 2 * 86400000]",
+     [2, 0, 0, True, True]),
+    (f"const N = Date.UTC(2026, 5, 15, 12), c = leitnerNext({{...{json.dumps(CARD)}, box: 4, due: 0}}, true, N); "
+     "[c.box, c.due - N >= 13 * 86400000, c.due - N <= 15 * 86400000]", [5, True, True]),
     (f"leitnerNext({{...{json.dumps(CARD)}, box: 5, due: 0}}, true, 0).box", 5),
-    (f"leitnerNext({{...{json.dumps(CARD)}, box: 4, due: 0}}, false, 7)", {**CARD, "box": 1, "due": 7}),
+    # falsch: Fach 1, aber erst nach 10 Minuten wieder (nicht sofort dieselbe Karte)
+    (f"leitnerNext({{...{json.dumps(CARD)}, box: 4, due: 0}}, false, 7)", {**CARD, "box": 1, "due": 7 + 600000}),
     ("learnDue([{box: 2, due: 1, id: 'x'}, {box: 1, due: 5, id: 'y'}, {box: 1, due: 3, id: 'z'}, "
      "{box: 1, due: 99, id: 'later'}], 10).map(c => c.id)", ["z", "y", "x"]),
     # Hinzufügen: keine Doppelten, Merken setzt fav, voll -> ältester ungemerkter fliegt

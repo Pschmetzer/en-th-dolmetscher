@@ -56,6 +56,9 @@ private struct GeneralSettings: View {
     @AppStorage(Prefs.spaceToggle) private var spaceToggle = true
     @AppStorage(Prefs.listenOnLaunch) private var listenOnLaunch = false
     @AppStorage(Prefs.announce) private var announce = true
+    @AppStorage(Prefs.hideFromCapture) private var hideCapture = false
+    @AppStorage(Prefs.stopMicOnClose) private var stopMicOnClose = true
+    @AppStorage(Prefs.hotkeyHUD) private var hotkeyHUD = true
 
     var body: some View {
         Form {
@@ -150,6 +153,7 @@ private struct GeneralSettings: View {
                     }
                 }
                 .disabled(Paths.bundledTranslateHelper == nil)
+                if Paths.bundledTranslateHelper != nil { OfflinePackRow() }   // Nr. 25/26
                 Toggle(isOn: $m.logText) {
                     VStack(alignment: .leading) { Text(L.t("log_text")); RestartNote() }
                 }
@@ -177,6 +181,11 @@ private struct GeneralSettings: View {
                     .help(L.t("space_toggle_help"))
                 Toggle(L.t("announce_toggle"), isOn: $announce)
                     .help(L.t("announce_help"))
+                Toggle(L.t("hide_capture"), isOn: $hideCapture)          // Nr. 17
+                    .help(L.t("hide_capture_help"))
+                Toggle(L.t("stop_mic_on_close"), isOn: $stopMicOnClose)  // Nr. 18
+                    .help(L.t("stop_mic_on_close_help"))
+                Toggle(L.t("hotkey_hud"), isOn: $hotkeyHUD)              // Nr. 32
                 Toggle(L.t("listen_on_launch"), isOn: $listenOnLaunch)   // Nr. 377
                     .help(L.t("listen_on_launch_help"))
                 LoginItemToggle()
@@ -194,6 +203,12 @@ private struct LoginItemToggle: View {
     @State private var on = SMAppService.mainApp.status == .enabled
     @State private var note: String?
 
+    private func refresh() {
+        let st = SMAppService.mainApp.status
+        on = st == .enabled
+        note = st == .requiresApproval ? L.t("login_item_approve") : nil
+    }
+
     var body: some View {
         Toggle(isOn: Binding(get: { on }, set: { want in
             do {
@@ -209,6 +224,8 @@ private struct LoginItemToggle: View {
                 if let note { Text(note).font(.caption).foregroundStyle(.secondary) }
             }
         }
+        .onAppear { refresh() }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in refresh() }
     }
 }
 
@@ -364,6 +381,7 @@ private struct MicSection: View {
             }
         }
         .onAppear { if mics.isEmpty { load() } }
+        .onReceive(NotificationCenter.default.publisher(for: .audioDevicesChanged)) { _ in load() }   // Nr. 27
         .onDisappear { proc?.terminate(); proc = nil }
     }
 
@@ -413,6 +431,7 @@ private struct OutputSection: View {
             }
         }
         .onAppear { outputs = AudioOutputs.list() }
+        .onReceive(NotificationCenter.default.publisher(for: .audioDevicesChanged)) { _ in outputs = AudioOutputs.list() }   // Nr. 27
     }
 }
 
@@ -440,7 +459,7 @@ private struct RecognitionSection: View {
             Toggle(isOn: $m.denoise) {
                 VStack(alignment: .leading) { Text(L.t("denoise")); RestartNote() }
             }
-            Toggle(L.t("two_person"), isOn: $m.twoPerson)
+            Toggle(L.tp("two_person", [Langs.name(Langs.meLang), Langs.name(Langs.target(Langs.meLang))]), isOn: $m.twoPerson)
                 .help(L.t("two_person_help"))
             Toggle(L.t("fast_endpoint"), isOn: $m.fastEndpoint)
                 .help(L.t("fast_endpoint_help"))
@@ -494,7 +513,7 @@ private struct VoiceSettings: View {
                     Slider(value: rateBinding, in: -50...50, step: 5)
                         .accessibilityLabel(L.t("rate"))
                         .accessibilityValue("\(m.rate) %")
-                    Text(String(format: "%+d %%", m.rate)).monospacedDigit().frame(width: 52, alignment: .trailing)
+                    Text(fmtNumber(Double(m.rate), digits: 0, plus: true) + " %").monospacedDigit().frame(width: 52, alignment: .trailing)
                 }
                 HStack {
                     Text(L.t("volume"))
@@ -552,6 +571,10 @@ private struct TranslationSettings: View {
                     VStack(alignment: .leading) { Text(L.t("llm_model")); RestartNote() }
                 }
                 .accessibilityLabel(L.t("llm_model"))
+                // Nr. 38: ungefähre Kosten je Modell (Preise wie in der Engine, ca. 300 Eingabe- + 40 Ausgabe-Token je Satz)
+                Label(L.f("llm_price_hint", EngineModel.costPer1000(m.llmModel)),
+                      systemImage: m.llmModel.contains("opus") ? "exclamationmark.triangle" : "dollarsign.circle")
+                    .font(.caption).foregroundStyle(m.llmModel.contains("opus") ? LangStyle.warning : .secondary)
                 Picker(L.t("style"), selection: $m.llmStyle) {
                     ForEach(["casual", "neutral", "polite"], id: \.self) { Text(L.t("style_" + $0)).tag($0) }
                 }
@@ -566,7 +589,7 @@ private struct TranslationSettings: View {
                     .help(L.t("preset_help"))
                 }
                 if m.llmCostUSD > 0 {
-                    LabeledContent(L.t("llm_cost"), value: String(format: "≈ $%.3f", m.llmCostUSD))
+                    LabeledContent(L.t("llm_cost"), value: "≈ $" + fmtNumber(m.llmCostUSD, digits: 3))
                 }
                 // Kostenbremse (Nr. 16): darüber übersetzt Google bis Monatsende
                 LabeledContent {
@@ -670,20 +693,20 @@ private struct DisplaySettings: View {
 
 private struct QuickPhraseSettings: View {
     @AppStorage(Prefs.showQuick) private var showQuick = true
-    @AppStorage(Prefs.quickPhrases) private var raw = Prefs.defaultPhrases
+    @AppStorage(Prefs.quickPhrases) private var raw = Prefs.pairDefaults
 
     var body: some View {
         Section(L.t("quick_phrases")) {
             Toggle(L.t("show_quick"), isOn: $showQuick)
-            Text(L.t("quick_edit")).font(.callout).foregroundStyle(.secondary)
+            Text(L.tp("quick_edit")).font(.callout).foregroundStyle(.secondary)
             TextEditor(text: $raw)
                 .font(.body)
                 .frame(minHeight: 140)
-                .accessibilityLabel(L.t("quick_edit"))
+                .accessibilityLabel(L.tp("quick_edit"))
             HStack {
                 Spacer()
-                Button(L.t("quick_reset")) { raw = Prefs.defaultPhrases }
-                    .disabled(raw == Prefs.defaultPhrases)
+                Button(L.t("quick_reset")) { raw = Prefs.pairDefaults }
+                    .disabled(raw == Prefs.pairDefaults)
             }
         }
     }

@@ -5,7 +5,7 @@ import Foundation
 /// Umschrift (Lateinschrift) für Sprachen mit eigener Schrift – offline über ICU/CFStringTokenizer.
 /// Nur eine Lesehilfe: bei Thai folgt sie der Schrift (ISO 11940, vereinfacht), nicht genau der Aussprache.
 enum Romanizer {
-    static let langs: Set<Lang> = [.th, .ja, .ko, .zh]
+    static let langs: Set<Lang> = Set([Lang.th, .ja, .ko, .zh] + ["ru", "uk", "ar", "hi"].compactMap { Lang(rawValue: $0) })
 
     static func latin(_ text: String, _ lang: Lang) -> String? {
         guard langs.contains(lang), lang.scriptShare(text) > 0.3 else { return nil }
@@ -94,9 +94,27 @@ enum BackCheck {
         return 2 * Double(common) / Double(x.count - 1 + y.count - 1)
     }
 
+    /// Mindestlänge je Schrift: Ein chinesisches oder japanisches Zeichen trägt viel mehr als ein Buchstabe
+    /// (8 Zeichen sind ein langer Satz), Thai liegt dazwischen.
+    static func minLength(_ chars: [Character]) -> Int {
+        var cjk = 0, thai = 0
+        for c in chars {
+            guard let v = c.unicodeScalars.first?.value else { continue }
+            switch v {
+            case 0x3040...0x30FF, 0x3400...0x4DBF, 0x4E00...0x9FFF, 0xAC00...0xD7AF: cjk += 1
+            case 0x0E00...0x0E7F: thai += 1
+            default: break
+            }
+        }
+        if cjk * 2 > chars.count { return 3 }
+        if thai * 2 > chars.count { return 6 }
+        return 8
+    }
+
     /// Kurze Sätze („Ja“, „OK“) schwanken stark – dort nie warnen.
     static func deviates(original: String, back: String) -> Bool {
-        guard normalize(original).count >= 8 else { return false }
+        let chars = normalize(original)
+        guard chars.count >= minLength(chars) else { return false }
         return similarity(original, back) < threshold
     }
 }
@@ -167,17 +185,35 @@ enum ThaiNumber {
 
 /// Ziffern aus einer Eingabe (Antwortkarte „Zahl“) – höchstens 9 Stellen, führende Nullen weg.
 enum NumberCard {
+    /// Höchstens 9 Stellen, nach dem Dezimalpunkt höchstens 2 („12.50“ – Preise außerhalb Thailands).
     static func append(_ digit: Character, to s: String) -> String {
+        if digit == "." {
+            if s.contains(".") { return s }
+            return s.isEmpty ? "0." : (s.count < 9 ? s + "." : s)
+        }
         guard digit.isNumber, s.count < 9 else { return s }
+        if let dot = s.firstIndex(of: ".") {
+            return s[s.index(after: dot)...].count < 2 ? s + String(digit) : s
+        }
         return s == "0" ? String(digit) : s + String(digit)
     }
 
-    /// Anzeige mit Tausendertrennzeichen der Zielsprache, bei Thai zusätzlich das Zahlwort.
+    /// Anzeige mit Tausender- und Dezimaltrennzeichen der Zielsprache, bei ganzen Thai-Zahlen zusätzlich das Zahlwort.
     static func spoken(_ digits: String, in lang: Lang) -> String {
-        guard let n = Int(digits) else { return digits }
         let f = NumberFormatter()
         f.numberStyle = .decimal
         f.locale = Locale(identifier: lang.info.locale)
+        if digits.contains(".") {
+            let places = digits.split(separator: ".", omittingEmptySubsequences: false).last?.count ?? 0
+            guard let v = Double(digits) else { return digits }
+            f.minimumFractionDigits = places
+            f.maximumFractionDigits = places
+            var shown = f.string(from: NSNumber(value: v)) ?? digits
+            // „5.“ (Punkt gerade getippt): das Trennzeichen mitzeigen.
+            if places == 0 { shown += f.decimalSeparator ?? "." }
+            return shown
+        }
+        guard let n = Int(digits) else { return digits }
         let shown = f.string(from: NSNumber(value: n)) ?? digits
         if lang == .th, let w = ThaiNumber.words(n) { return "\(shown) (\(w))" }
         return shown

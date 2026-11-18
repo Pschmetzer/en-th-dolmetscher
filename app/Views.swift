@@ -19,7 +19,23 @@ enum Prefs {
     static let mainWindowID = NSUserInterfaceItemIdentifier("dolmetscher.main")
     /// Schlüssel, die „Alle Einstellungen zurücksetzen“ löscht (Willkommensseite und Sprache bleiben bzw. werden gesetzt).
     static let resettableKeys = [fontScale, alwaysOnTop, showDetails, translit, showQuick, quickPhrases,
-                                 showMenuBar, spaceToggle, announce, listenOnLaunch]
+                                 showMenuBar, spaceToggle, announce, "partnerRotated", "partnerZoom", listenOnLaunch]
+
+    /// Nr. 40: Standard-Schnellsätze für das aktive Paar: Sätze in beiden Paarsprachen (en/th: die feste Liste).
+    /// Sprachen ohne Tabelle liefern keine Sätze (nie fremdsprachige Sätze als „meine Sprache“ vorgeben).
+    static func phrasesForPair(mine: String, partner: String) -> String {
+        if mine == "en" && partner == "th" || mine == "th" && partner == "en" { return defaultPhrases }
+        let table: [String: [String]] = [
+            "en": ["Hello!", "Thank you very much", "Where is the toilet?", "How much is it?",
+                   "Could you say that again, please?", "I don't understand"],
+            "de": ["Hallo!", "Vielen Dank", "Wo ist die Toilette?", "Wie viel kostet das?",
+                   "Können Sie das bitte wiederholen?", "Ich verstehe nicht"],
+            "th": ["สวัสดี", "ขอบคุณมาก", "ช่วยพูดช้าๆ หน่อย", "ไม่เข้าใจ"],
+        ]
+        return ((table[mine] ?? []) + (table[partner] ?? [])).joined(separator: "\n")
+    }
+    /// Standardliste für das gerade aktive Paar (Startwert des Speichers und „Standard wiederherstellen“).
+    static var pairDefaults: String { phrasesForPair(mine: Langs.mine, partner: Langs.partner) }
 
     /// Schnellsätze beim ersten Start: englische Sätze (werden ins Thai übersetzt) und thailändische (ins Englische).
     /// Wer die Liste später leert, behält sie leer; nur ein nie gespeicherter Schlüssel zeigt diese Standardliste.
@@ -158,6 +174,8 @@ struct ContentView: View {
     @AppStorage(Prefs.fontScale) private var scale = 1.0
     @AppStorage(Prefs.alwaysOnTop) private var onTop = false
     @AppStorage(Prefs.tipsSeen) private var tipsSeen = false
+    @AppStorage(Prefs.hideFromCapture) private var hideCapture = false
+    @State private var whatsNew: [String] = []
     @AppStorage(Prefs.showQuick) private var showQuick = true
     @State private var showTips = false
     @State private var showProfiles = false
@@ -173,6 +191,7 @@ struct ContentView: View {
     @FocusState private var searchFocused: Bool
     @AppStorage(L.key) private var uiLang = L.defaultCode
 
+    @State private var budgetHintClosed = false
     private var filtering: Bool { !query.isEmpty || !langFilter.isEmpty }
 
     var body: some View {
@@ -217,6 +236,22 @@ struct ContentView: View {
                              text: e.date.formatted(date: .omitted, time: .standard) + " · " + e.msg,
                              action: (L.t("show_log"), { openLog() }), onClose: { m.lastError = nil })
             }
+            if m.llm && m.llmBudget > 0 && m.llmMonthUSD >= m.llmBudget * 0.8 && !budgetHintClosed {   // Nr. 37
+                let over = m.llmMonthUSD >= m.llmBudget
+                NoticeBanner(icon: "dollarsign.circle", tint: LangStyle.warning,
+                             text: L.f(over ? "budget_over" : "budget_near", m.llmMonthUSD, m.llmBudget),
+                             onClose: { budgetHintClosed = true })
+            }
+            if let r = m.partnerRequest {   // Nr. 36
+                NoticeBanner(icon: "person.wave.2", tint: LangStyle.warning, text: L.t(r), onClose: { m.partnerRequest = nil })
+            }
+            if m.fileBusy {   // Nr. 51
+                NoticeBanner(icon: "waveform.badge.magnifyingglass", tint: .accentColor, text: L.t("file_working"))
+            }
+            if m.deletedBubble != nil {   // Nr. 34
+                NoticeBanner(icon: "trash", tint: .secondary, text: L.t("bubble_deleted_undo"),
+                             action: (L.t("undo_delete"), { m.undoDelete() }), onClose: { m.deletedBubble = nil })
+            }
             if let v = m.vocabSuggestion { VocabSuggestionBanner(words: v.words, profile: v.profile) }
             if let u = m.unsureDrop {
                 NoticeBanner(icon: "questionmark.bubble", tint: LangStyle.warning,
@@ -245,11 +280,23 @@ struct ContentView: View {
         .background(WindowAccessor { w in
             w.identifier = Prefs.mainWindowID
             w.level = onTop ? .floating : .normal
+            w.sharingType = hideCapture ? .none : .readOnly      // Nr. 17
             let t = "Dolmetscher · " + m.status
             if w.title != t { w.title = t }
         })
         .sheet(isPresented: $showTips) {
             TipsSheet(model: m.model, thai: Langs.hasThai) { tipsSeen = true; showTips = false }
+        }
+        .sheet(isPresented: Binding(get: { !whatsNew.isEmpty }, set: { if !$0 { whatsNew = []; WhatsNew.markSeen() } })) {
+            WhatsNewSheet(items: whatsNew) { whatsNew = []; WhatsNew.markSeen() }
+        }
+        .onDrop(of: [.fileURL], isTargeted: nil) { providers in   // Nr. 51: Audiodatei auf das Fenster ziehen
+            guard let p = providers.first else { return false }
+            _ = p.loadObject(ofClass: URL.self) { url, _ in
+                guard let url, url.isFileURL else { return }
+                DispatchQueue.main.async { MainActor.assumeIsolated { m.translateFile(url) } }
+            }
+            return true
         }
         .sheet(isPresented: $showProfiles) { ProfilesView().environmentObject(m) }
         .sheet(item: $correcting) { CorrectSheet(u: $0).environmentObject(m) }
@@ -259,6 +306,7 @@ struct ContentView: View {
         .onChange(of: setup.visible) { if !setup.visible && !tipsSeen { showTips = true } }
         .onAppear {
             if !tipsSeen && !setup.visible { showTips = true }
+            if tipsSeen && !setup.visible { whatsNew = WhatsNew.pending() } else { _ = WhatsNew.pending() }
             installScrollMonitor()
         }
         .onDisappear { if let t = scrollBox.token { NSEvent.removeMonitor(t); scrollBox.token = nil } }
@@ -337,7 +385,7 @@ struct ContentView: View {
                     ForEach(shown) { u in
                         Bubble(m: m, u: u, scale: scale,
                                playing: m.replayingID == u.id || (u.uid.map { m.speakingIDs.contains($0) } ?? false),
-                               running: m.running, twoPerson: m.twoPerson,
+                               running: m.running, twoPerson: m.twoPerson, pairKey: m.mineLang + m.partnerLang,
                                onCorrect: { correcting = $0 })
                             .equatable()
                             .id(u.id)
@@ -453,7 +501,7 @@ struct EmptyState: View {
                 }
                 .foregroundStyle(.secondary)
             } else {
-                Text(L.t("empty")).foregroundStyle(.secondary)
+                Text(L.tp("empty")).foregroundStyle(.secondary)
             }
             // Nr. 399: Beispielsatz anklickbar – Probe-Übersetzung prüft Übersetzung und Lautsprecher ohne Mikrofon
             Button { m.say("Where is the toilet?", lang: "en") } label: {
@@ -499,7 +547,7 @@ struct MainToolbar: View {
         }
         .padding(14)
         .confirmationDialog(L.t("clear_confirm"), isPresented: $confirmClear, titleVisibility: .visible) {
-            Button(L.t("clear"), role: .destructive) { m.items.removeAll(); m.resetTrimmed() }
+            Button(L.t("clear"), role: .destructive) { m.clearAll(); m.resetTrimmed() }
             Button(L.t("cancel"), role: .cancel) {}
         }
     }
@@ -700,9 +748,9 @@ struct StatusCluster: View {
                 .accessibilityLabel(L.t("llm_missing") + ". " + L.t("llm_missing_help"))
             }
             if m.llm && m.llmCostUSD > 0 {
-                Text(String(format: "≈ $%.2f", m.llmCostUSD))
+                Text("≈ $" + fmtNumber(m.llmCostUSD))
                     .font(.caption).monospacedDigit().foregroundStyle(.secondary)
-                    .help(L.t("llm_cost"))
+                    .help(L.t("llm_cost") + (m.llmBudget > 0 ? "\n" + L.f("budget_progress", m.llmMonthUSD, m.llmBudget) : ""))
             }
             if m.busy || m.loadingModel {
                 ProgressView().controlSize(.small).accessibilityLabel(L.t("working"))
@@ -754,7 +802,7 @@ struct LevelBar: View {
 /// „+“ legt eigene an, Rechtsklick (oder VoiceOver-Aktion) löscht.
 struct QuickPhraseBar: View {
     @EnvironmentObject var m: EngineModel
-    @AppStorage(Prefs.quickPhrases) private var raw = Prefs.defaultPhrases
+    @AppStorage(Prefs.quickPhrases) private var raw = Prefs.pairDefaults
     @State private var adding = false
     @State private var draft = ""
     @State private var showNote = false
@@ -822,7 +870,7 @@ struct QuickPhraseBar: View {
             .scaledFont(13)
         }
         .accessibilityLabel(L.t("quick_phrases"))
-        .alert(L.t("phrase_new_title"), isPresented: $adding) {
+        .alert(L.tp("phrase_new_title"), isPresented: $adding) {
             TextField(L.t("sentence"), text: $draft)
             Button(L.t("add")) {
                 let t = draft.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -980,7 +1028,7 @@ struct TipsSheet: View {
         VStack(alignment: .leading, spacing: 18) {
             Text(L.t("welcome_title")).font(.title.bold())
             tip("mic.fill", L.t("tip_mic_title"), L.t("tip_mic_text"))
-            tip("waveform", L.t("tip_speak_title"), L.t("tip_speak_text"))
+            tip("waveform", L.t("tip_speak_title"), L.tp("tip_speak_text"))
             tip("text.bubble", L.t("tip_cmd_title"), L.t("tip_cmd_text"))
             tip("lock.shield", L.t("privacy_title"), L.t("privacy_text"))
             SetupChecklist(model: model, thai: thai)

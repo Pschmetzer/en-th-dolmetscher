@@ -97,7 +97,7 @@ def test_sw_syntax(tmp_path):
 
 SW_HARNESS = r"""
 const store = new Map(), handlers = {};
-const resp = (body, ok = true) => ({ ok, body, clone() { return resp(body, ok); } });
+const resp = (body, ok = true) => ({ ok, status: ok ? 200 : 500, body, clone() { return resp(body, ok); } });
 let online = true;
 globalThis.self = {
   registration: { scope: 'https://example.org/app/' }, location: { origin: 'https://example.org' },

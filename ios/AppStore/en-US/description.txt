@@ -27,3 +27,5 @@ HANDS-FREE
 • Works with Siri and the Shortcuts app.
 
 Languages: English, Thai, German, Spanish, French, Italian, Portuguese, Dutch, Russian, Chinese, Japanese, Korean, Vietnamese, Indonesian, Arabic, Hindi, Turkish, Polish, Ukrainian. Which ones work offline depends on what your iPhone supports; the app only offers languages it can actually recognise, translate and speak.
+
+Requires iOS 26 or later.

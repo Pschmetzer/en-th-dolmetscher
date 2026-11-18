@@ -32,6 +32,7 @@ struct Utterance: Identifiable, Equatable {
     var provider: String?
     var source: String?
     var role: String?            // "me" / "other" im Zwei-Personen-Modus
+    var dur: Double?             // Länge der Äußerung in Sekunden (`utt.dur`), für den SRT-Export
     var numWarn = false          // Ziffern in Original und Übersetzung stimmen nicht überein
     var back: String?            // Rückübersetzung (`back`), nur mit „Rückübersetzung zeigen“
     var alts: [String] = []      // andere Lesarten der Erkennung (nur bei unsicherem Thai mit Claude)
@@ -192,6 +193,13 @@ final class EngineModel: NSObject, ObservableObject {
     }
     private func pairChanged() {
         guard mineLang != partnerLang else { return }
+        // Tausch (Nr. 11): didSet der Gegenseite hat das Paar schon gemeldet – nicht doppelt senden
+        guard (Langs.mine, Langs.partner) != (mineLang, partnerLang) else { return }
+        // Nr. 40: unveränderte Standard-Schnellsätze folgen dem Paar (eigene Listen bleiben unberührt)
+        let curPhrases = Self.ud.string(forKey: Prefs.quickPhrases)
+        if curPhrases == nil || curPhrases == Prefs.pairDefaults {
+            Self.ud.set(Prefs.phrasesForPair(mine: mineLang, partner: partnerLang), forKey: Prefs.quickPhrases)
+        }
         Self.ud.set(mineLang, forKey: "mineLang"); Self.ud.set(partnerLang, forKey: "partnerLang")
         Langs.mine = mineLang; Langs.partner = partnerLang
         if lang != "auto" && !Langs.pair.contains(lang) { lang = "auto" }
@@ -332,6 +340,10 @@ final class EngineModel: NSObject, ObservableObject {
         mic = index; micName = name; micOverride = nil
         send(["mic": Self.micControlValue(index: index, name: name)])   // auch während des Ladens
     }
+    /// Mikrofon- und Rauschfilter-Argumente für die Stimmprofil-Aufnahme (gleiches Gerät wie im Betrieb).
+    var enrollArgs: [String] {
+        ["--mic", micOverride ?? Self.micControlValue(index: mic, name: micName)] + (denoise ? ["--denoise"] : [])
+    }
     /// Wert für das Steuerfeld `mic`: Name, sonst Index, sonst Systemstandard.
     static func micControlValue(index: String, name: String) -> String {
         !name.isEmpty ? name : (!index.isEmpty ? index : "default")
@@ -382,6 +394,13 @@ final class EngineModel: NSObject, ObservableObject {
         name = name.replacingOccurrences(of: "MultilingualNeural", with: "").replacingOccurrences(of: "Neural", with: "")
         let sex = maleVoices.contains(name) ? "♂" : "♀"
         return "\(name) \(sex) · \(parts[1])" + (slow ? " (" + L.t("voice_slow") + ")" : "")
+    }
+    /// Ungefähre USD je 1000 Sätze (Preise je Million Token wie `LLM_PRICE` in dolmetscher.py; unbekanntes Modell: Opus).
+    static func costPer1000(_ model: String) -> Double {
+        let p: [String: (Double, Double)] = ["claude-haiku-5-5": (0.10, 0.50), "claude-sonnet-5-5": (2.0, 10.0),
+                                             "claude-opus-5-5": (4.0, 20.0)]
+        let (i, o) = p[model] ?? (4.0, 20.0)
+        return 1000 * (300 * i + 40 * o) / 1_000_000
     }
     static let llmModels = ["claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5"]
 
@@ -583,6 +602,7 @@ final class EngineModel: NSObject, ObservableObject {
         crashLog = nil
         wantListen = true
         restartAttempts = 0   // Nutzer hat selbst gestartet: Auto-Neustart-Zähler neu
+        hungRestarts = 0
         switch AVCaptureDevice.authorizationStatus(for: .audio) {
         case .authorized: micDenied = false
         case .notDetermined:
@@ -795,7 +815,7 @@ final class EngineModel: NSObject, ObservableObject {
         let p = Process()
         p.executableURL = URL(fileURLWithPath: Paths.python)
         p.arguments = launchArgs(script)
-        p.environment = Paths.engineEnvironment()
+        p.environment = Paths.engineEnvironment(includeKey: true)
 
         let out = Pipe()
         p.standardOutput = out
@@ -953,6 +973,7 @@ final class EngineModel: NSObject, ObservableObject {
         netDown.removeAll()
         llmActive = false
         llmCostUSD = 0
+        latencies.removeAll(); latencyMedian = nil
         meter.reset()
         keepAwake(false)
         pttWork?.cancel(); pttWork = nil
@@ -1065,7 +1086,7 @@ final class EngineModel: NSObject, ObservableObject {
     private var idleStatus: String {
         if !micOn { return restingStatus }   // späte Ereignisse nach `listen: false` zeigen nicht „Hört zu“
         if paused { return pushToTalk ? "⏸ " + L.t("hold_to_talk") : Self.pausedText }
-        return busy ? L.t("thinking") : L.t("listening")
+        return busy ? L.t("thinking") : L.tp("listening")
     }
 
     /// Position je Engine-id. Der Cache wird bei jedem Zugriff geprüft (Einträge werden an mehreren
@@ -1085,8 +1106,12 @@ final class EngineModel: NSObject, ObservableObject {
         switch ev {
         case "loading":   // Engine meldet, welches Modell gerade lädt (z. B. "Lade Thai-Modell …")
             let msg = o["msg"] as? String ?? ""
-            status = L.t("loading") + (msg.contains("Thai") ? " (ไทย)" : msg.contains("turbo") ? " (EN+)" : "")
+            // Nr. 28: `download` (stabiles Feld) statt Textsuche – einmaliger Download dauert Minuten
+            let firstDownload = o["download"] as? Bool ?? false
+            status = L.t(firstDownload ? "loading_download" : "loading")
+                + (msg.contains("Thai") ? " (ไทย)" : msg.contains("turbo") ? " (EN+)" : "")
                 + (wantListen ? " " + L.t("then_start") : "")
+            if firstDownload && download == nil { download = Download(model: msg, done: 0, total: nil) }
         case "download_progress":
             if let model = o["model"] as? String {
                 let name = model.split(separator: "/").last.map(String.init) ?? model
@@ -1273,7 +1298,7 @@ final class EngineModel: NSObject, ObservableObject {
             applyingRemote = true   // Sprachbefehl „Translator, preset taxi“: Auswahl übernehmen, nicht zurückschicken
             if (pid ?? "") != preset { preset = pid ?? "" }
             applyingRemote = false
-        case "pong": pongSeen = true   // Lebenszeichen – `lastAlive` setzt schon `consume`
+        case "pong": pongSeen = true; if !engineHung { hungRestarts = 0 }   // Lebenszeichen – `lastAlive` setzt schon `consume`
         case "back":   // Rückübersetzung kommt nach `utt`; unbekannte id (Blase schon weg): ignorieren
             if let t = o["text"] as? String, !t.isEmpty, let i = index(of: id) { items[i].back = t }
         case "glossary":   // Engine hat Namen aus einer Korrektur gelernt: nur die neuen Zeilen anhängen, damit
@@ -1335,7 +1360,7 @@ final class EngineModel: NSObject, ObservableObject {
     static func droppedText(_ code: String?) -> String? {
         switch code {
         case "command", "translate_failed", "stopped": return nil
-        case let c?: return droppedKeys[c].map { L.t($0) } ?? L.t("dropped")
+        case let c?: return droppedKeys[c].map { $0 == "drop_other_language" ? L.tp($0) : L.t($0) } ?? L.t("dropped")
         case nil: return L.t("dropped")
         }
     }
@@ -1355,9 +1380,43 @@ final class EngineModel: NSObject, ObservableObject {
     /// Nur in der App: der Verlauf (falls an) und der Gesprächskontext der Engine bleiben, bis „Alles löschen“.
     func deleteItem(_ u: Utterance) {
         if u.id == replayingID || (u.uid.map { speakingIDs.contains($0) } ?? false) { stopSpeaking() }
+        // Nr. 34: Blase samt Position merken, damit „Rückgängig“ sie zurückholt (6 s)
+        if let i = items.firstIndex(where: { $0.id == u.id }) { deletedBubble = (u, i) }
+        deletedWork?.cancel()
+        let w = DispatchWorkItem { [weak self] in MainActor.assumeIsolated { self?.deletedBubble = nil } }
+        deletedWork = w
+        DispatchQueue.main.asyncAfter(deadline: .now() + 6, execute: w)
         items.removeAll { $0.id == u.id }
         indexCache.removeAll()
         Announcer.post(L.t("bubble_deleted"))
+    }
+    /// Zuletzt gelöschte Blase (nil nach 6 s) – „Rückgängig“ im Hinweisband und im Menü.
+    /// Nr. 36: Wunsch der Partnerin aus der Partner-Ansicht („Bitte langsamer“); Hinweisband im Hauptfenster (8 s).
+    @Published var partnerRequest: String?
+    private var partnerRequestWork: DispatchWorkItem?
+    func partnerAsks(_ key: String) {
+        partnerRequest = key
+        partnerRequestWork?.cancel()
+        let w = DispatchWorkItem { [weak self] in MainActor.assumeIsolated { self?.partnerRequest = nil } }
+        partnerRequestWork = w
+        DispatchQueue.main.asyncAfter(deadline: .now() + 8, execute: w)
+        Announcer.post(L.t(key), force: true)
+        NSSound.beep()
+    }
+    @Published var deletedBubble: (u: Utterance, index: Int)?
+    private var deletedWork: DispatchWorkItem?
+    func undoDelete() {
+        guard let d = deletedBubble else { return }
+        deletedBubble = nil; deletedWork?.cancel()
+        items.insert(d.u, at: min(d.index, items.count))
+        indexCache.removeAll()
+    }
+    /// „Alles löschen“ (Nr. 9): Anzeige leeren und der Engine das Vergessen von Kontext/Texten sagen.
+    /// Ältere Engines ignorieren das unbekannte Feld `clear`.
+    func clearAll() {
+        items.removeAll(); trimmedCount = 0; indexCache.removeAll(); deletedBubble = nil
+        unsureDrop = nil; failedDrop = nil; vocabSuggestion = nil
+        send(["clear": true])
     }
     private func trimItems() {
         let excess = items.count - Self.maxItems
@@ -1384,6 +1443,18 @@ final class EngineModel: NSObject, ObservableObject {
     // 45 s Frist: Langsame Steueraktionen (z. B. Profile neu laden) laufen im selben Thread wie `pong`.
     private static let pingEvery: TimeInterval = 15
     private static let hungAfter: TimeInterval = 45
+    private static let hungRestartAfter: TimeInterval = 90
+    private var hungRestarts = 0
+
+    /// Nr. 21: nach dem Aufwachen sind Netzverbindungen tot und `netDown` evtl. veraltet – Zustand neu prüfen.
+    func systemDidWake() {
+        guard running else { return }
+        netDown.removeAll()
+        lastAlive = Date(); lastTick = Date()
+        pingCounter += 1
+        send(["ping": pingCounter])
+        refreshStatus()
+    }
 
     private func startWatchdog() {
         watchdogGen += 1
@@ -1412,6 +1483,13 @@ final class EngineModel: NSObject, ObservableObject {
         if pongSeen, !engineHung, now.timeIntervalSince(lastAlive) > Self.hungAfter {
             engineHung = true
             Announcer.post(L.t("engine_hung"), force: true)
+        }
+        // Nr. 20: hängt die Engine lange und läuft kein Gespräch, einmal selbst neu starten (höchstens 3 Mal)
+        if engineHung, now.timeIntervalSince(lastAlive) > Self.hungRestartAfter, hungRestarts < 3, !busy, !speakingNow {
+            hungRestarts += 1
+            CrashNotifier.shared.notifyStopped(L.t("engine_hung"))
+            restart()
+            return
         }
         pingCounter += 1
         send(["ping": pingCounter])
@@ -1461,6 +1539,7 @@ final class EngineModel: NSObject, ObservableObject {
         u.readyS = (o["ready_s"] as? NSNumber)?.doubleValue
         u.alts = (o["alts"] as? [String]) ?? []
         u.numWarn = o["num_warn"] as? Bool ?? false
+        u.dur = (o["dur"] as? NSNumber)?.doubleValue
         u.role = o["role"] as? String
         if let id { cancelHearingTimer(id); pendingIDs.remove(id) } else { pendingIDs.remove("?") }
         // Beim Ersetzen bleibt die Blasen-id erhalten: die Liste behält ihre Position (kein Scroll-Sprung).
@@ -1482,7 +1561,8 @@ final class EngineModel: NSObject, ObservableObject {
             items.append(u)
             trimItems()
         }
-        if !u.out.isEmpty { Announcer.post(u.out, lang: Langs.bcp47(u.to)) }
+        // Nr. 31: wird die Übersetzung mit der Neural-Stimme vorgelesen, sagt VoiceOver sie nicht zusätzlich an
+        if !u.out.isEmpty && !(speak && !u.skipped && u.translated) { Announcer.post(u.out, lang: Langs.bcp47(u.to)) }
     }
 
     // MARK: Platzhalter mit Teiltext
@@ -1560,6 +1640,26 @@ final class EngineModel: NSObject, ObservableObject {
         // Nr. 361: erst nach `ready` – sonst puffert die Engine den Satz und spricht ihn später unerwartet
         guard engineReady else { return }
         send(["say": ["text": text, "lang": lang]])
+    }
+
+    /// Nr. 51: Audiodatei übersetzen (eigener Engine-Prozess `--file`, ohne Vorlesen). Ergebnisse werden Blasen.
+    @Published private(set) var fileBusy = false
+    func translateFile(_ url: URL) {
+        guard !fileBusy else { return }
+        fileBusy = true
+        let args = ["--mute", "--langs", "\(Langs.mine),\(Langs.partner)", "--model", model, "--file", url.path]
+        let p = EngineRunner.run(args, timeout: 1800, onEvent: { [weak self] o in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                switch o["event"] as? String {
+                case "utt": self.addUtterance(o, id: nil)
+                case "error":
+                    self.lastError = (Self.errorText(code: o["code"] as? String, msg: o["msg"] as? String), Date())
+                default: break
+                }
+            }
+        }, onExit: { [weak self] in MainActor.assumeIsolated { self?.fileBusy = false } })
+        if p == nil { fileBusy = false; lastError = (L.t("python_missing"), Date()) }
     }
 
     /// Letzte vorlesbare Übersetzung (Kopfzeile, Menü ⌘R).
@@ -1719,6 +1819,7 @@ final class EngineModel: NSObject, ObservableObject {
         llmModel = "claude-haiku-5-5"; mic = ""; micName = ""; denoise = false; logText = false
         offlineMT = Paths.bundledTranslateHelper != nil; privateMode = false
         pushToTalk = false; model = "medium"; preset = ""; history = false
+        outputDevice = ""; outputDeviceName = ""; llmBudget = 0
         for k in Prefs.resettableKeys { Self.ud.removeObject(forKey: k) }
         Self.ud.set(L.defaultCode, forKey: L.key)
         L.sync(L.defaultCode)

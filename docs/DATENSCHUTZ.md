@@ -80,16 +80,49 @@ Willst du nichts senden: Ohne Netz läuft die Erkennung weiter. Übersetzt wird 
 
 ## Browser-Version (`index.html`, Web Lite)
 
-- **Vor dem ersten Mikrofon-Start** fragt die Seite einmal um Zustimmung (im Browser gespeichert, `localStorage`).
+- **Vor dem ersten Mikrofon-Start** fragt die Seite einmal um Zustimmung (im Browser gespeichert, `localStorage`). Die Zustimmung trägt eine Textversion (`CONSENT_VER` in `index.html`, aktuell **1**): ändern sich Dialogtext oder Datenfluss, wird die Version erhöht und neu gefragt.
 - **Spracherkennung**: nutzt die Web Speech API des Browsers. **Chrome** sendet das Mikrofon-Audio an Googles Spracherkennungsdienst, **Safari** an Apple (je nach Gerät auch lokal); beides ist nicht von uns kontrollierbar. Firefox hat keine Spracherkennung. **Pause** und **Stopp** beenden die Erkennung ganz, danach wird kein Audio mehr gesendet.
-- **Übersetzung**: der erkannte Text geht direkt aus dem Browser an Google Translate, ersatzweise MyMemory, jeweils per GET, also **in der URL** der Anfrage. Das gilt für alle 19 Sprachen. Satzbuch-Sätze, die es im Paket nicht in der Partnersprache gibt (alles außer Englisch und Thai), werden einmal übersetzt und im Browser gemerkt (`pbTrans`).
+- **Übersetzung**: der erkannte Text geht direkt aus dem Browser an Google Translate, ersatzweise MyMemory, jeweils per GET, also **in der URL** der Anfrage. Das gilt für alle 19 Sprachen. Satzbuch-Sätze, die es im Paket nicht in der Partnersprache gibt (alles außer Englisch und Thai), werden beim ersten Tippen einmal übersetzt (also an Google Translate gesendet; die Karte ist als „automatisch übersetzt“ markiert) und im Browser gemerkt (`pbTrans`).
 - **Sprachausgabe**: lokale Browser-Stimmen (Web Speech Synthesis), je nach Browser/System.
 - **Gespeichert** wird nur im Browser (`localStorage`): Einstellungen (`webSettings`, `keysOn`), Zustimmung (`micConsent`), übersetzte Satzbuch-Sätze (`pbTrans`) und die Lernkarten. Die Gesprächsliste verschwindet beim Schließen der Seite, außer du kopierst sie oder speicherst sie als Textdatei.
+- **Weitere Browser-Daten (nur lokal, nie gesendet)**: eigene Karten wie Hotel oder Adresse (`myCardsV1`, höchstens 30), die Allergie- und Notfallkarte (`allergyV1`), Lernstatistik der letzten 30 Tage (`learnStatsV1`), wie oft ein Satzbuch-Thema benutzt wurde (`pbUse`, für die Reihenfolge) und ob der Installationshinweis weggeklickt wurde (`installHint`). Gemerkte Satzbuch-Übersetzungen (`pbTrans`) verfallen nach 90 Tagen, höchstens 1500; „Gemerkte Übersetzungen löschen“ leert sie. „Sichern (.json)“ schreibt Lernkarten in eine Datei, die du selbst aufbewahrst.
 - **Lernkarten** (`learnV1`): Mit ☆ gemerkte Sätze werden samt Übersetzung und Lernstand gespeichert, höchstens 200 Karten. „Zuletzt übersetzte Sätze automatisch aufnehmen“ ist **standardmäßig aus**. „Alle Lernkarten löschen“ leert den Speicher, ebenso das Löschen der Website-Daten im Browser. Gesendet wird davon nichts.
+- **Speicher dieser Adresse**: `localStorage` gilt pro Ursprung (bei GitHub Pages `pschmetzer.github.io`), nicht pro Pfad; andere Seiten unter demselben Ursprung könnten die Schlüssel lesen. Auf Safari löscht der Browser Website-Daten nach 7 Tagen ohne Besuch, wenn die Seite nicht zum Home-Bildschirm hinzugefügt ist; die Seite bittet beim Anlegen einer Lernkarte um dauerhaften Speicher (`navigator.storage.persist`), der Browser entscheidet.
 - **Offline (PWA)**: Der Service Worker speichert nur die eigenen Dateien der Seite (HTML, Icons, Satzbuch-Pakete), keine Übersetzungen. Anfragen an Google und MyMemory laufen nie über ihn.
-- **Teilen per Link**: Der Text steht hinter `#` in der Adresse. Diesen Teil schickt der Browser nicht an den Server; die Empfängerin sieht den Satz nur angezeigt (höchstens 500 Zeichen).
+- **Geteilter Text an die App** (Web-Share-Target, nur installierte Android-App): Text aus einer anderen App wird übersetzt (Google Translate) und groß gezeigt, nicht gespeichert.
+- **Lokale Erkennung** (Chrome 139+, Schalter „Nur auf dem Gerät erkennen“, aus): bleibt das Audio auf dem Gerät. Für Thai nicht geprüft.
+- **Teilen per Link**: Der Text steht hinter `#` in der Adresse. Diesen Teil schickt der Browser nicht an den Server; die Empfängerin sieht den Satz nur angezeigt (höchstens 500 Zeichen) und mit dem Hinweis „von der App nicht geprüft“; beim Öffnen wird der `#`-Teil aus Adresszeile und Verlauf entfernt. **Aber:** Verschickst du den Link über WhatsApp, LINE, iMessage o. Ä., sieht der Messenger den ganzen Link samt Satz. Bei sensiblen Sätzen (Arzt) besser den Bildschirm zeigen.
 - Die Seite hat keine Skripte von Dritten und keinen eigenen Server (Content-Security-Policy erlaubt nur die beiden Übersetzungsdienste).
 
 ## Hinweise für Berichte und Fehlersuche
 
 Wer Logs teilt: `--log-text` schreibt erkannte und übersetzte Sätze in die Logdatei. Vor dem Weitergeben persönliche Inhalte entfernen.
+
+## Ergänzungen Runde 7 (Engine)
+
+- **Sprechermodell** (Stimmprofile): Fehlt die Modelldatei, lädt die Engine sie einmalig von GitHub (Prüfsumme SHA-256, danach
+  lokal). Das passiert nur, wenn Stimmprofile genutzt werden. Mit `--private` lädt sie **nichts** nach: die Stimmerkennung
+  bleibt dann aus (`error` `profiles_failed`), bis die Datei vorhanden ist (`DOLMETSCHER_SPEAKER_MODEL` für eine lokale Kopie).
+  Eine vorhandene Datei wird gegen die Prüfsumme geprüft und bei Abweichung neu geladen.
+- **Rückübersetzung** (`back_translate`, Standard aus): Ist sie an, geht der **übersetzte Satz** zusätzlich an Google Translate, um
+  ihn zurück in die Ausgangssprache zu übersetzen. Höchstens zwei Anfragen gleichzeitig; mit pausiertem Google entfällt sie.
+- **Verlauf**: Die Datenbank ist nicht verschlüsselt (nur Dateirechte 0600) und enthält, wenn Stimmprofile genutzt werden,
+  **Profilnamen im Klartext** (`speaker`). Mit dem Steuerfeld `history_speakers: false` werden keine Namen gespeichert. Ausgeschaltet
+  räumt die Engine die WAL-Datei mit auf; Exporte (`--out`) bekommen Rechte 0600.
+- **Übersetzungs-Cache auf der Platte** (`cache_persist`, Standard aus): Ist er an, liegen übersetzte Sätze in
+  `translation_cache.json` (0600, höchstens 300 Einträge). Ausschalten und „clear“ löschen die Datei.
+- **Log-Pseudonyme** von Profilnamen sind mit einem zufälligen Installations-Salz (`log_salt`, 0600) gebildet und lassen sich nicht
+  per Namensliste zurückrechnen.
+
+## Ergänzungen Runde 7 (Mac, iPhone, Web)
+
+- **Mac, URL-Schema `dolmetscher://`:** andere Programme können Start, Stopp, Pause und „Satz sprechen“ auslösen. Beim ersten Aufruf fragt die App nach; Text höchstens 1000 Zeichen.
+- **Mac, Bildschirmaufnahme:** Der Schalter „Fenster vor Bildschirmaufnahme verbergen“ schließt die App-Fenster aus Aufnahmen und Screenshots aus (`sharingType = .none`). Standard: aus.
+- **Mac, Audiodateien:** Beim Übersetzen einer Datei läuft ein eigener Engine-Prozess; Ergebnisse stehen nur im Verlauf der App.
+- **Mac, API-Schlüssel:** Der Schlüssel geht nur an den Engine-Prozess, nicht an Hilfsprozesse. Der Schlüsselbund-Eintrag gilt nur für dieses Gerät. Klartext-Schlüsseldateien werden in Release-Builds gelöscht.
+- **iPhone, Wechselkurs (optional, Standard aus):** Die Kursabfrage sendet nur den Währungscode an `api.frankfurter.dev`; keine Sätze, keine Gerätekennung.
+- **iPhone, Spotlight (optional, Standard aus):** Favoriten werden in der Systemsuche des Geräts sichtbar gemacht; sie bleiben auf dem Gerät.
+- **iPhone, Datenschutz-Manifest:** nennt jetzt „Freier Speicherplatz“ (DiskSpace, Grund E174.1) für die Prüfung vor dem Modell-Download.
+- **iPhone, Lernkarten:** folgen der Verlaufseinstellung und der Face-ID-Sperre, haben ein Verfallsdatum und lassen sich löschen.
+- **Web:** Texteingabe, „Meine Karten“ (Adresse, Hotel) und die Lernkarten bleiben nur in diesem Browser. „Falsch? Melden“ öffnet ein vorbefülltes GitHub-Formular; gesendet wird nur, was du dort selbst abschickst.
+

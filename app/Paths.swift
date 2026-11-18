@@ -34,8 +34,15 @@ enum Paths {
 
     /// Dev-Override: DOLMETSCHER_PYTHON aus der Umgebung der App oder die Einstellung „DolmetscherPython“
     /// (`defaults write io.github.dolmetscher.en-th DolmetscherPython /pfad/zu/python`). Wird nie verändert.
+    /// Nr. 14: Im Release-Build (`-D RELEASE_BUILD`, build.sh --release) zählt nur die Umgebungsvariable: die
+    /// Einstellung ließe sich von jedem Prozess des Nutzers setzen und startete ein fremdes Programm mit der
+    /// Mikrofon-Freigabe der App.
     static var pythonOverride: String? {
-        ProcessInfo.processInfo.environment["DOLMETSCHER_PYTHON"] ?? UserDefaults.standard.string(forKey: "DolmetscherPython")
+        #if RELEASE_BUILD
+        return ProcessInfo.processInfo.environment["DOLMETSCHER_PYTHON"]
+        #else
+        return ProcessInfo.processInfo.environment["DOLMETSCHER_PYTHON"] ?? UserDefaults.standard.string(forKey: "DolmetscherPython")
+        #endif
     }
 
     /// Stempel der venv passt zum Bundle (sonst: Einrichtung bzw. Aktualisierung nach App-Update).
@@ -89,17 +96,22 @@ enum Paths {
     private static let envPrefixes = ["DOLMETSCHER_", "LC_", "HF_", "HUGGINGFACE_", "CT2_", "KMP_"]
 
     /// Umgebung für jeden Start von dolmetscher.py (Whitelist, siehe oben).
-    static func engineEnvironment() -> [String: String] {
+    /// `includeKey`: nur der Engine-Prozess braucht den Claude-Schlüssel (Nr. 13); Hilfsaufrufe (Mikrofonliste,
+    /// Profile, Verlauf, Python-Prüfung) bekommen ihn nicht und lösen keinen Schlüsselbund-Zugriff aus.
+    static func engineEnvironment(includeKey: Bool = false) -> [String: String] {
         var env: [String: String] = [:]
         for (k, v) in ProcessInfo.processInfo.environment
         where envExact.contains(k) || envPrefixes.contains(where: { k.hasPrefix($0) }) {
             env[k] = v
         }
+        if !includeKey { env["ANTHROPIC_API_KEY"] = nil }
         env["PATH"] = (searchDirs + ["/usr/bin", "/bin"]).joined(separator: ":")
         // Die Whitelist lässt PYTHON* bewusst nicht durch – deshalb hier ausdrücklich setzen.
         env["PYTHONPYCACHEPREFIX"] = pycachePrefix
         // Schlüssel aus dem Schlüsselbund (Nr. 23); ein in der App-Umgebung gesetzter Schlüssel hat Vorrang
-        if env["ANTHROPIC_API_KEY"] == nil, let k = APIKeyStore.read() { env["ANTHROPIC_API_KEY"] = k }
+        if includeKey {
+            if env["ANTHROPIC_API_KEY"] == nil, let k = APIKeyStore.read() { env["ANTHROPIC_API_KEY"] = k }
+        }
         return env
     }
 
@@ -212,7 +224,11 @@ enum APIKeyStore {
         cached = nil
         if keychainWrite(k), keychainRead() == k {
             // Rückfall-Datei auf denselben (neuen) Stand bringen, nie ersatzlos löschen
+            #if RELEASE_BUILD
+            removeFiles()                    // Nr. 15: signierter Build – der Schlüsselbund reicht, keine Klartextkopie
+            #else
             if writeFile(k, to: migratedURL) { try? FileManager.default.removeItem(at: url) }
+            #endif
             return true
         }
         return writeFile(k, to: url)
@@ -221,7 +237,7 @@ enum APIKeyStore {
     static func keychainWrite(_ k: String) -> Bool {
         let data = Data(k.utf8)
         let attrs: [String: Any] = [kSecValueData as String: data,
-                                    kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock]
+                                    kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly]
         var add = baseQuery
         attrs.forEach { add[$0.key] = $0.value }
         add[kSecAttrLabel as String] = "Dolmetscher – Anthropic API"
@@ -235,9 +251,22 @@ enum APIKeyStore {
     /// Übernahme der alten Datei in den Schlüsselbund (beim App-Start). Erst wenn der Schlüsselbund denselben
     /// Wert nachweislich zurückliefert, wird die Datei in `anthropic_key.migrated` (0600) umbenannt – nie gelöscht.
     static func migrate() {
+        // Nr. 16: vorhandenen Eintrag einmalig auf „nur dieses Gerät“ (kein Backup-/Geräte-Transfer) umstellen
+        let flag = "keychainThisDeviceOnly"
+        if !UserDefaults.standard.bool(forKey: flag), let kk = keychainRead() {
+            if keychainWrite(kk) { UserDefaults.standard.set(true, forKey: flag) }
+        }
+        #if RELEASE_BUILD
+        // Nr. 15: Developer-ID-Build – eine ältere Rückfall-Kopie neben dem Schlüsselbund-Eintrag wird entfernt
+        if readFile(migratedURL) != nil, keychainRead() != nil, readFile(url) == nil { removeFiles() }
+        #endif
         guard let k = readFile(url) else { return }
         cached = nil
         guard keychainRead() == k || (keychainWrite(k) && keychainRead() == k) else { return }   // Datei bleibt
+        #if RELEASE_BUILD
+        removeFiles()
+        return
+        #else
         let fm = FileManager.default
         try? fm.removeItem(at: migratedURL)                // älterer Stand; die aktuelle Datei ersetzt ihn
         do {
@@ -245,6 +274,20 @@ enum APIKeyStore {
             chmod(migratedURL.path, 0o600)
         } catch {
             // Umbenennen gescheitert: Datei bleibt unter dem alten Namen (Engine liest sie weiter)
+        }
+        #endif
+    }
+
+    /// Klartextdateien sicher entfernen (erst überschreiben, dann löschen).
+    private static func removeFiles() {
+        let fm = FileManager.default
+        for u in [url, migratedURL] where fm.fileExists(atPath: u.path) {
+            if let h = try? FileHandle(forWritingTo: u) {
+                let n = (try? fm.attributesOfItem(atPath: u.path)[.size] as? Int) ?? 0
+                try? h.write(contentsOf: Data(repeating: 0x30, count: max(n, 64)))
+                try? h.synchronize(); try? h.close()
+            }
+            try? fm.removeItem(at: u)
         }
     }
 

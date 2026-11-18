@@ -382,7 +382,7 @@ def test_deliver_ruft_rueckuebersetzung_nur_wenn_an(monkeypatch, ev):
 # --- Glossar lernt aus Korrekturen ---------------------------------------------------------------------
 
 def test_eigennamen_aus_korrektur():
-    assert cl.proper_names("send it to the clinic", "send it to Kliniq Bangsue", "en") == ["Kliniq", "Bangsue"]
+    assert cl.proper_names("send it to the clinic", "send it to Kliniq Bangsue", "en") == ["Kliniq Bangsue"]  # Runde 7
     assert cl.proper_names("see you monday", "see you on Monday", "en") == []           # Wochentag
     assert cl.proper_names("hello", "Hello there", "en") == []                          # Satzanfang
     assert cl.proper_names("ask john", "ask John", "en") == []                          # war schon da
