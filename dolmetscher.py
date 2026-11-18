@@ -1521,7 +1521,7 @@ def llm_system(pair=None):
 
 
 GLOSSARY_FILE = os.path.expanduser("~/Library/Application Support/Dolmetscher/glossary.txt")
-TERM_MAX = 80                      # längere Glossar-/Aussprache-Einträge sind Tippfehler (ganze Sätze), kein Begriff
+TERM_MAX = 120                     # längere Glossar-/Aussprache-Einträge sind Tippfehler (ganze Sätze), kein Begriff
 GLOSSARY = []                      # [(Wort, Übersetzung oder None = unverändert lassen)]
 _GLOSSARY_OWN = None               # Einträge aus der eigenen Datei (None = alle); Preset-Wörter nur für Claude
 
@@ -2810,8 +2810,9 @@ def _numbers(s, words=True, times=None, equiv=True):
     words: ausgeschriebene Zahlen mitzählen – Thai (สามร้อยห้าสิบ = 350, บ่ายสองโมง = 14) und Englisch
     (three hundred fifty = 350); 1.5 million = 1500000."""
     s = s.translate(_THAI_DIGITS)
-    # "1 500 000" / "1\u202f500" = 1500000
-    s = _GROUPED.sub(lambda m: m.group(0) if _LAUGH_TAIL.search(m.group(0)) else _digits_only(m.group(0)), s)
+    # "1 500 000" / "1\u202f500" = 1500000; nur als Gleichwertigkeit (equiv): "2 100 baht" kann auch 2 mal 100 sein
+    if equiv:
+        s = _GROUPED.sub(lambda m: m.group(0) if _LAUGH_TAIL.search(m.group(0)) else _digits_only(m.group(0)), s)
     s = _dates_to_numbers(s, equiv)                              # BE-Jahr -543, Monatsnamen -> 1-12
     if words:
         s = en_words_to_digits(s)                                # vor _SCALE: "five million" ganz als Wortfolge
@@ -3286,9 +3287,10 @@ def normalize(audio, target_rms=0.06, max_gain=10.0, peak=0.95, min_rms=0.003, f
 
 
 # Runde 8: Kürzel, nach deren Punkt kein Satz endet ("9 a.m. to 5 p.m.", "ca. 500", "z. B.", "Prof. Brown")
-_ABBREV = frozenset({"a.m.", "p.m.", "ca.", "z.", "b.", "bzw.", "usw.", "etc.", "approx.", "no.", "nr.", "prof.", "jr.",
-                     "sr.", "inc.", "co.", "ltd.", "mt.", "vs.", "u.a.", "d.h.", "evtl.", "tel.", "str.", "dr.", "mr.",
-                     "mrs.", "ms.", "st.", "e.g.", "i.e.", "etc"})
+_ABBREV = frozenset({"ca.", "z.", "b.", "bzw.", "usw.", "approx.", "prof.", "jr.", "sr.", "inc.", "co.", "ltd.",
+                     "mt.", "vs.", "u.a.", "d.h.", "evtl.", "str.", "dr.", "mr.", "mrs.", "ms.", "st.", "e.g.",
+                     "i.e."})
+_ABBREV_NUM = frozenset({"no.", "nr.", "tel."})     # enden auch Sätze ("No. I don't."): nur vor einer Ziffer verbinden
 
 
 def _rejoin_abbrev(parts):
@@ -3297,7 +3299,8 @@ def _rejoin_abbrev(parts):
     for p in parts:
         if out:
             last = out[-1].split()[-1].casefold() if out[-1].split() else ""
-            if last in _ABBREV or (out[-1].endswith(".") and p[:1].islower() and p[:1].isalpha()):
+            if (last in _ABBREV or (last in _ABBREV_NUM and p[:1].isdigit())
+                    or (out[-1].endswith(".") and p[:1].islower() and p[:1].isalpha())):
                 out[-1] += " " + p
                 continue
         out.append(p)
@@ -4291,7 +4294,7 @@ _SPOKEN = collections.deque(maxlen=8)          # (monotonic, lang, normalisierte
 
 
 def _echo_norm(s):
-    return re.sub(r"[^\w]+|_", "", (s or "").casefold())
+    return re.sub(r"[^\w\u0e00-\u0e7f]+|_", "", (s or "").casefold())
 
 
 def note_spoken(text, lang, now=None):

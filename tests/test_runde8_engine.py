@@ -162,3 +162,22 @@ def test_truncated_response_backs_the_provider_off(monkeypatch):
     monkeypatch.setattr(d, "_PROV", {"google": {"fails": 0, "until": 0.0}})
     d._note_fail("google", http.client.IncompleteRead(b"ab"))
     assert d._PROV["google"]["fails"] == 1 and d._PROV["google"]["until"] > 0
+
+
+def test_space_grouping_never_creates_a_difference():
+    assert not d.numbers_differ("2 100 baht each", "2 ชิ้น ชิ้นละ 100 บาท")
+
+
+def test_echo_keeps_thai_tone_marks():
+    import collections
+    d._SPOKEN = collections.deque(maxlen=8)
+    d.note_spoken("ร้านนี้อร่อยมากเลยค่ะ", "th", now=5.0)
+    assert d.is_echo("ร้านนี้อร่อยมากเลยค่ะ", "th", now=6.0)
+    assert d._echo_norm("ร้านนี้ ค่ะ!") == "ร้านนี้ค่ะ"
+
+
+def test_sentence_ending_no_still_splits():
+    t = "No. I do not want it at all, thank you very much. Please take it away from the table now."
+    assert d.split_sentences(t, "en")[0] == "No. I do not want it at all, thank you very much."
+    t = "Room no. 5 is on the left side of the corridor. Please take the stairs next to the lobby."
+    assert d.split_sentences(t, "en")[0].startswith("Room no. 5 is")
