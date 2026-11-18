@@ -76,7 +76,7 @@ def test_sw_cache_bumped():
 # ---- Installiert-Zustand und Update-Hinweis ----
 def test_installed_state_and_update_notice_wired():
     assert 'id="appState"' in HTML and "'appinstalled'" in SCRIPT and "display-mode: standalone" in SCRIPT
-    assert "t('installedState')" in SCRIPT and "t('installHint')" in SCRIPT and "t('installBtn')" in SCRIPT
+    assert "t('installedState')" in SCRIPT and "t(installPrompt ? 'installApp' : 'installIos')" in SCRIPT and "t('installBtn')" in SCRIPT
     assert "announce(t('newVersion'), UI)" in SCRIPT                  # Update-Band wird auch vorgelesen
     assert "reg.update()" in SCRIPT and "visibilitychange" in SCRIPT   # lange offene App fragt nach Updates
     assert "controllerchange" in SCRIPT and "location.reload()" in SCRIPT and "if (!hadController) return" in SCRIPT
@@ -89,9 +89,9 @@ def test_no_hardcoded_install_text_and_no_variable_named_t():
 
 
 def test_new_strings_in_all_ui_languages():
-    for k in ("installedState", "installedNow", "installHint", "installHintIos", "installBtn", "closeBtn", "hTalk", "hLog"):
+    for k in ("installedState", "installedNow", "installApp", "installIos", "installBtn", "closeBtn", "hTalk", "hLog"):
         assert len(re.findall(rf'^  "{k}": ', SCRIPT, re.M)) == 3, k
-    for k in ("installedState", "installedNow", "installHintIos"):   # alle drei Texte tatsaechlich verschieden
+    for k in ("installedState", "installedNow", "installIos"):   # alle drei Texte tatsaechlich verschieden
         assert len(set(re.findall(rf'^  "{k}": (.*),$', SCRIPT, re.M))) == 3, k
     assert re.search(r'^  "installedState": ".*[฀-๿]', SCRIPT, re.M)
 
@@ -165,7 +165,7 @@ def ratio(a, b):
 def _tokens():
     light = dict(re.findall(r"--([\w-]+):(#[0-9a-fA-F]{3,6})", re.search(r":root \{(.*?)\}", CSS, re.S).group(1)))
     dark = dict(light)
-    dark.update(re.findall(r"--([\w-]+):(#[0-9a-fA-F]{3,6})", re.search(r"prefers-color-scheme: dark\) \{\s*:root \{(.*?)\}", CSS, re.S).group(1)))
+    dark.update(re.findall(r"--([\w-]+):(#[0-9a-fA-F]{3,6})", re.search(r':root\[data-theme="dark"\] \{(.*?)\}', CSS, re.S).group(1)))
     return {"hell": light, "dunkel": dark}
 
 
