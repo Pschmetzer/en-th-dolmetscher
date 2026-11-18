@@ -279,6 +279,7 @@ struct ContentView: View {
         .frame(minWidth: 620, minHeight: 460)
         .background(WindowAccessor { w in
             w.identifier = Prefs.mainWindowID
+            if w.frameAutosaveName.isEmpty { w.setFrameAutosaveName("DolmetscherMainWindow") }   // Größe/Ort merken
             w.level = onTop ? .floating : .normal
             w.sharingType = hideCapture ? .none : .readOnly      // Nr. 17
             let t = "Dolmetscher · " + m.status
@@ -495,9 +496,12 @@ struct EmptyState: View {
             }
             .scaledFont(26, .semibold)
             if m.loadingModel {
-                HStack(spacing: 8) {
-                    ProgressView().controlSize(.small)
-                    Text(L.t("empty_loading"))
+                VStack(spacing: 8) {
+                    HStack(spacing: 8) {
+                        if m.download == nil { ProgressView().controlSize(.small) }
+                        Text(L.t("empty_loading"))
+                    }
+                    ModelLoadProgress().frame(maxWidth: 360)
                 }
                 .foregroundStyle(.secondary)
             } else {
@@ -538,18 +542,54 @@ struct MainToolbar: View {
     @State private var showCommands = false
     @State private var confirmClear = false
 
+    /// Breites Fenster: alle Werkzeuge einzeln. Schmales Fenster (ViewThatFits): nur Start, Status und ein Überlauf-Menü –
+    /// nichts wird mehr abgeschnitten, der Status behält Platz.
     var body: some View {
-        HStack(spacing: 12) {
-            startButton
-            StatusCluster().layoutPriority(1)
-            Spacer(minLength: 0)
-            tools
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 12) {
+                startButton
+                StatusCluster().frame(maxWidth: 300, alignment: .leading).layoutPriority(1)
+                Spacer(minLength: 0)
+                tools
+            }
+            HStack(spacing: 12) {
+                startButton
+                StatusCluster().layoutPriority(1)
+                Spacer(minLength: 0)
+                compactMenu
+            }
         }
         .padding(14)
+        .popover(isPresented: $showCommands, arrowEdge: .bottom) {
+            CommandsList().padding(20).frame(minWidth: 520)
+        }
         .confirmationDialog(L.t("clear_confirm"), isPresented: $confirmClear, titleVisibility: .visible) {
             Button(L.t("clear"), role: .destructive) { m.clearAll(); m.resetTrimmed() }
             Button(L.t("cancel"), role: .cancel) {}
         }
+    }
+
+    /// Alle Werkzeuge in einem Menü (schmales Fenster).
+    private var compactMenu: some View {
+        Menu {
+            Button(L.t("stop_speaking")) { m.stopSpeaking() }.disabled(!m.running)
+            Button(L.t("replay_last") + " (⌘R)") { if let u = lastReplayable { m.replay(u) } }.disabled(lastReplayable == nil)
+            Button(L.t("commands")) { showCommands = true }
+            if !PresetCatalog.all.isEmpty {
+                Picker(L.t("preset"), selection: $m.preset) {
+                    Text(L.t("preset_none")).tag("")
+                    ForEach(PresetCatalog.all) { Text($0.name).tag($0.id) }
+                }
+            }
+            Button(L.t("profiles")) { showProfiles = true }
+            Button(L.t("partner_view") + " (⇧⌘P)") { openWindow(id: "partner") }
+            Divider()
+            moreItems
+            Button(L.t("settings") + " (⌘,)") { NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil) }
+        } label: { Image(systemName: "ellipsis.circle") }
+            .menuStyle(.borderlessButton).fixedSize()
+            .help(L.t("more_tools_help"))
+            .accessibilityLabel(L.t("more"))
     }
 
     private var startButton: some View {
@@ -577,6 +617,20 @@ struct MainToolbar: View {
 
     private var lastReplayable: Utterance? { m.lastReplayable }
 
+    @ViewBuilder private var moreItems: some View {
+            Picker(L.t("ui_language"), selection: $uiLang) {
+                ForEach(UILang.allCases) { Text($0.label).tag($0.rawValue) }
+            }
+            Toggle(L.t("always_on_top"), isOn: $onTop)
+            Button(L.t("font_bigger")) { scale = Prefs.zoomed(scale, 0.1) }
+            Button(L.t("font_smaller")) { scale = Prefs.zoomed(scale, -0.1) }
+            Divider()
+            Button(L.t("find") + " (⌘F)") { NotificationCenter.default.post(name: .focusSearch, object: nil) }
+            Button(L.t("export") + " (⇧⌘E)") { exportConversation(m) }.disabled(m.items.isEmpty)
+            Button(L.t("clear")) { confirmClear = true }.disabled(m.items.isEmpty)
+            Button(L.t("open_log")) { openLog() }
+    }
+
     @ViewBuilder private var tools: some View {
         Button { m.stopSpeaking() } label: { Image(systemName: "speaker.slash") }
             .disabled(!m.running)
@@ -589,9 +643,6 @@ struct MainToolbar: View {
         Button { showCommands.toggle() } label: { Image(systemName: "text.bubble") }
             .help(L.t("commands"))
             .accessibilityLabel(L.t("commands"))
-            .popover(isPresented: $showCommands, arrowEdge: .bottom) {
-                CommandsList().padding(20).frame(minWidth: 520)
-            }
         if !PresetCatalog.all.isEmpty { PresetMenu() }
         Button { showProfiles = true } label: { Label(L.t("profiles"), systemImage: "person.crop.circle.badge.plus") }
             .help(L.t("profiles"))
@@ -601,17 +652,7 @@ struct MainToolbar: View {
             .accessibilityLabel(L.t("partner_view"))
         // Seltene Aktionen im Menü, damit bei schmalem Fenster der Status Platz behält
         Menu {
-            Picker(L.t("ui_language"), selection: $uiLang) {
-                ForEach(UILang.allCases) { Text($0.label).tag($0.rawValue) }
-            }
-            Toggle(L.t("always_on_top"), isOn: $onTop)
-            Button(L.t("font_bigger")) { scale = Prefs.zoomed(scale, 0.1) }
-            Button(L.t("font_smaller")) { scale = Prefs.zoomed(scale, -0.1) }
-            Divider()
-            Button(L.t("find") + " (⌘F)") { NotificationCenter.default.post(name: .focusSearch, object: nil) }
-            Button(L.t("export") + " (⇧⌘E)") { exportConversation(m) }.disabled(m.items.isEmpty)
-            Button(L.t("clear")) { confirmClear = true }.disabled(m.items.isEmpty)
-            Button(L.t("open_log")) { openLog() }
+            moreItems
         } label: { Image(systemName: "ellipsis.circle") }
             .menuStyle(.borderlessButton).fixedSize()
             .help(L.t("more"))
@@ -633,7 +674,7 @@ struct ConversationBar: View {
         if m.sayTyped(draft) { draft = "" }
     }
 
-    var body: some View {
+    private var controls: some View {
         HStack(spacing: 10) {
             Picker(L.t("direction"), selection: $m.lang) {
                 Text(L.t("dir_auto")).tag("auto")
@@ -660,6 +701,11 @@ struct ConversationBar: View {
                 .help(L.t("polite_a11y"))
                 .accessibilityLabel(L.t("polite_a11y"))
             }
+        }
+    }
+
+    private var field: some View {
+        HStack(spacing: 10) {
             TextField(L.t("type_prompt"), text: $draft)
                 .textFieldStyle(.roundedBorder)
                 .focused($typing)
@@ -672,8 +718,17 @@ struct ConversationBar: View {
                 .help(L.t("type_send"))
                 .accessibilityLabel(L.t("type_send"))
         }
+    }
+
+    /// Eine Zeile, wenn sie passt; sonst Bedienelemente oben und Eingabefeld darunter (nichts läuft mehr rechts raus).
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 10) { controls; field.frame(minWidth: 200) }
+            VStack(alignment: .leading, spacing: 8) { controls; field }
+        }
         .scaledFont(13)
         .padding(.horizontal, 14).padding(.bottom, 8)
+        .onReceive(NotificationCenter.default.publisher(for: .focusTyping)) { _ in typing = true }
     }
 }
 
@@ -752,7 +807,12 @@ struct StatusCluster: View {
                     .font(.caption).monospacedDigit().foregroundStyle(.secondary)
                     .help(L.t("llm_cost") + (m.llmBudget > 0 ? "\n" + L.f("budget_progress", m.llmMonthUSD, m.llmBudget) : ""))
             }
-            if m.busy || m.loadingModel {
+            if let d = m.download, let f = EnvLogic.downloadFraction(done: d.done, total: d.total) {
+                ProgressView(value: f).frame(width: 64)
+                    .help(L.f("envsetup_model_progress", d.model, d.done, d.total ?? 0))
+                    .accessibilityLabel(L.t("load_progress"))
+                    .accessibilityValue("\(Int(f * 100)) %")
+            } else if m.busy || m.loadingModel {
                 ProgressView().controlSize(.small).accessibilityLabel(L.t("working"))
             }
         }
@@ -869,6 +929,10 @@ struct QuickPhraseBar: View {
             .padding(.horizontal, 14).padding(.bottom, 10)
             .scaledFont(13)
         }
+        .mask(HStack(spacing: 0) {   // weicher Rand rechts: zeigt, dass es weiter läuft
+            Rectangle()
+            LinearGradient(colors: [.black, .clear], startPoint: .leading, endPoint: .trailing).frame(width: 20)
+        })
         .accessibilityLabel(L.t("quick_phrases"))
         .alert(L.tp("phrase_new_title"), isPresented: $adding) {
             TextField(L.t("sentence"), text: $draft)
@@ -917,6 +981,32 @@ struct PushToTalkButton: View {
 }
 
 /// Schmaler Hinweis unter der Kopfzeile, optional mit einem Knopf und Schließen-Kreuz.
+/// Ladezustand mit Zahlen: Balken und „Modell: x von y MB“ aus `download_progress`; ohne Download nur der Hinweis,
+/// dass das Laden aus dem Cache kurz dauert. Bei langsamem Laden mit Handlungsvorschlag.
+struct ModelLoadProgress: View {
+    @EnvironmentObject var m: EngineModel
+    var body: some View {
+        VStack(spacing: 4) {
+            if let d = m.download {
+                if let f = EnvLogic.downloadFraction(done: d.done, total: d.total) {
+                    ProgressView(value: f)
+                        .accessibilityLabel(L.t("load_progress"))
+                        .accessibilityValue("\(Int(f * 100)) %")
+                } else {
+                    ProgressView().progressViewStyle(.linear)
+                }
+                Text(L.f("envsetup_model_progress", d.model, d.done, d.total ?? 0))
+                    .font(.caption).monospacedDigit()
+            } else if m.loadingModel {
+                ProgressView().progressViewStyle(.linear).accessibilityLabel(L.t("working"))
+            }
+            if m.loadSlow {
+                Text(L.t("load_slow_action")).font(.caption).foregroundStyle(LangStyle.warning)
+            }
+        }
+    }
+}
+
 struct NoticeBanner: View {
     let icon: String
     let tint: Color
@@ -970,8 +1060,11 @@ struct MicDeniedBanner: View {
     @EnvironmentObject var m: EngineModel
     var body: some View {
         HStack(spacing: 12) {
-            Label(L.t("nomic"), systemImage: "mic.slash.fill")
-                .font(.headline).foregroundStyle(.red)
+            VStack(alignment: .leading, spacing: 2) {
+                Label(L.t("nomic"), systemImage: "mic.slash.fill")
+                    .font(.headline).foregroundStyle(.red)
+                Text(L.t("nomic_action")).font(.caption).foregroundStyle(.secondary)
+            }
             Spacer()
             Button(L.t("open_mic_settings")) { m.openMicrophoneSettings() }
                 .buttonStyle(.borderedProminent)
@@ -1056,5 +1149,6 @@ struct TipsSheet: View {
 extension Notification.Name {
     static let showTips = Notification.Name("DolmetscherShowTips")
     static let focusSearch = Notification.Name("DolmetscherFocusSearch")
+    static let focusTyping = Notification.Name("DolmetscherFocusTyping")
     static let showProfiles = Notification.Name("DolmetscherShowProfiles")
 }
