@@ -1,0 +1,117 @@
+{
+  "id": "wedding",
+  "names": {
+    "de": "Hochzeit und Feier",
+    "en": "Wedding and party",
+    "th": "งานแต่งงานและงานเลี้ยง"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "bride",
+      "th": "เจ้าสาว"
+    },
+    {
+      "en": "groom",
+      "th": "เจ้าบ่าว"
+    },
+    {
+      "en": "congratulations",
+      "th": "ขอแสดงความยินดี"
+    },
+    {
+      "en": "gift envelope",
+      "th": "ซองเงินขวัญ"
+    },
+    {
+      "en": "toast",
+      "th": "ดื่มอวยพร"
+    },
+    {
+      "en": "guest",
+      "th": "แขก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Someone feels sick. Please call a doctor.",
+      "th": "มีคนไม่สบาย ช่วยเรียกแพทย์หน่อย",
+      "critical": true
+    },
+    {
+      "en": "I have a food allergy.",
+      "th": "แพ้อาหาร",
+      "critical": true
+    },
+    {
+      "en": "Where is the exit?",
+      "th": "ทางออกอยู่ที่ไหน",
+      "critical": true
+    },
+    {
+      "en": "Please call an ambulance.",
+      "th": "ช่วยเรียกรถพยาบาลหน่อย",
+      "critical": true
+    },
+    {
+      "en": "Congratulations to you both!",
+      "th": "ขอแสดงความยินดีกับทั้งสองท่าน"
+    },
+    {
+      "en": "Thank you very much for inviting us.",
+      "th": "ขอบคุณมากที่เชิญ"
+    },
+    {
+      "en": "I wish you a happy marriage.",
+      "th": "ขอให้มีความสุขในชีวิตสมรส"
+    },
+    {
+      "en": "What time does the ceremony start?",
+      "th": "พิธีเริ่มกี่โมง"
+    },
+    {
+      "en": "Where should I sit?",
+      "th": "ควรนั่งตรงไหน"
+    },
+    {
+      "en": "Where is the gift table?",
+      "th": "โต๊ะรับของขวัญอยู่ที่ไหน"
+    },
+    {
+      "en": "Is there a dress code?",
+      "th": "มีข้อกำหนดการแต่งกายไหม"
+    },
+    {
+      "en": "Is this dish spicy?",
+      "th": "จานนี้เผ็ดไหม"
+    },
+    {
+      "en": "Does this have peanuts?",
+      "th": "อันนี้มีถั่วลิสงไหม"
+    },
+    {
+      "en": "Cheers!",
+      "th": "ชนแก้ว"
+    },
+    {
+      "en": "The food is delicious.",
+      "th": "อาหารอร่อยมาก"
+    },
+    {
+      "en": "Could we take a photo together?",
+      "th": "ถ่ายรูปด้วยกันได้ไหม"
+    },
+    {
+      "en": "Where is the toilet?",
+      "th": "ห้องน้ำอยู่ที่ไหน"
+    },
+    {
+      "en": "Could you call a taxi for us?",
+      "th": "ช่วยเรียกแท็กซี่ให้หน่อยได้ไหม"
+    }
+  ],
+  "note": {
+    "de": "Als Gast dezent kleiden, Umschlag mit Geld statt Geschenk ist üblich. Mönche segnen oft am Morgen, das Fest beginnt später. Mit der rechten Hand reichen, Brautleute nicht am Kopf berühren. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Dress modestly as a guest; an envelope with money is a usual gift. Monks often bless in the morning and the party starts later. Hand things over with the right hand and do not touch the couple's heads. Thai lines machine-made, not checked by native speakers."
+  }
+}

@@ -264,6 +264,94 @@
    "phrases": 15,
    "critical": 1,
    "reviewed": false
+  },
+  {
+   "id": "baby",
+   "names": {
+    "de": "Baby und Kleinkind",
+    "en": "Baby and toddler",
+    "th": "ทารกและเด็กเล็ก"
+   },
+   "phrases": 18,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
+   "id": "car-rental",
+   "names": {
+    "de": "Mietwagen",
+    "en": "Car rental",
+    "th": "เช่ารถ"
+   },
+   "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "gym",
+   "names": {
+    "de": "Fitnessstudio",
+    "en": "Gym",
+    "th": "ฟิตเนส"
+   },
+   "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "hospital",
+   "names": {
+    "de": "Krankenhaus",
+    "en": "Hospital",
+    "th": "โรงพยาบาล"
+   },
+   "phrases": 18,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
+   "id": "monk",
+   "names": {
+    "de": "Mönche und Tempelbesuch",
+    "en": "Monks",
+    "th": "พระสงฆ์"
+   },
+   "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "pets",
+   "names": {
+    "de": "Haustiere",
+    "en": "Pets",
+    "th": "สัตว์เลี้ยง"
+   },
+   "phrases": 18,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
+   "id": "photo",
+   "names": {
+    "de": "Fotografieren",
+    "en": "Photography",
+    "th": "ถ่ายภาพ"
+   },
+   "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "wedding",
+   "names": {
+    "de": "Hochzeit und Feier",
+    "en": "Wedding and party",
+    "th": "งานแต่งงานและงานเลี้ยง"
+   },
+   "phrases": 18,
+   "critical": 4,
+   "reviewed": false
   }
  ]
 }

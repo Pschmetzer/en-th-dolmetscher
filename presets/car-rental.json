@@ -1,0 +1,117 @@
+{
+  "id": "car-rental",
+  "names": {
+    "de": "Mietwagen",
+    "en": "Car rental",
+    "th": "เช่ารถ"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "insurance",
+      "th": "ประกันภัย"
+    },
+    {
+      "en": "deposit",
+      "th": "เงินมัดจำ"
+    },
+    {
+      "en": "driving licence",
+      "th": "ใบขับขี่"
+    },
+    {
+      "en": "full tank",
+      "th": "น้ำมันเต็มถัง"
+    },
+    {
+      "en": "scratch",
+      "th": "รอยขีดข่วน"
+    },
+    {
+      "en": "gearbox",
+      "th": "เกียร์"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "There has been an accident.",
+      "th": "เกิดอุบัติเหตุ",
+      "critical": true
+    },
+    {
+      "en": "Please call the police.",
+      "th": "ช่วยเรียกตำรวจด้วย",
+      "critical": true
+    },
+    {
+      "en": "Someone is injured. Please call an ambulance.",
+      "th": "มีคนบาดเจ็บ ช่วยเรียกรถพยาบาลหน่อย",
+      "critical": true
+    },
+    {
+      "en": "The car broke down.",
+      "th": "รถเสีย",
+      "critical": true
+    },
+    {
+      "en": "I would like to rent a car for three days.",
+      "th": "ต้องการเช่ารถสามวัน"
+    },
+    {
+      "en": "Is insurance included?",
+      "th": "รวมประกันไหม"
+    },
+    {
+      "en": "How much is the deposit?",
+      "th": "ค่ามัดจำเท่าไหร่"
+    },
+    {
+      "en": "Is there a scratch here? Please note it down.",
+      "th": "ตรงนี้มีรอยขีดข่วน ช่วยจดไว้หน่อย"
+    },
+    {
+      "en": "Is the tank full?",
+      "th": "น้ำมันเต็มถังไหม"
+    },
+    {
+      "en": "Does the car have a spare tire?",
+      "th": "รถมียางอะไหล่ไหม"
+    },
+    {
+      "en": "Is the car automatic?",
+      "th": "เป็นเกียร์อัตโนมัติไหม"
+    },
+    {
+      "en": "Do you have a child seat?",
+      "th": "มีเบาะนั่งเด็กไหม"
+    },
+    {
+      "en": "Where should I return the car?",
+      "th": "ต้องคืนรถที่ไหน"
+    },
+    {
+      "en": "Could I return the car at the airport?",
+      "th": "คืนรถที่สนามบินได้ไหม"
+    },
+    {
+      "en": "Is there a mileage limit?",
+      "th": "จำกัดระยะทางไหม"
+    },
+    {
+      "en": "What do I do if the car breaks down?",
+      "th": "ถ้ารถเสียต้องทำอย่างไร"
+    },
+    {
+      "en": "Here is my driving licence.",
+      "th": "นี่ใบขับขี่"
+    },
+    {
+      "en": "Could I have the receipt, please?",
+      "th": "ขอใบเสร็จหน่อย"
+    }
+  ],
+  "note": {
+    "de": "In Thailand herrscht Linksverkehr. Internationalen Führerschein mitbringen, vor der Abfahrt alle Schäden fotografieren. Rettung 1669, Polizei 191, Tourist Police 1155. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Thailand drives on the left. Bring an international driving permit and photograph every damage before leaving. Ambulance 1669, police 191, tourist police 1155. Thai lines machine-made, not checked by native speakers."
+  }
+}
