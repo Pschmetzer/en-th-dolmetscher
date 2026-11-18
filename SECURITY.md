@@ -1,30 +1,38 @@
-# Sicherheit
+# Security policy
 
-## Sicherheitslücke melden
+## Supported versions
 
-Bitte **kein öffentliches Issue** für Sicherheitslücken. Nutze stattdessen auf GitHub im Reiter *Security* den Punkt
-*Report a vulnerability* (privater Sicherheitshinweis des Repositorys). Ist er dort nicht sichtbar, öffne ein Issue
-ohne Einzelheiten („Ich möchte eine Sicherheitslücke melden“); wir melden uns dann auf einem privaten Weg.
+Only the latest version on `main` (and the latest release, if there is one) gets security fixes. The current version is in `pyproject.toml`.
 
-Hilfreich sind: betroffene Plattform (Mac, iPhone, Browser, Engine), Version, Schritte zum Nachstellen und die
-mögliche Auswirkung. Bitte keine echten Gesprächsinhalte, Sprachaufnahmen oder API-Schlüssel mitschicken.
+| Component | Supported |
+|---|---|
+| Mac app and engine (`app/`, `dolmetscher.py`) | latest `main` |
+| iPhone / iPad app (`ios/`) | latest `main` |
+| Browser version (Web Lite, GitHub Pages) | the deployed version |
 
-Das ist ein Hobby-Projekt ohne feste Antwortzeit. Wir bemühen uns um eine kurze Rückmeldung und nennen dich auf
-Wunsch im Changelog.
+## Reporting a vulnerability
 
-## Was zählt
+Please **do not open a public issue** for security problems.
 
-- Abfluss von Audio, Text, Schlüsseln oder Stimmprofilen, die laut [docs/DATENSCHUTZ.md](docs/DATENSCHUTZ.md) lokal bleiben sollen
-- Ausführen fremden Codes über Phrasenpakete, Einstellungen, das JSON-Protokoll zwischen App und Engine oder die Web-Version
-- Fehler im Umgang mit dem Claude-Schlüssel (Schlüsselbund auf dem Mac)
+Report it privately through GitHub: **Security → Report a vulnerability** on this repository (private vulnerability reporting). If that is not available, open an issue that only says you have a security report and would like a private contact, without any details.
 
-Nicht dazu zählen falsche oder unhöfliche Übersetzungen. Dafür gibt es die Vorlage *Thai-Übersetzungsfehler* bzw. *Fehler melden*.
+Helpful to include:
 
-## Unterstützte Versionen
+- what is affected (Mac app, engine, iPhone app, browser version, build scripts),
+- the steps to reproduce, and the version or commit,
+- what an attacker could do with it.
 
-Gepflegt wird der jeweils neueste Stand auf `main` und die letzte Version.
+Please leave out real conversation text, voice recordings and logs with personal content.
 
-## Hinweise für Mitwirkende
+This is a small volunteer project: expect a first answer within about a week. Once a fix is ready, it is released and the report is credited, unless you prefer to stay anonymous.
 
-Schlüssel, Tokens und persönliche Daten gehören nie ins Repository (siehe [CONTRIBUTING.md](CONTRIBUTING.md)).
-Abhängigkeiten sind in `requirements.txt` festgenagelt; Dependabot und CodeQL laufen über `.github/`.
+## What counts
+
+Especially interesting, because the app handles speech and conversation text:
+
+- conversation text, voice profiles (biometric data), the conversation history or the Anthropic API key leaving the device in a way [docs/DATENSCHUTZ.md](docs/DATENSCHUTZ.md) does not describe,
+- files in `~/Library/Application Support/Dolmetscher/` readable by other users,
+- code execution through presets, imported files, the JSON protocol between app and engine, or the first-start environment setup (downloaded packages and models are hash- or checksum-verified),
+- cross-site scripting or similar in the browser version.
+
+Out of scope: problems in the third-party translation and voice services themselves (Google, MyMemory, Microsoft, Anthropic) and translations that are wrong but harmless. Please report wrong or impolite translations as normal issues.

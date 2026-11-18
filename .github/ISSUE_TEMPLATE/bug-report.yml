@@ -1,0 +1,57 @@
+name: Bug report
+description: Something doesn't work as expected (Mac, iPhone/iPad or browser version).
+title: "Bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please leave out personal data: no real conversation text, recordings or names.
+        Security problems please report privately, see SECURITY.md.
+        Wrong or impolite Thai phrases in a phrase pack: please use the "Thai-Satz prüfen" template.
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Mac app
+        - iPhone / iPad app
+        - Browser version (Web Lite)
+        - Engine in the terminal
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: "App version (Mac: About, iPhone: Settings) or the commit you built from."
+      placeholder: "1.2 / 7392c6b"
+  - type: input
+    id: system
+    attributes:
+      label: Device and system
+      placeholder: "MacBook Air M2, macOS 26.1 / iPhone 16, iOS 26.1 / Chrome 142"
+  - type: input
+    id: langs
+    attributes:
+      label: Language pair
+      placeholder: "English ⇄ Thai"
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+  - type: textarea
+    id: log
+    attributes:
+      label: Log excerpt (optional)
+      description: "Mac: ~/Library/Logs/Dolmetscher/engine.log. Conversation text is not logged unless you started with --log-text; remove personal content before pasting."
+      render: text
