@@ -53,8 +53,10 @@ check(EnvLogic.parseSetupLine("step packages\n") == .step("packages"), "step")
 check(EnvLogic.parseSetupLine("done") == .done, "done")
 check(EnvLogic.parseSetupLine("fail offline") == .fail("offline"), "fail")
 check(EnvLogic.parseSetupLine("progress 42") == .progress(42), "progress")
-check(EnvLogic.parseSetupLine("progress 400") == .progress(99) && EnvLogic.parseSetupLine("progress x") == nil, "progress begrenzt")
-check(EnvLogic.stepFraction("packages", progress: 100) == 0.85 && EnvLogic.stepFraction("packages", progress: 0) == 0.15,
+check(EnvLogic.parseSetupLine("progress 400") == .progress(99)
+      && EnvLogic.parseSetupLine("progress x") == nil, "progress begrenzt")
+check(EnvLogic.stepFraction("packages", progress: 100) == 0.85
+      && EnvLogic.stepFraction("packages", progress: 0) == 0.15,
       "Paketfortschritt füllt 0,15 bis 0,85")
 check(EnvLogic.parseSetupLine("irgendwas") == nil && EnvLogic.parseSetupLine("") == nil, "Rauschen")
 check(EnvLogic.stepFraction("python") < EnvLogic.stepFraction("packages")
