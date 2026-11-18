@@ -718,6 +718,7 @@ final class InterpreterModel {
         guard !paused else { return }
         let text = hyps[lang]?.text ?? ""
         let alt = hyps[pair.other(lang)]?.text
+        if ConversationLogic.isEcho(text, spoken: ConversationLogic.recent(recentSpoken, now: Date())) { return }   // eigene Ausgabe
         clearExpectation()
         Haptics.heard()
         add(Entry(src: lang, dst: pair.other(lang), text: text, alt: alt))
@@ -730,6 +731,8 @@ final class InterpreterModel {
     private var turnBias: Lang? {
         LanguagePick.turnBias(lastSpoken: entries.last(where: { $0.provider != "phrasebook" })?.src, pair: pair)
     }
+
+    @ObservationIgnored private var recentSpoken: [(text: String, at: Date)] = []
 
     private var activeExpectation: Lang? { Date() < expectedUntil ? expected : nil }
 
@@ -1272,6 +1275,7 @@ final class InterpreterModel {
                 try? session.overrideOutputAudioPort(.speaker)
             }
             speakingID = id
+            recentSpoken = Array((recentSpoken + [(text, Date())]).suffix(5))
             liveUpdate()
             await speaker.speak(text, lang: lang, rate: r, volume: loud ? 1 : volume, clear: clearSpeech || slow)
             if speakingID == id { speakingID = nil; liveUpdate() }

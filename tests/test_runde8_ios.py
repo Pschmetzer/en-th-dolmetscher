@@ -36,7 +36,7 @@ def test_round8_keys_are_new_and_registered():
     assert not mine & others
     l10n = (IOS / "Dolmetscher" / "L10n.swift").read_text(encoding="utf-8")
     registered = l10n[l10n.index("static func text("):]
-    assert re.search(r"\bround8\b", registered)   # Nachschlag und allKeys kennen die Tabelle, egal in welcher Schreibweise
+    assert re.search(r"\bround8\b", registered)   # Nachschlag und allKeys kennen die Tabelle
 
 
 def test_round8_used_keys_exist():
