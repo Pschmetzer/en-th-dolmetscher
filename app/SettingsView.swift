@@ -56,6 +56,9 @@ private struct GeneralSettings: View {
     @AppStorage(Prefs.spaceToggle) private var spaceToggle = true
     @AppStorage(Prefs.listenOnLaunch) private var listenOnLaunch = false
     @AppStorage(Prefs.announce) private var announce = true
+    @AppStorage(Prefs.hideFromCapture) private var hideCapture = false
+    @AppStorage(Prefs.stopMicOnClose) private var stopMicOnClose = true
+    @AppStorage(Prefs.hotkeyHUD) private var hotkeyHUD = true
 
     var body: some View {
         Form {
@@ -177,6 +180,11 @@ private struct GeneralSettings: View {
                     .help(L.t("space_toggle_help"))
                 Toggle(L.t("announce_toggle"), isOn: $announce)
                     .help(L.t("announce_help"))
+                Toggle(L.t("hide_capture"), isOn: $hideCapture)          // Nr. 17
+                    .help(L.t("hide_capture_help"))
+                Toggle(L.t("stop_mic_on_close"), isOn: $stopMicOnClose)  // Nr. 18
+                    .help(L.t("stop_mic_on_close_help"))
+                Toggle(L.t("hotkey_hud"), isOn: $hotkeyHUD)              // Nr. 32
                 Toggle(L.t("listen_on_launch"), isOn: $listenOnLaunch)   // Nr. 377
                     .help(L.t("listen_on_launch_help"))
                 LoginItemToggle()
@@ -372,6 +380,7 @@ private struct MicSection: View {
             }
         }
         .onAppear { if mics.isEmpty { load() } }
+        .onReceive(NotificationCenter.default.publisher(for: .audioDevicesChanged)) { _ in load() }   // Nr. 27
         .onDisappear { proc?.terminate(); proc = nil }
     }
 
@@ -421,6 +430,7 @@ private struct OutputSection: View {
             }
         }
         .onAppear { outputs = AudioOutputs.list() }
+        .onReceive(NotificationCenter.default.publisher(for: .audioDevicesChanged)) { _ in outputs = AudioOutputs.list() }   // Nr. 27
     }
 }
 
@@ -502,7 +512,7 @@ private struct VoiceSettings: View {
                     Slider(value: rateBinding, in: -50...50, step: 5)
                         .accessibilityLabel(L.t("rate"))
                         .accessibilityValue("\(m.rate) %")
-                    Text(String(format: "%+d %%", m.rate)).monospacedDigit().frame(width: 52, alignment: .trailing)
+                    Text(fmtNumber(Double(m.rate), digits: 0, plus: true) + " %").monospacedDigit().frame(width: 52, alignment: .trailing)
                 }
                 HStack {
                     Text(L.t("volume"))
@@ -560,6 +570,10 @@ private struct TranslationSettings: View {
                     VStack(alignment: .leading) { Text(L.t("llm_model")); RestartNote() }
                 }
                 .accessibilityLabel(L.t("llm_model"))
+                // Nr. 38: ungefähre Kosten je Modell (Preise wie in der Engine, ca. 300 Eingabe- + 40 Ausgabe-Token je Satz)
+                Label(L.f("llm_price_hint", EngineModel.costPer1000(m.llmModel)),
+                      systemImage: m.llmModel.contains("opus") ? "exclamationmark.triangle" : "dollarsign.circle")
+                    .font(.caption).foregroundStyle(m.llmModel.contains("opus") ? LangStyle.warning : .secondary)
                 Picker(L.t("style"), selection: $m.llmStyle) {
                     ForEach(["casual", "neutral", "polite"], id: \.self) { Text(L.t("style_" + $0)).tag($0) }
                 }
@@ -574,7 +588,7 @@ private struct TranslationSettings: View {
                     .help(L.t("preset_help"))
                 }
                 if m.llmCostUSD > 0 {
-                    LabeledContent(L.t("llm_cost"), value: String(format: "≈ $%.3f", m.llmCostUSD))
+                    LabeledContent(L.t("llm_cost"), value: "≈ $" + fmtNumber(m.llmCostUSD, digits: 3))
                 }
                 // Kostenbremse (Nr. 16): darüber übersetzt Google bis Monatsende
                 LabeledContent {

@@ -1,0 +1,24 @@
+{
+  "1.2": [
+    {
+      "de": "Alles löschen leert jetzt auch den Gesprächskontext der Engine.",
+      "en": "Clear now also wipes the engine's conversation context.",
+      "th": "การล้างข้อมูลตอนนี้ล้างบริบทการสนทนาของเอนจินด้วย"
+    },
+    {
+      "de": "Neu: Audiodateien übersetzen (Datei → Audiodatei übersetzen oder ins Fenster ziehen) und ein Untertitel-Fenster für Videoanrufe.",
+      "en": "New: translate audio files (File menu or drag into the window) and a caption window for video calls.",
+      "th": "ใหม่: แปลไฟล์เสียง (เมนูไฟล์หรือลากเข้าหน้าต่าง) และหน้าต่างคำบรรยายสำหรับวิดีโอคอล"
+    },
+    {
+      "de": "Schnellsätze per ⌘1–⌘9, Rückgängig für gelöschte Blasen und Budget-Hinweise für Claude.",
+      "en": "Quick phrases with ⌘1–⌘9, undo for deleted bubbles and budget notices for Claude.",
+      "th": "ประโยคด่วนด้วย ⌘1–⌘9 เลิกทำการลบข้อความ และแจ้งเตือนงบ Claude"
+    },
+    {
+      "de": "Neu in den Einstellungen: Fenster vor Bildschirmaufnahme verbergen und Mikrofon beim Schließen ausschalten.",
+      "en": "New in settings: hide windows from screen recording and turn the microphone off on close.",
+      "th": "ใหม่ในการตั้งค่า: ซ่อนหน้าต่างจากการอัดหน้าจอ และปิดไมโครโฟนเมื่อปิดหน้าต่าง"
+    }
+  ]
+}

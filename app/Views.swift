@@ -158,6 +158,8 @@ struct ContentView: View {
     @AppStorage(Prefs.fontScale) private var scale = 1.0
     @AppStorage(Prefs.alwaysOnTop) private var onTop = false
     @AppStorage(Prefs.tipsSeen) private var tipsSeen = false
+    @AppStorage(Prefs.hideFromCapture) private var hideCapture = false
+    @State private var whatsNew: [String] = []
     @AppStorage(Prefs.showQuick) private var showQuick = true
     @State private var showTips = false
     @State private var showProfiles = false
@@ -173,6 +175,7 @@ struct ContentView: View {
     @FocusState private var searchFocused: Bool
     @AppStorage(L.key) private var uiLang = L.defaultCode
 
+    @State private var budgetHintClosed = false
     private var filtering: Bool { !query.isEmpty || !langFilter.isEmpty }
 
     var body: some View {
@@ -217,6 +220,22 @@ struct ContentView: View {
                              text: e.date.formatted(date: .omitted, time: .standard) + " · " + e.msg,
                              action: (L.t("show_log"), { openLog() }), onClose: { m.lastError = nil })
             }
+            if m.llm && m.llmBudget > 0 && m.llmMonthUSD >= m.llmBudget * 0.8 && !budgetHintClosed {   // Nr. 37
+                let over = m.llmMonthUSD >= m.llmBudget
+                NoticeBanner(icon: "dollarsign.circle", tint: LangStyle.warning,
+                             text: L.f(over ? "budget_over" : "budget_near", m.llmMonthUSD, m.llmBudget),
+                             onClose: { budgetHintClosed = true })
+            }
+            if let r = m.partnerRequest {   // Nr. 36
+                NoticeBanner(icon: "person.wave.2", tint: LangStyle.warning, text: L.t(r), onClose: { m.partnerRequest = nil })
+            }
+            if m.fileBusy {   // Nr. 51
+                NoticeBanner(icon: "waveform.badge.magnifyingglass", tint: .accentColor, text: L.t("file_working"))
+            }
+            if m.deletedBubble != nil {   // Nr. 34
+                NoticeBanner(icon: "trash", tint: .secondary, text: L.t("bubble_deleted_undo"),
+                             action: (L.t("undo_delete"), { m.undoDelete() }), onClose: { m.deletedBubble = nil })
+            }
             if let v = m.vocabSuggestion { VocabSuggestionBanner(words: v.words, profile: v.profile) }
             if let u = m.unsureDrop {
                 NoticeBanner(icon: "questionmark.bubble", tint: LangStyle.warning,
@@ -245,11 +264,23 @@ struct ContentView: View {
         .background(WindowAccessor { w in
             w.identifier = Prefs.mainWindowID
             w.level = onTop ? .floating : .normal
+            w.sharingType = hideCapture ? .none : .readOnly      // Nr. 17
             let t = "Dolmetscher · " + m.status
             if w.title != t { w.title = t }
         })
         .sheet(isPresented: $showTips) {
             TipsSheet(model: m.model, thai: Langs.hasThai) { tipsSeen = true; showTips = false }
+        }
+        .sheet(isPresented: Binding(get: { !whatsNew.isEmpty }, set: { if !$0 { whatsNew = []; WhatsNew.markSeen() } })) {
+            WhatsNewSheet(items: whatsNew) { whatsNew = []; WhatsNew.markSeen() }
+        }
+        .onDrop(of: [.fileURL], isTargeted: nil) { providers in   // Nr. 51: Audiodatei auf das Fenster ziehen
+            guard let p = providers.first else { return false }
+            _ = p.loadObject(ofClass: URL.self) { url, _ in
+                guard let url, url.isFileURL else { return }
+                DispatchQueue.main.async { MainActor.assumeIsolated { m.translateFile(url) } }
+            }
+            return true
         }
         .sheet(isPresented: $showProfiles) { ProfilesView().environmentObject(m) }
         .sheet(item: $correcting) { CorrectSheet(u: $0).environmentObject(m) }
@@ -259,6 +290,7 @@ struct ContentView: View {
         .onChange(of: setup.visible) { if !setup.visible && !tipsSeen { showTips = true } }
         .onAppear {
             if !tipsSeen && !setup.visible { showTips = true }
+            if tipsSeen && !setup.visible { whatsNew = WhatsNew.pending() } else { _ = WhatsNew.pending() }
             installScrollMonitor()
         }
         .onDisappear { if let t = scrollBox.token { NSEvent.removeMonitor(t); scrollBox.token = nil } }
@@ -700,9 +732,9 @@ struct StatusCluster: View {
                 .accessibilityLabel(L.t("llm_missing") + ". " + L.t("llm_missing_help"))
             }
             if m.llm && m.llmCostUSD > 0 {
-                Text(String(format: "≈ $%.2f", m.llmCostUSD))
+                Text("≈ $" + fmtNumber(m.llmCostUSD))
                     .font(.caption).monospacedDigit().foregroundStyle(.secondary)
-                    .help(L.t("llm_cost"))
+                    .help(L.t("llm_cost") + (m.llmBudget > 0 ? "\n" + L.f("budget_progress", m.llmMonthUSD, m.llmBudget) : ""))
             }
             if m.busy || m.loadingModel {
                 ProgressView().controlSize(.small).accessibilityLabel(L.t("working"))

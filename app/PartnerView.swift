@@ -12,6 +12,7 @@ struct PartnerView: View {
     /// Nr. 385: Gespräch am Tisch (Laptop zwischen beiden) – Inhalt um 180° drehen; eigene Schriftgröße.
     @AppStorage("partnerRotated") private var rotated = false
     @AppStorage("partnerZoom") private var zoom = 1.0
+    @AppStorage(Prefs.hideFromCapture) private var hideCapture = false
     private static let zoomRange = 0.5...2.0
 
     /// Startschriftgröße aus Fenstergröße und Textlänge (minimumScaleFactor fängt den Rest ab).
@@ -47,6 +48,23 @@ struct PartnerView: View {
 
     /// Partnersprache, wenn die Oberfläche sie kann (de/en/th), sonst die eingestellte Oberflächensprache.
     private var partnerUI: UILang? { UILang(rawValue: m.partnerLang) }
+
+    /// Große Schaltfläche, Beschriftung in der Partnersprache (de/en/th, sonst Englisch) und darunter in meiner.
+    @ViewBuilder private func partnerButton(_ key: String, icon: String, action: @escaping () -> Void) -> some View {
+        let main = L.t(key, partnerUI ?? .en)
+        Button(action: action) {
+            VStack(spacing: 2) {
+                Label(main, systemImage: icon).font(.system(size: 30, weight: .bold))
+                if L.t(key) != main { Text(L.t(key)).font(.system(size: 18)).opacity(0.8) }
+            }
+            .minimumScaleFactor(0.4)
+            .frame(maxWidth: .infinity).padding(.vertical, 14)
+            .foregroundStyle(.white)
+            .background(Color(white: 0.22), in: RoundedRectangle(cornerRadius: 16))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(main)
+    }
 
     @ViewBuilder private func stopBannerView(_ b: (icon: String, key: String)) -> some View {
         let main = L.t(b.key, partnerUI)
@@ -163,6 +181,13 @@ struct PartnerView: View {
                 .padding(14)
                 if let b = stopBanner { stopBannerView(b) }
                 Spacer()
+                if m.running {   // Nr. 36: die Partnerin kann um Wiederholung / langsameres Sprechen bitten
+                    HStack(spacing: 16) {
+                        partnerButton("partner_again", icon: "arrow.counterclockwise") { m.replayLast() }
+                        partnerButton("partner_slower", icon: "tortoise") { m.partnerAsks("partner_asks_slower") }
+                    }
+                    .padding(.horizontal, 24).padding(.bottom, 18)
+                }
             }
         }
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: m.items.last(where: { $0.translated && !$0.pending })?.id)
@@ -171,6 +196,7 @@ struct PartnerView: View {
             if window !== w {
                 w.collectionBehavior.insert(.fullScreenPrimary)
                 w.backgroundColor = .black
+                w.sharingType = hideCapture ? .none : .readOnly
                 window = w
             }
         })

@@ -20,6 +20,23 @@ enum Announcer {
 
 // MARK: Export
 
+/// Markdown-Sonderzeichen maskieren (Nr. 30); Zeilenumbrüche werden harte Umbrüche („  \n“).
+func mdEscape(_ s: String) -> String {
+    var o = ""
+    for ch in s {
+        if "\\`*_#>[]".contains(ch) { o.append("\\") }
+        if ch == "\n" || ch == "\r\n" { o += "  \n"; continue }
+        o.append(ch)
+    }
+    return o
+}
+
+/// Zahl mit Dezimalzeichen der Oberflächensprache (Nr. 39).
+func fmtNumber(_ v: Double, digits: Int = 2, plus: Bool = false) -> String {
+    let loc = Locale(identifier: L.lang == .de ? "de_DE" : "en_US")
+    return String(format: plus ? "%+.\(digits)f" : "%.\(digits)f", locale: loc, v)
+}
+
 enum ExportFormat: String, CaseIterable {
     case markdown = "md", text = "txt", json = "json", csv = "csv", srt = "srt"
     static func from(extension ext: String) -> ExportFormat { ExportFormat(rawValue: ext.lowercased()) ?? .markdown }
@@ -54,8 +71,8 @@ extension EngineModel {
             var s = md ? "# \(title)\n\n" : "\(title)\n\n"
             for u in done {
                 if md {
-                    s += "**\(df.string(from: u.date)) · \(who(u))**: \(u.text)  \n"
-                    if u.translated { s += "→ \(arrow(u)): \(u.out)\n\n" } else { s += "\n" }
+                    s += "**\(df.string(from: u.date)) · \(who(u))**: \(mdEscape(u.text))  \n"
+                    if u.translated { s += "→ \(arrow(u)): \(mdEscape(u.out))\n\n" } else { s += "\n" }
                 } else {
                     s += "[\(df.string(from: u.date))] \(who(u)): \(u.text)\n"
                     if u.translated { s += "  → \(arrow(u)): \(u.out)\n" }
@@ -98,8 +115,9 @@ extension EngineModel {
             }
             var s = ""
             for (i, u) in done.enumerated() {
-                let start = u.date.timeIntervalSince(t0)
-                var end = start + max(2, min(7, Double(max(u.text.count, u.out.count)) / 14))
+                // Nr. 29: mit `utt.dur` beginnt der Untertitel, wo die Äußerung begann (Ankunft − Bereitzeit − Länge)
+                let start = max(0, u.dur.map { u.date.timeIntervalSince(t0) - (u.readyS ?? 0) - $0 } ?? u.date.timeIntervalSince(t0))
+                var end = start + (u.dur.map { max(1, $0) } ?? max(2, min(7, Double(max(u.text.count, u.out.count)) / 14)))
                 if i + 1 < done.count { end = min(end, done[i + 1].date.timeIntervalSince(t0) - 0.1) }
                 end = max(end, start + 0.5)
                 s += "\(i + 1)\n\(ts(start)) --> \(ts(end))\n\(u.text)\n" + (u.translated ? "\(u.out)\n" : "") + "\n"

@@ -15,6 +15,7 @@ struct Bubble: View, Equatable {
     var pairKey = ""
     var onCorrect: (Utterance) -> Void = { _ in }
     @State private var hovering = false
+    @State private var copied = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     nonisolated static func == (a: Bubble, b: Bubble) -> Bool {
@@ -61,7 +62,7 @@ struct Bubble: View, Equatable {
                     .help(L.t(Langs.reassignRole(u.lang) == "me" ? "reassign_me" : "reassign_other"))
                     .accessibilityLabel(L.t(Langs.reassignRole(u.lang) == "me" ? "reassign_me" : "reassign_other"))
             }
-            Button { copyToPasteboard(u.out) } label: { Image(systemName: "doc.on.doc") }
+            Button { copy(u.out) } label: { Image(systemName: "doc.on.doc") }
                 .help(L.t("copy_translation")).accessibilityLabel(L.t("copy_translation"))
         }
         .buttonStyle(QuickActionStyle())
@@ -120,6 +121,13 @@ struct Bubble: View, Equatable {
         .onHover { h in
             if reduceMotion { hovering = h } else { withAnimation(.easeOut(duration: 0.12)) { hovering = h } }
         }
+        .overlay(alignment: .topTrailing) {
+            if copied {
+                Text(L.t("copied")).font(.caption).padding(.horizontal, 8).padding(.vertical, 3)
+                    .background(.regularMaterial, in: Capsule()).padding(6)
+                    .transition(reduceMotion ? .identity : .opacity).accessibilityHidden(true)
+            }
+        }
         .help(helpText)
         .contextMenu { menu }
         // Tastatur (Nr. 354): Tab erreicht die Blase; Enter liest vor, E korrigiert, ⌘C kopiert die Übersetzung
@@ -129,7 +137,7 @@ struct Bubble: View, Equatable {
         .onKeyPress(characters: CharacterSet(charactersIn: "eEcC")) { press in
             switch press.characters.lowercased() {
             case "e" where canCorrect: onCorrect(u); return .handled
-            case "c" where press.modifiers.isEmpty: copyToPasteboard(u.out); return .handled
+            case "c" where press.modifiers.isEmpty: copy(u.out); return .handled
             default: return .ignored
             }
         }
@@ -139,7 +147,7 @@ struct Bubble: View, Equatable {
         .accessibilityHint(playing ? L.t("stop_speaking") : L.t("click_replay") + ". " + L.t("bubble_keys"))
         .accessibilityAction(named: L.t("stop_speaking")) { m.stopSpeaking() }
         .accessibilityAction(named: L.t("read_aloud")) { m.replay(u) }
-        .accessibilityAction(named: L.t("copy_translation")) { copyToPasteboard(u.out) }
+        .accessibilityAction(named: L.t("copy_translation")) { copy(u.out) }
         .accessibilityAction(named: L.t("correct")) { if canCorrect { onCorrect(u) } }
         // Nr. 382: was sonst nur im Kontextmenü steht (children .ignore macht es für VoiceOver schwer erreichbar)
         .accessibilityAction(named: L.t(Langs.reassignRole(u.lang) == "me" ? "reassign_me" : "reassign_other")) {
@@ -152,6 +160,14 @@ struct Bubble: View, Equatable {
         .accessibilityAction(named: L.t("delete_bubble")) { m.deleteItem(u) }
     }
 
+    /// Nr. 33: sichtbare und hörbare Rückmeldung beim Kopieren
+    private func copy(_ s: String) {
+        copyToPasteboard(s)
+        Announcer.post(L.t("copied"))
+        copied = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { copied = false }
+    }
+
     private func saveQuickPhrase(_ s: String) {
         let ud = UserDefaults.standard
         let cur = ud.string(forKey: Prefs.quickPhrases) ?? Prefs.defaultPhrases
@@ -162,9 +178,9 @@ struct Bubble: View, Equatable {
     private var canCorrect: Bool { u.uid != nil && running }
 
     @ViewBuilder private var menu: some View {
-        Button(L.t("copy_translation")) { copyToPasteboard(u.out) }
-        Button(L.t("copy_original")) { copyToPasteboard(u.text) }
-        Button(L.t("copy_both")) { copyToPasteboard(u.text + "\n" + u.out) }
+        Button(L.t("copy_translation")) { copy(u.out) }
+        Button(L.t("copy_original")) { copy(u.text) }
+        Button(L.t("copy_both")) { copy(u.text + "\n" + u.out) }
         Divider()
         Button(L.t("correct")) { onCorrect(u) }.disabled(!canCorrect)
         if canReassign {
@@ -276,7 +292,7 @@ private struct BubbleFooter: View {
         if let r = u.readyS { parts.append(L.t("ready_short") + " " + Self.sec(r)) }
         if let l = u.latency { parts.append(L.t("to_sound") + " " + Self.sec(l)) }
         else if let f = u.firstSound { parts.append(L.t("first_sound") + " " + Self.sec(f)) }
-        if let lp = u.lp { parts.append(String(format: "lp %.2f", lp)) }
+        if let lp = u.lp { parts.append("lp " + fmtNumber(lp)) }
         return parts.joined(separator: " · ")
     }
 
