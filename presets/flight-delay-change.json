@@ -1,0 +1,108 @@
+{
+  "id": "flight-delay-change",
+  "names": {
+    "de": "Flugverspätung und Umbuchung",
+    "en": "Flight delay and rebooking",
+    "th": "เที่ยวบินล่าช้าและเปลี่ยนตั๋ว"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Bei Verspätung oder Ausfall zum Schalter der Fluggesellschaft gehen und die Verspätung schriftlich bestätigen lassen, das braucht die Versicherung. Essensgutschein und Hotel höflich erfragen. Ansprüche sind in Thailand oft geringer als in der EU, daher Belege sammeln. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "In a delay or cancellation go to the airline desk and get the delay confirmed in writing, as the insurer will need it. Ask politely for a meal voucher and a hotel. Passenger rights in Thailand are often weaker than in the EU, so keep every receipt. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "delay",
+      "th": "ความล่าช้า"
+    },
+    {
+      "en": "cancelled",
+      "th": "ยกเลิก"
+    },
+    {
+      "en": "connecting flight",
+      "th": "เที่ยวบินต่อ"
+    },
+    {
+      "en": "voucher",
+      "th": "บัตรแทนเงินสด"
+    },
+    {
+      "en": "transfer desk",
+      "th": "เคาน์เตอร์ต่อเครื่อง"
+    },
+    {
+      "en": "gate",
+      "th": "ประตูขึ้นเครื่อง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have a medical condition and need my medicine.",
+      "th": "มีโรคประจำตัวและต้องกินยา",
+      "critical": true
+    },
+    {
+      "en": "My medicine is in my checked luggage.",
+      "th": "ยาอยู่ในกระเป๋าใบที่เช็กอินไปแล้ว",
+      "critical": true
+    },
+    {
+      "en": "I feel unwell. Please call a doctor.",
+      "th": "รู้สึกไม่สบาย ช่วยเรียกแพทย์ให้หน่อย",
+      "critical": true
+    },
+    {
+      "en": "My flight has been delayed.",
+      "th": "เที่ยวบินล่าช้า"
+    },
+    {
+      "en": "My flight was cancelled.",
+      "th": "เที่ยวบินถูกยกเลิก"
+    },
+    {
+      "en": "How long is the delay?",
+      "th": "ล่าช้านานแค่ไหน"
+    },
+    {
+      "en": "Which gate is it now?",
+      "th": "ตอนนี้ประตูไหน"
+    },
+    {
+      "en": "I have a connecting flight.",
+      "th": "ต้องต่อเครื่อง"
+    },
+    {
+      "en": "Will I miss my connection?",
+      "th": "จะตกเที่ยวบินต่อไหม"
+    },
+    {
+      "en": "Can you put me on the next flight?",
+      "th": "ช่วยจัดเที่ยวบินถัดไปให้ได้ไหม"
+    },
+    {
+      "en": "Can I get a meal voucher?",
+      "th": "ขอบัตรแทนอาหารได้ไหม"
+    },
+    {
+      "en": "Can I get a hotel for tonight?",
+      "th": "ขอที่พักสำหรับคืนนี้ได้ไหม"
+    },
+    {
+      "en": "Please confirm the delay in writing.",
+      "th": "ช่วยเขียนยืนยันความล่าช้าให้ด้วย"
+    },
+    {
+      "en": "Can I change my ticket?",
+      "th": "เปลี่ยนตั๋วได้ไหม"
+    },
+    {
+      "en": "Is there a fee for the change?",
+      "th": "มีค่าธรรมเนียมการเปลี่ยนตั๋วไหม"
+    },
+    {
+      "en": "Where is the transfer desk?",
+      "th": "เคาน์เตอร์ต่อเครื่องอยู่ที่ไหน"
+    }
+  ]
+}

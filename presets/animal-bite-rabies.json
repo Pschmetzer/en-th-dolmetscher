@@ -1,0 +1,112 @@
+{
+  "id": "animal-bite-rabies",
+  "names": {
+    "de": "Tierbisse und Stiche",
+    "en": "Animal bites and stings",
+    "th": "สัตว์กัดและต่อย"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Nach Biss oder Kratzer von Hund, Katze oder Affe die Wunde sofort lange mit Seife und Wasser waschen und am selben Tag in Klinik oder Krankenhaus wegen der Tollwutimpfung fragen. Streunende Tiere nie anfassen oder füttern. Bei Schlangenbiss ruhig bleiben, nicht laufen und 1669 (Rettung) rufen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "After a bite or scratch from a dog, cat or monkey wash the wound at once for a long time with soap and water and ask a clinic or hospital the same day about rabies vaccination. Never touch or feed stray animals. After a snake bite stay calm, do not walk about and call 1669 (ambulance). Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "bite",
+      "th": "รอยกัด"
+    },
+    {
+      "en": "rabies",
+      "th": "โรคพิษสุนัขบ้า"
+    },
+    {
+      "en": "vaccine",
+      "th": "วัคซีน"
+    },
+    {
+      "en": "wound",
+      "th": "แผล"
+    },
+    {
+      "en": "stray dog",
+      "th": "สุนัขจรจัด"
+    },
+    {
+      "en": "snake",
+      "th": "งู"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have been bitten by a dog.",
+      "th": "ถูกสุนัขกัด",
+      "critical": true
+    },
+    {
+      "en": "I was bitten by a monkey.",
+      "th": "ถูกลิงกัด",
+      "critical": true
+    },
+    {
+      "en": "I was bitten by a snake.",
+      "th": "โดนงูกัด",
+      "critical": true
+    },
+    {
+      "en": "I need a rabies injection.",
+      "th": "ต้องฉีดวัคซีนพิษสุนัขบ้า",
+      "critical": true
+    },
+    {
+      "en": "This is an emergency. Please call an ambulance (1669).",
+      "th": "นี่เป็นเหตุฉุกเฉิน ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true
+    },
+    {
+      "en": "I need to go to the hospital.",
+      "th": "ต้องไปโรงพยาบาล",
+      "critical": true
+    },
+    {
+      "en": "Where is the nearest hospital?",
+      "th": "โรงพยาบาลที่ใกล้ที่สุดอยู่ที่ไหน",
+      "critical": true
+    },
+    {
+      "en": "I washed the wound with soap.",
+      "th": "ล้างแผลด้วยสบู่แล้ว"
+    },
+    {
+      "en": "The dog was a stray.",
+      "th": "สุนัขตัวนั้นเป็นสุนัขจรจัด"
+    },
+    {
+      "en": "The animal ran away.",
+      "th": "สัตว์วิ่งหนีไปแล้ว"
+    },
+    {
+      "en": "Do you have rabies vaccine here?",
+      "th": "ที่นี่มีวัคซีนพิษสุนัขบ้าไหม"
+    },
+    {
+      "en": "How many injections do I need?",
+      "th": "ต้องฉีดกี่เข็ม"
+    },
+    {
+      "en": "Do I need a tetanus shot?",
+      "th": "ต้องฉีดบาดทะยักไหม"
+    },
+    {
+      "en": "I have never had a rabies vaccine.",
+      "th": "ไม่เคยฉีดวัคซีนพิษสุนัขบ้ามาก่อน"
+    },
+    {
+      "en": "Please write down the vaccine dates.",
+      "th": "ช่วยเขียนวันที่ฉีดวัคซีนให้หน่อย"
+    },
+    {
+      "en": "I need a medical certificate.",
+      "th": "ขอใบรับรองแพทย์"
+    }
+  ]
+}

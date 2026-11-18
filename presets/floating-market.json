@@ -1,0 +1,109 @@
+{
+  "id": "floating-market",
+  "names": {
+    "de": "Schwimmender Markt",
+    "en": "Floating market",
+    "th": "ตลาดน้ำ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Auf dem schwimmenden Markt vor der Bootsfahrt Preis und Dauer klären und eine Schwimmweste verlangen. Früh kommen, dann ist es kühler und weniger voll. Sonnenschutz und Wasser mitnehmen, das Boot nur im Sitzen betreten und Wertsachen vor dem Körper tragen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "At a floating market agree the price and length of the boat ride first and ask for a life jacket. Come early when it is cooler and less crowded. Bring sun protection and water, board the boat sitting down and keep valuables in front of you. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "boat",
+      "th": "เรือ"
+    },
+    {
+      "en": "life jacket",
+      "th": "เสื้อชูชีพ"
+    },
+    {
+      "en": "stall",
+      "th": "แผงขายของ"
+    },
+    {
+      "en": "fruit",
+      "th": "ผลไม้"
+    },
+    {
+      "en": "pier",
+      "th": "ท่าเรือ"
+    },
+    {
+      "en": "canal",
+      "th": "คลอง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please give me a life jacket.",
+      "th": "ขอเสื้อชูชีพ",
+      "critical": true
+    },
+    {
+      "en": "Someone fell into the water.",
+      "th": "มีคนตกน้ำ",
+      "critical": true
+    },
+    {
+      "en": "The boat is taking in water.",
+      "th": "เรือมีน้ำเข้า",
+      "critical": true
+    },
+    {
+      "en": "I cannot swim.",
+      "th": "ว่ายน้ำไม่เป็น",
+      "critical": true
+    },
+    {
+      "en": "How much is the boat ride?",
+      "th": "นั่งเรือเท่าไร"
+    },
+    {
+      "en": "How long is the boat ride?",
+      "th": "นั่งเรือนานแค่ไหน"
+    },
+    {
+      "en": "Please agree the price before we go.",
+      "th": "ขอตกลงราคาก่อนออกเรือ"
+    },
+    {
+      "en": "Please do not stop at a shop.",
+      "th": "ไม่ต้องแวะร้านค้า"
+    },
+    {
+      "en": "Where do I meet the boat again?",
+      "th": "จะกลับมาพบเรือที่ไหน"
+    },
+    {
+      "en": "Is this fruit fresh?",
+      "th": "ผลไม้นี้สดไหม"
+    },
+    {
+      "en": "Can I try a little?",
+      "th": "ขอชิมนิดหน่อยได้ไหม"
+    },
+    {
+      "en": "Is it spicy?",
+      "th": "เผ็ดไหม"
+    },
+    {
+      "en": "Please cut it for me.",
+      "th": "ช่วยหั่นให้หน่อย"
+    },
+    {
+      "en": "Can you make it cheaper?",
+      "th": "ลดราคาได้ไหม"
+    },
+    {
+      "en": "Where is the toilet?",
+      "th": "ห้องน้ำอยู่ที่ไหน"
+    },
+    {
+      "en": "Can I take a photo?",
+      "th": "ขอถ่ายรูปได้ไหม"
+    }
+  ]
+}

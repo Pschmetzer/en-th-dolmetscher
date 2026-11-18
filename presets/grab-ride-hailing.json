@@ -1,0 +1,113 @@
+{
+  "id": "grab-ride-hailing",
+  "names": {
+    "de": "Fahrdienst-App (Grab, Bolt)",
+    "en": "Ride-hailing app (Grab, Bolt)",
+    "th": "แอปเรียกรถ แกร็บและโบลท์"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Vor dem Einsteigen Nummernschild, Fahrername und Foto in der App mit dem Wagen vergleichen. Der Preis steht vor der Buchung fest, bei Barzahlung passendes Geld bereithalten. Die Fahrt lässt sich in der App mit Freunden teilen, im Notfall 191 (Polizei) rufen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Before getting in compare the number plate, driver name and photo in the app with the car. The price is fixed before booking, and for cash have the right money ready. You can share the trip with friends in the app, and in an emergency call 191 (police). Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "driver",
+      "th": "คนขับ"
+    },
+    {
+      "en": "pickup point",
+      "th": "จุดรับ"
+    },
+    {
+      "en": "number plate",
+      "th": "ป้ายทะเบียน"
+    },
+    {
+      "en": "expressway",
+      "th": "ทางด่วน"
+    },
+    {
+      "en": "cancel",
+      "th": "ยกเลิก"
+    },
+    {
+      "en": "fare",
+      "th": "ค่าโดยสาร"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "This is not the car I booked.",
+      "th": "ไม่ใช่รถที่จองไว้",
+      "critical": true
+    },
+    {
+      "en": "I feel unsafe. Please stop.",
+      "th": "รู้สึกไม่ปลอดภัย ช่วยจอดด้วย",
+      "critical": true
+    },
+    {
+      "en": "Please stop here. I want to get out.",
+      "th": "ช่วยจอดตรงนี้ ขอลง",
+      "critical": true
+    },
+    {
+      "en": "Please do not drive so fast.",
+      "th": "ขับช้าลงหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I booked a ride in the app.",
+      "th": "จองรถผ่านแอปแล้ว"
+    },
+    {
+      "en": "I am at the pickup point.",
+      "th": "อยู่ที่จุดรับแล้ว"
+    },
+    {
+      "en": "Where are you now?",
+      "th": "ตอนนี้อยู่ที่ไหน"
+    },
+    {
+      "en": "Please wait, I am coming.",
+      "th": "รอสักครู่ กำลังไป"
+    },
+    {
+      "en": "Please follow the map in the app.",
+      "th": "ช่วยขับตามแผนที่ในแอปด้วย"
+    },
+    {
+      "en": "The price is already in the app.",
+      "th": "ราคาอยู่ในแอปแล้ว"
+    },
+    {
+      "en": "I will pay in cash.",
+      "th": "จ่ายเงินสด"
+    },
+    {
+      "en": "Do you have change?",
+      "th": "มีเงินทอนไหม"
+    },
+    {
+      "en": "Please take the expressway.",
+      "th": "ขึ้นทางด่วนได้เลย"
+    },
+    {
+      "en": "Please do not take the expressway.",
+      "th": "ไม่ต้องขึ้นทางด่วน"
+    },
+    {
+      "en": "Please turn on the air conditioning.",
+      "th": "ช่วยเปิดแอร์ด้วย"
+    },
+    {
+      "en": "Can you wait two minutes?",
+      "th": "รอสองนาทีได้ไหม"
+    },
+    {
+      "en": "Please help me with my luggage.",
+      "th": "ช่วยยกกระเป๋าหน่อย"
+    }
+  ]
+}
