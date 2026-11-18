@@ -75,6 +75,25 @@ class Chain:
         return b"".join(out)
 
 
+    def flush(self):
+        """Reste von Filter und Resampler am Dateiende (sonst fehlen die letzten Millisekunden)."""
+        out = []
+        try:
+            if self.filters and self.graph is not None:
+                self.graph.push(None)
+                while True:
+                    try:
+                        f = self.graph.pull()
+                    except (self.av.error.BlockingIOError, self.av.error.EOFError):
+                        break
+                    f.pts = None
+                    out += [bytes(o.planes[0])[:o.samples * 2] for o in self.rs.resample(f)]
+            out += [bytes(o.planes[0])[:o.samples * 2] for o in self.rs.resample(None)]
+        except Exception:                           # noqa: BLE001 – Flush ist best effort
+            pass
+        return b"".join(out)
+
+
 def _write(b):
     if b:
         sys.stdout.buffer.write(b)
@@ -115,6 +134,7 @@ def capture(a):
                     ahead = n / a.rate - (time.monotonic() - t0)
                     if ahead > 0:
                         time.sleep(ahead)
+            _write(chain.flush())
             c.close()
             if not a.loop:
                 return

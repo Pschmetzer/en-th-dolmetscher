@@ -42,7 +42,7 @@ def _eng(**kw):
     ("mute on", "pause"), ("sound off", "pause"), ("sound on", "resume"),
     ("play", "resume"), ("go ahead", "resume"), ("carry on", "resume"), ("can you start again", "resume"),
     ("one more time", "repeat"), ("what did you say", "repeat"), ("once more", "repeat"),
-    ("volume 3", None), ("speed 5", None),
+    ("volume 3", "volume:3"), ("speed 5", "speed:5"), ("volume 99", "volume:10"),
     ("don't stop", None), ("do not repeat", None), ("never pause", None), ("please don't pause", None),
     ("louder", "louder"), ("pause", "pause"), ("unmute", "resume"), ("translate both", "both_on"),
 ])

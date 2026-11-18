@@ -49,6 +49,11 @@ class Store:
         self.lock = threading.RLock()
         # Gelöschte Zeilen mit Nullen überschreiben statt nur freizugeben (gilt pro Verbindung).
         self.db.execute("PRAGMA secure_delete = ON")
+        try:                                           # WAL: Leser (Export) blockieren den Schreiber nicht
+            self.db.execute("PRAGMA journal_mode = WAL")
+            self.db.execute("PRAGMA synchronous = NORMAL")
+        except sqlite3.Error:
+            pass
         self.db.execute("""CREATE TABLE IF NOT EXISTS utt (
             id INTEGER PRIMARY KEY AUTOINCREMENT, uid TEXT, ts REAL NOT NULL, session TEXT NOT NULL,
             lang TEXT, text TEXT, translation TEXT, translit TEXT, conf REAL, provider TEXT)""")
@@ -86,6 +91,10 @@ class Store:
         return True
 
     def close(self):
+        try:
+            self.db.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+        except sqlite3.Error:
+            pass
         self.db.close()
 
     def add(self, text, translation=None, lang=None, translit=None, conf=None, provider=None,
@@ -139,6 +148,7 @@ class Store:
                     self.db.execute("INSERT INTO utt_fts(utt_fts) VALUES('optimize')")
                     self.db.commit()
                 self.db.execute("VACUUM")
+                self.db.execute("PRAGMA wal_checkpoint(TRUNCATE)")    # gelöschter Text nicht in der WAL-Datei lassen
             except sqlite3.Error:
                 pass
 
@@ -326,6 +336,8 @@ class Recorder:
 
     def enable(self, on=True, keep_days=None):
         """-> True, wenn der Verlauf im gewünschten Zustand ist; False, wenn die Datenbank nicht geht."""
+        if not on:
+            self.flush()                             # erst fertig schreiben, dann aus
         self.on = bool(on)
         if keep_days is not None:
             self.keep_days = valid_days(keep_days)   # ungültig (0, negativ …): nicht löschen, Verlauf bleibt an
@@ -339,17 +351,53 @@ class Recorder:
                 return False
         return True
 
+    # Engine-Betrieb: Schreiben in eigenem Thread (SQLite-Commit mit fsync hält sonst den Ausgabe-Lock von emit)
+    async_mode = False
+
     def utt(self, kw):
         if not self.on or not self.store or not kw.get("text"):
             return
+        now = time.time()
+        if self.async_mode:
+            self._queue().put((kw, now))
+            return
+        self._write(kw, now)
+
+    def _queue(self):
+        import queue
+        q = getattr(self, "_q", None)
+        if q is None:
+            q = self._q = queue.Queue()
+
+            def work():
+                while True:
+                    item = q.get()
+                    try:
+                        if item is not None:
+                            self._write(*item)
+                    finally:
+                        q.task_done()
+            threading.Thread(target=work, name="history-writer", daemon=True).start()
+        return q
+
+    def flush(self):
+        """Wartende Schreibvorgänge abwarten (Ausschalten, Export, Beenden)."""
+        q = getattr(self, "_q", None)
+        if q is not None:
+            q.join()
+
+    def _write(self, kw, now):
+        if not self.on or not self.store:
+            return
         try:
-            self._roll(time.time())
+            self._roll(now)
             lp = kw.get("lp") or 0.0
             self.store.add(
                 kw["text"], kw.get("out") if kw.get("translated") else None, lang=kw.get("lang"),
                 translit=kw.get("text_latin") or kw.get("out_latin"),
                 conf=round(math.exp(lp), 3) if lp < 0 else None, provider=kw.get("provider"),
-                session=self.session, uid=kw.get("id"), replaces=kw.get("replaces"), t_begin=_t_begin(kw),
+                session=self.session, uid=kw.get("id"), replaces=kw.get("replaces"), ts=now,
+                t_begin=_t_begin(kw, now),
                 role=kw.get("role") if kw.get("role") in ("me", "other") else None,
                 speaker=kw.get("speaker") if isinstance(kw.get("speaker"), str) else None)
             self.fails = 0

@@ -360,6 +360,9 @@ def parse_command(cmd):
         if other: return other
         if len(words) <= 3 and has(*_THAI_WEAK): return "th"     # "Ty only", nicht "bus on time today"
         return None
+    mnum = re.fullmatch(r"(volume|speed)\s+(?:to\s+)?(\d{1,2})", c)
+    if mnum:                                   # "volume 3", "speed 5": Skala 0-10 (5 = normal bei Tempo)
+        return f"{mnum.group(1)}:{min(10, int(mnum.group(2)))}"
     # Gegenteil-/Verneinungsformen vor der Befehlssuche (sonst "too loud" -> louder, "mute off" -> pause)
     neg = _negated_command(c, words)
     if neg:
@@ -588,6 +591,7 @@ _EMIT_LOCK = threading.RLock()     # RLock: der Signal-Handler (Stopp) darf auch
 _OUT = {"q": None, "thread": None, "dropped": 0}
 OUT_MAX = 2000
 _OUT_LOSSY = frozenset({"level", "partial", "queue"})
+_LOSSY_PREFIXES = tuple('{"event": "%s"' % e for e in _OUT_LOSSY)
 
 
 def emit(event, **kw):
@@ -611,9 +615,18 @@ def _enqueue(event, line):
             log({"output": "ausgabe-pipe voll, Zeilen verworfen", "dropped": _OUT["dropped"]})
         if event in _OUT_LOSSY:
             return
-        try:                           # wichtiges Ereignis: lieber die älteste Zeile opfern
-            q.get_nowait()
-            q.task_done()
+        try:                           # wichtiges Ereignis: zuerst eine verlustbehaftete Zeile (Pegel, Teiltext) opfern
+            with q.mutex:
+                for i, old in enumerate(q.queue):
+                    if isinstance(old, str) and old.startswith(_LOSSY_PREFIXES):
+                        del q.queue[i]
+                        q.unfinished_tasks -= 1
+                        break
+                else:
+                    old = None
+            if old is None:            # keine da: die älteste Zeile
+                q.get_nowait()
+                q.task_done()
             q.put_nowait(line)
         except (queue.Empty, queue.Full):
             pass
@@ -2074,6 +2087,7 @@ def _llm_failed(e):
     wait = _llm_backoff(e)
     # max: ein späterer kurzer Fehler (Timeout 10 s) darf eine lange Pause (Guthaben 30 min) nicht verkürzen
     LLM["skip_until"] = max(LLM["skip_until"], time.monotonic() + wait)
+    net_state("llm", False, int(max(0.0, LLM["skip_until"] - time.monotonic())))
     log({"translate": "claude-fehler", "err": LLM["err"], "pause_s": wait})
     if wait >= LLM_BILLING_BACKOFF and not LLM.get("billing_told"):
         LLM["billing_told"] = True                  # nur beim Übergang melden, nicht je Fehlversuch
@@ -2097,6 +2111,7 @@ def _llm_late(fut):
     else:
         LLM["err"] = None
         LLM["billing_told"] = False
+        net_state("llm", True)
 
 
 def _claude_async(text, src, dst, history, alts, polite):
@@ -2138,6 +2153,7 @@ def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
             meta["provider"] = "claude"
             LLM["err"] = None
             LLM["billing_told"] = False                 # Claude geht wieder: nächste Erschöpfung wird erneut gemeldet
+            net_state("llm", True)
         except concurrent.futures.TimeoutError:
             fut.add_done_callback(_llm_late)            # Claude läuft weiter, Google parallel
             log({"translate": "claude-langsam", "hedge_s": hedge})
@@ -2315,6 +2331,8 @@ class OfflineMT:
             buf += chunk
         return json.loads(buf.decode("utf-8", "replace").splitlines()[-1])
 
+    IDLE_CLOSE_S = 300.0                         # ohne Anfrage so lange: Helfer samt Sprachmodell beenden (RAM)
+
     def close(self):
         p, self.proc = self.proc, None
         if p is not None:
@@ -2322,6 +2340,15 @@ class OfflineMT:
                 p.kill()
             except OSError:
                 pass
+
+    def close_if_idle(self, now=None):
+        """True, wenn der Helfer wegen Leerlaufs beendet wurde."""
+        now = time.monotonic() if now is None else now
+        with self.lock:
+            if self.proc is not None and now - getattr(self, "last_used", now) > self.IDLE_CLOSE_S:
+                self.close()
+                return True
+        return False
 
     def translate(self, text, src, dst):
         """-> Übersetzung oder None (aus, Sprachpaar nicht installiert, Fehler)."""
@@ -2331,6 +2358,7 @@ class OfflineMT:
             if not self._start() or self.pairs.get(f"{src}-{dst}") != "installed":
                 return None
             self.n += 1
+            self.last_used = time.monotonic()
             try:
                 self.proc.stdin.write((json.dumps({"id": self.n, "text": text, "src": src, "dst": dst},
                                                   ensure_ascii=False) + "\n").encode("utf-8"))
@@ -2351,6 +2379,8 @@ class OfflineMT:
 
 
 OFFLINE_MT = OfflineMT()
+import atexit as _atexit  # noqa: E402
+_atexit.register(OFFLINE_MT.close)               # Helfer nie verwaist zurücklassen
 
 
 def _offline_mt(text, src, dst, err, meta):
@@ -3304,13 +3334,14 @@ def _spawn(coro):
     return t
 
 
-def net_state(what, ok):
-    """Online/Offline-Wechsel einmal melden (App zeigt dann ein Symbol)."""
+def net_state(what, ok, retry_in_s=None):
+    """Online/Offline-Wechsel einmal melden (App zeigt dann ein Symbol). what: translate | tts | llm;
+    retry_in_s (nur bei llm, wenn pausiert): Sekunden bis zum nächsten Claude-Versuch."""
     with _NET_LOCK:
         changed = NET.get(what) != ok
         NET[what] = ok
     if changed:
-        emit("net", ok=ok, what=what)
+        emit("net", ok=ok, what=what, **({"retry_in_s": retry_in_s} if retry_in_s is not None else {}))
 
 
 def tts_loop():
@@ -3348,6 +3379,10 @@ async def _ws_open():
     return ws
 
 
+WS_OPEN_FAILS, WS_OPEN_PAUSE_S = 2, 30.0
+_WS_OPEN = {"fails": 0, "pause_until": 0.0}
+
+
 async def _ws_fill():
     """Vorrat auffüllen: bis zu WS_POOL_N frische, offene Verbindungen; alte schließen."""
     now, keep = time.time(), []
@@ -3358,12 +3393,20 @@ async def _ws_fill():
             keep.append((ws, t))
     _WS["pool"] = keep
 
+    if time.monotonic() < _WS_OPEN["pause_until"]:
+        return                                      # nach Fehlschlägen Pause: kein Versuchs- und Logstapel ohne Netz
+
     async def one():
         try:
             ws = await _ws_open()
             _WS["pool"].append((ws, time.time()))
+            _WS_OPEN["fails"] = 0
         except Exception as e:
-            log({"tts_ws": "öffnen fehlgeschlagen", "err": _errtxt(e)})
+            _WS_OPEN["fails"] += 1
+            if _WS_OPEN["fails"] >= WS_OPEN_FAILS:   # danach 30 s Pause, die Logzeile höchstens einmal je Pause
+                _WS_OPEN["fails"] = 0
+                _WS_OPEN["pause_until"] = time.monotonic() + WS_OPEN_PAUSE_S
+                log({"tts_ws": "öffnen fehlgeschlagen, pausiere", "err": _errtxt(e), "pause_s": WS_OPEN_PAUSE_S})
         finally:
             _WS["opening"] -= 1
     for _ in range(WS_POOL_N - len(keep) - _WS["opening"]):
@@ -4485,6 +4528,12 @@ class Engine:
             self.rate = int(_clamp(self.rate - 15, -50, 50)); reply = "Slower."
         elif key == "faster":
             self.rate = int(_clamp(self.rate + 15, -50, 50)); reply = "Faster."
+        elif isinstance(key, str) and re.fullmatch(r"(?:volume|speed):\d+", key):
+            kind, n = key.split(":")
+            if kind == "volume":                # 0-10 -> 0,2 … 2,0
+                self.volume = _clamp(0.2 + int(n) * 0.18, 0.2, 2.0); reply = f"Volume {n}."
+            else:                               # 0-10 -> -50 … +50 %, 5 = normal
+                self.rate = int(_clamp((int(n) - 5) * 10, -50, 50)); reply = f"Speed {n}."
         elif key == "louder":
             self.volume = _clamp(self.volume * 1.4, 0.2, 2.0); reply = "Louder."
         elif key == "quieter":
@@ -5647,6 +5696,7 @@ def history_enable(on, days=None):
     import history_store
     rec = history_store.RECORDER
     rec.on_error = _history_write_failed
+    rec.async_mode = True                      # Schreiben nicht im emit-Lock (Platten-Latenz)
     if days not in (None, 0) and history_store.valid_days(days) is None:   # 0 = nie löschen
         emit("error", code="history_days_invalid", msg="Aufbewahrungsdauer ungültig – es wird nichts gelöscht")
     if not rec.enable(on, days) and on:
@@ -6021,7 +6071,7 @@ def decode_file(path):
     return np.frombuffer(raw[:len(raw) // 2 * 2], dtype=np.int16).astype(np.float32) / 32768
 
 
-def resolve_mic(mic):
+def resolve_mic(mic, strict=False):
     """--mic/Steuerung: Index, Gerätename oder "default". Indizes verschieben sich, sobald AirPods/USB-Mikros
     dazukommen; ein Name wird deshalb erst beim Öffnen auf den aktuellen Index abgebildet. Unbekannter Name:
     error-Ereignis und Standardmikrofon."""
@@ -6036,6 +6086,8 @@ def resolve_mic(mic):
     for x in mics:
         if x["name"] == m or x["name"].lower() == m.lower():
             return x["index"]
+    if strict:                                  # Reconnect: auf das Gerät warten, nie still aufs Raummikrofon wechseln
+        return None
     emit("error", code="mic_not_found", msg="Mikrofon nicht gefunden – Standardmikrofon wird genutzt")
     return "default"
 
@@ -6097,7 +6149,9 @@ class Mic:
         if mic_file and not os.path.isfile(mic_file):
             return self._fail(f"DOLMETSCHER_MIC_FILE nicht gefunden: {os.path.basename(mic_file)}", _retry,
                               "mic_file_missing")
-        dev = None if mic_file else resolve_mic(self.mic)   # kann ffmpeg abfragen: nicht unter dem Lock
+        dev = None if mic_file else resolve_mic(self.mic, strict=_retry)   # kann ffmpeg abfragen: nicht unter dem Lock
+        if dev is None and not mic_file:
+            return self._fail("Mikrofon nicht gefunden – warte auf das Gerät", _retry, "mic_not_found")
         with self.lock:
             if self.on:
                 emit("mic", on=True)
@@ -6248,6 +6302,8 @@ class Mic:
             ff, self.ff, self.on = self.ff, None, False
         self._kill(ff)
         HEARING.clear()
+        for u in list(PRE_NOW):                 # wartende Vorab-Erkennungen dieser Sitzung sind überholt
+            PRE_NOW[u] = -1
         self.eng.stop_speaking()
         emit("mic", on=False)
 
@@ -6339,6 +6395,7 @@ def work_loop(eng, utts, speak):
         try:
             item = utts.get(timeout=0.5)        # kurze Wartezeit, damit STOP (Signal/stdin-Ende) greift
         except queue.Empty:
+            OFFLINE_MT.close_if_idle()          # Leerlauf: Helfer beenden, RAM freigeben
             continue
         if item is None:
             break
@@ -6397,6 +6454,11 @@ def cleanup():
             log({"cleanup": "fehler", "err": repr(e)[:200]})
     if MIC is not None:
         Mic._kill(MIC.ff)
+    try:                                       # wartende Verlauf-Schreibvorgänge noch abschließen
+        import history_store
+        history_store.RECORDER.flush()
+    except Exception as e:                     # noqa: BLE001
+        log({"cleanup": "verlauf-flush", "err": _errtxt(e)})
     clean_tmp()
 
 
@@ -6669,6 +6731,8 @@ if __name__ == "__main__":
     if a.no_mine: eng.translate_dir[PAIR[0]] = False
     if a.no_partner: eng.translate_dir[PAIR[1]] = False
     jobs = WorkQueue()
+    if a.file:
+        CATCH_UP["mode"] = "off"                # Dateimodus: nie Sätze überspringen oder hetzen
     if a.json and not a.file:
         control_loop(eng, jobs)
     if a.file:
@@ -6680,11 +6744,13 @@ if __name__ == "__main__":
                     emit("error", code="file_empty", msg=f"{name}: keine Audiodaten")
                     continue
                 for chunk in split_long(audio):    # lange Dateien an leisen Stellen teilen
+                    while not a.mute and eng.speaker.pending() >= 2 and not STOP.is_set():
+                        time.sleep(0.1)            # Vorlesen nachkommen lassen: kein Satz wird übersprungen
                     eng.process(chunk, speak=not a.mute)
             except Exception as e:              # eine kaputte Datei bricht die übrigen nicht ab
                 log({"file": "fehler", "err": _errtxt(e)})
                 emit("error", code="file_failed", msg=f"{name}: {_errtxt(e)}")
-        eng.speaker.wait_idle()                 # Ausgaben zu Ende spielen, dann beenden
+        eng.speaker.wait_idle(timeout=6 * 3600)  # Ausgaben zu Ende spielen (lange Dateien), dann beenden
     else:
         idle = a.idle if MIC_PENDING.get("listen") is None else not MIC_PENDING["listen"]
         MIC = Mic(eng, MIC_PENDING["mic"] or a.mic, jobs, idle=idle)

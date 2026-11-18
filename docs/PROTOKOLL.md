@@ -559,3 +559,19 @@ App-Pipe nicht schnell genug abnahm, siehe Log).
   Folge); CSV schützt gegen Formelinjektion (`'` vor `=`, `+`, `-`, `@`); `--history-sessions` listet Sitzungen
   als JSON `[{"id", "start", "count"}]`.
 
+
+### Runde 7, zweiter Teil
+
+- **Zahlbefehle** (E1-5): „translator, volume 3“ und „speed 5“ (Skala 0-10; Lautstärke 0 = 0,2 … 10 = 2,0; Tempo 5 = normal,
+  je Stufe 10 %). Ohne Zahl bleiben „louder/quieter/slower/faster“ in festen Schritten. Der Befehlsschlüssel in
+  `command` ist `volume:N` bzw. `speed:N`.
+- **`net`** hat jetzt auch `what: "llm"` (Claude pausiert nach einem Fehler) und dabei `retry_in_s` (Sekunden bis zum
+  nächsten Claude-Versuch); `ok: true`, sobald Claude wieder antwortet.
+- **Mikrofon-Reconnect** wechselt bei einem verschwundenen *benannten* Gerät nicht mehr aufs Standardmikrofon; die
+  Engine wartet (`mic` `reconnecting`) auf das Gerät.
+- **`--file`**: Sätze werden nie übersprungen (Aufhol-Modus aus, Verarbeitung wartet aufs Vorlesen, kein 120-s-Limit).
+- **Ausgabe-Pipe**: ist sie voll, werden zuerst Pegel/Teiltext-Zeilen verworfen, dann erst die älteste Zeile.
+- **Verlauf**: SQLite im WAL-Modus (Export blockiert die Aufzeichnung nicht); nach Löschen wird die WAL-Datei
+  geleert. Schreiben läuft im Engine-Betrieb in einem eigenen Thread (nicht mehr im Ausgabe-Lock).
+- **Hilfsprozesse**: der Apple-Offline-Übersetzer-Helfer wird nach 5 min Leerlauf und beim Beenden beendet; die
+  Neural-Stimme öffnet nach zwei Fehlschlägen 30 s lang keine neuen Verbindungen.
