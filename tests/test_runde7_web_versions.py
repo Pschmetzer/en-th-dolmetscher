@@ -23,7 +23,8 @@ def test_ios_version_equals_mac_or_is_the_documented_exception():
     ios = _ios().pop()
     if ios != _mac():
         doc = (ROOT / "docs" / "VERSIONEN.md").read_text(encoding="utf-8")
-        assert ios == KNOWN_IOS and f"iPhone `{ios}`" in doc, f"iPhone {ios} != Mac {_mac()}: Abweichung nicht dokumentiert"
+        msg = f"iPhone {ios} != Mac {_mac()}: Abweichung nicht dokumentiert"
+        assert ios == KNOWN_IOS and f"iPhone `{ios}`" in doc, msg
 
 
 def test_changelog_mentions_current_version():
