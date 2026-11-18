@@ -70,6 +70,7 @@ struct SettingsView: View {
         // Größenveränderbar (Szene: .windowResizability(.contentMinSize)); größere Schrift oder Thai-Texte brauchen Platz
         .frame(minWidth: 540, idealWidth: 540, maxWidth: 900, minHeight: 460, idealHeight: 600, maxHeight: 1000)
         .id(uiLang)
+        .onChange(of: m.glossary) { _, g in SettingsTracker.shared.refresh(glossary: g) }
     }
 }
 
@@ -148,6 +149,7 @@ private struct GeneralSettings: View {
                     Text(L.t("model_best")).tag("best")
                 }
                 .accessibilityLabel(L.t("model_label"))
+                .help(L.t("sh_model"))
                 // Nr. 356: schon im Cache oder lädt beim ersten Start nach?
                 Text(ModelCache.hint(model: m.model, thai: Langs.hasThai))
                     .font(.caption).foregroundStyle(.secondary)
@@ -165,6 +167,7 @@ private struct GeneralSettings: View {
                 Toggle(L.t("push_to_talk"), isOn: $m.pushToTalk)
                     .help(L.t("push_to_talk_help"))
                 Toggle(L.t("earcons"), isOn: $m.earcons)
+                    .help(L.t("sh_earcons"))
                 Toggle(isOn: $m.slowMode) {
                     VStack(alignment: .leading) {
                         Text(L.t("slow_mode"))
@@ -236,11 +239,13 @@ private struct GeneralSettings: View {
                 Toggle(L.t("stop_mic_on_close"), isOn: $stopMicOnClose)  // Nr. 18
                     .help(L.t("stop_mic_on_close_help"))
                 Toggle(L.t("hotkey_hud"), isOn: $hotkeyHUD)              // Nr. 32
+                    .help(L.t("sh_hotkey_hud"))
                 Toggle(L.t("listen_on_launch"), isOn: $listenOnLaunch)   // Nr. 377
                     .help(L.t("listen_on_launch_help"))
                 LoginItemToggle()
             }
             HistorySection()
+            SettingsTransferSection()
             MaintenanceSection()
         }
         .formStyle(.grouped)
@@ -509,11 +514,13 @@ private struct RecognitionSection: View {
             Toggle(isOn: $m.denoise) {
                 VStack(alignment: .leading) { Text(L.t("denoise")); RestartNote() }
             }
+            .help(L.t("sh_denoise"))
             Toggle(L.tp("two_person", [Langs.name(Langs.meLang), Langs.name(Langs.target(Langs.meLang))]), isOn: $m.twoPerson)
                 .help(L.t("two_person_help"))
             Toggle(L.t("fast_endpoint"), isOn: $m.fastEndpoint)
                 .help(L.t("fast_endpoint_help"))
             Toggle(L.t("partial_text"), isOn: $m.partialText)
+                .help(L.t("sh_partial_text"))
         }
     }
 }
@@ -548,12 +555,14 @@ private struct VoiceSettings: View {
         Form {
             Section {
                 Toggle(L.t("speak_toggle"), isOn: $m.speak)
+                    .help(L.t("sh_speak"))
                     .accessibilityLabel(L.t("speak_toggle"))
                 if m.mineLang == "th" || m.partnerLang == "th" {   // Thai-Höflichkeit nur mit Thai im Paar
                     Picker(L.t("polite_label"), selection: $m.polite) {
                         Text(L.t("polite_krub")).tag("krub")
                         Text(L.t("polite_ka")).tag("ka")
                     }
+                    .help(L.t("sh_polite"))
                     .accessibilityLabel(L.t("polite_a11y"))
                 }
             }
@@ -562,6 +571,7 @@ private struct VoiceSettings: View {
                     Text(L.t("rate"))
                     Slider(value: rateBinding, in: -50...50, step: 5)
                         .accessibilityLabel(L.t("rate"))
+                        .help(L.t("sh_rate"))
                         .accessibilityValue("\(m.rate) %")
                     Text(fmtNumber(Double(m.rate), digits: 0, plus: true) + " %").monospacedDigit().frame(width: 52, alignment: .trailing)
                 }
@@ -569,6 +579,7 @@ private struct VoiceSettings: View {
                     Text(L.t("volume"))
                     Slider(value: $m.volume, in: 0.2...2.0, step: 0.1)
                         .accessibilityLabel(L.t("volume"))
+                        .help(L.t("sh_volume"))
                         .accessibilityValue("\(Int(m.volume * 100)) %")
                     Text("\(Int((m.volume * 100).rounded())) %").monospacedDigit().frame(width: 52, alignment: .trailing)
                 }
@@ -609,6 +620,7 @@ private struct TranslationSettings: View {
         Form {
             Section {
                 Toggle(L.t("llm"), isOn: $m.llm)
+                    .help(L.t("sh_llm"))
                 if m.running && m.llm {
                     Label(m.llmActive ? L.t("llm_active") : L.t("llm_inactive"),
                           systemImage: m.llmActive ? "checkmark.circle" : "exclamationmark.circle")
@@ -621,6 +633,7 @@ private struct TranslationSettings: View {
                     VStack(alignment: .leading) { Text(L.t("llm_model")); RestartNote() }
                 }
                 .accessibilityLabel(L.t("llm_model"))
+                .help(L.t("sh_llm_model"))
                 // Nr. 38: ungefähre Kosten je Modell (Preise wie in der Engine, ca. 300 Eingabe- + 40 Ausgabe-Token je Satz)
                 Label(L.f("llm_price_hint", EngineModel.costPer1000(m.llmModel)),
                       systemImage: m.llmModel.contains("opus") ? "exclamationmark.triangle" : "dollarsign.circle")
@@ -628,6 +641,7 @@ private struct TranslationSettings: View {
                 Picker(L.t("style"), selection: $m.llmStyle) {
                     ForEach(["casual", "neutral", "polite"], id: \.self) { Text(L.t("style_" + $0)).tag($0) }
                 }
+                .help(L.t("sh_style"))
                 if !PresetCatalog.all.isEmpty {
                     Picker(L.t("preset"), selection: $m.preset) {
                         Text(L.t("preset_none")).tag("")
@@ -661,6 +675,7 @@ private struct TranslationSettings: View {
                 TextEditor(text: $m.glossary)
                     .font(.body.monospaced()).frame(minHeight: 90)
                     .accessibilityLabel(L.t("glossary"))
+                    .help(L.t("sh_glossary"))
             } header: { Text(L.t("glossary")) } footer: { Text(L.t("glossary_hint")) }
             APIKeySection()
         }
@@ -727,13 +742,17 @@ private struct DisplaySettings: View {
                 HStack {
                     Text(L.t("font_size"))
                     Slider(value: $scale, in: Prefs.fontRange, step: 0.1)
+                        .help(L.t("sh_font_size"))
                         .accessibilityLabel(L.t("font_size"))
                         .accessibilityValue("\(Int(scale * 100)) %")
                     Text("\(Int(scale * 100)) %").monospacedDigit().frame(width: 48, alignment: .trailing)
                 }
                 Toggle(L.t("always_on_top"), isOn: $onTop)
+                    .help(L.t("sh_always_on_top"))
                 Toggle(L.t("show_details"), isOn: $showDetails)
+                    .help(L.t("sh_show_details"))
                 Toggle(L.t("translit"), isOn: $translit)
+                    .help(L.t("sh_translit"))
                 Button(L.t("reset_display")) { scale = 1.0; onTop = false; showDetails = false; translit = true }
             }
             QuickPhraseSettings()
@@ -749,6 +768,7 @@ private struct QuickPhraseSettings: View {
     var body: some View {
         Section(L.t("quick_phrases")) {
             Toggle(L.t("show_quick"), isOn: $showQuick)
+                .help(L.t("sh_show_quick"))
             Text(L.tp("quick_edit")).font(.callout).foregroundStyle(.secondary)
             TextEditor(text: $raw)
                 .font(.body)
