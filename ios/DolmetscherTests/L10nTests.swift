@@ -37,6 +37,11 @@ final class L10nTests: XCTestCase {
                 XCTAssertFalse(text.trimmingCharacters(in: .whitespaces).isEmpty, "\(lang): \(key) fehlt (Runde 6)")
                 XCTAssertEqual(placeholders(text), placeholders(row["en"] ?? ""), "\(lang): \(key) Platzhalter")
             }
+            for (key, row) in L10n.round8 {
+                let text = row[lang] ?? ""
+                XCTAssertFalse(text.trimmingCharacters(in: .whitespaces).isEmpty, "\(lang): \(key) fehlt (Runde 8)")
+                XCTAssertEqual(placeholders(text), placeholders(row["en"] ?? ""), "\(lang): \(key) Platzhalter")
+            }
             for (key, row) in L10n.round7 {
                 let text = row[lang] ?? ""
                 XCTAssertFalse(text.trimmingCharacters(in: .whitespaces).isEmpty, "\(lang): \(key) fehlt (Runde 7)")
@@ -48,6 +53,9 @@ final class L10nTests: XCTestCase {
         XCTAssertTrue(Set(L10n.round5.keys).isDisjoint(with: L10n.round4.keys), "Schlüssel doppelt in round4 und round5")
         for (name, other) in [("table", Set(L10n.table.keys)), ("round4", Set(L10n.round4.keys)), ("round5", Set(L10n.round5.keys)), ("round6", Set(L10n.round6.keys))] {
             XCTAssertTrue(Set(L10n.round7.keys).isDisjoint(with: other), "Schlüssel doppelt in \(name) und round7")
+        }
+        for (name, other) in [("table", Set(L10n.table.keys)), ("round4", Set(L10n.round4.keys)), ("round5", Set(L10n.round5.keys)), ("round6", Set(L10n.round6.keys)), ("round7", Set(L10n.round7.keys))] {
+            XCTAssertTrue(Set(L10n.round8.keys).isDisjoint(with: other), "Schlüssel doppelt in \(name) und round8")
         }
         for (name, other) in [("table", Set(L10n.table.keys)), ("round4", Set(L10n.round4.keys)), ("round5", Set(L10n.round5.keys))] {
             XCTAssertTrue(Set(L10n.round6.keys).isDisjoint(with: other), "Schlüssel doppelt in \(name) und round6")
