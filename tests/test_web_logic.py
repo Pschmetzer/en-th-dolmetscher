@@ -33,7 +33,7 @@ PRELUDE = "\n".join([
     _line("const SCRIPTS ="), _line("const hexRange"), _line("const MAX_SOFT_ERR"),
     _line("const SCRIPT_RX ="), _func("buildScriptRx"), _func("applyLangTable"), f"applyLangTable({LANG_JSON});",
     _line("const isLatin"), _line("const CMD_RE"),
-    *(_func(n) for n in ("scriptsDistinct", "scriptShare", "untranslated", "wrongScript", "implausible",
+    *(_func(n) for n in ("scriptsDistinct", "scriptShare", "untranslated", "wrongScript", "unchanged", "implausible",
                          "textLang", "cutLen", "splitText", "parseCommand", "parseShare")),
 ])
 

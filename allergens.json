@@ -1,0 +1,158 @@
+{
+ "version": 1,
+ "note": "Thai maschinell erstellt, nicht von Muttersprachlern geprueft (siehe docs/PRESETS.md).",
+ "allergies": [
+  {
+   "id": "egg",
+   "en": "eggs",
+   "de": "Ei",
+   "th": "ไข่"
+  },
+  {
+   "id": "milk",
+   "en": "milk",
+   "de": "Milch",
+   "th": "นม"
+  },
+  {
+   "id": "wheat",
+   "en": "wheat",
+   "de": "Weizen",
+   "th": "แป้งสาลี"
+  },
+  {
+   "id": "gluten",
+   "en": "gluten",
+   "de": "Gluten",
+   "th": "กลูเตน"
+  },
+  {
+   "id": "soy",
+   "en": "soy",
+   "de": "Soja",
+   "th": "ถั่วเหลือง"
+  },
+  {
+   "id": "sesame",
+   "en": "sesame",
+   "de": "Sesam",
+   "th": "งา"
+  },
+  {
+   "id": "peanut",
+   "en": "peanuts",
+   "de": "Erdnüsse",
+   "th": "ถั่วลิสง"
+  },
+  {
+   "id": "treenut",
+   "en": "tree nuts",
+   "de": "Baumnüsse",
+   "th": "ถั่วเปลือกแข็ง"
+  },
+  {
+   "id": "fish",
+   "en": "fish",
+   "de": "Fisch",
+   "th": "ปลา"
+  },
+  {
+   "id": "shellfish",
+   "en": "shrimp and shellfish",
+   "de": "Krebs- und Schalentiere",
+   "th": "กุ้งและหอย"
+  },
+  {
+   "id": "celery",
+   "en": "celery",
+   "de": "Sellerie",
+   "th": "คื่นช่าย"
+  },
+  {
+   "id": "penicillin",
+   "en": "penicillin",
+   "de": "Penicillin",
+   "th": "ยาเพนิซิลลิน"
+  },
+  {
+   "id": "aspirin",
+   "en": "aspirin",
+   "de": "Aspirin",
+   "th": "ยาแอสไพริน"
+  },
+  {
+   "id": "sulfa",
+   "en": "sulfa drugs",
+   "de": "Sulfonamide",
+   "th": "ยากลุ่มซัลฟา"
+  },
+  {
+   "id": "latex",
+   "en": "latex",
+   "de": "Latex",
+   "th": "ลาเท็กซ์"
+  },
+  {
+   "id": "bee",
+   "en": "bee stings",
+   "de": "Bienenstiche",
+   "th": "พิษผึ้ง"
+  }
+ ],
+ "conditions": [
+  {
+   "id": "insulin",
+   "en": "I use insulin",
+   "de": "Ich spritze Insulin",
+   "th": "ใช้อินซูลิน"
+  },
+  {
+   "id": "diabetes",
+   "en": "I have diabetes",
+   "de": "Diabetes",
+   "th": "เป็นเบาหวาน"
+  },
+  {
+   "id": "epilepsy",
+   "en": "I have epilepsy",
+   "de": "Epilepsie",
+   "th": "เป็นโรคลมชัก"
+  },
+  {
+   "id": "asthma",
+   "en": "I have asthma",
+   "de": "Asthma",
+   "th": "เป็นโรคหอบหืด"
+  },
+  {
+   "id": "heart",
+   "en": "I have a heart condition",
+   "de": "Herzerkrankung",
+   "th": "เป็นโรคหัวใจ"
+  },
+  {
+   "id": "pacemaker",
+   "en": "I have a pacemaker",
+   "de": "Herzschrittmacher",
+   "th": "ใส่เครื่องกระตุ้นหัวใจ"
+  },
+  {
+   "id": "bp",
+   "en": "I have high blood pressure",
+   "de": "Bluthochdruck",
+   "th": "เป็นความดันโลหิตสูง"
+  },
+  {
+   "id": "thinner",
+   "en": "I take blood thinners",
+   "de": "Blutverdünner",
+   "th": "กินยาต้านการแข็งตัวของเลือด"
+  },
+  {
+   "id": "pregnant",
+   "en": "I am pregnant",
+   "de": "Schwanger",
+   "th": "กำลังตั้งครรภ์"
+  }
+ ]
+}

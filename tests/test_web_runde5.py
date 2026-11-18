@@ -51,9 +51,9 @@ def test_learn_storage_is_guarded():
     assert "try { localStorage.setItem(LEARN_KEY" in _func("learnStore")
     assert "try { return learnParse(localStorage.getItem(LEARN_KEY)); } catch { return []; }" in SCRIPT
     d = _func("deliver")
-    ok_branch = d.split("}, () => {", 1)[0]
+    ok_branch = d.split("}, e => {", 1)[0]
     assert "learnRecent" in ok_branch                      # nur echte Übersetzungen, nie Fehlertexte
-    assert "learnRecent" not in d.split("}, () => {", 1)[1]
+    assert "learnRecent" not in d.split("}, e => {", 1)[1]
     assert ok_branch.index("announce(out, m.dst)") < ok_branch.index("learnItem(")   # Lernkarten nie vor der Ausgabe
     assert "Object.hasOwn(" not in SCRIPT                 # ältere Browser (Safari < 15.4)
     assert '<label><input type="checkbox" id="learnRecent">' in HTML   # Standard: aus

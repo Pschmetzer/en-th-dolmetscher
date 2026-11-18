@@ -1,0 +1,34 @@
+name: Thai-Satz prüfen
+description: Ein Satz im Phrasenpaket ist falsch, unhöflich oder unnatürlich (auch über „Falsch? Melden“ in der Web-Version).
+title: "Satz prüfen: "
+labels: ["sprache"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke! Die Thai-Sätze sind maschinell erstellt und nicht von Muttersprachlern geprüft (siehe docs/PRESETS.md).
+        Bitte keine persönlichen Daten eintragen.
+  - type: input
+    id: pack
+    attributes:
+      label: Paket (id)
+      placeholder: taxi
+    validations:
+      required: true
+  - type: input
+    id: english
+    attributes:
+      label: Englischer Satz
+    validations:
+      required: true
+  - type: input
+    id: shown
+    attributes:
+      label: Angezeigter Satz (Sprache)
+  - type: textarea
+    id: comment
+    attributes:
+      label: Was stimmt nicht, und wie sagt man es richtig?
+      description: Gern mit Hinweis, ob du Muttersprachler bist.
+    validations:
+      required: true
