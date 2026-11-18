@@ -102,8 +102,8 @@ Needs iOS 26 and Xcode 26 or newer. There is no App Store version yet: build it 
 Live: https://pschmetzer.github.io/en-th-dolmetscher/ — `index.html` is a single file, no build step, no external scripts. Same 19 languages as the apps (English ⇄ Thai by default). It uses the browser's Web Speech API (best in Chrome; Firefox has no speech recognition), so you pick who speaks yourself (buttons or keys `E` for your language, `T` for the partner's). The Mac app is better: automatic language detection, voice commands in both languages, better recognition.
 
 - Asks for consent once before the microphone starts for the first time.
-- Per-direction switches “Translate EN→TH” / “Translate TH→EN”: a switched-off direction is only shown, not translated or spoken.
-- Voice commands in EN mode at the start of a sentence: “Translator pause / resume / repeat / slower / faster”. *Pause* stops recognition completely (no more audio goes to the speech service); continue with `E`/`T` or the buttons.
+- Per-direction switches “Translate A→B” / “Translate B→A” (named after the chosen languages): a switched-off direction is only shown, not translated or spoken. Also: “Hold to speak” (push to talk), single-key shortcuts that can be switched off, adjustable text size in the full-screen view, and the Back button closes the full-screen view.
+- Voice commands in EN mode at the start of a sentence: “Translator pause / repeat / slower / faster / louder / quieter / clear / help”. *Pause* stops recognition completely (no more audio goes to the speech service); continue with `E`/`T` or the buttons.
 - Partner view (`P`): full screen, only the latest translation in huge type (`Esc` closes). Keys: `E` English, `T` Thai, `Space` stop.
 - Translation: Google endpoint, MyMemory as fallback. Error or quota messages are never shown or spoken as a translation.
 - **Installable (PWA)**: “Add to home screen”; the page and the phrasebook also open offline (translation needs the network).
