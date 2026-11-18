@@ -59,8 +59,8 @@ struct Bubble: View, Equatable {
             }
             if canCorrect && canReassign {
                 Button(action: reassign) { Image(systemName: "arrow.left.arrow.right") }
-                    .help(L.t(Langs.reassignRole(u.lang) == "me" ? "reassign_me" : "reassign_other"))
-                    .accessibilityLabel(L.t(Langs.reassignRole(u.lang) == "me" ? "reassign_me" : "reassign_other"))
+                    .help(L.reassign(Langs.reassignRole(u.lang)))
+                    .accessibilityLabel(L.reassign(Langs.reassignRole(u.lang)))
             }
             Button { copy(u.out) } label: { Image(systemName: "doc.on.doc") }
                 .help(L.t("copy_translation")).accessibilityLabel(L.t("copy_translation"))
@@ -150,7 +150,7 @@ struct Bubble: View, Equatable {
         .accessibilityAction(named: L.t("copy_translation")) { copy(u.out) }
         .accessibilityAction(named: L.t("correct")) { if canCorrect { onCorrect(u) } }
         // Nr. 382: was sonst nur im Kontextmenü steht (children .ignore macht es für VoiceOver schwer erreichbar)
-        .accessibilityAction(named: L.t(Langs.reassignRole(u.lang) == "me" ? "reassign_me" : "reassign_other")) {
+        .accessibilityAction(named: L.reassign(Langs.reassignRole(u.lang))) {
             if canCorrect && canReassign { reassign() }
         }
         .accessibilityAction(named: L.t("alt_reading")) {
@@ -170,7 +170,7 @@ struct Bubble: View, Equatable {
 
     private func saveQuickPhrase(_ s: String) {
         let ud = UserDefaults.standard
-        let cur = ud.string(forKey: Prefs.quickPhrases) ?? Prefs.defaultPhrases
+        let cur = ud.string(forKey: Prefs.quickPhrases) ?? Prefs.pairDefaults
         guard !Prefs.phrases(cur).contains(s) else { return }
         ud.set(cur.isEmpty ? s : cur + "\n" + s, forKey: Prefs.quickPhrases)
     }
@@ -184,7 +184,7 @@ struct Bubble: View, Equatable {
         Divider()
         Button(L.t("correct")) { onCorrect(u) }.disabled(!canCorrect)
         if canReassign {
-            Button(L.t(Langs.reassignRole(u.lang) == "me" ? "reassign_me" : "reassign_other"), action: reassign).disabled(!canCorrect)
+            Button(L.reassign(Langs.reassignRole(u.lang)), action: reassign).disabled(!canCorrect)
         }
         ForEach(Array(u.alts.enumerated()), id: \.offset) { _, alt in
             Button(L.t("alt_reading") + ": " + alt) { m.retranslate(u, text: alt) }.disabled(!canCorrect)

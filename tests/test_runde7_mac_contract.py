@@ -97,3 +97,90 @@ def test_pair_swap_sends_langs_once():
     eng = APP["Engine.swift"]
     pc = eng[eng.index("private func pairChanged"):][:600]
     assert "(Langs.mine, Langs.partner) != (mineLang, partnerLang)" in pc
+
+
+# ---- zweite Runde: Features und Verbesserungen -------------------------------------------------
+
+def test_release_flag_disables_dev_override_and_plain_key_copy():
+    p = APP["Paths.swift"]
+    assert "#if RELEASE_BUILD" in p and p.count("#if RELEASE_BUILD") >= 3
+    sh = (ROOT / "build.sh").read_text(encoding="utf-8")
+    assert '-D RELEASE_BUILD' in sh and 'SWIFT_FLAGS+=(-D RELEASE_BUILD)' in sh
+
+
+def test_build_sh_release_requires_notarization_or_flag():
+    sh = (ROOT / "build.sh").read_text(encoding="utf-8")
+    assert "--no-notarize" in sh and "-unnotarized" in sh
+    assert "notarytool log" in sh and "stapler validate" in sh and "spctl -a -vv" in sh
+    assert "hdiutil create" in sh and "dsymutil" in sh and "otool -L" in sh
+    assert "CFBundleURLTypes" in sh and "whatsnew.json" in sh
+    assert "swiftc" in sh and " -g " in sh
+
+
+def test_setup_env_progress_and_update_path():
+    sh = (ROOT / "build-support" / "setup-env.sh").read_text(encoding="utf-8")
+    assert "echo \"progress $pct\"" in sh and "REUSE=1" in sh
+    assert "--offline --find-links" in sh
+
+
+def test_mic_usage_text_not_tied_to_english_thai():
+    sh = (ROOT / "build.sh").read_text(encoding="utf-8")
+    assert "Englisch und Thai übersetzen" not in sh
+
+
+def test_new_control_fields_only_clear_and_known_flags():
+    # Engine-Seite: nur {"clear": true} ist neu abgesprochen; alle anderen Felder gab es schon
+    assert 'send(["clear": true])' in APP["Engine.swift"]
+    assert '"forget"' not in "\n".join(APP.values())
+
+
+def test_file_translation_uses_engine_flags():
+    eng = (ROOT / "dolmetscher.py").read_text(encoding="utf-8")
+    e = APP["Engine.swift"]
+    for flag in ('"--file"', '"--mute"', '"--langs"'):
+        assert flag in e, flag
+        assert f"add_argument({flag}" in eng, flag
+
+
+def test_menu_and_url_scheme_wired():
+    d = APP["DolmetscherApp.swift"]
+    assert "applicationShouldTerminate" in d and "application(_ app: NSApplication, open urls" in d
+    assert ".keyboardShortcut(KeyEquivalent(Character(" in d
+    assert 'Window(L.t("caption_title"), id: "caption")' in d
+    x = APP["Extras.swift"]
+    for cmd in ('"start"', '"stop"', '"pause"', '"say"'):
+        assert cmd in x
+    assert "text.count <= 1000" in x and "Langs.valid(" in x and "urlAllowed" in x
+
+
+def test_pair_strings_have_pair_variants():
+    rows = APP["L10n.swift"]
+    used = set(re.findall(r'L\.tp\("([a-z_]+)"', "\n".join(APP.values())))
+    used |= {"reassign_me", "reassign_other"}
+    for k in used:
+        assert f'"{k}_pair"' in rows, k
+        assert f'"{k}"' in rows, k
+
+
+def test_md_escape_and_dur_in_export():
+    s = APP["Support.swift"]
+    assert "func mdEscape" in s and "mdEscape(u.text)" in s
+    assert "u.dur" in s
+    assert "u.dur = (o[\"dur\"]" in APP["Engine.swift"]
+
+
+def test_hung_engine_auto_restart_and_wake():
+    e = APP["Engine.swift"]
+    assert "hungRestartAfter" in e and "hungRestarts < 3" in e and "func systemDidWake" in e
+    assert "didWakeNotification" in APP["Extras.swift"] and "kAudioHardwarePropertyDevices" in APP["Extras.swift"]
+
+
+def test_setup_space_checks_both_volumes():
+    es = APP["EnvSetup.swift"]
+    assert "separateVolumes" in es and "freeBytes(at: modelsURL)" in es
+
+
+def test_translate_helper_accepts_pairs():
+    h = (ROOT / "tools" / "translate-helper" / "main.swift").read_text(encoding="utf-8")
+    assert '"--pairs"' in h and "requestedPairs" in h
+    assert "--check" in APP["Extras.swift"] and "--pairs" in APP["Extras.swift"]

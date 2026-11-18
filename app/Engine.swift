@@ -195,6 +195,11 @@ final class EngineModel: NSObject, ObservableObject {
         guard mineLang != partnerLang else { return }
         // Tausch (Nr. 11): didSet der Gegenseite hat das Paar schon gemeldet – nicht doppelt senden
         guard (Langs.mine, Langs.partner) != (mineLang, partnerLang) else { return }
+        // Nr. 40: unveränderte Standard-Schnellsätze folgen dem Paar (eigene Listen bleiben unberührt)
+        let curPhrases = Self.ud.string(forKey: Prefs.quickPhrases)
+        if curPhrases == nil || curPhrases == Prefs.pairDefaults {
+            Self.ud.set(Prefs.phrasesForPair(mine: mineLang, partner: partnerLang), forKey: Prefs.quickPhrases)
+        }
         Self.ud.set(mineLang, forKey: "mineLang"); Self.ud.set(partnerLang, forKey: "partnerLang")
         Langs.mine = mineLang; Langs.partner = partnerLang
         if lang != "auto" && !Langs.pair.contains(lang) { lang = "auto" }
@@ -1081,7 +1086,7 @@ final class EngineModel: NSObject, ObservableObject {
     private var idleStatus: String {
         if !micOn { return restingStatus }   // späte Ereignisse nach `listen: false` zeigen nicht „Hört zu“
         if paused { return pushToTalk ? "⏸ " + L.t("hold_to_talk") : Self.pausedText }
-        return busy ? L.t("thinking") : L.t("listening")
+        return busy ? L.t("thinking") : L.tp("listening")
     }
 
     /// Position je Engine-id. Der Cache wird bei jedem Zugriff geprüft (Einträge werden an mehreren
@@ -1355,7 +1360,7 @@ final class EngineModel: NSObject, ObservableObject {
     static func droppedText(_ code: String?) -> String? {
         switch code {
         case "command", "translate_failed", "stopped": return nil
-        case let c?: return droppedKeys[c].map { L.t($0) } ?? L.t("dropped")
+        case let c?: return droppedKeys[c].map { $0 == "drop_other_language" ? L.tp($0) : L.t($0) } ?? L.t("dropped")
         case nil: return L.t("dropped")
         }
     }

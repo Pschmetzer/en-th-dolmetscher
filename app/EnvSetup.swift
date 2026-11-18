@@ -19,6 +19,7 @@ final class EnvSetupModel: ObservableObject {
     /// Bildschirm zeigen: Umgebung fehlt/veraltet, oder der Nutzer hat „neu einrichten“ gewählt,
     /// oder die Einrichtung läuft gerade bis zu den Modellen.
     @Published private(set) var visible: Bool
+    @Published private(set) var pkgProgress: Int?     // Nr. 23
     private var proc: Process?
     private var buffer = Data()
     static let logURL = Paths.support.appendingPathComponent("setup.log")
@@ -33,11 +34,35 @@ final class EnvSetupModel: ObservableObject {
     var envMissing: Bool { Paths.pythonIsFallback }
 
     /// Freier Platz auf dem Volume von Application Support (für wichtige Daten, wie macOS ihn berechnet).
-    static func freeBytes() -> Int64? {
-        var url = Paths.support
+    static func freeBytes() -> Int64? { freeBytes(at: Paths.support) }
+
+    /// Nächster vorhandener Ordner oberhalb von `url` (der Zielordner entsteht erst bei der Einrichtung).
+    private static func existing(_ u: URL) -> URL {
+        var url = u
         while !FileManager.default.fileExists(atPath: url.path) && url.path != "/" { url.deleteLastPathComponent() }
-        let v = try? url.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
-        return v?.volumeAvailableCapacityForImportantUsage
+        return url
+    }
+    static func freeBytes(at u: URL) -> Int64? {
+        try? existing(u).resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
+            .volumeAvailableCapacityForImportantUsage
+    }
+    /// Nr. 24: Umgebung (Application Support) und Modelle (Hugging-Face-Cache) können auf verschiedenen Volumes liegen.
+    static var modelsURL: URL { URL(fileURLWithPath: ModelCache.hubDir) }
+    static var separateVolumes: Bool {
+        let k: Set<URLResourceKey> = [.volumeIdentifierKey]
+        guard let a = try? existing(Paths.support).resourceValues(forKeys: k).volumeIdentifier as? NSObject,
+              let b = try? existing(modelsURL).resourceValues(forKeys: k).volumeIdentifier as? NSObject else { return false }
+        return !a.isEqual(b)
+    }
+    /// Reicht der Platz? Gleiches Volume: Summe; getrennte Volumes: jeder Teil für sich.
+    static func spaceOK(envMissing: Bool, modelsGB: Double) -> Bool {
+        let envGB = EnvLogic.requiredGB(envMissing: envMissing, modelsGB: 0)
+        let mGB = EnvLogic.requiredGB(envMissing: false, modelsGB: modelsGB)
+        if separateVolumes {
+            return EnvLogic.enoughSpace(freeBytes: freeBytes(), requiredGB: envGB)
+                && EnvLogic.enoughSpace(freeBytes: freeBytes(at: modelsURL), requiredGB: mGB)
+        }
+        return EnvLogic.enoughSpace(freeBytes: freeBytes(), requiredGB: EnvLogic.requiredGB(envMissing: envMissing, modelsGB: modelsGB))
     }
 
     /// Fehlende Modelle in GB für die aktuelle Wahl; bei „auto“ die Schätzung für medium.
@@ -52,9 +77,8 @@ final class EnvSetupModel: ObservableObject {
     func start(engine: EngineModel) {
         if case .env = phase { return }
         if proc?.isRunning == true { return }     // Nr. 2: altes Skript räumt noch auf – nie zwei zugleich
-        let need = EnvLogic.requiredGB(envMissing: envMissing || visibleRedo,
-                                       modelsGB: Self.modelsGB(model: engine.model, thai: Langs.hasThai))
-        guard EnvLogic.enoughSpace(freeBytes: Self.freeBytes(), requiredGB: need) else {
+        guard Self.spaceOK(envMissing: envMissing || visibleRedo,
+                           modelsGB: Self.modelsGB(model: engine.model, thai: Langs.hasThai)) else {
             phase = .failed(kind: "no_space"); return
         }
         if envMissing || visibleRedo { runEnvSetup(engine: engine) } else { startModels(engine: engine) }
@@ -119,7 +143,8 @@ final class EnvSetupModel: ObservableObject {
             let line = String(decoding: buffer[buffer.startIndex..<nl], as: UTF8.self)
             buffer.removeSubrange(buffer.startIndex...nl)
             switch EnvLogic.parseSetupLine(line) {
-            case .step(let s)?: phase = .env(step: s)
+            case .step(let s)?: pkgProgress = nil; phase = .env(step: s)
+            case .progress(let p)?: pkgProgress = p
             case .done?: visibleRedo = false; phase = .models   // Modelle starten, sobald der Prozess endet
             case .fail(let k)?: phase = .failed(kind: k)
             case nil: break
@@ -199,7 +224,11 @@ struct EnvSetupView: View {
     private var sizeLine: some View {
         let download = (envNeeded ? 0.4 : 0) + modelsGB
         let need = EnvLogic.requiredGB(envMissing: envNeeded, modelsGB: modelsGB)
-        let free = EnvSetupModel.freeBytes().map { Double($0) / 1e9 } ?? 0
+        var freeB = EnvSetupModel.freeBytes()
+        if EnvSetupModel.separateVolumes, modelsGB > 0, let f2 = EnvSetupModel.freeBytes(at: EnvSetupModel.modelsURL) {
+            freeB = min(freeB ?? f2, f2)       // der knappere der beiden Volumes zählt
+        }
+        let free = freeB.map { Double($0) / 1e9 } ?? 0
         return Label(L.f("envsetup_size", download, need, free), systemImage: "internaldrive")
             .font(.callout)
     }
@@ -217,7 +246,8 @@ struct EnvSetupView: View {
         switch s.phase {
         case .env(let step):
             let key = ["packages": "envsetup_step_packages", "verify": "envsetup_step_verify"][step] ?? "envsetup_step_python"
-            return .active(L.t(key), EnvLogic.stepFraction(step))
+            return .active(L.t(key) + (step == "packages" ? s.pkgProgress.map { " \($0) %" } ?? "" : ""),
+                           EnvLogic.stepFraction(step, progress: s.pkgProgress))
         case .models, .done: return .ok
         default: return envNeeded ? .pending : .ok
         }

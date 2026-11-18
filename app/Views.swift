@@ -21,6 +21,22 @@ enum Prefs {
     static let resettableKeys = [fontScale, alwaysOnTop, showDetails, translit, showQuick, quickPhrases,
                                  showMenuBar, spaceToggle, announce, listenOnLaunch, "partnerRotated", "partnerZoom"]
 
+    /// Nr. 40: Standard-Schnellsätze für das aktive Paar: Sätze in beiden Paarsprachen (en/th: die feste Liste).
+    /// Sprachen ohne Tabelle liefern keine Sätze (nie fremdsprachige Sätze als „meine Sprache“ vorgeben).
+    static func phrasesForPair(mine: String, partner: String) -> String {
+        if mine == "en" && partner == "th" || mine == "th" && partner == "en" { return defaultPhrases }
+        let table: [String: [String]] = [
+            "en": ["Hello!", "Thank you very much", "Where is the toilet?", "How much is it?",
+                   "Could you say that again, please?", "I don't understand"],
+            "de": ["Hallo!", "Vielen Dank", "Wo ist die Toilette?", "Wie viel kostet das?",
+                   "Können Sie das bitte wiederholen?", "Ich verstehe nicht"],
+            "th": ["สวัสดี", "ขอบคุณมาก", "ช่วยพูดช้าๆ หน่อย", "ไม่เข้าใจ"],
+        ]
+        return ((table[mine] ?? []) + (table[partner] ?? [])).joined(separator: "\n")
+    }
+    /// Standardliste für das gerade aktive Paar (Startwert des Speichers und „Standard wiederherstellen“).
+    static var pairDefaults: String { phrasesForPair(mine: Langs.mine, partner: Langs.partner) }
+
     /// Schnellsätze beim ersten Start: englische Sätze (werden ins Thai übersetzt) und thailändische (ins Englische).
     /// Wer die Liste später leert, behält sie leer; nur ein nie gespeicherter Schlüssel zeigt diese Standardliste.
     static let defaultPhrases = [
@@ -485,7 +501,7 @@ struct EmptyState: View {
                 }
                 .foregroundStyle(.secondary)
             } else {
-                Text(L.t("empty")).foregroundStyle(.secondary)
+                Text(L.tp("empty")).foregroundStyle(.secondary)
             }
             // Nr. 399: Beispielsatz anklickbar – Probe-Übersetzung prüft Übersetzung und Lautsprecher ohne Mikrofon
             Button { m.say("Where is the toilet?", lang: "en") } label: {
@@ -786,7 +802,7 @@ struct LevelBar: View {
 /// „+“ legt eigene an, Rechtsklick (oder VoiceOver-Aktion) löscht.
 struct QuickPhraseBar: View {
     @EnvironmentObject var m: EngineModel
-    @AppStorage(Prefs.quickPhrases) private var raw = Prefs.defaultPhrases
+    @AppStorage(Prefs.quickPhrases) private var raw = Prefs.pairDefaults
     @State private var adding = false
     @State private var draft = ""
     @State private var showNote = false
@@ -854,7 +870,7 @@ struct QuickPhraseBar: View {
             .scaledFont(13)
         }
         .accessibilityLabel(L.t("quick_phrases"))
-        .alert(L.t("phrase_new_title"), isPresented: $adding) {
+        .alert(L.tp("phrase_new_title"), isPresented: $adding) {
             TextField(L.t("sentence"), text: $draft)
             Button(L.t("add")) {
                 let t = draft.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -1012,7 +1028,7 @@ struct TipsSheet: View {
         VStack(alignment: .leading, spacing: 18) {
             Text(L.t("welcome_title")).font(.title.bold())
             tip("mic.fill", L.t("tip_mic_title"), L.t("tip_mic_text"))
-            tip("waveform", L.t("tip_speak_title"), L.t("tip_speak_text"))
+            tip("waveform", L.t("tip_speak_title"), L.tp("tip_speak_text"))
             tip("text.bubble", L.t("tip_cmd_title"), L.t("tip_cmd_text"))
             tip("lock.shield", L.t("privacy_title"), L.t("privacy_text"))
             SetupChecklist(model: model, thai: thai)

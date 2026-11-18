@@ -1,8 +1,10 @@
 // translate-helper: Apple Translation (on-device) als stdin/stdout-Dienst, ohne SwiftUI.
 //
 // Bauen:  swiftc -O -parse-as-library -o /tmp/translate-helper tools/translate-helper/main.swift
-// Start:  translate-helper [--check] [--fast] [--timeout S]
+// Start:  translate-helper [--check] [--fast] [--timeout S] [--pairs en-th,th-en,de-ja]
 //   --check    nur Status der Sprachpaare ausgeben und beenden
+//   --pairs    Sprachpaare, deren Status gemeldet wird (Standard en-th,th-en; Übersetzen geht für jedes Paar,
+//              das Apple kennt – die Sitzung wird beim ersten Satz gebaut)
 //   --fast     Strategie .lowLatency statt Standard (macOS 26.4+)
 //   --timeout  Sekunden je Anfrage (Standard 5): danach {"id":…,"error":"timeout"}, Sitzung wird neu gebaut,
 //              damit eine hängende Anfrage nicht alle folgenden blockiert (Nr. 218)
@@ -56,7 +58,19 @@ enum Helper {
         }
     }
 
-    static func pairStatus(fast: Bool) async -> [String: String] {
+    /// `--pairs a-b,c-d` (Codes aus languages.json, nur Buchstaben/Bindestrich); sonst die Standardpaare.
+    static func requestedPairs(_ args: [String]) -> [(String, String)] {
+        guard let i = args.firstIndex(of: "--pairs"), i + 1 < args.count else { return pairs }
+        let list: [(String, String)] = args[i + 1].split(separator: ",").prefix(8).compactMap { item in
+            let p = item.split(separator: "-", maxSplits: 1).map(String.init)
+            guard p.count == 2, p.allSatisfy({ !$0.isEmpty && $0.count <= 12 && $0.allSatisfy { $0.isLetter || $0 == "-" } })
+            else { return nil }
+            return (p[0], p[1])
+        }
+        return list.isEmpty ? pairs : list
+    }
+
+    static func pairStatus(fast: Bool, pairs: [(String, String)]) async -> [String: String] {
         let avail = fast ? LanguageAvailability(preferredStrategy: .lowLatency) : LanguageAvailability()
         var out: [String: String] = [:]
         for (s, t) in pairs {
@@ -104,7 +118,7 @@ enum Helper {
         if let i = args.firstIndex(of: "--timeout"), i + 1 < args.count, let v = Double(args[i + 1]), v > 0 {
             timeout = min(v, 120)
         }
-        let status = await pairStatus(fast: fast)
+        let status = await pairStatus(fast: fast, pairs: requestedPairs(args))
 
         if args.contains("--check") {
             emit(["ready": true, "pairs": status])

@@ -4,6 +4,7 @@ import SwiftUI
 import AppKit
 import CoreAudio
 import UniformTypeIdentifiers
+import Translation
 
 extension Prefs {
     static let hideFromCapture = "hideFromCapture"       // Nr. 17: Fenster aus Bildschirmaufnahmen ausblenden
@@ -196,4 +197,76 @@ func chooseAudioFileToTranslate(_ m: EngineModel) {
     p.allowedContentTypes = [.audio, .movie]
     p.allowsMultipleSelection = false
     if p.runModal() == .OK, let u = p.url { m.translateFile(u) }
+}
+
+// MARK: Nr. 25 / 26 – Offline-Übersetzung (Apple Translation) für das aktive Paar
+
+/// Status des aktiven Sprachpaars laut `translate-helper --check --pairs …` (installed | supported | unsupported).
+@MainActor
+final class OfflinePairStatus: ObservableObject {
+    static let shared = OfflinePairStatus()
+    @Published private(set) var state: String?
+
+    func refresh() {
+        guard let helper = Paths.bundledTranslateHelper else { state = nil; return }
+        let a = Langs.mine, b = Langs.partner
+        DispatchQueue.global(qos: .utility).async {
+            let p = Process()
+            p.executableURL = URL(fileURLWithPath: helper)
+            p.arguments = ["--check", "--pairs", "\(a)-\(b),\(b)-\(a)"]
+            let out = Pipe()
+            p.standardOutput = out; p.standardError = FileHandle.nullDevice; p.standardInput = FileHandle.nullDevice
+            var result: String?
+            if (try? p.run()) != nil {
+                let data = out.fileHandleForReading.readDataToEndOfFile()
+                p.waitUntilExit()
+                if let line = String(decoding: data, as: UTF8.self).split(separator: "\n").first,
+                   let o = (try? JSONSerialization.jsonObject(with: Data(line.utf8))) as? [String: Any],
+                   let pairs = o["pairs"] as? [String: String] {
+                    let st = [pairs["\(a)-\(b)"], pairs["\(b)-\(a)"]].compactMap { $0 }
+                    result = st.contains("unsupported") ? "unsupported" : st.contains("supported") ? "supported"
+                        : st.isEmpty ? nil : "installed"
+                }
+            }
+            DispatchQueue.main.async { MainActor.assumeIsolated { OfflinePairStatus.shared.state = result } }
+        }
+    }
+}
+
+/// Zeile unter dem Schalter „Offline-Übersetzung“: Status des Paars und (macOS 15+) Knopf für Apples Download-Dialog.
+struct OfflinePackRow: View {
+    @EnvironmentObject var m: EngineModel
+    @ObservedObject private var st = OfflinePairStatus.shared
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            if let s = st.state {
+                Label(L.t("offline_pack_" + s), systemImage: s == "installed" ? "checkmark.circle" : s == "supported" ? "arrow.down.circle" : "xmark.circle")
+                    .font(.caption).foregroundStyle(s == "installed" ? LangStyle.success : .secondary)
+            }
+            if st.state == "supported", #available(macOS 15.0, *) {
+                OfflinePackButton { st.refresh() }
+            }
+        }
+        .onAppear { st.refresh() }
+        .onChange(of: m.mineLang) { st.refresh() }
+        .onChange(of: m.partnerLang) { st.refresh() }
+    }
+}
+
+@available(macOS 15.0, *)
+struct OfflinePackButton: View {
+    let onDone: () -> Void
+    @State private var config: TranslationSession.Configuration?
+    var body: some View {
+        Button(L.t("offline_pack_download")) {
+            if config != nil { config?.invalidate() } else {
+                config = TranslationSession.Configuration(source: Locale.Language(identifier: Langs.mine),
+                                                          target: Locale.Language(identifier: Langs.partner))
+            }
+        }
+        .translationTask(config) { session in
+            try? await session.prepareTranslation()      // zeigt Apples Download-Dialog
+            await MainActor.run { onDone() }
+        }
+    }
 }

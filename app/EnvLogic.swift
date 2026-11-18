@@ -44,6 +44,7 @@ enum EnvLogic {
     /// Eine Zeile von setup-env.sh.
     enum SetupEvent: Equatable {
         case step(String)       // python | packages | verify
+        case progress(Int)      // Paketinstallation, geschätzte Prozent (0–99)
         case done
         case fail(String)       // offline | disk | integrity | arch | cancelled | failed
     }
@@ -55,13 +56,16 @@ enum EnvLogic {
         guard parts.count == 2 else { return nil }
         switch parts[0] {
         case "step": return .step(parts[1])
+        case "progress": return Int(parts[1]).map { .progress(min(99, max(0, $0))) }
         case "fail": return .fail(parts[1])
         default: return nil
         }
     }
 
     /// Schritt -> Anteil am Fortschrittsbalken der Umgebung (Pakete sind der große Teil).
-    static func stepFraction(_ step: String) -> Double {
+    static func stepFraction(_ step: String, progress: Int? = nil) -> Double {
+        // Nr. 23: während der Paketinstallation füllt der geschätzte Fortschritt den Balken von 0,15 bis 0,85
+        if step == "packages", let p = progress { return 0.15 + 0.70 * Double(min(100, max(0, p))) / 100 }
         switch step {
         case "python": return 0.05
         case "packages": return 0.15

@@ -93,7 +93,7 @@ struct AppCommands: Commands {
     @AppStorage(Prefs.fontScale) private var scale = 1.0
     @AppStorage(Prefs.alwaysOnTop) private var onTop = false
     @AppStorage(L.key) private var uiLang = L.defaultCode   // Menüs neu aufbauen, wenn die Sprache wechselt
-    @AppStorage(Prefs.quickPhrases) private var quickRaw = Prefs.defaultPhrases
+    @AppStorage(Prefs.quickPhrases) private var quickRaw = Prefs.pairDefaults
 
     /// Preset-Sätze wie in der Schnellsatz-Leiste (Nr. 35): (Text, Sprache) in der Reihenfolge „kritisch zuerst“.
     private var presetPhrases: [(String, String)] {

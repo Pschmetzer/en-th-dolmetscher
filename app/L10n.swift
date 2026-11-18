@@ -55,6 +55,21 @@ enum L {
     }
 
     /// Text mit Platzhaltern (%@, %d, %.1f) – Format aus der Tabelle.
+    /// Nr. 41: Text für das aktive Sprachpaar. Standardpaar en/th: der feste Text; sonst der Text `<key>_pair`
+    /// mit den Sprachnamen als Platzhalter (`names`, Standard: meine Sprache und Partnersprache).
+    static func tp(_ key: String, _ names: [String]? = nil) -> String {
+        if Langs.isDefaultPair { return t(key) }
+        let n = names ?? [Langs.name(Langs.mine), Langs.name(Langs.partner)]
+        return String(format: t(key + "_pair"), locale: Locale(identifier: lang == .de ? "de_DE" : "en_US"),
+                      arguments: n as [CVarArg])
+    }
+    /// „Das war ich/Partner (Sprache)“ für das Kontextmenü der Blase.
+    static func reassign(_ role: String) -> String {
+        let me = Langs.meLang
+        return tp(role == "me" ? "reassign_me" : "reassign_other",
+                  [Langs.name(role == "me" ? me : Langs.target(me))])
+    }
+
     static func f(_ key: String, _ args: CVarArg...) -> String {
         String(format: t(key), locale: Locale(identifier: lang == .de ? "de_DE" : "en_US"), arguments: args)
     }
@@ -959,6 +974,45 @@ enum L {
         "partner_asks_slower": ["de": "Dein Gegenüber bittet: bitte langsamer sprechen.",
                "en": "Your partner asks: please speak more slowly.",
                "th": "คู่สนทนาขอให้พูดช้าลง"],
+        "listening_pair": ["de": "🎙 Hört zu – einfach %@ oder %@ sprechen",
+               "en": "🎙 Listening – just speak %@ or %@",
+               "th": "🎙 กำลังฟัง – พูด %@ หรือ %@ ได้เลย"],
+        "empty_pair": ["de": "Start drücken und einfach sprechen.\n%@ wird in %@ übersetzt und umgekehrt.",
+               "en": "Press Start and just talk.\n%@ is translated into %@ and the other way round.",
+               "th": "กด \"เริ่ม\" แล้วพูดได้เลย\n%@ จะถูกแปลเป็น %@ และในทางกลับกัน"],
+        "reassign_me_pair": ["de": "Das war ich (%@)",
+               "en": "That was me (%@)",
+               "th": "นี่คือฉัน (%@)"],
+        "reassign_other_pair": ["de": "Das war Partner (%@)",
+               "en": "That was partner (%@)",
+               "th": "นี่คือคู่สนทนา (%@)"],
+        "quick_edit_pair": ["de": "Schnellsätze (ein Satz pro Zeile, %@ oder %@)",
+               "en": "Quick phrases (one per line, %@ or %@)",
+               "th": "ประโยคด่วน (บรรทัดละหนึ่งประโยค %@ หรือ %@)"],
+        "two_person_pair": ["de": "Zwei Personen: %@ = ich, andere Stimme = %@",
+               "en": "Two people: %@ = me, other voice = %@",
+               "th": "สองคน: %@ = ฉัน เสียงอื่น = %@"],
+        "tip_speak_text_pair": ["de": "Die Sprache wird automatisch erkannt: %@ wird in %@ übersetzt und umgekehrt. Erkennt er falsch, die Sprache in den Einstellungen (⌘,) fest einstellen.",
+               "en": "The language is detected automatically: %@ is translated into %@ and the other way round. If it guesses wrong, set the language in Settings (⌘,).",
+               "th": "ระบบรู้จำภาษาอัตโนมัติ: %@ แปลเป็น %@ และในทางกลับกัน ถ้ารู้จำผิด ให้ตั้งภาษาในการตั้งค่า (⌘,)"],
+        "drop_other_language_pair": ["de": "🌐 Weder %@ noch %@ erkannt (Geräusch?)",
+               "en": "🌐 Neither %@ nor %@ detected (noise?)",
+               "th": "🌐 ไม่พบ %@ หรือ %@ (เสียงรบกวน?)"],
+        "phrase_new_title_pair": ["de": "Neuer Schnellsatz (%@ oder %@)",
+               "en": "New quick phrase (%@ or %@)",
+               "th": "ประโยคด่วนใหม่ (%@ หรือ %@)"],
+        "offline_pack_download": ["de": "Offline-Sprachpaket laden",
+               "en": "Download offline language pack",
+               "th": "ดาวน์โหลดแพ็กภาษาออฟไลน์"],
+        "offline_pack_installed": ["de": "Offline-Übersetzung für dieses Sprachpaar installiert",
+               "en": "Offline translation installed for this language pair",
+               "th": "ติดตั้งการแปลออฟไลน์สำหรับคู่ภาษานี้แล้ว"],
+        "offline_pack_supported": ["de": "Sprachpaket noch nicht geladen",
+               "en": "Language pack not downloaded yet",
+               "th": "ยังไม่ได้ดาวน์โหลดแพ็กภาษา"],
+        "offline_pack_unsupported": ["de": "Für dieses Sprachpaar gibt es keine Offline-Übersetzung",
+               "en": "No offline translation for this language pair",
+               "th": "ไม่มีการแปลออฟไลน์สำหรับคู่ภาษานี้"],
         "envsetup_integrity": ["de": "Ein Download ist beschädigt (Prüfsumme stimmt nicht). Bitte die App aktualisieren oder später erneut versuchen.",
                "en": "A download is corrupt (checksum mismatch). Please update the app or try again later.",
                "th": "ไฟล์ที่ดาวน์โหลดเสียหาย (ค่าตรวจสอบไม่ตรง) กรุณาอัปเดตแอปหรือลองใหม่ภายหลัง"],
