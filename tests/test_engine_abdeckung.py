@@ -171,7 +171,7 @@ def test_learn_auto_fehler_beim_schreiben_bricht_nicht_ab(monkeypatch):
         raise OSError("Profildatei schreibgeschützt")
     spk.learn = boom
     d.Engine._learn_auto(_learner(spk), "me", _info(), 5.0, "EMB")
-    assert logs and logs[-1]["learn"] == "fehler" and "schreibgeschützt" in logs[-1]["err"]
+    assert logs and logs[-1]["learn"] == "fehler" and logs[-1]["err"] == "OSError"
 
 
 # ---- Mic._reconnect (gefälschte Uhr: STOP.wait schläft nicht) ----------------------------------------------
