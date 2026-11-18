@@ -6,6 +6,7 @@ Speichert Äußerungen in einer SQLite-Datei unter
 (`--history` bzw. stdin `{"history": true}`). Texte landen nie im Log.
 """
 import csv
+import hashlib
 import io
 import json
 import math
@@ -160,6 +161,12 @@ class Store:
         cols = [c[0] for c in cur.description]
         return [dict(zip(cols, r)) for r in cur.fetchall()]
 
+    def last_translation(self):
+        """Letzte Zeile mit Übersetzung ({lang, translation}) oder None."""
+        r = self.db.execute("SELECT lang, translation FROM utt WHERE translation IS NOT NULL AND translation != '' "
+                            "ORDER BY ts DESC, id DESC LIMIT 1").fetchone()
+        return {"lang": r[0], "translation": r[1]} if r else None
+
     def sessions(self):
         """[(session, start_ts, count)] – neueste zuerst."""
         return self.db.execute("SELECT session, MIN(ts), COUNT(*) FROM utt GROUP BY session "
@@ -285,10 +292,13 @@ def export(rows, fmt):
                 *(r.get(k) or "" for k in who))])
         return buf.getvalue()
     if fmt == "anki":
-        lines = ["#separator:tab", "#html:false"]
+        # GUID (erneuter Import aktualisiert statt zu verdoppeln), Stapel und Tags (Sprache, Sitzung)
+        lines = ["#separator:tab", "#html:false", "#guid column:1", "#deck:Dolmetscher", "#tags column:5"]
         for r in rows:
             if r["translation"] and _flat(r["translation"]) != _flat(r["text"]):
-                lines.append(f"{_flat(r['text'])}\t{_flat(r['translation'])}\t{_flat(r['translit'])}")
+                guid = hashlib.sha1(f"{r['session']}|{r['ts']}|{r['text']}".encode("utf-8")).hexdigest()[:16]
+                tags = f"lang_{(r['lang'] or 'x').lower()} session_{r['session']}".replace("\t", " ")
+                lines.append(f"{guid}\t{_flat(r['text'])}\t{_flat(r['translation'])}\t{_flat(r['translit'])}\t{tags}")
         return "\n".join(lines) + "\n"
     if fmt in ("srt", "vtt"):
         sep = "," if fmt == "srt" else "."

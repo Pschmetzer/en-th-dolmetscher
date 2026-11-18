@@ -416,6 +416,9 @@ def _download(url, tmp):
     return h.hexdigest()
 
 
+OFFLINE_ONLY = False      # Privatmodus (--private): nur eine lokale Datei, nie ein Download
+
+
 def _model_ok():
     """Vorhandenes Modell prüfen: SHA-256 gilt nicht nur beim Download. Ein Stempel (Größe + mtime) neben der Datei
     macht die Prüfung nach dem ersten Mal billig; weicht er ab, wird neu gehasht (abgeschnitten/ersetzt -> False)."""
@@ -460,7 +463,7 @@ def ensure_model():
         errors = []
         local = os.environ.get(ENV_MODEL_FILE)
         sources = ([("file", local)] if local else []) + \
-                  [("url", u) for u in (MODEL_URL, os.environ.get(ENV_MODEL_URL)) if u]
+                  ([] if OFFLINE_ONLY else [("url", u) for u in (MODEL_URL, os.environ.get(ENV_MODEL_URL)) if u])
         for kind, src in sources:
             try:
                 if kind == "file":
@@ -630,8 +633,24 @@ class SpeakerID:
             p["embedding"] = [round(float(x), 6) for x in new]
             p["adapted"] = int(p.get("adapted") or 0) + 1
             save_profile(p)
-        self.reload()
+        self._reload_one(p)
         return True
+
+    def _reload_one(self, new_p):
+        """Nur dieses Profil im Speicher ersetzen (statt alle Dateien neu zu lesen: learn() läuft im Arbeits-Thread).
+        Bei jedem Zweifel der volle Neuaufbau."""
+        try:
+            name = new_p["name"]
+            emb_new = np.asarray(new_p["embedding"], dtype=np.float32)
+            profiles = [new_p if p["name"] == name else p for p in self.profiles]
+            emb = dict(self._emb)
+            emb[name] = emb_new / np.linalg.norm(emb_new)
+            mat = np.stack([emb[p["name"]] for p in profiles])
+        except Exception:                                  # noqa: BLE001
+            self.reload()
+            return
+        self._state = (profiles, emb, mat)
+        self.profiles, self._emb, self.mat = profiles, emb, mat
 
     def reset_learning(self, name):
         ok = reset_learning(name)
@@ -677,6 +696,7 @@ ROLE_ME_FLOOR = 0.65
 
 
 MAX_HOTWORDS = 2 * MAX_VOCAB
+HOTWORD_BUDGET = 400          # gewichtete Zeichen (Thai × 3) für den Whisper-Prompt
 
 
 _LATIN_LANGS = {"en", "de", "es", "fr", "it", "pt", "nl", "vi", "id", "tr", "pl"}
@@ -707,7 +727,16 @@ def pick_hotwords(profs, lang, who=None, role_p=None):
             if isinstance(w, str) and w.strip() and w.casefold() not in seen:
                 seen.add(w.casefold())
                 out.append(w.strip())
-    return " ".join(out[:MAX_HOTWORDS]) or None
+    # Token-Budget: Thai kostet je Zeichen mehrere Token, eine Überlänge schneidet Whisper still ab – die wichtigsten
+    # (zuerst gewählten) Wörter bleiben, der Rest fällt weg
+    kept, used = [], 0
+    for w in out[:MAX_HOTWORDS]:
+        cost = sum(3 if "฀" <= c <= "๿" else 1 for c in w) + 1
+        if used + cost > HOTWORD_BUDGET and kept:
+            break
+        kept.append(w)
+        used += cost
+    return " ".join(kept) or None
 
 
 def decide_role(sim_me, sim_her, dur, me_min, prev=None):

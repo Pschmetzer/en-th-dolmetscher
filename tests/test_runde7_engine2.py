@@ -318,3 +318,93 @@ def test_akku_spart(monkeypatch):
 def test_say_modus_rendert_vorab():
     src = open(d.__file__, encoding="utf-8").read()
     assert 'elif eng.tts == "say" and not eng.mute' in src
+
+
+# ---- Teil 5: Privatmodus, Anki, Hotwords, Notfall-Phrasen, Schema ---
+
+def test_privatmodus_laedt_kein_sprechermodell(tmp_path, monkeypatch):
+    import profiles
+    monkeypatch.setattr(profiles, "MODEL_PATH", str(tmp_path / "m" / "model.onnx"))
+    monkeypatch.setattr(profiles, "OFFLINE_ONLY", True)
+    monkeypatch.setattr(profiles, "_download", lambda *a, **k: (_ for _ in ()).throw(AssertionError("Download!")))
+    with pytest.raises(RuntimeError, match="speaker model unavailable"):
+        profiles.ensure_model()
+
+
+def test_hotword_budget_gewichtet_thai():
+    import profiles
+    p = {"name": "T", "lang": "th", "vocab": ["ตลาดน้ำอัมพวา" for _ in range(1)] + [f"คำ{i}ยาวมากๆ" for i in range(60)]}
+    out = profiles.pick_hotwords([p], "th")
+    assert out.split()[0] == "ตลาดน้ำอัมพวา" and sum(3 if "฀" <= c <= "๿" else 1 for c in out) <= 400 + 60
+
+
+def test_learn_ersetzt_nur_ein_profil_im_speicher(monkeypatch):
+    import numpy as np
+    import profiles
+    s = profiles.SpeakerID.__new__(profiles.SpeakerID)
+    a = {"name": "A", "embedding": [1.0, 0.0]}
+    b = {"name": "B", "embedding": [0.0, 1.0]}
+    s.profiles, s._emb = [a, b], {"A": np.array([1.0, 0.0], np.float32), "B": np.array([0.0, 1.0], np.float32)}
+    s.mat = np.stack([s._emb["A"], s._emb["B"]])
+    s._reload = lambda: (_ for _ in ()).throw(AssertionError("voller Neuaufbau"))
+    s.reload = s._reload
+    s._reload_one({"name": "A", "embedding": [0.8, 0.6]})
+    assert s.profiles[1] is b and s.profiles[0]["embedding"] == [0.8, 0.6]
+    assert abs(float(np.linalg.norm(s.mat[0])) - 1.0) < 1e-5 and s._state[2] is s.mat
+
+
+def test_localvoice_cleanup_ohne_wartethread(monkeypatch, tmp_path):
+    import os
+    monkeypatch.setattr(d, "private_tmp", lambda: str(tmp_path))
+    monkeypatch.setattr(d, "say_cmd", lambda voice, rate, path, text: ["x", path])
+
+    def fake_run(cmd, cancelled=None):
+        open(cmd[1], "wb").write(b"ok")
+        return 0
+    monkeypatch.setattr(d, "run_cancellable", fake_run)
+    lv = d.LocalVoice("hi", "Samantha", 0)
+    assert lv.done.wait(5) and os.path.exists(lv.path)
+    before = d.threading.active_count()
+    lv.cleanup()
+    assert not os.path.exists(lv.path) and d.threading.active_count() <= before
+
+
+def test_notfall_phrasen_werden_vorab_gerendert(monkeypatch):
+    seen = []
+    monkeypatch.setattr(d, "edge_prerender", lambda text, voice, rate: seen.append((text, voice, rate)) or True)
+    eng = types.SimpleNamespace(tts="edge", mute=False, rate=0, voice_for=lambda lang: f"v-{lang}")
+    monkeypatch.setitem(d.PRIVATE, "on", False)
+    monkeypatch.setitem(d.NET, "tts", True)
+    preset = {"phrases": [{"en": "I am allergic to nuts", "th": "ฉันแพ้ถั่ว", "critical": True},
+                          {"en": "Hello", "th": "สวัสดี"}]}
+    t = d.prerender_critical(eng, preset)
+    t.join(5)
+    assert {s[1] for s in seen} == {"v-en", "v-th"} and all("Hello" not in s[0] for s in seen)
+    assert d.prerender_critical(types.SimpleNamespace(tts="say", mute=False, rate=0), preset) is None
+    monkeypatch.setitem(d.PRIVATE, "on", True)
+    assert d.prerender_critical(eng, preset) is None                 # Privatmodus: kein Netz
+
+
+def test_letzte_ausgabe_nach_neustart_aus_verlauf(tmp_path, monkeypatch):
+    import history_store as hs
+    rec = hs.Recorder()
+    rec.store, rec.on = hs.Store(str(tmp_path / "h.sqlite")), True
+    rec.store.add("Hello", "สวัสดี", lang="en", session="s", ts=5.0)
+    monkeypatch.setattr(hs, "RECORDER", rec)
+    e = d.Engine.__new__(d.Engine)
+    e.last = None
+    assert e.restore_last() and e.last[:2] == ("สวัสดี", "th")
+
+
+def test_sprachtabelle_schema_pflichtfelder():
+    import json
+    import os
+    data = json.load(open(os.path.join(os.path.dirname(d.__file__), "languages.json"), encoding="utf-8"))
+    required = {"code", "names", "scripts", "locale", "edge", "macos", "min_logprob", "phrases"}
+    optional_seen = set()
+    for lang in data["languages"]:
+        assert required <= set(lang), (lang["code"], required - set(lang))
+        assert {"m", "f", "voices"} <= set(lang["edge"]) and {"voice", "locale"} <= set(lang["macos"])
+        assert {"en", "de", "native"} <= set(lang["names"])
+        optional_seen |= set(lang) - required
+    assert optional_seen <= {"flag", "app_voices", "mt", "apple_translation"}, optional_seen

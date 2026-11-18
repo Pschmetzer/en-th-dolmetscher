@@ -84,7 +84,13 @@ def proper_names(old, new, lang="en", limit=3):
             continue
         seen.add(low)
         cand.append((i, t))
-    out.extend(t for _, t in cand)
+    idx = []
+    for i, t in cand:                            # "Chiang Mai": nebeneinander stehende Namen = ein Eintrag
+        if out and idx[-1] == i - 1:
+            out[-1] = f"{out[-1]} {t}"
+        else:
+            out.append(t)
+        idx.append(i)
     return out[:limit]
 
 

@@ -1802,6 +1802,7 @@ def set_preset(eng, pid, quiet=False):
         return None
     p = PRESET.activate(pid, all_p, GLOSSARY, LLM, eng, voices=VOICES)
     _apply_preset_tuning(eng, p)
+    prerender_critical(eng, p)
     _cache_clear()                     # Stil und Glossar ändern die Übersetzung
     if not quiet:
         emit("preset", id=p["id"] if p else None, name=p["names"]["en"] if p else None, **presets.app_fields(p))
@@ -4045,6 +4046,57 @@ def edge_play(stream, volume, on_start=None, cancelled=None, deadline=None):
     return stats
 
 
+def edge_prerender(text, voice, rate):
+    """Nur rendern (ohne abzuspielen) und in den TTS-Cache legen -> True bei Erfolg. Für Notfall-Phrasen: später
+    sofort, ohne Latenz und ohne Netz."""
+    stream = EdgeStream(text, voice, rate)
+    try:
+        if stream.cached is not None:
+            return True
+        first, q = stream.first()
+        got, chunk = [], first
+        while chunk is not None:
+            if isinstance(chunk, Exception) or chunk is _CANCELLED:
+                return False
+            got.append(chunk)
+            chunk = _next_chunk(q)
+        _tts_cache_put(stream.key, b"".join(got))
+        return True
+    except Exception as e:                           # noqa: BLE001 – optional
+        log({"prerender": "fehler", "err": _errtxt(e)})
+        return False
+    finally:
+        stream.cancel()
+
+
+def prerender_critical(eng, preset):
+    """Beim Aktivieren eines Presets die `critical`-Sätze (Notfall, Allergie …) in beiden Sprachen vorab in den
+    TTS-Cache rendern (Hintergrund-Thread; nie im Privatmodus oder bei --tts say/stumm). -> Thread oder None."""
+    if (not preset or PRIVATE["on"] or getattr(eng, "tts", "") != "edge" or getattr(eng, "mute", True)
+            or not NET.get("tts", True)):
+        return None
+    jobs = []
+    for ph in preset.get("phrases", []):
+        if ph.get("critical"):
+            for lang in ("en", "th"):
+                if lang in TARGET:
+                    for part in split_sentences(apply_pronounce(speak_form(ph[lang], lang)), lang):
+                        jobs.append((part, eng.voice_for(lang), f"{_clamp_rate(5 + eng.rate):+d}%"))
+
+    def run():
+        done = 0
+        for text, voice, rate in jobs[:40]:
+            if STOP.is_set() or not NET.get("tts", True):
+                break
+            done += bool(edge_prerender(text, voice, rate))
+        log({"prerender": "notfall-phrasen", "ok": done, "von": len(jobs)})
+    if not jobs:
+        return None
+    t = threading.Thread(target=run, name="tts-prerender", daemon=True)
+    t.start()
+    return t
+
+
 def edge_say(text, voice, rate, volume, on_start=None):
     """edge-tts streamen und ab dem ersten Block abspielen (ohne Vorab-Laden)."""
     return edge_play(EdgeStream(text, voice, rate), volume, on_start)
@@ -4126,6 +4178,8 @@ class LocalVoice:
                 log({"tts": "lokal-vorab-fehler", "err": _errtxt(e)})
             finally:
                 self.done.set()
+                if self.dropped.is_set():               # cleanup() kam vor dem Ende des Renderns
+                    _rm_quiet(self.path)
         threading.Thread(target=run, name="say-prerender", daemon=True).start()
 
     def ready_path(self, timeout=6.0, cancelled=None):
@@ -4137,15 +4191,11 @@ class LocalVoice:
         return self.path if os.path.exists(self.path) and os.path.getsize(self.path) > 0 else None
 
     def cleanup(self):
+        """Datei löschen, sobald das Rendern fertig ist – ohne Wartethread je Teilsatz: ist es schon fertig, jetzt,
+        sonst räumt der Render-Thread selbst auf (siehe run())."""
         self.dropped.set()
-
-        def rm():
-            self.done.wait(SAY_TIMEOUT + 5)
-            try:
-                os.remove(self.path)
-            except OSError:
-                pass
-        threading.Thread(target=rm, daemon=True).start()
+        if self.done.is_set():
+            _rm_quiet(self.path)
 
 
 # Nr. 70: Latenz-Statistik der letzten LAT_N Sätze (Erkennung, Übersetzung, Satzende bis Ton) für
@@ -4789,6 +4839,22 @@ class Engine:
         self.emit_state(cmd, reply_s, **state)
         log({"command": cmd, "key": key, "reply": reply})
         return reply
+
+    def restore_last(self):
+        """Nach einem Neustart: die letzte Übersetzung aus dem Verlauf wieder für "repeat" bereithalten (nur wenn der
+        Verlauf an ist; ohne Verlauf bleibt "Nothing to repeat yet")."""
+        try:
+            import history_store
+            rec = history_store.RECORDER
+            if not (rec.on and rec.store) or getattr(self, "last", None):
+                return False
+            r = rec.store.last_translation()
+            if r and r["lang"] in TARGET:
+                self.last = (r["translation"], TARGET[r["lang"]], "cmd")
+                return True
+        except Exception as e:                       # noqa: BLE001
+            log({"restore_last": "fehler", "err": _errtxt(e)})
+        return False
 
     def clear_context(self):
         """Gesprächskontext und Texte im Speicher leeren (Sprachbefehl "clear", Steuerfeld `clear`):
@@ -5824,6 +5890,8 @@ def apply_control(eng, d):
         if ok:
             days = d.get("history_days")
             later.append(lambda v=v, days=days: history_enable(v, days))
+            if v and hasattr(eng, "restore_last"):
+                later.append(eng.restore_last)
         elif "history_days" in d:              # Frist allein ändern (früher stillschweigend ignoriert)
             later.append(lambda days=d["history_days"]: history_set_days(days))
         n = _clamp(d.get("tts_race"), 0.0, 5.0)
@@ -6947,6 +7015,8 @@ if __name__ == "__main__":
     load_glossary()
     load_pronounce()
     PRIVATE["on"] = bool(a.private)
+    import profiles as _profiles
+    _profiles.OFFLINE_ONLY = bool(a.private)    # Privatmodus: kein Sprechermodell-Download
     if not PRIVATE["on"]:
         threading.Thread(target=warm_translate, daemon=True).start()
     threading.Thread(target=thai_latin, args=("สวัสดี",), daemon=True).start()   # Umschrift vorwärmen
@@ -6978,6 +7048,8 @@ if __name__ == "__main__":
             eng.beam = hw["beam"]
         emit("hwprofile", chip=hw["chip"], ram_gb=hw["ram_gb"], model=model, beam=eng.beam, reason=hw["reason"])
         log({"hwprofile": hw})
+    if a.history and hasattr(eng, "restore_last"):
+        eng.restore_last()
     eng.beam_default = eng.beam                         # Steuerfeld `beam: 0` kehrt hierher zurück
     _start = {"rate": a.rate, "volume": a.volume, "voice_en": a.voice_en, "voice_th": a.voice_th}
     if a.voice_mine is not None: _start[f"voice_{PAIR[0]}"] = a.voice_mine

@@ -93,3 +93,19 @@ Willst du nichts senden: Ohne Netz läuft die Erkennung weiter. Übersetzt wird 
 ## Hinweise für Berichte und Fehlersuche
 
 Wer Logs teilt: `--log-text` schreibt erkannte und übersetzte Sätze in die Logdatei. Vor dem Weitergeben persönliche Inhalte entfernen.
+
+## Ergänzungen Runde 7 (Engine)
+
+- **Sprechermodell** (Stimmprofile): Fehlt die Modelldatei, lädt die Engine sie einmalig von GitHub (Prüfsumme SHA-256, danach
+  lokal). Das passiert nur, wenn Stimmprofile genutzt werden. Mit `--private` lädt sie **nichts** nach: die Stimmerkennung
+  bleibt dann aus (`error` `profiles_failed`), bis die Datei vorhanden ist (`DOLMETSCHER_SPEAKER_MODEL` für eine lokale Kopie).
+  Eine vorhandene Datei wird gegen die Prüfsumme geprüft und bei Abweichung neu geladen.
+- **Rückübersetzung** (`back_translate`, Standard aus): Ist sie an, geht der **übersetzte Satz** zusätzlich an Google Translate, um
+  ihn zurück in die Ausgangssprache zu übersetzen. Höchstens zwei Anfragen gleichzeitig; mit pausiertem Google entfällt sie.
+- **Verlauf**: Die Datenbank ist nicht verschlüsselt (nur Dateirechte 0600) und enthält, wenn Stimmprofile genutzt werden,
+  **Profilnamen im Klartext** (`speaker`). Mit dem Steuerfeld `history_speakers: false` werden keine Namen gespeichert. Ausgeschaltet
+  räumt die Engine die WAL-Datei mit auf; Exporte (`--out`) bekommen Rechte 0600.
+- **Übersetzungs-Cache auf der Platte** (`cache_persist`, Standard aus): Ist er an, liegen übersetzte Sätze in
+  `translation_cache.json` (0600, höchstens 300 Einträge). Ausschalten und „clear“ löschen die Datei.
+- **Log-Pseudonyme** von Profilnamen sind mit einem zufälligen Installations-Salz (`log_salt`, 0600) gebildet und lassen sich nicht
+  per Namensliste zurückrechnen.

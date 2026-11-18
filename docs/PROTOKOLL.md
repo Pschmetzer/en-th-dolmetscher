@@ -602,3 +602,8 @@ App-Pipe nicht schnell genug abnahm, siehe Log).
   `PRE_AT`, `SKIP_AT`, `PRESTART`, `FAST_BOOST`.
 - **`--history-search`** liefert mit `--history-context N` je Treffer `context` (N Zeilen davor/danach derselben Sitzung)
   und filtert mit `--history-lang`/`--history-session`.
+- **Notfall-Phrasen** (`critical` im Preset): beim Aktivieren rendert die Engine sie (en und th, nur mit Neural-Stimme, nicht im
+  Privatmodus/stumm) im Hintergrund in den Sprach-Cache (Speicher). Wird derselbe Text später gesprochen, kommt der Ton ohne
+  Latenz und ohne Netz. Der Cache liegt nur im Speicher (nicht auf der Platte).
+- **`repeat` nach Neustart**: ist der Verlauf an, merkt sich die Engine beim Start/Einschalten die letzte Übersetzung wieder.
+- **Privatmodus** lädt das Sprechermodell nicht nach; **Anki-Export** hat `#guid column`, `#deck` und Tags (Sprache, Sitzung).
