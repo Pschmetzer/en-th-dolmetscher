@@ -96,6 +96,27 @@ Pull requests #16–#47. Not yet published as a release.
 - **Tests and CI** (#41, #44): time-dependent tests made stable, a time limit per test, Python tests on Linux (faster), coverage with a lower limit, a shared test corpus in six language pairs, and a benchmark that only runs on demand.
 - **Documentation**: phrase pack format and contribution guide `docs/PRESETS.md` (#40); license overview `docs/LIZENZEN.md` (#21), privacy overview per platform `docs/DATENSCHUTZ.md` (#28 and later), protocol checked against the code by tests (#20), iPhone guide `ios/README.md` and this changelog.
 
+### Round 8: engine, iPhone, web, phrase packs
+
+**Engine**
+- **New:** text echo guard: a recognised sentence that almost exactly repeats what was just spoken is dropped (`echo_guard`, on by default).
+- **New:** currency symbols (฿ $ € £) and °C/°F are spoken as words in en, th, de, es and fr; the display stays unchanged.
+- **Fixed:** number comparison understands “1 500”, “5 hundred”, “3 ร้อย”, lakh and crore; Thai laughter “555” and phone numbers are left alone.
+- **Fixed:** sentence splitting no longer cuts “9 a.m. to 5 p.m.”, “z. B.”, “Prof. Brown”; history short search ignores case for accents; dropped HTTP responses and DNS errors trigger the backoff.
+- **Changed:** glossary files accept `#` comments (engine only), ignore duplicates, a BOM and entries over 120 characters.
+
+**iPhone app**
+- **New:** retries sentences that failed to translate when the network returns; error bubbles have buttons (open Settings for a denied microphone); copied text is removed from the clipboard after 2 minutes; optional hiding of the conversation during screen recording; “Recent” category in the phrasebook; share favourites; learning mode with daily count, streak, “Practise all cards” and progress reset; iPad keyboard shortcuts; VoiceOver Magic Tap and copy action.
+- **Fixed:** the study log keeps only recent days; Dynamic Type scales icon widths.
+
+**Web**
+- **New:** phrasebook search (`/`), favourites filter, copy button on every translation; history search, CSV export, share and clear with confirmation; learning progress bar, review schedule and arrow keys; “Delete all local data”; hints for a blocked microphone and for going offline; `?` opens help.
+- **Fixed:** a shadowed `t()` raised an error on every finished translation and on critical phrases; high-contrast, forced-colors and reduced-motion styles; Safari text-size and zoom behaviour.
+
+**Phrase packs**
+- **New:** nine packs with cultural notes: emergency, work, school, visa, sport, nomad, diving, market, kids (33 in total; Thai machine-translated, not yet checked by a native speaker).
+- **Infrastructure:** shellcheck without severity limit for `build-support/*.sh`.
+
 ### Round 7: Mac app, iPhone app, web, phrase packs, CI
 
 **Mac app**
