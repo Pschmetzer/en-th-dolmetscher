@@ -55,11 +55,11 @@ struct PartnerView: View {
     private var controls: some View {
         HStack {
             Button { split.toggle(); Haptics.tap() } label: {
-                Image(systemName: split ? "rectangle" : "rectangle.split.1x2")
+                Image(systemName: split ? "rectangle" : "rectangle.split.1x2").minTapTarget()
             }
             .accessibilityLabel(T("split_view"))
             if !split {
-                Button { flipped.toggle(); Haptics.command() } label: { Image(systemName: "arrow.up.arrow.down") }
+                Button { flipped.toggle(); Haptics.command() } label: { Image(systemName: "arrow.up.arrow.down").minTapTarget() }
                     .accessibilityLabel(T("flip"))
             }
             Spacer()
@@ -94,6 +94,7 @@ struct ConversationSide: View {
 
     var body: some View {
         let color = LangStyle.color(lang, m.pair)
+        let fill = LangStyle.fill(lang, m.pair)
         VStack(spacing: 10) {
             if let d = digits {
                 NumberPad(digits: d, lang: lang,
@@ -104,7 +105,7 @@ struct ConversationSide: View {
                 messages(color)
                 if isPartner { answerCards; replyField }
             }
-            turnButton(color)
+            turnButton(fill)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
@@ -165,7 +166,7 @@ struct ConversationSide: View {
                 .textFieldStyle(.roundedBorder)
                 .submitLabel(.send)
                 .onSubmit(sendReply)
-            Button(action: sendReply) { Image(systemName: "arrow.up.circle.fill").font(.title) }
+            Button(action: sendReply) { Image(systemName: "arrow.up.circle.fill").font(.title).minTapTarget() }
                 .disabled(reply.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 .accessibilityLabel(T("translate"))
         }
@@ -180,10 +181,10 @@ struct ConversationSide: View {
 
     private var answerCards: some View {
         HStack(spacing: 8) {
-            card(PartnerPhrases.text(.yes, lang), .green, icon: "checkmark") { m.answer(.yes) }
-            card(PartnerPhrases.text(.no, lang), .red, icon: "xmark") { m.answer(.no) }
-            card(PartnerPhrases.text(.dontKnow, lang), .gray, icon: "questionmark") { m.answer(.dontKnow) }
-            card("123", .blue) { digits = "" }
+            card(PartnerPhrases.text(.yes, lang), StatusColor.ok, icon: "checkmark") { m.answer(.yes) }
+            card(PartnerPhrases.text(.no, lang), StatusColor.error, icon: "xmark") { m.answer(.no) }
+            card(PartnerPhrases.text(.dontKnow, lang), .primary, icon: "questionmark") { m.answer(.dontKnow) }
+            card("123", StatusColor.info) { digits = "" }
                 .accessibilityLabel(PartnerPhrases.text(.number, lang))
         }
     }
@@ -224,14 +225,15 @@ struct ConversationSide: View {
         .font(.title3.bold())
         .foregroundStyle(.white)
         .frame(maxWidth: .infinity, minHeight: 54)
-        .background(color.opacity(active ? 1 : 0.75), in: Capsule())
+        .background(color, in: Capsule())
+        // Der Zustand steht nicht nur in der Farbe: ein weißer Rand markiert den aktiven Zug.
+        .overlay(Capsule().strokeBorder(.white.opacity(0.9), lineWidth: active ? 3 : 0))
     }
 
     /// Push-to-talk je Hälfte (537): Halten = in dieser Sprache zuhören, Loslassen = Satz abschließen.
     private func holdButton(_ color: Color) -> some View {
         let held = m.pttHeld && m.expected == lang
         return turnLabel(color, active: held, icon: held ? "waveform" : "hand.tap.fill")
-            .overlay(Capsule().stroke(.white.opacity(0.8), lineWidth: held ? 3 : 0))
             .modifier(PushGesture(tapMode: m.pttTapMode, held: held,
                                   press: { m.holdToSpeak(lang) }, release: { m.pttRelease() }))
             .accessibilityElement(children: .ignore)
@@ -283,16 +285,18 @@ struct NumberPad: View {
     var body: some View {
         VStack(spacing: 6) {
             HStack {
-                Button(action: onCancel) { Image(systemName: "xmark.circle.fill").font(.title2) }
+                Button(action: onCancel) { Image(systemName: "xmark.circle.fill").font(.title2).minTapTarget() }
                     .buttonStyle(.plain).foregroundStyle(.secondary)
+                    .accessibilityLabel(T("cancel"))
                 Spacer()
                 Text(digits.isEmpty ? PartnerPhrases.text(.number, lang) : NumberCard.spoken(digits, in: lang))
                     .font(.title.bold().monospacedDigit())
                     .lineLimit(1).minimumScaleFactor(0.4)
                     .foregroundStyle(digits.isEmpty ? .secondary : .primary)
                 Spacer()
-                Button { onChange(String(digits.dropLast())) } label: { Image(systemName: "delete.left").font(.title2) }
+                Button { onChange(String(digits.dropLast())) } label: { Image(systemName: "delete.left").font(.title2).minTapTarget() }
                     .buttonStyle(.plain).disabled(digits.isEmpty)
+                    .accessibilityLabel(T("delete"))
             }
             ForEach(keys, id: \.self) { row in
                 HStack(spacing: 6) {
@@ -301,7 +305,7 @@ struct NumberPad: View {
                             Text(k).font(.title2.bold().monospacedDigit()).frame(maxWidth: .infinity, minHeight: 44)
                         }
                         .buttonStyle(.bordered)
-                        .tint(k == "✓" ? .green : .primary)
+                        .tint(k == "✓" ? StatusColor.ok : .primary)
                         .disabled(k == "✓" && digits.isEmpty)
                     }
                 }
