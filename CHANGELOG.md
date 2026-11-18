@@ -44,6 +44,15 @@ Pull requests #16–#47. Not yet published as a release.
 
 - **Own phrases and favourites** (browser): the “My cards” box now edits cards, adds an optional translation (via the existing translation chain, correctable by hand) and a group label with a group filter, keeps the 30-card limit, and reorders cards and starred favourites with up/down buttons (keyboard and screen-reader friendly, position announced). Cards export and import as JSON (validated: size limit, control characters removed, unknown fields and `__proto__` dropped, duplicates skipped). A full browser storage is reported instead of silently losing the change. Texts in German, English and Thai; `tests/test_runde16_web_favorites.py`.
 
+### Mac app (round 16)
+
+- **Partner view**: presentation mode (P, hides the bar, Esc brings it back); automatic font size by sentence length (logic in `PartnerLogic.swift`, tested with swiftc); high-contrast theme (white on black, no language colours); numbers (prices, times, Thai digits) shown bold, underlined and yellow; the language is also named in text, colour is only an addition; "Again, please" and "Slower, please" on the keys R and S; the window remembers its size, screen and full-screen state; VoiceOver labels for the new controls.
+
+### Mac app (round 15)
+
+- **Settings backup**: export all settings, the quick phrases and the glossary to a JSON file and import them again. The file is versioned, every field is validated (type, range, allowed values, languages; unknown or sensitive entries are skipped and reported) and a preview lists exactly what would change before anything is applied. It never contains the API key, conversations, history, text log, microphone, output device or voice profiles.
+- **Recently changed** list in the settings (timestamps only, never values) and a help tooltip for every setting. The rules live in `SettingsLogic.swift` (Foundation only) and are tested with swiftc.
+
 ### Mac app (round 14)
 
 - **History window** (View menu and menu bar): saved conversations grouped by day and session with a preview; search with hit count; filters for language, direction (I speak / other person speaks), number warning and weak translation; rename and favorite a session; remove one session from the list with a confirmation and undo (the engine only offers purge/clear, so the data stays on disk until "Delete history"); reopen a session read-only in the main window; keyboard control (arrows, Return, Delete, Cmd-F, Cmd-D) and VoiceOver labels. Built only on `--history-export json`; the grouping and filter logic is in `HistoryLogic.swift`, tested with swiftc.
@@ -139,6 +148,9 @@ Pull requests #16–#47. Not yet published as a release.
 **Engine (round 14)**
 - **Fixed:** the number check no longer flags the same date written differently (25/12/2026, 25.12.2026, 2026-12-25, 12/25/2026, 25 Dec 2026, 25 ธ.ค. 69, Buddhist year 2569 = 2026); colloquial Thai amounts (พันห้า = 1,500, สามล้านห้า = 3,500,000), "three oh five" = 305 and English ordinals (twenty-fifth, third floor) are read as numbers
 - **New:** a wrong weekday or month (Monday vs วันอังคาร, March vs เมษายน) is reported; one side naming more days or months than the other is not
+
+**Engine (round 15)**
+- **Fixed:** speech output no longer asks the voice for text without anything to say (empty, only punctuation or emoji); emoji are not read out; very long sentences without punctuation are split into chunks of at most 300 characters; Thai digits (๑๒๓) and the abbreviations กทม. and ฯลฯ are spoken correctly; a preset's tempo is limited to -50..+50 % like the speed setting
 
 **iPhone app**
 - **New:** retries sentences that failed to translate when the network returns; error bubbles have buttons (open Settings for a denied microphone); copied text is removed from the clipboard after 2 minutes; optional hiding of the conversation during screen recording; “Recent” category in the phrasebook; share favourites; learning mode with daily count, streak, “Practise all cards” and progress reset; iPad keyboard shortcuts; VoiceOver Magic Tap and copy action.
