@@ -142,6 +142,42 @@
   "llm_hint": {
    "type": "string",
    "minLength": 1
+  },
+  "tuning": {
+   "type": "object",
+   "additionalProperties": false,
+   "description": "Szenario-Einstellungen (Runde 7), werden beim Preset-Ende zurückgesetzt",
+   "properties": {
+    "silence": {
+     "type": "number",
+     "minimum": 0.4,
+     "maximum": 2.0
+    },
+    "let_finish": {
+     "type": "number",
+     "minimum": 0.0,
+     "maximum": 5.0
+    },
+    "rate": {
+     "type": "integer",
+     "minimum": -50,
+     "maximum": 50
+    },
+    "sensitivity": {
+     "enum": [
+      "low",
+      "normal",
+      "high"
+     ]
+    },
+    "catch_up": {
+     "enum": [
+      "skip",
+      "fast",
+      "off"
+     ]
+    }
+   }
   }
  }
 }
