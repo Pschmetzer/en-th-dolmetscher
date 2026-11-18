@@ -21,6 +21,8 @@ enum SpeechEvent: Sendable {
     case interruptionBegan
     /// Unterbrechung vorbei, iOS rät aber vom automatischen Weiterhören ab: der Nutzer startet selbst.
     case interruptionEndedNoResume
+    /// Kopfhörer/Headset wurde abgezogen: Wiedergabe anhalten, Hinweis zeigen, Aufnahme neu aufbauen.
+    case routeLost
 }
 
 enum SpeechError: LocalizedError {
