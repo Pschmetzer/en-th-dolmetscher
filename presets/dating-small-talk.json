@@ -1,0 +1,121 @@
+{
+  "id": "dating-small-talk",
+  "names": {
+    "de": "Smalltalk und Kennenlernen",
+    "en": "Small talk and getting to know",
+    "th": "คุยเล่นและทำความรู้จัก"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "friend",
+      "th": "เพื่อน"
+    },
+    {
+      "en": "hobby",
+      "th": "งานอดิเรก"
+    },
+    {
+      "en": "coffee",
+      "th": "กาแฟ"
+    },
+    {
+      "en": "family",
+      "th": "ครอบครัว"
+    },
+    {
+      "en": "phone number",
+      "th": "เบอร์โทรศัพท์"
+    },
+    {
+      "en": "date",
+      "th": "นัดเจอกัน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please leave me alone.",
+      "th": "ขอให้ปล่อยให้อยู่คนเดียว",
+      "critical": true
+    },
+    {
+      "en": "No, I do not want that.",
+      "th": "ไม่ ไม่ต้องการแบบนั้น",
+      "critical": true
+    },
+    {
+      "en": "Please stop. I feel uncomfortable.",
+      "th": "หยุดก่อน รู้สึกอึดอัด",
+      "critical": true
+    },
+    {
+      "en": "Please call the police.",
+      "th": "ช่วยเรียกตำรวจด้วย",
+      "critical": true
+    },
+    {
+      "en": "Hello, nice to meet you.",
+      "th": "สวัสดี ยินดีที่ได้รู้จัก"
+    },
+    {
+      "en": "What is your name?",
+      "th": "ชื่ออะไร"
+    },
+    {
+      "en": "Where are you from?",
+      "th": "มาจากที่ไหน"
+    },
+    {
+      "en": "What do you do?",
+      "th": "ทำงานอะไร"
+    },
+    {
+      "en": "What do you like to do in your free time?",
+      "th": "ว่างๆ ชอบทำอะไร"
+    },
+    {
+      "en": "Your English is very good.",
+      "th": "พูดภาษาอังกฤษเก่งมาก"
+    },
+    {
+      "en": "Can we speak a little slower?",
+      "th": "พูดช้าลงอีกนิดได้ไหม"
+    },
+    {
+      "en": "Would you like a coffee?",
+      "th": "อยากดื่มกาแฟไหม"
+    },
+    {
+      "en": "I enjoyed talking with you.",
+      "th": "ดีใจที่ได้คุยด้วย"
+    },
+    {
+      "en": "May I have your Line ID?",
+      "th": "ขอไลน์ไอดีได้ไหม"
+    },
+    {
+      "en": "Would you like to have dinner some day?",
+      "th": "วันหลังไปกินข้าวเย็นด้วยกันไหม"
+    },
+    {
+      "en": "Is that okay for you?",
+      "th": "แบบนี้โอเคไหม"
+    },
+    {
+      "en": "We can meet in a public place.",
+      "th": "เจอกันในที่สาธารณะได้"
+    },
+    {
+      "en": "I do not drink alcohol.",
+      "th": "ไม่ดื่มแอลกอฮอล์"
+    },
+    {
+      "en": "Have a good evening.",
+      "th": "ขอให้เย็นนี้เป็นเวลาที่ดี"
+    }
+  ],
+  "note": {
+    "de": "Thais wirken höflich und zurückhaltend: Körperkontakt in der Öffentlichkeit und Fragen nach Geld oder Alter zuerst vermeiden. Laden Sie in ein öffentliches Lokal ein und achten Sie auf ein klares Nein: ein Lächeln oder Schweigen kann Ablehnung bedeuten. Nie zum Alkohol drängen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Thais often seem polite and reserved: avoid public touching and early questions about money or age. Invite someone to a public place, and watch for a clear no: a smile or silence can mean refusal. Never press anyone to drink alcohol. Thai lines machine-made, not checked by native speakers."
+  }
+}

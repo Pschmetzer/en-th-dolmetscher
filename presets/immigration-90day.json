@@ -1,0 +1,116 @@
+{
+  "id": "immigration-90day",
+  "names": {
+    "de": "Immigration: 90-Tage-Meldung",
+    "en": "Immigration: 90-day report",
+    "th": "ตม.: รายงานตัว 90 วัน"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "immigration office",
+      "th": "สำนักงานตรวจคนเข้าเมือง"
+    },
+    {
+      "en": "overstay",
+      "th": "อยู่เกินวีซ่า"
+    },
+    {
+      "en": "fine",
+      "th": "ค่าปรับ"
+    },
+    {
+      "en": "address",
+      "th": "ที่อยู่"
+    },
+    {
+      "en": "TM.47",
+      "th": "ใบ ตม.47"
+    },
+    {
+      "en": "passport",
+      "th": "หนังสือเดินทาง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I overstayed my visa by a few days.",
+      "th": "อยู่เกินวีซ่ามาสองสามวัน",
+      "critical": true
+    },
+    {
+      "en": "I need an interpreter at the immigration office.",
+      "th": "ต้องการล่ามที่สำนักงานตรวจคนเข้าเมือง",
+      "critical": true
+    },
+    {
+      "en": "Please do not arrest me. I want to pay the fine.",
+      "th": "ขออย่าจับกุม ขอจ่ายค่าปรับ",
+      "critical": true
+    },
+    {
+      "en": "I need to report my address every 90 days.",
+      "th": "ต้องรายงานที่อยู่ทุก 90 วัน"
+    },
+    {
+      "en": "Where do I do the 90-day report?",
+      "th": "รายงานตัว 90 วันที่ไหน"
+    },
+    {
+      "en": "Can I report online?",
+      "th": "รายงานตัวออนไลน์ได้ไหม"
+    },
+    {
+      "en": "Is the report late?",
+      "th": "รายงานตัวช้าไปไหม"
+    },
+    {
+      "en": "How much is the fine?",
+      "th": "ค่าปรับเท่าไหร่"
+    },
+    {
+      "en": "Do I pay the fine here?",
+      "th": "จ่ายค่าปรับที่นี่ได้ไหม"
+    },
+    {
+      "en": "Which documents do I need?",
+      "th": "ต้องใช้เอกสารอะไรบ้าง"
+    },
+    {
+      "en": "Here is my passport and the departure card.",
+      "th": "นี่หนังสือเดินทางและบัตรขาเข้า"
+    },
+    {
+      "en": "The landlord has to sign the form.",
+      "th": "เจ้าของที่พักต้องเซ็นแบบฟอร์ม"
+    },
+    {
+      "en": "Can I get a receipt for the 90-day report?",
+      "th": "ขอใบรับรองการรายงานตัว 90 วันได้ไหม"
+    },
+    {
+      "en": "Until when is my stay permitted?",
+      "th": "อยู่ได้ถึงเมื่อไหร่"
+    },
+    {
+      "en": "Do I have to leave the country now?",
+      "th": "ต้องออกนอกประเทศตอนนี้เลยไหม"
+    },
+    {
+      "en": "Can I extend my stay?",
+      "th": "ต่อวีซ่าได้ไหม"
+    },
+    {
+      "en": "How long does this take?",
+      "th": "ใช้เวลานานแค่ไหน"
+    },
+    {
+      "en": "Please take a number for me.",
+      "th": "ช่วยกดบัตรคิวให้หน่อย"
+    }
+  ],
+  "note": {
+    "de": "Wer länger als 90 Tage am Stück bleibt, muss alle 90 Tage seinen Aufenthaltsort melden (online, per Post oder persönlich). Die Strafe bei verspäteter Meldung liegt bei etwa 2.000 Baht; bei Überziehung des Visums kostet jeder Tag 500 Baht, bis höchstens 20.000 Baht. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Anyone staying more than 90 days in a row must report their address every 90 days (online, by post or in person). A late report costs about 2,000 baht; each day past your visa costs 500 baht, up to 20,000 baht. Thai lines machine-made, not checked by native speakers."
+  }
+}
