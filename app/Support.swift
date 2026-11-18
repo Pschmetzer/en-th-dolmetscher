@@ -1,4 +1,4 @@
-// Support.swift – Ansagen für VoiceOver, Export (Markdown/Text/JSON/CSV/SRT) und Diagnosebericht.
+// Support.swift – Ansagen für VoiceOver, Export (Markdown/Text/JSON/CSV/SRT/WebVTT) und Diagnosebericht.
 import SwiftUI
 import AppKit
 import AVFoundation
@@ -20,16 +20,7 @@ enum Announcer {
 
 // MARK: Export
 
-/// Markdown-Sonderzeichen maskieren (Nr. 30); Zeilenumbrüche werden harte Umbrüche („  \n“).
-func mdEscape(_ s: String) -> String {
-    var o = ""
-    for ch in s {
-        if "\\`*_#>[]".contains(ch) { o.append("\\") }
-        if ch == "\n" || ch == "\r\n" { o += "  \n"; continue }
-        o.append(ch)
-    }
-    return o
-}
+func mdEscape(_ s: String) -> String { ExportFormats.mdEscape(s) }
 
 /// Zahl mit Dezimalzeichen der Oberflächensprache (Nr. 39).
 func fmtNumber(_ v: Double, digits: Int = 2, plus: Bool = false) -> String {
@@ -38,8 +29,18 @@ func fmtNumber(_ v: Double, digits: Int = 2, plus: Bool = false) -> String {
 }
 
 enum ExportFormat: String, CaseIterable {
-    case markdown = "md", text = "txt", json = "json", csv = "csv", srt = "srt"
+    case markdown = "md", text = "txt", json = "json", csv = "csv", srt = "srt", vtt = "vtt"
     static func from(extension ext: String) -> ExportFormat { ExportFormat(rawValue: ext.lowercased()) ?? .markdown }
+    var title: String {
+        switch self {
+        case .markdown: return L.t("export_fmt_md")
+        case .text: return L.t("export_fmt_txt")
+        case .json: return L.t("export_fmt_json")
+        case .csv: return L.t("export_fmt_csv")
+        case .srt: return L.t("export_fmt_srt")
+        case .vtt: return L.t("export_fmt_vtt")
+        }
+    }
     var contentType: UTType {
         switch self {
         case .markdown: return UTType(filenameExtension: "md") ?? .plainText
@@ -47,6 +48,7 @@ enum ExportFormat: String, CaseIterable {
         case .json: return .json
         case .csv: return .commaSeparatedText
         case .srt: return UTType(filenameExtension: "srt") ?? .plainText
+        case .vtt: return UTType(filenameExtension: "vtt") ?? .plainText
         }
     }
 }
@@ -94,12 +96,7 @@ extension EngineModel {
                                                     options: [.prettyPrinted, .sortedKeys])) ?? Data()
             return String(decoding: data, as: UTF8.self) + "\n"
         case .csv:
-            // Felder, die mit = + - @ beginnen, bekommen ein ' davor (Schutz vor Formeln in Tabellenkalkulationen).
-            func cell(_ v: String) -> String {
-                var t = v
-                if let f = t.unicodeScalars.first, "=+-@\t\r".unicodeScalars.contains(f) { t = "'" + t }
-                return "\"" + t.replacingOccurrences(of: "\"", with: "\"\"") + "\""
-            }
+            let cell = ExportFormats.csvCell
             let iso = ISO8601DateFormatter()
             var s = "time,lang,text,to,translation,translated,speaker\n"
             for u in done {
@@ -108,22 +105,58 @@ extension EngineModel {
                     .map(cell).joined(separator: ",") + "\n"
             }
             return s
-        case .srt:
-            guard let t0 = done.first?.date else { return "" }
-            func ts(_ v: Double) -> String {
-                let ms = Int((max(0, v) * 1000).rounded())
-                return String(format: "%02d:%02d:%02d,%03d", ms / 3_600_000, ms / 60_000 % 60, ms / 1000 % 60, ms % 1000)
+        case .srt, .vtt:
+            let rows = done.map { u in
+                ExportItem(at: u.date, lang: u.lang, to: u.to, text: u.text, out: u.out, translated: u.translated,
+                           speaker: u.speaker ?? u.role, dur: u.dur, readyS: u.readyS)
             }
-            var s = ""
-            for (i, u) in done.enumerated() {
-                // Nr. 29: mit `utt.dur` beginnt der Untertitel, wo die Äußerung begann (Ankunft − Bereitzeit − Länge)
-                let start = max(0, u.dur.map { u.date.timeIntervalSince(t0) - (u.readyS ?? 0) - $0 } ?? u.date.timeIntervalSince(t0))
-                var end = start + (u.dur.map { max(1, $0) } ?? max(2, min(7, Double(max(u.text.count, u.out.count)) / 14)))
-                if i + 1 < done.count { end = min(end, done[i + 1].date.timeIntervalSince(t0) - 0.1) }
-                end = max(end, start + 0.5)
-                s += "\(i + 1)\n\(ts(start)) --> \(ts(end))\n\(u.text)\n" + (u.translated ? "\(u.out)\n" : "") + "\n"
-            }
-            return s
+            return format == .srt ? ExportFormats.srt(rows) : ExportFormats.webvtt(rows)
+        }
+    }
+}
+
+/// Zubehör des Exportdialogs: Format, Zeitraum und Datenschutz-Hinweis (der Export enthält Gesprächstext).
+@MainActor
+private final class ExportAccessory: NSObject {
+    let panel: NSSavePanel
+    let formatPop = NSPopUpButton(frame: .zero, pullsDown: false)
+    let rangePop = NSPopUpButton(frame: .zero, pullsDown: false)
+    let view = NSStackView()
+    let base = L.t("export_filename")
+
+    init(panel: NSSavePanel, withRange: Bool) {
+        self.panel = panel
+        super.init()
+        for f in ExportFormat.allCases { formatPop.addItem(withTitle: f.title) }
+        formatPop.target = self; formatPop.action = #selector(formatChanged)
+        for k in ["export_range_all", "export_range_hour", "export_range_today"] { rangePop.addItem(withTitle: L.t(k)) }
+        let note = NSTextField(wrappingLabelWithString: L.t("export_privacy"))
+        note.font = .systemFont(ofSize: 11); note.textColor = .secondaryLabelColor
+        note.preferredMaxLayoutWidth = 360
+        view.orientation = .vertical; view.alignment = .leading; view.spacing = 8
+        view.edgeInsets = NSEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
+        view.addArrangedSubview(NSStackView(views: [NSTextField(labelWithString: L.t("export_format")), formatPop]))
+        if withRange {
+            view.addArrangedSubview(NSStackView(views: [NSTextField(labelWithString: L.t("export_range")), rangePop]))
+        }
+        view.addArrangedSubview(note)
+        panel.accessoryView = view
+        formatChanged()
+    }
+
+    var format: ExportFormat { ExportFormat.allCases[max(0, formatPop.indexOfSelectedItem)] }
+
+    @objc func formatChanged() {
+        panel.allowedContentTypes = [format.contentType]
+        panel.nameFieldStringValue = ExportFormats.fileName(base: base, date: Date(), ext: format.rawValue)
+    }
+
+    /// Untergrenze des gewählten Zeitraums (nil = alles).
+    var since: Date? {
+        switch rangePop.indexOfSelectedItem {
+        case 1: return Date().addingTimeInterval(-3600)
+        case 2: return Calendar.current.startOfDay(for: Date())
+        default: return nil
         }
     }
 }
@@ -134,15 +167,13 @@ func exportConversation(_ m: EngineModel, only subset: [Utterance]? = nil) {
     panel.title = L.t("export")
     panel.message = L.t("export_message")
         + (m.trimmedCount > 0 ? "\n" + L.f("export_trimmed", EngineModel.maxItems, m.trimmedCount) : "")
-    panel.allowedContentTypes = ExportFormat.allCases.map(\.contentType)
-    panel.allowsOtherFileTypes = true
-    let df = DateFormatter(); df.dateFormat = "yyyy-MM-dd HH-mm"
-    panel.nameFieldStringValue = L.t("export_filename") + " \(df.string(from: Date())).md"
+    let acc = ExportAccessory(panel: panel, withRange: subset == nil)
     guard panel.runModal() == .OK, let url = panel.url else { return }
-    let format = ExportFormat.from(extension: url.pathExtension)
-    // CSV mit UTF-8-BOM: Excel liest die Datei sonst als Windows-1252 (Thai und Umlaute als Zeichensalat)
-    let text = (format == .csv ? "\u{FEFF}" : "") + m.transcript(format, from: subset)
-    do { try text.write(to: url, atomically: true, encoding: .utf8) }
+    let format = acc.format
+    var rows = subset
+    if subset == nil, let since = acc.since { rows = m.items.filter { $0.date >= since } }
+    let text = m.transcript(format, from: rows)
+    do { try ExportFormats.fileData(text, csv: format == .csv).write(to: url, options: .atomic) }
     catch { NSAlert(error: error).runModal() }
 }
 

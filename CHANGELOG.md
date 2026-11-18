@@ -157,6 +157,12 @@ Pull requests #16–#47. Not yet published as a release.
 - **Tools and docs:** `tools/export_phrasebook.py` (CSV, Markdown, printable cards, Anki), `tools/check_presets.py`, `tools/preset_stats.py`; FAQ, troubleshooting, quick start, shortcuts and voice commands in German and English; issue templates, `SECURITY.md`, store texts, six new test corpora.
 - **Infrastructure:** shellcheck without severity limit for `build-support/*.sh`.
 
+### Mac app (round 13)
+
+- **New:** the export dialog has a format menu (Markdown, text, JSON, CSV, SRT, WebVTT), a period (whole conversation, last hour, today) and a privacy note that the file contains the conversation text; file names carry the date.
+- **New:** WebVTT subtitles next to SRT; times come from the utterance length, with speaker, original and translation.
+- **Safer:** Markdown escapes more characters, subtitle text cannot fake a time line, CSV cells starting with a formula character are defused; the formatting lives in `app/ExportFormats.swift` and is tested with swiftc (`tests/test_runde13_mac_export.py`).
+
 ### Mac app (round 11)
 
 - **New:** the welcome dialog walks through first start: why the microphone is needed with an allow button (or a link to System Settings when blocked), language pair, recognition model with a recommendation for this Mac's chip and memory, optional Claude key, and a “say something” test; “Remind me later” hides it for a day. An interrupted setup continues on the next start, and every setup error names the next step (with “smaller model” when space is short).
