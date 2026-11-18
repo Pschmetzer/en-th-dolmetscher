@@ -1,5 +1,7 @@
 # FAQ
 
+Thai version (machine-translated, not checked by native speakers): [ภาษาไทย](../th/FAQ.md).
+
 German version: [FAQ.md](../FAQ.md). Start here: [QUICKSTART.md](QUICKSTART.md). Problems: [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
 ## General

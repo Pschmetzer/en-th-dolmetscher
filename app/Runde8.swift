@@ -171,7 +171,7 @@ struct GlossaryAddSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(L.t("glossary_add_title")).font(.title2.bold())
+            Text(L.t("glossary_add_title")).font(.title2.bold()).accessibilityAddTraits(.isHeader)
             Text(L.t("glossary_add_hint")).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             TextField(L.t("glossary_word"), text: $word).textFieldStyle(.roundedBorder).onSubmit(add)
                 .accessibilityLabel(L.t("glossary_word"))
@@ -201,7 +201,7 @@ struct ShortcutsSheet: View {
     ]
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(L.t("shortcuts_title")).font(.title2.bold())
+            Text(L.t("shortcuts_title")).font(.title2.bold()).accessibilityAddTraits(.isHeader)
             ScrollView {
                 Grid(alignment: .leading, horizontalSpacing: 20, verticalSpacing: 6) {
                     ForEach(Array(Self.rows.enumerated()), id: \.offset) { _, r in
