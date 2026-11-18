@@ -107,6 +107,24 @@ struct ShowLastTranslationIntent: AppIntent {
     }
 }
 
+/// Sagt einen Satz aus dem Satzbuch (eingebaut oder Favorit), gefunden über ein Stichwort („Danke“, „Wie viel kostet das“).
+struct SayPhrasebookPhraseIntent: AppIntent {
+    static let title: LocalizedStringResource = "Say phrasebook phrase"
+    static let description = IntentDescription("Finds a phrase in the phrasebook by keyword and says it out loud in the partner's language.")
+    static let supportedModes: IntentModes = .foreground
+
+    @Parameter(title: "Phrase")
+    var query: String
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        guard InterpreterModel.shared.sayPhrasebook(query) else {
+            throw TranslateIntentError(message: T("sc_no_phrase"))
+        }
+        return .result(dialog: "\(String(format: T("sc_said"), query))")
+    }
+}
+
 struct DolmetscherShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(intent: StartInterpreterIntent(),
@@ -127,6 +145,15 @@ struct DolmetscherShortcuts: AppShortcutsProvider {
         AppShortcut(intent: ShowLastTranslationIntent(),
                     phrases: ["Show last \(.applicationName) translation", "Show it big with \(.applicationName)"],
                     shortTitle: "Show last translation", systemImageName: "arrow.up.left.and.arrow.down.right")
+        AppShortcut(intent: SpeakLastTranslationIntent(),
+                    phrases: ["Read it again with \(.applicationName)", "Speak last \(.applicationName) translation"],
+                    shortTitle: "Speak last translation", systemImageName: "speaker.wave.2")
+        AppShortcut(intent: SwapLanguagePairIntent(),
+                    phrases: ["Swap languages with \(.applicationName)", "Switch \(.applicationName) language pair"],
+                    shortTitle: "Swap language pair", systemImageName: "arrow.left.arrow.right")
+        AppShortcut(intent: SayPhrasebookPhraseIntent(),
+                    phrases: ["Say a phrase with \(.applicationName)", "Say a \(.applicationName) phrasebook phrase"],
+                    shortTitle: "Say phrasebook phrase", systemImageName: "text.bubble")
         AppShortcut(intent: EmergencyPhraseIntent(),
                     phrases: ["\(.applicationName) emergency", "Emergency with \(.applicationName)"],
                     shortTitle: "Emergency phrase", systemImageName: "sos")

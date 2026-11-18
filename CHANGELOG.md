@@ -125,6 +125,7 @@ Pull requests #16–#47. Not yet published as a release.
 
 ### Infrastructure and documentation
 
+- **iPhone logic tests** (round 16): `Round16Tests.swift` covers edge cases of CSV export, phrasebook search, speech rate, history retention and undo, privacy switches, learning plan (Leitner), language-pair switching, the quick-phrase widget and number and back-translation checks; `tests/test_runde16_ios_tests.py` checks the file statically.
 - **Test suite upkeep** (round 17): tests that need faster-whisper or PyAV skip with a clear reason when the package is missing, the LLM cache test no longer needs the `anthropic` SDK, and the one-off `git diff origin/main` test is gone; the iPhone onboarding uses `StatusColor` instead of raw system colours; `tools/check_all.sh` also runs script syntax, shellcheck and the phrase-pack checks like CI.
 - **Review tools** (round 16): `tools/review_export.py`, `review_import.py` and `review_status.py` turn the pack phrases into a review sheet (CSV or Markdown) for native speakers, import corrections with a dry-run diff and keep `reviewed` per pack honest; `tests/test_runde16_review_tools.py`.
 - **Thai documentation** (round 13): `docs/th/` with README, quick start, FAQ and short privacy notes for Thai users, flagged as machine-translated and not checked by native speakers; `tests/test_runde13_docs_th.py` checks links, paths and the pack and language counts.
@@ -194,6 +195,8 @@ Pull requests #16–#47. Not yet published as a release.
 
 **iPhone app (round 16)**
 - **New:** “Offline language packs” in Settings: per language of the current pair, recognition, translation and voice show ready, missing, loading or unavailable, with a download button and an approximate size; a travel warning says what would be missing without a network; the phrasebook is stated to work offline; “Offline only” mode sends nothing at all (no online translation, exchange rate or Whisper download), is shown in the conversation and in the error text, which names the Settings screen to fix it. Texts in all 10 languages (de/en/th by hand, the rest machine-translated); logic in `OfflineReadiness.swift` with unit tests, `tests/test_runde16_ios.py`.
+**iPhone app (round 17)**
+- **New:** three more Siri/Shortcuts actions (read the last translation again, swap the language pair, say a phrasebook phrase found by keyword) and two Control Centre / Lock Screen controls (swap languages, read last translation); texts in all 10 languages, logic in `ShortcutLogic.swift` with tests. No new target or entitlement.
 
 **Web**
 - **New:** phrasebook search (`/`), favourites filter, copy button on every translation; history search, CSV export, share and clear with confirmation; learning progress bar, review schedule and arrow keys; “Delete all local data”; hints for a blocked microphone and for going offline; `?` opens help.

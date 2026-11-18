@@ -1380,6 +1380,21 @@ final class InterpreterModel {
         say(p)
     }
 
+    /// Kurzbefehl „Letzte Übersetzung vorlesen“.
+    func speakLast() {
+        guard let e = LastSpeech.pick(visibleEntries) else { flash(T("sc_no_last")); return }
+        touch()
+        speak(e)
+    }
+
+    /// Kurzbefehl „Satz aus dem Satzbuch sagen“: Stichwort -> bester Satz (Favoriten zuerst, dann eingebaut).
+    @discardableResult
+    func sayPhrasebook(_ query: String) -> Bool {
+        guard let p = PhraseMatcher.best(query, in: favorites + Phrasebook.builtIn) else { return false }
+        say(p)
+        return true
+    }
+
     /// Kurzbefehl „Letzte Übersetzung groß zeigen“.
     func showLastBig() {
         bigRequest = visibleEntries.last(where: { $0.translation != nil })?.id

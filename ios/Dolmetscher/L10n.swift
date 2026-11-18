@@ -316,19 +316,16 @@ func T(_ key: String) -> String {
 extension L10n {
     /// Text in einer bestimmten Sprache, nil wenn es ihn dort nicht gibt (kein Rückfall).
     static func text(_ key: String, lang: String) -> String? {
-        // In Teilen, sonst gibt der Typprüfer bei so vielen `??` auf.
-        let early = table[key]?[lang] ?? extra[lang]?[key] ?? round4[key]?[lang] ?? round5[key]?[lang] ?? round6[key]?[lang]
-        let late = round7[key]?[lang] ?? round8[key]?[lang] ?? round9[key]?[lang] ?? round13[key]?[lang]
-        return early ?? late ?? round14[key]?[lang] ?? round16[key]?[lang]
+        if let t = table[key]?[lang] ?? extra[lang]?[key] { return t }
+        let early: [[String: [String: String]]] = [round4, round5, round6, round7, round8]
+        for r in early { if let t = r[key]?[lang] { return t } }
+        let late: [[String: [String: String]]] = [round9, round13, round14, round16, round17]
+        for r in late { if let t = r[key]?[lang] { return t } }
+        return nil
     }
 
     /// Alle Schlüssel (Grundtabelle, Runde 4 und 5).
-    static var allKeys: Set<String> {
-        var keys = Set(table.keys).union(round4.keys).union(round5.keys).union(round6.keys).union(round7.keys)
-        keys.formUnion(round8.keys); keys.formUnion(round9.keys); keys.formUnion(round13.keys)
-        keys.formUnion(round14.keys); keys.formUnion(round16.keys)
-        return keys
-    }
+    static var allKeys: Set<String> { Set(table.keys).union(round4.keys).union(round5.keys).union(round6.keys).union(round7.keys).union(round8.keys).union(round9.keys).union(round13.keys).union(round14.keys).union(round16.keys).union(round17.keys) }
 }
 
 /// Beobachtbarer Speicher für `L10n.lang`.
