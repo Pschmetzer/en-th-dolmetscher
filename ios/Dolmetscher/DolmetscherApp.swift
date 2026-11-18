@@ -15,7 +15,8 @@ struct DolmetscherApp: App {
                 .environment(\.locale, Locale(identifier: model.uiLang))
                 .overlay {
                     // 567: Im App-Umschalter kein Gesprächsinhalt.
-                    if model.privacyShield && scenePhase != .active { PrivacyShield() }
+                    if ShieldPolicy.show(shield: model.privacyShield, active: scenePhase == .active,
+                                         hideOnCapture: model.hideOnCapture, captured: model.screenCaptured) { PrivacyShield() }
                 }
                 .onContinueUserActivity(CSSearchableItemActionType) { _ in model.sheet = .phrasebook }
                 .onChange(of: scenePhase) { _, phase in

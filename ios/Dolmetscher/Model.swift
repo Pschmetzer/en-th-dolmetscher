@@ -120,6 +120,14 @@ final class InterpreterModel {
     var sensitivity: Sensitivity { didSet { save("sensitivity", sensitivity.rawValue); if phase == .listening && oldValue != sensitivity { restart() } } }
     /// 567: Im App-Umschalter das Gespräch verdecken.
     var privacyShield: Bool { didSet { save("privacyShield", privacyShield) } }
+    /// Gespräch verbergen, solange der Bildschirm aufgenommen oder gespiegelt wird.
+    var hideOnCapture: Bool { didSet { save("hideOnCapture", hideOnCapture) } }
+    /// Kopierte Übersetzungen nach 2 Minuten aus der Zwischenablage entfernen.
+    var clipboardExpires: Bool { didSet { save("clipboardExpires", clipboardExpires) } }
+    /// Kein Netz (NWPathMonitor); für den Hinweis in der Statuszeile.
+    var offline = false
+    /// Bildschirm wird aufgenommen/gespiegelt.
+    var screenCaptured = false
     /// Gesprächszusammenfassung mit Apple Intelligence (auf dem Gerät), abschaltbar.
     var summaryEnabled: Bool { didSet { save("summaryEnabled", summaryEnabled) } }
     /// Kulturhinweis passend zum Gespräch (Paket-Hinweise aus presets/), abschaltbar.
@@ -248,6 +256,8 @@ final class InterpreterModel {
         clearSpeech = d.object(forKey: "clearSpeech") as? Bool ?? false
         sensitivity = Sensitivity(rawValue: d.string(forKey: "sensitivity") ?? "") ?? .normal
         privacyShield = d.object(forKey: "privacyShield") as? Bool ?? true
+        hideOnCapture = d.object(forKey: "hideOnCapture") as? Bool ?? false
+        clipboardExpires = d.object(forKey: "clipboardExpires") as? Bool ?? true
         summaryEnabled = d.object(forKey: "summaryEnabled") as? Bool ?? true
         cultureHints = d.object(forKey: "cultureHints") as? Bool ?? true
         // Folgt der Nutzer der Systemsprache (nie selbst gewählt), gilt die aktuelle iOS-App-Sprache.
@@ -298,6 +308,17 @@ final class InterpreterModel {
         NotificationCenter.default.addObserver(forName: ProcessInfo.thermalStateDidChangeNotification,
                                                object: nil, queue: .main) { _ in
             Task { @MainActor in InterpreterModel.shared.thermalChanged() }
+        }
+        NetStatus.shared.onReconnect {
+            Task { @MainActor in InterpreterModel.shared.retryFailedTranslations() }
+        }
+        NetStatus.shared.onChange { online in
+            Task { @MainActor in InterpreterModel.shared.offline = !online }
+        }
+        screenCaptured = ShieldPolicy.isCaptured
+        NotificationCenter.default.addObserver(forName: UIScreen.capturedDidChangeNotification,
+                                               object: nil, queue: .main) { _ in
+            Task { @MainActor in InterpreterModel.shared.screenCaptured = ShieldPolicy.isCaptured }
         }
         #if DEBUG
         // Test im Simulator: mit DOLMETSCHER_AUDIO_FILES gleich loslegen.
@@ -539,6 +560,7 @@ final class InterpreterModel {
     /// Zurück im Vordergrund: weitermachen, wenn vorher zugehört wurde.
     func enteredForeground() {
         if resumeOnForeground { resumeOnForeground = false; start() }
+        if NetStatus.shared.online { retryFailedTranslations() }
         pruneHistory()
         if uiLangFollowsSystem, L10n.systemLang() != uiLang { uiLang = L10n.systemLang() }
     }
@@ -913,9 +935,28 @@ final class InterpreterModel {
         translate(id)
     }
 
-    func retry(_ id: UUID) {
+    /// Netz ist wieder da: nicht übersetzte Sätze der letzten Minuten still nachholen (ohne Vorlesen).
+    func retryFailedTranslations(now: Date = Date()) {
+        let ids = ReconnectRetry.pending(entries, now: now)
+        guard !ids.isEmpty else { return }
+        flash("📶 " + String(format: T("net_back"), ids.count))
+        for id in ids { retry(id, speak: false) }
+    }
+
+    /// Text kopieren (nur auf diesem Gerät, wenn eingestellt nach 2 Minuten gelöscht).
+    func copy(_ text: String) { SecureCopy.copy(text, expiring: clipboardExpires) }
+
+    func resetLearnProgress() {
+        guard !learnBlocked, !learnLocked else { return }
+        var deck = learn
+        deck.resetProgress()
+        learn = deck
+        Haptics.warning()
+    }
+
+    func retry(_ id: UUID, speak: Bool = true) {
         update(id) { $0.error = nil }
-        translate(id)
+        translate(id, speak: speak)
     }
 
     func delete(_ id: UUID) {

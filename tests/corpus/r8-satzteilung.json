@@ -1,0 +1,383 @@
+{
+ "about": "Runde 8: Satzteilung mit Abkürzungen (Dr., Nr., ca., z. B., Rd., Fri.). Thai-Referenzen sind maschinell erzeugt und ungeprüft (machine=true), keine Muttersprachler-Freigabe.",
+ "reviewed": false,
+ "cases": [
+  {
+   "id": "r8-satzteilung-01",
+   "src": "en",
+   "dst": "th",
+   "text": "Dr. Smith arrived at 9 a.m. Then we ate breakfast.",
+   "translation": "หมอสมิธมาถึงเก้าโมงเช้า แล้วเรากินอาหารเช้า",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-02",
+   "src": "en",
+   "dst": "th",
+   "text": "Mr. Somchai lives on Sukhumvit Rd. He works at No. 15.",
+   "translation": "คุณสมชายอาศัยอยู่ถนนสุขุมวิท เขาทำงานที่เลขที่ 15",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-03",
+   "src": "en",
+   "dst": "th",
+   "text": "The meeting is at 3 p.m. Please be on time.",
+   "translation": "การประชุมเริ่มบ่ายสามโมง กรุณามาตรงเวลา",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-04",
+   "src": "en",
+   "dst": "th",
+   "text": "Mrs. Wipa called at 10 a.m. She will call again.",
+   "translation": "คุณวิภาโทรมาตอนสิบโมงเช้า เธอจะโทรมาอีก",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-05",
+   "src": "en",
+   "dst": "th",
+   "text": "We visited Wat Pho, etc. Then we went home.",
+   "translation": "เราไปวัดโพธิ์และอื่นๆ แล้วเรากลับบ้าน",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-06",
+   "src": "en",
+   "dst": "th",
+   "text": "The shop is at 25 Silom Rd. It opens at 10.",
+   "translation": "ร้านอยู่ที่ถนนสีลม 25 เปิดตอนสิบโมง",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-07",
+   "src": "en",
+   "dst": "th",
+   "text": "Prof. Kanya teaches here. Her office is Room 204.",
+   "translation": "ศาสตราจารย์กัญญาสอนที่นี่ ห้องทำงานของเธอคือห้อง 204",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-08",
+   "src": "en",
+   "dst": "th",
+   "text": "I live at 12 Moo 3, Tambon Chang Phueak. It is near the old city.",
+   "translation": "ฉันอยู่ที่บ้านเลขที่ 12 หมู่ 3 ตำบลช้างเผือก ใกล้เมืองเก่า",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-09",
+   "src": "en",
+   "dst": "th",
+   "text": "Call me at approx. 18:00. I will be home.",
+   "translation": "โทรหาฉันประมาณ 18:00 น. ฉันจะอยู่บ้าน",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-10",
+   "src": "en",
+   "dst": "th",
+   "text": "The price is 500 baht, i.e. about 13 euros. Is that fine?",
+   "translation": "ราคา 500 บาท หรือประมาณ 13 ยูโร ตกลงไหม",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-11",
+   "src": "en",
+   "dst": "th",
+   "text": "Gate no. 24 is closed. Use gate 25.",
+   "translation": "ประตูหมายเลข 24 ปิดอยู่ ใช้ประตู 25",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-12",
+   "src": "en",
+   "dst": "th",
+   "text": "Fri. 14 March is a holiday. The bank is closed.",
+   "translation": "วันศุกร์ที่ 14 มีนาคมเป็นวันหยุด ธนาคารปิด",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-13",
+   "src": "en",
+   "dst": "th",
+   "text": "Bangkok Bank Ltd. opens at 8:30. Come early.",
+   "translation": "ธนาคารกรุงเทพจำกัดเปิด 8:30 น. มาเร็วๆ",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-14",
+   "src": "en",
+   "dst": "th",
+   "text": "The U.S. embassy is on Wireless Rd. Take a taxi.",
+   "translation": "สถานทูตสหรัฐอยู่ถนนวิทยุ นั่งแท็กซี่ไป",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-15",
+   "src": "en",
+   "dst": "th",
+   "text": "Wait! Do you have 200 baht? I only have 100.",
+   "translation": "เดี๋ยว! คุณมี 200 บาทไหม ฉันมีแค่ 100",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-16",
+   "src": "en",
+   "dst": "th",
+   "text": "Is it 3.5 km? Or is it 5 km?",
+   "translation": "3.5 กิโลเมตรหรือเปล่า หรือ 5 กิโลเมตร",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-17",
+   "src": "en",
+   "dst": "th",
+   "text": "Rm. 301 is free. Rm. 302 is taken.",
+   "translation": "ห้อง 301 ว่าง ห้อง 302 ไม่ว่าง",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-18",
+   "src": "en",
+   "dst": "th",
+   "text": "St. Louis Hospital is close. It takes 10 minutes.",
+   "translation": "โรงพยาบาลเซนต์หลุยส์อยู่ใกล้ ใช้เวลา 10 นาที",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-19",
+   "src": "en",
+   "dst": "th",
+   "text": "The tour costs 1.5 thousand baht. It starts at 8.30 a.m.",
+   "translation": "ทัวร์ราคา 1.5 พันบาท เริ่ม 8.30 น.",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-20",
+   "src": "en",
+   "dst": "th",
+   "text": "I arrived on Mon. 3 June. I leave on Sat. 8 June.",
+   "translation": "ฉันมาถึงวันจันทร์ที่ 3 มิถุนายน และกลับวันเสาร์ที่ 8 มิถุนายน",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-21",
+   "src": "de",
+   "dst": "th",
+   "text": "Dr. Müller kommt um 9 Uhr. Danach essen wir.",
+   "translation": "หมอมุลเลอร์มาตอน 9 โมง หลังจากนั้นเรากินข้าว",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-22",
+   "src": "de",
+   "dst": "th",
+   "text": "Das kostet ca. 500 Baht. Das ist okay.",
+   "translation": "ราคาประมาณ 500 บาท ไม่เป็นไร",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-23",
+   "src": "de",
+   "dst": "th",
+   "text": "Wir wohnen in der Sukhumvit-Str. 40. Es ist nah am BTS.",
+   "translation": "เราอยู่ที่ถนนสุขุมวิท 40 ใกล้บีทีเอส",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-24",
+   "src": "de",
+   "dst": "th",
+   "text": "Herr Somchai ist z. B. Reiseführer. Er spricht gut Deutsch.",
+   "translation": "คุณสมชายเป็นไกด์นำเที่ยว เขาพูดภาษาเยอรมันได้ดี",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-25",
+   "src": "de",
+   "dst": "th",
+   "text": "Bitte Zimmer Nr. 12 reservieren. Wir kommen am 5. Mai.",
+   "translation": "กรุณาจองห้องเลขที่ 12 เราจะมาวันที่ 5 พฤษภาคม",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-26",
+   "src": "de",
+   "dst": "en",
+   "text": "Dr. Schmidt ist um 10 Uhr da. Bitte warten Sie.",
+   "translation": "Dr. Schmidt will be here at 10. Please wait."
+  },
+  {
+   "id": "r8-satzteilung-27",
+   "src": "de",
+   "dst": "en",
+   "text": "Das Zimmer kostet ca. 80 Euro. Frühstück ist inklusive.",
+   "translation": "The room costs approx. 80 euros. Breakfast is included."
+  },
+  {
+   "id": "r8-satzteilung-28",
+   "src": "de",
+   "dst": "en",
+   "text": "Wir treffen uns z. B. um 18 Uhr. Passt das?",
+   "translation": "We could meet at 18:00, for example. Does that suit you?"
+  },
+  {
+   "id": "r8-satzteilung-29",
+   "src": "de",
+   "dst": "en",
+   "text": "Bus Nr. 8 fährt um 7:15 Uhr. Er ist meist voll.",
+   "translation": "Bus No. 8 leaves at 7:15. It is usually full."
+  },
+  {
+   "id": "r8-satzteilung-30",
+   "src": "en",
+   "dst": "de",
+   "text": "Mr. Brown is here. He arrived at 9:30.",
+   "translation": "Herr Brown ist da. Er ist um 9:30 Uhr angekommen."
+  },
+  {
+   "id": "r8-satzteilung-31",
+   "src": "en",
+   "dst": "de",
+   "text": "The hotel is in St. Gallen. It costs approx. 120 euros.",
+   "translation": "Das Hotel ist in St. Gallen. Es kostet ca. 120 Euro."
+  },
+  {
+   "id": "r8-satzteilung-32",
+   "src": "en",
+   "dst": "de",
+   "text": "Prof. Lee called at 4 p.m. Please call back.",
+   "translation": "Prof. Lee hat um 16 Uhr angerufen. Bitte rufen Sie zurück."
+  },
+  {
+   "id": "r8-satzteilung-33",
+   "src": "th",
+   "dst": "en",
+   "text": "นพ.สมชายมาแล้ว กรุณารอสักครู่",
+   "translation": "Dr. Somchai has arrived. Please wait a moment.",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-34",
+   "src": "th",
+   "dst": "en",
+   "text": "ร้านเปิด 9:00 น. ปิด 21:00 น. ทุกวัน",
+   "translation": "The shop is open from 9:00 to 21:00 every day.",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-35",
+   "src": "th",
+   "dst": "en",
+   "text": "ผมอยู่บ้านเลขที่ 45 ถ.สีลม ใกล้สถานีบีทีเอส",
+   "translation": "I live at 45 Silom Rd., near the BTS station.",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-36",
+   "src": "th",
+   "dst": "en",
+   "text": "บจก.สยามจำกัดอยู่ชั้น 12 ลิฟต์อยู่ทางซ้าย",
+   "translation": "Siam Co., Ltd. is on the 12th floor, the lift is on the left.",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-37",
+   "src": "th",
+   "dst": "en",
+   "text": "ราคา 300 บาท เดี๋ยวผมทอนให้ 200 บาท",
+   "translation": "It's 300 baht, I'll give you 200 baht change.",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-38",
+   "src": "th",
+   "dst": "en",
+   "text": "วันจันทร์ที่ 3 มิถุนายน ฉันมีนัดตอน 10:00 น.",
+   "translation": "On Monday 3 June I have an appointment at 10:00.",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-39",
+   "src": "th",
+   "dst": "de",
+   "text": "ดร.สมศรีมาถึงเมื่อ 9:00 น. แล้วเรากินข้าว",
+   "translation": "Dr. Somsri kam um 9:00 Uhr an, dann haben wir gegessen.",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-40",
+   "src": "th",
+   "dst": "de",
+   "text": "โทรหาผมประมาณ 18:00 น. นะครับ",
+   "translation": "Rufen Sie mich bitte gegen 18:00 Uhr an.",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-41",
+   "src": "th",
+   "dst": "de",
+   "text": "ห้อง 12 ว่าง ห้อง 14 เต็มแล้ว",
+   "translation": "Zimmer 12 ist frei, Zimmer 14 ist belegt.",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-42",
+   "src": "en",
+   "dst": "th",
+   "text": "Room 7 is free, i.e. the one on the left. Room 12 is not.",
+   "translation": "ห้อง 7 ว่าง คือห้องทางซ้าย ห้อง 12 ไม่ว่าง",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-43",
+   "src": "en",
+   "dst": "th",
+   "text": "He said no. But I said yes. We left at 11.",
+   "translation": "เขาพูดว่าไม่ แต่ฉันพูดว่าใช่ เราออกตอน 11 โมง",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-44",
+   "src": "en",
+   "dst": "th",
+   "text": "Sat. 9 Nov. at 7 p.m. we meet at Gate 3.",
+   "translation": "วันเสาร์ที่ 9 พฤศจิกายน ตอนหนึ่งทุ่ม เราพบกันที่ประตู 3",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-45",
+   "src": "en",
+   "dst": "th",
+   "text": "The Sukhumvit line, i.e. BTS, runs until 24:00. Then it stops.",
+   "translation": "สายสุขุมวิทหรือบีทีเอสวิ่งถึง 24:00 น. แล้วหยุด",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-46",
+   "src": "en",
+   "dst": "th",
+   "text": "Mt. Doi Inthanon is 2,565 m high. It gets cold.",
+   "translation": "ดอยอินทนนท์สูง 2,565 เมตร อากาศหนาว",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-47",
+   "src": "en",
+   "dst": "th",
+   "text": "Tel. 02-123-4567. Ask for Mr. Chai.",
+   "translation": "โทร 02-123-4567 ถามหาคุณชัย",
+   "machine": true
+  },
+  {
+   "id": "r8-satzteilung-48",
+   "src": "en",
+   "dst": "th",
+   "text": "The bus leaves at 6.45 a.m. Don't be late. The next one is at 9.15.",
+   "translation": "รถออก 6.45 น. อย่ามาสาย คันต่อไป 9.15 น.",
+   "machine": true
+  }
+ ]
+}

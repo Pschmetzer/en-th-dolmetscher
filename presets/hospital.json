@@ -1,0 +1,118 @@
+{
+  "id": "hospital",
+  "names": {
+    "de": "Krankenhaus",
+    "en": "Hospital",
+    "th": "โรงพยาบาล"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "emergency room",
+      "th": "ห้องฉุกเฉิน"
+    },
+    {
+      "en": "appointment",
+      "th": "นัดหมาย"
+    },
+    {
+      "en": "insurance",
+      "th": "ประกันภัย"
+    },
+    {
+      "en": "X-ray",
+      "th": "เอกซเรย์"
+    },
+    {
+      "en": "prescription",
+      "th": "ใบสั่งยา"
+    },
+    {
+      "en": "ward",
+      "th": "หอผู้ป่วย"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please call an ambulance.",
+      "th": "ช่วยเรียกรถพยาบาลหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I need a doctor now.",
+      "th": "ต้องการแพทย์ด่วน",
+      "critical": true
+    },
+    {
+      "en": "I cannot breathe.",
+      "th": "หายใจไม่ออก",
+      "critical": true
+    },
+    {
+      "en": "I have severe pain.",
+      "th": "ปวดมาก",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to penicillin.",
+      "th": "แพ้ยาเพนิซิลลิน",
+      "critical": true
+    },
+    {
+      "en": "Where is the emergency room?",
+      "th": "ห้องฉุกเฉินอยู่ที่ไหน"
+    },
+    {
+      "en": "I have travel insurance.",
+      "th": "มีประกันการเดินทาง"
+    },
+    {
+      "en": "Here is my passport.",
+      "th": "นี่พาสปอร์ต"
+    },
+    {
+      "en": "Is there an English-speaking doctor?",
+      "th": "มีแพทย์ที่พูดภาษาอังกฤษไหม"
+    },
+    {
+      "en": "How long is the wait?",
+      "th": "รอนานแค่ไหน"
+    },
+    {
+      "en": "Do I need an X-ray?",
+      "th": "ต้องเอกซเรย์ไหม"
+    },
+    {
+      "en": "How much will it cost?",
+      "th": "ค่าใช้จ่ายเท่าไหร่"
+    },
+    {
+      "en": "Could I have a receipt for my insurance?",
+      "th": "ขอใบเสร็จสำหรับประกันได้ไหม"
+    },
+    {
+      "en": "Could I have a medical certificate?",
+      "th": "ขอใบรับรองแพทย์ได้ไหม"
+    },
+    {
+      "en": "Could you explain it more slowly?",
+      "th": "ช่วยอธิบายช้าๆ หน่อยได้ไหม"
+    },
+    {
+      "en": "Where is the pharmacy?",
+      "th": "ร้านขายยาอยู่ที่ไหน"
+    },
+    {
+      "en": "When is the next appointment?",
+      "th": "นัดครั้งต่อไปเมื่อไหร่"
+    },
+    {
+      "en": "Could you write it down, please?",
+      "th": "ช่วยเขียนให้หน่อยได้ไหม"
+    }
+  ],
+  "note": {
+    "de": "Nur Verständigung, kein medizinischer Rat. Private Krankenhäuser haben internationale Abteilungen, Reisekrankenversicherung und Pass bereithalten. Rettung 1669, Tourist Police 1155. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "For communication only, not medical advice. Private hospitals have international departments; keep travel insurance and passport ready. Ambulance 1669, tourist police 1155. Thai lines machine-made, not checked by native speakers."
+  }
+}

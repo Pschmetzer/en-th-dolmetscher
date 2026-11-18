@@ -46,6 +46,14 @@ struct ContentView: View {
         @Bindable var m = m
         return NavigationStack {
             conversation
+            // VoiceOver: Doppeltippen mit zwei Fingern startet und beendet das Dolmetschen.
+            .accessibilityAction(.magicTap) { m.toggle() }
+            // iPad mit Tastatur: ⌘↩ startet und beendet, ⌘B öffnet das Satzbuch.
+            .background {
+                Button("") { m.toggle() }.keyboardShortcut(.return, modifiers: .command)
+                Button("") { m.sheet = .phrasebook }.keyboardShortcut("b", modifiers: .command)
+            }
+            .accessibilityHidden(false)
             .navigationTitle("Dolmetscher")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -237,7 +245,8 @@ struct ContentView: View {
             if m.interrupted { return "📞 " + T("interrupted") }
             if m.paused { return "⏸ " + T(m.features.voiceCommands ? "paused" : "paused_plain") }
             if m.speakingID != nil { return "🔊 " + T("speaking") }
-            return m.hearing ? "🎙 " + T("hearing") : T("listening")
+            if m.hearing { return "🎙 " + T("hearing") }
+            return m.offline && m.allowOnline ? "📵 " + T("net_offline_hint") : T("listening")
         }
     }
 
@@ -605,9 +614,20 @@ struct Bubble: View {
             if m.features.thaiExtras { PriceLine(text: entry.text + " " + t) }
             if m.backCheck, let b = entry.back { BackLine(text: b, deviates: entry.backDeviates) }
         } else if let err = entry.error {
-            HStack {
+            VStack(alignment: .leading, spacing: 6) {
                 Text("⚠️ " + err).font(.callout).foregroundStyle(.red)
-                Button(T("retry")) { m.retry(entry.id) }.buttonStyle(.bordered).controlSize(.small)
+                HStack {
+                    Button(T("retry")) { m.retry(entry.id) }.buttonStyle(.bordered).controlSize(.small)
+                    switch ErrorAdvice.action(for: err) {
+                    case .appSettings:
+                        Button(T("settings")) { m.sheet = .settings }.buttonStyle(.bordered).controlSize(.small)
+                    case .systemSettings:
+                        if let url = URL(string: UIApplication.openSettingsURLString) {
+                            Button(T("open_settings")) { UIApplication.shared.open(url) }.buttonStyle(.bordered).controlSize(.small)
+                        }
+                    case .none: EmptyView()
+                    }
+                }
             }
         } else {
             HStack(spacing: 6) {
@@ -669,6 +689,7 @@ struct Bubble: View {
         if entry.translation != nil {
             Button(T("replay")) { m.speak(entry) }
             Button(T("replay_slow")) { m.speak(entry, slow: true) }
+            if let t = entry.translation { Button(T("copy")) { m.copy(t) } }
             Button(m.isFavorite(entry) ? T("unfavorite") : T("favorite")) { m.toggleFavorite(entry) }
         }
         if entry.error != nil { Button(T("retry")) { m.retry(entry.id) } }
@@ -710,7 +731,7 @@ struct Bubble: View {
 
     @ViewBuilder private var menu: some View {
         if let t = entry.translation {
-            Button { UIPasteboard.general.string = t } label: { Label(T("copy"), systemImage: "doc.on.doc") }
+            Button { m.copy(t) } label: { Label(T("copy"), systemImage: "doc.on.doc") }
             ShareLink(item: "\(entry.text)\n\(t)") { Label(T("share_one"), systemImage: "square.and.arrow.up") }
             Button(action: onBig) { Label(T("show_big"), systemImage: "arrow.up.left.and.arrow.down.right") }
         }
@@ -881,6 +902,8 @@ private struct ShareSummaryItems: View {
             Label(T("export_csv"), systemImage: "tablecells")
         }
         .disabled(m.visibleEntries.isEmpty)
+        Button { m.copy(m.transcript) } label: { Label(T("copy_all"), systemImage: "doc.on.doc") }
+            .disabled(m.visibleEntries.isEmpty)
         if m.summaryEnabled && ConversationSummary.available(for: m.pair.mine) {
             Button { m.sheet = .summary } label: { Label(T("summary"), systemImage: "text.append") }
                 .disabled(m.visibleEntries.count < 2)

@@ -1,0 +1,7 @@
+• 19 languages: choose your language and your partner's, for example German ⇄ Thai.
+• Conversation mode: split screen with the top half turned around for the person opposite, plus answer cards (yes, no, don't know, number).
+• Widgets, a "Start interpreter" control and a Live Activity on the lock screen; on iPad the conversation and a tools column sit side by side.
+• Learning mode: saved sentences become flashcards, stored only on your device.
+• Nine new phrase packs with cultural notes; safety-critical sentences come first.
+• Optional Whisper speech recognition.
+• The interface now speaks 10 languages.

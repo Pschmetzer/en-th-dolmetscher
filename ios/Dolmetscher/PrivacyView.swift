@@ -4,6 +4,7 @@ import SwiftUI
 struct PrivacyView: View {
     @Environment(InterpreterModel.self) private var m
     @State private var whisper = WhisperStore.shared
+    @ScaledMetric(relativeTo: .headline) private var iconWidth: CGFloat = 26
 
     var body: some View {
         List {
@@ -39,7 +40,7 @@ struct PrivacyView: View {
 
     private func row(_ icon: String, _ title: String, _ detail: String, local: Bool) -> some View {
         HStack(alignment: .top, spacing: 12) {
-            Image(systemName: icon).frame(width: 26).foregroundStyle(local ? .green : .orange).padding(.top, 2)
+            Image(systemName: icon).frame(width: iconWidth).foregroundStyle(local ? .green : .orange).padding(.top, 2)
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     Text(title).font(.headline)

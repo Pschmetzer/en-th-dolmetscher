@@ -1,0 +1,364 @@
+{
+ "about": "Runde 8: Eigennamen und Orte in Thailand. Thai-Referenzen sind maschinell erzeugt und ungeprüft (machine=true), keine Muttersprachler-Freigabe.",
+ "reviewed": false,
+ "cases": [
+  {
+   "id": "r8-namen-orte-01",
+   "src": "en",
+   "dst": "th",
+   "text": "I want to go to Chiang Mai.",
+   "translation": "ฉันอยากไปเชียงใหม่",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-02",
+   "src": "en",
+   "dst": "th",
+   "text": "Where is Suvarnabhumi Airport?",
+   "translation": "สนามบินสุวรรณภูมิอยู่ที่ไหน",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-03",
+   "src": "en",
+   "dst": "th",
+   "text": "How do I get to Wat Pho?",
+   "translation": "ไปวัดโพธิ์ยังไง",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-04",
+   "src": "en",
+   "dst": "th",
+   "text": "The ferry to Koh Samui leaves from Donsak.",
+   "translation": "เรือไปเกาะสมุยออกจากดอนสัก",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-05",
+   "src": "en",
+   "dst": "th",
+   "text": "We stayed in Pattaya for two weeks.",
+   "translation": "เราพักที่พัทยาสองสัปดาห์",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-06",
+   "src": "en",
+   "dst": "th",
+   "text": "Is this the bus to Ayutthaya?",
+   "translation": "นี่คือรถบัสไปอยุธยาใช่ไหม",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-07",
+   "src": "en",
+   "dst": "th",
+   "text": "I love the night market in Hua Hin.",
+   "translation": "ฉันชอบตลาดกลางคืนที่หัวหิน",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-08",
+   "src": "en",
+   "dst": "th",
+   "text": "The Grand Palace is near the river.",
+   "translation": "พระบรมมหาราชวังอยู่ใกล้แม่น้ำ",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-09",
+   "src": "en",
+   "dst": "th",
+   "text": "Take the BTS to Siam station.",
+   "translation": "นั่งรถไฟฟ้าบีทีเอสไปสถานีสยาม",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-10",
+   "src": "en",
+   "dst": "th",
+   "text": "We want to see Doi Suthep tomorrow.",
+   "translation": "พรุ่งนี้เราอยากไปดูดอยสุเทพ",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-11",
+   "src": "en",
+   "dst": "th",
+   "text": "Is Khao San Road far from here?",
+   "translation": "ถนนข้าวสารอยู่ไกลจากที่นี่ไหม",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-12",
+   "src": "en",
+   "dst": "th",
+   "text": "My friend lives in Khon Kaen.",
+   "translation": "เพื่อนของฉันอยู่ที่ขอนแก่น",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-13",
+   "src": "en",
+   "dst": "th",
+   "text": "Do you go to Krabi by boat?",
+   "translation": "ไปกระบี่ด้วยเรือไหม",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-14",
+   "src": "en",
+   "dst": "th",
+   "text": "I would like to visit Sukhothai.",
+   "translation": "ฉันอยากไปเที่ยวสุโขทัย",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-15",
+   "src": "en",
+   "dst": "th",
+   "text": "The beaches in Phuket are beautiful.",
+   "translation": "หาดในภูเก็ตสวยมาก",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-16",
+   "src": "en",
+   "dst": "th",
+   "text": "Where is Chatuchak Market?",
+   "translation": "ตลาดนัดจตุจักรอยู่ที่ไหน",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-17",
+   "src": "en",
+   "dst": "th",
+   "text": "We are going to Koh Phi Phi.",
+   "translation": "เรากำลังจะไปเกาะพีพี",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-18",
+   "src": "en",
+   "dst": "th",
+   "text": "How far is Kanchanaburi from Bangkok?",
+   "translation": "กาญจนบุรีอยู่ไกลจากกรุงเทพแค่ไหน",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-19",
+   "src": "en",
+   "dst": "th",
+   "text": "Please take me to Sukhumvit Soi 11.",
+   "translation": "ช่วยพาฉันไปสุขุมวิทซอย 11 หน่อย",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-20",
+   "src": "en",
+   "dst": "th",
+   "text": "He works in Udon Thani.",
+   "translation": "เขาทำงานที่อุดรธานี",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-21",
+   "src": "en",
+   "dst": "th",
+   "text": "The train to Nong Khai leaves tonight.",
+   "translation": "รถไฟไปหนองคายออกคืนนี้",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-22",
+   "src": "th",
+   "dst": "en",
+   "text": "ผมจะไปเชียงรายพรุ่งนี้ครับ",
+   "translation": "I'm going to Chiang Rai tomorrow.",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-23",
+   "src": "th",
+   "dst": "en",
+   "text": "วัดอรุณอยู่ฝั่งธนบุรีค่ะ",
+   "translation": "Wat Arun is on the Thonburi side.",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-24",
+   "src": "th",
+   "dst": "en",
+   "text": "เกาะเต่าสวยมากครับ",
+   "translation": "Koh Tao is very beautiful.",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-25",
+   "src": "th",
+   "dst": "en",
+   "text": "ตลาดน้ำดำเนินสะดวกอยู่ที่ราชบุรี",
+   "translation": "Damnoen Saduak floating market is in Ratchaburi.",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-26",
+   "src": "th",
+   "dst": "en",
+   "text": "เราพักที่หัวหินสามคืน",
+   "translation": "We stayed in Hua Hin for three nights.",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-27",
+   "src": "th",
+   "dst": "en",
+   "text": "สถานีหมอชิตอยู่ไกลไหมคะ",
+   "translation": "Is Mo Chit station far?",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-28",
+   "src": "th",
+   "dst": "en",
+   "text": "ไปสนามบินดอนเมืองครับ",
+   "translation": "To Don Mueang Airport, please.",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-29",
+   "src": "th",
+   "dst": "en",
+   "text": "เขาเกิดที่นครราชสีมา",
+   "translation": "He was born in Nakhon Ratchasima.",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-30",
+   "src": "th",
+   "dst": "en",
+   "text": "บ้านฉันอยู่ที่สงขลา",
+   "translation": "My house is in Songkhla.",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-31",
+   "src": "th",
+   "dst": "en",
+   "text": "ผมชื่อสมชาย ใจดี",
+   "translation": "My name is Somchai Jaidee.",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-32",
+   "src": "th",
+   "dst": "en",
+   "text": "คุณวิภาอยู่ที่ลำปางค่ะ",
+   "translation": "Khun Wipa is in Lampang.",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-33",
+   "src": "th",
+   "dst": "en",
+   "text": "ไปปายต้องนั่งรถผ่านเชียงใหม่",
+   "translation": "To get to Pai you go through Chiang Mai.",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-34",
+   "src": "th",
+   "dst": "en",
+   "text": "น้ำตกเอราวัณอยู่ในกาญจนบุรี",
+   "translation": "Erawan Falls is in Kanchanaburi.",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-35",
+   "src": "de",
+   "dst": "th",
+   "text": "Ich möchte nach Ayutthaya fahren.",
+   "translation": "ฉันอยากไปอยุธยา",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-36",
+   "src": "de",
+   "dst": "th",
+   "text": "Wo ist der Bahnhof Hua Lamphong?",
+   "translation": "สถานีหัวลำโพงอยู่ที่ไหน",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-37",
+   "src": "de",
+   "dst": "th",
+   "text": "Wir fliegen morgen nach Phuket.",
+   "translation": "พรุ่งนี้เราจะบินไปภูเก็ต",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-38",
+   "src": "de",
+   "dst": "th",
+   "text": "Meine Freundin heißt Nong und kommt aus Isan.",
+   "translation": "แฟนของฉันชื่อน้องและมาจากอีสาน",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-39",
+   "src": "de",
+   "dst": "th",
+   "text": "Der Tempel Wat Pho liegt neben dem Königspalast.",
+   "translation": "วัดโพธิ์อยู่ข้างพระบรมมหาราชวัง",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-40",
+   "src": "th",
+   "dst": "de",
+   "text": "เกาะช้างอยู่ใกล้กัมพูชา",
+   "translation": "Koh Chang liegt nahe an Kambodscha.",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-41",
+   "src": "th",
+   "dst": "de",
+   "text": "ผมจะไปเที่ยวเชียงใหม่",
+   "translation": "Ich fahre nach Chiang Mai in den Urlaub.",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-42",
+   "src": "en",
+   "dst": "de",
+   "text": "Wat Arun is my favourite temple in Bangkok.",
+   "translation": "Wat Arun ist mein Lieblingstempel in Bangkok."
+  },
+  {
+   "id": "r8-namen-orte-43",
+   "src": "en",
+   "dst": "de",
+   "text": "We are flying from Phuket to Krabi.",
+   "translation": "Wir fliegen von Phuket nach Krabi."
+  },
+  {
+   "id": "r8-namen-orte-44",
+   "src": "en",
+   "dst": "th",
+   "text": "Mr. Somchai will meet us in Surat Thani.",
+   "translation": "คุณสมชายจะมาพบเราที่สุราษฎร์ธานี",
+   "machine": true
+  },
+  {
+   "id": "r8-namen-orte-45",
+   "src": "en",
+   "dst": "th",
+   "text": "The hotel is on Silom Road.",
+   "translation": "โรงแรมอยู่บนถนนสีลม",
+   "machine": true
+  }
+ ]
+}

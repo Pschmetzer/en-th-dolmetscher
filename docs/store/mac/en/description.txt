@@ -1,0 +1,32 @@
+Dolmetscher is a hands-free speech interpreter for your Mac. Just talk: what you say is translated into your partner's language and spoken aloud right away, and their answer comes back in yours. The app detects which of the two languages is being spoken, so there are no buttons to switch. English ⇄ Thai is ready out of the box, and you can pick any pair of 19 languages.
+
+PRIVATE BY DESIGN
+• No account, no telemetry, no server of our own.
+• Speech recognition runs locally on your Mac (Whisper). Your audio never leaves the computer.
+• Only the recognised text is sent for translation (Google, fallback MyMemory, or Claude if you turn it on).
+• Voice profiles and the conversation history stay on your Mac. History is off by default.
+• Private mode: no warm-up requests at start, and text never ends up in a web address.
+
+HANDS-FREE
+• Automatic detection of who speaks which language.
+• Natural voice for the translation, with a fallback to the macOS voices when you are offline.
+• Say "Translator, pause", "repeat", "slower" or "louder" (with English in the pair).
+• Push-to-talk, also as a global shortcut.
+• Choose the microphone and the speaker, even while running.
+
+MADE FOR REAL CONVERSATIONS
+• Numbers, prices and times are checked: if the digits in a translation do not match the original, the app asks the other service and warns you.
+• Optional back-translation shows whether the meaning survived.
+• "Slow and clear" mode: slower voice, simpler words.
+• Polite endings ครับ / ค่ะ chosen to match each speaker when Thai is in the pair.
+• Partner view with large type for the person opposite you.
+• Phrasebook packs for travel, each with a cultural note; safety-critical sentences come first.
+• Optional Claude translation with a monthly budget limit.
+
+OFFLINE
+• Recognition keeps working without internet.
+• On macOS 26.4 or newer, the Mac can translate on the device with Apple's translation (language packs installed).
+
+Languages: English, Thai, German, Spanish, French, Italian, Portuguese, Dutch, Russian, Chinese, Japanese, Korean, Vietnamese, Indonesian, Arabic, Hindi, Turkish, Polish, Ukrainian.
+
+Requires a Mac with Apple Silicon and macOS 14 or later. On first start the app sets itself up and downloads the speech models.

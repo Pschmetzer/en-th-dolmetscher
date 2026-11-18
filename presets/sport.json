@@ -1,0 +1,112 @@
+{
+  "id": "sport",
+  "names": {
+    "de": "Sport und Fitness",
+    "en": "Sport and fitness",
+    "th": "กีฬาและฟิตเนส"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Muay-Thai-Camps und Fitnessstudios verlangen oft eine Anmeldung und Haftungsverzicht. Bei Hitze viel trinken und Pausen machen; Verletzungen sofort melden, nicht „durchziehen“. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Muay Thai camps and gyms often ask for registration and a liability waiver. Drink plenty in the heat and take breaks; report injuries at once instead of pushing through. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "gym",
+      "th": "ฟิตเนส"
+    },
+    {
+      "en": "trainer",
+      "th": "เทรนเนอร์"
+    },
+    {
+      "en": "muay thai",
+      "th": "มวยไทย"
+    },
+    {
+      "en": "water",
+      "th": "น้ำ"
+    },
+    {
+      "en": "towel",
+      "th": "ผ้าเช็ดตัว"
+    },
+    {
+      "en": "locker",
+      "th": "ตู้เก็บของ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am hurt, please stop.",
+      "th": "บาดเจ็บ ช่วยหยุดก่อน",
+      "critical": true
+    },
+    {
+      "en": "I feel dizzy.",
+      "th": "เวียนหัว",
+      "critical": true
+    },
+    {
+      "en": "I have a heart problem.",
+      "th": "มีปัญหาเรื่องหัวใจ",
+      "critical": true
+    },
+    {
+      "en": "I need water, please.",
+      "th": "ขอน้ำหน่อย"
+    },
+    {
+      "en": "I need a break.",
+      "th": "ขอพักหน่อย"
+    },
+    {
+      "en": "I am a beginner.",
+      "th": "เป็นมือใหม่"
+    },
+    {
+      "en": "How much is a day pass?",
+      "th": "ตั๋วรายวันราคาเท่าไหร่"
+    },
+    {
+      "en": "How much is a monthly membership?",
+      "th": "สมาชิกรายเดือนราคาเท่าไหร่"
+    },
+    {
+      "en": "What time do you open?",
+      "th": "เปิดกี่โมง"
+    },
+    {
+      "en": "Is there a trial session?",
+      "th": "มีคลาสทดลองไหม"
+    },
+    {
+      "en": "Can I rent gloves?",
+      "th": "เช่าถุงมือได้ไหม"
+    },
+    {
+      "en": "Is there a locker?",
+      "th": "มีตู้เก็บของไหม"
+    },
+    {
+      "en": "Do you have a shower?",
+      "th": "มีห้องอาบน้ำไหม"
+    },
+    {
+      "en": "Can I have a towel?",
+      "th": "ขอผ้าเช็ดตัวหน่อย"
+    },
+    {
+      "en": "Can you show me how to use this?",
+      "th": "ช่วยสอนวิธีใช้เครื่องนี้หน่อย"
+    },
+    {
+      "en": "Is there a class in English?",
+      "th": "มีคลาสภาษาอังกฤษไหม"
+    },
+    {
+      "en": "Where can I sign the waiver?",
+      "th": "เซ็นใบยินยอมได้ที่ไหน"
+    }
+  ]
+}

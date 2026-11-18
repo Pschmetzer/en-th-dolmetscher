@@ -1,0 +1,117 @@
+{
+  "id": "photo",
+  "names": {
+    "de": "Fotografieren",
+    "en": "Photography",
+    "th": "ถ่ายภาพ"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "camera",
+      "th": "กล้อง"
+    },
+    {
+      "en": "tripod",
+      "th": "ขาตั้งกล้อง"
+    },
+    {
+      "en": "drone",
+      "th": "โดรน"
+    },
+    {
+      "en": "flash",
+      "th": "แฟลช"
+    },
+    {
+      "en": "permission",
+      "th": "การอนุญาต"
+    },
+    {
+      "en": "memory card",
+      "th": "เมมโมรี่การ์ด"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please stop. I do not want to be photographed.",
+      "th": "กรุณาหยุด ไม่ต้องการให้ถ่ายรูป",
+      "critical": true
+    },
+    {
+      "en": "Please delete the photo.",
+      "th": "ช่วยลบรูปนั้นหน่อย",
+      "critical": true
+    },
+    {
+      "en": "Someone stole my camera.",
+      "th": "มีคนขโมยกล้อง",
+      "critical": true
+    },
+    {
+      "en": "Please call the police.",
+      "th": "ช่วยเรียกตำรวจด้วย",
+      "critical": true
+    },
+    {
+      "en": "May I take a photo?",
+      "th": "ขอถ่ายรูปได้ไหม"
+    },
+    {
+      "en": "May I take a photo of you?",
+      "th": "ขอถ่ายรูปคุณได้ไหม"
+    },
+    {
+      "en": "Is photography allowed here?",
+      "th": "ที่นี่ถ่ายรูปได้ไหม"
+    },
+    {
+      "en": "Is flash allowed?",
+      "th": "ใช้แฟลชได้ไหม"
+    },
+    {
+      "en": "Could you take a photo of us, please?",
+      "th": "ช่วยถ่ายรูปให้หน่อยได้ไหม"
+    },
+    {
+      "en": "Could you take one more?",
+      "th": "ขอถ่ายอีกรูปได้ไหม"
+    },
+    {
+      "en": "Could I use a tripod?",
+      "th": "ใช้ขาตั้งกล้องได้ไหม"
+    },
+    {
+      "en": "Is a drone allowed here?",
+      "th": "ที่นี่ใช้โดรนได้ไหม"
+    },
+    {
+      "en": "Do I need a permit for filming?",
+      "th": "ต้องขออนุญาตถ่ายทำไหม"
+    },
+    {
+      "en": "Could I show you the photo?",
+      "th": "ขอให้ดูรูปได้ไหม"
+    },
+    {
+      "en": "Could I send you the photo?",
+      "th": "ขอส่งรูปให้ได้ไหม"
+    },
+    {
+      "en": "Where is the best view?",
+      "th": "จุดชมวิวที่ดีที่สุดอยู่ที่ไหน"
+    },
+    {
+      "en": "Where can I buy a memory card?",
+      "th": "ซื้อเมมโมรี่การ์ดได้ที่ไหน"
+    },
+    {
+      "en": "Thank you for letting me take a photo.",
+      "th": "ขอบคุณที่ให้ถ่ายรูป"
+    }
+  ],
+  "note": {
+    "de": "Immer vorher fragen, bevor man Menschen, Mönche oder Kinder fotografiert. In Tempeln ist das Fotografieren von Buddha-Statuen oft eingeschränkt. Drohnen brauchen eine Genehmigung. Polizei 191. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Always ask before photographing people, monks or children. Photos of Buddha images are often restricted in temples. Drones need a permit. Police 191. Thai lines machine-made, not checked by native speakers."
+  }
+}
