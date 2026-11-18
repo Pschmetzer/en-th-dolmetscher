@@ -44,6 +44,10 @@ Pull requests #16–#47. Not yet published as a release.
 
 - **Own phrases and favourites** (browser): the “My cards” box now edits cards, adds an optional translation (via the existing translation chain, correctable by hand) and a group label with a group filter, keeps the 30-card limit, and reorders cards and starred favourites with up/down buttons (keyboard and screen-reader friendly, position announced). Cards export and import as JSON (validated: size limit, control characters removed, unknown fields and `__proto__` dropped, duplicates skipped). A full browser storage is reported instead of silently losing the change. Texts in German, English and Thai; `tests/test_runde16_web_favorites.py`.
 
+### Mac app (round 17)
+
+- **Menu bar and Dock**: the menu bar icon now has its own shape for listening, speaking, paused, offline, loading and error, each with a spoken text alternative (logic in `MenuBarLogic.swift`, tested with `swiftc`). The menu shows the engine status, start/stop, swap language pair and copy last translation. New command “Swap language pair” (⌥⌘K) with VoiceOver names; the Dock menu gained copy last translation and swap pair.
+
 ### Mac app (round 16)
 
 - **Partner view**: presentation mode (P, hides the bar, Esc brings it back); automatic font size by sentence length (logic in `PartnerLogic.swift`, tested with swiftc); high-contrast theme (white on black, no language colours); numbers (prices, times, Thai digits) shown bold, underlined and yellow; the language is also named in text, colour is only an addition; "Again, please" and "Slower, please" on the keys R and S; the window remembers its size, screen and full-screen state; VoiceOver labels for the new controls.
