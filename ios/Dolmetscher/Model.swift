@@ -37,7 +37,7 @@ struct Entry: Identifiable, Codable, Equatable {
 }
 
 enum AppSheet: String, Identifiable {
-    case settings, phrasebook, photo, help, emergency, baht, allergy, privacy, prep, places, helpNow, learn, summary
+    case settings, phrasebook, photo, help, emergency, baht, allergy, privacy, prep, places, helpNow, learn, summary, welcome
     #if DEBUG
     case widgetPreview
     #endif
@@ -1370,6 +1370,21 @@ final class InterpreterModel {
     func sayBuiltIn(_ id: String) {
         guard let p = Phrasebook.builtIn.first(where: { $0.en == id }) ?? favorites.first(where: { $0.en == id }) else { return }
         say(p)
+    }
+
+    /// Kurzbefehl „Letzte Übersetzung vorlesen“.
+    func speakLast() {
+        guard let e = LastSpeech.pick(visibleEntries) else { flash(T("sc_no_last")); return }
+        touch()
+        speak(e)
+    }
+
+    /// Kurzbefehl „Satz aus dem Satzbuch sagen“: Stichwort -> bester Satz (Favoriten zuerst, dann eingebaut).
+    @discardableResult
+    func sayPhrasebook(_ query: String) -> Bool {
+        guard let p = PhraseMatcher.best(query, in: favorites + Phrasebook.builtIn) else { return false }
+        say(p)
+        return true
     }
 
     /// Kurzbefehl „Letzte Übersetzung groß zeigen“.

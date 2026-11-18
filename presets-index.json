@@ -288,6 +288,17 @@
    "reviewed": false
   },
   {
+   "id": "bakery-cafe",
+   "names": {
+    "de": "Bäckerei und Café",
+    "en": "Bakery and cafe",
+    "th": "ร้านเบเกอรี่และคาเฟ่"
+   },
+   "phrases": 17,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
    "id": "beach",
    "names": {
     "de": "Strand",
@@ -296,6 +307,28 @@
    },
    "phrases": 18,
    "critical": 5,
+   "reviewed": false
+  },
+  {
+   "id": "bicycle-rental",
+   "names": {
+    "de": "Fahrradverleih",
+    "en": "Bicycle rental",
+    "th": "เช่าจักรยาน"
+   },
+   "phrases": 17,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "buddhist-ceremony",
+   "names": {
+    "de": "Buddhistische Zeremonie",
+    "en": "Buddhist ceremony",
+    "th": "พิธีทางพุทธศาสนา"
+   },
+   "phrases": 20,
+   "critical": 4,
    "reviewed": false
   },
   {
@@ -321,6 +354,17 @@
    "reviewed": false
   },
   {
+   "id": "car-wash-repair",
+   "names": {
+    "de": "Autowäsche und Werkstatt",
+    "en": "Car wash and garage",
+    "th": "ล้างรถและอู่ซ่อมรถ"
+   },
+   "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
    "id": "cinema-concert",
    "names": {
     "de": "Kino und Konzert",
@@ -328,6 +372,17 @@
     "th": "โรงหนังและคอนเสิร์ต"
    },
    "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "convenience-store-7eleven",
+   "names": {
+    "de": "Kiosk und 7-Eleven",
+    "en": "Convenience store and 7-Eleven",
+    "th": "เซเว่นอีเลฟเว่น"
+   },
+   "phrases": 17,
    "critical": 4,
    "reviewed": false
   },
@@ -376,6 +431,17 @@
    "reviewed": false
   },
   {
+   "id": "ferry-boat",
+   "names": {
+    "de": "Fähre und Boot",
+    "en": "Ferry and boat",
+    "th": "เรือเฟอร์รี่และเรือโดยสาร"
+   },
+   "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
    "id": "festival",
    "names": {
     "de": "Feste (Songkran, Loy Krathong)",
@@ -420,6 +486,17 @@
    "reviewed": false
   },
   {
+   "id": "hostel-dorm",
+   "names": {
+    "de": "Hostel und Schlafsaal",
+    "en": "Hostel and dorm",
+    "th": "โฮสเทลและห้องรวม"
+   },
+   "phrases": 19,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
    "id": "immigration-90day",
    "names": {
     "de": "Immigration: 90-Tage-Meldung",
@@ -431,6 +508,17 @@
    "reviewed": false
   },
   {
+   "id": "island-hopping",
+   "names": {
+    "de": "Inselhopping",
+    "en": "Island hopping",
+    "th": "ทัวร์เที่ยวหลายเกาะ"
+   },
+   "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
    "id": "kids",
    "names": {
     "de": "Reisen mit Kindern",
@@ -438,6 +526,28 @@
     "th": "เที่ยวกับเด็ก"
    },
    "phrases": 16,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "kids-playground",
+   "names": {
+    "de": "Spielplatz und Kinderwelt",
+    "en": "Playground and kids' zone",
+    "th": "สนามเด็กเล่น"
+   },
+   "phrases": 17,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "laundry-deposit",
+   "names": {
+    "de": "Wäsche und Kaution",
+    "en": "Laundry and deposit",
+    "th": "ซักผ้าและเงินมัดจำ"
+   },
+   "phrases": 20,
    "critical": 4,
    "reviewed": false
   },
@@ -519,6 +629,28 @@
    "reviewed": false
   },
   {
+   "id": "muay-thai-gym",
+   "names": {
+    "de": "Muay-Thai-Camp",
+    "en": "Muay Thai gym",
+    "th": "ค่ายมวยไทย"
+   },
+   "phrases": 19,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
+   "id": "night-market-bargain",
+   "names": {
+    "de": "Nachtmarkt und Handeln",
+    "en": "Night market and bargaining",
+    "th": "ตลาดกลางคืนและการต่อราคา"
+   },
+   "phrases": 20,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
    "id": "nightlife",
    "names": {
     "de": "Nachtleben und Bars",
@@ -574,6 +706,28 @@
    "reviewed": false
   },
   {
+   "id": "post-office-parcel",
+   "names": {
+    "de": "Post und Paket",
+    "en": "Post office and parcels",
+    "th": "ไปรษณีย์และพัสดุ"
+   },
+   "phrases": 18,
+   "critical": 3,
+   "reviewed": false
+  },
+  {
+   "id": "rice-field-village",
+   "names": {
+    "de": "Dorf und Reisfelder",
+    "en": "Village and rice fields",
+    "th": "หมู่บ้านและนาข้าว"
+   },
+   "phrases": 19,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
    "id": "school",
    "names": {
     "de": "Schule und Kita",
@@ -582,6 +736,17 @@
    },
    "phrases": 16,
    "critical": 3,
+   "reviewed": false
+  },
+  {
+   "id": "snorkel-boat-tour",
+   "names": {
+    "de": "Schnorchel-Bootstour",
+    "en": "Snorkel boat tour",
+    "th": "ทัวร์เรือดำน้ำตื้น"
+   },
+   "phrases": 18,
+   "critical": 6,
    "reviewed": false
   },
   {
@@ -618,6 +783,17 @@
    "reviewed": false
   },
   {
+   "id": "tax-refund",
+   "names": {
+    "de": "VAT-Rückerstattung",
+    "en": "VAT refund",
+    "th": "ขอคืนภาษี"
+   },
+   "phrases": 17,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
    "id": "thai-cooking-class",
    "names": {
     "de": "Thai-Kochkurs",
@@ -640,6 +816,17 @@
    "reviewed": false
   },
   {
+   "id": "vegan-vegetarian",
+   "names": {
+    "de": "Vegetarisch, vegan und Allergene",
+    "en": "Vegetarian, vegan and allergens",
+    "th": "มังสวิรัติ วีแกน และอาหารแพ้"
+   },
+   "phrases": 20,
+   "critical": 8,
+   "reviewed": false
+  },
+  {
    "id": "visa",
    "names": {
     "de": "Behörden und Visum",
@@ -648,6 +835,17 @@
    },
    "phrases": 18,
    "critical": 0,
+   "reviewed": false
+  },
+  {
+   "id": "visa-extension",
+   "names": {
+    "de": "Visumverlängerung",
+    "en": "Visa extension",
+    "th": "ต่อวีซ่า"
+   },
+   "phrases": 18,
+   "critical": 4,
    "reviewed": false
   },
   {
@@ -662,11 +860,33 @@
    "reviewed": false
   },
   {
+   "id": "wifi-coworking-cafe",
+   "names": {
+    "de": "WLAN-Café und Arbeiten",
+    "en": "Wi-Fi cafe and working",
+    "th": "คาเฟ่ไวไฟสำหรับทำงาน"
+   },
+   "phrases": 17,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
    "id": "work",
    "names": {
     "de": "Arbeit und Handwerk",
     "en": "Work and trades",
     "th": "งานและช่าง"
+   },
+   "phrases": 17,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "yoga-retreat",
+   "names": {
+    "de": "Yoga-Retreat",
+    "en": "Yoga retreat",
+    "th": "รีทรีตโยคะ"
    },
    "phrases": 17,
    "critical": 4,

@@ -1,0 +1,122 @@
+{
+  "id": "hostel-dorm",
+  "names": {
+    "de": "Hostel und Schlafsaal",
+    "en": "Hostel and dorm",
+    "th": "โฮสเทลและห้องรวม"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Im Schlafsaal Wertsachen im Schließfach lassen und ein eigenes Schloss mitbringen. Nachts leise sein, Licht und Handy rücksichtsvoll nutzen. Den Pass nicht als Pfand abgeben. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "In a dorm keep valuables in the locker and bring your own lock. Be quiet at night and use lights and phone with care. Do not hand over your passport as a deposit. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "dorm",
+      "th": "ห้องรวม"
+    },
+    {
+      "en": "bunk bed",
+      "th": "เตียงสองชั้น"
+    },
+    {
+      "en": "locker",
+      "th": "ตู้เก็บของ"
+    },
+    {
+      "en": "check-out",
+      "th": "เช็คเอาท์"
+    },
+    {
+      "en": "shared bathroom",
+      "th": "ห้องน้ำรวม"
+    },
+    {
+      "en": "towel",
+      "th": "ผ้าเช็ดตัว"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My things were stolen.",
+      "th": "ของถูกขโมย",
+      "critical": true
+    },
+    {
+      "en": "Please call the police.",
+      "th": "ช่วยเรียกตำรวจด้วย",
+      "critical": true
+    },
+    {
+      "en": "There is a fire!",
+      "th": "ไฟไหม้",
+      "critical": true
+    },
+    {
+      "en": "I need medical help.",
+      "th": "ต้องการความช่วยเหลือทางการแพทย์",
+      "critical": true
+    },
+    {
+      "en": "Please call a doctor.",
+      "th": "ช่วยเรียกแพทย์หน่อย",
+      "critical": true
+    },
+    {
+      "en": "Do you have a bed in the dorm?",
+      "th": "มีเตียงในห้องรวมไหม"
+    },
+    {
+      "en": "How much is one night?",
+      "th": "คืนละเท่าไหร่"
+    },
+    {
+      "en": "Is it a mixed or a female-only dorm?",
+      "th": "เป็นห้องรวมหรือห้องหญิงล้วน"
+    },
+    {
+      "en": "Is breakfast included?",
+      "th": "รวมอาหารเช้าไหม"
+    },
+    {
+      "en": "Is there a locker?",
+      "th": "มีตู้เก็บของไหม"
+    },
+    {
+      "en": "Do I need my own lock?",
+      "th": "ต้องเอากุญแจมาเองไหม"
+    },
+    {
+      "en": "Where is my bed?",
+      "th": "เตียงอยู่ตรงไหน"
+    },
+    {
+      "en": "What time is check-out?",
+      "th": "เช็คเอาท์กี่โมง"
+    },
+    {
+      "en": "What is the wifi password?",
+      "th": "รหัสไวไฟคืออะไร"
+    },
+    {
+      "en": "Can I leave my luggage here?",
+      "th": "ฝากกระเป๋าไว้ที่นี่ได้ไหม"
+    },
+    {
+      "en": "Please keep it quiet, people are sleeping.",
+      "th": "ช่วยเงียบหน่อย มีคนนอนอยู่"
+    },
+    {
+      "en": "Are there towels and sheets?",
+      "th": "มีผ้าเช็ดตัวและผ้าปูที่นอนไหม"
+    },
+    {
+      "en": "Is there hot water?",
+      "th": "มีน้ำร้อนไหม"
+    },
+    {
+      "en": "Can I extend my stay by one night?",
+      "th": "ขอพักเพิ่มอีกหนึ่งคืนได้ไหม"
+    }
+  ]
+}

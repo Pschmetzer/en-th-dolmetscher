@@ -1,0 +1,125 @@
+{
+  "id": "laundry-deposit",
+  "names": {
+    "de": "Wäsche und Kaution",
+    "en": "Laundry and deposit",
+    "th": "ซักผ้าและเงินมัดจำ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Beim Waschen Stückzahl gemeinsam zählen und Preis pro Kilo vorher klären. Eine Kaution immer quittieren lassen und nie den Reisepass als Pfand hinterlegen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "For laundry count the pieces together and agree the price per kilo first. Always get a receipt for a deposit and never leave your passport as security. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "laundry",
+      "th": "ซักรีด"
+    },
+    {
+      "en": "deposit",
+      "th": "มัดจำ"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    },
+    {
+      "en": "dryer",
+      "th": "เครื่องอบผ้า"
+    },
+    {
+      "en": "detergent",
+      "th": "ผงซักฟอก"
+    },
+    {
+      "en": "refund",
+      "th": "คืนเงิน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I will not leave my passport as a deposit.",
+      "th": "ไม่วางพาสปอร์ตเป็นมัดจำ",
+      "critical": true
+    },
+    {
+      "en": "I need a receipt for the deposit.",
+      "th": "ขอใบเสร็จค่ามัดจำ",
+      "critical": true
+    },
+    {
+      "en": "Please give me my deposit back.",
+      "th": "ขอเงินมัดจำคืน",
+      "critical": true
+    },
+    {
+      "en": "My clothes are missing.",
+      "th": "เสื้อผ้าหาย",
+      "critical": true
+    },
+    {
+      "en": "Where can I do laundry?",
+      "th": "ซักผ้าได้ที่ไหน"
+    },
+    {
+      "en": "How much per kilo?",
+      "th": "กิโลละเท่าไร"
+    },
+    {
+      "en": "When will it be ready?",
+      "th": "เสร็จเมื่อไร"
+    },
+    {
+      "en": "Can I have it by tomorrow?",
+      "th": "ขอรับพรุ่งนี้ได้ไหม"
+    },
+    {
+      "en": "Please wash separately.",
+      "th": "ช่วยซักแยกด้วย"
+    },
+    {
+      "en": "Please wash in cold water.",
+      "th": "ช่วยซักน้ำเย็นด้วย"
+    },
+    {
+      "en": "Please do not use the dryer.",
+      "th": "ห้ามใช้เครื่องอบผ้า"
+    },
+    {
+      "en": "This is delicate.",
+      "th": "ผ้าชิ้นนี้บอบบาง"
+    },
+    {
+      "en": "There is a stain here.",
+      "th": "มีรอยเปื้อนตรงนี้"
+    },
+    {
+      "en": "Do you iron as well?",
+      "th": "รีดผ้าด้วยไหม"
+    },
+    {
+      "en": "Is there a coin laundry?",
+      "th": "มีร้านซักผ้าหยอดเหรียญไหม"
+    },
+    {
+      "en": "How much is the deposit?",
+      "th": "ค่ามัดจำเท่าไหร่"
+    },
+    {
+      "en": "When do I get the deposit back?",
+      "th": "จะได้เงินมัดจำคืนเมื่อไหร่"
+    },
+    {
+      "en": "Do you have change for the machine?",
+      "th": "มีเหรียญทอนสำหรับเครื่องซักผ้าไหม"
+    },
+    {
+      "en": "Please count the pieces together.",
+      "th": "ช่วยนับจำนวนชิ้นด้วยกัน"
+    },
+    {
+      "en": "Is the key deposit refundable?",
+      "th": "เงินมัดจำกุญแจคืนได้ไหม"
+    }
+  ]
+}

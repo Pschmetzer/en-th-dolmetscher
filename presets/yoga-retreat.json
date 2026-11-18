@@ -1,0 +1,113 @@
+{
+  "id": "yoga-retreat",
+  "names": {
+    "de": "Yoga-Retreat",
+    "en": "Yoga retreat",
+    "th": "รีทรีตโยคะ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Retreats auf Inseln und im Norden bieten oft Vollpension mit vegetarischer Kost und Meditation. Verletzungen, Schwangerschaft und Medikamente vorher dem Lehrer sagen. Leise sein, Handy aus, Matte nicht mit Schuhen betreten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Retreats on islands and in the north often offer full board with vegetarian food and meditation. Tell the teacher about injuries, pregnancy and medication beforehand. Be quiet, phone off, no shoes on the mat. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "yoga mat",
+      "th": "เสื่อโยคะ"
+    },
+    {
+      "en": "meditation",
+      "th": "การนั่งสมาธิ"
+    },
+    {
+      "en": "teacher",
+      "th": "ครู"
+    },
+    {
+      "en": "beginner",
+      "th": "มือใหม่"
+    },
+    {
+      "en": "retreat",
+      "th": "รีทรีต"
+    },
+    {
+      "en": "breathing",
+      "th": "การหายใจ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have a back injury. Please be careful.",
+      "th": "หลังบาดเจ็บอยู่ ช่วยระวังด้วย",
+      "critical": true
+    },
+    {
+      "en": "I am pregnant.",
+      "th": "กำลังตั้งครรภ์",
+      "critical": true
+    },
+    {
+      "en": "I feel dizzy.",
+      "th": "เวียนหัว",
+      "critical": true
+    },
+    {
+      "en": "I have a severe allergy.",
+      "th": "มีอาการแพ้รุนแรง",
+      "critical": true
+    },
+    {
+      "en": "I am a beginner.",
+      "th": "เป็นมือใหม่"
+    },
+    {
+      "en": "What time is the class?",
+      "th": "คลาสกี่โมง"
+    },
+    {
+      "en": "Could I have a mat, please?",
+      "th": "ขอเสื่อหน่อย"
+    },
+    {
+      "en": "Is there a class for beginners?",
+      "th": "มีคลาสสำหรับมือใหม่ไหม"
+    },
+    {
+      "en": "Could you show me the pose again?",
+      "th": "ช่วยทำท่านี้ให้ดูอีกครั้งได้ไหม"
+    },
+    {
+      "en": "This hurts. I need to stop.",
+      "th": "เจ็บ ขอหยุดก่อน"
+    },
+    {
+      "en": "May I take a break?",
+      "th": "ขอพักได้ไหม"
+    },
+    {
+      "en": "Could I have some water?",
+      "th": "ขอน้ำหน่อย"
+    },
+    {
+      "en": "Is the food vegetarian?",
+      "th": "อาหารเป็นมังสวิรัติไหม"
+    },
+    {
+      "en": "Where is the meditation hall?",
+      "th": "ห้องนั่งสมาธิอยู่ที่ไหน"
+    },
+    {
+      "en": "Is there a massage?",
+      "th": "มีนวดไหม"
+    },
+    {
+      "en": "What time is breakfast?",
+      "th": "อาหารเช้ากี่โมง"
+    },
+    {
+      "en": "Is there Wi-Fi in the rooms?",
+      "th": "ในห้องมีไวไฟไหม"
+    }
+  ]
+}

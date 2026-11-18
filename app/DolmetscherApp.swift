@@ -53,10 +53,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             pause.target = self
             pause.isEnabled = m.running
             menu.addItem(pause)
+            menu.addItem(.separator())
+            let copy = NSMenuItem(title: L.t("copy_last"), action: #selector(dockCopy), keyEquivalent: "")
+            copy.target = self
+            copy.isEnabled = MenuBarLogic.canCopyLast(m.menuInput)
+            menu.addItem(copy)
+            let swap = NSMenuItem(title: L.t("menu_swap_pair"), action: #selector(dockSwap), keyEquivalent: "")
+            swap.target = self
+            menu.addItem(swap)
             return menu
         }
     }
     @objc private func dockToggle() { MainActor.assumeIsolated { EngineModel.shared.toggle() } }
+    @objc private func dockCopy() { MainActor.assumeIsolated { EngineModel.shared.copyLastTranslation() } }
+    @objc private func dockSwap() { MainActor.assumeIsolated { EngineModel.shared.swapPair() } }
     @objc private func dockPause() { MainActor.assumeIsolated { EngineModel.shared.togglePause() } }
 
     func applicationWillTerminate(_ n: Notification) {
@@ -102,6 +112,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
             return e
         }
+    }
+}
+
+extension EngineModel {
+    /// Eingabe für MenuBarLogic (Symbol, Text, Aktionen).
+    var menuInput: MenuBarInput {
+        MenuBarInput(hasError: crashLog != nil || engineHung, loading: loadingModel, offline: !netDown.isEmpty,
+                     active: active, paused: paused, speaking: !speakingIDs.isEmpty,
+                     hasLast: lastReplayable != nil, running: running)
+    }
+    /// Sprachpaar tauschen (der didSet der Gegenseite vertauscht von selbst).
+    func swapPair() {
+        let s = MenuBarLogic.swapped(mine: mineLang, partner: partnerLang)
+        mineLang = s.mine
+        Announcer.post(Langs.label(s.mine) + " ⇄ " + Langs.label(s.partner))
+    }
+    func copyLastTranslation() {
+        guard let u = lastReplayable else { return }
+        copyToPasteboard(u.out)
+        Announcer.post(L.t("copied"))
     }
 }
 
@@ -174,8 +204,9 @@ struct AppCommands: Commands {
             Button(model.paused ? L.t("resume") : L.t("pause")) { model.togglePause() }
                 .keyboardShortcut("p", modifiers: .command)
                 .disabled(!model.running)
-            Button(L.t("copy_last")) { if let u = model.lastReplayable { copyToPasteboard(u.out); Announcer.post(L.t("copied")) } }
+            Button(L.t("copy_last")) { model.copyLastTranslation() }
                 .keyboardShortcut("c", modifiers: [.command, .shift])
+                .accessibilityLabel(L.t("menu_copy_last_vo"))
                 .disabled(model.lastReplayable == nil)
             Button(L.t("direction_cycle")) {
                 let order = ["auto"] + Langs.pair
@@ -183,6 +214,9 @@ struct AppCommands: Commands {
                 model.lang = order[(i + 1) % order.count]
             }
                 .keyboardShortcut("l", modifiers: [.command, .option])
+            Button(L.t("menu_swap_pair")) { model.swapPair() }
+                .keyboardShortcut("k", modifiers: [.command, .option])
+                .accessibilityLabel(L.t("menu_swap_vo"))
             Button(L.t("glossary_add_title") + " …") { NotificationCenter.default.post(name: .showGlossaryAdd, object: nil) }
                 .keyboardShortcut("g", modifiers: [.command, .option])
             Button(L.t("focus_typing")) { NotificationCenter.default.post(name: .focusTyping, object: nil) }
@@ -215,11 +249,19 @@ struct MenuBarContent: View {
 
     var body: some View {
         let _ = L.sync(uiLang)
-        Text(m.status)
+        let st = MenuBarLogic.status(m.menuInput)
+        Text(L.f("menu_engine_status", L.t(MenuBarLogic.labelKey(st))))
+        if !m.status.isEmpty { Text(m.status) }
         Divider()
         Button(m.active ? L.t("stop") : L.t("start")) { m.toggle() }
+            .disabled(!MenuBarLogic.canToggle(st))
         Button(m.paused ? L.t("resume") : L.t("pause")) { m.togglePause() }
-            .disabled(!m.running)
+            .disabled(!MenuBarLogic.canPause(m.menuInput))
+        Button(L.t("menu_swap_pair")) { m.swapPair() }
+            .accessibilityLabel(L.t("menu_swap_vo"))
+        Button(L.t("copy_last")) { m.copyLastTranslation() }
+            .disabled(!MenuBarLogic.canCopyLast(m.menuInput))
+            .accessibilityLabel(L.t("menu_copy_last_vo"))
         Button(L.t("stop_speaking")) { m.stopSpeaking() }
             .disabled(!m.running)
         RecentTranslationsMenu()
@@ -271,25 +313,18 @@ struct DolmetscherApp: App {
     init() {
         _ = L.lang              // Standardsprache festlegen, bevor die erste Ansicht @AppStorage liest
         APIKeyStore.migrate()   // alte Schlüsseldatei in den Schlüsselbund (Nr. 23), vor dem ersten Engine-Start
+        SettingsTracker.shared.start()   // Runde 15: „Zuletzt geändert“ auch außerhalb des Einstellungsfensters
     }
 
-    /// Nr. 360: Absturz, Fehler, Laden und Offline sind am Symbol erkennbar, nicht nur aus/an/pausiert.
-    private var menuIcon: String {
-        if model.crashLog != nil || model.engineHung { return "exclamationmark.triangle" }
-        if model.loadingModel { return "hourglass.circle" }
-        if !model.netDown.isEmpty { return "wifi.slash" }
-        guard model.active else { return "waveform.circle" }
-        return model.paused ? "pause.circle" : "waveform.circle.fill"
-    }
+    /// Nr. 360 / Runde 17: Fehler, Laden, Offline, Hören, Sprechen und Pause haben je eine eigene Form.
+    private var menuIcon: String { MenuBarLogic.symbol(menuStatus) }
+
+    /// Fehler (model.crashLog != nil), Laden (model.loadingModel) und Offline (model.netDown.isEmpty) vor dem Normalbetrieb.
+    private var menuStatus: MenuBarStatus { MenuBarLogic.status(model.menuInput) }
 
     /// Zustand für VoiceOver: das Symbol ändert nur Form und Füllung.
-    private var menuState: String {
-        if model.crashLog != nil || model.engineHung { return L.t("menu_state_problem") }
-        if model.loadingModel { return L.t("menu_state_loading") }
-        let base: String
-        if !model.active { base = L.t("stopped") } else { base = model.paused ? L.t("state_paused") : L.t("state_listening") }
-        return model.netDown.isEmpty ? base : base + ", " + L.t("menu_state_offline")
-    }
+    /// Offline heißt "menu_state_offline" (VoiceOver).
+    private var menuState: String { L.t(MenuBarLogic.labelKey(menuStatus)) }
 
     var body: some Scene {
         let _ = L.sync(uiLang)
