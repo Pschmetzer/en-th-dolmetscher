@@ -1,4 +1,4 @@
-"""Oberflaeche in Deutsch, Englisch, Thai: gleiche Schluessel, Platzhalter, deutscher Text = HTML (wie test_l10n_keys.py)."""
+"""Oberflaeche in Deutsch, Englisch, Thai: gleiche Schluessel, Platzhalter, deutscher Text wie im HTML."""
 import json
 import re
 from html.parser import HTMLParser
@@ -51,7 +51,8 @@ def test_html_keys_exist_and_german_matches():
     for key, is_html, inner in c.found:
         assert key in STR["de"], key
         if not is_html:
-            assert STR["de"][key].strip() == re.sub(r"\s+", " ", inner).strip() or STR["de"][key].strip() == inner.strip(), key
+            de = STR["de"][key].strip()
+            assert de == re.sub(r"\s+", " ", inner).strip() or de == inner.strip(), key
 
 
 def test_html_variant_strings_have_equal_tags():

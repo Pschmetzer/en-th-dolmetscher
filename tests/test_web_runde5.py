@@ -35,7 +35,8 @@ def _line(prefix):
 def test_note_and_critical_rendering():
     rc = _func("renderCards")
     assert "presetNote(d)" in rc and "$('pbNote').textContent" in rc and "innerHTML" not in rc
-    assert "criticalFirst(d.phrases)" in rc and "' crit'" in rc and "t('important')" in rc and "⚠ Wichtig" in HTML   # nicht nur Farbe
+    assert "criticalFirst(d.phrases)" in rc and "' crit'" in rc   # nicht nur Farbe
+    assert "t('important')" in rc and "⚠ Wichtig" in HTML
     assert '<div id="pbNote" class="note" role="note" hidden></div>' in HTML
     assert "d.phrases.sort" not in SCRIPT                  # Preset-Objekt wird geteilt (presetCache): nie umsortieren
 

@@ -103,6 +103,9 @@ Live: https://pschmetzer.github.io/en-th-dolmetscher/ — `index.html` is a sing
 
 - Asks for consent once before the microphone starts for the first time.
 - Per-direction switches “Translate A→B” / “Translate B→A” (named after the chosen languages): a switched-off direction is only shown, not translated or spoken. Also: “Hold to speak” (push to talk), single-key shortcuts that can be switched off, adjustable text size in the full-screen view, and the Back button closes the full-screen view.
+- **Typing instead of speaking**, **numbers and prices** (digits large plus the Thai number word), **my cards** (hotel, address, “take me here”), an **allergy and emergency card**, a **dictionary** of all topic glossaries, **print a topic** (A4 / PDF), a **sequence** of cards to show one after another, a **“wrong? report”** button (opens a prefilled GitHub issue, nothing is sent automatically).
+- Deep links and app shortcuts: `#preset=taxi&l=de` opens a topic (QR code for guests, see [docs/WEB-HOSTING.md](docs/WEB-HOSTING.md)); installed on Android it also accepts shared text and translates it.
+- The interface is available in **Deutsch, English and ไทย** (the Thai UI text is machine-made and not checked by native speakers). 24 phrase packs; the Thai sentences are not checked by native speakers (see [docs/PRESETS.md](docs/PRESETS.md)).
 - Voice commands in EN mode at the start of a sentence: “Translator pause / repeat / slower / faster / louder / quieter / clear / help”. *Pause* stops recognition completely (no more audio goes to the speech service); continue with `E`/`T` or the buttons.
 - Partner view (`P`): full screen, only the latest translation in huge type (`Esc` closes). Keys: `E` English, `T` Thai, `Space` stop.
 - Translation: Google endpoint, MyMemory as fallback. Error or quota messages are never shown or spoken as a translation.

@@ -1,0 +1,29 @@
+name: Changelog
+
+# Aenderungen an App, Web, Paketen oder Engine brauchen einen Eintrag in CHANGELOG.md (oder das Label no-changelog).
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+
+jobs:
+  entry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Check changelog entry
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: |
+          case ",$LABELS," in *,no-changelog,*) echo "Label no-changelog: uebersprungen"; exit 0;; esac
+          files="$(git diff --name-only "$BASE_SHA...$HEAD_SHA")"
+          if echo "$files" | grep -qE '^(app/|ios/|index\.html$|sw\.js$|presets/|languages\.json$|dolmetscher\.py$|profiles\.py$)'; then
+            echo "$files" | grep -qx 'CHANGELOG.md' || { echo "Bitte einen Eintrag unter 'Unreleased' in CHANGELOG.md ergaenzen (oder Label no-changelog)."; exit 1; }
+          fi

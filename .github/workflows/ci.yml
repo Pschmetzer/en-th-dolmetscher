@@ -102,6 +102,27 @@ jobs:
       - name: Ruff (blocking)
         run: ruff check --output-format=github ./*.py bench/ tests/
 
+  presets:
+    name: Phrasenpakete (schnell)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: Pakete gueltig und Paketliste aktuell
+        run: |
+          python tools/make_presets_index.py --check || { echo "presets-index.json veraltet: python3 tools/make_presets_index.py"; exit 1; }
+          python - <<'PY'
+          import glob, json, sys
+          import presets
+          bad = [(f, e) for f in sorted(glob.glob("presets/*.json")) for e in presets.validate(json.load(open(f, encoding="utf-8")))]
+          for b in bad:
+              print(b)
+          sys.exit(1 if bad else 0)
+          PY
+
   shell:
     runs-on: ubuntu-latest
     timeout-minutes: 10
