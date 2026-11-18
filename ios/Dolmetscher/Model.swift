@@ -113,6 +113,10 @@ final class InterpreterModel {
     var rate: Double { didSet { save("rate", rate) } }
     var volume: Double { didSet { save("volume", volume) } }
     var allowOnline: Bool { didSet { save("allowOnline", allowOnline) } }
+    /// Runde 16: „Nur offline“ – hat Vorrang vor `allowOnline`; nichts geht ins Netz (Übersetzung, Wechselkurs, Whisper-Download).
+    var offlineOnly: Bool { didSet { save(OfflineMode.key, offlineOnly) } }
+    /// Darf die Übersetzung ins Netz? (`allowOnline` und nicht „Nur offline“)
+    var onlineAllowed: Bool { OfflineMode.allowsOnline(allowOnline: allowOnline, offlineOnly: offlineOnly) }
     var autoSpeak: Bool { didSet { save("autoSpeak", autoSpeak) } }
     /// 589: Übersetzungen in meine Sprache auch vorlesen (sonst nur anzeigen – man liest selbst).
     var autoSpeakMine: Bool { didSet { save("autoSpeakMine", autoSpeakMine) } }
@@ -251,6 +255,7 @@ final class InterpreterModel {
         rate = d.object(forKey: "rate") as? Double ?? 1.0
         volume = d.object(forKey: "volume") as? Double ?? 1.0
         allowOnline = Self.allowOnlineSetting(d)
+        offlineOnly = OfflineMode.setting(d)
         autoSpeak = d.object(forKey: "autoSpeak") as? Bool ?? true
         autoSpeakMine = d.object(forKey: "autoSpeakMine") as? Bool ?? true
         clearSpeech = d.object(forKey: "clearSpeech") as? Bool ?? false
@@ -880,7 +885,7 @@ final class InterpreterModel {
         revisions[id] = rev
         let job = Task { () -> String? in
             do {
-                let r = try await translator.translate(e.text, from: e.src, to: e.target, allowOnline: allowOnline)
+                let r = try await translator.translate(e.text, from: e.src, to: e.target, allowOnline: onlineAllowed)
                 let out = e.target == .th ? politeness.adjust(r.text) : r.text
                 guard revisions[id] == rev else { return nil }   // inzwischen geändert
                 update(id) { $0.translation = out; $0.provider = r.provider; $0.error = nil; $0.back = nil }
@@ -897,8 +902,11 @@ final class InterpreterModel {
                 return out
             } catch {
                 guard revisions[id] == rev else { return nil }
-                update(id) { $0.error = error.localizedDescription }
-                voiceOverSay("a11y_translation_failed", detail: error.localizedDescription)
+                // „Nur offline“: das fehlende Paket nennen und in die Paket-Übersicht weisen.
+                var message = error.localizedDescription
+                if offlineOnly, case TranslateError.offlineMissing = error { message = T("err_offline_only") }
+                update(id) { $0.error = message }
+                voiceOverSay("a11y_translation_failed", detail: message)
                 Haptics.warning()
                 persist()
                 return nil
@@ -1089,7 +1097,7 @@ final class InterpreterModel {
 
     /// Einzelner Text ohne Verlaufseintrag (Allergie-Karte in nicht hinterlegter Sprache).
     func translateText(_ text: String, from: Lang, to: Lang) async -> String? {
-        try? await translator.translate(text, from: from, to: to, allowOnline: allowOnline).text
+        try? await translator.translate(text, from: from, to: to, allowOnline: onlineAllowed).text
     }
 
     /// Freitext der Notfallkarte (Allergien, Medizinisches) in die Partnersprache – als „maschinell“ gekennzeichnet.
@@ -1101,14 +1109,14 @@ final class InterpreterModel {
             // Die Karte schreibt man in der eigenen Sprache; steht schon die Partnersprache da, bleibt es so.
             let src = LanguagePick.ofTyped(value, pair: pair, fallback: pair.mine)
             if src == to { out[key] = value; continue }
-            if let r = try? await translator.translate(value, from: src, to: to, allowOnline: allowOnline) {
+            if let r = try? await translator.translate(value, from: src, to: to, allowOnline: onlineAllowed) {
                 out[key] = to == .th ? politeness.ensureEnding(r.text) : r.text
             } else { failed = true }
         }
         emergency.translated = out
         emergency.translatedLang = to.rawValue
         emergency.translatedSource = emergency.translatableHash
-        if failed { flash("⚠️ " + T(allowOnline ? "err_translate" : "err_offline_missing"), seconds: 5) }
+        if failed { flash("⚠️ " + T(OfflineMode.missingErrorKey(offlineOnly: offlineOnly, allowOnline: allowOnline)), seconds: 5) }
     }
 
     // MARK: Favoriten

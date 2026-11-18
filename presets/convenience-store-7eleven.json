@@ -1,0 +1,113 @@
+{
+  "id": "convenience-store-7eleven",
+  "names": {
+    "de": "Kiosk und 7-Eleven",
+    "en": "Convenience store and 7-Eleven",
+    "th": "เซเว่นอีเลฟเว่น"
+  },
+  "style": "polite",
+  "note": {
+    "de": "7-Eleven gibt es überall und rund um die Uhr: Snacks, Mikrowellen-Essen, SIM-Karten, Rechnungen zahlen. Fragen, ob das Essen aufgewärmt wird („Heiß machen?“). Alkohol gibt es nur zu bestimmten Zeiten und nicht an Feiertagen. Tüte lehnt man ab mit „brauche keine“. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "7-Eleven is everywhere and open round the clock: snacks, microwave meals, SIM cards, bill payments. You will be asked whether to heat the food. Alcohol is sold only at set hours and not on holidays. Decline a bag by saying you do not need one. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "microwave",
+      "th": "ไมโครเวฟ"
+    },
+    {
+      "en": "bag",
+      "th": "ถุง"
+    },
+    {
+      "en": "water",
+      "th": "น้ำ"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    },
+    {
+      "en": "top up",
+      "th": "เติมเงิน"
+    },
+    {
+      "en": "cash",
+      "th": "เงินสด"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am allergic to peanuts.",
+      "th": "แพ้ถั่วลิสง",
+      "critical": true
+    },
+    {
+      "en": "Where is the pharmacy?",
+      "th": "ร้านขายยาอยู่ที่ไหน",
+      "critical": true
+    },
+    {
+      "en": "Is this halal?",
+      "th": "อันนี้ฮาลาลไหม",
+      "critical": true
+    },
+    {
+      "en": "Does it contain pork?",
+      "th": "มีเนื้อหมูไหม",
+      "critical": true
+    },
+    {
+      "en": "Could you heat it up, please?",
+      "th": "ช่วยอุ่นให้หน่อย"
+    },
+    {
+      "en": "How much is it?",
+      "th": "ราคาเท่าไร"
+    },
+    {
+      "en": "I do not need a bag.",
+      "th": "ไม่รับถุง"
+    },
+    {
+      "en": "Could I have a bag, please?",
+      "th": "ขอถุงหน่อย"
+    },
+    {
+      "en": "Could I have a spoon and a fork?",
+      "th": "ขอช้อนส้อมด้วย"
+    },
+    {
+      "en": "Do you take cards?",
+      "th": "รับบัตรไหม"
+    },
+    {
+      "en": "Could I have a receipt?",
+      "th": "ขอใบเสร็จด้วย"
+    },
+    {
+      "en": "Where is the water?",
+      "th": "น้ำดื่มอยู่ที่ไหน"
+    },
+    {
+      "en": "I need a SIM card with data.",
+      "th": "ต้องการซิมการ์ดที่มีอินเทอร์เน็ต"
+    },
+    {
+      "en": "I would like to top up my phone.",
+      "th": "ต้องการเติมเงินโทรศัพท์"
+    },
+    {
+      "en": "Where is the toilet?",
+      "th": "ห้องน้ำอยู่ที่ไหน"
+    },
+    {
+      "en": "Could I have ice?",
+      "th": "ขอน้ำแข็งหน่อย"
+    },
+    {
+      "en": "Do you sell phone chargers?",
+      "th": "มีที่ชาร์จโทรศัพท์ขายไหม"
+    }
+  ]
+}

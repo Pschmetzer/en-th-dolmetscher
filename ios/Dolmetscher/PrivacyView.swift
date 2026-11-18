@@ -10,8 +10,8 @@ struct PrivacyView: View {
         List {
             Section {
                 row("waveform", T("pv_speech"), T("pv_speech_d"), local: true)
-                row(m.allowOnline ? "globe" : "iphone", T("pv_translate"),
-                    T(m.allowOnline ? "pv_translate_on" : "pv_translate_off"), local: !m.allowOnline)
+                row(m.onlineAllowed ? "globe" : "iphone", T("pv_translate"),
+                    T(m.onlineAllowed ? "pv_translate_on" : "pv_translate_off"), local: !m.onlineAllowed)
                 if m.backCheck { row("arrow.uturn.backward", T("back_check"), T("pv_back_d"), local: true) }
                 row("clock.arrow.circlepath", T("pv_history"), historyText, local: true)
                 row("cross.case", T("em_card"), T("pv_card_d"), local: true)

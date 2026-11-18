@@ -288,6 +288,17 @@
    "reviewed": false
   },
   {
+   "id": "bakery-cafe",
+   "names": {
+    "de": "Bäckerei und Café",
+    "en": "Bakery and cafe",
+    "th": "ร้านเบเกอรี่และคาเฟ่"
+   },
+   "phrases": 17,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
    "id": "beach",
    "names": {
     "de": "Strand",
@@ -296,6 +307,17 @@
    },
    "phrases": 18,
    "critical": 5,
+   "reviewed": false
+  },
+  {
+   "id": "bicycle-rental",
+   "names": {
+    "de": "Fahrradverleih",
+    "en": "Bicycle rental",
+    "th": "เช่าจักรยาน"
+   },
+   "phrases": 17,
+   "critical": 4,
    "reviewed": false
   },
   {
@@ -332,6 +354,17 @@
    "reviewed": false
   },
   {
+   "id": "car-wash-repair",
+   "names": {
+    "de": "Autowäsche und Werkstatt",
+    "en": "Car wash and garage",
+    "th": "ล้างรถและอู่ซ่อมรถ"
+   },
+   "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
    "id": "cinema-concert",
    "names": {
     "de": "Kino und Konzert",
@@ -339,6 +372,17 @@
     "th": "โรงหนังและคอนเสิร์ต"
    },
    "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "convenience-store-7eleven",
+   "names": {
+    "de": "Kiosk und 7-Eleven",
+    "en": "Convenience store and 7-Eleven",
+    "th": "เซเว่นอีเลฟเว่น"
+   },
+   "phrases": 17,
    "critical": 4,
    "reviewed": false
   },
@@ -482,6 +526,17 @@
     "th": "เที่ยวกับเด็ก"
    },
    "phrases": 16,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "kids-playground",
+   "names": {
+    "de": "Spielplatz und Kinderwelt",
+    "en": "Playground and kids' zone",
+    "th": "สนามเด็กเล่น"
+   },
+   "phrases": 17,
    "critical": 4,
    "reviewed": false
   },
@@ -651,6 +706,17 @@
    "reviewed": false
   },
   {
+   "id": "post-office-parcel",
+   "names": {
+    "de": "Post und Paket",
+    "en": "Post office and parcels",
+    "th": "ไปรษณีย์และพัสดุ"
+   },
+   "phrases": 18,
+   "critical": 3,
+   "reviewed": false
+  },
+  {
    "id": "rice-field-village",
    "names": {
     "de": "Dorf und Reisfelder",
@@ -717,6 +783,17 @@
    "reviewed": false
   },
   {
+   "id": "tax-refund",
+   "names": {
+    "de": "VAT-Rückerstattung",
+    "en": "VAT refund",
+    "th": "ขอคืนภาษี"
+   },
+   "phrases": 17,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
    "id": "thai-cooking-class",
    "names": {
     "de": "Thai-Kochkurs",
@@ -761,6 +838,17 @@
    "reviewed": false
   },
   {
+   "id": "visa-extension",
+   "names": {
+    "de": "Visumverlängerung",
+    "en": "Visa extension",
+    "th": "ต่อวีซ่า"
+   },
+   "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
    "id": "wedding",
    "names": {
     "de": "Hochzeit und Feier",
@@ -772,11 +860,33 @@
    "reviewed": false
   },
   {
+   "id": "wifi-coworking-cafe",
+   "names": {
+    "de": "WLAN-Café und Arbeiten",
+    "en": "Wi-Fi cafe and working",
+    "th": "คาเฟ่ไวไฟสำหรับทำงาน"
+   },
+   "phrases": 17,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
    "id": "work",
    "names": {
     "de": "Arbeit und Handwerk",
     "en": "Work and trades",
     "th": "งานและช่าง"
+   },
+   "phrases": 17,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "yoga-retreat",
+   "names": {
+    "de": "Yoga-Retreat",
+    "en": "Yoga retreat",
+    "th": "รีทรีตโยคะ"
    },
    "phrases": 17,
    "critical": 4,

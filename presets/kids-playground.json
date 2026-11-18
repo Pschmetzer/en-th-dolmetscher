@@ -1,0 +1,113 @@
+{
+  "id": "kids-playground",
+  "names": {
+    "de": "Spielplatz und Kinderwelt",
+    "en": "Playground and kids' zone",
+    "th": "สนามเด็กเล่น"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Indoor-Spielplätze in Einkaufszentren verlangen Socken und eine Begleitperson; Kinder dürfen oft nur zeitweise rein. Draußen ist es mittags sehr heiß: Wasser, Hut und Schatten. Kind nie aus den Augen lassen, Treffpunkt vorher ausmachen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Indoor playgrounds in malls require socks and an accompanying adult; kids are often allowed in for a set time. Outdoors it is very hot at midday: water, hat and shade. Never lose sight of your child and agree a meeting point first. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "playground",
+      "th": "สนามเด็กเล่น"
+    },
+    {
+      "en": "slide",
+      "th": "สไลเดอร์"
+    },
+    {
+      "en": "socks",
+      "th": "ถุงเท้า"
+    },
+    {
+      "en": "ticket",
+      "th": "ตั๋ว"
+    },
+    {
+      "en": "lost child",
+      "th": "เด็กหลง"
+    },
+    {
+      "en": "first aid",
+      "th": "ปฐมพยาบาล"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My child is missing. Please help me!",
+      "th": "ลูกหายไป ช่วยด้วย",
+      "critical": true
+    },
+    {
+      "en": "My child fell and is hurt.",
+      "th": "ลูกล้มและบาดเจ็บ",
+      "critical": true
+    },
+    {
+      "en": "Please call a doctor.",
+      "th": "ช่วยเรียกแพทย์หน่อย",
+      "critical": true
+    },
+    {
+      "en": "My child has an allergy.",
+      "th": "ลูกแพ้อาหาร",
+      "critical": true
+    },
+    {
+      "en": "Is there a first aid post?",
+      "th": "มีจุดปฐมพยาบาลไหม"
+    },
+    {
+      "en": "How old must the child be?",
+      "th": "เด็กต้องอายุเท่าไหร่"
+    },
+    {
+      "en": "Is there a children's price?",
+      "th": "มีราคาสำหรับเด็กไหม"
+    },
+    {
+      "en": "How much for one hour?",
+      "th": "หนึ่งชั่วโมงราคาเท่าไร"
+    },
+    {
+      "en": "Do we need socks?",
+      "th": "ต้องใส่ถุงเท้าไหม"
+    },
+    {
+      "en": "May I stay with my child?",
+      "th": "อยู่กับลูกได้ไหม"
+    },
+    {
+      "en": "Where can I leave my shoes?",
+      "th": "วางรองเท้าไว้ที่ไหน"
+    },
+    {
+      "en": "Where is the toilet?",
+      "th": "ห้องน้ำอยู่ที่ไหน"
+    },
+    {
+      "en": "Is there a changing room?",
+      "th": "มีห้องเปลี่ยนเสื้อผ้าไหม"
+    },
+    {
+      "en": "Where can I get water?",
+      "th": "ซื้อน้ำได้ที่ไหน"
+    },
+    {
+      "en": "Is there shade?",
+      "th": "มีที่ร่มไหม"
+    },
+    {
+      "en": "What time do you close?",
+      "th": "ร้านปิดกี่โมง"
+    },
+    {
+      "en": "Where is the meeting point?",
+      "th": "จุดนัดพบอยู่ที่ไหน"
+    }
+  ]
+}

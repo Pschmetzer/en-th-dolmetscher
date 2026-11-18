@@ -250,6 +250,12 @@ struct ContentView: View {
                     .multilineTextAlignment(.center)
             }
             statusLine
+            if m.offlineOnly {
+                Label(T("off_only_banner"), systemImage: "airplane")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(StatusColor.info)
+                    .accessibilityAddTraits(.isStaticText)
+            }
         }
         .padding(.horizontal)
         .padding(.vertical, 10)
@@ -270,7 +276,7 @@ struct ContentView: View {
             if m.paused { return "⏸ " + T(m.features.voiceCommands ? "paused" : "paused_plain") }
             if m.speakingID != nil { return "🔊 " + T("speaking") }
             if m.hearing { return "🎙 " + T("hearing") }
-            return m.offline && m.allowOnline ? "📵 " + T("net_offline_hint") : T("listening")
+            return m.offline && m.onlineAllowed ? "📵 " + T("net_offline_hint") : T("listening")
         }
     }
 
@@ -844,7 +850,7 @@ struct EmptyState: View {
             .font(.footnote)
             if !m.offlineReady {
                 Button { m.sheet = .prep } label: {
-                    Label(T(m.allowOnline ? "online_hint" : "offline_hint"), systemImage: m.allowOnline ? "globe" : "arrow.down.circle")
+                    Label(T(m.onlineAllowed ? "online_hint" : "offline_hint"), systemImage: m.onlineAllowed ? "globe" : "arrow.down.circle")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.leading)

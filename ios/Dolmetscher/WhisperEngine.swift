@@ -88,6 +88,7 @@ final class WhisperStore {
 
     func download(allowCellular: Bool = false) {
         guard task == nil else { return }
+        if OfflineMode.setting() { error = T("off_blocked"); return }
         let variant = selected
         error = nil
         cellularPending = false
