@@ -28,6 +28,8 @@ struct ContentView: View {
     @ScaledMetric(relativeTo: .title3) private var roundButton: CGFloat = 52
     @AppStorage("politenessAsked") private var politenessAsked = false
     @AppStorage("prepShown") private var prepShown = false
+    @AppStorage("onboardingDone") private var onboardingDone = false
+    @AppStorage("onboardingLater") private var onboardingLater = false
     @Environment(\.horizontalSizeClass) private var sizeClass
     @FocusState private var typing: Bool
 
@@ -128,6 +130,7 @@ struct ContentView: View {
                 }, close: { m.cultureHint = nil })
                 .padding(.top, 8)
             }
+            PermissionBanner()
             history
             bottomBar
         }
@@ -140,7 +143,13 @@ struct ContentView: View {
         big = e
     }
 
-    /// Beim ersten Start einmal die Reise-Vorbereitung zeigen (Offline-Pakete, Berechtigungen).
+    /// Aus der Hilfe: Willkommensfluss noch einmal (erst die Hilfe schließen, dann öffnen).
+    private func replayWelcome() {
+        m.sheet = nil
+        Task { try? await Task.sleep(for: .milliseconds(450)); m.sheet = .welcome }
+    }
+
+    /// Beim ersten Start einmal den Willkommensfluss zeigen (Offline-Pakete, Berechtigungen).
     private func firstLaunch() {
         #if DEBUG
         let env = ProcessInfo.processInfo.environment
@@ -149,7 +158,9 @@ struct ContentView: View {
         if prepShown { askPolitenessOnce() }
         guard !prepShown else { return }
         prepShown = true
-        if m.sheet == nil { m.sheet = .prep }
+        if OnboardingPolicy.shouldShowAtLaunch(completed: onboardingDone, deferred: onboardingLater, existingUser: false), m.sheet == nil {
+            m.sheet = .welcome
+        }
     }
 
     /// 587: Höflichkeitsform einmal fragen statt still „männlich“ – nicht, wenn schon eine gewählt ist.
@@ -162,6 +173,7 @@ struct ContentView: View {
     @ViewBuilder private func sheetView(_ s: AppSheet) -> some View {
         switch s {
         case .prep: TravelPrepView()
+        case .welcome: OnboardingView()
         case .places: PlacesView()
         case .learn: LearnView()
         case .helpNow: HelpNowView()
@@ -183,7 +195,10 @@ struct ContentView: View {
         case .help:
             NavigationStack {
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 20) { HelpGuideCard(); CommandsCard() }.padding()
+                    VStack(alignment: .leading, spacing: 20) {
+                        HelpGuideCard(); CommandsCard()
+                        Button { replayWelcome() } label: { Label(T("ob_replay"), systemImage: "hand.wave") }.buttonStyle(.bordered)
+                    }.padding()
                 }
                 .navigationTitle(T("help_title"))
                 .navigationBarTitleDisplayMode(.inline)

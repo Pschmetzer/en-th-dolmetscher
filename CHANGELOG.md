@@ -139,6 +139,9 @@ Pull requests #16–#47. Not yet published as a release.
 - **New:** quick-phrases widget on the Lock Screen (rectangular, inline, and a circular “Start” button) next to small, medium and large; the phrases can come from a phrasebook category that rotates hourly; the language pair is shown; an error note when the phrasebook cannot be read.
 - **Changed:** the widget stays free of conversation content (no favourites or history, no App Group); larger text shows fewer, taller phrases, VoiceOver reads each phrase with a hint; new texts in all 10 languages (de/en/th by hand, the rest machine-translated).
 
+**iPhone app (round 14)**
+- **New:** welcome flow on first start (language pair, why the microphone and speech recognition are needed before the system dialog appears, offline language packs with an approximate size, a test sentence); “Later” at any time; a band in the conversation with a Settings button when the microphone or speech recognition is denied or restricted (for example by Screen Time); the flow can be shown again from the help. Texts in all 10 languages (de/en/th by hand, the rest machine-translated); logic in `Onboarding.swift` with unit tests, `tests/test_runde14_ios.py`.
+
 **Web**
 - **New:** phrasebook search (`/`), favourites filter, copy button on every translation; history search, CSV export, share and clear with confirmation; learning progress bar, review schedule and arrow keys; “Delete all local data”; hints for a blocked microphone and for going offline; `?` opens help.
 - **Fixed:** a shadowed `t()` raised an error on every finished translation and on critical phrases; high-contrast, forced-colors and reduced-motion styles; Safari text-size and zoom behaviour.
