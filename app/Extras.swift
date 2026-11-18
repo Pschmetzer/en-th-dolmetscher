@@ -152,10 +152,10 @@ struct WhatsNewSheet: View {
     let onClose: () -> Void
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(L.f("whatsnew_title", WhatsNew.version)).font(.title2.bold())
+            Text(L.f("whatsnew_title", WhatsNew.version)).font(.title2.bold()).accessibilityAddTraits(.isHeader)
             ForEach(Array(items.enumerated()), id: \.offset) { _, t in
                 Label { Text(t).fixedSize(horizontal: false, vertical: true) } icon: {
-                    Image(systemName: "sparkles").foregroundStyle(.tint)
+                    Image(systemName: "sparkles").foregroundStyle(.tint).accessibilityHidden(true)
                 }
             }
             HStack { Spacer(); Button(L.t("ok"), action: onClose).keyboardShortcut(.defaultAction) }

@@ -100,6 +100,16 @@ kennen, ignorieren sie.
 | `mobile-sim` | SIM, Internet und Handy | Handy gestohlen, Handy verloren, SIM sperren |
 | `monk` | Mönche und Tempelbesuch | 4 kritische Sätze zuerst |
 | `hospital` | Krankenhaus | 5 kritische Sätze zuerst |
+| `atm-bank-card` | Geldautomat: Karte und Limit | Karte eingezogen, Karte gestohlen, Geld nicht ausgegeben, Beobachtung |
+| `immigration-90day` | Immigration: 90-Tage-Meldung | Überziehung, Dolmetscher, Strafe zahlen |
+| `motorbike-accident` | Motorrad-Unfall | Notruf, Schwerverletzte, Polizei, Nacken, Kopf |
+| `lost-passport` | Reisepass verloren | verloren, gestohlen, Anzeige, Botschaft |
+| `tailor-custom` | Maßschneider | Preis schriftlich, Anzahlung, Abbruch |
+| `tuk-tuk-songthaew` | Tuk-Tuk und Songthaew | Anhalten, Umweg, Aussteigen, Krankenhaus |
+| `thai-cooking-class` | Thai-Kochkurs | Erdnuss, Schalentiere, Schnitt, Verbrennung |
+| `elephant-sanctuary` | Elefantenschutzgebiet | Hilfe, Verletzte, Hitze, Insektenstiche |
+| `cinema-concert` | Kino und Konzert | Feuer, Ohnmacht, Arzt, Diebstahl |
+| `dating-small-talk` | Smalltalk und Kennenlernen | Ablehnen, Unwohlsein, Polizei |
 
 ## Unsichere Sätze (bitte zuerst prüfen)
 
@@ -135,7 +145,7 @@ Am wichtigsten sind die Sätze mit `critical` und die Tabelle [Unsichere Sätze]
 
 | Datei | Inhalt |
 |---|---|
-| `presets/*.json` | 51 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
+| `presets/*.json` | 61 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
 | `ios/Shared/phrases.json` | eingebautes Satzbuch der iPhone-App und des Widgets |
 | `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten, „Sie sind dran“, Allergie-Karte |
 | `ios/Dolmetscher/Round4Views.swift` | Hilfesatz auf dem Bildschirm „Hilfe – jetzt“ |

@@ -704,6 +704,9 @@ def _finite(o):
 
 def _json_line(event, kw):
     d = {"event": event, **kw}
+    for k in ("msg", "err"):                       # Fehlertexte: keine Pfade mit Benutzernamen an die App/ins Log
+        if isinstance(d.get(k), str):
+            d[k] = _scrub(d[k])
     try:
         return json.dumps(d, ensure_ascii=False, default=_json_default, allow_nan=False)
     except ValueError:                 # selten: nur dann die teurere Bereinigung
@@ -735,7 +738,7 @@ def _emit(event, **kw):
             STOP.set()
         return
     elif event in ("loading", "ready", "calibrating", "error"):
-        print(f"{C['dim']}{kw.get('msg', event)}{C['off']}", flush=True)
+        print(f"{C['dim']}{_scrub(str(kw.get('msg', event)))}{C['off']}", flush=True)
     elif event == "listening":
         print(f"\n🎙  Sprich einfach – {lang_name(PAIR[0], True)} oder {lang_name(PAIR[1], True)}."
               " (Strg+C beendet)\n", flush=True)
@@ -831,6 +834,30 @@ def _make_logger():
     return _LOGGER
 
 
+_USER_PATH = re.compile(r"/(?:Users|home)/[^/\s\"'<>:,;]+")
+
+
+def _scrub(s):
+    """Pfade mit Benutzernamen maskieren (Home -> ~, /Users/<name> -> /Users/<user>): Fehlertexte und
+    Logzeilen sollen den Konto-Namen nicht tragen."""
+    home = os.path.expanduser("~")
+    if home and home != "/" and home in s:
+        s = s.replace(home, "~")
+    return _USER_PATH.sub(lambda m: "/" + m.group(0).split("/")[1] + "/<user>", s)
+
+
+def _scrub_deep(v, depth=0):
+    if isinstance(v, str):
+        return _scrub(v)
+    if depth > 6:
+        return v
+    if isinstance(v, dict):
+        return {k: _scrub_deep(x, depth + 1) for k, x in v.items()}
+    if isinstance(v, (list, tuple)):
+        return [_scrub_deep(x, depth + 1) for x in v]
+    return v
+
+
 def _redact(v, hide=False, depth=0):
     """Nr. 62: Gesprächstext auch in verschachtelten Dicts/Listen ersetzen. hide: Wert steht unter einem
     Textschlüssel – dann jeder String darin. Tiefe begrenzt (Zyklen, riesige Strukturen)."""
@@ -849,7 +876,7 @@ def log(d):
     try:
         if not LOG_TEXT:
             d = _redact(d)
-        _logger().info(json.dumps(d, ensure_ascii=False))
+        _logger().info(json.dumps(_scrub_deep(d), ensure_ascii=False))
     except Exception:
         pass
 
@@ -1062,6 +1089,8 @@ CACHE_FILE = os.path.expanduser("~/Library/Application Support/Dolmetscher/trans
 
 
 def _cache_save(force=False):
+    if not _CACHE_DISK["on"]:
+        return                                   # aus (auch Rennen mit dem Ausschalten): nichts schreiben
     now = time.monotonic()
     if not force and now - _CACHE_DISK["saved"] < 5.0:
         return                                   # höchstens alle 5 s schreiben
@@ -4290,7 +4319,7 @@ def edge_play(stream, volume, on_start=None, cancelled=None, deadline=None):
                 complete = chunk is None
             except (BrokenPipeError, OSError, queue.Empty) as e:  # abgebrochen oder Netz weg
                 if not (cancelled and cancelled()):
-                    stats["err"] = repr(e)[:120]
+                    stats["err"] = _errtxt(e)
             finally:
                 try:
                     p.stdin.close()
@@ -4920,7 +4949,7 @@ class Engine:
                 try:
                     loaded[key] = load_model(name, self.device, "th" if key == "th" else "en")[0]
                 except Exception as e:
-                    log({"model": name, "nicht geladen": True, "err": repr(e)[:200]})
+                    log({"model": name, "nicht geladen": True, "err": _errtxt(e)})
             # Thai-Modell nur mit Thai im Paar (spart ~1,5 GB); wechselt das Paar später zu Thai, erkennt
             # das Hauptmodell Thai (_stt fällt ohne m_th darauf zurück)
             todo = [("det", "small")] + ([("th", THAI_MODEL)] if thai_active() else [])
@@ -4974,7 +5003,7 @@ class Engine:
                 self.spk = None
         except Exception as e:
             self.spk = None
-            log({"profiles": "aus", "err": repr(e)[:200]})
+            log({"profiles": "aus", "err": _errtxt(e)})
             # nicht nur ins Log: sonst glaubt man, die Stimmerkennung laufe
             emit("error", code="profiles_failed",
                  msg="Stimmprofile nicht nutzbar (Stimmerkennung aus): " + (str(e) or type(e).__name__)[:160])
@@ -5021,9 +5050,9 @@ class Engine:
                 return "partial" if st.get("partial") else None
             except Exception as e:
                 if began["v"]:
-                    log({"tts": "edge-abbruch", "err": repr(e)[:200]})
+                    log({"tts": "edge-abbruch", "err": _errtxt(e)})
                     return "partial"
-                log({"tts": "edge-fehler" if not local else "edge-zu-langsam", "err": repr(e)[:200]})
+                log({"tts": "edge-fehler" if not local else "edge-zu-langsam", "err": _errtxt(e)})
                 # auch im Wettlauf: echter Netzfehler = offline merken (Symbol, Ersatzstimme ohne Wartezeit);
                 # bloß zu langsam (Frist ohne Fehler) zählt nicht
                 if not local or is_offline_error(e):
@@ -5241,7 +5270,7 @@ class Engine:
             try:
                 prof = spk.hotwords(lng, who, role)
             except Exception as e:
-                log({"hotwords": "fehler", "err": repr(e)[:200]})
+                log({"hotwords": "fehler", "err": _errtxt(e)})
         return merge_hotwords(prof, glossary_hotwords(lng))
 
     def _stt(self, audio, lang, hotwords=None, model=None, quick=False):
@@ -5312,7 +5341,7 @@ class Engine:
             try:
                 _, _, probs = self.m_det.detect_language(audio=audio, language_detection_segments=2)
             except Exception as e:                    # Satz nicht verwerfen: Sperr-/Profilsprache entscheidet
-                log({"detect": "fehler", "err": repr(e)[:200]})
+                log({"detect": "fehler", "err": _errtxt(e)})
                 probs = [(self.lock, 1.0)] if self.lock in PAIR else [(PAIR[0], 0.5), (PAIR[1], 0.5)]
                 info["detect_fallback"] = True
         times["detect"] = round(time.monotonic() - t0, 2)
@@ -5356,7 +5385,7 @@ class Engine:
                 times["detect2"] = round(time.monotonic() - ta, 2)
                 info.update(second_look=True, first_p=first)
             except Exception as e:
-                log({"second_look": "fehler", "err": repr(e)[:200]})
+                log({"second_look": "fehler", "err": _errtxt(e)})
         # für den Profil-Prior: asiatische Labels zählen als Thai (sonst greift „klar andere Sprache“)
         if fold_to and self.lock != other_lang(fold_to):
             probs = [(fold_to if k in fold_keys else k, v) for k, v in probs]
@@ -5375,7 +5404,7 @@ class Engine:
                 info.update(speaker=_pseud(who["name"]) if who else None,
                             spk_scores=list(scores.values())[:3])        # Profilnamen nicht ins Log
             except Exception as e:
-                log({"speaker": "fehler", "err": repr(e)[:200]})
+                log({"speaker": "fehler", "err": _errtxt(e)})
         if who:
             plang = profile_lang(who.get("lang", "en"))
             pe2, pt2 = apply_profile_prior(probs, pe, pt, plang)
@@ -5396,7 +5425,7 @@ class Engine:
                 role, emb = r["role"], r.get("emb")
                 info.update(role=role, role_how=r.get("how"), sim_me=r.get("sim_me"), sim_her=r.get("sim_her"))
             except Exception as e:
-                log({"role": "fehler", "err": repr(e)[:200]})
+                log({"role": "fehler", "err": _errtxt(e)})
         if neither_pair_lang(pe, pt, role):       # keine der zwei Sprachen (Geräusch, Musik) -> ignorieren
             return self._drop(info, "andere Sprache", uid,
                               f"weder {lang_name(A, True)} noch {lang_name(B, True)}")
@@ -5512,7 +5541,7 @@ class Engine:
                 if a and a != text:
                     alts.append(a)
             except Exception as e:
-                log({"alt": "fehler", "err": repr(e)[:200]})
+                log({"alt": "fehler", "err": _errtxt(e)})
         info["alts"] = alts
         info["times"] = times
         log(info)
@@ -5554,7 +5583,7 @@ class Engine:
                 if spk.learn(p["name"], emb, LEARN_W_AUTO):
                     emit("profile_adapted", name=p["name"], role=role)   # Nr. 182: nicht mehr unsichtbar
         except Exception as e:
-            log({"learn": "fehler", "err": repr(e)[:200]})
+            log({"learn": "fehler", "err": _errtxt(e)})
 
     def _remember(self, uid, audio, emb):
         """Roh-Audio für "Das war ich/sie" behalten – begrenzt auf RECENT_MAX Sätze und (Nr. 174) RECENT_TTL
@@ -5617,7 +5646,7 @@ class Engine:
                 if p is not None and emb is not None and long_:
                     self.spk.learn(p["name"], emb, LEARN_W_FIX)
             except Exception as e:
-                log({"learn": "fehler", "err": repr(e)[:200]})
+                log({"learn": "fehler", "err": _errtxt(e)})
         new = new_id()
         self._remember(new, audio, emb)
         emit("thinking", id=new)
@@ -5661,7 +5690,7 @@ class Engine:
         try:
             _, _, probs = self.m_det.detect_language(audio=a, language_detection_segments=2)
         except Exception as e:
-            log({"pre": "detect-fehler", "err": repr(e)[:200]})
+            log({"pre": "detect-fehler", "err": _errtxt(e)})
             return                                  # process() erkennt dann selbst (mit Rückfall)
         lang = self._guess_lang(probs)
         hw = self._hotwords(lang)                   # dieselben Hotwords wie process() (Nr. 157)
@@ -5685,7 +5714,7 @@ class Engine:
         try:
             _, _, probs = self.m_det.detect_language(audio=a, language_detection_segments=1)
         except Exception as e:
-            log({"partial": "detect-fehler", "err": repr(e)[:200]})
+            log({"partial": "detect-fehler", "err": _errtxt(e)})
             return
         lang = self._guess_lang(probs)
         text = self._stt(a, lang, model=self.m_det, quick=True)[0]
@@ -6434,7 +6463,7 @@ def control_loop(eng, jobs=None):
                 try:
                     job = apply_control(eng, d)
                 except Exception as e:
-                    log({"control": "fehler", "err": repr(e)[:200]})
+                    log({"control": "fehler", "err": _errtxt(e)})
                     continue
                 log({"control": {k: (v if k in CTRL_LOG_KEYS or (LOG_TEXT and k in TEXT_CTRL_KEYS) else "…")
                                  for k, v in d.items()}})
@@ -6941,7 +6970,7 @@ class Mic:
                 if self.start(_retry=True):
                     return
             except Exception as e:
-                log({"mic": "reconnect-fehler", "err": repr(e)[:200]})
+                log({"mic": "reconnect-fehler", "err": _errtxt(e)})
             if n == MIC_RETRIES:
                 log({"mic": "weiter alle %.0f s" % MIC_RETRY_SLOW})
 
@@ -7082,13 +7111,13 @@ def work_loop(eng, utts, speak):
                     else:
                         eng.partial(item[1], item[2])
                 except Exception as e:
-                    log({item[0]: "fehler", "err": repr(e)[:200]})
+                    log({item[0]: "fehler", "err": _errtxt(e)})
             continue
         if isinstance(item[0], str) and item[0] == "job":   # Schnellsatz/Korrektur aus der App
             try:
                 item[1]()
             except Exception as e:
-                log({"job": "fehler", "err": repr(e)[:200]})
+                log({"job": "fehler", "err": _errtxt(e)})
             continue
         report_queue()
         if MIC is not None and not MIC.current(item):
@@ -7105,7 +7134,7 @@ def work_loop(eng, utts, speak):
         try:
             eng.process(audio, speak=speak, rms=rms, uid=uid, t_end=t_speech_end, version=version)
         except Exception as e:                  # ein kaputter Satz darf die Engine nicht beenden
-            log({"process": "fehler", "id": uid, "err": repr(e)[:300]})
+            log({"process": "fehler", "id": uid, "err": _errtxt(e)})
             emit("dropped", reason="fehler", code="error", id=uid)
             emit("listening")
         log({"pipeline": {"queued_s": round(t - t_end, 2), "process_s": round(time.time() - t, 2),
@@ -7123,7 +7152,7 @@ def cleanup():
             if fn:
                 fn()
         except Exception as e:
-            log({"cleanup": "fehler", "err": repr(e)[:200]})
+            log({"cleanup": "fehler", "err": _errtxt(e)})
     if MIC is not None:
         Mic._kill(MIC.ff)
     try:                                       # wartende Verlauf-Schreibvorgänge noch abschließen
