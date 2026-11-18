@@ -77,6 +77,13 @@ final class AudioCapture: @unchecked Sendable {
         try session.setCategory(.playAndRecord, mode: .default, options: opts)
         try session.setAllowHapticsAndSystemSoundsDuringRecording(true)
         try session.setActive(true)
+        // Gewähltes Mikrofon (Richtmikrofon am Tisch, Headset im Lärm); ist es weg, entscheidet das System.
+        if let uid = options.preferredInput, let port = session.availableInputs?.first(where: { $0.uid == uid }) {
+            try? session.setPreferredInput(port)
+        } else {
+            try? session.setPreferredInput(nil)
+        }
+        if #available(iOS 18.2, *) { try? session.setPrefersEchoCancelledInput(options.echoCancel) }
     }
 
     /// Prüft, ob ein Mikrofon da ist (nach `activate`, vor dem Laden teurer Modelle sinnvoll).
@@ -117,7 +124,12 @@ final class AudioCapture: @unchecked Sendable {
             nc.addObserver(forName: AVAudioSession.interruptionNotification, object: nil, queue: nil) { n in
                 let raw = n.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt
                 if raw == AVAudioSession.InterruptionType.began.rawValue { emit(.interruptionBegan) }
-                if raw == AVAudioSession.InterruptionType.ended.rawValue { debounce.fire { emit(.interrupted) } }
+                if raw == AVAudioSession.InterruptionType.ended.rawValue {
+                    // Ohne `shouldResume` rät iOS davon ab, das Mikrofon von selbst wieder zu öffnen (Siri, Wecker).
+                    let opts = AVAudioSession.InterruptionOptions(rawValue: (n.userInfo?[AVAudioSessionInterruptionOptionKey] as? UInt) ?? 0)
+                    if InterruptionPolicy.shouldRestart(optionsRaw: opts.rawValue) { debounce.fire { emit(.interrupted) } }
+                    else { emit(.interruptionEndedNoResume) }
+                }
             },
             nc.addObserver(forName: .AVAudioEngineConfigurationChange, object: audio, queue: nil, using: lost),
             nc.addObserver(forName: AVAudioSession.mediaServicesWereResetNotification, object: nil, queue: nil, using: lost),

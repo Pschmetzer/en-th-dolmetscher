@@ -272,6 +272,7 @@ private struct PlaceRow: View {
 
 /// Ziel bildschirmfüllend: „Bitte bringen Sie mich hierhin“ plus Name/Adresse in der Landessprache.
 struct PlaceBigView: View {
+    @ScaledMetric(relativeTo: .largeTitle) private var scaled54: CGFloat = 54
     @Environment(InterpreterModel.self) private var m
     @Environment(\.dismiss) private var dismiss
     let place: Place
@@ -285,7 +286,7 @@ struct PlaceBigView: View {
             VStack(spacing: 18) {
                 if let thaiSentence { Text(thaiSentence).font(.title.bold()).multilineTextAlignment(.center) }
                 Text(shownName)
-                    .font(.system(size: 54, weight: .heavy))
+                    .font(.system(size: scaled54, weight: .heavy))
                     .minimumScaleFactor(0.3)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.orange)
@@ -320,24 +321,38 @@ struct PlaceBigView: View {
     }
 }
 
-/// Helligkeit auf Maximum, solange gezeigt wird (Sonne, Markt) – danach zurück.
-struct FullBrightness: ViewModifier {
-    @State private var before: CGFloat?
-
+/// Zentrale Helligkeitsverwaltung: Mit mehreren Vollbild-Ansichten nacheinander (Großansicht, Hilfe jetzt) darf der
+/// erhöhte Wert nie als „vorher“ gemerkt werden. Der Zähler merkt den Ausgangswert nur beim ersten Zugriff.
+@MainActor
+final class BrightnessKeeper {
+    static let shared = BrightnessKeeper()
+    private var holders = 0
+    private var original: CGFloat?
     private var screen: UIScreen? {
         (UIApplication.shared.connectedScenes.first { $0.activationState == .foregroundActive } as? UIWindowScene)?.screen
     }
 
+    func acquire() {
+        holders += 1
+        guard holders == 1, let s = screen else { return }
+        original = s.brightness
+        s.brightness = 1
+    }
+
+    func release() {
+        holders = max(0, holders - 1)
+        guard holders == 0, let o = original else { return }
+        screen?.brightness = o
+        original = nil
+    }
+}
+
+/// Helligkeit auf Maximum, solange gezeigt wird (Sonne, Markt) – danach zurück.
+struct FullBrightness: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .onAppear {
-                guard let s = screen else { return }
-                before = s.brightness
-                s.brightness = 1
-            }
-            .onDisappear {
-                if let b = before { screen?.brightness = b }
-            }
+            .onAppear { BrightnessKeeper.shared.acquire() }
+            .onDisappear { BrightnessKeeper.shared.release() }
     }
 }
 
@@ -405,6 +420,7 @@ final class LocationFinder: NSObject, CLLocationManagerDelegate {
 
 /// Ein Schirm für den Notfall: großer Hilfe-Satz, Hotel-Adresse, eigener Standort, Direktwahl.
 struct HelpNowView: View {
+    @ScaledMetric(relativeTo: .largeTitle) private var scaled40: CGFloat = 40
     @Environment(InterpreterModel.self) private var m
     @Environment(\.dismiss) private var dismiss
     @State private var finder = LocationFinder()
@@ -415,7 +431,7 @@ struct HelpNowView: View {
         NavigationStack {
             List {
                 Section {
-                    Text(helpThai).font(.system(size: 40, weight: .heavy)).foregroundStyle(.red)
+                    Text(helpThai).font(.system(size: scaled40, weight: .heavy)).foregroundStyle(.red)
                     Text(T("help_need")).font(.title3).foregroundStyle(.secondary)
                     Button { m.announce(helpThai, lang: .th) } label: { Label(T("replay"), systemImage: "speaker.wave.3.fill") }
                 }
@@ -439,6 +455,10 @@ struct HelpNowView: View {
         if let l = finder.location {
             Text(LocationFinder.text(l)).font(.title2.monospacedDigit().bold()).textSelection(.enabled)
             Text(String(format: T("help_accuracy"), Int(l.horizontalAccuracy))).font(.footnote).foregroundStyle(.secondary)
+            if let url = URL(string: String(format: "https://maps.apple.com/?ll=%.5f,%.5f&q=%.5f,%.5f", l.coordinate.latitude, l.coordinate.longitude,
+                                            l.coordinate.latitude, l.coordinate.longitude)) {
+                ShareLink(item: url) { Label(T("share_location"), systemImage: "square.and.arrow.up") }
+            }
             if finder.approximate {
                 Text(T("help_location_approx")).font(.footnote).foregroundStyle(.orange)
             }
@@ -477,6 +497,8 @@ struct DialRow: View {
 
 /// Betrag groß zum Zeigen beim Handeln: Ziffern, Thai-Zahlwort, Heimatwährung; vorlesbar.
 struct PriceShowView: View {
+    @ScaledMetric(relativeTo: .largeTitle) private var scaled80: CGFloat = 80
+    @ScaledMetric(relativeTo: .largeTitle) private var scaled40: CGFloat = 40
     @Environment(InterpreterModel.self) private var m
     @Environment(\.dismiss) private var dismiss
     let amount: Int
@@ -488,8 +510,8 @@ struct PriceShowView: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 16) {
-                Text("฿ " + amount.formatted()).font(.system(size: 80, weight: .heavy).monospacedDigit()).minimumScaleFactor(0.3)
-                Text(words).font(.system(size: 40, weight: .bold)).foregroundStyle(LangStyle.partnerColor).minimumScaleFactor(0.3)
+                Text("฿ " + amount.formatted()).font(.system(size: scaled80, weight: .heavy).monospacedDigit()).minimumScaleFactor(0.3)
+                Text(words).font(.system(size: scaled40, weight: .bold)).foregroundStyle(LangStyle.partnerColor).minimumScaleFactor(0.3)
                 if let home { Text("≈ " + home).font(.title2).foregroundStyle(.secondary) }
             }
             .multilineTextAlignment(.center)

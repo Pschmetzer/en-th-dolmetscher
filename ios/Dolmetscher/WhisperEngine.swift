@@ -4,6 +4,7 @@
 // selbst in den Einstellungen (WhisperStore) – ohne Modell bleibt die App bei Apples Erkennung.
 import AVFoundation
 import Observation
+import UIKit
 import WhisperKit
 import os
 
@@ -31,6 +32,8 @@ final class WhisperStore {
     /// Fortschritt 0…1 während eines Downloads.
     var progress: Double?
     var error: String?
+    /// Mobilfunk/Hotspot: der Download wartet auf eine ausdrückliche Freigabe (große Datei).
+    var cellularPending = false
     private(set) var installed: String?
 
     @ObservationIgnored private var task: Task<Void, Never>?
@@ -63,9 +66,19 @@ final class WhisperStore {
 
     nonisolated static func isComplete(_ variant: String) -> Bool {
         let f = folder(variant)
+        // `.incomplete` liegt, solange ein Download läuft oder abgebrochen wurde (halbe Ordner zählen nicht als Modell).
+        guard !FileManager.default.fileExists(atPath: marker(variant).path) else { return false }
         return ["AudioEncoder.mlmodelc", "TextDecoder.mlmodelc", "MelSpectrogram.mlmodelc"].allSatisfy {
             FileManager.default.fileExists(atPath: f.appending(path: $0).path)
         }
+    }
+
+    nonisolated static func marker(_ variant: String) -> URL { folder(variant).appending(path: ".incomplete") }
+
+    /// Freier Speicher für wichtige Daten (Bytes), nil wenn unbekannt.
+    nonisolated static func freeBytes() -> Int64? {
+        let v = try? URL.applicationSupportDirectory.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
+        return v?.volumeAvailableCapacityForImportantUsage
     }
 
     /// Modell, das die Engine laden soll – nur wenn vollständig vorhanden.
@@ -73,15 +86,25 @@ final class WhisperStore {
 
     var downloading: Bool { progress != nil }
 
-    func download() {
+    func download(allowCellular: Bool = false) {
         guard task == nil else { return }
         let variant = selected
         error = nil
+        cellularPending = false
+        if let need = WhisperSize.requiredBytes(sizeMB: WhisperCatalog.sizeMB(variant)), let free = Self.freeBytes(), free < need {
+            error = String(format: T("whisper_no_space"), Int(need / 1_000_000))
+            return
+        }
+        if NetStatus.shared.expensive && !allowCellular { cellularPending = true; return }
         progress = 0
+        // Läuft der Download, wenn die App in den Hintergrund geht, bekommt er noch ein paar Sekunden Gnadenfrist.
+        let bg = UIApplication.shared.beginBackgroundTask(withName: "whisper-download")
         task = Task {
-            defer { task = nil; progress = nil }
+            defer { task = nil; progress = nil; UIApplication.shared.endBackgroundTask(bg) }
             do {
                 try Self.prepareBase()
+                try? FileManager.default.createDirectory(at: Self.folder(variant), withIntermediateDirectories: true)
+                FileManager.default.createFile(atPath: Self.marker(variant).path, contents: Data())
                 _ = try await WhisperKit.download(variant: variant, downloadBase: Self.base, from: Self.repo) { p in
                     let f = p.fractionCompleted
                     Task { @MainActor in if self.progress != nil { self.progress = min(0.95, f * 0.95) } }
@@ -91,6 +114,7 @@ final class WhisperStore {
                 // Core ML das Modell für dieses Gerät vorbereiten.
                 let kit = try await WhisperKit(Self.config(variant, download: true))
                 await kit.unloadModels()
+                try? FileManager.default.removeItem(at: Self.marker(variant))   // erst nach erfolgreichem Testladen
                 if let old = installed, old != variant { try? FileManager.default.removeItem(at: Self.folder(old)) }
                 installed = variant
                 UserDefaults.standard.set(variant, forKey: "whisperInstalled")
@@ -108,6 +132,7 @@ final class WhisperStore {
     /// Alles löschen: Modelle, Tokenizer, Hub-Zwischenspeicher.
     func deleteAll() {
         task?.cancel()
+        WhisperKitCache.shared.evict()
         try? FileManager.default.removeItem(at: Self.base)
         installed = nil
         UserDefaults.standard.removeObject(forKey: "whisperInstalled")
@@ -183,7 +208,13 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
         // Modell vor dem Mikrofon laden: scheitert es, läuft nichts und die App fällt auf Apple zurück.
         let k: WhisperKit
         do {
-            k = try await WhisperKit(WhisperStore.config(variant, download: false))
+            // Geladenes Modell weiterverwenden: Neustarts (Moduswechsel, Kopfhörer) laden sonst jedes Mal mehrere Sekunden.
+            if let cached = WhisperKitCache.shared.take(variant) {
+                k = cached
+            } else {
+                k = try await WhisperKit(WhisperStore.config(variant, download: false))
+                WhisperKitCache.shared.put(k, variant: variant)
+            }
         } catch {
             log.error("load failed: \(error.localizedDescription, privacy: .public)")
             throw WhisperFailure.loadFailed(error.localizedDescription)
@@ -212,7 +243,8 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
         jobs.finish()
         worker?.cancel()
         await worker?.value
-        await kit?.unloadModels()
+        // Nicht sofort entladen: ein Neustart gleich danach nimmt das Modell wieder (Entladen nach 60 s Ruhe).
+        if kit != nil { WhisperKitCache.shared.idle() }
         kit = nil
         emit.finish()
         capture.deactivate()
@@ -324,5 +356,48 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
                 emit.yield(.failed("Whisper: " + error.localizedDescription))
             }
         }
+    }
+}
+
+/// Hält das zuletzt geladene Whisper-Modell kurz im Speicher (Neustart ohne Neuladen) und gibt es bei Ruhe oder
+/// Speicherwarnung frei.
+final class WhisperKitCache: @unchecked Sendable {
+    static let shared = WhisperKitCache()
+    static let idleSeconds = 60.0
+    private let lock = NSLock()
+    private var kit: WhisperKit?
+    private var variant: String?
+    private var generation = 0
+
+    private init() {
+        NotificationCenter.default.addObserver(forName: UIApplication.didReceiveMemoryWarningNotification, object: nil, queue: nil) { [weak self] _ in
+            self?.evict()
+        }
+    }
+
+    /// Das gemerkte Modell dieser Variante (und ein laufendes Entladen abbrechen), sonst nil.
+    func take(_ v: String) -> WhisperKit? {
+        lock.withLock {
+            generation += 1
+            return variant == v ? kit : nil
+        }
+    }
+
+    func put(_ k: WhisperKit, variant v: String) {
+        let old: WhisperKit? = lock.withLock { generation += 1; let o = kit; kit = k; variant = v; return o === k ? nil : o }
+        if let old { Task { await old.unloadModels() } }
+    }
+
+    func idle() {
+        let g: Int = lock.withLock { generation += 1; return generation }
+        DispatchQueue.global().asyncAfter(deadline: .now() + Self.idleSeconds) { [weak self] in
+            guard let self, self.lock.withLock({ self.generation == g }) else { return }
+            self.evict()
+        }
+    }
+
+    func evict() {
+        let k: WhisperKit? = lock.withLock { generation += 1; let o = kit; kit = nil; variant = nil; return o }
+        if let k { Task { await k.unloadModels() } }
     }
 }

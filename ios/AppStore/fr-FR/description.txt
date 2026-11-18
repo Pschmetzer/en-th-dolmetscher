@@ -27,3 +27,5 @@ MAINS LIBRES
 • Fonctionne avec Siri et l'app Raccourcis.
 
 Langues : anglais, thaï, allemand, espagnol, français, italien, portugais, néerlandais, russe, chinois, japonais, coréen, vietnamien, indonésien, arabe, hindi, turc, polonais, ukrainien. Les langues disponibles hors ligne dépendent de ce que votre iPhone prend en charge ; l'app ne propose que les langues qu'elle peut réellement reconnaître, traduire et prononcer.
+
+Nécessite iOS 26 ou version ultérieure.

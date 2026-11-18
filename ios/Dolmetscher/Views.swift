@@ -186,14 +186,22 @@ struct ContentView: View {
         @Bindable var m = m
         return VStack(spacing: 10) {
             let p = m.pair
-            HStack(spacing: 12) {
-                Text("\(p.mine.flag) \(p.mine.native)").foregroundStyle(LangStyle.color(p.mine, p))
-                Image(systemName: "arrow.left.arrow.right").foregroundStyle(.secondary)
-                Text("\(p.partner.flag) \(p.partner.native)").foregroundStyle(LangStyle.color(p.partner, p))
+            Menu {
+                // Schnellwechsel: die zuletzt benutzten Paare, ohne in die Einstellungen zu gehen.
+                ForEach(RecentPairs.load(from: UserDefaults.standard).filter { $0 != p }, id: \.self) { q in
+                    Button("\(q.mine.flag) \(q.mine.native) ⇄ \(q.partner.flag) \(q.partner.native)") { m.pair = q }
+                }
+            } label: {
+                HStack(spacing: 12) {
+                    Text("\(p.mine.flag) \(p.mine.native)").foregroundStyle(LangStyle.color(p.mine, p))
+                    Image(systemName: "arrow.left.arrow.right").foregroundStyle(.secondary)
+                    Text("\(p.partner.flag) \(p.partner.native)").foregroundStyle(LangStyle.color(p.partner, p))
+                }
+                .font(.title2.bold())
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
             }
-            .font(.title2.bold())
-            .lineLimit(1)
-            .minimumScaleFactor(0.6)
+            .disabled(m.isBusy || RecentPairs.load(from: UserDefaults.standard).filter { $0 != p }.isEmpty)
             .accessibilityElement(children: .combine)
             Picker(T("direction"), selection: $m.mode) {
                 if p.distinguishable { Text(T("mode_auto")).tag(Direction.auto) }
@@ -489,9 +497,8 @@ struct TalkButton: View {
         .frame(maxWidth: .infinity, minHeight: 56)
         .background(held ? Color.red : Color.blue, in: Capsule())
         .overlay(Capsule().stroke(.white.opacity(0.7), lineWidth: held ? CGFloat(m.level) * 6 : 0))
-        .onLongPressGesture(minimumDuration: 0, maximumDistance: 80, perform: {}, onPressingChanged: { pressing in
-            if pressing { before(); m.pttPress() } else { m.pttRelease() }
-        })
+        .modifier(PushGesture(tapMode: m.pttTapMode, held: held,
+                              press: { before(); m.pttPress() }, release: { m.pttRelease() }))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(label)
         .accessibilityAddTraits(.isButton)
@@ -539,6 +546,7 @@ struct MicButton: View {
             .overlay(Capsule().stroke(.white.opacity(0.7), lineWidth: m.isListening ? CGFloat(m.level) * 6 : 0))
         }
         .accessibilityLabel(active ? T("stop") : T("start"))
+        .accessibilityInputLabels(active ? [T("stop"), "Stop", "Stopp"] : [T("start"), "Start", "Listen"])
     }
 }
 
@@ -593,7 +601,7 @@ struct Bubble: View {
             Text(t)
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(color)
-            RomanLine(text: roman)
+            RomanLine(text: roman, approximate: m.showRoman && entry.romanIsApproximate)
             if m.features.thaiExtras { PriceLine(text: entry.text + " " + t) }
             if m.backCheck, let b = entry.back { BackLine(text: b, deviates: entry.backDeviates) }
         } else if let err = entry.error {
@@ -716,6 +724,7 @@ struct Bubble: View {
 
 /// Eine Übersetzung bildschirmfüllend – zum Zeigen (Taxifahrer, Kellner).
 struct BigTextView: View {
+    @ScaledMetric(relativeTo: .largeTitle) private var scaled72: CGFloat = 72
     @Environment(InterpreterModel.self) private var m
     @Environment(\.dismiss) private var dismiss
     let entryID: UUID
@@ -726,7 +735,7 @@ struct BigTextView: View {
         VStack(spacing: 0) {
             VStack(spacing: 16) {
                 Text(e?.translation ?? "")
-                    .font(.system(size: 72, weight: .bold))
+                    .font(.system(size: scaled72, weight: .bold))
                     .minimumScaleFactor(0.2)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(LangStyle.color(e?.target ?? m.pair.partner, m.pair))
@@ -829,8 +838,10 @@ struct CommandsCard: View {
 struct RomanLine: View {
     let text: String?
     var font: Font = .caption
+    /// Maschinelle Umschrift: „≈“ davor, als grobe Lautschrift erkennbar.
+    var approximate = false
     var body: some View {
-        if let text { Text(text).font(font).italic().foregroundStyle(.secondary) }
+        if let text { Text((approximate ? "≈ " : "") + text).font(font).italic().foregroundStyle(.secondary) }
     }
 }
 
@@ -866,6 +877,10 @@ private struct ShareSummaryItems: View {
         let export = TranscriptExport(entries: m.visibleEntries, lang: m.uiLang)
         ShareLink(item: export, preview: SharePreview(T("share"))) { Label(T("share"), systemImage: "square.and.arrow.up") }
             .disabled(m.visibleEntries.isEmpty)
+        ShareLink(item: TranscriptCSV(entries: m.visibleEntries), preview: SharePreview("Dolmetscher.csv")) {
+            Label(T("export_csv"), systemImage: "tablecells")
+        }
+        .disabled(m.visibleEntries.isEmpty)
         if m.summaryEnabled && ConversationSummary.available(for: m.pair.mine) {
             Button { m.sheet = .summary } label: { Label(T("summary"), systemImage: "text.append") }
                 .disabled(m.visibleEntries.count < 2)

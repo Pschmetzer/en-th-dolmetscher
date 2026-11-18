@@ -27,3 +27,5 @@ RẢNH TAY
 • Hoạt động với Siri và ứng dụng Phím tắt.
 
 Ngôn ngữ: Anh, Thái, Đức, Tây Ban Nha, Pháp, Ý, Bồ Đào Nha, Hà Lan, Nga, Trung, Nhật, Hàn, Việt, Indonesia, Ả Rập, Hindi, Thổ Nhĩ Kỳ, Ba Lan, Ukraina. Ngôn ngữ nào dùng được ngoại tuyến tùy vào iPhone của bạn; ứng dụng chỉ hiển thị những ngôn ngữ mà máy thực sự nhận dạng, dịch và đọc được.
+
+Yêu cầu iOS 26 trở lên.

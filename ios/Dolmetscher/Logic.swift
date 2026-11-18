@@ -233,6 +233,9 @@ struct VoiceGate {
     private var history: [(rms: Float, dur: Double)] = []
     private var historyDur = 0.0
     private var speechRun = 0.0, silenceRun = 0.0, uttDur = 0.0
+    /// Die Rauschschätzung (Sortieren des 6-s-Fensters) nur alle 0,25 s neu rechnen, nicht bei jedem 2048er-Puffer.
+    private var sinceNoise = 1.0
+    static let noiseInterval = 0.25
 
     init(pause: Double) { self.pause = pause }
 
@@ -260,8 +263,12 @@ struct VoiceGate {
             history.append((rms, dur)); historyDur += dur
             while historyDur > window, history.count > 1 { historyDur -= history.removeFirst().dur }
             // 10.-Perzentil statt hartem Minimum: einzelne Aussetzer (digitale Stille) sollen den Pegel nicht nullen.
-            let sorted = history.map(\.rms).sorted()
-            noise = max(0.0005, sorted[min(sorted.count - 1, sorted.count / 10)])
+            sinceNoise += dur
+            if sinceNoise >= Self.noiseInterval || history.count <= 2 {
+                sinceNoise = 0
+                let sorted = history.map(\.rms).sorted()
+                noise = max(0.0005, sorted[min(sorted.count - 1, sorted.count / 10)])
+            }
         }
 
         var event: Event?

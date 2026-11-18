@@ -4,6 +4,7 @@
 import SwiftUI
 
 struct PartnerView: View {
+    @ScaledMetric(relativeTo: .largeTitle) private var scaled64: CGFloat = 64
     @Environment(InterpreterModel.self) private var m
     @Environment(\.dismiss) private var dismiss
     @AppStorage("partnerFlipped") private var flipped = false
@@ -14,10 +15,12 @@ struct PartnerView: View {
             if split {
                 ConversationSide(lang: m.pair.partner, isPartner: true)
                     .rotationEffect(.degrees(180))
+                    .accessibilitySortPriority(1)   // gedreht: VoiceOver liest zuerst die eigene (untere) Hälfte
                 Divider()
                 controls
                 Divider()
                 ConversationSide(lang: m.pair.mine, isPartner: false)
+                    .accessibilitySortPriority(2)
             } else {
                 single.rotationEffect(.degrees(flipped ? 180 : 0))
                 Divider()
@@ -25,6 +28,7 @@ struct PartnerView: View {
             }
         }
         .persistentSystemOverlays(.hidden)
+        .modifier(FullBrightness())
         .onAppear { UIApplication.shared.isIdleTimerDisabled = true }
         .onDisappear { UIApplication.shared.isIdleTimerDisabled = m.isListening }
     }
@@ -34,7 +38,7 @@ struct PartnerView: View {
             if let e = m.visibleEntries.last(where: { $0.translation != nil }), let t = e.translation {
                 VStack(spacing: 12) {
                     Text(t)
-                        .font(.system(size: 64, weight: .bold))
+                        .font(.system(size: scaled64, weight: .bold))
                         .minimumScaleFactor(0.25)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(LangStyle.color(e.target, m.pair))
@@ -71,11 +75,13 @@ struct PartnerView: View {
 
 /// Eine Hälfte des Konversationsmodus: alles in `lang`.
 struct ConversationSide: View {
+    @Environment(\.accessibilityDifferentiateWithoutColor) private var noColor
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(InterpreterModel.self) private var m
     let lang: Lang
     let isPartner: Bool
     @State private var digits: String?
+    @State private var reply = ""
 
     /// Satz in der Sprache dieser Seite: was hier gesagt wurde (Original) oder was für hier übersetzt wurde.
     private func line(_ e: Entry) -> (text: String, own: Bool)? {
@@ -96,7 +102,7 @@ struct ConversationSide: View {
                           onCancel: { digits = nil })
             } else {
                 messages(color)
-                if isPartner { answerCards }
+                if isPartner { answerCards; replyField }
             }
             turnButton(color)
         }
@@ -104,7 +110,10 @@ struct ConversationSide: View {
         .padding(.vertical, 10)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(color.opacity(expecting ? 0.14 : 0.05))
-        .overlay(Rectangle().stroke(color.opacity(expecting ? 0.8 : 0), lineWidth: 3))
+        .overlay(Rectangle().stroke(color.opacity(expecting ? 0.8 : 0), lineWidth: noColor && expecting ? 6 : 3))
+        .overlay(alignment: .topLeading) {
+            if noColor && expecting { Image(systemName: "mic.fill").padding(8).accessibilityHidden(true) }
+        }
         .animation(Motion.animation(reduce: reduceMotion), value: expecting)
     }
 
@@ -148,19 +157,41 @@ struct ConversationSide: View {
         }
     }
 
+    /// Eigene Antwort tippen (Tastatur in der Partnersprache): wird in meine Sprache übersetzt und angezeigt.
+    private var replyField: some View {
+        HStack(spacing: 8) {
+            TextField(lang.native, text: $reply, axis: .vertical)
+                .lineLimit(1...3)
+                .textFieldStyle(.roundedBorder)
+                .submitLabel(.send)
+                .onSubmit(sendReply)
+            Button(action: sendReply) { Image(systemName: "arrow.up.circle.fill").font(.title) }
+                .disabled(reply.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .accessibilityLabel(T("translate"))
+        }
+    }
+
+    private func sendReply() {
+        let t = reply.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !t.isEmpty else { return }
+        m.submit(t, speak: false, from: lang)
+        reply = ""
+    }
+
     private var answerCards: some View {
         HStack(spacing: 8) {
-            card(PartnerPhrases.text(.yes, lang), .green) { m.answer(.yes) }
-            card(PartnerPhrases.text(.no, lang), .red) { m.answer(.no) }
-            card(PartnerPhrases.text(.dontKnow, lang), .gray) { m.answer(.dontKnow) }
+            card(PartnerPhrases.text(.yes, lang), .green, icon: "checkmark") { m.answer(.yes) }
+            card(PartnerPhrases.text(.no, lang), .red, icon: "xmark") { m.answer(.no) }
+            card(PartnerPhrases.text(.dontKnow, lang), .gray, icon: "questionmark") { m.answer(.dontKnow) }
             card("123", .blue) { digits = "" }
                 .accessibilityLabel(PartnerPhrases.text(.number, lang))
         }
     }
 
-    private func card(_ title: String, _ tint: Color, action: @escaping () -> Void) -> some View {
+    private func card(_ title: String, _ tint: Color, icon: String? = nil, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Text(title)
+            // Ohne Farbunterscheidung (Einstellung „Ohne Farbe unterscheiden“): Symbol zusätzlich zur Farbe.
+            (noColor && icon != nil ? Text(Image(systemName: icon!)) + Text(" ") + Text(title) : Text(title))
                 .font(.headline)
                 .lineLimit(2)
                 .minimumScaleFactor(0.6)
@@ -201,9 +232,8 @@ struct ConversationSide: View {
         let held = m.pttHeld && m.expected == lang
         return turnLabel(color, active: held, icon: held ? "waveform" : "hand.tap.fill")
             .overlay(Capsule().stroke(.white.opacity(0.8), lineWidth: held ? 3 : 0))
-            .onLongPressGesture(minimumDuration: 0, maximumDistance: 80, perform: {}, onPressingChanged: { pressing in
-                if pressing { m.holdToSpeak(lang) } else { m.pttRelease() }
-            })
+            .modifier(PushGesture(tapMode: m.pttTapMode, held: held,
+                                  press: { m.holdToSpeak(lang) }, release: { m.pttRelease() }))
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(turnTitle + ", " + T(held ? "ptt_release" : "ptt_hold"))
             .accessibilityAddTraits(.isButton)

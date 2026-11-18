@@ -1,5 +1,6 @@
 import XCTest
 import UIKit
+import AVFAudio
 @testable import Dolmetscher
 
 /// Runde 7: Robustheit, Barrierefreiheit und kleine Funktionen der iPhone-App.
@@ -159,6 +160,94 @@ final class Round7Tests: XCTestCase {
     func testWhisperQueueIsBounded() {
         XCTAssertEqual(WhisperSpeechEngine.maxQueuedJobs, 2)
         XCTAssertGreaterThanOrEqual(WhisperSpeechEngine.maxConsecutiveFailures, 2)
+    }
+
+    // MARK: Runde 7b: Modus, Verlauf, Lernkasten
+
+    func testExpectSpeakerNeverChangesStoredMode() {
+        let pair = LangPair(mine: .en, partner: .th)
+        XCTAssertEqual(ListenOverride.needed(for: .th, mode: .mine, pair: pair), .partner)
+        XCTAssertEqual(ListenOverride.needed(for: .en, mode: .partner, pair: pair), .mine)
+        XCTAssertNil(ListenOverride.needed(for: .th, mode: .auto, pair: pair))
+        XCTAssertNil(ListenOverride.needed(for: .de, mode: .mine, pair: pair), "Sprache nicht im Paar")
+    }
+
+    func testRetentionCap() {
+        XCTAssertEqual(Retention.cap(days: 0), 300)
+        XCTAssertEqual(Retention.cap(days: 1), 300)
+        XCTAssertEqual(Retention.cap(days: 30), 2000)
+        XCTAssertEqual(Retention.cap(days: -1), 2000)
+    }
+
+    func testTalkCardsExpireButFavoritesStay() {
+        var deck = LeitnerDeck()
+        let t0 = Date(timeIntervalSince1970: 1_000_000)
+        deck.sync([.init(front: "Hallo", back: "สวัสดี", lang: .th),
+                   .init(front: "Preis?", back: "ราคา", lang: .th, talk: true)], now: t0)
+        XCTAssertEqual(deck.cards.count, 2)
+        XCTAssertEqual(deck.pruneTalk(olderThan: t0.addingTimeInterval(-10)), 0, "noch innerhalb der Aufbewahrung")
+        XCTAssertEqual(deck.pruneTalk(olderThan: t0.addingTimeInterval(10)), 1)
+        XCTAssertEqual(deck.cards.map(\.front), ["Hallo"])
+    }
+
+    func testDismissedCardDoesNotComeBack() {
+        var deck = LeitnerDeck()
+        let s = LeitnerDeck.Source(front: "Hallo", back: "สวัสดี", lang: .th)
+        deck.sync([s])
+        deck.dismiss(s.id)
+        XCTAssertTrue(deck.cards.isEmpty)
+        XCTAssertEqual(deck.sync([s]), 0)
+        // alte learn.json ohne die neuen Felder bleibt lesbar
+        let old = #"{"cards":[{"id":"th|x","front":"a","back":"b","lang":"th","box":1,"due":0}]}"#
+        XCTAssertEqual(try? JSONDecoder().decode(LeitnerDeck.self, from: Data(old.utf8)).cards.count, 1)
+    }
+
+    func testPhotoLinesAreNotLearnCards() {
+        var e = Entry(src: .en, dst: .th, text: "Pad Thai 80", translation: "ผัดไทย 80")
+        XCTAssertNotNil(LeitnerDeck.Source.from(e, pair: LangPair(mine: .en, partner: .th)))
+        e.photo = true
+        XCTAssertNil(LeitnerDeck.Source.from(e, pair: LangPair(mine: .en, partner: .th)))
+        XCTAssertFalse(TranscriptExport.text([e], lang: "en").contains("Pad Thai"))
+    }
+
+    func testFuzzyPhraseNeverSwapsKnownWords() {
+        let bill = Phrase(en: "Can I have the bill", th: "x", roman: "", category: "c")
+        let pill = Phrase(en: "Do you have a pill for headache", th: "y", roman: "", category: "c")
+        let list = [bill, pill]
+        XCTAssertNil(Phrasebook.match("Can I have the pill", lang: .en, in: list), "pill ist ein bekanntes Wort: anderer Satz")
+        XCTAssertEqual(Phrasebook.match("Can I have the billl", lang: .en, in: list)?.en, "Can I have the bill", "echter Tippfehler")
+        let num = Phrase(en: "The room costs 500 baht per night", th: "z", roman: "", category: "c")
+        XCTAssertNil(Phrasebook.match("The room costs 800 baht per night", lang: .en, in: [num]), "andere Zahl: nie ersetzen")
+    }
+
+    func testPhotoRowsKeepColumnsApartAndJoinPrices() {
+        func c(_ t: String, _ y: Double, _ x: Double) -> TextScanner.Cell { .init(text: t, midY: y, height: 0.02, minX: x) }
+        let lines = TextScanner.arrange([c("80", 0.80, 0.8), c("Pad Thai", 0.80, 0.1), c("Tom Yum", 0.70, 0.1),
+                                         c("Som Tam", 0.70, 0.55), c("Rice", 0.60, 0.1), c("฿120", 0.601, 0.8)])
+        XCTAssertEqual(lines, ["Pad Thai 80", "Tom Yum", "Som Tam", "Rice ฿120"])
+        XCTAssertTrue(TextScanner.looksLikePrice("120 บาท"))
+        XCTAssertTrue(TextScanner.looksLikePrice("12,50 €"))
+        XCTAssertFalse(TextScanner.looksLikePrice("Pad Thai"))
+    }
+
+    func testAbandonableReturnsOnCancel() async {
+        let t = Task { () -> String in
+            do { _ = try await abandonable { try? await Task.sleep(for: .seconds(30)); return 1 }; return "done" }
+            catch is CancellationError { return "cancelled" } catch { return "other" }
+        }
+        try? await Task.sleep(for: .milliseconds(100))
+        t.cancel()
+        let r = await withTimeout(seconds: 3) { await t.value }
+        XCTAssertEqual(r, "cancelled")
+        let ok = try? await abandonable { 7 }
+        XCTAssertEqual(ok, 7)
+    }
+
+    func testInterruptionResumePolicyAndWhisperSize() {
+        XCTAssertTrue(InterruptionPolicy.shouldRestart(optionsRaw: AVAudioSession.InterruptionOptions.shouldResume.rawValue))
+        XCTAssertFalse(InterruptionPolicy.shouldRestart(optionsRaw: 0))
+        XCTAssertEqual(WhisperSize.requiredBytes(sizeMB: 500), 1_000_000_000)
+        XCTAssertNil(WhisperSize.requiredBytes(sizeMB: nil))
     }
 
     func testReduceMotionDropsAnimation() {

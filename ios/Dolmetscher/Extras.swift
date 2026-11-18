@@ -5,7 +5,7 @@ import Foundation
 /// Umschrift (Lateinschrift) für Sprachen mit eigener Schrift – offline über ICU/CFStringTokenizer.
 /// Nur eine Lesehilfe: bei Thai folgt sie der Schrift (ISO 11940, vereinfacht), nicht genau der Aussprache.
 enum Romanizer {
-    static let langs: Set<Lang> = [.th, .ja, .ko, .zh]
+    static let langs: Set<Lang> = Set([Lang.th, .ja, .ko, .zh] + ["ru", "uk", "ar", "hi"].compactMap { Lang(rawValue: $0) })
 
     static func latin(_ text: String, _ lang: Lang) -> String? {
         guard langs.contains(lang), lang.scriptShare(text) > 0.3 else { return nil }

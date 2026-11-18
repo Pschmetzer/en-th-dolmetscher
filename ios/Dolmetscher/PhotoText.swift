@@ -16,10 +16,52 @@ enum TextScanner {
         req.recognitionLanguages = usable.isEmpty ? [Locale.Language(identifier: "en-US")] : usable
         req.usesLanguageCorrection = true
         let obs = try await req.perform(on: cg, orientation: CGImagePropertyOrientation(image.imageOrientation))
-        return obs
-            .sorted { $0.boundingBox.origin.y > $1.boundingBox.origin.y }
-            .compactMap { $0.topCandidates(1).first?.string.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
+        let cells: [Cell] = obs.compactMap { o in
+            guard let t = o.topCandidates(1).first?.string.trimmingCharacters(in: .whitespacesAndNewlines), !t.isEmpty else { return nil }
+            let b = o.boundingBox
+            return Cell(text: t, midY: b.origin.y + b.height / 2, height: b.height, minX: b.origin.x)
+        }
+        return arrange(cells)
+    }
+
+    /// Eine erkannte Textzeile mit Lage im Bild (Vision: y wächst nach oben, 0…1).
+    struct Cell: Equatable, Sendable {
+        var text: String
+        var midY: Double
+        var height: Double
+        var minX: Double
+    }
+
+    /// Zeilenweise von oben nach unten, in der Zeile von links nach rechts. Steht rechts eines Gerichts nur ein Preis
+    /// („Pad Thai … 80“), wird beides ein Eintrag; sonst bleiben Spalten getrennte Einträge (nicht vermischt).
+    static func arrange(_ cells: [Cell]) -> [String] {
+        let top = cells.sorted { $0.midY > $1.midY }
+        var rows: [[Cell]] = []
+        for c in top {
+            if let last = rows.last?.first, abs(last.midY - c.midY) < max(last.height, c.height) * 0.5 {
+                rows[rows.count - 1].append(c)
+            } else {
+                rows.append([c])
+            }
+        }
+        var out: [String] = []
+        for row in rows {
+            let r = row.sorted { $0.minX < $1.minX }
+            var i = 0
+            while i < r.count {
+                if i + 1 < r.count, !looksLikePrice(r[i].text), looksLikePrice(r[i + 1].text) {
+                    out.append(r[i].text + " " + r[i + 1].text); i += 2
+                } else {
+                    out.append(r[i].text); i += 1
+                }
+            }
+        }
+        return out
+    }
+
+    /// „80“, „฿120“, „120 บาท“, „12,50 €“: ein Preis ohne Gericht.
+    static func looksLikePrice(_ s: String) -> Bool {
+        s.range(of: #"^[฿$€£]?\s?\d[\d.,]*\s?(฿|฿|บาท|baht|THB|B|€|\$)?$"#, options: [.regularExpression, .caseInsensitive]) != nil
     }
 }
 
@@ -78,6 +120,7 @@ struct PhotoTextView: View {
     @State private var error: String?
     @State private var camera = false
     @State private var cameraDenied = false
+    @State private var scanTask: Task<Void, Never>?
 
     private var hasCamera: Bool { UIImagePickerController.isSourceTypeAvailable(.camera) }
 
@@ -110,7 +153,15 @@ struct PhotoTextView: View {
                             .frame(maxWidth: .infinity)
                     }
                 }
-                if busy { Section { HStack { ProgressView(); Text(T("reading_text")) } } }
+                if busy {
+                    Section {
+                        HStack {
+                            ProgressView(); Text(T("reading_text"))
+                            Spacer()
+                            Button(T("cancel")) { scanTask?.cancel(); scanTask = nil; busy = false }.buttonStyle(.borderless)
+                        }
+                    }
+                }
                 if let error {
                     Section {
                         Text("⚠️ " + error).foregroundStyle(.red)
@@ -147,7 +198,7 @@ struct PhotoTextView: View {
                     Button(T("translate")) {
                         let chosen = picked.isEmpty ? lines : picked.sorted().map { lines[$0] }
                         // Jede Zeile einzeln: Speisekarten sind Listen, keine Sätze.
-                        for line in chosen.prefix(30) { m.submit(line, speak: false) }
+                        for line in chosen.prefix(30) { m.submit(line, speak: false, photo: true) }
                         dismiss()
                     }
                     .disabled(lines.isEmpty)
@@ -172,15 +223,24 @@ struct PhotoTextView: View {
         }
     }
 
+    /// Erkennung als eigener Task, damit „Abbrechen“ und ein neues Foto die alte Erkennung wirklich verwerfen.
     private func scan(_ img: UIImage) async {
+        scanTask?.cancel()
         image = img
         busy = true; error = nil; cameraDenied = false; lines = []; picked = []
-        defer { busy = false }
-        do {
-            lines = try await TextScanner.lines(in: img, langs: [m.pair.partner, m.pair.mine])
-            if lines.isEmpty { error = T("no_text") }
-        } catch {
-            self.error = error.localizedDescription
+        let langs = [m.pair.partner, m.pair.mine]
+        let t = Task {
+            do {
+                let found = try await TextScanner.lines(in: img, langs: langs)
+                guard !Task.isCancelled else { return }
+                lines = found
+                if found.isEmpty { error = T("no_text") }
+            } catch {
+                if !Task.isCancelled { self.error = error.localizedDescription }
+            }
+            if !Task.isCancelled { busy = false }
         }
+        scanTask = t
+        await t.value
     }
 }

@@ -76,6 +76,9 @@ enum Phrasebook {
         let n = normalize(text)
         guard n.count >= 2 else { return nil }
         var best: (Phrase, Double)?
+        // Wörter, die das Satzbuch kennt: ein Unterschied in einem bekannten Wort („pill“ ≠ „bill“) ist kein Tippfehler,
+        // sondern ein anderer Satz – dann nie unscharf ersetzen (der Nutzer sähe seinen Satz, hörte aber einen anderen).
+        let vocab = known(list)
         for p in list {
             let key = lang == .de ? (p.de ?? "") : p.en
             let k = normalize(key)
@@ -84,10 +87,32 @@ enum Phrasebook {
             // nur bei längeren Sätzen unscharf (Tippfehler), kurze müssen genau passen;
             // sicherheitskritische Sätze nur genau, und nie über eine Verneinung hinweg („not allergic“ ≠ „allergic“).
             guard n.count >= 10, !p.isCritical, negated(k) == negated(n) else { continue }
+            guard sameNumbers(k, n), typoOnly(n, against: k, vocab: vocab) else { continue }
             let sim = BackCheck.similarity(k, n)
             if sim >= 0.9, sim > (best?.1 ?? 0) { best = (p, sim) }
         }
         return best?.0
+    }
+
+    /// Alle Wörter des Satzbuchs (englisch und deutsch, normalisiert).
+    static func known(_ list: [Phrase]) -> Set<String> {
+        var out = Set<String>()
+        for p in list {
+            for key in [p.en, p.de ?? ""] { for w in normalize(key).split(separator: " ") { out.insert(String(w)) } }
+        }
+        return out
+    }
+
+    private static func digits(_ s: String) -> [String] {
+        s.split { !$0.isNumber }.map(String.init)
+    }
+
+    static func sameNumbers(_ a: String, _ b: String) -> Bool { digits(a) == digits(b) }
+
+    /// Weicht der Satz nur in Wörtern ab, die das Satzbuch gar nicht kennt (echter Tippfehler)?
+    static func typoOnly(_ typed: String, against key: String, vocab: Set<String>) -> Bool {
+        let keyWords = Set(key.split(separator: " ").map(String.init))
+        return typed.split(separator: " ").map(String.init).allSatisfy { keyWords.contains($0) || !vocab.contains($0) }
     }
 
     /// Enthält der (normalisierte) Satz eine Verneinung?

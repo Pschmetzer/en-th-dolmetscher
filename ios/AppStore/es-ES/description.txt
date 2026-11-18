@@ -27,3 +27,5 @@ MANOS LIBRES
 • Funciona con Siri y la app Atajos.
 
 Idiomas: inglés, tailandés, alemán, español, francés, italiano, portugués, neerlandés, ruso, chino, japonés, coreano, vietnamita, indonesio, árabe, hindi, turco, polaco y ucraniano. Cuáles funcionan sin conexión depende de lo que admita tu iPhone; la app solo ofrece idiomas que realmente puede reconocer, traducir y pronunciar.
+
+Requiere iOS 26 o posterior.

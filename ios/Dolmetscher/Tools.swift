@@ -204,6 +204,9 @@ struct EmergencyView: View {
 /// Allergie-Karte bildschirmfüllend zum Zeigen (Restaurant, Garküche). Feste Sätze in der Partnersprache;
 /// ist die Sprache nicht hinterlegt: Englisch plus maschinelle Übersetzung (gekennzeichnet).
 struct AllergyCardView: View {
+    @ScaledMetric(relativeTo: .largeTitle) private var scaled34: CGFloat = 34
+    @ScaledMetric(relativeTo: .largeTitle) private var scaled40: CGFloat = 40
+    @ScaledMetric(relativeTo: .largeTitle) private var scaled54: CGFloat = 54
     @Environment(InterpreterModel.self) private var m
     @Environment(\.dismiss) private var dismiss
     @State private var flipped = false
@@ -219,13 +222,13 @@ struct AllergyCardView: View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
-                    Label("⚠️", systemImage: "allergens").labelStyle(.iconOnly).font(.system(size: 54)).foregroundStyle(.red)
+                    Label("⚠️", systemImage: "allergens").labelStyle(.iconOnly).font(.system(size: scaled54)).foregroundStyle(.red)
                     if let fixed {
-                        Text(fixed.title).font(.system(size: 40, weight: .heavy)).foregroundStyle(.red)
+                        Text(fixed.title).font(.system(size: scaled40, weight: .heavy)).foregroundStyle(.red)
                         Text(fixed.warning).font(.title2.weight(.semibold))
                     } else {
                         if let machine {
-                            Text(machine).font(.system(size: 34, weight: .heavy)).foregroundStyle(.red)
+                            Text(machine).font(.system(size: scaled34, weight: .heavy)).foregroundStyle(.red)
                             Label(T("machine_translated"), systemImage: "exclamationmark.triangle").font(.footnote).foregroundStyle(.orange)
                         }
                         if let english {
@@ -258,6 +261,7 @@ struct AllergyCardView: View {
             .padding()
         }
         .persistentSystemOverlays(.hidden)
+        .modifier(FullBrightness())
         .task {
             guard fixed == nil, let english else { return }
             machine = await m.translateText(english.title + " " + english.warning, from: .en, to: partner)
@@ -289,6 +293,21 @@ struct BahtCalculatorView: View {
     @AppStorage("fxCode") private var code = FXDefaults.code()
     @State private var baht = ""
     @FocusState private var focused: Bool
+    /// Kurs holen: nur auf Wunsch (Frankfurter/EZB). Ohne Netz bleibt der letzte Wert.
+    @AppStorage("fxAuto") private var fxAuto = false
+    @AppStorage("fxDate") private var fxDate = ""
+    @State private var fxBusy = false
+
+    private func fetchRate() async {
+        guard fxAuto, code.count == 3, let url = FXFetch.url(code: code) else { return }
+        fxBusy = true
+        defer { fxBusy = false }
+        var req = URLRequest(url: url); req.timeoutInterval = 6
+        guard let (data, resp) = try? await URLSession.shared.data(for: req),
+              OnlineStatus.of(resp) == .ok, let r = FXFetch.parse(data, code: code) else { return }
+        rate = r.rate
+        fxDate = r.date
+    }
 
     /// „1,200“ = 1200 (Tausender-Komma wie auf Thai-Preisschildern), „12,5“ = 12.5.
     private var amount: Double? { AmountParser.parse(baht) }
@@ -337,12 +356,23 @@ struct BahtCalculatorView: View {
                             Text(home(b)).foregroundStyle(.secondary).monospacedDigit()
                         }
                     }
+                    Toggle(T("fx_auto"), isOn: $fxAuto)
+                    if fxAuto {
+                        HStack {
+                            if fxBusy { ProgressView() }
+                            Text(fxDate.isEmpty ? T("fx_manual") : String(format: T("fx_rate_date"), fxDate))
+                                .font(.footnote).foregroundStyle(.secondary)
+                            Spacer()
+                            Button(T("retry")) { Task { await fetchRate() } }.buttonStyle(.borderless)
+                        }
+                    }
                 } header: { Text(T("baht_rate")) } footer: { Text(T("baht_note")) }
             }
             .navigationTitle(T("baht_calc"))
             .navigationBarTitleDisplayMode(.inline)
             .doneToolbar { dismiss() }
             .onAppear { focused = true }
+            .task(id: fxAuto) { await fetchRate() }
             .fullScreenCover(isPresented: $showPrice) {
                 PriceShowView(amount: Int(amount ?? 0), home: amount.map(home))
             }

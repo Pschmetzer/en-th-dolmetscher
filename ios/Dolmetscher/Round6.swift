@@ -63,7 +63,7 @@ struct TranscriptExport: Transferable {
         let f = DateFormatter()
         f.locale = Locale(identifier: lang)
         f.dateStyle = .short; f.timeStyle = .short
-        return entries.map {
+        return entries.filter { $0.photo != true }.map {
             "[\(f.string(from: $0.date))] \($0.src.rawValue.uppercased())→\($0.target.rawValue.uppercased()): \($0.text)\n→ \($0.translation ?? "–")"
         }.joined(separator: "\n\n")
     }

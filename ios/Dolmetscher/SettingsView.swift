@@ -83,6 +83,10 @@ struct SettingsView: View {
                             Button { whisper.download() } label: {
                                 Label(T("whisper_get") + Self.size(whisper.selected), systemImage: "arrow.down.circle")
                             }
+                            if whisper.cellularPending {
+                                Text(T("whisper_cellular")).font(.footnote).foregroundStyle(.orange)
+                                Button(T("whisper_cellular_go")) { whisper.download(allowCellular: true) }
+                            }
                         }
                         if let e = whisper.error { Text("⚠️ " + e).font(.footnote).foregroundStyle(.red) }
                         if whisper.ready != nil {
@@ -107,7 +111,7 @@ struct SettingsView: View {
                 AboutSection()
 
                 Section {
-                    Picker(T("ui_lang"), selection: $m.uiLang) {
+                    Picker(T("ui_lang"), selection: Binding(get: { m.uiLang }, set: { m.chooseUILang($0) })) {
                         ForEach(L10n.languages, id: \.self) { code in
                             // Eigenname der Sprache („Deutsch“, „ไทย“, „简体中文“)
                             Text(Locale(identifier: code).localizedString(forIdentifier: code)?.capitalized(with: Locale(identifier: code)) ?? code).tag(code)
@@ -149,8 +153,16 @@ struct SettingsView: View {
             }
             Toggle(T("background"), isOn: $m.background)
             Toggle(T("headset"), isOn: $m.headset)
+            Picker(T("mic_input"), selection: $m.micUID) {
+                Text(T("mic_auto")).tag(String?.none)
+                ForEach(AVAudioSession.sharedInstance().availableInputs ?? [], id: \.uid) { port in
+                    Text(port.portName).tag(Optional(port.uid))
+                }
+            }
+            if #available(iOS 18.2, *) { Toggle(T("echo_cancel"), isOn: $m.echoCancel) }
             Toggle(T("thai_speaker"), isOn: $m.thaiOnSpeaker)
             Toggle(T("ptt"), isOn: $m.pushToTalk)
+            if m.pushToTalk { Toggle(T("ptt_tap"), isOn: $m.pttTapMode) }
             Toggle(T("live_activity"), isOn: $m.liveActivity)
             Picker(T("sensitivity"), selection: $m.sensitivity) {
                 Text(T("sens_quiet")).tag(Sensitivity.quiet)
@@ -197,8 +209,12 @@ struct SettingsView: View {
                 Text(T("history_30d")).tag(30)
                 Text(T("history_forever")).tag(-1)
             }
-            if DeviceAuth.available {
+            if DeviceAuth.available || m.lockHistory {
                 Toggle(T("lock_history"), isOn: lockBinding)
+            }
+            if m.lockInactive {
+                Label(T("lock_inactive"), systemImage: "exclamationmark.triangle.fill")
+                    .font(.footnote).foregroundStyle(.orange)
             }
             Toggle(T("privacy_shield"), isOn: $m.privacyShield)
             Toggle(T("culture_hints"), isOn: $m.cultureHints)
@@ -279,6 +295,10 @@ struct SettingsView: View {
             Text("\(LangStyle.flag(lang)) \(v?.name ?? "–")")
             Spacer()
             Text(q).foregroundStyle(v?.quality == .default ? Color.orange : Color.secondary)
+            // Probehören: so klingt die Stimme, die die App für diese Sprache nimmt.
+            Button { m.announce(PartnerPhrases.text(.nowYou, lang), lang: lang) } label: { Image(systemName: "speaker.wave.2.fill") }
+                .buttonStyle(.borderless)
+                .accessibilityLabel(T("replay"))
         }
     }
 

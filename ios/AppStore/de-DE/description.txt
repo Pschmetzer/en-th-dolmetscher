@@ -27,3 +27,5 @@ FREIHÄNDIG
 • Funktioniert mit Siri und der Kurzbefehle-App.
 
 Sprachen: Englisch, Thai, Deutsch, Spanisch, Französisch, Italienisch, Portugiesisch, Niederländisch, Russisch, Chinesisch, Japanisch, Koreanisch, Vietnamesisch, Indonesisch, Arabisch, Hindi, Türkisch, Polnisch, Ukrainisch. Welche davon offline funktionieren, hängt davon ab, was Ihr iPhone unterstützt; die App bietet nur Sprachen an, die sie wirklich erkennen, übersetzen und sprechen kann.
+
+Voraussetzung: iOS 26 oder neuer.

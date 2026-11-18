@@ -10,7 +10,7 @@ struct TranslationResult: Sendable {
 }
 
 enum TranslateError: LocalizedError, Equatable {
-    case offlineMissing, failed, noNetwork, cooldown, rateLimited
+    case offlineMissing, failed, noNetwork, cooldown, rateLimited, appleFailed
     var errorDescription: String? {
         switch self {
         case .offlineMissing: return T("err_offline_missing")
@@ -18,6 +18,7 @@ enum TranslateError: LocalizedError, Equatable {
         case .noNetwork: return T("err_no_network")
         case .cooldown: return T("err_online_cooldown")
         case .rateLimited: return T("err_online_limit")
+        case .appleFailed: return T("err_apple_failed")
         }
     }
 }
@@ -117,6 +118,20 @@ actor Translator {
 
     static func language(_ l: Lang) -> Locale.Language { Locale.Language(identifier: l.translationCode) }
 
+    private var installedCache: [String: (Bool, Date)] = [:]
+
+    /// Paketstatus je Richtung 30 s merken: `LanguageAvailability` je Satz zu fragen kostet Latenz.
+    private func installed(from: Lang, to: Lang) async -> Bool {
+        let key = "\(from.rawValue)>\(to.rawValue)"
+        if let (v, t) = installedCache[key], Date().timeIntervalSince(t) < 30 { return v }
+        let v = await Self.offlineInstalled(from: from, to: to)
+        installedCache[key] = (v, Date())
+        return v
+    }
+
+    /// Nach einem Paket-Download den Merker verwerfen.
+    func invalidateInstalled() { installedCache = [:] }
+
     /// Sind die Offline-Sprachpakete für diese Richtung installiert?
     static func offlineInstalled(from: Lang, to: Lang) async -> Bool {
         await LanguageAvailability().status(from: language(from), to: language(to)) == .installed
@@ -124,7 +139,8 @@ actor Translator {
 
     func translate(_ text: String, from: Lang, to: Lang, allowOnline: Bool) async throws -> TranslationResult {
         let key = "\(from.rawValue)>\(to.rawValue)"
-        if useApple, await Self.offlineInstalled(from: from, to: to) {
+        var appleFailed = false
+        if useApple, await installed(from: from, to: to) {
             do {
                 let s = sessions[key] ?? TranslationSession(installedSource: Self.language(from), target: Self.language(to))
                 sessions[key] = s
@@ -133,13 +149,15 @@ actor Translator {
                     if !out.isEmpty { return TranslationResult(text: out, provider: "apple") }
                 } else {
                     sessions[key] = nil
-                    if !allowOnline { throw TranslateError.failed }
+                    appleFailed = true
                 }
             } catch {
                 sessions[key] = nil
+                appleFailed = true
             }
         }
-        guard allowOnline else { throw TranslateError.offlineMissing }
+        // Das Paket ist da, die Übersetzung hat aber nicht geantwortet: nicht „Paket fehlt“ melden.
+        guard allowOnline else { throw appleFailed ? TranslateError.appleFailed : TranslateError.offlineMissing }
         guard isOnline() else { throw TranslateError.noNetwork }
         guard breaker.allows(at: Date()) else { throw TranslateError.cooldown }
         var limited = false

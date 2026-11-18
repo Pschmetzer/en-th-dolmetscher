@@ -15,6 +15,9 @@ struct LeitnerDeck: Codable, Equatable, Sendable {
         var roman: String?
         var box: Int = 1
         var due: Date
+        /// Aus einem Gespräch (nicht aus Favoriten): lebt nicht länger als der Verlauf. Optional für alte learn.json.
+        var talk: Bool? = nil
+        var created: Date? = nil
     }
 
     /// Eine mögliche Karte aus Favoriten oder Verlauf.
@@ -23,6 +26,7 @@ struct LeitnerDeck: Codable, Equatable, Sendable {
         var back: String
         var lang: Lang
         var roman: String?
+        var talk = false
 
         var id: String { lang.rawValue + "|" + Phrasebook.normalize(back) }
     }
@@ -32,14 +36,17 @@ struct LeitnerDeck: Codable, Equatable, Sendable {
     static let intervals: [Int] = [0, 1, 3, 7, 14]
 
     var cards: [Card] = []
+    /// Vom Nutzer gelöschte Karten: `sync` legt sie nicht wieder an. Optional für alte learn.json.
+    var dismissed: [String]? = nil
 
     /// Neue Quellen als Karten in Fach 1 aufnehmen (fällig sofort); vorhandene behalten ihren Stand.
     @discardableResult
     mutating func sync(_ sources: [Source], now: Date = Date()) -> Int {
-        var known = Set(cards.map(\.id))
+        var known = Set(cards.map(\.id)).union(dismissed ?? [])
         var added = 0
         for s in sources where !s.back.isEmpty && !s.front.isEmpty && known.insert(s.id).inserted {
-            cards.append(Card(id: s.id, front: s.front, back: s.back, lang: s.lang, roman: s.roman, due: now))
+            cards.append(Card(id: s.id, front: s.front, back: s.back, lang: s.lang, roman: s.roman, due: now,
+                              talk: s.talk ? true : nil, created: s.talk ? now : nil))
             added += 1
         }
         return added
@@ -73,6 +80,22 @@ struct LeitnerDeck: Codable, Equatable, Sendable {
 
     mutating func remove(_ id: String) { cards.removeAll { $0.id == id } }
 
+    /// Karte löschen und merken, dass sie nicht automatisch wiederkommen soll.
+    mutating func dismiss(_ id: String) {
+        remove(id)
+        var d = dismissed ?? []
+        if !d.contains(id) { d.append(id) }
+        dismissed = d
+    }
+
+    /// Karten aus Gesprächen entfernen, die vor `cutoff` entstanden sind (Verlaufseinstellung). Gibt die Anzahl zurück.
+    @discardableResult
+    mutating func pruneTalk(olderThan cutoff: Date) -> Int {
+        let before = cards.count
+        cards.removeAll { $0.talk == true && ($0.created ?? .distantPast) < cutoff }
+        return before - cards.count
+    }
+
     /// Anzahl Karten je Fach (1…5).
     var counts: [Int] { (1...Self.boxes).map { b in cards.filter { $0.box == b }.count } }
 }
@@ -80,12 +103,12 @@ struct LeitnerDeck: Codable, Equatable, Sendable {
 extension LeitnerDeck.Source {
     /// Satz aus einem Gespräch: Vorderseite eigene Sprache, Rückseite Partnersprache. Andere Paare: nil.
     static func from(_ e: Entry, pair: LangPair) -> Self? {
-        guard e.error == nil, let t = e.translation, !t.isEmpty, e.text.count <= 160 else { return nil }
+        guard e.error == nil, e.photo != true, let t = e.translation, !t.isEmpty, e.text.count <= 160 else { return nil }
         if e.src == pair.mine && e.target == pair.partner {
-            return .init(front: e.text, back: t, lang: e.target, roman: e.romanized)
+            return .init(front: e.text, back: t, lang: e.target, roman: e.romanized, talk: true)
         }
         if e.src == pair.partner && e.target == pair.mine {
-            return .init(front: t, back: e.text, lang: e.src, roman: Romanizer.latin(e.text, e.src))
+            return .init(front: t, back: e.text, lang: e.src, roman: Romanizer.latin(e.text, e.src), talk: true)
         }
         return nil
     }
@@ -112,6 +135,9 @@ struct LearnView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 16) {
+                if m.learnLocked {
+                    lockedState
+                } else {
                 BoxBar(counts: m.learn.counts)
                 if let card {
                     CardFace(card: card, revealed: revealed) { m.announceCard(card) }
@@ -119,12 +145,22 @@ struct LearnView: View {
                 } else {
                     emptyState
                 }
+                }
             }
             .padding()
             .navigationTitle(T("learn"))
             .navigationBarTitleDisplayMode(.inline)
             .doneToolbar { dismiss() }
+            .toolbar {
+                if !m.learnLocked, let card {
+                    ToolbarItem(placement: .primaryAction) {
+                        Button(role: .destructive) { m.removeCard(card.id); revealed = false } label: { Image(systemName: "trash") }
+                            .accessibilityLabel(T("learn_delete"))
+                    }
+                }
+            }
             .onAppear { m.syncLearn(); now = Date() }
+            .onChange(of: m.learnLocked) { _, locked in if !locked { m.syncLearn() } }
         }
     }
 
@@ -144,6 +180,17 @@ struct LearnView: View {
         }
         Text(String(format: T("learn_due"), m.learn.due(now: now).count))
             .font(.footnote).foregroundStyle(.secondary)
+    }
+
+    /// Der Lernkasten enthält Sätze aus Gesprächen: derselbe Schutz wie der Verlauf.
+    private var lockedState: some View {
+        VStack(spacing: 12) {
+            Spacer()
+            Image(systemName: "lock.fill").font(.system(size: 48)).foregroundStyle(.secondary)
+            Text(T("learn_locked")).multilineTextAlignment(.center).foregroundStyle(.secondary)
+            Button(T("lock_unlock")) { m.unlockHistory() }.buttonStyle(.borderedProminent)
+            Spacer()
+        }
     }
 
     private var emptyState: some View {
