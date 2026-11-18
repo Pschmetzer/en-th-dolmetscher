@@ -32,7 +32,7 @@
       "th": "เงินมัดจำ"
     },
     {
-      "en": "flat tire",
+      "en": "flat tyre",
       "th": "ยางแบน"
     }
   ],
@@ -48,14 +48,13 @@
       "critical": true
     },
     {
-      "en": "Could I have a helmet, please?",
-      "th": "ขอหมวกกันน็อกด้วย",
-      "critical": true
-    },
-    {
       "en": "I do not want to leave my passport.",
       "th": "ไม่อยากฝากหนังสือเดินทางไว้",
       "critical": true
+    },
+    {
+      "en": "Could I have a helmet, please?",
+      "th": "ขอหมวกกันน็อกด้วย"
     },
     {
       "en": "I would like to rent a bicycle.",
@@ -90,7 +89,7 @@
       "th": "มีจักรยานเกียร์ไหม"
     },
     {
-      "en": "I have a flat tire.",
+      "en": "I have a flat tyre.",
       "th": "ยางแบน"
     },
     {

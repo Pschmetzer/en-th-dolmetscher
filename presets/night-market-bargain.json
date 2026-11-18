@@ -43,11 +43,6 @@
       "critical": true
     },
     {
-      "en": "My wallet was stolen.",
-      "th": "กระเป๋าสตางค์ถูกขโมย",
-      "critical": true
-    },
-    {
       "en": "I am allergic to peanuts.",
       "th": "แพ้ถั่วลิสง",
       "critical": true
@@ -61,6 +56,10 @@
       "en": "Please let go of my arm.",
       "th": "ปล่อยแขนด้วย",
       "critical": true
+    },
+    {
+      "en": "My wallet was stolen.",
+      "th": "กระเป๋าสตางค์ถูกขโมย"
     },
     {
       "en": "How much is this?",

@@ -2,6 +2,10 @@
 
 Zuerst der Blick ins Protokoll: `~/Library/Logs/Dolmetscher/engine.log` (ab etwa 1 MB rotiert). Gesprächstext steht nur drin, wenn die Engine mit `--log-text` lief; entferne Persönliches, bevor du ein Log teilst. Das Log der Ersteinrichtung liegt in `~/Library/Application Support/Dolmetscher/setup.log`. Englische Fassung: [en/TROUBLESHOOTING.md](en/TROUBLESHOOTING.md).
 
+## Selbsttest und Diagnose (Mac)
+
+Hilfe > „Selbsttest …“ prüft Mikrofon, Lautsprecher, Netz, Sprachmodelle und Python-Engine und nennt je Zeile, was zu tun ist. „Diagnosebericht kopieren“ legt einen Bericht für ein Issue in die Zwischenablage: ohne Gesprächstexte, Schlüssel, Home-Pfad und Benutzernamen.
+
 ## Mikrofon
 
 **Meldung „Kein Mikrofon-Zugriff“ (Mac)**

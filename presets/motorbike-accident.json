@@ -60,7 +60,8 @@
     },
     {
       "en": "I need to go to the hospital.",
-      "th": "ต้องไปโรงพยาบาล"
+      "th": "ต้องไปโรงพยาบาล",
+      "critical": true
     },
     {
       "en": "Please do not move the vehicles yet.",

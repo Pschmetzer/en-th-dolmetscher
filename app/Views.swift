@@ -186,6 +186,7 @@ struct ContentView: View {
     @State private var bigText: Utterance?
     @State private var showGlossaryAdd = false
     @State private var showShortcuts = false
+    @State private var showSelfTest = false
     @State private var showProfiles = false
     /// Hinweis „Zwei-Personen-Modus ohne Profil“ für diese Sitzung weggeklickt.
     @State private var twoPersonHintClosed = false
@@ -311,11 +312,13 @@ struct ContentView: View {
         .sheet(item: $bigText) { BigTextSheet(u: $0) }
         .sheet(isPresented: $showGlossaryAdd) { GlossaryAddSheet().environmentObject(m) }
         .sheet(isPresented: $showShortcuts) { ShortcutsSheet() }
+        .sheet(isPresented: $showSelfTest) { SelfTestSheet().environmentObject(m) }
         .onReceive(NotificationCenter.default.publisher(for: .showBigText)) { n in
             if let id = n.object as? UUID { bigText = m.items.first { $0.id == id } }
         }
         .onReceive(NotificationCenter.default.publisher(for: .showGlossaryAdd)) { _ in showGlossaryAdd = true }
         .onReceive(NotificationCenter.default.publisher(for: .showShortcuts)) { _ in showShortcuts = true }
+        .onReceive(NotificationCenter.default.publisher(for: .showSelfTest)) { _ in showSelfTest = true }
         .id(uiLang)                                   // Oberflächensprache sofort umschalten
         .onChange(of: m.items.isEmpty) { if m.items.isEmpty { query = ""; langFilter = ""; userScrolledUp = false } }
         .onChange(of: uiLang) { m.refreshStatus() }

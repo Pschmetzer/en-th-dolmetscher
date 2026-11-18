@@ -37,7 +37,7 @@ struct Entry: Identifiable, Codable, Equatable {
 }
 
 enum AppSheet: String, Identifiable {
-    case settings, phrasebook, photo, help, emergency, baht, allergy, privacy, prep, places, helpNow, learn, summary, welcome
+    case settings, phrasebook, photo, help, emergency, baht, allergy, privacy, prep, places, helpNow, learn, summary, welcome, history
     #if DEBUG
     case widgetPreview
     #endif
@@ -1027,6 +1027,28 @@ final class InterpreterModel {
         persist()
         canUndoClear = true
         flash("🗑 " + T("cleared"), seconds: 8)
+        undoTask?.cancel()
+        undoTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(8))
+            guard !Task.isCancelled, let self else { return }
+            self.canUndoClear = false
+            self.undo.drop()
+        }
+    }
+
+    /// Mehrere Sätze aus dem Verlauf löschen – wie „Verlauf leeren“ für einige Sekunden zurückholbar.
+    /// Gesperrte (verborgene) Sätze bleiben unberührt.
+    func delete(ids: Set<UUID>) {
+        let gone = visibleEntries.filter { ids.contains($0.id) }
+        guard !gone.isEmpty else { return }
+        if let s = speakingID, ids.contains(s) { stopSpeaking() }
+        undo.keep(gone, seconds: 8)
+        let goneIDs = Set(gone.map(\.id))
+        entries.removeAll { goneIDs.contains($0.id) }
+        pruneRevisions()
+        persist()
+        canUndoClear = true
+        flash("🗑 " + String(format: T("hs_deleted"), "\(gone.count)"), seconds: 8)
         undoTask?.cancel()
         undoTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(8))

@@ -45,6 +45,10 @@ Pull requests #16–#47. Not yet published as a release.
 - **More robust** (#39, #43, #47): the microphone keeps trying to reconnect instead of giving up; the Claude service's “try again later” times are respected; a speech-detection self-test at start; the log file is rotated; Thai laughter “555” is read as laughter; more single digits and Thai number words are compared; several smaller fixes from the idea list.
 - **Engine, round 7** (error fixes and small improvements): voice commands no longer do the opposite (“too loud” = quieter, “not so fast” = slower, “don't translate” = pause, “mute off” = resume, “play” = resume); Claude's timeout now depends on the model and a long pause (“credit balance”) is no longer cut short by a later timeout or kept after you replace the key; quick phrases, “speak again” and repeat are never skipped during catch-up; a stale connection after sleep or a Wi-Fi change no longer costs a sentence; captive Wi-Fi portals are reported (`captive_portal`); date and number checks understand Buddhist-era years, month names, “1½ hours”, “a hundred”; quotes are no longer stripped from the middle of a translation; Thai text is no longer split inside a word; laughter and filler words in more languages; new control field `clear` (wipes conversation context, texts in memory and queued speech), `llm_retry`, `control_invalid`/`overrun`/`profiles_skipped` events; history: new session after a pause, CSV safe in Excel, SRT with blank lines, `--history-sessions`; presets no longer overwrite your own choices; voice profiles can be recorded with the chosen microphone and noise suppression (`--profile-stdin` `mic`/`denoise`).
 
+### Web (round 19)
+
+- **Phrasebook search** tolerates one typo per word (from four letters, Thai and English) and a new filter “Only important ⚠” shows just the critical sentences.
+
 ### Web (round 18)
 
 - **Learning mode** (browser): daily goal with a progress bar (a calm line once it is reached, no streak pressure), listening drill (the sentence is read aloud, you type it; the answer ignores case and punctuation), “hard cards only” review (answered, still in box 1 or 2), space bar flips the card (1–4 grade), reduced motion respected, texts in German, English and Thai.
@@ -56,6 +60,10 @@ Pull requests #16–#47. Not yet published as a release.
 ### Web (round 16)
 
 - **Own phrases and favourites** (browser): the “My cards” box now edits cards, adds an optional translation (via the existing translation chain, correctable by hand) and a group label with a group filter, keeps the 30-card limit, and reorders cards and starred favourites with up/down buttons (keyboard and screen-reader friendly, position announced). Cards export and import as JSON (validated: size limit, control characters removed, unknown fields and `__proto__` dropped, duplicates skipped). A full browser storage is reported instead of silently losing the change. Texts in German, English and Thai; `tests/test_runde16_web_favorites.py`.
+
+### Mac app (round 19)
+
+- **Diagnosis and help**: new "Self-test …" in the Help menu checks microphone, speaker, network, speech models and the Python engine, shows one result line per check with a concrete suggestion and links to the troubleshooting page (`docs/FEHLERHILFE.md`). "Copy diagnostic report" now includes the self-test result and the last error and is redacted (home path, user name, API keys and tokens) without conversation text. Logic in `DiagnosticsLogic.swift` (tested with `swiftc`, including redaction), texts in German, English and Thai; `tests/test_runde19_mac_diagnose.py`.
 
 ### Mac app (round 18)
 
@@ -213,6 +221,8 @@ Pull requests #16–#47. Not yet published as a release.
 
 **iPhone app (round 19)**
 - **Fixed:** the audio session no longer rebuilds the microphone when only an output device (headphones without a microphone) comes or goes, the pause indicator no longer stays on “call” after stopping during an interruption, a route or configuration change during a call no longer triggers a failing restart, and the auto-stop timer does not run while a call or Siri holds the microphone. Listening resuming after an interruption is announced. Logic in `AudioSessionPolicy.swift` with tests, texts in all 10 languages (de/en/th by hand, the rest machine-translated).
+**iPhone app (round 18)**
+- **New:** conversation history as its own list (menu, “History”): search in sentence and translation, filters by language pair, period (today, 7, 30 days) and favourites, grouping by day, multi-select to share or delete, swipe to delete or favourite, undo after deleting, an empty state with a next step, and a note on how long sentences are kept with a shortcut to the setting. Texts in all 10 languages (de/en/th by hand, the rest machine-translated); logic in `HistoryLogic.swift` with unit tests, `tests/test_runde18_ios_history.py`.
 
 **Web**
 - **New:** phrasebook search (`/`), favourites filter, copy button on every translation; history search, CSV export, share and clear with confirmation; learning progress bar, review schedule and arrow keys; “Delete all local data”; hints for a blocked microphone and for going offline; `?` opens help.
@@ -228,6 +238,7 @@ Pull requests #16–#47. Not yet published as a release.
 - **New:** nine packs with cultural notes: emergency, work, school, visa, sport, nomad, diving, market, kids (Thai machine-translated, not yet checked by a native speaker), plus eight more: car-rental, pets, baby, gym, wedding, photo, monk, hospital (41 in total).
 - **New:** ten more packs: bus-train, beach, hiking, street-food, massage, nightlife, festival, laundry-repair, pharmacy-otc, mobile-sim (51 in total; Thai machine-translated, not yet checked by a native speaker).
 - **New:** ten more packs: atm-bank-card, immigration-90day, motorbike-accident, lost-passport, tailor-custom, tuk-tuk-songthaew, thai-cooking-class, elephant-sanctuary, cinema-concert, dating-small-talk (61 in total; Thai machine-translated, not yet checked by a native speaker).
+- **Fixed:** content review of all packs (round 15): British spelling throughout, every note ends with the machine-translation remark, emergency sentences and the same sentence in several packs are marked `critical` consistently, German notes use Touristenpolizei and one fee figure; rules checked on all packs by `tests/test_runde15_presets_quality.py`.
 - **New:** ten more packs: ferry-boat, island-hopping, snorkel-boat-tour, muay-thai-gym, buddhist-ceremony, rice-field-village, night-market-bargain, hostel-dorm, laundry-deposit, vegan-vegetarian (71 in total; Thai machine-translated, not yet checked by a native speaker).
 - **New:** ten more packs: visa-extension, tax-refund, car-wash-repair, bicycle-rental, yoga-retreat, kids-playground, bakery-cafe, convenience-store-7eleven, post-office-parcel, wifi-coworking-cafe (81 in total; Thai machine-translated, not yet checked by a native speaker).
 - **New:** ten more packs: bus-train, beach, hiking, street-food, massage, nightlife, festival, laundry-repair, pharmacy-otc, mobile-sim (51 in total; Thai machine-translated, not yet checked by a native speaker).

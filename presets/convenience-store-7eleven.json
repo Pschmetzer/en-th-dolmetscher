@@ -43,11 +43,6 @@
       "critical": true
     },
     {
-      "en": "Where is the pharmacy?",
-      "th": "ร้านขายยาอยู่ที่ไหน",
-      "critical": true
-    },
-    {
       "en": "Is this halal?",
       "th": "อันนี้ฮาลาลไหม",
       "critical": true
@@ -56,6 +51,10 @@
       "en": "Does it contain pork?",
       "th": "มีเนื้อหมูไหม",
       "critical": true
+    },
+    {
+      "en": "Where is the pharmacy?",
+      "th": "ร้านขายยาอยู่ที่ไหน"
     },
     {
       "en": "Could you heat it up, please?",

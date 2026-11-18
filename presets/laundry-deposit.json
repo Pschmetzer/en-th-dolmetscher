@@ -43,11 +43,6 @@
       "critical": true
     },
     {
-      "en": "I need a receipt for the deposit.",
-      "th": "ขอใบเสร็จค่ามัดจำ",
-      "critical": true
-    },
-    {
       "en": "Please give me my deposit back.",
       "th": "ขอเงินมัดจำคืน",
       "critical": true
@@ -56,6 +51,10 @@
       "en": "My clothes are missing.",
       "th": "เสื้อผ้าหาย",
       "critical": true
+    },
+    {
+      "en": "I need a receipt for the deposit.",
+      "th": "ขอใบเสร็จค่ามัดจำ"
     },
     {
       "en": "Where can I do laundry?",

@@ -122,7 +122,7 @@ def test_new_texts_complete_and_wired():
         assert len(re.findall(r'"(?:de|en|th|es|fr|ja|ko|zh-Hans|vi|id)": "[^"]+"', body)) == len(LANGS), key
     l10n = _read(IOS / "Dolmetscher" / "L10n.swift")
     registered = l10n[l10n.index("static func text("):]
-    assert re.search(r"\bround13\b", registered)   # Nachschlag und allKeys kennen die Tabelle, egal in welcher Schreibweise
+    assert re.search(r"\bround13\b", registered)   # Nachschlag und allKeys kennen die Tabelle
 
 
 def test_state_is_not_only_a_color():
