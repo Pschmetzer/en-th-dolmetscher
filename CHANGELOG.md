@@ -96,6 +96,35 @@ Pull requests #16–#47. Not yet published as a release.
 - **Tests and CI** (#41, #44): time-dependent tests made stable, a time limit per test, Python tests on Linux (faster), coverage with a lower limit, a shared test corpus in six language pairs, and a benchmark that only runs on demand.
 - **Documentation**: phrase pack format and contribution guide `docs/PRESETS.md` (#40); license overview `docs/LIZENZEN.md` (#21), privacy overview per platform `docs/DATENSCHUTZ.md` (#28 and later), protocol checked against the code by tests (#20), iPhone guide `ios/README.md` and this changelog.
 
+### Round 7: Mac app, iPhone app, web, phrase packs, CI
+
+**Mac app**
+- **New:** translate audio files (menu or drag and drop); floating subtitle window for video calls; quick phrases on ⌘1–⌘9 (pack phrases ⌥⌘1–⌥⌘9), default quick phrases follow the language pair; deleted bubbles can be restored (banner or ⌥⌘Z), “Copied” feedback.
+- **New:** partner view with “Once more, please” and “Slower, please”; HUD for global shortcuts; hide the windows from screen recording; microphone off when the window closes; confirmation before quitting mid-conversation; `dolmetscher://` URL scheme (start, stop, pause, say) with a first-use prompt; “What's new” after an update.
+- **New:** offline translation shows the status of the active language pair and can load the language pack (macOS 15+); cost estimate per Claude model; warning at 80 % of the monthly limit.
+- **Fixed:** voice profile recording uses the chosen microphone and noise suppression; “Delete all” also clears the engine's conversation context; latency display, bubble side after a pair change, VoiceOver text, “Reset all settings” (output device, budget, partner view), a language swap sends `langs` only once, the login switch re-reads the system state.
+- **Setup:** never two `setup-env.sh` at once; checksum errors are reported as “download damaged”; models count as downloaded only when complete; the cache location follows `HF_HUB_CACHE`/`HF_HOME`/`XDG_CACHE_HOME`; update by difference; separate disk-space check; progress of the package install.
+- **Security:** the Claude key is passed only to the engine process, the Keychain item is this-device-only, release builds ignore the Python override setting and delete plain-text key files.
+- **Build:** `--release` requires notarisation (or `--no-notarize`), writes the notarisation log, a DMG and a dSYM, checks bundled libraries; `--bundle-wheels` for offline setup.
+- **Other:** fixed texts name the chosen languages instead of English/Thai; auto-restart of a hung engine; hotkeys and network state renewed after sleep; device lists refresh on plug and unplug.
+
+**iPhone app**
+- **Fixed:** Apple translation has an 8 s time limit; online limit (429) pauses the provider for 5 minutes; “Now you/Now me” no longer changes the saved mode; stopping a model download no longer blocks the next start; interruptions do not reopen the microphone by themselves; Whisper queue is bounded and failures are shown; back-translation warning works for CJK and Thai; phrasebook favourites no longer collide.
+- **Privacy:** learning cards follow the history setting and the Face ID lock and can be deleted; hourly retention; the lock reports when no device passcode is set.
+- **New:** keyboard for the other person, decimal point on the number card, quick switch of recent language pairs, CSV export, optional online exchange rate, share location, microphone choice, echo cancellation (iOS 18.2+), voice preview, optional Spotlight favourites, tap-to-talk, transliteration also for ru/uk/ar/hi (marked ≈).
+- **Accessibility:** VoiceOver reads source and translation in their language and announces prices; reduce motion; larger tap areas; Dynamic Type in the full-screen views; symbols for “Differentiate without colour”.
+- **App Store:** review note for the background audio mode, keywords without duplicates, “Requires iOS 26”.
+
+**Web**
+- **New:** text input, number and price card with the Thai number word, allergy and emergency cards, “My cards” (address, “Please take me here”), dictionary, print/PDF per topic, card sequence, “Wrong? Report” (prefilled GitHub issue), emergency numbers as `tel:` links, deep links (`#preset=taxi&l=de`), app shortcuts and share target, interface in German, English and Thai (Thai machine-made), language variants pt/es/zh/ar/de/fr, optional local recognition (Chrome 139+).
+- **Learning:** listen first, back-up/restore (JSON, Anki TSV), daily statistics, repeat aloud.
+- **Fixed:** back button closes the full-screen card; screen stays on; shared links carry a “not checked” note; the service worker waits at most 4 s on a bad network, stores only complete answers and shows “Offline ready”; Thai text is no longer split inside a word; due cards by calendar day.
+- **Phrase packs:** new Dentist, Airport, Answers, Laundry/Hairdresser/Tailor, Islands/Diving, Accessibility, Coworking and Places; allergens in the restaurant pack, emergency phrases in hotel, office, shopping and temple. **The new Thai sentences are machine-made and not checked by a native speaker; each pack says so in its note.** New files `presets-index.json`, `allergens.json`, `docs/presets.schema.json`.
+
+**CI and repository**
+- CodeQL, changelog check, quick phrase-pack job, Makefile, dev container, pre-commit; action versions pinned by commit; release job with time limit; `shellcheck` also for `build-support/`.
+- Docs: web architecture, hosting, browser matrix, version states (`docs/VERSIONEN.md`).
+
 ## 1.2 and earlier
 
 See the [commit history](https://github.com/Pschmetzer/en-th-dolmetscher/commits/main) up to pull request #15.

@@ -113,3 +113,16 @@ Wer Logs teilt: `--log-text` schreibt erkannte und übersetzte Sätze in die Log
   `translation_cache.json` (0600, höchstens 300 Einträge). Ausschalten und „clear“ löschen die Datei.
 - **Log-Pseudonyme** von Profilnamen sind mit einem zufälligen Installations-Salz (`log_salt`, 0600) gebildet und lassen sich nicht
   per Namensliste zurückrechnen.
+
+## Ergänzungen Runde 7 (Mac, iPhone, Web)
+
+- **Mac, URL-Schema `dolmetscher://`:** andere Programme können Start, Stopp, Pause und „Satz sprechen“ auslösen. Beim ersten Aufruf fragt die App nach; Text höchstens 1000 Zeichen.
+- **Mac, Bildschirmaufnahme:** Der Schalter „Fenster vor Bildschirmaufnahme verbergen“ schließt die App-Fenster aus Aufnahmen und Screenshots aus (`sharingType = .none`). Standard: aus.
+- **Mac, Audiodateien:** Beim Übersetzen einer Datei läuft ein eigener Engine-Prozess; Ergebnisse stehen nur im Verlauf der App.
+- **Mac, API-Schlüssel:** Der Schlüssel geht nur an den Engine-Prozess, nicht an Hilfsprozesse. Der Schlüsselbund-Eintrag gilt nur für dieses Gerät. Klartext-Schlüsseldateien werden in Release-Builds gelöscht.
+- **iPhone, Wechselkurs (optional, Standard aus):** Die Kursabfrage sendet nur den Währungscode an `api.frankfurter.dev`; keine Sätze, keine Gerätekennung.
+- **iPhone, Spotlight (optional, Standard aus):** Favoriten werden in der Systemsuche des Geräts sichtbar gemacht; sie bleiben auf dem Gerät.
+- **iPhone, Datenschutz-Manifest:** nennt jetzt „Freier Speicherplatz“ (DiskSpace, Grund E174.1) für die Prüfung vor dem Modell-Download.
+- **iPhone, Lernkarten:** folgen der Verlaufseinstellung und der Face-ID-Sperre, haben ein Verfallsdatum und lassen sich löschen.
+- **Web:** Texteingabe, „Meine Karten“ (Adresse, Hotel) und die Lernkarten bleiben nur in diesem Browser. „Falsch? Melden“ öffnet ein vorbefülltes GitHub-Formular; gesendet wird nur, was du dort selbst abschickst.
+
