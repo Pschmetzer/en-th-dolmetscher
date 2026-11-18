@@ -1,7 +1,7 @@
 // Service Worker der Web-Version: macht die Seite installierbar und das Satzbuch offline nutzbar.
 // Nur eigene Dateien (gleicher Ursprung, GET). Übersetzungs-Anfragen (Google, MyMemory) laufen nie hier durch
 // und werden nie gespeichert. Neue Version: CACHE hochzählen.
-const CACHE = 'dolmetscher-web-v12';
+const CACHE = 'dolmetscher-web-v13';
 const PRESET_IDS = ['doctor', 'police', 'lostchild', 'pharmacy', 'dentist', 'taxi', 'places', 'airport', 'transport', 'travel', 'hotel', 'restaurant', 'shopping', 'bank', 'answers', 'access', 'spa', 'temple', 'island', 'scooter', 'rental', 'services', 'coworking', 'office', 'atm-bank-card', 'baby', 'beach', 'bus-train', 'car-rental', 'cinema-concert', 'dating-small-talk', 'diving', 'elephant-sanctuary', 'emergency', 'festival', 'gym', 'hiking', 'hospital', 'immigration-90day', 'kids', 'laundry-repair', 'lost-passport', 'market', 'massage', 'mobile-sim', 'monk', 'motorbike-accident', 'nightlife', 'nomad', 'pets', 'pharmacy-otc', 'photo', 'school', 'sport', 'street-food', 'tailor-custom', 'thai-cooking-class', 'tuk-tuk-songthaew', 'visa', 'wedding', 'work'];
 const CORE = ['./', 'index.html', 'languages.json', 'presets-index.json', 'allergens.json', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png']
   .concat(PRESET_IDS.map(id => 'presets/' + id + '.json'));
