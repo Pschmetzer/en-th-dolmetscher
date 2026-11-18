@@ -125,6 +125,9 @@ async function ev(type, request) {
 (async () => {
   %SW%
   await ev('install'); await ev('activate');
+  const w = [];   // Pakete kommen nach dem Start
+  handlers.message({ data: { type: 'cache-presets' }, source: { postMessage() {} }, waitUntil: p => w.push(p) });
+  await Promise.all(w);
   const out = { cached: [...store.keys()].sort(), deleted };
   out.foreign = await ev('fetch', { method: 'GET', url: 'https://translate.googleapis.com/x', mode: 'cors' });
   out.post = await ev('fetch', { method: 'POST', url: 'https://example.org/app/x', mode: 'cors' });

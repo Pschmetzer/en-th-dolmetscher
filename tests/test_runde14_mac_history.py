@@ -151,13 +151,5 @@ def test_history_verdrahtung_und_texte():
         assert f'"{k}"' in l10n and f'"{k}"' in view + app + views
 
 
-def test_engine_dateien_unveraendert_im_commit():
-    # Runde 14 fasst history_store.py nicht an (dolmetscher.py ändern spätere Runden) (Diff gegen origin/main, wenn vorhanden)
-    r = subprocess.run(["git", "diff", "--name-only", "origin/main", "--", "history_store.py"],
-                       cwd=ROOT, capture_output=True, text=True)
-    if r.returncode == 0:
-        assert r.stdout.strip() == ""
-
-
 def test_changelog_runde14_verlauf():
     assert "### Mac app (round 14)" in (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")

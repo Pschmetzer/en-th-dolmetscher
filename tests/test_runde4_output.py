@@ -115,6 +115,7 @@ def test_steuerfeld_output_device(monkeypatch, ev):
 
 
 def test_avhelper_play_file_fehler_lesbar(tmp_path):
+    pytest.importorskip("av", reason="PyAV nicht installiert (steht in requirements-dev.txt)")
     out = subprocess.run([sys.executable, "-B", avhelper.__file__, "play", "--file", str(tmp_path / "nope.aiff")],
                          capture_output=True, text=True, timeout=60, stdin=subprocess.DEVNULL)
     assert out.returncode != 0 and "cannot open file" in out.stderr
