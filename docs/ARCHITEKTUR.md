@@ -54,7 +54,7 @@ Es gibt zwei getrennte Zustände, die man nicht vermischen darf:
 | `avhelper.py` | Audio über PyAV als Kindprozess (wie früher ffmpeg): `capture` (s16le auf stdout), `play` (mp3 von stdin → AudioToolbox, vorgewärmt), `list` (Mikrofone) |
 | `build.sh` | baut `build/Dolmetscher.app` (swiftc, Info.plist, uv + translate-helper + Lock + Stempel + `setup-env.sh` ins Bundle, Signatur von innen nach außen), optional `--install` (beendet eine laufende App vorher) / `--release` |
 | `languages.json` | gemeinsame Sprachtabelle (19 Sprachen, Schriften) für Engine, Mac-App und Web; Details und Tests: `tests/test_languages_json.py` |
-| `presets/*.json`, `presets.py`, `presets-index.json` | 61 Phrasenpakete (Daten) für Mac, iPhone und Web; Format: [PRESETS.md](PRESETS.md) |
+| `presets/*.json`, `presets.py`, `presets-index.json` | 71 Phrasenpakete (Daten) für Mac, iPhone und Web; Format: [PRESETS.md](PRESETS.md) |
 | `history_store.py`, `hwprofile.py`, `correction_learning.py`, `satzbuch.py` | Verlauf (SQLite, optional), Modellwahl `--model auto`, Glossar-Vorschläge aus Korrekturen, Export und Prüfung des Satzbuchs (Kommandozeile) |
 | `tools/` | Paket-Werkzeuge (`check_presets.py`, `preset_stats.py`, `export_phrasebook.py`, `make_presets_index.py`), Swift-Quellen von `translate-helper` (kommt ins Bundle) und des Prototyps `apple-stt` |
 | `build-support/` | Entitlements, `setup-env.sh` (Einrichtung), `make-stamp.sh` (Stempel) |

@@ -1,0 +1,129 @@
+{
+  "id": "vegan-vegetarian",
+  "names": {
+    "de": "Vegetarisch, vegan und Allergene",
+    "en": "Vegetarian, vegan and allergens",
+    "th": "มังสวิรัติ วีแกน และอาหารแพ้"
+  },
+  "style": "polite",
+  "note": {
+    "de": "„Vegetarisch“ heißt in Thailand oft nur ohne Fleisch, aber mit Fischsauce, Austernsauce oder Garnelenpaste. Jay-Essen (gelbe Flagge mit rotem Schriftzeichen) ist pflanzlich. Bei Allergien sehr deutlich sein und Zutaten nachfragen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Vegetarian in Thailand often only means no meat, still with fish sauce, oyster sauce or shrimp paste. Jay food (yellow flag with red characters) is plant-based. With allergies be very clear and ask about ingredients. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "vegetarian",
+      "th": "มังสวิรัติ"
+    },
+    {
+      "en": "vegan",
+      "th": "วีแกน"
+    },
+    {
+      "en": "fish sauce",
+      "th": "น้ำปลา"
+    },
+    {
+      "en": "oyster sauce",
+      "th": "น้ำมันหอย"
+    },
+    {
+      "en": "shrimp paste",
+      "th": "กะปิ"
+    },
+    {
+      "en": "jay food",
+      "th": "อาหารเจ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have a severe allergy.",
+      "th": "มีอาการแพ้รุนแรง",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to peanuts.",
+      "th": "แพ้ถั่วลิสง",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to tree nuts.",
+      "th": "แพ้ถั่วเปลือกแข็ง",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to soy.",
+      "th": "แพ้ถั่วเหลือง",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to sesame.",
+      "th": "แพ้งา",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to wheat.",
+      "th": "แพ้แป้งสาลี",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to shellfish.",
+      "th": "แพ้อาหารทะเลที่มีเปลือก",
+      "critical": true
+    },
+    {
+      "en": "I need medical help.",
+      "th": "ต้องการความช่วยเหลือทางการแพทย์",
+      "critical": true
+    },
+    {
+      "en": "I am vegetarian.",
+      "th": "กินมังสวิรัติ"
+    },
+    {
+      "en": "I am vegan.",
+      "th": "กินวีแกน"
+    },
+    {
+      "en": "No meat, no fish.",
+      "th": "ไม่ใส่เนื้อสัตว์ ไม่ใส่ปลา"
+    },
+    {
+      "en": "No fish sauce, please.",
+      "th": "ไม่ใส่น้ำปลา"
+    },
+    {
+      "en": "No oyster sauce, please.",
+      "th": "ไม่ใส่น้ำมันหอย"
+    },
+    {
+      "en": "No shrimp paste, please.",
+      "th": "ไม่ใส่กะปิ"
+    },
+    {
+      "en": "No egg, no milk.",
+      "th": "ไม่ใส่ไข่ ไม่ใส่นม"
+    },
+    {
+      "en": "Is the broth made with meat?",
+      "th": "น้ำซุปทำจากเนื้อสัตว์ไหม"
+    },
+    {
+      "en": "Can you make it without meat?",
+      "th": "ทำแบบไม่ใส่เนื้อสัตว์ได้ไหม"
+    },
+    {
+      "en": "Do you have a jay menu?",
+      "th": "มีเมนูเจไหม"
+    },
+    {
+      "en": "Is this dish vegetarian?",
+      "th": "จานนี้เป็นมังสวิรัติไหม"
+    },
+    {
+      "en": "Is there a vegetarian restaurant nearby?",
+      "th": "แถวนี้มีร้านมังสวิรัติไหม"
+    }
+  ]
+}

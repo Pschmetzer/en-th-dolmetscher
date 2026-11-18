@@ -110,6 +110,16 @@ kennen, ignorieren sie.
 | `elephant-sanctuary` | Elefantenschutzgebiet | Hilfe, Verletzte, Hitze, Insektenstiche |
 | `cinema-concert` | Kino und Konzert | Feuer, Ohnmacht, Arzt, Diebstahl |
 | `dating-small-talk` | Smalltalk und Kennenlernen | Ablehnen, Unwohlsein, Polizei |
+| `ferry-boat` | Fähre und Boot | nicht schwimmen können, Person im Wasser, Rettungsweste, Arzt |
+| `island-hopping` | Inselhopping | nicht schwimmen können, Arzt, Rettungsweste, Quallenstich |
+| `snorkel-boat-tour` | Schnorchel-Bootstour | nicht schwimmen können, Arzt, Rückkehr zum Boot, Person fehlt, Schwindel, Rettungsweste |
+| `muay-thai-gym` | Muay-Thai-Camp | Stopp, Kopftreffer, Atemnot, Arzt, Verletzung |
+| `buddhist-ceremony` | Buddhistische Zeremonie | Ohnmacht, Arzt, Sitzen, Weihrauch-Allergie |
+| `rice-field-village` | Dorf und Reisfelder | Schlangenbiss, Arzt, Klinik, Hitze, verirrt |
+| `night-market-bargain` | Nachtmarkt und Handeln | Polizei, Geldbeutel gestohlen, Erdnuss, Schalentiere, festgehalten |
+| `hostel-dorm` | Hostel und Schlafsaal | Diebstahl, Polizei, Feuer, Arzt |
+| `laundry-deposit` | Wäsche und Kaution | Pass nicht als Pfand, Quittung, Kaution zurück, Kleidung fehlt |
+| `vegan-vegetarian` | Vegetarisch, vegan und Allergene | schwere Allergie, Erdnuss, Nüsse, Soja, Sesam, Weizen, Schalentiere, Arzt |
 
 ## Unsichere Sätze (bitte zuerst prüfen)
 
@@ -145,7 +155,7 @@ Am wichtigsten sind die Sätze mit `critical` und die Tabelle [Unsichere Sätze]
 
 | Datei | Inhalt |
 |---|---|
-| `presets/*.json` | 61 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
+| `presets/*.json` | 71 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
 | `ios/Shared/phrases.json` | eingebautes Satzbuch der iPhone-App und des Widgets |
 | `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten, „Sie sind dran“, Allergie-Karte |
 | `ios/Dolmetscher/Round4Views.swift` | Hilfesatz auf dem Bildschirm „Hilfe – jetzt“ |
