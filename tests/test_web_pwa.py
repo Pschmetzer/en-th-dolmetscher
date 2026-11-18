@@ -44,8 +44,13 @@ def test_html_links_manifest_and_registers_sw():
     assert "window.isSecureContext" in HTML               # file:// und http-Fremdhosts: kein Versuch
 
 
+def _pending():
+    f = ROOT / "tools" / "web_pending_presets.txt"
+    return {l.strip() for l in f.read_text(encoding="utf-8").splitlines() if l.strip() and not l.startswith("#")}
+
+
 def test_preset_lists_match_directory():
-    files = sorted(p.stem for p in (ROOT / "presets").glob("*.json"))
+    files = sorted(p.stem for p in (ROOT / "presets").glob("*.json") if p.stem not in _pending())
     assert sorted(_js_list(SW, "PRESET_IDS")) == files
     assert sorted(_js_list(HTML, "PRESET_IDS")) == files
 

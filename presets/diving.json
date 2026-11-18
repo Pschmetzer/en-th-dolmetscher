@@ -1,0 +1,110 @@
+{
+  "id": "diving",
+  "names": {
+    "de": "Tauchen und Schnorcheln",
+    "en": "Diving and snorkelling",
+    "th": "ดำน้ำลึกและดำน้ำตื้น"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Vor dem Tauchen gesundheitliche Fragen ehrlich beantworten und 18 Stunden vor einem Flug nicht tauchen (Faustregel). Alkohol meiden. Zeichen mit dem Tauchlehrer vorher abstimmen; Thai-Sätze sind nur Notbehelf, bei Atemnot oder Druckproblemen gilt sofort das Handzeichen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Answer the health questions honestly before diving and do not dive within about 18 hours before a flight (rule of thumb). Avoid alcohol. Agree hand signals with your instructor; for breathing or pressure trouble use the hand signal at once. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "diving",
+      "th": "ดำน้ำลึก"
+    },
+    {
+      "en": "instructor",
+      "th": "ครูสอนดำน้ำ"
+    },
+    {
+      "en": "mask",
+      "th": "หน้ากากดำน้ำ"
+    },
+    {
+      "en": "fins",
+      "th": "ตีนกบ"
+    },
+    {
+      "en": "oxygen tank",
+      "th": "ถังออกซิเจน"
+    },
+    {
+      "en": "wetsuit",
+      "th": "ชุดดำน้ำ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have a problem with my ears.",
+      "th": "มีปัญหาที่หู",
+      "critical": true
+    },
+    {
+      "en": "I am out of air.",
+      "th": "อากาศใกล้หมด",
+      "critical": true
+    },
+    {
+      "en": "Please take me up now.",
+      "th": "ช่วยพาขึ้นผิวน้ำเดี๋ยวนี้",
+      "critical": true
+    },
+    {
+      "en": "I feel unwell.",
+      "th": "รู้สึกไม่สบาย",
+      "critical": true
+    },
+    {
+      "en": "I have asthma.",
+      "th": "เป็นโรคหอบหืด",
+      "critical": true
+    },
+    {
+      "en": "I am not certified.",
+      "th": "ยังไม่มีใบรับรองการดำน้ำ"
+    },
+    {
+      "en": "This is my first dive.",
+      "th": "นี่เป็นการดำน้ำครั้งแรก"
+    },
+    {
+      "en": "How deep are we going?",
+      "th": "จะดำลึกประมาณเท่าไหร่"
+    },
+    {
+      "en": "How long is the dive?",
+      "th": "ดำนานเท่าไหร่"
+    },
+    {
+      "en": "Is the current strong?",
+      "th": "กระแสน้ำแรงไหม"
+    },
+    {
+      "en": "Can you check my equipment?",
+      "th": "ช่วยตรวจอุปกรณ์ให้หน่อย"
+    },
+    {
+      "en": "Is the equipment included?",
+      "th": "รวมอุปกรณ์ไหม"
+    },
+    {
+      "en": "Do you have a smaller size?",
+      "th": "มีไซซ์เล็กกว่านี้ไหม"
+    },
+    {
+      "en": "My mask is leaking.",
+      "th": "หน้ากากรั่ว"
+    },
+    {
+      "en": "Can we go slowly?",
+      "th": "ช่วยไปช้าๆ หน่อยได้ไหม"
+    },
+    {
+      "en": "When do we get back to the boat?",
+      "th": "กลับขึ้นเรือกี่โมง"
+    }
+  ]
+}

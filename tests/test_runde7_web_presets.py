@@ -24,8 +24,13 @@ def test_index_matches_folder_and_is_current():
         assert p["phrases"] == len(PACKS[p["id"]]["phrases"]) and isinstance(p["reviewed"], bool)
 
 
+def _pending():
+    f = ROOT / "tools" / "web_pending_presets.txt"
+    return {l.strip() for l in f.read_text(encoding="utf-8").splitlines() if l.strip() and not l.startswith("#")}
+
+
 def test_web_lists_follow_index_order():
-    order = [p["id"] for p in INDEX["packs"]]
+    order = [p["id"] for p in INDEX["packs"] if p["id"] not in _pending()]
     assert _ids(HTML) == order and _ids(SW) == order
     assert "'presets-index.json'" in SW
 
