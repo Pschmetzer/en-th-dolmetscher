@@ -164,7 +164,7 @@ struct PhotoTextView: View {
                 }
                 if let error {
                     Section {
-                        Text("⚠️ " + error).foregroundStyle(.red)
+                        Text("⚠️ " + error).foregroundStyle(StatusColor.error)
                         if cameraDenied, let url = URL(string: UIApplication.openSettingsURLString) {
                             Button(T("open_settings")) { UIApplication.shared.open(url) }
                         }

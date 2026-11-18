@@ -40,7 +40,7 @@ struct PrivacyView: View {
 
     private func row(_ icon: String, _ title: String, _ detail: String, local: Bool) -> some View {
         HStack(alignment: .top, spacing: 12) {
-            Image(systemName: icon).frame(width: iconWidth).foregroundStyle(local ? .green : .orange).padding(.top, 2)
+            Image(systemName: icon).frame(width: iconWidth).foregroundStyle(local ? StatusColor.ok : StatusColor.warning).padding(.top, 2).accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     Text(title).font(.headline)
@@ -48,8 +48,8 @@ struct PrivacyView: View {
                     Text(T(local ? "pv_local" : "pv_net"))
                         .font(.caption.bold())
                         .padding(.horizontal, 8).padding(.vertical, 2)
-                        .background((local ? Color.green : Color.orange).opacity(0.15), in: Capsule())
-                        .foregroundStyle(local ? .green : .orange)
+                        .background((local ? StatusColor.ok : StatusColor.warning).opacity(0.15), in: Capsule())
+                        .foregroundStyle(local ? StatusColor.ok : StatusColor.warning)
                 }
                 Text(detail).font(.subheadline).foregroundStyle(.secondary)
             }

@@ -167,13 +167,13 @@ struct LearnView: View {
                             Button(role: .destructive) { confirmReset = true } label: {
                                 Label(T("learn_reset"), systemImage: "arrow.counterclockwise")
                             }
-                        } label: { Image(systemName: "ellipsis.circle") }
+                        } label: { Image(systemName: "ellipsis.circle").minTapTarget() }
                         .accessibilityLabel(T("more"))
                     }
                 }
                 if !m.learnLocked, let card {
                     ToolbarItem(placement: .primaryAction) {
-                        Button(role: .destructive) { m.removeCard(card.id); revealed = false } label: { Image(systemName: "trash") }
+                        Button(role: .destructive) { m.removeCard(card.id); revealed = false } label: { Image(systemName: "trash").minTapTarget() }
                             .accessibilityLabel(T("learn_delete"))
                     }
                 }
@@ -191,9 +191,9 @@ struct LearnView: View {
         if revealed {
             HStack(spacing: 12) {
                 Button { grade(card, false) } label: { Label(T("learn_again"), systemImage: "arrow.uturn.backward").frame(maxWidth: .infinity) }
-                    .buttonStyle(.bordered).tint(.orange)
+                    .buttonStyle(.bordered).tint(StatusColor.warning)
                 Button { grade(card, true) } label: { Label(T("learn_know"), systemImage: "checkmark").frame(maxWidth: .infinity) }
-                    .buttonStyle(.borderedProminent).tint(.green)
+                    .buttonStyle(.borderedProminent).tint(StatusColor.ok)
             }
             .controlSize(.large)
         } else {
@@ -231,7 +231,7 @@ struct LearnView: View {
         VStack(spacing: 12) {
             Spacer()
             Image(systemName: m.learn.cards.isEmpty ? "rectangle.stack" : "checkmark.seal.fill")
-                .font(.system(size: iconSize)).foregroundStyle(m.learn.cards.isEmpty ? Color.secondary : Color.green)
+                .font(.system(size: iconSize)).foregroundStyle(m.learn.cards.isEmpty ? Color.secondary : StatusColor.ok)
             Text(T(m.learn.cards.isEmpty ? "learn_empty" : "learn_done"))
                 .multilineTextAlignment(.center).foregroundStyle(.secondary)
             stats
@@ -279,13 +279,13 @@ private struct CardFace: View {
             Text(card.front).font(.title2.weight(.semibold)).multilineTextAlignment(.center)
             if revealed {
                 Divider()
-                Text(card.back).font(.largeTitle.bold()).foregroundStyle(.orange).multilineTextAlignment(.center)
+                Text(card.back).font(.largeTitle.bold()).foregroundStyle(StatusColor.warning).multilineTextAlignment(.center)
                     .accessibilityLabel(A11yLabel.spoken(card.back, card.lang))
                     .minimumScaleFactor(0.4)
                 if let r = card.roman, !r.isEmpty {
                     Text(r).font(.title3).italic().foregroundStyle(.secondary).multilineTextAlignment(.center)
                 }
-                Button(action: speak) { Image(systemName: "speaker.wave.2.fill").font(.title) }
+                Button(action: speak) { Image(systemName: "speaker.wave.2.fill").font(.title).minTapTarget() }
                     .accessibilityLabel(T("replay"))
             }
         }
