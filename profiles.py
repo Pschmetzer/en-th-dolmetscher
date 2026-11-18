@@ -261,7 +261,7 @@ def save_profile(p):
 
 
 MAX_BACKUPS = 2               # so viele .bak je Profil behalten (enthalten Stimmabdrücke)
-_SIDE_SUFFIXES = (".bak", ".bad")
+_SIDE_SUFFIXES = (".bak", ".bad", ".tmp")   # .tmp: Rest eines abgebrochenen Schreibvorgangs
 _ALL_SUFFIXES = (".json", ".bak", ".bad", ".tmp")
 
 
