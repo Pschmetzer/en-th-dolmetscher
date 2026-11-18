@@ -128,4 +128,4 @@ def test_texts_in_all_languages():
 
 def test_service_worker_cache_bumped():
     sw = (__import__("pathlib").Path(__file__).resolve().parent.parent / "sw.js").read_text(encoding="utf-8")
-    assert "dolmetscher-web-v13" in sw
+    assert int(__import__("re").search(r"dolmetscher-web-v(\d+)", sw).group(1)) >= 13   # nur hochzählen

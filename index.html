@@ -556,6 +556,8 @@ const STR = {
   "hTalk": "Sprechen und übersetzen",
   "hLog": "Verlauf",
   "offlinePart": "Offline unvollständig ({a}/{b}) – einmal mit Netz neu laden",
+  "offlineLoading": "Offline-Daten werden geladen … ({a}/{b})",
+  "storageFull": "Speicher des Browsers voll: Änderungen konnten nicht gesichert werden. Alte Übersetzungen oder Karten löschen.",
   "dueLine": "Heute {a} · letzte 7 Tage {b} · Serie {c} Tage · Fach 5: {d}",
   "listenPrompt": "🔊 Anhören und Bedeutung raten",
   "langTableFail": "Sprachtabelle nicht geladen – nur Englisch/Thai verfügbar.",
@@ -811,6 +813,8 @@ const STR = {
   "hTalk": "Speak and translate",
   "hLog": "History",
   "offlinePart": "Offline incomplete ({a}/{b}) – reload once with a connection",
+  "offlineLoading": "Loading offline data … ({a}/{b})",
+  "storageFull": "Browser storage full: changes could not be saved. Delete old translations or cards.",
   "dueLine": "Today {a} · last 7 days {b} · streak {c} days · box 5: {d}",
   "listenPrompt": "🔊 Listen and guess the meaning",
   "langTableFail": "Language table not loaded – only English/Thai available.",
@@ -1066,6 +1070,8 @@ const STR = {
   "hTalk": "พูดและแปล",
   "hLog": "ประวัติ",
   "offlinePart": "ออฟไลน์ไม่ครบ ({a}/{b}) – โหลดใหม่หนึ่งครั้งขณะออนไลน์",
+  "offlineLoading": "กำลังโหลดข้อมูลออฟไลน์ … ({a}/{b})",
+  "storageFull": "พื้นที่เก็บข้อมูลของเบราว์เซอร์เต็ม: บันทึกการเปลี่ยนแปลงไม่ได้ ลบคำแปลหรือการ์ดเก่า",
   "dueLine": "วันนี้ {a} · 7 วันล่าสุด {b} · ต่อเนื่อง {c} วัน · กล่อง 5: {d}",
   "listenPrompt": "🔊 ฟังแล้วเดาความหมาย",
   "langTableFail": "โหลดตารางภาษาไม่สำเร็จ – ใช้ได้เฉพาะอังกฤษ/ไทย",
@@ -1287,7 +1293,16 @@ const mtCode = l => LANGS[l].mt || l;
 
 // ---- Einstellungen (im Browser gemerkt) ----
 const settings = (() => { try { return JSON.parse(localStorage.getItem('webSettings') || '{}') || {}; } catch { return {}; } })();
-function saveSettings() { try { localStorage.setItem('webSettings', JSON.stringify(settings)); } catch {} }
+let storageNoteAt = 0;
+function storageFull() { if (Date.now() - storageNoteAt > 60000) { storageNoteAt = Date.now(); setStatus(t('storageFull'), true); } return false; }   // Platzmangel (QuotaExceeded) melden, höchstens einmal je Minute
+function lsSet(key, value) { try { localStorage.setItem(key, value); return true; } catch { return storageFull(); } }
+async function mapLimit(items, n, fn) {   // höchstens n Aufgaben gleichzeitig (Ergebnisse in Reihenfolge)
+  const out = new Array(items.length); let next = 0;
+  const worker = async () => { while (next < items.length) { const i = next++; out[i] = await fn(items[i], i); } };
+  await Promise.all(Array.from({ length: Math.min(n, items.length) }, worker));
+  return out;
+}
+function saveSettings() { try { localStorage.setItem('webSettings', JSON.stringify(settings)); } catch { storageFull(); } }
 let pair = { a: DEFAULT_PAIR[0], b: DEFAULT_PAIR[1] };
 function initPair() {   // nach dem Laden der Sprachtabelle: gemerktes Paar, wenn gültig
   pair = { a: LANGS[settings.a] ? settings.a : DEFAULT_PAIR[0], b: LANGS[settings.b] ? settings.b : DEFAULT_PAIR[1] };
@@ -1952,7 +1967,12 @@ function pbGet(key) { const v = pbTrans[key]; return v ? v.t : ''; }
 function pbSave() {   // Obergrenze: die ältesten fliegen raus
   const keys = Object.keys(pbTrans);
   if (keys.length > PBT_MAX) for (const k of keys.sort((a, b) => pbTrans[a].ts - pbTrans[b].ts).slice(0, keys.length - PBT_MAX)) delete pbTrans[k];
-  try { localStorage.setItem('pbTrans', JSON.stringify(pbTrans)); } catch {}
+  for (let i = 0; i < 4; i++) {   // voll: die ältesten Übersetzungen opfern und neu versuchen, dann aufgeben
+    if (lsSet('pbTrans', JSON.stringify(pbTrans))) return;
+    const ks = Object.keys(pbTrans).sort((a, b) => pbTrans[a].ts - pbTrans[b].ts);
+    if (!ks.length) return;
+    for (const k of ks.slice(0, Math.ceil(ks.length / 4))) delete pbTrans[k];
+  }
 }
 async function loadPreset(id) {
   if (!presetCache[id]) {
@@ -1999,7 +2019,7 @@ function renderEmerg(id) {   // Notrufnummern als eigener, nicht einklappbarer B
 function useCount(id) {   // wie oft ein Thema benutzt wurde: Reihenfolge der Themenliste
   let u = {}; try { u = JSON.parse(localStorage.getItem('pbUse') || '{}') || {}; } catch {}
   u[id] = (u[id] | 0) + 1;
-  try { localStorage.setItem('pbUse', JSON.stringify(u)); } catch {}
+  lsSet('pbUse', JSON.stringify(u));
   recentPush(id); renderRecent();
 }
 const RECENT_MAX = 4;
@@ -2202,7 +2222,7 @@ let learnList = (() => { try { return learnParse(localStorage.getItem(LEARN_KEY)
 let learnCur = null, learnShownKey = null;
 function learnStore(list) {
   learnList = list;
-  try { localStorage.setItem(LEARN_KEY, JSON.stringify(list)); } catch {}
+  try { localStorage.setItem(LEARN_KEY, JSON.stringify(list)); } catch { storageFull(); }
   try { if (list.length && navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch {}   // Safari räumt sonst nach 7 Tagen
   learnRender(); syncStars();
 }
@@ -2262,7 +2282,7 @@ function learnAnswer(ok) {   // true/false oder Note 1..4
   const grade = ok === true ? 3 : ok === false ? 1 : ok;
   const k = learnKey(learnCur), now = Date.now(), wasNew = learnIsNew(learnCur);
   learnCur = null; learnShownKey = null;
-  learnStats = statsAdd(learnStats, grade > 1, now, wasNew); try { localStorage.setItem('learnStatsV1', JSON.stringify(learnStats)); } catch {}
+  learnStats = statsAdd(learnStats, grade > 1, now, wasNew); lsSet('learnStatsV1', JSON.stringify(learnStats));
   learnStore(learnList.map(c => learnKey(c) === k ? leitnerGrade(c, grade, now) : c));
   if (!$('learnCard').hidden) $('learnShow').focus();
 }
@@ -2705,7 +2725,7 @@ $('typeIn').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shift
 
 // ---- Meine Karten ----
 let myCards = (() => { try { return myCardsParse(localStorage.getItem('myCardsV1')); } catch { return []; } })();
-function myStore() { try { localStorage.setItem('myCardsV1', JSON.stringify(myCards)); } catch {} renderMine(); }
+function myStore() { lsSet('myCardsV1', JSON.stringify(myCards)); renderMine(); }
 function renderMine() {
   for (const box of [$('myList'), document.getElementById('myInline')]) {
     if (!box) continue;
@@ -2749,7 +2769,7 @@ function allergyTiles(boxId, items) {
     box.appendChild(b);
   }
 }
-function allergySave() { try { localStorage.setItem('allergyV1', JSON.stringify(allergySel)); } catch {} allergyRender(); }
+function allergySave() { lsSet('allergyV1', JSON.stringify(allergySel)); allergyRender(); }
 function loadAllergens() {
   fetch('allergens.json').then(r => r.json()).then(d => {
     allergyData = d; allergyTiles('allergyTiles', d.allergies); allergyTiles('condTiles', d.conditions);
@@ -2764,7 +2784,7 @@ $('allergyShow').onclick = () => { if (allergyData) { const c = allergyCard(alle
 let glossAll = null;
 function glossLoad() {
   if (glossAll) return Promise.resolve(glossAll);
-  return Promise.all(PRESET_IDS.map(id => loadPreset(id).catch(() => null))).then(ds => {
+  return mapLimit(PRESET_IDS, 6, id => loadPreset(id).catch(() => null)).then(ds => {
     const seen = new Set(); glossAll = [];
     for (const d of ds) for (const g of (d && d.glossary) || []) { const k = g.en.toLowerCase() + '|' + g.th; if (!seen.has(k)) { seen.add(k); glossAll.push(g); } }
     return glossAll;
@@ -2853,7 +2873,7 @@ $('pbPre').onclick = async () => {
   if ($('pbPre').dataset.run === '1') { preAbort = true; return; }
   const b = pair.b; preAbort = false; $('pbPre').dataset.run = '1';
   const jobs = [];
-  for (const id of PRESET_IDS) { try { for (const p of (await loadPreset(id)).phrases) if (!p[b] && !pbGet(b + '|' + p.en)) jobs.push(p); } catch {} }
+  await mapLimit(PRESET_IDS, 6, async id => { try { for (const p of (await loadPreset(id)).phrases) if (!p[b] && !pbGet(b + '|' + p.en)) jobs.push(p); } catch {} });
   let done = 0;
   for (const p of jobs) {
     if (preAbort || pair.b !== b) break;
@@ -2894,7 +2914,7 @@ $('learnFile').onchange = () => {
     const pack = learnUnpack(r.result); $('learnFile').value = '';
     if (!pack || !pack.cards.length) { $('learnMsg').textContent = t('learnImportBad'); return; }
     const before = learnList.length;
-    learnStats = statsMerge(learnStats, pack.stats); try { localStorage.setItem('learnStatsV1', JSON.stringify(learnStats)); } catch {}
+    learnStats = statsMerge(learnStats, pack.stats); lsSet('learnStatsV1', JSON.stringify(learnStats));
     learnStore(learnMerge(learnList, pack.cards));
     $('learnMsg').textContent = t('learnLoaded', { n: learnList.length - before, m: pack.cards.length });
   };
@@ -3007,11 +3027,17 @@ if ('serviceWorker' in navigator && window.isSecureContext && /^https?:$/.test(l
     b.onclick = () => location.reload(); n.appendChild(b); n.hidden = false;
     announce(t('newVersion'), UI);   // role=status allein meldet ein eingeblendetes Band nicht zuverlässig
   });
+  let fillAsked = false;
   navigator.serviceWorker.addEventListener('message', e => {   // Antwort des Workers: wie viele Dateien sind offline bereit
     const d = e.data;
     if (!d || d.type !== 'offline-status' || !Number.isInteger(d.ok) || !Number.isInteger(d.total)) return;
     const st = $('swState');
-    st.textContent = d.ok >= d.total ? t('offlineReady') : t('offlinePart', { a: d.ok, b: d.total });
+    st.textContent = d.ok >= d.total ? t('offlineReady') : d.loading ? t('offlineLoading', { a: d.ok, b: d.total }) : t('offlinePart', { a: d.ok, b: d.total });
+    if (d.ok < d.total && !d.loading && !fillAsked && navigator.onLine !== false && !(navigator.connection && navigator.connection.saveData)) {
+      fillAsked = true;   // Pakete erst nach dem Start, einmal je Sitzung und nur mit Netz und ohne Datensparmodus laden
+      const go = () => { if (navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage({ type: 'cache-presets' }); };
+      if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 4000 }); else setTimeout(go, 1500);
+    }
   });
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js').then(() => navigator.serviceWorker.ready)
