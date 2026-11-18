@@ -181,9 +181,9 @@ func exportConversation(_ m: EngineModel, only subset: [Utterance]? = nil) {
 
 extension EngineModel {
     /// Bericht für Fehlermeldungen: Versionen, Modelle, System. Enthält weder API-Schlüssel noch Gesprächstexte;
-    /// der Home-Pfad ist durch „~“ ersetzt.
-    func diagnosticReport(python: Paths.PythonCheck) -> String {
-        func redact(_ s: String) -> String { s.replacingOccurrences(of: NSHomeDirectory(), with: "~") }
+    /// Home-Pfad, Nutzername und Schlüsselmuster sind geschwärzt (DiagnosticsLogic).
+    func diagnosticReport(python: Paths.PythonCheck, selfTest: [DiagnosticsLogic.Row] = []) -> String {
+        func redact(_ s: String) -> String { DiagnosticsLogic.redact(s, home: NSHomeDirectory(), user: NSUserName()) }
         let info = Bundle.main.infoDictionary
         let version = info?["CFBundleShortVersionString"] as? String ?? "?"
         #if arch(arm64)
@@ -234,6 +234,7 @@ extension EngineModel {
             lines.append("--- stderr.log (Ende) ---")
             lines.append(redact(Self.logTail(15)))
         }
-        return lines.joined(separator: "\n") + "\n"
+        return DiagnosticsLogic.report(lines: lines, rows: selfTest, lastError: lastError.map { $0.msg },
+                                       home: NSHomeDirectory(), user: NSUserName())
     }
 }
