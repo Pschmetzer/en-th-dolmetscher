@@ -1,0 +1,113 @@
+{
+  "id": "bakery-cafe",
+  "names": {
+    "de": "Bäckerei und Café",
+    "en": "Bakery and cafe",
+    "th": "ร้านเบเกอรี่และคาเฟ่"
+  },
+  "style": "polite",
+  "note": {
+    "de": "In Cafés sind Getränke oft sehr süß: „wenig Zucker“ ausdrücklich sagen. Gebäck enthält häufig Nüsse, Ei oder Milch; bei Allergien nach den Zutaten fragen. Preise stehen am Tresen, Trinkgeld ist nicht üblich. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Drinks in cafes are often very sweet: say 'less sugar' clearly. Pastries often contain nuts, egg or milk; ask about ingredients if you have allergies. Prices are on the counter, tipping is not expected. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "bread",
+      "th": "ขนมปัง"
+    },
+    {
+      "en": "croissant",
+      "th": "ครัวซองต์"
+    },
+    {
+      "en": "iced coffee",
+      "th": "กาแฟเย็น"
+    },
+    {
+      "en": "less sugar",
+      "th": "หวานน้อย"
+    },
+    {
+      "en": "takeaway",
+      "th": "ห่อกลับบ้าน"
+    },
+    {
+      "en": "cake",
+      "th": "เค้ก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have a severe allergy.",
+      "th": "มีอาการแพ้รุนแรง",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to peanuts.",
+      "th": "แพ้ถั่วลิสง",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to wheat.",
+      "th": "แพ้แป้งสาลี",
+      "critical": true
+    },
+    {
+      "en": "Does it contain nuts?",
+      "th": "มีถั่วเป็นส่วนผสมไหม",
+      "critical": true
+    },
+    {
+      "en": "Does it contain egg or milk?",
+      "th": "มีไข่หรือนมไหม"
+    },
+    {
+      "en": "What do you recommend?",
+      "th": "มีอะไรแนะนำไหม"
+    },
+    {
+      "en": "I would like a coffee, please.",
+      "th": "ขอกาแฟหนึ่งแก้ว"
+    },
+    {
+      "en": "Iced, please.",
+      "th": "ขอแบบเย็น"
+    },
+    {
+      "en": "Less sugar, please.",
+      "th": "ขอหวานน้อย"
+    },
+    {
+      "en": "No sugar, please.",
+      "th": "ไม่ใส่น้ำตาล"
+    },
+    {
+      "en": "Could I have oat milk?",
+      "th": "ขอนมโอ๊ตได้ไหม"
+    },
+    {
+      "en": "I would like this croissant.",
+      "th": "ขอครัวซองต์อันนี้"
+    },
+    {
+      "en": "Could you warm it up?",
+      "th": "ช่วยอุ่นให้หน่อย"
+    },
+    {
+      "en": "For here or to go?",
+      "th": "ทานที่นี่หรือกลับบ้าน"
+    },
+    {
+      "en": "To go, please.",
+      "th": "ขอแบบกลับบ้าน"
+    },
+    {
+      "en": "Is there Wi-Fi?",
+      "th": "มีไวไฟไหม"
+    },
+    {
+      "en": "How much is it?",
+      "th": "ราคาเท่าไร"
+    }
+  ]
+}

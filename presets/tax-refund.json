@@ -1,0 +1,113 @@
+{
+  "id": "tax-refund",
+  "names": {
+    "de": "VAT-Rückerstattung",
+    "en": "VAT refund",
+    "th": "ขอคืนภาษี"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Touristen können beim Verlassen Thailands die Mehrwertsteuer auf Waren zurückfordern. Beim Kauf im VAT-Refund-Laden Formular mit Pass ausfüllen lassen; am Flughafen Waren, Formular und Quittungen vor dem Check-in vorzeigen. Mindestumsatz je Laden beachten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Tourists can claim back VAT on goods when leaving Thailand. At purchase in a VAT-refund shop have the form filled in with your passport; at the airport show goods, form and receipts before check-in. Mind the minimum spend per shop. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "VAT refund",
+      "th": "การขอคืนภาษี"
+    },
+    {
+      "en": "tax invoice",
+      "th": "ใบกำกับภาษี"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    },
+    {
+      "en": "refund form",
+      "th": "แบบฟอร์มขอคืนภาษี"
+    },
+    {
+      "en": "customs",
+      "th": "ศุลกากร"
+    },
+    {
+      "en": "passport",
+      "th": "หนังสือเดินทาง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My bag was stolen.",
+      "th": "กระเป๋าถูกขโมย",
+      "critical": true
+    },
+    {
+      "en": "I lost the refund form.",
+      "th": "ทำแบบฟอร์มขอคืนภาษีหาย",
+      "critical": true
+    },
+    {
+      "en": "My flight leaves soon. Please hurry.",
+      "th": "เครื่องบินใกล้ออกแล้ว ช่วยเร่งด้วย",
+      "critical": true
+    },
+    {
+      "en": "I do not have the receipt.",
+      "th": "ไม่มีใบเสร็จ",
+      "critical": true
+    },
+    {
+      "en": "Is VAT refund available here?",
+      "th": "ที่นี่ขอคืนภาษีได้ไหม"
+    },
+    {
+      "en": "I would like a VAT refund form.",
+      "th": "ขอแบบฟอร์มขอคืนภาษี"
+    },
+    {
+      "en": "Could I have a tax invoice?",
+      "th": "ขอใบกำกับภาษีได้ไหม"
+    },
+    {
+      "en": "Here is my passport.",
+      "th": "นี่พาสปอร์ต"
+    },
+    {
+      "en": "What is the minimum amount?",
+      "th": "ยอดขั้นต่ำเท่าไร"
+    },
+    {
+      "en": "Where is the VAT refund counter?",
+      "th": "เคาน์เตอร์ขอคืนภาษีอยู่ที่ไหน"
+    },
+    {
+      "en": "Do I show the goods before check-in?",
+      "th": "ต้องแสดงสินค้าก่อนเช็กอินไหม"
+    },
+    {
+      "en": "Can I get the refund in cash?",
+      "th": "รับเงินคืนเป็นเงินสดได้ไหม"
+    },
+    {
+      "en": "Can I get it on my credit card?",
+      "th": "รับคืนเข้าบัตรเครดิตได้ไหม"
+    },
+    {
+      "en": "Where is the customs office?",
+      "th": "ศุลกากรอยู่ที่ไหน"
+    },
+    {
+      "en": "Which queue is this?",
+      "th": "นี่คือแถวไหน"
+    },
+    {
+      "en": "How long does the refund take?",
+      "th": "ขอคืนภาษีใช้เวลานานแค่ไหน"
+    },
+    {
+      "en": "Please stamp the form.",
+      "th": "ช่วยประทับตราแบบฟอร์มด้วย"
+    }
+  ]
+}

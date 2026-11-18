@@ -1,0 +1,117 @@
+{
+  "id": "car-wash-repair",
+  "names": {
+    "de": "Autowäsche und Werkstatt",
+    "en": "Car wash and garage",
+    "th": "ล้างรถและอู่ซ่อมรถ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Vor jeder Reparatur einen Preis schriftlich oder per Foto festhalten und Ersatzteile zeigen lassen. Autowäsche und kleine Reparaturen sind günstig. Bei Pannen auf der Autobahn Notruf 1193 oder die Mietwagenfirma anrufen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Before any repair, get a price in writing or on a photo and ask to see the replaced parts. Car washes and small repairs are cheap. For a breakdown on the highway call 1193 or the rental company. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "garage",
+      "th": "อู่ซ่อมรถ"
+    },
+    {
+      "en": "flat tire",
+      "th": "ยางแบน"
+    },
+    {
+      "en": "brakes",
+      "th": "เบรก"
+    },
+    {
+      "en": "battery",
+      "th": "แบตเตอรี่"
+    },
+    {
+      "en": "engine oil",
+      "th": "น้ำมันเครื่อง"
+    },
+    {
+      "en": "car wash",
+      "th": "ล้างรถ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "The car broke down.",
+      "th": "รถเสีย",
+      "critical": true
+    },
+    {
+      "en": "The brakes do not work well.",
+      "th": "เบรกไม่ค่อยดี",
+      "critical": true
+    },
+    {
+      "en": "I have a flat tire.",
+      "th": "ยางแบน",
+      "critical": true
+    },
+    {
+      "en": "Please call a tow truck.",
+      "th": "ช่วยเรียกรถลากหน่อย",
+      "critical": true
+    },
+    {
+      "en": "Could you check the car?",
+      "th": "ช่วยตรวจรถหน่อยได้ไหม"
+    },
+    {
+      "en": "How much will it cost?",
+      "th": "ค่าใช้จ่ายเท่าไหร่"
+    },
+    {
+      "en": "Please tell me the price first.",
+      "th": "ช่วยบอกราคาก่อน"
+    },
+    {
+      "en": "How long will it take?",
+      "th": "ใช้เวลานานเท่าไหร่"
+    },
+    {
+      "en": "Could you show me the old part?",
+      "th": "ขอดูอะไหล่เก่าหน่อย"
+    },
+    {
+      "en": "The engine makes a strange noise.",
+      "th": "เครื่องมีเสียงแปลก ๆ"
+    },
+    {
+      "en": "The battery is dead.",
+      "th": "แบตเตอรี่หมด"
+    },
+    {
+      "en": "The air conditioning does not cool.",
+      "th": "แอร์ไม่เย็น"
+    },
+    {
+      "en": "I need an oil change.",
+      "th": "ต้องการเปลี่ยนน้ำมันเครื่อง"
+    },
+    {
+      "en": "Please wash the car.",
+      "th": "ช่วยล้างรถด้วย"
+    },
+    {
+      "en": "Please clean the inside too.",
+      "th": "ช่วยทำความสะอาดข้างในด้วย"
+    },
+    {
+      "en": "How much for a wash?",
+      "th": "ล้างรถราคาเท่าไร"
+    },
+    {
+      "en": "Can I have a receipt?",
+      "th": "ขอใบเสร็จได้ไหม"
+    },
+    {
+      "en": "Is the car ready?",
+      "th": "รถเสร็จหรือยัง"
+    }
+  ]
+}
