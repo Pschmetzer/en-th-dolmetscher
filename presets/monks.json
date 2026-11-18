@@ -1,0 +1,113 @@
+{
+  "id": "monks",
+  "names": {
+    "de": "Mönche (Umgang)",
+    "en": "Monks (etiquette)",
+    "th": "พระสงฆ์ (มารยาท)"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Frauen berühren Mönche nicht und reichen ihnen nichts direkt: auf ein Tuch legen oder über einen Mann geben. Sitzend tiefer als der Mönch bleiben, Füße nie auf ihn richten. Almosen am Morgen schweigend, Schuhe aus. Mönche nehmen kein Geld in die Hand; nach Mittag essen sie nicht. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Women do not touch monks or hand them things directly: place it on a cloth or pass it through a man. Sit lower than the monk and never point your feet at him. Morning alms in silence, shoes off. Monks do not handle money and do not eat after noon. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "monk",
+      "th": "พระ"
+    },
+    {
+      "en": "novice",
+      "th": "สามเณร"
+    },
+    {
+      "en": "alms",
+      "th": "ตักบาตร"
+    },
+    {
+      "en": "offering",
+      "th": "ของถวาย"
+    },
+    {
+      "en": "blessing",
+      "th": "พร"
+    },
+    {
+      "en": "robe",
+      "th": "จีวร"
+    },
+    {
+      "en": "donation",
+      "th": "ทำบุญ"
+    },
+    {
+      "en": "Buddhist precepts",
+      "th": "ศีล"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "May I offer this to the monk?",
+      "th": "ขอถวายของนี้ให้พระได้ไหม"
+    },
+    {
+      "en": "How do I give alms?",
+      "th": "ตักบาตรต้องทำอย่างไร"
+    },
+    {
+      "en": "What time do the monks walk for alms?",
+      "th": "พระบิณฑบาตกี่โมง"
+    },
+    {
+      "en": "Where can I buy an offering?",
+      "th": "ซื้อของถวายพระได้ที่ไหน"
+    },
+    {
+      "en": "Where should I sit?",
+      "th": "ควรนั่งตรงไหน"
+    },
+    {
+      "en": "Is it all right to take photos?",
+      "th": "ถ่ายรูปได้ไหม"
+    },
+    {
+      "en": "May I ask the monk a question?",
+      "th": "ขอถามพระได้ไหม"
+    },
+    {
+      "en": "Could the monk give a blessing?",
+      "th": "ขอให้พระให้พรได้ไหม"
+    },
+    {
+      "en": "Where can I make a donation?",
+      "th": "ทำบุญได้ที่ไหน"
+    },
+    {
+      "en": "Is there a meditation class?",
+      "th": "มีสอนนั่งสมาธิไหม"
+    },
+    {
+      "en": "How long is the retreat?",
+      "th": "ปฏิบัติธรรมกี่วัน"
+    },
+    {
+      "en": "Can foreigners join?",
+      "th": "ชาวต่างชาติเข้าร่วมได้ไหม"
+    },
+    {
+      "en": "What should I wear?",
+      "th": "ควรแต่งตัวแบบไหน"
+    },
+    {
+      "en": "Is it all right for a woman to hand this over?",
+      "th": "ผู้หญิงยื่นให้ได้ไหม"
+    },
+    {
+      "en": "Please pass this to the monk.",
+      "th": "ช่วยถวายให้พระหน่อย"
+    },
+    {
+      "en": "I am sorry, I did not know.",
+      "th": "ขอโทษ ไม่ทราบมาก่อน"
+    }
+  ]
+}

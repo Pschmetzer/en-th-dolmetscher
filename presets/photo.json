@@ -1,0 +1,110 @@
+{
+  "id": "photo",
+  "names": {
+    "de": "Fotografieren",
+    "en": "Taking photos",
+    "th": "ถ่ายรูป"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Vor Porträts fragen, besonders bei Mönchen, Kindern und Bergvölkern. Keine Fotos von Militär, Polizei oder dem Königshaus in respektloser Pose. Drohnen müssen registriert werden. In Tempeln nicht mit dem Rücken zum Buddha posieren. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Ask before portraits, especially of monks, children and hill tribes. No photos of military or police sites, and nothing disrespectful involving the royal family. Drones must be registered. In temples do not pose with your back to the Buddha. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "photo",
+      "th": "รูป"
+    },
+    {
+      "en": "camera",
+      "th": "กล้อง"
+    },
+    {
+      "en": "selfie",
+      "th": "เซลฟี่"
+    },
+    {
+      "en": "drone",
+      "th": "โดรน"
+    },
+    {
+      "en": "tripod",
+      "th": "ขาตั้งกล้อง"
+    },
+    {
+      "en": "flash",
+      "th": "แฟลช"
+    },
+    {
+      "en": "video",
+      "th": "วิดีโอ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please delete that photo of me.",
+      "th": "ช่วยลบรูปที่ถ่ายไว้หน่อย",
+      "critical": true
+    },
+    {
+      "en": "May I take a photo?",
+      "th": "ขอถ่ายรูปได้ไหม"
+    },
+    {
+      "en": "May I take your photo?",
+      "th": "ขอถ่ายรูปคุณได้ไหม"
+    },
+    {
+      "en": "Could you take a photo of us?",
+      "th": "ช่วยถ่ายรูปให้หน่อยได้ไหม"
+    },
+    {
+      "en": "Just press here.",
+      "th": "กดตรงนี้"
+    },
+    {
+      "en": "One more, please.",
+      "th": "อีกรูปหนึ่ง"
+    },
+    {
+      "en": "Vertical, please.",
+      "th": "ถ่ายแนวตั้ง"
+    },
+    {
+      "en": "With the temple in the background.",
+      "th": "ให้เห็นวัดด้านหลัง"
+    },
+    {
+      "en": "Is it all right to take photos?",
+      "th": "ถ่ายรูปได้ไหม"
+    },
+    {
+      "en": "Is flash allowed?",
+      "th": "ใช้แฟลชได้ไหม"
+    },
+    {
+      "en": "Can I fly a drone here?",
+      "th": "บินโดรนที่นี่ได้ไหม"
+    },
+    {
+      "en": "Is there a fee for cameras?",
+      "th": "มีค่ากล้องไหม"
+    },
+    {
+      "en": "Shall I send you the photo?",
+      "th": "ส่งรูปให้ไหม"
+    },
+    {
+      "en": "No photos, please.",
+      "th": "ขอไม่ถ่ายรูป"
+    },
+    {
+      "en": "Where is a good spot for photos?",
+      "th": "ถ่ายรูปสวยตรงไหน"
+    },
+    {
+      "en": "What time is sunset?",
+      "th": "พระอาทิตย์ตกกี่โมง"
+    }
+  ]
+}

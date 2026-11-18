@@ -1,0 +1,122 @@
+{
+  "id": "wedding",
+  "names": {
+    "de": "Hochzeit (als Gast)",
+    "en": "Wedding (as a guest)",
+    "th": "งานแต่งงาน (แขก)"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Geldgeschenk im Umschlag ist üblich, Name auf den Umschlag schreiben. Kein Schwarz und kein reines Weiß tragen. Bei der Wasserzeremonie (Rod Nam Sang) etwas Wasser über die Hände des Paares gießen und Glück wünschen. Mönchen nicht im Weg stehen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Money in an envelope is the usual gift; write your name on it. Avoid black and plain white clothes. At the water-pouring ceremony (rod nam sang), pour a little water over the couple's hands and wish them luck. Do not stand in the monks' way. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "wedding",
+      "th": "งานแต่งงาน"
+    },
+    {
+      "en": "bride",
+      "th": "เจ้าสาว"
+    },
+    {
+      "en": "groom",
+      "th": "เจ้าบ่าว"
+    },
+    {
+      "en": "envelope",
+      "th": "ซอง"
+    },
+    {
+      "en": "gift",
+      "th": "ของขวัญ"
+    },
+    {
+      "en": "invitation",
+      "th": "การ์ดเชิญ"
+    },
+    {
+      "en": "ceremony",
+      "th": "พิธี"
+    },
+    {
+      "en": "reception",
+      "th": "งานเลี้ยง"
+    },
+    {
+      "en": "dowry",
+      "th": "สินสอด"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am allergic to nuts.",
+      "th": "แพ้ถั่ว",
+      "critical": true
+    },
+    {
+      "en": "Congratulations!",
+      "th": "ขอแสดงความยินดีด้วย"
+    },
+    {
+      "en": "I wish you lifelong happiness.",
+      "th": "ขอให้มีความสุขตลอดไป"
+    },
+    {
+      "en": "Thank you for inviting me.",
+      "th": "ขอบคุณที่เชิญมา"
+    },
+    {
+      "en": "Where should I put the envelope?",
+      "th": "ใส่ซองที่ไหน"
+    },
+    {
+      "en": "Where should I sit?",
+      "th": "ควรนั่งตรงไหน"
+    },
+    {
+      "en": "What time does the ceremony start?",
+      "th": "พิธีเริ่มกี่โมง"
+    },
+    {
+      "en": "What should I wear?",
+      "th": "ควรแต่งตัวแบบไหน"
+    },
+    {
+      "en": "What should I do now?",
+      "th": "ตอนนี้ต้องทำอะไร"
+    },
+    {
+      "en": "Is it all right to take photos?",
+      "th": "ถ่ายรูปได้ไหม"
+    },
+    {
+      "en": "You look beautiful.",
+      "th": "สวยมาก"
+    },
+    {
+      "en": "The food is delicious.",
+      "th": "อาหารอร่อยมาก"
+    },
+    {
+      "en": "How do you know the couple?",
+      "th": "รู้จักบ่าวสาวได้อย่างไร"
+    },
+    {
+      "en": "I am a friend of the groom.",
+      "th": "เป็นเพื่อนเจ้าบ่าว"
+    },
+    {
+      "en": "I am a friend of the bride.",
+      "th": "เป็นเพื่อนเจ้าสาว"
+    },
+    {
+      "en": "Cheers!",
+      "th": "ชนแก้ว"
+    },
+    {
+      "en": "I do not drink alcohol.",
+      "th": "ไม่ดื่มแอลกอฮอล์"
+    }
+  ]
+}

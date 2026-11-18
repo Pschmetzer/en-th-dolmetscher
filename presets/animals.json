@@ -1,0 +1,134 @@
+{
+  "id": "animals",
+  "names": {
+    "de": "Tiere",
+    "en": "Animals",
+    "th": "สัตว์"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Streunende Hunde meiden, nicht anlächeln oder rennen. Nach Biss oder Kratzer sofort mit Seife waschen und am selben Tag zur Tollwutimpfung. Affen nicht füttern, Taschen festhalten. Keine Tiershows mit Elefantenreiten unterstützen. Notruf Rettung: 1669. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Avoid stray dogs, do not run. After a bite or scratch, wash with soap at once and get a rabies shot the same day. Do not feed monkeys, hold on to your bags. Avoid elephant-riding shows. Ambulance: 1669. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "dog",
+      "th": "หมา"
+    },
+    {
+      "en": "cat",
+      "th": "แมว"
+    },
+    {
+      "en": "monkey",
+      "th": "ลิง"
+    },
+    {
+      "en": "snake",
+      "th": "งู"
+    },
+    {
+      "en": "elephant",
+      "th": "ช้าง"
+    },
+    {
+      "en": "jellyfish",
+      "th": "แมงกะพรุน"
+    },
+    {
+      "en": "rabies",
+      "th": "โรคพิษสุนัขบ้า"
+    },
+    {
+      "en": "vet",
+      "th": "สัตวแพทย์"
+    },
+    {
+      "en": "bite",
+      "th": "กัด"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "A dog bit me.",
+      "th": "โดนหมากัด",
+      "critical": true
+    },
+    {
+      "en": "A monkey scratched me.",
+      "th": "โดนลิงข่วน",
+      "critical": true
+    },
+    {
+      "en": "A snake bit me.",
+      "th": "โดนงูกัด",
+      "critical": true
+    },
+    {
+      "en": "I was stung by a jellyfish.",
+      "th": "โดนแมงกะพรุนต่อย",
+      "critical": true
+    },
+    {
+      "en": "I need a rabies vaccine.",
+      "th": "ต้องการฉีดวัคซีนพิษสุนัขบ้า",
+      "critical": true
+    },
+    {
+      "en": "Is this dog dangerous?",
+      "th": "หมาตัวนี้ดุไหม"
+    },
+    {
+      "en": "Please hold your dog.",
+      "th": "ช่วยจับหมาไว้หน่อย"
+    },
+    {
+      "en": "Is the snake venomous?",
+      "th": "งูตัวนี้มีพิษไหม"
+    },
+    {
+      "en": "Are there jellyfish here?",
+      "th": "ที่นี่มีแมงกะพรุนไหม"
+    },
+    {
+      "en": "Can I touch it?",
+      "th": "จับได้ไหม"
+    },
+    {
+      "en": "Please do not feed the monkeys.",
+      "th": "กรุณาอย่าให้อาหารลิง"
+    },
+    {
+      "en": "Is there a vet nearby?",
+      "th": "แถวนี้มีสัตวแพทย์ไหม"
+    },
+    {
+      "en": "My dog is sick.",
+      "th": "หมาไม่สบาย"
+    },
+    {
+      "en": "Can I bring my pet?",
+      "th": "นำสัตว์เลี้ยงเข้าได้ไหม"
+    },
+    {
+      "en": "Is this an ethical elephant sanctuary?",
+      "th": "ที่นี่ดูแลช้างอย่างมีจริยธรรมไหม"
+    },
+    {
+      "en": "Is there elephant riding here?",
+      "th": "ที่นี่มีขี่ช้างไหม"
+    },
+    {
+      "en": "I do not want to ride the elephant.",
+      "th": "ไม่ต้องการขี่ช้าง"
+    },
+    {
+      "en": "There is a snake in the room.",
+      "th": "มีงูอยู่ในห้อง"
+    },
+    {
+      "en": "Please call someone to catch it.",
+      "th": "ช่วยเรียกคนมาจับหน่อย"
+    }
+  ]
+}

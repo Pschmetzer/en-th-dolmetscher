@@ -1,0 +1,140 @@
+{
+  "id": "carrental",
+  "names": {
+    "de": "Mietwagen",
+    "en": "Car rental",
+    "th": "เช่ารถยนต์"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Internationaler Führerschein nötig, sonst zahlt die Versicherung oft nicht. Linksverkehr. Vor der Abfahrt Kratzer mit Fotos festhalten. Reisepass nicht als Pfand abgeben. Notruf Polizei: 191, Touristenpolizei: 1155. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "An international driving permit is required, otherwise insurance often does not pay. Traffic drives on the left. Photograph scratches before leaving. Do not leave your passport as a deposit. Police: 191, tourist police: 1155. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "car",
+      "th": "รถยนต์"
+    },
+    {
+      "en": "driving licence",
+      "th": "ใบขับขี่"
+    },
+    {
+      "en": "international driving permit",
+      "th": "ใบขับขี่สากล"
+    },
+    {
+      "en": "insurance",
+      "th": "ประกัน"
+    },
+    {
+      "en": "deposit",
+      "th": "ค่ามัดจำ"
+    },
+    {
+      "en": "fuel",
+      "th": "น้ำมัน"
+    },
+    {
+      "en": "petrol station",
+      "th": "ปั๊มน้ำมัน"
+    },
+    {
+      "en": "scratch",
+      "th": "รอยขีดข่วน"
+    },
+    {
+      "en": "flat tyre",
+      "th": "ยางแบน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I had an accident.",
+      "th": "เกิดอุบัติเหตุ",
+      "critical": true
+    },
+    {
+      "en": "Someone is injured, call an ambulance.",
+      "th": "มีคนบาดเจ็บ ช่วยเรียกรถพยาบาล",
+      "critical": true
+    },
+    {
+      "en": "The car has broken down.",
+      "th": "รถเสีย",
+      "critical": true
+    },
+    {
+      "en": "I would like to rent a car.",
+      "th": "ต้องการเช่ารถยนต์"
+    },
+    {
+      "en": "How much is it per day?",
+      "th": "วันละเท่าไหร่"
+    },
+    {
+      "en": "Is insurance included?",
+      "th": "รวมประกันไหม"
+    },
+    {
+      "en": "Is it first-class insurance?",
+      "th": "เป็นประกันชั้นหนึ่งไหม"
+    },
+    {
+      "en": "How much is the deposit?",
+      "th": "ค่ามัดจำเท่าไหร่"
+    },
+    {
+      "en": "Can I pay the deposit by credit card?",
+      "th": "จ่ายค่ามัดจำด้วยบัตรเครดิตได้ไหม"
+    },
+    {
+      "en": "I will not leave my passport.",
+      "th": "ขอไม่ฝากพาสปอร์ต"
+    },
+    {
+      "en": "Here is my international driving permit.",
+      "th": "นี่คือใบขับขี่สากล"
+    },
+    {
+      "en": "Is it automatic?",
+      "th": "เป็นเกียร์ออโต้ไหม"
+    },
+    {
+      "en": "Please note these scratches.",
+      "th": "ช่วยจดรอยขีดข่วนพวกนี้ด้วย"
+    },
+    {
+      "en": "Should I return it with a full tank?",
+      "th": "ต้องเติมน้ำมันเต็มถังก่อนคืนไหม"
+    },
+    {
+      "en": "Which fuel does it take?",
+      "th": "ใช้น้ำมันอะไร"
+    },
+    {
+      "en": "Where can I return the car?",
+      "th": "คืนรถได้ที่ไหน"
+    },
+    {
+      "en": "Can I return it at the airport?",
+      "th": "คืนรถที่สนามบินได้ไหม"
+    },
+    {
+      "en": "I have a flat tyre.",
+      "th": "ยางแบน"
+    },
+    {
+      "en": "Please fill it up.",
+      "th": "เติมเต็มถัง"
+    },
+    {
+      "en": "Where can I park?",
+      "th": "จอดรถได้ที่ไหน"
+    },
+    {
+      "en": "Is there a toll on this road?",
+      "th": "ถนนเส้นนี้ต้องเสียค่าผ่านทางไหม"
+    }
+  ]
+}

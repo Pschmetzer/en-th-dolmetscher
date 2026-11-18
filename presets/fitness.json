@@ -1,0 +1,132 @@
+{
+  "id": "fitness",
+  "names": {
+    "de": "Fitness und Sport",
+    "en": "Gym and sport",
+    "th": "ฟิตเนสและกีฬา"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Hitze und Luftfeuchtigkeit: viel trinken, mittags nicht draußen trainieren. Beim Muay-Thai-Training Verletzungen vorher ansagen. In vielen Studios sind Handtuch und ärmelloses Shirt Pflicht bzw. unerwünscht: kurz fragen. Notruf Rettung: 1669. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Heat and humidity: drink a lot, do not train outdoors at noon. In Muay Thai class, mention injuries first. Many gyms require a towel and some dislike sleeveless shirts: ask. Ambulance: 1669. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "gym",
+      "th": "ฟิตเนส"
+    },
+    {
+      "en": "membership",
+      "th": "สมาชิก"
+    },
+    {
+      "en": "day pass",
+      "th": "บัตรรายวัน"
+    },
+    {
+      "en": "trainer",
+      "th": "เทรนเนอร์"
+    },
+    {
+      "en": "locker",
+      "th": "ล็อกเกอร์"
+    },
+    {
+      "en": "towel",
+      "th": "ผ้าเช็ดตัว"
+    },
+    {
+      "en": "swimming pool",
+      "th": "สระว่ายน้ำ"
+    },
+    {
+      "en": "Muay Thai",
+      "th": "มวยไทย"
+    },
+    {
+      "en": "yoga",
+      "th": "โยคะ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I feel dizzy.",
+      "th": "เวียนหัว",
+      "critical": true
+    },
+    {
+      "en": "I think I injured my knee.",
+      "th": "คิดว่าหัวเข่าบาดเจ็บ",
+      "critical": true
+    },
+    {
+      "en": "I have a heart condition.",
+      "th": "เป็นโรคหัวใจ",
+      "critical": true
+    },
+    {
+      "en": "How much is a day pass?",
+      "th": "บัตรรายวันเท่าไหร่"
+    },
+    {
+      "en": "How much is a monthly membership?",
+      "th": "สมาชิกรายเดือนเท่าไหร่"
+    },
+    {
+      "en": "Is there a trial session?",
+      "th": "มีทดลองเล่นฟรีไหม"
+    },
+    {
+      "en": "What time does the gym open?",
+      "th": "ฟิตเนสเปิดกี่โมง"
+    },
+    {
+      "en": "What time does the gym close?",
+      "th": "ฟิตเนสปิดกี่โมง"
+    },
+    {
+      "en": "Do I need my own towel?",
+      "th": "ต้องเอาผ้าเช็ดตัวมาเองไหม"
+    },
+    {
+      "en": "Where are the lockers?",
+      "th": "ล็อกเกอร์อยู่ที่ไหน"
+    },
+    {
+      "en": "Where are the showers?",
+      "th": "ห้องอาบน้ำอยู่ที่ไหน"
+    },
+    {
+      "en": "Can you show me how this machine works?",
+      "th": "ช่วยสอนวิธีใช้เครื่องนี้หน่อย"
+    },
+    {
+      "en": "Are you using this?",
+      "th": "ใช้อยู่ไหม"
+    },
+    {
+      "en": "I would like a personal trainer.",
+      "th": "ต้องการเทรนเนอร์ส่วนตัว"
+    },
+    {
+      "en": "When is the next Muay Thai class?",
+      "th": "คลาสมวยไทยรอบต่อไปกี่โมง"
+    },
+    {
+      "en": "I am a beginner.",
+      "th": "เพิ่งเริ่มเล่น"
+    },
+    {
+      "en": "Please go slower.",
+      "th": "ช้าลงหน่อย"
+    },
+    {
+      "en": "I need a short break.",
+      "th": "ขอพักสักครู่"
+    },
+    {
+      "en": "Is the pool open?",
+      "th": "สระว่ายน้ำเปิดไหม"
+    }
+  ]
+}

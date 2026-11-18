@@ -1,0 +1,139 @@
+{
+  "id": "hospital",
+  "names": {
+    "de": "Krankenhaus (Verständigung)",
+    "en": "Hospital (communication)",
+    "th": "โรงพยาบาล (ช่วยสื่อสาร)"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Nur zur Verständigung, kein medizinischer Rat. Private Krankenhäuser verlangen oft eine Garantie oder Anzahlung: Versicherungskarte und Pass bereithalten, Versicherung früh anrufen. Rechnung und Arztbericht auf Englisch geben lassen. Notruf Rettung: 1669. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "For communication only, not medical advice. Private hospitals often ask for a guarantee or deposit: have your insurance card and passport ready and call your insurer early. Ask for the bill and medical report in English. Ambulance: 1669. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "hospital",
+      "th": "โรงพยาบาล"
+    },
+    {
+      "en": "emergency room",
+      "th": "ห้องฉุกเฉิน"
+    },
+    {
+      "en": "ambulance",
+      "th": "รถพยาบาล"
+    },
+    {
+      "en": "insurance",
+      "th": "ประกัน"
+    },
+    {
+      "en": "nurse",
+      "th": "พยาบาล"
+    },
+    {
+      "en": "ward",
+      "th": "ห้องพักผู้ป่วย"
+    },
+    {
+      "en": "surgery",
+      "th": "ผ่าตัด"
+    },
+    {
+      "en": "X-ray",
+      "th": "เอกซเรย์"
+    },
+    {
+      "en": "blood test",
+      "th": "ตรวจเลือด"
+    },
+    {
+      "en": "medical certificate",
+      "th": "ใบรับรองแพทย์"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please call an ambulance, number 1669.",
+      "th": "ช่วยเรียกรถพยาบาล เบอร์ 1669",
+      "critical": true
+    },
+    {
+      "en": "Where is the emergency room?",
+      "th": "ห้องฉุกเฉินอยู่ที่ไหน",
+      "critical": true
+    },
+    {
+      "en": "He is unconscious.",
+      "th": "เขาหมดสติ",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to penicillin.",
+      "th": "แพ้ยาเพนิซิลลิน",
+      "critical": true
+    },
+    {
+      "en": "I take blood thinners.",
+      "th": "กินยาละลายลิ่มเลือดอยู่",
+      "critical": true
+    },
+    {
+      "en": "I am pregnant.",
+      "th": "กำลังตั้งครรภ์",
+      "critical": true
+    },
+    {
+      "en": "Is there a doctor who speaks English?",
+      "th": "มีหมอที่พูดภาษาอังกฤษได้ไหม"
+    },
+    {
+      "en": "Is there an interpreter?",
+      "th": "มีล่ามไหม"
+    },
+    {
+      "en": "Here is my insurance card.",
+      "th": "นี่คือบัตรประกัน"
+    },
+    {
+      "en": "Please contact my insurance company.",
+      "th": "ช่วยติดต่อบริษัทประกันให้หน่อย"
+    },
+    {
+      "en": "How much is the deposit?",
+      "th": "ค่ามัดจำเท่าไหร่"
+    },
+    {
+      "en": "How much will it cost approximately?",
+      "th": "ค่าใช้จ่ายประมาณเท่าไหร่"
+    },
+    {
+      "en": "How long do I have to stay?",
+      "th": "ต้องนอนโรงพยาบาลกี่วัน"
+    },
+    {
+      "en": "What are the visiting hours?",
+      "th": "เวลาเยี่ยมกี่โมงถึงกี่โมง"
+    },
+    {
+      "en": "Please write it down.",
+      "th": "ช่วยเขียนให้หน่อย"
+    },
+    {
+      "en": "I need a medical report in English.",
+      "th": "ต้องการรายงานแพทย์ภาษาอังกฤษ"
+    },
+    {
+      "en": "Can I have an itemised bill?",
+      "th": "ขอใบเสร็จแบบแจกแจงรายการ"
+    },
+    {
+      "en": "Where do I pay?",
+      "th": "จ่ายเงินที่ไหน"
+    },
+    {
+      "en": "Where is the pharmacy?",
+      "th": "ห้องยาอยู่ที่ไหน"
+    }
+  ]
+}

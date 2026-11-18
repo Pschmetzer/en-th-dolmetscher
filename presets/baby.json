@@ -1,0 +1,133 @@
+{
+  "id": "baby",
+  "names": {
+    "de": "Baby und Kleinkind",
+    "en": "Baby and toddler",
+    "th": "ทารกและเด็กเล็ก"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Kinder sind in Thailand sehr willkommen, Fremde fassen sie oft an: freundlich ablehnen ist in Ordnung. Leitungswasser nicht für Babyfläschchen verwenden. Sonne und Hitze unterschätzen viele. Notruf Rettung: 1669. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Children are very welcome in Thailand and strangers often touch them: politely declining is fine. Do not use tap water for baby bottles. Sun and heat are often underestimated. Ambulance: 1669. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "baby",
+      "th": "ทารก"
+    },
+    {
+      "en": "nappy",
+      "th": "ผ้าอ้อม"
+    },
+    {
+      "en": "baby formula",
+      "th": "นมผง"
+    },
+    {
+      "en": "baby bottle",
+      "th": "ขวดนม"
+    },
+    {
+      "en": "pram",
+      "th": "รถเข็นเด็ก"
+    },
+    {
+      "en": "baby seat",
+      "th": "คาร์ซีท"
+    },
+    {
+      "en": "high chair",
+      "th": "เก้าอี้เด็ก"
+    },
+    {
+      "en": "fever",
+      "th": "ไข้"
+    },
+    {
+      "en": "paediatrician",
+      "th": "กุมารแพทย์"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My baby has a high fever.",
+      "th": "ลูกมีไข้สูง",
+      "critical": true
+    },
+    {
+      "en": "My baby is not breathing well.",
+      "th": "ลูกหายใจไม่ค่อยออก",
+      "critical": true
+    },
+    {
+      "en": "My child swallowed something.",
+      "th": "ลูกกลืนอะไรเข้าไป",
+      "critical": true
+    },
+    {
+      "en": "Where is the nearest children's hospital?",
+      "th": "โรงพยาบาลเด็กที่ใกล้ที่สุดอยู่ที่ไหน",
+      "critical": true
+    },
+    {
+      "en": "Where can I buy nappies?",
+      "th": "ซื้อผ้าอ้อมได้ที่ไหน"
+    },
+    {
+      "en": "Do you have baby formula?",
+      "th": "มีนมผงไหม"
+    },
+    {
+      "en": "Is there a baby changing room?",
+      "th": "มีห้องเปลี่ยนผ้าอ้อมไหม"
+    },
+    {
+      "en": "Is there a place to breastfeed?",
+      "th": "มีที่ให้นมลูกไหม"
+    },
+    {
+      "en": "Do you have a high chair?",
+      "th": "มีเก้าอี้เด็กไหม"
+    },
+    {
+      "en": "Do you have a baby cot?",
+      "th": "มีเตียงเด็กไหม"
+    },
+    {
+      "en": "Could you warm the milk, please?",
+      "th": "ช่วยอุ่นนมให้หน่อย"
+    },
+    {
+      "en": "Please use bottled water.",
+      "th": "ช่วยใช้น้ำขวด"
+    },
+    {
+      "en": "Not spicy, it is for a child.",
+      "th": "ไม่เผ็ด เป็นของเด็ก"
+    },
+    {
+      "en": "Do you have a car seat for a child?",
+      "th": "มีคาร์ซีทสำหรับเด็กไหม"
+    },
+    {
+      "en": "Please do not touch the baby.",
+      "th": "ขอโทษ กรุณาอย่าจับตัวเด็ก"
+    },
+    {
+      "en": "The baby is sleeping.",
+      "th": "เด็กกำลังหลับ"
+    },
+    {
+      "en": "Is there a lift for the pram?",
+      "th": "มีลิฟต์สำหรับรถเข็นเด็กไหม"
+    },
+    {
+      "en": "How old is your baby?",
+      "th": "ลูกอายุเท่าไหร่"
+    },
+    {
+      "en": "Six months old.",
+      "th": "หกเดือน"
+    }
+  ]
+}
