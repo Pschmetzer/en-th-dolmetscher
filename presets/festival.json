@@ -1,0 +1,121 @@
+{
+  "id": "festival",
+  "names": {
+    "de": "Feste (Songkran, Loy Krathong)",
+    "en": "Festivals (Songkran, Loy Krathong)",
+    "th": "เทศกาล (สงกรานต์ ลอยกระทง)"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Songkran (13.–15. April): Wasser trifft fast jeden. Mönche, Ältere und Motorradfahrer nicht bespritzen, Handy wasserdicht verpacken. Loy Krathong (Vollmond im November): Krathong aus Bananenblatt statt Schaumstoff wählen; Himmelslaternen sind vielerorts verboten. In Menschenmengen auf Kinder und Taschen achten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Songkran (13–15 April): almost everyone gets splashed. Do not splash monks, elderly people or motorbike riders, and keep your phone waterproofed. Loy Krathong (full moon in November): choose a banana-leaf krathong, not foam; sky lanterns are banned in many places. In crowds watch children and bags. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "Songkran",
+      "th": "สงกรานต์"
+    },
+    {
+      "en": "Loy Krathong",
+      "th": "ลอยกระทง"
+    },
+    {
+      "en": "krathong",
+      "th": "กระทง"
+    },
+    {
+      "en": "water gun",
+      "th": "ปืนฉีดน้ำ"
+    },
+    {
+      "en": "parade",
+      "th": "ขบวนแห่"
+    },
+    {
+      "en": "lantern",
+      "th": "โคม"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "This is an emergency. Please call an ambulance (1669).",
+      "th": "นี่เป็นเหตุฉุกเฉิน ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true
+    },
+    {
+      "en": "Please call the police (191).",
+      "th": "ช่วยโทรแจ้งตำรวจ 191 ด้วย",
+      "critical": true
+    },
+    {
+      "en": "I feel faint.",
+      "th": "รู้สึกจะเป็นลม",
+      "critical": true
+    },
+    {
+      "en": "I cannot breathe in this crowd.",
+      "th": "หายใจไม่ออกเพราะคนเยอะ",
+      "critical": true
+    },
+    {
+      "en": "Happy Songkran!",
+      "th": "สุขสันต์วันสงกรานต์"
+    },
+    {
+      "en": "Happy Loy Krathong!",
+      "th": "สุขสันต์วันลอยกระทง"
+    },
+    {
+      "en": "Is it okay to splash you with water?",
+      "th": "สาดน้ำใส่ได้ไหม"
+    },
+    {
+      "en": "Please do not splash me.",
+      "th": "ช่วยอย่าสาดน้ำใส่"
+    },
+    {
+      "en": "Please do not splash my phone.",
+      "th": "ช่วยอย่าสาดน้ำใส่โทรศัพท์"
+    },
+    {
+      "en": "Where can I buy a krathong?",
+      "th": "ซื้อกระทงได้ที่ไหน"
+    },
+    {
+      "en": "Where can I float my krathong?",
+      "th": "ลอยกระทงได้ที่ไหน"
+    },
+    {
+      "en": "Could you show me how?",
+      "th": "ช่วยสอนวิธีให้หน่อย"
+    },
+    {
+      "en": "Is it allowed to release a lantern here?",
+      "th": "ปล่อยโคมที่นี่ได้ไหม"
+    },
+    {
+      "en": "What time does the parade start?",
+      "th": "ขบวนแห่เริ่มกี่โมง"
+    },
+    {
+      "en": "Is there an entrance fee for the event?",
+      "th": "มีค่าเข้างานไหม"
+    },
+    {
+      "en": "Where is the best place to watch?",
+      "th": "จุดไหนดูได้ชัดที่สุด"
+    },
+    {
+      "en": "Is it okay to take photos here?",
+      "th": "ถ่ายรูปที่นี่ได้ไหม"
+    },
+    {
+      "en": "Is the road closed?",
+      "th": "ถนนปิดไหม"
+    },
+    {
+      "en": "Where is the toilet?",
+      "th": "ห้องน้ำอยู่ที่ไหน"
+    }
+  ]
+}

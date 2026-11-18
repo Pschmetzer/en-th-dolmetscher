@@ -1,0 +1,118 @@
+{
+  "id": "hiking",
+  "names": {
+    "de": "Wandern und Dschungel",
+    "en": "Hiking and jungle",
+    "th": "เดินป่า"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Vor dem Start Route und Rückkehrzeit im Hotel hinterlassen, früh aufbrechen (es wird gegen 18 Uhr dunkel). Geschlossene Schuhe, Wasser und Insektenschutz mitnehmen; im Wald oft kein Netz. Nach Regen sind Pfade rutschig. Affen nicht füttern, Schlangen nicht anfassen. Notruf 1669. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Leave your route and return time at your hotel and start early (it gets dark around 6 pm). Take closed shoes, water and insect repellent; there is often no signal in the forest. Paths are slippery after rain. Do not feed monkeys or touch snakes. Emergency 1669. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "trail",
+      "th": "เส้นทางเดินป่า"
+    },
+    {
+      "en": "jungle",
+      "th": "ป่า"
+    },
+    {
+      "en": "waterfall",
+      "th": "น้ำตก"
+    },
+    {
+      "en": "ranger",
+      "th": "เจ้าหน้าที่อุทยาน"
+    },
+    {
+      "en": "leech",
+      "th": "ทาก"
+    },
+    {
+      "en": "insect repellent",
+      "th": "ยากันยุง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "This is an emergency. Please call an ambulance (1669).",
+      "th": "นี่เป็นเหตุฉุกเฉิน ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true
+    },
+    {
+      "en": "I am lost.",
+      "th": "หลงทาง",
+      "critical": true
+    },
+    {
+      "en": "Please call the park rangers.",
+      "th": "ช่วยเรียกเจ้าหน้าที่อุทยานหน่อย",
+      "critical": true
+    },
+    {
+      "en": "Someone is injured. Please call an ambulance (1669).",
+      "th": "มีคนบาดเจ็บ ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true
+    },
+    {
+      "en": "I was bitten by a snake.",
+      "th": "โดนงูกัด",
+      "critical": true
+    },
+    {
+      "en": "I have twisted my ankle.",
+      "th": "ข้อเท้าแพลง"
+    },
+    {
+      "en": "Where does the trail start?",
+      "th": "ทางเดินเริ่มต้นที่ไหน"
+    },
+    {
+      "en": "Is this trail marked?",
+      "th": "เส้นทางนี้มีป้ายบอกทางไหม"
+    },
+    {
+      "en": "How long does the hike take?",
+      "th": "เดินใช้เวลานานเท่าไร"
+    },
+    {
+      "en": "Is the trail difficult?",
+      "th": "เส้นทางนี้ยากไหม"
+    },
+    {
+      "en": "Do I need a guide?",
+      "th": "ต้องมีไกด์ไหม"
+    },
+    {
+      "en": "Is it safe to go alone?",
+      "th": "ไปคนเดียวปลอดภัยไหม"
+    },
+    {
+      "en": "Is the path slippery after rain?",
+      "th": "ทางลื่นหลังฝนตกไหม"
+    },
+    {
+      "en": "Are there leeches?",
+      "th": "มีทากไหม"
+    },
+    {
+      "en": "Is there drinking water on the way?",
+      "th": "ระหว่างทางมีน้ำดื่มไหม"
+    },
+    {
+      "en": "What time does it get dark?",
+      "th": "ฟ้ามืดกี่โมง"
+    },
+    {
+      "en": "Is there a park fee?",
+      "th": "มีค่าเข้าอุทยานไหม"
+    },
+    {
+      "en": "Where is the nearest ranger station?",
+      "th": "ที่ทำการอุทยานอยู่ที่ไหน"
+    }
+  ]
+}

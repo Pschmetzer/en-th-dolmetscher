@@ -98,6 +98,8 @@ Pull requests #16–#47. Not yet published as a release.
 
 ### Round 8: engine, iPhone, web, phrase packs
 
+- **New:** eight phrase packs (bus-train, beach, hiking, street-food, massage, nightlife, festival, laundry-repair), 49 in total; safety-critical sentences come first. Thai machine-translated, not yet in the web list (`tools/web_pending_presets.txt`).
+
 **Engine**
 - **New:** text echo guard: a recognised sentence that almost exactly repeats what was just spoken is dropped (`echo_guard`, on by default).
 - **New:** currency symbols (฿ $ € £) and °C/°F are spoken as words in en, th, de, es and fr; the display stays unchanged.

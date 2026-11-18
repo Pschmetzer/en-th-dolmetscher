@@ -1,0 +1,127 @@
+{
+  "id": "nightlife",
+  "names": {
+    "de": "Nachtleben und Bars",
+    "en": "Nightlife and bars",
+    "th": "ชีวิตกลางคืนและบาร์"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Getränk nie unbeaufsichtigt lassen. Preise vor dem Bestellen klären und Rechnung prüfen. Nachts Taxi mit Taxameter oder per App nehmen und vorher das Ziel zeigen. Pass oder Ausweis wird manchmal verlangt; Alkoholverkauf ist zeitlich eingeschränkt. Polizei 191, Touristenpolizei 1155, Rettung 1669. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Never leave your drink unattended. Check prices before you order and check the bill. At night take a metered taxi or an app car and show the destination first. ID is sometimes asked for; alcohol sales are restricted by time. Police 191, Tourist Police 1155, ambulance 1669. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "bar",
+      "th": "บาร์"
+    },
+    {
+      "en": "beer",
+      "th": "เบียร์"
+    },
+    {
+      "en": "bill",
+      "th": "บิล"
+    },
+    {
+      "en": "cover charge",
+      "th": "ค่าเข้า"
+    },
+    {
+      "en": "taxi",
+      "th": "แท็กซี่"
+    },
+    {
+      "en": "passport",
+      "th": "หนังสือเดินทาง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I think my drink was spiked.",
+      "th": "คิดว่ามีคนแอบใส่ยาในเครื่องดื่ม",
+      "critical": true
+    },
+    {
+      "en": "I feel unsafe.",
+      "th": "รู้สึกไม่ปลอดภัย",
+      "critical": true
+    },
+    {
+      "en": "Someone is following me. Please help.",
+      "th": "มีคนตามอยู่ ช่วยด้วย",
+      "critical": true
+    },
+    {
+      "en": "Please call the police (191).",
+      "th": "ช่วยโทรแจ้งตำรวจ 191 ด้วย",
+      "critical": true
+    },
+    {
+      "en": "Please call the tourist police (1155).",
+      "th": "ช่วยโทรหาตำรวจท่องเที่ยว 1155 ด้วย",
+      "critical": true
+    },
+    {
+      "en": "I need medical help.",
+      "th": "ต้องการความช่วยเหลือทางการแพทย์",
+      "critical": true
+    },
+    {
+      "en": "Could I see the price list first?",
+      "th": "ขอดูรายการราคาก่อน"
+    },
+    {
+      "en": "Is there a cover charge?",
+      "th": "มีค่าเข้าไหม"
+    },
+    {
+      "en": "A beer, please.",
+      "th": "ขอเบียร์หนึ่งแก้ว"
+    },
+    {
+      "en": "Water, please.",
+      "th": "ขอน้ำเปล่า"
+    },
+    {
+      "en": "Not too strong, please.",
+      "th": "ขอแบบไม่แรงมาก"
+    },
+    {
+      "en": "I do not drink alcohol.",
+      "th": "ไม่ดื่มแอลกอฮอล์"
+    },
+    {
+      "en": "No ice, please.",
+      "th": "ไม่ใส่น้ำแข็ง"
+    },
+    {
+      "en": "What time do you close?",
+      "th": "ร้านปิดกี่โมง"
+    },
+    {
+      "en": "I think the bill is wrong.",
+      "th": "คิดว่าบิลไม่ถูกต้อง"
+    },
+    {
+      "en": "Check, please.",
+      "th": "ขอเช็คบิลหน่อย"
+    },
+    {
+      "en": "Can I pay by card?",
+      "th": "จ่ายด้วยบัตรได้ไหม"
+    },
+    {
+      "en": "Could you call a taxi for me?",
+      "th": "ช่วยเรียกแท็กซี่ให้หน่อย"
+    },
+    {
+      "en": "Please take me straight to the hotel.",
+      "th": "ไปส่งที่โรงแรมโดยตรงเลย"
+    },
+    {
+      "en": "Please use the meter.",
+      "th": "รบกวนเปิดมิเตอร์ด้วย"
+    }
+  ]
+}
