@@ -37,8 +37,6 @@ def test_validate_id(pid, valid):
     assert (P.validate(_ok(id=pid)) == []) is valid
 
 
-@pytest.mark.xfail(strict=True, reason="ID_RE endet mit $: eine id mit angehängtem Zeilenumbruch ('a\\n') gilt als "
-                                       "gültig (re.match + $ trifft vor dem letzten \\n); fullmatch/\\Z nötig")
 def test_validate_id_with_trailing_newline_is_invalid():
     assert P.validate(_ok(id="a\n")) != []
 

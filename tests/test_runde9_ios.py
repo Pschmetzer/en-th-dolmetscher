@@ -31,9 +31,8 @@ def test_round9_texts_complete_and_registered():
 
 def test_round9_keys_are_new():
     mine = set(_table("L10n+R9.swift", "round9"))
-    names = ("L10n.swift", "L10n+R4.swift", "L10n+R5.swift", "L10n+R6.swift", "L10n+R7.swift", "L10n+R8.swift",
-             "L10n+Extra.swift")
-    for name in names:
+    for name in ("L10n.swift", "L10n+R4.swift", "L10n+R5.swift", "L10n+R6.swift", "L10n+R7.swift", "L10n+R8.swift",
+                 "L10n+Extra.swift"):
         others = set(re.findall(r'"([a-z0-9_]+)":\s*\[', _src("Dolmetscher", name)))
         assert not mine & others, name
 

@@ -2763,12 +2763,88 @@ def _time24(m, pm):
     return f"{h}:{mi}"
 
 
+_DAYPART_TIME = re.compile(r"(?<![\d.:])(\d{1,2})(?::(\d{2}))?\s*(?:in the |at )(morning|afternoon|evening|night)\b",
+                           re.I)
+
+
+def _time24_part(m):
+    part = m.group(3).lower()
+    h, mi = int(m.group(1)), m.group(2) or "00"
+    if part in ("afternoon", "evening") and h < 12:
+        h += 12
+    elif part == "night" and 6 <= h < 12:
+        h += 12
+    elif part == "morning" and h == 12:
+        h = 0
+    return f"{h}:{mi}"
+
+
+_FRAC = re.compile(r"(?<![\d/.])(?:(\d{1,3})\s+)?([1-9])/([2-9])(?![\d/])")
+_AND_HALF = re.compile(r"(\d+)\s*(?:and\s+a\s+half\b|and\s+half\b|ครึ่ง)", re.I)
+_HALF_UNIT = re.compile(r"\b(?:half\s+(?:an?\s+|of\s+(?:an?\s+)?)?|an?\s+half\s+)"
+                        r"(?=(?:kilo|kg|lit|hour|cup|glass|bottle|portion|dozen|pound|dollar|baht)\w*)|ครึ่ง(?=\s*(?:กิโล|โล|ลิตร|ชั่วโมง|กรัม|ถ้วย|แก้ว|ขวด|จาน|"
+                        r"โหล|ดอลลาร์|บาท))", re.I)
+
+
+def _frac_sub(m):
+    whole, num, den = int(m.group(1) or 0), int(m.group(2)), int(m.group(3))
+    if num >= den:
+        return m.group(0)                                # 5/3, 9/5: eher Datum/Version als Bruch
+    v = whole + num / den
+    return f" {round(v, 3):g} "
+
+
+def fractions_to_decimal(s):
+    """Brüche als Dezimalzahl für den Zahlenvergleich: '1/2' und 'ครึ่ง' = 0.5, '2 1/2' = '2 and a half' = 2.5,
+    'half a kilo' = 0.5 kilo. Datumsformen wie 25/12/2026 bleiben (Bruch nur ohne weiteren Schrägstrich)."""
+    s = _AND_HALF.sub(lambda m: f" {m.group(1)}.5 ", s)
+    s = _FRAC.sub(_frac_sub, s)
+    return _HALF_UNIT.sub(" 0.5 ", s)
+
+
+_CURRENCY_TOKENS = (
+    ("THB", r"฿|\bthb\b|\bbaht\b|บาท"), ("USD", r"\$|\busd\b|\bus\s*dollars?\b|\bdollars?\b|ดอลลาร์|ดอลล่าร์"),
+    ("EUR", r"€|\beur\b|\beuros?\b|ยูโร"), ("GBP", r"£|\bgbp\b|\bpounds?\b|ปอนด์"),
+    ("JPY", r"¥|\bjpy\b|\byen\b|เยน"),
+)
+_CUR_ANY_RX = "|".join(f"(?P<{c}>{rx})" for c, rx in _CURRENCY_TOKENS)
+_CUR_AMOUNT_RX = re.compile(r"(?:(?P<pre>" + _CUR_ANY_RX.replace("(?P<", "(?P<p") + r")\s*(?P<a1>\d[\d.,]*)"
+                         r"|(?P<a2>\d[\d.,]*)\s*(?P<post>" + _CUR_ANY_RX.replace("(?P<", "(?P<q") + r"))", re.I)
+
+
+def currency_amounts(s):
+    """[(Währung, Betrag)] mit Betrag normalisiert wie _numbers: '฿500', '500 baht', 'THB 500', '$5', '5 บาท'."""
+    out = []
+    for m in _CUR_AMOUNT_RX.finditer((s or "").translate(_THAI_DIGITS)):
+        pre = m.group("pre") is not None
+        raw = m.group("a1" if pre else "a2").rstrip(".,")
+        cur = next((c for c, _ in _CURRENCY_TOKENS if m.group(("p" if pre else "q") + c)), None)
+        nums = _numbers(raw, words=False)
+        if cur and len(nums) == 1:
+            out.append((cur, nums[0]))
+    return out
+
+
+def currency_mismatch(a, b):
+    """True, wenn derselbe Betrag auf beiden Seiten mit verschiedener Währung steht („500 baht“ -> „500 ดอลลาร์“)
+    – eine Abweichung, die der reine Zahlenvergleich nicht sieht."""
+    ca, cb = currency_amounts(a), currency_amounts(b)
+    if not (ca and cb):
+        return False
+    for cur, amt in ca:
+        same = {c for c, x in cb if x == amt}
+        if same and cur not in same:
+            return True
+    return False
+
+
 _HALF = r"(\s*ครึ่ง)?"
 # Dauer: "1 ชั่วโมงครึ่ง" / "an hour and a half" = 1 Stunde 30 Minuten (wie "1 hour 30 minutes"). Nur
 # Gleichwertigkeitsregel (equiv): "two and a half hours" ist damit nicht erfasst, also nie allein melden.
 _HALF_HOUR_RULES = (
     (re.compile(r"(\d{1,2})\s*ชั่วโมง\s*ครึ่ง"), lambda m: f" {m.group(1)} 30 "),
     (re.compile(r"ชั่วโมง\s*ครึ่ง"), lambda m: " 1 30 "),
+    (re.compile(r"\b(\d{1,2})\s+and\s+a\s+half\s+hours?\b", re.I), lambda m: f" {m.group(1)} 30 "),
     (re.compile(r"\b(\d{1,2})\s+hours?\s+and\s+a\s+half\b|\b(an?)\s+hour\s+and\s+a\s+half\b", re.I),
      lambda m: f" {m.group(1) or 1} 30 "),
 )
@@ -2804,12 +2880,24 @@ def clock_words_to_24h(s, equiv=True):
     return s
 
 
+_PHONE = re.compile(r"(?<![\d.,:/+-])(?:\+66[-\s]?|(?=0\d))(0?\d)((?:[-\s]?\d){7,8})(?!\d)")
+
+
+def _phone_sub(m):
+    """Thai-Telefonnummer (9-10 Ziffern, Bindestriche/Leerzeichen) -> reine Ziffernfolge mit führender 0."""
+    digits = re.sub(r"\D", "", m.group(0))
+    if m.group(0).startswith("+66"):
+        digits = "0" + digits[2:]
+    return f" {digits} " if len(digits) in (9, 10) and digits[0] == "0" else m.group(0)
+
+
 def _numbers(s, words=True, times=None, equiv=True):
     """Zahlen vergleichbar machen: 1.500/1,500 = Tausender (1500), 3:30 = 3.30 (Uhrzeit), aber 1.5 != 15;
     2:30 PM = 14:30 (auch บ่าย 2:30), 9:00 = 9, 09 = 9. Thai-Lachen (555 ohne Zahlkontext) zählt nicht.
     words: ausgeschriebene Zahlen mitzählen – Thai (สามร้อยห้าสิบ = 350, บ่ายสองโมง = 14) und Englisch
     (three hundred fifty = 350); 1.5 million = 1500000."""
     s = s.translate(_THAI_DIGITS)
+    s = _PHONE.sub(_phone_sub, s)                                # 081-234-5678 = 0812345678 (eine Nummer, keine drei)
     # "1 500 000" / "1\u202f500" = 1500000; nur als Gleichwertigkeit (equiv): "2 100 baht" kann auch 2 mal 100 sein
     if equiv:
         s = _GROUPED.sub(lambda m: m.group(0) if _LAUGH_TAIL.search(m.group(0)) else _digits_only(m.group(0)), s)
@@ -2823,7 +2911,9 @@ def _numbers(s, words=True, times=None, equiv=True):
         s = _laugh_sub(s)                                        # 555 = Lachen gibt es nur im Thai
     s = clock_words_to_24h(s, equiv)                             # ทุ่ม/ตี/โมงเย็น, half past … (Nr. 21)
     s = _PM_TIME.sub(lambda m: _time24(m, m.group(3).lower() == "p"), s)
+    s = _DAYPART_TIME.sub(lambda m: _time24_part(m), s)          # 3 in the afternoon = 15:00
     s = _TH_PM.sub(lambda m: _time24(m, True), s)
+    s = fractions_to_decimal(s)                                  # 1/2 = ครึ่ง = 0.5, 2 1/2 = 2.5
     out = []
     for x in _NUM.findall(s):
         is_time = ":" in x
@@ -2848,7 +2938,7 @@ def _time_hm(tok):
 def numbers_differ(a, b):
     """Wie _numbers_differ, aber Monatsnamen- und Halbstunden-Regeln sind reine Gleichwertigkeiten: eine Abweichung
     zählt nur, wenn sie auch ohne sie besteht ("am 25. Dezember" gegen "25 ธันวาคม" bleibt unauffällig)."""
-    return _numbers_differ(a, b, True) and _numbers_differ(a, b, False)
+    return (_numbers_differ(a, b, True) and _numbers_differ(a, b, False)) or currency_mismatch(a, b)
 
 
 def _numbers_detail(a, b):
