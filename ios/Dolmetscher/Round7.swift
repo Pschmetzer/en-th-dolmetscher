@@ -141,7 +141,7 @@ struct TranscriptCSV: Transferable {
     let entries: [Entry]
 
     static func csv(_ entries: [Entry]) -> String {
-        func q(_ s: String) -> String { "\"" + s.replacingOccurrences(of: "\"", with: "\"\"") + "\"" }
+        func q(_ s: String) -> String { "\"" + CSVSafe.cell(s).replacingOccurrences(of: "\"", with: "\"\"") + "\"" }
         let f = ISO8601DateFormatter()
         let rows = entries.filter { $0.photo != true }.map {
             [f.string(from: $0.date), $0.src.rawValue, $0.target.rawValue, $0.text, $0.translation ?? ""].map(q).joined(separator: ",")
@@ -151,7 +151,7 @@ struct TranscriptCSV: Transferable {
 
     static var transferRepresentation: some TransferRepresentation {
         FileRepresentation(exportedContentType: .commaSeparatedText) { c in
-            let url = URL.temporaryDirectory.appending(path: "Dolmetscher.csv")
+            let url = URL.temporaryDirectory.appending(path: CSVSafe.fileName())
             try Data(TranscriptCSV.csv(c.entries).utf8).write(to: url, options: .atomic)
             return SentTransferredFile(url)
         }

@@ -93,7 +93,7 @@ CASES = [
 def results():
     body = ",".join("(() => { try { return [true, " + e + "]; } catch (x) { return [false, String(x)]; } })()"
                     for e, _ in CASES)
-    r = subprocess.run(["node", "-e", PRELUDE + "\nprocess.stdout.write(JSON.stringify([" + body + "]));"],
+    r = subprocess.run(["node", "-"], input=PRELUDE + "\nprocess.stdout.write(JSON.stringify([" + body + "]));",
                        capture_output=True, text=True, timeout=120)
     assert r.returncode == 0, r.stderr
     return json.loads(r.stdout)

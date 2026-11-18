@@ -78,8 +78,10 @@ def test_every_storage_key_is_in_privacy_doc():
 
 def test_preset_count_in_docs_matches_files():
     ids = re.search(r"const PRESET_IDS = \[(.*?)\]", HTML, re.S).group(1)
-    n = len(re.findall(r"'(\w+)'", ids))
-    assert n == len(list((ROOT / "presets").glob("*.json")))
+    n = len(re.findall(r"'([\w-]+)'", ids))
+    lines = (ROOT / "tools" / "web_pending_presets.txt").read_text(encoding="utf-8").splitlines()
+    pend = {x.strip() for x in lines if x.strip() and not x.startswith("#")}
+    assert n == len(list((ROOT / "presets").glob("*.json"))) - len(pend)
     assert re.search(r"const PRESET_IDS = \[(.*?)\]", SW, re.S).group(1).count("'") == n * 2
     for f in (ROOT / "presets").glob("*.json"):
         json.loads(f.read_text(encoding="utf-8"))

@@ -264,6 +264,281 @@
    "phrases": 15,
    "critical": 1,
    "reviewed": false
+  },
+  {
+   "id": "baby",
+   "names": {
+    "de": "Baby und Kleinkind",
+    "en": "Baby and toddler",
+    "th": "ทารกและเด็กเล็ก"
+   },
+   "phrases": 18,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
+   "id": "beach",
+   "names": {
+    "de": "Strand",
+    "en": "Beach",
+    "th": "ชายหาด"
+   },
+   "phrases": 18,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
+   "id": "bus-train",
+   "names": {
+    "de": "Fernbus und Bahn",
+    "en": "Long-distance bus and train",
+    "th": "รถทัวร์และรถไฟ"
+   },
+   "phrases": 19,
+   "critical": 3,
+   "reviewed": false
+  },
+  {
+   "id": "car-rental",
+   "names": {
+    "de": "Mietwagen",
+    "en": "Car rental",
+    "th": "เช่ารถ"
+   },
+   "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "diving",
+   "names": {
+    "de": "Tauchen und Schnorcheln",
+    "en": "Diving and snorkelling",
+    "th": "ดำน้ำลึกและดำน้ำตื้น"
+   },
+   "phrases": 16,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
+   "id": "emergency",
+   "names": {
+    "de": "Reise-Notfälle",
+    "en": "Travel emergencies",
+    "th": "เหตุฉุกเฉินระหว่างเดินทาง"
+   },
+   "phrases": 18,
+   "critical": 7,
+   "reviewed": false
+  },
+  {
+   "id": "festival",
+   "names": {
+    "de": "Feste (Songkran, Loy Krathong)",
+    "en": "Festivals (Songkran, Loy Krathong)",
+    "th": "เทศกาล (สงกรานต์ ลอยกระทง)"
+   },
+   "phrases": 19,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "gym",
+   "names": {
+    "de": "Fitnessstudio",
+    "en": "Gym",
+    "th": "ฟิตเนส"
+   },
+   "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "hiking",
+   "names": {
+    "de": "Wandern und Dschungel",
+    "en": "Hiking and jungle",
+    "th": "เดินป่า"
+   },
+   "phrases": 18,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
+   "id": "hospital",
+   "names": {
+    "de": "Krankenhaus",
+    "en": "Hospital",
+    "th": "โรงพยาบาล"
+   },
+   "phrases": 18,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
+   "id": "kids",
+   "names": {
+    "de": "Reisen mit Kindern",
+    "en": "Travelling with children",
+    "th": "เที่ยวกับเด็ก"
+   },
+   "phrases": 16,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "laundry-repair",
+   "names": {
+    "de": "Schneider, Schuster, Handyreparatur",
+    "en": "Tailor, cobbler, phone repair",
+    "th": "ซ่อมเสื้อผ้า รองเท้า โทรศัพท์"
+   },
+   "phrases": 19,
+   "critical": 1,
+   "reviewed": false
+  },
+  {
+   "id": "market",
+   "names": {
+    "de": "Markt und Handeln",
+    "en": "Market and haggling",
+    "th": "ตลาดและการต่อราคา"
+   },
+   "phrases": 17,
+   "critical": 2,
+   "reviewed": false
+  },
+  {
+   "id": "massage",
+   "names": {
+    "de": "Thai-Massage",
+    "en": "Thai massage",
+    "th": "นวดแผนไทย"
+   },
+   "phrases": 19,
+   "critical": 7,
+   "reviewed": false
+  },
+  {
+   "id": "monk",
+   "names": {
+    "de": "Mönche und Tempelbesuch",
+    "en": "Monks",
+    "th": "พระสงฆ์"
+   },
+   "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "nightlife",
+   "names": {
+    "de": "Nachtleben und Bars",
+    "en": "Nightlife and bars",
+    "th": "ชีวิตกลางคืนและบาร์"
+   },
+   "phrases": 20,
+   "critical": 6,
+   "reviewed": false
+  },
+  {
+   "id": "nomad",
+   "names": {
+    "de": "Digitale Nomaden",
+    "en": "Digital nomads",
+    "th": "ดิจิทัลโนแมด"
+   },
+   "phrases": 16,
+   "critical": 0,
+   "reviewed": false
+  },
+  {
+   "id": "pets",
+   "names": {
+    "de": "Haustiere",
+    "en": "Pets",
+    "th": "สัตว์เลี้ยง"
+   },
+   "phrases": 18,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
+   "id": "photo",
+   "names": {
+    "de": "Fotografieren",
+    "en": "Photography",
+    "th": "ถ่ายภาพ"
+   },
+   "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "school",
+   "names": {
+    "de": "Schule und Kita",
+    "en": "School and nursery",
+    "th": "โรงเรียนและเนอร์สเซอรี่"
+   },
+   "phrases": 16,
+   "critical": 3,
+   "reviewed": false
+  },
+  {
+   "id": "sport",
+   "names": {
+    "de": "Sport und Fitness",
+    "en": "Sport and fitness",
+    "th": "กีฬาและฟิตเนส"
+   },
+   "phrases": 17,
+   "critical": 3,
+   "reviewed": false
+  },
+  {
+   "id": "street-food",
+   "names": {
+    "de": "Streetfood",
+    "en": "Street food",
+    "th": "อาหารริมทาง"
+   },
+   "phrases": 20,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "visa",
+   "names": {
+    "de": "Behörden und Visum",
+    "en": "Authorities and visa",
+    "th": "ราชการและวีซ่า"
+   },
+   "phrases": 18,
+   "critical": 0,
+   "reviewed": false
+  },
+  {
+   "id": "wedding",
+   "names": {
+    "de": "Hochzeit und Feier",
+    "en": "Wedding and party",
+    "th": "งานแต่งงานและงานเลี้ยง"
+   },
+   "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "work",
+   "names": {
+    "de": "Arbeit und Handwerk",
+    "en": "Work and trades",
+    "th": "งานและช่าง"
+   },
+   "phrases": 17,
+   "critical": 4,
+   "reviewed": false
   }
  ]
 }

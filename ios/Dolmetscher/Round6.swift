@@ -139,7 +139,10 @@ struct ShieldWhenInactive: ViewModifier {
     @Environment(\.scenePhase) private var phase
 
     func body(content: Content) -> some View {
-        content.overlay { if m.privacyShield && phase != .active { PrivacyShield() } }
+        content.overlay {
+            if ShieldPolicy.show(shield: m.privacyShield, active: phase == .active,
+                                 hideOnCapture: m.hideOnCapture, captured: m.screenCaptured) { PrivacyShield() }
+        }
     }
 }
 

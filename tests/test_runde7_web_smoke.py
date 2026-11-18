@@ -63,6 +63,6 @@ setImmediate(() => setImmediate(() => { process.stdout.write(JSON.stringify(erro
 def test_script_loads_and_starts_without_errors():
     import json
     code = HARNESS.replace("%SCRIPT%", json.dumps(SCRIPT))
-    r = subprocess.run(["node", "-e", code], capture_output=True, text=True, timeout=60)
+    r = subprocess.run(["node", "-"], input=code, capture_output=True, text=True, timeout=60)
     assert r.returncode == 0, r.stderr
     assert json.loads(r.stdout) == []

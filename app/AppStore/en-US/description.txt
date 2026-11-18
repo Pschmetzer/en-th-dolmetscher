@@ -1,0 +1,37 @@
+Dolmetscher is a hands-free speech interpreter for your Mac. Just talk: what you say is translated into your partner's language and spoken aloud right away, and their answer comes back in yours. The app detects which of the two languages is being spoken, so there are no buttons to switch. English ⇄ Thai is ready out of the box; you can pick any pair of 19 languages.
+
+SPEECH RECOGNITION ON YOUR MAC
+• Recognition runs locally with Whisper on Apple Silicon. Your audio never leaves the Mac.
+• Only the recognised text is sent for translation, and the translated text for the natural voice.
+• A model fine-tuned on Thai understands quiet or distant Thai speech better.
+• Offline: with Apple's language packs (macOS 26.4 or newer), sentences are still translated on the Mac and read by the macOS voice.
+
+NATURAL CONVERSATIONS
+• Automatic language detection – nobody has to press anything.
+• Partner view with large type, Thai transliteration and a confidence marker on uncertain sentences.
+• Back-translation to check the meaning, "slow and clear" mode, and a field to type a sentence for noisy places.
+• Correct a misrecognised sentence and translate it again; the glossary learns from your corrections.
+• Numbers are checked: if prices, times or room numbers don't match, the app warns you.
+
+VOICE PROFILES
+• Each person reads 8 short sentences once. The app then shows who is speaking, picks their language and uses the right politeness form (ครับ / ค่ะ).
+• Voice profiles stay on this Mac and can be deleted at any time.
+
+HANDS-FREE CONTROL
+• Say "Translator, pause", "repeat", "slower", "louder", "Thai only" and more (with English in the pair).
+• Push-to-talk, menu bar icon and global shortcuts.
+• Choose speaker or headphones for the output.
+
+PHRASEBOOK FOR THAILAND
+• Ready-made scenario packs – doctor, pharmacy, police, restaurant, taxi, temple and more – each with a cultural note. Important sentences such as allergies come first.
+
+OPTIONAL: TRANSLATION WITH CLAUDE
+• Even more natural translations that keep context and politeness. Needs your own Anthropic API key and costs a little per sentence; the app shows the cost and respects a monthly limit. Your key is stored in the Keychain.
+
+PRIVATE BY DESIGN
+• No account, no telemetry, no server of our own.
+• The conversation history is off by default; if you turn it on, it stays on this Mac and can be exported as Markdown, JSON, CSV, subtitles or Anki cards.
+
+Interface in German, English and Thai.
+
+Requires a Mac with Apple Silicon and macOS 14 or later. The speech models (about 3.5 GB) are downloaded once on first start.

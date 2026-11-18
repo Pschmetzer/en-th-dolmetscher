@@ -171,7 +171,7 @@ def _web_tables():
         funcs.append(re.search(r"^function " + n + r"\(.*?^\}", SCRIPT, re.S | re.M).group(0))
     js = "const SCRIPTS = {}, LANGS = {};\n" + "\n".join(funcs) + \
         f"\napplyLangTable({json.dumps(DATA)});\nprocess.stdout.write(JSON.stringify([SCRIPTS, LANGS]));"
-    out = subprocess.run(["node", "-e", js], capture_output=True, text=True, timeout=30)
+    out = subprocess.run(["node", "-"], input=js, capture_output=True, text=True, timeout=30)
     assert out.returncode == 0, out.stderr
     return json.loads(out.stdout)
 

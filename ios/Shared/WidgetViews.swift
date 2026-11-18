@@ -62,9 +62,10 @@ struct PhraseButton: View {
 
 struct LiveStatusIcon: View {
     let status: ListeningActivityAttributes.Status
-    private var tint: Color { status == .hearing ? .green : status == .paused ? .gray : .orange }
+    private var tint: Color { status == .hearing ? .green : (status == .paused || status == .interrupted) ? .gray : .orange }
     var body: some View {
         Image(systemName: status.symbol).foregroundStyle(tint)
+            .accessibilityHidden(true)
     }
 }
 
@@ -103,6 +104,8 @@ struct LastSentence: View {
 struct LiveLockView: View {
     let pair: String
     let state: ListeningActivityAttributes.ContentState
+    /// Seit langer Zeit kein Update der App: der Stand kann veraltet sein (Fehlerfall, App beendet).
+    var stale = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -114,7 +117,12 @@ struct LiveLockView: View {
                 StopButton()
             }
             LastSentence(state: state)
+            if stale {
+                Text(WidgetTexts.text("w_stale")).font(.caption).foregroundStyle(.orange)
+            }
         }
         .foregroundStyle(.white)
+        // Große Schrift: Text darf wachsen, aber der Sperrbildschirm-Platz ist begrenzt.
+        .dynamicTypeSize(...DynamicTypeSize.accessibility2)
     }
 }

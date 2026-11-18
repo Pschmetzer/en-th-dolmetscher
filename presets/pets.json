@@ -1,0 +1,118 @@
+{
+  "id": "pets",
+  "names": {
+    "de": "Haustiere",
+    "en": "Pets",
+    "th": "สัตว์เลี้ยง"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "vet",
+      "th": "สัตวแพทย์"
+    },
+    {
+      "en": "vaccination",
+      "th": "การฉีดวัคซีน"
+    },
+    {
+      "en": "leash",
+      "th": "สายจูง"
+    },
+    {
+      "en": "rabies",
+      "th": "โรคพิษสุนัขบ้า"
+    },
+    {
+      "en": "pet passport",
+      "th": "หนังสือเดินทางสัตว์เลี้ยง"
+    },
+    {
+      "en": "kennel",
+      "th": "กรงสัตว์"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My dog is sick. I need a vet.",
+      "th": "สุนัขป่วย ต้องการสัตวแพทย์",
+      "critical": true
+    },
+    {
+      "en": "I was bitten by a dog.",
+      "th": "ถูกสุนัขกัด",
+      "critical": true
+    },
+    {
+      "en": "I need a rabies injection.",
+      "th": "ต้องฉีดวัคซีนพิษสุนัขบ้า",
+      "critical": true
+    },
+    {
+      "en": "My pet is lost.",
+      "th": "สัตว์เลี้ยงหาย",
+      "critical": true
+    },
+    {
+      "en": "My pet ate something bad. It is an emergency.",
+      "th": "สัตว์เลี้ยงกินของไม่ดี เป็นเรื่องฉุกเฉิน",
+      "critical": true
+    },
+    {
+      "en": "Are pets allowed here?",
+      "th": "สัตว์เลี้ยงเข้าได้ไหม"
+    },
+    {
+      "en": "Is there an extra charge for the dog?",
+      "th": "คิดค่าธรรมเนียมสำหรับสุนัขเพิ่มไหม"
+    },
+    {
+      "en": "Does the dog have to be on a leash?",
+      "th": "ต้องใช้สายจูงไหม"
+    },
+    {
+      "en": "Where is the nearest vet?",
+      "th": "สัตวแพทย์ใกล้ที่สุดอยู่ที่ไหน"
+    },
+    {
+      "en": "Is the clinic open today?",
+      "th": "คลินิกเปิดวันนี้ไหม"
+    },
+    {
+      "en": "The dog needs a vaccination.",
+      "th": "สุนัขต้องฉีดวัคซีน"
+    },
+    {
+      "en": "Here is the pet passport.",
+      "th": "นี่หนังสือเดินทางสัตว์เลี้ยง"
+    },
+    {
+      "en": "Could you recommend pet food?",
+      "th": "ช่วยแนะนำอาหารสัตว์เลี้ยงหน่อยได้ไหม"
+    },
+    {
+      "en": "Is there a dog park nearby?",
+      "th": "แถวนี้มีสวนสุนัขไหม"
+    },
+    {
+      "en": "Can the dog come on the ferry?",
+      "th": "สุนัขขึ้นเรือเฟอร์รี่ได้ไหม"
+    },
+    {
+      "en": "Can the cat travel in the cabin?",
+      "th": "แมวเดินทางในห้องโดยสารได้ไหม"
+    },
+    {
+      "en": "The dog is friendly.",
+      "th": "สุนัขเป็นมิตร"
+    },
+    {
+      "en": "Could I have a bowl of water for the dog?",
+      "th": "ขอชามน้ำให้สุนัขหน่อย"
+    }
+  ],
+  "note": {
+    "de": "Tierarzt und Hotels vorher anrufen. Hunde sind in vielen Lokalen, Tempeln und Stränden nicht erlaubt. Bei Tollwutverdacht (Biss, Kratzer) sofort ins Krankenhaus. Rettung 1669. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Call the vet and hotels ahead. Dogs are not allowed in many restaurants, temples and on many beaches. After a bite or scratch go to hospital at once because of rabies. Ambulance 1669. Thai lines machine-made, not checked by native speakers."
+  }
+}

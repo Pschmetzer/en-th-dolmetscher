@@ -1,0 +1,32 @@
+Dolmetscher ist ein freihändiger Sprach-Dolmetscher für deinen Mac. Einfach sprechen: Was du sagst, wird sofort in die Sprache deines Gegenübers übersetzt und laut vorgelesen, seine Antwort kommt in deiner zurück. Die App erkennt, welche der beiden Sprachen gesprochen wird, du musst nichts umschalten. Englisch ⇄ Thai ist sofort startklar, du kannst jedes Paar aus 19 Sprachen wählen.
+
+PRIVAT ENTWORFEN
+• Kein Konto, keine Telemetrie, kein eigener Server.
+• Die Spracherkennung läuft lokal auf deinem Mac (Whisper). Dein Ton verlässt den Rechner nicht.
+• Zur Übersetzung geht nur der erkannte Text raus (Google, Ersatz MyMemory oder Claude, wenn du es einschaltest).
+• Stimmprofile und Gesprächsverlauf bleiben auf deinem Mac. Der Verlauf ist standardmäßig aus.
+• Privatmodus: keine Aufwärm-Anfragen beim Start, und der Text landet nie in einer Web-Adresse.
+
+FREIHÄNDIG
+• Automatische Erkennung, wer welche Sprache spricht.
+• Natürliche Stimme für die Übersetzung, ohne Netz mit den macOS-Stimmen als Ersatz.
+• Sage „Dolmetscher, Pause“, „wiederholen“, „langsamer“ oder „lauter“ (wenn Englisch im Paar ist).
+• Push-to-talk, auch als globale Tastenkombination.
+• Mikrofon und Lautsprecher wählbar, auch während des Laufens.
+
+FÜR ECHTE GESPRÄCHE
+• Zahlen, Preise und Uhrzeiten werden geprüft: Weichen die Ziffern der Übersetzung vom Original ab, fragt die App den anderen Dienst und warnt dich.
+• Optionale Rückübersetzung zeigt, ob die Bedeutung erhalten blieb.
+• Modus „Langsam und deutlich“: langsamere Stimme, einfachere Wörter.
+• Höflichkeitsendungen ครับ / ค่ะ passend zum Sprecher, wenn Thai im Paar ist.
+• Partneransicht mit großer Schrift für das Gegenüber.
+• Phrasenpakete für die Reise, jeweils mit Kulturhinweis; wichtige Sätze stehen zuerst.
+• Optional Claude-Übersetzung mit Monatsbudget.
+
+OFFLINE
+• Die Erkennung funktioniert ohne Internet weiter.
+• Ab macOS 26.4 übersetzt der Mac auf dem Gerät mit der Apple-Übersetzung (Sprachpakete installiert).
+
+Sprachen: Englisch, Thai, Deutsch, Spanisch, Französisch, Italienisch, Portugiesisch, Niederländisch, Russisch, Chinesisch, Japanisch, Koreanisch, Vietnamesisch, Indonesisch, Arabisch, Hindi, Türkisch, Polnisch, Ukrainisch.
+
+Voraussetzung: Mac mit Apple Silicon und macOS 14 oder neuer. Beim ersten Start richtet sich die App selbst ein und lädt die Sprachmodelle.
