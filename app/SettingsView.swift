@@ -6,15 +6,65 @@ import ServiceManagement
 struct SettingsView: View {
     @EnvironmentObject var m: EngineModel
     @AppStorage(L.key) private var uiLang = L.defaultCode
+    @State private var tab = 0
+    @State private var query = ""
+
+    /// Suchindex: Einstellung (L10n-Schlüssel ihrer Beschriftung) -> Reiter (0 Allgemein, 1 Stimme, 2 Übersetzung, 3 Anzeige).
+    static let index: [(key: String, tab: Int)] = [
+        ("lang_pair", 0), ("lang_mine", 0), ("lang_partner", 0), ("mic", 0), ("output_device", 0),
+        ("recognition_lang", 0), ("sensitivity", 0), ("fast_endpoint", 0), ("denoise", 0), ("beam", 0),
+        ("catch_up", 0), ("slow_mode", 0), ("push_to_talk", 0), ("space_toggle", 0), ("hotkey_hud", 0),
+        ("hide_capture", 0), ("private_mode", 0), ("menubar_icon", 0), ("login_item", 0), ("history", 0),
+        ("maintenance", 0), ("offline_mt", 0), ("model_label", 0), ("earcons", 0), ("announce_toggle", 0),
+        ("learn_glossary", 0), ("back_translate", 0), ("let_finish", 0), ("listen_on_launch", 0),
+        ("stop_mic_on_close", 0),
+        ("polite_label", 1), ("speak_toggle", 1), ("rate", 1), ("volume", 1), ("tts_race", 1),
+        ("glossary", 2), ("llm", 2), ("llm_budget", 2), ("llm_model", 2), ("preset", 2), ("style", 2), ("api_key", 2),
+        ("font_size", 3), ("always_on_top", 3), ("show_details", 3), ("translit", 3),
+        ("quick_phrases", 3), ("show_quick", 3),
+    ]
+
+    /// Treffer für den Suchtext (ohne Groß-/Kleinschreibung), höchstens 6.
+    static func matches(_ q: String) -> [(key: String, tab: Int)] {
+        let t = q.trimmingCharacters(in: .whitespaces)
+        guard !t.isEmpty else { return [] }
+        return Array(index.filter { L.t($0.key).localizedCaseInsensitiveContains(t) }.prefix(6))
+    }
+
+    private var tabNames: [String] { ["tab_general", "tab_voice", "tab_translation", "tab_display"] }
 
     var body: some View {
         let _ = L.sync(uiLang)
+        let hits = Self.matches(query)
         VStack(spacing: 0) {
-            TabView {
-                GeneralSettings().tabItem { Label(L.t("tab_general"), systemImage: "gearshape") }
-                VoiceSettings().tabItem { Label(L.t("tab_voice"), systemImage: "speaker.wave.2") }
-                TranslationSettings().tabItem { Label(L.t("tab_translation"), systemImage: "character.bubble") }
-                DisplaySettings().tabItem { Label(L.t("tab_display"), systemImage: "textformat.size") }
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass").foregroundStyle(.secondary).accessibilityHidden(true)
+                TextField(L.t("settings_search"), text: $query)
+                    .textFieldStyle(.roundedBorder)
+                    .accessibilityLabel(L.t("settings_search"))
+                    .onSubmit { if let h = hits.first { tab = h.tab } }
+            }
+            .padding(.horizontal, 16).padding(.vertical, 8)
+            if !query.trimmingCharacters(in: .whitespaces).isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    if hits.isEmpty {
+                        Text(L.t("settings_search_none")).foregroundStyle(.secondary)
+                    } else {
+                        ForEach(Array(hits.enumerated()), id: \.offset) { _, h in
+                            Button { tab = h.tab } label: {
+                                Text(L.t(h.key) + "  ·  " + L.t(tabNames[h.tab])).frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            .buttonStyle(.link)
+                        }
+                    }
+                }
+                .padding(.horizontal, 16).padding(.bottom, 8).frame(maxWidth: .infinity, alignment: .leading)
+            }
+            TabView(selection: $tab) {
+                GeneralSettings().tabItem { Label(L.t("tab_general"), systemImage: "gearshape") }.tag(0)
+                VoiceSettings().tabItem { Label(L.t("tab_voice"), systemImage: "speaker.wave.2") }.tag(1)
+                TranslationSettings().tabItem { Label(L.t("tab_translation"), systemImage: "character.bubble") }.tag(2)
+                DisplaySettings().tabItem { Label(L.t("tab_display"), systemImage: "textformat.size") }.tag(3)
             }
         }
         // Größenveränderbar (Szene: .windowResizability(.contentMinSize)); größere Schrift oder Thai-Texte brauchen Platz
@@ -684,6 +734,7 @@ private struct DisplaySettings: View {
                 Toggle(L.t("always_on_top"), isOn: $onTop)
                 Toggle(L.t("show_details"), isOn: $showDetails)
                 Toggle(L.t("translit"), isOn: $translit)
+                Button(L.t("reset_display")) { scale = 1.0; onTop = false; showDetails = false; translit = true }
             }
             QuickPhraseSettings()
         }
