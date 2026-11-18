@@ -1,0 +1,33 @@
+name: CodeQL
+
+# Statische Sicherheitsanalyse fuer JavaScript (index.html/sw.js werden als Teil des Repos geprueft, soweit CodeQL
+# Inline-Skripte erfasst), Python und die Workflows selbst (Einschleusen ueber ${{ }}). Woechentlich und bei Pull Requests.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 4 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript-typescript, python, actions]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: github/codeql-action/init@a3d1b77a1ba1550fbb5c74db1dc3a11f4a481126 # v3.39.2
+        with:
+          languages: ${{ matrix.language }}
+      - uses: github/codeql-action/analyze@a3d1b77a1ba1550fbb5c74db1dc3a11f4a481126 # v3.39.2
+        with:
+          category: /language:${{ matrix.language }}

@@ -46,6 +46,11 @@
   ],
   "phrases": [
     {
+      "en": "I feel faint.",
+      "th": "รู้สึกจะเป็นลม",
+      "critical": true
+    },
+    {
       "en": "Is it okay to take photos here?",
       "th": "ถ่ายรูปที่นี่ได้ไหม"
     },

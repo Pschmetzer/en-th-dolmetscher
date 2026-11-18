@@ -1,0 +1,130 @@
+{
+  "id": "dentist",
+  "names": {
+    "de": "Zahnarzt",
+    "en": "Dentist",
+    "th": "ทันตแพทย์"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Nur zur Verständigung, kein medizinischer Rat. Kostenvoranschlag vor der Behandlung verlangen. Notruf Rettung: 1669. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "For communication only, not medical advice. Ask for a cost estimate before treatment. Ambulance: 1669. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "dentist",
+      "th": "ทันตแพทย์"
+    },
+    {
+      "en": "tooth",
+      "th": "ฟัน"
+    },
+    {
+      "en": "gums",
+      "th": "เหงือก"
+    },
+    {
+      "en": "filling",
+      "th": "อุดฟัน"
+    },
+    {
+      "en": "crown",
+      "th": "ครอบฟัน"
+    },
+    {
+      "en": "root canal",
+      "th": "รักษารากฟัน"
+    },
+    {
+      "en": "X-ray",
+      "th": "เอกซเรย์"
+    },
+    {
+      "en": "anesthetic",
+      "th": "ยาชา"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have severe tooth pain.",
+      "th": "ปวดฟันมาก",
+      "critical": true
+    },
+    {
+      "en": "My face is swollen.",
+      "th": "หน้าบวม",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to anesthetic.",
+      "th": "แพ้ยาชา",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to penicillin.",
+      "th": "แพ้ยาเพนิซิลลิน",
+      "critical": true
+    },
+    {
+      "en": "Please stop, it hurts.",
+      "th": "หยุดก่อน เจ็บ",
+      "critical": true
+    },
+    {
+      "en": "I need to see a dentist today.",
+      "th": "ต้องการพบทันตแพทย์วันนี้"
+    },
+    {
+      "en": "Do you have an appointment free today?",
+      "th": "วันนี้มีคิวว่างไหม"
+    },
+    {
+      "en": "A tooth is broken.",
+      "th": "ฟันแตก"
+    },
+    {
+      "en": "I lost a filling.",
+      "th": "อุดฟันหลุด"
+    },
+    {
+      "en": "My crown came off.",
+      "th": "ครอบฟันหลุด"
+    },
+    {
+      "en": "My gums are bleeding.",
+      "th": "เหงือกมีเลือดออก"
+    },
+    {
+      "en": "Please give me a local anesthetic.",
+      "th": "ช่วยฉีดยาชาให้หน่อย"
+    },
+    {
+      "en": "Could I have an X-ray?",
+      "th": "ขอเอกซเรย์ฟันได้ไหม"
+    },
+    {
+      "en": "Do I need a root canal?",
+      "th": "ต้องรักษารากฟันไหม"
+    },
+    {
+      "en": "Could you give me a cost estimate first?",
+      "th": "ช่วยประเมินราคาก่อนได้ไหม"
+    },
+    {
+      "en": "How much will it cost in total?",
+      "th": "ค่าใช้จ่ายทั้งหมดเท่าไร"
+    },
+    {
+      "en": "Can I take painkillers?",
+      "th": "กินยาแก้ปวดได้ไหม"
+    },
+    {
+      "en": "When can I eat after the treatment?",
+      "th": "หลังรักษากินอาหารได้เมื่อไร"
+    },
+    {
+      "en": "Could I have a receipt, please?",
+      "th": "ขอใบเสร็จหน่อย"
+    }
+  ]
+}

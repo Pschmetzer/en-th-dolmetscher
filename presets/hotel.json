@@ -54,6 +54,16 @@
   ],
   "phrases": [
     {
+      "en": "There is a fire!",
+      "th": "ไฟไหม้",
+      "critical": true
+    },
+    {
+      "en": "I need a doctor.",
+      "th": "ต้องการแพทย์",
+      "critical": true
+    },
+    {
       "en": "I have a reservation under the name Smith.",
       "th": "จองห้องไว้ในชื่อสมิธ"
     },
@@ -121,5 +131,9 @@
       "en": "Could I have a tax invoice in my company's name?",
       "th": "ขอใบกำกับภาษีในนามบริษัทได้ไหม"
     }
-  ]
+  ],
+  "note": {
+    "de": "Notruf Rettung 1669, Polizei 191, Tourist Police 1155. Bei Brand Rezeption oder Feuerwehr 199 rufen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Ambulance 1669, police 191, tourist police 1155. For fire call reception or the fire brigade 199. Thai lines machine-made, not checked by native speakers."
+  }
 }

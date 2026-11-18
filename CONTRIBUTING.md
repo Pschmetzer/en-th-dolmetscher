@@ -14,11 +14,15 @@ Thanks for helping! Issues and pull requests are welcome.
 - `CHANGELOG.md` – user-facing changes; add a line under *Unreleased* for anything a user would notice.
 - `docs/PROTOKOLL.md` – JSON protocol between app and engine (events on stdout, settings on stdin).
 - `docs/ARCHITEKTUR.md` – process model, threads, states, demo mode. `docs/DATENSCHUTZ.md` – what leaves the Mac, when and to whom (update it when you add a network call).
-- `index.html` – browser version (Web Lite, GitHub Pages).
+- `index.html` – browser version (Web Lite, GitHub Pages); `sw.js`, `manifest.webmanifest`, `presets-index.json`, `allergens.json` belong to it. How it works and how to test it: the “Web Lite” section of `docs/ARCHITEKTUR.md`; browser checklist: `docs/WEB-KOMPATIBILITAET.md`; self-hosting: `docs/WEB-HOSTING.md`.
 - `bench/` – latency and quality benchmark, see [bench/README.md](bench/README.md).
 - `tests/` – pytest tests.
 - `tools/` – prototypes for Apple's on-device speech recognition and translation (macOS 26, not part of the Mac app).
 - `docs/LIZENZEN.md` – licenses of models, packages and services.
+
+## Without a Mac (presets, web, docs)
+
+Presets, the web page and the docs need no Mac. `make test-web` (Python + node), `make lint`, `make presets-index`, or open the repo in a Dev Container / Codespace (`.devcontainer/`). `pre-commit install` adds local hooks (ruff, JSON check, `node --check sw.js`, shellcheck, presets index). When you change a file that the service worker caches, bump `CACHE` in `sw.js`. Pull requests that touch the app, web, presets or engine need a `CHANGELOG.md` entry (or the `no-changelog` label); the `Changelog` workflow checks it.
 
 ## Development setup
 
