@@ -1,0 +1,122 @@
+{
+  "id": "motorbike-accident",
+  "names": {
+    "de": "Motorrad-Unfall",
+    "en": "Motorbike accident",
+    "th": "อุบัติเหตุมอเตอร์ไซค์"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "accident",
+      "th": "อุบัติเหตุ"
+    },
+    {
+      "en": "insurance",
+      "th": "ประกัน"
+    },
+    {
+      "en": "police report",
+      "th": "ใบแจ้งความ"
+    },
+    {
+      "en": "helmet",
+      "th": "หมวกกันน็อก"
+    },
+    {
+      "en": "damage",
+      "th": "ความเสียหาย"
+    },
+    {
+      "en": "witness",
+      "th": "พยาน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "There was an accident. Please call an ambulance.",
+      "th": "เกิดอุบัติเหตุ ช่วยเรียกรถพยาบาลด้วย",
+      "critical": true
+    },
+    {
+      "en": "Someone is badly injured.",
+      "th": "มีคนบาดเจ็บสาหัส",
+      "critical": true
+    },
+    {
+      "en": "Please call the police.",
+      "th": "ช่วยเรียกตำรวจด้วย",
+      "critical": true
+    },
+    {
+      "en": "Do not move him. His neck may be hurt.",
+      "th": "อย่าขยับเขา คออาจบาดเจ็บ",
+      "critical": true
+    },
+    {
+      "en": "I hit my head.",
+      "th": "ศีรษะกระแทก",
+      "critical": true
+    },
+    {
+      "en": "I need to go to the hospital.",
+      "th": "ต้องไปโรงพยาบาล"
+    },
+    {
+      "en": "Please do not move the vehicles yet.",
+      "th": "ขออย่าเพิ่งเคลื่อนย้ายรถ"
+    },
+    {
+      "en": "I want to make a police report for the insurance.",
+      "th": "ต้องการแจ้งความเพื่อทำเรื่องประกัน"
+    },
+    {
+      "en": "Can I take photos of the scene?",
+      "th": "ถ่ายรูปที่เกิดเหตุได้ไหม"
+    },
+    {
+      "en": "Can you write down your name and phone number?",
+      "th": "ช่วยเขียนชื่อและเบอร์โทรไว้ให้หน่อย"
+    },
+    {
+      "en": "Is there a witness who saw it?",
+      "th": "มีพยานที่เห็นเหตุการณ์ไหม"
+    },
+    {
+      "en": "The other driver came too fast.",
+      "th": "อีกฝ่ายขับมาเร็วเกินไป"
+    },
+    {
+      "en": "I have travel insurance. Here is the policy.",
+      "th": "มีประกันการเดินทาง นี่กรมธรรม์"
+    },
+    {
+      "en": "Which hospital is the nearest?",
+      "th": "โรงพยาบาลที่ใกล้ที่สุดคือที่ไหน"
+    },
+    {
+      "en": "I rented the motorbike at a shop nearby.",
+      "th": "เช่ามอเตอร์ไซค์จากร้านแถวนี้"
+    },
+    {
+      "en": "Please call the rental shop for me.",
+      "th": "ช่วยโทรหาร้านเช่าให้หน่อย"
+    },
+    {
+      "en": "How much is the damage?",
+      "th": "ความเสียหายคิดเป็นเงินเท่าไหร่"
+    },
+    {
+      "en": "I do not want to pay here. Let us go to the police.",
+      "th": "ไม่ขอจ่ายที่นี่ ไปที่สถานีตำรวจกัน"
+    },
+    {
+      "en": "Please give me a copy of the report.",
+      "th": "ขอสำเนารายงานด้วย"
+    }
+  ],
+  "note": {
+    "de": "Nach einem Unfall zuerst Verletzte versorgen, 1669 (Rettung) und 191 (Polizei) rufen, Fahrzeuge nicht bewegen und Fotos machen. Ohne Führerschein für Motorräder zahlt die Versicherung oft nicht. Dem Vermieter sofort Bescheid geben; Reisepass nicht als Pfand lassen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "After a crash, first help the injured, call 1669 (ambulance) and 191 (police), do not move the vehicles and take photos. Without a motorcycle licence insurance often refuses to pay. Tell the rental shop at once; never leave your passport as a deposit. Thai lines machine-made, not checked by native speakers."
+  }
+}
