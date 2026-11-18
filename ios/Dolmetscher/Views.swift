@@ -46,6 +46,8 @@ struct ContentView: View {
         @Bindable var m = m
         return NavigationStack {
             conversation
+            // VoiceOver: Doppeltippen mit zwei Fingern startet und beendet das Dolmetschen.
+            .accessibilityAction(.magicTap) { m.toggle() }
             .navigationTitle("Dolmetscher")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
