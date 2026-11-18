@@ -13,7 +13,7 @@ SW = (ROOT / "sw.js").read_text(encoding="utf-8")
 
 
 def _ids(src):
-    return re.findall(r"'(\w+)'", re.search(r"const PRESET_IDS = \[(.*?)\]", src, re.S).group(1))
+    return re.findall(r"'([\w-]+)'", re.search(r"const PRESET_IDS = \[(.*?)\]", src, re.S).group(1))
 
 
 def test_index_matches_folder_and_is_current():

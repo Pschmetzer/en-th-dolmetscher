@@ -82,6 +82,14 @@ kennen, ignorieren sie.
 | `diving` | Tauchen und Schnorcheln | Ohren, Luftmangel, Aufstieg, Unwohlsein, Asthma |
 | `market` | Markt und Handeln | Erdnuss-, Schalentier-Allergie |
 | `kids` | Reisen mit Kindern | Allergie, Kind verloren, Arzt, nicht schwimmen können |
+| `car-rental` | Mietwagen | 4 kritische Sätze zuerst |
+| `pets` | Haustiere | 5 kritische Sätze zuerst |
+| `baby` | Baby und Kleinkind | 5 kritische Sätze zuerst |
+| `gym` | Fitnessstudio | 4 kritische Sätze zuerst |
+| `wedding` | Hochzeit und Feier | 4 kritische Sätze zuerst |
+| `photo` | Fotografieren | 4 kritische Sätze zuerst |
+| `monk` | Mönche und Tempelbesuch | 4 kritische Sätze zuerst |
+| `hospital` | Krankenhaus | 5 kritische Sätze zuerst |
 
 ## Unsichere Sätze (bitte zuerst prüfen)
 
@@ -117,7 +125,7 @@ Am wichtigsten sind die Sätze mit `critical` und die Tabelle [Unsichere Sätze]
 
 | Datei | Inhalt |
 |---|---|
-| `presets/*.json` | 33 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
+| `presets/*.json` | 41 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
 | `ios/Shared/phrases.json` | eingebautes Satzbuch der iPhone-App und des Widgets |
 | `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten, „Sie sind dran“, Allergie-Karte |
 | `ios/Dolmetscher/Round4Views.swift` | Hilfesatz auf dem Bildschirm „Hilfe – jetzt“ |

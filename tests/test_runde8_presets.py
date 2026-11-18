@@ -21,7 +21,7 @@ def _pending():
 
 def _web_ids(path):
     src = (ROOT / path).read_text(encoding="utf-8")
-    return re.findall(r"'(\w+)'", re.search(r"const PRESET_IDS = \[(.*?)\]", src, re.S).group(1))
+    return re.findall(r"'([\w-]+)'", re.search(r"const PRESET_IDS = \[(.*?)\]", src, re.S).group(1))
 
 
 @pytest.mark.parametrize("pid", R8)
