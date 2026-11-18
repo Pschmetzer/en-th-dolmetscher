@@ -34,6 +34,11 @@
   ],
   "phrases": [
     {
+      "en": "Please stop. I do not want to continue.",
+      "th": "หยุดก่อน ไม่ต้องการทำต่อแล้ว",
+      "critical": true
+    },
+    {
       "en": "Please write down the price and the date.",
       "th": "ช่วยเขียนราคาและวันที่ไว้ให้หน่อย",
       "critical": true
@@ -41,11 +46,6 @@
     {
       "en": "I do not want to pay everything now.",
       "th": "ไม่ต้องการจ่ายเต็มจำนวนตอนนี้",
-      "critical": true
-    },
-    {
-      "en": "Please stop. I do not want to continue.",
-      "th": "หยุดก่อน ไม่ต้องการทำต่อแล้ว",
       "critical": true
     },
     {
@@ -77,7 +77,7 @@
       "th": "เสร็จเมื่อไร"
     },
     {
-      "en": "I leave the day after tomorrow.",
+      "en": "I am leaving the day after tomorrow.",
       "th": "จะเดินทางมะรืนนี้"
     },
     {

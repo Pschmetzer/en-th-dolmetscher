@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Notrufe: Polizei 191, Rettung 1669, Tourist Police 1155 (Englisch). Den Wai-Gruß (Hände wie zum Gebet) mit einem kurzen Wai oder Lächeln erwidern.",
-    "en": "Emergency: police 191, ambulance 1669, tourist police 1155 (English). Return a wai greeting with a short wai or a smile."
+    "de": "Notrufe: Polizei 191, Rettung 1669, Touristenpolizei 1155 (Englisch). Den Wai-Gruß (Hände wie zum Gebet) mit einem kurzen Wai oder Lächeln erwidern. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Emergency: police 191, ambulance 1669, tourist police 1155 (English). Return a wai greeting with a short wai or a smile. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -70,6 +70,11 @@
       "critical": true
     },
     {
+      "en": "I lost my passport.",
+      "th": "ทำพาสปอร์ตหาย",
+      "critical": true
+    },
+    {
       "en": "Excuse me, where is the toilet?",
       "th": "ขอโทษ ห้องน้ำอยู่ที่ไหน"
     },
@@ -100,10 +105,6 @@
     {
       "en": "Thank you very much for your help.",
       "th": "ขอบคุณมากสำหรับความช่วยเหลือ"
-    },
-    {
-      "en": "I lost my passport.",
-      "th": "ทำพาสปอร์ตหาย"
     },
     {
       "en": "My wallet was stolen.",

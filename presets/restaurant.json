@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Trinkgeld ist nicht Pflicht; in Restaurants mit Bedienung Kleingeld liegen lassen ist üblich. Bei Allergien den Satz zeigen und auf Bestätigung warten.",
-    "en": "Tipping is not required; leaving small change is common where there is table service. For allergies, show the sentence and wait for confirmation."
+    "de": "Trinkgeld ist nicht Pflicht; in Restaurants mit Bedienung Kleingeld liegen lassen ist üblich. Bei Allergien den Satz zeigen und auf Bestätigung warten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Tipping is not required; leaving small change is common where there is table service. For allergies, show the sentence and wait for confirmation. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -125,7 +125,7 @@
       "th": "ขอน้ำเปล่าหน่อย"
     },
     {
-      "en": "Check, please.",
+      "en": "The bill, please.",
       "th": "ขอเช็คบิลหน่อย"
     },
     {

@@ -7,7 +7,7 @@
   },
   "style": "polite",
   "note": {
-    "de": "Notrufe in Thailand: 191 Polizei, 199 Feuerwehr, 1669 Rettungsdienst, 1155 Tourist Police (auch Englisch). Zuerst den Ort nennen, dann das Problem. Bei Verlust des Passes Anzeige bei der Polizei und Termin bei der Botschaft. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "de": "Notrufe in Thailand: 191 Polizei, 199 Feuerwehr, 1669 Rettungsdienst, 1155 Touristenpolizei (auch Englisch). Zuerst den Ort nennen, dann das Problem. Bei Verlust des Passes Anzeige bei der Polizei und Termin bei der Botschaft. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
     "en": "Emergency numbers in Thailand: 191 police, 199 fire, 1669 ambulance, 1155 Tourist Police (English spoken). Say the place first, then the problem. After a lost passport get a police report and contact your embassy. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
@@ -74,15 +74,18 @@
     },
     {
       "en": "Where is the nearest hospital?",
-      "th": "โรงพยาบาลที่ใกล้ที่สุดอยู่ที่ไหน"
+      "th": "โรงพยาบาลที่ใกล้ที่สุดอยู่ที่ไหน",
+      "critical": true
     },
     {
       "en": "My passport was stolen.",
-      "th": "พาสปอร์ตถูกขโมย"
+      "th": "พาสปอร์ตถูกขโมย",
+      "critical": true
     },
     {
       "en": "My phone was stolen.",
-      "th": "โทรศัพท์ถูกขโมย"
+      "th": "โทรศัพท์ถูกขโมย",
+      "critical": true
     },
     {
       "en": "I lost my wallet.",

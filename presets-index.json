@@ -9,7 +9,7 @@
     "th": "พบแพทย์ (ช่วยสื่อสารเท่านั้น)"
    },
    "phrases": 25,
-   "critical": 8,
+   "critical": 11,
    "reviewed": false
   },
   {
@@ -20,7 +20,7 @@
     "th": "ตำรวจ / ของถูกขโมย"
    },
    "phrases": 19,
-   "critical": 6,
+   "critical": 9,
    "reviewed": false
   },
   {
@@ -108,7 +108,7 @@
     "th": "เดินทางท่องเที่ยว"
    },
    "phrases": 18,
-   "critical": 4,
+   "critical": 5,
    "reviewed": false
   },
   {
@@ -372,7 +372,7 @@
     "th": "เหตุฉุกเฉินระหว่างเดินทาง"
    },
    "phrases": 18,
-   "critical": 7,
+   "critical": 10,
    "reviewed": false
   },
   {
@@ -416,7 +416,7 @@
     "th": "โรงพยาบาล"
    },
    "phrases": 18,
-   "critical": 5,
+   "critical": 6,
    "reviewed": false
   },
   {
@@ -460,7 +460,7 @@
     "th": "หนังสือเดินทางหาย"
    },
    "phrases": 20,
-   "critical": 4,
+   "critical": 5,
    "reviewed": false
   },
   {
@@ -504,7 +504,7 @@
     "th": "พระสงฆ์"
    },
    "phrases": 18,
-   "critical": 4,
+   "critical": 3,
    "reviewed": false
   },
   {
@@ -515,7 +515,7 @@
     "th": "อุบัติเหตุมอเตอร์ไซค์"
    },
    "phrases": 19,
-   "critical": 5,
+   "critical": 6,
    "reviewed": false
   },
   {

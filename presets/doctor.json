@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Nur zur Verständigung, kein medizinischer Rat. Notruf Rettungsdienst: 1669. Allergien und Dauermedikamente zuerst zeigen.",
-    "en": "For communication only, not medical advice. Ambulance: 1669. Show allergies and regular medication first.",
+    "de": "Nur zur Verständigung, kein medizinischer Rat. Notruf Rettungsdienst: 1669. Allergien und Dauermedikamente zuerst zeigen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "For communication only, not medical advice. Ambulance: 1669. Show allergies and regular medication first. Thai lines machine-made, not checked by native speakers.",
     "th": "ใช้เพื่อการสื่อสารเท่านั้น ไม่ใช่คำแนะนำทางการแพทย์ เบอร์รถพยาบาล 1669 ให้แสดงเรื่องแพ้ยาและยาประจำก่อน"
   },
   "glossary": [
@@ -91,6 +91,21 @@
       "critical": true
     },
     {
+      "en": "Where is the nearest hospital?",
+      "th": "โรงพยาบาลที่ใกล้ที่สุดอยู่ที่ไหน",
+      "critical": true
+    },
+    {
+      "en": "I have high blood pressure.",
+      "th": "เป็นความดันโลหิตสูง",
+      "critical": true
+    },
+    {
+      "en": "I feel dizzy.",
+      "th": "เวียนหัว",
+      "critical": true
+    },
+    {
       "en": "I would like to see a doctor.",
       "th": "อยากพบแพทย์"
     },
@@ -119,28 +134,16 @@
       "th": "ใช้ประกันสุขภาพนี้ได้ไหม"
     },
     {
-      "en": "Where is the nearest hospital?",
-      "th": "โรงพยาบาลที่ใกล้ที่สุดอยู่ที่ไหน"
-    },
-    {
       "en": "I take this medicine regularly.",
       "th": "กินยานี้เป็นประจำ"
-    },
-    {
-      "en": "I have high blood pressure.",
-      "th": "เป็นความดันโลหิตสูง"
     },
     {
       "en": "I have been vomiting.",
       "th": "อาเจียน"
     },
     {
-      "en": "I have diarrhea.",
+      "en": "I have diarrhoea.",
       "th": "ท้องเสีย"
-    },
-    {
-      "en": "I feel dizzy.",
-      "th": "เวียนหัว"
     },
     {
       "en": "How many times a day should I take this?",

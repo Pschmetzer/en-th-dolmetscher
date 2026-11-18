@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Ohne passenden Führerschein (Motorrad-Klasse im internationalen Führerschein) zahlt die Versicherung oft nicht. Helmpflicht, Kontrollen sind häufig. Den Reisepass nicht als Pfand abgeben, lieber Kaution in bar. Kratzer vor der Fahrt fotografieren.",
-    "en": "Without a matching licence (motorcycle class on the international driving permit) insurance often does not pay. Helmets are compulsory and checks are common. Do not leave your passport as a deposit; offer cash instead. Photograph scratches before riding."
+    "de": "Ohne passenden Führerschein (Motorrad-Klasse im internationalen Führerschein) zahlt die Versicherung oft nicht. Es gilt Helmpflicht, Kontrollen sind häufig. Den Reisepass nicht als Pfand abgeben, lieber Kaution in bar. Kratzer vor der Fahrt fotografieren. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Without a matching licence (motorcycle class on the international driving permit) insurance often does not pay. Helmets are compulsory and checks are common. Do not leave your passport as a deposit; offer cash instead. Photograph scratches before riding. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -20,7 +20,7 @@
       "th": "หมวกกันน็อก"
     },
     {
-      "en": "flat tire",
+      "en": "flat tyre",
       "th": "ยางแบน"
     },
     {
@@ -28,7 +28,7 @@
       "th": "เบรก"
     },
     {
-      "en": "gas station",
+      "en": "petrol station",
       "th": "ปั๊มน้ำมัน"
     },
     {
@@ -89,7 +89,7 @@
       "th": "รอยขีดข่วนพวกนี้มีอยู่แล้ว"
     },
     {
-      "en": "I have a flat tire.",
+      "en": "I have a flat tyre.",
       "th": "ยางแบน"
     },
     {
@@ -101,7 +101,7 @@
       "th": "ไฟไม่ติด"
     },
     {
-      "en": "Where is the nearest gas station?",
+      "en": "Where is the nearest petrol station?",
       "th": "ปั๊มน้ำมันที่ใกล้ที่สุดอยู่ที่ไหน"
     },
     {
