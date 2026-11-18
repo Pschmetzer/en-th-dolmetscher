@@ -6,6 +6,7 @@ enum Prefs {
     static let fontScale = "fontScale"
     static let alwaysOnTop = "alwaysOnTop"
     static let tipsSeen = "tipsSeen"
+    static let tipsRemindUntil = "tipsRemindUntil"   // „Später erinnern“: Willkommensseite bis dahin ruhen lassen
     static let showDetails = "showDetails"
     static let translit = "translit"
     static let showQuick = "showQuickPhrases"
@@ -174,10 +175,14 @@ struct ContentView: View {
     @AppStorage(Prefs.fontScale) private var scale = 1.0
     @AppStorage(Prefs.alwaysOnTop) private var onTop = false
     @AppStorage(Prefs.tipsSeen) private var tipsSeen = false
+    @AppStorage(Prefs.tipsRemindUntil) private var tipsRemindUntil = 0.0
     @AppStorage(Prefs.hideFromCapture) private var hideCapture = false
     @State private var whatsNew: [String] = []
     @AppStorage(Prefs.showQuick) private var showQuick = true
     @State private var showTips = false
+    private var tipsDue: Bool {
+        !tipsSeen && OnboardingLogic.remindDue(until: tipsRemindUntil, now: Date().timeIntervalSince1970)
+    }
     @State private var bigText: Utterance?
     @State private var showGlossaryAdd = false
     @State private var showShortcuts = false
@@ -286,7 +291,8 @@ struct ContentView: View {
             if w.title != t { w.title = t }
         })
         .sheet(isPresented: $showTips) {
-            TipsSheet(model: m.model, thai: Langs.hasThai) { tipsSeen = true; showTips = false }
+            TipsSheet(engine: m, done: { tipsSeen = true; showTips = false },
+                      later: { tipsRemindUntil = OnboardingLogic.remindUntil(now: Date().timeIntervalSince1970); showTips = false })
         }
         .sheet(isPresented: Binding(get: { !whatsNew.isEmpty }, set: { if !$0 { whatsNew = []; WhatsNew.markSeen() } })) {
             WhatsNewSheet(items: whatsNew) { whatsNew = []; WhatsNew.markSeen() }
@@ -312,9 +318,9 @@ struct ContentView: View {
         .id(uiLang)                                   // Oberflächensprache sofort umschalten
         .onChange(of: m.items.isEmpty) { if m.items.isEmpty { query = ""; langFilter = ""; userScrolledUp = false } }
         .onChange(of: uiLang) { m.refreshStatus() }
-        .onChange(of: setup.visible) { if !setup.visible && !tipsSeen { showTips = true } }
+        .onChange(of: setup.visible) { if !setup.visible && tipsDue { showTips = true } }
         .onAppear {
-            if !tipsSeen && !setup.visible { showTips = true }
+            if tipsDue && !setup.visible { showTips = true }
             if tipsSeen && !setup.visible { whatsNew = WhatsNew.pending() } else { _ = WhatsNew.pending() }
             installScrollMonitor()
         }
@@ -1146,24 +1152,32 @@ struct CrashBanner: View {
 
 /// Willkommen beim ersten Start: Mikrofon, Bedienung, Sprachbefehle und – wichtig – welche Dienste Text erhalten.
 struct TipsSheet: View {
-    var model = "medium"
-    var thai = true
+    @ObservedObject var engine: EngineModel
     var done: () -> Void
+    var later: () -> Void
+    private var model: String { engine.model }
+    private var thai: Bool { Langs.hasThai }
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 12) {
             Text(L.t("welcome_title")).font(.title.bold())
-            tip("mic.fill", L.t("tip_mic_title"), L.t("tip_mic_text"))
-            tip("waveform", L.t("tip_speak_title"), L.tp("tip_speak_text"))
-            tip("text.bubble", L.t("tip_cmd_title"), L.t("tip_cmd_text"))
-            tip("lock.shield", L.t("privacy_title"), L.t("privacy_text"))
-            SetupChecklist(model: model, thai: thai)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    tip("waveform", L.t("tip_speak_title"), L.tp("tip_speak_text"))
+                    tip("text.bubble", L.t("tip_cmd_title"), L.t("tip_cmd_text"))
+                    tip("lock.shield", L.t("privacy_title"), L.t("privacy_text"))
+                    OnboardingSteps(m: engine)
+                    SetupChecklist(model: model, thai: thai)
+                }
+                .padding(.trailing, 8)
+            }
             HStack {
+                Button(L.t("onb_later")) { later() }.help(L.t("onb_later_help"))
                 Spacer()
                 Button(L.t("lets_go"), action: done).keyboardShortcut(.defaultAction)
             }
         }
         .padding(28)
-        .frame(width: 540)
+        .frame(width: 580, height: 680)
     }
     private func tip(_ icon: String, _ title: String, _ text: String) -> some View {
         HStack(alignment: .top, spacing: 14) {
