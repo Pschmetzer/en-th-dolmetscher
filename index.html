@@ -66,7 +66,14 @@
   .skip { position:absolute; left:8px; top:-100px; z-index:20; background:var(--card); color:var(--fg); border:2px solid var(--focus); border-radius:8px; padding:10px 14px; }
   .skip:focus { top:8px; }
   #pbQ { font:inherit; color:var(--fg); background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 8px; min-height:44px; min-width:0; }
-  #pbCount { color:var(--mut); font-size:14px; }
+  #pbCount, #logCount, #learnPlan { color:var(--mut); font-size:14px; }
+  html { -webkit-text-size-adjust:100%; text-size-adjust:100%; }   /* iOS: Querformat vergrößert die Schrift nicht von selbst */
+  button, summary, select, label { touch-action:manipulation; -webkit-tap-highlight-color:transparent; }   /* kein Doppeltipp-Zoom auf Knöpfen */
+  input, textarea, select { font-size:max(16px, 1em); }   /* iOS zoomt bei kleineren Feldern beim Fokus hinein */
+  .cardwrap, .entry { content-visibility:auto; contain-intrinsic-size:auto 96px; }   /* lange Listen: nur Sichtbares layouten */
+  #learnProg { width:100%; max-width:420px; height:12px; }
+  .logtools { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .logtools input[type=search] { font:inherit; min-height:44px; background:var(--card); color:var(--fg); border:1px solid var(--line); border-radius:8px; padding:6px 8px; }
   .cardwrap[hidden] { display:none; }
   .retry { margin-left:10px; font-size:14px; font-style:normal; }
   button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
@@ -198,8 +205,8 @@
   </select></label>
 </div>
 <div class="controls">
-  <button class="mode" id="btnA" type="button" aria-pressed="false">🎙 English <kbd>E</kbd></button>
-  <button class="mode" id="btnB" type="button" aria-pressed="false">🎙 ไทย <kbd>T</kbd></button>
+  <button class="mode" id="btnA" type="button" aria-pressed="false" aria-keyshortcuts="E 1">🎙 English <kbd>E</kbd></button>
+  <button class="mode" id="btnB" type="button" aria-pressed="false" aria-keyshortcuts="T 2">🎙 ไทย <kbd>T</kbd></button>
 </div>
 <div class="opts">
   <label><input type="checkbox" id="dirA" checked> <span id="dirAText">Übersetzen A→B</span></label>
@@ -245,7 +252,8 @@
     <button class="yn no" id="btnNo" type="button">Nein</button>
   </div>
   <div class="row">
-    <label><span data-i18n="pbSearch">Satz suchen</span> <input id="pbQ" type="search" size="20" maxlength="60" autocomplete="off" enterkeyhint="search"></label>
+    <label><span data-i18n="pbSearch">Satz suchen</span> <input id="pbQ" type="search" aria-keyshortcuts="/" size="20" maxlength="60" autocomplete="off" enterkeyhint="search"></label>
+    <button class="small" id="pbFav" type="button" aria-pressed="false" data-i18n="favOnly">Nur Favoriten ☆</button>
     <span id="pbCount" role="status"></span>
   </div>
   <div id="pbEmerg" class="emerg" hidden></div>
@@ -307,12 +315,15 @@
     <label><input type="number" id="learnNew" min="1" max="50" value="10" style="width:4em"> <span data-i18n="learnNew">Neue Karten pro Tag</span></label>
   </div>
   <div id="learnStats" role="status"></div>
+  <progress id="learnProg" max="1" value="0"></progress>
+  <div id="learnPlan"></div>
   <div class="row">
     <button class="small" id="learnAddPreset" type="button" data-i18n="learnAddPreset">Aktuelles Thema aufnehmen</button>
     <button class="small" id="learnClear" type="button" data-i18n="learnClear">Alle Lernkarten löschen</button>
     <button class="small" id="learnExport" type="button" data-i18n="learnExport">Sichern (.json)</button>
     <button class="small" id="learnTsv" type="button" data-i18n="learnTsv">Als Anki-Text (.tsv)</button>
     <button class="small" id="learnImport" type="button" data-i18n="learnImport">Sicherung laden</button>
+    <button class="small" id="wipeLocal" type="button" data-i18n="wipeLocal">Alle lokalen Daten löschen</button>
     <span hidden><label><input type="file" id="learnFile" accept="application/json,.json"> Sicherungsdatei</label></span>
   </div>
   <div id="learnMsg" role="status"></div>
@@ -327,10 +338,12 @@
       <button class="yn yes" id="learnYes" type="button" hidden data-i18n="knew">Gewusst</button>
     </div>
     <div id="learnBoxNr" class="s"></div>
+    <div class="s" id="learnKeysHint" data-i18n="learnKeys">Tasten: ← nochmal · → gewusst</div>
     <div id="learnPracticeOut" class="s" role="status"></div>
   </div>
 </details>
 <details class="help" id="helpBox">
+  <!-- Hilfe: Taste ? öffnet sie -->
   <summary data-i18n-html="helpSum">Tastenkürzel &amp; Sprachbefehle</summary>
   <p data-i18n-html="helpBody"><kbd>E</kbd> bzw. <kbd>1</kbd> ich spreche · <kbd>T</kbd> bzw. <kbd>2</kbd> Partner spricht · <kbd>Leertaste</kbd> oder „Stopp“ beendet · <kbd>P</kbd> Partneransicht · <kbd>Esc</kbd> schließt die Partneransicht, sonst Stopp. Alles geht auch ohne Kürzel mit <kbd>Tab</kbd> und den Knöpfen.<br>
   „Halten zum Sprechen“: Knopf gedrückt halten, sprechen, loslassen – praktisch bei Lärm. Per Tastatur bleibt es beim Umschalten.<br>
@@ -340,6 +353,11 @@
 <div class="logtools">
   <button class="small" id="btnCopy" type="button" data-i18n="copyLog">Verlauf kopieren</button>
   <button class="small" id="btnSave" type="button" data-i18n="saveLog">Verlauf speichern (.txt)</button>
+  <button class="small" id="btnCsv" type="button" data-i18n="saveCsv">Verlauf als .csv</button>
+  <button class="small" id="btnShareLog" type="button" data-i18n="logShare">Verlauf teilen</button>
+  <button class="small" id="btnClearLog" type="button" data-i18n="logClear">Verlauf leeren</button>
+  <label><span class="sr-only" id="logQLabel">Verlauf durchsuchen</span><input id="logQ" type="search" size="18" maxlength="60" autocomplete="off" enterkeyhint="search"></label>
+  <span id="logCount" role="status"></span>
 </div>
 <div id="log" role="list" aria-live="off" aria-label="Übersetzungen, neueste zuerst"></div>
 <div id="announce" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
@@ -370,6 +388,7 @@
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const TTS = 'speechSynthesis' in window ? window.speechSynthesis : null;
 const $ = id => document.getElementById(id);
+const BASE_TITLE = document.title;
 const statusEl = $('status'), live = $('live'), log = $('log'), warn = $('warn');
 
 const STR = {
@@ -462,6 +481,29 @@ const STR = {
   "copied": "Kopiert",
   "copyFail": "Kopieren nicht erlaubt – bitte Text markieren",
   "pbSearchHint": "Suche im Satzbuch (Taste /)",
+  "logQ": "Verlauf durchsuchen",
+  "logCount": "{n} von {m} Einträgen",
+  "logNone": "Kein Eintrag passt zu „{q}“.",
+  "logClear": "Verlauf leeren",
+  "logClearConfirm": "Den gesamten Verlauf dieser Sitzung löschen?",
+  "logCleared": "Verlauf gelöscht",
+  "logShare": "Verlauf teilen",
+  "saveCsv": "Verlauf als .csv",
+  "favOnly": "Nur Favoriten ☆",
+  "favNone": "Noch keine Favoriten in diesem Thema – bei einem Satz ☆ antippen.",
+  "learnProgress": "Fortschritt: {a} von {b} Karten sicher gelernt ({p} %)",
+  "learnPlan": "Plan: heute {a} · morgen {b} · in 2–7 Tagen {c}",
+  "learnKeys": "Tasten: ← nochmal · → gewusst",
+  "micDeniedPre": "Das Mikrofon ist für diese Seite gesperrt. Erlaube es in den Website-Einstellungen des Browsers und lade die Seite neu – bis dahin gehen Satzbuch und Tippen.",
+  "micDeniedAct": "Satzbuch öffnen",
+  "netBack": "Wieder online: Übersetzen und Spracherkennung gehen wieder.",
+  "netOffNow": "Kein Netz: Übersetzen geht nicht. Nutze das Satzbuch (auch offline) oder versuche es später erneut.",
+  "noSw": "Offline-Speicher wird von diesem Browser nicht unterstützt – das Satzbuch funktioniert nur mit Netz.",
+  "wipeLocal": "Alle lokalen Daten löschen",
+  "wipeConfirm": "Alle auf diesem Gerät gespeicherten Daten dieser Seite löschen (Einstellungen, Lernkarten, eigene Karten, Übersetzungen)? Das lässt sich nicht rückgängig machen.",
+  "wipeDone": "Alle lokalen Daten gelöscht",
+  "helpKey": "Hilfe (Taste ?)",
+  "titleListen": "Hört zu",
   "sharedNote": "Geteilter Text, von der App nicht geprüft.",
   "newVersion": "Neue Version geladen. ",
   "reload": "Seite neu laden",
@@ -559,6 +601,29 @@ const STR = {
   "copied": "Copied",
   "copyFail": "Copying not allowed – please select the text",
   "pbSearchHint": "Search the phrasebook (key /)",
+  "logQ": "Search history",
+  "logCount": "{n} of {m} entries",
+  "logNone": "No entry matches \"{q}\".",
+  "logClear": "Clear history",
+  "logClearConfirm": "Delete the whole history of this session?",
+  "logCleared": "History cleared",
+  "logShare": "Share history",
+  "saveCsv": "History as .csv",
+  "favOnly": "Favourites only ☆",
+  "favNone": "No favourites in this topic yet – tap ☆ on a phrase.",
+  "learnProgress": "Progress: {a} of {b} cards well learned ({p}%)",
+  "learnPlan": "Plan: today {a} · tomorrow {b} · in 2–7 days {c}",
+  "learnKeys": "Keys: ← again · → knew it",
+  "micDeniedPre": "The microphone is blocked for this page. Allow it in the browser's site settings and reload – until then the phrasebook and typing still work.",
+  "micDeniedAct": "Open phrasebook",
+  "netBack": "Back online: translation and speech recognition work again.",
+  "netOffNow": "No network: translation is unavailable. Use the phrasebook (works offline) or try again later.",
+  "noSw": "This browser does not support offline storage – the phrasebook needs a connection.",
+  "wipeLocal": "Delete all local data",
+  "wipeConfirm": "Delete everything this page stored on this device (settings, flashcards, own cards, translations)? This cannot be undone.",
+  "wipeDone": "All local data deleted",
+  "helpKey": "Help (key ?)",
+  "titleListen": "Listening",
   "sharedNote": "Shared text, not checked by the app.",
   "newVersion": "New version loaded. ",
   "reload": "Reload page",
@@ -656,6 +721,29 @@ const STR = {
   "copied": "คัดลอกแล้ว",
   "copyFail": "คัดลอกไม่ได้ – โปรดเลือกข้อความเอง",
   "pbSearchHint": "ค้นหาในสมุดวลี (ปุ่ม /)",
+  "logQ": "ค้นหาในประวัติ",
+  "logCount": "{n} จาก {m} รายการ",
+  "logNone": "ไม่พบรายการที่ตรงกับ \"{q}\"",
+  "logClear": "ล้างประวัติ",
+  "logClearConfirm": "ลบประวัติทั้งหมดของรอบนี้หรือไม่?",
+  "logCleared": "ล้างประวัติแล้ว",
+  "logShare": "แชร์ประวัติ",
+  "saveCsv": "ประวัติเป็น .csv",
+  "favOnly": "เฉพาะรายการโปรด ☆",
+  "favNone": "ยังไม่มีรายการโปรดในหมวดนี้ – แตะ ☆ ที่ประโยค",
+  "learnProgress": "ความคืบหน้า: จำได้แม่น {a} จาก {b} การ์ด ({p}%)",
+  "learnPlan": "แผน: วันนี้ {a} · พรุ่งนี้ {b} · ใน 2–7 วัน {c}",
+  "learnKeys": "ปุ่ม: ← อีกครั้ง · → จำได้",
+  "micDeniedPre": "ไมโครโฟนถูกบล็อกสำหรับหน้านี้ โปรดอนุญาตในการตั้งค่าเว็บไซต์ของเบราว์เซอร์แล้วโหลดใหม่ – ระหว่างนี้ใช้สมุดวลีและการพิมพ์ได้",
+  "micDeniedAct": "เปิดสมุดวลี",
+  "netBack": "กลับมาออนไลน์แล้ว: แปลและรู้จำเสียงใช้ได้อีกครั้ง",
+  "netOffNow": "ไม่มีเครือข่าย: แปลไม่ได้ ใช้สมุดวลี (ใช้ออฟไลน์ได้) หรือลองใหม่ภายหลัง",
+  "noSw": "เบราว์เซอร์นี้ไม่รองรับที่เก็บออฟไลน์ – สมุดวลีต้องใช้เครือข่าย",
+  "wipeLocal": "ลบข้อมูลในเครื่องทั้งหมด",
+  "wipeConfirm": "ลบทุกอย่างที่หน้านี้เก็บไว้ในเครื่อง (การตั้งค่า บัตรคำ การ์ดของฉัน คำแปล) หรือไม่? ย้อนกลับไม่ได้",
+  "wipeDone": "ลบข้อมูลในเครื่องทั้งหมดแล้ว",
+  "helpKey": "ช่วยเหลือ (ปุ่ม ?)",
+  "titleListen": "กำลังฟัง",
   "sharedNote": "ข้อความที่แชร์มา แอปไม่ได้ตรวจสอบ",
   "newVersion": "โหลดเวอร์ชันใหม่แล้ว ",
   "reload": "โหลดหน้าใหม่",
@@ -682,6 +770,7 @@ const lname = l => !LANGS[l] ? l : UI === 'de' ? LANGS[l].de : LANGS[l].name;
 function applyUi() {   // statische Texte nach data-i18n / data-i18n-html setzen
   document.documentElement.lang = UI;
   $('pbQ').setAttribute('aria-label', t('pbSearchHint'));
+  $('logQ').setAttribute('aria-label', t('logQ')); $('logQLabel').textContent = t('logQ'); $('helpBox').querySelector('summary').title = t('helpKey');
   for (const e of document.querySelectorAll('[data-i18n]')) e.textContent = t(e.dataset.i18n);
   for (const e of document.querySelectorAll('[data-i18n-html]')) e.innerHTML = t(e.dataset.i18nHtml);   // nur eigene, feste Texte
 }
@@ -1142,6 +1231,7 @@ function setMode(m) {
     MODES[k].btn.setAttribute('aria-pressed', k === mode ? 'true' : 'false');
   }
   live.textContent = '…';
+  document.title = titleFor(mode, BASE_TITLE, t('titleListen'));
   $('btnStop').disabled = !mode;
   updateWakeLock();
   if (mode) startRec(); else setStatus($('ptt').checked ? 'Bereit – Knopf halten und sprechen' : 'Gestoppt', true);
@@ -1173,6 +1263,7 @@ warn.addEventListener('click', e => {
   const act = a.dataset.act;
   if (act === 'copyerr') { try { navigator.clipboard.writeText(errInfo); setStatus('Fehlerinfo kopiert', true); } catch { window.prompt('Fehlerinfo kopieren:', errInfo); } }
   else if (act === 'type') { $('typeBox').open = true; $('typeIn').focus(); }
+  else if (act === 'phrasebook') { $('pbBox').open = true; $('pbBox').scrollIntoView({ block: 'start' }); $('pbQ').focus(); }
   else if (act === 'retry') { clearWarn(warnMsgs.slice()); if (!mode) chooseMode('a'); }
 });
 let trimWarned = false;
@@ -1222,34 +1313,34 @@ function handleFinal(text, conf) {
 }
 
 // Übersetzen (sofort, parallel) und Ausgabe in die Warteschlange (in Satz-Reihenfolge).
-function deliver(t, text, m, next) {
-  const my = t._job = (t._job || 0) + 1;
-  const slow3 = setTimeout(() => { if (t._job === my && t.textContent === '…') t.textContent = '… dauert länger – Netz prüfen'; }, 3000);
+function deliver(el, text, m, next) {   // el = Übersetzungszeile; t() bleibt die Übersetzungsfunktion
+  const my = el._job = (el._job || 0) + 1;
+  const slow3 = setTimeout(() => { if (el._job === my && el.textContent === '…') el.textContent = '… dauert länger – Netz prüfen'; }, 3000);
   const job = translate(text, m.src, m.dst).then(res => {
     clearTimeout(slow3);
-    if (t._job !== my) return null;
+    if (el._job !== my) return null;
     const out = res.text;
-    t.textContent = out; t.lang = m.dst; t.classList.remove('err');
-    if (res.via === 'mymemory') badge(t, 'Ersatzdienst – Qualität geringer');
-    if (res.same) badge(t, 'nicht übersetzt?');
+    el.textContent = out; el.lang = m.dst; el.classList.remove('err');
+    if (res.via === 'mymemory') badge(el, 'Ersatzdienst – Qualität geringer');
+    if (res.same) badge(el, 'nicht übersetzt?');
     lastOut = { text: out, lang: m.tts };
     if (m.dst === pair.b) { setPartnerText(out, m.dst); }   // Partneransicht zeigt nur die Sprache des Partners
     announce(out, m.dst);
     let item = null;   // Lernkarten zuletzt: ein Fehler dort darf Anzeige und Vorlesen nie verhindern
     try { item = learnItem(text, m.src, out, m.dst); } catch {}
-    addActions(t, out, m.dst, item);
+    addActions(el, out, m.dst, item);
     try { if ($('learnRecent').checked && item) learnStore(learnAdd(learnList, item, Date.now(), 'rec')); } catch {}
     return out;
   }, e => {   // no error text is displayed as translation or spoken
     clearTimeout(slow3);
-    if (t._job !== my) return null;
-    t.textContent = navigator.onLine === false ? t('offlineFail') : t('translateFail');
-    t.classList.add('err'); t.removeAttribute('lang');
-    if (e && e.detail) badge(t, e.detail);   // Anbieter und Grund (z. B. http 429): zum Kopieren für Fehlerberichte
+    if (el._job !== my) return null;
+    el.textContent = navigator.onLine === false ? t('offlineFail') : t('translateFail');
+    el.classList.add('err'); el.removeAttribute('lang');
+    if (e && e.detail) badge(el, e.detail);   // Anbieter und Grund (z. B. http 429): zum Kopieren für Fehlerberichte
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'small retry'; b.textContent = t('retry');
-    b.onclick = () => { netGuard.reset(); t.textContent = '…'; t.classList.remove('err'); deliver(t, text, m, null); };
-    t.appendChild(b);
+    b.onclick = () => { netGuard.reset(); el.textContent = '…'; el.classList.remove('err'); deliver(el, text, m, null); };
+    el.appendChild(b);
     return null;
   });
   enqueueOutput(async g => {
@@ -1339,6 +1430,7 @@ async function updateWakeLock() {
     } else if (wakeLock) { const w = wakeLock; wakeLock = null; await w.release(); }
   } catch { wakeLock = null; }
 }
+window.addEventListener('pagehide', () => { stopRec(); try { if (TTS) TTS.cancel(); } catch {} });   // Safari: Mikrofon-Anzeige und Sprachausgabe sofort freigeben
 document.addEventListener('visibilitychange', () => {
   updateWakeLock();
   if (!document.hidden) { resumeIfIdle(); learnRender(); }
@@ -1462,9 +1554,9 @@ async function renderCards() {
     c.type = 'button'; c.className = 'card' + (p.critical ? ' crit' : '');
     if (p.critical) { const k = document.createElement('span'); k.className = 'crit-b'; k.lang = 'de'; k.textContent = t('important'); c.appendChild(k); }
     const s = document.createElement('span'); s.className = 's'; s.textContent = p[a] || p.en; s.lang = p[a] ? a : 'en'; s.dir = 'auto';
-    const t = document.createElement('span'); t.className = 't'; t.lang = b; t.dir = 'auto';
-    t.textContent = p[b] || pbGet(b + '|' + p.en) || '…';
-    c.append(s, t);
+    const tt = document.createElement('span'); tt.className = 't'; tt.lang = b; tt.dir = 'auto';
+    tt.textContent = p[b] || pbGet(b + '|' + p.en) || '…';
+    c.append(s, tt);
     if (!p[b]) { const m = document.createElement('span'); m.className = 'mt-b'; m.lang = 'de'; m.textContent = t('machine'); c.appendChild(m); }
     const front = p[a] || p.en, fl = p[a] ? a : 'en';
     w.append(c, starButton(() => { const bt = p[b] || pbGet(b + '|' + p.en); return bt ? learnItem(front, fl, bt, b) : null; },
@@ -1481,7 +1573,7 @@ async function renderCards() {
       let out;
       try { out = await phraseIn(p, b); }
       catch { msg.textContent = 'Übersetzung nicht verfügbar (offline?) – Englisch wird gezeigt.'; showBig(p.en, 'en'); return; }
-      t.textContent = out;
+      tt.textContent = out;
       showBig(out, b, '', false, { pack: id, en: p.en, th: out, lang: b });
       useCount(id);
       if ($('speak').checked) sayNow(out, b);
@@ -1645,9 +1737,26 @@ function starButton(peek, get, cls) {
   starState(b);
   return b;
 }
-function syncStars() { for (const b of document.querySelectorAll('.starbtn')) starState(b); }
+function syncStars() { for (const b of document.querySelectorAll('.starbtn')) starState(b); if ($('pbFav').getAttribute('aria-pressed') === 'true') applyPbFilter(); }
 
 // ---- Teilen per Link: Text steht nur im #-Teil (geht nie an einen Server) und wird beim Öffnen nur angezeigt ----
+function logCsv(rows) {   // rows: [{orig, trans}] -> CSV; Zellen mit = + - @ bekommen ein ' davor (Tabellenkalkulations-Formeln)
+  const cell = v => { let x = String(v || '').replace(/\r?\n/g, ' '); if (/^[=+\-@\t]/.test(x)) x = "'" + x; return '"' + x.replace(/"/g, '""') + '"'; };
+  return ['"original","translation"'].concat(rows.map(r => cell(r.orig) + ',' + cell(r.trans))).join('\r\n') + '\r\n';
+}
+function learnProgress(list) {   // sicher gelernt = Fach 4 oder 5
+  const total = list.length, done = list.filter(c => c.box >= 4).length;
+  return { total, done, pct: total ? Math.round(done / total * 100) : 0 };
+}
+function learnPlan(list, now) {   // fällige Karten: heute (inkl. überfällig), morgen, in 2-7 Tagen (lokale Kalendertage)
+  const d = new Date(now); d.setHours(0, 0, 0, 0); const day0 = d.getTime();
+  const r = { today: 0, tomorrow: 0, week: 0 };
+  for (const c of list) {
+    if (c.due < day0 + DAY) r.today++; else if (c.due < day0 + 2 * DAY) r.tomorrow++; else if (c.due < day0 + 8 * DAY) r.week++;
+  }
+  return r;
+}
+function titleFor(mode, base, label) { return mode ? '🎙 ' + label + ' – ' + base : base; }
 async function copyText(text) {   // nur Zwischenablage des Geräts, nichts wird gesendet
   try { await navigator.clipboard.writeText(text); setStatus(t('copied'), true); }
   catch { setStatus(t('copyFail'), true); }
@@ -1661,9 +1770,13 @@ function pbMatch(hay, q) {   // alle Suchwörter müssen vorkommen (Groß/Klein 
 function applyPbFilter() {   // blendet Karten aus, die nicht zur Suche passen; zählt für den Screenreader
   const q = $('pbQ').value, ws = document.querySelectorAll('#cards .cardwrap');
   let n = 0;
-  for (const w of ws) { const ok = pbMatch(w.dataset.q || '', q); w.hidden = !ok; if (ok) n++; }
+  const fav = $('pbFav').getAttribute('aria-pressed') === 'true';
+  for (const w of ws) {
+    const star = w.querySelector('.starbtn'), isFav = !!star && star.getAttribute('aria-pressed') === 'true';
+    const ok = pbMatch(w.dataset.q || '', q) && (!fav || isFav); w.hidden = !ok; if (ok) n++;
+  }
   const cnt = $('pbCount');
-  cnt.textContent = !pbNorm(q) ? '' : !ws.length ? '' : n ? t('pbCount', { n, m: ws.length }) : t('pbNoMatch', { q: q.trim() });
+  cnt.textContent = !ws.length ? '' : fav && !n && !pbNorm(q) ? t('favNone') : !pbNorm(q) && !fav ? '' : n ? t('pbCount', { n, m: ws.length }) : t('pbNoMatch', { q: q.trim() });
 }
 function shareUrl(text, lang) {
   return location.origin + location.pathname + '#show=' + encodeURIComponent(String(text).slice(0, MAX_SHARE)) + '&l=' + encodeURIComponent(lang);
@@ -1708,6 +1821,37 @@ $('btnSave').onclick = () => {
   a.download = 'dolmetscher-' + new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-') + '.txt';
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+
+function logRows() {
+  return [...log.children].reverse().map(e => {
+    const o = e.querySelector('.orig'), tr = e.querySelector('.trans');
+    const ok = tr && tr.style.display !== 'none' && !tr.classList.contains('err');
+    return { orig: o && o.firstChild ? o.firstChild.textContent : '', trans: ok && tr.firstChild ? tr.firstChild.textContent : '' };
+  });
+}
+function applyLogFilter() {
+  const q = $('logQ').value, items = [...log.children];
+  let n = 0;
+  for (const e of items) { const ok = pbMatch(e.textContent, q); e.hidden = !ok; if (ok) n++; }
+  $('logCount').textContent = !pbNorm(q) ? '' : n ? t('logCount', { n, m: items.length }) : t('logNone', { q: q.trim() });
+}
+let logQTimer = null;
+$('logQ').addEventListener('input', () => { clearTimeout(logQTimer); logQTimer = setTimeout(applyLogFilter, 300); });
+$('logQ').addEventListener('keydown', e => { if (e.key === 'Escape' && $('logQ').value) { e.stopPropagation(); $('logQ').value = ''; applyLogFilter(); } });
+$('btnCsv').onclick = () => {
+  const rows = logRows(); if (!rows.length) { setStatus('Verlauf ist leer', true); return; }
+  download('dolmetscher-' + new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-') + '.csv', '\ufeff' + logCsv(rows), 'text/csv;charset=utf-8');   // BOM: Excel liest Thai richtig
+};
+$('btnShareLog').onclick = async () => {
+  const s = logText(); if (!s) { setStatus('Verlauf ist leer', true); return; }
+  try { if (navigator.share) { await navigator.share({ text: s }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  copyText(s);   // ohne Teilen-Dialog: in die Zwischenablage
+};
+$('btnClearLog').onclick = () => {
+  if (!log.children.length) { setStatus('Verlauf ist leer', true); return; }
+  if (!window.confirm(t('logClearConfirm'))) return;
+  clearLog(); $('logQ').value = ''; applyLogFilter(); setStatus(t('logCleared'), true); $('btnCopy').focus();   // Fokus bleibt in der Werkzeugleiste
 };
 
 // ---- Einwilligung vor dem ersten Mikrofon-Start (einmalig, im Browser gespeichert) ----
@@ -1791,6 +1935,7 @@ document.addEventListener('keydown', e => {
   if (!$('keysOn').checked) return;                            // single-key shortcuts can be switched off (WCAG 2.1.4)
   if (isTyping(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
   // e.code: Kürzel gehen auch mit thailändischem Tastaturlayout
+  if (e.key === '?') { e.preventDefault(); $('helpBox').open = true; $('helpBox').querySelector('summary').focus(); return; }
   if (e.key === '/' && !$('partner').classList.contains('on')) { e.preventDefault(); $('pbBox').open = true; $('pbQ').focus(); return; }
   if (e.code === 'KeyP') { togglePartner(); return; }
   if (e.code === 'KeyL' && !$('partner').classList.contains('on') && log.firstElementChild) { log.firstElementChild.tabIndex = -1; log.firstElementChild.focus(); return; }   // zum neuesten Eintrag springen
@@ -2108,7 +2253,12 @@ $('pbPre').onclick = async () => {
 // ---- Lernen: Hören zuerst, Sichern, Statistik, Nachsprechen ----
 let learnStats = (() => { try { const v = JSON.parse(localStorage.getItem('learnStatsV1') || '{}'); return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; } catch { return {}; } })();
 function statsRender() {
-  const s = statsSummary(learnStats, learnList, Date.now());
+  const now = Date.now(), pr = learnProgress(learnList), pl = learnPlan(learnList, now);
+  $('learnProg').max = Math.max(1, pr.total); $('learnProg').value = pr.done;
+  $('learnProg').setAttribute('aria-label', t('learnProgress', { a: pr.done, b: pr.total, p: pr.pct }));
+  $('learnProg').title = t('learnProgress', { a: pr.done, b: pr.total, p: pr.pct });
+  $('learnPlan').textContent = pr.total ? t('learnPlan', { a: pl.today, b: pl.tomorrow, c: pl.week }) : '';
+  const s = statsSummary(learnStats, learnList, now);
   $('learnStats').textContent = t('dueLine', { a: s.today, b: s.week.join('/'), c: s.streak, d: s.box5 });
 }
 function download(name, text, type) {
@@ -2203,7 +2353,15 @@ if (SR && typeof SR.available === 'function') $('localRecWrap').hidden = false;
 { const id = 'localRec'; if (typeof settings[id] === 'boolean') $(id).checked = settings[id]; $(id).addEventListener('change', () => { settings[id] = $(id).checked; saveSettings(); if (mode) setMode(null); }); }
 
 // ---- Offline-Hinweis und Service Worker (installierbar, Satzbuch offline) ----
-function updateOnline() { $('offline').style.display = navigator.onLine === false ? 'block' : 'none'; }
+let wasOnline = navigator.onLine !== false;
+function updateOnline() {
+  const on = navigator.onLine !== false;
+  $('offline').style.display = on ? 'none' : 'block';
+  if (on !== wasOnline) {   // Zustandswechsel auch dem Screenreader sagen, mit Handlungsvorschlag
+    wasOnline = on; setStatus(on ? t('netBack') : t('netOffNow'), true);
+    if (on && 'serviceWorker' in navigator && navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage({ type: 'offline-status' });
+  }
+}
 window.addEventListener('online', updateOnline); window.addEventListener('offline', updateOnline);
 updateOnline();
 if ('serviceWorker' in navigator && window.isSecureContext && /^https?:$/.test(location.protocol)) {
@@ -2228,8 +2386,30 @@ if ('serviceWorker' in navigator && window.isSecureContext && /^https?:$/.test(l
 }
 
 let pbQTimer = null;
+$('pbFav').onclick = () => { const on = $('pbFav').getAttribute('aria-pressed') !== 'true'; $('pbFav').setAttribute('aria-pressed', String(on)); applyPbFilter(); };
+$('skipLink').addEventListener('click', e => { e.preventDefault(); $('pbBox').open = true; $('pbBox').querySelector('summary').focus(); });   // Fokus wirklich ins Ziel setzen (Safari tut das bei #Anker nicht)
+$('learnCard').addEventListener('keydown', e => {   // Pfeile: nach dem Aufdecken beantworten (nicht in Eingabefeldern)
+  if (e.ctrlKey || e.metaKey || e.altKey || isTyping(e.target) || $('learnYes').hidden) return;
+  if (e.key === 'ArrowLeft') { e.preventDefault(); learnAnswer(false); } else if (e.key === 'ArrowRight') { e.preventDefault(); learnAnswer(true); }
+});
+$('wipeLocal').onclick = () => {   // alles, was diese Seite lokal speichert (nur dieser Ursprung); Seite danach neu laden
+  if (!window.confirm(t('wipeConfirm'))) return;
+  try { localStorage.clear(); } catch {}
+  try { sessionStorage.clear(); } catch {}
+  learnList = []; myCards = []; learnStats = {}; clearLog();
+  setStatus(t('wipeDone'), true); setTimeout(() => location.reload(), 600);
+};
 $('pbQ').addEventListener('input', () => { clearTimeout(pbQTimer); pbQTimer = setTimeout(applyPbFilter, 300); });   // Tastendruck entprellt
 $('pbQ').addEventListener('keydown', e => { if (e.key === 'Escape' && $('pbQ').value) { e.stopPropagation(); $('pbQ').value = ''; applyPbFilter(); } });
+if (!('serviceWorker' in navigator) || !window.isSecureContext) $('swState').textContent = t('noSw');   // z. B. http oder privater Modus
+if (navigator.permissions && navigator.permissions.query) {   // Mikrofon schon gesperrt? Dann vorab sagen statt erst beim Start scheitern
+  const micWarn = () => t('micDeniedPre') + ' <button type="button" class="small" data-act="phrasebook">' + t('micDeniedAct') + '</button>';
+  let shown = null;
+  navigator.permissions.query({ name: 'microphone' }).then(ps => {
+    const check = () => { if (shown) { clearWarn([shown]); shown = null; } if (ps.state === 'denied') { shown = micWarn(); showWarn(shown); } };
+    check(); ps.onchange = check;
+  }).catch(() => {});   // Safari/Firefox kennen die Abfrage nicht: dann greift die Fehlermeldung beim Start
+}
 $('uiLang').value = UI;
 $('uiLang').onchange = () => {
   UI = $('uiLang').value; settings.ui = UI; saveSettings(); applyUi();
