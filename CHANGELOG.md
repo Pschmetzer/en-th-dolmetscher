@@ -94,6 +94,7 @@ Pull requests #16–#47. Not yet published as a release.
 - **Reproducible installs** (#21): speech models pinned to fixed versions; all Python packages locked with checksums; security audit includes indirect packages.
 - **Code quality** (#16, #21, #25, #28): pytest and ruff updated; ruff checks all modules and blocks merges; CI jobs have time limits; the wake-word tests run against the real code.
 - **Tests and CI** (#41, #44): time-dependent tests made stable, a time limit per test, Python tests on Linux (faster), coverage with a lower limit, a shared test corpus in six language pairs, and a benchmark that only runs on demand.
+- **CI and developer tools** (round 12): superseded runs of the `Changelog` and CodeQL workflows are cancelled, pip cache for the lint and audit jobs, a failure summary on the job page, `make test-mac`/`web-test`/`check`, and `tools/check_all.sh` (ruff + pytest like CI, no pre-commit needed); `tests/test_runde12_ci.py` checks SHA pins, time limits and permissions.
 - **Documentation**: phrase pack format and contribution guide `docs/PRESETS.md` (#40); license overview `docs/LIZENZEN.md` (#21), privacy overview per platform `docs/DATENSCHUTZ.md` (#28 and later), protocol checked against the code by tests (#20), iPhone guide `ios/README.md` and this changelog.
 
 ### Round 8: engine, iPhone, web, phrase packs
