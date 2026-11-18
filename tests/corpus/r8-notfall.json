@@ -1,0 +1,378 @@
+{
+ "about": "Runde 8: Notfallsätze. Thai-Referenzen sind maschinell erzeugt und ungeprüft (machine=true), keine Muttersprachler-Freigabe.",
+ "reviewed": false,
+ "cases": [
+  {
+   "id": "r8-notfall-01",
+   "src": "en",
+   "dst": "th",
+   "text": "Help! I need a doctor!",
+   "translation": "ช่วยด้วย! ฉันต้องการหมอ!",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-02",
+   "src": "en",
+   "dst": "th",
+   "text": "Call an ambulance, please!",
+   "translation": "ช่วยเรียกรถพยาบาลด้วย!",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-03",
+   "src": "en",
+   "dst": "th",
+   "text": "Call the police!",
+   "translation": "เรียกตำรวจ!",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-04",
+   "src": "en",
+   "dst": "th",
+   "text": "There is a fire!",
+   "translation": "ไฟไหม้!",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-05",
+   "src": "en",
+   "dst": "th",
+   "text": "My friend is not breathing.",
+   "translation": "เพื่อนของฉันหยุดหายใจ",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-06",
+   "src": "en",
+   "dst": "th",
+   "text": "I have been robbed.",
+   "translation": "ฉันถูกขโมยของ",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-07",
+   "src": "en",
+   "dst": "th",
+   "text": "I lost my passport.",
+   "translation": "ฉันทำพาสปอร์ตหาย",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-08",
+   "src": "en",
+   "dst": "th",
+   "text": "I need to go to the hospital.",
+   "translation": "ฉันต้องไปโรงพยาบาล",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-09",
+   "src": "en",
+   "dst": "th",
+   "text": "I am allergic to penicillin.",
+   "translation": "ฉันแพ้เพนิซิลลิน",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-10",
+   "src": "en",
+   "dst": "th",
+   "text": "He fell and hit his head.",
+   "translation": "เขาล้มและหัวฟาดพื้น",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-11",
+   "src": "en",
+   "dst": "th",
+   "text": "There was an accident on the highway.",
+   "translation": "เกิดอุบัติเหตุบนทางหลวง",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-12",
+   "src": "en",
+   "dst": "th",
+   "text": "I have a strong pain in my chest.",
+   "translation": "ฉันเจ็บหน้าอกมาก",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-13",
+   "src": "en",
+   "dst": "th",
+   "text": "Please call 191.",
+   "translation": "ช่วยโทร 191 ด้วย",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-14",
+   "src": "en",
+   "dst": "th",
+   "text": "The emergency number is 1669.",
+   "translation": "เบอร์ฉุกเฉินคือ 1669",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-15",
+   "src": "en",
+   "dst": "th",
+   "text": "I need the tourist police, number 1155.",
+   "translation": "ฉันต้องการตำรวจท่องเที่ยว เบอร์ 1155",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-16",
+   "src": "en",
+   "dst": "th",
+   "text": "My child is missing.",
+   "translation": "ลูกของฉันหายไป",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-17",
+   "src": "en",
+   "dst": "th",
+   "text": "I was bitten by a dog.",
+   "translation": "ฉันถูกหมากัด",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-18",
+   "src": "en",
+   "dst": "th",
+   "text": "I cannot find my wallet.",
+   "translation": "ฉันหากระเป๋าสตางค์ไม่เจอ",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-19",
+   "src": "en",
+   "dst": "th",
+   "text": "Someone is following me.",
+   "translation": "มีคนตามฉันอยู่",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-20",
+   "src": "en",
+   "dst": "th",
+   "text": "Where is the nearest pharmacy?",
+   "translation": "ร้านขายยาที่ใกล้ที่สุดอยู่ที่ไหน",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-21",
+   "src": "en",
+   "dst": "th",
+   "text": "I feel dizzy and I might faint.",
+   "translation": "ฉันเวียนหัวและอาจจะเป็นลม",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-22",
+   "src": "en",
+   "dst": "th",
+   "text": "He is bleeding badly.",
+   "translation": "เขาเลือดออกมาก",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-23",
+   "src": "en",
+   "dst": "th",
+   "text": "I have diabetes and need insulin.",
+   "translation": "ฉันเป็นเบาหวานและต้องการอินซูลิน",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-24",
+   "src": "en",
+   "dst": "th",
+   "text": "The boat is sinking!",
+   "translation": "เรือกำลังจม!",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-25",
+   "src": "th",
+   "dst": "en",
+   "text": "ช่วยด้วย! มีคนจมน้ำ!",
+   "translation": "Help! Someone is drowning!",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-26",
+   "src": "th",
+   "dst": "en",
+   "text": "เรียกรถพยาบาลเร็ว!",
+   "translation": "Call an ambulance quickly!",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-27",
+   "src": "th",
+   "dst": "en",
+   "text": "ผมถูกปล้นครับ",
+   "translation": "I've been robbed.",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-28",
+   "src": "th",
+   "dst": "en",
+   "text": "กรุณาโทร 1669 ค่ะ",
+   "translation": "Please call 1669.",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-29",
+   "src": "th",
+   "dst": "en",
+   "text": "ไฟไหม้ ทุกคนออกไปข้างนอก!",
+   "translation": "Fire, everyone get outside!",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-30",
+   "src": "th",
+   "dst": "en",
+   "text": "ฉันแพ้ถั่วค่ะ",
+   "translation": "I am allergic to peanuts.",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-31",
+   "src": "th",
+   "dst": "en",
+   "text": "เขาหมดสติแล้วครับ",
+   "translation": "He has lost consciousness.",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-32",
+   "src": "th",
+   "dst": "en",
+   "text": "รถชนกัน มีคนเจ็บ",
+   "translation": "There was a crash and people are hurt.",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-33",
+   "src": "th",
+   "dst": "en",
+   "text": "ฉันเจ็บท้องมากค่ะ",
+   "translation": "I have severe stomach pain.",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-34",
+   "src": "th",
+   "dst": "en",
+   "text": "ผมทำกระเป๋าหายที่สถานีรถไฟ",
+   "translation": "I lost my bag at the train station.",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-35",
+   "src": "th",
+   "dst": "en",
+   "text": "โทรหาตำรวจท่องเที่ยว 1155",
+   "translation": "Call the tourist police on 1155.",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-36",
+   "src": "th",
+   "dst": "en",
+   "text": "ช่วยหาหมอด่วนค่ะ",
+   "translation": "Please find a doctor urgently.",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-37",
+   "src": "de",
+   "dst": "th",
+   "text": "Hilfe! Ich brauche einen Arzt!",
+   "translation": "ช่วยด้วย! ฉันต้องการหมอ!",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-38",
+   "src": "de",
+   "dst": "th",
+   "text": "Rufen Sie sofort einen Krankenwagen!",
+   "translation": "เรียกรถพยาบาลเดี๋ยวนี้!",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-39",
+   "src": "de",
+   "dst": "th",
+   "text": "Mein Pass wurde gestohlen.",
+   "translation": "พาสปอร์ตของฉันถูกขโมย",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-40",
+   "src": "de",
+   "dst": "th",
+   "text": "Ich habe starke Schmerzen im Bauch.",
+   "translation": "ฉันปวดท้องมาก",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-41",
+   "src": "de",
+   "dst": "th",
+   "text": "Ich bin allergisch gegen Nüsse.",
+   "translation": "ฉันแพ้ถั่ว",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-42",
+   "src": "th",
+   "dst": "de",
+   "text": "ช่วยด้วย! ไฟไหม้!",
+   "translation": "Hilfe! Es brennt!",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-43",
+   "src": "th",
+   "dst": "de",
+   "text": "เขาหายใจไม่ออก",
+   "translation": "Er bekommt keine Luft.",
+   "machine": true
+  },
+  {
+   "id": "r8-notfall-44",
+   "src": "en",
+   "dst": "de",
+   "text": "Call the police, please!",
+   "translation": "Rufen Sie bitte die Polizei!"
+  },
+  {
+   "id": "r8-notfall-45",
+   "src": "en",
+   "dst": "de",
+   "text": "I need a doctor right now.",
+   "translation": "Ich brauche sofort einen Arzt."
+  },
+  {
+   "id": "r8-notfall-46",
+   "src": "de",
+   "dst": "en",
+   "text": "Es gab einen Unfall, bitte kommen Sie schnell.",
+   "translation": "There has been an accident, please come quickly."
+  },
+  {
+   "id": "r8-notfall-47",
+   "src": "de",
+   "dst": "en",
+   "text": "Mein Kind ist verschwunden.",
+   "translation": "My child is missing."
+  }
+ ]
+}
