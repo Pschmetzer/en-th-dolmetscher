@@ -161,6 +161,13 @@ Pull requests #16–#47. Not yet published as a release.
 - CodeQL, changelog check, quick phrase-pack job, Makefile, dev container, pre-commit; action versions pinned by commit; release job with time limit; `shellcheck` also for `build-support/`.
 - Docs: web architecture, hosting, browser matrix, version states (`docs/VERSIONEN.md`).
 
+**Web (round 11)**
+- **New:** manifest with `id`, `dir`, categories, `display_override`, launch handler; shortcuts and the share target (GET to the static page) are checked without a server. Icons stay “any”: a maskable icon needs a separate image with a safe zone.
+- **New:** “✓ Installed as app” label when the page runs as an installed app, announced once after installing; install hint texts now in German, English and Thai.
+- **Changed:** the update banner is read aloud, and an open app asks for updates when it comes back to the foreground.
+- **Fixed (accessibility audit):** page now has a `main` landmark and section headings; tap targets (buttons, selects, summaries, tiles, speak buttons) are at least 44 px on every screen size, not only on phones.
+- **Tests:** heading order, landmarks, focus order, live regions, colour contrast of all colour tokens (light and dark) and tap target sizes are checked statically.
+
 ## 1.2 and earlier
 
 See the [commit history](https://github.com/Pschmetzer/en-th-dolmetscher/commits/main) up to pull request #15.

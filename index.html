@@ -44,7 +44,7 @@
   #offline { display:none; }
   .pair { display:flex; gap:8px 14px; align-items:center; flex-wrap:wrap; padding:0 0 12px; font-size:14px; color:var(--mut); }
   .pair label { display:inline-flex; gap:6px; align-items:center; }
-  select { font:inherit; color:var(--fg); background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 8px; min-height:36px; max-width:100%; }
+  select { font:inherit; color:var(--fg); background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 8px; min-height:44px; max-width:100%; }
   .controls { display:flex; gap:12px; padding:4px 0 12px; flex-wrap:wrap; }
   button { font:inherit; color:inherit; }
   button.mode { flex:1; min-width:220px; padding:22px; font-size:20px; font-weight:600; border:3px solid transparent; border-radius:14px; cursor:pointer; color:var(--btn-fg);
@@ -79,10 +79,12 @@
   button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
   .opts { display:flex; gap:10px 18px; padding:0 0 10px; color:var(--mut); font-size:14px; flex-wrap:wrap; align-items:center; }
   .opts label { cursor:pointer; }
-  .small { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; min-height:36px; }
+  .opts label, .row label { display:inline-flex; align-items:center; gap:6px; min-height:44px; }   /* Fingertipp-Ziel ≥ 44 px (WCAG 2.5.5), auch am Computer */
+  #appState { color:var(--mut); font-size:14px; }
+  .small { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; min-height:44px; }
   .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
   details.box { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px 14px; margin-bottom:12px; }
-  details.box > summary { cursor:pointer; font-weight:600; min-height:32px; display:flex; align-items:center; }
+  details.box > summary { cursor:pointer; font-weight:600; min-height:44px; display:flex; align-items:center; }
   .row { display:flex; gap:8px 14px; flex-wrap:wrap; align-items:center; margin:8px 0; font-size:14px; }
   .row label { display:inline-flex; gap:6px; align-items:center; }
   #cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; margin:8px 0 4px; }
@@ -91,7 +93,7 @@
   .card.crit { border:2px solid var(--crit); }
   .card .crit-b { display:block; font-size:12px; font-weight:700; color:var(--crit); }
   .cardwrap .card { min-height:92px; }
-  .speakc { position:absolute; bottom:4px; right:4px; min-width:44px; min-height:40px; background:transparent; border:0; border-radius:8px; font-size:20px; cursor:pointer; }
+  .speakc { position:absolute; bottom:4px; right:4px; min-width:44px; min-height:44px; background:transparent; border:0; border-radius:8px; font-size:20px; cursor:pointer; }
   .star { position:absolute; top:4px; right:4px; min-width:44px; min-height:44px; background:transparent; border:0; border-radius:8px; font-size:22px; cursor:pointer; color:var(--mut); }
   .star[aria-pressed="true"] { color:var(--star); }
   #pbNote { margin:8px 0 4px; }
@@ -141,7 +143,7 @@
   #partnerText { white-space:pre-line; }
   #partner .bar .seq { display:inline-flex; align-items:center; gap:6px; font-size:16px; }
   .tiles { display:flex; flex-wrap:wrap; gap:6px; margin:6px 0; }
-  .tile { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 10px; min-height:40px; cursor:pointer; }
+  .tile { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 10px; min-height:44px; cursor:pointer; }
   .tile[aria-pressed="true"] { background:var(--btn-en); color:var(--btn-fg); border-color:var(--btn-en); }
   .big-out { font-size:28px; font-weight:700; margin:6px 0; overflow-wrap:anywhere; white-space:pre-line; }
   .emerg { display:flex; flex-wrap:wrap; gap:8px; margin:6px 0; }
@@ -166,9 +168,7 @@
     .trans { font-size:22px; }
     button.mode { min-width:100%; padding:18px; }
     .opts { gap:4px 14px; }
-    .opts label, .row label { display:inline-flex; align-items:center; gap:6px; min-height:44px; }   /* Fingertipp-Ziel (WCAG 2.5.5) */
     .opts input[type=checkbox] { width:22px; height:22px; }
-    .small, select { min-height:44px; }
     #cards { grid-template-columns:1fr; }
   }
 </style>
@@ -182,7 +182,9 @@
   <span id="status" aria-live="off">Bereit</span>
   <select id="uiLang" aria-label="Sprache der Oberfläche / Interface language / ภาษาหน้าจอ"><option value="de">Deutsch</option><option value="en">English</option><option value="th">ไทย</option></select>
   <span id="swState" role="status"></span>
+  <span id="appState" role="status" hidden></span>
 </header>
+<main id="content">
 <div class="note" role="note" data-i18n-html="lite">
   <b class="lite">Lite-Version – eingeschränkt.</b> Hier wählst du selbst, wer spricht (<kbd>E</kbd>/<kbd>T</kbd> oder die Knöpfe); Erkennung und Stimmen kommen vom Browser: am besten <b>Chrome</b> (Computer, Android); <b>Safari</b> (Mac, iPhone) geht nur mit eingeschalteter Diktierfunktion und mit Einschränkungen; Firefox kann keine Spracherkennung. Nicht auf allen Geräten getestet.
   Die <b>Mac-App</b> ist deutlich besser: erkennt die Sprache automatisch, Sprachbefehle, bessere Erkennung (Whisper), Neural-Stimmen, Stimmprofile, optional Übersetzung mit Claude.
@@ -195,6 +197,7 @@
 <div class="note" role="status" id="swNote" hidden></div>
 <div class="note" role="note" id="installNote" hidden></div>
 <div id="warn" role="alert"></div>
+<h2 class="sr-only" data-i18n="hTalk">Sprechen und übersetzen</h2>
 <div class="pair">
   <label><span data-i18n="iSpeak">Ich spreche</span> <select id="langA" aria-label="Meine Sprache"></select></label>
   <button class="small" id="btnSwap" type="button" aria-label="Sprachen tauschen" title="Sprachen tauschen">⇄</button>
@@ -350,6 +353,7 @@
   Sprachbefehle, wenn Englisch gesprochen wird, als ganzer Satz (werden nie übersetzt): „Translator pause“ (Mikrofon aus – weiter mit <kbd>E</kbd>/<kbd>T</kbd> oder dem Knopf), „Translator repeat“, „slower“, „faster“, „louder“, „quieter“, „clear“ (Verlauf leeren), „help“ (diese Hilfe).</p>
 </details>
 <div id="live" aria-live="off">…</div>
+<h2 class="sr-only" data-i18n="hLog">Verlauf</h2>
 <div class="logtools">
   <button class="small" id="btnCopy" type="button" data-i18n="copyLog">Verlauf kopieren</button>
   <button class="small" id="btnSave" type="button" data-i18n="saveLog">Verlauf speichern (.txt)</button>
@@ -361,6 +365,7 @@
 </div>
 <div id="log" role="list" aria-live="off" aria-label="Übersetzungen, neueste zuerst"></div>
 <div id="announce" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+</main>
 </div>
 
 <dialog id="consent" aria-labelledby="consentTitle" aria-describedby="consentText">
@@ -508,6 +513,14 @@ const STR = {
   "newVersion": "Neue Version geladen. ",
   "reload": "Seite neu laden",
   "offlineReady": "✓ Offline bereit",
+  "installedState": "✓ Als App installiert",
+  "installedNow": "Als App installiert.",
+  "installHint": "Als App installieren: schneller Start, Lernstand bleibt erhalten. ",
+  "installHintIos": "Tipp: Teilen-Symbol, dann „Zum Home-Bildschirm“ – so bleiben Lernkarten und Einstellungen erhalten. ",
+  "installBtn": "Installieren",
+  "closeBtn": "Schließen",
+  "hTalk": "Sprechen und übersetzen",
+  "hLog": "Verlauf",
   "offlinePart": "Offline unvollständig ({a}/{b}) – einmal mit Netz neu laden",
   "dueLine": "Heute {a} · letzte 7 Tage {b} · Serie {c} Tage · Fach 5: {d}",
   "listenPrompt": "🔊 Anhören und Bedeutung raten"
@@ -628,6 +641,14 @@ const STR = {
   "newVersion": "New version loaded. ",
   "reload": "Reload page",
   "offlineReady": "✓ Ready offline",
+  "installedState": "✓ Installed as app",
+  "installedNow": "Installed as an app.",
+  "installHint": "Install as an app: faster start, your learning progress is kept. ",
+  "installHintIos": "Tip: tap the Share icon, then “Add to Home Screen” – this keeps your flashcards and settings. ",
+  "installBtn": "Install",
+  "closeBtn": "Close",
+  "hTalk": "Speak and translate",
+  "hLog": "History",
   "offlinePart": "Offline incomplete ({a}/{b}) – reload once with a connection",
   "dueLine": "Today {a} · last 7 days {b} · streak {c} days · box 5: {d}",
   "listenPrompt": "🔊 Listen and guess the meaning"
@@ -748,6 +769,14 @@ const STR = {
   "newVersion": "โหลดเวอร์ชันใหม่แล้ว ",
   "reload": "โหลดหน้าใหม่",
   "offlineReady": "✓ พร้อมใช้งานออฟไลน์",
+  "installedState": "✓ ติดตั้งเป็นแอปแล้ว",
+  "installedNow": "ติดตั้งเป็นแอปแล้ว",
+  "installHint": "ติดตั้งเป็นแอป: เปิดเร็วขึ้น และเก็บความคืบหน้าการเรียนไว้ ",
+  "installHintIos": "เคล็ดลับ: แตะไอคอนแชร์ แล้วเลือก “เพิ่มไปยังหน้าจอโฮม” เพื่อเก็บบัตรคำและการตั้งค่าไว้ ",
+  "installBtn": "ติดตั้ง",
+  "closeBtn": "ปิด",
+  "hTalk": "พูดและแปล",
+  "hLog": "ประวัติ",
   "offlinePart": "ออฟไลน์ไม่ครบ ({a}/{b}) – โหลดใหม่หนึ่งครั้งขณะออนไลน์",
   "dueLine": "วันนี้ {a} · 7 วันล่าสุด {b} · ต่อเนื่อง {c} วัน · กล่อง 5: {d}",
   "listenPrompt": "🔊 ฟังแล้วเดาความหมาย"
@@ -2315,18 +2344,27 @@ function applyDeepLink() {
 }
 let installPrompt = null, shownCount = 0;
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installPrompt = e; });
+const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || window.matchMedia('(display-mode: fullscreen)').matches || navigator.standalone === true;
+let installedNow = false;
+function renderAppState() {   // "App installiert": nur sichtbar, wenn die Seite wirklich als App läuft (oder gerade installiert wurde)
+  const on = installedNow || isStandalone(), el = $('appState');
+  el.hidden = !on; el.textContent = on ? t('installedState') : '';
+  if (on) $('installNote').hidden = true;
+}
+window.addEventListener('appinstalled', () => { installedNow = true; installPrompt = null; renderAppState(); announce(t('installedNow'), UI); });
+try { window.matchMedia('(display-mode: standalone)').addEventListener('change', renderAppState); } catch {}
 function maybeInstallHint() {
   shownCount++;
   if (shownCount !== 3) return;
   let done = false; try { done = localStorage.getItem('installHint') === '1'; } catch {}
-  if (done || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) return;
+  if (done || installedNow || isStandalone()) return;
   const n = $('installNote'); n.textContent = '';
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
   if (!installPrompt && !ios) return;
-  n.append(installPrompt ? 'Als App installieren: schneller Start, Lernstand bleibt erhalten. ' : 'Tipp: Teilen-Symbol, dann „Zum Home-Bildschirm“ – so bleiben Lernkarten und Einstellungen erhalten. ');
-  const mk = (t, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'small'; b.textContent = t; b.onclick = fn; n.appendChild(b); };
-  if (installPrompt) mk('Installieren', () => { installPrompt.prompt(); n.hidden = true; });
-  mk('Schließen', () => { n.hidden = true; try { localStorage.setItem('installHint', '1'); } catch {} });
+  n.append(installPrompt ? t('installHint') : t('installHintIos'));
+  const mk = (label, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'small'; b.textContent = label; b.onclick = fn; n.appendChild(b); };
+  if (installPrompt) mk(t('installBtn'), () => { installPrompt.prompt(); n.hidden = true; });
+  mk(t('closeBtn'), () => { n.hidden = true; try { localStorage.setItem('installHint', '1'); } catch {} });
   n.hidden = false;
 }
 
@@ -2371,6 +2409,7 @@ if ('serviceWorker' in navigator && window.isSecureContext && /^https?:$/.test(l
     const n = $('swNote'); n.textContent = t('newVersion');
     const b = document.createElement('button'); b.type = 'button'; b.className = 'small'; b.textContent = t('reload');
     b.onclick = () => location.reload(); n.appendChild(b); n.hidden = false;
+    announce(t('newVersion'), UI);   // role=status allein meldet ein eingeblendetes Band nicht zuverlässig
   });
   navigator.serviceWorker.addEventListener('message', e => {   // Antwort des Workers: wie viele Dateien sind offline bereit
     const d = e.data;
@@ -2380,7 +2419,10 @@ if ('serviceWorker' in navigator && window.isSecureContext && /^https?:$/.test(l
   });
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js').then(() => navigator.serviceWorker.ready)
-      .then(reg => { if (reg.active) reg.active.postMessage({ type: 'offline-status' }); })
+      .then(reg => {
+        if (reg.active) reg.active.postMessage({ type: 'offline-status' });
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });   // lange offene App: beim Zurückkehren nach Updates fragen
+      })
       .catch(e => console.warn('sw', e));
   });
 }
@@ -2412,10 +2454,10 @@ if (navigator.permissions && navigator.permissions.query) {   // Mikrofon schon 
 }
 $('uiLang').value = UI;
 $('uiLang').onchange = () => {
-  UI = $('uiLang').value; settings.ui = UI; saveSettings(); applyUi();
+  UI = $('uiLang').value; settings.ui = UI; saveSettings(); applyUi(); renderAppState();
   if (LANGS[pair.a]) { fillLangSelects(); buildModes(); fillPresetSelect(); renderCards(); statsRender(); updatePreBtn(); }
 };
-applyUi();
+applyUi(); renderAppState();
 loadLangTable().then(() => {
   initPair();
   if (TTS) { TTS.onvoiceschanged = loadVoices; loadVoices(); }
