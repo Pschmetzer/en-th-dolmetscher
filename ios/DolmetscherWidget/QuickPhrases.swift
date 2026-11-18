@@ -1,6 +1,6 @@
 // QuickPhrases.swift – Widget mit bis zu vier Satzbuch-Sätzen: Antippen öffnet die App, die den Satz vorliest.
 // Die Auswahl kommt aus dem eingebauten Satzbuch (phrases.json liegt auch in der Erweiterung), eingestellt über
-// App Intents – ohne App Group, daher keine eigenen Favoriten der App.
+// App Intents – ohne App Group, daher weder Favoriten noch Verlauf der App (Datenschutz: keine Gesprächsinhalte).
 import AppIntents
 import SwiftUI
 import WidgetKit
@@ -38,10 +38,36 @@ struct PhraseQuery: EntityStringQuery {
     func suggestedEntities() async throws -> [PhraseEntity] { PhraseData.all.map(PhraseEntity.init) }
 }
 
+/// Woher die Sätze kommen: selbst gewählte oder eine Kategorie des eingebauten Satzbuchs (rotiert stündlich).
+/// Bewusst nie die Favoriten oder der Verlauf der App: das Widget liegt auf dem Sperr- und Home-Bildschirm und es
+/// gibt keine App Group, also gelangen keine Gesprächsinhalte dorthin.
+enum PhraseSource: String, AppEnum {
+    case chosen, basics, food, transport, shopping, numbers, money, hotel, health, temple
+
+    static let typeDisplayRepresentation: TypeDisplayRepresentation = "Source"
+    static let caseDisplayRepresentations: [PhraseSource: DisplayRepresentation] = [
+        .chosen: "My choice",
+        .basics: "Basics",
+        .food: "Food",
+        .transport: "Transport",
+        .shopping: "Shopping",
+        .numbers: "Numbers and time",
+        .money: "Money",
+        .hotel: "Hotel",
+        .health: "Health",
+        .temple: "Temple",
+    ]
+
+    var category: String? { self == .chosen ? nil : rawValue }
+}
+
 struct QuickPhrasesConfig: WidgetConfigurationIntent {
     static let title: LocalizedStringResource = "Quick phrases"
 
-    @Parameter(title: "Phrases", size: 4)
+    @Parameter(title: "Source", default: .chosen)
+    var source: PhraseSource
+
+    @Parameter(title: "Phrases", size: [.systemSmall: 2, .systemMedium: 4, .systemLarge: 6])
     var phrases: [PhraseEntity]?
 
     @Parameter(title: "Female polite form (ค่ะ)", default: false)
@@ -52,11 +78,11 @@ struct QuickPhrasesProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> QuickPhrasesEntry { .make(ids: [], female: false) }
 
     func snapshot(for config: QuickPhrasesConfig, in context: Context) async -> QuickPhrasesEntry {
-        .make(ids: config.phrases?.map(\.id) ?? [], female: config.female)
+        .make(ids: config.phrases?.map(\.id) ?? [], category: config.source.category, female: config.female)
     }
 
     func timeline(for config: QuickPhrasesConfig, in context: Context) async -> Timeline<QuickPhrasesEntry> {
-        Timeline(entries: [.make(ids: config.phrases?.map(\.id) ?? [], female: config.female)], policy: .never)
+        QuickPhrasesEntry.timeline(ids: config.phrases?.map(\.id) ?? [], category: config.source.category, female: config.female)
     }
 }
 
@@ -68,7 +94,7 @@ struct QuickPhrasesWidget: Widget {
         }
         .configurationDisplayName(WidgetTexts.text("w_phrases"))
         .description(WidgetTexts.text("w_phrases_d"))
-        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .accessoryRectangular, .accessoryInline, .accessoryCircular])
     }
 }
 

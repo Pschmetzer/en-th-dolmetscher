@@ -34,7 +34,7 @@ Current version: 1.2 (single source: `version` in `pyproject.toml`). What change
 | Conversation mode (split screen, partner half turned around) | – | ✓ | – |
 | Partner view with large type | ✓ | ✓ | ✓ |
 | Answer cards (yes / no / don't know / number) | – | ✓ | ✓ (yes / no) |
-| Phrasebook with 16 scenario packs, cultural notes, important sentences first | ✓ | ✓ | ✓ (also offline) |
+| Phrasebook with 51 scenario packs, cultural notes, important sentences first | ✓ | ✓ | ✓ (also offline) |
 | Learning mode (flashcards) | – | ✓ | ✓ |
 | Voice commands (“Translator, …”) | ✓ | ✓ | ✓ (subset) |
 | Push-to-talk | ✓ | ✓ | ✓ |
@@ -88,9 +88,9 @@ A native SwiftUI app in `ios/` with the same idea: press Start and just talk. It
 - **Translation** on the device with Apple's Translation framework once the offline language packs for your pair are installed. If a pack is missing, it can use Google Translate (fallback MyMemory) – but only if you turn on **“Online translator as fallback”** (off by default).
 - **Voice** from the iOS system voices.
 - **Conversation mode**: split screen for a table conversation, the partner's half is turned around; each half shows the conversation in its own language. **Answer cards** (yes, no, don't know, number) let the other person answer without speaking.
-- **Phrasebook** with the 16 scenario packs of the Mac app: each pack shows a short cultural note, important sentences (allergies, emergency) are marked red and come first. Sentences that match the phrasebook use the checked version (“phrasebook first”).
+- **Phrasebook** with the 51 scenario packs of the Mac app: each pack shows a short cultural note, important sentences (allergies, emergency) are marked red and come first. Sentences that match the phrasebook use the checked version (“phrasebook first”).
 - **Learning mode**: favourites and translated sentences become flashcards, stored only on the device.
-- **Widgets**: quick phrases on the home screen, a “Start interpreter” button for Control Center, lock screen and Action button, and a **Live Activity** with the last sentence (can be switched off).
+- **Widgets**: quick phrases on the home screen, a “Start interpreter” button for Control Center, lock screen and Action button, and a **Live Activity** (off by default on a new install; it never shows sentences while the iPhone is locked).
 - **iPad**: conversation on the left, tools (phrasebook, destinations, emergency, Baht) on the right.
 - Also: back-translation and transliteration, emergency screen and allergy card, “Help now” with your location, taxi destinations (with business card scan), text from photos, Baht calculator, Siri shortcuts, Face ID lock for the history, “Delete all data”.
 - **Interface** in 10 languages (de, en, th, es, fr, ja, ko, zh-Hans, vi, id; the 7 newest are machine-translated and not yet reviewed).
@@ -263,7 +263,7 @@ iPhone tests: see [ios/README.md](ios/README.md#tests).
 | `build.sh`, `build-support/` | Build, signing, first-start setup (`setup-env.sh`) |
 | `ios/` | iPhone app (Xcode project, own CI workflow) |
 | `index.html` | Web Lite |
-| `bench/`, `tests/`, `tools/` | Benchmark, pytest tests, prototypes for Apple's on-device APIs |
+| `bench/`, `tests/`, `tools/` | Benchmark, pytest tests, phrase pack tools and the Swift helpers (`translate-helper`, `apple-stt` prototype) |
 | `docs/` | [ARCHITEKTUR](docs/ARCHITEKTUR.md), [PROTOKOLL](docs/PROTOKOLL.md), [DATENSCHUTZ](docs/DATENSCHUTZ.md), [LIZENZEN](docs/LIZENZEN.md), [PRESETS](docs/PRESETS.md) (German) |
 
 Contribution rules, lock files, signing and releases: [CONTRIBUTING.md](CONTRIBUTING.md).
