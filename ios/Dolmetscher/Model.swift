@@ -1184,6 +1184,7 @@ final class InterpreterModel {
     /// `slow`: langsamer als eingestellt, z. B. wenn das Gegenüber nicht mitkam.
     func speak(_ e: Entry, slow: Bool = false) {
         guard let text = e.translation, !text.isEmpty else { return }
+        if slow { Haptics.slow() }
         enqueueSpeech(id: e.id, lang: e.target, slow: slow) { text }
     }
 
@@ -1201,7 +1202,7 @@ final class InterpreterModel {
         speakChain = Task {
             await prev?.value
             let text = gen == speechGeneration ? await produce() : nil
-            let r = slow ? max(0.4, rate * 0.65) : clearSpeech ? min(rate, 0.8) : rate
+            let r = SpeechRate.effective(rate: rate, slow: slow, clear: clearSpeech)
             let session = AVAudioSession.sharedInstance()
             guard gen == speechGeneration, let text, !text.isEmpty else {   // gestoppt oder nichts zu sagen
                 pendingSpeech -= 1
