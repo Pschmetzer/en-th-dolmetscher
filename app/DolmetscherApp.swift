@@ -164,6 +164,7 @@ struct AppCommands: Commands {
             Button(L.t("partner_view")) { openWindow(id: "partner") }
                 .keyboardShortcut("p", modifiers: [.command, .shift])
             Button(L.t("caption_title")) { openWindow(id: "caption") }   // Nr. 52
+            Button(L.t("hist_title")) { openWindow(id: "history") }
             Toggle(L.t("always_on_top"), isOn: $onTop)
                 .keyboardShortcut("t", modifiers: [.command, .option])
             Divider()
@@ -250,6 +251,7 @@ struct MenuBarContent: View {
         }
         Button(L.t("partner_view")) { openWindow(id: "partner"); NSApp.activate(ignoringOtherApps: true) }
         Button(L.t("caption_title")) { openWindow(id: "caption"); NSApp.activate(ignoringOtherApps: true) }
+        Button(L.t("hist_title")) { openWindow(id: "history"); NSApp.activate(ignoringOtherApps: true) }
         Button(L.t("settings") + " …") {
             NSApp.activate(ignoringOtherApps: true)
             NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
@@ -300,6 +302,11 @@ struct DolmetscherApp: App {
             PartnerView().environmentObject(model)
         }
         .defaultSize(width: 1000, height: 640)
+
+        Window(L.t("hist_title"), id: "history") {
+            HistoryView().environmentObject(model)
+        }
+        .defaultSize(width: 900, height: 600)
 
         Window(L.t("caption_title"), id: "caption") {
             CaptionView().environmentObject(model)

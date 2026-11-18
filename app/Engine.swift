@@ -445,6 +445,8 @@ final class EngineModel: NSObject, ObservableObject {
     /// Neustart wegen einer Einstellung zurückgestellt, weil gerade ein Gespräch läuft
     /// (Mikrofon an, Übersetzung oder Ausgabe). Wird übernommen, sobald es ruhig ist, oder per Knopf.
     @Published private(set) var restartDeferred = false
+    /// Gespeicherte Sitzung, die das Hauptfenster nur lesend statt des Live-Gesprächs zeigt (HistoryView).
+    @Published var viewingSession: ViewedSession?
     /// Gespräch aktiv: ein Neustart (8–19 s Laden) würde es unterbrechen.
     private var inConversation: Bool { micOn || busy || speakingNow }
 
