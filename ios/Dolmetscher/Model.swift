@@ -161,6 +161,8 @@ final class InterpreterModel {
     var micUID: String? { didSet { if let u = micUID { save("micUID", u) } else { d.removeObject(forKey: "micUID") }; if phase == .listening && oldValue != micUID { restart() } } }
     /// Echo-/Rauschunterdrückung des Systems beim Zuhören (iOS 18.2+).
     var echoCancel: Bool { didSet { save("echoCancel", echoCancel); if phase == .listening && oldValue != echoCancel { restart() } } }
+    /// Favoriten in der Spotlight-Suche des iPhones (aus, solange der Nutzer es nicht einschaltet).
+    var spotlight: Bool { didSet { save("spotlight", spotlight); SpotlightIndexer.update(favorites, enabled: spotlight) } }
     var pttTapMode: Bool { didSet { save("pttTapMode", pttTapMode) } }
     /// Live-Aktivität (Sperrbildschirm, Dynamic Island) beim Zuhören.
     var liveActivity: Bool { didSet { save("liveActivity", liveActivity); liveUpdate() } }
@@ -267,6 +269,7 @@ final class InterpreterModel {
         pushToTalk = d.object(forKey: "pushToTalk") as? Bool ?? false
         pttTapMode = d.object(forKey: "pttTapMode") as? Bool ?? false
         micUID = d.string(forKey: "micUID")
+        spotlight = d.object(forKey: "spotlight") as? Bool ?? false
         echoCancel = d.object(forKey: "echoCancel") as? Bool ?? false
         // Standard „aus“ (Sätze auf dem Sperrbildschirm). Wer die App schon nutzte, behält die bisherige Einstellung.
         liveActivity = LivePrivacy.initialSetting(stored: d.object(forKey: "liveActivity") as? Bool,
@@ -1064,6 +1067,7 @@ final class InterpreterModel {
     func toggleFavorite(_ p: Phrase) {
         if isFavorite(p) { favorites.removeAll { $0.favoriteKey == p.favoriteKey } } else { favorites.insert(p, at: 0) }
         if !favoritesBlocked { files.store(favorites, "favorites.json") }
+        if spotlight { SpotlightIndexer.update(favorites, enabled: true) }
         Haptics.tap()
     }
 

@@ -1,4 +1,5 @@
 // Round7.swift – kleine, testbare Bausteine der Runde 7 (Barrierefreiheit).
+import CoreSpotlight
 import SwiftUI
 import UniformTypeIdentifiers
 import AVFAudio
@@ -169,5 +170,28 @@ enum FXFetch {
               let rate = (rates[code.uppercased()] as? Double) ?? (rates[code.uppercased()] as? Int).map(Double.init), rate > 0
         else { return nil }
         return (rate, root["date"] as? String ?? "")
+    }
+}
+
+/// Favoriten in der Spotlight-Suche – nur auf Wunsch (Schalter in den Einstellungen), weil Spotlight sie sonst außerhalb
+/// der App zeigt. Absprung öffnet das Satzbuch.
+enum SpotlightIndexer {
+    static let domain = "dolmetscher.favorites"
+
+    static func items(_ favorites: [Phrase]) -> [CSSearchableItem] {
+        favorites.prefix(200).map { p in
+            let a = CSSearchableItemAttributeSet(contentType: .text)
+            a.title = p.en
+            a.contentDescription = p.th
+            return CSSearchableItem(uniqueIdentifier: p.favoriteKey, domainIdentifier: domain, attributeSet: a)
+        }
+    }
+
+    static func update(_ favorites: [Phrase], enabled: Bool) {
+        let index = CSSearchableIndex.default()
+        index.deleteSearchableItems(withDomainIdentifiers: [domain]) { _ in
+            guard enabled else { return }
+            index.indexSearchableItems(items(favorites), completionHandler: nil)
+        }
     }
 }

@@ -217,6 +217,7 @@ struct SettingsView: View {
                     .font(.footnote).foregroundStyle(.orange)
             }
             Toggle(T("privacy_shield"), isOn: $m.privacyShield)
+            Toggle(T("spotlight_favs"), isOn: $m.spotlight)
             Toggle(T("culture_hints"), isOn: $m.cultureHints)
             Toggle(T("summary_toggle"), isOn: $m.summaryEnabled)
             if m.summaryEnabled, let why = ConversationSummary.unavailableReason(for: m.pair.mine) {

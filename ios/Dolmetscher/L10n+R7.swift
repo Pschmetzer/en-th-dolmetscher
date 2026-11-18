@@ -268,5 +268,16 @@ extension L10n {
             "zh-Hans": "降低回声和噪声（系统）",
             "vi": "Giảm tiếng vọng và tiếng ồn (hệ thống)",
             "id": "Kurangi gema dan kebisingan (sistem)"],
+        "spotlight_favs": [
+            "de": "Favoriten in der iPhone-Suche (Spotlight) zeigen",
+            "en": "Show favorites in iPhone search (Spotlight)",
+            "th": "แสดงรายการโปรดในการค้นหาของ iPhone (Spotlight)",
+            "es": "Mostrar favoritos en la búsqueda del iPhone (Spotlight)",
+            "fr": "Afficher les favoris dans la recherche de l'iPhone (Spotlight)",
+            "ja": "お気に入りをiPhoneの検索（Spotlight）に表示",
+            "ko": "즐겨찾기를 iPhone 검색(Spotlight)에 표시",
+            "zh-Hans": "在 iPhone 搜索（聚焦）中显示收藏",
+            "vi": "Hiện mục yêu thích trong tìm kiếm iPhone (Spotlight)",
+            "id": "Tampilkan favorit di pencarian iPhone (Spotlight)"],
     ]
 }

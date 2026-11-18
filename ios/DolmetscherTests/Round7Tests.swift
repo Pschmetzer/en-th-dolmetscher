@@ -1,6 +1,7 @@
 import XCTest
 import UIKit
 import AVFAudio
+import CoreSpotlight
 @testable import Dolmetscher
 
 /// Runde 7: Robustheit, Barrierefreiheit und kleine Funktionen der iPhone-App.
@@ -285,6 +286,14 @@ final class Round7Tests: XCTestCase {
         XCTAssertTrue(e.romanIsApproximate)
         e.roman = "sawatdee"
         XCTAssertFalse(e.romanIsApproximate)
+    }
+
+    func testSpotlightItemsFromFavorites() {
+        let favs = [Phrase(en: "Hello", th: "สวัสดี", roman: "", category: "favorites"),
+                    Phrase(en: "Hallo", th: "x", roman: "", category: "favorites", src: .de, dst: .ja)]
+        let items = SpotlightIndexer.items(favs)
+        XCTAssertEqual(items.map(\.uniqueIdentifier), ["en>th|Hello", "de>ja|Hallo"])
+        XCTAssertEqual(items.first?.attributeSet.title, "Hello")
     }
 
     func testReduceMotionDropsAnimation() {
