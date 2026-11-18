@@ -1,6 +1,6 @@
 # Tastenkürzel
 
-Alle Kürzel stehen so im Code (`app/DolmetscherApp.swift`, `app/HotKeys.swift`, `app/BubbleViews.swift`, `app/PartnerView.swift`, `index.html`). Englische Fassung: [en/SHORTCUTS.md](en/SHORTCUTS.md).
+Alle Kürzel stehen so im Code (`app/DolmetscherApp.swift`, `app/HotKeys.swift`, `app/BubbleViews.swift`, `app/PartnerView.swift`, `ios/Dolmetscher/Views.swift`, `index.html`). Englische Fassung: [en/SHORTCUTS.md](en/SHORTCUTS.md).
 
 ## Mac-App
 
@@ -33,12 +33,19 @@ Wenn ein anderes Programm ein Kürzel schon belegt, zeigt die App einen Hinweis 
 | ⌥⌘T | Fenster immer im Vordergrund |
 | ⇧⌘E | Gespräch exportieren |
 | ⌥⌘Z | Löschen rückgängig machen |
+| ⇧⌘C | letzte Übersetzung kopieren |
+| ⌥⌘L | Richtung wechseln (automatisch, dann je eine Sprache des Paars) |
+| ⌥⌘G | Wort zum Glossar hinzufügen |
+| ⌘L | Cursor ins Tippfeld |
+| ⌥⌘S | Vorlesen ein / aus |
+| ⌘/ | Kürzel-Übersicht (Hilfe-Menü) |
 
 ### Partneransicht
 
 | Kürzel | Wirkung |
 |---|---|
 | ⌃⌘F | Vollbild ein / aus |
+| Pfeil links / rechts | eine Übersetzung zurück / vor |
 
 ### Auf einer Sprechblase (mit Tab anwählen)
 
@@ -67,6 +74,14 @@ Einzeltasten-Kürzel gelten nicht in Eingabefeldern und nicht mit Strg, Alt oder
 
 „Halten zum Sprechen“ ist ein Knopf: gedrückt halten, sprechen, loslassen. Mit der Tastatur bleibt es ein Umschalter.
 
-## iPhone
+## iPhone und iPad
 
-Die iPhone-App hat keine Tastenkürzel. Es gibt Siri-Kurzbefehle, ein Steuerelement für Control Center, Sperrbildschirm und Aktionstaste sowie Widgets; siehe [ios/README.md](../ios/README.md).
+Auf dem iPhone und iPad gelten mit angeschlossener Tastatur nur drei Kürzel (`ios/Dolmetscher/Views.swift`):
+
+| Kürzel | Wirkung |
+|---|---|
+| ⌘Return | Start / Stopp |
+| ⌘B | Satzbuch öffnen |
+| ⌘/ | Hilfe öffnen |
+
+Sonst gibt es Siri-Kurzbefehle, ein Steuerelement für Control Center, Sperrbildschirm und Aktionstaste sowie Widgets; siehe [ios/README.md](../ios/README.md).

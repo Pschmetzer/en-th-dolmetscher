@@ -7,7 +7,7 @@ Thanks for helping! Issues and pull requests are welcome.
 - `dolmetscher.py` – engine (microphone → VAD → faster-whisper → translation → voice). `--json` emits events for the app.
 - `profiles.py` – voice profiles (speaker recognition).
 - `presets.py`, `presets/*.json` – scenario presets and phrase packs (data). `history_store.py` – optional local conversation history. `hwprofile.py` – picks a model for `--model auto`. `correction_learning.py` – suggestions from corrected bubbles.
-- `app/*.swift` – SwiftUI Mac app that starts the engine (`Engine.swift`: process and protocol, `Views.swift`/`BubbleViews.swift`/`SettingsView.swift`: UI, `L10n.swift`: de/en/th strings). Built by `build.sh` with `swiftc` (all Swift files in `app/`). `app/make_icon.py` draws the icon.
+- `app/*.swift` – SwiftUI Mac app that starts the engine (`Engine.swift`: process and protocol, `Views.swift`/`BubbleViews.swift`/`SettingsView.swift`: UI, `L10n.swift`: de/en/th strings, `HotKeys.swift`: global shortcuts, `EnvSetup.swift`/`EnvLogic.swift`/`Paths.swift`: Python environment and first-start setup, `Runde8.swift`/`Extras.swift`/`Support.swift`: error help, shortcut overview, window helpers, export). Built by `build.sh` with `swiftc` (all Swift files in `app/`). `app/make_icon.py` draws the icon.
 - `build-support/` – entitlements for the release build, `setup-env.sh` (the app's first-start environment setup with the bundled uv) and `make-stamp.sh` (environment stamp: lock hash, Python version, architecture).
 - `ios/` – separate iPhone app (Xcode project, own CI workflow `ios.yml`); it does not use the Python engine. Build, signing, Whisper models and debug switches: [ios/README.md](ios/README.md).
 - `avhelper.py` – audio via PyAV (microphone, playback, microphone list) as a child process; replaces the external ffmpeg.
@@ -17,7 +17,7 @@ Thanks for helping! Issues and pull requests are welcome.
 - `index.html` – browser version (Web Lite, GitHub Pages); `sw.js`, `manifest.webmanifest`, `presets-index.json`, `allergens.json` belong to it. How it works and how to test it: the “Web Lite” section of `docs/ARCHITEKTUR.md`; browser checklist: `docs/WEB-KOMPATIBILITAET.md`; self-hosting: `docs/WEB-HOSTING.md`.
 - `bench/` – latency and quality benchmark, see [bench/README.md](bench/README.md).
 - `tests/` – pytest tests.
-- `tools/` – prototypes for Apple's on-device speech recognition and translation (macOS 26, not part of the Mac app).
+- `tools/` – phrase pack tools (`check_presets.py`, `preset_stats.py`, `export_phrasebook.py`, `make_presets_index.py`) and the Swift sources of `translate-helper` (bundled in the Mac app) and the `apple-stt` prototype (macOS 26).
 - `docs/LIZENZEN.md` – licenses of models, packages and services.
 
 ## Without a Mac (presets, web, docs)
