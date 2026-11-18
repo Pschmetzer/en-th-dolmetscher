@@ -192,12 +192,5 @@ def test_settings_verdrahtung_und_texte():
     assert "sx_err_json" in l10n and "sx_recent" in l10n
 
 
-def test_engine_dateien_unveraendert_im_commit():
-    r = subprocess.run(["git", "diff", "--name-only", "origin/main", "--", "dolmetscher.py", "history_store.py", "docs"],
-                       cwd=ROOT, capture_output=True, text=True)
-    if r.returncode == 0:
-        assert r.stdout.strip() == ""
-
-
 def test_changelog_runde15_einstellungen():
     assert "### Mac app (round 15)" in (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")

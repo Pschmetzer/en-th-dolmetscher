@@ -1799,25 +1799,37 @@ def _in_script(word, lang):
     return bool(_SCRIPT_RX[lang].search(word))
 
 
+_TOKEN_RX = re.compile(r"https?://\S+|www\.\S+|[\w.+-]+@[\w-]+(?:\.[\w-]+)+", re.I)
+
+
+def _mask_tokens(text):
+    """E-Mail-Adressen und URLs durch Leerraum gleicher Länge ersetzen: ein Glossar-Name darin ist kein Treffer."""
+    return _TOKEN_RX.sub(lambda m: " " * len(m.group(0)), text)
+
+
 def _protect(text, dst):
     """Glossar für Google/MyMemory: Einträge durch Platzhalter [1], [2] … ersetzen (überstehen beide
     Dienste unverändert) und merken, was danach eingesetzt wird – die Übersetzung aus dem Glossar,
     sonst der Name unverändert. Auch rückwärts: steht die Übersetzung im Text, kommt das Wort zurück."""
     slots = []
     own = _GLOSSARY_OWN
+    if _SLOT.search(text):             # "[1]" steht schon im Satz: ein Platzhalter wäre nicht mehr eindeutig
+        return text, slots
     for a, b in GLOSSARY:
         if own is not None and (a, b) not in own:
             continue                   # Preset-Allerweltswörter ("room => ห้อง") würden ห้องน้ำ zerreißen
         if len(slots) >= 20:
             break
-        if _term_rx(a).search(text):
+        if _term_rx(a).search(_mask_tokens(text)):
             find, val = a, (b if b and _in_script(b, dst) else a)
-        elif b and _in_script(a, dst) and _term_rx(b).search(text):
+        elif b and _in_script(a, dst) and _term_rx(b).search(_mask_tokens(text)):
             find, val = b, a
         else:
             continue
         n = len(slots) + 1
-        new = _term_rx(find).sub(f" [{n}] ", text)
+        spans = [m.span() for m in _TOKEN_RX.finditer(text)]
+        new = _term_rx(find).sub(
+            lambda m: m.group(0) if any(x <= m.start() < y for x, y in spans) else f" [{n}] ", text)
         if new != text:
             text = new
             slots.append(val)
@@ -2089,7 +2101,7 @@ def register_hint(dst, style, formality="auto"):
 _TH_Q_END = re.compile(r"(ไหม|มั้ย|หรือ|เหรอ|หรือเปล่า|รึเปล่า|อะไร|ไหน|ใคร|เท่าไร|เท่าไหร่|เมื่อไร|เมื่อไหร่|ทำไม"
                        r"|อย่างไร|ยังไง|กี่\S*|\?)\s*$")
 _TH_KA = re.compile(r"ค่ะ|คะ(?!แนน|ยั้น|เน)")
-_TH_KRUB = re.compile(r"ครับ|(?<!บัง)คับ(?!แคบ|คั่ง|ข้อง)")
+_TH_KRUB = re.compile(r"ครับ|(?<!บัง)คับ(?!แคบ|คั่ง|ข้อง|ขัน|ใจ|ที่)")
 
 
 def fit_thai_particles(text, polite):
@@ -2098,7 +2110,7 @@ def fit_thai_particles(text, polite):
     unverändert, ebenso Text ohne Partikel."""
     if not text or polite not in ("krub", "ka"):
         return text
-    t = re.sub(r"คะแนน|บังคับ|คับแคบ|คับคั่ง|คับข้อง", "", text)
+    t = re.sub(r"คะแนน|บังคับ|คับแคบ|คับคั่ง|คับข้อง|คะน้า|คะนอง|คะนึง|คับขัน|คับใจ|คับที่", "", text)
     has_ka, has_krub = bool(_TH_KA.search(t)), bool(_TH_KRUB.search(t))
     if has_ka and has_krub:
         return text
