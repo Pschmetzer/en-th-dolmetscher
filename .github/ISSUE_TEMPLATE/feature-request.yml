@@ -1,0 +1,32 @@
+name: Feature request
+description: An idea for a new feature or an improvement.
+title: "Idea: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: situation
+    attributes:
+      label: Situation
+      description: In which situation would this help? (e.g. at the pharmacy, in a loud taxi, with an elderly person)
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Idea
+      description: What should the app do?
+    validations:
+      required: true
+  - type: checkboxes
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - label: Mac app
+        - label: iPhone / iPad app
+        - label: Browser version (Web Lite)
+  - type: textarea
+    id: privacy
+    attributes:
+      label: Privacy (optional)
+      description: Would this need to send data off the device? Where possible, features should work offline and without an account.
