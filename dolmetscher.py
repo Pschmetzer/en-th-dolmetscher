@@ -4705,8 +4705,8 @@ STOP = threading.Event()          # gesetzt von SIGTERM/SIGINT oder stdin-Ende -
 _CTRL_LOCK = threading.RLock()    # Steuer-Thread (apply_control) und Arbeits-Thread schreiben dieselben Felder
 _BAD_JSON = {"n": 0, "t": 0.0}
 CTRL_LOG_KEYS = frozenset({"tr_en", "tr_th", "lang", "polite", "speak", "paused", "listen", "rate", "volume",
-                           "silence", "sensitivity", "style", "formality", "speaker_sex", "llm", "earcons", "fast_endpoint",
-                           "two_person",
+                           "silence", "sensitivity", "style", "formality", "speaker_sex", "llm", "earcons",
+                           "fast_endpoint", "two_person",
                            "reload_profiles", "partial", "tts_race", "stop_speaking", "voice_en", "voice_th",
                            "ping", "langs", "tr_mine", "tr_partner", "llm_budget"}
                           | {f"tr_{k}" for k in LANGS} | {f"voice_{k}" for k in LANGS})
