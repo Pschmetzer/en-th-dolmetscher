@@ -1,0 +1,118 @@
+{
+  "id": "baby",
+  "names": {
+    "de": "Baby und Kleinkind",
+    "en": "Baby and toddler",
+    "th": "ทารกและเด็กเล็ก"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "nappy",
+      "th": "ผ้าอ้อม"
+    },
+    {
+      "en": "formula milk",
+      "th": "นมผง"
+    },
+    {
+      "en": "baby bottle",
+      "th": "ขวดนม"
+    },
+    {
+      "en": "fever",
+      "th": "ไข้"
+    },
+    {
+      "en": "high chair",
+      "th": "เก้าอี้สำหรับเด็ก"
+    },
+    {
+      "en": "stroller",
+      "th": "รถเข็นเด็ก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My baby has a high fever.",
+      "th": "ลูกมีไข้สูง",
+      "critical": true
+    },
+    {
+      "en": "My child has trouble breathing.",
+      "th": "ลูกหายใจลำบาก",
+      "critical": true
+    },
+    {
+      "en": "My baby is allergic to milk.",
+      "th": "ลูกแพ้นม",
+      "critical": true
+    },
+    {
+      "en": "I need a paediatrician.",
+      "th": "ต้องการกุมารแพทย์",
+      "critical": true
+    },
+    {
+      "en": "My child swallowed something.",
+      "th": "ลูกกลืนของเข้าไป",
+      "critical": true
+    },
+    {
+      "en": "Where can I buy nappies?",
+      "th": "ซื้อผ้าอ้อมได้ที่ไหน"
+    },
+    {
+      "en": "Do you have formula milk?",
+      "th": "มีนมผงไหม"
+    },
+    {
+      "en": "Could you warm the bottle, please?",
+      "th": "ช่วยอุ่นขวดนมหน่อยได้ไหม"
+    },
+    {
+      "en": "Do you have a high chair?",
+      "th": "มีเก้าอี้เด็กไหม"
+    },
+    {
+      "en": "Is there a place to change the baby?",
+      "th": "มีที่เปลี่ยนผ้าอ้อมไหม"
+    },
+    {
+      "en": "Is there a baby room here?",
+      "th": "ที่นี่มีห้องสำหรับทารกไหม"
+    },
+    {
+      "en": "Is there a children's menu?",
+      "th": "มีเมนูสำหรับเด็กไหม"
+    },
+    {
+      "en": "Please make it not spicy for the child.",
+      "th": "ขอแบบไม่เผ็ดสำหรับเด็ก"
+    },
+    {
+      "en": "Could I have a cot in the room?",
+      "th": "ขอเตียงเด็กในห้องได้ไหม"
+    },
+    {
+      "en": "Is the water safe for the baby?",
+      "th": "น้ำนี้ปลอดภัยสำหรับทารกไหม"
+    },
+    {
+      "en": "Could I have a bag of ice?",
+      "th": "ขอน้ำแข็งหนึ่งถุงได้ไหม"
+    },
+    {
+      "en": "Can I bring the stroller?",
+      "th": "เอารถเข็นเด็กเข้าไปได้ไหม"
+    },
+    {
+      "en": "My baby needs to sleep.",
+      "th": "ลูกต้องการนอน"
+    }
+  ],
+  "note": {
+    "de": "Kinderärzte gibt es in privaten Krankenhäusern. Windeln, Milchpulver und Medikamente in 7-Eleven und Apotheken. Bei hohem Fieber sofort Arzt. Rettung 1669. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Paediatricians work in private hospitals. Nappies, formula and medicine are sold at 7-Eleven and pharmacies. With high fever see a doctor at once. Ambulance 1669. Thai lines machine-made, not checked by native speakers."
+  }
+}

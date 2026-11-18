@@ -13,7 +13,7 @@ Optionen: --model small|medium|base  --mic 0  --polite krub|ka  --json
           --voice-en/--voice-th NAME --llm [--llm-model ID] --earcons --meter --list-mics
 Protokoll Engine <-> App: docs/PROTOKOLL.md
 """
-import argparse, collections, functools, html, http.client, io, itertools, json, logging, logging.handlers, \
+import argparse, collections, difflib, functools, html, http.client, io, itertools, json, logging, logging.handlers, \
     math, os, queue, re, shutil, signal, subprocess, sys, tempfile, threading, time, urllib.error, urllib.parse, \
     urllib.request
 import numpy as np
@@ -1380,7 +1380,7 @@ def _note_fail(name, e):
         _captive_hint()
     elif isinstance(cause, urllib.error.HTTPError):
         wait = _retry_after(cause) if cause.code in (429, 503) else (5.0 if cause.code >= 500 else 0.0)
-    elif isinstance(cause, (urllib.error.URLError, OSError)):
+    elif isinstance(cause, (urllib.error.URLError, OSError, http.client.HTTPException)):
         with _BACKOFF_LOCK:
             n = _PROV[name]["fails"] = _PROV[name]["fails"] + 1
         wait = min(2.0 * n, 20.0)
@@ -1521,6 +1521,7 @@ def llm_system(pair=None):
 
 
 GLOSSARY_FILE = os.path.expanduser("~/Library/Application Support/Dolmetscher/glossary.txt")
+TERM_MAX = 120                     # längere Glossar-/Aussprache-Einträge sind Tippfehler (ganze Sätze), kein Begriff
 GLOSSARY = []                      # [(Wort, Übersetzung oder None = unverändert lassen)]
 _GLOSSARY_OWN = None               # Einträge aus der eigenen Datei (None = alle); Preset-Wörter nur für Claude
 
@@ -1539,12 +1540,16 @@ def load_glossary(text=None):
             _write_private(GLOSSARY_FILE, text)
         except OSError as e:
             log({"glossary": "speichern fehlgeschlagen", "err": _errtxt(e)})
-    items = []
-    for line in text.splitlines():
+    items, seen = [], set()
+    for line in text.lstrip("\ufeff").splitlines():
+        if line.lstrip().startswith("#"):
+            continue                   # Runde 8: Kommentarzeilen (# ...) sind keine Glossar-Einträge
         a, sep, b = line.partition("=>")
         a, b = a.strip(), b.strip()
-        if a:
-            items.append((a, b if sep and b else None))
+        if not a or len(a) > TERM_MAX or len(b) > TERM_MAX or a.casefold() in seen:
+            continue                   # doppelte Wörter (Groß/klein egal): der erste Eintrag gilt
+        seen.add(a.casefold())
+        items.append((a, b if sep and b else None))
     global _GLOSSARY_OWN
     GLOSSARY[:] = items[:200]
     _GLOSSARY_OWN = frozenset(GLOSSARY)
@@ -1571,7 +1576,8 @@ def learn_glossary_names(eng, names):
     if not names:
         return []
     text = _own_glossary_text()
-    have = {ln.partition("=>")[0].strip().lower() for ln in text.splitlines() if ln.strip()}
+    have = {ln.partition("=>")[0].strip().lower() for ln in text.splitlines()
+            if ln.strip() and not ln.lstrip().startswith("#")}
     room = GLOSSARY_LIMIT - len(have)
     added = [n for n in dict.fromkeys(names) if n.lower() not in have][:max(0, room)]
     if not added:
@@ -1821,11 +1827,14 @@ def load_pronounce(path=None):
             text = f.read()
     except OSError:
         text = ""
-    items = []
-    for line in text.splitlines():
+    items, seen = [], set()
+    for line in text.lstrip("\ufeff").splitlines():
+        if line.lstrip().startswith("#"):
+            continue
         a, sep, b = line.partition("=>")
         a, b = a.strip(), b.strip()
-        if a and sep and b:
+        if a and sep and b and len(a) <= TERM_MAX and len(b) <= TERM_MAX and a.casefold() not in seen:
+            seen.add(a.casefold())
             items.append((a, b))
     PRONOUNCE[:] = items[:200]
 
@@ -2042,8 +2051,32 @@ _NUM_AFTER = re.compile(r"^\s*(?:บาท|โมง|นาที|ชั่ว�
                         r"km|kg|minutes?|hours?|days?|years?|people)", re.I)
 
 
+# Runde 8: Währungs-/Gradzeichen sprechbar machen ("฿1,500" -> "1,500 baht"): manche Stimmen lesen das Zeichen
+# gar nicht oder sprachfremd vor. Nur Anzeige bleibt unverändert; Sprachen ohne Eintrag bleiben wie sie sind.
+_SPEAK_CUR = {
+    "en": {"฿": "baht", "$": "dollars", "€": "euros", "£": "pounds"},
+    "th": {"฿": "บาท", "$": "ดอลลาร์", "€": "ยูโร", "£": "ปอนด์"},
+    "de": {"฿": "Baht", "$": "Dollar", "€": "Euro", "£": "Pfund"},
+    "es": {"฿": "bat", "$": "dólares", "€": "euros", "£": "libras"},
+    "fr": {"฿": "bahts", "$": "dollars", "€": "euros", "£": "livres"},
+}
+_SPEAK_DEG = {"en": "degrees", "th": "องศา", "de": "Grad", "es": "grados", "fr": "degrés"}
+_SPEAK_CELS = {"C": {"en": "Celsius", "th": "เซลเซียส", "de": "Celsius", "es": "Celsius", "fr": "Celsius"},
+               "F": {"en": "Fahrenheit", "th": "ฟาเรนไฮต์", "de": "Fahrenheit", "es": "Fahrenheit",
+                     "fr": "Fahrenheit"}}
+_CUR_AMOUNT = re.compile(r"([฿$€£])\s?(\d+(?:[.,]\d+)*)")
+_DEGREE = re.compile(r"(?<=\d)\s?°\s?([CF])\b")
+
+
 def speak_form(text, lang):
-    """Nr. 52: Thai-Lachen „555“ (ohne Zahlkontext) als ฮ่าฮ่าฮ่า vorlesen statt „ห้าห้าห้า“; die Anzeige bleibt."""
+    """Nr. 52: Thai-Lachen „555“ (ohne Zahlkontext) als ฮ่าฮ่าฮ่า vorlesen statt „ห้าห้าห้า“; die Anzeige bleibt.
+    Runde 8: ฿/$/€/£ vor einer Zahl und °C/°F als Wort (Zahl zuerst, wie man sie sagt)."""
+    cur = _SPEAK_CUR.get(lang)
+    if cur and _CUR_AMOUNT.search(text):
+        text = _CUR_AMOUNT.sub(lambda m: f"{m.group(2)} {cur[m.group(1)]}", text)
+    if lang in _SPEAK_DEG and "°" in text:
+        gap = "" if lang == "th" else " "
+        text = _DEGREE.sub(lambda m: f" {_SPEAK_DEG[lang]}{gap}{_SPEAK_CELS[m.group(1)][lang]}", text)
     if lang != "th" or "5" not in text:
         return text
     return re.sub(r"\s{2,}", " ", _laugh_sub(text, " ฮ่าฮ่าฮ่า ")).strip()
@@ -2530,7 +2563,10 @@ def translate_retry_in():
 
 def _is_conn_error(e):
     """Reiner Verbindungsfehler (kein HTTP-Status): DNS, kein Netz, Zeitüberschreitung."""
-    return isinstance(e, urllib.error.URLError) and not isinstance(e, urllib.error.HTTPError)
+    if isinstance(e, urllib.error.HTTPError):
+        return False
+    # Runde 8: auch Fehler beim Lesen der Antwort (Verbindung mitten im Body gekappt, Zeitüberschreitung, DNS)
+    return isinstance(e, (OSError, http.client.HTTPException))
 
 
 _TH_RX = re.compile(r"[\u0e00-\u0e7f]")
@@ -2566,6 +2602,14 @@ def thai_latin(text):
 
 
 _NUM = re.compile(r"\d+(?:[.,:]\d+)*")
+# Tausendergruppen mit Leerzeichen (Whisper/Französisch/Russisch: "1 500", "12 345 678"): erste Gruppe 1-3 Ziffern
+# ohne führende Null (Telefon "081 234" bleibt), jede weitere genau 3, danach keine Ziffer/Dezimal-/Uhr-Trenner
+_GROUPED = re.compile(r"(?<![\d.,:/-])[1-9]\d{0,2}(?:[ \u00a0\u202f\u2009]\d{3})+(?![\d]|[.,:]\d)")
+def _digits_only(s):
+    return re.sub(r"\D", "", s)
+
+
+_LAUGH_TAIL = re.compile(r"[ \u00a0\u202f\u2009]555$")      # "100 555": Thai-Lachen nach der Zahl, keine Gruppe
 # Monatsnamen -> Monatsnummer ("25 ธันวาคม 2026" = "25/12/2026" = "25 December 2026")
 _TH_MONTHS = ("มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน",
               "ตุลาคม", "พฤศจิกายน", "ธันวาคม")
@@ -2600,10 +2644,12 @@ _TH_NUM_RUN = re.compile("(?:" + "|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], ke
                          + r")(?:(?:" + "|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], key=len, reverse=True))
                          + "))*")
 _TH_TOKEN = re.compile("|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], key=len, reverse=True)))
-_SCALE = re.compile(r"(\d+(?:[.,]\d+)?)\s*(million|mio\.?|billion|thousand|พันล้าน|ล้าน|แสน|หมื่น|พัน)"
+_SCALE = re.compile(r"(\d+(?:[.,]\d+)?)\s*(million|mio\.?|billion|thousand|hundred|lakhs?|crores?"
+                    r"|พันล้าน|ล้าน|แสน|หมื่น|พัน|ร้อย)"
                     r"|(\d+(?:[.,]\d+)?)(k)\b", re.I)
 _SCALE_F = {"billion": 1e9, "พันล้าน": 1e9, "million": 1e6, "mio": 1e6, "mio.": 1e6, "ล้าน": 1e6, "แสน": 1e5,
-            "หมื่น": 1e4, "thousand": 1e3, "พัน": 1e3, "k": 1e3}
+            "หมื่น": 1e4, "thousand": 1e3, "พัน": 1e3, "k": 1e3, "hundred": 1e2, "ร้อย": 1e2, "lakh": 1e5,
+            "lakhs": 1e5, "crore": 1e7, "crores": 1e7}
 
 # Englische Zahlwörter ("three hundred fifty", "twenty-five") für den Zahlenvergleich in Ziffern
 _EN_UNIT_W = {"zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8,
@@ -2764,6 +2810,9 @@ def _numbers(s, words=True, times=None, equiv=True):
     words: ausgeschriebene Zahlen mitzählen – Thai (สามร้อยห้าสิบ = 350, บ่ายสองโมง = 14) und Englisch
     (three hundred fifty = 350); 1.5 million = 1500000."""
     s = s.translate(_THAI_DIGITS)
+    # "1 500 000" / "1\u202f500" = 1500000; nur als Gleichwertigkeit (equiv): "2 100 baht" kann auch 2 mal 100 sein
+    if equiv:
+        s = _GROUPED.sub(lambda m: m.group(0) if _LAUGH_TAIL.search(m.group(0)) else _digits_only(m.group(0)), s)
     s = _dates_to_numbers(s, equiv)                              # BE-Jahr -543, Monatsnamen -> 1-12
     if words:
         s = en_words_to_digits(s)                                # vor _SCALE: "five million" ganz als Wortfolge
@@ -3237,6 +3286,27 @@ def normalize(audio, target_rms=0.06, max_gain=10.0, peak=0.95, min_rms=0.003, f
     return np.clip(audio * g, -1.0, 1.0).astype(audio.dtype, copy=False), pk
 
 
+# Runde 8: Kürzel, nach deren Punkt kein Satz endet ("9 a.m. to 5 p.m.", "ca. 500", "z. B.", "Prof. Brown")
+_ABBREV = frozenset({"ca.", "z.", "b.", "bzw.", "usw.", "approx.", "prof.", "jr.", "sr.", "inc.", "co.", "ltd.",
+                     "mt.", "vs.", "u.a.", "d.h.", "evtl.", "str.", "dr.", "mr.", "mrs.", "ms.", "st.", "e.g.",
+                     "i.e."})
+_ABBREV_NUM = frozenset({"no.", "nr.", "tel."})     # enden auch Sätze ("No. I don't."): nur vor einer Ziffer verbinden
+
+
+def _rejoin_abbrev(parts):
+    """Teile wieder verbinden, wenn der Satz nur an einem Kürzel oder vor einem Kleinbuchstaben „endete“."""
+    out = []
+    for p in parts:
+        if out:
+            last = out[-1].split()[-1].casefold() if out[-1].split() else ""
+            if (last in _ABBREV or (last in _ABBREV_NUM and p[:1].isdigit())
+                    or (out[-1].endswith(".") and p[:1].islower() and p[:1].isalpha())):
+                out[-1] += " " + p
+                continue
+        out.append(p)
+    return out
+
+
 def split_sentences(s, lang, min_len=60):
     """Lange Ausgaben satzweise vorlesen: der erste Satz klingt früher, der Rest wird vorab geladen."""
     s = s.strip()
@@ -3249,6 +3319,8 @@ def split_sentences(s, lang, min_len=60):
     else:
         parts = re.split(r"(?<!\bMr\.)(?<!\bMrs\.)(?<!\bMs\.)(?<!\bDr\.)(?<!\bSt\.)(?<!\bvs\.)(?<!\be\.g\.)"
                          r"(?<!\bi\.e\.)(?<=[.!?;।॥؟؛۔…])\s+", s)   # "Mr. Smith" bleibt; Hindi/Arabisch/Urdu
+    if lang not in ("th", "zh", "ja"):
+        parts = _rejoin_abbrev(parts)
     out, cur = [], ""
     for p in parts:                     # zu kurze Stücke zusammenfassen (natürlicher Klang)
         cur = f"{cur} {p}".strip() if cur else p
@@ -4211,6 +4283,43 @@ HINT_EVERY_S = 300.0               # derselbe Hinweis höchstens alle 5 min
 SLOW_P90_S = {"sound": 5.0, "tr": 4.0, "stt": 5.0}
 
 
+# Runde 8: Text-Echo-Schutz. Fängt das Mikrofon den Nachhall der eigenen Stimme auf (Lautsprecher, Raum), steht
+# der gerade vorgelesene Satz kurz danach als „Gesprochenes“ im Text. Gleiche Sprache, fast gleicher Wortlaut,
+# kurz nach dem Vorlesen und nicht ganz kurz -> verwerfen. Abschaltbar (`echo_guard`), Standard an.
+ECHO = {"on": True}
+ECHO_WINDOW_S = 25.0               # so lange nach dem Vorlesen gilt ein ähnlicher Satz als Echo
+ECHO_MIN_CHARS = 14                # kürzere Sätze („ok“, „ขอบคุณครับ“) sind oft echte Wiederholungen
+ECHO_RATIO = 0.88
+_SPOKEN = collections.deque(maxlen=8)          # (monotonic, lang, normalisierter Text)
+
+
+def _echo_norm(s):
+    return re.sub(r"[^\w\u0e00-\u0e7f]+|_", "", (s or "").casefold())
+
+
+def note_spoken(text, lang, now=None):
+    """Vorgelesenen Text für den Echo-Schutz merken."""
+    n = _echo_norm(text)
+    if n:
+        _SPOKEN.append((time.monotonic() if now is None else now, lang, n))
+
+
+def is_echo(text, lang, now=None):
+    """True, wenn `text` (erkannt in `lang`) fast genau dem zuletzt vorgelesenen Satz entspricht."""
+    if not ECHO["on"]:
+        return False
+    n = _echo_norm(text)
+    if len(n) < ECHO_MIN_CHARS:
+        return False
+    now = time.monotonic() if now is None else now
+    for t, lng, spoken in list(_SPOKEN):
+        if lng != lang or now - t > ECHO_WINDOW_S or now < t:
+            continue
+        if difflib.SequenceMatcher(None, n, spoken, autojunk=False).ratio() >= ECHO_RATIO:
+            return True
+    return False
+
+
 def hint(code, **kw):
     """Ereignis `hint`: einmalig/selten ein Tipp an den Nutzer (Code, die App lokalisiert)."""
     now = time.monotonic()
@@ -4298,6 +4407,7 @@ class Speaker:
             behind = len(self.items) + (1 if self.busy else 0)
         item = {"id": uid, "lang": lang, "kind": kind, "parts": [], "t_end": t_end, "pin": pin}
         if kind == "speech":
+            note_spoken(text, lang)
             boost = self.boost(behind)
             for i, s in enumerate(split_sentences(apply_pronounce(speak_form(text, lang)), lang)):
                 # Nur die ersten Teile sofort anfragen; die übrigen erst, wenn der vorige zu spielen
@@ -4895,7 +5005,7 @@ class Engine:
         emit("state", **self.state_fields(), mute=bool(getattr(self, "mute", False)),
              earcons=bool(getattr(self, "earcons", False)), preset=PRESET.active,
              llm={"on": bool(LLM["on"]), "available": bool(llm_available()), "style": LLM["style"]},
-             slow=SLOW["on"], back_translate=BACK["on"], learn_glossary=LEARN["glossary"],
+             slow=SLOW["on"], back_translate=BACK["on"], learn_glossary=LEARN["glossary"], echo_guard=ECHO["on"],
              mic_on=bool(MIC is not None and getattr(MIC, "on", False)),
              let_finish=LET_FINISH["s"], catch_up=CATCH_UP["mode"], beam=getattr(self, "beam", None),
              latency=lat_summary(),                   # Runde 6: Nr. 69, 171, 176, 70
@@ -5167,6 +5277,9 @@ class Engine:
         if text and (low in JUNK or junk_by(low)
                      or (low in JUNK_IF_SHORT and (1.0 if rms is None else rms) < 0.01 and audio.size / SR < 1.5)):
             info["drop"] = "floskel"
+            text = ""
+        if text and is_echo(text, lang):
+            info["drop"] = "echo"
             text = ""
         if not text:
             reason = info.get("drop", "nichts erkannt")
@@ -5744,6 +5857,7 @@ CTRL_KEYS = frozenset({
     f"voice_{k}" for k in LANGS}
 
 CTRL_KEYS |= {"let_finish", "catch_up", "beam", "llm_retry", "clear", "cache_persist", "history_speakers"}   # Runde 6/7
+CTRL_KEYS |= {"echo_guard"}                                                                         # Runde 8
 
 
 def apply_control(eng, d):
@@ -5864,6 +5978,8 @@ def apply_control(eng, d):
         if ok: BACK["on"] = v
         ok, v = _flag(d, "learn_glossary")
         if ok: LEARN["glossary"] = v
+        ok, v = _flag(d, "echo_guard")
+        if ok: ECHO["on"] = v                  # Runde 8: Nachhall der eigenen Stimme verwerfen
         if "output_device" in d:              # Nr. 24/357: Ausgabegerät (UID, Name, Index oder "" = Standard)
             ov = d["output_device"]
             if isinstance(ov, str) and len(ov) <= 300:

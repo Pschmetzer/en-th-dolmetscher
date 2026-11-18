@@ -135,7 +135,7 @@ jobs:
       - name: shellcheck
         run: |
           shellcheck build.sh
-          shellcheck --severity=warning build-support/*.sh   # setup-env.sh: Stil-Hinweise (info) nicht blockierend
+          shellcheck build-support/*.sh
 
   audit:
     name: Dependency audit (not blocking)

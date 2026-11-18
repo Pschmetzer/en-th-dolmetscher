@@ -66,6 +66,7 @@ def test_ws_oeffnen_pausiert_nach_fehlschlaegen(monkeypatch):
     monkeypatch.setattr(d, "_WS_OPEN", {"fails": 0, "pause_until": 0.0})
     monkeypatch.setattr(d, "WS_POOL_N", 4)
     async def fill():
+        tasks.clear()   # Aufgaben der vorigen Schleife gehören zu deren (geschlossener) Event-Loop
         await d._ws_fill()
         await asyncio.gather(*tasks)
     asyncio.run(fill())

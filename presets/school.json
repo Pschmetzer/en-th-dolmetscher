@@ -1,0 +1,108 @@
+{
+  "id": "school",
+  "names": {
+    "de": "Schule und Kita",
+    "en": "School and nursery",
+    "th": "โรงเรียนและเนอร์สเซอรี่"
+  },
+  "style": "polite",
+  "note": {
+    "de": "In Thailand tragen Kinder meist Schuluniform; Lehrkräfte werden mit „Khru“ angesprochen. Allergien und Abholberechtigte immer schriftlich nennen. Kinder werden an der Schule oft zu festen Zeiten abgeholt. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Thai pupils usually wear uniforms and teachers are addressed as \"Khru\". Always give allergies and authorised pick-up persons in writing. Pick-up is usually at fixed times. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "teacher",
+      "th": "ครู"
+    },
+    {
+      "en": "school",
+      "th": "โรงเรียน"
+    },
+    {
+      "en": "uniform",
+      "th": "ชุดนักเรียน"
+    },
+    {
+      "en": "homework",
+      "th": "การบ้าน"
+    },
+    {
+      "en": "lunch",
+      "th": "อาหารกลางวัน"
+    },
+    {
+      "en": "class",
+      "th": "ห้องเรียน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My child has an allergy.",
+      "th": "ลูกแพ้อาหาร",
+      "critical": true
+    },
+    {
+      "en": "My child needs medicine.",
+      "th": "ลูกต้องกินยา",
+      "critical": true
+    },
+    {
+      "en": "Please call me if something happens.",
+      "th": "ถ้ามีเรื่องช่วยโทรหาด้วย",
+      "critical": true
+    },
+    {
+      "en": "My child is sick today.",
+      "th": "วันนี้ลูกไม่สบาย"
+    },
+    {
+      "en": "Who may pick up my child?",
+      "th": "ใครรับลูกได้บ้าง"
+    },
+    {
+      "en": "I will pick up my child at three.",
+      "th": "จะมารับลูกตอนบ่ายสามโมง"
+    },
+    {
+      "en": "What time does school start?",
+      "th": "โรงเรียนเริ่มกี่โมง"
+    },
+    {
+      "en": "What time does school end?",
+      "th": "โรงเรียนเลิกกี่โมง"
+    },
+    {
+      "en": "Where do I register?",
+      "th": "ต้องลงทะเบียนที่ไหน"
+    },
+    {
+      "en": "How much are the school fees?",
+      "th": "ค่าเล่าเรียนเท่าไหร่"
+    },
+    {
+      "en": "Is lunch included?",
+      "th": "รวมอาหารกลางวันไหม"
+    },
+    {
+      "en": "Does my child need a uniform?",
+      "th": "ลูกต้องใส่ชุดนักเรียนไหม"
+    },
+    {
+      "en": "Do the teachers speak English?",
+      "th": "ครูพูดภาษาอังกฤษได้ไหม"
+    },
+    {
+      "en": "How is my child doing?",
+      "th": "ลูกเป็นอย่างไรบ้าง"
+    },
+    {
+      "en": "Is there a school bus?",
+      "th": "มีรถรับส่งนักเรียนไหม"
+    },
+    {
+      "en": "May I see the classroom?",
+      "th": "ขอดูห้องเรียนได้ไหม"
+    }
+  ]
+}

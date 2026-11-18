@@ -1,0 +1,1 @@
+thai,thailand,interpreter,voice,speech,conversation,whisper,offline,phrasebook,menu bar,travel

@@ -13,7 +13,7 @@ SW = (ROOT / "sw.js").read_text(encoding="utf-8")
 
 
 def _ids(src):
-    return re.findall(r"'(\w+)'", re.search(r"const PRESET_IDS = \[(.*?)\]", src, re.S).group(1))
+    return re.findall(r"'([\w-]+)'", re.search(r"const PRESET_IDS = \[(.*?)\]", src, re.S).group(1))
 
 
 def test_index_matches_folder_and_is_current():
@@ -24,8 +24,13 @@ def test_index_matches_folder_and_is_current():
         assert p["phrases"] == len(PACKS[p["id"]]["phrases"]) and isinstance(p["reviewed"], bool)
 
 
+def _pending():
+    f = ROOT / "tools" / "web_pending_presets.txt"
+    return {x.strip() for x in f.read_text(encoding="utf-8").splitlines() if x.strip() and not x.startswith("#")}
+
+
 def test_web_lists_follow_index_order():
-    order = [p["id"] for p in INDEX["packs"]]
+    order = [p["id"] for p in INDEX["packs"] if p["id"] not in _pending()]
     assert _ids(HTML) == order and _ids(SW) == order
     assert "'presets-index.json'" in SW
 

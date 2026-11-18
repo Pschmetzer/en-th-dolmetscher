@@ -146,8 +146,12 @@ struct PhrasebookView: View {
             let all: [Phrase] = Phrasebook.unique(m.favorites + available)
             return all.filter(matches)
         }
+        if category == "recent" { return recent }
         return category == "favorites" ? m.favorites : Phrasebook.phrases(in: category, from: available)
     }
+
+    /// Zuletzt gesagte Sätze (aus dem Verlauf; gesperrter Verlauf bleibt außen vor).
+    private var recent: [Phrase] { Phrasebook.recent(entries: m.visibleEntries, in: available) }
 
     private func matches(_ p: Phrase) -> Bool {
         if p.en.localizedCaseInsensitiveContains(search) || p.th.contains(search) { return true }
@@ -165,7 +169,7 @@ struct PhrasebookView: View {
                         PackNote(text: note)
                     }
                     if shown.isEmpty {
-                        Text(category == "favorites" ? T("fav_empty") : T("nothing_found"))
+                        Text(category == "favorites" ? T("fav_empty") : category == "recent" ? T("recent_empty") : T("nothing_found"))
                             .foregroundStyle(.secondary)
                     }
                     ForEach(shown) { p in row(p) }
@@ -176,12 +180,22 @@ struct PhrasebookView: View {
             .navigationTitle(T("phrasebook"))
             .navigationBarTitleDisplayMode(.inline)
             .doneToolbar { dismiss() }
+            .toolbar {
+                if category == "favorites", !m.favorites.isEmpty {
+                    ToolbarItem(placement: .primaryAction) {
+                        ShareLink(item: Phrasebook.shareText(m.favorites, politeness: m.politeness)) {
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                        .accessibilityLabel(T("share_favorites"))
+                    }
+                }
+            }
             .onAppear(perform: pickStart)
         }
     }
 
     private func pickStart() {
-        if m.favorites.isEmpty && m.features.thaiExtras { category = "basics" }
+        if m.favorites.isEmpty && m.features.thaiExtras { category = recent.isEmpty ? "basics" : "recent" }
         if let c = m.phrasebookStart { category = c; m.phrasebookStart = nil }
         #if DEBUG
         if let c = ProcessInfo.processInfo.environment["DOLMETSCHER_PB_CATEGORY"] { category = c }
@@ -192,6 +206,7 @@ struct PhrasebookView: View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
+                    if !recent.isEmpty { chip("recent", title: T("cat_recent"), icon: "clock") }
                     chip("favorites", title: T("cat_favorites"), icon: "star.fill")
                     if m.features.thaiExtras {
                         ForEach(Phrasebook.categories, id: \.key) { chip($0.key, title: T("cat_" + $0.key), icon: $0.icon) }
@@ -218,6 +233,11 @@ struct PhrasebookView: View {
         }
         .buttonStyle(.plain)
         .contextMenu {
+            let target = p.dstLang == .th ? m.politeness.fill(p.th) : p.th
+            Button { m.copy(target) } label: { Label(T("copy"), systemImage: "doc.on.doc") }
+            ShareLink(item: Phrasebook.shareText([p], politeness: m.politeness)) {
+                Label(T("share_one"), systemImage: "square.and.arrow.up")
+            }
             Button { m.say(p); m.showLastBig(); dismiss() } label: {
                 Label(T("show_big"), systemImage: "arrow.up.left.and.arrow.down.right")
             }
@@ -276,7 +296,7 @@ private struct PhraseRow: View {
             }
             VStack(alignment: .leading, spacing: 4) {
                 Text(phrase.gloss).font(.headline)
-                Text(thai).font(.title3).foregroundStyle(color)
+                Text(thai).font(.title3).foregroundStyle(color).accessibilityLabel(A11yLabel.spoken(thai, phrase.dstLang))
                 if let roman, !roman.isEmpty {
                     Text(roman).font(.caption).foregroundStyle(.secondary).italic()
                 }

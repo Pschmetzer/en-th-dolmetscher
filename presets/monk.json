@@ -1,0 +1,117 @@
+{
+  "id": "monk",
+  "names": {
+    "de": "Mönche und Tempelbesuch",
+    "en": "Monks",
+    "th": "พระสงฆ์"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "monk",
+      "th": "พระสงฆ์"
+    },
+    {
+      "en": "alms",
+      "th": "ใส่บาตร"
+    },
+    {
+      "en": "blessing",
+      "th": "การอวยพร"
+    },
+    {
+      "en": "offering",
+      "th": "เครื่องสักการะ"
+    },
+    {
+      "en": "robe",
+      "th": "จีวร"
+    },
+    {
+      "en": "meditation",
+      "th": "การนั่งสมาธิ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I feel faint. May I sit down?",
+      "th": "รู้สึกจะเป็นลม ขอนั่งได้ไหม",
+      "critical": true
+    },
+    {
+      "en": "Please call a doctor.",
+      "th": "ช่วยเรียกแพทย์หน่อย",
+      "critical": true
+    },
+    {
+      "en": "I am sorry, I did not know.",
+      "th": "ขอโทษ ไม่ทราบ",
+      "critical": true
+    },
+    {
+      "en": "Is this area closed to visitors?",
+      "th": "บริเวณนี้ปิดไม่ให้เข้าชมไหม",
+      "critical": true
+    },
+    {
+      "en": "May I speak with you, venerable sir?",
+      "th": "ขออนุญาตพูดคุยกับท่านได้ไหม"
+    },
+    {
+      "en": "May I give alms?",
+      "th": "ขอใส่บาตรได้ไหม"
+    },
+    {
+      "en": "How should I offer this?",
+      "th": "ควรถวายอย่างไร"
+    },
+    {
+      "en": "Where should I put the offering?",
+      "th": "ควรวางเครื่องสักการะตรงไหน"
+    },
+    {
+      "en": "May I sit here?",
+      "th": "ขอนั่งตรงนี้ได้ไหม"
+    },
+    {
+      "en": "Should I take off my shoes?",
+      "th": "ต้องถอดรองเท้าไหม"
+    },
+    {
+      "en": "Is it all right to take photos?",
+      "th": "ถ่ายรูปได้ไหม"
+    },
+    {
+      "en": "Is this dress appropriate?",
+      "th": "แต่งตัวแบบนี้เหมาะสมไหม"
+    },
+    {
+      "en": "Could I have a blessing?",
+      "th": "ขอพรได้ไหม"
+    },
+    {
+      "en": "Could you teach me to meditate?",
+      "th": "ช่วยสอนนั่งสมาธิหน่อยได้ไหม"
+    },
+    {
+      "en": "What time is the morning chanting?",
+      "th": "สวดมนต์เช้ากี่โมง"
+    },
+    {
+      "en": "Can I stay overnight at the temple?",
+      "th": "พักค้างคืนที่วัดได้ไหม"
+    },
+    {
+      "en": "Thank you for your kindness.",
+      "th": "ขอบคุณในความเมตตา"
+    },
+    {
+      "en": "Is there a donation box?",
+      "th": "มีตู้บริจาคไหม"
+    }
+  ],
+  "note": {
+    "de": "Frauen berühren Mönche nie und reichen nichts direkt; Gaben auf ein Tuch legen. Füße nicht auf Mönche richten, nicht über Mönche hinweggreifen, Kopf tiefer halten. Schultern und Knie bedecken. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Women never touch monks or hand anything directly; put offerings on a cloth. Do not point feet at monks or reach over them, and keep your head lower. Cover shoulders and knees. Thai lines machine-made, not checked by native speakers."
+  }
+}
