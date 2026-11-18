@@ -1,5 +1,7 @@
 # Privacy in brief
 
+Thai version (machine-translated, not checked by native speakers): [ภาษาไทย](../th/PRIVACY-SHORT.md).
+
 Facts only, taken from [DATENSCHUTZ.md](../DATENSCHUTZ.md) (German), which has the details and exceptions. German version: [DATENSCHUTZ-KURZ.md](../DATENSCHUTZ-KURZ.md).
 
 **Always:** no accounts, no own telemetry, no own server. As with any network access, the services used see your IP address. The choice of language pair does not change where data goes.

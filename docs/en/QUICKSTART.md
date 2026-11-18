@@ -1,5 +1,7 @@
 # Quick start
 
+Thai version (machine-translated, not checked by native speakers): [ภาษาไทย](../th/QUICKSTART.md).
+
 Three ways, depending on your device. More on everything: [README.md](../../README.md). Problems: [TROUBLESHOOTING.md](TROUBLESHOOTING.md). German version: [SCHNELLSTART.md](../SCHNELLSTART.md).
 
 ## Mac (Apple Silicon, macOS 14 or newer)
