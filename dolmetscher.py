@@ -2935,10 +2935,33 @@ def _time_hm(tok):
     return int(m.group(1)) % 24, int(m.group(2) or 0)
 
 
+_NUMV = r"(-?\d+(?:\.\d+)?)"
+_UNIT_RULES = (
+    (re.compile(_NUMV + r"\s*(?:°\s*F\b|degrees?\s+fahrenheit\b|องศาฟาเรนไฮต์)", re.I),
+     lambda v: f"{round((v - 32) * 5 / 9)}°C"),
+    (re.compile(_NUMV + r"\s*(?:°\s*C\b|degrees?\s+celsius\b|องศาเซลเซียส|องศา)", re.I), lambda v: f"{round(v)}°C"),
+    (re.compile(_NUMV + r"\s*(?:miles?\b|ไมล์)", re.I), lambda v: f"{round(v * 1.609, 1):g} km"),
+    (re.compile(_NUMV + r"\s*(?:km\b|kilomet(?:er|re)s?\b|กิโลเมตร)", re.I), lambda v: f"{round(v, 1):g} km"),
+    (re.compile(_NUMV + r"\s*(?:lbs?\b|pounds?\s+(?:of\s+)?weight\b)", re.I),
+     lambda v: f"{round(v * 0.4536, 1):g} kg"),
+    (re.compile(_NUMV + r"\s*(?:kg\b|kilograms?\b|กิโลกรัม)", re.I), lambda v: f"{round(v, 1):g} kg"),
+)
+
+
+def canon_units(s):
+    """Maßeinheiten für den Zahlenvergleich vereinheitlichen: °F -> °C, Meilen -> km, lb -> kg (gerundet),
+    damit „86 °F“ gegen „30 องศาเซลเซียส“ keine Abweichung ist. Fehlt die Einheit, bleibt der Text."""
+    s = (s or "").translate(_THAI_DIGITS)
+    for rx, fn in _UNIT_RULES:
+        s = rx.sub(lambda m, fn=fn: " " + fn(float(m.group(1))) + " ", s)
+    return s
+
+
 def numbers_differ(a, b):
     """Wie _numbers_differ, aber Monatsnamen- und Halbstunden-Regeln sind reine Gleichwertigkeiten: eine Abweichung
     zählt nur, wenn sie auch ohne sie besteht ("am 25. Dezember" gegen "25 ธันวาคม" bleibt unauffällig)."""
-    return (_numbers_differ(a, b, True) and _numbers_differ(a, b, False)) or currency_mismatch(a, b)
+    ua, ub = canon_units(a), canon_units(b)
+    return (_numbers_differ(ua, ub, True) and _numbers_differ(ua, ub, False)) or currency_mismatch(a, b)
 
 
 def _numbers_detail(a, b):
