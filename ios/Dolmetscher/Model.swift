@@ -299,6 +299,9 @@ final class InterpreterModel {
                                                object: nil, queue: .main) { _ in
             Task { @MainActor in InterpreterModel.shared.thermalChanged() }
         }
+        NetStatus.shared.onReconnect {
+            Task { @MainActor in InterpreterModel.shared.retryFailedTranslations() }
+        }
         #if DEBUG
         // Test im Simulator: mit DOLMETSCHER_AUDIO_FILES gleich loslegen.
         if ProcessInfo.processInfo.environment["DOLMETSCHER_AUTOSTART"] != nil { Task { @MainActor in self.start() } }
@@ -539,6 +542,7 @@ final class InterpreterModel {
     /// Zurück im Vordergrund: weitermachen, wenn vorher zugehört wurde.
     func enteredForeground() {
         if resumeOnForeground { resumeOnForeground = false; start() }
+        if NetStatus.shared.online { retryFailedTranslations() }
         pruneHistory()
         if uiLangFollowsSystem, L10n.systemLang() != uiLang { uiLang = L10n.systemLang() }
     }
@@ -913,9 +917,17 @@ final class InterpreterModel {
         translate(id)
     }
 
-    func retry(_ id: UUID) {
+    /// Netz ist wieder da: nicht übersetzte Sätze der letzten Minuten still nachholen (ohne Vorlesen).
+    func retryFailedTranslations(now: Date = Date()) {
+        let ids = ReconnectRetry.pending(entries, now: now)
+        guard !ids.isEmpty else { return }
+        flash("📶 " + String(format: T("net_back"), ids.count))
+        for id in ids { retry(id, speak: false) }
+    }
+
+    func retry(_ id: UUID, speak: Bool = true) {
         update(id) { $0.error = nil }
-        translate(id)
+        translate(id, speak: speak)
     }
 
     func delete(_ id: UUID) {
