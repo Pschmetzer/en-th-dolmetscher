@@ -188,7 +188,10 @@ struct SettingsView: View {
                     }
                 } label: { Label(T("offline_get"), systemImage: "arrow.down.circle") }
             }
-            Toggle(T("online"), isOn: $m.allowOnline)
+            NavigationLink { OfflinePacksView().environment(\.inPanel, true) } label: {
+                Label(T("off_title"), systemImage: "arrow.down.circle.dotted")
+            }
+            Toggle(T("online"), isOn: $m.allowOnline).disabled(m.offlineOnly)
             Toggle(T("back_check"), isOn: $m.backCheck)
             Toggle(T("show_roman"), isOn: $m.showRoman)
         } header: { Text(T("sec_translation")) } footer: {

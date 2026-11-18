@@ -129,11 +129,11 @@ struct OnboardingView: View {
         case .explainThenAsk:
             Button(T("ob_allow")) { Task { await request(); perms = PermissionProbe.summary } }.buttonStyle(.borderedProminent)
         case .proceed:
-            Label(T("ob_granted"), systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+            Label(T("ob_granted"), systemImage: "checkmark.circle.fill").foregroundStyle(StatusColor.ok)
         case .openSettings, .restricted:
             VStack(alignment: .leading, spacing: 8) {
                 Label(T(PermissionAdvice.of(state) == .restricted ? restrictedKey : deniedKey), systemImage: "exclamationmark.triangle.fill")
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(StatusColor.warning)
                 Button(T("open_settings")) { PermissionProbe.openSettings() }.buttonStyle(.borderedProminent)
             }
         }
