@@ -138,7 +138,7 @@ kennen, ignorieren sie.
 | `transport` | ขอตู้นอน เตียงล่าง | Bezeichnung für das untere Bett im Schlafwagen |
 | `temple` | วิหารอยู่ที่ไหน | วิหาร oder โบสถ์/อุโบสถ für die Haupthalle? |
 | `pharmacy` | มีผงเกลือแร่ไหม | gängiges Wort für Elektrolytpulver? |
-| `shopping` | ขอเอกสารขอคืนภาษี VAT Refund ด้วย | doppeltes ขอ, Formulierung im Laden üblich? |
+| `shopping` | ขอเอกสารขอคืนภาษีมูลค่าเพิ่มด้วย | doppeltes ขอ, Formulierung im Laden üblich? |
 | `doctor` | ใช้ประกันสุขภาพนี้ได้ไหม | ersetzt „รับประกันของฉันไหม“ (mehrdeutig, Garantie) |
 
 ## Muttersprachler gesucht

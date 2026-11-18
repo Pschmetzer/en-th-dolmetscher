@@ -128,6 +128,10 @@ Pull requests #16–#47. Not yet published as a release.
 **Engine (round 12)**
 - **Fixed:** log lines and error events no longer carry the account name (home folder paths are masked as `~` or `/Users/<user>`); log entries for errors show only the exception type, not its message, which could quote spoken text; deleting a voice profile also removes leftover `.tmp` files from an interrupted write; a late cache write can no longer re-create `translation_cache.json` after the disk cache was switched off.
 
+**Engine (round 14)**
+- **Fixed:** the number check no longer flags the same date written differently (25/12/2026, 25.12.2026, 2026-12-25, 12/25/2026, 25 Dec 2026, 25 ธ.ค. 69, Buddhist year 2569 = 2026); colloquial Thai amounts (พันห้า = 1,500, สามล้านห้า = 3,500,000), "three oh five" = 305 and English ordinals (twenty-fifth, third floor) are read as numbers
+- **New:** a wrong weekday or month (Monday vs วันอังคาร, March vs เมษายน) is reported; one side naming more days or months than the other is not
+
 **iPhone app**
 - **New:** retries sentences that failed to translate when the network returns; error bubbles have buttons (open Settings for a denied microphone); copied text is removed from the clipboard after 2 minutes; optional hiding of the conversation during screen recording; “Recent” category in the phrasebook; share favourites; learning mode with daily count, streak, “Practise all cards” and progress reset; iPad keyboard shortcuts; VoiceOver Magic Tap and copy action.
 - **Fixed:** the study log keeps only recent days; Dynamic Type scales icon widths.
@@ -138,6 +142,10 @@ Pull requests #16–#47. Not yet published as a release.
 **iPhone app (round 11)**
 - **New:** quick-phrases widget on the Lock Screen (rectangular, inline, and a circular “Start” button) next to small, medium and large; the phrases can come from a phrasebook category that rotates hourly; the language pair is shown; an error note when the phrasebook cannot be read.
 - **Changed:** the widget stays free of conversation content (no favourites or history, no App Group); larger text shows fewer, taller phrases, VoiceOver reads each phrase with a hint; new texts in all 10 languages (de/en/th by hand, the rest machine-translated).
+
+**iPhone app (round 13)**
+- **New:** accessibility audit of all views: VoiceOver announces start, stop, errors and failed translations; status colours (green, orange, red, blue) now reach 4.5:1 contrast in light and dark mode (computed in a test) and the filled mic and turn buttons keep readable white text; the active turn is marked by a border, not only by colour.
+- **Fixed:** the number pad's close and delete buttons and the summary share button had no VoiceOver label; icon-only buttons are at least 44 × 44 pt; the phrasebook category scroll ignored “Reduce Motion”; progress indicators have names; decorative icons are hidden from VoiceOver; the currency code field and the quick-guide icons scale with Dynamic Type; “Help now” is a heading. New texts in all 10 languages (de/en/th by hand, the rest machine-translated).
 
 **Web**
 - **New:** phrasebook search (`/`), favourites filter, copy button on every translation; history search, CSV export, share and clear with confirmation; learning progress bar, review schedule and arrow keys; “Delete all local data”; hints for a blocked microphone and for going offline; `?` opens help.
@@ -197,12 +205,22 @@ Pull requests #16–#47. Not yet published as a release.
 - CodeQL, changelog check, quick phrase-pack job, Makefile, dev container, pre-commit; action versions pinned by commit; release job with time limit; `shellcheck` also for `build-support/`.
 - Docs: web architecture, hosting, browser matrix, version states (`docs/VERSIONEN.md`).
 
+**Web (round 14)**
+
+- **Show mode:** a button (or `V`) in the big view turns the sentence into huge, high-contrast text on black; the screen stays on and a tap, Enter, Space or Esc closes it. The size follows the sentence length.
+- **Share a favourite as a link:** starred phrasebook sentences and the big view get a link button (`S`); the link holds only the pack ID, the sentence number, the language and a checksum, never text or conversation. On opening, pack, number, language and checksum are checked; a mismatch shows a message instead of a wrong sentence. The Web Share dialog is used if present, otherwise the clipboard, otherwise a copy prompt.
+- **Not added:** saving a sentence as an image. Thai in a canvas could not be checked here (line breaks inside words, stacked tone marks), so it was left out.
+
 **Web (round 11)**
 - **New:** manifest with `id`, `dir`, categories, `display_override`, launch handler; shortcuts and the share target (GET to the static page) are checked without a server. Icons stay “any”: a maskable icon needs a separate image with a safe zone.
 - **New:** “✓ Installed as app” label when the page runs as an installed app, announced once after installing; install hint texts now in German, English and Thai.
 - **Changed:** the update banner is read aloud, and an open app asks for updates when it comes back to the foreground.
 - **Fixed (accessibility audit):** page now has a `main` landmark and section headings; tap targets (buttons, selects, summaries, tiles, speak buttons) are at least 44 px on every screen size, not only on phones.
 - **Tests:** heading order, landmarks, focus order, live regions, colour contrast of all colour tokens (light and dark) and tap target sizes are checked statically.
+
+**Web (round 13)**
+- **New:** study mode: backup file (`.json`, v1) now carries cards and daily statistics; loading validates every field (known fields only, control characters removed, wrong files rejected, no script or prototype keys) and merges without duplicates. Nothing leaves the device.
+- **New:** study deck per topic pack, a real daily limit for new cards, four ratings (1 again, 2 hard, 3 knew it, 4 easy) by Leitner box with a tested planning function (`leitnerGrade`), Thai romanization on the back when the pack provides it, statistics with streak and cards per box, and “reset study progress” with a confirmation (cards are kept). Texts in German, English and Thai.
 
 ## 1.2 and earlier
 

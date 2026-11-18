@@ -125,7 +125,7 @@ struct PhraseButton: View {
         Button(intent: SayPhraseIntent(phraseID: item.id)) {
             VStack(alignment: .leading, spacing: 1) {
                 Text(item.thai).font(compact ? .caption.weight(.semibold) : .subheadline.weight(.semibold))
-                    .foregroundStyle(compact ? Color.primary : Color.orange)
+                    .foregroundStyle(compact ? Color.primary : StatusColor.warning)
                 Text(item.gloss).font(.caption2).foregroundStyle(.secondary)
             }
             .lineLimit(compact ? 1 : 2)
@@ -134,7 +134,7 @@ struct PhraseButton: View {
         }
         .buttonStyle(.plain)
         .padding(compact ? 0 : 6)
-        .background(compact ? Color.clear : Color.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+        .background(compact ? Color.clear : StatusColor.warning.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
         .accessibilityElement(children: .combine)
         .accessibilityHint(WidgetTexts.text("w_say_hint"))
     }
@@ -142,7 +142,7 @@ struct PhraseButton: View {
 
 struct LiveStatusIcon: View {
     let status: ListeningActivityAttributes.Status
-    private var tint: Color { status == .hearing ? .green : (status == .paused || status == .interrupted) ? .gray : .orange }
+    private var tint: Color { status == .hearing ? StatusColor.ok : (status == .paused || status == .interrupted) ? Color.secondary : StatusColor.warning }
     var body: some View {
         Image(systemName: status.symbol).foregroundStyle(tint)
             .accessibilityHidden(true)
@@ -152,9 +152,9 @@ struct LiveStatusIcon: View {
 struct StopButton: View {
     var body: some View {
         Button(intent: StopListeningIntent()) {
-            Image(systemName: "stop.fill").foregroundStyle(.red)
+            Image(systemName: "stop.fill").foregroundStyle(StatusColor.error)
         }
-        .tint(.red)
+        .tint(StatusColor.error)
         .accessibilityLabel(WidgetTexts.text("w_stop"))
     }
 }
@@ -198,7 +198,7 @@ struct LiveLockView: View {
             }
             LastSentence(state: state)
             if stale {
-                Text(WidgetTexts.text("w_stale")).font(.caption).foregroundStyle(.orange)
+                Text(WidgetTexts.text("w_stale")).font(.caption).foregroundStyle(StatusColor.warning)
             }
         }
         .foregroundStyle(.white)
