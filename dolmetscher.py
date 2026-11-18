@@ -1521,6 +1521,7 @@ def llm_system(pair=None):
 
 
 GLOSSARY_FILE = os.path.expanduser("~/Library/Application Support/Dolmetscher/glossary.txt")
+TERM_MAX = 80                      # längere Glossar-/Aussprache-Einträge sind Tippfehler (ganze Sätze), kein Begriff
 GLOSSARY = []                      # [(Wort, Übersetzung oder None = unverändert lassen)]
 _GLOSSARY_OWN = None               # Einträge aus der eigenen Datei (None = alle); Preset-Wörter nur für Claude
 
@@ -1539,12 +1540,16 @@ def load_glossary(text=None):
             _write_private(GLOSSARY_FILE, text)
         except OSError as e:
             log({"glossary": "speichern fehlgeschlagen", "err": _errtxt(e)})
-    items = []
-    for line in text.splitlines():
+    items, seen = [], set()
+    for line in text.lstrip("\ufeff").splitlines():
+        if line.lstrip().startswith("#"):
+            continue                   # Runde 8: Kommentarzeilen (# ...) sind keine Glossar-Einträge
         a, sep, b = line.partition("=>")
         a, b = a.strip(), b.strip()
-        if a:
-            items.append((a, b if sep and b else None))
+        if not a or len(a) > TERM_MAX or len(b) > TERM_MAX or a.casefold() in seen:
+            continue                   # doppelte Wörter (Groß/klein egal): der erste Eintrag gilt
+        seen.add(a.casefold())
+        items.append((a, b if sep and b else None))
     global _GLOSSARY_OWN
     GLOSSARY[:] = items[:200]
     _GLOSSARY_OWN = frozenset(GLOSSARY)
@@ -1571,7 +1576,8 @@ def learn_glossary_names(eng, names):
     if not names:
         return []
     text = _own_glossary_text()
-    have = {ln.partition("=>")[0].strip().lower() for ln in text.splitlines() if ln.strip()}
+    have = {ln.partition("=>")[0].strip().lower() for ln in text.splitlines()
+            if ln.strip() and not ln.lstrip().startswith("#")}
     room = GLOSSARY_LIMIT - len(have)
     added = [n for n in dict.fromkeys(names) if n.lower() not in have][:max(0, room)]
     if not added:
@@ -1821,11 +1827,14 @@ def load_pronounce(path=None):
             text = f.read()
     except OSError:
         text = ""
-    items = []
-    for line in text.splitlines():
+    items, seen = [], set()
+    for line in text.lstrip("\ufeff").splitlines():
+        if line.lstrip().startswith("#"):
+            continue
         a, sep, b = line.partition("=>")
         a, b = a.strip(), b.strip()
-        if a and sep and b:
+        if a and sep and b and len(a) <= TERM_MAX and len(b) <= TERM_MAX and a.casefold() not in seen:
+            seen.add(a.casefold())
             items.append((a, b))
     PRONOUNCE[:] = items[:200]
 
@@ -2042,8 +2051,32 @@ _NUM_AFTER = re.compile(r"^\s*(?:บาท|โมง|นาที|ชั่ว�
                         r"km|kg|minutes?|hours?|days?|years?|people)", re.I)
 
 
+# Runde 8: Währungs-/Gradzeichen sprechbar machen ("฿1,500" -> "1,500 baht"): manche Stimmen lesen das Zeichen
+# gar nicht oder sprachfremd vor. Nur Anzeige bleibt unverändert; Sprachen ohne Eintrag bleiben wie sie sind.
+_SPEAK_CUR = {
+    "en": {"฿": "baht", "$": "dollars", "€": "euros", "£": "pounds"},
+    "th": {"฿": "บาท", "$": "ดอลลาร์", "€": "ยูโร", "£": "ปอนด์"},
+    "de": {"฿": "Baht", "$": "Dollar", "€": "Euro", "£": "Pfund"},
+    "es": {"฿": "bat", "$": "dólares", "€": "euros", "£": "libras"},
+    "fr": {"฿": "bahts", "$": "dollars", "€": "euros", "£": "livres"},
+}
+_SPEAK_DEG = {"en": "degrees", "th": "องศา", "de": "Grad", "es": "grados", "fr": "degrés"}
+_SPEAK_CELS = {"C": {"en": "Celsius", "th": "เซลเซียส", "de": "Celsius", "es": "Celsius", "fr": "Celsius"},
+               "F": {"en": "Fahrenheit", "th": "ฟาเรนไฮต์", "de": "Fahrenheit", "es": "Fahrenheit",
+                     "fr": "Fahrenheit"}}
+_CUR_AMOUNT = re.compile(r"([฿$€£])\s?(\d+(?:[.,]\d+)*)")
+_DEGREE = re.compile(r"(?<=\d)\s?°\s?([CF])\b")
+
+
 def speak_form(text, lang):
-    """Nr. 52: Thai-Lachen „555“ (ohne Zahlkontext) als ฮ่าฮ่าฮ่า vorlesen statt „ห้าห้าห้า“; die Anzeige bleibt."""
+    """Nr. 52: Thai-Lachen „555“ (ohne Zahlkontext) als ฮ่าฮ่าฮ่า vorlesen statt „ห้าห้าห้า“; die Anzeige bleibt.
+    Runde 8: ฿/$/€/£ vor einer Zahl und °C/°F als Wort (Zahl zuerst, wie man sie sagt)."""
+    cur = _SPEAK_CUR.get(lang)
+    if cur and _CUR_AMOUNT.search(text):
+        text = _CUR_AMOUNT.sub(lambda m: f"{m.group(2)} {cur[m.group(1)]}", text)
+    if lang in _SPEAK_DEG and "°" in text:
+        gap = "" if lang == "th" else " "
+        text = _DEGREE.sub(lambda m: f" {_SPEAK_DEG[lang]}{gap}{_SPEAK_CELS[m.group(1)][lang]}", text)
     if lang != "th" or "5" not in text:
         return text
     return re.sub(r"\s{2,}", " ", _laugh_sub(text, " ฮ่าฮ่าฮ่า ")).strip()
@@ -2566,6 +2599,9 @@ def thai_latin(text):
 
 
 _NUM = re.compile(r"\d+(?:[.,:]\d+)*")
+# Tausendergruppen mit Leerzeichen (Whisper/Französisch/Russisch: "1 500", "12 345 678"): erste Gruppe 1-3 Ziffern
+# ohne führende Null (Telefon "081 234" bleibt), jede weitere genau 3, danach keine Ziffer/Dezimal-/Uhr-Trenner
+_GROUPED = re.compile(r"(?<![\d.,:/-])[1-9]\d{0,2}(?:[ \u00a0\u202f\u2009]\d{3})+(?![\d]|[.,:]\d)")
 # Monatsnamen -> Monatsnummer ("25 ธันวาคม 2026" = "25/12/2026" = "25 December 2026")
 _TH_MONTHS = ("มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน",
               "ตุลาคม", "พฤศจิกายน", "ธันวาคม")
@@ -2600,10 +2636,12 @@ _TH_NUM_RUN = re.compile("(?:" + "|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], ke
                          + r")(?:(?:" + "|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], key=len, reverse=True))
                          + "))*")
 _TH_TOKEN = re.compile("|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], key=len, reverse=True)))
-_SCALE = re.compile(r"(\d+(?:[.,]\d+)?)\s*(million|mio\.?|billion|thousand|พันล้าน|ล้าน|แสน|หมื่น|พัน)"
+_SCALE = re.compile(r"(\d+(?:[.,]\d+)?)\s*(million|mio\.?|billion|thousand|hundred|lakhs?|crores?"
+                    r"|พันล้าน|ล้าน|แสน|หมื่น|พัน|ร้อย)"
                     r"|(\d+(?:[.,]\d+)?)(k)\b", re.I)
 _SCALE_F = {"billion": 1e9, "พันล้าน": 1e9, "million": 1e6, "mio": 1e6, "mio.": 1e6, "ล้าน": 1e6, "แสน": 1e5,
-            "หมื่น": 1e4, "thousand": 1e3, "พัน": 1e3, "k": 1e3}
+            "หมื่น": 1e4, "thousand": 1e3, "พัน": 1e3, "k": 1e3, "hundred": 1e2, "ร้อย": 1e2, "lakh": 1e5,
+            "lakhs": 1e5, "crore": 1e7, "crores": 1e7}
 
 # Englische Zahlwörter ("three hundred fifty", "twenty-five") für den Zahlenvergleich in Ziffern
 _EN_UNIT_W = {"zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8,
@@ -2764,6 +2802,7 @@ def _numbers(s, words=True, times=None, equiv=True):
     words: ausgeschriebene Zahlen mitzählen – Thai (สามร้อยห้าสิบ = 350, บ่ายสองโมง = 14) und Englisch
     (three hundred fifty = 350); 1.5 million = 1500000."""
     s = s.translate(_THAI_DIGITS)
+    s = _GROUPED.sub(lambda m: re.sub(r"\D", "", m.group(0)), s)   # "1 500 000" / "1\u202f500" = 1500000
     s = _dates_to_numbers(s, equiv)                              # BE-Jahr -543, Monatsnamen -> 1-12
     if words:
         s = en_words_to_digits(s)                                # vor _SCALE: "five million" ganz als Wortfolge
