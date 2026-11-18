@@ -319,7 +319,7 @@ extension L10n {
         if let t = table[key]?[lang] ?? extra[lang]?[key] { return t }
         let early: [[String: [String: String]]] = [round4, round5, round6, round7, round8]
         for r in early { if let t = r[key]?[lang] { return t } }
-        let late: [[String: [String: String]]] = [round9, round13, round14, round15, round16, round17, round18]
+        let late: [[String: [String: String]]] = [round9, round13, round14, round15, round16, round17, round18, round19]
         for r in late { if let t = r[key]?[lang] { return t } }
         return nil
     }
@@ -328,7 +328,7 @@ extension L10n {
     static var allKeys: Set<String> {
         var keys = Set(table.keys)
         let tables: [[String: [String: String]]] = [round4, round5, round6, round7, round8, round9]
-        let more: [[String: [String: String]]] = [round13, round14, round15, round16, round17, round18]
+        let more: [[String: [String: String]]] = [round13, round14, round15, round16, round17, round18, round19]
         for t in tables + more { keys.formUnion(t.keys) }
         return keys
     }
