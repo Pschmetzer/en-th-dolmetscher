@@ -299,6 +299,17 @@
    "reviewed": false
   },
   {
+   "id": "buddhist-ceremony",
+   "names": {
+    "de": "Buddhistische Zeremonie",
+    "en": "Buddhist ceremony",
+    "th": "พิธีทางพุทธศาสนา"
+   },
+   "phrases": 20,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
    "id": "bus-train",
    "names": {
     "de": "Fernbus und Bahn",
@@ -376,6 +387,17 @@
    "reviewed": false
   },
   {
+   "id": "ferry-boat",
+   "names": {
+    "de": "Fähre und Boot",
+    "en": "Ferry and boat",
+    "th": "เรือเฟอร์รี่และเรือโดยสาร"
+   },
+   "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
    "id": "festival",
    "names": {
     "de": "Feste (Songkran, Loy Krathong)",
@@ -420,6 +442,17 @@
    "reviewed": false
   },
   {
+   "id": "hostel-dorm",
+   "names": {
+    "de": "Hostel und Schlafsaal",
+    "en": "Hostel and dorm",
+    "th": "โฮสเทลและห้องรวม"
+   },
+   "phrases": 19,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
    "id": "immigration-90day",
    "names": {
     "de": "Immigration: 90-Tage-Meldung",
@@ -431,6 +464,17 @@
    "reviewed": false
   },
   {
+   "id": "island-hopping",
+   "names": {
+    "de": "Inselhopping",
+    "en": "Island hopping",
+    "th": "ทัวร์เที่ยวหลายเกาะ"
+   },
+   "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
    "id": "kids",
    "names": {
     "de": "Reisen mit Kindern",
@@ -438,6 +482,17 @@
     "th": "เที่ยวกับเด็ก"
    },
    "phrases": 16,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "laundry-deposit",
+   "names": {
+    "de": "Wäsche und Kaution",
+    "en": "Laundry and deposit",
+    "th": "ซักผ้าและเงินมัดจำ"
+   },
+   "phrases": 20,
    "critical": 4,
    "reviewed": false
   },
@@ -519,6 +574,28 @@
    "reviewed": false
   },
   {
+   "id": "muay-thai-gym",
+   "names": {
+    "de": "Muay-Thai-Camp",
+    "en": "Muay Thai gym",
+    "th": "ค่ายมวยไทย"
+   },
+   "phrases": 19,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
+   "id": "night-market-bargain",
+   "names": {
+    "de": "Nachtmarkt und Handeln",
+    "en": "Night market and bargaining",
+    "th": "ตลาดกลางคืนและการต่อราคา"
+   },
+   "phrases": 20,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
    "id": "nightlife",
    "names": {
     "de": "Nachtleben und Bars",
@@ -574,6 +651,17 @@
    "reviewed": false
   },
   {
+   "id": "rice-field-village",
+   "names": {
+    "de": "Dorf und Reisfelder",
+    "en": "Village and rice fields",
+    "th": "หมู่บ้านและนาข้าว"
+   },
+   "phrases": 19,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
    "id": "school",
    "names": {
     "de": "Schule und Kita",
@@ -582,6 +670,17 @@
    },
    "phrases": 16,
    "critical": 3,
+   "reviewed": false
+  },
+  {
+   "id": "snorkel-boat-tour",
+   "names": {
+    "de": "Schnorchel-Bootstour",
+    "en": "Snorkel boat tour",
+    "th": "ทัวร์เรือดำน้ำตื้น"
+   },
+   "phrases": 18,
+   "critical": 6,
    "reviewed": false
   },
   {
@@ -637,6 +736,17 @@
    },
    "phrases": 17,
    "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "vegan-vegetarian",
+   "names": {
+    "de": "Vegetarisch, vegan und Allergene",
+    "en": "Vegetarian, vegan and allergens",
+    "th": "มังสวิรัติ วีแกน และอาหารแพ้"
+   },
+   "phrases": 20,
+   "critical": 8,
    "reviewed": false
   },
   {

@@ -1,0 +1,126 @@
+{
+  "id": "night-market-bargain",
+  "names": {
+    "de": "Nachtmarkt und Handeln",
+    "en": "Night market and bargaining",
+    "th": "ตลาดกลางคืนและการต่อราคา"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Handeln ist erwünscht, aber freundlich und mit Lächeln; bei Essen, Festpreisen und Markenläden wird nicht gehandelt. Im Gedränge Taschen vorne tragen und beim Essen auf Allergene achten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Bargaining is expected, but keep it friendly and smiling; food, fixed prices and brand shops do not bargain. Wear bags in front in crowds and watch allergens when eating. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "night market",
+      "th": "ตลาดกลางคืน"
+    },
+    {
+      "en": "bargain",
+      "th": "ต่อราคา"
+    },
+    {
+      "en": "discount",
+      "th": "ส่วนลด"
+    },
+    {
+      "en": "price",
+      "th": "ราคา"
+    },
+    {
+      "en": "change",
+      "th": "เงินทอน"
+    },
+    {
+      "en": "fake",
+      "th": "ของปลอม"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please call the police.",
+      "th": "ช่วยเรียกตำรวจด้วย",
+      "critical": true
+    },
+    {
+      "en": "My wallet was stolen.",
+      "th": "กระเป๋าสตางค์ถูกขโมย",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to peanuts.",
+      "th": "แพ้ถั่วลิสง",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to shellfish.",
+      "th": "แพ้อาหารทะเลที่มีเปลือก",
+      "critical": true
+    },
+    {
+      "en": "Please let go of my arm.",
+      "th": "ปล่อยแขนด้วย",
+      "critical": true
+    },
+    {
+      "en": "How much is this?",
+      "th": "อันนี้ราคาเท่าไหร่"
+    },
+    {
+      "en": "That is too expensive.",
+      "th": "แพงไป"
+    },
+    {
+      "en": "Can you give a discount?",
+      "th": "ลดหน่อยได้ไหม"
+    },
+    {
+      "en": "What is your best price?",
+      "th": "ราคาที่ถูกที่สุดเท่าไหร่"
+    },
+    {
+      "en": "If I buy two, what is the price?",
+      "th": "ถ้าซื้อสองชิ้นราคาเท่าไหร่"
+    },
+    {
+      "en": "I will think about it.",
+      "th": "ขอไปคิดดูก่อน"
+    },
+    {
+      "en": "Just looking, thank you.",
+      "th": "ดูเฉยๆ ขอบคุณ"
+    },
+    {
+      "en": "Is this price for one piece?",
+      "th": "ราคานี้ต่อหนึ่งชิ้นใช่ไหม"
+    },
+    {
+      "en": "Can I try it on?",
+      "th": "ขอลองได้ไหม"
+    },
+    {
+      "en": "Do you have a smaller size?",
+      "th": "มีไซซ์เล็กกว่านี้ไหม"
+    },
+    {
+      "en": "Can you write the price down?",
+      "th": "ช่วยเขียนราคาให้หน่อย"
+    },
+    {
+      "en": "Do you take cards?",
+      "th": "รับบัตรไหม"
+    },
+    {
+      "en": "Do you have change for 1000 baht?",
+      "th": "ทอนจากพันบาทได้ไหม"
+    },
+    {
+      "en": "Is this real or fake?",
+      "th": "ของแท้หรือของปลอม"
+    },
+    {
+      "en": "Where is the food area?",
+      "th": "โซนอาหารอยู่ที่ไหน"
+    }
+  ]
+}

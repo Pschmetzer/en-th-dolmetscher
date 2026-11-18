@@ -1,0 +1,122 @@
+{
+  "id": "muay-thai-gym",
+  "names": {
+    "de": "Muay-Thai-Camp",
+    "en": "Muay Thai gym",
+    "th": "ค่ายมวยไทย"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Dem Trainer (Kru) mit Wai und Respekt begegnen; den Ring nicht betreten, ohne gefragt zu haben. Beim Sparring sagen, wie hart es sein darf. Bei Kopftreffer oder Schwindel sofort aufhören. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Greet the trainer (Kru) with a wai and respect; do not step into the ring without asking. Say how hard sparring may be. Stop at once after a hit to the head or dizziness. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "trainer",
+      "th": "เทรนเนอร์"
+    },
+    {
+      "en": "gloves",
+      "th": "ถุงมือ"
+    },
+    {
+      "en": "shin guards",
+      "th": "สนับแข้ง"
+    },
+    {
+      "en": "hand wraps",
+      "th": "ผ้าพันมือ"
+    },
+    {
+      "en": "ring",
+      "th": "เวที"
+    },
+    {
+      "en": "sparring",
+      "th": "ซ้อมคู่"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Stop!",
+      "th": "หยุด",
+      "critical": true
+    },
+    {
+      "en": "I hit my head.",
+      "th": "ศีรษะกระแทก",
+      "critical": true
+    },
+    {
+      "en": "I cannot breathe.",
+      "th": "หายใจไม่ออก",
+      "critical": true
+    },
+    {
+      "en": "I need medical help.",
+      "th": "ต้องการความช่วยเหลือทางการแพทย์",
+      "critical": true
+    },
+    {
+      "en": "I have an injury here.",
+      "th": "มีอาการบาดเจ็บตรงนี้",
+      "critical": true
+    },
+    {
+      "en": "I am a beginner.",
+      "th": "เป็นมือใหม่"
+    },
+    {
+      "en": "How much is one session?",
+      "th": "ฝึกครั้งละเท่าไหร่"
+    },
+    {
+      "en": "How much is a week?",
+      "th": "รายสัปดาห์เท่าไหร่"
+    },
+    {
+      "en": "What time is the morning class?",
+      "th": "คลาสเช้ากี่โมง"
+    },
+    {
+      "en": "Is there a class for beginners?",
+      "th": "มีคลาสสำหรับมือใหม่ไหม"
+    },
+    {
+      "en": "Can I try one class first?",
+      "th": "ขอลองเรียนหนึ่งคลาสก่อนได้ไหม"
+    },
+    {
+      "en": "Is a private lesson possible?",
+      "th": "เรียนตัวต่อตัวได้ไหม"
+    },
+    {
+      "en": "Do you provide gloves and shin guards?",
+      "th": "มีนวมและสนับแข้งให้ไหม"
+    },
+    {
+      "en": "Where can I buy shorts and hand wraps?",
+      "th": "ซื้อกางเกงและผ้าพันมือได้ที่ไหน"
+    },
+    {
+      "en": "Please go slower.",
+      "th": "ช่วยทำช้าลงหน่อย"
+    },
+    {
+      "en": "Can you show me again?",
+      "th": "ช่วยทำให้ดูอีกครั้งได้ไหม"
+    },
+    {
+      "en": "Lighter, please.",
+      "th": "ขอเบาลงหน่อย"
+    },
+    {
+      "en": "Is there a shower?",
+      "th": "มีห้องอาบน้ำไหม"
+    },
+    {
+      "en": "Do you offer accommodation?",
+      "th": "มีที่พักให้ไหม"
+    }
+  ]
+}
