@@ -99,6 +99,7 @@ Pull requests #16–#47. Not yet published as a release.
 
 ### Infrastructure and documentation
 
+- **iPhone logic tests** (round 16): `Round16Tests.swift` covers edge cases of CSV export, phrasebook search, speech rate, history retention and undo, privacy switches, learning plan (Leitner), language-pair switching, the quick-phrase widget and number and back-translation checks; `tests/test_runde16_ios_tests.py` checks the file statically.
 - **Thai documentation** (round 13): `docs/th/` with README, quick start, FAQ and short privacy notes for Thai users, flagged as machine-translated and not checked by native speakers; `tests/test_runde13_docs_th.py` checks links, paths and the pack and language counts.
 - **Reproducible installs** (#21): speech models pinned to fixed versions; all Python packages locked with checksums; security audit includes indirect packages.
 - **Code quality** (#16, #21, #25, #28): pytest and ruff updated; ruff checks all modules and blocks merges; CI jobs have time limits; the wake-word tests run against the real code.
