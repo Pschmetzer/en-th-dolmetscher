@@ -616,6 +616,7 @@ private struct TTSRaceSection: View {
 
 private struct TranslationSettings: View {
     @EnvironmentObject var m: EngineModel
+    @State private var showGlossaryEditor = false
     var body: some View {
         Form {
             Section {
@@ -672,6 +673,8 @@ private struct TranslationSettings: View {
                 }
             }
             Section {
+                Button(L.t("gl_open")) { showGlossaryEditor = true }
+                    .help(L.t("gl_open_help"))
                 TextEditor(text: $m.glossary)
                     .font(.body.monospaced()).frame(minHeight: 90)
                     .accessibilityLabel(L.t("glossary"))
@@ -680,6 +683,7 @@ private struct TranslationSettings: View {
             APIKeySection()
         }
         .formStyle(.grouped)
+        .sheet(isPresented: $showGlossaryEditor) { GlossaryEditorSheet().environmentObject(m) }
     }
 }
 
