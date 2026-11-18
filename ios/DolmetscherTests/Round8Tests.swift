@@ -103,4 +103,55 @@ final class Round8Tests: XCTestCase {
         XCTAssertEqual(r.map(\.en), ["Hello", "Thanks"])   // „Water“ kam nicht aus dem Satzbuch
         XCTAssertEqual(Phrasebook.recent(entries: [spoken(a, at: 1), spoken(b, at: 2)], in: [a, b], limit: 1).map(\.en), ["Thanks"])
     }
+
+    // MARK: Zwischenablage, Fehler, Sichtschutz
+
+    func testSecureCopyIsLocalOnlyAndExpires() {
+        let now = Date()
+        let o = SecureCopy.options(expiring: true, now: now)
+        XCTAssertEqual(o[.localOnly] as? Bool, true)
+        XCTAssertEqual(o[.expirationDate] as? Date, now.addingTimeInterval(SecureCopy.lifetime))
+        XCTAssertNil(SecureCopy.options(expiring: false)[.expirationDate])
+    }
+
+    func testErrorAdviceWorksInEveryUILanguage() {
+        for lang in L10n.languages {
+            XCTAssertEqual(ErrorAdvice.action(for: L10n.text("err_offline_missing", lang: lang)!), .appSettings, lang)
+            XCTAssertEqual(ErrorAdvice.action(for: L10n.text("err_denied", lang: lang)!), .systemSettings, lang)
+            XCTAssertEqual(ErrorAdvice.action(for: L10n.text("err_no_mic", lang: lang)!), .systemSettings, lang)
+        }
+        XCTAssertEqual(ErrorAdvice.action(for: "irgendwas"), .none)
+    }
+
+    func testShieldPolicy() {
+        XCTAssertTrue(ShieldPolicy.show(shield: true, active: false, hideOnCapture: false, captured: false))
+        XCTAssertFalse(ShieldPolicy.show(shield: true, active: true, hideOnCapture: false, captured: true))
+        XCTAssertTrue(ShieldPolicy.show(shield: false, active: true, hideOnCapture: true, captured: true))
+        XCTAssertFalse(ShieldPolicy.show(shield: false, active: true, hideOnCapture: true, captured: false))
+    }
+
+    // MARK: Satzbuch, Lernen
+
+    func testShareTextListsPhrases() {
+        let p = Phrase(en: "Hello", th: "สวัสดี{p}", roman: "sawatdee", category: "basics")
+        let text = Phrasebook.shareText([p, p], politeness: Politeness.male)
+        XCTAssertEqual(text.split(separator: "\n").count, 2)
+        XCTAssertTrue(text.hasPrefix("Hello – สวัสดี"))
+        XCTAssertFalse(text.contains("{p}"))
+    }
+
+    func testPracticeIncludesFutureCardsAndResetClearsBoxes() {
+        var deck = LeitnerDeck()
+        let now = day(10)
+        deck.sync([.init(front: "a", back: "b", lang: .th), .init(front: "c", back: "d", lang: .th)], now: now)
+        deck.answer(deck.cards[0].id, knew: true, now: now, calendar: cal)
+        deck.answer(deck.cards[0].id, knew: true, now: now, calendar: cal)
+        XCTAssertEqual(deck.due(now: now).count, 1)
+        XCTAssertEqual(deck.practice().count, 2)
+        XCTAssertEqual(deck.practice().first?.box, 1)   // niedrige Fächer zuerst
+        deck.resetProgress(now: now)
+        XCTAssertEqual(deck.due(now: now).count, 2)
+        XCTAssertTrue(deck.cards.allSatisfy { $0.box == 1 })
+        XCTAssertEqual(deck.log?.today(now: now, calendar: cal), 2)   // Statistik bleibt
+    }
 }
