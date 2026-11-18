@@ -31,6 +31,7 @@ If another program already uses a shortcut, the app shows a notice listing the a
 | ⌘+ / ⌘- / ⌘0 | text larger / smaller / reset (⌘= works like ⌘+) |
 | ⇧⌘P | open the partner view |
 | ⌥⌘T | keep the window on top |
+| ⌥⌘K | swap the language pair |
 | ⇧⌘E | export the conversation |
 | ⌥⌘Z | undo delete |
 | ⇧⌘C | copy the last translation |
