@@ -104,6 +104,7 @@
   .card.crit { border:2px solid var(--crit); }
   .card .crit-b { display:block; font-size:12px; font-weight:700; color:var(--crit); }
   .cardwrap .card { min-height:92px; }
+  .sharec { position:absolute; bottom:4px; right:52px; min-width:44px; min-height:44px; background:transparent; border:0; border-radius:8px; font-size:20px; cursor:pointer; }
   .speakc { position:absolute; bottom:4px; right:4px; min-width:44px; min-height:44px; background:transparent; border:0; border-radius:8px; font-size:20px; cursor:pointer; }
   .star { position:absolute; top:4px; right:4px; min-width:44px; min-height:44px; background:transparent; border:0; border-radius:8px; font-size:22px; cursor:pointer; color:var(--mut); }
   .star[aria-pressed="true"] { color:var(--star); }
@@ -177,6 +178,11 @@
   #partnerNote { font-size:13px; color:var(--mut); text-align:center; padding:2px 0; }
   #partnerText.yes, #partnerText.no { font-size:calc(clamp(80px,28vw,260px) * var(--pscale, 1)); }
   #partnerText.yes { color:var(--yes); } #partnerText.no { color:var(--no); }
+  /* Vorzeigen: nur der Satz, riesig, höchster Kontrast; Tippen (oder Enter/Leertaste/Esc) schließt */
+  #partner.show { background:#000; color:#fff; cursor:pointer; }
+  #partner.show .bar, #partner.show #partnerNote { display:none; }
+  #partner.show #partnerText { font-size:max(32px, calc(var(--sv, 12) * 1vw)); color:#fff; }
+  #partner.show #partnerText:focus-visible { outline:4px solid #fff; outline-offset:-8px; }
   @media (max-width:500px){
     .trans { font-size:22px; }
     button.mode { min-width:100%; padding:18px; }
@@ -404,7 +410,7 @@
 
 <div id="partner" role="dialog" aria-modal="true" aria-labelledby="partnerTitle" aria-hidden="true">
   <div class="bar"><span id="partnerTitle">ไทย</span>
-    <span class="btns"><span class="seq" id="seqBar" hidden><button class="small" id="btnPrev" type="button" aria-label="Vorherige Karte">‹</button><span id="seqPos"></span><button class="small" id="btnNext" type="button" aria-label="Nächste Karte">›</button></span><button class="small" id="btnReport" type="button" aria-label="Falsch? Melden" hidden>⚑</button><button class="small" id="btnFontDown" type="button" aria-label="Schrift kleiner / Smaller text">A−</button><button class="small" id="btnFontUp" type="button" aria-label="Schrift größer / Larger text">A+</button><button class="small" id="btnPartnerSlow" type="button" aria-label="Langsam vorlesen / Read slowly">🐢</button><button class="small" id="btnPartnerSpeak" type="button" aria-label="Vorlesen / Read aloud">🔊</button><button class="small" id="btnPartnerClose" type="button" aria-label="Schließen / Close">✕</button></span></div>
+    <span class="btns"><span class="seq" id="seqBar" hidden><button class="small" id="btnPrev" type="button" aria-label="Vorherige Karte">‹</button><span id="seqPos"></span><button class="small" id="btnNext" type="button" aria-label="Nächste Karte">›</button></span><button class="small" id="btnReport" type="button" aria-label="Falsch? Melden" hidden>⚑</button><button class="small" id="btnFontDown" type="button" aria-label="Schrift kleiner / Smaller text">A−</button><button class="small" id="btnFontUp" type="button" aria-label="Schrift größer / Larger text">A+</button><button class="small" id="btnPartnerSlow" type="button" aria-label="Langsam vorlesen / Read slowly">🐢</button><button class="small" id="btnPartnerSpeak" type="button" aria-label="Vorlesen / Read aloud">🔊</button><button class="small" id="btnPartnerShow" type="button" aria-label="Vorzeigen / Show full screen">⛶</button><button class="small" id="btnPartnerShare" type="button" aria-label="Link teilen / Share link" hidden>🔗</button><button class="small" id="btnPartnerClose" type="button" aria-label="Schließen / Close">✕</button></span></div>
   <div id="partnerNote" hidden><span lang="de">Geteilter Text, von der App nicht geprüft.</span> <span lang="en">Shared text, not checked by the app.</span> <span lang="th">ข้อความที่แชร์มา แอปไม่ได้ตรวจสอบ</span></div>
   <div id="partnerText" lang="th" dir="auto" aria-live="polite">…</div>
 </div>
@@ -665,6 +671,10 @@ const STR = {
   "fsSet": "Schriftgröße {n} %",
   "slowBtn": "🐢 Langsam",
   "slowLbl": "Langsam vorlesen",
+  "showLbl": "Vorzeigen",
+  "showClose": "Tippen zum Schließen",
+  "favShareLbl": "Satz als Link teilen",
+  "favLinkBad": "Der Link passt nicht zu diesem Satzbuch.",
   "topicPrev": "Vorheriges Thema",
   "topicNext": "Nächstes Thema",
   "recentTopics": "Zuletzt benutzt:",
@@ -916,6 +926,10 @@ const STR = {
   "fsSet": "Text size {n} %",
   "slowBtn": "🐢 Slowly",
   "slowLbl": "Read aloud slowly",
+  "showLbl": "Show full screen",
+  "showClose": "Tap to close",
+  "favShareLbl": "Share sentence as link",
+  "favLinkBad": "This link does not match the phrasebook.",
   "topicPrev": "Previous topic",
   "topicNext": "Next topic",
   "recentTopics": "Recently used:",
@@ -1167,6 +1181,10 @@ const STR = {
   "fsSet": "ขนาดตัวอักษร {n} %",
   "slowBtn": "🐢 ช้า ๆ",
   "slowLbl": "อ่านออกเสียงช้า ๆ",
+  "showLbl": "แสดงเต็มจอ",
+  "showClose": "แตะเพื่อปิด",
+  "favShareLbl": "แชร์ประโยคเป็นลิงก์",
+  "favLinkBad": "ลิงก์นี้ไม่ตรงกับสมุดประโยค",
   "topicPrev": "หัวข้อก่อนหน้า",
   "topicNext": "หัวข้อถัดไป",
   "recentTopics": "ใช้ล่าสุด:",
@@ -1192,7 +1210,7 @@ function applyUi() {   // statische Texte nach data-i18n / data-i18n-html setzen
   $('pbQ').setAttribute('aria-label', t('pbSearchHint'));
   $('logQ').setAttribute('aria-label', t('logQ')); $('logQLabel').textContent = t('logQ'); $('helpBox').querySelector('summary').title = t('helpKey');
   for (const [id, key] of [['langA', 'aLangA'], ['langB', 'aLangB'], ['btnSwap', 'aSwap'], ['enVar', 'aEnVar'], ['btnTextDown', 'fsDown'], ['btnTextUp', 'fsUp'],
-                           ['btnPartnerSlow', 'slowLbl'], ['topicPrev', 'topicPrev'], ['topicNext', 'topicNext']]) {
+                           ['btnPartnerSlow', 'slowLbl'], ['btnPartnerShow', 'showLbl'], ['btnPartnerShare', 'favShareLbl'], ['topicPrev', 'topicPrev'], ['topicNext', 'topicNext']]) {
     const e = $(id); if (e) { e.setAttribute('aria-label', t(key)); e.title = t(key); }
   }
   updateThemeBtn();
@@ -1874,7 +1892,7 @@ function setPartnerText(text, lang, cls, shared, ctx) {
   p.textContent = text; p.lang = lang; p.className = cls || '';
   bigText = { text, lang };
   $('partnerNote').hidden = !shared;
-  bigCtx = ctx || null; $('btnReport').hidden = !bigCtx;
+  bigCtx = ctx || null; $('btnReport').hidden = !bigCtx; $('btnPartnerShare').hidden = !(bigCtx && bigCtx.idx >= 0);
   $('partnerTitle').textContent = LANGS[lang] ? LANGS[lang].native : ''; $('partnerTitle').lang = lang;
 }
 function togglePartner(on, fromPop) {
@@ -1885,7 +1903,7 @@ function togglePartner(on, fromPop) {
   el.classList.toggle('on', want);
   el.setAttribute('aria-hidden', want ? 'false' : 'true');
   $('main').inert = want;
-  if (!want) { seq = null; $('seqBar').hidden = true; }                  // dialog is modal: nothing behind it is reachable (focus trap)
+  if (!want) { seq = null; $('seqBar').hidden = true; setShow(false); }                  // dialog is modal: nothing behind it is reachable (focus trap)
   if (want) $('btnPartnerClose').focus();
   else {
     if (partnerOpener && partnerOpener.focus) partnerOpener.focus();
@@ -1909,6 +1927,23 @@ function setScale(v) {
 $('partnerText').style.setProperty('--pscale', String(pscale));
 $('btnFontDown').onclick = () => setScale(pscale - 0.15);
 $('btnFontUp').onclick = () => setScale(pscale + 0.15);
+
+// ---- Vorzeigen: Satz in riesiger Schrift, Bildschirm bleibt an (Wake-Lock der Großansicht), Tippen schließt ----
+function showFontVw(len) { return len <= 12 ? 26 : len <= 30 ? 17 : len <= 60 ? 11 : len <= 120 ? 8 : 6; }   // vw je nach Satzlänge
+function setShow(on) {
+  const el = $('partner'), p = $('partnerText');
+  if (on === el.classList.contains('show')) return;
+  el.classList.toggle('show', on);
+  if (on) {
+    p.style.setProperty('--sv', String(showFontVw([...p.textContent].length)));
+    p.tabIndex = 0; p.setAttribute('role', 'button'); p.setAttribute('aria-label', t('showClose')); p.focus();
+  } else { p.removeAttribute('tabindex'); p.removeAttribute('role'); p.removeAttribute('aria-label'); p.style.removeProperty('--sv'); }
+}
+$('btnPartnerShow').onclick = () => setShow(true);
+$('partner').addEventListener('click', e => { if ($('partner').classList.contains('show') && !e.target.closest('.bar')) togglePartner(false); });
+$('partnerText').addEventListener('keydown', e => {
+  if ($('partner').classList.contains('show') && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); togglePartner(false); }
+});
 
 // ---- Satzbuch & Zeige-Karten (presets/*.json; ohne Mikrofon, Englisch/Thai auch offline) ----
 const presetCache = {};
@@ -2017,6 +2052,10 @@ async function renderCards() {
     const front = p[a] || p.en, fl = p[a] ? a : 'en';
     w.append(c, starButton(() => { const bt = p[b] || pbGet(b + '|' + p.en); return bt ? learnItem(front, fl, bt, b) : null; },
                            async () => learnItem(front, fl, await phraseIn(p, b), b), 'star'));
+    const sh = document.createElement('button'); sh.type = 'button'; sh.className = 'sharec'; sh.textContent = '🔗'; sh.hidden = true;   // nur bei Favoriten
+    sh.setAttribute('aria-label', t('favShareLbl')); sh.title = t('favShareLbl');
+    sh.onclick = () => shareFav(id, d.phrases.indexOf(p), b, p.en);
+    w.appendChild(sh); starState(w.querySelector('.starbtn'));
     const sp = document.createElement('button'); sp.type = 'button'; sp.className = 'speakc'; sp.textContent = '🔊';
     sp.setAttribute('aria-label', t('speakOnlyLbl')); sp.title = t('speakOnlyTitle');
     sp.onclick = async () => {
@@ -2030,7 +2069,7 @@ async function renderCards() {
       try { out = await phraseIn(p, b); }
       catch { msg.textContent = t('trUnavailableEn'); showBig(p.en, 'en'); return; }
       tt.textContent = out;
-      showBig(out, b, '', false, { pack: id, en: p.en, th: out, lang: b });
+      showBig(out, b, '', false, { pack: id, en: p.en, th: out, lang: b, idx: d.phrases.indexOf(p) });
       useCount(id);
       if ($('speak').checked) sayNow(out, b);
     };
@@ -2276,6 +2315,7 @@ function starState(b) {
   const on = !!it && learnHas(it), small = b.classList.contains('small');
   b.textContent = (on ? '★' : '☆') + (small ? t(on ? 'starOn' : 'starOff') : '');
   b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  const sh = b.parentNode && b.parentNode.querySelector('.sharec'); if (sh) sh.hidden = !on;
   if (!small) b.setAttribute('aria-label', t('starLbl'));
 }
 function starButton(peek, get, cls) {
@@ -2341,14 +2381,33 @@ function parseShare(hash) {
   const text = (q.get('show') || '').slice(0, MAX_SHARE).trim(), lang = q.get('l');
   return text && LANGS[lang] ? { text, lang } : null;
 }
-async function shareText(text, lang) {
-  const url = shareUrl(text, lang);
+async function shareText(text, lang) { return shareOut(shareUrl(text, lang)); }
+async function shareOut(url) {   // Web-Share-Dialog, sonst Zwischenablage, sonst Eingabefeld zum Kopieren
   try { if (navigator.share) { await navigator.share({ url }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
   try { await navigator.clipboard.writeText(url); setStatus(t('linkCopied'), true); }
   catch { window.prompt(t('linkCopyPrompt'), url); }
 }
+// Favoriten-Link: nur Paket-ID, Satznummer, Sprache und eine Prüfsumme des englischen Satzes – nie Text oder Gespräch
+function favSum(en) { let x = 2166136261; for (const ch of String(en)) { x = Math.imul(x ^ ch.codePointAt(0), 16777619) >>> 0; } return x.toString(36); }
+function favUrl(pack, idx, lang, en) { return location.origin + location.pathname + '#fav=' + pack + '.' + idx + '&l=' + encodeURIComponent(lang) + '&c=' + favSum(en); }
+function parseFav(hash, ids) {   // Form prüfen: bekanntes Paket, ganze Zahl, bekannte Sprache, Prüfsumme
+  const q = new URLSearchParams(String(hash || '').replace(/^#/, '')), m = /^([a-z0-9]+)\.(\d{1,4})$/.exec(q.get('fav') || ''), l = q.get('l'), c = q.get('c') || '';
+  return m && ids.includes(m[1]) && LANGS[l] && /^[0-9a-z]{1,8}$/.test(c) ? { pack: m[1], idx: +m[2], lang: l, sum: c } : null;
+}
+function shareFav(pack, idx, lang, en) { return shareOut(favUrl(pack, idx, lang, en)); }
+async function openFav(f) {
+  try {
+    const d = await loadPreset(f.pack), p = d.phrases[f.idx];
+    if (!p || !p.en || favSum(p.en) !== f.sum) throw new Error('mismatch');
+    const out = await phraseIn(p, f.lang);
+    showBig(out, f.lang, '', false, { pack: f.pack, en: p.en, th: out, lang: f.lang, idx: f.idx });
+  } catch { showWarn(t('favLinkBad')); }
+}
+$('btnPartnerShare').onclick = () => { if (bigCtx && bigCtx.idx >= 0) shareFav(bigCtx.pack, bigCtx.idx, bigCtx.lang, bigCtx.en); };
 function openFromHash() {
   if (applyDeepLink()) return;
+  const f = parseFav(location.hash, PRESET_IDS);
+  if (f) { try { history.replaceState(null, '', location.pathname + location.search); } catch {} openFav(f); return; }
   const s = parseShare(location.hash);
   if (s) {   // nur anzeigen: kein Mikrofon, kein Vorlesen ohne Tippen
     try { history.replaceState(null, '', location.pathname + location.search); } catch {}   // Satz nicht in Adresszeile/Verlauf lassen
@@ -2493,6 +2552,8 @@ document.addEventListener('keydown', e => {
   if (e.key === '?') { e.preventDefault(); $('helpBox').open = true; $('helpBox').querySelector('summary').focus(); return; }
   if (e.key === '/' && !$('partner').classList.contains('on')) { e.preventDefault(); $('pbBox').open = true; $('pbQ').focus(); return; }
   if (e.code === 'KeyP') { togglePartner(); return; }
+  if ($('partner').classList.contains('on') && e.code === 'KeyV') { setShow(!$('partner').classList.contains('show')); return; }
+  if ($('partner').classList.contains('on') && e.code === 'KeyS' && !$('btnPartnerShare').hidden) { $('btnPartnerShare').click(); return; }
   if (e.code === 'KeyL' && !$('partner').classList.contains('on') && log.firstElementChild) { log.firstElementChild.tabIndex = -1; log.firstElementChild.focus(); return; }   // zum neuesten Eintrag springen
   if ($('partner').classList.contains('on')) return;          // Partneransicht offen: dahinter nichts umschalten
   if (e.code === 'KeyE' || e.code === 'Digit1') { if (SR) chooseMode('a'); }

@@ -128,6 +128,10 @@ Pull requests #16–#47. Not yet published as a release.
 **Engine (round 12)**
 - **Fixed:** log lines and error events no longer carry the account name (home folder paths are masked as `~` or `/Users/<user>`); log entries for errors show only the exception type, not its message, which could quote spoken text; deleting a voice profile also removes leftover `.tmp` files from an interrupted write; a late cache write can no longer re-create `translation_cache.json` after the disk cache was switched off.
 
+**Engine (round 14)**
+- **Fixed:** the number check no longer flags the same date written differently (25/12/2026, 25.12.2026, 2026-12-25, 12/25/2026, 25 Dec 2026, 25 ธ.ค. 69, Buddhist year 2569 = 2026); colloquial Thai amounts (พันห้า = 1,500, สามล้านห้า = 3,500,000), "three oh five" = 305 and English ordinals (twenty-fifth, third floor) are read as numbers
+- **New:** a wrong weekday or month (Monday vs วันอังคาร, March vs เมษายน) is reported; one side naming more days or months than the other is not
+
 **iPhone app**
 - **New:** retries sentences that failed to translate when the network returns; error bubbles have buttons (open Settings for a denied microphone); copied text is removed from the clipboard after 2 minutes; optional hiding of the conversation during screen recording; “Recent” category in the phrasebook; share favourites; learning mode with daily count, streak, “Practise all cards” and progress reset; iPad keyboard shortcuts; VoiceOver Magic Tap and copy action.
 - **Fixed:** the study log keeps only recent days; Dynamic Type scales icon widths.
@@ -202,6 +206,12 @@ Pull requests #16–#47. Not yet published as a release.
 **CI and repository**
 - CodeQL, changelog check, quick phrase-pack job, Makefile, dev container, pre-commit; action versions pinned by commit; release job with time limit; `shellcheck` also for `build-support/`.
 - Docs: web architecture, hosting, browser matrix, version states (`docs/VERSIONEN.md`).
+
+**Web (round 14)**
+
+- **Show mode:** a button (or `V`) in the big view turns the sentence into huge, high-contrast text on black; the screen stays on and a tap, Enter, Space or Esc closes it. The size follows the sentence length.
+- **Share a favourite as a link:** starred phrasebook sentences and the big view get a link button (`S`); the link holds only the pack ID, the sentence number, the language and a checksum, never text or conversation. On opening, pack, number, language and checksum are checked; a mismatch shows a message instead of a wrong sentence. The Web Share dialog is used if present, otherwise the clipboard, otherwise a copy prompt.
+- **Not added:** saving a sentence as an image. Thai in a canvas could not be checked here (line breaks inside words, stacked tone marks), so it was left out.
 
 **Web (round 11)**
 - **New:** manifest with `id`, `dir`, categories, `display_override`, launch handler; shortcuts and the share target (GET to the static page) are checked without a server. Icons stay “any”: a maskable icon needs a separate image with a safe zone.
