@@ -89,7 +89,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `--profile-polite NAME FORM` | | Höflichkeitsform der Person für Thai-Ausgaben (`krub`, `ka`, `-` = wie Einstellung); antwortet mit `profile_saved`. Spricht diese Person (erkanntes Profil oder Rolle), endet die Thai-Übersetzung mit ihrer Form statt mit `--polite` |
 | `--history` | | Gesprächsverlauf lokal speichern |
 | `--history-days N` | | Verlauf älter als N Tage beim Start löschen |
-| `--history-export FORMAT`, `--history-session ID`, `--out PFAD`, `--history-search TEXT`, `--history-purge TAGE`, `--history-clear` | | Verlaufs-Befehle (siehe „Gesprächsverlauf“) |
+| `--history-export FORMAT`, `--history-session ID`, `--history-sessions`, `--out PFAD`, `--history-search TEXT`, `--history-purge TAGE`, `--history-clear` | | Verlaufs-Befehle (siehe „Gesprächsverlauf“) |
 
 ### Umgebungsvariablen
 
@@ -482,3 +482,80 @@ Neue Felder kommen nur dazu, `PROTOCOL` bleibt 1.
   das Anlegen eines Stimmprofils normalisiert wie der Betrieb (177); ครับ/ค่ะ vs. คะ erkennt englische Fragen
   auch ohne „?“ an Fragewort bzw. vorangestelltem Hilfsverb (181); `process` liest die Stimmprofile einmal je
   Satz, ein `reload_profiles` mittendrin stört nicht mehr (221).
+
+## Runde 7 (Engine)
+
+Nur additiv: neue Ereignisse, Felder und Codes, keine bestehenden ändern sich. `PROTOCOL` bleibt 1. Eine App, die
+sie nicht kennt, kann sie ignorieren.
+
+### Neue Steuerfelder
+
+| Feld | Wert | Wirkung |
+|---|---|---|
+| `clear` | `true` | Gesprächskontext und Texte im Speicher leeren (wie der Sprachbefehl „clear“, Mac-Punkt 9): Verlauf für Claude, „repeat“, Roh-Audio, Übersetzungs- und Sprach-Cache, **dazu wartende und laufende Sprachausgabe** (sie enthält den Text als Audio). Antwort: Ereignis `cleared`. Der gespeicherte Verlauf (`history`) bleibt unberührt, dafür gibt es `--history-clear` |
+| `llm_retry` | `true` | Claude sofort wieder versuchen: verwirft die Pause nach einem Fehler/„Guthaben leer“ und den Client (neuer Schlüssel). `llm` (an/aus) setzt die Pause ebenfalls zurück |
+
+`history_days` wirkt jetzt auch allein (ohne `history`): ändert die Aufbewahrungsfrist und setzt sie gleich
+durch (`0` = nie löschen, Ungültiges: `error` `history_days_invalid`).
+
+### Neue Ereignisse
+
+| Ereignis | Felder | Bedeutung |
+|---|---|---|
+| `cleared` | | Antwort auf `{"clear": true}` |
+| `control_invalid` | `key`, `reason` (`value`) | Ein **bekanntes** Steuerfeld hatte einen ungültigen Wert (falscher Typ, unbekannte Auswahl: `lang`, `polite`, `sensitivity`, `style`, `catch_up`). Der Rest der Zeile wird trotzdem angewendet. Früher still ignoriert bzw. `TypeError` bei Liste/Objekt |
+| `overrun` | `frames`, `total` | Mikrofon-Puffer übergelaufen: Audio-Blöcke gingen verloren (Lücke mitten im Wort bei CPU-Spitze). Höchstens alle 5 s |
+| `profiles_skipped` | `skipped` (`[{name, reason}]`, höchstens 10) | Stimmprofile, die nicht geladen wurden (anderes Erkennungsmodell, ungültig); die Stimmerkennung läuft dafür nicht |
+| `captive_portal` | `msg` | Ein API-Host lieferte HTML bzw. eine Weiterleitung (Anmeldeseite im Hotel-/Flughafen-WLAN). Höchstens einmal je Minute; der Anbieter pausiert dann 15 s, statt jeden Satz zu versuchen. Die App kann „Im WLAN anmelden“ zeigen. Bewusst kein `error` (ältere Apps kennen den Code nicht) |
+| `llm_budget_warn` | `usd`, `limit` | einmal je Monat bei 80 % des `llm_budget`-Limits (davor kam nur die Meldung beim Erreichen) |
+
+`state` (Antwort auf `get_state`) enthält zusätzlich `silence`, `sensitivity` (`low`\|`normal`\|`high`),
+`fast_endpoint`, `partial`, `tts_race`, `two_person`, `history` (bool) und `events_dropped` (Zeilen, die die
+App-Pipe nicht schnell genug abnahm, siehe Log).
+
+### Neue Codes
+
+- `dropped.code` `backlog`: Die Arbeits-Warteschlange war voll (mehr als 15 wartende Äußerungen, z. B. bei
+  Netz-/Übersetzungsstau); die **älteste** wurde verworfen. Der Platzhalter der App kann entfernt werden.
+- `error.code` `languages_invalid`: `languages.json` unlesbar/unvollständig; kommt als JSON-Zeile **vor** `ready`,
+  danach beendet sich die Engine mit Exit-Code 4.
+- `dropped.code` `error` kommt jetzt auch bei einem Verarbeitungsfehler im Arbeits-Thread (früher fehlte `code`).
+
+### Stimmprofil mit gewähltem Mikrofon und Rauschunterdrückung
+
+`--profile-stdin` kennt zwei weitere Schlüssel für `enroll` (sie wirken wie die Startargumente `--mic` und
+`--denoise`; die Argumente selbst gehen weiterhin):
+
+```json
+{"enroll": "Name", "enroll_lang": "en", "mic": "MacBook Pro Microphone", "denoise": true}
+```
+
+- `mic`: Name oder Index wie bei `--mic`; fehlt er, gilt `--mic` bzw. `0`.
+- `denoise`: dieselbe Rauschunterdrückung wie im Betrieb (`afftdn`). Fehlt der Schlüssel, gilt `--denoise`.
+- Mit `--meter` kommen beim Aufnehmen `level`-Ereignisse (`rms`, `voice`), damit die App einen Pegel zeigen und
+  „zu leise/zu laut“ melden kann. Der Ablauf (`enroll_prompt`, `enroll_retry`, `enroll_done` …) ist unverändert.
+
+### Verhalten ohne neue Felder
+
+- **Sprachbefehle:** „too loud“ = leiser, „too quiet“ = lauter, „not so fast“ = langsamer, „don't translate“ ohne
+  Sprache = Pause, „mute off“/„sound on“ = weiter, „mute on“/„sound off“ = Pause; „play“, „go ahead“, „carry on“,
+  „start again“ = weiter; „one more time“, „once more“, „what did you say“ = wiederholen. „volume 3“ ist kein
+  Befehl mehr (früher „lauter“).
+- **Schnellsätze, „Nochmal sprechen“, „repeat“ und Befehlsantworten** werden im Aufhol-Modus `skip` nie mehr
+  übersprungen; ein ausdrücklich ausgelöster Notfall-Satz geht nicht verloren.
+- **Neuerkennung `reassign`:** gleiche Schutzfilter wie bei Äußerungen (Halluzination, Floskel, Wiederholung),
+  Höflichkeitsform des Profils; der Stimmabdruck wird erst nachgeführt, wenn etwas erkannt wurde.
+- **Ungültige Stimme** (`voice_*`) behält die bisherige Wahl (nur `error` `voice_unknown`); Preset-Stimmen, die
+  nicht in der Stimmenliste stehen, werden ignoriert; ein Preset-Ende stellt Stil/Höflichkeit/Stimmen nur zurück,
+  wenn sie noch den Preset-Wert haben.
+- **Claude:** Zeitlimit je Modell (mindestens 5 s, sonst 2 × Hedge-Zeit), eine lange Pause („Guthaben leer“) wird
+  von einem späteren kurzen Fehler nicht mehr verkürzt, `llm_billing` nur beim Übergang.
+- **Utterance-IDs** tragen ein Kennzeichen des Engine-Laufs (`u<run>-<n>`, z. B. `uk3f-12`): nach einem Neustart
+  treffen alte und neue IDs nicht mehr aufeinander. Die App behandelt IDs ohnehin als undurchsichtigen Text.
+- **Zahlenprüfung:** buddhistisches Jahr (2569 = 2026), Monatsnamen = 1-12, „ชั่วโมงครึ่ง“ = 1:30, „a hundred“,
+  „half a million“.
+- **Verlauf:** neue Sitzung nach 30 min Pause oder Tageswechsel; Aufbewahrungsfrist stündlich; kurze
+  Datenbank-Sperren (parallel laufender Export) schalten die Aufzeichnung nicht mehr ab (erst nach drei Fehlern in
+  Folge); CSV schützt gegen Formelinjektion (`'` vor `=`, `+`, `-`, `@`); `--history-sessions` listet Sitzungen
+  als JSON `[{"id", "start", "count"}]`.
+

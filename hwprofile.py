@@ -23,8 +23,9 @@ def detect(run=None, machine=None):
         ram = int(_sysctl("hw.memsize", run) or 0) / 2 ** 30
     except ValueError:
         ram = 0.0
-    return {"chip": _sysctl("machdep.cpu.brand_string", run), "ram_gb": round(ram, 1),
-            "arm64": machine == "arm64"}
+    # Unter Rosetta meldet platform.machine() "x86_64", obwohl ein Apple-Chip läuft: sysctl fragen
+    arm64 = machine == "arm64" or _sysctl("hw.optional.arm64", run) == "1"
+    return {"chip": _sysctl("machdep.cpu.brand_string", run), "ram_gb": round(ram, 1), "arm64": arm64}
 
 
 def perf_cores(run=None):

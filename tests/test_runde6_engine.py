@@ -268,7 +268,7 @@ def test_enroll_audio_wird_normalisiert():
     out = d.enroll_audio(a)
     assert np.allclose(out, d.normalize(a)[0]) and np.sqrt(np.mean(out ** 2)) > 0.03
     assert d.enroll_audio(None) is None
-    assert "enroll_audio(record_one(a.mic))" in SRC
+    assert "enroll_audio(record_one(a.mic" in SRC
 
 
 # ---- 181: Frage ohne „?“ ------------------------------------------------------------------------------------

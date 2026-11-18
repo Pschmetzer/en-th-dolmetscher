@@ -9,7 +9,12 @@ _NUM = re.compile(r"\d")
 _UNITS = {"kg", "g", "mg", "km", "m", "cm", "mm", "l", "ml", "kb", "mb", "gb", "tb", "hz", "khz",
           "mhz", "ghz", "w", "kw", "v", "a", "s", "h", "min", "sec", "am", "pm", "usd", "eur",
           "thb", "baht", "บาท", "กก", "กม"}
-_WORD = re.compile(r"[A-Za-zÀ-ɏ][\w'’\-]*|\d[\d.,:]*\w*", re.U)
+# Wörter aller Schriften mit Leerzeichen (Latein mit Akzenten, Kyrillisch, Arabisch, Devanagari, Hangul …)
+_WORD = re.compile(r"[^\W\d_][\w'’\-]*|\d[\d.,:]*\w*", re.U)
+# Han/Kana ohne Leerzeichen: zeichenweise vergleichen, geänderte Strecken zusammenfassen
+_CJK = re.compile(r"[぀-ヿ㐀-鿿]")
+# Sprachen mit Großschreibung aller Substantive: Großbuchstabe mitten im Satz sagt dort nichts über Eigennamen
+_CAPITAL_NOUNS = {"de", "lb"}
 MAX_SUGGEST = 8
 
 
@@ -23,9 +28,15 @@ def _thai_tokens(text):
     return [t for t in toks if t.strip()]
 
 
+def _is_cjk(text, lang):
+    return lang in ("zh", "ja") or bool(_CJK.search(text or ""))
+
+
 def tokenize(text, lang):
     if lang == "th" or _THAI.search(text or ""):
         return _thai_tokens(text or "")
+    if _is_cjk(text, lang):
+        return [c for c in (text or "") if c.strip() and not re.match(r"[\W_]", c)]
     return _WORD.findall(text or "")
 
 
@@ -52,10 +63,11 @@ def proper_names(old, new, lang="en", limit=3):
     """Eigennamen, die erst durch die Korrektur dazukamen (Großbuchstabe mitten im Satz, lateinische
     Schrift, im Original in keiner Schreibweise vorhanden). Kandidaten fürs Glossar („Name“ = unverändert
     lassen). Thai hat keine Großschreibung: dort nie etwas. Wörter am Satzanfang sind nicht unterscheidbar."""
-    if lang == "th" or _THAI.search(new or ""):
+    if lang == "th" or _THAI.search(new or "") or lang in _CAPITAL_NOUNS or _is_cjk(new, lang):
         return []
     old_low = {t.lower() for t in tokenize(old, lang)}
     out, seen = [], set()
+    cand = []
     starts = {0}
     toks = _WORD.findall(new or "")
     # Satzanfänge: erstes Wort und Wörter nach . ! ?
@@ -71,19 +83,27 @@ def proper_names(old, new, lang="en", limit=3):
                 or low in _NOT_NAMES or low in old_low or low in seen):
             continue
         seen.add(low)
-        out.append(t)
+        cand.append((i, t))
+    out.extend(t for _, t in cand)
     return out[:limit]
 
 
 def suggest_vocab(old, new, lang="en", limit=MAX_SUGGEST):
     """Wörter aus `new`, die der Nutzer ersetzt/ergänzt hat. Leere Liste, wenn nichts Sinnvolles."""
     old_t, new_t = tokenize(old, lang), tokenize(new, lang)
+    cjk = _is_cjk(new, lang) and lang != "th" and not _THAI.search(new or "")
     old_low = {t.lower() for t in old_t}
     out, seen = [], set()
     sm = difflib.SequenceMatcher(None, [t.lower() for t in old_t], [t.lower() for t in new_t],
                                  autojunk=False)
     for op, _, _, j1, j2 in sm.get_opcodes():
         if op not in ("replace", "insert"):
+            continue
+        if cjk:                                  # geänderte Zeichenstrecke als ein Wort (mind. 2 Zeichen)
+            run = "".join(new_t[j1:j2])
+            if len(run) >= 2 and run not in seen and not _NUM.search(run):
+                seen.add(run)
+                out.append(run)
             continue
         for j in range(j1, j2):
             tok = new_t[j]

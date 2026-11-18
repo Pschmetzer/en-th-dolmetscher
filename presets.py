@@ -78,8 +78,41 @@ def validate(d):
     return err
 
 
+_LOAD_CACHE = {"sig": None, "val": None}
+
+
+def _signature():
+    """(Pfad, mtime, Größe) aller Preset-Dateien: ändert sich nichts, muss nicht neu gelesen werden
+    (parse_spoken ruft load_all() bei jedem kurzen Sprachbefehl)."""
+    sig = []
+    for folder in (app_dir(), user_dir()):
+        try:
+            names = sorted(f for f in os.listdir(folder) if f.endswith(".json"))
+        except OSError:
+            sig.append((folder, None))
+            continue
+        for fn in names:
+            path = os.path.join(folder, fn)
+            try:
+                st = os.stat(path)
+                sig.append((path, st.st_mtime_ns, st.st_size))
+            except OSError:
+                sig.append((path, None, None))
+    return tuple(sig)
+
+
 def load_all():
-    """{id: preset}. Nutzer-Verzeichnis überschreibt das App-Verzeichnis."""
+    """{id: preset}. Nutzer-Verzeichnis überschreibt das App-Verzeichnis. Ergebnis wird zwischengespeichert,
+    solange sich keine Datei ändert."""
+    sig = _signature()
+    if _LOAD_CACHE["sig"] == sig and _LOAD_CACHE["val"] is not None:
+        return dict(_LOAD_CACHE["val"])
+    out = _load_all_uncached()
+    _LOAD_CACHE["sig"], _LOAD_CACHE["val"] = sig, dict(out)
+    return out
+
+
+def _load_all_uncached():
     out = {}
     last_errors.clear()
     overridden.clear()
@@ -146,17 +179,26 @@ class PresetState:
         self.active = None
         self.saved = None
         self.hotwords, self.hint = [], None      # Nr. 243: aus dem aktiven Preset
+        self.applied = {}                        # was das Preset gesetzt hat (Rückstellen nur, wenn unverändert)
 
-    def activate(self, pid, presets, glossary, llm, eng, glossary_limit=200):
+    def activate(self, pid, presets, glossary, llm, eng, glossary_limit=200, voices=None):
         """Preset anwenden (pid=None/"none": zurück). Gibt das Preset oder None zurück.
-        Unbekannte id -> KeyError, Zustand bleibt unverändert."""
+        Unbekannte id -> KeyError, Zustand bleibt unverändert.
+        voices: {Sprache: [gültige Stimmen]} – eine Preset-Stimme, die dort fehlt, wird ignoriert (Tippfehler im
+        Nutzer-Preset ließe sonst jeden Satz in den Timeout laufen)."""
         p = None
         if pid not in (None, "", "none"):
             p = presets[pid]
         if self.saved is not None:                       # erst alten Zustand wiederherstellen
-            llm["style"] = self.saved["style"]
-            eng.polite = self.saved["polite"]
-            eng.voices.update(self.saved["voices"])
+            ap = self.applied or {}
+            # nur, was noch den Preset-Wert hat: eine Änderung des Nutzers währenddessen bleibt erhalten
+            if "style" not in ap or llm["style"] == ap["style"]:
+                llm["style"] = self.saved["style"]
+            if "polite" not in ap or eng.polite == ap["polite"]:
+                eng.polite = self.saved["polite"]
+            for k, v in self.saved["voices"].items():
+                if k not in ap.get("voices", {}) or eng.voices.get(k) == ap["voices"][k]:
+                    eng.voices[k] = v
             glossary[:] = self.saved["glossary"]
             self.saved = None
         self.active = None
@@ -169,10 +211,15 @@ class PresetState:
                       "voices": {k: eng.voices.get(k) for k in ("en", "th")}}
         self.active = pid
         llm["style"] = p["style"]
+        self.applied = {"style": p["style"], "voices": {}}
         if p.get("polite"):
             eng.polite = p["polite"]
+            self.applied["polite"] = p["polite"]
         for k, v in p.get("voice", {}).items():
+            if voices is not None and v not in voices.get(k, ()):
+                continue                                 # unbekannte Stimme: Standard behalten
             eng.voices[k] = v
+            self.applied["voices"][k] = v
         own = {a.lower() for a, _ in glossary}               # eigene Einträge haben Vorrang
         extra = [(a, b) for a, b in glossary_entries(p) if a.lower() not in own]
         glossary[:] = (list(glossary) + extra)[:glossary_limit]

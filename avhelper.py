@@ -102,6 +102,8 @@ def capture(a):
                 c = av.open(a.file)
             except Exception as e:
                 sys.exit(f"cannot open file: {e}")
+            if not c.streams.audio:
+                sys.exit("no audio stream")             # sonst IndexError-Traceback als Fehlermeldung
             st = c.streams.audio[0]
             t0, n = time.monotonic(), 0
             for fr in _frames(av, c, st):
@@ -205,6 +207,30 @@ def resolve_output(av, want):
 OUT_STALE_S = 30.0                              # so lange gilt die vorab ermittelte Geräte-Nummer (Hot-Plug)
 
 
+def _soft_limit(x, vol):
+    """Lautstärke anwenden; über 1,0 ein weicher Begrenzer (tanh) statt hartem Abschneiden (Verzerrung)."""
+    if vol == 1.0:
+        return x
+    y = x * vol
+    peak = float(abs(y).max()) if y.size else 0.0
+    if peak <= 1.0:
+        return y
+    knee = 0.8                                      # bis dahin unverändert, darüber tanh-Rundung bis 1,0
+    import numpy as np
+    out = y.copy()
+    big = abs(y) > knee
+    out[big] = np.sign(y[big]) * (knee + (1 - knee) * np.tanh((abs(y[big]) - knee) / (1 - knee)))
+    return out
+
+
+def _mux_frame(av, np, r, vol, rate, ost, out):
+    x = _soft_limit(r.to_ndarray().astype(np.float32), vol)
+    o = av.AudioFrame.from_ndarray(x.reshape(1, -1), format="flt", layout="mono")
+    o.sample_rate = rate
+    for p in ost.encode(o):
+        out.mux(p)
+
+
 def play(a):
     av = _av()                                  # vorab laden: als Bereitschaftsprozess wartet er erst hier
     dev = getattr(a, "device", None)
@@ -225,6 +251,8 @@ def play(a):
                           options={"probesize": "32", "analyzeduration": "0", "fflags": "nobuffer"})
         except Exception as e:
             sys.exit(f"cannot decode mp3: {e}")
+    if not inp.streams.audio:
+        sys.exit("no audio stream")
     ist = inp.streams.audio[0]
     out, ost, rs = None, None, None
     vol = max(0.0, min(2.0, a.volume))
@@ -244,14 +272,10 @@ def play(a):
             rs = av.AudioResampler(format="flt", layout="mono", rate=rate)
         fr.pts = None
         for r in rs.resample(fr):
-            x = r.to_ndarray().astype(np.float32)
-            if vol != 1.0:
-                x = np.clip(x * vol, -1.0, 1.0)
-            o = av.AudioFrame.from_ndarray(x.reshape(1, -1), format="flt", layout="mono")
-            o.sample_rate = rate
-            for p in ost.encode(o):
-                out.mux(p)
+            _mux_frame(av, np, r, vol, rate, ost, out)
     if out is not None:
+        for r in rs.resample(None):                 # Rest des Resamplers: sonst fehlen die letzten Millisekunden
+            _mux_frame(av, np, r, vol, rate, ost, out)
         for p in ost.encode(None):
             out.mux(p)
         out.close()                             # wartet, bis der Ton zu Ende gespielt ist

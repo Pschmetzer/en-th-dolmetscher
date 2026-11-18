@@ -150,7 +150,8 @@ def _quarantine(path, why):
         os.replace(path, dest)
     except OSError:
         dest = path
-    msg = "Profil-Datei %s unlesbar (%s) -> %s" % (os.path.basename(path), why, os.path.basename(dest))
+    # ohne Dateinamen: er enthält den Profilnamen (stderr/Log sollen keine Namen tragen)
+    msg = "Profil-Datei unlesbar (%s)%s" % (why, " -> .bad" if dest != path else "")
     CORRUPT.append(msg)
     print(json.dumps({"profile_corrupt": msg}, ensure_ascii=False), file=sys.stderr)
 
@@ -415,14 +416,40 @@ def _download(url, tmp):
     return h.hexdigest()
 
 
+def _model_ok():
+    """Vorhandenes Modell prüfen: SHA-256 gilt nicht nur beim Download. Ein Stempel (Größe + mtime) neben der Datei
+    macht die Prüfung nach dem ersten Mal billig; weicht er ab, wird neu gehasht (abgeschnitten/ersetzt -> False)."""
+    try:
+        st = os.stat(MODEL_PATH)
+    except OSError:
+        return False
+    key = "%d:%d:%s" % (st.st_size, st.st_mtime_ns, MODEL_SHA256)
+    stamp = MODEL_PATH + ".ok"
+    try:
+        with open(stamp, encoding="utf-8") as f:
+            if f.read().strip() == key:
+                return True
+    except OSError:
+        pass
+    if _sha256_file(MODEL_PATH) != MODEL_SHA256:
+        return False
+    with contextlib.suppress(OSError):
+        with open(stamp, "w", encoding="utf-8") as f:
+            f.write(key)
+    return True
+
+
 def ensure_model():
     if os.path.exists(MODEL_PATH):
-        return MODEL_PATH
+        if _model_ok():
+            return MODEL_PATH
+        with contextlib.suppress(OSError):                  # beschädigt/ersetzt: neu laden statt blind zu vertrauen
+            os.remove(MODEL_PATH)
     mdir = os.path.dirname(MODEL_PATH)
     os.makedirs(mdir, exist_ok=True)
     with open(os.path.join(mdir, ".download.lock"), "w") as lk:
         fcntl.flock(lk, fcntl.LOCK_EX)                      # nur ein Prozess lädt/importiert gleichzeitig
-        if os.path.exists(MODEL_PATH):
+        if os.path.exists(MODEL_PATH) and _model_ok():
             return MODEL_PATH
         base = os.path.basename(MODEL_PATH)
         for f in os.listdir(mdir):                          # Reste abgebrochener Läufe
@@ -652,14 +679,31 @@ ROLE_ME_FLOOR = 0.65
 MAX_HOTWORDS = 2 * MAX_VOCAB
 
 
+_LATIN_LANGS = {"en", "de", "es", "fr", "it", "pt", "nl", "vi", "id", "tr", "pl"}
+
+
+def _script_fits(word, lang):
+    """Passt das Wort zur Schrift der Erkennungssprache? Thai nur mit Thai-Zeichen, lateinische Sprachen nur ohne
+    Thai-Zeichen und mit Buchstaben; andere Sprachen: nein (nur ihre eigenen Profile)."""
+    has_thai = any("฀" <= c <= "๿" for c in word)
+    if lang == "th":
+        return has_thai
+    if lang in _LATIN_LANGS:
+        return not has_thai and any(c.isalpha() and c.isascii() or "À" <= c <= "ɏ" for c in word)
+    return False
+
+
 def pick_hotwords(profs, lang, who=None, role_p=None):
     """Reine Auswahlregel zu SpeakerID.hotwords() (testbar ohne Modell)."""
     order = [p for p in (who, role_p) if p] + [p for p in profs or [] if p not in (who, role_p)]
     out, seen = [], set()
     for p in order:
-        if p.get("lang", "en") != lang:
-            continue
+        same = p.get("lang", "en") == lang
         for w in p.get("vocab") or []:
+            # eigene Profilsprache: alles; andere Profile: Wörter in der Schrift der gesuchten Sprache
+            # (thailändische Ortsnamen im englischen Profil helfen der Thai-Erkennung)
+            if not same and not (isinstance(w, str) and _script_fits(w, lang)):
+                continue
             if isinstance(w, str) and w.strip() and w.casefold() not in seen:
                 seen.add(w.casefold())
                 out.append(w.strip())
