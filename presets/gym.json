@@ -1,0 +1,117 @@
+{
+  "id": "gym",
+  "names": {
+    "de": "Fitnessstudio",
+    "en": "Gym",
+    "th": "ฟิตเนส"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "day pass",
+      "th": "บัตรรายวัน"
+    },
+    {
+      "en": "membership",
+      "th": "สมาชิก"
+    },
+    {
+      "en": "personal trainer",
+      "th": "เทรนเนอร์ส่วนตัว"
+    },
+    {
+      "en": "locker",
+      "th": "ตู้เก็บของ"
+    },
+    {
+      "en": "treadmill",
+      "th": "ลู่วิ่ง"
+    },
+    {
+      "en": "weights",
+      "th": "ดัมเบล"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I feel dizzy. I need help.",
+      "th": "รู้สึกเวียนหัว ต้องการความช่วยเหลือ",
+      "critical": true
+    },
+    {
+      "en": "I have chest pain.",
+      "th": "เจ็บหน้าอก",
+      "critical": true
+    },
+    {
+      "en": "I hurt my back. Please call a doctor.",
+      "th": "ปวดหลัง ช่วยเรียกแพทย์หน่อย",
+      "critical": true
+    },
+    {
+      "en": "Someone has collapsed.",
+      "th": "มีคนล้ม",
+      "critical": true
+    },
+    {
+      "en": "How much is a day pass?",
+      "th": "บัตรรายวันราคาเท่าไหร่"
+    },
+    {
+      "en": "Could I try one session?",
+      "th": "ขอทดลองหนึ่งครั้งได้ไหม"
+    },
+    {
+      "en": "How much is a monthly membership?",
+      "th": "สมาชิกรายเดือนราคาเท่าไหร่"
+    },
+    {
+      "en": "What are the opening hours?",
+      "th": "เปิดกี่โมงถึงกี่โมง"
+    },
+    {
+      "en": "Where are the lockers?",
+      "th": "ตู้เก็บของอยู่ที่ไหน"
+    },
+    {
+      "en": "Do you have towels?",
+      "th": "มีผ้าเช็ดตัวไหม"
+    },
+    {
+      "en": "Where are the showers?",
+      "th": "ห้องอาบน้ำอยู่ที่ไหน"
+    },
+    {
+      "en": "Is this machine free?",
+      "th": "เครื่องนี้ว่างไหม"
+    },
+    {
+      "en": "How do I use this machine?",
+      "th": "เครื่องนี้ใช้ยังไง"
+    },
+    {
+      "en": "Is there a personal trainer?",
+      "th": "มีเทรนเนอร์ส่วนตัวไหม"
+    },
+    {
+      "en": "Are there group classes?",
+      "th": "มีคลาสกลุ่มไหม"
+    },
+    {
+      "en": "Is there a pool?",
+      "th": "มีสระว่ายน้ำไหม"
+    },
+    {
+      "en": "Could I have some water, please?",
+      "th": "ขอน้ำดื่มหน่อย"
+    },
+    {
+      "en": "Is the air conditioning on?",
+      "th": "เปิดแอร์อยู่ไหม"
+    }
+  ],
+  "note": {
+    "de": "Viele Studios verlangen Tuch und Sportschuhe. Tageskarten und Probetraining sind üblich. Bei Brustschmerz oder Schwindel sofort aufhören und Hilfe rufen. Rettung 1669. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Many gyms expect a towel and sports shoes. Day passes and trial sessions are common. With chest pain or dizziness stop at once and call for help. Ambulance 1669. Thai lines machine-made, not checked by native speakers."
+  }
+}
