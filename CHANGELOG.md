@@ -192,6 +192,9 @@ Pull requests #16–#47. Not yet published as a release.
 - **New:** accessibility audit of all views: VoiceOver announces start, stop, errors and failed translations; status colours (green, orange, red, blue) now reach 4.5:1 contrast in light and dark mode (computed in a test) and the filled mic and turn buttons keep readable white text; the active turn is marked by a border, not only by colour.
 - **Fixed:** the number pad's close and delete buttons and the summary share button had no VoiceOver label; icon-only buttons are at least 44 × 44 pt; the phrasebook category scroll ignored “Reduce Motion”; progress indicators have names; decorative icons are hidden from VoiceOver; the currency code field and the quick-guide icons scale with Dynamic Type; “Help now” is a heading. New texts in all 10 languages (de/en/th by hand, the rest machine-translated).
 
+**iPhone app (round 17)**
+- **New:** three more Siri/Shortcuts actions (read the last translation again, swap the language pair, say a phrasebook phrase found by keyword) and two Control Centre / Lock Screen controls (swap languages, read last translation); texts in all 10 languages, logic in `ShortcutLogic.swift` with tests. No new target or entitlement.
+
 **Web**
 - **New:** phrasebook search (`/`), favourites filter, copy button on every translation; history search, CSV export, share and clear with confirmation; learning progress bar, review schedule and arrow keys; “Delete all local data”; hints for a blocked microphone and for going offline; `?` opens help.
 - **Fixed:** a shadowed `t()` raised an error on every finished translation and on critical phrases; high-contrast, forced-colors and reduced-motion styles; Safari text-size and zoom behaviour.

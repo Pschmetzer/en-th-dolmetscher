@@ -54,6 +54,40 @@ struct SayPhraseIntent: AppIntent {
     }
 }
 
+/// Steuerelement/Kurzbefehl „Sprachpaar wechseln“ (meine Sprache und Partnersprache tauschen). Öffnet die App, damit
+/// die laufende Sitzung das neue Paar sofort übernimmt.
+struct SwapLanguagePairIntent: AppIntent {
+    static let title: LocalizedStringResource = "Swap language pair"
+    static let description = IntentDescription("Swaps your language and your partner's language.")
+    static let supportedModes: IntentModes = .foreground
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        #if !WIDGET_EXT
+        let m = InterpreterModel.shared
+        m.pair = PairSwitch.swapped(m.pair)
+        return .result(dialog: "\(String(format: T("sc_swapped"), m.pair.mine.flag + " → " + m.pair.partner.flag))")
+        #else
+        return .result(dialog: "")
+        #endif
+    }
+}
+
+/// Steuerelement/Kurzbefehl „Letzte Übersetzung vorlesen“ (liest den jüngsten übersetzten Satz noch einmal vor).
+struct SpeakLastTranslationIntent: AppIntent {
+    static let title: LocalizedStringResource = "Speak last translation"
+    static let description = IntentDescription("Reads the last translation out loud again.")
+    static let supportedModes: IntentModes = .foreground
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        #if !WIDGET_EXT
+        InterpreterModel.shared.speakLast()
+        #endif
+        return .result()
+    }
+}
+
 /// Live-Aktivität beim Zuhören: letzter Satz und Mikrofonstatus. Daten kommen über ActivityKit (kein App Group).
 struct ListeningActivityAttributes: ActivityAttributes {
     enum Status: String, Codable, Hashable, Sendable { case listening, hearing, speaking, paused, ready, interrupted }
