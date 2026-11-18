@@ -120,5 +120,5 @@ echo "step verify"
 run "$VENV/bin/python" -B -c 'import sys, faster_whisper, av, ctranslate2, numpy; print(sys.version)' || fail
 
 rm -rf "$UV_CACHE_DIR"                              # ~400 MB Download-Cache: nach dem Klonen unnötig
-cp "$STAMP" "$VENV/.dolmetscher-stamp.tmp" && mv "$VENV/.dolmetscher-stamp.tmp" "$VENV/.dolmetscher-stamp" || fail
+if ! { cp "$STAMP" "$VENV/.dolmetscher-stamp.tmp" && mv "$VENV/.dolmetscher-stamp.tmp" "$VENV/.dolmetscher-stamp"; }; then fail; fi
 echo "done"

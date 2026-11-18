@@ -139,9 +139,14 @@ struct Bubble: View, Equatable {
         }
         .overlay(alignment: .topTrailing) {
             if copied {
-                Text(L.t("copied")).font(.caption).padding(.horizontal, 8).padding(.vertical, 3)
-                    .background(.regularMaterial, in: Capsule()).padding(6)
-                    .transition(reduceMotion ? .identity : .opacity).accessibilityHidden(true)
+                let badge: some View = Text(L.t("copied"))
+                    .font(.caption)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(.regularMaterial, in: Capsule())
+                    .padding(6)
+                let appear: AnyTransition = reduceMotion ? .identity : .opacity
+                badge.transition(appear).accessibilityHidden(true)
             }
         }
         .help(helpText)

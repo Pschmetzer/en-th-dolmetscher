@@ -242,6 +242,7 @@ Neu:
 | `slow` | bool | „Langsam und deutlich“: Ausgabe SLOW_RATE (−25) Prozentpunkte langsamer (zusammen nie unter −50), kein Aufhol-Tempo, nie überspringen; Claude bekommt den Zusatz „einfache Wörter, kurze Sätze“ (eigener Cache-Schlüssel) |
 | `back_translate` | bool | Rückübersetzung als Ereignis `back` an/aus (Standard aus; kostet je Satz eine Google-Anfrage) |
 | `learn_glossary` | bool | Eigennamen aus Korrekturen (`retranslate`) automatisch ins Glossar (Standard an) |
+| `echo_guard` | bool | Runde 8: Text-Echo-Schutz (Standard an): ein erkannter Satz, der in derselben Sprache fast gleich dem vor < 25 s vorgelesenen ist (ab 14 Zeichen), wird mit `dropped` (`reason` „echo“, Code `other`, keine eigene App-Meldung) verworfen; `state` meldet `echo_guard` |
 | `reset_learning` | string (Profilname) | nachgeführten Stimmabdruck verwerfen (Stand beim Anlegen); Antwort `learning_reset` |
 | `get_state` | true | Zustand als Ereignis `state` senden |
 | `let_finish` | float (s, 0 … 5) | „Ausreden lassen“: nach dem Satzende so lange Ruhe abwarten, bevor vorgelesen wird; spricht jemand weiter, beginnt die Wartezeit neu (höchstens bis `MAX_UTT`). 0 = aus (Standard). Mit `--barge-in` (Kopfhörer) wartet die Ausgabe wie bisher nie |

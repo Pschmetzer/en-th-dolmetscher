@@ -35,7 +35,7 @@ def prelude(funcs=(), lines=()):
 def run(pre, exprs):
     """Wertet Ausdruecke (Strings) nach dem Vorspann aus; Ergebnis: Liste der JSON-Werte."""
     body = ",".join("(() => { try { return " + e + "; } catch (x) { return 'ERR ' + x; } })()" for e in exprs)
-    r = subprocess.run(["node", "-e", pre + "\nprocess.stdout.write(JSON.stringify([" + body + "]));"],
+    r = subprocess.run(["node", "-"], input=pre + "\nprocess.stdout.write(JSON.stringify([" + body + "]));",
                        capture_output=True, text=True, timeout=120)
     assert r.returncode == 0, r.stderr
     return json.loads(r.stdout)

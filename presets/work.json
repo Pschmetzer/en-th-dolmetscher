@@ -1,0 +1,113 @@
+{
+  "id": "work",
+  "names": {
+    "de": "Arbeit und Handwerk",
+    "en": "Work and trades",
+    "th": "งานและช่าง"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Auf Baustellen und in Werkstätten zählt Sicherheit zuerst. Preis und Dauer vor Beginn klären und sich eine Quittung geben lassen. Fremde Arbeitsgeräte nicht ohne Erlaubnis anfassen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "On building sites and in workshops safety comes first. Agree price and duration before the work starts and ask for a receipt. Do not touch other people's tools without permission. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "tool",
+      "th": "เครื่องมือ"
+    },
+    {
+      "en": "electrician",
+      "th": "ช่างไฟ"
+    },
+    {
+      "en": "plumber",
+      "th": "ช่างประปา"
+    },
+    {
+      "en": "helmet",
+      "th": "หมวกนิรภัย"
+    },
+    {
+      "en": "gloves",
+      "th": "ถุงมือ"
+    },
+    {
+      "en": "ladder",
+      "th": "บันได"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Stop, it is dangerous!",
+      "th": "หยุด อันตราย",
+      "critical": true
+    },
+    {
+      "en": "I am hurt, I need help.",
+      "th": "บาดเจ็บ ต้องการความช่วยเหลือ",
+      "critical": true
+    },
+    {
+      "en": "Switch off the power, please.",
+      "th": "ช่วยปิดไฟหน่อย",
+      "critical": true
+    },
+    {
+      "en": "There is a gas smell.",
+      "th": "มีกลิ่นแก๊ส",
+      "critical": true
+    },
+    {
+      "en": "Do I need a helmet?",
+      "th": "ต้องใช้หมวกนิรภัยไหม"
+    },
+    {
+      "en": "Where is the first aid kit?",
+      "th": "ชุดปฐมพยาบาลอยู่ที่ไหน"
+    },
+    {
+      "en": "What time does work start?",
+      "th": "เริ่มงานกี่โมง"
+    },
+    {
+      "en": "How long will this take?",
+      "th": "ใช้เวลานานแค่ไหน"
+    },
+    {
+      "en": "How much will it cost in total?",
+      "th": "ค่าใช้จ่ายทั้งหมดเท่าไร"
+    },
+    {
+      "en": "Please write the price down.",
+      "th": "ช่วยเขียนราคาให้หน่อย"
+    },
+    {
+      "en": "Can you come tomorrow?",
+      "th": "พรุ่งนี้มาได้ไหม"
+    },
+    {
+      "en": "Can you show me how?",
+      "th": "ช่วยทำให้ดูหน่อยได้ไหม"
+    },
+    {
+      "en": "I do not understand, please repeat.",
+      "th": "ไม่เข้าใจ ช่วยพูดอีกครั้งหน่อย"
+    },
+    {
+      "en": "I need a receipt, please.",
+      "th": "ขอใบเสร็จหน่อย"
+    },
+    {
+      "en": "Please fix it again, it is still broken.",
+      "th": "ช่วยซ่อมอีกครั้ง ยังเสียอยู่"
+    },
+    {
+      "en": "Is the work finished?",
+      "th": "งานเสร็จแล้วหรือยัง"
+    },
+    {
+      "en": "Is there a warranty?",
+      "th": "มีรับประกันไหม"
+    }
+  ]
+}

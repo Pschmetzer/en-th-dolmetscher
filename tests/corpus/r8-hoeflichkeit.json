@@ -1,0 +1,366 @@
+{
+ "about": "Runde 8: Höflichkeitsformen (ครับ/ค่ะ) und Anrede. Thai-Referenzen sind maschinell erzeugt und ungeprüft (machine=true), keine Muttersprachler-Freigabe.",
+ "reviewed": false,
+ "cases": [
+  {
+   "id": "r8-hoeflichkeit-01",
+   "src": "en",
+   "dst": "th",
+   "text": "Thank you very much. (said by a man)",
+   "translation": "ขอบคุณมากครับ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-02",
+   "src": "en",
+   "dst": "th",
+   "text": "Thank you very much. (said by a woman)",
+   "translation": "ขอบคุณมากค่ะ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-03",
+   "src": "en",
+   "dst": "th",
+   "text": "Excuse me, could you help me?",
+   "translation": "ขอโทษครับ ช่วยผมหน่อยได้ไหมครับ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-04",
+   "src": "en",
+   "dst": "th",
+   "text": "Excuse me, where is the toilet?",
+   "translation": "ขอโทษค่ะ ห้องน้ำอยู่ที่ไหนคะ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-05",
+   "src": "en",
+   "dst": "th",
+   "text": "Please sit down.",
+   "translation": "เชิญนั่งครับ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-06",
+   "src": "en",
+   "dst": "th",
+   "text": "Welcome, please come in.",
+   "translation": "ยินดีต้อนรับค่ะ เชิญเข้ามาเลยค่ะ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-07",
+   "src": "en",
+   "dst": "th",
+   "text": "Nice to meet you.",
+   "translation": "ยินดีที่ได้รู้จักครับ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-08",
+   "src": "en",
+   "dst": "th",
+   "text": "I'm sorry for being late.",
+   "translation": "ขอโทษที่มาช้าครับ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-09",
+   "src": "en",
+   "dst": "th",
+   "text": "Could you please speak more slowly?",
+   "translation": "ช่วยพูดช้าลงหน่อยได้ไหมคะ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-10",
+   "src": "en",
+   "dst": "th",
+   "text": "Yes, of course.",
+   "translation": "ได้ค่ะ แน่นอนค่ะ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-11",
+   "src": "en",
+   "dst": "th",
+   "text": "No, thank you.",
+   "translation": "ไม่เป็นไรครับ ขอบคุณครับ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-12",
+   "src": "en",
+   "dst": "th",
+   "text": "How are you?",
+   "translation": "สบายดีไหมครับ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-13",
+   "src": "en",
+   "dst": "th",
+   "text": "I am fine, thank you.",
+   "translation": "สบายดีค่ะ ขอบคุณค่ะ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-14",
+   "src": "en",
+   "dst": "th",
+   "text": "Please wait a moment.",
+   "translation": "กรุณารอสักครู่ค่ะ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-15",
+   "src": "en",
+   "dst": "th",
+   "text": "May I ask your name?",
+   "translation": "ขอทราบชื่อได้ไหมครับ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-16",
+   "src": "en",
+   "dst": "th",
+   "text": "Good morning, sir.",
+   "translation": "สวัสดีตอนเช้าครับท่าน",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-17",
+   "src": "en",
+   "dst": "th",
+   "text": "Goodbye, see you tomorrow.",
+   "translation": "สวัสดีค่ะ แล้วพบกันพรุ่งนี้ค่ะ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-18",
+   "src": "en",
+   "dst": "th",
+   "text": "Please forgive me.",
+   "translation": "ขอโทษด้วยนะครับ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-19",
+   "src": "en",
+   "dst": "th",
+   "text": "Would you like some tea?",
+   "translation": "รับชาไหมคะ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-20",
+   "src": "en",
+   "dst": "th",
+   "text": "Please come this way.",
+   "translation": "เชิญทางนี้ครับ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-21",
+   "src": "en",
+   "dst": "th",
+   "text": "Thank you for your help.",
+   "translation": "ขอบคุณที่ช่วยนะคะ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-22",
+   "src": "en",
+   "dst": "th",
+   "text": "Could I have the menu, please?",
+   "translation": "ขอเมนูหน่อยได้ไหมครับ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-23",
+   "src": "en",
+   "dst": "th",
+   "text": "Please give me the bill.",
+   "translation": "ขอเช็กบิลด้วยค่ะ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-24",
+   "src": "en",
+   "dst": "th",
+   "text": "You are very kind.",
+   "translation": "คุณใจดีมากเลยครับ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-25",
+   "src": "en",
+   "dst": "th",
+   "text": "Congratulations!",
+   "translation": "ขอแสดงความยินดีด้วยค่ะ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-26",
+   "src": "th",
+   "dst": "en",
+   "text": "สวัสดีครับ ยินดีที่ได้รู้จัก",
+   "translation": "Hello, nice to meet you.",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-27",
+   "src": "th",
+   "dst": "en",
+   "text": "สวัสดีค่ะ วันนี้เป็นยังไงบ้างคะ",
+   "translation": "Hello, how are you today?",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-28",
+   "src": "th",
+   "dst": "en",
+   "text": "ขอบคุณมากครับ",
+   "translation": "Thank you very much.",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-29",
+   "src": "th",
+   "dst": "en",
+   "text": "ไม่เป็นไรค่ะ",
+   "translation": "That's all right.",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-30",
+   "src": "th",
+   "dst": "en",
+   "text": "ขอโทษนะครับ ผมมาสาย",
+   "translation": "I'm sorry, I'm late.",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-31",
+   "src": "th",
+   "dst": "en",
+   "text": "เชิญด้านในเลยครับ",
+   "translation": "Please go right in.",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-32",
+   "src": "th",
+   "dst": "en",
+   "text": "รบกวนช่วยหน่อยได้ไหมคะ",
+   "translation": "Could I trouble you for some help?",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-33",
+   "src": "th",
+   "dst": "en",
+   "text": "ยินดีค่ะ ไม่มีปัญหาค่ะ",
+   "translation": "My pleasure, no problem.",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-34",
+   "src": "th",
+   "dst": "en",
+   "text": "กรุณาถอดรองเท้าด้วยครับ",
+   "translation": "Please take off your shoes.",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-35",
+   "src": "th",
+   "dst": "en",
+   "text": "รับอะไรดีคะ",
+   "translation": "What would you like?",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-36",
+   "src": "th",
+   "dst": "en",
+   "text": "ขอบคุณที่มาเยี่ยมนะคะ",
+   "translation": "Thank you for visiting.",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-37",
+   "src": "th",
+   "dst": "en",
+   "text": "เดินทางโดยสวัสดิภาพนะครับ",
+   "translation": "Have a safe trip.",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-38",
+   "src": "th",
+   "dst": "de",
+   "text": "ขอบคุณมากค่ะ",
+   "translation": "Vielen Dank.",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-39",
+   "src": "th",
+   "dst": "de",
+   "text": "สวัสดีครับ ผมชื่อสมชายครับ",
+   "translation": "Guten Tag, ich heiße Somchai.",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-40",
+   "src": "th",
+   "dst": "de",
+   "text": "รบกวนหน่อยนะคะ",
+   "translation": "Entschuldigen Sie bitte die Störung.",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-41",
+   "src": "th",
+   "dst": "de",
+   "text": "เชิญนั่งค่ะ",
+   "translation": "Bitte setzen Sie sich.",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-42",
+   "src": "de",
+   "dst": "th",
+   "text": "Vielen Dank für Ihre Hilfe.",
+   "translation": "ขอบคุณมากสำหรับความช่วยเหลือค่ะ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-43",
+   "src": "de",
+   "dst": "th",
+   "text": "Entschuldigung, können Sie mir helfen?",
+   "translation": "ขอโทษครับ ช่วยผมได้ไหมครับ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-44",
+   "src": "de",
+   "dst": "th",
+   "text": "Guten Tag, ich möchte bitte zahlen.",
+   "translation": "สวัสดีครับ ขอจ่ายเงินหน่อยครับ",
+   "machine": true
+  },
+  {
+   "id": "r8-hoeflichkeit-45",
+   "src": "de",
+   "dst": "th",
+   "text": "Es freut mich, Sie kennenzulernen.",
+   "translation": "ยินดีที่ได้รู้จักค่ะ",
+   "machine": true
+  }
+ ]
+}

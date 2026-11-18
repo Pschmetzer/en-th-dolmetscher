@@ -1,0 +1,37 @@
+Dolmetscher ist ein freihändiger Sprach-Dolmetscher für den Mac. Einfach sprechen: Was Sie sagen, wird in die Sprache Ihres Gegenübers übersetzt und sofort vorgelesen, und die Antwort kommt in Ihrer Sprache zurück. Die App erkennt selbst, welche der beiden Sprachen gesprochen wird – kein Umschalten per Knopf. Englisch ⇄ Thai ist sofort startklar, wählbar ist jedes Paar aus 19 Sprachen.
+
+SPRACHERKENNUNG AUF IHREM MAC
+• Die Erkennung läuft lokal mit Whisper auf Apple Silicon. Ihre Aufnahme verlässt den Mac nie.
+• Nur der erkannte Text wird zur Übersetzung gesendet und der übersetzte Text für die natürliche Stimme.
+• Ein auf Thai trainiertes Modell versteht leises oder entferntes Thai besser.
+• Offline: Mit den Sprachpaketen von Apple (ab macOS 26.4) übersetzt der Mac die Sätze trotzdem und liest sie mit der macOS-Stimme vor.
+
+NATÜRLICHE GESPRÄCHE
+• Automatische Spracherkennung – niemand muss etwas drücken.
+• Ansicht fürs Gegenüber mit großer Schrift, Thai-Umschrift und Hinweis bei unsicheren Sätzen.
+• Rückübersetzung zur Kontrolle, Modus „langsam und deutlich“ und ein Eingabefeld für laute Orte.
+• Falsch erkannte Sätze korrigieren und neu übersetzen; das Glossar lernt aus Ihren Korrekturen.
+• Zahlen werden geprüft: Stimmen Preise, Uhrzeiten oder Zimmernummern nicht überein, warnt die App.
+
+STIMMPROFILE
+• Jede Person liest einmal 8 kurze Sätze. Danach zeigt die App, wer spricht, wählt die Sprache dieser Person und die passende Höflichkeitsform (ครับ / ค่ะ).
+• Stimmprofile bleiben auf diesem Mac und lassen sich jederzeit löschen.
+
+FREIHÄNDIG STEUERN
+• Sagen Sie „Translator, pause“, „repeat“, „slower“, „louder“, „Thai only“ und mehr (wenn Englisch im Sprachpaar ist).
+• Push-to-talk, Symbol in der Menüleiste und globale Tastenkürzel.
+• Ausgabe wahlweise über Lautsprecher oder Kopfhörer.
+
+SPRACHFÜHRER FÜR THAILAND
+• Fertige Szenario-Pakete – Arzt, Apotheke, Polizei, Restaurant, Taxi, Tempel und mehr –, jeweils mit Kulturhinweis. Wichtige Sätze wie Allergien stehen ganz oben.
+
+OPTIONAL: ÜBERSETZUNG MIT CLAUDE
+• Noch natürlichere Übersetzungen, die Zusammenhang und Höflichkeit besser halten. Braucht einen eigenen Anthropic-API-Schlüssel und kostet pro Satz ein wenig; die App zeigt die Kosten und hält ein Monatslimit ein. Der Schlüssel liegt im Schlüsselbund.
+
+PRIVAT VON ANFANG AN
+• Kein Konto, keine Telemetrie, kein eigener Server.
+• Der Gesprächsverlauf ist ab Werk aus; eingeschaltet bleibt er auf diesem Mac und lässt sich als Markdown, JSON, CSV, Untertitel oder Anki-Karten exportieren.
+
+Oberfläche auf Deutsch, Englisch und Thai.
+
+Voraussetzung: ein Mac mit Apple Silicon und macOS 14 oder neuer. Die Sprachmodelle (etwa 3,5 GB) werden beim ersten Start einmal geladen.

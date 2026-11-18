@@ -1,0 +1,111 @@
+{
+  "id": "market",
+  "names": {
+    "de": "Markt und Handeln",
+    "en": "Market and haggling",
+    "th": "ตลาดและการต่อราคา"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Auf Märkten ist freundliches Handeln üblich, in Supermärkten und Läden mit Festpreis nicht. Mit etwa 70 Prozent des ersten Preises beginnen, lächeln und gelassen bleiben. Bei Lebensmitteln und frischem Obst probieren dürfen; nach dem Preis pro Kilo fragen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Friendly haggling is normal at markets but not in fixed-price shops. Start around 70 per cent of the first price, smile and stay calm. At food stalls ask to taste; ask for the price per kilo. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "market",
+      "th": "ตลาด"
+    },
+    {
+      "en": "price",
+      "th": "ราคา"
+    },
+    {
+      "en": "discount",
+      "th": "ส่วนลด"
+    },
+    {
+      "en": "kilo",
+      "th": "กิโล"
+    },
+    {
+      "en": "bag",
+      "th": "ถุง"
+    },
+    {
+      "en": "change",
+      "th": "เงินทอน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am allergic to peanuts.",
+      "th": "แพ้ถั่วลิสง",
+      "critical": true
+    },
+    {
+      "en": "Does this contain shellfish?",
+      "th": "อันนี้มีกุ้งหรือหอยไหม",
+      "critical": true
+    },
+    {
+      "en": "How much is this?",
+      "th": "อันนี้ราคาเท่าไหร่"
+    },
+    {
+      "en": "That is too expensive.",
+      "th": "แพงไป"
+    },
+    {
+      "en": "Can you give a discount?",
+      "th": "ลดหน่อยได้ไหม"
+    },
+    {
+      "en": "What is your best price?",
+      "th": "ราคาที่ถูกที่สุดเท่าไหร่"
+    },
+    {
+      "en": "I will take two.",
+      "th": "เอาสองอัน"
+    },
+    {
+      "en": "Can I taste it?",
+      "th": "ขอชิมได้ไหม"
+    },
+    {
+      "en": "How much per kilo?",
+      "th": "กิโลละเท่าไร"
+    },
+    {
+      "en": "Is this fresh?",
+      "th": "อันนี้สดไหม"
+    },
+    {
+      "en": "Not spicy, please.",
+      "th": "ขอไม่เผ็ด"
+    },
+    {
+      "en": "A little spicy, please.",
+      "th": "เผ็ดนิดเดียว"
+    },
+    {
+      "en": "I do not need a bag.",
+      "th": "ไม่รับถุง"
+    },
+    {
+      "en": "I think the change is wrong.",
+      "th": "เงินทอนน่าจะผิด"
+    },
+    {
+      "en": "Do you have a smaller one?",
+      "th": "มีอันเล็กกว่านี้ไหม"
+    },
+    {
+      "en": "I will think about it.",
+      "th": "ขอไปคิดดูก่อน"
+    },
+    {
+      "en": "Where is the toilet?",
+      "th": "ห้องน้ำอยู่ที่ไหน"
+    }
+  ]
+}

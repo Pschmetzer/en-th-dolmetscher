@@ -79,7 +79,7 @@ process.on('unhandledRejection', e => { console.error('unhandled', e); process.e
 
 @pytest.mark.skipif(not shutil.which("node"), reason="node nicht installiert")
 def test_sw_edge_cases():
-    r = subprocess.run(["node", "-e", HARNESS.replace("%SW%", SW)], capture_output=True, text=True, timeout=60)
+    r = subprocess.run(["node", "-"], input=HARNESS.replace("%SW%", SW), capture_output=True, text=True, timeout=60)
     assert r.returncode == 0, r.stderr
     out = json.loads(r.stdout)
     assert out["hangBody"] == "net:https://example.org/app/index.html"   # gespeicherte Kopie, nicht das hängende Netz

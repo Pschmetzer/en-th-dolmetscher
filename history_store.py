@@ -48,6 +48,8 @@ class Store:
         self.db = sqlite3.connect(self.path, check_same_thread=False, timeout=10.0)
         # Nr. 204: eine Verbindung für mehrere Threads – Schreibvorgänge nur unter Lock und als eine Transaktion
         self.lock = threading.RLock()
+        # Runde 8: LIKE kennt Groß/klein nur für ASCII ("É" fand man nicht mit "é"): eigene Faltfunktion
+        self.db.create_function("fold", 1, lambda v: (v or "").casefold(), deterministic=True)
         # Gelöschte Zeilen mit Nullen überschreiben statt nur freizugeben (gilt pro Verbindung).
         self.db.execute("PRAGMA secure_delete = ON")
         try:                                           # WAL: Leser (Export) blockieren den Schreiber nicht
@@ -203,8 +205,9 @@ class Store:
             where = "id IN (SELECT rowid FROM utt_fts WHERE utt_fts MATCH ?)"
             args = ('"' + query.replace('"', '""') + '"',)
         else:
-            like = "%" + query.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
-            where, args = "text LIKE ? ESCAPE '\\' OR translation LIKE ? ESCAPE '\\'", (like, like)
+            like = "%" + query.casefold().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
+            where = "fold(text) LIKE ? ESCAPE '\\' OR fold(translation) LIKE ? ESCAPE '\\'"
+            args = (like, like)
         cur = self.db.execute(f"SELECT * FROM utt WHERE {where} ORDER BY ts DESC, id DESC LIMIT ?", (*args, limit))
         cols = [c[0] for c in cur.description]
         return [dict(zip(cols, r)) for r in cur.fetchall()]
@@ -337,7 +340,7 @@ class Recorder:
         self.on_error = None                        # Nr. 191: Rückmeldung an die Engine (ohne Text)
         self.fails = 0                              # aufeinanderfolgende vorübergehende Fehler (Datenbank gesperrt)
         self.last_t = None                          # letzte Äußerung (neue Sitzung nach Pause/Tageswechsel)
-        self.last_purge = 0.0
+        self.last_purge = -self.PURGE_EVERY_S   # monotonic() kann auf frisch gestarteten Rechnern < 3600 sein
 
     SESSION_GAP_S = 1800.0                          # Pause ab der eine neue Sitzung beginnt
     PURGE_EVERY_S = 3600.0                          # Aufbewahrungsfrist auch bei tagelang laufender Engine

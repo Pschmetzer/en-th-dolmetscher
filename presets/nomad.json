@@ -1,0 +1,105 @@
+{
+  "id": "nomad",
+  "names": {
+    "de": "Digitale Nomaden",
+    "en": "Digital nomads",
+    "th": "ดิจิทัลโนแมด"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Für SIM-Karte und Mietverträge den Reisepass bereithalten. Internetgeschwindigkeit vor dem Mieten testen (Speedtest zeigen lassen). Längeres Arbeiten im Land braucht passende Visa und Arbeitserlaubnis; vorab bei Behörden klären. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Bring your passport for a SIM card and rental contracts. Test internet speed before renting. Working long-term in the country needs the right visa and work permit; check with the authorities first. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "SIM card",
+      "th": "ซิมการ์ด"
+    },
+    {
+      "en": "wifi",
+      "th": "ไวไฟ"
+    },
+    {
+      "en": "data package",
+      "th": "แพ็กเกจอินเทอร์เน็ต"
+    },
+    {
+      "en": "power outlet",
+      "th": "ปลั๊กไฟ"
+    },
+    {
+      "en": "monthly",
+      "th": "รายเดือน"
+    },
+    {
+      "en": "deposit",
+      "th": "เงินมัดจำ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I need a SIM card with data.",
+      "th": "ต้องการซิมการ์ดที่มีอินเทอร์เน็ต"
+    },
+    {
+      "en": "How much is the monthly data package?",
+      "th": "แพ็กเกจเน็ตรายเดือนราคาเท่าไหร่"
+    },
+    {
+      "en": "Can I top up online?",
+      "th": "เติมเงินออนไลน์ได้ไหม"
+    },
+    {
+      "en": "What is the wifi password?",
+      "th": "รหัสไวไฟคืออะไร"
+    },
+    {
+      "en": "How fast is the internet?",
+      "th": "อินเทอร์เน็ตเร็วแค่ไหน"
+    },
+    {
+      "en": "Can you show me a speed test?",
+      "th": "ช่วยทดสอบความเร็วเน็ตให้ดูหน่อย"
+    },
+    {
+      "en": "Is there a power outlet near me?",
+      "th": "มีปลั๊กไฟใกล้ที่นั่งไหม"
+    },
+    {
+      "en": "Is there a quiet room for calls?",
+      "th": "มีห้องเงียบสำหรับคุยโทรศัพท์ไหม"
+    },
+    {
+      "en": "Is there a monthly price?",
+      "th": "มีราคารายเดือนไหม"
+    },
+    {
+      "en": "What happens during a power cut?",
+      "th": "ถ้าไฟดับจะทำอย่างไร"
+    },
+    {
+      "en": "Is there a backup connection?",
+      "th": "มีอินเทอร์เน็ตสำรองไหม"
+    },
+    {
+      "en": "Can I get an invoice?",
+      "th": "ขอใบกำกับภาษีได้ไหม"
+    },
+    {
+      "en": "Can I pay by transfer?",
+      "th": "โอนเงินได้ไหม"
+    },
+    {
+      "en": "Where can I print documents?",
+      "th": "พิมพ์เอกสารได้ที่ไหน"
+    },
+    {
+      "en": "Is there a coworking space near here?",
+      "th": "แถวนี้มีโคเวิร์กกิ้งสเปซไหม"
+    },
+    {
+      "en": "Is the building safe at night?",
+      "th": "ตอนกลางคืนอาคารนี้ปลอดภัยไหม"
+    }
+  ]
+}
