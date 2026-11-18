@@ -111,3 +111,103 @@ def test_verlauf_wal_und_checkpoint_nach_loeschen(tmp_path):
     assert not wal.exists() or wal.stat().st_size == 0
     assert b"geheimer text" not in (tmp_path / "h.sqlite").read_bytes()
     assert sqlite3.connect(str(tmp_path / "h.sqlite")).execute("select count(*) from utt").fetchone()[0] == 0
+
+
+# ---- Teil 3: Anrede, Fragen, Cache auf Platte, Zahlen, Download ---
+
+def test_register_hint_nach_stil():
+    assert "du" in d.register_hint("de", "casual") and "Sie" in d.register_hint("de", "polite")
+    assert "usted" in d.register_hint("es", "neutral")
+    assert d.register_hint("en", "casual") == ""
+
+
+@pytest.mark.parametrize("lang,text,want", [("de", "Wo ist die Toilette", True), ("de", "Ich bin müde", False),
+                                            ("es", "Dónde está el baño", True), ("fr", "Où est la gare", True),
+                                            ("de", "Wie schön!", False)])
+def test_frage_ohne_fragezeichen_weitere_sprachen(lang, text, want):
+    assert d.is_question(text, lang) is want
+
+
+def test_cache_auf_platte_opt_in(monkeypatch, tmp_path):
+    f = tmp_path / "c.json"
+    monkeypatch.setattr(d, "CACHE_FILE", str(f))
+    monkeypatch.setattr(d, "_CACHE_DISK", {"on": False, "saved": 0.0})
+    d._cache_clear()
+    d._cache_put(("hello", "en", "de", "mt", ""), ("hallo", "google"))
+    assert not f.exists()                                     # Standard: nichts auf der Platte
+    d.cache_persist(True)
+    d._cache_put(("how are you", "en", "de", "mt", ""), ("wie geht's", "google"))
+    assert f.exists() and oct(f.stat().st_mode & 0o777) == "0o600"
+    d._cache_clear()                                          # "clear" löscht auch die Datei
+    assert not f.exists()
+    d._cache_put(("thanks", "en", "de", "mt", ""), ("danke", "google"))
+    d._cache_save(force=True)
+    d._CACHE.clear()
+    d.cache_persist(True)                                     # "Neustart": aus der Datei laden
+    assert d._cache_get(("thanks", "en", "de", "mt", "")) == ("danke", "google")
+    d.cache_persist(False)
+    assert not f.exists() and not d._CACHE_DISK["on"]
+    d._cache_clear()
+
+
+def test_cache_persist_steuerfeld(monkeypatch, ev):
+    seen = []
+    monkeypatch.setattr(d, "cache_persist", lambda v: seen.append(v))
+    d.apply_control(types.SimpleNamespace(voices={}, translate_dir={}), {"cache_persist": True})
+    assert seen == [True] and not [k for e, k in ev if e == "control_ignored"]
+
+
+def test_num_diff_nennt_die_abweichenden_zahlen():
+    det = d._numbers_detail("It costs 200 baht", "ราคา 300 บาท")
+    assert det == {"src": ["200"], "out": ["300"]}
+
+
+def test_download_zaehlt_nur_neue_dateien(tmp_path):
+    import os
+    import time
+    old = tmp_path / "alt"
+    old.write_bytes(b"\0" * 1000)
+    os.utime(old, (time.time() - 3600, time.time() - 3600))
+    t0 = time.time()
+    (tmp_path / "neu").write_bytes(b"\0" * 500)
+    assert d._dir_bytes_since(str(tmp_path), t0) == 500
+
+
+def test_set_pair_wird_nie_leer(monkeypatch):
+    seen = []
+    monkeypatch.setattr(d, "PAIR", ["en", "th"])
+    monkeypatch.setattr(d, "TARGET", {"en": "th", "th": "en"})
+    orig = d.parse_pair
+    monkeypatch.setattr(d, "parse_pair", lambda a, b: orig(a, b))
+
+    class Spy(dict):
+        def update(self, *a, **k):
+            super().update(*a, **k)
+            seen.append(dict(self))
+    monkeypatch.setattr(d, "TARGET", Spy({"en": "th", "th": "en"}))
+    assert d.set_pair("de", "ja")
+    assert d.TARGET == {"de": "ja", "ja": "de"} and all(seen)
+    d.set_pair("en", "th")
+
+
+def test_alte_tmp_dateien_werden_aufgeraeumt(tmp_path, monkeypatch):
+    import os
+    import time
+    stale = tmp_path / ".tmp_alt"
+    stale.write_text("x")
+    os.utime(stale, (time.time() - 3 * 86400,) * 2)
+    fresh = tmp_path / ".tmp_neu"
+    fresh.write_text("x")
+    monkeypatch.setattr(d, "_TMP_CLEANED", set())
+    d._write_private(str(tmp_path / "g.txt"), "hi")
+    assert not stale.exists() and fresh.exists()
+
+
+def test_glossar_lernen_schaltet_preset_im_fehlerfall_wieder_an(monkeypatch):
+    calls = []
+    monkeypatch.setattr(d, "set_preset", lambda eng, pid, quiet=False: calls.append(pid))
+    monkeypatch.setattr(d.PRESET, "active", "hotel", raising=False)
+    monkeypatch.setattr(d, "load_glossary", lambda t: (_ for _ in ()).throw(OSError("voll")))
+    with pytest.raises(OSError):
+        d.learn_glossary_names(object(), ["Neuname"])
+    assert calls == [None, "hotel"]

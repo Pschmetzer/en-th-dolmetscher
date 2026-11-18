@@ -248,9 +248,11 @@ def set_pair(mine, partner):
     p = parse_pair(mine, partner)
     if p is None:
         return False
+    new = {p[0]: p[1], p[1]: p[0]}
+    TARGET.update(new)                          # nie leer: ein laufender Satz sieht keinen Zwischenzustand
     PAIR[:] = p
-    TARGET.clear()
-    TARGET.update({p[0]: p[1], p[1]: p[0]})
+    for k in [k for k in TARGET if k not in new]:
+        TARGET.pop(k, None)
     return True
 
 
@@ -1027,6 +1029,11 @@ _CACHE_LOCK = threading.Lock()                # Arbeits-Thread liest/schreibt, S
 def _cache_clear():
     with _CACHE_LOCK:
         _CACHE.clear()
+    if _CACHE_DISK["on"]:
+        try:
+            os.unlink(CACHE_FILE)               # "clear" löscht auch die Datei
+        except OSError:
+            pass
 
 
 def _cache_get(key):
@@ -1043,6 +1050,47 @@ def _cache_put(key, val):
         _CACHE.move_to_end(key)
         while len(_CACHE) > _CACHE_MAX:
             _CACHE.popitem(last=False)
+    if _CACHE_DISK["on"]:
+        _cache_save()
+
+
+# Opt-in (Steuerfeld `cache_persist`): Übersetzungs-Cache übersteht den Neustart – Standardsätze gehen dann auch ohne
+# Netz. Enthält Gesprochenes: Datei 0600 im Datenordner, wird beim Ausschalten gelöscht (siehe DATENSCHUTZ.md).
+_CACHE_DISK = {"on": False, "saved": 0.0}
+CACHE_FILE = os.path.expanduser("~/Library/Application Support/Dolmetscher/translation_cache.json")
+
+
+def _cache_save(force=False):
+    now = time.monotonic()
+    if not force and now - _CACHE_DISK["saved"] < 5.0:
+        return                                   # höchstens alle 5 s schreiben
+    _CACHE_DISK["saved"] = now
+    with _CACHE_LOCK:
+        rows = [[list(k), list(v) if isinstance(v, tuple) else v] for k, v in _CACHE.items()]
+    try:
+        _write_private(CACHE_FILE, json.dumps(rows, ensure_ascii=False))
+    except OSError as e:
+        log({"cache": "speichern fehlgeschlagen", "err": _errtxt(e)})
+
+
+def cache_persist(on):
+    """Zwischenspeicher auf der Platte ein-/ausschalten; ein: vorhandene Datei laden, aus: Datei löschen."""
+    _CACHE_DISK["on"] = bool(on)
+    if on:
+        try:
+            with open(CACHE_FILE, encoding="utf-8") as f:
+                rows = json.load(f)
+            with _CACHE_LOCK:
+                for k, v in rows[-_CACHE_MAX:]:
+                    if isinstance(k, list) and len(k) == 5:
+                        _CACHE[tuple(k)] = tuple(v) if isinstance(v, list) else v
+        except (OSError, ValueError, TypeError):
+            pass
+    else:
+        try:
+            os.unlink(CACHE_FILE)
+        except OSError:
+            pass
 
 
 _NORM_QUOTES = str.maketrans({"’": "'", "‘": "'", "ʼ": "'", "`": "'", "´": "'", "“": '"', "”": '"', "„": '"',
@@ -1531,12 +1579,30 @@ def learn_glossary_names(eng, names):
     pre = PRESET.active
     if pre:
         set_preset(eng, None, quiet=True)      # Preset-Wörter nicht ins eigene Glossar schreiben
-    load_glossary(text)
-    if pre:
-        set_preset(eng, pre, quiet=True)
+    try:
+        load_glossary(text)
+    finally:
+        if pre:                                # auch bei einem Fehler: Preset nicht ausgeschaltet lassen
+            set_preset(eng, pre, quiet=True)
     log({"learn": "glossar", "n": len(added)})
     emit("glossary", text=text, added=added)
     return added
+
+
+_TMP_CLEANED = set()
+
+
+def _clean_stale_tmp(d, max_age=86400.0):
+    """Reste (.tmp_*) eines harten Abbruchs, älter als 1 Tag, einmal je Ordner und Lauf löschen."""
+    if d in _TMP_CLEANED:
+        return
+    _TMP_CLEANED.add(d)
+    try:
+        for e in os.scandir(d):
+            if e.name.startswith(".tmp_") and e.is_file() and time.time() - e.stat().st_mtime > max_age:
+                os.unlink(e.path)
+    except OSError:
+        pass
 
 
 def _write_private(path, text):
@@ -1544,6 +1610,7 @@ def _write_private(path, text):
     ein Absturz beim Schreiben hinterlässt keine leere Datei."""
     d = os.path.dirname(path)
     os.makedirs(d, mode=0o700, exist_ok=True)
+    _clean_stale_tmp(d)
     fd, tmp = tempfile.mkstemp(dir=d, prefix=".tmp_")            # mkstemp legt mit 0600 an
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
@@ -1754,6 +1821,13 @@ SLOW_PROMPT = (" Slow and clear mode: the listener is not fluent. Use simple, co
 SLOW_RATE = -25                    # Prozentpunkte zusätzlich zum eingestellten Tempo
 SLOW_RATE_MIN = -50                # nie langsamer als das (unverständlich gedehnt)
 LLM_PRICE = {"claude-haiku-5-5": (0.10, 0.50), "claude-sonnet-5-5": (2.0, 10.0), "claude-opus-5-5": (4.0, 20.0)}
+# DOLMETSCHER_LLM_PRICES='{"modell": [ein, aus]}' (USD je Mio. Token) überschreibt/ergänzt die Preisliste
+try:
+    for _k, _v in json.loads(os.environ.get("DOLMETSCHER_LLM_PRICES") or "{}").items():
+        if isinstance(_v, list) and len(_v) == 2 and all(isinstance(x, (int, float)) and x >= 0 for x in _v):
+            LLM_PRICE[str(_k)] = (float(_v[0]), float(_v[1]))
+except (ValueError, AttributeError):
+    pass
 LLM["style"] = "casual"
 LLM["usd"] = 0.0
 LLM["budget"] = 0.0                # US-Dollar je Kalendermonat für Claude (0 = keine Grenze), --llm-budget
@@ -1822,6 +1896,24 @@ def thai_speaker_sex(text):
     return "female" if f and not m else "male" if m and not f else None
 
 
+# Anrede je Zielsprache (informell, formell): Claude rät sonst du/Sie, tú/usted, tu/vous, Plain-/Keigo-Form
+REGISTER = {
+    "de": ("du", "Sie"), "es": ("tú", "usted"), "fr": ("tu", "vous"), "it": ("tu", "Lei"), "nl": ("je/jij", "u"),
+    "pt": ("tu/você (informal)", "o senhor/a senhora"), "ru": ("ты", "вы"), "uk": ("ти", "ви"),
+    "pl": ("ty", "Pan/Pani"), "tr": ("sen", "siz"), "hi": ("तुम", "आप"),
+    "ja": ("plain/casual form (no keigo)", "polite desu/masu form, keigo where fitting"),
+    "ko": ("informal speech (반말)", "polite speech (존댓말, 해요체/합쇼체)"),
+}
+
+
+def register_hint(dst, style):
+    """Satz zur Anrede in der Zielsprache nach dem Stil (casual = informell, sonst formell); leer ohne Eintrag."""
+    r = REGISTER.get(dst)
+    if not r:
+        return ""
+    return f" Address form in {lang_name(dst)}: use {r[0] if style == 'casual' else r[1]}."
+
+
 def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
     client = llm_client()
     names = {k: v["name"] for k, v in LANGS.items()}
@@ -1857,7 +1949,7 @@ def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
     kw = dict(model=LLM["model"], max_tokens=512,
               system=[{"type": "text", "text": static, "cache_control": {"type": "ephemeral"}},
                       {"type": "text", "text": STYLES.get(LLM["style"], STYLES["casual"])
-                       + (SLOW_PROMPT if SLOW["on"] else "")}],
+                       + register_hint(dst, LLM["style"]) + (SLOW_PROMPT if SLOW["on"] else "")}],
               messages=[{"role": "user", "content": "\n\n".join(parts)}])
     if not LLM.get("no_effort"):
         kw["output_config"] = {"effort": "low"}
@@ -1882,7 +1974,8 @@ def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
                 + n("cache_creation_input_tokens") * pin * 1.25 + n("output_tokens") * pout) / 1e6
         LLM["usd"] += cost
         _spend_add(cost)
-        emit("llm_cost", usd=round(LLM["usd"], 4), month_usd=round(_SPEND["usd"], 4))
+        emit("llm_cost", usd=round(LLM["usd"], 4), month_usd=round(_SPEND["usd"], 4),
+             price_known=LLM["model"] in LLM_PRICE)
     if r.stop_reason != "end_turn":                    # refusal, max_tokens, … -> nie halbe Sätze vorlesen
         raise RuntimeError(f"Claude: stop_reason {r.stop_reason}")
     out = _strip_quotes("".join(b.text for b in r.content if b.type == "text"))
@@ -2675,6 +2768,15 @@ def numbers_differ(a, b):
     return _numbers_differ(a, b, True) and _numbers_differ(a, b, False)
 
 
+def _numbers_detail(a, b):
+    """{src: [Zahlen nur im Original], out: [Zahlen nur in der Übersetzung]} (normalisiert) – die App kann genau
+    diese Zahlen markieren."""
+    na, nb = _numbers(a), _numbers(b)
+    only_a = [x for x in na if x not in nb]
+    only_b = [x for x in nb if x not in na]
+    return {"src": only_a[:8], "out": only_b[:8]}
+
+
 def _numbers_differ(a, b, equiv=True):
     """True, wenn Zahlen im Original und in der Übersetzung nicht übereinstimmen (Preise, Zeiten).
     Nur mit Zahlen auf beiden Seiten; einstellige Zahlen zählen nicht (oft als Wort übersetzt: 2 = สอง).
@@ -2728,13 +2830,28 @@ _EN_NOT_Q = re.compile(r"^\s*(?:how\s+(?:nice|great|cool|lovely|beautiful|sad|fu
                        r"(?:do|have)\s+(?:it|this|that|these|those)\b)", re.I)
 
 
+_Q_START = {
+    "de": re.compile(r"^\W*(?:wo|was|wer|wie|wann|warum|wieso|weshalb|welche[rsmn]?|wohin|woher|wieviel\w*|kann|können|"
+                     r"könnte[n]?|darf|dürfen|hast|haben|gibt es|ist|sind)\b", re.I),
+    "es": re.compile(r"^\W*(?:d[oó]nde|cu[aá]ndo|c[oó]mo|cu[aá]nto\w*|qui[eé]n|por qu[eé]|qu[eé]|"
+                     r"puedo|puede|hay)\b", re.I),
+    "fr": re.compile(r"^\W*(?:où|quand|comment|combien|pourquoi|est-ce|qui|quel(?:le)?s?|puis-je|avez-vous|y a-t-il)\b",
+                     re.I),
+}
+
+
 def is_question(text, lang):
     """Nr. 181: Frage für ครับ/ค่ะ vs. คะ. Whisper lässt das „?“ oft weg („Where is the toilet“): bei Englisch
     zählen auch Fragewort oder vorangestelltes Hilfsverb am Satzanfang (nicht Ausrufe wie „How nice“)."""
     t = (text or "").rstrip()
     if t.endswith(("?", "？", "؟")):
         return True
-    if lang != "en" or t.endswith("!"):
+    if t.endswith("!"):
+        return False
+    rx = _Q_START.get(lang)
+    if rx is not None:                          # Runde 7: Fragewörter weiterer Sprachen (Whisper lässt das "?" weg)
+        return bool(rx.match(t))
+    if lang != "en":
         return False
     return bool(_EN_Q.match(t)) and not _EN_NOT_Q.match(t)
 
@@ -2870,6 +2987,8 @@ def _wm(model, **kw):
     """Modell von der Platte laden, ohne bei jedem Start beim Hub nachzufragen (Modelle liegen
     nach dem ersten Mal im Cache). Nur wenn es lokal fehlt: herunterladen."""
     kw.setdefault("revision", MODEL_REVISIONS.get(model))   # eigene Pfade/Repo-IDs: None = wie bisher
+    if kw["revision"] is None and not os.path.exists(str(model)):
+        log({"model": model, "revision": "nicht gepinnt (bewegliche Revision, nur small/medium/best sind gepinnt)"})
     try:
         return _whisper_cls()(model, local_files_only=True, **kw)
     except Exception as e:
@@ -2920,6 +3039,15 @@ def _dir_bytes(path):
         return 0
 
 
+def _dir_bytes_since(path, t0):
+    """Bytes der Dateien, die seit t0 (Beginn dieses Downloads) geschrieben wurden: Blobs einer früheren Revision
+    zählen nicht mit (sonst zeigt der Fortschritt nach einem SHA-Update sofort fast 100 %)."""
+    try:
+        return sum(e.stat().st_size for e in os.scandir(path) if e.is_file() and e.stat().st_mtime >= t0 - 1.0)
+    except OSError:
+        return 0
+
+
 def _hub_total_mb(repo, revision):
     """Genaue Größe der Dateien, die faster-whisper lädt (wie download_model: allow_patterns); None bei Fehler."""
     try:
@@ -2943,9 +3071,10 @@ class DownloadProgress:
         self.total = MODEL_SIZE_MB.get(model) or MODEL_SIZE_MB.get(self.repo)
         self.stop = threading.Event()
         self.last = None
+        self.t0 = time.time()
 
     def _tick(self, final=False):
-        done = round(_dir_bytes(_hub_blobs(self.repo)) / 1e6)
+        done = round(_dir_bytes_since(_hub_blobs(self.repo), self.t0) / 1e6)
         if self.total and not final:
             done = min(done, self.total)
         if final and self.total and done >= self.total * 0.9:
@@ -5168,10 +5297,11 @@ class Engine:
         if source == "mic":
             lat_add("stt", stt_s)
             lat_add("tr", tr_s)
+        _nd = numbers_differ(text, out)
         emit("utt", to=dst, out=out, tr=round(tr_s, 2), translated=True, provider=meta.get("provider"),
              text_latin=thai_latin(text) if lang == "th" else None,
              out_latin=thai_latin(out) if dst == "th" else None,
-             num_warn=True if numbers_differ(text, out) else None, **base)
+             num_warn=True if _nd else None, num_diff=_numbers_detail(text, out) if _nd else None, **base)
         if speak:
             self.speaker.add(out, dst, uid, t_end=t_end, pin=source in ("phrase", "edit"))
         if BACK["on"]:
@@ -5460,7 +5590,7 @@ CTRL_KEYS = frozenset({
     "speak_text", "reassign", "retranslate", "reset_learning"}) | {f"tr_{k}" for k in LANGS} | {
     f"voice_{k}" for k in LANGS}
 
-CTRL_KEYS |= {"let_finish", "catch_up", "beam", "llm_retry", "clear"}       # Runde 6 (Nr. 69, 171, 176)
+CTRL_KEYS |= {"let_finish", "catch_up", "beam", "llm_retry", "clear", "cache_persist"}   # Runde 6/7
 
 
 def apply_control(eng, d):
@@ -5559,6 +5689,9 @@ def apply_control(eng, d):
             LLM["client"] = None
             llm_reset_backoff()
             _LLM_AVAIL["t"] = 0.0
+        ok, v = _flag(d, "cache_persist")
+        if ok:
+            later.append(lambda v=v: cache_persist(v))
         ok, v = _flag(d, "clear")
         if ok and v:                           # Mac-Punkt 9: Gespräch im Speicher löschen
             later.append(lambda: (eng.clear_context(), emit("cleared")))

@@ -96,6 +96,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | Variable | Wirkung |
 |---|---|
 | `ANTHROPIC_API_KEY` (oder `ANTHROPIC_AUTH_TOKEN`) | Claude-Schlüssel. Die Mac-App speichert ihn im Schlüsselbund (Dienst `Dolmetscher`, Konto `anthropic`) und setzt ihn beim Start jedes Engine-Prozesses als `ANTHROPIC_API_KEY`; die Engine ruft `security` nie selbst auf. Die alte Datei bleibt erhalten, bis der Schlüsselbund-Eintrag nachweislich lesbar ist, und wird dann in `anthropic_key.migrated` (0600) umbenannt, nie gelöscht. Rückfall ohne `ANTHROPIC_API_KEY` (Terminal, Schlüsselbund nicht erreichbar): Datei `~/Library/Application Support/Dolmetscher/anthropic_key` (nur der Schlüssel, Rechte 0600), sonst `anthropic_key.migrated` im selben Ordner |
+| `DOLMETSCHER_LLM_PRICES` | JSON `{"modell": [eingabe, ausgabe]}` (USD je Mio. Token): überschreibt/ergänzt die eingebaute Preisliste der Claude-Kosten; `llm_cost.price_known` sagt, ob das Modell in der Liste steht |
 | `DOLMETSCHER_BEAM` | Beam-Breite der Erkennung (Standard 1; überschreibt `--model auto`) |
 | `DOLMETSCHER_MIC_FILE` | Audiodatei in Echtzeit statt Mikrofon (Ende-zu-Ende-Test) |
 | `DOLMETSCHER_MIC_LOOP` | mit `DOLMETSCHER_MIC_FILE`: Datei endlos wiederholen |
@@ -575,3 +576,12 @@ App-Pipe nicht schnell genug abnahm, siehe Log).
   geleert. Schreiben läuft im Engine-Betrieb in einem eigenen Thread (nicht mehr im Ausgabe-Lock).
 - **Hilfsprozesse**: der Apple-Offline-Übersetzer-Helfer wird nach 5 min Leerlauf und beim Beenden beendet; die
   Neural-Stimme öffnet nach zwei Fehlschlägen 30 s lang keine neuen Verbindungen.
+
+- **`cache_persist`** (Steuerfeld, bool): Übersetzungs-Cache übersteht den Neustart (Datei `translation_cache.json` im Datenordner,
+  0600, höchstens 300 Einträge). Standard aus; ausschalten oder `clear` löscht die Datei. So gehen schon übersetzte
+  Standardsätze auch ohne Netz.
+- **`utt.num_diff`** (E1-50): wenn `num_warn` gesetzt ist, `{src: [...], out: [...]}` mit den Zahlen, die nur im Original bzw. nur in der
+  Übersetzung stehen (normalisiert, höchstens 8 je Seite), damit die App genau sie markieren kann.
+- `llm_cost.price_known` (bool): Modell steht in der Preisliste (sonst Schätzung mit dem Opus-Preis).
+- **Claude-Anrede** (E1-20): der Prompt nennt je Zielsprache die Anrede nach dem Stil (de du/Sie, es tú/usted, fr tu/vous,
+  ja einfache/höfliche Form, ko 반말/존댓말 …). **Fragen ohne „?“** erkennt die Engine jetzt auch für de, es, fr (ครับ/คะ).
