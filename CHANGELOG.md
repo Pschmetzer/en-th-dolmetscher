@@ -112,6 +112,7 @@ Pull requests #16–#47. Not yet published as a release.
 
 ### Infrastructure and documentation
 
+- **Test suite upkeep** (round 17): tests that need faster-whisper or PyAV skip with a clear reason when the package is missing, the LLM cache test no longer needs the `anthropic` SDK, and the one-off `git diff origin/main` test is gone; the iPhone onboarding uses `StatusColor` instead of raw system colours; `tools/check_all.sh` also runs script syntax, shellcheck and the phrase-pack checks like CI.
 - **Thai documentation** (round 13): `docs/th/` with README, quick start, FAQ and short privacy notes for Thai users, flagged as machine-translated and not checked by native speakers; `tests/test_runde13_docs_th.py` checks links, paths and the pack and language counts.
 - **Reproducible installs** (#21): speech models pinned to fixed versions; all Python packages locked with checksums; security audit includes indirect packages.
 - **Code quality** (#16, #21, #25, #28): pytest and ruff updated; ruff checks all modules and blocks merges; CI jobs have time limits; the wake-word tests run against the real code.

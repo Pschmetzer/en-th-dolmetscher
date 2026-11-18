@@ -1,6 +1,7 @@
 """Tests für Sprachbefehle, Netz/Backoff, Claude-Anfrage, Zahlen, Temp-Dateien und Log-Rechte."""
 import os
 import stat
+import sys
 import types
 import urllib.error
 import urllib.parse
@@ -196,6 +197,7 @@ def test_errtxt_has_no_message_text():
 
 def test_llm_available_cached(monkeypatch):
     monkeypatch.setenv("ANTHROPIC_API_KEY", "k")
+    monkeypatch.setitem(sys.modules, "anthropic", types.ModuleType("anthropic"))   # unabhängig vom installierten SDK
     d._LLM_AVAIL.update(t=0.0, env=None, v=False)
     assert d.llm_available() is True
     monkeypatch.setattr(d.os.path, "exists", lambda p: (_ for _ in ()).throw(AssertionError("nicht erneut prüfen")))
