@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: changelog-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   entry:
     runs-on: ubuntu-latest
