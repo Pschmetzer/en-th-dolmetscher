@@ -1,20 +1,16 @@
 {
   "id": "festival",
   "names": {
-    "de": "Feste und Veranstaltungen",
-    "en": "Festivals and events",
-    "th": "เทศกาลและงานอีเวนต์"
+    "de": "Feste (Songkran, Loy Krathong)",
+    "en": "Festivals (Songkran, Loy Krathong)",
+    "th": "เทศกาล (สงกรานต์ ลอยกระทง)"
   },
   "style": "polite",
   "note": {
-    "de": "Bei Songkran wird man nass; Handy und Papiere in wasserdichte Hülle. Bei Loy Krathong und großen Festen Menschenmengen meiden, Wertsachen sichern. Im Gedränge Kinder an der Hand halten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "At Songkran you will get wet; keep phone and papers in a waterproof pouch. At Loy Krathong and big festivals avoid crowds and secure valuables. Hold children's hands in a crowd. Thai sentences machine-made, not checked by native speakers."
+    "de": "Songkran (13.–15. April): Wasser trifft fast jeden. Mönche, Ältere und Motorradfahrer nicht bespritzen, Handy wasserdicht verpacken. Loy Krathong (Vollmond im November): Krathong aus Bananenblatt statt Schaumstoff wählen; Himmelslaternen sind vielerorts verboten. In Menschenmengen auf Kinder und Taschen achten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Songkran (13–15 April): almost everyone gets splashed. Do not splash monks, elderly people or motorbike riders, and keep your phone waterproofed. Loy Krathong (full moon in November): choose a banana-leaf krathong, not foam; sky lanterns are banned in many places. In crowds watch children and bags. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
-    {
-      "en": "festival",
-      "th": "เทศกาล"
-    },
     {
       "en": "Songkran",
       "th": "สงกรานต์"
@@ -24,27 +20,31 @@
       "th": "ลอยกระทง"
     },
     {
-      "en": "fireworks",
-      "th": "ดอกไม้ไฟ"
+      "en": "krathong",
+      "th": "กระทง"
     },
     {
-      "en": "ticket",
-      "th": "ตั๋ว"
+      "en": "water gun",
+      "th": "ปืนฉีดน้ำ"
     },
     {
-      "en": "crowd",
-      "th": "ฝูงชน"
+      "en": "parade",
+      "th": "ขบวนแห่"
+    },
+    {
+      "en": "lantern",
+      "th": "โคม"
     }
   ],
   "phrases": [
     {
-      "en": "I need help.",
-      "th": "ต้องการความช่วยเหลือ",
+      "en": "This is an emergency. Please call an ambulance (1669).",
+      "th": "นี่เป็นเหตุฉุกเฉิน ช่วยเรียกรถพยาบาลด้วย (1669)",
       "critical": true
     },
     {
-      "en": "I lost my child.",
-      "th": "ลูกหาย",
+      "en": "Please call the police (191).",
+      "th": "ช่วยโทรแจ้งตำรวจ 191 ด้วย",
       "critical": true
     },
     {
@@ -53,66 +53,69 @@
       "critical": true
     },
     {
-      "en": "Please call an ambulance.",
-      "th": "ช่วยเรียกรถพยาบาลหน่อย",
+      "en": "I cannot breathe in this crowd.",
+      "th": "หายใจไม่ออกเพราะคนเยอะ",
       "critical": true
     },
     {
-      "en": "Where is the first aid station?",
-      "th": "จุดปฐมพยาบาลอยู่ที่ไหน",
-      "critical": true
+      "en": "Happy Songkran!",
+      "th": "สุขสันต์วันสงกรานต์"
     },
     {
-      "en": "My phone was stolen.",
-      "th": "โทรศัพท์ถูกขโมย"
+      "en": "Happy Loy Krathong!",
+      "th": "สุขสันต์วันลอยกระทง"
     },
     {
-      "en": "Where is the lost and found?",
-      "th": "ที่รับแจ้งของหายอยู่ที่ไหน"
-    },
-    {
-      "en": "Where is the entrance?",
-      "th": "ทางเข้าอยู่ที่ไหน"
-    },
-    {
-      "en": "Where is the exit?",
-      "th": "ทางออกอยู่ที่ไหน"
-    },
-    {
-      "en": "Where can I buy tickets?",
-      "th": "ซื้อตั๋วได้ที่ไหน"
-    },
-    {
-      "en": "What time does it start?",
-      "th": "เริ่มกี่โมง"
-    },
-    {
-      "en": "What time does it end?",
-      "th": "จบกี่โมง"
-    },
-    {
-      "en": "Is it free?",
-      "th": "เข้าฟรีไหม"
-    },
-    {
-      "en": "Is it safe for children?",
-      "th": "ปลอดภัยสำหรับเด็กไหม"
-    },
-    {
-      "en": "Where is the toilet?",
-      "th": "ห้องน้ำอยู่ที่ไหน"
-    },
-    {
-      "en": "Where can I get drinking water?",
-      "th": "ขอน้ำดื่มได้ที่ไหน"
+      "en": "Is it okay to splash you with water?",
+      "th": "สาดน้ำใส่ได้ไหม"
     },
     {
       "en": "Please do not splash me.",
       "th": "ช่วยอย่าสาดน้ำใส่"
     },
     {
-      "en": "Could you take a photo of us?",
-      "th": "ช่วยถ่ายรูปให้หน่อยได้ไหม"
+      "en": "Please do not splash my phone.",
+      "th": "ช่วยอย่าสาดน้ำใส่โทรศัพท์"
+    },
+    {
+      "en": "Where can I buy a krathong?",
+      "th": "ซื้อกระทงได้ที่ไหน"
+    },
+    {
+      "en": "Where can I float my krathong?",
+      "th": "ลอยกระทงได้ที่ไหน"
+    },
+    {
+      "en": "Could you show me how?",
+      "th": "ช่วยสอนวิธีให้หน่อย"
+    },
+    {
+      "en": "Is it allowed to release a lantern here?",
+      "th": "ปล่อยโคมที่นี่ได้ไหม"
+    },
+    {
+      "en": "What time does the parade start?",
+      "th": "ขบวนแห่เริ่มกี่โมง"
+    },
+    {
+      "en": "Is there an entrance fee for the event?",
+      "th": "มีค่าเข้างานไหม"
+    },
+    {
+      "en": "Where is the best place to watch?",
+      "th": "จุดไหนดูได้ชัดที่สุด"
+    },
+    {
+      "en": "Is it okay to take photos here?",
+      "th": "ถ่ายรูปที่นี่ได้ไหม"
+    },
+    {
+      "en": "Is the road closed?",
+      "th": "ถนนปิดไหม"
+    },
+    {
+      "en": "Where is the toilet?",
+      "th": "ห้องน้ำอยู่ที่ไหน"
     }
   ]
 }

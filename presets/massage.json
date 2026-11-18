@@ -1,113 +1,124 @@
 {
   "id": "massage",
   "names": {
-    "de": "Massage-Studio und Salon",
-    "en": "Massage parlour",
-    "th": "ร้านนวด"
+    "de": "Thai-Massage",
+    "en": "Thai massage",
+    "th": "นวดแผนไทย"
   },
   "style": "polite",
   "note": {
-    "de": "Ergänzt das Spa-Paket: Preis und Dauer vor dem Beginn klären, Trinkgeld 50–100 Baht ist üblich. Bei Unwohlsein sofort „หยุด“ sagen. Seriöse Salons haben feste Preislisten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Complements the spa pack: agree price and duration first; a tip of 50–100 baht is common. Say \"หยุด\" at once if you feel unwell. Reputable parlours show fixed price lists. Thai sentences machine-made, not checked by native speakers."
+    "de": "Schuhe vor dem Laden ausziehen; ein Lächeln und ein Wai zur Begrüßung sind üblich. Schwangerschaft, Verletzungen, Fieber, Herz- oder Blutdruckprobleme vorher ansagen. Preis vorher klären, Trinkgeld (oft 50–100 Baht) ist üblich, aber freiwillig. Wertsachen nicht im Raum lassen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Take your shoes off before entering; a smile and a wai are the usual greeting. Mention pregnancy, injuries, fever, heart or blood-pressure problems beforehand. Agree the price first; a tip (often 50–100 baht) is usual but optional. Do not leave valuables in the room. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
-      "en": "massage",
-      "th": "นวด"
+      "en": "Thai massage",
+      "th": "นวดแผนไทย"
     },
     {
-      "en": "one hour",
-      "th": "หนึ่งชั่วโมง"
+      "en": "foot massage",
+      "th": "นวดเท้า"
     },
     {
-      "en": "harder",
-      "th": "แรงขึ้น"
+      "en": "oil massage",
+      "th": "นวดน้ำมัน"
     },
     {
-      "en": "softer",
-      "th": "เบาลง"
+      "en": "therapist",
+      "th": "หมอนวด"
     },
     {
-      "en": "towel",
-      "th": "ผ้าเช็ดตัว"
+      "en": "shoulders",
+      "th": "ไหล่"
     },
     {
-      "en": "price list",
-      "th": "ราคา"
+      "en": "back",
+      "th": "หลัง"
     }
   ],
   "phrases": [
     {
-      "en": "Please stop.",
-      "th": "หยุดก่อน",
+      "en": "Please stop, it hurts.",
+      "th": "หยุดก่อน เจ็บ",
       "critical": true
     },
     {
-      "en": "That hurts.",
-      "th": "เจ็บ",
+      "en": "I am pregnant.",
+      "th": "กำลังตั้งครรภ์",
       "critical": true
     },
     {
-      "en": "I feel dizzy.",
-      "th": "เวียนหัว",
+      "en": "I have a back injury. Please be careful.",
+      "th": "หลังบาดเจ็บอยู่ ช่วยระวังด้วย",
       "critical": true
     },
     {
-      "en": "I have a skin allergy.",
-      "th": "แพ้ผิวหนัง",
+      "en": "I have high blood pressure.",
+      "th": "เป็นความดันโลหิตสูง",
       "critical": true
     },
     {
-      "en": "How much for one hour?",
-      "th": "หนึ่งชั่วโมงราคาเท่าไหร่"
+      "en": "I have a heart condition.",
+      "th": "เป็นโรคหัวใจ",
+      "critical": true
     },
     {
-      "en": "How long is the massage?",
-      "th": "นวดนานเท่าไหร่"
+      "en": "I have recently had surgery.",
+      "th": "เพิ่งผ่าตัดมา",
+      "critical": true
     },
     {
-      "en": "Could you press harder, please?",
-      "th": "ช่วยนวดแรงขึ้นหน่อย"
+      "en": "Please do not crack my neck or back.",
+      "th": "ไม่ต้องดัดคอหรือหลัง",
+      "critical": true
     },
     {
-      "en": "Could you press softer, please?",
-      "th": "ช่วยนวดเบาลงหน่อย"
+      "en": "Softer, please.",
+      "th": "เบาๆ หน่อย"
     },
     {
-      "en": "Not on the neck, please.",
-      "th": "ไม่ต้องนวดคอ"
+      "en": "Stronger, please.",
+      "th": "แรงขึ้นอีกหน่อย"
+    },
+    {
+      "en": "That is just right.",
+      "th": "กำลังดี"
+    },
+    {
+      "en": "That hurts a little.",
+      "th": "เจ็บนิดหน่อย"
+    },
+    {
+      "en": "How much is a one-hour Thai massage?",
+      "th": "นวดแผนไทยหนึ่งชั่วโมงเท่าไหร่"
+    },
+    {
+      "en": "Two hours, please.",
+      "th": "ขอสองชั่วโมง"
     },
     {
       "en": "Please focus on my shoulders.",
       "th": "ช่วยนวดไหล่เยอะๆ หน่อย"
     },
     {
-      "en": "Where can I change?",
-      "th": "เปลี่ยนเสื้อผ้าได้ที่ไหน"
+      "en": "Please press here.",
+      "th": "ช่วยกดตรงนี้หน่อย"
     },
     {
-      "en": "Could I have a towel, please?",
-      "th": "ขอผ้าเช็ดตัวหน่อย"
+      "en": "Could I have a female therapist?",
+      "th": "ขอหมอนวดผู้หญิงได้ไหม"
     },
     {
-      "en": "Is the room warm enough?",
-      "th": "ห้องนี้อุ่นพอไหม"
+      "en": "Could you turn the air conditioning down?",
+      "th": "ช่วยลดแอร์หน่อย"
     },
     {
-      "en": "It is too cold in here.",
-      "th": "ในห้องนี้หนาวเกินไป"
+      "en": "Where can I leave my valuables?",
+      "th": "ฝากของมีค่าไว้ที่ไหนได้"
     },
     {
-      "en": "Please turn off the air conditioning.",
-      "th": "ช่วยปิดแอร์หน่อย"
-    },
-    {
-      "en": "That feels good.",
-      "th": "สบายดี"
-    },
-    {
-      "en": "Do you accept cards?",
-      "th": "รับบัตรไหม"
+      "en": "Do I need to tip?",
+      "th": "ต้องให้ทิปไหม"
     }
   ]
 }

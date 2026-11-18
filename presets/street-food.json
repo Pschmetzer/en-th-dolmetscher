@@ -7,33 +7,33 @@
   },
   "style": "polite",
   "note": {
-    "de": "Streetfood ist sicher, wenn es frisch gekocht wird und viele Einheimische anstehen. Allergien vorher sagen; „ไม่เผ็ด“ heißt nicht scharf. Bezahlt wird bar, oft passend. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Street food is safe when cooked fresh and busy with locals. Tell stalls about allergies first; \"ไม่เผ็ด\" means not spicy. Pay in cash, often exact change. Thai sentences machine-made, not checked by native speakers."
+    "de": "Stände mit viel Andrang und frisch gegartem, heißem Essen wählen. Zutaten kann der Verkäufer oft nicht vollständig nennen; Erdnüsse, Garnelenpaste und Fischsauce sind häufig. Leitungswasser nicht trinken, Eis nur aus Fabrikeis. Meist Bargeld, teils QR-Code. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Choose busy stalls with freshly cooked, hot food. Vendors often cannot name every ingredient; peanuts, shrimp paste and fish sauce are common. Do not drink tap water; ice is usually factory-made. Mostly cash, sometimes QR code. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
-      "en": "street food",
-      "th": "อาหารริมทาง"
+      "en": "street food stall",
+      "th": "ร้านอาหารริมทาง"
     },
     {
-      "en": "stall",
-      "th": "แผงขายของ"
+      "en": "grilled",
+      "th": "ย่าง"
+    },
+    {
+      "en": "fried",
+      "th": "ทอด"
+    },
+    {
+      "en": "noodles",
+      "th": "ก๋วยเตี๋ยว"
     },
     {
       "en": "spicy",
       "th": "เผ็ด"
     },
     {
-      "en": "not spicy",
-      "th": "ไม่เผ็ด"
-    },
-    {
       "en": "sticky rice",
       "th": "ข้าวเหนียว"
-    },
-    {
-      "en": "grilled",
-      "th": "ย่าง"
     }
   ],
   "phrases": [
@@ -43,31 +43,27 @@
       "critical": true
     },
     {
-      "en": "I am allergic to shellfish.",
-      "th": "แพ้อาหารทะเลเปลือกแข็ง",
+      "en": "I am allergic to shrimp and shellfish.",
+      "th": "แพ้กุ้งและหอย",
       "critical": true
     },
     {
-      "en": "Does this contain egg?",
-      "th": "อันนี้มีไข่ไหม",
+      "en": "I am allergic to eggs.",
+      "th": "แพ้ไข่",
       "critical": true
     },
     {
-      "en": "Is there fish sauce in this?",
-      "th": "อันนี้ใส่น้ำปลาไหม",
+      "en": "I am allergic to fish.",
+      "th": "แพ้ปลา",
       "critical": true
     },
     {
-      "en": "Is this freshly cooked?",
-      "th": "อันนี้ทำสดใหม่ไหม"
+      "en": "What is this?",
+      "th": "นี่คืออะไร"
     },
     {
       "en": "How much is this?",
       "th": "อันนี้ราคาเท่าไหร่"
-    },
-    {
-      "en": "One of these, please.",
-      "th": "ขออันนี้หนึ่งอัน"
     },
     {
       "en": "Not spicy, please.",
@@ -78,40 +74,52 @@
       "th": "เผ็ดนิดเดียว"
     },
     {
+      "en": "No fish sauce, please.",
+      "th": "ไม่ใส่น้ำปลา"
+    },
+    {
       "en": "No sugar, please.",
       "th": "ไม่ใส่น้ำตาล"
     },
     {
-      "en": "Without ice, please.",
+      "en": "I am vegetarian.",
+      "th": "กินมังสวิรัติ"
+    },
+    {
+      "en": "Is there pork in this?",
+      "th": "อันนี้มีหมูไหม"
+    },
+    {
+      "en": "No ice, please.",
       "th": "ไม่ใส่น้ำแข็ง"
     },
     {
+      "en": "Is it cooked fresh?",
+      "th": "ปรุงสดใหม่ไหม"
+    },
+    {
+      "en": "Please cook it well done.",
+      "th": "ช่วยทำให้สุกดีหน่อย"
+    },
+    {
       "en": "Takeaway, please.",
-      "th": "ขอใส่ถุงกลับบ้าน"
+      "th": "ขอห่อกลับบ้าน"
     },
     {
-      "en": "What is this?",
-      "th": "นี่คืออะไร"
+      "en": "Eating here.",
+      "th": "กินที่นี่"
     },
     {
-      "en": "Is this meat pork or chicken?",
-      "th": "เนื้อนี้เป็นหมูหรือไก่"
+      "en": "One more portion, please.",
+      "th": "ขออีกหนึ่งที่"
     },
     {
-      "en": "Is there a vegetarian option?",
-      "th": "มีแบบมังสวิรัติไหม"
+      "en": "Do you have bottled water?",
+      "th": "มีน้ำดื่มขวดไหม"
     },
     {
-      "en": "Please do not add MSG.",
-      "th": "ไม่ใส่ผงชูรส"
-    },
-    {
-      "en": "Where can I wash my hands?",
-      "th": "ล้างมือได้ที่ไหน"
-    },
-    {
-      "en": "It was delicious.",
-      "th": "อร่อยมาก"
+      "en": "Can I pay by QR code?",
+      "th": "จ่ายด้วยคิวอาร์โค้ดได้ไหม"
     }
   ]
 }

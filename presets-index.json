@@ -283,19 +283,19 @@
     "en": "Beach",
     "th": "ชายหาด"
    },
-   "phrases": 17,
-   "critical": 3,
+   "phrases": 18,
+   "critical": 5,
    "reviewed": false
   },
   {
    "id": "bus-train",
    "names": {
-    "de": "Bus und Zug",
-    "en": "Bus and train",
-    "th": "รถเมล์และรถไฟ"
+    "de": "Fernbus und Bahn",
+    "en": "Long-distance bus and train",
+    "th": "รถทัวร์และรถไฟ"
    },
-   "phrases": 18,
-   "critical": 4,
+   "phrases": 19,
+   "critical": 3,
    "reviewed": false
   },
   {
@@ -334,12 +334,12 @@
   {
    "id": "festival",
    "names": {
-    "de": "Feste und Veranstaltungen",
-    "en": "Festivals and events",
-    "th": "เทศกาลและงานอีเวนต์"
+    "de": "Feste (Songkran, Loy Krathong)",
+    "en": "Festivals (Songkran, Loy Krathong)",
+    "th": "เทศกาล (สงกรานต์ ลอยกระทง)"
    },
-   "phrases": 18,
-   "critical": 5,
+   "phrases": 19,
+   "critical": 4,
    "reviewed": false
   },
   {
@@ -356,9 +356,9 @@
   {
    "id": "hiking",
    "names": {
-    "de": "Wandern und Trekking",
-    "en": "Hiking and trekking",
-    "th": "เดินป่าและเทรคกิ้ง"
+    "de": "Wandern und Dschungel",
+    "en": "Hiking and jungle",
+    "th": "เดินป่า"
    },
    "phrases": 18,
    "critical": 5,
@@ -389,12 +389,12 @@
   {
    "id": "laundry-repair",
    "names": {
-    "de": "Wäscherei und Reparatur",
-    "en": "Laundry and repairs",
-    "th": "ซักรีดและซ่อม"
+    "de": "Schneider, Schuster, Handyreparatur",
+    "en": "Tailor, cobbler, phone repair",
+    "th": "ซ่อมเสื้อผ้า รองเท้า โทรศัพท์"
    },
-   "phrases": 18,
-   "critical": 2,
+   "phrases": 19,
+   "critical": 1,
    "reviewed": false
   },
   {
@@ -411,12 +411,12 @@
   {
    "id": "massage",
    "names": {
-    "de": "Massage-Studio und Salon",
-    "en": "Massage parlour",
-    "th": "ร้านนวด"
+    "de": "Thai-Massage",
+    "en": "Thai massage",
+    "th": "นวดแผนไทย"
    },
-   "phrases": 17,
-   "critical": 4,
+   "phrases": 19,
+   "critical": 7,
    "reviewed": false
   },
   {
@@ -448,8 +448,8 @@
     "en": "Nightlife and bars",
     "th": "ชีวิตกลางคืนและบาร์"
    },
-   "phrases": 18,
-   "critical": 5,
+   "phrases": 20,
+   "critical": 6,
    "reviewed": false
   },
   {
@@ -525,7 +525,7 @@
     "en": "Street food",
     "th": "อาหารริมทาง"
    },
-   "phrases": 18,
+   "phrases": 20,
    "critical": 4,
    "reviewed": false
   },

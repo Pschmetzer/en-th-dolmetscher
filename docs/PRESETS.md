@@ -88,28 +88,18 @@ kennen, ignorieren sie.
 | `gym` | Fitnessstudio | 4 kritische Sätze zuerst |
 | `wedding` | Hochzeit und Feier | 4 kritische Sätze zuerst |
 | `photo` | Fotografieren | 4 kritische Sätze zuerst |
+| `bus-train` | Fernbus und Bahn | kritische Sätze zuerst |
+| `beach` | Strand | kritische Sätze zuerst |
+| `hiking` | Wandern und Dschungel | kritische Sätze zuerst |
+| `street-food` | Streetfood | kritische Sätze zuerst |
+| `massage` | Thai-Massage | kritische Sätze zuerst |
+| `nightlife` | Nachtleben und Bars | kritische Sätze zuerst |
+| `festival` | Feste (Songkran, Loy Krathong) | kritische Sätze zuerst |
+| `laundry-repair` | Schneider, Schuster, Handyreparatur | kritische Sätze zuerst |
+| `pharmacy-otc` | Apotheke: rezeptfreie Mittel (nur Verständigung) | Allergien, Schwangerschaft, Kinder, Wechselwirkung, Rezept |
+| `mobile-sim` | SIM, Internet und Handy | Handy gestohlen, Handy verloren, SIM sperren |
 | `monk` | Mönche und Tempelbesuch | 4 kritische Sätze zuerst |
 | `hospital` | Krankenhaus | 5 kritische Sätze zuerst |
-| `bus-train` | Bus und Zug | Hilfe, Ticket verloren, Diebstahl, Polizei |
-| `beach` | Strand | Ertrinkender, nicht schwimmen können, Rettung |
-| `hiking` | Wandern und Trekking | verirrt, Hilfe, Schlangenbiss, Verletzung, Rettung |
-| `street-food` | Streetfood | Allergien: Erdnuss, Schalentiere, Ei, Fischsauce |
-| `massage` | Massage-Studio und Salon | Stopp, Schmerz, Schwindel, Hautallergie |
-| `nightlife` | Nachtleben und Bars | Hilfe, Polizei, K.-o.-Tropfen, Taxi, Tourist Police |
-| `festival` | Feste und Veranstaltungen | Hilfe, Kind verloren, Schwächegefühl, Rettung, Erste Hilfe |
-| `laundry-repair` | Wäscherei und Reparatur | 2 kritische Sätze zuerst |
-| `pharmacy-otc` | Apotheke: rezeptfreie Mittel (nur Verständigung) | Allergien, Schwangerschaft, Kinder, Wechselwirkung, Rezept |
-| `mobile-sim` | SIM, Internet und Handy | Handy gestohlen, Handy verloren, SIM sperren |
-| `bus-train` | Bus und Zug | Hilfe, Ticket verloren, Diebstahl, Polizei |
-| `beach` | Strand | Ertrinkender, nicht schwimmen können, Rettung |
-| `hiking` | Wandern und Trekking | verirrt, Hilfe, Schlangenbiss, Verletzung, Rettung |
-| `street-food` | Streetfood | Allergien: Erdnuss, Schalentiere, Ei, Fischsauce |
-| `massage` | Massage-Studio und Salon | Stopp, Schmerz, Schwindel, Hautallergie |
-| `nightlife` | Nachtleben und Bars | Hilfe, Polizei, K.-o.-Tropfen, Taxi, Tourist Police |
-| `festival` | Feste und Veranstaltungen | Hilfe, Kind verloren, Schwächegefühl, Rettung, Erste Hilfe |
-| `laundry-repair` | Wäscherei und Reparatur | 2 kritische Sätze zuerst |
-| `pharmacy-otc` | Apotheke: rezeptfreie Mittel (nur Verständigung) | Allergien, Schwangerschaft, Kinder, Wechselwirkung, Rezept |
-| `mobile-sim` | SIM, Internet und Handy | Handy gestohlen, Handy verloren, SIM sperren |
 
 ## Unsichere Sätze (bitte zuerst prüfen)
 

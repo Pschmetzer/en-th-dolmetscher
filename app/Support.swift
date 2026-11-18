@@ -53,8 +53,9 @@ enum ExportFormat: String, CaseIterable {
 
 extension EngineModel {
     /// Gespräch als Text in einem der Exportformate. Kopfzeile in der Oberflächensprache.
-    func transcript(_ format: ExportFormat) -> String {
-        let done = items.filter { !$0.pending }
+    /// `from`: nur diese Einträge (z. B. die Treffer der Suche); sonst der ganze Verlauf.
+    func transcript(_ format: ExportFormat, from subset: [Utterance]? = nil) -> String {
+        let done = (subset ?? items).filter { !$0.pending }
         let df = DateFormatter(); df.dateFormat = "HH:mm:ss"
         let day = DateFormatter()
         day.dateStyle = .long; day.timeStyle = .short
@@ -128,7 +129,7 @@ extension EngineModel {
 }
 
 @MainActor
-func exportConversation(_ m: EngineModel) {
+func exportConversation(_ m: EngineModel, only subset: [Utterance]? = nil) {
     let panel = NSSavePanel()
     panel.title = L.t("export")
     panel.message = L.t("export_message")
@@ -140,7 +141,7 @@ func exportConversation(_ m: EngineModel) {
     guard panel.runModal() == .OK, let url = panel.url else { return }
     let format = ExportFormat.from(extension: url.pathExtension)
     // CSV mit UTF-8-BOM: Excel liest die Datei sonst als Windows-1252 (Thai und Umlaute als Zeichensalat)
-    let text = (format == .csv ? "\u{FEFF}" : "") + m.transcript(format)
+    let text = (format == .csv ? "\u{FEFF}" : "") + m.transcript(format, from: subset)
     do { try text.write(to: url, atomically: true, encoding: .utf8) }
     catch { NSAlert(error: error).runModal() }
 }

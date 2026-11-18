@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Rote Flagge heißt Badeverbot wegen Strömung, besonders in der Regenzeit. Kinder nie allein im Wasser lassen. Oben ohne ist in Thailand nicht üblich. Notruf Rettung: 1669. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "A red flag means no swimming because of currents, especially in the rainy season. Never leave children alone in the water. Going topless is not usual in Thailand. Ambulance: 1669. Thai sentences machine-made, not checked by native speakers."
+    "de": "Rote Flagge heißt: nicht ins Wasser. In der Regenzeit sind Strömungen und Wellen stark, Quallen kommen saisonweise vor. Nie nach Alkohol schwimmen. Bei Atemnot oder starken Schmerzen nach einem Quallenstich sofort 1669 rufen (nur Verständigung, kein medizinischer Rat). Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "A red flag means stay out of the water. In the rainy season currents and waves are strong, and jellyfish come in seasons. Never swim after alcohol. After a jellyfish sting, call 1669 at once if you struggle to breathe or the pain is severe (communication aid, not medical advice). Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -16,30 +16,45 @@
       "th": "ชายหาด"
     },
     {
-      "en": "wave",
-      "th": "คลื่น"
+      "en": "jellyfish",
+      "th": "แมงกะพรุน"
     },
     {
       "en": "lifeguard",
       "th": "เจ้าหน้าที่ช่วยชีวิต"
     },
     {
+      "en": "wave",
+      "th": "คลื่น"
+    },
+    {
       "en": "sunscreen",
       "th": "ครีมกันแดด"
     },
     {
-      "en": "sun lounger",
-      "th": "เตียงชายหาด"
-    },
-    {
-      "en": "umbrella",
-      "th": "ร่ม"
+      "en": "sunbed",
+      "th": "เตียงอาบแดด"
     }
   ],
   "phrases": [
     {
-      "en": "Help, someone is drowning.",
+      "en": "Help! Someone is drowning.",
       "th": "ช่วยด้วย มีคนจมน้ำ",
+      "critical": true
+    },
+    {
+      "en": "Please call the lifeguard.",
+      "th": "ช่วยเรียกเจ้าหน้าที่ช่วยชีวิตหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I was stung by a jellyfish.",
+      "th": "โดนแมงกะพรุนต่อย",
+      "critical": true
+    },
+    {
+      "en": "This is an emergency. Please call an ambulance (1669).",
+      "th": "นี่เป็นเหตุฉุกเฉิน ช่วยเรียกรถพยาบาลด้วย (1669)",
       "critical": true
     },
     {
@@ -48,65 +63,56 @@
       "critical": true
     },
     {
-      "en": "Please call an ambulance.",
-      "th": "ช่วยเรียกรถพยาบาลหน่อย",
-      "critical": true
-    },
-    {
-      "en": "Where is the lifeguard?",
-      "th": "เจ้าหน้าที่ช่วยชีวิตอยู่ที่ไหน"
-    },
-    {
       "en": "Is it safe to swim here?",
       "th": "ว่ายน้ำตรงนี้ปลอดภัยไหม"
-    },
-    {
-      "en": "What does the red flag mean?",
-      "th": "ธงแดงหมายความว่าอะไร"
     },
     {
       "en": "Are there jellyfish?",
       "th": "มีแมงกะพรุนไหม"
     },
     {
-      "en": "I was stung by a jellyfish.",
-      "th": "ถูกแมงกะพรุนต่อย"
+      "en": "Is there a lifeguard on this beach?",
+      "th": "ชายหาดนี้มีเจ้าหน้าที่ช่วยชีวิตไหม"
     },
     {
-      "en": "Where can I rent a sun lounger?",
-      "th": "เช่าเตียงชายหาดได้ที่ไหน"
+      "en": "What does the red flag mean?",
+      "th": "ธงแดงหมายความว่าอย่างไร"
     },
     {
-      "en": "How much for a sun lounger?",
-      "th": "เตียงชายหาดราคาเท่าไหร่"
+      "en": "Are there strong currents?",
+      "th": "มีกระแสน้ำแรงไหม"
     },
     {
       "en": "Is the water deep here?",
-      "th": "น้ำตรงนี้ลึกไหม"
+      "th": "น้ำลึกตรงนี้ไหม"
+    },
+    {
+      "en": "Do you have vinegar?",
+      "th": "มีน้ำส้มสายชูไหม"
+    },
+    {
+      "en": "Is there a first aid post?",
+      "th": "มีจุดปฐมพยาบาลไหม"
+    },
+    {
+      "en": "Where can I rent a sunbed?",
+      "th": "เช่าเตียงอาบแดดได้ที่ไหน"
     },
     {
       "en": "Could you watch my bag, please?",
-      "th": "ช่วยดูกระเป๋าให้หน่อยได้ไหม"
+      "th": "ช่วยดูกระเป๋าให้หน่อย"
     },
     {
-      "en": "Where is the shower?",
+      "en": "Where are the showers?",
       "th": "ห้องอาบน้ำอยู่ที่ไหน"
-    },
-    {
-      "en": "Where is the toilet?",
-      "th": "ห้องน้ำอยู่ที่ไหน"
     },
     {
       "en": "Do you have sunscreen?",
       "th": "มีครีมกันแดดไหม"
     },
     {
-      "en": "Is the sea calm today?",
-      "th": "วันนี้ทะเลสงบไหม"
-    },
-    {
-      "en": "What time does the tide come in?",
-      "th": "น้ำขึ้นกี่โมง"
+      "en": "How much per hour?",
+      "th": "ชั่วโมงละเท่าไร"
     }
   ]
 }

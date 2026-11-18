@@ -333,7 +333,9 @@ def clean_vocab(words):
         words = [words]
     out, seen = [], set()
     for chunk in words or []:
-        for w in re.split(r"[,;\n\r]", _nfc(str(chunk))):
+        if not isinstance(chunk, str):
+            continue                                     # None/Zahlen sind keine Wörter (nicht "None" aufnehmen)
+        for w in re.split(r"[,;\n\r]", _nfc(chunk)):
             w = re.sub(r"\s+", " ", w).strip()[:MAX_VOCAB_LEN]
             if w and w.casefold() not in seen:
                 seen.add(w.casefold())

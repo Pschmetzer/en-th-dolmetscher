@@ -56,7 +56,7 @@ struct SayPhraseIntent: AppIntent {
 
 /// Live-Aktivität beim Zuhören: letzter Satz und Mikrofonstatus. Daten kommen über ActivityKit (kein App Group).
 struct ListeningActivityAttributes: ActivityAttributes {
-    enum Status: String, Codable, Hashable, Sendable { case listening, hearing, speaking, paused, ready }
+    enum Status: String, Codable, Hashable, Sendable { case listening, hearing, speaking, paused, ready, interrupted }
 
     struct ContentState: Codable, Hashable, Sendable {
         var status: Status
@@ -82,6 +82,7 @@ extension ListeningActivityAttributes.Status {
         case .speaking: return "speaker.wave.2.fill"
         case .paused: return "pause.fill"
         case .ready: return "hand.tap.fill"
+        case .interrupted: return "phone.down.fill"
         }
     }
 }

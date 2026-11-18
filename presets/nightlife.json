@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Getränke nie unbeaufsichtigt lassen und nur aus verschlossenen Flaschen oder frisch Gemixtes annehmen. Rechnung vor dem Zahlen prüfen. Ausweis oder Reisepasskopie mitnehmen. Tourist Police: 1155. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Never leave drinks unattended and accept only sealed bottles or freshly mixed drinks. Check the bill before paying. Bring ID or a passport copy. Tourist Police: 1155. Thai sentences machine-made, not checked by native speakers."
+    "de": "Getränk nie unbeaufsichtigt lassen. Preise vor dem Bestellen klären und Rechnung prüfen. Nachts Taxi mit Taxameter oder per App nehmen und vorher das Ziel zeigen. Pass oder Ausweis wird manchmal verlangt; Alkoholverkauf ist zeitlich eingeschränkt. Polizei 191, Touristenpolizei 1155, Rettung 1669. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Never leave your drink unattended. Check prices before you order and check the bill. At night take a metered taxi or an app car and show the destination first. ID is sometimes asked for; alcohol sales are restricted by time. Police 191, Tourist Police 1155, ambulance 1669. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -20,99 +20,108 @@
       "th": "เบียร์"
     },
     {
-      "en": "cocktail",
-      "th": "ค็อกเทล"
-    },
-    {
       "en": "bill",
       "th": "บิล"
     },
     {
-      "en": "entry fee",
+      "en": "cover charge",
       "th": "ค่าเข้า"
     },
     {
-      "en": "club",
-      "th": "ผับ"
+      "en": "taxi",
+      "th": "แท็กซี่"
+    },
+    {
+      "en": "passport",
+      "th": "หนังสือเดินทาง"
     }
   ],
   "phrases": [
     {
-      "en": "I need help.",
-      "th": "ต้องการความช่วยเหลือ",
+      "en": "I think my drink was spiked.",
+      "th": "คิดว่ามีคนแอบใส่ยาในเครื่องดื่ม",
       "critical": true
     },
     {
-      "en": "Please call the police.",
-      "th": "ช่วยเรียกตำรวจด้วย",
+      "en": "I feel unsafe.",
+      "th": "รู้สึกไม่ปลอดภัย",
       "critical": true
     },
     {
-      "en": "I think my drink was drugged.",
-      "th": "คิดว่าเครื่องดื่มถูกวางยา",
+      "en": "Someone is following me. Please help.",
+      "th": "มีคนตามอยู่ ช่วยด้วย",
       "critical": true
     },
     {
-      "en": "Please call a taxi.",
-      "th": "ช่วยเรียกแท็กซี่ให้หน่อย",
+      "en": "Please call the police (191).",
+      "th": "ช่วยโทรแจ้งตำรวจ 191 ด้วย",
       "critical": true
     },
     {
-      "en": "Please call the Tourist Police.",
-      "th": "ช่วยโทรหาตำรวจท่องเที่ยวด้วย",
+      "en": "Please call the tourist police (1155).",
+      "th": "ช่วยโทรหาตำรวจท่องเที่ยว 1155 ด้วย",
       "critical": true
     },
     {
-      "en": "I feel unwell.",
-      "th": "รู้สึกไม่สบาย"
+      "en": "I need medical help.",
+      "th": "ต้องการความช่วยเหลือทางการแพทย์",
+      "critical": true
     },
     {
-      "en": "The bill is wrong.",
-      "th": "บิลไม่ถูกต้อง"
+      "en": "Could I see the price list first?",
+      "th": "ขอดูรายการราคาก่อน"
     },
     {
-      "en": "Could I have the bill, please?",
-      "th": "ขอบิลหน่อย"
-    },
-    {
-      "en": "Is there an entry fee?",
+      "en": "Is there a cover charge?",
       "th": "มีค่าเข้าไหม"
-    },
-    {
-      "en": "What time do you close?",
-      "th": "ปิดกี่โมง"
     },
     {
       "en": "A beer, please.",
       "th": "ขอเบียร์หนึ่งแก้ว"
     },
     {
-      "en": "A glass of water, please.",
-      "th": "ขอน้ำเปล่าหนึ่งแก้ว"
+      "en": "Water, please.",
+      "th": "ขอน้ำเปล่า"
+    },
+    {
+      "en": "Not too strong, please.",
+      "th": "ขอแบบไม่แรงมาก"
+    },
+    {
+      "en": "I do not drink alcohol.",
+      "th": "ไม่ดื่มแอลกอฮอล์"
     },
     {
       "en": "No ice, please.",
       "th": "ไม่ใส่น้ำแข็ง"
     },
     {
-      "en": "Please open the bottle in front of me.",
-      "th": "ช่วยเปิดขวดให้ดูตรงหน้า"
+      "en": "What time do you close?",
+      "th": "ร้านปิดกี่โมง"
     },
     {
-      "en": "Where is the toilet?",
-      "th": "ห้องน้ำอยู่ที่ไหน"
+      "en": "I think the bill is wrong.",
+      "th": "คิดว่าบิลไม่ถูกต้อง"
     },
     {
-      "en": "Please turn the music down.",
-      "th": "ช่วยลดเสียงเพลงหน่อย"
+      "en": "Check, please.",
+      "th": "ขอเช็คบิลหน่อย"
     },
     {
-      "en": "Do you accept cards?",
-      "th": "รับบัตรไหม"
+      "en": "Can I pay by card?",
+      "th": "จ่ายด้วยบัตรได้ไหม"
     },
     {
-      "en": "I would like to go home.",
-      "th": "อยากกลับบ้านแล้ว"
+      "en": "Could you call a taxi for me?",
+      "th": "ช่วยเรียกแท็กซี่ให้หน่อย"
+    },
+    {
+      "en": "Please take me straight to the hotel.",
+      "th": "ไปส่งที่โรงแรมโดยตรงเลย"
+    },
+    {
+      "en": "Please use the meter.",
+      "th": "รบกวนเปิดมิเตอร์ด้วย"
     }
   ]
 }

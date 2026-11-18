@@ -1,24 +1,16 @@
 {
   "id": "bus-train",
   "names": {
-    "de": "Bus und Zug",
-    "en": "Bus and train",
-    "th": "รถเมล์และรถไฟ"
+    "de": "Fernbus und Bahn",
+    "en": "Long-distance bus and train",
+    "th": "รถทัวร์และรถไฟ"
   },
   "style": "polite",
   "note": {
-    "de": "Im Bus und Zug sagt man dem Schaffner das Ziel; Tickets im Fernzug früh buchen. Mönchen im Zug Platz freihalten, Frauen dürfen sie nicht berühren. Bei Problemen hilft die Bahnpolizei oder der Notruf 191. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "On buses and trains tell the conductor your destination; book long-distance tickets early. Keep a seat free for monks. Railway police or emergency number 191 help with problems. Thai sentences machine-made, not checked by native speakers."
+    "de": "Klimatisierte Fernbusse sind kalt: Jacke griffbereit halten. Gepäckschein aufbewahren, Wertsachen im Handgepäck und nachts am Körper. Schlafwagen und Wochenend- oder Feiertagsfahrten früh buchen; Züge haben oft Verspätung. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Air-conditioned coaches are cold, so keep a jacket handy. Keep the luggage tag, carry valuables in hand luggage and on your body at night. Book sleeper cars and weekend or holiday trips early; trains are often late. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
-    {
-      "en": "bus station",
-      "th": "สถานีขนส่ง"
-    },
-    {
-      "en": "train station",
-      "th": "สถานีรถไฟ"
-    },
     {
       "en": "ticket",
       "th": "ตั๋ว"
@@ -28,54 +20,53 @@
       "th": "ชานชาลา"
     },
     {
-      "en": "conductor",
-      "th": "พนักงานเก็บตั๋ว"
+      "en": "bus station",
+      "th": "สถานีขนส่ง"
     },
     {
-      "en": "night train",
-      "th": "รถไฟกลางคืน"
+      "en": "train station",
+      "th": "สถานีรถไฟ"
+    },
+    {
+      "en": "seat",
+      "th": "ที่นั่ง"
+    },
+    {
+      "en": "luggage",
+      "th": "สัมภาระ"
     }
   ],
   "phrases": [
     {
-      "en": "I need help.",
-      "th": "ต้องการความช่วยเหลือ",
+      "en": "I need medical help.",
+      "th": "ต้องการความช่วยเหลือทางการแพทย์",
       "critical": true
     },
     {
-      "en": "I lost my ticket.",
-      "th": "ทำตั๋วหาย",
+      "en": "Please stop the bus, I feel unwell.",
+      "th": "ช่วยจอดรถหน่อย รู้สึกไม่สบาย",
       "critical": true
     },
     {
-      "en": "My bag was stolen on the bus.",
-      "th": "กระเป๋าถูกขโมยบนรถเมล์",
+      "en": "My bag was stolen.",
+      "th": "กระเป๋าถูกขโมย",
       "critical": true
     },
     {
-      "en": "Please call the police.",
-      "th": "ช่วยเรียกตำรวจด้วย",
-      "critical": true
+      "en": "One ticket to Chiang Mai, please.",
+      "th": "ขอตั๋วไปเชียงใหม่หนึ่งใบ"
     },
     {
-      "en": "Where can I buy a ticket?",
-      "th": "ซื้อตั๋วได้ที่ไหน"
+      "en": "Where is the ticket counter?",
+      "th": "ช่องขายตั๋วอยู่ที่ไหน"
     },
     {
-      "en": "One ticket to Bangkok, please.",
-      "th": "ขอตั๋วไปกรุงเทพหนึ่งใบ"
+      "en": "Where is the bus station?",
+      "th": "สถานีขนส่งอยู่ที่ไหน"
     },
     {
-      "en": "A return ticket, please.",
-      "th": "ขอตั๋วไปกลับ"
-    },
-    {
-      "en": "Where is the bus stop?",
-      "th": "ป้ายรถเมล์อยู่ที่ไหน"
-    },
-    {
-      "en": "Does this bus go to the city centre?",
-      "th": "รถเมล์คันนี้ไปตัวเมืองไหม"
+      "en": "What time does the bus leave?",
+      "th": "รถออกกี่โมง"
     },
     {
       "en": "Which platform does the train leave from?",
@@ -86,8 +77,36 @@
       "th": "รถไฟล่าช้าไหม"
     },
     {
-      "en": "Is this seat taken?",
-      "th": "ที่นั่งนี้มีคนนั่งไหม"
+      "en": "Where do I change trains?",
+      "th": "ต้องเปลี่ยนรถไฟที่ไหน"
+    },
+    {
+      "en": "A sleeper, lower berth, please.",
+      "th": "ขอตู้นอน เตียงล่าง"
+    },
+    {
+      "en": "Is there a night bus?",
+      "th": "มีรถทัวร์รอบกลางคืนไหม"
+    },
+    {
+      "en": "Does the bus have a toilet?",
+      "th": "บนรถมีห้องน้ำไหม"
+    },
+    {
+      "en": "Could I have a window seat?",
+      "th": "ขอที่นั่งริมหน้าต่าง"
+    },
+    {
+      "en": "Can I change my ticket to another day?",
+      "th": "เปลี่ยนตั๋วเป็นวันอื่นได้ไหม"
+    },
+    {
+      "en": "How long is the journey?",
+      "th": "ใช้เวลาเดินทางนานเท่าไหร่"
+    },
+    {
+      "en": "Where can I put my luggage?",
+      "th": "วางกระเป๋าไว้ที่ไหนได้"
     },
     {
       "en": "Please tell me when we arrive.",
@@ -96,22 +115,6 @@
     {
       "en": "I missed my stop.",
       "th": "เลยป้ายแล้ว"
-    },
-    {
-      "en": "How long is the journey?",
-      "th": "ใช้เวลาเดินทางนานเท่าไหร่"
-    },
-    {
-      "en": "Does this bus have air conditioning?",
-      "th": "รถเมล์คันนี้มีแอร์ไหม"
-    },
-    {
-      "en": "Where can I put my luggage?",
-      "th": "วางกระเป๋าไว้ที่ไหนได้"
-    },
-    {
-      "en": "Please stop here.",
-      "th": "จอดตรงนี้หน่อย"
     }
   ]
 }
