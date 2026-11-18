@@ -77,12 +77,12 @@
   .skip { position:absolute; left:8px; top:-100px; z-index:20; background:var(--card); color:var(--fg); border:2px solid var(--focus); border-radius:8px; padding:10px 14px; }
   .skip:focus { top:8px; }
   #pbQ { font:inherit; color:var(--fg); background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 8px; min-height:44px; min-width:0; }
-  #pbCount, #logCount, #learnPlan { color:var(--mut); font-size:14px; }
+  #pbCount, #logCount, #learnPlan, #learnGoalLine { color:var(--mut); font-size:14px; }
   html { -webkit-text-size-adjust:100%; text-size-adjust:100%; }   /* iOS: Querformat vergrößert die Schrift nicht von selbst */
   button, summary, select, label { touch-action:manipulation; -webkit-tap-highlight-color:transparent; }   /* kein Doppeltipp-Zoom auf Knöpfen */
   input, textarea, select { font-size:max(16px, 1em); }   /* iOS zoomt bei kleineren Feldern beim Fokus hinein */
   .cardwrap, .entry { content-visibility:auto; contain-intrinsic-size:auto 96px; }   /* lange Listen: nur Sichtbares layouten */
-  #learnProg { width:100%; max-width:420px; height:12px; }
+  #learnProg, #learnGoalProg { width:100%; max-width:420px; height:12px; }
   .logtools { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
   .logtools input[type=search] { font:inherit; min-height:44px; background:var(--card); color:var(--fg); border:1px solid var(--line); border-radius:8px; padding:6px 8px; }
   .cardwrap[hidden] { display:none; }
@@ -114,6 +114,7 @@
   .learn-card .front { font-size:20px; font-weight:600; }
   .learn-card .back { font-size:28px; font-weight:700; margin-top:10px; color:var(--th-text); }
   .learn-card .row { justify-content:center; }
+  #learnNew, #learnGoal { width:4em; }
   #learnInfo, #learnMsg { color:var(--mut); font-size:13px; }
   .card .t { display:block; font-size:18px; font-weight:600; margin-top:2px; }
   .card .mt-b { display:block; font-size:11px; color:var(--mut); margin-top:2px; }
@@ -349,11 +350,16 @@
   <div class="row">
     <label><input type="checkbox" id="learnRecent"> <span data-i18n="learnRecent">Zuletzt übersetzte Sätze automatisch aufnehmen</span></label>
     <label><input type="checkbox" id="learnListen"> <span data-i18n="learnListen">Hören zuerst</span></label>
-    <label><input type="number" id="learnNew" min="1" max="50" value="10" style="width:4em"> <span data-i18n="learnNew">Neue Karten pro Tag</span></label>
+    <label><input type="number" id="learnNew" min="1" max="50" value="10"> <span data-i18n="learnNew">Neue Karten pro Tag</span></label>
+    <label><input type="number" id="learnGoal" min="1" max="500" value="20"> <span data-i18n="learnGoal">Tagesziel (Karten)</span></label>
+    <label><input type="checkbox" id="learnDictate"> <span data-i18n="learnDictate">Hörübung: Gehörtes eintippen</span></label>
+    <label><input type="checkbox" id="learnHardOnly"> <span data-i18n="learnHardOnly">Nur schwierige Karten wiederholen</span></label>
     <label><span data-i18n="learnDeck">Lerndeck</span> <select id="learnDeck"></select></label>
   </div>
   <div id="learnStats" role="status"></div>
   <div id="learnBoxStats"></div>
+  <div id="learnGoalLine"></div>
+  <progress id="learnGoalProg" max="1" value="0"></progress>
   <progress id="learnProg" max="1" value="0"></progress>
   <div id="learnPlan"></div>
   <div class="row">
@@ -371,6 +377,10 @@
     <div class="front" id="learnFront" dir="auto"></div>
     <div class="back" id="learnBack" dir="auto" hidden></div>
     <div class="s" id="learnRom" hidden></div>
+    <div class="row" id="learnDictRow" hidden>
+      <label><input type="text" id="learnDictIn" autocomplete="off" spellcheck="false"> <span data-i18n="learnDictate">Hörübung: Gehörtes eintippen</span></label>
+    </div>
+    <div class="s" id="learnDictOut"></div>
     <div class="row">
       <button class="small" id="learnShow" type="button" data-i18n="learnShow">Aufdecken</button>
       <button class="small" id="learnSpeak" type="button" data-i18n="read">🔊 Vorlesen</button>
@@ -381,7 +391,7 @@
       <button class="yn yes" id="learnEasy" type="button" hidden data-i18n="learnEasy">Leicht</button>
     </div>
     <div id="learnBoxNr" class="s"></div>
-    <div class="s" id="learnKeysHint" data-i18n="learnKeys">Tasten: 1 nochmal · 2 schwer · 3 gewusst · 4 leicht (auch ← →)</div>
+    <div class="s" id="learnKeysHint" data-i18n="learnKeys">Tasten: Leertaste umdrehen · 1 nochmal · 2 schwer · 3 gewusst · 4 leicht (auch ← →)</div>
     <div id="learnPracticeOut" class="s" role="status"></div>
   </div>
 </details>
@@ -540,7 +550,11 @@ const STR = {
   "favNone": "Noch keine Favoriten in diesem Thema – bei einem Satz ☆ antippen.",
   "learnProgress": "Fortschritt: {a} von {b} Karten sicher gelernt ({p} %)",
   "learnPlan": "Plan: heute {a} · morgen {b} · in 2–7 Tagen {c}",
-  "learnKeys": "Tasten: 1 nochmal · 2 schwer · 3 gewusst · 4 leicht (auch ← →)",
+  "learnKeys": "Tasten: Leertaste umdrehen · 1 nochmal · 2 schwer · 3 gewusst · 4 leicht (auch ← →)",
+  "learnGoal": "Tagesziel (Karten)",
+  "learnGoalLine": "Heute {a} von {b} Karten",
+  "learnHardOnly": "Nur schwierige Karten wiederholen",
+  "learnDictate": "Hörübung: Gehörtes eintippen",
   "learnDeck": "Lerndeck",
   "learnDeckAll": "Alle Themen",
   "learnHard": "Schwer",
@@ -825,7 +839,11 @@ const STR = {
   "favNone": "No favourites in this topic yet – tap ☆ on a phrase.",
   "learnProgress": "Progress: {a} of {b} cards well learned ({p}%)",
   "learnPlan": "Plan: today {a} · tomorrow {b} · in 2–7 days {c}",
-  "learnKeys": "Keys: 1 again · 2 hard · 3 knew it · 4 easy (also ← →)",
+  "learnKeys": "Keys: space flips · 1 again · 2 hard · 3 knew it · 4 easy (also ← →)",
+  "learnGoal": "Daily goal (cards)",
+  "learnGoalLine": "Today {a} of {b} cards",
+  "learnHardOnly": "Review hard cards only",
+  "learnDictate": "Listening drill: type what you hear",
   "learnDeck": "Study deck",
   "learnDeckAll": "All topics",
   "learnHard": "Hard",
@@ -1110,7 +1128,11 @@ const STR = {
   "favNone": "ยังไม่มีรายการโปรดในหมวดนี้ – แตะ ☆ ที่ประโยค",
   "learnProgress": "ความคืบหน้า: จำได้แม่น {a} จาก {b} การ์ด ({p}%)",
   "learnPlan": "แผน: วันนี้ {a} · พรุ่งนี้ {b} · ใน 2–7 วัน {c}",
-  "learnKeys": "ปุ่ม: 1 อีกครั้ง · 2 ยาก · 3 จำได้ · 4 ง่าย (หรือ ← →)",
+  "learnKeys": "ปุ่ม: เว้นวรรคพลิก · 1 อีกครั้ง · 2 ยาก · 3 จำได้ · 4 ง่าย (หรือ ← →)",
+  "learnGoal": "เป้าหมายรายวัน (การ์ด)",
+  "learnGoalLine": "วันนี้ {a} จาก {b} การ์ด",
+  "learnHardOnly": "ทบทวนเฉพาะการ์ดที่ยาก",
+  "learnDictate": "ฝึกฟัง: พิมพ์สิ่งที่ได้ยิน",
   "learnDeck": "ชุดการเรียน",
   "learnDeckAll": "ทุกหัวข้อ",
   "learnHard": "ยาก",
@@ -2324,10 +2346,23 @@ function learnStore(list) {
 }
 setInterval(() => { if (!document.hidden) learnRender(); }, 60000);   // "fällig" auch bei offen gelassener Seite aktuell
 function learnGrade(grade) { if (learnCur && !$('learnYes').hidden) learnAnswer(grade); }
+function learnTypedMatch(heard, typed) {
+  const n = x => String(x || '').toLowerCase().replace(/[\s\p{P}]+/gu, '');
+  return n(heard) === n(typed);
+}
+function learnGoalState(st, now, goal) {
+  const x = st[localDay(now)] || { ok: 0, bad: 0 }, g = Math.max(1, Math.min(500, Math.floor(+goal) || 20));
+  return { done: x.ok + x.bad, goal: g };
+}
+function learnHardCards(list, deck) {
+  return list.filter(c => (!deck || c.deck === deck) && c.reps && c.box < 3);
+}
 function learnReveal(on) {
   $('learnHard').hidden = !on; $('learnEasy').hidden = !on;
   $('learnRom').hidden = !(on && learnCur && learnCur.r && learnCur.b.l === 'th');
-  if (learnCur) { const f = $('learnFront'); f.textContent = $('learnListen').checked && !on ? t('listenPrompt') : learnCur.a.t; f.lang = $('learnListen').checked && !on ? 'de' : learnCur.a.l; }
+  const dict = $('learnDictate').checked, mute = ($('learnListen').checked || dict) && !on;
+  $('learnDictRow').hidden = !dict || on;
+  if (learnCur) { const f = $('learnFront'); f.textContent = mute ? t('listenPrompt') : learnCur.a.t; f.lang = mute ? UI : learnCur.a.l; }
   $('learnBack').hidden = !on; $('learnShow').hidden = on;
   $('learnYes').hidden = !on; $('learnNo').hidden = !on;
 }
@@ -2345,6 +2380,7 @@ function learnDeckSync() {   // Auswahl der Lerndecks: alle Themen + je ein Eint
   sel.value = settings.learnDeck || '';
 }
 function learnQueueNow(now) {
+  if ($('learnHardOnly').checked) return learnHardCards(learnList, settings.learnDeck || '');
   const per = Math.max(1, Math.min(50, +$('learnNew').value || 10)), nw = (learnStats[localDay(now)] || {}).nw || 0;
   return learnQueue(learnList, now, settings.learnDeck || '', per, nw);
 }
@@ -2358,7 +2394,7 @@ function learnRender() {
   if (!learnCur) learnCur = due[0] || null;
   if (!learnCur) {
     $('learnCard').hidden = true; learnShownKey = null;
-    $('learnMsg').textContent = !learnList.length ? t('learnEmpty') : learnDue(learnList, now).some(c => !settings.learnDeck || c.deck === settings.learnDeck) ? t('learnLimitDone') : t('learnAllDone');
+    $('learnMsg').textContent = !learnList.length ? t('learnEmpty') : $('learnHardOnly').checked ? t('learnAllDone') : learnDue(learnList, now).some(c => !settings.learnDeck || c.deck === settings.learnDeck) ? t('learnLimitDone') : t('learnAllDone');
     return;
   }
   $('learnCard').hidden = false; $('learnMsg').textContent = '';
@@ -2368,8 +2404,8 @@ function learnRender() {
   $('learnRom').textContent = learnCur.r || '';
   $('learnBoxNr').textContent = t('learnBoxNr', { n: learnCur.box, l: lname(learnCur.b.l) });
   if (learnShownKey !== learnKey(learnCur)) {
-    learnShownKey = learnKey(learnCur); learnReveal(false); $('learnPracticeOut').textContent = '';
-    if ($('learnListen').checked && !document.hidden) sayNow(learnCur.b.t, learnCur.b.l);
+    learnShownKey = learnKey(learnCur); learnReveal(false); $('learnPracticeOut').textContent = ''; $('learnDictOut').textContent = ''; $('learnDictIn').value = '';
+    if (($('learnListen').checked || $('learnDictate').checked) && !document.hidden) sayNow(learnCur.b.t, learnCur.b.l);
   }
   statsRender();
 }
@@ -2384,9 +2420,11 @@ function learnAnswer(ok) {   // true/false oder Note 1..4
 }
 $('learnShow').onclick = () => {
   if (!learnCur) return;
+  if (!$('learnDictRow').hidden && $('learnDictIn').value.trim()) $('learnDictOut').textContent = learnTypedMatch(learnCur.b.t, $('learnDictIn').value) ? '✓' : '✗';
   learnReveal(true); $('learnYes').focus();
   if ($('speak').checked) sayNow(learnCur.b.t, learnCur.b.l);
 };
+$('learnDictIn').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); $('learnShow').click(); } });
 $('learnSpeak').onclick = () => { if (learnCur) sayNow(learnCur.b.t, learnCur.b.l); };
 $('learnYes').onclick = () => learnAnswer(3);
 $('learnNo').onclick = () => learnAnswer(1);
@@ -3112,6 +3150,9 @@ $('pbPre').onclick = async () => {
 let learnStats = (() => { try { return statsClean(JSON.parse(localStorage.getItem('learnStatsV1') || '{}')); } catch { return {}; } })();
 function statsRender() {
   const now = Date.now(), pr = learnProgress(learnList), pl = learnPlan(learnList, now);
+  const gs = learnGoalState(learnStats, now, $('learnGoal').value);
+  $('learnGoalProg').max = gs.goal; $('learnGoalProg').value = gs.done;
+  $('learnGoalLine').textContent = t('learnGoalLine', { a: gs.done, b: gs.goal });
   $('learnProg').max = Math.max(1, pr.total); $('learnProg').value = pr.done;
   $('learnProg').setAttribute('aria-label', t('learnProgress', { a: pr.done, b: pr.total, p: pr.pct }));
   $('learnProg').title = t('learnProgress', { a: pr.done, b: pr.total, p: pr.pct });
@@ -3142,12 +3183,14 @@ $('learnFile').onchange = () => {
   };
   r.readAsText(f);
 };
-for (const id of ['learnListen']) {
+for (const id of ['learnListen', 'learnDictate', 'learnHardOnly']) {
   if (typeof settings[id] === 'boolean') $(id).checked = settings[id];
-  $(id).addEventListener('change', () => { settings[id] = $(id).checked; saveSettings(); learnShownKey = null; learnRender(); });
+  $(id).addEventListener('change', () => { settings[id] = $(id).checked; saveSettings(); learnCur = null; learnShownKey = null; learnRender(); });
 }
 if (+settings.learnNew >= 1 && +settings.learnNew <= 50) $('learnNew').value = String(+settings.learnNew);
 $('learnNew').addEventListener('change', () => { settings.learnNew = Math.max(1, Math.min(50, +$('learnNew').value || 10)); saveSettings(); learnRender(); });
+if (settings.learnGoal) $('learnGoal').value = settings.learnGoal;
+$('learnGoal').addEventListener('change', () => { settings.learnGoal = +$('learnGoal').value; saveSettings(); learnRender(); });
 if (SR) $('learnPractice').hidden = false;
 $('learnPractice').onclick = () => {
   if (!learnCur) return;
@@ -3279,8 +3322,10 @@ let pbQTimer = null;
 $('pbFav').onclick = () => { const on = $('pbFav').getAttribute('aria-pressed') !== 'true'; $('pbFav').setAttribute('aria-pressed', String(on)); applyPbFilter(); };
 $('skipLink').addEventListener('click', e => { e.preventDefault(); $('pbBox').open = true; $('pbBox').querySelector('summary').focus(); });   // Fokus wirklich ins Ziel setzen (Safari tut das bei #Anker nicht)
 $('learnCard').addEventListener('keydown', e => {   // Pfeile: nach dem Aufdecken beantworten (nicht in Eingabefeldern)
-  if (e.ctrlKey || e.metaKey || e.altKey || isTyping(e.target) || $('learnYes').hidden) return;
+  if (e.ctrlKey || e.metaKey || e.altKey || isTyping(e.target)) return;
   const grade = { '1': 1, '2': 2, '3': 3, '4': 4, ArrowLeft: 1, ArrowRight: 3 }[e.key];
+  if (e.key === ' ' && e.target.tagName !== 'BUTTON' && !$('learnShow').hidden) { e.preventDefault(); $('learnShow').click(); return; }
+  if ($('learnYes').hidden) return;
   if (grade) { e.preventDefault(); learnGrade(grade); }
 });
 $('wipeLocal').onclick = () => {   // alles, was diese Seite lokal speichert (nur dieser Ursprung); Seite danach neu laden
