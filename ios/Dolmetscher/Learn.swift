@@ -38,6 +38,8 @@ struct LeitnerDeck: Codable, Equatable, Sendable {
     var cards: [Card] = []
     /// Vom Nutzer gelöschte Karten: `sync` legt sie nicht wieder an. Optional für alte learn.json.
     var dismissed: [String]? = nil
+    /// Beantwortete Karten je Tag (Tageszähler, Serie). Optional für alte learn.json.
+    var log: StudyLog? = nil
 
     /// Neue Quellen als Karten in Fach 1 aufnehmen (fällig sofort); vorhandene behalten ihren Stand.
     @discardableResult
@@ -65,6 +67,9 @@ struct LeitnerDeck: Codable, Equatable, Sendable {
 
     mutating func answer(_ id: String, knew: Bool, now: Date = Date(), calendar: Calendar = .current) {
         guard let i = cards.firstIndex(where: { $0.id == id }) else { return }
+        var l = log ?? StudyLog()
+        l.record(now: now, calendar: calendar)
+        log = l
         let box = knew ? min(Self.boxes, cards[i].box + 1) : 1
         cards[i].box = box
         cards[i].due = Self.dueDate(box: box, from: now, calendar: calendar)
@@ -126,6 +131,7 @@ struct LearnView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var revealed = false
     @State private var now = Date()
+    @ScaledMetric(relativeTo: .largeTitle) private var iconSize: CGFloat = 48
 
     private var card: LeitnerDeck.Card? {
         let open: [LeitnerDeck.Card] = m.learn.due(now: now)
@@ -180,13 +186,24 @@ struct LearnView: View {
         }
         Text(String(format: T("learn_due"), m.learn.due(now: now).count))
             .font(.footnote).foregroundStyle(.secondary)
+        stats
+    }
+
+    /// Heute gelernt und Serie (Tage in Folge) – bleibt auch sichtbar, wenn nichts mehr fällig ist.
+    @ViewBuilder private var stats: some View {
+        let log = m.learn.log ?? StudyLog()
+        let today = log.today(now: now), streak = log.streak(now: now)
+        if today > 0 || streak > 0 {
+            Text(String(format: T("learn_today"), today) + " · " + String(format: T("learn_streak"), streak))
+                .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center)
+        }
     }
 
     /// Der Lernkasten enthält Sätze aus Gesprächen: derselbe Schutz wie der Verlauf.
     private var lockedState: some View {
         VStack(spacing: 12) {
             Spacer()
-            Image(systemName: "lock.fill").font(.system(size: 48)).foregroundStyle(.secondary)
+            Image(systemName: "lock.fill").font(.system(size: iconSize)).foregroundStyle(.secondary)
             Text(T("learn_locked")).multilineTextAlignment(.center).foregroundStyle(.secondary)
             Button(T("lock_unlock")) { m.unlockHistory() }.buttonStyle(.borderedProminent)
             Spacer()
@@ -197,9 +214,10 @@ struct LearnView: View {
         VStack(spacing: 12) {
             Spacer()
             Image(systemName: m.learn.cards.isEmpty ? "rectangle.stack" : "checkmark.seal.fill")
-                .font(.system(size: 48)).foregroundStyle(m.learn.cards.isEmpty ? Color.secondary : Color.green)
+                .font(.system(size: iconSize)).foregroundStyle(m.learn.cards.isEmpty ? Color.secondary : Color.green)
             Text(T(m.learn.cards.isEmpty ? "learn_empty" : "learn_done"))
                 .multilineTextAlignment(.center).foregroundStyle(.secondary)
+            stats
             Spacer()
             Text(T("learn_note")).font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center)
         }
@@ -228,7 +246,8 @@ private struct BoxBar: View {
                 .background(Color.secondary.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
             }
         }
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(counts.enumerated().map { String(format: T("learn_box_a11y"), $0.offset + 1, $0.element) }.joined(separator: ", "))
     }
 }
 
