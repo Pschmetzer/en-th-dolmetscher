@@ -155,11 +155,11 @@ private struct PrepRow<Action: View>: View {
     @ViewBuilder var action: () -> Action
 
     private var icon: String { ok ? "checkmark.circle.fill" : "circle.dashed" }
-    private var tint: Color { ok ? .green : .orange }
+    private var tint: Color { ok ? StatusColor.ok : StatusColor.warning }
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            Image(systemName: icon).foregroundStyle(tint).font(.title3)
+            Image(systemName: icon).foregroundStyle(tint).font(.title3).accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 4) {
                 Text(title).font(.headline)
                 Text(detail).font(.footnote).foregroundStyle(.secondary)
@@ -229,7 +229,7 @@ struct PlacesView: View {
                 Spacer()
             }
             PhotosPicker(selection: $photo, matching: .images) { Label(T("choose_photo"), systemImage: "photo") }
-            if scanning { ProgressView().padding(.leading, 6) }
+            if scanning { ProgressView().padding(.leading, 6).accessibilityLabel(T("reading_text")) }
         }
         .buttonStyle(.borderless)
     }
@@ -289,7 +289,7 @@ struct PlaceBigView: View {
                     .font(.system(size: scaled54, weight: .heavy))
                     .minimumScaleFactor(0.3)
                     .multilineTextAlignment(.center)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(StatusColor.warning)
                     .textSelection(.enabled)
                 if shownName != place.name { Text(place.name).font(.title3).foregroundStyle(.secondary) }
             }
@@ -298,12 +298,12 @@ struct PlaceBigView: View {
             .rotationEffect(.degrees(flipped ? 180 : 0))
             Divider()
             HStack(spacing: 28) {
-                Button { flipped.toggle() } label: { Image(systemName: "arrow.up.arrow.down") }
+                Button { flipped.toggle() } label: { Image(systemName: "arrow.up.arrow.down").minTapTarget() }
                     .accessibilityLabel(T("flip"))
-                Button(action: speak) { Image(systemName: "speaker.wave.2.fill") }
+                Button(action: speak) { Image(systemName: "speaker.wave.2.fill").minTapTarget() }
                     .accessibilityLabel(T("replay"))
                 if let url = place.mapsURL {
-                    Link(destination: url) { Image(systemName: "map") }.accessibilityLabel(T("places_maps"))
+                    Link(destination: url) { Image(systemName: "map").minTapTarget() }.accessibilityLabel(T("places_maps"))
                 }
                 Spacer()
                 Button(T("done")) { dismiss() }
@@ -431,7 +431,7 @@ struct HelpNowView: View {
         NavigationStack {
             List {
                 Section {
-                    Text(helpThai).font(.system(size: scaled40, weight: .heavy)).foregroundStyle(.red)
+                    Text(helpThai).font(.system(size: scaled40, weight: .heavy)).foregroundStyle(StatusColor.error)
                     Text(T("help_need")).font(.title3).foregroundStyle(.secondary)
                     Button { m.announce(helpThai, lang: .th) } label: { Label(T("replay"), systemImage: "speaker.wave.3.fill") }
                 }
@@ -460,7 +460,7 @@ struct HelpNowView: View {
                 ShareLink(item: url) { Label(T("share_location"), systemImage: "square.and.arrow.up") }
             }
             if finder.approximate {
-                Text(T("help_location_approx")).font(.footnote).foregroundStyle(.orange)
+                Text(T("help_location_approx")).font(.footnote).foregroundStyle(StatusColor.warning)
             }
         } else if finder.denied {
             Text(T("help_location_denied")).foregroundStyle(.secondary)
@@ -480,7 +480,7 @@ struct DialRow: View {
         if let url = URL(string: "tel:\(number)") {
             Link(destination: url) {
                 HStack(spacing: 14) {
-                    Image(systemName: icon).foregroundStyle(.red).frame(width: iconWidth)
+                    Image(systemName: icon).foregroundStyle(StatusColor.error).frame(width: iconWidth).accessibilityHidden(true)
                     VStack(alignment: .leading) {
                         Text(en).font(.headline)
                         Text(th).font(.subheadline).foregroundStyle(.secondary)
@@ -521,9 +521,9 @@ struct PriceShowView: View {
             .rotationEffect(.degrees(flipped ? 180 : 0))
             Divider()
             HStack(spacing: 28) {
-                Button { flipped.toggle() } label: { Image(systemName: "arrow.up.arrow.down") }
+                Button { flipped.toggle() } label: { Image(systemName: "arrow.up.arrow.down").minTapTarget() }
                     .accessibilityLabel(T("flip"))
-                Button { m.announce(words, lang: .th) } label: { Image(systemName: "speaker.wave.2.fill") }
+                Button { m.announce(words, lang: .th) } label: { Image(systemName: "speaker.wave.2.fill").minTapTarget() }
                     .accessibilityLabel(T("replay"))
                 Spacer()
                 Button(T("done")) { dismiss() }

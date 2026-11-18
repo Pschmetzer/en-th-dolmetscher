@@ -116,14 +116,14 @@ struct CultureHintBanner: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
-            Image(systemName: pack.icon).foregroundStyle(.tint)
+            Image(systemName: pack.icon).foregroundStyle(.tint).accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 4) {
                 Text(T("pack_note") + " · " + pack.name(L10n.lang)).font(.caption.bold())
                 Text(pack.noteText(L10n.lang) ?? "").font(.caption).fixedSize(horizontal: false, vertical: true)
                 Button(T("culture_open"), action: open).font(.caption.bold())
             }
             Spacer(minLength: 0)
-            Button(action: close) { Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary) }
+            Button(action: close) { Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary).minTapTarget() }
                 .accessibilityLabel(T("close"))
         }
         .padding(10)
@@ -249,6 +249,7 @@ struct SummaryView: View {
                 if let text {
                     ToolbarItem(placement: .primaryAction) {
                         ShareLink(item: text) { Image(systemName: "square.and.arrow.up") }
+                            .accessibilityLabel(T("share"))
                     }
                 }
             }

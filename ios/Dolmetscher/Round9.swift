@@ -2,6 +2,11 @@
 import Foundation
 import SwiftUI
 
+extension View {
+    /// Mindest-Tippziel von 44 x 44 pt (Apple HIG) für reine Symbol-Knöpfe; die ganze Fläche reagiert.
+    func minTapTarget() -> some View { frame(minWidth: 44, minHeight: 44).contentShape(Rectangle()) }
+}
+
 /// CSV-Zellen gegen Formel-Einschleusung schützen: Excel/Numbers führen Zellen aus, die mit = + - @ (oder Tab/CR)
 /// beginnen. Ein vorangestelltes ' macht daraus Text. Ein Gesprächstext wie „=1+1“ bleibt so lesbar, aber harmlos.
 enum CSVSafe {
@@ -61,12 +66,13 @@ enum HelpGuide {
 }
 
 struct HelpGuideCard: View {
+    @ScaledMetric(relativeTo: .body) private var iconWidth: CGFloat = 28
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             Label(T("help_title"), systemImage: "questionmark.circle").font(.headline).accessibilityAddTraits(.isHeader)
             ForEach(HelpGuide.steps, id: \.title) { s in
                 HStack(alignment: .top, spacing: 12) {
-                    Image(systemName: s.icon).frame(width: 28).foregroundStyle(.tint).accessibilityHidden(true)
+                    Image(systemName: s.icon).frame(width: iconWidth).foregroundStyle(.tint).accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(T(s.title)).font(.callout.weight(.semibold))
                         Text(T(s.body)).font(.subheadline).foregroundStyle(.secondary)
