@@ -105,7 +105,7 @@ Live: https://pschmetzer.github.io/en-th-dolmetscher/ — `index.html` is a sing
 - Per-direction switches “Translate A→B” / “Translate B→A” (named after the chosen languages): a switched-off direction is only shown, not translated or spoken. Also: “Hold to speak” (push to talk), single-key shortcuts that can be switched off, adjustable text size in the full-screen view, and the Back button closes the full-screen view.
 - **Typing instead of speaking**, **numbers and prices** (digits large plus the Thai number word), **my cards** (hotel, address, “take me here”), an **allergy and emergency card**, a **dictionary** of all topic glossaries, **print a topic** (A4 / PDF), a **sequence** of cards to show one after another, a **“wrong? report”** button (opens a prefilled GitHub issue, nothing is sent automatically).
 - Deep links and app shortcuts: `#preset=taxi&l=de` opens a topic (QR code for guests, see [docs/WEB-HOSTING.md](docs/WEB-HOSTING.md)); installed on Android it also accepts shared text and translates it.
-- The interface is available in **Deutsch, English and ไทย** (the Thai UI text is machine-made and not checked by native speakers). 24 phrase packs; the Thai sentences are not checked by native speakers (see [docs/PRESETS.md](docs/PRESETS.md)).
+- The interface is available in **Deutsch, English and ไทย** (the Thai UI text is machine-made and not checked by native speakers). 33 phrase packs; the Thai sentences are not checked by native speakers (see [docs/PRESETS.md](docs/PRESETS.md)).
 - Voice commands in EN mode at the start of a sentence: “Translator pause / repeat / slower / faster / louder / quieter / clear / help”. *Pause* stops recognition completely (no more audio goes to the speech service); continue with `E`/`T` or the buttons.
 - Partner view (`P`): full screen, only the latest translation in huge type (`Esc` closes). Keys: `E` English, `T` Thai, `Space` stop.
 - Translation: Google endpoint, MyMemory as fallback. Error or quota messages are never shown or spoken as a translation.
@@ -168,7 +168,7 @@ How it works: the microphone is cut into sentences (Silero voice activity detect
 - **Output device**: speaker or headphones for all sounds, switchable while running.
 - **Back-translation** (`--back-translate`, off by default), **slow and clear** (`--slow`), **glossary learns from corrections** (on by default), **private mode** (`--private`: no warm-up requests, text never in a URL).
 - **Push-to-talk**, **menu bar** icon, global shortcuts **⌃⌥D** start/stop and **⌃⌥P** pause.
-- **Quick phrases** and **scenario presets** (24 packs, e.g. doctor, pharmacy, police, restaurant, taxi, temple, lost child): each pack has a cultural note (ⓘ), important sentences such as allergies come first and are marked red. Format and contributing: [docs/PRESETS.md](docs/PRESETS.md).
+- **Quick phrases** and **scenario presets** (33 packs, e.g. doctor, pharmacy, police, restaurant, taxi, temple, lost child): each pack has a cultural note (ⓘ), important sentences such as allergies come first and are marked red. Format and contributing: [docs/PRESETS.md](docs/PRESETS.md).
 - **Correct & retranslate** a misrecognised bubble; **“Translate anyway”** for a sentence the recogniser was unsure about; **“Speak again”** for a bubble that was cut off.
 - **Thai transliteration** (readable RTGS spelling) and a **confidence marker** on uncertain bubbles.
 - **Partner view** with large type; bubbles can be navigated with the keyboard (Tab, Enter, Esc, ⌘C); text size can be zoomed.
