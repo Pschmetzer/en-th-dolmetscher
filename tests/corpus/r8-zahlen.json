@@ -1,0 +1,369 @@
+{
+ "about": "Runde 8: Zahlen, Preise, Uhrzeiten und Daten (de/en/th). Thai-Referenzen sind maschinell erzeugt und ungeprüft (machine=true), keine Muttersprachler-Freigabe.",
+ "reviewed": false,
+ "cases": [
+  {
+   "id": "r8-zahlen-01",
+   "src": "en",
+   "dst": "th",
+   "text": "The room costs 1,800 baht per night.",
+   "translation": "ห้องราคาคืนละ 1,800 บาท",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-02",
+   "src": "en",
+   "dst": "th",
+   "text": "Two tickets to Chiang Mai cost 960 baht.",
+   "translation": "ตั๋วไปเชียงใหม่สองใบราคา 960 บาท",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-03",
+   "src": "en",
+   "dst": "th",
+   "text": "The flight leaves at 14:35.",
+   "translation": "เที่ยวบินออกเวลา 14:35 น.",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-04",
+   "src": "en",
+   "dst": "th",
+   "text": "Breakfast is served from 6:30 to 10:30.",
+   "translation": "เสิร์ฟอาหารเช้าตั้งแต่ 6:30 ถึง 10:30 น.",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-05",
+   "src": "en",
+   "dst": "th",
+   "text": "The shop opens at 9 a.m. and closes at 21:00.",
+   "translation": "ร้านเปิดเก้าโมงเช้าและปิด 21:00 น.",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-06",
+   "src": "en",
+   "dst": "th",
+   "text": "My check-in date is 12 December.",
+   "translation": "วันเช็กอินของฉันคือ 12 ธันวาคม",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-07",
+   "src": "en",
+   "dst": "th",
+   "text": "The deposit is 5,000 baht.",
+   "translation": "ค่ามัดจำ 5,000 บาท",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-08",
+   "src": "en",
+   "dst": "th",
+   "text": "That is too expensive, 450 baht please.",
+   "translation": "แพงเกินไป 450 บาทได้ไหม",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-09",
+   "src": "en",
+   "dst": "th",
+   "text": "The taxi to the airport costs about 350 baht.",
+   "translation": "แท็กซี่ไปสนามบินราคาประมาณ 350 บาท",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-10",
+   "src": "en",
+   "dst": "th",
+   "text": "The ferry leaves at 10:15 and arrives at 11:45.",
+   "translation": "เรือเฟอร์รี่ออก 10:15 น. และถึง 11:45 น.",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-11",
+   "src": "en",
+   "dst": "th",
+   "text": "My passport number ends in 4471.",
+   "translation": "เลขพาสปอร์ตของฉันลงท้ายด้วย 4471",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-12",
+   "src": "en",
+   "dst": "th",
+   "text": "The bill is 1,275 baht in total.",
+   "translation": "ใบเสร็จรวมทั้งหมด 1,275 บาท",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-13",
+   "src": "en",
+   "dst": "th",
+   "text": "I will pay 20 baht more.",
+   "translation": "ฉันจะจ่ายเพิ่ม 20 บาท",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-14",
+   "src": "en",
+   "dst": "th",
+   "text": "The bus to Phuket leaves at 7:45 in the morning.",
+   "translation": "รถบัสไปภูเก็ตออก 7:45 น. ตอนเช้า",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-15",
+   "src": "en",
+   "dst": "th",
+   "text": "The massage is 300 baht for one hour.",
+   "translation": "นวดชั่วโมงละ 300 บาท",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-16",
+   "src": "en",
+   "dst": "th",
+   "text": "I was born on 3 May 1988.",
+   "translation": "ฉันเกิดวันที่ 3 พฤษภาคม 1988",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-17",
+   "src": "en",
+   "dst": "th",
+   "text": "The temple closes at 17:00.",
+   "translation": "วัดปิดเวลา 17:00 น.",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-18",
+   "src": "en",
+   "dst": "th",
+   "text": "The discount is 15 percent.",
+   "translation": "ส่วนลด 15 เปอร์เซ็นต์",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-19",
+   "src": "en",
+   "dst": "th",
+   "text": "The total comes to 2,340 baht.",
+   "translation": "ยอดรวมทั้งหมด 2,340 บาท",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-20",
+   "src": "en",
+   "dst": "th",
+   "text": "It takes 45 minutes by boat.",
+   "translation": "ใช้เวลา 45 นาทีโดยเรือ",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-21",
+   "src": "en",
+   "dst": "th",
+   "text": "My room number is 1208.",
+   "translation": "ห้องของฉันคือเลข 1208",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-22",
+   "src": "en",
+   "dst": "th",
+   "text": "The tour starts on 20 January.",
+   "translation": "ทัวร์เริ่มวันที่ 20 มกราคม",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-23",
+   "src": "en",
+   "dst": "th",
+   "text": "The deposit of 3,000 baht is refundable.",
+   "translation": "เงินมัดจำ 3,000 บาทคืนได้",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-24",
+   "src": "en",
+   "dst": "th",
+   "text": "Please wake me at 5:30.",
+   "translation": "ช่วยปลุกฉันตอน 5:30 น.",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-25",
+   "src": "en",
+   "dst": "th",
+   "text": "The price is 89 baht per kilo.",
+   "translation": "ราคากิโลกรัมละ 89 บาท",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-26",
+   "src": "th",
+   "dst": "en",
+   "text": "ห้องพักคืนละ 1,200 บาทครับ",
+   "translation": "The room is 1,200 baht per night.",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-27",
+   "src": "th",
+   "dst": "en",
+   "text": "รถไฟออกเวลา 18:40 น.",
+   "translation": "The train leaves at 18:40.",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-28",
+   "src": "th",
+   "dst": "en",
+   "text": "ราคาทั้งหมด 760 บาทค่ะ",
+   "translation": "The total price is 760 baht.",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-29",
+   "src": "th",
+   "dst": "en",
+   "text": "วันที่ 25 ธันวาคมร้านปิดค่ะ",
+   "translation": "The shop is closed on 25 December.",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-30",
+   "src": "th",
+   "dst": "en",
+   "text": "ลดให้ 10 เปอร์เซ็นต์ครับ",
+   "translation": "I'll give you a 10 percent discount.",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-31",
+   "src": "th",
+   "dst": "en",
+   "text": "เช็กเอาต์ก่อน 12:00 น.",
+   "translation": "Check-out is before 12:00.",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-32",
+   "src": "th",
+   "dst": "en",
+   "text": "ค่าเข้าชม 500 บาทต่อคน",
+   "translation": "Admission is 500 baht per person.",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-33",
+   "src": "th",
+   "dst": "en",
+   "text": "ตลาดเปิด 16:00 ถึง 23:00 น.",
+   "translation": "The market is open from 16:00 to 23:00.",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-34",
+   "src": "th",
+   "dst": "en",
+   "text": "ฉันอายุ 35 ปีแล้ว",
+   "translation": "I am 35 years old.",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-35",
+   "src": "th",
+   "dst": "en",
+   "text": "ค่าแท็กซี่ 280 บาทครับ",
+   "translation": "The taxi fare is 280 baht.",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-36",
+   "src": "de",
+   "dst": "en",
+   "text": "Das Zimmer kostet 95 Euro pro Nacht.",
+   "translation": "The room costs 95 euros per night."
+  },
+  {
+   "id": "r8-zahlen-37",
+   "src": "de",
+   "dst": "en",
+   "text": "Der Zug fährt um 14:20 Uhr ab.",
+   "translation": "The train leaves at 14:20."
+  },
+  {
+   "id": "r8-zahlen-38",
+   "src": "de",
+   "dst": "en",
+   "text": "Ich habe am 3. Oktober Geburtstag.",
+   "translation": "My birthday is on 3 October."
+  },
+  {
+   "id": "r8-zahlen-39",
+   "src": "de",
+   "dst": "th",
+   "text": "Die Rechnung beträgt 1.450 Baht.",
+   "translation": "ใบเสร็จเป็นเงิน 1,450 บาท",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-40",
+   "src": "de",
+   "dst": "th",
+   "text": "Wir landen um 21:15 Uhr in Bangkok.",
+   "translation": "เราจะลงที่กรุงเทพเวลา 21:15 น.",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-41",
+   "src": "de",
+   "dst": "th",
+   "text": "Das Frühstück kostet 250 Baht pro Person.",
+   "translation": "อาหารเช้าราคา 250 บาทต่อคน",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-42",
+   "src": "de",
+   "dst": "th",
+   "text": "Ich möchte 12 Flaschen Wasser kaufen.",
+   "translation": "ฉันอยากซื้อน้ำ 12 ขวด",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-43",
+   "src": "th",
+   "dst": "de",
+   "text": "เปิดทุกวัน 8:00 ถึง 20:00 น.",
+   "translation": "Täglich von 8:00 bis 20:00 Uhr geöffnet.",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-44",
+   "src": "th",
+   "dst": "de",
+   "text": "ค่าทัวร์ 1,500 บาทต่อคนครับ",
+   "translation": "Die Tour kostet 1.500 Baht pro Person.",
+   "machine": true
+  },
+  {
+   "id": "r8-zahlen-45",
+   "src": "en",
+   "dst": "de",
+   "text": "The ticket costs 45 euros.",
+   "translation": "Die Fahrkarte kostet 45 Euro."
+  },
+  {
+   "id": "r8-zahlen-46",
+   "src": "en",
+   "dst": "de",
+   "text": "The meeting is on 14 June at 10:30.",
+   "translation": "Das Treffen ist am 14. Juni um 10:30 Uhr."
+  }
+ ]
+}

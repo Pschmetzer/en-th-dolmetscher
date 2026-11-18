@@ -1,0 +1,378 @@
+{
+ "about": "Runde 8: Umgangssprache. Thai-Referenzen sind maschinell erzeugt und ungeprüft (machine=true), keine Muttersprachler-Freigabe.",
+ "reviewed": false,
+ "cases": [
+  {
+   "id": "r8-umgangssprache-01",
+   "src": "en",
+   "dst": "th",
+   "text": "Hey, what's up?",
+   "translation": "เฮ้ เป็นไงบ้าง",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-02",
+   "src": "en",
+   "dst": "th",
+   "text": "No worries, mate.",
+   "translation": "ไม่เป็นไรเพื่อน",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-03",
+   "src": "en",
+   "dst": "th",
+   "text": "That's awesome!",
+   "translation": "สุดยอดเลย!",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-04",
+   "src": "en",
+   "dst": "th",
+   "text": "I'm starving, let's grab some food.",
+   "translation": "หิวจะแย่แล้ว ไปหาอะไรกินกัน",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-05",
+   "src": "en",
+   "dst": "th",
+   "text": "It's super hot today, isn't it?",
+   "translation": "วันนี้ร้อนสุดๆ เลยใช่ไหม",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-06",
+   "src": "en",
+   "dst": "th",
+   "text": "I'm so tired, I can barely stand.",
+   "translation": "เหนื่อยมาก แทบยืนไม่ไหวแล้ว",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-07",
+   "src": "en",
+   "dst": "th",
+   "text": "Wanna come with us?",
+   "translation": "ไปกับพวกเราไหม",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-08",
+   "src": "en",
+   "dst": "th",
+   "text": "Gotta run, see you later.",
+   "translation": "ต้องไปแล้วนะ เจอกันใหม่",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-09",
+   "src": "en",
+   "dst": "th",
+   "text": "That's too much, give me a discount.",
+   "translation": "แพงไปแล้ว ลดหน่อยสิ",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-10",
+   "src": "en",
+   "dst": "th",
+   "text": "Cheers! Let's have a drink.",
+   "translation": "ชนแก้ว! ไปดื่มกัน",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-11",
+   "src": "en",
+   "dst": "th",
+   "text": "I have no clue what you mean.",
+   "translation": "ไม่รู้เลยว่าคุณหมายถึงอะไร",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-12",
+   "src": "en",
+   "dst": "th",
+   "text": "Same here.",
+   "translation": "เหมือนกันเลย",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-13",
+   "src": "en",
+   "dst": "th",
+   "text": "Seriously? You're kidding me!",
+   "translation": "จริงเหรอ ล้อเล่นใช่ไหม!",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-14",
+   "src": "en",
+   "dst": "th",
+   "text": "I'm broke until Friday.",
+   "translation": "ฉันไม่มีเงินเลยจนถึงวันศุกร์",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-15",
+   "src": "en",
+   "dst": "th",
+   "text": "This place is so chill.",
+   "translation": "ที่นี่สบายมากเลย",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-16",
+   "src": "en",
+   "dst": "th",
+   "text": "Hang on a sec.",
+   "translation": "รอแป๊บนะ",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-17",
+   "src": "en",
+   "dst": "th",
+   "text": "What a rip-off!",
+   "translation": "โกงกันชัดๆ!",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-18",
+   "src": "en",
+   "dst": "th",
+   "text": "Let's call it a day.",
+   "translation": "เลิกกันแค่นี้ก่อนเถอะ",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-19",
+   "src": "en",
+   "dst": "th",
+   "text": "That's a bit pricey, 400 is my limit.",
+   "translation": "แพงนิดหน่อย 400 คือสุดของฉัน",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-20",
+   "src": "en",
+   "dst": "th",
+   "text": "Lol, that's so funny.",
+   "translation": "555 ตลกมากเลย",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-21",
+   "src": "th",
+   "dst": "en",
+   "text": "ไปไหนมา",
+   "translation": "Where have you been?",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-22",
+   "src": "th",
+   "dst": "en",
+   "text": "เหนื่อยจังเลย",
+   "translation": "I'm so tired.",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-23",
+   "src": "th",
+   "dst": "en",
+   "text": "อร่อยมากเลยอ่ะ",
+   "translation": "It's really delicious.",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-24",
+   "src": "th",
+   "dst": "en",
+   "text": "แพงไปป่ะ ลดหน่อยดิ",
+   "translation": "Isn't it too expensive? Give me a discount.",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-25",
+   "src": "th",
+   "dst": "en",
+   "text": "ไม่เป็นไรหรอก ชิลๆ",
+   "translation": "It's no big deal, take it easy.",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-26",
+   "src": "th",
+   "dst": "en",
+   "text": "เดี๋ยวไปเดี๋ยวมา",
+   "translation": "I'll be right back.",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-27",
+   "src": "th",
+   "dst": "en",
+   "text": "เอาไงดีอ่ะ",
+   "translation": "What should we do?",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-28",
+   "src": "th",
+   "dst": "en",
+   "text": "มันเยี่ยมมากเลยนะ",
+   "translation": "That's really great.",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-29",
+   "src": "th",
+   "dst": "en",
+   "text": "ไม่รู้อ่ะ ไม่แน่ใจ",
+   "translation": "I don't know, I'm not sure.",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-30",
+   "src": "th",
+   "dst": "en",
+   "text": "เบื่อจัง ไปเที่ยวกันดีกว่า",
+   "translation": "I'm bored, let's go out instead.",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-31",
+   "src": "th",
+   "dst": "en",
+   "text": "ตกลงตามนั้นนะ",
+   "translation": "Okay, deal.",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-32",
+   "src": "th",
+   "dst": "en",
+   "text": "จริงดิ ไม่เชื่อเลย",
+   "translation": "Really? I can't believe it.",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-33",
+   "src": "th",
+   "dst": "en",
+   "text": "กินข้าวยัง",
+   "translation": "Have you eaten yet?",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-34",
+   "src": "th",
+   "dst": "en",
+   "text": "เมื่อคืนนอนดึกมาก ตอนนี้ง่วงสุดๆ",
+   "translation": "I went to bed very late last night, now I'm extremely sleepy.",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-35",
+   "src": "th",
+   "dst": "en",
+   "text": "555 ตลกมากเลย",
+   "translation": "Haha, that's so funny.",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-36",
+   "src": "th",
+   "dst": "en",
+   "text": "หิวข้าวแล้วอ่ะ ไปกินอะไรกัน",
+   "translation": "I'm hungry, let's go eat something.",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-37",
+   "src": "th",
+   "dst": "de",
+   "text": "เบื่อจัง ไปไหนดี",
+   "translation": "Ich langweile mich, wohin gehen wir?",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-38",
+   "src": "th",
+   "dst": "de",
+   "text": "ลดหน่อยดิ ราคา 300 ได้ป่ะ",
+   "translation": "Gib mir einen Rabatt, geht 300?",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-39",
+   "src": "th",
+   "dst": "de",
+   "text": "เดี๋ยวมานะ",
+   "translation": "Ich bin gleich wieder da.",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-40",
+   "src": "de",
+   "dst": "th",
+   "text": "Alles klar, bis später!",
+   "translation": "โอเค เจอกันนะ",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-41",
+   "src": "de",
+   "dst": "th",
+   "text": "Ich bin total fertig heute.",
+   "translation": "วันนี้เหนื่อยสุดๆ เลย",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-42",
+   "src": "de",
+   "dst": "th",
+   "text": "Das ist mir echt zu teuer.",
+   "translation": "แพงเกินไปสำหรับฉันจริงๆ",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-43",
+   "src": "de",
+   "dst": "th",
+   "text": "Komm schon, nimm 200 Baht!",
+   "translation": "เอาน่า รับ 200 บาทเถอะ",
+   "machine": true
+  },
+  {
+   "id": "r8-umgangssprache-44",
+   "src": "de",
+   "dst": "en",
+   "text": "Ich hab voll Hunger, lass was essen gehen.",
+   "translation": "I'm starving, let's go and eat something."
+  },
+  {
+   "id": "r8-umgangssprache-45",
+   "src": "de",
+   "dst": "en",
+   "text": "Mach dir keinen Kopf, passt schon.",
+   "translation": "Don't worry about it, it's fine."
+  },
+  {
+   "id": "r8-umgangssprache-46",
+   "src": "en",
+   "dst": "de",
+   "text": "No way, you're kidding!",
+   "translation": "Auf keinen Fall, du machst Witze!"
+  },
+  {
+   "id": "r8-umgangssprache-47",
+   "src": "en",
+   "dst": "de",
+   "text": "I'm totally wiped out.",
+   "translation": "Ich bin total geschafft."
+  }
+ ]
+}
