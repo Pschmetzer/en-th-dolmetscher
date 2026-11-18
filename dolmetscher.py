@@ -1111,6 +1111,7 @@ def _cache_put(key, val):
 # Opt-in (Steuerfeld `cache_persist`): Übersetzungs-Cache übersteht den Neustart – Standardsätze gehen dann auch ohne
 # Netz. Enthält Gesprochenes: Datei 0600 im Datenordner, wird beim Ausschalten gelöscht (siehe DATENSCHUTZ.md).
 _CACHE_DISK = {"on": False, "saved": 0.0}
+_CACHE_IO = threading.Lock()
 CACHE_FILE = os.path.expanduser("~/Library/Application Support/Dolmetscher/translation_cache.json")
 
 
@@ -1124,7 +1125,9 @@ def _cache_save(force=False):
     with _CACHE_LOCK:
         rows = [[list(k), list(v) if isinstance(v, tuple) else v] for k, v in _CACHE.items()]
     try:
-        _write_private(CACHE_FILE, json.dumps(rows, ensure_ascii=False))
+        with _CACHE_IO:                          # Schreiben und Ausschalten (Löschen) nie gleichzeitig
+            if _CACHE_DISK["on"]:
+                _write_private(CACHE_FILE, json.dumps(rows, ensure_ascii=False))
     except OSError as e:
         log({"cache": "speichern fehlgeschlagen", "err": _errtxt(e)})
 
@@ -1143,10 +1146,11 @@ def cache_persist(on):
         except (OSError, ValueError, TypeError):
             pass
     else:
-        try:
-            os.unlink(CACHE_FILE)
-        except OSError:
-            pass
+        with _CACHE_IO:
+            try:
+                os.unlink(CACHE_FILE)
+            except OSError:
+                pass
 
 
 _NORM_QUOTES = str.maketrans({"’": "'", "‘": "'", "ʼ": "'", "`": "'", "´": "'", "“": '"', "”": '"', "„": '"',
