@@ -104,8 +104,8 @@ def test_numbers_detail_names_only_the_wrong_numbers():
 
 
 def test_numbers_detail_is_limited_to_eight_each():
-    a = " ".join(str(100 + i) for i in range(20))
-    b = " ".join(str(500 + i) for i in range(20))
+    a = " ".join(str(1100 + i) for i in range(20))   # 4-stellig: keine Tausendergruppe
+    b = " ".join(str(5100 + i) for i in range(20))
     det = d._numbers_detail(a, b)
     assert len(det["src"]) == 8 and len(det["out"]) == 8
 

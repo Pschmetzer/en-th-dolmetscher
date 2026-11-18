@@ -12,7 +12,7 @@ PLATFORMS = ("mac", "iphone")
 LANGS = ("de", "en", "th")
 LIMITS = {"name": 30, "subtitle": 30, "keywords": 100, "description": 4000, "whats_new": 4000}
 STORE_FILES = tuple(LIMITS)
-NEW_TEMPLATES = ("fehler.yml", "feature.yml", "thai-uebersetzungsfehler.yml")
+NEW_TEMPLATES = ("bug-report.yml", "feature-request.yml", "phrase-review.yml")
 
 
 def test_community_dateien_vorhanden():
