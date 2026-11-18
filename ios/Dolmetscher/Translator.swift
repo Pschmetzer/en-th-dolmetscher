@@ -29,11 +29,31 @@ final class NetStatus: @unchecked Sendable {
     private let monitor = NWPathMonitor()
     private let lock = NSLock()
     private var path: NWPath?
+    private var reconnectHandler: (@Sendable () -> Void)?
+    private var changeHandler: (@Sendable (Bool) -> Void)?
+
+    /// Bei jedem Wechsel zwischen online und offline (auch beim ersten Pfad).
+    func onChange(_ handler: @escaping @Sendable (Bool) -> Void) {
+        lock.lock(); changeHandler = handler; lock.unlock()
+    }
+
+    /// Wird aufgerufen, wenn das Netz nach einem Ausfall wieder da ist (Tunnel, Flugmodus, Funkloch).
+    func onReconnect(_ handler: @escaping @Sendable () -> Void) {
+        lock.lock(); reconnectHandler = handler; lock.unlock()
+    }
 
     private init() {
         monitor.pathUpdateHandler = { [weak self] p in
             guard let self else { return }
-            self.lock.lock(); self.path = p; self.lock.unlock()
+            self.lock.lock()
+            let was = self.path.map { $0.status == .satisfied }
+            self.path = p
+            let handler = self.reconnectHandler
+            let change = self.changeHandler
+            self.lock.unlock()
+            let now = p.status == .satisfied
+            if was != now { change?(now) }
+            if ReconnectRetry.cameBack(was: was, now: p.status == .satisfied) { handler?() }
         }
         monitor.start(queue: DispatchQueue(label: "dolmetscher.net"))
     }

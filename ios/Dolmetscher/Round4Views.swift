@@ -475,11 +475,12 @@ struct HelpNowView: View {
 
 struct DialRow: View {
     let number: String, en: String, th: String, icon: String
+    @ScaledMetric(relativeTo: .headline) private var iconWidth: CGFloat = 28
     var body: some View {
         if let url = URL(string: "tel:\(number)") {
             Link(destination: url) {
                 HStack(spacing: 14) {
-                    Image(systemName: icon).foregroundStyle(.red).frame(width: 28)
+                    Image(systemName: icon).foregroundStyle(.red).frame(width: iconWidth)
                     VStack(alignment: .leading) {
                         Text(en).font(.headline)
                         Text(th).font(.subheadline).foregroundStyle(.secondary)
