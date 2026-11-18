@@ -54,12 +54,12 @@ struct PartnerView: View {
 
     private var controls: some View {
         HStack {
-            Button { split.toggle() } label: {
+            Button { split.toggle(); Haptics.tap() } label: {
                 Image(systemName: split ? "rectangle" : "rectangle.split.1x2")
             }
             .accessibilityLabel(T("split_view"))
             if !split {
-                Button { flipped.toggle() } label: { Image(systemName: "arrow.up.arrow.down") }
+                Button { flipped.toggle(); Haptics.command() } label: { Image(systemName: "arrow.up.arrow.down") }
                     .accessibilityLabel(T("flip"))
             }
             Spacer()

@@ -48,4 +48,16 @@ final class Round9Tests: XCTestCase {
         }
         XCTAssertNotNil(L10n.round9["interrupt_paused"]); XCTAssertNotNil(L10n.round9["route_lost"])
     }
+
+    func testSpeechRateSlowAndClear() {
+        XCTAssertEqual(SpeechRate.effective(rate: 0.5, slow: false, clear: false), 0.5)
+        XCTAssertEqual(SpeechRate.effective(rate: 0.8, slow: true, clear: false), 0.8 * SpeechRate.slowFactor, accuracy: 0.0001)
+        XCTAssertEqual(SpeechRate.effective(rate: 0.4, slow: true, clear: true), SpeechRate.slowFloor)
+        XCTAssertEqual(SpeechRate.effective(rate: 0.9, slow: false, clear: true), SpeechRate.clearCeiling)
+    }
+
+    func testHelpGuideTextsExist() {
+        for s in HelpGuide.steps { XCTAssertNotNil(L10n.round9[s.title]); XCTAssertNotNil(L10n.round9[s.body]) }
+        XCTAssertNotNil(L10n.round9["help_title"])
+    }
 }
