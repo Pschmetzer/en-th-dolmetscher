@@ -157,6 +157,8 @@ struct Bubble: View, Equatable {
             if canCorrect, let alt = u.alts.first { m.retranslate(u, text: alt) }
         }
         .accessibilityAction(named: L.t("save_phrase")) { saveQuickPhrase(u.text) }
+        .accessibilityAction(named: L.t("big_text")) { NotificationCenter.default.post(name: .showBigText, object: u.id) }
+        .accessibilityAction(named: L.t("copy_both")) { copy(u.text + "\n" + u.out) }
         .accessibilityAction(named: L.t("delete_bubble")) { m.deleteItem(u) }
     }
 
@@ -192,6 +194,9 @@ struct Bubble: View, Equatable {
         Button(L.t("save_phrase")) { saveQuickPhrase(u.text) }
         Button(L.t("read_aloud")) { m.replay(u) }
         Button(L.t("stop_speaking")) { m.stopSpeaking() }
+        Divider()
+        Button(L.t("big_text")) { NotificationCenter.default.post(name: .showBigText, object: u.id) }
+        ShareLink(item: u.out.isEmpty ? u.text : u.text + "\n" + u.out) { Label(L.t("share"), systemImage: "square.and.arrow.up") }
         Divider()
         Button(L.t("delete_bubble"), role: .destructive) { m.deleteItem(u) }   // Nr. 383
     }

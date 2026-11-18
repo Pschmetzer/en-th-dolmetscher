@@ -41,6 +41,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         MainActor.assumeIsolated { for u in urls { URLCommands.handle(u) } }
     }
 
+    /// Dock-Menü: Start/Stopp, Pause und Fenster ohne das Fenster zu öffnen.
+    func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
+        MainActor.assumeIsolated {
+            let m = EngineModel.shared
+            let menu = NSMenu()
+            let toggle = NSMenuItem(title: m.active ? L.t("stop") : L.t("start"), action: #selector(dockToggle), keyEquivalent: "")
+            toggle.target = self
+            menu.addItem(toggle)
+            let pause = NSMenuItem(title: m.paused ? L.t("resume") : L.t("pause"), action: #selector(dockPause), keyEquivalent: "")
+            pause.target = self
+            pause.isEnabled = m.running
+            menu.addItem(pause)
+            return menu
+        }
+    }
+    @objc private func dockToggle() { MainActor.assumeIsolated { EngineModel.shared.toggle() } }
+    @objc private func dockPause() { MainActor.assumeIsolated { EngineModel.shared.togglePause() } }
+
     func applicationWillTerminate(_ n: Notification) {
         MainActor.assumeIsolated {
             HotKeys.shared.uninstall()
@@ -155,6 +173,17 @@ struct AppCommands: Commands {
             Button(model.paused ? L.t("resume") : L.t("pause")) { model.togglePause() }
                 .keyboardShortcut("p", modifiers: .command)
                 .disabled(!model.running)
+            Button(L.t("copy_last")) { if let u = model.lastReplayable { copyToPasteboard(u.out); Announcer.post(L.t("copied")) } }
+                .keyboardShortcut("c", modifiers: [.command, .shift])
+                .disabled(model.lastReplayable == nil)
+            Button(L.t("direction_cycle")) {
+                let order = ["auto"] + Langs.pair
+                let i = order.firstIndex(of: model.lang) ?? 0
+                model.lang = order[(i + 1) % order.count]
+            }
+                .keyboardShortcut("l", modifiers: [.command, .option])
+            Button(L.t("glossary_add_title") + " …") { NotificationCenter.default.post(name: .showGlossaryAdd, object: nil) }
+                .keyboardShortcut("g", modifiers: [.command, .option])
             Button(L.t("focus_typing")) { NotificationCenter.default.post(name: .focusTyping, object: nil) }
                 .keyboardShortcut("l", modifiers: .command)
             Button(L.t("speak_toggle")) { model.speak.toggle() }
@@ -171,6 +200,8 @@ struct AppCommands: Commands {
         CommandGroup(replacing: .printItem) {}   // kein Drucken: ⌘P ist Pause
         CommandGroup(replacing: .help) {
             Button(L.t("tips_show")) { NotificationCenter.default.post(name: .showTips, object: nil) }
+            Button(L.t("show_shortcuts")) { NotificationCenter.default.post(name: .showShortcuts, object: nil) }
+                .keyboardShortcut("/", modifiers: .command)
         }
     }
 }
@@ -190,6 +221,7 @@ struct MenuBarContent: View {
             .disabled(!m.running)
         Button(L.t("stop_speaking")) { m.stopSpeaking() }
             .disabled(!m.running)
+        RecentTranslationsMenu()
         Toggle(L.t("speak_toggle"), isOn: $m.speak)
         Picker(L.t("direction"), selection: $m.lang) {
             Text(L.t("dir_auto")).tag("auto")

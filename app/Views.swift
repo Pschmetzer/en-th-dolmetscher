@@ -178,6 +178,9 @@ struct ContentView: View {
     @State private var whatsNew: [String] = []
     @AppStorage(Prefs.showQuick) private var showQuick = true
     @State private var showTips = false
+    @State private var bigText: Utterance?
+    @State private var showGlossaryAdd = false
+    @State private var showShortcuts = false
     @State private var showProfiles = false
     /// Hinweis „Zwei-Personen-Modus ohne Profil“ für diese Sitzung weggeklickt.
     @State private var twoPersonHintClosed = false
@@ -231,11 +234,8 @@ struct ContentView: View {
                                  : $0 == "detect_model" ? "degraded_detect" : "degraded_other") }.joined(separator: ", ")),
                              action: (L.t("show_log"), { openLog() }), onClose: { m.degradedModels = [] })
             }
-            if let e = m.lastError {
-                NoticeBanner(icon: "exclamationmark.circle.fill", tint: LangStyle.warning,
-                             text: e.date.formatted(date: .omitted, time: .standard) + " · " + e.msg,
-                             action: (L.t("show_log"), { openLog() }), onClose: { m.lastError = nil })
-            }
+            if let e = m.lastError { ErrorBanner(error: e) }
+            if !m.netDown.isEmpty { NetDownBanner() }
             if m.llm && m.llmBudget > 0 && m.llmMonthUSD >= m.llmBudget * 0.8 && !budgetHintClosed {   // Nr. 37
                 let over = m.llmMonthUSD >= m.llmBudget
                 NoticeBanner(icon: "dollarsign.circle", tint: LangStyle.warning,
@@ -301,6 +301,14 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showProfiles) { ProfilesView().environmentObject(m) }
         .sheet(item: $correcting) { CorrectSheet(u: $0).environmentObject(m) }
+        .sheet(item: $bigText) { BigTextSheet(u: $0) }
+        .sheet(isPresented: $showGlossaryAdd) { GlossaryAddSheet().environmentObject(m) }
+        .sheet(isPresented: $showShortcuts) { ShortcutsSheet() }
+        .onReceive(NotificationCenter.default.publisher(for: .showBigText)) { n in
+            if let id = n.object as? UUID { bigText = m.items.first { $0.id == id } }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .showGlossaryAdd)) { _ in showGlossaryAdd = true }
+        .onReceive(NotificationCenter.default.publisher(for: .showShortcuts)) { _ in showShortcuts = true }
         .id(uiLang)                                   // Oberflächensprache sofort umschalten
         .onChange(of: m.items.isEmpty) { if m.items.isEmpty { query = ""; langFilter = ""; userScrolledUp = false } }
         .onChange(of: uiLang) { m.refreshStatus() }
@@ -349,6 +357,13 @@ struct ContentView: View {
             }
             .pickerStyle(.segmented).labelsHidden().frame(width: 150)
             .accessibilityLabel(L.t("language_filter"))
+            if filtering {
+                Text(L.f("results_count", shown.count)).font(.caption).monospacedDigit().foregroundStyle(.secondary)
+                    .accessibilityLabel(L.f("results_count", shown.count))
+                Button { exportConversation(m, only: shown) } label: { Image(systemName: "square.and.arrow.up") }
+                    .buttonStyle(.borderless).disabled(shown.isEmpty)
+                    .help(L.t("export_hits")).accessibilityLabel(L.t("export_hits"))
+            }
             if searchOpen || filtering {
                 Button { query = ""; langFilter = ""; searchOpen = false; searchFocused = false } label: {
                     Image(systemName: "xmark.circle.fill")
@@ -383,6 +398,16 @@ struct ContentView: View {
             ScrollView {
                 LazyVStack(spacing: 12) {
                     if m.items.isEmpty { EmptyState() }
+                    if !m.items.isEmpty && shown.isEmpty {
+                        VStack(spacing: 8) {
+                            Image(systemName: "magnifyingglass").font(.largeTitle).foregroundStyle(.secondary).accessibilityHidden(true)
+                            Text(L.t("no_results")).font(.headline)
+                            Text(L.t("no_results_hint")).foregroundStyle(.secondary)
+                            Button(L.t("reset_filter")) { query = ""; langFilter = "" }
+                        }
+                        .padding(.top, 40).frame(maxWidth: .infinity)
+                        .accessibilityElement(children: .combine)
+                    }
                     ForEach(shown) { u in
                         Bubble(m: m, u: u, scale: scale,
                                playing: m.replayingID == u.id || (u.uid.map { m.speakingIDs.contains($0) } ?? false),
@@ -506,6 +531,7 @@ struct EmptyState: View {
                 .foregroundStyle(.secondary)
             } else {
                 Text(L.tp("empty")).foregroundStyle(.secondary)
+                Text(L.t("chat_empty_start")).font(.callout).foregroundStyle(.secondary)
             }
             // Nr. 399: Beispielsatz anklickbar – Probe-Übersetzung prüft Übersetzung und Lautsprecher ohne Mikrofon
             Button { m.say("Where is the toilet?", lang: "en") } label: {
@@ -914,6 +940,9 @@ struct QuickPhraseBar: View {
                             .accessibilityHint(L.t("preset_phrase_help"))
                     }
                     Divider().frame(height: 18)
+                }
+                if phrases.isEmpty && m.activePreset == nil {
+                    Text(L.t("phrases_empty_hint")).foregroundStyle(.secondary)
                 }
                 ForEach(Array(phrases.enumerated()), id: \.offset) { i, p in
                     Button(p) { m.say(p, lang: Prefs.phraseLang(p)) }

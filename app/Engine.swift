@@ -142,6 +142,9 @@ final class EngineModel: NSObject, ObservableObject {
     @Published private(set) var engineVersion: String?
     /// Letzter Engine-Fehler (bleibt sichtbar, bis er weggeklickt wird – der Status wird sofort überschrieben).
     @Published var lastError: (msg: String, date: Date)?
+    /// Fehlercode der Engine zu `lastError` (nur gültig, wenn `lastErrorCodeDate` dessen Zeit ist) – steuert die Handlungsvorschläge.
+    @Published var lastErrorCode: String?
+    var lastErrorCodeDate: Date?
     /// `ready.degraded`: Modelle, die nicht geladen werden konnten (Erkennung läuft schwächer).
     @Published var degradedModels: [String] = []
     /// Wachhund: Die Engine beantwortet `ping` seit über 30 s nicht (hängt vermutlich).
@@ -1255,6 +1258,7 @@ final class EngineModel: NSObject, ObservableObject {
             // Hinweis behält die Ursache der Engine (Ausnahme, Dateiname, Gerät) – nur dort, wo sie variiert
             let detail = code.map { Self.errorDetailCodes.contains($0) } == true ? raw : nil
             lastError = (msg + (detail.map { " – " + $0 } ?? ""), Date())
+            lastErrorCode = code; lastErrorCodeDate = lastError?.date
             Announcer.post(msg, force: true)
         case "command": applyCommand(o)
         case "dropped":
