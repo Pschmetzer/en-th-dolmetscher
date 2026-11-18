@@ -54,8 +54,9 @@ Claude-Übersetzung ist optional und kostet pro Satz (Abrechnung bei Anthropic).
 
 1. Kopfhörer benutzen. Das ist die sicherste Lösung.
 2. Auf Laptop-Lautsprechern verwirft die Engine Audio, das während des Vorlesens (plus etwa 300 ms Nachhall) eintrifft. Bei zu vielen Fehlerkennungen die Empfindlichkeit senken (`--sensitivity low`) und die Rauschunterdrückung einschalten (`--denoise`).
-3. `--barge-in` (Unterbrechen durch Sprechen) ist nur für Kopfhörer gedacht.
-4. Ausgabegerät (Lautsprecher oder Kopfhörer) lässt sich in den Einstellungen wählen, auch während des Betriebs.
+3. Zusätzlich verwirft der Echo-Schutz (`echo_guard`, Standard an) erkannte Sätze, die einem der letzten vorgelesenen Sätze fast gleichen; er merkt sich sie nur im Arbeitsspeicher und speichert nichts.
+4. `--barge-in` (Unterbrechen durch Sprechen) ist nur für Kopfhörer gedacht.
+5. Ausgabegerät (Lautsprecher oder Kopfhörer) lässt sich in den Einstellungen wählen, auch während des Betriebs.
 
 ## Einrichtung schlägt fehl (Mac, erster Start)
 
