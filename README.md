@@ -266,6 +266,8 @@ iPhone tests: see [ios/README.md](ios/README.md#tests).
 | `bench/`, `tests/`, `tools/` | Benchmark, pytest tests, phrase pack tools and the Swift helpers (`translate-helper`, `apple-stt` prototype) |
 | `docs/` | [ARCHITEKTUR](docs/ARCHITEKTUR.md), [PROTOKOLL](docs/PROTOKOLL.md), [DATENSCHUTZ](docs/DATENSCHUTZ.md), [LIZENZEN](docs/LIZENZEN.md), [PRESETS](docs/PRESETS.md) (German) |
 
+Thai documentation for Thai users (machine-translated, not checked by native speakers): [docs/th/](docs/th/README.md).
+
 Contribution rules, lock files, signing and releases: [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Native speakers wanted
