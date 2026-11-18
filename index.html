@@ -332,13 +332,16 @@
     <label><input type="checkbox" id="learnRecent"> <span data-i18n="learnRecent">Zuletzt übersetzte Sätze automatisch aufnehmen</span></label>
     <label><input type="checkbox" id="learnListen"> <span data-i18n="learnListen">Hören zuerst</span></label>
     <label><input type="number" id="learnNew" min="1" max="50" value="10" style="width:4em"> <span data-i18n="learnNew">Neue Karten pro Tag</span></label>
+    <label><span data-i18n="learnDeck">Lerndeck</span> <select id="learnDeck"></select></label>
   </div>
   <div id="learnStats" role="status"></div>
+  <div id="learnBoxStats"></div>
   <progress id="learnProg" max="1" value="0"></progress>
   <div id="learnPlan"></div>
   <div class="row">
     <button class="small" id="learnAddPreset" type="button" data-i18n="learnAddPreset">Aktuelles Thema aufnehmen</button>
     <button class="small" id="learnClear" type="button" data-i18n="learnClear">Alle Lernkarten löschen</button>
+    <button class="small" id="learnReset" type="button" data-i18n="learnReset">Lernstand zurücksetzen</button>
     <button class="small" id="learnExport" type="button" data-i18n="learnExport">Sichern (.json)</button>
     <button class="small" id="learnTsv" type="button" data-i18n="learnTsv">Als Anki-Text (.tsv)</button>
     <button class="small" id="learnImport" type="button" data-i18n="learnImport">Sicherung laden</button>
@@ -349,15 +352,18 @@
   <div id="learnCard" class="learn-card" hidden>
     <div class="front" id="learnFront" dir="auto"></div>
     <div class="back" id="learnBack" dir="auto" hidden></div>
+    <div class="s" id="learnRom" hidden></div>
     <div class="row">
       <button class="small" id="learnShow" type="button" data-i18n="learnShow">Aufdecken</button>
       <button class="small" id="learnSpeak" type="button" data-i18n="read">🔊 Vorlesen</button>
       <button class="small" id="learnPractice" type="button" hidden data-i18n="learnPractice">🎙 Nachsprechen</button>
       <button class="yn no" id="learnNo" type="button" hidden data-i18n="again">Nochmal</button>
+      <button class="yn" id="learnHard" type="button" hidden data-i18n="learnHard">Schwer</button>
       <button class="yn yes" id="learnYes" type="button" hidden data-i18n="knew">Gewusst</button>
+      <button class="yn yes" id="learnEasy" type="button" hidden data-i18n="learnEasy">Leicht</button>
     </div>
     <div id="learnBoxNr" class="s"></div>
-    <div class="s" id="learnKeysHint" data-i18n="learnKeys">Tasten: ← nochmal · → gewusst</div>
+    <div class="s" id="learnKeysHint" data-i18n="learnKeys">Tasten: 1 nochmal · 2 schwer · 3 gewusst · 4 leicht (auch ← →)</div>
     <div id="learnPracticeOut" class="s" role="status"></div>
   </div>
 </details>
@@ -514,7 +520,17 @@ const STR = {
   "favNone": "Noch keine Favoriten in diesem Thema – bei einem Satz ☆ antippen.",
   "learnProgress": "Fortschritt: {a} von {b} Karten sicher gelernt ({p} %)",
   "learnPlan": "Plan: heute {a} · morgen {b} · in 2–7 Tagen {c}",
-  "learnKeys": "Tasten: ← nochmal · → gewusst",
+  "learnKeys": "Tasten: 1 nochmal · 2 schwer · 3 gewusst · 4 leicht (auch ← →)",
+  "learnDeck": "Lerndeck",
+  "learnDeckAll": "Alle Themen",
+  "learnHard": "Schwer",
+  "learnEasy": "Leicht",
+  "learnReset": "Lernstand zurücksetzen",
+  "learnResetConfirm": "Fächer, Termine und Statistik von {n} Karten zurücksetzen? Die Karten bleiben erhalten.",
+  "learnResetDone": "Lernstand zurückgesetzt.",
+  "learnLimitDone": "Das Tageslimit für neue Karten ist erreicht – morgen kommen neue.",
+  "learnBoxes": "Karten pro Fach: 1: {a} · 2: {b} · 3: {c} · 4: {d} · 5: {e}",
+  "learnImportBad": "Keine gültige Sicherung.",
   "micDeniedPre": "Das Mikrofon ist für diese Seite gesperrt. Erlaube es in den Website-Einstellungen des Browsers und lade die Seite neu – bis dahin gehen Satzbuch und Tippen.",
   "micDeniedAct": "Satzbuch öffnen",
   "netBack": "Wieder online: Übersetzen und Spracherkennung gehen wieder.",
@@ -755,7 +771,17 @@ const STR = {
   "favNone": "No favourites in this topic yet – tap ☆ on a phrase.",
   "learnProgress": "Progress: {a} of {b} cards well learned ({p}%)",
   "learnPlan": "Plan: today {a} · tomorrow {b} · in 2–7 days {c}",
-  "learnKeys": "Keys: ← again · → knew it",
+  "learnKeys": "Keys: 1 again · 2 hard · 3 knew it · 4 easy (also ← →)",
+  "learnDeck": "Study deck",
+  "learnDeckAll": "All topics",
+  "learnHard": "Hard",
+  "learnEasy": "Easy",
+  "learnReset": "Reset study progress",
+  "learnResetConfirm": "Reset boxes, due dates and statistics of {n} cards? The cards are kept.",
+  "learnResetDone": "Study progress reset.",
+  "learnLimitDone": "The daily limit for new cards is reached – more tomorrow.",
+  "learnBoxes": "Cards per box: 1: {a} · 2: {b} · 3: {c} · 4: {d} · 5: {e}",
+  "learnImportBad": "Not a valid backup.",
   "micDeniedPre": "The microphone is blocked for this page. Allow it in the browser's site settings and reload – until then the phrasebook and typing still work.",
   "micDeniedAct": "Open phrasebook",
   "netBack": "Back online: translation and speech recognition work again.",
@@ -996,7 +1022,17 @@ const STR = {
   "favNone": "ยังไม่มีรายการโปรดในหมวดนี้ – แตะ ☆ ที่ประโยค",
   "learnProgress": "ความคืบหน้า: จำได้แม่น {a} จาก {b} การ์ด ({p}%)",
   "learnPlan": "แผน: วันนี้ {a} · พรุ่งนี้ {b} · ใน 2–7 วัน {c}",
-  "learnKeys": "ปุ่ม: ← อีกครั้ง · → จำได้",
+  "learnKeys": "ปุ่ม: 1 อีกครั้ง · 2 ยาก · 3 จำได้ · 4 ง่าย (หรือ ← →)",
+  "learnDeck": "ชุดการเรียน",
+  "learnDeckAll": "ทุกหัวข้อ",
+  "learnHard": "ยาก",
+  "learnEasy": "ง่าย",
+  "learnReset": "รีเซ็ตความคืบหน้า",
+  "learnResetConfirm": "รีเซ็ตช่อง วันครบกำหนด และสถิติของ {n} การ์ด? การ์ดจะยังอยู่",
+  "learnResetDone": "รีเซ็ตความคืบหน้าแล้ว",
+  "learnLimitDone": "ถึงขีดจำกัดการ์ดใหม่ของวันนี้แล้ว – พรุ่งนี้มีการ์ดใหม่",
+  "learnBoxes": "การ์ดต่อช่อง: 1: {a} · 2: {b} · 3: {c} · 4: {d} · 5: {e}",
+  "learnImportBad": "ไม่ใช่ไฟล์สำรองที่ถูกต้อง",
   "micDeniedPre": "ไมโครโฟนถูกบล็อกสำหรับหน้านี้ โปรดอนุญาตในการตั้งค่าเว็บไซต์ของเบราว์เซอร์แล้วโหลดใหม่ – ระหว่างนี้ใช้สมุดวลีและการพิมพ์ได้",
   "micDeniedAct": "เปิดสมุดวลี",
   "netBack": "กลับมาออนไลน์แล้ว: แปลและรู้จำเสียงใช้ได้อีกครั้ง",
@@ -2023,16 +2059,49 @@ const LEARN_DAYS = [0, 1, 3, 7, 14];   // Fach 1..5: Tage bis zur nächsten Abfr
 function learnSide(x) {
   return !!x && typeof x.t === 'string' && x.t.trim() !== '' && x.t.length <= LEARN_TXT && typeof x.l === 'string' && Object.prototype.hasOwnProperty.call(LANGS, x.l);
 }
-function learnParse(raw) {   // gespeicherte Daten prüfen: kaputte oder fremde Einträge werden verworfen
+function learnParse(raw) {   // gespeicherte Daten prüfen: kaputte oder fremde Einträge werden verworfen; nur bekannte Felder werden kopiert
   let v;
   try { v = JSON.parse(raw || '[]'); } catch { return []; }
   if (!Array.isArray(v)) return [];
+  const txt = x => ({ t: x.t.replace(/[\u0000-\u001f\u007f]/g, ' ').trim(), l: x.l });   // Steuerzeichen raus
   return v.filter(c => c && typeof c === 'object' && learnSide(c.a) && learnSide(c.b))
-    .map(c => ({ a: { t: c.a.t, l: c.a.l }, b: { t: c.b.t, l: c.b.l },
+    .map(c => Object.assign({ a: txt(c.a), b: txt(c.b),
                  box: Number.isInteger(c.box) && c.box >= 1 && c.box <= 5 ? c.box : 1,
                  due: Number.isFinite(c.due) ? c.due : 0, fav: c.fav === true, rec: c.rec === true,
-                 add: Number.isFinite(c.add) ? c.add : 0 }))
+                 add: Number.isFinite(c.add) ? c.add : 0 },
+      typeof c.deck === 'string' && /^[a-z0-9-]{1,40}$/.test(c.deck) ? { deck: c.deck } : {},
+      Number.isInteger(c.reps) && c.reps > 0 && c.reps < 1e6 ? { reps: c.reps } : {},
+      typeof c.r === 'string' && c.r.trim() && c.r.length <= LEARN_TXT ? { r: c.r.replace(/[\u0000-\u001f\u007f]/g, ' ').trim() } : {}))
+    .filter(c => c.a.t && c.b.t)
     .slice(-LEARN_MAX);
+}
+const STATS_DAY_RX = /^\d{4}-\d{2}-\d{2}$/;
+function statsClean(v) {   // Tageszähler prüfen: nur Datumsschlüssel, nur kleine ganze Zahlen, höchstens 30 Tage
+  const out = {};
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return out;
+  const num = n => Number.isInteger(n) && n >= 0 && n <= 1e6 ? n : 0;
+  for (const k of Object.keys(v).filter(d => STATS_DAY_RX.test(d)).sort().slice(-30)) {
+    const x = v[k]; if (!x || typeof x !== 'object') continue;
+    out[k] = Object.assign({ ok: num(x.ok), bad: num(x.bad) }, num(x.nw) ? { nw: num(x.nw) } : {});
+  }
+  return out;
+}
+function statsMerge(a, b) {   // je Tag der größere Wert (Sicherung zweimal laden zählt nicht doppelt)
+  const out = statsClean(a), imp = statsClean(b);
+  for (const k of Object.keys(imp)) {
+    const x = out[k] || { ok: 0, bad: 0 }, y = imp[k], nw = Math.max(x.nw || 0, y.nw || 0);
+    out[k] = Object.assign({ ok: Math.max(x.ok, y.ok), bad: Math.max(x.bad, y.bad) }, nw ? { nw } : {});
+  }
+  return statsClean(out);
+}
+const LEARN_FORMAT = 'dolmetscher-learn';
+function learnPack(list, stats) { return JSON.stringify({ format: LEARN_FORMAT, v: 1, cards: list, stats: statsClean(stats) }); }
+function learnUnpack(raw) {   // Sicherungsdatei lesen: alte Form (nur Liste) oder Hülle; sonst null. Nichts davon wird ausgeführt.
+  let v;
+  try { v = JSON.parse(String(raw)); } catch { return null; }
+  if (Array.isArray(v)) return { cards: learnParse(JSON.stringify(v)), stats: {} };
+  if (!v || typeof v !== 'object' || v.format !== LEARN_FORMAT || v.v !== 1 || !Array.isArray(v.cards)) return null;
+  return { cards: learnParse(JSON.stringify(v.cards)), stats: statsClean(v.stats) };
 }
 function learnItem(text, src, out, dst) {   // Vorderseite = meine Sprache, Rückseite = Sprache des Partners
   const x = { t: String(text || '').trim().slice(0, LEARN_TXT), l: src }, y = { t: String(out || '').trim().slice(0, LEARN_TXT), l: dst };
@@ -2042,8 +2111,9 @@ function learnItem(text, src, out, dst) {   // Vorderseite = meine Sprache, Rüc
 function learnKey(c) { return c.a.l + '|' + c.a.t + '|' + c.b.l + '|' + c.b.t; }
 function learnAdd(list, item, now, kind) {   // kind 'fav' (gemerkt) oder 'rec' (zuletzt übersetzt); neue Liste, ohne Doppelte
   const k = learnKey(item), old = list.find(c => learnKey(c) === k);
-  if (old) return list.map(c => c === old ? Object.assign({}, c, { [kind]: true }) : c);
-  const out = list.concat([{ a: item.a, b: item.b, box: 1, due: now, fav: kind === 'fav', rec: kind === 'rec', add: now }]);
+  const extra = Object.assign({}, item.deck ? { deck: item.deck } : {}, item.r ? { r: item.r } : {});   // Lerndeck (Themenpaket) und Umschrift, falls bekannt
+  if (old) return list.map(c => c === old ? Object.assign({}, extra, c, { [kind]: true }) : c);
+  const out = list.concat([Object.assign({ a: item.a, b: item.b, box: 1, due: now, fav: kind === 'fav', rec: kind === 'rec', add: now }, extra)]);
   while (out.length > LEARN_MAX) {   // voll: zuerst die ältesten nicht gemerkten entfernen
     const i = out.findIndex(c => !c.fav);
     out.splice(i >= 0 ? i : 0, 1);
@@ -2057,6 +2127,35 @@ function leitnerNext(card, ok, now) {   // gewusst: ein Fach weiter (fällig am 
   const d = new Date(now); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + LEARN_DAYS[box - 1]);   // Kalendertag (lokal), nicht 24-h-Spanne
   return Object.assign({}, card, { box, due: LEARN_DAYS[box - 1] ? d.getTime() : now });
 }
+function learnDay(now, days) {   // Kalendertag (lokal) in `days` Tagen
+  const d = new Date(now); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + days);
+  return d.getTime();
+}
+function leitnerGrade(card, grade, now) {   // 1 nochmal (Fach 1, 10 Min.), 2 schwer (Fach bleibt, halber Abstand), 3 gewusst (+1 Fach), 4 leicht (+2 Fächer)
+  if (![1, 2, 3, 4].includes(grade)) return card;
+  const reps = (card.reps || 0) + 1;
+  if (grade === 1) return Object.assign({}, card, { box: 1, reps, due: now + RETRY_MS });
+  const box = grade === 2 ? card.box : Math.min(5, card.box + (grade === 4 ? 2 : 1));
+  const days = grade === 2 ? Math.max(1, Math.floor(LEARN_DAYS[box - 1] / 2)) : LEARN_DAYS[box - 1];
+  return Object.assign({}, card, { box, reps, due: days ? learnDay(now, days) : now });
+}
+function learnIsNew(c) {   // nie beantwortet
+  return !c.reps && c.box === 1;
+}
+function learnQueue(list, now, deck, limit, newToday) {   // fällige Karten des Decks; neue Karten nur bis zum Tageslimit
+  let room = Math.max(0, limit - newToday);
+  const out = [];
+  for (const c of learnDue(list.filter(x => !deck || x.deck === deck), now)) {
+    if (learnIsNew(c)) { if (room <= 0) continue; room--; }
+    out.push(c);
+  }
+  return out;
+}
+function learnBoxes(list, deck) {   // Karten je Fach 1..5 (im gewählten Deck)
+  const n = [0, 0, 0, 0, 0];
+  for (const c of list) if (!deck || c.deck === deck) n[c.box - 1]++;
+  return n;
+}
 function learnDue(list, now) {   // fällige Karten: niedrigstes Fach zuerst, dann am längsten fällig
   return list.filter(c => c.due <= now).sort((x, y) => (x.box - y.box) || (x.due - y.due));
 }
@@ -2069,26 +2168,49 @@ function learnStore(list) {
   learnRender(); syncStars();
 }
 setInterval(() => { if (!document.hidden) learnRender(); }, 60000);   // "fällig" auch bei offen gelassener Seite aktuell
+function learnGrade(grade) { if (learnCur && !$('learnYes').hidden) learnAnswer(grade); }
 function learnReveal(on) {
+  $('learnHard').hidden = !on; $('learnEasy').hidden = !on;
+  $('learnRom').hidden = !(on && learnCur && learnCur.r && learnCur.b.l === 'th');
   if (learnCur) { const f = $('learnFront'); f.textContent = $('learnListen').checked && !on ? t('listenPrompt') : learnCur.a.t; f.lang = $('learnListen').checked && !on ? 'de' : learnCur.a.l; }
   $('learnBack').hidden = !on; $('learnShow').hidden = on;
   $('learnYes').hidden = !on; $('learnNo').hidden = !on;
 }
+function learnDeckSync() {   // Auswahl der Lerndecks: alle Themen + je ein Eintrag pro Paket, das Karten hat
+  const sel = $('learnDeck'), ids = [...new Set(learnList.map(c => c.deck).filter(Boolean))].sort();
+  const sig = ids.join(',') + '|' + t('learnDeckAll');
+  if (typeof settings.learnDeck !== 'string') settings.learnDeck = '';
+  if (sel.dataset.sig !== sig) {
+    sel.dataset.sig = sig; sel.textContent = '';
+    const add = (v, label) => { const o = document.createElement('option'); o.value = v; o.textContent = label; sel.appendChild(o); };
+    add('', t('learnDeckAll'));
+    for (const id of ids) { const o = [...$('presetSel').options].find(x => x.value === id); add(id, o ? o.textContent : id); }
+  }
+  if (settings.learnDeck && !ids.includes(settings.learnDeck)) settings.learnDeck = '';
+  sel.value = settings.learnDeck || '';
+}
+function learnQueueNow(now) {
+  const per = Math.max(1, Math.min(50, +$('learnNew').value || 10)), nw = (learnStats[localDay(now)] || {}).nw || 0;
+  return learnQueue(learnList, now, settings.learnDeck || '', per, nw);
+}
 function learnRender() {
-  const due = learnDue(learnList, Date.now());
+  const now = Date.now();
+  learnDeckSync();
+  const due = learnQueueNow(now);
   statsRender();
   $('learnDue').textContent = String(due.length);
-  if (learnCur && !learnList.some(c => learnKey(c) === learnKey(learnCur))) learnCur = null;
+  if (learnCur && (!learnList.some(c => learnKey(c) === learnKey(learnCur)) || (settings.learnDeck && learnCur.deck !== settings.learnDeck))) learnCur = null;
   if (!learnCur) learnCur = due[0] || null;
   if (!learnCur) {
     $('learnCard').hidden = true; learnShownKey = null;
-    $('learnMsg').textContent = learnList.length ? t('learnAllDone') : t('learnEmpty');
+    $('learnMsg').textContent = !learnList.length ? t('learnEmpty') : learnDue(learnList, now).some(c => !settings.learnDeck || c.deck === settings.learnDeck) ? t('learnLimitDone') : t('learnAllDone');
     return;
   }
   $('learnCard').hidden = false; $('learnMsg').textContent = '';
   const f = $('learnFront'), b = $('learnBack');
   f.textContent = learnCur.a.t; f.lang = learnCur.a.l;
   b.textContent = learnCur.b.t; b.lang = learnCur.b.l;
+  $('learnRom').textContent = learnCur.r || '';
   $('learnBoxNr').textContent = t('learnBoxNr', { n: learnCur.box, l: lname(learnCur.b.l) });
   if (learnShownKey !== learnKey(learnCur)) {
     learnShownKey = learnKey(learnCur); learnReveal(false); $('learnPracticeOut').textContent = '';
@@ -2096,12 +2218,13 @@ function learnRender() {
   }
   statsRender();
 }
-function learnAnswer(ok) {
+function learnAnswer(ok) {   // true/false oder Note 1..4
   if (!learnCur) return;
-  const k = learnKey(learnCur), now = Date.now();
+  const grade = ok === true ? 3 : ok === false ? 1 : ok;
+  const k = learnKey(learnCur), now = Date.now(), wasNew = learnIsNew(learnCur);
   learnCur = null; learnShownKey = null;
-  learnStats = statsAdd(learnStats, ok, now); try { localStorage.setItem('learnStatsV1', JSON.stringify(learnStats)); } catch {}
-  learnStore(learnList.map(c => learnKey(c) === k ? leitnerNext(c, ok, now) : c));
+  learnStats = statsAdd(learnStats, grade > 1, now, wasNew); try { localStorage.setItem('learnStatsV1', JSON.stringify(learnStats)); } catch {}
+  learnStore(learnList.map(c => learnKey(c) === k ? leitnerGrade(c, grade, now) : c));
   if (!$('learnCard').hidden) $('learnShow').focus();
 }
 $('learnShow').onclick = () => {
@@ -2110,8 +2233,19 @@ $('learnShow').onclick = () => {
   if ($('speak').checked) sayNow(learnCur.b.t, learnCur.b.l);
 };
 $('learnSpeak').onclick = () => { if (learnCur) sayNow(learnCur.b.t, learnCur.b.l); };
-$('learnYes').onclick = () => learnAnswer(true);
-$('learnNo').onclick = () => learnAnswer(false);
+$('learnYes').onclick = () => learnAnswer(3);
+$('learnNo').onclick = () => learnAnswer(1);
+$('learnHard').onclick = () => learnAnswer(2);
+$('learnEasy').onclick = () => learnAnswer(4);
+$('learnDeck').onchange = () => { settings.learnDeck = $('learnDeck').value; saveSettings(); learnCur = null; learnShownKey = null; learnRender(); };
+$('learnReset').onclick = () => {   // Fächer, Termine, Statistik zurück auf Anfang; die Karten selbst bleiben
+  if (!learnList.length) { $('learnMsg').textContent = t('learnNoneSaved'); return; }
+  if (!window.confirm(t('learnResetConfirm', { n: learnList.length }))) return;
+  const now = Date.now(); learnCur = null; learnStats = {};
+  try { localStorage.removeItem('learnStatsV1'); } catch {}
+  learnStore(learnList.map(c => { const x = Object.assign({}, c, { box: 1, due: now }); delete x.reps; return x; }));
+  $('learnMsg').textContent = t('learnResetDone');
+};
 $('learnClear').onclick = () => {
   if (!learnList.length) { $('learnMsg').textContent = t('learnNoneSaved'); return; }
   if (!window.confirm(t('learnClearConfirm', { n: learnList.length }))) return;
@@ -2127,8 +2261,9 @@ $('learnAddPreset').onclick = async () => {
     const bt = p[b] || pbGet(b + '|' + p.en);
     const it = bt ? learnItem(p[a] || p.en, p[a] ? a : 'en', bt, b) : null;
     if (!it) { miss++; continue; }
-    const per = Math.max(1, Math.min(50, +$('learnNew').value || 10));
-    list = learnAdd(list, it, spreadDue(n, per, now), 'fav'); n++;   // nur so viele neue Karten pro Tag fällig, der Rest verteilt
+    it.deck = $('presetSel').value;
+    if (b === 'th' && typeof p.rom === 'string' && p.rom.trim()) it.r = p.rom.trim().slice(0, LEARN_TXT);   // Umschrift, falls das Paket sie liefert
+    list = learnAdd(list, it, now, 'fav'); n++;   // das Tageslimit für neue Karten gilt beim Abfragen (learnQueue)
   }
   learnStore(list);
   $('learnMsg').textContent = t('learnAdded', { n }) + (miss ? t('learnMissing', { m: miss, l: lname(b) }) : '');
@@ -2443,9 +2578,9 @@ function learnTsv(list) {   // Anki-Textimport: vorne, hinten, Tags (Sprachen)
   return list.map(c => cl(c.a.t) + '\t' + cl(c.b.t) + '\t' + c.a.l + '_' + c.b.l).join('\n') + '\n';
 }
 function localDay(now) { const d = new Date(now); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
-function statsAdd(st, ok, now) {   // Tageszähler (gewusst/nicht), nur die letzten 30 Tage
+function statsAdd(st, ok, now, isNew) {   // Tageszähler (gewusst/nicht, neue Karten), nur die letzten 30 Tage
   const out = Object.assign({}, st), k = localDay(now), x = out[k] || { ok: 0, bad: 0 };
-  out[k] = { ok: x.ok + (ok ? 1 : 0), bad: x.bad + (ok ? 0 : 1) };
+  out[k] = Object.assign({ ok: x.ok + (ok ? 1 : 0), bad: x.bad + (ok ? 0 : 1) }, x.nw || isNew ? { nw: (x.nw || 0) + (isNew ? 1 : 0) } : {});
   for (const d of Object.keys(out).sort().slice(0, -30)) delete out[d];
   return out;
 }
@@ -2671,7 +2806,7 @@ $('pbPre').onclick = async () => {
 };
 
 // ---- Lernen: Hören zuerst, Sichern, Statistik, Nachsprechen ----
-let learnStats = (() => { try { const v = JSON.parse(localStorage.getItem('learnStatsV1') || '{}'); return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; } catch { return {}; } })();
+let learnStats = (() => { try { return statsClean(JSON.parse(localStorage.getItem('learnStatsV1') || '{}')); } catch { return {}; } })();
 function statsRender() {
   const now = Date.now(), pr = learnProgress(learnList), pl = learnPlan(learnList, now);
   $('learnProg').max = Math.max(1, pr.total); $('learnProg').value = pr.done;
@@ -2679,6 +2814,8 @@ function statsRender() {
   $('learnProg').title = t('learnProgress', { a: pr.done, b: pr.total, p: pr.pct });
   $('learnPlan').textContent = pr.total ? t('learnPlan', { a: pl.today, b: pl.tomorrow, c: pl.week }) : '';
   const s = statsSummary(learnStats, learnList, now);
+  const bx = learnBoxes(learnList, settings.learnDeck || '');
+  $('learnBoxStats').textContent = learnList.length ? t('learnBoxes', { a: bx[0], b: bx[1], c: bx[2], d: bx[3], e: bx[4] }) : '';
   $('learnStats').textContent = t('dueLine', { a: s.today, b: s.week.join('/'), c: s.streak, d: s.box5 });
 }
 function download(name, text, type) {
@@ -2686,13 +2823,20 @@ function download(name, text, type) {
   a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name;
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
-$('learnExport').onclick = () => { if (!learnList.length) { $('learnMsg').textContent = t('learnNoneExport'); return; } download('dolmetscher-lernkarten.json', JSON.stringify(learnList), 'application/json'); };
+$('learnExport').onclick = () => { if (!learnList.length) { $('learnMsg').textContent = t('learnNoneExport'); return; } download('dolmetscher-lernkarten.json', learnPack(learnList, learnStats), 'application/json'); };
 $('learnTsv').onclick = () => { if (!learnList.length) { $('learnMsg').textContent = t('learnNoneExport'); return; } download('dolmetscher-lernkarten.tsv', learnTsv(learnList), 'text/tab-separated-values'); };
 $('learnImport').onclick = () => $('learnFile').click();
 $('learnFile').onchange = () => {
   const f = $('learnFile').files[0]; if (!f || f.size > 2e6) { $('learnMsg').textContent = t('learnFileBad'); return; }
   const r = new FileReader();
-  r.onload = () => { const imp = learnParse(String(r.result)); const before = learnList.length; learnStore(learnMerge(learnList, imp)); $('learnMsg').textContent = t('learnLoaded', { n: learnList.length - before, m: imp.length }); $('learnFile').value = ''; };
+  r.onload = () => {
+    const pack = learnUnpack(r.result); $('learnFile').value = '';
+    if (!pack || !pack.cards.length) { $('learnMsg').textContent = t('learnImportBad'); return; }
+    const before = learnList.length;
+    learnStats = statsMerge(learnStats, pack.stats); try { localStorage.setItem('learnStatsV1', JSON.stringify(learnStats)); } catch {}
+    learnStore(learnMerge(learnList, pack.cards));
+    $('learnMsg').textContent = t('learnLoaded', { n: learnList.length - before, m: pack.cards.length });
+  };
   r.readAsText(f);
 };
 for (const id of ['learnListen']) {
@@ -2700,7 +2844,7 @@ for (const id of ['learnListen']) {
   $(id).addEventListener('change', () => { settings[id] = $(id).checked; saveSettings(); learnShownKey = null; learnRender(); });
 }
 if (+settings.learnNew >= 1 && +settings.learnNew <= 50) $('learnNew').value = String(+settings.learnNew);
-$('learnNew').addEventListener('change', () => { settings.learnNew = Math.max(1, Math.min(50, +$('learnNew').value || 10)); saveSettings(); });
+$('learnNew').addEventListener('change', () => { settings.learnNew = Math.max(1, Math.min(50, +$('learnNew').value || 10)); saveSettings(); learnRender(); });
 if (SR) $('learnPractice').hidden = false;
 $('learnPractice').onclick = () => {
   if (!learnCur) return;
@@ -2823,7 +2967,8 @@ $('pbFav').onclick = () => { const on = $('pbFav').getAttribute('aria-pressed') 
 $('skipLink').addEventListener('click', e => { e.preventDefault(); $('pbBox').open = true; $('pbBox').querySelector('summary').focus(); });   // Fokus wirklich ins Ziel setzen (Safari tut das bei #Anker nicht)
 $('learnCard').addEventListener('keydown', e => {   // Pfeile: nach dem Aufdecken beantworten (nicht in Eingabefeldern)
   if (e.ctrlKey || e.metaKey || e.altKey || isTyping(e.target) || $('learnYes').hidden) return;
-  if (e.key === 'ArrowLeft') { e.preventDefault(); learnAnswer(false); } else if (e.key === 'ArrowRight') { e.preventDefault(); learnAnswer(true); }
+  const grade = { '1': 1, '2': 2, '3': 3, '4': 4, ArrowLeft: 1, ArrowRight: 3 }[e.key];
+  if (grade) { e.preventDefault(); learnGrade(grade); }
 });
 $('wipeLocal').onclick = () => {   // alles, was diese Seite lokal speichert (nur dieser Ursprung); Seite danach neu laden
   if (!window.confirm(t('wipeConfirm'))) return;
