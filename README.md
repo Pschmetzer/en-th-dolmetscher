@@ -34,7 +34,7 @@ Current version: 1.2 (single source: `version` in `pyproject.toml`). What change
 | Conversation mode (split screen, partner half turned around) | – | ✓ | – |
 | Partner view with large type | ✓ | ✓ | ✓ |
 | Answer cards (yes / no / don't know / number) | – | ✓ | ✓ (yes / no) |
-| Phrasebook with 51 scenario packs, cultural notes, important sentences first | ✓ | ✓ | ✓ (also offline) |
+| Phrasebook with 61 scenario packs, cultural notes, important sentences first | ✓ | ✓ | ✓ (also offline) |
 | Learning mode (flashcards) | – | ✓ | ✓ |
 | Voice commands (“Translator, …”) | ✓ | ✓ | ✓ (subset) |
 | Push-to-talk | ✓ | ✓ | ✓ |
@@ -88,7 +88,7 @@ A native SwiftUI app in `ios/` with the same idea: press Start and just talk. It
 - **Translation** on the device with Apple's Translation framework once the offline language packs for your pair are installed. If a pack is missing, it can use Google Translate (fallback MyMemory) – but only if you turn on **“Online translator as fallback”** (off by default).
 - **Voice** from the iOS system voices.
 - **Conversation mode**: split screen for a table conversation, the partner's half is turned around; each half shows the conversation in its own language. **Answer cards** (yes, no, don't know, number) let the other person answer without speaking.
-- **Phrasebook** with the 51 scenario packs of the Mac app: each pack shows a short cultural note, important sentences (allergies, emergency) are marked red and come first. Sentences that match the phrasebook use the checked version (“phrasebook first”).
+- **Phrasebook** with the 61 scenario packs of the Mac app: each pack shows a short cultural note, important sentences (allergies, emergency) are marked red and come first. Sentences that match the phrasebook use the checked version (“phrasebook first”).
 - **Learning mode**: favourites and translated sentences become flashcards, stored only on the device.
 - **Widgets**: quick phrases on the home screen, a “Start interpreter” button for Control Center, lock screen and Action button, and a **Live Activity** (off by default on a new install; it never shows sentences while the iPhone is locked).
 - **iPad**: conversation on the left, tools (phrasebook, destinations, emergency, Baht) on the right.
