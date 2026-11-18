@@ -149,6 +149,9 @@ Pull requests #16–#47. Not yet published as a release.
 - **Fixed:** the number check no longer flags the same date written differently (25/12/2026, 25.12.2026, 2026-12-25, 12/25/2026, 25 Dec 2026, 25 ธ.ค. 69, Buddhist year 2569 = 2026); colloquial Thai amounts (พันห้า = 1,500, สามล้านห้า = 3,500,000), "three oh five" = 305 and English ordinals (twenty-fifth, third floor) are read as numbers
 - **New:** a wrong weekday or month (Monday vs วันอังคาร, March vs เมษายน) is reported; one side naming more days or months than the other is not
 
+**Engine (round 16)**
+- **Fixed:** more silence hallucinations are dropped (“Thank you so much for watching”, “Thanks for watching, see you next time”, Thai greetings and “thanks for watching” variants; a segment set Whisper itself rates as no speech); a sign-off phrase from the second-language check can no longer replace the real sentence; the hotword list treats “Pat”, “pat”, “PAT.” as one word and one over-long entry no longer cuts off the rest
+
 **Engine (round 15)**
 - **Fixed:** speech output no longer asks the voice for text without anything to say (empty, only punctuation or emoji); emoji are not read out; very long sentences without punctuation are split into chunks of at most 300 characters; Thai digits (๑๒๓) and the abbreviations กทม. and ฯลฯ are spoken correctly; a preset's tempo is limited to -50..+50 % like the speed setting
 

@@ -442,7 +442,7 @@ class _JunkSet(frozenset):
     def __init__(self, items):
         super().__init__()
         core = "|".join(re.escape(_junk_norm(x)) for x in sorted(items, key=len, reverse=True) if _junk_norm(x))
-        tail = "|".join(map(_junk_norm, ("นะครับ", "นะคะ", "ครับ", "ค่ะ", "คะ", "นะ", "จ้า", "ด้วย", "ทุกคน",
+        tail = "|".join(map(_junk_norm, ("นะครับ", "นะคะ", "ครับผม", "ครับ", "ค่ะ", "คะ", "นะ", "จ้า", "ด้วย", "ทุกคน",
                                          "everyone", "guys", "so much", "very much")))
         self._rx = re.compile(f"(?:{core})(?:{tail})*")
 
@@ -477,7 +477,14 @@ JUNK = _JunkSet({"thank you for watching", "thanks for watching", "subtitles by"
                  "gracias por ver el vídeo", "merci d'avoir regardé cette vidéo", "obrigado por assistir",
                  "terima kasih telah menonton", "bedankt voor het kijken", "dziękuję za oglądanie",
                  "дякую за перегляд", "спасибо за просмотр", "редактор субтитров а.семкин",
-                 "시청해주셔서 감사합니다", "谢谢观看", "altyazı m.k.", "продолжение следует..."})
+                 "시청해주셔서 감사합니다", "谢谢观看", "altyazı m.k.", "продолжение следует...",
+                 # Runde 16: Abspann-Varianten (mit „so much“, „the/this video“, Abschied, Thai-Anrede)
+                 "thank you so much for watching", "thanks for watching and see you next time",
+                 "thanks for watching see you next time", "thank you for watching the video",
+                 "thanks for watching the video", "thank you for watching this video",
+                 "thanks for watching this video", "thank you for watching bye", "thanks for watching bye",
+                 "สวัสดีครับ ขอบคุณที่รับชม", "สวัสดีค่ะ ขอบคุณที่รับชม", "ขอบคุณสำหรับการรับชม",
+                 "ขอบคุณทุกท่านที่รับชม", "ขอบคุณที่ติดตามชม", "ฝากติดตามด้วย", "อย่าลืมกดติดตามช่อง"})
 # Nr. 55: „Subtitles by <Name>“ – Abspann mit kurzem Namen. Nur ganze, kurze Äußerungen (junk_by): „Subtitles by
 # hand are hard“ ist echte Sprache und bleibt.
 _JUNK_BY = re.compile(r"subtitles?by\w{1,20}|(?:ซับไตเติ้ล|คำบรรยาย)โดย\w{1,20}|субтитры(?:сделал|создал)?\w{1,24}")
@@ -489,6 +496,23 @@ def junk_by(text):
 # echte Ein-Wort-Antworten ("Music?", "เพลง").
 # nur bei sehr leiser/kurzer Aufnahme
 JUNK_IF_SHORT = {"thank you", "you", "bye", "bye bye", "byebye", "bye-bye", "ขอบคุณครับ", "ขอบคุณค่ะ"}
+
+
+def is_junk(text, rms=None, dur=None):
+    """Whisper-Abspann-Floskel? Ganze Äußerung (JUNK/junk_by); „thank you“, „bye“ nur bei leiser, kurzer Aufnahme
+    (rms und dur bekannt). Eine Stelle für process(), Neuerkennung und Gegenprobe."""
+    low = _strip_punct(text or "").lower()
+    if not low:
+        return False
+    if low in JUNK or junk_by(low):
+        return True
+    return low in JUNK_IF_SHORT and rms is not None and dur is not None and rms < 0.01 and dur < 1.5
+
+
+def junk_candidate_wins(alt_text, alt_lp, text, lp):
+    """Gegenprobe in der anderen Sprache: besserer log-prob gewinnt – eine Abspann-Floskel nie (sie hat bei
+    Rauschen gern einen guten Wert und würde den echten Text verdrängen)."""
+    return bool(alt_text) and (alt_lp > lp or not text) and not is_junk(alt_text)
 # Audio-Ein/Ausgabe: standardmäßig PyAV über avhelper.py (kein Homebrew nötig). Ein externes ffmpeg
 # wird nur noch genutzt, wenn DOLMETSCHER_FFMPEG ausdrücklich gesetzt ist (Rückwärtskompatibilität).
 FFMPEG = os.environ.get("DOLMETSCHER_FFMPEG") or None
@@ -1738,17 +1762,21 @@ def glossary_hotwords(lang):
     return out
 
 
+_HOTWORD_EDGE = " \t.,;:!?\"'()[]“”‘’"
+
+
 def merge_hotwords(first, more):
     """Profil-Wörter (String) zuerst, dann weitere Begriffe; doppelte (Groß/klein egal) einmal,
     höchstens HOTWORDS_MAX_CHARS Zeichen. -> str oder None."""
     words, seen, n = [], set(), 0
     for w in (first.split() if first else []) + list(more or []):
         w = w.strip()
-        if not w or w.casefold() in seen:
+        key = w.strip(_HOTWORD_EDGE).casefold()         # "Pat", "pat", "PAT." und "Pat," sind ein Wort
+        if not key or key in seen:
             continue
         if n + len(w) + 1 > HOTWORDS_MAX_CHARS:
-            break
-        seen.add(w.casefold())
+            continue                                     # ein zu langer Eintrag sperrt kürzere dahinter nicht
+        seen.add(key)
         words.append(w)
         n += len(w) + 1
     return " ".join(words) or None
@@ -3737,6 +3765,9 @@ def max_cps(lang):
     return max(MAX_CPS.get(sc, MAX_CPS_DEFAULT) for sc in v["script"])
 
 
+NO_SPEECH_P, NO_SPEECH_LP = 0.9, -0.7      # wie Whispers eigene Stille-Regel, nur strenger (alle Segmente)
+
+
 def looks_hallucinated(text, dur, segs, lang=None):
     """Typische Whisper-Halluzination: Wiederholungsschleife oder unmöglich viele Zeichen pro Sekunde."""
     if any(getattr(s, "compression_ratio", 0) > 2.6 for s in segs):
@@ -3744,6 +3775,9 @@ def looks_hallucinated(text, dur, segs, lang=None):
     chars = len(re.sub(r"\s", "", text))
     if dur > 0 and chars / dur > max_cps(lang):
         return "zu schnell"
+    if segs and all(getattr(s, "no_speech_prob", 0.0) > NO_SPEECH_P and getattr(s, "avg_logprob", 0.0) < NO_SPEECH_LP
+                    for s in segs):
+        return "stille"                      # Whisper hält alles für Nicht-Sprache und rät trotzdem ("Okay.")
     return None
 
 
@@ -5593,7 +5627,7 @@ class Engine:
                 # logprob zweier Sprachen ist nicht vergleichbar: hört die Erkennung klar meine Sprache und
                 # praktisch nichts von der anderen, gewinnt die Gegenprobe nicht (kurze englische Sätze als Thai)
                 keep_en = lang == A and text and pe >= 0.5 and raw[B] < 0.02
-                if t2 and (lp2 > lp or not text) and not keep_en \
+                if junk_candidate_wins(t2, lp2, text, lp) and not keep_en \
                         and not looks_hallucinated(t2, audio.size / SR, segs2, other):
                     lang, text, lp, segs = other, t2, lp2, segs2
         info.update(lang=lang, text=text, lp=round(lp, 3))
@@ -5653,9 +5687,7 @@ class Engine:
             if hall:
                 info["drop"] = f"halluzination ({hall})"
                 text = ""
-        low = _strip_punct(text).lower()
-        if text and (low in JUNK or junk_by(low)
-                     or (low in JUNK_IF_SHORT and (1.0 if rms is None else rms) < 0.01 and audio.size / SR < 1.5)):
+        if text and is_junk(text, 1.0 if rms is None else rms, audio.size / SR):
             info["drop"] = "floskel"
             text = ""
         if text and is_echo(text, lang):
@@ -5801,8 +5833,7 @@ class Engine:
             hall = None
         if hall:
             return ""
-        low = _strip_punct(sq).lower()
-        if low in JUNK or junk_by(low):
+        if is_junk(sq):
             return ""
         return sq
 
