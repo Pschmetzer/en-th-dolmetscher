@@ -23,7 +23,7 @@ def test_learn_progress_and_plan():
     now = 1_700_000_000_000
     lst = "[{box:1,due:%d},{box:4,due:%d},{box:5,due:%d},{box:2,due:%d},{box:3,due:%d}]" % (
         now - 5 * DAY, now, now + DAY, now + 3 * DAY, now + 30 * DAY)
-    got = run(PRE, [f"learnProgress({lst})", "learnProgress([])", f"learnPlan({lst}, {now})", f"titleFor('a','Dolmetscher','Hört zu')", "titleFor(null,'Dolmetscher','x')"])
+    got = run(PRE, [f"learnProgress({lst})", "learnProgress([])", f"learnPlan({lst}, {now})", "titleFor('a','Dolmetscher','Hört zu')", "titleFor(null,'Dolmetscher','x')"])
     assert got[0] == {"total": 5, "done": 2, "pct": 40}
     assert got[1] == {"total": 0, "done": 0, "pct": 0}
     plan = got[2]

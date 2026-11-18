@@ -26,7 +26,7 @@ def test_index_matches_folder_and_is_current():
 
 def _pending():
     f = ROOT / "tools" / "web_pending_presets.txt"
-    return {l.strip() for l in f.read_text(encoding="utf-8").splitlines() if l.strip() and not l.startswith("#")}
+    return {x.strip() for x in f.read_text(encoding="utf-8").splitlines() if x.strip() and not x.startswith("#")}
 
 
 def test_web_lists_follow_index_order():

@@ -46,7 +46,7 @@ def test_html_links_manifest_and_registers_sw():
 
 def _pending():
     f = ROOT / "tools" / "web_pending_presets.txt"
-    return {l.strip() for l in f.read_text(encoding="utf-8").splitlines() if l.strip() and not l.startswith("#")}
+    return {x.strip() for x in f.read_text(encoding="utf-8").splitlines() if x.strip() and not x.startswith("#")}
 
 
 def test_preset_lists_match_directory():

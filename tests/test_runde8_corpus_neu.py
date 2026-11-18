@@ -67,7 +67,8 @@ def test_zahlenfaelle_enthalten_ziffern_und_notfall_nummern():
 
 def test_satzteilung_enthaelt_abkuerzungen_und_mehrere_saetze():
     cases = DATA["r8-satzteilung"]["cases"]
-    abk = re.compile(r"\b(Dr|Mr|Mrs|Prof|Nr|No|ca|approx|Rd|St|Rm|Fri|Mon|Sat|Mt|Tel|z\. B|i\.e|etc)\.|นพ\.|ดร\.|ถ\.|บจก\.")
+    abk = re.compile(
+        r"\b(Dr|Mr|Mrs|Prof|Nr|No|ca|approx|Rd|St|Rm|Fri|Mon|Sat|Mt|Tel|z\. B|i\.e|etc)\.|นพ\.|ดร\.|ถ\.|บจก\.")
     assert sum(bool(abk.search(c["text"])) for c in cases) >= 30
     assert sum(len(re.findall(r"[.!?] ", c["text"])) >= 1 for c in cases) >= 25
 
