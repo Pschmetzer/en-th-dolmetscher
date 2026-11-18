@@ -280,6 +280,7 @@
   <div class="row">
     <label><input id="pbQ" type="search" aria-keyshortcuts="/" size="20" maxlength="60" autocomplete="off" enterkeyhint="search"> <span data-i18n="pbSearch">Satz suchen</span></label>
     <button class="small" id="pbFav" type="button" aria-pressed="false" data-i18n="favOnly">Nur Favoriten ☆</button>
+    <button class="small" id="pbCrit" type="button" aria-pressed="false" data-i18n="critOnly">Nur wichtige ⚠</button>
     <span id="pbCount" role="status"></span>
   </div>
   <div id="pbEmerg" class="emerg" hidden></div>
@@ -547,6 +548,7 @@ const STR = {
   "logShare": "Verlauf teilen",
   "saveCsv": "Verlauf als .csv",
   "favOnly": "Nur Favoriten ☆",
+  "critOnly": "Nur wichtige ⚠",
   "favNone": "Noch keine Favoriten in diesem Thema – bei einem Satz ☆ antippen.",
   "learnProgress": "Fortschritt: {a} von {b} Karten sicher gelernt ({p} %)",
   "learnPlan": "Plan: heute {a} · morgen {b} · in 2–7 Tagen {c}",
@@ -836,6 +838,7 @@ const STR = {
   "logShare": "Share history",
   "saveCsv": "History as .csv",
   "favOnly": "Favourites only ☆",
+  "critOnly": "Important only ⚠",
   "favNone": "No favourites in this topic yet – tap ☆ on a phrase.",
   "learnProgress": "Progress: {a} of {b} cards well learned ({p}%)",
   "learnPlan": "Plan: today {a} · tomorrow {b} · in 2–7 days {c}",
@@ -1125,6 +1128,7 @@ const STR = {
   "logShare": "แชร์ประวัติ",
   "saveCsv": "ประวัติเป็น .csv",
   "favOnly": "เฉพาะรายการโปรด ☆",
+  "critOnly": "เฉพาะสำคัญ ⚠",
   "favNone": "ยังไม่มีรายการโปรดในหมวดนี้ – แตะ ☆ ที่ประโยค",
   "learnProgress": "ความคืบหน้า: จำได้แม่น {a} จาก {b} การ์ด ({p}%)",
   "learnPlan": "แผน: วันนี้ {a} · พรุ่งนี้ {b} · ใน 2–7 วัน {c}",
@@ -1342,7 +1346,6 @@ function applyUi() {   // statische Texte nach data-i18n / data-i18n-html setzen
   for (const e of document.querySelectorAll('[data-i18n-html]')) e.innerHTML = t(e.dataset.i18nHtml);   // nur eigene, feste Texte
 }
 // ---- Sprachtabelle: languages.json (dieselbe Datei wie Engine, Mac- und iPhone-App; tests/test_languages_json.py) ----
-// Wird beim Start geladen (offline aus dem Service-Worker-Speicher) und in diese Objekte übernommen.
 const SCRIPTS = {}, LANGS = {};
 const hexRange = r => r.split('-').map(h => String.fromCodePoint(parseInt(h, 16))).join('-');
 function applyLangTable(t) {
@@ -1354,7 +1357,6 @@ function applyLangTable(t) {
   }
   buildScriptRx();
 }
-// Notfall (Datei weder im Netz noch im Speicher): nur das Standardpaar
 const LANG_FALLBACK = { scripts: { latin: ['0041-005A', '0061-007A', '00C0-024F', '1E00-1EFF'], thai: ['0E00-0E7F'] }, languages: [
   { code: 'en', names: { en: 'English', de: 'Englisch', native: 'English' }, scripts: ['latin'], locale: 'en_US', phrases: { yes: 'Yes', no: 'No' } },
   { code: 'th', names: { en: 'Thai', de: 'Thai', native: 'ไทย' }, scripts: ['thai'], locale: 'th_TH', phrases: { yes: 'ใช่', no: 'ไม่ใช่' } }] };
@@ -1369,7 +1371,6 @@ function loadLangTable() {   // nach 3 s ohne Antwort mit dem Notfall-Paar start
 }
 function refreshLangUi() { initPair(); fillLangSelects(); buildModes(); fillVoiceSelects(); renderCards(); }
 const DEFAULT_PAIR = ['en', 'th'];
-// Satzbuch: presets/*.json (zur Laufzeit geladen, vom Service Worker zwischengespeichert)
 const PRESET_IDS = ['doctor', 'police', 'lostchild', 'pharmacy', 'dentist', 'taxi', 'places', 'airport', 'transport', 'travel', 'hotel', 'restaurant', 'shopping', 'bank', 'answers', 'access', 'spa', 'temple', 'island', 'scooter', 'rental', 'services', 'coworking', 'office', 'atm-bank-card', 'baby', 'bakery-cafe', 'beach', 'bicycle-rental', 'buddhist-ceremony', 'bus-train', 'car-rental', 'car-wash-repair', 'cinema-concert', 'convenience-store-7eleven', 'dating-small-talk', 'diving', 'elephant-sanctuary', 'emergency', 'ferry-boat', 'festival', 'gym', 'hiking', 'hospital', 'hostel-dorm', 'immigration-90day', 'island-hopping', 'kids', 'kids-playground', 'laundry-deposit', 'laundry-repair', 'lost-passport', 'market', 'massage', 'mobile-sim', 'monk', 'motorbike-accident', 'muay-thai-gym', 'night-market-bargain', 'nightlife', 'nomad', 'pets', 'pharmacy-otc', 'photo', 'post-office-parcel', 'rice-field-village', 'school', 'snorkel-boat-tour', 'sport', 'street-food', 'tailor-custom', 'tax-refund', 'thai-cooking-class', 'tuk-tuk-songthaew', 'vegan-vegetarian', 'visa', 'visa-extension', 'wedding', 'wifi-coworking-cafe', 'work', 'yoga-retreat'];
 
 // ---- Schrift-Plausibilität (wie dolmetscher.py: scripts_distinct, script_share, _untranslated, _wrong_script, text_lang) ----
@@ -1456,7 +1457,6 @@ function buildModes() {
   $('voiceBLabel').textContent = t('voiceLbl', { a: lname(pair.b) });
   $('enVarWrap').style.display = (pair.a === 'en' || pair.b === 'en') ? '' : 'none';
   buildVariants(); updatePreBtn(); $('typeBName').textContent = lname(pair.b);
-  // Ja/Nein nicht nur über die Farbe: Zeichen + beide Sprachen (die Großansicht zeigt nur die Partnersprache)
   for (const [id, w] of [['btnYes', 'yes'], ['btnNo', 'no']]) {
     const b = $(id); b.textContent = (w === 'yes' ? '✓ ' : '✕ ') + t(w) + ' · ';
     const s = document.createElement('span'); s.lang = pair.b; s.textContent = LANGS[pair.b][w]; b.appendChild(s);
@@ -1492,9 +1492,7 @@ $('enVar').onchange = () => { settings.enVar = $('enVar').value; saveSettings();
 let mode = null, rec = null, speaking = false, paused = false, voices = [];
 let rate = (+settings.rate >= 0.5 && +settings.rate <= 1.6) ? +settings.rate : 0.95, lastOut = null;   // lastOut = { text, lang }
 let gen = 0;   // bumped on every mode change; stale callbacks (cancelled speech, late translations) check it
-// Ausgabe-Warteschlange: Übersetzungen laufen parallel, Vorlesen streng nacheinander in Satz-Reihenfolge.
 let outChain = Promise.resolve(), outPending = 0, outNext = null;
-// Neustart der Erkennung mit Wartezeit statt Endlosschleife
 const MAX_SOFT_ERR = 6, FETCH_TIMEOUT_MS = 6000, MAX_LOG = 200, MAX_SHARE = 500;
 let errCount = 0, quickEnds = 0, restartTimer = null;
 let lastFinal = { text: '', t: 0 };
@@ -1524,7 +1522,6 @@ function clearWarn(msgs) {        // erledigte Warnungen (z. B. Mikrofon inzwisc
   for (const m of msgs) { const i = warnMsgs.indexOf(m); if (i >= 0) warnMsgs.splice(i, 1); }
   if (warnMsgs.length !== n) renderWarn();
 }
-// Statuszeile ist stumm (wechselt bei jedem Satz); nur wichtige Zustände werden dem Screenreader angesagt.
 function setStatus(msg, say) { if (statusEl.textContent !== msg) statusEl.textContent = msg; if (say) announce(msg, UI); }
 const warnBtn = (act, key) => ' <button type="button" class="small" data-act="' + act + '">' + t(key) + '</button>';
 if (!SR) {   // Hinweis mit Handlungsvorschlag: anderer Browser, tippen statt sprechen, Satzbuch (braucht kein Mikrofon)
@@ -1587,8 +1584,6 @@ async function sampleText(l) {
 $('testA').onclick = async () => { unlockTTS(); const t = await sampleText(pair.a); enqueueOutput(g => speakAsync(t, recLocale(pair.a), g)); };
 $('testB').onclick = async () => { unlockTTS(); const t = await sampleText(pair.b); enqueueOutput(g => speakAsync(t, recLocale(pair.b), g)); };
 
-// Harter Schnitt (Text ohne Leerzeichen, z. B. Thai): möglichst an einer Wortgrenze, nie vor einem Kombinationszeichen
-// (Tonmarke, Vokal) und nie mitten in einem Surrogatpaar. Liefert die Länge des ersten Stücks (1..max).
 function cutLen(x, max) {
   try {
     if (typeof Intl !== 'undefined' && Intl.Segmenter) {
@@ -1605,7 +1600,6 @@ function cutLen(x, max) {
   while (n > 1 && (/\p{M}/u.test(x[n]) || (x.charCodeAt(n - 1) >= 0xD800 && x.charCodeAt(n - 1) <= 0xDBFF))) n--;
   return n;
 }
-// Lange Texte an Satzenden (sonst an Wortgrenzen) in Stücke <= max Zeichen teilen.
 function splitText(text, max) {
   const out = []; let cur = '';
   const flush = () => { if (cur.trim()) out.push(cur.trim()); cur = ''; };
@@ -1626,7 +1620,6 @@ function splitText(text, max) {
 }
 
 // ---- Translation (swap backend here) ----
-// MyMemory liefert HTML-Entities (&#39;, &quot;, &amp;). <textarea> parst nur Text: kein Markup, kein Skript.
 const entityBox = document.createElement('textarea');
 function decodeEntities(s) {
   if (!/&(#\d+|#x[0-9a-f]+|[a-z]+);/i.test(s)) return s;
@@ -1642,7 +1635,6 @@ async function fetchJson(url) {   // mit Zeitlimit: ein hängender Dienst blocki
     return await r.json();
   } finally { clearTimeout(tm); }
 }
-// Anbieter-Sicherung: nach `limit` Fehlern in Folge wird ein Dienst `ms` lang übersprungen (kein 6-s-Warten bei jedem Satz).
 function makeBackoff(limit, ms) {
   const st = {};
   return {
@@ -1667,14 +1659,11 @@ async function viaGoogle(text, from, to) {
 async function viaMyMemory(text, from, to) {
   const j = await fetchJson(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`);
   const out = decodeEntities(String(j.responseData && j.responseData.translatedText || '')).trim();
-  // MyMemory reports errors / quota in-band, sometimes with HTTP 200 and the message as "translation".
   if (Number(j.responseStatus) !== 200 || j.quotaFinished || !out
       || /MYMEMORY WARNING|QUERY LENGTH LIMIT|INVALID LANGUAGE|PLEASE SELECT TWO DISTINCT|NO QUERY SPECIFIED|IS AN INVALID|AUTO-?DETECT/i.test(out))
     throw new Error('mymemory unavailable');
   return out;
 }
-// src/dst = Sprachcodes der Tabelle. Unplausible Google-Ausgabe (falsche Schrift) -> Ersatz versuchen;
-// ist der auch nichts, bleibt Google. Ergebnis: { text, via: 'google' | 'mymemory' }.
 async function translateOne(text, src, dst) {
   const from = mtCode(src), to = mtCode(dst);
   let g = null, ge = '', me = '';
@@ -1692,8 +1681,6 @@ async function translateOne(text, src, dst) {
   if (g === null) throw Object.assign(new Error('translate failed'), { detail: 'Google: ' + ge + ' · MyMemory: ' + me });
   return { text: g, via: 'google' };
 }
-// Resolves to { text, via } or throws. Never returns an error text.
-// Lange Sätze stückweise (URL-Länge bei Google, 500-Zeichen-Grenze bei MyMemory), Stücke parallel.
 async function translate(text, src, dst) {
   const parts = await Promise.all(splitText(text, 300).map(p => translateOne(p, src, dst)));
   if (!parts.length) throw new Error('empty');
@@ -1702,14 +1689,11 @@ async function translate(text, src, dst) {
 }
 
 // ---- Voice commands (nur wenn Englisch gesprochen wird; ganzer Satz) ----
-// Chrome hört oft "translate", "translater", "translator's" – alles gilt.
 const CMD_RE = /^\s*(?:hey\s+|ok(?:ay)?\s+)?translat(?:or|er|e)?(?:'?s)?[\s,.:;!-]*(pause|resume|repeat|slower|faster|louder|quieter|clear|help)\b[\s,.!?]*$/i;
 function parseCommand(text) { const m = CMD_RE.exec(text); return m ? m[1].toLowerCase() : null; }
 
 function runCommand(cmd) {
   if (cmd === 'pause') {
-    // Pause = Mikrofon wirklich aus: Modus beenden, damit kein Neustart-Pfad (onend, Vorlesen, Sichtbarkeit)
-    // die Erkennung wieder startet und weiter Audio an Google geht. Weiter mit E/T oder dem Knopf.
     setMode(null);
     setStatus(t('cmdPaused'), true);
   }
@@ -1812,7 +1796,6 @@ function setMode(m) {
   updateWakeLock();
   if (mode) startRec(); else setStatus($('ptt').checked ? t('statusReadyPtt') : t('statusStopped'), true);
 }
-// Nach der Ausgabe: Sprecher wechseln (Auto-Wechsel) oder weiter zuhören – nie während noch etwas spricht.
 function resumeIfIdle() {
   if (!mode || speaking) return;
   if (pttReleased) {           // Halten zum Sprechen: nach Erkennung + Ausgabe ganz aus
@@ -1824,7 +1807,6 @@ function resumeIfIdle() {
   if (!rec && !restartTimer) startRec();
 }
 
-// Screenreader: nur fertige Übersetzungen ansagen (das Protokoll selbst ist stumm, sonst kämen „…“ und Zwischenstände).
 function announce(text, lang) {
   const a = $('announce');
   a.textContent = '';
@@ -1876,7 +1858,6 @@ function handleFinal(text, conf) {
     if (cmd) { addEntry('cmd', '⌘ ' + text, '', false, 'en'); runCommand(cmd); return; }  // never translated
   }
   if (paused) return;
-  // Schrift passt klar zur anderen Sprache des Paars (falscher Knopf): in die richtige Richtung übersetzen.
   const real = textLang(text, MODES[cur].src, pair.a, pair.b), swapped = real !== MODES[cur].src;
   if (swapped) cur = cur === 'a' ? 'b' : 'a';
   const m = MODES[cur];
@@ -1888,7 +1869,6 @@ function handleFinal(text, conf) {
   deliver(tr, text, m, $('autoswitch').checked ? (mode === 'a' ? 'b' : 'a') : mode);
 }
 
-// Übersetzen (sofort, parallel) und Ausgabe in die Warteschlange (in Satz-Reihenfolge).
 function deliver(el, text, m, next) {   // el = Übersetzungszeile; t() bleibt die Übersetzungsfunktion
   const my = el._job = (el._job || 0) + 1;
   const slow3 = setTimeout(() => { if (el._job === my && el.textContent === '…') el.textContent = t('slowNet'); }, 3000);
@@ -1953,8 +1933,6 @@ function enqueueOutput(task) {
     .finally(() => { if (g !== gen) return; outPending--; if (outPending === 0) resumeIfIdle(); });
 }
 
-// Vorlesen: Mikro aus (kein Echo), Stücke < 180 Zeichen (Chrome bricht lange Texte ab), Watchdog gegen
-// ausbleibendes onend. Löst immer auf.
 const wait = ms => new Promise(r => setTimeout(r, ms));
 const SLOW_FACTOR = 0.6;   // "Langsam": Tempo × 0,6
 function speakAsync(text, lang, g, slow) {
@@ -1964,7 +1942,6 @@ function speakAsync(text, lang, g, slow) {
   setStatus('🔊 …');
   const b0 = barge;
   let pre = Promise.resolve();
-  // hängende Reste im Browser-Puffer entfernen; direkt nach cancel() verschluckt Chrome sonst manchmal die Ausgabe
   if (TTS.speaking || TTS.pending) { TTS.cancel(); pre = wait(60); }
   return splitText(text, 180).reduce((p, c) => p.then(() => barge === b0 ? speakChunk(c, lang, g, slow) : undefined), pre)
     .finally(() => { if (g === gen) { speaking = false; setTimeout(resumeIfIdle, 0); } });
@@ -1985,12 +1962,10 @@ function speakChunk(text, lang, g, slow) {
     try { TTS.speak(u); } catch { done(); }
   });
 }
-// Kopfhörer-Modus: neuer Satz während des Vorlesens bricht die laufende Ausgabe ab (wie --barge-in der Mac-App).
 function bargeIn() {
   barge++;
   if (TTS && (TTS.speaking || TTS.pending)) TTS.cancel();
 }
-// iOS/Safari spielt Sprachausgabe erst, wenn speak() einmal direkt in einer Nutzergeste lief.
 let ttsUnlocked = false;
 function unlockTTS() {
   if (!TTS || ttsUnlocked) return;
@@ -2003,7 +1978,6 @@ function sayNow(text, lang, slow) {   // Satzbuch, Hörprobe, Vorlesen in der Gr
   enqueueOutput(g => speakAsync(text, recLocale(lang), g, slow));
 }
 
-// Bildschirm wach halten, solange ein Modus aktiv oder die Großansicht offen ist (Handy: sonst stoppt die Erkennung bzw. wird die Karte dunkel).
 let wakeLock = null;
 async function updateWakeLock() {
   try {
@@ -2050,7 +2024,6 @@ $('btnPartner').onclick = () => togglePartner(true);
 $('btnPartnerClose').onclick = () => togglePartner(false);
 $('btnPartnerSpeak').onclick = () => { if (bigText) sayNow(bigText.text, bigText.lang); };
 $('btnPartnerSlow').onclick = () => { if (bigText) sayNow(bigText.text, bigText.lang, true); };
-// Schriftgröße der Großansicht (lange Sätze: kleiner und scrollen)
 let pscale = (+settings.pscale >= 0.4 && +settings.pscale <= 2) ? +settings.pscale : 1;
 function setScale(v) {
   pscale = Math.round(Math.min(2, Math.max(0.4, v)) * 100) / 100;
@@ -2119,7 +2092,6 @@ function fillPresetSelect() {
   };
   fill(PRESET_IDS);
   s.onchange = () => { settings.preset = s.value; saveSettings(); renderCards(); };
-  // Namen aus der Paketliste (eine Datei statt vieler); ohne sie Namen einzeln nachladen
   fetch('presets-index.json').then(r => r.json()).then(d => {
     for (const p of d.packs) presetMeta[p.id] = p.names;
     fill(d.packs.map(p => p.id).filter(id => PRESET_IDS.includes(id))); renderCards();
@@ -2461,7 +2433,6 @@ $('learnAddPreset').onclick = async () => {
   learnStore(list);
   $('learnMsg').textContent = t('learnAdded', { n }) + (miss ? t('learnMissing', { m: miss, l: lname(b) }) : '');
 };
-// ☆-Knöpfe (Satzbuch, Verlauf): peek() liefert die Karte ohne Netz (für den Zustand), get() notfalls mit Übersetzung
 function learnHas(it) { const k = learnKey(it); return learnList.some(c => c.fav && learnKey(c) === k); }
 function starState(b) {
   let it = null;
@@ -2514,18 +2485,25 @@ function pbNorm(s) { return String(s || '').normalize('NFKD').replace(/[\u0300-\
 function pbMatch(hay, q) {   // alle Suchwörter müssen vorkommen (Groß/Klein und Akzente egal); leere Suche trifft alles
   const n = pbNorm(q); if (!n) return true;
   const h = pbNorm(hay);
-  return n.split(' ').every(w => h.includes(w));
+  const hw = h.split(' ');
+  return n.split(' ').every(w => h.includes(w) || w.length > 3 && hw.some(x => pbNear(w, x)));   // Tippfehler: ein Zeichen daneben
+}
+function pbNear(a, b) {   // höchstens eine Einfügung, Löschung oder Ersetzung
+  if (Math.abs(a.length - b.length) > 1) return false;
+  let i = 0; while (i < a.length && a[i] === b[i]) i++;
+  const x = a.slice(i + (a.length >= b.length)), y = b.slice(i + (b.length >= a.length));
+  return x === y;
 }
 function applyPbFilter() {   // blendet Karten aus, die nicht zur Suche passen; zählt für den Screenreader
   const q = $('pbQ').value, ws = document.querySelectorAll('#cards .cardwrap');
   let n = 0;
-  const fav = $('pbFav').getAttribute('aria-pressed') === 'true';
+  const fav = $('pbFav').getAttribute('aria-pressed') === 'true', crit = $('pbCrit').getAttribute('aria-pressed') === 'true';
   for (const w of ws) {
     const star = w.querySelector('.starbtn'), isFav = !!star && star.getAttribute('aria-pressed') === 'true';
-    const ok = pbMatch(w.dataset.q || '', q) && (!fav || isFav); w.hidden = !ok; if (ok) n++;
+    const ok = pbMatch(w.dataset.q || '', q) && (!fav || isFav) && (!crit || !!w.querySelector('.crit')); w.hidden = !ok; if (ok) n++;
   }
   const cnt = $('pbCount');
-  cnt.textContent = !ws.length ? '' : fav && !n && !pbNorm(q) ? t('favNone') : !pbNorm(q) && !fav ? '' : n ? t('pbCount', { n, m: ws.length }) : t('pbNoMatch', { q: q.trim() });
+  cnt.textContent = !ws.length ? '' : fav && !n && !pbNorm(q) ? t('favNone') : !pbNorm(q) && !fav && !crit ? '' : n ? t('pbCount', { n, m: ws.length }) : t('pbNoMatch', { q: q.trim() });
 }
 function shareUrl(text, lang) {
   return location.origin + location.pathname + '#show=' + encodeURIComponent(String(text).slice(0, MAX_SHARE)) + '&l=' + encodeURIComponent(lang);
@@ -2541,7 +2519,6 @@ async function shareOut(url) {   // Web-Share-Dialog, sonst Zwischenablage, sons
   try { await navigator.clipboard.writeText(url); setStatus(t('linkCopied'), true); }
   catch { window.prompt(t('linkCopyPrompt'), url); }
 }
-// Favoriten-Link: nur Paket-ID, Satznummer, Sprache und eine Prüfsumme des englischen Satzes – nie Text oder Gespräch
 function favSum(en) { let x = 2166136261; for (const ch of String(en)) { x = Math.imul(x ^ ch.codePointAt(0), 16777619) >>> 0; } return x.toString(36); }
 function favUrl(pack, idx, lang, en) { return location.origin + location.pathname + '#fav=' + pack + '.' + idx + '&l=' + encodeURIComponent(lang) + '&c=' + favSum(en); }
 function parseFav(hash, ids) {   // Form prüfen: bekanntes Paket, ganze Zahl, bekannte Sprache, Prüfsumme
@@ -2635,7 +2612,6 @@ function hasConsent() {
   try { return localStorage.getItem('micConsent') === CONSENT_VER; } catch { return false; }
 }
 function consentOpen() { const d = $('consent'); return !!(d.open || d.hasAttribute('open')); }
-// Modus wählen; beim ersten Mal vorher fragen. Läuft direkt in der Nutzergeste (iOS braucht das für unlockTTS).
 function chooseMode(m) {
   if (m === mode || hasConsent()) { setMode(m); unlockTTS(); return; }   // Ausschalten braucht keine Zustimmung
   if (consentOpen()) return;
@@ -2707,7 +2683,6 @@ document.addEventListener('keydown', e => {
   }
   if (!$('keysOn').checked) return;                            // single-key shortcuts can be switched off (WCAG 2.1.4)
   if (isTyping(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
-  // e.code: Kürzel gehen auch mit thailändischem Tastaturlayout
   if (e.key === '?') { e.preventDefault(); $('helpBox').open = true; $('helpBox').querySelector('summary').focus(); return; }
   if (e.key === '/' && !$('partner').classList.contains('on')) { e.preventDefault(); $('pbBox').open = true; $('pbQ').focus(); return; }
   if (e.code === 'KeyP') { togglePartner(); return; }
@@ -2770,7 +2745,6 @@ function pbTransLoad(raw, now) {   // gemerkte Übersetzungen: alte Form (Text) 
   if (keys.length > PBT_MAX) for (const k of keys.sort((a, b) => out[a].ts - out[b].ts).slice(0, keys.length - PBT_MAX)) delete out[k];
   return out;
 }
-// MY_MAX, MY_RAW, MY_TXT: gleiche Werte wie in myCardsParse (die Funktion steht für sich)
 const MY_KEY = 'myCardsV1', MY_MAX = 30, MY_RAW = 200000, MY_TXT = 200, MY_SCAN = 200;
 function myCardsParse(raw, one) {   // eigene Karten aus dem Speicher (höchstens 30); one: schon geparste Einzelkarte prüfen -> Karte oder null
   const MAX = 30, RAW = 200000, LBL = 40, TXT = 200, GRP = 24;
@@ -3319,6 +3293,7 @@ if ('serviceWorker' in navigator && window.isSecureContext && /^https?:$/.test(l
 }
 
 let pbQTimer = null;
+$('pbCrit').onclick = () => { const on = $('pbCrit').getAttribute('aria-pressed') !== 'true'; $('pbCrit').setAttribute('aria-pressed', String(on)); applyPbFilter(); };
 $('pbFav').onclick = () => { const on = $('pbFav').getAttribute('aria-pressed') !== 'true'; $('pbFav').setAttribute('aria-pressed', String(on)); applyPbFilter(); };
 $('skipLink').addEventListener('click', e => { e.preventDefault(); $('pbBox').open = true; $('pbBox').querySelector('summary').focus(); });   // Fokus wirklich ins Ziel setzen (Safari tut das bei #Anker nicht)
 $('learnCard').addEventListener('keydown', e => {   // Pfeile: nach dem Aufdecken beantworten (nicht in Eingabefeldern)
