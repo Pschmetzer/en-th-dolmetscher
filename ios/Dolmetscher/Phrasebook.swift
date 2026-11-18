@@ -180,12 +180,22 @@ struct PhrasebookView: View {
             .navigationTitle(T("phrasebook"))
             .navigationBarTitleDisplayMode(.inline)
             .doneToolbar { dismiss() }
+            .toolbar {
+                if category == "favorites", !m.favorites.isEmpty {
+                    ToolbarItem(placement: .primaryAction) {
+                        ShareLink(item: Phrasebook.shareText(m.favorites, politeness: m.politeness)) {
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                        .accessibilityLabel(T("share_favorites"))
+                    }
+                }
+            }
             .onAppear(perform: pickStart)
         }
     }
 
     private func pickStart() {
-        if m.favorites.isEmpty && m.features.thaiExtras { category = "basics" }
+        if m.favorites.isEmpty && m.features.thaiExtras { category = recent.isEmpty ? "basics" : "recent" }
         if let c = m.phrasebookStart { category = c; m.phrasebookStart = nil }
         #if DEBUG
         if let c = ProcessInfo.processInfo.environment["DOLMETSCHER_PB_CATEGORY"] { category = c }
@@ -223,6 +233,11 @@ struct PhrasebookView: View {
         }
         .buttonStyle(.plain)
         .contextMenu {
+            let target = p.dstLang == .th ? m.politeness.fill(p.th) : p.th
+            Button { m.copy(target) } label: { Label(T("copy"), systemImage: "doc.on.doc") }
+            ShareLink(item: Phrasebook.shareText([p], politeness: m.politeness)) {
+                Label(T("share_one"), systemImage: "square.and.arrow.up")
+            }
             Button { m.say(p); m.showLastBig(); dismiss() } label: {
                 Label(T("show_big"), systemImage: "arrow.up.left.and.arrow.down.right")
             }
@@ -281,7 +296,7 @@ private struct PhraseRow: View {
             }
             VStack(alignment: .leading, spacing: 4) {
                 Text(phrase.gloss).font(.headline)
-                Text(thai).font(.title3).foregroundStyle(color)
+                Text(thai).font(.title3).foregroundStyle(color).accessibilityLabel(A11yLabel.spoken(thai, phrase.dstLang))
                 if let roman, !roman.isEmpty {
                     Text(roman).font(.caption).foregroundStyle(.secondary).italic()
                 }
