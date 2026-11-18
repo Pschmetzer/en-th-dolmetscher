@@ -125,6 +125,9 @@ Pull requests #16–#47. Not yet published as a release.
 **Engine (round 11)**
 - **Fixed:** very long sentences no longer fail at Google (request is split); Google or MyMemory returning the sentence unchanged or in the wrong language is no longer read aloud (next provider tried); an empty, cut-off or refused Claude answer no longer pauses Claude for a minute.
 
+**Engine (round 12)**
+- **Fixed:** log lines and error events no longer carry the account name (home folder paths are masked as `~` or `/Users/<user>`); log entries for errors show only the exception type, not its message, which could quote spoken text; deleting a voice profile also removes leftover `.tmp` files from an interrupted write; a late cache write can no longer re-create `translation_cache.json` after the disk cache was switched off.
+
 **iPhone app**
 - **New:** retries sentences that failed to translate when the network returns; error bubbles have buttons (open Settings for a denied microphone); copied text is removed from the clipboard after 2 minutes; optional hiding of the conversation during screen recording; “Recent” category in the phrasebook; share favourites; learning mode with daily count, streak, “Practise all cards” and progress reset; iPad keyboard shortcuts; VoiceOver Magic Tap and copy action.
 - **Fixed:** the study log keeps only recent days; Dynamic Type scales icon widths.
