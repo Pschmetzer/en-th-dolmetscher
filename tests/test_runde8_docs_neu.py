@@ -42,13 +42,17 @@ def test_named_repo_paths_exist(path):
         t = token.strip()
         if " " in t or t.startswith(("~", "-", "$", "/")):
             continue
-        if t.startswith(REPO_PREFIX) or (t in REPO_ROOT_FILES) or re.fullmatch(r"[\w.-]+\.(py|sh|html|js|json|md|swift)", t):
+        looks_like_path = re.fullmatch(r"[\w.-]+\.(py|sh|html|js|json|md|swift)", t)
+        if t.startswith(REPO_PREFIX) or t in REPO_ROOT_FILES or looks_like_path:
             name = t.rstrip("/")
             if "*" in name:
                 continue
-            found = (ROOT / name).exists() or any(ROOT.glob(f"**/{name}")) if "/" not in name else (ROOT / name).exists()
-            if not found and name not in {"history.json", "history.sqlite", "setup.log", "engine.log", "glossary.txt",
-                                          "learn.json", "phrases.json", "anthropic_key", "localStorage"}:
+            found = (ROOT / name).exists()
+            if "/" not in name:
+                found = found or any(ROOT.glob(f"**/{name}"))
+            runtime_files = {"history.json", "history.sqlite", "setup.log", "engine.log", "glossary.txt",
+                             "learn.json", "phrases.json", "anthropic_key", "localStorage"}
+            if not found and name not in runtime_files:
                 missing.append(t)
     assert not missing, f"{path.name}: paths not in the repo {missing}"
 
