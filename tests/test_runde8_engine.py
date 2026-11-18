@@ -143,3 +143,22 @@ def test_split_sentences_keeps_abbreviations_together():
     t = "Es kostet ca. 500 Baht, z. B. mit Frühstück und Abendessen. Das ist günstig und die Lage ist sehr gut hier."
     assert d.split_sentences(t, "de")[0].endswith("Abendessen.")
     assert d.split_sentences("Wait. Then go. Now please leave the building quickly and quietly, thank you.", "en")
+
+
+def test_connection_errors_cover_body_read_failures():
+    import http.client
+    import json
+    import socket
+    import urllib.error
+    for e in (socket.gaierror(8, "x"), ConnectionResetError(), TimeoutError(), http.client.IncompleteRead(b""),
+              http.client.RemoteDisconnected("x"), urllib.error.URLError("x")):
+        assert d._is_conn_error(e), type(e).__name__
+    assert not d._is_conn_error(urllib.error.HTTPError("u", 503, "x", {}, None))
+    assert not d._is_conn_error(json.JSONDecodeError("x", "", 0))
+
+
+def test_truncated_response_backs_the_provider_off(monkeypatch):
+    import http.client
+    monkeypatch.setattr(d, "_PROV", {"google": {"fails": 0, "until": 0.0}})
+    d._note_fail("google", http.client.IncompleteRead(b"ab"))
+    assert d._PROV["google"]["fails"] == 1 and d._PROV["google"]["until"] > 0

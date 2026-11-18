@@ -1380,7 +1380,7 @@ def _note_fail(name, e):
         _captive_hint()
     elif isinstance(cause, urllib.error.HTTPError):
         wait = _retry_after(cause) if cause.code in (429, 503) else (5.0 if cause.code >= 500 else 0.0)
-    elif isinstance(cause, (urllib.error.URLError, OSError)):
+    elif isinstance(cause, (urllib.error.URLError, OSError, http.client.HTTPException)):
         with _BACKOFF_LOCK:
             n = _PROV[name]["fails"] = _PROV[name]["fails"] + 1
         wait = min(2.0 * n, 20.0)
@@ -2563,7 +2563,10 @@ def translate_retry_in():
 
 def _is_conn_error(e):
     """Reiner Verbindungsfehler (kein HTTP-Status): DNS, kein Netz, Zeitüberschreitung."""
-    return isinstance(e, urllib.error.URLError) and not isinstance(e, urllib.error.HTTPError)
+    if isinstance(e, urllib.error.HTTPError):
+        return False
+    # Runde 8: auch Fehler beim Lesen der Antwort (Verbindung mitten im Body gekappt, Zeitüberschreitung, DNS)
+    return isinstance(e, (OSError, http.client.HTTPException))
 
 
 _TH_RX = re.compile(r"[\u0e00-\u0e7f]")
