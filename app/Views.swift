@@ -226,6 +226,7 @@ struct ContentView: View {
                 NoticeBanner(icon: "exclamationmark.octagon.fill", tint: .red, text: L.t("engine_hung"),
                              action: (L.t("reload_now"), { m.restart() }))
             }
+            if let v = m.viewingSession { ViewingBanner(title: v.title) }
             if let d = m.download { DownloadBanner(d: d) }
             if !hotKeys.failures.isEmpty && !hotKeysDismissed {   // Nr. 378: einmal sichtbar, nicht nur in den Einstellungen
                 NoticeBanner(icon: "keyboard.badge.exclamationmark", tint: LangStyle.warning,
@@ -384,8 +385,9 @@ struct ContentView: View {
 
     /// Verlauf, ggf. nach Suchtext und Sprache gefiltert.
     private var shown: [Utterance] {
-        guard filtering else { return m.items }
-        return m.items.filter { u in
+        let source = m.viewingSession?.items ?? m.items
+        guard filtering else { return source }
+        return source.filter { u in
             (langFilter.isEmpty || u.lang == langFilter)
                 && (query.isEmpty || u.text.localizedCaseInsensitiveContains(query)
                     || u.out.localizedCaseInsensitiveContains(query))
@@ -418,7 +420,7 @@ struct ContentView: View {
                         Bubble(m: m, u: u, scale: scale,
                                playing: m.replayingID == u.id || (u.uid.map { m.speakingIDs.contains($0) } ?? false),
                                running: m.running, twoPerson: m.twoPerson, pairKey: m.mineLang + m.partnerLang,
-                               onCorrect: { correcting = $0 })
+                               onCorrect: { if m.viewingSession == nil { correcting = $0 } })
                             .equatable()
                             .id(u.id)
                     }
@@ -1199,4 +1201,15 @@ extension Notification.Name {
     static let focusSearch = Notification.Name("DolmetscherFocusSearch")
     static let focusTyping = Notification.Name("DolmetscherFocusTyping")
     static let showProfiles = Notification.Name("DolmetscherShowProfiles")
+}
+
+/// Band im Hauptfenster, solange eine gespeicherte Sitzung nur gelesen wird.
+struct ViewingBanner: View {
+    @EnvironmentObject var m: EngineModel
+    let title: String
+    var body: some View {
+        NoticeBanner(icon: "clock.arrow.circlepath", tint: LangStyle.warning,
+                     text: L.f("hist_viewing", title),
+                     action: (L.t("hist_back_live"), { m.viewingSession = nil }))
+    }
 }
