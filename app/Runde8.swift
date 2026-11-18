@@ -20,7 +20,7 @@ func openSettingsWindow() {
 
 /// Zu jedem Fehlercode der Engine ein konkreter nächster Schritt (Knöpfe im Hinweisband).
 enum ErrorAdvice {
-    enum Step: Equatable { case micSettings, appSettings, restart, log, retryAfterNetwork }
+    enum Step: Hashable { case micSettings, appSettings, restart, log, retryAfterNetwork }
 
     /// Text-Schlüssel (L10n) mit dem Handlungsvorschlag und die passenden Schritte.
     static func advice(for code: String?) -> (hintKey: String, steps: [Step])? {
@@ -63,20 +63,29 @@ struct ErrorBanner: View {
     @EnvironmentObject var m: EngineModel
     let error: (msg: String, date: Date)
 
+    private var advice: (hintKey: String, steps: [ErrorAdvice.Step])? {
+        guard let code = m.lastErrorCode, m.lastErrorCodeDate == error.date else { return nil }
+        return ErrorAdvice.advice(for: code)
+    }
+
     var body: some View {
-        let adv = m.lastErrorCode.flatMap { c in m.lastErrorCodeDate == error.date ? ErrorAdvice.advice(for: c) : nil }
-        VStack(spacing: 0) {
-            NoticeBanner(icon: "exclamationmark.circle.fill", tint: LangStyle.warning,
-                         text: error.date.formatted(date: .omitted, time: .standard) + " · " + error.msg
-                             + (adv.map { " " + L.t($0.hintKey) } ?? ""),
-                         action: adv.flatMap { a in a.steps.first.map { (ErrorAdvice.label($0), { ErrorAdvice.run($0, m) }) } }
-                             ?? (L.t("show_log"), { openLog() }),
-                         onClose: { m.lastError = nil })
-            if let a = adv, a.steps.count > 1 {
+        let adv = advice
+        let time: String = error.date.formatted(date: .omitted, time: .standard)
+        var text: String = time + " · " + error.msg
+        if let adv { text += " " + L.t(adv.hintKey) }
+        let firstStep: ErrorAdvice.Step? = adv?.steps.first
+        let extra: [ErrorAdvice.Step] = Array((adv?.steps ?? []).dropFirst())
+        let mainAction: (String, () -> Void) = firstStep.map { st in
+            (ErrorAdvice.label(st), { ErrorAdvice.run(st, m) })
+        } ?? (L.t("show_log"), { openLog() })
+        return VStack(spacing: 0) {
+            NoticeBanner(icon: "exclamationmark.circle.fill", tint: LangStyle.warning, text: text,
+                         action: mainAction, onClose: { m.lastError = nil })
+            if !extra.isEmpty {
                 HStack {
                     Spacer()
-                    ForEach(Array(a.steps.dropFirst().enumerated()), id: \.offset) { _, s in
-                        Button(ErrorAdvice.label(s)) { ErrorAdvice.run(s, m) }
+                    ForEach(extra, id: \.self) { st in
+                        Button(ErrorAdvice.label(st)) { ErrorAdvice.run(st, m) }
                     }
                 }
                 .padding(.horizontal, 14).padding(.bottom, 6)
