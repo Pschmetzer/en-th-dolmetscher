@@ -11,8 +11,9 @@
 # Fasst nur SUPPORT an (nie ein per DOLMETSCHER_PYTHON gesetztes Python). Läuft auch unter `env -i`.
 # Ausgabe (stdout, eine Zeile je Ereignis, für die App):
 #   step python|packages|verify   – Schritt beginnt
+#   progress N                    – Fortschritt der Paketinstallation in Prozent (geschätzt)
 #   done                          – fertig, Stempel geschrieben
-#   fail offline|disk|arch|failed – abgebrochen (Details in SUPPORT/setup.log)
+#   fail offline|disk|integrity|arch|failed – abgebrochen (Details in SUPPORT/setup.log)
 set -uo pipefail
 [ $# -eq 4 ] || { echo "Nutzung: $0 UV LOCK STAMP SUPPORT" >&2; exit 2; }
 UV="$1"; LOCK="$2"; STAMP="$3"; SUPPORT="$4"
@@ -34,8 +35,10 @@ export UV_HTTP_TIMEOUT="${UV_HTTP_TIMEOUT:-60}"
 unset VIRTUAL_ENV PYTHONPATH PYTHONHOME
 
 CHILD=""
+TICK=""
 cleanup_partial() { rm -rf "$VENV" "$UV_CACHE_DIR"; }
 on_term() {
+  [ -n "$TICK" ] && kill "$TICK" 2>/dev/null
   [ -n "$CHILD" ] && kill "$CHILD" 2>/dev/null && wait "$CHILD" 2>/dev/null
   cleanup_partial
   echo "fail cancelled"
@@ -62,6 +65,13 @@ fail() {   # Fehlerart aus dem Log erraten, Teil-Umgebung entfernen
 [ -x "$UV" ] || { echo "uv fehlt: $UV" >>"$LOG"; echo "fail failed"; exit 1; }
 [ -f "$LOCK" ] && [ -f "$STAMP" ] || { echo "Lock/Stempel fehlt" >>"$LOG"; echo "fail failed"; exit 1; }
 
+# Nr. 22: Update einer App-eigenen venv desselben Python/derselben Architektur: nur die Differenz des Locks
+# installieren (uv pip sync) statt alles neu zu laden; scheitert das, folgt der vollständige Neuaufbau.
+REUSE=0
+if [ -x "$VENV/bin/python" ] && [ -f "$VENV/.dolmetscher-stamp" ] && [ -f "$VENV/pyvenv.cfg" ] \
+   && grep -q "^home = $SUPPORT/python/" "$VENV/pyvenv.cfg"; then
+  [ "$(grep -v '^lock=' "$VENV/.dolmetscher-stamp")" = "$(grep -v '^lock=' "$STAMP")" ] && REUSE=1
+fi
 rm -f "$VENV/.dolmetscher-stamp"
 # Eine venv, die nicht auf das App-eigene Python zeigt (z. B. von build.sh mit conda/Homebrew-Python angelegt),
 # wird nie gelöscht, sondern beiseitegelegt (venv.vorher-DATUM) – nur App-eigene venvs werden neu aufgebaut.
@@ -70,11 +80,41 @@ if [ -f "$VENV/pyvenv.cfg" ] && ! grep -q "^home = $SUPPORT/python/" "$VENV/pyve
   mv "$VENV" "$KEEP" || { echo "fremde venv nicht verschiebbar: $VENV" >>"$LOG"; echo "fail failed"; exit 1; }
   echo "fremde venv beiseitegelegt: $KEEP" >>"$LOG"
 fi
-echo "step python"
-run "$UV" venv --clear --quiet --python "$PY_VERSION" "$VENV" || fail
+# Nr. 50: mitgelieferte Wheels (build.sh --bundle-wheels) neben dem Lock: dann ohne Netz installieren.
+WHEELS="$(dirname "$LOCK")/offline/wheels"
+sync_packages() {
+  # Nr. 23: Fortschritt (0-99) aus dem Wachstum des Download-Caches schätzen (~450 MB), alle 2 s eine Zeile
+  ( while :; do
+      sleep 2
+      kb="$(du -sk "$UV_CACHE_DIR" 2>/dev/null | awk '{print $1}')"
+      pct=$(( ${kb:-0} / 4500 )); [ "$pct" -gt 99 ] && pct=99
+      [ "$pct" -gt 0 ] && echo "progress $pct"
+    done ) &
+  TICK=$!
+  local rc=0
+  if [ -d "$WHEELS" ]; then
+    run "$UV" pip sync --quiet --require-hashes --no-build --offline --find-links "$WHEELS" --python "$VENV/bin/python" "$LOCK" || rc=1
+  else
+    run "$UV" pip sync --quiet --require-hashes --no-build --python "$VENV/bin/python" "$LOCK" || rc=1
+  fi
+  kill "$TICK" 2>/dev/null; wait "$TICK" 2>/dev/null; TICK=""
+  return $rc
+}
 
-echo "step packages"
-run "$UV" pip sync --quiet --require-hashes --no-build --python "$VENV/bin/python" "$LOCK" || fail
+echo "step python"
+if [ "$REUSE" = 1 ]; then
+  echo "vorhandene venv wird aktualisiert (nur Differenz)" >>"$LOG"
+  echo "step packages"
+  if ! sync_packages; then
+    echo "Aktualisierung fehlgeschlagen, baue die Umgebung neu auf" >>"$LOG"
+    REUSE=0
+  fi
+fi
+if [ "$REUSE" != 1 ]; then
+  run "$UV" venv --clear --quiet --python "$PY_VERSION" "$VENV" || fail
+  echo "step packages"
+  sync_packages || fail
+fi
 
 echo "step verify"
 run "$VENV/bin/python" -B -c 'import sys, faster_whisper, av, ctranslate2, numpy; print(sys.version)' || fail

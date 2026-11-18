@@ -1,6 +1,8 @@
 #!/bin/bash
 # Baut Dolmetscher.app.  Nutzung:  ./build.sh [--install] [--release]
 #   --install   danach nach ~/Applications kopieren
+#   --no-notarize  nur mit --release: ohne Notarisierung bauen (ZIP/DMG heißen dann ...-unnotarized)
+#   --bundle-wheels  Wheels aus requirements.txt mitliefern (Contents/Resources/offline/wheels): Einrichtung ohne PyPI
 #   --release   Release-Bau: Developer-ID-Signatur mit Hardened Runtime, optional Notarisierung, ZIP + SHA256
 #               in build/. Bricht ab, wenn DOLMETSCHER_SIGN_IDENTITY fehlt (kein Ad-hoc-Fallback).
 # Die App ist eigenständig (nur Apple Silicon): Sie bringt uv (Contents/Helpers/uv), den Lock
@@ -26,12 +28,16 @@ cd "$(dirname "$0")"
 
 INSTALL=0
 RELEASE=0
+NO_NOTARIZE=0
+BUNDLE_WHEELS=0
 for arg in "$@"; do
   case "$arg" in
     --install) INSTALL=1 ;;
     --release) RELEASE=1 ;;
+    --no-notarize) NO_NOTARIZE=1 ;;
+    --bundle-wheels) BUNDLE_WHEELS=1 ;;
     -h|--help) sed -n '2,/^set /p' "$0" | sed '$d'; exit 0 ;;
-    *) echo "Unbekannte Option: $arg  (erlaubt: --install, --release)"; exit 2 ;;
+    *) echo "Unbekannte Option: $arg  (erlaubt: --install, --release, --no-notarize, --bundle-wheels)"; exit 2 ;;
   esac
 done
 
@@ -47,6 +53,11 @@ if [ "$RELEASE" = 1 ]; then
     exit 1
   }
   [ -f "$ENTITLEMENTS" ] || { echo "$ENTITLEMENTS fehlt"; exit 1; }
+  # Nr. 43: ohne Notarisierung blockiert Gatekeeper das ZIP auf fremden Macs – nur mit ausdrücklichem --no-notarize.
+  if [ -z "${DOLMETSCHER_NOTARY_PROFILE:-}" ] && [ "$NO_NOTARIZE" != 1 ]; then
+    echo "--release braucht DOLMETSCHER_NOTARY_PROFILE (xcrun notarytool store-credentials) oder ausdrücklich --no-notarize."
+    exit 1
+  fi
 fi
 
 # Version und Build-Nummer aus einer Quelle.
@@ -70,6 +81,12 @@ else
   if [ "$UV_HAVE" != "$UV_VERSION" ]; then
     [ "$RELEASE" = 1 ] && { echo "uv $UV_HAVE gefunden, Release braucht uv $UV_VERSION (UV_VERSION in build.sh)."; exit 1; }
     echo "Hinweis: uv $UV_HAVE statt $UV_VERSION – für Releases die gepinnte Version nutzen."
+  fi
+  # Nr. 46: nur System-Bibliotheken – ein Homebrew-uv mit /opt/homebrew-Pfaden startet auf fremden Macs nicht.
+  UV_LIBS="$(otool -L "$UV_BIN" 2>/dev/null | tail -n +2 | awk '{print $1}' | grep -vE '^(/usr/lib/|/System/)' || true)"
+  if [ -n "$UV_LIBS" ]; then
+    echo "uv ist gegen fremde Bibliotheken gelinkt (nicht /usr/lib, /System):"; echo "$UV_LIBS"
+    echo "→ ein eigenständiges uv-Binary nutzen (z. B. das offizielle Release)."; exit 1
   fi
   UV_MINOS="$(vtool -show-build "$UV_BIN" 2>/dev/null | awk '/minos/ {print $2; exit}')"
   if [ -n "$UV_MINOS" ] && [ "$(printf '%s\n%s\n' "$UV_MINOS" "$MIN_MACOS" | sort -V | tail -n 1)" != "$MIN_MACOS" ]; then
@@ -149,7 +166,10 @@ NEWAPP="$STAGE/Dolmetscher.app"
 
 echo "→ Kompiliere (Version $VERSION, Build $BUILD_NO) …"
 mkdir -p "$NEWAPP/Contents/MacOS" "$NEWAPP/Contents/Resources"
-swiftc -O -parse-as-library -target "arm64-apple-macos$MIN_MACOS" -o "$NEWAPP/Contents/MacOS/Dolmetscher" app/*.swift
+# Release: -D RELEASE_BUILD schaltet Entwickler-Overrides (Python-Pfad per Einstellung) und die Klartext-Schlüsselkopie ab.
+SWIFT_FLAGS=(-O -g -parse-as-library -target "arm64-apple-macos$MIN_MACOS")
+[ "$RELEASE" = 1 ] && SWIFT_FLAGS+=(-D RELEASE_BUILD)
+swiftc "${SWIFT_FLAGS[@]}" -o "$NEWAPP/Contents/MacOS/Dolmetscher" app/*.swift
 cp dolmetscher.py avhelper.py profiles.py presets.py history_store.py hwprofile.py correction_learning.py \
    "$NEWAPP/Contents/Resources/"
 # Gemeinsame Sprachtabelle: Engine (neben dolmetscher.py) und App (Bundle.main) lesen dieselbe Datei.
@@ -179,17 +199,24 @@ else
     echo "Hinweis: translate-helper ließ sich nicht bauen (SDK für macOS $HELPER_MIN_MACOS nötig) – ohne Offline-Übersetzung."
   fi
 fi
+if [ "$BUNDLE_WHEELS" = 1 ]; then
+  # Nr. 50: Wheels des Locks mitliefern; setup-env.sh nutzt sie offline (uv pip sync --offline --find-links).
+  echo "→ Lade Wheels für die Offline-Einrichtung (große Datei, ca. 400 MB) …"
+  mkdir -p "$NEWAPP/Contents/Resources/offline/wheels"
+  "$PY" -m pip download -q --require-hashes --only-binary=:all: --no-deps -r requirements.txt \
+    -d "$NEWAPP/Contents/Resources/offline/wheels"
+fi
 cp -R presets "$NEWAPP/Contents/Resources/presets"
-cp app/AppIcon.icns "$NEWAPP/Contents/Resources/"
+cp app/AppIcon.icns app/whatsnew.json "$NEWAPP/Contents/Resources/"
 
 # Lokalisierte Mikrofon-Begründung (die Info.plist enthält die deutsche Grundfassung).
 write_strings() {   # Sprache, Text
   mkdir -p "$NEWAPP/Contents/Resources/$1.lproj"
   printf '"NSMicrophoneUsageDescription" = "%s";\n' "$2" > "$NEWAPP/Contents/Resources/$1.lproj/InfoPlist.strings"
 }
-write_strings de "Der Dolmetscher hört zu, um Englisch und Thai zu übersetzen."
-write_strings en "The interpreter listens to translate English and Thai."
-write_strings th "ตัวแปลภาษาฟังเสียงของคุณเพื่อแปลระหว่างภาษาอังกฤษและภาษาไทย"
+write_strings de "Der Dolmetscher hört zu, um zwischen den gewählten Sprachen zu übersetzen."
+write_strings en "The interpreter listens to translate between the selected languages."
+write_strings th "ตัวแปลภาษาฟังเสียงของคุณเพื่อแปลระหว่างภาษาที่เลือก"
 
 # Keine Pfade dieser Maschine in der Info.plist: die App findet Python selbst (Paths.swift).
 
@@ -213,7 +240,11 @@ cat > "$NEWAPP/Contents/Info.plist" <<PLIST
   <key>LSApplicationCategoryType</key><string>public.app-category.utilities</string>
   <key>NSHumanReadableCopyright</key><string>Copyright © $YEAR Dolmetscher contributors. MIT License.</string>
   <key>NSHighResolutionCapable</key><true/>
-  <key>NSMicrophoneUsageDescription</key><string>Der Dolmetscher hört zu, um Englisch und Thai zu übersetzen.</string>
+  <key>NSMicrophoneUsageDescription</key><string>Der Dolmetscher hört zu, um zwischen den gewählten Sprachen zu übersetzen.</string>
+  <key>CFBundleURLTypes</key><array><dict>
+    <key>CFBundleURLName</key><string>io.github.dolmetscher.en-th</string>
+    <key>CFBundleURLSchemes</key><array><string>dolmetscher</string></array>
+  </dict></array>
 </dict></plist>
 PLIST
 plutil -lint "$NEWAPP/Contents/Info.plist" >/dev/null
@@ -256,6 +287,8 @@ if [ -f "$TH_IN" ]; then
   esac
 fi
 codesign --verify --deep --strict --verbose=2 "$NEWAPP"
+# Nr. 46: das signierte, mitgelieferte uv muss starten (fremde Bibliotheken, Signaturfehler).
+if [ -f "$UV_IN" ]; then "$UV_IN" --version >/dev/null || { echo "Mitgeliefertes uv startet nicht."; exit 1; }; fi
 
 # Erst jetzt das alte Bundle ersetzen.
 rm -rf "$APP"
@@ -263,20 +296,53 @@ mv "$NEWAPP" "$APP"
 echo "✓ $APP  (Version $VERSION, Build $BUILD_NO)"
 
 if [ "$RELEASE" = 1 ]; then
-  ZIP="build/Dolmetscher-$VERSION.zip"
-  rm -f "$ZIP" "$ZIP.sha256"
+  SUFFIX=""
+  [ -n "${DOLMETSCHER_NOTARY_PROFILE:-}" ] || SUFFIX="-unnotarized"
+  ZIP="build/Dolmetscher-$VERSION$SUFFIX.zip"
+  DMG="build/Dolmetscher-$VERSION$SUFFIX.dmg"
+  rm -f "$ZIP" "$ZIP.sha256" "$DMG" "$DMG.sha256"
   if [ -n "${DOLMETSCHER_NOTARY_PROFILE:-}" ]; then
     echo "→ Notarisiere (kann einige Minuten dauern) …"
     ditto -c -k --keepParent "$APP" "$STAGE/notarize.zip"
-    xcrun notarytool submit "$STAGE/notarize.zip" --keychain-profile "$DOLMETSCHER_NOTARY_PROFILE" --wait
+    notarize() {   # Datei: einreichen, bei Ablehnung das Protokoll (Gründe) ausgeben und abbrechen
+      local out id status
+      out="$(xcrun notarytool submit "$1" --keychain-profile "$DOLMETSCHER_NOTARY_PROFILE" --wait --output-format json)" || true
+      echo "$out"
+      id="$(printf '%s' "$out" | plutil -extract id raw -o - - 2>/dev/null || true)"
+      status="$(printf '%s' "$out" | plutil -extract status raw -o - - 2>/dev/null || true)"
+      if [ "$status" != "Accepted" ]; then
+        echo "Notarisierung nicht angenommen (Status: ${status:-unbekannt})."
+        [ -n "$id" ] && xcrun notarytool log "$id" --keychain-profile "$DOLMETSCHER_NOTARY_PROFILE" || true
+        exit 1
+      fi
+    }
+    notarize "$STAGE/notarize.zip"
     xcrun stapler staple "$APP"
+    xcrun stapler validate "$APP"
+    spctl -a -vv -t exec "$APP"
   else
-    echo "Hinweis: DOLMETSCHER_NOTARY_PROFILE nicht gesetzt – das Bundle ist signiert, aber nicht notarisiert."
+    echo "Hinweis: ausdrücklich ohne Notarisierung (--no-notarize) – Gatekeeper warnt auf fremden Macs."
   fi
   ditto -c -k --keepParent "$APP" "$ZIP"
   (cd build && shasum -a 256 "$(basename "$ZIP")" > "$(basename "$ZIP").sha256")
   echo "✓ $ZIP"
   echo "✓ $ZIP.sha256"
+  # Nr. 49: DMG mit Programme-Verknüpfung (Standardweg; die App läuft dann nicht aus Downloads).
+  DMGDIR="$(mktemp -d "$STAGE/dmg.XXXXXX")"
+  cp -R "$APP" "$DMGDIR/"
+  ln -s /Applications "$DMGDIR/Applications"
+  hdiutil create -quiet -volname Dolmetscher -srcfolder "$DMGDIR" -format UDZO -ov "$DMG"
+  codesign -s "${DOLMETSCHER_SIGN_IDENTITY}" --timestamp "$DMG"
+  if [ -n "${DOLMETSCHER_NOTARY_PROFILE:-}" ]; then
+    notarize "$DMG"
+    xcrun stapler staple "$DMG"
+  fi
+  (cd build && shasum -a 256 "$(basename "$DMG")" > "$(basename "$DMG").sha256")
+  echo "✓ $DMG"
+  # Nr. 45: Debug-Symbole neben dem ZIP, zum Auflösen von Absturzberichten dieser Build-Nummer.
+  rm -rf "build/Dolmetscher-$VERSION.dSYM"
+  dsymutil "$APP/Contents/MacOS/Dolmetscher" -o "build/Dolmetscher-$VERSION.dSYM" 2>/dev/null \
+    && echo "✓ build/Dolmetscher-$VERSION.dSYM" || echo "Hinweis: dSYM nicht erzeugt."
 fi
 
 if [ "$INSTALL" = 1 ]; then

@@ -224,3 +224,33 @@ def test_e2e_einrichtung_unter_env_i_und_engine_handshake(tmp_path):
                          "--tts", "say", "--langs", "en,th"], env, {"ready"}, 240)
     ready = [e for e in ev if e["event"] == "ready"]
     assert ready and ready[0]["protocol"] == 1, ev[-5:]
+
+
+def test_update_vorhandener_venv_installiert_nur_die_differenz(fake, tmp_path):
+    """Nr. 22: gleiche Python-Version/Architektur, anderer Lock: kein `uv venv --clear`, nur `uv pip sync`."""
+    _, stamp, sup = fake
+    venv = sup / "venv"
+    (venv / "bin").mkdir(parents=True)
+    (venv / "bin" / "python").write_text("#!/bin/bash\nexit 0\n")
+    (venv / "bin" / "python").chmod(0o755)
+    (venv / "pyvenv.cfg").write_text(f"home = {sup}/python/cpython-3.12/bin\n")
+    old = "".join(ln + "\n" if not ln.startswith("lock=") else "lock=alt\n" for ln in stamp.read_text().splitlines())
+    (venv / ".dolmetscher-stamp").write_text(old)
+    r = _run(fake, tmp_path)
+    assert r.returncode == 0, r.stderr
+    calls = (tmp_path / "calls").read_text().splitlines()
+    assert all(not c.startswith("uv venv") for c in calls) and any("pip sync" in c for c in calls)
+    assert (venv / ".dolmetscher-stamp").read_text() == stamp.read_text()
+
+
+def test_update_faellt_bei_fehler_auf_neuaufbau_zurueck(fake, tmp_path):
+    _, stamp, sup = fake
+    venv = sup / "venv"
+    (venv / "bin").mkdir(parents=True)
+    (venv / "bin" / "python").write_text("#!/bin/bash\nexit 0\n")
+    (venv / "bin" / "python").chmod(0o755)
+    (venv / "pyvenv.cfg").write_text(f"home = {sup}/python/cpython-3.12/bin\n")
+    (venv / ".dolmetscher-stamp").write_text("lock=alt\npython=3.12\narch=arm64\n")
+    r = _run(fake, tmp_path, "offline")
+    assert r.returncode == 1 and r.stdout.strip().splitlines()[-1] == "fail offline"
+    assert not venv.exists()

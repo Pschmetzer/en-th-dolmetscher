@@ -34,8 +34,15 @@ enum Paths {
 
     /// Dev-Override: DOLMETSCHER_PYTHON aus der Umgebung der App oder die Einstellung „DolmetscherPython“
     /// (`defaults write io.github.dolmetscher.en-th DolmetscherPython /pfad/zu/python`). Wird nie verändert.
+    /// Nr. 14: Im Release-Build (`-D RELEASE_BUILD`, build.sh --release) zählt nur die Umgebungsvariable: die
+    /// Einstellung ließe sich von jedem Prozess des Nutzers setzen und startete ein fremdes Programm mit der
+    /// Mikrofon-Freigabe der App.
     static var pythonOverride: String? {
-        ProcessInfo.processInfo.environment["DOLMETSCHER_PYTHON"] ?? UserDefaults.standard.string(forKey: "DolmetscherPython")
+        #if RELEASE_BUILD
+        return ProcessInfo.processInfo.environment["DOLMETSCHER_PYTHON"]
+        #else
+        return ProcessInfo.processInfo.environment["DOLMETSCHER_PYTHON"] ?? UserDefaults.standard.string(forKey: "DolmetscherPython")
+        #endif
     }
 
     /// Stempel der venv passt zum Bundle (sonst: Einrichtung bzw. Aktualisierung nach App-Update).
@@ -215,7 +222,11 @@ enum APIKeyStore {
         cached = nil
         if keychainWrite(k), keychainRead() == k {
             // Rückfall-Datei auf denselben (neuen) Stand bringen, nie ersatzlos löschen
+            #if RELEASE_BUILD
+            removeFiles()                    // Nr. 15: signierter Build – der Schlüsselbund reicht, keine Klartextkopie
+            #else
             if writeFile(k, to: migratedURL) { try? FileManager.default.removeItem(at: url) }
+            #endif
             return true
         }
         return writeFile(k, to: url)
@@ -243,9 +254,17 @@ enum APIKeyStore {
         if !UserDefaults.standard.bool(forKey: flag), let kk = keychainRead() {
             if keychainWrite(kk) { UserDefaults.standard.set(true, forKey: flag) }
         }
+        #if RELEASE_BUILD
+        // Nr. 15: Developer-ID-Build – eine ältere Rückfall-Kopie neben dem Schlüsselbund-Eintrag wird entfernt
+        if readFile(migratedURL) != nil, keychainRead() != nil, readFile(url) == nil { removeFiles() }
+        #endif
         guard let k = readFile(url) else { return }
         cached = nil
         guard keychainRead() == k || (keychainWrite(k) && keychainRead() == k) else { return }   // Datei bleibt
+        #if RELEASE_BUILD
+        removeFiles()
+        return
+        #else
         let fm = FileManager.default
         try? fm.removeItem(at: migratedURL)                // älterer Stand; die aktuelle Datei ersetzt ihn
         do {
@@ -253,6 +272,20 @@ enum APIKeyStore {
             chmod(migratedURL.path, 0o600)
         } catch {
             // Umbenennen gescheitert: Datei bleibt unter dem alten Namen (Engine liest sie weiter)
+        }
+        #endif
+    }
+
+    /// Klartextdateien sicher entfernen (erst überschreiben, dann löschen).
+    private static func removeFiles() {
+        let fm = FileManager.default
+        for u in [url, migratedURL] where fm.fileExists(atPath: u.path) {
+            if let h = try? FileHandle(forWritingTo: u) {
+                let n = (try? fm.attributesOfItem(atPath: u.path)[.size] as? Int) ?? 0
+                try? h.write(contentsOf: Data(repeating: 0x30, count: max(n, 64)))
+                try? h.synchronize(); try? h.close()
+            }
+            try? fm.removeItem(at: u)
         }
     }
 
