@@ -1,0 +1,13 @@
+Dolmetscher is a hands-free live interpreter. It needs no account and no sign-in.
+
+Demo steps
+1. Open the app and allow the microphone. Speech recognition runs on the device (Apple SpeechAnalyzer).
+2. Tap Start and say a short sentence in English. The app translates it and reads it aloud.
+3. Tap a translation to show it full screen. The book icon opens the phrasebook, the camera icon translates text from a photo.
+4. Offline translation needs Apple's language packs (Settings > Translate). Online translation is off by default and only sends text when the user turns it on in Settings.
+
+Background audio (UIBackgroundModes: audio)
+The mode is used only when the user turns on "Keep listening in background" in Settings. The app then keeps listening and translating while the screen is locked, for example in a taxi, and the system shows the orange microphone indicator the whole time. With the setting off, listening stops when the app leaves the foreground.
+
+Privacy
+Conversations stay on the device. No account, no tracking, no analytics. See the privacy policy in the app (Settings > Privacy).

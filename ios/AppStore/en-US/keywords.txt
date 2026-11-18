@@ -1,1 +1,1 @@
-thai,thailand,interpreter,offline,voice,travel,speak,conversation,phrasebook,baht,english,translate
+thai,thailand,voice,travel,speak,conversation,phrasebook,baht,english,restaurant,taxi,menu,scan,sign
