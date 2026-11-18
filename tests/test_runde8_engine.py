@@ -58,3 +58,14 @@ def test_speak_form_currency_and_degrees():
     assert d.speak_form("30°C", "th") == "30 องศาเซลเซียส"
     assert d.speak_form("98 °F", "de") == "98 Grad Fahrenheit"
     assert d.speak_form("฿5", "ja") == "฿5"                          # keine Tabelle: unverändert
+
+
+def test_history_search_short_query_ignores_case_beyond_ascii(tmp_path):
+    import history_store as h
+    s = h.Store(str(tmp_path / "h.sqlite"))
+    s.add("É bom", "good", "pt")
+    s.add("Über die Brücke", "Over the bridge", "de")
+    assert [r["text"] for r in s.search("é")] == ["É bom"]
+    assert [r["text"] for r in s.search("Ü")] == ["Über die Brücke"]
+    assert s.search("100%") == []                  # Platzhalter werden nicht als Muster gelesen
+    s.close()
