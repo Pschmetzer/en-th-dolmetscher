@@ -1,0 +1,118 @@
+{
+  "id": "festival",
+  "names": {
+    "de": "Feste und Veranstaltungen",
+    "en": "Festivals and events",
+    "th": "เทศกาลและงานอีเวนต์"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Bei Songkran wird man nass; Handy und Papiere in wasserdichte Hülle. Bei Loy Krathong und großen Festen Menschenmengen meiden, Wertsachen sichern. Im Gedränge Kinder an der Hand halten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "At Songkran you will get wet; keep phone and papers in a waterproof pouch. At Loy Krathong and big festivals avoid crowds and secure valuables. Hold children's hands in a crowd. Thai sentences machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "festival",
+      "th": "เทศกาล"
+    },
+    {
+      "en": "Songkran",
+      "th": "สงกรานต์"
+    },
+    {
+      "en": "Loy Krathong",
+      "th": "ลอยกระทง"
+    },
+    {
+      "en": "fireworks",
+      "th": "ดอกไม้ไฟ"
+    },
+    {
+      "en": "ticket",
+      "th": "ตั๋ว"
+    },
+    {
+      "en": "crowd",
+      "th": "ฝูงชน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I need help.",
+      "th": "ต้องการความช่วยเหลือ",
+      "critical": true
+    },
+    {
+      "en": "I lost my child.",
+      "th": "ลูกหาย",
+      "critical": true
+    },
+    {
+      "en": "I feel faint.",
+      "th": "รู้สึกจะเป็นลม",
+      "critical": true
+    },
+    {
+      "en": "Please call an ambulance.",
+      "th": "ช่วยเรียกรถพยาบาลหน่อย",
+      "critical": true
+    },
+    {
+      "en": "Where is the first aid station?",
+      "th": "จุดปฐมพยาบาลอยู่ที่ไหน",
+      "critical": true
+    },
+    {
+      "en": "My phone was stolen.",
+      "th": "โทรศัพท์ถูกขโมย"
+    },
+    {
+      "en": "Where is the lost and found?",
+      "th": "ที่รับแจ้งของหายอยู่ที่ไหน"
+    },
+    {
+      "en": "Where is the entrance?",
+      "th": "ทางเข้าอยู่ที่ไหน"
+    },
+    {
+      "en": "Where is the exit?",
+      "th": "ทางออกอยู่ที่ไหน"
+    },
+    {
+      "en": "Where can I buy tickets?",
+      "th": "ซื้อตั๋วได้ที่ไหน"
+    },
+    {
+      "en": "What time does it start?",
+      "th": "เริ่มกี่โมง"
+    },
+    {
+      "en": "What time does it end?",
+      "th": "จบกี่โมง"
+    },
+    {
+      "en": "Is it free?",
+      "th": "เข้าฟรีไหม"
+    },
+    {
+      "en": "Is it safe for children?",
+      "th": "ปลอดภัยสำหรับเด็กไหม"
+    },
+    {
+      "en": "Where is the toilet?",
+      "th": "ห้องน้ำอยู่ที่ไหน"
+    },
+    {
+      "en": "Where can I get drinking water?",
+      "th": "ขอน้ำดื่มได้ที่ไหน"
+    },
+    {
+      "en": "Please do not splash me.",
+      "th": "ช่วยอย่าสาดน้ำใส่"
+    },
+    {
+      "en": "Could you take a photo of us?",
+      "th": "ช่วยถ่ายรูปให้หน่อยได้ไหม"
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "id": "pharmacy-otc",
+  "names": {
+    "de": "Apotheke: rezeptfreie Mittel",
+    "en": "Pharmacy: over the counter",
+    "th": "ร้านขายยา: ยาสามัญ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Ergänzt das Apotheken-Paket nur für die Verständigung, ersetzt keinen medizinischen Rat. Allergien immer zuerst nennen; bei Fieber über drei Tage oder starken Beschwerden zum Arzt. Rettung: 1669. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Complements the pharmacy pack for communication only, not medical advice. Always state allergies first; see a doctor for fever over three days or severe symptoms. Ambulance: 1669. Thai sentences machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "painkiller",
+      "th": "ยาแก้ปวด"
+    },
+    {
+      "en": "antihistamine",
+      "th": "ยาแก้แพ้"
+    },
+    {
+      "en": "antiseptic",
+      "th": "ยาฆ่าเชื้อ"
+    },
+    {
+      "en": "cough syrup",
+      "th": "ยาแก้ไอ"
+    },
+    {
+      "en": "sunscreen",
+      "th": "ครีมกันแดด"
+    },
+    {
+      "en": "ointment",
+      "th": "ยาทา"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am allergic to penicillin.",
+      "th": "แพ้ยาเพนิซิลลิน",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to aspirin.",
+      "th": "แพ้ยาแอสไพริน",
+      "critical": true
+    },
+    {
+      "en": "I am pregnant. Is this medicine safe?",
+      "th": "กำลังตั้งครรภ์ ยานี้ปลอดภัยไหม",
+      "critical": true
+    },
+    {
+      "en": "Is this medicine safe for children?",
+      "th": "ยานี้เด็กกินได้ไหม",
+      "critical": true
+    },
+    {
+      "en": "Can I take this together with my regular medicine?",
+      "th": "กินยานี้คู่กับยาที่กินประจำได้ไหม",
+      "critical": true
+    },
+    {
+      "en": "Do I need a prescription?",
+      "th": "ต้องมีใบสั่งยาไหม"
+    },
+    {
+      "en": "I need something for a headache.",
+      "th": "ขอยาแก้ปวดหัว"
+    },
+    {
+      "en": "I need something for a fever.",
+      "th": "ขอยาลดไข้"
+    },
+    {
+      "en": "I need something for a cough.",
+      "th": "ขอยาแก้ไอ"
+    },
+    {
+      "en": "I need something for diarrhea.",
+      "th": "ขอยาแก้ท้องเสีย"
+    },
+    {
+      "en": "Do you have oral rehydration salts?",
+      "th": "มีผงเกลือแร่ไหม"
+    },
+    {
+      "en": "Do you have plasters?",
+      "th": "มีพลาสเตอร์ปิดแผลไหม"
+    },
+    {
+      "en": "Do you have an antihistamine?",
+      "th": "มียาแก้แพ้ไหม"
+    },
+    {
+      "en": "Do you have something for an upset stomach?",
+      "th": "มียาแก้ท้องอืดไหม"
+    },
+    {
+      "en": "Do you have antiseptic for a cut?",
+      "th": "มียาฆ่าเชื้อทาแผลไหม"
+    },
+    {
+      "en": "How many times a day?",
+      "th": "กินวันละกี่ครั้ง"
+    },
+    {
+      "en": "Before or after meals?",
+      "th": "กินก่อนหรือหลังอาหาร"
+    },
+    {
+      "en": "Does this make you drowsy?",
+      "th": "ยานี้กินแล้วง่วงไหม"
+    }
+  ]
+}

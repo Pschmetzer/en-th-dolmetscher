@@ -1,0 +1,117 @@
+{
+  "id": "street-food",
+  "names": {
+    "de": "Streetfood",
+    "en": "Street food",
+    "th": "อาหารริมทาง"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Streetfood ist sicher, wenn es frisch gekocht wird und viele Einheimische anstehen. Allergien vorher sagen; „ไม่เผ็ด“ heißt nicht scharf. Bezahlt wird bar, oft passend. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Street food is safe when cooked fresh and busy with locals. Tell stalls about allergies first; \"ไม่เผ็ด\" means not spicy. Pay in cash, often exact change. Thai sentences machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "street food",
+      "th": "อาหารริมทาง"
+    },
+    {
+      "en": "stall",
+      "th": "แผงขายของ"
+    },
+    {
+      "en": "spicy",
+      "th": "เผ็ด"
+    },
+    {
+      "en": "not spicy",
+      "th": "ไม่เผ็ด"
+    },
+    {
+      "en": "sticky rice",
+      "th": "ข้าวเหนียว"
+    },
+    {
+      "en": "grilled",
+      "th": "ย่าง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am allergic to peanuts.",
+      "th": "แพ้ถั่วลิสง",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to shellfish.",
+      "th": "แพ้อาหารทะเลเปลือกแข็ง",
+      "critical": true
+    },
+    {
+      "en": "Does this contain egg?",
+      "th": "อันนี้มีไข่ไหม",
+      "critical": true
+    },
+    {
+      "en": "Is there fish sauce in this?",
+      "th": "อันนี้ใส่น้ำปลาไหม",
+      "critical": true
+    },
+    {
+      "en": "Is this freshly cooked?",
+      "th": "อันนี้ทำสดใหม่ไหม"
+    },
+    {
+      "en": "How much is this?",
+      "th": "อันนี้ราคาเท่าไหร่"
+    },
+    {
+      "en": "One of these, please.",
+      "th": "ขออันนี้หนึ่งอัน"
+    },
+    {
+      "en": "Not spicy, please.",
+      "th": "ขอไม่เผ็ด"
+    },
+    {
+      "en": "A little spicy, please.",
+      "th": "เผ็ดนิดเดียว"
+    },
+    {
+      "en": "No sugar, please.",
+      "th": "ไม่ใส่น้ำตาล"
+    },
+    {
+      "en": "Without ice, please.",
+      "th": "ไม่ใส่น้ำแข็ง"
+    },
+    {
+      "en": "Takeaway, please.",
+      "th": "ขอใส่ถุงกลับบ้าน"
+    },
+    {
+      "en": "What is this?",
+      "th": "นี่คืออะไร"
+    },
+    {
+      "en": "Is this meat pork or chicken?",
+      "th": "เนื้อนี้เป็นหมูหรือไก่"
+    },
+    {
+      "en": "Is there a vegetarian option?",
+      "th": "มีแบบมังสวิรัติไหม"
+    },
+    {
+      "en": "Please do not add MSG.",
+      "th": "ไม่ใส่ผงชูรส"
+    },
+    {
+      "en": "Where can I wash my hands?",
+      "th": "ล้างมือได้ที่ไหน"
+    },
+    {
+      "en": "It was delicious.",
+      "th": "อร่อยมาก"
+    }
+  ]
+}

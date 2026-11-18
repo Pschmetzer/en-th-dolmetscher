@@ -2,7 +2,7 @@
 // Nur eigene Dateien (gleicher Ursprung, GET). Übersetzungs-Anfragen (Google, MyMemory) laufen nie hier durch
 // und werden nie gespeichert. Neue Version: CACHE hochzählen.
 const CACHE = 'dolmetscher-web-v11';
-const PRESET_IDS = ['doctor', 'police', 'lostchild', 'pharmacy', 'dentist', 'taxi', 'places', 'airport', 'transport', 'travel', 'hotel', 'restaurant', 'shopping', 'bank', 'answers', 'access', 'spa', 'temple', 'island', 'scooter', 'rental', 'services', 'coworking', 'office', 'baby', 'car-rental', 'diving', 'emergency', 'gym', 'hospital', 'kids', 'market', 'monk', 'nomad', 'pets', 'photo', 'school', 'sport', 'visa', 'wedding', 'work'];
+const PRESET_IDS = ['doctor', 'police', 'lostchild', 'pharmacy', 'dentist', 'taxi', 'places', 'airport', 'transport', 'travel', 'hotel', 'restaurant', 'shopping', 'bank', 'answers', 'access', 'spa', 'temple', 'island', 'scooter', 'rental', 'services', 'coworking', 'office', 'baby', 'beach', 'bus-train', 'car-rental', 'diving', 'emergency', 'festival', 'gym', 'hiking', 'hospital', 'kids', 'laundry-repair', 'market', 'massage', 'mobile-sim', 'monk', 'nightlife', 'nomad', 'pets', 'pharmacy-otc', 'photo', 'school', 'sport', 'street-food', 'visa', 'wedding', 'work'];
 const CORE = ['./', 'index.html', 'languages.json', 'presets-index.json', 'allergens.json', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png']
   .concat(PRESET_IDS.map(id => 'presets/' + id + '.json'));
 const abs = u => new URL(u, self.registration.scope).href;   // GitHub Pages liegt unter /en-th-dolmetscher/

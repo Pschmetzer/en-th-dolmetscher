@@ -1,0 +1,115 @@
+{
+  "id": "laundry-repair",
+  "names": {
+    "de": "Wäscherei und Reparatur",
+    "en": "Laundry and repairs",
+    "th": "ซักรีดและซ่อม"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Ergänzt das Service-Paket: Preis pro Kilo oder Stück und Abholtag vorher klären, Taschen leeren. Bei Reparaturen Kostenvoranschlag verlangen und Quittung aufheben. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Complements the services pack: agree price per kilo or piece and pickup day first, empty your pockets. For repairs ask for an estimate and keep the receipt. Thai sentences machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "laundry",
+      "th": "ซักรีด"
+    },
+    {
+      "en": "dry cleaning",
+      "th": "ซักแห้ง"
+    },
+    {
+      "en": "shoe repair",
+      "th": "ซ่อมรองเท้า"
+    },
+    {
+      "en": "zip",
+      "th": "ซิป"
+    },
+    {
+      "en": "button",
+      "th": "กระดุม"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please do not use hot water.",
+      "th": "อย่าใช้น้ำร้อน",
+      "critical": true
+    },
+    {
+      "en": "This is delicate.",
+      "th": "ผ้านี้บอบบาง",
+      "critical": true
+    },
+    {
+      "en": "Where can I do laundry?",
+      "th": "ซักผ้าได้ที่ไหน"
+    },
+    {
+      "en": "How much per kilo?",
+      "th": "กิโลละเท่าไร"
+    },
+    {
+      "en": "When will it be ready?",
+      "th": "เสร็จเมื่อไร"
+    },
+    {
+      "en": "Please wash this separately.",
+      "th": "ช่วยซักแยกให้หน่อย"
+    },
+    {
+      "en": "Please iron it.",
+      "th": "ช่วยรีดให้หน่อย"
+    },
+    {
+      "en": "I need express service.",
+      "th": "ต้องการแบบด่วน"
+    },
+    {
+      "en": "Is there dry cleaning?",
+      "th": "มีซักแห้งไหม"
+    },
+    {
+      "en": "There is a stain here.",
+      "th": "มีคราบตรงนี้"
+    },
+    {
+      "en": "Can you remove this stain?",
+      "th": "ช่วยซักคราบนี้ออกได้ไหม"
+    },
+    {
+      "en": "My zip is broken.",
+      "th": "ซิปเสีย"
+    },
+    {
+      "en": "Could you sew on a button?",
+      "th": "ช่วยเย็บกระดุมให้หน่อยได้ไหม"
+    },
+    {
+      "en": "Could you alter this?",
+      "th": "ช่วยแก้ขนาดให้หน่อยได้ไหม"
+    },
+    {
+      "en": "Can you repair these shoes?",
+      "th": "ซ่อมรองเท้าคู่นี้ได้ไหม"
+    },
+    {
+      "en": "How much will the repair cost?",
+      "th": "ค่าซ่อมเท่าไหร่"
+    },
+    {
+      "en": "Could I have a receipt, please?",
+      "th": "ขอใบเสร็จหน่อย"
+    },
+    {
+      "en": "Can I pick it up tomorrow?",
+      "th": "มารับพรุ่งนี้ได้ไหม"
+    }
+  ]
+}

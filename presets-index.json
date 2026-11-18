@@ -277,6 +277,28 @@
    "reviewed": false
   },
   {
+   "id": "beach",
+   "names": {
+    "de": "Strand",
+    "en": "Beach",
+    "th": "ชายหาด"
+   },
+   "phrases": 17,
+   "critical": 3,
+   "reviewed": false
+  },
+  {
+   "id": "bus-train",
+   "names": {
+    "de": "Bus und Zug",
+    "en": "Bus and train",
+    "th": "รถเมล์และรถไฟ"
+   },
+   "phrases": 18,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
    "id": "car-rental",
    "names": {
     "de": "Mietwagen",
@@ -310,6 +332,17 @@
    "reviewed": false
   },
   {
+   "id": "festival",
+   "names": {
+    "de": "Feste und Veranstaltungen",
+    "en": "Festivals and events",
+    "th": "เทศกาลและงานอีเวนต์"
+   },
+   "phrases": 18,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
    "id": "gym",
    "names": {
     "de": "Fitnessstudio",
@@ -318,6 +351,17 @@
    },
    "phrases": 18,
    "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "hiking",
+   "names": {
+    "de": "Wandern und Trekking",
+    "en": "Hiking and trekking",
+    "th": "เดินป่าและเทรคกิ้ง"
+   },
+   "phrases": 18,
+   "critical": 5,
    "reviewed": false
   },
   {
@@ -343,6 +387,17 @@
    "reviewed": false
   },
   {
+   "id": "laundry-repair",
+   "names": {
+    "de": "Wäscherei und Reparatur",
+    "en": "Laundry and repairs",
+    "th": "ซักรีดและซ่อม"
+   },
+   "phrases": 18,
+   "critical": 2,
+   "reviewed": false
+  },
+  {
    "id": "market",
    "names": {
     "de": "Markt und Handeln",
@@ -354,6 +409,28 @@
    "reviewed": false
   },
   {
+   "id": "massage",
+   "names": {
+    "de": "Massage-Studio und Salon",
+    "en": "Massage parlour",
+    "th": "ร้านนวด"
+   },
+   "phrases": 17,
+   "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "mobile-sim",
+   "names": {
+    "de": "SIM, Internet und Handy",
+    "en": "SIM, internet and phone",
+    "th": "ซิม อินเทอร์เน็ต และมือถือ"
+   },
+   "phrases": 18,
+   "critical": 3,
+   "reviewed": false
+  },
+  {
    "id": "monk",
    "names": {
     "de": "Mönche und Tempelbesuch",
@@ -362,6 +439,17 @@
    },
    "phrases": 18,
    "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "nightlife",
+   "names": {
+    "de": "Nachtleben und Bars",
+    "en": "Nightlife and bars",
+    "th": "ชีวิตกลางคืนและบาร์"
+   },
+   "phrases": 18,
+   "critical": 5,
    "reviewed": false
   },
   {
@@ -381,6 +469,17 @@
     "de": "Haustiere",
     "en": "Pets",
     "th": "สัตว์เลี้ยง"
+   },
+   "phrases": 18,
+   "critical": 5,
+   "reviewed": false
+  },
+  {
+   "id": "pharmacy-otc",
+   "names": {
+    "de": "Apotheke: rezeptfreie Mittel",
+    "en": "Pharmacy: over the counter",
+    "th": "ร้านขายยา: ยาสามัญ"
    },
    "phrases": 18,
    "critical": 5,
@@ -417,6 +516,17 @@
    },
    "phrases": 17,
    "critical": 3,
+   "reviewed": false
+  },
+  {
+   "id": "street-food",
+   "names": {
+    "de": "Streetfood",
+    "en": "Street food",
+    "th": "อาหารริมทาง"
+   },
+   "phrases": 18,
+   "critical": 4,
    "reviewed": false
   },
   {

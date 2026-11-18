@@ -90,6 +90,26 @@ kennen, ignorieren sie.
 | `photo` | Fotografieren | 4 kritische Sätze zuerst |
 | `monk` | Mönche und Tempelbesuch | 4 kritische Sätze zuerst |
 | `hospital` | Krankenhaus | 5 kritische Sätze zuerst |
+| `bus-train` | Bus und Zug | Hilfe, Ticket verloren, Diebstahl, Polizei |
+| `beach` | Strand | Ertrinkender, nicht schwimmen können, Rettung |
+| `hiking` | Wandern und Trekking | verirrt, Hilfe, Schlangenbiss, Verletzung, Rettung |
+| `street-food` | Streetfood | Allergien: Erdnuss, Schalentiere, Ei, Fischsauce |
+| `massage` | Massage-Studio und Salon | Stopp, Schmerz, Schwindel, Hautallergie |
+| `nightlife` | Nachtleben und Bars | Hilfe, Polizei, K.-o.-Tropfen, Taxi, Tourist Police |
+| `festival` | Feste und Veranstaltungen | Hilfe, Kind verloren, Schwächegefühl, Rettung, Erste Hilfe |
+| `laundry-repair` | Wäscherei und Reparatur | 2 kritische Sätze zuerst |
+| `pharmacy-otc` | Apotheke: rezeptfreie Mittel (nur Verständigung) | Allergien, Schwangerschaft, Kinder, Wechselwirkung, Rezept |
+| `mobile-sim` | SIM, Internet und Handy | Handy gestohlen, Handy verloren, SIM sperren |
+| `bus-train` | Bus und Zug | Hilfe, Ticket verloren, Diebstahl, Polizei |
+| `beach` | Strand | Ertrinkender, nicht schwimmen können, Rettung |
+| `hiking` | Wandern und Trekking | verirrt, Hilfe, Schlangenbiss, Verletzung, Rettung |
+| `street-food` | Streetfood | Allergien: Erdnuss, Schalentiere, Ei, Fischsauce |
+| `massage` | Massage-Studio und Salon | Stopp, Schmerz, Schwindel, Hautallergie |
+| `nightlife` | Nachtleben und Bars | Hilfe, Polizei, K.-o.-Tropfen, Taxi, Tourist Police |
+| `festival` | Feste und Veranstaltungen | Hilfe, Kind verloren, Schwächegefühl, Rettung, Erste Hilfe |
+| `laundry-repair` | Wäscherei und Reparatur | 2 kritische Sätze zuerst |
+| `pharmacy-otc` | Apotheke: rezeptfreie Mittel (nur Verständigung) | Allergien, Schwangerschaft, Kinder, Wechselwirkung, Rezept |
+| `mobile-sim` | SIM, Internet und Handy | Handy gestohlen, Handy verloren, SIM sperren |
 
 ## Unsichere Sätze (bitte zuerst prüfen)
 
@@ -125,7 +145,7 @@ Am wichtigsten sind die Sätze mit `critical` und die Tabelle [Unsichere Sätze]
 
 | Datei | Inhalt |
 |---|---|
-| `presets/*.json` | 41 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
+| `presets/*.json` | 51 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
 | `ios/Shared/phrases.json` | eingebautes Satzbuch der iPhone-App und des Widgets |
 | `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten, „Sie sind dran“, Allergie-Karte |
 | `ios/Dolmetscher/Round4Views.swift` | Hilfesatz auf dem Bildschirm „Hilfe – jetzt“ |

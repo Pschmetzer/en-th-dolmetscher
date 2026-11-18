@@ -1,0 +1,113 @@
+{
+  "id": "massage",
+  "names": {
+    "de": "Massage-Studio und Salon",
+    "en": "Massage parlour",
+    "th": "ร้านนวด"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Ergänzt das Spa-Paket: Preis und Dauer vor dem Beginn klären, Trinkgeld 50–100 Baht ist üblich. Bei Unwohlsein sofort „หยุด“ sagen. Seriöse Salons haben feste Preislisten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Complements the spa pack: agree price and duration first; a tip of 50–100 baht is common. Say \"หยุด\" at once if you feel unwell. Reputable parlours show fixed price lists. Thai sentences machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "massage",
+      "th": "นวด"
+    },
+    {
+      "en": "one hour",
+      "th": "หนึ่งชั่วโมง"
+    },
+    {
+      "en": "harder",
+      "th": "แรงขึ้น"
+    },
+    {
+      "en": "softer",
+      "th": "เบาลง"
+    },
+    {
+      "en": "towel",
+      "th": "ผ้าเช็ดตัว"
+    },
+    {
+      "en": "price list",
+      "th": "ราคา"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please stop.",
+      "th": "หยุดก่อน",
+      "critical": true
+    },
+    {
+      "en": "That hurts.",
+      "th": "เจ็บ",
+      "critical": true
+    },
+    {
+      "en": "I feel dizzy.",
+      "th": "เวียนหัว",
+      "critical": true
+    },
+    {
+      "en": "I have a skin allergy.",
+      "th": "แพ้ผิวหนัง",
+      "critical": true
+    },
+    {
+      "en": "How much for one hour?",
+      "th": "หนึ่งชั่วโมงราคาเท่าไหร่"
+    },
+    {
+      "en": "How long is the massage?",
+      "th": "นวดนานเท่าไหร่"
+    },
+    {
+      "en": "Could you press harder, please?",
+      "th": "ช่วยนวดแรงขึ้นหน่อย"
+    },
+    {
+      "en": "Could you press softer, please?",
+      "th": "ช่วยนวดเบาลงหน่อย"
+    },
+    {
+      "en": "Not on the neck, please.",
+      "th": "ไม่ต้องนวดคอ"
+    },
+    {
+      "en": "Please focus on my shoulders.",
+      "th": "ช่วยนวดไหล่เยอะๆ หน่อย"
+    },
+    {
+      "en": "Where can I change?",
+      "th": "เปลี่ยนเสื้อผ้าได้ที่ไหน"
+    },
+    {
+      "en": "Could I have a towel, please?",
+      "th": "ขอผ้าเช็ดตัวหน่อย"
+    },
+    {
+      "en": "Is the room warm enough?",
+      "th": "ห้องนี้อุ่นพอไหม"
+    },
+    {
+      "en": "It is too cold in here.",
+      "th": "ในห้องนี้หนาวเกินไป"
+    },
+    {
+      "en": "Please turn off the air conditioning.",
+      "th": "ช่วยปิดแอร์หน่อย"
+    },
+    {
+      "en": "That feels good.",
+      "th": "สบายดี"
+    },
+    {
+      "en": "Do you accept cards?",
+      "th": "รับบัตรไหม"
+    }
+  ]
+}
