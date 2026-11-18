@@ -65,6 +65,8 @@ kennen, ignorieren sie.
 | `hotel` | Hotel | – |
 | `shopping` | Einkaufen | – |
 | `office` | Büro | – |
+| `dentist` | Zahnarzt (nur Verständigung) | Zahnschmerz, Schwellung, Allergien, Stopp |
+| `airport` | Flughafen und Gepäck | Rollstuhl, medizinische Hilfe |
 
 ## Unsichere Sätze (bitte zuerst prüfen)
 
@@ -100,7 +102,7 @@ Am wichtigsten sind die Sätze mit `critical` und die Tabelle [Unsichere Sätze]
 
 | Datei | Inhalt |
 |---|---|
-| `presets/*.json` | 16 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
+| `presets/*.json` | 18 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
 | `ios/Shared/phrases.json` | eingebautes Satzbuch der iPhone-App und des Widgets |
 | `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten, „Sie sind dran“, Allergie-Karte |
 | `ios/Dolmetscher/Round4Views.swift` | Hilfesatz auf dem Bildschirm „Hilfe – jetzt“ |

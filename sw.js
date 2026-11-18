@@ -1,8 +1,8 @@
 // Service Worker der Web-Version: macht die Seite installierbar und das Satzbuch offline nutzbar.
 // Nur eigene Dateien (gleicher Ursprung, GET). Übersetzungs-Anfragen (Google, MyMemory) laufen nie hier durch
 // und werden nie gespeichert. Neue Version: CACHE hochzählen.
-const CACHE = 'dolmetscher-web-v7';
-const PRESET_IDS = ['taxi', 'hotel', 'restaurant', 'shopping', 'travel', 'doctor', 'office', 'pharmacy', 'police', 'bank', 'spa', 'temple', 'rental', 'scooter', 'transport', 'lostchild'];
+const CACHE = 'dolmetscher-web-v8';
+const PRESET_IDS = ['taxi', 'hotel', 'restaurant', 'shopping', 'travel', 'doctor', 'office', 'pharmacy', 'police', 'bank', 'spa', 'temple', 'rental', 'scooter', 'transport', 'lostchild', 'dentist', 'airport'];
 const CORE = ['./', 'index.html', 'languages.json', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png']
   .concat(PRESET_IDS.map(id => 'presets/' + id + '.json'));
 const abs = u => new URL(u, self.registration.scope).href;   // GitHub Pages liegt unter /en-th-dolmetscher/

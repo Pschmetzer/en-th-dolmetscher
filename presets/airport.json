@@ -1,0 +1,123 @@
+{
+  "id": "airport",
+  "names": {
+    "de": "Flughafen und Gepäck",
+    "en": "Airport and luggage",
+    "th": "สนามบินและสัมภาระ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Gepäckschaden und Fehlbestand sofort am Schalter der Airline melden (Schadensmeldung, Formular behalten). Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Report missing or damaged luggage at the airline desk right away and keep the report form. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "airport",
+      "th": "สนามบิน"
+    },
+    {
+      "en": "gate",
+      "th": "ประตูขึ้นเครื่อง"
+    },
+    {
+      "en": "luggage",
+      "th": "กระเป๋าเดินทาง"
+    },
+    {
+      "en": "boarding pass",
+      "th": "บัตรโดยสาร"
+    },
+    {
+      "en": "customs",
+      "th": "ศุลกากร"
+    },
+    {
+      "en": "passport",
+      "th": "หนังสือเดินทาง"
+    },
+    {
+      "en": "wheelchair",
+      "th": "รถเข็นผู้ป่วย"
+    },
+    {
+      "en": "transfer",
+      "th": "เปลี่ยนเที่ยวบิน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I need a wheelchair, please.",
+      "th": "ต้องการรถเข็น",
+      "critical": true
+    },
+    {
+      "en": "I need medical help.",
+      "th": "ต้องการความช่วยเหลือทางการแพทย์",
+      "critical": true
+    },
+    {
+      "en": "My luggage did not arrive.",
+      "th": "กระเป๋าเดินทางไม่มา"
+    },
+    {
+      "en": "My luggage is damaged.",
+      "th": "กระเป๋าเดินทางเสียหาย"
+    },
+    {
+      "en": "Where is the baggage claim?",
+      "th": "จุดรับกระเป๋าอยู่ที่ไหน"
+    },
+    {
+      "en": "Where is the lost luggage desk?",
+      "th": "เคาน์เตอร์กระเป๋าสูญหายอยู่ที่ไหน"
+    },
+    {
+      "en": "Where is my gate?",
+      "th": "ประตูขึ้นเครื่องอยู่ที่ไหน"
+    },
+    {
+      "en": "I missed my flight.",
+      "th": "ตกเครื่อง"
+    },
+    {
+      "en": "Could you rebook me on the next flight?",
+      "th": "ช่วยเปลี่ยนเป็นเที่ยวบินถัดไปได้ไหม"
+    },
+    {
+      "en": "I have a connecting flight.",
+      "th": "ต้องต่อเครื่อง"
+    },
+    {
+      "en": "Where do I transfer?",
+      "th": "ต้องเปลี่ยนเครื่องที่ไหน"
+    },
+    {
+      "en": "I have nothing to declare.",
+      "th": "ไม่มีของต้องสำแดง"
+    },
+    {
+      "en": "Where is the customs office?",
+      "th": "ศุลกากรอยู่ที่ไหน"
+    },
+    {
+      "en": "Where can I exchange money?",
+      "th": "แลกเงินได้ที่ไหน"
+    },
+    {
+      "en": "Where is the taxi stand?",
+      "th": "จุดขึ้นแท็กซี่อยู่ที่ไหน"
+    },
+    {
+      "en": "How do I get to the city?",
+      "th": "ไปในเมืองได้อย่างไร"
+    },
+    {
+      "en": "Where is the toilet?",
+      "th": "ห้องน้ำอยู่ที่ไหน"
+    },
+    {
+      "en": "Could you keep my luggage until this afternoon?",
+      "th": "ฝากกระเป๋าไว้จนถึงบ่ายได้ไหม"
+    }
+  ]
+}
