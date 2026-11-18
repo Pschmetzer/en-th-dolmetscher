@@ -19,7 +19,7 @@ enum Prefs {
     static let mainWindowID = NSUserInterfaceItemIdentifier("dolmetscher.main")
     /// Schlüssel, die „Alle Einstellungen zurücksetzen“ löscht (Willkommensseite und Sprache bleiben bzw. werden gesetzt).
     static let resettableKeys = [fontScale, alwaysOnTop, showDetails, translit, showQuick, quickPhrases,
-                                 showMenuBar, spaceToggle, announce, listenOnLaunch, "partnerRotated", "partnerZoom"]
+                                 showMenuBar, spaceToggle, announce, "partnerRotated", "partnerZoom", listenOnLaunch]
 
     /// Nr. 40: Standard-Schnellsätze für das aktive Paar: Sätze in beiden Paarsprachen (en/th: die feste Liste).
     /// Sprachen ohne Tabelle liefern keine Sätze (nie fremdsprachige Sätze als „meine Sprache“ vorgeben).
@@ -547,7 +547,7 @@ struct MainToolbar: View {
         }
         .padding(14)
         .confirmationDialog(L.t("clear_confirm"), isPresented: $confirmClear, titleVisibility: .visible) {
-            Button(L.t("clear"), role: .destructive) { m.clearAll() }
+            Button(L.t("clear"), role: .destructive) { m.clearAll(); m.resetTrimmed() }
             Button(L.t("cancel"), role: .cancel) {}
         }
     }

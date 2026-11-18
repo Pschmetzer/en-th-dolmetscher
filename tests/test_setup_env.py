@@ -39,7 +39,7 @@ case "$1" in
     chmod +x "$dir/bin/python" ;;
   pip)
     [ "$FAKE_MODE" = offline ] && { echo "error: Request failed after 3 retries: connection refused" >&2; exit 1; }
-    [ "$FAKE_MODE" = integrity ] && { echo "error: Failed to download x: Hash mismatch, expected sha256:a got sha256:b" >&2; exit 1; }
+    [ "$FAKE_MODE" = integrity ] && { echo "error: Failed to download x: Hash mismatch, got sha256:b" >&2; exit 1; }
     [ "$FAKE_MODE" = disk ] && { echo "error: No space left on device (os error 28)" >&2; exit 1; }
     [ "$FAKE_MODE" = slow ] && sleep 30
     exit 0 ;;
