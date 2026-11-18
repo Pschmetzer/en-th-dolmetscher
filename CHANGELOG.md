@@ -149,6 +149,7 @@ Pull requests #16–#47. Not yet published as a release.
 
 **iPhone app (round 14)**
 - **New:** welcome flow on first start (language pair, why the microphone and speech recognition are needed before the system dialog appears, offline language packs with an approximate size, a test sentence); “Later” at any time; a band in the conversation with a Settings button when the microphone or speech recognition is denied or restricted (for example by Screen Time); the flow can be shown again from the help. Texts in all 10 languages (de/en/th by hand, the rest machine-translated); logic in `Onboarding.swift` with unit tests, `tests/test_runde14_ios.py`.
+- **Fixed:** the welcome flow used raw system green and orange; it now uses the contrast-checked status colours.
 
 **iPhone app (round 13)**
 - **New:** accessibility audit of all views: VoiceOver announces start, stop, errors and failed translations; status colours (green, orange, red, blue) now reach 4.5:1 contrast in light and dark mode (computed in a test) and the filled mic and turn buttons keep readable white text; the active turn is marked by a border, not only by colour.
