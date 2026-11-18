@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Vor jeder Reparatur einen Preis schriftlich oder per Foto festhalten und Ersatzteile zeigen lassen. Autowäsche und kleine Reparaturen sind günstig. Bei Pannen auf der Autobahn Notruf 1193 oder die Mietwagenfirma anrufen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Before any repair, get a price in writing or on a photo and ask to see the replaced parts. Car washes and small repairs are cheap. For a breakdown on the highway call 1193 or the rental company. Thai lines machine-made, not checked by native speakers."
+    "de": "Vor jeder Reparatur einen Preis schriftlich oder per Foto festhalten und Ersatzteile zeigen lassen. Autowäsche und kleine Reparaturen sind günstig. Bei Pannen auf der Autobahn Polizei (191) oder die Mietwagenfirma anrufen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Before any repair, get a price in writing or on a photo and ask to see the replaced parts. Car washes and small repairs are cheap. For a breakdown on the highway call the police (191) or the rental company. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -16,7 +16,7 @@
       "th": "อู่ซ่อมรถ"
     },
     {
-      "en": "flat tire",
+      "en": "flat tyre",
       "th": "ยางแบน"
     },
     {
@@ -48,14 +48,13 @@
       "critical": true
     },
     {
-      "en": "I have a flat tire.",
-      "th": "ยางแบน",
-      "critical": true
-    },
-    {
       "en": "Please call a tow truck.",
       "th": "ช่วยเรียกรถลากหน่อย",
       "critical": true
+    },
+    {
+      "en": "I have a flat tyre.",
+      "th": "ยางแบน"
     },
     {
       "en": "Could you check the car?",

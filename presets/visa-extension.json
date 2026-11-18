@@ -43,19 +43,22 @@
       "critical": true
     },
     {
-      "en": "When does my visa expire?",
-      "th": "วีซ่าหมดอายุเมื่อไหร่",
-      "critical": true
-    },
-    {
-      "en": "I would like to extend my visa.",
-      "th": "ต้องการขยายวีซ่า",
-      "critical": true
-    },
-    {
       "en": "Is there a fine for overstaying?",
       "th": "อยู่เกินมีค่าปรับไหม",
       "critical": true
+    },
+    {
+      "en": "When can I pick up my passport?",
+      "th": "มารับหนังสือเดินทางได้เมื่อไหร่",
+      "critical": true
+    },
+    {
+      "en": "When does my visa expire?",
+      "th": "วีซ่าหมดอายุเมื่อไหร่"
+    },
+    {
+      "en": "I would like to extend my visa.",
+      "th": "ต้องการขยายวีซ่า"
     },
     {
       "en": "Which documents do I need?",
@@ -92,10 +95,6 @@
     {
       "en": "Can I wait here?",
       "th": "รอที่นี่ได้ไหม"
-    },
-    {
-      "en": "When can I pick up my passport?",
-      "th": "มารับหนังสือเดินทางได้เมื่อไหร่"
     },
     {
       "en": "Do I need a hotel address?",

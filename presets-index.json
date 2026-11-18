@@ -317,7 +317,7 @@
     "th": "เช่าจักรยาน"
    },
    "phrases": 17,
-   "critical": 4,
+   "critical": 3,
    "reviewed": false
   },
   {
@@ -361,7 +361,7 @@
     "th": "ล้างรถและอู่ซ่อมรถ"
    },
    "phrases": 18,
-   "critical": 4,
+   "critical": 3,
    "reviewed": false
   },
   {
@@ -383,7 +383,7 @@
     "th": "เซเว่นอีเลฟเว่น"
    },
    "phrases": 17,
-   "critical": 4,
+   "critical": 3,
    "reviewed": false
   },
   {
@@ -548,7 +548,7 @@
     "th": "ซักผ้าและเงินมัดจำ"
    },
    "phrases": 20,
-   "critical": 4,
+   "critical": 3,
    "reviewed": false
   },
   {
@@ -647,7 +647,7 @@
     "th": "ตลาดกลางคืนและการต่อราคา"
    },
    "phrases": 20,
-   "critical": 5,
+   "critical": 4,
    "reviewed": false
   },
   {
@@ -790,7 +790,7 @@
     "th": "ขอคืนภาษี"
    },
    "phrases": 17,
-   "critical": 4,
+   "critical": 3,
    "reviewed": false
   },
   {
@@ -845,7 +845,7 @@
     "th": "ต่อวีซ่า"
    },
    "phrases": 18,
-   "critical": 4,
+   "critical": 3,
    "reviewed": false
   },
   {
@@ -867,7 +867,7 @@
     "th": "คาเฟ่ไวไฟสำหรับทำงาน"
    },
    "phrases": 17,
-   "critical": 4,
+   "critical": 3,
    "reviewed": false
   },
   {
