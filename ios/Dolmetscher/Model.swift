@@ -659,9 +659,22 @@ final class InterpreterModel {
         case .interruptionBegan:
             interrupted = true
             stopSpeaking()
+            if phase == .listening {
+                Haptics.warning()
+                flash("⏸ " + T("interrupt_paused"), seconds: 6)
+                liveUpdate()
+            }
+        case .routeLost:
+            // Kopfhörer/Headset abgezogen: iOS hält die Wiedergabe an, die Aufnahme baut sich neu auf.
+            stopSpeaking()
+            if phase == .listening {
+                Haptics.warning()
+                flash("🎧 " + T("route_lost"), seconds: 5)
+                restart()
+            }
         case .interrupted:
             interrupted = false
-            if phase == .listening { restart() }
+            if phase == .listening { restart(); liveUpdate() }
         case .interruptionEndedNoResume:
             interrupted = false
             if phase == .listening {
@@ -1361,7 +1374,7 @@ final class InterpreterModel {
         }
         let last = visibleEntries.last { $0.translation != nil }
         let isLocked = locked ?? !UIApplication.shared.isProtectedDataAvailable
-        let status: ListeningActivityAttributes.Status = paused ? .paused
+        let status: ListeningActivityAttributes.Status = interrupted ? .interrupted : paused ? .paused
             : speakingID != nil ? .speaking
             : (pushToTalk && !pttHeld) ? .ready
             : hearing ? .hearing : .listening
@@ -1381,6 +1394,7 @@ final class InterpreterModel {
         case .speaking: return T("speaking")
         case .paused: return T("paused_plain")
         case .ready: return T("ptt_hint")
+        case .interrupted: return T("interrupt_paused")
         }
     }
 

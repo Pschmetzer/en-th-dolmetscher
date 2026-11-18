@@ -38,6 +38,10 @@ enum WidgetTexts {
                       "es": "Aún no hay frases – habla sin más", "fr": "Pas encore de phrase – parlez", "ja": "まだ文はありません – 話してください",
                       "ko": "아직 문장이 없습니다 – 말씀하세요", "zh-Hans": "还没有句子 – 直接说话吧", "vi": "Chưa có câu nào – cứ nói",
                       "id": "Belum ada kalimat – bicara saja"],
+        "w_stale": ["de": "Stand evtl. veraltet – App öffnen", "en": "May be out of date – open the app", "th": "ข้อมูลอาจไม่เป็นปัจจุบัน – เปิดแอป",
+                    "es": "Puede estar desactualizado: abre la app", "fr": "Peut être obsolète – ouvrez l’app", "ja": "情報が古い可能性があります – アプリを開く",
+                    "ko": "오래된 정보일 수 있음 – 앱 열기", "zh-Hans": "可能已过期 – 请打开应用", "vi": "Có thể đã cũ – hãy mở ứng dụng",
+                    "id": "Mungkin kedaluwarsa – buka aplikasi"],
     ]
 
     /// Erste bevorzugte Systemsprache, die es gibt; sonst Englisch.
