@@ -18,6 +18,11 @@ Pull requests #16–#47. Not yet published as a release.
 - **Nine new phrase packs with cultural notes** (#40): pharmacy, police, bank, spa, temple, flat rental, scooter, transport and lost child; safety-critical sentences come first and are marked on every platform (#45, #46, #47).
 - **Browser version in 19 languages and installable as an app** (#37), with an offline phrasebook.
 
+### Web (round 15)
+
+- **Faster install and start:** the service worker now precaches only the app shell; the phrase packs are downloaded in the background after start (4 at a time, only online and not in data-saver mode). “Ready offline” still appears once all packs are stored; packs from the previous version are carried over, so there is no offline gap on updates.
+- **Browser storage full** is reported instead of failing silently; stored translations drop the oldest quarter and retry. Glossary and “translate all” load packs at most 6 at a time. Size budget test added (index.html ≤ 232 KB).
+
 ### Engine (speech recognition, translation, voice – used by the Mac app)
 
 - **Language pairs** (#29): any pair of English, Thai, German, Spanish, French, Italian, Portuguese, Dutch, Russian, Chinese, Japanese, Korean, Vietnamese, Indonesian, Arabic, Hindi, Turkish, Polish and Ukrainian. Thai-specific extras (ครับ/ค่ะ, 555 laughter, Thai numbers, the Thai model) are only active when Thai is in the pair; voice commands only when English is.
