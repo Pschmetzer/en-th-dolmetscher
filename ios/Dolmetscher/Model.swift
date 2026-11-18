@@ -659,9 +659,22 @@ final class InterpreterModel {
         case .interruptionBegan:
             interrupted = true
             stopSpeaking()
+            if phase == .listening {
+                Haptics.warning()
+                flash("⏸ " + T("interrupt_paused"), seconds: 6)
+                liveUpdate()
+            }
+        case .routeLost:
+            // Kopfhörer/Headset abgezogen: iOS hält die Wiedergabe an, die Aufnahme baut sich neu auf.
+            stopSpeaking()
+            if phase == .listening {
+                Haptics.warning()
+                flash("🎧 " + T("route_lost"), seconds: 5)
+                restart()
+            }
         case .interrupted:
             interrupted = false
-            if phase == .listening { restart() }
+            if phase == .listening { restart(); liveUpdate() }
         case .interruptionEndedNoResume:
             interrupted = false
             if phase == .listening {
@@ -1171,6 +1184,7 @@ final class InterpreterModel {
     /// `slow`: langsamer als eingestellt, z. B. wenn das Gegenüber nicht mitkam.
     func speak(_ e: Entry, slow: Bool = false) {
         guard let text = e.translation, !text.isEmpty else { return }
+        if slow { Haptics.slow() }
         enqueueSpeech(id: e.id, lang: e.target, slow: slow) { text }
     }
 
@@ -1188,7 +1202,7 @@ final class InterpreterModel {
         speakChain = Task {
             await prev?.value
             let text = gen == speechGeneration ? await produce() : nil
-            let r = slow ? max(0.4, rate * 0.65) : clearSpeech ? min(rate, 0.8) : rate
+            let r = SpeechRate.effective(rate: rate, slow: slow, clear: clearSpeech)
             let session = AVAudioSession.sharedInstance()
             guard gen == speechGeneration, let text, !text.isEmpty else {   // gestoppt oder nichts zu sagen
                 pendingSpeech -= 1
@@ -1361,7 +1375,7 @@ final class InterpreterModel {
         }
         let last = visibleEntries.last { $0.translation != nil }
         let isLocked = locked ?? !UIApplication.shared.isProtectedDataAvailable
-        let status: ListeningActivityAttributes.Status = paused ? .paused
+        let status: ListeningActivityAttributes.Status = interrupted ? .interrupted : paused ? .paused
             : speakingID != nil ? .speaking
             : (pushToTalk && !pttHeld) ? .ready
             : hearing ? .hearing : .listening
@@ -1381,6 +1395,7 @@ final class InterpreterModel {
         case .speaking: return T("speaking")
         case .paused: return T("paused_plain")
         case .ready: return T("ptt_hint")
+        case .interrupted: return T("interrupt_paused")
         }
     }
 

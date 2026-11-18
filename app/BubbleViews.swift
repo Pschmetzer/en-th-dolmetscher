@@ -96,6 +96,22 @@ struct Bubble: View, Equatable {
         return a11yAttributed(parts)
     }
 
+    /// VoiceOver-Aktionen der Blase (als Liste, damit der Ausdruck für den Compiler klein bleibt).
+    private var a11yActions: [(String, () -> Void)] {
+        [
+            (L.t("stop_speaking"), { m.stopSpeaking() }),
+            (L.t("read_aloud"), { m.replay(u) }),
+            (L.t("copy_translation"), { copy(u.out) }),
+            (L.t("correct"), { if canCorrect { onCorrect(u) } }),
+            (L.reassign(Langs.reassignRole(u.lang)), { if canCorrect && canReassign { reassign() } }),   // Nr. 382
+            (L.t("alt_reading"), { if canCorrect, let alt = u.alts.first { m.retranslate(u, text: alt) } }),
+            (L.t("save_phrase"), { saveQuickPhrase(u.text) }),
+            (L.t("big_text"), { NotificationCenter.default.post(name: .showBigText, object: u.id) }),
+            (L.t("copy_both"), { copy(u.text + "\n" + u.out) }),
+            (L.t("delete_bubble"), { m.deleteItem(u) }),
+        ]
+    }
+
     private var content: some View {
         VStack(alignment: en ? .leading : .trailing, spacing: 6) {
             BubbleHeader(u: u, scale: scale, playing: playing)
@@ -150,19 +166,7 @@ struct Bubble: View, Equatable {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(a11yText))
         .accessibilityHint(playing ? L.t("stop_speaking") : L.t("click_replay") + ". " + L.t("bubble_keys"))
-        .accessibilityAction(named: L.t("stop_speaking")) { m.stopSpeaking() }
-        .accessibilityAction(named: L.t("read_aloud")) { m.replay(u) }
-        .accessibilityAction(named: L.t("copy_translation")) { copy(u.out) }
-        .accessibilityAction(named: L.t("correct")) { if canCorrect { onCorrect(u) } }
-        // Nr. 382: was sonst nur im Kontextmenü steht (children .ignore macht es für VoiceOver schwer erreichbar)
-        .accessibilityAction(named: L.reassign(Langs.reassignRole(u.lang))) {
-            if canCorrect && canReassign { reassign() }
-        }
-        .accessibilityAction(named: L.t("alt_reading")) {
-            if canCorrect, let alt = u.alts.first { m.retranslate(u, text: alt) }
-        }
-        .accessibilityAction(named: L.t("save_phrase")) { saveQuickPhrase(u.text) }
-        .accessibilityAction(named: L.t("delete_bubble")) { m.deleteItem(u) }
+        .modifier(A11yActionList(items: a11yActions))
     }
 
     /// Nr. 33: sichtbare und hörbare Rückmeldung beim Kopieren
@@ -197,6 +201,9 @@ struct Bubble: View, Equatable {
         Button(L.t("save_phrase")) { saveQuickPhrase(u.text) }
         Button(L.t("read_aloud")) { m.replay(u) }
         Button(L.t("stop_speaking")) { m.stopSpeaking() }
+        Divider()
+        Button(L.t("big_text")) { NotificationCenter.default.post(name: .showBigText, object: u.id) }
+        ShareLink(item: u.out.isEmpty ? u.text : u.text + "\n" + u.out) { Label(L.t("share"), systemImage: "square.and.arrow.up") }
         Divider()
         Button(L.t("delete_bubble"), role: .destructive) { m.deleteItem(u) }   // Nr. 383
     }
@@ -456,5 +463,13 @@ struct CorrectSheet: View {
         guard !trimmed.isEmpty, m.engineReady else { return }
         m.retranslate(u, text: trimmed)
         dismiss()
+    }
+}
+
+/// Hängt eine Liste benannter VoiceOver-Aktionen an eine Ansicht.
+private struct A11yActionList: ViewModifier {
+    let items: [(String, () -> Void)]
+    func body(content: Content) -> some View {
+        items.reduce(AnyView(content)) { v, a in AnyView(v.accessibilityAction(named: a.0, a.1)) }
     }
 }

@@ -137,7 +137,8 @@ final class AudioCapture: @unchecked Sendable {
             nc.addObserver(forName: AVAudioSession.routeChangeNotification, object: nil, queue: nil) { n in
                 let raw = n.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt
                 let reason = raw.flatMap(AVAudioSession.RouteChangeReason.init(rawValue:))
-                if reason == .newDeviceAvailable || reason == .oldDeviceUnavailable { debounce.fire { emit(.interrupted) } }
+                if reason == .oldDeviceUnavailable { debounce.fire { emit(.routeLost) } }
+                else if reason == .newDeviceAvailable { debounce.fire { emit(.interrupted) } }
             },
         ]
     }

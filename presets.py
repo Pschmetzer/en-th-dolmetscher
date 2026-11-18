@@ -10,7 +10,7 @@ import os
 import re
 
 STYLE_KEYS = ("casual", "neutral", "polite")
-ID_RE = re.compile(r"^[a-z0-9][a-z0-9_-]{0,31}$")
+ID_RE = re.compile(r"[a-z0-9][a-z0-9_-]{0,31}")
 MAX_GLOSSARY, MAX_PHRASES = 100, 50
 MAX_NAME, MAX_TERM, MAX_PHRASE, MAX_NOTE = 40, 60, 200, 500
 MAX_HOTWORDS, MAX_HINT = 30, 300          # Nr. 243: eigene Whisper-Hotwords und Ton-Hinweis für Claude
@@ -42,7 +42,7 @@ def validate(d):
     if not isinstance(d, dict):
         return ["kein Objekt"]
     err = []
-    if not (isinstance(d.get("id"), str) and ID_RE.match(d["id"])):
+    if not (isinstance(d.get("id"), str) and ID_RE.fullmatch(d["id"])):
         err.append("id ungültig (a-z, 0-9, _ -, max. 32)")
     names = d.get("names")
     if not isinstance(names, dict) or not all(_text(names.get(k), MAX_NAME) for k in ("de", "en", "th")):

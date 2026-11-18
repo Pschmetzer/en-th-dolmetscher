@@ -37,7 +37,7 @@ struct ContentView: View {
             main
             if sizeClass == .regular {
                 Divider().ignoresSafeArea()
-                ToolsPanel().frame(width: 380)
+                ToolsPanel().frame(minWidth: 320, idealWidth: 380, maxWidth: IPadLayout.toolsMaxWidth)
             }
         }
     }
@@ -52,6 +52,7 @@ struct ContentView: View {
             .background {
                 Button("") { m.toggle() }.keyboardShortcut(.return, modifiers: .command)
                 Button("") { m.sheet = .phrasebook }.keyboardShortcut("b", modifiers: .command)
+                Button("") { m.sheet = .help }.keyboardShortcut("/", modifiers: .command)
             }
             .accessibilityHidden(false)
             .navigationTitle("Dolmetscher")
@@ -181,7 +182,11 @@ struct ContentView: View {
             }
         case .help:
             NavigationStack {
-                ScrollView { CommandsCard().padding() }
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 20) { HelpGuideCard(); CommandsCard() }.padding()
+                }
+                .navigationTitle(T("help_title"))
+                .navigationBarTitleDisplayMode(.inline)
                     .toolbar { ToolbarItem(placement: .confirmationAction) { Button(T("done")) { m.sheet = nil } } }
             }
             .presentationDetents([.medium, .large])

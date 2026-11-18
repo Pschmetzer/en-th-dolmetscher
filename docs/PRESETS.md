@@ -88,6 +88,16 @@ kennen, ignorieren sie.
 | `gym` | Fitnessstudio | 4 kritische Sätze zuerst |
 | `wedding` | Hochzeit und Feier | 4 kritische Sätze zuerst |
 | `photo` | Fotografieren | 4 kritische Sätze zuerst |
+| `bus-train` | Fernbus und Bahn | kritische Sätze zuerst |
+| `beach` | Strand | kritische Sätze zuerst |
+| `hiking` | Wandern und Dschungel | kritische Sätze zuerst |
+| `street-food` | Streetfood | kritische Sätze zuerst |
+| `massage` | Thai-Massage | kritische Sätze zuerst |
+| `nightlife` | Nachtleben und Bars | kritische Sätze zuerst |
+| `festival` | Feste (Songkran, Loy Krathong) | kritische Sätze zuerst |
+| `laundry-repair` | Schneider, Schuster, Handyreparatur | kritische Sätze zuerst |
+| `pharmacy-otc` | Apotheke: rezeptfreie Mittel (nur Verständigung) | Allergien, Schwangerschaft, Kinder, Wechselwirkung, Rezept |
+| `mobile-sim` | SIM, Internet und Handy | Handy gestohlen, Handy verloren, SIM sperren |
 | `monk` | Mönche und Tempelbesuch | 4 kritische Sätze zuerst |
 | `hospital` | Krankenhaus | 5 kritische Sätze zuerst |
 
@@ -125,7 +135,7 @@ Am wichtigsten sind die Sätze mit `critical` und die Tabelle [Unsichere Sätze]
 
 | Datei | Inhalt |
 |---|---|
-| `presets/*.json` | 41 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
+| `presets/*.json` | 51 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
 | `ios/Shared/phrases.json` | eingebautes Satzbuch der iPhone-App und des Widgets |
 | `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten, „Sie sind dran“, Allergie-Karte |
 | `ios/Dolmetscher/Round4Views.swift` | Hilfesatz auf dem Bildschirm „Hilfe – jetzt“ |

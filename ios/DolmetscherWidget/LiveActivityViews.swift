@@ -8,7 +8,7 @@ import WidgetKit
 struct ListeningLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: ListeningActivityAttributes.self) { context in
-            LiveLockView(pair: context.attributes.pair, state: context.state)
+            LiveLockView(pair: context.attributes.pair, state: context.state, stale: context.isStale)
                 .padding()
                 .activityBackgroundTint(Color.black.opacity(0.6))
         } dynamicIsland: { context in
