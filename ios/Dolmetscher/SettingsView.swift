@@ -70,11 +70,11 @@ struct SettingsView: View {
                         .disabled(whisper.downloading)
                         if let p = whisper.progress {
                             HStack {
-                                ProgressView(value: p)
+                                ProgressView(value: p).accessibilityLabel(T("whisper_get")).accessibilityValue(p.formatted(.percent.precision(.fractionLength(0))))
                                 Button(T("whisper_cancel")) { whisper.cancel() }.buttonStyle(.borderless)
                             }
                         } else if whisper.ready == whisper.selected {
-                            Label(T("whisper_installed"), systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+                            Label(T("whisper_installed"), systemImage: "checkmark.circle.fill").foregroundStyle(StatusColor.ok)
                         } else {
                             if let r = whisper.ready {
                                 Label(T("whisper_installed") + ": " + WhisperCatalog.label(r), systemImage: "checkmark.circle")
@@ -84,11 +84,11 @@ struct SettingsView: View {
                                 Label(T("whisper_get") + Self.size(whisper.selected), systemImage: "arrow.down.circle")
                             }
                             if whisper.cellularPending {
-                                Text(T("whisper_cellular")).font(.footnote).foregroundStyle(.orange)
+                                Text(T("whisper_cellular")).font(.footnote).foregroundStyle(StatusColor.warning)
                                 Button(T("whisper_cellular_go")) { whisper.download(allowCellular: true) }
                             }
                         }
-                        if let e = whisper.error { Text("⚠️ " + e).font(.footnote).foregroundStyle(.red) }
+                        if let e = whisper.error { Text("⚠️ " + e).font(.footnote).foregroundStyle(StatusColor.error) }
                         if whisper.ready != nil {
                             Button(T("whisper_delete"), role: .destructive) { whisper.deleteAll() }
                                 .disabled(whisper.downloading)
@@ -98,7 +98,7 @@ struct SettingsView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(T("whisper_note"))
                         if whisper.enabled { Text(T("whisper_wifi")) }
-                        if whisper.enabled && m.background { Text(T("whisper_bg_warn")).foregroundStyle(.orange) }
+                        if whisper.enabled && m.background { Text(T("whisper_bg_warn")).foregroundStyle(StatusColor.warning) }
                     }
                 }
 
@@ -177,7 +177,7 @@ struct SettingsView: View {
         return Section {
             NavigationLink { TravelPrepList().environment(\.inPanel, true) } label: { Label(T("prep_title"), systemImage: "checklist") }
             if m.offlineReady {
-                Label(T("offline_ready"), systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+                Label(T("offline_ready"), systemImage: "checkmark.circle.fill").foregroundStyle(StatusColor.ok)
             } else {
                 Button {
                     // Gleiche Konfiguration erneut anstoßen geht nur über invalidate().
@@ -214,7 +214,7 @@ struct SettingsView: View {
             }
             if m.lockInactive {
                 Label(T("lock_inactive"), systemImage: "exclamationmark.triangle.fill")
-                    .font(.footnote).foregroundStyle(.orange)
+                    .font(.footnote).foregroundStyle(StatusColor.warning)
             }
             Toggle(T("privacy_shield"), isOn: $m.privacyShield)
             Toggle(T("hide_on_capture"), isOn: $m.hideOnCapture)
@@ -297,9 +297,9 @@ struct SettingsView: View {
         return HStack {
             Text("\(LangStyle.flag(lang)) \(v?.name ?? "–")")
             Spacer()
-            Text(q).foregroundStyle(v?.quality == .default ? Color.orange : Color.secondary)
+            Text(q).foregroundStyle(v?.quality == .default ? StatusColor.warning : Color.secondary)
             // Probehören: so klingt die Stimme, die die App für diese Sprache nimmt.
-            Button { m.announce(PartnerPhrases.text(.nowYou, lang), lang: lang) } label: { Image(systemName: "speaker.wave.2.fill") }
+            Button { m.announce(PartnerPhrases.text(.nowYou, lang), lang: lang) } label: { Image(systemName: "speaker.wave.2.fill").minTapTarget() }
                 .buttonStyle(.borderless)
                 .accessibilityLabel(T("replay"))
         }
