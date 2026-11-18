@@ -153,11 +153,9 @@ struct PhrasebookView: View {
     /// Zuletzt gesagte Sätze (aus dem Verlauf; gesperrter Verlauf bleibt außen vor).
     private var recent: [Phrase] { Phrasebook.recent(entries: m.visibleEntries, in: available) }
 
+    /// 662: auch die Umschrift („khop khun“) finden; Round 9: ohne Akzente/Groß-Kleinschreibung, mehrere Wörter in beliebiger Reihenfolge.
     private func matches(_ p: Phrase) -> Bool {
-        if p.en.localizedCaseInsensitiveContains(search) || p.th.contains(search) { return true }
-        // 662: auch die Umschrift („khop khun“) finden.
-        if (Phrasebook.roman(p, politeness: m.politeness) ?? "").localizedCaseInsensitiveContains(search) { return true }
-        return (p.de ?? "").localizedCaseInsensitiveContains(search)
+        PhraseSearch.matches(query: search, fields: [p.en, p.th, p.de ?? "", Phrasebook.roman(p, politeness: m.politeness) ?? ""])
     }
 
     var body: some View {
