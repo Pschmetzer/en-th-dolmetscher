@@ -1,0 +1,1 @@
+thai,thailand,voice,interpreter,translator,speech,whisper,conversation,phrasebook,offline,english

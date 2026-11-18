@@ -1,0 +1,7 @@
+• 19 Sprachen: eigene Sprache und die des Gegenübers wählen, zum Beispiel Deutsch ⇄ Thai.
+• Gesprächsmodus: geteilter Bildschirm, die obere Hälfte für das Gegenüber gedreht, dazu Antwortkarten (Ja, Nein, weiß nicht, Zahl).
+• Widgets, ein Steuerelement „Dolmetscher starten“ und eine Live-Aktivität auf dem Sperrbildschirm; auf dem iPad stehen Gespräch und Werkzeugspalte nebeneinander.
+• Lernmodus: gespeicherte Sätze werden zu Karteikarten, die nur auf deinem Gerät liegen.
+• Neun neue Phrasenpakete mit Kulturhinweisen; wichtige Sätze stehen zuerst.
+• Optional Whisper-Spracherkennung.
+• Die Oberfläche spricht jetzt 10 Sprachen.
