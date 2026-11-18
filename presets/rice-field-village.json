@@ -1,0 +1,122 @@
+{
+  "id": "rice-field-village",
+  "names": {
+    "de": "Dorf und Reisfelder",
+    "en": "Village and rice fields",
+    "th": "หมู่บ้านและนาข้าว"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Reisfelder sind Eigentum und Arbeitsplatz: auf den Dämmen bleiben, nichts zertreten, vor Fotos von Menschen fragen. Schlangen, Hitze und fehlende Kliniken sind auf dem Land die größten Risiken; Wasser mitnehmen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Rice fields are property and workplace: stay on the paths, do not trample crops, ask before photographing people. Snakes, heat and distant clinics are the main rural risks; carry water. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "rice field",
+      "th": "นาข้าว"
+    },
+    {
+      "en": "village",
+      "th": "หมู่บ้าน"
+    },
+    {
+      "en": "farmer",
+      "th": "ชาวนา"
+    },
+    {
+      "en": "harvest",
+      "th": "เก็บเกี่ยว"
+    },
+    {
+      "en": "buffalo",
+      "th": "ควาย"
+    },
+    {
+      "en": "homestay",
+      "th": "โฮมสเตย์"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I was bitten by a snake.",
+      "th": "โดนงูกัด",
+      "critical": true
+    },
+    {
+      "en": "I need medical help.",
+      "th": "ต้องการความช่วยเหลือทางการแพทย์",
+      "critical": true
+    },
+    {
+      "en": "Where is the nearest clinic?",
+      "th": "คลินิกที่ใกล้ที่สุดอยู่ที่ไหน",
+      "critical": true
+    },
+    {
+      "en": "I feel sick from the heat.",
+      "th": "รู้สึกไม่สบายเพราะความร้อน",
+      "critical": true
+    },
+    {
+      "en": "I am lost.",
+      "th": "หลงทาง",
+      "critical": true
+    },
+    {
+      "en": "May I walk through the rice field?",
+      "th": "ขอเดินผ่านนาข้าวได้ไหม"
+    },
+    {
+      "en": "May I take a photo of the field?",
+      "th": "ขอถ่ายรูปนาข้าวได้ไหม"
+    },
+    {
+      "en": "May I take a photo of you?",
+      "th": "ขอถ่ายรูปคุณได้ไหม"
+    },
+    {
+      "en": "When is the harvest?",
+      "th": "เก็บเกี่ยวเมื่อไหร่"
+    },
+    {
+      "en": "Can I help with the planting?",
+      "th": "ขอช่วยปลูกข้าวได้ไหม"
+    },
+    {
+      "en": "Is there a homestay in the village?",
+      "th": "ในหมู่บ้านมีโฮมสเตย์ไหม"
+    },
+    {
+      "en": "Where can I buy local rice?",
+      "th": "ซื้อข้าวท้องถิ่นได้ที่ไหน"
+    },
+    {
+      "en": "Is there a guide for the village?",
+      "th": "มีไกด์พาเดินในหมู่บ้านไหม"
+    },
+    {
+      "en": "Is it safe to walk here at night?",
+      "th": "ตอนกลางคืนเดินที่นี่ปลอดภัยไหม"
+    },
+    {
+      "en": "Where is the footpath?",
+      "th": "ทางเดินอยู่ที่ไหน"
+    },
+    {
+      "en": "Are the buffalo dangerous?",
+      "th": "ควายอันตรายไหม"
+    },
+    {
+      "en": "I would like to try local food.",
+      "th": "อยากลองอาหารพื้นบ้าน"
+    },
+    {
+      "en": "Thank you for your hospitality.",
+      "th": "ขอบคุณที่ต้อนรับ"
+    },
+    {
+      "en": "Do you have mosquito repellent?",
+      "th": "มียากันยุงไหม"
+    }
+  ]
+}
