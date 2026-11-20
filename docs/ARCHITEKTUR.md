@@ -109,6 +109,7 @@ DOLMETSCHER_DEMO=1 open -n ~/Applications/Dolmetscher.app   # oder die Binärdat
 
 ## iPhone-App
 
+`ios/Dolmetscher/Round25.swift` ordnet Notrufnummern der Partnersprache zu und macht das Satzbuch ohne Thai im Paar nutzbar.
 `ios/Dolmetscher/Round22.swift` ergänzt weitere Reise-Helfer als reine Logik.
 `ios/Dolmetscher/Round21.swift` enthält Reise-Helfer als reine Logik (Trinkgeld, Einheiten, Thai-Uhrzeit, Telefonnummer) und das Aufräumen von Export-Dateien.
 
