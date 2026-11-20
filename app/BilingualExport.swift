@@ -71,7 +71,7 @@ extension HistoryLogic {
             .replacingOccurrences(of: "\n", with: "<br>")
     }
 
-    /// Eigenständige HTML-Seite für Druck/PDF: zwei Spalten, Thai in einer Thai-Schrift, Seitenumbruch nie mitten in einer Zeile.
+    /// Eigenständige HTML-Seite für Druck/PDF: zwei Spalten, Thai in einer Thai-Schrift.
     static func htmlTable(_ s: HistorySession, title: String, headers: BilingualHeaders = BilingualHeaders(),
                           timeZone: TimeZone = .current) -> String {
         let rows = bilingualRows(s)

@@ -1,6 +1,6 @@
 // HistoryExportPDF.swift – zweispaltiger Verlaufs-Export (Thai | Latein) als Markdown-Datei oder PDF.
 // Das PDF entsteht lokal aus der HTML-Tabelle (HistoryLogic.htmlTable) über den Druckdialog-Mechanismus ohne Dialog,
-// mit Seitenumbruch. Regeln und Tabelle: BilingualExport.swift (getestet in swift-tests).
+// mit automatischem Seitenumbruch. Regeln und Tabelle: BilingualExport.swift (getestet in swift-tests).
 import AppKit
 
 enum HistoryTableExport {

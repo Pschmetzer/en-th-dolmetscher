@@ -121,7 +121,7 @@ struct HandoffPayload: Equatable {
     }
 
     private static func valid(_ c: String) -> Bool {
-        (2...8).contains(c.count) && c.allSatisfy { $0.isASCII && ($0.isLowercase || $0 == "-") }   // nur ASCII: „ä“ liegt im Zeichenbereich a…z
+        (2...8).contains(c.count) && c.allSatisfy { $0.isASCII && ($0.isLowercase || $0 == "-") }   // nur ASCII: „b\u{0301}“ (b + Akzent) lag im Zeichenbereich a…z
     }
 
     /// `dolmetscher://say?text=…&lang=…` für Kurzbefehle („Satz sagen“). nil bei leerem oder zu langem Text.

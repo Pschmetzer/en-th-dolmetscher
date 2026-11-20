@@ -75,7 +75,7 @@ final class R25Tests: XCTestCase {
     func testHandoffLanguageCodeIsAsciiOnly() {
         XCTAssertNotNil(HandoffPayload.make(text: "a", out: "b", from: "en", to: "th"))
         XCTAssertNotNil(HandoffPayload.make(text: "a", out: "b", from: "zh-hans", to: "th"))
-        XCTAssertNil(HandoffPayload.make(text: "a", out: "b", from: "ä", to: "th"))   // „ä“ lag im Zeichenbereich a…z
+        XCTAssertNil(HandoffPayload.make(text: "a", out: "b", from: "ab\u{0301}", to: "th"))   // Buchstabe + Akzent lag im Zeichenbereich a…z (alt: akzeptiert)
         XCTAssertNil(HandoffPayload.make(text: "a", out: "b", from: "EN", to: "th"))
         XCTAssertNil(HandoffPayload.make(text: "a", out: "b", from: "e", to: "th"))
     }
