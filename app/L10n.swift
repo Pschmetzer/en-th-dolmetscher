@@ -846,6 +846,8 @@ enum L {
                "th": "ไม่มีส่วนประกอบเสียง – ตั้งค่าสภาพแวดล้อมใหม่ (การตั้งค่า)"],
         "err_ffmpeg_missing": ["de": "ffmpeg fehlt oder startet nicht", "en": "ffmpeg is missing or does not start",
                "th": "ไม่มี ffmpeg หรือเริ่มทำงานไม่ได้"],
+        "err_disk_full": ["de": "Zu wenig freier Speicher für das Sprachmodell – Platz schaffen und neu starten", "en": "Not enough free disk space for the speech model – free some space and restart", "th": "พื้นที่ว่างไม่พอสำหรับโมเดลเสียง – เพิ่มพื้นที่แล้วเริ่มใหม่"],
+        "err_log_unavailable": ["de": "Protokolldatei nicht beschreibbar – Fehlersuche eingeschränkt", "en": "Log file not writable – troubleshooting is limited", "th": "ไม่สามารถเขียนไฟล์บันทึกได้ – การตรวจสอบปัญหาจำกัด"],
         "err_model_offline": ["de": "Sprachmodell fehlt und kann ohne Internet nicht geladen werden", "en": "Speech model missing and cannot be downloaded without internet",
                "th": "ไม่มีโมเดลเสียงและดาวน์โหลดไม่ได้หากไม่มีอินเทอร์เน็ต"],
         "err_llm_billing": ["de": "Claude: Guthaben oder Kontingent erschöpft – übersetze 30 min mit Google",
