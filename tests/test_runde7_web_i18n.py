@@ -1,5 +1,4 @@
 """Oberflaeche in Deutsch, Englisch, Thai: gleiche Schluessel, Platzhalter, deutscher Text wie im HTML."""
-import json
 import re
 from html.parser import HTMLParser
 

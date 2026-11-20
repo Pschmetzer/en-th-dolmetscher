@@ -1,6 +1,5 @@
 # ruff: noqa: E501
 """Runde 9 Web: keine festen deutschen Texte in der Logik, Hinweis ohne Spracherkennung, neue Bedienelemente."""
-import json
 import re
 
 from _webhelpers import HTML, SCRIPT, web_str

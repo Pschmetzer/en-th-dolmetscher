@@ -515,7 +515,7 @@ def ensure_model():
     mdir = os.path.dirname(MODEL_PATH)
     os.makedirs(mdir, exist_ok=True)
     with open(os.path.join(mdir, ".download.lock"), "w") as lk:
-        _flock(lk, 600)                                     # nur ein Prozess lädt/importiert gleichzeitig (max. 10 min)
+        _flock(lk, 600)                                     # nur ein Prozess lädt gleichzeitig (max. 10 min)
         if os.path.exists(MODEL_PATH) and _model_ok():
             return MODEL_PATH
         base = os.path.basename(MODEL_PATH)
@@ -538,7 +538,7 @@ def ensure_model():
                 if digest != MODEL_SHA256:
                     raise RuntimeError("checksum mismatch")
                 os.replace(tmp, MODEL_PATH)
-                _model_ok()                                 # Stempel gleich mitschreiben: erster Start hasht nicht erneut
+                _model_ok()                                 # Stempel gleich mitschreiben (kein erneutes Hashen)
                 return MODEL_PATH
             except Exception as e:                          # nächste Quelle probieren
                 errors.append("%s: %s" % (src, e))

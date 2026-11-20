@@ -1,7 +1,6 @@
 """Runde 13: Oberflächentexte über alle Plattformen: Mac-App (de/en/th), iPhone (10 Sprachen) und Web (de/en/th).
 
 Je Schlüssel und Sprache: vorhanden, nicht leer, gleiche Platzhalter (%@ %d %lld %f %1$@ und {name}) wie Englisch."""
-import json
 import pathlib
 import re
 

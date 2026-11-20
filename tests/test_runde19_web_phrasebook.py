@@ -1,7 +1,5 @@
 # ruff: noqa: E501
 """Runde 19 Web: Satzbuch-Suche mit Tippfehler-Toleranz und Filter Nur wichtige Saetze."""
-import json
-import re
 
 import pytest
 from _webhelpers import HAVE_NODE, HTML, SCRIPT, prelude, run, web_str
