@@ -121,10 +121,9 @@ enum SessionTuning {
         isHFP && sampleRate > 0 && sampleRate <= narrowbandRate
     }
 
-    /// Hinweistext (Sprachen de/en; sonst englisch), bis die Oberfläche einen Schlüssel dafür hat.
+    /// Hinweistext in der Oberflächensprache (Tabelle `round33`, Rückfall Englisch).
     static func warnText(lang: String) -> String {
-        lang == "de" ? "Bluetooth-Headset: schmale Tonqualität, die Erkennung kann schlechter sein. Eingebautes Mikrofon wählen?"
-                     : "Bluetooth headset: narrow audio quality, recognition may suffer. Try the built-in microphone?"
+        L10n.text("r33_hfp_warn", lang: lang) ?? L10n.text("r33_hfp_warn", lang: "en") ?? ""
     }
 }
 

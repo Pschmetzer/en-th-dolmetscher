@@ -618,6 +618,11 @@ struct ProviderBadge: View {
     var body: some View {
         switch provider {
         case "apple": Image(systemName: "iphone").accessibilityLabel(T("prov_offline"))
+        case PivotLabel.provider:
+            HStack(spacing: 2) {
+                Image(systemName: "iphone")
+                Text(T("r33_pivot_via")).font(.caption2)
+            }.accessibilityElement(children: .ignore).accessibilityLabel(T("prov_offline") + ", " + T("r33_pivot_via"))
         case "phrasebook": Image(systemName: "book.closed").accessibilityLabel(T("phrasebook"))
         case "google", "mymemory": Image(systemName: "globe").accessibilityLabel(T("prov_online"))
         case "card": Image(systemName: "hand.tap").accessibilityLabel(T("answer_cards"))

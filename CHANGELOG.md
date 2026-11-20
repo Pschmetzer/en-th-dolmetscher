@@ -4,6 +4,15 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### iOS travel features, round 33
+
+- Bluetooth (HFP) hint now comes from the L10n table in all ten interface languages instead of inline text.
+- Whisper partials: only the part that stayed the same across the last results is shown (never mid-word), hallucination filter on every partial, the final result always replaces it.
+- Menu photo: `MenuAllergens` marks lines that match your allergies (en/de/th, ids from `allergens.json`), with guards for "eggplant", Thai "ขนม" (snack, not milk) and squid (not fish); a bare "ถั่ว" is only "maybe peanut".
+- Travel mode: country suggests partner language, emergency numbers and currency (a suggestion, never a silent switch); two-device message codec and state (MultipeerConnectivity prototype, not offered in the UI yet); pronunciation coach score; FSRS-like spaced repetition with place triggers (foreground only); travel diary statistics; QR hotel card text; Apple Watch message codec (no Watch target yet).
+- Optional Spotlight search of the history (off by default, last 200 sentences, cleared on Face ID lock and when history changes); offline traffic light that also checks for enhanced/premium voices; backup-exclusion and file-protection rules with tests; offline translation through English is marked "via English" on the bubble.
+- Tests: `Round33Tests` (37 cases).
+
 ### Engine latency, round 23 (Python)
 
 - Faster Claude path: worker pools instead of a thread per call, warm-up at start plus keepalive while idle (only when the prompt cache applies), cache hit/write counters and cost by the model actually used.
