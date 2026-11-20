@@ -68,7 +68,7 @@ def test_interruption_and_route_events_wired():
 
 def test_live_activity_states_privacy_and_stale():
     la = _src("Dolmetscher", "LiveActivity.swift")
-    assert "staleDate: Self.staleDate()" in la and "staleDate: nil" not in la
+    assert "staleDate: Self.staleDate(" in la and "staleDate: nil" not in la
     views = _src("Shared", "WidgetViews.swift")
     assert "w_stale" in views and "dynamicTypeSize" in views and ".privacySensitive()" in views
     assert "stale: context.isStale" in _src("DolmetscherWidget", "LiveActivityViews.swift")

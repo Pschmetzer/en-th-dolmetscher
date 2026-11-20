@@ -22,7 +22,9 @@ final class LiveActivityController {
 
     /// Nach so vielen Minuten ohne Update zeigt die Aktivität „evtl. veraltet“ (z. B. App im Hintergrund beendet).
     static let staleMinutes = 20
-    static func staleDate(now: Date = Date()) -> Date { now.addingTimeInterval(TimeInterval(staleMinutes * 60)) }
+    static func staleDate(now: Date = Date(), status: ListeningActivityAttributes.Status = .listening) -> Date {
+        now.addingTimeInterval(TimeInterval(min(staleMinutes, status.staleMinutes) * 60))
+    }
 
     func update(_ state: ListeningActivityAttributes.ContentState, pair: String) {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
@@ -32,7 +34,7 @@ final class LiveActivityController {
             // beim nächsten Versuch nicht als „schon gesendet“.
             do {
                 self.activity = try Activity.request(attributes: ListeningActivityAttributes(pair: pair),
-                                                     content: .init(state: state, staleDate: Self.staleDate()), pushType: nil)
+                                                     content: .init(state: state, staleDate: Self.staleDate(status: state.status)), pushType: nil)
                 last = state
             } catch { Diag.fail("Live Activity", error) }
             return
@@ -42,7 +44,7 @@ final class LiveActivityController {
         pending = Task {
             try? await Task.sleep(for: .milliseconds(400))
             guard !Task.isCancelled else { return }
-            await activity.update(.init(state: state, staleDate: Self.staleDate()))
+            await activity.update(.init(state: state, staleDate: Self.staleDate(status: state.status)))
         }
     }
 

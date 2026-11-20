@@ -518,6 +518,7 @@ struct SuggestionChips: View {
                             .background(StatusColor.warning.opacity(0.15), in: Capsule())
                     }
                     .buttonStyle(.plain)
+                    .accessibilityInputLabels([p.gloss])
                     .accessibilityHint(T("suggest_hint"))
                 }
             }
@@ -547,7 +548,9 @@ struct TalkButton: View {
         .modifier(PushGesture(tapMode: m.pttTapMode, held: held,
                               press: { before(); m.pttPress() }, release: { m.pttRelease() }))
         .accessibilityElement(children: .ignore)
+        .differentiateMark(.white)
         .accessibilityLabel(label)
+        .accessibilityInputLabels([T("ptt_hold"), "Talk"])
         .accessibilityAddTraits(.isButton)
         .accessibilityAction { held ? m.pttRelease() : m.pttPress() }
     }
