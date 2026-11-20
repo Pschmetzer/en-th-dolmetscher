@@ -13,7 +13,7 @@ from _webhelpers import HAVE_NODE, HTML, ROOT, SCRIPT, func
 SW = (ROOT / "sw.js").read_text(encoding="utf-8")
 BUDGET_HTML = 215_000   # Runde 21b: 192 KB nach Auslagerung von en/th nach i18n/*.json (vorher 242 KB mit allen drei Sprachen)
 BUDGET_I18N = 60_000     # je Datei i18n/<sprache>.json (th ist die grösste)
-BUDGET_SW = 8_000
+BUDGET_SW = 10_000   # Runde 21: 131 Paket-IDs stehen in sw.js (Liste der Offline-Pakete)
 node = pytest.mark.skipif(not HAVE_NODE or not shutil.which("node"), reason="node nicht installiert")
 
 

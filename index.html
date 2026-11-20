@@ -823,7 +823,8 @@ const STR = {
   "imgFail": "Bild konnte nicht erstellt werden.",
   "imgSaved": "Bild gespeichert.",
   "timeLbl": "Uhrzeit",
-  "phoneLbl": "Telefonnummer"
+  "phoneLbl": "Telefonnummer",
+  "uiLoadFail": "Sprachdatei nicht geladen (Netz?). Es bleibt bei Deutsch."
  }
 };   // nur Deutsch (Standard und Rückfall) eingebaut; en/th liegen in i18n/*.json (vom Service Worker gespeichert)
 const UI_LANGS = ['de', 'en', 'th'];
@@ -834,11 +835,12 @@ function pickUi() {   // gemerkte Wahl, sonst Browser-Sprache (de/th), sonst Eng
   return UI_LANGS.includes(n) ? n : 'en';
 }
 let UI = pickUi();
-function loadUiSync(l) {   // en/th: i18n/<l>.json (aus Service Worker/Cache); synchron, damit schon der erste Aufbau in dieser Sprache steht
-  if (l === 'de' || STR[l]) return;
-  try { const x = new XMLHttpRequest(); x.open('GET', 'i18n/' + l + '.json', false); x.send(); if (x.status === 200) STR[l] = JSON.parse(x.responseText); } catch {}   // Fehler: deutscher Rückfall in t()
+const uiLoading = {};
+function loadUi(l) {   // en/th: i18n/<l>.json asynchron (Service Worker/Cache); bis dahin gilt der eingebaute deutsche Rückfall, danach Neuaufbau (refreshUi)
+  if (l === 'de' || STR[l]) return Promise.resolve(true);
+  return uiLoading[l] || (uiLoading[l] = fetchRetry('i18n/' + l + '.json').then(r => { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+    .then(j => { if (!j || typeof j !== 'object') throw new Error('bad'); STR[l] = j; return true; }).catch(() => { delete uiLoading[l]; return false; }));
 }
-loadUiSync(UI);
 function t(key, vars) {
   let x = (STR[UI] && STR[UI][key]) || STR.de[key] || key;
   if (vars) for (const k in vars) x = x.split('{' + k + '}').join(vars[k]);
@@ -887,7 +889,7 @@ function loadLangTable() {   // nach 3 s ohne Antwort mit dem Notfall-Paar start
 }
 function refreshLangUi() { initPair(); fillLangSelects(); buildModes(); fillVoiceSelects(); renderCards(); }
 const DEFAULT_PAIR = ['en', 'th'];
-const PRESET_IDS = ['doctor', 'police', 'lostchild', 'pharmacy', 'dentist', 'taxi', 'places', 'airport', 'transport', 'travel', 'hotel', 'restaurant', 'shopping', 'bank', 'answers', 'access', 'spa', 'temple', 'island', 'scooter', 'rental', 'services', 'coworking', 'office', 'animal-bite-rabies', 'atm-bank-card', 'baby', 'bakery-cafe', 'bangkok-skytrain', 'beach', 'bicycle-rental', 'buddhist-ceremony', 'bus-train', 'car-rental', 'car-wash-repair', 'cinema-concert', 'convenience-store-7eleven', 'dating-small-talk', 'diving', 'elephant-sanctuary', 'emergency', 'ferry-boat', 'festival', 'flight-delay-change', 'floating-market', 'food-allergy', 'food-delivery', 'grab-ride-hailing', 'gym', 'hiking', 'hospital', 'hostel-dorm', 'immigration-90day', 'island-hopping', 'jet-ski-rental', 'kids', 'kids-playground', 'laundry-deposit', 'laundry-repair', 'lost-passport', 'market', 'massage', 'mobile-sim', 'monk', 'monsoon-flood-storm', 'motorbike-accident', 'muay-thai-gym', 'night-market-bargain', 'nightlife', 'nomad', 'pets', 'pharmacy-otc', 'photo', 'post-office-parcel', 'rice-field-village', 'school', 'snorkel-boat-tour', 'sport', 'street-food', 'tailor-custom', 'tax-refund', 'thai-cooking-class', 'travel-insurance-claim', 'tuk-tuk-songthaew', 'vegan-vegetarian', 'visa', 'visa-extension', 'wedding', 'wifi-coworking-cafe', 'work', 'yoga-retreat'];
+const PRESET_IDS = ['doctor', 'police', 'lostchild', 'pharmacy', 'dentist', 'taxi', 'places', 'airport', 'transport', 'travel', 'hotel', 'restaurant', 'shopping', 'bank', 'answers', 'access', 'spa', 'temple', 'island', 'scooter', 'rental', 'services', 'coworking', 'office', 'adventure-park', 'animal-bite-rabies', 'atm-bank-card', 'baby', 'babysitter-housekeeper', 'badminton-tennis', 'bakery-cafe', 'bangkok-skytrain', 'beach', 'bicycle-rental', 'birthday-celebration', 'border-crossing', 'buddhist-ceremony', 'buffet-bbq', 'bus-train', 'cannabis-vape', 'car-accident', 'car-rental', 'car-wash-repair', 'chronic-conditions', 'cinema-concert', 'convenience-store-7eleven', 'currency-exchange', 'customs-duty-free', 'dating-small-talk', 'diving', 'earthquake-evacuation', 'elephant-sanctuary', 'emergency', 'ferry-boat', 'festival', 'fishing-trip', 'flight-delay-change', 'floating-market', 'food-allergy', 'food-delivery', 'funeral-condolence', 'gas-station-parking', 'golf', 'grab-ride-hailing', 'gym', 'hair-beauty', 'heat-health', 'hiking', 'home-repair', 'hospital', 'hostel-dorm', 'immigration-90day', 'island-hopping', 'jet-ski-rental', 'karaoke', 'kayak-national-park', 'kids', 'kids-playground', 'laundry-deposit', 'laundry-repair', 'lost-luggage', 'lost-passport', 'lost-phone', 'market', 'massage', 'mental-health-counseling', 'mobile-sim', 'monk', 'monsoon-flood-storm', 'mosque-visit', 'mosquito-dengue', 'motorbike-accident', 'motorcycle-taxi', 'muay-thai-gym', 'night-market-bargain', 'nightlife', 'nomad', 'optician-eye-care', 'pets', 'pharmacy-otc', 'photo', 'physiotherapy-injury', 'police-checkpoint', 'post-office-parcel', 'promptpay-qr-payment', 'rice-field-village', 'scams-overcharge', 'school', 'sexual-health-clinic', 'skin-clinic', 'snorkel-boat-tour', 'souvenir-jewelry', 'spirit-house-shrine', 'sport', 'street-food', 'tailor-custom', 'tax-refund', 'thai-cooking-class', 'thai-language-lesson', 'tm30-address-report', 'travel-insurance-claim', 'tuk-tuk-songthaew', 'vegan-vegetarian', 'visa', 'visa-extension', 'volunteering', 'water-park-zoo', 'wedding', 'wifi-coworking-cafe', 'work', 'yoga-retreat'];
 
 // ---- Schrift-Plausibilität (wie dolmetscher.py: scripts_distinct, script_share, _untranslated, _wrong_script, text_lang) ----
 const SCRIPT_RX = {}, SCRIPT_RX_G = {}, SCRIPT_RUN3 = {};
@@ -1027,21 +1029,22 @@ let barge = 0;   // Unterbrechen (Kopfhörer): hochgezählt, wenn während des V
 const duplex = () => $('duplex').checked && !!TTS;
 
 const warnMsgs = [];
+const wtxt = m => typeof m === 'function' ? m() : m;   // Warnungen dürfen Funktionen sein: beim Sprachwechsel neu beschriftet
 function renderWarn() {
   warn.style.display = warnMsgs.length ? 'block' : 'none';
-  warn.innerHTML = warnMsgs.map(m => '<div>' + m + '</div>').join('');
+  warn.innerHTML = warnMsgs.map(m => '<div>' + wtxt(m) + '</div>').join('');
 }
 let errInfo = '';
 function onGlobalError(msg, where) {   // Skriptfehler: Hinweis und Fehlerinfo zum Kopieren (nichts wird gesendet)
   if (errInfo) return;
   errInfo = String(msg).slice(0, 300) + ' @ ' + String(where || '').slice(0, 120) + ' | ' + navigator.userAgent.slice(0, 160);
-  showWarn(t('errGeneric') + ' <button type="button" class="small" data-act="copyerr">' + t('errCopyBtn') + '</button> ' + t('errGenericNote'));
+  showWarn(() => t('errGeneric') + ' <button type="button" class="small" data-act="copyerr">' + t('errCopyBtn') + '</button> ' + t('errGenericNote'));
 }
 window.addEventListener('error', e => onGlobalError(e.message, (e.filename || '').split('/').pop() + ':' + e.lineno));
 window.addEventListener('unhandledrejection', e => onGlobalError(e.reason && e.reason.message || e.reason, 'promise'));
 const warnKinds = new Map();   // Text -> Art ('rec' = Erkennungsfehler): so lassen sich Warnungen auch nach Sprachwechsel entfernen
 function showWarn(msg, kind) {    // msg: feste Texte (kein Nutzertext) – mehrere Warnungen bleiben sichtbar
-  if (!warnMsgs.includes(msg)) { warnMsgs.push(msg); if (kind) warnKinds.set(msg, kind); renderWarn(); }
+  if (!warnMsgs.some(x => x === msg || wtxt(x) === wtxt(msg))) { warnMsgs.push(msg); if (kind) warnKinds.set(msg, kind); renderWarn(); }
 }
 function clearWarn(msgs) {        // erledigte Warnungen (z. B. Mikrofon inzwischen erlaubt) wieder entfernen
   const n = warnMsgs.length;
@@ -1051,14 +1054,14 @@ function clearWarn(msgs) {        // erledigte Warnungen (z. B. Mikrofon inzwisc
 function setStatus(msg, say) { if (statusEl.textContent !== msg) statusEl.textContent = msg; if (say) announce(msg, UI); }
 const warnBtn = (act, key) => ' <button type="button" class="small" data-act="' + act + '">' + t(key) + '</button>';
 if (!SR) {   // Hinweis mit Handlungsvorschlag: anderer Browser, tippen statt sprechen, Satzbuch (braucht kein Mikrofon)
-  showWarn(t('noSr') + warnBtn('type', 'btnType') + warnBtn('phrasebook', 'toPhrasebook'));
+  showWarn(() => t('noSr') + warnBtn('type', 'btnType') + warnBtn('phrasebook', 'toPhrasebook'));
   for (const k in MODES) { MODES[k].btn.disabled = true; MODES[k].btn.title = t('noSrTitle'); }
 }
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
   || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);   // iPadOS meldet sich als Mac
 let iosOff = false; try { iosOff = localStorage.getItem('iosWarnOff') === '1'; } catch {}
-if (isIOS && !iosOff) showWarn(t('iosWarn') + ' <button type="button" class="small" data-act="iosoff">' + t('closeBtn') + '</button>');   // schließbar, Entscheidung wird gemerkt
-if (!TTS) { showWarn(t('noTts')); $('speak').checked = false; $('speak').disabled = true; }
+if (isIOS && !iosOff) showWarn(() => t('iosWarn') + ' <button type="button" class="small" data-act="iosoff">' + t('closeBtn') + '</button>');   // schließbar, Entscheidung wird gemerkt
+if (!TTS) { showWarn(() => t('noTts')); $('speak').checked = false; $('speak').disabled = true; }
 
 // ---- Voices ----
 const voiceWarned = new Set();
@@ -1071,7 +1074,7 @@ function loadVoices() {
   for (const l of [pair.a, pair.b]) {
     if (voiceWarned.has(l) || voices.some(v => voiceLang(v).startsWith(l))) continue;
     voiceWarned.add(l);
-    showWarn(t('noVoice', { l: lname(l) }));
+    showWarn(() => t('noVoice', { l: lname(l) }));
   }
 }
 function fillVoiceSelects() {
@@ -1349,8 +1352,8 @@ warn.addEventListener('click', e => {
   const a = e.target.closest && e.target.closest('[data-act]'); if (!a) return;
   const act = a.dataset.act;
   if (act === 'copyerr') { const ask = () => window.prompt(t('errCopyBtn') + ':', errInfo); try { navigator.clipboard.writeText(errInfo).then(() => setStatus(t('errCopied'), true), ask); } catch { ask(); } }
-  else if (act === 'sharego') { clearWarn(warnMsgs.filter(m => m.includes('data-act="sharego"'))); if (sharedGo) sharedGo(); }
-  else if (act === 'iosoff') { clearWarn(warnMsgs.filter(m => m.includes('data-act="iosoff"'))); lsSet('iosWarnOff', '1'); }
+  else if (act === 'sharego') { clearWarn(warnMsgs.filter(m => wtxt(m).includes('data-act="sharego"'))); if (sharedGo) sharedGo(); }
+  else if (act === 'iosoff') { clearWarn(warnMsgs.filter(m => wtxt(m).includes('data-act="iosoff"'))); lsSet('iosWarnOff', '1'); }
   else if (act === 'type') { $('typeBox').open = true; $('typeIn').focus(); }
   else if (act === 'phrasebook') { showTab('book'); $('pbBox').open = true; $('pbBox').scrollIntoView({ block: 'start' }); $('pbQ').focus(); }
   else if (act === 'retry') { clearWarn(warnMsgs.slice()); if (!mode) chooseMode('a'); }
@@ -2072,7 +2075,7 @@ async function openFav(f) {
     if (!p || !p.en || favSum(p.en) !== f.sum) throw new Error('mismatch');
     const out = await phraseIn(p, f.lang);
     showBig(out, f.lang, '', false, { pack: f.pack, en: p.en, th: out, lang: f.lang, idx: f.idx });
-  } catch { showWarn(t('favLinkBad')); }
+  } catch { showWarn(() => t('favLinkBad')); }
 }
 $('btnPartnerShareTx').onclick = async () => {   // Übersetzung als Text teilen, ohne Teilen-Dialog in die Zwischenablage
   if (!bigText) return;
@@ -2439,6 +2442,10 @@ const EMERGENCY = {   // Notrufnummern je Paket (Thailand); als tel:-Link, nicht
   add('hospital baby food-allergy pharmacy-otc massage yoga-retreat gym muay-thai-gym sport hiking elephant-sanctuary animal-bite-rabies kids kids-playground school', [R]);
   add('car-rental bicycle-rental jet-ski-rental diving snorkel-boat-tour beach island-hopping ferry-boat monsoon-flood-storm nightlife festival floating-market', [R, P, T]);
   add('hostel-dorm', [R, F, T]);
+  add('car-accident', [R, P, T, F]); add('earthquake-evacuation', [R, P, F]);
+  add('heat-health chronic-conditions mental-health-counseling physiotherapy-injury skin-clinic sexual-health-clinic mosquito-dengue optician-eye-care', [R]);
+  add('scams-overcharge lost-phone lost-luggage police-checkpoint border-crossing motorcycle-taxi', [T, P]);
+  add('adventure-park water-park-zoo kayak-national-park fishing-trip', [R, P, T]);
   add('lost-passport travel-insurance-claim atm-bank-card market night-market-bargain taxi grab-ride-hailing', [T, P]);
   add('tuk-tuk-songthaew bus-train bangkok-skytrain immigration-90day visa visa-extension', [T]);
 }
@@ -2868,7 +2875,7 @@ function applyDeepLink() {
     sharedGo = () => {
       translate(d.incoming, src, dst).then(r => { sharedPending = null; if ($('typeIn').value === d.incoming.slice(0, 500)) $('typeIn').value = ''; showBig(r.text, dst); }, () => { $('typeBox').open = true; showWarn(t(navigator.onLine === false ? 'sharedWait' : 'sharedFail')); });
     };
-    showWarn(t('shareAsk') + ' <button type="button" class="small" data-act="sharego">' + t('shareGo') + '</button>');
+    showWarn(() => t('shareAsk') + ' <button type="button" class="small" data-act="sharego">' + t('shareGo') + '</button>');
   }
   return true;
 }
@@ -2992,7 +2999,7 @@ if (navigator.permissions && navigator.permissions.query) {   // Mikrofon schon 
   const micWarn = () => t('micDeniedPre') + ' <button type="button" class="small" data-act="phrasebook">' + t('micDeniedAct') + '</button>';
   let shown = null;
   navigator.permissions.query({ name: 'microphone' }).then(ps => {
-    const check = () => { if (shown) { clearWarn([shown]); shown = null; } if (ps.state === 'denied') { shown = micWarn(); showWarn(shown); } };
+    const check = () => { if (shown) { clearWarn([shown]); shown = null; } if (ps.state === 'denied') { shown = micWarn; showWarn(shown); } };
     check(); ps.onchange = check;
   }).catch(() => {});   // Safari/Firefox kennen die Abfrage nicht: dann greift die Fehlermeldung beim Start
 }
@@ -3017,13 +3024,16 @@ document.documentElement.style.setProperty('--ui-scale', String(uiScale));
 $('btnTextDown').onclick = () => setUiScale(uiScale - FS_STEP);
 $('btnTextUp').onclick = () => setUiScale(uiScale + FS_STEP);
 $('uiLang').value = UI;
-$('uiLang').onchange = async () => {
-  const nl = $('uiLang').value;
-  if (nl !== 'de' && !STR[nl]) { try { STR[nl] = await (await fetchRetry('i18n/' + nl + '.json')).json(); } catch {} }
-  UI = nl; settings.ui = UI; saveSettings(); applyUi(); renderAppState();
+function refreshUi() {   // nach Sprachwechsel oder nach dem Nachladen der Texte alles neu beschriften
+  applyUi(); renderAppState(); renderWarn();
   if (LANGS[pair.a]) { fillLangSelects(); buildModes(); fillPresetSelect(); renderCards(); statsRender(); updatePreBtn(); renderRecent(); learnRender(); if (allergyData) { allergyTiles('allergyTiles', allergyData.allergies); allergyTiles('condTiles', allergyData.conditions); } }
+}
+$('uiLang').onchange = async () => {
+  const nl = $('uiLang').value; UI = nl; settings.ui = UI; saveSettings();
+  refreshUi(); if (!(await loadUi(nl))) setStatus(t('uiLoadFail'), true); else refreshUi();
 };
 applyUi(); renderAppState();
+if (UI !== 'de') loadUi(UI).then(ok => { if (ok) refreshUi(); });   // kein Blockieren: erst Deutsch, dann die gewählte Sprache
 loadLangTable().then(() => {
   initPair();
   if (TTS) { TTS.onvoiceschanged = loadVoices; loadVoices(); }

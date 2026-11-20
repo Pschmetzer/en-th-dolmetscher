@@ -324,5 +324,6 @@
  "imgFail": "Could not create the image.",
  "imgSaved": "Image saved.",
  "timeLbl": "Time",
- "phoneLbl": "Phone number"
+ "phoneLbl": "Phone number",
+ "uiLoadFail": "Language file not loaded (network?). Staying with German."
 }
