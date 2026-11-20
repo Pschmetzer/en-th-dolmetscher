@@ -166,6 +166,16 @@ enum AutoScroll {
     }
 }
 
+/// Flüchtiger Bedienzustand des Hauptfensters (nicht gespeichert), der einen Neuaufbau der Ansicht überlebt.
+@MainActor
+final class UIDrafts: ObservableObject {
+    static let shared = UIDrafts()
+    @Published var query = ""
+    @Published var langFilter = ""
+    @Published var searchOpen = false
+    @Published var typedDraft = ""
+}
+
 struct ContentView: View {
     @EnvironmentObject var m: EngineModel
     @ObservedObject private var setup = EnvSetupModel.shared
@@ -191,9 +201,11 @@ struct ContentView: View {
     /// Hinweis „Zwei-Personen-Modus ohne Profil“ für diese Sitzung weggeklickt.
     @State private var twoPersonHintClosed = false
     @State private var correcting: Utterance?
-    @State private var query = ""
-    @State private var langFilter = ""          // "" = alle, sonst eine Sprache des Paars
-    @State private var searchOpen = false
+    /// Suchtext, Filter und Eingabe liegen außerhalb der Ansicht: `.id(uiLang)` baut sie beim Sprachwechsel neu auf.
+    @ObservedObject private var ui = UIDrafts.shared
+    private var query: String { get { ui.query } nonmutating set { ui.query = newValue } }
+    private var langFilter: String { get { ui.langFilter } nonmutating set { ui.langFilter = newValue } }   // "" = alle
+    private var searchOpen: Bool { get { ui.searchOpen } nonmutating set { ui.searchOpen = newValue } }
     @State private var userScrolledUp = false   // Auto-Scroll pausiert, bis der Nutzer wieder unten ist
     @State private var bottomVisible = true
     @State private var scrollBox = ScrollMonitorBox()
@@ -360,11 +372,11 @@ struct ContentView: View {
     private var searchBar: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass").foregroundStyle(.secondary).accessibilityHidden(true)
-            TextField(L.t("search"), text: $query)
+            TextField(L.t("search"), text: $ui.query)
                 .textFieldStyle(.plain)
                 .focused($searchFocused)
                 .accessibilityLabel(L.t("search"))
-            Picker(L.t("language_filter"), selection: $langFilter) {
+            Picker(L.t("language_filter"), selection: $ui.langFilter) {
                 Text(L.t("filter_all")).tag("")
                 ForEach(Langs.pair, id: \.self) { Text($0.uppercased()).tag($0) }
             }
@@ -471,6 +483,8 @@ struct ContentView: View {
                         Label(L.t("jump_latest"), systemImage: "arrow.down.circle.fill")
                     }
                     .buttonStyle(.borderedProminent)
+                    .keyboardShortcut(.downArrow, modifiers: .command)   // ⌘↓ springt zum Neuesten
+                    .help(L.t("jump_latest") + " (⌘↓)")
                     .padding(14)
                     .accessibilityLabel(L.t("jump_latest"))
                 }
@@ -601,10 +615,20 @@ struct MainToolbar: View {
                 Spacer(minLength: 0)
                 compactMenu
             }
+            // Sehr schmal: Start + Menü in der ersten Zeile, der Status bekommt die ganze zweite Zeile.
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 12) {
+                    startButton
+                    Spacer(minLength: 0)
+                    compactMenu
+                }
+                StatusCluster()
+            }
         }
         .padding(14)
         .popover(isPresented: $showCommands, arrowEdge: .bottom) {
-            CommandsList().padding(20).frame(minWidth: 520)
+            ScrollView { CommandsList().padding(20) }
+                .frame(minWidth: 320, idealWidth: 520, maxWidth: 560, minHeight: 200, idealHeight: 420, maxHeight: 560)
         }
         .confirmationDialog(L.t("clear_confirm"), isPresented: $confirmClear, titleVisibility: .visible) {
             Button(L.t("clear"), role: .destructive) { m.clearAll(); m.resetTrimmed() }
@@ -676,7 +700,7 @@ struct MainToolbar: View {
     }
 
     @ViewBuilder private var tools: some View {
-        Button { m.stopSpeaking() } label: { Image(systemName: "speaker.slash") }
+        Button { m.stopSpeaking() } label: { Image(systemName: "stop.circle") }   // eigenes Symbol: speaker.slash heißt „stumm“
             .disabled(!m.running)
             .help(L.t("stop_speaking"))
             .accessibilityLabel(L.t("stop_speaking"))
@@ -711,7 +735,8 @@ struct MainToolbar: View {
 /// ein Feld für frei getippte Sätze (übersetzen und vorlesen wie ein Schnellsatz, für laute Umgebungen).
 struct ConversationBar: View {
     @EnvironmentObject var m: EngineModel
-    @State private var draft = ""
+    @ObservedObject private var ui = UIDrafts.shared   // Entwurf übersteht den Sprachwechsel (.id(uiLang))
+    private var draft: String { get { ui.typedDraft } nonmutating set { ui.typedDraft = newValue } }
     @FocusState private var typing: Bool
 
     private func send() {
@@ -731,6 +756,7 @@ struct ConversationBar: View {
             .accessibilityLabel(L.t("direction"))
             Toggle(isOn: $m.speak) {
                 Image(systemName: m.speak ? "speaker.wave.2.fill" : "speaker.slash.fill")
+                    .foregroundStyle(m.speak ? Color.primary : LangStyle.warning)   // „stumm“ auf einen Blick sichtbar
             }
             .toggleStyle(.button)
             .help(L.t("speak_toggle"))
@@ -750,7 +776,7 @@ struct ConversationBar: View {
 
     private var field: some View {
         HStack(spacing: 10) {
-            TextField(L.t("type_prompt"), text: $draft)
+            TextField(L.t(m.engineReady ? "type_prompt" : "type_wait"), text: $ui.typedDraft)   // sichtbarer Platzhalter statt stummem Feld
                 .textFieldStyle(.roundedBorder)
                 .focused($typing)
                 .onSubmit(send)
@@ -759,6 +785,10 @@ struct ConversationBar: View {
                 .accessibilityLabel(L.t("type_prompt"))
                 .accessibilityHint(m.engineReady ? "" : L.t("type_wait"))
                 .onChange(of: draft) { if draft.count > 1000 { draft = String(draft.prefix(1000)) } }
+            if draft.count > 900 {   // Limit 1000 Zeichen: vorher warnen statt still zu kürzen
+                Text("\(draft.count)/1000").font(.caption).monospacedDigit()
+                    .foregroundStyle(draft.count >= 1000 ? LangStyle.warning : Color.secondary)
+            }
             Button(action: send) { Image(systemName: "paperplane.fill") }
                 .disabled(!m.engineReady || draft.trimmingCharacters(in: .whitespaces).isEmpty)
                 .help(L.t("type_send"))
