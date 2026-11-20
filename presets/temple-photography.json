@@ -1,0 +1,154 @@
+{
+  "id": "temple-photography",
+  "names": {
+    "de": "Fotografieren im Tempel",
+    "en": "Temple photography",
+    "th": "ถ่ายรูปในวัด"
+  },
+  "style": "polite",
+  "note": {
+    "de": "In vielen Tempeln ist Fotografieren im Hauptsaal verboten oder nur ohne Blitz erlaubt. Nie dem Buddha den Rücken zudrehen für ein Selfie, nicht über Statuen klettern und nicht auf Mönche zeigen. Mönche und Gläubige nur mit Erlaubnis fotografieren. Drohnen sind verboten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "In many temples photography in the main hall is banned or allowed only without flash. Never turn your back on the Buddha for a selfie, do not climb statues and do not point at monks. Photograph monks and worshippers only with permission. Drones are not allowed. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "photo",
+      "th": "รูปถ่าย"
+    },
+    {
+      "en": "flash",
+      "th": "แฟลช"
+    },
+    {
+      "en": "tripod",
+      "th": "ขาตั้งกล้อง"
+    },
+    {
+      "en": "main hall",
+      "th": "พระอุโบสถ"
+    },
+    {
+      "en": "statue",
+      "th": "รูปปั้น"
+    },
+    {
+      "en": "monk",
+      "th": "พระ"
+    },
+    {
+      "en": "permission",
+      "th": "อนุญาต"
+    },
+    {
+      "en": "selfie",
+      "th": "เซลฟี"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am sorry, I did not know the rule.",
+      "th": "ขอโทษ ไม่ทราบกฎ",
+      "critical": true,
+      "rom": "khothot mai thrap kot"
+    },
+    {
+      "en": "I will delete the photo now.",
+      "th": "จะลบรูปนี้ตอนนี้",
+      "critical": true,
+      "rom": "cha lop rup ni tonni"
+    },
+    {
+      "en": "I did not mean to be disrespectful.",
+      "th": "ไม่ได้ตั้งใจไม่เคารพ",
+      "critical": true,
+      "rom": "mai dai tangchai mai khaonp"
+    },
+    {
+      "en": "Please do not stop me, I will leave quietly.",
+      "th": "ขอให้ปล่อยไป จะออกไปอย่างเงียบ ๆ",
+      "critical": true,
+      "rom": "khohai ploipai cha ok pai yang ngiap"
+    },
+    {
+      "en": "I feel faint. May I sit outside?",
+      "th": "รู้สึกจะเป็นลม ขอนั่งข้างนอกได้ไหม",
+      "critical": true,
+      "rom": "rusuek cha pennm kho nang khangnok dai mai"
+    },
+    {
+      "en": "May I take photos here?",
+      "th": "ถ่ายรูปที่นี่ได้ไหม",
+      "rom": "thairup thini dai mai"
+    },
+    {
+      "en": "Is flash allowed?",
+      "th": "ใช้แฟลชได้ไหม",
+      "rom": "chai faent dai mai"
+    },
+    {
+      "en": "Is photography allowed inside the main hall?",
+      "th": "ถ่ายรูปในพระอุโบสถได้ไหม",
+      "rom": "thairup nai phraubott dai mai"
+    },
+    {
+      "en": "May I take a photo of the Buddha statue?",
+      "th": "ถ่ายรูปพระพุทธรูปได้ไหม",
+      "rom": "thairup phraphuttrup dai mai"
+    },
+    {
+      "en": "May I take a photo of you, please?",
+      "th": "ขอถ่ายรูปได้ไหม",
+      "rom": "kho thairup dai mai"
+    },
+    {
+      "en": "May I record a video?",
+      "th": "ถ่ายวิดีโอได้ไหม",
+      "rom": "thai widio dai mai"
+    },
+    {
+      "en": "Is a tripod allowed?",
+      "th": "ใช้ขาตั้งกล้องได้ไหม",
+      "rom": "chai khatang klong dai mai"
+    },
+    {
+      "en": "Is a selfie stick allowed?",
+      "th": "ใช้ไม้เซลฟีได้ไหม",
+      "rom": "chai mai senfi dai mai"
+    },
+    {
+      "en": "Where can I take photos?",
+      "th": "ถ่ายรูปได้ตรงไหน",
+      "rom": "thairup dai trangahanai"
+    },
+    {
+      "en": "Is there a fee for a camera?",
+      "th": "มีค่าธรรมเนียมสำหรับกล้องไหม",
+      "rom": "mi khatamniam samrap klong mai"
+    },
+    {
+      "en": "Please take a photo of me from the side.",
+      "th": "ช่วยถ่ายรูปจากด้านข้างหน่อย",
+      "rom": "chuai thairup chak dan khang noi"
+    },
+    {
+      "en": "May I stand here for the photo?",
+      "th": "ยืนตรงนี้ถ่ายรูปได้ไหม",
+      "rom": "yuen trangani thairup dai mai"
+    },
+    {
+      "en": "Please tell me when it is quiet.",
+      "th": "ช่วยบอกเมื่อถึงเวลาที่เงียบหน่อย",
+      "rom": "chuai bok muea thueng wela thi ngiap noi"
+    },
+    {
+      "en": "May I take a photo of the monks?",
+      "th": "ถ่ายรูปพระได้ไหม",
+      "rom": "thairup phra dai mai"
+    },
+    {
+      "en": "May I share this photo online?",
+      "th": "แชร์รูปนี้ออนไลน์ได้ไหม",
+      "rom": "chae rup ni onlai dai mai"
+    }
+  ]
+}

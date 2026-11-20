@@ -54,15 +54,18 @@ Es gibt zwei getrennte Zustände, die man nicht vermischen darf:
 | `avhelper.py` | Audio über PyAV als Kindprozess (wie früher ffmpeg): `capture` (s16le auf stdout), `play` (mp3 von stdin → AudioToolbox, vorgewärmt), `list` (Mikrofone, Ausgaben, erkannte Loopback-Geräte), `prep` (Systemaudio-Vorbereitung: meldet, ob ein Loopback-Gerät da ist) |
 | `build.sh` | baut `build/Dolmetscher.app` (swiftc, Info.plist, uv + translate-helper + Lock + Stempel + `setup-env.sh` ins Bundle, Signatur von innen nach außen), optional `--install` (beendet eine laufende App vorher) / `--release` |
 | `languages.json` | gemeinsame Sprachtabelle (19 Sprachen, Schriften) für Engine, Mac-App und Web; Details und Tests: `tests/test_languages_json.py` |
-| `presets/*.json`, `presets.py`, `presets-index.json` | 201 Phrasenpakete (Daten) für Mac, iPhone und Web; Format: [PRESETS.md](PRESETS.md) |
+| `presets/*.json`, `presets.py`, `presets-index.json` | 226 Phrasenpakete (Daten) für Mac, iPhone und Web; Format: [PRESETS.md](PRESETS.md) |
 | `history_store.py`, `hwprofile.py`, `correction_learning.py`, `satzbuch.py` | Verlauf (SQLite, optional), Modellwahl `--model auto`, Glossar-Vorschläge aus Korrekturen, Export, Prüfung und Bericht (`satzbuch.py report`) des Satzbuchs (Kommandozeile); der Verlauf lässt sich passwortgeschützt exportieren |
-| `tools/` | Paket-Werkzeuge (`check_presets.py`, `preset_stats.py`, `preset_search.py`, `preset_rom.py`, `preset_quality.py`, `export_phrasebook.py`, `make_presets_index.py`, `sync_web.py`, `check_doc_links.py` (tote Links in der Doku), `pages_smoke.py` (Smoke-Test der ausgelieferten Seite), `review_export.py`, `review_import.py`, `review_status.py`), Swift-Quellen von `translate-helper` (kommt ins Bundle) und des Prototyps `apple-stt` |
+| `tools/` | Paket-Werkzeuge (`check_presets.py`, `preset_stats.py`, `preset_search.py`, `preset_rom.py`, `preset_lint.py` (sprachliche Muster-Prüfung der Thai-Sätze), `preset_quality.py`, `export_phrasebook.py`, `make_presets_index.py`, `sync_web.py`, `check_doc_links.py` (tote Links in der Doku), `pages_smoke.py` (Smoke-Test der ausgelieferten Seite), `review_export.py`, `review_import.py`, `review_status.py`), Swift-Quellen von `translate-helper` (kommt ins Bundle) und des Prototyps `apple-stt` |
 | `build-support/` | Entitlements, `setup-env.sh` (Einrichtung), `make-stamp.sh` (Stempel) |
 | `bench/` | Benchmark für Erkennung und Übersetzung, `latency_budget.py` (Zeitbudget) |
 
 ## Web Lite (`index.html`)
 
 Eine Datei ohne Build, Skripte nur inline (Content-Security-Policy erlaubt keine fremden Skripte). Zustände:
+
+Zusatzdateien (Runde 24/25, nur bei Bedarf geladen, im Service Worker vorab gespeichert): `web-extras.js` (Werkzeuge), `web-qr.js` (QR-Code ohne Bibliothek, Stufe L, bis 271 Bytes), `web-search-worker.js` (Wörterbuch-Suche im Worker). Das Inline-Skript ist zusätzlich per SHA-256-Hash in der Content-Security-Policy zugelassen (`tools/sync_web.py` pflegt ihn; `'unsafe-inline'` bleibt als Rückfall für alte Browser und für Stilattribute). Der Service Worker speichert Dateien unter `audio/` nur mit Zustimmung (Nachricht `audio-opt`) in einem eigenen Speicher.
+
 
 - `mode` (`null`, `'a'`, `'b'`): wer spricht. `setMode` stoppt Erkennung und Ausgabe, erhöht `gen` und startet `startRec`.
 - `gen`: Zähler; verspätete Rückrufe (Übersetzung, Sprachausgabe) vergleichen ihn und verwerfen sich bei Abweichung.

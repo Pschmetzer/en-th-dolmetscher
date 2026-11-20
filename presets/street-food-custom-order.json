@@ -1,0 +1,164 @@
+{
+  "id": "street-food-custom-order",
+  "names": {
+    "de": "Straßenküche Wunschbestellung",
+    "en": "Street food custom order",
+    "th": "สั่งอาหารริมทางตามชอบ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Bei Straßenständen bestellt man Gericht plus Zutat plus Schärfe: zum Beispiel Pad Kaprao mit Schwein, nicht scharf, mit Ei. Schärfe lässt sich mit mai phet (nicht scharf) oder phet nit noi (ein bisschen scharf) steuern. Preise liegen meist bei 40–80 Baht. Wasser und Eis kommen oft aus abgepackter Ware. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "At street stalls you order dish plus ingredient plus spice: for example pad kaprao with pork, not spicy, with egg. Spice is set with mai phet (not spicy) or phet nit noi (a little spicy). Prices are usually 40–80 baht. Water and ice often come from packaged supply. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "stir-fried basil",
+      "th": "ผัดกะเพรา"
+    },
+    {
+      "en": "fried egg",
+      "th": "ไข่ดาว"
+    },
+    {
+      "en": "pork",
+      "th": "หมู"
+    },
+    {
+      "en": "chicken",
+      "th": "ไก่"
+    },
+    {
+      "en": "rice",
+      "th": "ข้าว"
+    },
+    {
+      "en": "not spicy",
+      "th": "ไม่เผ็ด"
+    },
+    {
+      "en": "take away",
+      "th": "ใส่ถุงกลับ"
+    },
+    {
+      "en": "fish sauce",
+      "th": "น้ำปลา"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am allergic to peanuts.",
+      "th": "แพ้ถั่วลิสง",
+      "critical": true,
+      "rom": "phae thualitng"
+    },
+    {
+      "en": "I am allergic to shrimp.",
+      "th": "แพ้กุ้ง",
+      "critical": true,
+      "rom": "phae kung"
+    },
+    {
+      "en": "I am allergic to eggs.",
+      "th": "แพ้ไข่",
+      "critical": true,
+      "rom": "phae khai"
+    },
+    {
+      "en": "I cannot eat pork.",
+      "th": "กินหมูไม่ได้",
+      "critical": true,
+      "rom": "kin mu mai dai"
+    },
+    {
+      "en": "Please do not put fish sauce in it.",
+      "th": "ขอไม่ใส่น้ำปลา",
+      "critical": true,
+      "rom": "kho mai sai nampla"
+    },
+    {
+      "en": "Basil with pork on rice, please.",
+      "th": "ขอผัดกะเพราหมูราดข้าว",
+      "rom": "kho phatkaphera mu rat khao"
+    },
+    {
+      "en": "With a fried egg, please.",
+      "th": "ขอไข่ดาวด้วย",
+      "rom": "kho duai"
+    },
+    {
+      "en": "Chicken instead of pork, please.",
+      "th": "ขอเปลี่ยนเป็นไก่แทนหมู",
+      "rom": "kho pelinpen kai thaen mu"
+    },
+    {
+      "en": "Not spicy, please.",
+      "th": "ขอไม่เผ็ด",
+      "rom": "kho mai phet"
+    },
+    {
+      "en": "A little spicy, please.",
+      "th": "เผ็ดนิดเดียว",
+      "rom": "phet nitdiao"
+    },
+    {
+      "en": "Without chilli, please.",
+      "th": "ขอไม่ใส่พริก",
+      "rom": "kho mai sai phrik"
+    },
+    {
+      "en": "Please do not add sugar.",
+      "th": "ไม่ใส่น้ำตาล",
+      "rom": "mai sai namtan"
+    },
+    {
+      "en": "Extra rice, please.",
+      "th": "ขอข้าวเพิ่ม",
+      "rom": "kho khao phoem"
+    },
+    {
+      "en": "Without vegetables, please.",
+      "th": "ขอไม่ใส่ผัก",
+      "rom": "kho mai sai phak"
+    },
+    {
+      "en": "Please pack it to take away.",
+      "th": "ขอใส่ถุงกลับบ้าน",
+      "rom": "kho sai thung klapban"
+    },
+    {
+      "en": "How much is it?",
+      "th": "ราคาเท่าไร",
+      "rom": "rakha thaorai"
+    },
+    {
+      "en": "How long does it take?",
+      "th": "ใช้เวลานานเท่าไหร่",
+      "rom": "chaiwelanan thaorai"
+    },
+    {
+      "en": "Do you have vegetarian dishes?",
+      "th": "มีอาหารมังสวิรัติไหม",
+      "rom": "mi ahan mangtwirati mai"
+    },
+    {
+      "en": "Is this made with meat?",
+      "th": "อาหารนี้ใส่เนื้อสัตว์ไหม",
+      "rom": "ahan ni sai nueasat mai"
+    },
+    {
+      "en": "Where can I sit and eat?",
+      "th": "นั่งกินได้ตรงไหน",
+      "rom": "nang kin dai trangahanai"
+    },
+    {
+      "en": "Please bring a spoon and fork.",
+      "th": "ขอช้อนส้อมด้วย",
+      "rom": "kho chonsom duai"
+    },
+    {
+      "en": "Thank you, it was delicious.",
+      "th": "ขอบคุณ อร่อยมาก",
+      "rom": "khopkhun roi mak"
+    }
+  ]
+}

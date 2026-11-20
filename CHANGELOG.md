@@ -4,6 +4,17 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### Web, round 25
+
+- **25 new phrase packs (226 in total):** sunburn and heat rash, toothache emergency, coffee and tea order, Muay Thai stadium, temple photography, massage prices, apartment hunting, electricity and water bill, waste and recycling, plumber/electrician/air con, car breakdown, bicycle touring and repair, kindergarten and daycare, pet boarding and travel, childbirth in hospital, glasses and lens repair, digital arrival card (TDAC), street food custom order, smoothie and juice stall, golf caddie and tips, banking app and OTP problems, self-service laundromat, car insurance claim, tour agency booking, minivan and airport transfer. The Thai is machine-made and not checked by native speakers.
+- **Thai quality:** new `tools/preset_lint.py` (register, doubled requests, emergency numbers vs. service, questions without a question word, spelling of loanwords); six clumsy sentences corrected across all packs. `tools/preset_rom.py --fill` now splits words first (without that, pythainlp output was garbage); the 25 new packs carry `rom` as a trial.
+- **QR code offline:** `web-qr.js` is a small own encoder (byte mode, level L, up to 271 bytes) without any library. "Share" shows a QR code for the pack link, calculated on the device. Decoded back with an independent decoder in the development check.
+- **Search in a Web Worker:** the dictionary tab searches words and sentences of all packs in `web-search-worker.js` (falls back to the main thread).
+- **CSP hash:** the inline script is now also allowed by its SHA-256 hash (`tools/sync_web.py` keeps it current); browsers that know hashes ignore `'unsafe-inline'` for scripts, older ones fall back to it. Style attributes still need `'unsafe-inline'`.
+- **Audio storage (opt-in):** the service worker can keep audio files below `audio/` offline in a separate cache, only after the "Audio" tab switch is turned on; off clears it. The browser's speech voice needs no cache.
+- **Accessibility:** the large yes/no text on the dark show screen had 2.3 to 2.7:1 contrast; new `--yes-text`/`--no-text` colors reach 6.8:1 and 9.9:1. The light accent for language B (`--th`) is slightly darker (3.3:1 instead of 2.97:1). A contrast matrix test covers all three color schemes.
+- Budget: service worker limit raised to 17,000 bytes (25 more pack IDs, audio storage).
+
 ### Mac app, round 24
 
 - Numbers & prices (⇧⌘N): prices in the conversation (฿, baht, บาท, €, euro) with conversion at a manually entered rate (baht per euro), "show big" for any amount, and a negotiation helper (counter-offers at 70/80/90 %, next bid under a budget).

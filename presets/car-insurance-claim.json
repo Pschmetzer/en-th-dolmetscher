@@ -1,0 +1,159 @@
+{
+  "id": "car-insurance-claim",
+  "names": {
+    "de": "Autoversicherung Schadensfall",
+    "en": "Car insurance claim",
+    "th": "เคลมประกันรถยนต์"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Nach einem Unfall zuerst Sicherheit, dann Fotos, Polizeibericht und Versicherung anrufen. Bei Mietwagen die Hotline im Vertrag nutzen und nichts unterschreiben, was nicht verstanden wird. Thailändische Versicherungen bieten Pflicht- und freiwillige Policen; die Selbstbeteiligung klären. Auto nicht ohne Zustimmung der Versicherung reparieren. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "After an accident first secure the scene, then take photos, get a police report and call the insurer. For a rental car use the hotline in the contract and sign nothing you do not understand. Thai insurers offer compulsory and voluntary policies; clarify the excess. Do not repair the car without the insurer's consent. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "insurance",
+      "th": "ประกัน"
+    },
+    {
+      "en": "claim",
+      "th": "เคลม"
+    },
+    {
+      "en": "policy number",
+      "th": "เลขกรมธรรม์"
+    },
+    {
+      "en": "excess",
+      "th": "ค่าส่วนแรก"
+    },
+    {
+      "en": "police report",
+      "th": "บันทึกประจำวัน"
+    },
+    {
+      "en": "estimate",
+      "th": "ใบประเมิน"
+    },
+    {
+      "en": "garage",
+      "th": "อู่ซ่อมรถ"
+    },
+    {
+      "en": "photo",
+      "th": "รูปถ่าย"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "There has been an accident. Please call the police (191).",
+      "th": "เกิดอุบัติเหตุ ช่วยเรียกตำรวจ (191)",
+      "critical": true,
+      "rom": "koet ubatihetu chuai riak tamruat 191"
+    },
+    {
+      "en": "Please call an ambulance (1669).",
+      "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true,
+      "rom": "chuai riak rathaphayaban duai 1669"
+    },
+    {
+      "en": "Someone is injured.",
+      "th": "มีคนบาดเจ็บ",
+      "critical": true,
+      "rom": "mi khon batchep"
+    },
+    {
+      "en": "I will not sign a document I do not understand.",
+      "th": "จะไม่เซ็นเอกสารที่ไม่เข้าใจ",
+      "critical": true,
+      "rom": "cha mai sen eksan thi mai khaochai"
+    },
+    {
+      "en": "I am injured and need a doctor.",
+      "th": "บาดเจ็บและต้องการหมอ",
+      "critical": true,
+      "rom": "batchep lae tongkan mo"
+    },
+    {
+      "en": "Please do not move the vehicles yet.",
+      "th": "ขออย่าเพิ่งเคลื่อนย้ายรถ",
+      "rom": "kho ya phoeng kheluenyai rot"
+    },
+    {
+      "en": "I want to make an insurance claim.",
+      "th": "ต้องการเคลมประกัน",
+      "rom": "tongkan khenm prakan"
+    },
+    {
+      "en": "Here is my policy number.",
+      "th": "นี่คือเลขกรมธรรม์",
+      "rom": "ni khue lek kramathan"
+    },
+    {
+      "en": "Here is my driving licence.",
+      "th": "นี่ใบขับขี่",
+      "rom": "ni baikhapkhi"
+    },
+    {
+      "en": "Here is the police report.",
+      "th": "นี่คือบันทึกประจำวันของตำรวจ",
+      "rom": "ni khue banthuekprachamwan khong tamruat"
+    },
+    {
+      "en": "I have photos of the damage.",
+      "th": "มีรูปถ่ายความเสียหาย",
+      "rom": "mi rupthai khwamsiahai"
+    },
+    {
+      "en": "Which garage can I use?",
+      "th": "ใช้อู่ไหนได้บ้าง",
+      "rom": "chai u nai dai bang"
+    },
+    {
+      "en": "Do I need an estimate?",
+      "th": "ต้องมีใบประเมินราคาไหม",
+      "rom": "tong mi bai pramoenrakha mai"
+    },
+    {
+      "en": "How much is the excess?",
+      "th": "ค่าส่วนแรกเท่าไร",
+      "rom": "kha suan raek thaorai"
+    },
+    {
+      "en": "Is a rental car included?",
+      "th": "มีรถเช่าให้ใช้ระหว่างซ่อมไหม",
+      "rom": "mi rathachao hai chai rawang som mai"
+    },
+    {
+      "en": "How long will the repair take?",
+      "th": "ซ่อมนานเท่าไหร่",
+      "rom": "som nan thaorai"
+    },
+    {
+      "en": "Who pays for the other car?",
+      "th": "ใครจ่ายค่าซ่อมรถอีกคัน",
+      "rom": "khain chai kha som rot ik khan"
+    },
+    {
+      "en": "Is the other driver insured?",
+      "th": "อีกฝ่ายมีประกันไหม",
+      "rom": "ik fai mi prakan mai"
+    },
+    {
+      "en": "Please give me a claim number.",
+      "th": "ขอเลขเคลมด้วย",
+      "rom": "kho lek khenm duai"
+    },
+    {
+      "en": "Can I send the documents by email?",
+      "th": "ส่งเอกสารทางอีเมลได้ไหม",
+      "rom": "song eksan thang imen dai mai"
+    },
+    {
+      "en": "Please explain the next step.",
+      "th": "ช่วยอธิบายขั้นตอนต่อไปหน่อย",
+      "rom": "chuai thibai khanton topai noi"
+    }
+  ]
+}

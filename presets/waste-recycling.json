@@ -1,0 +1,154 @@
+{
+  "id": "waste-recycling",
+  "names": {
+    "de": "Müll und Recycling",
+    "en": "Waste and recycling",
+    "th": "ขยะและรีไซเคิล"
+  },
+  "style": "polite",
+  "note": {
+    "de": "In Wohnanlagen gibt es meist Sammelstellen oder tägliche Abholung; Trennung ist je nach Ort verschieden. Glas und Batterien gehören in eigene Behälter. Müll an Strand und Wegen nicht liegen lassen; Strafen sind möglich. Plastiktüten werden in Läden zunehmend abgelehnt, eine eigene Tasche mitbringen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Residential buildings usually have collection points or daily pickup; sorting varies by place. Glass and batteries go into separate bins. Do not leave rubbish on beaches or paths; fines are possible. Shops increasingly refuse plastic bags, so bring your own. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "rubbish",
+      "th": "ขยะ"
+    },
+    {
+      "en": "recycling",
+      "th": "รีไซเคิล"
+    },
+    {
+      "en": "glass",
+      "th": "แก้ว"
+    },
+    {
+      "en": "plastic bottle",
+      "th": "ขวดพลาสติก"
+    },
+    {
+      "en": "battery",
+      "th": "แบตเตอรี่"
+    },
+    {
+      "en": "bin",
+      "th": "ถังขยะ"
+    },
+    {
+      "en": "collection",
+      "th": "เก็บขยะ"
+    },
+    {
+      "en": "compost",
+      "th": "ปุ๋ยหมัก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please do not burn the rubbish here.",
+      "th": "ช่วยอย่าเผาขยะที่นี่",
+      "critical": true,
+      "rom": "chuai ya phao khaya thini"
+    },
+    {
+      "en": "There is a fire in the rubbish pile.",
+      "th": "มีไฟไหม้กองขยะ",
+      "critical": true,
+      "rom": "mi faimai kong khaya"
+    },
+    {
+      "en": "Please call the fire brigade (199).",
+      "th": "ช่วยเรียกดับเพลิงด้วย (199)",
+      "critical": true,
+      "rom": "chuai riak dap pheling duai 199"
+    },
+    {
+      "en": "There is broken glass on the ground.",
+      "th": "มีเศษแก้วแตกบนพื้น",
+      "critical": true,
+      "rom": "mi set kaeo taek bon phuen"
+    },
+    {
+      "en": "Rats are in the rubbish.",
+      "th": "มีหนูในกองขยะ",
+      "critical": true,
+      "rom": "mi nu nai kong khaya"
+    },
+    {
+      "en": "Where do I put the rubbish?",
+      "th": "ทิ้งขยะที่ไหน",
+      "rom": "thing khaya thinai"
+    },
+    {
+      "en": "Where is the rubbish room?",
+      "th": "ห้องขยะอยู่ที่ไหน",
+      "rom": "ong khaya yu thinai"
+    },
+    {
+      "en": "When is the rubbish collected?",
+      "th": "เก็บขยะวันไหน",
+      "rom": "kep khaya wan nai"
+    },
+    {
+      "en": "Where can I recycle plastic bottles?",
+      "th": "รีไซเคิลขวดพลาสติกได้ที่ไหน",
+      "rom": "risaikhoen khuat phlattik dai thinai"
+    },
+    {
+      "en": "Where do I put glass?",
+      "th": "ทิ้งแก้วได้ที่ไหน",
+      "rom": "thing kaeo dai thinai"
+    },
+    {
+      "en": "Where do I put used batteries?",
+      "th": "ทิ้งแบตเตอรี่ใช้แล้วได้ที่ไหน",
+      "rom": "thing baettoeri chailaeo dai thinai"
+    },
+    {
+      "en": "Is there a bin for food waste?",
+      "th": "มีถังขยะเศษอาหารไหม",
+      "rom": "mi thangkya mai"
+    },
+    {
+      "en": "Do I need to sort the rubbish?",
+      "th": "ต้องแยกขยะไหม",
+      "rom": "tong yaek khaya mai"
+    },
+    {
+      "en": "Which bin is for dry rubbish?",
+      "th": "ถังไหนสำหรับขยะแห้ง",
+      "rom": "thang nai samrap khaya aeng"
+    },
+    {
+      "en": "Please tell me how to sort it.",
+      "th": "ช่วยบอกวิธีแยกขยะหน่อย",
+      "rom": "chuai bok withi yaek khaya noi"
+    },
+    {
+      "en": "How do I dispose of a large item?",
+      "th": "ทิ้งของชิ้นใหญ่อย่างไร",
+      "rom": "thing khong chin ain yangrai"
+    },
+    {
+      "en": "Do you accept electronic waste?",
+      "th": "รับขยะอิเล็กทรอนิกส์ไหม",
+      "rom": "rap khaya ilektronik mai"
+    },
+    {
+      "en": "I do not need a plastic bag.",
+      "th": "ไม่ต้องใส่ถุงพลาสติก",
+      "rom": "mataing sai thungplattik"
+    },
+    {
+      "en": "I brought my own bag.",
+      "th": "เอาถุงมาเอง",
+      "rom": "ao thung ma eng"
+    },
+    {
+      "en": "Please separate the rubbish from the recycling.",
+      "th": "ช่วยแยกขยะออกจากของรีไซเคิลหน่อย",
+      "rom": "chuai yaek khaya okchak khong risaikhoen noi"
+    }
+  ]
+}

@@ -1,0 +1,160 @@
+{
+  "id": "sunburn-heat-rash",
+  "names": {
+    "de": "Sonnenbrand und Hitzepickel",
+    "en": "Sunburn and heat rash",
+    "th": "แดดเผาและผดร้อน"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Mittags zwischen 11 und 15 Uhr brennt die Sonne am stärksten. Apotheken führen Aloe-Gel, Sonnencreme und Elektrolytpulver ohne Rezept. Bei Blasen, Fieber, Schwindel oder Verwirrung sofort in den Schatten und zum Arzt. Kinder und Babys besonders schützen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "The sun is strongest between 11 and 15 o'clock. Pharmacies sell aloe gel, sunscreen and electrolyte powder without a prescription. With blisters, fever, dizziness or confusion go into the shade and see a doctor at once. Protect children and babies especially. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "sunburn",
+      "th": "ผิวไหม้แดด"
+    },
+    {
+      "en": "heat rash",
+      "th": "ผดร้อน"
+    },
+    {
+      "en": "aloe vera",
+      "th": "ว่านหางจระเข้"
+    },
+    {
+      "en": "sunscreen",
+      "th": "ครีมกันแดด"
+    },
+    {
+      "en": "blister",
+      "th": "ตุ่มพอง"
+    },
+    {
+      "en": "shade",
+      "th": "ที่ร่ม"
+    },
+    {
+      "en": "electrolyte drink",
+      "th": "เครื่องดื่มเกลือแร่"
+    },
+    {
+      "en": "hat",
+      "th": "หมวก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have a bad sunburn and blisters.",
+      "th": "ผิวไหม้แดดมากและมีตุ่มพอง",
+      "critical": true,
+      "rom": "phio mai daet mak lae mi tum phong"
+    },
+    {
+      "en": "I feel dizzy and have a headache from the sun.",
+      "th": "เวียนหัวและปวดหัวเพราะแดด",
+      "critical": true,
+      "rom": "wianhua lae puathua daet"
+    },
+    {
+      "en": "I have a fever and chills after the sun.",
+      "th": "มีไข้และหนาวสั่นหลังโดนแดด",
+      "critical": true,
+      "rom": "mikhai lae naosan lang don daet"
+    },
+    {
+      "en": "My child has a sunburn. Please help.",
+      "th": "ลูกผิวไหม้แดด ช่วยด้วย",
+      "critical": true,
+      "rom": "luk phio mai daet chuaiduai"
+    },
+    {
+      "en": "I am allergic to some creams.",
+      "th": "แพ้ครีมบางชนิด",
+      "critical": true,
+      "rom": "phae khrim bang chanit"
+    },
+    {
+      "en": "Please call an ambulance (1669).",
+      "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true,
+      "rom": "chuai riak rathaphayaban duai 1669"
+    },
+    {
+      "en": "Do you have aloe vera gel?",
+      "th": "มีเจลว่านหางจระเข้ไหม",
+      "rom": "mi chen wan angtrakhe mai"
+    },
+    {
+      "en": "I need a cooling gel for sunburn.",
+      "th": "ต้องการเจลเย็นสำหรับผิวไหม้แดด",
+      "rom": "tongkan chen yen samrap phio mai daet"
+    },
+    {
+      "en": "Do you have sunscreen SPF 50?",
+      "th": "มีครีมกันแดดเอสพีเอฟ 50 ไหม",
+      "rom": "mi khrimkandaet etphiep 50 mai"
+    },
+    {
+      "en": "I have a red itchy rash on my skin.",
+      "th": "ผิวเป็นผื่นแดงและคัน",
+      "rom": "phio pen phuen daeng lae khan"
+    },
+    {
+      "en": "I have small bumps from the heat.",
+      "th": "มีตุ่มเล็ก ๆ จากความร้อน",
+      "rom": "mi tum lek chak khwamron"
+    },
+    {
+      "en": "Which cream is good for heat rash?",
+      "th": "ครีมอะไรดีสำหรับผดร้อน",
+      "rom": "khrim arai di samrap phot ron"
+    },
+    {
+      "en": "Can I use this on my face?",
+      "th": "ใช้ที่หน้าได้ไหม",
+      "rom": "chai thi na dai mai"
+    },
+    {
+      "en": "Should I stay out of the sun?",
+      "th": "ควรหลบแดดไหม",
+      "rom": "khuan lop daet mai"
+    },
+    {
+      "en": "How many days until it heals?",
+      "th": "กี่วันจะหาย",
+      "rom": "ki wan cha hai"
+    },
+    {
+      "en": "Is peeling skin normal?",
+      "th": "ผิวลอกเป็นเรื่องปกติไหม",
+      "rom": "phio lok penrueang pakati mai"
+    },
+    {
+      "en": "Where can I buy a hat?",
+      "th": "ซื้อหมวกได้ที่ไหน",
+      "rom": "sue muak dai thinai"
+    },
+    {
+      "en": "Please bring me cold water.",
+      "th": "ขอน้ำเย็นหน่อย",
+      "rom": "kho namyen noi"
+    },
+    {
+      "en": "Is there a shaded place to rest?",
+      "th": "มีที่ร่มให้พักไหม",
+      "rom": "mi thi rom hai phak mai"
+    },
+    {
+      "en": "I need an electrolyte drink.",
+      "th": "ต้องการเครื่องดื่มเกลือแร่",
+      "rom": "tongkan kheruengduem keluerae"
+    },
+    {
+      "en": "Thank you, that helps a lot.",
+      "th": "ขอบคุณ ช่วยได้มาก",
+      "rom": "khopkhun chuai dai mak"
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "id": "tdac-arrival-card",
+  "names": {
+    "de": "Digitale Einreisekarte TDAC",
+    "en": "Digital arrival card (TDAC)",
+    "th": "บัตรขาเข้าดิจิทัลทีดีเอซี"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Für die Einreise nach Thailand ist die digitale Einreisekarte (TDAC) vorab online auszufüllen, in der Regel spätestens drei Tage vor Ankunft und nur über die offizielle Seite der Einwanderungsbehörde. Pass, Flug und Unterkunft bereithalten. Betrügerische Seiten verlangen Geld; die offizielle Karte ist kostenlos. Screenshot der Bestätigung speichern. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Before entering Thailand fill in the digital arrival card (TDAC) online, normally no later than three days before arrival and only on the official immigration site. Have your passport, flight and accommodation ready. Fake sites ask for money; the official card is free. Save a screenshot of the confirmation. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "arrival card",
+      "th": "บัตรขาเข้า"
+    },
+    {
+      "en": "passport number",
+      "th": "เลขหนังสือเดินทาง"
+    },
+    {
+      "en": "flight number",
+      "th": "เลขเที่ยวบิน"
+    },
+    {
+      "en": "address in Thailand",
+      "th": "ที่อยู่ในประเทศไทย"
+    },
+    {
+      "en": "QR code",
+      "th": "คิวอาร์โค้ด"
+    },
+    {
+      "en": "confirmation",
+      "th": "ใบยืนยัน"
+    },
+    {
+      "en": "immigration",
+      "th": "ตรวจคนเข้าเมือง"
+    },
+    {
+      "en": "form",
+      "th": "แบบฟอร์ม"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I did not pay any money for the arrival card.",
+      "th": "ไม่ได้จ่ายเงินสำหรับบัตรขาเข้า",
+      "critical": true,
+      "rom": "mai dai chai ngoen samrap batn khakhao"
+    },
+    {
+      "en": "This website asked for money. Is it official?",
+      "th": "เว็บไซต์นี้ขอเงิน เป็นเว็บทางการหรือเปล่า",
+      "critical": true,
+      "rom": "wepsai ni kho ngoen pen wep thangkan ruepela"
+    },
+    {
+      "en": "I need help. The form does not work.",
+      "th": "ต้องการความช่วยเหลือ แบบฟอร์มใช้ไม่ได้",
+      "critical": true,
+      "rom": "tongkan khwamchuaihelue baepfom chaimaidai"
+    },
+    {
+      "en": "Please do not take my passport away.",
+      "th": "ขออย่าเอาหนังสือเดินทางไปจากเรา",
+      "critical": true,
+      "rom": "kho ya ao nangsuedoenthang pai chak rao"
+    },
+    {
+      "en": "I am not feeling well. May I sit down?",
+      "th": "รู้สึกไม่สบาย ขอนั่งได้ไหม",
+      "critical": true,
+      "rom": "rusuek mai sabai kho nang dai mai"
+    },
+    {
+      "en": "I have already filled in the digital arrival card.",
+      "th": "กรอกบัตรขาเข้าดิจิทัลแล้ว",
+      "rom": "krok batn khakhao dichithan laeo"
+    },
+    {
+      "en": "Here is my confirmation QR code.",
+      "th": "นี่คือคิวอาร์โค้ดใบยืนยัน",
+      "rom": "ni khue khio a khot bai yuenyan"
+    },
+    {
+      "en": "I do not have a printed copy.",
+      "th": "ไม่มีสำเนากระดาษ",
+      "rom": "mai mi samnao kradat"
+    },
+    {
+      "en": "Where can I fill in the arrival card?",
+      "th": "กรอกบัตรขาเข้าได้ที่ไหน",
+      "rom": "krok batn khakhao dai thinai"
+    },
+    {
+      "en": "Is there wifi here to fill in the form?",
+      "th": "ที่นี่มีไวไฟสำหรับกรอกแบบฟอร์มไหม",
+      "rom": "thini mi waifai samrap krok baepfom mai"
+    },
+    {
+      "en": "Can you help me fill in the form?",
+      "th": "ช่วยกรอกแบบฟอร์มให้หน่อยได้ไหม",
+      "rom": "chuai krok baepfom hai noi dai mai"
+    },
+    {
+      "en": "What is the address of my hotel?",
+      "th": "ที่อยู่โรงแรมของเราคืออะไร",
+      "rom": "thiyu rongraem khong rao khue arai"
+    },
+    {
+      "en": "Here is my hotel booking.",
+      "th": "นี่คือใบจองโรงแรม",
+      "rom": "ni khue baichong rongraem"
+    },
+    {
+      "en": "My flight number is on the ticket.",
+      "th": "เลขเที่ยวบินอยู่บนตั๋ว",
+      "rom": "lek thiaobin yu bon tua"
+    },
+    {
+      "en": "I made a mistake in the form.",
+      "th": "กรอกแบบฟอร์มผิด",
+      "rom": "krok baepfom phit"
+    },
+    {
+      "en": "How do I correct it?",
+      "th": "แก้ไขได้อย่างไร",
+      "rom": "kaekhai dai yangrai"
+    },
+    {
+      "en": "Do I need to fill it in again?",
+      "th": "ต้องกรอกใหม่ไหม",
+      "rom": "tong krok aim mai"
+    },
+    {
+      "en": "Do children need their own card?",
+      "th": "เด็กต้องมีบัตรของตัวเองไหม",
+      "rom": "dek tong mi batn khong tuaeng mai"
+    },
+    {
+      "en": "Is the card free of charge?",
+      "th": "บัตรนี้ไม่เสียค่าใช้จ่ายใช่ไหม",
+      "rom": "batn ni mai siakhachaichai chaimai"
+    },
+    {
+      "en": "How long will I stay? About two weeks.",
+      "th": "จะพักนานแค่ไหน ประมาณสองสัปดาห์",
+      "rom": "cha phak nan khae nai praman song sapda"
+    }
+  ]
+}

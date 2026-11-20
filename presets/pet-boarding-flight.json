@@ -1,0 +1,154 @@
+{
+  "id": "pet-boarding-flight",
+  "names": {
+    "de": "Haustier Pension und Flug",
+    "en": "Pet boarding and travel",
+    "th": "ฝากสัตว์เลี้ยงและเดินทาง"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Für die Einreise mit Hund oder Katze braucht man ein Gesundheitszeugnis und einen Impfnachweis, vorher beim Veterinäramt der Einreise klären. Tierpensionen verlangen oft Impfpass und Parasitenschutz. Preise pro Nacht liegen bei etwa 300–700 Baht je Tier. Im Auto und in der Hitze Tiere nie zurücklassen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Entering with a dog or cat needs a health certificate and vaccination proof; check with the animal authority at your destination first. Boarding places often ask for a vaccination book and parasite protection. A night costs about 300–700 baht per animal. Never leave animals in a car or in the heat. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "boarding",
+      "th": "ฝากเลี้ยง"
+    },
+    {
+      "en": "vaccination book",
+      "th": "สมุดวัคซีน"
+    },
+    {
+      "en": "health certificate",
+      "th": "ใบรับรองสุขภาพ"
+    },
+    {
+      "en": "microchip",
+      "th": "ไมโครชิป"
+    },
+    {
+      "en": "cage",
+      "th": "กรง"
+    },
+    {
+      "en": "leash",
+      "th": "สายจูง"
+    },
+    {
+      "en": "flea",
+      "th": "หมัด"
+    },
+    {
+      "en": "cargo",
+      "th": "ระวางสินค้า"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My dog is sick. Please help.",
+      "th": "สุนัขป่วย ช่วยด้วย",
+      "critical": true,
+      "rom": "sunak puai chuaiduai"
+    },
+    {
+      "en": "My cat is not breathing well.",
+      "th": "แมวหายใจไม่ค่อยออก",
+      "critical": true,
+      "rom": "maeo aichai makhaioi ok"
+    },
+    {
+      "en": "My pet is overheated.",
+      "th": "สัตว์เลี้ยงร้อนเกินไป",
+      "critical": true,
+      "rom": "satliang ron koenpai"
+    },
+    {
+      "en": "My dog was bitten.",
+      "th": "สุนัขถูกกัด",
+      "critical": true,
+      "rom": "sunak thuk kat"
+    },
+    {
+      "en": "My pet ate something poisonous.",
+      "th": "สัตว์เลี้ยงกินของที่เป็นพิษ",
+      "critical": true,
+      "rom": "satliang kin khong thi penphit"
+    },
+    {
+      "en": "Do you take dogs for the night?",
+      "th": "รับฝากสุนัขข้ามคืนไหม",
+      "rom": "rapfak sunak khamkhuen mai"
+    },
+    {
+      "en": "How much is it per night?",
+      "th": "คืนละเท่าไร",
+      "rom": "khuen la thaorai"
+    },
+    {
+      "en": "Is the room air conditioned?",
+      "th": "ห้องมีแอร์ไหม",
+      "rom": "ong mi ae mai"
+    },
+    {
+      "en": "How often do you walk the dogs?",
+      "th": "พาสุนัขไปเดินบ่อยแค่ไหน",
+      "rom": "pha sunak pai doen boi khae nai"
+    },
+    {
+      "en": "Can I visit my pet?",
+      "th": "ไปเยี่ยมสัตว์เลี้ยงได้ไหม",
+      "rom": "pai yiam satliang dai mai"
+    },
+    {
+      "en": "Can I see the room first?",
+      "th": "ขอดูห้องก่อนได้ไหม",
+      "rom": "kho du ong kon dai mai"
+    },
+    {
+      "en": "Here is the vaccination book.",
+      "th": "นี่คือสมุดวัคซีน",
+      "rom": "ni khue samut waksin"
+    },
+    {
+      "en": "My pet takes this medicine.",
+      "th": "สัตว์เลี้ยงกินยานี้",
+      "rom": "satliang kin ya ni"
+    },
+    {
+      "en": "Please feed it twice a day.",
+      "th": "ช่วยให้อาหารวันละสองครั้ง",
+      "rom": "chuai aiahan wan la song khrang"
+    },
+    {
+      "en": "Does the airline accept pets on board?",
+      "th": "สายการบินรับสัตว์เลี้ยงขึ้นเครื่องไหม",
+      "rom": "saikanbin rap satliang khuen kherueng mai"
+    },
+    {
+      "en": "What size of cage is allowed?",
+      "th": "อนุญาตกรงขนาดเท่าไร",
+      "rom": "nuyat krong khanat thaorai"
+    },
+    {
+      "en": "Do I need a health certificate to travel?",
+      "th": "ต้องมีใบรับรองสุขภาพเพื่อเดินทางไหม",
+      "rom": "tong mi bairaprong sukphap phuea doenthang mai"
+    },
+    {
+      "en": "Where can I get the certificate?",
+      "th": "ขอใบรับรองได้ที่ไหน",
+      "rom": "kho bairaprong dai thinai"
+    },
+    {
+      "en": "Is there a vet near here?",
+      "th": "ใกล้นี้มีสัตวแพทย์ไหม",
+      "rom": "kain ni mi satphaet mai"
+    },
+    {
+      "en": "Can my pet go in the taxi?",
+      "th": "พาสัตว์เลี้ยงขึ้นแท็กซี่ได้ไหม",
+      "rom": "pha satliang khuen dai mai"
+    }
+  ]
+}

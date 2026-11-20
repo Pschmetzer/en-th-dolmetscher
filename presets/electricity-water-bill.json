@@ -1,0 +1,160 @@
+{
+  "id": "electricity-water-bill",
+  "names": {
+    "de": "Strom- und Wasserrechnung",
+    "en": "Electricity and water bill",
+    "th": "ค่าไฟและค่าน้ำ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Strom wird nach Zählerstand abgerechnet, Wasser ähnlich; in privaten Mietwohnungen sind die Preise je Einheit manchmal höher als der staatliche Tarif. Rechnungen lassen sich im 7-Eleven, per Banking-App oder am Schalter zahlen. Bei Stromausfall zuerst Sicherung prüfen, dann den Vermieter fragen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Electricity is billed by meter reading and water in a similar way; in private rentals the price per unit is sometimes higher than the official tariff. Bills can be paid at 7-Eleven, in a banking app or at a counter. In a power cut check the fuse first, then ask the landlord. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "electricity bill",
+      "th": "ใบแจ้งค่าไฟ"
+    },
+    {
+      "en": "water bill",
+      "th": "ใบแจ้งค่าน้ำ"
+    },
+    {
+      "en": "meter",
+      "th": "มิเตอร์"
+    },
+    {
+      "en": "unit",
+      "th": "หน่วย"
+    },
+    {
+      "en": "fuse",
+      "th": "ฟิวส์"
+    },
+    {
+      "en": "power cut",
+      "th": "ไฟดับ"
+    },
+    {
+      "en": "pay",
+      "th": "ชำระเงิน"
+    },
+    {
+      "en": "due date",
+      "th": "วันครบกำหนด"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "There is no electricity and I smell burning.",
+      "th": "ไฟดับและได้กลิ่นไหม้",
+      "critical": true,
+      "rom": "fai dap lae dakailin mai"
+    },
+    {
+      "en": "I smell gas. Please come now.",
+      "th": "ได้กลิ่นแก๊ส ช่วยมาเดี๋ยวนี้",
+      "critical": true,
+      "rom": "dakailin kaet chuai ma diaoni"
+    },
+    {
+      "en": "Water is coming through the ceiling.",
+      "th": "น้ำรั่วลงมาจากเพดาน",
+      "critical": true,
+      "rom": "nam rua long machak phedan"
+    },
+    {
+      "en": "The power socket is sparking.",
+      "th": "เต้าเสียบมีประกายไฟ",
+      "critical": true,
+      "rom": "taosiap mi prakaifai"
+    },
+    {
+      "en": "Please turn off the main switch.",
+      "th": "ช่วยปิดสวิตช์หลักหน่อย",
+      "critical": true,
+      "rom": "chuai pittwit lak noi"
+    },
+    {
+      "en": "Please call the fire brigade (199).",
+      "th": "ช่วยเรียกดับเพลิงด้วย (199)",
+      "critical": true,
+      "rom": "chuai riak dap pheling duai 199"
+    },
+    {
+      "en": "Where can I pay the electricity bill?",
+      "th": "จ่ายค่าไฟได้ที่ไหน",
+      "rom": "chai kha fai dai thinai"
+    },
+    {
+      "en": "Where can I pay the water bill?",
+      "th": "จ่ายค่าน้ำได้ที่ไหน",
+      "rom": "chai khanam dai thinai"
+    },
+    {
+      "en": "Can I pay at 7-Eleven?",
+      "th": "จ่ายที่เซเว่นได้ไหม",
+      "rom": "chai thi sewen dai mai"
+    },
+    {
+      "en": "How much is one unit of electricity?",
+      "th": "ไฟหน่วยละเท่าไร",
+      "rom": "fai nuai la thaorai"
+    },
+    {
+      "en": "How much is one unit of water?",
+      "th": "น้ำหน่วยละเท่าไร",
+      "rom": "nam nuai la thaorai"
+    },
+    {
+      "en": "Can you show me how the meter works?",
+      "th": "ช่วยสอนดูมิเตอร์หน่อย",
+      "rom": "chuai son du mitoe noi"
+    },
+    {
+      "en": "The bill is higher than usual.",
+      "th": "ใบแจ้งหนี้สูงกว่าปกติ",
+      "rom": "baichaengni sung kwa pakati"
+    },
+    {
+      "en": "Please check the meter reading with me.",
+      "th": "ช่วยตรวจเลขมิเตอร์กับเราหน่อย",
+      "rom": "chuai truat lek mitoe kap rao noi"
+    },
+    {
+      "en": "When is the due date?",
+      "th": "ครบกำหนดจ่ายวันไหน",
+      "rom": "khrabakamnt chai wan nai"
+    },
+    {
+      "en": "Can I get a receipt?",
+      "th": "ขอใบเสร็จได้ไหม",
+      "rom": "kho dai mai"
+    },
+    {
+      "en": "The power has gone out in the whole building.",
+      "th": "ไฟดับทั้งอาคาร",
+      "rom": "fai dap thang akhan"
+    },
+    {
+      "en": "Where is the fuse box?",
+      "th": "กล่องฟิวส์อยู่ที่ไหน",
+      "rom": "klong fio yu thinai"
+    },
+    {
+      "en": "Please reset the power for my room.",
+      "th": "ช่วยเปิดไฟห้องให้หน่อย",
+      "rom": "chuai poetfai ong hai noi"
+    },
+    {
+      "en": "There is no water at all.",
+      "th": "ไม่มีน้ำเลย",
+      "rom": "mai mi nam loei"
+    },
+    {
+      "en": "When will the water be back on?",
+      "th": "น้ำจะมาอีกเมื่อไร",
+      "rom": "nam cha ma ik muearai"
+    }
+  ]
+}

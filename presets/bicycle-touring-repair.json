@@ -1,0 +1,155 @@
+{
+  "id": "bicycle-touring-repair",
+  "names": {
+    "de": "Radtour und Fahrradreparatur",
+    "en": "Bicycle touring and repair",
+    "th": "ปั่นจักรยานและซ่อมจักรยาน"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Fahrradläden in größeren Orten flicken Reifen schnell und günstig, meist ab 50 Baht. Helm, Licht und Wasser mitnehmen, in der Mittagshitze Pausen machen. Auf den Straßen fahren Motorräder dicht vorbei; Spiegel und Klingel helfen. Fahrräder im Hotel nachts abschließen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Bike shops in larger places repair tyres quickly and cheaply, usually from 50 baht. Take a helmet, light and water and rest in the midday heat. Motorbikes pass closely; a mirror and a bell help. Lock bikes in the hotel at night. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "bicycle",
+      "th": "จักรยาน"
+    },
+    {
+      "en": "puncture",
+      "th": "ยางรั่ว"
+    },
+    {
+      "en": "chain",
+      "th": "โซ่"
+    },
+    {
+      "en": "brake",
+      "th": "เบรก"
+    },
+    {
+      "en": "pump",
+      "th": "ที่สูบลม"
+    },
+    {
+      "en": "helmet",
+      "th": "หมวกกันน็อก"
+    },
+    {
+      "en": "lock",
+      "th": "ล็อก"
+    },
+    {
+      "en": "spare tube",
+      "th": "ยางในสำรอง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I had a fall and I am hurt.",
+      "th": "ล้มและบาดเจ็บ",
+      "critical": true,
+      "rom": "lom lae batchep"
+    },
+    {
+      "en": "Please call an ambulance (1669).",
+      "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true,
+      "rom": "chuai riak rathaphayaban duai 1669"
+    },
+    {
+      "en": "I have a head injury.",
+      "th": "ศีรษะได้รับบาดเจ็บ",
+      "critical": true,
+      "rom": "sinsa"
+    },
+    {
+      "en": "I feel faint from the heat.",
+      "th": "รู้สึกจะเป็นลมเพราะอากาศร้อน",
+      "critical": true,
+      "rom": "rusuek cha pennm akat ron"
+    },
+    {
+      "en": "My bike was stolen.",
+      "th": "จักรยานถูกขโมย",
+      "critical": true,
+      "rom": "chaknyan thuk khamoi"
+    },
+    {
+      "en": "The brakes do not work well.",
+      "th": "เบรกไม่ค่อยดี",
+      "critical": true,
+      "rom": "benk makhaioi di"
+    },
+    {
+      "en": "I have a puncture.",
+      "th": "ยางรั่ว",
+      "rom": "yang rua"
+    },
+    {
+      "en": "Can you fix my tyre?",
+      "th": "ช่วยปะยางให้หน่อยได้ไหม",
+      "rom": "chuai pa yang hai noi dai mai"
+    },
+    {
+      "en": "How much is the repair?",
+      "th": "ค่าซ่อมเท่าไร",
+      "rom": "kha som thaorai"
+    },
+    {
+      "en": "My chain is broken.",
+      "th": "โซ่ขาด",
+      "rom": "so khat"
+    },
+    {
+      "en": "Do you have a pump?",
+      "th": "มีที่สูบลมไหม",
+      "rom": "mi thisupnm mai"
+    },
+    {
+      "en": "Please adjust the seat.",
+      "th": "ช่วยปรับเบาะให้หน่อย",
+      "rom": "chuai prap bo hai noi"
+    },
+    {
+      "en": "Do you have a spare inner tube?",
+      "th": "มียางในสำรองไหม",
+      "rom": "mi yangnai samrong mai"
+    },
+    {
+      "en": "Can I leave my bike here for the night?",
+      "th": "ฝากจักรยานไว้ที่นี่ตอนกลางคืนได้ไหม",
+      "rom": "fak chaknyan wai thini tonklangkhuen dai mai"
+    },
+    {
+      "en": "Is there a bike lane?",
+      "th": "มีเลนจักรยานไหม",
+      "rom": "mi len chaknyan mai"
+    },
+    {
+      "en": "Is the road to the next town flat?",
+      "th": "ถนนไปเมืองถัดไปราบไหม",
+      "rom": "thanon pai mueang thatpai rap mai"
+    },
+    {
+      "en": "How far is the next town?",
+      "th": "เมืองถัดไปอยู่ไกลแค่ไหน",
+      "rom": "mueang thatpai yu klai khae nai"
+    },
+    {
+      "en": "Where can I buy water on the way?",
+      "th": "ซื้อน้ำระหว่างทางได้ที่ไหน",
+      "rom": "sue nam rawang thangdai thinai"
+    },
+    {
+      "en": "Can I put the bike on the bus?",
+      "th": "เอาจักรยานขึ้นรถบัสได้ไหม",
+      "rom": "ao chaknyan khuen rathabat dai mai"
+    },
+    {
+      "en": "Please lock the bike for me.",
+      "th": "ช่วยล็อกจักรยานให้หน่อย",
+      "rom": "chuai chaknyan hai noi"
+    }
+  ]
+}

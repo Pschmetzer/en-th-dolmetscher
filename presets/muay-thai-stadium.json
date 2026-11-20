@@ -1,0 +1,154 @@
+{
+  "id": "muay-thai-stadium",
+  "names": {
+    "de": "Muay-Thai-Stadion",
+    "en": "Muay Thai stadium",
+    "th": "สนามมวยไทย"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Eintritt in großen Stadien (Bangkok) kostet je nach Platz 1000–2500 Baht; Ringside ist am teuersten. Tickets lieber am Schalter oder bei bekannten Anbietern kaufen, nicht von Schleppern vor der Tür. Fotos mit Blitz sind oft verboten, Wetten sind verbreitet, aber Ausländer sollten vorsichtig sein. Der Wai Khru Tanz vor dem Kampf ist eine Ehrung; leise sein. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Entry to large stadiums (Bangkok) costs 1000–2500 baht depending on the seat; ringside is the most expensive. Buy tickets at the counter or from known sellers, not from touts at the door. Flash photos are often banned, betting is common but foreigners should be careful. The Wai Khru dance before the fight is a tribute; stay quiet. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "ticket",
+      "th": "ตั๋ว"
+    },
+    {
+      "en": "ringside",
+      "th": "ที่นั่งริมสนาม"
+    },
+    {
+      "en": "fight",
+      "th": "การชก"
+    },
+    {
+      "en": "boxer",
+      "th": "นักมวย"
+    },
+    {
+      "en": "round",
+      "th": "ยก"
+    },
+    {
+      "en": "stadium",
+      "th": "สนามมวย"
+    },
+    {
+      "en": "seat",
+      "th": "ที่นั่ง"
+    },
+    {
+      "en": "schedule",
+      "th": "ตารางการแข่งขัน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I feel unwell. Please help me to the exit.",
+      "th": "รู้สึกไม่สบาย ช่วยพาไปทางออกหน่อย",
+      "critical": true,
+      "rom": "rusuek mai sabai chuai pha pai thangok noi"
+    },
+    {
+      "en": "Please call the tourist police (1155).",
+      "th": "ช่วยโทรหาตำรวจท่องเที่ยว 1155 ด้วย",
+      "critical": true,
+      "rom": "chuai thon ha tamruat thongthiao 1155 duai"
+    },
+    {
+      "en": "Someone stole my wallet.",
+      "th": "มีคนขโมยกระเป๋าสตางค์",
+      "critical": true,
+      "rom": "mi khon khamoi krapaottang"
+    },
+    {
+      "en": "I do not want to bet.",
+      "th": "ไม่ต้องการแทงพนัน",
+      "critical": true,
+      "rom": "mataingkan thaeng phanan"
+    },
+    {
+      "en": "Please do not follow me.",
+      "th": "ช่วยอย่าตามมา",
+      "critical": true,
+      "rom": "chuai ya tamma"
+    },
+    {
+      "en": "What time does the first fight start?",
+      "th": "ไฟต์แรกเริ่มกี่โมง",
+      "rom": "fai raekroem ki mong"
+    },
+    {
+      "en": "Where do I buy tickets?",
+      "th": "ซื้อตั๋วได้ที่ไหน",
+      "rom": "sue tua dai thinai"
+    },
+    {
+      "en": "How much is a ringside ticket?",
+      "th": "ตั๋วริมสนามราคาเท่าไร",
+      "rom": "tua rim sanam rakha thaorai"
+    },
+    {
+      "en": "How much is a regular seat?",
+      "th": "ที่นั่งธรรมดาราคาเท่าไร",
+      "rom": "thinang thamda rakha thaorai"
+    },
+    {
+      "en": "Are these tickets official?",
+      "th": "ตั๋วนี้เป็นของจริงไหม",
+      "rom": "tua ni pen khongtring mai"
+    },
+    {
+      "en": "Is there an extra fee at the door?",
+      "th": "มีค่าธรรมเนียมเพิ่มที่ประตูไหม",
+      "rom": "mi khatamniam phoem thi pratu mai"
+    },
+    {
+      "en": "Where are the seats for tourists?",
+      "th": "ที่นั่งสำหรับนักท่องเที่ยวอยู่ไหน",
+      "rom": "thinang samrap nakthongthiao yu nai"
+    },
+    {
+      "en": "Is flash photography allowed?",
+      "th": "ใช้แฟลชถ่ายรูปได้ไหม",
+      "rom": "chai faent thairup dai mai"
+    },
+    {
+      "en": "Where is the toilet?",
+      "th": "ห้องน้ำอยู่ที่ไหน",
+      "rom": "ongnam yu thinai"
+    },
+    {
+      "en": "Can I buy a drink here?",
+      "th": "ซื้อเครื่องดื่มที่นี่ได้ไหม",
+      "rom": "sue kheruengduem thini dai mai"
+    },
+    {
+      "en": "How long is the whole evening?",
+      "th": "ทั้งคืนนานแค่ไหน",
+      "rom": "thangkhuen nan khae nai"
+    },
+    {
+      "en": "How many fights are there tonight?",
+      "th": "คืนนี้มีกี่คู่",
+      "rom": "khuenni mi ki khu"
+    },
+    {
+      "en": "Can children come in?",
+      "th": "พาเด็กเข้าได้ไหม",
+      "rom": "pha dek khao dai mai"
+    },
+    {
+      "en": "Can I meet the boxers after the fight?",
+      "th": "พบนักมวยหลังการชกได้ไหม",
+      "rom": "phop nakmuai lang kan chok dai mai"
+    },
+    {
+      "en": "Where can I get a taxi afterwards?",
+      "th": "หลังจบขึ้นแท็กซี่ได้ที่ไหน",
+      "rom": "lang chop khuen dai thinai"
+    }
+  ]
+}

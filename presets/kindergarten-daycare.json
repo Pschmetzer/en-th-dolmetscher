@@ -1,0 +1,154 @@
+{
+  "id": "kindergarten-daycare",
+  "names": {
+    "de": "Kindergarten und Kinderbetreuung",
+    "en": "Kindergarten and daycare",
+    "th": "โรงเรียนอนุบาลและรับเลี้ยงเด็ก"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Kindergärten und Krippen nehmen Kinder oft ab zwei Jahren; Eingewöhnung dauert meist einige Wochen. Gebühren pro Monat plus Uniform und Essen. Allergien, Medikamente und Abholberechtigte schriftlich mitteilen. Sprache der Betreuung vorher klären; internationale Schulen unterrichten auf Englisch. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Kindergartens and nurseries often take children from two years of age; settling in usually takes a few weeks. Fees are monthly plus uniform and meals. Give allergies, medicines and authorised pickup persons in writing. Ask which language is used; international schools teach in English. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "kindergarten",
+      "th": "โรงเรียนอนุบาล"
+    },
+    {
+      "en": "nursery",
+      "th": "ศูนย์เลี้ยงเด็ก"
+    },
+    {
+      "en": "teacher",
+      "th": "ครู"
+    },
+    {
+      "en": "uniform",
+      "th": "ชุดนักเรียน"
+    },
+    {
+      "en": "nap",
+      "th": "นอนกลางวัน"
+    },
+    {
+      "en": "fee",
+      "th": "ค่าเล่าเรียน"
+    },
+    {
+      "en": "pickup",
+      "th": "รับกลับ"
+    },
+    {
+      "en": "visit",
+      "th": "เข้าชม"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My child has a severe allergy. Please note it.",
+      "th": "ลูกมีอาการแพ้รุนแรง ช่วยจดไว้หน่อย",
+      "critical": true,
+      "rom": "luk mi akan phae runraeng chuai chot wai noi"
+    },
+    {
+      "en": "My child needs this medicine every day.",
+      "th": "ลูกต้องกินยานี้ทุกวัน",
+      "critical": true,
+      "rom": "luk tong kin ya ni thukwan"
+    },
+    {
+      "en": "Only these people may pick up my child.",
+      "th": "ให้เฉพาะคนเหล่านี้มารับลูกได้",
+      "critical": true,
+      "rom": "hai elani ma rap luk dai"
+    },
+    {
+      "en": "Please call me at once if my child is ill.",
+      "th": "ถ้าลูกไม่สบาย ช่วยโทรหาทันทีหน่อย",
+      "critical": true,
+      "rom": "tha luk mai sabai chuai thon ha thanthi noi"
+    },
+    {
+      "en": "My child has asthma.",
+      "th": "ลูกเป็นโรคหอบหืด",
+      "critical": true,
+      "rom": "luk penrok ophuet"
+    },
+    {
+      "en": "I am looking for a kindergarten.",
+      "th": "กำลังหาโรงเรียนอนุบาล",
+      "rom": "kamlang ha rongrianonuban"
+    },
+    {
+      "en": "How old is the youngest child you accept?",
+      "th": "รับเด็กอายุน้อยที่สุดกี่ขวบ",
+      "rom": "rap dek noithisut ki khuap"
+    },
+    {
+      "en": "How much are the monthly fees?",
+      "th": "ค่าเล่าเรียนเดือนละเท่าไร",
+      "rom": "khalaorian duean la thaorai"
+    },
+    {
+      "en": "Does that include meals?",
+      "th": "รวมอาหารไหม",
+      "rom": "ruam ahan mai"
+    },
+    {
+      "en": "Is there an extra fee for the uniform?",
+      "th": "มีค่าชุดนักเรียนเพิ่มไหม",
+      "rom": "mikha chutnakrian phoem mai"
+    },
+    {
+      "en": "What are the opening hours?",
+      "th": "เปิดกี่โมงถึงกี่โมง",
+      "rom": "poet ki mong thueng ki mong"
+    },
+    {
+      "en": "Do you offer a trial day?",
+      "th": "มีวันทดลองเรียนไหม",
+      "rom": "mi wan thadlong rian mai"
+    },
+    {
+      "en": "Can I visit the school?",
+      "th": "ขอเข้าชมโรงเรียนได้ไหม",
+      "rom": "kho khaotm rongrian dai mai"
+    },
+    {
+      "en": "Which language do the teachers speak?",
+      "th": "ครูพูดภาษาอะไร",
+      "rom": "khru phut phasa arai"
+    },
+    {
+      "en": "How many children are in one class?",
+      "th": "หนึ่งห้องมีนักเรียนกี่คน",
+      "rom": "nueng ong mi nakrian ki khon"
+    },
+    {
+      "en": "Do the children take a nap?",
+      "th": "เด็กนอนกลางวันไหม",
+      "rom": "dek non klangwan mai"
+    },
+    {
+      "en": "What does my child eat at lunch?",
+      "th": "ลูกกินอะไรตอนกลางวัน",
+      "rom": "luk kin arai tonklangwan"
+    },
+    {
+      "en": "Can my child bring food from home?",
+      "th": "ให้ลูกเอาอาหารจากบ้านมาได้ไหม",
+      "rom": "hai luk ao ahan chak ban ma dai mai"
+    },
+    {
+      "en": "How do you tell me about my child's day?",
+      "th": "แจ้งเรื่องของลูกในแต่ละวันอย่างไร",
+      "rom": "chaeng rueang khong luk nai taelawan yangrai"
+    },
+    {
+      "en": "What documents do I need to enrol?",
+      "th": "ต้องใช้เอกสารอะไรในการสมัคร",
+      "rom": "tong chai eksan arai nai kan samakn"
+    }
+  ]
+}

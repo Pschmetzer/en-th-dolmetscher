@@ -1,0 +1,159 @@
+{
+  "id": "massage-prices-booking",
+  "names": {
+    "de": "Massage Preise und Buchung",
+    "en": "Massage prices and booking",
+    "th": "ราคานวดและจองคิว"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Preise pro Stunde: Thai-Massage 250–400 Baht, Ölmassage 400–700 Baht, Fußmassage 250–350 Baht, in Hotels teurer. Preis und Dauer vorher klären, Trinkgeld von 50–100 Baht ist üblich. Bei Schmerzen sofort Bescheid sagen; Grenzen klar und höflich nennen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Per hour: Thai massage 250–400 baht, oil massage 400–700 baht, foot massage 250–350 baht, more in hotels. Agree the price and length first; a tip of 50–100 baht is usual. Speak up at once if it hurts; state your limits clearly and politely. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "one hour",
+      "th": "หนึ่งชั่วโมง"
+    },
+    {
+      "en": "foot massage",
+      "th": "นวดเท้า"
+    },
+    {
+      "en": "oil massage",
+      "th": "นวดน้ำมัน"
+    },
+    {
+      "en": "Thai massage",
+      "th": "นวดแผนไทย"
+    },
+    {
+      "en": "price list",
+      "th": "รายการราคา"
+    },
+    {
+      "en": "tip",
+      "th": "ทิป"
+    },
+    {
+      "en": "booking",
+      "th": "จองคิว"
+    },
+    {
+      "en": "strong",
+      "th": "แรง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please stop, it hurts.",
+      "th": "หยุดก่อน เจ็บ",
+      "critical": true,
+      "rom": "yut kon chep"
+    },
+    {
+      "en": "I have an injury here. Please avoid this spot.",
+      "th": "มีอาการบาดเจ็บตรงนี้ ช่วยเลี่ยงจุดนี้หน่อย",
+      "critical": true,
+      "rom": "mi akan batchep trangani chuai liang chut ni noi"
+    },
+    {
+      "en": "I do not want that. Please stop.",
+      "th": "ไม่ต้องการแบบนั้น ช่วยหยุดด้วย",
+      "critical": true,
+      "rom": "mataingkan baep nan chuai yut duai"
+    },
+    {
+      "en": "I want a plain massage only.",
+      "th": "ต้องการนวดธรรมดาเท่านั้น",
+      "critical": true,
+      "rom": "tongkan nuat thamda thaonan"
+    },
+    {
+      "en": "I am allergic to this oil.",
+      "th": "แพ้น้ำมันนี้",
+      "critical": true,
+      "rom": "phae namman ni"
+    },
+    {
+      "en": "I am pregnant. Please be careful.",
+      "th": "ตั้งครรภ์อยู่ ช่วยระวังด้วย",
+      "rom": "tangkan yu chuai rawang duai"
+    },
+    {
+      "en": "How much is a one-hour Thai massage?",
+      "th": "นวดแผนไทยหนึ่งชั่วโมงเท่าไหร่",
+      "rom": "nuat phaen thai nueng chuamong thaorai"
+    },
+    {
+      "en": "How much is a one-hour oil massage?",
+      "th": "นวดน้ำมันหนึ่งชั่วโมงราคาเท่าไร",
+      "rom": "nuat namman nueng chuamong rakha thaorai"
+    },
+    {
+      "en": "How much is a foot massage for 30 minutes?",
+      "th": "นวดเท้า 30 นาทีราคาเท่าไร",
+      "rom": "nuat thao 30 nathi rakha thaorai"
+    },
+    {
+      "en": "Is there a price list?",
+      "th": "มีรายการราคาไหม",
+      "rom": "mi raikan rakha mai"
+    },
+    {
+      "en": "Does the price include a tip?",
+      "th": "ราคานี้รวมทิปไหม",
+      "rom": "rakha ni ruam thip mai"
+    },
+    {
+      "en": "Do I need to book?",
+      "th": "ต้องจองไหม",
+      "rom": "tong chong mai"
+    },
+    {
+      "en": "I would like to book for 4 pm.",
+      "th": "อยากจองเวลาสี่โมงเย็น",
+      "rom": "yak chong wela si mong yen"
+    },
+    {
+      "en": "Do you have a room for two people?",
+      "th": "มีห้องสำหรับสองคนไหม",
+      "rom": "mi ong samrap song khon mai"
+    },
+    {
+      "en": "Please use less pressure.",
+      "th": "ช่วยนวดเบาลงหน่อย",
+      "rom": "chuai nuat bao long noi"
+    },
+    {
+      "en": "Please use more pressure.",
+      "th": "ช่วยนวดแรงขึ้นหน่อย",
+      "rom": "chuai nuat raeng khuen noi"
+    },
+    {
+      "en": "Please focus on my back and shoulders.",
+      "th": "ช่วยเน้นหลังและไหล่หน่อย",
+      "rom": "chuai nen lang lae lai noi"
+    },
+    {
+      "en": "Please turn the air conditioning down.",
+      "th": "ช่วยลดแอร์หน่อย",
+      "rom": "chuai lot ae noi"
+    },
+    {
+      "en": "Can I have a shower first?",
+      "th": "ขออาบน้ำก่อนได้ไหม",
+      "rom": "kho apnam kon dai mai"
+    },
+    {
+      "en": "Is there a locker for my bag?",
+      "th": "มีที่ฝากกระเป๋าไหม",
+      "rom": "mi thi fak krapao mai"
+    },
+    {
+      "en": "Can I pay by card?",
+      "th": "จ่ายด้วยบัตรได้ไหม",
+      "rom": "chai duai batn dai mai"
+    }
+  ]
+}

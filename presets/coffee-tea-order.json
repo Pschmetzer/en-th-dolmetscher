@@ -1,0 +1,154 @@
+{
+  "id": "coffee-tea-order",
+  "names": {
+    "de": "Kaffee und Tee bestellen",
+    "en": "Coffee and tea order",
+    "th": "สั่งกาแฟและชา"
+  },
+  "style": "polite",
+  "note": {
+    "de": "In Thai Cafés ist Kaffee oft sehr süß; Zucker und Milch gesondert abwählen. Eiskaffee (Cha-yen, Oliang) kommt mit Kondensmilch. Fast jedes Café hat Wifi; der Preis pro Getränk ist meist 50–120 Baht. Bei Milchallergie ausdrücklich fragen, was drin ist. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Coffee in Thai cafes is often very sweet; opt out of sugar and milk separately. Iced coffee and Thai tea come with condensed milk. Almost every cafe has wifi; a drink costs about 50–120 baht. With a milk allergy, ask exactly what is in it. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "iced coffee",
+      "th": "กาแฟเย็น"
+    },
+    {
+      "en": "hot tea",
+      "th": "ชาร้อน"
+    },
+    {
+      "en": "Thai iced tea",
+      "th": "ชาเย็น"
+    },
+    {
+      "en": "less sweet",
+      "th": "หวานน้อย"
+    },
+    {
+      "en": "no sugar",
+      "th": "ไม่ใส่น้ำตาล"
+    },
+    {
+      "en": "oat milk",
+      "th": "นมข้าวโอ๊ต"
+    },
+    {
+      "en": "ice",
+      "th": "น้ำแข็ง"
+    },
+    {
+      "en": "to go",
+      "th": "ใส่แก้วกลับ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am allergic to milk. Is there milk in this?",
+      "th": "แพ้นม มีนมในเครื่องดื่มนี้ไหม",
+      "critical": true,
+      "rom": "phae nom mi nom nai kheruengduem ni mai"
+    },
+    {
+      "en": "I am allergic to nuts. Is there any in this?",
+      "th": "แพ้ถั่ว มีถั่วในนี้ไหม",
+      "critical": true,
+      "rom": "phae thua mi thua nai ni mai"
+    },
+    {
+      "en": "No sugar and no condensed milk, please.",
+      "th": "ไม่ใส่น้ำตาลและไม่ใส่นมข้นหวาน",
+      "critical": true,
+      "rom": "mai sai namtan lae mai sai namakhanahwan"
+    },
+    {
+      "en": "I cannot have caffeine.",
+      "th": "ดื่มคาเฟอีนไม่ได้",
+      "critical": true,
+      "rom": "duem mai dai"
+    },
+    {
+      "en": "Is this decaf?",
+      "th": "เป็นกาแฟไม่มีคาเฟอีนไหม",
+      "critical": true,
+      "rom": "pen kafae mai mi mai"
+    },
+    {
+      "en": "One iced coffee, please.",
+      "th": "ขอกาแฟเย็นหนึ่งแก้ว",
+      "rom": "kho kafaeyen nueng kaeo"
+    },
+    {
+      "en": "One hot coffee, please.",
+      "th": "ขอกาแฟร้อนหนึ่งแก้ว",
+      "rom": "kho kafaeron nueng kaeo"
+    },
+    {
+      "en": "One Thai iced tea, please.",
+      "th": "ขอชาเย็นหนึ่งแก้ว",
+      "rom": "kho chayen nueng kaeo"
+    },
+    {
+      "en": "Less sweet, please.",
+      "th": "ขอหวานน้อย",
+      "rom": "kho wan noi"
+    },
+    {
+      "en": "No ice, please.",
+      "th": "ไม่ใส่น้ำแข็ง",
+      "rom": "mai sai"
+    },
+    {
+      "en": "Do you have oat milk or soy milk?",
+      "th": "มีนมข้าวโอ๊ตหรือนมถั่วเหลืองไหม",
+      "rom": "mi nom khaoot rue namathuahelueng mai"
+    },
+    {
+      "en": "Please make it a strong coffee.",
+      "th": "ขอกาแฟเข้ม ๆ",
+      "rom": "kho kafae khem"
+    },
+    {
+      "en": "What sizes do you have?",
+      "th": "มีขนาดอะไรบ้าง",
+      "rom": "mi khanat arai bang"
+    },
+    {
+      "en": "To take away, please.",
+      "th": "ขอใส่แก้วกลับบ้าน",
+      "rom": "kho sai kaeo klapban"
+    },
+    {
+      "en": "Please put the lid and a straw.",
+      "th": "ขอฝาและหลอดด้วย",
+      "rom": "kho fa lae lot duai"
+    },
+    {
+      "en": "Do you have wifi?",
+      "th": "มีไวไฟไหม",
+      "rom": "mi waifai mai"
+    },
+    {
+      "en": "What is the wifi password?",
+      "th": "รหัสไวไฟคืออะไร",
+      "rom": "rahat waifai khue arai"
+    },
+    {
+      "en": "Do you have a power socket here?",
+      "th": "มีปลั๊กไฟตรงนี้ไหม",
+      "rom": "mi plakfai trangani mai"
+    },
+    {
+      "en": "Can I pay by QR code?",
+      "th": "จ่ายด้วยคิวอาร์โค้ดได้ไหม",
+      "rom": "chai duai khio a khot dai mai"
+    },
+    {
+      "en": "Please bring the bill.",
+      "th": "ขอเช็กบิลด้วย",
+      "rom": "kho chekbin duai"
+    }
+  ]
+}

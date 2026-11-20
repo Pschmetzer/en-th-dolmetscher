@@ -16,6 +16,35 @@
     "เจ้าของห้อง"
    ]
   },
+  "apartment-hunting": {
+   "de": [
+    "wohnung",
+    "mieten",
+    "miete",
+    "kaution",
+    "zimmer"
+   ],
+   "th": [
+    "ห้องเช่า",
+    "เช่า",
+    "มัดจำ"
+   ]
+  },
+  "bank-app-otp-help": {
+   "de": [
+    "bank",
+    "app",
+    "otp",
+    "tan",
+    "passwort",
+    "konto"
+   ],
+   "th": [
+    "แอปธนาคาร",
+    "โอทีพี",
+    "อายัดบัญชี"
+   ]
+  },
   "bank-transfer-abroad": {
    "de": [
     "überweisung",
@@ -30,6 +59,75 @@
     "ต่างประเทศ",
     "อัตราแลกเปลี่ยน",
     "ค่าธรรมเนียม"
+   ]
+  },
+  "bicycle-touring-repair": {
+   "de": [
+    "fahrrad",
+    "radtour",
+    "reparatur",
+    "reifen",
+    "pumpe"
+   ],
+   "th": [
+    "จักรยาน",
+    "ปะยาง",
+    "ซ่อม"
+   ]
+  },
+  "car-breakdown-roadside": {
+   "de": [
+    "autopanne",
+    "pannenhilfe",
+    "abschleppen",
+    "reifen",
+    "batterie"
+   ],
+   "th": [
+    "รถเสีย",
+    "รถลาก",
+    "ยางแบน"
+   ]
+  },
+  "car-insurance-claim": {
+   "de": [
+    "autoversicherung",
+    "schaden",
+    "unfall",
+    "versicherung"
+   ],
+   "th": [
+    "เคลมประกัน",
+    "รถยนต์",
+    "อุบัติเหตุ"
+   ]
+  },
+  "childbirth-hospital": {
+   "de": [
+    "geburt",
+    "schwangerschaft",
+    "krankenhaus",
+    "wehen",
+    "baby"
+   ],
+   "th": [
+    "คลอด",
+    "ท้อง",
+    "โรงพยาบาล"
+   ]
+  },
+  "coffee-tea-order": {
+   "de": [
+    "kaffee",
+    "tee",
+    "café",
+    "bestellen",
+    "milchtee"
+   ],
+   "th": [
+    "กาแฟ",
+    "ชา",
+    "คาเฟ่"
    ]
   },
   "customer-service-complaint": {
@@ -110,6 +208,19 @@
     "พักผ่อน"
    ]
   },
+  "electricity-water-bill": {
+   "de": [
+    "strom",
+    "wasser",
+    "rechnung",
+    "zähler"
+   ],
+   "th": [
+    "ค่าไฟ",
+    "ค่าน้ำ",
+    "มิเตอร์"
+   ]
+  },
   "ev-charging": {
    "de": [
     "elektroauto",
@@ -139,6 +250,32 @@
     "ท้องเสีย",
     "อาเจียน",
     "ปวดท้อง"
+   ]
+  },
+  "glasses-lens-repair": {
+   "de": [
+    "brille",
+    "optiker",
+    "kontaktlinsen",
+    "reparatur"
+   ],
+   "th": [
+    "แว่นตา",
+    "คอนแทคเลนส์",
+    "ซ่อม"
+   ]
+  },
+  "golf-caddie-tips": {
+   "de": [
+    "golf",
+    "caddie",
+    "trinkgeld",
+    "platz"
+   ],
+   "th": [
+    "กอล์ฟ",
+    "แคดดี้",
+    "ทิป"
    ]
   },
   "hospital-payment-insurance": {
@@ -172,6 +309,19 @@
     "คืนเงิน"
    ]
   },
+  "kindergarten-daycare": {
+   "de": [
+    "kindergarten",
+    "kita",
+    "kinderbetreuung",
+    "krippe"
+   ],
+   "th": [
+    "อนุบาล",
+    "เลี้ยงเด็ก",
+    "เนอร์สเซอรี่"
+   ]
+  },
   "king-royal-respect": {
    "de": [
     "könig",
@@ -186,6 +336,60 @@
     "ราชวงศ์",
     "เพลงสรรเสริญ",
     "เคารพ"
+   ]
+  },
+  "laundromat-self-service": {
+   "de": [
+    "waschsalon",
+    "wäsche",
+    "waschen",
+    "münzen"
+   ],
+   "th": [
+    "ร้านซักผ้า",
+    "เครื่องซักผ้า",
+    "เหรียญ"
+   ]
+  },
+  "massage-prices-booking": {
+   "de": [
+    "massage",
+    "preis",
+    "buchung",
+    "thaimassage"
+   ],
+   "th": [
+    "นวด",
+    "ราคา",
+    "จองคิว"
+   ]
+  },
+  "minivan-airport-transfer": {
+   "de": [
+    "minivan",
+    "transfer",
+    "flughafen",
+    "taxi",
+    "fahrer"
+   ],
+   "th": [
+    "รถตู้",
+    "รถรับส่ง",
+    "สนามบิน"
+   ]
+  },
+  "muay-thai-stadium": {
+   "de": [
+    "muay thai",
+    "boxen",
+    "stadion",
+    "ticket",
+    "kampf"
+   ],
+   "th": [
+    "มวยไทย",
+    "สนามมวย",
+    "ตั๋ว"
    ]
   },
   "night-train-ticket": {
@@ -203,6 +407,20 @@
     "เตียงล่าง"
    ]
   },
+  "pet-boarding-flight": {
+   "de": [
+    "haustier",
+    "tierpension",
+    "hund",
+    "katze",
+    "flug"
+   ],
+   "th": [
+    "สัตว์เลี้ยง",
+    "ฝากเลี้ยง",
+    "สุนัข"
+   ]
+  },
   "pharmacy-prescription-transfer": {
    "de": [
     "rezept",
@@ -216,6 +434,20 @@
     "ร้านขายยา",
     "ตัวยา",
     "ยาประจำ"
+   ]
+  },
+  "plumber-electrician-aircon": {
+   "de": [
+    "handwerker",
+    "klempner",
+    "elektriker",
+    "klimaanlage",
+    "reparatur"
+   ],
+   "th": [
+    "ช่างประปา",
+    "ช่างไฟ",
+    "ช่างแอร์"
    ]
   },
   "ride-share-dispute": {
@@ -250,6 +482,20 @@
     "เติมเงิน"
    ]
   },
+  "smoothie-juice-stall": {
+   "de": [
+    "smoothie",
+    "saft",
+    "obst",
+    "kokosnuss",
+    "getränk"
+   ],
+   "th": [
+    "น้ำปั่น",
+    "น้ำผลไม้",
+    "มะพร้าว"
+   ]
+  },
   "sprain-fracture-xray": {
    "de": [
     "röntgen",
@@ -266,6 +512,61 @@
     "เฝือก"
    ]
   },
+  "street-food-custom-order": {
+   "de": [
+    "straßenküche",
+    "essen",
+    "bestellen",
+    "schärfe",
+    "imbiss"
+   ],
+   "th": [
+    "อาหารริมทาง",
+    "สั่งอาหาร",
+    "เผ็ด"
+   ]
+  },
+  "sunburn-heat-rash": {
+   "de": [
+    "sonnenbrand",
+    "hitze",
+    "ausschlag",
+    "sonnencreme",
+    "aloe"
+   ],
+   "th": [
+    "แดดเผา",
+    "ผดร้อน",
+    "ครีมกันแดด"
+   ]
+  },
+  "tdac-arrival-card": {
+   "de": [
+    "einreise",
+    "tdac",
+    "arrival card",
+    "formular",
+    "online"
+   ],
+   "th": [
+    "บัตรขาเข้า",
+    "ตรวจคนเข้าเมือง",
+    "แบบฟอร์ม"
+   ]
+  },
+  "temple-photography": {
+   "de": [
+    "tempel",
+    "fotografieren",
+    "kamera",
+    "verbot"
+   ],
+   "th": [
+    "วัด",
+    "ถ่ายรูป",
+    "กล้อง"
+   ]
+  },
   "thai-massage-boundaries": {
    "de": [
     "massage",
@@ -279,6 +580,33 @@
     "นวดไทย",
     "ขอบเขต",
     "ล่วงละเมิด"
+   ]
+  },
+  "toothache-emergency": {
+   "de": [
+    "zahnarzt",
+    "zahnschmerzen",
+    "notfall",
+    "zahn"
+   ],
+   "th": [
+    "ปวดฟัน",
+    "ทันตแพทย์",
+    "ฟัน"
+   ]
+  },
+  "tour-agency-booking": {
+   "de": [
+    "reisebüro",
+    "tour",
+    "buchen",
+    "agentur",
+    "ausflug"
+   ],
+   "th": [
+    "ทัวร์",
+    "จองทัวร์",
+    "เอเจนซี่"
    ]
   },
   "tourist-police-complaint": {
@@ -326,6 +654,19 @@
     "ต่อวีซ่า",
     "ตราประทับ",
     "ชายแดน"
+   ]
+  },
+  "waste-recycling": {
+   "de": [
+    "müll",
+    "recycling",
+    "abfall",
+    "mülltrennung"
+   ],
+   "th": [
+    "ขยะ",
+    "รีไซเคิล",
+    "ถังขยะ"
    ]
   },
   "wat-donation-etiquette": {

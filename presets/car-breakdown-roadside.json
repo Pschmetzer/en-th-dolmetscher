@@ -1,0 +1,155 @@
+{
+  "id": "car-breakdown-roadside",
+  "names": {
+    "de": "Autopanne und Pannenhilfe",
+    "en": "Car breakdown and roadside help",
+    "th": "รถเสียและช่วยเหลือข้างทาง"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Pannenhilfe über die Mietwagenfirma oder die Versicherung anrufen; die Nummer steht oft im Handschuhfach oder auf dem Vertrag. Der Notruf der Polizei ist 191. Warnweste und Warndreieck bereithalten, Abstand zur Fahrbahn halten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Call roadside help through the rental company or the insurer; the number is often in the glovebox or on the contract. The police emergency number is 191. Keep a warning vest and triangle ready and stay away from the traffic. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "breakdown",
+      "th": "รถเสีย"
+    },
+    {
+      "en": "tow truck",
+      "th": "รถลาก"
+    },
+    {
+      "en": "flat tyre",
+      "th": "ยางแบน"
+    },
+    {
+      "en": "battery",
+      "th": "แบตเตอรี่"
+    },
+    {
+      "en": "jump start",
+      "th": "พ่วงแบต"
+    },
+    {
+      "en": "engine",
+      "th": "เครื่องยนต์"
+    },
+    {
+      "en": "warning triangle",
+      "th": "สามเหลี่ยมเตือน"
+    },
+    {
+      "en": "petrol",
+      "th": "น้ำมัน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My car has broken down on the road.",
+      "th": "รถเสียบนถนน",
+      "critical": true,
+      "rom": "rot siapn thanon"
+    },
+    {
+      "en": "We are in a dangerous place. Please come quickly.",
+      "th": "เราอยู่ในที่อันตราย ช่วยมาเร็ว ๆ",
+      "critical": true,
+      "rom": "rao yu nai thi antrai chuai ma reo"
+    },
+    {
+      "en": "Please call the police (191).",
+      "th": "ช่วยโทรแจ้งตำรวจ 191 ด้วย",
+      "critical": true,
+      "rom": "chuai thon chaengtamruat 191 duai"
+    },
+    {
+      "en": "There is smoke from the engine.",
+      "th": "มีควันออกจากเครื่องยนต์",
+      "critical": true,
+      "rom": "mi khwan okchak kheruengn"
+    },
+    {
+      "en": "I have a child in the car.",
+      "th": "มีเด็กอยู่ในรถ",
+      "critical": true,
+      "rom": "mi dek yu nai rot"
+    },
+    {
+      "en": "Please send a tow truck.",
+      "th": "ช่วยส่งรถลากมาหน่อย",
+      "critical": true,
+      "rom": "chuai song rathlak ma noi"
+    },
+    {
+      "en": "The engine will not start.",
+      "th": "เครื่องสตาร์ทไม่ติด",
+      "rom": "kherueng satat mai tit"
+    },
+    {
+      "en": "The battery is flat.",
+      "th": "แบตเตอรี่หมด",
+      "rom": "baettoeri mot"
+    },
+    {
+      "en": "Can you give me a jump start?",
+      "th": "ช่วยพ่วงแบตให้หน่อยได้ไหม",
+      "rom": "chuai phuang baet hai noi dai mai"
+    },
+    {
+      "en": "I have a flat tyre.",
+      "th": "ยางแบน",
+      "rom": "yang baen"
+    },
+    {
+      "en": "Do you have a spare tyre and tools?",
+      "th": "มียางอะไหล่และเครื่องมือไหม",
+      "rom": "mi yang alai lae kheruengmue mai"
+    },
+    {
+      "en": "I have run out of petrol.",
+      "th": "น้ำมันหมด",
+      "rom": "namman mot"
+    },
+    {
+      "en": "Where is the nearest petrol station?",
+      "th": "ปั๊มน้ำมันที่ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "pamnamman thi kain thisut yu thinai"
+    },
+    {
+      "en": "Where is the nearest garage?",
+      "th": "อู่ซ่อมรถที่ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "usomnt thi kain thisut yu thinai"
+    },
+    {
+      "en": "How much is the tow?",
+      "th": "ค่าลากรถเท่าไร",
+      "rom": "kha lak rot thaorai"
+    },
+    {
+      "en": "How long until the tow truck arrives?",
+      "th": "รถลากจะมาถึงเมื่อไร",
+      "rom": "rathlak cha mathueng muearai"
+    },
+    {
+      "en": "Please take the car to a garage.",
+      "th": "ช่วยลากรถไปอู่ซ่อมหน่อย",
+      "rom": "chuai lak rot pai u som noi"
+    },
+    {
+      "en": "I need to call the rental company.",
+      "th": "ต้องโทรหาบริษัทรถเช่า",
+      "rom": "tong thon ha brisat rathachao"
+    },
+    {
+      "en": "Is this covered by the insurance?",
+      "th": "ประกันครอบคลุมเรื่องนี้ไหม",
+      "rom": "prakan khropklum rueang ni mai"
+    },
+    {
+      "en": "Please write down the address of the garage.",
+      "th": "ช่วยเขียนที่อยู่อู่ซ่อมให้หน่อย",
+      "rom": "chuai khian thiyu u som hai noi"
+    }
+  ]
+}

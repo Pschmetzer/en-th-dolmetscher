@@ -1,0 +1,154 @@
+{
+  "id": "golf-caddie-tips",
+  "names": {
+    "de": "Golf Caddie und Trinkgeld",
+    "en": "Golf caddie and tips",
+    "th": "แคดดี้กอล์ฟและทิป"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Auf den meisten Plätzen ist ein Caddie Pflicht; Caddie-Gebühr plus Trinkgeld von etwa 300–500 Baht am Ende ist üblich. Am Start Greenfee, Cart und Schlägerverleih klären. Wegen Hitze und Gewitter Pausen einplanen und Wasser trinken. Bälle im Wasser nicht suchen, Schlangen und Warane sind möglich. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "On most courses a caddie is compulsory; the caddie fee plus a tip of about 300–500 baht at the end is usual. Clarify green fee, cart and club hire at the start. Plan breaks for heat and thunderstorms and drink water. Do not search for balls in water; snakes and monitor lizards are possible. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "caddie",
+      "th": "แคดดี้"
+    },
+    {
+      "en": "tip",
+      "th": "ทิป"
+    },
+    {
+      "en": "green fee",
+      "th": "ค่าสนาม"
+    },
+    {
+      "en": "cart",
+      "th": "รถกอล์ฟ"
+    },
+    {
+      "en": "club",
+      "th": "ไม้กอล์ฟ"
+    },
+    {
+      "en": "ball",
+      "th": "ลูกกอล์ฟ"
+    },
+    {
+      "en": "fairway",
+      "th": "แฟร์เวย์"
+    },
+    {
+      "en": "hole",
+      "th": "หลุม"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "There is lightning. Please stop and go to shelter.",
+      "th": "มีฟ้าผ่า ช่วยหยุดและไปที่หลบ",
+      "critical": true,
+      "rom": "mi fapha chuai yut lae pai thi lop"
+    },
+    {
+      "en": "I feel faint from the heat.",
+      "th": "รู้สึกจะเป็นลมเพราะอากาศร้อน",
+      "critical": true,
+      "rom": "rusuek cha pennm akat ron"
+    },
+    {
+      "en": "Please call a doctor.",
+      "th": "ช่วยเรียกแพทย์หน่อย",
+      "critical": true,
+      "rom": "chuai riak phaet noi"
+    },
+    {
+      "en": "There is a snake near the ball.",
+      "th": "มีงูอยู่ใกล้ลูกกอล์ฟ",
+      "critical": true,
+      "rom": "mi ngu yu kain luk kop"
+    },
+    {
+      "en": "Someone was hit by a ball.",
+      "th": "มีคนถูกลูกกอล์ฟโดน",
+      "critical": true,
+      "rom": "mi khon thuk luk kop don"
+    },
+    {
+      "en": "Is a caddie compulsory?",
+      "th": "ต้องใช้แคดดี้ไหม",
+      "rom": "tong chai khae dadi mai"
+    },
+    {
+      "en": "How much is the caddie fee?",
+      "th": "ค่าแคดดี้เท่าไร",
+      "rom": "kha khae dadi thaorai"
+    },
+    {
+      "en": "How much should I tip the caddie?",
+      "th": "ควรให้ทิปแคดดี้เท่าไร",
+      "rom": "khuan hai thip khae dadi thaorai"
+    },
+    {
+      "en": "Is the tip included?",
+      "th": "รวมทิปแล้วไหม",
+      "rom": "ruam thip laeo mai"
+    },
+    {
+      "en": "Please tell me the distance to the green.",
+      "th": "ช่วยบอกระยะถึงกรีนหน่อย",
+      "rom": "chuai bok raya thueng krin noi"
+    },
+    {
+      "en": "Which club do you recommend?",
+      "th": "แนะนำไม้ตัวไหน",
+      "rom": "naenam mai tua nai"
+    },
+    {
+      "en": "Please read the line of the putt.",
+      "th": "ช่วยดูแนวพัตต์ให้หน่อย",
+      "rom": "chuai du naeo phat hai noi"
+    },
+    {
+      "en": "Please rake the bunker.",
+      "th": "ช่วยเกลี่ยหลุมทรายหน่อย",
+      "rom": "chuai keli lum thrai noi"
+    },
+    {
+      "en": "Where is the next tee?",
+      "th": "ที่ทีถัดไปอยู่ที่ไหน",
+      "rom": "thi thi thatpai yu thinai"
+    },
+    {
+      "en": "Can we play through?",
+      "th": "ขอให้ผ่านได้ไหม",
+      "rom": "khohai phan dai mai"
+    },
+    {
+      "en": "Please bring some cold water.",
+      "th": "ขอน้ำเย็นหน่อย",
+      "rom": "kho namyen noi"
+    },
+    {
+      "en": "Where can I get a towel?",
+      "th": "ขอผ้าเช็ดตัวได้ที่ไหน",
+      "rom": "kho phachettua dai thinai"
+    },
+    {
+      "en": "Can I rent clubs?",
+      "th": "เช่าไม้กอล์ฟได้ไหม",
+      "rom": "chao makaip dai mai"
+    },
+    {
+      "en": "Please clean my clubs.",
+      "th": "ช่วยเช็ดไม้กอล์ฟให้หน่อย",
+      "rom": "chuai chet makaip hai noi"
+    },
+    {
+      "en": "Thank you for the good round.",
+      "th": "ขอบคุณสำหรับการเล่นที่ดี",
+      "rom": "khopkhun samrap kan len thi di"
+    }
+  ]
+}

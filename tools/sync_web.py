@@ -8,6 +8,7 @@ PRESET_IDS = Reihenfolge von presets-index.json ohne die Pakete aus tools/web_pe
 Hash = SHA-256 ueber alle Dateien, die der Service Worker vorab speichert (CORE ohne index.html, das immer zuerst vom Netz kommt,
 plus presets/<id>.json). Steht der Hash in der Zeile `// content-hash:` von sw.js nicht mehr, ist CACHE zu erhoehen.
 """
+import base64
 import hashlib
 import json
 import pathlib
@@ -18,6 +19,17 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 LIST_RE = re.compile(r"const PRESET_IDS = \[[^\]]*\];")
 CACHE_RE = re.compile(r"const CACHE = 'dolmetscher-web-v(\d+)';")
 HASH_RE = re.compile(r"^// content-hash: ([0-9a-f]{16})$", re.M)
+CSP_RE = re.compile(r"(script-src 'self' 'unsafe-inline')( 'sha256-[A-Za-z0-9+/=]+')?")
+INLINE_RE = re.compile(r"<script>(.*?)</script>", re.S)
+
+
+def csp_hash(html):
+    """CSP-Hash ('sha256-...') des ausfuehrbaren Inline-Skripts (erstes <script> ohne Attribute). Browser mit Hash-Unterstuetzung
+    ignorieren dann 'unsafe-inline' fuer Skripte; aeltere fallen auf 'unsafe-inline' zurueck. None, wenn kein Inline-Skript da ist."""
+    m = INLINE_RE.search(html)
+    if not m:
+        return None
+    return "'sha256-" + base64.b64encode(hashlib.sha256(m.group(1).encode("utf-8")).digest()).decode("ascii") + "'"
 
 
 def pending(root=ROOT):
@@ -67,6 +79,12 @@ def sync(root=ROOT, write=True):
             problems.append("%s: PRESET_IDS weicht von presets-index.json ab" % name)
     new_html = LIST_RE.sub(lambda m: render_list(ids), html, count=1)
     new_sw = LIST_RE.sub(lambda m: render_list(ids), sw, count=1)
+    want_csp = csp_hash(new_html)
+    cm = CSP_RE.search(new_html)
+    if want_csp and cm:
+        if (cm.group(2) or "").strip() != want_csp:
+            problems.append("index.html: CSP-Hash des Inline-Skripts veraltet")
+        new_html = CSP_RE.sub(lambda m: m.group(1) + " " + want_csp, new_html, count=1)
     want = content_hash(new_sw, ids, root)
     have = HASH_RE.search(new_sw)
     if not have or have.group(1) != want:

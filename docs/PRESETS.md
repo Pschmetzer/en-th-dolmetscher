@@ -250,6 +250,31 @@ kennen, ignorieren sie.
 | `food-poisoning-stomach` | Lebensmittelvergiftung und Magen | 6 kritische Sätze zuerst |
 | `apartment-host-checkin` | Vermieter und Self-Check-in | 5 kritische Sätze zuerst |
 | `bank-transfer-abroad` | Auslandsüberweisung | 5 kritische Sätze zuerst |
+| `sunburn-heat-rash` | Sonnenbrand und Hitzepickel | 6 kritische Sätze zuerst |
+| `toothache-emergency` | Zahnschmerzen akut | 6 kritische Sätze zuerst |
+| `coffee-tea-order` | Kaffee und Tee bestellen | 5 kritische Sätze zuerst |
+| `muay-thai-stadium` | Muay-Thai-Stadion | 5 kritische Sätze zuerst |
+| `temple-photography` | Fotografieren im Tempel | 5 kritische Sätze zuerst |
+| `massage-prices-booking` | Massage Preise und Buchung | 5 kritische Sätze zuerst |
+| `apartment-hunting` | Wohnungssuche | 5 kritische Sätze zuerst |
+| `electricity-water-bill` | Strom- und Wasserrechnung | 6 kritische Sätze zuerst |
+| `waste-recycling` | Müll und Recycling | 5 kritische Sätze zuerst |
+| `plumber-electrician-aircon` | Handwerker Wasser Strom Klima | 5 kritische Sätze zuerst |
+| `car-breakdown-roadside` | Autopanne und Pannenhilfe | 6 kritische Sätze zuerst |
+| `bicycle-touring-repair` | Radtour und Fahrradreparatur | 6 kritische Sätze zuerst |
+| `kindergarten-daycare` | Kindergarten und Kinderbetreuung | 5 kritische Sätze zuerst |
+| `pet-boarding-flight` | Haustier Pension und Flug | 5 kritische Sätze zuerst |
+| `childbirth-hospital` | Geburt im Krankenhaus | 6 kritische Sätze zuerst |
+| `glasses-lens-repair` | Brille und Linsen reparieren | 5 kritische Sätze zuerst |
+| `tdac-arrival-card` | Digitale Einreisekarte TDAC | 5 kritische Sätze zuerst |
+| `street-food-custom-order` | Straßenküche Wunschbestellung | 5 kritische Sätze zuerst |
+| `smoothie-juice-stall` | Smoothie und Saftstand | 5 kritische Sätze zuerst |
+| `golf-caddie-tips` | Golf Caddie und Trinkgeld | 5 kritische Sätze zuerst |
+| `bank-app-otp-help` | Banking-App und TAN Probleme | 5 kritische Sätze zuerst |
+| `laundromat-self-service` | Waschsalon Selbstbedienung | 5 kritische Sätze zuerst |
+| `car-insurance-claim` | Autoversicherung Schadensfall | 5 kritische Sätze zuerst |
+| `tour-agency-booking` | Reisebüro und Tourbuchung | 5 kritische Sätze zuerst |
+| `minivan-airport-transfer` | Minivan und Flughafentransfer | 5 kritische Sätze zuerst |
 
 Die Kategorie je Paket (`health`, `emergency`, `transport`, `food`, `money`, `stay`, `culture`, `leisure`, `general`) steht in `tools/preset_categories.json` und landet als `category` in `presets-index.json`. `python3 tools/preset_stats.py --by-category` zeigt die Abdeckung je Kategorie; ein neues Paket gehört in genau eine Kategorie (ein Test prüft das).
 
@@ -258,7 +283,7 @@ Die Kategorie je Paket (`health`, `emergency`, `transport`, `food`, `money`, `st
 - **Konsistenz:** `check_presets.py --strict` meldet jeden englischen Satz, der in mehreren Paketen verschieden ins Thai übersetzt ist, und jedes Paar mit anderem `critical`. Neue Pakete übernehmen vorhandene Fassungen, statt eigene zu erfinden.
 - **Thai-Form:** Unicode NFC, keine Zero-Width-Zeichen oder geschützten Leerzeichen, keine doppelten Vokal- oder Tonzeichen, Ziffern einheitlich arabisch (nie ๑๒๓ oder gemischt), Preise mit `บาท` statt `฿`.
 - **Suchbegriffe:** `tools/preset_keywords.json` hält deutsche und thailändische Begriffe je Paket. `make_presets_index.py` schreibt sie als `keywords_de` und `keywords_th` in `presets-index.json` und mischt je drei davon in `keywords` (höchstens 12), die die Web-Suche liest. `preset_search.py` findet sie ebenfalls.
-- **Lautschrift `rom` (freiwillig):** `python3 tools/preset_rom.py --check` prüft vorhandene Felder, `--fill` ergänzt fehlende (braucht `pythainlp`), `--strip` entfernt sie. Ältere Programme ignorieren das Feld; mitgelieferte Pakete enthalten es noch nicht.
+- **Lautschrift `rom` (freiwillig):** `python3 tools/preset_rom.py --check` prüft vorhandene Felder, `--fill` ergänzt fehlende (braucht `pythainlp`), `--strip` entfernt sie. Ältere Programme ignorieren das Feld; nur die 25 Pakete der Runde 25 enthalten es als Probe (maschinell erzeugt, nur eine Lesehilfe).
 
 ## Unsichere Sätze (bitte zuerst prüfen)
 
@@ -294,7 +319,7 @@ Am wichtigsten sind die Sätze mit `critical` und die Tabelle [Unsichere Sätze]
 
 | Datei | Inhalt |
 |---|---|
-| `presets/*.json` | 201 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
+| `presets/*.json` | 226 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
 | `ios/Shared/phrases.json` | eingebautes Satzbuch der iPhone-App und des Widgets |
 | `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten, „Sie sind dran“, Allergie-Karte |
 | `ios/Dolmetscher/Round4Views.swift` | Hilfesatz auf dem Bildschirm „Hilfe – jetzt“ |

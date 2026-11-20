@@ -44,10 +44,16 @@ def check_rom(fname, d):
 
 def romanizer():
     try:
+        from pythainlp.tokenize import word_tokenize  # type: ignore
         from pythainlp.transliterate import romanize  # type: ignore
     except ImportError:
         sys.exit("pythainlp fehlt: pip install pythainlp (nur fuer --fill noetig)")
-    return lambda th: " ".join(romanize(w) for w in th.split())
+
+    def rom(th):   # erst in Woerter zerlegen (ohne Zerlegung kommt Unsinn heraus), Reste mit Thai-Zeichen weglassen
+        words = [romanize(w) for w in word_tokenize(th, keep_whitespace=False)]
+        text = " ".join(w for w in words if w and not re.search("[฀-๿]", w))
+        return " ".join(re.sub(r"[^A-Za-z0-9 ,.'\-]", "", text).split())
+    return rom
 
 
 def fill(packs, rom_fn, force=False):

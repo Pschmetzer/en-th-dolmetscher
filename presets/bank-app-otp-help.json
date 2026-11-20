@@ -1,0 +1,154 @@
+{
+  "id": "bank-app-otp-help",
+  "names": {
+    "de": "Banking-App und TAN Probleme",
+    "en": "Banking app and OTP problems",
+    "th": "แอปธนาคารและรหัสโอทีพี"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Thailändische Banking-Apps schicken Einmalcodes (OTP) per SMS an die hinterlegte Thai-Nummer; ohne diese SIM lässt sich die App oft nicht freischalten. Zum Schalter mit Pass und der Thai-SIM gehen. Niemals Code, PIN oder Passwort an Anrufer oder Chatpartner weitergeben; Banken fragen nie danach. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Thai banking apps send one-time codes (OTP) by SMS to the Thai number on file; without that SIM the app often cannot be activated. Go to the counter with your passport and the Thai SIM. Never give a code, PIN or password to callers or chat partners; banks never ask for them. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "OTP",
+      "th": "รหัสโอทีพี"
+    },
+    {
+      "en": "PIN",
+      "th": "รหัสพิน"
+    },
+    {
+      "en": "banking app",
+      "th": "แอปธนาคาร"
+    },
+    {
+      "en": "SMS",
+      "th": "ข้อความสั้น"
+    },
+    {
+      "en": "password",
+      "th": "รหัสผ่าน"
+    },
+    {
+      "en": "block",
+      "th": "อายัด"
+    },
+    {
+      "en": "reset",
+      "th": "ตั้งค่าใหม่"
+    },
+    {
+      "en": "branch",
+      "th": "สาขา"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Someone is asking me for my code. I think it is a scam.",
+      "th": "มีคนขอรหัสจากเรา คิดว่าเป็นการหลอกลวง",
+      "critical": true,
+      "rom": "mi khon kho rahat chak rao khit wa penkan lokluang"
+    },
+    {
+      "en": "Please block my account at once.",
+      "th": "ช่วยอายัดบัญชีทันที",
+      "critical": true,
+      "rom": "chuai banchi thanthi"
+    },
+    {
+      "en": "Money left my account and I did not do it.",
+      "th": "เงินออกจากบัญชีโดยที่ไม่ได้ทำเอง",
+      "critical": true,
+      "rom": "ngoen okchak banchi doithi mai dai tham eng"
+    },
+    {
+      "en": "I did not give anyone my code.",
+      "th": "ไม่ได้ให้รหัสกับใคร",
+      "critical": true,
+      "rom": "mai dai hai rahat kap khain"
+    },
+    {
+      "en": "Please block my card. It was stolen.",
+      "th": "ช่วยอายัดบัตร บัตรถูกขโมย",
+      "critical": true,
+      "rom": "chuai batn batn thuk khamoi"
+    },
+    {
+      "en": "I cannot log in to the banking app.",
+      "th": "เข้าสู่ระบบแอปธนาคารไม่ได้",
+      "rom": "khaosurapp ae p thanakhan mai dai"
+    },
+    {
+      "en": "I do not receive the OTP code.",
+      "th": "ไม่ได้รับรหัสโอทีพี",
+      "rom": "mai rahat othi phi"
+    },
+    {
+      "en": "The code has expired.",
+      "th": "รหัสหมดอายุแล้ว",
+      "rom": "rahat laeo"
+    },
+    {
+      "en": "My Thai SIM is not working.",
+      "th": "ซิมไทยใช้ไม่ได้",
+      "rom": "sim thai chaimaidai"
+    },
+    {
+      "en": "I changed my phone number.",
+      "th": "เปลี่ยนเบอร์โทรศัพท์แล้ว",
+      "rom": "pelin boethonsap laeo"
+    },
+    {
+      "en": "I have forgotten my PIN.",
+      "th": "ลืมรหัสพิน",
+      "rom": "luem rahat phin"
+    },
+    {
+      "en": "Please reset my password.",
+      "th": "ช่วยตั้งรหัสผ่านใหม่หน่อย",
+      "rom": "chuai tang rahatphan aim noi"
+    },
+    {
+      "en": "Can I activate the app at the branch?",
+      "th": "เปิดใช้แอปที่สาขาได้ไหม",
+      "rom": "poet chai ae p thi sakha dai mai"
+    },
+    {
+      "en": "What documents do I need?",
+      "th": "ต้องใช้เอกสารอะไรบ้าง",
+      "rom": "tong chai eksan arai bang"
+    },
+    {
+      "en": "Here is my passport.",
+      "th": "นี่พาสปอร์ต",
+      "rom": "ni phatpot"
+    },
+    {
+      "en": "Please update my phone number.",
+      "th": "ช่วยอัปเดตเบอร์โทรศัพท์หน่อย",
+      "rom": "chuai apdet boethonsap noi"
+    },
+    {
+      "en": "Can I use the app abroad?",
+      "th": "ใช้แอปที่ต่างประเทศได้ไหม",
+      "rom": "chai ae p thi tangprathet dai mai"
+    },
+    {
+      "en": "The transfer is stuck.",
+      "th": "โอนเงินค้างอยู่",
+      "rom": "on ngoen khang yu"
+    },
+    {
+      "en": "Where can I see the transaction?",
+      "th": "ดูรายการได้ที่ไหน",
+      "rom": "du raikan dai thinai"
+    },
+    {
+      "en": "Is there an English helpline?",
+      "th": "มีสายด่วนภาษาอังกฤษไหม",
+      "rom": "mi saiduan phasaangkrit mai"
+    }
+  ]
+}
