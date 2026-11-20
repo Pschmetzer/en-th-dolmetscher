@@ -1,0 +1,107 @@
+{
+  "id": "fruit-market-durian",
+  "names": {
+    "de": "Obstmarkt und Durian",
+    "en": "Fruit market and durian",
+    "th": "ตลาดผลไม้และทุเรียน"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Durian ist in Hotels, Bussen und Bahnen meist verboten (Geruch). Reife am Geruch prüfen oder zeigen lassen; die Händler öffnen die Frucht gern. Preise stehen pro Kilo (กิโล). Mangosteen und Rambutan haben ihre Saison im Sommer. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Durian is usually banned in hotels, buses and trains because of the smell. Judge ripeness by smell or let the seller show you; they will open it. Prices are per kilo. Mangosteen and rambutan are in season in summer. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "durian",
+      "th": "ทุเรียน"
+    },
+    {
+      "en": "mango",
+      "th": "มะม่วง"
+    },
+    {
+      "en": "mangosteen",
+      "th": "มังคุด"
+    },
+    {
+      "en": "rambutan",
+      "th": "เงาะ"
+    },
+    {
+      "en": "ripe",
+      "th": "สุก"
+    },
+    {
+      "en": "kilo",
+      "th": "กิโลกรัม"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am allergic to mango.",
+      "th": "แพ้มะม่วง",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to nuts.",
+      "th": "แพ้ถั่ว",
+      "critical": true
+    },
+    {
+      "en": "How much is this per kilo?",
+      "th": "อันนี้กิโลละเท่าไร"
+    },
+    {
+      "en": "Is this durian ripe?",
+      "th": "ทุเรียนนี้สุกแล้วไหม"
+    },
+    {
+      "en": "Please open it for me.",
+      "th": "ช่วยผ่าให้หน่อย"
+    },
+    {
+      "en": "Can I try one piece?",
+      "th": "ขอลองชิมชิ้นหนึ่งได้ไหม"
+    },
+    {
+      "en": "Not too ripe, please.",
+      "th": "ขอไม่สุกมาก"
+    },
+    {
+      "en": "Very sweet, please.",
+      "th": "ขอหวานๆ"
+    },
+    {
+      "en": "Please put it in a box.",
+      "th": "ช่วยใส่กล่องให้หน่อย"
+    },
+    {
+      "en": "Can I take it on the plane?",
+      "th": "เอาขึ้นเครื่องบินได้ไหม"
+    },
+    {
+      "en": "Is this fruit allowed in the hotel?",
+      "th": "เอาผลไม้นี้เข้าโรงแรมได้ไหม"
+    },
+    {
+      "en": "Please wash it first.",
+      "th": "ช่วยล้างให้ก่อน"
+    },
+    {
+      "en": "Please cut it.",
+      "th": "ช่วยหั่นให้หน่อย"
+    },
+    {
+      "en": "Two kilos, please.",
+      "th": "ขอสองกิโล"
+    },
+    {
+      "en": "Do you have a smaller one?",
+      "th": "มีอันเล็กกว่านี้ไหม"
+    },
+    {
+      "en": "I will take this one.",
+      "th": "ขอเอาอันนี้"
+    }
+  ]
+}

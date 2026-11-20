@@ -1,0 +1,107 @@
+{
+  "id": "private-driver-day-tour",
+  "names": {
+    "de": "Privatfahrer und Tagestour",
+    "en": "Private driver and day tour",
+    "th": "คนขับรถส่วนตัวและทัวร์รายวัน"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Preis pro Tag, Fahrzeug, Wartezeit und Benzin vorher festlegen. Fahrer bekommen oft ein Trinkgeld (100–200 Baht). Fahrerbilder und Kennzeichen vor Fahrtbeginn fotografieren. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Agree the daily price, vehicle, waiting time and fuel beforehand. Drivers usually get a tip (100-200 baht). Photograph the driver and the number plate before you leave. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "driver",
+      "th": "คนขับรถ"
+    },
+    {
+      "en": "day tour",
+      "th": "ทัวร์รายวัน"
+    },
+    {
+      "en": "itinerary",
+      "th": "แผนการเดินทาง"
+    },
+    {
+      "en": "waiting time",
+      "th": "เวลารอ"
+    },
+    {
+      "en": "fuel",
+      "th": "ค่าน้ำมัน"
+    },
+    {
+      "en": "tip",
+      "th": "ทิป"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "We do not want to go to a shop.",
+      "th": "ไม่ต้องไปที่ร้านค้า",
+      "critical": true
+    },
+    {
+      "en": "Please drive slowly.",
+      "th": "ช่วยขับช้าๆ",
+      "critical": true
+    },
+    {
+      "en": "How much is a full-day tour?",
+      "th": "เหมารถทั้งวันราคาเท่าไร"
+    },
+    {
+      "en": "Does the price include fuel and tolls?",
+      "th": "ราคารวมค่าน้ำมันและค่าทางด่วนไหม"
+    },
+    {
+      "en": "Does the price include the entrance fees?",
+      "th": "ราคารวมค่าเข้าชมไหม"
+    },
+    {
+      "en": "How many hours are included?",
+      "th": "รวมกี่ชั่วโมง"
+    },
+    {
+      "en": "Please write the price on paper.",
+      "th": "ช่วยเขียนราคาลงกระดาษ"
+    },
+    {
+      "en": "We start at eight in the morning.",
+      "th": "เริ่มแปดโมงเช้า"
+    },
+    {
+      "en": "Please come to my hotel.",
+      "th": "ช่วยมารับที่โรงแรม"
+    },
+    {
+      "en": "Please wait here for one hour.",
+      "th": "ช่วยรอที่นี่หนึ่งชั่วโมง"
+    },
+    {
+      "en": "Please stop. I want to take a photo.",
+      "th": "ช่วยจอด อยากถ่ายรูป"
+    },
+    {
+      "en": "Please put on your seat belt.",
+      "th": "ช่วยคาดเข็มขัดนิรภัย"
+    },
+    {
+      "en": "Is there a toilet on the way?",
+      "th": "ระหว่างทางมีห้องน้ำไหม"
+    },
+    {
+      "en": "Can we stop for lunch?",
+      "th": "แวะกินข้าวกลางวันได้ไหม"
+    },
+    {
+      "en": "Do you speak English?",
+      "th": "พูดภาษาอังกฤษได้ไหม"
+    },
+    {
+      "en": "Thank you, that was a great day.",
+      "th": "ขอบคุณ วันนี้สนุกมาก"
+    }
+  ]
+}

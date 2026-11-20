@@ -1,0 +1,104 @@
+{
+  "id": "luggage-storage",
+  "names": {
+    "de": "Gepäckaufbewahrung",
+    "en": "Luggage storage",
+    "th": "ฝากกระเป๋า"
+  },
+  "style": "polite",
+  "note": {
+    "de": "An Bahnhöfen, Flughäfen und in Hotels möglich, Preis pro Stück und Tag. Wertsachen, Pass und Medikamente im Handgepäck lassen. Quittung oder Schlüssel nicht verlieren. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Available at stations, airports and hotels, priced per item and day. Keep valuables, passport and medicine in your hand luggage. Do not lose the receipt or key. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "luggage",
+      "th": "กระเป๋าเดินทาง"
+    },
+    {
+      "en": "locker",
+      "th": "ตู้ล็อกเกอร์"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    },
+    {
+      "en": "per day",
+      "th": "ต่อวัน"
+    },
+    {
+      "en": "key",
+      "th": "กุญแจ"
+    },
+    {
+      "en": "pickup",
+      "th": "รับกระเป๋า"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Is it safe? Is there a lock?",
+      "th": "ปลอดภัยไหม มีล็อกไหม",
+      "critical": true
+    },
+    {
+      "en": "I lost my ticket. Here is my passport.",
+      "th": "ทำตั๋วฝากหาย นี่พาสปอร์ต",
+      "critical": true
+    },
+    {
+      "en": "My bag is missing.",
+      "th": "กระเป๋าหาย",
+      "critical": true
+    },
+    {
+      "en": "Can I leave my bag here?",
+      "th": "ฝากกระเป๋าไว้ที่นี่ได้ไหม"
+    },
+    {
+      "en": "How much is it per bag and day?",
+      "th": "ฝากใบละเท่าไรต่อวัน"
+    },
+    {
+      "en": "Until what time are you open?",
+      "th": "เปิดถึงกี่โมง"
+    },
+    {
+      "en": "I will be back at six in the evening.",
+      "th": "จะกลับมาตอนหกโมงเย็น"
+    },
+    {
+      "en": "I will pick it up tomorrow morning.",
+      "th": "จะมารับพรุ่งนี้เช้า"
+    },
+    {
+      "en": "Can I lock it myself?",
+      "th": "ล็อกเองได้ไหม"
+    },
+    {
+      "en": "Do you have a bigger locker?",
+      "th": "มีล็อกเกอร์ใหญ่กว่านี้ไหม"
+    },
+    {
+      "en": "Please give me a receipt.",
+      "th": "ขอใบเสร็จ"
+    },
+    {
+      "en": "I want to pick up my bag.",
+      "th": "ต้องการรับกระเป๋าคืน"
+    },
+    {
+      "en": "There is a battery inside. Is that fine?",
+      "th": "มีแบตเตอรี่อยู่ข้างใน ได้ไหม"
+    },
+    {
+      "en": "Please do not put heavy things on it.",
+      "th": "ขออย่าวางของหนักทับ"
+    },
+    {
+      "en": "Where is the nearest storage?",
+      "th": "ที่ฝากกระเป๋าที่ใกล้ที่สุดอยู่ที่ไหน"
+    }
+  ]
+}

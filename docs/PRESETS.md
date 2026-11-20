@@ -180,6 +180,17 @@ kennen, ignorieren sie.
 | `sexual-health-clinic` | Klinik für sexuelle Gesundheit | 3 kritische Sätze zuerst |
 | `thai-language-lesson` | Thai-Unterricht | 0 kritische Sätze zuerst |
 | `babysitter-housekeeper` | Babysitter / Haushaltshilfe | 3 kritische Sätze zuerst |
+| `tattoo-piercing` | Tattoo und Piercing | 6 kritische Sätze zuerst |
+| `driving-license` | Führerschein und Fahrerlaubnis | 1 kritische Sätze zuerst |
+| `bank-account-opening` | Bankkonto eröffnen | 2 kritische Sätze zuerst |
+| `long-term-lease` | Langzeitmiete (Wohnung, Condo) | 1 kritische Sätze zuerst |
+| `pregnancy-maternity` | Schwangerschaft | 8 kritische Sätze zuerst |
+| `drone-camera-rules` | Drohne und Kamera | 4 kritische Sätze zuerst |
+| `fruit-market-durian` | Obstmarkt und Durian | 2 kritische Sätze zuerst |
+| `songkran-water-festival` | Songkran (Wasserfest) | 3 kritische Sätze zuerst |
+| `private-driver-day-tour` | Privatfahrer und Tagestour | 2 kritische Sätze zuerst |
+| `luggage-storage` | Gepäckaufbewahrung | 3 kritische Sätze zuerst |
+| `grand-palace-museum` | Großer Palast und Museum | 2 kritische Sätze zuerst |
 
 Die Kategorie je Paket (`health`, `emergency`, `transport`, `food`, `money`, `stay`, `culture`, `leisure`, `general`) steht in `tools/preset_categories.json` und landet als `category` in `presets-index.json`. `python3 tools/preset_stats.py --by-category` zeigt die Abdeckung je Kategorie; ein neues Paket gehört in genau eine Kategorie (ein Test prüft das).
 
@@ -217,7 +228,7 @@ Am wichtigsten sind die Sätze mit `critical` und die Tabelle [Unsichere Sätze]
 
 | Datei | Inhalt |
 |---|---|
-| `presets/*.json` | 131 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
+| `presets/*.json` | 142 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
 | `ios/Shared/phrases.json` | eingebautes Satzbuch der iPhone-App und des Widgets |
 | `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten, „Sie sind dran“, Allergie-Karte |
 | `ios/Dolmetscher/Round4Views.swift` | Hilfesatz auf dem Bildschirm „Hilfe – jetzt“ |

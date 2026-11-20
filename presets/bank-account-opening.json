@@ -1,0 +1,107 @@
+{
+  "id": "bank-account-opening",
+  "names": {
+    "de": "Bankkonto eröffnen",
+    "en": "Opening a bank account",
+    "th": "เปิดบัญชีธนาคาร"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Ausländer brauchen Pass, Visum (oft mindestens 90 Tage Gültigkeit), Adressnachweis oder Arbeitserlaubnis. Je nach Filiale unterschiedlich: vorher nachfragen. Eröffnung für Touristen wird oft abgelehnt. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Foreigners need a passport, a visa (often valid for at least 90 days) and proof of address or a work permit. Branches differ, so ask first. Tourists are often turned down. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "bank account",
+      "th": "บัญชีธนาคาร"
+    },
+    {
+      "en": "passbook",
+      "th": "สมุดบัญชี"
+    },
+    {
+      "en": "debit card",
+      "th": "บัตรเดบิต"
+    },
+    {
+      "en": "deposit",
+      "th": "ฝากเงิน"
+    },
+    {
+      "en": "withdraw",
+      "th": "ถอนเงิน"
+    },
+    {
+      "en": "application form",
+      "th": "แบบฟอร์มสมัคร"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My card was swallowed by the machine.",
+      "th": "เครื่องกลืนบัตร",
+      "critical": true
+    },
+    {
+      "en": "Please block my card. It was stolen.",
+      "th": "ช่วยอายัดบัตร บัตรถูกขโมย",
+      "critical": true
+    },
+    {
+      "en": "I would like to open a bank account.",
+      "th": "ต้องการเปิดบัญชีธนาคาร"
+    },
+    {
+      "en": "Can foreigners open an account here?",
+      "th": "ชาวต่างชาติเปิดบัญชีที่นี่ได้ไหม"
+    },
+    {
+      "en": "Which documents do I need?",
+      "th": "ต้องใช้เอกสารอะไรบ้าง"
+    },
+    {
+      "en": "Is a tourist visa enough?",
+      "th": "วีซ่านักท่องเที่ยวพอไหม"
+    },
+    {
+      "en": "A savings account, please.",
+      "th": "ขอบัญชีออมทรัพย์"
+    },
+    {
+      "en": "What is the minimum deposit?",
+      "th": "ฝากขั้นต่ำเท่าไร"
+    },
+    {
+      "en": "Is there a monthly fee?",
+      "th": "มีค่าธรรมเนียมรายเดือนไหม"
+    },
+    {
+      "en": "I would like a debit card.",
+      "th": "ขอบัตรเดบิต"
+    },
+    {
+      "en": "Can I use the mobile app in English?",
+      "th": "ใช้แอปเป็นภาษาอังกฤษได้ไหม"
+    },
+    {
+      "en": "Can I receive money from abroad?",
+      "th": "รับเงินโอนจากต่างประเทศได้ไหม"
+    },
+    {
+      "en": "What is the fee for foreign transfers?",
+      "th": "ค่าโอนต่างประเทศเท่าไร"
+    },
+    {
+      "en": "Please explain this form.",
+      "th": "ช่วยอธิบายแบบฟอร์มนี้หน่อย"
+    },
+    {
+      "en": "Where do I sign?",
+      "th": "เซ็นตรงไหน"
+    },
+    {
+      "en": "I would like to close my account.",
+      "th": "ต้องการปิดบัญชี"
+    }
+  ]
+}

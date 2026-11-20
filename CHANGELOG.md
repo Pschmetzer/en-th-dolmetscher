@@ -15,6 +15,10 @@ Pull requests #16–#47. Not yet published as a release.
 - Log/error paths: a home folder such as `/Users/x` no longer turns `/Users/xavier/...` into `~avier/...`; nested path lists in events are masked too.
 - Spoken output: `5€`, `500฿` and a bare `20°` are read as words; learned glossary names can no longer inject glossary lines; the plain console no longer fails on sparse events.
 
+### Phrase packs, round 21 (tooling, wave 2)
+
+- 11 new scenario packs (142 in total): tattoo and piercing, driving licence, opening a bank account, long-term lease, pregnancy, drone and camera rules, fruit market and durian, Songkran, private driver and day tour, luggage storage, Grand Palace and museum. Thai lines machine-made, not checked by native speakers.
+
 ### Security review, round 21
 
 - Mac: allowing a `dolmetscher://` call in the confirmation dialog now applies to that one call only; permanent permission is set only with the Settings switch.

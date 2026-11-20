@@ -1,0 +1,111 @@
+{
+  "id": "tattoo-piercing",
+  "names": {
+    "de": "Tattoo und Piercing",
+    "en": "Tattoo and piercing",
+    "th": "สักและเจาะ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Auf Hygiene achten: neue Nadel vor den eigenen Augen auspacken, Handschuhe, sauberer Tisch. Sak-Yant-Motive sind heilig und gehören nicht auf Füße oder Beine; Mönche berühren Frauen traditionell nicht. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Check hygiene: a new needle opened in front of you, gloves, a clean table. Sak Yant designs are sacred and do not belong on feet or legs; monks traditionally do not touch women. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "tattoo",
+      "th": "รอยสัก"
+    },
+    {
+      "en": "piercing",
+      "th": "เจาะ"
+    },
+    {
+      "en": "needle",
+      "th": "เข็ม"
+    },
+    {
+      "en": "sterile",
+      "th": "ปลอดเชื้อ"
+    },
+    {
+      "en": "ink",
+      "th": "หมึก"
+    },
+    {
+      "en": "aftercare",
+      "th": "การดูแลหลังสัก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Is the needle new and sterile?",
+      "th": "เข็มใหม่และปลอดเชื้อไหม",
+      "critical": true
+    },
+    {
+      "en": "Please open the needle package in front of me.",
+      "th": "ช่วยเปิดซองเข็มต่อหน้า",
+      "critical": true
+    },
+    {
+      "en": "Please wear new clean gloves.",
+      "th": "ช่วยใส่ถุงมือใหม่ที่สะอาด",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to ink or latex.",
+      "th": "แพ้หมึกหรือยางลาเท็กซ์",
+      "critical": true
+    },
+    {
+      "en": "I take blood thinners.",
+      "th": "กินยาละลายลิ่มเลือดอยู่",
+      "critical": true
+    },
+    {
+      "en": "I feel dizzy. Please stop.",
+      "th": "รู้สึกเวียนหัว ช่วยหยุดก่อน",
+      "critical": true
+    },
+    {
+      "en": "How much is this design?",
+      "th": "ลายนี้ราคาเท่าไร"
+    },
+    {
+      "en": "Please draw the design first so I can check it.",
+      "th": "ช่วยวาดลายให้ดูก่อน"
+    },
+    {
+      "en": "Please check the spelling of this text.",
+      "th": "ช่วยเช็กตัวสะกดของข้อความนี้"
+    },
+    {
+      "en": "How long will it take?",
+      "th": "ใช้เวลานานเท่าไหร่"
+    },
+    {
+      "en": "Do I need to pay a deposit?",
+      "th": "ต้องมัดจำไหม"
+    },
+    {
+      "en": "I need a short break.",
+      "th": "ขอพักสักครู่"
+    },
+    {
+      "en": "How do I take care of it?",
+      "th": "ต้องดูแลแผลยังไง"
+    },
+    {
+      "en": "When can I swim or go in the sun again?",
+      "th": "ว่ายน้ำหรืออาบแดดได้เมื่อไร"
+    },
+    {
+      "en": "The skin is red and swollen. Is that normal?",
+      "th": "ผิวแดงและบวม แบบนี้ปกติไหม"
+    },
+    {
+      "en": "Can I pay by card?",
+      "th": "จ่ายด้วยบัตรได้ไหม"
+    }
+  ]
+}

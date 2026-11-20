@@ -1,0 +1,108 @@
+{
+  "id": "songkran-water-festival",
+  "names": {
+    "de": "Songkran (Wasserfest)",
+    "en": "Songkran water festival",
+    "th": "สงกรานต์"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Songkran ist Mitte April (13.–15.). Wer nicht nass werden will, bleibt zu Hause; Wasser trifft auch Roller- und Taxifahrer. Handy in wasserdichte Hülle, Pass im Hotel lassen. Mönche, Babys und ältere Menschen nicht nass spritzen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Songkran is in mid-April (13th-15th). Anyone who does not want to get wet should stay indoors; water also hits scooter and taxi riders. Put the phone in a waterproof pouch and leave the passport at the hotel. Do not splash monks, babies or elderly people. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "Songkran",
+      "th": "สงกรานต์"
+    },
+    {
+      "en": "water",
+      "th": "น้ำ"
+    },
+    {
+      "en": "water gun",
+      "th": "ปืนฉีดน้ำ"
+    },
+    {
+      "en": "powder",
+      "th": "แป้ง"
+    },
+    {
+      "en": "waterproof bag",
+      "th": "ถุงกันน้ำ"
+    },
+    {
+      "en": "blessing",
+      "th": "อวยพร"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please do not splash me. I am riding a scooter.",
+      "th": "ขออย่าสาดน้ำ กำลังขับมอเตอร์ไซค์",
+      "critical": true
+    },
+    {
+      "en": "Please do not splash my baby.",
+      "th": "ขออย่าสาดน้ำใส่ลูก",
+      "critical": true
+    },
+    {
+      "en": "The powder is in my eyes. Please help.",
+      "th": "แป้งเข้าตา ช่วยด้วย",
+      "critical": true
+    },
+    {
+      "en": "Happy Songkran!",
+      "th": "สุขสันต์วันสงกรานต์"
+    },
+    {
+      "en": "Please do not splash my face.",
+      "th": "ขออย่าสาดน้ำใส่หน้า"
+    },
+    {
+      "en": "I do not want to get wet.",
+      "th": "ไม่อยากเปียก"
+    },
+    {
+      "en": "My phone is not waterproof.",
+      "th": "โทรศัพท์ไม่กันน้ำ"
+    },
+    {
+      "en": "Is the water clean?",
+      "th": "น้ำสะอาดไหม"
+    },
+    {
+      "en": "Where is a good place to join the party?",
+      "th": "ไปร่วมงานสนุกได้ที่ไหน"
+    },
+    {
+      "en": "What time does the street party start?",
+      "th": "งานปาร์ตี้ริมถนนเริ่มกี่โมง"
+    },
+    {
+      "en": "Where can I buy a water gun?",
+      "th": "ซื้อปืนฉีดน้ำได้ที่ไหน"
+    },
+    {
+      "en": "Is it safe for children there?",
+      "th": "ที่นั่นปลอดภัยสำหรับเด็กไหม"
+    },
+    {
+      "en": "Is the taxi running today?",
+      "th": "วันนี้แท็กซี่วิ่งไหม"
+    },
+    {
+      "en": "Are shops open today?",
+      "th": "วันนี้ร้านเปิดไหม"
+    },
+    {
+      "en": "May I pour water on your hands as a blessing?",
+      "th": "ขอรดน้ำที่มืออวยพรได้ไหม"
+    },
+    {
+      "en": "Thank you, have a nice holiday!",
+      "th": "ขอบคุณ สุขสันต์วันหยุด"
+    }
+  ]
+}
