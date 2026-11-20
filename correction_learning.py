@@ -208,11 +208,18 @@ class ConfusionMap:
     def apply(self, text, min_count=2):
         """Bekannte Verwechslungen in `text` ersetzen (ganze Wörter, ohne Groß-/Kleinschreibung; Thai: Teilstring)."""
         out = text or ""
-        for w, r, _n in sorted(self.top(min_count, MAX_CONFUSIONS), key=lambda x: -len(x[0])):
+        rows = sorted(self.top(min_count, MAX_CONFUSIONS), key=lambda x: -len(x[0]))
+        latin = {}
+        for w, r, _n in rows:
+            if not _THAI.search(w):
+                latin.setdefault(w, r)                     # mehrere Korrekturen für ein Wort: die häufigste gewinnt
+        if latin:
+            # Runde 24: ein Durchlauf, sonst ersetzt das nächste Paar das Ergebnis des vorigen erneut (a->b, b->c)
+            rx = re.compile(r"(?<!\w)(?:" + "|".join(re.escape(w) for w in latin) + r")(?!\w)", re.I)
+            out = rx.sub(lambda m: latin[m.group(0).lower()], out)
+        for w, r, _n in rows:
             if _THAI.search(w):
                 out = out.replace(w, r)
-            else:
-                out = re.sub(r"(?<!\w)" + re.escape(w) + r"(?!\w)", lambda _m, r=r: r, out, flags=re.I)
         return out
 
     def to_dict(self):
@@ -223,7 +230,8 @@ class ConfusionMap:
         m = cls()
         for row in (d or {}).get("pairs", []):
             if (isinstance(row, (list, tuple)) and len(row) == 3 and isinstance(row[0], str)
-                    and isinstance(row[1], str) and isinstance(row[2], int) and row[2] > 0):
+                    and isinstance(row[1], str) and isinstance(row[2], int)
+                    and not isinstance(row[2], bool) and row[2] > 0 and len(m.counts) < MAX_CONFUSIONS):
                 m.counts[(row[0], row[1])] = row[2]
         return m
 

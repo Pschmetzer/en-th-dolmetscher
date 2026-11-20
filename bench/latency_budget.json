@@ -1,0 +1,9 @@
+{
+  "_comment": "Zeitbudget je Sprache (Sekunden) und erlaubte Verschlechterung je Fall gegenueber der Baseline. Werte gelten fuer Mac mit Apple Silicon, Modell medium, CPU; CI-Runner sind langsamer (dann --scale).",
+  "budget": {
+    "th": {"total_median_s": 8.5, "total_p90_s": 11.0, "stt_mean_s": 8.0, "tr_mean_s": 1.5},
+    "en": {"total_median_s": 8.5, "total_p90_s": 11.0, "stt_mean_s": 8.0, "tr_mean_s": 1.2}
+  },
+  "case_regression_pct": 40,
+  "case_min_delta_s": 1.0
+}

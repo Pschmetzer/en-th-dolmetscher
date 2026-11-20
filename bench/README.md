@@ -21,6 +21,10 @@ Mit `run_bench.py --negatives` misst der Lauf zusätzlich `false_accept` (fälsc
 
 Die Fälle stehen in `cases.json`; die Tags `num`, `digits`, `time`, `clock` und `phone` markieren Zahlen, Uhrzeiten und Telefonnummern (th43 bis th48, en21 bis en26; Messung mit `--only` und der ID). Die Baseline in `bench/results/` enthält diese Fälle noch nicht und ist bei der nächsten Messung auf `main` zu erneuern. Thai wird mit der Stimme „Kanya“ erzeugt, Englisch mit „Samantha“. Als ffmpeg wird `DOLMETSCHER_FFMPEG` genommen, sonst das ffmpeg im PATH, sonst `/opt/homebrew/bin/ffmpeg` bzw. `/usr/local/bin/ffmpeg` (Intel). `bench/audio/` wird nicht eingecheckt.
 
+## Zeitbudget (Latenz-Regression)
+
+`bench/latency_budget.py ERGEBNIS.json [--baseline bench/results/baseline_main.json] [--scale 1.5]` prüft ein Ergebnis von `run_bench.py` gegen `bench/latency_budget.json`: Kennzahlen je Sprache (`total_median_s`, `total_p90_s`, `stt_mean_s`, `tr_mean_s`) und optional jeder Fall gegen die Baseline (mehr als 40 % und mehr als 1 s langsamer). Exit 2 bei Verstoß. `--scale` stellt Budget und Baseline für langsamere Rechner (CI-Runner) ein. Der manuelle Benchmark-Workflow ruft das Skript als Hinweis auf (kein Abbruch).
+
 ## 2. Messen
 
 Mit `--repeat N` wird jeder Fall N-mal verarbeitet; die Zeiten stehen als Median (und `total_p95_s`) im JSON, zusammen mit Gerät und Paketversionen (`meta.device_info`). `--fail-above PROZENT` (nur mit `--compare`) beendet den Lauf mit Exit-Code 2, wenn eine Kennzahl (Fehlerrate, Sprachtreffer, Zeiten, verworfen, Überlapp) um mehr als PROZENT schlechter ist als in der Baseline. Mehrere Sprachbefehle in einem Satz sind (noch) kein Fall: die Befehlsfälle erwarten genau einen Befehl.

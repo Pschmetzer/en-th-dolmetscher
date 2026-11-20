@@ -1,0 +1,151 @@
+{
+  "id": "night-bus-vip",
+  "names": {
+    "de": "Nachtbus (VIP-Bus)",
+    "en": "Overnight VIP bus",
+    "th": "รถทัวร์กลางคืน วีไอพี"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Wertsachen im Handgepäck am Körper tragen, im Bus ist es oft sehr kalt (Jacke mitnehmen). Gepäckschein aufbewahren. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Keep valuables on your body, the bus is often very cold (bring a jacket). Keep your luggage ticket. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "bus station",
+      "th": "สถานีขนส่ง"
+    },
+    {
+      "en": "seat number",
+      "th": "หมายเลขที่นั่ง"
+    },
+    {
+      "en": "luggage ticket",
+      "th": "ตั๋วสัมภาระ"
+    },
+    {
+      "en": "rest stop",
+      "th": "จุดพักรถ"
+    },
+    {
+      "en": "blanket",
+      "th": "ผ้าห่ม"
+    },
+    {
+      "en": "departure time",
+      "th": "เวลาออกเดินทาง"
+    },
+    {
+      "en": "arrival time",
+      "th": "เวลาถึง"
+    },
+    {
+      "en": "driver",
+      "th": "คนขับรถ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please stop the bus, I feel very sick.",
+      "th": "ช่วยจอดรถหน่อย รู้สึกไม่สบายมาก",
+      "critical": true
+    },
+    {
+      "en": "My bag was stolen on the bus.",
+      "th": "กระเป๋าถูกขโมยบนรถ",
+      "critical": true
+    },
+    {
+      "en": "The driver is driving too fast and unsafe.",
+      "th": "คนขับขับเร็วและอันตรายมาก",
+      "critical": true
+    },
+    {
+      "en": "There is smoke in the bus.",
+      "th": "มีควันในรถ",
+      "critical": true
+    },
+    {
+      "en": "A passenger has collapsed, please call an ambulance.",
+      "th": "ผู้โดยสารล้มลง ช่วยโทรเรียกรถพยาบาลหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I missed the bus at the rest stop, please wait.",
+      "th": "ตกรถที่จุดพัก ขอให้รอหน่อย",
+      "critical": true
+    },
+    {
+      "en": "Which bus is the overnight bus to Chiang Mai?",
+      "th": "รถทัวร์กลางคืนไปเชียงใหม่คือคันไหน"
+    },
+    {
+      "en": "Please show me my seat number.",
+      "th": "ขอดูหมายเลขที่นั่งหน่อย"
+    },
+    {
+      "en": "What time do we arrive?",
+      "th": "เราจะถึงกี่โมง"
+    },
+    {
+      "en": "How long is the stop at the rest area?",
+      "th": "จอดพักที่จุดพักนานเท่าไร"
+    },
+    {
+      "en": "Please tell me when we reach my stop.",
+      "th": "ช่วยบอกหน่อยเมื่อถึงป้ายของเรา"
+    },
+    {
+      "en": "May I have a blanket, please?",
+      "th": "ขอผ้าห่มหน่อย"
+    },
+    {
+      "en": "The air conditioning is too cold.",
+      "th": "แอร์เย็นเกินไป"
+    },
+    {
+      "en": "Please turn down the air conditioning a little.",
+      "th": "ช่วยลดแอร์ลงหน่อย"
+    },
+    {
+      "en": "Can I recline my seat?",
+      "th": "เอนเบาะได้ไหม"
+    },
+    {
+      "en": "Is there a toilet on this bus?",
+      "th": "บนรถคันนี้มีห้องน้ำไหม"
+    },
+    {
+      "en": "Please keep my big bag under the bus.",
+      "th": "ขอเก็บกระเป๋าใบใหญ่ไว้ใต้ท้องรถหน่อย"
+    },
+    {
+      "en": "May I see the luggage ticket?",
+      "th": "ขอดูตั๋วสัมภาระหน่อย"
+    },
+    {
+      "en": "Is food included in the ticket?",
+      "th": "ตั๋วรวมอาหารไหม"
+    },
+    {
+      "en": "Where can I charge my phone?",
+      "th": "ชาร์จโทรศัพท์ได้ที่ไหน"
+    },
+    {
+      "en": "Please wake me before the last stop.",
+      "th": "ช่วยปลุกหน่อยก่อนถึงป้ายสุดท้าย"
+    },
+    {
+      "en": "Can I change my ticket to tomorrow?",
+      "th": "เปลี่ยนตั๋วเป็นพรุ่งนี้ได้ไหม"
+    },
+    {
+      "en": "Where is the ticket counter?",
+      "th": "ช่องขายตั๋วอยู่ที่ไหน"
+    },
+    {
+      "en": "Thank you for the safe trip.",
+      "th": "ขอบคุณสำหรับการเดินทางที่ปลอดภัย"
+    }
+  ]
+}

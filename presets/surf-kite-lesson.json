@@ -1,0 +1,143 @@
+{
+  "id": "surf-kite-lesson",
+  "names": {
+    "de": "Surf- und Kitekurs",
+    "en": "Surf and kite lesson",
+    "th": "เรียนเซิร์ฟและไคท์เซิร์ฟ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Flaggen und Strömung vor dem Kurs erfragen, in der Monsunzeit sind Wellen und Rückströmung gefährlich. Sonnenschutz nicht vergessen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Ask about flags and currents before the lesson, waves and rip currents are dangerous in the monsoon. Use sun protection. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "surfboard",
+      "th": "กระดานโต้คลื่น"
+    },
+    {
+      "en": "wave",
+      "th": "คลื่น"
+    },
+    {
+      "en": "current",
+      "th": "กระแสน้ำ"
+    },
+    {
+      "en": "wind",
+      "th": "ลม"
+    },
+    {
+      "en": "leash",
+      "th": "สายรัดข้อเท้า"
+    },
+    {
+      "en": "wetsuit",
+      "th": "ชุดว่ายน้ำกันหนาว"
+    },
+    {
+      "en": "beach",
+      "th": "ชายหาด"
+    },
+    {
+      "en": "lesson",
+      "th": "บทเรียน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am caught in a strong current, please help.",
+      "th": "ติดกระแสน้ำแรง ช่วยด้วย",
+      "critical": true
+    },
+    {
+      "en": "I cannot swim well, please stay close.",
+      "th": "ว่ายน้ำไม่เก่ง ช่วยอยู่ใกล้ๆ หน่อย",
+      "critical": true
+    },
+    {
+      "en": "My friend is drifting out to sea.",
+      "th": "เพื่อนถูกพัดออกไปกลางทะเล",
+      "critical": true
+    },
+    {
+      "en": "I hit my head on the board.",
+      "th": "หัวกระแทกกระดาน",
+      "critical": true
+    },
+    {
+      "en": "Please call the lifeguard.",
+      "th": "ช่วยเรียกเจ้าหน้าที่ช่วยชีวิตหน่อย",
+      "critical": true
+    },
+    {
+      "en": "There are jellyfish in the water.",
+      "th": "มีแมงกะพรุนในน้ำ",
+      "critical": true
+    },
+    {
+      "en": "Do you give lessons for beginners?",
+      "th": "มีสอนสำหรับมือใหม่ไหม"
+    },
+    {
+      "en": "How long is one lesson?",
+      "th": "เรียนหนึ่งครั้งนานเท่าไร"
+    },
+    {
+      "en": "Does the price include the board?",
+      "th": "ราคารวมกระดานไหม"
+    },
+    {
+      "en": "Is the sea safe for beginners today?",
+      "th": "วันนี้ทะเลปลอดภัยสำหรับมือใหม่ไหม"
+    },
+    {
+      "en": "Where is the safe swimming area?",
+      "th": "บริเวณว่ายน้ำที่ปลอดภัยอยู่ตรงไหน"
+    },
+    {
+      "en": "Please explain the flag colours.",
+      "th": "ช่วยอธิบายสีธงหน่อย"
+    },
+    {
+      "en": "Please show me how to stand on the board.",
+      "th": "ช่วยสอนยืนบนกระดานหน่อย"
+    },
+    {
+      "en": "Please check the wind before we go out.",
+      "th": "ช่วยดูทิศลมก่อนออกไปหน่อย"
+    },
+    {
+      "en": "May I rent a wetsuit?",
+      "th": "เช่าชุดว่ายน้ำกันหนาวได้ไหม"
+    },
+    {
+      "en": "Please wait for me on the beach.",
+      "th": "ช่วยรอที่ชายหาดหน่อย"
+    },
+    {
+      "en": "Where can I wash off the salt water?",
+      "th": "ล้างน้ำเค็มได้ที่ไหน"
+    },
+    {
+      "en": "Do you have sun cream for sale?",
+      "th": "มีครีมกันแดดขายไหม"
+    },
+    {
+      "en": "When is the best time for waves?",
+      "th": "ช่วงเวลาไหนคลื่นดีที่สุด"
+    },
+    {
+      "en": "Can we have a lesson tomorrow morning?",
+      "th": "เรียนพรุ่งนี้เช้าได้ไหม"
+    },
+    {
+      "en": "Please take a photo of me on the wave.",
+      "th": "ช่วยถ่ายรูปตอนโต้คลื่นหน่อย"
+    },
+    {
+      "en": "Thank you, I learned a lot today.",
+      "th": "ขอบคุณ วันนี้ได้เรียนรู้มาก"
+    }
+  ]
+}
