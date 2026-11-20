@@ -133,6 +133,7 @@ Pull requests #16–#47. Not yet published as a release.
 - **Wave 5** (#136): notice banners are capped in height (scrollable) so the conversation stays visible; the status line shows SF Symbols instead of emoji; a cancelled setup also stops uv/pip child processes; the engine pipe parser tolerates CRLF/BOM and resynchronises after an overlong line; the Claude key is passed to the engine over stdin (`api_key` control field, never logged) instead of the process environment; Settings has a separate "Advanced & privacy" tab; the Tips sheet has three pages with progress dots; sheets, the settings tab and search text survive a UI-language switch; real XCTest tests for the pure logic files (`cd swift-tests && swift test`).
 - **Wave 6**: rolling captions (1-3 lines) in the caption window; a Settings switch to revoke the `dolmetscher://` permission; XCTest tests for glossary and export logic; fixes a slow-to-typecheck expression in the preset phrase bar.
 - **Wave 7**: the scroll position of the conversation is restored after a UI-language switch; the history search ignores diacritics; 32 XCTest tests now also cover the history logic.
+- **Wave 8**: exports spanning several days carry the date in every line; the ⌘= zoom shortcut only acts in the main window.
 
 ### Mac app (round 19)
 
