@@ -2,9 +2,11 @@
 
 User-facing changes, newest first. Numbers in brackets are the pull requests on GitHub (`#35` = pull request 35). Version numbers come from `pyproject.toml`.
 
-## Unreleased (after 1.2, November 2026)
+## Unreleased
 
-Pull requests #16–#47. Not yet published as a release.
+## 1.3 (20 November 2026)
+
+Pull requests #16–#192. First tagged release since 1.2: engine hardening, Mac and iPhone round 21, Web Lite tabs and i18n files, 142 phrase packs, security fixes.
 
 ### Engine robustness, round 21 (Python 2)
 
@@ -15,6 +17,10 @@ Pull requests #16–#47. Not yet published as a release.
 - Log/error paths: a home folder such as `/Users/x` no longer turns `/Users/xavier/...` into `~avier/...`; nested path lists in events are masked too.
 - Spoken output: `5€`, `500฿` and a bare `20°` are read as words; learned glossary names can no longer inject glossary lines; the plain console no longer fails on sparse events.
 
+### iPhone, round 21 (8)
+
+- iPhone: a cancelled translation (sentence deleted or re-translated) no longer continues to Google/MyMemory; it ends without any network access.
+
 ### Security review, round 21
 
 - Mac: allowing a `dolmetscher://` call in the confirmation dialog now applies to that one call only; permanent permission is set only with the Settings switch.
@@ -24,11 +30,16 @@ Pull requests #16–#47. Not yet published as a release.
 
 ### Interface texts audit (round 21)
 
+- iPhone: the language picker in the settings now says when the chosen interface language is machine-translated and not checked by native speakers (all languages except German and English).
 - New glossary of interface terms ([docs/GLOSSAR-UI.md](docs/GLOSSAR-UI.md)); a test locks the variants it forbids. English texts use US spelling throughout; one word per language for flashcards, partner language, retry and stop reading aloud.
 - Fixed machine-translation slips in the emergency-numbers and phrasebook texts: "partner" was rendered as spouse or business partner in Spanish, French, Vietnamese and Indonesian; Chinese "voices" now reads 声音.
 - Counts read "Matches: 1" instead of "1 matches" (Mac history, search, glossary, settings transfer; iPhone learning streak; web flashcard messages). Thai Mac texts say โปรด/ไมโครโฟน like iPhone and web.
 - Tests now check every iPhone table (rounds 13 to 25), that each round is registered in the lookup, and shared Mac/iPhone keys.
 - Units and number formats follow the interface language: iPhone settings show "0,8 Sek.", "75 %" and "10 Min." (German) instead of fixed English text; the web speed slider and the voice command "slower" use the decimal sign of the chosen language; the Mac conversation export always writes a Gregorian date, also on a Thai system.
+
+### Mac app, round 21
+
+- History window: a session can now also be exported as plain text, JSON or WebVTT (besides Markdown, CSV and SRT).
 
 ### Web version, round 21
 
@@ -107,6 +118,9 @@ Pull requests #16–#47. Not yet published as a release.
 - Internal: numeric control fields now come from one table (`CTRL_NUMERIC`) with consistency tests (first step of a declarative control table; behaviour unchanged).
 - Internal: the known control fields and the loggable ones now come from one table (`CTRL_SPEC`), unchanged in behaviour; the pre-warmed player process is ended on shutdown.
 - Switching the microphone to a device that cannot be opened no longer ends the engine (it reports the error and the microphone stays off); a `listen` sent before the models finished loading no longer makes a `--idle` engine quit on a later microphone error; `--file` runs now also write the history to the end, remove their temporary folder, close the offline helper and report an unwritable subtitle file as `file_failed`; “clear” also forgets the text kept for the echo guard.
+- A sentence played from the voice cache no longer counts as “online” (offline, the fallback-voice banner stayed hidden and the next sentence waited the full race time); Stop before the first sound ends the wait at once; a Stop arriving just as the next sentence was taken from the queue now also stops that sentence (and the confirmation tone); a failing pre-render of the fallback voice (temp folder gone or full) no longer drops the whole spoken output; a half-opened speech connection is closed when its configuration cannot be sent.
+- Control lines: `listen: true` followed by a Stop no longer opens the microphone afterwards; `mic` together with `listen: true` really switches a running microphone; `say`, `speak_text`, `reassign` and `retranslate` in one line all run (they used to exclude each other silently); a Stop during microphone start no longer leaves it marked as on; a failing voice-activity model now leads to a reconnect instead of a silent dead microphone; a long utterance split at the maximum length no longer reuses the pre-recognition of the unsplit audio.
+- “Clear” (or Stop) while a sentence is still playing no longer stores that sentence in the voice cache afterwards; a translation answered from the cache or a pure laugh no longer counts as “online” again; Stop during the fallback-voice wait no longer shows “fallback voice active”; a missing player or temp folder is no longer reported as “offline”.
 - Subtitle export removes its temporary database; a failing chunk of a `--file` run no longer stops the rest; engine start errors report `engine_init_failed`.
 
 ### Engine (speech recognition, translation, voice – used by the Mac app)
@@ -191,6 +205,8 @@ Pull requests #16–#47. Not yet published as a release.
 - **Wave 13** (new feature): quick phrases can be exported to a text file and imported (merged, duplicates skipped, 200 characters per line) in Settings.
 - **Wave 14** (new feature): a history session can be exported as SRT subtitles (translation, then original, timed from the first line).
 - **Wave 15** (new features): History statistics popover (utterances, sessions, words, last 7 days, most frequent sentences); the menu bar menu shows the median latency.
+- **Wave 16** (new features): Phrasebook window searches all scenario phrases (English, Thai, scenario name) and speaks them; the Glossary editor suggests names and places from the current conversation; the scenario menu suggests scenarios by time of day; the bubble context menu has "Look up word" (system dictionary popover).
+- **Wave 17** (review fix): name suggestions in the Glossary editor only scan the last 100 bubbles, so long sessions stay responsive.
 - **Wave 9** (#155, new features): "Translate clipboard" (menu bar item and global shortcut ⌃⌥C; text is flattened, shortened to 1000 characters and spoken in the language of its script); the macOS fallback voice volume is clamped in one place and Settings explains that more than 100 % applies to the neural voice only; the diagnostic report is now in English for support; new XCTest tests for the clipboard and volume logic.
 - **Wave 10** (new features): the system Services menu offers "Translate with Dolmetscher" for selected text in any app (`NSServices`, the text is spoken, not replaced); a single history session can be exported as Markdown with timestamps or as CSV; 40 XCTest tests.
 
@@ -438,3 +454,4 @@ Pull requests #16–#47. Not yet published as a release.
 ## 1.2 and earlier
 
 See the [commit history](https://github.com/Pschmetzer/en-th-dolmetscher/commits/main) up to pull request #15.
+- Engine round 21 (10): Offline-Helfer startet mit --pairs, Helfer-Fehlertexte vor dem Log bereinigt, Ortsnamen-Schutz beachtet Groß-/Kleinschreibung.

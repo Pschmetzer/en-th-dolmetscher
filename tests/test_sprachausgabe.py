@@ -144,7 +144,7 @@ class _Stream:
             self.q.put(c)
         self.t0 = time.time()
 
-    def first(self, deadline=None):
+    def first(self, deadline=None, cancelled=None):
         return self.q.get(timeout=1), self.q
 
     def cancel(self):

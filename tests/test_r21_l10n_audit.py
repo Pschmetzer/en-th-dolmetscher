@@ -236,3 +236,10 @@ def test_partner_text_containers_follow_text_direction_for_arabic():
     assert "s.dir = 'auto'" in html
     for field in ("typeIn", "inFar", "inNear", "myText", "myTr"):
         assert re.search(rf'<textarea id="{field}"[^>]*dir="auto"', html), field
+
+
+def test_ios_language_picker_warns_about_unchecked_translations():
+    src = (IOS / "SettingsView.swift").read_text(encoding="utf-8")
+    assert 'T("ui_mt_note")' in src and '["de", "en"].contains(m.uiLang)' in src
+    row = all_ios()["ui_mt_note"]
+    assert all(row[lg].strip() for lg in IOS_LANGS)

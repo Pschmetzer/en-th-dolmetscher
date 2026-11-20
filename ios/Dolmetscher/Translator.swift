@@ -175,6 +175,7 @@ actor Translator {
     func translate(_ text: String, from: Lang, to: Lang, allowOnline: Bool) async throws -> TranslationResult {
         let key = "\(from.rawValue)>\(to.rawValue)"
         var appleFailed = false
+        try Task.checkCancellation()   // abgebrochen (gelöscht, neu übersetzt): nichts mehr tun, schon gar nichts ins Netz schicken
         if useApple, await installed(from: from, to: to) {
             do {
                 let s = sessions[key] ?? TranslationSession(installedSource: Self.language(from), target: Self.language(to))
@@ -190,6 +191,8 @@ actor Translator {
                 sessions[key] = nil
                 appleFailed = true
             }
+            // Der Abbruch lässt den Zeitgeber der Gruppe sofort „ablaufen“: das ist kein Apple-Fehler und darf nicht online weitergehen.
+            try Task.checkCancellation()
         }
         // Das Paket ist da, die Übersetzung hat aber nicht geantwortet: nicht „Paket fehlt“ melden.
         guard allowOnline else { throw appleFailed ? TranslateError.appleFailed : TranslateError.offlineMissing }
@@ -202,15 +205,17 @@ actor Translator {
                 breaker.succeeded()
                 return TranslationResult(text: out, provider: "google")
             }
-        } catch OnlineError.rateLimited { limited = true } catch {}
+        } catch OnlineError.rateLimited { limited = true } catch is CancellationError { throw CancellationError() } catch let e as URLError where e.code == .cancelled { throw CancellationError() } catch {}
+        try Task.checkCancellation()
         if MyMemory.fits(text) {
             do {
                 if let out = try await myMemory(text, from: from, to: to) {
                     breaker.succeeded()
                     return TranslationResult(text: out, provider: "mymemory")
                 }
-            } catch OnlineError.rateLimited { limited = true } catch {}
+            } catch OnlineError.rateLimited { limited = true } catch is CancellationError { throw CancellationError() } catch let e as URLError where e.code == .cancelled { throw CancellationError() } catch {}
         }
+        try Task.checkCancellation()
         breaker.failed(at: Date(), rateLimited: limited)
         throw limited ? TranslateError.rateLimited : TranslateError.failed
     }

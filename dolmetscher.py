@@ -1933,11 +1933,11 @@ def _mask_tokens(text):
 
 
 # Orte, die Reisende oft nennen: Name bleibt Name (Latein <-> Thai-Schreibung), ohne Anbieter-Umweg
-TRAVEL_PLACES = (("Sukhumvit", "สุขุมวิท"), ("Silom", "สีลม"), ("Khao San", "ข้าวสาร"), ("Wat Pho", "วัดโพธิ์"),
+TRAVEL_PLACES = (("Sukhumvit", "สุขุมวิท"), ("Silom", "สีลม"), ("Wat Pho", "วัดโพธิ์"),
                  ("Wat Arun", "วัดอรุณ"), ("Suvarnabhumi", "สุวรรณภูมิ"), ("Don Mueang", "ดอนเมือง"),
                  ("Chatuchak", "จตุจักร"), ("Pattaya", "พัทยา"), ("Phuket", "ภูเก็ต"), ("Chiang Mai", "เชียงใหม่"),
                  ("Ayutthaya", "อยุธยา"), ("Hua Hin", "หัวหิน"), ("Krabi", "กระบี่"), ("Koh Samui", "เกาะสมุย"),
-                 ("Asoke", "อโศก"), ("Siam", "สยาม"), ("Nana", "นานา"))
+                 ("Asoke", "อโศก"), ("Siam", "สยาม"))
 
 
 def _protect(text, dst):
@@ -1972,12 +1972,13 @@ def _protect(text, dst):
         if len(slots) >= 20:
             break
         for find, val in ((en, th if dst == "th" else en), (th, en if "latin" in LANGS[dst]["script"] else th)):
-            if _term_rx(find).search(text) and find.lower() != val.lower():
+            rx = re.compile(_term_rx(find).pattern)          # Groß-/Kleinschreibung zählt ("Siam", nicht "siam")
+            if rx.search(text) and find.lower() != val.lower():
                 if any(find.lower() == a.lower() for a, _ in GLOSSARY):
                     continue                    # eigenes Glossar hat Vorrang
                 spans = [m.span() for m in _TOKEN_RX.finditer(text)]
                 n = len(slots) + 1
-                new = _term_rx(find).sub(
+                new = rx.sub(
                     lambda m: m.group(0) if any(x <= m.start() < y for x, y in spans) else f" [{n}] ", text)
                 if new != text:                 # Treffer in URL/E-Mail ("www.siam.com") bleiben unberührt
                     text = new
@@ -2880,6 +2881,21 @@ OFFLINE_MT_TIMEOUT = 6.0           # s je Satz
 OFFLINE_MT_START = 5.0             # s bis zur ready-Zeile
 
 
+_HELPER_ERRORS = ("timeout", "unsupportedLanguagePairing", "nothingToTranslate", "unableToIdentifyLanguage",
+                  "notInstalled", "text/src/dst fehlen", "ungültiges JSON", "macOS 26.4 oder neuer nötig")
+
+
+def helper_error(e):
+    """Fehlertext des translate-helper fürs Log: nur bekannte Kennungen im Klartext. Alles andere (z. B. ein
+    Systemfehler, der den übersetzten Satz zitiert) wird nicht übernommen."""
+    if not isinstance(e, str) or not e:
+        return ""
+    for k in _HELPER_ERRORS:
+        if e.startswith(k):
+            return k
+    return "helper-fehler"
+
+
 class OfflineMT:
     def __init__(self):
         self.path, self.on = None, False
@@ -2887,6 +2903,7 @@ class OfflineMT:
         self.lock = threading.Lock()
         self.failed_at = None                       # Start gescheitert: nicht bei jedem Satz neu versuchen
         self._buf = b""                             # gelesene, noch nicht ausgewertete Bytes des Helfers
+        self.started_pair = None                    # (src, dst), für das der Helfer mit --pairs gestartet wurde
 
     @staticmethod
     def bundled():
@@ -2907,19 +2924,23 @@ class OfflineMT:
             log({"offline_mt": "helfer fehlt", "path": cand})
         return self.on
 
-    def _start(self):
+    def _start(self, pair=None):
         if self.proc is not None and self.proc.poll() is None:
-            return True
+            if pair is None or self.started_pair in (None, pair) or tuple(reversed(pair)) == self.started_pair:
+                return True
+            self.close()                             # anderes Sprachpaar: nur dessen Modell laden (RAM)
         if self.failed_at is not None and time.monotonic() - self.failed_at < 60:
             return False
         try:
             self._buf = b""
-            self.proc = subprocess.Popen([self.path], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            cmd = [self.path] + (["--pairs", f"{pair[0]}-{pair[1]},{pair[1]}-{pair[0]}"] if pair else [])
+            self.started_pair = tuple(pair) if pair else None
+            self.proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                          stderr=subprocess.DEVNULL)
             hello = self._readline(OFFLINE_MT_START)
             self.pairs = (hello or {}).get("pairs") or {}
             if not (hello or {}).get("ready"):
-                raise RuntimeError((hello or {}).get("error") or "keine ready-Zeile")
+                raise RuntimeError(helper_error((hello or {}).get("error")) or "keine ready-Zeile")
             log({"offline_mt": "bereit", "pairs": self.pairs})
             self.failed_at = None
             return True
@@ -2973,7 +2994,7 @@ class OfflineMT:
         if not self.on:
             return None
         with self.lock:
-            if not self._start() or self.pairs.get(f"{src}-{dst}") != "installed":
+            if not self._start((src, dst)) or self.pairs.get(f"{src}-{dst}") != "installed":
                 return None
             self.n += 1
             self.last_used = time.monotonic()
@@ -2991,7 +3012,7 @@ class OfflineMT:
                 return None
         out = (r.get("out") or "").strip()
         if not out:
-            log({"offline_mt": "fehler", "err": str(r.get("error") or "leer")[:80]})
+            log({"offline_mt": "fehler", "err": helper_error(r.get("error")) or "leer"})
             return None
         return out
 
@@ -4430,7 +4451,14 @@ async def _ws_open():
             except Exception:                      # noqa: BLE001
                 pass
         raise
-    await ws.send_str(_WS_CONFIG.format(ec.date_to_string()))
+    try:
+        await ws.send_str(_WS_CONFIG.format(ec.date_to_string()))
+    except BaseException as e:                     # noqa: BLE001 – Verbindung steht, Konfiguration scheiterte: nicht offen lassen
+        if isinstance(e, Exception):
+            await _ws_close(ws)
+        else:                                      # Abbruch (CancelledError): nicht awaiten, im Hintergrund schließen
+            _spawn(_ws_close(ws))
+        raise
     return ws
 
 
@@ -4815,12 +4843,16 @@ class EdgeStream:
         self.futs.append(asyncio.run_coroutine_threadsafe(produce(), tts_loop()))
         return q
 
-    def first(self, deadline=None):
-        """Erster Audioblock (mit zweitem Versuch nach HEDGE s). Wirft, wenn bis zur Frist nichts kam."""
+    def first(self, deadline=None, cancelled=None):
+        """Erster Audioblock (mit zweitem Versuch nach HEDGE s). Wirft, wenn bis zur Frist nichts kam.
+        `cancelled`: Stopp/Barge-in beendet das Warten sofort -> (_CANCELLED, None), statt bis zur Frist zu hängen."""
         deadline = FIRST_DEADLINE if deadline is None else deadline
         t_wait = time.time()
         errs = []
         while time.time() - t_wait < deadline:
+            if cancelled and cancelled():
+                self.cancel()
+                return _CANCELLED, None
             # zuerst nachsehen (vorab Geladenes liegt schon bereit), erst dann ggf. zweiter Versuch
             slice_s = 0.02 / max(1, len(self.qs))     # reihum: bei zwei Anfragen nicht doppelt so lange blockieren
             for cand in list(self.qs):
@@ -4889,7 +4921,9 @@ def edge_play(stream, volume, on_start=None, cancelled=None, deadline=None):
     wirft nur, wenn noch kein Ton kam (dann übernimmt 'say', ohne Doppelung). Reißt der Ton
     mitten im Satz ab, steht stats["partial"] (der Satz wurde nur teilweise vorgelesen)."""
     t0 = time.time()
-    first, q = stream.first(deadline)
+    first, q = stream.first(deadline, cancelled)
+    if first is _CANCELLED:                     # Stopp vor dem ersten Ton: nichts gespielt, nichts zu melden
+        return {"interrupted": True, "hedged": stream.hedged}
     got, complete = [], False
     stats = {"first_chunk_s": round(time.time() - t0, 2), "since_request_s": round(time.time() - stream.t0, 2),
              "hedged": stream.hedged}
@@ -4953,11 +4987,12 @@ def edge_play(stream, volume, on_start=None, cancelled=None, deadline=None):
         stream.cancel()
     stats["cached"] = stream.cached is not None
     stats["pooled"] = getattr(stream, "pooled", None)
-    if complete and stream.cached is None and len(stream.text) <= TTS_CACHE_CHARS:
-        _tts_cache_put(stream.key, b"".join(got))
-    elif complete and stream.cached is None:
-        _tts_last_put(stream.key, b"".join(got))
     stats["interrupted"] = bool(cancelled and cancelled())
+    if complete and stream.cached is None and not stats["interrupted"]:     # „clear“/Stopp: nichts mehr merken
+        if len(stream.text) <= TTS_CACHE_CHARS:
+            _tts_cache_put(stream.key, b"".join(got))
+        else:
+            _tts_last_put(stream.key, b"".join(got))
     if "err" in stats and not stats["interrupted"]:
         stats["partial"] = True                 # Ton riss ab: nicht von vorn sprechen (doppelt), aber melden
     return stats
@@ -5268,10 +5303,19 @@ class Speaker:
             except Exception as e:
                 log({"tts": "vorab-fehler", "err": _errtxt(e)})
             if TTS_RACE > 0 and stream is not None and stream.cached is None:
-                local = LocalVoice(s, _say_voice(eng, lang), eng.rate + boost, audio=stream.audio)
+                local = self._local_voice(s, lang, boost, stream.audio)
         elif eng.tts == "say" and not eng.mute:           # --tts say: Teilsätze vorab rendern (keine Pausen dazwischen)
-            local = LocalVoice(s, _say_voice(eng, lang), eng.rate + boost, audio=None)
+            local = self._local_voice(s, lang, boost, None)
         return stream, local
+
+    def _local_voice(self, s, lang, boost, audio):
+        """Vorab-Rendering der macOS-Stimme; scheitert schon das Anlegen (Temp-Ordner weg/voll, Threadlimit), gibt es
+        nur keinen Rückfall – `add` darf nach der schon gemeldeten Übersetzung nicht mehr scheitern."""
+        try:
+            return LocalVoice(s, _say_voice(self.eng, lang), self.eng.rate + boost, audio=audio)
+        except Exception as e:                           # noqa: BLE001
+            log({"tts": "lokal-vorab-start-fehler", "err": _errtxt(e)})
+            return None
 
     def boost(self, behind, slow=False):
         """Tempo-Zuschlag in Prozentpunkten: Aufhol-Modus (+FAST_BOOST bei Rückstand) oder, mit
@@ -5334,6 +5378,7 @@ class Speaker:
                 while not self.items:
                     self.cond.wait()
                 it = self.items.popleft()
+                gen = CANCEL["gen"]               # unter dem Lock wie flush(): spätere Stopps gelten auch hier
                 behind = len(self.items)
                 waiting = sum(len(t) for other in self.items for t, _ in other["parts"])
                 self.busy = True
@@ -5350,7 +5395,7 @@ class Speaker:
                     log({"tts": "übersprungen", "id": it["id"], "behind": behind})
                     emit("speak_done", id=it["id"], skipped=True, interrupted=False)
                     continue
-                self._play(it)
+                self._play(it, gen)
             except Exception as e:
                 log({"speaker": "fehler", "err": _errtxt(e)})
                 emit("speak_done", id=it["id"], skipped=False, interrupted=True)
@@ -5360,16 +5405,19 @@ class Speaker:
                     self.cond.notify_all()
                 report_queue()
 
-    def _play(self, it):
+    def _play(self, it, gen=None):
         eng, uid = self.eng, it["id"]
+        g = CANCEL["gen"] if gen is None else gen
         if it["kind"] == "earcon":
-            wait_quiet()
+            wait_quiet(cancelled=lambda: CANCEL["gen"] != g)
+            if CANCEL["gen"] != g:                       # Stopp während des Wartens: kein Signalton danach
+                emit("speak_done", id=uid, skipped=False, interrupted=True)
+                return
             emit("speaking", id=uid, first_s=0.0)
             PLAYER.run(file_play_cmd(EARCON, eng.volume))
             emit("speak_done", id=uid, skipped=False, interrupted=False)
             return
         started = {"v": False}
-        g = CANCEL["gen"]
 
         def cancelled():
             return CANCEL["gen"] != g or self.eng.mute
@@ -5430,7 +5478,7 @@ def report_queue():
 
 import glob  # noqa: E402
 
-ENGINE_VERSION = "1.2"
+ENGINE_VERSION = "1.3"
 PROTOCOL = 1                      # Version des Engine-App-Protokolls (docs/PROTOKOLL.md)
 STOP = threading.Event()          # gesetzt von SIGTERM/SIGINT oder stdin-Ende -> geordnetes Beenden
 _CTRL_LOCK = threading.RLock()    # Steuer-Thread (apply_control) und Arbeits-Thread schreiben dieselben Felder
@@ -5790,10 +5838,13 @@ class Engine:
                     race = (adaptive_race(TTS_RACE, EDGE_FIRST) if NET.get("tts", True)
                             else min(TTS_RACE, TTS_OFFLINE_PROBE))
                 st = edge_play(stream, self.volume, on_start_part, cancelled, deadline=race)
-                net_state("tts", True)
-                if isinstance(st.get("first_chunk_s"), (int, float)) and not st.get("cached"):
-                    EDGE_FIRST.append(float(st["first_chunk_s"]))
-                _tts_fallback_end()
+                if "first_chunk_s" in st and not st.get("cached"):
+                    # nur eine echte Antwort des Servers beweist „online“ (Cache-Satz und Abbruch vor dem ersten Ton
+                    # nicht: sonst verschwindet offline die Ersatzstimmen-Anzeige, TTS_RACE wartet voll)
+                    net_state("tts", True)
+                    _tts_fallback_end()
+                    if isinstance(st.get("first_chunk_s"), (int, float)):
+                        EDGE_FIRST.append(float(st["first_chunk_s"]))
                 log({"tts": "edge", "voice": stream.voice, **st, "secs": round(time.time() - t, 2)})
                 return "partial" if st.get("partial") else None
             except Exception as e:
@@ -5803,7 +5854,7 @@ class Engine:
                 log({"tts": "edge-fehler" if not local else "edge-zu-langsam", "err": _errtxt(e)})
                 # auch im Wettlauf: echter Netzfehler = offline merken (Symbol, Ersatzstimme ohne Wartezeit);
                 # bloß zu langsam (Frist ohne Fehler) zählt nicht
-                if not local or is_offline_error(e):
+                if is_offline_error(e) or (not local and not isinstance(e, OSError)):   # OSError: Player/Temp
                     net_state("tts", False)
             if local:                            # Wettlauf verloren: vorbereitete macOS-Stimme sofort
                 path = local.ready_path(cancelled=cancelled)
@@ -5816,6 +5867,8 @@ class Engine:
                     if on_start:
                         on_start(round(time.time() - t, 2))
                     PLAYER.run(file_play_cmd(path, self.volume))
+                    return
+                if cancelled and cancelled():    # Stopp im Wettlauf: keine Ersatzstimme melden, nichts neu rendern
                     return
         if self.tts != "edge" and local:             # vorab gerendert (Speaker._prepare): sofort abspielen
             path = local.ready_path(timeout=SAY_TIMEOUT + 2, cancelled=cancelled)
@@ -6519,7 +6572,10 @@ class Engine:
             polite = polite or self.polite      # Person mit eigener Form (Profil) vor der Einstellung
             out = translate(text, lang, dst, history=hist, alts=alts, polite=polite, meta=meta)
             # Offline-Übersetzung (Apple) heißt: kein Netz – nicht als „wieder online“ melden
-            net_state("translate", meta.get("provider") != "apple")
+            if meta.get("provider") == "apple":
+                net_state("translate", False)
+            elif not meta.get("cached") and meta.get("provider") != "none":
+                net_state("translate", True)   # nur eine echte Antwort beweist „online“ (Cache/Lachen nicht)
             if numbers_differ(text, out):      # Zahlen weichen ab: zweiter Anbieter entscheidet (Nr. 25)
                 out = recheck_numbers(text, lang, dst, out, meta, hist, alts, polite)
         except Exception as e:
@@ -6944,15 +7000,18 @@ def apply_control(eng, d):
                 emit("error", code="mic_invalid", msg="Mikrofon-Angabe ungültig – Gerät unverändert")
             elif MIC is None:
                 MIC_PENDING["mic"] = mv        # Modelle laden noch: gilt, sobald das Mikrofon entsteht
-            elif ok and v:
+            elif ok and v and not MIC.on:
                 MIC.mic = mv                   # zugleich `listen`: gleich mit dem neuen Gerät öffnen
+            elif ok and v:                     # Mikrofon läuft schon: Gerät wirklich wechseln (start() wäre ein No-op)
+                mic_job = lambda mv=mv: MIC.switch(mv)
             else:
                 mic_job = lambda mv=mv: MIC.switch(mv)   # resolve_mic/ffmpeg: nicht im Lese-Thread
         if ok and MIC is None:
             MIC_PENDING["listen"] = v          # Mikrofon entsteht erst nach dem Laden: Wunsch nicht verlieren
         if ok and MIC is not None:
             if v:
-                jobs.append(MIC.start)         # öffnet ffmpeg – nicht im Lese-Thread blockieren
+                stops0 = getattr(MIC, "stops", 0)     # ein Stopp danach gilt vor diesem wartenden Start
+                jobs.append(lambda m=MIC, n=stops0: m.start() if getattr(m, "stops", n) == n else None)
             else:
                 later.append(MIC.stop)
         n = _num(d, "rate")
@@ -7085,32 +7144,32 @@ def apply_control(eng, d):
             s = d["say"]
             text, lang = _text_arg(s.get("text")), s.get("lang", PAIR[0])   # ohne Angabe: meine Sprache
             if text and isinstance(lang, str) and lang in TARGET:
-                jobs.append(lambda: eng.say_phrase(text, lang))
+                jobs.append(lambda text=text, lang=lang: eng.say_phrase(text, lang))
             else:
                 emit("error", code="phrase_invalid",
                      msg="Schnellsatz ungültig (Text leer/zu lang oder Sprache unbekannt)")
-        elif isinstance(d.get("speak_text"), dict):
+        if isinstance(d.get("speak_text"), dict):
             s = d["speak_text"]
             text, lang, uid = _text_arg(s.get("text")), s.get("lang"), s.get("id")
             uid = _text_arg(uid, 64) if uid is not None else None
             if text and isinstance(lang, str) and lang in TARGET and (uid or s.get("id") is None):
-                later.append(lambda: eng.speak_text(text, lang, uid))    # nicht hinter der Erkennung warten
+                later.append(lambda text=text, lang=lang, uid=uid: eng.speak_text(text, lang, uid))   # sofort
             else:
                 emit("error", code="speak_invalid",
                      msg="Vorlesen ungültig (Text leer/zu lang, Sprache unbekannt oder id ungültig)")
-        elif isinstance(d.get("reassign"), dict):
+        if isinstance(d.get("reassign"), dict):
             r = d["reassign"]
             uid = _text_arg(r.get("id"), 64)
             if uid and r.get("role") in ("me", "other"):
-                jobs.append(lambda: eng.reassign(uid, r.get("role")))
+                jobs.append(lambda uid=uid, r=r: eng.reassign(uid, r.get("role")))
             else:
                 emit("error", code="reassign_invalid", msg="Zuordnung ungültig (id oder Rolle fehlt)")
-        elif isinstance(d.get("retranslate"), dict):
+        if isinstance(d.get("retranslate"), dict):
             r = d["retranslate"]
             uid, text = _text_arg(r.get("id"), 64), _text_arg(r.get("text"))
             if text:
-                jobs.append(lambda: eng.retranslate(uid or "", text,
-                                                    r.get("lang") if isinstance(r.get("lang"), str) else ""))
+                jobs.append(lambda uid=uid, text=text, r=r: eng.retranslate(
+                    uid or "", text, r.get("lang") if isinstance(r.get("lang"), str) else ""))
             else:
                 emit("error", code="edit_invalid", msg="Korrektur ungültig (Text leer oder zu lang)")
     unknown = sorted(k for k in d if k not in CTRL_KEYS)
@@ -7470,7 +7529,7 @@ def segmenter(read, utts, sess=0, on_end=None):
     Verworfen wird nur, was während der eigenen Sprachausgabe (+ Nachhall) ankommt.
     Mit --barge-in (Kopfhörer) wird nichts verworfen; Sprechen unterbricht die Ausgabe."""
     N = StreamVAD.N
-    vad = StreamVAD()
+    vad = None                      # im try angelegt: scheitert das Modell, läuft trotzdem on_end (Wiederverbinden)
     BARGE_FRAMES = 6                # ~190 ms durchgehend Sprache unterbricht die Ausgabe
     fdur = N / SR
     buf, voiced, silence, speech, pre, peak_rms = [], False, 0.0, 0.0, [], 0.0
@@ -7505,6 +7564,7 @@ def segmenter(read, utts, sess=0, on_end=None):
             EARLY_END.pop(uid, None)
 
     try:
+        vad = StreamVAD()
         while True:
             f, t_cap = read()
             if 0 < f.size < N:          # Rest-Teilframe nicht verlieren: mit Stille auffüllen
@@ -7609,6 +7669,9 @@ def segmenter(read, utts, sess=0, on_end=None):
                 log({"segment": {"cut": "max", "len_s": round(len(head) * fdur, 2),
                                  "rest_s": round(len(tail) * fdur, 2)}})
                 put(head, "max", len(head) * fdur)
+                with _PRE_LOCK:                 # Vorab-Erkennung galt dem ungeteilten Puffer: nicht für den Kopf nutzen
+                    PRE.pop(uid, None)
+                    EARLY_END.pop(uid, None)
                 buf, speech = tail, len(tail) * fdur
                 peak_rms = max((float(np.sqrt(np.mean(x ** 2))) for x in tail), default=0.0)   # Pegel des Rests
                 uid, version, pre_sent, partial_at = new_id(), 0, False, 0.0
@@ -7873,8 +7936,13 @@ class Mic:
                     threading.Thread(target=self._reconnect, args=(self.stops,), name="mic-reconnect",
                                      daemon=True).start()
 
-        with self.lock:
-            self.on = True
+        with self.lock:                        # Prüfung und on=True unteilbar: stop()/switch() dazwischen gilt
+            stale = sess != self.sess
+            if not stale:
+                self.on = True
+        if stale:
+            self._kill(ff)
+            return False
         threading.Thread(target=reader, name="mic-read", daemon=True).start()
         threading.Thread(target=stall_watch, name="mic-stall", daemon=True).start()
         threading.Thread(target=segmenter, args=(read, self.jobs, sess, ended), name="mic", daemon=True).start()
