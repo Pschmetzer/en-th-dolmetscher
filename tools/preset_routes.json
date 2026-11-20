@@ -1,0 +1,20 @@
+{
+ "routes": {
+  "backpacker-2-weeks": {
+   "names": {"de": "Backpacker, zwei Wochen", "en": "Backpacker, two weeks", "th": "แบ็คแพ็คเกอร์ สองสัปดาห์"},
+   "packs": ["travel", "answers", "airport", "bangkok-skytrain", "bus-train", "taxi", "tuk-tuk-songthaew", "hostel-dorm", "street-food", "restaurant", "night-market-bargain", "scams-overcharge", "temple", "island-hopping", "snorkel-boat-tour", "beach", "mobile-sim", "atm-bank-card", "pharmacy", "emergency", "police", "lost-passport"]
+  },
+  "family-with-kids": {
+   "names": {"de": "Familie mit Kindern", "en": "Family with children", "th": "ครอบครัวที่มีเด็ก"},
+   "packs": ["travel", "airport", "hotel", "taxi", "kids", "baby", "kids-playground", "water-park-zoo", "restaurant", "food-allergy", "lostchild", "pharmacy", "doctor", "heat-health", "mosquito-dengue", "beach", "emergency"]
+  },
+  "digital-nomad": {
+   "names": {"de": "Digitale Nomaden", "en": "Digital nomad", "th": "ดิจิทัลโนแมด"},
+   "packs": ["nomad", "coworking", "wifi-coworking-cafe", "rental", "tm30-address-report", "visa", "visa-extension", "immigration-90day", "border-crossing", "mobile-sim", "bank", "promptpay-qr-payment", "laundry-deposit", "home-repair", "gym", "lost-phone", "emergency"]
+  },
+  "medical-tourism": {
+   "names": {"de": "Medizintourismus", "en": "Medical tourism", "th": "การท่องเที่ยวเชิงการแพทย์"},
+   "packs": ["doctor", "hospital", "dentist", "pharmacy", "pharmacy-otc", "chronic-conditions", "skin-clinic", "optician-eye-care", "physiotherapy-injury", "travel-insurance-claim", "transport", "hotel", "emergency"]
+  }
+ }
+}

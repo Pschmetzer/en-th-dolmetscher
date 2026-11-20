@@ -26,6 +26,8 @@ Pull requests #16–#47. Not yet published as a release.
 
 - **New:** 10 more phrase packs: motorcycle-taxi, promptpay-qr-payment, water-park-zoo, home-repair, volunteering, birthday-celebration, funeral-condolence, skin-clinic, fishing-trip, badminton-tennis (131 in total; Thai machine-translated, not yet checked by a native speaker). They are listed in `tools/web_pending_presets.txt` until the web lists (`index.html`, `sw.js`) include them.
 
+- **New (tooling, part 6):** `presets-index.json` has `keywords` per pack and `routes` (backpacker, family, digital nomad, medical tourism bundles from `tools/preset_routes.json`); `tools/preset_search.py` searches all packs in de/en/th; `tools/preset_quality.py` reports length, number and glossary consistency per pack; `Store.stats()` gives sentences and words per day and the most repeated sentences; `Recorder.enable(keep_days="suggested")` offers a 30-day retention (the default stays unlimited).
+
 - **Changed (tooling, part 5):** notes of the new packs on cannabis, customs, volunteering, dengue and PEP no longer state specific rules or deadlines that could be wrong (they point to current local rules or a doctor); voiceprint enrolment sentences for German, Spanish and French; CI lints the workflows with actionlint and zizmor.
 
 - **Fixed (tooling, part 4):** a voiceprint is only adapted from an utterance that is at least moderately similar to it and with a smaller maximum weight, so a wrongly recognised foreign voice cannot drag it away; `PresetState.dropped` reports glossary entries that did not fit; `hwprofile.low_power_mode()` and `power_saving()` detect Low Power Mode.
