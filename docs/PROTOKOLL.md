@@ -513,7 +513,7 @@ durch (`0` = nie löschen, Ungültiges: `error` `history_days_invalid`).
 | `control_invalid` | `key`, `reason` (`value`) | Ein **bekanntes** Steuerfeld hatte einen ungültigen Wert (falscher Typ, unbekannte Auswahl: `lang`, `polite`, `sensitivity`, `style`, `catch_up`; nicht numerische Zahlenfelder wie `rate`, `volume`, `silence`, `tts_race`, `let_finish`, `llm_budget`, `beam`). Der Rest der Zeile wird trotzdem angewendet. Früher still ignoriert bzw. `TypeError` bei Liste/Objekt |
 | `overrun` | `frames`, `total` | Mikrofon-Puffer übergelaufen: Audio-Blöcke gingen verloren (Lücke mitten im Wort bei CPU-Spitze). Höchstens alle 5 s |
 | `profiles_skipped` | `skipped` (`[{name, reason}]`, höchstens 10) | Stimmprofile, die nicht geladen wurden (anderes Erkennungsmodell, ungültig); die Stimmerkennung läuft dafür nicht |
-| `captive_portal` | `msg` | Ein API-Host lieferte HTML bzw. eine Weiterleitung (Anmeldeseite im Hotel-/Flughafen-WLAN). Höchstens einmal je Minute; der Anbieter pausiert dann 15 s, statt jeden Satz zu versuchen. Die App kann „Im WLAN anmelden“ zeigen. Bewusst kein `error` (ältere Apps kennen den Code nicht) |
+| `captive_portal` | `msg`, `url` (Test-URL zum Öffnen des Portals) | Ein API-Host lieferte HTML bzw. eine Weiterleitung (Anmeldeseite im Hotel-/Flughafen-WLAN). Höchstens einmal je Minute; der Anbieter pausiert dann 15 s, statt jeden Satz zu versuchen. Die App kann „Im WLAN anmelden“ zeigen. Bewusst kein `error` (ältere Apps kennen den Code nicht) |
 | `llm_budget_warn` | `usd`, `limit` | einmal je Monat bei 80 % des `llm_budget`-Limits (davor kam nur die Meldung beim Erreichen) |
 
 `state` (Antwort auf `get_state`) enthält zusätzlich `silence`, `sensitivity` (`low`\|`normal`\|`high`),
