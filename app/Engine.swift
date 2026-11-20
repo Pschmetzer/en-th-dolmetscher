@@ -1077,6 +1077,7 @@ final class EngineModel: NSObject, ObservableObject {
                 if !line.isEmpty {
                     malformedLines += 1
                     if malformedLines <= 5 { NSLog("Dolmetscher: Zeile der Engine ist kein Ereignis (%d Bytes)", line.count) }
+                    if malformedLines == 20 { lastError = (L.t("err_comm_garbled"), Date()) }   // gestörte Kommunikation sichtbar machen
                 }
                 continue
             }
@@ -1169,6 +1170,8 @@ final class EngineModel: NSObject, ObservableObject {
             micKnown = true
             if on != micOn { Announcer.post(L.t(on ? "a11y_mic_on" : "a11y_mic_off")) }   // Nr. 365
             micOn = on
+            // Mikrofon läuft wieder: ein Mikrofon-Fehlerband ist erledigt (sonst bliebe es für immer stehen).
+            if on, let c = lastErrorCode, c.hasPrefix("mic_") { lastError = nil; lastErrorCode = nil }
             keepAwake(on)
             if first && !on && wantListen && !micLent {
                 // Start wurde während des Ladens gedrückt: jetzt erst kann die Engine `listen` annehmen.
@@ -1655,12 +1658,19 @@ final class EngineModel: NSObject, ObservableObject {
 
     func say(_ text: String, lang: String = "en") {
         // Nr. 361: erst nach `ready` – sonst puffert die Engine den Satz und spricht ihn später unerwartet
-        guard engineReady else { return }
+        guard engineReady else { Announcer.post(L.t("empty_loading")); return }   // nicht mehr stumm verwerfen
         send(["say": ["text": text, "lang": lang]])
     }
 
     /// Nr. 51: Audiodatei übersetzen (eigener Engine-Prozess `--file`, ohne Vorlesen). Ergebnisse werden Blasen.
     @Published private(set) var fileBusy = false
+    private var fileProc: Process?
+    /// Laufende Datei-Übersetzung abbrechen (SIGTERM, nach 2 s SIGKILL).
+    func cancelTranslateFile() {
+        guard let p = fileProc, p.isRunning else { return }
+        p.terminate()
+        DispatchQueue.global().asyncAfter(deadline: .now() + 2) { if p.isRunning { kill(p.processIdentifier, SIGKILL) } }
+    }
     func translateFile(_ url: URL) {
         guard !fileBusy else { return }
         fileBusy = true
@@ -1675,7 +1685,8 @@ final class EngineModel: NSObject, ObservableObject {
                 default: break
                 }
             }
-        }, onExit: { [weak self] in MainActor.assumeIsolated { self?.fileBusy = false } })
+        }, onExit: { [weak self] in MainActor.assumeIsolated { self?.fileBusy = false; self?.fileProc = nil } })
+        fileProc = p
         if p == nil { fileBusy = false; lastError = (L.t("python_missing"), Date()) }
     }
 

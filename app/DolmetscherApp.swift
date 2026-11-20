@@ -31,6 +31,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         case .alertFirstButtonReturn: return .terminateNow
         case .alertThirdButtonReturn:
             MainActor.assumeIsolated { exportConversation(EngineModel.shared) }
+            DispatchQueue.main.async { NSApp.terminate(nil) }   // nach dem Export erneut fragen, ob beendet werden soll
             return .terminateCancel
         default: return .terminateCancel
         }

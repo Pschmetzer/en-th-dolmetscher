@@ -22,9 +22,14 @@ enum Announcer {
 
 func mdEscape(_ s: String) -> String { ExportFormats.mdEscape(s) }
 
+/// Locale-Kennung der Oberflächensprache für Zahlen (Thai-UI bekam vorher en_US).
+var uiNumberLocale: String {
+    switch L.lang { case .de: return "de_DE"; case .th: return "th_TH"; case .en: return "en_US" }
+}
+
 /// Zahl mit Dezimalzeichen der Oberflächensprache (Nr. 39).
 func fmtNumber(_ v: Double, digits: Int = 2, plus: Bool = false) -> String {
-    let loc = Locale(identifier: L.lang == .de ? "de_DE" : "en_US")
+    let loc = Locale(identifier: uiNumberLocale)
     return String(format: plus ? "%+.\(digits)f" : "%.\(digits)f", locale: loc, v)
 }
 

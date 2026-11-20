@@ -5,7 +5,13 @@ import Foundation
 enum UILang: String, CaseIterable, Identifiable {
     case th, en, de
     var id: String { rawValue }
-    var label: String { ["th": "🇹🇭 ไทย", "en": "🇬🇧 English", "de": "🇩🇪 Deutsch"][rawValue]! }
+    var label: String {
+        switch self {
+        case .th: return "🇹🇭 ไทย"
+        case .en: return "🇬🇧 English"
+        case .de: return "🇩🇪 Deutsch"
+        }
+    }
 }
 
 enum L {
@@ -993,6 +999,11 @@ enum L {
                "th": "ไม่มีการเชื่อมต่ออินเทอร์เน็ต – การตั้งค่าต้องใช้อินเทอร์เน็ต กรุณาเชื่อมต่อแล้วลองอีกครั้ง"],
         "phrase_saved": ["de": "Als Schnellsatz gespeichert", "en": "Saved as quick phrase", "th": "บันทึกเป็นประโยคด่วนแล้ว"],
         "phrase_exists": ["de": "Schnellsatz ist schon vorhanden", "en": "Quick phrase already exists", "th": "มีประโยคด่วนนี้อยู่แล้ว"],
+        "shortcut_global_startstop": ["de": "Start / Stopp (überall)", "en": "Start / Stop (system-wide)", "th": "เริ่ม / หยุด (ทั้งระบบ)"],
+        "unit_seconds": ["de": "s", "en": "s", "th": "วิ"],
+        "err_comm_garbled": ["de": "Die Verbindung zur Engine ist gestört (ungültige Daten). Bitte neu starten.",
+                             "en": "Communication with the engine is disturbed (invalid data). Please restart.",
+                             "th": "การสื่อสารกับเอนจินผิดปกติ (ข้อมูลไม่ถูกต้อง) โปรดเริ่มใหม่"],
         "copied": ["de": "Kopiert",
                "en": "Copied",
                "th": "คัดลอกแล้ว"],

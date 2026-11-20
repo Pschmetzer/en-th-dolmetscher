@@ -35,6 +35,7 @@ final class HistoryStore: ObservableObject {
     /// Verlauf neu laden: Engine schreibt den JSON-Export in eine private Temp-Datei (0600), die App liest sie
     /// und löscht sie sofort wieder.
     func reload() {
+        guard !loading else { return }   // läuft schon ein Export (Python-Start ~Sekunden): keinen zweiten Prozess starten
         loading = true; failed = false
         let dir = FileManager.default.temporaryDirectory.appendingPathComponent("dolm-history-" + UUID().uuidString)
         let file = dir.appendingPathComponent("h.json")
@@ -176,7 +177,7 @@ struct HistoryView: View {
             Picker(L.t("hist_f_lang"), selection: $filter.lang) {
                 Text(L.t("hist_f_all")).tag("")
                 ForEach(HistoryLogic.languages(store.sessions), id: \.self) { c in
-                    Text(Langs.flag(c) + " " + c.uppercased()).tag(c)
+                    Text(Langs.flag(c) + " " + Langs.name(c)).tag(c)
                 }
             }
             Picker(L.t("hist_f_dir"), selection: $filter.role) {
@@ -304,10 +305,12 @@ struct HistoryView: View {
             Text(time + " · " + Langs.flag(r.lang) + " " + r.lang.uppercased()).font(.caption).foregroundStyle(.secondary)
             Text(r.text).textSelection(.enabled)
             if !r.translation.isEmpty { Text(r.translation).foregroundStyle(.secondary).textSelection(.enabled) }
+            if !r.translit.isEmpty { Text(r.translit).font(.callout).italic().foregroundStyle(.secondary).textSelection(.enabled) }
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(time + ", " + r.lang.uppercased() + ": " + r.text
-                            + (r.translation.isEmpty ? "" : ". " + r.translation))
+                            + (r.translation.isEmpty ? "" : ". " + r.translation)
+                            + (r.translit.isEmpty ? "" : ". " + r.translit))
     }
 
     // MARK: Rückgängig, Umbenennen, Öffnen

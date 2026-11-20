@@ -98,11 +98,17 @@ struct ErrorBanner: View {
 /// Kein Netz: welche Dienste betroffen sind und was jetzt hilft (Ersatzstimme, Offline-Übersetzung).
 struct NetDownBanner: View {
     @EnvironmentObject var m: EngineModel
+    @State private var hidden = false   // Schließen gilt, bis sich die Menge der betroffenen Dienste ändert
     var body: some View {
         let parts = m.netDown.sorted().map { $0 == "tts" ? L.t("offline_tts") : L.t("offline_translate") }
-        NoticeBanner(icon: "wifi.slash", tint: LangStyle.warning,
-                     text: L.t("offline") + ": " + parts.joined(separator: ", ") + ". " + L.t("advice_net"),
-                     action: (L.t("settings"), { openSettingsWindow() }))
+        Group {
+            if !hidden {
+                NoticeBanner(icon: "wifi.slash", tint: LangStyle.warning,
+                             text: L.t("offline") + ": " + parts.joined(separator: ", ") + ". " + L.t("advice_net"),
+                             action: (L.t("settings"), { openSettingsWindow() }), onClose: { hidden = true })
+            }
+        }
+        .onChange(of: m.netDown) { _, _ in hidden = false }
     }
 }
 
@@ -197,7 +203,10 @@ struct ShortcutsSheet: View {
         ("⌘L", "focus_typing"), ("⌥⌘S", "speak_toggle"), ("⌥⌘L", "direction_cycle"),
         ("⇧⌘C", "copy_last"), ("⌥⌘G", "glossary_add_title"), ("⌘F", "find"), ("⇧⌘E", "export"),
         ("⇧⌘P", "partner_view"), ("⌘1–9", "quick_phrases"), ("⌥⌘1–9", "preset_phrases_short"),
-        ("⌘+ / ⌘− / ⌘0", "font_size"), ("⌥⌘Z", "undo_delete"), ("⌘/", "shortcuts_title"),
+        ("⌘+ / ⌘− / ⌘0", "font_size"), ("⌥⌘Z", "undo_delete"),
+        // Globale Kürzel (auch bei Hintergrund-App) und Sonstiges
+        ("⌃⌥D", "shortcut_global_startstop"), ("⌃⌥P", "pause"), ("⌃⌥S", "stop_speaking"), ("⌃⌥R", "replay_last"),
+        ("⌃⌥T", "hold_to_talk"), ("⌃⌘F", "partner_fullscreen"), ("Space", "shortcut_startstop"), ("⌘/", "shortcuts_title"),
     ]
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -215,7 +224,7 @@ struct ShortcutsSheet: View {
             }
             HStack { Spacer(); Button(L.t("close")) { dismiss() }.keyboardShortcut(.defaultAction) }
         }
-        .padding(24).frame(width: 460, height: 460)
+        .padding(24).frame(minWidth: 460, idealWidth: 540, maxWidth: 720, minHeight: 360, idealHeight: 520, maxHeight: 640)
     }
 }
 
