@@ -43,7 +43,8 @@ extension HistoryLogic {
         for (i, r) in rows.enumerated() {
             let start = r.time.timeIntervalSince(first)
             let gap = i + 1 < rows.count ? rows[i + 1].time.timeIntervalSince(r.time) : 4
-            let end = start + min(6, max(1.5, gap))
+            var end = start + min(6, max(1.5, gap))
+            if i + 1 < rows.count, gap >= 0.5, end > start + gap { end = start + gap - 0.05 }   // nie in den nächsten Untertitel hinein
             let lines = [r.translation.isEmpty ? nil : r.translation, r.text.isEmpty ? nil : r.text].compactMap { $0 }
             out += "\(i + 1)\n\(ts(start)) --> \(ts(end))\n" + lines.joined(separator: "\n") + "\n\n"
         }

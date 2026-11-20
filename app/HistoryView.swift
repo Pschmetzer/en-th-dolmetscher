@@ -113,6 +113,8 @@ struct HistoryView: View {
     @EnvironmentObject var m: EngineModel
     @StateObject private var store = HistoryStore()
     @State private var filter = HistoryFilter()
+    @State private var queryDraft = ""          // Eingabe im Suchfeld; `filter.query` folgt nach kurzer Tipppause (SearchDebounce)
+    @State private var debouncer = Debouncer()
     /// Runde 23: Mehrfachauswahl (⌘/⇧-Klick). `selection` ist die einzelne Sitzung, sonst nil.
     @State private var multi: Set<String> = []
     @State private var facet = R23HistoryFacet()
@@ -174,10 +176,15 @@ struct HistoryView: View {
     private func controls(_ hits: Int) -> some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass").foregroundStyle(.secondary).accessibilityHidden(true)
-            TextField(L.t("hist_search"), text: $filter.query)
+            TextField(L.t("hist_search"), text: $queryDraft)
                 .textFieldStyle(.roundedBorder).frame(maxWidth: 240)
                 .focused($searchFocused).accessibilityLabel(L.t("hist_search"))
-                .onExitCommand { filter.query = ""; searchFocused = false }
+                .onExitCommand { debouncer.cancel(); queryDraft = ""; filter.query = ""; searchFocused = false }
+                .onChange(of: queryDraft) {
+                    if SearchDebounce.isImmediate(queryDraft) { debouncer.cancel(); filter.query = queryDraft }
+                    else { debouncer.schedule(after: SearchDebounce.delay) { filter.query = queryDraft } }
+                }
+                .onChange(of: filter.query) { if filter.query != queryDraft { queryDraft = filter.query } }   // z. B. „Zurücksetzen“
             Button("") { searchFocused = true }.keyboardShortcut("f", modifiers: .command)
                 .frame(width: 0, height: 0).opacity(0).accessibilityHidden(true)
             filterMenu
@@ -335,6 +342,8 @@ struct HistoryView: View {
                         .help(L.t("hist_rename")).accessibilityLabel(L.t("hist_rename"))
                     Menu {
                         Button("Markdown (.md)") { exportSession(s, .markdown) }
+                        Button(R25T.t("hist_md_table")) { HistoryTableExport.save(s, title: store.title(s), pdf: false) }
+                        Button(R25T.t("hist_pdf_table")) { HistoryTableExport.save(s, title: store.title(s), pdf: true) }
                         Button("CSV (.csv)") { exportSession(s, .csv) }
                         Button("SRT (.srt)") { exportSession(s, .srt) }
                         Button("WebVTT (.vtt)") { exportSession(s, .vtt) }

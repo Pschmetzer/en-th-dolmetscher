@@ -15,6 +15,24 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 - **Accessibility:** the large yes/no text on the dark show screen had 2.3 to 2.7:1 contrast; new `--yes-text`/`--no-text` colors reach 6.8:1 and 9.9:1. The light accent for language B (`--th`) is slightly darker (3.3:1 instead of 2.97:1). A contrast matrix test covers all three color schemes.
 - Budget: service worker limit raised to 17,000 bytes (25 more pack IDs, audio storage).
 
+### Mac app, round 25
+
+- Fix: a full stop inside a number (`10.30`, `3.5`, `฿1.200`) no longer splits a sentence, so a to-do like "Meet at 10.30 at the pier." stays whole in the summary.
+- Fix: the learn-mode blank hid the first matching letters instead of the chosen word (`a` inside "banana"); it now uses the exact word range.
+- Fix: euro amounts are rounded to cents before formatting (12.995 showed `12.99 €`, now `13 €`).
+- Fix: SRT/VTT export no longer lets a cue run into the next one when sentences follow each other closely.
+- Fix: history search ignores spaces at the edges ("hello " found nothing) and also searches the romanization; the field now filters after a 0.2 s typing pause instead of on every key.
+- Fix: the Handoff language-code check accepted a letter plus a combining accent (character range a…z); it is ASCII-only now.
+- Error banner: more engine codes get a concrete next step (disk full, ffmpeg/audio missing, history/file errors, invalid language pair) and "no network" also offers the network settings. The rules moved to `ErrorAdviceLogic.swift`.
+- History export: Markdown table and PDF with two columns (Thai left, Latin right; optional romanization column), decided by script, not by direction. The PDF is made locally from an HTML table with page breaks.
+- Menu bar: live line with finished and waiting sentences and the median latency of the last five; the Learn window is in the menu bar menu.
+- Output per direction (settings): choose a device for my translations and one for the other person. Only preferences for now; the engine fields `output_device_me` / `output_device_other` are prepared in `AudioRouteLogic` but not sent until the engine knows the direction per sentence. A missing device is reported, not silently replaced.
+- Handoff (off by default, never during a sensitive session): the last sentence can be continued on another Mac as a show card (`NSUserActivityTypes` in Info.plist). Prepared, not tested between two Macs (ad-hoc signed builds may not support Handoff).
+- Window self-test: Help menu "Window self-test" or `Dolmetscher --smoke-test` builds every window view once and checks layout (all 12 windows listed in `WindowCatalog`, checked against the scenes by a test).
+- Accessibility: "Show big" buttons name their amount, learn-mode word rows read as one sentence, the revealed blank is announced, the invalid-rate warning is announced, "Copied" resets when the summary changes. The show-card phrasebook is built once instead of on every key press.
+- `SettingsView.swift` split further (`SettingsAudioSections.swift`, `SettingsAPIKey.swift`, `SettingsR25.swift`); texts in `L10n+R25.swift`; the other long-open ideas (App Intents, bubble list diffing) were checked: bubbles are already `Equatable`; App Intents are left out because plain `swiftc` does not produce the metadata Shortcuts needs.
+- Tests: `R25Tests` (27 cases) in `swift-tests`, `tests/test_r25_mac.py` (window ids, three-language tables, shortcut catalog against the code, wiring).
+
 ### Mac app, round 24
 
 - Numbers & prices (⇧⌘N): prices in the conversation (฿, baht, บาท, €, euro) with conversion at a manually entered rate (baht per euro), "show big" for any amount, and a negotiation helper (counter-offers at 70/80/90 %, next bid under a budget).

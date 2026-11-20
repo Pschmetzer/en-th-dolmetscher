@@ -96,6 +96,22 @@ struct HandoffPayload: Equatable {
 
     var userInfo: [String: String] { ["text": lastText, "out": lastOut, "from": from, "to": to] }
 
+    /// Einstellung „Letzten Satz per Handoff übergeben“ (Standard aus: nichts verlässt den Mac ungefragt).
+    static let prefKey = "handoffEnabled"
+
+    /// Nur anbieten, wenn der Nutzer es eingeschaltet hat, keine sensible Sitzung läuft und es etwas zu übergeben gibt.
+    static func shouldAdvertise(enabled: Bool, sensitive: Bool, text: String, out: String) -> Bool {
+        enabled && !sensitive && !(text.isEmpty && out.isEmpty)
+    }
+
+    /// Nutzlast aus der letzten Äußerung; Sprachcodes, die nicht gültig wären, ergeben nil statt eines kaputten Handoffs.
+    static func make(text: String, out: String, from: String, to: String) -> HandoffPayload? {
+        parse(["text": text, "out": out, "from": from, "to": to])
+    }
+
+    /// Was beim Empfang groß gezeigt wird: die Übersetzung, sonst der Originalsatz.
+    var cardText: String { lastOut.isEmpty ? lastText : lastOut }
+
     /// Nutzlast aus userInfo; Texte auf 1000 Zeichen begrenzt, Sprachcodes nur a-z/-, sonst nil.
     static func parse(_ info: [AnyHashable: Any]?) -> HandoffPayload? {
         guard let info, let from = info["from"] as? String, let to = info["to"] as? String,
@@ -105,7 +121,7 @@ struct HandoffPayload: Equatable {
     }
 
     private static func valid(_ c: String) -> Bool {
-        (2...8).contains(c.count) && c.allSatisfy { ("a"..."z").contains($0) || $0 == "-" }
+        (2...8).contains(c.count) && c.allSatisfy { $0.isASCII && ($0.isLowercase || $0 == "-") }   // nur ASCII: „b\u{0301}“ (b + Akzent) lag im Zeichenbereich a…z
     }
 
     /// `dolmetscher://say?text=…&lang=…` für Kurzbefehle („Satz sagen“). nil bei leerem oder zu langem Text.

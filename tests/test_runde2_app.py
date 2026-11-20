@@ -12,7 +12,7 @@ def test_mikrofon_live_statt_neustart():
     sig = re.search(r"var restartSignature: String \{\s*\"([^\"]*)\"", APP["Engine.swift"]).group(1)
     assert "mic" not in sig.lower()
     assert 'send(["mic": Self.micControlValue(' in APP["Engine.swift"]
-    assert "m.selectMic(index:" in APP["SettingsView.swift"]
+    assert "m.selectMic(index:" in APP["SettingsView.swift"] + APP["SettingsAudioSections.swift"]
     assert '"mic" in d' in ENGINE
 
 
