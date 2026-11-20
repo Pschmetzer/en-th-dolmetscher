@@ -76,6 +76,7 @@ Pull requests #16–#47. Not yet published as a release.
 - Emergency phrases of the active scenario are re-rendered when the speaking speed changes (they were cached for the old speed); duplicate emergency sentences are rendered once; “clear” and corrections also drop the timestamps of forgotten sentences.
 - The wait before the fallback voice takes over now adapts to the measured speed of the Neural voice (shorter on a good network, up to twice as long on a poor one; `tts_race` stays the base and 0 still turns it off).
 - Internal: numeric control fields now come from one table (`CTRL_NUMERIC`) with consistency tests (first step of a declarative control table; behaviour unchanged).
+- Internal: the known control fields and the loggable ones now come from one table (`CTRL_SPEC`), unchanged in behaviour; the pre-warmed player process is ended on shutdown.
 - Subtitle export removes its temporary database; a failing chunk of a `--file` run no longer stops the rest; engine start errors report `engine_init_failed`.
 
 ### Engine (speech recognition, translation, voice – used by the Mac app)

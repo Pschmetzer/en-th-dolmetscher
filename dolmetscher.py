@@ -4128,6 +4128,17 @@ class Player:
         if old:
             self._discard(old[1])
 
+    def close_standby(self):
+        """Beim Beenden: den vorgewärmten Abspiel-Prozess beenden (EOF reicht nicht, wenn die Engine hart endet)."""
+        with self.lock:
+            sb, self._standby = self._standby, None
+        if sb:
+            self._discard(sb[1])
+            try:
+                sb[1].kill()
+            except OSError:
+                pass
+
     WAIT_MAX = 180.0                   # s: Notbremse, falls ein Kindprozess hängt
 
     @staticmethod
@@ -5344,13 +5355,25 @@ PROTOCOL = 1                      # Version des Engine-App-Protokolls (docs/PROT
 STOP = threading.Event()          # gesetzt von SIGTERM/SIGINT oder stdin-Ende -> geordnetes Beenden
 _CTRL_LOCK = threading.RLock()    # Steuer-Thread (apply_control) und Arbeits-Thread schreiben dieselben Felder
 _BAD_JSON = {"n": 0, "t": 0.0}
-CTRL_LOG_KEYS = frozenset({"tr_en", "tr_th", "lang", "polite", "speak", "paused", "listen", "rate", "volume",
-                           "silence", "sensitivity", "style", "formality", "speaker_sex", "llm", "earcons",
-                           "fast_endpoint", "two_person",
-                           "reload_profiles", "partial", "tts_race", "stop_speaking", "voice_en", "voice_th",
-                           "ping", "langs", "tr_mine", "tr_partner", "llm_budget"}
-                          | {f"tr_{k}" for k in LANGS} | {f"voice_{k}" for k in LANGS})
-CTRL_LOG_KEYS |= {"let_finish", "catch_up", "beam"}   # Runde 6 (Nr. 69, 171, 176)
+# Deklarative Steuertabelle (eine Quelle): Feldname -> True, wenn der Wert ins Log darf (False: Inhalt/Geheimnis,
+# nur der Name wird geloggt). CTRL_KEYS (bekannte Felder, Nr. 188) und CTRL_LOG_KEYS werden daraus abgeleitet;
+# tr_<sprache> und voice_<sprache> kommen aus LANGS und dürfen geloggt werden. Rest: CTRL_NUMERIC (Zahlenbereiche).
+CTRL_SPEC = {
+    "beam": True, "catch_up": True, "earcons": True, "fast_endpoint": True, "formality": True, "lang": True,
+    "langs": True, "let_finish": True, "listen": True, "llm": True, "llm_budget": True, "partial": True,
+    "paused": True, "ping": True, "polite": True, "rate": True, "reload_profiles": True, "sensitivity": True,
+    "silence": True, "speak": True, "speaker_sex": True, "stop_speaking": True, "style": True,
+    "tr_mine": True, "tr_partner": True, "tts_race": True, "two_person": True, "volume": True,
+    "api_key": False, "back_translate": False, "cache_persist": False, "clear": False, "currency": False,
+    "echo_guard": False, "get_state": False, "glossary": False, "history": False, "history_days": False,
+    "history_speakers": False, "learn_glossary": False, "llm_retry": False, "mic": False,
+    "output_device": False, "preset": False, "reassign": False, "reset_learning": False, "retranslate": False,
+    "say": False, "slow": False, "speak_text": False,
+}
+CTRL_SPEC.update({f"tr_{k}": True for k in LANGS})
+CTRL_SPEC.update({f"voice_{k}": True for k in LANGS})
+CTRL_LOG_KEYS = frozenset(k for k, logged in CTRL_SPEC.items() if logged)
+CTRL_KEYS = frozenset(CTRL_SPEC)
 # (nur diese Steuerfelder (Werte) kommen ins Log)
 TEXT_CTRL_KEYS = ("say", "retranslate", "speak_text")   # enthalten gesprochenen Text: nur mit LOG_TEXT ins Log
 GLOSSARY_MAX = 20000              # Zeichen
@@ -6787,20 +6810,6 @@ def _text_arg(v, limit=PHRASE_MAX):
     return v.strip() if isinstance(v, str) and 0 < len(v.strip()) <= limit else None
 
 
-# Nr. 188: alle Steuerfelder, die apply_control kennt (Tippfehler im App-Code -> Ereignis control_ignored).
-CTRL_KEYS = frozenset({
-    "langs", "tr_mine", "tr_partner", "lang", "polite", "speak", "paused", "listen", "mic", "rate", "volume",
-    "silence", "sensitivity", "style", "formality", "speaker_sex", "glossary", "preset", "llm", "llm_budget",
-    "earcons", "slow",
-    "back_translate", "learn_glossary", "output_device", "get_state", "fast_endpoint", "two_person",
-    "reload_profiles", "partial", "history", "history_days", "tts_race", "stop_speaking", "ping", "say",
-    "speak_text", "reassign", "retranslate", "reset_learning"}) | {f"tr_{k}" for k in LANGS} | {
-    f"voice_{k}" for k in LANGS}
-
-CTRL_KEYS |= {"let_finish", "catch_up", "beam", "llm_retry", "clear", "cache_persist", "history_speakers"}   # Runde 6/7
-CTRL_KEYS |= {"currency"}                                                                           # Runde 21
-CTRL_KEYS |= {"echo_guard"}                                                                         # Runde 8
-CTRL_KEYS |= {"api_key"}   # Runde 21: Schlüssel per stdin statt Umgebung (nie geloggt)
 
 
 def apply_control(eng, d):
@@ -7987,7 +7996,8 @@ _LOOP = {"on": False}
 def cleanup():
     """Geordnetes Beenden: Ausgabe stumm, Mikrofon und alle ffmpeg-Kindprozesse beenden (und einsammeln)."""
     sp = _QSTATE.get("speaker")
-    for fn in ((sp.flush if sp else None), PLAYER.stop, (MIC.stop if MIC is not None else None)):
+    for fn in ((sp.flush if sp else None), PLAYER.stop, PLAYER.close_standby,
+               (MIC.stop if MIC is not None else None)):
         try:
             if fn:
                 fn()
