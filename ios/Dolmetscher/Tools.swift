@@ -116,11 +116,13 @@ struct EmergencyView: View {
             .doneToolbar { dismiss() }
             .fullScreenCover(isPresented: $showAllergy) { AllergyCardView() }
         }
+        .screenShield()
     }
 
     /// Hilfe-Bildschirm und Notrufnummern (nur mit Thai im Paar).
     @ViewBuilder private var thaiSections: some View {
         Section {
+            NavigationLink { EmergencyFlowView(region: "TH") } label: { Label(T("r32_emflow"), systemImage: "list.number") }
             Button { m.sheet = .helpNow } label: {
                 Label(T("help_now"), systemImage: "sos").font(.headline).foregroundStyle(StatusColor.error)
                     .accessibilityAddTraits(.isHeader)
