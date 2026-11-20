@@ -45,8 +45,8 @@ function fillPacks(c, src) {   // fehlende Pakete mit wenigen gleichzeitigen Abr
   const worker = () => { const u = queue.shift(); if (!u) return null;
     return fetch(abs(u)).then(r => { if (r.ok && r.status === 200) return c.put(abs(u), r); }).catch(() => {}).then(worker); };
   filling = Promise.all(PACKS.map(u => c.match(abs(u)).then(h => h ? null : u))).then(miss => { queue = miss.filter(Boolean);
-    const total = queue.length; let tick = 0;
-    const timer = setInterval(() => { if (src && ++tick) status(c, true).then(m => src.postMessage(m)).catch(() => {}); }, 1500);
+    const total = queue.length;
+    const timer = setInterval(() => { if (src) status(c, true).then(m => src.postMessage(m)).catch(() => {}); }, 1500);
     return Promise.all(Array.from({ length: Math.min(FILL_PARALLEL, total) }, worker)).then(() => clearInterval(timer));
   }).catch(() => {}).then(() => { filling = null; return status(c).then(m => src && src.postMessage(m)); });
   return filling;

@@ -112,6 +112,30 @@
           "type": "image/png"
         }
       ]
+    },
+    {
+      "name": "Zahlen / Preise",
+      "short_name": "Zahlen",
+      "url": "./#numbers",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Allergiekarte",
+      "short_name": "Allergie",
+      "url": "./#allergy",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ],
   "share_target": {

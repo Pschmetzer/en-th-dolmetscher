@@ -284,6 +284,7 @@
     <button class="yn yes" id="btnYes" type="button">Ja</button>
     <button class="yn no" id="btnNo" type="button">Nein</button>
   </div>
+  <div class="row" id="ansRow" hidden></div>
   <div class="row" id="pbRecentRow" hidden><span data-i18n="recentTopics">Zuletzt benutzt:</span> <span id="pbRecent"></span></div>
   <div class="row">
     <label><input id="pbQ" type="search" aria-keyshortcuts="/" size="20" maxlength="60" autocomplete="off" enterkeyhint="search"> <span data-i18n="pbSearch">Satz suchen</span></label>
@@ -541,6 +542,11 @@ const STR = {
   "shareLink": "Als Link teilen",
   "again2": "🔊 Nochmal",
   "skipLink": "Zum Satzbuch springen",
+  "ansDk": "Weiß nicht",
+  "ansNoUnd": "Verstehe nicht",
+  "ansAgain": "Nochmal bitte",
+  "ansSlow": "Langsamer bitte",
+  "micBg": "Mikrofon pausiert (App im Hintergrund)",
   "statusNet": "Erkennungsdienst nicht erreichbar (Netz?) – neuer Versuch …",
   "consentP1": "Die Spracherkennung macht dein Browser: <b>Chrome sendet dein Audio an Google</b>, Safari an Apple. Der erkannte Text geht zum Übersetzen an <b>Google Translate</b> (Ersatz: MyMemory). Diese Seite hat keinen eigenen Server.",
   "consentP2": "Bitte nicht für vertrauliche Gespräche nutzen. Die Zustimmung wird nur in diesem Browser gespeichert.",
@@ -848,6 +854,11 @@ const STR = {
   "shareLink": "Share as link",
   "again2": "🔊 Again",
   "skipLink": "Skip to phrasebook",
+  "ansDk": "Don't know",
+  "ansNoUnd": "Don't understand",
+  "ansAgain": "Again, please",
+  "ansSlow": "Slower, please",
+  "micBg": "Microphone paused (app in background)",
   "statusNet": "Speech service not reachable (network?) – trying again …",
   "consentP1": "Your browser does the speech recognition: <b>Chrome sends your audio to Google</b>, Safari to Apple. The recognised text goes to <b>Google Translate</b> for translation (fallback: MyMemory). This page has no server of its own.",
   "consentP2": "Please do not use it for confidential conversations. Your consent is stored in this browser only.",
@@ -1155,6 +1166,11 @@ const STR = {
   "shareLink": "แชร์เป็นลิงก์",
   "again2": "🔊 อีกครั้ง",
   "skipLink": "ข้ามไปที่สมุดวลี",
+  "ansDk": "ไม่ทราบ",
+  "ansNoUnd": "ไม่เข้าใจ",
+  "ansAgain": "พูดอีกครั้ง",
+  "ansSlow": "ช้าลงหน่อย",
+  "micBg": "หยุดไมโครโฟนชั่วคราว (แอปอยู่เบื้องหลัง)",
   "statusNet": "เชื่อมต่อบริการรู้จำเสียงไม่ได้ (เครือข่าย?) – กำลังลองใหม่ …",
   "consentP1": "เบราว์เซอร์ของคุณทำการรู้จำเสียง: <b>Chrome ส่งเสียงของคุณไปที่ Google</b> ส่วน Safari ส่งไปที่ Apple ข้อความที่รู้จำได้จะถูกส่งไปแปลที่ <b>Google Translate</b> (สำรอง: MyMemory) หน้านี้ไม่มีเซิร์ฟเวอร์ของตัวเอง",
   "consentP2": "โปรดอย่าใช้กับบทสนทนาที่เป็นความลับ ความยินยอมถูกบันทึกไว้ในเบราว์เซอร์นี้เท่านั้น",
@@ -1421,8 +1437,11 @@ function applyLangTable(t) {
 const LANG_FALLBACK = { scripts: { latin: ['0041-005A', '0061-007A', '00C0-024F', '1E00-1EFF'], thai: ['0E00-0E7F'] }, languages: [
   { code: 'en', names: { en: 'English', de: 'Englisch', native: 'English' }, scripts: ['latin'], locale: 'en_US', phrases: { yes: 'Yes', no: 'No' } },
   { code: 'th', names: { en: 'Thai', de: 'Thai', native: 'ไทย' }, scripts: ['thai'], locale: 'th_TH', phrases: { yes: 'ใช่', no: 'ไม่ใช่' } }] };
+async function fetchRetry(url) {   // kurzer Netzfehler (Funkloch, Wechsel WLAN/Mobil): einmal nach 0,7 s noch einmal
+  try { return await fetch(url); } catch { await new Promise(r => setTimeout(r, 700)); return fetch(url); }
+}
 function loadLangTable() {   // nach 3 s ohne Antwort mit dem Notfall-Paar starten; die Tabelle ersetzt es, sobald sie da ist
-  const late = fetch('languages.json').then(r => { if (!r.ok) throw new Error('http ' + r.status); return r.json(); });
+  const late = fetchRetry('languages.json').then(r => { if (!r.ok) throw new Error('http ' + r.status); return r.json(); });
   const slow = new Promise(res => setTimeout(() => res(null), 3000));
   return Promise.race([late, slow]).then(tbl => {
     if (tbl) return applyLangTable(tbl);
@@ -1525,8 +1544,15 @@ function buildModes() {
     const b = $(id); b.textContent = (w === 'yes' ? '✓ ' : '✕ ') + t(w) + ' · ';
     const s = document.createElement('span'); s.lang = pair.b; s.textContent = LANGS[pair.b][w]; b.appendChild(s);
   }
+  const ar = $('ansRow'); ar.textContent = ''; ar.hidden = pair.b !== 'th';   // weitere Kurzantworten (Thai-Sätze ohne Geschlechtsendung)
+  for (const [k, th] of ANSWERS) {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'small'; b.textContent = t(k) + ' · ';
+    const x = document.createElement('span'); x.lang = 'th'; x.textContent = th; b.appendChild(x);
+    b.onclick = () => { showBig(th, 'th'); if ($('speak').checked) sayNow(th, 'th'); }; ar.appendChild(b);
+  }
   $('partnerTitle').textContent = LANGS[pair.b].native; $('partnerTitle').lang = pair.b;
 }
+const ANSWERS = [['ansDk', 'ไม่ทราบ'], ['ansNoUnd', 'ไม่เข้าใจ'], ['ansAgain', 'พูดอีกครั้งได้ไหม'], ['ansSlow', 'ช่วยพูดช้าๆ หน่อย']];
 function fillLangSelects() {
   for (const [id, k] of [['langA', 'a'], ['langB', 'b']]) {
     const s = $(id); s.textContent = '';
@@ -2059,6 +2085,7 @@ async function updateWakeLock() {
 window.addEventListener('pagehide', () => { stopRec(); try { if (TTS) TTS.cancel(); } catch {} });   // Safari: Mikrofon-Anzeige und Sprachausgabe sofort freigeben
 document.addEventListener('visibilitychange', () => {
   updateWakeLock();
+  if (document.hidden && mode && rec) { stopRec(); setStatus(t('micBg'), true); }   // Mikrofon-Anzeige im Hintergrund vermeiden; beim Zurückkehren geht es weiter
   if (!document.hidden) { resumeIfIdle(); learnRender(); }
 });
 
@@ -2124,7 +2151,7 @@ $('partnerText').addEventListener('keydown', e => {
 // ---- Satzbuch & Zeige-Karten (presets/*.json; ohne Mikrofon, Englisch/Thai auch offline) ----
 const presetCache = {};
 const pbTrans = (() => { try { return pbTransLoad(localStorage.getItem('pbTrans'), Date.now()); } catch { return {}; } })();
-function pbGet(key) { const v = pbTrans[key]; return v ? v.t : ''; }
+function pbGet(key) { const v = pbTrans[key]; if (v) v.ts = Date.now(); return v ? v.t : ''; }   // Treffer frischt auf: oft Genutztes verfällt nicht
 function pbSave() {   // Obergrenze: die ältesten fliegen raus
   const keys = Object.keys(pbTrans);
   if (keys.length > PBT_MAX) for (const k of keys.sort((a, b) => pbTrans[a].ts - pbTrans[b].ts).slice(0, keys.length - PBT_MAX)) delete pbTrans[k];
@@ -2137,7 +2164,7 @@ function pbSave() {   // Obergrenze: die ältesten fliegen raus
 }
 async function loadPreset(id) {
   if (!presetCache[id]) {
-    presetCache[id] = fetch('presets/' + id + '.json').then(r => { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+    presetCache[id] = fetchRetry('presets/' + id + '.json').then(r => { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
       .then(d => { if (!d || !Array.isArray(d.phrases) || !d.phrases.length) throw new Error('bad pack'); d.names = d.names || { de: id, en: id }; return d; })   // kaputtes Paket: Fehlermeldung statt Absturz
       .catch(e => { delete presetCache[id]; throw e; });
   }
@@ -2163,7 +2190,7 @@ function fillPresetSelect() {
   };
   fill(PRESET_IDS);
   s.onchange = () => { settings.preset = s.value; saveSettings(); renderCards(); };
-  fetch('presets-index.json').then(r => r.json()).then(d => {
+  fetchRetry('presets-index.json').then(r => r.json()).then(d => {
     for (const p of d.packs) presetMeta[p.id] = p.names;
     fill(d.packs.map(p => p.id).filter(id => PRESET_IDS.includes(id))); renderCards();
   }).catch(() => { for (const o of s.options) loadPreset(o.value).then(d => { o.textContent = (d.names && (d.names[UI] || d.names.de || d.names.en)) || o.value; }, () => {}); });
@@ -2218,7 +2245,7 @@ async function renderCards() {
   if (nt) $('pbNote').lang = d.note[pair.a] ? pair.a : d.note.de ? 'de' : 'en';   // Screenreader: richtige Stimme
   $('pbNote').textContent = nt ? 'ℹ️ ' + nt : ''; $('pbNote').hidden = !nt;
   const a = pair.a, b = pair.b;
-  const mi = $('myInline'); if (mi) { mi.hidden = id !== 'taxi' || !myCards.length; renderMine(); }
+  const mi = $('myInline'); if (mi) { mi.hidden = !['taxi', 'tuk-tuk-songthaew', 'grab-ride-hailing'].includes(id) || !myCards.length; renderMine(); }
   if (!(b in (d.phrases[0] || {}))) msg.textContent = t('pbMissing', { l: lname(b) });
   for (const p of criticalFirst(d.phrases)) {
     const w = document.createElement('div'); w.className = 'cardwrap';
@@ -2616,6 +2643,8 @@ $('btnPartnerShareTx').onclick = async () => {   // Übersetzung als Text teilen
 };
 $('btnPartnerShare').onclick = () => { if (bigCtx && bigCtx.idx >= 0) shareFav(bigCtx.pack, bigCtx.idx, bigCtx.lang, bigCtx.en); };
 function openFromHash() {
+  const boxes = { '#numbers': 'numBox', '#allergy': 'allergyBox', '#learn': 'learnBox' };   // PWA-Kürzel
+  if (boxes[location.hash]) { const b = $(boxes[location.hash]); try { history.replaceState(null, '', location.pathname + location.search); } catch {} b.open = true; b.scrollIntoView(); return; }
   if (applyDeepLink()) return;
   const f = parseFav(location.hash, PRESET_IDS);
   if (f) { try { history.replaceState(null, '', location.pathname + location.search); } catch {} openFav(f); return; }
@@ -3104,7 +3133,7 @@ function allergyTiles(boxId, items) {
 }
 function allergySave() { lsSet('allergyV1', JSON.stringify(allergySel)); allergyRender(); }
 function loadAllergens() {
-  fetch('allergens.json').then(r => r.json()).then(d => {
+  fetchRetry('allergens.json').then(r => r.json()).then(d => {
     allergyData = d; allergyTiles('allergyTiles', d.allergies); allergyTiles('condTiles', d.conditions);
     $('bloodSel').value = allergySel.blood || ''; $('rhSel').value = allergySel.rh || ''; allergyRender();
   }).catch(() => { $('allergyOut').textContent = t('allergyNoData'); });

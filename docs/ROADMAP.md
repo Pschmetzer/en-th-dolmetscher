@@ -26,8 +26,9 @@
 ## Browser (Web Lite)
 
 - Automatische Erkennung des Sprechers (bisher tippt man die Seite an).
-- Konversationsmodus und Notfallbildschirm wie auf dem iPhone.
-- Mehr Antwortkarten (bisher nur Ja/Nein).
+- Konversationsmodus wie auf dem iPhone. Schon da: Notrufnummern (`tel:`) für über 40 Themen, Allergie- und Notfallkarte, Ja/Nein und weitere Kurzantworten (bei Thai im Paar).
+- Aussprachehilfe (Umschrift): die Pakete haben noch keine geprüfte Umschrift; eine maschinelle wäre bei Thai oft falsch.
+- Browser-Test mit Playwright und axe in der CI.
 
 ## Phrasenpakete
 

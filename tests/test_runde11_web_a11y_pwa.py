@@ -55,6 +55,10 @@ def test_manifest_install_fields():
 def test_manifest_shortcuts_and_share_target_work_without_server():
     ids = re.search(r"const PRESET_IDS = \[([^\]]*)\]", SW).group(1)
     for s in MANIFEST["shortcuts"]:
+        if s["url"] in ("./#numbers", "./#allergy"):   # Kürzel für Zahlen- und Allergiekarte (openFromHash)
+            assert f"'{s['url'][2:]}'" in SCRIPT or f"'#{s['url'][3:]}'" in SCRIPT
+            assert s["name"] and (ROOT / s["icons"][0]["src"]).is_file()
+            continue
         m = re.fullmatch(r"\./#preset=([\w-]+)", s["url"])
         assert m and f"'{m.group(1)}'" in ids, s["url"]          # Hash-Verknuepfung: kein Server noetig
         assert s["name"] and (ROOT / s["icons"][0]["src"]).is_file()

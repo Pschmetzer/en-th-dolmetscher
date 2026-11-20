@@ -129,3 +129,32 @@ def test_docs_list_all_web_shortcuts():
     doc = (ROOT / "docs" / "TASTENKUERZEL.md").read_text(encoding="utf-8")
     for row in ("| ? |", "| / |", "| V |", "| S |", "| 1 bis 4 |"):
         assert row in doc, row
+
+
+# ---- Welle 3 ----
+def test_extra_answers_only_for_thai_and_deep_link_shortcuts():
+    assert "ar.hidden = pair.b !== 'th'" in func("applyPairUi") if "function applyPairUi" in SCRIPT else "ar.hidden = pair.b !== 'th'" in SCRIPT
+    assert "ไม่ทราบ" in SCRIPT and "'ansSlow'" in SCRIPT
+    assert "'#numbers': 'numBox'" in func("openFromHash") and "'#allergy': 'allergyBox'" in func("openFromHash")
+    man = json.loads((ROOT / "manifest.webmanifest").read_text(encoding="utf-8"))
+    assert {"./#numbers", "./#allergy"} <= {s["url"] for s in man["shortcuts"]}
+
+
+def test_microphone_stops_in_background_and_translations_stay_fresh():
+    assert "document.hidden && mode && rec) { stopRec(); setStatus(t('micBg')" in SCRIPT
+    assert "v.ts = Date.now()" in func("pbGet")
+
+
+def test_taxi_card_in_all_ride_topics_and_fetch_retry():
+    assert "['taxi', 'tuk-tuk-songthaew', 'grab-ride-hailing'].includes(id)" in SCRIPT
+    assert "async function fetchRetry(" in SCRIPT
+    for f in ("languages.json", "presets/", "allergens.json", "presets-index.json"):
+        assert f"fetchRetry('{f}" in SCRIPT, f
+    assert "fetch('languages.json')" not in SCRIPT
+
+
+def test_docs_mention_limits_and_share_confirmation():
+    arch = (ROOT / "docs" / "ARCHITEKTUR.md").read_text(encoding="utf-8")
+    assert "frame-ancestors" in arch and "unsafe-inline" in arch
+    assert "erst nach Tippen auf" in (ROOT / "docs" / "DATENSCHUTZ.md").read_text(encoding="utf-8")
+    assert "unofficial" in (ROOT / "README.md").read_text(encoding="utf-8")
