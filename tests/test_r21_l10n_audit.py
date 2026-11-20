@@ -171,3 +171,40 @@ def test_web_json_is_formatted_like_the_exporter_writes_it():
     for lg in ("en", "th"):
         text = (ROOT / "i18n" / f"{lg}.json").read_text(encoding="utf-8")
         assert text == json.dumps(json.loads(text), ensure_ascii=False, indent=1) + "\n"
+
+
+# --- Einheiten und Datumsformate im Code -----------------------------------------------------------------
+
+def test_ios_settings_units_come_from_foundation_not_fixed_text():
+    src = (IOS / "SettingsView.swift").read_text(encoding="utf-8")
+    assert not re.search(r'Text\("\d+ min"\)', src), "feste Minuten-Texte"
+    assert '"%.1f s"' not in src and '%%"' not in src, "feste Sekunden-/Prozenttexte (Dezimalzeichen, Leerzeichen vor %)"
+    for needle in ("UnitDuration.seconds", "UnitDuration.minutes", ".percent", "Locale(identifier: L10n.lang)"):
+        assert needle in src, needle
+
+
+def test_mac_transcript_export_uses_gregorian_calendar_and_posix_locale():
+    src = (ROOT / "app" / "Support.swift").read_text(encoding="utf-8")
+    block = src[src.index("func transcript("):src.index("func who(")]
+    assert 'df.locale = Locale(identifier: "en_US_POSIX")' in block
+    assert "df.calendar = Calendar(identifier: .gregorian)" in block   # Thai-Systemsprache: sonst Jahr 2569
+
+
+def test_fixed_format_date_formatters_set_a_posix_locale():
+    """`dateFormat = "yyyy…"` ohne feste Locale liefert je nach Systemsprache andere Ziffern oder Kalender."""
+    bad = []
+    for f in [*(ROOT / "app").glob("*.swift"), *IOS.glob("*.swift")]:
+        src = f.read_text(encoding="utf-8")
+        for m in re.finditer(r'\.dateFormat = [^\n]*', src):
+            window = src[max(0, m.start() - 300):m.end() + 300]
+            if "en_US_POSIX" not in window:
+                bad.append(f"{f.relative_to(ROOT)}: {m.group(0)[:50]}")
+    assert not bad, bad
+
+
+def test_web_rate_display_uses_the_decimal_sign_of_the_interface_language():
+    html = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "rateOut').textContent = r.toFixed(2)" not in html and "rate.toFixed(2)); $('rate')" not in html
+    assert "toLocaleString(UI, { minimumFractionDigits: 2" in html
+    assert "t('cmdTempo', { n: fmt2(rate) })" in html
+    assert "showRate();" in html[html.index("function applyUi()"):html.index("// ---- Sprachtabelle")]   # Sprachwechsel
