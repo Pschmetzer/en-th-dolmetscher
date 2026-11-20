@@ -1,0 +1,154 @@
+{
+  "id": "glasses-lens-repair",
+  "names": {
+    "de": "Brille und Linsen reparieren",
+    "en": "Glasses and lens repair",
+    "th": "ซ่อมแว่นตาและคอนแทคเลนส์"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Optiker in Einkaufszentren fertigen Gläser oft in einer Stunde bis wenigen Tagen. Kleine Reparaturen wie Schrauben oder Nasenpads sind meist gratis oder sehr günstig. Rezept (Dioptrienwerte) und Pupillenabstand mitbringen; Fotos vom Rezept helfen. Kontaktlinsenflüssigkeit gibt es in Apotheken und im 7-Eleven. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Opticians in shopping malls often make lenses in an hour to a few days. Small repairs such as screws or nose pads are usually free or very cheap. Bring your prescription (dioptre values) and pupil distance; a photo of the prescription helps. Contact lens solution is sold in pharmacies and at 7-Eleven. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "glasses",
+      "th": "แว่นตา"
+    },
+    {
+      "en": "lens",
+      "th": "เลนส์"
+    },
+    {
+      "en": "frame",
+      "th": "กรอบแว่น"
+    },
+    {
+      "en": "contact lens",
+      "th": "คอนแทคเลนส์"
+    },
+    {
+      "en": "screw",
+      "th": "น็อต"
+    },
+    {
+      "en": "nose pad",
+      "th": "แป้นจมูก"
+    },
+    {
+      "en": "prescription",
+      "th": "ค่าสายตา"
+    },
+    {
+      "en": "sunglasses",
+      "th": "แว่นกันแดด"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have something in my eye and it hurts.",
+      "th": "มีบางอย่างเข้าตาและเจ็บ",
+      "critical": true,
+      "rom": "mi khaota lae chep"
+    },
+    {
+      "en": "My eye is red and painful.",
+      "th": "ตาแดงและเจ็บ",
+      "critical": true,
+      "rom": "tadaeng lae chep"
+    },
+    {
+      "en": "I cannot see well since I lost my glasses.",
+      "th": "มองไม่ชัดเพราะแว่นหาย",
+      "critical": true,
+      "rom": "mong mai chat waen hai"
+    },
+    {
+      "en": "I have a chemical in my eye.",
+      "th": "มีสารเคมีเข้าตา",
+      "critical": true,
+      "rom": "mi sankhemi khaota"
+    },
+    {
+      "en": "Please help me rinse my eye with water.",
+      "th": "ช่วยล้างตาด้วยน้ำหน่อย",
+      "critical": true,
+      "rom": "chuai lang ta duai nam noi"
+    },
+    {
+      "en": "My glasses are broken.",
+      "th": "แว่นตาหัก",
+      "rom": "waenta ak"
+    },
+    {
+      "en": "Can you repair them?",
+      "th": "ซ่อมได้ไหม",
+      "rom": "som dai mai"
+    },
+    {
+      "en": "The screw has come out.",
+      "th": "น็อตหลุด",
+      "rom": "lut"
+    },
+    {
+      "en": "The nose pad has fallen off.",
+      "th": "แป้นจมูกหลุด",
+      "rom": "paen chamuk lut"
+    },
+    {
+      "en": "Can you tighten the frame?",
+      "th": "ช่วยขันกรอบแว่นหน่อยได้ไหม",
+      "rom": "chuai khan krop waen noi dai mai"
+    },
+    {
+      "en": "Can you make new lenses?",
+      "th": "ทำเลนส์ใหม่ได้ไหม",
+      "rom": "tham len aim dai mai"
+    },
+    {
+      "en": "How long will it take?",
+      "th": "ใช้เวลานานเท่าไหร่",
+      "rom": "chaiwelanan thaorai"
+    },
+    {
+      "en": "How much is it?",
+      "th": "ราคาเท่าไร",
+      "rom": "rakha thaorai"
+    },
+    {
+      "en": "Please measure my eyes.",
+      "th": "ช่วยตรวจวัดสายตาหน่อย",
+      "rom": "chuai truatwat saita noi"
+    },
+    {
+      "en": "Here is my prescription.",
+      "th": "นี่คือค่าสายตา",
+      "rom": "ni khue kha saita"
+    },
+    {
+      "en": "I need lenses that darken in the sun.",
+      "th": "ต้องการเลนส์ปรับแสงตามแดด",
+      "rom": "tongkan len prap saeng tam daet"
+    },
+    {
+      "en": "Do you have a case for my glasses?",
+      "th": "มีกล่องใส่แว่นไหม",
+      "rom": "mi klong sai waen mai"
+    },
+    {
+      "en": "Do you sell contact lens solution?",
+      "th": "มีน้ำยาล้างคอนแทคเลนส์ไหม",
+      "rom": "mi namya lang khonthaeklen mai"
+    },
+    {
+      "en": "I lost a contact lens.",
+      "th": "คอนแทคเลนส์หาย",
+      "rom": "khonthaeklen hai"
+    },
+    {
+      "en": "Can I have a copy of my prescription?",
+      "th": "ขอสำเนาค่าสายตาได้ไหม",
+      "rom": "kho samnao kha saita dai mai"
+    }
+  ]
+}

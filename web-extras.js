@@ -116,9 +116,17 @@
       note: 'บันทึก', add: 'เพิ่ม', tags: ['อาหาร', 'สถานที่', 'ราคา', 'สำคัญ'], export: 'บันทึกเป็นไฟล์', play: 'ฟัง', quiz: 'ควิซ', which: 'ได้ยินคำไหน', right: 'ถูก', wrong: 'ผิด คำตอบคือ',
       start: 'วัดระดับเสียง', stop: 'หยุด', noMic: 'ไม่มีสิทธิ์ใช้ไมโครโฟน', quiet: 'เงียบพอ', loud: 'ค่อนข้างดัง: ถือไมค์ใกล้ปากหรือหาที่เงียบกว่า', veryLoud: 'ดังมาก: การรู้จำเสียงไม่แม่น ให้แสดงการ์ดแทน', tooQuiet: 'เบาเกินไป: พูดใกล้ขึ้น', micNote: 'เสียงอยู่ในเครื่องและไม่ถูกบันทึก', male: 'ฉันพูดเป็นผู้ชาย', thaiSay: 'พูดเป็นภาษาไทย' }
   };
+  var TXT25 = {   // Runde 25: QR-Code, Wörterbuch im Hintergrund, Audio-Speicher (opt-in)
+    de: { audio: 'Audio', qrAlt: 'QR-Code des Links (lokal erzeugt)', qrTooLong: 'Zu lang für einen QR-Code: den Link kopieren statt scannen.', qrHelp: 'Zum Scannen mit dem anderen Handy; der Code wird auf diesem Gerät berechnet.',
+      audioHelp: 'Vorab gespeicherte Audiodateien (Ordner audio/) bleiben offline abrufbar. Aus: es wird nichts gespeichert. Die Sprachausgabe des Browsers braucht diesen Speicher nicht.', audioOn: 'Audio offline speichern', audioClear: 'Audio-Speicher leeren', audioCleared: 'Audio-Speicher geleert', audioNoSw: 'Nicht verfügbar: kein Service Worker.', audioCount: 'Dateien gespeichert' },
+    en: { audio: 'Audio', qrAlt: 'QR code of the link (made on this device)', qrTooLong: 'Too long for a QR code: copy the link instead of scanning.', qrHelp: 'Scan it with the other phone; the code is calculated on this device.',
+      audioHelp: 'Audio files stored in advance (folder audio/) stay available offline. Off: nothing is stored. The browser voice does not need this storage.', audioOn: 'Keep audio offline', audioClear: 'Clear audio storage', audioCleared: 'Audio storage cleared', audioNoSw: 'Not available: no service worker.', audioCount: 'files stored' },
+    th: { audio: 'เสียง', qrAlt: 'คิวอาร์โค้ดของลิงก์ (สร้างบนเครื่องนี้)', qrTooLong: 'ยาวเกินไปสำหรับคิวอาร์โค้ด ให้คัดลอกลิงก์แทนการสแกน', qrHelp: 'สแกนด้วยโทรศัพท์อีกเครื่อง โค้ดคำนวณบนเครื่องนี้',
+      audioHelp: 'ไฟล์เสียงที่เก็บไว้ล่วงหน้า (โฟลเดอร์ audio/) ใช้แบบออฟไลน์ได้ ปิด: ไม่เก็บอะไรเลย เสียงพูดของเบราว์เซอร์ไม่ต้องใช้ที่เก็บนี้', audioOn: 'เก็บเสียงไว้ใช้ออฟไลน์', audioClear: 'ล้างที่เก็บเสียง', audioCleared: 'ล้างที่เก็บเสียงแล้ว', audioNoSw: 'ใช้ไม่ได้ ไม่มี service worker', audioCount: 'ไฟล์ที่เก็บไว้' }
+  };
   var NEGO = [['Can you give a discount?', 'ลดหน่อยได้ไหม'], ['That is too expensive.', 'แพงไป'], ['What is your best price?', 'ราคาที่ดีที่สุดเท่าไร'], ['I will look at other shops first.', 'ขอดูร้านอื่นก่อน'], ['Can I get a discount for two?', 'ซื้อสองชิ้นลดได้ไหม']];
 
-  function tr() { var l = (document.documentElement.lang || 'de').slice(0, 2); return TXT[l] || TXT.de; }
+  function tr() { var l = (document.documentElement.lang || 'de').slice(0, 2); l = TXT[l] ? l : 'de'; var o = {}, k; for (k in TXT[l]) o[k] = TXT[l][k]; for (k in TXT25[l]) o[k] = TXT25[l][k]; return o; }
   function ck() { var l = (document.documentElement.lang || 'de').slice(0, 2); return CHECK[l] || CHECK.de; }
   function store(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem('x24_' + k)); localStorage.setItem('x24_' + k, JSON.stringify(v)); } catch (e) { return null; } return null; }
   function el(tag, props, kids) {
@@ -133,6 +141,20 @@
       var u = new SpeechSynthesisUtterance(text); u.lang = 'th-TH'; u.rate = 0.85;
       window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
     } catch (e) { /* ohne Sprachausgabe: nur anzeigen */ }
+  }
+  function loadScript(src) {            // eigene Datei nachladen (gleicher Ursprung), höchstens einmal
+    return new Promise(function (ok, fail) {
+      var e = document.createElement('script'); e.src = src; e.onload = ok; e.onerror = function () { e.remove(); fail(new Error(src)); }; document.head.appendChild(e);
+    });
+  }
+  async function qrCanvas(text, T) {    // QR-Code als Leinwand; null, wenn zu lang
+    if (!window.DolmetscherQR) await loadScript('web-qr.js');
+    var q = window.DolmetscherQR.encode(text);
+    if (!q) return null;
+    var n = q.size + 8, k = Math.max(3, Math.floor(320 / n)), c = el('canvas', { width: String(n * k), height: String(n * k), role: 'img', 'aria-label': T.qrAlt, style: 'display:block;margin:8px 0;max-width:100%;height:auto;image-rendering:pixelated;border:1px solid #888' });
+    var g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, n * k, n * k); g.fillStyle = '#000';
+    for (var y = 0; y < q.size; y++) for (var x = 0; x < q.size; x++) if (q.modules[y][x]) g.fillRect((x + 4) * k, (y + 4) * k, k, k);
+    return c;
   }
   function bigCard(lines) {             // Vollbild-Karte zum Vorzeigen, Tippen schließt
     var o = el('div', { role: 'dialog', 'aria-modal': 'true', tabindex: '0', style: 'position:fixed;inset:0;z-index:99999;background:#000;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px;gap:12px;cursor:pointer' });
@@ -192,7 +214,28 @@
       box.appendChild(btn(T.reset, function () { store('check', {}); box.textContent = ''; TABS.check(box, T); }));
     },
     dict: function (box, T) {
-      var q = field(T.search, 'x24q', 'search'), res = el('div', { 'aria-live': 'polite' }), all = null;
+      var q = field(T.search, 'x24q', 'search'), res = el('div', { 'aria-live': 'polite' }), all = null, wk = null, wkReady = null, qid = 0;
+      function useWorker() {              // Suche im Hintergrund (Worker); ohne Worker oder bei Fehler weiter unten im Hauptthread
+        if (wk === false) return false;
+        if (wk) return true;
+        try {
+          wk = new Worker('web-search-worker.js');
+          wk.addEventListener('error', function () { wk = false; wkReady = null; });
+          wkReady = fetch('presets-index.json').then(function (r) { return r.json(); }).then(function (j) {
+            return new Promise(function (ok) { wk.addEventListener('message', function h(ev) { if (ev.data && ev.data.t === 'ready') { wk.removeEventListener('message', h); ok(); } }); wk.postMessage({ t: 'load', ids: j.packs.map(function (p) { return p.id; }) }); });
+          });
+          return true;
+        } catch (e) { wk = false; return false; }
+      }
+      function askWorker(s) {
+        var id = ++qid;
+        return wkReady.then(function () { return new Promise(function (ok, fail) {
+          function h(ev) { if (ev.data && ev.data.t === 'hits' && ev.data.id === id) { wk.removeEventListener('message', h); ok(ev.data.hits); } }
+          wk.addEventListener('message', h); wk.postMessage({ t: 'q', id: id, q: s, limit: 40 });
+          setTimeout(function () { wk && wk.removeEventListener && wk.removeEventListener('message', h); fail(new Error('timeout')); }, 8000);
+        }); });
+      }
+      box.stopFn = function () { if (wk) { try { wk.terminate(); } catch (e) { /* schon beendet */ } wk = null; wkReady = null; } };
       box.appendChild(q.box); box.appendChild(res);
       async function load() {
         if (all) return all;
@@ -208,9 +251,11 @@
       q.input.addEventListener('input', function () {
         clearTimeout(timer);
         timer = setTimeout(async function () {
-          var s = q.input.value.trim().toLowerCase(); await load(); res.textContent = '';
+          var s = q.input.value.trim().toLowerCase(), hits = null;
+          if (s && useWorker()) { res.textContent = T.loading; try { hits = await askWorker(s); } catch (e) { wk = false; hits = null; } }
+          if (!hits) { await load(); if (s) hits = all.filter(function (g) { return g.en.toLowerCase().indexOf(s) >= 0 || g.th.indexOf(s) >= 0; }).slice(0, 40); }
+          res.textContent = '';
           if (!s) return;
-          var hits = all.filter(function (g) { return g.en.toLowerCase().indexOf(s) >= 0 || g.th.indexOf(s) >= 0; }).slice(0, 40);
           if (!hits.length) { res.textContent = T.none; return; }
           hits.forEach(function (g) { res.appendChild(el('div', {}, [btn(g.th, function () { speak(g.th); bigCard([g.th, g.en]); }), el('span', { text: g.en })])); });
         }, 150);
@@ -218,17 +263,22 @@
     },
     share: function (box, T) {
       var name = field(T.packName, 'x24pn', 'text'), ta = el('textarea', { rows: '6', style: 'width:100%;box-sizing:border-box;font:inherit', 'aria-label': T.shareHelp });
-      var o = out(box), link = el('input', { readonly: 'readonly', style: 'width:100%;box-sizing:border-box;font:inherit' });
+      var o = out(box), qrBox = el('div', { 'aria-live': 'polite' }), link = el('input', { readonly: 'readonly', style: 'width:100%;box-sizing:border-box;font:inherit' });
       box.insertBefore(el('p', { text: T.shareHelp }), o); box.insertBefore(name.box, o); box.insertBefore(ta, o);
       box.appendChild(btn(T.make, async function () {
         var cards = ta.value.split('\n').map(function (l) { var p = l.split('|'); return p.length > 1 ? [p[0], p.slice(1).join('|')] : null; }).filter(Boolean);
         try {
           var t = await packEncode({ n: name.input.value, c: cards });
           link.value = location.href.split('#')[0] + '#pack=' + t; o.textContent = '';
+          qrBox.textContent = '';
+          try {
+            var c = await qrCanvas(link.value, T);
+            if (c) { qrBox.appendChild(el('p', { text: T.qrHelp })); qrBox.appendChild(c); } else qrBox.textContent = T.qrTooLong;
+          } catch (e2) { qrBox.textContent = T.qrTooLong; }
         } catch (e) { o.textContent = T.tooBig; }
       }));
       box.appendChild(btn(T.copy, function () { try { navigator.clipboard.writeText(link.value); o.textContent = T.copied; } catch (e) { link.select(); } }));
-      box.appendChild(link);
+      box.appendChild(link); box.appendChild(qrBox);
       var saved = store('packs') || [];
       saved.forEach(function (p) { box.appendChild(btn(p.n, function () { showPack(p, T); })); });
     },
@@ -257,6 +307,19 @@
         g.forEach(function (c) { choices.appendChild(btn(c[2], function () { o.textContent = c === w ? T.right : T.wrong + ' ' + w[0] + ' (' + w[2] + ')'; })); });
         choices.appendChild(btn(T.play, function () { speak(w[0]); }));
       }));
+    },
+    audio: function (box, T) {
+      var sw = navigator.serviceWorker, st = store('audio') === true, cb = el('input', { type: 'checkbox', id: 'x25audio' }), o = out(box);
+      cb.checked = st;
+      function send(on) { try { if (sw && sw.controller) { sw.controller.postMessage({ type: 'audio-opt', on: on }); return true; } } catch (e) { /* ohne Worker */ } return false; }
+      function onMsg(ev) { if (ev.data && ev.data.type === 'audio-status') o.textContent = ev.data.on ? ev.data.count + ' ' + T.audioCount : ''; }
+      if (sw) sw.addEventListener('message', onMsg);
+      box.stopFn = function () { if (sw) sw.removeEventListener('message', onMsg); };
+      box.insertBefore(el('p', { text: T.audioHelp }), o);
+      box.insertBefore(el('label', {}, [cb, el('span', { text: ' ' + T.audioOn })]), o);
+      if (!sw || !sw.controller) { o.textContent = T.audioNoSw; cb.disabled = true; } else if (st) send(true);
+      cb.addEventListener('change', function () { store('audio', cb.checked); send(cb.checked); });
+      box.appendChild(btn(T.audioClear, function () { cb.checked = false; store('audio', false); send(false); o.textContent = T.audioCleared; }));
     },
     mic: function (box, T) {
       var o = out(box), bar = el('div', { style: 'height:16px;background:#888;width:100%' }), lvl = el('div', { style: 'height:16px;background:#2a9d4a;width:0' });
@@ -318,7 +381,7 @@
     return !!p;
   }
 
-  var api = { thaiNum: thaiNum, convert: convert, offers: offers, packEncode: packEncode, packDecode: packDecode, cleanPack: cleanPack, PAIRS: PAIRS, CHECK: CHECK, open: openDlg, importFromHash: importFromHash };
+  var api = { thaiNum: thaiNum, convert: convert, offers: offers, packEncode: packEncode, packDecode: packDecode, cleanPack: cleanPack, PAIRS: PAIRS, CHECK: CHECK, open: openDlg, importFromHash: importFromHash, tr: tr };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else { window.DolmetscherExtras = api; }
 })();

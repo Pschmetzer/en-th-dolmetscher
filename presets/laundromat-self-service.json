@@ -1,0 +1,154 @@
+{
+  "id": "laundromat-self-service",
+  "names": {
+    "de": "Waschsalon Selbstbedienung",
+    "en": "Self-service laundromat",
+    "th": "ร้านซักผ้าหยอดเหรียญ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Münzwaschsalons gibt es in der Nähe von Hostels und Wohnanlagen; Waschen kostet etwa 40–60 Baht, Trocknen ähnlich. Waschmittel aus dem Automaten oder mitbringen. Wäschereien rechnen auch nach Gewicht ab. Wertsachen nicht in Taschen lassen und Seidenstücke gesondert nennen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Coin laundromats are found near hostels and residential buildings; a wash costs about 40–60 baht and drying is similar. Buy detergent from the machine or bring your own. Laundry shops also charge by weight. Do not leave valuables in pockets and mention silk items separately. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "washing machine",
+      "th": "เครื่องซักผ้า"
+    },
+    {
+      "en": "dryer",
+      "th": "เครื่องอบผ้า"
+    },
+    {
+      "en": "detergent",
+      "th": "ผงซักฟอก"
+    },
+    {
+      "en": "coin",
+      "th": "เหรียญ"
+    },
+    {
+      "en": "fabric softener",
+      "th": "น้ำยาปรับผ้านุ่ม"
+    },
+    {
+      "en": "iron",
+      "th": "รีดผ้า"
+    },
+    {
+      "en": "by weight",
+      "th": "คิดตามน้ำหนัก"
+    },
+    {
+      "en": "ready",
+      "th": "เสร็จแล้ว"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My clothes are missing. Please help me find them.",
+      "th": "เสื้อผ้าหาย ช่วยหาหน่อย",
+      "critical": true,
+      "rom": "sueapha hai chuai ha noi"
+    },
+    {
+      "en": "The machine took my money and does not work.",
+      "th": "เครื่องกินเงินและไม่ทำงาน",
+      "critical": true,
+      "rom": "kheruengkin ngoen lae mai thamngan"
+    },
+    {
+      "en": "Water is leaking from the machine.",
+      "th": "น้ำรั่วจากเครื่องซักผ้า",
+      "critical": true,
+      "rom": "nam rua chak kheruengsakpha"
+    },
+    {
+      "en": "Please do not mix my silk shirt with the rest.",
+      "th": "ช่วยแยกเสื้อไหมออกจากผ้าอื่น",
+      "critical": true,
+      "rom": "chuai yaek suea mai okchak pha uen"
+    },
+    {
+      "en": "This item is damaged. Please check.",
+      "th": "ของชิ้นนี้เสียหาย ช่วยตรวจดูหน่อย",
+      "critical": true,
+      "rom": "khong chin ni siahai chuai truatdu noi"
+    },
+    {
+      "en": "How do I use this machine?",
+      "th": "เครื่องนี้ใช้ยังไง",
+      "rom": "kherueng ni chai yangngai"
+    },
+    {
+      "en": "How much is one wash?",
+      "th": "ซักหนึ่งครั้งราคาเท่าไร",
+      "rom": "sak nueng khrang rakha thaorai"
+    },
+    {
+      "en": "How much is the dryer?",
+      "th": "เครื่องอบราคาเท่าไร",
+      "rom": "kherueng op rakha thaorai"
+    },
+    {
+      "en": "Where can I get coins?",
+      "th": "แลกเหรียญได้ที่ไหน",
+      "rom": "laek erin dai thinai"
+    },
+    {
+      "en": "Where do I buy detergent?",
+      "th": "ซื้อผงซักฟอกได้ที่ไหน",
+      "rom": "sue phangasakfok dai thinai"
+    },
+    {
+      "en": "How long does the wash take?",
+      "th": "ซักนานเท่าไร",
+      "rom": "sak nan thaorai"
+    },
+    {
+      "en": "How long does the dryer take?",
+      "th": "อบนานเท่าไร",
+      "rom": "op nan thaorai"
+    },
+    {
+      "en": "Do you wash by weight?",
+      "th": "คิดราคาตามน้ำหนักไหม",
+      "rom": "khitrakha tam namnak mai"
+    },
+    {
+      "en": "Do you have a same-day service?",
+      "th": "มีบริการเสร็จในวันเดียวไหม",
+      "rom": "mi brikan nai wan diao mai"
+    },
+    {
+      "en": "When will it be ready?",
+      "th": "เสร็จเมื่อไร",
+      "rom": "muearai"
+    },
+    {
+      "en": "Please fold the clothes.",
+      "th": "ช่วยพับผ้าด้วย",
+      "rom": "chuai phappha duai"
+    },
+    {
+      "en": "Please iron the shirts.",
+      "th": "ช่วยรีดเสื้อเชิ้ตด้วย",
+      "rom": "chuai rit sueachoet duai"
+    },
+    {
+      "en": "Please use cold water.",
+      "th": "ช่วยใช้น้ำเย็น",
+      "rom": "chuai chai namyen"
+    },
+    {
+      "en": "Is it open all night?",
+      "th": "เปิดทั้งคืนไหม",
+      "rom": "poet thangkhuen mai"
+    },
+    {
+      "en": "Can I get a receipt?",
+      "th": "ขอใบเสร็จได้ไหม",
+      "rom": "kho dai mai"
+    }
+  ]
+}

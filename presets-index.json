@@ -606,6 +606,44 @@
    ]
   },
   {
+   "id": "apartment-hunting",
+   "names": {
+    "de": "Wohnungssuche",
+    "en": "Apartment hunting",
+    "th": "หาห้องเช่า"
+   },
+   "phrases": 23,
+   "critical": 5,
+   "reviewed": false,
+   "category": "stay",
+   "keywords": [
+    "rent",
+    "deposit",
+    "contract",
+    "furnished",
+    "studio",
+    "balcony",
+    "wohnung",
+    "mieten",
+    "miete",
+    "ห้องเช่า",
+    "เช่า",
+    "มัดจำ"
+   ],
+   "keywords_de": [
+    "wohnung",
+    "mieten",
+    "miete",
+    "kaution",
+    "zimmer"
+   ],
+   "keywords_th": [
+    "ห้องเช่า",
+    "เช่า",
+    "มัดจำ"
+   ]
+  },
+  {
    "id": "atm-bank-card",
    "names": {
     "de": "Geldautomat: Karte und Limit",
@@ -754,6 +792,44 @@
    ]
   },
   {
+   "id": "bank-app-otp-help",
+   "names": {
+    "de": "Banking-App und TAN Probleme",
+    "en": "Banking app and OTP problems",
+    "th": "แอปธนาคารและรหัสโอทีพี"
+   },
+   "phrases": 20,
+   "critical": 5,
+   "reviewed": false,
+   "category": "money",
+   "keywords": [
+    "otp",
+    "pin",
+    "banking app",
+    "sms",
+    "password",
+    "block",
+    "bank",
+    "app",
+    "แอปธนาคาร",
+    "โอทีพี",
+    "อายัดบัญชี"
+   ],
+   "keywords_de": [
+    "bank",
+    "app",
+    "otp",
+    "tan",
+    "passwort",
+    "konto"
+   ],
+   "keywords_th": [
+    "แอปธนาคาร",
+    "โอทีพี",
+    "อายัดบัญชี"
+   ]
+  },
+  {
    "id": "bank-transfer-abroad",
    "names": {
     "de": "Auslandsüberweisung",
@@ -831,6 +907,44 @@
     "brakes",
     "deposit",
     "flat tyre"
+   ]
+  },
+  {
+   "id": "bicycle-touring-repair",
+   "names": {
+    "de": "Radtour und Fahrradreparatur",
+    "en": "Bicycle touring and repair",
+    "th": "ปั่นจักรยานและซ่อมจักรยาน"
+   },
+   "phrases": 20,
+   "critical": 6,
+   "reviewed": false,
+   "category": "leisure",
+   "keywords": [
+    "bicycle",
+    "puncture",
+    "chain",
+    "brake",
+    "pump",
+    "helmet",
+    "fahrrad",
+    "radtour",
+    "reparatur",
+    "จักรยาน",
+    "ปะยาง",
+    "ซ่อม"
+   ],
+   "keywords_de": [
+    "fahrrad",
+    "radtour",
+    "reparatur",
+    "reifen",
+    "pumpe"
+   ],
+   "keywords_th": [
+    "จักรยาน",
+    "ปะยาง",
+    "ซ่อม"
    ]
   },
   {
@@ -1058,6 +1172,81 @@
    ]
   },
   {
+   "id": "car-breakdown-roadside",
+   "names": {
+    "de": "Autopanne und Pannenhilfe",
+    "en": "Car breakdown and roadside help",
+    "th": "รถเสียและช่วยเหลือข้างทาง"
+   },
+   "phrases": 20,
+   "critical": 6,
+   "reviewed": false,
+   "category": "transport",
+   "keywords": [
+    "breakdown",
+    "tow truck",
+    "flat tyre",
+    "battery",
+    "jump start",
+    "engine",
+    "autopanne",
+    "pannenhilfe",
+    "abschleppen",
+    "รถเสีย",
+    "รถลาก",
+    "ยางแบน"
+   ],
+   "keywords_de": [
+    "autopanne",
+    "pannenhilfe",
+    "abschleppen",
+    "reifen",
+    "batterie"
+   ],
+   "keywords_th": [
+    "รถเสีย",
+    "รถลาก",
+    "ยางแบน"
+   ]
+  },
+  {
+   "id": "car-insurance-claim",
+   "names": {
+    "de": "Autoversicherung Schadensfall",
+    "en": "Car insurance claim",
+    "th": "เคลมประกันรถยนต์"
+   },
+   "phrases": 21,
+   "critical": 5,
+   "reviewed": false,
+   "category": "money",
+   "keywords": [
+    "insurance",
+    "claim",
+    "policy number",
+    "excess",
+    "police report",
+    "estimate",
+    "autoversicherung",
+    "schaden",
+    "unfall",
+    "เคลมประกัน",
+    "รถยนต์",
+    "อุบัติเหตุ"
+   ],
+   "keywords_de": [
+    "autoversicherung",
+    "schaden",
+    "unfall",
+    "versicherung"
+   ],
+   "keywords_th": [
+    "เคลมประกัน",
+    "รถยนต์",
+    "อุบัติเหตุ"
+   ]
+  },
+  {
    "id": "car-rental",
    "names": {
     "de": "Mietwagen",
@@ -1120,6 +1309,44 @@
    ]
   },
   {
+   "id": "childbirth-hospital",
+   "names": {
+    "de": "Geburt im Krankenhaus",
+    "en": "Childbirth in hospital",
+    "th": "คลอดลูกที่โรงพยาบาล"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "labour",
+    "contraction",
+    "water broke",
+    "midwife",
+    "caesarean",
+    "epidural",
+    "geburt",
+    "schwangerschaft",
+    "krankenhaus",
+    "คลอด",
+    "ท้อง",
+    "โรงพยาบาล"
+   ],
+   "keywords_de": [
+    "geburt",
+    "schwangerschaft",
+    "krankenhaus",
+    "wehen",
+    "baby"
+   ],
+   "keywords_th": [
+    "คลอด",
+    "ท้อง",
+    "โรงพยาบาล"
+   ]
+  },
+  {
    "id": "chronic-conditions",
    "names": {
     "de": "Chronische Krankheit / Dauermedikation",
@@ -1161,6 +1388,44 @@
     "soundtrack",
     "stage",
     "exit"
+   ]
+  },
+  {
+   "id": "coffee-tea-order",
+   "names": {
+    "de": "Kaffee und Tee bestellen",
+    "en": "Coffee and tea order",
+    "th": "สั่งกาแฟและชา"
+   },
+   "phrases": 20,
+   "critical": 5,
+   "reviewed": false,
+   "category": "food",
+   "keywords": [
+    "iced coffee",
+    "hot tea",
+    "thai iced tea",
+    "less sweet",
+    "no sugar",
+    "oat milk",
+    "kaffee",
+    "tee",
+    "café",
+    "กาแฟ",
+    "ชา",
+    "คาเฟ่"
+   ],
+   "keywords_de": [
+    "kaffee",
+    "tee",
+    "café",
+    "bestellen",
+    "milchtee"
+   ],
+   "keywords_th": [
+    "กาแฟ",
+    "ชา",
+    "คาเฟ่"
    ]
   },
   {
@@ -1575,6 +1840,43 @@
    ]
   },
   {
+   "id": "electricity-water-bill",
+   "names": {
+    "de": "Strom- und Wasserrechnung",
+    "en": "Electricity and water bill",
+    "th": "ค่าไฟและค่าน้ำ"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "stay",
+   "keywords": [
+    "electricity bill",
+    "water bill",
+    "meter",
+    "unit",
+    "fuse",
+    "power cut",
+    "strom",
+    "wasser",
+    "rechnung",
+    "ค่าไฟ",
+    "ค่าน้ำ",
+    "มิเตอร์"
+   ],
+   "keywords_de": [
+    "strom",
+    "wasser",
+    "rechnung",
+    "zähler"
+   ],
+   "keywords_th": [
+    "ค่าไฟ",
+    "ค่าน้ำ",
+    "มิเตอร์"
+   ]
+  },
+  {
    "id": "electronics-mall",
    "names": {
     "de": "Elektronik-Einkaufszentrum",
@@ -1968,6 +2270,43 @@
    ]
   },
   {
+   "id": "glasses-lens-repair",
+   "names": {
+    "de": "Brille und Linsen reparieren",
+    "en": "Glasses and lens repair",
+    "th": "ซ่อมแว่นตาและคอนแทคเลนส์"
+   },
+   "phrases": 20,
+   "critical": 5,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "glasses",
+    "lens",
+    "frame",
+    "contact lens",
+    "screw",
+    "nose pad",
+    "brille",
+    "optiker",
+    "kontaktlinsen",
+    "แว่นตา",
+    "คอนแทคเลนส์",
+    "ซ่อม"
+   ],
+   "keywords_de": [
+    "brille",
+    "optiker",
+    "kontaktlinsen",
+    "reparatur"
+   ],
+   "keywords_th": [
+    "แว่นตา",
+    "คอนแทคเลนส์",
+    "ซ่อม"
+   ]
+  },
+  {
    "id": "gold-shop",
    "names": {
     "de": "Goldgeschäft und Pfandleihe",
@@ -2011,6 +2350,42 @@
     "hole",
     "ball",
     "towel"
+   ]
+  },
+  {
+   "id": "golf-caddie-tips",
+   "names": {
+    "de": "Golf Caddie und Trinkgeld",
+    "en": "Golf caddie and tips",
+    "th": "แคดดี้กอล์ฟและทิป"
+   },
+   "phrases": 20,
+   "critical": 5,
+   "reviewed": false,
+   "category": "leisure",
+   "keywords": [
+    "caddie",
+    "tip",
+    "green fee",
+    "cart",
+    "club",
+    "ball",
+    "golf",
+    "trinkgeld",
+    "กอล์ฟ",
+    "แคดดี้",
+    "ทิป"
+   ],
+   "keywords_de": [
+    "golf",
+    "caddie",
+    "trinkgeld",
+    "platz"
+   ],
+   "keywords_th": [
+    "กอล์ฟ",
+    "แคดดี้",
+    "ทิป"
    ]
   },
   {
@@ -2515,6 +2890,42 @@
    ]
   },
   {
+   "id": "kindergarten-daycare",
+   "names": {
+    "de": "Kindergarten und Kinderbetreuung",
+    "en": "Kindergarten and daycare",
+    "th": "โรงเรียนอนุบาลและรับเลี้ยงเด็ก"
+   },
+   "phrases": 20,
+   "critical": 5,
+   "reviewed": false,
+   "category": "stay",
+   "keywords": [
+    "kindergarten",
+    "nursery",
+    "teacher",
+    "uniform",
+    "nap",
+    "fee",
+    "kita",
+    "kinderbetreuung",
+    "อนุบาล",
+    "เลี้ยงเด็ก",
+    "เนอร์สเซอรี่"
+   ],
+   "keywords_de": [
+    "kindergarten",
+    "kita",
+    "kinderbetreuung",
+    "krippe"
+   ],
+   "keywords_th": [
+    "อนุบาล",
+    "เลี้ยงเด็ก",
+    "เนอร์สเซอรี่"
+   ]
+  },
+  {
    "id": "king-royal-respect",
    "names": {
     "de": "Respekt vor König und Königshaus",
@@ -2574,6 +2985,43 @@
     "vein",
     "laboratory",
     "report"
+   ]
+  },
+  {
+   "id": "laundromat-self-service",
+   "names": {
+    "de": "Waschsalon Selbstbedienung",
+    "en": "Self-service laundromat",
+    "th": "ร้านซักผ้าหยอดเหรียญ"
+   },
+   "phrases": 20,
+   "critical": 5,
+   "reviewed": false,
+   "category": "general",
+   "keywords": [
+    "washing machine",
+    "dryer",
+    "detergent",
+    "coin",
+    "fabric softener",
+    "iron",
+    "waschsalon",
+    "wäsche",
+    "waschen",
+    "ร้านซักผ้า",
+    "เครื่องซักผ้า",
+    "เหรียญ"
+   ],
+   "keywords_de": [
+    "waschsalon",
+    "wäsche",
+    "waschen",
+    "münzen"
+   ],
+   "keywords_th": [
+    "ร้านซักผ้า",
+    "เครื่องซักผ้า",
+    "เหรียญ"
    ]
   },
   {
@@ -2807,6 +3255,43 @@
    ]
   },
   {
+   "id": "massage-prices-booking",
+   "names": {
+    "de": "Massage Preise und Buchung",
+    "en": "Massage prices and booking",
+    "th": "ราคานวดและจองคิว"
+   },
+   "phrases": 21,
+   "critical": 5,
+   "reviewed": false,
+   "category": "leisure",
+   "keywords": [
+    "one hour",
+    "foot massage",
+    "oil massage",
+    "thai massage",
+    "price list",
+    "tip",
+    "massage",
+    "preis",
+    "buchung",
+    "นวด",
+    "ราคา",
+    "จองคิว"
+   ],
+   "keywords_de": [
+    "massage",
+    "preis",
+    "buchung",
+    "thaimassage"
+   ],
+   "keywords_th": [
+    "นวด",
+    "ราคา",
+    "จองคิว"
+   ]
+  },
+  {
    "id": "meditation-retreat",
    "names": {
     "de": "Meditations-Retreat",
@@ -2850,6 +3335,42 @@
     "medication",
     "appointment",
     "support"
+   ]
+  },
+  {
+   "id": "minivan-airport-transfer",
+   "names": {
+    "de": "Minivan und Flughafentransfer",
+    "en": "Minivan and airport transfer",
+    "th": "รถตู้และรถรับส่งสนามบิน"
+   },
+   "phrases": 20,
+   "critical": 5,
+   "reviewed": false,
+   "category": "transport",
+   "keywords": [
+    "minivan",
+    "transfer",
+    "fixed price",
+    "surcharge",
+    "driver",
+    "luggage",
+    "flughafen",
+    "รถตู้",
+    "รถรับส่ง",
+    "สนามบิน"
+   ],
+   "keywords_de": [
+    "minivan",
+    "transfer",
+    "flughafen",
+    "taxi",
+    "fahrer"
+   ],
+   "keywords_th": [
+    "รถตู้",
+    "รถรับส่ง",
+    "สนามบิน"
    ]
   },
   {
@@ -3022,6 +3543,44 @@
     "hand wraps",
     "ring",
     "sparring"
+   ]
+  },
+  {
+   "id": "muay-thai-stadium",
+   "names": {
+    "de": "Muay-Thai-Stadion",
+    "en": "Muay Thai stadium",
+    "th": "สนามมวยไทย"
+   },
+   "phrases": 20,
+   "critical": 5,
+   "reviewed": false,
+   "category": "leisure",
+   "keywords": [
+    "ticket",
+    "ringside",
+    "fight",
+    "boxer",
+    "round",
+    "stadium",
+    "muay thai",
+    "boxen",
+    "stadion",
+    "มวยไทย",
+    "สนามมวย",
+    "ตั๋ว"
+   ],
+   "keywords_de": [
+    "muay thai",
+    "boxen",
+    "stadion",
+    "ticket",
+    "kampf"
+   ],
+   "keywords_th": [
+    "มวยไทย",
+    "สนามมวย",
+    "ตั๋ว"
    ]
   },
   {
@@ -3279,6 +3838,44 @@
    ]
   },
   {
+   "id": "pet-boarding-flight",
+   "names": {
+    "de": "Haustier Pension und Flug",
+    "en": "Pet boarding and travel",
+    "th": "ฝากสัตว์เลี้ยงและเดินทาง"
+   },
+   "phrases": 20,
+   "critical": 5,
+   "reviewed": false,
+   "category": "stay",
+   "keywords": [
+    "boarding",
+    "vaccination book",
+    "health certificate",
+    "microchip",
+    "cage",
+    "leash",
+    "haustier",
+    "tierpension",
+    "hund",
+    "สัตว์เลี้ยง",
+    "ฝากเลี้ยง",
+    "สุนัข"
+   ],
+   "keywords_de": [
+    "haustier",
+    "tierpension",
+    "hund",
+    "katze",
+    "flug"
+   ],
+   "keywords_th": [
+    "สัตว์เลี้ยง",
+    "ฝากเลี้ยง",
+    "สุนัข"
+   ]
+  },
+  {
    "id": "pets",
    "names": {
     "de": "Haustiere",
@@ -3399,6 +3996,44 @@
     "exercise",
     "massage",
     "crutches"
+   ]
+  },
+  {
+   "id": "plumber-electrician-aircon",
+   "names": {
+    "de": "Handwerker Wasser Strom Klima",
+    "en": "Plumber, electrician, air con",
+    "th": "ช่างประปา ช่างไฟ ช่างแอร์"
+   },
+   "phrases": 21,
+   "critical": 5,
+   "reviewed": false,
+   "category": "stay",
+   "keywords": [
+    "plumber",
+    "electrician",
+    "air-con technician",
+    "leak",
+    "clogged",
+    "short circuit",
+    "handwerker",
+    "klempner",
+    "elektriker",
+    "ช่างประปา",
+    "ช่างไฟ",
+    "ช่างแอร์"
+   ],
+   "keywords_de": [
+    "handwerker",
+    "klempner",
+    "elektriker",
+    "klimaanlage",
+    "reparatur"
+   ],
+   "keywords_th": [
+    "ช่างประปา",
+    "ช่างไฟ",
+    "ช่างแอร์"
    ]
   },
   {
@@ -3808,6 +4443,44 @@
    ]
   },
   {
+   "id": "smoothie-juice-stall",
+   "names": {
+    "de": "Smoothie und Saftstand",
+    "en": "Smoothie and juice stall",
+    "th": "ร้านน้ำปั่นและน้ำผลไม้"
+   },
+   "phrases": 20,
+   "critical": 5,
+   "reviewed": false,
+   "category": "food",
+   "keywords": [
+    "orange juice",
+    "watermelon shake",
+    "coconut",
+    "mango",
+    "sugar syrup",
+    "ice",
+    "smoothie",
+    "saft",
+    "obst",
+    "น้ำปั่น",
+    "น้ำผลไม้",
+    "มะพร้าว"
+   ],
+   "keywords_de": [
+    "smoothie",
+    "saft",
+    "obst",
+    "kokosnuss",
+    "getränk"
+   ],
+   "keywords_th": [
+    "น้ำปั่น",
+    "น้ำผลไม้",
+    "มะพร้าว"
+   ]
+  },
+  {
    "id": "snorkel-boat-tour",
    "names": {
     "de": "Schnorchel-Bootstour",
@@ -3976,6 +4649,82 @@
    ]
   },
   {
+   "id": "street-food-custom-order",
+   "names": {
+    "de": "Straßenküche Wunschbestellung",
+    "en": "Street food custom order",
+    "th": "สั่งอาหารริมทางตามชอบ"
+   },
+   "phrases": 22,
+   "critical": 5,
+   "reviewed": false,
+   "category": "food",
+   "keywords": [
+    "stir-fried basil",
+    "fried egg",
+    "pork",
+    "chicken",
+    "rice",
+    "not spicy",
+    "straßenküche",
+    "essen",
+    "bestellen",
+    "อาหารริมทาง",
+    "สั่งอาหาร",
+    "เผ็ด"
+   ],
+   "keywords_de": [
+    "straßenküche",
+    "essen",
+    "bestellen",
+    "schärfe",
+    "imbiss"
+   ],
+   "keywords_th": [
+    "อาหารริมทาง",
+    "สั่งอาหาร",
+    "เผ็ด"
+   ]
+  },
+  {
+   "id": "sunburn-heat-rash",
+   "names": {
+    "de": "Sonnenbrand und Hitzepickel",
+    "en": "Sunburn and heat rash",
+    "th": "แดดเผาและผดร้อน"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "sunburn",
+    "heat rash",
+    "aloe vera",
+    "sunscreen",
+    "blister",
+    "shade",
+    "sonnenbrand",
+    "hitze",
+    "ausschlag",
+    "แดดเผา",
+    "ผดร้อน",
+    "ครีมกันแดด"
+   ],
+   "keywords_de": [
+    "sonnenbrand",
+    "hitze",
+    "ausschlag",
+    "sonnencreme",
+    "aloe"
+   ],
+   "keywords_th": [
+    "แดดเผา",
+    "ผดร้อน",
+    "ครีมกันแดด"
+   ]
+  },
+  {
    "id": "surf-kite-lesson",
    "names": {
     "de": "Surf- und Kitekurs",
@@ -4055,6 +4804,80 @@
     "refund form",
     "customs",
     "passport"
+   ]
+  },
+  {
+   "id": "tdac-arrival-card",
+   "names": {
+    "de": "Digitale Einreisekarte TDAC",
+    "en": "Digital arrival card (TDAC)",
+    "th": "บัตรขาเข้าดิจิทัลทีดีเอซี"
+   },
+   "phrases": 20,
+   "critical": 5,
+   "reviewed": false,
+   "category": "general",
+   "keywords": [
+    "arrival card",
+    "passport number",
+    "flight number",
+    "address in thailand",
+    "qr code",
+    "confirmation",
+    "einreise",
+    "tdac",
+    "บัตรขาเข้า",
+    "ตรวจคนเข้าเมือง",
+    "แบบฟอร์ม"
+   ],
+   "keywords_de": [
+    "einreise",
+    "tdac",
+    "arrival card",
+    "formular",
+    "online"
+   ],
+   "keywords_th": [
+    "บัตรขาเข้า",
+    "ตรวจคนเข้าเมือง",
+    "แบบฟอร์ม"
+   ]
+  },
+  {
+   "id": "temple-photography",
+   "names": {
+    "de": "Fotografieren im Tempel",
+    "en": "Temple photography",
+    "th": "ถ่ายรูปในวัด"
+   },
+   "phrases": 20,
+   "critical": 5,
+   "reviewed": false,
+   "category": "culture",
+   "keywords": [
+    "photo",
+    "flash",
+    "tripod",
+    "main hall",
+    "statue",
+    "monk",
+    "tempel",
+    "fotografieren",
+    "kamera",
+    "วัด",
+    "ถ่ายรูป",
+    "กล้อง"
+   ],
+   "keywords_de": [
+    "tempel",
+    "fotografieren",
+    "kamera",
+    "verbot"
+   ],
+   "keywords_th": [
+    "วัด",
+    "ถ่ายรูป",
+    "กล้อง"
    ]
   },
   {
@@ -4161,6 +4984,80 @@
     "lease",
     "90-day report",
     "copy"
+   ]
+  },
+  {
+   "id": "toothache-emergency",
+   "names": {
+    "de": "Zahnschmerzen akut",
+    "en": "Toothache emergency",
+    "th": "ปวดฟันฉุกเฉิน"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "toothache",
+    "swelling",
+    "abscess",
+    "filling",
+    "extraction",
+    "painkiller",
+    "zahnarzt",
+    "zahnschmerzen",
+    "notfall",
+    "ปวดฟัน",
+    "ทันตแพทย์",
+    "ฟัน"
+   ],
+   "keywords_de": [
+    "zahnarzt",
+    "zahnschmerzen",
+    "notfall",
+    "zahn"
+   ],
+   "keywords_th": [
+    "ปวดฟัน",
+    "ทันตแพทย์",
+    "ฟัน"
+   ]
+  },
+  {
+   "id": "tour-agency-booking",
+   "names": {
+    "de": "Reisebüro und Tourbuchung",
+    "en": "Tour agency booking",
+    "th": "จองทัวร์กับเอเจนซี่"
+   },
+   "phrases": 22,
+   "critical": 5,
+   "reviewed": false,
+   "category": "general",
+   "keywords": [
+    "tour",
+    "guide",
+    "pickup",
+    "itinerary",
+    "included",
+    "cancellation",
+    "reisebüro",
+    "buchen",
+    "ทัวร์",
+    "จองทัวร์",
+    "เอเจนซี่"
+   ],
+   "keywords_de": [
+    "reisebüro",
+    "tour",
+    "buchen",
+    "agentur",
+    "ausflug"
+   ],
+   "keywords_th": [
+    "ทัวร์",
+    "จองทัวร์",
+    "เอเจนซี่"
    ]
   },
   {
@@ -4490,6 +5387,42 @@
     "supervisor",
     "insurance",
     "teaching"
+   ]
+  },
+  {
+   "id": "waste-recycling",
+   "names": {
+    "de": "Müll und Recycling",
+    "en": "Waste and recycling",
+    "th": "ขยะและรีไซเคิล"
+   },
+   "phrases": 20,
+   "critical": 5,
+   "reviewed": false,
+   "category": "stay",
+   "keywords": [
+    "rubbish",
+    "recycling",
+    "glass",
+    "plastic bottle",
+    "battery",
+    "bin",
+    "müll",
+    "abfall",
+    "ขยะ",
+    "รีไซเคิล",
+    "ถังขยะ"
+   ],
+   "keywords_de": [
+    "müll",
+    "recycling",
+    "abfall",
+    "mülltrennung"
+   ],
+   "keywords_th": [
+    "ขยะ",
+    "รีไซเคิล",
+    "ถังขยะ"
    ]
   },
   {

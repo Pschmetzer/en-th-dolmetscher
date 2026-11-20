@@ -1,0 +1,159 @@
+{
+  "id": "plumber-electrician-aircon",
+  "names": {
+    "de": "Handwerker Wasser Strom Klima",
+    "en": "Plumber, electrician, air con",
+    "th": "ช่างประปา ช่างไฟ ช่างแอร์"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Vermieter oder Hausverwaltung kennen meist einen Handwerker. Preis für Anfahrt und Material vorher erfragen; Klimaanlagen-Reinigung kostet oft 500–800 Baht. Bei Gasgeruch, Funken oder Wasser nahe Strom sofort die Hauptsicherung ausschalten und Abstand halten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "The landlord or building office usually knows a repairman. Ask the price for the visit and materials first; an air-conditioner cleaning often costs 500–800 baht. With a gas smell, sparks or water near electricity switch off the main fuse at once and keep away. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "plumber",
+      "th": "ช่างประปา"
+    },
+    {
+      "en": "electrician",
+      "th": "ช่างไฟ"
+    },
+    {
+      "en": "air-con technician",
+      "th": "ช่างแอร์"
+    },
+    {
+      "en": "leak",
+      "th": "รั่ว"
+    },
+    {
+      "en": "clogged",
+      "th": "ตัน"
+    },
+    {
+      "en": "short circuit",
+      "th": "ไฟช็อต"
+    },
+    {
+      "en": "refill gas",
+      "th": "เติมน้ำยา"
+    },
+    {
+      "en": "filter",
+      "th": "ฟิลเตอร์"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "There is a gas smell. Please come now.",
+      "th": "มีกลิ่นแก๊ส ช่วยมาเดี๋ยวนี้",
+      "critical": true,
+      "rom": "mi klin kaet chuai ma diaoni"
+    },
+    {
+      "en": "There are sparks from the socket.",
+      "th": "เต้าเสียบมีประกายไฟ",
+      "critical": true,
+      "rom": "taosiap mi prakaifai"
+    },
+    {
+      "en": "Water is flooding the room.",
+      "th": "น้ำท่วมห้อง",
+      "critical": true,
+      "rom": "namthuam ong"
+    },
+    {
+      "en": "I got an electric shock.",
+      "th": "ถูกไฟดูด",
+      "critical": true,
+      "rom": "thuk fai dut"
+    },
+    {
+      "en": "Please turn off the main switch.",
+      "th": "ช่วยปิดสวิตช์หลักหน่อย",
+      "critical": true,
+      "rom": "chuai pittwit lak noi"
+    },
+    {
+      "en": "Do you know a good plumber?",
+      "th": "รู้จักช่างประปาที่ดีไหม",
+      "rom": "ruchak changprapa thi di mai"
+    },
+    {
+      "en": "The toilet is blocked.",
+      "th": "ส้วมตัน",
+      "rom": "suam tan"
+    },
+    {
+      "en": "The sink is blocked.",
+      "th": "อ่างล้างหน้าตัน",
+      "rom": "anglangna tan"
+    },
+    {
+      "en": "The tap is leaking.",
+      "th": "ก๊อกน้ำรั่ว",
+      "rom": "koknam rua"
+    },
+    {
+      "en": "There is no hot water.",
+      "th": "ไม่มีน้ำร้อน",
+      "rom": "mai mi namron"
+    },
+    {
+      "en": "The air conditioner is not cold.",
+      "th": "แอร์ไม่เย็น",
+      "rom": "ae mai yen"
+    },
+    {
+      "en": "The air conditioner is dripping water.",
+      "th": "แอร์มีน้ำหยด",
+      "rom": "ae mi nam yot"
+    },
+    {
+      "en": "Please clean the air conditioner.",
+      "th": "ช่วยล้างแอร์หน่อย",
+      "rom": "chuai lang ae noi"
+    },
+    {
+      "en": "How much is the visit fee?",
+      "th": "ค่าเรียกช่างเท่าไร",
+      "rom": "kha riak chang thaorai"
+    },
+    {
+      "en": "Please tell me the total price first.",
+      "th": "ช่วยบอกราคารวมก่อนหน่อย",
+      "rom": "chuai bok rakha ruam kon noi"
+    },
+    {
+      "en": "Does the price include parts?",
+      "th": "ราคานี้รวมอะไหล่ไหม",
+      "rom": "rakha ni ruam alai mai"
+    },
+    {
+      "en": "When can you come?",
+      "th": "มาได้เมื่อไร",
+      "rom": "ma dai muearai"
+    },
+    {
+      "en": "How long will the work take?",
+      "th": "งานนี้ใช้เวลานานเท่าไร",
+      "rom": "ngan ni chaiwelanan thaorai"
+    },
+    {
+      "en": "Please show me the old part.",
+      "th": "ขอดูอะไหล่เก่าหน่อย",
+      "rom": "kho du alai kao noi"
+    },
+    {
+      "en": "Is there a guarantee on the repair?",
+      "th": "ซ่อมแล้วมีประกันไหม",
+      "rom": "som laeo mi prakan mai"
+    },
+    {
+      "en": "Please give me a receipt.",
+      "th": "ขอใบเสร็จ",
+      "rom": "kho"
+    }
+  ]
+}

@@ -1,0 +1,160 @@
+{
+  "id": "childbirth-hospital",
+  "names": {
+    "de": "Geburt im Krankenhaus",
+    "en": "Childbirth in hospital",
+    "th": "คลอดลูกที่โรงพยาบาล"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Private Krankenhäuser bieten Geburtspakete, deren Preis je nach Haus und Zimmer stark schwankt. Vorab klären, was Ausländer zahlen und ob die Versicherung zahlt. Die thailändische Geburtsurkunde (สูติบัตร) kommt vom Bezirksamt; Geburtsregistrierung und Pass des Kindes bei der Botschaft. Bei Blutung, starken Wehen oder Fruchtwasser sofort ins Krankenhaus. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Private hospitals offer birth packages whose price varies widely by hospital and room. Ask beforehand what foreigners pay and whether insurance covers it. The Thai birth certificate (สูติบัตร) comes from the district office; register the birth and get the child's passport at the embassy. With bleeding, strong contractions or leaking water go to the hospital at once. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "labour",
+      "th": "เจ็บท้องคลอด"
+    },
+    {
+      "en": "contraction",
+      "th": "ปวดท้องคลอด"
+    },
+    {
+      "en": "water broke",
+      "th": "น้ำคร่ำแตก"
+    },
+    {
+      "en": "midwife",
+      "th": "ผดุงครรภ์"
+    },
+    {
+      "en": "caesarean",
+      "th": "ผ่าคลอด"
+    },
+    {
+      "en": "epidural",
+      "th": "ฉีดยาชาไขสันหลัง"
+    },
+    {
+      "en": "birth certificate",
+      "th": "สูติบัตร"
+    },
+    {
+      "en": "newborn",
+      "th": "ทารกแรกเกิด"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I think my water has broken.",
+      "th": "คิดว่าน้ำคร่ำแตก",
+      "critical": true,
+      "rom": "khit wa namkram taek"
+    },
+    {
+      "en": "The contractions are every 5 minutes.",
+      "th": "ปวดท้องคลอดทุก 5 นาที",
+      "critical": true,
+      "rom": "puatthong khlot thuk 5 nathi"
+    },
+    {
+      "en": "I am bleeding. Please help me now.",
+      "th": "มีเลือดออก ช่วยด้วยเดี๋ยวนี้",
+      "critical": true,
+      "rom": "mi lueat ok chuaiduai diaoni"
+    },
+    {
+      "en": "The baby is not moving.",
+      "th": "ลูกไม่ดิ้น",
+      "critical": true,
+      "rom": "luk mai din"
+    },
+    {
+      "en": "I am allergic to some medicines.",
+      "th": "แพ้ยาบางชนิด",
+      "critical": true,
+      "rom": "phaeya bang chanit"
+    },
+    {
+      "en": "Please call an ambulance (1669).",
+      "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true,
+      "rom": "chuai riak rathaphayaban duai 1669"
+    },
+    {
+      "en": "I am about to give birth.",
+      "th": "ใกล้จะคลอดแล้ว",
+      "rom": "kain cha khlot laeo"
+    },
+    {
+      "en": "I am 38 weeks pregnant.",
+      "th": "ตั้งครรภ์ได้ 38 สัปดาห์",
+      "rom": "tangkan dai 38 sapda"
+    },
+    {
+      "en": "Where is the delivery room?",
+      "th": "ห้องคลอดอยู่ที่ไหน",
+      "rom": "ong khlot yu thinai"
+    },
+    {
+      "en": "Please call my doctor.",
+      "th": "ช่วยโทรหาแพทย์ที่ดูแลหน่อย",
+      "rom": "chuai thon ha phaet thi dulae noi"
+    },
+    {
+      "en": "Can my husband stay with me?",
+      "th": "ให้สามีอยู่ด้วยได้ไหม",
+      "rom": "hai sami yu duai dai mai"
+    },
+    {
+      "en": "Can I have a female doctor?",
+      "th": "ขอแพทย์ผู้หญิงได้ไหม",
+      "rom": "kho phaet phuying dai mai"
+    },
+    {
+      "en": "I would like pain relief.",
+      "th": "ขอยาแก้ปวด",
+      "rom": "kho yakaepuat"
+    },
+    {
+      "en": "Do I need a caesarean?",
+      "th": "ต้องผ่าคลอดไหม",
+      "rom": "tong pha khlot mai"
+    },
+    {
+      "en": "How much is the delivery package?",
+      "th": "แพ็กเกจคลอดราคาเท่าไร",
+      "rom": "khlot rakha thaorai"
+    },
+    {
+      "en": "Does my insurance cover the birth?",
+      "th": "ประกันครอบคลุมการคลอดไหม",
+      "rom": "prakan khropklum kan khlot mai"
+    },
+    {
+      "en": "How long will we stay in hospital?",
+      "th": "ต้องอยู่โรงพยาบาลนานเท่าไร",
+      "rom": "tong yu rongpyaban nan thaorai"
+    },
+    {
+      "en": "Is the baby healthy?",
+      "th": "ลูกแข็งแรงดีไหม",
+      "rom": "luk di mai"
+    },
+    {
+      "en": "May I hold my baby now?",
+      "th": "ขออุ้มลูกตอนนี้ได้ไหม",
+      "rom": "kho um luk tonni dai mai"
+    },
+    {
+      "en": "How do I get the birth certificate?",
+      "th": "ขอสูติบัตรได้อย่างไร",
+      "rom": "kho sutibatn dai yangrai"
+    },
+    {
+      "en": "Please explain how to feed the baby.",
+      "th": "ช่วยอธิบายวิธีให้นมลูกหน่อย",
+      "rom": "chuai thibai withi ainm luk noi"
+    }
+  ]
+}

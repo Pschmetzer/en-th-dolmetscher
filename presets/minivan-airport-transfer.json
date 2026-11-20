@@ -1,0 +1,154 @@
+{
+  "id": "minivan-airport-transfer",
+  "names": {
+    "de": "Minivan und Flughafentransfer",
+    "en": "Minivan and airport transfer",
+    "th": "รถตู้และรถรับส่งสนามบิน"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Festpreis-Transfers lassen sich vorab buchen oder am Flughafen-Schalter lösen; offizielle Taxis laufen mit Taxameter plus Flughafenzuschlag. Bei Minivans in Städten Zielort und Preis vor dem Einsteigen klären. Gepäck nicht aus den Augen lassen. Wartezeit bei Flugverspätung dem Fahrer mitteilen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Fixed-price transfers can be booked in advance or at the airport counter; official taxis run on the meter plus an airport surcharge. For minivans in cities settle destination and price before boarding. Do not lose sight of your luggage. Tell the driver about waiting time if the flight is late. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "minivan",
+      "th": "รถตู้"
+    },
+    {
+      "en": "transfer",
+      "th": "รถรับส่ง"
+    },
+    {
+      "en": "fixed price",
+      "th": "ราคาคงที่"
+    },
+    {
+      "en": "surcharge",
+      "th": "ค่าธรรมเนียมเพิ่ม"
+    },
+    {
+      "en": "driver",
+      "th": "คนขับ"
+    },
+    {
+      "en": "luggage",
+      "th": "สัมภาระ"
+    },
+    {
+      "en": "pickup point",
+      "th": "จุดรับ"
+    },
+    {
+      "en": "toll",
+      "th": "ค่าทางด่วน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please stop. I feel unsafe.",
+      "th": "ช่วยจอด รู้สึกไม่ปลอดภัย",
+      "critical": true,
+      "rom": "chuai chot rusuek mai plotphai"
+    },
+    {
+      "en": "Please do not drive so fast.",
+      "th": "ขับช้าลงหน่อย",
+      "critical": true,
+      "rom": "khap cha long noi"
+    },
+    {
+      "en": "Please call the tourist police (1155).",
+      "th": "ช่วยโทรหาตำรวจท่องเที่ยว 1155 ด้วย",
+      "critical": true,
+      "rom": "chuai thon ha tamruat thongthiao 1155 duai"
+    },
+    {
+      "en": "My bag is still in the van.",
+      "th": "กระเป๋ายังอยู่ในรถตู้",
+      "critical": true,
+      "rom": "krapao nai rathatu"
+    },
+    {
+      "en": "I feel sick. Please stop the van.",
+      "th": "รู้สึกไม่สบาย ช่วยจอดรถตู้",
+      "critical": true,
+      "rom": "rusuek mai sabai chuai chot rathatu"
+    },
+    {
+      "en": "Where is the minivan stand?",
+      "th": "จุดขึ้นรถตู้อยู่ที่ไหน",
+      "rom": "chut khuen rathatu yu thinai"
+    },
+    {
+      "en": "How much to the hotel?",
+      "th": "ไปโรงแรมราคาเท่าไร",
+      "rom": "pai rongraem rakha thaorai"
+    },
+    {
+      "en": "Is that the fixed price?",
+      "th": "นั่นเป็นราคาคงที่ไหม",
+      "rom": "nan pen rakha khangathi mai"
+    },
+    {
+      "en": "Does the price include tolls?",
+      "th": "ราคานี้รวมค่าทางด่วนไหม",
+      "rom": "rakha ni ruam kha thangduan mai"
+    },
+    {
+      "en": "How long does it take?",
+      "th": "ใช้เวลานานเท่าไหร่",
+      "rom": "chaiwelanan thaorai"
+    },
+    {
+      "en": "When does the van leave?",
+      "th": "รถตู้ออกกี่โมง",
+      "rom": "rathatu ok ki mong"
+    },
+    {
+      "en": "Does it wait until it is full?",
+      "th": "รอจนกว่าจะเต็มไหม",
+      "rom": "ro chanakwa cha tem mai"
+    },
+    {
+      "en": "Please drop me at this address.",
+      "th": "ช่วยส่งที่ที่อยู่นี้หน่อย",
+      "rom": "chuai song thi thiyu ni noi"
+    },
+    {
+      "en": "Please use the meter.",
+      "th": "รบกวนเปิดมิเตอร์ด้วย",
+      "rom": "rabakuan poet mitoe duai"
+    },
+    {
+      "en": "Can you wait? My flight is late.",
+      "th": "ช่วยรอได้ไหม เที่ยวบินล่าช้า",
+      "rom": "chuai ro dai mai thiaobin lacha"
+    },
+    {
+      "en": "I have a lot of luggage.",
+      "th": "มีสัมภาระเยอะ",
+      "rom": "mi samphara yoe"
+    },
+    {
+      "en": "Can I have a receipt?",
+      "th": "ขอใบเสร็จได้ไหม",
+      "rom": "kho dai mai"
+    },
+    {
+      "en": "Please put my bag in the back.",
+      "th": "ช่วยวางกระเป๋าไว้ด้านหลังหน่อย",
+      "rom": "chuai wang krapao wai danlang noi"
+    },
+    {
+      "en": "Please turn on the air conditioning.",
+      "th": "ช่วยเปิดแอร์ด้วย",
+      "rom": "chuai poet ae duai"
+    },
+    {
+      "en": "Where is the pickup point for my return?",
+      "th": "จุดรับขากลับอยู่ที่ไหน",
+      "rom": "chut rap khaklap yu thinai"
+    }
+  ]
+}

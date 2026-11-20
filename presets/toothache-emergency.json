@@ -1,0 +1,160 @@
+{
+  "id": "toothache-emergency",
+  "names": {
+    "de": "Zahnschmerzen akut",
+    "en": "Toothache emergency",
+    "th": "ปวดฟันฉุกเฉิน"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Zahnkliniken in Städten nehmen oft am selben Tag Notfälle an; Preise vorher erfragen und schriftlich bestätigen lassen. Bei Schwellung im Gesicht, Fieber oder Atemnot sofort ins Krankenhaus. Schmerzmittel gibt es in der Apotheke, aber Allergien vorher nennen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "City dental clinics often take emergencies on the same day; ask the price first and get it in writing. With facial swelling, fever or trouble breathing go to a hospital at once. Pharmacies sell painkillers, but name your allergies first. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "toothache",
+      "th": "ปวดฟัน"
+    },
+    {
+      "en": "swelling",
+      "th": "บวม"
+    },
+    {
+      "en": "abscess",
+      "th": "ฝี"
+    },
+    {
+      "en": "filling",
+      "th": "อุดฟัน"
+    },
+    {
+      "en": "extraction",
+      "th": "ถอนฟัน"
+    },
+    {
+      "en": "painkiller",
+      "th": "ยาแก้ปวด"
+    },
+    {
+      "en": "antibiotic",
+      "th": "ยาปฏิชีวนะ"
+    },
+    {
+      "en": "gum",
+      "th": "เหงือก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have severe tooth pain and cannot sleep.",
+      "th": "ปวดฟันมากและนอนไม่ได้",
+      "critical": true,
+      "rom": "puatfan mak lae non mai dai"
+    },
+    {
+      "en": "My face is swollen near the tooth.",
+      "th": "ใบหน้าบวมตรงใกล้ฟัน",
+      "critical": true,
+      "rom": "baina buam trong kain fan"
+    },
+    {
+      "en": "I have a fever and a toothache.",
+      "th": "มีไข้และปวดฟัน",
+      "critical": true,
+      "rom": "mikhai lae puatfan"
+    },
+    {
+      "en": "I am allergic to penicillin.",
+      "th": "แพ้ยาเพนิซิลลิน",
+      "critical": true,
+      "rom": "phaeya phe ni si l li n"
+    },
+    {
+      "en": "I take blood thinners.",
+      "th": "กินยาละลายลิ่มเลือดอยู่",
+      "critical": true,
+      "rom": "kin ya lalai limlueat yu"
+    },
+    {
+      "en": "I cannot open my mouth well.",
+      "th": "อ้าปากไม่ค่อยได้",
+      "critical": true,
+      "rom": "a pak makhaioi dai"
+    },
+    {
+      "en": "Can I see a dentist today?",
+      "th": "วันนี้พบทันตแพทย์ได้ไหม",
+      "rom": "wanni phop thantphaet dai mai"
+    },
+    {
+      "en": "How much is an emergency visit?",
+      "th": "ค่าตรวจฉุกเฉินเท่าไร",
+      "rom": "kha truat chukchoen thaorai"
+    },
+    {
+      "en": "Please tell me the price before you start.",
+      "th": "ช่วยบอกราคาก่อนเริ่มรักษาหน่อย",
+      "rom": "chuai bok rakha kon roem raksa noi"
+    },
+    {
+      "en": "A piece of my tooth broke off.",
+      "th": "ฟันบิ่นเป็นชิ้น",
+      "rom": "fan bin pen chin"
+    },
+    {
+      "en": "My filling fell out.",
+      "th": "วัสดุอุดฟันหลุด",
+      "rom": "watdu utfan lut"
+    },
+    {
+      "en": "My gum is bleeding and sore.",
+      "th": "เหงือกมีเลือดออกและเจ็บ",
+      "rom": "enguek mi lueat ok lae chep"
+    },
+    {
+      "en": "Do you need to take an X-ray?",
+      "th": "ต้องเอกซเรย์ฟันไหม",
+      "rom": "tong ektre fan mai"
+    },
+    {
+      "en": "Do I need to have the tooth pulled?",
+      "th": "ต้องถอนฟันไหม",
+      "rom": "tong thonfan mai"
+    },
+    {
+      "en": "Please give me a numbing injection first.",
+      "th": "ขอฉีดยาชาก่อนหน่อย",
+      "rom": "kho chit yacha kon noi"
+    },
+    {
+      "en": "Which painkiller can I take?",
+      "th": "กินยาแก้ปวดอะไรได้",
+      "rom": "kin yakaepuat arai dai"
+    },
+    {
+      "en": "How long does the pain last?",
+      "th": "จะเจ็บนานแค่ไหน",
+      "rom": "cha chep nan khae nai"
+    },
+    {
+      "en": "Can I eat after this?",
+      "th": "หลังจากนี้กินอาหารได้ไหม",
+      "rom": "langchakni kin ahan dai mai"
+    },
+    {
+      "en": "Do I need to come back?",
+      "th": "ต้องกลับมาอีกไหม",
+      "rom": "tong klapma ik mai"
+    },
+    {
+      "en": "Please write down the treatment on paper.",
+      "th": "ช่วยเขียนการรักษาลงกระดาษหน่อย",
+      "rom": "chuai khian kaaaksa long kradat noi"
+    },
+    {
+      "en": "Could I have a receipt for insurance?",
+      "th": "ขอใบเสร็จสำหรับประกันหน่อย",
+      "rom": "kho samrap prakan noi"
+    }
+  ]
+}

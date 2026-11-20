@@ -1,0 +1,169 @@
+{
+  "id": "apartment-hunting",
+  "names": {
+    "de": "Wohnungssuche",
+    "en": "Apartment hunting",
+    "th": "หาห้องเช่า"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Besichtigungen sind üblich, Preise stehen oft auf Schildern am Haus. Typisch: ein bis zwei Monatsmieten Kaution plus erste Miete im Voraus. Strom und Wasser werden meist nach Verbrauch abgerechnet; im Vertrag nach Tarifen fragen. Vertrag auf Englisch oder mit Übersetzung lesen und nichts unterschreiben, was man nicht versteht. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Viewings are normal; prices are often on signs at the building. Typical: a deposit of one to two months' rent plus the first month in advance. Electricity and water are usually billed by use; ask about the rates in the contract. Read the contract in English or with a translation and sign nothing you do not understand. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "rent",
+      "th": "ค่าเช่า"
+    },
+    {
+      "en": "deposit",
+      "th": "เงินมัดจำ"
+    },
+    {
+      "en": "contract",
+      "th": "สัญญาเช่า"
+    },
+    {
+      "en": "furnished",
+      "th": "มีเฟอร์นิเจอร์"
+    },
+    {
+      "en": "studio",
+      "th": "ห้องสตูดิโอ"
+    },
+    {
+      "en": "balcony",
+      "th": "ระเบียง"
+    },
+    {
+      "en": "landlord",
+      "th": "เจ้าของห้อง"
+    },
+    {
+      "en": "viewing",
+      "th": "ดูห้อง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I will not sign a contract I do not understand.",
+      "th": "จะไม่เซ็นสัญญาที่ไม่เข้าใจ",
+      "critical": true,
+      "rom": "cha mai sensanya thi mai khaochai"
+    },
+    {
+      "en": "I do not want to pay the deposit in cash without proof.",
+      "th": "ไม่ต้องการจ่ายมัดจำเป็นเงินสดโดยไม่มีหลักฐาน",
+      "critical": true,
+      "rom": "mataingkan chai mat champen ngoentt doi mai mi lakthan"
+    },
+    {
+      "en": "I need to read the contract first.",
+      "th": "ต้องอ่านสัญญาก่อน",
+      "critical": true,
+      "rom": "tong an sanya kon"
+    },
+    {
+      "en": "Please do not keep my passport.",
+      "th": "ขออย่าเก็บหนังสือเดินทางไว้",
+      "critical": true,
+      "rom": "kho ya kep nangsuedoenthang wai"
+    },
+    {
+      "en": "I am being threatened.",
+      "th": "ถูกข่มขู่",
+      "rom": "thuk khamakhu",
+      "critical": true
+    },
+    {
+      "en": "I am looking for a room to rent.",
+      "th": "กำลังหาห้องเช่า",
+      "rom": "kamlang ha ongchao"
+    },
+    {
+      "en": "I am looking for a one-bedroom apartment.",
+      "th": "กำลังหาห้องหนึ่งห้องนอน",
+      "rom": "kamlang ha ong nueng ongnon"
+    },
+    {
+      "en": "What is the monthly rent?",
+      "th": "ค่าเช่าเดือนละเท่าไร",
+      "rom": "khachao duean la thaorai"
+    },
+    {
+      "en": "Is electricity and water included?",
+      "th": "รวมค่าไฟและค่าน้ำไหม",
+      "rom": "ruam kha fai lae khanam mai"
+    },
+    {
+      "en": "How much is the deposit?",
+      "th": "ค่ามัดจำเท่าไหร่",
+      "rom": "kha matcham thaorai"
+    },
+    {
+      "en": "What is the minimum rental period?",
+      "th": "เช่าขั้นต่ำกี่เดือน",
+      "rom": "chao khantam ki duean"
+    },
+    {
+      "en": "Can I see the room today?",
+      "th": "วันนี้ขอดูห้องได้ไหม",
+      "rom": "wanni kho du ong dai mai"
+    },
+    {
+      "en": "Is it furnished?",
+      "th": "มีเฟอร์นิเจอร์ไหม",
+      "rom": "mi foenichoe mai"
+    },
+    {
+      "en": "Does the room have air conditioning?",
+      "th": "ห้องมีแอร์ไหม",
+      "rom": "ong mi ae mai"
+    },
+    {
+      "en": "Is there a washing machine?",
+      "th": "มีเครื่องซักผ้าไหม",
+      "rom": "mi kheruengsakpha mai"
+    },
+    {
+      "en": "Is there internet in the room?",
+      "th": "มีอินเทอร์เน็ตในห้องไหม",
+      "rom": "mi inthoenet nai ong mai"
+    },
+    {
+      "en": "Are pets allowed?",
+      "th": "เลี้ยงสัตว์ได้ไหม",
+      "rom": "liangsat dai mai"
+    },
+    {
+      "en": "Is there a parking space?",
+      "th": "มีที่จอดรถไหม",
+      "rom": "mi thichotnt mai"
+    },
+    {
+      "en": "Is it far from the BTS or bus?",
+      "th": "ห่างจากรถไฟฟ้าหรือรถเมล์ไหม",
+      "rom": "ang chak rue rathame mai"
+    },
+    {
+      "en": "Is the area quiet at night?",
+      "th": "ตอนกลางคืนบริเวณนี้เงียบไหม",
+      "rom": "tonklangkhuen briwen ni ngiap mai"
+    },
+    {
+      "en": "Can you send me the contract in English?",
+      "th": "ช่วยส่งสัญญาภาษาอังกฤษให้หน่อย",
+      "rom": "chuai song sanya phasaangkrit hai noi"
+    },
+    {
+      "en": "Can I pay by bank transfer?",
+      "th": "จ่ายด้วยการโอนเงินได้ไหม",
+      "rom": "chai duai kan on ngoendai mai"
+    },
+    {
+      "en": "Do I need to report my address to immigration?",
+      "th": "ต้องแจ้งที่อยู่กับตรวจคนเข้าเมืองไหม",
+      "rom": "tong chaeng thiyu kap truat khanakhaomueang mai"
+    }
+  ]
+}

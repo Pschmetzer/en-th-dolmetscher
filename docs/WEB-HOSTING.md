@@ -20,7 +20,7 @@ Das Skript `tools/make_presets_index.py` erzeugt `presets-index.json` neu, falls
 ## Empfohlene Header
 
 ```
-Content-Security-Policy: wie im <meta> von index.html (default-src 'none'; script-src 'unsafe-inline' ...)
+Content-Security-Policy: wie im <meta> von index.html (default-src 'none'; script-src 'self' 'unsafe-inline' 'sha256-...' ...; den Hash pflegt tools/sync_web.py)
 Permissions-Policy: microphone=(self), camera=(), geolocation=()
 Referrer-Policy: no-referrer
 Content-Security-Policy: ... frame-ancestors 'none'   (im <meta> wirkungslos; nur als Header, schützt vor Einbetten)

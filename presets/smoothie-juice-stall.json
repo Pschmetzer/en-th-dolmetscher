@@ -1,0 +1,154 @@
+{
+  "id": "smoothie-juice-stall",
+  "names": {
+    "de": "Smoothie und Saftstand",
+    "en": "Smoothie and juice stall",
+    "th": "ร้านน้ำปั่นและน้ำผลไม้"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Frische Säfte und Smoothies kosten meist 30–70 Baht. Viele Stände geben Zucker oder Sirup dazu; ohne Zucker ausdrücklich nachfragen. Eis stammt meist aus gereinigtem Wasser, doch bei empfindlichem Magen lieber ohne Eis bestellen. Kokosnuss direkt aus der Frucht ist eine sichere Wahl. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Fresh juices and smoothies usually cost 30–70 baht. Many stalls add sugar or syrup; ask explicitly for none. Ice usually comes from purified water, but with a sensitive stomach order without ice. A coconut drunk from the shell is a safe choice. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "orange juice",
+      "th": "น้ำส้ม"
+    },
+    {
+      "en": "watermelon shake",
+      "th": "แตงโมปั่น"
+    },
+    {
+      "en": "coconut",
+      "th": "มะพร้าว"
+    },
+    {
+      "en": "mango",
+      "th": "มะม่วง"
+    },
+    {
+      "en": "sugar syrup",
+      "th": "น้ำเชื่อม"
+    },
+    {
+      "en": "ice",
+      "th": "น้ำแข็ง"
+    },
+    {
+      "en": "fruit",
+      "th": "ผลไม้"
+    },
+    {
+      "en": "straw",
+      "th": "หลอด"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am allergic to peanuts.",
+      "th": "แพ้ถั่วลิสง",
+      "critical": true,
+      "rom": "phae thualitng"
+    },
+    {
+      "en": "I am allergic to some fruit.",
+      "th": "แพ้ผลไม้บางชนิด",
+      "critical": true,
+      "rom": "phae phlamai bang chanit"
+    },
+    {
+      "en": "Please do not use ice.",
+      "th": "ขออย่าใส่น้ำแข็ง",
+      "critical": true,
+      "rom": "kho ya sai"
+    },
+    {
+      "en": "I have diabetes. No sugar, please.",
+      "th": "เป็นโรคเบาหวาน ขอไม่ใส่น้ำตาล",
+      "critical": true,
+      "rom": "pen rokbaowan kho mai sai namtan"
+    },
+    {
+      "en": "Is there milk in the smoothie?",
+      "th": "น้ำปั่นนี้ใส่นมไหม",
+      "critical": true,
+      "rom": "nam pan ni sai nom mai"
+    },
+    {
+      "en": "One orange juice, please.",
+      "th": "ขอน้ำส้มหนึ่งแก้ว",
+      "rom": "kho namtm nueng kaeo"
+    },
+    {
+      "en": "One watermelon smoothie, please.",
+      "th": "ขอแตงโมปั่นหนึ่งแก้ว",
+      "rom": "kho taengmo pan nueng kaeo"
+    },
+    {
+      "en": "One mango smoothie, please.",
+      "th": "ขอมะม่วงปั่นหนึ่งแก้ว",
+      "rom": "kho mamuang pan nueng kaeo"
+    },
+    {
+      "en": "One coconut, please.",
+      "th": "ขอมะพร้าวหนึ่งลูก",
+      "rom": "kho maprao nueng luk"
+    },
+    {
+      "en": "Please open the coconut.",
+      "th": "ช่วยเปิดมะพร้าวให้หน่อย",
+      "rom": "chuai poet maprao hai noi"
+    },
+    {
+      "en": "No sugar syrup, please.",
+      "th": "ขอไม่ใส่น้ำเชื่อม",
+      "rom": "kho mai sai namchueam"
+    },
+    {
+      "en": "Less ice, please.",
+      "th": "ขอน้ำแข็งน้อย",
+      "rom": "kho noi"
+    },
+    {
+      "en": "Is the water for the ice clean?",
+      "th": "น้ำสำหรับทำน้ำแข็งสะอาดไหม",
+      "rom": "nam samrap tham saat mai"
+    },
+    {
+      "en": "Is this fresh fruit?",
+      "th": "ผลไม้นี้สดไหม",
+      "rom": "phlamai ni sot mai"
+    },
+    {
+      "en": "Please use less sugar.",
+      "th": "ขอหวานน้อย",
+      "rom": "kho wan noi"
+    },
+    {
+      "en": "Can you make it with yoghurt?",
+      "th": "ใส่โยเกิร์ตได้ไหม",
+      "rom": "sai yokoet dai mai"
+    },
+    {
+      "en": "Can I have it without a straw?",
+      "th": "ขอไม่ใช้หลอดได้ไหม",
+      "rom": "kho mai chai lot dai mai"
+    },
+    {
+      "en": "Please put it in a bottle.",
+      "th": "ช่วยใส่ขวดให้หน่อย",
+      "rom": "chuai sai khuat hai noi"
+    },
+    {
+      "en": "How much for a large one?",
+      "th": "แก้วใหญ่ราคาเท่าไร",
+      "rom": "kaeo ain rakha thaorai"
+    },
+    {
+      "en": "How much for two cups?",
+      "th": "สองแก้วราคาเท่าไร",
+      "rom": "song kaeo rakha thaorai"
+    }
+  ]
+}

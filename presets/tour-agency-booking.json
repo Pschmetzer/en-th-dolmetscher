@@ -1,0 +1,164 @@
+{
+  "id": "tour-agency-booking",
+  "names": {
+    "de": "Reisebüro und Tourbuchung",
+    "en": "Tour agency booking",
+    "th": "จองทัวร์กับเอเจนซี่"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Vor der Buchung Preis, Inhalt, Abholzeit und Stornobedingungen schriftlich bestätigen lassen. Seriöse Büros zeigen eine Lizenz der Tourismusbehörde (TAT). Nicht bar im Voraus für alles zahlen; Anzahlung gegen Quittung. Bei Aktivitäten Sicherheit und Versicherung erfragen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Before booking have price, programme, pickup time and cancellation terms confirmed in writing. Reliable agencies show a licence from the tourism authority (TAT). Do not pay everything in cash in advance; pay a deposit against a receipt. For activities ask about safety and insurance. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "tour",
+      "th": "ทัวร์"
+    },
+    {
+      "en": "guide",
+      "th": "ไกด์"
+    },
+    {
+      "en": "pickup",
+      "th": "รับจากที่พัก"
+    },
+    {
+      "en": "itinerary",
+      "th": "กำหนดการ"
+    },
+    {
+      "en": "included",
+      "th": "รวม"
+    },
+    {
+      "en": "cancellation",
+      "th": "ยกเลิก"
+    },
+    {
+      "en": "licence",
+      "th": "ใบอนุญาต"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I do not want to pay everything now.",
+      "th": "ไม่ต้องการจ่ายเต็มจำนวนตอนนี้",
+      "critical": true,
+      "rom": "mataingkan chai tem chamnuan tonni"
+    },
+    {
+      "en": "I will not sign anything today.",
+      "th": "วันนี้จะไม่เซ็นอะไรทั้งนั้น",
+      "critical": true,
+      "rom": "wanni cha mai sen arai thangnan"
+    },
+    {
+      "en": "I feel unsafe on this tour. Please stop.",
+      "th": "รู้สึกไม่ปลอดภัยในทัวร์นี้ ช่วยหยุดด้วย",
+      "critical": true,
+      "rom": "rusuek mai plotphai nai thua ni chuai yut duai"
+    },
+    {
+      "en": "I will call the tourist police (1155).",
+      "th": "จะโทรหาตำรวจท่องเที่ยว 1155",
+      "critical": true,
+      "rom": "cha thon ha tamruat thongthiao 1155"
+    },
+    {
+      "en": "Someone in our group is hurt.",
+      "th": "มีคนในกลุ่มบาดเจ็บ",
+      "critical": true,
+      "rom": "mi khananai klum batchep"
+    },
+    {
+      "en": "Please give me a receipt for the deposit.",
+      "th": "ขอใบเสร็จค่ามัดจำหน่อย",
+      "rom": "kho kha matcham noi"
+    },
+    {
+      "en": "What tours do you offer?",
+      "th": "มีทัวร์อะไรบ้าง",
+      "rom": "mi thua arai bang"
+    },
+    {
+      "en": "How much is the day tour?",
+      "th": "ทัวร์หนึ่งวันราคาเท่าไร",
+      "rom": "thua nueng wan rakha thaorai"
+    },
+    {
+      "en": "What is included in the price?",
+      "th": "ราคานี้รวมอะไรบ้าง",
+      "rom": "rakha ni ruam arai bang"
+    },
+    {
+      "en": "Are meals included?",
+      "th": "รวมอาหารไหม",
+      "rom": "ruam ahan mai"
+    },
+    {
+      "en": "Are entrance fees included?",
+      "th": "รวมค่าเข้าชมไหม",
+      "rom": "ruam kha khaotm mai"
+    },
+    {
+      "en": "Is the guide English-speaking?",
+      "th": "ไกด์พูดภาษาอังกฤษไหม",
+      "rom": "kai phut phasaangkrit mai"
+    },
+    {
+      "en": "What time is the pickup?",
+      "th": "รับกี่โมง",
+      "rom": "rap ki mong"
+    },
+    {
+      "en": "Where is the meeting point?",
+      "th": "จุดนัดพบอยู่ที่ไหน",
+      "rom": "chutnatpp yu thinai"
+    },
+    {
+      "en": "How long is the tour?",
+      "th": "ทัวร์นานเท่าไร",
+      "rom": "thua nan thaorai"
+    },
+    {
+      "en": "How many people are in the group?",
+      "th": "กลุ่มมีกี่คน",
+      "rom": "klum mi ki khon"
+    },
+    {
+      "en": "Is it safe for children?",
+      "th": "ปลอดภัยสำหรับเด็กไหม",
+      "rom": "plotphai samrap dek mai"
+    },
+    {
+      "en": "Is there insurance for the activity?",
+      "th": "กิจกรรมนี้มีประกันไหม",
+      "rom": "kitkam ni mi prakan mai"
+    },
+    {
+      "en": "What happens if it rains?",
+      "th": "ถ้าฝนตกจะเป็นอย่างไร",
+      "rom": "tha fanatok cha pen yangrai"
+    },
+    {
+      "en": "Can I cancel? What are the terms?",
+      "th": "ยกเลิกได้ไหม เงื่อนไขเป็นอย่างไร",
+      "rom": "yakloek dai mai ngueankhai pen yangrai"
+    },
+    {
+      "en": "Please confirm everything in writing.",
+      "th": "ช่วยยืนยันทั้งหมดเป็นลายลักษณ์อักษร",
+      "rom": "chuai yuenyan thangmt pen"
+    },
+    {
+      "en": "Do you have a licence?",
+      "th": "มีใบอนุญาตไหม",
+      "rom": "mi bainuyat mai"
+    }
+  ]
+}
