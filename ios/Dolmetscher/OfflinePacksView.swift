@@ -22,6 +22,7 @@ struct OfflinePacksView: View {
     @State private var pendingKinds: [PackKind] = []
     @State private var cellularOK = false
     @State private var download: TranslationSession.Configuration?
+    @State private var voiceQuality: VoiceQuality = .none
 
     private var report: OfflineReport? {
         guard var i = inputs else { return nil }
@@ -43,7 +44,17 @@ struct OfflinePacksView: View {
     var body: some View {
         @Bindable var m = m
         List {
-            if let r = report { warningSection(r) }
+            if let r = report {
+                Section {
+                    ReadinessLightRow(light: ReadinessLight.evaluate(r, partnerVoice: voiceQuality), partnerVoice: voiceQuality)
+                    // Ein Tipp lädt alles, was die App selbst laden kann (Stimmen nur über die iOS-Einstellungen).
+                    if !r.loadable.isEmpty {
+                        Button { loadAll(r) } label: { Label(T("off_load_all"), systemImage: "arrow.down.circle") }
+                            .disabled(r.isLoading)
+                    }
+                } header: { Text(T("r34_light_title")) }
+                warningSection(r)
+            }
             Section {
                 if let r = report {
                     ForEach(r.items) { row($0) }
@@ -160,6 +171,7 @@ struct OfflinePacksView: View {
 
     private func refresh() async {
         let p = m.pair
+        voiceQuality = VoiceCheck.quality(for: p.partner)
         let a = await LangCheck.translation(p.mine, p.partner), b = await LangCheck.translation(p.partner, p.mine)
         inputs = OfflineInputs(
             mine: p.mine, partner: p.partner,

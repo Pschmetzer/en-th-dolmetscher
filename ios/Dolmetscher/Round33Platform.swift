@@ -1,5 +1,5 @@
 // Round33Platform.swift – dünne Hüllen um Systemdienste für die Runde-33-Logik: Spotlight, Zwei-Geräte-Verbindung
-// (MultipeerConnectivity, Prototyp, in der Oberfläche nicht angeboten), WatchConnectivity-Verfügbarkeit, QR-Bild,
+// (MultipeerConnectivity: Suche, Einladung, Nachrichten; Oberfläche in Round34Views.swift), WatchConnectivity-Verfügbarkeit, QR-Bild,
 // Stimmenqualität, Datei-Schutz. Die Entscheidungen stehen in Round33.swift und sind dort getestet.
 import AVFoundation
 import CoreImage.CIFilterBuiltins
@@ -97,26 +97,100 @@ enum FileGuardApply {
     }
 }
 
-/// Prototyp: zwei iPhones tauschen Sätze über MultipeerConnectivity. Wird erst nach Info.plist-Einträgen
-/// (NSBonjourServices, NSLocalNetworkUsageDescription) und einer Oberfläche angeboten.
-final class PeerLink: NSObject, MCSessionDelegate, @unchecked Sendable {
+/// Zwei iPhones tauschen Sätze über MultipeerConnectivity (Runde 34: Suche, Einladung mit Rückfrage, Oberfläche in Round34Views).
+/// Verschlüsselt (`.required`); eine Einladung wird nie ohne Rückfrage angenommen. Es geht nichts ins Internet.
+final class PeerLink: NSObject, MCSessionDelegate, MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBrowserDelegate, @unchecked Sendable {
     static let serviceType = "dolm-pair"
-    private let me = MCPeerID(displayName: UIDevice.current.name)
-    private lazy var session = MCSession(peer: me, securityIdentity: nil, encryptionPreference: .required)
-    var onMessage: (@Sendable (PeerMessage) -> Void)?
 
-    override init() { super.init(); session.delegate = self }
+    enum Event: Sendable {
+        case found(String), lost(String)
+        /// Einladung von `from`; `answer(true)` nimmt an.
+        case invitation(from: String, answer: @Sendable (Bool) -> Void)
+        case connected(String), disconnected(String)
+        case message(PeerMessage)
+    }
+
+    private let me = MCPeerID(displayName: PeerLink.displayName())
+    private lazy var session: MCSession = {
+        let s = MCSession(peer: me, securityIdentity: nil, encryptionPreference: .required)
+        s.delegate = self
+        return s
+    }()
+    private lazy var advertiser: MCNearbyServiceAdvertiser = {
+        let a = MCNearbyServiceAdvertiser(peer: me, discoveryInfo: nil, serviceType: Self.serviceType)
+        a.delegate = self
+        return a
+    }()
+    private lazy var browser: MCNearbyServiceBrowser = {
+        let b = MCNearbyServiceBrowser(peer: me, serviceType: Self.serviceType)
+        b.delegate = self
+        return b
+    }()
+    private let lock = NSLock()
+    private var found: [String: MCPeerID] = [:]
+    var onEvent: (@Sendable (Event) -> Void)?
+
+    /// „iPhone · ab12“: kurz (MultipeerConnectivity erlaubt höchstens 63 Bytes) und unterscheidbar.
+    static func displayName(device: String = UIDevice.current.name, suffix: String = String(UUID().uuidString.prefix(4)).lowercased()) -> String {
+        let tail = " · " + suffix
+        var head = String(device.prefix(40))
+        while (head + tail).utf8.count > 63, !head.isEmpty { head.removeLast() }
+        return head + tail
+    }
+
+    var myName: String { me.displayName }
+
+    func start() {
+        advertiser.startAdvertisingPeer()
+        browser.startBrowsingForPeers()
+    }
+
+    func stop() {
+        advertiser.stopAdvertisingPeer()
+        browser.stopBrowsingForPeers()
+        session.disconnect()
+        lock.withLock { found = [:] }
+    }
+
+    func invite(_ name: String) {
+        guard let id = lock.withLock({ found[name] }) else { return }
+        browser.invitePeer(id, to: session, withContext: nil, timeout: 30)
+    }
 
     func send(_ m: PeerMessage) {
         guard let d = m.encode(), !session.connectedPeers.isEmpty else { return }
         try? session.send(d, toPeers: session.connectedPeers, with: .reliable)
     }
 
-    func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {}
+    // MARK: MCSessionDelegate
+    func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
+        switch state {
+        case .connected: onEvent?(.connected(peerID.displayName))
+        case .notConnected: onEvent?(.disconnected(peerID.displayName))
+        default: break
+        }
+    }
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
-        if let m = PeerMessage.decode(data) { onMessage?(m) }
+        if let m = PeerMessage.decode(data) { onEvent?(.message(m)) }
     }
     func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {}
     func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, with progress: Progress) {}
     func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: Error?) {}
+
+    // MARK: Suche
+    func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String: String]?) {
+        lock.withLock { found[peerID.displayName] = peerID }
+        onEvent?(.found(peerID.displayName))
+    }
+    func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
+        lock.withLock { _ = found.removeValue(forKey: peerID.displayName) }
+        onEvent?(.lost(peerID.displayName))
+    }
+
+    // MARK: Einladungen
+    func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID,
+                    withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
+        let s = session
+        onEvent?(.invitation(from: peerID.displayName, answer: { ok in invitationHandler(ok, ok ? s : nil) }))
+    }
 }

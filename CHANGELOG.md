@@ -15,6 +15,19 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 - Review fixes: amounts with 20+ digits crashed the price helper; the mic test timer could end a later test early and kept the mic open after closing the window; learn mode kept the revealed answer for a new sentence; the partner window's full-screen state reacted to other windows; the "translating" line was not rotated for the partner.
 - Tests: `R26Tests` in `swift-tests`, `tests/test_r26_mac.py`.
 
+### iPhone app, round 34: travel features in the interface
+
+- Menu scan ("More" menu): photo or camera, text recognised on the device, lines with ingredients from your emergency-card allergies are marked as certain ("Contains") or possible; no match is never shown as safe, with a reminder to ask.
+- Travel mode card: when the iPhone's time zone points to another country, a card suggests the partner language and shows emergency numbers and currency. It uses no location, appears once per country and never changes anything until you tap; switch in Settings.
+- Offline traffic light on top of the offline packs screen (green, yellow, red with icon and text), taking the installed voice quality into account, with one tap to download everything the app can load.
+- Learn: pronunciation coach (compares the recognised text with the sentence, an approximation), a third rating "Easy", the review planner (FSRS state per card in its own store, keyed by a hash so no sentence text lands in the backup, forecast of due cards and average recall) and place chips (airport, restaurant, hotel, ...) that show due cards fitting the place first. The Leitner boxes and `learn.json` are unchanged.
+- Travel diary: sentences, days, longest streak, languages, share translated offline; computed on the device and hidden while the history is locked.
+- Hotel card as QR code (vCard from the emergency card, optional phone number) for drivers and reception.
+- Two-device mode: two iPhones nearby exchange text via MultipeerConnectivity (encrypted, invitation needs an explicit Accept, no history; translation works as in a conversation, online only if allowed). New `Info.plist` entries `NSBonjourServices` and `NSLocalNetworkUsageDescription` (translated in all interface languages).
+- Whisper partial text while speaking (Settings, default off): at most one preview decode at a time, never while a final result is being decoded, only the stable part is shown and the final result always replaces it.
+- Not done: Apple Watch companion (`WatchBridge`) needs a new watchOS target in the Xcode project, left out to avoid project risk; `FileGuardApply` is not wired into the storage because complete file protection would block reading emergency data on a locked iPhone.
+- Logic in `Round34.swift`, views in `Round34Views.swift`, texts in `L10n+R34.swift`, tests in `Round34Tests.swift`.
+
 ### Mac app, round 25
 
 - Fix: a full stop inside a number (`10.30`, `3.5`, `฿1.200`) no longer splits a sentence, so a to-do like "Meet at 10.30 at the pier." stays whole in the summary.
