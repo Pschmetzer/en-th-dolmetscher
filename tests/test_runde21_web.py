@@ -347,3 +347,7 @@ def test_manifest_screenshots_are_real_png_files_of_the_stated_size():
         w, h = struct.unpack(">II", data[16:24])
         assert f"{w}x{h}" == s["sizes"] and s["label"], s
     assert "'screenshots/" not in SW                          # nur für die Installationsansicht, nicht offline vorgehalten
+
+
+def test_back_button_closes_two_person_screen_through_the_same_path():
+    assert "addEventListener('popstate', () => { if ($('convo').classList.contains('on')) convoOpen(false); })" in SCRIPT

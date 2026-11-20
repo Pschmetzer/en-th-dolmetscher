@@ -77,9 +77,10 @@ Einzeltasten-Kürzel gelten nicht in Eingabefeldern und nicht mit Strg, Alt oder
 | Pfeil links / rechts | auf einer Lernkarte: nicht gewusst / gewusst |
 | Leertaste | auf einer Lernkarte: Antwort aufdecken |
 | L | zum neuesten Eintrag im Gespräch springen |
-| Esc | schließt die Partneransicht, sonst Stopp; schließt Dialoge immer |
+| Esc | schließt die Partneransicht und „Zwei Personen (Tippen)“, sonst Stopp; schließt Dialoge immer |
 | Pfeil rechts / links | in der Partneransicht bei einer Kartenfolge vor / zurück |
 | Enter | im Textfeld „Tippen statt Sprechen“ übersetzen (mit Umschalt+Enter wird nicht abgeschickt) |
+| Pfeil links / rechts | in der Tab-Leiste (Sprechen, Satzbuch, Karten, Lernen): Bereich wechseln |
 | Tab | alles ist auch ohne Kürzel mit Tab und den Knöpfen bedienbar |
 
 Gehaltene Tasten lösen nichts mehrfach aus (kein Autorepeat).
