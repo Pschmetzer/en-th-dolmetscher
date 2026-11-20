@@ -54,7 +54,9 @@ _IDS = itertools.count(1)
 def _run_tag():
     """Kurzes Kennzeichen dieses Engine-Laufs (3 Zeichen Base36): nach einem Neustart treffen neue und alte
     Äußerungs-IDs in der App sonst wieder bei u1 aufeinander."""
-    n, out = (time.time_ns() // 1_000_000) % (36 ** 3), ""
+    # Zeit + PID + Zufall: zwei Starts im selben ~47-s-Fenster bekommen nicht dieselbe Kennung
+    n = ((time.time_ns() // 1_000_000) ^ (os.getpid() * 7919) ^ int.from_bytes(os.urandom(2), "big")) % (36 ** 3)
+    out = ""
     for _ in range(3):
         n, r = divmod(n, 36)
         out = "0123456789abcdefghijklmnopqrstuvwxyz"[r] + out
@@ -340,7 +342,6 @@ def _negated_command(c, words):
 def parse_command(cmd):
     """Befehl erkennen -> Schlüssel oder None. Leerer Text = nur das Weckwort.
     Nur kurze Äußerungen (max. CMD_MAX_WORDS Wörter) zählen als Befehl."""
-    import difflib
     c = cmd.lower().strip(" .,!?")
     if not c:
         return "wake"
@@ -363,7 +364,12 @@ def parse_command(cmd):
         if other: return other
         if len(words) <= 3 and has(*_THAI_WEAK): return "th"     # "Ty only", nicht "bus on time today"
         return None
-    mnum = re.fullmatch(r"(volume|speed)\s+(?:to\s+)?(\d{1,2})", c)
+    _nw = {"zero": "0", "one": "1", "two": "2", "three": "3", "four": "4", "five": "5", "six": "6", "seven": "7",
+           "eight": "8", "nine": "9", "ten": "10"}
+    mnum = re.fullmatch(r"(volume|speed)\s+(?:to\s+)?(\d{1,2}|" + "|".join(_nw) + ")",
+                        c)                     # Whisper schreibt "volume three" oft mit Zahlwort
+    if mnum and not mnum.group(2).isdigit():
+        mnum = re.fullmatch(r"(volume|speed)\s+(?:to\s+)?(\d{1,2})", f"{mnum.group(1)} {_nw[mnum.group(2)]}")
     if mnum:                                   # "volume 3", "speed 5": Skala 0-10 (5 = normal bei Tempo)
         return f"{mnum.group(1)}:{min(10, int(mnum.group(2)))}"
     # Gegenteil-/Verneinungsformen vor der Befehlssuche (sonst "too loud" -> louder, "mute off" -> pause)
@@ -583,6 +589,7 @@ def set_output_device(dev, check=True):
             log({"output_device": "liste-fehler", "err": _errtxt(e)})
             return
         if outs and _avh.match_output(outs, dev) is None and OUTPUT["device"] == dev:
+            OUTPUT["device"] = ""                # totes Gerät nicht bei jedem Abspielen neu suchen
             emit("error", code="output_not_found",
                  msg="Ausgabegerät nicht gefunden – Systemstandard wird genutzt")
     threading.Thread(target=run, name="output-check", daemon=True).start()
@@ -608,6 +615,8 @@ def check_ffmpeg():
 SAY = "/usr/bin/say" if os.path.exists("/usr/bin/say") else (shutil.which("say") or "/usr/bin/say")
 
 C = {"en": "\033[1;34m", "th": "\033[1;33m", "dim": "\033[2m", "off": "\033[0m"}
+if os.environ.get("NO_COLOR") or not sys.stdout.isatty():        # umgeleitete Ausgabe/Pipe: keine Farbcodes
+    C = dict.fromkeys(C, "")
 JSON = False
 
 
@@ -728,9 +737,9 @@ def _finite(o):
 
 def _json_line(event, kw):
     d = {"event": event, **kw}
-    for k in ("msg", "err"):                       # Fehlertexte: keine Pfade mit Benutzernamen an die App/ins Log
-        if isinstance(d.get(k), str):
-            d[k] = _scrub(d[k])
+    for k, v in d.items():                         # Fehlertexte/Pfade: keine Benutzernamen an die App/ins Log
+        if isinstance(v, str) and (k in ("msg", "err") or (len(v) < 1000 and "/" in v)):
+            d[k] = _scrub(v)
     try:
         return json.dumps(d, ensure_ascii=False, default=_json_default, allow_nan=False)
     except ValueError:                 # selten: nur dann die teurere Bereinigung
@@ -926,6 +935,9 @@ def _proxy_for(host):
         return None
 
 
+MAX_REPLY_BYTES = 2_000_000       # größere Antwort eines API-Hosts ist keine Übersetzung (Portal/Proxy)
+
+
 class KeepAlive:
     """HTTPS über offene Verbindungen je Host (spart TLS-Handshake pro Satz, ~0,2–0,5 s).
     Kein Lock während der Anfrage: ein hängendes MyMemory blockiert Google nicht, parallele Anfragen
@@ -1038,7 +1050,9 @@ class KeepAlive:
             try:
                 c.request(method, path, body=body, headers=hdr)
                 r = c.getresponse()
-                data = r.read()
+                data = r.read(MAX_REPLY_BYTES + 1)
+                if len(data) > MAX_REPLY_BYTES:
+                    raise NotJSON("unerwartet: Antwort zu groß (Portal/Proxy?)")
             except (http.client.HTTPException, ConnectionError, OSError) as e:
                 c.close()
                 if attempt or not reused:
@@ -1102,10 +1116,14 @@ def _cache_put(key, val):
         _CACHE.move_to_end(key)
         while len(_CACHE) > _CACHE_MAX:
             _CACHE.popitem(last=False)
-    if _CACHE_DISK["on"] and time.monotonic() - _CACHE_DISK["saved"] >= 5.0:
-        # JSON + fsync nicht im Übersetzungs-Thread (der Satz wartet sonst auf die Platte)
-        _CACHE_DISK["saved"] = time.monotonic()           # vor dem Start: kein zweiter Thread für denselben Zeitraum
-        threading.Thread(target=_cache_save, args=(True,), name="cache-save", daemon=True).start()
+    if not _CACHE_DISK["on"]:
+        return
+    with _CACHE_LOCK:                                     # prüfen und setzen atomar: nie zwei Speicher-Threads
+        if time.monotonic() - _CACHE_DISK["saved"] < 5.0:
+            return
+        _CACHE_DISK["saved"] = time.monotonic()
+    # JSON + fsync nicht im Übersetzungs-Thread (der Satz wartet sonst auf die Platte)
+    threading.Thread(target=_cache_save, args=(True,), name="cache-save", daemon=True).start()
 
 
 # Opt-in (Steuerfeld `cache_persist`): Übersetzungs-Cache übersteht den Neustart – Standardsätze gehen dann auch ohne
@@ -1457,9 +1475,16 @@ def reset_net_backoff():
 
 
 def _retry_after(e, default=30.0):
+    raw = (getattr(e, "headers", None) or {}).get("Retry-After", "")
     try:
-        v = float((getattr(e, "headers", None) or {}).get("Retry-After", ""))
+        v = float(raw)
     except (TypeError, ValueError, AttributeError):
+        try:                                   # HTTP-Datum ("Wed, 21 Oct 2026 07:28:00 GMT")
+            import email.utils
+            v = email.utils.parsedate_to_datetime(raw).timestamp() - time.time()
+        except (TypeError, ValueError, AttributeError, IndexError):
+            return default
+    if v != v:
         return default
     return min(max(v, 1.0), 120.0)
 
@@ -1491,7 +1516,7 @@ def _note_fail(name, e):
         wait = 15.0
         _captive_hint()
     elif isinstance(cause, urllib.error.HTTPError):
-        wait = _retry_after(cause) if cause.code in (429, 503) else (5.0 if cause.code >= 500 else 0.0)
+        wait = _retry_after(cause) if cause.code in (429, 503) else 5.0
     elif isinstance(cause, (urllib.error.URLError, OSError, http.client.HTTPException)):
         with _BACKOFF_LOCK:
             n = _PROV[name]["fails"] = _PROV[name]["fails"] + 1
@@ -2232,7 +2257,8 @@ LAUGH.update({
     "ko": re.compile(r"[ㅋㅎ]{2,}"),
 })
 LAUGH_OUT = {"th": "555", "en": "haha", "de": "hahaha", "es": "jajaja", "fr": "haha", "pt": "kkkk", "id": "wkwk",
-             "ru": "хаха", "zh": "哈哈", "ja": "あはは", "ko": "ㅋㅋ"}
+             "ru": "хаха", "zh": "哈哈", "ja": "あはは", "ko": "ㅋㅋ", "it": "ahah", "tr": "hahaha", "pl": "haha",
+             "nl": "haha", "uk": "хаха", "vi": "haha", "ar": "هههه", "hi": "हाहा"}
 # "555" ist im Thai Lachen – aber nicht als Preis, Zimmer-, Flug- oder Telefonnummer
 _NUM_BEFORE = re.compile(r"(?:ราคา|ห้อง|เบอร์|เลข(?:ที่)?|หมายเลข|เที่ยวบิน|โทร|ชั้น|ตึก|สาย|รถ|ซอย|บ้าน|โต๊ะ|ประตู|"
                          r"room|flight|number|no\.?|bus|gate|table|price|[#$฿€£])\s*$", re.I)
@@ -2249,11 +2275,20 @@ _SPEAK_CUR = {
     "de": {"฿": "Baht", "$": "Dollar", "€": "Euro", "£": "Pfund"},
     "es": {"฿": "bat", "$": "dólares", "€": "euros", "£": "libras"},
     "fr": {"฿": "bahts", "$": "dollars", "€": "euros", "£": "livres"},
+    "it": {"฿": "baht", "$": "dollari", "€": "euro", "£": "sterline"},
+    "pt": {"฿": "bahts", "$": "dólares", "€": "euros", "£": "libras"},
+    "nl": {"฿": "baht", "$": "dollar", "€": "euro", "£": "pond"},
+    "ru": {"฿": "бат", "$": "долларов", "€": "евро", "£": "фунтов"},
+    "ja": {"฿": "バーツ", "$": "ドル", "€": "ユーロ", "£": "ポンド"},
+    "zh": {"฿": "泰铢", "$": "美元", "€": "欧元", "£": "英镑"},
+    "ko": {"฿": "바트", "$": "달러", "€": "유로", "£": "파운드"},
 }
 _SPEAK_DEG = {"en": "degrees", "th": "องศา", "de": "Grad", "es": "grados", "fr": "degrés"}
 _SPEAK_CELS = {"C": {"en": "Celsius", "th": "เซลเซียส", "de": "Celsius", "es": "Celsius", "fr": "Celsius"},
                "F": {"en": "Fahrenheit", "th": "ฟาเรนไฮต์", "de": "Fahrenheit", "es": "Fahrenheit",
                      "fr": "Fahrenheit"}}
+# Thai-Rufnummern (0 + 8-9 Ziffern, ohne Punkt/Komma davor/danach): Stimmen läsen sie sonst als große Zahl
+_PHONE_SPEAK = re.compile(r"(?<![\d.,])0\d{8,9}(?![\d.,])")
 _CUR_AMOUNT = re.compile(r"([฿$€£])\s?(\d+(?:[.,]\d+)*)")
 _DEGREE = re.compile(r"(?<=\d)\s?°\s?([CF])\b")
 
@@ -2261,7 +2296,9 @@ _DEGREE = re.compile(r"(?<=\d)\s?°\s?([CF])\b")
 _EMOJI = re.compile("[\U0001F000-\U0001FAFF\u2600-\u27BF\u2B50\u2B55\uFE0F\u200D\u20E3]+")
 _THAI_DIGITS = str.maketrans("๐๑๒๓๔๕๖๗๘๙", "0123456789")
 _TH_ABBREV = [(re.compile(a), b) for a, b in (
-    (r"กทม\.?(?=\s|$)", "กรุงเทพมหานคร"), (r"ฯลฯ", "และอื่นๆ"), (r"(?<=\s)น\.(?=\s*\d)", "นาฬิกา"))]
+    (r"กทม\.?(?=\s|$)", "กรุงเทพมหานคร"), (r"ฯลฯ", "และอื่นๆ"), (r"(?<=\s)น\.(?=\s*\d)", "นาฬิกา"),
+    (r"(?<=\s)ซ\.(?=\s*\S)", "ซอย"), (r"(?<=\s)ถ\.(?=\s*\S)", "ถนน"), (r"(?<=\s)รร\.(?=\s*\S)", "โรงเรียน"),
+    (r"(?<=\s)รพ\.(?=\s*\S)", "โรงพยาบาล"))]
 MAX_SPEAK_CHARS = 300             # längere Teile einer Ausgabe werden geteilt (edge-tts/say: Frist, Abbruchrisiko)
 
 
@@ -2282,6 +2319,8 @@ def chunk_long(parts, lang, limit=None):
                       p.rfind("、", 0, limit) + 1)
             if cut < limit // 3:
                 cut = limit
+                while cut > limit // 3 and not _thai_cut_ok(p[cut - 1], p[cut]):
+                    cut -= 1                      # Thai ohne Leerzeichen: nie mitten im Zeichencluster schneiden
             out.append(p[:cut].strip())
             p = p[cut:].strip() if cut != limit or p[cut:cut + 1].isspace() else p[cut:]
         out.append(p)
@@ -2297,6 +2336,7 @@ def speak_form(text, lang):
         text = text.translate(_THAI_DIGITS)
         for rx, word in _TH_ABBREV:
             text = rx.sub(word, text)
+    text = _PHONE_SPEAK.sub(lambda m: " ".join(m.group(0)), text)   # 0812345678 -> ziffernweise, nicht als Zahl
     cur = _SPEAK_CUR.get(lang)
     if cur and _CUR_AMOUNT.search(text):
         text = _CUR_AMOUNT.sub(lambda m: f"{m.group(2)} {cur[m.group(1)]}", text)
@@ -2490,6 +2530,7 @@ def llm_reset_backoff():
     LLM["skip_until"] = 0.0
     LLM["err"] = None
     LLM["billing_told"] = False
+    LLM["client"] = None                       # neuer Client: er behält sonst den alten (ungültigen) Schlüssel
 
 
 def _llm_late(fut):
@@ -2892,7 +2933,7 @@ def _dates_to_numbers(s, equiv=True):
     s = _TH_MONTH_RX.sub(lambda m: f" {_TH_MONTHS.index(m.group(1)) + 1} ", s)
     return _EN_MONTH_RX.sub(lambda m: f" {_EN_MONTHS.index(m.group(1)) + 1} ", s)
 # Thai-, arabisch-indische (zwei Formen), Devanagari- und vollbreite Ziffern -> 0-9 (Zahlenvergleich)
-_THAI_DIGITS = str.maketrans("๐๑๒๓๔๕๖๗๘๙٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹०१२३४५६७८९０１２３４５６７８９", "0123456789" * 5)
+_DIGITS_ALL = str.maketrans("๐๑๒๓๔๕๖๗๘๙٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹०१२३४५६७८९０１２３４５６７８９", "0123456789" * 5)
 
 # Thai-Zahlwörter (Whisper schreibt Preise/Zimmernummern oft aus): nur für den Zahlenvergleich
 _TH_DIGIT_W = {"ศูนย์": 0, "หนึ่ง": 1, "เอ็ด": 1, "สอง": 2, "ยี่": 2, "สาม": 3, "สี่": 4, "ห้า": 5,
@@ -3111,7 +3152,7 @@ _CUR_AMOUNT_RX = re.compile(r"(?:(?P<pre>" + _CUR_ANY_RX.replace("(?P<", "(?P<p"
 def currency_amounts(s):
     """[(Währung, Betrag)] mit Betrag normalisiert wie _numbers: '฿500', '500 baht', 'THB 500', '$5', '5 บาท'."""
     out = []
-    for m in _CUR_AMOUNT_RX.finditer((s or "").translate(_THAI_DIGITS)):
+    for m in _CUR_AMOUNT_RX.finditer((s or "").translate(_DIGITS_ALL)):
         pre = m.group("pre") is not None
         raw = m.group("a1" if pre else "a2").rstrip(".,")
         cur = next((c for c, _ in _CURRENCY_TOKENS if m.group(("p" if pre else "q") + c)), None)
@@ -3192,7 +3233,7 @@ def _numbers(s, words=True, times=None, equiv=True):
     2:30 PM = 14:30 (auch บ่าย 2:30), 9:00 = 9, 09 = 9. Thai-Lachen (555 ohne Zahlkontext) zählt nicht.
     words: ausgeschriebene Zahlen mitzählen – Thai (สามร้อยห้าสิบ = 350, บ่ายสองโมง = 14) und Englisch
     (three hundred fifty = 350); 1.5 million = 1500000."""
-    s = s.translate(_THAI_DIGITS)
+    s = s.translate(_DIGITS_ALL)
     s = _PHONE.sub(_phone_sub, s)                                # 081-234-5678 = 0812345678 (eine Nummer, keine drei)
     # "1 500 000" / "1\u202f500" = 1500000; nur als Gleichwertigkeit (equiv): "2 100 baht" kann auch 2 mal 100 sein
     if equiv:
@@ -3247,7 +3288,7 @@ _UNIT_RULES = (
 def canon_units(s):
     """Maßeinheiten für den Zahlenvergleich vereinheitlichen: °F -> °C, Meilen -> km, lb -> kg (gerundet),
     damit „86 °F“ gegen „30 องศาเซลเซียส“ keine Abweichung ist. Fehlt die Einheit, bleibt der Text."""
-    s = (s or "").translate(_THAI_DIGITS)
+    s = (s or "").translate(_DIGITS_ALL)
     for rx, fn in _UNIT_RULES:
         s = rx.sub(lambda m, fn=fn: " " + fn(float(m.group(1))) + " ", s)
     return s
@@ -3803,6 +3844,7 @@ NO_SPEECH_P, NO_SPEECH_LP = 0.9, -0.7      # wie Whispers eigene Stille-Regel, n
 
 def looks_hallucinated(text, dur, segs, lang=None):
     """Typische Whisper-Halluzination: Wiederholungsschleife oder unmöglich viele Zeichen pro Sekunde."""
+    segs = list(segs)                        # Generator: zweimal durchlaufen wäre beim zweiten Mal leer
     if any(getattr(s, "compression_ratio", 0) > 2.6 for s in segs):
         return "wiederholung"
     chars = len(re.sub(r"\s", "", text))

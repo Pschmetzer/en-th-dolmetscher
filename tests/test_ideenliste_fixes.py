@@ -163,7 +163,7 @@ def test_squash_still_cuts_loops():
 class _FakeResp:
     status, reason, headers, will_close = 200, "OK", {}, False
 
-    def read(self):
+    def read(self, n=-1):
         return b'{"ok": 1}'
 
     def getheader(self, k, default=None):

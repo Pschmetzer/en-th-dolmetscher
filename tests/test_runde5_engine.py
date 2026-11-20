@@ -137,7 +137,7 @@ def test_privatmodus_post_abgelehnt_wirft_statt_get(monkeypatch):
     class Resp:
         status, reason, headers, will_close = 405, "nope", {}, True
 
-        def read(self):
+        def read(self, n=-1):
             return b""
 
     class Conn:

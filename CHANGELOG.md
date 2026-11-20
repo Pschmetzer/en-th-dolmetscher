@@ -25,6 +25,7 @@ Pull requests #16–#47. Not yet published as a release.
 
 ### Engine (speech recognition, translation, voice – used by the Mac app)
 
+- **Engine round 21 (1):** phone numbers are read digit by digit, Thai text is never cut inside a character cluster when read aloud, more currency words and laughter forms for all languages, “volume three” works, oversized proxy replies are rejected, `Retry-After` dates are understood, and a key change really drops the old Claude client.
 - **Language pairs** (#29): any pair of English, Thai, German, Spanish, French, Italian, Portuguese, Dutch, Russian, Chinese, Japanese, Korean, Vietnamese, Indonesian, Arabic, Hindi, Turkish, Polish and Ukrainian. Thai-specific extras (ครับ/ค่ะ, 555 laughter, Thai numbers, the Thai model) are only active when Thai is in the pair; voice commands only when English is.
 - **Numbers are checked more carefully** (#22, #25, #26, #34): prices, room and phone numbers no longer lose digits to “555 = haha”; times like 2:30 PM = 14:30 and number words in Thai and English (“three hundred fifty” = สามร้อยห้าสิบ = 350) are understood. If the numbers in a translation still differ, the engine asks a second translation service and keeps the version whose numbers match.
 - **Better translations** (#22, #34): your glossary now also works with Google, not only with Claude; questions keep the right Thai particle (คะ); if Claude's answer looks wrong, Google translates the sentence instead; Thai times are passed to Claude correctly; optional **monthly cost limit** for Claude (`--llm-budget`).
