@@ -15,6 +15,11 @@ select = ["E", "F", "W"]
 # Kompakter Stil: mehrere Anweisungen/Importe pro Zeile und lambda-Zuweisungen sind gewollt.
 ignore = ["E401", "E701", "E702", "E731"]
 
+[tool.ruff.lint.per-file-ignores]
+# eingebettetes JavaScript in Python-Strings: lange Zeilen sind dort gewollt
+"tests/test_runde7_web_sw.py" = ["E501"]
+"tests/test_web_pwa.py" = ["E501"]
+
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]

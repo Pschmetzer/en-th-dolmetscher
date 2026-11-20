@@ -204,7 +204,7 @@ def test_recorder_queue_bounded_and_flush_timeout(tmp_path, monkeypatch):
         rec.utt({"text": "t%d" % i})
     assert rec.dropped >= 5
     t0 = __import__("time").monotonic()
-    rec.flush()                                             # kehrt nach dem Timeout zurueck, auch wenn der Writer haengt
+    rec.flush()                                             # kehrt nach dem Timeout zurueck (Writer haengt)
     assert __import__("time").monotonic() - t0 < 2.0
     gate.set()
     rec.flush()

@@ -13,7 +13,7 @@ INDEX = json.loads((ROOT / "presets-index.json").read_text(encoding="utf-8"))["p
 HTML = (ROOT / "index.html").read_text(encoding="utf-8")
 SW = (ROOT / "sw.js").read_text(encoding="utf-8")
 PRESETS_MD = (ROOT / "docs" / "PRESETS.md").read_text(encoding="utf-8")
-PENDING = set((ROOT / "tools" / "web_pending_presets.txt").read_text(encoding="utf-8").split())   # noch nicht in den Web-Listen
+PENDING = set((ROOT / "tools" / "web_pending_presets.txt").read_text(encoding="utf-8").split())   # noch nicht im Web
 THAI = re.compile("[฀-๿]")
 LATIN_WORD = re.compile("[A-Za-z]{3,}")
 
@@ -60,7 +60,7 @@ def test_index_entries_match_the_files():
 
 
 def test_web_order_follows_the_index_order():
-    # Pakete auf der Warteliste (tools/web_pending_presets.txt) fehlen noch in den Web-Listen; der Rest bleibt in Index-Reihenfolge
+    # Pakete der Warteliste fehlen noch in den Web-Listen; der Rest bleibt in Index-Reihenfolge
     assert _js_ids(HTML) == [p["id"] for p in INDEX if p["id"] not in PENDING]
 
 
