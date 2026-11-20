@@ -3,10 +3,10 @@
 import json
 import re
 
-from _webhelpers import HTML, SCRIPT
+from _webhelpers import HTML, SCRIPT, web_str
 
 STR_M = re.search(r"^const STR = (\{.*?^\});", SCRIPT, re.S | re.M)
-STR = json.loads(STR_M.group(1))
+STR = web_str()
 LOGIC = SCRIPT.replace(STR_M.group(0), "")
 # Datentabellen (Ländernamen der Sprachvarianten), keine Meldungen
 ALLOWED = {"Brasilien", "Spanien", "Mexiko", "Frankreich", "Kanada", "Mandarin (China)", "Mandarin (Taiwan)", "Kantonesisch (Hongkong)",

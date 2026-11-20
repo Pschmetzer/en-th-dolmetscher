@@ -4,7 +4,7 @@ import json
 import re
 
 import pytest
-from _webhelpers import HAVE_NODE, HTML, SCRIPT, func, line, prelude, run
+from _webhelpers import HAVE_NODE, HTML, SCRIPT, func, line, prelude, run, web_str
 
 DAY = 864e5
 FUNCS = ("learnSide", "learnParse", "learnKey", "learnDay", "leitnerGrade", "learnIsNew", "learnDue", "learnQueue", "learnBoxes",
@@ -118,8 +118,7 @@ def test_ui_wiring():
 
 
 def test_texts_in_all_languages():
-    m = re.search(r"^const STR = (\{.*?^\});", SCRIPT, re.S | re.M)
-    strs = json.loads(m.group(1))
+    strs = web_str()
     for k in ("learnDeck", "learnDeckAll", "learnHard", "learnEasy", "learnReset", "learnResetConfirm", "learnResetDone", "learnLimitDone", "learnBoxes", "learnImportBad", "learnKeys"):
         assert all(strs[lg][k].strip() for lg in ("de", "en", "th")), k
     assert all("{n}" in strs[lg]["learnResetConfirm"] for lg in strs)

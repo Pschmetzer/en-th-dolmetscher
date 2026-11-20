@@ -128,7 +128,8 @@ def test_engine_and_json_agree_on_names_and_scripts():
 def test_web_ui_languages_equal_mac_and_web_string_tables():
     ui = re.search(r"const UI_LANGS = \[([^\]]*)\]", HTML).group(1)
     ui = re.findall(r"'([a-z]+)'", ui)
-    top = re.findall(r'^ "([a-z]{2})": \{', HTML[HTML.index("const STR = {"):HTML.index("const UI_LANGS")], re.M)
+    from _webhelpers import web_str
+    top = list(web_str())
     assert ui == top == ["de", "en", "th"]
     mac = _read(ROOT / "app" / "L10n.swift")
     cases = re.search(r"enum UILang: String[^{]*\{\s*case ([a-z, ]+)", mac).group(1)

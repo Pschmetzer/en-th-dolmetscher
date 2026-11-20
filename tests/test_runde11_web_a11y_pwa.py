@@ -6,7 +6,7 @@ from html.parser import HTMLParser
 
 import pytest
 
-from _webhelpers import HAVE_NODE, HTML, ROOT, SCRIPT, run
+from _webhelpers import HAVE_NODE, HTML, ROOT, SCRIPT, run, web_str
 
 MANIFEST = json.loads((ROOT / "manifest.webmanifest").read_text(encoding="utf-8"))
 SW = (ROOT / "sw.js").read_text(encoding="utf-8")
@@ -102,10 +102,10 @@ def test_no_hardcoded_install_text_and_no_variable_named_t():
 
 def test_new_strings_in_all_ui_languages():
     for k in ("installedState", "installedNow", "installApp", "installIos", "installBtn", "closeBtn", "hTalk", "hLog"):
-        assert len(re.findall(rf'^  "{k}": ', SCRIPT, re.M)) == 3, k
+        assert all(k in S for S in web_str().values()), k
     for k in ("installedState", "installedNow", "installIos"):   # alle drei Texte tatsaechlich verschieden
-        assert len(set(re.findall(rf'^  "{k}": (.*),$', SCRIPT, re.M))) == 3, k
-    assert re.search(r'^  "installedState": ".*[฀-๿]', SCRIPT, re.M)
+        assert len({S[k] for S in web_str().values()}) == 3, k
+    assert re.search("[฀-๿]", web_str()["th"]["installedState"])
 
 
 # ---- Ueberschriften und Landmarks ----

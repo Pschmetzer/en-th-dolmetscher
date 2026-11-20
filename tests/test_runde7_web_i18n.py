@@ -3,9 +3,9 @@ import json
 import re
 from html.parser import HTMLParser
 
-from _webhelpers import HTML, SCRIPT
+from _webhelpers import HTML, SCRIPT, web_str
 
-STR = json.loads(re.search(r"^const STR = (\{.*?^\});", SCRIPT, re.S | re.M).group(1))
+STR = web_str()
 
 
 class Collect(HTMLParser):

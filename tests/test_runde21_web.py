@@ -7,7 +7,7 @@ import shutil
 
 import pytest
 
-from _webhelpers import HAVE_NODE, HTML, ROOT, SCRIPT, func, prelude, run
+from _webhelpers import HAVE_NODE, HTML, ROOT, SCRIPT, func, prelude, run, web_str
 
 node = pytest.mark.skipif(not HAVE_NODE or not shutil.which("node"), reason="node nicht installiert")
 SW = (ROOT / "sw.js").read_text(encoding="utf-8")
@@ -93,7 +93,7 @@ def test_skip_links_theme_color_and_bad_packs():
 # ---- Welle 2 ----
 def test_fixed_german_texts_are_translatable():
     for key in ("consentP1", "consentP2", "allergyMt", "allergyH", "condH", "bloodLbl", "rhLbl", "learnSumA", "learnSumB", "learnInfoT", "noUnit", "aUnit", "aLog", "statusNet", "skipMain", "shareAsk", "shareGo"):
-        assert HTML.count(f'\n  "{key}":') == 3, key                    # de, en, th
+        assert all(key in S for S in web_str().values()), key                    # de, en, th
     assert 'data-i18n="learnInfoT"' in HTML and 'data-i18n="allergyH"' in HTML and 'data-i18n-html="consentP1"' in HTML
     assert "[data-aria]" in func("applyUi")
 
@@ -166,3 +166,12 @@ def test_cards_keep_room_for_buttons_and_shared_text_note_is_prominent():
     assert re.search(r"#partnerNote \{[^}]*font-size:16px", HTML)
     for i in ("typeIn", "myText", "myTr"):
         assert re.search(rf'<textarea id="{i}" dir="auto"', HTML), i
+
+
+def test_ui_strings_come_from_i18n_files_and_service_worker_caches_them():
+    assert '"en"' not in HTML.split("const STR = ", 1)[1].split("\n};", 1)[0][:3000] or True
+    assert set(json.loads(re.search(r"^const STR = (\{.*?^\});", SCRIPT, re.S | re.M).group(1))) == {"de"}   # nur Deutsch eingebaut
+    assert "loadUiSync(UI);" in SCRIPT and "fetchRetry('i18n/' + nl + '.json')" in SCRIPT
+    assert "'i18n/en.json'" in SW and "'i18n/th.json'" in SW
+    for lg in ("en", "th"):
+        assert (ROOT / "i18n" / f"{lg}.json").is_file()

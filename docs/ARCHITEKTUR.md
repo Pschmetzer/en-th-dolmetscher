@@ -84,7 +84,7 @@ stateDiagram-v2
 
 Weitere Teile: Großansicht (`togglePartner`, History-Eintrag für die Zurück-Taste), Satzbuch (`renderCards`, Pakete aus
 `presets/`, Namen aus `presets-index.json`), Lernkarten (Leitner, `localStorage`), Zahlenkarte (`thaiNumber`), Allergiekarte
-(`allergens.json`), Oberfläche in drei Sprachen (`STR`, `t()`, `data-i18n`). Reine Logik steht als Top-Level-Funktion, damit
+(`allergens.json`), Oberfläche in drei Sprachen (`STR`, `t()`, `data-i18n`; Deutsch steckt in `index.html`, Englisch und Thai in `i18n/en.json` und `i18n/th.json`, die der Service Worker mit speichert; neue Texte in alle drei eintragen). Reine Logik steht als Top-Level-Funktion, damit
 die Tests sie mit node herauslösen können (`tests/_webhelpers.py`).
 
 Grenzen der Sicherheit im Browser: Die Content-Security-Policy steht im `<meta>`, dort wirken `frame-ancestors` und `report-uri` nicht
@@ -109,6 +109,7 @@ DOLMETSCHER_DEMO=1 open -n ~/Applications/Dolmetscher.app   # oder die Binärdat
 
 ## iPhone-App
 
+`ios/Dolmetscher/Round22.swift` ergänzt weitere Reise-Helfer als reine Logik.
 `ios/Dolmetscher/Round21.swift` enthält Reise-Helfer als reine Logik (Trinkgeld, Einheiten, Thai-Uhrzeit, Telefonnummer) und das Aufräumen von Export-Dateien.
 
 `ios/` ist eine eigene SwiftUI-App ohne Python-Engine: `AudioCapture` (Mikrofon, Unterbrechungen) speist entweder `AppleSpeechEngine` (SpeechAnalyzer, ein Erkenner je Paarsprache) oder `WhisperSpeechEngine` (WhisperKit, optional). Übersetzung in `Translator.swift` (Apple Translation auf dem Gerät, sonst optional Google/MyMemory), Zustand in `Model.swift`, Sprachen in `Languages.swift`. Reine, testbare Logik steht je Runde in kleinen Dateien: `Round4.swift` (Thai-Zahlwörter, Preise, Auto-Stopp), `Round6.swift` (Zusammenfassung, Kulturhinweis, Sichtschutz, `LivePrivacy`), `Round7.swift` (Barrierefreiheit), `Round8.swift` (Netzwechsel, Lernstatistik, `SecureCopy`, `ShieldPolicy`), `Round9.swift` (Export, Satzbuch-Suche, Unterbrechungen); dazu `Round4Views.swift` (Reise-Vorbereitung, Ziele, Notfall-Bildschirm), `Phrasebook.swift`/`ScenarioPacks.swift` (Satzbuch mit den Paketen aus `presets/`), `Learn.swift` (Lernkarten), `LiveActivity.swift` mit dem Ziel `DolmetscherWidget` (Widgets, Steuerelement), `Intents.swift` (Siri-Kurzbefehle), `L10n*.swift` (zehn Oberflächensprachen). Tastaturkürzel: [TASTENKUERZEL.md](TASTENKUERZEL.md). Bauen und Testen: [ios/README.md](../ios/README.md).

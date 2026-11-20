@@ -11,7 +11,8 @@ import pytest
 from _webhelpers import HAVE_NODE, HTML, ROOT, SCRIPT, func
 
 SW = (ROOT / "sw.js").read_text(encoding="utf-8")
-BUDGET_HTML = 256_000   # Runde 21: 230 229 Byte + neue Texte (de/en/th), Notrufnummern, Lautschrift-Schalter; STR (67 KB) liesse sich später in i18n-Dateien auslagern
+BUDGET_HTML = 215_000   # Runde 21b: 192 KB nach Auslagerung von en/th nach i18n/*.json (vorher 242 KB mit allen drei Sprachen)
+BUDGET_I18N = 60_000     # je Datei i18n/<sprache>.json (th ist die grösste)
 BUDGET_SW = 8_000
 node = pytest.mark.skipif(not HAVE_NODE or not shutil.which("node"), reason="node nicht installiert")
 
@@ -20,6 +21,11 @@ def _node(src):
     r = subprocess.run(["node", "-"], input=src, capture_output=True, text=True, timeout=60)
     assert r.returncode == 0, r.stderr
     return json.loads(r.stdout)
+
+
+def test_i18n_files_within_budget():
+    for lg in ("en", "th"):
+        assert (ROOT / "i18n" / f"{lg}.json").stat().st_size <= BUDGET_I18N
 
 
 def test_size_budget():
@@ -47,11 +53,11 @@ def test_page_asks_for_packs_after_start_not_on_data_saver():
 
 
 def test_texts_in_three_languages():
-    block = SCRIPT[SCRIPT.index("const STR = {"):SCRIPT.index("function t(key, vars)")]
+    from _webhelpers import web_str
+    S = web_str()
     for lg in ("de", "en", "th"):
-        b = block.split(f' "{lg}": {{', 1)[1]
         for k in ("storageFull", "offlineLoading"):
-            assert re.search(rf'"{k}": "[^"]+"', b), (lg, k)
+            assert S[lg][k].strip(), (lg, k)
 
 
 @node

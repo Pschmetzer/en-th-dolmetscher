@@ -5,10 +5,10 @@ import re
 
 import pytest
 
-from _webhelpers import HAVE_NODE, HTML, ROOT, SCRIPT, func, line, prelude, run
+from _webhelpers import HAVE_NODE, HTML, ROOT, SCRIPT, func, line, prelude, run, web_str
 
 SW = (ROOT / "sw.js").read_text(encoding="utf-8")
-STR = json.loads(re.search(r"^const STR = (\{.*?^\});", SCRIPT, re.S | re.M).group(1))
+STR = web_str()
 KEYS = ("mcMax", "mcGroup", "mcText", "mcTr", "mcTranslate", "mcCancel", "mcExport", "mcImport", "mcFilter", "mcFavOrder", "mcFavEmpty",
         "mcAllGroups", "mcEmpty", "mcShowTr", "mcEdit", "mcUp", "mcDown", "mcMoved", "mcEditing", "mcTranslating", "mcTranslated",
         "mcTranslateFail", "mcNoneExport", "mcExported", "mcFileBad", "mcImported", "mcStorageFull")

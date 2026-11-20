@@ -39,3 +39,12 @@ def run(pre, exprs):
                        capture_output=True, text=True, timeout=120)
     assert r.returncode == 0, r.stderr
     return json.loads(r.stdout)
+
+
+def web_str():
+    """Oberflächentexte {de, en, th}: Deutsch steckt in index.html (STR), en/th in i18n/*.json (seit Runde 21)."""
+    m = re.search(r"^const STR = (\{.*?^\});", SCRIPT, re.S | re.M)
+    out = json.loads(m.group(1))
+    for lg in ("en", "th"):
+        out[lg] = json.loads((ROOT / "i18n" / f"{lg}.json").read_text(encoding="utf-8"))
+    return {k: out[k] for k in ("de", "en", "th")}
