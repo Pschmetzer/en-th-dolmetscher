@@ -4,6 +4,17 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### Mac app main window, round 23
+
+- Search shows the current match as "2 / 7" with previous/next buttons (⇧⌘G / ⌘G); the matching bubble is highlighted and scrolled into view.
+- Select several bubbles (context menu or the "More" menu): copy (with or without times), export (also one language only) or delete them together.
+- Bubble context menu: "Copy as …" with original, translation, both or with time; VoiceOver announces the bubble position ("3/12").
+- Number mismatches are much easier to see: a filled warning with the differing numbers, numbers highlighted in the bubble and in the partner view.
+- Page through alternative readings of unsure speech; per-bubble back-translation button.
+- Empty history shows a daily tip; the header shows a latency sparkline with trend, a "too loud" hint when the microphone clips, and an offer to switch to Auto when the last sentences do not match the forced language.
+- Partner view: Thai text is set larger. Mini window: copy button and space bar for pause/resume.
+- Engine: partial text is throttled under load, the watchdog uses a monotonic clock, and a sentence cut off by an engine crash stays as a bubble marked "interrupted".
+
 ### Web Lite and phrase packs, round 22 (web)
 
 - 14 new scenario packs (156 in total): numbers and prices, negotiating, Buddhism and etiquette, scooter rental damage and deposit, describing symptoms in detail, avoiding tuk-tuk scams, embassy and consulate, spice level in food, deaf / hard of hearing / unable to speak, wheelchair and limited mobility, halal food and prayer, returns and complaints in shops, hotel room problems, lost wallet and cards. Thai lines machine-made, not checked by native speakers.
