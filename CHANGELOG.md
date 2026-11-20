@@ -454,3 +454,4 @@ Pull requests #16–#192. First tagged release since 1.2: engine hardening, Mac 
 
 See the [commit history](https://github.com/Pschmetzer/en-th-dolmetscher/commits/main) up to pull request #15.
 - Engine round 21 (10): Offline-Helfer startet mit --pairs, Helfer-Fehlertexte vor dem Log bereinigt, Ortsnamen-Schutz beachtet Groß-/Kleinschreibung.
+- Engine round 21 (11): Fixes aus dem dritten Review (Thai-Partikel, Sprechform an Thai-Grenzen, Zahlenvergleich BE-Jahr/Maßstab/Bereiche, $1.5 million, Refusal-Filter, Cache-Race), Übersetzerreihenfolge per --mt-order/DOLMETSCHER_MT_ORDER.
