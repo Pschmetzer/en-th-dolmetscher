@@ -108,8 +108,9 @@ enum URLCommands {
             a.informativeText = L.t("url_allow_text")
             a.addButton(withTitle: L.t("url_allow"))
             a.addButton(withTitle: L.t("cancel"))
+            // Nur dieser eine Aufruf: dauerhaft erlaubt wird ausschließlich im Einstellungs-Schalter,
+            // sonst könnte danach jede Webseite ohne Rückfrage das Mikrofon starten.
             guard a.runModal() == .alertFirstButtonReturn else { return }
-            UserDefaults.standard.set(true, forKey: Prefs.urlAllowed)
         }
         switch cmd {
         case "start": if !m.active { m.startListening() }

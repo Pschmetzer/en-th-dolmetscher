@@ -117,7 +117,7 @@ Wer Logs teilt: `--log-text` schreibt erkannte und übersetzte Sätze in die Log
 
 ## Ergänzungen Runde 7 (Mac, iPhone, Web)
 
-- **Mac, URL-Schema `dolmetscher://`:** andere Programme können Start, Stopp, Pause und „Satz sprechen“ auslösen. Beim ersten Aufruf fragt die App nach; Text höchstens 1000 Zeichen.
+- **Mac, URL-Schema `dolmetscher://`:** andere Programme können Start, Stopp, Pause und „Satz sprechen“ auslösen. Jeder Aufruf fragt vorher nach (die Erlaubnis gilt nur für diesen einen Aufruf); dauerhaft erlaubt wird nur über den Schalter in den Einstellungen; Text höchstens 1000 Zeichen.
 - **Mac, Bildschirmaufnahme:** Der Schalter „Fenster vor Bildschirmaufnahme und Screen-Sharing verbergen“ schließt die App-Fenster aus Aufnahmen und Screenshots aus (`sharingType = .none`). Standard: aus.
 - **Mac, Audiodateien:** Beim Übersetzen einer Datei läuft ein eigener Engine-Prozess; Ergebnisse stehen nur im Verlauf der App.
 - **Mac, API-Schlüssel:** Der Schlüssel geht nur an den Engine-Prozess, nicht an Hilfsprozesse. Der Schlüsselbund-Eintrag gilt nur für dieses Gerät. Klartext-Schlüsseldateien werden in Release-Builds gelöscht.
