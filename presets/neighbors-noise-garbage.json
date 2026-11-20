@@ -1,0 +1,139 @@
+{
+  "id": "neighbors-noise-garbage",
+  "names": {
+    "de": "Nachbarn, Lärm und Müll",
+    "en": "Neighbours, noise and rubbish",
+    "th": "เพื่อนบ้าน เสียงดัง และขยะ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Probleme zuerst höflich und ohne Vorwürfe ansprechen, sonst Vermieter oder Verwaltung einschalten. Streit nie direkt eskalieren lassen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Raise problems politely and without blame first, otherwise involve the landlord or management. Never let an argument escalate. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "neighbour",
+      "th": "เพื่อนบ้าน"
+    },
+    {
+      "en": "noise",
+      "th": "เสียงดัง"
+    },
+    {
+      "en": "garbage",
+      "th": "ขยะ"
+    },
+    {
+      "en": "smell",
+      "th": "กลิ่น"
+    },
+    {
+      "en": "dog",
+      "th": "สุนัข"
+    },
+    {
+      "en": "landlord",
+      "th": "เจ้าของบ้าน"
+    },
+    {
+      "en": "complaint",
+      "th": "ร้องเรียน"
+    },
+    {
+      "en": "party",
+      "th": "งานเลี้ยง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Someone is shouting and threatening us.",
+      "th": "มีคนตะโกนและขู่เรา",
+      "critical": true
+    },
+    {
+      "en": "Please call the police, there is a fight.",
+      "th": "ช่วยโทรเรียกตำรวจหน่อย มีการทะเลาะวิวาท",
+      "critical": true
+    },
+    {
+      "en": "There is a fire in the neighbour's house.",
+      "th": "บ้านเพื่อนบ้านไฟไหม้",
+      "critical": true
+    },
+    {
+      "en": "A dog is attacking people.",
+      "th": "สุนัขกำลังทำร้ายคน",
+      "critical": true
+    },
+    {
+      "en": "I smell gas from the next flat.",
+      "th": "ได้กลิ่นแก๊สจากห้องข้างๆ",
+      "critical": true
+    },
+    {
+      "en": "I am afraid and need help.",
+      "th": "กลัวและต้องการความช่วยเหลือ",
+      "critical": true
+    },
+    {
+      "en": "Excuse me, the music is very loud.",
+      "th": "ขอโทษ เสียงเพลงดังมาก"
+    },
+    {
+      "en": "Please turn the music down a little.",
+      "th": "ช่วยลดเสียงเพลงลงหน่อย"
+    },
+    {
+      "en": "I cannot sleep because of the noise.",
+      "th": "นอนไม่หลับเพราะเสียงดัง"
+    },
+    {
+      "en": "Could you stop the party at midnight?",
+      "th": "เลิกงานเลี้ยงตอนเที่ยงคืนได้ไหม"
+    },
+    {
+      "en": "Please do not leave your rubbish in the hall.",
+      "th": "ขออย่าวางขยะไว้ในทางเดิน"
+    },
+    {
+      "en": "The rubbish smells, please close the bag.",
+      "th": "ขยะมีกลิ่น ช่วยปิดถุงให้แน่นหน่อย"
+    },
+    {
+      "en": "Please keep your dog on a lead.",
+      "th": "ช่วยผูกสายจูงสุนัขหน่อย"
+    },
+    {
+      "en": "The dog barks all night.",
+      "th": "สุนัขเห่าทั้งคืน"
+    },
+    {
+      "en": "Could we talk about this calmly?",
+      "th": "คุยเรื่องนี้กันอย่างใจเย็นได้ไหม"
+    },
+    {
+      "en": "I would like to speak to the landlord.",
+      "th": "ต้องการคุยกับเจ้าของบ้าน"
+    },
+    {
+      "en": "Please tell the management about the noise.",
+      "th": "ช่วยแจ้งนิติบุคคลเรื่องเสียงดังหน่อย"
+    },
+    {
+      "en": "When is the rubbish collected?",
+      "th": "เก็บขยะวันไหน"
+    },
+    {
+      "en": "Where can I put old furniture?",
+      "th": "ทิ้งเฟอร์นิเจอร์เก่าได้ที่ไหน"
+    },
+    {
+      "en": "Thank you for understanding.",
+      "th": "ขอบคุณที่เข้าใจ"
+    },
+    {
+      "en": "I am sorry for the trouble.",
+      "th": "ขออภัยในความไม่สะดวก"
+    }
+  ]
+}

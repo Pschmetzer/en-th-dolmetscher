@@ -1,0 +1,139 @@
+{
+  "id": "longtail-boat-charter",
+  "names": {
+    "de": "Longtail-Boot mieten",
+    "en": "Longtail boat charter",
+    "th": "เช่าเรือหางยาว"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Preis, Dauer und Ziel vor der Abfahrt festlegen, Schwimmwesten verlangen und bei Seegang nicht fahren. Zahlung erst nach der Rückkehr. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Agree on price, duration and destination before leaving, ask for life jackets and do not go in rough seas. Pay after returning. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "longtail boat",
+      "th": "เรือหางยาว"
+    },
+    {
+      "en": "boatman",
+      "th": "คนขับเรือ"
+    },
+    {
+      "en": "life jacket",
+      "th": "เสื้อชูชีพ"
+    },
+    {
+      "en": "pier",
+      "th": "ท่าเรือ"
+    },
+    {
+      "en": "island",
+      "th": "เกาะ"
+    },
+    {
+      "en": "waves",
+      "th": "คลื่น"
+    },
+    {
+      "en": "sunset",
+      "th": "พระอาทิตย์ตก"
+    },
+    {
+      "en": "hour",
+      "th": "ชั่วโมง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please give me a life jacket now.",
+      "th": "ขอเสื้อชูชีพตอนนี้เลย",
+      "critical": true
+    },
+    {
+      "en": "Water is coming into the boat.",
+      "th": "น้ำเข้าเรือ",
+      "critical": true
+    },
+    {
+      "en": "The waves are too high, please go back.",
+      "th": "คลื่นสูงเกินไป ช่วยกลับเข้าฝั่งหน่อย",
+      "critical": true
+    },
+    {
+      "en": "A child fell into the water.",
+      "th": "เด็กตกน้ำ",
+      "critical": true
+    },
+    {
+      "en": "The engine stopped, we need help.",
+      "th": "เครื่องยนต์ดับ ต้องการความช่วยเหลือ",
+      "critical": true
+    },
+    {
+      "en": "Someone is hurt on the boat, please call help.",
+      "th": "มีคนบาดเจ็บบนเรือ ช่วยโทรเรียกความช่วยเหลือหน่อย",
+      "critical": true
+    },
+    {
+      "en": "How much is the boat for two hours?",
+      "th": "เช่าเรือสองชั่วโมงราคาเท่าไร"
+    },
+    {
+      "en": "Is the price for the whole boat?",
+      "th": "ราคานี้คิดทั้งลำใช่ไหม"
+    },
+    {
+      "en": "I will pay when we are back.",
+      "th": "จะจ่ายเมื่อกลับมาถึง"
+    },
+    {
+      "en": "Please take us to the island and wait.",
+      "th": "ช่วยพาไปเกาะและรอด้วยหน่อย"
+    },
+    {
+      "en": "How long does it take to get there?",
+      "th": "ไปถึงใช้เวลานานเท่าไร"
+    },
+    {
+      "en": "Please go slowly, I feel sick.",
+      "th": "ช่วยขับช้าๆ หน่อย รู้สึกเมา"
+    },
+    {
+      "en": "Can we stop here for photos?",
+      "th": "จอดถ่ายรูปตรงนี้ได้ไหม"
+    },
+    {
+      "en": "Can we see the sunset from the boat?",
+      "th": "ดูพระอาทิตย์ตกจากเรือได้ไหม"
+    },
+    {
+      "en": "Do you have a cover against the sun or rain?",
+      "th": "มีหลังคากันแดดหรือฝนไหม"
+    },
+    {
+      "en": "Where is the pier for the return?",
+      "th": "ท่าเรือสำหรับขากลับอยู่ที่ไหน"
+    },
+    {
+      "en": "What time is the last boat back?",
+      "th": "เรือเที่ยวสุดท้ายกลับกี่โมง"
+    },
+    {
+      "en": "Please wait for us here for one hour.",
+      "th": "ช่วยรอพวกเราที่นี่หนึ่งชั่วโมงหน่อย"
+    },
+    {
+      "en": "Can I swim near the boat?",
+      "th": "ว่ายน้ำใกล้เรือได้ไหม"
+    },
+    {
+      "en": "Please keep my bag dry.",
+      "th": "ช่วยเก็บกระเป๋าไม่ให้เปียกหน่อย"
+    },
+    {
+      "en": "Thank you, it was a lovely trip.",
+      "th": "ขอบคุณ เป็นทริปที่น่ารักมาก"
+    }
+  ]
+}

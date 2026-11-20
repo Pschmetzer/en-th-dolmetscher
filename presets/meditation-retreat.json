@@ -1,0 +1,139 @@
+{
+  "id": "meditation-retreat",
+  "names": {
+    "de": "Meditations-Retreat",
+    "en": "Meditation retreat",
+    "th": "ปฏิบัติธรรมและเข้าคอร์สสมาธิ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Schweigen und feste Regeln sind Teil des Retreats: Handy abgeben, weiße Kleidung, keine Abendmahlzeit. Gesundheitliche Probleme vor Beginn melden. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Silence and fixed rules are part of a retreat: hand in the phone, wear white and skip dinner. Report health problems before starting. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "meditation",
+      "th": "การทำสมาธิ"
+    },
+    {
+      "en": "retreat",
+      "th": "คอร์สปฏิบัติธรรม"
+    },
+    {
+      "en": "silence",
+      "th": "ความเงียบ"
+    },
+    {
+      "en": "white clothes",
+      "th": "ชุดขาว"
+    },
+    {
+      "en": "teacher",
+      "th": "ครูผู้สอน"
+    },
+    {
+      "en": "dormitory",
+      "th": "หอพัก"
+    },
+    {
+      "en": "walking meditation",
+      "th": "เดินจงกรม"
+    },
+    {
+      "en": "schedule",
+      "th": "ตารางเวลา"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I feel very unwell and need a doctor.",
+      "th": "รู้สึกไม่สบายมากและต้องการพบแพทย์",
+      "critical": true
+    },
+    {
+      "en": "I must leave the retreat, it is an emergency.",
+      "th": "ต้องออกจากคอร์สนี้ เป็นเรื่องฉุกเฉิน",
+      "critical": true
+    },
+    {
+      "en": "I have a heart problem, please be careful.",
+      "th": "มีโรคหัวใจ ช่วยระวังหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I take medicine every day and need it with me.",
+      "th": "ต้องกินยาทุกวันและต้องเก็บยาไว้กับตัว",
+      "critical": true
+    },
+    {
+      "en": "I feel very anxious and need to talk to someone.",
+      "th": "รู้สึกกังวลมากและต้องการคุยกับใครสักคน",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to some food.",
+      "th": "แพ้อาหารบางอย่าง",
+      "critical": true
+    },
+    {
+      "en": "I would like to join the retreat.",
+      "th": "ต้องการเข้าร่วมคอร์ส"
+    },
+    {
+      "en": "How many days is the course?",
+      "th": "คอร์สนี้กี่วัน"
+    },
+    {
+      "en": "Is the course free or by donation?",
+      "th": "คอร์สนี้ฟรีหรือบริจาคตามศรัทธา"
+    },
+    {
+      "en": "What is the daily schedule?",
+      "th": "ตารางเวลาแต่ละวันเป็นอย่างไร"
+    },
+    {
+      "en": "When do we get up in the morning?",
+      "th": "ตื่นนอนตอนเช้ากี่โมง"
+    },
+    {
+      "en": "Do I have to give up my phone?",
+      "th": "ต้องส่งโทรศัพท์ไหม"
+    },
+    {
+      "en": "Where can I get white clothes?",
+      "th": "หาซื้อชุดขาวได้ที่ไหน"
+    },
+    {
+      "en": "May I speak with the teacher?",
+      "th": "ขอพูดคุยกับครูผู้สอนได้ไหม"
+    },
+    {
+      "en": "I am a beginner, please explain the method.",
+      "th": "เป็นมือใหม่ ช่วยอธิบายวิธีปฏิบัติหน่อย"
+    },
+    {
+      "en": "My legs hurt when sitting, may I use a chair?",
+      "th": "ปวดขาเวลานั่ง ขอใช้เก้าอี้ได้ไหม"
+    },
+    {
+      "en": "Is there a vegetarian meal?",
+      "th": "มีอาหารมังสวิรัติไหม"
+    },
+    {
+      "en": "Where is the bathroom for women or men?",
+      "th": "ห้องน้ำหญิงหรือชายอยู่ที่ไหน"
+    },
+    {
+      "en": "Where can I wash my clothes?",
+      "th": "ซักผ้าได้ที่ไหน"
+    },
+    {
+      "en": "May I leave a donation at the end?",
+      "th": "ขอร่วมบริจาคตอนจบคอร์สได้ไหม"
+    },
+    {
+      "en": "Thank you for teaching me.",
+      "th": "ขอบคุณที่สอน"
+    }
+  ]
+}

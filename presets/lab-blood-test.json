@@ -1,0 +1,139 @@
+{
+  "id": "lab-blood-test",
+  "names": {
+    "de": "Labor und Bluttest",
+    "en": "Laboratory and blood test",
+    "th": "ห้องแล็บและตรวจเลือด"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Nüchtern kommen, wenn der Test es verlangt (mehrere Stunden nichts essen). Ergebnisse und Befund auf Englisch verlangen und eine Kopie mitnehmen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Come fasting if the test requires it (no food for several hours). Ask for results in English and take a copy. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "blood test",
+      "th": "ตรวจเลือด"
+    },
+    {
+      "en": "urine sample",
+      "th": "ตัวอย่างปัสสาวะ"
+    },
+    {
+      "en": "fasting",
+      "th": "งดอาหาร"
+    },
+    {
+      "en": "result",
+      "th": "ผลตรวจ"
+    },
+    {
+      "en": "needle",
+      "th": "เข็ม"
+    },
+    {
+      "en": "vein",
+      "th": "เส้นเลือด"
+    },
+    {
+      "en": "laboratory",
+      "th": "ห้องปฏิบัติการ"
+    },
+    {
+      "en": "report",
+      "th": "รายงานผล"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I feel faint, please let me lie down.",
+      "th": "รู้สึกจะเป็นลม ขอนอนลงหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I am afraid of needles and may faint.",
+      "th": "กลัวเข็มและอาจเป็นลม",
+      "critical": true
+    },
+    {
+      "en": "I have a bleeding disorder.",
+      "th": "มีโรคเลือดออกง่าย",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to latex.",
+      "th": "แพ้ยางลาเท็กซ์",
+      "critical": true
+    },
+    {
+      "en": "I am diabetic, I need something sweet.",
+      "th": "เป็นเบาหวาน ต้องการของหวาน",
+      "critical": true
+    },
+    {
+      "en": "The arm is bleeding and swelling.",
+      "th": "แขนมีเลือดออกและบวม",
+      "critical": true
+    },
+    {
+      "en": "I have an appointment for a blood test.",
+      "th": "มีนัดตรวจเลือด"
+    },
+    {
+      "en": "Do I need to fast before the test?",
+      "th": "ต้องงดอาหารก่อนตรวจไหม"
+    },
+    {
+      "en": "How many hours should I fast?",
+      "th": "ต้องงดอาหารกี่ชั่วโมง"
+    },
+    {
+      "en": "May I drink water before the test?",
+      "th": "ดื่มน้ำก่อนตรวจได้ไหม"
+    },
+    {
+      "en": "Please use the other arm.",
+      "th": "ขอใช้แขนอีกข้างหน่อย"
+    },
+    {
+      "en": "My veins are hard to find.",
+      "th": "เส้นเลือดหายาก"
+    },
+    {
+      "en": "Please give me a small plaster.",
+      "th": "ขอพลาสเตอร์แผ่นเล็กหน่อย"
+    },
+    {
+      "en": "When will the results be ready?",
+      "th": "ผลตรวจจะออกเมื่อไร"
+    },
+    {
+      "en": "Can you send the results by email?",
+      "th": "ส่งผลตรวจทางอีเมลได้ไหม"
+    },
+    {
+      "en": "Please give me the report in English.",
+      "th": "ขอรายงานผลเป็นภาษาอังกฤษหน่อย"
+    },
+    {
+      "en": "Where do I give the urine sample?",
+      "th": "ส่งตัวอย่างปัสสาวะได้ที่ไหน"
+    },
+    {
+      "en": "How much does the whole test cost?",
+      "th": "ตรวจทั้งหมดราคาเท่าไร"
+    },
+    {
+      "en": "Does my travel insurance cover this?",
+      "th": "ประกันการเดินทางของเราครอบคลุมไหม"
+    },
+    {
+      "en": "Please give me a receipt for the insurance.",
+      "th": "ขอใบเสร็จสำหรับประกันหน่อย"
+    },
+    {
+      "en": "Thank you, you were very gentle.",
+      "th": "ขอบคุณ เบามือมาก"
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "id": "work-permit-office",
+  "names": {
+    "de": "Arbeitserlaubnis",
+    "en": "Work permit office",
+    "th": "ใบอนุญาตทำงาน"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Ohne gültige Arbeitserlaubnis zu arbeiten ist strafbar, auch freiwillig oder online. Nur beim Arbeitsamt oder über den Arbeitgeber beantragen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Working without a valid permit is a crime, even voluntary work or online work. Apply only at the labour office or through your employer. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "work permit",
+      "th": "ใบอนุญาตทำงาน"
+    },
+    {
+      "en": "employer",
+      "th": "นายจ้าง"
+    },
+    {
+      "en": "labour office",
+      "th": "สำนักงานแรงงาน"
+    },
+    {
+      "en": "contract",
+      "th": "สัญญาจ้าง"
+    },
+    {
+      "en": "tax",
+      "th": "ภาษี"
+    },
+    {
+      "en": "health check",
+      "th": "ตรวจสุขภาพ"
+    },
+    {
+      "en": "renewal",
+      "th": "ต่ออายุ"
+    },
+    {
+      "en": "passport copy",
+      "th": "สำเนาหนังสือเดินทาง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I need an interpreter at the labour office.",
+      "th": "ต้องการล่ามที่สำนักงานแรงงาน",
+      "critical": true
+    },
+    {
+      "en": "I did not break any rule, please explain the problem.",
+      "th": "ไม่ได้ฝ่าฝืนกฎใดๆ ช่วยอธิบายปัญหาหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I have not got my salary for three months.",
+      "th": "ยังไม่ได้รับเงินเดือนมาสามเดือน",
+      "critical": true
+    },
+    {
+      "en": "My employer is holding my passport.",
+      "th": "นายจ้างยึดหนังสือเดินทางของเรา",
+      "critical": true
+    },
+    {
+      "en": "I need a lawyer, please call my embassy.",
+      "th": "ต้องการทนายความ ช่วยโทรหาสถานทูตของเราหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I feel unsafe at my workplace.",
+      "th": "รู้สึกไม่ปลอดภัยที่ที่ทำงาน",
+      "critical": true
+    },
+    {
+      "en": "I would like to apply for a work permit.",
+      "th": "ต้องการขอใบอนุญาตทำงาน"
+    },
+    {
+      "en": "Which documents do I need?",
+      "th": "ต้องใช้เอกสารอะไรบ้าง"
+    },
+    {
+      "en": "My employer will submit the papers.",
+      "th": "นายจ้างจะเป็นผู้ยื่นเอกสาร"
+    },
+    {
+      "en": "How long does the permit process take?",
+      "th": "ขั้นตอนขอใบอนุญาตใช้เวลานานเท่าไร"
+    },
+    {
+      "en": "How much is the permit fee?",
+      "th": "ค่าธรรมเนียมใบอนุญาตเท่าไร"
+    },
+    {
+      "en": "Do I need a health check first?",
+      "th": "ต้องตรวจสุขภาพก่อนไหม"
+    },
+    {
+      "en": "Where can I do the health check?",
+      "th": "ตรวจสุขภาพได้ที่ไหน"
+    },
+    {
+      "en": "Please check if my documents are complete.",
+      "th": "ช่วยตรวจดูว่าเอกสารครบไหม"
+    },
+    {
+      "en": "Please give me the queue number.",
+      "th": "ขอบัตรคิวหน่อย"
+    },
+    {
+      "en": "When will the permit be ready?",
+      "th": "ใบอนุญาตจะเสร็จเมื่อไร"
+    },
+    {
+      "en": "How do I renew my permit?",
+      "th": "ต่ออายุใบอนุญาตอย่างไร"
+    },
+    {
+      "en": "May I change my employer with this permit?",
+      "th": "เปลี่ยนนายจ้างด้วยใบอนุญาตนี้ได้ไหม"
+    },
+    {
+      "en": "Please make a copy of my passport.",
+      "th": "ช่วยถ่ายสำเนาหนังสือเดินทางหน่อย"
+    },
+    {
+      "en": "Do I pay tax on my income?",
+      "th": "ต้องเสียภาษีจากรายได้ไหม"
+    },
+    {
+      "en": "Thank you for helping with my permit.",
+      "th": "ขอบคุณที่ช่วยเรื่องใบอนุญาต"
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "id": "wildlife-safari",
+  "names": {
+    "de": "Safari und Tierbeobachtung",
+    "en": "Wildlife safari",
+    "th": "ซาฟารีและดูสัตว์ป่า"
+  },
+  "style": "polite",
+  "note": {
+    "de": "In Nationalparks Abstand zu Wildtieren halten und nie füttern. Nachtsafaris nur mit Ranger, Taschenlampe nicht in die Augen der Tiere richten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "In national parks keep your distance from wild animals and never feed them. Night safaris only with a ranger, do not shine torches into animals' eyes. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "wild animals",
+      "th": "สัตว์ป่า"
+    },
+    {
+      "en": "ranger",
+      "th": "เจ้าหน้าที่ป่าไม้"
+    },
+    {
+      "en": "elephant",
+      "th": "ช้าง"
+    },
+    {
+      "en": "monkey",
+      "th": "ลิง"
+    },
+    {
+      "en": "binoculars",
+      "th": "กล้องส่องทางไกล"
+    },
+    {
+      "en": "night safari",
+      "th": "ซาฟารีกลางคืน"
+    },
+    {
+      "en": "national park",
+      "th": "อุทยานแห่งชาติ"
+    },
+    {
+      "en": "leech",
+      "th": "ทาก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "An elephant is very close, please stay back.",
+      "th": "ช้างอยู่ใกล้มาก ช่วยถอยหลังหน่อย",
+      "critical": true
+    },
+    {
+      "en": "A monkey bit me, I need a doctor.",
+      "th": "ลิงกัด ต้องการพบแพทย์",
+      "critical": true
+    },
+    {
+      "en": "A snake is in front of us.",
+      "th": "มีงูอยู่ข้างหน้าเรา",
+      "critical": true
+    },
+    {
+      "en": "Please call the ranger, an animal is hurt.",
+      "th": "ช่วยเรียกเจ้าหน้าที่ป่าไม้หน่อย มีสัตว์บาดเจ็บ",
+      "critical": true
+    },
+    {
+      "en": "We have lost the group in the forest.",
+      "th": "พวกเราพลัดหลงกับกลุ่มในป่า",
+      "critical": true
+    },
+    {
+      "en": "A child is missing near the animals.",
+      "th": "เด็กหายไปใกล้สัตว์",
+      "critical": true
+    },
+    {
+      "en": "Which animals can we see here?",
+      "th": "ที่นี่ดูสัตว์อะไรได้บ้าง"
+    },
+    {
+      "en": "What is the best time for animal watching?",
+      "th": "ช่วงเวลาไหนเหมาะกับการดูสัตว์ที่สุด"
+    },
+    {
+      "en": "Is a ranger included in the tour?",
+      "th": "ทัวร์นี้รวมเจ้าหน้าที่นำทางไหม"
+    },
+    {
+      "en": "How close may I go to the animals?",
+      "th": "เข้าใกล้สัตว์ได้แค่ไหน"
+    },
+    {
+      "en": "May I feed the monkeys?",
+      "th": "ให้อาหารลิงได้ไหม"
+    },
+    {
+      "en": "Please tell me when to be quiet.",
+      "th": "ช่วยบอกหน่อยเมื่อต้องเงียบ"
+    },
+    {
+      "en": "Can I borrow binoculars?",
+      "th": "ขอยืมกล้องส่องทางไกลได้ไหม"
+    },
+    {
+      "en": "Is flash photography allowed?",
+      "th": "ใช้แฟลชถ่ายรูปได้ไหม"
+    },
+    {
+      "en": "Do you have leech socks for sale?",
+      "th": "มีถุงเท้ากันทากขายไหม"
+    },
+    {
+      "en": "Is the night safari safe for children?",
+      "th": "ซาฟารีกลางคืนปลอดภัยสำหรับเด็กไหม"
+    },
+    {
+      "en": "Where does the tour start?",
+      "th": "ทัวร์เริ่มที่ไหน"
+    },
+    {
+      "en": "How long does the tour take?",
+      "th": "ทัวร์ใช้เวลานานเท่าไร"
+    },
+    {
+      "en": "Please keep your voice down.",
+      "th": "ช่วยเบาเสียงหน่อย"
+    },
+    {
+      "en": "Where is the park information centre?",
+      "th": "ศูนย์ข้อมูลอุทยานอยู่ที่ไหน"
+    },
+    {
+      "en": "Thank you for showing us the animals.",
+      "th": "ขอบคุณที่พาดูสัตว์"
+    }
+  ]
+}

@@ -1,0 +1,143 @@
+{
+  "id": "business-meeting",
+  "names": {
+    "de": "Geschäftsmeeting",
+    "en": "Business meeting",
+    "th": "ประชุมธุรกิจ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Visitenkarten mit beiden Händen übergeben, Titel nennen und Gastgeber zuerst begrüßen. Entscheidungen fallen oft erst nach der Besprechung. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Hand over business cards with both hands, use titles and greet the host first. Decisions are often made after the meeting. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "meeting",
+      "th": "การประชุม"
+    },
+    {
+      "en": "contract",
+      "th": "สัญญา"
+    },
+    {
+      "en": "agenda",
+      "th": "วาระการประชุม"
+    },
+    {
+      "en": "quotation",
+      "th": "ใบเสนอราคา"
+    },
+    {
+      "en": "deadline",
+      "th": "กำหนดส่ง"
+    },
+    {
+      "en": "business card",
+      "th": "นามบัตร"
+    },
+    {
+      "en": "partner",
+      "th": "หุ้นส่วน"
+    },
+    {
+      "en": "invoice",
+      "th": "ใบแจ้งหนี้"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please do not let me sign anything before I read it.",
+      "th": "ขออย่าเพิ่งให้เซ็นอะไรจนกว่าจะได้อ่านก่อน",
+      "critical": true
+    },
+    {
+      "en": "I need a certified interpreter for this contract.",
+      "th": "ต้องการล่ามที่ได้รับการรับรองสำหรับสัญญานี้",
+      "critical": true
+    },
+    {
+      "en": "I need a lawyer before I continue.",
+      "th": "ต้องการทนายความก่อนจะคุยต่อ",
+      "critical": true
+    },
+    {
+      "en": "I do not agree to this clause.",
+      "th": "ไม่เห็นด้วยกับข้อนี้ในสัญญา",
+      "critical": true
+    },
+    {
+      "en": "Please give me a written copy of the contract.",
+      "th": "ขอสำเนาสัญญาเป็นลายลักษณ์อักษรหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I feel unwell and need a short break.",
+      "th": "รู้สึกไม่สบายและขอพักสั้นๆ หน่อย",
+      "critical": true
+    },
+    {
+      "en": "It is a pleasure to meet you.",
+      "th": "ยินดีที่ได้พบ"
+    },
+    {
+      "en": "Please accept my business card.",
+      "th": "ขอมอบนามบัตรหน่อย"
+    },
+    {
+      "en": "Thank you for taking the time to meet us.",
+      "th": "ขอบคุณที่สละเวลามาพบ"
+    },
+    {
+      "en": "Could we look at the agenda first?",
+      "th": "ขอดูวาระการประชุมก่อนได้ไหม"
+    },
+    {
+      "en": "Please speak a little slower.",
+      "th": "ช่วยพูดช้าลงหน่อย"
+    },
+    {
+      "en": "Could you repeat that point, please?",
+      "th": "ช่วยพูดประเด็นนั้นอีกครั้งหน่อย"
+    },
+    {
+      "en": "Please send me the quotation by email.",
+      "th": "ช่วยส่งใบเสนอราคาทางอีเมลหน่อย"
+    },
+    {
+      "en": "What is the delivery deadline?",
+      "th": "กำหนดส่งมอบคือเมื่อไร"
+    },
+    {
+      "en": "What are your payment terms?",
+      "th": "เงื่อนไขการชำระเงินเป็นอย่างไร"
+    },
+    {
+      "en": "We would like some time to think about it.",
+      "th": "ขอเวลาคิดสักหน่อย"
+    },
+    {
+      "en": "Can we meet again next week?",
+      "th": "นัดพบกันอีกครั้งสัปดาห์หน้าได้ไหม"
+    },
+    {
+      "en": "Please write down the main points.",
+      "th": "ช่วยจดประเด็นสำคัญไว้หน่อย"
+    },
+    {
+      "en": "Is there a meeting room with a screen?",
+      "th": "มีห้องประชุมที่มีจอไหม"
+    },
+    {
+      "en": "We will confirm the details by email.",
+      "th": "เราจะยืนยันรายละเอียดทางอีเมล"
+    },
+    {
+      "en": "May we invite you to dinner?",
+      "th": "ขอเชิญไปรับประทานอาหารเย็นได้ไหม"
+    },
+    {
+      "en": "Thank you, the meeting was very useful.",
+      "th": "ขอบคุณ การประชุมมีประโยชน์มาก"
+    }
+  ]
+}
