@@ -18,6 +18,7 @@ def _claude(monkeypatch, stop_reason="end_turn", text="สวัสดี"):
 # --- Google: sehr lange Sätze sprengen die URL (HTTP 414) -------------------------------------------------------
 
 def test_google_long_thai_sentence_is_sent_in_short_requests(monkeypatch):
+    monkeypatch.setitem(d.HTTP.no_post, "translate.googleapis.com", 1e18)   # GET-Rückfall: kurze Stücke
     urls = []
 
     def gj(u, t=0):
@@ -40,6 +41,7 @@ def test_google_short_sentence_is_one_request(monkeypatch):
 
 
 def test_google_chunk_failure_fails_whole_sentence(monkeypatch):
+    monkeypatch.setitem(d.HTTP.no_post, "translate.googleapis.com", 1e18)   # GET-Rückfall: kurze Stücke
     calls = []
 
     def gj(u, t=0):
