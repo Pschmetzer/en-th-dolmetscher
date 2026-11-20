@@ -4,6 +4,13 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### iPhone round 32 (iOS)
+
+- New: taxi card with large Thai script, price and haggling helper, step-by-step emergency flow, tap-a-word lexicon; emergency numbers per country; three Shortcuts actions that return values (emergency numbers, taxi phrase, counter-offers).
+- Control Center: listening toggle, emergency and taxi controls; the Live Activity goes stale after 5 minutes when paused or interrupted.
+- Storage schema version with migration; content is hidden during screen recording or mirroring (can be switched off in Settings).
+- Accessibility: layouts stack at the largest text sizes, solid backgrounds with Reduce Transparency, focus outlines without relying on colour, more voice-control names.
+
 ### Web Lite and phrase packs, round 22 (web)
 
 - 14 new scenario packs (156 in total): numbers and prices, negotiating, Buddhism and etiquette, scooter rental damage and deposit, describing symptoms in detail, avoiding tuk-tuk scams, embassy and consulate, spice level in food, deaf / hard of hearing / unable to speak, wheelchair and limited mobility, halal food and prayer, returns and complaints in shops, hotel room problems, lost wallet and cards. Thai lines machine-made, not checked by native speakers.

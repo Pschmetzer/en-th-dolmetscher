@@ -12,6 +12,7 @@ struct SettingsView: View {
     @State private var mineLevels: [Lang: LangLevel] = [:]
     @State private var partnerLevels: [Lang: LangLevel] = [:]
     @State private var confirmWipe = false
+    @AppStorage("screenShield") private var shield = true
 
     var body: some View {
         @Bindable var m = m
@@ -216,6 +217,7 @@ struct SettingsView: View {
             if DeviceAuth.available || m.lockHistory {
                 Toggle(T("lock_history"), isOn: lockBinding)
             }
+            Toggle(T("r32_shield_set"), isOn: $shield)
             if m.lockInactive {
                 Label(T("lock_inactive"), systemImage: "exclamationmark.triangle.fill")
                     .font(.footnote).foregroundStyle(StatusColor.warning)
