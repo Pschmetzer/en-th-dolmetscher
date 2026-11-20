@@ -70,6 +70,7 @@ struct SettingsView: View {
                 TranslationSettings().tabItem { Label(L.t("tab_translation"), systemImage: "character.bubble") }.tag(2)
                 DisplaySettings().tabItem { Label(L.t("tab_display"), systemImage: "textformat.size") }.tag(3)
                 GeneralSettings(part: 1).tabItem { Label(L.t("tab_advanced"), systemImage: "lock.shield") }.tag(4)
+                ExperimentalSettings(r: m.r26).tabItem { Label(R26T.t("exp_title"), systemImage: "flask") }.tag(5)
             }
         }
         // Größenveränderbar (Szene: .windowResizability(.contentMinSize)); größere Schrift oder Thai-Texte brauchen Platz
@@ -173,6 +174,7 @@ private struct GeneralSettings: View {
             MicSection()
             OutputSection()
             AudioRouteSection()
+            SourceAndGroupSection(r: m.r26)
             HandoffSection()
             RecognitionSection()
             Section {
@@ -279,6 +281,7 @@ private struct GeneralSettings: View {
                 LoginItemToggle()
             }
             HistorySection()
+            HistoryPasswordSection(r: m.r26)
             SettingsTransferSection()
             MaintenanceSection()
             }

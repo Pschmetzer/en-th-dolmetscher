@@ -1,7 +1,25 @@
 """Gemeinsame Test-Einstellungen: kein echtes Log, kein Backoff-Zustand zwischen Tests."""
+import pathlib
+
 import pytest
 
 import dolmetscher as d
+
+
+# Runde 26: app/Views.swift wurde aufgeteilt (ViewsToolbar.swift, ViewsBanners.swift). Die älteren Quelltext-Tests lesen
+# "app/Views.swift" als Ganzes; sie bekommen weiter die drei Teile zusammen (ohne Verhaltensänderung der App).
+_orig_read_text = pathlib.Path.read_text
+
+
+def _read_text(self, *a, **kw):
+    text = _orig_read_text(self, *a, **kw)
+    if self.name == "Views.swift" and self.parent.name == "app":
+        parts = ("ViewsToolbar.swift", "ViewsBanners.swift")
+        text += "".join(_orig_read_text(self.parent / n, *a, **kw) for n in parts)
+    return text
+
+
+pathlib.Path.read_text = _read_text
 
 
 class _NullLogger:

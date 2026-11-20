@@ -273,8 +273,8 @@ struct PartnerView: View {
         .onAppear { m.partnerVisible = true }
         .onDisappear { m.partnerVisible = false }
         .overlay(alignment: .bottom) { pendingLine }
-        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didEnterFullScreenNotification)) { _ in wasFullscreen = true }
-        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didExitFullScreenNotification)) { _ in wasFullscreen = false }
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didEnterFullScreenNotification)) { if ($0.object as? NSWindow) === window { wasFullscreen = true } }
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didExitFullScreenNotification)) { if ($0.object as? NSWindow) === window { wasFullscreen = false } }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)) { _ in
             screenCount = NSScreen.screens.count
         }
@@ -295,6 +295,7 @@ struct PartnerView: View {
                     Text("…").font(.system(size: 28, weight: .bold)).foregroundStyle(.gray)
                 }
             }
+            .rotationEffect(.degrees(rotated ? 180 : 0))   // für die Partnerin am Tisch mitdrehen (Review R26)
             .padding(.horizontal, 32).padding(.bottom, 18)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(L.t("translating_placeholder"))

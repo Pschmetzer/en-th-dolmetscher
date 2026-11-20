@@ -15,6 +15,17 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 - **Accessibility:** the large yes/no text on the dark show screen had 2.3 to 2.7:1 contrast; new `--yes-text`/`--no-text` colors reach 6.8:1 and 9.9:1. The light accent for language B (`--th`) is slightly darker (3.3:1 instead of 2.97:1). A contrast matrix test covers all three color schemes.
 - Budget: service worker limit raised to 17,000 bytes (25 more pack IDs, audio storage).
 
+### Mac app, round 26
+
+- Group mode (Settings, Audio): speakers without a voice profile get a number, a colour dot and a name ("Speaker 2" in your UI language); the "Speakers" menu in the conversation bar renames them (app-side only, reset by "Clear conversation").
+- Recording source: microphone or system audio (loopback device such as BlackHole). New error text for `system_audio_missing` in all UI languages, plus a banner reminding not to route the app's output into the loopback device.
+- Encrypted history (Settings, Advanced): password in the keychain only, passed to the engine as `DOLMETSCHER_HISTORY_PASSWORD` at start and for `--history-*` calls and as `history_password` control field. The plain-text `history.sqlite` stays; "Clear history" affects both files while the password is saved.
+- New "Experimental" settings tab: the six round-24 switches (stream, router, defer, parallel check, name prompt, Thai numbers), shown by the engine's `ready.capabilities`, off by default, with a warning. Latency distribution (median and 95 %) from `state.latency_hist`.
+- `mic_gap` hint shows as a banner (90 s); unknown engine errors use `msg_en` when the UI is not German.
+- `Views.swift` split (`ViewsToolbar.swift`, `ViewsBanners.swift`; now under 1000 lines, no behaviour change; `Dolmetscher --smoke-test` still passes). Output per direction stays app-only: the engine does not know `output_device_me`/`output_device_other` yet.
+- Review fixes: amounts with 20+ digits crashed the price helper; the mic test timer could end a later test early and kept the mic open after closing the window; learn mode kept the revealed answer for a new sentence; the partner window's full-screen state reacted to other windows; the "translating" line was not rotated for the partner.
+- Tests: `R26Tests` in `swift-tests`, `tests/test_r26_mac.py`.
+
 ### iPhone app, round 34: travel features in the interface
 
 - Menu scan ("More" menu): photo or camera, text recognised on the device, lines with ingredients from your emergency-card allergies are marked as certain ("Contains") or possible; no match is never shown as safe, with a reminder to ask.
