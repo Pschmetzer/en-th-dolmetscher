@@ -1,0 +1,139 @@
+{
+  "id": "herbal-traditional-medicine",
+  "names": {
+    "de": "Heilkräuter und traditionelle Medizin",
+    "en": "Herbal and traditional medicine",
+    "th": "สมุนไพรและการแพทย์แผนไทย"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Kräuter können mit Medikamenten wechselwirken. Dem Heiler Allergien, Schwangerschaft und Dauermedikamente immer nennen; bei ernsten Beschwerden zum Arzt. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Herbs can interact with medicines. Always tell the healer about allergies, pregnancy and regular medication; see a doctor for serious problems. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "herbal medicine",
+      "th": "ยาสมุนไพร"
+    },
+    {
+      "en": "herbal compress",
+      "th": "ลูกประคบสมุนไพร"
+    },
+    {
+      "en": "cupping",
+      "th": "การครอบแก้ว"
+    },
+    {
+      "en": "acupuncture",
+      "th": "การฝังเข็ม"
+    },
+    {
+      "en": "ginger",
+      "th": "ขิง"
+    },
+    {
+      "en": "turmeric",
+      "th": "ขมิ้น"
+    },
+    {
+      "en": "tea",
+      "th": "ชาสมุนไพร"
+    },
+    {
+      "en": "healer",
+      "th": "หมอพื้นบ้าน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am allergic to herbs, please check the ingredients.",
+      "th": "แพ้สมุนไพร ช่วยตรวจดูส่วนผสมหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I am pregnant, please do not give me herbs.",
+      "th": "ตั้งครรภ์อยู่ ขออย่าให้สมุนไพร",
+      "critical": true
+    },
+    {
+      "en": "I take blood thinning medicine.",
+      "th": "กินยาละลายลิ่มเลือดอยู่",
+      "critical": true
+    },
+    {
+      "en": "I have a rash after the herbal treatment.",
+      "th": "มีผื่นขึ้นหลังรักษาด้วยสมุนไพร",
+      "critical": true
+    },
+    {
+      "en": "I feel dizzy and cannot breathe well.",
+      "th": "เวียนหัวและหายใจไม่สะดวก",
+      "critical": true
+    },
+    {
+      "en": "Please take me to a hospital.",
+      "th": "ช่วยพาไปโรงพยาบาลหน่อย",
+      "critical": true
+    },
+    {
+      "en": "What is in this herbal mixture?",
+      "th": "ยาสมุนไพรนี้มีส่วนผสมอะไรบ้าง"
+    },
+    {
+      "en": "What is this herb good for?",
+      "th": "สมุนไพรนี้ช่วยเรื่องอะไร"
+    },
+    {
+      "en": "Please write down the name of the herb.",
+      "th": "ช่วยเขียนชื่อสมุนไพรให้หน่อย"
+    },
+    {
+      "en": "How often should I take it?",
+      "th": "ควรกินบ่อยแค่ไหน"
+    },
+    {
+      "en": "Is it safe with my other medicine?",
+      "th": "กินร่วมกับยาอื่นของเราได้ไหม"
+    },
+    {
+      "en": "Is this treatment painful?",
+      "th": "การรักษานี้เจ็บไหม"
+    },
+    {
+      "en": "Please use new needles only.",
+      "th": "ขอใช้เข็มใหม่เท่านั้น"
+    },
+    {
+      "en": "How many sessions do I need?",
+      "th": "ต้องรักษากี่ครั้ง"
+    },
+    {
+      "en": "How much does one session cost?",
+      "th": "ครั้งละเท่าไร"
+    },
+    {
+      "en": "Please show me the herbal compress first.",
+      "th": "ขอดูลูกประคบสมุนไพรก่อนหน่อย"
+    },
+    {
+      "en": "The heat is too strong for me.",
+      "th": "ร้อนเกินไปสำหรับเรา"
+    },
+    {
+      "en": "Please stop the treatment, it hurts.",
+      "th": "ขอหยุดการรักษาก่อน เจ็บ"
+    },
+    {
+      "en": "Can I buy this tea to take home?",
+      "th": "ซื้อชาสมุนไพรนี้กลับบ้านได้ไหม"
+    },
+    {
+      "en": "Is there an English leaflet?",
+      "th": "มีแผ่นพับภาษาอังกฤษไหม"
+    },
+    {
+      "en": "Thank you, I feel much better.",
+      "th": "ขอบคุณ รู้สึกดีขึ้นมาก"
+    }
+  ]
+}

@@ -138,6 +138,29 @@ kennen, ignorieren sie.
 | `jet-ski-rental` | Jetski und Wassersport | Pass nicht hinterlegen, Touristenpolizei, Bedrohung |
 | `animal-bite-rabies` | Tierbisse und Stiche | Hund, Affe, Schlange, Tollwutimpfung, Notruf |
 | `travel-insurance-claim` | Reiseversicherung: Schaden melden | Notruf, Krankenhaus, Arzt, erst behandeln |
+| `camping-national-park` | Camping im Nationalpark | kritische Sätze zuerst (6) |
+| `night-bus-vip` | Nachtbus (VIP-Bus) | kritische Sätze zuerst (6) |
+| `business-meeting` | Geschäftsmeeting | kritische Sätze zuerst (6) |
+| `contractor-renovation` | Handwerker und Umbau | kritische Sätze zuerst (6) |
+| `cave-waterfall-tour` | Höhle und Wasserfall | kritische Sätze zuerst (6) |
+| `rock-climbing` | Klettern (Krabi) | kritische Sätze zuerst (6) |
+| `surf-kite-lesson` | Surf- und Kitekurs | kritische Sätze zuerst (6) |
+| `herbal-traditional-medicine` | Heilkräuter und traditionelle Medizin | kritische Sätze zuerst (6) |
+| `lab-blood-test` | Labor und Bluttest | kritische Sätze zuerst (6) |
+| `meditation-retreat` | Meditations-Retreat | kritische Sätze zuerst (6) |
+| `longtail-boat-charter` | Longtail-Boot mieten | kritische Sätze zuerst (6) |
+| `utilities-condo-office` | Nebenkosten und Condo-Verwaltung | kritische Sätze zuerst (6) |
+| `used-vehicle-purchase` | Gebrauchtfahrzeug kaufen | kritische Sätze zuerst (6) |
+| `vet-clinic` | Tierarzt | kritische Sätze zuerst (6) |
+| `school-enrollment` | Schulanmeldung | kritische Sätze zuerst (6) |
+| `electronics-mall` | Elektronik-Einkaufszentrum | kritische Sätze zuerst (6) |
+| `print-copy-shop` | Copyshop und Druckerei | kritische Sätze zuerst (6) |
+| `gold-shop` | Goldgeschäft und Pfandleihe | kritische Sätze zuerst (6) |
+| `notary-document-translation` | Beglaubigung und Übersetzung | kritische Sätze zuerst (6) |
+| `work-permit-office` | Arbeitserlaubnis | kritische Sätze zuerst (6) |
+| `neighbors-noise-garbage` | Nachbarn, Lärm und Müll | kritische Sätze zuerst (6) |
+| `orchard-farm-visit` | Obstgarten und Bauernhof | kritische Sätze zuerst (6) |
+| `wildlife-safari` | Safari und Tierbeobachtung | kritische Sätze zuerst (6) |
 | `flight-delay-change` | Flugverspätung und Umbuchung | Medikamente, Unwohlsein, Arzt |
 | `monsoon-flood-storm` | Regen, Flut und Sturm | Wasser steigt, eingeschlossen, Notruf, Polizei |
 | `scams-overcharge` | Betrug / Abzocke | 4 kritische Sätze zuerst |
@@ -271,7 +294,7 @@ Am wichtigsten sind die Sätze mit `critical` und die Tabelle [Unsichere Sätze]
 
 | Datei | Inhalt |
 |---|---|
-| `presets/*.json` | 178 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
+| `presets/*.json` | 201 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
 | `ios/Shared/phrases.json` | eingebautes Satzbuch der iPhone-App und des Widgets |
 | `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten, „Sie sind dran“, Allergie-Karte |
 | `ios/Dolmetscher/Round4Views.swift` | Hilfesatz auf dem Bildschirm „Hilfe – jetzt“ |

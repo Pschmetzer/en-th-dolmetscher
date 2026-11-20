@@ -4,7 +4,7 @@
   "type": "module",
   "description": "Browser check of the web page (axe accessibility scan per tab, no console errors). Run by .github/workflows/web-a11y.yml; locally: npm install && npx playwright install chromium && node axe.mjs",
   "dependencies": {
-    "@axe-core/playwright": "4.10.1",
-    "playwright": "1.49.1"
+    "@axe-core/playwright": "4.14.0",
+    "playwright": "1.65.1"
   }
 }

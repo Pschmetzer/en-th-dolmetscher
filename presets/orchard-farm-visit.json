@@ -1,0 +1,139 @@
+{
+  "id": "orchard-farm-visit",
+  "names": {
+    "de": "Obstgarten und Bauernhof",
+    "en": "Orchard and farm visit",
+    "th": "เยี่ยมสวนผลไม้และฟาร์ม"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Auf Farmen nicht ungefragt Früchte pflücken oder Tiere füttern. Festes Schuhwerk, Mückenschutz und genug Wasser mitnehmen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "On farms do not pick fruit or feed animals without asking. Take sturdy shoes, mosquito repellent and enough water. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "orchard",
+      "th": "สวนผลไม้"
+    },
+    {
+      "en": "farm",
+      "th": "ฟาร์ม"
+    },
+    {
+      "en": "farmer",
+      "th": "เกษตรกร"
+    },
+    {
+      "en": "mango",
+      "th": "มะม่วง"
+    },
+    {
+      "en": "durian",
+      "th": "ทุเรียน"
+    },
+    {
+      "en": "rubber tree",
+      "th": "ต้นยางพารา"
+    },
+    {
+      "en": "buffalo",
+      "th": "ควาย"
+    },
+    {
+      "en": "rice paddy",
+      "th": "นาข้าว"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "A bee stung me and I am allergic.",
+      "th": "ถูกผึ้งต่อยและแพ้",
+      "critical": true
+    },
+    {
+      "en": "There is a snake on the path.",
+      "th": "มีงูอยู่บนทาง",
+      "critical": true
+    },
+    {
+      "en": "I feel dizzy from the sun in the orchard.",
+      "th": "เวียนหัวเพราะแดดในสวน",
+      "critical": true
+    },
+    {
+      "en": "I fell and hurt my leg.",
+      "th": "ล้มและขาเจ็บ",
+      "critical": true
+    },
+    {
+      "en": "Please call a doctor, my friend cannot stand.",
+      "th": "ช่วยเรียกแพทย์หน่อย เพื่อนยืนไม่ไหว",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to this fruit.",
+      "th": "แพ้ผลไม้ชนิดนี้",
+      "critical": true
+    },
+    {
+      "en": "May we visit your farm?",
+      "th": "ขอเข้าเยี่ยมชมฟาร์มได้ไหม"
+    },
+    {
+      "en": "How much is the entrance?",
+      "th": "ค่าเข้าชมเท่าไร"
+    },
+    {
+      "en": "May I taste the fruit?",
+      "th": "ขอชิมผลไม้ได้ไหม"
+    },
+    {
+      "en": "May I pick one fruit myself?",
+      "th": "ขอเก็บผลไม้เองหนึ่งลูกได้ไหม"
+    },
+    {
+      "en": "How do you know when it is ripe?",
+      "th": "ดูอย่างไรว่าสุกแล้ว"
+    },
+    {
+      "en": "What is the best season for this fruit?",
+      "th": "ผลไม้นี้ฤดูไหนอร่อยที่สุด"
+    },
+    {
+      "en": "Please show me how you harvest.",
+      "th": "ช่วยสาธิตวิธีเก็บเกี่ยวหน่อย"
+    },
+    {
+      "en": "May I feed the animals?",
+      "th": "ขอให้อาหารสัตว์ได้ไหม"
+    },
+    {
+      "en": "Is the water here safe to drink?",
+      "th": "น้ำที่นี่ดื่มได้ไหม"
+    },
+    {
+      "en": "Is it safe to walk between the trees?",
+      "th": "เดินระหว่างต้นไม้ปลอดภัยไหม"
+    },
+    {
+      "en": "Can I buy a box to take home?",
+      "th": "ซื้อเป็นกล่องกลับบ้านได้ไหม"
+    },
+    {
+      "en": "Please pack it so it does not spoil.",
+      "th": "ช่วยห่อให้ไม่เสียหน่อย"
+    },
+    {
+      "en": "May I take a photo of the farm?",
+      "th": "ถ่ายรูปฟาร์มได้ไหม"
+    },
+    {
+      "en": "Where can I wash my hands?",
+      "th": "ล้างมือได้ที่ไหน"
+    },
+    {
+      "en": "Thank you for the visit.",
+      "th": "ขอบคุณที่ให้เข้าชม"
+    }
+  ]
+}

@@ -51,14 +51,14 @@ Es gibt zwei getrennte Zustände, die man nicht vermischen darf:
 | `dolmetscher.py` | Engine: Mikrofon, VAD, Whisper, Übersetzung, Stimmen, Befehle, JSON-Protokoll |
 | `profiles.py` | Stimmprofile (Sprechererkennung per sherpa-onnx), Vokabular-Hinweise |
 | `app/*.swift` | SwiftUI-App: `Engine.swift` (Prozess, Ereignisse), `Views`/`BubbleViews`/`SettingsView`, `L10n.swift` (de/en/th), `HotKeys.swift` (globale Kürzel), `PartnerView.swift`, `EnvSetup.swift`/`EnvLogic.swift`/`Paths.swift` (Python-Umgebung), `Languages.swift` (liest `languages.json`), `Presets.swift`, `Profiles.swift`, `AudioOutputs.swift`, `Support.swift` (Export, Diagnose), `Notifications.swift`, `Setup.swift` (Erststart-Checkliste), `Extras.swift` (Kürzel-Rückmeldung, Untertitelfenster), `ConversationUILogic.swift` (Treffer-Navigation, Blasen-Auswahl, Zahlenwarnung, Lesarten, Latenz-Sparkline, Übersteuerung, Partial-Drossel, Wachhund-Entscheidung; getestet in swift-tests), `R23Views.swift` (Auswahlleiste, Sparkline, Übersteuerungs-Hinweis), `L10n+R23.swift` (eigene Textetabelle `L.r23`), `Runde8.swift` (Fehlerhilfe mit Handlungsvorschlag, Großanzeige, Glossar-Schnelleingabe, Kürzel-Übersicht) |
-| `avhelper.py` | Audio über PyAV als Kindprozess (wie früher ffmpeg): `capture` (s16le auf stdout), `play` (mp3 von stdin → AudioToolbox, vorgewärmt), `list` (Mikrofone) |
+| `avhelper.py` | Audio über PyAV als Kindprozess (wie früher ffmpeg): `capture` (s16le auf stdout), `play` (mp3 von stdin → AudioToolbox, vorgewärmt), `list` (Mikrofone, Ausgaben, erkannte Loopback-Geräte), `prep` (Systemaudio-Vorbereitung: meldet, ob ein Loopback-Gerät da ist) |
 | `build.sh` | baut `build/Dolmetscher.app` (swiftc, Info.plist, uv + translate-helper + Lock + Stempel + `setup-env.sh` ins Bundle, Signatur von innen nach außen), optional `--install` (beendet eine laufende App vorher) / `--release` |
 | `languages.json` | gemeinsame Sprachtabelle (19 Sprachen, Schriften) für Engine, Mac-App und Web; Details und Tests: `tests/test_languages_json.py` |
-| `presets/*.json`, `presets.py`, `presets-index.json` | 178 Phrasenpakete (Daten) für Mac, iPhone und Web; Format: [PRESETS.md](PRESETS.md) |
-| `history_store.py`, `hwprofile.py`, `correction_learning.py`, `satzbuch.py` | Verlauf (SQLite, optional), Modellwahl `--model auto`, Glossar-Vorschläge aus Korrekturen, Export und Prüfung des Satzbuchs (Kommandozeile) |
+| `presets/*.json`, `presets.py`, `presets-index.json` | 201 Phrasenpakete (Daten) für Mac, iPhone und Web; Format: [PRESETS.md](PRESETS.md) |
+| `history_store.py`, `hwprofile.py`, `correction_learning.py`, `satzbuch.py` | Verlauf (SQLite, optional), Modellwahl `--model auto`, Glossar-Vorschläge aus Korrekturen, Export, Prüfung und Bericht (`satzbuch.py report`) des Satzbuchs (Kommandozeile); der Verlauf lässt sich passwortgeschützt exportieren |
 | `tools/` | Paket-Werkzeuge (`check_presets.py`, `preset_stats.py`, `preset_search.py`, `preset_rom.py`, `preset_quality.py`, `export_phrasebook.py`, `make_presets_index.py`, `sync_web.py`, `check_doc_links.py` (tote Links in der Doku), `pages_smoke.py` (Smoke-Test der ausgelieferten Seite), `review_export.py`, `review_import.py`, `review_status.py`), Swift-Quellen von `translate-helper` (kommt ins Bundle) und des Prototyps `apple-stt` |
 | `build-support/` | Entitlements, `setup-env.sh` (Einrichtung), `make-stamp.sh` (Stempel) |
-| `bench/` | Benchmark für Erkennung und Übersetzung |
+| `bench/` | Benchmark für Erkennung und Übersetzung, `latency_budget.py` (Zeitbudget) |
 
 ## Web Lite (`index.html`)
 

@@ -1,0 +1,143 @@
+{
+  "id": "contractor-renovation",
+  "names": {
+    "de": "Handwerker und Umbau",
+    "en": "Contractor and renovation",
+    "th": "ช่างและงานรีโนเวต"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Preis, Material und Zeitplan schriftlich festhalten, Anzahlung nur in Teilen und gegen Quittung zahlen. Fotos vom Baufortschritt machen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Put price, materials and schedule in writing, pay deposits in parts and against a receipt. Take photos of the progress. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "contractor",
+      "th": "ผู้รับเหมา"
+    },
+    {
+      "en": "electrician",
+      "th": "ช่างไฟ"
+    },
+    {
+      "en": "plumber",
+      "th": "ช่างประปา"
+    },
+    {
+      "en": "paint",
+      "th": "สี"
+    },
+    {
+      "en": "tiles",
+      "th": "กระเบื้อง"
+    },
+    {
+      "en": "estimate",
+      "th": "ประเมินราคา"
+    },
+    {
+      "en": "scaffolding",
+      "th": "นั่งร้าน"
+    },
+    {
+      "en": "warranty",
+      "th": "การรับประกัน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Switch off the electricity, it is dangerous.",
+      "th": "ปิดไฟก่อน อันตรายมาก",
+      "critical": true
+    },
+    {
+      "en": "There is a gas smell in the kitchen.",
+      "th": "มีกลิ่นแก๊สในครัว",
+      "critical": true
+    },
+    {
+      "en": "Water is flooding the room, please stop the main tap.",
+      "th": "น้ำท่วมห้อง ช่วยปิดก๊อกน้ำหลักหน่อย",
+      "critical": true
+    },
+    {
+      "en": "A worker fell from the ladder and is hurt.",
+      "th": "คนงานตกจากบันไดและบาดเจ็บ",
+      "critical": true
+    },
+    {
+      "en": "Please do not drill in this wall, there are pipes.",
+      "th": "ขออย่าเจาะผนังนี้ เพราะมีท่ออยู่",
+      "critical": true
+    },
+    {
+      "en": "There is a crack in the ceiling.",
+      "th": "มีรอยร้าวที่เพดาน",
+      "critical": true
+    },
+    {
+      "en": "Can you give me a written estimate?",
+      "th": "ขอใบประเมินราคาเป็นลายลักษณ์อักษรได้ไหม"
+    },
+    {
+      "en": "How long will the work take?",
+      "th": "งานนี้ใช้เวลานานเท่าไร"
+    },
+    {
+      "en": "Does the price include the material?",
+      "th": "ราคานี้รวมค่าวัสดุไหม"
+    },
+    {
+      "en": "Please show me the samples of the tiles.",
+      "th": "ขอดูตัวอย่างกระเบื้องหน่อย"
+    },
+    {
+      "en": "I would like to pay in three parts.",
+      "th": "ขอชำระเป็นสามงวด"
+    },
+    {
+      "en": "Please give me a receipt for the deposit.",
+      "th": "ขอใบเสร็จค่ามัดจำหน่อย"
+    },
+    {
+      "en": "When can you start?",
+      "th": "เริ่มงานได้เมื่อไร"
+    },
+    {
+      "en": "Please send me a photo of the progress.",
+      "th": "ช่วยส่งรูปความคืบหน้างานหน่อย"
+    },
+    {
+      "en": "Please cover the furniture with plastic.",
+      "th": "ช่วยคลุมเฟอร์นิเจอร์ด้วยพลาสติกหน่อย"
+    },
+    {
+      "en": "Please clean up at the end of each day.",
+      "th": "ช่วยทำความสะอาดทุกวันหลังเลิกงานหน่อย"
+    },
+    {
+      "en": "Is there a warranty on the work?",
+      "th": "งานนี้มีการรับประกันไหม"
+    },
+    {
+      "en": "Please repair this again, it is not good.",
+      "th": "ช่วยแก้ไขอีกครั้งหน่อย ยังไม่ดี"
+    },
+    {
+      "en": "The paint colour is not the one I chose.",
+      "th": "สีที่ทาไม่ใช่สีที่เลือก"
+    },
+    {
+      "en": "Please use the cheaper material.",
+      "th": "ขอใช้วัสดุที่ราคาถูกกว่า"
+    },
+    {
+      "en": "I need the landlord to agree to this change.",
+      "th": "ต้องให้เจ้าของที่พักยินยอมก่อนจึงจะเปลี่ยนได้"
+    },
+    {
+      "en": "The work is finished, thank you very much.",
+      "th": "งานเสร็จแล้ว ขอบคุณมาก"
+    }
+  ]
+}

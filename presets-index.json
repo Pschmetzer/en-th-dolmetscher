@@ -966,6 +966,50 @@
    ]
   },
   {
+   "id": "business-meeting",
+   "names": {
+    "de": "Geschäftsmeeting",
+    "en": "Business meeting",
+    "th": "ประชุมธุรกิจ"
+   },
+   "phrases": 22,
+   "critical": 6,
+   "reviewed": false,
+   "category": "general",
+   "keywords": [
+    "meeting",
+    "contract",
+    "agenda",
+    "quotation",
+    "deadline",
+    "business card",
+    "partner",
+    "invoice"
+   ]
+  },
+  {
+   "id": "camping-national-park",
+   "names": {
+    "de": "Camping im Nationalpark",
+    "en": "Camping in a national park",
+    "th": "ตั้งแคมป์ในอุทยานแห่งชาติ"
+   },
+   "phrases": 23,
+   "critical": 6,
+   "reviewed": false,
+   "category": "leisure",
+   "keywords": [
+    "tent",
+    "campsite",
+    "park ranger",
+    "campfire",
+    "sleeping bag",
+    "drinking water",
+    "flashlight",
+    "toilet"
+   ]
+  },
+  {
    "id": "cannabis-vape",
    "names": {
     "de": "Cannabis / E-Zigarette",
@@ -1054,6 +1098,28 @@
    ]
   },
   {
+   "id": "cave-waterfall-tour",
+   "names": {
+    "de": "Höhle und Wasserfall",
+    "en": "Cave and waterfall tour",
+    "th": "ทัวร์ถ้ำและน้ำตก"
+   },
+   "phrases": 22,
+   "critical": 6,
+   "reviewed": false,
+   "category": "leisure",
+   "keywords": [
+    "cave",
+    "waterfall",
+    "helmet",
+    "headlamp",
+    "slippery",
+    "guide",
+    "life jacket",
+    "rope"
+   ]
+  },
+  {
    "id": "chronic-conditions",
    "names": {
     "de": "Chronische Krankheit / Dauermedikation",
@@ -1095,6 +1161,28 @@
     "soundtrack",
     "stage",
     "exit"
+   ]
+  },
+  {
+   "id": "contractor-renovation",
+   "names": {
+    "de": "Handwerker und Umbau",
+    "en": "Contractor and renovation",
+    "th": "ช่างและงานรีโนเวต"
+   },
+   "phrases": 22,
+   "critical": 6,
+   "reviewed": false,
+   "category": "stay",
+   "keywords": [
+    "contractor",
+    "electrician",
+    "plumber",
+    "paint",
+    "tiles",
+    "estimate",
+    "scaffolding",
+    "warranty"
    ]
   },
   {
@@ -1487,6 +1575,28 @@
    ]
   },
   {
+   "id": "electronics-mall",
+   "names": {
+    "de": "Elektronik-Einkaufszentrum",
+    "en": "Electronics mall",
+    "th": "ห้างอิเล็กทรอนิกส์"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "money",
+   "keywords": [
+    "laptop",
+    "charger",
+    "warranty card",
+    "serial number",
+    "receipt",
+    "adapter",
+    "memory card",
+    "screen"
+   ]
+  },
+  {
    "id": "elephant-sanctuary",
    "names": {
     "de": "Elefantenschutzgebiet",
@@ -1858,6 +1968,28 @@
    ]
   },
   {
+   "id": "gold-shop",
+   "names": {
+    "de": "Goldgeschäft und Pfandleihe",
+    "en": "Gold shop and pawn shop",
+    "th": "ร้านทองและโรงรับจำนำ"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "money",
+   "keywords": [
+    "gold",
+    "necklace",
+    "ring",
+    "weight",
+    "daily price",
+    "certificate",
+    "pawn",
+    "interest"
+   ]
+  },
+  {
    "id": "golf",
    "names": {
     "de": "Golf",
@@ -2027,6 +2159,28 @@
     "dizzy",
     "faint",
     "hat"
+   ]
+  },
+  {
+   "id": "herbal-traditional-medicine",
+   "names": {
+    "de": "Heilkräuter und traditionelle Medizin",
+    "en": "Herbal and traditional medicine",
+    "th": "สมุนไพรและการแพทย์แผนไทย"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "herbal medicine",
+    "herbal compress",
+    "cupping",
+    "acupuncture",
+    "ginger",
+    "turmeric",
+    "tea",
+    "healer"
    ]
   },
   {
@@ -2401,6 +2555,28 @@
    ]
   },
   {
+   "id": "lab-blood-test",
+   "names": {
+    "de": "Labor und Bluttest",
+    "en": "Laboratory and blood test",
+    "th": "ห้องแล็บและตรวจเลือด"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "blood test",
+    "urine sample",
+    "fasting",
+    "result",
+    "needle",
+    "vein",
+    "laboratory",
+    "report"
+   ]
+  },
+  {
    "id": "laundry-deposit",
    "names": {
     "de": "Wäsche und Kaution",
@@ -2458,6 +2634,28 @@
     "landlord",
     "electricity bill",
     "water bill"
+   ]
+  },
+  {
+   "id": "longtail-boat-charter",
+   "names": {
+    "de": "Longtail-Boot mieten",
+    "en": "Longtail boat charter",
+    "th": "เช่าเรือหางยาว"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "transport",
+   "keywords": [
+    "longtail boat",
+    "boatman",
+    "life jacket",
+    "pier",
+    "island",
+    "waves",
+    "sunset",
+    "hour"
    ]
   },
   {
@@ -2606,6 +2804,28 @@
     "therapist",
     "shoulders",
     "back"
+   ]
+  },
+  {
+   "id": "meditation-retreat",
+   "names": {
+    "de": "Meditations-Retreat",
+    "en": "Meditation retreat",
+    "th": "ปฏิบัติธรรมและเข้าคอร์สสมาธิ"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "culture",
+   "keywords": [
+    "meditation",
+    "retreat",
+    "silence",
+    "white clothes",
+    "teacher",
+    "dormitory",
+    "walking meditation",
+    "schedule"
    ]
   },
   {
@@ -2825,6 +3045,50 @@
    ]
   },
   {
+   "id": "neighbors-noise-garbage",
+   "names": {
+    "de": "Nachbarn, Lärm und Müll",
+    "en": "Neighbours, noise and rubbish",
+    "th": "เพื่อนบ้าน เสียงดัง และขยะ"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "stay",
+   "keywords": [
+    "neighbour",
+    "noise",
+    "garbage",
+    "smell",
+    "dog",
+    "landlord",
+    "complaint",
+    "party"
+   ]
+  },
+  {
+   "id": "night-bus-vip",
+   "names": {
+    "de": "Nachtbus (VIP-Bus)",
+    "en": "Overnight VIP bus",
+    "th": "รถทัวร์กลางคืน วีไอพี"
+   },
+   "phrases": 24,
+   "critical": 6,
+   "reviewed": false,
+   "category": "transport",
+   "keywords": [
+    "bus station",
+    "seat number",
+    "luggage ticket",
+    "rest stop",
+    "blanket",
+    "departure time",
+    "arrival time",
+    "driver"
+   ]
+  },
+  {
    "id": "night-market-bargain",
    "names": {
     "de": "Nachtmarkt und Handeln",
@@ -2924,6 +3188,28 @@
    ]
   },
   {
+   "id": "notary-document-translation",
+   "names": {
+    "de": "Beglaubigung und Übersetzung",
+    "en": "Notary and document translation",
+    "th": "รับรองเอกสารและแปลเอกสาร"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "general",
+   "keywords": [
+    "notary",
+    "certified translation",
+    "legalisation",
+    "stamp",
+    "original",
+    "copy",
+    "signature",
+    "witness"
+   ]
+  },
+  {
    "id": "numbers-prices",
    "names": {
     "de": "Zahlen und Preise",
@@ -2968,6 +3254,28 @@
     "eye drops",
     "eye clinic",
     "repair"
+   ]
+  },
+  {
+   "id": "orchard-farm-visit",
+   "names": {
+    "de": "Obstgarten und Bauernhof",
+    "en": "Orchard and farm visit",
+    "th": "เยี่ยมสวนผลไม้และฟาร์ม"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "leisure",
+   "keywords": [
+    "orchard",
+    "farm",
+    "farmer",
+    "mango",
+    "durian",
+    "rubber tree",
+    "buffalo",
+    "rice paddy"
    ]
   },
   {
@@ -3158,6 +3466,28 @@
    ]
   },
   {
+   "id": "print-copy-shop",
+   "names": {
+    "de": "Copyshop und Druckerei",
+    "en": "Print and copy shop",
+    "th": "ร้านถ่ายเอกสารและพิมพ์งาน"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "general",
+   "keywords": [
+    "photocopy",
+    "print",
+    "colour",
+    "black and white",
+    "paper",
+    "passport photo",
+    "laminate",
+    "usb stick"
+   ]
+  },
+  {
    "id": "private-driver-day-tour",
    "names": {
     "de": "Privatfahrer und Tagestour",
@@ -3282,6 +3612,28 @@
    ]
   },
   {
+   "id": "rock-climbing",
+   "names": {
+    "de": "Klettern (Krabi)",
+    "en": "Rock climbing",
+    "th": "ปีนหน้าผา"
+   },
+   "phrases": 22,
+   "critical": 6,
+   "reviewed": false,
+   "category": "leisure",
+   "keywords": [
+    "climbing",
+    "harness",
+    "rope",
+    "helmet",
+    "belay",
+    "chalk",
+    "route",
+    "instructor"
+   ]
+  },
+  {
    "id": "scams-overcharge",
    "names": {
     "de": "Betrug / Abzocke",
@@ -3323,6 +3675,28 @@
     "homework",
     "lunch",
     "class"
+   ]
+  },
+  {
+   "id": "school-enrollment",
+   "names": {
+    "de": "Schulanmeldung",
+    "en": "School enrollment",
+    "th": "สมัครเข้าโรงเรียน"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "general",
+   "keywords": [
+    "school",
+    "tuition fee",
+    "uniform",
+    "report card",
+    "class",
+    "teacher",
+    "school bus",
+    "application form"
    ]
   },
   {
@@ -3602,6 +3976,28 @@
    ]
   },
   {
+   "id": "surf-kite-lesson",
+   "names": {
+    "de": "Surf- und Kitekurs",
+    "en": "Surf and kite lesson",
+    "th": "เรียนเซิร์ฟและไคท์เซิร์ฟ"
+   },
+   "phrases": 22,
+   "critical": 6,
+   "reviewed": false,
+   "category": "leisure",
+   "keywords": [
+    "surfboard",
+    "wave",
+    "current",
+    "wind",
+    "leash",
+    "wetsuit",
+    "beach",
+    "lesson"
+   ]
+  },
+  {
    "id": "tailor-custom",
    "names": {
     "de": "Maßschneider",
@@ -3868,6 +4264,50 @@
    ]
   },
   {
+   "id": "used-vehicle-purchase",
+   "names": {
+    "de": "Gebrauchtfahrzeug kaufen",
+    "en": "Buying a used vehicle",
+    "th": "ซื้อรถมือสอง"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "transport",
+   "keywords": [
+    "registration book",
+    "sales contract",
+    "engine",
+    "mileage",
+    "insurance",
+    "test drive",
+    "owner",
+    "transfer"
+   ]
+  },
+  {
+   "id": "utilities-condo-office",
+   "names": {
+    "de": "Nebenkosten und Condo-Verwaltung",
+    "en": "Utilities and condo office",
+    "th": "ค่าสาธารณูปโภคและสำนักงานคอนโด"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "stay",
+   "keywords": [
+    "electricity bill",
+    "water bill",
+    "meter",
+    "management office",
+    "common fee",
+    "key card",
+    "elevator",
+    "parking"
+   ]
+  },
+  {
    "id": "vaccination-travel-clinic",
    "names": {
     "de": "Reiseimpfungen",
@@ -3924,6 +4364,28 @@
     "oyster sauce",
     "shrimp paste",
     "jay food"
+   ]
+  },
+  {
+   "id": "vet-clinic",
+   "names": {
+    "de": "Tierarzt",
+    "en": "Veterinary clinic",
+    "th": "คลินิกสัตวแพทย์"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "veterinarian",
+    "vaccination book",
+    "rabies",
+    "microchip",
+    "tick",
+    "flea",
+    "spay",
+    "pet"
    ]
   },
   {
@@ -4155,6 +4617,28 @@
    ]
   },
   {
+   "id": "wildlife-safari",
+   "names": {
+    "de": "Safari und Tierbeobachtung",
+    "en": "Wildlife safari",
+    "th": "ซาฟารีและดูสัตว์ป่า"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "leisure",
+   "keywords": [
+    "wild animals",
+    "ranger",
+    "elephant",
+    "monkey",
+    "binoculars",
+    "night safari",
+    "national park",
+    "leech"
+   ]
+  },
+  {
    "id": "work",
    "names": {
     "de": "Arbeit und Handwerk",
@@ -4172,6 +4656,28 @@
     "helmet",
     "gloves",
     "ladder"
+   ]
+  },
+  {
+   "id": "work-permit-office",
+   "names": {
+    "de": "Arbeitserlaubnis",
+    "en": "Work permit office",
+    "th": "ใบอนุญาตทำงาน"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "general",
+   "keywords": [
+    "work permit",
+    "employer",
+    "labour office",
+    "contract",
+    "tax",
+    "health check",
+    "renewal",
+    "passport copy"
    ]
   },
   {
