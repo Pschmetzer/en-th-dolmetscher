@@ -180,7 +180,7 @@ def test_warmup_not_repeated_within_30s(monkeypatch):
 def test_keepalive_only_while_conversation_is_active(monkeypatch):
     calls = []
     monkeypatch.setattr(d, "llm_warmup", lambda force=False: calls.append(force) or True)
-    now = time.monotonic()
+    now = time.monotonic() + 100000.0                          # CI-Rechner mit kurzer Laufzeit: nie negativ
     assert d.llm_keepalive(now) is False                       # noch nie gedolmetscht
     d.LLM_STATS["cache_write"] = 100                           # Cache greift
     d.LLM_STATS["last_t"] = now - (d.KEEPALIVE_AFTER_S + 5)
@@ -210,7 +210,7 @@ def test_warmup_alone_never_starts_a_keepalive_cycle(monkeypatch):
 
 def test_keepalive_needs_an_engaged_prompt_cache(monkeypatch):
     monkeypatch.setattr(d, "llm_warmup", lambda force=False: pytest.fail("Cache greift nicht: nur Kosten"))
-    now = time.monotonic()
+    now = time.monotonic() + 100000.0                          # CI-Rechner mit kurzer Laufzeit: nie negativ
     d.LLM_STATS["last_t"] = now - (d.KEEPALIVE_AFTER_S + 5)       # echte Nutzung, aber nie ein Cache-Treffer
     assert d.llm_keepalive(now) is False
 
