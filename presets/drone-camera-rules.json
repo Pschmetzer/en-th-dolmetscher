@@ -1,0 +1,105 @@
+{
+  "id": "drone-camera-rules",
+  "names": {
+    "de": "Drohne und Kamera",
+    "en": "Drone and camera",
+    "th": "โดรนและกล้อง"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Drohnen über zweihundertfünfzig Gramm müssen bei der Behörde (CAAT/NBTC) angemeldet werden; Flüge nahe Flughäfen, Palästen, Tempeln und Militäranlagen sind verboten. Fotografieren von Menschen, Mönchen und Soldaten erst nach Frage. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Drones over two hundred fifty grams must be registered with the authorities (CAAT/NBTC); flying near airports, palaces, temples and military sites is banned. Ask before photographing people, monks and soldiers. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "drone",
+      "th": "โดรน"
+    },
+    {
+      "en": "permit",
+      "th": "ใบอนุญาต"
+    },
+    {
+      "en": "camera",
+      "th": "กล้อง"
+    },
+    {
+      "en": "photograph",
+      "th": "ถ่ายรูป"
+    },
+    {
+      "en": "no-fly zone",
+      "th": "เขตห้ามบิน"
+    },
+    {
+      "en": "tripod",
+      "th": "ขาตั้งกล้อง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Is it allowed to fly a drone here?",
+      "th": "ที่นี่บินโดรนได้ไหม",
+      "critical": true
+    },
+    {
+      "en": "Do I need a permit for my drone?",
+      "th": "ต้องมีใบอนุญาตสำหรับโดรนไหม",
+      "critical": true
+    },
+    {
+      "en": "Is this a no-fly zone?",
+      "th": "ตรงนี้เป็นเขตห้ามบินไหม",
+      "critical": true
+    },
+    {
+      "en": "I am sorry, I did not know. I will land it now.",
+      "th": "ขอโทษ ไม่ทราบ จะลงจอดตอนนี้เลย",
+      "critical": true
+    },
+    {
+      "en": "Where can I register my drone?",
+      "th": "ลงทะเบียนโดรนได้ที่ไหน"
+    },
+    {
+      "en": "May I take photos here?",
+      "th": "ถ่ายรูปที่นี่ได้ไหม"
+    },
+    {
+      "en": "May I take a photo of you?",
+      "th": "ขอถ่ายรูปคุณได้ไหม"
+    },
+    {
+      "en": "May I take photos inside?",
+      "th": "ถ่ายรูปข้างในได้ไหม"
+    },
+    {
+      "en": "Is a tripod allowed?",
+      "th": "ใช้ขาตั้งกล้องได้ไหม"
+    },
+    {
+      "en": "Is flash allowed?",
+      "th": "ใช้แฟลชได้ไหม"
+    },
+    {
+      "en": "I only take photos for myself.",
+      "th": "ถ่ายเก็บไว้ดูเองเท่านั้น"
+    },
+    {
+      "en": "Do I have to pay for a camera?",
+      "th": "ต้องจ่ายค่ากล้องไหม"
+    },
+    {
+      "en": "Shall I delete the photo?",
+      "th": "ให้ลบรูปไหม"
+    },
+    {
+      "en": "Please do not take my photo.",
+      "th": "ขออย่าถ่ายรูป"
+    },
+    {
+      "en": "Can you take a photo of us, please?",
+      "th": "ช่วยถ่ายรูปให้หน่อยได้ไหม"
+    }
+  ]
+}

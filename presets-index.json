@@ -694,6 +694,26 @@
    ]
   },
   {
+   "id": "bank-account-opening",
+   "names": {
+    "de": "Bankkonto eröffnen",
+    "en": "Opening a bank account",
+    "th": "เปิดบัญชีธนาคาร"
+   },
+   "phrases": 16,
+   "critical": 2,
+   "reviewed": false,
+   "category": "money",
+   "keywords": [
+    "bank account",
+    "passbook",
+    "debit card",
+    "deposit",
+    "withdraw",
+    "application form"
+   ]
+  },
+  {
    "id": "beach",
    "names": {
     "de": "Strand",
@@ -1086,6 +1106,46 @@
    ]
   },
   {
+   "id": "driving-license",
+   "names": {
+    "de": "Führerschein und Fahrerlaubnis",
+    "en": "Driving licence",
+    "th": "ใบขับขี่"
+   },
+   "phrases": 16,
+   "critical": 1,
+   "reviewed": false,
+   "category": "transport",
+   "keywords": [
+    "driving licence",
+    "international permit",
+    "department of land transport",
+    "medical certificate",
+    "test",
+    "renew"
+   ]
+  },
+  {
+   "id": "drone-camera-rules",
+   "names": {
+    "de": "Drohne und Kamera",
+    "en": "Drone and camera",
+    "th": "โดรนและกล้อง"
+   },
+   "phrases": 15,
+   "critical": 4,
+   "reviewed": false,
+   "category": "leisure",
+   "keywords": [
+    "drone",
+    "permit",
+    "camera",
+    "photograph",
+    "no-fly zone",
+    "tripod"
+   ]
+  },
+  {
    "id": "earthquake-evacuation",
    "names": {
     "de": "Erdbeben / Evakuierung",
@@ -1294,6 +1354,26 @@
    ]
   },
   {
+   "id": "fruit-market-durian",
+   "names": {
+    "de": "Obstmarkt und Durian",
+    "en": "Fruit market and durian",
+    "th": "ตลาดผลไม้และทุเรียน"
+   },
+   "phrases": 16,
+   "critical": 2,
+   "reviewed": false,
+   "category": "food",
+   "keywords": [
+    "durian",
+    "mango",
+    "mangosteen",
+    "rambutan",
+    "ripe",
+    "kilo"
+   ]
+  },
+  {
    "id": "funeral-condolence",
    "names": {
     "de": "Trauerfeier / Beileid",
@@ -1383,6 +1463,26 @@
     "expressway",
     "cancel",
     "fare"
+   ]
+  },
+  {
+   "id": "grand-palace-museum",
+   "names": {
+    "de": "Großer Palast und Museum",
+    "en": "Grand Palace and museum",
+    "th": "พระบรมมหาราชวังและพิพิธภัณฑ์"
+   },
+   "phrases": 16,
+   "critical": 2,
+   "reviewed": false,
+   "category": "culture",
+   "keywords": [
+    "palace",
+    "ticket",
+    "dress code",
+    "audio guide",
+    "exhibition",
+    "souvenir shop"
    ]
   },
   {
@@ -1726,6 +1826,26 @@
    ]
   },
   {
+   "id": "long-term-lease",
+   "names": {
+    "de": "Langzeitmiete (Wohnung, Condo)",
+    "en": "Long-term lease (flat, condo)",
+    "th": "เช่าห้องระยะยาว"
+   },
+   "phrases": 16,
+   "critical": 1,
+   "reviewed": false,
+   "category": "stay",
+   "keywords": [
+    "rent",
+    "deposit",
+    "contract",
+    "landlord",
+    "electricity bill",
+    "water bill"
+   ]
+  },
+  {
    "id": "lost-luggage",
    "names": {
     "de": "Gepäck verloren",
@@ -1791,6 +1911,26 @@
     "charger",
     "password",
     "bank"
+   ]
+  },
+  {
+   "id": "luggage-storage",
+   "names": {
+    "de": "Gepäckaufbewahrung",
+    "en": "Luggage storage",
+    "th": "ฝากกระเป๋า"
+   },
+   "phrases": 15,
+   "critical": 3,
+   "reviewed": false,
+   "category": "transport",
+   "keywords": [
+    "luggage",
+    "locker",
+    "receipt",
+    "per day",
+    "key",
+    "pickup"
    ]
   },
   {
@@ -2242,6 +2382,46 @@
    ]
   },
   {
+   "id": "pregnancy-maternity",
+   "names": {
+    "de": "Schwangerschaft",
+    "en": "Pregnancy",
+    "th": "การตั้งครรภ์"
+   },
+   "phrases": 15,
+   "critical": 8,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "pregnant",
+    "week",
+    "ultrasound",
+    "contraction",
+    "midwife",
+    "blood pressure"
+   ]
+  },
+  {
+   "id": "private-driver-day-tour",
+   "names": {
+    "de": "Privatfahrer und Tagestour",
+    "en": "Private driver and day tour",
+    "th": "คนขับรถส่วนตัวและทัวร์รายวัน"
+   },
+   "phrases": 16,
+   "critical": 2,
+   "reviewed": false,
+   "category": "transport",
+   "keywords": [
+    "driver",
+    "day tour",
+    "itinerary",
+    "waiting time",
+    "fuel",
+    "tip"
+   ]
+  },
+  {
    "id": "promptpay-qr-payment",
    "names": {
     "de": "QR-Zahlung / PromptPay",
@@ -2398,6 +2578,26 @@
    ]
   },
   {
+   "id": "songkran-water-festival",
+   "names": {
+    "de": "Songkran (Wasserfest)",
+    "en": "Songkran water festival",
+    "th": "สงกรานต์"
+   },
+   "phrases": 16,
+   "critical": 3,
+   "reviewed": false,
+   "category": "culture",
+   "keywords": [
+    "songkran",
+    "water",
+    "water gun",
+    "powder",
+    "waterproof bag",
+    "blessing"
+   ]
+  },
+  {
    "id": "souvenir-jewelry",
    "names": {
     "de": "Souvenirs / Schmuck",
@@ -2503,6 +2703,26 @@
     "fitting",
     "deposit",
     "lining"
+   ]
+  },
+  {
+   "id": "tattoo-piercing",
+   "names": {
+    "de": "Tattoo und Piercing",
+    "en": "Tattoo and piercing",
+    "th": "สักและเจาะ"
+   },
+   "phrases": 16,
+   "critical": 6,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "tattoo",
+    "piercing",
+    "needle",
+    "sterile",
+    "ink",
+    "aftercare"
    ]
   },
   {

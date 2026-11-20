@@ -1,0 +1,106 @@
+{
+  "id": "long-term-lease",
+  "names": {
+    "de": "Langzeitmiete (Wohnung, Condo)",
+    "en": "Long-term lease (flat, condo)",
+    "th": "เช่าห้องระยะยาว"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Üblich: 1–2 Monatsmieten Kaution plus 1 Monat im Voraus, Vertrag meist 6–12 Monate. Zähler für Strom und Wasser selbst ablesen und Fotos beim Einzug machen. Vertrag auf Englisch oder Übersetzung verlangen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Usual terms: a deposit of 1-2 months' rent plus one month in advance, contract mostly 6-12 months. Read the electricity and water meters and take photos at move-in. Ask for an English contract. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "rent",
+      "th": "ค่าเช่า"
+    },
+    {
+      "en": "deposit",
+      "th": "เงินมัดจำ"
+    },
+    {
+      "en": "contract",
+      "th": "สัญญาเช่า"
+    },
+    {
+      "en": "landlord",
+      "th": "เจ้าของห้อง"
+    },
+    {
+      "en": "electricity bill",
+      "th": "ค่าไฟ"
+    },
+    {
+      "en": "water bill",
+      "th": "ค่าน้ำ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Will I get the deposit back?",
+      "th": "ได้เงินมัดจำคืนไหม",
+      "critical": true
+    },
+    {
+      "en": "I am looking for a room to rent for six months.",
+      "th": "กำลังหาห้องเช่าหกเดือน"
+    },
+    {
+      "en": "How much is the rent per month?",
+      "th": "ค่าเช่าเดือนละเท่าไหร่"
+    },
+    {
+      "en": "How much is the deposit?",
+      "th": "ค่ามัดจำเท่าไหร่"
+    },
+    {
+      "en": "Are water and electricity included?",
+      "th": "รวมค่าน้ำค่าไฟไหม"
+    },
+    {
+      "en": "How much is the electricity per unit?",
+      "th": "ค่าไฟหน่วยละเท่าไร"
+    },
+    {
+      "en": "Is there Wi-Fi?",
+      "th": "มีไวไฟไหม"
+    },
+    {
+      "en": "Is there a washing machine?",
+      "th": "มีเครื่องซักผ้าไหม"
+    },
+    {
+      "en": "Are pets allowed?",
+      "th": "เลี้ยงสัตว์ได้ไหม"
+    },
+    {
+      "en": "Can I see the room first?",
+      "th": "ขอดูห้องก่อนได้ไหม"
+    },
+    {
+      "en": "The air conditioner does not work.",
+      "th": "เครื่องปรับอากาศใช้ไม่ได้"
+    },
+    {
+      "en": "The toilet is leaking.",
+      "th": "ห้องน้ำรั่ว"
+    },
+    {
+      "en": "Is there an English contract?",
+      "th": "มีสัญญาเป็นภาษาอังกฤษไหม"
+    },
+    {
+      "en": "May I take photos of the room before I move in?",
+      "th": "ขอถ่ายรูปห้องก่อนย้ายเข้าได้ไหม"
+    },
+    {
+      "en": "Can I leave early?",
+      "th": "ย้ายออกก่อนกำหนดได้ไหม"
+    },
+    {
+      "en": "Please give me a receipt.",
+      "th": "ขอใบเสร็จ"
+    }
+  ]
+}

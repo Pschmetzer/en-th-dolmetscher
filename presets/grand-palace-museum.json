@@ -1,0 +1,107 @@
+{
+  "id": "grand-palace-museum",
+  "names": {
+    "de": "Großer Palast und Museum",
+    "en": "Grand Palace and museum",
+    "th": "พระบรมมหาราชวังและพิพิธภัณฑ์"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Im Königspalast und in Tempeln: Schultern und Knie bedecken, keine Shorts, keine durchsichtige Kleidung, geschlossene Schuhe. Vor Fake-Guides am Eingang warnen („heute geschlossen“ ist meist gelogen). Ticket nur am offiziellen Schalter. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "At the Royal Palace and temples: cover shoulders and knees, no shorts, no see-through clothes, closed shoes. Beware of touts at the gate who say it is closed today; that is usually a lie. Buy tickets only at the official counter. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "palace",
+      "th": "พระราชวัง"
+    },
+    {
+      "en": "ticket",
+      "th": "ตั๋ว"
+    },
+    {
+      "en": "dress code",
+      "th": "การแต่งกาย"
+    },
+    {
+      "en": "audio guide",
+      "th": "เครื่องบรรยายเสียง"
+    },
+    {
+      "en": "exhibition",
+      "th": "นิทรรศการ"
+    },
+    {
+      "en": "souvenir shop",
+      "th": "ร้านของที่ระลึก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Is the palace open today?",
+      "th": "วันนี้พระราชวังเปิดไหม",
+      "critical": true
+    },
+    {
+      "en": "A stranger told me it is closed. Is that true?",
+      "th": "มีคนบอกว่าปิด จริงไหม",
+      "critical": true
+    },
+    {
+      "en": "Where is the ticket counter?",
+      "th": "ช่องขายตั๋วอยู่ที่ไหน"
+    },
+    {
+      "en": "How much is the entrance fee?",
+      "th": "ค่าเข้าชมเท่าไร"
+    },
+    {
+      "en": "What are the opening hours?",
+      "th": "เปิดกี่โมงถึงกี่โมง"
+    },
+    {
+      "en": "Is there a dress code?",
+      "th": "มีข้อกำหนดการแต่งกายไหม"
+    },
+    {
+      "en": "Can I borrow a long skirt or trousers?",
+      "th": "ขอยืมกระโปรงยาวหรือกางเกงขายาวได้ไหม"
+    },
+    {
+      "en": "Is there a locker for my bag?",
+      "th": "มีที่ฝากกระเป๋าไหม"
+    },
+    {
+      "en": "Do you have an audio guide in English?",
+      "th": "มีเครื่องบรรยายเสียงภาษาอังกฤษไหม"
+    },
+    {
+      "en": "Is there a guided tour in English?",
+      "th": "มีทัวร์นำชมภาษาอังกฤษไหม"
+    },
+    {
+      "en": "May I take photos inside?",
+      "th": "ถ่ายรูปข้างในได้ไหม"
+    },
+    {
+      "en": "Where is the toilet?",
+      "th": "ห้องน้ำอยู่ที่ไหน"
+    },
+    {
+      "en": "How long does the visit take?",
+      "th": "ใช้เวลาเที่ยวนานแค่ไหน"
+    },
+    {
+      "en": "Is there a discount for students?",
+      "th": "มีส่วนลดนักเรียนไหม"
+    },
+    {
+      "en": "Is it wheelchair accessible?",
+      "th": "รถเข็นเข้าได้ไหม"
+    },
+    {
+      "en": "Is there a café inside?",
+      "th": "ข้างในมีร้านกาแฟไหม"
+    }
+  ]
+}

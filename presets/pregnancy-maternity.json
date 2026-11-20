@@ -1,0 +1,109 @@
+{
+  "id": "pregnancy-maternity",
+  "names": {
+    "de": "Schwangerschaft",
+    "en": "Pregnancy",
+    "th": "การตั้งครรภ์"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Ärztliche Betreuung ist in Thailand gut; Krankenhäuser bieten Kontrolle auf Englisch an. Vor Flügen ab etwa der 28. Woche Bescheinigung der Fluglinie beachten. Notruf Rettung: 1669. Kein medizinischer Rat. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Medical care in Thailand is good and hospitals offer English check-ups. Airlines ask for a certificate from about week 28. Ambulance: 1669. Not medical advice. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "pregnant",
+      "th": "ตั้งครรภ์"
+    },
+    {
+      "en": "week",
+      "th": "สัปดาห์"
+    },
+    {
+      "en": "ultrasound",
+      "th": "อัลตราซาวด์"
+    },
+    {
+      "en": "contraction",
+      "th": "เจ็บท้องคลอด"
+    },
+    {
+      "en": "midwife",
+      "th": "ผดุงครรภ์"
+    },
+    {
+      "en": "blood pressure",
+      "th": "ความดันโลหิต"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am pregnant.",
+      "th": "กำลังตั้งครรภ์",
+      "critical": true
+    },
+    {
+      "en": "I have bleeding. Please help.",
+      "th": "มีเลือดออก ช่วยด้วย",
+      "critical": true
+    },
+    {
+      "en": "I have strong pain in my stomach.",
+      "th": "ปวดท้องมาก",
+      "critical": true
+    },
+    {
+      "en": "I think my waters broke.",
+      "th": "คิดว่าน้ำเดินแล้ว",
+      "critical": true
+    },
+    {
+      "en": "The contractions are every five minutes.",
+      "th": "เจ็บท้องทุกห้านาที",
+      "critical": true
+    },
+    {
+      "en": "The baby is not moving much.",
+      "th": "ลูกดิ้นน้อยลง",
+      "critical": true
+    },
+    {
+      "en": "Please call an ambulance.",
+      "th": "ช่วยเรียกรถพยาบาลหน่อย",
+      "critical": true
+    },
+    {
+      "en": "Is this medicine safe in pregnancy?",
+      "th": "ยานี้ปลอดภัยสำหรับคนท้องไหม",
+      "critical": true
+    },
+    {
+      "en": "I am in my twentieth week.",
+      "th": "ตั้งครรภ์ยี่สิบสัปดาห์แล้ว"
+    },
+    {
+      "en": "I need an ultrasound.",
+      "th": "ต้องการตรวจอัลตราซาวด์"
+    },
+    {
+      "en": "Can I fly at this stage?",
+      "th": "อายุครรภ์เท่านี้นั่งเครื่องบินได้ไหม"
+    },
+    {
+      "en": "Do I need a certificate for the airline?",
+      "th": "ต้องมีใบรับรองแพทย์สำหรับสายการบินไหม"
+    },
+    {
+      "en": "I feel nauseous all day.",
+      "th": "คลื่นไส้ทั้งวัน"
+    },
+    {
+      "en": "Is there a doctor who speaks English?",
+      "th": "มีแพทย์ที่พูดภาษาอังกฤษไหม"
+    },
+    {
+      "en": "What does it cost to give birth here?",
+      "th": "คลอดที่นี่ค่าใช้จ่ายเท่าไร"
+    }
+  ]
+}
