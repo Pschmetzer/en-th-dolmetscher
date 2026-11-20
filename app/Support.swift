@@ -63,7 +63,9 @@ extension EngineModel {
     /// `from`: nur diese Einträge (z. B. die Treffer der Suche); sonst der ganze Verlauf.
     func transcript(_ format: ExportFormat, from subset: [Utterance]? = nil) -> String {
         let done = (subset ?? items).filter { !$0.pending }
-        let df = DateFormatter(); df.dateFormat = "HH:mm:ss"
+        // Über Mitternacht hinaus: Datum in jeder Zeile (sonst sind die Uhrzeiten mehrdeutig)
+        let multiDay = Set(done.map { Calendar.current.startOfDay(for: $0.date) }).count > 1
+        let df = DateFormatter(); df.dateFormat = multiDay ? "yyyy-MM-dd HH:mm:ss" : "HH:mm:ss"
         let day = DateFormatter()
         day.dateStyle = .long; day.timeStyle = .short
         day.calendar = Calendar(identifier: .gregorian)
