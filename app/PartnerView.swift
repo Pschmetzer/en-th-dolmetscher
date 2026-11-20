@@ -23,8 +23,10 @@ struct PartnerView: View {
     @AppStorage("partnerFullscreen") private var wasFullscreen = false
 
     /// Startschriftgröße aus Fenstergröße und Textlänge (minimumScaleFactor fängt den Rest ab).
-    private func fontSize(for text: String, in size: CGSize) -> CGFloat {
+    /// Thai (keine Versalien, enge Zeilen) bekommt einen Aufschlag (`PartnerScript`), damit es am Tisch gleich gut lesbar ist.
+    private func fontSize(for text: String, lang: String, in size: CGSize) -> CGFloat {
         CGFloat(PartnerLogic.fontSize(length: text.count, width: size.width, height: size.height)) * CGFloat(zoom)
+            * CGFloat(PartnerScript.boost(lang: lang))
     }
 
     private func langColor(_ code: String) -> Color { highContrast ? .white : LangStyle.onBlack(code) }
@@ -132,7 +134,7 @@ struct PartnerView: View {
                 GeometryReader { geo in
                 VStack(spacing: 28) {
                     Spacer(minLength: 0)
-                    let fs = fontSize(for: u.out, in: geo.size)
+                    let fs = fontSize(for: u.out, lang: u.to, in: geo.size)
                     Text(LangStyle.flag(u.to) + " " + LangStyle.name(u.to))   // Sprache auch als Text, nicht nur als Farbe
                         .font(.system(size: 22, weight: .semibold))
                         .foregroundStyle(Color(white: highContrast ? 1 : 0.7))
@@ -143,6 +145,13 @@ struct PartnerView: View {
                         .multilineTextAlignment(.center)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .accessibilityLabel(Text(a11yAttributed([("\(LangStyle.name(u.to)): ", nil), (u.out, u.to)])))
+                    if u.numWarn {   // Zahlen in Original und Übersetzung stimmen nicht überein: auch für die Partnerin sichtbar
+                        Label(L.t("num_warn"), systemImage: "exclamationmark.triangle.fill")
+                            .font(.system(size: 26, weight: .bold))
+                            .foregroundStyle(.black)
+                            .padding(.horizontal, 16).padding(.vertical, 6)
+                            .background(Color(red: 1, green: 0.9, blue: 0.2), in: Capsule())
+                    }
                     if translit, u.translated, let latin = u.outLatin, !latin.isEmpty {
                         Text(latin)
                             .font(.system(size: fs * 0.4))

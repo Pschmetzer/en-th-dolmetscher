@@ -12,13 +12,30 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from _presetlib import load_packs, norm  # noqa: E402
 
 
+def extra_keywords():
+    """Deutsche/thailaendische Suchbegriffe je Paket (tools/preset_keywords.json); leer, wenn die Datei fehlt."""
+    f = pathlib.Path(__file__).resolve().parent / "preset_keywords.json"
+    try:
+        return json.loads(f.read_text(encoding="utf-8"))["keywords"]
+    except (OSError, ValueError, KeyError):
+        return {}
+
+
 def search(packs, query, critical_only=False):
     q = norm(query)
     if not q:
         return []
     hits = []
+    kws = extra_keywords()
     for name, d in packs:
         pid = d.get("id", name[:-5])
+        if not critical_only:
+            for lang, words in (kws.get(pid) or {}).items():
+                for w in words:
+                    if q in norm(w):
+                        hits.append({"pack": pid, "where": "keyword", "en": d["names"].get("en", ""),
+                                     "th": d["names"].get("th", ""), "lang": lang, "keyword": w})
+                        break
         for lang, text in (d.get("names") or {}).items():
             if q in norm(text):
                 hits.append({"pack": pid, "where": "name", "en": d["names"].get("en", ""),

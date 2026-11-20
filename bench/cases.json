@@ -27,7 +27,6 @@
   {"id": "th26", "lang": "th", "text": "ช่วยพูดช้าๆหน่อยได้ไหมครับ", "en_ref": "Could you please speak a little slower?", "tags": ["question", "repeat"]},
   {"id": "th27", "lang": "th", "text": "เมื่อวานฉันไปตลาดนัดจตุจักรกับเพื่อนสองคน เดินตั้งแต่ 10 โมงเช้าจนถึงบ่าย 3 โมง ซื้อเสื้อผ้า รองเท้า แล้วก็ของฝากให้แม่ด้วย ร้อนมากและเหนื่อยมาก แต่สนุกมากๆเลยค่ะ อยากไปอีกเดือนหน้า", "en_ref": "Yesterday I went to Chatuchak weekend market with two friends. We walked from 10 in the morning until 3 in the afternoon, bought clothes, shoes and souvenirs for my mother too. It was very hot and very tiring, but really fun. I want to go again next month.", "tags": ["long", "place", "time", "num"]},
   {"id": "th28", "lang": "th", "text": "ถ้าพรุ่งนี้ฝนไม่ตก เราจะออกจากโรงแรมตอน 7 โมงเช้า นั่งรถตู้ไปอยุธยาประมาณ 2 ชั่วโมง เที่ยววัดเก่าๆ กินก๋วยเตี๋ยวเรือ แล้วค่อยกลับกรุงเทพตอนเย็นนะครับ ใครอยากไปด้วยบอกผมได้เลย", "en_ref": "If it doesn't rain tomorrow, we will leave the hotel at 7 in the morning, take a van to Ayutthaya for about 2 hours, visit the old temples, eat boat noodles, and then come back to Bangkok in the evening. Whoever wants to come along, just tell me.", "tags": ["long", "place", "time", "num", "particle"]},
-
   {"id": "en01", "lang": "en", "text": "Where is the nearest train station?", "th_ref": "สถานีรถไฟที่ใกล้ที่สุดอยู่ที่ไหน", "tags": ["question", "place"]},
   {"id": "en02", "lang": "en", "text": "How much does this cost?", "th_ref": "อันนี้ราคาเท่าไหร่", "tags": ["question", "price", "short"]},
   {"id": "en03", "lang": "en", "text": "Can I have the bill, please?", "th_ref": "เช็คบิลด้วย", "tags": ["food", "short"]},
@@ -50,5 +49,17 @@
   {"id": "en20", "lang": "en", "text": "Translator, Thai only.", "tags": ["command"], "expect_command": "thai"},
   {"id": "th40", "lang": "th", "text": "ผมจะไปประชุมที่ออฟฟิศตอนสิบโมงนะครับ", "en_ref": "I will go to the meeting at the office at ten o'clock.", "tags": ["code-switch", "time", "num"]},
   {"id": "th41", "lang": "th", "text": "ขอ Wi-Fi password หน่อยได้ไหมคะ", "en_ref": "Could I have the Wi-Fi password, please?", "tags": ["code-switch", "question"]},
-  {"id": "th42", "lang": "th", "text": "ชื่อของฉันคือสมชาย อยู่ที่โรงแรมสยามค่ะ", "en_ref": "My name is Somchai and I'm staying at the Siam Hotel.", "tags": ["name", "place"]}
+  {"id": "th42", "lang": "th", "text": "ชื่อของฉันคือสมชาย อยู่ที่โรงแรมสยามค่ะ", "en_ref": "My name is Somchai and I'm staying at the Siam Hotel.", "tags": ["name", "place"]},
+  {"id": "th43", "lang": "th", "text": "ห้องของผมคือห้อง 1507 ชั้น 15 ครับ", "en_ref": "My room is 1507 on the 15th floor.", "tags": ["num", "digits", "place", "particle"]},
+  {"id": "th44", "lang": "th", "text": "เบอร์โทรของฉันคือ 081 234 5678 ค่ะ", "en_ref": "My phone number is 081 234 5678.", "tags": ["num", "phone", "digits", "particle"]},
+  {"id": "th45", "lang": "th", "text": "ช่วยโทรหาผมที่เบอร์ 02 123 4567 ได้ไหมครับ", "en_ref": "Could you call me on 02 123 4567?", "tags": ["num", "phone", "digits", "question"]},
+  {"id": "th46", "lang": "th", "text": "เครื่องบินออกเวลา 14:35 น. ที่ประตู 22 ครับ", "en_ref": "The flight leaves at 14:35 from gate 22.", "tags": ["num", "time", "clock", "place"]},
+  {"id": "th47", "lang": "th", "text": "นัดกันตอนบ่ายสองโมงครึ่งนะคะ", "en_ref": "Let's meet at half past two in the afternoon.", "tags": ["num", "time", "particle"]},
+  {"id": "th48", "lang": "th", "text": "ทั้งหมด 1,250 บาท ทอนเงิน 750 บาทค่ะ", "en_ref": "The total is 1,250 baht, and your change is 750 baht.", "tags": ["num", "price", "digits"]},
+  {"id": "en21", "lang": "en", "text": "My phone number is 081 234 5678.", "th_ref": "เบอร์โทรของฉันคือ 081 234 5678", "tags": ["num", "phone", "digits"]},
+  {"id": "en22", "lang": "en", "text": "Please call the hotel on 02 123 4567.", "th_ref": "กรุณาโทรหาโรงแรมที่เบอร์ 02 123 4567", "tags": ["num", "phone", "digits"]},
+  {"id": "en23", "lang": "en", "text": "The flight leaves at 14:35 from gate 22.", "th_ref": "เครื่องบินออกเวลา 14:35 น. ที่ประตู 22", "tags": ["num", "time", "clock"]},
+  {"id": "en24", "lang": "en", "text": "Breakfast is served from 6:30 to 10:00.", "th_ref": "เสิร์ฟอาหารเช้าตั้งแต่ 6:30 ถึง 10:00", "tags": ["num", "time", "clock"]},
+  {"id": "en25", "lang": "en", "text": "The total is 1,250 baht and your change is 750 baht.", "th_ref": "ทั้งหมด 1,250 บาท ทอนเงิน 750 บาท", "tags": ["num", "price", "digits"]},
+  {"id": "en26", "lang": "en", "text": "My room is 1507 on the 15th floor.", "th_ref": "ห้องของฉันคือห้อง 1507 ชั้น 15", "tags": ["num", "digits", "place"]}
 ]

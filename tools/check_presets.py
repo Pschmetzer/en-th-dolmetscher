@@ -12,6 +12,7 @@ import json
 import pathlib
 import re
 import sys
+import unicodedata
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
@@ -23,6 +24,8 @@ STYLES = {"casual", "neutral", "polite"}
 PARTICLES = re.compile(r"(ครับ|ค่ะ|คะ)")
 PRONOUNS = re.compile(r"(ฉัน|^ผม)")  # ผม mitten im Satz heisst oft "Haar"
 NUMBERS = re.compile(r"\d+")        # Notrufnummern, Preise, Uhrzeiten muessen in beiden Sprachen gleich sein
+THAI_DIGITS = re.compile("[๐-๙]")   # Runde 23: ein Satz nutzt Ziffern einheitlich (arabisch), nie gemischt
+CURRENCY = re.compile(r"(฿|\bTHB\b|\bbaht\b)", re.I)
 WARN_LEN = 120
 MAX_LEN = 200
 
@@ -133,6 +136,20 @@ def check_phrases(fname, d, out):
             if en is not None and NUMBERS.search(th) and sorted(NUMBERS.findall(en)) != sorted(NUMBERS.findall(th)):
                 out.append(("W", w, "Zahlen in en und th verschieden (%s / %s)"
                             % (" ".join(NUMBERS.findall(en)) or "-", " ".join(NUMBERS.findall(th)) or "-")))
+        if isinstance(th, str):
+            if unicodedata.normalize("NFC", th) != th:
+                out.append(("E", w, "th nicht NFC-normalisiert"))
+            if re.search("[\u200b-\u200d\ufeff\u00a0]", th):
+                out.append(("E", w, "th enthaelt unsichtbare Zeichen (Zero-Width/NBSP)"))
+            if re.search("\u0e4d\u0e32|\u0e40\u0e40|([\u0e31\u0e34-\u0e3a\u0e47-\u0e4e])\\1", th):
+                out.append(("W", w, "th: ungueltige Zeichenfolge (doppeltes Vokal-/Tonzeichen, Nikhahit+Sara-Aa)"))
+            if THAI_DIGITS.search(th) and NUMBERS.search(th):
+                out.append(("W", w, "th mischt thailaendische und arabische Ziffern"))
+            if THAI_DIGITS.search(th):
+                out.append(("W", w, "th nutzt thailaendische Ziffern (einheitlich arabisch schreiben)"))
+            baht_missing = isinstance(en, str) and CURRENCY.search(en) and "บาท" not in th and NUMBERS.search(en)
+            if "฿" in th or baht_missing:
+                out.append(("W", w, "Waehrung: Zahl mit baht in en braucht บาท in th (kein ฿)"))
         if "{p}" in str(en) + str(th):
             out.append(("E", w, "{p}-Platzhalter nicht erlaubt"))
 

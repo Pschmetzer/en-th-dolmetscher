@@ -20,6 +20,8 @@ final class HistoryStore: ObservableObject {
     @Published var loading = false
     @Published var failed = false
     @Published var lastRemoved: String?
+    /// Alle Sitzungen der letzten Entfernen-Aktion (bei Mehrfachauswahl mehrere); „Rückgängig“ holt sie gemeinsam zurück.
+    private var lastRemovedIDs: [String] = []
     private var undoTask: Task<Void, Never>?
 
     private static func loadMeta() -> HistoryMeta {
@@ -64,9 +66,13 @@ final class HistoryStore: ObservableObject {
     func rename(_ id: String, to name: String) { meta = HistoryLogic.renamed(meta, id: id, to: name) }
     func toggleFavorite(_ id: String) { meta = HistoryLogic.toggledFavorite(meta, id: id) }
 
-    func remove(_ id: String) {
-        meta = HistoryLogic.hiding(meta, id: id)
-        lastRemoved = id
+    func remove(_ id: String) { removeMany([id]) }
+
+    func removeMany(_ ids: [String]) {
+        guard let first = ids.first else { return }
+        for id in ids { meta = HistoryLogic.hiding(meta, id: id) }
+        lastRemovedIDs = ids
+        lastRemoved = first
         undoTask?.cancel()
         undoTask = Task { [weak self] in
             try? await Task.sleep(nanoseconds: 12_000_000_000)
@@ -75,8 +81,9 @@ final class HistoryStore: ObservableObject {
     }
 
     func undoRemove() {
-        guard let id = lastRemoved else { return }
-        meta = HistoryLogic.restoring(meta, id: id)
+        guard lastRemoved != nil else { return }
+        for id in lastRemovedIDs { meta = HistoryLogic.restoring(meta, id: id) }
+        lastRemovedIDs = []
         lastRemoved = nil
         undoTask?.cancel()
     }
@@ -106,7 +113,15 @@ struct HistoryView: View {
     @EnvironmentObject var m: EngineModel
     @StateObject private var store = HistoryStore()
     @State private var filter = HistoryFilter()
-    @State private var selection: String?
+    /// Runde 23: Mehrfachauswahl (⌘/⇧-Klick). `selection` ist die einzelne Sitzung, sonst nil.
+    @State private var multi: Set<String> = []
+    @State private var facet = R23HistoryFacet()
+    @State private var confirmRemoveMany = false
+    @ObservedObject private var sensitive = SensitiveSession.shared
+    private var selection: String? {
+        get { multi.count == 1 ? multi.first : nil }
+        nonmutating set { multi = newValue.map { [$0] } ?? [] }
+    }
     @State private var confirmRemove: String?
     @State private var renaming: String?
     @State private var renameText = ""
@@ -115,7 +130,10 @@ struct HistoryView: View {
     @AppStorage(L.key) private var uiLang = L.defaultCode
 
     private var result: (sessions: [HistorySession], hits: Int) {
-        HistoryLogic.apply(store.sessions, filter: filter, meta: store.meta)
+        let r = HistoryLogic.apply(store.sessions, filter: filter, meta: store.meta)
+        guard facet.isActive else { return r }
+        let narrowed = R23History.apply(r.sessions, facet: facet)
+        return (narrowed, narrowed.reduce(0) { $0 + $1.rows.count })
     }
 
     var body: some View {
@@ -123,6 +141,10 @@ struct HistoryView: View {
         let res = result
         let days = HistoryLogic.days(res.sessions)
         VStack(spacing: 0) {
+            if sensitive.active {
+                Label(R23T.t("sensitive_banner"), systemImage: "eye.slash")
+                    .font(.callout).padding(8).frame(maxWidth: .infinity, alignment: .leading).background(.yellow.opacity(0.2))
+            }
             controls(res.hits)
             Divider()
             HSplitView {
@@ -159,17 +181,18 @@ struct HistoryView: View {
             Button("") { searchFocused = true }.keyboardShortcut("f", modifiers: .command)
                 .frame(width: 0, height: 0).opacity(0).accessibilityHidden(true)
             filterMenu
-            if filter.isActive {
+            facetMenu
+            if filter.isActive || facet.isActive {
                 Text(L.f("hist_hits", hits)).foregroundStyle(.secondary).monospacedDigit()
                     .accessibilityLabel(L.f("hist_hits", hits))
-                Button(L.t("reset_filter")) { filter = HistoryFilter() }
+                Button(L.t("reset_filter")) { filter = HistoryFilter(); facet = R23HistoryFacet() }
             }
             Spacer()
             if store.loading { ProgressView().controlSize(.small).accessibilityLabel(L.t("hist_loading")) }
             Button { showStats.toggle() } label: { Image(systemName: "chart.bar") }
                 .help(L.t("hist_stats")).accessibilityLabel(L.t("hist_stats"))
                 .disabled(store.sessions.isEmpty)
-                .popover(isPresented: $showStats) { statsView }
+                .popover(isPresented: $showStats) { R23StatsDashboard(sessions: store.sessions, base: HistoryLogic.stats(store.sessions)) }
             Button { store.reload() } label: { Image(systemName: "arrow.clockwise") }
                 .help(L.t("hist_reload")).accessibilityLabel(L.t("hist_reload"))
                 .keyboardShortcut("r", modifiers: [.command, .shift])
@@ -177,26 +200,24 @@ struct HistoryView: View {
         .padding(.horizontal, 12).padding(.vertical, 8)
     }
 
-    private var statsView: some View {
-        let st = HistoryLogic.stats(store.sessions)
-        return VStack(alignment: .leading, spacing: 8) {
-            Text(L.t("hist_stats")).font(.headline)
-            Text(L.f("hist_stats_totals", st.utterances, st.sessions, st.words)).monospacedDigit()
-            if !st.perDay.isEmpty {
-                Divider()
-                ForEach(st.perDay, id: \.0) { d in
-                    HStack { Text(d.0).monospacedDigit(); Spacer(); Text("\(d.1)").monospacedDigit() }
-                }
+    /// Runde 23: Sprecher und Zeitraum (die Sprache steckt im Filter-Menü daneben).
+    private var facetMenu: some View {
+        Menu {
+            Picker(R23T.t("hist_f_speaker"), selection: $facet.speaker) {
+                Text(L.t("hist_f_all")).tag("")
+                ForEach(R23History.speakers(in: store.sessions), id: \.self) { Text(R23StatsDashboard.speakerName($0)).tag($0) }
             }
-            if !st.top.isEmpty {
-                Divider()
-                Text(L.t("hist_stats_top")).font(.subheadline).foregroundStyle(.secondary)
-                ForEach(st.top, id: \.0) { t in
-                    HStack { Text(t.0).lineLimit(1); Spacer(); Text("×\(t.1)").monospacedDigit() }
-                }
+            Picker(R23T.t("hist_f_date"), selection: $facet.datePreset) {
+                Text(R23T.t("hist_d_all")).tag(R23DatePreset.all)
+                Text(R23T.t("hist_d_today")).tag(R23DatePreset.today)
+                Text(R23T.t("hist_d_week")).tag(R23DatePreset.week)
+                Text(R23T.t("hist_d_month")).tag(R23DatePreset.month)
             }
+        } label: {
+            Label(R23T.t("hist_f_date") + " / " + R23T.t("hist_f_speaker"),
+                  systemImage: facet.isActive ? "person.crop.circle.badge.checkmark" : "person.crop.circle")
         }
-        .padding(16).frame(width: 320)
+        .fixedSize().accessibilityLabel(R23T.t("hist_f_date") + " / " + R23T.t("hist_f_speaker"))
     }
 
     private var filterMenu: some View {
@@ -226,7 +247,7 @@ struct HistoryView: View {
     // MARK: Liste nach Tag und Sitzung
 
     private func list(_ days: [HistoryDay]) -> some View {
-        List(selection: $selection) {
+        List(selection: $multi) {
             ForEach(days) { d in
                 Section {
                     ForEach(d.sessions) { s in row(s).tag(s.id) }
@@ -236,7 +257,9 @@ struct HistoryView: View {
             }
             if days.isEmpty { emptyNote }
         }
-        .onDeleteCommand { if let id = selection { confirmRemove = id } }
+        .onDeleteCommand {
+            if multi.count > 1 { confirmRemoveMany = true } else if let id = selection { confirmRemove = id }
+        }
         .onKeyPress(.return) { openSelected(); return selection == nil ? .ignored : .handled }
         .accessibilityLabel(L.t("hist_list"))
     }
@@ -295,7 +318,9 @@ struct HistoryView: View {
     // MARK: Detail (nur lesen)
 
     @ViewBuilder private func detail(_ sessions: [HistorySession]) -> some View {
-        if let id = selection, let s = sessions.first(where: { $0.id == id }) {
+        if multi.count > 1 {
+            multiPanel(R23History.selected(sessions, ids: multi))
+        } else if let id = selection, let s = sessions.first(where: { $0.id == id }) {
             VStack(spacing: 0) {
                 HStack {
                     Text(store.title(s)).font(.title3.bold()).lineLimit(1).accessibilityAddTraits(.isHeader)
@@ -315,6 +340,7 @@ struct HistoryView: View {
                         Button("WebVTT (.vtt)") { exportSession(s, .vtt) }
                         Button("Text (.txt)") { exportSession(s, .text) }
                         Button("JSON (.json)") { exportSession(s, .json) }
+                        Button(R23T.t("hist_anki")) { exportMerged([s], .anki) }
                     } label: { Image(systemName: "square.and.arrow.up") }
                         .menuStyle(.borderlessButton).fixedSize()
                         .help(L.t("hist_export")).accessibilityLabel(L.t("hist_export"))
@@ -332,7 +358,11 @@ struct HistoryView: View {
                 }
             }
         } else {
-            Text(L.t("hist_pick")).foregroundStyle(.secondary).frame(maxWidth: .infinity, maxHeight: .infinity)
+            VStack(spacing: 6) {
+                Text(L.t("hist_pick"))
+                Text(R23T.t("hist_sel_hint")).font(.caption)
+            }
+            .foregroundStyle(.secondary).frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 
@@ -348,6 +378,57 @@ struct HistoryView: View {
         .accessibilityLabel(time + ", " + r.lang.uppercased() + ": " + r.text
                             + (r.translation.isEmpty ? "" : ". " + r.translation)
                             + (r.translit.isEmpty ? "" : ". " + r.translit))
+    }
+
+    // MARK: Runde 23: Auswahl mehrerer Sitzungen
+
+    private func multiPanel(_ sel: [HistorySession]) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(R23T.f("hist_sel_n", sel.count)).font(.title3.bold()).accessibilityAddTraits(.isHeader)
+            Text(L.f("hist_count", sel.reduce(0) { $0 + $1.rows.count })).foregroundStyle(.secondary)
+            Menu(R23T.t("hist_sel_export")) {
+                Button(R23T.t("hist_merged_md")) { exportMerged(sel, .markdown) }
+                Button(R23T.t("hist_merged_srt")) { exportMerged(sel, .srt) }
+                Button(R23T.t("hist_merged_vtt")) { exportMerged(sel, .vtt) }
+                Button(R23T.t("hist_anki")) { exportMerged(sel, .anki) }
+            }
+            .fixedSize()
+            Button(R23T.t("hist_sel_remove"), role: .destructive) { confirmRemoveMany = true }
+            Button(R23T.t("hist_sel_clear")) { multi = [] }
+            Spacer()
+        }
+        .padding(16).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .confirmationDialog(R23T.t("hist_sel_remove_confirm"), isPresented: $confirmRemoveMany, titleVisibility: .visible) {
+            Button(L.t("hist_remove"), role: .destructive) {
+                store.removeMany(Array(multi))
+                multi = []
+            }
+            Button(L.t("cancel"), role: .cancel) {}
+        } message: { Text(L.t("hist_remove_note")) }
+    }
+
+    private enum MergedKind { case markdown, srt, vtt, anki
+        var ext: String { switch self { case .markdown: return "md"; case .srt: return "srt"; case .vtt: return "vtt"; case .anki: return "csv" } }
+    }
+
+    /// Mehrere Sitzungen (oder eine als Anki-Karten) in eine Datei.
+    private func exportMerged(_ sel: [HistorySession], _ kind: MergedKind) {
+        let text: String
+        switch kind {
+        case .markdown: text = R23History.markdown(sel, title: R23T.t("hist_merged_title"))
+        case .srt: text = R23History.subtitles(sel, vtt: false)
+        case .vtt: text = R23History.subtitles(sel, vtt: true)
+        case .anki: text = R23History.ankiCSV(sel)
+        }
+        let nothing = kind == .anki ? text.split(separator: "\n").filter { !$0.hasPrefix("#") }.isEmpty : text.isEmpty
+        if nothing { Announcer.post(R23T.t("hist_nothing_to_export"), force: true); NSSound.beep(); return }
+        let panel = NSSavePanel()
+        panel.title = L.t("hist_export")
+        panel.nameFieldStringValue = ExportFormats.fileName(base: sel.count == 1 ? store.title(sel[0]) : R23T.t("hist_merged_title"),
+                                                            date: sel.first?.start ?? Date(), ext: kind.ext)
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do { try ExportFormats.fileData(text, csv: false).write(to: url, options: .atomic) }
+        catch { NSAlert(error: error).runModal() }
     }
 
     // MARK: Rückgängig, Umbenennen, Öffnen

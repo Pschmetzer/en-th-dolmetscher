@@ -268,6 +268,8 @@ def test_player_wait_watchdog(monkeypatch):
 
 
 def test_produce_always_sends_end_marker(monkeypatch):
+    pytest.importorskip("edge_tts")
+    pytest.importorskip("aiohttp")
     monkeypatch.setattr(d, "_ssml", lambda *a: "ssml")
 
     async def boom(ssml, put, stopped):

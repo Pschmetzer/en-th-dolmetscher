@@ -31,7 +31,7 @@ Nur Fakten aus [DATENSCHUTZ.md](DATENSCHUTZ.md), dort stehen Einzelheiten und Au
 ## iPhone
 
 - Spracherkennung auf dem Gerät, das Audio wird nicht gesendet und nicht gespeichert.
-- MyMemory (nur als Ersatz, nur mit eingeschaltetem „Online-Übersetzer als Ersatz“) wird per GET abgefragt, der Text steht dabei in der URL.
+- Online-Übersetzer (nur mit eingeschaltetem „Online-Übersetzer als Ersatz“): Google Translate, per POST im Anfrage-Body. Antwortet Google nach 1,2 s nicht, startet MyMemory parallel (ebenfalls per POST); der Text geht dann kurz an beide Dienste und steht nie in der URL.
 - Verlauf lokal in `history.json`, standardmäßig 30 Tage (einstellbar, 0 schaltet ab), per Face ID sperrbar. „Alle Daten löschen“ steht in den Einstellungen.
 - Der Standort wird nur auf dem Bildschirm „Hilfe – jetzt“ benutzt und weder gespeichert noch von der App gesendet.
 - Das Whisper-Modell lädt die App nur, wenn du auf „Modell laden“ tippst (von Hugging Face).

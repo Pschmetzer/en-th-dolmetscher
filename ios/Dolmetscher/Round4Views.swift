@@ -196,6 +196,12 @@ struct PlacesView: View {
     var body: some View {
         NavigationStack {
             List {
+                if m.features.thaiExtras {
+                    Section {
+                        NavigationLink { TaxiCardView() } label: { Label(T("r32_taxi"), systemImage: "car.fill") }
+                        NavigationLink { PriceHelperView() } label: { Label(T("r32_price_help"), systemImage: "bahtsign.circle") }
+                    }
+                }
                 if m.places.isEmpty {
                     Text(T("places_empty")).foregroundStyle(.secondary)
                 }
@@ -442,6 +448,7 @@ struct HelpNowView: View {
                 Section {
                     Text(helpThai).font(.system(size: scaled40, weight: .heavy)).foregroundStyle(StatusColor.error)
                     Text(T("help_need")).font(.title3).foregroundStyle(.secondary)
+                    WordTapText(text: helpThai, font: .title3.weight(.semibold))
                     Button { m.announce(helpThai, lang: .th) } label: { Label(T("replay"), systemImage: "speaker.wave.3.fill") }
                 }
                 if !m.emergency.hotel.isEmpty {
@@ -488,7 +495,7 @@ struct DialRow: View {
     var body: some View {
         if let url = URL(string: "tel:\(number)") {
             Link(destination: url) {
-                HStack(spacing: 14) {
+                AdaptiveStack(spacing: 14) {
                     Image(systemName: icon).foregroundStyle(StatusColor.error).frame(width: iconWidth).accessibilityHidden(true)
                     VStack(alignment: .leading) {
                         Text(en).font(.headline)
@@ -499,6 +506,7 @@ struct DialRow: View {
                 }
             }
             .accessibilityLabel("\(en), \(number)")
+            .accessibilityHint(T("emergency_numbers"))
         }
     }
 }

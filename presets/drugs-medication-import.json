@@ -1,0 +1,134 @@
+{
+  "id": "drugs-medication-import",
+  "names": {
+    "de": "Medikamente einführen",
+    "en": "Bringing medication in",
+    "th": "นำยาเข้าประเทศไทย"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Medikamente für den Eigenbedarf sind meist erlaubt, Vorrat für etwa einen Monat in Originalverpackung, dazu Arztbrief und Rezept auf Englisch. Betäubungsmittel und manche Psychopharmaka brauchen eine vorherige Genehmigung. Vor der Reise bei Botschaft oder Gesundheitsbehörde nachfragen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Medicine for personal use is usually allowed: about one month's supply in original packaging, with a doctor's letter and prescription in English. Narcotics and some psychiatric drugs need prior permission. Ask your embassy or the health authority before travelling. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "prescription",
+      "th": "ใบสั่งยา"
+    },
+    {
+      "en": "permit",
+      "th": "ใบอนุญาต"
+    },
+    {
+      "en": "customs",
+      "th": "ศุลกากร"
+    },
+    {
+      "en": "doctor's letter",
+      "th": "จดหมายจากแพทย์"
+    },
+    {
+      "en": "tablet",
+      "th": "ยาเม็ด"
+    },
+    {
+      "en": "supply",
+      "th": "ปริมาณยา"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I need this medicine every day.",
+      "th": "ต้องใช้ยานี้ทุกวัน",
+      "critical": true
+    },
+    {
+      "en": "Please do not confiscate my medicine.",
+      "th": "ขออย่ายึดยานี้",
+      "critical": true
+    },
+    {
+      "en": "This medicine is essential for my health.",
+      "th": "ยานี้จำเป็นต่อสุขภาพ",
+      "critical": true
+    },
+    {
+      "en": "I have a heart condition and need these tablets.",
+      "th": "เป็นโรคหัวใจและต้องใช้ยาเม็ดนี้",
+      "critical": true
+    },
+    {
+      "en": "I have a doctor's letter for this medicine.",
+      "th": "มีจดหมายจากแพทย์สำหรับยานี้",
+      "critical": true
+    },
+    {
+      "en": "I have prescription medicine for personal use.",
+      "th": "มียาตามใบสั่งแพทย์ไว้ใช้เอง"
+    },
+    {
+      "en": "These are in the original packaging.",
+      "th": "ยาอยู่ในบรรจุภัณฑ์เดิม"
+    },
+    {
+      "en": "Do I need a permit for this medicine?",
+      "th": "ยานี้ต้องมีใบอนุญาตไหม"
+    },
+    {
+      "en": "Is this medicine allowed in Thailand?",
+      "th": "ยานี้นำเข้าประเทศไทยได้ไหม"
+    },
+    {
+      "en": "This is for my chronic condition.",
+      "th": "ใช้รักษาโรคเรื้อรัง"
+    },
+    {
+      "en": "It contains a controlled substance.",
+      "th": "มียาควบคุมพิเศษอยู่ด้วย"
+    },
+    {
+      "en": "I have a supply for one month.",
+      "th": "มียาสำหรับหนึ่งเดือน"
+    },
+    {
+      "en": "Where do I declare medication?",
+      "th": "แจ้งยาที่ไหน"
+    },
+    {
+      "en": "May I show you the prescription?",
+      "th": "ขอแสดงใบสั่งยาได้ไหม"
+    },
+    {
+      "en": "Here is my prescription in English.",
+      "th": "นี่คือใบสั่งยาภาษาอังกฤษ"
+    },
+    {
+      "en": "Is a translation of the letter necessary?",
+      "th": "ต้องแปลจดหมายด้วยไหม"
+    },
+    {
+      "en": "Can I speak to an officer who speaks English?",
+      "th": "ขอคุยกับเจ้าหน้าที่ที่พูดภาษาอังกฤษได้ไหม"
+    },
+    {
+      "en": "Can I carry this in my hand luggage?",
+      "th": "พกไว้ในกระเป๋าถือขึ้นเครื่องได้ไหม"
+    },
+    {
+      "en": "It must stay cool. Is there a fridge?",
+      "th": "ยานี้ต้องเก็บเย็น มีตู้เย็นไหม"
+    },
+    {
+      "en": "Can I post medicine from home?",
+      "th": "ส่งยาจากต่างประเทศมาทางไปรษณีย์ได้ไหม"
+    },
+    {
+      "en": "Which authority should I ask?",
+      "th": "ควรสอบถามหน่วยงานไหน"
+    },
+    {
+      "en": "I did not know about this rule.",
+      "th": "ไม่ทราบกฎข้อนี้"
+    }
+  ]
+}

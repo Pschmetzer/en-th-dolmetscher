@@ -27,6 +27,8 @@ enum SpeechEvent: Sendable {
     case outputRouteLost
     /// Anderes Eingabegerät oder neues Format: Aufnahme neu aufbauen – nicht während einer Unterbrechung.
     case rebuild
+    /// Bluetooth-Headset im HFP-Profil: schmale Tonqualität, die Erkennung leidet – einmal warnen.
+    case narrowbandInput
 }
 
 enum SpeechError: LocalizedError {
