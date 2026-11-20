@@ -1358,7 +1358,7 @@ warn.addEventListener('click', e => {
 let trimWarned = false;
 function addEntry(cls, orig, trans, isErr, from, to) {
   const entry = document.createElement('div');
-  entry.className = 'entry ' + cls;
+  entry.className = 'entry ' + cls; entry.dataset.t = new Date().toISOString();
   entry.innerHTML = `<div class="orig" dir="auto"></div><div class="trans" dir="auto"></div>`;
   const o = entry.querySelector('.orig');
   o.textContent = orig;
@@ -1999,7 +1999,9 @@ function syncStars() { for (const b of document.querySelectorAll('.starbtn')) st
 // ---- Teilen per Link: Text steht nur im #-Teil (geht nie an einen Server) und wird beim Öffnen nur angezeigt ----
 function logCsv(rows) {   // rows: [{orig, trans}] -> CSV; Zellen mit = + - @ bekommen ein ' davor (Tabellenkalkulations-Formeln)
   const cell = v => { let x = String(v || '').replace(/\r?\n/g, ' '); if (/^[=+\-@\t]/.test(x)) x = "'" + x; return '"' + x.replace(/"/g, '""') + '"'; };
-  return ['"original","translation"'].concat(rows.map(r => cell(r.orig) + ',' + cell(r.trans))).join('\r\n') + '\r\n';
+  const ext = rows.some(r => r.t);   // mit Zeit und Sprachen, wenn bekannt (Einträge dieser Sitzung)
+  const head = ext ? '"time","from","to","original","translation"' : '"original","translation"';
+  return [head].concat(rows.map(r => (ext ? cell(r.t) + ',' + cell(r.from) + ',' + cell(r.to) + ',' : '') + cell(r.orig) + ',' + cell(r.trans))).join('\r\n') + '\r\n';
 }
 function learnProgress(list) {   // sicher gelernt = Fach 4 oder 5
   const total = list.length, done = list.filter(c => c.box >= 4).length;
@@ -2117,7 +2119,7 @@ function logRows() {
   return [...log.children].reverse().map(e => {
     const o = e.querySelector('.orig'), tr = e.querySelector('.trans');
     const ok = tr && tr.style.display !== 'none' && !tr.classList.contains('err');
-    return { orig: o && o.firstChild ? o.firstChild.textContent : '', trans: ok && tr.firstChild ? tr.firstChild.textContent : '' };
+    return { orig: o && o.firstChild ? o.firstChild.textContent : '', trans: ok && tr.firstChild ? tr.firstChild.textContent : '', t: e.dataset.t || '', from: o && o.lang || '', to: tr && tr.lang || '' };
   });
 }
 function logSearchText(e) { return [...e.querySelectorAll('.orig,.trans')].map(x => x.firstChild ? x.firstChild.textContent : '').join(' '); }   // nur Original und Übersetzung, nicht die Knopftexte

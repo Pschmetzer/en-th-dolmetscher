@@ -234,3 +234,12 @@ def test_thai_clock_and_phone_words():
                     "thaiClock(17, 0)", "thaiClock(19, 0)", "thaiClock(23, 30)", "thaiClock(24, 0)", "thaiClock(1.5, 0)", "thaiPhone('081-234 5678')", "thaiPhone('12')"])
     assert got == ["เที่ยงคืน", "ตีสาม", "หกโมงเช้าครึ่ง", "สิบเอ็ดโมงเช้าห้านาที", "เที่ยง", "บ่ายโมง", "บ่ายสองโมงสิบห้านาที", "ห้าโมงเย็น", "หนึ่งทุ่ม", "ห้าทุ่มครึ่ง", None, None,
                    "ศูนย์ แปด หนึ่ง สอง สาม สี่ ห้า หก เจ็ด แปด", None]
+
+
+@node
+def test_csv_has_time_and_languages_when_known():
+    pre = prelude(funcs=["logCsv"])
+    got = run(pre, ["logCsv([{ orig: 'hi', trans: 'สวัสดี' }])", "logCsv([{ orig: 'hi', trans: 'สวัสดี', t: '2026-11-20T10:00:00.000Z', from: 'en', to: 'th' }])"])
+    assert got[0].startswith('"original","translation"\r\n"hi","สวัสดี"')
+    assert got[1].startswith('"time","from","to","original","translation"\r\n"2026-11-20T10:00:00.000Z","en","th","hi","สวัสดี"')
+    assert "entry.dataset.t = new Date().toISOString()" in func("addEntry")
