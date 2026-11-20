@@ -413,8 +413,8 @@
   <div id="glossList"></div>
 </details>
 <details data-tab="learn" class="box" id="learnBox">
-  <summary><span data-i18n="learnSumA">Lernen: Karteikarten (</span><span id="learnDue">0</span><span data-i18n="learnSumB"> fällig)</span></summary>
-  <p id="learnInfo" data-i18n="learnInfoT">Mit ☆ gemerkte Sätze (Satzbuch, Verlauf) werden zu Karteikarten: vorne deine Sprache, hinten die Sprache des Partners. Gewusst = später wieder (1, 3, 7, 14 Tage), nicht gewusst = gleich nochmal.</p>
+  <summary><span data-i18n="learnSumA">Lernen: Lernkarten (</span><span id="learnDue">0</span><span data-i18n="learnSumB"> fällig)</span></summary>
+  <p id="learnInfo" data-i18n="learnInfoT">Mit ☆ gemerkte Sätze (Satzbuch, Verlauf) werden zu Lernkarten: vorne deine Sprache, hinten die Sprache des Partners. Gewusst = später wieder (1, 3, 7, 14 Tage), nicht gewusst = gleich nochmal.</p>
   <div class="row">
     <label><input type="checkbox" id="learnRecent"> <span data-i18n="learnRecent">Zuletzt übersetzte Sätze automatisch aufnehmen</span></label>
     <label><input type="checkbox" id="learnListen"> <span data-i18n="learnListen">Hören zuerst</span></label>
@@ -630,9 +630,9 @@ const STR = {
   "condH": "Erkrankungen",
   "bloodLbl": "Blutgruppe",
   "rhLbl": "Rhesus",
-  "learnSumA": "Lernen: Karteikarten (",
+  "learnSumA": "Lernen: Lernkarten (",
   "learnSumB": " fällig)",
-  "learnInfoT": "Mit ☆ gemerkte Sätze (Satzbuch, Verlauf) werden zu Karteikarten: vorne deine Sprache, hinten die Sprache des Partners. Gewusst = später wieder (1, 3, 7, 14 Tage), nicht gewusst = gleich nochmal.",
+  "learnInfoT": "Mit ☆ gemerkte Sätze (Satzbuch, Verlauf) werden zu Lernkarten: vorne deine Sprache, hinten die Sprache des Partners. Gewusst = später wieder (1, 3, 7, 14 Tage), nicht gewusst = gleich nochmal.",
   "skipMain": "Zum Inhalt springen",
   "shareAsk": "Geteilten Text übersetzen? Er wird dafür an Google Translate gesendet.",
   "shareGo": "Übersetzen",
@@ -666,7 +666,7 @@ const STR = {
   "learnHard": "Schwer",
   "learnEasy": "Leicht",
   "learnReset": "Lernstand zurücksetzen",
-  "learnResetConfirm": "Fächer, Termine und Statistik von {n} Karten zurücksetzen? Die Karten bleiben erhalten.",
+  "learnResetConfirm": "Fächer, Termine und Statistik der Karten zurücksetzen (Anzahl: {n})? Die Karten bleiben erhalten.",
   "learnResetDone": "Lernstand zurückgesetzt.",
   "learnLimitDone": "Das Tageslimit für neue Karten ist erreicht – morgen kommen neue.",
   "learnBoxes": "Karten pro Fach: 1: {a} · 2: {b} · 3: {c} · 4: {d} · 5: {e}",
@@ -739,11 +739,11 @@ const STR = {
   "learnAllDone": "Alles gelernt – die nächsten Karten sind später fällig.",
   "learnEmpty": "Noch keine Lernkarten: bei einem Satz ☆ antippen.",
   "learnBoxNr": "Fach {n} von 5 · Rückseite: {l}",
-  "learnClearConfirm": "Alle {n} Lernkarten in diesem Browser löschen?",
+  "learnClearConfirm": "Alle Lernkarten in diesem Browser löschen (Anzahl: {n})?",
   "learnNoneSaved": "Keine Lernkarten gespeichert.",
   "learnNoneExport": "Keine Lernkarten zum Sichern.",
-  "learnAdded": "{n} Karten aufgenommen.",
-  "learnMissing": " {m} Sätze fehlen in {l}: erst im Satzbuch antippen (übersetzt sie einmal).",
+  "learnAdded": "Karten aufgenommen: {n}.",
+  "learnMissing": " Fehlende Sätze in {l}: {m} – erst im Satzbuch antippen (übersetzt sie einmal).",
   "learnSaveFail": "Merken nicht möglich – Übersetzung fehlt (offline?)",
   "learnRemoved": "Lernkarte entfernt",
   "learnSaved": "Als Lernkarte gemerkt",
@@ -789,16 +789,16 @@ const STR = {
   "mcTranslated": "Übersetzt – bei Bedarf von Hand korrigieren",
   "mcTranslateFail": "Übersetzung nicht möglich – Text von Hand eintragen",
   "mcNoneExport": "Keine eigenen Karten zum Exportieren",
-  "mcExported": "{n} Karten exportiert",
+  "mcExported": "Karten exportiert: {n}",
   "mcFileBad": "Datei unbrauchbar oder zu groß",
-  "mcImported": "{n} Karten übernommen, {m} übersprungen",
+  "mcImported": "Karten übernommen: {n}, übersprungen: {m}",
   "mcStorageFull": "Speicher voll – nichts gespeichert. Alte Karten oder Verlauf löschen.",
   "mcNeed": "Name und Text eingeben",
   "pbSeqHint": "Karten antippen zum Auswählen, dann „Folge zeigen“.",
   "pbSeqNone": "Erst Karten auswählen.",
   "reportConfirm": "Fehler an dieser Karte melden? Es öffnet sich eine GitHub-Seite mit vorbefülltem Text. Es wird nichts automatisch gesendet.",
   "printNote": "Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-  "printMissing": " {m} Sätze fehlen in dieser Sprache (erst im Satzbuch antippen).",
+  "printMissing": " Fehlende Sätze in dieser Sprache: {m} (erst im Satzbuch antippen).",
   "pbNoSaved": "Keine gemerkten Übersetzungen.",
   "pbWipeConfirm": "{n} gemerkte Übersetzungen in diesem Browser löschen?",
   "pbWiped": "Gemerkte Übersetzungen gelöscht.",
@@ -1870,7 +1870,7 @@ function criticalFirst(list) {   // stabile Kopie: wichtige Sätze (critical) zu
 $('btnYes').onclick = () => { const l = pair.b; showBig(LANGS[l].yes, l, 'yes'); if ($('speak').checked) sayNow(LANGS[l].yes, l); };
 $('btnNo').onclick = () => { const l = pair.b; showBig(LANGS[l].no, l, 'no'); if ($('speak').checked) sayNow(LANGS[l].no, l); };
 
-// ---- Lernmodus: Karteikarten mit einfachem Leitner-Plan (nur localStorage dieses Browsers) ----
+// ---- Lernmodus: Lernkarten mit einfachem Leitner-Plan (nur localStorage dieses Browsers) ----
 const LEARN_KEY = 'learnV1', LEARN_MAX = 200, LEARN_TXT = 500, DAY = 864e5;
 const RETRY_MS = 10 * 60000;   // falsch beantwortet: nicht sofort wieder dieselbe Karte
 const LEARN_DAYS = [0, 1, 3, 7, 14];   // Fach 1..5: Tage bis zur nächsten Abfrage

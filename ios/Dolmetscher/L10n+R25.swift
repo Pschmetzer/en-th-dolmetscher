@@ -40,10 +40,10 @@ extension L10n {
         ],
         "em_n_header": [
             "de": "Notrufnummern der Partnersprache", "en": "Emergency numbers (partner's language)",
-            "th": "เบอร์ฉุกเฉิน (ประเทศของภาษาคู่สนทนา)", "es": "Números de emergencia (idioma de la pareja)",
-            "fr": "Numéros d’urgence (langue du partenaire)", "ja": "緊急番号(相手の言語の国)",
+            "th": "เบอร์ฉุกเฉิน (ประเทศของภาษาคู่สนทนา)", "es": "Números de emergencia (idioma del interlocutor)",
+            "fr": "Numéros d’urgence (langue de l’interlocuteur)", "ja": "緊急番号(相手の言語の国)",
             "ko": "긴급 번호(상대 언어 국가)", "zh-Hans": "紧急号码（对方语言所在国）",
-            "vi": "Số khẩn cấp (nước của ngôn ngữ đối tác)", "id": "Nomor darurat (negara bahasa mitra)"
+            "vi": "Số khẩn cấp (nước của ngôn ngữ đối phương)", "id": "Nomor darurat (negara bahasa lawan bicara)"
         ],
         "em_n_note": [
             "de": "Richtwert nach Sprache, nicht nach Aufenthaltsort. Vor Ort prüfen; 112 funktioniert in vielen Ländern auch ohne SIM.", "en": "A guide by language, not by your location. Check locally; 112 works without a SIM in many countries.",
@@ -54,10 +54,10 @@ extension L10n {
         ],
         "pb_machine_hint": [
             "de": "Automatisch übersetzt (nicht geprüft). Englische Sätze, übersetzt in die Partnersprache.", "en": "Machine-translated (unchecked). English phrases translated into the partner's language.",
-            "th": "แปลอัตโนมัติ (ไม่ได้ตรวจ) วลีภาษาอังกฤษแปลเป็นภาษาของคู่สนทนา", "es": "Traducción automática (sin revisar). Frases en inglés traducidas al idioma de la pareja.",
-            "fr": "Traduction automatique (non vérifiée). Phrases anglaises traduites dans la langue du partenaire.", "ja": "自動翻訳(未確認)。英語のフレーズを相手の言語に翻訳します。",
+            "th": "แปลอัตโนมัติ (ไม่ได้ตรวจ) วลีภาษาอังกฤษแปลเป็นภาษาของคู่สนทนา", "es": "Traducción automática (sin revisar). Frases en inglés traducidas al idioma del interlocutor.",
+            "fr": "Traduction automatique (non vérifiée). Phrases anglaises traduites dans la langue de l’interlocuteur.", "ja": "自動翻訳(未確認)。英語のフレーズを相手の言語に翻訳します。",
             "ko": "자동 번역(미확인). 영어 문장을 상대 언어로 번역합니다.", "zh-Hans": "机器翻译（未核对）。英文短句译成对方语言。",
-            "vi": "Dịch tự động (chưa kiểm tra). Câu tiếng Anh được dịch sang ngôn ngữ của đối tác.", "id": "Terjemahan otomatis (belum diperiksa). Frasa Inggris diterjemahkan ke bahasa mitra."
+            "vi": "Dịch tự động (chưa kiểm tra). Câu tiếng Anh được dịch sang ngôn ngữ của đối phương.", "id": "Terjemahan otomatis (belum diperiksa). Frasa Inggris diterjemahkan ke bahasa lawan bicara."
         ],
         "pb_machine_row": [
             "de": "wird automatisch übersetzt", "en": "translated automatically",

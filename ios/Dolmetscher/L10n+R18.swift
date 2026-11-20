@@ -61,7 +61,7 @@ extension L10n {
             "vi": "30 ngày qua", "id": "30 hari terakhir"
         ],
         "hs_favs": [
-            "de": "Nur Favoriten", "en": "Favourites only",
+            "de": "Nur Favoriten", "en": "Favorites only",
             "th": "เฉพาะรายการโปรด", "es": "Solo favoritos",
             "fr": "Favoris seulement", "ja": "お気に入りのみ",
             "ko": "즐겨찾기만", "zh-Hans": "仅收藏",
