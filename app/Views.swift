@@ -174,6 +174,8 @@ final class UIDrafts: ObservableObject {
     @Published var langFilter = ""
     @Published var searchOpen = false
     @Published var typedDraft = ""
+    var lastAppearedBubble: UUID?     // zuletzt sichtbar gewordene Blase (kein @Published: kein Neuzeichnen)
+    var wasScrolledUp = false
     @Published var settingsTab = 0
     @Published var settingsQuery = ""
     @Published var showTips: Bool = false
@@ -456,6 +458,7 @@ struct ContentView: View {
                                onCorrect: { if m.viewingSession == nil { correcting = $0 } })
                             .equatable()
                             .id(u.id)
+                            .onAppear { ui.lastAppearedBubble = u.id }   // Anker für die Scrollposition beim Sprachwechsel
                     }
                     // Marke am Ende: sichtbar = der Nutzer ist unten; verschwindet sie nach Hochscrollen, pausiert das Mitscrollen.
                     Color.clear.frame(height: 1)
@@ -486,6 +489,13 @@ struct ContentView: View {
             .onChange(of: shown.last?.pending) {   // Platzhalter wird zur fertigen Blase (gleiche id)
                 if !userScrolledUp { scrollToEnd(sv, animated: true, last: shown.last) }
             }
+            .onAppear {   // nach dem Neuaufbau (.id(uiLang)) an die alte Stelle zurück, falls der Nutzer hochgescrollt war
+                if ui.wasScrolledUp, let id = ui.lastAppearedBubble, shown.contains(where: { $0.id == id }) {
+                    userScrolledUp = true
+                    DispatchQueue.main.async { sv.scrollTo(id, anchor: .center) }
+                }
+            }
+            .onChange(of: userScrolledUp) { ui.wasScrolledUp = userScrolledUp }
             .onChange(of: shown.last?.partial) {   // Teiltext wächst: unten bleiben (ohne Animation, kommt oft)
                 if !userScrolledUp, let last = shown.last, last.pending { scrollToEnd(sv, animated: false, last: last) }
             }
