@@ -6625,6 +6625,8 @@ def record_one(mic="0", timeout=20.0, denoise=False):
         while time.monotonic() < t_end and not STOP.is_set():
             b = ff.stdout.read(N * 2)
             if len(b) < N * 2:
+                if voiced and speech >= 0.5:      # Mikrofon riss nach brauchbarer Sprache ab: Aufnahme behalten
+                    return np.concatenate(buf)
                 if not got and not STOP.is_set() and not _REC_ERR["said"]:
                     _REC_ERR["said"] = True           # einmal je Lauf, nicht bei jedem der 8 Sätze
                     emit("error", code="mic_no_data",
@@ -6984,7 +6986,8 @@ def apply_control(eng, d):
             LLM["on"] = v
             llm_reload()                       # neuer Schlüssel/aufgeladen: keine alte Pause mehr abwarten
             later.append(lambda v=v: emit("llm", on=v, available=bool(llm_available())))   # Nr. 190
-        if d.get("llm_retry"):                 # "Claude erneut versuchen" (nach Schlüsseltausch/Aufladen)
+        ok, v = _flag(d, "llm_retry")          # "false" als Text darf nicht als wahr zählen
+        if ok and v:                           # "Claude erneut versuchen" (nach Schlüsseltausch/Aufladen)
             llm_reload()
         ok, v = _flag(d, "history_speakers")
         if ok:
@@ -7069,7 +7072,7 @@ def apply_control(eng, d):
                             and len(str(p)) <= 64 else {}))
         if isinstance(d.get("say"), dict):
             s = d["say"]
-            text, lang = _text_arg(s.get("text")), s.get("lang", "en")
+            text, lang = _text_arg(s.get("text")), s.get("lang", PAIR[0])   # ohne Angabe: meine Sprache
             if text and isinstance(lang, str) and lang in TARGET:
                 jobs.append(lambda: eng.say_phrase(text, lang))
             else:
@@ -7141,7 +7144,8 @@ def history_enable(on, days=None):
     rec = history_store.RECORDER
     rec.on_error = _history_write_failed
     rec.async_mode = True                      # Schreiben nicht im emit-Lock (Platten-Latenz)
-    if days not in (None, 0) and history_store.valid_days(days) is None:   # 0 = nie löschen
+    if isinstance(days, bool) or (days not in (None, 0) and history_store.valid_days(days) is None):   # 0 = nie löschen
+        days = None
         emit("error", code="history_days_invalid", msg="Aufbewahrungsdauer ungültig – es wird nichts gelöscht")
     if not rec.enable(on, days) and on:
         emit("error", code="history_failed", msg="Verlauf kann nicht gespeichert werden – Aufzeichnung aus")
@@ -7203,6 +7207,9 @@ def history_set_days(days):
     durchsetzen. 0 = nie löschen; Ungültiges wird gemeldet und ändert nichts."""
     import history_store
     rec = history_store.RECORDER
+    if isinstance(days, bool):                 # False == 0 wäre sonst „nie löschen“
+        emit("error", code="history_days_invalid", msg="Aufbewahrungsdauer ungültig – es wird nichts gelöscht")
+        return
     if days in (0, None):
         rec.keep_days = None
         return
@@ -7254,7 +7261,7 @@ def control_loop(eng, jobs=None):
                     continue
                 try:
                     d = json.loads(line)
-                except ValueError:
+                except (ValueError, RecursionError):    # "[[[[…" tief verschachtelt: RecursionError beendete früher die Engine
                     _BAD_JSON["n"] += 1
                     now = time.monotonic()
                     if now - _BAD_JSON["t"] >= 10.0:        # höchstens eine Zeile je 10 s
@@ -8290,8 +8297,8 @@ if __name__ == "__main__":
     a = ap.parse_args()
     if a.profile_stdin:                         # {"enroll", "enroll_lang", "delete_profile", "vocab": [name, wörter]}
         try:
-            req = json.loads(sys.stdin.readline() or "{}")
-        except ValueError:
+            req = json.loads(sys.stdin.readline(CTRL_LINE_MAX + 1)[:CTRL_LINE_MAX] or "{}")   # begrenzt, kein Speicher-Fresser
+        except (ValueError, RecursionError):
             req = {}
         req = req if isinstance(req, dict) else {}
         a.enroll = req.get("enroll") if isinstance(req.get("enroll"), str) else a.enroll
