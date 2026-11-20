@@ -40,6 +40,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `--model small\|medium\|best\|auto` | `medium` | Erkennungsmodell; `best` = large-v3-turbo + Thai-Modell, `auto` nach Chip/RAM (Ereignis `hwprofile`) |
 | `--device auto\|mps\|cpu` | `auto` | Rechengerät (Apple-GPU, sonst CPU) |
 | `--mic INDEX\|NAME\|default` | `0` | Mikrofon: Index aus `--list-mics`, besser der **Name** (Indizes verschieben sich, sobald AirPods/USB-Mikros dazukommen; der Name wird erst beim Öffnen auf den aktuellen Index abgebildet). Unbekannter Name: `error` `mic_not_found`, Standardmikrofon |
+| `--source mic\|system` | `mic` | Runde 25: Aufnahmequelle. `system` nimmt statt des Mikrofons ein virtuelles Loopback-Gerät auf (BlackHole, Loopback Audio …, Suche über `avhelper`), z. B. für den Video-Anruf der Partnerin; Steuerfeld `source`. Opt-in |
 | `--output-device UID\|NAME\|INDEX` | `` | Ausgabegerät für alle Sprachausgaben (CoreAudio-UID bevorzugt, sonst Name oder Index; leer = Systemstandard). Unbekannt: `error` `output_not_found`, Systemstandard |
 | `--mt-order LISTE` | | Reihenfolge der freien Übersetzer nach Claude: `google,mymemory` (Standard) oder `mymemory,google`; auch `DOLMETSCHER_MT_ORDER`. Unbekannte Werte: Standard. Offline-Helfer bleibt immer letzte Stufe |
 | `--offline-translator [PFAD]` | | Offline-Übersetzung ohne Netz über `translate-helper` (Apple Translation, on-device): nur wenn Google/MyMemory wegen fehlenden Netzes scheitern und das Sprachpaar installiert ist (`provider: "apple"`, nicht gecacht). Ohne Pfad: `DOLMETSCHER_TRANSLATE_HELPER`, sonst `translate-helper` neben `dolmetscher.py` oder im App-Bundle unter `Contents/Helpers/` (build.sh legt ihn dort ab, signiert mit Hardened Runtime; die Mac-App übergibt den Pfad, Einstellung „Offline-Übersetzung (Apple) als Rückfall“, Standard an ab macOS 26.4). Fehlt der Helfer: `error` `offline_mt_missing` |
@@ -263,6 +264,8 @@ Neu:
 | `parallel_alt` | bool | Runde 24 (Standard aus): Gegenprobe-Erkennung in der anderen Sprache gleichzeitig starten, wenn sie voraussichtlich gebraucht wird |
 | `stt_prompt` | bool | Runde 24 (Standard aus): gemerkte Namen des Gesprächs (höchstens 120 Zeichen) als Erkennungs-Hinweis für Englisch/Thai |
 | `speak_numbers` | bool | Runde 24 (Standard aus): Thai-Zahlen als Wörter vorlesen (350 → สามร้อยห้าสิบ); Zimmer-, Telefon- und Kontonummern bleiben Ziffern |
+| `group_speakers` | bool | Runde 25 (Standard aus): Gruppenmodus – Sprecher ohne Stimmprofil bekommen stabile Nummern; `utt` trägt dann `group_speaker` (Ganzzahl ab 1, additiv) und, wenn kein Profil erkannt wurde, `speaker` = `"Sprecher N"`. Nummern werden nie umnummeriert; „Gespräch löschen" (`clear`) beginnt wieder bei 1. Lädt bei Bedarf das Sprechermodell; scheitert das, kommt `error` `profiles_failed` (Text nennt den Gruppenmodus) und der Modus geht aus |
+| `source` | `"mic"` \| `"system"` | Runde 25 (Standard `mic`): Aufnahmequelle (siehe `--source`); bei laufender Aufnahme wird mit der neuen Quelle neu geöffnet. Ohne Loopback-Gerät `error` `system_audio_missing`; beim Start im Systemton-Modus kommt `hint` `system_audio` (die Ausgabe der Engine nicht auf das Loopback-Gerät legen). Ungültiger Wert: `control_invalid` |
 | `reassign` | `{"id": "u7", "role": "me"\|"other"}` | „Das war ich/Partner“: Satz in der Sprache dieser Person (ich = Englisch bzw. meine Sprache, Partner = die andere Sprache des Paars) neu erkennen und übersetzen; `utt` kommt mit `replaces: "u7"`, `source: "reassign"`, `role`. Führt den Stimmabdruck des Profils nach (Gewicht 0,15). Behalten werden die letzten 30 Sätze |
 
 ## Tempo-Ausbau (Branch feat/tempo)
@@ -651,3 +654,6 @@ App-Pipe nicht schnell genug abnahm, siehe Log).
   Schnellmodus der Erkennung (Beam 1) ab 5 wartenden Äußerungen statt Verwerfen, Prompt-Injektionsschutz für Glossar,
   Preset-Hinweis, Verlauf und Alternativen (keine Tags, keine Zeilenumbrüche), Positivliste im Log (lange Texte unter
   unbekannten Schlüsseln werden nie geloggt).
+- **Runde 25 (Engine):** Gruppenmodus (`group_speakers`, `utt.group_speaker`), Systemton-Quelle (`--source`, Steuerfeld `source`,
+  Fähigkeiten `feature:group_speakers`, `feature:system_audio`), `state` meldet `group_speakers` und `source`. Fehlercode
+  `system_audio_missing` (nur `msg`/`msg_en`; die App zeigt den Freitext, bis sie den Code lokalisiert).

@@ -17,6 +17,7 @@ import argparse, atexit, collections, difflib, errno, functools, hashlib, html, 
     logging, logging.handlers, math, os, queue, re, shutil, signal, subprocess, sys, tempfile, threading, time, \
     urllib.error, urllib.parse, urllib.request
 import numpy as np
+import online_speakers
 import presets
 from numwords import _SPEAK_NUM, _NUM_KEEP_BEFORE, _TH_DIG, _TH_POS, _th_chunk, speak_numbers_th, thai_number_words  # noqa: F401,E501
 from thaiparticles import (_TH_FEMALE, _TH_KA, _TH_KRUB, _TH_MALE, _TH_Q_END, _TH_STRETCH, fit_thai_particles,  # noqa: F401
@@ -2293,7 +2294,7 @@ def llm_month_usd():
                 d = json.load(f)
             if (isinstance(d, dict) and d.get("month") == m and isinstance(d.get("usd"), (int, float))
                     and not isinstance(d.get("usd"), bool) and math.isfinite(float(d["usd"]))):
-                usd = max(0.0, float(d["usd"]))          # Runde 25: "Infinity"/"NaN" in der Datei sperrte Claude dauerhaft
+                usd = max(0.0, float(d["usd"]))          # Runde 25: "Infinity"/"NaN" sperrte Claude dauerhaft
         except (OSError, ValueError):
             pass
         _SPEND.update(month=m, usd=usd)
@@ -2849,7 +2850,7 @@ def speakable(text):
 def chunk_long(parts, lang, limit=None):
     """Teile über `limit` Zeichen (Satz ohne Satzzeichen, Thai ohne Leerzeichen) an Wort-/Kommagrenzen teilen,
     sonst hart; nichts geht verloren."""
-    limit = limit or MAX_SPEAK_CHARS
+    limit = max(3, int(limit or MAX_SPEAK_CHARS))      # Runde 25: limit 1–2 schnitt an Position 0 -> Endlosschleife
     out = []
     for p in parts:
         while len(p) > limit:
@@ -6070,6 +6071,8 @@ CTRL_SPEC = {
     # Runde 24: bisher nur im Code vorhandene Schalter (alle Standard aus, Werte unbedenklich fürs Log)
     "defer": True, "llm_router": True, "llm_stream": True, "parallel_alt": True, "speak_numbers": True,
     "stt_prompt": True,
+    "source": True,                            # Runde 25: mic | system
+    "group_speakers": True,                    # Runde 25: Gruppenmodus (Sprecher 1, 2, 3 …)
 }
 CTRL_SPEC.update({f"tr_{k}": True for k in LANGS})
 CTRL_SPEC.update({f"voice_{k}": True for k in LANGS})
@@ -6513,6 +6516,10 @@ class Engine:
         self.spk = None
         self.two_person = True                 # "ich = mein Profil, andere Stimme = Partnersprache" (EN-Profil nötig)
         self.last_role = None                  # (rolle, ende) der letzten sicher zugeordneten Äußerung
+        self.group_speakers = False            # Runde 25: Gruppenmodus – "Sprecher 1/2/3" ohne Stimmprofil
+        self.group = online_speakers.OnlineSpeakers()
+        self._grp_spk = None                   # eigener Stimm-Embedder, solange keine Profile geladen sind
+        self._grp_lock = threading.Lock()
         self.recent = collections.OrderedDict()  # id -> (audio, stimmabdruck) für "Das war ich/sie"
         self.reload_profiles()
         self.speaker = Speaker(self)
@@ -6770,6 +6777,7 @@ class Engine:
             self.history.clear()
         self.last = None
         self.prev = None
+        self.group.reset()                  # Runde 25: Sprechernummern des Gruppenmodus beginnen wieder bei 1
         self._cleared = True                # restore_last darf den gelöschten Satz nicht aus dem Verlauf zurückholen
         for name in ("texts", "recent", "_hist_ids", "_recent_t", "_failed_tr"):   # kein Roh-Audio/Text im Speicher behalten  # noqa: E501
             getattr(self, name, {}).clear()
@@ -6815,6 +6823,7 @@ class Engine:
              # Runde 7: weitere live änderbare Werte, damit die App nach einem Neustart abgleichen kann
              silence=SILENCE_END, sensitivity=_sensitivity_name(), fast_endpoint=bool(FAST["endpoint"]),
              partial=bool(FAST["partial"]), tts_race=TTS_RACE, two_person=bool(getattr(self, "two_person", False)),
+             group_speakers=bool(getattr(self, "group_speakers", False)), source=SOURCE["kind"],
              history=bool(_history_on()), events_dropped=_OUT["dropped"],
              # Runde 24: Schalter und Latenz-Verlauf (p50/p95 über Sitzungen)
              switches={"llm_stream": bool(LLM.get("stream")), "llm_router": bool(LLM.get("router")),
@@ -7154,13 +7163,53 @@ class Engine:
         self.last_role = (role, t_end or time.time()) if role else None
         if role and emb is not None:
             self._learn_auto(role, info, audio.size / SR, emb)
-        dkw = dict(speak=speak, t_end=t_end, speaker=who["name"] if who else None, alts=alts,
+        gnum = self._group_number(audio, get_emb)
+        extra = {"dur": round(audio.size / SR, 2)}                          # Nr. 205: Sprechbeginn im Verlauf
+        if gnum:
+            extra["group_speaker"] = gnum                                   # Runde 25: additives Feld (1, 2, …)
+        dkw = dict(speak=speak, t_end=t_end, speaker=who["name"] if who else (
+                       online_speakers.label(gnum) if gnum else None), alts=alts,
                    role=role if role in ("me", "other") else None, polite=self._speaker_polite(who, role),
-                   extra={"dur": round(audio.size / SR, 2)})              # Nr. 205: Sprechbeginn im Verlauf
+                   extra=extra)
         if defer:                               # Runde 23: nächste Erkennung läuft, während dieser Satz übersetzt wird
             deliver_later(uid, self.deliver, uid, lang, text, lp, time.monotonic() - t0, **dkw)
             return None
         return self.deliver(uid, lang, text, lp, time.monotonic() - t0, **dkw)
+
+    def _group_embedder(self):
+        """Stimmmodell für den Gruppenmodus: das der Profile, sonst ein eigenes (lazy). None + Fehlerereignis, wenn
+        es nicht geladen werden kann (Privatmodus ohne Modell, Download fehlgeschlagen) – dann geht der Modus aus."""
+        spk = getattr(self, "spk", None)
+        if spk is not None:
+            return spk
+        with self._grp_lock:
+            if self._grp_spk is None:
+                try:
+                    import profiles
+                    self._grp_spk = profiles.SpeakerID()
+                except Exception as e:
+                    self.group_speakers = False
+                    log({"group_speakers": "aus", "err": _errtxt(e)})
+                    emit("error", code="profiles_failed",             # bekannter Code der App (Sprechermodell)
+                         msg="Sprechermodell nicht verfügbar – Gruppenmodus aus")
+                    return None
+            return self._grp_spk
+
+    def _group_number(self, audio, get_emb=None):
+        """Gruppenmodus: Sprechernummer (1, 2, …) der Äußerung oder None. Nutzt den schon berechneten Abdruck
+        (`get_emb`, ein Modelllauf je Satz), sonst das Gruppen-Modell."""
+        if not self.group_speakers:
+            return None
+        try:
+            if get_emb is not None:
+                e = get_emb()
+            else:
+                ex = self._group_embedder()
+                e = ex.embed(audio) if ex is not None else None
+            return self.group.assign(e) if e is not None else None
+        except Exception as e:
+            log({"group_speakers": "fehler", "err": _errtxt(e)})
+            return None
 
     def _speaker_polite(self, who, role):
         """Höflichkeitsform nach der sprechenden Person (Nr. 162): Feld `polite` des erkannten Profils, sonst des
@@ -7993,6 +8042,19 @@ def apply_control(eng, d):
         if ok:
             eng.two_person = v
             later.append(eng.reload_profiles)
+        if "source" in d:                      # Runde 25: Quelle wechseln (Mikrofon <-> Systemton)
+            sv = d["source"] if isinstance(d["source"], str) and d["source"] in SOURCES else None
+            if sv is None:
+                _control_invalid("source")
+            elif sv != SOURCE["kind"]:
+                SOURCE["kind"] = sv
+                if MIC is not None and MIC.on:
+                    mic_job = lambda: MIC.switch(MIC.mic)      # laufende Aufnahme mit der neuen Quelle neu öffnen
+        ok, v = _flag(d, "group_speakers")
+        if ok:
+            eng.group_speakers = v                             # Runde 25: "Sprecher 3" auch ohne Stimmprofil
+            if v:
+                later.append(eng._group_embedder)              # Modell laden, nicht im ersten Satz
         ok, v = _flag(d, "reload_profiles")
         if ok and v:
             later.append(eng.reload_profiles)
@@ -8622,6 +8684,26 @@ def decode_file(path):
     return np.frombuffer(raw[:len(raw) // 2 * 2], dtype=np.int16).astype(np.float32) / 32768
 
 
+SOURCE = {"kind": "mic"}                # Runde 25: "mic" (Standard) oder "system" (Loopback-Gerät, z. B. BlackHole)
+SOURCES = ("mic", "system")
+
+
+def system_device(mics):
+    """Systemton-Aufnahme: Index des ersten Loopback-Geräts in der Eingangsliste oder None (reine Auswertung)."""
+    from avhelper import find_loopback
+    lb = find_loopback(mics or [])
+    return lb[0]["index"] if lb else None
+
+
+def resolve_system_mic():
+    """Loopback-Gerät bei jedem Start neu suchen (Indizes verschieben sich); None, wenn keines da ist."""
+    try:
+        return system_device(list_mics())
+    except Exception as e:
+        log({"system_audio": "liste-fehler", "err": _errtxt(e)})
+        return None
+
+
 def resolve_mic(mic, strict=False):
     """--mic/Steuerung: Index, Gerätename oder "default". Indizes verschieben sich, sobald AirPods/USB-Mikros
     dazukommen; ein Name wird deshalb erst beim Öffnen auf den aktuellen Index abgebildet. Unbekannter Name:
@@ -8704,9 +8786,15 @@ class Mic:
         if mic_file and not os.path.isfile(mic_file):
             return self._fail(f"DOLMETSCHER_MIC_FILE nicht gefunden: {os.path.basename(mic_file)}", _retry,
                               "mic_file_missing", fatal)
-        dev = None if mic_file else resolve_mic(self.mic, strict=_retry)   # kann ffmpeg abfragen: nicht unter dem Lock
-        if dev is None and not mic_file:
+        system = SOURCE["kind"] == "system" and not mic_file
+        dev = None if mic_file else (resolve_system_mic() if system else resolve_mic(self.mic, strict=_retry))
+        if dev is None and not mic_file:                  # (kann ffmpeg abfragen: nicht unter dem Lock)
+            if system:
+                return self._fail("Kein Loopback-Gerät (z. B. BlackHole) gefunden – Systemton nicht verfügbar",
+                                  _retry, "system_audio_missing", fatal)
             return self._fail("Mikrofon nicht gefunden – warte auf das Gerät", _retry, "mic_not_found", fatal)
+        if system:
+            hint("system_audio")           # Ausgabe der Engine nicht auf das Loopback-Gerät legen (sonst hört sie sich)
         with self.lock:
             if self.on:
                 emit("mic", on=True)
@@ -9218,7 +9306,8 @@ def queue_pressure():
 def capabilities():
     """Fähigkeiten dieser Engine für `ready`: `control:<feld>` je bekanntem Steuerfeld, `feature:<name>` für
     zusätzliche Verhalten. Die App prüft damit, was die laufende Engine kann, statt Versionen zu raten."""
-    feats = ("trace", "latency_history", "msg_en", "capabilities", "queue_pressure", "mps_fallback", "stream_prewarm")
+    feats = ("trace", "latency_history", "msg_en", "capabilities", "queue_pressure", "mps_fallback", "stream_prewarm",
+             "group_speakers", "system_audio")
     return sorted({f"control:{k}" for k in CTRL_KEYS} | {f"feature:{x}" for x in feats})
 
 
@@ -9234,6 +9323,7 @@ ERROR_EN = {
     "disk_full": "Not enough free disk space for the model",
     "model_offline": "Model not loaded (no network)",
     "profiles_failed": "Voice profiles could not be loaded",
+    "system_audio_missing": "No loopback device found - system audio unavailable",
     "reassign_expired": "Sentence is no longer in memory",
     "reassign_empty": "Nothing recognised in that language",
     "translate_failed": "Translation failed",
@@ -9457,6 +9547,8 @@ if __name__ == "__main__":
                     " + Thai-Modell) | auto (nach Chip/RAM)")
     ap.add_argument("--device", choices=["auto", "mps", "cpu"], default="auto")
     ap.add_argument("--mic", default="0")
+    ap.add_argument("--source", choices=SOURCES, default="mic",
+                    help="Aufnahmequelle: mic (Standard) oder system (Loopback-Gerät, z. B. BlackHole)")
     ap.add_argument("--output-device", default="", help="Ausgabegerät: UID, Name oder Index")
     ap.add_argument("--list-mics", action="store_true", help="Mikrofone als JSON ausgeben")
     ap.add_argument("--offline-translator", nargs="?", const="", default=None,
@@ -9634,6 +9726,7 @@ if __name__ == "__main__":
         hw = {**hw, **hwprofile.adjust_for_power(hw, hwprofile.power_saving())}   # Akku/Sparmodus/Hitze: sparsamer
         model = hw["model"]
     apply_features(os.environ.get("DOLMETSCHER_FEATURES"))     # Runde 24: Schalter ohne App-Änderung
+    SOURCE["kind"] = a.source                                  # Runde 25: Systemton statt Mikrofon (opt-in)
     lat_load()
     try:
         eng = Engine(model, a.polite, a.lang if a.lang in ("auto", *PAIR) else "auto", a.tts, a.device)
