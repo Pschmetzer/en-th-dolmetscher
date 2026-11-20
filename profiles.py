@@ -38,6 +38,9 @@ MAX_VOCAB = 30
 MAX_VOCAB_LEN = 60
 MAX_NAME_LEN = 64
 MAX_DRIFT_COS = 0.90           # learn(): Abdruck darf sich nie weiter vom Original entfernen
+LEARN_MIN_SIM = 0.5            # learn(): Äußerung muss dem aktuellen Abdruck mindestens so ähnlich sein
+                               # (Poisoning-Schutz: eine falsch erkannte Fremdstimme zieht ihn nicht weg)
+MAX_LEARN_WEIGHT = 0.3         # größtes Gewicht eines Lernschritts
 EMBED_MIN_SECONDS = 0.3        # kürzer: kein verlässlicher Abdruck
 EMBED_MIN_RMS = 1e-4           # leiser = Stille
 
@@ -681,7 +684,7 @@ class SpeakerID:
         emb = np.asarray(emb, dtype=np.float32)
         if not np.isfinite(emb).all() or np.linalg.norm(emb) < 1e-6:
             return False
-        weight = min(0.5, max(0.0, float(weight)))
+        weight = min(MAX_LEARN_WEIGHT, max(0.0, float(weight)))
         with _locked():
             p = get_profile(name)                    # frisch von Platte (Vokabular etc. nicht überschreiben)
             if p is None:
@@ -689,6 +692,8 @@ class SpeakerID:
             old = np.array(p["embedding"], dtype=np.float32)
             if old.shape != emb.shape:
                 return False
+            if float(old @ emb) / (np.linalg.norm(old) * np.linalg.norm(emb) + 1e-9) < LEARN_MIN_SIM:
+                return False                         # klingt nicht nach diesem Profil: nichts lernen
             orig = np.array(p.get("embedding_orig") or p["embedding"], dtype=np.float32)
             new = (1 - weight) * old + weight * emb / np.linalg.norm(emb)
             new /= np.linalg.norm(new) + 1e-9

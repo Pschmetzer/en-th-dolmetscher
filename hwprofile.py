@@ -68,6 +68,25 @@ def on_battery(run=None):
         return False
 
 
+def low_power_mode(run=None):
+    """Energiesparmodus an (`pmset -g`: "lowpowermode 1")? Unbekannt/Fehler: False."""
+    run = run or subprocess.run
+    try:
+        r = run(["pmset", "-g"], capture_output=True, text=True, timeout=3)
+        for line in (r.stdout or "").splitlines():
+            parts = line.split()
+            if len(parts) == 2 and parts[0].lower() in ("lowpowermode", "powermode") and parts[1] == "1":
+                return True
+    except Exception:
+        pass
+    return False
+
+
+def power_saving(run=None):
+    """Akkubetrieb oder Energiesparmodus: dann lieber sparsam rechnen (für adjust_for_power)."""
+    return on_battery(run) or low_power_mode(run)
+
+
 def adjust_for_power(rec, battery):
     """Im Akkubetrieb eine Stufe sparsamer: Beam 1, `best` -> `medium` (Wärme/Laufzeit)."""
     if not battery:
