@@ -194,7 +194,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `profiles_failed` | Stimmprofile/Sprechermodell nicht ladbar – Stimmerkennung aus; `msg` nennt die Ursache |
 | `voice_unknown`, `glossary_invalid` | Steuerwert ungültig |
 | `langs_invalid` | Sprachpaar ungültig (unbekannter Code oder zweimal dieselbe Sprache); Paar unverändert |
-| `file_empty`, `file_failed` | `--file`: keine Audiodaten / Datei nicht lesbar oder ein Abschnitt nicht verarbeitbar (die übrigen Abschnitte laufen weiter) |
+| `file_empty`, `file_failed` | `--file`: keine Audiodaten / Datei nicht lesbar, ein Abschnitt nicht verarbeitbar (die übrigen Abschnitte laufen weiter) oder mit `--subtitles` die Untertitel-Datei nicht schreibbar |
 
 
 ### Reihenfolge und Garantien
