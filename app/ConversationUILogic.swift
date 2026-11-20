@@ -108,12 +108,21 @@ enum NumberWarning {
         }
     }
 
+    /// Vergleichsform: Tausendertrenner entfallen („1,200“ = „1200“), damit verschiedene Schreibweisen derselben Zahl
+    /// keine Warnung auslösen. Dezimalzahlen („3,5“, „3.5“) und Uhrzeiten („14:30“) bleiben, wie sie sind.
+    static func canonical(_ n: String) -> String {
+        let parts = n.split(separator: ",", omittingEmptySubsequences: false)
+        guard parts.count >= 2, !n.contains("."), !n.contains(":"), (1...3).contains(parts[0].count),
+              parts.dropFirst().allSatisfy({ $0.count == 3 }) else { return n }
+        return parts.joined()
+    }
+
     /// Unterschied der Zahlen (als Vielfachmenge) zwischen Original und Übersetzung.
     static func diff(original: String, translation: String) -> Diff {
         var rest = numbers(in: translation)
         var missing: [String] = []
         for n in numbers(in: original) {
-            if let i = rest.firstIndex(of: n) { rest.remove(at: i) } else { missing.append(n) }
+            if let i = rest.firstIndex(where: { canonical($0) == canonical(n) }) { rest.remove(at: i) } else { missing.append(n) }
         }
         return Diff(missing: missing, extra: rest)
     }

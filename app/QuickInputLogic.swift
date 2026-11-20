@@ -54,3 +54,13 @@ enum QuickPhraseImport {
         return out.joined(separator: "\n")
     }
 }
+
+enum QuickPhraseLimit {
+    /// Nur die ersten neun eigenen Sätze haben ein Menükürzel (⌘1–⌘9).
+    static let shortcutLimit = 9
+
+    static func overShortcutLimit(_ count: Int) -> Bool { count > shortcutLimit }
+
+    /// So viele Sätze bleiben ohne Kürzel (nur per Klick in der Schnellsatz-Leiste).
+    static func withoutShortcut(_ count: Int) -> Int { max(0, count - shortcutLimit) }
+}

@@ -121,7 +121,7 @@ def test_text_requested_before_ready_is_spoken_after_ready():
 
 def test_quick_phrase_import_export():
     import pathlib
-    sv = pathlib.Path("app/SettingsView.swift").read_text()
+    sv = pathlib.Path("app/SettingsView.swift").read_text() + pathlib.Path("app/SettingsQuickPhrases.swift").read_text()
     assert "QuickPhraseImport.merge" in sv and "exportPhrases" in sv
 
 

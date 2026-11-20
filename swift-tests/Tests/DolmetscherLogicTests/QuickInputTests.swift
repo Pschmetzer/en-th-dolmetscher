@@ -37,4 +37,11 @@ final class QuickInputTests: XCTestCase {
         XCTAssertTrue(VolumeLogic.exceedsSystemVoice(1.5))
         XCTAssertFalse(VolumeLogic.exceedsSystemVoice(1.0))
     }
+
+    func testQuickPhraseShortcutLimit() {
+        XCTAssertFalse(QuickPhraseLimit.overShortcutLimit(9))
+        XCTAssertTrue(QuickPhraseLimit.overShortcutLimit(10))
+        XCTAssertEqual(QuickPhraseLimit.withoutShortcut(12), 3)
+        XCTAssertEqual(QuickPhraseLimit.withoutShortcut(4), 0)
+    }
 }
