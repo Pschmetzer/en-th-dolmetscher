@@ -2572,7 +2572,7 @@ for (const w of ['Near', 'Far']) {
   $('in' + w).addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); convoSend(f); } });
   $('sp' + w).onclick = () => { const o = $(f === 'near' ? 'outNear' : 'outFar'); if (o.textContent && o.textContent !== '…') sayNow(o.textContent, o.lang || (f === 'near' ? pair.a : pair.b)); };
 }
-window.addEventListener('popstate', () => { if ($('convo').classList.contains('on')) { $('convo').classList.remove('on'); $('convo').setAttribute('aria-hidden', 'true'); $('main').inert = false; } });
+window.addEventListener('popstate', () => { if ($('convo').classList.contains('on')) convoOpen(false); });   // Zurück-Taste: schliessen und Fokus zurückgeben
 $('btnConvo').onclick = () => convoOpen(true);
 $('convoClose').onclick = () => convoOpen(false);
 

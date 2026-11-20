@@ -21,6 +21,7 @@ Pull requests #16–#47. Not yet published as a release.
 - Show mode can swap to black on white (sunlight); offline, a path outside the app now gets an honest offline page; the axe accessibility scan now blocks pull requests.
 - Yes/No and quick-answer buttons no longer print the same word twice when the interface language equals the partner's language.
 - Web page: exchange-rate calculator in the numbers box (the rate is remembered), slow-repeat button (turtle) on every phrase card, print my cards (hotel, address) as an A4 sheet, direct links to sections (`#book`, `#cards`, `#speak`, `#learn`), real screenshots for the install dialog (`tools/web_screenshots.py`).
+- Keyboard docs list the tab-bar arrows and Esc for the two-person screen; the Back button returns focus when it closes that screen.
 - Installable app: separate maskable icons, opaque 180 px Apple icon, iOS meta tags; the service worker refuses an install without page and language table and checks for updates hourly.
 
 ### Phrase packs and tooling (round 21)

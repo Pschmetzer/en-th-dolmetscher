@@ -76,9 +76,10 @@ Single-key shortcuts do not work in input fields or with Ctrl, Alt or Cmd. They 
 | Right / Left arrow | on a learning card: known / not known |
 | Space | on a learning card: reveal the answer |
 | L | jump to the newest entry in the conversation |
-| Esc | closes the partner view, otherwise stop; always closes dialogs |
+| Esc | closes the partner view and the two-person screen, otherwise stop; always closes dialogs |
 | Right / Left arrow | in the partner view with a card sequence: next / previous |
 | Enter | in the "type instead of speaking" text box: translate (with Shift+Enter it is not sent) |
+| Left / Right arrow | in the tab bar (Speak, Phrasebook, Cards, Learn): switch section |
 | Tab | everything can also be used without shortcuts with Tab and the buttons |
 
 "Hold to speak" is a button: hold it, speak, release. With the keyboard it stays a toggle.
