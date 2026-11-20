@@ -57,7 +57,7 @@ def test_every_pack_in_a_group_has_emergency_numbers():
 
 def test_shared_text_is_only_sent_after_confirmation():
     block = SCRIPT.split("if (d.incoming) {", 1)[1].split("return true;", 1)[0]
-    assert "sharedGo = () =>" in block and "showWarn(t('shareAsk')" in block
+    assert "sharedGo = () =>" in block and "showWarn(() => t('shareAsk')" in block
     assert block.index("sharedGo = () =>") < block.index("showWarn(")
     assert "translate(" not in block.split("sharedGo = () =>", 1)[0]       # nichts wird vor der Bestätigung gesendet
     assert "act === 'sharego'" in SCRIPT
@@ -171,7 +171,8 @@ def test_cards_keep_room_for_buttons_and_shared_text_note_is_prominent():
 def test_ui_strings_come_from_i18n_files_and_service_worker_caches_them():
     assert '"en"' not in HTML.split("const STR = ", 1)[1].split("\n};", 1)[0][:3000] or True
     assert set(json.loads(re.search(r"^const STR = (\{.*?^\});", SCRIPT, re.S | re.M).group(1))) == {"de"}   # nur Deutsch eingebaut
-    assert "loadUiSync(UI);" in SCRIPT and "fetchRetry('i18n/' + nl + '.json')" in SCRIPT
+    assert "XMLHttpRequest" not in SCRIPT and "loadUiSync" not in SCRIPT      # kein blockierender Ladeweg mehr
+    assert "if (UI !== 'de') loadUi(UI).then(ok => { if (ok) refreshUi(); });" in SCRIPT
     assert "'i18n/en.json'" in SW and "'i18n/th.json'" in SW
     for lg in ("en", "th"):
         assert (ROOT / "i18n" / f"{lg}.json").is_file()
@@ -243,3 +244,41 @@ def test_csv_has_time_and_languages_when_known():
     assert got[0].startswith('"original","translation"\r\n"hi","สวัสดี"')
     assert got[1].startswith('"time","from","to","original","translation"\r\n"2026-11-20T10:00:00.000Z","en","th","hi","สวัสดี"')
     assert "entry.dataset.t = new Date().toISOString()" in func("addEntry")
+
+
+@node
+def test_ui_texts_load_async_with_german_fallback_and_shared_promise():
+    import subprocess
+    src = re.search(r"^const uiLoading = \{\};\nfunction loadUi\(l\) \{.*?^\}\n", SCRIPT, re.S | re.M).group(0)
+    js = """
+const STR = { de: { a: 'x' } }; let calls = 0, fail = true;
+const fetchRetry = async u => { calls++; if (fail) throw new Error('net'); return { ok: true, json: async () => ({ a: 'y' }) }; };
+""" + src + """
+(async () => {
+  const out = {};
+  out.de = await loadUi('de'); out.deCalls = calls;
+  const p1 = loadUi('en'), p2 = loadUi('en'); out.shared = p1 === p2;
+  out.failed = await p1; out.noEn = STR.en === undefined;      // Netz weg: false, Deutsch bleibt
+  fail = false;
+  out.retry = await loadUi('en'); out.en = STR.en.a; out.again = await loadUi('en'); out.calls = calls;
+  process.stdout.write(JSON.stringify(out));
+})();
+"""
+    r = subprocess.run(["node", "-"], input=js, capture_output=True, text=True, timeout=30)
+    assert r.returncode == 0, r.stderr
+    assert json.loads(r.stdout) == {"de": True, "deCalls": 0, "shared": True, "failed": False, "noEn": True, "retry": True, "en": "y", "again": True, "calls": 2}
+
+
+@node
+def test_warnings_can_be_functions_and_follow_the_language():
+    import subprocess
+    parts = [re.search(r"^const warnMsgs = \[\];\nconst wtxt = .*$", SCRIPT, re.M).group(0), func("renderWarn"), func("showWarn"), func("clearWarn")]
+    js = "const warn = { style: {}, innerHTML: '' }; const warnKinds = new Map(); let L = 'de';\n" + "\n".join(parts) + """
+const w = () => (L === 'de' ? 'Hallo' : 'Hello');
+showWarn(w); showWarn(w); showWarn('fest'); showWarn(() => 'Hallo');
+const first = warn.innerHTML; L = 'en'; renderWarn(); const second = warn.innerHTML; clearWarn([w]); renderWarn();
+process.stdout.write(JSON.stringify([first, second, warn.innerHTML, warnMsgs.length]));
+"""
+    r = subprocess.run(["node", "-"], input=js, capture_output=True, text=True, timeout=30)
+    assert r.returncode == 0, r.stderr
+    assert json.loads(r.stdout) == ["<div>Hallo</div><div>fest</div>", "<div>Hello</div><div>fest</div>", "<div>fest</div>", 1]
