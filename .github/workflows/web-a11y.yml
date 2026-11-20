@@ -1,6 +1,6 @@
 name: Web a11y
 
-# Playwright + axe-core on the web page (index.html). Informational for now: a failure does not block a pull request.
+# Playwright + axe-core on the web page (index.html). A failure blocks a pull request that touches the page.
 on:
   pull_request:
     paths:
@@ -17,7 +17,6 @@ jobs:
   axe:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    continue-on-error: true
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install Playwright and axe-core
