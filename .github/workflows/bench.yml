@@ -22,6 +22,9 @@ on:
       fail_above:
         description: "Nur mit medium: Exit 2 ab so viel Prozent Verschlechterung (leer = nur vergleichen; Zeiten des Runners weichen von der lokalen Baseline ab)"
         default: ""
+      latency_scale:
+        description: "Faktor für das Zeitbudget (bench/latency_budget.json); Runner sind langsamer als ein Mac"
+        default: "2"
 
 permissions:
   contents: read
@@ -85,6 +88,15 @@ jobs:
             [ -z "$FAIL_ABOVE" ] || args+=(--fail-above "$FAIL_ABOVE")
           fi
           python bench/run_bench.py "${args[@]}" | tee "$RUNNER_TEMP/bench.txt"
+      - name: Latency budget
+        env:
+          SCALE: ${{ inputs.latency_scale }}
+          MODEL: ${{ inputs.model }}
+        run: |
+          set -o pipefail
+          # Nur Hinweis, kein Abbruch: die Zeiten des Runners sind nicht mit der lokalen Baseline vergleichbar.
+          python bench/latency_budget.py "bench/results/ci_${MODEL}.json" --scale "${SCALE:-2}" \
+            | tee -a "$GITHUB_STEP_SUMMARY" || echo "::warning::Zeitbudget überschritten (siehe Zusammenfassung)"
       - name: Summary
         if: always()
         run: |

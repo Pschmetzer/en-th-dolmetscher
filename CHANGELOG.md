@@ -4,6 +4,17 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### Modules, tools and docs, round 24
+
+- Phrase book tool: `satzbuch.py report` (Markdown or JSON, by code and pack, with size) and `check --ignore CODE --pack ID`. Bug fixed: a wrong or empty `--dir` reported "0 errors" with exit code 0; it is now an error.
+- Speaker clustering: `profiles.cluster_speakers` separates voiceprints of a session into up to eight people (greedy plus k-means refinement, outliers merged); not yet wired into the engine.
+- Audio helper: `avhelper.py list` also reports loopback devices (BlackHole and similar) and the new `prep` command tells whether system audio can be captured (nothing is installed or redirected).
+- History: optional password-protected export (`Store.export_encrypted` / `import_encrypted`, scrypt with PBKDF2 fallback, encrypt-then-MAC, standard library only, no Keychain). The running database is not encrypted.
+- Corrections: `ConfusionMap.apply` replaces in one pass (a->b and b->c no longer chain) and picks the most frequent correction per word; `from_dict` ignores booleans and respects the size limit.
+- Benchmark: `bench/latency_budget.py` with `bench/latency_budget.json` (time budget per language, regression per case against the baseline, `--scale` for slow runners); the manual benchmark workflow reports it as a hint.
+- CI and docs: the Pages smoke test also compares the service worker pack list with `presets-index.json` and no longer treats a missing cache version as success; Dependabot updates merged (actions group, web-e2e group); roadmap, architecture and benchmark docs updated.
+- Tests: `tests/test_r24_modules_a.py`.
+
 ### Engine latency, round 23 (Python)
 
 - Faster Claude path: worker pools instead of a thread per call, warm-up at start plus keepalive while idle (only when the prompt cache applies), cache hit/write counters and cost by the model actually used.
