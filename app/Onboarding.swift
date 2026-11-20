@@ -76,6 +76,8 @@ struct OnboardingSteps: View {
                 Button(L.t("onb_mic_allow")) { askMic() }
             } else if mic != .authorized {
                 Button(L.t("onb_mic_open")) { openMicSettings() }
+            } else {
+                MicTestRow(m: m)          // Runde 23: Pegel prüfen, bevor es losgeht
             }
         }
     }
@@ -130,6 +132,7 @@ struct OnboardingSteps: View {
             head("key", "onb_key_title")
             note(APIKeyStore.exists ? "setup_key_ok" : "onb_key_text")
             Button(L.t("onb_open_settings")) { openSettingsWindow() }
+            if APIKeyStore.exists { KeyTestRow() }   // Runde 23: Schlüssel prüfen
         }
     }
 
@@ -137,6 +140,7 @@ struct OnboardingSteps: View {
         VStack(alignment: .leading, spacing: 6) {
             head("waveform", "onb_test_title")
             note(testKey)
+            HeadphoneHintRow(m: m)                   // Runde 23: Kopfhörer gegen Echo
             if testPhase == "start" { Button(L.t("onb_test_button")) { m.startListening() } }
             if testPhase == "say" { Button(L.t("onb_test_stop")) { m.stopListening() } }
         }

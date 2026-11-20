@@ -168,10 +168,12 @@ struct SettingsTransferSection: View {
     @State private var pending: SettingsImport?
     @State private var changes: [SettingChange] = []
     @State private var note = ""
+    @State private var showPreview = false
 
     var body: some View {
         Section {
             HStack {
+                Button(R23T.t("export_preview_btn")) { showPreview = true }   // Runde 23: Vorschau ohne Schlüssel
                 Button(L.t("sx_export")) { exportFile() }
                     .help(L.t("sx_export_help"))
                 Button(L.t("sx_import")) { chooseFile() }
@@ -182,6 +184,7 @@ struct SettingsTransferSection: View {
             if pending != nil { preview }
             recentList
         } header: { Text(L.t("sx_title")) }
+        .sheet(isPresented: $showPreview) { SettingsExportPreviewSheet { showPreview = false }.environmentObject(m) }
     }
 
     @ViewBuilder private var preview: some View {
@@ -218,11 +221,12 @@ struct SettingsTransferSection: View {
     // MARK: Aktionen
 
     private func exportFile() {
+        let data = SettingsLogic.export(values: SettingsStore.snapshot(),
+                                        profile: SettingsStore.profile(glossary: m.glossary), exportedAt: Date())
+        guard !R23Settings.containsSecret(data) else { note = R23T.t("export_blocked"); return }   // Runde 23
         let panel = NSSavePanel()
         panel.nameFieldStringValue = "Dolmetscher-settings.json"
         guard panel.runModal() == .OK, let url = panel.url else { return }
-        let data = SettingsLogic.export(values: SettingsStore.snapshot(),
-                                        profile: SettingsStore.profile(glossary: m.glossary), exportedAt: Date())
         do {
             try data.write(to: url, options: .atomic)
             note = L.t("done_short")

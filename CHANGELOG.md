@@ -11,6 +11,14 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 - Installed app asks the browser to keep its storage (`navigator.storage.persist()`), manifest gets shortcuts for emergency and pharmacy and `handle_links`.
 - Page: canonical link, Open Graph and Twitter tags, JSON-LD, stricter CSP (`frame-src`, `object-src`, `script-src-attr` none), `robots.txt`, `sitemap.xml`, `llms.txt`; keyboard Home/End on the tabs, visible focus for links, text areas and tabs, stronger focus and borders with `prefers-contrast: more`, 44 px touch targets for all buttons on touch screens.
 
+### Mac app: settings, history, setup and menu, round 23
+
+- Settings: smarter search (several words, accent-insensitive, help text), "Reset this tab" per area with confirmation (language pair, model and interface language stay), preview of the backup file (never contains keys, history or conversations; export is blocked if anything looks like a key).
+- History: multi-select with Cmd/Shift, filters by speaker and period, merged Markdown/SRT/WebVTT export of several sessions (long pauses shortened), Anki card export (CSV), statistics dashboard with Swift Charts (per day, hour, language, speaker, recognition confidence).
+- "Sensitive session" (menu, menu bar): private mode on, local history and text log off until switched off or the app restarts (resets and imports cannot undo it); the previous settings are restored.
+- Setup: microphone level test, headphone tip against echo, "Test key" (one request to api.anthropic.com), pre-check for internet and free space, remaining-time estimate for model downloads.
+- Menu: Help gets What's New, Report a Problem (pre-filled GitHub issue without personal data) and Run Setup Again; hotkey conflicts explain the cause and suggest a free letter; menu bar extra shows the last translation; locking the screen pauses the microphone and resumes on unlock (setting).
+
 ## 1.3 (20 November 2026)
 
 Pull requests #16–#192. First tagged release since 1.2: engine hardening, Mac and iPhone round 21, Web Lite tabs and i18n files, 142 phrase packs, security fixes.

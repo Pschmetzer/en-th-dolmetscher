@@ -230,6 +230,7 @@ final class EnvSetupModel: ObservableObject {
 struct EnvSetupView: View {
     @EnvironmentObject var m: EngineModel
     @ObservedObject var s: EnvSetupModel
+    @StateObject private var eta = ETATracker()   // Runde 23: Restzeit des Modell-Downloads
 
     private var modelsGB: Double { EnvSetupModel.modelsGB(model: m.model, thai: Langs.hasThai) }
     private var envNeeded: Bool { s.envMissing || s.visibleRedo }
@@ -247,7 +248,12 @@ struct EnvSetupView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             sizeLine
+            if case .idle = s.phase {
+                PreflightNote(needsDownload: envNeeded || modelsGB > 0,
+                              requiredGB: EnvLogic.requiredGB(envMissing: envNeeded, modelsGB: modelsGB))   // Runde 23: Vorab-Prüfung
+            }
             progressRows
+            ETALine(tracker: eta)
             if case .failed(let kind) = s.phase { failure(kind) }
             buttons
         }
@@ -256,6 +262,7 @@ struct EnvSetupView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onChange(of: m.engineReady) { s.engineChanged(m) }
         .onChange(of: m.modelOffline) { s.engineChanged(m) }
+        .onChange(of: m.download) { eta.update(m.download) }
     }
 
     private var sizeLine: some View {
