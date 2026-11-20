@@ -36,8 +36,8 @@ def test_thai_numbers_table_and_roundtrip():
 
 def test_amount_helpers():
     got = run(PRE, ["parseAmount(' 3,50 ')", "parseAmount('abc')", "parseAmount('1234567890')", "amountCard(1500, '฿')",
-                    "thaiDigits('350')", "thaiNumber(-3)", "thaiNumber(1e12)"])
-    assert got == [350, None, None, "1,500 ฿\nหนึ่งพันห้าร้อยบาท", "๓๕๐", "", ""]
+                    "thaiDigits('350')", "thaiNumber(-3)", "thaiNumber(1e12)", "parseAmount('12.50')", "parseAmount('1,500')", "parseAmount('1.234,50')", "parseAmount('฿ 99.5')"])
+    assert got == [4, None, None, "1,500 ฿\nหนึ่งพันห้าร้อยบาท", "๓๕๐", "", "", 13, 1500, 1235, 100]
 
 
 def test_deep_links():
