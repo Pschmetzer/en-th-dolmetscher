@@ -73,13 +73,14 @@ final class HotKeys: ObservableObject {
         failures = []
         register(id: 1, keyCode: kVK_ANSI_D, modifiers: Self.ctrlOpt, name: "⌃⌥D") { [weak model] in
             guard let model else { return }
-            let was = model.active; model.toggle()
-            HUD.show(L.t(was ? "stopped" : "state_listening"))   // Nr. 32
+            model.toggle()
+            HUD.show(L.t(model.active ? "state_listening" : "stopped"))   // Nr. 32: tatsächlicher Zustand danach
         }
         register(id: 2, keyCode: kVK_ANSI_P, modifiers: Self.ctrlOpt, name: "⌃⌥P") { [weak model] in
             guard let model else { return }
-            let was = model.paused; model.togglePause()
-            HUD.show(L.t(was ? "state_listening" : "state_paused"))   // Nr. 32
+            guard model.running else { return }   // ohne laufende Engine tut ⌃⌥P nichts: kein falsches HUD
+            model.togglePause()
+            HUD.show(L.t(model.paused ? "state_paused" : "state_listening"))   // Nr. 32
         }
         // Nr. 379: im Gespräch am nötigsten, auch wenn die App im Hintergrund ist
         register(id: 4, keyCode: kVK_ANSI_S, modifiers: Self.ctrlOpt, name: "⌃⌥S") { [weak model] in model?.stopSpeaking() }

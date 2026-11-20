@@ -117,7 +117,11 @@ final class EnvSetupModel: ObservableObject {
         p.environment = env
         let out = Pipe()
         p.standardOutput = out
-        p.standardError = FileHandle.nullDevice
+        // stderr in setup.log (0600, je Lauf neu): ohne das fehlt bei einem Fehlschlag jede Ursache.
+        try? FileManager.default.createDirectory(at: Paths.support, withIntermediateDirectories: true)
+        let logPath = Paths.support.appendingPathComponent("setup.log").path
+        let logFD = open(logPath, O_WRONLY | O_CREAT | O_TRUNC, 0o600)
+        p.standardError = logFD >= 0 ? FileHandle(fileDescriptor: logFD, closeOnDealloc: true) : FileHandle.nullDevice
         p.standardInput = FileHandle.nullDevice
         buffer = Data()
         // Ende erst nach EOF auswerten: alle Zeilen (auch `done`/`fail`) sind dann schon verarbeitet.
@@ -181,6 +185,9 @@ final class EnvSetupModel: ObservableObject {
     func cancel(engine: EngineModel) {
         if let p = proc, p.isRunning {
             p.terminate()                  // setup-env.sh räumt die halbe Umgebung selbst ab
+            DispatchQueue.global().asyncAfter(deadline: .now() + 6) {   // reagiert es nicht: hart beenden
+                if p.isRunning { kill(p.processIdentifier, SIGKILL) }
+            }
             phase = .failed(kind: "cancelled")
         } else if case .models = phase {
             engine.stopEngine()

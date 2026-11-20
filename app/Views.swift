@@ -253,7 +253,8 @@ struct ContentView: View {
                 NoticeBanner(icon: "person.wave.2", tint: LangStyle.warning, text: L.t(r), onClose: { m.partnerRequest = nil })
             }
             if m.fileBusy {   // Nr. 51
-                NoticeBanner(icon: "waveform.badge.magnifyingglass", tint: .accentColor, text: L.t("file_working"))
+                NoticeBanner(icon: "waveform.badge.magnifyingglass", tint: .accentColor, text: L.t("file_working"),
+                             action: (L.t("cancel"), { m.cancelTranslateFile() }))
             }
             if m.deletedBubble != nil {   // Nr. 34
                 NoticeBanner(icon: "trash", tint: .secondary, text: L.t("bubble_deleted_undo"),
@@ -287,8 +288,10 @@ struct ContentView: View {
         .background(WindowAccessor { w in
             w.identifier = Prefs.mainWindowID
             if w.frameAutosaveName.isEmpty { w.setFrameAutosaveName("DolmetscherMainWindow") }   // Größe/Ort merken
-            w.level = onTop ? .floating : .normal
-            w.sharingType = hideCapture ? .none : .readOnly      // Nr. 17
+            let level: NSWindow.Level = onTop ? .floating : .normal
+            if w.level != level { w.level = level }
+            let sharing: NSWindow.SharingType = hideCapture ? .none : .readOnly      // Nr. 17
+            if w.sharingType != sharing { w.sharingType = sharing }
             let t = "Dolmetscher · " + m.status
             if w.title != t { w.title = t }
         })
@@ -521,12 +524,12 @@ struct EmptyState: View {
             HStack(spacing: 14) {
                 HStack(spacing: 6) {
                     Text(Langs.flag(m.mineLang)).accessibilityHidden(true)
-                    Text(m.mineLang == "en" ? "English" : Langs.name(m.mineLang)).foregroundStyle(LangStyle.color(m.mineLang))
+                    Text(Langs.name(m.mineLang)).foregroundStyle(LangStyle.color(m.mineLang))
                 }
                 Image(systemName: "arrow.left.arrow.right").foregroundStyle(.secondary).accessibilityHidden(true)
                 HStack(spacing: 6) {
                     Text(Langs.flag(m.partnerLang)).accessibilityHidden(true)
-                    Text(m.partnerLang == "th" ? "ไทย" : Langs.name(m.partnerLang))
+                    Text(Langs.name(m.partnerLang))
                         .foregroundStyle(LangStyle.color(m.partnerLang))
                 }
             }
@@ -545,14 +548,17 @@ struct EmptyState: View {
                 Text(L.t("chat_empty_start")).font(.callout).foregroundStyle(.secondary)
             }
             // Nr. 399: Beispielsatz anklickbar – Probe-Übersetzung prüft Übersetzung und Lautsprecher ohne Mikrofon
-            Button { m.say("Where is the toilet?", lang: "en") } label: {
+            Button {
+                if m.mineLang == "en" || m.partnerLang == "en" { m.say("Where is the toilet?", lang: "en") }
+                else { m.say("Wo ist die Toilette?", lang: "de") }   // Paare ohne Englisch: deutscher Beispielsatz
+            } label: {
                 Label(L.t("empty_example"), systemImage: "play.circle")
                     .scaledFont(15)
                     .padding(.horizontal, 14).padding(.vertical, 8)
                     .background(Color.secondary.opacity(0.1), in: Capsule())
             }
             .buttonStyle(.plain)
-            .disabled(!m.engineReady || !(m.mineLang == "en" || m.partnerLang == "en"))
+            .disabled(!m.engineReady || !(m.mineLang == "en" || m.partnerLang == "en" || m.mineLang == "de" || m.partnerLang == "de"))
             .help(L.t("empty_example_help"))
             .accessibilityHint(L.t("empty_example_help"))
             CommandsList()
@@ -876,8 +882,8 @@ struct LatencyBadge: View {
 
 /// Sekunden für die Anzeige, mit Dezimalzeichen der Oberflächensprache („2,1 s“).
 func fmtSeconds(_ v: Double) -> String {
-    let loc = Locale(identifier: L.lang == .de ? "de_DE" : "en_US")
-    return String(format: "%.1f s", locale: loc, v)
+    let loc = Locale(identifier: uiNumberLocale)
+    return String(format: "%.1f " + L.t("unit_seconds"), locale: loc, v)
 }
 
 /// Kleiner Pegelbalken (eigenes ObservableObject → nur diese Ansicht zeichnet ~7×/s neu).
@@ -1202,7 +1208,7 @@ struct TipsSheet: View {
             }
         }
         .padding(28)
-        .frame(width: 580, height: 680)
+        .frame(minWidth: 480, idealWidth: 580, maxWidth: 640, minHeight: 360, idealHeight: 680, maxHeight: 760)
     }
     private func tip(_ icon: String, _ title: String, _ text: String) -> some View {
         HStack(alignment: .top, spacing: 14) {
