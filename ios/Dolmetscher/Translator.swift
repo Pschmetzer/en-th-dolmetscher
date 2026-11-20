@@ -308,7 +308,7 @@ actor Translator {
             do {
                 let mid = try await translateUncached(text, from: from, to: .en, allowOnline: false)
                 let out = try await translateUncached(mid.text, from: .en, to: to, allowOnline: false)
-                return TranslationResult(text: out.text, provider: "apple")
+                return TranslationResult(text: out.text, provider: PivotLabel.provider)
             } catch is CancellationError {
                 throw CancellationError()
             } catch {

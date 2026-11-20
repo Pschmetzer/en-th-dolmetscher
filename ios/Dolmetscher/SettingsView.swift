@@ -13,6 +13,7 @@ struct SettingsView: View {
     @State private var partnerLevels: [Lang: LangLevel] = [:]
     @State private var confirmWipe = false
     @AppStorage("screenShield") private var shield = true
+    @AppStorage(HistorySpotlight.enabledKey) private var spotlight = false
 
     var body: some View {
         @Bindable var m = m
@@ -155,6 +156,9 @@ struct SettingsView: View {
             }
             Toggle(T("background"), isOn: $m.background)
             Toggle(T("headset"), isOn: $m.headset)
+            Toggle(T("r33_spotlight"), isOn: $spotlight)
+                .onChange(of: spotlight) { _, on in if on { m.persist() } else { HistorySpotlight.clear() } }
+            Text(T("r33_spotlight_d")).font(.footnote).foregroundStyle(.secondary)
             Picker(T("mic_input"), selection: $m.micUID) {
                 Text(T("mic_auto")).tag(String?.none)
                 ForEach(AVAudioSession.sharedInstance().availableInputs ?? [], id: \.uid) { port in

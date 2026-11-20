@@ -214,7 +214,7 @@ final class InterpreterModel {
     /// Umschrift unter Thai/Japanisch/Koreanisch/Chinesisch.
     var showRoman: Bool { didSet { save("showRoman", showRoman) } }
     /// Älteren Verlauf erst nach Face ID / Code zeigen.
-    var lockHistory: Bool { didSet { save("lockHistory", lockHistory); if !lockHistory { historyUnlocked = true } } }
+    var lockHistory: Bool { didSet { save("lockHistory", lockHistory); if !lockHistory { historyUnlocked = true }; if lockHistory { HistorySpotlight.clear() } } }
     /// Gesperrt: Einträge vor diesem Zeitpunkt sind verborgen, bis entsperrt wird.
     var historyUnlocked = true
     @ObservationIgnored private var lockedBefore = Date()
@@ -1596,7 +1596,10 @@ final class InterpreterModel {
     enum PendingWrite { case history, emergency }
 
     /// Verlauf speichern – entprellt und außerhalb des Hauptthreads (563). `persistNow()` schreibt sofort.
-    func persist() { scheduleWrite(.history) }
+    func persist() {
+        scheduleWrite(.history)
+        if HistorySpotlight.enabled { HistorySpotlight.sync(entries, locked: lockHistory) }   // Löschen und Aufbewahrung laufen hier durch
+    }
 
     private func scheduleWrite(_ w: PendingWrite) {
         pendingWrites.insert(w)

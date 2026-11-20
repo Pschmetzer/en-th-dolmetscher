@@ -88,7 +88,7 @@ final class Round31Tests: XCTestCase {
         XCTAssertFalse(SessionTuning.isNarrowband(isHFP: false, sampleRate: 8_000))
         XCTAssertFalse(SessionTuning.isNarrowband(isHFP: true, sampleRate: 0))
         XCTAssertTrue(SessionTuning.warnText(lang: "de").contains("Bluetooth"))
-        XCTAssertTrue(SessionTuning.warnText(lang: "th").contains("Bluetooth"))
+        XCTAssertTrue(SessionTuning.warnText(lang: "th").contains("บลูทูธ"))
     }
 
     func testRouteActionsStillHold() {
