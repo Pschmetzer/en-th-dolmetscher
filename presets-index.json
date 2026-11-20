@@ -1474,6 +1474,30 @@
    ]
   },
   {
+   "id": "hill-tribe-trekking",
+   "names": {
+    "de": "Trekking / Bergvölker",
+    "en": "Hill trekking / villages",
+    "th": "เดินป่า / หมู่บ้านบนดอย"
+   },
+   "phrases": 14,
+   "critical": 3,
+   "reviewed": false,
+   "category": "leisure",
+   "keywords": [
+    "trek",
+    "guide",
+    "village",
+    "trail",
+    "river",
+    "rain",
+    "homestay",
+    "waterfall",
+    "mountain",
+    "leech"
+   ]
+  },
+  {
    "id": "home-repair",
    "names": {
     "de": "Reparatur zu Hause",
@@ -1834,6 +1858,30 @@
    ]
   },
   {
+   "id": "meditation-retreat",
+   "names": {
+    "de": "Meditation / Klosteraufenthalt",
+    "en": "Meditation retreat",
+    "th": "ปฏิบัติธรรม / พักที่วัด"
+   },
+   "phrases": 15,
+   "critical": 3,
+   "reviewed": false,
+   "category": "culture",
+   "keywords": [
+    "meditation",
+    "retreat",
+    "silence",
+    "white clothes",
+    "rules",
+    "donation",
+    "teacher",
+    "schedule",
+    "walking meditation",
+    "bell"
+   ]
+  },
+  {
    "id": "mental-health-counseling",
    "names": {
     "de": "Seelische Gesundheit / Beratung",
@@ -2047,6 +2095,30 @@
     "price",
     "change",
     "fake"
+   ]
+  },
+  {
+   "id": "night-train-sleeper",
+   "names": {
+    "de": "Nachtzug / Schlafwagen",
+    "en": "Night train / sleeper",
+    "th": "รถไฟนอน"
+   },
+   "phrases": 14,
+   "critical": 3,
+   "reviewed": false,
+   "category": "transport",
+   "keywords": [
+    "sleeper",
+    "berth",
+    "lower berth",
+    "upper berth",
+    "attendant",
+    "platform",
+    "ticket",
+    "dining car",
+    "blanket",
+    "delay"
    ]
   },
   {
@@ -2286,6 +2358,30 @@
    ]
   },
   {
+   "id": "rock-climbing",
+   "names": {
+    "de": "Klettern",
+    "en": "Rock climbing",
+    "th": "ปีนหน้าผา"
+   },
+   "phrases": 14,
+   "critical": 3,
+   "reviewed": false,
+   "category": "leisure",
+   "keywords": [
+    "climbing",
+    "rope",
+    "harness",
+    "helmet",
+    "belay",
+    "route",
+    "chalk",
+    "shoes",
+    "instructor",
+    "fall"
+   ]
+  },
+  {
    "id": "scams-overcharge",
    "names": {
     "de": "Betrug / Abzocke",
@@ -2327,6 +2423,30 @@
     "homework",
     "lunch",
     "class"
+   ]
+  },
+  {
+   "id": "scuba-course",
+   "names": {
+    "de": "Tauchkurs / Tauchschein",
+    "en": "Scuba course",
+    "th": "เรียนดำน้ำ"
+   },
+   "phrases": 14,
+   "critical": 4,
+   "reviewed": false,
+   "category": "leisure",
+   "keywords": [
+    "diving",
+    "course",
+    "instructor",
+    "tank",
+    "regulator",
+    "mask",
+    "fins",
+    "depth",
+    "certificate",
+    "medical form"
    ]
   },
   {
@@ -2523,6 +2643,30 @@
     "refund form",
     "customs",
     "passport"
+   ]
+  },
+  {
+   "id": "tea-coffee-plantation",
+   "names": {
+    "de": "Tee- und Kaffeeplantage",
+    "en": "Tea / coffee plantation",
+    "th": "ไร่ชาและไร่กาแฟ"
+   },
+   "phrases": 14,
+   "critical": 0,
+   "reviewed": false,
+   "category": "leisure",
+   "keywords": [
+    "plantation",
+    "tea",
+    "coffee beans",
+    "harvest",
+    "roasting",
+    "tasting",
+    "origin",
+    "organic",
+    "tour",
+    "gift pack"
    ]
   },
   {

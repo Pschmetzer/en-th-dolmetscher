@@ -182,6 +182,12 @@ kennen, ignorieren sie.
 | `babysitter-housekeeper` | Babysitter / Haushaltshilfe | 3 kritische Sätze zuerst |
 
 Die Kategorie je Paket (`health`, `emergency`, `transport`, `food`, `money`, `stay`, `culture`, `leisure`, `general`) steht in `tools/preset_categories.json` und landet als `category` in `presets-index.json`. `python3 tools/preset_stats.py --by-category` zeigt die Abdeckung je Kategorie; ein neues Paket gehört in genau eine Kategorie (ein Test prüft das).
+| `meditation-retreat` | Meditation / Klosteraufenthalt | 3 kritische Sätze zuerst |
+| `hill-tribe-trekking` | Trekking / Bergvölker | 3 kritische Sätze zuerst |
+| `night-train-sleeper` | Nachtzug / Schlafwagen | 3 kritische Sätze zuerst |
+| `rock-climbing` | Klettern | 3 kritische Sätze zuerst |
+| `scuba-course` | Tauchkurs / Tauchschein | 4 kritische Sätze zuerst |
+| `tea-coffee-plantation` | Tee- und Kaffeeplantage | 0 kritische Sätze zuerst |
 
 ## Unsichere Sätze (bitte zuerst prüfen)
 
@@ -217,7 +223,7 @@ Am wichtigsten sind die Sätze mit `critical` und die Tabelle [Unsichere Sätze]
 
 | Datei | Inhalt |
 |---|---|
-| `presets/*.json` | 131 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
+| `presets/*.json` | 137 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
 | `ios/Shared/phrases.json` | eingebautes Satzbuch der iPhone-App und des Widgets |
 | `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten, „Sie sind dran“, Allergie-Karte |
 | `ios/Dolmetscher/Round4Views.swift` | Hilfesatz auf dem Bildschirm „Hilfe – jetzt“ |

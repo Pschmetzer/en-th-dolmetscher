@@ -104,3 +104,11 @@ def test_retention_default_unchanged_and_suggested_option(tmp_path, monkeypatch)
     assert rec.enable(True, keep_days="suggested") and rec.keep_days == hs.SUGGESTED_KEEP_DAYS == 30
     rec.store.close()
 
+
+
+def test_new_wave7_packs():
+    import presets
+    allp = presets.load_all()
+    for pid in ("meditation-retreat", "hill-tribe-trekking", "night-train-sleeper", "rock-climbing", "scuba-course",
+                "tea-coffee-plantation"):
+        assert pid in allp and not presets.validate(allp[pid])

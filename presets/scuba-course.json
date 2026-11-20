@@ -1,0 +1,117 @@
+{
+  "id": "scuba-course",
+  "names": {
+    "de": "Tauchkurs / Tauchschein",
+    "en": "Scuba course",
+    "th": "เรียนดำน้ำ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Vor einem Tauchkurs müssen Gesundheitsfragen ehrlich beantwortet werden; bei Asthma, Herz- oder Ohrenproblemen entscheidet ein Arzt. Nach dem Tauchen nicht sofort fliegen; Wartezeit beim Veranstalter erfragen. Auf Zertifizierung, gewartete Ausrüstung und kleine Gruppen achten. Bei Symptomen nach dem Tauchen (Schmerzen, Taubheit, Schwindel) sofort Hilfe holen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Before a diving course health questions must be answered honestly; with asthma, heart or ear problems a doctor decides. Do not fly straight after diving; ask the operator about the waiting time. Look for certification, serviced equipment and small groups. If symptoms appear after diving (pain, numbness, dizziness) get help at once. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "diving",
+      "th": "ดำน้ำ"
+    },
+    {
+      "en": "course",
+      "th": "คอร์ส"
+    },
+    {
+      "en": "instructor",
+      "th": "ผู้สอนดำน้ำ"
+    },
+    {
+      "en": "tank",
+      "th": "ถังอากาศ"
+    },
+    {
+      "en": "regulator",
+      "th": "เรกูเลเตอร์"
+    },
+    {
+      "en": "mask",
+      "th": "หน้ากาก"
+    },
+    {
+      "en": "fins",
+      "th": "ตีนกบ"
+    },
+    {
+      "en": "depth",
+      "th": "ความลึก"
+    },
+    {
+      "en": "certificate",
+      "th": "ใบรับรอง"
+    },
+    {
+      "en": "medical form",
+      "th": "แบบฟอร์มสุขภาพ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have a problem. I am going up.",
+      "th": "มีปัญหา ขอขึ้นแล้ว",
+      "critical": true
+    },
+    {
+      "en": "I feel dizzy and my body hurts after the dive.",
+      "th": "รู้สึกเวียนหัวและปวดตัวหลังดำน้ำ",
+      "critical": true
+    },
+    {
+      "en": "Please call an ambulance (1669).",
+      "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true
+    },
+    {
+      "en": "I have asthma.",
+      "th": "เป็นโรคหอบหืด",
+      "critical": true
+    },
+    {
+      "en": "I am a beginner.",
+      "th": "เป็นมือใหม่"
+    },
+    {
+      "en": "Do I need a medical certificate?",
+      "th": "ต้องมีใบรับรองแพทย์ไหม"
+    },
+    {
+      "en": "How many days is the course?",
+      "th": "คอร์สกี่วัน"
+    },
+    {
+      "en": "What certificate will I get?",
+      "th": "จะได้ใบรับรองอะไร"
+    },
+    {
+      "en": "Is the equipment included?",
+      "th": "รวมอุปกรณ์ไหม"
+    },
+    {
+      "en": "How many people are in a group?",
+      "th": "กลุ่มละกี่คน"
+    },
+    {
+      "en": "My ears hurt.",
+      "th": "เจ็บหู"
+    },
+    {
+      "en": "My mask is leaking.",
+      "th": "หน้ากากรั่ว"
+    },
+    {
+      "en": "How long must I wait before I fly?",
+      "th": "ต้องรอนานเท่าไรก่อนขึ้นเครื่องบิน"
+    },
+    {
+      "en": "Thank you, that was great.",
+      "th": "ขอบคุณ ดีมาก"
+    }
+  ]
+}

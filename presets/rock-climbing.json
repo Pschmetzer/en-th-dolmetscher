@@ -1,0 +1,116 @@
+{
+  "id": "rock-climbing",
+  "names": {
+    "de": "Klettern",
+    "en": "Rock climbing",
+    "th": "ปีนหน้าผา"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Beliebte Klettergebiete liegen an der Küste im Süden. Ausrüstung und Sicherungstechnik des Anbieters prüfen lassen, Helm tragen und einen Führer mit Erfahrung wählen. Bei Hitze früh starten und viel trinken; bei Regen wird der Fels gefährlich glatt. Gesundheitliche Probleme und Höhenangst vorher mitteilen. Der Versicherungsschutz sollte Klettern abdecken. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Popular climbing areas are on the southern coast. Have the provider's equipment and belay technique checked, wear a helmet and choose an experienced guide. In the heat start early and drink a lot; rock becomes dangerously slippery in the rain. Mention health problems and fear of heights beforehand. Your insurance should cover climbing. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "climbing",
+      "th": "ปีนหน้าผา"
+    },
+    {
+      "en": "rope",
+      "th": "เชือก"
+    },
+    {
+      "en": "harness",
+      "th": "สายรัดนิรภัย"
+    },
+    {
+      "en": "helmet",
+      "th": "หมวกนิรภัย"
+    },
+    {
+      "en": "belay",
+      "th": "ค้ำเชือก"
+    },
+    {
+      "en": "route",
+      "th": "เส้นทางปีน"
+    },
+    {
+      "en": "chalk",
+      "th": "ผงชอล์ก"
+    },
+    {
+      "en": "shoes",
+      "th": "รองเท้าปีนผา"
+    },
+    {
+      "en": "instructor",
+      "th": "ผู้สอน"
+    },
+    {
+      "en": "fall",
+      "th": "ตก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Stop! I am falling.",
+      "th": "หยุด กำลังจะตก",
+      "critical": true
+    },
+    {
+      "en": "Someone has fallen. Please call an ambulance (1669).",
+      "th": "มีคนตก ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true
+    },
+    {
+      "en": "Please check my harness again.",
+      "th": "ช่วยตรวจสายรัดนิรภัยอีกครั้ง",
+      "critical": true
+    },
+    {
+      "en": "I want to come down.",
+      "th": "อยากลงแล้ว"
+    },
+    {
+      "en": "Is this tour insured?",
+      "th": "ทริปนี้มีประกันไหม"
+    },
+    {
+      "en": "Do you have a helmet in my size?",
+      "th": "มีหมวกนิรภัยขนาดพอดีไหม"
+    },
+    {
+      "en": "I am a beginner.",
+      "th": "เป็นมือใหม่"
+    },
+    {
+      "en": "Which route is easy?",
+      "th": "เส้นทางไหนง่าย"
+    },
+    {
+      "en": "Is the rock too wet today?",
+      "th": "วันนี้หินเปียกเกินไปไหม"
+    },
+    {
+      "en": "Can I rent climbing shoes?",
+      "th": "เช่ารองเท้าปีนผาได้ไหม"
+    },
+    {
+      "en": "How long is the course?",
+      "th": "คอร์สนานเท่าไร"
+    },
+    {
+      "en": "I am afraid of heights.",
+      "th": "กลัวความสูง"
+    },
+    {
+      "en": "Please explain the signals again.",
+      "th": "ช่วยอธิบายสัญญาณอีกครั้ง"
+    },
+    {
+      "en": "Where can I leave my bag?",
+      "th": "ฝากกระเป๋าได้ที่ไหน"
+    }
+  ]
+}

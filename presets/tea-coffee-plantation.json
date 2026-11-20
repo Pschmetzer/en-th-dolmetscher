@@ -1,0 +1,113 @@
+{
+  "id": "tea-coffee-plantation",
+  "names": {
+    "de": "Tee- und Kaffeeplantage",
+    "en": "Tea / coffee plantation",
+    "th": "ไร่ชาและไร่กาแฟ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Im Norden Thailands gibt es Tee- und Kaffeeplantagen mit Führungen und Verkostung. Probieren ist oft kostenlos, Kauf aber keine Pflicht. Nach Ernte, Röstung und Herkunft fragen; Preise vergleichen. Auf Bergstraßen vorsichtig fahren, besonders mit dem Motorrad bei Regen. Kaffee und Tee enthalten Koffein: bei Schwangerschaft oder Herzproblemen Menge beachten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "In northern Thailand there are tea and coffee plantations with tours and tastings. Tasting is often free but buying is not compulsory. Ask about harvest, roasting and origin; compare prices. Drive carefully on mountain roads, especially by motorbike in the rain. Coffee and tea contain caffeine: watch the amount if you are pregnant or have heart problems. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "plantation",
+      "th": "ไร่"
+    },
+    {
+      "en": "tea",
+      "th": "ชา"
+    },
+    {
+      "en": "coffee beans",
+      "th": "เมล็ดกาแฟ"
+    },
+    {
+      "en": "harvest",
+      "th": "เก็บเกี่ยว"
+    },
+    {
+      "en": "roasting",
+      "th": "คั่ว"
+    },
+    {
+      "en": "tasting",
+      "th": "ชิม"
+    },
+    {
+      "en": "origin",
+      "th": "แหล่งผลิต"
+    },
+    {
+      "en": "organic",
+      "th": "ออร์แกนิก"
+    },
+    {
+      "en": "tour",
+      "th": "ทัวร์"
+    },
+    {
+      "en": "gift pack",
+      "th": "ชุดของฝาก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Can I taste it first?",
+      "th": "ขอชิมก่อนได้ไหม"
+    },
+    {
+      "en": "Is the tasting free?",
+      "th": "ชิมฟรีไหม"
+    },
+    {
+      "en": "Where does this come from?",
+      "th": "มาจากที่ไหน"
+    },
+    {
+      "en": "When is the harvest?",
+      "th": "เก็บเกี่ยวเมื่อไหร่"
+    },
+    {
+      "en": "How is it roasted?",
+      "th": "คั่วอย่างไร"
+    },
+    {
+      "en": "Is it organic?",
+      "th": "เป็นออร์แกนิกไหม"
+    },
+    {
+      "en": "What do you recommend?",
+      "th": "มีอะไรแนะนำไหม"
+    },
+    {
+      "en": "How much is this?",
+      "th": "อันนี้ราคาเท่าไหร่"
+    },
+    {
+      "en": "Do you have a smaller pack?",
+      "th": "มีแพ็กเล็กกว่านี้ไหม"
+    },
+    {
+      "en": "Can you grind the beans for me?",
+      "th": "ช่วยบดเมล็ดกาแฟให้ได้ไหม"
+    },
+    {
+      "en": "Can I see how it is made?",
+      "th": "ขอดูวิธีทำได้ไหม"
+    },
+    {
+      "en": "Does this contain caffeine?",
+      "th": "มีคาเฟอีนไหม"
+    },
+    {
+      "en": "Is there a decaffeinated one?",
+      "th": "มีแบบไม่มีคาเฟอีนไหม"
+    },
+    {
+      "en": "May I have a receipt?",
+      "th": "ขอใบเสร็จได้ไหม"
+    }
+  ]
+}

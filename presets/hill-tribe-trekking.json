@@ -1,0 +1,116 @@
+{
+  "id": "hill-tribe-trekking",
+  "names": {
+    "de": "Trekking / Bergvölker",
+    "en": "Hill trekking / villages",
+    "th": "เดินป่า / หมู่บ้านบนดอย"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Für Trekkingtouren im Norden einen anerkannten Veranstalter und einen ortskundigen Führer wählen. Ausrüstung: feste Schuhe, Regenschutz, Wasser, Insektenschutz. Dörfer sind Wohnorte, keine Sehenswürdigkeit: vor Fotos von Menschen fragen und Respekt zeigen. Während der Regenzeit sind Wege rutschig und Flüsse können schnell steigen. Wanderung nicht ohne Führer verlassen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "For trekking in the north choose a recognised operator and a local guide. Equipment: sturdy shoes, rain protection, water, insect repellent. Villages are homes, not attractions: ask before photographing people and show respect. In the rainy season paths are slippery and rivers can rise quickly. Do not leave the group without your guide. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "trek",
+      "th": "เดินป่า"
+    },
+    {
+      "en": "guide",
+      "th": "ไกด์"
+    },
+    {
+      "en": "village",
+      "th": "หมู่บ้าน"
+    },
+    {
+      "en": "trail",
+      "th": "เส้นทางเดิน"
+    },
+    {
+      "en": "river",
+      "th": "แม่น้ำ"
+    },
+    {
+      "en": "rain",
+      "th": "ฝน"
+    },
+    {
+      "en": "homestay",
+      "th": "โฮมสเตย์"
+    },
+    {
+      "en": "waterfall",
+      "th": "น้ำตก"
+    },
+    {
+      "en": "mountain",
+      "th": "ภูเขา"
+    },
+    {
+      "en": "leech",
+      "th": "ทาก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am lost. Please help me.",
+      "th": "หลงทาง ช่วยด้วย",
+      "critical": true
+    },
+    {
+      "en": "Someone is hurt. We need help.",
+      "th": "มีคนบาดเจ็บ ต้องการความช่วยเหลือ",
+      "critical": true
+    },
+    {
+      "en": "I was bitten by a snake. Please call an ambulance (1669).",
+      "th": "ถูกงูกัด ช่วยเรียกรถพยาบาลด้วย 1669",
+      "critical": true
+    },
+    {
+      "en": "I cannot walk any further.",
+      "th": "เดินต่อไม่ไหวแล้ว"
+    },
+    {
+      "en": "How long is the walk today?",
+      "th": "วันนี้เดินนานเท่าไร"
+    },
+    {
+      "en": "Is the path safe in the rain?",
+      "th": "ตอนฝนตกทางเดินปลอดภัยไหม"
+    },
+    {
+      "en": "Can we take a break?",
+      "th": "พักสักครู่ได้ไหม"
+    },
+    {
+      "en": "Is there drinking water here?",
+      "th": "ที่นี่มีน้ำดื่มไหม"
+    },
+    {
+      "en": "Where do we sleep tonight?",
+      "th": "คืนนี้เรานอนที่ไหน"
+    },
+    {
+      "en": "May I take a photo of you?",
+      "th": "ขอถ่ายรูปคุณได้ไหม"
+    },
+    {
+      "en": "May I take a photo of the village?",
+      "th": "ถ่ายรูปหมู่บ้านได้ไหม"
+    },
+    {
+      "en": "Please tell me what is polite here.",
+      "th": "ช่วยบอกหน่อยว่าที่นี่อะไรเหมาะสม"
+    },
+    {
+      "en": "Where is the toilet?",
+      "th": "ห้องน้ำอยู่ที่ไหน"
+    },
+    {
+      "en": "Thank you for welcoming us.",
+      "th": "ขอบคุณที่ต้อนรับ"
+    }
+  ]
+}

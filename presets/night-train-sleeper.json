@@ -1,0 +1,116 @@
+{
+  "id": "night-train-sleeper",
+  "names": {
+    "de": "Nachtzug / Schlafwagen",
+    "en": "Night train / sleeper",
+    "th": "รถไฟนอน"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Schlafwagen sind in der Hauptsaison oft früh ausgebucht; im Voraus am Schalter oder online buchen. Untere Betten sind meist teurer und bequemer; der Schaffner baut die Betten am Abend auf. Der Wagen ist stark klimatisiert, eine Jacke ist hilfreich. Gepäck im Blick behalten und Wertsachen am Körper tragen. Verspätungen sind häufig. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Sleeper cars are often booked out early in the high season; book ahead at the counter or online. Lower berths are usually dearer and more comfortable; the attendant makes up the beds in the evening. The car is strongly air-conditioned, so a jacket helps. Keep an eye on your luggage and carry valuables on your body. Delays are common. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "sleeper",
+      "th": "ตู้นอน"
+    },
+    {
+      "en": "berth",
+      "th": "เตียง"
+    },
+    {
+      "en": "lower berth",
+      "th": "เตียงล่าง"
+    },
+    {
+      "en": "upper berth",
+      "th": "เตียงบน"
+    },
+    {
+      "en": "attendant",
+      "th": "พนักงานประจำตู้"
+    },
+    {
+      "en": "platform",
+      "th": "ชานชาลา"
+    },
+    {
+      "en": "ticket",
+      "th": "ตั๋ว"
+    },
+    {
+      "en": "dining car",
+      "th": "ตู้เสบียง"
+    },
+    {
+      "en": "blanket",
+      "th": "ผ้าห่ม"
+    },
+    {
+      "en": "delay",
+      "th": "ล่าช้า"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My bag has been stolen.",
+      "th": "กระเป๋าถูกขโมย",
+      "critical": true
+    },
+    {
+      "en": "Please call the police.",
+      "th": "ช่วยเรียกตำรวจด้วย",
+      "critical": true
+    },
+    {
+      "en": "I need a doctor.",
+      "th": "ต้องการแพทย์",
+      "critical": true
+    },
+    {
+      "en": "I would like a lower berth.",
+      "th": "ขอเตียงล่าง"
+    },
+    {
+      "en": "Is there still a free berth tonight?",
+      "th": "คืนนี้ยังมีเตียงว่างไหม"
+    },
+    {
+      "en": "Which platform is the train?",
+      "th": "รถไฟอยู่ชานชาลาไหน"
+    },
+    {
+      "en": "Is the train on time?",
+      "th": "รถไฟตรงเวลาไหม"
+    },
+    {
+      "en": "When do you make up the beds?",
+      "th": "จัดเตียงกี่โมง"
+    },
+    {
+      "en": "Could I have another blanket?",
+      "th": "ขอผ้าห่มเพิ่มได้ไหม"
+    },
+    {
+      "en": "It is too cold. Can you lower the air conditioning?",
+      "th": "หนาวเกินไป ช่วยลดแอร์ได้ไหม"
+    },
+    {
+      "en": "Where is the dining car?",
+      "th": "ตู้เสบียงอยู่ที่ไหน"
+    },
+    {
+      "en": "When do we arrive?",
+      "th": "จะถึงกี่โมง"
+    },
+    {
+      "en": "Please wake me before my station.",
+      "th": "ช่วยปลุกก่อนถึงสถานีด้วย"
+    },
+    {
+      "en": "Can I leave my bag here?",
+      "th": "ฝากกระเป๋าไว้ที่นี่ได้ไหม"
+    }
+  ]
+}

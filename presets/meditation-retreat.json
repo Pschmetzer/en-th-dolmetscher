@@ -1,0 +1,120 @@
+{
+  "id": "meditation-retreat",
+  "names": {
+    "de": "Meditation / Klosteraufenthalt",
+    "en": "Meditation retreat",
+    "th": "ปฏิบัติธรรม / พักที่วัด"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Meditationszentren und Klöster nehmen oft Gäste für mehrere Tage auf; die Regeln (Schweigen, Kleidung, kein Handy, Essenszeiten) sind streng und werden vorher erklärt. Weiße Kleidung ist häufig vorgeschrieben. Vorher klären, was Unterkunft und Verpflegung kosten oder ob um eine Spende gebeten wird. Wer Medikamente braucht oder gesundheitliche Probleme hat, sagt es zu Beginn. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Meditation centres and monasteries often take guests for several days; the rules (silence, clothing, no phone, meal times) are strict and explained beforehand. White clothing is often required. Ask beforehand what lodging and meals cost or whether a donation is expected. If you need medication or have health problems, say so at the start. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "meditation",
+      "th": "สมาธิ"
+    },
+    {
+      "en": "retreat",
+      "th": "ปฏิบัติธรรม"
+    },
+    {
+      "en": "silence",
+      "th": "ความเงียบ"
+    },
+    {
+      "en": "white clothes",
+      "th": "ชุดขาว"
+    },
+    {
+      "en": "rules",
+      "th": "กฎระเบียบ"
+    },
+    {
+      "en": "donation",
+      "th": "เงินบริจาค"
+    },
+    {
+      "en": "teacher",
+      "th": "ครู"
+    },
+    {
+      "en": "schedule",
+      "th": "ตารางเวลา"
+    },
+    {
+      "en": "walking meditation",
+      "th": "เดินจงกรม"
+    },
+    {
+      "en": "bell",
+      "th": "ระฆัง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I feel unwell. I need a doctor.",
+      "th": "รู้สึกไม่สบาย ต้องการพบแพทย์",
+      "critical": true
+    },
+    {
+      "en": "I take medication every day.",
+      "th": "กินยาทุกวัน",
+      "critical": true
+    },
+    {
+      "en": "I have a heart problem.",
+      "th": "มีปัญหาเรื่องหัวใจ",
+      "critical": true
+    },
+    {
+      "en": "I would like to stay here for a few days.",
+      "th": "อยากพักที่นี่สองสามวัน"
+    },
+    {
+      "en": "What are the rules here?",
+      "th": "ที่นี่มีกฎอะไรบ้าง"
+    },
+    {
+      "en": "Do I have to be silent the whole time?",
+      "th": "ต้องเงียบตลอดเวลาไหม"
+    },
+    {
+      "en": "What time does the day begin?",
+      "th": "วันเริ่มกี่โมง"
+    },
+    {
+      "en": "What should I wear?",
+      "th": "ควรแต่งกายอย่างไร"
+    },
+    {
+      "en": "Is there a cost, or is it by donation?",
+      "th": "มีค่าใช้จ่ายหรือเป็นการบริจาค"
+    },
+    {
+      "en": "Where do I sleep?",
+      "th": "นอนที่ไหน"
+    },
+    {
+      "en": "What are the meal times?",
+      "th": "เวลาอาหารคือกี่โมง"
+    },
+    {
+      "en": "I do not eat meat.",
+      "th": "ไม่กินเนื้อสัตว์"
+    },
+    {
+      "en": "May I keep my phone?",
+      "th": "เก็บโทรศัพท์ไว้ได้ไหม"
+    },
+    {
+      "en": "May I leave early if I need to?",
+      "th": "ถ้าจำเป็นขอกลับก่อนได้ไหม"
+    },
+    {
+      "en": "Thank you for your teaching.",
+      "th": "ขอบคุณที่สอน"
+    }
+  ]
+}
