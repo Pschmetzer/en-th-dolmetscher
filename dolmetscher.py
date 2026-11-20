@@ -4966,11 +4966,12 @@ def edge_play(stream, volume, on_start=None, cancelled=None, deadline=None):
         stream.cancel()
     stats["cached"] = stream.cached is not None
     stats["pooled"] = getattr(stream, "pooled", None)
-    if complete and stream.cached is None and len(stream.text) <= TTS_CACHE_CHARS:
-        _tts_cache_put(stream.key, b"".join(got))
-    elif complete and stream.cached is None:
-        _tts_last_put(stream.key, b"".join(got))
     stats["interrupted"] = bool(cancelled and cancelled())
+    if complete and stream.cached is None and not stats["interrupted"]:     # „clear“/Stopp: nichts mehr merken
+        if len(stream.text) <= TTS_CACHE_CHARS:
+            _tts_cache_put(stream.key, b"".join(got))
+        else:
+            _tts_last_put(stream.key, b"".join(got))
     if "err" in stats and not stats["interrupted"]:
         stats["partial"] = True                 # Ton riss ab: nicht von vorn sprechen (doppelt), aber melden
     return stats
@@ -5832,7 +5833,7 @@ class Engine:
                 log({"tts": "edge-fehler" if not local else "edge-zu-langsam", "err": _errtxt(e)})
                 # auch im Wettlauf: echter Netzfehler = offline merken (Symbol, Ersatzstimme ohne Wartezeit);
                 # bloß zu langsam (Frist ohne Fehler) zählt nicht
-                if not local or is_offline_error(e):
+                if is_offline_error(e) or (not local and not isinstance(e, OSError)):   # OSError: Player/Temp
                     net_state("tts", False)
             if local:                            # Wettlauf verloren: vorbereitete macOS-Stimme sofort
                 path = local.ready_path(cancelled=cancelled)
@@ -5845,6 +5846,8 @@ class Engine:
                     if on_start:
                         on_start(round(time.time() - t, 2))
                     PLAYER.run(file_play_cmd(path, self.volume))
+                    return
+                if cancelled and cancelled():    # Stopp im Wettlauf: keine Ersatzstimme melden, nichts neu rendern
                     return
         if self.tts != "edge" and local:             # vorab gerendert (Speaker._prepare): sofort abspielen
             path = local.ready_path(timeout=SAY_TIMEOUT + 2, cancelled=cancelled)
@@ -6548,7 +6551,10 @@ class Engine:
             polite = polite or self.polite      # Person mit eigener Form (Profil) vor der Einstellung
             out = translate(text, lang, dst, history=hist, alts=alts, polite=polite, meta=meta)
             # Offline-Übersetzung (Apple) heißt: kein Netz – nicht als „wieder online“ melden
-            net_state("translate", meta.get("provider") != "apple")
+            if meta.get("provider") == "apple":
+                net_state("translate", False)
+            elif not meta.get("cached") and meta.get("provider") != "none":
+                net_state("translate", True)   # nur eine echte Antwort beweist „online“ (Cache/Lachen nicht)
             if numbers_differ(text, out):      # Zahlen weichen ab: zweiter Anbieter entscheidet (Nr. 25)
                 out = recheck_numbers(text, lang, dst, out, meta, hist, alts, polite)
         except Exception as e:
