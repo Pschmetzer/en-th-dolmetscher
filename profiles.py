@@ -651,6 +651,54 @@ def kmeans_centroids(embs, k=2, iters=10):
     return sorted(((c[i], sizes[i]) for i in range(len(c))), key=lambda t: -t[1])
 
 
+CLUSTER_MIN_SIM = 0.55               # Abdrücke, die sich mindestens so ähnlich sind, gehören zu einer Person
+CLUSTER_MAX = 8                      # mehr Personen in einer Sitzung unterscheiden wir nicht
+
+
+def cluster_speakers(embs, min_sim=CLUSTER_MIN_SIM, max_k=CLUSTER_MAX):
+    """Sprecher ohne Profil trennen (Runde 24, auch mehr als zwei): Abdrücke -> Labels 0..k-1, die größte Gruppe
+    hat Label 0. Greedy nach Kosinus zum Zentroid (Reihenfolge der Äußerungen), danach k-means-Verfeinerung; Gruppen
+    mit nur einem Satz werden der ähnlichsten größeren zugeschlagen. Leere Liste -> []."""
+    if not len(embs):
+        return []
+    arr = np.stack([np.asarray(e, dtype=np.float32) for e in embs])
+    arr = arr / (np.linalg.norm(arr, axis=1, keepdims=True) + 1e-9)
+    cents, lab = [], []
+    for v in arr:
+        sims = [float(c @ v) for c in cents]
+        if sims and max(sims) >= min_sim:
+            i = int(np.argmax(sims))
+        elif len(cents) < max(1, int(max_k)):
+            cents.append(v.copy())
+            i = len(cents) - 1
+        else:
+            i = int(np.argmax(sims))
+        lab.append(i)
+        m = arr[[j for j, x in enumerate(lab) if x == i]].mean(axis=0)
+        cents[i] = m / (np.linalg.norm(m) + 1e-9)
+    c = np.stack(cents)
+    for _ in range(5):                                   # Verfeinerung: früh falsch zugeordnete Sätze nachziehen
+        new_lab = np.argmax(arr @ c.T, axis=1)
+        if (new_lab == np.array(lab)).all():
+            break
+        lab = [int(x) for x in new_lab]
+        for i in range(len(c)):
+            idx = [j for j, x in enumerate(lab) if x == i]
+            if idx:
+                m = arr[idx].mean(axis=0)
+                c[i] = m / (np.linalg.norm(m) + 1e-9)
+    sizes = {i: lab.count(i) for i in set(lab)}
+    big = [i for i, n in sizes.items() if n >= 2]
+    if big:                                              # Einzelne Ausreißer-"Sprecher" nicht als Person zählen
+        for i, n in sizes.items():
+            if n == 1:
+                j = max(big, key=lambda b_: float(c[b_] @ c[i]))
+                lab = [j if x == i else x for x in lab]
+    order = sorted(set(lab), key=lambda i: (-lab.count(i), i))
+    remap = {old: new for new, old in enumerate(order)}
+    return [remap[x] for x in lab]
+
+
 def extra_centroids(embs):
     """Zusätzliche Zentroide (Liste von Listen) für eine Stimme mit zwei Klangfarben (Flüstern/Laut, Headset/Mikro)
     oder [] wenn eine Gruppe genügt."""
