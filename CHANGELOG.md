@@ -9,7 +9,7 @@ Pull requests #16–#47. Not yet published as a release.
 ### Security review, round 21
 
 - Mac: allowing a `dolmetscher://` call in the confirmation dialog now applies to that one call only; permanent permission is set only with the Settings switch.
-- iPhone: the recognised sentence is no longer written to the system log as public text (it is private now); the optional exchange-rate request no longer uses the shared URL cache or cookies.
+- iPhone: the recognised sentence is no longer written to the system log as public text (it is private now); the optional exchange-rate request no longer uses the shared URL cache or cookies and only accepts a three-letter currency code.
 - Tests: seeded fuzz tests for the history import, presets, glossary text and the web share/deep-link parameters.
 - CI: checkouts no longer keep the repository token in the working copy.
 
