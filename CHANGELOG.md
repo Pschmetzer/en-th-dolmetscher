@@ -16,6 +16,15 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 - Fix: the number warning no longer fires when only the thousands separator differs (1,200 vs 1200).
 - Logic in `PriceLogic`, `SummaryLogic`, `LearnLogic`, `ScenarioDetect`, `OfflineFallback`, `WindowLogic`, `ShortcutCatalog` with tests in `swift-tests`; texts in `L10n+R24.swift`.
 
+### Engine, round 24
+
+- Switches that only existed in code are now control fields (all default off, also via `DOLMETSCHER_FEATURES`): `llm_stream` (streaming; the first finished sentence is pre-rendered into the speech cache), `llm_router` (Haiku for short, Sonnet for hard sentences), `defer` (recognition runs while the previous sentence is translated), `parallel_alt`, `stt_prompt`, `speak_numbers` (Thai numbers as words). `ready` lists `capabilities`; `error` events carry `msg_en` next to the stable `code`.
+- Bugs fixed: a huge integer in a control field (`"rate"` with 400 digits) raised `OverflowError` in the control thread; the first-clause splitter cut `10:30`, `1,500` and `3,5` apart; the `<speech>` tag could be re-assembled from nested input (`</spe</speech>ch>`); non-text recognition alternatives crashed the Claude prompt.
+- Prompt-injection hardening: glossary, scenario hint, history, names and alternatives lose tag-like text and line breaks before they enter the prompt; test corpus in `tests/test_r24_engine_prompt.py`.
+- Resilience: with 5 or more waiting utterances recognition switches to beam 1 instead of dropping sentences; if the Apple GPU (MPS) fails at run time the models are reloaded once on the CPU and the sentence is retried (`hint` `device_fallback`); a microphone buffer overrun marks the next sentence (`hint` `mic_gap`).
+- Diagnostics: per-sentence trace in the log (`trace`), persistent p50/p95 latency history (`latency_history.json`), allow-list in the log layer (long text under unknown keys is never logged).
+- Not done in this round: merging language detection into transcription, Edge-TTS PCM instead of MP3.
+
 ### iOS travel features, round 33
 
 - Bluetooth (HFP) hint now comes from the L10n table in all ten interface languages instead of inline text.
