@@ -71,25 +71,52 @@ final class HotKeys: ObservableObject {
         self.model = model
         uninstall()
         failures = []
-        register(id: 1, keyCode: kVK_ANSI_D, modifiers: Self.ctrlOpt, name: "⌃⌥D") { [weak model] in
+        // Buchstaben je Aktion aus den Einstellungen (HotKeyLogic: eindeutig, Standard D/P/S/R/C/T).
+        let keys = Self.configured()
+        func reg(_ id: Int, onRelease: (() -> Void)? = nil, _ action: @escaping () -> Void) {
+            guard let letter = keys[id], let code = HotKeyLogic.keyCode(letter) else { return }
+            register(id: UInt32(id), keyCode: code, modifiers: Self.ctrlOpt, name: HotKeyLogic.display(letter),
+                     onRelease: onRelease, action: action)
+        }
+        reg(1) { [weak model] in
             guard let model else { return }
             model.toggle()
             HUD.show(L.t(model.active ? "state_listening" : "stopped"))   // Nr. 32: tatsächlicher Zustand danach
         }
-        register(id: 2, keyCode: kVK_ANSI_P, modifiers: Self.ctrlOpt, name: "⌃⌥P") { [weak model] in
+        reg(2) { [weak model] in
             guard let model else { return }
-            guard model.running else { return }   // ohne laufende Engine tut ⌃⌥P nichts: kein falsches HUD
+            guard model.running else { return }   // ohne laufende Engine tut das Kürzel nichts: kein falsches HUD
             model.togglePause()
             HUD.show(L.t(model.paused ? "state_paused" : "state_listening"))   // Nr. 32
         }
         // Nr. 379: im Gespräch am nötigsten, auch wenn die App im Hintergrund ist
-        register(id: 4, keyCode: kVK_ANSI_S, modifiers: Self.ctrlOpt, name: "⌃⌥S") { [weak model] in model?.stopSpeaking() }
-        register(id: 6, keyCode: kVK_ANSI_C, modifiers: Self.ctrlOpt, name: "⌃⌥C") { [weak model] in model?.translateClipboard() }
-        register(id: 5, keyCode: kVK_ANSI_R, modifiers: Self.ctrlOpt, name: "⌃⌥R") { [weak model] in model?.replayLast() }
+        reg(4) { [weak model] in model?.stopSpeaking() }
+        reg(6) { [weak model] in model?.translateClipboard() }
+        reg(5) { [weak model] in model?.replayLast() }
         if model.pushToTalk {
-            register(id: 3, keyCode: kVK_ANSI_T, modifiers: Self.ctrlOpt, name: "⌃⌥T",
-                     onRelease: { [weak model] in model?.pttUp() }) { [weak model] in model?.pttDown() }
+            reg(3, onRelease: { [weak model] in model?.pttUp() }) { [weak model] in model?.pttDown() }
         }
+    }
+
+    /// Gewählte Buchstaben (UserDefaults, ungültige/doppelte Einträge fallen auf Standardwerte zurück).
+    static func configured() -> [Int: Character] {
+        HotKeyLogic.configured()
+    }
+
+    /// Buchstaben einer Aktion ändern und neu registrieren; false, wenn der Buchstabe schon vergeben/ungültig ist.
+    @discardableResult
+    func setLetter(_ letter: Character, for id: Int) -> Bool {
+        guard let n = HotKeyLogic.assigned(letter, to: id, current: Self.configured()) else { return false }
+        UserDefaults.standard.set(HotKeyLogic.serialized(n), forKey: HotKeyLogic.storageKey)
+        objectWillChange.send()
+        if let model { install(for: model) }
+        return true
+    }
+
+    func resetLetters() {
+        UserDefaults.standard.removeObject(forKey: HotKeyLogic.storageKey)
+        objectWillChange.send()
+        if let model { install(for: model) }
     }
 
     /// Bei App-Aktivierung: nur nach einem Fehlschlag neu versuchen (z. B. wenn ein anderes Programm das Kürzel losließ).

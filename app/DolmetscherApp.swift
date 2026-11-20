@@ -197,6 +197,8 @@ struct AppCommands: Commands {
             Divider()
             Button(L.t("partner_view")) { openWindow(id: "partner") }
                 .keyboardShortcut("p", modifiers: [.command, .shift])
+            Button(L.t("mini_title") + " (⌥⌘M)") { openWindow(id: "mini") }
+                .keyboardShortcut("m", modifiers: [.option, .command])
             Button(L.t("caption_title")) { openWindow(id: "caption") }   // Nr. 52
             Button(L.t("hist_title")) { openWindow(id: "history") }
             Toggle(L.t("always_on_top"), isOn: $onTop)
@@ -299,6 +301,7 @@ struct MenuBarContent: View {
             NotificationCenter.default.post(name: .showGlossaryAdd, object: nil)
         }
         Button(L.t("partner_view")) { openWindow(id: "partner"); NSApp.activate(ignoringOtherApps: true) }
+        Button(L.t("mini_title")) { openWindow(id: "mini"); NSApp.activate(ignoringOtherApps: true) }
         Button(L.t("caption_title")) { openWindow(id: "caption"); NSApp.activate(ignoringOtherApps: true) }
         Button(L.t("hist_title")) { openWindow(id: "history"); NSApp.activate(ignoringOtherApps: true) }
         Button(L.t("settings") + " …") {
@@ -349,6 +352,12 @@ struct DolmetscherApp: App {
             HistoryView().environmentObject(model)
         }
         .defaultSize(width: 900, height: 600)
+
+        Window(L.t("mini_title"), id: "mini") {
+            MiniView().environmentObject(model)
+        }
+        .defaultSize(width: 360, height: 150)
+        .windowResizability(.contentMinSize)
 
         Window(L.t("caption_title"), id: "caption") {
             CaptionView().environmentObject(model)

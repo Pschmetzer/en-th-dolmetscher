@@ -92,9 +92,10 @@ def test_start_optionen():
 # ---- 379: globale Kürzel für Vorlesen abbrechen / letzte nochmal --------------------------------------------
 
 def test_globale_kuerzel():
-    assert 'name: "⌃⌥S") { [weak model] in model?.stopSpeaking() }' in HOTKEYS
-    assert 'name: "⌃⌥R") { [weak model] in model?.replayLast() }' in HOTKEYS
-    ids = re.findall(r"register\(id: (\d+)", HOTKEYS)
+    # Runde 21: Buchstaben konfigurierbar (HotKeyLogic); Aktionen über reg(<id>)
+    assert "reg(4) { [weak model] in model?.stopSpeaking() }" in HOTKEYS
+    assert "reg(5) { [weak model] in model?.replayLast() }" in HOTKEYS
+    ids = re.findall(r"\breg\((\d+)", HOTKEYS)
     assert len(ids) == len(set(ids))
     assert "⌃⌥S" in L10N and "⌃⌥R" in L10N
 

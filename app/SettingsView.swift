@@ -225,7 +225,7 @@ private struct GeneralSettings: View {
                 }
             } footer: {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(L.t("hotkeys_note")).foregroundStyle(.secondary)
+                    Text(L.t("hotkeys_note_custom")).foregroundStyle(.secondary)
                     if !hk.failures.isEmpty {
                         Label(L.t("hotkeys_failed") + " " + hk.failures.joined(separator: ", "),
                               systemImage: "exclamationmark.triangle.fill")
@@ -235,6 +235,20 @@ private struct GeneralSettings: View {
             }
             }
             if part == 1 {
+            Section {
+                ForEach(HotKeyLogic.actions, id: \.id) { a in
+                    Picker(L.t(a.labelKey), selection: Binding(
+                        get: { HotKeyLogic.configured()[a.id] ?? a.defaultLetter },
+                        set: { if !hk.setLetter($0, for: a.id) { Announcer.post(L.t("hotkey_taken"), force: true) } })) {
+                        ForEach(HotKeyLogic.letters, id: \.self) { Text(HotKeyLogic.display($0)).tag($0) }
+                    }
+                    .accessibilityLabel(L.t(a.labelKey))
+                }
+                Button(L.t("hotkeys_reset")) { hk.resetLetters() }
+                    .disabled(UserDefaults.standard.object(forKey: HotKeyLogic.storageKey) == nil)
+            } header: { Text(L.t("hotkeys_section")) } footer: {
+                Text(L.t("hotkeys_custom_help")).foregroundStyle(.secondary)
+            }
             Section(L.t("app_section")) {
                 Toggle(L.t("menubar_icon"), isOn: $showMenuBar)
                     .help(L.t("menubar_icon_help"))
