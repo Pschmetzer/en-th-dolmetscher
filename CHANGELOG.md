@@ -10,6 +10,11 @@ Pull requests #16–#47. Not yet published as a release.
 
 - Engine: a deeply nested JSON line on stdin (or `--profile-stdin`) no longer stops the engine; `history_days: false` and `llm_retry: "false"` are read strictly; `say` without `lang` uses my language; a mic drop after speech keeps the recording.
 
+### Engine, round 22 (py1)
+
+- Log/error paths: a home folder such as `/Users/x` no longer turns `/Users/xavier/...` into `~avier/...`; nested path lists in events are masked too.
+- Spoken output: `5€`, `500฿` and a bare `20°` are read as words; learned glossary names can no longer inject glossary lines; the plain console no longer fails on sparse events.
+
 ### Security review, round 21
 
 - Mac: allowing a `dolmetscher://` call in the confirmation dialog now applies to that one call only; permanent permission is set only with the Settings switch.
