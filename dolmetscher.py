@@ -13,9 +13,9 @@ Optionen: --model small|medium|base  --mic 0  --polite krub|ka  --json
           --voice-en/--voice-th NAME --llm [--llm-model ID] --earcons --meter --list-mics
 Protokoll Engine <-> App: docs/PROTOKOLL.md
 """
-import argparse, collections, difflib, functools, html, http.client, io, itertools, json, logging, logging.handlers, \
-    math, os, queue, re, shutil, signal, subprocess, sys, tempfile, threading, time, urllib.error, urllib.parse, \
-    urllib.request
+import argparse, collections, difflib, errno, functools, html, http.client, io, itertools, json, logging, \
+    logging.handlers, math, os, queue, re, shutil, signal, subprocess, sys, tempfile, threading, time, \
+    urllib.error, urllib.parse, urllib.request
 import numpy as np
 import presets
 
@@ -755,7 +755,12 @@ def _record(event, kw):
         import history_store
         history_store.RECORDER.utt(kw)
     except Exception as e:
-        log({"history": "fehler", "err": _errtxt(e)})
+        _HIST_FAIL["n"] += 1
+        if _HIST_FAIL["n"] == 1 or _HIST_FAIL["n"] % 50 == 0:     # defekte DB: nicht jede Äußerung ins Log
+            log({"history": "fehler", "err": _errtxt(e), "n": _HIST_FAIL["n"]})
+
+
+_HIST_FAIL = {"n": 0}
 
 
 def _emit(event, **kw):
@@ -911,7 +916,15 @@ def log(d):
             d = _redact(d)
         _logger().info(json.dumps(_scrub_deep(d), ensure_ascii=False))
     except Exception:
-        pass
+        if not _LOG_FAIL["told"]:                 # Platte voll/Rechte: einmal melden, nicht stumm weiterlaufen
+            _LOG_FAIL["told"] = True
+            try:
+                emit("error", msg="Protokolldatei nicht beschreibbar – Fehlersuche eingeschränkt")
+            except Exception:                     # noqa: BLE001 – Logging darf nie stören
+                pass
+
+
+_LOG_FAIL = {"told": False}
 
 
 class NotJSON(ValueError):
@@ -1088,7 +1101,7 @@ def _get_json(url, timeout):
 
 
 _CACHE = collections.OrderedDict()           # (text, src, dst, provider-art) -> Übersetzung
-_CACHE_MAX = 300
+_CACHE_MAX = 1000
 _CACHE_LOCK = threading.Lock()                # Arbeits-Thread liest/schreibt, Steuer-Thread leert
 
 
@@ -1197,6 +1210,7 @@ def warm_translate():
         pass
 
 
+GOOGLE_MAX_BYTES_POST = 1800        # je Anfrage per POST (Text im Rumpf, nicht in der URL): weniger Teilstücke
 GOOGLE_MAX_BYTES = 500             # je Anfrage (GET): Thai wird URL-kodiert 3x so lang (URL unter ~2000 Zeichen)
 GOOGLE_TOTAL_S = 8.0               # s für alle Stücke eines Satzes zusammen
 
@@ -1247,7 +1261,8 @@ def _google_pieces(pieces, src, dst):
 
 
 def google_translate(text, src, dst):
-    outs = _google_pieces(_split_bytes(text, GOOGLE_MAX_BYTES), src, dst)
+    post = not HTTP._post_blocked("translate.googleapis.com")
+    outs = _google_pieces(_split_bytes(text, GOOGLE_MAX_BYTES_POST if post else GOOGLE_MAX_BYTES), src, dst)
     out = _join_pieces(outs, dst)
     if not out.strip():
         raise ValueError("leere Antwort von Google")
@@ -1319,7 +1334,10 @@ class _Implausible(ValueError):
 _LLM_PREFIX = re.compile(r"^\s*(?:translation|übersetzung|thai|english|คำแปล|"
                          + "|".join(re.escape(v["name"].lower()) for v in LANGS.values()) + r")\s*:\s*", re.I)
 _LLM_REFUSAL = re.compile(r"^\W*(?:(?:i'?m sorry|i am sorry|sorry|i can(?:no|'|’)t|i cannot|i'?m unable|i am unable)"
-                          r"\b.*\btranslat|as an ai\b)", re.I | re.S)
+                          r"\b.*\btranslat|as an ai\b"
+                          r"|(?:es tut mir leid|ich kann (?:das )?nicht|lo siento|no puedo|je suis désolé|désolé|"
+                          r"je ne peux pas)\b.*(?:übersetz|traduc|traduire)"
+                          r"|ขออภัย.{0,40}(?:แปล|ไม่สามารถ)|ฉันไม่สามารถแปล)", re.I | re.S)
 
 
 def _check_llm(text, out, dst, src=None):
@@ -1998,9 +2016,15 @@ def apply_pronounce(text):
     ändert nicht "pattern", und eine Ersetzung wird nicht von der nächsten Regel erneut ersetzt."""
     if not PRONOUNCE:
         return text
-    items = sorted(PRONOUNCE, key=lambda x: -len(x[0]))
-    rx = re.compile("|".join(f"({_term_rx(a).pattern})" for a, _ in items), re.I)
-    return rx.sub(lambda m: items[m.lastindex - 1][1], text)
+    rx, items = _pronounce_rx(tuple(PRONOUNCE))
+    return rx.sub(lambda m: items[m.lastindex - 1], text)
+
+
+@functools.lru_cache(maxsize=4)
+def _pronounce_rx(entries):
+    """Gesamtmuster je Aussprache-Liste einmal bauen (nicht bei jedem gesprochenen Satz neu sortieren/kompilieren)."""
+    items = sorted(entries, key=lambda x: -len(x[0]))
+    return re.compile("|".join(f"({_term_rx(a).pattern})" for a, _ in items), re.I), [b for _, b in items]
 
 
 STYLES = {
@@ -2204,7 +2228,7 @@ def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
     parts.append(f"Translate this {names.get(src, src)} speech into {names.get(dst, dst)}:\n<speech>{safe}</speech>")
     # statischer Teil zuerst und mit cache_control (Prompt-Caching), der wechselnde Stil danach
     static = llm_system().replace("{setting} ", "")
-    kw = dict(model=LLM["model"], max_tokens=512,
+    kw = dict(model=LLM["model"], max_tokens=max(512, min(4096, 3 * len(text) + 256)),   # lange Sätze nie abschneiden
               system=[{"type": "text", "text": static, "cache_control": {"type": "ephemeral"}},
                       {"type": "text", "text": STYLES.get(LLM["style"], STYLES["casual"])
                        + register_hint(dst, LLM["style"], LLM["formality"]) + (SLOW_PROMPT if SLOW["on"] else "")}],
@@ -2230,11 +2254,12 @@ def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
         # Prompt-Caching: Lesen kostet 0,1×, Schreiben 1,25× des Eingabepreises
         cost = (n("input_tokens") * pin + n("cache_read_input_tokens") * pin * 0.1
                 + n("cache_creation_input_tokens") * pin * 1.25 + n("output_tokens") * pout) / 1e6
-        LLM["usd"] += cost
+        with _SPEND_LOCK:                           # Hauptaufruf, Hedge und Recheck zählen parallel
+            LLM["usd"] += cost
         _spend_add(cost)
         emit("llm_cost", usd=round(LLM["usd"], 4), month_usd=round(_SPEND["usd"], 4),
              price_known=LLM["model"] in LLM_PRICE)
-    if r.stop_reason != "end_turn":                    # refusal, max_tokens, … -> nie halbe Sätze vorlesen
+    if r.stop_reason not in ("end_turn", "stop_sequence"):    # refusal, max_tokens … -> nie halbe Sätze vorlesen
         raise _BadClaudeAnswer(f"Claude: stop_reason {r.stop_reason}")
     out = _strip_quotes("".join(b.text for b in r.content if b.type == "text"))
     if not out:
@@ -3142,7 +3167,9 @@ def fractions_to_decimal(s):
 _CURRENCY_TOKENS = (
     ("THB", r"฿|\bthb\b|\bbaht\b|บาท"), ("USD", r"\$|\busd\b|\bus\s*dollars?\b|\bdollars?\b|ดอลลาร์|ดอลล่าร์"),
     ("EUR", r"€|\beur\b|\beuros?\b|ยูโร"), ("GBP", r"£|\bgbp\b|\bpounds?\b|ปอนด์"),
-    ("JPY", r"¥|\bjpy\b|\byen\b|เยน"),
+    ("JPY", r"¥|円|\bjpy\b|\byen\b|เยน"), ("KRW", r"₩|\bkrw\b|วอน"),
+    ("INR", r"₹|\binr\b|\brupees?\b|รูปี"), ("CNY", r"元|\bcny\b|\brmb\b|\byuan\b|หยวน"),
+    ("MYR", r"\bmyr\b|\bringgit\b|ริงกิต"),
 )
 _CUR_ANY_RX = "|".join(f"(?P<{c}>{rx})" for c, rx in _CURRENCY_TOKENS)
 _CUR_AMOUNT_RX = re.compile(r"(?:(?P<pre>" + _CUR_ANY_RX.replace("(?P<", "(?P<p") + r")\s*(?P<a1>\d[\d.,]*)"
@@ -3399,6 +3426,13 @@ _Q_START = {
                      r"puedo|puede|hay)\b", re.I),
     "fr": re.compile(r"^\W*(?:où|quand|comment|combien|pourquoi|est-ce|qui|quel(?:le)?s?|puis-je|avez-vous|y a-t-il)\b",
                      re.I),
+    "it": re.compile(r"^\W*(?:dove|quando|come|quanto\w*|perch[eé]|chi|che cosa|cosa|quale|quali|posso|può|c'è|"
+                     r"ci sono)\b", re.I),
+    "pt": re.compile(r"^\W*(?:onde|quando|como|quanto\w*|por que|porque|quem|qual|quais|posso|pode|tem|há)\b", re.I),
+    "nl": re.compile(r"^\W*(?:waar|wanneer|hoe|hoeveel\w*|waarom|wie|wat|welke?|kan|kunt|mag|heb|hebt|is|zijn)\b",
+                     re.I),
+    "ru": re.compile(r"^\W*(?:где|когда|как|сколько|почему|зачем|кто|что|какой|какая|какие|можно|есть ли)(?!\w)",
+                     re.I),
 }
 
 
@@ -3559,6 +3593,10 @@ def _wm(model, **kw):
             log({"model": model, "download": False, "err": _errtxt(e)})
             raise
         log({"model": model, "download": True, "err": _errtxt(e)})
+        if not enough_disk_for(model):
+            emit("error", msg=f"Zu wenig freier Speicher für das Modell '{model}' "
+                 f"(ca. {MODEL_SIZE_MB.get(model, 1600)} MB nötig) – Platz schaffen und neu starten")
+            raise OSError(errno.ENOSPC, "Zu wenig freier Speicher für den Modell-Download")
         if not _DOWNLOAD_SAID.get(model):         # MPS- und CPU-Versuch: nur einmal melden
             _DOWNLOAD_SAID[model] = True
             emit("loading", msg=f"Lade Modell '{model}' herunter (einmalig, bis ~1,5 GB) …", download=True)
@@ -3573,6 +3611,18 @@ def _wm(model, **kw):
 
 
 _DOWNLOAD_SAID = {}
+
+
+def enough_disk_for(model, path=None):
+    """Reicht der freie Platz im Modell-Cache für den Download (Größe + 10 %)? Unbekannt/Fehler: ja (nur vorbeugen)."""
+    path = path or os.environ.get("HF_HOME") or os.path.expanduser("~/.cache/huggingface")
+    while path and not os.path.exists(path) and os.path.dirname(path) != path:
+        path = os.path.dirname(path)                  # Ordner existiert vor dem ersten Download noch nicht
+    try:
+        free = shutil.disk_usage(path).free
+    except (OSError, ValueError, TypeError):
+        return True
+    return free >= MODEL_SIZE_MB.get(model, 1600) * 1.1 * 1024 * 1024
 # Ungefähre Größe (MB) der Modelldateien, falls der Hub die genaue Größe nicht liefert (offline/Fehler).
 MODEL_SIZE_MB = {"small": 486, "medium": 1531, "large-v3-turbo": 1622, THAI_MODEL: 1532}
 
@@ -3875,6 +3925,7 @@ def _clamp_rate(pct):
 
 
 _FFLOG = {"f": None}
+FFLOG_MAX = 5_000_000              # Byte: größere Debug-Datei wird beim nächsten Start neu angelegt
 
 
 def _child_stderr():
@@ -3883,7 +3934,13 @@ def _child_stderr():
         return subprocess.DEVNULL
     if _FFLOG["f"] is None:
         try:
-            fd = os.open(LOGFILE + ".ffmpeg", os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+            flags = os.O_WRONLY | os.O_CREAT | os.O_APPEND
+            try:
+                if os.path.getsize(LOGFILE + ".ffmpeg") > FFLOG_MAX:
+                    flags |= os.O_TRUNC             # wächst sonst ohne Grenze (nur Debug-Modus)
+            except OSError:
+                pass
+            fd = os.open(LOGFILE + ".ffmpeg", flags, 0o600)
             _FFLOG["f"] = os.fdopen(fd, "ab")
         except OSError:
             return subprocess.DEVNULL
