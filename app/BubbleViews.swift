@@ -193,6 +193,12 @@ struct Bubble: View, Equatable {
 
     private var canCorrect: Bool { u.uid != nil && running }
 
+    /// Systemwörterbuch-Popover (Nachschlagen) an der Mausposition.
+    private static func lookUp(_ word: String) {
+        guard let win = NSApp.keyWindow, let v = win.contentView else { return }
+        v.showDefinition(for: NSAttributedString(string: word), at: win.mouseLocationOutsideOfEventStream)
+    }
+
     @ViewBuilder private var menu: some View {
         Button(L.t("copy_translation")) { copy(u.out) }
         Button(L.t("copy_original")) { copy(u.text) }
@@ -206,6 +212,11 @@ struct Bubble: View, Equatable {
             Button(L.t("alt_reading") + ": " + alt) { m.retranslate(u, text: alt) }.disabled(!canCorrect)
         }
         Button(L.t("save_phrase")) { saveQuickPhrase(u.text) }
+        Menu(L.t("lookup_word")) {
+            ForEach(LookupWords.words(u.text + " " + u.out), id: \.self) { w in
+                Button(w) { Self.lookUp(w) }
+            }
+        }
         Button(L.t("read_aloud")) { m.replay(u) }
         Button(L.t("stop_speaking")) { m.stopSpeaking() }
         Divider()

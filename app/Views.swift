@@ -844,6 +844,15 @@ struct PresetMenu: View {
                 ForEach(PresetCatalog.all) { Text($0.name).tag($0.id) }
             }
             .pickerStyle(.inline)
+            let ids = ScenarioSuggest.suggest(hour: Calendar.current.component(.hour, from: Date()),
+                                              available: Set(PresetCatalog.all.map { $0.id }))
+            if m.preset.isEmpty && !ids.isEmpty {
+                Divider()
+                Text(L.t("preset_suggest"))
+                ForEach(ids, id: \.self) { id in
+                    if let p = PresetCatalog.all.first(where: { $0.id == id }) { Button(p.name) { m.preset = id } }
+                }
+            }
         } label: {
             Label(m.activePresetName ?? L.t("preset"), systemImage: "theatermasks")
         }

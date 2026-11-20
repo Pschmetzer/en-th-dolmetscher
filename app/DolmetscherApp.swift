@@ -200,6 +200,7 @@ struct AppCommands: Commands {
             Button(L.t("mini_title") + " (⌥⌘M)") { openWindow(id: "mini") }
                 .keyboardShortcut("m", modifiers: [.option, .command])
             Button(L.t("caption_title")) { openWindow(id: "caption") }   // Nr. 52
+            Button(L.t("phrasebook_title")) { openWindow(id: "phrasebook") }
             Button(L.t("hist_title")) { openWindow(id: "history") }
             Toggle(L.t("always_on_top"), isOn: $onTop)
                 .keyboardShortcut("t", modifiers: [.command, .option])
@@ -304,6 +305,7 @@ struct MenuBarContent: View {
         Button(L.t("partner_view")) { openWindow(id: "partner"); NSApp.activate(ignoringOtherApps: true) }
         Button(L.t("mini_title")) { openWindow(id: "mini"); NSApp.activate(ignoringOtherApps: true) }
         Button(L.t("caption_title")) { openWindow(id: "caption"); NSApp.activate(ignoringOtherApps: true) }
+        Button(L.t("phrasebook_title")) { openWindow(id: "phrasebook"); NSApp.activate(ignoringOtherApps: true) }
         Button(L.t("hist_title")) { openWindow(id: "history"); NSApp.activate(ignoringOtherApps: true) }
         Button(L.t("settings") + " …") {
             NSApp.activate(ignoringOtherApps: true)
@@ -359,6 +361,11 @@ struct DolmetscherApp: App {
         }
         .defaultSize(width: 360, height: 150)
         .windowResizability(.contentMinSize)
+
+        Window(L.t("phrasebook_title"), id: "phrasebook") {
+            PhrasebookView().environmentObject(model)
+        }
+        .defaultSize(width: 480, height: 420)
 
         Window(L.t("caption_title"), id: "caption") {
             CaptionView().environmentObject(model)
