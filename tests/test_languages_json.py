@@ -154,7 +154,7 @@ def test_ios_project_bundles_file_in_app_target():
 # --- Web: per fetch, offline aus dem Service Worker ----------------------------------------------------------
 
 def test_web_fetches_file_and_has_no_own_table():
-    assert "fetch('languages.json')" in SCRIPT
+    assert "fetchRetry('languages.json')" in SCRIPT
     assert "const SCRIPTS = {}, LANGS = {};" in SCRIPT
     assert "NiwatNeural" not in HTML and '"Niederländisch"' not in HTML
     sw = (ROOT / "sw.js").read_text(encoding="utf-8")

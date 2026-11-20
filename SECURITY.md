@@ -26,6 +26,10 @@ Please leave out real conversation text, voice recordings and logs with personal
 
 This is a small volunteer project: expect a first answer within about a week. Once a fix is ready, it is released and the report is credited, unless you prefer to stay anonymous.
 
+## Limits of the browser version
+
+The web page cannot set HTTP headers on GitHub Pages: the Content-Security-Policy is a `<meta>` tag and still needs `'unsafe-inline'` for its inline script, `frame-ancestors` does not work there (a small frame-buster script covers it). Health data on the allergy card stays in this browser's `localStorage`, readable by any page on the same origin. See `docs/ARCHITEKTUR.md` for the details.
+
 ## What counts
 
 Especially interesting, because the app handles speech and conversation text:

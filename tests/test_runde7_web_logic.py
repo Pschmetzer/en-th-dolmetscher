@@ -120,7 +120,7 @@ def test_emergency_numbers_and_report_url():
 def test_manifest_shortcuts_and_share_target():
     m = json.loads((ROOT / "manifest.webmanifest").read_text(encoding="utf-8"))
     ids = {p["id"] for p in json.loads((ROOT / "presets-index.json").read_text(encoding="utf-8"))["packs"]}
-    assert m["shortcuts"] and all(re.fullmatch(r"\./#preset=(\w+)", s["url"]) and s["url"].split("=")[1] in ids for s in m["shortcuts"])
+    assert m["shortcuts"] and all(s["url"] in ("./#numbers", "./#allergy") or (re.fullmatch(r"\./#preset=(\w+)", s["url"]) and s["url"].split("=")[1] in ids) for s in m["shortcuts"])
     assert m["share_target"]["method"] == "GET" and m["share_target"]["params"]["text"] == "text"
     sw = (ROOT / "sw.js").read_text(encoding="utf-8")
     for f in ("allergens.json", "presets-index.json"):
