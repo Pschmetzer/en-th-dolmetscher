@@ -625,7 +625,9 @@ def pair_from_langs(me_lang, partner_lang):
 
 def kmeans_centroids(embs, k=2, iters=10):
     """Deterministisches k-means auf normierten Stimmabdrücken (Kosinus). -> [(zentroid, größe)], größte Gruppe
-    zuerst. Wenige/gleiche Abdrücke liefern weniger als k Zentroide."""
+    zuerst. Wenige/gleiche Abdrücke liefern weniger als k Zentroide. Keine Abdrücke -> []."""
+    if not len(embs):
+        return []
     arr = np.stack([np.asarray(e, dtype=np.float32) for e in embs])
     arr = arr / (np.linalg.norm(arr, axis=1, keepdims=True) + 1e-9)
     cents = [arr[0]]
@@ -655,7 +657,37 @@ CLUSTER_MIN_SIM = 0.55               # Abdrücke, die sich mindestens so ähnlic
 CLUSTER_MAX = 8                      # mehr Personen in einer Sitzung unterscheiden wir nicht
 
 
+def _valid_emb(e):
+    """float32-Vektor oder None (nicht numerisch, leer, NaN/inf, Nullvektor)."""
+    try:
+        v = np.asarray(e, dtype=np.float32).ravel()
+    except (TypeError, ValueError):
+        return None
+    if v.size == 0 or not np.isfinite(v).all() or float(np.linalg.norm(v)) < 1e-6:
+        return None
+    return v
+
+
 def cluster_speakers(embs, min_sim=CLUSTER_MIN_SIM, max_k=CLUSTER_MAX):
+    """Wie _cluster_core, aber robust (Runde 25): ungültige Abdrücke (NaN/inf, Nullvektor, nicht numerisch) und
+    solche mit abweichender Länge (anderes Stimmmodell) bekommen das Label -1 und stören die übrigen nicht.
+    Ergebnis: je Eingabe ein Label, gleiche Länge wie `embs`."""
+    n = len(embs)
+    if not n:
+        return []
+    good = {i: v for i, v in ((i, _valid_emb(e)) for i, e in enumerate(embs)) if v is not None}
+    if not good:
+        return [-1] * n
+    dim = Counter(v.size for v in good.values()).most_common(1)[0][0]
+    idx = [i for i, v in good.items() if v.size == dim]
+    core = _cluster_core([good[i] for i in idx], min_sim, max_k)
+    out = [-1] * n
+    for i, lab in zip(idx, core):
+        out[i] = lab
+    return out
+
+
+def _cluster_core(embs, min_sim=CLUSTER_MIN_SIM, max_k=CLUSTER_MAX):
     """Sprecher ohne Profil trennen (Runde 24, auch mehr als zwei): Abdrücke -> Labels 0..k-1, die größte Gruppe
     hat Label 0. Greedy nach Kosinus zum Zentroid (Reihenfolge der Äußerungen), danach k-means-Verfeinerung; Gruppen
     mit nur einem Satz werden der ähnlichsten größeren zugeschlagen. Leere Liste -> []."""
