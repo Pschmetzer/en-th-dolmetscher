@@ -26,7 +26,7 @@ globalThis.fetch = async r => {
   return resp('net:' + u);
 };
 const cache = {
-  add: async u => { if (u.endsWith('icon-512.png')) throw new Error('404'); store.set(u, resp('net:' + u)); },
+  add: async u => { u = u.url || u; if (u.endsWith('icon-512.png')) throw new Error('404'); store.set(u, resp('net:' + u)); },
   put: async (r, v) => { if (putThrows) throw new Error('quota'); store.set(r.url || r, v); },
   match: async r => store.get(r.url || r),
 };

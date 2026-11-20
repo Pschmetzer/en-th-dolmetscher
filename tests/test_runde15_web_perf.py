@@ -11,7 +11,7 @@ import pytest
 from _webhelpers import HAVE_NODE, HTML, ROOT, SCRIPT, func
 
 SW = (ROOT / "sw.js").read_text(encoding="utf-8")
-BUDGET_HTML = 232_000   # gemessen 211 355 Byte vor Runde 15, plus rund 10 %
+BUDGET_HTML = 256_000   # Runde 21: 230 229 Byte + neue Texte (de/en/th), Notrufnummern, Lautschrift-Schalter; STR (67 KB) liesse sich später in i18n-Dateien auslagern
 BUDGET_SW = 8_000
 node = pytest.mark.skipif(not HAVE_NODE or not shutil.which("node"), reason="node nicht installiert")
 
@@ -63,7 +63,7 @@ caches_['dolmetscher-web-v1'].set('https://x.test/a/presets/doctor.json', resp('
 let inflight = 0, maxIn = 0;
 globalThis.self = { registration: { scope: 'https://x.test/a/' }, location: { origin: 'https://x.test' }, addEventListener: (t, f) => { handlers[t] = f; }, skipWaiting: async () => {}, clients: { claim: async () => {} } };
 globalThis.fetch = async u => { inflight++; maxIn = Math.max(maxIn, inflight); await new Promise(r => setTimeout(r, 2)); inflight--; return resp('net:' + (u.url || u)); };
-const open = async k => { const m = caches_[k]; return { add: async u => { m.set(u, resp('net:' + u)); }, put: async (u, v) => { m.set(u.url || u, v); }, match: async u => m.get(u.url || u) }; };
+const open = async k => { const m = caches_[k]; return { add: async u => { u = u.url || u; m.set(u, resp('net:' + u)); }, put: async (u, v) => { m.set(u.url || u, v); }, match: async u => m.get(u.url || u) }; };
 globalThis.caches = { open, keys: async () => Object.keys(caches_), delete: async () => {}, match: async () => undefined };
 (async () => {
   %SW%

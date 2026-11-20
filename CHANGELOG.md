@@ -6,6 +6,14 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 Pull requests #16–#47. Not yet published as a release.
 
+### Web version, round 21
+
+- Learning cards: keys 1-4 no longer also start the microphone; held keys no longer toggle modes repeatedly; Space still opens sections and links.
+- Own phrases in English on the default EN ⇄ TH pair are no longer stored as Thai; history search ignores button labels and respects new entries.
+- Shared text (`?text=`) is only sent to Google Translate after a confirmation; the learning timer no longer speaks in the background.
+- Emergency numbers (1669, 191, 199, 1155) for more than 40 topics instead of 12.
+- Installable app: separate maskable icons, opaque 180 px Apple icon, iOS meta tags; the service worker refuses an install without page and language table and checks for updates hourly.
+
 ### Highlights
 
 - **19 languages instead of two** on Mac and iPhone: pick “my language” and “partner's language”, e.g. German ⇄ Thai or Spanish ⇄ Japanese. English ⇄ Thai stays the default (#29, #32).

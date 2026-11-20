@@ -40,7 +40,7 @@ def test_manifest_installable():
 def test_html_links_manifest_and_registers_sw():
     assert '<link rel="manifest" href="manifest.webmanifest">' in HTML
     assert 'rel="icon"' in HTML and 'name="theme-color"' in HTML
-    assert "navigator.serviceWorker.register('sw.js')" in HTML
+    assert "navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })" in HTML
     assert "window.isSecureContext" in HTML               # file:// und http-Fremdhosts: kein Versuch
 
 
@@ -110,7 +110,7 @@ globalThis.self = {
 };
 globalThis.fetch = async r => { if (!online) throw new Error('offline'); return resp('net:' + (r.url || r)); };
 const cache = {
-  add: async u => { store.set(u, resp('net:' + u)); }, put: async (r, v) => { store.set(r.url || r, v); },
+  add: async u => { u = u.url || u; store.set(u, resp('net:' + u)); }, put: async (r, v) => { store.set(r.url || r, v); },
   match: async r => store.get(r.url || r),
 };
 globalThis.caches = { open: async () => cache, keys: async () => ['dolmetscher-web-v1', 'other'],

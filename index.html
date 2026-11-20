@@ -11,7 +11,11 @@
 <meta name="description" content="Dolmetscher im Browser: Sprechen, übersetzen, vorlesen, Satzbuch mit Zeige-Karten (auch offline).">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Dolmetscher">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Dolmetscher (Web Lite)</title>
 <style>
   :root {
@@ -102,6 +106,7 @@
   .cardwrap { position:relative; display:flex; }
   .card { flex:1; width:100%; text-align:left; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px 50px 10px 12px; cursor:pointer; min-height:56px; overflow-wrap:anywhere; }
   .card.crit { border:2px solid var(--crit); }
+  #partnerText.crit { border:6px solid var(--crit); border-radius:16px; padding:12px; }
   .card .crit-b { display:block; font-size:12px; font-weight:700; color:var(--crit); }
   .cardwrap .card { min-height:92px; }
   .sharec { position:absolute; bottom:4px; right:52px; min-width:44px; min-height:44px; background:transparent; border:0; border-radius:8px; font-size:20px; cursor:pointer; }
@@ -195,10 +200,11 @@
 </head>
 <body>
 <noscript><p style="padding:16px;font-size:18px">Diese Seite braucht JavaScript. / This page needs JavaScript.</p></noscript>
+<a class="skip" id="skipMain" href="#main" data-i18n="skipMain">Zum Inhalt springen</a>
 <a class="skip" id="skipLink" href="#pbBox" data-i18n="skipLink">Zum Satzbuch springen</a>
-<div class="wrap" id="main">
+<div class="wrap" id="main" tabindex="-1">
 <header>
-  <h1>🌐 Dolmetscher <small style="color:var(--mut);font-weight:400">Web Lite</small></h1>
+  <h1><span aria-hidden="true">🌐</span> Dolmetscher <small style="color:var(--mut);font-weight:400">Web Lite</small></h1>
   <span id="status" aria-live="off">Bereit</span>
   <select id="uiLang" aria-label="Sprache der Oberfläche / Interface language / ภาษาหน้าจอ"><option value="de">Deutsch</option><option value="en">English</option><option value="th">ไทย</option></select>
   <span class="tools"><button class="small" id="btnTheme" type="button">◐</button><button class="small" id="btnTextDown" type="button">A−</button><button class="small" id="btnTextUp" type="button">A+</button></span>
@@ -209,7 +215,7 @@
 <div class="note" role="note" data-i18n-html="lite">
   <b class="lite">Lite-Version – eingeschränkt.</b> Hier wählst du selbst, wer spricht (<kbd>E</kbd>/<kbd>T</kbd> oder die Knöpfe); Erkennung und Stimmen kommen vom Browser: am besten <b>Chrome</b> (Computer, Android); <b>Safari</b> (Mac, iPhone) geht nur mit eingeschalteter Diktierfunktion und mit Einschränkungen; Firefox kann keine Spracherkennung. Nicht auf allen Geräten getestet.
   Die <b>Mac-App</b> ist deutlich besser: erkennt die Sprache automatisch, Sprachbefehle, bessere Erkennung (Whisper), Neural-Stimmen, Stimmprofile, optional Übersetzung mit Claude.
-  <a href="https://github.com/Pschmetzer/en-th-dolmetscher" target="_blank" rel="noopener">Mac-/iPhone-App &amp; Quellcode auf GitHub</a>
+  <a href="https://github.com/Pschmetzer/en-th-dolmetscher" target="_blank" rel="noopener noreferrer">Mac-/iPhone-App &amp; Quellcode auf GitHub</a>
 </div>
 <div class="note" role="note" id="privacy" data-i18n-html="privacy">
   <b>Datenschutz:</b> Die Spracherkennung macht der Browser – Chrome sendet dein <b>Audio an Googles Server</b>, Safari an Apple (je nach Gerät auch lokal). Der erkannte Text geht zum Übersetzen an Google Translate (Ersatz: MyMemory). Die Mac-App erkennt Sprache dagegen lokal auf dem Gerät. <b>Pause</b> und <b>Stopp</b> schalten das Mikrofon ganz aus. Das Satzbuch (unten) funktioniert ohne Mikrofon und für Englisch/Thai auch offline; in anderen Sprachen werden Sätze beim ersten Tippen an Google Translate gesendet (Karte als „automatisch übersetzt“ markiert). <b>Lernkarten</b> (★ gemerkte und, nur wenn eingeschaltet, zuletzt übersetzte Sätze) bleiben nur in diesem Browser; „Alle Lernkarten löschen“ entfernt sie.
@@ -217,7 +223,7 @@
 <div class="note" role="status" id="offline" data-i18n="offline">Offline: Übersetzen und Spracherkennung gehen gerade nicht. Das Satzbuch mit Zeige-Karten funktioniert weiter.</div>
 <div class="note" role="status" id="swNote" hidden></div>
 <div class="note" role="note" id="installNote" hidden></div>
-<div id="warn" role="alert"></div>
+<div id="warn" role="alert" aria-atomic="false"></div>
 <h2 class="sr-only" data-i18n="hTalk">Sprechen und übersetzen</h2>
 <div class="pair">
   <label><span data-i18n="iSpeak">Ich spreche</span> <select id="langA" aria-label="Meine Sprache"></select></label>
@@ -532,6 +538,9 @@ const STR = {
   "shareLink": "Als Link teilen",
   "again2": "🔊 Nochmal",
   "skipLink": "Zum Satzbuch springen",
+  "skipMain": "Zum Inhalt springen",
+  "shareAsk": "Geteilten Text übersetzen? Er wird dafür an Google Translate gesendet.",
+  "shareGo": "Übersetzen",
   "pbSearch": "Satz suchen",
   "pbNoMatch": "Kein Satz passt zu „{q}“ – anderes Wort versuchen oder Suche leeren.",
   "pbCount": "{n} von {m} Sätzen",
@@ -822,6 +831,9 @@ const STR = {
   "shareLink": "Share as link",
   "again2": "🔊 Again",
   "skipLink": "Skip to phrasebook",
+  "skipMain": "Skip to main content",
+  "shareAsk": "Translate the shared text? It is sent to Google Translate for this.",
+  "shareGo": "Translate",
   "pbSearch": "Find phrase",
   "pbNoMatch": "No phrase matches \"{q}\" – try another word or clear the search.",
   "pbCount": "{n} of {m} phrases",
@@ -1112,6 +1124,9 @@ const STR = {
   "shareLink": "แชร์เป็นลิงก์",
   "again2": "🔊 อีกครั้ง",
   "skipLink": "ข้ามไปที่สมุดวลี",
+  "skipMain": "ข้ามไปที่เนื้อหา",
+  "shareAsk": "แปลข้อความที่แชร์มาไหม ข้อความจะถูกส่งไปยัง Google Translate",
+  "shareGo": "แปล",
   "pbSearch": "ค้นหาประโยค",
   "pbNoMatch": "ไม่พบประโยคที่ตรงกับ \"{q}\" – ลองคำอื่นหรือล้างช่องค้นหา",
   "pbCount": "{n} จาก {m} ประโยค",
@@ -1682,9 +1697,9 @@ async function translateOne(text, src, dst) {
   return { text: g, via: 'google' };
 }
 async function translate(text, src, dst) {
-  const parts = await Promise.all(splitText(text, 300).map(p => translateOne(p, src, dst)));
+  const parts = await mapLimit(splitText(text, 300), 2, p => translateOne(p, src, dst));   // wenige Anfragen gleichzeitig (Limits der Dienste)
   if (!parts.length) throw new Error('empty');
-  const text2 = parts.map(p => p.text).join(' ');
+  const text2 = parts.map(p => p.text).join(/^(th|ja|zh|lo|km|my)/.test(dst) ? '' : ' ');   // Sprachen ohne Wortabstand
   return { text: text2, via: parts.some(p => p.via === 'mymemory') ? 'mymemory' : 'google', same: unchanged(text, text2) };
 }
 
@@ -1819,7 +1834,8 @@ function badge(el, text) { const b = document.createElement('span'); b.className
 warn.addEventListener('click', e => {
   const a = e.target.closest && e.target.closest('[data-act]'); if (!a) return;
   const act = a.dataset.act;
-  if (act === 'copyerr') { try { navigator.clipboard.writeText(errInfo); setStatus(t('errCopied'), true); } catch { window.prompt(t('errCopyBtn') + ':', errInfo); } }
+  if (act === 'copyerr') { const ask = () => window.prompt(t('errCopyBtn') + ':', errInfo); try { navigator.clipboard.writeText(errInfo).then(() => setStatus(t('errCopied'), true), ask); } catch { ask(); } }
+  else if (act === 'sharego') { clearWarn(warnMsgs.filter(m => m.includes('data-act="sharego"'))); if (sharedGo) sharedGo(); }
   else if (act === 'type') { $('typeBox').open = true; $('typeIn').focus(); }
   else if (act === 'phrasebook') { $('pbBox').open = true; $('pbBox').scrollIntoView({ block: 'start' }); $('pbQ').focus(); }
   else if (act === 'retry') { clearWarn(warnMsgs.slice()); if (!mode) chooseMode('a'); }
@@ -1838,6 +1854,7 @@ function addEntry(cls, orig, trans, isErr, from, to) {
   if (!trans) tt.style.display = 'none';
   entry.setAttribute('role', 'listitem');
   log.prepend(entry);
+  if ($('logQ').value.trim()) applyLogFilter();   // neuer Eintrag respektiert den aktiven Filter
   if (log.children.length > MAX_LOG && !trimWarned) { trimWarned = true; setStatus(t('logTrimmed'), true); }
   while (log.children.length > MAX_LOG) log.removeChild(log.lastChild);   // Speicher auf dem Handy schonen
   return tt;
@@ -2068,6 +2085,7 @@ function pbSave() {   // Obergrenze: die ältesten fliegen raus
 async function loadPreset(id) {
   if (!presetCache[id]) {
     presetCache[id] = fetch('presets/' + id + '.json').then(r => { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+      .then(d => { if (!d || !Array.isArray(d.phrases) || !d.phrases.length) throw new Error('bad pack'); d.names = d.names || { de: id, en: id }; return d; })   // kaputtes Paket: Fehlermeldung statt Absturz
       .catch(e => { delete presetCache[id]; throw e; });
   }
   return presetCache[id];
@@ -2153,12 +2171,12 @@ async function renderCards() {
     const w = document.createElement('div'); w.className = 'cardwrap';
     const c = document.createElement('button');
     c.type = 'button'; c.className = 'card' + (p.critical ? ' crit' : '');
-    if (p.critical) { const k = document.createElement('span'); k.className = 'crit-b'; k.lang = 'de'; k.textContent = t('important'); c.appendChild(k); }
+    if (p.critical) { const k = document.createElement('span'); k.className = 'crit-b'; k.lang = UI; k.textContent = t('important'); c.appendChild(k); }
     const s = document.createElement('span'); s.className = 's'; s.textContent = p[a] || p.en; s.lang = p[a] ? a : 'en'; s.dir = 'auto';
     const tt = document.createElement('span'); tt.className = 't'; tt.lang = b; tt.dir = 'auto';
     tt.textContent = p[b] || pbGet(b + '|' + p.en) || '…';
     c.append(s, tt);
-    if (!p[b]) { const m = document.createElement('span'); m.className = 'mt-b'; m.lang = 'de'; m.textContent = t('machine'); c.appendChild(m); }
+    if (!p[b]) { const m = document.createElement('span'); m.className = 'mt-b'; m.lang = UI; m.textContent = t('machine'); c.appendChild(m); }
     const front = p[a] || p.en, fl = p[a] ? a : 'en';
     w.append(c, starButton(() => { const bt = p[b] || pbGet(b + '|' + p.en); return bt ? learnItem(front, fl, bt, b) : null; },
                            async () => learnItem(front, fl, await phraseIn(p, b), b), 'star'));
@@ -2318,7 +2336,7 @@ function learnStore(list) {
   try { if (list.length && navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch {}   // Safari räumt sonst nach 7 Tagen
   learnRender(); syncStars(); renderFavOrder();
 }
-setInterval(() => { if (!document.hidden) learnRender(); }, 60000);   // "fällig" auch bei offen gelassener Seite aktuell
+setInterval(() => { if (!document.hidden && $('learnBox').open) learnRender(); }, 60000);   // "fällig" auch bei offen gelassener Seite aktuell
 function learnGrade(grade) { if (learnCur && !$('learnYes').hidden) learnAnswer(grade); }
 function learnTypedMatch(heard, typed) {
   const n = x => String(x || '').toLowerCase().replace(/[\s\p{P}]+/gu, '');
@@ -2379,7 +2397,7 @@ function learnRender() {
   $('learnBoxNr').textContent = t('learnBoxNr', { n: learnCur.box, l: lname(learnCur.b.l) });
   if (learnShownKey !== learnKey(learnCur)) {
     learnShownKey = learnKey(learnCur); learnReveal(false); $('learnPracticeOut').textContent = ''; $('learnDictOut').textContent = ''; $('learnDictIn').value = '';
-    if (($('learnListen').checked || $('learnDictate').checked) && !document.hidden) sayNow(learnCur.b.t, learnCur.b.l);
+    if (($('learnListen').checked || $('learnDictate').checked) && !document.hidden && $('learnBox').open) sayNow(learnCur.b.t, learnCur.b.l);
   }
   statsRender();
 }
@@ -2582,10 +2600,11 @@ function logRows() {
     return { orig: o && o.firstChild ? o.firstChild.textContent : '', trans: ok && tr.firstChild ? tr.firstChild.textContent : '' };
   });
 }
+function logSearchText(e) { return [...e.querySelectorAll('.orig,.trans')].map(x => x.firstChild ? x.firstChild.textContent : '').join(' '); }   // nur Original und Übersetzung, nicht die Knopftexte
 function applyLogFilter() {
   const q = $('logQ').value, items = [...log.children];
   let n = 0;
-  for (const e of items) { const ok = pbMatch(e.textContent, q); e.hidden = !ok; if (ok) n++; }
+  for (const e of items) { const ok = pbMatch(logSearchText(e), q); e.hidden = !ok; if (ok) n++; }
   $('logCount').textContent = !pbNorm(q) ? '' : n ? t('logCount', { n, m: items.length }) : t('logNone', { q: q.trim() });
 }
 let logQTimer = null;
@@ -2684,7 +2703,7 @@ document.addEventListener('keydown', e => {
     return;
   }
   if (!$('keysOn').checked) return;                            // single-key shortcuts can be switched off (WCAG 2.1.4)
-  if (isTyping(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.defaultPrevented || e.repeat || isTyping(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;   // Lernkarten-Tasten 1-4 schon verbraucht; gehaltene Taste schaltet nichts im Autorepeat
   if (e.key === '?') { e.preventDefault(); $('helpBox').open = true; $('helpBox').querySelector('summary').focus(); return; }
   if (e.key === '/' && !$('partner').classList.contains('on')) { e.preventDefault(); $('pbBox').open = true; $('pbQ').focus(); return; }
   if (e.code === 'KeyP') { togglePartner(); return; }
@@ -2694,7 +2713,7 @@ document.addEventListener('keydown', e => {
   if ($('partner').classList.contains('on')) return;          // Partneransicht offen: dahinter nichts umschalten
   if (e.code === 'KeyE' || e.code === 'Digit1') { if (SR) chooseMode('a'); }
   else if (e.code === 'KeyT' || e.code === 'Digit2') { if (SR) chooseMode('b'); }
-  else if (e.code === 'Space' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') { e.preventDefault(); if (mode) setMode(mode); }
+  else if (e.code === 'Space' && mode && !e.target.closest('button,input,summary,a,[role=button]')) { e.preventDefault(); if (mode) setMode(mode); }
 });
 
 // ---- Runde 7: Zahlen, eigene Karten, Allergiekarte, Lernstand, Deep-Links (reine Logik zuerst, dann Verdrahtung) ----
@@ -2859,6 +2878,16 @@ const EMERGENCY = {   // Notrufnummern je Paket (Thailand); als tel:-Link, nicht
   travel: [['emRescue', '1669'], ['emPolice', '191'], ['Tourist Police', '1155']], hotel: [['emRescue', '1669'], ['emFire', '199'], ['Tourist Police', '1155']],
   scooter: [['emRescue', '1669'], ['emPolice', '191']], transport: [['Tourist Police', '1155']],
 };
+{   // übrige Pakete: passende Notrufnummern (1669 Rettung, 191 Polizei, 199 Feuerwehr, 1155 Touristenpolizei)
+  const R = ['emRescue', '1669'], P = ['emPolice', '191'], T = ['Tourist Police', '1155'], F = ['emFire', '199'];
+  const add = (ids, nums) => ids.split(' ').forEach(id => { if (!EMERGENCY[id]) EMERGENCY[id] = nums; });
+  add('emergency motorbike-accident', [R, P, T, F]);
+  add('hospital baby food-allergy pharmacy-otc massage yoga-retreat gym muay-thai-gym sport hiking elephant-sanctuary animal-bite-rabies kids kids-playground school', [R]);
+  add('car-rental bicycle-rental jet-ski-rental diving snorkel-boat-tour beach island-hopping ferry-boat monsoon-flood-storm nightlife festival floating-market', [R, P, T]);
+  add('hostel-dorm', [R, F, T]);
+  add('lost-passport travel-insurance-claim atm-bank-card market night-market-bargain taxi grab-ride-hailing', [T, P]);
+  add('tuk-tuk-songthaew bus-train bangkok-skytrain immigration-90day visa visa-extension', [T]);
+}
 const ISSUE_URL = 'https://github.com/Pschmetzer/en-th-dolmetscher/issues/new';
 function reportUrl(ctx) {   // vorbefülltes GitHub-Formular (Paket, Satz, Anzeige); nichts wird automatisch gesendet
   const q = new URLSearchParams({ template: 'phrase-review.yml', title: 'Satz prüfen: ' + String(ctx.en).slice(0, 60), pack: ctx.pack, english: ctx.en, shown: ctx.th + ' (' + ctx.lang + ')' });
@@ -2953,7 +2982,7 @@ function renderFavOrder() {
     box.appendChild(r);
   });
 }
-function myLangOf(text) { return scriptShare(text, 'th') > 0.5 ? 'th' : pair.b; }
+function myLangOf(text) { return scriptShare(text, 'th') > 0.5 ? 'th' : (pair.a === 'th' ? pair.b : pair.a); }   // Thai-Schrift = Thai; sonst die Sprache des Paars, die nicht Thai ist
 function myEditStart(i) {
   const c = myCards[i]; if (!c) return;
   myEdit = i; $('myLabel').value = c.label; $('myGrp').value = c.grp || ''; $('myText').value = c.text; $('myTr').value = c.tr || '';
@@ -3196,6 +3225,7 @@ $('learnPractice').onclick = () => {
 };
 
 // ---- Deep-Links, geteilte Texte, Installationshinweis ----
+let sharedGo = null;   // wird nach Bestätigung des Teilen-Hinweises ausgeführt
 let sharedPending = null;   // geteilter Text, der noch auf Netz wartet
 function applyDeepLink() {
   const d = parseDeepLink(location.hash, location.search, PRESET_IDS);
@@ -3208,9 +3238,12 @@ function applyDeepLink() {
   }
   if (d.incoming) {   // aus einer anderen App geteilt: übersetzen und groß zeigen, nichts speichern
     const src = textLang(d.incoming, pair.b, pair.a, pair.b), dst = src === pair.a ? pair.b : pair.a;
-    $('typeIn').value = d.incoming.slice(0, 500);   // bleibt im Eingabefeld, falls die Übersetzung scheitert
-    sharedPending = d.incoming;
-    translate(d.incoming, src, dst).then(r => { sharedPending = null; if ($('typeIn').value === d.incoming.slice(0, 500)) $('typeIn').value = ''; showBig(r.text, dst); }, () => { $('typeBox').open = true; showWarn(t(navigator.onLine === false ? 'sharedWait' : 'sharedFail')); });
+    $('typeIn').value = d.incoming.slice(0, 500);   // bleibt im Eingabefeld; gesendet wird erst nach Bestätigung (Datenschutz)
+    sharedPending = d.incoming; $('typeBox').open = true;
+    sharedGo = () => {
+      translate(d.incoming, src, dst).then(r => { sharedPending = null; if ($('typeIn').value === d.incoming.slice(0, 500)) $('typeIn').value = ''; showBig(r.text, dst); }, () => { $('typeBox').open = true; showWarn(t(navigator.onLine === false ? 'sharedWait' : 'sharedFail')); });
+    };
+    showWarn(t('shareAsk') + ' <button type="button" class="small" data-act="sharego">' + t('shareGo') + '</button>');
   }
   return true;
 }
@@ -3231,7 +3264,7 @@ function maybeInstallHint() {
   let done = false; try { done = localStorage.getItem('installHint') === '1'; } catch {}
   if (done || installedNow || isStandalone()) return;
   const n = $('installNote'); n.textContent = '';
-  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const ios = isIOS;
   if (!installPrompt && !ios) return;
   n.append(t(installPrompt ? 'installApp' : 'installIos'));
   const mk = (label, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'small'; b.textContent = label; b.onclick = fn; n.appendChild(b); };
@@ -3297,12 +3330,13 @@ if ('serviceWorker' in navigator && window.isSecureContext && /^https?:$/.test(l
     }
   });
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').then(() => navigator.serviceWorker.ready)
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(() => navigator.serviceWorker.ready)
       .then(reg => {
         if (reg.active) reg.active.postMessage({ type: 'offline-status' });
+        setInterval(() => { if (!document.hidden) reg.update().catch(() => {}); }, 3600000);   // lange offen gelassene App: stündlich nach Updates fragen
         document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });   // lange offene App: beim Zurückkehren nach Updates fragen
       })
-      .catch(e => console.warn('sw', e));
+      .catch(e => { console.warn('sw', e); $('swState').textContent = t('noSw'); });
   });
 }
 
@@ -3313,6 +3347,7 @@ $('skipLink').addEventListener('click', e => { e.preventDefault(); $('pbBox').op
 $('learnCard').addEventListener('keydown', e => {   // Pfeile: nach dem Aufdecken beantworten (nicht in Eingabefeldern)
   if (e.ctrlKey || e.metaKey || e.altKey || isTyping(e.target)) return;
   const grade = { '1': 1, '2': 2, '3': 3, '4': 4, ArrowLeft: 1, ArrowRight: 3 }[e.key];
+  if (/^[1-4]$/.test(e.key)) e.preventDefault();   // Ziffer gehört der Karte: startet kein Mikrofon
   if (e.key === ' ' && e.target.tagName !== 'BUTTON' && !$('learnShow').hidden) { e.preventDefault(); $('learnShow').click(); return; }
   if ($('learnYes').hidden) return;
   if (grade) { e.preventDefault(); learnGrade(grade); }
@@ -3321,6 +3356,7 @@ $('wipeLocal').onclick = () => {   // alles, was diese Seite lokal speichert (nu
   if (!window.confirm(t('wipeConfirm'))) return;
   try { localStorage.clear(); } catch {}
   try { sessionStorage.clear(); } catch {}
+  try { if (window.caches) caches.keys().then(ks => ks.forEach(k => caches.delete(k))); navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister())); } catch {}   // auch Offline-Speicher; wird nach dem Neuladen neu aufgebaut
   learnList = []; myCards = []; learnStats = {}; clearLog();
   setStatus(t('wipeDone'), true); setTimeout(() => location.reload(), 600);
 };
@@ -3338,7 +3374,10 @@ if (navigator.permissions && navigator.permissions.query) {   // Mikrofon schon 
 // ---- Runde 9: Design (automatisch/hell/dunkel) und Schriftgröße, gemerkt in den Einstellungen ----
 const THEMES = ['auto', 'light', 'dark'], THEME_ICON = { auto: '◐', light: '☀', dark: '☾' }, THEME_KEY = { auto: 'themeAuto', light: 'themeLight', dark: 'themeDark' };
 let theme = THEMES.includes(settings.theme) ? settings.theme : 'auto';
-function applyTheme() { if (theme === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.dataset.theme = theme; }
+function applyTheme() {
+  if (theme === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.dataset.theme = theme;
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m => { m.content = theme === 'auto' ? (m.media.includes('dark') ? '#0f1115' : '#1d4ed8') : theme === 'dark' ? '#0f1115' : '#1d4ed8'; });   // Adressleiste passt zum gewählten Design
+}
 function updateThemeBtn() { const b = $('btnTheme'); if (!b) return; b.textContent = THEME_ICON[theme]; b.setAttribute('aria-label', t(THEME_KEY[theme])); b.title = t(THEME_KEY[theme]); }
 $('btnTheme').onclick = () => { theme = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length]; settings.theme = theme; saveSettings(); applyTheme(); updateThemeBtn(); setStatus(t(THEME_KEY[theme]), true); };
 applyTheme();

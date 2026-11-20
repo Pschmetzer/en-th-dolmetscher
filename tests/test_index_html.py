@@ -66,7 +66,7 @@ def test_mymemory_errors_and_entities():
     assert "decodeEntities" not in func("viaGoogle")     # Google-Text wird nicht verändert
     one = func("translateOne")
     assert "implausible(" in one and "viaGoogle(" in one and "viaMyMemory(" in one
-    assert "Promise.all(" in func("translate")             # Stücke parallel
+    assert "mapLimit(" in func("translate")             # Stücke mit begrenzter Parallelität
     # Dekodieren über ein <textarea> (parst nur Text, führt nichts aus), Ergebnis landet per textContent im DOM.
     assert "document.createElement('textarea')" in SCRIPT and "entityBox.value" in func("decodeEntities")
 
