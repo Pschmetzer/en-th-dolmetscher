@@ -390,6 +390,26 @@ def parse_devices(lines):
     return mics
 
 
+# Runde 24, Systemaudio-Vorbereitung: macOS lässt Apps das Systemaudio nicht direkt mitschneiden. Üblich ist ein
+# virtuelles Loopback-Gerät, das als Eingang auftaucht. Hier wird nur erkannt, nichts installiert oder umgeleitet.
+LOOPBACK_HINTS = ("blackhole", "loopback audio", "soundflower", "ishowu", "background music", "vb-cable",
+                  "aggregate", "zusammengesetztes", "multi-output", "multi-ausgabe")
+LOOPBACK_INSTALL_HINT = ("Kein virtuelles Loopback-Gerät gefunden. Für Systemaudio (z. B. Video-Anruf der Partnerin) "
+                         "ein Gerät wie BlackHole einrichten und in Audio-MIDI-Setup mit den Lautsprechern "
+                         "kombinieren, dann hier als Eingang wählen.")
+
+
+def find_loopback(mics):
+    """Audio-Eingänge -> die, deren Name auf ein virtuelles Loopback-Gerät hindeutet (Groß/klein egal)."""
+    return [m for m in mics if any(h in str(m.get("name", "")).lower() for h in LOOPBACK_HINTS)]
+
+
+def capture_prep(mics):
+    """Bericht für die Systemaudio-Aufnahme: {"ready", "loopback": [...], "hint"}. Reine Auswertung der Geräteliste."""
+    lb = find_loopback(mics)
+    return {"ready": bool(lb), "loopback": lb, "hint": "" if lb else LOOPBACK_INSTALL_HINT}
+
+
 def list_devices(_a):
     av = _av()
     av.logging.set_level(av.logging.INFO)
@@ -404,7 +424,20 @@ def list_devices(_a):
         outputs = list_outputs(av)
     except Exception:
         outputs = []
-    print(json.dumps({"mics": mics, "outputs": outputs}), flush=True)
+    print(json.dumps({"mics": mics, "outputs": outputs, "loopback": find_loopback(mics)}), flush=True)
+
+
+def prep_cmd(_a):
+    """`avhelper prep`: Eingänge auflisten und melden, ob ein Loopback-Gerät für Systemaudio da ist."""
+    av = _av()
+    av.logging.set_level(av.logging.INFO)
+    with av.logging.Capture(local=False) as logs:
+        try:
+            av.open("", format="avfoundation", options={"list_devices": "true"})
+        except Exception:
+            pass
+    av.logging.set_level(av.logging.ERROR)
+    print(json.dumps(capture_prep(parse_devices(str(m) for _lvl, _name, m in logs))), flush=True)
 
 
 def main(argv=None):
@@ -423,6 +456,7 @@ def main(argv=None):
     p.add_argument("--device", default="")
     p.add_argument("--file")
     sub.add_parser("list")
+    sub.add_parser("prep", help="Systemaudio-Vorbereitung: Loopback-Gerät erkennen")
     a = ap.parse_args(argv)
     if a.cmd == "play" and not math.isfinite(a.volume):      # nan würde sonst zu maximaler Lautstärke
         ap.error("--volume muss eine endliche Zahl sein")
@@ -431,7 +465,7 @@ def main(argv=None):
     if a.cmd == "capture" and validate_af(a.af):
         ap.error("--af: ungültiger Filtername: " + ", ".join(validate_af(a.af)))
     try:
-        {"capture": capture, "play": play, "list": list_devices}[a.cmd](a)
+        {"capture": capture, "play": play, "list": list_devices, "prep": prep_cmd}[a.cmd](a)
     except (BrokenPipeError, KeyboardInterrupt):
         pass
     except Exception as e:                      # noqa: BLE001 – ein Traceback hilft der Engine nicht, eine Zeile schon

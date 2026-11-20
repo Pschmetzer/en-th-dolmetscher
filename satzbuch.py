@@ -5,6 +5,8 @@ Aufruf im Repo-Ordner:
     python3 satzbuch.py check                      Prüfung, Exitcode 1 bei Fehlern
     python3 satzbuch.py check --strict             auch Warnungen lassen die Prüfung scheitern
     python3 satzbuch.py check --json               Befunde maschinenlesbar
+    python3 satzbuch.py check --ignore CODE --pack ID   Befunde filtern
+    python3 satzbuch.py report [--json] [-o datei.md]   Bericht nach Code und Paket (mit Zahlen und Unscharf-Prüfung)
     python3 satzbuch.py export csv  -o satzbuch.csv
     python3 satzbuch.py export json -o satzbuch.json
     python3 satzbuch.py export anki -o satzbuch.txt   (Anki: Datei → Importieren, Tab-getrennt)
@@ -47,7 +49,12 @@ def load_dir(folder=DEFAULT_DIR):
     """(packs, findings): packs = {Dateistamm: Daten} für lesbare JSON-Objekte, findings = Lesefehler."""
     folder = pathlib.Path(folder)
     packs, findings = {}, []
-    for path in sorted(folder.glob("*.json")):
+    if not folder.is_dir():            # Runde 24: ein falscher --dir meldete früher "0 Fehler" und Exitcode 0
+        return packs, [_f(ERROR, str(folder), "dir", "Ordner nicht gefunden")]
+    paths = sorted(folder.glob("*.json"))
+    if not paths:
+        return packs, [_f(ERROR, str(folder), "empty", "keine Paketdateien (*.json) im Ordner")]
+    for path in paths:
         try:
             d = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, ValueError) as e:
@@ -269,8 +276,54 @@ def check(folder=DEFAULT_DIR, numbers=False, fuzzy=False):
     return findings
 
 
+def report(folder=DEFAULT_DIR, numbers=True, fuzzy=True):
+    """Prüfbericht (Runde 24): Befunde nach Code und Paket gezählt, dazu Umfang je Paket. -> dict (JSON-fähig)."""
+    packs, _errs = load_dir(folder)
+    findings = check(folder, numbers=numbers, fuzzy=fuzzy)
+    by_code, by_pack = {}, {}
+    for f in findings:
+        c = by_code.setdefault(f["code"], {"error": 0, "warning": 0})
+        c[f["severity"]] += 1
+        p = by_pack.setdefault(f["pack"], {"error": 0, "warning": 0})
+        p[f["severity"]] += 1
+    size = {}
+    for stem, d in sorted(packs.items()):
+        if isinstance(d, dict):
+            ph = [x for x in _items(d, "phrases") if isinstance(x, dict)]
+            size[stem] = {"phrases": len(ph), "critical": sum(1 for x in ph if x.get("critical")),
+                          "glossary": len(_items(d, "glossary"))}
+    return {"summary": summary(findings), "packs": len(packs), "by_code": by_code, "by_pack": by_pack,
+            "size": size, "findings": findings}
+
+
+def format_report(rep):
+    """Bericht als Markdown (für CI-Zusammenfassung oder Issue)."""
+    s = rep["summary"]
+    lines = ["# Satzbuch-Prüfbericht", "",
+             f"{rep['packs']} Pakete, {s[ERROR]} Fehler, {s[WARNING]} Warnungen.", ""]
+    if rep["by_code"]:
+        lines += ["## Nach Code", "", "| Code | Fehler | Warnungen |", "|---|---|---|"]
+        for code, c in sorted(rep["by_code"].items(), key=lambda kv: (-(kv[1]["error"] + kv[1]["warning"]), kv[0])):
+            lines.append(f"| {code} | {c['error']} | {c['warning']} |")
+        lines.append("")
+    if rep["by_pack"]:
+        worst = sorted(rep["by_pack"].items(), key=lambda kv: (-kv[1]["error"], -kv[1]["warning"], kv[0]))[:10]
+        lines += ["## Pakete mit den meisten Befunden", "", "| Paket | Fehler | Warnungen |", "|---|---|---|"]
+        lines += [f"| {p} | {c['error']} | {c['warning']} |" for p, c in worst] + [""]
+    tot = {k: sum(v[k] for v in rep["size"].values()) for k in ("phrases", "critical", "glossary")}
+    lines += ["## Umfang", "",
+              f"{tot['phrases']} Sätze ({tot['critical']} kritisch), {tot['glossary']} Glossareinträge."]
+    return "\n".join(lines) + "\n"
+
+
 def summary(findings):
     return {sev: sum(1 for f in findings if f["severity"] == sev) for sev in (ERROR, WARNING)}
+
+
+def filter_findings(findings, ignore=(), packs=None):
+    """Befunde ohne die Codes in `ignore` und (falls `packs` gesetzt) nur aus diesen Paketen."""
+    ign = set(ignore or ())
+    return [f for f in findings if f["code"] not in ign and (not packs or f["pack"] in set(packs))]
 
 
 def format_findings(findings):
@@ -366,6 +419,12 @@ def main(argv=None, stdout=None):
     c.add_argument("--json", action="store_true", help="Befunde als JSON ausgeben")
     c.add_argument("--numbers", action="store_true", help="auch Zahlenformat (Thai-Ziffern, en/th-Zahlen) prüfen")
     c.add_argument("--fuzzy", action="store_true", help="auch fast gleiche Sätze melden")
+    c.add_argument("--ignore", action="append", default=[], metavar="CODE", help="Befundcode ausblenden (mehrfach)")
+    c.add_argument("--pack", action="append", help="nur Befunde dieses Pakets (mehrfach möglich)")
+    r = sub.add_parser("report", help="Prüfbericht (Markdown oder JSON)")
+    r.add_argument("--dir", default=str(DEFAULT_DIR))
+    r.add_argument("--json", action="store_true")
+    r.add_argument("-o", "--output", help="Zieldatei (Standard: Standardausgabe)")
     e = sub.add_parser("export", help="Pakete exportieren")
     e.add_argument("format", choices=sorted(EXPORTERS))
     e.add_argument("--dir", default=str(DEFAULT_DIR))
@@ -376,7 +435,7 @@ def main(argv=None, stdout=None):
     a = ap.parse_args(argv)
 
     if a.cmd == "check":
-        findings = check(a.dir, numbers=a.numbers, fuzzy=a.fuzzy)
+        findings = filter_findings(check(a.dir, numbers=a.numbers, fuzzy=a.fuzzy), a.ignore, a.pack)
         if a.json:
             stdout.write(json.dumps({"summary": summary(findings), "findings": findings},
                                     ensure_ascii=False, indent=1) + "\n")
@@ -385,7 +444,21 @@ def main(argv=None, stdout=None):
         s = summary(findings)
         return 1 if s[ERROR] or (a.strict and s[WARNING]) else 0
 
+    if a.cmd == "report":
+        rep = report(a.dir)
+        text = json.dumps(rep, ensure_ascii=False, indent=1) + "\n" if a.json else format_report(rep)
+        if a.output:
+            with open(a.output, "w", encoding="utf-8", newline="") as fh:
+                fh.write(text)
+        else:
+            stdout.write(text)
+        return 1 if rep["summary"][ERROR] else 0
+
     packs, errs = load_dir(a.dir)
+    if errs and not packs:
+        for f in errs:
+            sys.stderr.write(f"{f['pack']}: {f['message']}\n")
+        return 2
     if a.pack:
         unknown = sorted(set(a.pack) - set(packs))
         if unknown:

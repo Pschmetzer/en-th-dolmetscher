@@ -7,6 +7,7 @@ Speichert Äußerungen in einer SQLite-Datei unter
 """
 import csv
 import hashlib
+import hmac
 import io
 import json
 import math
@@ -359,6 +360,14 @@ class Store:
                 added += 1
         return added, skipped, bad
 
+    def export_encrypted(self, passphrase, session=None):
+        """JSON-Export (wie export(rows, "json")) mit Passwort verschlüsselt -> Bytes."""
+        return encrypt_bytes(export(self.rows(session), "json").encode("utf-8"), passphrase)
+
+    def import_encrypted(self, blob, passphrase):
+        """Verschlüsselten Export einspielen -> (neu, übersprungen, ungültig). Falsches Passwort: ValueError."""
+        return self.import_json(decrypt_bytes(blob, passphrase).decode("utf-8", "replace"))
+
     def last_translation(self):
         """Letzte Zeile mit Übersetzung ({lang, translation}) oder None."""
         with self.lock:
@@ -424,6 +433,65 @@ def valid_days(days):
     except (TypeError, ValueError):
         return None
     return d if math.isfinite(d) and d > 0 else None
+
+
+# ---------------------------------------------------------------- Verschlüsselter Export (Runde 24)
+# Optional und ohne Schlüsselbund: Passwort -> scrypt (sonst PBKDF2) -> Schlüssel für Verschlüsselung und MAC.
+# Aufbau: MAGIC | KDF-Kennung | salt(16) | nonce(16) | Chiffretext | HMAC-SHA256 (encrypt-then-MAC).
+# Nur Standardbibliothek; der Chiffretext ist ein HMAC-SHA256-Zählerstrom (PRF-CTR).
+# Schützt Exportdateien, nicht die laufende Datenbank.
+ENC_MAGIC = b"DOLHX1"
+_KDF_SCRYPT, _KDF_PBKDF2 = 1, 2
+_SCRYPT = {"n": 2 ** 15, "r": 8, "p": 1, "maxmem": 128 * 1024 * 1024}
+_PBKDF2_ITER = 600_000
+
+
+def _derive_key(passphrase, salt, kdf):
+    pw = passphrase.encode("utf-8")
+    if kdf == _KDF_SCRYPT:
+        return hashlib.scrypt(pw, salt=salt, dklen=64, **_SCRYPT)
+    if kdf == _KDF_PBKDF2:
+        return hashlib.pbkdf2_hmac("sha256", pw, salt, _PBKDF2_ITER, dklen=64)
+    raise ValueError("unbekannte Schlüsselableitung")
+
+
+def _keystream_xor(key, nonce, data):
+    out = bytearray(len(data))
+    for i in range(0, len(data), 32):
+        block = hmac.new(key, nonce + (i // 32).to_bytes(8, "big"), hashlib.sha256).digest()
+        chunk = data[i:i + 32]
+        out[i:i + len(chunk)] = bytes(a ^ b for a, b in zip(chunk, block))
+    return bytes(out)
+
+
+def encrypt_bytes(data, passphrase):
+    """Bytes mit Passwort verschlüsseln -> Bytes. Leeres/kein Passwort: ValueError."""
+    if not isinstance(passphrase, str) or not passphrase:
+        raise ValueError("Passwort fehlt")
+    kdf = _KDF_SCRYPT if hasattr(hashlib, "scrypt") else _KDF_PBKDF2
+    salt, nonce = os.urandom(16), os.urandom(16)
+    try:
+        key = _derive_key(passphrase, salt, kdf)
+    except (ValueError, MemoryError):                  # OpenSSL ohne scrypt-Speicher: PBKDF2
+        kdf = _KDF_PBKDF2
+        key = _derive_key(passphrase, salt, kdf)
+    head = ENC_MAGIC + bytes([kdf]) + salt + nonce
+    body = _keystream_xor(key[:32], nonce, bytes(data))
+    return head + body + hmac.new(key[32:], head + body, hashlib.sha256).digest()
+
+
+def decrypt_bytes(blob, passphrase):
+    """Gegenstück zu encrypt_bytes. Falsches Passwort oder veränderte Datei: ValueError (nie Müll als Ergebnis)."""
+    blob = bytes(blob)
+    hl = len(ENC_MAGIC) + 1 + 32
+    if not isinstance(passphrase, str) or not passphrase or len(blob) < hl + 32 or not blob.startswith(ENC_MAGIC):
+        raise ValueError("keine verschlüsselte Verlaufsdatei oder Passwort fehlt")
+    kdf, salt, nonce = blob[len(ENC_MAGIC)], blob[len(ENC_MAGIC) + 1:len(ENC_MAGIC) + 17], blob[len(ENC_MAGIC) + 17:hl]
+    key = _derive_key(passphrase, salt, kdf)
+    head, body, tag = blob[:hl], blob[hl:-32], blob[-32:]
+    if not hmac.compare_digest(tag, hmac.new(key[32:], head + body, hashlib.sha256).digest()):
+        raise ValueError("falsches Passwort oder beschädigte Datei")
+    return _keystream_xor(key[:32], nonce, body)
 
 
 # ---------------------------------------------------------------- Export

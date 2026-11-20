@@ -39,6 +39,22 @@ def local_cache_version(root=ROOT):
     return m.group(1) if m else None
 
 
+PRESET_IDS_RE = re.compile(r"const PRESET_IDS = \[([^\]]*)\];")
+
+
+def sw_preset_drift(sw_text, index_ids):
+    """Runde 24: Paket-IDs, die sw.js offline vorhält, aber presets-index.json nicht kennt (oder umgekehrt).
+    Sonst lädt der Service Worker nie existierende Dateien oder lässt neue Pakete offline fehlen."""
+    m = PRESET_IDS_RE.search(sw_text or "")
+    if not m:
+        return ["sw.js: keine PRESET_IDS-Liste"]
+    sw_ids = set(re.findall(r"'([^']+)'", m.group(1)))
+    idx = set(index_ids)
+    errors = [f"sw.js: PRESET_IDS enthält unbekanntes Paket {i}" for i in sorted(sw_ids - idx)]
+    errors += [f"sw.js: Paket {i} fehlt in PRESET_IDS" for i in sorted(idx - sw_ids)]
+    return errors
+
+
 def check(base, sample=8, root=ROOT):
     """Liste der Fehler (leer = alles gut)."""
     errors, bodies = [], {}
@@ -69,6 +85,8 @@ def check(base, sample=8, root=ROOT):
         except (ValueError, KeyError, TypeError):
             ids = []
             errors.append("presets-index.json: keine Paketliste")
+        if sw:
+            errors.extend(sw_preset_drift(sw, ids))
         for pid in ids[:sample]:
             try:
                 status, _c, body = fetch(base, f"presets/{pid}.json")
@@ -110,6 +128,9 @@ def main(argv=None):
     base = a.url if a.url.endswith("/") else a.url + "/"
     if a.wait:
         expected = local_cache_version()
+        if not expected:                       # ohne Version würde "nichts gefunden" als Treffer gelten
+            print("FEHLER: sw.js im Repo hat keine Cache-Version")
+            return 1
         if not wait_for_deploy(base, expected, a.wait):
             print("FEHLER: Deploy mit der erwarteten Version nicht erschienen")
             return 1
