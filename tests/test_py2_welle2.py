@@ -1,8 +1,6 @@
 """Welle 2 (Steuerung, Warteschlange, Mikrofon, Dateimodus): reine Logik ohne Modelle."""
 import io
-import json
 import subprocess
-import threading
 import types
 
 import pytest

@@ -5078,7 +5078,6 @@ class Speaker:
         return bool(dropped) or playing
 
     def wait_idle(self, timeout=120):
-        t = time.time()
         with self.cond:
             self.cond.wait_for(lambda: not (self.items or self.busy), timeout=timeout)
 
@@ -5131,7 +5130,7 @@ class Speaker:
             if not started["v"]:
                 started["v"] = True
                 if it.get("text"):
-                    note_spoken(it["text"], it["lang"])      # Echo-Fenster erst ab dem hörbaren Satz, nicht ab dem Einreihen
+                    note_spoken(it["text"], it["lang"])      # Echo-Fenster erst ab dem hörbaren Satz
                 lat = round(time.time() - it["t_end"], 2) if it.get("t_end") else None
                 emit("speaking", id=uid, first_s=first_s, latency_s=lat)
                 if lat is not None:
@@ -6127,7 +6126,7 @@ class Engine:
         if not text:                                           # nichts Brauchbares: Stimmabdruck nicht verbiegen
             emit("error", code="reassign_empty", msg="In dieser Sprache nichts erkannt")
             return
-        self.last_role = (role, time.time())                   # erst nach Erfolg: Fehlversuch ändert die Vorgeschichte nicht
+        self.last_role = (role, time.time())                   # erst nach Erfolg gesetzt
         if self.spk is not None:                               # erst jetzt nachführen (Fehlklick ohne Folgen)
             try:
                 p = self.spk.me() if role == "me" else self.spk.partner()
@@ -7157,7 +7156,7 @@ def segmenter(read, utts, sess=0, on_end=None):
     uid, version, pre_sent, partial_at = None, 0, False, 0.0
     gate_t0, gate_dur, gate_cut, check_after = 0.0, 0.0, None, 0    # Hinweis `missed` (Nr. 159)
     noise = NoiseTracker()
-    prepared = False                # Verbindung zur Stimme erst nach TTS_PREPARE_AFTER_S Sprache (nicht bei Husten/Lärm)
+    prepared = False                # Stimme erst nach TTS_PREPARE_AFTER_S Sprache vorbereiten
 
     def put(frames, reason, sp):
         if sp >= MIN_UTT:
@@ -7240,7 +7239,7 @@ def segmenter(read, utts, sess=0, on_end=None):
                 onset = 0                                   # Wiedergabe vorbei: Zähler zurücksetzen
             if not voiced:
                 if noise.update(rms, prob) and not DENOISE:
-                    hint("noisy")                           # laute Umgebung: Tipp (Kopfhörer-Mikro, Rauschunterdrückung)
+                    hint("noisy")                           # laute Umgebung: Tipp Kopfhörer-Mikro/Denoise
                 pre = (pre + [f])[-12:]                     # ~380 ms Vorlauf
                 if prob > VAD["start"]:
                     voiced, buf, silence, speech, peak_rms = True, pre[:], 0.0, fdur, rms
@@ -7287,7 +7286,7 @@ def segmenter(read, utts, sess=0, on_end=None):
                                  "rest_s": round(len(tail) * fdur, 2)}})
                 put(head, "max", len(head) * fdur)
                 buf, speech = tail, len(tail) * fdur
-                peak_rms = max((float(np.sqrt(np.mean(x ** 2))) for x in tail), default=0.0)   # nicht der Pegel des Kopfteils
+                peak_rms = max((float(np.sqrt(np.mean(x ** 2))) for x in tail), default=0.0)   # Pegel des Rests
                 uid, version, pre_sent, partial_at = new_id(), 0, False, 0.0
                 emit("hearing", id=uid)
     finally:
@@ -7848,8 +7847,10 @@ if __name__ == "__main__":
     ap.add_argument("--lang", choices=["auto", *LANGS], default="auto",
                     help="nur diese Sprache des Paars (auto = beide)")
     ap.add_argument("--tts", choices=["edge", "say"], default="edge")
-    ap.add_argument("--no-en", action="store_true", help="Englisch nicht übersetzen (nur anzeigen; veraltet, besser --no-mine/--no-partner)")
-    ap.add_argument("--no-th", action="store_true", help="Thai nicht übersetzen (nur anzeigen; veraltet, besser --no-mine/--no-partner)")
+    ap.add_argument("--no-en", action="store_true",
+                    help="Englisch nicht übersetzen (nur anzeigen; veraltet, besser --no-mine/--no-partner)")
+    ap.add_argument("--no-th", action="store_true",
+                    help="Thai nicht übersetzen (nur anzeigen; veraltet, besser --no-mine/--no-partner)")
     ap.add_argument("--no-mine", action="store_true", help="meine Sprache nicht übersetzen (nur anzeigen)")
     ap.add_argument("--no-partner", action="store_true", help="Partnersprache nicht übersetzen (nur anzeigen)")
     ap.add_argument("--profiles", action="store_true", help="Stimmprofile auflisten (JSON)")
