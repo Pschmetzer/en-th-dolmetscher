@@ -3,6 +3,7 @@
 Wird nur mit `--model auto` benutzt; der Standard bleibt `medium`."""
 import platform
 import subprocess
+import time
 
 TIERS = ("small", "medium", "best")
 
@@ -110,4 +111,57 @@ def adjust_for_power(rec, battery):
     if out["model"] == "best":
         out["model"] = "medium"
     out["reason"] += " (Akkubetrieb: sparsamer)"
+    return out
+
+
+# ---------------------------------------------------------------- Kurz-Benchmark (Runde 23)
+BENCH_BUDGET_S = 0.15          # so lange läuft der Test höchstens (der Start soll nicht spürbar warten)
+BENCH_SLOW = 0.5               # Punktzahl darunter: eine Stufe sparsamer
+BENCH_FAST = 2.0               # Punktzahl ab hier: "fast"
+_BENCH_REF_PER_S = 1500.0      # Rechenblöcke je Sekunde auf dem Maßstab-Rechner (Punktzahl 1,0)
+
+
+def _bench_block():
+    x = 0
+    for i in range(2000):
+        x = (x * 31 + i) & 0xFFFF
+    return x
+
+
+def quick_benchmark(budget_s=BENCH_BUDGET_S, clock=None, work=None):
+    """Kurzer CPU-Test (reines Python, kein numpy/Netz): zählt die Rechenblöcke, die in `budget_s` Sekunden fertig
+    werden. -> Punktzahl relativ zum Maßstab (1,0 = typischer Rechner). `clock`/`work` sind für Tests austauschbar.
+    Wirft nie: bei Fehler 1.0."""
+    clock = clock or time.perf_counter
+    work = work or _bench_block
+    try:
+        budget = max(0.01, float(budget_s))
+        t0 = clock()
+        n = 0
+        while clock() - t0 < budget:
+            work()
+            n += 1
+        elapsed = max(1e-6, clock() - t0)
+        return round((n / elapsed) / _BENCH_REF_PER_S, 3)
+    except Exception:
+        return 1.0
+
+
+def bench_tier(score):
+    """Punktzahl -> "slow" | "normal" | "fast"."""
+    if score < BENCH_SLOW:
+        return "slow"
+    return "fast" if score >= BENCH_FAST else "normal"
+
+
+def refine_with_benchmark(rec, score):
+    """Empfehlung anhand des Kurz-Benchmarks anpassen: langsam -> eine Stufe kleiner und Beam 1, sonst unverändert.
+    Gibt eine Kopie zurück."""
+    out = dict(rec)
+    if bench_tier(score) != "slow":
+        return out
+    i = TIERS.index(out["model"]) if out.get("model") in TIERS else 1
+    out["model"] = TIERS[max(0, i - 1)]
+    out["beam"] = 1
+    out["reason"] = str(out.get("reason", "")) + " (Benchmark langsam: sparsamer)"
     return out

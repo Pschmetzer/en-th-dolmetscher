@@ -88,6 +88,55 @@ struct SpeakLastTranslationIntent: AppIntent {
     }
 }
 
+/// Schalter „Zuhören“ im Kontrollzentrum: an = starten, aus = stoppen.
+struct ToggleListeningIntent: SetValueIntent {
+    static let title: LocalizedStringResource = "Toggle listening"
+    static let description = IntentDescription("Turns Dolmetscher listening on or off.")
+    static let supportedModes: IntentModes = .foreground
+
+    @Parameter(title: "Listening")
+    var value: Bool
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        #if !WIDGET_EXT
+        let m = InterpreterModel.shared
+        if value { m.start() } else { m.stop() }
+        #endif
+        return .result()
+    }
+}
+
+/// Steuerelement „Notfall“: öffnet Notfallkarte und Notrufnummern.
+struct OpenEmergencyControlIntent: AppIntent {
+    static let title: LocalizedStringResource = "Open emergency"
+    static let supportedModes: IntentModes = .foreground
+    static let isDiscoverable = false
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        #if !WIDGET_EXT
+        InterpreterModel.shared.sheet = .emergency
+        #endif
+        return .result()
+    }
+}
+
+/// Steuerelement „Taxi-Karte“: öffnet die Ziele-Ansicht mit Taxi-Karte und Preishilfe.
+struct OpenTaxiControlIntent: AppIntent {
+    static let title: LocalizedStringResource = "Open taxi card"
+    static let supportedModes: IntentModes = .foreground
+    static let isDiscoverable = false
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        #if !WIDGET_EXT
+        InterpreterModel.shared.sheet = .places
+        #endif
+        return .result()
+    }
+}
+
 /// Live-Aktivität beim Zuhören: letzter Satz und Mikrofonstatus. Daten kommen über ActivityKit (kein App Group).
 struct ListeningActivityAttributes: ActivityAttributes {
     enum Status: String, Codable, Hashable, Sendable { case listening, hearing, speaking, paused, ready, interrupted }
@@ -109,6 +158,15 @@ struct ListeningActivityAttributes: ActivityAttributes {
 }
 
 extension ListeningActivityAttributes.Status {
+    /// Nach wie vielen Minuten ohne Update die Aktivität „evtl. veraltet“ zeigt: pausiert/unterbrochen früher,
+    /// weil dort niemand mehr zuhört und eine alte Anzeige am meisten täuscht.
+    var staleMinutes: Int {
+        switch self {
+        case .paused, .interrupted: return 5
+        default: return 20
+        }
+    }
+
     var symbol: String {
         switch self {
         case .listening: return "mic.fill"

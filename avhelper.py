@@ -18,9 +18,60 @@ import argparse, json, math, os, re, signal, sys, time
 
 
 def _av():
-    import av, av.logging
+    try:
+        import av, av.logging
+    except ImportError:
+        sys.exit("PyAV (av) is not installed")      # klare Meldung statt Traceback
     av.logging.set_level(av.logging.ERROR)       # Fehler von libav nach stderr (für Mic._explain)
     return av
+
+
+def explain_error(exc):
+    """Kurze, klare Fehlermeldung (englisch, wie die übrigen Meldungen) statt Python-Repr; die Engine sucht darin nach
+    Stichwörtern ("permission", "busy", "not found")."""
+    if isinstance(exc, PermissionError):
+        return "permission denied (microphone or file access not allowed)"
+    if isinstance(exc, FileNotFoundError):
+        return "file not found"
+    if isinstance(exc, IsADirectoryError):
+        return "path is a directory, not an audio file"
+    msg = str(exc).strip() or type(exc).__name__
+    low = msg.lower()
+    if "not permitted" in low or "permission" in low:
+        return "permission denied: " + msg
+    if "busy" in low:
+        return "audio device busy: " + msg
+    return msg
+
+
+def check_file(path):
+    """Eingabedatei vorab prüfen -> None oder Fehlertext (nicht gefunden, Ordner, nicht lesbar, leer)."""
+    if not path:
+        return "no file given"
+    if not os.path.exists(path):
+        return "file not found"
+    if os.path.isdir(path):
+        return "path is a directory, not an audio file"
+    if not os.access(path, os.R_OK):
+        return "permission denied (file not readable)"
+    if os.path.getsize(path) == 0:
+        return "file is empty"
+    return None
+
+
+_FILTER_NAME = re.compile(r"[A-Za-z0-9_]+(@[\w-]+)?")
+
+
+def validate_af(chain):
+    """Filterkette prüfen -> Liste von Problemen (leer = gültig): jeder Eintrag braucht einen Filternamen."""
+    bad = []
+    for part in (chain or "").split(","):
+        if not part.strip():
+            continue
+        name = part.partition("=")[0].strip()
+        if not _FILTER_NAME.fullmatch(name):
+            bad.append(name or part.strip())
+    return bad
 
 
 def parse_af(chain):
@@ -99,7 +150,7 @@ def _write(b):
         try:
             sys.stdout.buffer.write(b)
             sys.stdout.buffer.flush()
-        except BrokenPipeError:             # Runde 22: Engine hat die Pipe geschlossen: leise beenden, kein Traceback
+        except (BrokenPipeError, ValueError):   # Runde 22: Pipe/stdout zu: leise beenden, kein Traceback
             try:
                 os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())   # Python-Exit-Flush nicht erneut scheitern lassen  # noqa: E501
             except OSError:
@@ -126,11 +177,14 @@ def capture(a):
     av = _av()
     chain = Chain(av, a.af, a.rate)
     if a.file:
+        problem = check_file(a.file)
+        if problem:
+            sys.exit(f"cannot open file: {problem}")
         while True:
             try:
                 c = av.open(a.file)
             except Exception as e:
-                sys.exit(f"cannot open file: {e}")
+                sys.exit(f"cannot open file: {explain_error(e)}")
             if not c.streams.audio:
                 sys.exit("no audio stream")             # sonst IndexError-Traceback als Fehlermeldung
             st = c.streams.audio[0]
@@ -155,7 +209,7 @@ def capture(a):
         c = av.open(f":{dev}", format="avfoundation")
         st = c.streams.audio[0]
     except Exception as e:
-        sys.exit(f"cannot open audio device :{dev}: {e}")
+        sys.exit(f"cannot open audio device :{dev}: {explain_error(e)}")
     for fr in _frames(av, c, st):
         fr.pts = None
         _write(chain.push(fr))
@@ -268,10 +322,13 @@ def play(a):
     dev = getattr(a, "device", None)
     idx, t_idx = resolve_output(av, dev), time.monotonic()   # vorab, nicht im Weg zum ersten Ton
     if getattr(a, "file", None):
+        problem = check_file(a.file)
+        if problem:
+            sys.exit(f"cannot open file: {problem}")
         try:
             inp = av.open(a.file)
         except Exception as e:
-            sys.exit(f"cannot open file: {e}")
+            sys.exit(f"cannot open file: {explain_error(e)}")
     else:
         head = os.read(0, 65536)
         if not head:                            # sofort geschlossen (verworfen/abgebrochen): still beenden
@@ -371,10 +428,14 @@ def main(argv=None):
         ap.error("--volume muss eine endliche Zahl sein")
     if a.cmd == "capture" and not 8000 <= a.rate <= 48000:
         ap.error("--rate muss zwischen 8000 und 48000 liegen")
+    if a.cmd == "capture" and validate_af(a.af):
+        ap.error("--af: ungültiger Filtername: " + ", ".join(validate_af(a.af)))
     try:
         {"capture": capture, "play": play, "list": list_devices}[a.cmd](a)
     except (BrokenPipeError, KeyboardInterrupt):
         pass
+    except Exception as e:                      # noqa: BLE001 – ein Traceback hilft der Engine nicht, eine Zeile schon
+        sys.exit(f"error: {explain_error(e)}")
 
 
 if __name__ == "__main__":
