@@ -1033,6 +1033,8 @@ enum L {
                                 "en": "Global shortcuts can be changed under “Advanced & privacy” (defaults: ⌃⌥D start/stop, ⌃⌥P pause, ⌃⌥S stop speaking, ⌃⌥R repeat, ⌃⌥C clipboard, ⌃⌥T talk).",
                                 "th": "เปลี่ยนปุ่มลัดได้ที่ “ขั้นสูงและความเป็นส่วนตัว” (ค่าเริ่มต้น: ⌃⌥D เริ่ม/หยุด, ⌃⌥P หยุดชั่วคราว, ⌃⌥S หยุดอ่าน, ⌃⌥R พูดซ้ำ, ⌃⌥C คลิปบอร์ด, ⌃⌥T พูด)"],
         "mini_title": ["de": "Mini-Fenster", "en": "Mini window", "th": "หน้าต่างเล็ก"],
+        "say_after_load": ["de": "Wird nach dem Laden der Sprachmodelle gesprochen", "en": "Will be spoken once the speech models have loaded",
+                           "th": "จะพูดหลังจากโหลดโมเดลเสียงเสร็จ"],
         "copied": ["de": "Kopiert",
                "en": "Copied",
                "th": "คัดลอกแล้ว"],
