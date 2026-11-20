@@ -66,5 +66,26 @@ extension L10n {
             "ko": "자동 번역됩니다", "zh-Hans": "自动翻译",
             "vi": "dịch tự động", "id": "diterjemahkan otomatis"
         ],
+        "em_n_unknown": [
+            "de": "Für diese Sprache zeige ich keine Nummer an. Vor Ort nach der örtlichen Notrufnummer fragen; 112 funktioniert in vielen Ländern, aber nicht überall.", "en": "No verified number for this language. Ask locally for the emergency number; 112 works in many countries, but not everywhere.",
+            "th": "ไม่มีเบอร์ที่ยืนยันสำหรับภาษานี้ โปรดสอบถามเบอร์ฉุกเฉินในพื้นที่ 112 ใช้ได้ในหลายประเทศ แต่ไม่ทุกที่", "es": "No muestro un número verificado para este idioma. Pregunta localmente; el 112 funciona en muchos países, pero no en todos.",
+            "fr": "Aucun numéro vérifié pour cette langue. Renseignez-vous sur place ; le 112 fonctionne dans de nombreux pays, mais pas partout.", "ja": "この言語では確認済みの番号を表示しません。現地で緊急番号を確認してください。112は多くの国で使えますが、すべてではありません。",
+            "ko": "이 언어에는 확인된 번호가 없습니다. 현지에서 긴급 번호를 확인하세요. 112는 많은 나라에서 되지만 모든 곳은 아닙니다.", "zh-Hans": "此语言没有已核实的号码。请当地询问紧急号码；112在许多国家可用，但并非处处可用。",
+            "vi": "Không có số đã xác minh cho ngôn ngữ này. Hãy hỏi số khẩn cấp tại chỗ; 112 dùng được ở nhiều nước nhưng không phải mọi nơi.", "id": "Tidak ada nomor terverifikasi untuk bahasa ini. Tanyakan nomor darurat setempat; 112 berfungsi di banyak negara, tetapi tidak di semua tempat."
+        ],
+        "cellular_title_packs": [
+            "de": "Sprachpakete über Mobilfunk laden?", "en": "Download language packs over mobile data?",
+            "th": "ดาวน์โหลดชุดภาษาผ่านข้อมูลมือถือ?", "es": "¿Descargar paquetes de idioma con datos móviles?",
+            "fr": "Télécharger les packs de langue en données mobiles ?", "ja": "モバイルデータで言語パックをダウンロードしますか?",
+            "ko": "모바일 데이터로 언어 팩을 다운로드할까요?", "zh-Hans": "要用移动数据下载语言包吗？",
+            "vi": "Tải gói ngôn ngữ bằng dữ liệu di động?", "id": "Unduh paket bahasa lewat data seluler?"
+        ],
+        "cellular_msg_packs": [
+            "de": "Mobilfunk oder Hotspot ist aktiv. Sprachpakete sind groß (oft mehrere hundert MB) und können Roaming-Kosten verursachen.", "en": "Mobile data or a hotspot is active. Language packs are large (often several hundred MB) and may cause roaming charges.",
+            "th": "กำลังใช้ข้อมูลมือถือหรือฮอตสปอต ชุดภาษามีขนาดใหญ่ (มักหลายร้อย MB) และอาจมีค่าโรมมิ่ง", "es": "Hay datos móviles o punto de acceso activos. Los paquetes son grandes (a menudo cientos de MB) y pueden generar costes de roaming.",
+            "fr": "Données mobiles ou point d’accès actifs. Les packs sont volumineux (souvent plusieurs centaines de Mo) et peuvent entraîner des frais d’itinérance.", "ja": "モバイルデータまたはテザリング中です。言語パックは大きく(数百MBのことも)、ローミング料金がかかる場合があります。",
+            "ko": "모바일 데이터 또는 핫스팟 사용 중입니다. 언어 팩은 용량이 크고(수백 MB) 로밍 요금이 발생할 수 있습니다.", "zh-Hans": "正在使用移动数据或热点。语言包较大（常达数百MB），可能产生漫游费用。",
+            "vi": "Đang dùng dữ liệu di động hoặc điểm phát sóng. Gói ngôn ngữ lớn (thường vài trăm MB) và có thể phát sinh phí chuyển vùng.", "id": "Data seluler atau hotspot aktif. Paket bahasa besar (sering ratusan MB) dan bisa dikenai biaya roaming."
+        ],
     ]
 }

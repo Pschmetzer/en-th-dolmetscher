@@ -19,6 +19,8 @@ struct OfflinePacksView: View {
     @State private var inputs: OfflineInputs?
     @State private var loading: Set<PackKind> = []
     @State private var failed = false
+    @State private var pendingKinds: [PackKind] = []
+    @State private var cellularOK = false
     @State private var download: TranslationSession.Configuration?
 
     private var report: OfflineReport? {
@@ -71,6 +73,10 @@ struct OfflinePacksView: View {
         .navigationBarTitleDisplayMode(.inline)
         .refreshable { await refresh() }
         .task(id: m.pair) { await refresh() }
+        .alert(T("cellular_title_packs"), isPresented: Binding(get: { !pendingKinds.isEmpty }, set: { if !$0 { pendingKinds = [] } })) {
+            Button(T("cellular_go")) { cellularOK = true; let k = pendingKinds; pendingKinds = []; for x in k { load(x, confirmed: true) } }
+            Button(T("cellular_wait"), role: .cancel) { pendingKinds = [] }
+        } message: { Text(T("cellular_msg_packs")) }
         .translationTask(download) { session in
             loading.insert(.translation)
             do { try await session.prepareTranslation() } catch { failed = true }
@@ -126,9 +132,15 @@ struct OfflinePacksView: View {
 
     private func isVoice(_ k: PackKind) -> Bool { if case .voice = k { return true }; return false }
 
-    private func loadAll(_ r: OfflineReport) { for i in r.loadable where i.state == .missing { load(i.kind) } }
+    private func loadAll(_ r: OfflineReport) {
+        let kinds = r.loadable.filter { $0.state == .missing }.map(\.kind)
+        if NetStatus.shared.expensive, !cellularOK { pendingKinds = kinds; return }
+        for k in kinds { load(k, confirmed: true) }
+    }
 
-    private func load(_ kind: PackKind) {
+    private func load(_ kind: PackKind, confirmed: Bool = false) {
+        // Mobilfunk oder Hotspot: Sprachpakete sind groß – erst fragen (wie beim Sprachmodell-Start).
+        if NetStatus.shared.expensive, !cellularOK, !confirmed { pendingKinds = [kind]; return }
         failed = false
         switch kind {
         case .translation:

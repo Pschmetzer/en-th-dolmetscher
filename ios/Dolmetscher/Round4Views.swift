@@ -174,7 +174,8 @@ private struct PrepRow<Action: View>: View {
                 if checked && !ok { action().buttonStyle(.bordered).controlSize(.small) }
             }
         }
-        .accessibilityElement(children: .combine)
+        // Mit Aktionsknopf (Erlauben/Laden): `.contain`, damit der Knopf für VoiceOver einzeln erreichbar bleibt.
+        .accessibilityElement(children: checked && !ok ? .contain : .combine)
         .accessibilityValue(ok ? T("prep_ok") : T("prep_missing"))
     }
 }
