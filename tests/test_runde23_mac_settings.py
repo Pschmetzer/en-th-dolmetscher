@@ -1,4 +1,5 @@
 """Runde 23, Mac-App: Texte der eigenen Tabelle app/L10n+R23b.swift (R23T) und Verdrahtung der neuen Funktionen."""
+
 import pathlib
 import re
 
@@ -12,7 +13,7 @@ LITERAL = re.compile(r'"((?:\\.|[^"\\])*)"')
 
 def table():
     src = (APP / "L10n+R23b.swift").read_text(encoding="utf-8")
-    body = src[src.index("static let table"):]
+    body = src[src.index("static let table") :]
     rows = {}
     for m in re.finditer(r'^\s*"([a-z0-9_]+)": \[(.*?)\],\s*$', body, re.S | re.M):
         pass
@@ -34,7 +35,11 @@ def used_keys():
 def test_table_has_entries_and_all_languages():
     rows = table()
     assert len(rows) > 60
-    bad = {k: [lg for lg in LANGS if not r.get(lg, "").strip()] for k, r in rows.items() if len(r) != 3 or not all(r.values())}
+    bad = {
+        k: [lg for lg in LANGS if not r.get(lg, "").strip()]
+        for k, r in rows.items()
+        if len(r) != 3 or not all(r.values())
+    }
     assert not bad, bad
 
 
@@ -44,8 +49,11 @@ def test_thai_is_thai():
 
 
 def test_placeholders_match():
-    bad = {k: [PLACEHOLDER.findall(r[lg]) for lg in LANGS] for k, r in table().items()
-           if len({tuple(PLACEHOLDER.findall(r[lg])) for lg in LANGS}) > 1}
+    bad = {
+        k: [PLACEHOLDER.findall(r[lg]) for lg in LANGS]
+        for k, r in table().items()
+        if len({tuple(PLACEHOLDER.findall(r[lg])) for lg in LANGS}) > 1
+    }
     assert not bad, bad
 
 
@@ -89,8 +97,15 @@ def test_no_secret_in_report_and_preview_code():
 
 def test_help_menu_and_wiring():
     app = (APP / "DolmetscherApp.swift").read_text(encoding="utf-8")
-    for needle in ("help_onboarding", "help_whatsnew", "help_report", "sensitive_menu", "ScreenLockWatcher.shared.start",
-                   'id: "whatsnew"', "menu_last_header"):
+    for needle in (
+        "help_onboarding",
+        "help_whatsnew",
+        "help_report",
+        "sensitive_menu",
+        "ScreenLockWatcher.shared.start",
+        'id: "whatsnew"',
+        "menu_last_header",
+    ):
         assert needle in app, needle
     assert "SettingsResetRow(group:" in (APP / "SettingsView.swift").read_text(encoding="utf-8")
     hist = (APP / "HistoryView.swift").read_text(encoding="utf-8")
