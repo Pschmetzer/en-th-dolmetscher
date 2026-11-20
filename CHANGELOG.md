@@ -4,6 +4,14 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### Engine latency, round 23 (Python)
+
+- Faster Claude path: worker pools instead of a thread per call, warm-up at start plus keepalive while idle (only when the prompt cache applies), cache hit/write counters and cost by the model actually used.
+- Hedge: long sentences start Google in parallel; pre-translated text replaces a slow Claude answer. Translation cache is also limited in bytes.
+- Earlier sentence end for Thai (ครับ/ค่ะ/คะ) and for ?/! in other languages (only with fast endpointing); unambiguous Thai clock times are translated deterministically.
+- Back-translation by Claude for critical sentences (numbers, health, emergency); a second budget warning at 95 %.
+- Protocol unchanged (no new events, fields or start arguments); streaming, router and deferred worker are opt-in and off by default.
+
 ### iOS speech, audio and translation, round 31
 
 - Whisper: time budget per recognition, fewer temperature fallbacks on low battery or heat, vocabulary prompt from names in the conversation, warm-up decode, adaptive pause threshold, language stickiness, skip clicks and silence.
