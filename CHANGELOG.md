@@ -67,6 +67,7 @@ Pull requests #16–#47. Not yet published as a release.
 - Backlog handling also considers how much text is waiting (long sentences are skipped earlier, without pre-loading voices); a microphone that stops delivering data reconnects after 5 s; with `--model auto` the engine adapts to battery/mains while running (`power` event).
 - The `queue` event counts only waiting utterances (not pending app tasks); `slow` hints for recognition, translation and sound no longer suppress each other; leftover temp folders of a dead run are cleaned even when its process id was reused; `--file` rejects audio longer than 4 hours instead of exhausting memory.
 - Emergency phrases of the active scenario are re-rendered when the speaking speed changes (they were cached for the old speed); duplicate emergency sentences are rendered once; “clear” and corrections also drop the timestamps of forgotten sentences.
+- The wait before the fallback voice takes over now adapts to the measured speed of the Neural voice (shorter on a good network, up to twice as long on a poor one; `tts_race` stays the base and 0 still turns it off).
 - Subtitle export removes its temporary database; a failing chunk of a `--file` run no longer stops the rest; engine start errors report `engine_init_failed`.
 
 ### Engine (speech recognition, translation, voice – used by the Mac app)
