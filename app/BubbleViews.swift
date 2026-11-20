@@ -16,6 +16,7 @@ struct Bubble: View, Equatable {
     var onCorrect: (Utterance) -> Void = { _ in }
     @State private var hovering = false
     @State private var copied = false
+    @FocusState private var focused: Bool
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     nonisolated static func == (a: Bubble, b: Bubble) -> Bool {
@@ -154,6 +155,10 @@ struct Bubble: View, Equatable {
         .contextMenu { menu }
         // Tastatur (Nr. 354): Tab erreicht die Blase; Enter liest vor, E korrigiert, ⌘C kopiert die Übersetzung
         .focusable()
+        .focused($focused)
+        .overlay {   // eigener Fokusrand: der System-Fokusring erscheint bei .focusable() nicht überall
+            if focused { RoundedRectangle(cornerRadius: 14).strokeBorder(Color.accentColor, lineWidth: 3) }
+        }
         .onKeyPress(.return) { if playing { m.stopSpeaking() } else { m.replay(u) }; return .handled }
         .onKeyPress(.escape) { guard playing else { return .ignored }; m.stopSpeaking(); return .handled }
         .onKeyPress(characters: CharacterSet(charactersIn: "eEcC")) { press in
@@ -246,6 +251,9 @@ private struct BubbleHeader: View {
                     .multilineTextAlignment(en ? .leading : .trailing)
                     .textSelection(.enabled)
                 if playing { Image(systemName: "speaker.wave.2.fill").foregroundStyle(.secondary).accessibilityHidden(true) }
+                if u.lowConfidence {   // nicht nur Farbe: Warnsymbol im Kopf der Blase
+                    Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(LangStyle.warning).accessibilityHidden(true)
+                }
                 if en { Spacer(minLength: 0) }
             }
             if translit && u.translated, let latin = u.textLatin {
@@ -279,7 +287,7 @@ private struct BubbleMain: View {
             }
             if showBack, let back = u.back {   // Rückübersetzung: klein, zur Kontrolle
                 Text("↩︎ " + back)
-                    .font(.system(size: 12 * scale)).foregroundStyle(.secondary)
+                    .font(.system(size: max(12, 12 * scale))).foregroundStyle(.secondary)
                     .multilineTextAlignment(en ? .leading : .trailing)
                     .textSelection(.enabled)
                     .accessibilityLabel(L.t("back_translate") + ": " + back)

@@ -1505,7 +1505,8 @@ final class EngineModel: NSObject, ObservableObject {
             Announcer.post(L.t("engine_hung"), force: true)
         }
         // Nr. 20: hängt die Engine lange und läuft kein Gespräch, einmal selbst neu starten (höchstens 3 Mal)
-        if engineHung, now.timeIntervalSince(lastAlive) > Self.hungRestartAfter, hungRestarts < 3, !busy, !speakingNow {
+        if engineHung, now.timeIntervalSince(lastAlive) > Self.hungRestartAfter, hungRestarts < 3,
+           (!busy && !speakingNow) || now.timeIntervalSince(lastAlive) > Self.hungRestartAfter * 3 {   // „busy“ darf kein ewiger Freibrief sein
             hungRestarts += 1
             CrashNotifier.shared.notifyStopped(L.t("engine_hung"))
             restart()

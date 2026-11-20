@@ -628,7 +628,7 @@ private struct TranslationSettings: View {
                         .foregroundStyle(m.llmActive ? LangStyle.success : LangStyle.warning)
                 }
                 Picker(selection: $m.llmModel) {
-                    ForEach(EngineModel.llmModels, id: \.self) { Text($0).tag($0) }
+                    ForEach(EngineModel.llmModels, id: \.self) { Text(llmModelLabel($0)).tag($0) }
                     if !EngineModel.llmModels.contains(m.llmModel) { Text(m.llmModel).tag(m.llmModel) }
                 } label: {
                     VStack(alignment: .leading) { Text(L.t("llm_model")); RestartNote() }
@@ -785,4 +785,11 @@ private struct QuickPhraseSettings: View {
             }
         }
     }
+}
+
+/// Sprechender Name zur Modell-ID (die ID bleibt als Zusatz sichtbar).
+func llmModelLabel(_ id: String) -> String {
+    let tier = id.contains("haiku") ? "llm_tier_fast" : id.contains("opus") ? "llm_tier_best"
+        : id.contains("sonnet") ? "llm_tier_balanced" : nil
+    return tier.map { L.t($0) + " · " + id } ?? id
 }
