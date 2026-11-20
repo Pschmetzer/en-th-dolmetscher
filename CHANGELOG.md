@@ -16,11 +16,21 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 - Fix: the number warning no longer fires when only the thousands separator differs (1,200 vs 1200).
 - Logic in `PriceLogic`, `SummaryLogic`, `LearnLogic`, `ScenarioDetect`, `OfflineFallback`, `WindowLogic`, `ShortcutCatalog` with tests in `swift-tests`; texts in `L10n+R24.swift`.
 
+### iOS travel features, round 33
+
+- Bluetooth (HFP) hint now comes from the L10n table in all ten interface languages instead of inline text.
+- Whisper partials: only the part that stayed the same across the last results is shown (never mid-word), hallucination filter on every partial, the final result always replaces it.
+- Menu photo: `MenuAllergens` marks lines that match your allergies (en/de/th, ids from `allergens.json`), with guards for "eggplant", Thai "ขนม" (snack, not milk) and squid (not fish); a bare "ถั่ว" is only "maybe peanut".
+- Travel mode: country suggests partner language, emergency numbers and currency (a suggestion, never a silent switch); two-device message codec and state (MultipeerConnectivity prototype, not offered in the UI yet); pronunciation coach score; FSRS-like spaced repetition with place triggers (foreground only); travel diary statistics; QR hotel card text; Apple Watch message codec (no Watch target yet).
+- Optional Spotlight search of the history (off by default, last 200 sentences, cleared on Face ID lock and when history changes); offline traffic light that also checks for enhanced/premium voices; backup-exclusion and file-protection rules with tests; offline translation through English is marked "via English" on the bubble.
+- Tests: `Round33Tests` (37 cases).
+
 ### Web round 24: tools and 23 new packs
 
 - New tools dialog (button 🧰, loaded on demand from `web-extras.js`, cached for offline use): price check with a manually entered rate and a big number card (with Thai number words), negotiation helper with counter offers, travel checklist, offline dictionary from the pack glossaries, tour guide pack shared as a link (own cards compressed into the URL fragment, nothing uploaded), travel diary with tags and file export, tone trainer with minimal pairs and quiz, microphone level hint for noisy places. No photo/text recognition: it cannot work offline without a model download.
 - 23 new phrase packs (201 in total): camping, night bus, business meeting, contractors, caves and waterfalls, climbing, surf lessons, herbal medicine, blood tests, meditation retreat, longtail boat, condo office, used vehicles, vet, school enrollment, electronics mall, copy shop, gold shop, notary and translation, work permit, neighbours and noise, orchard visit, wildlife safari. Thai lines are machine-made, not reviewed.
 - The CSP now allows `'self'` scripts for the extras file; the hash-based CSP is not done yet (the inline script still needs `'unsafe-inline'`).
+
 ### Modules, tools and docs, round 24
 
 - Phrase book tool: `satzbuch.py report` (Markdown or JSON, by code and pack, with size) and `check --ignore CODE --pack ID`. Bug fixed: a wrong or empty `--dir` reported "0 errors" with exit code 0; it is now an error.
