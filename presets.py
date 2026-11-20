@@ -15,6 +15,7 @@ LANG_RE = re.compile(r"[a-z]{2,3}(-[a-z0-9]{2,8})?")      # Schlüssel in texts:
 ID_RE = re.compile(r"[a-z0-9][a-z0-9_-]{0,31}")
 MAX_GLOSSARY, MAX_PHRASES = 100, 50
 MAX_NAME, MAX_TERM, MAX_PHRASE, MAX_NOTE = 40, 60, 200, 500
+MAX_ROM = 300                             # Runde 23: optionale Lautschrift je Satz (phrases[].rom)
 MAX_FILE = 256 * 1024                     # größere Preset-Dateien werden nicht gelesen (Schutz vor Riesendateien)
 MAX_HOTWORDS, MAX_HINT = 30, 300          # Nr. 243: eigene Whisper-Hotwords und Ton-Hinweis für Claude
 # Runde 7: tuning = {silence, sensitivity, let_finish, catch_up, rate} je Szenario (Bereiche wie die Steuerfelder)
@@ -143,6 +144,8 @@ def validate(d):
                 err.append(f"{key}[{i}] braucht en und th (1-{limit} Zeichen) oder texts {{Sprache: Text}}")
             elif key == "phrases" and "critical" in it and not isinstance(it["critical"], bool):
                 err.append(f"phrases[{i}].critical muss true oder false sein")
+            elif key == "phrases" and "rom" in it and not _text(it["rom"], MAX_ROM):
+                err.append(f"phrases[{i}].rom muss ein Text mit 1-{MAX_ROM} Zeichen sein")
     note = d.get("note")                  # optional: Kultur-/Sicherheitshinweis {de, en, th?}
     if "note" in d and not (isinstance(note, dict) and set(note) <= {"de", "en", "th"}
                             and all(_text(note.get(k), MAX_NOTE) for k in ("de", "en"))

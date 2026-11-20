@@ -1,0 +1,134 @@
+{
+  "id": "pharmacy-prescription-transfer",
+  "names": {
+    "de": "Rezept und Folgeverordnung",
+    "en": "Prescription and refills",
+    "th": "ใบสั่งยาและการรับยาต่อเนื่อง"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Rezepte aus dem Ausland werden oft nicht eingelöst, viele Mittel gibt es aber ohne Rezept. Wirkstoff (generic name) statt Markenname nennen, Packung oder Foto zeigen. Für Dauermedikamente einen thailändischen Arzt aufsuchen. Belege für die Versicherung aufheben. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Foreign prescriptions are often not accepted, but many drugs are sold without one. Give the generic name instead of the brand and show the box or a photo. For long-term medicine see a Thai doctor. Keep receipts for your insurance. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "generic name",
+      "th": "ชื่อสามัญ"
+    },
+    {
+      "en": "active ingredient",
+      "th": "ตัวยาสำคัญ"
+    },
+    {
+      "en": "dose",
+      "th": "ขนาดยา"
+    },
+    {
+      "en": "refill",
+      "th": "การรับยาต่อ"
+    },
+    {
+      "en": "label",
+      "th": "ฉลากยา"
+    },
+    {
+      "en": "pharmacist",
+      "th": "เภสัชกร"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I ran out of my heart medication.",
+      "th": "ยาโรคหัวใจหมด",
+      "critical": true
+    },
+    {
+      "en": "I ran out of my insulin.",
+      "th": "อินซูลินหมด",
+      "critical": true
+    },
+    {
+      "en": "I cannot stop taking this medicine.",
+      "th": "ห้ามหยุดยาตัวนี้",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to penicillin.",
+      "th": "แพ้ยาเพนิซิลลิน",
+      "critical": true
+    },
+    {
+      "en": "I need this medicine today.",
+      "th": "ต้องใช้ยานี้วันนี้",
+      "critical": true
+    },
+    {
+      "en": "I take this medicine regularly.",
+      "th": "กินยานี้เป็นประจำ"
+    },
+    {
+      "en": "Here is my prescription from home.",
+      "th": "นี่คือใบสั่งยาจากประเทศบ้านเกิด"
+    },
+    {
+      "en": "Can you fill a foreign prescription?",
+      "th": "รับใบสั่งยาจากต่างประเทศได้ไหม"
+    },
+    {
+      "en": "Do I need a Thai doctor's prescription?",
+      "th": "ต้องมีใบสั่งยาจากแพทย์ไทยไหม"
+    },
+    {
+      "en": "Can a doctor here write a new prescription?",
+      "th": "แพทย์ที่นี่เขียนใบสั่งยาใหม่ให้ได้ไหม"
+    },
+    {
+      "en": "This is the generic name of the drug.",
+      "th": "นี่คือชื่อสามัญของยา"
+    },
+    {
+      "en": "Do you have the same active ingredient?",
+      "th": "มียาที่มีตัวยาสำคัญเหมือนกันไหม"
+    },
+    {
+      "en": "Is there a similar brand in Thailand?",
+      "th": "ในไทยมียาตัวคล้ายกันไหม"
+    },
+    {
+      "en": "Please check the dose on the box.",
+      "th": "ช่วยดูขนาดยาบนกล่องหน่อย"
+    },
+    {
+      "en": "Which pharmacy is open now?",
+      "th": "ร้านขายยาไหนเปิดอยู่ตอนนี้"
+    },
+    {
+      "en": "Can I buy a one-week supply?",
+      "th": "ซื้อยาสำหรับหนึ่งสัปดาห์ได้ไหม"
+    },
+    {
+      "en": "Do you have a smaller pack?",
+      "th": "มีแพ็กเล็กกว่านี้ไหม"
+    },
+    {
+      "en": "Please label it in English.",
+      "th": "ช่วยเขียนฉลากเป็นภาษาอังกฤษหน่อย"
+    },
+    {
+      "en": "Please write how often to take it.",
+      "th": "ช่วยเขียนว่าต้องกินบ่อยแค่ไหน"
+    },
+    {
+      "en": "Should I take it with food?",
+      "th": "ควรกินพร้อมอาหารไหม"
+    },
+    {
+      "en": "Can I take this with my other tablets?",
+      "th": "กินร่วมกับยาตัวอื่นได้ไหม"
+    },
+    {
+      "en": "Can I get a receipt for my insurance?",
+      "th": "ขอใบเสร็จไปเคลมประกันได้ไหม"
+    }
+  ]
+}

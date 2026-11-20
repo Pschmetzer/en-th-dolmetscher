@@ -1,0 +1,134 @@
+{
+  "id": "vaccination-travel-clinic",
+  "names": {
+    "de": "Reiseimpfungen",
+    "en": "Travel vaccinations",
+    "th": "วัคซีนสำหรับนักเดินทาง"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Reisekliniken in Bangkok und Chiang Mai bieten viele Impfungen an, auch Tollwut-Serien. Impfpass mitbringen und die Einträge auf Englisch verlangen. Manche Impfungen brauchen mehrere Termine, also früh planen. Gelbfieber-Nachweis nur bei Einreise aus Risikogebieten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Travel clinics in Bangkok and Chiang Mai offer many vaccines, including rabies series. Bring your vaccination card and ask for entries in English. Some vaccines need several visits, so plan early. A yellow fever certificate is only needed when arriving from risk areas. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "vaccine",
+      "th": "วัคซีน"
+    },
+    {
+      "en": "injection",
+      "th": "เข็มฉีดยา"
+    },
+    {
+      "en": "rabies",
+      "th": "โรคพิษสุนัขบ้า"
+    },
+    {
+      "en": "hepatitis",
+      "th": "ตับอักเสบ"
+    },
+    {
+      "en": "typhoid",
+      "th": "ไทฟอยด์"
+    },
+    {
+      "en": "certificate",
+      "th": "ใบรับรอง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I think an animal bit me. I need a rabies shot.",
+      "th": "คิดว่าสัตว์กัด ต้องฉีดวัคซีนพิษสุนัขบ้า",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to eggs.",
+      "th": "แพ้ไข่",
+      "critical": true
+    },
+    {
+      "en": "I feel dizzy after the injection.",
+      "th": "เวียนหัวหลังฉีดยา",
+      "critical": true
+    },
+    {
+      "en": "I have a swollen face after the injection.",
+      "th": "หน้าบวมหลังฉีดยา",
+      "critical": true
+    },
+    {
+      "en": "I cannot breathe well after the injection.",
+      "th": "หายใจไม่สะดวกหลังฉีดยา",
+      "critical": true
+    },
+    {
+      "en": "I would like to get vaccinated before my trip.",
+      "th": "อยากฉีดวัคซีนก่อนเดินทาง"
+    },
+    {
+      "en": "Which vaccines do you recommend for Thailand?",
+      "th": "แนะนำให้ฉีดวัคซีนอะไรบ้างสำหรับประเทศไทย"
+    },
+    {
+      "en": "Do you offer a rabies vaccine?",
+      "th": "มีวัคซีนพิษสุนัขบ้าไหม"
+    },
+    {
+      "en": "Do you have the hepatitis A vaccine?",
+      "th": "มีวัคซีนตับอักเสบเอไหม"
+    },
+    {
+      "en": "Do you have the typhoid vaccine?",
+      "th": "มีวัคซีนไทฟอยด์ไหม"
+    },
+    {
+      "en": "Do you have the Japanese encephalitis vaccine?",
+      "th": "มีวัคซีนไข้สมองอักเสบเจอีไหม"
+    },
+    {
+      "en": "I need a yellow fever certificate.",
+      "th": "ต้องการใบรับรองการฉีดวัคซีนไข้เหลือง"
+    },
+    {
+      "en": "How many doses do I need?",
+      "th": "ต้องฉีดกี่เข็ม"
+    },
+    {
+      "en": "How long before my trip should I start?",
+      "th": "ควรเริ่มฉีดก่อนเดินทางนานเท่าไร"
+    },
+    {
+      "en": "Is it a single injection or a series?",
+      "th": "ฉีดเข็มเดียวหรือเป็นชุด"
+    },
+    {
+      "en": "Can I get two vaccines on the same day?",
+      "th": "ฉีดวัคซีนสองชนิดในวันเดียวกันได้ไหม"
+    },
+    {
+      "en": "Are there side effects?",
+      "th": "มีผลข้างเคียงไหม"
+    },
+    {
+      "en": "I am pregnant. Is this vaccine safe?",
+      "th": "ตั้งครรภ์อยู่ วัคซีนนี้ปลอดภัยไหม"
+    },
+    {
+      "en": "Please write it in my vaccination card.",
+      "th": "ช่วยบันทึกลงในสมุดวัคซีนหน่อย"
+    },
+    {
+      "en": "Can I have an international certificate?",
+      "th": "ขอใบรับรองการฉีดวัคซีนระหว่างประเทศได้ไหม"
+    },
+    {
+      "en": "Do I need to make an appointment?",
+      "th": "ต้องนัดล่วงหน้าไหม"
+    },
+    {
+      "en": "Can I get malaria tablets here?",
+      "th": "ซื้อยาป้องกันมาลาเรียที่นี่ได้ไหม"
+    }
+  ]
+}

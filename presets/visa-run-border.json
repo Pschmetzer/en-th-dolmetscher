@@ -1,0 +1,151 @@
+{
+  "id": "visa-run-border",
+  "names": {
+    "de": "Visa-Run und Grenzübertritt",
+    "en": "Visa run and border crossing",
+    "th": "ข้ามด่านเพื่อต่อวีซ่า"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Bei einem Visa-Run Pass, Weiterreise-Ticket, Unterkunftsnachweis und genug Bargeld bereithalten. Die Zahl der Landgrenz-Einreisen ist begrenzt, vorab prüfen. Stempel und erlaubte Tage direkt am Schalter kontrollieren. Niemals Geld für einen Stempel zahlen, außer der amtlichen Gebühr. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "For a visa run have your passport, onward ticket, proof of accommodation and enough cash ready. Land border entries are limited, so check beforehand. Verify the stamp and the permitted days at the counter. Never pay for a stamp beyond the official fee. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "border",
+      "th": "ด่านชายแดน"
+    },
+    {
+      "en": "stamp",
+      "th": "ตราประทับ"
+    },
+    {
+      "en": "onward ticket",
+      "th": "ตั๋วเดินทางต่อ"
+    },
+    {
+      "en": "overstay",
+      "th": "อยู่เกินกำหนด"
+    },
+    {
+      "en": "entry",
+      "th": "การเข้าประเทศ"
+    },
+    {
+      "en": "exit",
+      "th": "การออกนอกประเทศ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Someone asked for money to stamp my passport.",
+      "th": "มีคนเรียกเงินเพื่อประทับตราหนังสือเดินทาง",
+      "critical": true
+    },
+    {
+      "en": "I lost my passport at the border.",
+      "th": "ทำหนังสือเดินทางหายที่ด่าน",
+      "critical": true
+    },
+    {
+      "en": "Please call the tourist police.",
+      "th": "ช่วยโทรหาตำรวจท่องเที่ยวหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I do not want to hand over my passport.",
+      "th": "ไม่ต้องการมอบหนังสือเดินทางให้",
+      "critical": true
+    },
+    {
+      "en": "I want to speak to a senior officer.",
+      "th": "ขอพบหัวหน้าเจ้าหน้าที่",
+      "critical": true
+    },
+    {
+      "en": "I do not want to sign anything yet.",
+      "th": "ยังไม่ต้องการเซ็นอะไร",
+      "critical": true
+    },
+    {
+      "en": "Please call my embassy.",
+      "th": "ช่วยโทรหาสถานทูตหน่อย"
+    },
+    {
+      "en": "I am doing a visa run.",
+      "th": "มาข้ามด่านเพื่อต่อวีซ่า"
+    },
+    {
+      "en": "I would like to re-enter Thailand today.",
+      "th": "ต้องการกลับเข้าไทยวันนี้"
+    },
+    {
+      "en": "Where is the exit counter?",
+      "th": "ช่องตรวจออกนอกประเทศอยู่ที่ไหน"
+    },
+    {
+      "en": "Where is the entry counter?",
+      "th": "ช่องตรวจเข้าประเทศอยู่ที่ไหน"
+    },
+    {
+      "en": "How many days will I get?",
+      "th": "จะได้อยู่กี่วัน"
+    },
+    {
+      "en": "Here is my passport.",
+      "th": "นี่พาสปอร์ต"
+    },
+    {
+      "en": "Here is my onward ticket.",
+      "th": "นี่คือตั๋วเดินทางต่อ"
+    },
+    {
+      "en": "Here is my hotel booking.",
+      "th": "นี่คือใบจองโรงแรม"
+    },
+    {
+      "en": "I have enough money.",
+      "th": "มีเงินเพียงพอ"
+    },
+    {
+      "en": "I am a tourist.",
+      "th": "มาเป็นนักท่องเที่ยว"
+    },
+    {
+      "en": "I have an e-visa.",
+      "th": "มีวีซ่าอิเล็กทรอนิกส์"
+    },
+    {
+      "en": "Is there a limit on land border entries?",
+      "th": "มีข้อจำกัดจำนวนครั้งที่เข้าทางบกไหม"
+    },
+    {
+      "en": "Where do I pay the overstay fine?",
+      "th": "จ่ายค่าปรับอยู่เกินกำหนดที่ไหน"
+    },
+    {
+      "en": "Please stamp the right page.",
+      "th": "ช่วยประทับตราหน้านี้หน่อย"
+    },
+    {
+      "en": "Is the stamp correct?",
+      "th": "ตราประทับถูกต้องไหม"
+    },
+    {
+      "en": "May I fill in the arrival card here?",
+      "th": "ขอกรอกบัตรขาเข้าที่นี่ได้ไหม"
+    },
+    {
+      "en": "Is there a shuttle to the other side?",
+      "th": "มีรถรับส่งไปอีกฝั่งไหม"
+    },
+    {
+      "en": "Is the border open today?",
+      "th": "วันนี้ด่านเปิดไหม"
+    },
+    {
+      "en": "Do I need to pay a fee?",
+      "th": "ต้องจ่ายค่าธรรมเนียมไหม"
+    }
+  ]
+}

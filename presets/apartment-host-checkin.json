@@ -1,0 +1,142 @@
+{
+  "id": "apartment-host-checkin",
+  "names": {
+    "de": "Vermieter und Self-Check-in",
+    "en": "Apartment host and self check-in",
+    "th": "เจ้าของที่พักและเช็กอินเอง"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Bei Apartments und Airbnb kommt der Schlüssel oft per Zahlenschloss oder Schlüsselbox. Code und genaue Position vorab erfragen und Fotos der Anreise speichern. Defekte sofort melden und Fotos senden. Müll und Klimaanlage nach den Hausregeln behandeln. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "In apartments and Airbnb the key often comes in a lockbox or with a code. Ask for the code and exact location beforehand and save photos of the route. Report defects at once with photos. Handle rubbish and air conditioning as the house rules say. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "key box",
+      "th": "กล่องกุญแจ"
+    },
+    {
+      "en": "code",
+      "th": "รหัส"
+    },
+    {
+      "en": "host",
+      "th": "เจ้าของที่พัก"
+    },
+    {
+      "en": "air conditioning",
+      "th": "แอร์"
+    },
+    {
+      "en": "rubbish",
+      "th": "ขยะ"
+    },
+    {
+      "en": "Wi-Fi",
+      "th": "ไวไฟ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am locked out. Please help me.",
+      "th": "ติดอยู่นอกห้อง ช่วยด้วย",
+      "critical": true
+    },
+    {
+      "en": "There is water leaking everywhere.",
+      "th": "น้ำรั่วท่วมห้อง",
+      "critical": true
+    },
+    {
+      "en": "I smell gas.",
+      "th": "ได้กลิ่นแก๊ส",
+      "critical": true
+    },
+    {
+      "en": "There is a fire in the building.",
+      "th": "ไฟไหม้ในอาคาร",
+      "critical": true
+    },
+    {
+      "en": "Please call the police.",
+      "th": "ช่วยเรียกตำรวจด้วย",
+      "critical": true
+    },
+    {
+      "en": "Where is the key box?",
+      "th": "กล่องกุญแจอยู่ที่ไหน"
+    },
+    {
+      "en": "What is the code for the key box?",
+      "th": "รหัสกล่องกุญแจคืออะไร"
+    },
+    {
+      "en": "The code does not work.",
+      "th": "รหัสใช้ไม่ได้"
+    },
+    {
+      "en": "I cannot find the apartment.",
+      "th": "หาห้องไม่เจอ"
+    },
+    {
+      "en": "Please send me the exact location.",
+      "th": "ช่วยส่งตำแหน่งที่แน่นอนให้หน่อย"
+    },
+    {
+      "en": "What is the Wi-Fi password?",
+      "th": "รหัสไวไฟคืออะไร"
+    },
+    {
+      "en": "How does the air conditioning work?",
+      "th": "แอร์ใช้อย่างไร"
+    },
+    {
+      "en": "How do I use the washing machine?",
+      "th": "ใช้เครื่องซักผ้าอย่างไร"
+    },
+    {
+      "en": "Where do I put the rubbish?",
+      "th": "ทิ้งขยะที่ไหน"
+    },
+    {
+      "en": "There is no hot water.",
+      "th": "ไม่มีน้ำร้อน"
+    },
+    {
+      "en": "The air conditioning is not cooling.",
+      "th": "แอร์ไม่เย็น"
+    },
+    {
+      "en": "The lights do not work.",
+      "th": "ไฟไม่ติด"
+    },
+    {
+      "en": "Can you send someone to fix it?",
+      "th": "ส่งคนมาซ่อมได้ไหม"
+    },
+    {
+      "en": "Can I check in early?",
+      "th": "เช็กอินก่อนเวลาได้ไหม"
+    },
+    {
+      "en": "Can I check out late?",
+      "th": "เช็กเอาต์ช้าได้ไหม"
+    },
+    {
+      "en": "Where do I leave the key?",
+      "th": "คืนกุญแจที่ไหน"
+    },
+    {
+      "en": "Is the building quiet at night?",
+      "th": "ตอนกลางคืนอาคารเงียบไหม"
+    },
+    {
+      "en": "Are there extra towels?",
+      "th": "มีผ้าขนหนูเพิ่มไหม"
+    },
+    {
+      "en": "Is there a security guard?",
+      "th": "มียามไหม"
+    }
+  ]
+}

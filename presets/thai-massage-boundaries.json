@@ -1,0 +1,135 @@
+{
+  "id": "thai-massage-boundaries",
+  "names": {
+    "de": "Thai-Massage: Grenzen setzen",
+    "en": "Thai massage and boundaries",
+    "th": "นวดไทยและขอบเขต"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Bei seriösen Salons massiert man bekleidet oder mit Tuch. Druck und Grenzen offen ansagen, bei Schmerz sofort sprechen. Sexuelle Angebote klar ablehnen, im Zweifel gehen und im Notfall die Touristenpolizei (1155) rufen. Wertsachen nicht im Raum lassen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Reputable salons massage you clothed or under a towel. Say clearly how much pressure you want and speak up at once if it hurts. Refuse sexual offers firmly, leave if in doubt and call the tourist police (1155) if needed. Do not leave valuables in the room. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "massage",
+      "th": "นวด"
+    },
+    {
+      "en": "pressure",
+      "th": "แรงกด"
+    },
+    {
+      "en": "towel",
+      "th": "ผ้าขนหนู"
+    },
+    {
+      "en": "therapist",
+      "th": "หมอนวด"
+    },
+    {
+      "en": "oil",
+      "th": "น้ำมัน"
+    },
+    {
+      "en": "session",
+      "th": "รอบนวด"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please stop.",
+      "th": "หยุดก่อน",
+      "critical": true
+    },
+    {
+      "en": "Do not touch me there.",
+      "th": "อย่าจับตรงนั้น",
+      "critical": true
+    },
+    {
+      "en": "I do not want that service.",
+      "th": "ไม่ต้องการบริการนั้น",
+      "critical": true
+    },
+    {
+      "en": "I want to leave now.",
+      "th": "ขอกลับเดี๋ยวนี้",
+      "critical": true
+    },
+    {
+      "en": "Please call the tourist police.",
+      "th": "ช่วยโทรหาตำรวจท่องเที่ยวหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I have an injury here.",
+      "th": "มีอาการบาดเจ็บตรงนี้",
+      "critical": true
+    },
+    {
+      "en": "Please press a little softer.",
+      "th": "ช่วยนวดเบาลงหน่อย"
+    },
+    {
+      "en": "Please press harder.",
+      "th": "ช่วยนวดแรงขึ้นหน่อย"
+    },
+    {
+      "en": "That hurts.",
+      "th": "เจ็บ"
+    },
+    {
+      "en": "That is perfect.",
+      "th": "กำลังดี"
+    },
+    {
+      "en": "Please do not crack my neck.",
+      "th": "ขออย่าบิดคอ"
+    },
+    {
+      "en": "I have a bad back.",
+      "th": "เป็นโรคปวดหลัง"
+    },
+    {
+      "en": "I am pregnant. Please be careful.",
+      "th": "ตั้งครรภ์อยู่ ช่วยระวังด้วย"
+    },
+    {
+      "en": "Only the feet, please.",
+      "th": "ขอนวดเฉพาะเท้า"
+    },
+    {
+      "en": "Only the shoulders and back, please.",
+      "th": "ขอนวดเฉพาะไหล่และหลัง"
+    },
+    {
+      "en": "Can I keep my clothes on?",
+      "th": "ใส่เสื้อผ้าไว้ได้ไหม"
+    },
+    {
+      "en": "Please turn around while I change.",
+      "th": "ช่วยหันไปก่อนระหว่างเปลี่ยนเสื้อผ้าหน่อย"
+    },
+    {
+      "en": "Please cover me with a towel.",
+      "th": "ขอผ้าขนหนูคลุมหน่อย"
+    },
+    {
+      "en": "I only want a normal massage.",
+      "th": "ต้องการนวดธรรมดาเท่านั้น"
+    },
+    {
+      "en": "Is the oil safe for sensitive skin?",
+      "th": "น้ำมันนี้ปลอดภัยกับผิวแพ้ง่ายไหม"
+    },
+    {
+      "en": "How long is the session?",
+      "th": "นวดนานเท่าไร"
+    },
+    {
+      "en": "Can I have a female therapist?",
+      "th": "ขอหมอนวดผู้หญิงได้ไหม"
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "id": "elderly-travel",
+  "names": {
+    "de": "Reisen mit älteren Eltern",
+    "en": "Travelling with elderly parents",
+    "th": "เดินทางกับผู้สูงอายุ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Viel Hitze und lange Wege belasten ältere Reisende. Pausen im Schatten, genug Wasser und Medikamentenliste mit Wirkstoffen auf Englisch mitführen. Aufzüge, Sitzplätze und Taxi bis zum Eingang vorab erfragen. In Bus und Bahn stehen Sitze für Senioren bereit. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Heat and long walks strain older travellers. Plan breaks in the shade, drink enough water and carry a medicine list with active ingredients in English. Ask ahead about lifts, seating and taxi drop-off at the entrance. Buses and trains have priority seats for seniors. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "elderly",
+      "th": "ผู้สูงอายุ"
+    },
+    {
+      "en": "wheelchair",
+      "th": "รถเข็น"
+    },
+    {
+      "en": "lift",
+      "th": "ลิฟต์"
+    },
+    {
+      "en": "stairs",
+      "th": "บันได"
+    },
+    {
+      "en": "rest",
+      "th": "พัก"
+    },
+    {
+      "en": "blood pressure",
+      "th": "ความดันโลหิต"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "She feels weak and dizzy.",
+      "th": "รู้สึกอ่อนแรงและเวียนหัว",
+      "critical": true
+    },
+    {
+      "en": "He has chest pain.",
+      "th": "เจ็บหน้าอก",
+      "critical": true
+    },
+    {
+      "en": "Please call an ambulance.",
+      "th": "ช่วยเรียกรถพยาบาลหน่อย",
+      "critical": true
+    },
+    {
+      "en": "He takes blood thinners.",
+      "th": "กินยาละลายลิ่มเลือด",
+      "critical": true
+    },
+    {
+      "en": "She has fallen and cannot get up.",
+      "th": "ล้มและลุกไม่ได้",
+      "critical": true
+    },
+    {
+      "en": "We are travelling with an elderly person.",
+      "th": "พาผู้สูงอายุมาด้วย"
+    },
+    {
+      "en": "Please give us priority seats.",
+      "th": "ขอที่นั่งสำหรับผู้สูงอายุหน่อย"
+    },
+    {
+      "en": "Please walk slowly.",
+      "th": "ช่วยเดินช้า ๆ หน่อย"
+    },
+    {
+      "en": "Is there a lift?",
+      "th": "มีลิฟต์ไหม"
+    },
+    {
+      "en": "Are there many stairs?",
+      "th": "มีบันไดเยอะไหม"
+    },
+    {
+      "en": "Is it a long walk?",
+      "th": "ต้องเดินไกลไหม"
+    },
+    {
+      "en": "We need a wheelchair, please.",
+      "th": "ขอรถเข็นหน่อย"
+    },
+    {
+      "en": "Please bring a chair.",
+      "th": "ช่วยหาเก้าอี้ให้หน่อย"
+    },
+    {
+      "en": "Is there a toilet with a seat?",
+      "th": "มีห้องน้ำแบบนั่งไหม"
+    },
+    {
+      "en": "She takes medicine for blood pressure.",
+      "th": "กินยาความดันโลหิต"
+    },
+    {
+      "en": "We need a rest.",
+      "th": "ขอพักสักครู่"
+    },
+    {
+      "en": "Can we sit in the shade?",
+      "th": "นั่งพักในที่ร่มได้ไหม"
+    },
+    {
+      "en": "Please bring some water.",
+      "th": "ขอน้ำหน่อย"
+    },
+    {
+      "en": "The food must be soft.",
+      "th": "อาหารต้องนิ่ม"
+    },
+    {
+      "en": "Not too spicy, please.",
+      "th": "ขอไม่เผ็ดมาก"
+    },
+    {
+      "en": "Is the road flat?",
+      "th": "ทางราบไหม"
+    },
+    {
+      "en": "Can the car stop at the entrance?",
+      "th": "จอดรถที่ทางเข้าได้ไหม"
+    },
+    {
+      "en": "Is there a senior discount?",
+      "th": "มีส่วนลดสำหรับผู้สูงอายุไหม"
+    }
+  ]
+}
