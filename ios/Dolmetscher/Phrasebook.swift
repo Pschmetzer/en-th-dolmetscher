@@ -137,8 +137,9 @@ struct PhrasebookView: View {
     @State private var category = "favorites"
     @State private var search = ""
 
-    /// Eingebaute Sätze und Pakete sind Englisch -> Thai: nur mit Thai im Paar.
-    private var available: [Phrase] { m.features.thaiExtras ? Phrasebook.all : [] }
+    /// Eingebaute Sätze und Pakete sind Englisch -> Thai. Ohne Thai im Paar werden die englischen Sätze automatisch in die
+    /// Partnersprache übersetzt (Hinweis „nicht geprüft“); das Satzbuch bleibt so für jedes Paar nutzbar.
+    private var available: [Phrase] { Phrasebook.all }
 
     private var pack: ScenarioPack? { Phrasebook.packs.first { $0.key == category } }
 
@@ -163,6 +164,10 @@ struct PhrasebookView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 chips
+                if !m.features.thaiExtras {
+                    Text(T("pb_machine_hint")).font(.footnote).foregroundStyle(.secondary)
+                        .padding(.horizontal).padding(.bottom, 6).frame(maxWidth: .infinity, alignment: .leading)
+                }
                 List {
                     if search.isEmpty, let note = pack?.noteText(L10n.lang) {
                         PackNote(text: note)
@@ -194,7 +199,7 @@ struct PhrasebookView: View {
     }
 
     private func pickStart() {
-        if m.favorites.isEmpty && m.features.thaiExtras { category = recent.isEmpty ? "basics" : "recent" }
+        if m.favorites.isEmpty { category = recent.isEmpty ? "basics" : "recent" }
         if let c = m.phrasebookStart { category = c; m.phrasebookStart = nil }
         #if DEBUG
         if let c = ProcessInfo.processInfo.environment["DOLMETSCHER_PB_CATEGORY"] { category = c }
@@ -207,7 +212,7 @@ struct PhrasebookView: View {
                 HStack(spacing: 8) {
                     if !recent.isEmpty { chip("recent", title: T("cat_recent"), icon: "clock") }
                     chip("favorites", title: T("cat_favorites"), icon: "star.fill")
-                    if m.features.thaiExtras {
+                    do {
                         ForEach(Phrasebook.categories, id: \.key) { chip($0.key, title: T("cat_" + $0.key), icon: $0.icon) }
                         ForEach(Phrasebook.packs) { chip($0.key, title: $0.name(L10n.lang), icon: $0.icon) }
                     }
@@ -227,12 +232,12 @@ struct PhrasebookView: View {
             m.say(p)
             Haptics.tap()
         } label: {
-            PhraseRow(phrase: p, thai: p.dstLang == .th ? m.politeness.fill(p.th) : p.th,
+            PhraseRow(phrase: p, thai: m.isMachinePhrase(p) ? T("pb_machine_row") : (p.dstLang == .th ? m.politeness.fill(p.th) : p.th),
                       roman: Phrasebook.roman(p, politeness: m.politeness), color: LangStyle.color(p.dstLang, m.pair))
         }
         .buttonStyle(.plain)
         .contextMenu {
-            let target = p.dstLang == .th ? m.politeness.fill(p.th) : p.th
+            let target = m.isMachinePhrase(p) ? p.en : (p.dstLang == .th ? m.politeness.fill(p.th) : p.th)
             Button { m.copy(target) } label: { Label(T("copy"), systemImage: "doc.on.doc") }
             ShareLink(item: Phrasebook.shareText([p], politeness: m.politeness)) {
                 Label(T("share_one"), systemImage: "square.and.arrow.up")

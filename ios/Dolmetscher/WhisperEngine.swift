@@ -68,8 +68,14 @@ final class WhisperStore {
         let f = folder(variant)
         // `.incomplete` liegt, solange ein Download läuft oder abgebrochen wurde (halbe Ordner zählen nicht als Modell).
         guard !FileManager.default.fileExists(atPath: marker(variant).path) else { return false }
-        return ["AudioEncoder.mlmodelc", "TextDecoder.mlmodelc", "MelSpectrogram.mlmodelc"].allSatisfy {
-            FileManager.default.fileExists(atPath: f.appending(path: $0).path)
+        return hasModelFiles(in: f)
+    }
+
+    /// Alle drei Core-ML-Modelle da und nicht leer: ein kompiliertes Modell enthält immer `coremldata.bin`
+    /// (ein abgebrochener Download hinterlässt sonst leere Ordner, die als „vollständig“ gelten würden).
+    nonisolated static func hasModelFiles(in folder: URL) -> Bool {
+        ["AudioEncoder.mlmodelc", "TextDecoder.mlmodelc", "MelSpectrogram.mlmodelc"].allSatisfy {
+            FileManager.default.fileExists(atPath: folder.appending(path: $0).appending(path: "coremldata.bin").path)
         }
     }
 

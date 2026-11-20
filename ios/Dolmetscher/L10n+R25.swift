@@ -1,0 +1,70 @@
+// L10n+R25.swift – Texte der Runde 25 (Notrufnummern nach Sprache, Satzbuch ohne Thai). de/en/th von Hand, die übrigen MASCHINELL ÜBERSETZT und nicht muttersprachlich geprüft.
+import Foundation
+
+extension L10n {
+    static let round25: [String: [String: String]] = [
+        "em_n_general": [
+            "de": "Allgemeiner Notruf", "en": "General emergency",
+            "th": "เหตุฉุกเฉินทั่วไป", "es": "Emergencias en general",
+            "fr": "Urgences (général)", "ja": "緊急通報(共通)",
+            "ko": "긴급 통합 신고", "zh-Hans": "综合紧急电话",
+            "vi": "Khẩn cấp chung", "id": "Darurat umum"
+        ],
+        "em_n_police": [
+            "de": "Polizei", "en": "Police",
+            "th": "ตำรวจ", "es": "Policía",
+            "fr": "Police", "ja": "警察",
+            "ko": "경찰", "zh-Hans": "警察",
+            "vi": "Công an", "id": "Polisi"
+        ],
+        "em_n_ambulance": [
+            "de": "Rettungsdienst", "en": "Ambulance",
+            "th": "รถพยาบาล", "es": "Ambulancia",
+            "fr": "Ambulance", "ja": "救急",
+            "ko": "구급", "zh-Hans": "急救",
+            "vi": "Cấp cứu", "id": "Ambulans"
+        ],
+        "em_n_fire": [
+            "de": "Feuerwehr", "en": "Fire brigade",
+            "th": "ดับเพลิง", "es": "Bomberos",
+            "fr": "Pompiers", "ja": "消防",
+            "ko": "소방", "zh-Hans": "消防",
+            "vi": "Cứu hỏa", "id": "Pemadam kebakaran"
+        ],
+        "em_n_fire_ambulance": [
+            "de": "Feuerwehr und Rettung", "en": "Fire and ambulance",
+            "th": "ดับเพลิงและรถพยาบาล", "es": "Bomberos y ambulancia",
+            "fr": "Pompiers et ambulance", "ja": "消防・救急",
+            "ko": "소방·구급", "zh-Hans": "消防和急救",
+            "vi": "Cứu hỏa và cấp cứu", "id": "Pemadam dan ambulans"
+        ],
+        "em_n_header": [
+            "de": "Notrufnummern der Partnersprache", "en": "Emergency numbers (partner's language)",
+            "th": "เบอร์ฉุกเฉิน (ประเทศของภาษาคู่สนทนา)", "es": "Números de emergencia (idioma de la pareja)",
+            "fr": "Numéros d’urgence (langue du partenaire)", "ja": "緊急番号(相手の言語の国)",
+            "ko": "긴급 번호(상대 언어 국가)", "zh-Hans": "紧急号码（对方语言所在国）",
+            "vi": "Số khẩn cấp (nước của ngôn ngữ đối tác)", "id": "Nomor darurat (negara bahasa mitra)"
+        ],
+        "em_n_note": [
+            "de": "Richtwert nach Sprache, nicht nach Aufenthaltsort. Vor Ort prüfen; 112 funktioniert in vielen Ländern auch ohne SIM.", "en": "A guide by language, not by your location. Check locally; 112 works without a SIM in many countries.",
+            "th": "อิงตามภาษา ไม่ใช่ตำแหน่งของคุณ โปรดตรวจสอบในพื้นที่ เบอร์ 112 ใช้ได้โดยไม่ต้องมีซิมในหลายประเทศ", "es": "Orientativo según el idioma, no tu ubicación. Compruébalo en el lugar; el 112 funciona sin SIM en muchos países.",
+            "fr": "Indication selon la langue, pas votre position. Vérifiez sur place ; le 112 fonctionne sans SIM dans de nombreux pays.", "ja": "言語に基づく目安で、現在地ではありません。現地で確認してください。112は多くの国でSIMなしでも使えます。",
+            "ko": "언어 기준이며 현재 위치 기준이 아닙니다. 현지에서 확인하세요. 112는 많은 나라에서 SIM 없이도 됩니다.", "zh-Hans": "仅按语言给出，不代表您所在位置。请当地核实；112在许多国家无SIM卡也可拨打。",
+            "vi": "Chỉ theo ngôn ngữ, không theo vị trí của bạn. Hãy kiểm tra tại chỗ; 112 hoạt động không cần SIM ở nhiều nước.", "id": "Berdasarkan bahasa, bukan lokasi Anda. Periksa di tempat; 112 berfungsi tanpa SIM di banyak negara."
+        ],
+        "pb_machine_hint": [
+            "de": "Automatisch übersetzt (nicht geprüft). Englische Sätze, übersetzt in die Partnersprache.", "en": "Machine-translated (unchecked). English phrases translated into the partner's language.",
+            "th": "แปลอัตโนมัติ (ไม่ได้ตรวจ) วลีภาษาอังกฤษแปลเป็นภาษาของคู่สนทนา", "es": "Traducción automática (sin revisar). Frases en inglés traducidas al idioma de la pareja.",
+            "fr": "Traduction automatique (non vérifiée). Phrases anglaises traduites dans la langue du partenaire.", "ja": "自動翻訳(未確認)。英語のフレーズを相手の言語に翻訳します。",
+            "ko": "자동 번역(미확인). 영어 문장을 상대 언어로 번역합니다.", "zh-Hans": "机器翻译（未核对）。英文短句译成对方语言。",
+            "vi": "Dịch tự động (chưa kiểm tra). Câu tiếng Anh được dịch sang ngôn ngữ của đối tác.", "id": "Terjemahan otomatis (belum diperiksa). Frasa Inggris diterjemahkan ke bahasa mitra."
+        ],
+        "pb_machine_row": [
+            "de": "wird automatisch übersetzt", "en": "translated automatically",
+            "th": "แปลอัตโนมัติ", "es": "se traduce automáticamente",
+            "fr": "traduit automatiquement", "ja": "自動翻訳されます",
+            "ko": "자동 번역됩니다", "zh-Hans": "自动翻译",
+            "vi": "dịch tự động", "id": "diterjemahkan otomatis"
+        ],
+    ]
+}

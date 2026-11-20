@@ -245,6 +245,7 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
     private var gate = VoiceGate(pause: 0.8)
     private var sincePartial = 0.0, sinceLevel = 0.0
     private var lastEnd: Task<Void, Never>?
+    private var preRoll = FeedPreRoll<AVAudioPCMBuffer>(maxSeconds: 0.7)
 
     init() {
         (events, emit) = AsyncStream<SpeechEvent>.makeStream(bufferingPolicy: .unbounded)
@@ -318,6 +319,7 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
     }
 
     private func resetVAD() {
+        preRoll.clear()
         if gate.inUtterance { emit.yield(.hearing(false)) }
         gate.reset()
     }
@@ -326,12 +328,22 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
         guard !muted, !recs.isEmpty, buf.floatChannelData != nil, buf.frameLength > 0 else { return }
         let rms = AudioCapture.rms(buf)
         let dur = Double(buf.frameLength) / buf.format.sampleRate
-        for r in recs { r.feed(buf) }
         // Pegel für die Anzeige gedrosselt (~12/s), sonst baut die Oberfläche ständig neu auf.
         sinceLevel += dur
         if sinceLevel >= 0.08 { sinceLevel = 0; emit.yield(.level(min(1, rms * 12))) }
 
-        switch gate.step(rms: rms, dur: dur) {
+        // Stille nicht an die Erkenner füttern (Akku, Wärme): nur Sprache samt kurzem Vorlauf. Die Zeitachse der
+        // Erkenner ist die Summe des gefütterten Audios; Marken (`position`) bleiben damit stimmig.
+        let event = gate.step(rms: rms, dur: dur)
+        if event == .started {
+            for b in preRoll.drain() { for r in recs { r.feed(b) } }
+        }
+        if gate.inUtterance || event == .ended {
+            for r in recs { r.feed(buf) }
+        } else {
+            preRoll.push(buf, dur: dur)
+        }
+        switch event {
         case .started: emit.yield(.hearing(true))
         case .ended: emit.yield(.hearing(false)); endUtterance(); return
         case nil: break
@@ -384,4 +396,31 @@ func raceTimeout(seconds: Double, _ op: @escaping @Sendable () async -> Void) as
         Task { await op(); if once.take() { c.resume() } }
         Task { try? await Task.sleep(for: .seconds(seconds)); if once.take() { c.resume() } }
     }
+}
+
+/// Kurzer Vorlauf vor dem Sprachbeginn: Die Pausen-Erkennung merkt den Anfang erst nach `minSpeech` – der Vorlauf stellt sicher,
+/// dass der erste Laut nicht fehlt, obwohl Stille gar nicht erst an die Erkenner geht.
+struct FeedPreRoll<Item> {
+    let maxSeconds: Double
+    private var items: [(item: Item, dur: Double)] = []
+    private var total = 0.0
+
+    init(maxSeconds: Double) { self.maxSeconds = maxSeconds }
+
+    var seconds: Double { total }
+    var count: Int { items.count }
+
+    mutating func push(_ item: Item, dur: Double) {
+        items.append((item, dur)); total += dur
+        while total > maxSeconds, items.count > 1 { total -= items.removeFirst().dur }
+    }
+
+    /// Alles in Aufnahmereihenfolge entnehmen; der Vorlauf ist danach leer.
+    mutating func drain() -> [Item] {
+        let out = items.map(\.item)
+        clear()
+        return out
+    }
+
+    mutating func clear() { items = []; total = 0 }
 }
