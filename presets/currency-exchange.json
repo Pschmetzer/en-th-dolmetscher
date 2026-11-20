@@ -1,0 +1,113 @@
+{
+  "id": "currency-exchange",
+  "names": {
+    "de": "Geldwechsel",
+    "en": "Currency exchange",
+    "th": "แลกเงิน"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Wechselstuben in der Stadt zahlen meist bessere Kurse als Flughafen und Hotel. Große Scheine (große Dollar- und Euro-Scheine) bekommen den besten Kurs. Vor dem Tausch Kurs, Gebühr und Endbetrag erfragen und das Geld vor Ort nachzählen. Der Reisepass wird oft für den Beleg verlangt. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "City exchange booths usually pay better rates than the airport and hotel. Large notes (large dollar and euro notes) get the best rate. Before you swap, ask for the rate, fee and final amount and count the money at the counter. The passport is often needed for the receipt. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "exchange rate",
+      "th": "อัตราแลกเปลี่ยน"
+    },
+    {
+      "en": "fee",
+      "th": "ค่าธรรมเนียม"
+    },
+    {
+      "en": "banknote",
+      "th": "ธนบัตร"
+    },
+    {
+      "en": "coin",
+      "th": "เหรียญ"
+    },
+    {
+      "en": "small notes",
+      "th": "ธนบัตรย่อย"
+    },
+    {
+      "en": "dollar",
+      "th": "ดอลลาร์"
+    },
+    {
+      "en": "euro",
+      "th": "ยูโร"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    },
+    {
+      "en": "passport",
+      "th": "หนังสือเดินทาง"
+    },
+    {
+      "en": "commission",
+      "th": "ค่านายหน้า"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "What is the exchange rate today?",
+      "th": "วันนี้อัตราแลกเปลี่ยนเท่าไหร่"
+    },
+    {
+      "en": "I would like to change some US dollars.",
+      "th": "ต้องการแลกดอลลาร์สหรัฐ"
+    },
+    {
+      "en": "I would like to change euros to baht.",
+      "th": "ต้องการแลกยูโรเป็นเงินบาท"
+    },
+    {
+      "en": "Is there a fee or a commission?",
+      "th": "มีค่าธรรมเนียมหรือค่านายหน้าไหม"
+    },
+    {
+      "en": "How much will I get in total?",
+      "th": "จะได้เงินรวมเท่าไร"
+    },
+    {
+      "en": "Please give me some small notes.",
+      "th": "ขอธนบัตรย่อยบางส่วน"
+    },
+    {
+      "en": "Could you give me 100 baht notes?",
+      "th": "ขอเป็นธนบัตรใบละ 100 บาทได้ไหม"
+    },
+    {
+      "en": "Please count the money in front of me.",
+      "th": "ช่วยนับเงินต่อหน้าด้วย"
+    },
+    {
+      "en": "May I count it again?",
+      "th": "ขอนับอีกครั้งได้ไหม"
+    },
+    {
+      "en": "Do you need my passport?",
+      "th": "ต้องใช้พาสปอร์ตไหม"
+    },
+    {
+      "en": "May I have a receipt?",
+      "th": "ขอใบเสร็จได้ไหม"
+    },
+    {
+      "en": "Do you accept this note? It is not damaged.",
+      "th": "รับธนบัตรใบนี้ไหม ไม่ได้ชำรุด"
+    },
+    {
+      "en": "Where is a better exchange rate nearby?",
+      "th": "แถวนี้ที่ไหนอัตราดีกว่า"
+    },
+    {
+      "en": "Is there an ATM nearby?",
+      "th": "แถวนี้มีตู้เอทีเอ็มไหม"
+    }
+  ]
+}

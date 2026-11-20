@@ -13,6 +13,7 @@ INDEX = json.loads((ROOT / "presets-index.json").read_text(encoding="utf-8"))["p
 HTML = (ROOT / "index.html").read_text(encoding="utf-8")
 SW = (ROOT / "sw.js").read_text(encoding="utf-8")
 PRESETS_MD = (ROOT / "docs" / "PRESETS.md").read_text(encoding="utf-8")
+PENDING = set((ROOT / "tools" / "web_pending_presets.txt").read_text(encoding="utf-8").split())   # noch nicht im Web
 THAI = re.compile("[฀-๿]")
 LATIN_WORD = re.compile("[A-Za-z]{3,}")
 
@@ -39,7 +40,7 @@ def test_every_source_lists_exactly_the_shipped_packs():
     index_ids = [p["id"] for p in INDEX]
     assert len(index_ids) == len(set(index_ids))
     assert set(index_ids) == ids, sorted(set(index_ids) ^ ids)
-    assert set(_js_ids(HTML)) == ids, sorted(set(_js_ids(HTML)) ^ ids)
+    assert set(_js_ids(HTML)) == ids - PENDING, sorted(set(_js_ids(HTML)) ^ (ids - PENDING))
     doc_rows = re.findall(r"^\| `([a-z0-9_-]+)` \|", _section("Pakete"), re.M)
     assert set(doc_rows) == ids, sorted(set(doc_rows) ^ ids)
     assert len(doc_rows) == len(ids)                                                     # keine Zeile doppelt
@@ -59,7 +60,8 @@ def test_index_entries_match_the_files():
 
 
 def test_web_order_follows_the_index_order():
-    assert _js_ids(HTML) == [p["id"] for p in INDEX]
+    # Pakete der Warteliste fehlen noch in den Web-Listen; der Rest bleibt in Index-Reihenfolge
+    assert _js_ids(HTML) == [p["id"] for p in INDEX if p["id"] not in PENDING]
 
 
 def test_readmes_name_only_existing_packs_with_the_right_total():

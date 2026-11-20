@@ -1,0 +1,129 @@
+{
+  "id": "hair-beauty",
+  "names": {
+    "de": "Friseur / Schönheit",
+    "en": "Hair salon / beauty",
+    "th": "ร้านทำผม / ความงาม"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Preise stehen meist auf einer Karte; für Haarschnitt, Färben, Maniküre und Pediküre vorher nachfragen. Fotos als Vorlage zeigen. Trinkgeld 20 bis 50 Baht ist üblich. Bei Tattoos und Piercings auf Einwegnadeln und Handschuhe achten und das Gerät sterilisiert fordern. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Prices are usually on a menu; ask first for haircuts, colouring, manicure and pedicure. Show photos as a template. A tip of 20 to 50 baht is customary. For tattoos and piercings insist on single-use needles and gloves and sterilised equipment. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "haircut",
+      "th": "ตัดผม"
+    },
+    {
+      "en": "hair dye",
+      "th": "ย้อมผม"
+    },
+    {
+      "en": "shampoo",
+      "th": "สระผม"
+    },
+    {
+      "en": "blow dry",
+      "th": "ไดร์ผม"
+    },
+    {
+      "en": "beard",
+      "th": "เครา"
+    },
+    {
+      "en": "manicure",
+      "th": "ทำเล็บมือ"
+    },
+    {
+      "en": "pedicure",
+      "th": "ทำเล็บเท้า"
+    },
+    {
+      "en": "tattoo",
+      "th": "รอยสัก"
+    },
+    {
+      "en": "piercing",
+      "th": "เจาะ"
+    },
+    {
+      "en": "shave",
+      "th": "โกน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please use a new needle.",
+      "th": "ช่วยใช้เข็มใหม่ด้วย",
+      "critical": true
+    },
+    {
+      "en": "Please wear new gloves.",
+      "th": "ช่วยใส่ถุงมือใหม่ด้วย",
+      "critical": true
+    },
+    {
+      "en": "Please sterilise the equipment.",
+      "th": "ช่วยฆ่าเชื้ออุปกรณ์ด้วย",
+      "critical": true
+    },
+    {
+      "en": "I am allergic to hair dye.",
+      "th": "แพ้สีย้อมผม",
+      "critical": true
+    },
+    {
+      "en": "A haircut, please.",
+      "th": "ขอตัดผม"
+    },
+    {
+      "en": "Just a trim, please.",
+      "th": "ขอเล็มนิดหน่อย"
+    },
+    {
+      "en": "Like this photo, please.",
+      "th": "ขอทรงเหมือนรูปนี้"
+    },
+    {
+      "en": "Short on the sides and a little longer on top.",
+      "th": "ข้างสั้น ด้านบนยาวนิดหน่อย"
+    },
+    {
+      "en": "Not too short, please.",
+      "th": "ขออย่าสั้นเกินไป"
+    },
+    {
+      "en": "Please wash my hair.",
+      "th": "ช่วยสระผมให้หน่อย"
+    },
+    {
+      "en": "How much is a haircut?",
+      "th": "ตัดผมราคาเท่าไร"
+    },
+    {
+      "en": "How long will it take?",
+      "th": "ใช้เวลานานเท่าไหร่"
+    },
+    {
+      "en": "A manicure and a pedicure, please.",
+      "th": "ขอทำเล็บมือและเล็บเท้า"
+    },
+    {
+      "en": "Please shave my beard.",
+      "th": "ช่วยโกนเคราให้ด้วย"
+    },
+    {
+      "en": "I would like to dye my hair.",
+      "th": "อยากย้อมผม"
+    },
+    {
+      "en": "I would like a small tattoo here.",
+      "th": "อยากสักลายเล็กๆ ตรงนี้"
+    },
+    {
+      "en": "Thank you, I like it.",
+      "th": "ขอบคุณ ชอบมาก"
+    }
+  ]
+}

@@ -15,6 +15,12 @@ Pull requests #16–#47. Not yet published as a release.
 - Fixed German texts (consent dialog, allergy card, learning box) are now translated; Android voice tags (`eng-USA`) are recognised and local voices are preferred; the iPhone hint can be closed; Thai digit tiles read aloud; sliders are announced with their value.
 - Installable app: separate maskable icons, opaque 180 px Apple icon, iOS meta tags; the service worker refuses an install without page and language table and checks for updates hourly.
 
+### Phrase packs and tooling (round 21)
+
+- **New:** 20 more phrase packs: scams-overcharge, lost-phone, police-checkpoint, tm30-address-report, karaoke, golf, kayak-national-park, hair-beauty, cannabis-vape, chronic-conditions, lost-luggage, customs-duty-free, heat-health, mosquito-dengue, border-crossing, currency-exchange, optician-eye-care, souvenir-jewelry, buffet-bbq, adventure-park (111 in total; Thai machine-translated, not yet checked by a native speaker). They are listed in `tools/web_pending_presets.txt` until the web lists (`index.html`, `sw.js`) include them.
+
+- **Fixed (tooling):** `presets.find` and spoken scenario commands now normalise names and input the same way (hyphens, slashes, Thai tone marks); German and Thai commands (“Notfall-Modus”, “โหมดโรงแรม”) work; oversized preset files are skipped and duplicate ids in one folder are reported. The history store closes its connection when opening fails, has indexes for replace and session queries, filters searches in SQL (no silent cut-off after 5000 hits), reads under the lock, retries transient database errors, bounds its write queue, refuses to export through a symlink and reports an unknown session. `avhelper` rejects `--volume nan` and bad sample rates and stops on an empty looped file. CSV exports of the phrasebook are formula-safe and carry a BOM for Excel. CI: the `ci.yml` workflow had invalid YAML (an unquoted colon) and is fixed; weekly dependency audit for both lock files; preset consistency check in CI; release builds check out the full history for the build number; ruff also checks `tools/`.
+
 ### Highlights
 
 - **19 languages instead of two** on Mac and iPhone: pick “my language” and “partner's language”, e.g. German ⇄ Thai or Spanish ⇄ Japanese. English ⇄ Thai stays the default (#29, #32).

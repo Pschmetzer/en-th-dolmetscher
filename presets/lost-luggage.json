@@ -1,0 +1,117 @@
+{
+  "id": "lost-luggage",
+  "names": {
+    "de": "Gepäck verloren",
+    "en": "Lost luggage",
+    "th": "กระเป๋าสัมภาระหาย"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Verlorenes oder beschädigtes Gepäck sofort am Schalter der Fluggesellschaft melden (Property Irregularity Report, PIR) und die Referenznummer notieren. Das Formular vor dem Verlassen des Flughafens ausfüllen. Beschädigungen fotografieren, Quittungen für Notkäufe aufheben. Gepäckanhänger nicht wegwerfen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Report lost or damaged luggage at the airline desk before leaving the airport (property irregularity report, PIR) and note the reference number. Photograph damage and keep receipts for emergency purchases. Do not throw away the luggage tags. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "luggage",
+      "th": "สัมภาระ"
+    },
+    {
+      "en": "suitcase",
+      "th": "กระเป๋าเดินทาง"
+    },
+    {
+      "en": "baggage claim",
+      "th": "จุดรับสัมภาระ"
+    },
+    {
+      "en": "luggage tag",
+      "th": "ป้ายสัมภาระ"
+    },
+    {
+      "en": "report",
+      "th": "รายงาน"
+    },
+    {
+      "en": "reference number",
+      "th": "หมายเลขอ้างอิง"
+    },
+    {
+      "en": "airline",
+      "th": "สายการบิน"
+    },
+    {
+      "en": "damaged",
+      "th": "เสียหาย"
+    },
+    {
+      "en": "delivery",
+      "th": "จัดส่ง"
+    },
+    {
+      "en": "compensation",
+      "th": "ค่าชดเชย"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My luggage did not arrive.",
+      "th": "กระเป๋าเดินทางไม่มา"
+    },
+    {
+      "en": "My suitcase is damaged.",
+      "th": "กระเป๋าเดินทางเสียหาย"
+    },
+    {
+      "en": "I would like to file a report.",
+      "th": "ต้องการแจ้งความเสียหายหรือสูญหาย"
+    },
+    {
+      "en": "Here is my luggage tag.",
+      "th": "นี่คือป้ายสัมภาระ"
+    },
+    {
+      "en": "It is a black suitcase with a red ribbon.",
+      "th": "เป็นกระเป๋าเดินทางสีดำผูกริบบิ้นสีแดง"
+    },
+    {
+      "en": "Please give me the reference number.",
+      "th": "ขอหมายเลขอ้างอิงด้วย"
+    },
+    {
+      "en": "When will you find my luggage?",
+      "th": "จะหากระเป๋าเจอเมื่อไร"
+    },
+    {
+      "en": "Please deliver it to my hotel.",
+      "th": "ช่วยส่งไปที่โรงแรมด้วย"
+    },
+    {
+      "en": "This is the address of my hotel.",
+      "th": "นี่คือที่อยู่ของโรงแรม"
+    },
+    {
+      "en": "Here is my phone number.",
+      "th": "นี่คือเบอร์โทรศัพท์"
+    },
+    {
+      "en": "I need money for clothes and toiletries.",
+      "th": "ต้องการเงินซื้อเสื้อผ้าและของใช้ส่วนตัว"
+    },
+    {
+      "en": "Does the airline pay for urgent purchases?",
+      "th": "สายการบินจ่ายค่าของจำเป็นไหม"
+    },
+    {
+      "en": "My medicine is in the lost bag.",
+      "th": "ยาอยู่ในกระเป๋าที่หาย"
+    },
+    {
+      "en": "Please give me a copy of the report.",
+      "th": "ขอสำเนารายงานด้วย"
+    },
+    {
+      "en": "Where is the baggage claim office?",
+      "th": "สำนักงานสัมภาระอยู่ที่ไหน"
+    }
+  ]
+}

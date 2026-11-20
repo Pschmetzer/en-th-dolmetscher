@@ -1,0 +1,113 @@
+{
+  "id": "customs-duty-free",
+  "names": {
+    "de": "Zoll / Duty-free",
+    "en": "Customs / duty free",
+    "th": "ศุลกากร / ดิวตี้ฟรี"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Freimengen bei Einreise nach Thailand: eine Stange Zigaretten und 1 Liter Alkohol, hohe Bargeldbeträge anmelden. E-Zigaretten sind verboten. Medikamente in der Originalverpackung mit Rezept mitführen. Rotes Tor heißt: etwas anzumelden, grünes Tor: nichts anzumelden. Die Regeln des Heimatlandes für die Rückreise vorher prüfen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Thai arrival allowances: one carton of cigarettes and 1 litre of alcohol; declare large cash amounts. E-cigarettes are banned. Carry medicine in its original packaging with a prescription. Red channel means goods to declare, green channel nothing to declare. Check your home country's rules for the return trip beforehand. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "customs",
+      "th": "ศุลกากร"
+    },
+    {
+      "en": "duty free",
+      "th": "ดิวตี้ฟรี"
+    },
+    {
+      "en": "declare",
+      "th": "สำแดง"
+    },
+    {
+      "en": "cigarettes",
+      "th": "บุหรี่"
+    },
+    {
+      "en": "alcohol",
+      "th": "แอลกอฮอล์"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    },
+    {
+      "en": "gift",
+      "th": "ของขวัญ"
+    },
+    {
+      "en": "medicine",
+      "th": "ยา"
+    },
+    {
+      "en": "cash",
+      "th": "เงินสด"
+    },
+    {
+      "en": "inspection",
+      "th": "ตรวจสอบ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have nothing to declare.",
+      "th": "ไม่มีของต้องสำแดง"
+    },
+    {
+      "en": "I have something to declare.",
+      "th": "มีสิ่งของที่ต้องสำแดง"
+    },
+    {
+      "en": "This is medicine. Here is my prescription.",
+      "th": "นี่คือยา นี่คือใบสั่งยา"
+    },
+    {
+      "en": "These are gifts for my family.",
+      "th": "นี่คือของขวัญสำหรับครอบครัว"
+    },
+    {
+      "en": "This is for personal use.",
+      "th": "นี่ใช้ส่วนตัว"
+    },
+    {
+      "en": "How much alcohol may I bring?",
+      "th": "นำเข้าแอลกอฮอล์ได้เท่าไร"
+    },
+    {
+      "en": "How many cigarettes may I bring?",
+      "th": "นำเข้าบุหรี่ได้กี่มวน"
+    },
+    {
+      "en": "Do I have to pay duty on this?",
+      "th": "ต้องเสียภาษีสิ่งนี้ไหม"
+    },
+    {
+      "en": "Here is the receipt.",
+      "th": "นี่คือใบเสร็จ"
+    },
+    {
+      "en": "I am carrying cash.",
+      "th": "พกเงินสดมาด้วย"
+    },
+    {
+      "en": "Please open the bag. I will show you.",
+      "th": "ขอเปิดกระเป๋า จะให้ดู"
+    },
+    {
+      "en": "Where can I buy duty-free goods?",
+      "th": "ซื้อสินค้าปลอดภาษีได้ที่ไหน"
+    },
+    {
+      "en": "Where is the VAT refund counter?",
+      "th": "เคาน์เตอร์ขอคืนภาษีอยู่ที่ไหน"
+    },
+    {
+      "en": "Where is the customs office?",
+      "th": "ศุลกากรอยู่ที่ไหน"
+    }
+  ]
+}

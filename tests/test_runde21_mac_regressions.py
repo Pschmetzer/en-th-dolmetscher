@@ -43,7 +43,8 @@ def test_ui_state_survives_language_switch():
 
 def test_toolbar_has_three_variants():
     s = src("Views.swift")
-    body = s[s.index("ViewThatFits(in: .horizontal) {"):s.index("compactMenu\n            }\n            // Sehr schmal")]
+    start = s.index("ViewThatFits(in: .horizontal) {")
+    body = s[start:s.index("compactMenu\n            }\n            // Sehr schmal")]
     assert body.count("startButton") >= 2
 
 

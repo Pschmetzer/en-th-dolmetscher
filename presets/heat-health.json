@@ -1,0 +1,117 @@
+{
+  "id": "heat-health",
+  "names": {
+    "de": "Hitze / Dehydrierung",
+    "en": "Heat / dehydration",
+    "th": "ความร้อน / ขาดน้ำ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Hitzschlag ist ein Notfall: in den Schatten, kühlen, Wasser in kleinen Schlucken, den Rettungsdienst (1669) rufen. Bei Hitze viel trinken, Elektrolyte nehmen, Mittagssonne meiden, Sonnenschutz und Kopfbedeckung tragen. Wenig Schweiß und Verwirrtheit sind Warnzeichen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Heatstroke is an emergency: move into the shade, cool down, small sips of water, call the ambulance (1669). In the heat drink a lot, take electrolytes, avoid midday sun, wear sun protection and a hat. Little sweat and confusion are warning signs. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "heatstroke",
+      "th": "ลมแดด"
+    },
+    {
+      "en": "dehydration",
+      "th": "ภาวะขาดน้ำ"
+    },
+    {
+      "en": "electrolytes",
+      "th": "เกลือแร่"
+    },
+    {
+      "en": "shade",
+      "th": "ที่ร่ม"
+    },
+    {
+      "en": "sunburn",
+      "th": "ผิวไหม้แดด"
+    },
+    {
+      "en": "sunscreen",
+      "th": "ครีมกันแดด"
+    },
+    {
+      "en": "cold water",
+      "th": "น้ำเย็น"
+    },
+    {
+      "en": "dizzy",
+      "th": "เวียนหัว"
+    },
+    {
+      "en": "faint",
+      "th": "เป็นลม"
+    },
+    {
+      "en": "hat",
+      "th": "หมวก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please call an ambulance (1669).",
+      "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true
+    },
+    {
+      "en": "He is unconscious and very hot.",
+      "th": "หมดสติ ตัวร้อนมาก",
+      "critical": true
+    },
+    {
+      "en": "I feel dizzy and sick from the heat.",
+      "th": "เวียนหัวและคลื่นไส้เพราะอากาศร้อน",
+      "critical": true
+    },
+    {
+      "en": "Where is the nearest hospital?",
+      "th": "โรงพยาบาลที่ใกล้ที่สุดอยู่ที่ไหน",
+      "critical": true
+    },
+    {
+      "en": "I need to sit in the shade.",
+      "th": "ต้องการนั่งในที่ร่ม"
+    },
+    {
+      "en": "Please bring cold water.",
+      "th": "ช่วยเอาน้ำเย็นมาให้หน่อย"
+    },
+    {
+      "en": "Do you have oral rehydration salts?",
+      "th": "มีผงเกลือแร่ไหม"
+    },
+    {
+      "en": "Please turn on the air conditioning.",
+      "th": "ช่วยเปิดแอร์ด้วย"
+    },
+    {
+      "en": "I have a bad sunburn.",
+      "th": "ผิวไหม้แดดมาก"
+    },
+    {
+      "en": "Do you have a cream for sunburn?",
+      "th": "มีครีมสำหรับผิวไหม้แดดไหม"
+    },
+    {
+      "en": "Where can I buy sunscreen?",
+      "th": "ซื้อครีมกันแดดได้ที่ไหน"
+    },
+    {
+      "en": "I have not sweated for a long time.",
+      "th": "ไม่มีเหงื่อออกมานานแล้ว"
+    },
+    {
+      "en": "I would like to rest for a while.",
+      "th": "ขอพักสักครู่"
+    },
+    {
+      "en": "Is there a cool place nearby?",
+      "th": "แถวนี้มีที่เย็นๆ ไหม"
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "id": "border-crossing",
+  "names": {
+    "de": "Grenzübertritt / Visa-Run",
+    "en": "Border crossing / visa run",
+    "th": "ข้ามชายแดน / วีซ่ารัน"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Landgrenzen (Malaysia, Laos, Kambodscha, Myanmar) haben eigene Regeln; bei der Wiedereinreise auf dem Landweg wird die Aufenthaltsdauer oft kürzer vergeben. Reisepass mit mindestens sechs Monaten Gültigkeit, Passfotos und genügend Bargeld bereithalten. Nur offizielle Schalter nutzen und keine Vermittler gegen Gebühr annehmen. Öffnungszeiten der Grenze vorher prüfen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Land borders (Malaysia, Laos, Cambodia, Myanmar) have their own rules; on re-entry by land the permitted stay is often shorter. Keep a passport valid for at least six months, passport photos and enough cash ready. Use only official counters and decline helpers who charge a fee. Check the border opening hours beforehand. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "border",
+      "th": "ชายแดน"
+    },
+    {
+      "en": "visa",
+      "th": "วีซ่า"
+    },
+    {
+      "en": "stamp",
+      "th": "ตราประทับ"
+    },
+    {
+      "en": "passport photo",
+      "th": "รูปถ่ายหนังสือเดินทาง"
+    },
+    {
+      "en": "departure card",
+      "th": "บัตรขาออก"
+    },
+    {
+      "en": "entry",
+      "th": "เข้าเมือง"
+    },
+    {
+      "en": "exit",
+      "th": "ออกเมือง"
+    },
+    {
+      "en": "official fee",
+      "th": "ค่าธรรมเนียมอย่างเป็นทางการ"
+    },
+    {
+      "en": "overstay",
+      "th": "อยู่เกินกำหนด"
+    },
+    {
+      "en": "minivan",
+      "th": "รถตู้"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I do not want to pay an extra fee.",
+      "th": "ไม่ต้องการจ่ายค่าธรรมเนียมเพิ่ม",
+      "critical": true
+    },
+    {
+      "en": "Is this the official price?",
+      "th": "นี่คือราคาอย่างเป็นทางการใช่ไหม",
+      "critical": true
+    },
+    {
+      "en": "Please call the tourist police (1155).",
+      "th": "ช่วยโทรหาตำรวจท่องเที่ยว 1155 ด้วย",
+      "critical": true
+    },
+    {
+      "en": "Where is the immigration counter?",
+      "th": "ช่องตรวจคนเข้าเมืองอยู่ที่ไหน"
+    },
+    {
+      "en": "I want to leave Thailand and come back today.",
+      "th": "ต้องการออกจากประเทศไทยและกลับเข้ามาวันนี้"
+    },
+    {
+      "en": "How many days will I get when I come back?",
+      "th": "กลับเข้ามาแล้วจะได้กี่วัน"
+    },
+    {
+      "en": "Here is my passport.",
+      "th": "นี่พาสปอร์ต"
+    },
+    {
+      "en": "Here is my passport photo.",
+      "th": "นี่คือรูปถ่ายหนังสือเดินทาง"
+    },
+    {
+      "en": "Where do I get the departure card?",
+      "th": "รับบัตรขาออกได้ที่ไหน"
+    },
+    {
+      "en": "What is the official fee?",
+      "th": "ค่าธรรมเนียมอย่างเป็นทางการเท่าไร"
+    },
+    {
+      "en": "Do you accept Thai baht?",
+      "th": "รับเงินบาทไหม"
+    },
+    {
+      "en": "What time does the border close?",
+      "th": "ชายแดนปิดกี่โมง"
+    },
+    {
+      "en": "Where is the minivan to the city?",
+      "th": "รถตู้เข้าเมืองอยู่ที่ไหน"
+    },
+    {
+      "en": "How much is the taxi to the next town?",
+      "th": "แท็กซี่ไปเมืองถัดไปราคาเท่าไร"
+    },
+    {
+      "en": "Please check the stamp in my passport.",
+      "th": "ช่วยตรวจตราประทับในหนังสือเดินทางด้วย"
+    }
+  ]
+}

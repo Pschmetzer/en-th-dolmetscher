@@ -38,5 +38,12 @@ if __name__ == "__main__":
     text = json.dumps(build(), ensure_ascii=False, indent=1) + "\n"
     out = ROOT / "presets-index.json"
     if "--check" in sys.argv:
-        sys.exit(0 if out.exists() and out.read_text(encoding="utf-8") == text else 1)
+        have = out.read_text(encoding="utf-8") if out.exists() else ""
+        if have != text:
+            import difflib
+            diff = list(difflib.unified_diff(have.splitlines(), text.splitlines(), "presets-index.json (Repo)",
+                                             "presets-index.json (neu)", lineterm="", n=1))
+            print("presets-index.json veraltet; erste Abweichungen:\n" + "\n".join(diff[:20]), file=sys.stderr)
+            sys.exit(1)
+        sys.exit(0)
     out.write_text(text, encoding="utf-8")

@@ -156,7 +156,8 @@ CASES = [
      "for (let i = 0; i < 205; i++) l = learnAdd(l, {a: {t: 'r' + i, l: 'de'}, b: {t: 'x', l: 'th'}}, i, 'rec'); "
      "[l.length, l[0].a.t, l[1].a.t]", [200, "fav", "r6"]),
     # lauter gemerkte Karten: nie eine verwerfen, auch über der Obergrenze
-    ("let l = []; for (let i = 0; i < 210; i++) l = learnAdd(l, {a: {t: 'f' + i, l: 'de'}, b: {t: 'x', l: 'th'}}, i, 'fav'); "
+    ("let l = []; for (let i = 0; i < 210; i++) "
+     "l = learnAdd(l, {a: {t: 'f' + i, l: 'de'}, b: {t: 'x', l: 'th'}}, i, 'fav'); "
      "[l.length, l[0].a.t, l[209].a.t]", [210, "f0", "f209"]),
     (f"learnRemove(learnAdd([], {json.dumps(CARD)}, 0, 'fav'), {json.dumps(CARD)})", []),
     # Laden: kaputte Daten werfen nie

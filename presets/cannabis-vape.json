@@ -1,0 +1,119 @@
+{
+  "id": "cannabis-vape",
+  "names": {
+    "de": "Cannabis / E-Zigarette",
+    "en": "Cannabis / vaping",
+    "th": "กัญชา / บุหรี่ไฟฟ้า"
+  },
+  "style": "polite",
+  "note": {
+    "de": "E-Zigaretten und Liquids sind in Thailand verboten (Einfuhr, Besitz, Verkauf); es drohen Bußgeld und Beschlagnahme. Cannabis ist rechtlich eingeschränkt: Rauchen in der Öffentlichkeit ist verboten, Verkauf nur an Erwachsene mit Lizenz. Im Zweifel fragen, nichts über die Grenze mitnehmen, nie Fremden etwas abnehmen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "E-cigarettes and liquids are banned in Thailand (import, possession, sale); fines and seizure are possible. Cannabis is legally restricted: smoking in public is banned and sale is only licensed to adults. When in doubt ask, take nothing across the border, never accept items from strangers. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "e-cigarette",
+      "th": "บุหรี่ไฟฟ้า"
+    },
+    {
+      "en": "cannabis",
+      "th": "กัญชา"
+    },
+    {
+      "en": "licence",
+      "th": "ใบอนุญาต"
+    },
+    {
+      "en": "fine",
+      "th": "ค่าปรับ"
+    },
+    {
+      "en": "smoking area",
+      "th": "พื้นที่สูบบุหรี่"
+    },
+    {
+      "en": "prohibited",
+      "th": "ต้องห้าม"
+    },
+    {
+      "en": "customs",
+      "th": "ศุลกากร"
+    },
+    {
+      "en": "allowed",
+      "th": "อนุญาต"
+    },
+    {
+      "en": "adults only",
+      "th": "เฉพาะผู้ใหญ่"
+    },
+    {
+      "en": "medical",
+      "th": "ทางการแพทย์"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I need a lawyer or an interpreter.",
+      "th": "ต้องการทนายความหรือล่าม",
+      "critical": true
+    },
+    {
+      "en": "I did not know this was forbidden.",
+      "th": "ไม่ทราบว่าห้าม",
+      "critical": true
+    },
+    {
+      "en": "Please call my embassy.",
+      "th": "ช่วยโทรหาสถานทูตหน่อย"
+    },
+    {
+      "en": "Is this allowed here?",
+      "th": "ที่นี่อนุญาตไหม"
+    },
+    {
+      "en": "Is vaping allowed here?",
+      "th": "ที่นี่สูบบุหรี่ไฟฟ้าได้ไหม"
+    },
+    {
+      "en": "Is smoking allowed in this area?",
+      "th": "พื้นที่นี้สูบบุหรี่ได้ไหม"
+    },
+    {
+      "en": "Where is the smoking area?",
+      "th": "พื้นที่สูบบุหรี่อยู่ที่ไหน"
+    },
+    {
+      "en": "Do you have a licence to sell this?",
+      "th": "มีใบอนุญาตขายสิ่งนี้ไหม"
+    },
+    {
+      "en": "I have a doctor's prescription.",
+      "th": "มีใบสั่งยาจากแพทย์"
+    },
+    {
+      "en": "Is cannabis allowed in this food?",
+      "th": "อาหารนี้มีกัญชาไหม"
+    },
+    {
+      "en": "Please make it without cannabis.",
+      "th": "ขอแบบไม่ใส่กัญชา"
+    },
+    {
+      "en": "I do not smoke. Please do not smoke here.",
+      "th": "ไม่สูบบุหรี่ ช่วยอย่าสูบตรงนี้"
+    },
+    {
+      "en": "Where can I throw away my e-cigarette?",
+      "th": "ทิ้งบุหรี่ไฟฟ้าได้ที่ไหน"
+    },
+    {
+      "en": "Is there a fine for this?",
+      "th": "มีค่าปรับไหม"
+    },
+    {
+      "en": "Thank you for telling me.",
+      "th": "ขอบคุณที่บอก"
+    }
+  ]
+}

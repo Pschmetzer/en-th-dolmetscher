@@ -1,0 +1,123 @@
+{
+  "id": "police-checkpoint",
+  "names": {
+    "de": "Polizeikontrolle / Führerschein",
+    "en": "Police checkpoint",
+    "th": "ด่านตรวจตำรวจ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Touristen auf Rollern werden häufig kontrolliert. Nötig: Reisepass oder Kopie, Führerschein der richtigen Klasse (internationaler Führerschein mit Klasse A für Motorräder) und Helm. Ruhig bleiben, höflich fragen, ob es ein Bußgeld ist, und eine Quittung (ใบสั่ง) verlangen. Bezahlt wird später auf der Polizeistation oder per App, nicht bar auf der Straße verhandeln. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Tourists on scooters are often stopped. You need your passport or a copy, the right licence class (an international permit covering motorcycles) and a helmet. Stay calm, ask politely whether it is a fine and ask for a ticket (ใบสั่ง). Fines are paid later at the police station or by app; do not haggle for cash on the street. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "checkpoint",
+      "th": "ด่านตรวจ"
+    },
+    {
+      "en": "driving licence",
+      "th": "ใบขับขี่"
+    },
+    {
+      "en": "international permit",
+      "th": "ใบขับขี่สากล"
+    },
+    {
+      "en": "helmet",
+      "th": "หมวกกันน็อก"
+    },
+    {
+      "en": "fine",
+      "th": "ค่าปรับ"
+    },
+    {
+      "en": "traffic ticket",
+      "th": "ใบสั่ง"
+    },
+    {
+      "en": "passport copy",
+      "th": "สำเนาหนังสือเดินทาง"
+    },
+    {
+      "en": "registration",
+      "th": "ทะเบียนรถ"
+    },
+    {
+      "en": "insurance",
+      "th": "ประกัน"
+    },
+    {
+      "en": "police station",
+      "th": "สถานีตำรวจ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please call the tourist police (1155).",
+      "th": "ช่วยโทรหาตำรวจท่องเที่ยว 1155 ด้วย",
+      "critical": true
+    },
+    {
+      "en": "I do not understand. Is there someone who speaks English?",
+      "th": "ไม่เข้าใจ มีคนพูดภาษาอังกฤษได้ไหม",
+      "critical": true
+    },
+    {
+      "en": "Here is my driving licence.",
+      "th": "นี่ใบขับขี่"
+    },
+    {
+      "en": "This is my international driving permit.",
+      "th": "นี่คือใบขับขี่สากล"
+    },
+    {
+      "en": "My passport is at the hotel. Here is a copy.",
+      "th": "หนังสือเดินทางอยู่ที่โรงแรม นี่คือสำเนา"
+    },
+    {
+      "en": "The scooter is rented. Here is the contract.",
+      "th": "รถมอเตอร์ไซค์เช่ามา นี่คือสัญญาเช่า"
+    },
+    {
+      "en": "Here is the registration of the scooter.",
+      "th": "นี่คือทะเบียนรถ"
+    },
+    {
+      "en": "I am wearing my helmet.",
+      "th": "สวมหมวกกันน็อกอยู่"
+    },
+    {
+      "en": "What did I do wrong?",
+      "th": "ทำผิดอะไร"
+    },
+    {
+      "en": "Is this an official fine?",
+      "th": "นี่คือค่าปรับตามกฎหมายใช่ไหม"
+    },
+    {
+      "en": "How much is the fine?",
+      "th": "ค่าปรับเท่าไหร่"
+    },
+    {
+      "en": "May I pay at the police station?",
+      "th": "ขอจ่ายที่สถานีตำรวจได้ไหม"
+    },
+    {
+      "en": "Please give me a ticket.",
+      "th": "ขอใบสั่งด้วย"
+    },
+    {
+      "en": "May I have a receipt?",
+      "th": "ขอใบเสร็จได้ไหม"
+    },
+    {
+      "en": "I am sorry. I did not know the rule.",
+      "th": "ขอโทษ ไม่ทราบกฎนี้"
+    },
+    {
+      "en": "Thank you. May I go now?",
+      "th": "ขอบคุณ ไปต่อได้แล้วใช่ไหม"
+    }
+  ]
+}

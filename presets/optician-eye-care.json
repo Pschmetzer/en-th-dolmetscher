@@ -1,0 +1,116 @@
+{
+  "id": "optician-eye-care",
+  "names": {
+    "de": "Optiker / Augen",
+    "en": "Optician / eye care",
+    "th": "ร้านแว่นตา / ดูแลดวงตา"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Brillen und Kontaktlinsen sind günstig und oft in unter einer Stunde fertig. Rezept oder Sehwerte (Sphäre, Zylinder, Achse) mitbringen oder eine Augenprüfung machen lassen. Bei plötzlichem Sehverlust, Schmerz oder Chemikalien im Auge sofort in die Augenklinik oder das Krankenhaus; Rettungsdienst (1669). Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Glasses and contact lenses are cheap and often ready in under an hour. Bring your prescription or have an eye test done. For sudden loss of sight, pain or chemicals in the eye go straight to an eye clinic or hospital; ambulance (1669). Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "glasses",
+      "th": "แว่นตา"
+    },
+    {
+      "en": "contact lenses",
+      "th": "คอนแทคเลนส์"
+    },
+    {
+      "en": "eye test",
+      "th": "ตรวจวัดสายตา"
+    },
+    {
+      "en": "prescription",
+      "th": "ค่าสายตา"
+    },
+    {
+      "en": "frame",
+      "th": "กรอบแว่น"
+    },
+    {
+      "en": "lens",
+      "th": "เลนส์"
+    },
+    {
+      "en": "sunglasses",
+      "th": "แว่นกันแดด"
+    },
+    {
+      "en": "eye drops",
+      "th": "ยาหยอดตา"
+    },
+    {
+      "en": "eye clinic",
+      "th": "คลินิกตา"
+    },
+    {
+      "en": "repair",
+      "th": "ซ่อม"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have something in my eye and it hurts.",
+      "th": "มีบางอย่างเข้าตาและเจ็บ",
+      "critical": true
+    },
+    {
+      "en": "I cannot see well suddenly.",
+      "th": "มองเห็นไม่ชัดกะทันหัน",
+      "critical": true
+    },
+    {
+      "en": "There is a chemical in my eye.",
+      "th": "มีสารเคมีเข้าตา",
+      "critical": true
+    },
+    {
+      "en": "I broke my glasses.",
+      "th": "แว่นหัก"
+    },
+    {
+      "en": "Can you repair my glasses?",
+      "th": "ซ่อมแว่นได้ไหม"
+    },
+    {
+      "en": "I need new glasses.",
+      "th": "ต้องการแว่นใหม่"
+    },
+    {
+      "en": "Can you test my eyes?",
+      "th": "ตรวจวัดสายตาให้ได้ไหม"
+    },
+    {
+      "en": "Here is my prescription.",
+      "th": "นี่คือค่าสายตา"
+    },
+    {
+      "en": "How long will it take?",
+      "th": "ใช้เวลานานเท่าไหร่"
+    },
+    {
+      "en": "How much is it with the lenses?",
+      "th": "ราคารวมเลนส์เท่าไร"
+    },
+    {
+      "en": "I need contact lenses and solution.",
+      "th": "ต้องการคอนแทคเลนส์และน้ำยา"
+    },
+    {
+      "en": "I would like sunglasses with a prescription.",
+      "th": "ต้องการแว่นกันแดดที่มีค่าสายตา"
+    },
+    {
+      "en": "Do you have eye drops for dry eyes?",
+      "th": "มียาหยอดตาสำหรับตาแห้งไหม"
+    },
+    {
+      "en": "Where is the nearest eye clinic?",
+      "th": "คลินิกตาที่ใกล้ที่สุดอยู่ที่ไหน"
+    }
+  ]
+}

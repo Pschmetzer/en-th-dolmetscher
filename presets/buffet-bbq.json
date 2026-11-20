@@ -1,0 +1,115 @@
+{
+  "id": "buffet-bbq",
+  "names": {
+    "de": "Buffet / Moo Kratha",
+    "en": "Buffet / Thai BBQ",
+    "th": "บุฟเฟ่ต์ / หมูกระทะ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Beim Buffet gilt meist ein Festpreis pro Person mit Zeitlimit (oft etwa anderthalb bis zwei Stunden); Übriggelassenes kann extra kosten. Bei Moo Kratha (Grill und Topf am Tisch) Fleisch und Gemüse getrennt halten, Fleisch gut durchgaren. Getränke sind oft nicht enthalten. Bei Allergien vorher fragen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "A buffet usually has a fixed price per person with a time limit (often about one and a half to two hours); leftovers may cost extra. At moo kratha (grill and pot at the table) keep raw meat and vegetables apart and cook meat through. Drinks are often not included. Ask first if you have allergies. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "buffet",
+      "th": "บุฟเฟ่ต์"
+    },
+    {
+      "en": "grill",
+      "th": "เตาย่าง"
+    },
+    {
+      "en": "hot pot",
+      "th": "หม้อต้ม"
+    },
+    {
+      "en": "raw meat",
+      "th": "เนื้อดิบ"
+    },
+    {
+      "en": "sauce",
+      "th": "น้ำจิ้ม"
+    },
+    {
+      "en": "time limit",
+      "th": "เวลาจำกัด"
+    },
+    {
+      "en": "per person",
+      "th": "ต่อคน"
+    },
+    {
+      "en": "refill",
+      "th": "เติม"
+    },
+    {
+      "en": "leftovers",
+      "th": "อาหารเหลือ"
+    },
+    {
+      "en": "tongs",
+      "th": "ที่คีบ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am allergic to shellfish.",
+      "th": "แพ้อาหารทะเลที่มีเปลือก",
+      "critical": true
+    },
+    {
+      "en": "Does this contain peanuts?",
+      "th": "อันนี้มีถั่วลิสงไหม",
+      "critical": true
+    },
+    {
+      "en": "How much is the buffet per person?",
+      "th": "บุฟเฟ่ต์คนละเท่าไร"
+    },
+    {
+      "en": "How long can we stay?",
+      "th": "นั่งได้นานเท่าไร"
+    },
+    {
+      "en": "Are drinks included?",
+      "th": "รวมเครื่องดื่มไหม"
+    },
+    {
+      "en": "A table for four, please.",
+      "th": "ขอโต๊ะสำหรับสี่คน"
+    },
+    {
+      "en": "Could you light the grill, please?",
+      "th": "ช่วยจุดเตาย่างให้หน่อย"
+    },
+    {
+      "en": "Could we have more meat, please?",
+      "th": "ขอเนื้อเพิ่มได้ไหม"
+    },
+    {
+      "en": "Could we have more vegetables, please?",
+      "th": "ขอผักเพิ่มได้ไหม"
+    },
+    {
+      "en": "Please bring a new pair of tongs.",
+      "th": "ช่วยเอาที่คีบอันใหม่มาให้หน่อย"
+    },
+    {
+      "en": "Is the meat cooked through?",
+      "th": "เนื้อสุกดีแล้วใช่ไหม"
+    },
+    {
+      "en": "The soup is too spicy.",
+      "th": "น้ำซุปเผ็ดเกินไป"
+    },
+    {
+      "en": "Do I have to pay for leftovers?",
+      "th": "ต้องจ่ายค่าอาหารที่เหลือไหม"
+    },
+    {
+      "en": "Please bring the bill.",
+      "th": "ขอเช็กบิลด้วย"
+    }
+  ]
+}

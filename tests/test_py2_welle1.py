@@ -1,7 +1,6 @@
 """Welle 1 (Sprachausgabe/Player/TTS): Robustheit ohne Netz, Ton und Modelle."""
 import asyncio
 import collections
-import subprocess
 import threading
 
 import pytest

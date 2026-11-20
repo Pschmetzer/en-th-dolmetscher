@@ -1,0 +1,116 @@
+{
+  "id": "adventure-park",
+  "names": {
+    "de": "Zipline / Abenteuerpark",
+    "en": "Zip line / adventure park",
+    "th": "ซิปไลน์ / สวนผจญภัย"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Vor der Buchung Sicherheitsstandard, Versicherung und Alter-/Gewichtsgrenzen erfragen. Gurte und Helm selbst prüfen lassen. Bei Schwangerschaft, Herz- oder Rückenproblemen nicht teilnehmen. Bei Höhlen und Klettern: Guide, Stirnlampe und feste Schuhe; bei Regen sind Höhlen und Wasserfälle gefährlich. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Before booking, ask about safety standards, insurance and age and weight limits. Have the harness and helmet checked. Do not take part if you are pregnant or have heart or back problems. For caves and climbing: guide, headlamp and sturdy shoes; caves and waterfalls are dangerous in the rain. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "zip line",
+      "th": "ซิปไลน์"
+    },
+    {
+      "en": "harness",
+      "th": "สายรัดนิรภัย"
+    },
+    {
+      "en": "helmet",
+      "th": "หมวกนิรภัย"
+    },
+    {
+      "en": "guide",
+      "th": "ไกด์"
+    },
+    {
+      "en": "cave",
+      "th": "ถ้ำ"
+    },
+    {
+      "en": "headlamp",
+      "th": "ไฟฉายคาดหัว"
+    },
+    {
+      "en": "climbing",
+      "th": "ปีนเขา"
+    },
+    {
+      "en": "waterfall",
+      "th": "น้ำตก"
+    },
+    {
+      "en": "weight limit",
+      "th": "น้ำหนักที่จำกัด"
+    },
+    {
+      "en": "insurance",
+      "th": "ประกัน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Stop, I want to get down.",
+      "th": "หยุดก่อน อยากลง",
+      "critical": true
+    },
+    {
+      "en": "I am injured. Please call an ambulance (1669).",
+      "th": "บาดเจ็บ ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true
+    },
+    {
+      "en": "Please check my harness again.",
+      "th": "ช่วยตรวจสายรัดนิรภัยอีกครั้ง",
+      "critical": true
+    },
+    {
+      "en": "Is this tour insured?",
+      "th": "ทริปนี้มีประกันไหม"
+    },
+    {
+      "en": "Is there a weight or age limit?",
+      "th": "มีข้อจำกัดน้ำหนักหรืออายุไหม"
+    },
+    {
+      "en": "How long is the zip line?",
+      "th": "ซิปไลน์ยาวเท่าไร"
+    },
+    {
+      "en": "Is it safe in the rain?",
+      "th": "ตอนฝนตกปลอดภัยไหม"
+    },
+    {
+      "en": "Do you have a helmet in my size?",
+      "th": "มีหมวกนิรภัยขนาดพอดีไหม"
+    },
+    {
+      "en": "Do I need a guide?",
+      "th": "ต้องมีไกด์ไหม"
+    },
+    {
+      "en": "Do you provide a headlamp?",
+      "th": "มีไฟฉายคาดหัวให้ไหม"
+    },
+    {
+      "en": "I am afraid of heights.",
+      "th": "กลัวความสูง"
+    },
+    {
+      "en": "Can my child join?",
+      "th": "เด็กเข้าร่วมได้ไหม"
+    },
+    {
+      "en": "Where do we meet?",
+      "th": "นัดพบกันที่ไหน"
+    },
+    {
+      "en": "Can I leave my bag here?",
+      "th": "ฝากกระเป๋าไว้ที่นี่ได้ไหม"
+    }
+  ]
+}

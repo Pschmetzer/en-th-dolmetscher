@@ -1,0 +1,121 @@
+{
+  "id": "golf",
+  "names": {
+    "de": "Golf",
+    "en": "Golf",
+    "th": "กอล์ฟ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Greenfee, Caddie und Cart sind meist getrennt zu zahlen; Caddie-Trinkgeld üblich (wenige hundert Baht). Früh starten wegen der Hitze, Trinkwasser mitnehmen. Auf vielen Plätzen herrscht Cart- und Caddie-Pflicht. Schläger lassen sich im Pro-Shop leihen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Green fee, caddie and cart are usually paid separately; a caddie tip is customary (a few hundred baht). Start early because of the heat and carry water. Many courses require a cart and a caddie. Clubs can be hired in the pro shop. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "golf course",
+      "th": "สนามกอล์ฟ"
+    },
+    {
+      "en": "green fee",
+      "th": "ค่ากรีนฟี"
+    },
+    {
+      "en": "caddie",
+      "th": "แคดดี้"
+    },
+    {
+      "en": "golf cart",
+      "th": "รถกอล์ฟ"
+    },
+    {
+      "en": "clubs",
+      "th": "ไม้กอล์ฟ"
+    },
+    {
+      "en": "tee time",
+      "th": "เวลาออกรอบ"
+    },
+    {
+      "en": "driving range",
+      "th": "สนามไดรฟ์"
+    },
+    {
+      "en": "hole",
+      "th": "หลุม"
+    },
+    {
+      "en": "ball",
+      "th": "ลูกกอล์ฟ"
+    },
+    {
+      "en": "towel",
+      "th": "ผ้าเช็ดตัว"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I would like to book a tee time.",
+      "th": "อยากจองเวลาออกรอบ"
+    },
+    {
+      "en": "Do you have a tee time tomorrow morning?",
+      "th": "พรุ่งนี้เช้ามีเวลาออกรอบว่างไหม"
+    },
+    {
+      "en": "Two players, please.",
+      "th": "สองคน"
+    },
+    {
+      "en": "How much is the green fee?",
+      "th": "ค่ากรีนฟีเท่าไร"
+    },
+    {
+      "en": "Does the price include the caddie and the cart?",
+      "th": "ราคานี้รวมแคดดี้และรถกอล์ฟไหม"
+    },
+    {
+      "en": "Can I rent a set of clubs?",
+      "th": "เช่าไม้กอล์ฟได้ไหม"
+    },
+    {
+      "en": "Right-handed, please.",
+      "th": "ถนัดขวา"
+    },
+    {
+      "en": "Left-handed, please.",
+      "th": "ถนัดซ้าย"
+    },
+    {
+      "en": "Where is the driving range?",
+      "th": "สนามไดรฟ์อยู่ที่ไหน"
+    },
+    {
+      "en": "A bucket of balls, please.",
+      "th": "ขอลูกกอล์ฟหนึ่งถัง"
+    },
+    {
+      "en": "Could you bring some cold water?",
+      "th": "ช่วยเอาน้ำเย็นมาให้หน่อยได้ไหม"
+    },
+    {
+      "en": "How far is it to the green?",
+      "th": "ถึงกรีนอีกไกลแค่ไหน"
+    },
+    {
+      "en": "Where is the next tee?",
+      "th": "ที่ทีถัดไปอยู่ที่ไหน"
+    },
+    {
+      "en": "Is there a lightning warning?",
+      "th": "มีคำเตือนฟ้าผ่าไหม"
+    },
+    {
+      "en": "I would like to pay with a card.",
+      "th": "ขอจ่ายด้วยบัตร"
+    },
+    {
+      "en": "The caddie was very helpful.",
+      "th": "แคดดี้ช่วยได้มาก"
+    }
+  ]
+}

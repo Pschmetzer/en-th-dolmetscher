@@ -1,0 +1,117 @@
+{
+  "id": "mosquito-dengue",
+  "names": {
+    "de": "Mücken / Dengue",
+    "en": "Mosquitoes / dengue",
+    "th": "ยุง / ไข้เลือดออก"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Dengue wird von tagaktiven Mücken übertragen; es gibt keine Impfpflicht für Touristen. Warnzeichen: hohes Fieber, starke Kopf- und Gelenkschmerzen, Hautausschlag. Kein Aspirin oder Ibuprofen, nur Paracetamol nehmen. Bei Fieber nach Mückenstichen zum Arzt und einen Bluttest verlangen. Mückenschutz mit DEET, langärmlige Kleidung, Moskitonetz. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Dengue is spread by day-biting mosquitoes; there is no vaccination requirement for tourists. Warning signs: high fever, severe headache and joint pain, rash. Take no aspirin or ibuprofen, only paracetamol. See a doctor for fever after mosquito bites and ask for a blood test. Use DEET repellent, long sleeves and a mosquito net. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "mosquito",
+      "th": "ยุง"
+    },
+    {
+      "en": "dengue",
+      "th": "ไข้เลือดออก"
+    },
+    {
+      "en": "fever",
+      "th": "ไข้"
+    },
+    {
+      "en": "repellent",
+      "th": "ยากันยุง"
+    },
+    {
+      "en": "mosquito net",
+      "th": "มุ้ง"
+    },
+    {
+      "en": "bite",
+      "th": "รอยกัด"
+    },
+    {
+      "en": "blood test",
+      "th": "ตรวจเลือด"
+    },
+    {
+      "en": "rash",
+      "th": "ผื่น"
+    },
+    {
+      "en": "paracetamol",
+      "th": "พาราเซตามอล"
+    },
+    {
+      "en": "headache",
+      "th": "ปวดหัว"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have a high fever and severe joint pain.",
+      "th": "มีไข้สูงและปวดข้อมาก",
+      "critical": true
+    },
+    {
+      "en": "I think I may have dengue.",
+      "th": "คิดว่าอาจเป็นไข้เลือดออก",
+      "critical": true
+    },
+    {
+      "en": "Please call an ambulance (1669).",
+      "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true
+    },
+    {
+      "en": "Where is the nearest clinic?",
+      "th": "คลินิกที่ใกล้ที่สุดอยู่ที่ไหน",
+      "critical": true
+    },
+    {
+      "en": "I need a blood test for dengue.",
+      "th": "ต้องการตรวจเลือดหาไข้เลือดออก"
+    },
+    {
+      "en": "I have been bitten by many mosquitoes.",
+      "th": "ถูกยุงกัดหลายที่"
+    },
+    {
+      "en": "I have a rash on my arms and legs.",
+      "th": "มีผื่นที่แขนและขา"
+    },
+    {
+      "en": "Do you have mosquito repellent?",
+      "th": "มียากันยุงไหม"
+    },
+    {
+      "en": "Do you have a mosquito net?",
+      "th": "มีมุ้งไหม"
+    },
+    {
+      "en": "Could you spray the room, please?",
+      "th": "ช่วยฉีดยากันยุงในห้องหน่อยได้ไหม"
+    },
+    {
+      "en": "I only want paracetamol, not aspirin.",
+      "th": "ขอเฉพาะพาราเซตามอล ไม่เอาแอสไพริน"
+    },
+    {
+      "en": "My head hurts a lot.",
+      "th": "ปวดหัวมาก"
+    },
+    {
+      "en": "Is there dengue in this area?",
+      "th": "แถวนี้มีไข้เลือดออกไหม"
+    },
+    {
+      "en": "Is there a water pool nearby with mosquitoes?",
+      "th": "แถวนี้มีน้ำขังที่มียุงไหม"
+    }
+  ]
+}

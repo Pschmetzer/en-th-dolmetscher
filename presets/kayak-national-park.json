@@ -1,0 +1,121 @@
+{
+  "id": "kayak-national-park",
+  "names": {
+    "de": "Kajak / Nationalpark",
+    "en": "Kayak / national park",
+    "th": "พายเรือคายัค / อุทยานแห่งชาติ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Ausländer zahlen in Nationalparks meist einen höheren Eintritt (oft deutlich mehr als für Thailänder). Mit Guide fahren, Schwimmweste immer tragen, Gezeiten und Wetter vorher prüfen. Wertsachen in wasserdichten Beutel. Vorsicht: Quallen, Blutegel im Regenwald, Schlangen nicht anfassen, Affen nicht füttern. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Foreigners usually pay a higher entrance fee in national parks (often much more than for Thais). Go with a guide, always wear a life jacket, check tides and weather first. Keep valuables in a dry bag. Beware of jellyfish, leeches in the rainforest; do not touch snakes or feed monkeys. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "kayak",
+      "th": "เรือคายัค"
+    },
+    {
+      "en": "paddle",
+      "th": "ไม้พาย"
+    },
+    {
+      "en": "life jacket",
+      "th": "เสื้อชูชีพ"
+    },
+    {
+      "en": "dry bag",
+      "th": "ถุงกันน้ำ"
+    },
+    {
+      "en": "national park",
+      "th": "อุทยานแห่งชาติ"
+    },
+    {
+      "en": "ranger",
+      "th": "เจ้าหน้าที่อุทยาน"
+    },
+    {
+      "en": "entrance fee",
+      "th": "ค่าเข้าชม"
+    },
+    {
+      "en": "tide",
+      "th": "น้ำขึ้นน้ำลง"
+    },
+    {
+      "en": "mangrove",
+      "th": "ป่าชายเลน"
+    },
+    {
+      "en": "leech",
+      "th": "ทาก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Help! Someone has fallen into the water.",
+      "th": "ช่วยด้วย มีคนตกน้ำ",
+      "critical": true
+    },
+    {
+      "en": "I was bitten by a snake. Please call an ambulance (1669).",
+      "th": "ถูกงูกัด ช่วยเรียกรถพยาบาลด้วย 1669",
+      "critical": true
+    },
+    {
+      "en": "I am stung by a jellyfish.",
+      "th": "ถูกแมงกะพรุนต่อย",
+      "critical": true
+    },
+    {
+      "en": "Please give me a life jacket.",
+      "th": "ขอเสื้อชูชีพ",
+      "critical": true
+    },
+    {
+      "en": "How much is the entrance fee for foreigners?",
+      "th": "ค่าเข้าสำหรับชาวต่างชาติเท่าไร"
+    },
+    {
+      "en": "How long is the kayak tour?",
+      "th": "ทริปพายเรือคายัคนานเท่าไร"
+    },
+    {
+      "en": "Is it safe? How are the tides today?",
+      "th": "ปลอดภัยไหม วันนี้น้ำขึ้นน้ำลงเป็นอย่างไร"
+    },
+    {
+      "en": "Do I need a guide?",
+      "th": "ต้องมีไกด์ไหม"
+    },
+    {
+      "en": "Can you give me a dry bag for my phone?",
+      "th": "ขอถุงกันน้ำสำหรับโทรศัพท์ได้ไหม"
+    },
+    {
+      "en": "Is the water deep here?",
+      "th": "น้ำลึกตรงนี้ไหม"
+    },
+    {
+      "en": "Are there leeches on this trail?",
+      "th": "ทางเดินนี้มีทากไหม"
+    },
+    {
+      "en": "Please do not feed the monkeys.",
+      "th": "อย่าให้อาหารลิง"
+    },
+    {
+      "en": "Where is the ranger station?",
+      "th": "ที่ทำการอุทยานอยู่ที่ไหน"
+    },
+    {
+      "en": "I would like to rent a single kayak.",
+      "th": "อยากเช่าเรือคายัคที่นั่งเดียว"
+    },
+    {
+      "en": "We need to be back before dark.",
+      "th": "ต้องกลับมาก่อนมืด"
+    }
+  ]
+}
