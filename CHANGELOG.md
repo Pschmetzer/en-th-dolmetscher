@@ -31,6 +31,12 @@ Pull requests #16–#47. Not yet published as a release.
 - **Faster install and start:** the service worker now precaches only the app shell; the phrase packs are downloaded in the background after start (4 at a time, only online and not in data-saver mode). “Ready offline” still appears once all packs are stored; packs from the previous version are carried over, so there is no offline gap on updates.
 - **Browser storage full** is reported instead of failing silently; stored translations drop the oldest quarter and retry. Glossary and “translate all” load packs at most 6 at a time. Size budget test added (index.html ≤ 232 KB).
 
+### Engine, round 21 (voice output)
+
+- A cut-off Neural voice (connection closed before the sentence end) is no longer cached or counted as complete; a missing player or `say` no longer crashes the speaking path.
+- The echo guard starts when a sentence is actually heard, not when it is queued; muted output reports as interrupted.
+- New events: `tts_fallback` with `ended: true` when the Neural voice is back, and `speak_failed` when even the fallback voice could not speak.
+
 ### Engine (speech recognition, translation, voice – used by the Mac app)
 
 - **Engine round 21 (1):** phone numbers are read digit by digit, Thai text is never cut inside a character cluster when read aloud, more currency words and laughter forms for all languages, “volume three” works, oversized proxy replies are rejected, `Retry-After` dates are understood, and a key change really drops the old Claude client.
