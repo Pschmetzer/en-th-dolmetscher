@@ -17,7 +17,10 @@ enum TypedLanguageCheck {
     /// Kurze Texte (ein, zwei Wörter) werden nie beanstandet – dort rät die Erkennung zu oft.
     static func foreign(_ text: String, pair: LangPair) -> String? {
         let t = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard t.split(separator: " ").count >= 3, t.count >= 12 else { return nil }
+        // Thai, Japanisch, Chinesisch, Koreanisch schreibt man ohne Leerzeichen: dort zählen Zeichen statt Wörter.
+        let unspaced = t.unicodeScalars.contains { (0x0E00...0x0E7F).contains($0.value) || (0x3040...0x30FF).contains($0.value)
+            || (0x4E00...0x9FFF).contains($0.value) || (0xAC00...0xD7AF).contains($0.value) }
+        guard t.count >= 12, unspaced || t.split(separator: " ").count >= 3 else { return nil }
         let r = NLLanguageRecognizer()
         r.processString(t)
         guard let (lang, p) = r.languageHypotheses(withMaximum: 1).first, p >= 0.85 else { return nil }

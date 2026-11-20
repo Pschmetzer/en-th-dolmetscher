@@ -127,7 +127,7 @@ struct SettingsView: View {
             // Lädt die Sprachpakete über den Systemdialog; danach übersetzt die App offline.
             .translationTask(download) { session in
                 try? await session.prepareTranslation()
-                await m.refreshOffline()
+                await m.packsChanged()
             }
             .task { await m.refreshOffline() }
             .task(id: m.pair) {

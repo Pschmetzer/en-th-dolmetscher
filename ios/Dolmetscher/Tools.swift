@@ -263,7 +263,7 @@ struct AllergyCardView: View {
         }
         .persistentSystemOverlays(.hidden)
         .modifier(FullBrightness())
-        .task {
+        .task(id: partner) {   // Partnersprache gewechselt: Text neu übersetzen
             guard fixed == nil, let english else { return }
             machine = await m.translateText(english.title + " " + english.warning, from: .en, to: partner)
         }

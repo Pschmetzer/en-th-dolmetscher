@@ -56,11 +56,14 @@ struct ContentView: View {
             .accessibilityAction(.magicTap) { m.toggle() }
             // iPad mit Tastatur: ⌘↩ startet und beendet, ⌘B öffnet das Satzbuch.
             .background {
-                Button("") { m.toggle() }.keyboardShortcut(.return, modifiers: .command)
-                Button("") { m.sheet = .phrasebook }.keyboardShortcut("b", modifiers: .command)
-                Button("") { m.sheet = .help }.keyboardShortcut("/", modifiers: .command)
+                // Nur Tastenkürzel: für VoiceOver und Sprachsteuerung unsichtbar (sonst leere Schaltflächen).
+                Group {
+                    Button("") { m.toggle() }.keyboardShortcut(.return, modifiers: .command)
+                    Button("") { m.sheet = .phrasebook }.keyboardShortcut("b", modifiers: .command)
+                    Button("") { m.sheet = .help }.keyboardShortcut("/", modifiers: .command)
+                }
+                .accessibilityHidden(true)
             }
-            .accessibilityHidden(false)
             .navigationTitle("Dolmetscher")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

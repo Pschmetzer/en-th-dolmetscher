@@ -16,26 +16,6 @@ final class Round22Tests: XCTestCase {
         }
     }
 
-    func testTaxiMeter() {
-        XCTAssertEqual(TaxiFare.meter(km: 0.5), 35)
-        XCTAssertEqual(TaxiFare.meter(km: 1), 35)
-        XCTAssertEqual(TaxiFare.meter(km: 10), 94)        // 35 + 9 × 6,5 = 93,5
-        XCTAssertEqual(TaxiFare.meter(km: 25), 204)       // + 10 × 7 + 5 × 8 = 203,5
-        XCTAssertEqual(TaxiFare.meter(km: 10, waitingMinutes: 10), 124)
-        XCTAssertNil(TaxiFare.meter(km: 0))
-        XCTAssertNil(TaxiFare.meter(km: -3))
-        XCTAssertNil(TaxiFare.meter(km: .infinity))
-        XCTAssertNil(TaxiFare.meter(km: 9999))
-        XCTAssertNil(TaxiFare.meter(km: 5, waitingMinutes: -1))
-        let r = TaxiFare.range(km: 10)
-        XCTAssertEqual(r, 94...118)
-        var last = 0
-        for km in stride(from: 1.0, through: 120, by: 1) {   // wächst nie rückwärts
-            let f = TaxiFare.meter(km: km) ?? -1
-            XCTAssertGreaterThanOrEqual(f, last); last = f
-        }
-    }
-
     func testThaiDate() {
         var cal = Calendar(identifier: .gregorian)
         cal.timeZone = TimeZone(identifier: "UTC")!
@@ -47,7 +27,7 @@ final class Round22Tests: XCTestCase {
     }
 
     func testNewTextsPresent() {
-        for k in ["trv_bargain", "trv_asking", "trv_taxi", "trv_km", "trv_wait_min", "trv_taxi_note", "trv_date"] {
+        for k in ["trv_bargain", "trv_asking", "trv_date"] {
             XCTAssertEqual(L10n.round21[k]?.count, 10, k)
         }
     }

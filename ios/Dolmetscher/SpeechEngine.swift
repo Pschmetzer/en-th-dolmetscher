@@ -351,7 +351,7 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
         let prev = lastEnd
         lastEnd = Task {
             await prev?.value   // Reihenfolge der Äußerungen wahren
-            await withTaskGroup(of: Void.self) { g in for (r, mark) in marks { g.addTask { await r.finalize(through: mark) } } }
+            await withTaskGroup(of: Void.self) { g in for (r, mark) in marks { g.addTask { await raceTimeout(seconds: 4) { await r.finalize(through: mark) } } } }
             try? await Task.sleep(for: .milliseconds(120))   // letzte Ergebnisse einsammeln lassen
             // Hat nur ein Erkenner schon Text, kurz auf den anderen warten – sonst gewinnt die
             // schnellere Sprache, nur weil die andere noch rechnet (v. a. Thai beim ersten Satz).
@@ -366,5 +366,22 @@ final class AppleSpeechEngine: SpeechEngine, @unchecked Sendable {
             for (r, mark) in marks { heard[r.lang] = r.take(upTo: mark + 0.05) }
             if !heard.isEmpty { self.emit.yield(.utterance(heard)) }
         }
+    }
+}
+
+/// Einmal-Schalter für `raceTimeout`.
+private final class Once: @unchecked Sendable {
+    private let lock = NSLock()
+    private var done = false
+    func take() -> Bool { lock.withLock { if done { return false }; done = true; return true } }
+}
+
+/// Wartet höchstens `seconds` auf `op` – auch wenn `op` auf Abbruch nicht reagiert (ein hängendes `analyzer.finalize`
+/// würde sonst alle folgenden Äußerungen blockieren). `op` läuft dann im Hintergrund weiter und wird ignoriert.
+func raceTimeout(seconds: Double, _ op: @escaping @Sendable () async -> Void) async {
+    await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
+        let once = Once()
+        Task { await op(); if once.take() { c.resume() } }
+        Task { try? await Task.sleep(for: .seconds(seconds)); if once.take() { c.resume() } }
     }
 }

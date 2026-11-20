@@ -202,6 +202,10 @@ final class InterpreterModel {
     @ObservationIgnored private var startTask: Task<Void, Never>?
     /// Zähler je Eintrag: eine ältere Übersetzungsanfrage darf eine neuere nicht überschreiben.
     @ObservationIgnored private var revisions: [UUID: Int] = [:]
+    /// Laufende Übersetzungen je Eintrag: beim Löschen oder Leeren abbrechen (sonst läuft der Netz-Request weiter).
+    @ObservationIgnored private var translateJobs: [UUID: Task<String?, Never>] = [:]
+    @ObservationIgnored private var offlineGeneration = 0
+    @ObservationIgnored private var unlocking = false
     @ObservationIgnored private var awakeUntil = Date.distantPast
     @ObservationIgnored private var noticeTask: Task<Void, Never>?
     @ObservationIgnored private var idleTask: Task<Void, Never>?
@@ -385,9 +389,19 @@ final class InterpreterModel {
 
     func refreshOffline() async {
         let p = pair
+        offlineGeneration += 1
+        let gen = offlineGeneration
         let a = await Translator.offlineInstalled(from: p.mine, to: p.partner)
         let b = await Translator.offlineInstalled(from: p.partner, to: p.mine)
+        // Ein schnelleres, späteres Paar darf nicht von einem älteren Ergebnis überschrieben werden.
+        guard gen == offlineGeneration, p == pair else { return }
         offlineReady = a && b
+    }
+
+    /// Nach einem Paket-Download: den 30-s-Merker des Translators verwerfen, sonst meldet die App noch „Paket fehlt“.
+    func packsChanged() async {
+        await translator.invalidateInstalled()
+        await refreshOffline()
     }
 
     // MARK: Zuhören
@@ -563,12 +577,20 @@ final class InterpreterModel {
         persistNow()
         guard !background else { return }
         resumeOnForeground = isListening || isBusy
-        stop()
+        let n = sessionTranslations
+        stop(endConversation: false)   // Pause im Hintergrund, kein beendetes Gespräch (Bewertungszähler)
+        sessionTranslations = n
+        LiveActivityController.shared.end()
     }
 
     /// Zurück im Vordergrund: weitermachen, wenn vorher zugehört wurde.
     func enteredForeground() {
-        if resumeOnForeground { resumeOnForeground = false; start() }
+        if resumeOnForeground {
+            resumeOnForeground = false
+            let n = sessionTranslations
+            start()
+            sessionTranslations = n
+        }
         if NetStatus.shared.online { retryFailedTranslations() }
         pruneHistory()
         if uiLangFollowsSystem, L10n.systemLang() != uiLang { uiLang = L10n.systemLang() }
@@ -896,7 +918,9 @@ final class InterpreterModel {
         guard let e = entries.first(where: { $0.id == id }) else { return }
         let rev = (revisions[id] ?? 0) + 1
         revisions[id] = rev
+        translateJobs[id]?.cancel()
         let job = Task { () -> String? in
+            defer { if revisions[id] == rev { translateJobs[id] = nil } }
             do {
                 let r = try await translator.translate(e.text, from: e.src, to: e.target, allowOnline: onlineAllowed)
                 let out = e.target == .th ? politeness.adjust(r.text) : r.text
@@ -914,7 +938,7 @@ final class InterpreterModel {
                 }
                 return out
             } catch {
-                guard revisions[id] == rev else { return nil }
+                guard revisions[id] == rev, !Task.isCancelled else { return nil }
                 // „Nur offline“: das fehlende Paket nennen und in die Paket-Übersicht weisen.
                 var message = error.localizedDescription
                 if offlineOnly, case TranslateError.offlineMissing = error { message = T("err_offline_only") }
@@ -925,6 +949,7 @@ final class InterpreterModel {
                 return nil
             }
         }
+        translateJobs[id] = job
         // Gleich in die Vorlese-Reihe stellen: so bleibt die Reihenfolge des Gesprächs erhalten,
         // auch wenn ein späterer Satz schneller übersetzt ist.
         if speak, autoSpeaks(e.target) || force, !paused {
@@ -1007,8 +1032,13 @@ final class InterpreterModel {
         translate(id, speak: speak)
     }
 
+    private func cancelJobs(_ ids: Set<UUID>) {
+        for id in ids { translateJobs[id]?.cancel(); translateJobs[id] = nil }
+    }
+
     func delete(_ id: UUID) {
         if speakingID == id { stopSpeaking() }
+        cancelJobs([id])
         entries.removeAll { $0.id == id }
         pruneRevisions()
         persist()
@@ -1022,6 +1052,7 @@ final class InterpreterModel {
         stopSpeaking()
         undo.keep(gone, seconds: 8)
         let ids = Set(gone.map(\.id))
+        cancelJobs(ids)
         entries.removeAll { ids.contains($0.id) }
         pruneRevisions()
         persist()
@@ -1044,6 +1075,7 @@ final class InterpreterModel {
         if let s = speakingID, ids.contains(s) { stopSpeaking() }
         undo.keep(gone, seconds: 8)
         let goneIDs = Set(gone.map(\.id))
+        cancelJobs(goneIDs)
         entries.removeAll { goneIDs.contains($0.id) }
         pruneRevisions()
         persist()
@@ -1123,7 +1155,10 @@ final class InterpreterModel {
     }
 
     func unlockHistory() {
+        guard !unlocking else { return }   // mehrfaches Tippen stapelt sonst Face-ID-Dialoge
+        unlocking = true
         Task {
+            defer { unlocking = false }
             if await DeviceAuth.authenticate(reason: T("lock_reason")) { historyUnlocked = true }
         }
     }
@@ -1132,7 +1167,8 @@ final class InterpreterModel {
 
     /// Einzelner Text ohne Verlaufseintrag (Allergie-Karte in nicht hinterlegter Sprache).
     func translateText(_ text: String, from: Lang, to: Lang) async -> String? {
-        try? await translator.translate(text, from: from, to: to, allowOnline: onlineAllowed).text
+        // Allergien und Medizinisches nie ungefragt an einen Online-Dienst schicken: nur mit Offline-Paket.
+        try? await translator.translate(text, from: from, to: to, allowOnline: false).text
     }
 
     /// Freitext der Notfallkarte (Allergien, Medizinisches) in die Partnersprache – als „maschinell“ gekennzeichnet.
@@ -1144,14 +1180,15 @@ final class InterpreterModel {
             // Die Karte schreibt man in der eigenen Sprache; steht schon die Partnersprache da, bleibt es so.
             let src = LanguagePick.ofTyped(value, pair: pair, fallback: pair.mine)
             if src == to { out[key] = value; continue }
-            if let r = try? await translator.translate(value, from: src, to: to, allowOnline: onlineAllowed) {
+            // Gesundheitsdaten gehen nie online (Google/MyMemory): die Karte wird nur mit installiertem Offline-Paket übersetzt.
+            if let r = try? await translator.translate(value, from: src, to: to, allowOnline: false) {
                 out[key] = to == .th ? politeness.ensureEnding(r.text) : r.text
             } else { failed = true }
         }
         emergency.translated = out
         emergency.translatedLang = to.rawValue
         emergency.translatedSource = emergency.translatableHash
-        if failed { flash("⚠️ " + T(OfflineMode.missingErrorKey(offlineOnly: offlineOnly, allowOnline: allowOnline)), seconds: 5) }
+        if failed { flash("⚠️ " + T("err_offline_missing"), seconds: 5) }
     }
 
     // MARK: Favoriten
@@ -1228,6 +1265,9 @@ final class InterpreterModel {
         stop()
         undo.drop(); undoTask?.cancel(); canUndoClear = false
         historyBlocked = false; favoritesBlocked = false; learnBlocked = false
+        for j in translateJobs.values { j.cancel() }
+        translateJobs = [:]
+        WhisperStore.shared.deleteAll()   // heruntergeladene Modelle (mehrere hundert MB) gehören zu „alle Daten“
         entries = []; favorites = []; places = []; learn = LeitnerDeck(); emergency = EmergencyInfo()
         // Kein verspätetes Schreiben darf Gelöschtes zurückbringen.
         dropPendingWrites()

@@ -1,4 +1,4 @@
-// Round22.swift – weitere Reise-Helfer: Handeln (Gegenangebote), Taxameter-Schätzung Bangkok, Thai-Datum.
+// Round22.swift – weitere Reise-Helfer: Handeln (Gegenangebote), Thai-Datum.
 // Reine Logik, in Round22Tests belegt; die Ansicht hängt in TravelHelpersView.
 import Foundation
 
@@ -27,33 +27,6 @@ enum Bargain {
             guard amount < Int(asking), seen.insert(amount).inserted, let w = ThaiNumber.words(amount) else { return nil }
             return Offer(percent: p, amount: amount, words: w + "บาท")
         }
-    }
-}
-
-/// Schätzung des Taxameter-Preises in Bangkok (Tarif des Verkehrsamts): 35 ฿ Grundpreis (erster km), danach je km nach Stufe,
-/// Wartezeit/Stau 3 ฿ je Minute. Zuschläge (Flughafen 50 ฿, Maut) sind nicht enthalten. Nur ein Richtwert gegen überhöhte Preise.
-enum TaxiFare {
-    /// (bis km, ฿ je km) ab dem zweiten Kilometer.
-    static let tiers: [(upTo: Double, rate: Double)] = [(10, 6.5), (20, 7), (40, 8), (60, 8.5), (80, 9), (.infinity, 10.5)]
-    static let flagFall = 35.0
-    static let waitingPerMinute = 3.0
-    static let maxKm = 500.0
-
-    static func meter(km: Double, waitingMinutes: Double = 0) -> Int? {
-        guard km.isFinite, km > 0, km <= maxKm, waitingMinutes.isFinite, waitingMinutes >= 0, waitingMinutes <= 600 else { return nil }
-        var fare = flagFall
-        var from = 1.0
-        for t in tiers where km > from {
-            fare += (min(km, t.upTo) - from) * t.rate
-            from = t.upTo
-        }
-        return Int((fare + waitingMinutes * waitingPerMinute).rounded(.up))
-    }
-
-    /// Spanne: Taxameter bis etwa ein Viertel mehr (Stau, Aufrundungen) – darüber lohnt sich Nachfragen.
-    static func range(km: Double, waitingMinutes: Double = 0) -> ClosedRange<Int>? {
-        guard let low = meter(km: km, waitingMinutes: waitingMinutes) else { return nil }
-        return low...Int((Double(low) * 1.25).rounded(.up))
     }
 }
 
