@@ -2,9 +2,11 @@
 
 User-facing changes, newest first. Numbers in brackets are the pull requests on GitHub (`#35` = pull request 35). Version numbers come from `pyproject.toml`.
 
-## Unreleased (after 1.2, November 2026)
+## Unreleased
 
-Pull requests #16–#47. Not yet published as a release.
+## 1.3 (20 November 2026)
+
+Pull requests #16–#192. First tagged release since 1.2: engine hardening, Mac and iPhone round 21, Web Lite tabs and i18n files, 142 phrase packs, security fixes.
 
 ### Engine robustness, round 21 (Python 2)
 

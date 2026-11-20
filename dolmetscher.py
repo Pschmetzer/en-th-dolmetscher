@@ -5456,7 +5456,7 @@ def report_queue():
 
 import glob  # noqa: E402
 
-ENGINE_VERSION = "1.2"
+ENGINE_VERSION = "1.3"
 PROTOCOL = 1                      # Version des Engine-App-Protokolls (docs/PROTOKOLL.md)
 STOP = threading.Event()          # gesetzt von SIGTERM/SIGINT oder stdin-Ende -> geordnetes Beenden
 _CTRL_LOCK = threading.RLock()    # Steuer-Thread (apply_control) und Arbeits-Thread schreiben dieselben Felder
