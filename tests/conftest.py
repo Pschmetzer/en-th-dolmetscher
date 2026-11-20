@@ -14,7 +14,8 @@ _orig_read_text = pathlib.Path.read_text
 def _read_text(self, *a, **kw):
     text = _orig_read_text(self, *a, **kw)
     if self.name == "Views.swift" and self.parent.name == "app":
-        text += "".join(_orig_read_text(self.parent / n, *a, **kw) for n in ("ViewsToolbar.swift", "ViewsBanners.swift"))
+        parts = ("ViewsToolbar.swift", "ViewsBanners.swift")
+        text += "".join(_orig_read_text(self.parent / n, *a, **kw) for n in parts)
     return text
 
 

@@ -1,4 +1,5 @@
-"""Runde 26, Mac-App: Textetabelle (de/en/th), Verdrahtung von Gruppenmodus, Quelle, Verlauf-Passwort, Schaltern, Latenz,
+"""Runde 26, Mac-App: Textetabelle (de/en/th), Verdrahtung von Gruppenmodus, Quelle, Verlauf-Passwort, Schaltern,
+Latenz,
 Aufteilung von Views.swift, Steuerfelder gegen die Engine."""
 
 import pathlib
@@ -50,7 +51,8 @@ def test_used_keys_exist():
 
 
 def test_experimental_ids_are_engine_controls():
-    ids = re.findall(r'"([a-z_]+)"', re.search(r"static let ids = \[(.*?)\]", src("ExperimentalLogic.swift"), re.S).group(1))
+    block = re.search(r"static let ids = \[(.*?)\]", src("ExperimentalLogic.swift"), re.S).group(1)
+    ids = re.findall(r'"([a-z_]+)"', block)
     assert ids == ["llm_stream", "llm_router", "defer", "parallel_alt", "stt_prompt", "speak_numbers"]
     for i in ids:
         assert f'"{i}"' in ENGINE, i
@@ -67,7 +69,8 @@ def test_controls_sent_by_app_exist_in_engine():
 
 def test_engine_wiring():
     e = src("Engine.swift")
-    assert "r26.engineReady(o)" in e and 'case "state": r26.handleState(o)' in e and 'case "hint": r26.handleHint(o)' in e
+    assert "r26.engineReady(o)" in e and 'case "state": r26.handleState(o)' in e
+    assert 'case "hint": r26.handleHint(o)' in e
     assert "AudioSourceLogic.launchArgs(r26.source)" in e
     assert "engineEnvironment(historyPassword: history)" in e
     assert '"system_audio_missing": "err_system_audio_missing"' in e
@@ -93,7 +96,8 @@ def test_settings_and_views_wired():
     s = src("SettingsView.swift")
     assert "ExperimentalSettings(r: m.r26)" in s and "SourceAndGroupSection(r: m.r26)" in s
     assert "HistoryPasswordSection(r: m.r26)" in s
-    assert "R26Banners(r: m.r26)" in "".join(src(f) for f in ("Views.swift", "ViewsBanners.swift", "ViewsToolbar.swift"))
+    views = "".join(src(f) for f in ("Views.swift", "ViewsBanners.swift", "ViewsToolbar.swift"))
+    assert "R26Banners(r: m.r26)" in views
     assert "GroupSpeakerMenu(r: m.r26)" in src("ViewsToolbar.swift")
     assert "GroupSpeakerDot(n: g)" in src("BubbleViews.swift")
 
@@ -124,6 +128,7 @@ def test_error_code_documented_and_localized():
 
 def test_review_fixes_in_place():
     assert "v.isFinite, v <= 1e12" in src("PriceLogic.swift")
-    assert "stopWork?.cancel()" in src("R23SetViews.swift") and "onDisappear { tester.stop() }" in src("R23SetViews.swift")
+    r23 = src("R23SetViews.swift")
+    assert "stopWork?.cancel()" in r23 and "onDisappear { tester.stop() }" in r23
     assert "onChange(of: current?.id)" in src("R24Views.swift")
     assert "=== window" in src("PartnerView.swift")

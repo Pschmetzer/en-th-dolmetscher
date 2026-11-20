@@ -65,7 +65,8 @@ def test_helper_processes_get_no_api_key():
     # Runde 21: auch die Engine bekommt den Schlüssel nicht mehr in der Umgebung (ps eww), sondern per stdin
     assert "Paths.engineEnvironment(includeKey: true)" not in APP["Engine.swift"]
     assert '["api_key": key]' in APP["Engine.swift"]
-    assert "engineEnvironment(historyPassword: HistoryPasswordLogic.needsEnv(args: args))" in APP["Profiles.swift"]   # Runde 26: nur Verlauf-Aufrufe
+    # Runde 26: nur Verlauf-Aufrufe bekommen das Verlauf-Passwort
+    assert "engineEnvironment(historyPassword: HistoryPasswordLogic.needsEnv(args: args))" in APP["Profiles.swift"]
     assert "includeKey: true" not in APP["Profiles.swift"]
 
 
