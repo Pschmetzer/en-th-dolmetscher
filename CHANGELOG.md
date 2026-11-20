@@ -444,3 +444,4 @@ Pull requests #16–#47. Not yet published as a release.
 ## 1.2 and earlier
 
 See the [commit history](https://github.com/Pschmetzer/en-th-dolmetscher/commits/main) up to pull request #15.
+- Engine round 21 (10): Offline-Helfer startet mit --pairs, Helfer-Fehlertexte vor dem Log bereinigt, Ortsnamen-Schutz beachtet Groß-/Kleinschreibung.
