@@ -4607,6 +4607,19 @@ TTS_LAST = {"key": None, "data": None}
 TTS_LAST_BYTES = 2_000_000
 _TTS_CACHE_LOCK = threading.Lock()
 TTS_OFFLINE_PROBE = 0.8                # s: so lange darf die Neural-Stimme bei gemerktem Offline noch antworten
+EDGE_FIRST = collections.deque(maxlen=30)   # s bis zum ersten Neural-Ton der letzten Sätze (nur Zahlen)
+
+
+def adaptive_race(base, samples, min_samples=8):
+    """TTS_RACE aus der gemessenen Latenz: bei gutem Netz kürzer (Ersatzstimme springt nicht unnötig ein), bei
+    schlechtem länger (bis 2x base). base <= 0 (aus) bleibt aus; zu wenig Messwerte: base."""
+    if base <= 0 or len(samples) < min_samples:
+        return base
+    v = sorted(samples)
+    p90 = v[min(len(v) - 1, int(0.9 * len(v)))]
+    return round(max(0.8, min(2.0 * base, 1.5 * p90 + 0.3)), 2)
+
+
 TTS_RACE = 1.4                         # s: kommt die Neural-Stimme nicht, spricht die vorbereitete macOS-Stimme
 
 
@@ -5654,9 +5667,12 @@ class Engine:
                     stream = EdgeStream(text, self.voice_for(lang), f"{_clamp_rate(5 + self.rate + boost):+d}%")
                 race = None
                 if local and TTS_RACE > 0:      # offline gemerkt: nur kurz probieren, dann gleich lokal
-                    race = TTS_RACE if NET.get("tts", True) else min(TTS_RACE, TTS_OFFLINE_PROBE)
+                    race = (adaptive_race(TTS_RACE, EDGE_FIRST) if NET.get("tts", True)
+                            else min(TTS_RACE, TTS_OFFLINE_PROBE))
                 st = edge_play(stream, self.volume, on_start_part, cancelled, deadline=race)
                 net_state("tts", True)
+                if isinstance(st.get("first_chunk_s"), (int, float)) and not st.get("cached"):
+                    EDGE_FIRST.append(float(st["first_chunk_s"]))
                 _tts_fallback_end()
                 log({"tts": "edge", "voice": stream.voice, **st, "secs": round(time.time() - t, 2)})
                 return "partial" if st.get("partial") else None
