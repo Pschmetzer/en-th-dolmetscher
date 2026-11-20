@@ -131,9 +131,11 @@ enum HistoryLogic {
         if !f.role.isEmpty && r.role != f.role { return false }
         if f.numberWarning && !hasNumberWarning(r) { return false }
         if f.weakTranslation && !isWeak(r) { return false }
-        if f.query.isEmpty { return true }
+        // Leerzeichen am Rand zählen nicht („hello “ beim Tippen); gesucht wird auch in der Umschrift (Thai → Latein)
+        let q = f.query.trimmingCharacters(in: .whitespacesAndNewlines)
+        if q.isEmpty { return true }
         let o: String.CompareOptions = [.caseInsensitive, .diacriticInsensitive]   // „cafe“ findet „café“
-        return r.text.range(of: f.query, options: o) != nil || r.translation.range(of: f.query, options: o) != nil
+        return [r.text, r.translation, r.translit].contains { $0.range(of: q, options: o) != nil }
     }
 
     /// Zeilen mit passender Suche/Filter-Auswahl; ohne aktiven Zeilenfilter alle.

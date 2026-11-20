@@ -15,7 +15,8 @@ def _src(name):
     return (APP / name).read_text(encoding="utf-8")
 
 
-ENGINE, VIEWS, SETTINGS = _src("Engine.swift"), _src("Views.swift"), _src("SettingsView.swift")
+ENGINE, VIEWS = _src("Engine.swift"), _src("Views.swift")
+SETTINGS = _src("SettingsView.swift") + _src("SettingsAudioSections.swift") + _src("SettingsAPIKey.swift")
 BUBBLES, PARTNER, PROFILES = _src("BubbleViews.swift"), _src("PartnerView.swift"), _src("Profiles.swift")
 APPMAIN, HOTKEYS, L10N = _src("DolmetscherApp.swift"), _src("HotKeys.swift"), _src("L10n.swift")
 
@@ -170,7 +171,7 @@ def test_enroll_meldet_codes(monkeypatch):
 
 def test_beispielsatz_klickbar_und_pegel_in_einstellungen():
     assert 'm.say("Where is the toilet?", lang: "en")' in VIEWS
-    mic = SETTINGS[SETTINGS.index("private struct MicSection"):]
+    mic = SETTINGS[SETTINGS.index("struct MicSection"):]
     assert "LevelBar(meter: m.meter)" in mic.split("private func load()")[0]
 
 

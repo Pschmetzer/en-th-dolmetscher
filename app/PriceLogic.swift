@@ -104,7 +104,7 @@ enum PriceLogic {
 
     /// „1.200 ฿“ / „12,50 €“; Baht ganzzahlig, Euro mit zwei Stellen (nur bei Rest). Trennzeichen nach `comma` (de: Komma).
     static func format(_ amount: Double, _ c: Money, comma: Bool = true) -> String {
-        let v = c == .thb ? amount.rounded() : amount
+        let v = c == .thb ? amount.rounded() : (amount * 100).rounded() / 100   // erst auf Cent runden: 12,995 → 13,00 nicht „12,99/13.00“
         let whole = abs(v - v.rounded()) < 0.005
         let body = whole ? String(Int(v.rounded())) : String(format: "%.2f", v)
         var intPart = body, frac = ""

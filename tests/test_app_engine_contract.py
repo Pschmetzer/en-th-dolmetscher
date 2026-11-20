@@ -20,6 +20,7 @@ def test_app_flags_exist_in_engine():
     used = set(re.findall(r'"(--[a-z][a-z0-9-]+)"', SWIFT))
     assert {"--json", "--idle", "--profile-stdin", "--history", "--history-export"} <= used
     used -= {"--check", "--pairs"}   # Flags des translate-helper (tools/translate-helper), nicht der Engine
+    used -= {"--smoke-test"}         # Startargument der App selbst (SmokeTest.swift), geht nie an die Engine
     missing = sorted(used - engine_flags())
     assert not missing, f"Flags used by the app but unknown to the engine: {missing}"
 

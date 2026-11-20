@@ -16,6 +16,12 @@ struct MenuBarInput: Equatable {
     var running = false
 }
 
+struct MenuBarLive: Equatable {
+    var done: Int
+    var pending: Int
+    var latency: Double?
+}
+
 enum MenuBarLogic {
     /// Wichtigstes zuerst: Fehler vor Laden vor Offline vor dem normalen Betrieb.
     static func status(_ i: MenuBarInput) -> MenuBarStatus {
@@ -64,6 +70,17 @@ enum MenuBarLogic {
     static func swapped(mine: String, partner: String) -> (mine: String, partner: String) {
         (partner, mine)
     }
+
+    /// Live-Zeile im Menüleisten-Extra: Median der letzten bis zu 5 Latenzen (Sekunden); nil ohne Messung.
+    static func live(done: Int, pending: Int, latencies: [Double]) -> MenuBarLive {
+        let recent = latencies.suffix(5).filter { $0 >= 0 && $0.isFinite }.sorted()
+        let med: Double? = recent.isEmpty ? nil
+            : (recent.count % 2 == 1 ? recent[recent.count / 2] : (recent[recent.count / 2 - 1] + recent[recent.count / 2]) / 2)
+        return MenuBarLive(done: max(0, done), pending: max(0, pending), latency: med)
+    }
+
+    /// Nur sinnvoll, solange etwas gesprochen wurde oder wartet.
+    static func hasLive(_ l: MenuBarLive) -> Bool { l.done > 0 || l.pending > 0 }
 
     /// Eintrag in der Popover-Zeile: gekürzter letzter Satz, einzeilig.
     static func preview(_ text: String, limit: Int = 60) -> String {

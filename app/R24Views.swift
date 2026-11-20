@@ -85,7 +85,10 @@ struct NumbersView: View {
             Section {
                 TextField(R24T.t("rate_label"), text: $rateText)
                     .accessibilityLabel(R24T.t("rate_label"))
-                if rate == nil { Text(R24T.t("rate_invalid")).font(.caption).foregroundStyle(LangStyle.warning) }
+                if rate == nil {
+                    Text(R24T.t("rate_invalid")).font(.caption).foregroundStyle(LangStyle.warning)
+                        .onAppear { Announcer.post(R24T.t("rate_invalid")) }
+                }
             }
             Section(R24T.t("prices_recent")) {
                 if recent.isEmpty { Text(R24T.t("prices_none")).foregroundStyle(.secondary) }
@@ -95,9 +98,9 @@ struct NumbersView: View {
                              ?? (p.currency.map { PriceLogic.format(p.amount, $0, comma: useComma) } ?? p.raw))
                             .textSelection(.enabled)
                         Spacer()
-                        Button(R24T.t("show_big")) {
-                            big = p.currency.map { PriceLogic.format(p.amount, $0, comma: useComma) } ?? p.raw
-                        }
+                        let shown = p.currency.map { PriceLogic.format(p.amount, $0, comma: useComma) } ?? p.raw
+                        Button(R24T.t("show_big")) { big = shown }
+                            .accessibilityLabel(R24T.t("show_big") + ": " + shown)   // sonst klingen alle Knöpfe gleich
                     }
                 }
             }
@@ -109,6 +112,7 @@ struct NumbersView: View {
                             Text("\(o.percent) %  →  " + PriceLogic.format(o.amount, .thb, comma: useComma))
                             Spacer()
                             Button(R24T.t("show_big")) { big = PriceLogic.format(o.amount, .thb, comma: useComma) }
+                                .accessibilityLabel(R24T.t("show_big") + ": " + PriceLogic.format(o.amount, .thb, comma: useComma))
                         }
                     }
                     TextField(R24T.t("my_bid"), text: $mine).accessibilityLabel(R24T.t("my_bid"))
@@ -118,6 +122,7 @@ struct NumbersView: View {
                                 Text(R24T.f("next_bid", PriceLogic.format(n, .thb, comma: useComma))).bold()
                                 Spacer()
                                 Button(R24T.t("show_big")) { big = PriceLogic.format(n, .thb, comma: useComma) }
+                                    .accessibilityLabel(R24T.t("show_big") + ": " + PriceLogic.format(n, .thb, comma: useComma))
                             }
                         } else {
                             Text(R24T.t("no_room")).foregroundStyle(.secondary)
@@ -187,6 +192,7 @@ struct SummaryView: View {
         }
         .padding(16)
         .frame(minWidth: 420, minHeight: 360)
+        .onChange(of: s) { copied = false }   // neuer Stand: „Kopiert“ gilt nicht mehr
         .background(WindowAccessor { R24Window.prepare($0, name: "Summary") })
     }
 
@@ -247,7 +253,7 @@ struct LearnView: View {
     private func words(_ text: String, lang: String) -> some View {
         let toks = LearnLogic.tokens(text)
         return HStack(spacing: 6) {
-            Text(lang.uppercased()).font(.caption).foregroundStyle(.secondary)
+            Text(lang.uppercased()).font(.caption).foregroundStyle(.secondary).accessibilityHidden(true)
             ScrollView(.horizontal) {
                 HStack(spacing: 4) {
                     ForEach(toks, id: \.index) { t in
@@ -258,6 +264,8 @@ struct LearnView: View {
                 }
             }
         }
+        .accessibilityElement(children: .combine)   // ein Satz, nicht ein Element je Wort
+        .accessibilityLabel(Langs.name(lang) + ": " + text)
     }
 
     private func cloze(_ u: Utterance) -> some View {
@@ -267,7 +275,7 @@ struct LearnView: View {
             if let c {
                 Text(c.prompt).font(.title3).textSelection(.enabled)
                 HStack {
-                    Button(R24T.t("learn_reveal")) { revealed = true }
+                    Button(R24T.t("learn_reveal")) { revealed = true; Announcer.post(c.answer) }
                     Button(R24T.t("learn_next")) {
                         let n = LearnLogic.words(u.out).count
                         clozeIndex = n > 0 ? (idx + 1) % n : 0; revealed = false
@@ -297,9 +305,9 @@ struct ShowCardView: View {
     @State private var zoom = 1.0
 
     /// Satzbuch aus den Szenario-Paketen (englisch ↔ Thai).
-    private var book: [BookPhrase] {
+    private static let bookCache: [BookPhrase] =   // einmal bauen: body läuft bei jedem Tastendruck
         PresetCatalog.all.flatMap { $0.phrases.map { BookPhrase(en: $0.en, th: $0.th, critical: $0.critical) } }
-    }
+    private var book: [BookPhrase] { Self.bookCache }
 
     private var match: BookMatch? { OfflineFallback.match(query, in: book) }
 
@@ -339,7 +347,8 @@ struct ShowCardView: View {
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .textSelection(.enabled)
-                .accessibilityLabel(shown)
+                .accessibilityLabel(shown.isEmpty ? R24T.t("card_field") : shown)
+                .accessibilityAddTraits(.isStaticText)
             HStack {
                 Text(R24T.t("card_hint")).font(.caption).foregroundStyle(.secondary)
                 Spacer()
@@ -454,6 +463,15 @@ enum R24Window {
 struct R24Hooks: ViewModifier {
     @EnvironmentObject var m: EngineModel
     @Environment(\.openWindow) private var openWindow
+    @AppStorage(HandoffPayload.prefKey) private var handoff = false
+    @ObservedObject private var sensitive = SensitiveSession.shared
+
+    /// Handoff-Nutzlast der letzten Äußerung (nil, wenn aus, sensibel oder ohne gültige Sprachcodes).
+    private var handoffPayload: HandoffPayload? {
+        guard let u = m.lastReplayable,
+              HandoffPayload.shouldAdvertise(enabled: handoff, sensitive: sensitive.active, text: u.text, out: u.out) else { return nil }
+        return HandoffPayload.make(text: u.text, out: u.out, from: u.lang, to: u.to)
+    }
 
     /// Ändert sich bei neuer Äußerung und wenn ein Platzhalter fertig wird (Anzahl bleibt dabei gleich).
     private var lastDoneKey: String {
@@ -467,5 +485,17 @@ struct R24Hooks: ViewModifier {
             .onChange(of: lastDoneKey) { ScenarioHint.shared.check(m) }
             .onReceive(NotificationCenter.default.publisher(for: .openSummary)) { _ in openWindow(id: "summary") }
             .onReceive(NotificationCenter.default.publisher(for: .openCard)) { _ in openWindow(id: "card") }
+            .userActivity(HandoffPayload.activityType, isActive: handoffPayload != nil) { act in
+                act.title = R25T.t("handoff_activity")
+                act.isEligibleForHandoff = true
+                act.isEligibleForSearch = false
+                act.isEligibleForPublicIndexing = false
+                act.userInfo = handoffPayload?.userInfo
+            }
+            .onContinueUserActivity(HandoffPayload.activityType) { act in
+                guard let p = HandoffPayload.parse(act.userInfo), !p.cardText.isEmpty else { return }
+                R24Shared.shared.showCard(p.cardText)
+                openWindow(id: "card")
+            }
     }
 }

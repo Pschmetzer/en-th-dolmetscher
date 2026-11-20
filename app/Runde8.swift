@@ -18,24 +18,12 @@ func openSettingsWindow() {
 
 // MARK: Fehlerhilfe
 
-/// Zu jedem Fehlercode der Engine ein konkreter nächster Schritt (Knöpfe im Hinweisband).
+/// Zu jedem Fehlercode der Engine ein konkreter nächster Schritt (Knöpfe im Hinweisband). Regeln: ErrorAdviceLogic.
 enum ErrorAdvice {
-    enum Step: Hashable { case micSettings, appSettings, restart, log, retryAfterNetwork }
+    typealias Step = ErrorAdviceLogic.Step
 
-    /// Text-Schlüssel (L10n) mit dem Handlungsvorschlag und die passenden Schritte.
     static func advice(for code: String?) -> (hintKey: String, steps: [Step])? {
-        switch code {
-        case "mic_denied": return ("advice_mic_denied", [.micSettings])
-        case "mic_unavailable", "mic_no_data", "mic_timeout", "mic_failed", "mic_not_found", "mic_invalid":
-            return ("advice_mic_device", [.appSettings, .restart])
-        case "model_offline": return ("advice_model_offline", [.retryAfterNetwork])
-        case "offline_mt_missing": return ("advice_offline_mt", [.appSettings])
-        case "llm_billing", "llm_budget": return ("advice_llm_key", [.appSettings])
-        case "translate_failed": return ("advice_translate_failed", [.appSettings, .log])
-        case "output_not_found", "output_unsupported", "output_invalid": return ("advice_output", [.appSettings])
-        case "python_env_broken", "vad_failed", "profiles_failed": return ("advice_env", [.restart, .log])
-        default: return nil
-        }
+        ErrorAdviceLogic.advice(for: code).map { ($0.hintKey, $0.steps) }
     }
 
     static func label(_ s: Step) -> String {
@@ -45,6 +33,9 @@ enum ErrorAdvice {
         case .restart: return L.t("restart")
         case .log: return L.t("show_log")
         case .retryAfterNetwork: return L.t("retry")
+        case .networkSettings: return R25T.t("open_network_settings")
+        case .storageSettings: return R25T.t("open_storage_settings")
+        case .help: return R25T.t("open_error_help")
         }
     }
 
@@ -54,6 +45,8 @@ enum ErrorAdvice {
         case .appSettings: openSettingsWindow()
         case .restart, .retryAfterNetwork: m.restart()
         case .log: openLog()
+        case .networkSettings, .storageSettings, .help:
+            if let u = ErrorAdviceLogic.url(for: s) { NSWorkspace.shared.open(u) }
         }
     }
 }
@@ -72,7 +65,7 @@ struct ErrorBanner: View {
         let adv = advice
         let time: String = error.date.formatted(date: .omitted, time: .standard)
         var text: String = time + " · " + error.msg
-        if let adv { text += " " + L.t(adv.hintKey) }
+        if let adv { text += " " + R25T.any(adv.hintKey) }
         let firstStep: ErrorAdvice.Step? = adv?.steps.first
         let extra: [ErrorAdvice.Step] = Array((adv?.steps ?? []).dropFirst())
         let mainAction: (String, () -> Void) = firstStep.map { st in
