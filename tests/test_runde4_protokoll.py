@@ -111,7 +111,8 @@ def test_history_days_ungueltig(ev, monkeypatch, tmp_path):
 
 def test_offline_uebersetzung_meldet_nicht_online():
     """Nr. 28/165: ein Apple-Ergebnis heißt „kein Netz“ – sonst meldete die App „Internet wieder da“."""
-    assert 'net_state("translate", meta.get("provider") != "apple")' in SRC
+    assert 'meta.get("provider") == "apple"' in SRC and 'net_state("translate", False)' in SRC
+    # Verhalten: tests/test_py3_welle4.py::test_translate_online_only_from_real_answer
 
 
 def test_history_schreibfehler_einmal_melden(monkeypatch):
