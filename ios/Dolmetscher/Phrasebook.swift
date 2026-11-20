@@ -141,6 +141,11 @@ struct PhrasebookView: View {
     /// Partnersprache übersetzt (Hinweis „nicht geprüft“); das Satzbuch bleibt so für jedes Paar nutzbar.
     private var available: [Phrase] { Phrasebook.all }
 
+    /// Pakete passend zur Uhrzeit – nur mit Thai im Paar (sonst ist das Satzbuch maschinell übersetzt und bleibt schlicht).
+    private var suggested: [ScenarioPack] {
+        m.features.thaiExtras ? ScenarioSuggest.packs(hour: Calendar.current.component(.hour, from: Date()), available: Phrasebook.packs) : []
+    }
+
     private var pack: ScenarioPack? { Phrasebook.packs.first { $0.key == category } }
 
     private var shown: [Phrase] {
@@ -201,6 +206,7 @@ struct PhrasebookView: View {
     private func pickStart() {
         if m.favorites.isEmpty { category = recent.isEmpty ? "basics" : "recent" }
         if let c = m.phrasebookStart { category = c; m.phrasebookStart = nil }
+        if let q = m.phrasebookQuery { search = q; m.phrasebookQuery = nil }
         #if DEBUG
         if let c = ProcessInfo.processInfo.environment["DOLMETSCHER_PB_CATEGORY"] { category = c }
         #endif
@@ -213,8 +219,10 @@ struct PhrasebookView: View {
                     if !recent.isEmpty { chip("recent", title: T("cat_recent"), icon: "clock") }
                     chip("favorites", title: T("cat_favorites"), icon: "star.fill")
                     do {
+                        // Zur Tageszeit passende Pakete zuerst (Sortierhilfe, alle bleiben erreichbar).
+                        ForEach(suggested) { chip($0.key, title: $0.name(L10n.lang), icon: "sparkles").accessibilityHint(T("sc_now")) }
                         ForEach(Phrasebook.categories, id: \.key) { chip($0.key, title: T("cat_" + $0.key), icon: $0.icon) }
-                        ForEach(Phrasebook.packs) { chip($0.key, title: $0.name(L10n.lang), icon: $0.icon) }
+                        ForEach(Phrasebook.packs.filter { p in !suggested.contains { $0.id == p.id } }) { chip($0.key, title: $0.name(L10n.lang), icon: $0.icon) }
                     }
                 }
                 .padding(.horizontal)

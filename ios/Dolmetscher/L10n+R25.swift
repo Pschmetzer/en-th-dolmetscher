@@ -87,5 +87,33 @@ extension L10n {
             "ko": "모바일 데이터 또는 핫스팟 사용 중입니다. 언어 팩은 용량이 크고(수백 MB) 로밍 요금이 발생할 수 있습니다.", "zh-Hans": "正在使用移动数据或热点。语言包较大（常达数百MB），可能产生漫游费用。",
             "vi": "Đang dùng dữ liệu di động hoặc điểm phát sóng. Gói ngôn ngữ lớn (thường vài trăm MB) và có thể phát sinh phí chuyển vùng.", "id": "Data seluler atau hotspot aktif. Paket bahasa besar (sering ratusan MB) dan bisa dikenai biaya roaming."
         ],
+        "pod_title": [
+            "de": "Satz des Tages", "en": "Phrase of the day",
+            "th": "ประโยคประจำวัน", "es": "Frase del día",
+            "fr": "Phrase du jour", "ja": "今日のフレーズ",
+            "ko": "오늘의 문장", "zh-Hans": "每日一句",
+            "vi": "Câu của ngày", "id": "Frasa hari ini"
+        ],
+        "pod_toggle": [
+            "de": "Satz des Tages (9 Uhr, lokal)", "en": "Phrase of the day (9 am, local)",
+            "th": "ประโยคประจำวัน (9 โมง ในเครื่อง)", "es": "Frase del día (9:00, local)",
+            "fr": "Phrase du jour (9 h, local)", "ja": "今日のフレーズ(9時・端末内)",
+            "ko": "오늘의 문장(오전 9시, 기기 내)", "zh-Hans": "每日一句（9点，本地）",
+            "vi": "Câu của ngày (9 giờ, trên máy)", "id": "Frasa hari ini (jam 9, lokal)"
+        ],
+        "pod_denied": [
+            "de": "Benachrichtigungen sind nicht erlaubt (Einstellungen)", "en": "Notifications are not allowed (Settings)",
+            "th": "ไม่ได้อนุญาตการแจ้งเตือน (การตั้งค่า)", "es": "Las notificaciones no están permitidas (Ajustes)",
+            "fr": "Notifications non autorisées (Réglages)", "ja": "通知が許可されていません(設定)",
+            "ko": "알림이 허용되지 않았습니다(설정)", "zh-Hans": "未允许通知（设置）",
+            "vi": "Thông báo chưa được cho phép (Cài đặt)", "id": "Notifikasi tidak diizinkan (Pengaturan)"
+        ],
+        "sc_now": [
+            "de": "Jetzt passend", "en": "Right now",
+            "th": "เหมาะกับตอนนี้", "es": "Ahora",
+            "fr": "Maintenant", "ja": "今おすすめ",
+            "ko": "지금 추천", "zh-Hans": "当前推荐",
+            "vi": "Phù hợp lúc này", "id": "Cocok sekarang"
+        ],
     ]
 }

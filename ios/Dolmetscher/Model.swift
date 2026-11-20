@@ -1,5 +1,6 @@
 // Model.swift – Zustand der App: Zuhören, Sprachwahl, Befehle, Übersetzen, Vorlesen, Verlauf, Satzbuch.
 import AVFoundation
+import UserNotifications
 import Observation
 import SwiftUI
 import os
@@ -140,6 +141,15 @@ final class InterpreterModel {
     var cultureHint: String?
     /// Satzbuch beim nächsten Öffnen in dieser Kategorie zeigen (Kulturhinweis -> Paket).
     @ObservationIgnored var phrasebookStart: String?
+    /// Spotlight-Absprung auf einen Favoriten: das Satzbuch öffnet mit dieser Suche.
+    @ObservationIgnored var phrasebookQuery: String?
+
+    /// Spotlight-Treffer (`favoriteKey`) -> Satzbuch mit dem Favoriten gefiltert; unbekannte Kennung öffnet nur das Satzbuch.
+    func openFavorite(key: String?) {
+        phrasebookStart = "favorites"
+        phrasebookQuery = key.flatMap { k in favorites.first { $0.favoriteKey == k }?.en }
+        sheet = .phrasebook
+    }
     @ObservationIgnored private var cultureShown: Set<String> = []
     /// 906: „Langsam und deutlich“ – langsamer und mit Pausen zwischen Satzteilen.
     var clearSpeech: Bool { didSet { save("clearSpeech", clearSpeech) } }
@@ -174,6 +184,24 @@ final class InterpreterModel {
     /// Echo-/Rauschunterdrückung des Systems beim Zuhören (iOS 18.2+).
     var echoCancel: Bool { didSet { save("echoCancel", echoCancel); if phase == .listening && oldValue != echoCancel { restart() } } }
     /// Favoriten in der Spotlight-Suche des iPhones (aus, solange der Nutzer es nicht einschaltet).
+    /// Satz des Tages als lokale Benachrichtigung (9 Uhr, nächste 7 Tage); nur auf Wunsch, die Erlaubnis fragt das System.
+    var phraseOfDay: Bool {
+        didSet {
+            save("phraseOfDay", phraseOfDay)
+            refreshPhraseOfDay()
+        }
+    }
+
+    func refreshPhraseOfDay() {
+        guard phraseOfDay, features.thaiExtras else { Task { await PhraseOfDay.cancelAll() }; return }
+        let form = politeness, title = T("pod_title")
+        Task {
+            let center = UNUserNotificationCenter.current()
+            let granted = (try? await center.requestAuthorization(options: [.alert])) ?? false
+            if granted { await PhraseOfDay.schedule(politeness: form, title: title) } else { phraseOfDay = false; flash("🔕 " + T("pod_denied"), seconds: 5) }
+        }
+    }
+
     var spotlight: Bool { didSet { save("spotlight", spotlight); SpotlightIndexer.update(favorites, enabled: spotlight) } }
     var pttTapMode: Bool { didSet { save("pttTapMode", pttTapMode) } }
     /// Live-Aktivität (Sperrbildschirm, Dynamic Island) beim Zuhören.
@@ -289,6 +317,7 @@ final class InterpreterModel {
         pttTapMode = d.object(forKey: "pttTapMode") as? Bool ?? false
         micUID = d.string(forKey: "micUID")
         spotlight = d.object(forKey: "spotlight") as? Bool ?? false
+        phraseOfDay = d.object(forKey: "phraseOfDay") as? Bool ?? false
         echoCancel = d.object(forKey: "echoCancel") as? Bool ?? false
         // Standard „aus“ (Sätze auf dem Sperrbildschirm). Wer die App schon nutzte, behält die bisherige Einstellung.
         liveActivity = LivePrivacy.initialSetting(stored: d.object(forKey: "liveActivity") as? Bool,
@@ -306,28 +335,28 @@ final class InterpreterModel {
         Task { await refreshOffline() }
         // Gerät war beim Start gesperrt: nach dem Entsperren nachladen.
         NotificationCenter.default.addObserver(forName: UIApplication.protectedDataDidBecomeAvailableNotification,
-                                               object: nil, queue: .main) { _ in
-            Task { @MainActor in InterpreterModel.shared.reloadIfBlocked(); InterpreterModel.shared.liveUpdate() }
+                                               object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor in self?.reloadIfBlocked(); self?.liveUpdate() }
         }
         // Gerät gesperrt: Live-Aktivität ohne Sätze.
         NotificationCenter.default.addObserver(forName: UIApplication.protectedDataWillBecomeUnavailableNotification,
-                                               object: nil, queue: .main) { _ in
-            Task { @MainActor in InterpreterModel.shared.liveUpdate(locked: true) }
+                                               object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor in self?.liveUpdate(locked: true) }
         }
         NotificationCenter.default.addObserver(forName: ProcessInfo.thermalStateDidChangeNotification,
-                                               object: nil, queue: .main) { _ in
-            Task { @MainActor in InterpreterModel.shared.thermalChanged() }
+                                               object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor in self?.thermalChanged() }
         }
-        NetStatus.shared.onReconnect {
-            Task { @MainActor in InterpreterModel.shared.retryFailedTranslations() }
+        NetStatus.shared.onReconnect { [weak self] in
+            Task { @MainActor in self?.retryFailedTranslations() }
         }
-        NetStatus.shared.onChange { online in
-            Task { @MainActor in InterpreterModel.shared.offline = !online }
+        NetStatus.shared.onChange { [weak self] online in
+            Task { @MainActor in self?.offline = !online }
         }
         screenCaptured = ShieldPolicy.isCaptured
         NotificationCenter.default.addObserver(forName: UIScreen.capturedDidChangeNotification,
-                                               object: nil, queue: .main) { _ in
-            Task { @MainActor in InterpreterModel.shared.screenCaptured = ShieldPolicy.isCaptured }
+                                               object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor in self?.screenCaptured = ShieldPolicy.isCaptured }
         }
         #if DEBUG
         // Test im Simulator: mit DOLMETSCHER_AUDIO_FILES gleich loslegen.
@@ -593,6 +622,7 @@ final class InterpreterModel {
         }
         if NetStatus.shared.online { retryFailedTranslations() }
         pruneHistory()
+        if phraseOfDay { refreshPhraseOfDay() }   // Fenster der nächsten 7 Tage nachziehen
         if uiLangFollowsSystem, L10n.systemLang() != uiLang { uiLang = L10n.systemLang() }
     }
 
@@ -1286,6 +1316,7 @@ final class InterpreterModel {
         files.removeAll(prefixes: ["history.json", "favorites.json", "emergency.json", "places.json", "learn.json"])
         // Favoriten stehen sonst weiter in der Spotlight-Suche, exportierte CSV-Dateien im Temp-Ordner.
         spotlight = false   // leert über didSet den Spotlight-Index
+        phraseOfDay = false  // entfernt die geplanten Benachrichtigungen
         if let domain { UserDefaults.standard.removePersistentDomain(forName: domain) }
         ExportCleanup.purge()
         flash("🗑 " + T("wipe_done"))

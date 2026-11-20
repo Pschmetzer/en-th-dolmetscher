@@ -132,6 +132,8 @@ Pull requests #16–#47. Not yet published as a release.
 - **Battery:** silence is no longer fed to the speech recognisers (only speech plus a 0.7 s lead-in), which roughly halves idle CPU in automatic mode.
 - **Phrasebook and emergency card without Thai in the pair:** the built-in English phrases are translated into the partner's language automatically (marked as unchecked); the emergency card lists the emergency numbers of the partner language's country (only numbers confirmed by several sources: ja, vi, id, de, fr, es; otherwise just a hint to ask locally) as a guide.
 - **Language packs:** "Load all" and single downloads ask first when mobile data or a hotspot is active; the travel checklist rows keep their action buttons reachable for VoiceOver.
+- **Phrase of the day** (Settings, optional): a local notification at 9 am for the next 7 days with a built-in Thai phrase; nothing leaves the phone. The phrasebook lists packs that fit the time of day first.
+- **Smaller fixes:** several parts of the app can now listen to network changes at once; observers no longer hold the global model; flash cards keep their progress when you switch between ครับ and ค่ะ (old cards are migrated); "Replay the welcome" no longer waits a fixed 450 ms; tapping a favourite in Spotlight opens the phrasebook filtered to that phrase.
 - **Whisper models** only count as installed when every Core ML model folder holds its data (an aborted download left empty folders).
 - **Fixes:** a failed microphone start no longer leaves a tap that crashes the next start; "nan"/"inf" are no longer accepted as an amount; the list of dismissed flash cards is capped.
 - **VoiceOver:** history rows, the big translation view and conversation lines are read with the voice of their own language.
