@@ -74,6 +74,7 @@ enum R24T {
         "cap_bold": ["de": "Fette Schrift", "en": "Bold text", "th": "ตัวหนา"],
         "cap_reset_clickable": ["de": "Untertitel wieder anklickbar machen", "en": "Make captions clickable again", "th": "ทำให้คำบรรยายคลิกได้อีกครั้ง"],
         "card_link": ["de": "Kurzbefehl-Link kopieren", "en": "Copy Shortcuts link", "th": "คัดลอกลิงก์คำสั่งลัด"],
+        "quick_over": ["de": "%d Sätze: nur die ersten %d haben ein Kürzel (⌘1–⌘9).", "en": "%d phrases: only the first %d have a shortcut (⌘1–⌘9).", "th": "%d ประโยค: เฉพาะ %d ประโยคแรกมีปุ่มลัด (⌘1–⌘9)"],
         "copied": ["de": "Kopiert", "en": "Copied", "th": "คัดลอกแล้ว"],
     ]
 }

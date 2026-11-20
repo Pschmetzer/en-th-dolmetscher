@@ -12,7 +12,7 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 - Show card (⇧⌘Y): large text for the other person; without a translator the phrasebook fallback finds the closest scenario phrase (English or Thai) and suggests alternatives. Shortcuts links: `dolmetscher://card?text=` and `dolmetscher://summary`; the card can copy a `dolmetscher://say` link.
 - Scenario suggestion: when the last sentences sound like a scenario pack (taxi, doctor, market …) a banner offers to load its phrases (needs two matching checks in a row; can be dismissed).
 - Live captions: position (bottom, top, free), bold text, click-through (undo via the menu bar item) and windows that were off-screen after unplugging a monitor are moved back.
-- Keyboard shortcuts window with search; new windows remember their position.
+- Keyboard shortcuts window with search; new windows remember their position. Quick-phrase settings: a note when more than nine phrases exist (only the first nine get ⌘1–⌘9); the section moved from `SettingsView.swift` to `SettingsQuickPhrases.swift`.
 - Fix: the number warning no longer fires when only the thousands separator differs (1,200 vs 1200).
 - Logic in `PriceLogic`, `SummaryLogic`, `LearnLogic`, `ScenarioDetect`, `OfflineFallback`, `WindowLogic`, `ShortcutCatalog` with tests in `swift-tests`; texts in `L10n+R24.swift`.
 

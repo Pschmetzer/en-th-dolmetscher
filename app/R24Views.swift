@@ -21,6 +21,14 @@ final class R24Shared: ObservableObject {
     func showCard(_ text: String, number: Bool = false) { cardText = text; cardIsNumber = number }
 }
 
+enum R24Views {
+    /// Beschriftung zu einem Schlüssel: L.t, sonst die Tabelle der Runde 24 (L.t gibt unbekannte Schlüssel unverändert zurück).
+    static func label(_ key: String) -> String {
+        let t = L.t(key)
+        return t == key ? R24T.t(key) : t
+    }
+}
+
 enum R24Prefs {
     static let rate = "r24RateText"
     static let budget = "r24Budget"
@@ -355,7 +363,7 @@ struct ShowCardView: View {
 struct ShortcutsWindowView: View {
     @State private var query = ""
     var body: some View {
-        let list = ShortcutCatalog.filter(ShortcutCatalog.all, query: query, label: { L.t($0) })
+        let list = ShortcutCatalog.filter(ShortcutCatalog.all, query: query, label: { R24Views.label($0) })
         VStack(alignment: .leading, spacing: 8) {
             TextField(R24T.t("search_shortcuts"), text: $query).textFieldStyle(.roundedBorder)
                 .accessibilityLabel(R24T.t("search_shortcuts"))
@@ -364,7 +372,7 @@ struct ShortcutsWindowView: View {
                     Section(R24T.t("grp_" + g.group)) {
                         ForEach(g.entries, id: \.keys) { e in
                             HStack {
-                                Text(L.t(e.labelKey))
+                                Text(R24Views.label(e.labelKey))
                                 Spacer()
                                 Text(e.keys).font(.system(.body, design: .monospaced)).foregroundStyle(.secondary)
                             }
@@ -382,35 +390,41 @@ struct ShortcutsWindowView: View {
 
 // MARK: Szenario-Vorschlag im Hauptfenster
 
-/// Hinweiszeile „Das klingt nach … Passende Sätze laden?“. Prüft nach jeder neuen Äußerung; erst wenn zweimal
-/// hintereinander dasselbe Paket passt, wird es gezeigt.
-struct ScenarioSuggestBanner: View {
-    @EnvironmentObject var m: EngineModel
-    @State private var previous: String?
-    @State private var shown: ScenarioSuggestion?
-    @State private var dismissed: Set<String> = []
+/// Zustand des Szenario-Vorschlags (geteilt zwischen Prüfung in `R24Hooks` und Hinweiszeile).
+@MainActor
+final class ScenarioHint: ObservableObject {
+    static let shared = ScenarioHint()
+    @Published var shown: ScenarioSuggestion?
+    private var previous: String?
+    private var dismissed: Set<String> = []
 
     private static let candidates: [ScenarioCandidate] = ScenarioDetect.deriveCandidates(
         packs: PresetCatalog.all.map { (id: $0.id, phrases: $0.phrases.map(\.en)) })
 
-    var body: some View {
-        Group {
-            if let s = shown, let p = PresetCatalog.all.first(where: { $0.id == s.id }), m.preset != s.id {
-                NoticeBanner(icon: "sparkles", tint: .accentColor, text: R24T.f("scn_suggest", p.name),
-                             action: (R24T.t("scn_use"), { m.preset = s.id; shown = nil }),
-                             onClose: { dismissed.insert(s.id); shown = nil })
-            }
-        }
-        .onChange(of: m.items.count) { check() }
-    }
-
-    private func check() {
+    /// Nach jeder neuen oder fertig gewordenen Äußerung: erst wenn zweimal hintereinander dasselbe Paket passt, zeigen.
+    func check(_ m: EngineModel) {
         let recent = m.items.suffix(ScenarioDetect.window).filter { !$0.pending }.flatMap { [$0.text, $0.out] }
         var skip = dismissed
         if !m.preset.isEmpty { skip.insert(m.preset) }
         let cur = ScenarioDetect.suggest(recent: recent, candidates: Self.candidates, exclude: skip)
         shown = ScenarioDetect.stable(previous: previous, current: cur)
         previous = cur?.id
+    }
+
+    func dismiss() { if let s = shown { dismissed.insert(s.id) }; shown = nil }
+}
+
+/// Hinweiszeile „Das klingt nach … Passende Sätze laden?“.
+struct ScenarioSuggestBanner: View {
+    @EnvironmentObject var m: EngineModel
+    @ObservedObject private var hint = ScenarioHint.shared
+
+    var body: some View {
+        if let s = hint.shown, let p = PresetCatalog.all.first(where: { $0.id == s.id }), m.preset != s.id {
+            NoticeBanner(icon: "sparkles", tint: .accentColor, text: R24T.f("scn_suggest", p.name),
+                         action: (R24T.t("scn_use"), { m.preset = s.id; hint.shown = nil }),
+                         onClose: { hint.dismiss() })
+        }
     }
 }
 
@@ -440,9 +454,17 @@ enum R24Window {
 struct R24Hooks: ViewModifier {
     @EnvironmentObject var m: EngineModel
     @Environment(\.openWindow) private var openWindow
+
+    /// Ändert sich bei neuer Äußerung und wenn ein Platzhalter fertig wird (Anzahl bleibt dabei gleich).
+    private var lastDoneKey: String {
+        guard let u = m.items.last(where: { !$0.pending }) else { return "" }
+        return "\(u.id)-\(u.text.count)-\(u.out.count)"
+    }
+
     func body(content: Content) -> some View {
         content
             .onChange(of: m.active) { if !m.active { SummaryNotifier.sessionEnded(m) } }
+            .onChange(of: lastDoneKey) { ScenarioHint.shared.check(m) }
             .onReceive(NotificationCenter.default.publisher(for: .openSummary)) { _ in openWindow(id: "summary") }
             .onReceive(NotificationCenter.default.publisher(for: .openCard)) { _ in openWindow(id: "card") }
     }

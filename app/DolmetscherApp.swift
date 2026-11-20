@@ -146,6 +146,7 @@ struct AppCommands: Commands {
     @AppStorage(Prefs.alwaysOnTop) private var onTop = false
     @AppStorage(L.key) private var uiLang = L.defaultCode   // Menüs neu aufbauen, wenn die Sprache wechselt
     @AppStorage(Prefs.quickPhrases) private var quickRaw = Prefs.pairDefaults
+    @AppStorage(CaptionKeys.clickThrough) private var captionClickThrough = false
     @ObservedObject private var sensitive = SensitiveSession.shared
 
     /// Preset-Sätze wie in der Schnellsatz-Leiste (Nr. 35): (Text, Sprache) in der Reihenfolge „kritisch zuerst“.
@@ -201,6 +202,7 @@ struct AppCommands: Commands {
             Button(L.t("mini_title") + " (⌥⌘M)") { openWindow(id: "mini") }
                 .keyboardShortcut("m", modifiers: [.option, .command])
             Button(L.t("caption_title")) { openWindow(id: "caption") }   // Nr. 52
+            if captionClickThrough { Button(R24T.t("cap_reset_clickable")) { captionClickThrough = false } }
             Button(L.t("phrasebook_title")) { openWindow(id: "phrasebook") }
             Button(L.t("hist_title")) { openWindow(id: "history") }
             Button(R24T.t("numbers_title")) { openWindow(id: "numbers") }
@@ -266,6 +268,7 @@ struct AppCommands: Commands {
 /// Menüleisten-Symbol: Start/Stopp, Pause, Vorlesen stoppen, Fenster zeigen.
 struct MenuBarContent: View {
     @EnvironmentObject var m: EngineModel
+    @AppStorage(CaptionKeys.clickThrough) private var captionClickThrough = false
     @Environment(\.openWindow) private var openWindow
     @AppStorage(L.key) private var uiLang = L.defaultCode
     @ObservedObject private var sensitive = SensitiveSession.shared
@@ -328,8 +331,8 @@ struct MenuBarContent: View {
         Button(R24T.t("numbers_title")) { openWindow(id: "numbers"); NSApp.activate(ignoringOtherApps: true) }
         Button(R24T.t("summary_title")) { openWindow(id: "summary"); NSApp.activate(ignoringOtherApps: true) }
         Button(R24T.t("card_title")) { openWindow(id: "card"); NSApp.activate(ignoringOtherApps: true) }
-        if UserDefaults.standard.bool(forKey: CaptionKeys.clickThrough) {   // Untertitel klick-durchlässig: Weg zurück
-            Button(R24T.t("cap_reset_clickable")) { UserDefaults.standard.set(false, forKey: CaptionKeys.clickThrough) }
+        if captionClickThrough {   // Untertitel klick-durchlässig: Weg zurück
+            Button(R24T.t("cap_reset_clickable")) { captionClickThrough = false }
         }
         Button(L.t("settings") + " …") {
             NSApp.activate(ignoringOtherApps: true)

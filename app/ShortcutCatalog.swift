@@ -1,5 +1,5 @@
 // ShortcutCatalog.swift – Daten für das Tastaturkürzel-Fenster (suchbar, nach Gruppen), Benachrichtigungs-Aktionen und
-// die Nutzlast für Handoff/Kurzbefehle (App Intents). Nur Foundation; getestet in swift-tests.
+// die Nutzlast für Kurzbefehle (URL `dolmetscher://say`). Nur Foundation; getestet in swift-tests.
 import Foundation
 
 struct ShortcutEntry: Equatable {
@@ -24,6 +24,10 @@ enum ShortcutCatalog {
         .init(keys: "⌘+ ⌘- ⌘0", labelKey: "font_bigger", group: "view"),
         .init(keys: "⇧⌘P", labelKey: "partner_view", group: "window"),
         .init(keys: "⌥⌘M", labelKey: "mini_title", group: "window"),
+        .init(keys: "⇧⌘N", labelKey: "numbers_title", group: "window"),
+        .init(keys: "⇧⌘U", labelKey: "summary_title", group: "window"),
+        .init(keys: "⇧⌘L", labelKey: "learn_title", group: "window"),
+        .init(keys: "⇧⌘Y", labelKey: "card_title", group: "window"),
         .init(keys: "⌥⌘T", labelKey: "always_on_top", group: "window"),
         .init(keys: "⇧⌘E", labelKey: "export", group: "window"),
         .init(keys: "⌘/", labelKey: "show_shortcuts", group: "window"),
@@ -54,7 +58,7 @@ enum ShortcutCatalog {
 
 // MARK: Benachrichtigungen mit Aktionen
 
-enum NoticeKind: Equatable { case engineStopped, summaryReady, scenarioSuggested(String), rateReminder }
+enum NoticeKind: Equatable { case engineStopped, summaryReady }
 
 struct NoticeAction: Equatable {
     var id: String
@@ -69,9 +73,6 @@ enum NoticeLogic {
         case .engineStopped: return [NoticeAction(id: "restart", labelKey: "n_restart", foreground: true)]
         case .summaryReady: return [NoticeAction(id: "copy-summary", labelKey: "n_copy", foreground: false),
                                     NoticeAction(id: "open-summary", labelKey: "n_open", foreground: true)]
-        case .scenarioSuggested: return [NoticeAction(id: "use-scenario", labelKey: "n_use", foreground: true),
-                                         NoticeAction(id: "dismiss-scenario", labelKey: "n_dismiss", foreground: false)]
-        case .rateReminder: return [NoticeAction(id: "open-rate", labelKey: "n_open", foreground: true)]
         }
     }
 
@@ -85,7 +86,7 @@ enum NoticeLogic {
 
 // MARK: Handoff / Kurzbefehle
 
-/// Zustand, der per Handoff (NSUserActivity) oder Kurzbefehl übergeben wird: nur Text und Sprachen, nie Schlüssel.
+/// Zustand für Kurzbefehle und spätere Übergabe zwischen Geräten: nur Text und Sprachen, nie Schlüssel.
 struct HandoffPayload: Equatable {
     static let activityType = "de.dolmetscher.conversation"
     var lastText: String

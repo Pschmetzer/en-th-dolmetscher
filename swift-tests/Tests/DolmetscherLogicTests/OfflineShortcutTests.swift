@@ -72,7 +72,6 @@ final class ShortcutCatalogTests: XCTestCase {
     func testNoticeActions() {
         XCTAssertEqual(NoticeLogic.actions(for: .engineStopped).map(\.id), ["restart"])
         XCTAssertEqual(NoticeLogic.actions(for: .summaryReady).map(\.id), ["copy-summary", "open-summary"])
-        XCTAssertEqual(NoticeLogic.actions(for: .scenarioSuggested("taxi")).count, 2)
     }
 
     func testNoticeThrottle() {

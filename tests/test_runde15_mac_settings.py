@@ -166,7 +166,7 @@ def test_jede_einstellung_hat_beschriftung_und_erklaertext():
 
 
 def test_erklaertexte_sind_im_fenster_verdrahtet():
-    ui = "".join((ROOT / "app" / f).read_text(encoding="utf-8") for f in ("SettingsView.swift", "Views.swift", "Profiles.swift"))
+    ui = "".join((ROOT / "app" / f).read_text(encoding="utf-8") for f in ("SettingsView.swift", "SettingsQuickPhrases.swift", "Views.swift", "Profiles.swift"))
     for _key, _label, helptext in _specs():
         assert f'"{helptext}"' in ui, helptext
 
