@@ -1007,6 +1007,7 @@ enum L {
         "llm_tier_fast": ["de": "Schnell & günstig", "en": "Fast & cheap", "th": "เร็วและประหยัด"],
         "llm_tier_balanced": ["de": "Ausgewogen", "en": "Balanced", "th": "สมดุล"],
         "llm_tier_best": ["de": "Beste Qualität", "en": "Best quality", "th": "คุณภาพดีที่สุด"],
+        "move_first": ["de": "Nach vorn", "en": "Move to front", "th": "ย้ายไปไว้ด้านหน้า"],
         "copied": ["de": "Kopiert",
                "en": "Copied",
                "th": "คัดลอกแล้ว"],

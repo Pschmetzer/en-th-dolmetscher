@@ -960,6 +960,13 @@ struct QuickPhraseBar: View {
         raw = l.joined(separator: "\n")
     }
 
+    private func moveToFront(_ i: Int) {
+        var l = Prefs.phrases(raw)
+        guard l.indices.contains(i) else { return }
+        l.insert(l.remove(at: i), at: 0)
+        raw = l.joined(separator: "\n")
+    }
+
     var body: some View {
         let phrases = Prefs.phrases(raw)
         ScrollView(.horizontal, showsIndicators: true) {   // sichtbare Leiste: mit der Maus ohne Shift-Rad erreichbar
@@ -1012,6 +1019,7 @@ struct QuickPhraseBar: View {
                         .disabled(!m.engineReady)
                         .help(p + "\n" + L.t("quick_phrase_help"))
                         .contextMenu {
+                            if i > 0 { Button(L.t("move_first")) { moveToFront(i) } }
                             Button(L.t("delete"), role: .destructive) { remove(i) }
                         }
                         .accessibilityAction(named: L.t("delete")) { remove(i) }
