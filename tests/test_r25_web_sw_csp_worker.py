@@ -35,7 +35,7 @@ def _csp():
 
 
 def test_csp_has_hash_of_the_inline_script_and_keeps_fallback():
-    script = re.search(r"<script>(.*?)</script>", HTML, re.S).group(1)
+    script = re.search(r"<script\s*>(.*?)</script\s*>", HTML, re.S | re.I).group(1)
     want = "'sha256-" + base64.b64encode(hashlib.sha256(script.encode("utf-8")).digest()).decode() + "'"
     assert want in _csp()
     directive = re.search(r"script-src ([^;]+);", _csp()).group(1)
@@ -44,7 +44,7 @@ def test_csp_has_hash_of_the_inline_script_and_keeps_fallback():
 
 
 def test_only_one_executable_inline_script_and_no_inline_handlers():
-    scripts = re.findall(r"<script([^>]*)>", HTML)
+    scripts = re.findall(r"<script([^>]*)>", HTML, re.I)
     inline = [a for a in scripts if "src=" not in a and "application/ld+json" not in a]
     assert inline == [""]                                                  # genau ein ausführbares Inline-Skript: ein Hash genügt
     assert not re.search(r"\son[a-z]+=\"", HTML)

@@ -20,7 +20,7 @@ LIST_RE = re.compile(r"const PRESET_IDS = \[[^\]]*\];")
 CACHE_RE = re.compile(r"const CACHE = 'dolmetscher-web-v(\d+)';")
 HASH_RE = re.compile(r"^// content-hash: ([0-9a-f]{16})$", re.M)
 CSP_RE = re.compile(r"(script-src 'self' 'unsafe-inline')( 'sha256-[A-Za-z0-9+/=]+')?")
-INLINE_RE = re.compile(r"<script>(.*?)</script>", re.S)
+INLINE_RE = re.compile(r"<script\s*>(.*?)</script\s*>", re.S | re.I)
 
 
 def csp_hash(html):

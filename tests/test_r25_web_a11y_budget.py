@@ -97,7 +97,7 @@ def test_page_weight_budgets():
 def test_new_scripts_are_lazy_not_render_blocking():
     head_and_body = HTML
     assert "web-qr.js" not in head_and_body and "web-search-worker.js" not in head_and_body      # nie im HTML: erst bei Gebrauch
-    tags = re.findall(r"<script[^>]*\ssrc=[^>]*>", HTML)
+    tags = re.findall(r"<script[^>]*\ssrc=[^>]*>", HTML, re.I)
     assert tags == [] or all("defer" in t or "async" in t for t in tags)                          # keine blockierenden Fremd- oder Zusatzskripte
     extras = re.findall(r"e\.src = '([^']+)'", HTML)
     assert extras == ["web-extras.js"]                                                            # Werkzeuge: nur auf Knopfdruck geladen
