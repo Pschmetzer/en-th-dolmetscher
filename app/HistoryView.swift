@@ -309,9 +309,12 @@ struct HistoryView: View {
                     Button { startRename(s.id) } label: { Image(systemName: "pencil") }
                         .help(L.t("hist_rename")).accessibilityLabel(L.t("hist_rename"))
                     Menu {
-                        Button("Markdown (.md)") { exportSession(s, csv: false) }
-                        Button("CSV (.csv)") { exportSession(s, csv: true) }
-                        Button("SRT (.srt)") { exportSession(s, csv: false, srt: true) }
+                        Button("Markdown (.md)") { exportSession(s, .markdown) }
+                        Button("CSV (.csv)") { exportSession(s, .csv) }
+                        Button("SRT (.srt)") { exportSession(s, .srt) }
+                        Button("WebVTT (.vtt)") { exportSession(s, .vtt) }
+                        Button("Text (.txt)") { exportSession(s, .text) }
+                        Button("JSON (.json)") { exportSession(s, .json) }
                     } label: { Image(systemName: "square.and.arrow.up") }
                         .menuStyle(.borderlessButton).fixedSize()
                         .help(L.t("hist_export")).accessibilityLabel(L.t("hist_export"))
@@ -386,14 +389,23 @@ struct HistoryView: View {
     }
 
     /// Eine Sitzung als Markdown (mit Zeitstempeln) oder CSV speichern.
-    private func exportSession(_ s: HistorySession, csv: Bool, srt: Bool = false) {
+    private func exportSession(_ s: HistorySession, _ format: ExportFormat) {
         let title = store.title(s)
         let panel = NSSavePanel()
         panel.title = L.t("hist_export")
-        panel.nameFieldStringValue = ExportFormats.fileName(base: title, date: s.start, ext: srt ? "srt" : csv ? "csv" : "md")
+        panel.allowedContentTypes = [format.contentType]
+        panel.nameFieldStringValue = ExportFormats.fileName(base: title, date: s.start, ext: format.rawValue)
         guard panel.runModal() == .OK, let url = panel.url else { return }
-        let text = srt ? HistoryLogic.srt(s) : csv ? HistoryLogic.csv(s) : HistoryLogic.markdown(s, title: title)
-        do { try ExportFormats.fileData(text, csv: csv).write(to: url, options: .atomic) }
+        let text: String
+        switch format {
+        case .markdown: text = HistoryLogic.markdown(s, title: title)
+        case .text: text = HistoryLogic.text(s, title: title)
+        case .json: text = HistoryLogic.json(s, title: title)
+        case .csv: text = HistoryLogic.csv(s)
+        case .srt: text = HistoryLogic.srt(s)
+        case .vtt: text = HistoryLogic.vtt(s)
+        }
+        do { try ExportFormats.fileData(text, csv: format == .csv).write(to: url, options: .atomic) }
         catch { NSAlert(error: error).runModal() }
     }
 

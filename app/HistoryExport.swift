@@ -49,4 +49,48 @@ extension HistoryLogic {
         }
         return out
     }
+
+    /// WebVTT: wie SRT, aber mit Kopfzeile `WEBVTT` und Punkt statt Komma bei den Millisekunden.
+    static func vtt(_ s: HistorySession) -> String {
+        let body = srt(s)
+        guard !body.isEmpty else { return "" }
+        var out = "WEBVTT\n\n"
+        for line in body.split(separator: "\n", omittingEmptySubsequences: false) {
+            if line.contains(" --> ") { out += line.replacingOccurrences(of: ",", with: ".") + "\n" } else { out += line + "\n" }
+        }
+        return out
+    }
+
+    /// Reiner Text: `[HH:mm:ss] DE: Text` und die Übersetzung eingerückt darunter.
+    static func text(_ s: HistorySession, title: String, timeZone: TimeZone = .current) -> String {
+        let df = DateFormatter()
+        df.dateFormat = "HH:mm:ss"
+        df.timeZone = timeZone
+        df.locale = Locale(identifier: "en_US_POSIX")
+        var out = title + "\n\n"
+        for r in s.rows {
+            out += "[\(df.string(from: r.time))] \(r.lang.isEmpty ? "?" : r.lang.uppercased()): \(r.text)\n"
+            if !r.translation.isEmpty { out += "  → \(r.translation)\n" }
+            if !r.translit.isEmpty { out += "  (\(r.translit))\n" }
+            out += "\n"
+        }
+        return out
+    }
+
+    /// JSON mit allen Feldern der Zeilen (ISO-8601-Zeit, sortierte Schlüssel).
+    static func json(_ s: HistorySession, title: String) -> String {
+        let iso = ISO8601DateFormatter()
+        let rows: [[String: Any]] = s.rows.map { r in
+            var o: [String: Any] = ["time": iso.string(from: r.time), "lang": r.lang, "text": r.text]
+            if !r.translation.isEmpty { o["translation"] = r.translation }
+            if !r.translit.isEmpty { o["translit"] = r.translit }
+            if let c = r.confidence { o["confidence"] = c }
+            if let p = r.provider { o["provider"] = p }
+            if let sp = r.speaker ?? r.role { o["speaker"] = sp }
+            return o
+        }
+        let data = (try? JSONSerialization.data(withJSONObject: ["title": title, "items": rows],
+                                                options: [.prettyPrinted, .sortedKeys])) ?? Data()
+        return String(decoding: data, as: UTF8.self) + "\n"
+    }
 }
