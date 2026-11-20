@@ -76,6 +76,7 @@ struct ContentView: View {
                     Menu {
                         Button { m.sheet = .phrasebook } label: { Label(T("phrasebook"), systemImage: "book") }
                         Button { m.sheet = .photo } label: { Label(T("photo_text"), systemImage: "text.viewfinder") }
+                        Button { m.sheet = .menuScan } label: { Label(T("r34_menu_title"), systemImage: "fork.knife") }
                         Button { m.sheet = .emergency } label: { Label(T("emergency"), systemImage: "cross.case") }
                         Button { m.sheet = .places } label: { Label(T("places"), systemImage: "mappin.and.ellipse") }
                         Button { m.sheet = .learn } label: { Label(T("learn"), systemImage: "rectangle.stack") }
@@ -88,6 +89,9 @@ struct ContentView: View {
                             Button { m.sheet = .help } label: { Label(T("commands"), systemImage: "text.bubble") }
                         }
                         Button { m.sheet = .history } label: { Label(T("hs_title"), systemImage: "clock.arrow.circlepath") }
+                        Button { m.sheet = .diary } label: { Label(T("r34_diary_title"), systemImage: "chart.bar.doc.horizontal") }
+                        Button { m.sheet = .hotelCard } label: { Label(T("r34_hotel_title"), systemImage: "qrcode") }
+                        Button { m.sheet = .twoDevice } label: { Label(T("r34_pair_title"), systemImage: "iphone.gen3.radiowaves.left.and.right") }
                         ShareSummaryItems()
                         Button(role: .destructive) { confirmClear = true } label: { Label(T("clear"), systemImage: "trash") }
                             .disabled(m.visibleEntries.isEmpty)
@@ -141,6 +145,7 @@ struct ContentView: View {
                 }, close: { m.cultureHint = nil })
                 .padding(.top, 8)
             }
+            if onboardingDone, m.sheet == nil { TravelModeBanner() }
             PermissionBanner()
             history
             bottomBar
@@ -198,6 +203,10 @@ struct ContentView: View {
         case .baht: BahtCalculatorView()
         case .summary: SummaryView()
         case .history: HistoryView()
+        case .menuScan: MenuScanView()
+        case .diary: DiaryView()
+        case .hotelCard: HotelQRView()
+        case .twoDevice: TwoDeviceView()
         case .allergy: AllergyCardView()
         case .privacy:
             NavigationStack {

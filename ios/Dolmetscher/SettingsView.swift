@@ -14,6 +14,8 @@ struct SettingsView: View {
     @State private var confirmWipe = false
     @AppStorage("screenShield") private var shield = true
     @AppStorage(HistorySpotlight.enabledKey) private var spotlight = false
+    @AppStorage(WhisperPartials.key) private var whisperPartials = false
+    @AppStorage(TravelPrompt.enabledKey) private var travelMode = true
 
     var body: some View {
         @Bindable var m = m
@@ -95,6 +97,8 @@ struct SettingsView: View {
                             Button(T("whisper_delete"), role: .destructive) { whisper.deleteAll() }
                                 .disabled(whisper.downloading)
                         }
+                        Toggle(T("r34_wpart_toggle"), isOn: $whisperPartials)
+                        Text(T("r34_wpart_note")).font(.footnote).foregroundStyle(.secondary)
                     }
                 } header: { Text(T("sec_recognition")) } footer: {
                     VStack(alignment: .leading, spacing: 4) {
@@ -156,6 +160,8 @@ struct SettingsView: View {
             }
             Toggle(T("background"), isOn: $m.background)
             Toggle(T("headset"), isOn: $m.headset)
+            Toggle(T("r34_travel_setting"), isOn: $travelMode)
+            Text(T("r34_travel_setting_d")).font(.footnote).foregroundStyle(.secondary)
             Toggle(T("r33_spotlight"), isOn: $spotlight)
                 .onChange(of: spotlight) { _, on in if on { m.persist() } else { HistorySpotlight.clear() } }
             Text(T("r33_spotlight_d")).font(.footnote).foregroundStyle(.secondary)

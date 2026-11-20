@@ -284,6 +284,7 @@
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Dolmetscher listens to what is said so it can translate it.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Speech is turned into text on this device so it can be translated.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your position is shown only on the emergency screen, so you can tell helpers where you are. It never leaves the iPhone.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "In two-device mode Dolmetscher finds a second iPhone nearby to send sentences directly.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -316,6 +317,7 @@
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Dolmetscher listens to what is said so it can translate it.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Speech is turned into text on this device so it can be translated.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your position is shown only on the emergency screen, so you can tell helpers where you are. It never leaves the iPhone.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "In two-device mode Dolmetscher finds a second iPhone nearby to send sentences directly.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";

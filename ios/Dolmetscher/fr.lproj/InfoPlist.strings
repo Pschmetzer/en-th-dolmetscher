@@ -4,3 +4,4 @@
 "NSPhotoLibraryUsageDescription" = "Choisissez la photo d'un menu ou d'un panneau pour que Dolmetscher en lise et traduise le texte.";
 "NSFaceIDUsageDescription" = "Face ID déverrouille ton historique de conversation si tu actives le verrouillage de l'historique.";
 "NSLocationWhenInUseUsageDescription" = "Votre position s’affiche uniquement sur l’écran d’urgence, pour indiquer aux secours où vous êtes. Elle ne quitte jamais l’iPhone.";
+"NSLocalNetworkUsageDescription" = "En mode deux appareils, Dolmetscher cherche un second iPhone à proximité pour envoyer des phrases directement.";
