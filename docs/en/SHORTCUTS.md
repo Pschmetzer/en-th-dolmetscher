@@ -65,8 +65,15 @@ Single-key shortcuts do not work in input fields or with Ctrl, Alt or Cmd. They 
 |---|---|
 | E or 1 | I speak (only where speech recognition exists) |
 | T or 2 | the other person speaks |
-| Space | end recording (not on buttons or in input fields) |
+| Space | end recording (only while recording; not on buttons, links, section headings or in input fields) |
 | P | partner view on / off |
+| ? | open help |
+| / | search the phrasebook |
+| V | in the partner view: show only the Thai text, large, on / off |
+| S | in the partner view: share a link to the sentence |
+| 1 to 4 | on a learning card (after revealing): grade 1 to 4; does not start the microphone |
+| Right / Left arrow | on a learning card: known / not known |
+| Space | on a learning card: reveal the answer |
 | L | jump to the newest entry in the conversation |
 | Esc | closes the partner view, otherwise stop; always closes dialogs |
 | Right / Left arrow | in the partner view with a card sequence: next / previous |

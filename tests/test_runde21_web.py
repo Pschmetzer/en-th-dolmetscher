@@ -212,3 +212,16 @@ def test_card_image_and_ci_scan_present():
     wf = (ROOT / ".github" / "workflows" / "web-a11y.yml").read_text(encoding="utf-8")
     assert "node axe.mjs" in wf and "timeout-minutes" in wf and "continue-on-error: true" in wf
     assert "withTags(['wcag2a', 'wcag2aa'])" in (ROOT / "tests" / "web-e2e" / "axe.mjs").read_text(encoding="utf-8")
+
+
+def test_web_docs_in_english_and_thai_link_and_mention_key_facts():
+    import re as _re
+    for rel in ("docs/en/WEB.md", "docs/th/WEB.md"):
+        text = (ROOT / rel).read_text(encoding="utf-8")
+        base = (ROOT / rel).parent
+        for target in _re.findall(r"(?<!!)\[[^\]]*\]\(([^)\s]+)\)", text):
+            if not target.startswith(("http", "#")):
+                assert (base / target.split("#")[0]).exists(), (rel, target)
+        assert "91" in text and "i18n" in text or "ออฟไลน์" in text
+    th = (ROOT / "docs" / "th" / "WEB.md").read_text(encoding="utf-8")
+    assert "ยังไม่ได้รับการตรวจโดยเจ้าของภาษา" in th and "not been checked by native speakers" in th

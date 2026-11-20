@@ -39,4 +39,6 @@ No installation: open <https://pschmetzer.github.io/en-th-dolmetscher/> in **Chr
 3. Choose who speaks yourself: **E** (or 1) for your language, **T** (or 2) for the other person's, **Space** ends. The page does not detect the language automatically.
 4. Optional: "Add to home screen" (PWA). The page and the phrasebook then also open offline; translation needs the network.
 
+Overview of the web version: [WEB.md](WEB.md).
+
 Run locally: `python3 -m http.server` in the repo folder, then open it in Chrome. Self-hosting: [WEB-HOSTING.md](../WEB-HOSTING.md) (German). What the page can and cannot do: [WEB-KOMPATIBILITAET.md](../WEB-KOMPATIBILITAET.md) (German).
