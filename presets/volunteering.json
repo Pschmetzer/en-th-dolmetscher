@@ -1,0 +1,113 @@
+{
+  "id": "volunteering",
+  "names": {
+    "de": "Freiwilligenarbeit",
+    "en": "Volunteering",
+    "th": "งานอาสาสมัคร"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Für Freiwilligenarbeit braucht man meist kein Arbeitsvisum, wenn sie unbezahlt ist und keine Thailänder ersetzt; bei Unsicherheit bei der Einwanderungsbehörde fragen. Tierprojekte und Schulen vorab prüfen: seriöse Träger legen Kosten offen und verlangen keine Spenden vor Ort. Vertrag, Unterkunft und Versicherung klären. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Unpaid volunteering usually needs no work permit if it does not replace Thai workers; ask immigration if unsure. Check animal projects and schools beforehand: reputable organisations show their costs openly and do not demand donations on site. Clarify contract, accommodation and insurance. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "volunteer",
+      "th": "อาสาสมัคร"
+    },
+    {
+      "en": "project",
+      "th": "โครงการ"
+    },
+    {
+      "en": "organisation",
+      "th": "องค์กร"
+    },
+    {
+      "en": "work permit",
+      "th": "ใบอนุญาตทำงาน"
+    },
+    {
+      "en": "donation",
+      "th": "เงินบริจาค"
+    },
+    {
+      "en": "schedule",
+      "th": "ตารางเวลา"
+    },
+    {
+      "en": "accommodation",
+      "th": "ที่พัก"
+    },
+    {
+      "en": "supervisor",
+      "th": "หัวหน้างาน"
+    },
+    {
+      "en": "insurance",
+      "th": "ประกัน"
+    },
+    {
+      "en": "teaching",
+      "th": "สอนหนังสือ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I want to volunteer here.",
+      "th": "อยากเป็นอาสาสมัครที่นี่"
+    },
+    {
+      "en": "Do I need a work permit to volunteer?",
+      "th": "ต้องมีใบอนุญาตทำงานสำหรับอาสาสมัครไหม"
+    },
+    {
+      "en": "Is the work paid or unpaid?",
+      "th": "งานนี้มีค่าตอบแทนหรือไม่"
+    },
+    {
+      "en": "What are the working hours?",
+      "th": "เวลาทำงานคือกี่โมง"
+    },
+    {
+      "en": "What will I have to do?",
+      "th": "ต้องทำอะไรบ้าง"
+    },
+    {
+      "en": "Where will I stay?",
+      "th": "จะพักที่ไหน"
+    },
+    {
+      "en": "Are meals included?",
+      "th": "รวมอาหารไหม"
+    },
+    {
+      "en": "How much is the programme fee?",
+      "th": "ค่าโครงการเท่าไร"
+    },
+    {
+      "en": "Where does the money go?",
+      "th": "เงินไปที่ไหน"
+    },
+    {
+      "en": "Is there insurance for volunteers?",
+      "th": "มีประกันสำหรับอาสาสมัครไหม"
+    },
+    {
+      "en": "Who is my supervisor?",
+      "th": "ใครเป็นหัวหน้างาน"
+    },
+    {
+      "en": "I would like to see a contract.",
+      "th": "อยากดูสัญญา"
+    },
+    {
+      "en": "I can help for two weeks.",
+      "th": "ช่วยได้สองสัปดาห์"
+    },
+    {
+      "en": "Thank you for having me.",
+      "th": "ขอบคุณที่รับเข้าร่วม"
+    }
+  ]
+}

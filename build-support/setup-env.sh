@@ -117,7 +117,7 @@ if [ "$REUSE" != 1 ]; then
 fi
 
 echo "step verify"
-run "$VENV/bin/python" -B -c 'import sys, faster_whisper, av, ctranslate2, numpy; print(sys.version)' || fail
+run "$VENV/bin/python" -B -c 'import sys, faster_whisper, av, ctranslate2, numpy, onnxruntime, tokenizers, sherpa_onnx, edge_tts; print(sys.version)' || fail
 
 rm -rf "$UV_CACHE_DIR"                              # ~400 MB Download-Cache: nach dem Klonen unnötig
 if ! { cp "$STAMP" "$VENV/.dolmetscher-stamp.tmp" && mv "$VENV/.dolmetscher-stamp.tmp" "$VENV/.dolmetscher-stamp"; }; then fail; fi

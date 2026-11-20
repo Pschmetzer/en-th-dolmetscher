@@ -1,0 +1,115 @@
+{
+  "id": "badminton-tennis",
+  "names": {
+    "de": "Badminton / Tennis",
+    "en": "Badminton / tennis",
+    "th": "แบดมินตัน / เทนนิส"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Hallen und Plätze werden stundenweise gemietet; abends und am Wochenende ist früh zu buchen. Schläger und Bälle gibt es zu leihen oder zu kaufen. In Hallen sind saubere Hallenschuhe Pflicht. Bei Hitze im Freien viel trinken und Pausen machen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Courts are rented by the hour; book early for evenings and weekends. Rackets and balls can be hired or bought. Clean indoor shoes are compulsory in halls. In outdoor heat drink a lot and take breaks. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "court",
+      "th": "สนาม"
+    },
+    {
+      "en": "racket",
+      "th": "ไม้แบดมินตัน"
+    },
+    {
+      "en": "shuttlecock",
+      "th": "ลูกขนไก่"
+    },
+    {
+      "en": "ball",
+      "th": "ลูกบอล"
+    },
+    {
+      "en": "net",
+      "th": "ตาข่าย"
+    },
+    {
+      "en": "booking",
+      "th": "จอง"
+    },
+    {
+      "en": "per hour",
+      "th": "ชั่วโมงละ"
+    },
+    {
+      "en": "shoes",
+      "th": "รองเท้า"
+    },
+    {
+      "en": "coach",
+      "th": "โค้ช"
+    },
+    {
+      "en": "match",
+      "th": "แข่ง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I hurt my ankle.",
+      "th": "ข้อเท้าเจ็บ",
+      "critical": true
+    },
+    {
+      "en": "Please call a doctor.",
+      "th": "ช่วยเรียกแพทย์หน่อย",
+      "critical": true
+    },
+    {
+      "en": "I would like to book a court.",
+      "th": "อยากจองสนาม"
+    },
+    {
+      "en": "Is a court free this evening?",
+      "th": "คืนนี้มีสนามว่างไหม"
+    },
+    {
+      "en": "How much is it per hour?",
+      "th": "ชั่วโมงละเท่าไร"
+    },
+    {
+      "en": "Can I rent a racket?",
+      "th": "เช่าไม้ได้ไหม"
+    },
+    {
+      "en": "Do you sell shuttlecocks?",
+      "th": "ขายลูกขนไก่ไหม"
+    },
+    {
+      "en": "Do I need special shoes?",
+      "th": "ต้องใช้รองเท้าพิเศษไหม"
+    },
+    {
+      "en": "Is there a coach for beginners?",
+      "th": "มีโค้ชสำหรับมือใหม่ไหม"
+    },
+    {
+      "en": "Could we play doubles?",
+      "th": "เล่นคู่ได้ไหม"
+    },
+    {
+      "en": "Where can I change clothes?",
+      "th": "เปลี่ยนเสื้อผ้าได้ที่ไหน"
+    },
+    {
+      "en": "Is there cold water here?",
+      "th": "ที่นี่มีน้ำเย็นไหม"
+    },
+    {
+      "en": "Good game!",
+      "th": "เล่นได้ดี"
+    },
+    {
+      "en": "Can I pay by card?",
+      "th": "จ่ายด้วยบัตรได้ไหม"
+    }
+  ]
+}

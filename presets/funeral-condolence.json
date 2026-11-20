@@ -1,0 +1,113 @@
+{
+  "id": "funeral-condolence",
+  "names": {
+    "de": "Trauerfeier / Beileid",
+    "en": "Funeral / condolences",
+    "th": "งานศพ / แสดงความเสียใจ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Zu thailändischen Trauerfeiern kommt man in Schwarz oder Weiß, nie in Rot. Ein Briefumschlag mit Geld (Beileidsspende) wird dem Gastgeber überreicht. Die Zeremonie dauert meist mehrere Abende im Tempel; man beteiligt sich still, setzt sich niedrig und zeigt die Füße nicht zu den Mönchen. Fotografieren nur nach Erlaubnis. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Thai funerals are attended in black or white, never in red. An envelope with money (a condolence donation) is handed to the host. The ceremony usually lasts several evenings at the temple; take part quietly, sit low and do not point your feet at the monks. Photograph only with permission. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "funeral",
+      "th": "งานศพ"
+    },
+    {
+      "en": "condolences",
+      "th": "แสดงความเสียใจ"
+    },
+    {
+      "en": "cremation",
+      "th": "ฌาปนกิจ"
+    },
+    {
+      "en": "monk",
+      "th": "พระ"
+    },
+    {
+      "en": "family",
+      "th": "ครอบครัว"
+    },
+    {
+      "en": "donation",
+      "th": "เงินบริจาค"
+    },
+    {
+      "en": "flower",
+      "th": "ดอกไม้"
+    },
+    {
+      "en": "incense",
+      "th": "ธูป"
+    },
+    {
+      "en": "candle",
+      "th": "เทียน"
+    },
+    {
+      "en": "respect",
+      "th": "เคารพ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am very sorry for your loss.",
+      "th": "เสียใจด้วยกับการสูญเสีย"
+    },
+    {
+      "en": "My condolences to you and your family.",
+      "th": "ขอแสดงความเสียใจกับคุณและครอบครัว"
+    },
+    {
+      "en": "Peace be with him.",
+      "th": "ขอให้เขาไปสู่สุคติ"
+    },
+    {
+      "en": "Peace be with her.",
+      "th": "ขอให้เธอไปสู่สุคติ"
+    },
+    {
+      "en": "What should I wear?",
+      "th": "ควรแต่งกายอย่างไร"
+    },
+    {
+      "en": "Is white or black appropriate?",
+      "th": "ใส่สีขาวหรือสีดำเหมาะสม"
+    },
+    {
+      "en": "Where do I hand over the donation?",
+      "th": "ส่งเงินบริจาคได้ที่ไหน"
+    },
+    {
+      "en": "May I take part in the ceremony?",
+      "th": "ขอเข้าร่วมพิธีได้ไหม"
+    },
+    {
+      "en": "What should I do now?",
+      "th": "ตอนนี้ควรทำอะไร"
+    },
+    {
+      "en": "Where may I sit?",
+      "th": "นั่งตรงไหนได้"
+    },
+    {
+      "en": "May I take photos?",
+      "th": "ถ่ายรูปได้ไหม"
+    },
+    {
+      "en": "Thank you for letting me come.",
+      "th": "ขอบคุณที่ให้มาร่วมงาน"
+    },
+    {
+      "en": "Please accept these flowers.",
+      "th": "ขอรับดอกไม้นี้ไว้ด้วย"
+    },
+    {
+      "en": "I will be thinking of you.",
+      "th": "จะนึกถึงเสมอ"
+    }
+  ]
+}

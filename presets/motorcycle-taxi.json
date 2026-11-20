@@ -1,0 +1,116 @@
+{
+  "id": "motorcycle-taxi",
+  "names": {
+    "de": "Motorrad-Taxi",
+    "en": "Motorcycle taxi",
+    "th": "วินมอเตอร์ไซค์"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Motorrad-Taxis (Win) tragen orangefarbene Westen mit Nummer. Den Preis vor der Fahrt klären, Helm verlangen und dem Fahrer nicht zu schnell zusagen. Die Fahrt ist nicht versichert; bei Gepäck oder Regen lieber ein Auto nehmen. Fahrdienst-Apps zeigen Preis und Fahrer vorab. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Motorcycle taxis (win) wear orange vests with a number. Agree the price before the ride, ask for a helmet and ask the driver not to speed. Rides are not insured; with luggage or in the rain take a car instead. Ride-hailing apps show the price and driver beforehand. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "motorcycle taxi",
+      "th": "มอเตอร์ไซค์รับจ้าง"
+    },
+    {
+      "en": "helmet",
+      "th": "หมวกกันน็อก"
+    },
+    {
+      "en": "driver",
+      "th": "คนขับ"
+    },
+    {
+      "en": "vest",
+      "th": "เสื้อกั๊ก"
+    },
+    {
+      "en": "fare",
+      "th": "ค่าโดยสาร"
+    },
+    {
+      "en": "slow down",
+      "th": "ขับช้าลง"
+    },
+    {
+      "en": "pillion",
+      "th": "คนซ้อน"
+    },
+    {
+      "en": "lane",
+      "th": "ซอย"
+    },
+    {
+      "en": "junction",
+      "th": "สี่แยก"
+    },
+    {
+      "en": "pier",
+      "th": "ท่าเรือ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please slow down.",
+      "th": "ช่วยขับช้าลงหน่อย",
+      "critical": true
+    },
+    {
+      "en": "Stop here, please.",
+      "th": "จอดตรงนี้ด้วย",
+      "critical": true
+    },
+    {
+      "en": "I feel unsafe.",
+      "th": "รู้สึกไม่ปลอดภัย",
+      "critical": true
+    },
+    {
+      "en": "Do you have a helmet for me?",
+      "th": "มีหมวกกันน็อกให้ไหม"
+    },
+    {
+      "en": "How much is it to this place?",
+      "th": "ไปที่นี่ราคาเท่าไร"
+    },
+    {
+      "en": "Please tell me the price first.",
+      "th": "ช่วยบอกราคาก่อน"
+    },
+    {
+      "en": "Too expensive. Can you go lower?",
+      "th": "แพงไป ลดได้ไหม"
+    },
+    {
+      "en": "Do you know this place?",
+      "th": "รู้จักที่นี่ไหม"
+    },
+    {
+      "en": "Please show me the way on the map.",
+      "th": "ช่วยชี้ทางในแผนที่ให้หน่อย"
+    },
+    {
+      "en": "Please stop at the next corner.",
+      "th": "ช่วยจอดที่หัวมุมถัดไป"
+    },
+    {
+      "en": "I have a bag. Is that okay?",
+      "th": "มีกระเป๋า ได้ไหม"
+    },
+    {
+      "en": "Please do not go on the main road.",
+      "th": "ช่วยอย่าไปทางถนนใหญ่"
+    },
+    {
+      "en": "Can you wait for me here?",
+      "th": "รอตรงนี้ได้ไหม"
+    },
+    {
+      "en": "Here is the money. Keep the change.",
+      "th": "นี่คือเงิน ไม่ต้องทอน"
+    }
+  ]
+}

@@ -310,6 +310,17 @@
    "reviewed": false
   },
   {
+   "id": "badminton-tennis",
+   "names": {
+    "de": "Badminton / Tennis",
+    "en": "Badminton / tennis",
+    "th": "แบดมินตัน / เทนนิส"
+   },
+   "phrases": 14,
+   "critical": 2,
+   "reviewed": false
+  },
+  {
    "id": "bakery-cafe",
    "names": {
     "de": "Bäckerei und Café",
@@ -351,6 +362,17 @@
    },
    "phrases": 17,
    "critical": 3,
+   "reviewed": false
+  },
+  {
+   "id": "birthday-celebration",
+   "names": {
+    "de": "Geburtstag und Feier",
+    "en": "Birthday / celebration",
+    "th": "วันเกิดและงานเลี้ยง"
+   },
+   "phrases": 14,
+   "critical": 0,
    "reviewed": false
   },
   {
@@ -552,6 +574,17 @@
    "reviewed": false
   },
   {
+   "id": "fishing-trip",
+   "names": {
+    "de": "Angeln / Fischerboot",
+    "en": "Fishing trip",
+    "th": "ตกปลา"
+   },
+   "phrases": 14,
+   "critical": 3,
+   "reviewed": false
+  },
+  {
    "id": "flight-delay-change",
    "names": {
     "de": "Flugverspätung und Umbuchung",
@@ -593,6 +626,17 @@
    },
    "phrases": 17,
    "critical": 4,
+   "reviewed": false
+  },
+  {
+   "id": "funeral-condolence",
+   "names": {
+    "de": "Trauerfeier / Beileid",
+    "en": "Funeral / condolences",
+    "th": "งานศพ / แสดงความเสียใจ"
+   },
+   "phrases": 14,
+   "critical": 0,
    "reviewed": false
   },
   {
@@ -659,6 +703,17 @@
    },
    "phrases": 18,
    "critical": 5,
+   "reviewed": false
+  },
+  {
+   "id": "home-repair",
+   "names": {
+    "de": "Reparatur zu Hause",
+    "en": "Home repair",
+    "th": "ซ่อมแซมบ้าน"
+   },
+   "phrases": 15,
+   "critical": 3,
    "reviewed": false
   },
   {
@@ -893,6 +948,17 @@
    "reviewed": false
   },
   {
+   "id": "motorcycle-taxi",
+   "names": {
+    "de": "Motorrad-Taxi",
+    "en": "Motorcycle taxi",
+    "th": "วินมอเตอร์ไซค์"
+   },
+   "phrases": 14,
+   "critical": 3,
+   "reviewed": false
+  },
+  {
    "id": "muay-thai-gym",
    "names": {
     "de": "Muay-Thai-Camp",
@@ -1003,6 +1069,17 @@
    "reviewed": false
   },
   {
+   "id": "promptpay-qr-payment",
+   "names": {
+    "de": "QR-Zahlung / PromptPay",
+    "en": "QR payment / PromptPay",
+    "th": "จ่ายด้วยคิวอาร์ / พร้อมเพย์"
+   },
+   "phrases": 14,
+   "critical": 0,
+   "reviewed": false
+  },
+  {
    "id": "rice-field-village",
    "names": {
     "de": "Dorf und Reisfelder",
@@ -1033,6 +1110,17 @@
    },
    "phrases": 16,
    "critical": 3,
+   "reviewed": false
+  },
+  {
+   "id": "skin-clinic",
+   "names": {
+    "de": "Hautklinik / Sonnenbrand",
+    "en": "Skin clinic",
+    "th": "คลินิกผิวหนัง"
+   },
+   "phrases": 14,
+   "critical": 2,
    "reviewed": false
   },
   {
@@ -1175,6 +1263,28 @@
     "th": "ต่อวีซ่า"
    },
    "phrases": 18,
+   "critical": 3,
+   "reviewed": false
+  },
+  {
+   "id": "volunteering",
+   "names": {
+    "de": "Freiwilligenarbeit",
+    "en": "Volunteering",
+    "th": "งานอาสาสมัคร"
+   },
+   "phrases": 14,
+   "critical": 0,
+   "reviewed": false
+  },
+  {
+   "id": "water-park-zoo",
+   "names": {
+    "de": "Wasserpark / Zoo",
+    "en": "Water park / zoo",
+    "th": "สวนน้ำ / สวนสัตว์"
+   },
+   "phrases": 15,
    "critical": 3,
    "reviewed": false
   },
