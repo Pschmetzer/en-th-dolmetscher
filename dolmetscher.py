@@ -4831,13 +4831,16 @@ def prerender_critical(eng, preset):
     if (not preset or PRIVATE["on"] or getattr(eng, "tts", "") != "edge" or getattr(eng, "mute", True)
             or not NET.get("tts", True)):
         return None
-    jobs = []
+    jobs, seen = [], set()
     for ph in preset.get("phrases", []):
         if ph.get("critical"):
             for lang in ("en", "th"):
                 if lang in TARGET:
                     for part in split_sentences(apply_pronounce(speak_form(ph[lang], lang)), lang):
-                        jobs.append((part, eng.voice_for(lang), f"{_clamp_rate(5 + eng.rate):+d}%"))
+                        job = (part, eng.voice_for(lang), f"{_clamp_rate(5 + eng.rate):+d}%")
+                        if job not in seen:                 # gleiche Sätze (auch zwischen Paketen) nur einmal rendern
+                            seen.add(job)
+                            jobs.append(job)
 
     def run():
         done = 0
@@ -5794,7 +5797,7 @@ class Engine:
         self.last = None
         self.prev = None
         self._cleared = True                # restore_last darf den gelöschten Satz nicht aus dem Verlauf zurückholen
-        for name in ("texts", "recent", "_hist_ids"):   # kein Roh-Audio/Text im Speicher behalten
+        for name in ("texts", "recent", "_hist_ids", "_recent_t"):   # kein Roh-Audio/Text im Speicher behalten
             getattr(self, name, {}).clear()
         with _PRE_LOCK:
             PRE.clear()
@@ -6189,6 +6192,7 @@ class Engine:
         recent = getattr(self, "recent", None)
         if recent is not None:
             recent.pop(uid, None)
+        self.__dict__.setdefault("_recent_t", {}).pop(uid, None)   # Zeitstempel nicht verwaist liegen lassen
 
     def reassign(self, uid, role):
         """'Das war ich' / 'Das war sie' aus der App: Satz in der richtigen Sprache neu erkennen,
@@ -6777,7 +6781,10 @@ def apply_control(eng, d):
             else:
                 later.append(MIC.stop)
         n = _num(d, "rate", -50, 50)
-        if n is not None: eng.rate = int(n)
+        if n is not None:
+            old_rate, eng.rate = eng.rate, int(n)
+            if PRESET.active and eng.rate != old_rate:      # Notfall-Sätze sind mit dem alten Tempo vorgerendert
+                later.append(lambda: prerender_critical(eng, presets.load_all().get(PRESET.active)))
         n = _num(d, "volume", 0.2, 2.0)
         if n is not None: eng.volume = float(n)
         n = _num(d, "silence", 0.4, 2.0)
