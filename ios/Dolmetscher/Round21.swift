@@ -201,3 +201,27 @@ struct TravelHelpersView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 }
+
+/// Umschrift und Rückübersetzungs-Vergleich sind teuer (ICU-Transformationen, Bigramme) und wurden bei jedem Body-Durchlauf
+/// jeder Sprechblase neu berechnet. Die Ergebnisse hängen nur von den Texten ab: einmal berechnen, im NSCache halten.
+enum RenderCache {
+    private static let roman = NSCache<NSString, NSString>()
+    private static let deviation = NSCache<NSString, NSNumber>()
+    private static let none: NSString = "\u{0}"
+
+    static func roman(_ text: String, _ lang: Lang) -> String? {
+        let key = "\(lang.rawValue)|\(text)" as NSString
+        if let hit = roman.object(forKey: key) { return hit == none ? nil : hit as String }
+        let out = Romanizer.latin(text, lang)
+        roman.setObject((out ?? none as String) as NSString, forKey: key)
+        return out
+    }
+
+    static func deviates(_ original: String, _ back: String) -> Bool {
+        let key = "\(original)\u{1}\(back)" as NSString
+        if let hit = deviation.object(forKey: key) { return hit.boolValue }
+        let out = BackCheck.deviates(original: original, back: back)
+        deviation.setObject(NSNumber(value: out), forKey: key)
+        return out
+    }
+}

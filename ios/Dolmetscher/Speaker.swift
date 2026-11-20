@@ -16,7 +16,7 @@ final class Speaker: NSObject, AVSpeechSynthesizerDelegate {
         synth.delegate = self
         NotificationCenter.default.addObserver(forName: AVSpeechSynthesizer.availableVoicesDidChangeNotification,
                                                object: nil, queue: .main) { _ in
-            Task { @MainActor in Speaker.voiceCache = [:] }
+            Task { @MainActor in Speaker.voiceCache = [:]; Speaker.hasVoiceCache = [:] }
         }
     }
 
@@ -31,16 +31,22 @@ final class Speaker: NSObject, AVSpeechSynthesizerDelegate {
         let code = lang.rawValue
         let all = AVSpeechSynthesisVoice.speechVoices().filter { $0.language == code || $0.language.hasPrefix(code + "-") }
         let preferred = lang.voiceLocale
+        // Erst die Region der Sprache (zh-CN statt zh-HK), dann die Qualität.
         return all.max { a, b in
-            (a.quality.rawValue, a.language == preferred ? 1 : 0) < (b.quality.rawValue, b.language == preferred ? 1 : 0)
+            (a.language == preferred ? 1 : 0, a.quality.rawValue) < (b.language == preferred ? 1 : 0, b.quality.rawValue)
         } ?? AVSpeechSynthesisVoice(language: preferred)
     }
 
     /// Gibt es auf dem Gerät überhaupt eine Stimme für die Sprache?
     static func hasVoice(_ lang: Lang) -> Bool {
+        if let v = hasVoiceCache[lang] { return v }
         let code = lang.rawValue
-        return AVSpeechSynthesisVoice.speechVoices().contains { $0.language == code || $0.language.hasPrefix(code + "-") }
+        let v = AVSpeechSynthesisVoice.speechVoices().contains { $0.language == code || $0.language.hasPrefix(code + "-") }
+        hasVoiceCache[lang] = v
+        return v
     }
+    /// `speechVoices()` ist teuer; die Ansichten fragen bei jedem Aktualisieren. Wie `voiceCache` bei neuen Stimmen leeren.
+    private static var hasVoiceCache: [Lang: Bool] = [:]
 
     /// `rate`: 1 = normal (0.5 … 1.5), `volume`: 0 … 1. `clear`: „Langsam und deutlich“ – Pausen zwischen Satzteilen.
     func speak(_ text: String, lang: Lang, rate: Double, volume: Double, clear: Bool = false) async {
