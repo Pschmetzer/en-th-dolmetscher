@@ -593,6 +593,9 @@ private struct VoiceSettings: View {
                         .help(L.t("sh_volume"))
                         .accessibilityValue("\(Int(m.volume * 100)) %")
                     Text("\(Int((m.volume * 100).rounded())) %").monospacedDigit().frame(width: 52, alignment: .trailing)
+                    if VolumeLogic.exceedsSystemVoice(m.volume) {
+                        Image(systemName: "info.circle").help(L.t("volume_system_cap")).accessibilityLabel(L.t("volume_system_cap"))
+                    }
                 }
             }
             Section {

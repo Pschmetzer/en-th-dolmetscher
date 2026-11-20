@@ -84,6 +84,7 @@ final class HotKeys: ObservableObject {
         }
         // Nr. 379: im Gespräch am nötigsten, auch wenn die App im Hintergrund ist
         register(id: 4, keyCode: kVK_ANSI_S, modifiers: Self.ctrlOpt, name: "⌃⌥S") { [weak model] in model?.stopSpeaking() }
+        register(id: 6, keyCode: kVK_ANSI_C, modifiers: Self.ctrlOpt, name: "⌃⌥C") { [weak model] in model?.translateClipboard() }
         register(id: 5, keyCode: kVK_ANSI_R, modifiers: Self.ctrlOpt, name: "⌃⌥R") { [weak model] in model?.replayLast() }
         if model.pushToTalk {
             register(id: 3, keyCode: kVK_ANSI_T, modifiers: Self.ctrlOpt, name: "⌃⌥T",

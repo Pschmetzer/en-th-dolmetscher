@@ -275,6 +275,8 @@ struct MenuBarContent: View {
         }
         Button(L.t("replay_last")) { m.replayLast() }
             .disabled(m.lastReplayable == nil)
+        Button(L.t("translate_clipboard") + " (⌃⌥C)") { m.translateClipboard() }
+            .disabled(!m.engineReady)
         if let d = m.download, let f = EnvLogic.downloadFraction(done: d.done, total: d.total) {
             Text(L.t("load_progress") + ": \(Int(f * 100)) %")
         }

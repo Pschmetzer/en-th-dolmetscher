@@ -75,5 +75,5 @@ def test_erklaerungen_und_bericht():
     s = src("SettingsView.swift")
     assert 'L.t("silence_help")' in s and 'L.t("sensitivity_help")' in s
     r = src("Support.swift")
-    for f in ("silence=", "sensitivity=", "ttsRace=", "fastEndpoint=", "partialText=", "rate=", "kürzelFehler="):
+    for f in ("silence=", "sensitivity=", "ttsRace=", "fastEndpoint=", "partialText=", "rate=", "hotkeyFailures="):
         assert f in r, f
