@@ -115,3 +115,10 @@ def test_thai_cut_never_between_vowel_and_following_mark():
     assert textsplit._thai_cut_ok("ก", "า") is False       # Folgevokal hängt am Konsonanten
     assert textsplit._thai_cut_ok("เ", "ก") is False       # Vorderer Vokal gehört zum nächsten Konsonanten
     assert textsplit._thai_cut_ok("ก", "ข") is True
+
+
+def test_runtime_tuning_never_targets_names_that_moved_to_modules():
+    """DOLMETSCHER_TUNE schreibt Modulglobale von dolmetscher.py; ausgelagerte Konstanten dürfen nicht darunter sein
+    (sonst änderte die Einstellung nur die re-exportierte Kopie)."""
+    moved = {"MAX_SPEAK_CHARS", "FIRST_CLAUSE_MIN", "_CLAUSE_END"}
+    assert not moved & (set(d.TUNABLE) | set(d.TUNABLE_SPEAKER))

@@ -311,3 +311,76 @@ def test_password_never_in_logged_control_line(_eng_env):
     """Die Steuerzeile loggt nur Felder aus CTRL_LOG_KEYS (und Textfelder bei --log-text) im Klartext."""
     assert "history_password" not in d.CTRL_LOG_KEYS
     assert "history_password" not in getattr(d, "TEXT_CTRL_KEYS", ())
+
+
+# ---- Nachbesserung nach Review: Sprechername, Startpasswort, Quelle + Mikrofon in einer Zeile --------------------
+
+def test_speaker_names_are_encrypted_not_readable_in_file(tmp_path):
+    st = _store(tmp_path)
+    st.add("hallo", "hello", session="s", ts=1.0, speaker="Somchai Prasert", role="other")
+    assert st.rows()[0]["speaker"] == "Somchai Prasert"
+    assert st.db.execute("SELECT speaker FROM utt").fetchone()[0].startswith("enc1:")
+    assert st.db.execute("SELECT role FROM utt").fetchone()[0] == "other"        # Rolle bleibt lesbar (dokumentiert)
+    st.close()
+    blob = b"".join(p.read_bytes() for p in tmp_path.glob("e.sqlite*"))
+    assert b"Somchai" not in blob
+
+
+def test_speaker_roundtrip_through_encrypted_import_and_export(tmp_path):
+    src = _store(tmp_path, name="a.sqlite")
+    src.add("hallo", session="s", ts=1.0, speaker="Anan")
+    dst = _store(tmp_path, name="b.sqlite")
+    assert dst.import_json(hs.export(src.rows(), "json")) == (1, 0, 0)
+    assert dst.rows()[0]["speaker"] == "Anan"
+    assert dst.db.execute("SELECT speaker FROM utt").fetchone()[0].startswith("enc1:")
+    src.close()
+    dst.close()
+
+
+def test_plain_store_still_stores_speaker_plain(tmp_path):
+    st = hs.Store(str(tmp_path / "p.sqlite"))
+    st.add("hallo", session="s", ts=1.0, speaker="Anan")
+    assert st.db.execute("SELECT speaker FROM utt").fetchone()[0] == "Anan"
+    st.close()
+
+
+def test_history_password_from_env_moves_secret_out_of_environment(monkeypatch):
+    monkeypatch.setitem(d.HIST_PASS, "pw", None)
+    monkeypatch.setenv(hs.CLI_PASSWORD_ENV, "start-pw")
+    assert d.history_password_from_env() is True
+    assert d.HIST_PASS["pw"] == "start-pw"
+    assert hs.CLI_PASSWORD_ENV not in d.os.environ
+    assert d.history_password_from_env() is False
+
+
+def test_password_env_is_never_passed_to_child_processes():
+    assert hs.CLI_PASSWORD_ENV in d._SECRET_ENV
+    assert hs.CLI_PASSWORD_ENV not in d._child_env({hs.CLI_PASSWORD_ENV: "x", "PATH": "/bin"})
+
+
+def test_start_history_flag_reads_env_password_before_first_write():
+    src = open(d.__file__, encoding="utf-8").read()
+    i = src.index("history_password_from_env()                  # Runde 25")
+    assert "history_enable(True, a.history_days)" in src[i:i + 200]
+
+
+def test_source_and_mic_in_one_control_line_keep_the_device_change(monkeypatch):
+    calls = []
+
+    class FakeMic:
+        on, mic, stops = True, "0", 0
+
+        def switch(self, mv):
+            calls.append((mv, d.SOURCE["kind"]))
+
+        def start(self):
+            pass
+
+        def stop(self):
+            pass
+    monkeypatch.setattr(d, "MIC", FakeMic())
+    monkeypatch.setattr(d, "emit", lambda *a, **k: None)
+    monkeypatch.setitem(d.SOURCE, "kind", "mic")
+    job = d.apply_control(types.SimpleNamespace(), {"mic": "USB Mic", "source": "system"})
+    job()
+    assert calls == [("USB Mic", "system")]

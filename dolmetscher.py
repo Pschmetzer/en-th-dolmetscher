@@ -652,7 +652,7 @@ _OUT_LOSSY = frozenset({"level", "partial", "queue"})
 _LOSSY_PREFIXES = tuple('{"event": "%s"' % e for e in _OUT_LOSSY)
 
 
-_SECRET_ENV = ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "ANTHROPIC_BASE_URL")
+_SECRET_ENV = ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "ANTHROPIC_BASE_URL", "DOLMETSCHER_HISTORY_PASSWORD")
 
 
 def _child_env(env=None):
@@ -8007,7 +8007,7 @@ def apply_control(eng, d):
                 _control_invalid("source")
             elif sv != SOURCE["kind"]:
                 SOURCE["kind"] = sv
-                if MIC is not None and MIC.on:
+                if MIC is not None and MIC.on and mic_job is None:     # Gerätewechsel derselben Zeile öffnet neu
                     mic_job = lambda: MIC.switch(MIC.mic)      # laufende Aufnahme mit der neuen Quelle neu öffnen
         ok, v = _flag(d, "group_speakers")
         if ok:
@@ -8122,6 +8122,16 @@ def reset_learning(eng, name):
 
 
 HIST_PASS = {"pw": None}        # Runde 25: Passwort des verschlüsselten Verlaufs (nur im Speicher, nie im Log/state)
+
+
+def history_password_from_env():
+    """Start mit --history: Passwort des verschlüsselten Verlaufs aus DOLMETSCHER_HISTORY_PASSWORD übernehmen und
+    aus der Umgebung entfernen (Kindprozesse erben es nie). -> True, wenn eines gesetzt war."""
+    import history_store
+    pw = os.environ.pop(history_store.CLI_PASSWORD_ENV, None)
+    if pw:
+        HIST_PASS["pw"] = pw
+    return bool(pw)
 
 
 def history_enable(on, days=None):
@@ -9643,6 +9653,7 @@ if __name__ == "__main__":
     if history_store.wants_cli(a):
         sys.exit(history_store.run_cli(a))
     if a.history:
+        history_password_from_env()                  # Runde 25: Passwort schon vor dem ersten Schreiben
         history_enable(True, a.history_days)
     JSON, BARGE_IN, LOG_TEXT, METER, DENOISE = a.json, a.barge_in, a.log_text, a.meter, a.denoise
     _lp = (a.langs or "").split(",")

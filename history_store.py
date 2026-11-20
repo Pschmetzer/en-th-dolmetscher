@@ -37,7 +37,7 @@ class HistoryLocked(ValueError):
     """Verschlüsselter Verlauf: Passwort fehlt oder ist falsch (oder die Datenbank ist gar nicht verschlüsselt)."""
 
 
-ENC_FIELDS = ("text", "translation", "translit")      # Spalten, die im verschlüsselten Verlauf Chiffretext sind
+ENC_FIELDS = ("text", "translation", "translit", "speaker")   # Chiffretext im verschlüsselten Verlauf (Profilnamen!)
 _FIELD_PREFIX = "enc1:"
 
 
@@ -254,7 +254,7 @@ class Store:
                 " speaker) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
                 (uid, time.time() if ts is None else ts, session, lang, self._enc("text", text),
                  self._enc("translation", translation), self._enc("translit", translit), conf, provider,
-                 t_begin, role, speaker))
+                 t_begin, role, self._enc("speaker", speaker)))
             if self.fts:
                 self.db.execute("INSERT INTO utt_fts (rowid, text, translation) VALUES (?,?,?)",
                                 (cur.lastrowid, text or "", translation or ""))
@@ -478,7 +478,7 @@ class Store:
                      r.get("confidence") if isinstance(r.get("confidence"), (int, float)) else None,
                      r.get("provider") if isinstance(r.get("provider"), str) else None,
                      r.get("role") if r.get("role") in ("me", "other") else None,
-                     r.get("speaker") if isinstance(r.get("speaker"), str) else None))
+                     self._enc("speaker", r.get("speaker") if isinstance(r.get("speaker"), str) else None)))
                 if self.fts:
                     self.db.execute("INSERT INTO utt_fts (rowid, text, translation) VALUES (?,?,?)",
                                     (cur.lastrowid, body, tr or ""))
