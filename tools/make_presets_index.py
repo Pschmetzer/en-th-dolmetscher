@@ -28,6 +28,22 @@ def categories(root=ROOT):
     return {pid: cat for cat, ids in data.items() for pid in ids}
 
 
+def routes(root=ROOT):
+    """Reisearten als Paketbündel (tools/preset_routes.json): {id: {names, packs}}."""
+    f = pathlib.Path(root) / "tools" / "preset_routes.json"
+    return json.loads(f.read_text(encoding="utf-8"))["routes"] if f.exists() else {}
+
+
+def keywords(d, limit=12):
+    """Suchbegriffe eines Pakets: englische Glossarbegriffe (klein, ohne Dubletten, höchstens `limit`)."""
+    out = []
+    for g in d.get("glossary", []):
+        w = str(g.get("en", "")).strip().lower()
+        if w and w not in out:
+            out.append(w)
+    return out[:limit]
+
+
 def build(root=ROOT):
     cats = categories(root)
     old = {}
@@ -40,9 +56,14 @@ def build(root=ROOT):
         d = json.loads(p.read_text(encoding="utf-8"))
         packs[d["id"]] = {"id": d["id"], "names": d["names"], "phrases": len(d.get("phrases", [])),
                           "critical": sum(1 for x in d.get("phrases", []) if x.get("critical")),
-                          "reviewed": old.get(d["id"], False), "category": cats.get(d["id"], "general")}
+                          "reviewed": old.get(d["id"], False), "category": cats.get(d["id"], "general"),
+                          "keywords": keywords(d)}
     ids = [i for i in ORDER if i in packs] + sorted(i for i in packs if i not in ORDER)
-    return {"version": 1, "packs": [packs[i] for i in ids]}
+    out = {"version": 1, "packs": [packs[i] for i in ids]}
+    rt = routes(root)
+    if rt:
+        out["routes"] = rt
+    return out
 
 
 if __name__ == "__main__":

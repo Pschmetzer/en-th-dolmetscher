@@ -11,7 +11,18 @@
    "phrases": 25,
    "critical": 11,
    "reviewed": false,
-   "category": "health"
+   "category": "health",
+   "keywords": [
+    "appointment",
+    "pharmacy",
+    "allergy",
+    "prescription",
+    "insurance",
+    "pain",
+    "fever",
+    "emergency",
+    "interpreter"
+   ]
   },
   {
    "id": "police",
@@ -23,7 +34,17 @@
    "phrases": 19,
    "critical": 9,
    "reviewed": false,
-   "category": "emergency"
+   "category": "emergency",
+   "keywords": [
+    "police",
+    "tourist police",
+    "police station",
+    "police report",
+    "stolen",
+    "passport",
+    "embassy",
+    "witness"
+   ]
   },
   {
    "id": "lostchild",
@@ -35,7 +56,17 @@
    "phrases": 19,
    "critical": 16,
    "reviewed": false,
-   "category": "health"
+   "category": "health",
+   "keywords": [
+    "lost child",
+    "missing",
+    "announcement",
+    "security guard",
+    "parents",
+    "exit",
+    "photo",
+    "police"
+   ]
   },
   {
    "id": "pharmacy",
@@ -47,7 +78,17 @@
    "phrases": 21,
    "critical": 5,
    "reviewed": false,
-   "category": "health"
+   "category": "health",
+   "keywords": [
+    "pharmacy",
+    "pharmacist",
+    "tablet",
+    "prescription",
+    "side effect",
+    "ointment",
+    "painkiller",
+    "antibiotic"
+   ]
   },
   {
    "id": "dentist",
@@ -59,7 +100,17 @@
    "phrases": 19,
    "critical": 5,
    "reviewed": false,
-   "category": "health"
+   "category": "health",
+   "keywords": [
+    "dentist",
+    "tooth",
+    "gums",
+    "filling",
+    "crown",
+    "root canal",
+    "x-ray",
+    "anaesthetic"
+   ]
   },
   {
    "id": "taxi",
@@ -71,7 +122,18 @@
    "phrases": 20,
    "critical": 1,
    "reviewed": false,
-   "category": "transport"
+   "category": "transport",
+   "keywords": [
+    "meter",
+    "airport",
+    "highway",
+    "turn left",
+    "turn right",
+    "straight ahead",
+    "stop here",
+    "change",
+    "receipt"
+   ]
   },
   {
    "id": "places",
@@ -83,7 +145,14 @@
    "phrases": 19,
    "critical": 0,
    "reviewed": false,
-   "category": "general"
+   "category": "general",
+   "keywords": [
+    "airport",
+    "temple",
+    "market",
+    "station",
+    "beach"
+   ]
   },
   {
    "id": "airport",
@@ -95,7 +164,17 @@
    "phrases": 18,
    "critical": 2,
    "reviewed": false,
-   "category": "transport"
+   "category": "transport",
+   "keywords": [
+    "airport",
+    "gate",
+    "luggage",
+    "boarding pass",
+    "customs",
+    "passport",
+    "wheelchair",
+    "transfer"
+   ]
   },
   {
    "id": "transport",
@@ -107,7 +186,17 @@
    "phrases": 20,
    "critical": 1,
    "reviewed": false,
-   "category": "transport"
+   "category": "transport",
+   "keywords": [
+    "ferry",
+    "pier",
+    "platform",
+    "train station",
+    "bus stop",
+    "ticket",
+    "sleeper",
+    "life jacket"
+   ]
   },
   {
    "id": "travel",
@@ -119,7 +208,18 @@
    "phrases": 18,
    "critical": 5,
    "reviewed": false,
-   "category": "general"
+   "category": "general",
+   "keywords": [
+    "passport",
+    "airport",
+    "ticket",
+    "luggage",
+    "train station",
+    "bus station",
+    "atm",
+    "toilet",
+    "tourist information"
+   ]
   },
   {
    "id": "hotel",
@@ -131,7 +231,20 @@
    "phrases": 19,
    "critical": 2,
    "reviewed": false,
-   "category": "stay"
+   "category": "stay",
+   "keywords": [
+    "reservation",
+    "check-in",
+    "check-out",
+    "room key",
+    "breakfast",
+    "air conditioning",
+    "towel",
+    "wi-fi password",
+    "receipt",
+    "safe",
+    "tax invoice"
+   ]
   },
   {
    "id": "restaurant",
@@ -143,7 +256,18 @@
    "phrases": 30,
    "critical": 11,
    "reviewed": false,
-   "category": "food"
+   "category": "food",
+   "keywords": [
+    "menu",
+    "the bill",
+    "not spicy",
+    "allergy",
+    "vegetarian",
+    "drinking water",
+    "takeaway",
+    "without peanuts",
+    "ice"
+   ]
   },
   {
    "id": "shopping",
@@ -155,7 +279,18 @@
    "phrases": 18,
    "critical": 1,
    "reviewed": false,
-   "category": "money"
+   "category": "money",
+   "keywords": [
+    "size",
+    "discount",
+    "receipt",
+    "cash",
+    "credit card",
+    "fitting room",
+    "bag",
+    "refund",
+    "cheaper"
+   ]
   },
   {
    "id": "bank",
@@ -167,7 +302,17 @@
    "phrases": 16,
    "critical": 3,
    "reviewed": false,
-   "category": "money"
+   "category": "money",
+   "keywords": [
+    "atm",
+    "exchange rate",
+    "fee",
+    "baht",
+    "account",
+    "transfer",
+    "withdraw",
+    "banknote"
+   ]
   },
   {
    "id": "answers",
@@ -179,7 +324,15 @@
    "phrases": 19,
    "critical": 1,
    "reviewed": false,
-   "category": "general"
+   "category": "general",
+   "keywords": [
+    "thank you",
+    "sorry",
+    "please",
+    "slowly",
+    "write",
+    "map"
+   ]
   },
   {
    "id": "access",
@@ -191,7 +344,14 @@
    "phrases": 19,
    "critical": 1,
    "reviewed": false,
-   "category": "general"
+   "category": "general",
+   "keywords": [
+    "lift",
+    "ramp",
+    "stairs",
+    "wheelchair",
+    "guide dog"
+   ]
   },
   {
    "id": "spa",
@@ -203,7 +363,17 @@
    "phrases": 19,
    "critical": 5,
    "reviewed": false,
-   "category": "health"
+   "category": "health",
+   "keywords": [
+    "massage",
+    "thai massage",
+    "foot massage",
+    "oil massage",
+    "shoulder",
+    "back",
+    "neck",
+    "tip"
+   ]
   },
   {
    "id": "temple",
@@ -215,7 +385,17 @@
    "phrases": 18,
    "critical": 1,
    "reviewed": false,
-   "category": "culture"
+   "category": "culture",
+   "keywords": [
+    "temple",
+    "monk",
+    "buddha image",
+    "make merit",
+    "incense",
+    "shoes",
+    "entrance fee",
+    "wai"
+   ]
   },
   {
    "id": "island",
@@ -227,7 +407,14 @@
    "phrases": 17,
    "critical": 3,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "boat",
+    "life jacket",
+    "snorkel",
+    "island",
+    "pier"
+   ]
   },
   {
    "id": "scooter",
@@ -239,7 +426,17 @@
    "phrases": 19,
    "critical": 3,
    "reviewed": false,
-   "category": "transport"
+   "category": "transport",
+   "keywords": [
+    "scooter",
+    "helmet",
+    "flat tyre",
+    "brake",
+    "petrol station",
+    "repair shop",
+    "deposit",
+    "driving licence"
+   ]
   },
   {
    "id": "rental",
@@ -251,7 +448,17 @@
    "phrases": 20,
    "critical": 1,
    "reviewed": false,
-   "category": "transport"
+   "category": "transport",
+   "keywords": [
+    "rent",
+    "deposit",
+    "contract",
+    "electricity bill",
+    "water bill",
+    "landlord",
+    "condo",
+    "furnished"
+   ]
   },
   {
    "id": "services",
@@ -263,7 +470,14 @@
    "phrases": 17,
    "critical": 0,
    "reviewed": false,
-   "category": "general"
+   "category": "general",
+   "keywords": [
+    "laundry",
+    "haircut",
+    "tailor",
+    "iron",
+    "fitting"
+   ]
   },
   {
    "id": "coworking",
@@ -275,7 +489,14 @@
    "phrases": 20,
    "critical": 0,
    "reviewed": false,
-   "category": "stay"
+   "category": "stay",
+   "keywords": [
+    "deposit",
+    "monthly",
+    "electricity",
+    "wi-fi",
+    "invoice"
+   ]
   },
   {
    "id": "office",
@@ -287,7 +508,18 @@
    "phrases": 15,
    "critical": 1,
    "reviewed": false,
-   "category": "general"
+   "category": "general",
+   "keywords": [
+    "meeting",
+    "deadline",
+    "invoice",
+    "contract",
+    "schedule",
+    "colleague",
+    "budget",
+    "presentation",
+    "email"
+   ]
   },
   {
    "id": "adventure-park",
@@ -299,7 +531,19 @@
    "phrases": 14,
    "critical": 3,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "zip line",
+    "harness",
+    "helmet",
+    "guide",
+    "cave",
+    "headlamp",
+    "climbing",
+    "waterfall",
+    "weight limit",
+    "insurance"
+   ]
   },
   {
    "id": "animal-bite-rabies",
@@ -311,7 +555,15 @@
    "phrases": 16,
    "critical": 7,
    "reviewed": false,
-   "category": "health"
+   "category": "health",
+   "keywords": [
+    "bite",
+    "rabies",
+    "vaccine",
+    "wound",
+    "stray dog",
+    "snake"
+   ]
   },
   {
    "id": "atm-bank-card",
@@ -323,7 +575,15 @@
    "phrases": 18,
    "critical": 5,
    "reviewed": false,
-   "category": "money"
+   "category": "money",
+   "keywords": [
+    "card",
+    "pin",
+    "limit",
+    "receipt",
+    "hotline",
+    "branch"
+   ]
   },
   {
    "id": "baby",
@@ -335,7 +595,15 @@
    "phrases": 18,
    "critical": 5,
    "reviewed": false,
-   "category": "health"
+   "category": "health",
+   "keywords": [
+    "nappy",
+    "formula milk",
+    "baby bottle",
+    "fever",
+    "high chair",
+    "pushchair"
+   ]
   },
   {
    "id": "babysitter-housekeeper",
@@ -347,7 +615,19 @@
    "phrases": 14,
    "critical": 3,
    "reviewed": false,
-   "category": "stay"
+   "category": "stay",
+   "keywords": [
+    "babysitter",
+    "housekeeper",
+    "agency",
+    "references",
+    "working hours",
+    "salary",
+    "contract",
+    "emergency contact",
+    "allergy",
+    "bedtime"
+   ]
   },
   {
    "id": "badminton-tennis",
@@ -359,7 +639,19 @@
    "phrases": 14,
    "critical": 2,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "court",
+    "racket",
+    "shuttlecock",
+    "ball",
+    "net",
+    "booking",
+    "per hour",
+    "shoes",
+    "coach",
+    "match"
+   ]
   },
   {
    "id": "bakery-cafe",
@@ -371,7 +663,15 @@
    "phrases": 17,
    "critical": 4,
    "reviewed": false,
-   "category": "food"
+   "category": "food",
+   "keywords": [
+    "bread",
+    "croissant",
+    "iced coffee",
+    "less sugar",
+    "takeaway",
+    "cake"
+   ]
   },
   {
    "id": "bangkok-skytrain",
@@ -383,7 +683,15 @@
    "phrases": 17,
    "critical": 4,
    "reviewed": false,
-   "category": "transport"
+   "category": "transport",
+   "keywords": [
+    "station",
+    "platform",
+    "ticket",
+    "exit",
+    "interchange",
+    "last train"
+   ]
   },
   {
    "id": "beach",
@@ -395,7 +703,15 @@
    "phrases": 18,
    "critical": 5,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "beach",
+    "jellyfish",
+    "lifeguard",
+    "wave",
+    "sunscreen",
+    "sunbed"
+   ]
   },
   {
    "id": "bicycle-rental",
@@ -407,7 +723,15 @@
    "phrases": 17,
    "critical": 3,
    "reviewed": false,
-   "category": "transport"
+   "category": "transport",
+   "keywords": [
+    "bicycle",
+    "helmet",
+    "lock",
+    "brakes",
+    "deposit",
+    "flat tyre"
+   ]
   },
   {
    "id": "birthday-celebration",
@@ -419,7 +743,19 @@
    "phrases": 14,
    "critical": 0,
    "reviewed": false,
-   "category": "culture"
+   "category": "culture",
+   "keywords": [
+    "birthday",
+    "cake",
+    "candle",
+    "gift",
+    "party",
+    "guest",
+    "invitation",
+    "cheers",
+    "wish",
+    "celebrate"
+   ]
   },
   {
    "id": "border-crossing",
@@ -431,7 +767,19 @@
    "phrases": 15,
    "critical": 3,
    "reviewed": false,
-   "category": "transport"
+   "category": "transport",
+   "keywords": [
+    "border",
+    "visa",
+    "stamp",
+    "passport photo",
+    "departure card",
+    "entry",
+    "exit",
+    "official fee",
+    "overstay",
+    "minivan"
+   ]
   },
   {
    "id": "buddhist-ceremony",
@@ -443,7 +791,15 @@
    "phrases": 20,
    "critical": 4,
    "reviewed": false,
-   "category": "culture"
+   "category": "culture",
+   "keywords": [
+    "ceremony",
+    "monk",
+    "merit",
+    "incense",
+    "offering",
+    "blessing"
+   ]
   },
   {
    "id": "buffet-bbq",
@@ -455,7 +811,19 @@
    "phrases": 14,
    "critical": 2,
    "reviewed": false,
-   "category": "food"
+   "category": "food",
+   "keywords": [
+    "buffet",
+    "grill",
+    "hot pot",
+    "raw meat",
+    "sauce",
+    "time limit",
+    "per person",
+    "refill",
+    "leftovers",
+    "tongs"
+   ]
   },
   {
    "id": "bus-train",
@@ -467,7 +835,15 @@
    "phrases": 19,
    "critical": 3,
    "reviewed": false,
-   "category": "transport"
+   "category": "transport",
+   "keywords": [
+    "ticket",
+    "platform",
+    "bus station",
+    "train station",
+    "seat",
+    "luggage"
+   ]
   },
   {
    "id": "cannabis-vape",
@@ -479,7 +855,19 @@
    "phrases": 15,
    "critical": 2,
    "reviewed": false,
-   "category": "emergency"
+   "category": "emergency",
+   "keywords": [
+    "e-cigarette",
+    "cannabis",
+    "licence",
+    "fine",
+    "smoking area",
+    "prohibited",
+    "customs",
+    "allowed",
+    "adults only",
+    "medical"
+   ]
   },
   {
    "id": "car-accident",
@@ -491,7 +879,19 @@
    "phrases": 14,
    "critical": 5,
    "reviewed": false,
-   "category": "emergency"
+   "category": "emergency",
+   "keywords": [
+    "accident",
+    "insurance",
+    "police report",
+    "rental company",
+    "damage",
+    "witness",
+    "licence plate",
+    "tow truck",
+    "photo",
+    "injured"
+   ]
   },
   {
    "id": "car-rental",
@@ -503,7 +903,15 @@
    "phrases": 18,
    "critical": 4,
    "reviewed": false,
-   "category": "transport"
+   "category": "transport",
+   "keywords": [
+    "insurance",
+    "deposit",
+    "driving licence",
+    "full tank",
+    "scratch",
+    "gearbox"
+   ]
   },
   {
    "id": "car-wash-repair",
@@ -515,7 +923,15 @@
    "phrases": 18,
    "critical": 3,
    "reviewed": false,
-   "category": "transport"
+   "category": "transport",
+   "keywords": [
+    "garage",
+    "flat tyre",
+    "brakes",
+    "battery",
+    "engine oil",
+    "car wash"
+   ]
   },
   {
    "id": "chronic-conditions",
@@ -527,7 +943,19 @@
    "phrases": 15,
    "critical": 5,
    "reviewed": false,
-   "category": "health"
+   "category": "health",
+   "keywords": [
+    "insulin",
+    "diabetes",
+    "asthma",
+    "inhaler",
+    "blood pressure",
+    "blood type",
+    "epilepsy",
+    "pacemaker",
+    "prescription",
+    "contact lenses"
+   ]
   },
   {
    "id": "cinema-concert",
@@ -539,7 +967,15 @@
    "phrases": 18,
    "critical": 4,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "ticket",
+    "seat",
+    "subtitles",
+    "soundtrack",
+    "stage",
+    "exit"
+   ]
   },
   {
    "id": "convenience-store-7eleven",
@@ -551,7 +987,15 @@
    "phrases": 17,
    "critical": 3,
    "reviewed": false,
-   "category": "food"
+   "category": "food",
+   "keywords": [
+    "microwave",
+    "bag",
+    "water",
+    "receipt",
+    "top up",
+    "cash"
+   ]
   },
   {
    "id": "currency-exchange",
@@ -563,7 +1007,19 @@
    "phrases": 14,
    "critical": 0,
    "reviewed": false,
-   "category": "money"
+   "category": "money",
+   "keywords": [
+    "exchange rate",
+    "fee",
+    "banknote",
+    "coin",
+    "small notes",
+    "dollar",
+    "euro",
+    "receipt",
+    "passport",
+    "commission"
+   ]
   },
   {
    "id": "customs-duty-free",
@@ -575,7 +1031,19 @@
    "phrases": 14,
    "critical": 0,
    "reviewed": false,
-   "category": "money"
+   "category": "money",
+   "keywords": [
+    "customs",
+    "duty free",
+    "declare",
+    "cigarettes",
+    "alcohol",
+    "receipt",
+    "gift",
+    "medicine",
+    "cash",
+    "inspection"
+   ]
   },
   {
    "id": "dating-small-talk",
@@ -587,7 +1055,15 @@
    "phrases": 19,
    "critical": 4,
    "reviewed": false,
-   "category": "culture"
+   "category": "culture",
+   "keywords": [
+    "friend",
+    "hobby",
+    "coffee",
+    "family",
+    "phone number",
+    "date"
+   ]
   },
   {
    "id": "diving",
@@ -599,7 +1075,15 @@
    "phrases": 16,
    "critical": 5,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "diving",
+    "instructor",
+    "mask",
+    "fins",
+    "oxygen tank",
+    "wetsuit"
+   ]
   },
   {
    "id": "earthquake-evacuation",
@@ -611,7 +1095,19 @@
    "phrases": 14,
    "critical": 6,
    "reviewed": false,
-   "category": "emergency"
+   "category": "emergency",
+   "keywords": [
+    "earthquake",
+    "tsunami",
+    "evacuation",
+    "shelter",
+    "high ground",
+    "emergency exit",
+    "stairs",
+    "alarm",
+    "assembly point",
+    "lift"
+   ]
   },
   {
    "id": "elephant-sanctuary",
@@ -623,7 +1119,15 @@
    "phrases": 18,
    "critical": 4,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "elephant",
+    "mahout",
+    "sanctuary",
+    "banana",
+    "mud",
+    "trunk"
+   ]
   },
   {
    "id": "emergency",
@@ -635,7 +1139,15 @@
    "phrases": 18,
    "critical": 10,
    "reviewed": false,
-   "category": "emergency"
+   "category": "emergency",
+   "keywords": [
+    "ambulance",
+    "embassy",
+    "police report",
+    "fire",
+    "hospital",
+    "insurance"
+   ]
   },
   {
    "id": "ferry-boat",
@@ -647,7 +1159,15 @@
    "phrases": 18,
    "critical": 4,
    "reviewed": false,
-   "category": "transport"
+   "category": "transport",
+   "keywords": [
+    "ferry",
+    "pier",
+    "ticket",
+    "deck",
+    "life jacket",
+    "seasick"
+   ]
   },
   {
    "id": "festival",
@@ -659,7 +1179,15 @@
    "phrases": 19,
    "critical": 4,
    "reviewed": false,
-   "category": "culture"
+   "category": "culture",
+   "keywords": [
+    "songkran",
+    "loy krathong",
+    "krathong",
+    "water gun",
+    "parade",
+    "lantern"
+   ]
   },
   {
    "id": "fishing-trip",
@@ -671,7 +1199,19 @@
    "phrases": 14,
    "critical": 3,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "fishing",
+    "rod",
+    "bait",
+    "boat",
+    "life jacket",
+    "seasick",
+    "catch",
+    "hook",
+    "net",
+    "captain"
+   ]
   },
   {
    "id": "flight-delay-change",
@@ -683,7 +1223,15 @@
    "phrases": 16,
    "critical": 3,
    "reviewed": false,
-   "category": "transport"
+   "category": "transport",
+   "keywords": [
+    "delay",
+    "cancelled",
+    "connecting flight",
+    "voucher",
+    "transfer desk",
+    "gate"
+   ]
   },
   {
    "id": "floating-market",
@@ -695,7 +1243,15 @@
    "phrases": 16,
    "critical": 4,
    "reviewed": false,
-   "category": "food"
+   "category": "food",
+   "keywords": [
+    "boat",
+    "life jacket",
+    "stall",
+    "fruit",
+    "pier",
+    "canal"
+   ]
   },
   {
    "id": "food-allergy",
@@ -707,7 +1263,15 @@
    "phrases": 17,
    "critical": 9,
    "reviewed": false,
-   "category": "health"
+   "category": "health",
+   "keywords": [
+    "allergy",
+    "nuts",
+    "shrimp paste",
+    "fish sauce",
+    "oyster sauce",
+    "adrenaline pen"
+   ]
   },
   {
    "id": "food-delivery",
@@ -719,7 +1283,15 @@
    "phrases": 17,
    "critical": 4,
    "reviewed": false,
-   "category": "food"
+   "category": "food",
+   "keywords": [
+    "delivery",
+    "order",
+    "rider",
+    "reception",
+    "gate",
+    "cash on delivery"
+   ]
   },
   {
    "id": "funeral-condolence",
@@ -731,7 +1303,19 @@
    "phrases": 14,
    "critical": 0,
    "reviewed": false,
-   "category": "culture"
+   "category": "culture",
+   "keywords": [
+    "funeral",
+    "condolences",
+    "cremation",
+    "monk",
+    "family",
+    "donation",
+    "flower",
+    "incense",
+    "candle",
+    "respect"
+   ]
   },
   {
    "id": "gas-station-parking",
@@ -743,7 +1327,19 @@
    "phrases": 15,
    "critical": 0,
    "reviewed": false,
-   "category": "transport"
+   "category": "transport",
+   "keywords": [
+    "petrol station",
+    "petrol",
+    "diesel",
+    "full tank",
+    "parking",
+    "ticket",
+    "barrier",
+    "tyre",
+    "air pump",
+    "receipt"
+   ]
   },
   {
    "id": "golf",
@@ -755,7 +1351,19 @@
    "phrases": 16,
    "critical": 0,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "golf course",
+    "green fee",
+    "caddie",
+    "golf cart",
+    "clubs",
+    "tee time",
+    "driving range",
+    "hole",
+    "ball",
+    "towel"
+   ]
   },
   {
    "id": "grab-ride-hailing",
@@ -767,7 +1375,15 @@
    "phrases": 17,
    "critical": 4,
    "reviewed": false,
-   "category": "transport"
+   "category": "transport",
+   "keywords": [
+    "driver",
+    "pickup point",
+    "number plate",
+    "expressway",
+    "cancel",
+    "fare"
+   ]
   },
   {
    "id": "gym",
@@ -779,7 +1395,15 @@
    "phrases": 18,
    "critical": 4,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "day pass",
+    "membership",
+    "personal trainer",
+    "locker",
+    "treadmill",
+    "weights"
+   ]
   },
   {
    "id": "hair-beauty",
@@ -791,7 +1415,19 @@
    "phrases": 17,
    "critical": 4,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "haircut",
+    "hair dye",
+    "shampoo",
+    "blow dry",
+    "beard",
+    "manicure",
+    "pedicure",
+    "tattoo",
+    "piercing",
+    "shave"
+   ]
   },
   {
    "id": "heat-health",
@@ -803,7 +1439,19 @@
    "phrases": 14,
    "critical": 4,
    "reviewed": false,
-   "category": "health"
+   "category": "health",
+   "keywords": [
+    "heatstroke",
+    "dehydration",
+    "electrolytes",
+    "shade",
+    "sunburn",
+    "sunscreen",
+    "cold water",
+    "dizzy",
+    "faint",
+    "hat"
+   ]
   },
   {
    "id": "hiking",
@@ -815,7 +1463,15 @@
    "phrases": 18,
    "critical": 5,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "trail",
+    "jungle",
+    "waterfall",
+    "ranger",
+    "leech",
+    "insect repellent"
+   ]
   },
   {
    "id": "home-repair",
@@ -827,7 +1483,19 @@
    "phrases": 15,
    "critical": 3,
    "reviewed": false,
-   "category": "stay"
+   "category": "stay",
+   "keywords": [
+    "plumber",
+    "electrician",
+    "leak",
+    "air conditioner",
+    "light bulb",
+    "lock",
+    "key",
+    "water heater",
+    "main switch",
+    "repair"
+   ]
   },
   {
    "id": "hospital",
@@ -839,7 +1507,15 @@
    "phrases": 18,
    "critical": 6,
    "reviewed": false,
-   "category": "health"
+   "category": "health",
+   "keywords": [
+    "emergency room",
+    "appointment",
+    "insurance",
+    "x-ray",
+    "prescription",
+    "ward"
+   ]
   },
   {
    "id": "hostel-dorm",
@@ -851,7 +1527,15 @@
    "phrases": 19,
    "critical": 5,
    "reviewed": false,
-   "category": "stay"
+   "category": "stay",
+   "keywords": [
+    "dorm",
+    "bunk bed",
+    "locker",
+    "check-out",
+    "shared bathroom",
+    "towel"
+   ]
   },
   {
    "id": "immigration-90day",
@@ -863,7 +1547,15 @@
    "phrases": 18,
    "critical": 3,
    "reviewed": false,
-   "category": "stay"
+   "category": "stay",
+   "keywords": [
+    "immigration office",
+    "overstay",
+    "fine",
+    "address",
+    "tm.47",
+    "passport"
+   ]
   },
   {
    "id": "island-hopping",
@@ -875,7 +1567,15 @@
    "phrases": 18,
    "critical": 4,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "island hopping",
+    "longtail boat",
+    "national park fee",
+    "jellyfish",
+    "return trip",
+    "meeting point"
+   ]
   },
   {
    "id": "jet-ski-rental",
@@ -887,7 +1587,15 @@
    "phrases": 16,
    "critical": 4,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "jet ski",
+    "life jacket",
+    "damage",
+    "contract",
+    "scratch",
+    "engine"
+   ]
   },
   {
    "id": "karaoke",
@@ -899,7 +1607,19 @@
    "phrases": 15,
    "critical": 0,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "karaoke",
+    "private room",
+    "song",
+    "microphone",
+    "song list",
+    "volume",
+    "per hour",
+    "service charge",
+    "bill",
+    "ice"
+   ]
   },
   {
    "id": "kayak-national-park",
@@ -911,7 +1631,19 @@
    "phrases": 15,
    "critical": 4,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "kayak",
+    "paddle",
+    "life jacket",
+    "dry bag",
+    "national park",
+    "ranger",
+    "entrance fee",
+    "tide",
+    "mangrove",
+    "leech"
+   ]
   },
   {
    "id": "kids",
@@ -923,7 +1655,15 @@
    "phrases": 16,
    "critical": 4,
    "reviewed": false,
-   "category": "health"
+   "category": "health",
+   "keywords": [
+    "child",
+    "baby",
+    "child seat",
+    "nappy",
+    "high chair",
+    "pushchair"
+   ]
   },
   {
    "id": "kids-playground",
@@ -935,7 +1675,15 @@
    "phrases": 17,
    "critical": 4,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "playground",
+    "slide",
+    "socks",
+    "ticket",
+    "lost child",
+    "first aid"
+   ]
   },
   {
    "id": "laundry-deposit",
@@ -947,7 +1695,15 @@
    "phrases": 20,
    "critical": 3,
    "reviewed": false,
-   "category": "stay"
+   "category": "stay",
+   "keywords": [
+    "laundry",
+    "deposit",
+    "receipt",
+    "dryer",
+    "detergent",
+    "refund"
+   ]
   },
   {
    "id": "laundry-repair",
@@ -959,7 +1715,15 @@
    "phrases": 19,
    "critical": 1,
    "reviewed": false,
-   "category": "stay"
+   "category": "stay",
+   "keywords": [
+    "tailor",
+    "cobbler",
+    "phone repair",
+    "zip",
+    "sole",
+    "screen protector"
+   ]
   },
   {
    "id": "lost-luggage",
@@ -971,7 +1735,19 @@
    "phrases": 15,
    "critical": 0,
    "reviewed": false,
-   "category": "transport"
+   "category": "transport",
+   "keywords": [
+    "luggage",
+    "suitcase",
+    "baggage claim",
+    "luggage tag",
+    "report",
+    "reference number",
+    "airline",
+    "damaged",
+    "delivery",
+    "compensation"
+   ]
   },
   {
    "id": "lost-passport",
@@ -983,7 +1759,15 @@
    "phrases": 20,
    "critical": 5,
    "reviewed": false,
-   "category": "emergency"
+   "category": "emergency",
+   "keywords": [
+    "passport",
+    "embassy",
+    "police report",
+    "copy",
+    "photo",
+    "emergency passport"
+   ]
   },
   {
    "id": "lost-phone",
@@ -995,7 +1779,19 @@
    "phrases": 15,
    "critical": 5,
    "reviewed": false,
-   "category": "emergency"
+   "category": "emergency",
+   "keywords": [
+    "phone",
+    "sim card",
+    "lost",
+    "stolen",
+    "police report",
+    "block",
+    "tracking",
+    "charger",
+    "password",
+    "bank"
+   ]
   },
   {
    "id": "market",
@@ -1007,7 +1803,15 @@
    "phrases": 17,
    "critical": 2,
    "reviewed": false,
-   "category": "money"
+   "category": "money",
+   "keywords": [
+    "market",
+    "price",
+    "discount",
+    "kilo",
+    "bag",
+    "change"
+   ]
   },
   {
    "id": "massage",
@@ -1019,7 +1823,15 @@
    "phrases": 19,
    "critical": 7,
    "reviewed": false,
-   "category": "health"
+   "category": "health",
+   "keywords": [
+    "thai massage",
+    "foot massage",
+    "oil massage",
+    "therapist",
+    "shoulders",
+    "back"
+   ]
   },
   {
    "id": "mental-health-counseling",
@@ -1031,7 +1843,19 @@
    "phrases": 14,
    "critical": 4,
    "reviewed": false,
-   "category": "health"
+   "category": "health",
+   "keywords": [
+    "counselling",
+    "psychiatrist",
+    "anxiety",
+    "depression",
+    "panic attack",
+    "sleep",
+    "stress",
+    "medication",
+    "appointment",
+    "support"
+   ]
   },
   {
    "id": "mobile-sim",
@@ -1043,7 +1867,15 @@
    "phrases": 18,
    "critical": 3,
    "reviewed": false,
-   "category": "stay"
+   "category": "stay",
+   "keywords": [
+    "sim card",
+    "data package",
+    "top up",
+    "wifi",
+    "charger",
+    "phone screen"
+   ]
   },
   {
    "id": "monk",
@@ -1055,7 +1887,15 @@
    "phrases": 18,
    "critical": 3,
    "reviewed": false,
-   "category": "culture"
+   "category": "culture",
+   "keywords": [
+    "monk",
+    "alms",
+    "blessing",
+    "offering",
+    "robe",
+    "meditation"
+   ]
   },
   {
    "id": "monsoon-flood-storm",
@@ -1067,7 +1907,15 @@
    "phrases": 16,
    "critical": 4,
    "reviewed": false,
-   "category": "emergency"
+   "category": "emergency",
+   "keywords": [
+    "flood",
+    "storm",
+    "torch",
+    "shelter",
+    "drinking water",
+    "forecast"
+   ]
   },
   {
    "id": "mosque-visit",
@@ -1079,7 +1927,19 @@
    "phrases": 14,
    "critical": 0,
    "reviewed": false,
-   "category": "culture"
+   "category": "culture",
+   "keywords": [
+    "mosque",
+    "prayer",
+    "prayer room",
+    "halal",
+    "headscarf",
+    "shoes",
+    "friday prayer",
+    "ramadan",
+    "fasting",
+    "imam"
+   ]
   },
   {
    "id": "mosquito-dengue",
@@ -1091,7 +1951,19 @@
    "phrases": 14,
    "critical": 4,
    "reviewed": false,
-   "category": "health"
+   "category": "health",
+   "keywords": [
+    "mosquito",
+    "dengue",
+    "fever",
+    "repellent",
+    "mosquito net",
+    "bite",
+    "blood test",
+    "rash",
+    "paracetamol",
+    "headache"
+   ]
   },
   {
    "id": "motorbike-accident",
@@ -1103,7 +1975,15 @@
    "phrases": 19,
    "critical": 6,
    "reviewed": false,
-   "category": "emergency"
+   "category": "emergency",
+   "keywords": [
+    "accident",
+    "insurance",
+    "police report",
+    "helmet",
+    "damage",
+    "witness"
+   ]
   },
   {
    "id": "motorcycle-taxi",
@@ -1115,7 +1995,19 @@
    "phrases": 14,
    "critical": 3,
    "reviewed": false,
-   "category": "transport"
+   "category": "transport",
+   "keywords": [
+    "motorcycle taxi",
+    "helmet",
+    "driver",
+    "vest",
+    "fare",
+    "slow down",
+    "pillion",
+    "lane",
+    "junction",
+    "pier"
+   ]
   },
   {
    "id": "muay-thai-gym",
@@ -1127,7 +2019,15 @@
    "phrases": 19,
    "critical": 5,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "trainer",
+    "gloves",
+    "shin guards",
+    "hand wraps",
+    "ring",
+    "sparring"
+   ]
   },
   {
    "id": "night-market-bargain",
@@ -1139,7 +2039,15 @@
    "phrases": 20,
    "critical": 4,
    "reviewed": false,
-   "category": "food"
+   "category": "food",
+   "keywords": [
+    "night market",
+    "bargain",
+    "discount",
+    "price",
+    "change",
+    "fake"
+   ]
   },
   {
    "id": "nightlife",
@@ -1151,7 +2059,15 @@
    "phrases": 20,
    "critical": 6,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "bar",
+    "beer",
+    "bill",
+    "cover charge",
+    "taxi",
+    "passport"
+   ]
   },
   {
    "id": "nomad",
@@ -1163,7 +2079,15 @@
    "phrases": 16,
    "critical": 0,
    "reviewed": false,
-   "category": "stay"
+   "category": "stay",
+   "keywords": [
+    "sim card",
+    "wifi",
+    "data package",
+    "power outlet",
+    "monthly",
+    "deposit"
+   ]
   },
   {
    "id": "optician-eye-care",
@@ -1175,7 +2099,19 @@
    "phrases": 14,
    "critical": 3,
    "reviewed": false,
-   "category": "health"
+   "category": "health",
+   "keywords": [
+    "glasses",
+    "contact lenses",
+    "eye test",
+    "prescription",
+    "frame",
+    "lens",
+    "sunglasses",
+    "eye drops",
+    "eye clinic",
+    "repair"
+   ]
   },
   {
    "id": "pets",
@@ -1187,7 +2123,15 @@
    "phrases": 18,
    "critical": 5,
    "reviewed": false,
-   "category": "stay"
+   "category": "stay",
+   "keywords": [
+    "vet",
+    "vaccination",
+    "leash",
+    "rabies",
+    "pet passport",
+    "kennel"
+   ]
   },
   {
    "id": "pharmacy-otc",
@@ -1199,7 +2143,15 @@
    "phrases": 18,
    "critical": 5,
    "reviewed": false,
-   "category": "health"
+   "category": "health",
+   "keywords": [
+    "painkiller",
+    "antihistamine",
+    "antiseptic",
+    "cough syrup",
+    "sunscreen",
+    "ointment"
+   ]
   },
   {
    "id": "photo",
@@ -1211,7 +2163,15 @@
    "phrases": 18,
    "critical": 4,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "camera",
+    "tripod",
+    "drone",
+    "flash",
+    "permission",
+    "memory card"
+   ]
   },
   {
    "id": "physiotherapy-injury",
@@ -1223,7 +2183,19 @@
    "phrases": 14,
    "critical": 3,
    "reviewed": false,
-   "category": "health"
+   "category": "health",
+   "keywords": [
+    "physiotherapy",
+    "injury",
+    "sprain",
+    "fracture",
+    "swelling",
+    "pain",
+    "x-ray",
+    "exercise",
+    "massage",
+    "crutches"
+   ]
   },
   {
    "id": "police-checkpoint",
@@ -1235,7 +2207,19 @@
    "phrases": 16,
    "critical": 2,
    "reviewed": false,
-   "category": "emergency"
+   "category": "emergency",
+   "keywords": [
+    "checkpoint",
+    "driving licence",
+    "international permit",
+    "helmet",
+    "fine",
+    "traffic ticket",
+    "passport copy",
+    "registration",
+    "insurance",
+    "police station"
+   ]
   },
   {
    "id": "post-office-parcel",
@@ -1247,7 +2231,15 @@
    "phrases": 18,
    "critical": 3,
    "reviewed": false,
-   "category": "stay"
+   "category": "stay",
+   "keywords": [
+    "parcel",
+    "stamp",
+    "tracking number",
+    "customs form",
+    "by air",
+    "by sea"
+   ]
   },
   {
    "id": "promptpay-qr-payment",
@@ -1259,7 +2251,19 @@
    "phrases": 14,
    "critical": 0,
    "reviewed": false,
-   "category": "money"
+   "category": "money",
+   "keywords": [
+    "qr code",
+    "promptpay",
+    "scan",
+    "transfer",
+    "cash",
+    "card",
+    "amount",
+    "confirm",
+    "slip",
+    "wallet"
+   ]
   },
   {
    "id": "rice-field-village",
@@ -1271,7 +2275,15 @@
    "phrases": 19,
    "critical": 5,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "rice field",
+    "village",
+    "farmer",
+    "harvest",
+    "buffalo",
+    "homestay"
+   ]
   },
   {
    "id": "scams-overcharge",
@@ -1283,7 +2295,19 @@
    "phrases": 18,
    "critical": 4,
    "reviewed": false,
-   "category": "emergency"
+   "category": "emergency",
+   "keywords": [
+    "scam",
+    "meter",
+    "price",
+    "receipt",
+    "deposit",
+    "tourist police",
+    "passport",
+    "refund",
+    "commission",
+    "fixed price"
+   ]
   },
   {
    "id": "school",
@@ -1295,7 +2319,15 @@
    "phrases": 16,
    "critical": 3,
    "reviewed": false,
-   "category": "general"
+   "category": "general",
+   "keywords": [
+    "teacher",
+    "school",
+    "uniform",
+    "homework",
+    "lunch",
+    "class"
+   ]
   },
   {
    "id": "sexual-health-clinic",
@@ -1307,7 +2339,19 @@
    "phrases": 14,
    "critical": 3,
    "reviewed": false,
-   "category": "health"
+   "category": "health",
+   "keywords": [
+    "sexual health",
+    "test",
+    "infection",
+    "condom",
+    "contraceptive pill",
+    "emergency contraception",
+    "confidential",
+    "result",
+    "doctor",
+    "clinic"
+   ]
   },
   {
    "id": "skin-clinic",
@@ -1319,7 +2363,19 @@
    "phrases": 14,
    "critical": 2,
    "reviewed": false,
-   "category": "health"
+   "category": "health",
+   "keywords": [
+    "skin",
+    "rash",
+    "itch",
+    "burn",
+    "sunburn",
+    "fungus",
+    "ointment",
+    "acne",
+    "allergy",
+    "swelling"
+   ]
   },
   {
    "id": "snorkel-boat-tour",
@@ -1331,7 +2387,15 @@
    "phrases": 18,
    "critical": 6,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "mask",
+    "fins",
+    "coral",
+    "current",
+    "reef",
+    "sunscreen"
+   ]
   },
   {
    "id": "souvenir-jewelry",
@@ -1343,7 +2407,19 @@
    "phrases": 15,
    "critical": 1,
    "reviewed": false,
-   "category": "money"
+   "category": "money",
+   "keywords": [
+    "souvenir",
+    "jewellery",
+    "silver",
+    "gold",
+    "gem",
+    "certificate",
+    "discount",
+    "export permit",
+    "gift wrap",
+    "fake"
+   ]
   },
   {
    "id": "spirit-house-shrine",
@@ -1355,7 +2431,19 @@
    "phrases": 14,
    "critical": 0,
    "reviewed": false,
-   "category": "culture"
+   "category": "culture",
+   "keywords": [
+    "spirit house",
+    "shrine",
+    "offering",
+    "incense",
+    "flowers",
+    "candle",
+    "garland",
+    "fruit",
+    "prayer",
+    "luck"
+   ]
   },
   {
    "id": "sport",
@@ -1367,7 +2455,15 @@
    "phrases": 17,
    "critical": 3,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "gym",
+    "trainer",
+    "muay thai",
+    "water",
+    "towel",
+    "locker"
+   ]
   },
   {
    "id": "street-food",
@@ -1379,7 +2475,15 @@
    "phrases": 20,
    "critical": 4,
    "reviewed": false,
-   "category": "food"
+   "category": "food",
+   "keywords": [
+    "street food stall",
+    "grilled",
+    "fried",
+    "noodles",
+    "spicy",
+    "sticky rice"
+   ]
   },
   {
    "id": "tailor-custom",
@@ -1391,7 +2495,15 @@
    "phrases": 18,
    "critical": 3,
    "reviewed": false,
-   "category": "money"
+   "category": "money",
+   "keywords": [
+    "tailor",
+    "fabric",
+    "measurements",
+    "fitting",
+    "deposit",
+    "lining"
+   ]
   },
   {
    "id": "tax-refund",
@@ -1403,7 +2515,15 @@
    "phrases": 17,
    "critical": 3,
    "reviewed": false,
-   "category": "money"
+   "category": "money",
+   "keywords": [
+    "vat refund",
+    "tax invoice",
+    "receipt",
+    "refund form",
+    "customs",
+    "passport"
+   ]
   },
   {
    "id": "thai-cooking-class",
@@ -1415,7 +2535,15 @@
    "phrases": 18,
    "critical": 4,
    "reviewed": false,
-   "category": "food"
+   "category": "food",
+   "keywords": [
+    "recipe",
+    "chili",
+    "wok",
+    "fish sauce",
+    "lemongrass",
+    "coconut milk"
+   ]
   },
   {
    "id": "thai-language-lesson",
@@ -1427,7 +2555,19 @@
    "phrases": 14,
    "critical": 0,
    "reviewed": false,
-   "category": "culture"
+   "category": "culture",
+   "keywords": [
+    "lesson",
+    "teacher",
+    "tone",
+    "pronunciation",
+    "vocabulary",
+    "alphabet",
+    "beginner",
+    "homework",
+    "exam",
+    "student visa"
+   ]
   },
   {
    "id": "tm30-address-report",
@@ -1439,7 +2579,19 @@
    "phrases": 14,
    "critical": 0,
    "reviewed": false,
-   "category": "stay"
+   "category": "stay",
+   "keywords": [
+    "tm30",
+    "receipt",
+    "landlord",
+    "immigration office",
+    "address",
+    "arrival",
+    "report",
+    "lease",
+    "90-day report",
+    "copy"
+   ]
   },
   {
    "id": "travel-insurance-claim",
@@ -1451,7 +2603,15 @@
    "phrases": 16,
    "critical": 4,
    "reviewed": false,
-   "category": "health"
+   "category": "health",
+   "keywords": [
+    "insurance",
+    "policy",
+    "claim",
+    "medical report",
+    "original",
+    "bill"
+   ]
   },
   {
    "id": "tuk-tuk-songthaew",
@@ -1463,7 +2623,15 @@
    "phrases": 17,
    "critical": 4,
    "reviewed": false,
-   "category": "transport"
+   "category": "transport",
+   "keywords": [
+    "tuk-tuk",
+    "songthaew",
+    "fare",
+    "bell",
+    "route",
+    "change"
+   ]
   },
   {
    "id": "vegan-vegetarian",
@@ -1475,7 +2643,15 @@
    "phrases": 20,
    "critical": 8,
    "reviewed": false,
-   "category": "food"
+   "category": "food",
+   "keywords": [
+    "vegetarian",
+    "vegan",
+    "fish sauce",
+    "oyster sauce",
+    "shrimp paste",
+    "jay food"
+   ]
   },
   {
    "id": "visa",
@@ -1487,7 +2663,15 @@
    "phrases": 18,
    "critical": 0,
    "reviewed": false,
-   "category": "stay"
+   "category": "stay",
+   "keywords": [
+    "visa",
+    "passport",
+    "immigration office",
+    "extension",
+    "document",
+    "copy"
+   ]
   },
   {
    "id": "visa-extension",
@@ -1499,7 +2683,15 @@
    "phrases": 18,
    "critical": 3,
    "reviewed": false,
-   "category": "stay"
+   "category": "stay",
+   "keywords": [
+    "immigration office",
+    "extension",
+    "passport photo",
+    "fee",
+    "departure card",
+    "overstay"
+   ]
   },
   {
    "id": "volunteering",
@@ -1511,7 +2703,19 @@
    "phrases": 14,
    "critical": 0,
    "reviewed": false,
-   "category": "general"
+   "category": "general",
+   "keywords": [
+    "volunteer",
+    "project",
+    "organisation",
+    "work permit",
+    "donation",
+    "schedule",
+    "accommodation",
+    "supervisor",
+    "insurance",
+    "teaching"
+   ]
   },
   {
    "id": "water-park-zoo",
@@ -1523,7 +2727,19 @@
    "phrases": 15,
    "critical": 3,
    "reviewed": false,
-   "category": "leisure"
+   "category": "leisure",
+   "keywords": [
+    "water park",
+    "zoo",
+    "ticket",
+    "locker",
+    "slide",
+    "life jacket",
+    "towel",
+    "feeding time",
+    "lost and found",
+    "first aid"
+   ]
   },
   {
    "id": "wedding",
@@ -1535,7 +2751,15 @@
    "phrases": 18,
    "critical": 4,
    "reviewed": false,
-   "category": "culture"
+   "category": "culture",
+   "keywords": [
+    "bride",
+    "groom",
+    "congratulations",
+    "gift envelope",
+    "toast",
+    "guest"
+   ]
   },
   {
    "id": "wifi-coworking-cafe",
@@ -1547,7 +2771,15 @@
    "phrases": 17,
    "critical": 3,
    "reviewed": false,
-   "category": "stay"
+   "category": "stay",
+   "keywords": [
+    "password",
+    "power socket",
+    "laptop",
+    "charger",
+    "table",
+    "bill"
+   ]
   },
   {
    "id": "work",
@@ -1559,7 +2791,15 @@
    "phrases": 17,
    "critical": 4,
    "reviewed": false,
-   "category": "general"
+   "category": "general",
+   "keywords": [
+    "tool",
+    "electrician",
+    "plumber",
+    "helmet",
+    "gloves",
+    "ladder"
+   ]
   },
   {
    "id": "yoga-retreat",
@@ -1571,7 +2811,122 @@
    "phrases": 17,
    "critical": 4,
    "reviewed": false,
-   "category": "health"
+   "category": "health",
+   "keywords": [
+    "yoga mat",
+    "meditation",
+    "teacher",
+    "beginner",
+    "retreat",
+    "breathing"
+   ]
   }
- ]
+ ],
+ "routes": {
+  "backpacker-2-weeks": {
+   "names": {
+    "de": "Backpacker, zwei Wochen",
+    "en": "Backpacker, two weeks",
+    "th": "แบ็คแพ็คเกอร์ สองสัปดาห์"
+   },
+   "packs": [
+    "travel",
+    "answers",
+    "airport",
+    "bangkok-skytrain",
+    "bus-train",
+    "taxi",
+    "tuk-tuk-songthaew",
+    "hostel-dorm",
+    "street-food",
+    "restaurant",
+    "night-market-bargain",
+    "scams-overcharge",
+    "temple",
+    "island-hopping",
+    "snorkel-boat-tour",
+    "beach",
+    "mobile-sim",
+    "atm-bank-card",
+    "pharmacy",
+    "emergency",
+    "police",
+    "lost-passport"
+   ]
+  },
+  "family-with-kids": {
+   "names": {
+    "de": "Familie mit Kindern",
+    "en": "Family with children",
+    "th": "ครอบครัวที่มีเด็ก"
+   },
+   "packs": [
+    "travel",
+    "airport",
+    "hotel",
+    "taxi",
+    "kids",
+    "baby",
+    "kids-playground",
+    "water-park-zoo",
+    "restaurant",
+    "food-allergy",
+    "lostchild",
+    "pharmacy",
+    "doctor",
+    "heat-health",
+    "mosquito-dengue",
+    "beach",
+    "emergency"
+   ]
+  },
+  "digital-nomad": {
+   "names": {
+    "de": "Digitale Nomaden",
+    "en": "Digital nomad",
+    "th": "ดิจิทัลโนแมด"
+   },
+   "packs": [
+    "nomad",
+    "coworking",
+    "wifi-coworking-cafe",
+    "rental",
+    "tm30-address-report",
+    "visa",
+    "visa-extension",
+    "immigration-90day",
+    "border-crossing",
+    "mobile-sim",
+    "bank",
+    "promptpay-qr-payment",
+    "laundry-deposit",
+    "home-repair",
+    "gym",
+    "lost-phone",
+    "emergency"
+   ]
+  },
+  "medical-tourism": {
+   "names": {
+    "de": "Medizintourismus",
+    "en": "Medical tourism",
+    "th": "การท่องเที่ยวเชิงการแพทย์"
+   },
+   "packs": [
+    "doctor",
+    "hospital",
+    "dentist",
+    "pharmacy",
+    "pharmacy-otc",
+    "chronic-conditions",
+    "skin-clinic",
+    "optician-eye-care",
+    "physiotherapy-injury",
+    "travel-insurance-claim",
+    "transport",
+    "hotel",
+    "emergency"
+   ]
+  }
+ }
 }

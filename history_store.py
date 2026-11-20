@@ -29,6 +29,7 @@ def db_path():
     return os.path.join(home_dir(), "history.sqlite")
 
 
+SUGGESTED_KEEP_DAYS = 30   # Vorschlag für die Oberfläche; ohne ausdrückliche Wahl wird nichts automatisch gelöscht
 SCHEMA_VERSION = 2
 # v2 (Runde 6, Nr. 205/206): t_begin (Sprechbeginn, für Untertitel), role (me/other), speaker (Profilname)
 V2_COLUMNS = (("t_begin", "REAL"), ("role", "TEXT"), ("speaker", "TEXT"))
@@ -176,6 +177,28 @@ class Store:
             return [dict(zip(cols, r)) for r in cur.fetchall()]
 
     MAX_IMPORT_ROWS = 100000
+
+    def stats(self, top=10, tz_offset_s=0):
+        """Auswertung ohne Schreibzugriff: {total, sessions, first, last, per_day: {YYYY-MM-DD: {utterances, words}},
+        top_sentences: [{text, count}]}. Wörter = durch Leerraum getrennte Teile des Originaltextes (Thai ohne
+        Leerzeichen zählt je Äußerung grob als ein Wort). tz_offset_s verschiebt die Tagesgrenze (z. B. 7*3600)."""
+        with self.lock:
+            rows = self.db.execute("SELECT ts, text, session FROM utt ORDER BY ts").fetchall()
+        per_day, counts, sessions = {}, {}, set()
+        for ts, text, sess in rows:
+            day = datetime.fromtimestamp(ts + tz_offset_s, timezone.utc).strftime("%Y-%m-%d")
+            d = per_day.setdefault(day, {"utterances": 0, "words": 0})
+            d["utterances"] += 1
+            d["words"] += len((text or "").split())
+            sessions.add(sess)
+            key = _flat(text).casefold()
+            if key:
+                c = counts.setdefault(key, [0, _flat(text)])
+                c[0] += 1
+        best = sorted(counts.values(), key=lambda c: (-c[0], c[1]))[:max(0, int(top))]
+        return {"total": len(rows), "sessions": len(sessions), "first": rows[0][0] if rows else None,
+                "last": rows[-1][0] if rows else None, "per_day": per_day,
+                "top_sentences": [{"text": txt, "count": n} for n, txt in best if n > 1]}
 
     def import_json(self, text):
         """Verlauf aus einem JSON-Export (`export(rows, "json")`) einspielen, z. B. beim Gerätewechsel.
@@ -439,7 +462,10 @@ class Recorder:
             pass
 
     def enable(self, on=True, keep_days=None):
-        """-> True, wenn der Verlauf im gewünschten Zustand ist; False, wenn die Datenbank nicht geht."""
+        """-> True, wenn der Verlauf im gewünschten Zustand ist; False, wenn die Datenbank nicht geht.
+        keep_days="suggested" setzt SUGGESTED_KEEP_DAYS (Option; der Standard bleibt unbegrenzt, wie dokumentiert)."""
+        if keep_days == "suggested":
+            keep_days = SUGGESTED_KEEP_DAYS
         if not on:
             self.flush()                             # erst fertig schreiben, dann aus
         self.on = bool(on)
