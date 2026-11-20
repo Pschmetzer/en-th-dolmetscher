@@ -326,5 +326,12 @@
  "timeLbl": "Time",
  "phoneLbl": "Phone number",
  "uiLoadFail": "Language file not loaded (network?). Staying with German.",
- "invLbl": "Show mode: swap colours (black on white)"
+ "invLbl": "Show mode: swap colours (black on white)",
+ "rateLbl": "Rate: ฿ per 1 unit of my currency",
+ "homeLbl": "Amount in my currency",
+ "fxToBaht": "{h} ≈ {b} ฿",
+ "fxTake": "Use as amount",
+ "fxBack": "{b} ฿ ≈ {h} in my currency",
+ "myPrint": "Print cards",
+ "myPrintNone": "No cards to print."
 }

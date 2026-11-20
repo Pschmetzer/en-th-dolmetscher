@@ -11,8 +11,8 @@ The page has four tabs. The last one you used is remembered.
 | Tab | What is in it |
 |---|---|
 | Speak | choose who speaks (buttons or keys), type instead of speaking, the **two-person screen** (each side types in their own language on a split screen), the conversation list |
-| Phrasebook | 91 topics with show cards (large Thai text, read aloud), numbers and prices, dictionary |
-| Cards | my own cards (hotel, address), allergy and emergency card (can be shared as an image) |
+| Phrasebook | topics with show cards (large Thai text, read aloud, turtle button repeats slowly), numbers and prices (with an exchange-rate calculator, time of day and phone numbers in Thai words), dictionary |
+| Cards | my own cards (hotel, address; can be printed on A4), allergy and emergency card (can be shared as an image) |
 | Learn | flashcards from the sentences you marked with a star |
 
 The notes about the Lite version and privacy are open on the first visit and folded afterwards.

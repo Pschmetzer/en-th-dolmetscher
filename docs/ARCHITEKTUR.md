@@ -92,6 +92,8 @@ Grenzen der Sicherheit im Browser: Die Content-Security-Policy steht im `<meta>`
 Wegen der Inline-Skripte bleibt `script-src 'unsafe-inline'`: ein XSS-Fund wäre ausführbar, deshalb baut der Code Nutzertext nur
 mit `textContent` ein und `innerHTML` nur aus festen Texten. Geteilter Text (`?text=`) wird erst nach Bestätigung an Google gesendet.
 
+Die Installations-Screenshots im Manifest (`screenshots/`) erzeugt `tools/web_screenshots.py` mit Chrome im Headless-Modus (ohne Playwright); danach ein Mal ansehen und committen.
+
 Lokal testen: `python3 -m http.server 8000` oder `make web`. Tests: `make test-web` (braucht node). Wer Dateien ändert,
 die der Service Worker vorab speichert (`CORE` in `sw.js`), erhöht `CACHE`.
 

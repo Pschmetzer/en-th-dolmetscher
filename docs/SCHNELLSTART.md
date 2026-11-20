@@ -35,6 +35,7 @@ Keine Installation: <https://pschmetzer.github.io/en-th-dolmetscher/> in **Chrom
 1. Beim ersten Mikrofon-Start einmal zustimmen und den Mikrofonzugriff des Browsers erlauben.
 2. Sprachen wählen (Standard: Englisch und Thai).
 3. Selbst wählen, wer spricht: **E** (oder 1) für deine Sprache, **T** (oder 2) für die des Gegenübers, **Leertaste** beendet. Die Seite erkennt die Sprache nicht automatisch.
-4. Optional: „Zum Home-Bildschirm hinzufügen“ (PWA). Die Seite und das Satzbuch öffnen dann auch ohne Netz; übersetzt wird nur online.
+4. Die Seite hat vier Bereiche (Tabs): Sprechen, Satzbuch, Karten, Lernen. Ohne Spracherkennung (Firefox) startet sie im Satzbuch; zum Tippen im Gespräch gibt es „Zwei Personen (Tippen)“.
+5. Optional: „Zum Home-Bildschirm hinzufügen“ (PWA). Die Seite und das Satzbuch öffnen dann auch ohne Netz; übersetzt wird nur online.
 
 Lokal starten: `python3 -m http.server` im Repo-Ordner, dann in Chrome öffnen. Eigenes Hosting: [WEB-HOSTING.md](WEB-HOSTING.md). Was die Seite kann und was nicht: [WEB-KOMPATIBILITAET.md](WEB-KOMPATIBILITAET.md).

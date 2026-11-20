@@ -223,7 +223,7 @@ def test_web_docs_in_english_and_thai_link_and_mention_key_facts():
         for target in _re.findall(r"(?<!!)\[[^\]]*\]\(([^)\s]+)\)", text):
             if not target.startswith(("http", "#")):
                 assert (base / target.split("#")[0]).exists(), (rel, target)
-        assert "91" in text and "i18n" in text or "ออฟไลน์" in text
+        assert "i18n" in text or "ออฟไลน์" in text
     th = (ROOT / "docs" / "th" / "WEB.md").read_text(encoding="utf-8")
     assert "ยังไม่ได้รับการตรวจโดยเจ้าของภาษา" in th and "not been checked by native speakers" in th
 
@@ -310,3 +310,40 @@ def test_show_mode_has_persistent_colour_swap():
 
 def test_quick_answers_do_not_repeat_the_thai_label_in_thai_ui():
     assert "if (t(k) !== th) { b.append(' · ');" in SCRIPT
+
+
+@node
+def test_exchange_rate_helpers():
+    pre = prelude(funcs=["fxNum", "fxToBaht", "fxFromBaht"])
+    got = run(pre, ["fxToBaht('100', '36,5')", "fxToBaht('12.5', '35')", "fxFromBaht('1000', '36.5')", "fxToBaht('', '36')", "fxToBaht('5', '0')", "fxNum('abc')", "fxFromBaht('730', '36.5')"])
+    assert got == [3650, 438, 27.4, None, None, None, 20]
+
+
+def test_slow_card_button_print_cards_and_hash_tabs():
+    assert "sl.className = 'slowc'" in func("renderCards") and "sayNow(await phraseIn(p, b), b, true)" in func("renderCards")
+    assert 'id="myPrint"' in HTML and "$('myPrint').onclick" in SCRIPT and "#printSheet .pcard" in HTML
+    assert "TABS.includes(tabHash)" in func("openFromHash") and "'ui'" in func("openFromHash")
+    assert "$('uiLang').value = UI;" in func("refreshUi")
+    for k in ("rateLbl", "homeLbl", "fxToBaht", "fxTake", "fxBack", "myPrint", "myPrintNone"):
+        assert all(k in S for S in web_str().values()), k
+
+
+def test_pack_counts_in_web_docs_match_the_files():
+    n = len(list((ROOT / "presets").glob("*.json")))
+    for rel in ("README.md", "docs/en/WEB.md", "docs/th/WEB.md", "docs/en/FAQ.md", "docs/en/QUICKSTART.md"):
+        text = (ROOT / rel).read_text(encoding="utf-8")
+        for m in re.findall(r"\b(\d{2,3})\s+(?:phrase packs|packs|topics|หัวข้อ)", text):
+            assert int(m) == n, (rel, m, n)
+
+
+def test_manifest_screenshots_are_real_png_files_of_the_stated_size():
+    import struct
+    man = json.loads((ROOT / "manifest.webmanifest").read_text(encoding="utf-8"))
+    shots = man["screenshots"]
+    assert {s["form_factor"] for s in shots} == {"narrow", "wide"} and len(shots) >= 3
+    for s in shots:
+        data = (ROOT / s["src"]).read_bytes()
+        assert data[:8] == b"\x89PNG\r\n\x1a\n", s["src"]
+        w, h = struct.unpack(">II", data[16:24])
+        assert f"{w}x{h}" == s["sizes"] and s["label"], s
+    assert "'screenshots/" not in SW                          # nur für die Installationsansicht, nicht offline vorgehalten

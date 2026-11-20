@@ -150,5 +150,35 @@
   "prefer_related_applications": false,
   "launch_handler": {
     "client_mode": "navigate-existing"
-  }
+  },
+  "screenshots": [
+    {
+      "src": "screenshots/speak-narrow.png",
+      "sizes": "540x1100",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Speak: choose who talks, type, two-person screen"
+    },
+    {
+      "src": "screenshots/phrasebook-narrow.png",
+      "sizes": "540x1100",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Phrasebook with show cards and quick answers"
+    },
+    {
+      "src": "screenshots/cards-narrow.png",
+      "sizes": "540x1100",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Allergy card and own cards"
+    },
+    {
+      "src": "screenshots/phrasebook-wide.png",
+      "sizes": "1280x900",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Phrasebook on a large screen"
+    }
+  ]
 }
