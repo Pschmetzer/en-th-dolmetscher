@@ -66,6 +66,7 @@ Pull requests #16–#47. Not yet published as a release.
 
 - **Travel helpers** (Baht calculator, new first row): tip and split the bill, convert °C/°F, km/mi and kg/lb, say the time in Thai (14:30 = บ่ายสองโมงครึ่ง) and read a phone number digit by digit in Thai for taxi drivers and receptionists.
 - **Privacy:** "Delete all data" now also clears the Spotlight favourites; old CSV exports in the temp folder are removed on start; the online translators use a session without disk cache or cookies (the text of a sentence sits in the MyMemory URL); backup copies of damaged history files stay out of backups, are protected like the original and are limited to the newest three.
+- **More travel helpers:** bargaining counter-offers (50–80 % of the asking price with the Thai number words), a Bangkok taxi meter estimate by distance and waiting time (a guide against inflated fares; excludes airport surcharge and tolls) and today's date in Thai (Buddhist year).
 - **Fixes:** a failed microphone start no longer leaves a tap that crashes the next start; "nan"/"inf" are no longer accepted as an amount; the list of dismissed flash cards is capped.
 - **VoiceOver:** history rows, the big translation view and conversation lines are read with the voice of their own language.
 
