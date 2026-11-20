@@ -4,7 +4,6 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
-<<<<<<< HEAD
 ### Engine, round 24
 
 - Switches that only existed in code are now control fields (all default off, also via `DOLMETSCHER_FEATURES`): `llm_stream` (streaming; the first finished sentence is pre-rendered into the speech cache), `llm_router` (Haiku for short, Sonnet for hard sentences), `defer` (recognition runs while the previous sentence is translated), `parallel_alt`, `stt_prompt`, `speak_numbers` (Thai numbers as words). `ready` lists `capabilities`; `error` events carry `msg_en` next to the stable `code`.
@@ -13,7 +12,7 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 - Resilience: with 5 or more waiting utterances recognition switches to beam 1 instead of dropping sentences; if the Apple GPU (MPS) fails at run time the models are reloaded once on the CPU and the sentence is retried (`hint` `device_fallback`); a microphone buffer overrun marks the next sentence (`hint` `mic_gap`).
 - Diagnostics: per-sentence trace in the log (`trace`), persistent p50/p95 latency history (`latency_history.json`), allow-list in the log layer (long text under unknown keys is never logged).
 - Not done in this round: merging language detection into transcription, Edge-TTS PCM instead of MP3.
-=======
+
 ### Web round 24: tools and 23 new packs
 
 - New tools dialog (button 🧰, loaded on demand from `web-extras.js`, cached for offline use): price check with a manually entered rate and a big number card (with Thai number words), negotiation helper with counter offers, travel checklist, offline dictionary from the pack glossaries, tour guide pack shared as a link (own cards compressed into the URL fragment, nothing uploaded), travel diary with tags and file export, tone trainer with minimal pairs and quiz, microphone level hint for noisy places. No photo/text recognition: it cannot work offline without a model download.
@@ -29,7 +28,6 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 - Benchmark: `bench/latency_budget.py` with `bench/latency_budget.json` (time budget per language, regression per case against the baseline, `--scale` for slow runners); the manual benchmark workflow reports it as a hint.
 - CI and docs: the Pages smoke test also compares the service worker pack list with `presets-index.json` and no longer treats a missing cache version as success; Dependabot updates merged (actions group, web-e2e group); roadmap, architecture and benchmark docs updated.
 - Tests: `tests/test_r24_modules_a.py`.
->>>>>>> origin/main
 
 ### Engine latency, round 23 (Python)
 
