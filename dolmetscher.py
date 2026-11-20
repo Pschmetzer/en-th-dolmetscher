@@ -4916,7 +4916,7 @@ class LocalVoice:
         self.dropped = threading.Event()        # cleanup() vor dem Start: gar nicht erst rendern
         fd, self.path = tempfile.mkstemp(prefix="dolmetscher_race_", suffix=".aiff", dir=private_tmp())
         os.close(fd)
-        os.remove(self.path)
+        _rm_quiet(self.path)
         self.voice = voice
         gen = CANCEL["gen"]
 
@@ -4927,7 +4927,9 @@ class LocalVoice:
             try:
                 if audio is not None and NET.get("tts", True):
                     audio.wait(self.DELAY)          # Neural kommt meist in ~0,3 s: dann gar nicht rendern
-                with self.SLOTS:
+                if not self._slot(cancelled):           # Stopp/Barge-in beendet auch das Warten auf einen freien Platz
+                    return
+                try:
                     # Hat die Neural-Stimme inzwischen Ton geliefert (Normalfall), wird nichts gebraucht.
                     if self.dropped.is_set() or (audio is not None and audio.is_set()):
                         return
@@ -4936,6 +4938,8 @@ class LocalVoice:
                         _rm_quiet(self.path)
                         if not (rc is None and cancelled()):
                             log({"tts": "lokal-vorab-fehler", "rc": rc})
+                finally:
+                    self.SLOTS.release()
             except Exception as e:
                 log({"tts": "lokal-vorab-fehler", "err": _errtxt(e)})
             finally:
@@ -4943,6 +4947,13 @@ class LocalVoice:
                 if self.dropped.is_set():               # cleanup() kam vor dem Ende des Renderns
                     _rm_quiet(self.path)
         threading.Thread(target=run, name="say-prerender", daemon=True).start()
+
+    def _slot(self, cancelled):
+        """Platz für ein say-Rendering holen; False, wenn vorher abgebrochen wurde (kein Platz belegt)."""
+        while not self.SLOTS.acquire(timeout=0.1):
+            if cancelled():
+                return False
+        return True
 
     def ready_path(self, timeout=6.0, cancelled=None):
         """Nr. 169: Stopp/Barge-in während des Wartens beendet das Warten sofort (-> None)."""
@@ -5056,6 +5067,15 @@ class Speaker:
     wird eine alte Ausgabe übersprungen (die Blase bleibt sichtbar, `speak_done skipped`)."""
     FAST_BOOST = 20                    # % schneller, wenn schon etwas wartet
     SKIP_AT = 3                        # so viele wartende Ausgaben dahinter -> ältere überspringen
+    SKIP_CHARS = 600                   # oder: dahinter warten zusammen so viele Zeichen (~40 s Sprechzeit)
+
+    @staticmethod
+    def skip_wanted(kind, behind, waiting_chars, pin, slow, mode, skip_at, skip_chars):
+        """Soll eine ältere Ausgabe wegen Rückstand übersprungen werden? Nach Anzahl der Wartenden ODER nach der
+        geschätzten Wartezeit (lange Sätze stauen sich schon bei zwei Wartenden)."""
+        if kind != "speech" or slow or pin or mode != "skip":
+            return False
+        return behind >= skip_at or (behind >= 1 and waiting_chars >= skip_chars)
 
     def __init__(self, eng):
         self.eng = eng
@@ -5101,11 +5121,14 @@ class Speaker:
         if kind == "speech":
             item["text"] = text
             boost = self.boost(behind, slow)
+            # bei großem Rückstand wird diese Ausgabe evtl. gleich übersprungen: dann kein Vorab-Laden (2 Streams + say)
+            prefetch = pin or CATCH_UP["mode"] != "skip" or behind < self.SKIP_AT - 1
             sentences = chunk_long(split_sentences(apply_pronounce(speak_form(text, lang)), lang), lang)
             for i, s in enumerate(p for p in sentences if speakable(p)):
                 # Nur die ersten Teile sofort anfragen; die übrigen erst, wenn der vorige zu spielen
                 # beginnt (sonst viele Websockets + say-Prozesse gleichzeitig, mitten in der Erkennung).
-                stream, local = self._prepare(s, lang, boost) if i < self.PRESTART else (None, None)
+                stream, local = (self._prepare(s, lang, boost) if i < self.PRESTART and prefetch
+                                 else (None, None))
                 item["parts"].append((s, stream))
                 item.setdefault("local", []).append(local)
             item["boost"] = boost
@@ -5144,11 +5167,12 @@ class Speaker:
                     self.cond.wait()
                 it = self.items.popleft()
                 behind = len(self.items)
+                waiting = sum(len(t) for other in self.items for t, _ in other["parts"])
                 self.busy = True
             try:
                 # langsam und gepinnte (ausdrücklich ausgelöste) Ausgaben: nie überspringen; Nr. 171
-                if (it["kind"] == "speech" and behind >= self.SKIP_AT and not SLOW["on"] and not it.get("pin")
-                        and CATCH_UP["mode"] == "skip"):
+                if self.skip_wanted(it["kind"], behind, waiting, it.get("pin"), SLOW["on"], CATCH_UP["mode"],
+                                    self.SKIP_AT, self.SKIP_CHARS):
                     for _, st in it["parts"]:
                         if st:
                             st.cancel()
@@ -5426,6 +5450,7 @@ def mean_logprob(segs):
     return float(sum(sg.avg_logprob * w for sg, w in zip(segs, ws)) / tot)
 
 
+MODEL_LOAD_TIMEOUT_S = 1800.0            # s: so lange wartet der Start auf Zusatzmodelle (Erkennung, Thai)
 CURRENCY = {"code": None, "per_baht": None}   # Heimwährung für die Preisanzeige (Steuerfeld `currency`)
 PRICE_MAX = 3
 
@@ -5495,7 +5520,9 @@ class Engine:
             for th in ths:
                 th.start()
             for th in ths:
-                th.join()
+                th.join(MODEL_LOAD_TIMEOUT_S)  # hängt ein Download/Ladevorgang, startet die Engine mit dem Hauptmodell
+                if th.is_alive():
+                    log({"model": th.name, "lädt zu lange": MODEL_LOAD_TIMEOUT_S})
             self.m_det = loaded.get("det", self.m)
             self.m_th = loaded.get("th")
             # schwächerer Rückfall (Hauptmodell erkennt Thai/Sprache): der App sagen, nicht nur ins Log
@@ -6608,7 +6635,6 @@ def set_langs(eng, mine, partner):
 # Offline-Schalter vorbei: ein Fehler dieser Zusatzanfrage darf die nächste echte Übersetzung nicht bremsen.
 # Steht Google gerade im Backoff/offline, entfällt sie. Standard aus.
 BACK = {"on": False}
-BACK_TIMEOUT = 5.0
 
 
 _BACK_SLOTS = threading.BoundedSemaphore(2)    # höchstens zwei Rückübersetzungen gleichzeitig
@@ -6632,6 +6658,13 @@ def back_translate_async(uid, out, dst, src):
         if txt and not STOP.is_set():
             emit("back", id=uid, text=txt.strip(), lang=src)
     threading.Thread(target=run, name="back", daemon=True).start()
+
+
+def llm_reload():
+    """Claude-Client neu aufbauen (neuer Schlüssel/aufgeladen): alten Client und Backoff verwerfen."""
+    LLM["client"] = None                       # Schlüssel evtl. neu gespeichert -> neu einlesen
+    llm_reset_backoff()
+    _LLM_AVAIL["t"] = 0.0
 
 
 def _control_invalid(key, reason="value"):
@@ -6779,14 +6812,10 @@ def apply_control(eng, d):
         ok, v = _flag(d, "llm")
         if ok:
             LLM["on"] = v
-            LLM["client"] = None               # Schlüssel evtl. neu gespeichert -> neu einlesen
-            llm_reset_backoff()                # neuer Schlüssel/aufgeladen: keine alte Pause mehr abwarten
-            _LLM_AVAIL["t"] = 0.0
+            llm_reload()                       # neuer Schlüssel/aufgeladen: keine alte Pause mehr abwarten
             later.append(lambda v=v: emit("llm", on=v, available=bool(llm_available())))   # Nr. 190
         if d.get("llm_retry"):                 # "Claude erneut versuchen" (nach Schlüsseltausch/Aufladen)
-            LLM["client"] = None
-            llm_reset_backoff()
-            _LLM_AVAIL["t"] = 0.0
+            llm_reload()
         ok, v = _flag(d, "history_speakers")
         if ok:
             import history_store
@@ -7203,6 +7232,51 @@ class NoiseTracker:
         return noisy
 
 
+POWER = {"t": 0.0, "battery": None}
+POWER_EVERY_S = 60.0
+
+
+def power_check(eng, battery_fn=None, now=None):
+    """Nur mit `--model auto` (eng.power_auto): beim Ein-/Ausstecken zur Laufzeit nachziehen. Akku -> Beam 1 (Wärme,
+    Laufzeit), Netzbetrieb -> vorheriger Beam. Höchstens einmal je POWER_EVERY_S prüfen; Wechsel einmal als `power`
+    melden. -> True bei Wechsel."""
+    if not getattr(eng, "power_auto", False):
+        return False
+    now = time.monotonic() if now is None else now
+    if now - POWER["t"] < POWER_EVERY_S:
+        return False
+    POWER["t"] = now
+    if battery_fn is None:
+        import hwprofile
+        battery_fn = hwprofile.on_battery
+    try:
+        battery = bool(battery_fn())
+    except Exception as e:                         # noqa: BLE001 – pmset fehlt o. ä.: nichts ändern
+        log({"power": "fehler", "err": _errtxt(e)})
+        return False
+    if battery == POWER["battery"]:
+        return False
+    first = POWER["battery"] is None
+    POWER["battery"] = battery
+    if battery:
+        eng._beam_ac = getattr(eng, "beam", 1)
+        eng.beam = 1
+    elif getattr(eng, "_beam_ac", None) is not None and getattr(eng, "beam", 1) == 1:
+        eng.beam, eng._beam_ac = eng._beam_ac, None
+    if not first or battery:                       # beim Start im Netzbetrieb nichts zu melden
+        emit("power", battery=battery, beam=getattr(eng, "beam", None))
+    return True
+
+
+MIC_STALL_S = 5.0                # s ohne Mikrofon-Daten nach dem Start -> ffmpeg beenden, neu verbinden
+
+
+def mic_stalled(last_read, now, limit=None):
+    """Hängt das Mikrofon (Bluetooth-Aussetzer, ffmpeg blockiert ohne Ende)? read() blockiert dann endlos und weder
+    `mic`/`error` noch ein Reconnect würden kommen."""
+    return now - last_read > (MIC_STALL_S if limit is None else limit)
+
+
 def segmenter(read, utts, sess=0, on_end=None):
     """Mikrofon-Thread: liest laufend, segmentiert per VAD und reiht fertige Äußerungen ein.
     Verworfen wird nur, was während der eigenen Sprachausgabe (+ Nachhall) ankommt.
@@ -7563,6 +7637,7 @@ class Mic:
                     t = time.time()
                     b = ff.stdout.read(N * 2)
                     now = time.time()
+                    last_read["t"] = time.monotonic()
                     if len(b) < N * 2:
                         break
                     n += N
@@ -7574,6 +7649,17 @@ class Mic:
                     push((tail, time.time()))          # Rest-Teilframe (segmenter füllt auf)
             finally:
                 push((b"", time.time()))
+
+        last_read = {"t": time.monotonic()}
+
+        def stall_watch():
+            """Stille-Wachhund nach dem ersten Block (der Start-Wachhund gilt nur bis dahin)."""
+            while sess == self.sess and self.on and not STOP.is_set():
+                time.sleep(1.0)
+                if sess == self.sess and self.on and mic_stalled(last_read["t"], time.monotonic()):
+                    log({"mic": "keine daten", "s": MIC_STALL_S})
+                    self._kill(ff)             # read() endet -> ended() -> Wiederverbinden
+                    return
 
         def read():
             b, t = frames.get()
@@ -7596,6 +7682,7 @@ class Mic:
         with self.lock:
             self.on = True
         threading.Thread(target=reader, name="mic-read", daemon=True).start()
+        threading.Thread(target=stall_watch, name="mic-stall", daemon=True).start()
         threading.Thread(target=segmenter, args=(read, self.jobs, sess, ended), name="mic", daemon=True).start()
         emit("mic", on=True)
         emit("listening")
@@ -7753,6 +7840,7 @@ def work_loop(eng, utts, speak):
             item = utts.get(timeout=0.5)        # kurze Wartezeit, damit STOP (Signal/stdin-Ende) greift
         except queue.Empty:
             OFFLINE_MT.close_if_idle()          # Leerlauf: Helfer beenden, RAM freigeben
+            power_check(eng)                    # Akku/Netz hat gewechselt? (nur --model auto)
             continue
         if item is None:
             break
@@ -8085,6 +8173,7 @@ if __name__ == "__main__":
     if a.beam:
         eng.beam = max(1, min(5, a.beam))                # Nr. 176: vor Umgebung und hwprofile
     if hw:
+        eng.power_auto = True                           # Akku/Netz zur Laufzeit nachziehen (power_check)
         if "DOLMETSCHER_BEAM" not in os.environ and not a.beam:
             eng.beam = hw["beam"]
         emit("hwprofile", chip=hw["chip"], ram_gb=hw["ram_gb"], model=model, beam=eng.beam, reason=hw["reason"])

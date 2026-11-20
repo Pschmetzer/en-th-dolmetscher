@@ -378,7 +378,7 @@ def test_speaker_pin_wird_gemerkt_und_nie_uebersprungen():
     sp.add("", "en", "cmd", kind="earcon", pin=True)
     assert sp.items[0]["pin"] is True
     src = open(d.__file__, encoding="utf-8").read()
-    assert 'not SLOW["on"] and not it.get("pin")' in src
+    assert 'it.get("pin"), SLOW["on"]' in src and "if kind != \"speech\" or slow or pin" in src   # skip_wanted
 
 
 def test_katalog_schnellsatz_und_nochmal_sprechen_gepinnt():
