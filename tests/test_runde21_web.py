@@ -211,7 +211,7 @@ def test_card_image_and_ci_scan_present():
     assert "function cardCanvas(" in SCRIPT and "toBlob(" in SCRIPT and "navigator.canShare({ files: [file] })" in SCRIPT
     assert 'id="allergyImg"' in HTML and "'btnPartnerImg'" in SCRIPT or "id = 'btnPartnerImg'" in SCRIPT
     wf = (ROOT / ".github" / "workflows" / "web-a11y.yml").read_text(encoding="utf-8")
-    assert "node axe.mjs" in wf and "timeout-minutes" in wf and "continue-on-error: true" in wf
+    assert "node axe.mjs" in wf and "timeout-minutes" in wf and "continue-on-error" not in wf
     assert "withTags(['wcag2a', 'wcag2aa'])" in (ROOT / "tests" / "web-e2e" / "axe.mjs").read_text(encoding="utf-8")
 
 
@@ -291,3 +291,19 @@ def test_every_pack_is_listed_in_page_and_service_worker_and_pending_list_is_emp
         assert set(listed) == set(ids), (name, sorted(set(ids) ^ set(listed))[:10])
     pend = (ROOT / "tools" / "web_pending_presets.txt").read_text(encoding="utf-8").split()
     assert not pend, pend                                    # Warteliste des Tooling-Bereichs ist abgearbeitet
+
+def test_service_worker_offline_page_for_foreign_paths():
+    import subprocess
+    fn = re.search(r"^function offlinePage\(\) \{.*?^\}\n", SW, re.S | re.M).group(0)
+    js = "const abs = u => 'https://x.test/app/' + (u === './' ? '' : u);\n" + fn + """
+(async () => { const r = offlinePage(); process.stdout.write(JSON.stringify([r.status, r.headers.get('content-type'), (await r.text()).includes('href="https://x.test/app/"')])); })();"""
+    r = subprocess.run(["node", "-"], input=js, capture_output=True, text=True, timeout=30)
+    assert r.returncode == 0, r.stderr
+    assert json.loads(r.stdout) == [503, "text/html; charset=utf-8", True]
+    assert "net.catch(() => offlinePage())" in SW
+
+
+def test_show_mode_has_persistent_colour_swap():
+    assert "#partner.show.inv { background:#fff; color:#000; }" in HTML
+    assert "settings.showInv = !settings.showInv; saveSettings();" in SCRIPT and "id = 'btnPartnerInv'" in SCRIPT
+    assert all("invLbl" in S for S in web_str().values())

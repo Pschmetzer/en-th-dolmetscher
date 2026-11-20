@@ -204,6 +204,7 @@
   #partner.show .bar, #partner.show #partnerNote { display:none; }
   #partner.show #partnerText { font-size:max(32px, calc(var(--sv, 12) * 1vw)); color:#fff; }
   #partner.show #partnerText:focus-visible { outline:4px solid #fff; outline-offset:-8px; }
+  #partner.show.inv { background:#fff; color:#000; } #partner.show.inv #partnerText { color:#000; } #partner.show.inv #partnerText:focus-visible { outline-color:#000; }   /* Sonnenlicht: schwarz auf weiß */
   @media (max-width:500px){
     .trans { font-size:22px; }
     button.mode { min-width:100%; padding:18px; }
@@ -824,7 +825,8 @@ const STR = {
   "imgSaved": "Bild gespeichert.",
   "timeLbl": "Uhrzeit",
   "phoneLbl": "Telefonnummer",
-  "uiLoadFail": "Sprachdatei nicht geladen (Netz?). Es bleibt bei Deutsch."
+  "uiLoadFail": "Sprachdatei nicht geladen (Netz?). Es bleibt bei Deutsch.",
+  "invLbl": "Vorzeigen: Farben tauschen (schwarz auf weiß)"
  }
 };   // nur Deutsch (Standard und Rückfall) eingebaut; en/th liegen in i18n/*.json (vom Service Worker gespeichert)
 const UI_LANGS = ['de', 'en', 'th'];
@@ -2502,6 +2504,11 @@ $('allergyImg').onclick = () => { const o = $('allergyOut').textContent; if (o) 
 { const b = document.createElement('button'); b.type = 'button'; b.className = 'small'; b.id = 'btnPartnerImg'; b.textContent = '🖼'; b.setAttribute('data-aria', 'imgLbl'); b.title = t('imgLbl');
   b.onclick = () => { if (bigText) shareCardImage([{ text: bigText.text, lang: bigText.lang, size: 96, bold: true }], 'card.png'); };
   $('btnPartnerShareTx').after(b); }
+
+{ const b = document.createElement('button'); b.type = 'button'; b.className = 'small'; b.id = 'btnPartnerInv'; b.textContent = '◐'; b.setAttribute('data-aria', 'invLbl'); b.title = t('invLbl');
+  const sync = () => { $('partner').classList.toggle('inv', !!settings.showInv); b.setAttribute('aria-pressed', String(!!settings.showInv)); };
+  b.onclick = () => { settings.showInv = !settings.showInv; saveSettings(); sync(); };
+  $('btnPartnerShareTx').after(b); sync(); }
 
 // ---- Zwei Personen: geteilter Bildschirm, jede Seite tippt in ihrer Sprache (auch ohne Spracherkennung) ----
 function convoOpen(on) {

@@ -33,6 +33,13 @@ self.addEventListener('activate', e => {
 const NAV_WAIT_MS = 4000;   // hängendes Netz: nach 4 s die gespeicherte Seite zeigen (falls vorhanden)
 const corePaths = new Set(ALL.map(u => new URL(abs(u)).pathname));
 const cacheable = url => corePaths.has(url.pathname);   // nur eigene Vorab-Dateien (inkl. presets/), nie fremde Pfade
+function offlinePage() {   // kleine Hinweisseite (de/en/th) mit Link zur App, die offline geöffnet werden kann
+  const html = '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Offline</title>'
+    + '<body style="font:18px system-ui;max-width:32em;margin:2em auto;padding:0 1em"><h1>Offline</h1>'
+    + '<p lang="de">Diese Seite ist offline nicht gespeichert.</p><p lang="en">This page is not stored for offline use.</p><p lang="th">หน้านี้ไม่ได้เก็บไว้ใช้แบบออฟไลน์</p>'
+    + '<p><a href="' + abs('./') + '">Dolmetscher</a></p></body>';
+  return new Response(html, { status: 503, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+}
 const cachedApp = () => caches.match(abs('index.html')).then(r => r || caches.match(abs('./')));
 
 // Seite fragt, wie viele Vorab-Dateien offline bereit sind (Anzeige "Offline bereit")
@@ -72,7 +79,7 @@ self.addEventListener('fetch', e => {
       }
       return r;
     });
-    if (!isApp) { e.respondWith(net.catch(() => cachedApp().then(r => r || Promise.reject(new Error('offline'))))); return; }
+    if (!isApp) { e.respondWith(net.catch(() => offlinePage())); return; }   // fremder Pfad (Doku, 404) offline: ehrliche Hinweisseite statt stillem Ersatz
     // Netz kommt nicht binnen NAV_WAIT_MS (Roaming, Anmeldeseite im WLAN): gespeicherte App zeigen, Netz läuft im Hintergrund weiter
     e.waitUntil(net.catch(() => {}));
     e.respondWith(new Promise((resolve, reject) => {
