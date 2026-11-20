@@ -14,10 +14,7 @@ struct JSONStore: Sendable {
 
     static let standard = JSONStore(dir: FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0])
 
-    func url(_ name: String) -> URL {
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir.appendingPathComponent(name)
-    }
+    func url(_ name: String) -> URL { dir.appendingPathComponent(name) }
 
     func load<T: Decodable>(_ type: T.Type, _ name: String) -> Loaded<T> {
         let u = url(name)
@@ -32,6 +29,7 @@ struct JSONStore: Sendable {
         guard let data = try? JSONEncoder().encode(value) else { return false }
         // „UntilFirstUserAuthentication“: nach dem ersten Entsperren seit dem Neustart lesbar – auch wenn die
         // App gesperrt startet (Siri, Action-Taste) oder im Hintergrund zuhört.
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)   // nur beim Schreiben nötig
         var u = url(name)
         guard (try? data.write(to: u, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])) != nil else { return false }
         // Nicht ins iCloud-/Computer-Backup (566): „bleibt nur auf diesem iPhone“. `.atomic` ersetzt die Datei,

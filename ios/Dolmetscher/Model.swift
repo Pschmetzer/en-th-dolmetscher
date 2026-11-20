@@ -27,11 +27,11 @@ struct Entry: Identifiable, Codable, Equatable {
     var photo: Bool?
 
     /// Umschrift: die geprüfte aus dem Satzbuch, sonst automatisch (th/ja/ko/zh/ru/uk/ar/hi).
-    var romanized: String? { roman ?? translation.flatMap { Romanizer.latin($0, target) } }
+    var romanized: String? { roman ?? translation.flatMap { RenderCache.roman($0, target) } }
     /// Die Umschrift ist maschinell (grobe Lautschrift), nicht die geprüfte aus dem Satzbuch.
     var romanIsApproximate: Bool { roman == nil && romanized != nil }
     /// Rückübersetzung weicht deutlich ab – Übersetzung prüfen.
-    var backDeviates: Bool { back.map { BackCheck.deviates(original: text, back: $0) } ?? false }
+    var backDeviates: Bool { back.map { RenderCache.deviates(text, $0) } ?? false }
 
     var target: Lang { dst ?? (src == .th ? .en : .th) }
 }
