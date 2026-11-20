@@ -322,7 +322,7 @@ def test_exchange_rate_helpers():
 def test_slow_card_button_print_cards_and_hash_tabs():
     assert "sl.className = 'slowc'" in func("renderCards") and "sayNow(await phraseIn(p, b), b, true)" in func("renderCards")
     assert 'id="myPrint"' in HTML and "$('myPrint').onclick" in SCRIPT and "#printSheet .pcard" in HTML
-    assert "TABS.includes(tabHash)" in func("openFromHash") and "'ui'" in func("openFromHash")
+    assert "TABS.includes(tabHash)" in func("openFromHash") and "UI_LANGS.find(l => l === opt('ui'))" in func("openFromHash")
     assert "$('uiLang').value = UI;" in func("refreshUi")
     for k in ("rateLbl", "homeLbl", "fxToBaht", "fxTake", "fxBack", "myPrint", "myPrintNone"):
         assert all(k in S for S in web_str().values()), k
