@@ -52,7 +52,9 @@ struct JSONStore: Sendable {
         let ok = rows.compactMap(\.value)
         if ok.count < rows.count {
             let stamp = Int(Date().timeIntervalSince1970)
-            try? FileManager.default.copyItem(at: u, to: url("\(name).bak-\(stamp)"))
+            let copy = url("\(name).bak-\(stamp)")
+            if (try? FileManager.default.copyItem(at: u, to: copy)) != nil { markPrivate(copy) }
+            pruneCopies(name, marker: ".bak-")
         }
         return .ok(ok)
     }
@@ -60,7 +62,26 @@ struct JSONStore: Sendable {
     /// Kaputte Datei beiseitelegen statt überschreiben.
     func quarantine(_ name: String) {
         let stamp = Int(Date().timeIntervalSince1970)
-        try? FileManager.default.moveItem(at: url(name), to: url("\(name).corrupt-\(stamp)"))
+        let dest = url("\(name).corrupt-\(stamp)")
+        if (try? FileManager.default.moveItem(at: url(name), to: dest)) != nil { markPrivate(dest) }
+        pruneCopies(name, marker: ".corrupt-")
+    }
+
+    /// Sicherungskopien tragen Gesprächstext: wie das Original nicht ins Backup und erst nach dem ersten Entsperren lesbar.
+    func markPrivate(_ u: URL) {
+        var u = u
+        var rv = URLResourceValues()
+        rv.isExcludedFromBackup = true
+        try? u.setResourceValues(rv)
+        try? FileManager.default.setAttributes([.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication], ofItemAtPath: u.path)
+    }
+
+    /// Behält von `name<marker><Zeit>` nur die neuesten `keep` – sonst wächst die Zahl der Kopien bei jedem Start.
+    func pruneCopies(_ name: String, marker: String, keep: Int = 3) {
+        let prefix = name + marker
+        let names = ((try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? []).filter { $0.hasPrefix(prefix) }
+        let sorted = names.sorted { (Int($0.dropFirst(prefix.count)) ?? 0) > (Int($1.dropFirst(prefix.count)) ?? 0) }
+        for n in sorted.dropFirst(keep) { remove(n) }
     }
 
     func remove(_ name: String) { try? FileManager.default.removeItem(at: url(name)) }
@@ -123,6 +144,8 @@ enum AmountParser {
             // „1.200“ – Punkt als Tausendertrennzeichen (de); „0.026“ bleibt ein Dezimalbruch
             s.removeAll { $0 == "." }
         }
-        return Double(s)
+        // „nan“/„inf“ parst Double ebenfalls: kein Betrag.
+        guard let v = Double(s), v.isFinite else { return nil }
+        return v
     }
 }

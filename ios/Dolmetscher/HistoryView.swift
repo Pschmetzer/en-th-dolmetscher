@@ -88,7 +88,10 @@ struct HistoryView: View {
             if let t = e.translation { Text(t).font(.body.weight(.semibold)) }
         }
         .frame(minHeight: 44, alignment: .leading)
-        .accessibilityElement(children: .combine)
+        // Thai/Japanisch usw. mit der Stimme der jeweiligen Sprache vorlesen (sonst liest die Systemstimme Zeichen für Zeichen).
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(A11yLabel.text(A11yLabel.build(src: e.src, text: e.text, target: e.target,
+                                                           translation: e.translation, extras: [], uiLang: L10n.lang)))
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             Button(role: .destructive) { m.delete(ids: [e.id]) } label: { Label(T("delete"), systemImage: "trash") }
         }

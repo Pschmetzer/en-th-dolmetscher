@@ -18,6 +18,7 @@ struct DolmetscherApp: App {
                     if ShieldPolicy.show(shield: model.privacyShield, active: scenePhase == .active,
                                          hideOnCapture: model.hideOnCapture, captured: model.screenCaptured) { PrivacyShield() }
                 }
+                .task { ExportCleanup.purge() }   // Reste früherer CSV-Exporte (Gesprächstext) im Temp-Ordner
                 .onContinueUserActivity(CSSearchableItemActionType) { _ in model.sheet = .phrasebook }
                 .onChange(of: scenePhase) { _, phase in
                     // Im Hintergrund nicht weiter mithören.

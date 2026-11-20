@@ -56,6 +56,7 @@ struct PartnerView: View {
                         .minimumScaleFactor(0.25)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(LangStyle.color(e.target, m.pair))
+                        .spokenIn(e.target.voiceLocale, t)
                     if m.showRoman, let r = e.romanized { Text(r).font(.title3).italic().foregroundStyle(.secondary) }
                 }
             } else {
@@ -215,7 +216,7 @@ struct ConversationSide: View {
                     if !m.partial.isEmpty || (m.hearing && m.isListening) {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(PartnerPhrases.text(.listening, lang)).font(.caption).foregroundStyle(.secondary)
-                            if !m.partial.isEmpty { Text(m.partial).font(.title3).foregroundStyle(.primary) }
+                            if !m.partial.isEmpty { Text(m.partial).font(.title3).foregroundStyle(.primary).spokenIn(lang.voiceLocale, m.partial) }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .id("live")
@@ -340,6 +341,7 @@ struct LineRow: View {
                     .font(.system(size: scaledBase * scale, weight: own ? .regular : .bold))
                     .foregroundStyle(tint)
                     .multilineTextAlignment(own ? .trailing : .leading)
+                    .spokenIn(lang.voiceLocale, text)   // Text steht in der Sprache dieser Hälfte
                 RomanLine(text: roman)
             }
             .frame(maxWidth: .infinity, alignment: frameAlign)

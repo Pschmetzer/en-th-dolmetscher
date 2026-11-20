@@ -793,6 +793,7 @@ struct BigTextView: View {
                     .minimumScaleFactor(0.2)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(LangStyle.color(e?.target ?? m.pair.partner, m.pair))
+                    .spokenIn((e?.target ?? m.pair.partner).voiceLocale, e?.translation ?? "")
                 RomanLine(text: m.showRoman ? e?.romanized : e?.roman, font: .title3)
                 Text(e?.text ?? "").font(.title3).foregroundStyle(.secondary).multilineTextAlignment(.center)
             }

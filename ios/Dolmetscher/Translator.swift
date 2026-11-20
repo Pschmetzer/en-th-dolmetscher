@@ -127,11 +127,21 @@ actor Translator {
     private let useApple: Bool
 
     /// Für Tests: eigene URLSession (URLProtocol-Stub), Netzstatus und ohne Apple-Übersetzung.
-    init(http: URLSession = .shared, isOnline: @escaping @Sendable () -> Bool = { NetStatus.shared.online }, useApple: Bool = true) {
+    init(http: URLSession = Translator.privateSession, isOnline: @escaping @Sendable () -> Bool = { NetStatus.shared.online }, useApple: Bool = true) {
         self.http = http
         self.isOnline = isOnline
         self.useApple = useApple
     }
+
+    /// Der Gesprächstext steckt bei MyMemory in der URL: nie in den Festplatten-Cache (URLCache) oder Cookies schreiben.
+    static let privateSession: URLSession = {
+        let c = URLSessionConfiguration.ephemeral
+        c.urlCache = nil
+        c.requestCachePolicy = .reloadIgnoringLocalCacheData
+        c.httpShouldSetCookies = false
+        c.httpCookieStorage = nil
+        return URLSession(configuration: c)
+    }()
 
     /// Längstens so lange auf die Apple-Übersetzung eines Satzes warten.
     static let appleTimeout = 8.0
