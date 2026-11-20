@@ -241,6 +241,12 @@ cat > "$NEWAPP/Contents/Info.plist" <<PLIST
   <key>NSHumanReadableCopyright</key><string>Copyright © $YEAR Dolmetscher contributors. MIT License.</string>
   <key>NSHighResolutionCapable</key><true/>
   <key>NSMicrophoneUsageDescription</key><string>Der Dolmetscher hört zu, um zwischen den gewählten Sprachen zu übersetzen.</string>
+  <key>NSServices</key><array><dict>
+    <key>NSMenuItem</key><dict><key>default</key><string>Mit Dolmetscher übersetzen</string></dict>
+    <key>NSMessage</key><string>translateSelection</string>
+    <key>NSPortName</key><string>Dolmetscher</string>
+    <key>NSSendTypes</key><array><string>NSStringPboardType</string></array>
+  </dict></array>
   <key>CFBundleURLTypes</key><array><dict>
     <key>CFBundleURLName</key><string>io.github.dolmetscher.en-th</string>
     <key>CFBundleURLSchemes</key><array><string>dolmetscher</string></array>

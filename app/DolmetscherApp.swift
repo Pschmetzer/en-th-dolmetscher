@@ -79,6 +79,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ n: Notification) {
+        NSApp.servicesProvider = TranslateService.shared   // Dienste-Menü: markierten Text übersetzen (NSServices in Info.plist)
+        NSUpdateDynamicServices()
         signal(SIGPIPE, SIG_IGN)   // Schreiben in die Pipe einer beendeten Engine darf die App nicht beenden
         // Engine und globale Kürzel hängen an der App, nicht am Fenster (sie laufen auch bei geschlossenem Fenster).
         MainActor.assumeIsolated {
@@ -366,5 +368,17 @@ struct DolmetscherApp: App {
                 .accessibilityLabel("Dolmetscher")
                 .accessibilityValue(menuState)
         }
+    }
+}
+
+
+/// Dienst „Mit Dolmetscher übersetzen“ (Rechtsklick → Dienste in jeder App): übersetzt und liest den markierten Text vor.
+/// Der Text wird nur gesprochen, nicht ersetzt – der Dienst gibt nichts an die andere App zurück.
+final class TranslateService: NSObject {
+    static let shared = TranslateService()
+    @objc func translateSelection(_ pboard: NSPasteboard, userData: String,
+                                  error: AutoreleasingUnsafeMutablePointer<NSString>) {
+        let text = pboard.string(forType: .string)
+        DispatchQueue.main.async { MainActor.assumeIsolated { EngineModel.shared.translateText(text) } }
     }
 }
