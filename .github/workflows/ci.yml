@@ -33,6 +33,11 @@ jobs:
           # 3.10: Mindestversion; die Pins (numpy 2.5 braucht >= 3.12) passen nicht, daher ungepinnt
           - python: "3.10"
             pinned: false
+          # 3.13: Vorschau auf die nächste Version, ungepinnt und nicht blockierend (Warnsignal vor einem Upgrade)
+          - python: "3.13"
+            pinned: false
+            experimental: true
+    continue-on-error: ${{ matrix.experimental == true }}
     steps:
       # Aktionen sind auf Commit-SHAs festgelegt (Dependabot hebt sie an).
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

@@ -1,0 +1,116 @@
+{
+  "id": "babysitter-housekeeper",
+  "names": {
+    "de": "Babysitter / Haushaltshilfe",
+    "en": "Babysitter / housekeeper",
+    "th": "พี่เลี้ยงเด็ก / แม่บ้าน"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Babysitter und Haushaltshilfen findet man über Hotels, Vermieter oder Agenturen. Ausweis, Erfahrung und Referenzen prüfen, Arbeitszeit und Lohn schriftlich festhalten; ausländische Haushaltshilfen brauchen eine Arbeitserlaubnis des Arbeitgebers. Telefonnummer, Allergien und Notfallkontakt für Kinder aufschreiben. Wertsachen wegschließen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Babysitters and housekeepers are found through hotels, landlords or agencies. Check identity, experience and references and put hours and pay in writing; foreign domestic workers need a work permit arranged by the employer. Write down your phone number, allergies and an emergency contact for the children. Lock valuables away. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "babysitter",
+      "th": "พี่เลี้ยงเด็ก"
+    },
+    {
+      "en": "housekeeper",
+      "th": "แม่บ้าน"
+    },
+    {
+      "en": "agency",
+      "th": "เอเจนซี่"
+    },
+    {
+      "en": "references",
+      "th": "จดหมายรับรอง"
+    },
+    {
+      "en": "working hours",
+      "th": "เวลาทำงาน"
+    },
+    {
+      "en": "salary",
+      "th": "ค่าจ้าง"
+    },
+    {
+      "en": "contract",
+      "th": "สัญญา"
+    },
+    {
+      "en": "emergency contact",
+      "th": "ผู้ติดต่อฉุกเฉิน"
+    },
+    {
+      "en": "allergy",
+      "th": "ภูมิแพ้"
+    },
+    {
+      "en": "bedtime",
+      "th": "เวลานอน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My child has a serious allergy.",
+      "th": "ลูกแพ้อย่างรุนแรง",
+      "critical": true
+    },
+    {
+      "en": "Call this number in an emergency.",
+      "th": "ถ้าเกิดเหตุฉุกเฉินโทรเบอร์นี้",
+      "critical": true
+    },
+    {
+      "en": "Please call an ambulance (1669).",
+      "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true
+    },
+    {
+      "en": "I am looking for a babysitter.",
+      "th": "กำลังมองหาพี่เลี้ยงเด็ก"
+    },
+    {
+      "en": "Do you have experience with children?",
+      "th": "มีประสบการณ์เลี้ยงเด็กไหม"
+    },
+    {
+      "en": "Do you have references?",
+      "th": "มีจดหมายรับรองไหม"
+    },
+    {
+      "en": "What are your working hours?",
+      "th": "เวลาทำงานของคุณคือกี่โมง"
+    },
+    {
+      "en": "How much do you charge per hour?",
+      "th": "คิดค่าจ้างชั่วโมงละเท่าไร"
+    },
+    {
+      "en": "The children go to bed at eight.",
+      "th": "เด็กๆ เข้านอนตอนสองทุ่ม"
+    },
+    {
+      "en": "Please do not give them any sweets.",
+      "th": "ช่วยอย่าให้ขนมหวานเด็ก"
+    },
+    {
+      "en": "Please do not open the door to strangers.",
+      "th": "ช่วยอย่าเปิดประตูให้คนแปลกหน้า"
+    },
+    {
+      "en": "Please clean the flat twice a week.",
+      "th": "ช่วยทำความสะอาดห้องสัปดาห์ละสองครั้ง"
+    },
+    {
+      "en": "Please wash and iron these clothes.",
+      "th": "ช่วยซักและรีดเสื้อผ้าเหล่านี้"
+    },
+    {
+      "en": "Thank you for your help.",
+      "th": "ขอบคุณมากที่ช่วย"
+    }
+  ]
+}

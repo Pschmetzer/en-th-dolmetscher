@@ -1,0 +1,119 @@
+{
+  "id": "earthquake-evacuation",
+  "names": {
+    "de": "Erdbeben / Evakuierung",
+    "en": "Earthquake / evacuation",
+    "th": "แผ่นดินไหว / อพยพ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Bei einem Erdbeben unter einen stabilen Tisch, den Kopf schützen und nach dem Beben ins Freie gehen, nicht den Aufzug nehmen. Am Meer nach einem starken Beben sofort auf höheres Gelände (Tsunami-Warnung). Hotels haben Fluchtpläne; Fluchtwege beim Einchecken ansehen. Notruf 191 (Polizei), 1669 (Rettungsdienst), 199 (Feuerwehr). Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "In an earthquake get under a sturdy table and protect your head, then go outside after the shaking; do not use the lift. At the coast move to high ground at once after a strong quake (tsunami warning). Hotels have evacuation plans; look at the escape routes when you check in. Emergency numbers: police 191, ambulance 1669, fire 199. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "earthquake",
+      "th": "แผ่นดินไหว"
+    },
+    {
+      "en": "tsunami",
+      "th": "สึนามิ"
+    },
+    {
+      "en": "evacuation",
+      "th": "อพยพ"
+    },
+    {
+      "en": "shelter",
+      "th": "ที่พักพิง"
+    },
+    {
+      "en": "high ground",
+      "th": "ที่สูง"
+    },
+    {
+      "en": "emergency exit",
+      "th": "ทางออกฉุกเฉิน"
+    },
+    {
+      "en": "stairs",
+      "th": "บันได"
+    },
+    {
+      "en": "alarm",
+      "th": "สัญญาณเตือน"
+    },
+    {
+      "en": "assembly point",
+      "th": "จุดรวมพล"
+    },
+    {
+      "en": "lift",
+      "th": "ลิฟต์"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Earthquake! Everyone out!",
+      "th": "แผ่นดินไหว ทุกคนออกไป",
+      "critical": true
+    },
+    {
+      "en": "Tsunami warning! Run to high ground!",
+      "th": "เตือนสึนามิ วิ่งขึ้นที่สูง",
+      "critical": true
+    },
+    {
+      "en": "Where is the emergency exit?",
+      "th": "ทางออกฉุกเฉินอยู่ที่ไหน",
+      "critical": true
+    },
+    {
+      "en": "Please call an ambulance (1669).",
+      "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true
+    },
+    {
+      "en": "There is a fire. Please call the fire brigade (199).",
+      "th": "ไฟไหม้ ช่วยเรียกดับเพลิง (199)",
+      "critical": true
+    },
+    {
+      "en": "Someone is trapped.",
+      "th": "มีคนติดอยู่ข้างใน",
+      "critical": true
+    },
+    {
+      "en": "Do not use the lift.",
+      "th": "อย่าใช้ลิฟต์"
+    },
+    {
+      "en": "Where is the assembly point?",
+      "th": "จุดรวมพลอยู่ที่ไหน"
+    },
+    {
+      "en": "Is it safe to go back to the building?",
+      "th": "กลับเข้าอาคารได้ปลอดภัยไหม"
+    },
+    {
+      "en": "Is there a tsunami warning?",
+      "th": "มีการเตือนสึนามิไหม"
+    },
+    {
+      "en": "Where is the nearest high ground?",
+      "th": "ที่สูงที่ใกล้ที่สุดอยู่ที่ไหน"
+    },
+    {
+      "en": "Is there a shelter nearby?",
+      "th": "แถวนี้มีที่พักพิงไหม"
+    },
+    {
+      "en": "I cannot find my family.",
+      "th": "หาครอบครัวไม่เจอ"
+    },
+    {
+      "en": "My phone has no signal.",
+      "th": "โทรศัพท์ไม่มีสัญญาณ"
+    }
+  ]
+}

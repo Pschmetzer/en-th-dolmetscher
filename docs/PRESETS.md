@@ -160,6 +160,28 @@ kennen, ignorieren sie.
 | `souvenir-jewelry` | Souvenirs / Schmuck | 1 kritische Sätze zuerst |
 | `buffet-bbq` | Buffet / Moo Kratha | 2 kritische Sätze zuerst |
 | `adventure-park` | Zipline / Abenteuerpark | 3 kritische Sätze zuerst |
+| `motorcycle-taxi` | Motorrad-Taxi | 3 kritische Sätze zuerst |
+| `promptpay-qr-payment` | QR-Zahlung / PromptPay | 0 kritische Sätze zuerst |
+| `water-park-zoo` | Wasserpark / Zoo | 3 kritische Sätze zuerst |
+| `home-repair` | Reparatur zu Hause | 3 kritische Sätze zuerst |
+| `volunteering` | Freiwilligenarbeit | 0 kritische Sätze zuerst |
+| `birthday-celebration` | Geburtstag und Feier | 0 kritische Sätze zuerst |
+| `funeral-condolence` | Trauerfeier / Beileid | 0 kritische Sätze zuerst |
+| `skin-clinic` | Hautklinik / Sonnenbrand | 2 kritische Sätze zuerst |
+| `fishing-trip` | Angeln / Fischerboot | 3 kritische Sätze zuerst |
+| `badminton-tennis` | Badminton / Tennis | 2 kritische Sätze zuerst |
+| `physiotherapy-injury` | Physiotherapie / Sportverletzung | 3 kritische Sätze zuerst |
+| `car-accident` | Autounfall / Versicherung | 5 kritische Sätze zuerst |
+| `gas-station-parking` | Tankstelle / Parken | 0 kritische Sätze zuerst |
+| `mosque-visit` | Moschee und Gebetsraum | 0 kritische Sätze zuerst |
+| `spirit-house-shrine` | Geisterhaus / Schrein | 0 kritische Sätze zuerst |
+| `earthquake-evacuation` | Erdbeben / Evakuierung | 6 kritische Sätze zuerst |
+| `mental-health-counseling` | Seelische Gesundheit / Beratung | 4 kritische Sätze zuerst |
+| `sexual-health-clinic` | Klinik für sexuelle Gesundheit | 3 kritische Sätze zuerst |
+| `thai-language-lesson` | Thai-Unterricht | 0 kritische Sätze zuerst |
+| `babysitter-housekeeper` | Babysitter / Haushaltshilfe | 3 kritische Sätze zuerst |
+
+Die Kategorie je Paket (`health`, `emergency`, `transport`, `food`, `money`, `stay`, `culture`, `leisure`, `general`) steht in `tools/preset_categories.json` und landet als `category` in `presets-index.json`. `python3 tools/preset_stats.py --by-category` zeigt die Abdeckung je Kategorie; ein neues Paket gehört in genau eine Kategorie (ein Test prüft das).
 
 ## Unsichere Sätze (bitte zuerst prüfen)
 
@@ -195,7 +217,7 @@ Am wichtigsten sind die Sätze mit `critical` und die Tabelle [Unsichere Sätze]
 
 | Datei | Inhalt |
 |---|---|
-| `presets/*.json` | 111 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
+| `presets/*.json` | 131 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
 | `ios/Shared/phrases.json` | eingebautes Satzbuch der iPhone-App und des Widgets |
 | `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten, „Sie sind dran“, Allergie-Karte |
 | `ios/Dolmetscher/Round4Views.swift` | Hilfesatz auf dem Bildschirm „Hilfe – jetzt“ |

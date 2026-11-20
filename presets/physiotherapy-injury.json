@@ -1,0 +1,116 @@
+{
+  "id": "physiotherapy-injury",
+  "names": {
+    "de": "Physiotherapie / Sportverletzung",
+    "en": "Physiotherapy / sports injury",
+    "th": "กายภาพบำบัด / บาดเจ็บจากกีฬา"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Physiotherapie gibt es in Privatkliniken und Krankenhäusern, oft ohne Überweisung. Bei Verdacht auf Bruch oder starker Schwellung zuerst Röntgen im Krankenhaus. Verletzungsstelle, Schmerzstärke und Beginn genau zeigen. Für die Versicherung Befund und Quittung aufheben. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Physiotherapy is offered in private clinics and hospitals, often without a referral. If you suspect a fracture or severe swelling, get an X-ray at the hospital first. Show the injured spot, the pain level and when it began. Keep the report and receipts for your insurance. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "physiotherapy",
+      "th": "กายภาพบำบัด"
+    },
+    {
+      "en": "injury",
+      "th": "บาดเจ็บ"
+    },
+    {
+      "en": "sprain",
+      "th": "เคล็ด"
+    },
+    {
+      "en": "fracture",
+      "th": "กระดูกหัก"
+    },
+    {
+      "en": "swelling",
+      "th": "บวม"
+    },
+    {
+      "en": "pain",
+      "th": "ปวด"
+    },
+    {
+      "en": "X-ray",
+      "th": "เอกซเรย์"
+    },
+    {
+      "en": "exercise",
+      "th": "ออกกำลังกาย"
+    },
+    {
+      "en": "massage",
+      "th": "นวด"
+    },
+    {
+      "en": "crutches",
+      "th": "ไม้ค้ำยัน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I cannot move my leg.",
+      "th": "ขยับขาไม่ได้",
+      "critical": true
+    },
+    {
+      "en": "I think my bone is broken.",
+      "th": "คิดว่ากระดูกหัก",
+      "critical": true
+    },
+    {
+      "en": "Please call an ambulance (1669).",
+      "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true
+    },
+    {
+      "en": "I hurt my back.",
+      "th": "ปวดหลัง"
+    },
+    {
+      "en": "I twisted my ankle.",
+      "th": "ข้อเท้าแพลง"
+    },
+    {
+      "en": "It happened yesterday while playing sport.",
+      "th": "เกิดขึ้นเมื่อวานตอนเล่นกีฬา"
+    },
+    {
+      "en": "It hurts when I move.",
+      "th": "เจ็บเวลาขยับ"
+    },
+    {
+      "en": "It is swollen and warm.",
+      "th": "บวมและร้อน"
+    },
+    {
+      "en": "Do I need an X-ray?",
+      "th": "ต้องเอกซเรย์ไหม"
+    },
+    {
+      "en": "Can you give me a bandage or a brace?",
+      "th": "ขอผ้าพันแผลหรือที่รัดได้ไหม"
+    },
+    {
+      "en": "How many sessions will I need?",
+      "th": "ต้องรักษากี่ครั้ง"
+    },
+    {
+      "en": "How much is one session?",
+      "th": "ฝึกครั้งละเท่าไหร่"
+    },
+    {
+      "en": "Can you show me the exercises?",
+      "th": "ช่วยสอนท่าออกกำลังกายหน่อยได้ไหม"
+    },
+    {
+      "en": "May I have a report for my insurance?",
+      "th": "ขอรายงานสำหรับประกันได้ไหม"
+    }
+  ]
+}

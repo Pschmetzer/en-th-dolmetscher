@@ -18,7 +18,7 @@ import time
 import uuid
 from datetime import datetime, timezone
 
-FORMATS = ("md", "json", "csv", "srt", "vtt", "anki")
+FORMATS = ("md", "json", "csv", "srt", "vtt", "anki", "txt")   # txt: nur die Übersetzungen, eine je Zeile
 
 
 def home_dir():
@@ -175,6 +175,49 @@ class Store:
             cols = [c[0] for c in cur.description]
             return [dict(zip(cols, r)) for r in cur.fetchall()]
 
+    MAX_IMPORT_ROWS = 100000
+
+    def import_json(self, text):
+        """Verlauf aus einem JSON-Export (`export(rows, "json")`) einspielen, z. B. beim Gerätewechsel.
+        Zeilen, die schon vorhanden sind (gleiche Zeit, Sitzung und Text), werden übersprungen.
+        -> (neu, übersprungen, ungültig). Ungültige Datei -> ValueError."""
+        try:
+            data = json.loads(text)
+        except (TypeError, ValueError) as e:
+            raise ValueError("kein gültiges JSON") from e
+        if not isinstance(data, list) or len(data) > self.MAX_IMPORT_ROWS:
+            raise ValueError("erwartet eine Liste von Einträgen")
+        added = skipped = bad = 0
+        with self.lock, self.db:
+            for r in data:
+                try:
+                    ts = datetime.strptime(r["time"], "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=timezone.utc).timestamp()
+                    body, sess = r["text"], r.get("session") or ""
+                    if not isinstance(body, str) or not body or not isinstance(sess, str):
+                        raise ValueError
+                except (KeyError, TypeError, ValueError):
+                    bad += 1
+                    continue
+                if self.db.execute("SELECT 1 FROM utt WHERE ABS(ts - ?) < 0.002 AND session = ? AND text = ? LIMIT 1",
+                                   (ts, sess, body)).fetchone():
+                    skipped += 1
+                    continue
+                tr = r.get("translation") if isinstance(r.get("translation"), str) else None
+                lang = r.get("lang") if isinstance(r.get("lang"), str) else None
+                cur = self.db.execute(
+                    "INSERT INTO utt (ts, session, lang, text, translation, translit, conf, provider, role, speaker)"
+                    " VALUES (?,?,?,?,?,?,?,?,?,?)",
+                    (ts, sess, lang, body, tr, r.get("translit") if isinstance(r.get("translit"), str) else None,
+                     r.get("confidence") if isinstance(r.get("confidence"), (int, float)) else None,
+                     r.get("provider") if isinstance(r.get("provider"), str) else None,
+                     r.get("role") if r.get("role") in ("me", "other") else None,
+                     r.get("speaker") if isinstance(r.get("speaker"), str) else None))
+                if self.fts:
+                    self.db.execute("INSERT INTO utt_fts (rowid, text, translation) VALUES (?,?,?)",
+                                    (cur.lastrowid, body, tr or ""))
+                added += 1
+        return added, skipped, bad
+
     def last_translation(self):
         """Letzte Zeile mit Übersetzung ({lang, translation}) oder None."""
         with self.lock:
@@ -304,6 +347,8 @@ def export(rows, fmt):
                             "confidence": r["conf"], "provider": r["provider"],
                             **{k: r[k] for k in WHO if r.get(k)}} for r in rows],
                           ensure_ascii=False, indent=2) + "\n"
+    if fmt == "txt":
+        return "".join(_flat(r["translation"]) + "\n" for r in rows if r["translation"])
     if fmt == "csv":
         buf = io.StringIO()
         w = csv.writer(buf, lineterminator="\n")

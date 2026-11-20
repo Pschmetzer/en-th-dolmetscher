@@ -1,0 +1,113 @@
+{
+  "id": "thai-language-lesson",
+  "names": {
+    "de": "Thai-Unterricht",
+    "en": "Thai language lesson",
+    "th": "เรียนภาษาไทย"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Thai ist eine Tonsprache mit fünf Tönen; Anfänger beginnen oft mit Aussprache und Alltagssätzen. Sprachschulen bieten Gruppen- und Einzelunterricht, Preise pro Stunde oder Kurs; Probestunde fragen. Mit Studentenvisum gelten besondere Regeln. Lehrer dürfen langsam sprechen, und Wiederholung ist erwünscht. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Thai is a tonal language with five tones; beginners often start with pronunciation and everyday phrases. Language schools offer group and private lessons priced per hour or course; ask for a trial lesson. A student visa has special rules. Teachers may speak slowly, and repeating is welcome. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "lesson",
+      "th": "บทเรียน"
+    },
+    {
+      "en": "teacher",
+      "th": "ครู"
+    },
+    {
+      "en": "tone",
+      "th": "วรรณยุกต์"
+    },
+    {
+      "en": "pronunciation",
+      "th": "การออกเสียง"
+    },
+    {
+      "en": "vocabulary",
+      "th": "คำศัพท์"
+    },
+    {
+      "en": "alphabet",
+      "th": "ตัวอักษร"
+    },
+    {
+      "en": "beginner",
+      "th": "ผู้เริ่มต้น"
+    },
+    {
+      "en": "homework",
+      "th": "การบ้าน"
+    },
+    {
+      "en": "exam",
+      "th": "สอบ"
+    },
+    {
+      "en": "student visa",
+      "th": "วีซ่านักเรียน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I would like to learn Thai.",
+      "th": "อยากเรียนภาษาไทย"
+    },
+    {
+      "en": "I am a beginner.",
+      "th": "เป็นมือใหม่"
+    },
+    {
+      "en": "Do you offer a trial lesson?",
+      "th": "มีบทเรียนทดลองไหม"
+    },
+    {
+      "en": "How much is one hour?",
+      "th": "ชั่วโมงละเท่าไร"
+    },
+    {
+      "en": "Is it a group or a private lesson?",
+      "th": "เป็นกลุ่มหรือเรียนตัวต่อตัว"
+    },
+    {
+      "en": "Please speak more slowly.",
+      "th": "ช่วยพูดช้าลงหน่อย"
+    },
+    {
+      "en": "Please say it again.",
+      "th": "ช่วยพูดอีกครั้งหน่อย"
+    },
+    {
+      "en": "How do I say this in Thai?",
+      "th": "พูดสิ่งนี้เป็นภาษาไทยอย่างไร"
+    },
+    {
+      "en": "Is my pronunciation correct?",
+      "th": "ออกเสียงถูกต้องไหม"
+    },
+    {
+      "en": "Can you write it down?",
+      "th": "ช่วยเขียนให้หน่อยได้ไหม"
+    },
+    {
+      "en": "Could you teach me the Thai alphabet?",
+      "th": "ช่วยสอนตัวอักษรไทยหน่อยได้ไหม"
+    },
+    {
+      "en": "Do I get homework?",
+      "th": "มีการบ้านไหม"
+    },
+    {
+      "en": "Do you help with a student visa?",
+      "th": "ช่วยเรื่องวีซ่านักเรียนไหม"
+    },
+    {
+      "en": "Thank you, teacher.",
+      "th": "ขอบคุณครู"
+    }
+  ]
+}

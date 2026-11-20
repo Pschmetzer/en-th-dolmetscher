@@ -18,7 +18,18 @@ ORDER = ["doctor", "police", "lostchild", "pharmacy", "dentist", "taxi", "places
          "scooter", "rental", "services", "coworking", "office"]
 
 
+def categories(root=ROOT):
+    """{pack_id: category} aus tools/preset_categories.json (health, emergency, transport, food, money, stay, culture,
+    leisure, general); ohne Eintrag gilt "general" (ein Test verlangt Vollstaendigkeit)."""
+    f = pathlib.Path(root) / "tools" / "preset_categories.json"
+    if not f.exists():
+        return {}
+    data = json.loads(f.read_text(encoding="utf-8"))["categories"]
+    return {pid: cat for cat, ids in data.items() for pid in ids}
+
+
 def build(root=ROOT):
+    cats = categories(root)
     old = {}
     f = pathlib.Path(root) / "presets-index.json"
     if f.exists():
@@ -29,7 +40,7 @@ def build(root=ROOT):
         d = json.loads(p.read_text(encoding="utf-8"))
         packs[d["id"]] = {"id": d["id"], "names": d["names"], "phrases": len(d.get("phrases", [])),
                           "critical": sum(1 for x in d.get("phrases", []) if x.get("critical")),
-                          "reviewed": old.get(d["id"], False)}
+                          "reviewed": old.get(d["id"], False), "category": cats.get(d["id"], "general")}
     ids = [i for i in ORDER if i in packs] + sorted(i for i in packs if i not in ORDER)
     return {"version": 1, "packs": [packs[i] for i in ids]}
 

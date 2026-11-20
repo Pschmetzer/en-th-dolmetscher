@@ -31,6 +31,19 @@ def stats(packs):
     return out
 
 
+def by_category(rows, root=None):
+    """{Kategorie: {packs, phrases, critical}} nach tools/preset_categories.json (Abdeckung je Reisephase/Thema)."""
+    import make_presets_index
+    cats = make_presets_index.categories(root or make_presets_index.ROOT)
+    out = {}
+    for r in rows:
+        c = out.setdefault(cats.get(r["id"], "general"), {"packs": 0, "phrases": 0, "critical": 0})
+        c["packs"] += 1
+        c["phrases"] += r["phrases"]
+        c["critical"] += r["critical"]
+    return dict(sorted(out.items()))
+
+
 def total(rows):
     n = sum(r["phrases"] for r in rows)
     c = sum(r["critical"] for r in rows)
@@ -59,9 +72,18 @@ def main(argv=None):
     ap.add_argument("--dir", help="Paket-Ordner (Standard: presets/ im Repo)")
     ap.add_argument("--pack", action="append", default=[], metavar="ID", help="nur dieses Paket (mehrfach moeglich)")
     ap.add_argument("--format", choices=["text", "json", "md"], default="text")
+    ap.add_argument("--by-category", action="store_true", help="Abdeckung je Kategorie statt je Paket")
     a = ap.parse_args(argv)
     rows = stats(load_packs(a.dir, a.pack))
     t = total(rows)
+    if a.by_category:
+        cats = by_category(rows)
+        if a.format == "json":
+            print(json.dumps(cats, ensure_ascii=False, indent=1))
+        else:
+            for k, v in cats.items():
+                print("%-10s %3d Pakete  %4d Saetze  %4d kritisch" % (k, v["packs"], v["phrases"], v["critical"]))
+        return 0
     if a.format == "json":
         print(json.dumps({"packs": rows, "total": t}, ensure_ascii=False, indent=1))
     else:

@@ -1,0 +1,113 @@
+{
+  "id": "spirit-house-shrine",
+  "names": {
+    "de": "Geisterhaus / Schrein",
+    "en": "Spirit house / shrine",
+    "th": "ศาลพระภูมิ / ศาลเจ้า"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Das Geisterhaus (San Phra Phum) schützt Haus oder Hotel; man berührt es nicht und stellt nichts darauf ab. Opfergaben sind Blumen, Räucherwerk, Getränke und Früchte. Beim Erawan-Schrein und ähnlichen Orten Schuhe nach Hinweis ausziehen und beim Fotografieren Rücksicht nehmen. Geschenke dem Personal erklären lassen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "A spirit house protects a home or hotel; do not touch it or put anything on it. Offerings are flowers, incense, drinks and fruit. At the Erawan shrine and similar places take off your shoes if signposted and be considerate when taking photos. Ask the staff to explain any offerings. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "spirit house",
+      "th": "ศาลพระภูมิ"
+    },
+    {
+      "en": "shrine",
+      "th": "ศาลเจ้า"
+    },
+    {
+      "en": "offering",
+      "th": "เครื่องบูชา"
+    },
+    {
+      "en": "incense",
+      "th": "ธูป"
+    },
+    {
+      "en": "flowers",
+      "th": "ดอกไม้"
+    },
+    {
+      "en": "candle",
+      "th": "เทียน"
+    },
+    {
+      "en": "garland",
+      "th": "พวงมาลัย"
+    },
+    {
+      "en": "fruit",
+      "th": "ผลไม้"
+    },
+    {
+      "en": "prayer",
+      "th": "ขอพร"
+    },
+    {
+      "en": "luck",
+      "th": "โชคลาภ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "What is this little house for?",
+      "th": "บ้านเล็กๆ หลังนี้ไว้ทำอะไร"
+    },
+    {
+      "en": "May I touch it?",
+      "th": "แตะได้ไหม"
+    },
+    {
+      "en": "May I leave an offering?",
+      "th": "วางเครื่องบูชาได้ไหม"
+    },
+    {
+      "en": "What is a good offering?",
+      "th": "ควรบูชาด้วยอะไรดี"
+    },
+    {
+      "en": "Where can I buy flowers and incense?",
+      "th": "ซื้อดอกไม้ธูปเทียนได้ที่ไหน"
+    },
+    {
+      "en": "How do I show respect here?",
+      "th": "แสดงความเคารพที่นี่อย่างไร"
+    },
+    {
+      "en": "Should I take off my shoes?",
+      "th": "ต้องถอดรองเท้าไหม"
+    },
+    {
+      "en": "Can I make a wish here?",
+      "th": "ขอพรที่นี่ได้ไหม"
+    },
+    {
+      "en": "How many incense sticks should I light?",
+      "th": "ควรจุดธูปกี่ดอก"
+    },
+    {
+      "en": "Where do I put the candle?",
+      "th": "ปักเทียนตรงไหน"
+    },
+    {
+      "en": "May I take a photo?",
+      "th": "ขอถ่ายรูปได้ไหม"
+    },
+    {
+      "en": "Is there an entrance fee?",
+      "th": "มีค่าเข้าชมไหม"
+    },
+    {
+      "en": "Please show me how to do it.",
+      "th": "ช่วยสอนวิธีทำหน่อย"
+    },
+    {
+      "en": "Thank you for explaining.",
+      "th": "ขอบคุณที่อธิบาย"
+    }
+  ]
+}
