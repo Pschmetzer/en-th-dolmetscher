@@ -17,6 +17,7 @@ Pull requests #16–#47. Not yet published as a release.
 - Allergy card and shown sentences can be shared as an image (for chat apps); a Playwright + axe-core scan of the web page runs in CI (informational).
 - Numbers box: time of day and phone numbers in Thai words; allergy card with mushrooms, coriander and an EpiPen line; the Back button closes the two-person screen.
 - The conversation CSV now has time and languages per line.
+- Web page: interface texts load without blocking (German first, then the chosen language); warnings follow a language switch; the 40 newest phrase packs are listed in the page and the offline cache.
 - Installable app: separate maskable icons, opaque 180 px Apple icon, iOS meta tags; the service worker refuses an install without page and language table and checks for updates hourly.
 
 ### Phrase packs and tooling (round 21)
