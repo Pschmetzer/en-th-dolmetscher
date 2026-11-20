@@ -399,6 +399,8 @@ enum L {
         "quick_edit": ["de": "Schnellsätze (ein Satz pro Zeile, Englisch)", "en": "Quick phrases (one per line, English)",
                        "th": "ประโยคด่วน (บรรทัดละหนึ่งประโยค ภาษาอังกฤษ)"],
         "quick_reset": ["de": "Standard wiederherstellen", "en": "Restore defaults", "th": "คืนค่าเริ่มต้น"],
+        "quick_import": ["de": "Importieren…", "en": "Import…", "th": "นำเข้า…"],
+        "quick_export": ["de": "Exportieren…", "en": "Export…", "th": "ส่งออก…"],
         "restart_note": ["de": "Änderung lädt die Engine neu", "en": "Changing this reloads the engine",
                          "th": "การเปลี่ยนจะโหลดเครื่องแปลใหม่"],
         "font_size": ["de": "Schriftgröße", "en": "Font size", "th": "ขนาดตัวอักษร"],
