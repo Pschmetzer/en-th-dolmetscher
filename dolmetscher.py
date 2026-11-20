@@ -4419,7 +4419,14 @@ async def _ws_open():
             except Exception:                      # noqa: BLE001
                 pass
         raise
-    await ws.send_str(_WS_CONFIG.format(ec.date_to_string()))
+    try:
+        await ws.send_str(_WS_CONFIG.format(ec.date_to_string()))
+    except BaseException as e:                     # noqa: BLE001 – Verbindung steht, Konfiguration scheiterte: nicht offen lassen
+        if isinstance(e, Exception):
+            await _ws_close(ws)
+        else:                                      # Abbruch (CancelledError): nicht awaiten, im Hintergrund schließen
+            _spawn(_ws_close(ws))
+        raise
     return ws
 
 
@@ -4804,12 +4811,16 @@ class EdgeStream:
         self.futs.append(asyncio.run_coroutine_threadsafe(produce(), tts_loop()))
         return q
 
-    def first(self, deadline=None):
-        """Erster Audioblock (mit zweitem Versuch nach HEDGE s). Wirft, wenn bis zur Frist nichts kam."""
+    def first(self, deadline=None, cancelled=None):
+        """Erster Audioblock (mit zweitem Versuch nach HEDGE s). Wirft, wenn bis zur Frist nichts kam.
+        `cancelled`: Stopp/Barge-in beendet das Warten sofort -> (_CANCELLED, None), statt bis zur Frist zu hängen."""
         deadline = FIRST_DEADLINE if deadline is None else deadline
         t_wait = time.time()
         errs = []
         while time.time() - t_wait < deadline:
+            if cancelled and cancelled():
+                self.cancel()
+                return _CANCELLED, None
             # zuerst nachsehen (vorab Geladenes liegt schon bereit), erst dann ggf. zweiter Versuch
             slice_s = 0.02 / max(1, len(self.qs))     # reihum: bei zwei Anfragen nicht doppelt so lange blockieren
             for cand in list(self.qs):
@@ -4878,7 +4889,9 @@ def edge_play(stream, volume, on_start=None, cancelled=None, deadline=None):
     wirft nur, wenn noch kein Ton kam (dann übernimmt 'say', ohne Doppelung). Reißt der Ton
     mitten im Satz ab, steht stats["partial"] (der Satz wurde nur teilweise vorgelesen)."""
     t0 = time.time()
-    first, q = stream.first(deadline)
+    first, q = stream.first(deadline, cancelled)
+    if first is _CANCELLED:                     # Stopp vor dem ersten Ton: nichts gespielt, nichts zu melden
+        return {"interrupted": True, "hedged": stream.hedged}
     got, complete = [], False
     stats = {"first_chunk_s": round(time.time() - t0, 2), "since_request_s": round(time.time() - stream.t0, 2),
              "hedged": stream.hedged}
@@ -5257,10 +5270,19 @@ class Speaker:
             except Exception as e:
                 log({"tts": "vorab-fehler", "err": _errtxt(e)})
             if TTS_RACE > 0 and stream is not None and stream.cached is None:
-                local = LocalVoice(s, _say_voice(eng, lang), eng.rate + boost, audio=stream.audio)
+                local = self._local_voice(s, lang, boost, stream.audio)
         elif eng.tts == "say" and not eng.mute:           # --tts say: Teilsätze vorab rendern (keine Pausen dazwischen)
-            local = LocalVoice(s, _say_voice(eng, lang), eng.rate + boost, audio=None)
+            local = self._local_voice(s, lang, boost, None)
         return stream, local
+
+    def _local_voice(self, s, lang, boost, audio):
+        """Vorab-Rendering der macOS-Stimme; scheitert schon das Anlegen (Temp-Ordner weg/voll, Threadlimit), gibt es
+        nur keinen Rückfall – `add` darf nach der schon gemeldeten Übersetzung nicht mehr scheitern."""
+        try:
+            return LocalVoice(s, _say_voice(self.eng, lang), self.eng.rate + boost, audio=audio)
+        except Exception as e:                           # noqa: BLE001
+            log({"tts": "lokal-vorab-start-fehler", "err": _errtxt(e)})
+            return None
 
     def boost(self, behind, slow=False):
         """Tempo-Zuschlag in Prozentpunkten: Aufhol-Modus (+FAST_BOOST bei Rückstand) oder, mit
@@ -5323,6 +5345,7 @@ class Speaker:
                 while not self.items:
                     self.cond.wait()
                 it = self.items.popleft()
+                gen = CANCEL["gen"]               # unter dem Lock wie flush(): spätere Stopps gelten auch hier
                 behind = len(self.items)
                 waiting = sum(len(t) for other in self.items for t, _ in other["parts"])
                 self.busy = True
@@ -5339,7 +5362,7 @@ class Speaker:
                     log({"tts": "übersprungen", "id": it["id"], "behind": behind})
                     emit("speak_done", id=it["id"], skipped=True, interrupted=False)
                     continue
-                self._play(it)
+                self._play(it, gen)
             except Exception as e:
                 log({"speaker": "fehler", "err": _errtxt(e)})
                 emit("speak_done", id=it["id"], skipped=False, interrupted=True)
@@ -5349,16 +5372,19 @@ class Speaker:
                     self.cond.notify_all()
                 report_queue()
 
-    def _play(self, it):
+    def _play(self, it, gen=None):
         eng, uid = self.eng, it["id"]
+        g = CANCEL["gen"] if gen is None else gen
         if it["kind"] == "earcon":
-            wait_quiet()
+            wait_quiet(cancelled=lambda: CANCEL["gen"] != g)
+            if CANCEL["gen"] != g:                       # Stopp während des Wartens: kein Signalton danach
+                emit("speak_done", id=uid, skipped=False, interrupted=True)
+                return
             emit("speaking", id=uid, first_s=0.0)
             PLAYER.run(file_play_cmd(EARCON, eng.volume))
             emit("speak_done", id=uid, skipped=False, interrupted=False)
             return
         started = {"v": False}
-        g = CANCEL["gen"]
 
         def cancelled():
             return CANCEL["gen"] != g or self.eng.mute
@@ -5779,10 +5805,13 @@ class Engine:
                     race = (adaptive_race(TTS_RACE, EDGE_FIRST) if NET.get("tts", True)
                             else min(TTS_RACE, TTS_OFFLINE_PROBE))
                 st = edge_play(stream, self.volume, on_start_part, cancelled, deadline=race)
-                net_state("tts", True)
-                if isinstance(st.get("first_chunk_s"), (int, float)) and not st.get("cached"):
-                    EDGE_FIRST.append(float(st["first_chunk_s"]))
-                _tts_fallback_end()
+                if "first_chunk_s" in st and not st.get("cached"):
+                    # nur eine echte Antwort des Servers beweist „online“ (Cache-Satz und Abbruch vor dem ersten Ton
+                    # nicht: sonst verschwindet offline die Ersatzstimmen-Anzeige, TTS_RACE wartet voll)
+                    net_state("tts", True)
+                    _tts_fallback_end()
+                    if isinstance(st.get("first_chunk_s"), (int, float)):
+                        EDGE_FIRST.append(float(st["first_chunk_s"]))
                 log({"tts": "edge", "voice": stream.voice, **st, "secs": round(time.time() - t, 2)})
                 return "partial" if st.get("partial") else None
             except Exception as e:

@@ -33,7 +33,7 @@ def test_speaker_skips_by_waiting_text_without_streams(monkeypatch):
     sp.busy = False
     sp.eng = types.SimpleNamespace(tts="say", mute=True, rate=0)
     played = []
-    sp._play = lambda it: played.append(it["id"])
+    sp._play = lambda it, gen=None: played.append(it["id"])
     long_text = "x" * 700
     sp.items.extend([{"id": "a", "kind": "speech", "parts": [("kurz", None)], "pin": False},
                      {"id": "b", "kind": "speech", "parts": [(long_text, None)], "pin": False}])

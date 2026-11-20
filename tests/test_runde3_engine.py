@@ -237,7 +237,7 @@ def test_langsam_ueberspringt_nicht(monkeypatch, ev):
     sp = d.Speaker.__new__(d.Speaker)
     sp.eng, sp.cond, sp.busy = types.SimpleNamespace(rate=0), threading.Condition(), False
     sp.items = d.collections.deque({"id": f"u{i}", "kind": "speech", "parts": [], "lang": "en"} for i in range(5))
-    sp._play = lambda it: played.append(it["id"])
+    sp._play = lambda it, gen=None: played.append(it["id"])
     monkeypatch.setattr(d, "report_queue", lambda: None)
     threading.Thread(target=sp._loop, daemon=True).start()
     deadline = time.time() + 2
