@@ -124,6 +124,10 @@
   .card { flex:1; width:100%; text-align:left; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px 50px 10px 12px; cursor:pointer; min-height:56px; overflow-wrap:anywhere; }
   .card.crit { border:2px solid var(--crit); }
   #partnerText.crit { border:6px solid var(--crit); border-radius:16px; padding:12px; }
+  #nowRow { min-height:44px; }   /* Platz reservieren: kein Springen, wenn das Verzeichnis geladen ist */
+  #dayPhrase { min-height:66px; }
+  #ansRow { min-height:44px; }
+  #dayPhrase:empty { display:block; }
   .card .alg-b { display:block; font-size:12px; font-weight:700; color:var(--crit); }
   #learnSpark { font-size:22px; letter-spacing:2px; line-height:1.2; }
   .card .crit-b { display:block; font-size:12px; font-weight:700; color:var(--crit); }
@@ -310,15 +314,15 @@
     <label><span data-i18n="catLbl">Kategorie</span> <select id="catSel"></select></label>
     <span id="topicCount" role="status"></span>
   </div>
-  <div class="row" id="nowRow" hidden><span data-i18n="nowUseful">Jetzt nützlich:</span> <span id="nowTopics"></span></div>
-  <div id="dayPhrase" class="note" hidden></div>
+  <div class="row" id="nowRow"><span data-i18n="nowUseful">Jetzt nützlich:</span> <span id="nowTopics"></span></div>
+  <div id="dayPhrase" class="note"></div>
   <div class="row">
     <label><span data-i18n="topic">Thema</span> <select id="presetSel"></select></label>
     <button class="small" id="topicPrev" type="button">‹</button><button class="small" id="topicNext" type="button">›</button>
     <button class="yn yes" id="btnYes" type="button">Ja</button>
     <button class="yn no" id="btnNo" type="button">Nein</button>
   </div>
-  <div class="row" id="ansRow" hidden></div>
+  <div class="row" id="ansRow"></div>
   <div class="row" id="pbRecentRow" hidden><span data-i18n="recentTopics">Zuletzt benutzt:</span> <span id="pbRecent"></span></div>
   <div class="row">
     <label><input id="pbQ" type="search" aria-keyshortcuts="/" size="20" maxlength="60" autocomplete="off" enterkeyhint="search"> <span data-i18n="pbSearch">Satz suchen</span></label>
@@ -1723,11 +1727,11 @@ function gotoTopic(id) {   // Thema wählen, auch wenn ein Filter es ausblendet
 }
 function renderNow() {
   const ids = nowTopics(new Date().getHours(), PRESET_IDS), box = $('nowTopics'); box.textContent = '';
-  $('nowRow').hidden = !ids.length;
+  $('nowRow').style.visibility = ids.length ? '' : 'hidden';
   for (const id of ids) { const b = document.createElement('button'); b.type = 'button'; b.className = 'small'; b.textContent = topicName(id); b.onclick = () => gotoTopic(id); box.appendChild(b); }
 }
 async function dayPhraseRender() {   // eine ruhige Phrase pro Tag (lokal berechnet, nichts gesendet)
-  const box = $('dayPhrase'); box.hidden = true; box.textContent = '';
+  const box = $('dayPhrase'); box.textContent = '';
   try {
     const day = Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 864e5), ids = DAY_PACKS.filter(id => PRESET_IDS.includes(id));
     const d = await loadPreset(ids[day % ids.length]), b = pair.b, ok = d.phrases.filter(p => !p.critical && p[b]);
@@ -1737,7 +1741,7 @@ async function dayPhraseRender() {   // eine ruhige Phrase pro Tag (lokal berech
     const s2 = document.createElement('span'); s2.lang = b; s2.textContent = p[b]; s2.style.fontWeight = '700';
     const bs = document.createElement('button'); bs.type = 'button'; bs.className = 'small'; bs.textContent = '🔊'; bs.setAttribute('aria-label', t('speakOnlyLbl')); bs.onclick = () => sayNow(p[b], b);
     const bz = document.createElement('button'); bz.type = 'button'; bz.className = 'small'; bz.textContent = t('showBig'); bz.onclick = () => showBig(p[b], b);
-    box.append(h, s1, s2, ' ', bs, ' ', bz); box.hidden = false;
+    box.append(h, s1, s2, ' ', bs, ' ', bz);
   } catch {}
 }
 $('routeSel').onchange = refillTopics; $('catSel').onchange = refillTopics;

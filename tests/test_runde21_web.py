@@ -420,3 +420,9 @@ def test_travel_checklist_is_wired_and_translated():
             assert S.get(f"chk{i}"), (lang, i)
         assert all(S.get(k) for k in ("checkSum", "checkProg", "checkReset", "algWarn")), lang
     assert "algMarkAll();" in func("allergySave") and "algMark(c)" in SCRIPT and "checkRender();" in func("refreshUi")
+
+
+def test_late_filled_rows_reserve_space_against_layout_shift():
+    for sel in ("#nowRow", "#dayPhrase", "#ansRow"):
+        assert re.search(re.escape(sel) + r" \{ min-height:\d+px; \}", HTML), sel
+    assert 'id="nowRow" hidden' not in HTML and 'id="dayPhrase" class="note" hidden' not in HTML and 'id="ansRow" hidden' not in HTML
