@@ -63,10 +63,18 @@ def test_manifest_shortcuts_and_share_target_work_without_server():
     assert set(st["params"].values()) <= {"title", "text", "url"} and "parseDeepLink(location.hash, location.search" in SCRIPT
 
 
-def test_manifest_icons_not_marked_maskable_without_safe_zone():
-    # Ohne eigenes Icon mit Sicherheitsrand (80 %-Kreis) darf nichts "maskable" heissen: Android schneidet sonst das Motiv ab.
+def test_manifest_maskable_icons_are_separate_opaque_files():
+    # "maskable" nur für eigene Dateien mit Sicherheitsrand und undurchsichtigem Grund; die "any"-Icons bleiben unverändert.
+    kinds = {i["purpose"] for i in MANIFEST["icons"]}
+    assert {"any", "maskable"} <= kinds
     for i in MANIFEST["icons"]:
-        assert "maskable" not in i.get("purpose", "any")
+        assert ("maskable" in i["purpose"]) == i["src"].startswith("icon-maskable-"), i
+        assert not ("maskable" in i["purpose"] and "any" in i["purpose"].split())   # nie beides in einem Eintrag
+    Image = pytest.importorskip("PIL.Image")
+    for f in ("icon-maskable-512.png", "icon-maskable-192.png", "apple-touch-icon-180.png"):
+        im = Image.open(ROOT / f)
+        assert im.mode == "RGB" and im.getpixel((0, 0)) == (0x1d, 0x4e, 0xd8), f   # Ecken gefüllt, keine Transparenz
+    assert Image.open(ROOT / "apple-touch-icon-180.png").size == (180, 180)
 
 
 def test_sw_cache_bumped():
@@ -121,7 +129,8 @@ def test_focus_order():
     assert not [e for e in EL if int(e["a"].get("tabindex", "0") or 0) > 0]   # nie positive tabindex
     focusable = [e for e in EL if e["tag"] in ("a", "button", "select", "input", "textarea", "summary") and "hidden" not in e["a"]
                  and e["a"].get("type") != "hidden"]
-    skip = focusable[0]
+    assert focusable[0]["a"].get("id") == "skipMain" and focusable[0]["a"]["href"] == "#main"   # Zum Inhalt
+    skip = focusable[1]
     assert skip["a"].get("id") == "skipLink" and skip["a"]["href"] == "#pbBox"
     assert 'id="pbBox"' in HTML
     in_main = [e["i"] for e in focusable if "main" in e["anc"]]

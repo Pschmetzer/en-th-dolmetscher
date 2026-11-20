@@ -1,9 +1,10 @@
 // Service Worker der Web-Version: macht die Seite installierbar und das Satzbuch offline nutzbar.
 // Nur eigene Dateien (gleicher Ursprung, GET). Übersetzungs-Anfragen (Google, MyMemory) laufen nie hier durch
-// und werden nie gespeichert. Neue Version: CACHE hochzählen.
-const CACHE = 'dolmetscher-web-v21';
+// und werden nie gespeichert. Neue Version: CACHE hochzählen (nötig bei neuen Dateien; index.html wird ohnehin zuerst vom Netz geholt).
+const CACHE = 'dolmetscher-web-v22';
 const PRESET_IDS = ['doctor', 'police', 'lostchild', 'pharmacy', 'dentist', 'taxi', 'places', 'airport', 'transport', 'travel', 'hotel', 'restaurant', 'shopping', 'bank', 'answers', 'access', 'spa', 'temple', 'island', 'scooter', 'rental', 'services', 'coworking', 'office', 'animal-bite-rabies', 'atm-bank-card', 'baby', 'bakery-cafe', 'bangkok-skytrain', 'beach', 'bicycle-rental', 'buddhist-ceremony', 'bus-train', 'car-rental', 'car-wash-repair', 'cinema-concert', 'convenience-store-7eleven', 'dating-small-talk', 'diving', 'elephant-sanctuary', 'emergency', 'ferry-boat', 'festival', 'flight-delay-change', 'floating-market', 'food-allergy', 'food-delivery', 'grab-ride-hailing', 'gym', 'hiking', 'hospital', 'hostel-dorm', 'immigration-90day', 'island-hopping', 'jet-ski-rental', 'kids', 'kids-playground', 'laundry-deposit', 'laundry-repair', 'lost-passport', 'market', 'massage', 'mobile-sim', 'monk', 'monsoon-flood-storm', 'motorbike-accident', 'muay-thai-gym', 'night-market-bargain', 'nightlife', 'nomad', 'pets', 'pharmacy-otc', 'photo', 'post-office-parcel', 'rice-field-village', 'school', 'snorkel-boat-tour', 'sport', 'street-food', 'tailor-custom', 'tax-refund', 'thai-cooking-class', 'travel-insurance-claim', 'tuk-tuk-songthaew', 'vegan-vegetarian', 'visa', 'visa-extension', 'wedding', 'wifi-coworking-cafe', 'work', 'yoga-retreat'];
-const CORE = ['./', 'index.html', 'languages.json', 'presets-index.json', 'allergens.json', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png'];
+const CORE = ['./', 'index.html', 'languages.json', 'presets-index.json', 'allergens.json', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png', 'icon-maskable-192.png', 'icon-maskable-512.png', 'apple-touch-icon-180.png'];
+const MUST = ['index.html', 'languages.json'];   // ohne diese beiden wäre die neue Version kaputt: Installation scheitert, die alte bleibt aktiv
 const PACKS = PRESET_IDS.map(id => 'presets/' + id + '.json');   // Pakete kommen nach dem Start (Nachricht 'cache-presets'), nicht beim Installieren
 const ALL = CORE.concat(PACKS);   // alles, was offline bereit sein soll
 const FILL_PARALLEL = 4;
@@ -18,7 +19,7 @@ function keepOldPacks(c) {
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE)
-    .then(c => Promise.all(CORE.map(u => c.add(abs(u)).catch(() => {})))   // eine fehlende Datei bricht nichts ab
+    .then(c => Promise.all(CORE.map(u => c.add(new Request(abs(u), { cache: 'reload' })).catch(err => { if (MUST.includes(u)) throw err; })))   // Symbole/Daten dürfen fehlen, Seite und Sprachtabelle nicht
       .then(() => keepOldPacks(c)))
     .then(() => self.skipWaiting()));
 });
@@ -84,7 +85,7 @@ self.addEventListener('fetch', e => {
   }
   // Sprachtabelle, Presets, Icons, Manifest: sofort aus dem Speicher, im Hintergrund auffrischen
   e.respondWith(caches.open(CACHE).then(c => c.match(req, { ignoreSearch: true }).then(hit => {
-    const net = fetch(req).then(r => {
+    const net = fetch(req, { cache: 'no-cache' }).then(r => {   // Hintergrund-Auffrischung am HTTP-Cache vorbei
       // nur vollständige Antworten (200, nicht 206) und nur bekannte Dateien speichern; Fehler beim Speichern ignorieren
       if (r.ok && r.status === 200 && cacheable(url)) c.put(url.origin + url.pathname, r.clone()).catch(() => {});   // ohne ?query: kein Wachstum durch Varianten
       return r;
