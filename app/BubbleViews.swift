@@ -295,6 +295,7 @@ private struct BubbleHeader: View {
                         .overlay(Capsule().strokeBorder(Color.primary.opacity(0.6)))
                         .accessibilityHidden(true)
                 }
+                if let g = u.groupSpeaker { GroupSpeakerDot(n: g) }
                 Text(line)
                     .font(.system(size: 15 * scale)).foregroundStyle(.secondary)
                     .multilineTextAlignment(en ? .leading : .trailing)

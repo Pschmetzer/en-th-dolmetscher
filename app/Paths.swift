@@ -99,13 +99,16 @@ enum Paths {
     /// Umgebung für jeden Start von dolmetscher.py (Whitelist, siehe oben).
     /// `includeKey`: nur der Engine-Prozess braucht den Claude-Schlüssel (Nr. 13); Hilfsaufrufe (Mikrofonliste,
     /// Profile, Verlauf, Python-Prüfung) bekommen ihn nicht und lösen keinen Schlüsselbund-Zugriff aus.
-    static func engineEnvironment(includeKey: Bool = false) -> [String: String] {
+    static func engineEnvironment(includeKey: Bool = false, historyPassword: Bool = false) -> [String: String] {
         var env: [String: String] = [:]
         for (k, v) in ProcessInfo.processInfo.environment
         where envExact.contains(k) || envPrefixes.contains(where: { k.hasPrefix($0) }) {
             env[k] = v
         }
         if !includeKey { env["ANTHROPIC_API_KEY"] = nil }
+        // Verlauf-Passwort (Runde 26): nie aus der App-Umgebung durchreichen, nur aus dem Schlüsselbund und nur, wenn gebraucht
+        env[HistoryPasswordLogic.envName] = nil
+        if historyPassword { HistoryPasswordStore.applyEnv(&env) }
         env["PATH"] = (searchDirs + ["/usr/bin", "/bin"]).joined(separator: ":")
         // Die Whitelist lässt PYTHON* bewusst nicht durch – deshalb hier ausdrücklich setzen.
         env["PYTHONPYCACHEPREFIX"] = pycachePrefix

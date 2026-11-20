@@ -57,7 +57,7 @@ enum EngineRunner {
         let p = Process()
         p.executableURL = URL(fileURLWithPath: Paths.python)
         p.arguments = ["-u", script, "--json"] + (request != nil ? ["--profile-stdin"] : []) + args
-        p.environment = Paths.engineEnvironment()
+        p.environment = Paths.engineEnvironment(historyPassword: HistoryPasswordLogic.needsEnv(args: args))   // Verlauf-Abfragen lesen die verschlüsselte Datei
         let out = Pipe()
         p.standardOutput = out
         p.standardError = helperLog(args) ?? FileHandle.nullDevice
