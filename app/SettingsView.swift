@@ -80,7 +80,7 @@ struct SettingsView: View {
 }
 
 /// Kleiner Zusatz an Einstellungen, deren Änderung die Engine neu startet (automatisch).
-private struct RestartNote: View {
+struct RestartNote: View {
     var body: some View {
         Text(L.t("restart_note")).font(.caption).foregroundStyle(.secondary)
     }
@@ -172,6 +172,8 @@ private struct GeneralSettings: View {
             }
             MicSection()
             OutputSection()
+            AudioRouteSection()
+            HandoffSection()
             RecognitionSection()
             Section {
                 Toggle(L.t("push_to_talk"), isOn: $m.pushToTalk)
@@ -423,106 +425,6 @@ private struct MaintenanceSection: View {
     }
 }
 
-/// Mikrofonwahl: Liste per `dolmetscher.py --list-mics` (gleicher Python wie die Engine).
-/// Gespeichert werden Index und Name; beim Start gilt der Name (Indizes ändern sich beim Ein-/Ausstecken).
-private struct MicSection: View {
-    @EnvironmentObject var m: EngineModel
-    @State private var mics: [(index: String, name: String)] = []
-    @State private var loading = false
-    @State private var proc: Process?
-
-    private var selection: Binding<String> {
-        Binding(get: { m.mic }, set: { new in
-            // „Systemstandard“ hat keinen Namen; Wechsel live ohne Neustart (Steuerfeld `mic`)
-            m.selectMic(index: new, name: mics.first { $0.index == new }?.name ?? "")
-        })
-    }
-
-    var body: some View {
-        Section {
-            HStack {
-                Picker(L.t("mic"), selection: selection) {
-                    Text(L.t("mic_default")).tag("")
-                    ForEach(mics, id: \.index) { Text($0.name).tag($0.index) }
-                    if !m.mic.isEmpty && !mics.contains(where: { $0.index == m.mic }) {
-                        Text(m.micName.isEmpty ? "#\(m.mic)" : m.micName).tag(m.mic)
-                    }
-                }
-                .accessibilityLabel(L.t("mic"))
-                if loading {
-                    ProgressView().controlSize(.small).accessibilityLabel(L.t("mic_loading"))
-                } else {
-                    Button { load() } label: { Image(systemName: "arrow.clockwise") }
-                        .buttonStyle(.borderless)
-                        .help(L.t("mic_reload"))
-                        .accessibilityLabel(L.t("mic_reload"))
-                }
-            }
-            // Nr. 413: Live-Pegel zum Prüfen des gewählten Mikrofons (kommt nur, solange zugehört wird)
-            HStack(spacing: 8) {
-                Text(L.t("level"))
-                if m.micOn {
-                    LevelBar(meter: m.meter)
-                } else {
-                    Text(L.t("mic_level_off")).font(.caption).foregroundStyle(.secondary)
-                }
-            }
-        }
-        .onAppear { if mics.isEmpty { load() } }
-        .onReceive(NotificationCenter.default.publisher(for: .audioDevicesChanged)) { _ in load() }   // Nr. 27
-        .onDisappear { proc?.terminate(); proc = nil }
-    }
-
-    private func load() {
-        guard !loading else { return }
-        loading = true
-        proc = EngineRunner.run(["--list-mics"], timeout: 15, onEvent: { o in
-            guard o["event"] as? String == "mics", let list = o["mics"] as? [[String: Any]] else { return }
-            mics = list.compactMap { d in
-                let idx = (d["index"] as? String) ?? (d["index"] as? NSNumber)?.stringValue
-                guard let idx else { return nil }
-                return (idx, d["name"] as? String ?? "#\(idx)")
-            }
-        }, onExit: { loading = false; proc = nil })
-        if proc == nil { loading = false }
-    }
-}
-
-/// Ausgabegerät (Nr. 24/357): Liste aus CoreAudio, Wechsel live ohne Neustart (Steuerfeld `output_device`).
-private struct OutputSection: View {
-    @EnvironmentObject var m: EngineModel
-    @State private var outputs: [AudioOutputs.Device] = []
-
-    private var selection: Binding<String> {
-        Binding(get: { m.outputDevice }, set: { new in
-            m.outputDeviceName = outputs.first { $0.uid == new }?.name ?? ""
-            m.outputDevice = new
-        })
-    }
-
-    var body: some View {
-        Section {
-            HStack {
-                Picker(L.t("output_device"), selection: selection) {
-                    Text(L.t("output_default")).tag("")
-                    ForEach(outputs, id: \.uid) { Text($0.name).tag($0.uid) }
-                    if !m.outputDevice.isEmpty && !outputs.contains(where: { $0.uid == m.outputDevice }) {
-                        Text(m.outputDeviceName.isEmpty ? m.outputDevice : m.outputDeviceName).tag(m.outputDevice)
-                    }
-                }
-                .accessibilityLabel(L.t("output_device"))
-                .help(L.t("output_device_help"))
-                Button { outputs = AudioOutputs.list() } label: { Image(systemName: "arrow.clockwise") }
-                    .buttonStyle(.borderless)
-                    .help(L.t("mic_reload"))
-                    .accessibilityLabel(L.t("mic_reload"))
-            }
-        }
-        .onAppear { outputs = AudioOutputs.list() }
-        .onReceive(NotificationCenter.default.publisher(for: .audioDevicesChanged)) { _ in outputs = AudioOutputs.list() }   // Nr. 27
-    }
-}
-
 /// Satzende-Pause, Empfindlichkeit, Rauschunterdrückung.
 private struct RecognitionSection: View {
     @EnvironmentObject var m: EngineModel
@@ -630,25 +532,6 @@ private struct VoiceSettings: View {
     }
 }
 
-/// Neural-Stimme zu langsam → nach … s spricht die macOS-Ersatzstimme (0 = aus).
-private struct TTSRaceSection: View {
-    @EnvironmentObject var m: EngineModel
-    private var valueText: String { m.ttsRace <= 0 ? L.t("off") : fmtSeconds(m.ttsRace) }
-    var body: some View {
-        Section {
-            HStack {
-                Text(L.t("tts_race"))
-                Slider(value: $m.ttsRace, in: 0...3, step: 0.1)
-                    .accessibilityLabel(L.t("tts_race"))
-                    .accessibilityValue(valueText)
-                Text(valueText).monospacedDigit().frame(width: 52, alignment: .trailing)
-            }
-        } footer: {
-            Text(L.t("tts_race_help")).foregroundStyle(.secondary)
-        }
-    }
-}
-
 // MARK: Übersetzung (Claude)
 
 private struct TranslationSettings: View {
@@ -722,51 +605,6 @@ private struct TranslationSettings: View {
         }
         .formStyle(.grouped)
         .sheet(isPresented: $showGlossaryEditor) { GlossaryEditorSheet().environmentObject(m) }
-    }
-}
-
-/// API-Schlüssel eingeben und im Schlüsselbund speichern (Rückfall: Datei 0600). Er wird nie angezeigt oder geloggt.
-/// Ein „Schlüssel testen“-Knopf fehlt absichtlich: Er würde den Schlüssel lesen und an die API senden.
-private struct APIKeySection: View {
-    @EnvironmentObject var m: EngineModel
-    @State private var key = ""
-    @State private var exists = APIKeyStore.exists
-    @State private var failed = false
-    @State private var formatWarn = false
-
-    var body: some View {
-        Section {
-            SecureField(L.t("api_key"), text: $key)
-                .onSubmit(save)
-            HStack {
-                if failed {
-                    Label(L.t("key_failed"), systemImage: "xmark.octagon").foregroundStyle(.red)
-                } else if exists && formatWarn {
-                    Label(L.t("key_format_warn"), systemImage: "exclamationmark.triangle").foregroundStyle(LangStyle.warning)
-                } else if exists {
-                    Label(L.t("key_saved"), systemImage: "key.fill").foregroundStyle(LangStyle.success)
-                } else {
-                    Text(L.t("key_missing")).foregroundStyle(.secondary)
-                }
-                Spacer()
-                if exists {
-                    Button(L.t("key_remove"), role: .destructive) {
-                        APIKeyStore.remove(); exists = APIKeyStore.exists; formatWarn = false; m.keyVersion += 1
-                    }
-                }
-                Button(L.t("save"), action: save).disabled(key.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            }
-            RestartNote()
-        } header: { Text(L.t("api_key")) }
-    }
-
-    private func save() {
-        formatWarn = !APIKeyStore.looksValid(key)   // Nr. 390: trotzdem speichern, nur warnen
-        let ok = APIKeyStore.save(key)
-        key = ""                      // Eingabe sofort verwerfen
-        failed = !ok
-        exists = APIKeyStore.exists
-        if ok { m.keyVersion += 1 }
     }
 }
 

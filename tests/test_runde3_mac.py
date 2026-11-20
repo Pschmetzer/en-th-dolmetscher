@@ -38,7 +38,7 @@ def test_engine_ruft_security_nicht_auf():
 
 def test_formatwarnung_api_schluessel():
     assert 'hasPrefix("sk-ant-")' in src("Paths.swift")
-    s = src("SettingsView.swift")
+    s = src("SettingsView.swift") + src("SettingsAPIKey.swift")
     assert "APIKeyStore.looksValid(key)" in s and 'L.t("key_format_warn")' in s
 
 
