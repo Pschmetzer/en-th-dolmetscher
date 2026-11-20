@@ -65,13 +65,22 @@ Einzeltasten-Kürzel gelten nicht in Eingabefeldern und nicht mit Strg, Alt oder
 |---|---|
 | E oder 1 | ich spreche (nur wo Spracherkennung vorhanden ist) |
 | T oder 2 | das Gegenüber spricht |
-| Leertaste | Aufnahme beenden (nicht auf Knöpfen und in Eingabefeldern) |
+| Leertaste | Aufnahme beenden (nur wenn sie läuft; nicht auf Knöpfen, Links, Aufklapp-Überschriften und in Eingabefeldern) |
 | P | Partneransicht ein / aus |
+| ? | Hilfe öffnen |
+| / | Satzsuche im Satzbuch |
+| V | in der Partneransicht: Vorzeigen (nur Thai groß) ein / aus |
+| S | in der Partneransicht: Link zum Satz teilen |
+| 1 bis 4 | auf einer Lernkarte (nach dem Aufdecken): Note 1 bis 4; startet dann kein Mikrofon |
+| Pfeil links / rechts | auf einer Lernkarte: nicht gewusst / gewusst |
+| Leertaste | auf einer Lernkarte: Antwort aufdecken |
 | L | zum neuesten Eintrag im Gespräch springen |
 | Esc | schließt die Partneransicht, sonst Stopp; schließt Dialoge immer |
 | Pfeil rechts / links | in der Partneransicht bei einer Kartenfolge vor / zurück |
 | Enter | im Textfeld „Tippen statt Sprechen“ übersetzen (mit Umschalt+Enter wird nicht abgeschickt) |
 | Tab | alles ist auch ohne Kürzel mit Tab und den Knöpfen bedienbar |
+
+Gehaltene Tasten lösen nichts mehrfach aus (kein Autorepeat).
 
 „Halten zum Sprechen“ ist ein Knopf: gedrückt halten, sprechen, loslassen. Mit der Tastatur bleibt es ein Umschalter.
 
