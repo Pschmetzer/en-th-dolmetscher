@@ -1363,8 +1363,8 @@ const LANG_FALLBACK = { scripts: { latin: ['0041-005A', '0061-007A', '00C0-024F'
 function loadLangTable() {   // nach 3 s ohne Antwort mit dem Notfall-Paar starten; die Tabelle ersetzt es, sobald sie da ist
   const late = fetch('languages.json').then(r => { if (!r.ok) throw new Error('http ' + r.status); return r.json(); });
   const slow = new Promise(res => setTimeout(() => res(null), 3000));
-  return Promise.race([late, slow]).then(t => {
-    if (t) return applyLangTable(t);
+  return Promise.race([late, slow]).then(tbl => {
+    if (tbl) return applyLangTable(tbl);
     applyLangTable(LANG_FALLBACK);
     late.then(j => { applyLangTable(j); refreshLangUi(); }, () => showWarn(t('langTableFail')));
   }, e => { console.warn('languages.json', e); showWarn(t('langTableFail')); applyLangTable(LANG_FALLBACK); });
@@ -2213,7 +2213,7 @@ function learnParse(raw) {   // gespeicherte Daten prüfen: kaputte oder fremde 
   try { v = JSON.parse(raw || '[]'); } catch { return []; }
   if (!Array.isArray(v)) return [];
   const txt = x => ({ t: x.t.replace(/[\u0000-\u001f\u007f]/g, ' ').trim(), l: x.l });   // Steuerzeichen raus
-  return v.filter(c => c && typeof c === 'object' && learnSide(c.a) && learnSide(c.b))
+  const out = v.filter(c => c && typeof c === 'object' && learnSide(c.a) && learnSide(c.b))
     .map(c => Object.assign({ a: txt(c.a), b: txt(c.b),
                  box: Number.isInteger(c.box) && c.box >= 1 && c.box <= 5 ? c.box : 1,
                  due: Number.isFinite(c.due) ? c.due : 0, fav: c.fav === true, rec: c.rec === true,
@@ -2221,8 +2221,9 @@ function learnParse(raw) {   // gespeicherte Daten prüfen: kaputte oder fremde 
       typeof c.deck === 'string' && /^[a-z0-9-]{1,40}$/.test(c.deck) ? { deck: c.deck } : {},
       Number.isInteger(c.reps) && c.reps > 0 && c.reps < 1e6 ? { reps: c.reps } : {},
       typeof c.r === 'string' && c.r.trim() && c.r.length <= LEARN_TXT ? { r: c.r.replace(/[\u0000-\u001f\u007f]/g, ' ').trim() } : {}))
-    .filter(c => c.a.t && c.b.t)
-    .slice(-LEARN_MAX);
+    .filter(c => c.a.t && c.b.t);
+  while (out.length > LEARN_MAX) { const i = out.findIndex(c => !c.fav); if (i < 0) break; out.splice(i, 1); }   // gemerkte Karten bleiben immer erhalten
+  return out;
 }
 const STATS_DAY_RX = /^\d{4}-\d{2}-\d{2}$/;
 function statsClean(v) {   // Tageszähler prüfen: nur Datumsschlüssel, nur kleine ganze Zahlen, höchstens 30 Tage
@@ -2263,9 +2264,10 @@ function learnAdd(list, item, now, kind) {   // kind 'fav' (gemerkt) oder 'rec' 
   const extra = Object.assign({}, item.deck ? { deck: item.deck } : {}, item.r ? { r: item.r } : {});   // Lerndeck (Themenpaket) und Umschrift, falls bekannt
   if (old) return list.map(c => c === old ? Object.assign({}, extra, c, { [kind]: true }) : c);
   const out = list.concat([Object.assign({ a: item.a, b: item.b, box: 1, due: now, fav: kind === 'fav', rec: kind === 'rec', add: now }, extra)]);
-  while (out.length > LEARN_MAX) {   // voll: zuerst die ältesten nicht gemerkten entfernen
+  while (out.length > LEARN_MAX) {   // voll: zuerst die ältesten nicht gemerkten entfernen; gemerkte Karten gehen nie verloren
     const i = out.findIndex(c => !c.fav);
-    out.splice(i >= 0 ? i : 0, 1);
+    if (i < 0) break;
+    out.splice(i, 1);
   }
   return out;
 }
@@ -2716,7 +2718,18 @@ function thaiNumber(n) {
   return thaiBelow(n, false);
 }
 function thaiDigits(s) { return String(s).replace(/[0-9]/g, d => '๐๑๒๓๔๕๖๗๘๙'[d]); }
-function parseAmount(raw) { const d = String(raw || '').replace(/\D/g, ''); return d && d.length <= 9 ? Number(d) : null; }
+function parseAmount(raw) {   // „12.50“ / „3,50“ / „1.234,50“: Dezimalstellen werden gerundet (nicht zu 1250); „1,500“ / „1.500“ = Tausender
+  const s = String(raw || '').trim().replace(/[^\d.,]/g, '');
+  if (!/\d/.test(s)) return null;
+  const m = s.match(/^(.*)[.,](\d{1,2})$/);   // letztes Trennzeichen mit 1–2 Ziffern = Dezimalstellen
+  if (m) {
+    const ip = m[1].replace(/\D/g, '');
+    if (ip.length > 9) return null;
+    const n = Math.round(Number(ip || '0') + Number(m[2]) / Math.pow(10, m[2].length));
+    return n <= 999999999 ? n : null;
+  }
+  const d = s.replace(/\D/g, ''); return d && d.length <= 9 ? Number(d) : null;
+}
 function amountCard(n, unit) {   // Großansicht: Ziffern mit Einheit, darunter das Thai-Zahlwort
   return n.toLocaleString('en-US') + (unit ? ' ' + unit : '') + '\n' + thaiNumber(n) + (unit === '฿' ? 'บาท' : '');
 }
@@ -2806,7 +2819,8 @@ function spreadDue(i, perDay, now) { return i < perDay ? now : now + Math.floor(
 function learnMerge(list, imp) {   // Sicherung einspielen: nur unbekannte Karten, Obergrenze LEARN_MAX
   const out = list.slice(), seen = new Set(out.map(learnKey));
   for (const c of imp) if (!seen.has(learnKey(c))) { seen.add(learnKey(c)); out.push(c); }
-  return out.slice(-LEARN_MAX);
+  while (out.length > LEARN_MAX) { const i = out.findIndex(c => !c.fav); if (i < 0) break; out.splice(i, 1); }
+  return out;
 }
 function learnTsv(list) {   // Anki-Textimport: vorne, hinten, Tags (Sprachen)
   const cl = x => String(x).replace(/[\t\r\n]+/g, ' ');
