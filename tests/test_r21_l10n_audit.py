@@ -223,3 +223,16 @@ def test_info_plist_strings_have_same_keys_in_every_language():
     for key in next(iter(keysets.values())):
         if key != "NSPhotoLibraryUsageDescription":     # Fotoauswahl ohne Berechtigung (PhotosPicker)
             assert f"INFOPLIST_KEY_{key}" in base, key
+
+
+def test_partner_text_containers_follow_text_direction_for_arabic():
+    """languages.json enthält Arabisch (RTL) als Partnersprache; alle Container mit Fremdtext brauchen dir="auto"."""
+    lang = json.loads((ROOT / "languages.json").read_text(encoding="utf-8"))
+    assert any(x["code"] == "ar" for x in lang["languages"])
+    html = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert '<div id="partnerText" lang="th" dir="auto"' in html
+    assert '<div class="orig" dir="auto"></div><div class="trans" dir="auto"></div>' in html
+    assert 'id="learnFront" dir="auto"' in html and 'id="learnBack" dir="auto"' in html
+    assert "s.dir = 'auto'" in html
+    for field in ("typeIn", "inFar", "inNear", "myText", "myTr"):
+        assert re.search(rf'<textarea id="{field}"[^>]*dir="auto"', html), field
