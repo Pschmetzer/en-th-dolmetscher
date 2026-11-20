@@ -17,14 +17,18 @@ def _closer(monkeypatch):
 def test_google_pieces_are_requested_in_parallel_and_keep_order(monkeypatch):
     monkeypatch.setattr(d, "_split_bytes", lambda text, limit=0: ["a", "b", "c", "d"])
 
+    import threading
+    n = d.GOOGLE_PARALLEL
+    barrier = threading.Barrier(n, timeout=10)   # erste n Stücke gleichzeitig, sonst Fehler
+    seen = []
+
     def one(text, src, dst, timeout):
-        time.sleep(0.3)
+        seen.append(text)
+        if len(seen) <= n:
+            barrier.wait()
         return "ก" + text
     monkeypatch.setattr(d, "_google_one", one)
-    t0 = time.monotonic()
-    out = d.google_translate("a b c d", "en", "th")
-    assert out == "กaกbกcกd"
-    assert time.monotonic() - t0 < 0.8          # nacheinander wären es 1,2 s
+    assert d.google_translate("a b c d", "en", "th") == "กaกbกcกd"   # keine Zeitmessung: deterministisch
 
 
 def test_google_piece_error_is_raised_not_swallowed(monkeypatch):
