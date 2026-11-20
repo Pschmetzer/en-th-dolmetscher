@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# ruff: noqa: E501
 """Screenshots der Web-Seite fuer manifest.webmanifest ("screenshots"), mit Chrome im Headless-Modus (kein Playwright noetig).
 
 Aufruf (Repo-Wurzel): python3 tools/web_screenshots.py [--url http://localhost:8000/] [--chrome PFAD]
