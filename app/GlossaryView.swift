@@ -117,6 +117,7 @@ struct GlossaryEditorSheet: View {
                     Button(L.t("cancel")) { editing = nil; word = ""; translation = "" }
                 }
             }
+            suggestionRow
             previewBox
             HStack {
                 Button(L.t("gl_import")) { importCSV() }.help(L.t("gl_csv_help"))
@@ -162,6 +163,28 @@ struct GlossaryEditorSheet: View {
                 .accessibilityLabel(L.f("gl_delete_named", e.term))
         }
         .accessibilityElement(children: .contain)
+    }
+
+    /// Namen und Orte aus dem laufenden Gespräch, die noch nicht im Glossar stehen.
+    private var suggestionRow: some View {
+        let names = NameSuggest.candidates(texts: m.items.flatMap { [$0.text, $0.out] }, known: all.map { $0.term })
+        return Group {
+            if !names.isEmpty {
+                HStack(spacing: 6) {
+                    Text(L.t("gl_suggest")).foregroundStyle(.secondary)
+                    ForEach(names, id: \.self) { n in
+                        Button(n) {
+                            m.glossary = GlossaryLogic.appending(term: n, translation: "", to: m.glossary)
+                            m.flushGlossary()
+                            Announcer.post(L.f("glossary_learned", n))
+                        }
+                        .help(L.t("gl_suggest_help"))
+                    }
+                    Spacer()
+                }
+                .lineLimit(1)
+            }
+        }
     }
 
     private var previewBox: some View {
