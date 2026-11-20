@@ -163,6 +163,18 @@
    "en": "molluscs",
    "de": "Weichtiere (Muscheln, Tintenfisch)",
    "th": "หอยและหมึก"
+  },
+  {
+   "id": "coriander",
+   "en": "coriander",
+   "de": "Koriander",
+   "th": "ผักชี"
+  },
+  {
+   "id": "mushroom",
+   "en": "mushrooms",
+   "de": "Pilze",
+   "th": "เห็ด"
   }
  ],
  "conditions": [
@@ -261,6 +273,12 @@
    "en": "I need low-salt food",
    "de": "Ich brauche salzarme Kost",
    "th": "ต้องการอาหารโซเดียมต่ำ"
+  },
+  {
+   "id": "epipen",
+   "en": "I carry an EpiPen",
+   "de": "Ich habe einen EpiPen",
+   "th": "มีปากกาฉีดอะดรีนาลีน (EpiPen)"
   }
  ]
 }

@@ -225,3 +225,12 @@ def test_web_docs_in_english_and_thai_link_and_mention_key_facts():
         assert "91" in text and "i18n" in text or "ออฟไลน์" in text
     th = (ROOT / "docs" / "th" / "WEB.md").read_text(encoding="utf-8")
     assert "ยังไม่ได้รับการตรวจโดยเจ้าของภาษา" in th and "not been checked by native speakers" in th
+
+
+@node
+def test_thai_clock_and_phone_words():
+    pre = prelude(funcs=["thaiNumber", "thaiBelow", "thaiClock", "thaiPhone"], lines=["const TH_D ="])
+    got = run(pre, ["thaiClock(0, 0)", "thaiClock(3, 0)", "thaiClock(6, 30)", "thaiClock(11, 5)", "thaiClock(12, 0)", "thaiClock(13, 0)", "thaiClock(14, 15)",
+                    "thaiClock(17, 0)", "thaiClock(19, 0)", "thaiClock(23, 30)", "thaiClock(24, 0)", "thaiClock(1.5, 0)", "thaiPhone('081-234 5678')", "thaiPhone('12')"])
+    assert got == ["เที่ยงคืน", "ตีสาม", "หกโมงเช้าครึ่ง", "สิบเอ็ดโมงเช้าห้านาที", "เที่ยง", "บ่ายโมง", "บ่ายสองโมงสิบห้านาที", "ห้าโมงเย็น", "หนึ่งทุ่ม", "ห้าทุ่มครึ่ง", None, None,
+                   "ศูนย์ แปด หนึ่ง สอง สาม สี่ ห้า หก เจ็ด แปด", None]

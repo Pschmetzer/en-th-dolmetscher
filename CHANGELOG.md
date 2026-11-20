@@ -15,6 +15,7 @@ Pull requests #16–#47. Not yet published as a release.
 - Fixed German texts (consent dialog, allergy card, learning box) are now translated; Android voice tags (`eng-USA`) are recognised and local voices are preferred; the iPhone hint can be closed; Thai digit tiles read aloud; sliders are announced with their value.
 - Web page in four sections (tabs: Speak, Phrasebook, Cards, Learn); the notes are folded after the first visit; new two-person screen where each side types in their own language (also without speech recognition); English and Thai interface texts moved to `i18n/*.json` (page 242 → 192 KB).
 - Allergy card and shown sentences can be shared as an image (for chat apps); a Playwright + axe-core scan of the web page runs in CI (informational).
+- Numbers box: time of day and phone numbers in Thai words; allergy card with coriander, MSG, mushrooms, chili, mango and an EpiPen line; the Back button closes the two-person screen.
 - Installable app: separate maskable icons, opaque 180 px Apple icon, iOS meta tags; the service worker refuses an install without page and language table and checks for updates hourly.
 
 ### Phrase packs and tooling (round 21)
