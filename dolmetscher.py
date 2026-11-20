@@ -6973,15 +6973,18 @@ def apply_control(eng, d):
                 emit("error", code="mic_invalid", msg="Mikrofon-Angabe ungültig – Gerät unverändert")
             elif MIC is None:
                 MIC_PENDING["mic"] = mv        # Modelle laden noch: gilt, sobald das Mikrofon entsteht
-            elif ok and v:
+            elif ok and v and not MIC.on:
                 MIC.mic = mv                   # zugleich `listen`: gleich mit dem neuen Gerät öffnen
+            elif ok and v:                     # Mikrofon läuft schon: Gerät wirklich wechseln (start() wäre ein No-op)
+                mic_job = lambda mv=mv: MIC.switch(mv)
             else:
                 mic_job = lambda mv=mv: MIC.switch(mv)   # resolve_mic/ffmpeg: nicht im Lese-Thread
         if ok and MIC is None:
             MIC_PENDING["listen"] = v          # Mikrofon entsteht erst nach dem Laden: Wunsch nicht verlieren
         if ok and MIC is not None:
             if v:
-                jobs.append(MIC.start)         # öffnet ffmpeg – nicht im Lese-Thread blockieren
+                stops0 = getattr(MIC, "stops", 0)     # ein Stopp danach gilt vor diesem wartenden Start
+                jobs.append(lambda m=MIC, n=stops0: m.start() if getattr(m, "stops", n) == n else None)
             else:
                 later.append(MIC.stop)
         n = _num(d, "rate")
@@ -7114,32 +7117,32 @@ def apply_control(eng, d):
             s = d["say"]
             text, lang = _text_arg(s.get("text")), s.get("lang", PAIR[0])   # ohne Angabe: meine Sprache
             if text and isinstance(lang, str) and lang in TARGET:
-                jobs.append(lambda: eng.say_phrase(text, lang))
+                jobs.append(lambda text=text, lang=lang: eng.say_phrase(text, lang))
             else:
                 emit("error", code="phrase_invalid",
                      msg="Schnellsatz ungültig (Text leer/zu lang oder Sprache unbekannt)")
-        elif isinstance(d.get("speak_text"), dict):
+        if isinstance(d.get("speak_text"), dict):
             s = d["speak_text"]
             text, lang, uid = _text_arg(s.get("text")), s.get("lang"), s.get("id")
             uid = _text_arg(uid, 64) if uid is not None else None
             if text and isinstance(lang, str) and lang in TARGET and (uid or s.get("id") is None):
-                later.append(lambda: eng.speak_text(text, lang, uid))    # nicht hinter der Erkennung warten
+                later.append(lambda text=text, lang=lang, uid=uid: eng.speak_text(text, lang, uid))   # sofort
             else:
                 emit("error", code="speak_invalid",
                      msg="Vorlesen ungültig (Text leer/zu lang, Sprache unbekannt oder id ungültig)")
-        elif isinstance(d.get("reassign"), dict):
+        if isinstance(d.get("reassign"), dict):
             r = d["reassign"]
             uid = _text_arg(r.get("id"), 64)
             if uid and r.get("role") in ("me", "other"):
-                jobs.append(lambda: eng.reassign(uid, r.get("role")))
+                jobs.append(lambda uid=uid, r=r: eng.reassign(uid, r.get("role")))
             else:
                 emit("error", code="reassign_invalid", msg="Zuordnung ungültig (id oder Rolle fehlt)")
-        elif isinstance(d.get("retranslate"), dict):
+        if isinstance(d.get("retranslate"), dict):
             r = d["retranslate"]
             uid, text = _text_arg(r.get("id"), 64), _text_arg(r.get("text"))
             if text:
-                jobs.append(lambda: eng.retranslate(uid or "", text,
-                                                    r.get("lang") if isinstance(r.get("lang"), str) else ""))
+                jobs.append(lambda uid=uid, text=text, r=r: eng.retranslate(
+                    uid or "", text, r.get("lang") if isinstance(r.get("lang"), str) else ""))
             else:
                 emit("error", code="edit_invalid", msg="Korrektur ungültig (Text leer oder zu lang)")
     unknown = sorted(k for k in d if k not in CTRL_KEYS)
@@ -7499,7 +7502,7 @@ def segmenter(read, utts, sess=0, on_end=None):
     Verworfen wird nur, was während der eigenen Sprachausgabe (+ Nachhall) ankommt.
     Mit --barge-in (Kopfhörer) wird nichts verworfen; Sprechen unterbricht die Ausgabe."""
     N = StreamVAD.N
-    vad = StreamVAD()
+    vad = None                      # im try angelegt: scheitert das Modell, läuft trotzdem on_end (Wiederverbinden)
     BARGE_FRAMES = 6                # ~190 ms durchgehend Sprache unterbricht die Ausgabe
     fdur = N / SR
     buf, voiced, silence, speech, pre, peak_rms = [], False, 0.0, 0.0, [], 0.0
@@ -7534,6 +7537,7 @@ def segmenter(read, utts, sess=0, on_end=None):
             EARLY_END.pop(uid, None)
 
     try:
+        vad = StreamVAD()
         while True:
             f, t_cap = read()
             if 0 < f.size < N:          # Rest-Teilframe nicht verlieren: mit Stille auffüllen
@@ -7638,6 +7642,9 @@ def segmenter(read, utts, sess=0, on_end=None):
                 log({"segment": {"cut": "max", "len_s": round(len(head) * fdur, 2),
                                  "rest_s": round(len(tail) * fdur, 2)}})
                 put(head, "max", len(head) * fdur)
+                with _PRE_LOCK:                 # Vorab-Erkennung galt dem ungeteilten Puffer: nicht für den Kopf nutzen
+                    PRE.pop(uid, None)
+                    EARLY_END.pop(uid, None)
                 buf, speech = tail, len(tail) * fdur
                 peak_rms = max((float(np.sqrt(np.mean(x ** 2))) for x in tail), default=0.0)   # Pegel des Rests
                 uid, version, pre_sent, partial_at = new_id(), 0, False, 0.0
@@ -7902,8 +7909,13 @@ class Mic:
                     threading.Thread(target=self._reconnect, args=(self.stops,), name="mic-reconnect",
                                      daemon=True).start()
 
-        with self.lock:
-            self.on = True
+        with self.lock:                        # Prüfung und on=True unteilbar: stop()/switch() dazwischen gilt
+            stale = sess != self.sess
+            if not stale:
+                self.on = True
+        if stale:
+            self._kill(ff)
+            return False
         threading.Thread(target=reader, name="mic-read", daemon=True).start()
         threading.Thread(target=stall_watch, name="mic-stall", daemon=True).start()
         threading.Thread(target=segmenter, args=(read, self.jobs, sess, ended), name="mic", daemon=True).start()
