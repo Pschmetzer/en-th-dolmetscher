@@ -132,7 +132,8 @@ enum HistoryLogic {
         if f.numberWarning && !hasNumberWarning(r) { return false }
         if f.weakTranslation && !isWeak(r) { return false }
         if f.query.isEmpty { return true }
-        return r.text.localizedCaseInsensitiveContains(f.query) || r.translation.localizedCaseInsensitiveContains(f.query)
+        let o: String.CompareOptions = [.caseInsensitive, .diacriticInsensitive]   // „cafe“ findet „café“
+        return r.text.range(of: f.query, options: o) != nil || r.translation.range(of: f.query, options: o) != nil
     }
 
     /// Zeilen mit passender Suche/Filter-Auswahl; ohne aktiven Zeilenfilter alle.
