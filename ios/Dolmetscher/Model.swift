@@ -865,8 +865,20 @@ final class InterpreterModel {
     }
 
     /// Satz aus dem Satzbuch: Übersetzung steht fest, kein Netz nötig.
+    /// Eingebauter Thai-Satz in einem Paar ohne Thai: nicht abspielbar wie festgelegt, sondern maschinell übersetzen.
+    func isMachinePhrase(_ p: Phrase) -> Bool { p.srcLang == .en && p.dstLang == .th && !features.thaiExtras }
+
     func say(_ p: Phrase) {
         touch()
+        if isMachinePhrase(p) {
+            if pair.partner == .en {
+                let e = Entry(src: pair.mine, dst: .en, text: p.en, translation: p.en, provider: "phrasebook")
+                entries.append(e); trim(); persist(); speak(e)
+            } else {
+                add(Entry(src: .en, dst: pair.partner, text: p.en), speak: true)
+            }
+            return
+        }
         let src = p.srcLang, dst = p.dstLang
         let fixed = dst == .th ? politeness.fill(p.th) : p.th
         let roman = p.roman.isEmpty ? nil : (dst == .th ? politeness.fillRoman(p.roman) : p.roman)

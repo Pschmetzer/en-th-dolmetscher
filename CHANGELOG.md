@@ -107,6 +107,9 @@ Pull requests #16–#47. Not yet published as a release.
 - **More travel helpers:** bargaining counter-offers (50–80 % of the asking price with the Thai number words) and today's date in Thai (Buddhist year).
 - **Emergency card and allergy card are never translated online** (health data); they need the offline language pack. "Delete all data" also removes downloaded Whisper models. Going to the background no longer counts as a finished conversation; running translations are cancelled when a sentence is deleted; a hanging speech finalisation no longer blocks later sentences; downloading a language pack is noticed at once; "Load speech model" in the travel checklist no longer switches the microphone on.
 - **Smoother and lighter:** transliteration and back-translation checks are computed once per sentence instead of on every redraw; speech voice lookups are cached; the voice of the language's own region wins over a higher-quality voice of another region (zh-CN vs zh-HK).
+- **Battery:** silence is no longer fed to the speech recognisers (only speech plus a 0.7 s lead-in), which roughly halves idle CPU in automatic mode.
+- **Phrasebook and emergency card without Thai in the pair:** the built-in English phrases are translated into the partner's language automatically (marked as unchecked); the emergency card lists the emergency numbers of the partner language's country (ja, ko, zh, vi, id, de, fr, es) as a guide.
+- **Whisper models** only count as installed when every Core ML model folder holds its data (an aborted download left empty folders).
 - **Fixes:** a failed microphone start no longer leaves a tap that crashes the next start; "nan"/"inf" are no longer accepted as an amount; the list of dismissed flash cards is capped.
 - **VoiceOver:** history rows, the big translation view and conversation lines are read with the voice of their own language.
 

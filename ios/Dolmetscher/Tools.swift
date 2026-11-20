@@ -74,7 +74,7 @@ struct EmergencyView: View {
         @Bindable var m = m
         NavigationStack {
             List {
-                if m.features.thaiExtras { thaiSections }
+                if m.features.thaiExtras { thaiSections } else { PartnerEmergencySection(lang: m.pair.partner) }
 
                 allergySection
                 Section {
