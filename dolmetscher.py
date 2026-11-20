@@ -759,6 +759,8 @@ def _json_line(event, kw):
     for k, v in d.items():                         # Fehlertexte/Pfade: keine Benutzernamen an die App/ins Log
         if isinstance(v, str) and (k in ("msg", "err") or (len(v) < 1000 and "/" in v)):
             d[k] = _scrub(v)
+        elif isinstance(v, (list, dict)) and k not in _TEXT_KEYS:
+            d[k] = _scrub_deep(v)                  # verschachtelte Pfade (z. B. Dateilisten) ebenso
     try:
         return json.dumps(d, ensure_ascii=False, default=_json_default, allow_nan=False)
     except ValueError:                 # selten: nur dann die teurere Bereinigung
@@ -801,10 +803,10 @@ def _emit(event, **kw):
               " (Strg+C beendet)\n", flush=True)
     elif event == "utt":
         flag = {"en": "🇬🇧 EN", "th": "🇹🇭 TH"}.get(kw["lang"], str(kw["lang"]).upper())
-        print(f"\n{C['dim']}{flag}: {kw['text']}{C['off']}")
-        col = C.get(kw["to"], C["en"] if kw["to"] == PAIR[0] else C["th"])
-        print(f"{col}➜ {kw['out']}{C['off']}  {C['dim']}(STT {kw['stt']:.1f}s, "
-              f"Übers. {kw['tr']:.1f}s){C['off']}", flush=True)
+        print(f"\n{C['dim']}{flag}: {kw.get('text', '')}{C['off']}")
+        col = C.get(kw.get("to"), C["en"] if kw.get("to") == PAIR[0] else C["th"])
+        print(f"{col}➜ {kw.get('out', '')}{C['off']}  {C['dim']}(STT {kw.get('stt') or 0:.1f}s, "
+              f"Übers. {kw.get('tr') or 0:.1f}s){C['off']}", flush=True)
 
 
 LOGFILE = os.environ.get("DOLMETSCHER_LOG") or os.path.expanduser("~/Library/Logs/Dolmetscher/engine.log")
@@ -899,7 +901,8 @@ def _scrub(s):
     Logzeilen sollen den Konto-Namen nicht tragen."""
     home = os.path.expanduser("~")
     if home and home != "/" and home in s:
-        s = s.replace(home, "~")
+        # nur als ganzer Pfadbestandteil: Home "/Users/x" darf "/Users/xavier" nicht zu "~avier" machen
+        s = re.sub(re.escape(home.rstrip("/")) + r"(?![^/\s\"'<>:,;])", "~", s)
     return _USER_PATH.sub(lambda m: "/" + m.group(0).split("/")[1] + "/<user>", s)
 
 
@@ -1793,6 +1796,9 @@ def learn_glossary_names(eng, names):
     have = {ln.partition("=>")[0].strip().lower() for ln in text.splitlines()
             if ln.strip() and not ln.lstrip().startswith("#")}
     room = GLOSSARY_LIMIT - len(have)
+    names = [n.strip() for n in names if isinstance(n, str)]
+    # ein Name mit Zeilenumbruch, "=>" oder führendem "#" würde als Glossar-Zeile etwas anderes bedeuten
+    names = [n for n in names if n and len(n) <= TERM_MAX and not re.search(r"[\r\n]|=>", n) and n[0] != "#"]
     added = [n for n in dict.fromkeys(names) if n.lower() not in have][:max(0, room)]
     if not added:
         return []
@@ -2433,6 +2439,8 @@ _SPEAK_CELS = {"C": {"en": "Celsius", "th": "เซลเซียส", "de": "C
 _PHONE_SPEAK = re.compile(r"(?<![\d.,])0\d{8,9}(?![\d.,])")
 _CUR_AMOUNT = re.compile(r"([฿$€£])\s?(\d+(?:[.,]\d+)*)")
 _DEGREE = re.compile(r"(?<=\d)\s?°\s?([CF])\b")
+_CUR_AFTER = re.compile(r"(?<![\w.,])(\d+(?:[.,]\d+)*)\s?([฿€£])(?![\w])")     # "5€", "500฿" (Zahl zuerst, wie gesagt)
+_DEG_BARE = re.compile(r"(?<=\d)\s?°(?!\s?[CF]\b)")
 
 
 _EMOJI = re.compile("[\U0001F000-\U0001FAFF\u2600-\u27BF\u2B50\u2B55\uFE0F\u200D\u20E3]+")
@@ -2483,9 +2491,12 @@ def speak_form(text, lang):
     cur = _SPEAK_CUR.get(lang)
     if cur and _CUR_AMOUNT.search(text):
         text = _CUR_AMOUNT.sub(lambda m: f"{m.group(2)} {cur[m.group(1)]}", text)
+    if cur and _CUR_AFTER.search(text):
+        text = _CUR_AFTER.sub(lambda m: f"{m.group(1)} {cur[m.group(2)]}", text)
     if lang in _SPEAK_DEG and "°" in text:
         gap = "" if lang == "th" else " "
         text = _DEGREE.sub(lambda m: f" {_SPEAK_DEG[lang]}{gap}{_SPEAK_CELS[m.group(1)][lang]}", text)
+        text = _DEG_BARE.sub(f" {_SPEAK_DEG[lang]}", text)               # "20°" ohne C/F
     if lang != "th" or "5" not in text:
         return text
     return re.sub(r"\s{2,}", " ", _laugh_sub(text, " ฮ่าฮ่าฮ่า ")).strip()
