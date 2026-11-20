@@ -1933,11 +1933,11 @@ def _mask_tokens(text):
 
 
 # Orte, die Reisende oft nennen: Name bleibt Name (Latein <-> Thai-Schreibung), ohne Anbieter-Umweg
-TRAVEL_PLACES = (("Sukhumvit", "สุขุมวิท"), ("Silom", "สีลม"), ("Khao San", "ข้าวสาร"), ("Wat Pho", "วัดโพธิ์"),
+TRAVEL_PLACES = (("Sukhumvit", "สุขุมวิท"), ("Silom", "สีลม"), ("Wat Pho", "วัดโพธิ์"),
                  ("Wat Arun", "วัดอรุณ"), ("Suvarnabhumi", "สุวรรณภูมิ"), ("Don Mueang", "ดอนเมือง"),
                  ("Chatuchak", "จตุจักร"), ("Pattaya", "พัทยา"), ("Phuket", "ภูเก็ต"), ("Chiang Mai", "เชียงใหม่"),
                  ("Ayutthaya", "อยุธยา"), ("Hua Hin", "หัวหิน"), ("Krabi", "กระบี่"), ("Koh Samui", "เกาะสมุย"),
-                 ("Asoke", "อโศก"), ("Siam", "สยาม"), ("Nana", "นานา"))
+                 ("Asoke", "อโศก"), ("Siam", "สยาม"))
 
 
 def _protect(text, dst):
@@ -1972,12 +1972,13 @@ def _protect(text, dst):
         if len(slots) >= 20:
             break
         for find, val in ((en, th if dst == "th" else en), (th, en if "latin" in LANGS[dst]["script"] else th)):
-            if _term_rx(find).search(text) and find.lower() != val.lower():
+            rx = re.compile(_term_rx(find).pattern)          # Groß-/Kleinschreibung zählt ("Siam", nicht "siam")
+            if rx.search(text) and find.lower() != val.lower():
                 if any(find.lower() == a.lower() for a, _ in GLOSSARY):
                     continue                    # eigenes Glossar hat Vorrang
                 spans = [m.span() for m in _TOKEN_RX.finditer(text)]
                 n = len(slots) + 1
-                new = _term_rx(find).sub(
+                new = rx.sub(
                     lambda m: m.group(0) if any(x <= m.start() < y for x, y in spans) else f" [{n}] ", text)
                 if new != text:                 # Treffer in URL/E-Mail ("www.siam.com") bleiben unberührt
                     text = new
@@ -2880,6 +2881,21 @@ OFFLINE_MT_TIMEOUT = 6.0           # s je Satz
 OFFLINE_MT_START = 5.0             # s bis zur ready-Zeile
 
 
+_HELPER_ERRORS = ("timeout", "unsupportedLanguagePairing", "nothingToTranslate", "unableToIdentifyLanguage",
+                  "notInstalled", "text/src/dst fehlen", "ungültiges JSON", "macOS 26.4 oder neuer nötig")
+
+
+def helper_error(e):
+    """Fehlertext des translate-helper fürs Log: nur bekannte Kennungen im Klartext. Alles andere (z. B. ein
+    Systemfehler, der den übersetzten Satz zitiert) wird nicht übernommen."""
+    if not isinstance(e, str) or not e:
+        return ""
+    for k in _HELPER_ERRORS:
+        if e.startswith(k):
+            return k
+    return "helper-fehler"
+
+
 class OfflineMT:
     def __init__(self):
         self.path, self.on = None, False
@@ -2887,6 +2903,7 @@ class OfflineMT:
         self.lock = threading.Lock()
         self.failed_at = None                       # Start gescheitert: nicht bei jedem Satz neu versuchen
         self._buf = b""                             # gelesene, noch nicht ausgewertete Bytes des Helfers
+        self.started_pair = None                    # (src, dst), für das der Helfer mit --pairs gestartet wurde
 
     @staticmethod
     def bundled():
@@ -2907,19 +2924,23 @@ class OfflineMT:
             log({"offline_mt": "helfer fehlt", "path": cand})
         return self.on
 
-    def _start(self):
+    def _start(self, pair=None):
         if self.proc is not None and self.proc.poll() is None:
-            return True
+            if pair is None or self.started_pair in (None, pair) or tuple(reversed(pair)) == self.started_pair:
+                return True
+            self.close()                             # anderes Sprachpaar: nur dessen Modell laden (RAM)
         if self.failed_at is not None and time.monotonic() - self.failed_at < 60:
             return False
         try:
             self._buf = b""
-            self.proc = subprocess.Popen([self.path], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            cmd = [self.path] + (["--pairs", f"{pair[0]}-{pair[1]},{pair[1]}-{pair[0]}"] if pair else [])
+            self.started_pair = tuple(pair) if pair else None
+            self.proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                          stderr=subprocess.DEVNULL)
             hello = self._readline(OFFLINE_MT_START)
             self.pairs = (hello or {}).get("pairs") or {}
             if not (hello or {}).get("ready"):
-                raise RuntimeError((hello or {}).get("error") or "keine ready-Zeile")
+                raise RuntimeError(helper_error((hello or {}).get("error")) or "keine ready-Zeile")
             log({"offline_mt": "bereit", "pairs": self.pairs})
             self.failed_at = None
             return True
@@ -2973,7 +2994,7 @@ class OfflineMT:
         if not self.on:
             return None
         with self.lock:
-            if not self._start() or self.pairs.get(f"{src}-{dst}") != "installed":
+            if not self._start((src, dst)) or self.pairs.get(f"{src}-{dst}") != "installed":
                 return None
             self.n += 1
             self.last_used = time.monotonic()
@@ -2991,7 +3012,7 @@ class OfflineMT:
                 return None
         out = (r.get("out") or "").strip()
         if not out:
-            log({"offline_mt": "fehler", "err": str(r.get("error") or "leer")[:80]})
+            log({"offline_mt": "fehler", "err": helper_error(r.get("error")) or "leer"})
             return None
         return out
 
@@ -4966,11 +4987,12 @@ def edge_play(stream, volume, on_start=None, cancelled=None, deadline=None):
         stream.cancel()
     stats["cached"] = stream.cached is not None
     stats["pooled"] = getattr(stream, "pooled", None)
-    if complete and stream.cached is None and len(stream.text) <= TTS_CACHE_CHARS:
-        _tts_cache_put(stream.key, b"".join(got))
-    elif complete and stream.cached is None:
-        _tts_last_put(stream.key, b"".join(got))
     stats["interrupted"] = bool(cancelled and cancelled())
+    if complete and stream.cached is None and not stats["interrupted"]:     # „clear“/Stopp: nichts mehr merken
+        if len(stream.text) <= TTS_CACHE_CHARS:
+            _tts_cache_put(stream.key, b"".join(got))
+        else:
+            _tts_last_put(stream.key, b"".join(got))
     if "err" in stats and not stats["interrupted"]:
         stats["partial"] = True                 # Ton riss ab: nicht von vorn sprechen (doppelt), aber melden
     return stats
@@ -5456,7 +5478,7 @@ def report_queue():
 
 import glob  # noqa: E402
 
-ENGINE_VERSION = "1.2"
+ENGINE_VERSION = "1.3"
 PROTOCOL = 1                      # Version des Engine-App-Protokolls (docs/PROTOKOLL.md)
 STOP = threading.Event()          # gesetzt von SIGTERM/SIGINT oder stdin-Ende -> geordnetes Beenden
 _CTRL_LOCK = threading.RLock()    # Steuer-Thread (apply_control) und Arbeits-Thread schreiben dieselben Felder
@@ -5832,7 +5854,7 @@ class Engine:
                 log({"tts": "edge-fehler" if not local else "edge-zu-langsam", "err": _errtxt(e)})
                 # auch im Wettlauf: echter Netzfehler = offline merken (Symbol, Ersatzstimme ohne Wartezeit);
                 # bloß zu langsam (Frist ohne Fehler) zählt nicht
-                if not local or is_offline_error(e):
+                if is_offline_error(e) or (not local and not isinstance(e, OSError)):   # OSError: Player/Temp
                     net_state("tts", False)
             if local:                            # Wettlauf verloren: vorbereitete macOS-Stimme sofort
                 path = local.ready_path(cancelled=cancelled)
@@ -5845,6 +5867,8 @@ class Engine:
                     if on_start:
                         on_start(round(time.time() - t, 2))
                     PLAYER.run(file_play_cmd(path, self.volume))
+                    return
+                if cancelled and cancelled():    # Stopp im Wettlauf: keine Ersatzstimme melden, nichts neu rendern
                     return
         if self.tts != "edge" and local:             # vorab gerendert (Speaker._prepare): sofort abspielen
             path = local.ready_path(timeout=SAY_TIMEOUT + 2, cancelled=cancelled)
@@ -6548,7 +6572,10 @@ class Engine:
             polite = polite or self.polite      # Person mit eigener Form (Profil) vor der Einstellung
             out = translate(text, lang, dst, history=hist, alts=alts, polite=polite, meta=meta)
             # Offline-Übersetzung (Apple) heißt: kein Netz – nicht als „wieder online“ melden
-            net_state("translate", meta.get("provider") != "apple")
+            if meta.get("provider") == "apple":
+                net_state("translate", False)
+            elif not meta.get("cached") and meta.get("provider") != "none":
+                net_state("translate", True)   # nur eine echte Antwort beweist „online“ (Cache/Lachen nicht)
             if numbers_differ(text, out):      # Zahlen weichen ab: zweiter Anbieter entscheidet (Nr. 25)
                 out = recheck_numbers(text, lang, dst, out, meta, hist, alts, polite)
         except Exception as e:
