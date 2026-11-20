@@ -1,3 +1,4 @@
+# ruff: noqa: E501
 """Runde 21, Lokalisierungs-Audit: alle iPhone-Tabellen (auch Runde 13 bis 25), Begriffe, Schreibweise, Plural-Formen.
 
 Ergänzt tests/test_runde13_l10n.py (das nur Runde 4 bis 9 prüft) und tests/test_l10n_keys.py (Mac)."""
