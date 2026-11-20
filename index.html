@@ -110,7 +110,7 @@
   .card.crit { border:2px solid var(--crit); }
   #partnerText.crit { border:6px solid var(--crit); border-radius:16px; padding:12px; }
   .card .crit-b { display:block; font-size:12px; font-weight:700; color:var(--crit); }
-  .cardwrap .card { min-height:92px; }
+  .cardwrap .card { min-height:92px; padding-bottom:40px; }   /* Platz für 🔗/🔊 unten rechts: lange Thai-Sätze laufen nicht darunter */
   .sharec { position:absolute; bottom:4px; right:52px; min-width:44px; min-height:44px; background:transparent; border:0; border-radius:8px; font-size:20px; cursor:pointer; }
   .speakc { position:absolute; bottom:4px; right:4px; min-width:44px; min-height:44px; background:transparent; border:0; border-radius:8px; font-size:20px; cursor:pointer; }
   .star { position:absolute; top:4px; right:4px; min-width:44px; min-height:44px; background:transparent; border:0; border-radius:8px; font-size:22px; cursor:pointer; color:var(--mut); }
@@ -183,7 +183,7 @@
     #printSheet .th { font-size:22px; font-weight:700; } #printSheet .sm { font-size:11px; color:#333; }
     #printSheet tr { break-inside:avoid; } #printSheet .crit td:first-child { border-left:4px solid #000; }
   }
-  #partnerNote { font-size:13px; color:var(--mut); text-align:center; padding:2px 0; }
+  #partnerNote { font-size:16px; font-weight:600; color:var(--fg); text-align:center; padding:6px 8px; border-top:3px solid var(--crit); }   /* geteilter Fremdtext: Hinweis gut sichtbar (Betrugsschutz) */
   #partnerText.yes, #partnerText.no { font-size:calc(clamp(80px,28vw,260px) * var(--pscale, 1)); }
   #partnerText.yes { color:var(--yes); } #partnerText.no { color:var(--no); }
   /* Vorzeigen: nur der Satz, riesig, höchster Kontrast; Tippen (oder Enter/Leertaste/Esc) schließt */
@@ -269,7 +269,7 @@
 </details>
 <details class="box" id="typeBox">
   <summary data-i18n-html="typeSum">Texteingabe statt Sprechen</summary>
-  <div class="row"><label style="flex:1;min-width:220px"><span data-i18n="text">Text</span> <textarea id="typeIn" rows="2" maxlength="500" enterkeyhint="send" autocapitalize="sentences" style="width:100%"></textarea></label></div>
+  <div class="row"><label style="flex:1;min-width:220px"><span data-i18n="text">Text</span> <textarea id="typeIn" dir="auto" spellcheck="true" rows="2" maxlength="500" enterkeyhint="send" autocapitalize="sentences" style="width:100%"></textarea></label></div>
   <div class="row">
     <label><input type="checkbox" id="typeIsB"> <span data-i18n="typeIsB">Text ist in</span> <span id="typeBName">B</span></label>
     <button class="small" id="typeGo" type="button" data-i18n="translate">Übersetzen</button>
@@ -323,8 +323,8 @@
   <div class="row">
     <label><input id="myLabel" maxlength="40" size="14"> <span data-i18n="name">Name</span></label>
     <label><input id="myGrp" maxlength="24" size="10" autocomplete="off"> <span data-i18n="mcGroup">Gruppe</span></label>
-    <label style="flex:1;min-width:200px"><span data-i18n="mcText">Text</span> <textarea id="myText" rows="2" maxlength="200" style="width:100%"></textarea></label>
-    <label style="flex:1;min-width:200px"><span data-i18n="mcTr">Übersetzung</span> <textarea id="myTr" rows="2" maxlength="200" style="width:100%"></textarea></label>
+    <label style="flex:1;min-width:200px"><span data-i18n="mcText">Text</span> <textarea id="myText" dir="auto" rows="2" maxlength="200" style="width:100%"></textarea></label>
+    <label style="flex:1;min-width:200px"><span data-i18n="mcTr">Übersetzung</span> <textarea id="myTr" dir="auto" rows="2" maxlength="200" style="width:100%"></textarea></label>
   </div>
   <div class="row">
     <button class="small" id="myTranslate" type="button" data-i18n="mcTranslate">Übersetzen</button>
