@@ -208,3 +208,18 @@ def test_web_rate_display_uses_the_decimal_sign_of_the_interface_language():
     assert "toLocaleString(UI, { minimumFractionDigits: 2" in html
     assert "t('cmdTempo', { n: fmt2(rate) })" in html
     assert "showRate();" in html[html.index("function applyUi()"):html.index("// ---- Sprachtabelle")]   # Sprachwechsel
+
+
+def test_info_plist_strings_have_same_keys_in_every_language():
+    keysets = {}
+    for f in sorted(IOS.glob("*.lproj/InfoPlist.strings")):
+        text = f.read_text(encoding="utf-8")
+        pairs = re.findall(r'^"([A-Za-z]+)"\s*=\s*"((?:\\.|[^"\\])*)";\s*$', text, re.M)
+        assert pairs and len(pairs) == text.count(";\n") + (0 if text.endswith("\n") else 1), f.parent.name
+        keysets[f.parent.name] = {k for k, _ in pairs}
+        assert all(v.strip() for _, v in pairs), f.parent.name
+    assert len(keysets) == 9 and len({frozenset(v) for v in keysets.values()}) == 1, keysets
+    base = (ROOT / "ios" / "Dolmetscher.xcodeproj" / "project.pbxproj").read_text(encoding="utf-8")
+    for key in next(iter(keysets.values())):
+        if key != "NSPhotoLibraryUsageDescription":     # Fotoauswahl ohne Berechtigung (PhotosPicker)
+            assert f"INFOPLIST_KEY_{key}" in base, key
