@@ -12,6 +12,11 @@ final class HistoryExportTests: XCTestCase {
         return HistorySession(id: "s", start: rows[0].time, rows: rows)
     }
 
+    func testSrtCues() {
+        let srt = HistoryLogic.srt(session())
+        XCTAssertTrue(srt.hasPrefix("1\n00:00:00,000 --> 00:00:06,000\nอยู่ที่ไหน\nWhere *is* it?\n\n2\n00:01:05,000 --> 00:01:09,000\nok\n"))
+    }
+
     func testMarkdownHasTimestampsAndEscapes() {
         let md = HistoryLogic.markdown(session(), title: "A_B", timeZone: TimeZone(identifier: "UTC")!)
         XCTAssertTrue(md.hasPrefix("# A\\_B\n\n"))

@@ -284,6 +284,7 @@ struct HistoryView: View {
                     Menu {
                         Button("Markdown (.md)") { exportSession(s, csv: false) }
                         Button("CSV (.csv)") { exportSession(s, csv: true) }
+                        Button("SRT (.srt)") { exportSession(s, csv: false, srt: true) }
                     } label: { Image(systemName: "square.and.arrow.up") }
                         .menuStyle(.borderlessButton).fixedSize()
                         .help(L.t("hist_export")).accessibilityLabel(L.t("hist_export"))
@@ -358,13 +359,13 @@ struct HistoryView: View {
     }
 
     /// Eine Sitzung als Markdown (mit Zeitstempeln) oder CSV speichern.
-    private func exportSession(_ s: HistorySession, csv: Bool) {
+    private func exportSession(_ s: HistorySession, csv: Bool, srt: Bool = false) {
         let title = store.title(s)
         let panel = NSSavePanel()
         panel.title = L.t("hist_export")
-        panel.nameFieldStringValue = ExportFormats.fileName(base: title, date: s.start, ext: csv ? "csv" : "md")
+        panel.nameFieldStringValue = ExportFormats.fileName(base: title, date: s.start, ext: srt ? "srt" : csv ? "csv" : "md")
         guard panel.runModal() == .OK, let url = panel.url else { return }
-        let text = csv ? HistoryLogic.csv(s) : HistoryLogic.markdown(s, title: title)
+        let text = srt ? HistoryLogic.srt(s) : csv ? HistoryLogic.csv(s) : HistoryLogic.markdown(s, title: title)
         do { try ExportFormats.fileData(text, csv: csv).write(to: url, options: .atomic) }
         catch { NSAlert(error: error).runModal() }
     }
