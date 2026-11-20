@@ -13,7 +13,7 @@ Optionen: --model small|medium|base  --mic 0  --polite krub|ka  --json
           --voice-en/--voice-th NAME --llm [--llm-model ID] --earcons --meter --list-mics
 Protokoll Engine <-> App: docs/PROTOKOLL.md
 """
-import argparse, collections, difflib, errno, functools, html, http.client, io, itertools, json, logging, \
+import argparse, atexit, collections, difflib, errno, functools, html, http.client, io, itertools, json, logging, \
     logging.handlers, math, os, queue, re, shutil, signal, subprocess, sys, tempfile, threading, time, \
     urllib.error, urllib.parse, urllib.request
 import numpy as np
@@ -240,7 +240,8 @@ def parse_pair(mine, partner):
     """Gültiges Paar -> (mine, partner); sonst None (unbekannter Code oder zweimal dieselbe Sprache)."""
     if not (isinstance(mine, str) and isinstance(partner, str)):
         return None
-    mine, partner = mine.strip().lower(), partner.strip().lower()
+    mine, partner = (re.split(r"[-_]", x.strip().lower())[0] if x.strip().lower() not in LANGS else x.strip().lower()
+                     for x in (mine, partner))              # "en-US", "pt_BR", "zh-CN" -> en, pt, zh
     if mine not in LANGS or partner not in LANGS or mine == partner:
         return None
     return mine, partner
@@ -636,9 +637,11 @@ _LOSSY_PREFIXES = tuple('{"event": "%s"' % e for e in _OUT_LOSSY)
 
 
 def emit(event, **kw):
+    queued = _OUT["q"] is not None and JSON
+    if queued and event == "utt":
+        _record(event, kw)             # Verlauf (SQLite) vor dem Sperren: blockiert keine Pegel-Ereignisse
     with _EMIT_LOCK:                   # Mikrofon- und Arbeits-Thread schreiben beide
-        if _OUT["q"] is not None and JSON:
-            _record(event, kw)
+        if queued and _OUT["q"] is not None and JSON:
             _enqueue(event, _json_line(event, kw))
         else:
             _emit(event, **kw)
@@ -1073,7 +1076,8 @@ class KeepAlive:
                     raise NotJSON("unerwartet: Antwort zu groß (Portal/Proxy?)")
             except (http.client.HTTPException, ConnectionError, OSError) as e:
                 c.close()
-                if attempt or not reused:
+                transient = isinstance(e, (ConnectionResetError, BrokenPipeError, http.client.RemoteDisconnected))
+                if attempt or not (reused or transient):    # frische Verbindung: Reset/EOF einmal wiederholen
                     raise urllib.error.URLError(e) from e
                 if isinstance(e, TimeoutError):         # halb offene Verbindung: einmal frisch, mit halber Frist
                     timeout = max(1.0, timeout / 2)
@@ -1371,6 +1375,8 @@ def _check_llm(text, out, dst, src=None):
     factor = 7 if any(sc in LANGS[src]["script"] for sc in ("han", "kana", "hangul")) else 3
     if len(out) > factor * len(text) + 60:
         raise _Implausible("unerwartet: Claude-Ausgabe zu lang")
+    if len(text) >= 80 and len(out) * 10 < len(text):        # fast alles weggelassen: nie als Übersetzung sprechen
+        raise _Implausible("unerwartet: Claude-Ausgabe zu kurz")
     return out
 
 
@@ -2151,6 +2157,9 @@ REGISTER = {
     "pl": ("ty", "Pan/Pani"), "tr": ("sen", "siz"), "hi": ("तुम", "आप"),
     "ja": ("plain/casual form (no keigo)", "polite desu/masu form, keigo where fitting"),
     "ko": ("informal speech (반말)", "polite speech (존댓말, 해요체/합쇼체)"),
+    "zh": ("你", "您"), "id": ("kamu (informal)", "Anda/Bapak/Ibu (formal)"),
+    "vi": ("informal pronouns (bạn/cậu, anh/chị/em by relation)", "polite forms (quý khách, dạ/vâng, anh/chị)"),
+    "ar": ("informal address (أنتَ/أنتِ)", "polite, formal address (حضرتك)"),
 }
 
 
@@ -2307,6 +2316,15 @@ LAUGH.update({
     "zh": re.compile(r"(?:哈){2,}|呵呵|嘿嘿"),
     "ja": re.compile(r"(?<!\w)w{3,}(?!\w)|は{3,}|あは{2,}"),
     "ko": re.compile(r"[ㅋㅎ]{2,}"),
+    # Runde 21: die übrigen Sprachen der Tabelle
+    "it": re.compile(r"\b(?:(?:ah){2,}h?|(?:ha){2,}h?|lol)\b", re.I),
+    "nl": re.compile(r"\b(?:(?:ha){2,}h?|(?:he){2,}h?|lol)\b", re.I),
+    "pl": re.compile(r"\b(?:(?:ha){2,}h?|(?:he){2,}h?|lol)\b", re.I),
+    "tr": re.compile(r"\b(?:(?:ha){2,}h?|(?:he){2,}h?|(?:ka){3,}|lol)\b", re.I),
+    "uk": re.compile(r"(?<!\w)(?:(?:ха){2,}х?|лол)(?!\w)", re.I),
+    "vi": re.compile(r"\b(?:(?:ha){2,}h?|(?:hi){2,}h?|k{3,})\b", re.I),
+    "ar": re.compile(r"(?<!\w)ه{3,}(?!\w)|(?<!\w)لول(?!\w)"),
+    "hi": re.compile(r"(?:हा){2,}|(?:हे){2,}"),
 })
 LAUGH_OUT = {"th": "555", "en": "haha", "de": "hahaha", "es": "jajaja", "fr": "haha", "pt": "kkkk", "id": "wkwk",
              "ru": "хаха", "zh": "哈哈", "ja": "あはは", "ko": "ㅋㅋ", "it": "ahah", "tr": "hahaha", "pl": "haha",
@@ -2335,10 +2353,16 @@ _SPEAK_CUR = {
     "zh": {"฿": "泰铢", "$": "美元", "€": "欧元", "£": "英镑"},
     "ko": {"฿": "바트", "$": "달러", "€": "유로", "£": "파운드"},
 }
-_SPEAK_DEG = {"en": "degrees", "th": "องศา", "de": "Grad", "es": "grados", "fr": "degrés"}
-_SPEAK_CELS = {"C": {"en": "Celsius", "th": "เซลเซียส", "de": "Celsius", "es": "Celsius", "fr": "Celsius"},
+_SPEAK_DEG = {"en": "degrees", "th": "องศา", "de": "Grad", "es": "grados", "fr": "degrés", "it": "gradi",
+              "pt": "graus", "nl": "graden", "ru": "градусов", "tr": "derece", "pl": "stopni", "id": "derajat",
+              "uk": "градусів", "vi": "độ"}
+_SPEAK_CELS = {"C": {"en": "Celsius", "th": "เซลเซียส", "de": "Celsius", "es": "Celsius", "fr": "Celsius",
+                     "it": "Celsius", "pt": "Celsius", "nl": "Celsius", "ru": "по Цельсию", "tr": "Celsius",
+                     "pl": "Celsjusza", "id": "Celsius", "uk": "за Цельсієм", "vi": "Celsius"},
                "F": {"en": "Fahrenheit", "th": "ฟาเรนไฮต์", "de": "Fahrenheit", "es": "Fahrenheit",
-                     "fr": "Fahrenheit"}}
+                     "fr": "Fahrenheit", "it": "Fahrenheit", "pt": "Fahrenheit", "nl": "Fahrenheit",
+                     "ru": "по Фаренгейту", "tr": "Fahrenheit", "pl": "Fahrenheita", "id": "Fahrenheit",
+                     "uk": "за Фаренгейтом", "vi": "Fahrenheit"}}
 # Thai-Rufnummern (0 + 8-9 Ziffern, ohne Punkt/Komma davor/danach): Stimmen läsen sie sonst als große Zahl
 _PHONE_SPEAK = re.compile(r"(?<![\d.,])0\d{8,9}(?![\d.,])")
 _CUR_AMOUNT = re.compile(r"([฿$€£])\s?(\d+(?:[.,]\d+)*)")
@@ -2882,8 +2906,7 @@ class OfflineMT:
 
 
 OFFLINE_MT = OfflineMT()
-import atexit as _atexit  # noqa: E402
-_atexit.register(OFFLINE_MT.close)               # Helfer nie verwaist zurücklassen
+atexit.register(OFFLINE_MT.close)               # Helfer nie verwaist zurücklassen
 
 
 def _offline_mt(text, src, dst, err, meta):
@@ -3304,6 +3327,19 @@ def _phone_sub(m):
 
 
 def _numbers(s, words=True, times=None, equiv=True):
+    """Wie _numbers_uncached; ohne `times` (Nebenwirkung auf eine Menge) zwischengespeichert: numbers_differ fragt
+    dieselben Texte mehrfach (mit/ohne Gleichwertigkeitsregeln, mit/ohne Wörter)."""
+    if times is not None:
+        return _numbers_uncached(s, words, times, equiv)
+    return list(_numbers_cached(s, words, equiv, thai_active()))
+
+
+@functools.lru_cache(maxsize=512)
+def _numbers_cached(s, words, equiv, thai):
+    return tuple(_numbers_uncached(s, words, None, equiv))             # `thai` nur als Teil des Schlüssels
+
+
+def _numbers_uncached(s, words=True, times=None, equiv=True):
     """Zahlen vergleichbar machen: 1.500/1,500 = Tausender (1500), 3:30 = 3.30 (Uhrzeit), aber 1.5 != 15;
     2:30 PM = 14:30 (auch บ่าย 2:30), 9:00 = 9, 09 = 9. Thai-Lachen (555 ohne Zahlkontext) zählt nicht.
     words: ausgeschriebene Zahlen mitzählen – Thai (สามร้อยห้าสิบ = 350, บ่ายสองโมง = 14) und Englisch
@@ -3489,6 +3525,13 @@ _Q_START = {
                      re.I),
     "ru": re.compile(r"^\W*(?:где|когда|как|сколько|почему|зачем|кто|что|какой|какая|какие|можно|есть ли)(?!\w)",
                      re.I),
+    "pl": re.compile(r"^\W*(?:gdzie|kiedy|jak|ile|dlaczego|czemu|czy|kto|co|jaki\w*|który\w*|skąd|dokąd)\b", re.I),
+    "tr": re.compile(r"^\W*(?:nerede|nerde|ne zaman|nasıl|kaç|neden|niçin|kim|ne|hangi\w*|nereye|nereden)\b", re.I),
+    "uk": re.compile(r"^\W*(?:де|коли|як|скільки|чому|навіщо|хто|що|який|яка|які|можна|чи)(?!\w)", re.I),
+    "id": re.compile(r"^\W*(?:di mana|kapan|bagaimana|berapa|mengapa|kenapa|siapa|apa|apakah|bisakah|bolehkah|"
+                     r"mana)\b", re.I),
+    "hi": re.compile(r"^\W*(?:कहाँ|कहां|कब|कैसे|कितना|कितने|कितनी|क्यों|कौन|क्या)(?=[\s,.!?]|$)"),
+    "ar": re.compile(r"^\W*(?:أين|متى|كيف|كم|لماذا|من|ماذا|هل|ما)(?=[\s,.!?؟]|$)"),
 }
 
 
