@@ -200,6 +200,7 @@ Pull requests #16–#192. First tagged release since 1.2: engine hardening, Mac 
 - **Wave 14** (new feature): a history session can be exported as SRT subtitles (translation, then original, timed from the first line).
 - **Wave 15** (new features): History statistics popover (utterances, sessions, words, last 7 days, most frequent sentences); the menu bar menu shows the median latency.
 - **Wave 16** (new features): Phrasebook window searches all scenario phrases (English, Thai, scenario name) and speaks them; the Glossary editor suggests names and places from the current conversation; the scenario menu suggests scenarios by time of day; the bubble context menu has "Look up word" (system dictionary popover).
+- **Wave 17** (review fix): name suggestions in the Glossary editor only scan the last 100 bubbles, so long sessions stay responsive.
 - **Wave 9** (#155, new features): "Translate clipboard" (menu bar item and global shortcut ⌃⌥C; text is flattened, shortened to 1000 characters and spoken in the language of its script); the macOS fallback voice volume is clamped in one place and Settings explains that more than 100 % applies to the neural voice only; the diagnostic report is now in English for support; new XCTest tests for the clipboard and volume logic.
 - **Wave 10** (new features): the system Services menu offers "Translate with Dolmetscher" for selected text in any app (`NSServices`, the text is spoken, not replaced); a single history session can be exported as Markdown with timestamps or as CSV; 40 XCTest tests.
 
