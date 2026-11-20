@@ -123,7 +123,7 @@ def test_clear_context_source_calls_group_reset():
 
 def test_utt_extra_field_and_label_wiring_in_process_source():
     src = open(d.__file__, encoding="utf-8").read()
-    assert 'extra["group_speaker"] = gnum' in src and "online_speakers.label(gnum)" in src
+    assert 'dkw["extra"]["group_speaker"] = gnum' in src and "online_speakers.label(gnum)" in src
 
 
 # ---- Systemton ------------------------------------------------------------------------------------------

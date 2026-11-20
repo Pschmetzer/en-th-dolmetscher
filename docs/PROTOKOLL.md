@@ -658,3 +658,7 @@ App-Pipe nicht schnell genug abnahm, siehe Log).
 - **Runde 25 (Engine):** Gruppenmodus (`group_speakers`, `utt.group_speaker`), Systemton-Quelle (`--source`, Steuerfeld `source`,
   Fähigkeiten `feature:group_speakers`, `feature:system_audio`), `state` meldet `group_speakers` und `source`. Fehlercode
   `system_audio_missing` (nur `msg`/`msg_en`; die App zeigt den Freitext, bis sie den Code lokalisiert).
+- **Runde 25 (Schalter):** `llm_stream`, `llm_router`, `defer`, `parallel_alt`, `stt_prompt`, `speak_numbers` bleiben nach Prüfung
+  Standard aus (keine Messung für Router, Stream, Prompt, Zahlen; sie ändern Text/Ton oder die Reihenfolge). Erkennung und
+  Transkription sind nicht zusammengelegt: die Erkennung läuft mit `m_det`, Sperre, Profil-Vorrang, Rolle und Gegenprobe brauchen
+  die Sprache vor dem Dekodieren.

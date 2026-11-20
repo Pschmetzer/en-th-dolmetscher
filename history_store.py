@@ -848,7 +848,7 @@ class Recorder:
                 if passphrase and self.store is not None and not self.store.encrypted:
                     self.store.close()                # Passwort gesetzt: nie weiter in die Klartext-Datei schreiben
                     self.store = None
-                self.store = self.store or Store(passphrase=passphrase or None)
+                self.store = self.store or (Store(passphrase=passphrase) if passphrase else Store())
                 if self.keep_days:
                     self.store.purge(self.keep_days)
             except Exception as e:
@@ -968,7 +968,7 @@ def run_cli(a):
         if pw and not os.path.exists(db_path(True)):
             print(json.dumps({"error": "kein verschlüsselter Verlauf vorhanden"}))
             return 2
-        st = Store(passphrase=pw)
+        st = Store(passphrase=pw) if pw else Store()
     except HistoryLocked:
         print(json.dumps({"error": "falsches Passwort"}))
         return 2

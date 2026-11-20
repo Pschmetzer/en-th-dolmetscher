@@ -19,6 +19,7 @@ import argparse, atexit, collections, difflib, errno, functools, hashlib, html, 
 import numpy as np
 import online_speakers
 import presets
+from textsplit import FIRST_CLAUSE_MIN, MAX_SPEAK_CHARS, _CLAUSE_END, _thai_cut_ok, chunk_long, first_clause, speakable  # noqa: F401,E501
 from numwords import _SPEAK_NUM, _NUM_KEEP_BEFORE, _TH_DIG, _TH_POS, _th_chunk, speak_numbers_th, thai_number_words  # noqa: F401,E501
 from thaiparticles import (_TH_FEMALE, _TH_KA, _TH_KRUB, _TH_MALE, _TH_Q_END, _TH_STRETCH, fit_thai_particles,  # noqa: F401
                            thai_speaker_sex, thai_stretch)
@@ -1513,14 +1514,6 @@ def _check_llm(text, out, dst, src=None):
 MYMEMORY_MAX_BYTES = 450           # MyMemory lehnt Anfragen über 500 Byte ab
 
 
-def _thai_cut_ok(prev, nxt):
-    """Darf zwischen zwei Zeichen geschnitten werden? Nicht vor Folgevokalen/Tonzeichen (hängen am Vorgänger) und
-    nicht nach Vorderen Vokalen เ แ โ ใ ไ (U+0E40-0E44, gehören zum folgenden Konsonanten)."""
-    if "\u0e40" <= prev <= "\u0e44":
-        return False
-    return not ("\u0e30" <= nxt <= "\u0e4e" and not "\u0e40" <= nxt <= "\u0e44")
-
-
 _NO_SPACE_RX = re.compile(r"[\u0e00-\u0e7f\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]")   # Schriften ohne Leerzeichen
 
 
@@ -2400,8 +2393,8 @@ CACHE_INACTIVE_AFTER = 8           # Aufrufe ohne jeden Cache-Lese-/Schreibtreff
 KEEPALIVE_AFTER_S = 240.0          # Prompt-Cache lebt 5 min: danach vor Ablauf einmal auffrischen
 KEEPALIVE_WHILE_S = 900.0          # … aber nur, solange zuletzt gedolmetscht wurde
 HEDGE_PARALLEL_CHARS = 160         # ab so vielen Zeichen startet Google sofort parallel (Claude braucht dafür länger)
-FIRST_CLAUSE_MIN = {"th": 8, "zh": 4, "ja": 4}
-_CLAUSE_END = re.compile(r"[,;:.!?，；：。！？、…]")
+
+
 
 
 class _DaemonPool:
@@ -2455,18 +2448,6 @@ def route_model(text, alts=(), base=None):
              or len(re.findall(r"[,;]", t)) >= 4)
     alt = LLM.get("router_model")
     return alt if heavy and alt in LLM_PRICE else base
-
-
-def first_clause(buf, lang=None):
-    """Erste vollständige Teilphrase eines wachsenden Textes (für Streaming), sonst None. Die Phrase endet an
-    Komma/Satzzeichen und gilt erst, wenn dahinter schon etwas steht (Zeichen nicht mehr unterwegs)."""
-    for m in _CLAUSE_END.finditer(buf or ""):
-        end = m.end()
-        if end < len(buf) and len(buf[:end].strip()) >= FIRST_CLAUSE_MIN.get(lang, 12):
-            if (m.group(0) in ".,:" and re.search(r"\d$", buf[:m.start()]) and buf[end:end + 1].isdigit()):
-                continue                                    # Dezimalpunkt/-komma 3.5, 3,5, 1,500 und Uhrzeit 10:30
-            return buf[:end].strip()
-    return None
 
 
 def _usage_n(u, k):
@@ -2838,32 +2819,7 @@ _TH_ABBREV = [(re.compile(a), b) for a, b in (
     (r"(?<![ก-๙])ก\.ค\.?", "กรกฎาคม"), (r"(?<![ก-๙])ส\.ค\.?", "สิงหาคม"),
     (r"(?<![ก-๙])ก\.ย\.?", "กันยายน"), (r"(?<![ก-๙])ต\.ค\.?", "ตุลาคม"),
     (r"(?<![ก-๙])พ\.ย\.?", "พฤศจิกายน"), (r"(?<![ก-๙])ธ\.ค\.?", "ธันวาคม"))]
-MAX_SPEAK_CHARS = 300             # längere Teile einer Ausgabe werden geteilt (edge-tts/say: Frist, Abbruchrisiko)
 
-
-def speakable(text):
-    """Gibt es etwas zu sprechen? Nur Satzzeichen/Leerraum würden edge-tts „NoAudioReceived“ werfen lassen
-    und `say` ein Klicken sprechen lassen."""
-    return any(c.isalnum() for c in text)
-
-
-def chunk_long(parts, lang, limit=None):
-    """Teile über `limit` Zeichen (Satz ohne Satzzeichen, Thai ohne Leerzeichen) an Wort-/Kommagrenzen teilen,
-    sonst hart; nichts geht verloren."""
-    limit = max(3, int(limit or MAX_SPEAK_CHARS))      # Runde 25: limit 1–2 schnitt an Position 0 -> Endlosschleife
-    out = []
-    for p in parts:
-        while len(p) > limit:
-            cut = max(p.rfind(" ", 0, limit), p.rfind(",", 0, limit) + 1, p.rfind("，", 0, limit) + 1,
-                      p.rfind("、", 0, limit) + 1)
-            if cut < limit // 3:
-                cut = limit
-                while cut > limit // 3 and not _thai_cut_ok(p[cut - 1], p[cut]):
-                    cut -= 1                      # Thai ohne Leerzeichen: nie mitten im Zeichencluster schneiden
-            out.append(p[:cut].strip())
-            p = p[cut:].strip() if cut != limit or p[cut:cut + 1].isspace() else p[cut:]
-        out.append(p)
-    return [x for x in out if x]
 
 
 SPEAK_NUMBER_WORDS = {"on": False}     # opt-in: speak_form liest Zahlen als Thai-Wörter (Standard: Ziffern, die Neural-TTS liest sie richtig)  # noqa: E501
@@ -6517,10 +6473,7 @@ class Engine:
         self.spk = None
         self.two_person = True                 # "ich = mein Profil, andere Stimme = Partnersprache" (EN-Profil nötig)
         self.last_role = None                  # (rolle, ende) der letzten sicher zugeordneten Äußerung
-        self.group_speakers = False            # Runde 25: Gruppenmodus – "Sprecher 1/2/3" ohne Stimmprofil
-        self.group = online_speakers.OnlineSpeakers()
-        self._grp_spk = None                   # eigener Stimm-Embedder, solange keine Profile geladen sind
-        self._grp_lock = threading.Lock()
+        self.group = online_speakers.OnlineSpeakers()           # Runde 25: Gruppenmodus (Klassenstandard: aus)
         self.recent = collections.OrderedDict()  # id -> (audio, stimmabdruck) für "Das war ich/sie"
         self.reload_profiles()
         self.speaker = Speaker(self)
@@ -6778,7 +6731,8 @@ class Engine:
             self.history.clear()
         self.last = None
         self.prev = None
-        self.group.reset()                  # Runde 25: Sprechernummern des Gruppenmodus beginnen wieder bei 1
+        if self.group is not None:
+            self.group.reset()              # Runde 25: Sprechernummern des Gruppenmodus beginnen wieder bei 1
         self._cleared = True                # restore_last darf den gelöschten Satz nicht aus dem Verlauf zurückholen
         for name in ("texts", "recent", "_hist_ids", "_recent_t", "_failed_tr"):   # kein Roh-Audio/Text im Speicher behalten  # noqa: E501
             getattr(self, name, {}).clear()
@@ -7165,17 +7119,21 @@ class Engine:
         if role and emb is not None:
             self._learn_auto(role, info, audio.size / SR, emb)
         gnum = self._group_number(audio, get_emb)
-        extra = {"dur": round(audio.size / SR, 2)}                          # Nr. 205: Sprechbeginn im Verlauf
-        if gnum:
-            extra["group_speaker"] = gnum                                   # Runde 25: additives Feld (1, 2, …)
         dkw = dict(speak=speak, t_end=t_end, speaker=who["name"] if who else (
                        online_speakers.label(gnum) if gnum else None), alts=alts,
                    role=role if role in ("me", "other") else None, polite=self._speaker_polite(who, role),
-                   extra=extra)
+                   extra={"dur": round(audio.size / SR, 2)})              # Nr. 205: Sprechbeginn im Verlauf
+        if gnum:
+            dkw["extra"]["group_speaker"] = gnum                            # Runde 25: additives Feld (1, 2, …)
         if defer:                               # Runde 23: nächste Erkennung läuft, während dieser Satz übersetzt wird
             deliver_later(uid, self.deliver, uid, lang, text, lp, time.monotonic() - t0, **dkw)
             return None
         return self.deliver(uid, lang, text, lp, time.monotonic() - t0, **dkw)
+
+    group_speakers = False                 # Runde 25: "Sprecher 1/2/3" ohne Stimmprofil (Steuerfeld group_speakers)
+    group = None
+    _grp_spk = None                        # eigener Stimm-Embedder, solange keine Profile geladen sind
+    _grp_lock = threading.Lock()
 
     def _group_embedder(self):
         """Stimmmodell für den Gruppenmodus: das der Profile, sonst ein eigenes (lazy). None + Fehlerereignis, wenn
@@ -7199,7 +7157,7 @@ class Engine:
     def _group_number(self, audio, get_emb=None):
         """Gruppenmodus: Sprechernummer (1, 2, …) der Äußerung oder None. Nutzt den schon berechneten Abdruck
         (`get_emb`, ein Modelllauf je Satz), sonst das Gruppen-Modell."""
-        if not self.group_speakers:
+        if not self.group_speakers or self.group is None:
             return None
         try:
             if get_emb is not None:
@@ -8175,7 +8133,8 @@ def history_enable(on, days=None):
     if isinstance(days, bool) or (days not in (None, 0) and history_store.valid_days(days) is None):   # 0 = nie löschen
         days = None
         emit("error", code="history_days_invalid", msg="Aufbewahrungsdauer ungültig – es wird nichts gelöscht")
-    if not rec.enable(on, days, passphrase=HIST_PASS["pw"]) and on:
+    ok = rec.enable(on, days, passphrase=HIST_PASS["pw"]) if HIST_PASS["pw"] else rec.enable(on, days)
+    if not ok and on:
         if isinstance(rec.last_error, history_store.HistoryLocked):    # Text ohne Passwort/Ursachendetails
             emit("error", code="history_failed", msg="Verlauf: falsches Passwort – Aufzeichnung aus")
         else:

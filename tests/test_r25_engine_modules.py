@@ -75,3 +75,43 @@ def test_llm_spend_file_with_infinity_is_ignored(tmp_path, monkeypatch):
     f.write_text(json.dumps({"month": d._month(), "usd": 1.25}))
     d._SPEND.update(month=None, usd=0.0)
     assert d.llm_month_usd() == 1.25
+
+
+# ---- textsplit (Textteilung fuer Sprachausgabe und Streaming) -------------------------------------------------
+
+import textsplit  # noqa: E402
+
+
+@pytest.mark.parametrize("name", ["first_clause", "chunk_long", "speakable", "_thai_cut_ok", "FIRST_CLAUSE_MIN",
+                                  "_CLAUSE_END", "MAX_SPEAK_CHARS"])
+def test_textsplit_reexport_is_same_object(name):
+    assert getattr(d, name) is getattr(textsplit, name)
+
+
+@pytest.mark.parametrize("buf,lang,want", [
+    ("The price is 1,500 baht, and more", None, "The price is 1,500 baht,"),
+    ("Meet me at 10:30 tomorrow, please", None, "Meet me at 10:30 tomorrow,"),
+    ("Total 3.5 kilos, thanks", None, "Total 3.5 kilos,"),
+    ("Hello, world and more", None, None),             # unter 12 Zeichen: noch zu kurz
+    ("Short one, ", None, None),
+    ("abc.", None, None),                              # Satzzeichen ganz am Ende: Zeichen evtl. noch unterwegs
+    ("", None, None), (None, None, None),
+])
+def test_first_clause_cases(buf, lang, want):
+    assert textsplit.first_clause(buf, lang) == want
+
+
+def test_first_clause_thai_min_length_is_shorter():
+    assert textsplit.first_clause("สวัสดีครับ, ผมชื่อ", "th") == "สวัสดีครับ,"
+
+
+@pytest.mark.parametrize("text,ok", [("...", False), ("  ", False), ("", False), ("😀", False), ("a", True),
+                                     ("5", True), ("ก", True), ("?! ok", True)])
+def test_speakable(text, ok):
+    assert textsplit.speakable(text) is ok
+
+
+def test_thai_cut_never_between_vowel_and_following_mark():
+    assert textsplit._thai_cut_ok("ก", "า") is False       # Folgevokal hängt am Konsonanten
+    assert textsplit._thai_cut_ok("เ", "ก") is False       # Vorderer Vokal gehört zum nächsten Konsonanten
+    assert textsplit._thai_cut_ok("ก", "ข") is True
