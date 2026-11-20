@@ -137,7 +137,7 @@ def test_review_weak_words_not_commands_in_sentences():
 def test_review_url_not_corrupted_by_places(monkeypatch):
     monkeypatch.setattr(d, "GLOSSARY", [])
     t, slots = d._protect("Visit www.siam.com today", "th")
-    assert slots == [] and "www.siam.com" in t
+    assert slots == [] and t == "Visit www.siam.com today"
 
 
 def test_review_no_effort_only_after_successful_retry(monkeypatch):
