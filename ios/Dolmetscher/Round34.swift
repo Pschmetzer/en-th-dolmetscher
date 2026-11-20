@@ -1,6 +1,7 @@
 // Round34.swift – Runde 34: Logik hinter den Oberflächen, die die Runde-33-Bausteine anbinden (ohne Systemaufrufe, testbar):
 // Zeitzone -> Land (Reise-Modus ohne Standortfreigabe), Planer-Speicher (FSRS je Karte), Karten-Themen für Orts-Vorschläge,
 // Teiltext-Schalter und -Entscheidung für Whisper, Speisekarten-Auswertung, Hotelkarten-Text aus der Notfallkarte.
+import CryptoKit
 import Foundation
 
 // MARK: Reise-Modus: Land aus der Zeitzone
@@ -40,14 +41,27 @@ struct PlannerStore: Codable, Equatable, Sendable {
 
     static let defaultsKey = "planner34"
 
+    /// Karten aus Gesprächen tragen den Satz in ihrer Kennung. UserDefaults liegt im Backup und ist nicht geschützt:
+    /// darum steht dort nur ein Hash, nie der Satz selbst.
+    static func key(_ cardID: String) -> String {
+        SHA256.hash(data: Data(cardID.utf8)).map { String(format: "%02x", $0) }.joined()
+    }
+
     /// Bewertung einer Karte. Unbekannte Karten beginnen neu.
     mutating func rate(_ id: String, _ rating: SpacedRepetition.Rating, now: Date) {
-        let old = states[id] ?? SpacedRepetition.fresh(now: now)
-        states[id] = SpacedRepetition.review(old, rating, now: now)
+        let k = Self.key(id)
+        let old = states[k] ?? SpacedRepetition.fresh(now: now)
+        states[k] = SpacedRepetition.review(old, rating, now: now)
     }
 
     /// Zustände von Karten, die es nicht mehr gibt, verwerfen.
-    mutating func prune(keeping ids: Set<String>) { states = states.filter { ids.contains($0.key) } }
+    mutating func prune(keeping ids: Set<String>) {
+        let keep = Set(ids.map(Self.key))
+        states = states.filter { keep.contains($0.key) }
+    }
+
+    /// Alles vergessen (Lernstand zurücksetzen).
+    static func clear(_ d: UserDefaults = .standard) { d.removeObject(forKey: defaultsKey) }
 
     struct Forecast: Equatable {
         var dueNow = 0

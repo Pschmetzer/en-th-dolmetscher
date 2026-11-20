@@ -345,6 +345,7 @@ struct PlaceChips: View {
             }
             .padding(.horizontal, 2)
         }
+        .accessibilityElement(children: .contain)
         .accessibilityLabel(T("r34_place_title"))
     }
 

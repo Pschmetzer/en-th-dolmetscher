@@ -222,7 +222,7 @@ struct LearnView: View {
                 }
             }
             .confirmationDialog(T("learn_reset_ask"), isPresented: $confirmReset, titleVisibility: .visible) {
-                Button(T("learn_reset"), role: .destructive) { m.resetLearnProgress(); revealed = false; now = Date() }
+                Button(T("learn_reset"), role: .destructive) { m.resetLearnProgress(); planner = PlannerStore(); revealed = false; now = Date() }
                 Button(T("cancel"), role: .cancel) {}
             }
             .sheet(item: $coachCard) { PronunciationCoachView(card: $0).modifier(ShieldWhenInactive()) }

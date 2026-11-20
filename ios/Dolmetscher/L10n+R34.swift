@@ -762,16 +762,16 @@ extension L10n {
             "id": "Dua perangkat"
         ],
         "r34_pair_intro": [
-            "de": "Zwei iPhones: jeder tippt in seiner Sprache, der andere sieht die Übersetzung. Nur Text, direkt zwischen den Geräten, nichts geht ins Internet. Beide öffnen diese Ansicht.",
-            "en": "Two iPhones: each types in their own language and the other sees the translation. Text only, directly between the devices, nothing goes to the internet. Both open this screen.",
-            "th": "iPhone สองเครื่อง: แต่ละคนพิมพ์ในภาษาของตน อีกฝ่ายเห็นคำแปล เป็นข้อความเท่านั้น ส่งตรงระหว่างเครื่อง ไม่ผ่านอินเทอร์เน็ต ทั้งสองเครื่องเปิดหน้าจอนี้",
-            "es": "Dos iPhone: cada uno escribe en su idioma y el otro ve la traducción. Solo texto, directo entre los dispositivos, nada va a internet. Ambos abren esta pantalla.",
-            "fr": "Deux iPhone : chacun écrit dans sa langue et l'autre voit la traduction. Texte uniquement, directement entre les appareils, rien ne passe par Internet. Les deux ouvrent cet écran.",
-            "ja": "iPhone 2台：それぞれ自分の言語で入力し、相手には翻訳が表示されます。テキストのみ、端末間で直接やり取りし、インターネットは使いません。両方でこの画面を開いてください。",
-            "ko": "iPhone 두 대: 각자 자기 언어로 입력하면 상대방은 번역을 봅니다. 텍스트만, 기기 간 직접 전송이며 인터넷을 사용하지 않습니다. 양쪽에서 이 화면을 여세요.",
-            "zh-Hans": "两部 iPhone：各自用自己的语言输入，对方看到译文。仅文字，设备之间直接传输，不经过互联网。请两部设备都打开此页面。",
-            "vi": "Hai iPhone: mỗi người gõ bằng ngôn ngữ của mình, người kia thấy bản dịch. Chỉ văn bản, truyền trực tiếp giữa hai máy, không qua internet. Cả hai cùng mở màn hình này.",
-            "id": "Dua iPhone: masing-masing mengetik dalam bahasanya dan yang lain melihat terjemahan. Hanya teks, langsung antarperangkat, tidak lewat internet. Keduanya membuka layar ini."
+            "de": "Zwei iPhones: jeder tippt in seiner Sprache, der andere sieht die Übersetzung. Nur Text, direkt zwischen den Geräten übertragen. Übersetzt wird wie im Gespräch: auf dem Gerät, bei erlaubter Online-Übersetzung auch online. Beide öffnen diese Ansicht.",
+            "en": "Two iPhones: each types in their own language and the other sees the translation. Text only, sent directly between the devices. Translation works as in a conversation: on the device, or online if online translation is allowed. Both open this screen.",
+            "th": "iPhone สองเครื่อง: แต่ละคนพิมพ์ในภาษาของตน อีกฝ่ายเห็นคำแปล เป็นข้อความเท่านั้น ส่งตรงระหว่างเครื่อง การแปลทำงานเหมือนในการสนทนา คือบนเครื่อง หรือออนไลน์หากอนุญาตการแปลออนไลน์ ทั้งสองเครื่องเปิดหน้าจอนี้",
+            "es": "Dos iPhone: cada uno escribe en su idioma y el otro ve la traducción. Solo texto, enviado directamente entre los dispositivos. La traducción funciona como en una conversación: en el dispositivo o, si se permite, en línea. Ambos abren esta pantalla.",
+            "fr": "Deux iPhone : chacun écrit dans sa langue et l'autre voit la traduction. Texte uniquement, envoyé directement entre les appareils. La traduction fonctionne comme dans une conversation : sur l'appareil ou, si c'est autorisé, en ligne. Les deux ouvrent cet écran.",
+            "ja": "iPhone 2台：それぞれ自分の言語で入力し、相手には翻訳が表示されます。テキストのみ、端末間で直接送信されます。翻訳は通常の会話と同じ方法で行われ、端末上で、またはオンライン翻訳を許可している場合はオンラインで処理されます。両方でこの画面を開いてください。",
+            "ko": "iPhone 두 대: 각자 자기 언어로 입력하면 상대방은 번역을 봅니다. 텍스트만 기기 간에 직접 전송됩니다. 번역은 대화와 같은 방식으로, 기기에서 또는 온라인 번역을 허용한 경우 온라인으로 처리됩니다. 양쪽에서 이 화면을 여세요.",
+            "zh-Hans": "两部 iPhone：各自用自己的语言输入，对方看到译文。仅文字，在设备之间直接传送。翻译与对话时相同：在设备上完成，若允许在线翻译则可能在线完成。请两部设备都打开此页面。",
+            "vi": "Hai iPhone: mỗi người gõ bằng ngôn ngữ của mình, người kia thấy bản dịch. Chỉ văn bản, gửi trực tiếp giữa hai máy. Việc dịch hoạt động như trong hội thoại: trên thiết bị, hoặc trực tuyến nếu cho phép dịch trực tuyến. Cả hai cùng mở màn hình này.",
+            "id": "Dua iPhone: masing-masing mengetik dalam bahasanya dan yang lain melihat terjemahan. Hanya teks, dikirim langsung antarperangkat. Terjemahan bekerja seperti dalam percakapan: di perangkat, atau online jika terjemahan online diizinkan. Keduanya membuka layar ini."
         ],
         "r34_pair_search": [
             "de": "Gerät in der Nähe suchen",

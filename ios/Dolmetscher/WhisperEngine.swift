@@ -268,6 +268,7 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
         jobs.finish()
         worker?.cancel()
         await worker?.value
+        await partial.waitForTask()   // dasselbe Modell: ein Neustart darf nicht in eine laufende Zwischenerkennung greifen
         // Nicht sofort entladen: ein Neustart gleich danach nimmt das Modell wieder (Entladen nach 60 s Ruhe).
         if kit != nil { WhisperKitCache.shared.idle() }
         kit = nil
@@ -314,7 +315,7 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
             partial.reset(); sincePartial = 0
             utterance = preRoll.drain()
             emit.yield(.hearing(true))
-            emit.yield(.partial([:]))   // keine Teiltexte: Whisper erkennt erst am Ende
+            emit.yield(.partial([:]))   // Teiltexte nur mit Schalter (WhisperPartials), sonst erst am Ende
         }
         if gate.inUtterance || ev == .ended {
             utterance.append(contentsOf: samples)

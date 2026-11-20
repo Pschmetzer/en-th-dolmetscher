@@ -4,4 +4,4 @@
 "NSPhotoLibraryUsageDescription" = "Wähle ein Foto einer Speisekarte oder eines Schilds, damit Dolmetscher den Text lesen und übersetzen kann.";
 "NSFaceIDUsageDescription" = "Face ID entsperrt deinen Gesprächsverlauf, wenn du die Verlaufssperre einschaltest.";
 "NSLocationWhenInUseUsageDescription" = "Deine Position erscheint nur auf dem Notfall-Bildschirm, damit du Helfern sagen kannst, wo du bist. Sie verlässt das iPhone nie.";
-"NSLocalNetworkUsageDescription" = "Dolmetscher findet im Zwei-Geräte-Modus ein zweites iPhone in der Nähe, um Sätze direkt zu übertragen. Es geht nichts ins Internet.";
+"NSLocalNetworkUsageDescription" = "Dolmetscher findet im Zwei-Geräte-Modus ein zweites iPhone in der Nähe, um Sätze direkt zu übertragen.";

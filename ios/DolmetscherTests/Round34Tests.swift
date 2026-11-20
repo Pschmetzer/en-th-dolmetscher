@@ -70,7 +70,7 @@ final class Round34Tests: XCTestCase {
         p.rate("a", .good, now: now)
         p.rate("b", .again, now: now)
         XCTAssertEqual(p.states.count, 2)
-        XCTAssertGreaterThan(p.states["a"]!.stability, p.states["b"]!.stability)
+        XCTAssertGreaterThan(p.states[PlannerStore.key("a")]!.stability, p.states[PlannerStore.key("b")]!.stability)
         XCTAssertEqual(p.forecast(now: now.addingTimeInterval(60)).dueNow, 0)   // „nochmal“ ist erst nach 10 Minuten fällig
         let f = p.forecast(now: now.addingTimeInterval(700))
         XCTAssertEqual(f.tracked, 2)
@@ -85,7 +85,19 @@ final class Round34Tests: XCTestCase {
         XCTAssertEqual(PlannerStore.load(d), p)
         XCTAssertEqual(PlannerStore.load(suite()), PlannerStore())
         p.prune(keeping: ["a"])
-        XCTAssertEqual(Set(p.states.keys), ["a"])
+        XCTAssertEqual(Set(p.states.keys), [PlannerStore.key("a")])
+    }
+
+    func testPlannerStoresNoConversationText() throws {
+        let d = suite()
+        var p = PlannerStore()
+        p.rate("th|ฉันแพ้ถั่วลิสง", .good, now: Date())
+        p.save(d)
+        let raw = String(decoding: try XCTUnwrap(d.data(forKey: PlannerStore.defaultsKey)), as: UTF8.self)
+        XCTAssertFalse(raw.contains("ถั่ว"))
+        XCTAssertFalse(raw.contains("th|"))
+        PlannerStore.clear(d)
+        XCTAssertNil(d.data(forKey: PlannerStore.defaultsKey))
     }
 
     func testPlannerForecastWithoutStatesIsEmpty() {

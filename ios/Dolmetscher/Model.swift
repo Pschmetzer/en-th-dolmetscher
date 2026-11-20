@@ -1080,6 +1080,7 @@ final class InterpreterModel {
         var deck = learn
         deck.resetProgress()
         learn = deck
+        PlannerStore.clear()
         Haptics.warning()
     }
 

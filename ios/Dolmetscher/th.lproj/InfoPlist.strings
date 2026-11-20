@@ -4,4 +4,4 @@
 "NSPhotoLibraryUsageDescription" = "เลือกรูปเมนูหรือป้ายเพื่อให้แอปอ่านและแปลข้อความ";
 "NSFaceIDUsageDescription" = "Face ID ใช้ปลดล็อกประวัติการสนทนาของคุณ เมื่อคุณเปิดการล็อกประวัติ";
 "NSLocationWhenInUseUsageDescription" = "ตำแหน่งของคุณแสดงเฉพาะในหน้าฉุกเฉิน เพื่อบอกผู้ช่วยเหลือว่าคุณอยู่ที่ไหน และจะไม่ถูกส่งออกจาก iPhone";
-"NSLocalNetworkUsageDescription" = "ในโหมดสองเครื่อง Dolmetscher จะค้นหา iPhone เครื่องที่สองในบริเวณใกล้เคียงเพื่อส่งประโยคโดยตรง ไม่มีการส่งข้อมูลไปยังอินเทอร์เน็ต";
+"NSLocalNetworkUsageDescription" = "ในโหมดสองเครื่อง Dolmetscher จะค้นหา iPhone เครื่องที่สองในบริเวณใกล้เคียงเพื่อส่งประโยคโดยตรง";

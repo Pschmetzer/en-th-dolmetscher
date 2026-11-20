@@ -4,4 +4,4 @@
 "NSPhotoLibraryUsageDescription" = "选取菜单或标牌的照片，Dolmetscher 即可识别并翻译其中的文字。";
 "NSFaceIDUsageDescription" = "开启记录锁定后，使用面容 ID 解锁你的对话记录。";
 "NSLocationWhenInUseUsageDescription" = "你的位置只显示在紧急页面上，方便告诉救助人员你在哪里。位置信息不会离开这台 iPhone。";
-"NSLocalNetworkUsageDescription" = "在双设备模式下，Dolmetscher 会查找附近的另一部 iPhone 以直接传送句子。不会向互联网发送任何内容。";
+"NSLocalNetworkUsageDescription" = "在双设备模式下，Dolmetscher 会查找附近的另一部 iPhone 以直接传送句子。";
