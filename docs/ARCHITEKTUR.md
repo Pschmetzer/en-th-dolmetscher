@@ -115,6 +115,9 @@ DOLMETSCHER_DEMO=1 open -n ~/Applications/Dolmetscher.app   # oder die Binärdat
 `ios/Dolmetscher/Round22.swift` ergänzt weitere Reise-Helfer als reine Logik.
 `ios/Dolmetscher/Round32.swift` hält die Logik der Runde 32: Speicher-Schema mit Migration, Notrufnummern je Land, Taxi-Karte, Preis-/Verhandlungshilfe, Wort-Lexikon und die Regel des Bildschirmschutzes.
 `ios/Dolmetscher/Round32Views.swift` zeigt Taxi-Karte, Preishilfe, Notfall-Ablauf, Wort-Tippen und Bausteine für Barrierefreiheit (große Schrift, Transparenz, Farbe nicht allein).
+`ios/Dolmetscher/Round33.swift` hält die Logik der Runde 33: stabile Whisper-Teiltexte mit Halluzinationsfilter (`PartialStabilizer`), Allergen-Markierung für Speisekarten (`MenuAllergens`, Ids aus `allergens.json`), Reise-Modus (`TravelMode`: Land → Partnersprache, Notruf, Währung als Vorschlag), Zwei-Geräte-Nachrichten (`PeerMessage`, `PeerState`), Aussprache-Coach, FSRS-ähnlicher Wiederholungs-Planer mit Orts-Auslösern, Reise-Tagebuch, QR-Text der Hotelkarte, Uhr-Nachrichten (`WatchPhrase`), Spotlight-Plan, Bereitschafts-Ampel mit Stimmenqualität, Datei-Schutz-Regeln und die Umweg-Beschriftung („über Englisch“).
+`ios/Dolmetscher/Round33Platform.swift` sind die dünnen Systemhüllen dazu (Spotlight-Index des Verlaufs, QR-Bild, Stimmenqualität, WatchConnectivity-Verfügbarkeit, Backup-Ausschluss, `PeerLink` mit MultipeerConnectivity als Prototyp ohne Oberfläche).
+`ios/Dolmetscher/L10n+R33.swift` enthält die Texte der Runde 33 (Bluetooth-Hinweis, Umweg, Ampel, Spotlight).
 `ios/Dolmetscher/Round32Intents.swift` liefert Kurzbefehle mit Rückgabewert (Notrufnummern, Taxi-Satz, Gegenangebote).
 `ios/Dolmetscher/Round27.swift` sortiert Satzbuch-Pakete nach Tageszeit und plant den optionalen „Satz des Tages“ als lokale Benachrichtigung (ohne Server).
 `ios/Dolmetscher/Round21.swift` enthält Reise-Helfer als reine Logik (Trinkgeld, Einheiten, Thai-Uhrzeit, Telefonnummer) und das Aufräumen von Export-Dateien.
