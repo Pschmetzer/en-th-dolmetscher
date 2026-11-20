@@ -6653,7 +6653,7 @@ CTRL_KEYS = frozenset({
 CTRL_KEYS |= {"let_finish", "catch_up", "beam", "llm_retry", "clear", "cache_persist", "history_speakers"}   # Runde 6/7
 CTRL_KEYS |= {"currency"}                                                                           # Runde 21
 CTRL_KEYS |= {"echo_guard"}                                                                         # Runde 8
-CTRL_KEYS |= {"api_key"}                                              # Runde 21: Schlüssel per stdin statt Umgebung (nie geloggt)
+CTRL_KEYS |= {"api_key"}   # Runde 21: Schlüssel per stdin statt Umgebung (nie geloggt)
 
 
 def apply_control(eng, d):
