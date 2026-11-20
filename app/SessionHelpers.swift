@@ -1,5 +1,6 @@
 // SessionHelpers.swift – Namen aus dem Gespräch fürs Glossar, Satzbuch-Suche, Szenario-Vorschlag (reine Logik, Foundation).
 import Foundation
+import NaturalLanguage
 
 enum NameSuggest {
     /// Großgeschriebene lateinische Wörter mitten im Satz (Namen/Orte), die noch nicht im Glossar stehen, häufigste zuerst.
@@ -83,5 +84,20 @@ enum ScenarioSuggest {
         default: ids = ["nightlife", "taxi", "hotel"]
         }
         return ids.filter { available.contains($0) }
+    }
+}
+
+enum LookupWords {
+    /// Wörter eines Textes zum Nachschlagen (Thai wird mit dem System-Tokenizer getrennt), ohne Doppelte, höchstens `limit`.
+    static func words(_ text: String, limit: Int = 12) -> [String] {
+        let tok = NLTokenizer(unit: .word)
+        tok.string = text
+        var seen = Set<String>(), out: [String] = []
+        tok.enumerateTokens(in: text.startIndex..<text.endIndex) { r, _ in
+            let w = String(text[r])
+            if w.contains(where: { $0.isLetter }), seen.insert(w.lowercased()).inserted { out.append(w) }
+            return out.count < limit
+        }
+        return out
     }
 }

@@ -129,3 +129,12 @@ def test_history_stats_and_menu_latency():
     import pathlib
     assert "HistoryLogic.stats" in pathlib.Path("app/HistoryView.swift").read_text()
     assert "latencyMedian" in pathlib.Path("app/DolmetscherApp.swift").read_text()
+
+
+def test_wave16_features_wired():
+    import pathlib
+    app = pathlib.Path("app/DolmetscherApp.swift").read_text()
+    assert 'id: "phrasebook"' in app
+    assert "NameSuggest.candidates" in pathlib.Path("app/GlossaryView.swift").read_text()
+    assert "ScenarioSuggest.suggest" in pathlib.Path("app/Views.swift").read_text()
+    assert "LookupWords.words" in pathlib.Path("app/BubbleViews.swift").read_text()

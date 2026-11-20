@@ -21,6 +21,12 @@ final class SessionHelpersTests: XCTestCase {
         XCTAssertEqual(PhraseSearch.search(src, query: "หมอ").count, 1)
     }
 
+    func testLookupWords() {
+        let w = LookupWords.words("Where is the toilet? toilet!")
+        XCTAssertTrue(w.contains("toilet"))
+        XCTAssertEqual(w.filter { $0.lowercased() == "toilet" }.count, 1)
+    }
+
     func testScenario() {
         XCTAssertEqual(ScenarioSuggest.suggest(hour: 8, available: ["taxi", "hotel"]), ["hotel", "taxi"])
         XCTAssertEqual(ScenarioSuggest.suggest(hour: 3, available: []), [])

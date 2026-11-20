@@ -1033,6 +1033,7 @@ enum L {
         "gl_suggest": ["de": "Namen aus dem Gespräch:", "en": "Names from the conversation:", "th": "ชื่อจากการสนทนา:"],
         "gl_suggest_help": ["de": "Als unverändert bleibenden Eintrag zum Glossar hinzufügen", "en": "Add to the glossary as a name that stays unchanged",
                             "th": "เพิ่มในอภิธานศัพท์เป็นชื่อที่ไม่ต้องแปล"],
+        "lookup_word": ["de": "Wort nachschlagen", "en": "Look up word", "th": "ค้นหาคำ"],
         "hist_stats": ["de": "Statistik", "en": "Statistics", "th": "สถิติ"],
         "hist_stats_totals": ["de": "%d Äußerungen · %d Sitzungen · %d Wörter", "en": "%d utterances · %d sessions · %d words",
                               "th": "%d ประโยค · %d เซสชัน · %d คำ"],
