@@ -38,3 +38,19 @@ enum VolumeLogic {
     /// Gilt die Einstellung für die Ersatzstimme nur eingeschränkt (über 100 %)?
     static func exceedsSystemVoice(_ setting: Double) -> Bool { setting.isFinite && setting > 1.0001 }
 }
+
+/// Schnellsätze importieren: neue, nicht doppelte Zeilen (max. 200 Zeichen) an den Bestand anhängen.
+enum QuickPhraseImport {
+    static func merge(existing: String, imported: String) -> String {
+        func lines(_ s: String) -> [String] {
+            s.replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\u{FEFF}", with: "")
+                .split(separator: "\n", omittingEmptySubsequences: true)
+                .map { String($0.trimmingCharacters(in: .whitespaces).prefix(200)) }
+                .filter { !$0.isEmpty }
+        }
+        var out = lines(existing)
+        var seen = Set(out.map { $0.lowercased() })
+        for l in lines(imported) where seen.insert(l.lowercased()).inserted { out.append(l) }
+        return out.joined(separator: "\n")
+    }
+}
