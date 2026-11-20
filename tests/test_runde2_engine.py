@@ -156,7 +156,7 @@ def test_steuerfeld_mic_wechselt_live(ev, monkeypatch):
     m = d.Mic(types.SimpleNamespace(stop_speaking=lambda: None), "0", queue.Queue(), idle=True)
     killed, started = [], []
     monkeypatch.setattr(d.Mic, "_kill", staticmethod(lambda ff: killed.append(ff)))
-    monkeypatch.setattr(m, "start", lambda: started.append(m.mic) or True)
+    monkeypatch.setattr(m, "start", lambda **kw: started.append(m.mic) or True)
     monkeypatch.setattr(d, "MIC", m)
     job = d.apply_control(types.SimpleNamespace(), {"mic": "AirPods"})
     assert job is not None and m.mic == "0"            # Wechsel läuft im Arbeits-Thread

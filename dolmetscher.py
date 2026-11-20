@@ -5946,6 +5946,7 @@ class Engine:
         with _TTS_CACHE_LOCK:
             TTS_CACHE.clear()
             TTS_LAST["key"] = TTS_LAST["data"] = None
+        _SPOKEN.clear()                     # auch der Text für den Echo-Schutz (normalisiert, aber Gesagtes)
         spk = getattr(self, "speaker", None)
         if spk is not None and hasattr(spk, "flush"):
             spk.flush()                     # sonst läuft der gelöschte Text als Audio weiter
@@ -7675,14 +7676,15 @@ class Mic:
         self.stops = 0                         # Zähler der Stopp-Knopf-Drücke (Wiederverbinden bricht dann ab)
         self.lock = threading.Lock()
 
-    def _fail(self, msg, retry, code="mic_failed"):
-        """Start fehlgeschlagen: klares error-Event; ohne --idle (und nicht im Wiederverbinden) beenden."""
+    def _fail(self, msg, retry, code="mic_failed", fatal=True):
+        """Start fehlgeschlagen: klares error-Event; ohne --idle (und nicht im Wiederverbinden) beenden.
+        fatal=False (Gerätewechsel zur Laufzeit): nur melden, das Engine-Ende bleibt aus."""
         if retry:
             log({"mic": "start fehlgeschlagen", "msg": msg})
             return False
         emit("error", code=code, msg=msg)
         emit("mic", on=False)
-        if not self.idle:
+        if not self.idle and fatal:
             self.jobs.put(None)
         return False
 
@@ -7700,14 +7702,14 @@ class Mic:
                                    "erlaubt? Dann erneut starten")
         return "mic_no_data", "Mikrofon liefert keine Daten (Mikrofon-Zugriff erlaubt?)"
 
-    def start(self, _retry=False):
+    def start(self, _retry=False, fatal=True):
         mic_file = os.environ.get("DOLMETSCHER_MIC_FILE")
         if mic_file and not os.path.isfile(mic_file):
             return self._fail(f"DOLMETSCHER_MIC_FILE nicht gefunden: {os.path.basename(mic_file)}", _retry,
-                              "mic_file_missing")
+                              "mic_file_missing", fatal)
         dev = None if mic_file else resolve_mic(self.mic, strict=_retry)   # kann ffmpeg abfragen: nicht unter dem Lock
         if dev is None and not mic_file:
-            return self._fail("Mikrofon nicht gefunden – warte auf das Gerät", _retry, "mic_not_found")
+            return self._fail("Mikrofon nicht gefunden – warte auf das Gerät", _retry, "mic_not_found", fatal)
         with self.lock:
             if self.on:
                 emit("mic", on=True)
@@ -7723,7 +7725,7 @@ class Mic:
                 ff = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             except OSError as e:
                 return self._fail(f"Audio-Aufnahme nicht startbar: {e}", _retry,
-                                  "ffmpeg_missing" if FFMPEG else "audio_missing")
+                                  "ffmpeg_missing" if FFMPEG else "audio_missing", fatal)
             self.ff = ff
         err = collections.deque(maxlen=10)
 
@@ -7754,7 +7756,7 @@ class Mic:
                 time.sleep(0.2)               # ffmpeg-Fehlertext einsammeln
                 self._kill(ff)
                 code, msg = self._explain(list(err), timed_out.is_set())
-                return self._fail(msg, _retry, code)
+                return self._fail(msg, _retry, code, fatal)
             self._kill(ff)                    # überholt (Stopp/neuer Start): nicht weiterlaufen lassen
             return False
         frames = queue.Queue(maxsize=FRAMES_MAX)
@@ -7898,11 +7900,20 @@ class Mic:
             return True
         self._kill(ff)
         HEARING.clear()
-        return self.start()
+        return self.start(fatal=False)
 
     def current(self, item):
         """Gehört eine Äußerung zur laufenden Sitzung? (Alte nach Stopp verwerfen.)"""
         return len(item) < 5 or item[4] == self.sess
+
+
+def mic_plan(idle_arg, pending_listen):
+    """-> (idle, start_now). `idle` ist die Fehlerregel des Mikrofons (nur die App steuert es: ein Fehler beendet die
+    Engine nicht), `start_now`, ob es gleich öffnet. Ein `listen: true`, das vor dem Laden kam, ändert nur Letzteres:
+    mit --idle bleibt die Engine auch dann am Leben, wenn das Gerät später nicht öffnet."""
+    if pending_listen is None:
+        return bool(idle_arg), not idle_arg
+    return bool(idle_arg) or not pending_listen, bool(pending_listen)
 
 
 MIC = None
@@ -8050,6 +8061,10 @@ def cleanup():
         tts_shutdown()
     except Exception as e:                     # noqa: BLE001
         log({"cleanup": "tts", "err": _errtxt(e)})
+    try:                                       # os._exit überspringt atexit: Offline-Helfer nie verwaist zurücklassen
+        OFFLINE_MT.close()
+    except Exception as e:                     # noqa: BLE001
+        log({"cleanup": "offline-mt", "err": _errtxt(e)})
     try:                                       # wartende Verlauf-Schreibvorgänge noch abschließen
         import history_store
         history_store.RECORDER.flush()
@@ -8118,6 +8133,22 @@ def shutdown(*_):
         cleanup()
         flush_output()
         sys.exit(0)
+
+
+def finish_file_run(eng, subtitles=None, sub_store=None):
+    """Ende von `--file`: Ausgaben zu Ende spielen, Untertitel schreiben (Fehler als `file_failed`, nicht als
+    Traceback), dann wie im Mikrofonbetrieb aufräumen (Verlauf zu Ende schreiben, Temp-Ordner löschen)."""
+    try:
+        eng.speaker.wait_idle(timeout=6 * 3600)
+        if sub_store is not None:
+            try:
+                _write_subtitles(sub_store, subtitles)
+            except Exception as e:                     # noqa: BLE001
+                log({"subtitles": "fehler", "err": _errtxt(e)})
+                emit("error", code="file_failed", msg=f"Untertitel nicht geschrieben: {_errtxt(e)}")
+    finally:
+        cleanup()
+        flush_output()
 
 
 def _utf8_stdio():
@@ -8382,14 +8413,12 @@ if __name__ == "__main__":
             except Exception as e:              # eine kaputte Datei bricht die übrigen nicht ab
                 log({"file": "fehler", "err": _errtxt(e)})
                 emit("error", code="file_failed", msg=f"{name}: {_errtxt(e)}")
-        eng.speaker.wait_idle(timeout=6 * 3600)  # Ausgaben zu Ende spielen (lange Dateien), dann beenden
-        if sub_store is not None:
-            _write_subtitles(sub_store, a.subtitles)
+        finish_file_run(eng, a.subtitles, sub_store)
     else:
-        idle = a.idle if MIC_PENDING.get("listen") is None else not MIC_PENDING["listen"]
+        idle, start_now = mic_plan(a.idle, MIC_PENDING.get("listen"))
         MIC = Mic(eng, MIC_PENDING["mic"] or a.mic, jobs, idle=idle)
         _QSTATE["stt_q"] = jobs
-        if idle:
+        if not start_now:
             emit("mic", on=False)
         else:
             jobs.put(("job", MIC.start))
