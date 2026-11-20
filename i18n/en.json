@@ -308,5 +308,16 @@
  "topicPrev": "Previous topic",
  "topicNext": "Next topic",
  "recentTopics": "Recently used:",
- "topicNow": "Topic: {n}"
+ "topicNow": "Topic: {n}",
+ "tabSpeak": "Speak",
+ "tabBook": "Phrasebook",
+ "tabCards": "Cards",
+ "tabLearn": "Learn",
+ "tabsLbl": "Sections",
+ "notesSum": "Notes: Lite version and privacy",
+ "convoBtn": "Two people (typing)",
+ "convoClose": "Close",
+ "convoSend": "Send and translate",
+ "convoHint": "Partner types here",
+ "convoYou": "You type here"
 }

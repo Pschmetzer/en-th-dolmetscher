@@ -175,3 +175,32 @@ def test_ui_strings_come_from_i18n_files_and_service_worker_caches_them():
     assert "'i18n/en.json'" in SW and "'i18n/th.json'" in SW
     for lg in ("en", "th"):
         assert (ROOT / "i18n" / f"{lg}.json").is_file()
+
+
+# ---- Welle 5: Tabs und eingeklappte Hinweise ----
+def test_tabs_group_every_box_and_follow_opened_sections():
+    for tab, ids in {"speak": ("voiceBox", "typeBox"), "book": ("pbBox", "numBox", "glossBox"), "cards": ("myBox", "allergyBox"), "learn": ("learnBox",)}.items():
+        for i in ids:
+            assert re.search(rf'<details data-tab="{tab}" class="box" id="{i}"', HTML), (tab, i)
+    assert 'id="tabBar" role="tablist"' in HTML and HTML.count('role="tab"') == 4
+    assert "document.addEventListener('toggle'" in SCRIPT and "showTab('book')" in SCRIPT
+    assert "ArrowRight" in SCRIPT.split("function showTab", 1)[1][:1500]
+    for k in ("tabSpeak", "tabBook", "tabCards", "tabLearn", "tabsLbl", "notesSum"):
+        assert all(k in S for S in web_str().values()), k
+
+
+def test_notes_collapse_after_first_visit_without_new_storage_key():
+    assert '<details class="box" id="notesBox">' in HTML and 'id="privacy"' in HTML.split('id="notesBox"', 1)[1].split("</details>", 1)[0]
+    assert "settings.notesSeen" in SCRIPT      # in webSettings, kein neuer localStorage-Schlüssel
+
+
+def test_two_person_screen_wired():
+    for i in ("convo", "inNear", "inFar", "outNear", "outFar", "btnConvo", "convoClose"):
+        assert f'id="{i}"' in HTML, i
+    assert "#convo .far { transform:rotate(180deg)" in HTML
+    send = func("convoSend")
+    assert "src = near ? pair.a : pair.b" in send and "translate(text, src, dst)" in send
+    assert "convoOpen(false)" in KEYS.split("e.key === 'Escape'", 1)[1][:200]
+    assert "$('main').inert = on" in func("convoOpen")
+    for k in ("convoBtn", "convoClose", "convoSend", "convoHint", "convoYou"):
+        assert all(k in S for S in web_str().values()), k
