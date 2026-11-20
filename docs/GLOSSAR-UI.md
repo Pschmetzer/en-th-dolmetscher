@@ -34,7 +34,7 @@ Regeln für Zahlen und Einheiten:
 - Dezimalzeichen, Prozent und Einheiten kommen aus den Foundation-Formatierern mit der Oberflächensprache, nicht aus festen Texten.
 - Zeitstempel in Exporten (Markdown, CSV, Text) sind ISO beziehungsweise `HH:mm:ss` mit Gregorianischem Kalender, unabhängig von der Systemsprache.
 - Höflichkeit im Thai: neutral mit „โปรด“ (statt „กรุณา“), ohne Endpartikel in Oberflächentexten. Endpartikel ครับ/ค่ะ stehen nur in den Sätzen, die die App spricht, und in der Auswahl der Partikel selbst.
-- Englisch: einheitlich amerikanische Schreibweise (recognized, favorites, color, canceled).
+- Englisch: in den Oberflächentexten einheitlich amerikanische Schreibweise (recognized, favorites, color, canceled). Dokumente (README, `docs/en/`) und die Store-Texte sind Fließtext und dürfen weiter britisch schreiben; „Sprachführer“ bleibt als Store-Stichwort erlaubt.
 
 ## Weitere Oberflächensprachen (iPhone, maschinell, ungeprüft)
 
