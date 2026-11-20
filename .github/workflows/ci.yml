@@ -123,6 +123,24 @@ jobs:
       - name: Ruff (blocking)
         run: ruff check --output-format=github ./*.py bench/ tests/ tools/
 
+  workflows:
+    name: Workflow-Lint (actionlint, zizmor)
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      # Versionen fest gepinnt; SC2012 (ls statt find) in ios.yml/tools.yml ist gewollt einfach.
+      - name: Install linters
+        run: python -m pip install actionlint-py==1.7.12.25 zizmor==1.32.0
+      - name: actionlint
+        run: actionlint -ignore 'SC2012'
+      - name: zizmor (offline, nur hohe Befunde)
+        run: zizmor --offline --min-severity high .github/workflows
+
   presets:
     if: github.event_name != 'schedule'
     name: Phrasenpakete (schnell)

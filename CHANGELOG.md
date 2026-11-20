@@ -25,6 +25,8 @@ Pull requests #16–#47. Not yet published as a release.
 
 - **New:** 10 more phrase packs: motorcycle-taxi, promptpay-qr-payment, water-park-zoo, home-repair, volunteering, birthday-celebration, funeral-condolence, skin-clinic, fishing-trip, badminton-tennis (131 in total; Thai machine-translated, not yet checked by a native speaker). They are listed in `tools/web_pending_presets.txt` until the web lists (`index.html`, `sw.js`) include them.
 
+- **Changed (tooling, part 5):** notes of the new packs on cannabis, customs, volunteering, dengue and PEP no longer state specific rules or deadlines that could be wrong (they point to current local rules or a doctor); voiceprint enrolment sentences for German, Spanish and French; CI lints the workflows with actionlint and zizmor.
+
 - **Fixed (tooling, part 4):** a voiceprint is only adapted from an utterance that is at least moderately similar to it and with a smaller maximum weight, so a wrongly recognised foreign voice cannot drag it away; `PresetState.dropped` reports glossary entries that did not fit; `hwprofile.low_power_mode()` and `power_saving()` detect Low Power Mode.
 
 - **New (tooling, part 3):** `presets-index.json` carries a `category` per pack (from `tools/preset_categories.json`) and `tools/preset_stats.py --by-category` reports coverage by topic; the history store can export translations only (`txt`) and import a JSON export again (`Store.import_json`, duplicates skipped); `make stats|cov|audit|lock`; a non-blocking CI run on Python 3.13; pytest runs with `-ra` and `xfail_strict`; the tests no longer expect the lower-case pull request template name.
