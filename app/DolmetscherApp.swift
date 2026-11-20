@@ -261,6 +261,7 @@ struct AppCommands: Commands {
             Button(L.t("show_shortcuts")) { NotificationCenter.default.post(name: .showShortcuts, object: nil) }
                 .keyboardShortcut("/", modifiers: .command)
             Button(R24T.t("shortcuts_title")) { openWindow(id: "shortcuts") }
+            Button(R25T.t("smoke_menu")) { SmokeTest.runAndShow(model) }
         }
     }
 }
@@ -281,6 +282,12 @@ struct MenuBarContent: View {
         if let last = R23Menu.title(m.lastReplayable?.out) { Text(R23T.f("menu_last_header", last)) }   // Runde 23
         if sensitive.active { Label(R23T.t("sensitive_banner"), systemImage: "eye.slash") }
         if let med = m.latencyMedian { Text("⏱ " + fmtSeconds(med)).help(L.t("latency_help")) }
+        let live = MenuBarLogic.live(done: m.items.filter { !$0.pending }.count, pending: m.items.filter(\.pending).count,
+                                     latencies: m.items.compactMap(\.latency))
+        if MenuBarLogic.hasLive(live) {   // Runde 25: Live-Status mit Satz- und Wartezahl
+            Text(live.latency.map { R25T.f("menu_live_latency", live.done, live.pending, fmtSeconds($0)) }
+                 ?? R25T.f("menu_live", live.done, live.pending))
+        }
         Divider()
         Button(m.active ? L.t("stop") : L.t("start")) { m.toggle() }
             .disabled(!MenuBarLogic.canToggle(st))
@@ -330,6 +337,7 @@ struct MenuBarContent: View {
         Button(L.t("hist_title")) { openWindow(id: "history"); NSApp.activate(ignoringOtherApps: true) }
         Button(R24T.t("numbers_title")) { openWindow(id: "numbers"); NSApp.activate(ignoringOtherApps: true) }
         Button(R24T.t("summary_title")) { openWindow(id: "summary"); NSApp.activate(ignoringOtherApps: true) }
+        Button(R24T.t("learn_title")) { openWindow(id: "learn"); NSApp.activate(ignoringOtherApps: true) }
         Button(R24T.t("card_title")) { openWindow(id: "card"); NSApp.activate(ignoringOtherApps: true) }
         if captionClickThrough {   // Untertitel klick-durchlässig: Weg zurück
             Button(R24T.t("cap_reset_clickable")) { captionClickThrough = false }
@@ -356,6 +364,9 @@ struct DolmetscherApp: App {
         SettingsTracker.shared.start()   // Runde 15: „Zuletzt geändert“ auch außerhalb des Einstellungsfensters
         ScreenLockWatcher.shared.start(EngineModel.shared)         // Runde 23: Bildschirm gesperrt → Mikrofon pausieren
         SensitiveSession.shared.recoverAtLaunch(EngineModel.shared)   // sensible Sitzung endet mit der App
+        if CommandLine.arguments.contains(SmokeTest.launchArgument) {   // Runde 25: Fenster-Selbsttest ohne Oberfläche
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { SmokeTest.runIfRequested(EngineModel.shared) }
+        }
     }
 
     /// Nr. 360 / Runde 17: Fehler, Laden, Offline, Hören, Sprechen und Pause haben je eine eigene Form.

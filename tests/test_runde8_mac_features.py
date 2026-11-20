@@ -12,8 +12,8 @@ def _src(name):
 
 def test_every_advised_error_code_is_a_known_engine_code():
     """Die Fehlerhilfe darf nur Codes behandeln, die die Engine wirklich meldet (docs/PROTOKOLL.md)."""
-    r8 = _src("Runde8.swift")
-    body = r8[r8.index("static func advice"):r8.index("static func label")]
+    r8 = _src("ErrorAdviceLogic.swift")
+    body = r8[r8.index("static func advice"):r8.index("static func restartsEngine")]
     codes = set(re.findall(r'"([a-z_]+)"', "\n".join(ln for ln in body.splitlines() if "case" in ln)))
     codes = {c for c in codes if not c.startswith("advice_")}
     protocol = (DOCS / "PROTOKOLL.md").read_text(encoding="utf-8")

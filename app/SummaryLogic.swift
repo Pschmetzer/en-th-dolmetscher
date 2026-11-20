@@ -22,12 +22,15 @@ enum SummaryLogic {
         "ต้อง", "อย่าลืม", "พรุ่งนี้", "ช่วย", "นัด", "รับ", "เจอกัน",
     ]
 
-    /// Sätze eines Textes (Satzzeichen . ! ? ។ und Zeilenumbruch), getrimmt, ohne Leeres.
+    /// Sätze eines Textes (Satzzeichen . ! ? 。 und Zeilenumbruch (nicht der Punkt in Zahlen wie 10.30)), getrimmt, ohne Leeres.
     static func sentences(_ text: String) -> [String] {
         var out: [String] = [], cur = ""
-        for ch in text {
+        let chars = Array(text)
+        for (i, ch) in chars.enumerated() {
             cur.append(ch)
-            if ".!?\n".contains(ch) { out.append(cur); cur = "" }
+            // Punkt zwischen zwei Ziffern (3.5, 10.30, ฿1.200) ist kein Satzende
+            if ch == ".", i > 0, i + 1 < chars.count, chars[i - 1].isNumber, chars[i + 1].isNumber { continue }
+            if ".!?\n。！？".contains(ch) { out.append(cur); cur = "" }
         }
         out.append(cur)
         return out.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }

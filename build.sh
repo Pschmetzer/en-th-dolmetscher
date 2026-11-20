@@ -261,6 +261,7 @@ cat > "$NEWAPP/Contents/Info.plist" <<PLIST
     <key>NSPortName</key><string>Dolmetscher</string>
     <key>NSSendTypes</key><array><string>NSStringPboardType</string></array>
   </dict></array>
+  <key>NSUserActivityTypes</key><array><string>de.dolmetscher.conversation</string></array>
   <key>CFBundleURLTypes</key><array><dict>
     <key>CFBundleURLName</key><string>io.github.dolmetscher.en-th</string>
     <key>CFBundleURLSchemes</key><array><string>dolmetscher</string></array>
