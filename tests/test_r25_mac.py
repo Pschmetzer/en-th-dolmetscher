@@ -1,4 +1,5 @@
-"""Runde 25, Mac-App: Fenster-Kennungen, Textetabellen (de/en/th), Kürzel-Katalog gegen den Code, Verdrahtung der neuen Teile."""
+"""Runde 25, Mac-App: Fenster-Kennungen, Textetabellen (de/en/th), Kürzel-Katalog gegen den Code, Verdrahtung."""
+
 import pathlib
 import re
 
@@ -13,7 +14,7 @@ def src(name):
 def table_rows(file, enum):
     """{key: {lang: text}} aus einer Swift-Tabelle der Form `"key": ["de": "...", "en": "...", "th": "..."]`."""
     s = src(file)
-    body = s[re.search(r"static let (?:r23Table|table)", s).start():]
+    body = s[re.search(r"static let (?:r23Table|table)", s).start() :]
     rows = {}
     for m in re.finditer(r'"([A-Za-z0-9_]+)":\s*\[((?:"[a-z]{2}":\s*"(?:\\.|[^"\\])*",?\s*)+)\]', body):
         rows[m.group(1)] = dict(re.findall(r'"([a-z]{2})":\s*"((?:\\.|[^"\\])*)"', m.group(2)))
@@ -82,8 +83,8 @@ def test_advice_step_labels_cover_all_steps():
     steps = re.search(r"enum Step: Hashable \{ case ([^}]+)\}", src("ErrorAdviceLogic.swift")).group(1)
     names = [s.strip() for s in steps.split(",")]
     r8 = src("Runde8.swift")
-    label = r8[r8.index("static func label"):r8.index("@MainActor static func run")]
-    run = r8[r8.index("@MainActor static func run"):r8.index("struct ErrorBanner")]
+    label = r8[r8.index("static func label") : r8.index("@MainActor static func run")]
+    run = r8[r8.index("@MainActor static func run") : r8.index("struct ErrorBanner")]
     for n in names:
         assert f".{n}" in label, f"{n}: kein Knopftext"
         assert f".{n}" in run, f"{n}: keine Aktion"
@@ -100,7 +101,9 @@ def _code_shortcuts():
     keys = set()
     mods = {".command": "⌘", ".option": "⌥", ".shift": "⇧", ".control": "⌃"}
     for f in APP.glob("*.swift"):
-        for m in re.finditer(r'keyboardShortcut\("(.)",\s*modifiers:\s*(\[[^\]]*\]|\.\w+)\)', f.read_text(encoding="utf-8")):
+        for m in re.finditer(
+            r'keyboardShortcut\("(.)",\s*modifiers:\s*(\[[^\]]*\]|\.\w+)\)', f.read_text(encoding="utf-8")
+        ):
             found = re.findall(r"\.\w+", m.group(2))
             ms = "".join(sorted((mods[x] for x in found if x in mods), key="⌃⌥⇧⌘".index))
             keys.add(ms + m.group(1).upper())
@@ -120,19 +123,29 @@ def test_shortcut_catalog_entries_exist_in_code():
 def test_no_duplicate_shortcuts_in_menu_commands():
     s = src("DolmetscherApp.swift")
     seen = {}
-    for m in re.finditer(r'keyboardShortcut\(([^)\n]*)\)', s):
+    for m in re.finditer(r"keyboardShortcut\(([^)\n]*)\)", s):
         k = re.sub(r"\s+", "", m.group(1))
         if k.startswith("KeyEquivalent"):
-            continue   # Schleife der Schnellsätze (⌘1–⌘9)
+            continue  # Schleife der Schnellsätze (⌘1–⌘9)
         # Hauptfenster-Menü: je Kürzel einmal (Toggle-Varianten mit gleichem Kürzel gibt es nicht)
         seen.setdefault(k, 0)
         seen[k] += 1
-    dups = {k: n for k, n in seen.items() if n > 1 and k not in (".return,modifiers:.command", ".cancelAction", ".defaultAction")}
+    dups = {
+        k: n
+        for k, n in seen.items()
+        if n > 1 and k not in (".return,modifiers:.command", ".cancelAction", ".defaultAction")
+    }
     assert not dups, dups
 
 
 def test_new_logic_files_have_no_ui_imports():
-    for name in ("ErrorAdviceLogic.swift", "SearchDebounce.swift", "BilingualExport.swift", "AudioRouteLogic.swift", "WindowCatalog.swift"):
+    for name in (
+        "ErrorAdviceLogic.swift",
+        "SearchDebounce.swift",
+        "BilingualExport.swift",
+        "AudioRouteLogic.swift",
+        "WindowCatalog.swift",
+    ):
         text = src(name)
         assert re.search(r"^import Foundation$", text, re.M), name
         assert not re.search(r"^import (SwiftUI|AppKit)", text, re.M), name
@@ -165,7 +178,12 @@ def test_handoff_is_opt_in_and_declared():
 def test_settings_view_stays_split():
     n = len(src("SettingsView.swift").splitlines())
     assert n < 700, n
-    for name in ("SettingsAudioSections.swift", "SettingsAPIKey.swift", "SettingsR25.swift", "SettingsQuickPhrases.swift"):
+    for name in (
+        "SettingsAudioSections.swift",
+        "SettingsAPIKey.swift",
+        "SettingsR25.swift",
+        "SettingsQuickPhrases.swift",
+    ):
         assert (APP / name).exists(), name
 
 
