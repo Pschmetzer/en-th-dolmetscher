@@ -517,10 +517,10 @@ final class InterpreterModel {
         if endConversation { voiceOverSay("a11y_stopped") }
         Haptics.tap()
         // Abbau auch dann zu Ende führen, wenn iOS die App gleich einfriert (sonst bleibt der Mikrofonpunkt hängen).
-        let bg = UIApplication.shared.beginBackgroundTask(withName: "stop-listening")
+        let bg = BackgroundGrace(name: "stop-listening")
         stopTask = Task {
             await e.stop()
-            UIApplication.shared.endBackgroundTask(bg)
+            bg.end()
         }
     }
 

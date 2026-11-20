@@ -12,9 +12,11 @@ final class LiveActivityController {
     private var pending: Task<Void, Never>?
 
     private init() {
-        // Reste eines früheren Laufs (App beendet, während sie zuhörte) aufräumen.
+        // Reste eines früheren Laufs (App beendet, während sie zuhörte) aufräumen. Die Liste wird sofort, synchron
+        // gelesen: ein verzögerter Task würde sonst eine inzwischen frisch gestartete Aktivität mitbeenden.
+        let leftovers = Activity<ListeningActivityAttributes>.activities
         Task {
-            for a in Activity<ListeningActivityAttributes>.activities { await a.end(nil, dismissalPolicy: .immediate) }
+            for a in leftovers { await a.end(nil, dismissalPolicy: .immediate) }
         }
     }
 
