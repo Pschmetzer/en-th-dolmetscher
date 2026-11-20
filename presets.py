@@ -210,6 +210,7 @@ class PresetState:
         self.active = None
         self.saved = None
         self.hotwords, self.hint = [], None      # Nr. 243: aus dem aktiven Preset
+        self.dropped = 0                         # beim letzten activate() wegen glossary_limit verworfene Einträge
         self.applied = {}                        # was das Preset gesetzt hat (Rückstellen nur, wenn unverändert)
 
     def activate(self, pid, presets, glossary, llm, eng, glossary_limit=200, voices=None):
@@ -234,6 +235,7 @@ class PresetState:
             self.saved = None
         self.active = None
         self.hotwords, self.hint = [], None
+        self.dropped = 0
         if p is None:
             return None
         self.hotwords = [w.strip() for w in p.get("hotwords", [])]
@@ -253,7 +255,9 @@ class PresetState:
             self.applied["voices"][k] = v
         own = {a.lower() for a, _ in glossary}               # eigene Einträge haben Vorrang
         extra = [(a, b) for a, b in glossary_entries(p) if a.lower() not in own]
-        glossary[:] = (list(glossary) + extra)[:glossary_limit]
+        merged = list(glossary) + extra
+        self.dropped = max(0, len(merged) - glossary_limit)      # Preset-Einträge, die nicht mehr ins Glossar passten
+        glossary[:] = merged[:glossary_limit]
         return p
 
 

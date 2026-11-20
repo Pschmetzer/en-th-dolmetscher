@@ -118,3 +118,74 @@ def test_new_wave3_packs_present():
                 "physiotherapy-injury", "mosque-visit"):
         assert pid in allp and not presets.validate(allp[pid])
     assert sum(1 for p in allp["earthquake-evacuation"]["phrases"] if p.get("critical")) >= 5
+
+
+# ---- Teil 4: Lernschritt-Schutz, Glossar-Verlust, Energiesparmodus ------------------------------------------------
+
+def test_preset_state_reports_dropped_glossary_entries():
+    import presets
+    st = presets.PresetState()
+    p = {"id": "x", "names": {"de": "x", "en": "x", "th": "x"}, "style": "polite",
+         "glossary": [{"en": "a%d" % i, "th": "ก%d" % i} for i in range(10)], "phrases": []}
+    eng = type("E", (), {"polite": "krub", "voices": {"en": None, "th": None}})()
+    llm, glossary = {"style": "neutral"}, [("own", "mine")]
+    st.activate("x", {"x": p}, glossary, llm, eng, glossary_limit=8)
+    assert len(glossary) == 8 and st.dropped == 21 - 8
+    st.activate(None, {"x": p}, glossary, llm, eng)
+    assert st.dropped == 0 and glossary == [("own", "mine")]
+
+
+def _fake_run(out):
+    import types
+    return lambda cmd, **kw: types.SimpleNamespace(returncode=0, stdout=out)
+
+
+@pytest.mark.parametrize("out, want", [
+    (" lowpowermode         1\n sleep 1", True), (" lowpowermode         0", False),
+    (" powermode 1", True), ("nothing", False), ("", False)])
+def test_low_power_mode(out, want):
+    import hwprofile
+    assert hwprofile.low_power_mode(_fake_run(out)) is want
+
+
+def test_low_power_mode_error_is_false_and_power_saving_combines():
+    import hwprofile
+
+    def boom(*a, **k):
+        raise OSError
+    assert hwprofile.low_power_mode(boom) is False and hwprofile.power_saving(boom) is False
+    assert hwprofile.power_saving(_fake_run(" lowpowermode 1")) is True
+    assert hwprofile.power_saving(_fake_run("Now drawing from 'Battery Power'")) is True
+
+
+@pytest.fixture
+def spk(tmp_path, monkeypatch):
+    import numpy as np
+    import profiles
+    d = tmp_path / "profiles"
+    d.mkdir()
+    monkeypatch.setattr(profiles, "PROFILE_DIR", str(d))
+    monkeypatch.setattr(profiles, "_CLEANED", [True])
+    profiles.save_profile({"name": "L", "lang": "en", "embedding": [1.0, 0.0], "vocab": []})
+    s = profiles.SpeakerID.__new__(profiles.SpeakerID)
+    s.reload()
+    return s, np
+
+
+def test_learn_rejects_foreign_voice(spk):
+    import profiles
+    s, np = spk
+    assert not s.learn("L", np.array([0.1, 1.0], np.float32), 0.1)          # klingt nicht nach L
+    assert profiles.get_profile("L")["embedding"] == [1.0, 0.0]
+    assert s.learn("L", np.array([0.9, 0.3], np.float32), 0.1)
+
+
+def test_learn_weight_is_capped(spk):
+    import profiles
+    s, np = spk
+    assert s.learn("L", np.array([0.8, 0.6], np.float32), 5.0)
+    emb = np.array(profiles.get_profile("L")["embedding"], np.float32)
+    full = 0.5 * np.array([1.0, 0.0]) + 0.5 * np.array([0.8, 0.6])           # ohne Deckel (Gewicht 0,5)
+    full /= np.linalg.norm(full)
+    assert float(emb @ np.array([1.0, 0.0])) > float(full @ np.array([1.0, 0.0]))
+    assert profiles.MAX_LEARN_WEIGHT <= 0.3
