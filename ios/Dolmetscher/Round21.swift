@@ -134,6 +134,9 @@ struct TravelHelpersView: View {
     @State private var toImperial = true
     @State private var time = Calendar.current.date(bySettingHour: 14, minute: 30, second: 0, of: Date()) ?? Date()
     @State private var phone = ""
+    @State private var asking = ""
+    @State private var km = ""
+    @State private var waitMin = 0
 
     private var thaiTime: String? {
         let c = Calendar.current.dateComponents([.hour, .minute], from: time)
@@ -171,6 +174,30 @@ struct TravelHelpersView: View {
                 if let t = thaiTime {
                     Text(t).font(.title2).spokenIn("th-TH", t)
                 }
+            }
+            Section {
+                TextField("฿", text: $asking).keyboardType(.numbersAndPunctuation)
+                    .accessibilityLabel(T("trv_asking"))
+                ForEach(AmountParser.parse(asking).map(Bargain.offers(asking:)) ?? []) { o in
+                    HStack {
+                        Text("\(o.percent) %").foregroundStyle(.secondary).monospacedDigit()
+                        Spacer()
+                        Text("฿\(o.amount)").bold().monospacedDigit()
+                        Text(o.words).font(.footnote).spokenIn("th-TH", o.words)
+                    }
+                    .accessibilityElement(children: .combine)
+                }
+            } header: { Text(T("trv_bargain")) }
+            Section {
+                TextField(T("trv_km"), text: $km).keyboardType(.decimalPad)
+                Stepper("\(T("trv_wait_min")): \(waitMin)", value: $waitMin, in: 0...120, step: 5)
+                if let k = AmountParser.parse(km), let r = TaxiFare.range(km: k, waitingMinutes: Double(waitMin)) {
+                    Text("฿\(r.lowerBound) – \(r.upperBound)").font(.title3.bold().monospacedDigit())
+                }
+            } header: { Text(T("trv_taxi")) } footer: { Text(T("trv_taxi_note")) }
+            Section(T("trv_date")) {
+                let written = ThaiDate.text(Date()), said = ThaiDate.text(Date(), spoken: true)
+                Text(written).font(.title3).spokenIn("th-TH", said)
             }
             Section {
                 TextField("081 234 5678", text: $phone).keyboardType(.phonePad)

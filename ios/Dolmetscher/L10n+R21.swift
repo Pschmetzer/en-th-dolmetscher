@@ -115,5 +115,54 @@ extension L10n {
             "ko": "도우미: 팁, 단위, 시각", "zh-Hans": "小工具：小费、单位、时间",
             "vi": "Tiện ích: tiền boa, đơn vị, giờ", "id": "Alat: tip, satuan, waktu"
         ],
+        "trv_bargain": [
+            "de": "Handeln: Gegenangebote", "en": "Bargaining: counter-offers",
+            "th": "ต่อราคา: ราคาที่เสนอ", "es": "Regateo: contraofertas",
+            "fr": "Marchandage : contre-offres", "ja": "値切り：提示額",
+            "ko": "흥정: 역제안", "zh-Hans": "讨价还价：还价",
+            "vi": "Mặc cả: giá đề nghị", "id": "Menawar: penawaran balik"
+        ],
+        "trv_asking": [
+            "de": "Verlangter Preis (฿)", "en": "Asking price (฿)",
+            "th": "ราคาที่ขอ (฿)", "es": "Precio pedido (฿)",
+            "fr": "Prix demandé (฿)", "ja": "提示価格 (฿)",
+            "ko": "요구 가격 (฿)", "zh-Hans": "要价 (฿)",
+            "vi": "Giá chào (฿)", "id": "Harga yang diminta (฿)"
+        ],
+        "trv_taxi": [
+            "de": "Taxameter-Richtwert Bangkok", "en": "Bangkok taxi meter estimate",
+            "th": "ค่าแท็กซี่มิเตอร์ในกรุงเทพฯ โดยประมาณ", "es": "Tarifa orientativa de taxi en Bangkok",
+            "fr": "Tarif indicatif du taxi à Bangkok", "ja": "バンコクのタクシー料金の目安",
+            "ko": "방콕 택시 미터 요금 추정", "zh-Hans": "曼谷出租车计价参考",
+            "vi": "Ước tính tiền taxi Bangkok", "id": "Perkiraan argo taksi Bangkok"
+        ],
+        "trv_km": [
+            "de": "Strecke (km)", "en": "Distance (km)",
+            "th": "ระยะทาง (กม.)", "es": "Distancia (km)",
+            "fr": "Distance (km)", "ja": "距離 (km)",
+            "ko": "거리 (km)", "zh-Hans": "距离（公里）",
+            "vi": "Quãng đường (km)", "id": "Jarak (km)"
+        ],
+        "trv_wait_min": [
+            "de": "Stau/Wartezeit (Minuten)", "en": "Traffic/waiting (minutes)",
+            "th": "รถติด/รอ (นาที)", "es": "Atasco/espera (minutos)",
+            "fr": "Embouteillage/attente (minutes)", "ja": "渋滞・待ち時間（分）",
+            "ko": "정체/대기 (분)", "zh-Hans": "堵车/等待（分钟）",
+            "vi": "Kẹt xe/chờ (phút)", "id": "Macet/menunggu (menit)"
+        ],
+        "trv_taxi_note": [
+            "de": "Ohne Flughafenzuschlag (50 ฿) und Maut. Nur ein Richtwert; sonst Taxameter verlangen („Meter, bitte“).", "en": "Excludes the airport surcharge (฿50) and tolls. A guide only; otherwise insist on the meter.",
+            "th": "ไม่รวมค่าบริการสนามบิน (50 บาท) และค่าทางด่วน เป็นเพียงค่าประมาณ ให้เปิดมิเตอร์เสมอ", "es": "No incluye el recargo del aeropuerto (50 ฿) ni peajes. Solo orientativo; exige siempre el taxímetro.",
+            "fr": "Hors supplément aéroport (50 ฿) et péages. Indicatif seulement ; exigez toujours le compteur.", "ja": "空港加算(50バーツ)と通行料は含みません。目安です。必ずメーターを使ってもらいましょう。",
+            "ko": "공항 할증(50바트)과 통행료 제외. 참고용이며 항상 미터기를 요청하세요.", "zh-Hans": "不含机场附加费（50泰铢）和过路费。仅供参考，请务必要求打表。",
+            "vi": "Chưa gồm phụ phí sân bay (50 ฿) và phí cầu đường. Chỉ để tham khảo; luôn yêu cầu bật đồng hồ.", "id": "Belum termasuk biaya bandara (50 ฿) dan tol. Hanya perkiraan; selalu minta pakai argo."
+        ],
+        "trv_date": [
+            "de": "Heutiges Datum auf Thai", "en": "Today's date in Thai",
+            "th": "วันนี้ภาษาไทย", "es": "Fecha de hoy en tailandés",
+            "fr": "Date du jour en thaï", "ja": "今日の日付(タイ語)",
+            "ko": "오늘 날짜(태국어)", "zh-Hans": "今天的泰语日期",
+            "vi": "Ngày hôm nay bằng tiếng Thái", "id": "Tanggal hari ini dalam bahasa Thai"
+        ],
     ]
 }
