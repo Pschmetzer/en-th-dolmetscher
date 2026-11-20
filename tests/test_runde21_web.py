@@ -282,3 +282,12 @@ process.stdout.write(JSON.stringify([first, second, warn.innerHTML, warnMsgs.len
     r = subprocess.run(["node", "-"], input=js, capture_output=True, text=True, timeout=30)
     assert r.returncode == 0, r.stderr
     assert json.loads(r.stdout) == ["<div>Hallo</div><div>fest</div>", "<div>Hello</div><div>fest</div>", "<div>fest</div>", 1]
+
+
+def test_every_pack_is_listed_in_page_and_service_worker_and_pending_list_is_empty():
+    ids = [p["id"] for p in json.loads((ROOT / "presets-index.json").read_text(encoding="utf-8"))["packs"]]
+    for name, text in (("index.html", HTML), ("sw.js", SW)):
+        listed = re.findall(r"'([\w-]+)'", re.search(r"const PRESET_IDS = \[([^\]]*)\]", text).group(1))
+        assert set(listed) == set(ids), (name, sorted(set(ids) ^ set(listed))[:10])
+    pend = (ROOT / "tools" / "web_pending_presets.txt").read_text(encoding="utf-8").split()
+    assert not pend, pend                                    # Warteliste des Tooling-Bereichs ist abgearbeitet
