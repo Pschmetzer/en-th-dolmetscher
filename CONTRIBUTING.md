@@ -22,6 +22,8 @@ Thanks for helping! Issues and pull requests are welcome.
 
 ## Without a Mac (presets, web, docs)
 
+`index.html` has a size budget (`BUDGET_HTML` in `tests/test_runde15_web_perf.py`, about 256 KB, `sw.js` 8 KB): the page must stay fast on a phone with a weak connection. If you hit it, remove duplicates first; only then raise the budget in the same pull request with a reason (the large `STR` text table could move to per-language files). Changes to the web page: also go through the manual checklist in `docs/WEB-KOMPATIBILITAET.md` (at least Chrome Android and Safari iPhone) and say in the pull request what you checked.
+
 Presets, the web page and the docs need no Mac. `make test-web` (Python + node), `make lint`, `make presets-index`, or open the repo in a Dev Container / Codespace (`.devcontainer/`). `pre-commit install` adds local hooks (ruff, JSON check, `node --check sw.js`, shellcheck, presets index). When you change a file that the service worker caches, bump `CACHE` in `sw.js`. Pull requests that touch the app, web, presets or engine need a `CHANGELOG.md` entry (or the `no-changelog` label); the `Changelog` workflow checks it.
 
 ## Development setup

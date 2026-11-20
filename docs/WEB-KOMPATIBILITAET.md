@@ -26,6 +26,9 @@ Version und Ergebnis ein (✓ geht, ✗ geht nicht, – nicht vorhanden).
 8. Neue Version: `CACHE` in `sw.js` erhöht; Hinweisband „Neue Version geladen“ erscheint beim zweiten Besuch.
 9. Drucken eines Themas (Vorschau): nur die Tabelle, Thai groß.
 10. Einmal je Oberflächensprache (Deutsch, English, ไทย) durchklicken.
+11. Geteilten Text an die App senden (`?text=…`): erst nach „Übersetzen“ wird etwas gesendet.
+12. Installieren: Symbol ist auf Android rund/quadratisch ohne Rand (maskable), auf dem iPhone ohne schwarze Ecken.
+13. Lernkarte: Taste 1 bis 4 bewertet, schaltet aber kein Mikrofon ein.
 
 ## Prüfung
 

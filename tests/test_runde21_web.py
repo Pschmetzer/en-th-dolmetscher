@@ -88,3 +88,44 @@ def test_skip_links_theme_color_and_bad_packs():
     assert "meta[name=\"theme-color\"]" in func("applyTheme")
     assert "Array.isArray(d.phrases)" in func("loadPreset")
     assert "#partnerText.crit" in HTML
+
+
+# ---- Welle 2 ----
+def test_fixed_german_texts_are_translatable():
+    for key in ("consentP1", "consentP2", "allergyMt", "allergyH", "condH", "bloodLbl", "rhLbl", "learnSumA", "learnSumB", "learnInfoT", "noUnit", "aUnit", "aLog", "statusNet", "skipMain", "shareAsk", "shareGo"):
+        assert HTML.count(f'\n  "{key}":') == 3, key                    # de, en, th
+    assert 'data-i18n="learnInfoT"' in HTML and 'data-i18n="allergyH"' in HTML and 'data-i18n-html="consentP1"' in HTML
+    assert "[data-aria]" in func("applyUi")
+
+
+@node
+def test_voice_lang_normalises_three_letter_tags():
+    pre = "const ISO3 = " + re.search(r"const ISO3 = (\{.*?\});", SCRIPT).group(1) + ";\n" + re.search(r"^const voiceLang = .*$", SCRIPT, re.M).group(0)
+    got = run(pre, ["voiceLang({ lang: 'eng-USA' })", "voiceLang({ lang: 'tha_TH' })", "voiceLang({ lang: 'iw-IL' })", "voiceLang({ lang: 'de-DE' })"])
+    assert got == ["en-usa", "th-th", "he-il", "de-de"]
+    assert "voices.find(v => f(v) && v.localService)" in SCRIPT           # lokale Stimmen zuerst
+
+
+def test_status_network_error_has_friendly_text_and_ios_hint_is_dismissible():
+    assert "ev.error === 'network' ? 'statusNet' : 'statusErr'" in SCRIPT
+    assert "data-act=\"iosoff\"" in SCRIPT and "act === 'iosoff'" in SCRIPT and "'iosWarnOff'" in SCRIPT
+    assert "iosWarnOff" in (ROOT / "docs" / "DATENSCHUTZ.md").read_text(encoding="utf-8")
+
+
+def test_sliders_debounced_haptics_and_persist_once():
+    assert "saveSettingsSoon()" in func("setRate") and "saveSettingsSoon()" in func("setVol")
+    assert "navigator.vibrate" in func("buzz") and "buzz(15)" in func("pttStart") and "buzz(10)" in func("pttEnd")
+    assert "persistAsked = true" in func("learnStore")
+    assert "aria-valuetext" in func("setRate") and "aria-valuetext" in func("setVol")
+
+
+def test_search_cache_frame_buster_and_digit_buttons():
+    assert "hayCache.get(hay)" in func("pbMatch")
+    assert SCRIPT.lstrip().startswith("if (window.top !== window.self)")
+    assert "createElement('button'); b.type = 'button'; b.className = 'tile'" in SCRIPT and "sayNow(TH_D[i], 'th')" in SCRIPT
+
+
+def test_docs_list_all_web_shortcuts():
+    doc = (ROOT / "docs" / "TASTENKUERZEL.md").read_text(encoding="utf-8")
+    for row in ("| ? |", "| / |", "| V |", "| S |", "| 1 bis 4 |"):
+        assert row in doc, row

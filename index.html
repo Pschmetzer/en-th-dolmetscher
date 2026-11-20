@@ -77,6 +77,8 @@
   @media (forced-colors: active) {   /* Windows-Hochkontrast: Systemfarben, Zustände nicht nur über Farbe */
     button.mode.active, .tile[aria-pressed="true"], .card.sel { outline:3px solid Highlight; forced-color-adjust:none; background:Highlight; color:HighlightText; }
     .entry { border:1px solid CanvasText; }
+    .card.crit, #partnerText.crit, .emerg a { border:3px solid CanvasText; }   /* Wichtiges nicht nur über Farbe */
+    .starbtn[aria-pressed="true"] { outline:2px solid Highlight; }
   }
   .skip { position:absolute; left:8px; top:-100px; z-index:20; background:var(--card); color:var(--fg); border:2px solid var(--focus); border-radius:8px; padding:10px 14px; }
   .skip:focus { top:8px; }
@@ -267,7 +269,7 @@
 </details>
 <details class="box" id="typeBox">
   <summary data-i18n-html="typeSum">Texteingabe statt Sprechen</summary>
-  <div class="row"><label style="flex:1;min-width:220px"><span data-i18n="text">Text</span> <textarea id="typeIn" rows="2" maxlength="500" style="width:100%"></textarea></label></div>
+  <div class="row"><label style="flex:1;min-width:220px"><span data-i18n="text">Text</span> <textarea id="typeIn" rows="2" maxlength="500" enterkeyhint="send" autocapitalize="sentences" style="width:100%"></textarea></label></div>
   <div class="row">
     <label><input type="checkbox" id="typeIsB"> <span data-i18n="typeIsB">Text ist in</span> <span id="typeBName">B</span></label>
     <button class="small" id="typeGo" type="button" data-i18n="translate">Übersetzen</button>
@@ -306,11 +308,11 @@
   <summary data-i18n-html="numSum">Zahlen und Preise (Handeln, Taxi, Markt)</summary>
   <div class="row">
     <label><input id="numIn" inputmode="numeric" maxlength="9" size="10" autocomplete="off"> <span data-i18n="amount">Betrag</span></label>
-    <label><select id="numUnit" aria-label="Einheit"><option value="฿">฿ Baht</option><option value="">ohne Einheit</option></select></label>
+    <label><select id="numUnit" data-aria="aUnit" aria-label="Einheit"><option value="฿">฿ Baht</option><option value="" data-i18n="noUnit">ohne Einheit</option></select></label>
     <button class="small" id="numShow" type="button" data-i18n="showBig">Groß zeigen</button>
     <button class="small" id="numSay" type="button" data-i18n="read">🔊 Vorlesen</button>
   </div>
-  <div id="numOut" class="big-out" lang="th"></div>
+  <div id="numOut" class="big-out" lang="th" aria-live="polite"></div>
   <p class="note" data-i18n="numNote">Gegenüber handelt? Gerät weitergeben: Der Betrag steht groß in Ziffern, das Gegenüber tippt seinen Preis selbst ein. Thai-Zahlwörter sind maschinell erzeugt und unverbindlich.</p>
   <details><summary data-i18n="digitsSum">Thai-Ziffern lesen (Schilder, Taxameter)</summary><div id="digitTab" class="tiles" lang="th"></div></details>
 </details>
@@ -338,11 +340,11 @@
 </details>
 <details class="box" id="allergyBox">
   <summary data-i18n="allergySum">Allergie- und Notfallkarte</summary>
-  <p class="note"><b>Thai maschinell erstellt, nicht von Muttersprachlern geprüft.</b> Vor Gebrauch prüfen lassen. Die Karte ersetzt keine ärztliche Information.</p>
-  <div class="row"><b>Allergien</b></div><div id="allergyTiles" class="tiles"></div>
-  <div class="row"><b>Erkrankungen</b></div><div id="condTiles" class="tiles"></div>
-  <div class="row"><label>Blutgruppe <select id="bloodSel"><option value="">–</option><option>A</option><option>B</option><option>AB</option><option>O</option></select></label>
-    <label>Rhesus <select id="rhSel"><option value="">–</option><option value="บวก">+</option><option value="ลบ">−</option></select></label></div>
+  <p class="note" data-i18n-html="allergyMt"><b>Thai maschinell erstellt, nicht von Muttersprachlern geprüft.</b> Vor Gebrauch prüfen lassen. Die Karte ersetzt keine ärztliche Information.</p>
+  <div class="row"><b data-i18n="allergyH">Allergien</b></div><div id="allergyTiles" class="tiles"></div>
+  <div class="row"><b data-i18n="condH">Erkrankungen</b></div><div id="condTiles" class="tiles"></div>
+  <div class="row"><label><span data-i18n="bloodLbl">Blutgruppe</span> <select id="bloodSel"><option value="">–</option><option>A</option><option>B</option><option>AB</option><option>O</option></select></label>
+    <label><span data-i18n="rhLbl">Rhesus</span> <select id="rhSel"><option value="">–</option><option value="บวก">+</option><option value="ลบ">−</option></select></label></div>
   <div id="allergyOut" class="big-out" lang="th"></div><div id="allergyEn" class="note" lang="en"></div>
   <div class="row"><button class="small" id="allergyShow" type="button" data-i18n="allergyShow">Karte groß zeigen</button></div>
 </details>
@@ -352,8 +354,8 @@
   <div id="glossList"></div>
 </details>
 <details class="box" id="learnBox">
-  <summary>Lernen: Karteikarten (<span id="learnDue">0</span> fällig)</summary>
-  <p id="learnInfo">Mit ☆ gemerkte Sätze (Satzbuch, Verlauf) werden zu Karteikarten: vorne deine Sprache, hinten die Sprache des Partners. Gewusst = später wieder (1, 3, 7, 14 Tage), nicht gewusst = gleich nochmal.</p>
+  <summary><span data-i18n="learnSumA">Lernen: Karteikarten (</span><span id="learnDue">0</span><span data-i18n="learnSumB"> fällig)</span></summary>
+  <p id="learnInfo" data-i18n="learnInfoT">Mit ☆ gemerkte Sätze (Satzbuch, Verlauf) werden zu Karteikarten: vorne deine Sprache, hinten die Sprache des Partners. Gewusst = später wieder (1, 3, 7, 14 Tage), nicht gewusst = gleich nochmal.</p>
   <div class="row">
     <label><input type="checkbox" id="learnRecent"> <span data-i18n="learnRecent">Zuletzt übersetzte Sätze automatisch aufnehmen</span></label>
     <label><input type="checkbox" id="learnListen"> <span data-i18n="learnListen">Hören zuerst</span></label>
@@ -420,7 +422,7 @@
   <label><input id="logQ" type="search" size="18" maxlength="60" autocomplete="off" enterkeyhint="search"><span class="sr-only" id="logQLabel">Verlauf durchsuchen</span></label>
   <span id="logCount" role="status"></span>
 </div>
-<div id="log" role="list" aria-live="off" aria-label="Übersetzungen, neueste zuerst"></div>
+<div id="log" role="list" aria-live="off" data-aria="aLog" aria-label="Übersetzungen, neueste zuerst"></div>
 <div id="announce" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 </main>
 </div>
@@ -428,8 +430,8 @@
 <dialog id="consent" aria-labelledby="consentTitle" aria-describedby="consentText">
   <h2 id="consentTitle" data-i18n="consentTitle">Mikrofon einschalten?</h2>
   <div id="consentText">
-    <p>Die Spracherkennung macht dein Browser: <b>Chrome sendet dein Audio an Google</b>, Safari an Apple. Der erkannte Text geht zum Übersetzen an <b>Google Translate</b> (Ersatz: MyMemory). Diese Seite hat keinen eigenen Server.</p>
-    <p>Bitte nicht für vertrauliche Gespräche nutzen. Die Zustimmung wird nur in diesem Browser gespeichert.</p>
+    <p data-i18n-html="consentP1">Die Spracherkennung macht dein Browser: <b>Chrome sendet dein Audio an Google</b>, Safari an Apple. Der erkannte Text geht zum Übersetzen an <b>Google Translate</b> (Ersatz: MyMemory). Diese Seite hat keinen eigenen Server.</p>
+    <p data-i18n="consentP2">Bitte nicht für vertrauliche Gespräche nutzen. Die Zustimmung wird nur in diesem Browser gespeichert.</p>
   </div>
   <div class="row">
     <button class="small" id="consentNo" type="button" data-i18n="cancel">Abbrechen</button>
@@ -447,6 +449,7 @@
 <div id="printSheet" aria-hidden="true"></div>
 
 <script>
+if (window.top !== window.self) { try { window.top.location = window.location.href; } catch { document.documentElement.style.display = 'none'; } }   // kein Einbetten in fremde Seiten (Clickjacking; frame-ancestors geht im meta nicht)
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const TTS = 'speechSynthesis' in window ? window.speechSynthesis : null;
 const $ = id => document.getElementById(id);
@@ -538,6 +541,20 @@ const STR = {
   "shareLink": "Als Link teilen",
   "again2": "🔊 Nochmal",
   "skipLink": "Zum Satzbuch springen",
+  "statusNet": "Erkennungsdienst nicht erreichbar (Netz?) – neuer Versuch …",
+  "consentP1": "Die Spracherkennung macht dein Browser: <b>Chrome sendet dein Audio an Google</b>, Safari an Apple. Der erkannte Text geht zum Übersetzen an <b>Google Translate</b> (Ersatz: MyMemory). Diese Seite hat keinen eigenen Server.",
+  "consentP2": "Bitte nicht für vertrauliche Gespräche nutzen. Die Zustimmung wird nur in diesem Browser gespeichert.",
+  "aLog": "Übersetzungen, neueste zuerst",
+  "aUnit": "Einheit",
+  "noUnit": "ohne Einheit",
+  "allergyMt": "<b>Thai maschinell erstellt, nicht von Muttersprachlern geprüft.</b> Vor Gebrauch prüfen lassen. Die Karte ersetzt keine ärztliche Information.",
+  "allergyH": "Allergien",
+  "condH": "Erkrankungen",
+  "bloodLbl": "Blutgruppe",
+  "rhLbl": "Rhesus",
+  "learnSumA": "Lernen: Karteikarten (",
+  "learnSumB": " fällig)",
+  "learnInfoT": "Mit ☆ gemerkte Sätze (Satzbuch, Verlauf) werden zu Karteikarten: vorne deine Sprache, hinten die Sprache des Partners. Gewusst = später wieder (1, 3, 7, 14 Tage), nicht gewusst = gleich nochmal.",
   "skipMain": "Zum Inhalt springen",
   "shareAsk": "Geteilten Text übersetzen? Er wird dafür an Google Translate gesendet.",
   "shareGo": "Übersetzen",
@@ -831,6 +848,20 @@ const STR = {
   "shareLink": "Share as link",
   "again2": "🔊 Again",
   "skipLink": "Skip to phrasebook",
+  "statusNet": "Speech service not reachable (network?) – trying again …",
+  "consentP1": "Your browser does the speech recognition: <b>Chrome sends your audio to Google</b>, Safari to Apple. The recognised text goes to <b>Google Translate</b> for translation (fallback: MyMemory). This page has no server of its own.",
+  "consentP2": "Please do not use it for confidential conversations. Your consent is stored in this browser only.",
+  "aLog": "Translations, newest first",
+  "aUnit": "Unit",
+  "noUnit": "no unit",
+  "allergyMt": "<b>Thai is machine-made and not checked by native speakers.</b> Have it checked before use. The card does not replace medical information.",
+  "allergyH": "Allergies",
+  "condH": "Conditions",
+  "bloodLbl": "Blood group",
+  "rhLbl": "Rhesus",
+  "learnSumA": "Learn: flashcards (",
+  "learnSumB": " due)",
+  "learnInfoT": "Sentences you mark with ☆ (phrasebook, history) become flashcards: your language on the front, the partner's language on the back. Known = back later (1, 3, 7, 14 days), not known = again right away.",
   "skipMain": "Skip to main content",
   "shareAsk": "Translate the shared text? It is sent to Google Translate for this.",
   "shareGo": "Translate",
@@ -1124,6 +1155,20 @@ const STR = {
   "shareLink": "แชร์เป็นลิงก์",
   "again2": "🔊 อีกครั้ง",
   "skipLink": "ข้ามไปที่สมุดวลี",
+  "statusNet": "เชื่อมต่อบริการรู้จำเสียงไม่ได้ (เครือข่าย?) – กำลังลองใหม่ …",
+  "consentP1": "เบราว์เซอร์ของคุณทำการรู้จำเสียง: <b>Chrome ส่งเสียงของคุณไปที่ Google</b> ส่วน Safari ส่งไปที่ Apple ข้อความที่รู้จำได้จะถูกส่งไปแปลที่ <b>Google Translate</b> (สำรอง: MyMemory) หน้านี้ไม่มีเซิร์ฟเวอร์ของตัวเอง",
+  "consentP2": "โปรดอย่าใช้กับบทสนทนาที่เป็นความลับ ความยินยอมถูกบันทึกไว้ในเบราว์เซอร์นี้เท่านั้น",
+  "aLog": "คำแปล ใหม่สุดก่อน",
+  "aUnit": "หน่วย",
+  "noUnit": "ไม่มีหน่วย",
+  "allergyMt": "<b>ภาษาไทยสร้างด้วยเครื่อง ไม่ได้ตรวจโดยเจ้าของภาษา</b> ควรให้ตรวจก่อนใช้ บัตรนี้ไม่แทนข้อมูลทางการแพทย์",
+  "allergyH": "อาการแพ้",
+  "condH": "โรคประจำตัว",
+  "bloodLbl": "กรุ๊ปเลือด",
+  "rhLbl": "อาร์เอช",
+  "learnSumA": "เรียน: บัตรคำ (",
+  "learnSumB": " ใบถึงกำหนด)",
+  "learnInfoT": "ประโยคที่ติดดาว ☆ (สมุดวลี ประวัติ) จะกลายเป็นบัตรคำ ด้านหน้าเป็นภาษาของคุณ ด้านหลังเป็นภาษาของคู่สนทนา รู้แล้ว = กลับมาทบทวนทีหลัง (1, 3, 7, 14 วัน) ไม่รู้ = ทบทวนทันที",
   "skipMain": "ข้ามไปที่เนื้อหา",
   "shareAsk": "แปลข้อความที่แชร์มาไหม ข้อความจะถูกส่งไปยัง Google Translate",
   "shareGo": "แปล",
@@ -1357,6 +1402,7 @@ function applyUi() {   // statische Texte nach data-i18n / data-i18n-html setzen
     const e = $(id); if (e) { e.setAttribute('aria-label', t(key)); e.title = t(key); }
   }
   updateThemeBtn();
+  for (const e of document.querySelectorAll('[data-aria]')) e.setAttribute('aria-label', t(e.dataset.aria));
   for (const e of document.querySelectorAll('[data-i18n]')) e.textContent = t(e.dataset.i18n);
   for (const e of document.querySelectorAll('[data-i18n-html]')) e.innerHTML = t(e.dataset.i18nHtml);   // nur eigene, feste Texte
 }
@@ -1436,6 +1482,9 @@ async function mapLimit(items, n, fn) {   // höchstens n Aufgaben gleichzeitig 
   await Promise.all(Array.from({ length: Math.min(n, items.length) }, worker));
   return out;
 }
+let settingsTimer = null;
+function saveSettingsSoon() { clearTimeout(settingsTimer); settingsTimer = setTimeout(saveSettings, 300); }   // Schieberegler: nicht bei jedem Pixel speichern
+window.addEventListener('pagehide', () => { if (settingsTimer) saveSettings(); });
 function saveSettings() { try { localStorage.setItem('webSettings', JSON.stringify(settings)); } catch { storageFull(); } }
 let pair = { a: DEFAULT_PAIR[0], b: DEFAULT_PAIR[1] };
 function initPair() {   // nach dem Laden der Sprachtabelle: gemerktes Paar, wenn gültig
@@ -1545,12 +1594,14 @@ if (!SR) {   // Hinweis mit Handlungsvorschlag: anderer Browser, tippen statt sp
 }
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
   || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);   // iPadOS meldet sich als Mac
-if (isIOS) showWarn(t('iosWarn'));
+let iosOff = false; try { iosOff = localStorage.getItem('iosWarnOff') === '1'; } catch {}
+if (isIOS && !iosOff) showWarn(t('iosWarn') + ' <button type="button" class="small" data-act="iosoff">' + t('closeBtn') + '</button>');   // schließbar, Entscheidung wird gemerkt
 if (!TTS) { showWarn(t('noTts')); $('speak').checked = false; $('speak').disabled = true; }
 
 // ---- Voices ----
 const voiceWarned = new Set();
-const voiceLang = v => v.lang.replace('_', '-').toLowerCase();
+const ISO3 = { eng: 'en', tha: 'th', deu: 'de', ger: 'de', fra: 'fr', fre: 'fr', spa: 'es', ita: 'it', por: 'pt', rus: 'ru', jpn: 'ja', kor: 'ko', zho: 'zh', chi: 'zh', ara: 'ar', hin: 'hi', vie: 'vi', ind: 'id', nld: 'nl', dut: 'nl', pol: 'pl', tur: 'tr', swe: 'sv', heb: 'he', iw: 'he', in: 'id', fil: 'tl' };   // Android meldet "eng-USA", "tha-THA"
+const voiceLang = v => { const [b, ...r] = String(v.lang).replace('_', '-').toLowerCase().split('-'); return [ISO3[b] || b, ...r].join('-'); };
 function loadVoices() {
   voices = TTS ? TTS.getVoices() : [];
   fillVoiceSelects();
@@ -1576,19 +1627,20 @@ function fillVoiceSelects() {
 for (const [id, k] of [['voiceA', 'a'], ['voiceB', 'b']]) {
   $(id).onchange = () => { settings.voices = Object.assign({}, settings.voices, { [pair[k]]: $(id).value }); saveSettings(); };
 }
+const pickBy = f => voices.find(v => f(v) && v.localService) || voices.find(f);   // lokale Stimmen zuerst: funktionieren auch offline
 function pickVoice(lang) {
   const l = lang.toLowerCase(), base = l.slice(0, 2);
   const want = (settings.voices || {})[base];
   return (want && voices.find(v => v.voiceURI === want))
-      || voices.find(v => voiceLang(v) === l && /premium|enhanced|siri/i.test(v.name))
-      || voices.find(v => voiceLang(v) === l)
-      || voices.find(v => voiceLang(v).startsWith(base));
+      || pickBy(v => voiceLang(v) === l && /premium|enhanced|siri/i.test(v.name))
+      || pickBy(v => voiceLang(v) === l)
+      || pickBy(v => voiceLang(v).startsWith(base));
 }
-$('rate').value = String(rate); $('rateOut').textContent = rate.toFixed(2);
-function setRate(r) { rate = r; $('rate').value = String(r); $('rateOut').textContent = r.toFixed(2); settings.rate = r; saveSettings(); }
+$('rate').value = String(rate); $('rateOut').textContent = rate.toFixed(2); $('rate').setAttribute('aria-valuetext', rate.toFixed(2));
+function setRate(r) { rate = r; $('rate').value = String(r); $('rateOut').textContent = r.toFixed(2); $('rate').setAttribute('aria-valuetext', r.toFixed(2)); settings.rate = r; saveSettingsSoon(); }
 $('rate').oninput = () => setRate(+$('rate').value);
 let vol = (+settings.vol >= 0.2 && +settings.vol <= 1) ? +settings.vol : 1;
-function setVol(v) { vol = Math.round(Math.min(1, Math.max(0.2, v)) * 10) / 10; $('vol').value = String(vol); $('volOut').textContent = Math.round(vol * 100) + ' %'; settings.vol = vol; saveSettings(); }
+function setVol(v) { vol = Math.round(Math.min(1, Math.max(0.2, v)) * 10) / 10; $('vol').value = String(vol); $('volOut').textContent = Math.round(vol * 100) + ' %'; $('vol').setAttribute('aria-valuetext', Math.round(vol * 100) + ' %'); settings.vol = vol; saveSettingsSoon(); }
 setVol(vol);
 $('vol').oninput = () => setVol(+$('vol').value);
 const SAMPLE = { en: 'Hello, how are you?', th: 'สวัสดีครับ สบายดีไหม', de: 'Hallo, wie geht es dir?' };
@@ -1763,7 +1815,7 @@ function startRec() {
     }
     if (ev.error === 'no-speech' || ev.error === 'aborted') return;   // Stille ist normal
     failed = true; errCount++;
-    setStatus(t('statusErr', { e: ev.error }));
+    const key = ev.error === 'network' ? 'statusNet' : 'statusErr'; setStatus(t(key, { e: ev.error }));
   };
   r.onend = () => {
     if (rec !== r) return;
@@ -1836,6 +1888,7 @@ warn.addEventListener('click', e => {
   const act = a.dataset.act;
   if (act === 'copyerr') { const ask = () => window.prompt(t('errCopyBtn') + ':', errInfo); try { navigator.clipboard.writeText(errInfo).then(() => setStatus(t('errCopied'), true), ask); } catch { ask(); } }
   else if (act === 'sharego') { clearWarn(warnMsgs.filter(m => m.includes('data-act="sharego"'))); if (sharedGo) sharedGo(); }
+  else if (act === 'iosoff') { clearWarn(warnMsgs.filter(m => m.includes('data-act="iosoff"'))); lsSet('iosWarnOff', '1'); }
   else if (act === 'type') { $('typeBox').open = true; $('typeIn').focus(); }
   else if (act === 'phrasebook') { $('pbBox').open = true; $('pbBox').scrollIntoView({ block: 'start' }); $('pbQ').focus(); }
   else if (act === 'retry') { clearWarn(warnMsgs.slice()); if (!mode) chooseMode('a'); }
@@ -2105,7 +2158,7 @@ function fillPresetSelect() {
   let use = {}; try { use = JSON.parse(localStorage.getItem('pbUse') || '{}') || {}; } catch {}
   const fill = ids => {
     const keep = s.value; s.textContent = '';
-    for (const id of presetOrder(ids, use)) { const o = document.createElement('option'); o.value = id; o.textContent = presetMeta[id] ? (presetMeta[id].de || presetMeta[id].en) : id; s.appendChild(o); }
+    for (const id of presetOrder(ids, use)) { const o = document.createElement('option'); o.value = id; o.textContent = presetMeta[id] ? (presetMeta[id][UI] || presetMeta[id].de || presetMeta[id].en) : id; s.appendChild(o); }
     s.value = ids.includes(keep) ? keep : ids.includes(settings.preset) ? settings.preset : ids[0];
   };
   fill(PRESET_IDS);
@@ -2113,7 +2166,7 @@ function fillPresetSelect() {
   fetch('presets-index.json').then(r => r.json()).then(d => {
     for (const p of d.packs) presetMeta[p.id] = p.names;
     fill(d.packs.map(p => p.id).filter(id => PRESET_IDS.includes(id))); renderCards();
-  }).catch(() => { for (const o of s.options) loadPreset(o.value).then(d => { o.textContent = (d.names && (d.names.de || d.names.en)) || o.value; }, () => {}); });
+  }).catch(() => { for (const o of s.options) loadPreset(o.value).then(d => { o.textContent = (d.names && (d.names[UI] || d.names.de || d.names.en)) || o.value; }, () => {}); });
 }
 function renderEmerg(id) {   // Notrufnummern als eigener, nicht einklappbarer Block mit tel:-Links
   const e = $('pbEmerg'), list = EMERGENCY[id] || [];
@@ -2133,7 +2186,7 @@ function useCount(id) {   // wie oft ein Thema benutzt wurde: Reihenfolge der Th
 const RECENT_MAX = 4;
 function recentList() { return Array.isArray(settings.recent) ? settings.recent.filter(x => typeof x === 'string') : []; }
 function recentPush(id) { settings.recent = [id].concat(recentList().filter(x => x !== id)).slice(0, RECENT_MAX); saveSettings(); }
-function topicName(id) { return presetMeta[id] ? (presetMeta[id].de || presetMeta[id].en) : id; }
+function topicName(id) { return presetMeta[id] ? (presetMeta[id][UI] || presetMeta[id].de || presetMeta[id].en) : id; }
 function renderRecent() {   // zuletzt benutzte Themen als Schnellwahl (nur solche, die es gibt)
   const box = $('pbRecent'), sel = $('presetSel'), ids = recentList().filter(id => [...sel.options].some(o => o.value === id));
   box.textContent = ''; $('pbRecentRow').hidden = ids.length < 2;
@@ -2330,10 +2383,11 @@ function learnDue(list, now) {   // fällige Karten: niedrigstes Fach zuerst, da
 }
 let learnList = (() => { try { return learnParse(localStorage.getItem(LEARN_KEY)); } catch { return []; } })();
 let learnCur = null, learnShownKey = null;
+let persistAsked = false;   // nur einmal je Sitzung anfragen (Firefox fragt den Nutzer)
 function learnStore(list) {
   learnList = list;
   try { localStorage.setItem(LEARN_KEY, JSON.stringify(list)); } catch { setStatus(t('mcStorageFull'), true); }
-  try { if (list.length && navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch {}   // Safari räumt sonst nach 7 Tagen
+  try { if (list.length && !persistAsked && navigator.storage && navigator.storage.persist) { persistAsked = true; navigator.storage.persist(); } } catch {}   // Safari räumt sonst nach 7 Tagen
   learnRender(); syncStars(); renderFavOrder();
 }
 setInterval(() => { if (!document.hidden && $('learnBox').open) learnRender(); }, 60000);   // "fällig" auch bei offen gelassener Seite aktuell
@@ -2502,9 +2556,10 @@ async function copyText(text) {   // nur Zwischenablage des Geräts, nichts wird
   catch { setStatus(t('copyFail'), true); }
 }
 function pbNorm(s) { return String(s || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim(); }
+const hayCache = new Map();
 function pbMatch(hay, q) {   // alle Suchwörter müssen vorkommen (Groß/Klein und Akzente egal); leere Suche trifft alles
   const n = pbNorm(q); if (!n) return true;
-  const h = pbNorm(hay);
+  let h = hayCache.get(hay); if (h === undefined) { if (hayCache.size > 4000) hayCache.clear(); h = pbNorm(hay); hayCache.set(hay, h); }   // Heuhaufen nur einmal normalisieren
   const hw = h.split(' ');
   return n.split(' ').every(w => h.includes(w) || w.length > 3 && hw.some(x => pbNear(w, x)));   // Tippfehler: ein Zeichen daneben
 }
@@ -2535,7 +2590,7 @@ function parseShare(hash) {
 }
 async function shareText(text, lang) { return shareOut(shareUrl(text, lang)); }
 async function shareOut(url) {   // Web-Share-Dialog, sonst Zwischenablage, sonst Eingabefeld zum Kopieren
-  try { if (navigator.share) { await navigator.share({ url }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  try { if (navigator.share) { await navigator.share({ url, title: document.title }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
   try { await navigator.clipboard.writeText(url); setStatus(t('linkCopied'), true); }
   catch { window.prompt(t('linkCopyPrompt'), url); }
 }
@@ -2662,16 +2717,17 @@ $('consentNo').onclick = declineConsent;
 $('consent').addEventListener('cancel', e => { e.preventDefault(); declineConsent(); });   // Esc
 
 // ---- Halten zum Sprechen (Push-to-talk): drücken = Mikro an, loslassen = Satz fertig, danach aus ----
+function buzz(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch {} }   // kurze Rückmeldung beim Halten-zum-Sprechen (wo verfügbar)
 function pttStart(k) {
   if (!hasConsent()) { chooseMode(k); return; }        // erstes Mal: Einwilligung, danach erneut halten
-  pttActive = k;
+  pttActive = k; buzz(15);
   if (mode !== k) setMode(k);
   else { pttReleased = false; if (!rec && !speaking) startRec(); }
   unlockTTS();
 }
 function pttEnd(k) {
   if (pttActive !== k) return;
-  pttActive = null; pttReleased = true;
+  pttActive = null; pttReleased = true; buzz(10);
   if (rec) { try { rec.stop(); } catch {} }   // stop() statt abort(): der letzte Satz wird noch geliefert
   else resumeIfIdle();
 }
@@ -2910,7 +2966,7 @@ $('typeIn').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shift
 // ---- Zahlen und Preise ----
 (() => {
   $('digitTab').textContent = '';
-  for (let i = 0; i < 10; i++) { const b = document.createElement('span'); b.className = 'tile'; b.textContent = '๐๑๒๓๔๕๖๗๘๙'[i] + ' = ' + i + ' · ' + TH_D[i]; $('digitTab').appendChild(b); }
+  for (let i = 0; i < 10; i++) { const b = document.createElement('button'); b.type = 'button'; b.className = 'tile'; b.textContent = '๐๑๒๓๔๕๖๗๘๙'[i] + ' = ' + i + ' · ' + TH_D[i]; b.onclick = () => sayNow(TH_D[i], 'th'); $('digitTab').appendChild(b); }   // Tippen liest die Ziffer vor
   const upd = () => {
     const n = parseAmount($('numIn').value);
     $('numOut').textContent = n === null ? '' : amountCard(n, $('numUnit').value) + ' (' + thaiDigits(n) + ')';
@@ -3038,7 +3094,7 @@ function allergyTiles(boxId, items) {
   const box = $(boxId); box.textContent = '';
   for (const it of items) {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'tile';
-    b.textContent = it.de + ' · ' + it.th; b.setAttribute('aria-pressed', allergySel.ids.includes(it.id) ? 'true' : 'false');
+    b.textContent = (UI === 'de' ? it.de : it.en) + ' · ' + it.th;   // Name in der Oberflächensprache (de, sonst en) b.setAttribute('aria-pressed', allergySel.ids.includes(it.id) ? 'true' : 'false');
     b.onclick = () => {
       const i = allergySel.ids.indexOf(it.id); if (i >= 0) allergySel.ids.splice(i, 1); else allergySel.ids.push(it.id);
       b.setAttribute('aria-pressed', i >= 0 ? 'false' : 'true'); allergySave();
@@ -3169,7 +3225,7 @@ function statsRender() {
   const now = Date.now(), pr = learnProgress(learnList), pl = learnPlan(learnList, now);
   const gs = learnGoalState(learnStats, now, $('learnGoal').value);
   $('learnGoalProg').max = gs.goal; $('learnGoalProg').value = gs.done;
-  $('learnGoalLine').textContent = t('learnGoalLine', { a: gs.done, b: gs.goal });
+  $('learnGoalLine').textContent = t('learnGoalLine', { a: gs.done, b: gs.goal }); $('learnGoalProg').setAttribute('aria-label', $('learnGoalLine').textContent);
   $('learnProg').max = Math.max(1, pr.total); $('learnProg').value = pr.done;
   $('learnProg').setAttribute('aria-label', t('learnProgress', { a: pr.done, b: pr.total, p: pr.pct }));
   $('learnProg').title = t('learnProgress', { a: pr.done, b: pr.total, p: pr.pct });
@@ -3394,7 +3450,7 @@ $('btnTextUp').onclick = () => setUiScale(uiScale + FS_STEP);
 $('uiLang').value = UI;
 $('uiLang').onchange = () => {
   UI = $('uiLang').value; settings.ui = UI; saveSettings(); applyUi(); renderAppState();
-  if (LANGS[pair.a]) { fillLangSelects(); buildModes(); fillPresetSelect(); renderCards(); statsRender(); updatePreBtn(); renderRecent(); }
+  if (LANGS[pair.a]) { fillLangSelects(); buildModes(); fillPresetSelect(); renderCards(); statsRender(); updatePreBtn(); renderRecent(); learnRender(); if (allergyData) { allergyTiles('allergyTiles', allergyData.allergies); allergyTiles('condTiles', allergyData.conditions); } }
 };
 applyUi(); renderAppState();
 loadLangTable().then(() => {
