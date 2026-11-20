@@ -1,0 +1,122 @@
+{
+  "id": "lost-phone",
+  "names": {
+    "de": "Handy verloren / gestohlen",
+    "en": "Lost or stolen phone",
+    "th": "โทรศัพท์หาย / ถูกขโมย"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Sofort Bank-Apps sperren und die SIM beim Anbieter sperren lassen (AIS, True, dtac). Ortung über iCloud oder Google Konto am Hotel-Rechner. Bei Diebstahl Anzeige bei der Touristenpolizei 1155 für die Versicherung. Gerät nie selbst zurückholen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Block bank apps at once and have the SIM blocked by the provider (AIS, True, dtac). Locate the phone through your iCloud or Google account on the hotel computer. For theft file a report with the tourist police 1155 for your insurance. Never go to get the device back yourself. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "phone",
+      "th": "โทรศัพท์"
+    },
+    {
+      "en": "SIM card",
+      "th": "ซิมการ์ด"
+    },
+    {
+      "en": "lost",
+      "th": "หาย"
+    },
+    {
+      "en": "stolen",
+      "th": "ถูกขโมย"
+    },
+    {
+      "en": "police report",
+      "th": "ใบแจ้งความ"
+    },
+    {
+      "en": "block",
+      "th": "ระงับ"
+    },
+    {
+      "en": "tracking",
+      "th": "ติดตามตำแหน่ง"
+    },
+    {
+      "en": "charger",
+      "th": "ที่ชาร์จ"
+    },
+    {
+      "en": "password",
+      "th": "รหัสผ่าน"
+    },
+    {
+      "en": "bank",
+      "th": "ธนาคาร"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My phone was stolen.",
+      "th": "โทรศัพท์ถูกขโมย",
+      "critical": true
+    },
+    {
+      "en": "Please call the tourist police (1155).",
+      "th": "ช่วยโทรหาตำรวจท่องเที่ยว 1155 ด้วย",
+      "critical": true
+    },
+    {
+      "en": "Please block my SIM card now.",
+      "th": "ช่วยระงับซิมการ์ดตอนนี้เลย",
+      "critical": true
+    },
+    {
+      "en": "I need to block my bank card.",
+      "th": "ต้องการระงับบัตรธนาคาร",
+      "critical": true
+    },
+    {
+      "en": "I lost my phone.",
+      "th": "ทำโทรศัพท์หาย",
+      "critical": true
+    },
+    {
+      "en": "Did anyone hand in a phone?",
+      "th": "มีใครส่งโทรศัพท์ไว้ไหม"
+    },
+    {
+      "en": "It is black and has a blue case.",
+      "th": "สีดำ ใส่เคสสีน้ำเงิน"
+    },
+    {
+      "en": "Can you call this number for me?",
+      "th": "ช่วยโทรเบอร์นี้ให้หน่อยได้ไหม"
+    },
+    {
+      "en": "Can I use your phone for one call?",
+      "th": "ขอยืมโทรศัพท์โทรหนึ่งสายได้ไหม"
+    },
+    {
+      "en": "Please let me use the hotel computer.",
+      "th": "ขอใช้คอมพิวเตอร์ของโรงแรมหน่อย"
+    },
+    {
+      "en": "I want to file a police report.",
+      "th": "ต้องการแจ้งความ"
+    },
+    {
+      "en": "I need a copy of the report for my insurance.",
+      "th": "ต้องการสำเนาใบแจ้งความสำหรับประกัน"
+    },
+    {
+      "en": "Where is the nearest phone shop?",
+      "th": "ร้านมือถือที่ใกล้ที่สุดอยู่ที่ไหน"
+    },
+    {
+      "en": "I need a new SIM card with the same number.",
+      "th": "ต้องการซิมการ์ดใหม่เบอร์เดิม"
+    },
+    {
+      "en": "My passport is not in the phone case.",
+      "th": "หนังสือเดินทางไม่ได้อยู่ในเคสโทรศัพท์"
+    }
+  ]
+}

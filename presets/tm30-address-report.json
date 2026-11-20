@@ -1,0 +1,113 @@
+{
+  "id": "tm30-address-report",
+  "names": {
+    "de": "TM30 / Meldung der Unterkunft",
+    "en": "TM30 address report",
+    "th": "แจ้งที่พัก ตม.30"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Vermieter und Hotels müssen Ausländer binnen 24 Stunden bei der Einwanderung melden (TM30). Bei Visumverlängerung, 90-Tage-Meldung oder Visa-Änderung fragt das Amt oft nach der TM30-Quittung. Beim Einchecken oder Umzug aktiv nach der Quittung (Receipt) fragen und eine Kopie behalten. Eine eigene Online-Meldung ist ohne Vermieter schwierig. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Landlords and hotels must report foreigners to immigration within 24 hours (TM30). For a visa extension, 90-day report or visa change the office often asks for the TM30 receipt. When you check in or move, ask for the receipt and keep a copy. Reporting online yourself is difficult without the landlord. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "TM30",
+      "th": "ตม.30"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    },
+    {
+      "en": "landlord",
+      "th": "เจ้าของห้อง"
+    },
+    {
+      "en": "immigration office",
+      "th": "สำนักงานตรวจคนเข้าเมือง"
+    },
+    {
+      "en": "address",
+      "th": "ที่อยู่"
+    },
+    {
+      "en": "arrival",
+      "th": "วันเดินทางเข้า"
+    },
+    {
+      "en": "report",
+      "th": "แจ้ง"
+    },
+    {
+      "en": "lease",
+      "th": "สัญญาเช่า"
+    },
+    {
+      "en": "90-day report",
+      "th": "รายงานตัว 90 วัน"
+    },
+    {
+      "en": "copy",
+      "th": "สำเนา"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Did you report me to immigration (TM30)?",
+      "th": "ได้แจ้งที่พักกับตรวจคนเข้าเมือง ตม.30 แล้วหรือยัง"
+    },
+    {
+      "en": "Please report my stay to immigration within 24 hours.",
+      "th": "ช่วยแจ้งที่พักกับตรวจคนเข้าเมืองภายใน 24 ชั่วโมง"
+    },
+    {
+      "en": "May I have the TM30 receipt?",
+      "th": "ขอใบเสร็จ ตม.30 ได้ไหม"
+    },
+    {
+      "en": "Please give me a copy of the TM30.",
+      "th": "ขอสำเนา ตม.30 ด้วย"
+    },
+    {
+      "en": "I moved to a new address.",
+      "th": "ย้ายมาที่อยู่ใหม่"
+    },
+    {
+      "en": "I need the TM30 for my visa extension.",
+      "th": "ต้องใช้ ตม.30 สำหรับต่อวีซ่า"
+    },
+    {
+      "en": "The immigration office asked for the TM30.",
+      "th": "ตรวจคนเข้าเมืองขอ ตม.30"
+    },
+    {
+      "en": "My arrival date was the first of this month.",
+      "th": "วันเดินทางเข้าคือวันที่หนึ่งของเดือนนี้"
+    },
+    {
+      "en": "Can I report online myself?",
+      "th": "แจ้งออนไลน์เองได้ไหม"
+    },
+    {
+      "en": "Please write my passport number correctly.",
+      "th": "ช่วยเขียนเลขหนังสือเดินทางให้ถูกต้องด้วย"
+    },
+    {
+      "en": "Here is my passport.",
+      "th": "นี่พาสปอร์ต"
+    },
+    {
+      "en": "Here is my lease.",
+      "th": "นี่คือสัญญาเช่า"
+    },
+    {
+      "en": "How long is the report valid?",
+      "th": "การแจ้งนี้ใช้ได้นานเท่าไร"
+    },
+    {
+      "en": "Do I have to report again after a trip?",
+      "th": "หลังไปเที่ยวต้องแจ้งใหม่อีกไหม"
+    }
+  ]
+}

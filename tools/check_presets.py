@@ -14,12 +14,15 @@ import re
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from _presetlib import is_thai_char, load_packs, norm  # noqa: E402
+import presets as engine_presets  # noqa: E402  (Laufzeit-Schema: eine Quelle fuer Felder, hotwords, tuning)
 
-KEYS = {"id", "names", "style", "polite", "voice", "note", "glossary", "phrases"}
+KEYS = {"id", "names", "style", "polite", "voice", "note", "glossary", "phrases", "hotwords", "llm_hint", "tuning"}
 STYLES = {"casual", "neutral", "polite"}
 PARTICLES = re.compile(r"(ครับ|ค่ะ|คะ)")
 PRONOUNS = re.compile(r"(ฉัน|^ผม)")  # ผม mitten im Satz heisst oft "Haar"
+NUMBERS = re.compile(r"\d+")        # Notrufnummern, Preise, Uhrzeiten muessen in beiden Sprachen gleich sein
 WARN_LEN = 120
 MAX_LEN = 200
 
@@ -58,6 +61,9 @@ def check_schema(fname, d, out):
                 _text(note.get(lang), 1, 500, "%s note.%s" % (fname, lang), out)
             if "th" in note:
                 _text(note["th"], 1, 500, "%s note.th" % fname, out)
+    for msg in engine_presets.validate(d):        # Laufzeit-Schema der App (hotwords, llm_hint, tuning, Grenzen)
+        if "unbekannte Felder" not in msg and not msg.startswith("id ungültig"):
+            out.append(("E", fname, "presets.validate: " + msg))
     gl = d.get("glossary", [])
     if not isinstance(gl, list) or len(gl) > 100:
         out.append(("E", fname, "glossary: Liste mit hoechstens 100 Paaren"))
@@ -123,6 +129,10 @@ def check_phrases(fname, d, out):
                     out.append(("E", w, "vertrautes นะ am Satzende"))
             if en is not None and ("___" in en) != ("___" in th):
                 out.append(("E", w, "Luecke ___ nur in einer Sprache"))
+            # Thai darf Zahlen als Wort schreiben (หกโมง): nur pruefen, wenn th Ziffern enthaelt
+            if en is not None and NUMBERS.search(th) and sorted(NUMBERS.findall(en)) != sorted(NUMBERS.findall(th)):
+                out.append(("W", w, "Zahlen in en und th verschieden (%s / %s)"
+                            % (" ".join(NUMBERS.findall(en)) or "-", " ".join(NUMBERS.findall(th)) or "-")))
         if "{p}" in str(en) + str(th):
             out.append(("E", w, "{p}-Platzhalter nicht erlaubt"))
 

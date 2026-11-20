@@ -8,11 +8,13 @@ Gleiche `id` im Nutzer-Verzeichnis überschreibt das mitgelieferte Preset. Ungü
 import json
 import os
 import re
+import unicodedata
 
 STYLE_KEYS = ("casual", "neutral", "polite")
 ID_RE = re.compile(r"[a-z0-9][a-z0-9_-]{0,31}")
 MAX_GLOSSARY, MAX_PHRASES = 100, 50
 MAX_NAME, MAX_TERM, MAX_PHRASE, MAX_NOTE = 40, 60, 200, 500
+MAX_FILE = 256 * 1024                     # größere Preset-Dateien werden nicht gelesen (Schutz vor Riesendateien)
 MAX_HOTWORDS, MAX_HINT = 30, 300          # Nr. 243: eigene Whisper-Hotwords und Ton-Hinweis für Claude
 # Runde 7: tuning = {silence, sensitivity, let_finish, catch_up, rate} je Szenario (Bereiche wie die Steuerfelder)
 TUNING_RANGES = {"silence": (0.4, 2.0), "let_finish": (0.0, 5.0), "rate": (-50, 50),
@@ -127,7 +129,7 @@ def load_all():
 
 
 def _load_all_uncached():
-    out = {}
+    out, seen = {}, {}
     last_errors.clear()
     overridden.clear()
     for folder in (app_dir(), user_dir()):
@@ -138,6 +140,9 @@ def _load_all_uncached():
         for fn in files:
             path = os.path.join(folder, fn)
             try:
+                if os.path.getsize(path) > MAX_FILE:
+                    last_errors[path] = f"Datei größer als {MAX_FILE // 1024} KB"
+                    continue
                 with open(path, encoding="utf-8") as f:
                     d = json.load(f)
             except (OSError, ValueError) as e:
@@ -147,6 +152,10 @@ def _load_all_uncached():
             if err:
                 last_errors[path] = "; ".join(err)
                 continue
+            if d["id"] in seen.get(folder, {}):          # gleiche id in zwei Dateien desselben Ordners
+                last_errors[path] = f"id '{d['id']}' doppelt (schon in {seen[folder][d['id']]})"
+                continue
+            seen.setdefault(folder, {})[d["id"]] = fn
             if d["id"] in out and folder == user_dir():
                 overridden.append(d["id"])
             out[d["id"]] = d
@@ -173,14 +182,22 @@ def glossary_entries(preset):
     return items
 
 
+def _norm(text):
+    """Vergleichsform für Namen und Sprachbefehle: NFC, klein, nur Buchstaben/Zeichen/Ziffern (Unicode L, M, N –
+    Thai-Tonzeichen und Vokale bleiben), alles andere (Bindestrich, Schrägstrich, Klammern) wird zum Leerzeichen."""
+    s = unicodedata.normalize("NFC", text or "").casefold()
+    s = "".join(c if unicodedata.category(c)[0] in "LMN" else " " for c in s)
+    return " ".join(s.split())
+
+
 def find(spoken, presets=None):
-    """Gesprochenen Namen (id oder Name in de/en/th, ohne Klammerzusatz) -> id oder None."""
-    s = re.sub(r"[^\w\s]", " ", (spoken or "").lower()).strip()
-    s = re.sub(r"\s+", " ", s)
+    """Gesprochenen Namen (id oder Name in de/en/th, ohne Klammerzusatz) -> id oder None.
+    Name und Eingabe laufen durch dieselbe Normalisierung („Reise-Notfälle“, „Police / theft“, Thai mit Tonzeichen)."""
+    s = _norm(spoken)
     if not s:
         return None
     for pid, p in (presets if presets is not None else load_all()).items():
-        names = {pid, *(re.sub(r"\s*\(.*?\)", "", v).lower() for v in p["names"].values())}
+        names = {_norm(pid), *(_norm(re.sub(r"\s*\(.*?\)", "", v)) for v in p["names"].values())}
         if s in names:
             return pid
     return None
@@ -212,7 +229,7 @@ class PresetState:
                 eng.polite = self.saved["polite"]
             for k, v in self.saved["voices"].items():
                 if k not in ap.get("voices", {}) or eng.voices.get(k) == ap["voices"][k]:
-                    eng.voices[k] = v
+                    eng.voices[k] = v                    # None = Standardstimme (Engine-Konvention)
             glossary[:] = self.saved["glossary"]
             self.saved = None
         self.active = None
@@ -240,19 +257,27 @@ class PresetState:
         return p
 
 
+OFF_WORDS = (["off"], ["none"], ["clear"], ["reset"], ["aus"], ["ohne"])
+THAI_MODE = "โหมด"          # „โหมดโรงแรม“ (ohne Leerzeichen) oder „โหมด โรงแรม“
+
+
 def parse_spoken(cmd, presets=None):
-    """Sprachbefehl „hotel mode“ / „preset hotel“ / „preset off“ -> "preset:<id>" oder None.
-    Nur kurze Äußerungen (höchstens 5 Wörter); alles andere bleibt unberührt."""
-    words = re.findall(r"[\w'-]+", (cmd or "").lower())
+    """Sprachbefehl „hotel mode“ / „preset hotel“ / „preset off“ (auch „Notfall-Modus“, „Szenario Hotel“,
+    „โหมดโรงแรม“) -> "preset:<id>" oder None. Nur kurze Äußerungen (höchstens 5 Wörter); sonst None."""
+    n = _norm(cmd)
+    if n.startswith(THAI_MODE) and len(n) > len(THAI_MODE):    # Thai trennt keine Wörter: Präfix abschneiden
+        pid = find(n[len(THAI_MODE):].strip(), presets)
+        return f"preset:{pid}" if pid else None
+    words = n.split()
     if not 2 <= len(words) <= 5:
         return None
-    if words[0] == "preset":
+    if words[0] in ("preset", "szenario"):
         rest = words[1:]
-    elif words[-1] == "mode":
+        if rest in OFF_WORDS:
+            return "preset:none"
+    elif words[-1] in ("mode", "modus"):
         rest = words[:-1]
     else:
         return None
-    if words[0] == "preset" and rest in (["off"], ["none"], ["clear"], ["reset"]):
-        return "preset:none"
     pid = find(" ".join(rest), presets)
     return f"preset:{pid}" if pid else None

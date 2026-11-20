@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   pull_request:
+  schedule:
+    - cron: "17 5 * * 1"       # wöchentlich: pip-audit findet neue CVEs auch ohne Commit
 
 permissions:
   contents: read
@@ -15,6 +17,7 @@ concurrency:
 # timeout-minutes an jedem Job: ein hängender Test oder Build blockiert den Runner nicht bis zum Standard-Limit (6 h).
 jobs:
   test:
+    if: github.event_name != 'schedule'
     # Reine Python-Tests auf Linux: startet ohne macOS-Warteschlange. Tests, die macOS-Werkzeuge brauchen
     # (Marker "macos": say, swiftc, setup-env.sh auf Apple Silicon), laufen im Job "macos" unten.
     name: Tests (Linux, Python ${{ matrix.python }})
@@ -62,6 +65,7 @@ jobs:
           echo "Lokal nachstellen: \`tools/check_all.sh\` (ruff + pytest wie in der CI). Details im Schritt davor." >> "$GITHUB_STEP_SUMMARY"
 
   macos:
+    if: github.event_name != 'schedule'
     # Alles, was macOS braucht, in einem Job (eine macOS-Maschine statt drei): Tests mit Marker "macos",
     # Typecheck und vollständige Kompilierung aller Swift-Dateien mit demselben Ziel wie build.sh (macOS 14,
     # LSMinimumSystemVersion). macos-26: der arm64-Pool von macos-15 nahm Jobs zeitweise gar nicht an.
@@ -92,9 +96,11 @@ jobs:
           swiftc -parse-as-library -target arm64-apple-macos14.0 -o build/Dolmetscher app/*.swift
       - name: Summary on failure
         if: failure()
-        run: echo "### macOS-Job rot: Tests (Marker macos), Swift-Typecheck oder Kompilierung; siehe den roten Schritt." >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          echo "### macOS-Job rot: Tests (Marker macos), Swift-Typecheck oder Kompilierung; siehe den roten Schritt." >> "$GITHUB_STEP_SUMMARY"
 
   lint:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -110,9 +116,10 @@ jobs:
         run: python -m py_compile app/make_icon.py
       # Alle Python-Module im Hauptordner, bench/ und tests/ sind sauber: neue Befunde lassen den Lauf scheitern.
       - name: Ruff (blocking)
-        run: ruff check --output-format=github ./*.py bench/ tests/
+        run: ruff check --output-format=github ./*.py bench/ tests/ tools/
 
   presets:
+    if: github.event_name != 'schedule'
     name: Phrasenpakete (schnell)
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -132,8 +139,13 @@ jobs:
               print(b)
           sys.exit(1 if bad else 0)
           PY
+      - name: Konsistenz (Schema, Zahlen, Thai-Schrift)
+        run: |
+          python tools/check_presets.py --strict
+          python satzbuch.py check
 
   shell:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -164,3 +176,4 @@ jobs:
         run: |
           python -m pip install "$(grep '^pip-audit==' requirements-dev.in)"
           pip-audit --disable-pip --require-hashes -r requirements.txt
+          pip-audit --disable-pip --require-hashes -r requirements-dev.txt

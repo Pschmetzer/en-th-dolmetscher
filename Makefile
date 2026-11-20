@@ -19,7 +19,7 @@ test-web:        ## nur Web, Pakete, Sprachen (schnell, braucht node)
 web-test: test-web  ## Alias fuer test-web
 
 lint:            ## ruff wie in der CI, dazu Syntaxpruefung der Skripte
-	ruff check ./*.py bench/ tests/
+	ruff check ./*.py bench/ tests/ tools/
 	bash -n build.sh
 	for f in build-support/*.sh; do bash -n "$$f"; done
 

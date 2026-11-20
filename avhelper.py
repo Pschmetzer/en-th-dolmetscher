@@ -13,7 +13,7 @@ FFmpeg mit (avfoundation-Eingang, audiotoolbox-Ausgang, Filter) – Homebrew ist
 
 Fehler gehen als Klartext nach stderr (die Engine klassifiziert sie wie früher ffmpeg-Meldungen).
 """
-import argparse, json, os, re, signal, sys, time
+import argparse, json, math, os, re, signal, sys, time
 
 
 
@@ -141,6 +141,8 @@ def capture(a):
             c.close()
             if not a.loop:
                 return
+            if n == 0:                          # leere Datei: sonst Endlosschleife ohne Schlaf
+                sys.exit("no audio data in file")
     dev = a.device or "default"
     try:
         c = av.open(f":{dev}", format="avfoundation")
@@ -358,6 +360,10 @@ def main(argv=None):
     p.add_argument("--file")
     sub.add_parser("list")
     a = ap.parse_args(argv)
+    if a.cmd == "play" and not math.isfinite(a.volume):      # nan würde sonst zu maximaler Lautstärke
+        ap.error("--volume muss eine endliche Zahl sein")
+    if a.cmd == "capture" and not 8000 <= a.rate <= 48000:
+        ap.error("--rate muss zwischen 8000 und 48000 liegen")
     try:
         {"capture": capture, "play": play, "list": list_devices}[a.cmd](a)
     except (BrokenPipeError, KeyboardInterrupt):

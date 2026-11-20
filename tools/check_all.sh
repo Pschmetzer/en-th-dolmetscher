@@ -8,9 +8,9 @@ PY="${PY:-python3}"
 
 echo "== ruff =="
 if command -v ruff >/dev/null 2>&1; then
-  ruff check ./*.py bench/ tests/
+  ruff check ./*.py bench/ tests/ tools/
 else
-  "$PY" -m ruff check ./*.py bench/ tests/
+  "$PY" -m ruff check ./*.py bench/ tests/ tools/
 fi
 
 echo "== Skripte (bash -n, shellcheck) =="

@@ -173,7 +173,9 @@ def _load_file(path):
                 _quarantine(path, str(e)[:80])
         return None
     except OSError as e:
-        CORRUPT.append("Profil-Datei %s nicht lesbar: %s" % (os.path.basename(path), e))
+        msg = "Profil-Datei %s nicht lesbar: %s" % (os.path.basename(path), e)
+        if msg not in CORRUPT:                   # nicht bei jedem Aufruf erneut anhängen (Wachstum, Dauerwarnung)
+            CORRUPT.append(msg)
         return None
 
 
@@ -828,6 +830,8 @@ def enroll(name, lang, record_one, transcribe, emit, spk=None):
     """
     name = _nfc(name)
     _safe(name)                                   # früh: ungültiger Name -> ProfileNameError vor der Aufnahme
+    if lang not in ENROLL:
+        raise ValueError("Keine Einschreibe-Sätze für Sprache %r (verfügbar: %s)" % (lang, ", ".join(sorted(ENROLL))))
     spk = spk or SpeakerID()
     sents = ENROLL[lang]
     embs, rows, auds = [], [], []

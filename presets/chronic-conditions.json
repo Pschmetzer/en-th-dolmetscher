@@ -1,0 +1,122 @@
+{
+  "id": "chronic-conditions",
+  "names": {
+    "de": "Chronische Krankheit / Dauermedikation",
+    "en": "Chronic conditions",
+    "th": "โรคประจำตัว / ยาประจำ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Dauermedikamente im Handgepäck mit Rezept oder Arztbrief (englisch) mitführen. Insulin kühl lagern und nicht im Aufgabegepäck. Medikamentenliste mit Wirkstoff (nicht nur Markenname), Blutgruppe und Notfallkontakt immer dabei haben. Bei Atemnot oder Unterzuckerung sofort den Rettungsdienst (1669) rufen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Carry regular medication in hand luggage with a prescription or a doctor's letter (in English). Keep insulin cool and out of checked luggage. Always carry a medication list with the active ingredient (not only the brand), your blood type and an emergency contact. For breathing trouble or low blood sugar call the ambulance (1669) at once. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "insulin",
+      "th": "อินซูลิน"
+    },
+    {
+      "en": "diabetes",
+      "th": "เบาหวาน"
+    },
+    {
+      "en": "asthma",
+      "th": "หอบหืด"
+    },
+    {
+      "en": "inhaler",
+      "th": "ยาพ่น"
+    },
+    {
+      "en": "blood pressure",
+      "th": "ความดันโลหิต"
+    },
+    {
+      "en": "blood type",
+      "th": "หมู่เลือด"
+    },
+    {
+      "en": "epilepsy",
+      "th": "โรคลมชัก"
+    },
+    {
+      "en": "pacemaker",
+      "th": "เครื่องกระตุ้นหัวใจ"
+    },
+    {
+      "en": "prescription",
+      "th": "ใบสั่งยา"
+    },
+    {
+      "en": "contact lenses",
+      "th": "คอนแทคเลนส์"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have diabetes and I need sugar now.",
+      "th": "เป็นเบาหวาน ต้องการน้ำตาลทันที",
+      "critical": true
+    },
+    {
+      "en": "I have asthma. I cannot breathe well.",
+      "th": "เป็นหอบหืด หายใจไม่ค่อยออก",
+      "critical": true
+    },
+    {
+      "en": "I have epilepsy.",
+      "th": "เป็นโรคลมชัก",
+      "critical": true
+    },
+    {
+      "en": "I have a pacemaker.",
+      "th": "ใช้เครื่องกระตุ้นหัวใจ",
+      "critical": true
+    },
+    {
+      "en": "Please call an ambulance (1669).",
+      "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true
+    },
+    {
+      "en": "I need insulin. It must be kept cold.",
+      "th": "ต้องใช้อินซูลิน ต้องเก็บให้เย็น"
+    },
+    {
+      "en": "Do you have a refrigerator for my insulin?",
+      "th": "มีตู้เย็นสำหรับเก็บอินซูลินไหม"
+    },
+    {
+      "en": "I take this medicine every day.",
+      "th": "กินยานี้ทุกวัน"
+    },
+    {
+      "en": "This is my medication list.",
+      "th": "นี่คือรายการยาที่ใช้ประจำ"
+    },
+    {
+      "en": "My blood type is on this card.",
+      "th": "หมู่เลือดอยู่บนบัตรนี้"
+    },
+    {
+      "en": "I lost my medicine. I need a replacement.",
+      "th": "ยาหาย ต้องการยาทดแทน"
+    },
+    {
+      "en": "Do you have this medicine here?",
+      "th": "ที่นี่มียานี้ไหม"
+    },
+    {
+      "en": "I need a medical letter for customs.",
+      "th": "ต้องการจดหมายแพทย์สำหรับศุลกากร"
+    },
+    {
+      "en": "I need new contact lenses.",
+      "th": "ต้องการคอนแทคเลนส์ใหม่"
+    },
+    {
+      "en": "I need a place to inject.",
+      "th": "ต้องการที่ฉีดยาที่เป็นส่วนตัว"
+    }
+  ]
+}

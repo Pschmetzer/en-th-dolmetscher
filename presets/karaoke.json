@@ -1,0 +1,117 @@
+{
+  "id": "karaoke",
+  "names": {
+    "de": "Karaoke",
+    "en": "Karaoke",
+    "th": "คาราโอเกะ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Karaoke-Bars gibt es in zwei Arten: private Räume nach Stunden und Kneipen mit Bühne. Vorher Preis pro Stunde, Mindestverzehr und Servicegebühr klären. Auf der Rechnung Getränke und Hostessen-Aufschläge prüfen. Songs auf Englisch gibt es fast immer im Katalog. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Karaoke comes in two kinds: private rooms by the hour and pubs with a stage. Ask about the hourly price, minimum spend and service charge first. Check drinks and any hostess surcharge on the bill. English songs are almost always in the catalogue. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "karaoke",
+      "th": "คาราโอเกะ"
+    },
+    {
+      "en": "private room",
+      "th": "ห้องส่วนตัว"
+    },
+    {
+      "en": "song",
+      "th": "เพลง"
+    },
+    {
+      "en": "microphone",
+      "th": "ไมโครโฟน"
+    },
+    {
+      "en": "song list",
+      "th": "รายชื่อเพลง"
+    },
+    {
+      "en": "volume",
+      "th": "ระดับเสียง"
+    },
+    {
+      "en": "per hour",
+      "th": "ต่อชั่วโมง"
+    },
+    {
+      "en": "service charge",
+      "th": "ค่าบริการ"
+    },
+    {
+      "en": "bill",
+      "th": "บิล"
+    },
+    {
+      "en": "ice",
+      "th": "น้ำแข็ง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Is there a minimum spend?",
+      "th": "มีขั้นต่ำในการสั่งไหม"
+    },
+    {
+      "en": "How much is the room per hour?",
+      "th": "ห้องชั่วโมงละเท่าไร"
+    },
+    {
+      "en": "Is there a service charge?",
+      "th": "มีค่าบริการไหม"
+    },
+    {
+      "en": "A room for four people, please.",
+      "th": "ขอห้องสำหรับสี่คน"
+    },
+    {
+      "en": "Do you have songs in English?",
+      "th": "มีเพลงภาษาอังกฤษไหม"
+    },
+    {
+      "en": "Can I see the song list?",
+      "th": "ขอดูรายชื่อเพลงหน่อย"
+    },
+    {
+      "en": "Please play this song.",
+      "th": "ช่วยเปิดเพลงนี้ด้วย"
+    },
+    {
+      "en": "Could you turn the volume down a little?",
+      "th": "ช่วยลดเสียงลงหน่อยได้ไหม"
+    },
+    {
+      "en": "The microphone does not work.",
+      "th": "ไมโครโฟนใช้ไม่ได้"
+    },
+    {
+      "en": "Could we have more ice, please?",
+      "th": "ขอน้ำแข็งเพิ่มได้ไหม"
+    },
+    {
+      "en": "A bottle of water, please.",
+      "th": "ขอน้ำเปล่าหนึ่งขวด"
+    },
+    {
+      "en": "We want to stay one more hour.",
+      "th": "อยากอยู่ต่ออีกหนึ่งชั่วโมง"
+    },
+    {
+      "en": "Please check the bill.",
+      "th": "ช่วยเช็กบิลหน่อย"
+    },
+    {
+      "en": "I did not order this.",
+      "th": "ไม่ได้สั่งอันนี้"
+    },
+    {
+      "en": "Please call a taxi for us.",
+      "th": "ช่วยเรียกแท็กซี่ให้หน่อย"
+    }
+  ]
+}

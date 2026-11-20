@@ -1,0 +1,118 @@
+{
+  "id": "souvenir-jewelry",
+  "names": {
+    "de": "Souvenirs / Schmuck",
+    "en": "Souvenirs / jewellery",
+    "th": "ของที่ระลึก / เครื่องประดับ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Edelsteinläden, die ein Tuk-Tuk-Fahrer empfiehlt, sind eine bekannte Abzocke; nichts als Geldanlage kaufen. Echte Ware hat ein Zertifikat. Antiquitäten und Buddha-Figuren dürfen nur mit Genehmigung ausgeführt werden. Auf Märkten handeln: mit etwa der Hälfte des ersten Preises beginnen und freundlich bleiben. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Gem shops recommended by a tuk-tuk driver are a known scam; do not buy anything as an investment. Genuine goods come with a certificate. Antiques and Buddha images may only be exported with a permit. Haggle in markets: start at about half the first price and stay friendly. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "souvenir",
+      "th": "ของที่ระลึก"
+    },
+    {
+      "en": "jewellery",
+      "th": "เครื่องประดับ"
+    },
+    {
+      "en": "silver",
+      "th": "เงิน"
+    },
+    {
+      "en": "gold",
+      "th": "ทอง"
+    },
+    {
+      "en": "gem",
+      "th": "อัญมณี"
+    },
+    {
+      "en": "certificate",
+      "th": "ใบรับรอง"
+    },
+    {
+      "en": "discount",
+      "th": "ส่วนลด"
+    },
+    {
+      "en": "export permit",
+      "th": "ใบอนุญาตส่งออก"
+    },
+    {
+      "en": "gift wrap",
+      "th": "ห่อของขวัญ"
+    },
+    {
+      "en": "fake",
+      "th": "ของปลอม"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I will not buy anything as an investment.",
+      "th": "จะไม่ซื้อเพื่อลงทุน",
+      "critical": true
+    },
+    {
+      "en": "Is this real silver?",
+      "th": "นี่คือเงินแท้ไหม"
+    },
+    {
+      "en": "Is this real gold?",
+      "th": "นี่คือทองแท้ไหม"
+    },
+    {
+      "en": "Do you have a certificate?",
+      "th": "มีใบรับรองไหม"
+    },
+    {
+      "en": "How much is this?",
+      "th": "อันนี้ราคาเท่าไหร่"
+    },
+    {
+      "en": "That is too expensive.",
+      "th": "แพงไป"
+    },
+    {
+      "en": "Can you give me a discount?",
+      "th": "ลดราคาได้ไหม"
+    },
+    {
+      "en": "What is your best price?",
+      "th": "ราคาที่ถูกที่สุดเท่าไหร่"
+    },
+    {
+      "en": "If I buy two, what is the price?",
+      "th": "ถ้าซื้อสองชิ้นราคาเท่าไหร่"
+    },
+    {
+      "en": "I will think about it.",
+      "th": "ขอไปคิดดูก่อน"
+    },
+    {
+      "en": "Can I return it if I do not like it?",
+      "th": "ถ้าไม่ชอบคืนได้ไหม"
+    },
+    {
+      "en": "Please wrap it as a gift.",
+      "th": "ช่วยห่อเป็นของขวัญหน่อย"
+    },
+    {
+      "en": "Is this allowed to leave Thailand?",
+      "th": "ของชิ้นนี้นำออกนอกประเทศได้ไหม"
+    },
+    {
+      "en": "Do I need an export permit for this?",
+      "th": "ต้องมีใบอนุญาตส่งออกไหม"
+    },
+    {
+      "en": "May I have a receipt?",
+      "th": "ขอใบเสร็จได้ไหม"
+    }
+  ]
+}

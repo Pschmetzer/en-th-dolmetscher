@@ -140,6 +140,26 @@ kennen, ignorieren sie.
 | `travel-insurance-claim` | Reiseversicherung: Schaden melden | Notruf, Krankenhaus, Arzt, erst behandeln |
 | `flight-delay-change` | Flugverspätung und Umbuchung | Medikamente, Unwohlsein, Arzt |
 | `monsoon-flood-storm` | Regen, Flut und Sturm | Wasser steigt, eingeschlossen, Notruf, Polizei |
+| `scams-overcharge` | Betrug / Abzocke | 4 kritische Sätze zuerst |
+| `lost-phone` | Handy verloren / gestohlen | 5 kritische Sätze zuerst |
+| `police-checkpoint` | Polizeikontrolle / Führerschein | 2 kritische Sätze zuerst |
+| `tm30-address-report` | TM30 / Meldung der Unterkunft | 0 kritische Sätze zuerst |
+| `karaoke` | Karaoke | 0 kritische Sätze zuerst |
+| `golf` | Golf | 0 kritische Sätze zuerst |
+| `kayak-national-park` | Kajak / Nationalpark | 4 kritische Sätze zuerst |
+| `hair-beauty` | Friseur / Schönheit | 4 kritische Sätze zuerst |
+| `cannabis-vape` | Cannabis / E-Zigarette | 2 kritische Sätze zuerst |
+| `chronic-conditions` | Chronische Krankheit / Dauermedikation | 5 kritische Sätze zuerst |
+| `lost-luggage` | Gepäck verloren | 0 kritische Sätze zuerst |
+| `customs-duty-free` | Zoll / Duty-free | 0 kritische Sätze zuerst |
+| `heat-health` | Hitze / Dehydrierung | 4 kritische Sätze zuerst |
+| `mosquito-dengue` | Mücken / Dengue | 4 kritische Sätze zuerst |
+| `border-crossing` | Grenzübertritt / Visa-Run | 3 kritische Sätze zuerst |
+| `currency-exchange` | Geldwechsel | 0 kritische Sätze zuerst |
+| `optician-eye-care` | Optiker / Augen | 3 kritische Sätze zuerst |
+| `souvenir-jewelry` | Souvenirs / Schmuck | 1 kritische Sätze zuerst |
+| `buffet-bbq` | Buffet / Moo Kratha | 2 kritische Sätze zuerst |
+| `adventure-park` | Zipline / Abenteuerpark | 3 kritische Sätze zuerst |
 
 ## Unsichere Sätze (bitte zuerst prüfen)
 
@@ -175,7 +195,7 @@ Am wichtigsten sind die Sätze mit `critical` und die Tabelle [Unsichere Sätze]
 
 | Datei | Inhalt |
 |---|---|
-| `presets/*.json` | 91 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
+| `presets/*.json` | 111 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
 | `ios/Shared/phrases.json` | eingebautes Satzbuch der iPhone-App und des Widgets |
 | `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten, „Sie sind dran“, Allergie-Karte |
 | `ios/Dolmetscher/Round4Views.swift` | Hilfesatz auf dem Bildschirm „Hilfe – jetzt“ |

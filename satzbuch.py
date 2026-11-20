@@ -207,12 +207,17 @@ def entries(packs, pack_ids=None, glossary=True, critical_only=False):
     return rows
 
 
+def _csv_safe(v):
+    """Excel/Numbers führen Zellen mit = + - @ (oder Tab/CR) am Anfang als Formel aus: ' voranstellen."""
+    return "'" + v if isinstance(v, str) and v[:1] in ("=", "+", "-", "@", "\t", "\r") else v
+
+
 def to_csv(rows):
     buf = io.StringIO()
     w = csv.DictWriter(buf, fieldnames=CSV_FIELDS, lineterminator="\n")
     w.writeheader()
     for r in rows:
-        w.writerow({**r, "critical": "1" if r["critical"] else "0"})
+        w.writerow({k: _csv_safe(v) for k, v in {**r, "critical": "1" if r["critical"] else "0"}.items()})
     return buf.getvalue()
 
 
@@ -286,7 +291,9 @@ def main(argv=None, stdout=None):
         sys.stderr.write(f"übersprungen: {f['pack']}: {f['message']}\n")
     text = EXPORTERS[a.format](entries(packs, set(a.pack or ()), not a.no_glossary, a.critical_only))
     if a.output:
-        pathlib.Path(a.output).write_text(text, encoding="utf-8")
+        # CSV mit BOM (utf-8-sig): Excel erkennt sonst UTF-8 nicht (Thai als Zeichensalat)
+        with open(a.output, "w", encoding="utf-8-sig" if a.format == "csv" else "utf-8", newline="") as fh:
+            fh.write(text)
     else:
         stdout.write(text)
     return 0
