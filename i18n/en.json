@@ -325,5 +325,6 @@
  "imgSaved": "Image saved.",
  "timeLbl": "Time",
  "phoneLbl": "Phone number",
- "uiLoadFail": "Language file not loaded (network?). Staying with German."
+ "uiLoadFail": "Language file not loaded (network?). Staying with German.",
+ "invLbl": "Show mode: swap colours (black on white)"
 }

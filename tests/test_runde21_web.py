@@ -301,3 +301,9 @@ def test_service_worker_offline_page_for_foreign_paths():
     assert r.returncode == 0, r.stderr
     assert json.loads(r.stdout) == [503, "text/html; charset=utf-8", True]
     assert "net.catch(() => offlinePage())" in SW
+
+
+def test_show_mode_has_persistent_colour_swap():
+    assert "#partner.show.inv { background:#fff; color:#000; }" in HTML
+    assert "settings.showInv = !settings.showInv; saveSettings();" in SCRIPT and "id = 'btnPartnerInv'" in SCRIPT
+    assert all("invLbl" in S for S in web_str().values())
