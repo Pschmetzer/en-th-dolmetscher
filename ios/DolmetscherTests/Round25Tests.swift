@@ -18,9 +18,13 @@ final class Round25Tests: XCTestCase {
 
     func testPartnerEmergencyNumbers() {
         XCTAssertEqual(PartnerEmergency.numbers(for: Lang(rawValue: "ja")!).map(\.number), ["110", "119"])
-        XCTAssertEqual(PartnerEmergency.numbers(for: Lang(rawValue: "ko")!).first?.number, "112")
+        // Korea und China: nur Reiseführer als Quelle -> keine Nummer (lieber keine als eine falsche)
+        XCTAssertTrue(PartnerEmergency.numbers(for: Lang(rawValue: "ko")!).isEmpty)
+        XCTAssertTrue(PartnerEmergency.numbers(for: Lang(rawValue: "zh")!).isEmpty)
+        XCTAssertEqual(PartnerEmergency.numbers(for: Lang(rawValue: "id")!).map(\.number), ["112", "110", "113"])
+        XCTAssertNotNil(L10n.round25["em_n_unknown"])
         XCTAssertTrue(PartnerEmergency.numbers(for: .th).isEmpty)   // Thai hat einen eigenen Bildschirm
-        for code in ["ja", "ko", "zh", "vi", "id", "de", "fr", "es"] {
+        for code in ["ja", "vi", "id", "de", "fr", "es"] {
             let list = PartnerEmergency.numbers(for: Lang(rawValue: code)!)
             XCTAssertFalse(list.isEmpty, code)
             for n in list {

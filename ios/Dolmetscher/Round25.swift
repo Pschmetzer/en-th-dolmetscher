@@ -17,15 +17,16 @@ enum PartnerEmergency {
     }
     struct Number: Equatable { var number: String; var kind: Kind }
 
-    /// Gut belegte, stabile Landesnummern (Japan 110/119, Korea 112/119, China 110/120/119, Vietnam 113/114/115,
-    /// Indonesien 110/113/118 + 112, Deutschland 110/112, Frankreich 17/15/18 + 112, Spanien 112). Thai: eigener Bildschirm.
+    /// Nur Nummern, die mehrere unabhängige Quellen (Botschaften, Behörden, Tourismusamt) bestätigen – Stand der Recherche:
+    /// Japan 110/119 (US-Botschaft Japan, Univ. Tohoku), Vietnam 113/114/115 (US-Botschaft, State Dept.), Frankreich 15/17/18/112
+    /// (gendarmerie.interieur.gouv.fr, formation-civique.interieur.gouv.fr), Deutschland 110/112, Spanien 112 (EU-weit),
+    /// Indonesien 110/113 und 112 (indonesia.travel, Kominfo; die Krankenwagen-Nummer 118/119 ist uneinheitlich und fehlt).
+    /// Korea und China: nur Reiseführer als Quelle – keine Nummer, bei Zweifel nur der Hinweis. Thai: eigener Bildschirm.
     static func numbers(for lang: Lang) -> [Number] {
         switch lang.rawValue {
         case "ja": return [.init(number: "110", kind: .police), .init(number: "119", kind: .fireAmbulance)]
-        case "ko": return [.init(number: "112", kind: .police), .init(number: "119", kind: .fireAmbulance)]
-        case "zh": return [.init(number: "110", kind: .police), .init(number: "120", kind: .ambulance), .init(number: "119", kind: .fire)]
         case "vi": return [.init(number: "113", kind: .police), .init(number: "115", kind: .ambulance), .init(number: "114", kind: .fire)]
-        case "id": return [.init(number: "112", kind: .general), .init(number: "110", kind: .police), .init(number: "118", kind: .ambulance), .init(number: "113", kind: .fire)]
+        case "id": return [.init(number: "112", kind: .general), .init(number: "110", kind: .police), .init(number: "113", kind: .fire)]
         case "de": return [.init(number: "112", kind: .fireAmbulance), .init(number: "110", kind: .police)]
         case "fr": return [.init(number: "112", kind: .general), .init(number: "17", kind: .police), .init(number: "15", kind: .ambulance), .init(number: "18", kind: .fire)]
         case "es": return [.init(number: "112", kind: .general)]
@@ -40,7 +41,10 @@ struct PartnerEmergencySection: View {
 
     var body: some View {
         let list = PartnerEmergency.numbers(for: lang)
-        if !list.isEmpty {
+        if list.isEmpty {
+            // Keine belegte Nummer: lieber keine als eine falsche.
+            Section { Text(T("em_n_unknown")).font(.footnote).foregroundStyle(.secondary) } header: { Text(T("em_n_header")) }
+        } else {
             Section {
                 ForEach(list, id: \.number) { n in DialRow(number: n.number, en: T(n.kind.textKey), th: "", icon: n.kind.icon) }
             } header: { Text(T("em_n_header")) } footer: { Text(T("em_n_note")) }
