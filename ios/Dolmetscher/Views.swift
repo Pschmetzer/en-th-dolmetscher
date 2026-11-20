@@ -24,6 +24,7 @@ struct ContentView: View {
     @State private var editing: Entry?
     @State private var draft = ""
     @State private var confirmClear = false
+    @State private var replayPending = false
     @State private var atEnd = true
     @State private var unseen = false
     @State private var askPoliteness = false
@@ -96,7 +97,9 @@ struct ContentView: View {
                         .accessibilityLabel(T("more"))
                 }
             }
-            .sheet(item: $m.sheet) { s in sheetView(s).modifier(ShieldWhenInactive()) }
+            .sheet(item: $m.sheet, onDismiss: {
+                if replayPending { replayPending = false; m.sheet = .welcome }
+            }) { s in sheetView(s).modifier(ShieldWhenInactive()) }
             .confirmationDialog(T("clear_confirm"), isPresented: $confirmClear, titleVisibility: .visible) {
                 Button(T("clear"), role: .destructive) { m.clear() }
                 Button(T("cancel"), role: .cancel) {}
@@ -153,8 +156,8 @@ struct ContentView: View {
 
     /// Aus der Hilfe: Willkommensfluss noch einmal (erst die Hilfe schließen, dann öffnen).
     private func replayWelcome() {
-        m.sheet = nil
-        Task { try? await Task.sleep(for: .milliseconds(450)); m.sheet = .welcome }
+        replayPending = true
+        m.sheet = nil   // `onDismiss` des Sheets öffnet danach den Willkommensfluss (keine feste Wartezeit)
     }
 
     /// Beim ersten Start einmal den Willkommensfluss zeigen (Offline-Pakete, Berechtigungen).

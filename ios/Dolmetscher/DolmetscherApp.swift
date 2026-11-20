@@ -19,7 +19,9 @@ struct DolmetscherApp: App {
                                          hideOnCapture: model.hideOnCapture, captured: model.screenCaptured) { PrivacyShield() }
                 }
                 .task { ExportCleanup.purge() }   // Reste früherer CSV-Exporte (Gesprächstext) im Temp-Ordner
-                .onContinueUserActivity(CSSearchableItemActionType) { _ in model.sheet = .phrasebook }
+                .onContinueUserActivity(CSSearchableItemActionType) { activity in
+                    model.openFavorite(key: activity.userInfo?[CSSearchableItemActivityIdentifier] as? String)
+                }
                 .onChange(of: scenePhase) { _, phase in
                     // Im Hintergrund nicht weiter mithören.
                     if phase == .background { model.enteredBackground() }

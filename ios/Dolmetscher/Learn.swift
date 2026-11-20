@@ -27,8 +27,21 @@ struct LeitnerDeck: Codable, Equatable, Sendable {
         var lang: Lang
         var roman: String?
         var talk = false
+        /// Stabile Kennung unabhängig von der Höflichkeitsform (ครับ/ค่ะ); nil = alte Kennung aus dem Rückseitentext.
+        var key: String? = nil
 
-        var id: String { lang.rawValue + "|" + Phrasebook.normalize(back) }
+        /// Bis Runde 20: Text der Rückseite samt Höflichkeitswort – nur noch für die Migration alter Karten.
+        var legacyID: String { lang.rawValue + "|" + Phrasebook.normalize(back) }
+        var id: String { key ?? legacyID }
+
+        /// Thai ohne Höflichkeitswörter am Ende, damit der Wechsel ครับ ↔ ค่ะ dieselbe Karte bleibt.
+        static func neutral(_ text: String, lang: Lang) -> String {
+            guard lang == .th else { return text }
+            var s = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            let particles = ["ครับผม", "ครับ", "ค่ะ", "คะ", "ค๊ะ", "คับ", "นะ"]
+            while let p = particles.first(where: { s.hasSuffix($0) }) { s.removeLast(p.count) }
+            return s
+        }
     }
 
     static let boxes = 5
@@ -48,7 +61,23 @@ struct LeitnerDeck: Codable, Equatable, Sendable {
     mutating func sync(_ sources: [Source], now: Date = Date()) -> Int {
         var known = Set(cards.map(\.id)).union(dismissed ?? [])
         var added = 0
-        for s in sources where !s.back.isEmpty && !s.front.isEmpty && known.insert(s.id).inserted {
+        for s in sources where !s.back.isEmpty && !s.front.isEmpty {
+            if known.contains(s.id) {
+                // Rückseite folgt der aktuellen Höflichkeitsform.
+                if let i = cards.firstIndex(where: { $0.id == s.id }), cards[i].back != s.back { cards[i].back = s.back; cards[i].roman = s.roman }
+                continue
+            }
+            // Migration: Karte oder Löschvermerk unter der alten, textabhängigen Kennung -> neue Kennung (kein Duplikat).
+            if s.id != s.legacyID {
+                if let i = cards.firstIndex(where: { $0.id == s.legacyID }) {
+                    cards[i].id = s.id; cards[i].back = s.back; cards[i].roman = s.roman
+                    known.insert(s.id); continue
+                }
+                if var d = dismissed, d.contains(s.legacyID) {
+                    d.append(s.id); dismissed = d; known.insert(s.id); continue
+                }
+            }
+            known.insert(s.id)
             cards.append(Card(id: s.id, front: s.front, back: s.back, lang: s.lang, roman: s.roman, due: now,
                               talk: s.talk ? true : nil, created: s.talk ? now : nil))
             added += 1
@@ -112,10 +141,12 @@ extension LeitnerDeck.Source {
     static func from(_ e: Entry, pair: LangPair) -> Self? {
         guard e.error == nil, e.photo != true, let t = e.translation, !t.isEmpty, e.text.count <= 160 else { return nil }
         if e.src == pair.mine && e.target == pair.partner {
-            return .init(front: e.text, back: t, lang: e.target, roman: e.romanized, talk: true)
+            return .init(front: e.text, back: t, lang: e.target, roman: e.romanized, talk: true,
+                         key: e.target.rawValue + "|" + Phrasebook.normalize(Self.neutral(t, lang: e.target)))
         }
         if e.src == pair.partner && e.target == pair.mine {
-            return .init(front: t, back: e.text, lang: e.src, roman: Romanizer.latin(e.text, e.src), talk: true)
+            return .init(front: t, back: e.text, lang: e.src, roman: Romanizer.latin(e.text, e.src), talk: true,
+                         key: e.src.rawValue + "|" + Phrasebook.normalize(Self.neutral(e.text, lang: e.src)))
         }
         return nil
     }
@@ -124,7 +155,7 @@ extension LeitnerDeck.Source {
     static func from(_ p: Phrase, politeness: Politeness) -> Self {
         let back = p.dstLang == .th ? politeness.fill(p.th) : p.th
         return .init(front: p.srcLang == .en ? p.gloss : p.en, back: back, lang: p.dstLang,
-                     roman: Phrasebook.roman(p, politeness: politeness))
+                     roman: Phrasebook.roman(p, politeness: politeness), key: "fav|" + p.favoriteKey)
     }
 }
 

@@ -223,6 +223,7 @@ struct SettingsView: View {
             Toggle(T("hide_on_capture"), isOn: $m.hideOnCapture)
             Toggle(T("clipboard_expires"), isOn: $m.clipboardExpires)
             Toggle(T("spotlight_favs"), isOn: $m.spotlight)
+            if m.features.thaiExtras { Toggle(T("pod_toggle"), isOn: $m.phraseOfDay) }
             Toggle(T("culture_hints"), isOn: $m.cultureHints)
             Toggle(T("summary_toggle"), isOn: $m.summaryEnabled)
             if m.summaryEnabled, let why = ConversationSummary.unavailableReason(for: m.pair.mine) {
