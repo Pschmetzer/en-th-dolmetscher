@@ -95,7 +95,14 @@ enum EngineRunner {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { closed = true; finish() }   // stdout geerbt
             }
         }
-        do { try p.run() } catch { return nil }
+        do { try p.run() } catch {
+            NSLog("Dolmetscher: Hilfsprozess %@ nicht startbar: %@", args.first ?? "?", error.localizedDescription)
+            out.fileHandleForReading.readabilityHandler = nil
+            try? out.fileHandleForReading.close()
+            try? inp.fileHandleForWriting.close()
+            return nil
+        }
+        if request == nil { try? inp.fileHandleForWriting.close() }   // keine Anfrage: stdin sofort schließen
         if let request, var line = try? JSONSerialization.data(withJSONObject: request) {
             line.append(0x0A)
             let h = inp.fileHandleForWriting
@@ -110,6 +117,10 @@ enum EngineRunner {
                 guard pp.isRunning else { return }
                 NSLog("Dolmetscher: %@ nach %.0f s abgebrochen (Zeitüberschreitung)", args.first ?? "?", timeout)
                 pp.terminate()
+                // Reagiert Python nicht auf SIGTERM, hängt sonst der Spinner dauerhaft: nach 2 s hart beenden.
+                DispatchQueue.global().asyncAfter(deadline: .now() + 2) {
+                    if pp.isRunning { kill(pp.processIdentifier, SIGKILL) }
+                }
             }
         }
         return p

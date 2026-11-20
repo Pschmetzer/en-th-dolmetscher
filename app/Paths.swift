@@ -21,13 +21,14 @@ enum Paths {
     }
     /// Mitgelieferter translate-helper (Apple Translation, on-device; Contents/Helpers). Läuft erst ab macOS 26.4 –
     /// auf älteren Systemen gilt er als nicht vorhanden (der Helfer würde nur „macOS 26.4 nötig“ melden).
-    static var bundledTranslateHelper: String? {
+    /// Einmal ermittelt (die Einstellungen werten das je Redraw mehrfach aus; das Bundle ändert sich zur Laufzeit nicht).
+    static let bundledTranslateHelper: String? = {
         let p = Bundle.main.bundleURL.appendingPathComponent("Contents/Helpers/translate-helper").path
         guard FileManager.default.isExecutableFile(atPath: p),
               ProcessInfo.processInfo.isOperatingSystemAtLeast(OperatingSystemVersion(majorVersion: 26, minorVersion: 4, patchVersion: 0))
         else { return nil }
         return p
-    }
+    }()
     static var bundledLock: String? { Bundle.main.path(forResource: "requirements", ofType: "txt") }
     static var bundledStamp: String? { Bundle.main.path(forResource: "env-stamp", ofType: nil) }
     static var setupScript: String? { Bundle.main.path(forResource: "setup-env", ofType: "sh") }
@@ -133,8 +134,14 @@ enum Paths {
             p.standardInput = FileHandle.nullDevice
             let sem = DispatchSemaphore(value: 0)
             p.terminationHandler = { _ in sem.signal() }
+            // Pipes laufend leeren: schreibt Python mehr als den Pipe-Puffer (64 KB), bliebe es sonst bis zum Timeout hängen.
+            let errBuf = LockedBuffer(), outBuf = LockedBuffer()
+            err.fileHandleForReading.readabilityHandler = { h in let d = h.availableData; if d.isEmpty { h.readabilityHandler = nil } else { errBuf.append(d) } }
+            outPipe.fileHandleForReading.readabilityHandler = { h in let d = h.availableData; if d.isEmpty { h.readabilityHandler = nil } else { outBuf.append(d) } }
             var result = PythonCheck.ok("?")
             do { try p.run() } catch {
+                err.fileHandleForReading.readabilityHandler = nil
+                outPipe.fileHandleForReading.readabilityHandler = nil
                 DispatchQueue.main.async { done(.failed(error.localizedDescription)) }
                 return
             }
@@ -142,15 +149,25 @@ enum Paths {
                 p.terminate()
                 result = .failed("timeout")
             } else if p.terminationStatus == 0 {
-                let v = String(decoding: outPipe.fileHandleForReading.availableData, as: UTF8.self)
+                Thread.sleep(forTimeInterval: 0.05)   // letzte Bytes der Handler abwarten
+                let v = String(decoding: outBuf.data, as: UTF8.self)
                 result = .ok(v.trimmingCharacters(in: .whitespacesAndNewlines))
             } else {
-                let text = String(decoding: err.fileHandleForReading.availableData, as: UTF8.self)
+                Thread.sleep(forTimeInterval: 0.05)
+                let text = String(decoding: errBuf.data, as: UTF8.self)
                 result = text.contains("No module named") ? .noModule : .failed(String(text.suffix(300)))
             }
             DispatchQueue.main.async { done(result) }
         }
     }
+}
+
+/// Thread-sicherer Datenpuffer für Pipe-Handler auf Hintergrund-Queues.
+final class LockedBuffer: @unchecked Sendable {
+    private let lock = NSLock()
+    private var d = Data()
+    func append(_ x: Data) { lock.lock(); if d.count < 1_000_000 { d.append(x) }; lock.unlock() }
+    var data: Data { lock.lock(); defer { lock.unlock() }; return d }
 }
 
 /// Anthropic-API-Schlüssel im macOS-Schlüsselbund (Nr. 23); Inhalt wird nie angezeigt oder geloggt.

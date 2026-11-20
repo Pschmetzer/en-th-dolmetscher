@@ -128,11 +128,15 @@ enum URLCommands {
 enum WhatsNew {
     static var version: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "" }
 
-    static func items(for v: String = version) -> [String] {
+    /// whatsnew.json einmal laden (das Bundle ändert sich zur Laufzeit nicht).
+    private static let table: [String: [[String: String]]]? = {
         guard let url = Bundle.main.url(forResource: "whatsnew", withExtension: "json"),
-              let d = try? Data(contentsOf: url),
-              let all = try? JSONSerialization.jsonObject(with: d) as? [String: [[String: String]]],
-              let list = all[v] else { return [] }
+              let d = try? Data(contentsOf: url) else { return nil }
+        return try? JSONSerialization.jsonObject(with: d) as? [String: [[String: String]]]
+    }()
+
+    static func items(for v: String = version) -> [String] {
+        guard let all = table, let list = all[v] else { return [] }
         return list.compactMap { $0[L.lang.rawValue] ?? $0["en"] }
     }
 

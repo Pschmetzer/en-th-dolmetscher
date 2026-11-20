@@ -366,7 +366,7 @@ private struct MaintenanceSection: View {
                 if checking { ProgressView().controlSize(.small) }
                 if copied { Label(L.t("diag_copied"), systemImage: "checkmark").foregroundStyle(LangStyle.success) }
                 Spacer()
-                Button(L.t("show_log")) { NSWorkspace.shared.activateFileViewerSelecting([EngineModel.logURL]) }
+                Button(L.t("show_log")) { openLog() }
             }
             HStack {
                 // Eigene venv neu aufbauen (z. B. nach audio_missing); ein Entwickler-Python bleibt unberührt.

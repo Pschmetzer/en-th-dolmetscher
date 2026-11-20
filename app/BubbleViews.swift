@@ -38,7 +38,7 @@ struct Bubble: View, Equatable {
                 .font(.system(size: 13, weight: .semibold))
                 .padding(.horizontal, 10).padding(.vertical, 5)
                 .foregroundStyle(.white)
-                .background(Color.red, in: Capsule())
+                .background(LangStyle.fillRed, in: Capsule())
         }
         .buttonStyle(.plain)
         .padding(8)
@@ -69,7 +69,7 @@ struct Bubble: View, Equatable {
         .font(.system(size: 15))
         .padding(.horizontal, 4).padding(.vertical, 2)
         .background(.regularMaterial, in: Capsule())
-        .overlay(Capsule().strokeBorder(Color.secondary.opacity(0.35)))
+        .overlay(Capsule().strokeBorder(Color.secondary.opacity(0.55)))
         .padding(8)
         .opacity(hovering ? 1 : 0.85)      // Nr. 381: auch im Ruhezustand gut lesbar
     }
@@ -98,18 +98,19 @@ struct Bubble: View, Equatable {
 
     /// VoiceOver-Aktionen der Blase (als Liste, damit der Ausdruck für den Compiler klein bleibt).
     private var a11yActions: [(String, () -> Void)] {
-        [
-            (L.t("stop_speaking"), { m.stopSpeaking() }),
-            (L.t("read_aloud"), { m.replay(u) }),
-            (L.t("copy_translation"), { copy(u.out) }),
-            (L.t("correct"), { if canCorrect { onCorrect(u) } }),
-            (L.reassign(Langs.reassignRole(u.lang)), { if canCorrect && canReassign { reassign() } }),   // Nr. 382
-            (L.t("alt_reading"), { if canCorrect, let alt = u.alts.first { m.retranslate(u, text: alt) } }),
-            (L.t("save_phrase"), { saveQuickPhrase(u.text) }),
-            (L.t("big_text"), { NotificationCenter.default.post(name: .showBigText, object: u.id) }),
-            (L.t("copy_both"), { copy(u.text + "\n" + u.out) }),
-            (L.t("delete_bubble"), { m.deleteItem(u) }),
-        ]
+        // Kontextabhängig und häufigste zuerst: „Stopp“ nur während der Wiedergabe, nur anwendbare Aktionen.
+        var l: [(String, () -> Void)] = []
+        if playing { l.append((L.t("stop_speaking"), { m.stopSpeaking() })) }
+        l.append((L.t("read_aloud"), { m.replay(u) }))
+        l.append((L.t("copy_translation"), { copy(u.out) }))
+        if canCorrect { l.append((L.t("correct"), { onCorrect(u) })) }
+        if canCorrect && canReassign { l.append((L.reassign(Langs.reassignRole(u.lang)), { reassign() })) }   // Nr. 382
+        if canCorrect, let alt = u.alts.first { l.append((L.t("alt_reading"), { m.retranslate(u, text: alt) })) }
+        l.append((L.t("save_phrase"), { saveQuickPhrase(u.text) }))
+        l.append((L.t("big_text"), { NotificationCenter.default.post(name: .showBigText, object: u.id) }))
+        l.append((L.t("copy_both"), { copy(u.text + "\n" + u.out) }))
+        l.append((L.t("delete_bubble"), { m.deleteItem(u) }))
+        return l
     }
 
     private var content: some View {
@@ -180,8 +181,9 @@ struct Bubble: View, Equatable {
     private func saveQuickPhrase(_ s: String) {
         let ud = UserDefaults.standard
         let cur = ud.string(forKey: Prefs.quickPhrases) ?? Prefs.pairDefaults
-        guard !Prefs.phrases(cur).contains(s) else { return }
+        guard !Prefs.phrases(cur).contains(s) else { Announcer.post(L.t("phrase_exists")); return }
         ud.set(cur.isEmpty ? s : cur + "\n" + s, forKey: Prefs.quickPhrases)
+        Announcer.post(L.t("phrase_saved"))
     }
 
     private var canCorrect: Bool { u.uid != nil && running }
