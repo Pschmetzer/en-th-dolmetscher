@@ -167,7 +167,7 @@ struct GlossaryEditorSheet: View {
 
     /// Namen und Orte aus dem laufenden Gespräch, die noch nicht im Glossar stehen.
     private var suggestionRow: some View {
-        let names = NameSuggest.candidates(texts: m.items.flatMap { [$0.text, $0.out] }, known: all.map { $0.term })
+        let names = NameSuggest.candidates(texts: m.items.suffix(100).flatMap { [$0.text, $0.out] }, known: all.map { $0.term })
         return Group {
             if !names.isEmpty {
                 HStack(spacing: 6) {
