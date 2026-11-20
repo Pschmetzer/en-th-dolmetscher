@@ -100,6 +100,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `ANTHROPIC_API_KEY` (oder `ANTHROPIC_AUTH_TOKEN`) | Claude-Schlüssel. Die Mac-App speichert ihn im Schlüsselbund (Dienst `Dolmetscher`, Konto `anthropic`) und setzt ihn beim Start jedes Engine-Prozesses als `ANTHROPIC_API_KEY`; die Engine ruft `security` nie selbst auf. Die alte Datei bleibt erhalten, bis der Schlüsselbund-Eintrag nachweislich lesbar ist, und wird dann in `anthropic_key.migrated` (0600) umbenannt, nie gelöscht. Rückfall ohne `ANTHROPIC_API_KEY` (Terminal, Schlüsselbund nicht erreichbar): Datei `~/Library/Application Support/Dolmetscher/anthropic_key` (nur der Schlüssel, Rechte 0600), sonst `anthropic_key.migrated` im selben Ordner |
 | `DOLMETSCHER_LLM_PRICES` | JSON `{"modell": [eingabe, ausgabe]}` (USD je Mio. Token): überschreibt/ergänzt die eingebaute Preisliste der Claude-Kosten; `llm_cost.price_known` sagt, ob das Modell in der Liste steht |
 | `DOLMETSCHER_BEAM` | Beam-Breite der Erkennung (Standard 1; überschreibt `--model auto`) |
+| `DOLMETSCHER_FEATURES` | Runde 24: Komma-getrennte Schalter, die beim Start eingeschaltet werden (Standard: keine): `stream`, `router`, `defer`, `parallel_alt`, `stt_prompt`, `speak_numbers` (dieselben wie die Steuerfelder `llm_stream` … `speak_numbers`). Unbekannte Namen werden nur geloggt |
 | `DOLMETSCHER_MIC_FILE` | Audiodatei in Echtzeit statt Mikrofon (Ende-zu-Ende-Test) |
 | `DOLMETSCHER_MIC_LOOP` | mit `DOLMETSCHER_MIC_FILE`: Datei endlos wiederholen |
 | `DOLMETSCHER_TTS_NO_PROXY` | `1`: die Neural-Stimme ignoriert `HTTP(S)_PROXY` der Umgebung |
@@ -121,11 +122,11 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `loading` | `msg`, `download` (optional, true: Modell wird einmalig heruntergeladen, kann Minuten dauern) | |
 | `download_progress` | `model` (Name wie `--model` bzw. Repo-ID), `done_mb` (bereits auf der Platte), `total_mb` (Gesamtgröße laut Hub, sonst Schätzung; `null`, wenn unbekannt), `final` (bool: Download dieses Modells fertig) | nur während ein fehlendes Modell geladen wird (nach `loading` mit `download: true`), höchstens ~2×/s und nur bei Änderung. Gezählt werden die Bytes im Hugging-Face-Cache (auch `.incomplete`), deshalb funktioniert es auch mit hf-xet. Ältere Apps ignorieren das Ereignis |
 | `back` | `id`, `text`, `lang` | optional, nur mit `back_translate`/`--back-translate`: Rückübersetzung der Übersetzung von `id` in die gesprochene Sprache `lang` (Google/MyMemory, nie Claude). Kommt **nach** dem `utt` derselben `id`, ohne Garantie (Fehler: nur Log); bei unbekannter `id` ignorieren |
-| `state` | wie `command` ohne `text`/`reply`, dazu `mute`, `earcons`, `preset`, `llm` (`{"on", "available", "style"}`), `slow`, `back_translate`, `learn_glossary`, `mic_on`, `let_finish`, `catch_up`, `beam`, `latency` (siehe „Runde 6“) | Antwort auf `{"get_state": true}` (App-Neustart/Reconnect); ändert keinen Status |
+| `state` | wie `command` ohne `text`/`reply`, dazu `mute`, `earcons`, `preset`, `llm` (`{"on", "available", "style"}`), `slow`, `back_translate`, `learn_glossary`, `mic_on`, `let_finish`, `catch_up`, `beam`, `latency` (siehe „Runde 6“), `switches` (Runde 24: `llm_stream`, `llm_router`, `defer`, `parallel_alt`, `stt_prompt`, `speak_numbers`), `latency_hist` (`{stt|tr|sound: {n, p50, p95}}` über Sitzungen) | Antwort auf `{"get_state": true}` (App-Neustart/Reconnect); ändert keinen Status |
 | `glossary` | `text` (ganzes eigenes Glossar), `added` (neue Namen) | Engine hat Eigennamen aus einer Korrektur ins Glossar übernommen (Datei schon geschrieben). Die App hängt `added` an ihren Text an (nicht überschreiben: ungesendete eigene Änderungen) |
 | `llm_cost` | `usd`, `month_usd` | geschätzte Claude-Kosten der Sitzung bzw. des Kalendermonats (nach Preisliste, über Neustarts) |
 | `missed` | `why` (`cut`\|`overlap`), `dur` (s Ausgabe), `rms` | Während der eigenen Sprachausgabe wurde vermutlich gesprochen und der Teil verworfen (Halbduplex): `cut` = ein Satz lief noch, als die Ausgabe begann (der Anfang wird übersetzt, der Rest fehlt); `overlap` = direkt nach Ende der Ausgabe (und des Nachhalls) ist schon Sprache da. Höchstens einmal je Ausgabe; nie mit `--barge-in`. Echo der eigenen Stimme löst es nicht aus (während der Sperre wird nichts gemessen), ein Gespräch über Lautsprecher kann aber trotzdem `overlap` melden |
-| `ready` | `msg`, `device`, `llm` (bool: Claude aktiv), `protocol`, `engine_version`, `langs` (`{"mine", "partner"}`); optional `degraded` (Liste: `detect_model`, `thai_model` – Modell nicht geladen, Erkennung läuft schwächer über das Hauptmodell) | |
+| `ready` | `msg`, `device`, `llm` (bool: Claude aktiv), `protocol`, `engine_version`, `langs` (`{"mine", "partner"}`), `capabilities` (Liste: `control:<Steuerfeld>` je bekanntem Feld, `feature:<name>` für Zusatzverhalten – so erkennt die App, was die laufende Engine kann); optional `degraded` (Liste: `detect_model`, `thai_model` – Modell nicht geladen, Erkennung läuft schwächer über das Hauptmodell) | |
 | `langs` | `mine`, `partner` | Sprachpaar nach `{"langs": …}` geändert |
 | `listening` | | Mikrofon bereit; ändert den Sprech-Status nicht |
 | `hearing` | `id` (beim Mikrofon) | jemand spricht gerade; die `id` gilt für die ganze Äußerung |
@@ -139,7 +140,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `level` | `rms` (0…1, dBFS skaliert), `voice` (bool) | ~7×/s, nur mit `--meter` |
 | `net` | `ok` (bool), `what` (`translate`\|`tts`) | nur bei Zustandswechsel |
 | `command` | `text`, `reply`, `paused`, `lang`, `tr_en`, `tr_th`, `polite`, `rate`, `volume`, `voice_en`, `voice_th` (fehlende Sprache: `true`/`""`), `langs` (`{"mine", "partner"}`), `tr` und `voices` (Code → Wert, je Sprache des Paars); `clear` (true) nach „Translator, clear“ | App speichert `rate`/`volume` dauerhaft; bei `clear` Verlauf in der App leeren |
-| `error` | `msg` (deutscher Freitext), `code` (stabil, siehe unten), bei `translate_failed` optional `retry_in_s` (s bis zum nächsten Online-Versuch, wenn alle Anbieter pausieren) | |
+| `error` | `msg` (deutscher Freitext), `msg_en` (englischer Text zum Code, wenn bekannt – Runde 24), `code` (stabil, siehe unten), bei `translate_failed` optional `retry_in_s` (s bis zum nächsten Online-Versuch, wenn alle Anbieter pausieren) | |
 | `barge_in` | | |
 | `mics` | `mics` (Liste `{index, name}`) | Antwort auf `--list-mics`; die App sollte den **Namen** speichern |
 | `profiles` | `profiles` (Liste öffentlicher Profilfelder) | Antwort auf `--profiles` |
@@ -256,6 +257,12 @@ Neu:
 | `let_finish` | float (s, 0 … 5) | „Ausreden lassen“: nach dem Satzende so lange Ruhe abwarten, bevor vorgelesen wird; spricht jemand weiter, beginnt die Wartezeit neu (höchstens bis `MAX_UTT`). 0 = aus (Standard). Mit `--barge-in` (Kopfhörer) wartet die Ausgabe wie bisher nie |
 | `catch_up` | `skip`\|`fast`\|`off` | Rückstand: `skip` (Standard) = schneller sprechen und ab 3 wartenden Ausgaben ältere überspringen, `fast` = nur schneller, nie überspringen, `off` = weder noch. `slow` gewinnt (nie schneller, nie überspringen) |
 | `beam` | int (0 … 5) | Beam-Breite der Erkennung live: 1 schnell, 5 genau; 0 = zurück zum Startwert (`--beam`, `DOLMETSCHER_BEAM` bzw. Hardware-Profil) |
+| `llm_stream` | bool | Runde 24 (Standard aus): Claude per `messages.stream`; die Zeit bis zum ersten Token (`ttft_s`) kommt ins Log, und die erste fertige Teilphrase (Satzende) wird im Hintergrund schon vertont (Sprach-Cache). Auch `DOLMETSCHER_FEATURES=stream` |
+| `llm_router` | bool | Runde 24 (Standard aus): Modell-Router – bei Haiku bleiben kurze Sätze dort, lange, zahlenreiche oder unsichere gehen an Sonnet |
+| `defer` | bool | Runde 24 (Standard aus): Übersetzen/Vorlesen vom Erkennungs-Thread entkoppeln – die Erkennung der nächsten Äußerung läuft, während die vorige übersetzt wird (Reihenfolge bleibt) |
+| `parallel_alt` | bool | Runde 24 (Standard aus): Gegenprobe-Erkennung in der anderen Sprache gleichzeitig starten, wenn sie voraussichtlich gebraucht wird |
+| `stt_prompt` | bool | Runde 24 (Standard aus): gemerkte Namen des Gesprächs (höchstens 120 Zeichen) als Erkennungs-Hinweis für Englisch/Thai |
+| `speak_numbers` | bool | Runde 24 (Standard aus): Thai-Zahlen als Wörter vorlesen (350 → สามร้อยห้าสิบ); Zimmer-, Telefon- und Kontonummern bleiben Ziffern |
 | `reassign` | `{"id": "u7", "role": "me"\|"other"}` | „Das war ich/Partner“: Satz in der Sprache dieser Person (ich = Englisch bzw. meine Sprache, Partner = die andere Sprache des Paars) neu erkennen und übersetzen; `utt` kommt mit `replaces: "u7"`, `source: "reassign"`, `role`. Führt den Stimmabdruck des Profils nach (Gewicht 0,15). Behalten werden die letzten 30 Sätze |
 
 ## Tempo-Ausbau (Branch feat/tempo)
@@ -607,7 +614,7 @@ App-Pipe nicht schnell genug abnahm, siehe Log).
   (Rolle `me`/`other` bleibt).
 - **`hint`** `{code, …}` (selten, je Code höchstens alle 5 min): `slow` (`what` = `stt`\|`tr`\|`sound`, `p90`: Latenz dauerhaft
   hoch – kleineres Modell, Beam 1, `tts_race`), `mic_far` (viele sehr leise, zu kurze Äußerungen: Mikrofon näher oder
-  Empfindlichkeit anheben). Die App lokalisiert über `code`.
+  Empfindlichkeit anheben), `mic_gap` (Runde 24: der Mikrofon-Puffer lief über, der folgende Satz kann unvollständig sein), `device_fallback` (`device: "cpu"`: die Apple-GPU (MPS) fiel im Betrieb aus, die Modelle laufen jetzt einmalig neu geladen auf der CPU). Die App lokalisiert über `code`.
 - **`tts_fallback`** `{reason: "offline"\|"slow"\|"error"}`: die macOS-Ersatzstimme statt der Neural-Stimme spricht; einmal je Wechsel,
   bis die Neural-Stimme wieder Ton liefert. Dann kommt **`tts_fallback`** `{ended: true}` (ohne `reason`): Anzeige „Ersatzstimme“
   ausblenden. Ältere Apps ignorieren das Feld `ended`.
@@ -639,3 +646,8 @@ App-Pipe nicht schnell genug abnahm, siehe Log).
   Latenz und ohne Netz. Der Cache liegt nur im Speicher (nicht auf der Platte).
 - **`repeat` nach Neustart**: ist der Verlauf an, merkt sich die Engine beim Start/Einschalten die letzte Übersetzung wieder.
 - **Privatmodus** lädt das Sprechermodell nicht nach; **Anki-Export** hat `#guid column`, `#deck` und Tags (Sprache, Sitzung).
+- **Runde 24 (Engine):** Spur je Satz im Log (`trace`: Zeitpunkt von `thinking`, `heard`, `utt`, `speaking`, `speak_done`/`dropped`
+  seit der ersten Meldung), p50/p95 der Latenz über Sitzungen (`latency_history.json` im Datenordner, Log `latency_hist`),
+  Schnellmodus der Erkennung (Beam 1) ab 5 wartenden Äußerungen statt Verwerfen, Prompt-Injektionsschutz für Glossar,
+  Preset-Hinweis, Verlauf und Alternativen (keine Tags, keine Zeilenumbrüche), Positivliste im Log (lange Texte unter
+  unbekannten Schlüsseln werden nie geloggt).
