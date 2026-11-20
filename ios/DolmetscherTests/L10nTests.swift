@@ -111,7 +111,8 @@ final class L10nTests: XCTestCase {
     func testInfoPlistStringsInEveryLanguage() throws {
         let keys: Set = ["NSMicrophoneUsageDescription", "NSSpeechRecognitionUsageDescription",
                          "NSCameraUsageDescription", "NSPhotoLibraryUsageDescription",
-                         "NSFaceIDUsageDescription", "NSLocationWhenInUseUsageDescription"]
+                         "NSFaceIDUsageDescription", "NSLocationWhenInUseUsageDescription",
+                         "NSLocalNetworkUsageDescription"]
         for lang in L10n.languages where lang != "en" {   // Englisch steht in den Build-Einstellungen
             let url = ios.appendingPathComponent("Dolmetscher/\(lang).lproj/InfoPlist.strings")
             let dict = try XCTUnwrap(NSDictionary(contentsOf: url) as? [String: String], lang)

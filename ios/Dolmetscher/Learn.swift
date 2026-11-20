@@ -166,9 +166,18 @@ struct LearnView: View {
     @State private var now = Date()
     @State private var practiceAll = false
     @State private var confirmReset = false
+    /// Runde 34: Planer (FSRS je Karte, eigene Ablage), Orts-Auswahl und Aussprache-Coach.
+    @State private var planner = PlannerStore.load()
+    @State private var place: PlaceKind?
+    @State private var coachCard: LeitnerDeck.Card?
     @ScaledMetric(relativeTo: .largeTitle) private var iconSize: CGFloat = 48
 
     private var card: LeitnerDeck.Card? {
+        // Orts-Auswahl: fällige Karten, die dort passen (Kategorie/Paket der Favoriten); sonst nichts statt irgendetwas.
+        if let place {
+            return LocationTrigger.pick(m.learn.due(now: now), tags: { CardTopics.tags(cardID: $0.id, favorites: m.favorites) },
+                                        due: { _ in true }, place: place).first
+        }
         let open: [LeitnerDeck.Card] = practiceAll ? m.learn.practice() : m.learn.due(now: now)
         return open.first
     }
@@ -180,6 +189,7 @@ struct LearnView: View {
                     lockedState
                 } else {
                 BoxBar(counts: m.learn.counts)
+                if !m.learn.cards.isEmpty { PlaceChips(place: $place) }
                 if let card {
                     CardFace(card: card, revealed: revealed) { m.announceCard(card) }
                     controls(card)
@@ -215,7 +225,11 @@ struct LearnView: View {
                 Button(T("learn_reset"), role: .destructive) { m.resetLearnProgress(); revealed = false; now = Date() }
                 Button(T("cancel"), role: .cancel) {}
             }
-            .onAppear { m.syncLearn(); now = Date() }
+            .sheet(item: $coachCard) { PronunciationCoachView(card: $0).modifier(ShieldWhenInactive()) }
+            .onAppear {
+                m.syncLearn(); now = Date()
+                if !m.learnLocked, !m.learn.cards.isEmpty { planner.prune(keeping: Set(m.learn.cards.map(\.id))); planner.save() }
+            }
             .onChange(of: m.learnLocked) { _, locked in if !locked { m.syncLearn() } }
         }
     }
@@ -229,6 +243,12 @@ struct LearnView: View {
                     .buttonStyle(.borderedProminent).tint(StatusColor.ok)
             }
             .controlSize(.large)
+            HStack(spacing: 12) {
+                Button { grade(card, true, easy: true) } label: { Label(T("r34_plan_easy"), systemImage: "hare").frame(maxWidth: .infinity) }
+                    .buttonStyle(.bordered)
+                Button { coachCard = card } label: { Label(T("r34_coach_title"), systemImage: "mic").frame(maxWidth: .infinity) }
+                    .buttonStyle(.bordered)
+            }
         } else {
             Button { revealed = true; m.announceCard(card) } label: { Text(T("learn_show")).frame(maxWidth: .infinity) }
                 .buttonStyle(.borderedProminent)
@@ -237,6 +257,7 @@ struct LearnView: View {
         Text(String(format: T("learn_due"), m.learn.due(now: now).count))
             .font(.footnote).foregroundStyle(.secondary)
         stats
+        PlannerSummaryView(forecast: planner.forecast(now: now))
     }
 
     /// Heute gelernt und Serie (Tage in Folge) – bleibt auch sichtbar, wenn nichts mehr fällig ist.
@@ -265,7 +286,7 @@ struct LearnView: View {
             Spacer()
             Image(systemName: m.learn.cards.isEmpty ? "rectangle.stack" : "checkmark.seal.fill")
                 .font(.system(size: iconSize)).foregroundStyle(m.learn.cards.isEmpty ? Color.secondary : StatusColor.ok)
-            Text(T(m.learn.cards.isEmpty ? "learn_empty" : "learn_done"))
+            Text(T(m.learn.cards.isEmpty ? "learn_empty" : (place != nil ? "r34_place_none" : "learn_done")))
                 .multilineTextAlignment(.center).foregroundStyle(.secondary)
             stats
             Spacer()
@@ -273,8 +294,10 @@ struct LearnView: View {
         }
     }
 
-    private func grade(_ card: LeitnerDeck.Card, _ knew: Bool) {
+    private func grade(_ card: LeitnerDeck.Card, _ knew: Bool, easy: Bool = false) {
         m.answerCard(card.id, knew: knew)
+        planner.rate(card.id, easy ? .easy : (knew ? .good : .again), now: Date())
+        planner.save()
         knew ? Haptics.success() : Haptics.tap()
         revealed = false
         now = Date()

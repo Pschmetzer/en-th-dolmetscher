@@ -4,3 +4,4 @@
 "NSPhotoLibraryUsageDescription" = "Chọn ảnh thực đơn hoặc biển báo để Dolmetscher đọc và dịch văn bản.";
 "NSFaceIDUsageDescription" = "Face ID mở khóa lịch sử hội thoại khi bạn bật khóa lịch sử.";
 "NSLocationWhenInUseUsageDescription" = "Vị trí của bạn chỉ hiện trên màn hình khẩn cấp để bạn cho người giúp đỡ biết bạn đang ở đâu. Nó không bao giờ rời khỏi iPhone.";
+"NSLocalNetworkUsageDescription" = "Ở chế độ hai thiết bị, Dolmetscher tìm iPhone thứ hai ở gần để gửi câu trực tiếp. Không có gì được gửi lên internet.";
