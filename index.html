@@ -981,13 +981,13 @@ function buildModes() {
   $('enVarWrap').style.display = (pair.a === 'en' || pair.b === 'en') ? '' : 'none';
   buildVariants(); updatePreBtn(); $('typeBName').textContent = lname(pair.b);
   for (const [id, w] of [['btnYes', 'yes'], ['btnNo', 'no']]) {
-    const b = $(id); b.textContent = (w === 'yes' ? '✓ ' : '✕ ') + t(w) + ' · ';
-    const s = document.createElement('span'); s.lang = pair.b; s.textContent = LANGS[pair.b][w]; b.appendChild(s);
+    const b = $(id); b.textContent = (w === 'yes' ? '✓ ' : '✕ ') + t(w);
+    if (t(w) !== LANGS[pair.b][w]) { b.append(' · '); const s = document.createElement('span'); s.lang = pair.b; s.textContent = LANGS[pair.b][w]; b.appendChild(s); }
   }
   const ar = $('ansRow'); ar.textContent = ''; ar.hidden = pair.b !== 'th';   // weitere Kurzantworten (Thai-Sätze ohne Geschlechtsendung)
   for (const [k, th] of ANSWERS) {
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'small'; b.textContent = t(k) + ' · ';
-    const x = document.createElement('span'); x.lang = 'th'; x.textContent = th; b.appendChild(x);
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'small'; b.textContent = t(k);
+    if (t(k) !== th) { b.append(' · '); const x = document.createElement('span'); x.lang = 'th'; x.textContent = th; b.appendChild(x); }   // Thai-Oberfläche: nicht doppelt
     b.onclick = () => { showBig(th, 'th'); if ($('speak').checked) sayNow(th, 'th'); }; ar.appendChild(b);
   }
   $('partnerTitle').textContent = LANGS[pair.b].native; $('partnerTitle').lang = pair.b;

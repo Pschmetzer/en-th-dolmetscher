@@ -307,3 +307,6 @@ def test_show_mode_has_persistent_colour_swap():
     assert "#partner.show.inv { background:#fff; color:#000; }" in HTML
     assert "settings.showInv = !settings.showInv; saveSettings();" in SCRIPT and "id = 'btnPartnerInv'" in SCRIPT
     assert all("invLbl" in S for S in web_str().values())
+
+def test_quick_answers_do_not_repeat_the_thai_label_in_thai_ui():
+    assert "if (t(k) !== th) { b.append(' · ');" in SCRIPT
