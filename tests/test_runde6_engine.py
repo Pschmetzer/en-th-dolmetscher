@@ -220,7 +220,7 @@ def test_catch_up_tempo(monkeypatch, mode, behind, boost):
 
 
 def test_catch_up_ueberspringt_nur_bei_skip():
-    assert 'and CATCH_UP["mode"] == "skip"' in SRC
+    assert "self.skip_wanted(it[" in SRC and 'mode != "skip"' in SRC     # Prüfung steckt in Speaker.skip_wanted
 
 
 def test_startargumente_runde6():

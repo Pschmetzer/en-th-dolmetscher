@@ -619,6 +619,8 @@ App-Pipe nicht schnell genug abnahm, siehe Log).
 - **Hinweis `mic_ambiguous`** (`hint`, `n`): mehrere Mikrofone heißen gleich; die Engine nimmt das erste – für ein bestimmtes Gerät den Index
   in `mic` angeben.
 - **Neural-Stimme und Proxy:** ohne `DOLMETSCHER_TTS_NO_PROXY` läuft der Text über den in `HTTP(S)_PROXY` eingestellten Proxy. Bei 403 wegen falscher Systemuhr übernimmt die Engine die Serverzeit automatisch.
+- **`power`** `{battery, beam}` (nur mit `--model auto`): Akku/Netz hat zur Laufzeit gewechselt; im Akkubetrieb rechnet die Engine mit Beam 1,
+  im Netzbetrieb wieder mit dem vorherigen Wert. Beim Start im Netzbetrieb kommt nichts.
 - **Sprachbefehle** `repeat_slow` („repeat slowly“) und `repeat_prev` („repeat the previous one“) erscheinen als Befehlsschlüssel in `command`.
 - **`subtitles`** `{path, cues}`: `--file … --subtitles` fertig geschrieben.
 - **Preset-Feld `tuning`** (optional): `{silence 0.4-2, sensitivity low|normal|high, let_finish 0-5, catch_up
