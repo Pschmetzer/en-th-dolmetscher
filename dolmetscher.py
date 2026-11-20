@@ -18,6 +18,9 @@ import argparse, atexit, collections, difflib, errno, functools, hashlib, html, 
     urllib.error, urllib.parse, urllib.request
 import numpy as np
 import presets
+from numwords import _SPEAK_NUM, _NUM_KEEP_BEFORE, _TH_DIG, _TH_POS, _th_chunk, speak_numbers_th, thai_number_words  # noqa: F401,E501
+from thaiparticles import (_TH_FEMALE, _TH_KA, _TH_KRUB, _TH_MALE, _TH_Q_END, _TH_STRETCH, fit_thai_particles,  # noqa: F401
+                           thai_speaker_sex, thai_stretch)
 
 # Nr. 42: faster_whisper (ctranslate2, PyAV) braucht beim Import mehrere Sekunden. Erst beim Laden des Modells
 # importieren, damit `loading` sofort kommt. Tests ersetzen `WhisperModel` direkt.
@@ -1313,14 +1316,6 @@ _NORM_QUOTES = str.maketrans({"’": "'", "‘": "'", "ʼ": "'", "`": "'", "´":
 
 
 _TH_GAP = re.compile(r"(?<=[ก-๛])\s+(?=[ก-๛])")                 # Thai trennt Wörter nur nach Gusto mit Leerzeichen
-_TH_STRETCH = re.compile(r"([ก-ฺเ-ๅๆ])\1{2,}")                  # ค่าาา, ครับบบ: Dehnung (3+ gleiche Zeichen)
-
-
-def thai_stretch(s):
-    """Dehnungen normalisieren: ครับบบ -> ครับ, ค่าาา -> ค่า (3+ gleiche Konsonanten/Vokale -> eines)."""
-    return _TH_STRETCH.sub(r"\1", s) if s else s
-
-
 @functools.lru_cache(maxsize=2048)
 def _norm(s):
     """Cache-Schlüssel: Groß/klein, Leerraum, . , 。 egal – ? und ! bleiben (Frage ≠ Aussage). Thai: Leerzeichen
@@ -2296,8 +2291,9 @@ def llm_month_usd():
         try:
             with open(LLM_SPEND_FILE, encoding="utf-8") as f:
                 d = json.load(f)
-            if isinstance(d, dict) and d.get("month") == m and isinstance(d.get("usd"), (int, float)):
-                usd = max(0.0, float(d["usd"]))
+            if (isinstance(d, dict) and d.get("month") == m and isinstance(d.get("usd"), (int, float))
+                    and not isinstance(d.get("usd"), bool) and math.isfinite(float(d["usd"]))):
+                usd = max(0.0, float(d["usd"]))          # Runde 25: "Infinity"/"NaN" in der Datei sperrte Claude dauerhaft
         except (OSError, ValueError):
             pass
         _SPEND.update(month=m, usd=usd)
@@ -2335,19 +2331,6 @@ def llm_over_budget():
         emit("error", code="llm_budget",
              msg=f"Claude-Monatslimit (${b:.2f}) erreicht – übersetze bis Monatsende mit Google")
     return True
-
-
-_TH_FEMALE = re.compile(r"ค่ะ|คะ(?!แนน|ยั้น|เน|น้า|นอง|นึง|ยอ)|ดิฉัน")
-_TH_MALE = re.compile(r"ครับ|คับ|กระผม")
-
-
-def thai_speaker_sex(text):
-    """Nr. 51: Geschlecht der Thai sprechenden Person aus Höflichkeitspartikeln ("female"/"male"/None).
-    Nur eindeutige Fälle: beide Formen im Satz (Zitat) oder keine -> None. คะแนน (Punkte), บังคับ, คับแคบ … zählen
-    nicht."""
-    t = re.sub(r"คะแนน|คะน้า|คะนอง|คะนึง|บังคับ|คับแคบ|คับคั่ง|คับข้อง", "", text or "")
-    f, m = bool(_TH_FEMALE.search(t)), bool(_TH_MALE.search(t))
-    return "female" if f and not m else "male" if m and not f else None
 
 
 # Anrede je Zielsprache (informell, formell): Claude rät sonst du/Sie, tú/usted, tu/vous, Plain-/Keigo-Form
@@ -2402,34 +2385,6 @@ def register_hint(dst, style, formality="auto"):
         return f" Address form in {lang_name(dst)}: use {r[0] if style == 'casual' else r[1]}."
     form = {"ja": JA_LEVEL, "ko": KO_LEVEL}.get(dst, {}).get(lvl) or (r[0] if lvl == "informal" else r[1])
     return f" Address form in {lang_name(dst)}: use {form}."
-
-
-_TH_Q_END = re.compile(r"(ไหม|มั้ย|หรือ|เหรอ|หรือเปล่า|รึเปล่า|อะไร|ไหน|ใคร|เท่าไร|เท่าไหร่|เมื่อไร|เมื่อไหร่|ทำไม"
-                       r"|อย่างไร|ยังไง|กี่\S*|\?)\s*$")
-_TH_KA = re.compile(r"ค่ะ|คะ(?!แนน|ยั้น|เน|น้า|นอง|นึง|ยอ)")
-_TH_KRUB = re.compile(r"ครับผม|ครับ|(?<!บัง)คับ(?!แคบ|คั่ง|ข้อง|ขัน|ใจ|ที่)")
-
-
-def fit_thai_particles(text, polite):
-    """Runde 11: Thai-Partikel an das Sprechergeschlecht anpassen (deterministisch, nach Claude). krub: ค่ะ/คะ ->
-    ครับ; ka: ครับ -> ค่ะ (Frage am Satzende: คะ). Enthält ein Text beide Formen (Zitat), bleibt er
-    unverändert, ebenso Text ohne Partikel."""
-    if not text or polite not in ("krub", "ka"):
-        return text
-    t = re.sub(r"คะแนน|บังคับ|คับแคบ|คับคั่ง|คับข้อง|คะน้า|คะนอง|คะนึง|คะยั้นคะยอ|คะเน|คับขัน|คับใจ|คับที่", "", text)
-    has_ka, has_krub = bool(_TH_KA.search(t)), bool(_TH_KRUB.search(t))
-    if has_ka and has_krub:
-        return text
-    if polite == "krub" and has_ka:
-        return _TH_KA.sub("ครับ", text)
-    if polite == "ka" and has_krub:
-        def sub(m):
-            before = text[:m.start()].rstrip().split("\n")[-1]
-            after = text[m.end():].lstrip()
-            q = bool(_TH_Q_END.search(before)) and not after[:1].isalnum()
-            return "คะ" if q else "ค่ะ"
-        return _TH_KRUB.sub(sub, text)
-    return text
 
 
 # ---- Runde 23: Latenz der Engine (Claude-Aufruf, Vorab-Übersetzung, Hedge, Namen, Cache) ----
@@ -2908,69 +2863,6 @@ def chunk_long(parts, lang, limit=None):
             p = p[cut:].strip() if cut != limit or p[cut:cut + 1].isspace() else p[cut:]
         out.append(p)
     return [x for x in out if x]
-
-
-_TH_DIG = ("ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า")
-_TH_POS = ("", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน")
-
-
-def _th_chunk(n, higher):
-    """0 < n < 1 000 000 als Thai-Wörter; higher: davor steht schon ein Millionen-Teil (dann „เอ็ด“ statt „หนึ่ง“)."""
-    ds = str(n)
-    out, L = [], len(ds)
-    for i, ch in enumerate(ds):
-        dgt, pos = int(ch), L - 1 - i
-        if dgt == 0:
-            continue
-        if pos == 0:
-            out.append("เอ็ด" if dgt == 1 and (L > 1 or higher) else _TH_DIG[dgt])
-        elif pos == 1:
-            out.append("สิบ" if dgt == 1 else "ยี่สิบ" if dgt == 2 else _TH_DIG[dgt] + "สิบ")
-        else:
-            out.append(_TH_DIG[dgt] + _TH_POS[pos])
-    return "".join(out)
-
-
-def thai_number_words(n):
-    """Ganze Zahl 0 … 999 999 999 999 als Thai-Wörter (350 -> สามร้อยห้าสิบ, 21 -> ยี่สิบเอ็ด); sonst None."""
-    if not isinstance(n, int) or n < 0 or n >= 10 ** 12:
-        return None
-    if n == 0:
-        return _TH_DIG[0]
-    parts, higher = [], False
-    millions = []
-    while n:
-        millions.append(n % 1_000_000)
-        n //= 1_000_000
-    for idx in range(len(millions) - 1, -1, -1):
-        c = millions[idx]
-        if c:
-            parts.append(_th_chunk(c, higher))
-            higher = True
-        if idx:
-            parts.append("ล้าน")
-    return "".join(parts)
-
-
-_NUM_KEEP_BEFORE = re.compile(r"(?:ห้อง|เบอร์|โทร|โทรศัพท์|รหัส|หมายเลข|เลขที่|ไปรษณีย์|แท็กซี่|ชั้น|บัตร|บัญชี)\s*$")
-_SPEAK_NUM = re.compile(r"(?<![\w.,:/\-+#])(\d{1,3}(?:,\d{3})+|\d{1,9})(?:\.(\d{1,6}))?(?![\w:/\-]|[.,]\d)")
-
-
-def speak_numbers_th(text):
-    """Zahlen in Thai-Text als Wörter lesbar machen (die TTS liest Ziffern uneinheitlich): 350 -> สามร้อยห้าสิบ,
-    3.5 -> สามจุดห้า. Nummern (Zimmer, Telefon, Konto), führende Nullen, Uhrzeiten und Datum bleiben Ziffern."""
-    def one(m):
-        raw, frac = m.group(1), m.group(2)
-        digits = raw.replace(",", "")
-        if len(digits) > 1 and (digits[0] == "0" or _NUM_KEEP_BEFORE.search(text[:m.start()])):
-            return m.group(0)
-        words = thai_number_words(int(digits))
-        if words is None:
-            return m.group(0)
-        if frac:
-            words += "จุด" + "".join(_TH_DIG[int(c)] for c in frac)
-        return words
-    return _SPEAK_NUM.sub(one, text)
 
 
 SPEAK_NUMBER_WORDS = {"on": False}     # opt-in: speak_form liest Zahlen als Thai-Wörter (Standard: Ziffern, die Neural-TTS liest sie richtig)  # noqa: E501

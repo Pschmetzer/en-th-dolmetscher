@@ -726,6 +726,7 @@ class Recorder:
         return True
 
     # Engine-Betrieb: Schreiben in eigenem Thread (SQLite-Commit mit fsync hält sonst den Ausgabe-Lock von emit)
+    _q_lock = threading.Lock()
     async_mode = False
     store_speakers = True                           # False: Profilnamen nicht in die Datenbank schreiben
     file_pos = None                                 # --file: Position (s) in der Datei statt Wanduhr (Untertitel)
@@ -747,8 +748,13 @@ class Recorder:
     def _queue(self):
         import queue
         q = getattr(self, "_q", None)
-        if q is None:
-            q = self._q = queue.Queue(maxsize=self.QUEUE_MAX)
+        if q is not None:
+            return q
+        with self._q_lock:                          # Runde 25: emit() ruft utt() aus mehreren Threads, ohne Lock
+            q = getattr(self, "_q", None)
+            if q is not None:
+                return q
+            q = queue.Queue(maxsize=self.QUEUE_MAX)
 
             def work():
                 while True:
@@ -759,6 +765,7 @@ class Recorder:
                     finally:
                         q.task_done()
             threading.Thread(target=work, name="history-writer", daemon=True).start()
+            self._q = q                             # erst jetzt sichtbar: nie eine Queue ohne Schreib-Thread
         return q
 
     def flush(self):

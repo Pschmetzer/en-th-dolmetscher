@@ -184,7 +184,7 @@ mkdir -p "$NEWAPP/Contents/MacOS" "$NEWAPP/Contents/Resources"
 SWIFT_FLAGS=(-O -g -parse-as-library -target "arm64-apple-macos$MIN_MACOS")
 [ "$RELEASE" = 1 ] && SWIFT_FLAGS+=(-D RELEASE_BUILD)
 swiftc "${SWIFT_FLAGS[@]}" -o "$NEWAPP/Contents/MacOS/Dolmetscher" app/*.swift
-cp dolmetscher.py avhelper.py profiles.py presets.py history_store.py hwprofile.py correction_learning.py \
+cp dolmetscher.py numwords.py thaiparticles.py avhelper.py profiles.py presets.py history_store.py hwprofile.py correction_learning.py \
    "$NEWAPP/Contents/Resources/"
 # Gemeinsame Sprachtabelle: Engine (neben dolmetscher.py) und App (Bundle.main) lesen dieselbe Datei.
 cp languages.json "$NEWAPP/Contents/Resources/languages.json"
