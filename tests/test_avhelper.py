@@ -147,20 +147,27 @@ def test_player_vorgewaermter_prozess(monkeypatch):
     assert not d.Player._warmable(["/usr/bin/afplay", "x"], {})
 
 
+def _warte(bedingung, timeout=5.0):
+    """Statt fester Pausen (flaky auf langsamen Runnern): pollt, bis die Bedingung gilt oder das Limit ablaeuft."""
+    ende = d.time.time() + timeout
+    while d.time.time() < ende and not bedingung():
+        d.time.sleep(0.02)
+
+
 def test_download_progress_zaehlt_bytes_im_cache(tmp_path, monkeypatch):
     ev = []
     monkeypatch.setattr(d, "emit", lambda e, **kw: ev.append((e, kw)))
     monkeypatch.setattr(d, "_hub_blobs", lambda repo: str(tmp_path / repo.replace("/", "--")))
     monkeypatch.setattr(d, "_hub_total_mb", lambda repo, rev: 3)
     monkeypatch.setattr(d.DownloadProgress, "INTERVAL", 0.02)
-    blobs = tmp_path / "Systran--faster-whisper-small"
+    blobs = tmp_path / d.model_repo("small").replace("/", "--")  # ohne faster_whisper: Repo "small"
     with d.DownloadProgress("small", "abc"):
         blobs.mkdir()
         (blobs / "x.incomplete").write_bytes(b"\0" * 1_500_000)
-        d.time.sleep(0.2)
+        _warte(lambda: any(kw.get("done_mb") == 2 and kw.get("total_mb") == 3 for e, kw in list(ev)))
         (blobs / "x.incomplete").rename(blobs / "x")
         (blobs / "y").write_bytes(b"\0" * 1_500_000)
-        d.time.sleep(0.2)
+        _warte(lambda: any(kw.get("done_mb") == 3 for e, kw in list(ev)))
     prog = [kw for e, kw in ev if e == "download_progress"]
     assert prog[0]["done_mb"] == 0 and all(p["model"] == "small" for p in prog)
     assert any(p["done_mb"] == 2 and p["total_mb"] == 3 for p in prog)

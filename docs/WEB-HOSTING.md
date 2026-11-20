@@ -31,6 +31,21 @@ Cache-Control: no-cache            (für sw.js und index.html, damit Updates ank
 
 `Content-Type` für `manifest.webmanifest`: `application/manifest+json`.
 
+### Fertige Konfigurationen
+
+Zum Kopieren, jeweils mit denselben Headern wie oben (Domain und Pfade anpassen):
+
+| Server | Datei |
+|---|---|
+| Netlify | [hosting/netlify_headers](hosting/netlify_headers) (als `_headers` ins Wurzelverzeichnis) |
+| Cloudflare Pages | [hosting/cloudflare_headers](hosting/cloudflare_headers) (als `_headers`) |
+| nginx | [hosting/nginx.conf](hosting/nginx.conf) |
+| Caddy | [hosting/Caddyfile](hosting/Caddyfile) |
+
+Die Content-Security-Policy bleibt im `<meta>` von `index.html`; die Dateien setzen nur, was als Meta nicht wirkt
+(`frame-ancestors`) oder ein Header sein muss. Nach dem Ausrollen prüfen: `curl -sI https://example.org/sw.js` zeigt
+`Cache-Control: no-cache`, und die Seite lässt sich nicht in einen fremden `<iframe>` einbetten.
+
 ## Ohne Netz ausprobieren
 
 `python3 -m http.server 8000` im Repository-Ordner, dann http://localhost:8000 (localhost zählt als sicherer Kontext).

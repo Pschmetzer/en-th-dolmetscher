@@ -1,0 +1,18 @@
+# Cloudflare Pages: als `_headers` ins Wurzelverzeichnis der Seite kopieren (gleiche Syntax wie bei Netlify).
+# Cloudflare Workers/Static Assets liest dieselbe Datei. Bei einer Cloudflare-Domain vor einem eigenen Server
+# stattdessen unter Rules > Transform Rules > Modify Response Header dieselben Werte eintragen.
+/*
+  Permissions-Policy: microphone=(self), camera=(), geolocation=()
+  Referrer-Policy: no-referrer
+  Cross-Origin-Opener-Policy: same-origin
+  X-Content-Type-Options: nosniff
+  Content-Security-Policy: frame-ancestors 'none'
+
+/
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+/sw.js
+  Cache-Control: no-cache
+/manifest.webmanifest
+  Content-Type: application/manifest+json

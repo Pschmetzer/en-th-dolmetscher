@@ -188,6 +188,8 @@ def _drain(q):
 
 
 def test_produce_falls_back_to_communicate_and_switches_ws_off(monkeypatch):
+    pytest.importorskip("edge_tts")
+    pytest.importorskip("aiohttp")
     import edge_tts
     monkeypatch.setattr(d, "TTS_CACHE", d.collections.OrderedDict())
     monkeypatch.setattr(d, "_WS_HEALTH", {"fails": 0, "off_until": 0.0})
@@ -209,6 +211,8 @@ def test_produce_falls_back_to_communicate_and_switches_ws_off(monkeypatch):
 
 
 def test_produce_no_fallback_after_audio(monkeypatch):
+    pytest.importorskip("edge_tts")
+    pytest.importorskip("aiohttp")
     import edge_tts
     monkeypatch.setattr(d, "TTS_CACHE", d.collections.OrderedDict())
     monkeypatch.setattr(d, "_ssml", lambda *a: "ssml")

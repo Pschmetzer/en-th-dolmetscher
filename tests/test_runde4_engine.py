@@ -208,6 +208,8 @@ def test_play_span_nur_debug(monkeypatch):
 # --- 36: Websocket-Zeitlimit je Nachricht -------------------------------------------------------------------
 
 def test_ws_haengt_nach_erstem_block(monkeypatch):
+    pytest.importorskip("edge_tts")
+    pytest.importorskip("aiohttp")
     import asyncio
 
     import aiohttp

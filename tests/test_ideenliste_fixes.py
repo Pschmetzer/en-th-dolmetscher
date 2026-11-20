@@ -358,6 +358,8 @@ def test_neither_pair_lang_respects_own_voice():
 # ---- Nr. 15: genutzte edge-tts-Interna existieren noch (schlägt beim Update sofort an) ----------------
 
 def test_edge_tts_internals_present(monkeypatch):
+    pytest.importorskip("edge_tts")
+    pytest.importorskip("aiohttp")
     from edge_tts import communicate as ec
     for name in ("WSS_URL", "WSS_HEADERS", "SEC_MS_GEC_VERSION", "DRM", "TTSConfig", "mkssml", "escape",
                  "remove_incompatible_characters", "ssml_headers_plus_data", "connect_id", "date_to_string",

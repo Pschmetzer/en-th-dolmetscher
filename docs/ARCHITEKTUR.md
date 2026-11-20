@@ -56,7 +56,7 @@ Es gibt zwei getrennte Zustände, die man nicht vermischen darf:
 | `languages.json` | gemeinsame Sprachtabelle (19 Sprachen, Schriften) für Engine, Mac-App und Web; Details und Tests: `tests/test_languages_json.py` |
 | `presets/*.json`, `presets.py`, `presets-index.json` | 156 Phrasenpakete (Daten) für Mac, iPhone und Web; Format: [PRESETS.md](PRESETS.md) |
 | `history_store.py`, `hwprofile.py`, `correction_learning.py`, `satzbuch.py` | Verlauf (SQLite, optional), Modellwahl `--model auto`, Glossar-Vorschläge aus Korrekturen, Export und Prüfung des Satzbuchs (Kommandozeile) |
-| `tools/` | Paket-Werkzeuge (`check_presets.py`, `preset_stats.py`, `preset_search.py`, `preset_quality.py`, `export_phrasebook.py`, `make_presets_index.py`, `sync_web.py`, `review_export.py`, `review_import.py`, `review_status.py`), Swift-Quellen von `translate-helper` (kommt ins Bundle) und des Prototyps `apple-stt` |
+| `tools/` | Paket-Werkzeuge (`check_presets.py`, `preset_stats.py`, `preset_search.py`, `preset_quality.py`, `export_phrasebook.py`, `make_presets_index.py`, `sync_web.py`, `check_doc_links.py` (tote Links in der Doku), `pages_smoke.py` (Smoke-Test der ausgelieferten Seite), `review_export.py`, `review_import.py`, `review_status.py`), Swift-Quellen von `translate-helper` (kommt ins Bundle) und des Prototyps `apple-stt` |
 | `build-support/` | Entitlements, `setup-env.sh` (Einrichtung), `make-stamp.sh` (Stempel) |
 | `bench/` | Benchmark für Erkennung und Übersetzung |
 
