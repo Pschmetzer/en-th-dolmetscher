@@ -4,7 +4,7 @@ import re
 
 import pytest
 
-from _webhelpers import HAVE_NODE, HTML, SCRIPT, func, prelude, run
+from _webhelpers import HAVE_NODE, HTML, SCRIPT, func, prelude, run, web_str
 
 DAY = 86_400_000
 PRE = prelude(funcs=("pbNorm", "pbMatch", "logCsv", "learnProgress", "learnPlan", "titleFor"), lines=("const LEARN_KEY",))
@@ -51,7 +51,7 @@ def test_history_controls_and_strings():
     assert "'\\ufeff' + logCsv(rows)" in SCRIPT   # BOM fuer Excel
     for k in ("logQ", "logCount", "logNone", "logClear", "logClearConfirm", "logCleared", "logShare", "saveCsv", "favOnly", "favNone", "learnProgress",
               "learnPlan", "learnKeys", "micDeniedPre", "micDeniedAct", "netBack", "netOffNow", "noSw", "wipeLocal", "wipeConfirm", "wipeDone", "helpKey", "titleListen"):
-        assert len(re.findall(rf'^  "{k}": ', SCRIPT, re.M)) == 3, k
+        assert all(k in S for S in web_str().values()), k
 
 
 def test_error_states_and_platform_quirks():

@@ -4,7 +4,7 @@ import re
 
 import pytest
 
-from _webhelpers import HAVE_NODE, HTML, ROOT, SCRIPT, func, prelude, run
+from _webhelpers import HAVE_NODE, HTML, ROOT, SCRIPT, func, prelude, run, web_str
 
 SW = (ROOT / "sw.js").read_text(encoding="utf-8")
 PRE = prelude(funcs=("pbNorm", "pbMatch"))
@@ -34,7 +34,7 @@ def test_search_field_and_wiring():
 
 def test_new_strings_in_all_ui_languages():
     for k in ("skipLink", "pbSearch", "pbNoMatch", "pbCount", "copyBtn", "copied", "copyFail", "pbSearchHint"):
-        assert len(re.findall(rf'^  "{k}": ', SCRIPT, re.M)) == 3, k
+        assert all(k in S for S in web_str().values()), k
 
 
 def test_a11y_css():

@@ -7,18 +7,17 @@ import pytest
 from _webhelpers import HAVE_NODE, HTML, ROOT, SCRIPT, func, line, prelude, run
 
 SW = (ROOT / "sw.js").read_text(encoding="utf-8")
-STR_BLOCK = SCRIPT[SCRIPT.index("const STR = {"):SCRIPT.index("function t(key, vars)")]
 KEYS = ("showLbl", "showClose", "favShareLbl", "favLinkBad")
 PRE = prelude(funcs=("favSum", "favUrl", "parseFav", "showFontVw"), lines=("const PRESET_IDS =",)) if HAVE_NODE else ""
 PRE = "const location = { origin: 'https://x.test', pathname: '/app/' };\n" + PRE
 
 
 def test_texts_in_three_languages():
+    from _webhelpers import web_str
+    S = web_str()
     for lg in ("de", "en", "th"):
-        block = STR_BLOCK.split(f' "{lg}": {{', 1)[1]
         for k in KEYS:
-            assert re.search(rf'"{k}": "[^"]+"', block), (lg, k)
-    assert STR_BLOCK.count('"favLinkBad"') == 3
+            assert S[lg][k].strip(), (lg, k)
 
 
 def test_controls_wired_and_sw_bumped():

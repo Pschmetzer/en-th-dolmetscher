@@ -84,7 +84,7 @@ stateDiagram-v2
 
 Weitere Teile: Großansicht (`togglePartner`, History-Eintrag für die Zurück-Taste), Satzbuch (`renderCards`, Pakete aus
 `presets/`, Namen aus `presets-index.json`), Lernkarten (Leitner, `localStorage`), Zahlenkarte (`thaiNumber`), Allergiekarte
-(`allergens.json`), Oberfläche in drei Sprachen (`STR`, `t()`, `data-i18n`). Reine Logik steht als Top-Level-Funktion, damit
+(`allergens.json`), Oberfläche in drei Sprachen (`STR`, `t()`, `data-i18n`; Deutsch steckt in `index.html`, Englisch und Thai in `i18n/en.json` und `i18n/th.json`, die der Service Worker mit speichert; neue Texte in alle drei eintragen). Reine Logik steht als Top-Level-Funktion, damit
 die Tests sie mit node herauslösen können (`tests/_webhelpers.py`).
 
 Grenzen der Sicherheit im Browser: Die Content-Security-Policy steht im `<meta>`, dort wirken `frame-ancestors` und `report-uri` nicht

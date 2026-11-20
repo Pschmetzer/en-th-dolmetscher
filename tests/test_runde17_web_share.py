@@ -3,11 +3,11 @@
 import json
 import re
 
-from _webhelpers import HTML, ROOT, SCRIPT
+from _webhelpers import HTML, ROOT, SCRIPT, web_str
 
 SW = (ROOT / "sw.js").read_text(encoding="utf-8")
 MANIFEST = json.loads((ROOT / "manifest.webmanifest").read_text(encoding="utf-8"))
-STR = json.loads(re.search(r"^const STR = (\{.*?^\});", SCRIPT, re.S | re.M).group(1))
+STR = web_str()
 
 
 def test_texts_in_three_languages():

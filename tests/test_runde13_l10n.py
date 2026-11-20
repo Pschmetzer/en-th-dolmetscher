@@ -151,8 +151,8 @@ def test_mac_table_placeholders_complete_and_nonempty():
 # --- Web -------------------------------------------------------------------------------------------------
 
 def _web_str():
-    i = HTML.index("const STR = {") + len("const STR = ")
-    return json.loads(HTML[i:HTML.index("\n};", i) + 2])
+    from _webhelpers import web_str
+    return web_str()
 
 
 STR = _web_str()

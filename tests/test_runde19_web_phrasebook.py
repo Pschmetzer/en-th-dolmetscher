@@ -4,9 +4,9 @@ import json
 import re
 
 import pytest
-from _webhelpers import HAVE_NODE, HTML, SCRIPT, prelude, run
+from _webhelpers import HAVE_NODE, HTML, SCRIPT, prelude, run, web_str
 
-STR = json.loads(re.search(r"^const STR = (\{.*?^\});", SCRIPT, re.S | re.M).group(1))
+STR = web_str()
 needs_node = pytest.mark.skipif(not HAVE_NODE, reason="node fehlt")
 
 
