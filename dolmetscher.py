@@ -7261,7 +7261,7 @@ def control_loop(eng, jobs=None):
                     continue
                 try:
                     d = json.loads(line)
-                except (ValueError, RecursionError):    # "[[[[…" tief verschachtelt: RecursionError beendete früher die Engine
+                except (ValueError, RecursionError):    # "[[[[…": RecursionError beendete früher die Engine
                     _BAD_JSON["n"] += 1
                     now = time.monotonic()
                     if now - _BAD_JSON["t"] >= 10.0:        # höchstens eine Zeile je 10 s
@@ -8297,7 +8297,7 @@ if __name__ == "__main__":
     a = ap.parse_args()
     if a.profile_stdin:                         # {"enroll", "enroll_lang", "delete_profile", "vocab": [name, wörter]}
         try:
-            req = json.loads(sys.stdin.readline(CTRL_LINE_MAX + 1)[:CTRL_LINE_MAX] or "{}")   # begrenzt, kein Speicher-Fresser
+            req = json.loads(sys.stdin.readline(CTRL_LINE_MAX + 1)[:CTRL_LINE_MAX] or "{}")   # begrenzt
         except (ValueError, RecursionError):
             req = {}
         req = req if isinstance(req, dict) else {}

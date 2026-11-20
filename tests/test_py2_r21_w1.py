@@ -2,8 +2,6 @@
 import json
 import threading
 
-import pytest
-
 import dolmetscher as d
 
 
