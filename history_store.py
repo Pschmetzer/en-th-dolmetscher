@@ -5,6 +5,7 @@ Speichert Äußerungen in einer SQLite-Datei unter
 (Ordner 0700, Datei 0600). Es wird nur aufgezeichnet, wenn der Nutzer es einschaltet
 (`--history` bzw. stdin `{"history": true}`). Texte landen nie im Log.
 """
+import base64
 import csv
 import hashlib
 import hmac
@@ -26,8 +27,18 @@ def home_dir():
     return os.environ.get("DOLMETSCHER_HOME") or os.path.expanduser("~/Library/Application Support/Dolmetscher")
 
 
-def db_path():
-    return os.path.join(home_dir(), "history.sqlite")
+def db_path(encrypted=False):
+    """Verschlüsselter Verlauf liegt in einer eigenen Datei (nie in der Klartext-Datenbank umgewandelt: freie Seiten
+    und WAL würden den alten Klartext behalten)."""
+    return os.path.join(home_dir(), "history-enc.sqlite" if encrypted else "history.sqlite")
+
+
+class HistoryLocked(ValueError):
+    """Verschlüsselter Verlauf: Passwort fehlt oder ist falsch (oder die Datenbank ist gar nicht verschlüsselt)."""
+
+
+ENC_FIELDS = ("text", "translation", "translit")      # Spalten, die im verschlüsselten Verlauf Chiffretext sind
+_FIELD_PREFIX = "enc1:"
 
 
 SUGGESTED_KEEP_DAYS = 30   # Vorschlag für die Oberfläche; ohne ausdrückliche Wahl wird nichts automatisch gelöscht
@@ -36,9 +47,45 @@ SCHEMA_VERSION = 2
 V2_COLUMNS = (("t_begin", "REAL"), ("role", "TEXT"), ("speaker", "TEXT"))
 
 
+class _FieldCipher:
+    """Feldweise Verschlüsselung (nur Standardbibliothek): Schlüssel einmal per scrypt/PBKDF2 aus Passwort und
+    Salz der Datenbank, je Feld frisches Nonce, HMAC-SHA256-Zählerstrom, encrypt-then-MAC mit Spaltenname im MAC
+    (ein vertauschtes Feld fällt auf)."""
+
+    def __init__(self, key):
+        self.enc, self.mac = key[:32], key[32:]
+
+    def verifier(self):
+        return hmac.new(self.mac, b"dolhx-verify", hashlib.sha256).hexdigest()
+
+    def seal(self, col, value):
+        if not value:
+            return value                               # None und "" verraten nichts
+        nonce = os.urandom(16)
+        body = _keystream_xor(self.enc, nonce, str(value).encode("utf-8"))
+        tag = hmac.new(self.mac, col.encode() + nonce + body, hashlib.sha256).digest()[:16]
+        return _FIELD_PREFIX + base64.urlsafe_b64encode(nonce + body + tag).decode("ascii")
+
+    def open(self, col, value):
+        if not isinstance(value, str) or not value.startswith(_FIELD_PREFIX):
+            return value
+        try:
+            raw = base64.urlsafe_b64decode(value[len(_FIELD_PREFIX):].encode("ascii"))
+        except (ValueError, TypeError):
+            return None
+        nonce, body, tag = raw[:16], raw[16:-16], raw[-16:]
+        want = hmac.new(self.mac, col.encode() + nonce + body, hashlib.sha256).digest()[:16]
+        if len(raw) < 32 or not hmac.compare_digest(tag, want):
+            return None                                # verändert/falscher Schlüssel: nie Müll als Text
+        return _keystream_xor(self.enc, nonce, body).decode("utf-8", "replace")
+
+
 class Store:
-    def __init__(self, path=None):
-        self.path = path or db_path()
+    def __init__(self, path=None, passphrase=None):
+        if passphrase is not None and (not isinstance(passphrase, str) or not passphrase):
+            raise HistoryLocked("Passwort fehlt")
+        self._cipher, self._passphrase = None, passphrase
+        self.path = path or db_path(bool(passphrase))
         d = os.path.dirname(self.path)
         fresh = not os.path.isdir(d)
         os.makedirs(d, mode=0o700, exist_ok=True)
@@ -59,7 +106,7 @@ class Store:
         # Nr. 204: eine Verbindung für mehrere Threads – Schreibvorgänge nur unter Lock und als eine Transaktion
         self.lock = threading.RLock()
         # Runde 8: LIKE kennt Groß/klein nur für ASCII ("É" fand man nicht mit "é"): eigene Faltfunktion
-        self.db.create_function("fold", 1, lambda v: (v or "").casefold(), deterministic=True)
+        self.db.create_function("fold", 1, lambda v: (self._dec_any(v) or "").casefold(), deterministic=True)
         # Gelöschte Zeilen mit Nullen überschreiben statt nur freizugeben (gilt pro Verbindung).
         self.db.execute("PRAGMA secure_delete = ON")
         try:                                           # WAL: Leser (Export) blockieren den Schreiber nicht
@@ -74,14 +121,77 @@ class Store:
         self.db.execute("CREATE INDEX IF NOT EXISTS utt_uid ON utt(uid)")           # „replaces“ löscht per uid
         self.db.execute("CREATE INDEX IF NOT EXISTS utt_session_ts ON utt(session, ts)")   # rows(session), sessions()
         self.db.execute("CREATE INDEX IF NOT EXISTS utt_lang ON utt(lang)")        # Runde 22: search(lang=…), stats()
-        self.db.create_function("wc", 1, lambda v: len((v or "").split()), deterministic=True)
-        self.db.create_function("flatkey", 1, lambda v: _flat(v).casefold(), deterministic=True)
+        self.db.create_function("wc", 1, lambda v: len((self._dec_any(v) or "").split()), deterministic=True)
+        self.db.create_function("flatkey", 1, lambda v: _flat(self._dec_any(v)).casefold(), deterministic=True)
         self.db.execute("CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT)")
+        self._init_cipher()
         self.fts = self._init_fts()
         self._migrate()
         self.db.commit()
         self._auto_repair_index()
         self.apply_retention()
+
+    @property
+    def encrypted(self):
+        return self._cipher is not None
+
+    def _init_cipher(self):
+        """Passwort -> Schlüssel (einmal je Öffnen). Salz, Verfahren und Prüfwert stehen in `meta`: ein falsches
+        Passwort wird sofort erkannt (HistoryLocked), nicht erst als Müll in den Zeilen."""
+        meta = dict(self.db.execute("SELECT key, value FROM meta WHERE key LIKE 'enc_%'").fetchall())
+        if not meta and self._passphrase is None:
+            return
+        if self._passphrase is None:
+            raise HistoryLocked("Verlauf ist verschlüsselt – Passwort nötig")
+        if meta:
+            try:
+                salt, kdf = bytes.fromhex(meta["enc_salt"]), int(meta["enc_kdf"])
+                cipher = _FieldCipher(_derive_key(self._passphrase, salt, kdf))
+            except (KeyError, ValueError, MemoryError) as e:
+                raise HistoryLocked("Verlauf: Schlüsselangaben unlesbar") from e
+            if not hmac.compare_digest(cipher.verifier(), meta.get("enc_check", "")):
+                raise HistoryLocked("falsches Passwort")
+        else:
+            if self.db.execute("SELECT 1 FROM utt LIMIT 1").fetchone():
+                raise HistoryLocked("Datenbank enthält Klartext – nicht verschlüsselt")
+            kdf = _KDF_SCRYPT if hasattr(hashlib, "scrypt") else _KDF_PBKDF2
+            salt = os.urandom(16)
+            try:
+                key = _derive_key(self._passphrase, salt, kdf)
+            except (ValueError, MemoryError):
+                kdf = _KDF_PBKDF2
+                key = _derive_key(self._passphrase, salt, kdf)
+            cipher = _FieldCipher(key)
+            with self.db:
+                self.db.executemany("INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)",
+                                    [("enc_salt", salt.hex()), ("enc_kdf", str(kdf)),
+                                     ("enc_check", cipher.verifier())])
+        self._cipher = cipher
+        self._passphrase = None                        # Passwort nicht länger im Speicher halten als nötig
+
+    def _enc(self, col, v):
+        return self._cipher.seal(col, v) if self._cipher else v
+
+    def _dec(self, col, v):
+        return self._cipher.open(col, v) if self._cipher else v
+
+    def _dec_any(self, v):
+        """Für SQL-Funktionen (fold/wc/flatkey), die die Spalte nicht kennen: jede der Textspalten probieren."""
+        if not self._cipher or not isinstance(v, str) or not v.startswith(_FIELD_PREFIX):
+            return v
+        for c in ENC_FIELDS:
+            out = self._cipher.open(c, v)
+            if out is not None:
+                return out
+        return None
+
+    def _plain(self, row):
+        """Zeile (dict) mit entschlüsselten Textfeldern; ohne Verschlüsselung unverändert."""
+        if self._cipher:
+            for c in ENC_FIELDS:
+                if c in row:
+                    row[c] = self._dec(c, row[c])
+        return row
 
     def _migrate(self):
         """Nr. 207: Schema-Version (PRAGMA user_version). Neue Spalten kommen hier als Schritt
@@ -100,6 +210,8 @@ class Store:
             self.db.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
 
     def _init_fts(self):
+        if self._cipher:                               # Chiffretext lässt sich nicht indizieren (Suche über fold())
+            return False
         # trigram: Teilstring-Suche auch für Thai (ohne Leerzeichen); fehlt FTS5/trigram -> LIKE
         try:
             self.db.execute("CREATE VIRTUAL TABLE IF NOT EXISTS utt_fts USING fts5("
@@ -126,7 +238,12 @@ class Store:
         with self.lock, self.db:
             if replaces:
                 self._delete_rows("uid = ?", (replaces,))
-            if uid:      # Runde 22: dieselbe uid mit gleichem Inhalt (Doppel-Emission) legt keine zweite Zeile an
+            if uid and self._cipher:       # Chiffretext ist je Feld verschieden: Vergleich nach dem Entschlüsseln
+                for rid, t, tr in self.db.execute(
+                        "SELECT id, text, translation FROM utt WHERE uid = ? AND session = ?", (uid, session)):
+                    if self._dec("text", t) == text and self._dec("translation", tr) == translation:
+                        return rid
+            elif uid:    # Runde 22: dieselbe uid mit gleichem Inhalt (Doppel-Emission) legt keine zweite Zeile an
                 dup = self.db.execute(
                     "SELECT id FROM utt WHERE uid = ? AND text IS ? AND translation IS ? AND session = ? LIMIT 1",
                     (uid, text, translation, session)).fetchone()
@@ -135,7 +252,8 @@ class Store:
             cur = self.db.execute(
                 "INSERT INTO utt (uid, ts, session, lang, text, translation, translit, conf, provider, t_begin, role,"
                 " speaker) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
-                (uid, time.time() if ts is None else ts, session, lang, text, translation, translit, conf, provider,
+                (uid, time.time() if ts is None else ts, session, lang, self._enc("text", text),
+                 self._enc("translation", translation), self._enc("translit", translit), conf, provider,
                  t_begin, role, speaker))
             if self.fts:
                 self.db.execute("INSERT INTO utt_fts (rowid, text, translation) VALUES (?,?,?)",
@@ -275,7 +393,7 @@ class Store:
                 cols = [c[0] for c in cur.description]
                 batch = cur.fetchall()
             for r in batch:
-                yield dict(zip(cols, r))
+                yield self._plain(dict(zip(cols, r)))
             if len(batch) < chunk:
                 return
             last_ts, last_id = batch[-1][cols.index("ts")], batch[-1][cols.index("id")]
@@ -287,7 +405,7 @@ class Store:
         with self.lock:
             cur = self.db.execute(q + " ORDER BY ts, id", args)
             cols = [c[0] for c in cur.description]
-            return [dict(zip(cols, r)) for r in cur.fetchall()]
+            return [self._plain(dict(zip(cols, r))) for r in cur.fetchall()]
 
     MAX_IMPORT_ROWS = 100000
 
@@ -313,7 +431,7 @@ class Store:
             for k, _n, ts0 in best:       # Anzeigetext = erste Schreibweise, nur für die Top-Treffer geholt
                 r = self.db.execute("SELECT text FROM utt WHERE ts = ? AND flatkey(text) = ? ORDER BY id LIMIT 1",
                                     (ts0, k)).fetchone()
-                shown[k] = _flat(r[0]) if r else k
+                shown[k] = _flat(self._dec("text", r[0])) if r else k
         per_day = {d: {"utterances": n, "words": w or 0} for d, n, w in days}
         top_s = sorted(({"text": shown[k], "count": n} for k, n, _ in best), key=lambda x: (-x["count"], x["text"]))
         return {"total": total, "sessions": sessions, "first": first, "last": last, "per_day": per_day,
@@ -340,8 +458,14 @@ class Store:
                 except (KeyError, TypeError, ValueError):
                     bad += 1
                     continue
-                if self.db.execute("SELECT 1 FROM utt WHERE ts BETWEEN ? AND ? AND session = ? AND text = ? LIMIT 1",
-                                   (ts - 0.002, ts + 0.002, sess, body)).fetchone():   # nutzt utt_session_ts-Index
+                if self._cipher:
+                    near = self.db.execute("SELECT text FROM utt WHERE ts BETWEEN ? AND ? AND session = ?",
+                                           (ts - 0.002, ts + 0.002, sess))
+                    same = any(self._dec("text", t) == body for (t,) in near)
+                else:
+                    same = self.db.execute("SELECT 1 FROM utt WHERE ts BETWEEN ? AND ? AND session = ? AND text = ? "
+                                           "LIMIT 1", (ts - 0.002, ts + 0.002, sess, body)).fetchone()  # utt_session_ts
+                if same:
                     skipped += 1
                     continue
                 tr = r.get("translation") if isinstance(r.get("translation"), str) else None
@@ -349,7 +473,8 @@ class Store:
                 cur = self.db.execute(
                     "INSERT INTO utt (ts, session, lang, text, translation, translit, conf, provider, role, speaker)"
                     " VALUES (?,?,?,?,?,?,?,?,?,?)",
-                    (ts, sess, lang, body, tr, r.get("translit") if isinstance(r.get("translit"), str) else None,
+                    (ts, sess, lang, self._enc("text", body), self._enc("translation", tr),
+                     self._enc("translit", r.get("translit") if isinstance(r.get("translit"), str) else None),
                      r.get("confidence") if isinstance(r.get("confidence"), (int, float)) else None,
                      r.get("provider") if isinstance(r.get("provider"), str) else None,
                      r.get("role") if r.get("role") in ("me", "other") else None,
@@ -373,7 +498,7 @@ class Store:
         with self.lock:
             r = self.db.execute("SELECT lang, translation FROM utt WHERE translation IS NOT NULL AND translation != '' "
                                 "ORDER BY ts DESC, id DESC LIMIT 1").fetchone()
-        return {"lang": r[0], "translation": r[1]} if r else None
+        return {"lang": r[0], "translation": self._dec("translation", r[1])} if r else None
 
     def sessions(self):
         """[(session, start_ts, count)] – neueste zuerst."""
@@ -395,7 +520,7 @@ class Store:
                     cols = [c[0] for c in near.description]
                     found = near.fetchall()
                 r["context"] = [{"id": x["id"], "lang": x["lang"], "text": x["text"], "translation": x["translation"]}
-                                for x in (dict(zip(cols, y)) for y in found)]
+                                for x in (self._plain(dict(zip(cols, y))) for y in found)]
         return rows
 
     def _search(self, query, limit=200, lang=None, session=None, since=None):
@@ -421,7 +546,7 @@ class Store:
             cur = self.db.execute(f"SELECT * FROM utt WHERE {where} ORDER BY ts DESC, id DESC LIMIT ?",
                                   (*args, max(0, int(limit))))
             cols = [c[0] for c in cur.description]
-            return [dict(zip(cols, r)) for r in cur.fetchall()]
+            return [self._plain(dict(zip(cols, r))) for r in cur.fetchall()]
 
 
 def valid_days(days):
@@ -705,7 +830,9 @@ class Recorder:
         except Exception:
             pass
 
-    def enable(self, on=True, keep_days=None):
+    last_error = None                                # Runde 25: Ursache des letzten gescheiterten enable() (ohne Text)
+
+    def enable(self, on=True, keep_days=None, passphrase=None):
         """-> True, wenn der Verlauf im gewünschten Zustand ist; False, wenn die Datenbank nicht geht.
         keep_days="suggested" setzt SUGGESTED_KEEP_DAYS (Option; der Standard bleibt unbegrenzt, wie dokumentiert)."""
         if keep_days == "suggested":
@@ -716,12 +843,17 @@ class Recorder:
         if keep_days is not None:
             self.keep_days = valid_days(keep_days)   # ungültig (0, negativ …): nicht löschen, Verlauf bleibt an
         if self.on:
+            self.last_error = None
             try:
-                self.store = self.store or Store()
+                if passphrase and self.store is not None and not self.store.encrypted:
+                    self.store.close()                # Passwort gesetzt: nie weiter in die Klartext-Datei schreiben
+                    self.store = None
+                self.store = self.store or Store(passphrase=passphrase or None)
                 if self.keep_days:
                     self.store.purge(self.keep_days)
-            except Exception:
+            except Exception as e:
                 self.on = False
+                self.last_error = e
                 return False
         return True
 
@@ -827,8 +959,19 @@ def wants_cli(a):
                 or getattr(a, "history_sessions", False))
 
 
+CLI_PASSWORD_ENV = "DOLMETSCHER_HISTORY_PASSWORD"      # Runde 25: App gibt das Passwort an die CLI-Abfragen mit
+
+
 def run_cli(a):
-    st = Store()
+    pw = os.environ.get(CLI_PASSWORD_ENV) or None
+    try:
+        if pw and not os.path.exists(db_path(True)):
+            print(json.dumps({"error": "kein verschlüsselter Verlauf vorhanden"}))
+            return 2
+        st = Store(passphrase=pw)
+    except HistoryLocked:
+        print(json.dumps({"error": "falsches Passwort"}))
+        return 2
     try:
         if a.history_export:
             session = a.history_session

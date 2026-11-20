@@ -6072,6 +6072,7 @@ CTRL_SPEC = {
     "defer": True, "llm_router": True, "llm_stream": True, "parallel_alt": True, "speak_numbers": True,
     "stt_prompt": True,
     "source": True,                            # Runde 25: mic | system
+    "history_password": False,                 # Runde 25: Geheimnis, nie ins Log
     "group_speakers": True,                    # Runde 25: Gruppenmodus (Sprecher 1, 2, 3 …)
 }
 CTRL_SPEC.update({f"tr_{k}": True for k in LANGS})
@@ -8060,6 +8061,14 @@ def apply_control(eng, d):
             later.append(eng.reload_profiles)
         ok, v = _flag(d, "partial")
         if ok: FAST["partial"] = v
+        if "history_password" in d:            # Runde 25: verschlüsselter Verlauf; gilt für das nächste `history`
+            hp = d["history_password"]
+            if hp is None or hp == "":
+                HIST_PASS["pw"] = None
+            elif isinstance(hp, str) and len(hp) <= 256:
+                HIST_PASS["pw"] = hp
+            else:
+                _control_invalid("history_password")
         ok, v = _flag(d, "history")
         if ok:
             days = d.get("history_days")
@@ -8154,6 +8163,9 @@ def reset_learning(eng, name):
     emit("learning_reset", name=name, ok=bool(ok))
 
 
+HIST_PASS = {"pw": None}        # Runde 25: Passwort des verschlüsselten Verlaufs (nur im Speicher, nie im Log/state)
+
+
 def history_enable(on, days=None):
     """Nr. 191: Verlauf an/aus; scheitert die Datenbank oder ist history_days ungültig, nicht still."""
     import history_store
@@ -8163,8 +8175,11 @@ def history_enable(on, days=None):
     if isinstance(days, bool) or (days not in (None, 0) and history_store.valid_days(days) is None):   # 0 = nie löschen
         days = None
         emit("error", code="history_days_invalid", msg="Aufbewahrungsdauer ungültig – es wird nichts gelöscht")
-    if not rec.enable(on, days) and on:
-        emit("error", code="history_failed", msg="Verlauf kann nicht gespeichert werden – Aufzeichnung aus")
+    if not rec.enable(on, days, passphrase=HIST_PASS["pw"]) and on:
+        if isinstance(rec.last_error, history_store.HistoryLocked):    # Text ohne Passwort/Ursachendetails
+            emit("error", code="history_failed", msg="Verlauf: falsches Passwort – Aufzeichnung aus")
+        else:
+            emit("error", code="history_failed", msg="Verlauf kann nicht gespeichert werden – Aufzeichnung aus")
 
 
 def _history_file_pos(pos):
