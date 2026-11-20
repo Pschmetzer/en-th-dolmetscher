@@ -405,6 +405,8 @@ def parse_command(cmd):
             continue
         if any(ch.isdigit() for ch in cand):   # "volume 3" ist kein "louder"
             continue
+        if cand in _WEAK_CMD and len(words) > 2:
+            continue                   # "pass me the salt": schwaches Alltagswort nie als Befehl
         hit = difflib.get_close_matches(cand, _VOCAB_KEYS, n=2, cutoff=0.85)
         # nur eindeutig: ein zweiter Treffer aus einer anderen Befehlsgruppe gilt als unsicher
         if hit and all(_VOCAB[h] == _VOCAB[hit[0]] for h in hit):
@@ -936,7 +938,8 @@ def log(d):
         if not _LOG_FAIL["told"]:                 # Platte voll/Rechte: einmal melden, nicht stumm weiterlaufen
             _LOG_FAIL["told"] = True
             try:
-                emit("error", msg="Protokolldatei nicht beschreibbar – Fehlersuche eingeschränkt")
+                emit("error", code="log_unavailable",
+                     msg="Protokolldatei nicht beschreibbar – Fehlersuche eingeschränkt")
             except Exception:                     # noqa: BLE001 – Logging darf nie stören
                 pass
 
@@ -1381,7 +1384,7 @@ def _check_llm(text, out, dst, src=None):
     out = _strip_quotes(_LLM_PREFIX.sub("", out))
     if not out:
         raise _Implausible("unerwartet: leere Claude-Ausgabe")
-    if _LLM_REFUSAL.search(out) or re.search(r"\n\s*\(?(?:note|notes|hinweis|alternative)", out, re.I):
+    if _LLM_REFUSAL.search(out) or re.search(r"\n\s*\(?(?:notes?|hinweis|alternatives?)\s*[:)]", out, re.I):
         raise _Implausible("unerwartet: Claude-Ausgabe mit Ablehnung/Anmerkung")
     if _untranslated(text, out, src, dst) and not _looks_like_name(text):
         raise _Implausible(f"unerwartet: Claude-Ausgabe nicht auf {lang_name(dst, True)}")
@@ -1923,6 +1926,14 @@ def _mask_tokens(text):
     return _TOKEN_RX.sub(lambda m: " " * len(m.group(0)), text)
 
 
+# Orte, die Reisende oft nennen: Name bleibt Name (Latein <-> Thai-Schreibung), ohne Anbieter-Umweg
+TRAVEL_PLACES = (("Sukhumvit", "สุขุมวิท"), ("Silom", "สีลม"), ("Khao San", "ข้าวสาร"), ("Wat Pho", "วัดโพธิ์"),
+                 ("Wat Arun", "วัดอรุณ"), ("Suvarnabhumi", "สุวรรณภูมิ"), ("Don Mueang", "ดอนเมือง"),
+                 ("Chatuchak", "จตุจักร"), ("Pattaya", "พัทยา"), ("Phuket", "ภูเก็ต"), ("Chiang Mai", "เชียงใหม่"),
+                 ("Ayutthaya", "อยุธยา"), ("Hua Hin", "หัวหิน"), ("Krabi", "กระบี่"), ("Koh Samui", "เกาะสมุย"),
+                 ("Asoke", "อโศก"), ("Siam", "สยาม"), ("Nana", "นานา"))
+
+
 def _protect(text, dst):
     """Glossar für Google/MyMemory: Einträge durch Platzhalter [1], [2] … ersetzen (überstehen beide
     Dienste unverändert) und merken, was danach eingesetzt wird – die Übersetzung aus dem Glossar,
@@ -1951,6 +1962,21 @@ def _protect(text, dst):
             text = new
             masked = _mask_tokens(text)
             slots.append(val)
+    for en, th in TRAVEL_PLACES:               # Orts-/Straßennamen: Google soll sie nicht "übersetzen"
+        if len(slots) >= 20:
+            break
+        for find, val in ((en, th if dst == "th" else en), (th, en if "latin" in LANGS[dst]["script"] else th)):
+            if _term_rx(find).search(text) and find.lower() != val.lower():
+                if any(find.lower() == a.lower() for a, _ in GLOSSARY):
+                    continue                    # eigenes Glossar hat Vorrang
+                spans = [m.span() for m in _TOKEN_RX.finditer(text)]
+                n = len(slots) + 1
+                new = _term_rx(find).sub(
+                    lambda m: m.group(0) if any(x <= m.start() < y for x, y in spans) else f" [{n}] ", text)
+                if new != text:                 # Treffer in URL/E-Mail ("www.siam.com") bleiben unberührt
+                    text = new
+                    slots.append(val)
+                    break
     return re.sub(r"[ \t]{2,}", " ", text).strip(), slots
 
 
@@ -2188,7 +2214,7 @@ def thai_speaker_sex(text):
     """Nr. 51: Geschlecht der Thai sprechenden Person aus Höflichkeitspartikeln ("female"/"male"/None).
     Nur eindeutige Fälle: beide Formen im Satz (Zitat) oder keine -> None. คะแนน (Punkte), บังคับ, คับแคบ … zählen
     nicht."""
-    t = re.sub(r"คะแนน|บังคับ|คับแคบ|คับคั่ง|คับข้อง", "", text or "")
+    t = re.sub(r"คะแนน|คะน้า|คะนอง|คะนึง|บังคับ|คับแคบ|คับคั่ง|คับข้อง", "", text or "")
     f, m = bool(_TH_FEMALE.search(t)), bool(_TH_MALE.search(t))
     return "female" if f and not m else "male" if m and not f else None
 
@@ -2249,7 +2275,7 @@ def register_hint(dst, style, formality="auto"):
 
 _TH_Q_END = re.compile(r"(ไหม|มั้ย|หรือ|เหรอ|หรือเปล่า|รึเปล่า|อะไร|ไหน|ใคร|เท่าไร|เท่าไหร่|เมื่อไร|เมื่อไหร่|ทำไม"
                        r"|อย่างไร|ยังไง|กี่\S*|\?)\s*$")
-_TH_KA = re.compile(r"ค่ะ|คะ(?!แนน|ยั้น|เน)")
+_TH_KA = re.compile(r"ค่ะ|คะ(?!แนน|ยั้น|เน|น้า|นอง|นึง)")
 _TH_KRUB = re.compile(r"ครับ|(?<!บัง)คับ(?!แคบ|คั่ง|ข้อง|ขัน|ใจ|ที่)")
 
 
@@ -2319,9 +2345,9 @@ def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
         r = client.messages.create(**kw)
     except Exception as e:
         if getattr(e, "status_code", None) == 400 and "output_config" in kw:   # Modell kennt effort nicht
-            LLM["no_effort"] = True
             kw.pop("output_config")
             r = client.messages.create(**kw)
+            LLM["no_effort"] = True                 # erst nach gelungenem Neuversuch (400 wegen Guthaben: nein)
         else:
             raise
     pin, pout = LLM_PRICE.get(LLM["model"], (4.0, 20.0))
@@ -2412,9 +2438,10 @@ _DEGREE = re.compile(r"(?<=\d)\s?°\s?([CF])\b")
 _EMOJI = re.compile("[\U0001F000-\U0001FAFF\u2600-\u27BF\u2B50\u2B55\uFE0F\u200D\u20E3]+")
 _THAI_DIGITS = str.maketrans("๐๑๒๓๔๕๖๗๘๙", "0123456789")
 _TH_ABBREV = [(re.compile(a), b) for a, b in (
-    (r"กทม\.?(?=\s|$)", "กรุงเทพมหานคร"), (r"ฯลฯ", "และอื่นๆ"), (r"(?<=\s)น\.(?=\s*\d)", "นาฬิกา"),
-    (r"(?<=\s)ซ\.(?=\s*\S)", "ซอย"), (r"(?<=\s)ถ\.(?=\s*\S)", "ถนน"), (r"(?<=\s)รร\.(?=\s*\S)", "โรงเรียน"),
-    (r"(?<=\s)รพ\.(?=\s*\S)", "โรงพยาบาล"))]
+    (r"กทม\.?(?=\s|$)", "กรุงเทพมหานคร"), (r"ฯลฯ", "และอื่นๆ"), (r"(?:(?<=\s)|^)น\.(?=\s*\d)", "นาฬิกา"),
+    (r"(?:(?<=\s)|^)ซ\.(?=\s*\S)", "ซอย"),
+    (r"(?:(?<=\s)|^)ถ\.(?=\s*\S)", "ถนน"), (r"(?:(?<=\s)|^)รร\.(?=\s*\S)", "โรงเรียน"),
+    (r"(?:(?<=\s)|^)รพ\.(?=\s*\S)", "โรงพยาบาล"))]
 MAX_SPEAK_CHARS = 300             # längere Teile einer Ausgabe werden geteilt (edge-tts/say: Frist, Abbruchrisiko)
 
 
@@ -2477,7 +2504,7 @@ def _laugh_sub(text, repl=" "):
 FILLERS = {
     # nur eigenständige Zögerlaute und Einschübe zwischen Kommas ("It's, you know, good"); "As you know,"
     # oder "Would you like, a coffee" bleiben unberührt
-    "en": re.compile(r"(?:(?<=\s)|^)(?:u+m+|u+h+|e+r+m*|h+m+|m+h+m+)\b[,]?(?=\s|[.!?]|$)"
+    "en": re.compile(r"(?:(?<=\s)|^)(?:u+m+|u+h+|e+r+m+|e{2,}r+|h+m+|m+h+m+)\b[,]?(?=\s|[.!?]|$)"
                      r"|(?<=\w),\s*(?:you know|i mean|like|sort of|kind of)\s*,(?=\s)", re.I),
     # nur als eigenes Wort (sonst würde "อ่า" aus "อ่าน" gerissen)
     "th": re.compile(r"(?:(?<=\s)|^)(?:เอ่อ|เออ|อืม|อ่า|เอ๊ะ)(?=\s|$)"),
@@ -3089,7 +3116,8 @@ _TH_DIGIT_W = {"ศูนย์": 0, "หนึ่ง": 1, "เอ็ด": 1, "�
                "หก": 6, "เจ็ด": 7, "แปด": 8, "เก้า": 9}
 _TH_MULT_W = {"สิบ": 10, "ร้อย": 100, "พัน": 1000, "หมื่น": 10_000, "แสน": 100_000, "ล้าน": 1_000_000}
 # Wörter, die Zahlwörter enthalten, aber keine Zahl sind (ร้อยละ = Prozent, แสนดี = sehr gut, ...)
-_TH_NUM_FALSE = re.compile(r"(สามารถ|สามี|สามเณร|ห้าม|ห้าง|เก้าอี้|หกล้ม|ยี่ห้อ|เรียบร้อย|ร้อยละ|ร้อยเรียง|ร้อยกรอง"
+_TH_NUM_FALSE = re.compile(r"(ผูกพัน|ร้อยเอ็ด|สามัญ|โกหก|"
+                          r"สามารถ|สามี|สามเณร|ห้าม|ห้าง|เก้าอี้|หกล้ม|ยี่ห้อ|เรียบร้อย|ร้อยละ|ร้อยเรียง|ร้อยกรอง"
                            r"|สัมพันธ์|พันธ|แสน(?=ดี|สวย|สุข|รู้|จะ|ง่าย|ยาก|เศร้า|ไกล|นาน|แพง|อร่อย)"
                            r"|ศูนย์(?=กลาง|การค้า|บริการ|ราชการ)|ล้านนา)")
 _TH_NUM_RUN = re.compile("(?:" + "|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], key=len, reverse=True))
@@ -3616,10 +3644,10 @@ def fix_thai(s, polite, question=False):
     s = re.sub(r"คุณ\s*/\s*ท่าน|ท่าน\s*/\s*คุณ", "คุณ", s)
     end = f"(?![{_TH_CH}])"                           # Partikel steht am Wortende
     if male:
-        s = re.sub(f"(?:ค่ะ|คะ|ค๊ะ){end}", "ครับ", s)
+        s = re.sub(f"ค่ะ|(?:คะ|ค๊ะ){end}", "ครับ", s)   # ค่ะ/ครับ auch mitten im ungetrennten Text
         s = re.sub(r"(?:ดิ)?ฉัน(?!ท[์าะอ])", "ผม", s)          # ฉันท์, ฉันทะ, ฉันทามติ bleiben
     else:
-        s = re.sub(f"ครับผม{end}|ครับ{end}", "ค่ะ", s)
+        s = re.sub("ครับผม|ครับ", "ค่ะ", s)
         s = re.sub(f"(?:(?<=^)|(?<=\\s)|(?<=ของ)|(?<=กับ)|(?<=ให้)|(?<=ว่า))ผม(?!\\s*{_HAIR})", "ฉัน", s)
         # Frage endet mit คะ (hoher Ton), Aussage mit ค่ะ: nach Fragewort oder vor einem ?
         s = re.sub(r"((?:ไหม|มั้ย|หรือ(?:เปล่า)?|(?<!ไม่มี)(?<!ไม่เป็น)อะไร|ที่ไหน|ไหน|เมื่อไหร่|เมื่อไร|ทำไม|ยังไง|"
@@ -3755,7 +3783,7 @@ def _wm(model, **kw):
             raise
         log({"model": model, "download": True, "err": _errtxt(e)})
         if not enough_disk_for(model):
-            emit("error", msg=f"Zu wenig freier Speicher für das Modell '{model}' "
+            emit("error", code="disk_full", msg=f"Zu wenig freier Speicher für das Modell '{model}' "
                  f"(ca. {MODEL_SIZE_MB.get(model, 1600)} MB nötig) – Platz schaffen und neu starten")
             raise OSError(errno.ENOSPC, "Zu wenig freier Speicher für den Modell-Download")
         if not _DOWNLOAD_SAID.get(model):         # MPS- und CPU-Versuch: nur einmal melden

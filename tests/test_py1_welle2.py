@@ -72,7 +72,7 @@ def test_wm_disk_full(monkeypatch):
     with pytest.raises(OSError) as ei:
         d._wm("small")
     assert ei.value.errno == errno.ENOSPC
-    assert any("Speicher" in k.get("msg", "") for _, k in events)
+    assert any(k.get("code") == "disk_full" for _, k in events)
 
 
 def test_google_uses_bigger_pieces_with_post(monkeypatch):
@@ -96,7 +96,7 @@ def test_log_unavailable_once(monkeypatch):
     monkeypatch.setitem(d._LOG_FAIL, "told", False)
     d.log({"a": 1})
     d.log({"a": 2})
-    assert len(events) == 1 and "Protokolldatei" in events[0][1]["msg"]
+    assert len(events) == 1 and events[0][1]["code"] == "log_unavailable"
 
 
 def test_history_error_rate_limited(monkeypatch):

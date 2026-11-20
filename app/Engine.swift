@@ -1387,6 +1387,7 @@ final class EngineModel: NSObject, ObservableObject {
         "history_failed": "err_history_failed", "history_days_invalid": "err_history_days_invalid",
         "mic_list_failed": "err_mic_list_failed", "mic_file_missing": "err_mic_file_missing",
         "ffmpeg_missing": "err_ffmpeg_missing", "audio_missing": "err_audio_missing", "model_offline": "err_model_offline",
+        "disk_full": "err_disk_full", "log_unavailable": "err_log_unavailable",
         "translate_failed": "err_translate_failed", "llm_billing": "err_llm_billing", "reassign_expired": "err_reassign_expired",
         "reassign_empty": "err_reassign_empty", "reassign_invalid": "err_reassign_invalid",
         "phrase_invalid": "err_phrase_invalid", "edit_invalid": "err_edit_invalid",

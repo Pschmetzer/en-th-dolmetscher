@@ -183,6 +183,8 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `mic_file_missing`, `ffmpeg_missing` | `DOLMETSCHER_MIC_FILE` fehlt / das per `DOLMETSCHER_FFMPEG` gesetzte ffmpeg fehlt (gleich beim Start gemeldet) oder ist nicht startbar |
 | `audio_missing` | Audio-Baustein fehlt: PyAV (`av`) nicht importierbar oder `avhelper.py` fehlt (gleich beim Start gemeldet) – Python-Umgebung neu einrichten |
 | `model_offline` | Modell fehlt lokal und kann ohne Internet nicht geladen werden |
+| `disk_full` | Zu wenig freier Speicher für den Modell-Download (vor dem Download geprüft, Größe + 10 %) |
+| `log_unavailable` | `engine.log` nicht beschreibbar (Platte voll, Rechte): einmal je Lauf gemeldet |
 | `translate_failed` | Übersetzung fehlgeschlagen (alle Anbieter) |
 | `python_env_broken` | Pflichtmodul fehlt beim Laden der Modelle (kaputte Python-Umgebung); `module` = Modulname. Die Engine beendet sich danach mit Exit-Code 3, die App startet sie nicht neu und zeigt den Hinweis zum Neu-Einrichten |
 | `vad_failed` | Selbsttest der Sprach-Aktivitätserkennung (Silero-VAD aus faster-whisper) beim Start gescheitert – Python-Umgebung neu einrichten |
