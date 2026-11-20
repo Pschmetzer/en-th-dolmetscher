@@ -146,6 +146,7 @@ struct AppCommands: Commands {
     @AppStorage(Prefs.alwaysOnTop) private var onTop = false
     @AppStorage(L.key) private var uiLang = L.defaultCode   // Menüs neu aufbauen, wenn die Sprache wechselt
     @AppStorage(Prefs.quickPhrases) private var quickRaw = Prefs.pairDefaults
+    @ObservedObject private var sensitive = SensitiveSession.shared
 
     /// Preset-Sätze wie in der Schnellsatz-Leiste (Nr. 35): (Text, Sprache) in der Reihenfolge „kritisch zuerst“.
     private var presetPhrases: [(String, String)] {
@@ -230,6 +231,7 @@ struct AppCommands: Commands {
                 .keyboardShortcut("l", modifiers: .command)
             Button(L.t("speak_toggle")) { model.speak.toggle() }
                 .keyboardShortcut("s", modifiers: [.command, .option])
+            Toggle(R23T.t("sensitive_menu"), isOn: Binding(get: { sensitive.active }, set: { _ in sensitive.toggle(model) }))
             Button(L.t("stop_speaking")) { model.stopSpeaking() }
                 .keyboardShortcut(".", modifiers: .command)
                 .disabled(!model.running)
@@ -242,6 +244,9 @@ struct AppCommands: Commands {
         CommandGroup(replacing: .printItem) {}   // kein Drucken: ⌘P ist Pause
         CommandGroup(replacing: .help) {
             Button(L.t("tips_show")) { NotificationCenter.default.post(name: .showTips, object: nil) }
+            Button(R23T.t("help_onboarding")) { openWindow(id: "main"); R23Help.restartOnboarding() }
+            Button(R23T.t("help_whatsnew")) { openWindow(id: "whatsnew") }
+            Button(R23T.t("help_report")) { R23Help.reportProblem() }
             Button(L.t("selftest_open")) { NotificationCenter.default.post(name: .showSelfTest, object: nil) }
             Button(L.t("show_shortcuts")) { NotificationCenter.default.post(name: .showShortcuts, object: nil) }
                 .keyboardShortcut("/", modifiers: .command)
@@ -254,12 +259,15 @@ struct MenuBarContent: View {
     @EnvironmentObject var m: EngineModel
     @Environment(\.openWindow) private var openWindow
     @AppStorage(L.key) private var uiLang = L.defaultCode
+    @ObservedObject private var sensitive = SensitiveSession.shared
 
     var body: some View {
         let _ = L.sync(uiLang)
         let st = MenuBarLogic.status(m.menuInput)
         Text(L.f("menu_engine_status", L.t(MenuBarLogic.labelKey(st))))
         if !m.status.isEmpty { Text(m.status) }
+        if let last = R23Menu.title(m.lastReplayable?.out) { Text(R23T.f("menu_last_header", last)) }   // Runde 23
+        if sensitive.active { Label(R23T.t("sensitive_banner"), systemImage: "eye.slash") }
         if let med = m.latencyMedian { Text("⏱ " + fmtSeconds(med)).help(L.t("latency_help")) }
         Divider()
         Button(m.active ? L.t("stop") : L.t("start")) { m.toggle() }
@@ -275,6 +283,7 @@ struct MenuBarContent: View {
             .disabled(!m.running)
         RecentTranslationsMenu()
         Toggle(L.t("speak_toggle"), isOn: $m.speak)
+        Toggle(R23T.t("sensitive_menu"), isOn: Binding(get: { sensitive.active }, set: { _ in sensitive.toggle(m) }))
         Picker(L.t("direction"), selection: $m.lang) {
             Text(L.t("dir_auto")).tag("auto")
             ForEach(Langs.pair, id: \.self) { c in Text(Langs.flag(c) + " " + L.f("dir_only", c.uppercased())).tag(c) }
@@ -327,6 +336,8 @@ struct DolmetscherApp: App {
         _ = L.lang              // Standardsprache festlegen, bevor die erste Ansicht @AppStorage liest
         APIKeyStore.migrate()   // alte Schlüsseldatei in den Schlüsselbund (Nr. 23), vor dem ersten Engine-Start
         SettingsTracker.shared.start()   // Runde 15: „Zuletzt geändert“ auch außerhalb des Einstellungsfensters
+        ScreenLockWatcher.shared.start(EngineModel.shared)         // Runde 23: Bildschirm gesperrt → Mikrofon pausieren
+        SensitiveSession.shared.recoverAtLaunch(EngineModel.shared)   // sensible Sitzung endet mit der App
     }
 
     /// Nr. 360 / Runde 17: Fehler, Laden, Offline, Hören, Sprechen und Pause haben je eine eigene Form.
@@ -355,6 +366,11 @@ struct DolmetscherApp: App {
             HistoryView().environmentObject(model)
         }
         .defaultSize(width: 900, height: 600)
+
+        Window(R23T.t("help_whatsnew"), id: "whatsnew") {
+            WhatsNewWindow()
+        }
+        .windowResizability(.contentSize)
 
         Window(L.t("mini_title"), id: "mini") {
             MiniView().environmentObject(model)

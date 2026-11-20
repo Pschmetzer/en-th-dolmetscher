@@ -25,11 +25,14 @@ struct SettingsView: View {
         ("quick_phrases", 3), ("show_quick", 3),
     ]
 
-    /// Treffer für den Suchtext (ohne Groß-/Kleinschreibung), höchstens 6.
+    /// Treffer für den Suchtext (ohne Groß-/Kleinschreibung), höchstens 8, beste zuerst.
     static func matches(_ q: String) -> [(key: String, tab: Int)] {
-        let t = q.trimmingCharacters(in: .whitespaces)
-        guard !t.isEmpty else { return [] }
-        return Array(index.filter { L.t($0.key).localizedCaseInsensitiveContains(t) }.prefix(6))
+        // Runde 23: mehrere Wörter, ohne Akzente, Beschriftung vor Hilfetext (R23Settings.rank)
+        let entries = index.map { e -> (key: String, label: String, help: String) in
+            let h = L.t(e.key + "_help")
+            return (e.key, L.t(e.key), h == e.key + "_help" ? "" : h)
+        }
+        return R23Settings.rank(query: q, entries: entries, limit: 8).compactMap { k in index.first { $0.key == k } }
     }
 
     private var tabNames: [String] { ["tab_general", "tab_voice", "tab_translation", "tab_display", "tab_advanced"] }
@@ -113,6 +116,7 @@ private struct GeneralSettings: View {
     @AppStorage(Prefs.announce) private var announce = true
     @AppStorage(Prefs.hideFromCapture) private var hideCapture = false
     @AppStorage(Prefs.stopMicOnClose) private var stopMicOnClose = true
+    @AppStorage(ScreenLockWatcher.prefKey) private var pauseOnLock = true
     @AppStorage(Prefs.hotkeyHUD) private var hotkeyHUD = true
     @AppStorage(Prefs.urlAllowed) private var urlAllowed = false
 
@@ -231,8 +235,10 @@ private struct GeneralSettings: View {
                               systemImage: "exclamationmark.triangle.fill")
                             .foregroundStyle(LangStyle.warning)
                     }
+                    HotKeyConflictList(hk: hk)   // Runde 23: Grund und freier Buchstabe als Vorschlag
                 }
             }
+            Section { SettingsResetRow(group: .general) }
             }
             if part == 1 {
             Section {
@@ -260,6 +266,8 @@ private struct GeneralSettings: View {
                     .help(L.t("hide_capture_help"))
                 Toggle(L.t("stop_mic_on_close"), isOn: $stopMicOnClose)  // Nr. 18
                     .help(L.t("stop_mic_on_close_help"))
+                Toggle(R23T.t("pause_on_lock"), isOn: $pauseOnLock)      // Runde 23: Bildschirm gesperrt
+                    .help(R23T.t("pause_on_lock_help"))
                 Toggle(L.t("hotkey_hud"), isOn: $hotkeyHUD)              // Nr. 32
                     .help(L.t("sh_hotkey_hud"))
                 Toggle(L.t("listen_on_launch"), isOn: $listenOnLaunch)   // Nr. 377
@@ -616,6 +624,7 @@ private struct VoiceSettings: View {
                 ForEach([m.mineLang, m.partnerLang], id: \.self) { code in voicePicker(code) }
             }
             TTSRaceSection()
+            Section { SettingsResetRow(group: .voice) }
         }
         .formStyle(.grouped)
     }
@@ -709,6 +718,7 @@ private struct TranslationSettings: View {
                     .help(L.t("sh_glossary"))
             } header: { Text(L.t("glossary")) } footer: { Text(L.t("glossary_hint")) }
             APIKeySection()
+            Section { SettingsResetRow(group: .translation) }
         }
         .formStyle(.grouped)
         .sheet(isPresented: $showGlossaryEditor) { GlossaryEditorSheet().environmentObject(m) }
@@ -788,6 +798,7 @@ private struct DisplaySettings: View {
                 Button(L.t("reset_display")) { scale = 1.0; onTop = false; showDetails = false; translit = true }
             }
             QuickPhraseSettings()
+            Section { SettingsResetRow(group: .display) }
         }
         .formStyle(.grouped)
     }

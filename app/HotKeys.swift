@@ -14,6 +14,8 @@ final class HotKeys: ObservableObject {
     /// Kürzel, die nicht registriert werden konnten (z. B. schon vom System belegt), mit OSStatus.
     /// Die Einstellungen zeigen das an; bei App-Aktivierung folgt ein neuer Versuch.
     @Published private(set) var failures: [String] = []
+    /// Runde 23: dieselben Fehlschläge mit Aktions-ID und OSStatus (R23HotKeys.conflicts schlägt freie Buchstaben vor).
+    @Published private(set) var failureDetails: [(id: Int, status: Int32)] = []
 
     static let ctrlOpt = UInt32(controlKey | optionKey)
 
@@ -29,6 +31,7 @@ final class HotKeys: ObservableObject {
             releaseActions[id] = onRelease
         } else {
             failures.append("\(name) (OSStatus \(st))")
+            failureDetails.append((id: Int(id), status: st))
             NSLog("Dolmetscher: Tastenkürzel %@ nicht registriert, OSStatus %d", name, st)
         }
     }
@@ -71,6 +74,7 @@ final class HotKeys: ObservableObject {
         self.model = model
         uninstall()
         failures = []
+        failureDetails = []
         // Buchstaben je Aktion aus den Einstellungen (HotKeyLogic: eindeutig, Standard D/P/S/R/C/T).
         let keys = Self.configured()
         func reg(_ id: Int, onRelease: (() -> Void)? = nil, _ action: @escaping () -> Void) {
