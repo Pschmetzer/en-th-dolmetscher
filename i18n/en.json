@@ -351,5 +351,19 @@
  "nowUseful": "Useful now:",
  "dayTitle": "Phrase of the day",
  "topicCount": "{n} topics",
- "topicNone": "No topic matches."
+ "topicNone": "No topic matches.",
+ "checkSum": "Travel checklist (offline)",
+ "checkProg": "{a} of {b} done",
+ "chk1": "Passport valid (at least 6 months), visa or entry rules checked",
+ "chk2": "Travel health insurance bought, policy saved offline",
+ "chk3": "Phrasebook loaded for offline use (\"Offline ready\" above)",
+ "chk4": "Allergy card filled in and saved as an image",
+ "chk5": "Hotel address in Thai script saved under \"My cards\"",
+ "chk6": "Emergency numbers noted: 1669 ambulance, 191 police, 1155 tourist police",
+ "chk7": "SIM, eSIM or Wi-Fi plan for arrival",
+ "chk8": "Cash in small baht notes and a card without foreign fees",
+ "chk9": "First-aid kit and regular medicines (with a doctor's note)",
+ "chk10": "Grab or Bolt app installed, payment method added",
+ "algWarn": "Contains: {a}",
+ "checkReset": "Reset"
 }

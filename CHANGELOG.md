@@ -13,6 +13,7 @@ Pull requests #16–#47. Not yet published as a release.
 
 ### Web version, round 21
 
+- Offline travel checklist (10 items, ticks stay in the browser), allergy warnings on phrase cards (keyword match on the English sentence, follows the allergy card selection) and a 7-day bar chart in the learning statistics.
 - Learning cards: keys 1-4 no longer also start the microphone; held keys no longer toggle modes repeatedly; Space still opens sections and links.
 - Own phrases in English on the default EN ⇄ TH pair are no longer stored as Thai; history search ignores button labels and respects new entries.
 - Shared text (`?text=`) is only sent to Google Translate after a confirmation; the learning timer no longer speaks in the background.
