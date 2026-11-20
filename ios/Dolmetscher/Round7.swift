@@ -161,7 +161,9 @@ struct TranscriptCSV: Transferable {
 /// Wechselkurs holen (Frankfurter/EZB, ohne Konto) – nur auf ausdrücklichen Wunsch des Nutzers.
 enum FXFetch {
     static func url(code: String) -> URL? {
-        URL(string: "https://api.frankfurter.dev/v1/latest?base=THB&symbols=\(code.uppercased())")
+        // Nur drei ASCII-Buchstaben: der Code kommt aus einem Textfeld und landet in der Abfrage.
+        guard code.count == 3, code.allSatisfy({ $0.isASCII && $0.isLetter }) else { return nil }
+        return URL(string: "https://api.frankfurter.dev/v1/latest?base=THB&symbols=\(code.uppercased())")
     }
 
     static func parse(_ data: Data, code: String) -> (rate: Double, date: String)? {

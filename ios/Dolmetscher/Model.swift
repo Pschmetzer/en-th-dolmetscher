@@ -758,7 +758,7 @@ final class InterpreterModel {
         Haptics.heard()
         add(Entry(src: lang, dst: pair.other(lang), text: text, alt: alt))
         #if DEBUG
-        debugLog.info("heard \(lang.rawValue, privacy: .public): \(text, privacy: .public)")
+        debugLog.info("heard \(lang.rawValue, privacy: .public): \(text, privacy: .private)")
         #endif
     }
 
