@@ -4,6 +4,14 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### Web Lite, round 23 (web)
+
+- Service worker: navigation preload, retry with backoff (0.5 s, 1 s, 2 s) when loading packs, byte progress ("x MB loaded"), update hint while a new version loads, cache version shown as tooltip.
+- Privacy: "Online translation off" switch, one-time warning before online translation in sensitive topics (doctor, police, visa, bank ...), export and import of local data as a file (validated, known keys only), optional automatic deletion of old local data (30/90/365 days), storage size display, iOS note about Safari deleting site data after 7 days.
+- SOS button with emergency numbers (191, 1669, 199, 1155, 1193, 112) and large Thai sentences for ambulance and police; focus returns to the button when the dialog closes.
+- Taxi and hotel card: destination or hotel (with address) as a large Thai sentence, popular destinations, read aloud, saved on the device only.
+- Interface language now follows the whole browser language list; focus styles for dialog and tabs, forced-colors support; four more allergens (NSAIDs, iodine/contrast dye, kiwi, buckwheat).
+
 ### Web Lite and phrase packs, round 22 (web)
 
 - 14 new scenario packs (156 in total): numbers and prices, negotiating, Buddhism and etiquette, scooter rental damage and deposit, describing symptoms in detail, avoiding tuk-tuk scams, embassy and consulate, spice level in food, deaf / hard of hearing / unable to speak, wheelchair and limited mobility, halal food and prayer, returns and complaints in shops, hotel room problems, lost wallet and cards. Thai lines machine-made, not checked by native speakers.
