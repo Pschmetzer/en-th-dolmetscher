@@ -61,6 +61,15 @@ Pull requests #16–#47. Not yet published as a release.
 
 - **Own phrases and favourites** (browser): the “My cards” box now edits cards, adds an optional translation (via the existing translation chain, correctable by hand) and a group label with a group filter, keeps the 30-card limit, and reorders cards and starred favourites with up/down buttons (keyboard and screen-reader friendly, position announced). Cards export and import as JSON (validated: size limit, control characters removed, unknown fields and `__proto__` dropped, duplicates skipped). A full browser storage is reported instead of silently losing the change. Texts in German, English and Thai; `tests/test_runde16_web_favorites.py`.
 
+### Mac app (round 21)
+
+- **Sturdier helper processes**: a hanging Python helper is now killed after the timeout (SIGKILL fallback), the Python check no longer stalls on large output, and a failed start no longer leaves handlers behind (#116).
+- **History window "Open"** now finds the main window (it was looked up by a title that no longer matched), un-minimizes it and brings it forward (#116).
+- **Accessibility**: the stop button uses the accessible red, the level meter is logarithmic and marked as frequently updating, bubble actions for VoiceOver depend on context, banners are announced when their text changes, and the microphone-denied banner is announced (#116).
+- **Quick phrases**: long phrases are truncated with the full text in the tooltip, duplicates are rejected, new phrases are limited to 200 characters, and the scroll bar stays visible (#116).
+- **Partner view**: when turned around, the "again" and "slower" buttons and the stop notice turn with the text (#116).
+- **Search** ignores diacritics; the glossary file is written with 0600 permissions and a failed save is shown; error details are redacted of the user name and home path (#116).
+
 ### Mac app (round 19)
 
 - **Diagnosis and help**: new "Self-test …" in the Help menu checks microphone, speaker, network, speech models and the Python engine, shows one result line per check with a concrete suggestion and links to the troubleshooting page (`docs/FEHLERHILFE.md`). "Copy diagnostic report" now includes the self-test result and the last error and is redacted (home path, user name, API keys and tokens) without conversation text. Logic in `DiagnosticsLogic.swift` (tested with `swiftc`, including redaction), texts in German, English and Thai; `tests/test_runde19_mac_diagnose.py`.
