@@ -181,9 +181,16 @@ struct CaptionView: View {
     @AppStorage("captionZoom") private var zoom = 1.0
     @AppStorage("captionOriginal") private var showOriginal = false
     @AppStorage("captionOpacity") private var opacity = 1.0
+    @AppStorage("captionLines") private var lines = 1   // 1…3 letzte Übersetzungen (Rollen-Untertitel)
     var body: some View {
-        let last = m.items.last { !$0.pending && !$0.out.isEmpty }
+        let done = m.items.filter { !$0.pending && !$0.out.isEmpty }
+        let last = done.last
+        let earlier = Array(done.dropLast().suffix(max(0, min(3, lines) - 1)))
         VStack(spacing: 4) {
+            ForEach(earlier) { u in
+                Text(u.out).font(.system(size: 18 * zoom)).foregroundStyle(.secondary).lineLimit(2)
+                    .minimumScaleFactor(0.5)
+            }
             if last == nil {
                 Text(L.t("chat_empty_start")).font(.system(size: 16 * zoom)).foregroundStyle(.secondary)
             }
@@ -203,6 +210,9 @@ struct CaptionView: View {
             Button(L.t("font_bigger")) { zoom = min(2.5, zoom + 0.15) }
             Button(L.t("font_smaller")) { zoom = max(0.6, zoom - 0.15) }
             Toggle(L.t("caption_original"), isOn: $showOriginal)
+            Picker(L.t("caption_lines"), selection: $lines) {
+                ForEach([1, 2, 3], id: \.self) { Text("\($0)").tag($0) }
+            }
             Picker(L.t("caption_opacity"), selection: $opacity) {
                 ForEach([1.0, 0.85, 0.7, 0.5], id: \.self) { Text("\(Int($0 * 100)) %").tag($0) }
             }

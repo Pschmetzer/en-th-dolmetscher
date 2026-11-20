@@ -114,6 +114,7 @@ private struct GeneralSettings: View {
     @AppStorage(Prefs.hideFromCapture) private var hideCapture = false
     @AppStorage(Prefs.stopMicOnClose) private var stopMicOnClose = true
     @AppStorage(Prefs.hotkeyHUD) private var hotkeyHUD = true
+    @AppStorage(Prefs.urlAllowed) private var urlAllowed = false
 
     var body: some View {
         Form {
@@ -249,6 +250,8 @@ private struct GeneralSettings: View {
                     .help(L.t("sh_hotkey_hud"))
                 Toggle(L.t("listen_on_launch"), isOn: $listenOnLaunch)   // Nr. 377
                     .help(L.t("listen_on_launch_help"))
+                Toggle(L.t("url_control"), isOn: $urlAllowed)            // einmal erteilte Erlaubnis widerrufbar
+                    .help(L.t("url_control_help"))
                 LoginItemToggle()
             }
             HistorySection()
