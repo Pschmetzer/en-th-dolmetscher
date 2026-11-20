@@ -101,6 +101,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `DOLMETSCHER_BEAM` | Beam-Breite der Erkennung (Standard 1; überschreibt `--model auto`) |
 | `DOLMETSCHER_MIC_FILE` | Audiodatei in Echtzeit statt Mikrofon (Ende-zu-Ende-Test) |
 | `DOLMETSCHER_MIC_LOOP` | mit `DOLMETSCHER_MIC_FILE`: Datei endlos wiederholen |
+| `DOLMETSCHER_TTS_NO_PROXY` | `1`: die Neural-Stimme ignoriert `HTTP(S)_PROXY` der Umgebung |
 | `DOLMETSCHER_FFMPEG` | optional: externes ffmpeg statt PyAV für Aufnahme, Wiedergabe und `--file` (nur wenn gesetzt; Standard ist `avhelper.py` mit PyAV) |
 | `DOLMETSCHER_HOME` | Ordner für Presets/Verlauf (Standard `~/Library/Application Support/Dolmetscher/`) |
 | `DOLMETSCHER_LOG` | Logdatei (Standard `~/Library/Logs/Dolmetscher/engine.log`) |
@@ -193,7 +194,8 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `profiles_failed` | Stimmprofile/Sprechermodell nicht ladbar – Stimmerkennung aus; `msg` nennt die Ursache |
 | `voice_unknown`, `glossary_invalid` | Steuerwert ungültig |
 | `langs_invalid` | Sprachpaar ungültig (unbekannter Code oder zweimal dieselbe Sprache); Paar unverändert |
-| `file_empty`, `file_failed` | `--file`: keine Audiodaten / Datei nicht lesbar |
+| `file_empty`, `file_failed` | `--file`: keine Audiodaten / Datei nicht lesbar oder ein Abschnitt nicht verarbeitbar (die übrigen Abschnitte laufen weiter) |
+
 
 ### Reihenfolge und Garantien
 
@@ -508,7 +510,7 @@ durch (`0` = nie löschen, Ungültiges: `error` `history_days_invalid`).
 | Ereignis | Felder | Bedeutung |
 |---|---|---|
 | `cleared` | | Antwort auf `{"clear": true}` |
-| `control_invalid` | `key`, `reason` (`value`) | Ein **bekanntes** Steuerfeld hatte einen ungültigen Wert (falscher Typ, unbekannte Auswahl: `lang`, `polite`, `sensitivity`, `style`, `catch_up`). Der Rest der Zeile wird trotzdem angewendet. Früher still ignoriert bzw. `TypeError` bei Liste/Objekt |
+| `control_invalid` | `key`, `reason` (`value`) | Ein **bekanntes** Steuerfeld hatte einen ungültigen Wert (falscher Typ, unbekannte Auswahl: `lang`, `polite`, `sensitivity`, `style`, `catch_up`; nicht numerische Zahlenfelder wie `rate`, `volume`, `silence`, `tts_race`, `let_finish`, `llm_budget`, `beam`). Der Rest der Zeile wird trotzdem angewendet. Früher still ignoriert bzw. `TypeError` bei Liste/Objekt |
 | `overrun` | `frames`, `total` | Mikrofon-Puffer übergelaufen: Audio-Blöcke gingen verloren (Lücke mitten im Wort bei CPU-Spitze). Höchstens alle 5 s |
 | `profiles_skipped` | `skipped` (`[{name, reason}]`, höchstens 10) | Stimmprofile, die nicht geladen wurden (anderes Erkennungsmodell, ungültig); die Stimmerkennung läuft dafür nicht |
 | `captive_portal` | `msg` | Ein API-Host lieferte HTML bzw. eine Weiterleitung (Anmeldeseite im Hotel-/Flughafen-WLAN). Höchstens einmal je Minute; der Anbieter pausiert dann 15 s, statt jeden Satz zu versuchen. Die App kann „Im WLAN anmelden“ zeigen. Bewusst kein `error` (ältere Apps kennen den Code nicht) |
@@ -607,6 +609,17 @@ App-Pipe nicht schnell genug abnahm, siehe Log).
   ausblenden. Ältere Apps ignorieren das Feld `ended`.
 - **`speak_failed`** `{reason: "say", rc}`: auch die macOS-Stimme hat nichts gesprochen (Fehler/Zeitgrenze); die App kann den
   Text groß anzeigen oder „Wiederholen“ anbieten. Zusätzlich zu `speak_done` der Ausgabe.
+- **`price`** `{id, code, items: [{thb, value?}]}` (nur wenn das Steuerfeld `currency` gesetzt ist): in der Äußerung (Quelle oder
+  Übersetzung) wurden Baht-Beträge erkannt (höchstens 3, ohne Doppelte); `value` = Betrag in der Heimwährung `code`.
+  Kommt direkt nach `utt` derselben `id`. Reine Anzeigehilfe, der Kurs stammt von der App.
+- **Steuerfeld `currency`** `{"code": "EUR", "per_baht": 0.026}`: Heimwährung und Kurs für `price`; `null` schaltet ab. Ungültig:
+  `control_invalid` (`key: "currency"`).
+- **Hinweis `noisy`** (`hint`): lange durchgehend laute Umgebung ohne Sprache (Markt, Verkehr) – Tipp: Kopfhörer-Mikrofon oder
+  `--denoise`. Nicht gesendet, wenn Rauschunterdrückung schon an ist.
+- **Hinweis `mic_ambiguous`** (`hint`, `n`): mehrere Mikrofone heißen gleich; die Engine nimmt das erste – für ein bestimmtes Gerät den Index
+  in `mic` angeben.
+- **Neural-Stimme und Proxy:** ohne `DOLMETSCHER_TTS_NO_PROXY` läuft der Text über den in `HTTP(S)_PROXY` eingestellten Proxy. Bei 403 wegen falscher Systemuhr übernimmt die Engine die Serverzeit automatisch.
+- **Sprachbefehle** `repeat_slow` („repeat slowly“) und `repeat_prev` („repeat the previous one“) erscheinen als Befehlsschlüssel in `command`.
 - **`subtitles`** `{path, cues}`: `--file … --subtitles` fertig geschrieben.
 - **Preset-Feld `tuning`** (optional): `{silence 0.4-2, sensitivity low|normal|high, let_finish 0-5, catch_up
   skip|fast|off, rate -50…50}` – gilt, solange das Preset aktiv ist; „kein Preset“ stellt den Stand davor wieder her.

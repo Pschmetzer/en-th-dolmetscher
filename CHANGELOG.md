@@ -44,6 +44,14 @@ Pull requests #16–#47. Not yet published as a release.
 - The echo guard starts when a sentence is actually heard, not when it is queued; muted output reports as interrupted.
 - New events: `tts_fallback` with `ended: true` when the Neural voice is back, and `speak_failed` when even the fallback voice could not speak.
 
+### Engine, round 21 (control, microphone, travel helpers)
+
+- Voice commands “repeat slowly” and “repeat the previous one”; optional price display (`currency` control field, `price` event) turns Baht amounts into your home currency; a hint when the surroundings stay loud (`noisy`).
+- Non-numeric values for `rate`, `volume`, `silence`, `tts_race`, `let_finish`, `llm_budget`, `beam` are reported (`control_invalid`) instead of silently ignored; Stop/Mute run before slow actions; oversized control lines are read with a bound.
+- Backlog counts only waiting utterances; confidence is weighted by segment length; Thai gets a higher token cap; abbreviations (“Dr.”, “5 p.m.”) no longer end a sentence early; changing the language pair clears pre-recognition state.
+- Speaking path: a sentence no longer waits 180 s for a stuck player (limit follows the audio length); the Neural-voice connection is only opened after 0.35 s of speech; wrong system clock (HTTP 403) is corrected from the server time; open connections are closed on exit; duplicate microphone names are reported (`mic_ambiguous`).
+- Subtitle export removes its temporary database; a failing chunk of a `--file` run no longer stops the rest; engine start errors report `engine_init_failed`.
+
 ### Engine (speech recognition, translation, voice – used by the Mac app)
 
 - **Engine round 21 (2):** a full disk is detected before a model download, an unwritable log is reported once, Claude gets room for long sentences (and a changed key/limit counts correctly), refusals in German/Spanish/French/Thai are recognised, question words for Italian/Portuguese/Dutch/Russian pick the right Thai particle, yuan/won/rupee/ringgit amounts are checked like baht, longer Google requests via POST.
