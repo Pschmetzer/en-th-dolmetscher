@@ -1148,6 +1148,7 @@ def _cache_put(key, val):
 # Netz. Enthält Gesprochenes: Datei 0600 im Datenordner, wird beim Ausschalten gelöscht (siehe DATENSCHUTZ.md).
 _CACHE_DISK = {"on": False, "saved": 0.0}
 _CACHE_IO = threading.Lock()
+CACHE_TTL_S = 30 * 86400.0           # Cache-Datei, die so lange nicht beschrieben wurde, wird beim Laden verworfen
 CACHE_FILE = os.path.expanduser("~/Library/Application Support/Dolmetscher/translation_cache.json")
 
 
@@ -1173,6 +1174,9 @@ def cache_persist(on):
     _CACHE_DISK["on"] = bool(on)
     if on:
         try:
+            if time.time() - os.path.getmtime(CACHE_FILE) > CACHE_TTL_S:
+                os.unlink(CACHE_FILE)                   # lange unbenutzt: Gesprochenes nicht ewig auf der Platte lassen
+                return
             with open(CACHE_FILE, encoding="utf-8") as f:
                 rows = json.load(f)
             with _CACHE_LOCK:
@@ -1317,7 +1321,10 @@ def _strip_quotes(text):
 _NAME_STOP = {"the", "is", "are", "was", "you", "your", "where", "what", "when", "how", "why", "who", "thank",
               "thanks", "please", "a", "an", "to", "of", "in", "on", "at", "do", "does", "can", "i", "me", "my",
               "we", "it", "this", "that", "and", "or", "not", "no", "yes", "sorry", "hello", "excuse", "good",
-              "have", "has", "will", "would", "could", "for", "with", "from", "here", "there"}
+              "have", "has", "will", "would", "could", "for", "with", "from", "here", "there",
+              # Gruß-/Höflichkeitswörter anderer Quellsprachen: "Guten Morgen" ist kein Name
+              "guten", "morgen", "abend", "nacht", "danke", "bitte", "hallo", "tschüss", "buenos", "buenas", "gracias",
+              "hola", "bonjour", "bonsoir", "merci", "salut", "ciao", "grazie", "obrigado", "obrigada", "dank"}
 
 
 def _looks_like_name(text):
@@ -1519,6 +1526,7 @@ def _note_ok(name):
 
 
 _CAPTIVE = {"t": -1e9}
+CAPTIVE_TEST_URL = "http://captive.apple.com"   # öffnet das Anmeldefenster des Portals (App: im Browser)
 
 
 def _captive_hint():
@@ -1528,7 +1536,7 @@ def _captive_hint():
         _CAPTIVE["t"] = now
         # eigenes Ereignis (kein `error`): ältere Apps kennen den Code nicht und ignorieren das Ereignis
         emit("captive_portal", msg="Das Netz verlangt vermutlich eine Anmeldung (WLAN-Portal) – "
-             "im Browser anmelden, dann geht die Übersetzung wieder")
+             "im Browser anmelden, dann geht die Übersetzung wieder", url=CAPTIVE_TEST_URL)
 
 
 def _note_fail(name, e):
@@ -1590,7 +1598,11 @@ def _private_keyfile(path=None):
 def llm_client():
     """Anthropic-Client, wenn das SDK installiert ist und ein Schlüssel vorliegt (Umgebung oder Datei)."""
     with _LLM_CLIENT_LOCK:                       # Vorwärmen (Start) und Arbeits-Thread nicht doppelt
+        envkey = os.environ.get("ANTHROPIC_API_KEY")
+        if LLM["client"] is not None and LLM.get("client_env", envkey) != envkey:
+            LLM["client"] = None                 # Schlüssel in der Umgebung gewechselt: neuer Client, kein altes 401
         if LLM["client"] is None:
+            LLM["client_env"] = envkey
             import anthropic
             key = os.environ.get("ANTHROPIC_API_KEY")
             kf = None if key else key_file()
@@ -1711,7 +1723,7 @@ def load_glossary(text=None):
         seen.add(a.casefold())
         items.append((a, b if sep and b else None))
     global _GLOSSARY_OWN
-    GLOSSARY[:] = items[:200]
+    GLOSSARY[:] = items[:GLOSSARY_LIMIT]
     _GLOSSARY_OWN = frozenset(GLOSSARY)
     _cache_clear()                     # alte Übersetzungen kennen die neuen Einträge nicht
 
@@ -1882,6 +1894,7 @@ def _protect(text, dst):
     sonst der Name unverändert. Auch rückwärts: steht die Übersetzung im Text, kommt das Wort zurück."""
     slots = []
     own = _GLOSSARY_OWN
+    masked = _mask_tokens(text)         # einmal je Satz (nicht je Glossar-Eintrag); nur nach einer Ersetzung neu
     if _SLOT.search(text):             # "[1]" steht schon im Satz: ein Platzhalter wäre nicht mehr eindeutig
         return text, slots
     for a, b in GLOSSARY:
@@ -1889,9 +1902,9 @@ def _protect(text, dst):
             continue                   # Preset-Allerweltswörter ("room => ห้อง") würden ห้องน้ำ zerreißen
         if len(slots) >= 20:
             break
-        if _term_rx(a).search(_mask_tokens(text)):
+        if _term_rx(a).search(masked):
             find, val = a, (b if b and _in_script(b, dst) else a)
-        elif b and _in_script(a, dst) and _term_rx(b).search(_mask_tokens(text)):
+        elif b and _in_script(a, dst) and _term_rx(b).search(masked):
             find, val = b, a
         else:
             continue
@@ -1901,6 +1914,7 @@ def _protect(text, dst):
             lambda m: m.group(0) if any(x <= m.start() < y for x, y in spans) else f" [{n}] ", text)
         if new != text:
             text = new
+            masked = _mask_tokens(text)
             slots.append(val)
     return re.sub(r"[ \t]{2,}", " ", text).strip(), slots
 
@@ -1908,8 +1922,14 @@ def _protect(text, dst):
 def _restore(out, slots):
     """Platzhalter zurücksetzen; None, wenn einer fehlt (dann ohne Platzhalter neu übersetzen)."""
     found = {int(m.group(1)) for m in _SLOT.finditer(out)}
+    for i in range(1, len(slots) + 1):          # Dienst hat "[1]" zu "(1)"/"【1】" umgeschrieben: nicht neu übersetzen
+        if i not in found:
+            out, n = re.subn(rf"[(（［【]\s*{i}\s*[)）］】]", f"[{i}]", out, count=1)
+            if n:
+                found.add(i)
     if not all(i in found for i in range(1, len(slots) + 1)):
         return None
+
     out = _SLOT.sub(lambda m: slots[int(m.group(1)) - 1] if 0 < int(m.group(1)) <= len(slots) else m.group(0), out)
     out = re.sub(r"[ \t]+([.,!?;:])", r"\1", re.sub(r"[ \t]{2,}", " ", out))
     return out.strip()
@@ -1964,12 +1984,14 @@ def _apply_preset_tuning(eng, p):
         return
     _TUNING_SAVED.update(silence=SILENCE_END, vad=(VAD["start"], VAD["keep"]), let_finish=LET_FINISH["s"],
                          catch_up=CATCH_UP["mode"], rate=eng.rate)
-    if "silence" in t:
-        SILENCE_END = float(t["silence"])
+    sil = _clamp(t.get("silence"), 0.4, 2.0)           # kaputte Preset-Datei ("silence": "x") bricht set_preset nie ab
+    if sil is not None:
+        SILENCE_END = float(sil)
     if t.get("sensitivity") in SENSITIVITY:
         VAD["start"], VAD["keep"] = SENSITIVITY[t["sensitivity"]]
-    if "let_finish" in t:
-        LET_FINISH["s"] = float(t["let_finish"])
+    lf = _clamp(t.get("let_finish"), 0.0, LET_FINISH_MAX)
+    if lf is not None:
+        LET_FINISH["s"] = float(lf)
     if t.get("catch_up") in CATCH_UP_MODES:
         CATCH_UP["mode"] = t["catch_up"]
     n = _clamp(t.get("rate"), -50, 50)                 # Runde 15: wie das Steuerfeld rate (kein 999 %, kein Text)
@@ -2013,7 +2035,7 @@ def load_pronounce(path=None):
         if a and sep and b and len(a) <= TERM_MAX and len(b) <= TERM_MAX and a.casefold() not in seen:
             seen.add(a.casefold())
             items.append((a, b))
-    PRONOUNCE[:] = items[:200]
+    PRONOUNCE[:] = items[:GLOSSARY_LIMIT]
 
 
 def apply_pronounce(text):
@@ -2674,6 +2696,10 @@ def recheck_numbers(text, src, dst, out, meta, history=(), alts=(), polite="krub
     if not ok:
         return out
     meta.update(provider=m2.get("provider"), cached=False, rechecked=True)
+    # die zahlentreue Fassung ersetzt die abweichende im Cache: sonst käme bei Wiederholung wieder die falsche
+    for prov, val in ((first, alt), (m2.get("provider"), alt)):
+        if not (prov == "claude" and history):          # mit Verlauf wird bei Claude nie gecacht
+            _cache_put(_cache_key(text, src, dst, prov == "claude", polite), (val, m2.get("provider")))
     return alt
 
 
@@ -3486,10 +3512,13 @@ def fix_thai(s, polite, question=False):
 
 _SAY_LIST = {"out": None, "fail_t": None}
 SAY_RETRY_S = 60.0                 # nach einem Fehlschlag von `say -v ?` so lange nicht erneut fragen
+SAY_LIST_TTL = 600.0               # s: danach `say -v ?` neu lesen (neu installierte Premium-Stimmen)
 
 
 def _say_voices():
     """`say -v ?` einmal abfragen (zwischengespeichert; Fehler -> leer, dann gilt die Tabellenstimme)."""
+    if _SAY_LIST["out"] is not None and time.monotonic() - _SAY_LIST.get("t", time.monotonic()) > SAY_LIST_TTL:
+        _SAY_LIST["out"] = None                         # Nutzer hat inzwischen eine bessere Stimme installiert?
     if _SAY_LIST["out"] is None:
         t = _SAY_LIST["fail_t"]
         if t is not None and time.monotonic() - t < SAY_RETRY_S:
@@ -3497,6 +3526,7 @@ def _say_voices():
         try:
             _SAY_LIST["out"] = subprocess.run([SAY, "-v", "?"], capture_output=True, text=True, timeout=10).stdout
             _SAY_LIST["fail_t"] = None
+            _SAY_LIST["t"] = time.monotonic()
         except (subprocess.SubprocessError, OSError):
             _SAY_LIST["fail_t"] = time.monotonic()
             return ""
