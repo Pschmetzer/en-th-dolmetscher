@@ -57,7 +57,7 @@ def test_speak_form_currency_and_degrees():
     assert d.speak_form("25°C", "en") == "25 degrees Celsius"
     assert d.speak_form("30°C", "th") == "30 องศาเซลเซียส"
     assert d.speak_form("98 °F", "de") == "98 Grad Fahrenheit"
-    assert d.speak_form("฿5", "ja") == "฿5"                          # keine Tabelle: unverändert
+    assert d.speak_form("฿5", "sv") == "฿5"                          # keine Tabelle: unverändert
 
 
 def test_history_search_short_query_ignores_case_beyond_ascii(tmp_path):
