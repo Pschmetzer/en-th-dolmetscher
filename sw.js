@@ -1,8 +1,8 @@
 // Service Worker der Web-Version: macht die Seite installierbar und das Satzbuch offline nutzbar.
 // Nur eigene Dateien (gleicher Ursprung, GET). Übersetzungs-Anfragen (Google, MyMemory) laufen nie hier durch
 // und werden nie gespeichert. Neue Version: CACHE hochzählen (nötig bei neuen Dateien; index.html wird ohnehin zuerst vom Netz geholt).
-// content-hash: 2153f14bc7d99a6c
-const CACHE = 'dolmetscher-web-v26';
+// content-hash: 7e141e1d9f62e88d
+const CACHE = 'dolmetscher-web-v29';
 const PRESET_IDS = ['doctor', 'police', 'lostchild', 'pharmacy', 'dentist', 'taxi', 'places', 'airport', 'transport', 'travel', 'hotel', 'restaurant', 'shopping', 'bank', 'answers', 'access', 'spa', 'temple', 'island', 'scooter', 'rental', 'services', 'coworking', 'office', 'adventure-park', 'animal-bite-rabies', 'atm-bank-card', 'baby', 'babysitter-housekeeper', 'badminton-tennis', 'bakery-cafe', 'bangkok-skytrain', 'bank-account-opening', 'beach', 'bicycle-rental', 'birthday-celebration', 'border-crossing', 'buddhism-etiquette', 'buddhist-ceremony', 'buffet-bbq', 'bus-train', 'cannabis-vape', 'car-accident', 'car-rental', 'car-wash-repair', 'chronic-conditions', 'cinema-concert', 'convenience-store-7eleven', 'currency-exchange', 'customs-duty-free', 'dating-small-talk', 'diving', 'doctor-symptom-detail', 'driving-license', 'drone-camera-rules', 'earthquake-evacuation', 'elephant-sanctuary', 'embassy-consulate', 'emergency', 'ferry-boat', 'festival', 'fishing-trip', 'flight-delay-change', 'floating-market', 'food-allergy', 'food-delivery', 'food-spice-level', 'fruit-market-durian', 'funeral-condolence', 'gas-station-parking', 'golf', 'grab-ride-hailing', 'grand-palace-museum', 'gym', 'hair-beauty', 'halal-food-muslim', 'hearing-speech-impaired', 'heat-health', 'hiking', 'home-repair', 'hospital', 'hostel-dorm', 'hotel-room-problems', 'immigration-90day', 'island-hopping', 'jet-ski-rental', 'karaoke', 'kayak-national-park', 'kids', 'kids-playground', 'laundry-deposit', 'laundry-repair', 'long-term-lease', 'lost-luggage', 'lost-passport', 'lost-phone', 'lost-wallet-cards', 'luggage-storage', 'market', 'massage', 'mental-health-counseling', 'mobile-sim', 'monk', 'monsoon-flood-storm', 'mosque-visit', 'mosquito-dengue', 'motorbike-accident', 'motorcycle-taxi', 'muay-thai-gym', 'negotiation', 'night-market-bargain', 'nightlife', 'nomad', 'numbers-prices', 'optician-eye-care', 'pets', 'pharmacy-otc', 'photo', 'physiotherapy-injury', 'police-checkpoint', 'post-office-parcel', 'pregnancy-maternity', 'private-driver-day-tour', 'promptpay-qr-payment', 'refund-complaint-shop', 'rice-field-village', 'scams-overcharge', 'school', 'scooter-rental-damage', 'sexual-health-clinic', 'skin-clinic', 'snorkel-boat-tour', 'songkran-water-festival', 'souvenir-jewelry', 'spirit-house-shrine', 'sport', 'street-food', 'tailor-custom', 'tattoo-piercing', 'tax-refund', 'thai-cooking-class', 'thai-language-lesson', 'tm30-address-report', 'travel-insurance-claim', 'tuk-tuk-scam-prevention', 'tuk-tuk-songthaew', 'vegan-vegetarian', 'visa', 'visa-extension', 'volunteering', 'water-park-zoo', 'wedding', 'wheelchair-mobility', 'wifi-coworking-cafe', 'work', 'yoga-retreat'];
 const CORE = ['./', 'index.html', 'languages.json', 'presets-index.json', 'allergens.json', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png', 'icon-maskable-192.png', 'icon-maskable-512.png', 'apple-touch-icon-180.png', 'i18n/en.json', 'i18n/th.json'];
 const MUST = ['index.html', 'languages.json'];   // ohne diese beiden wäre die neue Version kaputt: Installation scheitert, die alte bleibt aktiv
@@ -35,7 +35,9 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys()
     .then(keys => Promise.all(keys.filter(k => k.startsWith('dolmetscher-web-') && k !== CACHE).map(k => caches.delete(k))))
-    .then(() => self.clients.claim()));
+    .then(() => { try { return self.registration.navigationPreload && self.registration.navigationPreload.enable(); } catch { return null; } })   // Navigation Preload: Netzabruf der Seite startet schon vor dem Worker
+    .then(() => self.clients.claim())
+    .then(() => self.clients.matchAll({ type: 'window' }).then(cs => cs.forEach(c => c.postMessage({ type: 'sw-version', cache: CACHE })))).catch(() => {}));
 });
 
 const NAV_WAIT_MS = 4000;   // hängendes Netz: nach 4 s die gespeicherte Seite zeigen (falls vorhanden)
@@ -52,16 +54,27 @@ const cachedApp = () => caches.match(abs('index.html')).then(r => r || caches.ma
 
 // Seite fragt, wie viele Vorab-Dateien offline bereit sind (Anzeige "Offline bereit")
 const status = (c, loading) => Promise.all(ALL.map(u => c.match(abs(u))))
-  .then(hits => ({ type: 'offline-status', ok: hits.filter(Boolean).length, total: ALL.length, loading: !!loading }));
+  .then(hits => ({ type: 'offline-status', ok: hits.filter(Boolean).length, total: ALL.length, loading: !!loading, bytes: packBytes, cache: CACHE }));
 let filling = null;
+let packBytes = 0;   // in dieser Füllrunde geladene Bytes (für die Fortschrittsanzeige)
+const RETRIES = 3, BACKOFF_MS = 500;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const sizeOf = r => { try { return r.clone().arrayBuffer().then(b => b.byteLength, () => 0); } catch { return Promise.resolve(0); } };   // Bytes einer Antwort (Kopie lesen), Fehler zählen als 0
+function fetchPack(u, n) {   // Paket laden: bei Netzfehler/5xx bis zu RETRIES Mal mit wachsender Wartezeit (0,5 s, 1 s, 2 s); 4xx sofort aufgeben
+  return fetch(abs(u)).then(r => {
+    if (r.ok && r.status === 200) return r;
+    if (r.status >= 500 && n < RETRIES) return sleep(BACKOFF_MS * 2 ** n).then(() => fetchPack(u, n + 1));
+    return null;
+  }, err => n < RETRIES ? sleep(BACKOFF_MS * 2 ** n).then(() => fetchPack(u, n + 1)) : null);
+}
 function fillPacks(c, src, priorityOnly) {   // fehlende Pakete (Notfallpakete zuerst) mit wenigen gleichzeitigen Abrufen laden, Fortschritt melden
   if (filling) return filling;
   let queue = [];
   const worker = () => { const u = queue.shift(); if (!u) return null;
-    return fetch(abs(u)).then(r => { if (r.ok && r.status === 200) return c.put(abs(u), r); }).catch(() => {}).then(worker); };
+    return fetchPack(u, 0).then(r => { if (!r) return; return sizeOf(r).then(n => { packBytes += n; return c.put(abs(u), r); }); }).catch(() => {}).then(worker); };
   filling = Promise.all([Promise.all(PACKS.map(u => c.match(abs(u)).then(h => h ? null : u))), freeBytes()]).then(([miss, free]) => { queue = miss.filter(Boolean);
     if (priorityOnly || saveData() || free < MIN_FREE) queue = queue.filter(u => PRIORITY_PACKS.has(u));
-    const total = queue.length;
+    const total = queue.length; packBytes = 0;
     const timer = setInterval(() => { if (src) status(c, true).then(m => src.postMessage(m)).catch(() => {}); }, 1500);
     return Promise.all(Array.from({ length: Math.min(FILL_PARALLEL, total) }, worker)).then(() => clearInterval(timer));
   }).catch(() => {}).then(() => { filling = null; return status(c).then(m => src && src.postMessage(m)); });
@@ -81,7 +94,7 @@ self.addEventListener('fetch', e => {
   if (req.mode === 'navigate') {                     // Seite: zuerst Netz (Updates), offline aus dem Speicher
     // Nur die App selbst als index.html merken – nicht direkt geöffnete Presets, Doku oder sw.js.
     const isApp = url.pathname === new URL(abs('./')).pathname || url.pathname === new URL(abs('index.html')).pathname;
-    const net = fetch(req).then(r => {
+    const net = Promise.resolve(e.preloadResponse).then(pre => pre || fetch(req)).then(r => {   // vorab gestartete Anfrage nutzen, sonst normal laden
       if (r.ok && r.status === 200 && isApp) {
         const copy = r.clone();
         caches.open(CACHE).then(c => c.put(abs('index.html'), copy)).catch(() => {});
