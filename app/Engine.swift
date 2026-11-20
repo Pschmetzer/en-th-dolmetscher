@@ -830,14 +830,14 @@ final class EngineModel: NSObject, ObservableObject {
         let p = Process()
         p.executableURL = URL(fileURLWithPath: Paths.python)
         p.arguments = launchArgs(script)
-        p.environment = Paths.engineEnvironment(includeKey: true)
+        p.environment = Paths.engineEnvironment()   // Schlüssel nicht in der Umgebung (ps eww), sondern per stdin unten
 
         let out = Pipe()
         p.standardOutput = out
         let inp = Pipe()
         p.standardInput = inp
         p.standardError = Self.prepareLog() ?? FileHandle.nullDevice
-        buffer = Data()
+        buffer = Data(); discardingLine = false; malformedLines = 0
         resetRuntime()
         // Lese- und Ende-Handler laufen auf verschiedenen Hintergrund-Queues: das Prozessende kann die
         // letzten Zeilen (z. B. das `error` kurz vor einem Absturz) überholen. Deshalb wird das Ende erst
@@ -881,6 +881,13 @@ final class EngineModel: NSObject, ObservableObject {
             launchedAt = Date()
             launchedSignature = restartSignature
             scheduleLoadSlow()
+            // Claude-Schlüssel als erste Steuerzeile (Env-Variablen sind für denselben Nutzer lesbar); ein in der
+            // App-Umgebung gesetzter Schlüssel (Entwickler) hat Vorrang wie bisher. Wert wird nie geloggt.
+            if let key = ProcessInfo.processInfo.environment["ANTHROPIC_API_KEY"] ?? APIKeyStore.read(),
+               var line = try? JSONSerialization.data(withJSONObject: ["api_key": key]) {
+                line.append(0x0A)
+                try? inp.fileHandleForWriting.write(contentsOf: line)
+            }
             if pushToTalk { setPaused(true) }   // kein Startargument dafür – direkt per stdin
         } catch {
             state = .stopped; wantListen = false
@@ -1067,11 +1074,23 @@ final class EngineModel: NSObject, ObservableObject {
     /// Eine Zeile über 2 MB ist kein Ereignis (Protokoll-Fehler): verwerfen statt unbegrenzt puffern.
     private static let maxLineBytes = 2_000_000
 
+    /// Nach einer überlangen Zeile: Rest bis zum nächsten Zeilenende verwerfen (sonst würde das Ende der Zeile als
+    /// „Ereignis“ gelesen und zählte als weitere ungültige Zeile).
+    private var discardingLine = false
+
     private func consume(_ d: Data) {
-        buffer.append(d)
+        if discardingLine {
+            guard let nl = d.firstIndex(of: 0x0A) else { return }
+            discardingLine = false
+            buffer.append(d.subdata(in: (nl + 1)..<d.endIndex))
+        } else {
+            buffer.append(d)
+        }
         while let nl = buffer.firstIndex(of: 0x0A) {
-            let line = buffer.subdata(in: buffer.startIndex..<nl)
+            var line = buffer.subdata(in: buffer.startIndex..<nl)
             buffer.removeSubrange(buffer.startIndex...nl)
+            if line.last == 0x0D { line.removeLast() }                       // CRLF tolerieren
+            if line.starts(with: [0xEF, 0xBB, 0xBF]) { line.removeFirst(3) } // BOM tolerieren
             guard let obj = try? JSONSerialization.jsonObject(with: line) as? [String: Any],
                   let ev = obj["event"] as? String else {
                 if !line.isEmpty {
@@ -1092,7 +1111,7 @@ final class EngineModel: NSObject, ObservableObject {
         }
         if buffer.count > Self.maxLineBytes {
             NSLog("Dolmetscher: Zeile der Engine zu lang (%d Bytes), verworfen", buffer.count)
-            buffer = Data(); malformedLines += 1
+            buffer = Data(); malformedLines += 1; discardingLine = true
         }
     }
 

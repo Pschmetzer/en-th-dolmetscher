@@ -182,11 +182,22 @@ final class EnvSetupModel: ObservableObject {
         else if engine.modelOffline { phase = .failed(kind: "offline"); engine.stopEngine() }
     }
 
+    /// Direkte Kindprozesse eines Prozesses signalisieren (`pkill -P`), damit beim Abbruch kein uv/pip weiterläuft.
+    nonisolated static func signalChildren(of pid: Int32, _ sig: String) {
+        let k = Process()
+        k.executableURL = URL(fileURLWithPath: "/usr/bin/pkill")
+        k.arguments = [sig, "-P", String(pid)]
+        k.standardOutput = FileHandle.nullDevice; k.standardError = FileHandle.nullDevice
+        try? k.run()
+    }
+
     func cancel(engine: EngineModel) {
         if let p = proc, p.isRunning {
+            let pid = p.processIdentifier
+            Self.signalChildren(of: pid, "-TERM")   // uv/pip-Kindprozesse mitbeenden (kein eigener Prozessgruppen-Aufruf in Process)
             p.terminate()                  // setup-env.sh räumt die halbe Umgebung selbst ab
             DispatchQueue.global().asyncAfter(deadline: .now() + 6) {   // reagiert es nicht: hart beenden
-                if p.isRunning { kill(p.processIdentifier, SIGKILL) }
+                if p.isRunning { Self.signalChildren(of: pid, "-KILL"); kill(pid, SIGKILL) }
             }
             phase = .failed(kind: "cancelled")
         } else if case .models = phase {
@@ -198,6 +209,7 @@ final class EnvSetupModel: ObservableObject {
     /// App wird beendet: setup-env.sh beenden und kurz warten, damit es die halbe Umgebung entfernt.
     func terminateSetup() {
         guard let p = proc, p.isRunning else { return }
+        Self.signalChildren(of: p.processIdentifier, "-TERM")
         p.terminate()
         let end = Date().addingTimeInterval(3)
         while p.isRunning && Date() < end { usleep(50_000) }

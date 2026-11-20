@@ -174,6 +174,15 @@ final class UIDrafts: ObservableObject {
     @Published var langFilter = ""
     @Published var searchOpen = false
     @Published var typedDraft = ""
+    @Published var settingsTab = 0
+    @Published var settingsQuery = ""
+    @Published var showTips: Bool = false
+    @Published var showGlossaryAdd: Bool = false
+    @Published var showShortcuts: Bool = false
+    @Published var showSelfTest: Bool = false
+    @Published var showProfiles: Bool = false
+    @Published var bigText: Utterance? = nil
+    @Published var correcting: Utterance? = nil
 }
 
 struct ContentView: View {
@@ -189,18 +198,18 @@ struct ContentView: View {
     @AppStorage(Prefs.hideFromCapture) private var hideCapture = false
     @State private var whatsNew: [String] = []
     @AppStorage(Prefs.showQuick) private var showQuick = true
-    @State private var showTips = false
+    private var showTips: Bool { get { ui.showTips } nonmutating set { ui.showTips = newValue } }
     private var tipsDue: Bool {
         !tipsSeen && OnboardingLogic.remindDue(until: tipsRemindUntil, now: Date().timeIntervalSince1970)
     }
-    @State private var bigText: Utterance?
-    @State private var showGlossaryAdd = false
-    @State private var showShortcuts = false
-    @State private var showSelfTest = false
-    @State private var showProfiles = false
+    private var bigText: Utterance? { get { ui.bigText } nonmutating set { ui.bigText = newValue } }
+    private var showGlossaryAdd: Bool { get { ui.showGlossaryAdd } nonmutating set { ui.showGlossaryAdd = newValue } }
+    private var showShortcuts: Bool { get { ui.showShortcuts } nonmutating set { ui.showShortcuts = newValue } }
+    private var showSelfTest: Bool { get { ui.showSelfTest } nonmutating set { ui.showSelfTest = newValue } }
+    private var showProfiles: Bool { get { ui.showProfiles } nonmutating set { ui.showProfiles = newValue } }
     /// Hinweis „Zwei-Personen-Modus ohne Profil“ für diese Sitzung weggeklickt.
     @State private var twoPersonHintClosed = false
-    @State private var correcting: Utterance?
+    private var correcting: Utterance? { get { ui.correcting } nonmutating set { ui.correcting = newValue } }
     /// Suchtext, Filter und Eingabe liegen außerhalb der Ansicht: `.id(uiLang)` baut sie beim Sprachwechsel neu auf.
     @ObservedObject private var ui = UIDrafts.shared
     private var query: String { get { ui.query } nonmutating set { ui.query = newValue } }
@@ -215,16 +224,7 @@ struct ContentView: View {
     @State private var budgetHintClosed = false
     private var filtering: Bool { !query.isEmpty || !langFilter.isEmpty }
 
-    var body: some View {
-        let _ = L.sync(uiLang)
-        VStack(spacing: 0) {
-          if setup.visible {
-            EnvSetupView(s: setup)        // Erststart / nach App-Update: Umgebung + Modelle
-          } else {
-            MainToolbar(showProfiles: $showProfiles)
-            ConversationBar()
-            if showQuick { QuickPhraseBar() }
-            Divider()
+    @ViewBuilder private var banners: some View {
             if m.micDenied { MicDeniedBanner() }
             if let log = m.crashLog { CrashBanner(log: log) }
             if let pv = m.protocolMismatch {
@@ -291,6 +291,21 @@ struct ContentView: View {
                 NoticeBanner(icon: "person.2.slash", tint: LangStyle.warning, text: L.t("two_person_no_profile"),
                              action: (L.t("profiles"), { showProfiles = true }), onClose: { twoPersonHintClosed = true })
             }
+    }
+
+    var body: some View {
+        let _ = L.sync(uiLang)
+        VStack(spacing: 0) {
+          if setup.visible {
+            EnvSetupView(s: setup)        // Erststart / nach App-Update: Umgebung + Modelle
+          } else {
+            MainToolbar(showProfiles: $ui.showProfiles)
+            ConversationBar()
+            if showQuick { QuickPhraseBar() }
+            Divider()
+            // Hinweisbänder: Gesamthöhe begrenzt (scrollbar), damit bei vielen Hinweisen der Verlauf sichtbar bleibt.
+            ScrollView(.vertical, showsIndicators: true) { VStack(spacing: 0) { banners } }
+                .frame(maxHeight: 150).fixedSize(horizontal: false, vertical: true)
             if searchOpen || filtering || m.items.count > 5 { searchBar }
             conversation
             if m.pushToTalk && m.micOn { PushToTalkButton().padding(14) }
@@ -307,7 +322,7 @@ struct ContentView: View {
             let t = "Dolmetscher · " + m.status
             if w.title != t { w.title = t }
         })
-        .sheet(isPresented: $showTips) {
+        .sheet(isPresented: $ui.showTips) {
             TipsSheet(engine: m, done: { tipsSeen = true; showTips = false },
                       later: { tipsRemindUntil = OnboardingLogic.remindUntil(now: Date().timeIntervalSince1970); showTips = false })
         }
@@ -322,12 +337,12 @@ struct ContentView: View {
             }
             return true
         }
-        .sheet(isPresented: $showProfiles) { ProfilesView().environmentObject(m) }
-        .sheet(item: $correcting) { CorrectSheet(u: $0).environmentObject(m) }
-        .sheet(item: $bigText) { BigTextSheet(u: $0) }
-        .sheet(isPresented: $showGlossaryAdd) { GlossaryAddSheet().environmentObject(m) }
-        .sheet(isPresented: $showShortcuts) { ShortcutsSheet() }
-        .sheet(isPresented: $showSelfTest) { SelfTestSheet().environmentObject(m) }
+        .sheet(isPresented: $ui.showProfiles) { ProfilesView().environmentObject(m) }
+        .sheet(item: $ui.correcting) { CorrectSheet(u: $0).environmentObject(m) }
+        .sheet(item: $ui.bigText) { BigTextSheet(u: $0) }
+        .sheet(isPresented: $ui.showGlossaryAdd) { GlossaryAddSheet().environmentObject(m) }
+        .sheet(isPresented: $ui.showShortcuts) { ShortcutsSheet() }
+        .sheet(isPresented: $ui.showSelfTest) { SelfTestSheet().environmentObject(m) }
         .onReceive(NotificationCenter.default.publisher(for: .showBigText)) { n in
             if let id = n.object as? UUID { bigText = m.items.first { $0.id == id } }
         }
@@ -840,8 +855,14 @@ struct StatusCluster: View {
     var body: some View {
         HStack(spacing: 8) {
             if m.micOn { LevelBar(meter: m.meter) }
-            Text(m.status).scaledFont(13, .semibold).lineLimit(2).help(m.status)
-                .accessibilityLabel(L.t("status") + ": " + m.status)
+            let parts = StatusIcon.split(m.status)
+            HStack(spacing: 5) {
+                if let sym = parts.symbol { Image(systemName: sym.name).foregroundStyle(sym.tint).accessibilityHidden(true) }
+                Text(parts.text).lineLimit(2)
+            }
+            .scaledFont(13, .semibold).help(parts.text)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(L.t("status") + ": " + parts.text)
                 .accessibilityAddTraits(.updatesFrequently)
             if m.backlog > 0 {
                 Text("\(m.backlog) " + L.t("waiting"))
@@ -933,6 +954,25 @@ struct LevelBar: View {
         .accessibilityLabel(L.t("level"))
         .accessibilityValue("\(Int(meter.rms * 100)) %")
         .accessibilityAddTraits(.updatesFrequently)   // wechselt ~7×/s: VoiceOver nicht fluten
+    }
+}
+
+/// Statuszeilen enthalten führende Emoji (🎙 ⏸ 👂 ⏳ 🔊 🤷 ⚠️ 🗣): in der Anzeige durch SF-Symbole ersetzt
+/// (einheitliche Darstellung, VoiceOver liest kein „Warnzeichen“ mehr mit). Der Status-String selbst bleibt unverändert.
+enum StatusIcon {
+    static let map: [(String, String, Color)] = [
+        ("⚠️", "exclamationmark.triangle.fill", LangStyle.warning), ("🎙", "mic.fill", LangStyle.success),
+        ("⏸", "pause.fill", .secondary), ("👂", "ear", .secondary), ("⏳", "hourglass", .secondary),
+        ("🔊", "speaker.wave.2.fill", .secondary), ("🤷", "questionmark.circle", .secondary),
+        ("🗣", "bubble.left.fill", .secondary),
+    ]
+    static func split(_ s: String) -> (symbol: (name: String, tint: Color)?, text: String) {
+        for (emoji, name, tint) in map where s.unicodeScalars.starts(with: emoji.unicodeScalars) {
+            var sc = s.unicodeScalars.dropFirst(emoji.unicodeScalars.count)
+            while let f = sc.first, f == "\u{FE0F}" || f == " " { sc = sc.dropFirst() }   // Variantenselektor, Leerzeichen
+            return ((name, tint), String(String.UnicodeScalarView(sc)))
+        }
+        return (nil, s)
     }
 }
 
@@ -1226,23 +1266,42 @@ struct TipsSheet: View {
     var later: () -> Void
     private var model: String { engine.model }
     private var thai: Bool { Langs.hasThai }
+    /// Seiten: 0 Tipps, 1 Erste Schritte, 2 Checkliste (statt einer langen Scrollfläche).
+    @State private var page = 0
+    private static let pageCount = 3
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(L.t("welcome_title")).font(.title.bold())
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
-                    tip("waveform", L.t("tip_speak_title"), L.tp("tip_speak_text"))
-                    tip("text.bubble", L.t("tip_cmd_title"), L.t("tip_cmd_text"))
-                    tip("lock.shield", L.t("privacy_title"), L.t("privacy_text"))
-                    OnboardingSteps(m: engine)
-                    SetupChecklist(model: model, thai: thai)
+                    switch page {
+                    case 0:
+                        tip("waveform", L.t("tip_speak_title"), L.tp("tip_speak_text"))
+                        tip("text.bubble", L.t("tip_cmd_title"), L.t("tip_cmd_text"))
+                        tip("lock.shield", L.t("privacy_title"), L.t("privacy_text"))
+                    case 1: OnboardingSteps(m: engine)
+                    default: SetupChecklist(model: model, thai: thai)
+                    }
                 }
                 .padding(.trailing, 8)
             }
             HStack {
                 Button(L.t("onb_later")) { later() }.help(L.t("onb_later_help")).keyboardShortcut(.cancelAction)
                 Spacer()
-                Button(L.t("lets_go"), action: done).keyboardShortcut(.defaultAction)
+                HStack(spacing: 6) {   // Fortschrittspunkte
+                    ForEach(0..<Self.pageCount, id: \.self) { i in
+                        Circle().fill(i == page ? Color.accentColor : Color.secondary.opacity(0.35)).frame(width: 8, height: 8)
+                    }
+                }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(L.f("onb_page_of", page + 1, Self.pageCount))
+                Spacer()
+                if page > 0 { Button(L.t("onb_back")) { page -= 1 } }
+                if page < Self.pageCount - 1 {
+                    Button(L.t("onb_next")) { page += 1 }.keyboardShortcut(.defaultAction)
+                } else {
+                    Button(L.t("lets_go"), action: done).keyboardShortcut(.defaultAction)
+                }
             }
         }
         .padding(28)

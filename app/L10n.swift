@@ -291,6 +291,7 @@ enum L {
 
         // Einstellungen
         "tab_general": ["de": "Allgemein", "en": "General", "th": "ทั่วไป"],
+        "tab_advanced": ["de": "Erweitert & Datenschutz", "en": "Advanced & privacy", "th": "ขั้นสูงและความเป็นส่วนตัว"],
         "tab_voice": ["de": "Stimme & Audio", "en": "Voice & audio", "th": "เสียง"],
         "tab_translation": ["de": "Übersetzung", "en": "Translation", "th": "การแปล"],
         "tab_display": ["de": "Anzeige", "en": "Display", "th": "การแสดงผล"],
@@ -1008,6 +1009,9 @@ enum L {
         "llm_tier_balanced": ["de": "Ausgewogen", "en": "Balanced", "th": "สมดุล"],
         "llm_tier_best": ["de": "Beste Qualität", "en": "Best quality", "th": "คุณภาพดีที่สุด"],
         "move_first": ["de": "Nach vorn", "en": "Move to front", "th": "ย้ายไปไว้ด้านหน้า"],
+        "onb_next": ["de": "Weiter", "en": "Next", "th": "ถัดไป"],
+        "onb_back": ["de": "Zurück", "en": "Back", "th": "ย้อนกลับ"],
+        "onb_page_of": ["de": "Seite %d von %d", "en": "Page %d of %d", "th": "หน้า %d จาก %d"],
         "copied": ["de": "Kopiert",
                "en": "Copied",
                "th": "คัดลอกแล้ว"],
