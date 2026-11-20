@@ -18,6 +18,8 @@ Gilt für die Mac-App (Engine `dolmetscher.py`), die iPhone-App und im Auszug f�
 | Translator, pause (auch stop, mute, sleep, be quiet) | Übersetzen anhalten; die App hört weiter auf Befehle |
 | Translator, resume (auch continue, start, unmute, unpause) | weitermachen |
 | Translator, repeat (auch again, say that again) | letzte Übersetzung nochmal sprechen |
+| Translator, repeat slowly | letzte Übersetzung einmal langsamer sprechen (hilft, wenn der Zuhörer sie nicht verstanden hat) |
+| Translator, repeat the previous one | die Übersetzung davor nochmal sprechen |
 | Translator, slower / faster | Sprechtempo |
 | Translator, louder / quieter | Lautstärke |
 | Translator, volume 3 / speed 5 | Lautstärke bzw. Tempo auf einer Skala von 0 bis 10 (bei Tempo ist 5 normal) |

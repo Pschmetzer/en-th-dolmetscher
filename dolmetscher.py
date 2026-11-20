@@ -372,6 +372,11 @@ def parse_command(cmd):
         mnum = re.fullmatch(r"(volume|speed)\s+(?:to\s+)?(\d{1,2})", f"{mnum.group(1)} {_nw[mnum.group(2)]}")
     if mnum:                                   # "volume 3", "speed 5": Skala 0-10 (5 = normal bei Tempo)
         return f"{mnum.group(1)}:{min(10, int(mnum.group(2)))}"
+    rep_w = has("repeat", "again", "say that", "say it", "once more", "one more time")
+    if rep_w and has("slow", "slowly", "slower"):
+        return "repeat_slow"                   # Reisende: Thai-Hörer hat den Satz nicht verstanden
+    if rep_w and has("before", "previous", "earlier"):
+        return "repeat_prev"
     # Gegenteil-/Verneinungsformen vor der Befehlssuche (sonst "too loud" -> louder, "mute off" -> pause)
     neg = _negated_command(c, words)
     if neg:
@@ -4009,10 +4014,15 @@ class Player:
 
     WAIT_MAX = 180.0                   # s: Notbremse, falls ein Kindprozess hängt
 
-    def wait(self, p):
+    @staticmethod
+    def limit_for(nbytes, floor=8.0):
+        """Notbremse je Satz statt fester 180 s: mp3 (48 kbit/s = 6000 Byte/s) Spieldauer x 1,5 + 5 s."""
+        return min(Player.WAIT_MAX, max(floor, 5.0 + 1.5 * nbytes / 6000.0))
+
+    def wait(self, p, max_s=None):
         try:
             try:
-                p.wait(timeout=self.WAIT_MAX)
+                p.wait(timeout=min(self.WAIT_MAX, max_s) if max_s else self.WAIT_MAX)
             except subprocess.TimeoutExpired:
                 log({"player": "hängt, beendet"})
                 try:
@@ -4029,13 +4039,13 @@ class Player:
                     if DEBUG:          # Nr. 48: sonst verdrängt es echte Fehler aus dem Log
                         log({"play_span": [round(start % 1000, 2), round(time.time() % 1000, 2)]})
 
-    def run(self, cmd):
+    def run(self, cmd, max_s=None):
         try:
             p = self.start(cmd)
         except OSError as e:               # Abspielprogramm fehlt / Prozesslimit: nie den Sprechpfad abstürzen lassen
             log({"player": "start fehlgeschlagen", "err": _errtxt(e)})
             return False
-        self.wait(p)
+        self.wait(p, max_s)
         return True
 
     def playing(self):
@@ -4157,6 +4167,33 @@ def tts_loop():
         return _TTS_LOOP
 
 
+def tts_shutdown(timeout=2.0):
+    """Beim Beenden: Vorrats-Websockets und Session schließen und den tts-Loop anhalten (kein hängender Handshake
+    beim Exit). Ohne Loop: nichts zu tun."""
+    global _TTS_LOOP
+    with _TTS_LOCK:
+        loop, _TTS_LOOP = _TTS_LOOP, None
+    if loop is None or not loop.is_running():
+        return
+    import asyncio
+
+    async def close_all():
+        pool, _WS["pool"] = list(_WS["pool"]), []
+        for ws, _ in pool:
+            await _ws_close(ws)
+        sess, _WS["session"] = _WS["session"], None
+        if sess is not None and not sess.closed:
+            try:
+                await sess.close()
+            except Exception:                      # noqa: BLE001
+                pass
+    try:
+        asyncio.run_coroutine_threadsafe(close_all(), loop).result(timeout)
+    except Exception as e:                         # noqa: BLE001
+        log({"tts_ws": "schließen fehlgeschlagen", "err": _errtxt(e)})
+    loop.call_soon_threadsafe(loop.stop)
+
+
 WS_MAX_AGE = 20.0                      # s: gemessen lebt eine wartende Verbindung ≥ 20 s, nach 45 s ist sie zu
 WS_POOL_N = 2                          # eine für den Satz, eine für den zweiten Versuch/den nächsten Teilsatz
 WS_MAX_BYTES = 3000                    # längere Texte teilt edge-tts selbst -> alter Weg
@@ -4172,11 +4209,20 @@ async def _ws_open():
     import asyncio, aiohttp
     from edge_tts import communicate as ec
     if _WS["session"] is None or _WS["session"].closed:
-        _WS["session"] = aiohttp.ClientSession(trust_env=True)
+        # trust_env: HTTP(S)_PROXY der Umgebung gilt auch hier; DOLMETSCHER_TTS_NO_PROXY=1 schaltet das ab
+        _WS["session"] = aiohttp.ClientSession(trust_env=not os.environ.get("DOLMETSCHER_TTS_NO_PROXY"))
     url = (f"{ec.WSS_URL}&ConnectionId={ec.connect_id()}&Sec-MS-GEC={ec.DRM.generate_sec_ms_gec()}"
            f"&Sec-MS-GEC-Version={ec.SEC_MS_GEC_VERSION}")
-    ws = await asyncio.wait_for(_WS["session"].ws_connect(
-        url, compress=15, headers=ec.DRM.headers_with_muid(ec.WSS_HEADERS), ssl=ec._SSL_CTX), 10)
+    try:
+        ws = await asyncio.wait_for(_WS["session"].ws_connect(
+            url, compress=15, headers=ec.DRM.headers_with_muid(ec.WSS_HEADERS), ssl=ec._SSL_CTX), 10)
+    except aiohttp.WSServerHandshakeError as e:
+        if e.status == 403 and hasattr(ec.DRM, "handle_client_response_error"):
+            try:                                   # falsche Systemuhr: Zeitversatz aus der Server-Antwort übernehmen
+                ec.DRM.handle_client_response_error(e)
+            except Exception:                      # noqa: BLE001
+                pass
+        raise
     await ws.send_str(_WS_CONFIG.format(ec.date_to_string()))
     return ws
 
@@ -4659,7 +4705,7 @@ def edge_play(stream, volume, on_start=None, cancelled=None, deadline=None):
                     p.stdin.close()
                 except OSError:
                     pass
-                PLAYER.wait(p)
+                PLAYER.wait(p, Player.limit_for(sum(len(c) for c in got)))
         else:                                   # kein Pipe-Player: puffern, dann afplay
             parts, chunk = [first], _next_chunk(q, cancelled)
             while chunk is not None and chunk is not _CANCELLED and not isinstance(chunk, Exception):
@@ -4680,7 +4726,7 @@ def edge_play(stream, volume, on_start=None, cancelled=None, deadline=None):
                 stats["play_start_s"] = round(time.time() - t0, 2)
                 if on_start:
                     on_start(stats["play_start_s"])
-                PLAYER.run(file_play_cmd(mp3, volume))
+                PLAYER.run(file_play_cmd(mp3, volume), Player.limit_for(sum(len(x) for x in parts)))
             finally:
                 _rm_quiet(mp3)
     finally:
@@ -4983,14 +5029,14 @@ class Speaker:
             local = LocalVoice(s, _say_voice(eng, lang), eng.rate + boost, audio=None)
         return stream, local
 
-    def boost(self, behind):
+    def boost(self, behind, slow=False):
         """Tempo-Zuschlag in Prozentpunkten: Aufhol-Modus (+FAST_BOOST bei Rückstand) oder, mit
         „Langsam und deutlich“, SLOW_RATE langsamer – zusammen nie unter SLOW_RATE_MIN."""
-        if SLOW["on"]:
+        if SLOW["on"] or slow:
             return min(0, max(SLOW_RATE, SLOW_RATE_MIN - int(self.eng.rate)))
         return self.FAST_BOOST if behind and CATCH_UP["mode"] != "off" else 0
 
-    def add(self, text, lang, uid, kind="speech", t_end=None, pin=False):
+    def add(self, text, lang, uid, kind="speech", t_end=None, pin=False, slow=False):
         """pin=True: ausdrücklich ausgelöste Ausgabe (Schnellsatz, Nochmal sprechen, Wiederholung, Befehlsantwort)
         – der Aufhol-Modus überspringt sie nie."""
         with self.cond:
@@ -4998,7 +5044,7 @@ class Speaker:
         item = {"id": uid, "lang": lang, "kind": kind, "parts": [], "t_end": t_end, "pin": pin}
         if kind == "speech":
             item["text"] = text
-            boost = self.boost(behind)
+            boost = self.boost(behind, slow)
             sentences = chunk_long(split_sentences(apply_pronounce(speak_form(text, lang)), lang), lang)
             for i, s in enumerate(p for p in sentences if speakable(p)):
                 # Nur die ersten Teile sofort anfragen; die übrigen erst, wenn der vorige zu spielen
@@ -5268,7 +5314,9 @@ def text_lang(text, lang, pair=None):
 def _backlog():
     q = _QSTATE.get("stt_q")
     try:
-        return q.qsize() if q is not None else 0
+        if q is None:
+            return 0
+        return q.utt_count() if hasattr(q, "utt_count") else q.qsize()
     except Exception:
         return 0
 
@@ -5283,6 +5331,85 @@ def _wake_after_reply():
         eng.awake_until = time.monotonic() + WAKE_S
 
 
+_EN_ABBREV = frozenset({"mr", "mrs", "ms", "dr", "prof", "sr", "jr", "st", "vs", "etc", "no", "approx", "inc", "ltd",
+                        "co", "mt", "a.m", "p.m", "e.g", "i.e", "u.s", "u.k"})
+
+
+def sentence_complete_en(text):
+    """Endet der englische Text mit einem echten Satzende (. ? !) und nicht in "Dr.", "5 p.m." oder "No."?
+    Für den Früh-Schnitt: ein Abkürzungspunkt darf die Äußerung nicht mitten im Satz beenden."""
+    t = (text or "").strip()
+    m = re.search(r"([.?!])['\"”]?$", t)
+    if not m:
+        return False
+    if m.group(1) != ".":
+        return True
+    last = re.sub(r"^[^\w]+", "", t[:m.start(1)].split()[-1].lower()) if t[:m.start(1)].split() else ""
+    return last not in _EN_ABBREV and not re.fullmatch(r"[a-z]", last)
+
+
+def stt_token_cap(dur, lang):
+    """Token-Obergrenze nach Audiodauer: Thai braucht je Sekunde deutlich mehr Tokens als Englisch (sonst würde
+    schnelles Thai abgeschnitten); eine Wiederholungsschleife auf fremdem Audio endet trotzdem schnell."""
+    per_s = 18 if lang == "th" else 14
+    return int(min(600 if lang == "th" else 440, 24 + per_s * max(0.0, dur)))
+
+
+def mean_logprob(segs):
+    """Mittlere log-prob, nach Segmentdauer gewichtet: ein kurzes unsicheres Segment zieht einen langen sicheren
+    Satz nicht mehr unter die Verwerfungsschwelle. Ohne Zeiten: ungewichtet. Keine Segmente: -9."""
+    if not segs:
+        return -9.0
+    ws = []
+    for sg in segs:
+        try:
+            w = float(sg.end) - float(sg.start)
+        except (AttributeError, TypeError, ValueError):
+            w = 0.0
+        ws.append(w if w > 0.05 else 0.05)
+    tot = sum(ws)
+    return float(sum(sg.avg_logprob * w for sg, w in zip(segs, ws)) / tot)
+
+
+CURRENCY = {"code": None, "per_baht": None}   # Heimwährung für die Preisanzeige (Steuerfeld `currency`)
+PRICE_MAX = 3
+
+
+def price_info(*texts, per_baht=None):
+    """Baht-Beträge aus den Texten (Quelle und Übersetzung) -> [{"thb": Betrag, "value": Heimwährung}] (höchstens
+    PRICE_MAX, ohne Doppelte). Ohne Kurs nur die Beträge. Reine Anzeigehilfe, kein Zahlungsversprechen."""
+    seen, out = set(), []
+    for t in texts:
+        for cur, amt in currency_amounts(t):
+            try:
+                amt = float(amt)
+            except (TypeError, ValueError):
+                continue
+            if cur != "THB" or amt in seen or not (0 < amt < 1e9):
+                continue
+            seen.add(amt)
+            item = {"thb": amt}
+            if per_baht:
+                item["value"] = round(amt * per_baht, 2)
+            out.append(item)
+    return out[:PRICE_MAX]
+
+
+def _currency_arg(v):
+    """{"code": "EUR", "per_baht": 0.026} -> (code, Kurs); None -> (None, None) löscht; sonst ValueError."""
+    if v is None:
+        return None, None
+    if not isinstance(v, dict):
+        raise ValueError("currency")
+    code, rate = v.get("code"), v.get("per_baht")
+    if not (isinstance(code, str) and re.fullmatch(r"[A-Za-z]{3}", code)):
+        raise ValueError("currency.code")
+    r = _clamp(rate, 0.0, 100000.0)
+    if r is None or r <= 0:
+        raise ValueError("currency.per_baht")
+    return code.upper(), float(r)
+
+
 class Engine:
     def __init__(self, model, polite, lock="auto", tts="edge", device="auto", voices=None):
         self.lock, self.tts = lock, tts
@@ -5292,7 +5419,6 @@ class Engine:
         # lud "best" zusätzlich medium, das dann fast nie rechnete (~1,5 GB und mehrere Sekunden Start).
         main = "large-v3-turbo" if model == "best" else model
         self.m, self.device = load_model(main, device)
-        self.m_en = None                       # Englisch läuft über das Hauptmodell
         # Spracherkennung mit small: 0,2–0,3 s statt 0,5–1,9 s (gemessen, M4 Pro/MPS), bei Thai
         # sogar sicherer. Thai: auf Thai trainiertes Whisper (biodatlab, MIT) – ~30 % weniger Fehler
         # bei leiser/entfernter Sprache. Beide laden gleichzeitig (nach dem Hauptmodell, das das
@@ -5492,6 +5618,13 @@ class Engine:
                 reply = None                   # gleicher Abschluss wie alle Befehle (Wake-Fenster zu, Log)
             else:
                 reply = "Nothing to repeat yet."
+        elif key in ("repeat_slow", "repeat_prev"):
+            src = self.last if key == "repeat_slow" else getattr(self, "prev", None)
+            if src:
+                self.speaker.add(src[0], src[1], "cmd", pin=True, slow=key == "repeat_slow")
+                reply = None
+            else:
+                reply = "Nothing to repeat yet."
         elif key == "slower":
             self.rate = int(_clamp(self.rate - 15, -50, 50)); reply = "Slower."
         elif key == "faster":
@@ -5576,6 +5709,7 @@ class Engine:
         Verlauf, "repeat", Roh-Audio/Text, Caches, und wartende/laufende Sprachausgabe (enthält den Text)."""
         self.history.clear()
         self.last = None
+        self.prev = None
         self._cleared = True                # restore_last darf den gelöschten Satz nicht aus dem Verlauf zurückholen
         for name in ("texts", "recent", "_hist_ids"):   # kein Roh-Audio/Text im Speicher behalten
             getattr(self, name, {}).clear()
@@ -5641,10 +5775,9 @@ class Engine:
           sonst bis zu 6x neu (Log: 2 s Audio -> 60 s Rechenzeit, danach Stau von 7 Sätzen).
         - Thai: keine Wiederholungs-Sperren (มากๆ, ไม่ไม่ sind echtes Thai), keine zweite VAD.
         - quick: Gegenprobe in der anderen Sprache mit Beam 1 (nur der log-prob-Vergleich zählt)."""
-        mdl = model or (self.m_en if (lang == "en" and self.m_en) else
-                        self.m_th if (lang == "th" and self.m_th) else self.m)
+        mdl = model or (self.m_th if (lang == "th" and self.m_th) else self.m)
         dur = audio.size / SR
-        cap = int(min(440, 24 + 14 * dur))
+        cap = stt_token_cap(dur, lang)
         if lang == "th":
             kw = dict(repetition_penalty=1.0, no_repeat_ngram_size=0, vad_filter=False)
         elif lang in NO_REP_PENALTY:      # legitime Doppelungen (orang-orang, 看看, 谢谢): keine Wiederholungssperre
@@ -5664,8 +5797,7 @@ class Engine:
             text = " ".join(p for p in parts if p).strip()
         else:
             text = " ".join(s.text.strip() for s in segs).strip()
-        lp = float(np.mean([s.avg_logprob for s in segs])) if segs else -9.0
-        return text, lp, segs
+        return text, mean_logprob(segs), segs
 
     def _drop(self, info, reason, uid, emit_reason=None, **extra):
         info["drop"] = reason
@@ -5979,10 +6111,11 @@ class Engine:
         """'Das war ich' / 'Das war sie' aus der App: Satz in der richtigen Sprache neu erkennen,
         neu übersetzen (ersetzt die Blase) und den Stimmabdruck deutlich nachführen."""
         self._expire_recent()
-        if role not in ("me", "other") or uid not in self.recent:
+        rec = self.recent.get(uid) if role in ("me", "other") else None     # ein Zugriff: _expire_recent läuft parallel
+        if rec is None:
             emit("error", code="reassign_expired", msg="Satz nicht mehr im Speicher – bitte neu sprechen")
             return
-        audio, emb = self.recent[uid]
+        audio, emb = rec
         lang = role_lang(role)
         try:
             hw = self._hotwords(lang, None, role)
@@ -5991,10 +6124,10 @@ class Engine:
         text, lp, segs = self._stt(audio, lang, hotwords=hw)
         text = self._clean_reassigned(text, audio, segs, lang)  # dieselben Schutzfilter wie process()
         log({"reassign": {"id": uid, "role": role, "lang": lang, "lp": round(lp, 3)}})
-        self.last_role = (role, time.time())
         if not text:                                           # nichts Brauchbares: Stimmabdruck nicht verbiegen
             emit("error", code="reassign_empty", msg="In dieser Sprache nichts erkannt")
             return
+        self.last_role = (role, time.time())                   # erst nach Erfolg: Fehlversuch ändert die Vorgeschichte nicht
         if self.spk is not None:                               # erst jetzt nachführen (Fehlklick ohne Folgen)
             try:
                 p = self.spk.me() if role == "me" else self.spk.partner()
@@ -6042,6 +6175,9 @@ class Engine:
         """Vorab-Erkennung nach kurzer Pause: Sprache + Text wie process() sie berechnen würde.
         Wird bei unveränderter Äußerung (nur Stille angehängt) wiederverwendet. Englisch mit
         Satzzeichen am Ende beendet die Äußerung sofort (Thai nicht: ครับ/นะ enden auch Teilsätze)."""
+        if _backlog() >= DEGRADE_AT:                # Rückstand: Rechenzeit für den echten Satz freihalten
+            log({"pre": {"id": uid, "v": version, "skipped": "rückstand"}})
+            return
         t = time.monotonic()
         a, _ = normalize(audio)
         try:
@@ -6057,7 +6193,7 @@ class Engine:
             while len(PRE) > 20:
                 PRE.pop(next(iter(PRE)))
         early = (FAST["endpoint"] and lang == "en" and len(res[0].split()) >= 2
-                 and re.search(r"[.?!]['\"”]?\s*$", res[0]) is not None and res[1] > -0.6)
+                 and sentence_complete_en(res[0]) and res[1] > -0.6)
         if early:
             with _PRE_LOCK:
                 EARLY_END[uid] = version
@@ -6120,7 +6256,7 @@ class Engine:
             if numbers_differ(text, out):      # Zahlen weichen ab: zweiter Anbieter entscheidet (Nr. 25)
                 out = recheck_numbers(text, lang, dst, out, meta, hist, alts, polite)
         except Exception as e:
-            if "offline" in str(e):
+            if "offline" in str(e) or is_offline_error(e):
                 net_state("translate", False)
             # mit Text und Sprache (wie `unsure`): die App kann „Erneut versuchen“ anbieten (Nr. 161)
             emit("dropped", reason="übersetzung fehlgeschlagen", code="translate_failed", id=uid,
@@ -6140,6 +6276,8 @@ class Engine:
         last = getattr(self, "last", None)
         # nur Vorgelesenes ist "repeat"-fähig; eine Korrektur eines älteren Satzes verdrängt nicht den neuesten
         if speak and not getattr(self, "mute", False) and (not replaces or last is None or last[2] == replaces):
+            if last is not None and last[0] != out:
+                self.prev = last                      # "repeat the one before"
             self.last = (out, dst, uid)
         elif replaces and last is not None and last[2] == replaces:
             self.last = None                          # alte (falsche) Fassung nicht mehr wiederholen
@@ -6162,6 +6300,10 @@ class Engine:
              text_latin=thai_latin(text) if lang == "th" else None,
              out_latin=thai_latin(out) if dst == "th" else None,
              num_warn=True if _nd else None, num_diff=_numbers_detail(text, out) if _nd else None, **base)
+        if CURRENCY["per_baht"]:
+            pr = price_info(text, out, per_baht=CURRENCY["per_baht"])
+            if pr:
+                emit("price", id=uid, code=CURRENCY["code"], items=pr)
         if speak:
             self.speaker.add(out, dst, uid, t_end=t_end, pin=source in ("phrase", "edit"))
         if BACK["on"]:
@@ -6210,7 +6352,11 @@ def record_one(mic="0", timeout=20.0, denoise=False):
     """Ein gesprochener Satz vom Mikrofon (für das Anlegen von Stimmprofilen). Ein Wachhund beendet
     ffmpeg nach timeout+2 s: Lesen blockiert sonst endlos (Zugriff verweigert, Gerät hängt).
     denoise: dieselbe Rauschunterdrückung wie im Betrieb (--denoise)."""
-    ff = subprocess.Popen(capture_cmd(dev=resolve_mic(mic), af=mic_filter(bool(denoise))), stdout=subprocess.PIPE)
+    try:
+        ff = subprocess.Popen(capture_cmd(dev=resolve_mic(mic), af=mic_filter(bool(denoise))), stdout=subprocess.PIPE)
+    except OSError as e:                        # ffmpeg fehlt/Zugriff verweigert: Fehlercode statt Traceback
+        log({"record": "start fehlgeschlagen", "err": _errtxt(e)})
+        return None
     wd = threading.Timer(timeout + 2.0, Mic._kill, args=(ff,))
     wd.daemon = True
     wd.start()
@@ -6383,6 +6529,10 @@ def set_langs(eng, mine, partner):
         return False
     old = tuple(PAIR)
     set_pair(mine, partner)
+    with _PRE_LOCK:                         # Vorab-Erkennungen/Früh-Schnitte kennen nur die alte Richtung
+        PRE.clear()
+        EARLY_END.clear()
+        PRE_NOW.clear()
     tr = getattr(eng, "translate_dir", {}) or {}
     eng.translate_dir = {k: tr.get(k, True) for k in PAIR}
     voices = getattr(eng, "voices", None)
@@ -6446,6 +6596,17 @@ def _choice(d, key, allowed):
     return None
 
 
+def _num(d, key, lo, hi):
+    """Zahl aus der Steuerzeile begrenzt auf lo..hi; vorhandener, aber nicht numerischer Wert -> control_invalid
+    (statt stiller Ignoranz). None/fehlend -> None."""
+    if d.get(key) is None:
+        return None
+    n = _clamp(d.get(key), lo, hi)
+    if n is None:
+        _control_invalid(key)
+    return n
+
+
 def _text_arg(v, limit=PHRASE_MAX):
     return v.strip() if isinstance(v, str) and 0 < len(v.strip()) <= limit else None
 
@@ -6461,6 +6622,7 @@ CTRL_KEYS = frozenset({
     f"voice_{k}" for k in LANGS}
 
 CTRL_KEYS |= {"let_finish", "catch_up", "beam", "llm_retry", "clear", "cache_persist", "history_speakers"}   # Runde 6/7
+CTRL_KEYS |= {"currency"}                                                                           # Runde 21
 CTRL_KEYS |= {"echo_guard"}                                                                         # Runde 8
 
 
@@ -6497,7 +6659,7 @@ def apply_control(eng, d):
         if ok:
             eng.mute = not v
             if eng.mute:
-                later.append(eng.stop_speaking)
+                later.insert(0, eng.stop_speaking)     # Stumm zuerst: nicht hinter Platten-/ffmpeg-Aktionen warten
         ok, v = _flag(d, "paused")
         if ok: eng.paused = v
         ok, v = _flag(d, "listen")
@@ -6519,11 +6681,11 @@ def apply_control(eng, d):
                 jobs.append(MIC.start)         # öffnet ffmpeg – nicht im Lese-Thread blockieren
             else:
                 later.append(MIC.stop)
-        n = _clamp(d.get("rate"), -50, 50)
+        n = _num(d, "rate", -50, 50)
         if n is not None: eng.rate = int(n)
-        n = _clamp(d.get("volume"), 0.2, 2.0)
+        n = _num(d, "volume", 0.2, 2.0)
         if n is not None: eng.volume = float(n)
-        n = _clamp(d.get("silence"), 0.4, 2.0)
+        n = _num(d, "silence", 0.4, 2.0)
         if n is not None: SILENCE_END = float(n)
         v = _choice(d, "sensitivity", SENSITIVITY)
         if v:
@@ -6574,7 +6736,7 @@ def apply_control(eng, d):
         ok, v = _flag(d, "clear")
         if ok and v:                           # Mac-Punkt 9: Gespräch im Speicher löschen
             later.append(lambda: (eng.clear_context(), emit("cleared")))
-        n = _clamp(d.get("llm_budget"), 0.0, 10000.0)
+        n = _num(d, "llm_budget", 0.0, 10000.0)
         if n is not None:
             LLM["budget"] = float(n)           # USD je Monat, 0 = keine Grenze (Nr. 16)
             _SPEND["warned"] = _SPEND["warned80"] = None
@@ -6586,6 +6748,11 @@ def apply_control(eng, d):
         if ok: BACK["on"] = v
         ok, v = _flag(d, "learn_glossary")
         if ok: LEARN["glossary"] = v
+        if "currency" in d:                    # Preisanzeige: Baht in die Heimwährung (Kurs kommt von der App)
+            try:
+                CURRENCY["code"], CURRENCY["per_baht"] = _currency_arg(d["currency"])
+            except ValueError:
+                _control_invalid("currency")
         ok, v = _flag(d, "echo_guard")
         if ok: ECHO["on"] = v                  # Runde 8: Nachhall der eigenen Stimme verwerfen
         if "output_device" in d:              # Nr. 24/357: Ausgabegerät (UID, Name, Index oder "" = Standard)
@@ -6622,19 +6789,20 @@ def apply_control(eng, d):
                 later.append(eng.restore_last)
         elif "history_days" in d:              # Frist allein ändern (früher stillschweigend ignoriert)
             later.append(lambda days=d["history_days"]: history_set_days(days))
-        n = _clamp(d.get("tts_race"), 0.0, 5.0)
+        n = _num(d, "tts_race", 0.0, 5.0)
         if n is not None: TTS_RACE = float(n)
-        n = _clamp(d.get("let_finish"), 0.0, LET_FINISH_MAX)
+        n = _num(d, "let_finish", 0.0, LET_FINISH_MAX)
         if n is not None: LET_FINISH["s"] = float(n)          # Nr. 69
         v = _choice(d, "catch_up", CATCH_UP_MODES)
         if v:
             CATCH_UP["mode"] = v                              # Nr. 171
-        n = _clamp(d.get("beam"), 0, 5)
+        n = _num(d, "beam", 0, 5)
         if n is not None and hasattr(eng, "beam"):            # Nr. 176: Schnell (1) … Genau (5), live;
             eng.beam = int(n) or getattr(eng, "beam_default", eng.beam)   # 0 = zurück zum Startwert
         ok, v = _flag(d, "stop_speaking")
         if ok and v:
-            later.append(eng.stop_speaking)
+            if eng.stop_speaking not in later:
+                later.insert(0, eng.stop_speaking)     # Stopp hat Vorrang vor langsamen Aktionen
         if "ping" in d:
             p = d["ping"]
             emit("pong", **({"id": p} if isinstance(p, (str, int)) and not isinstance(p, bool)
@@ -6740,12 +6908,18 @@ def _subtitle_recorder(path):
 def _write_subtitles(store, path):
     import history_store
     fmt = "vtt" if str(path).lower().endswith(".vtt") else "srt"
-    text = history_store.export(store.rows("datei"), fmt)
-    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-    os.fchmod(fd, 0o600)
-    with os.fdopen(fd, "w", encoding="utf-8", newline="") as f:
-        f.write(text)
-    store.close()
+    try:
+        text = history_store.export(store.rows("datei"), fmt)
+        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        os.fchmod(fd, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8", newline="") as f:
+            f.write(text)
+    finally:                                   # die flüchtige Datenbank enthält den ganzen Text: nie liegen lassen
+        try:
+            store.close()
+        except Exception:                      # noqa: BLE001
+            pass
+        _rm_quiet(getattr(store, "path", "") or "")
     emit("subtitles", path=os.path.basename(str(path)), cues=text.count("-->"))
 
 
@@ -6790,7 +6964,19 @@ def _stdin_lines():
         stream = io.TextIOWrapper(sys.stdin.buffer, encoding="utf-8", errors="replace")
     except (AttributeError, ValueError):       # Tests/ersetztes stdin ohne Puffer
         stream = sys.stdin
-    yield from stream
+    if not hasattr(stream, "readline"):
+        yield from stream
+        return
+    while True:                                # begrenzt lesen: eine endlose Zeile ohne "\n" füllt nie den Speicher
+        line = stream.readline(CTRL_LINE_MAX + 1)
+        if not line:
+            return
+        if len(line) > CTRL_LINE_MAX and not line.endswith("\n"):
+            while True:                        # Rest der Riesenzeile verwerfen
+                rest = stream.readline(65536)
+                if not rest or rest.endswith("\n"):
+                    break
+        yield line
 
 
 CTRL_LINE_MAX = 256 * 1024          # Zeichen je Steuerzeile (Glossar höchstens GLOSSARY_MAX)
@@ -6816,6 +7002,11 @@ def control_loop(eng, jobs=None):
                         _BAD_JSON["t"] = now
                     continue
                 if not isinstance(d, dict):
+                    _BAD_JSON["n"] += 1
+                    now = time.monotonic()
+                    if now - _BAD_JSON["t"] >= 10.0:
+                        log({"control": "kein JSON-Objekt", "n": _BAD_JSON["n"], "typ": type(d).__name__})
+                        _BAD_JSON["t"] = now
                     continue
                 try:
                     job = apply_control(eng, d)
@@ -6828,7 +7019,7 @@ def control_loop(eng, jobs=None):
                     if jobs is not None:
                         jobs.put(("job", job))
                     else:
-                        threading.Thread(target=job, daemon=True).start()
+                        threading.Thread(target=_run_all, args=((job,),), daemon=True).start()   # Fehler -> Log
         finally:
             log({"control": "stdin zu – beende"})
             STOP.set()
@@ -6884,6 +7075,7 @@ def quietest_cut(buf, look_back_s=4.0, fdur=StreamVAD.N / SR):
 
 
 METER = False
+TTS_PREPARE_AFTER_S = 0.35       # s Sprache, bevor edge-tts-Verbindungen geöffnet werden (Husten/Verkehr öffnet keine)
 ROLE_PREV_GAP = 3.0              # s: bis zu dieser Pause entscheidet der vorherige Sprecher knappe Fälle
 RECENT_MAX = 30                 # so viele letzte Sätze (Audio) für "Das war ich/sie" behalten
 RECENT_TTL = 300.0              # s: älteres Audio wird verworfen (Nr. 174)
@@ -6907,14 +7099,16 @@ def pre_mark(uid, version):
     """Aktuelle Fassung einer Äußerung merken. Eine eingereihte Vorab-Erkennung mit älterer Fassung
     ist überholt (es wurde weitergesprochen) und wird nicht mehr gerechnet – sonst blockiert sie
     den einzigen Arbeits-Thread 1–3 s (Log: bis zu drei überholte Läufe je Satz, danach Stau)."""
-    PRE_NOW[uid] = version
-    PRE_NOW.move_to_end(uid)
-    while len(PRE_NOW) > 50:
-        PRE_NOW.popitem(last=False)
+    with _PRE_LOCK:
+        PRE_NOW[uid] = version
+        PRE_NOW.move_to_end(uid)
+        while len(PRE_NOW) > 50:
+            PRE_NOW.popitem(last=False)
 
 
 def pre_stale(uid, version):
-    return PRE_NOW.get(uid, version) != version
+    with _PRE_LOCK:
+        return PRE_NOW.get(uid, version) != version
 
 
 def _early(uid):
@@ -6923,6 +7117,29 @@ def _early(uid):
 
 
 MISSED_CHECK_FRAMES = 3            # ~100 ms nach Ausgabe-Ende: Sprache dort = währenddessen gesprochen
+
+
+class NoiseTracker:
+    """Grundrauschen zwischen den Äußerungen: ist es lange durchgehend laut (Markt, Tuk-Tuk, Wind), ohne dass
+    Sprache erkannt wird, lohnt der Tipp "Kopfhörer-Mikrofon oder Rauschunterdrückung". Nur Pegel, kein Audio."""
+    NOISY_RMS = 0.05                   # ~ -26 dBFS im Median der stillen Frames
+    FRAMES = 150                       # ~ 5 s
+
+    def __init__(self):
+        self.rms = collections.deque(maxlen=self.FRAMES)
+
+    def update(self, rms, prob):
+        """Einen Nicht-Sprach-Frame einrechnen; True, sobald der Median dauerhaft über der Schwelle liegt."""
+        if prob > 0.3:
+            self.rms.clear()           # Sprache dazwischen: neu messen
+            return False
+        self.rms.append(rms)
+        if len(self.rms) < self.FRAMES:
+            return False
+        noisy = sorted(self.rms)[len(self.rms) // 2] >= self.NOISY_RMS
+        if noisy:
+            self.rms.clear()
+        return noisy
 
 
 def segmenter(read, utts, sess=0, on_end=None):
@@ -6939,6 +7156,8 @@ def segmenter(read, utts, sess=0, on_end=None):
     t_voice = 0.0                   # Aufnahmezeit des letzten Sprach-Frames (für die Latenzmessung)
     uid, version, pre_sent, partial_at = None, 0, False, 0.0
     gate_t0, gate_dur, gate_cut, check_after = 0.0, 0.0, None, 0    # Hinweis `missed` (Nr. 159)
+    noise = NoiseTracker()
+    prepared = False                # Verbindung zur Stimme erst nach TTS_PREPARE_AFTER_S Sprache (nicht bei Husten/Lärm)
 
     def put(frames, reason, sp):
         if sp >= MIN_UTT:
@@ -7020,15 +7239,17 @@ def segmenter(read, utts, sess=0, on_end=None):
             else:
                 onset = 0                                   # Wiedergabe vorbei: Zähler zurücksetzen
             if not voiced:
+                if noise.update(rms, prob) and not DENOISE:
+                    hint("noisy")                           # laute Umgebung: Tipp (Kopfhörer-Mikro, Rauschunterdrückung)
                 pre = (pre + [f])[-12:]                     # ~380 ms Vorlauf
                 if prob > VAD["start"]:
                     voiced, buf, silence, speech, peak_rms = True, pre[:], 0.0, fdur, rms
                     t_voice = t_cap
                     t_begin = t_cap
                     uid, version, pre_sent, partial_at = new_id(), 0, False, 0.0
+                    prepared = False
                     HEARING.set()
                     emit("hearing", id=uid)
-                    tts_prepare_if_speaking()       # Verbindung zur Stimme öffnen, während gesprochen wird
                 continue
             buf.append(f)
             peak_rms = max(peak_rms, rms)
@@ -7040,6 +7261,9 @@ def segmenter(read, utts, sess=0, on_end=None):
                     pre_mark(uid, version)
             else:
                 silence += fdur
+            if not prepared and speech >= TTS_PREPARE_AFTER_S:
+                prepared = True
+                tts_prepare_if_speaking()           # Verbindung zur Stimme öffnen, während noch gesprochen wird
             if silence >= SILENCE_END - (min(0.2, SILENCE_END - 0.4) if speech < 1.2 else 0.0):
                 finish("vad")      # sehr kurze Äußerung („ja“): Satzende bis 0.2 s früher
             elif silence > 0 and _early(uid) == version:
@@ -7063,6 +7287,7 @@ def segmenter(read, utts, sess=0, on_end=None):
                                  "rest_s": round(len(tail) * fdur, 2)}})
                 put(head, "max", len(head) * fdur)
                 buf, speech = tail, len(tail) * fdur
+                peak_rms = max((float(np.sqrt(np.mean(x ** 2))) for x in tail), default=0.0)   # nicht der Pegel des Kopfteils
                 uid, version, pre_sent, partial_at = new_id(), 0, False, 0.0
                 emit("hearing", id=uid)
     finally:
@@ -7130,9 +7355,12 @@ def resolve_mic(mic, strict=False):
     except Exception as e:
         log({"mic": "liste-fehler", "err": _errtxt(e)})
         return m                                # avfoundation versteht den Namen auch direkt
-    for x in mics:
-        if x["name"] == m or x["name"].lower() == m.lower():
-            return x["index"]
+    hits = [x for x in mics if x["name"] == m or x["name"].lower() == m.lower()]
+    if hits:
+        if len(hits) > 1:                       # zwei gleich heißende Geräte ("USB Audio"): Index in --mic nutzen
+            log({"mic": "mehrdeutig", "n": len(hits)})
+            hint("mic_ambiguous", n=len(hits))
+        return hits[0]["index"]
     if strict:                                  # Reconnect: auf das Gerät warten, nie still aufs Raummikrofon wechseln
         return None
     emit("error", code="mic_not_found", msg="Mikrofon nicht gefunden – Standardmikrofon wird genutzt")
@@ -7339,6 +7567,10 @@ class Mic:
                 ff.wait(2)
             except subprocess.TimeoutExpired:
                 ff.kill()
+                try:
+                    ff.wait(2)                 # einsammeln: kein Zombie bis zur nächsten poll()/GC
+                except subprocess.TimeoutExpired:
+                    pass
 
     def stop(self):
         """Mikrofon zu (Stopp-Knopf). Laufende/wartende Ausgaben brechen ab, Äußerungen dieser
@@ -7349,8 +7581,9 @@ class Mic:
             ff, self.ff, self.on = self.ff, None, False
         self._kill(ff)
         HEARING.clear()
-        for u in list(PRE_NOW):                 # wartende Vorab-Erkennungen dieser Sitzung sind überholt
-            PRE_NOW[u] = -1
+        with _PRE_LOCK:
+            for u in list(PRE_NOW):             # wartende Vorab-Erkennungen dieser Sitzung sind überholt
+                PRE_NOW[u] = -1
         self.eng.stop_speaking()
         emit("mic", on=False)
 
@@ -7396,6 +7629,11 @@ class WorkQueue(queue.Queue):
 
     def _qsize(self):
         return len(self.queue) + len(self.jobs)
+
+    def utt_count(self):
+        """Nur wartende Äußerungen (ohne "pre"/"partial"/"job"): das ist der echte Rückstand."""
+        with self.mutex:
+            return sum(1 for x in self.queue if self._is_utt(x))
 
     MAX_UTTS = 15                      # so viele Äußerungen (mit Audio) warten höchstens: sonst wächst der RAM
 
@@ -7512,6 +7750,10 @@ def cleanup():
             log({"cleanup": "fehler", "err": _errtxt(e)})
     if MIC is not None:
         Mic._kill(MIC.ff)
+    try:
+        tts_shutdown()
+    except Exception as e:                     # noqa: BLE001
+        log({"cleanup": "tts", "err": _errtxt(e)})
     try:                                       # wartende Verlauf-Schreibvorgänge noch abschließen
         import history_store
         history_store.RECORDER.flush()
@@ -7606,8 +7848,8 @@ if __name__ == "__main__":
     ap.add_argument("--lang", choices=["auto", *LANGS], default="auto",
                     help="nur diese Sprache des Paars (auto = beide)")
     ap.add_argument("--tts", choices=["edge", "say"], default="edge")
-    ap.add_argument("--no-en", action="store_true", help="Englisch nicht übersetzen (nur anzeigen)")
-    ap.add_argument("--no-th", action="store_true", help="Thai nicht übersetzen (nur anzeigen)")
+    ap.add_argument("--no-en", action="store_true", help="Englisch nicht übersetzen (nur anzeigen; veraltet, besser --no-mine/--no-partner)")
+    ap.add_argument("--no-th", action="store_true", help="Thai nicht übersetzen (nur anzeigen; veraltet, besser --no-mine/--no-partner)")
     ap.add_argument("--no-mine", action="store_true", help="meine Sprache nicht übersetzen (nur anzeigen)")
     ap.add_argument("--no-partner", action="store_true", help="Partnersprache nicht übersetzen (nur anzeigen)")
     ap.add_argument("--profiles", action="store_true", help="Stimmprofile auflisten (JSON)")
@@ -7769,6 +8011,14 @@ if __name__ == "__main__":
         eng = Engine(model, a.polite, a.lang if a.lang in ("auto", *PAIR) else "auto", a.tts, a.device)
     except ImportError as e:
         env_broken(e)
+    except Exception as e:                      # noqa: BLE001 – Modell-Download, Speicher, MPS: Ereignis statt Traceback
+        log({"engine": "start fehlgeschlagen", "err": _errtxt(e)})
+        if is_offline_error(e):                 # Modell-Download ohne Netz: App kennt diesen Code
+            emit("error", code="model_offline", msg="Modell nicht geladen (kein Netz) – bitte online starten")
+        else:
+            emit("error", code="python_env_broken", msg=f"Engine konnte nicht starten: {_errtxt(e)}", module="")
+        flush_output()
+        sys.exit(1)
     if a.beam:
         eng.beam = max(1, min(5, a.beam))                # Nr. 176: vor Umgebung und hwprofile
     if hw:
@@ -7820,7 +8070,11 @@ if __name__ == "__main__":
                     _history_file_pos(pos)         # Verlauf/Untertitel: Zeit = Position in der Datei
                     while not a.mute and eng.speaker.pending() >= 2 and not STOP.is_set():
                         time.sleep(0.1)            # Vorlesen nachkommen lassen: kein Satz wird übersprungen
-                    eng.process(chunk, speak=not a.mute)
+                    try:
+                        eng.process(chunk, speak=not a.mute)
+                    except Exception as e:     # ein Abschnitt darf den Rest der Datei nicht abbrechen
+                        log({"file": "abschnitt-fehler", "err": _errtxt(e)})
+                        emit("error", code="file_failed", msg=f"{name}: {_errtxt(e)}")
             except Exception as e:              # eine kaputte Datei bricht die übrigen nicht ab
                 log({"file": "fehler", "err": _errtxt(e)})
                 emit("error", code="file_failed", msg=f"{name}: {_errtxt(e)}")
