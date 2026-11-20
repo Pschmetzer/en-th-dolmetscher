@@ -123,6 +123,12 @@ enum URLCommands {
                     .trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty, text.count <= 1000 else { return }
             let lang = Langs.valid(items.first(where: { $0.name == "lang" })?.value) ?? Prefs.phraseLang(text)
             m.say(text, lang: lang)
+        case "card":   // Kurzbefehl „Karte zeigen“: dolmetscher://card?text=…
+            guard let text = items.first(where: { $0.name == "text" })?.value?
+                    .trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty, text.count <= 300 else { return }
+            R24Shared.shared.showCard(text, number: PriceLogic.parseAmount(text) != nil)
+            NotificationCenter.default.post(name: .openCard, object: nil)
+        case "summary": NotificationCenter.default.post(name: .openSummary, object: nil)
         default: break
         }
     }
@@ -177,8 +183,19 @@ struct WhatsNewSheet: View {
 // MARK: Nr. 52 – Untertitel-Fenster
 
 /// Schmales Fenster mit der letzten Übersetzung (für Videoanrufe); Schriftgröße wie die Partner-Ansicht.
+/// Einstellungs-Schlüssel des Untertitel-Fensters (Runde 24: Position, klick-durchlässig, Schrift).
+enum CaptionKeys {
+    static let anchor = "captionAnchor"
+    static let clickThrough = "captionClickThrough"
+    static let bold = "captionBold"
+}
+
 struct CaptionView: View {
     @EnvironmentObject var m: EngineModel
+    @AppStorage(CaptionKeys.anchor) private var anchorRaw = CaptionStyle.Anchor.free.rawValue
+    @AppStorage(CaptionKeys.clickThrough) private var clickThrough = false
+    @AppStorage(CaptionKeys.bold) private var bold = true
+    @State private var window: NSWindow?
     @AppStorage("captionZoom") private var zoom = 1.0
     @AppStorage("captionOriginal") private var showOriginal = false
     @AppStorage("captionOpacity") private var opacity = 1.0
@@ -196,7 +213,7 @@ struct CaptionView: View {
                 Text(L.t("chat_empty_start")).font(.system(size: 16 * zoom)).foregroundStyle(.secondary)
             }
             Text(last?.out ?? "")
-                .font(.system(size: 28 * zoom, weight: .semibold))
+                .font(.system(size: 28 * zoom, weight: bold ? .bold : .regular))
                 .minimumScaleFactor(0.4)
             if showOriginal, let o = last?.text {
                 Text(o).font(.system(size: 15 * zoom)).foregroundStyle(.secondary).lineLimit(2)
@@ -217,10 +234,20 @@ struct CaptionView: View {
             Picker(L.t("caption_opacity"), selection: $opacity) {
                 ForEach([1.0, 0.85, 0.7, 0.5], id: \.self) { Text("\(Int($0 * 100)) %").tag($0) }
             }
+            Picker(R24T.t("cap_anchor"), selection: $anchorRaw) {
+                Text(R24T.t("cap_anchor_bottom")).tag(CaptionStyle.Anchor.bottom.rawValue)
+                Text(R24T.t("cap_anchor_top")).tag(CaptionStyle.Anchor.top.rawValue)
+                Text(R24T.t("cap_anchor_free")).tag(CaptionStyle.Anchor.free.rawValue)
+            }
+            Toggle(R24T.t("cap_bold"), isOn: $bold)
+            Toggle(R24T.t("cap_clickthrough"), isOn: $clickThrough)
             Divider()
             Button(L.t("copy_last")) { if let o = last?.out { copyToPasteboard(o) } }.disabled(last == nil)
         }
+        .onChange(of: anchorRaw) { applyAnchor() }
         .background(WindowAccessor { w in
+            if window !== w { window = w; R24Window.fitOnScreen(w) }
+            w.ignoresMouseEvents = clickThrough   // Weg zurück: Menüleisten-Symbol „Untertitel wieder anklickbar machen“
             w.level = .floating
             w.isMovableByWindowBackground = true
             w.collectionBehavior.insert(.canJoinAllSpaces)
@@ -229,6 +256,15 @@ struct CaptionView: View {
         })
         .accessibilityElement(children: .combine)
         .accessibilityLabel(last.map { $0.out + (showOriginal ? ". " + $0.text : "") } ?? L.t("caption_title"))
+    }
+}
+
+extension CaptionView {
+    /// Fenster an den gewählten Rand des Bildschirms setzen (frei = Position unverändert).
+    fileprivate func applyAnchor() {
+        guard let w = window, let screen = w.screen?.visibleFrame ?? NSScreen.main?.visibleFrame,
+              let a = CaptionStyle.Anchor(rawValue: anchorRaw), a != .free else { return }
+        w.setFrame(CaptionOverlay.frame(anchor: a, screen: screen, fontSize: 28 * zoom, lines: lines, current: w.frame), display: true, animate: false)
     }
 }
 

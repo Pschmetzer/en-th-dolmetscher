@@ -203,6 +203,14 @@ struct AppCommands: Commands {
             Button(L.t("caption_title")) { openWindow(id: "caption") }   // Nr. 52
             Button(L.t("phrasebook_title")) { openWindow(id: "phrasebook") }
             Button(L.t("hist_title")) { openWindow(id: "history") }
+            Button(R24T.t("numbers_title")) { openWindow(id: "numbers") }
+                .keyboardShortcut("n", modifiers: [.command, .shift])
+            Button(R24T.t("summary_title")) { openWindow(id: "summary") }
+                .keyboardShortcut("u", modifiers: [.command, .shift])
+            Button(R24T.t("learn_title")) { openWindow(id: "learn") }
+                .keyboardShortcut("l", modifiers: [.command, .shift])
+            Button(R24T.t("card_title")) { openWindow(id: "card") }
+                .keyboardShortcut("y", modifiers: [.command, .shift])
             Toggle(L.t("always_on_top"), isOn: $onTop)
                 .keyboardShortcut("t", modifiers: [.command, .option])
             Divider()
@@ -250,6 +258,7 @@ struct AppCommands: Commands {
             Button(L.t("selftest_open")) { NotificationCenter.default.post(name: .showSelfTest, object: nil) }
             Button(L.t("show_shortcuts")) { NotificationCenter.default.post(name: .showShortcuts, object: nil) }
                 .keyboardShortcut("/", modifiers: .command)
+            Button(R24T.t("shortcuts_title")) { openWindow(id: "shortcuts") }
         }
     }
 }
@@ -316,6 +325,12 @@ struct MenuBarContent: View {
         Button(L.t("caption_title")) { openWindow(id: "caption"); NSApp.activate(ignoringOtherApps: true) }
         Button(L.t("phrasebook_title")) { openWindow(id: "phrasebook"); NSApp.activate(ignoringOtherApps: true) }
         Button(L.t("hist_title")) { openWindow(id: "history"); NSApp.activate(ignoringOtherApps: true) }
+        Button(R24T.t("numbers_title")) { openWindow(id: "numbers"); NSApp.activate(ignoringOtherApps: true) }
+        Button(R24T.t("summary_title")) { openWindow(id: "summary"); NSApp.activate(ignoringOtherApps: true) }
+        Button(R24T.t("card_title")) { openWindow(id: "card"); NSApp.activate(ignoringOtherApps: true) }
+        if UserDefaults.standard.bool(forKey: CaptionKeys.clickThrough) {   // Untertitel klick-durchlässig: Weg zurück
+            Button(R24T.t("cap_reset_clickable")) { UserDefaults.standard.set(false, forKey: CaptionKeys.clickThrough) }
+        }
         Button(L.t("settings") + " …") {
             NSApp.activate(ignoringOtherApps: true)
             NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
@@ -382,6 +397,31 @@ struct DolmetscherApp: App {
             PhrasebookView().environmentObject(model)
         }
         .defaultSize(width: 480, height: 420)
+
+        Window(R24T.t("numbers_title"), id: "numbers") {
+            NumbersView().environmentObject(model)
+        }
+        .defaultSize(width: 460, height: 520)
+
+        Window(R24T.t("summary_title"), id: "summary") {
+            SummaryView().environmentObject(model)
+        }
+        .defaultSize(width: 480, height: 460)
+
+        Window(R24T.t("learn_title"), id: "learn") {
+            LearnView().environmentObject(model)
+        }
+        .defaultSize(width: 520, height: 480)
+
+        Window(R24T.t("card_title"), id: "card") {
+            ShowCardView().environmentObject(model)
+        }
+        .defaultSize(width: 720, height: 420)
+
+        Window(R24T.t("shortcuts_title"), id: "shortcuts") {
+            ShortcutsWindowView()
+        }
+        .defaultSize(width: 420, height: 480)
 
         Window(L.t("caption_title"), id: "caption") {
             CaptionView().environmentObject(model)

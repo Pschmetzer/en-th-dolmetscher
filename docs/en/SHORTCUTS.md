@@ -30,6 +30,10 @@ If another program already uses a shortcut, the app shows a notice listing the a
 | ⌘F | search the conversation |
 | ⌘+ / ⌘- / ⌘0 | text larger / smaller / reset (⌘= works like ⌘+) |
 | ⇧⌘P | open the partner view |
+| ⇧⌘N | numbers & prices (THB ↔ EUR conversion, show number big, negotiation helper) |
+| ⇧⌘U | conversation summary (to-dos, questions, prices) |
+| ⇧⌘L | learn (word by word, fill in the blank, Anki cards) |
+| ⇧⌘Y | show card for the other person (with phrasebook fallback) |
 | ⌥⌘T | keep the window on top |
 | ⌥⌘K | swap the language pair |
 | ⇧⌘E | export the conversation |

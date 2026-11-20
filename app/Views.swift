@@ -304,6 +304,7 @@ struct ContentView: View {
                              text: L.r23f("script_mismatch", m.lang.uppercased()),
                              action: (L.r23("set_auto"), { m.lang = "auto" }), onClose: { ui.mismatchHintClosed = true })
             }
+            ScenarioSuggestBanner()
             if m.twoPersonIneffective && !twoPersonHintClosed {
                 NoticeBanner(icon: "person.2.slash", tint: LangStyle.warning, text: L.t("two_person_no_profile"),
                              action: (L.t("profiles"), { showProfiles = true }), onClose: { twoPersonHintClosed = true })
@@ -373,6 +374,7 @@ struct ContentView: View {
         }
 
         .onChange(of: uiLang) { m.refreshStatus() }
+        .modifier(R24Hooks())
         .onChange(of: setup.visible) { if !setup.visible && tipsDue { showTips = true } }
         .onAppear {
             if tipsDue && !setup.visible { showTips = true }

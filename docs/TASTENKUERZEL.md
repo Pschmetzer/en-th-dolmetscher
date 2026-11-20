@@ -31,6 +31,10 @@ Wenn ein anderes Programm ein Kürzel schon belegt, zeigt die App einen Hinweis 
 | ⌘F | Suche im Gespräch |
 | ⌘+ / ⌘- / ⌘0 | Schrift größer / kleiner / zurücksetzen (⌘= wirkt wie ⌘+) |
 | ⇧⌘P | Partneransicht öffnen |
+| ⇧⌘N | Zahlen & Preise (Umrechnung THB ↔ EUR, Zahl groß zeigen, Verhandlungshilfe) |
+| ⇧⌘U | Zusammenfassung des Gesprächs (To-dos, Fragen, Preise) |
+| ⇧⌘L | Lernen (Wort für Wort, Lückentext, Anki-Karten) |
+| ⇧⌘Y | Zeig-Karte für das Gegenüber (mit Satzbuch-Fallback) |
 | ⌥⌘T | Fenster immer im Vordergrund |
 | ⌥⌘K | Sprachpaar tauschen |
 | ⇧⌘E | Gespräch exportieren |

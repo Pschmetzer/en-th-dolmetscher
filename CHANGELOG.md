@@ -4,6 +4,18 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### Mac app, round 24
+
+- Numbers & prices (⇧⌘N): prices in the conversation (฿, baht, บาท, €, euro) with conversion at a manually entered rate (baht per euro), "show big" for any amount, and a negotiation helper (counter-offers at 70/80/90 %, next bid under a budget).
+- Summary (⇧⌘U): built locally from the history (no AI call): to-dos, open questions, prices, numbers; copy or save as Markdown. After a longer conversation a notification with Copy and Open actions appears when the app is in the background.
+- Learn (⇧⌘L): sentence word by word (also Thai), fill-in-the-blank, Anki cards straight from the conversation (choose the front language).
+- Show card (⇧⌘Y): large text for the other person; without a translator the phrasebook fallback finds the closest scenario phrase (English or Thai) and suggests alternatives. Shortcuts links: `dolmetscher://card?text=` and `dolmetscher://summary`; the card can copy a `dolmetscher://say` link.
+- Scenario suggestion: when the last sentences sound like a scenario pack (taxi, doctor, market …) a banner offers to load its phrases (needs two matching checks in a row; can be dismissed).
+- Live captions: position (bottom, top, free), bold text, click-through (undo via the menu bar item) and windows that were off-screen after unplugging a monitor are moved back.
+- Keyboard shortcuts window with search; new windows remember their position.
+- Fix: the number warning no longer fires when only the thousands separator differs (1,200 vs 1200).
+- Logic in `PriceLogic`, `SummaryLogic`, `LearnLogic`, `ScenarioDetect`, `OfflineFallback`, `WindowLogic`, `ShortcutCatalog` with tests in `swift-tests`; texts in `L10n+R24.swift`.
+
 ### Engine latency, round 23 (Python)
 
 - Faster Claude path: worker pools instead of a thread per call, warm-up at start plus keepalive while idle (only when the prompt cache applies), cache hit/write counters and cost by the model actually used.
