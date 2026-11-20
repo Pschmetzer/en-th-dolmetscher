@@ -10,6 +10,9 @@ import os
 
 private let log = Logger(subsystem: "dolmetscher", category: "whisper")
 
+/// Die Dekodierung hat ihr Zeitbudget überschritten (zählt wie ein Erkennungsfehler).
+struct WhisperTimeout: Error {}
+
 enum WhisperFailure: LocalizedError {
     case noModel, loadFailed(String)
     var errorDescription: String? {
@@ -185,6 +188,7 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
     /// So viele Erkennungsfehler in Folge gelten als Ausfall (Oberfläche zeigt dann einen Fehler, Neustart läuft).
     static let maxConsecutiveFailures = 3
     private var failures = 0   // nur im Worker
+    private var lastLang: Lang?   // nur im Worker
 
     struct Job: Sendable { var samples: [Float] }
 
@@ -192,7 +196,8 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
     private var langs: [Lang] = []
     private var muted = false
     private var running = false
-    private var gate = VoiceGate(pause: 0.8)
+    private var gate = VoiceGate(pause: ModelTuning.defaultPause)
+    private var basePause = ModelTuning.defaultPause
     private var sinceLevel = 0.0
     private var preRoll = PreRoll(seconds: preRollSeconds)
     private var utterance: [Float] = []
@@ -203,7 +208,7 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
         (events, emit) = AsyncStream<SpeechEvent>.makeStream(bufferingPolicy: .unbounded)
         // Begrenzt: ist das Modell langsamer als die Sprache, fallen die ältesten Äußerungen weg statt minutenlang
         // aufzulaufen (wie `SpeechBacklog` bei Apple).
-        (jobStream, jobs) = AsyncStream<Job>.makeStream(bufferingPolicy: .bufferingNewest(Self.maxQueuedJobs))
+        (jobStream, jobs) = AsyncStream<Job>.makeStream(bufferingPolicy: .bufferingNewest(WhisperTuning.maxQueuedJobs(.current)))
         let emit = emit
         capture = AudioCapture(onBuffer: { [weak self] in self?.process($0) }, onEvent: { emit.yield($0) })
         gate.maxUtterance = Self.maxSeconds - Self.preRollSeconds - 0.5
@@ -221,6 +226,13 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
             } else {
                 k = try await WhisperKit(WhisperStore.config(variant, download: false))
                 WhisperKitCache.shared.put(k, variant: variant)
+                // Aufwärmen: Core ML kompiliert sonst erst beim ersten echten Satz (mehrere Sekunden Verzögerung).
+                if WhisperTuning.shouldWarmUp(freshlyLoaded: true, PowerProfile.current) {
+                    Task.detached(priority: .utility) {
+                        _ = try? await k.transcribe(audioArray: [Float](repeating: 0, count: WhisperTuning.warmUpSamples),
+                                                    decodeOptions: DecodingOptions(temperatureFallbackCount: 0, withoutTimestamps: true))
+                    }
+                }
             }
         } catch {
             log.error("load failed: \(error.localizedDescription, privacy: .public)")
@@ -230,7 +242,7 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
         try await capture.activate(options: options)
         try capture.checkInput()
         queue.sync {
-            self.langs = langs; gate.pause = pauseSeconds; gate.apply(options.sensitivity); muted = false; running = true
+            self.langs = langs; basePause = pauseSeconds; gate.pause = pauseSeconds; gate.apply(options.sensitivity); muted = false; running = true
             preRoll.clear(); utterance = []
         }
         let stream = jobStream
@@ -269,7 +281,7 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
         }
     }
 
-    func setPause(_ seconds: Double) { queue.async { self.gate.pause = seconds } }
+    func setPause(_ seconds: Double) { queue.async { self.basePause = seconds; self.gate.pause = seconds } }
 
     func flush() {
         queue.async {
@@ -306,6 +318,8 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
             emit.yield(.hearing(false))
             let u = utterance
             utterance = []
+            // Pausenschwelle am Tempo des Sprechers ausrichten: kurze Zurufe enden früher, lange Sätze bekommen Luft.
+            gate.pause = AdaptivePause.pause(base: basePause, lastUtterance: Double(u.count) / Resampler16k.rate)
             if !u.isEmpty { jobs.yield(Job(samples: u)) }
         }
     }
@@ -313,13 +327,24 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
     private func recognize(_ job: Job, kit: WhisperKit, langs: [Lang]) async {
         let duration = Double(job.samples.count) / Resampler16k.rate
         let rms = job.samples.isEmpty ? 0 : (job.samples.reduce(0) { $0 + $1 * $1 } / Float(job.samples.count)).squareRoot()
+        // Klick/Husten/Stille: gar nicht erst dekodieren (Akku, Halluzinationen).
+        guard WhisperTuning.shouldDecode(duration: duration, rms: rms) else { return }
+        let profile = PowerProfile.current
+        let budget = WhisperTuning.timeBudget(duration: duration, profile)
+        let prompt = WhisperTuning.promptText(vocabulary: WhisperTuning.vocabulary)
         do {
             func run(_ l: Lang) async throws -> [TranscriptionResult] {
-                let opts = DecodingOptions(language: l.rawValue, temperatureFallbackCount: 3,
+                var opts = DecodingOptions(language: l.rawValue, temperatureFallbackCount: WhisperTuning.fallbackCount(profile),
                                            usePrefillPrompt: true, detectLanguage: false, skipSpecialTokens: true,
                                            withoutTimestamps: true, compressionRatioThreshold: 2.4,
                                            logProbThreshold: -1.0, noSpeechThreshold: 0.6)
-                return try await kit.transcribe(audioArray: job.samples, decodeOptions: opts)
+                if let prompt, let tok = kit.tokenizer { opts.promptTokens = tok.encode(text: " " + prompt) }
+                let final = opts
+                // Zeitbudget: eine hängende Dekodierung soll nicht alle folgenden Äußerungen blockieren.
+                guard let r = try await withTimeout(seconds: budget, { try await kit.transcribe(audioArray: job.samples, decodeOptions: final) }) else {
+                    throw WhisperTimeout()
+                }
+                return r
             }
             func score(_ r: [TranscriptionResult]) -> Double {
                 let segs = r.flatMap(\.segments)
@@ -329,7 +354,7 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
             var results: [TranscriptionResult]
             if langs.count > 1 {
                 let (top, probs) = try await kit.detectLangauge(audioArray: job.samples)
-                if let l = WhisperLang.choose(probs: probs, langs: langs) {
+                if let l = LangStickiness.choose(probs: probs, langs: langs, previous: lastLang) {
                     lang = l
                     results = try await run(l)
                 } else {
@@ -354,6 +379,7 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
             let conf = segs.isEmpty ? 0.5 : exp(segs.map { Double($0.avgLogprob) }.reduce(0, +) / Double(segs.count))
             let h = Hypothesis(text: text, confidence: conf)
             failures = 0
+            lastLang = lang
             emit.yield(.utterance([lang: h]))
         } catch {
             log.error("transcribe failed: \(error.localizedDescription, privacy: .public)")

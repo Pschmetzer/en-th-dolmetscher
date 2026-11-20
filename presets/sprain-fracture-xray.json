@@ -1,0 +1,134 @@
+{
+  "id": "sprain-fracture-xray",
+  "names": {
+    "de": "Verstauchung, Bruch und Röntgen",
+    "en": "Sprain, fracture and X-ray",
+    "th": "เคล็ด กระดูกหัก และเอกซเรย์"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Bei Sturz mit starkem Schmerz oder Schwellung zur Notaufnahme (Rettung 1669) und Röntgen verlangen. Ruhig liegen bleiben, wenn der Kopf betroffen ist. Röntgenbilder auf CD oder als Datei mitnehmen und einen Bericht auf Englisch für die Versicherung fordern. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "After a fall with strong pain or swelling go to the emergency room (ambulance 1669) and ask for an X-ray. Stay still if the head is involved. Take the X-ray images on a disc or as a file and ask for a report in English for your insurance. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "X-ray",
+      "th": "เอกซเรย์"
+    },
+    {
+      "en": "fracture",
+      "th": "กระดูกหัก"
+    },
+    {
+      "en": "sprain",
+      "th": "เคล็ด"
+    },
+    {
+      "en": "cast",
+      "th": "เฝือก"
+    },
+    {
+      "en": "crutches",
+      "th": "ไม้ค้ำยัน"
+    },
+    {
+      "en": "swelling",
+      "th": "อาการบวม"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I think my arm is broken.",
+      "th": "คิดว่าแขนหัก",
+      "critical": true
+    },
+    {
+      "en": "I think my leg is broken.",
+      "th": "คิดว่าขาหัก",
+      "critical": true
+    },
+    {
+      "en": "I cannot move my ankle.",
+      "th": "ขยับข้อเท้าไม่ได้",
+      "critical": true
+    },
+    {
+      "en": "I fell and hit my head.",
+      "th": "ล้มและศีรษะกระแทก",
+      "critical": true
+    },
+    {
+      "en": "Please do not move me.",
+      "th": "ขออย่าเคลื่อนย้ายตัว",
+      "critical": true
+    },
+    {
+      "en": "I need an X-ray.",
+      "th": "ต้องเอกซเรย์"
+    },
+    {
+      "en": "Where is the X-ray room?",
+      "th": "ห้องเอกซเรย์อยู่ที่ไหน"
+    },
+    {
+      "en": "Is it a sprain or a fracture?",
+      "th": "เคล็ดหรือกระดูกหัก"
+    },
+    {
+      "en": "My ankle is swollen.",
+      "th": "ข้อเท้าบวม"
+    },
+    {
+      "en": "It hurts when I walk.",
+      "th": "เจ็บเวลาเดิน"
+    },
+    {
+      "en": "It hurts when I press here.",
+      "th": "เจ็บเวลากดตรงนี้"
+    },
+    {
+      "en": "I need a splint.",
+      "th": "ต้องใส่เฝือกอ่อน"
+    },
+    {
+      "en": "Do I need a cast?",
+      "th": "ต้องใส่เฝือกไหม"
+    },
+    {
+      "en": "Can I have an elastic bandage?",
+      "th": "ขอผ้ายืดพันหน่อย"
+    },
+    {
+      "en": "Do I need crutches?",
+      "th": "ต้องใช้ไม้ค้ำยันไหม"
+    },
+    {
+      "en": "Can I borrow crutches?",
+      "th": "ขอยืมไม้ค้ำยันได้ไหม"
+    },
+    {
+      "en": "Do I need surgery?",
+      "th": "ต้องผ่าตัดไหม"
+    },
+    {
+      "en": "Please give me something for the pain.",
+      "th": "ขอยาแก้ปวดหน่อย"
+    },
+    {
+      "en": "Can I get the X-ray images on a disc?",
+      "th": "ขอไฟล์ภาพเอกซเรย์ใส่แผ่นได้ไหม"
+    },
+    {
+      "en": "How long until it heals?",
+      "th": "ใช้เวลาหายนานเท่าไร"
+    },
+    {
+      "en": "Can I fly with this injury?",
+      "th": "เดินทางด้วยเครื่องบินทั้งที่บาดเจ็บได้ไหม"
+    },
+    {
+      "en": "Please give me a medical report for my insurance.",
+      "th": "ขอรายงานทางการแพทย์สำหรับประกัน"
+    }
+  ]
+}

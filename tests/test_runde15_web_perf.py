@@ -11,9 +11,9 @@ import pytest
 from _webhelpers import HAVE_NODE, HTML, ROOT, SCRIPT, func
 
 SW = (ROOT / "sw.js").read_text(encoding="utf-8")
-BUDGET_HTML = 232_000   # Runde 21c: Themen-Finder, Checkliste und Warnungen (220 KB); danach wieder ausmisten statt anheben
+BUDGET_HTML = 256_000   # Runde 23: Datenschutz-Box, SOS, Zielkarte (+19 KB inkl. deutscher Texte); danach wieder ausmisten statt anheben
 BUDGET_I18N = 60_000     # je Datei i18n/<sprache>.json (th ist die grösste)
-BUDGET_SW = 12_000   # Runde 22: 156 Paket-IDs, Notfall-Reihenfolge (PRIORITY), Datensparmodus und Speicherprüfung in sw.js
+BUDGET_SW = 13_500   # Runde 23 Presets: 178 Paket-IDs (+22); Runde 23: Navigation Preload, Wiederholung mit Backoff, Bytefortschritt; Runde 22: 156 Paket-IDs, Notfall-Reihenfolge (PRIORITY), Datensparmodus und Speicherprüfung in sw.js
 node = pytest.mark.skipif(not HAVE_NODE or not shutil.which("node"), reason="node nicht installiert")
 
 

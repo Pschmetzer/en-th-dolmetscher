@@ -220,6 +220,8 @@ def test_missing_locally_folgt_ursache():
 # --- 20 ---------------------------------------------------------------------------------------------------
 
 def test_edge_tts_selbsttest(monkeypatch):
+    pytest.importorskip("edge_tts")
+    pytest.importorskip("aiohttp")
     monkeypatch.setitem(d._WS, "ok", True)
     assert d.edge_tts_selftest() is True and d._WS["ok"]
     from edge_tts import communicate as ec

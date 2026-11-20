@@ -23,7 +23,7 @@ erscheint dort als eigener Abschnitt im Satzbuch mit Kulturhinweis; `critical`-S
 | `voice` | nein | `{en?, th?}` Stimmnamen |
 | `note` | nein | Kultur- oder Sicherheitshinweis `{de, en, th?}`, je 1–500 Zeichen |
 | `glossary` | nein | bis 100 Paare `{en, th}` (je 1–60 Zeichen), gelten in beide Richtungen |
-| `phrases` | nein | bis 50 Sätze `{en, th, critical?}` (je 1–200 Zeichen) |
+| `phrases` | nein | bis 50 Sätze `{en, th, critical?, rom?}` (je 1–200 Zeichen; `rom` = optionale Lautschrift, bis 300 Zeichen) |
 
 `critical: true` markiert sicherheitskritische Sätze (Notruf, Allergie, Unfall, vermisstes Kind). Sie stehen
 immer am Anfang der Liste. Ältere Dateien ohne `note`/`critical` bleiben gültig; Programme, die die Felder nicht
@@ -205,8 +205,37 @@ kennen, ignorieren sie.
 | `refund-complaint-shop` | Rückgabe und Beschwerde im Laden | Verständigung, Zeige-Sätze |
 | `hotel-room-problems` | Hotel: Probleme im Zimmer | 2 kritische Sätze zuerst |
 | `lost-wallet-cards` | Geldbörse und Karten verloren | 2 kritische Sätze zuerst |
+| `diabetes-insulin` | Diabetes und Insulin | 5 kritische Sätze zuerst |
+| `vaccination-travel-clinic` | Reiseimpfungen | 5 kritische Sätze zuerst |
+| `drugs-medication-import` | Medikamente einführen | 5 kritische Sätze zuerst |
+| `tourist-police-complaint` | Anzeige bei der Touristenpolizei | 7 kritische Sätze zuerst |
+| `thai-massage-boundaries` | Thai-Massage: Grenzen setzen | 6 kritische Sätze zuerst |
+| `ride-share-dispute` | Fahrdienst: Streit um den Preis | 5 kritische Sätze zuerst |
+| `pharmacy-prescription-transfer` | Rezept und Folgeverordnung | 5 kritische Sätze zuerst |
+| `night-train-ticket` | Nachtzug und Schlafwagen | 5 kritische Sätze zuerst |
+| `sim-esim-data` | SIM, eSIM und Datentarife | 5 kritische Sätze zuerst |
+| `diving-medical-clearance` | Tauchtauglichkeit beim Arzt | 6 kritische Sätze zuerst |
+| `sprain-fracture-xray` | Verstauchung, Bruch und Röntgen | 5 kritische Sätze zuerst |
+| `elderly-travel` | Reisen mit älteren Eltern | 5 kritische Sätze zuerst |
+| `customer-service-complaint` | Beschwerde beim Kundenservice | 5 kritische Sätze zuerst |
+| `hotel-deposit-dispute` | Hotel: Streit um die Kaution | 5 kritische Sätze zuerst |
+| `visa-run-border` | Visa-Run und Grenzübertritt | 6 kritische Sätze zuerst |
+| `king-royal-respect` | Respekt vor König und Königshaus | 5 kritische Sätze zuerst |
+| `wat-donation-etiquette` | Tempelspenden und Etikette | 5 kritische Sätze zuerst |
+| `ev-charging` | Elektroauto laden | 5 kritische Sätze zuerst |
+| `hospital-payment-insurance` | Krankenhaus: Zahlung und Versicherung | 6 kritische Sätze zuerst |
+| `food-poisoning-stomach` | Lebensmittelvergiftung und Magen | 6 kritische Sätze zuerst |
+| `apartment-host-checkin` | Vermieter und Self-Check-in | 5 kritische Sätze zuerst |
+| `bank-transfer-abroad` | Auslandsüberweisung | 5 kritische Sätze zuerst |
 
 Die Kategorie je Paket (`health`, `emergency`, `transport`, `food`, `money`, `stay`, `culture`, `leisure`, `general`) steht in `tools/preset_categories.json` und landet als `category` in `presets-index.json`. `python3 tools/preset_stats.py --by-category` zeigt die Abdeckung je Kategorie; ein neues Paket gehört in genau eine Kategorie (ein Test prüft das).
+
+### Runde 23: Qualität, Suche, Lautschrift
+
+- **Konsistenz:** `check_presets.py --strict` meldet jeden englischen Satz, der in mehreren Paketen verschieden ins Thai übersetzt ist, und jedes Paar mit anderem `critical`. Neue Pakete übernehmen vorhandene Fassungen, statt eigene zu erfinden.
+- **Thai-Form:** Unicode NFC, keine Zero-Width-Zeichen oder geschützten Leerzeichen, keine doppelten Vokal- oder Tonzeichen, Ziffern einheitlich arabisch (nie ๑๒๓ oder gemischt), Preise mit `บาท` statt `฿`.
+- **Suchbegriffe:** `tools/preset_keywords.json` hält deutsche und thailändische Begriffe je Paket. `make_presets_index.py` schreibt sie als `keywords_de` und `keywords_th` in `presets-index.json` und mischt je drei davon in `keywords` (höchstens 12), die die Web-Suche liest. `preset_search.py` findet sie ebenfalls.
+- **Lautschrift `rom` (freiwillig):** `python3 tools/preset_rom.py --check` prüft vorhandene Felder, `--fill` ergänzt fehlende (braucht `pythainlp`), `--strip` entfernt sie. Ältere Programme ignorieren das Feld; mitgelieferte Pakete enthalten es noch nicht.
 
 ## Unsichere Sätze (bitte zuerst prüfen)
 
@@ -242,7 +271,7 @@ Am wichtigsten sind die Sätze mit `critical` und die Tabelle [Unsichere Sätze]
 
 | Datei | Inhalt |
 |---|---|
-| `presets/*.json` | 156 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
+| `presets/*.json` | 178 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
 | `ios/Shared/phrases.json` | eingebautes Satzbuch der iPhone-App und des Widgets |
 | `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten, „Sie sind dran“, Allergie-Karte |
 | `ios/Dolmetscher/Round4Views.swift` | Hilfesatz auf dem Bildschirm „Hilfe – jetzt“ |

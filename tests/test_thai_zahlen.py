@@ -2,7 +2,7 @@
 import pytest
 
 import dolmetscher as d
-from tests.test_engine_pipeline import _engine, ev  # noqa: F401  (Fixture)
+from test_engine_pipeline import _engine, ev  # noqa: F401  (Fixture)
 
 
 @pytest.mark.parametrize("src, out", [

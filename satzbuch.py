@@ -19,6 +19,7 @@ Das Modul ändert keine Paketdateien; es liest nur.
 """
 import argparse
 import csv
+import difflib
 import io
 import json
 import pathlib
@@ -160,11 +161,110 @@ def check_cross(packs):
     return out
 
 
-def check(folder=DEFAULT_DIR):
-    """Alle Befunde für einen Paketordner."""
+# ------------------------------------------------------------------------- Zahlenformat (Thai) und Fuzzy
+
+THAI_DIGITS = str.maketrans("๐๑๒๓๔๕๖๗๘๙", "0123456789")
+_THAI_DIGIT = re.compile(r"[๐-๙]")
+_NUM_TOKEN = re.compile(r"[0-9๐-๙][0-9๐-๙.,]*[0-9๐-๙]|[0-9๐-๙]")
+_DE_NUMBER = re.compile(r"\d{1,3}(?:\.\d{3})+,\d+")          # 1.000,50 (deutsch) statt 1,000.50 / 1000.50
+
+
+def ascii_digits(s):
+    """Thai-Ziffern (๐-๙) in 0-9 umschreiben."""
+    return (s or "").translate(THAI_DIGITS)
+
+
+def numbers_of(s):
+    """Zahlen eines Textes als Ziffernfolgen ohne Tausender-/Dezimalzeichen, Thai-Ziffern umgerechnet.
+    "1,500.50 THB" -> ["150050"]; "๓๐ นาที" -> ["30"]."""
+    return sorted(re.sub(r"[.,]", "", ascii_digits(m)) for m in _NUM_TOKEN.findall(s or ""))
+
+
+def check_numbers(stem, d):
+    """Zahlenformat-Befunde (Warnungen) je Eintrag: Zahlen in en und th verschieden, Thai- und arabische Ziffern in
+    einer Zahl gemischt, Thai-Ziffern überhaupt (üblich sind arabische), deutsches Format 1.000,50."""
+    out = []
+    for kind in KINDS:
+        for i, it in enumerate(_items(d, kind)):
+            if not isinstance(it, dict):
+                continue
+            en, th = it.get("en"), it.get("th")
+            if not (isinstance(en, str) and isinstance(th, str)):
+                continue
+            where = f"{kind}[{i}]"
+            if numbers_of(en) != numbers_of(th):
+                out.append(_f(WARNING, stem, "numbers", f"Zahlen in en und th verschieden: {en!r} / {th!r}", where))
+            for tok in _NUM_TOKEN.findall(th):
+                if _THAI_DIGIT.search(tok) and re.search(r"[0-9]", tok):
+                    out.append(_f(WARNING, stem, "numbers", f"Thai- und arabische Ziffern gemischt: {tok!r}", where))
+            if _THAI_DIGIT.search(th):
+                out.append(_f(WARNING, stem, "numbers", "Thai-Ziffern in th (arabische Ziffern sind üblich)", where))
+            for lang, val in (("en", en), ("th", th)):
+                if _DE_NUMBER.search(val):
+                    out.append(_f(WARNING, stem, "numbers", f"{lang}: Zahl im deutschen Format (1.000,50)", where))
+    return out
+
+
+def _fold(s):
+    """Vergleichsform für unscharfes Suchen: klein, ohne Satzzeichen und Leerraum (Thai trennt keine Wörter)."""
+    return "".join(c for c in ascii_digits(s or "").casefold() if c.isalnum() or "฀" <= c <= "๿")
+
+
+def similarity(a, b):
+    """Ähnlichkeit 0..1 zweier Sätze (difflib auf der Vergleichsform)."""
+    fa, fb = _fold(a), _fold(b)
+    if not fa or not fb:
+        return 0.0
+    return difflib.SequenceMatcher(None, fa, fb, autojunk=False).ratio()
+
+
+def fuzzy_match(query, packs, lang="en", threshold=0.8, limit=5, kind="phrases"):
+    """Geprüfte Sätze, die einem gesprochenen/getippten Satz ähneln. -> [{score, pack, index, en, th, critical}],
+    beste zuerst (Gleichstand: Paketname, Index). `lang` = Sprache von `query` ("en" oder "th")."""
+    if lang not in ("en", "th") or not _fold(query):
+        return []
+    hits = []
+    for stem in sorted(packs):
+        d = packs[stem]
+        for i, it in enumerate(_items(d, kind)):
+            if not isinstance(it, dict) or not isinstance(it.get(lang), str):
+                continue
+            sc = similarity(query, it[lang])
+            if sc >= threshold:
+                hits.append({"score": round(sc, 3), "pack": stem, "index": i, "en": it.get("en"), "th": it.get("th"),
+                             "critical": bool(it.get("critical"))})
+    hits.sort(key=lambda h: (-h["score"], h["pack"], h["index"]))
+    return hits[:max(0, int(limit))]
+
+
+def check_near_duplicates(stem, d, threshold=0.92):
+    """Fast gleiche Sätze im Paket (Tippfehler-Varianten, die die exakte Dublettenprüfung nicht findet)."""
+    out = []
+    for kind in KINDS:
+        items = [(i, it) for i, it in enumerate(_items(d, kind)) if isinstance(it, dict)]
+        for a in range(len(items)):
+            for b in range(a + 1, len(items)):
+                for lang in ("en", "th"):
+                    x, y = items[a][1].get(lang), items[b][1].get(lang)
+                    if not (isinstance(x, str) and isinstance(y, str)) or _norm(x) == _norm(y):
+                        continue
+                    if similarity(x, y) >= threshold:
+                        out.append(_f(WARNING, stem, "near_duplicate",
+                                      f"{lang} fast gleich wie {kind}[{items[a][0]}]: {y!r}", f"{kind}[{items[b][0]}]"))
+    return out
+
+
+def check(folder=DEFAULT_DIR, numbers=False, fuzzy=False):
+    """Alle Befunde für einen Paketordner. numbers=True: auch Zahlenformat-Prüfung, fuzzy=True: auch fast gleiche Sätze
+    (beides Warnungen; aus, damit bestehende Aufrufe unverändert bleiben)."""
     packs, findings = load_dir(folder)
     for stem, d in packs.items():
         findings.extend(check_pack(stem, d))
+        if isinstance(d, dict):
+            if numbers:
+                findings.extend(check_numbers(stem, d))
+            if fuzzy:
+                findings.extend(check_near_duplicates(stem, d))
     findings.extend(check_cross({s: d for s, d in packs.items() if isinstance(d, dict)}))
     return findings
 
@@ -264,6 +364,8 @@ def main(argv=None, stdout=None):
     c.add_argument("--dir", default=str(DEFAULT_DIR))
     c.add_argument("--strict", action="store_true", help="Warnungen zählen als Fehler")
     c.add_argument("--json", action="store_true", help="Befunde als JSON ausgeben")
+    c.add_argument("--numbers", action="store_true", help="auch Zahlenformat (Thai-Ziffern, en/th-Zahlen) prüfen")
+    c.add_argument("--fuzzy", action="store_true", help="auch fast gleiche Sätze melden")
     e = sub.add_parser("export", help="Pakete exportieren")
     e.add_argument("format", choices=sorted(EXPORTERS))
     e.add_argument("--dir", default=str(DEFAULT_DIR))
@@ -274,7 +376,7 @@ def main(argv=None, stdout=None):
     a = ap.parse_args(argv)
 
     if a.cmd == "check":
-        findings = check(a.dir)
+        findings = check(a.dir, numbers=a.numbers, fuzzy=a.fuzzy)
         if a.json:
             stdout.write(json.dumps({"summary": summary(findings), "findings": findings},
                                     ensure_ascii=False, indent=1) + "\n")

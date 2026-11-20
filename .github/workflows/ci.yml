@@ -192,11 +192,11 @@ jobs:
       - name: Check build script syntax
         run: |
           bash -n build.sh
-          for f in build-support/*.sh; do bash -n "$f"; done
+          for f in build-support/*.sh tools/*.sh; do bash -n "$f"; done
       - name: shellcheck
         run: |
           shellcheck build.sh
-          shellcheck build-support/*.sh
+          shellcheck build-support/*.sh tools/*.sh
 
   audit:
     name: Dependency audit (not blocking)

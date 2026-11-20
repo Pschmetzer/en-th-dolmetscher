@@ -186,6 +186,13 @@ final class UIDrafts: ObservableObject {
     @Published var showProfiles: Bool = false
     @Published var bigText: Utterance? = nil
     @Published var correcting: Utterance? = nil
+    /// Aktueller Suchtreffer (0-basiert über alle Treffer, ⌘G); `hitTick` stößt das Scrollen zur Blase an.
+    @Published var hitIndex: Int? = nil
+    @Published var hitTick = 0
+    /// Mehrfachauswahl von Blasen (Kopieren/Exportieren/Löschen); Schlüssel = `Utterance.id.uuidString`.
+    @Published var selecting = false
+    @Published var selection = BubbleSelection()
+    @Published var mismatchHintClosed = false
 }
 
 struct ContentView: View {
@@ -291,6 +298,12 @@ struct ContentView: View {
                 NoticeBanner(icon: "ear.trianglebadge.exclamationmark", tint: LangStyle.warning, text: h,
                              onClose: { m.missedHint = nil })
             }
+            if !ui.mismatchHintClosed, m.lang != "auto",
+               ScriptMismatch.shouldHint(forced: m.lang, recent: m.items.filter { !$0.pending && !$0.interrupted }.suffix(3).map { $0.text }) {
+                NoticeBanner(icon: "character.bubble", tint: LangStyle.warning,
+                             text: L.r23f("script_mismatch", m.lang.uppercased()),
+                             action: (L.r23("set_auto"), { m.lang = "auto" }), onClose: { ui.mismatchHintClosed = true })
+            }
             if m.twoPersonIneffective && !twoPersonHintClosed {
                 NoticeBanner(icon: "person.2.slash", tint: LangStyle.warning, text: L.t("two_person_no_profile"),
                              action: (L.t("profiles"), { showProfiles = true }), onClose: { twoPersonHintClosed = true })
@@ -311,7 +324,8 @@ struct ContentView: View {
             ScrollView(.vertical, showsIndicators: true) { VStack(spacing: 0) { banners } }
                 .frame(maxHeight: 150).fixedSize(horizontal: false, vertical: true)
             if searchOpen || filtering || m.items.count > 5 { searchBar }
-            conversation
+            if ui.selecting { SelectionBar(shown: shown) }
+            conversation.modifier(SearchSelectionSync(ids: shown.map { $0.id.uuidString }))
             if m.pushToTalk && m.micOn { PushToTalkButton().padding(14) }
           }
         }
@@ -354,7 +368,10 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: .showShortcuts)) { _ in showShortcuts = true }
         .onReceive(NotificationCenter.default.publisher(for: .showSelfTest)) { _ in showSelfTest = true }
         .id(uiLang)                                   // Oberflächensprache sofort umschalten
-        .onChange(of: m.items.isEmpty) { if m.items.isEmpty { query = ""; langFilter = ""; userScrolledUp = false } }
+        .onChange(of: m.items.isEmpty) {
+            if m.items.isEmpty { query = ""; langFilter = ""; userScrolledUp = false; ui.selecting = false; ui.selection.clear() }
+        }
+
         .onChange(of: uiLang) { m.refreshStatus() }
         .onChange(of: setup.visible) { if !setup.visible && tipsDue { showTips = true } }
         .onAppear {
@@ -393,6 +410,26 @@ struct ContentView: View {
         query.isEmpty ? 0 : SearchHits.total(of: query, in: shown.flatMap { [$0.text, $0.out] })
     }
 
+    /// Treffer je gezeigter Blase (Original + Übersetzung); Grundlage für „2 / 7“ und das Springen mit ⌘G.
+    private var hitCounts: [Int] {
+        query.isEmpty ? [] : HitNavigator.counts(query: query, texts: shown.map { ($0.text, $0.out) })
+    }
+
+    private func stepHit(forward: Bool) {
+        let total = hitCounts.reduce(0, +)
+        ui.hitIndex = SearchHits.step(current: HitNavigator.clamp(ui.hitIndex, count: total), count: total, forward: forward)
+        if let h = ui.hitIndex {
+            ui.hitTick += 1
+            Announcer.post(L.r23f("hit_position", SearchHits.positionLabel(current: h, count: total)))
+        }
+    }
+
+    /// Blase mit dem aktuellen Treffer (für Hervorhebung und Scrollen).
+    private func currentHitBubble(_ shown: [Utterance]) -> UUID? {
+        guard let h = ui.hitIndex, let i = HitNavigator.bubbleIndex(forHit: h, counts: hitCounts), shown.indices.contains(i) else { return nil }
+        return shown[i].id
+    }
+
     private var searchBar: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass").foregroundStyle(.secondary).accessibilityHidden(true)
@@ -406,6 +443,17 @@ struct ContentView: View {
             }
             .pickerStyle(.segmented).labelsHidden().frame(width: 150)
             .accessibilityLabel(L.t("language_filter"))
+            if !query.isEmpty && hitTotal > 0 {   // „2 / 7“ mit Vor/Zurück (⌘G / ⇧⌘G)
+                let pos = SearchHits.positionLabel(current: HitNavigator.clamp(ui.hitIndex, count: hitTotal), count: hitTotal)
+                Text(pos).font(.caption.bold()).monospacedDigit()
+                    .accessibilityLabel(L.r23f("hit_position", pos))
+                Button { stepHit(forward: false) } label: { Image(systemName: "chevron.up") }
+                    .buttonStyle(.borderless).keyboardShortcut("g", modifiers: [.command, .shift])
+                    .help(L.r23("hit_prev")).accessibilityLabel(L.r23("hit_prev"))
+                Button { stepHit(forward: true) } label: { Image(systemName: "chevron.down") }
+                    .buttonStyle(.borderless).keyboardShortcut("g", modifiers: .command)
+                    .help(L.r23("hit_next")).accessibilityLabel(L.r23("hit_next"))
+            }
             if filtering {
                 Text(L.f("results_count", shown.count) + (hitTotal > shown.count ? " · " + L.f("matches_total", hitTotal) : ""))
                     .font(.caption).monospacedDigit().foregroundStyle(.secondary)
@@ -467,6 +515,7 @@ struct ContentView: View {
                         .padding(.top, 40).frame(maxWidth: .infinity)
                         .accessibilityElement(children: .combine)
                     }
+                    let hitBubble = currentHitBubble(shown)
                     ForEach(Array(shown.enumerated()), id: \.element.id) { idx, u in
                         if idx > 0, !u.pending, TimeDivider.needsDivider(previous: shown[idx - 1].date, current: u.date) {
                             TimeDividerRow(date: u.date)
@@ -476,6 +525,11 @@ struct ContentView: View {
                                running: m.running, twoPerson: m.twoPerson, pairKey: m.mineLang + m.partnerLang,
                                onCorrect: { if m.viewingSession == nil { correcting = $0 } })
                             .equatable()
+                            .modifier(BubbleDecor(hit: hitBubble == u.id, selecting: ui.selecting,
+                                                  selected: ui.selection.contains(u.id.uuidString),
+                                                  position: A11yBubble.position(index: idx, total: shown.count),
+                                                  toggle: { ui.selection.toggle(u.id.uuidString) },
+                                                  extend: { ui.selection.extend(to: u.id.uuidString, in: shown.map { $0.id.uuidString }) }))
                             .id(u.id)
                             .onAppear { ui.lastAppearedBubble = u.id }   // Anker für die Scrollposition beim Sprachwechsel
                     }
@@ -516,6 +570,11 @@ struct ContentView: View {
                 }
             }
             .onChange(of: userScrolledUp) { ui.wasScrolledUp = userScrolledUp; if !userScrolledUp { jump.reachedBottom() } }
+            .onChange(of: ui.hitTick) {   // ⌘G: zur Blase mit dem aktuellen Treffer
+                if let id = currentHitBubble(shown) {
+                    if reduceMotion { sv.scrollTo(id, anchor: .center) } else { withAnimation { sv.scrollTo(id, anchor: .center) } }
+                }
+            }
             .onChange(of: shown.last?.partial) {   // Teiltext wächst: unten bleiben (ohne Animation, kommt oft)
                 if !userScrolledUp, let last = shown.last, last.pending { scrollToEnd(sv, animated: false, last: last) }
             }
@@ -627,6 +686,13 @@ struct EmptyState: View {
             .disabled(!m.engineReady || !(m.mineLang == "en" || m.partnerLang == "en" || m.mineLang == "de" || m.partnerLang == "de"))
             .help(L.t("empty_example_help"))
             .accessibilityHint(L.t("empty_example_help"))
+            Label {
+                Text(L.r23("tip_label") + ": " + L.r23(EmptyTips.key(on: Date())))
+            } icon: { Image(systemName: "lightbulb").accessibilityHidden(true) }
+                .font(.callout).foregroundStyle(.secondary)
+                .padding(.horizontal, 14).padding(.vertical, 8)
+                .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
+                .accessibilityElement(children: .combine)
             CommandsList()
                 .padding(16)
                 .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 14))
@@ -747,6 +813,9 @@ struct MainToolbar: View {
             Button(L.t("font_smaller")) { scale = Prefs.zoomed(scale, -0.1) }
             Divider()
             Button(L.t("find") + " (⌘F)") { NotificationCenter.default.post(name: .focusSearch, object: nil) }
+            Button(UIDrafts.shared.selecting ? L.r23("select_done") : L.r23("select_mode")) {
+                UIDrafts.shared.selecting.toggle(); UIDrafts.shared.selection.clear()
+            }.disabled(m.items.isEmpty)
             Button(L.t("export") + " (⇧⌘E)") { exportConversation(m) }.disabled(m.items.isEmpty)
             Button(L.t("clear")) { confirmClear = true }.disabled(m.items.isEmpty)
             Button(L.t("open_log")) { openLog() }
@@ -910,7 +979,7 @@ struct StatusCluster: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            if m.micOn { LevelBar(meter: m.meter) }
+            if m.micOn { LevelBar(meter: m.meter); ClipBadge(meter: m.meter) }
             // Frischer Fehler (< 30 s) überschreibt den Status; ein Takt blendet ihn nach Ablauf wieder aus.
             TimelineView(.periodic(from: .now, by: 5)) { ctx in
                 let age: TimeInterval = m.lastError.map { ctx.date.timeIntervalSince($0.date) } ?? 0
@@ -950,7 +1019,7 @@ struct StatusCluster: View {
                 .help(L.t("load_slow_help"))
                 .accessibilityLabel(L.t("load_slow") + ". " + L.t("load_slow_help"))
             }
-            if let med = m.latencyMedian { LatencyBadge(median: med) }
+            if let med = m.latencyMedian { LatencyBadge(median: med, history: m.latencyHistory) }
             if m.llm && m.engineReady && !m.llmActive {
                 SettingsLink {
                     Label(L.t("llm_missing"), systemImage: "exclamationmark.circle")
@@ -980,7 +1049,12 @@ struct StatusCluster: View {
 /// Median der letzten 10 Latenzen (Äußerungsende → erster Ton), klein in der Kopfzeile.
 struct LatencyBadge: View {
     let median: Double
+    var history: [Double] = []
     var body: some View {
+        HStack(spacing: 4) { badge; LatencySparkline(history: history) }
+    }
+
+    @ViewBuilder private var badge: some View {
         let text = "⏱ " + fmtSeconds(median)
         // bis 2 s fühlt sich das Gespräch flüssig an, ab 4 s stockt es (Zahl steht immer dabei, nicht nur Farbe)
         let color: Color = median <= 2 ? LangStyle.success : median <= 4 ? .secondary : LangStyle.warning
@@ -1413,5 +1487,55 @@ struct TimeDividerRow: View {
         .padding(.vertical, 2)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(L.t("time_divider_a11y") + ": " + TimeDivider.label(date))
+    }
+}
+
+/// Außen an der (Equatable) Blase: Hervorhebung des aktuellen Suchtreffers, Auswahlrahmen/-klick und VoiceOver-Position.
+/// Liegt bewusst außerhalb von `Bubble`, damit nicht jede Blase neu zeichnet, wenn nur die Gesamtzahl wächst.
+struct BubbleDecor: ViewModifier {
+    let hit: Bool
+    let selecting: Bool
+    let selected: Bool
+    let position: String?
+    let toggle: () -> Void
+    let extend: () -> Void
+
+    func body(content: Content) -> some View {
+        content
+            .overlay {
+                if hit { RoundedRectangle(cornerRadius: 14).strokeBorder(Color.yellow, lineWidth: 3).allowsHitTesting(false) }
+                if selected { RoundedRectangle(cornerRadius: 14).strokeBorder(Color.accentColor, lineWidth: 3).allowsHitTesting(false) }
+            }
+            .overlay(alignment: .topLeading) {
+                if selecting {
+                    Image(systemName: selected ? "checkmark.circle.fill" : "circle")
+                        .font(.title2).foregroundStyle(selected ? Color.accentColor : Color.secondary)
+                        .padding(8).accessibilityHidden(true)
+                }
+            }
+            .overlay {   // Auswahlmodus: ein Klick wählt (Umschalt: Bereich), statt in den Text zu klicken
+                if selecting {
+                    Color.clear.contentShape(Rectangle())
+                        .onTapGesture { if NSEvent.modifierFlags.contains(.shift) { extend() } else { toggle() } }
+                        .accessibilityHidden(true)
+                }
+            }
+            .accessibilityValue(Text([position.map { L.r23f("bubble_position", $0) },
+                                      hit ? L.r23("current_hit") : nil,
+                                      selected ? L.r23("selected_state") : nil].compactMap { $0 }.joined(separator: ", ")))
+    }
+}
+
+/// Treffer-Position und Auswahl an den sichtbaren Verlauf binden: neue Suche/Filter setzt den Treffer zurück,
+/// verschwundene Blasen verlassen die Auswahl.
+struct SearchSelectionSync: ViewModifier {
+    @ObservedObject private var ui = UIDrafts.shared
+    let ids: [String]
+
+    func body(content: Content) -> some View {
+        content
+            .onChange(of: ui.query) { ui.hitIndex = nil }
+            .onChange(of: ui.langFilter) { ui.hitIndex = nil }
+            .onChange(of: ids) { ui.selection.prune(keeping: ids) }
     }
 }

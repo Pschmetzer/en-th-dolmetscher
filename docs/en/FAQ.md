@@ -26,6 +26,8 @@ German version: [FAQ.md](../FAQ.md). Start here: [QUICKSTART.md](QUICKSTART.md).
 
 **Which recognition model should I use?** `medium` is the default, `small` is faster, `best` (large-v3-turbo) copes better with accents and needs about 1.6 GB more. Thai uses its own model fine-tuned on Thai.
 
+**Why does the browser version hear nothing on the iPhone (Safari)?** Safari uses Apple's speech recognition. It only works if Dictation is on (Settings > General > Keyboard > Enable Dictation) and you have allowed the microphone for the page (Safari: "aA" icon in the address bar > Website Settings). Always start recognition with a tap; iOS allows neither microphone nor speech output without one. The page must be served over HTTPS and stay in the foreground: if you switch apps or lock the device, iOS stops recognition. Other browsers on the iPhone (Chrome, Firefox) use the same Safari engine and have the same limits. The Thai voice depends on the iOS voices (Settings > Accessibility > Spoken Content > Voices). If you need more, use the iPhone app ([QUICKSTART.md](QUICKSTART.md)).
+
 **Which shortcuts and voice commands are there?** See [SHORTCUTS.md](SHORTCUTS.md) and [VOICE-COMMANDS.md](VOICE-COMMANDS.md). Voice commands only work if English is one of the two languages.
 
 **What are voice profiles?** Each person reads 8 short sentences once (about a minute). Then their name appears on the bubble, their language decides when detection is unsure, and own words such as names help recognition. The model is not retrained. Voice profiles exist on the Mac only, and recording is only possible in English or Thai.

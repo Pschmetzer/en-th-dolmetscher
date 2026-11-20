@@ -15,7 +15,12 @@ struct JSONStore: Sendable {
 
     let dir: URL
 
-    static let standard = JSONStore(dir: FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0])
+    /// Beim ersten Zugriff läuft die Schema-Migration (`StorageSchema`), bevor irgendeine Datei gelesen wird.
+    static let standard: JSONStore = {
+        let s = JSONStore(dir: FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0])
+        StorageSchema.migrate(s)
+        return s
+    }()
 
     func url(_ name: String) -> URL { dir.appendingPathComponent(name) }
 

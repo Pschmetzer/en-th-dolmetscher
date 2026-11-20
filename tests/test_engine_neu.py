@@ -553,6 +553,8 @@ def test_zweite_sprachpruefung_rettet_englisch_mit_akzent():
 
 
 def test_ws_speak_wiederholt_mit_frischer_verbindung(monkeypatch):
+    pytest.importorskip("edge_tts")
+    pytest.importorskip("aiohttp")
     """Vorrats-Verbindung inzwischen vom Server geschlossen -> einmal frisch öffnen, Ton kommt trotzdem."""
     import asyncio
     import aiohttp

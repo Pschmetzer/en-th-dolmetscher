@@ -28,7 +28,8 @@
 - Automatische Erkennung des Sprechers (bisher tippt man die Seite an).
 - Konversationsmodus wie auf dem iPhone. Schon da: Notrufnummern (`tel:`) für über 40 Themen, Allergie- und Notfallkarte, Ja/Nein und weitere Kurzantworten (bei Thai im Paar).
 - Aussprachehilfe (Umschrift): die Pakete haben noch keine geprüfte Umschrift; eine maschinelle wäre bei Thai oft falsch.
-- Browser-Test mit Playwright und axe in der CI.
+- Browser-Test mit Playwright und axe in der CI (läuft bei Änderungen an der Seite; fehlt noch für Safari/WebKit auf dem iPhone).
+- Smoke-Test der veröffentlichten Seite nach dem Pages-Deploy (Datei-Liste, Service Worker, Header).
 
 ## Phrasenpakete
 
@@ -37,5 +38,7 @@
 
 ## Projekt
 
+- Thai-Qualität messbar machen: Prüfstand und offene Punkte stehen in [TH-QUALITAET.md](TH-QUALITAET.md).
+- Benchmark-Baseline für die neuen Zahlen-, Uhrzeit- und Telefonnummern-Fälle auf `main` neu messen (siehe `bench/README.md`).
 - Veröffentlichte Releases mit Signatur und Notarisierung für die Mac-App, regelmäßig statt als „Unreleased“-Stand.
 - Gemeinsame Prüfliste für Muttersprachler als einfaches Formular, damit auch Menschen ohne GitHub mitmachen können.

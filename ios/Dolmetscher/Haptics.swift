@@ -12,14 +12,16 @@ enum Haptics {
     private static let medium = UIImpactFeedbackGenerator(style: .medium)
     private static let notify = UINotificationFeedbackGenerator()
 
+    nonisolated(unsafe) private static var throttle = HapticThrottle()
+
     private static func impact(_ g: UIImpactFeedbackGenerator, _ intensity: CGFloat = 1) {
-        guard enabled else { return }
+        guard enabled, throttle.allow(at: Date()) else { return }
         g.impactOccurred(intensity: intensity)
         g.prepare()
     }
 
     private static func notification(_ t: UINotificationFeedbackGenerator.FeedbackType) {
-        guard enabled else { return }
+        guard enabled else { return }   // Hinweise (Erfolg/Warnung/Fehler) nie drosseln
         notify.notificationOccurred(t)
         notify.prepare()
     }
