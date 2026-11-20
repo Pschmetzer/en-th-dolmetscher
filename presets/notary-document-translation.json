@@ -1,0 +1,139 @@
+{
+  "id": "notary-document-translation",
+  "names": {
+    "de": "Beglaubigung und Übersetzung",
+    "en": "Notary and document translation",
+    "th": "รับรองเอกสารและแปลเอกสาร"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Für Behörden brauchen Dokumente oft eine beglaubigte Übersetzung und Legalisierung. Originale nicht abgeben, nur Kopien; Quittung behalten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Authorities often need certified translations and legalisation. Hand over copies, not originals, and keep the receipt. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "notary",
+      "th": "ทนายความรับรองเอกสาร"
+    },
+    {
+      "en": "certified translation",
+      "th": "คำแปลที่รับรองแล้ว"
+    },
+    {
+      "en": "legalisation",
+      "th": "การรับรองเอกสาร"
+    },
+    {
+      "en": "stamp",
+      "th": "ตราประทับ"
+    },
+    {
+      "en": "original",
+      "th": "ต้นฉบับ"
+    },
+    {
+      "en": "copy",
+      "th": "สำเนา"
+    },
+    {
+      "en": "signature",
+      "th": "ลายเซ็น"
+    },
+    {
+      "en": "witness",
+      "th": "พยาน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please do not keep my original passport.",
+      "th": "ขออย่าเก็บหนังสือเดินทางตัวจริงไว้",
+      "critical": true
+    },
+    {
+      "en": "I need this document today, it is urgent.",
+      "th": "ต้องใช้เอกสารนี้วันนี้ เป็นเรื่องด่วน",
+      "critical": true
+    },
+    {
+      "en": "I do not understand this paper, I will not sign.",
+      "th": "ไม่เข้าใจเอกสารนี้ จึงจะไม่เซ็น",
+      "critical": true
+    },
+    {
+      "en": "I need an interpreter before I sign.",
+      "th": "ต้องการล่ามก่อนเซ็น",
+      "critical": true
+    },
+    {
+      "en": "This document may be forged.",
+      "th": "เอกสารนี้อาจถูกปลอมแปลง",
+      "critical": true
+    },
+    {
+      "en": "Please give me a copy of what I signed.",
+      "th": "ขอสำเนาสิ่งที่เซ็นไปหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I need a certified translation into Thai.",
+      "th": "ต้องการแปลเป็นภาษาไทยที่รับรองแล้ว"
+    },
+    {
+      "en": "How much is it per page?",
+      "th": "คิดราคาหน้าละเท่าไร"
+    },
+    {
+      "en": "How many days does it take?",
+      "th": "ใช้เวลากี่วัน"
+    },
+    {
+      "en": "Is an express service possible?",
+      "th": "มีบริการด่วนไหม"
+    },
+    {
+      "en": "Will the embassy accept this translation?",
+      "th": "สถานทูตจะรับคำแปลนี้ไหม"
+    },
+    {
+      "en": "Where can I get the legalisation stamp?",
+      "th": "ขอตราประทับรับรองเอกสารได้ที่ไหน"
+    },
+    {
+      "en": "Which ministry must confirm this paper?",
+      "th": "กระทรวงไหนต้องรับรองเอกสารนี้"
+    },
+    {
+      "en": "Do I need witnesses for the signature?",
+      "th": "ต้องมีพยานตอนเซ็นไหม"
+    },
+    {
+      "en": "Please check the spelling of my name.",
+      "th": "ช่วยตรวจการสะกดชื่อของเราหน่อย"
+    },
+    {
+      "en": "Please translate the date and the numbers carefully.",
+      "th": "ช่วยแปลวันที่และตัวเลขอย่างระมัดระวังหน่อย"
+    },
+    {
+      "en": "May I see the draft before the stamp?",
+      "th": "ขอดูฉบับร่างก่อนประทับตราหน่อย"
+    },
+    {
+      "en": "Please send the file by email as well.",
+      "th": "ช่วยส่งไฟล์ทางอีเมลด้วยหน่อย"
+    },
+    {
+      "en": "May I have a receipt for the fee?",
+      "th": "ขอใบเสร็จค่าธรรมเนียมหน่อย"
+    },
+    {
+      "en": "Please give me three certified copies.",
+      "th": "ขอสำเนารับรองสามชุดหน่อย"
+    },
+    {
+      "en": "Thank you for helping with the documents.",
+      "th": "ขอบคุณที่ช่วยเรื่องเอกสาร"
+    }
+  ]
+}

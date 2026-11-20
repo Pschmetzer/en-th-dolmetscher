@@ -1,0 +1,143 @@
+{
+  "id": "cave-waterfall-tour",
+  "names": {
+    "de": "Höhle und Wasserfall",
+    "en": "Cave and waterfall tour",
+    "th": "ทัวร์ถ้ำและน้ำตก"
+  },
+  "style": "polite",
+  "note": {
+    "de": "In Höhlen und an Wasserfällen immer mit Führer gehen und Helm tragen. Nach Regen steigt das Wasser schnell, dann nicht hineingehen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "In caves and at waterfalls always go with a guide and wear a helmet. Water rises quickly after rain, do not enter then. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "cave",
+      "th": "ถ้ำ"
+    },
+    {
+      "en": "waterfall",
+      "th": "น้ำตก"
+    },
+    {
+      "en": "helmet",
+      "th": "หมวกนิรภัย"
+    },
+    {
+      "en": "headlamp",
+      "th": "ไฟคาดหัว"
+    },
+    {
+      "en": "slippery",
+      "th": "ลื่น"
+    },
+    {
+      "en": "guide",
+      "th": "ไกด์"
+    },
+    {
+      "en": "life jacket",
+      "th": "เสื้อชูชีพ"
+    },
+    {
+      "en": "rope",
+      "th": "เชือก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "The water level is rising, we must leave now.",
+      "th": "ระดับน้ำสูงขึ้น ต้องออกไปตอนนี้",
+      "critical": true
+    },
+    {
+      "en": "My friend slipped and cannot walk.",
+      "th": "เพื่อนลื่นล้มและเดินไม่ได้",
+      "critical": true
+    },
+    {
+      "en": "Someone hit their head, please call help.",
+      "th": "มีคนหัวกระแทก ช่วยโทรเรียกความช่วยเหลือหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I cannot swim, please give me a life jacket.",
+      "th": "ว่ายน้ำไม่เป็น ขอเสื้อชูชีพหน่อย",
+      "critical": true
+    },
+    {
+      "en": "One person from our group is missing in the cave.",
+      "th": "มีคนในกลุ่มหายไปในถ้ำ",
+      "critical": true
+    },
+    {
+      "en": "My light is out and I cannot see.",
+      "th": "ไฟดับและมองไม่เห็น",
+      "critical": true
+    },
+    {
+      "en": "Is the cave safe today?",
+      "th": "วันนี้ถ้ำปลอดภัยไหม"
+    },
+    {
+      "en": "Is a guide included in the price?",
+      "th": "ราคารวมไกด์ไหม"
+    },
+    {
+      "en": "Please give me a helmet and a headlamp.",
+      "th": "ขอหมวกนิรภัยและไฟคาดหัวหน่อย"
+    },
+    {
+      "en": "How long is the walk to the waterfall?",
+      "th": "เดินไปน้ำตกนานเท่าไร"
+    },
+    {
+      "en": "Is the path slippery after the rain?",
+      "th": "ทางลื่นไหมหลังฝนตก"
+    },
+    {
+      "en": "Can we swim at the waterfall?",
+      "th": "ว่ายน้ำที่น้ำตกได้ไหม"
+    },
+    {
+      "en": "How deep is the water at this pool?",
+      "th": "สระตรงนี้น้ำลึกเท่าไร"
+    },
+    {
+      "en": "Please wait for me, I walk slowly.",
+      "th": "ช่วยรอหน่อย เดินช้า"
+    },
+    {
+      "en": "Please show me where to put my feet.",
+      "th": "ช่วยบอกหน่อยว่าควรวางเท้าตรงไหน"
+    },
+    {
+      "en": "May we take photos inside the cave?",
+      "th": "ถ่ายรูปในถ้ำได้ไหม"
+    },
+    {
+      "en": "Please keep the group together.",
+      "th": "ช่วยให้กลุ่มอยู่ด้วยกันหน่อย"
+    },
+    {
+      "en": "Where can I leave my bag?",
+      "th": "ฝากกระเป๋าไว้ได้ที่ไหน"
+    },
+    {
+      "en": "Are there bats or snakes in the cave?",
+      "th": "ในถ้ำมีค้างคาวหรืองูไหม"
+    },
+    {
+      "en": "I need a break, please.",
+      "th": "ขอพักหน่อย"
+    },
+    {
+      "en": "Please take us back to the entrance.",
+      "th": "ช่วยพาพวกเรากลับไปที่ทางเข้าหน่อย"
+    },
+    {
+      "en": "Thank you, the tour was wonderful.",
+      "th": "ขอบคุณ ทัวร์วันนี้ยอดเยี่ยมมาก"
+    }
+  ]
+}

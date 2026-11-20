@@ -1,0 +1,139 @@
+{
+  "id": "electronics-mall",
+  "names": {
+    "de": "Elektronik-Einkaufszentrum",
+    "en": "Electronics mall",
+    "th": "ห้างอิเล็กทรอนิกส์"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Preise sind verhandelbar, Garantie gilt oft nur im Land. Gerät vor dem Kauf einschalten, Seriennummer prüfen und Quittung mit Garantieschein behalten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Prices are negotiable and warranty often applies only in the country. Switch the device on before buying, check the serial number and keep the receipt and warranty card. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "laptop",
+      "th": "แล็ปท็อป"
+    },
+    {
+      "en": "charger",
+      "th": "ที่ชาร์จ"
+    },
+    {
+      "en": "warranty card",
+      "th": "บัตรรับประกัน"
+    },
+    {
+      "en": "serial number",
+      "th": "หมายเลขเครื่อง"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    },
+    {
+      "en": "adapter",
+      "th": "หัวแปลงปลั๊ก"
+    },
+    {
+      "en": "memory card",
+      "th": "เมมโมรี่การ์ด"
+    },
+    {
+      "en": "screen",
+      "th": "หน้าจอ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "This device is a fake, I want my money back.",
+      "th": "เครื่องนี้เป็นของปลอม ขอเงินคืน",
+      "critical": true
+    },
+    {
+      "en": "The battery is swelling, it is dangerous.",
+      "th": "แบตเตอรี่บวม อันตราย",
+      "critical": true
+    },
+    {
+      "en": "My phone is very hot and smoking.",
+      "th": "โทรศัพท์ร้อนมากและมีควัน",
+      "critical": true
+    },
+    {
+      "en": "My bag was stolen in the mall.",
+      "th": "กระเป๋าถูกขโมยในห้าง",
+      "critical": true
+    },
+    {
+      "en": "Please call the security guard.",
+      "th": "ช่วยเรียกเจ้าหน้าที่รักษาความปลอดภัยหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I do not want to pay before I test it.",
+      "th": "ไม่ขอจ่ายก่อนทดสอบเครื่อง",
+      "critical": true
+    },
+    {
+      "en": "Do you have this phone in stock?",
+      "th": "มีโทรศัพท์รุ่นนี้ในสต็อกไหม"
+    },
+    {
+      "en": "Is this a new or a used device?",
+      "th": "เครื่องนี้เป็นเครื่องใหม่หรือเครื่องมือสอง"
+    },
+    {
+      "en": "May I switch it on and test it?",
+      "th": "ขอเปิดเครื่องและทดสอบได้ไหม"
+    },
+    {
+      "en": "Can you give me a better price?",
+      "th": "ลดราคาได้ไหม"
+    },
+    {
+      "en": "Is there a warranty in my country?",
+      "th": "ประกันใช้ได้ในประเทศของเราไหม"
+    },
+    {
+      "en": "Please write the serial number on the receipt.",
+      "th": "ช่วยเขียนหมายเลขเครื่องบนใบเสร็จหน่อย"
+    },
+    {
+      "en": "Is the original charger included?",
+      "th": "รวมที่ชาร์จแท้ไหม"
+    },
+    {
+      "en": "I need a plug adapter for Europe.",
+      "th": "ต้องการหัวแปลงปลั๊กสำหรับยุโรป"
+    },
+    {
+      "en": "Please install a screen protector.",
+      "th": "ช่วยติดฟิล์มกันรอยหน่อย"
+    },
+    {
+      "en": "Can I pay by card without extra fee?",
+      "th": "จ่ายด้วยบัตรโดยไม่มีค่าธรรมเนียมเพิ่มได้ไหม"
+    },
+    {
+      "en": "May I return it within seven days?",
+      "th": "คืนสินค้าภายในเจ็ดวันได้ไหม"
+    },
+    {
+      "en": "Please repair the screen, how much is it?",
+      "th": "ช่วยซ่อมหน้าจอหน่อย ราคาเท่าไร"
+    },
+    {
+      "en": "How long does the repair take?",
+      "th": "ซ่อมนานแค่ไหน"
+    },
+    {
+      "en": "Is there a tax refund for tourists?",
+      "th": "มีการคืนภาษีสำหรับนักท่องเที่ยวไหม"
+    },
+    {
+      "en": "Thank you, I will take it.",
+      "th": "ขอบคุณ ขอเอาเครื่องนี้"
+    }
+  ]
+}

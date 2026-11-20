@@ -4,6 +4,11 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### Web round 24: tools and 23 new packs
+
+- New tools dialog (button 🧰, loaded on demand from `web-extras.js`, cached for offline use): price check with a manually entered rate and a big number card (with Thai number words), negotiation helper with counter offers, travel checklist, offline dictionary from the pack glossaries, tour guide pack shared as a link (own cards compressed into the URL fragment, nothing uploaded), travel diary with tags and file export, tone trainer with minimal pairs and quiz, microphone level hint for noisy places. No photo/text recognition: it cannot work offline without a model download.
+- 23 new phrase packs (201 in total): camping, night bus, business meeting, contractors, caves and waterfalls, climbing, surf lessons, herbal medicine, blood tests, meditation retreat, longtail boat, condo office, used vehicles, vet, school enrollment, electronics mall, copy shop, gold shop, notary and translation, work permit, neighbours and noise, orchard visit, wildlife safari. Thai lines are machine-made, not reviewed.
+- The CSP now allows `'self'` scripts for the extras file; the hash-based CSP is not done yet (the inline script still needs `'unsafe-inline'`).
 ### Modules, tools and docs, round 24
 
 - Phrase book tool: `satzbuch.py report` (Markdown or JSON, by code and pack, with size) and `check --ignore CODE --pack ID`. Bug fixed: a wrong or empty `--dir` reported "0 errors" with exit code 0; it is now an error.

@@ -1,0 +1,139 @@
+{
+  "id": "gold-shop",
+  "names": {
+    "de": "Goldgeschäft und Pfandleihe",
+    "en": "Gold shop and pawn shop",
+    "th": "ร้านทองและโรงรับจำนำ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Gold wird nach Gewicht (Baht-Gewicht) und Tagespreis verkauft. Wiegen lassen, Echtheitszertifikat und Quittung verlangen. Beim Pfand nie den Reisepass hinterlegen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Gold is sold by weight (baht weight) and daily price. Have it weighed, ask for a certificate and receipt. Never leave your passport as a pledge. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "gold",
+      "th": "ทอง"
+    },
+    {
+      "en": "necklace",
+      "th": "สร้อยคอ"
+    },
+    {
+      "en": "ring",
+      "th": "แหวน"
+    },
+    {
+      "en": "weight",
+      "th": "น้ำหนัก"
+    },
+    {
+      "en": "daily price",
+      "th": "ราคาวันนี้"
+    },
+    {
+      "en": "certificate",
+      "th": "ใบรับรอง"
+    },
+    {
+      "en": "pawn",
+      "th": "จำนำ"
+    },
+    {
+      "en": "interest",
+      "th": "ดอกเบี้ย"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I think this gold is fake, please check it.",
+      "th": "คิดว่าทองนี้เป็นของปลอม ช่วยตรวจสอบหน่อย",
+      "critical": true
+    },
+    {
+      "en": "Please do not take my passport as a pledge.",
+      "th": "ขออย่ารับหนังสือเดินทางเป็นของจำนำ",
+      "critical": true
+    },
+    {
+      "en": "This shop is cheating on the weight.",
+      "th": "ร้านนี้โกงน้ำหนัก",
+      "critical": true
+    },
+    {
+      "en": "My jewellery was stolen, please call the police.",
+      "th": "เครื่องประดับถูกขโมย ช่วยโทรเรียกตำรวจหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I do not want to sell, please give it back.",
+      "th": "ไม่ขายแล้ว ขอคืนของหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I feel pressured, I will leave now.",
+      "th": "รู้สึกถูกกดดัน ขอออกไปก่อน",
+      "critical": true
+    },
+    {
+      "en": "What is the gold price today?",
+      "th": "ราคาทองวันนี้เท่าไร"
+    },
+    {
+      "en": "Please weigh it in front of me.",
+      "th": "ช่วยชั่งน้ำหนักต่อหน้าหน่อย"
+    },
+    {
+      "en": "How many grams is this necklace?",
+      "th": "สร้อยคอเส้นนี้หนักกี่กรัม"
+    },
+    {
+      "en": "What is the price for making the piece?",
+      "th": "ค่ากำเหน็จเท่าไร"
+    },
+    {
+      "en": "Is this ninety six point five percent gold?",
+      "th": "ทองนี้เป็นทองเก้าสิบหกจุดห้าเปอร์เซ็นต์ใช่ไหม"
+    },
+    {
+      "en": "Please give me a certificate.",
+      "th": "ขอใบรับรองหน่อย"
+    },
+    {
+      "en": "Please write the weight on the receipt.",
+      "th": "ช่วยเขียนน้ำหนักบนใบเสร็จหน่อย"
+    },
+    {
+      "en": "Can I sell this ring back to you?",
+      "th": "ขายแหวนวงนี้คืนให้ร้านได้ไหม"
+    },
+    {
+      "en": "How much would you pay for this?",
+      "th": "ร้านรับซื้อเท่าไร"
+    },
+    {
+      "en": "How much interest do you charge?",
+      "th": "คิดดอกเบี้ยเท่าไร"
+    },
+    {
+      "en": "When must I collect my item?",
+      "th": "ต้องมารับของคืนเมื่อไร"
+    },
+    {
+      "en": "Please show me the pawn ticket.",
+      "th": "ขอดูใบรับจำนำหน่อย"
+    },
+    {
+      "en": "Can you make this ring smaller?",
+      "th": "ช่วยทำแหวนวงนี้ให้เล็กลงได้ไหม"
+    },
+    {
+      "en": "I will think about it and come back.",
+      "th": "ขอไปคิดดูก่อนแล้วจะกลับมา"
+    },
+    {
+      "en": "Thank you for your explanation.",
+      "th": "ขอบคุณที่อธิบาย"
+    }
+  ]
+}
