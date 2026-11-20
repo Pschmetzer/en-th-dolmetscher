@@ -1130,13 +1130,14 @@ _CACHE_LOCK = threading.Lock()                # Arbeits-Thread liest/schreibt, S
 
 
 def _cache_clear():
-    with _CACHE_LOCK:
-        _CACHE.clear()
-    if _CACHE_DISK["on"]:
-        try:
-            os.unlink(CACHE_FILE)               # "clear" löscht auch die Datei
-        except OSError:
-            pass
+    with _CACHE_IO:                             # ein laufendes Speichern schreibt keine alten Zeilen zurück
+        with _CACHE_LOCK:
+            _CACHE.clear()
+        if _CACHE_DISK["on"]:
+            try:
+                os.unlink(CACHE_FILE)           # "clear" löscht auch die Datei
+            except OSError:
+                pass
 
 
 def _cache_get(key):
@@ -1178,10 +1179,10 @@ def _cache_save(force=False):
     if not force and now - _CACHE_DISK["saved"] < 5.0:
         return                                   # höchstens alle 5 s schreiben
     _CACHE_DISK["saved"] = now
-    with _CACHE_LOCK:
-        rows = [[list(k), list(v) if isinstance(v, tuple) else v] for k, v in _CACHE.items()]
     try:
-        with _CACHE_IO:                          # Schreiben und Ausschalten (Löschen) nie gleichzeitig
+        with _CACHE_IO:                          # Schnappschuss, Schreiben und Löschen nie gleichzeitig
+            with _CACHE_LOCK:
+                rows = [[list(k), list(v) if isinstance(v, tuple) else v] for k, v in _CACHE.items()]
             if _CACHE_DISK["on"]:
                 _write_private(CACHE_FILE, json.dumps(rows, ensure_ascii=False))
     except OSError as e:
@@ -1387,7 +1388,9 @@ def _check_llm(text, out, dst, src=None):
     out = _strip_quotes(_LLM_PREFIX.sub("", out))
     if not out:
         raise _Implausible("unerwartet: leere Claude-Ausgabe")
-    if _LLM_REFUSAL.search(out) or re.search(r"\n\s*\(?(?:notes?|hinweis|alternatives?)\s*[:)]", out, re.I):
+    src_talks_translate = bool(re.search(r"แปล|translat|übersetz|traduc", text or "", re.I))   # Sprecher sagt es selbst
+    if (_LLM_REFUSAL.search(out) and not src_talks_translate) or re.search(
+            r"\n\s*\(?(?:notes?|hinweis|alternatives?)\s*[:)]", out, re.I):
         raise _Implausible("unerwartet: Claude-Ausgabe mit Ablehnung/Anmerkung")
     if _untranslated(text, out, src, dst) and not _looks_like_name(text):
         raise _Implausible(f"unerwartet: Claude-Ausgabe nicht auf {lang_name(dst, True)}")
@@ -2213,7 +2216,7 @@ def llm_over_budget():
     return True
 
 
-_TH_FEMALE = re.compile(r"ค่ะ|คะ|ดิฉัน|นะคะ")
+_TH_FEMALE = re.compile(r"ค่ะ|คะ(?!แนน|ยั้น|เน|น้า|นอง|นึง|ยอ)|ดิฉัน")
 _TH_MALE = re.compile(r"ครับ|คับ|กระผม")
 
 
@@ -2282,8 +2285,8 @@ def register_hint(dst, style, formality="auto"):
 
 _TH_Q_END = re.compile(r"(ไหม|มั้ย|หรือ|เหรอ|หรือเปล่า|รึเปล่า|อะไร|ไหน|ใคร|เท่าไร|เท่าไหร่|เมื่อไร|เมื่อไหร่|ทำไม"
                        r"|อย่างไร|ยังไง|กี่\S*|\?)\s*$")
-_TH_KA = re.compile(r"ค่ะ|คะ(?!แนน|ยั้น|เน|น้า|นอง|นึง)")
-_TH_KRUB = re.compile(r"ครับ|(?<!บัง)คับ(?!แคบ|คั่ง|ข้อง|ขัน|ใจ|ที่)")
+_TH_KA = re.compile(r"ค่ะ|คะ(?!แนน|ยั้น|เน|น้า|นอง|นึง|ยอ)")
+_TH_KRUB = re.compile(r"ครับผม|ครับ|(?<!บัง)คับ(?!แคบ|คั่ง|ข้อง|ขัน|ใจ|ที่)")
 
 
 def fit_thai_particles(text, polite):
@@ -2292,7 +2295,7 @@ def fit_thai_particles(text, polite):
     unverändert, ebenso Text ohne Partikel."""
     if not text or polite not in ("krub", "ka"):
         return text
-    t = re.sub(r"คะแนน|บังคับ|คับแคบ|คับคั่ง|คับข้อง|คะน้า|คะนอง|คะนึง|คับขัน|คับใจ|คับที่", "", text)
+    t = re.sub(r"คะแนน|บังคับ|คับแคบ|คับคั่ง|คับข้อง|คะน้า|คะนอง|คะนึง|คะยั้นคะยอ|คะเน|คับขัน|คับใจ|คับที่", "", text)
     has_ka, has_krub = bool(_TH_KA.search(t)), bool(_TH_KRUB.search(t))
     if has_ka and has_krub:
         return text
@@ -2438,16 +2441,17 @@ _SPEAK_CELS = {"C": {"en": "Celsius", "th": "เซลเซียส", "de": "C
                      "tr": "Fahrenheit", "id": "Fahrenheit", "vi": "Fahrenheit"}}
 # Thai-Rufnummern (0 + 8-9 Ziffern, ohne Punkt/Komma davor/danach): Stimmen läsen sie sonst als große Zahl
 _PHONE_SPEAK = re.compile(r"(?<![\d.,])0\d{8,9}(?![\d.,])")
-_CUR_AMOUNT = re.compile(r"([฿$€£])\s?(\d+(?:[.,]\d+)*)")
-_DEGREE = re.compile(r"(?<=\d)\s?°\s?([CF])\b")
-_CUR_AFTER = re.compile(r"(?<![\w.,])(\d+(?:[.,]\d+)*)\s?([฿€£])(?![\w])")     # "5€", "500฿" (Zahl zuerst, wie gesagt)
-_DEG_BARE = re.compile(r"(?<=\d)\s?°(?!\s?[CF]\b)")
+_CUR_AMOUNT = re.compile(r"([฿$€£])\s?(\d+(?:[.,]\d+)*(?:\s?(?:million|billion|trillion|thousand)\b)?)", re.I)
+_DEGREE = re.compile(r"(?<=\d)\s?°\s?([CF])(?![A-Za-z0-9])")
+_CUR_AFTER = re.compile(r"(?<![A-Za-z0-9.,])(\d+(?:[.,]\d+)*)\s?([฿€£])(?![A-Za-z0-9])")  # "5€", "500฿"
+_DEG_BARE = re.compile(r"(?<=\d)\s?°(?!\s?[CF](?![A-Za-z0-9]))")
 
 
 _EMOJI = re.compile("[\U0001F000-\U0001FAFF\u2600-\u27BF\u2B50\u2B55\uFE0F\u200D\u20E3]+")
 _THAI_DIGITS = str.maketrans("๐๑๒๓๔๕๖๗๘๙", "0123456789")
 _TH_ABBREV = [(re.compile(a), b) for a, b in (
-    (r"กทม\.?(?=\s|$)", "กรุงเทพมหานคร"), (r"ฯลฯ", "และอื่นๆ"), (r"(?:(?<=\s)|^)น\.(?=\s*\d)", "นาฬิกา"),
+    (r"กทม\.?(?![ก-๙])", "กรุงเทพมหานคร"), (r"ฯลฯ", "และอื่นๆ"), (r"(?:(?<=\s)|^)น\.(?=\s*\d)", "นาฬิกา"),
+    (r"(?<=\d)\s*น\.(?![ก-๙])", " นาฬิกา"),
     (r"(?:(?<=\s)|^)ซ\.(?=\s*\S)", "ซอย"),
     (r"(?:(?<=\s)|^)ถ\.(?=\s*\S)", "ถนน"), (r"(?:(?<=\s)|^)รร\.(?=\s*\S)", "โรงเรียน"),
     (r"(?:(?<=\s)|^)รพ\.(?=\s*\S)", "โรงพยาบาล"))]
@@ -2833,9 +2837,27 @@ TRANSLATE_BUDGET = 12.0           # s je Satz insgesamt (sonst bis ~24 s Stille:
 MT_MIN_LEFT = 1.5                  # s: weniger Restzeit lohnt keinen weiteren Anbieter
 
 
+MT_ORDER = ("google", "mymemory")          # Reihenfolge der freien Anbieter (nach Claude)
+
+
+def set_mt_order(spec):
+    """Reihenfolge der freien Übersetzer: "google,mymemory" (Standard) oder "mymemory,google". Unbekannt/leer:
+    Standard. Wirkt auf den nächsten Satz; der Cache-Schlüssel ändert sich nicht (gleiche Qualitätsstufe)."""
+    global MT_ORDER
+    names = tuple(x.strip().lower() for x in str(spec or "").replace(";", ",").split(",") if x.strip())
+    MT_ORDER = names if names in (("google", "mymemory"), ("mymemory", "google")) else ("google", "mymemory")
+    return MT_ORDER
+
+
+set_mt_order(os.environ.get("DOLMETSCHER_MT_ORDER"))
+
+
 def _mt_chain(text, src, dst, meta, deadline=None):
-    """Google (gtx) → MyMemory, mit Backoff je Anbieter und Offline-Schalter. `deadline` (monotonic)
-    begrenzt die Gesamtzeit: MyMemory bekommt nur die Restzeit, bei zu wenig Rest gar keinen Versuch."""
+    """Google (gtx) → MyMemory (Standard; umkehrbar mit set_mt_order/--mt-order), mit Backoff je Anbieter und
+    Offline-Schalter. `deadline` (monotonic) begrenzt die Gesamtzeit: MyMemory bekommt nur die Restzeit, bei zu
+    wenig Rest gar keinen Versuch."""
+    if MT_ORDER[0] == "mymemory":
+        return _mt_chain_mm_first(text, src, dst, meta, deadline)
     out, e1 = None, None
     now = time.monotonic()
     if now < _OFFLINE["until"]:                      # Schalter: nicht für jeden Satz 6+8 s warten
@@ -2868,6 +2890,39 @@ def _mt_chain(text, src, dst, meta, deadline=None):
         _note_fail("mymemory", e)
         if "offline" in str(e) or (e1 is None and _is_conn_error(e.__cause__)):
             # Nr. 33: Google im Backoff übersprungen (e1 None) und MyMemory nicht erreichbar -> offline
+            _OFFLINE["until"] = time.monotonic() + OFFLINE_HOLD
+        raise
+
+
+def _mt_chain_mm_first(text, src, dst, meta, deadline=None):
+    """Wie _mt_chain, aber MyMemory zuerst, dann Google."""
+    e1 = None
+    now = time.monotonic()
+    if now < _OFFLINE["until"]:
+        raise RuntimeError("offline – keine Internetverbindung")
+    left = None if deadline is None else deadline - now
+    if now >= _PROV["mymemory"]["until"] and (left is None or left >= MT_MIN_LEFT):
+        try:
+            out = _mt(mymemory_translate, text, src, dst, *((None,) if left is None else (None, min(8.0, left))))
+            meta["provider"] = "mymemory"
+            _note_ok("mymemory")
+            return out
+        except Exception as e:
+            e1 = e
+            _note_fail("mymemory", e)
+            log({"translate": "mymemory-fehler", "err": _errtxt(e)})
+    if time.monotonic() < _PROV["google"]["until"]:
+        if e1 is not None:
+            raise e1
+        raise RuntimeError("Übersetzung pausiert (Limit erreicht), gleich wieder")
+    try:
+        out = _mt(google_translate, text, src, dst)
+        meta["provider"] = "google"
+        _note_ok("google")
+        return out
+    except Exception as e:
+        _note_fail("google", e)
+        if "offline" in str(e) or (e1 is None and _is_conn_error(e.__cause__)):
             _OFFLINE["until"] = time.monotonic() + OFFLINE_HOLD
         raise
 
@@ -3096,7 +3151,8 @@ _EN_MONTHS = ("January", "February", "March", "April", "May", "June", "July", "A
               "November", "December")
 _EN_MONTH_RX = re.compile(r"\b(" + "|".join(_EN_MONTHS) + r")\b")          # groß geschrieben: "may"/"march" sind Verben
 # Buddhistisches Jahr (BE = Jahr + 543) neben Monatsnamen, ปี oder พ.ศ.: vor dem Vergleich abziehen
-_BE_YEAR = re.compile("(?:" + "|".join(_TH_MONTHS) + r"|ปี|พ\.ศ\.|\bB\.?E\.?)\s*(2[4-7]\d\d)\b")
+_BE_YEAR = re.compile("(?:" + "|".join(_TH_MONTHS) + r"|ปี|พ\.ศ\.|\bB\.?E\.?)\s*(2[4-7]\d\d)\b"
+                      r"(?!\s*(?:บาท|baht|฿|คน|%))")
 
 
 # Runde 14: Kurzformen der Monate, Zahlendaten (25/12/2026, 25.12.2026, 2026-12-25, US 12/25/2026) und
@@ -3157,7 +3213,7 @@ _TH_NUM_RUN = re.compile("(?:" + "|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], ke
                          + "))*")
 _TH_TOKEN = re.compile("|".join(sorted([*_TH_DIGIT_W, *_TH_MULT_W], key=len, reverse=True)))
 _SCALE = re.compile(r"(\d+(?:[.,]\d+)?)\s*(million|mio\.?|billion|thousand|hundred|lakhs?|crores?"
-                    r"|พันล้าน|ล้าน|แสน|หมื่น|พัน|ร้อย)"
+                    r"|พันล้าน|ล้าน|แสน|หมื่น|พัน(?!ธ)|ร้อย)"
                     r"|(\d+(?:[.,]\d+)?)(k)\b", re.I)
 _SCALE_F = {"billion": 1e9, "พันล้าน": 1e9, "million": 1e6, "mio": 1e6, "mio.": 1e6, "ล้าน": 1e6, "แสน": 1e5,
             "หมื่น": 1e4, "thousand": 1e3, "พัน": 1e3, "k": 1e3, "hundred": 1e2, "ร้อย": 1e2, "lakh": 1e5,
@@ -3496,7 +3552,7 @@ def _time_hm(tok):
     return int(m.group(1)) % 24, int(m.group(2) or 0)
 
 
-_NUMV = r"(-?\d{1,3}(?:,\d{3})+(?:\.\d+)?|-?\d+(?:\.\d+)?)"     # auch "3,200"
+_NUMV = r"((?:(?<!\d)-)?\d{1,3}(?:,\d{3})+(?:\.\d+)?|(?:(?<!\d)-)?\d+(?:\.\d+)?)"     # auch "3,200"
 _UNIT_RULES = (
     (re.compile(_NUMV + r"\s*(?:°\s*F\b|degrees?\s+fahrenheit\b|องศาฟาเรนไฮต์)", re.I),
      lambda v: f"{round((v - 32) * 5 / 9)}°C"),
@@ -3516,10 +3572,19 @@ _UNIT_RULES = (
 )
 
 
+# "77-86°F" / "25-30 องศา": Bereichsstrich ist kein Minus; beide Enden bekommen die Einheit
+_UNIT_RANGE = re.compile(r"(?<![\d.,])(\d+(?:\.\d+)?)\s*[-–]\s*(\d+(?:\.\d+)?)\s*"
+                         r"(°\s*[CF]\b|degrees?\s+(?:fahrenheit|celsius)\b|"
+                         r"องศาเซลเซียส|องศาฟาเรนไฮต์|องศา|miles?\b|ไมล์|km\b|กิโลเมตร|lbs?\b|kg\b|กิโลกรัม|"
+                         r"feet\b|ft\b|ฟุต|"
+                         r"ounces?\b|oz\b|ออนซ์|gallons?\b|แกลลอน)", re.I)
+
+
 def canon_units(s):
     """Maßeinheiten für den Zahlenvergleich vereinheitlichen: °F -> °C, Meilen -> km, lb -> kg (gerundet),
     damit „86 °F“ gegen „30 องศาเซลเซียส“ keine Abweichung ist. Fehlt die Einheit, bleibt der Text."""
     s = (s or "").translate(_DIGITS_ALL)
+    s = _UNIT_RANGE.sub(lambda m: f"{m.group(1)} {m.group(3)} to {m.group(2)} {m.group(3)}", s)
     for rx, fn in _UNIT_RULES:
         s = rx.sub(lambda m, fn=fn: " " + fn(float(m.group(1).replace(",", ""))) + " ", s)
     return s
@@ -8285,6 +8350,8 @@ if __name__ == "__main__":
     ap.add_argument("--list-mics", action="store_true", help="Mikrofone als JSON ausgeben")
     ap.add_argument("--offline-translator", nargs="?", const="", default=None,
                     help="Offline-Übersetzung (Apple) ohne Netz; optional Pfad zu translate-helper")
+    ap.add_argument("--mt-order", default=None, metavar="LISTE",
+                    help="Reihenfolge der freien Übersetzer: google,mymemory (Standard) oder mymemory,google")
     ap.add_argument("--polite", choices=["krub", "ka"], default="krub")
     ap.add_argument("--file", nargs="*")
     ap.add_argument("--mute", action="store_true")
@@ -8488,6 +8555,8 @@ if __name__ == "__main__":
     LET_FINISH["s"], CATCH_UP["mode"] = max(0.0, min(LET_FINISH_MAX, a.let_finish)), a.catch_up   # Nr. 69, 171
     if a.output_device:
         set_output_device(a.output_device)
+    if a.mt_order is not None:
+        set_mt_order(a.mt_order)
     if a.offline_translator is not None and not OFFLINE_MT.configure(a.offline_translator or None, on=True):
         emit("error", code="offline_mt_missing", msg="Offline-Übersetzer (translate-helper) nicht gefunden")
     if a.no_two_person:
