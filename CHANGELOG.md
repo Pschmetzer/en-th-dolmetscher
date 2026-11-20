@@ -4,6 +4,13 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### iOS speech, audio and translation, round 31
+
+- Whisper: time budget per recognition, fewer temperature fallbacks on low battery or heat, vocabulary prompt from names in the conversation, warm-up decode, adaptive pause threshold, language stickiness, skip clicks and silence.
+- Audio: `setCategory` only when it changes, one-time warning for narrow-band Bluetooth (HFP) input.
+- Translation: in-memory LRU cache, name protection for online translators, offline pivot via English, circuit breaker with backoff and visible remaining pause.
+- Model constants instead of magic numbers; haptics throttle; English units for the voice.
+
 ### Infrastructure and docs, round 23
 
 - Tests: `tests/test_thai_zahlen.py` is collectable again (a foreign `tests` package in site-packages shadowed the folder); tests that need `edge_tts`/`aiohttp` skip with `pytest.importorskip` instead of failing; the download-progress test no longer depends on the Hugging Face cache layout or fixed sleeps.

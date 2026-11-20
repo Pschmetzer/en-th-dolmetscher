@@ -17,6 +17,12 @@ final class BackgroundGrace {
         }
     }
 
+    /// Läuft die Frist noch?
+    var isActive: Bool { id != .invalid }
+
+    /// Restzeit im Hintergrund in Sekunden (unbegrenzt = `.infinity`, solange die App im Vordergrund ist).
+    var remaining: TimeInterval { UIApplication.shared.backgroundTimeRemaining }
+
     /// Beendet die Frist genau einmal (mehrfaches Aufrufen ist harmlos).
     func end() {
         guard id != .invalid else { return }

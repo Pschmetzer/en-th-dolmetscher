@@ -56,6 +56,7 @@ final class Speaker: NSObject, AVSpeechSynthesizerDelegate {
         finish()
         guard Self.hasVoice(lang) else { return false }
         let spoken = SpeechText.normalize(text, lang: lang)
+        guard !spoken.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return false }   // nichts Sprechbares
         let ssml = clear ? ClearSpeech.ssml(spoken, lang: lang) : nil
         let u = ssml.flatMap { AVSpeechUtterance(ssmlRepresentation: $0) } ?? AVSpeechUtterance(string: spoken)
         u.voice = Self.voice(lang)
@@ -166,8 +167,18 @@ enum SpeechText {
             s = currency(s, word: "บาท")
         } else {
             s = currency(s, word: lang == .en ? "baht" : "Baht")
+            if lang == .en { s = units(s) }
         }
         return s
+    }
+
+    /// Einheiten, die englische Stimmen sonst buchstabieren oder verschlucken.
+    static func units(_ s: String) -> String {
+        var out = s
+        for (a, b) in [("°C", " degrees Celsius"), ("km/h", " kilometres per hour"), ("THB", " baht")] {
+            out = out.replacingOccurrences(of: a, with: b)
+        }
+        return out.replacingOccurrences(of: "  ", with: " ")
     }
 
     /// „฿120“ oder „120฿“ -> „120 baht“; ein einzelnes ฿ ohne Zahl -> das Wort.

@@ -85,6 +85,8 @@ final class InterpreterModel {
     var idleWarning = false
     /// iPhone ist heiß: nur eine Sprache, keine Live-Vorschau.
     var hot = false
+    /// Bluetooth-HFP-Hinweis je Sitzung nur einmal.
+    @ObservationIgnored private var narrowbandWarned = false
     /// Push-to-talk: Knopf wird gerade gehalten.
     var pttHeld = false
     /// Kurzbefehl „Letzte Übersetzung groß“: diese Blase groß zeigen.
@@ -285,7 +287,7 @@ final class InterpreterModel {
         let pair = Self.pairSetting(d)
         self.pair = pair
         mode = Direction.migrate(d.string(forKey: "mode"), pair: pair).effective(pair)
-        pauseSeconds = d.object(forKey: "pauseSeconds") as? Double ?? 0.8
+        pauseSeconds = d.object(forKey: "pauseSeconds") as? Double ?? ModelTuning.defaultPause
         rate = d.object(forKey: "rate") as? Double ?? 1.0
         volume = d.object(forKey: "volume") as? Double ?? 1.0
         allowOnline = Self.allowOnlineSetting(d)
@@ -306,10 +308,10 @@ final class InterpreterModel {
         uiLang = follows ? L10n.systemLang() : (storedUI ?? L10n.systemLang())
         politeness = Politeness(rawValue: d.string(forKey: "politeness") ?? "") ?? .male
         haptics = d.object(forKey: "haptics") as? Bool ?? true
-        autoStopMinutes = d.object(forKey: "autoStopMinutes") as? Int ?? 10
+        autoStopMinutes = d.object(forKey: "autoStopMinutes") as? Int ?? ModelTuning.defaultAutoStopMinutes
         background = d.object(forKey: "background") as? Bool ?? false
         headset = d.object(forKey: "headset") as? Bool ?? false
-        historyDays = d.object(forKey: "historyDays") as? Int ?? 30
+        historyDays = d.object(forKey: "historyDays") as? Int ?? ModelTuning.defaultHistoryDays
         thaiOnSpeaker = d.object(forKey: "thaiOnSpeaker") as? Bool ?? true
         emergency = files.load(EmergencyInfo.self, "emergency.json").value ?? EmergencyInfo()
         backCheck = d.object(forKey: "backCheck") as? Bool ?? true
@@ -696,7 +698,7 @@ final class InterpreterModel {
                 finishing = true
                 finishingTask?.cancel()
                 finishingTask = Task { [weak self] in
-                    try? await Task.sleep(for: .seconds(3))
+                    try? await Task.sleep(for: .seconds(ModelTuning.finishingGraceSeconds))
                     guard !Task.isCancelled, let self, self.finishing else { return }
                     self.finishing = false; self.partial = ""
                 }
@@ -740,6 +742,11 @@ final class InterpreterModel {
         case .outputRouteLost:
             stopSpeaking()
             if phase == .listening { Haptics.warning(); flash("🎧 " + T("route_output_lost"), seconds: 5) }
+        case .narrowbandInput:
+            if phase == .listening, !narrowbandWarned {
+                narrowbandWarned = true
+                flash("🎧 " + SessionTuning.warnText(lang: uiLang), seconds: 6)
+            }
         case .rebuild:
             // Während eines Anrufs scheitert der Neuaufbau; nach dessen Ende kommt ein eigener Neustart.
             if phase == .listening, AudioSessionPolicy.mayRebuild(interrupted: interrupted) { restart(); liveUpdate() }
@@ -808,7 +815,7 @@ final class InterpreterModel {
     func expectSpeaker(_ lang: Lang) {
         guard pair.contains(lang) else { return }
         expected = lang
-        expectedUntil = Date().addingTimeInterval(20)
+        expectedUntil = Date().addingTimeInterval(ModelTuning.expectationSeconds)
         if let o = ListenOverride.needed(for: lang, mode: listenMode, pair: pair) {
             listenOverride = o
             if phase == .listening { restart() }
@@ -817,7 +824,7 @@ final class InterpreterModel {
         Haptics.tap()
         expectTask?.cancel()
         expectTask = Task { [weak self] in
-            try? await Task.sleep(for: .seconds(20))
+            try? await Task.sleep(for: .seconds(ModelTuning.expectationSeconds))
             guard !Task.isCancelled else { return }
             self?.expected = nil
             self?.releaseOverride()
@@ -836,8 +843,8 @@ final class InterpreterModel {
     private func releaseOverride(attempt: Int = 0) {
         guard listenOverride != nil else { return }
         let busy = hearing || finishing || speakingID != nil || pendingSpeech > 0
-        if busy && attempt < 10 {
-            Task { [weak self] in try? await Task.sleep(for: .seconds(3)); self?.releaseOverride(attempt: attempt + 1) }
+        if ModelTuning.shouldRetryRelease(busy: busy, attempt: attempt) {
+            Task { [weak self] in try? await Task.sleep(for: .seconds(ModelTuning.overrideRetrySeconds)); self?.releaseOverride(attempt: attempt + 1) }
             return
         }
         let before = listenMode.langs(pair)
@@ -848,7 +855,7 @@ final class InterpreterModel {
     // MARK: Befehle
 
     func run(_ cmd: VoiceCommand) {
-        awakeUntil = cmd == .wake ? Date().addingTimeInterval(6) : .distantPast
+        awakeUntil = cmd == .wake ? Date().addingTimeInterval(ModelTuning.wakeSeconds) : .distantPast
         switch cmd {
         case .wake: flash("👂 " + T("say_command"))
         case .pause: paused = true; stopSpeaking(); flash("⏸ " + T("paused")); liveUpdate()
@@ -856,8 +863,8 @@ final class InterpreterModel {
         case .repeat: if let last = visibleEntries.last(where: { $0.translation != nil }) { speak(last) }
         case .slower: rate = max(SpeechRate.minRate, rate - SpeechRate.step); flash("🐢 " + T("cmd_slower_done"))
         case .faster: rate = min(SpeechRate.maxRate, rate + SpeechRate.step); flash("🐇 " + T("cmd_faster_done"))
-        case .louder: volume = min(1, volume + 0.25); flash("🔊 " + T("cmd_louder_done"))
-        case .quieter: volume = max(0.25, volume - 0.25); flash("🔉 " + T("cmd_quieter_done"))
+        case .louder: volume = ModelTuning.louder(volume); flash("🔊 " + T("cmd_louder_done"))
+        case .quieter: volume = ModelTuning.quieter(volume); flash("🔉 " + T("cmd_quieter_done"))
         case .clear: clear()
         case .help: sheet = .help
         }
@@ -972,6 +979,7 @@ final class InterpreterModel {
                 update(id) { $0.translation = out; $0.provider = r.provider; $0.error = nil; $0.back = nil }
                 persist()
                 noteCulture(e.text, out)
+                noteVocabulary(e.text)
                 noteOnlineFallback(r.provider)
                 if speak { sessionTranslations += 1 }
                 liveUpdate()
@@ -986,6 +994,9 @@ final class InterpreterModel {
                 // „Nur offline“: das fehlende Paket nennen und in die Paket-Übersicht weisen.
                 var message = error.localizedDescription
                 if offlineOnly, case TranslateError.offlineMissing = error { message = T("err_offline_only") }
+                if case TranslateError.cooldown = error {
+                    message = ModelTuning.cooldownLabel(message, remaining: await translator.cooldownRemaining())
+                }
                 update(id) { $0.error = message }
                 voiceOverSay("a11y_translation_failed", detail: message)
                 Haptics.warning()
@@ -1274,7 +1285,7 @@ final class InterpreterModel {
     var learnSources: [LeitnerDeck.Source] {
         let favs = favorites.map { LeitnerDeck.Source.from($0, politeness: politeness) }
         // „Verlauf nicht speichern“ gilt auch für den Lernkasten: keine Karten aus Gesprächen.
-        let talk = historyDays == 0 ? [] : visibleEntries.suffix(300).compactMap { LeitnerDeck.Source.from($0, pair: pair) }
+        let talk = historyDays == 0 ? [] : visibleEntries.suffix(ModelTuning.transcriptTail).compactMap { LeitnerDeck.Source.from($0, pair: pair) }
         return favs + talk.reversed()
     }
 
@@ -1425,6 +1436,13 @@ final class InterpreterModel {
         guard let p = CultureHint.pack(for: all, packs: Phrasebook.packs, skip: cultureShown) else { return }
         cultureShown.insert(p.id)
         cultureHint = p.id
+    }
+
+    /// Namen aus dem Gespräch dienen Whisper als Prompt (richtige Schreibweise bei späteren Sätzen); höchstens 20, neueste zuerst.
+    private func noteVocabulary(_ text: String) {
+        let fresh = NameProtector.names(in: text)
+        guard !fresh.isEmpty else { return }
+        WhisperTuning.vocabulary = Array((fresh + WhisperTuning.vocabulary.filter { !fresh.contains($0) }).prefix(20))
     }
 
     /// 565: Offline-Übersetzung fiel aus und es ging online – einmal je Sitzung deutlich sagen.
