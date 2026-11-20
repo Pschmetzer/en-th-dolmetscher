@@ -1,0 +1,135 @@
+{
+  "id": "food-poisoning-stomach",
+  "names": {
+    "de": "Lebensmittelvergiftung und Magen",
+    "en": "Food poisoning and stomach upset",
+    "th": "อาหารเป็นพิษและท้องเสีย"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Bei Erbrechen und Durchfall viel trinken, am besten Elektrolytlösung. Bei Blut im Stuhl, hohem Fieber oder wenn nichts mehr bleibt zum Arzt oder ins Krankenhaus. Leitungswasser nicht trinken, Eiswürfel nur aus Trinkwasser. Mildes Essen wie Reisbrei hilft. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "With vomiting and diarrhoea drink plenty, ideally an electrolyte solution. See a doctor or go to hospital if there is blood in the stool, a high fever or nothing stays down. Do not drink tap water; ice only from drinking water. Mild food such as rice porridge helps. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "food poisoning",
+      "th": "อาหารเป็นพิษ"
+    },
+    {
+      "en": "diarrhoea",
+      "th": "ท้องเสีย"
+    },
+    {
+      "en": "nausea",
+      "th": "คลื่นไส้"
+    },
+    {
+      "en": "rehydration salts",
+      "th": "ผงเกลือแร่"
+    },
+    {
+      "en": "fever",
+      "th": "ไข้"
+    },
+    {
+      "en": "rice porridge",
+      "th": "ข้าวต้ม"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I think I have food poisoning.",
+      "th": "คิดว่าอาหารเป็นพิษ",
+      "critical": true
+    },
+    {
+      "en": "I have been vomiting all night.",
+      "th": "อาเจียนทั้งคืน",
+      "critical": true
+    },
+    {
+      "en": "I cannot keep water down.",
+      "th": "ดื่มน้ำแล้วอาเจียนออกมา",
+      "critical": true
+    },
+    {
+      "en": "I have severe stomach pain.",
+      "th": "ปวดท้องรุนแรง",
+      "critical": true
+    },
+    {
+      "en": "There is blood in my stool.",
+      "th": "มีเลือดปนในอุจจาระ",
+      "critical": true
+    },
+    {
+      "en": "Please call a doctor.",
+      "th": "ช่วยเรียกแพทย์หน่อย",
+      "critical": true
+    },
+    {
+      "en": "I have diarrhoea.",
+      "th": "ท้องเสีย"
+    },
+    {
+      "en": "I have a fever.",
+      "th": "มีไข้"
+    },
+    {
+      "en": "I feel nauseous.",
+      "th": "คลื่นไส้"
+    },
+    {
+      "en": "I ate seafood yesterday.",
+      "th": "เมื่อวานกินอาหารทะเล"
+    },
+    {
+      "en": "I ate at a street stall.",
+      "th": "กินอาหารที่ร้านริมทาง"
+    },
+    {
+      "en": "Several people are ill.",
+      "th": "ป่วยหลายคน"
+    },
+    {
+      "en": "Do I need a drip?",
+      "th": "ต้องให้น้ำเกลือไหม"
+    },
+    {
+      "en": "I need rehydration salts.",
+      "th": "ต้องการผงเกลือแร่"
+    },
+    {
+      "en": "Please give me medicine for diarrhoea.",
+      "th": "ขอยาแก้ท้องเสียหน่อย"
+    },
+    {
+      "en": "Please give me medicine for nausea.",
+      "th": "ขอยาแก้คลื่นไส้หน่อย"
+    },
+    {
+      "en": "Which food should I avoid?",
+      "th": "ควรเลี่ยงอาหารอะไร"
+    },
+    {
+      "en": "Can I eat plain rice porridge?",
+      "th": "กินข้าวต้มธรรมดาได้ไหม"
+    },
+    {
+      "en": "Is the water safe to drink?",
+      "th": "น้ำนี้ดื่มได้ปลอดภัยไหม"
+    },
+    {
+      "en": "Should I go to the hospital?",
+      "th": "ควรไปโรงพยาบาลไหม"
+    },
+    {
+      "en": "I need a toilet urgently.",
+      "th": "ต้องเข้าห้องน้ำด่วน"
+    },
+    {
+      "en": "How long will it last?",
+      "th": "จะเป็นนานเท่าไร"
+    }
+  ]
+}

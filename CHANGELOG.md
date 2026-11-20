@@ -4,6 +4,11 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### Phrase packs, round 23 (presets)
+
+- 22 new scenario packs (178 in total): diabetes and insulin, travel vaccinations, bringing medication in, tourist police report, Thai massage boundaries, ride-hailing price dispute, prescription and refills, night train and sleeper, SIM / eSIM / data, dive medical clearance, sprain / fracture / X-ray, travelling with elderly parents, complaint to customer service, hotel deposit dispute, visa run and border crossing, respect for the King and royals, temple donations and etiquette, EV charging, hospital payment and insurance, food poisoning, apartment host and self check-in, international money transfer. Thai lines machine-made, not checked by native speakers.
+- Checks: same English sentence now needs the same Thai and the same `critical` flag across all packs; Thai strings must be NFC, free of invisible characters and use Arabic digits and `บาท`. German and Thai search keywords in `presets-index.json`; optional `rom` (romanisation) per phrase with `tools/preset_rom.py`.
+
 ### Web Lite and phrase packs, round 22 (web)
 
 - 14 new scenario packs (156 in total): numbers and prices, negotiating, Buddhism and etiquette, scooter rental damage and deposit, describing symptoms in detail, avoiding tuk-tuk scams, embassy and consulate, spice level in food, deaf / hard of hearing / unable to speak, wheelchair and limited mobility, halal food and prayer, returns and complaints in shops, hotel room problems, lost wallet and cards. Thai lines machine-made, not checked by native speakers.

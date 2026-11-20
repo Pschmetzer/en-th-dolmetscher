@@ -1,0 +1,143 @@
+{
+  "id": "hospital-payment-insurance",
+  "names": {
+    "de": "Krankenhaus: Zahlung und Versicherung",
+    "en": "Hospital payment and insurance",
+    "th": "ค่ารักษาและประกันสุขภาพ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Private Krankenhäuser verlangen oft eine Anzahlung oder Kostenübernahme. Die Versicherungsnummer und die Notfallnummer der Versicherung bereithalten und die Klinik bitten, direkt abzurechnen. Kostenvoranschlag, detaillierte Rechnung und Befund auf Englisch für die Erstattung sichern. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Private hospitals often ask for a deposit or a guarantee of payment. Keep your policy number and your insurer's emergency line ready and ask the hospital to bill the insurer directly. Secure the estimate, an itemised bill and a report in English for reimbursement. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "insurance",
+      "th": "ประกันภัย"
+    },
+    {
+      "en": "policy number",
+      "th": "เลขกรมธรรม์"
+    },
+    {
+      "en": "deposit",
+      "th": "เงินมัดจำ"
+    },
+    {
+      "en": "itemised bill",
+      "th": "บิลแยกรายการ"
+    },
+    {
+      "en": "claim",
+      "th": "การเคลม"
+    },
+    {
+      "en": "diagnosis",
+      "th": "ผลวินิจฉัย"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please treat me first. I will pay later.",
+      "th": "ขอรักษาก่อน แล้วจะจ่ายทีหลัง",
+      "critical": true
+    },
+    {
+      "en": "I need to speak to a doctor now.",
+      "th": "ขอพบแพทย์เดี๋ยวนี้",
+      "critical": true
+    },
+    {
+      "en": "I do not have insurance. Please help me.",
+      "th": "ไม่มีประกัน ช่วยด้วย",
+      "critical": true
+    },
+    {
+      "en": "Please call my insurance company. It is urgent.",
+      "th": "ช่วยโทรหาบริษัทประกันด่วน",
+      "critical": true
+    },
+    {
+      "en": "I am in severe pain.",
+      "th": "ปวดมาก",
+      "critical": true
+    },
+    {
+      "en": "I cannot breathe.",
+      "th": "หายใจไม่ออก",
+      "critical": true
+    },
+    {
+      "en": "I need an interpreter.",
+      "th": "ต้องการล่าม"
+    },
+    {
+      "en": "Do you accept my travel insurance?",
+      "th": "รับประกันการเดินทางนี้ไหม"
+    },
+    {
+      "en": "I have travel insurance.",
+      "th": "มีประกันการเดินทาง"
+    },
+    {
+      "en": "Here is my policy number.",
+      "th": "นี่คือเลขกรมธรรม์"
+    },
+    {
+      "en": "Can you send the bill directly to the insurer?",
+      "th": "ส่งบิลตรงไปที่บริษัทประกันได้ไหม"
+    },
+    {
+      "en": "Do I need to pay a deposit first?",
+      "th": "ต้องวางเงินมัดจำก่อนไหม"
+    },
+    {
+      "en": "How much will the treatment cost?",
+      "th": "ค่ารักษาประมาณเท่าไร"
+    },
+    {
+      "en": "Please give me an estimate in writing.",
+      "th": "ขอใบประเมินค่ารักษาเป็นลายลักษณ์อักษร"
+    },
+    {
+      "en": "Can I pay by credit card?",
+      "th": "จ่ายด้วยบัตรเครดิตได้ไหม"
+    },
+    {
+      "en": "Can I pay in instalments?",
+      "th": "ผ่อนจ่ายได้ไหม"
+    },
+    {
+      "en": "Please give me an itemised bill.",
+      "th": "ขอบิลแยกรายการ"
+    },
+    {
+      "en": "I need a medical certificate for my insurance.",
+      "th": "ขอใบรับรองแพทย์สำหรับประกันด้วย"
+    },
+    {
+      "en": "I need a receipt in English.",
+      "th": "ขอใบเสร็จภาษาอังกฤษ"
+    },
+    {
+      "en": "Please write the diagnosis in English.",
+      "th": "ช่วยเขียนผลวินิจฉัยเป็นภาษาอังกฤษ"
+    },
+    {
+      "en": "Is the claim form here?",
+      "th": "มีแบบฟอร์มเคลมประกันไหม"
+    },
+    {
+      "en": "Please stamp this form.",
+      "th": "ช่วยประทับตราแบบฟอร์มนี้หน่อย"
+    },
+    {
+      "en": "Is there a private room?",
+      "th": "มีห้องพิเศษไหม"
+    },
+    {
+      "en": "Is there an interpreter?",
+      "th": "มีล่ามไหม"
+    }
+  ]
+}

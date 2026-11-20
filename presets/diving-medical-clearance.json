@@ -1,0 +1,135 @@
+{
+  "id": "diving-medical-clearance",
+  "names": {
+    "de": "Tauchtauglichkeit beim Arzt",
+    "en": "Dive medical clearance",
+    "th": "ใบรับรองแพทย์สำหรับดำน้ำ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Tauchschulen verlangen oft ein ärztliches Formular, besonders bei Asthma, Herz- oder Ohrproblemen. Ärzte in Phuket, Koh Tao und Pattaya kennen das Verfahren. Nach dem Tauchen 18 Stunden bis zum Flug warten. Bei Symptomen nach dem Tauchen sofort handeln. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Dive schools often require a medical form, especially for asthma, heart or ear problems. Doctors in Phuket, Koh Tao and Pattaya know the procedure. Wait 18 hours after diving before flying. Act at once if symptoms appear after a dive. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "diving",
+      "th": "ดำน้ำ"
+    },
+    {
+      "en": "certificate",
+      "th": "ใบรับรอง"
+    },
+    {
+      "en": "ear",
+      "th": "หู"
+    },
+    {
+      "en": "lungs",
+      "th": "ปอด"
+    },
+    {
+      "en": "asthma",
+      "th": "โรคหอบหืด"
+    },
+    {
+      "en": "decompression",
+      "th": "การลดความกดอากาศ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have asthma.",
+      "th": "เป็นโรคหอบหืด",
+      "critical": true
+    },
+    {
+      "en": "I have a heart condition.",
+      "th": "เป็นโรคหัวใจ",
+      "critical": true
+    },
+    {
+      "en": "I have a headache and joint pain after diving.",
+      "th": "ปวดหัวและปวดข้อหลังดำน้ำ",
+      "critical": true
+    },
+    {
+      "en": "I think I have decompression sickness.",
+      "th": "สงสัยว่าเป็นโรคน้ำหนีบ",
+      "critical": true
+    },
+    {
+      "en": "Where is the nearest hyperbaric chamber?",
+      "th": "ห้องปรับความกดอากาศที่ใกล้ที่สุดอยู่ที่ไหน",
+      "critical": true
+    },
+    {
+      "en": "Please call an ambulance. A diver is ill.",
+      "th": "ช่วยเรียกรถพยาบาลหน่อย นักดำน้ำไม่สบาย",
+      "critical": true
+    },
+    {
+      "en": "I need a medical certificate for diving.",
+      "th": "ต้องการใบรับรองแพทย์สำหรับการดำน้ำ"
+    },
+    {
+      "en": "Can a doctor check me for diving?",
+      "th": "แพทย์ตรวจความพร้อมสำหรับการดำน้ำได้ไหม"
+    },
+    {
+      "en": "I want to do a scuba course.",
+      "th": "อยากเรียนดำน้ำสคูบา"
+    },
+    {
+      "en": "Here is my dive medical form.",
+      "th": "นี่คือแบบฟอร์มตรวจสุขภาพสำหรับการดำน้ำ"
+    },
+    {
+      "en": "Please sign this form.",
+      "th": "ช่วยเซ็นแบบฟอร์มนี้หน่อย"
+    },
+    {
+      "en": "Please check my ears.",
+      "th": "ช่วยตรวจหูหน่อย"
+    },
+    {
+      "en": "Please check my lungs.",
+      "th": "ช่วยตรวจปอดหน่อย"
+    },
+    {
+      "en": "Please check my heart.",
+      "th": "ช่วยตรวจหัวใจหน่อย"
+    },
+    {
+      "en": "I get ear problems when I fly.",
+      "th": "หูมีปัญหาเวลาขึ้นเครื่องบิน"
+    },
+    {
+      "en": "I have a cold. Is it safe to dive?",
+      "th": "เป็นหวัด ดำน้ำได้ปลอดภัยไหม"
+    },
+    {
+      "en": "Can I dive with this medicine?",
+      "th": "ดำน้ำขณะกินยานี้ได้ไหม"
+    },
+    {
+      "en": "I cannot equalise my ears.",
+      "th": "ปรับความดันหูไม่ได้"
+    },
+    {
+      "en": "I have not dived for a long time.",
+      "th": "ไม่ได้ดำน้ำมานานแล้ว"
+    },
+    {
+      "en": "How long must I wait before flying after diving?",
+      "th": "หลังดำน้ำต้องรอนานเท่าไรจึงขึ้นเครื่องได้"
+    },
+    {
+      "en": "Is the certificate valid for one year?",
+      "th": "ใบรับรองใช้ได้หนึ่งปีไหม"
+    },
+    {
+      "en": "May I have a copy, please?",
+      "th": "ขอสำเนาหนึ่งชุดได้ไหม"
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "id": "ev-charging",
+  "names": {
+    "de": "Elektroauto laden",
+    "en": "EV charging",
+    "th": "ชาร์จรถไฟฟ้า"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Ladestationen gibt es in Städten, an Malls und Tankstellen. Viele brauchen eine App und Zahlung per Karte oder QR. Stecker-Typ und Ladeleistung vorab prüfen. Bei Rauch, Funken oder Brand sofort Abstand halten und die Feuerwehr (199) rufen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Charging stations are found in cities, malls and petrol stations. Many need an app and payment by card or QR. Check the connector type and power beforehand. If you see smoke, sparks or fire, keep away at once and call the fire service (199). Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "charger",
+      "th": "เครื่องชาร์จ"
+    },
+    {
+      "en": "connector",
+      "th": "หัวชาร์จ"
+    },
+    {
+      "en": "battery",
+      "th": "แบตเตอรี่"
+    },
+    {
+      "en": "cable",
+      "th": "สายชาร์จ"
+    },
+    {
+      "en": "charging station",
+      "th": "สถานีชาร์จ"
+    },
+    {
+      "en": "fast charge",
+      "th": "ชาร์จเร็ว"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "The charger is sparking.",
+      "th": "เครื่องชาร์จมีประกายไฟ",
+      "critical": true
+    },
+    {
+      "en": "There is a smell of smoke.",
+      "th": "มีกลิ่นควัน",
+      "critical": true
+    },
+    {
+      "en": "There is a fire!",
+      "th": "ไฟไหม้",
+      "critical": true
+    },
+    {
+      "en": "Please call the fire brigade.",
+      "th": "ช่วยเรียกรถดับเพลิงหน่อย",
+      "critical": true
+    },
+    {
+      "en": "Please keep everyone away.",
+      "th": "ขอให้ทุกคนอยู่ห่าง",
+      "critical": true
+    },
+    {
+      "en": "Where is the nearest charging station?",
+      "th": "สถานีชาร์จที่ใกล้ที่สุดอยู่ที่ไหน"
+    },
+    {
+      "en": "Is this charger working?",
+      "th": "เครื่องชาร์จนี้ใช้งานได้ไหม"
+    },
+    {
+      "en": "Which connector do you have?",
+      "th": "ที่นี่มีหัวชาร์จแบบไหน"
+    },
+    {
+      "en": "I need a fast charger.",
+      "th": "ต้องการเครื่องชาร์จเร็ว"
+    },
+    {
+      "en": "Is the charger free?",
+      "th": "เครื่องชาร์จว่างไหม"
+    },
+    {
+      "en": "How long is the queue?",
+      "th": "ต้องรอคิวนานเท่าไร"
+    },
+    {
+      "en": "How long does a charge take?",
+      "th": "ชาร์จนานเท่าไร"
+    },
+    {
+      "en": "How much per unit?",
+      "th": "หน่วยละเท่าไร"
+    },
+    {
+      "en": "Do I need an app to start?",
+      "th": "ต้องใช้แอปเริ่มชาร์จไหม"
+    },
+    {
+      "en": "Can you help me start the charger?",
+      "th": "ช่วยเริ่มชาร์จให้หน่อยได้ไหม"
+    },
+    {
+      "en": "The charger does not start.",
+      "th": "เครื่องชาร์จไม่ทำงาน"
+    },
+    {
+      "en": "The cable is stuck.",
+      "th": "สายชาร์จติด"
+    },
+    {
+      "en": "Please do not unplug my car.",
+      "th": "ขออย่าถอดปลั๊กรถ"
+    },
+    {
+      "en": "Please do not park here if you are not charging.",
+      "th": "ถ้าไม่ได้ชาร์จ ขออย่าจอดตรงนี้"
+    },
+    {
+      "en": "Do you have an adapter?",
+      "th": "มีอะแดปเตอร์ไหม"
+    },
+    {
+      "en": "Is there a charger at the hotel?",
+      "th": "โรงแรมมีที่ชาร์จไหม"
+    },
+    {
+      "en": "Can I charge overnight?",
+      "th": "ชาร์จข้ามคืนได้ไหม"
+    },
+    {
+      "en": "The battery is almost empty.",
+      "th": "แบตเตอรี่เกือบหมด"
+    },
+    {
+      "en": "Is there a tow truck?",
+      "th": "มีรถยกไหม"
+    }
+  ]
+}
