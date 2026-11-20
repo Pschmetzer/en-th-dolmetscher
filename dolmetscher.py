@@ -2425,6 +2425,16 @@ FILLERS = {
     "ja": re.compile(r"(?:(?<=[、。\s])|^)(?:えーと|えっと|あのー+|えー+|うーん)(?=[、,]|$)[、,]?"),
     "ko": re.compile(r"(?:(?<=\s)|^)(?:음+|어+)(?=[\s,.!?]|$)[,]?"),
     "zh": re.compile(r"(?:(?<=[，。\s])|^)(?:嗯+|呃+|额+)(?=[，。\s]|$)[，]?"),
+    # Whisper-Zögerlaute weiterer Sprachen (nur eigenständig, wie oben)
+    "it": re.compile(r"(?:(?<=\s)|^)(?:e+h*m+|u+h*m+|h+m+|m{3,})(?=[\s,.!?]|$)[,]?", re.I),
+    "pt": re.compile(r"(?:(?<=\s)|^)(?:h+m+|hum+|ãh+m*|ahn+|e+h+m+)(?=[\s,.!?]|$)[,]?", re.I),
+    "nl": re.compile(r"(?:(?<=\s)|^)(?:e+h+m*|u+h+m*|h+m+)(?=[\s,.!?]|$)[,]?", re.I),
+    "pl": re.compile(r"(?:(?<=\s)|^)(?:y{2,}|e{2,}m*|hm+|yh+m*)(?=[\s,.!?]|$)[,]?", re.I),
+    "tr": re.compile(r"(?:(?<=\s)|^)(?:e{2,}|ı{2,}m*|hm+|ıh+m*)(?=[\s,.!?]|$)[,]?", re.I),
+    "ru": re.compile(r"(?:(?<![\w])|^)(?:э+м*|э{2,}|гм+|хм+|м{2,})(?=[\s,.!?]|$)[,]?", re.I),
+    "uk": re.compile(r"(?:(?<![\w])|^)(?:е{2,}м*|ем+|гм+|хм+|м{2,})(?=[\s,.!?]|$)[,]?", re.I),
+    "hi": re.compile(r"(?:(?<=\s)|^)(?:उम्*म+|हम्*म+|अं{2,})(?=[\s,.!?।]|$)[,]?"),
+    "vi": re.compile(r"(?:(?<=\s)|^)(?:ừ+m+|ưm+|ờ{2,}m*|hừm+)(?=[\s,.!?]|$)[,]?", re.I),
 }
 
 
@@ -2761,6 +2771,7 @@ class OfflineMT:
         self.proc, self.pairs, self.n = None, {}, 0
         self.lock = threading.Lock()
         self.failed_at = None                       # Start gescheitert: nicht bei jedem Satz neu versuchen
+        self._buf = b""                             # gelesene, noch nicht ausgewertete Bytes des Helfers
 
     @staticmethod
     def bundled():
@@ -2787,6 +2798,7 @@ class OfflineMT:
         if self.failed_at is not None and time.monotonic() - self.failed_at < 60:
             return False
         try:
+            self._buf = b""
             self.proc = subprocess.Popen([self.path], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                          stderr=subprocess.DEVNULL)
             hello = self._readline(OFFLINE_MT_START)
@@ -2805,22 +2817,27 @@ class OfflineMT:
     def _readline(self, timeout):
         import select
         end = time.monotonic() + timeout
-        buf = b""
         fd = self.proc.stdout.fileno()
-        while not buf.endswith(b"\n"):
+        while True:                                  # genau eine Zeile je Aufruf; Rest bleibt für den nächsten
+            line, sep, rest = self._buf.partition(b"\n")
+            if sep:
+                self._buf = rest
+                if line.strip():
+                    return json.loads(line.decode("utf-8", "replace"))
+                continue
             left = end - time.monotonic()
             if left <= 0 or not select.select([fd], [], [], left)[0]:
                 raise TimeoutError("translate-helper antwortet nicht")
             chunk = os.read(fd, 65536)
             if not chunk:
                 raise RuntimeError("translate-helper beendet")
-            buf += chunk
-        return json.loads(buf.decode("utf-8", "replace").splitlines()[-1])
+            self._buf += chunk
 
     IDLE_CLOSE_S = 300.0                         # ohne Anfrage so lange: Helfer samt Sprachmodell beenden (RAM)
 
     def close(self):
         p, self.proc = self.proc, None
+        self._buf = b""
         if p is not None:
             try:
                 p.kill()
@@ -3330,7 +3347,7 @@ def _time_hm(tok):
     return int(m.group(1)) % 24, int(m.group(2) or 0)
 
 
-_NUMV = r"(-?\d+(?:\.\d+)?)"
+_NUMV = r"(-?\d{1,3}(?:,\d{3})+(?:\.\d+)?|-?\d+(?:\.\d+)?)"     # auch "3,200"
 _UNIT_RULES = (
     (re.compile(_NUMV + r"\s*(?:°\s*F\b|degrees?\s+fahrenheit\b|องศาฟาเรนไฮต์)", re.I),
      lambda v: f"{round((v - 32) * 5 / 9)}°C"),
@@ -3340,6 +3357,14 @@ _UNIT_RULES = (
     (re.compile(_NUMV + r"\s*(?:lbs?\b|pounds?\s+(?:of\s+)?weight\b)", re.I),
      lambda v: f"{round(v * 0.4536, 1):g} kg"),
     (re.compile(_NUMV + r"\s*(?:kg\b|kilograms?\b|กิโลกรัม)", re.I), lambda v: f"{round(v, 1):g} kg"),
+    # Länge/Gewicht/Fläche/Volumen: nur die nicht-metrische Seite umrechnen (Fuß, Zoll, Unzen, Gallonen, Rai …)
+    (re.compile(_NUMV + r"\s*(?:feet\b|foot\b|ft\b|ฟุต)", re.I), lambda v: f"{round(v * 0.3048, 1):g} m"),
+    (re.compile(_NUMV + r"\s*(?:inch(?:es)?\b|นิ้ว)", re.I), lambda v: f"{round(v * 2.54):g} cm"),
+    (re.compile(_NUMV + r"\s*(?:ounces?\b|oz\b|ออนซ์)", re.I), lambda v: f"{round(v * 28.35):g} g"),
+    (re.compile(_NUMV + r"\s*(?:gallons?\b|แกลลอน)", re.I), lambda v: f"{round(v * 3.785):g} l"),
+    (re.compile(_NUMV + r"\s*(?:rai\b|ไร่)", re.I), lambda v: f"{round(v * 1600):g} m²"),
+    (re.compile(_NUMV + r"\s*(?:ngan\b|งาน)", re.I), lambda v: f"{round(v * 400):g} m²"),
+    (re.compile(_NUMV + r"\s*(?:square\s+wah\b|sq\.?\s*wah\b|ตารางวา)", re.I), lambda v: f"{round(v * 4):g} m²"),
 )
 
 
@@ -3348,7 +3373,7 @@ def canon_units(s):
     damit „86 °F“ gegen „30 องศาเซลเซียส“ keine Abweichung ist. Fehlt die Einheit, bleibt der Text."""
     s = (s or "").translate(_DIGITS_ALL)
     for rx, fn in _UNIT_RULES:
-        s = rx.sub(lambda m, fn=fn: " " + fn(float(m.group(1))) + " ", s)
+        s = rx.sub(lambda m, fn=fn: " " + fn(float(m.group(1).replace(",", ""))) + " ", s)
     return s
 
 
@@ -3903,10 +3928,11 @@ def squash_repeats(text):
     """Wiederholungsschleifen kürzen statt den ganzen Satz zu verlieren:
     'สติ๊กฮ่าาาาาาา' -> 'สติ๊กฮ่าาา', 'ha ha ha ha ha ha' -> 'ha ha ha'."""
     text = re.sub(r"(\D)\1{3,}", r"\1\1\1", text)
-    # Ziffernfolgen (Telefon "0808080808", Zimmer "11111111") nie kürzen – nur Schleifen mit Buchstaben
+    # Ziffernfolgen (Telefon "0808080808", Zimmer "11111111") nie kürzen – nur Schleifen mit Buchstaben;
+    # ohne Leerzeichen geschrieben (Thai/Chinesisch "ฮ่าฮ่าฮ่าฮ่า") bleibt die Schleife ohne Leerzeichen
     text = re.sub(r"(.{2,12}?)(?:\s*\1){3,}",
-                  lambda m: f"{m.group(1)} {m.group(1)} {m.group(1)}" if re.search(r"[^\W\d_]", m.group(1))
-                  else m.group(0), text)
+                  lambda m: (f"{m.group(1)}{' ' if re.search(chr(92) + 's', m.group(0)) else ''}" * 3).rstrip()
+                  if re.search(r"[^\W\d_]", m.group(1)) else m.group(0), text, flags=re.I)   # "Ja ja ja ja" auch
     return text
 
 
