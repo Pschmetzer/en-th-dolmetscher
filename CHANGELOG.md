@@ -29,6 +29,10 @@ Pull requests #16–#47. Not yet published as a release.
 - Counts read "Matches: 1" instead of "1 matches" (Mac history, search, glossary, settings transfer; iPhone learning streak; web flashcard messages). Thai Mac texts say โปรด/ไมโครโฟน like iPhone and web.
 - Tests now check every iPhone table (rounds 13 to 25), that each round is registered in the lookup, and shared Mac/iPhone keys.
 
+### Mac app, round 21
+
+- History window: a session can now also be exported as plain text, JSON or WebVTT (besides Markdown, CSV and SRT).
+
 ### Web version, round 21
 
 - Less layout shift while the phrasebook loads (CLS 0.37 to 0.04): the "useful now" row, the phrase of the day and the quick answers reserve their space.
