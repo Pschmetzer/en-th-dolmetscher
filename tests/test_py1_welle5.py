@@ -231,7 +231,7 @@ def test_laugh_regexes_do_not_hit_normal_words():
 
 @pytest.mark.parametrize("lang,expected", [
     ("it", "25 gradi Celsius"), ("pt", "25 graus Celsius"), ("nl", "25 graden Celsius"),
-    ("ru", "25 градусов по Цельсию"), ("pl", "25 stopni Celsjusza"), ("tr", "25 derece Celsius"),
+    ("tr", "25 derece Celsius"), ("ru", "25°C"), ("pl", "25°C"), ("uk", "25°C"),   # Slawisch: Stimme dekliniert selbst
 ])
 def test_degrees_spoken_in_more_languages(lang, expected):
     assert d.speak_form("25°C", lang) == expected

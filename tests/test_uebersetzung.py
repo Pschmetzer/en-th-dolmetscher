@@ -127,11 +127,17 @@ def test_cache_key_keeps_question_mark(monkeypatch):
     assert len(seen) == 2
 
 
-def test_cache_cleared_by_glossary(tmp_path, monkeypatch):
+def test_cache_not_served_after_glossary_change(tmp_path, monkeypatch):
     monkeypatch.setattr(d, "GLOSSARY_FILE", str(tmp_path / "g.txt"))
-    d._cache_put(("x", "en", "th", "mt", "krub"), ("y", "google"))
+    d.load_glossary("")
+    d._cache_put(d._cache_key("x", "en", "th", False, "krub"), ("y", "google"))
+    assert d._cache_get(d._cache_key("x", "en", "th", False, "krub")) == ("y", "google")
     d.load_glossary("Nok")
-    assert d._cache_get(("x", "en", "th", "mt", "krub")) is None
+    # der alte Eintrag passt nicht mehr zum neuen Glossar (Schlüssel trägt die Signatur) ...
+    assert d._cache_get(d._cache_key("x", "en", "th", False, "krub")) is None
+    # ... und kommt zurück, wenn das Glossar wieder dem alten entspricht (Cache nicht geleert)
+    d.load_glossary("")
+    assert d._cache_get(d._cache_key("x", "en", "th", False, "krub")) == ("y", "google")
 
 
 # ---- fix_thai: Geschlecht konsequent ---------------------------------------------------------------

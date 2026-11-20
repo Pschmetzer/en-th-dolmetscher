@@ -30,6 +30,8 @@ def _glossary_tmp(monkeypatch, tmp_path):
     """Glossar-Lernen (Standard an) schreibt die Glossar-Datei: nie die echte im Nutzerordner."""
     monkeypatch.setattr(d, "GLOSSARY_FILE", str(tmp_path / "glossary.txt"))
     monkeypatch.setattr(d, "GLOSSARY", [])
+    monkeypatch.setattr(d, "_GLOSSARY_OWN", None)           # gehört zu GLOSSARY (steckt im Cache-Schlüssel, _cache_sig)
+    monkeypatch.setattr(d.PRESET, "hint", None, raising=False)
 
 
 @pytest.fixture(autouse=True)

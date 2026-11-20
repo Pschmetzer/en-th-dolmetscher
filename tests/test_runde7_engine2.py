@@ -209,14 +209,23 @@ def test_alte_tmp_dateien_werden_aufgeraeumt(tmp_path, monkeypatch):
     assert not stale.exists() and fresh.exists()
 
 
-def test_glossar_lernen_schaltet_preset_im_fehlerfall_wieder_an(monkeypatch):
+def test_glossar_lernen_laesst_preset_an_und_ruft_set_preset_nicht(monkeypatch, tmp_path):
     calls = []
     monkeypatch.setattr(d, "set_preset", lambda eng, pid, quiet=False: calls.append(pid))
+    monkeypatch.setattr(d, "GLOSSARY_FILE", str(tmp_path / "g.txt"))
+    monkeypatch.setattr(d, "emit", lambda *a, **k: None)
+    monkeypatch.setattr(d, "GLOSSARY", [])
+    monkeypatch.setattr(d, "_GLOSSARY_OWN", frozenset())
     monkeypatch.setattr(d.PRESET, "active", "hotel", raising=False)
-    monkeypatch.setattr(d, "load_glossary", lambda t: (_ for _ in ()).throw(OSError("voll")))
-    with pytest.raises(OSError):
-        d.learn_glossary_names(object(), ["Neuname"])
-    assert calls == [None, "hotel"]
+    monkeypatch.setattr(d.PRESET, "saved", {"glossary": [("Eigen", None)], "style": "neutral", "polite": "krub",
+                                             "voices": {}}, raising=False)
+    d.GLOSSARY[:] = [("Eigen", None), ("room", "ห้อง")]           # eigene Wörter vorn, Preset-Wörter dahinter
+    assert d.learn_glossary_names(object(), ["Neuname"]) == ["Neuname"]
+    assert calls == []
+    assert d.GLOSSARY == [("Eigen", None), ("Neuname", None), ("room", "ห้อง")]
+    assert d.PRESET.saved["glossary"] == [("Eigen", None), ("Neuname", None)]
+    assert d._GLOSSARY_OWN == frozenset({("Eigen", None), ("Neuname", None)})
+    assert "Neuname" in (tmp_path / "g.txt").read_text(encoding="utf-8")
 
 
 # ---- Teil 4: Hinweise, Tuning, Untertitel, Suche, Akku ---
