@@ -98,7 +98,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { e in
             let mods = e.modifierFlags.intersection(.deviceIndependentFlagsMask)
             // ⌘= (US-Tastatur ohne Umschalt) wirkt wie ⌘+ – ohne zweiten Menüeintrag.
-            if mods == .command, e.charactersIgnoringModifiers == "=" {
+            if mods == .command, e.charactersIgnoringModifiers == "=",
+               e.window?.identifier == Prefs.mainWindowID {   // nur im Hauptfenster, nicht in Sheets/Einstellungen
                 let ud = UserDefaults.standard
                 ud.set(Prefs.zoomed(ud.object(forKey: Prefs.fontScale) as? Double ?? 1.0, 0.1), forKey: Prefs.fontScale)
                 return nil
