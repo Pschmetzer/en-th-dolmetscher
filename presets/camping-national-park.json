@@ -1,0 +1,147 @@
+{
+  "id": "camping-national-park",
+  "names": {
+    "de": "Camping im Nationalpark",
+    "en": "Camping in a national park",
+    "th": "ตั้งแคมป์ในอุทยานแห่งชาติ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Zelten nur auf ausgewiesenen Plätzen und vorher am Parkbüro anmelden. Müll mitnehmen, nachts kein offenes Feuer ohne Erlaubnis. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Camp only on marked sites and register at the park office first. Take your rubbish with you and do not light fires at night without permission. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "tent",
+      "th": "เต็นท์"
+    },
+    {
+      "en": "campsite",
+      "th": "ลานกางเต็นท์"
+    },
+    {
+      "en": "park ranger",
+      "th": "เจ้าหน้าที่อุทยาน"
+    },
+    {
+      "en": "campfire",
+      "th": "กองไฟ"
+    },
+    {
+      "en": "sleeping bag",
+      "th": "ถุงนอน"
+    },
+    {
+      "en": "drinking water",
+      "th": "น้ำดื่ม"
+    },
+    {
+      "en": "flashlight",
+      "th": "ไฟฉาย"
+    },
+    {
+      "en": "toilet",
+      "th": "ห้องน้ำ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Our group is lost on the trail.",
+      "th": "กลุ่มของเราหลงทางในเส้นทางเดินป่า",
+      "critical": true
+    },
+    {
+      "en": "A snake bit my friend.",
+      "th": "เพื่อนถูกงูกัด",
+      "critical": true
+    },
+    {
+      "en": "There is a fire near our tent.",
+      "th": "มีไฟไหม้ใกล้เต็นท์ของเรา",
+      "critical": true
+    },
+    {
+      "en": "Someone in our group is badly hurt.",
+      "th": "มีคนในกลุ่มของเราบาดเจ็บสาหัส",
+      "critical": true
+    },
+    {
+      "en": "Please call the park rescue team.",
+      "th": "ช่วยโทรเรียกทีมกู้ภัยของอุทยานหน่อย",
+      "critical": true
+    },
+    {
+      "en": "We have no drinking water left.",
+      "th": "น้ำดื่มของเราหมดแล้ว",
+      "critical": true
+    },
+    {
+      "en": "Is there a free pitch at the campsite?",
+      "th": "ลานกางเต็นท์ยังมีที่ว่างไหม"
+    },
+    {
+      "en": "How much is one night for a tent?",
+      "th": "กางเต็นท์คืนละเท่าไร"
+    },
+    {
+      "en": "Please show me where I may set up the tent.",
+      "th": "ขอดูหน่อยว่ากางเต็นท์ตรงไหนได้"
+    },
+    {
+      "en": "Can I rent a tent and a sleeping bag?",
+      "th": "เช่าเต็นท์และถุงนอนได้ไหม"
+    },
+    {
+      "en": "Where is the nearest toilet and shower?",
+      "th": "ห้องน้ำและห้องอาบน้ำที่ใกล้ที่สุดอยู่ที่ไหน"
+    },
+    {
+      "en": "Is the tap water safe to drink?",
+      "th": "น้ำประปาที่นี่ดื่มได้ไหม"
+    },
+    {
+      "en": "Please tell me where I can buy firewood.",
+      "th": "ขอถามหน่อยว่าซื้อฟืนได้ที่ไหน"
+    },
+    {
+      "en": "Are campfires allowed here at night?",
+      "th": "ที่นี่จุดกองไฟตอนกลางคืนได้ไหม"
+    },
+    {
+      "en": "Where do I throw away the rubbish?",
+      "th": "ทิ้งขยะได้ที่ไหน"
+    },
+    {
+      "en": "Please keep the noise down after ten o'clock.",
+      "th": "ช่วยลดเสียงหน่อยหลังสี่ทุ่ม"
+    },
+    {
+      "en": "Are there wild animals near the campsite?",
+      "th": "แถวลานกางเต็นท์มีสัตว์ป่าไหม"
+    },
+    {
+      "en": "Which trail is safe for beginners?",
+      "th": "เส้นทางไหนปลอดภัยสำหรับมือใหม่"
+    },
+    {
+      "en": "What time does the park close?",
+      "th": "อุทยานปิดกี่โมง"
+    },
+    {
+      "en": "Please check the weather forecast for tomorrow.",
+      "th": "ช่วยดูพยากรณ์อากาศพรุ่งนี้หน่อย"
+    },
+    {
+      "en": "Do I need a permit for this trail?",
+      "th": "เส้นทางนี้ต้องขออนุญาตก่อนไหม"
+    },
+    {
+      "en": "Please charge my power bank at the office.",
+      "th": "ขอชาร์จพาวเวอร์แบงก์ที่สำนักงานหน่อย"
+    },
+    {
+      "en": "Thank you for your help in the park.",
+      "th": "ขอบคุณที่ช่วยเหลือในอุทยาน"
+    }
+  ]
+}

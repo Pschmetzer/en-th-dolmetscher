@@ -1,0 +1,139 @@
+{
+  "id": "school-enrollment",
+  "names": {
+    "de": "Schulanmeldung",
+    "en": "School enrollment",
+    "th": "สมัครเข้าโรงเรียน"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Für internationale Schulen braucht man meist Zeugnisse, Impfnachweis und Pass des Kindes. Schulgeld und Uniform vorher klären. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "International schools usually require reports, vaccination records and the child's passport. Clarify fees and uniform beforehand. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "school",
+      "th": "โรงเรียน"
+    },
+    {
+      "en": "tuition fee",
+      "th": "ค่าเล่าเรียน"
+    },
+    {
+      "en": "uniform",
+      "th": "ชุดนักเรียน"
+    },
+    {
+      "en": "report card",
+      "th": "ใบรายงานผล"
+    },
+    {
+      "en": "class",
+      "th": "ชั้นเรียน"
+    },
+    {
+      "en": "teacher",
+      "th": "ครู"
+    },
+    {
+      "en": "school bus",
+      "th": "รถรับส่งนักเรียน"
+    },
+    {
+      "en": "application form",
+      "th": "ใบสมัคร"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My child has a severe allergy, please note it.",
+      "th": "ลูกมีอาการแพ้รุนแรง ช่วยจดไว้หน่อย",
+      "critical": true
+    },
+    {
+      "en": "My child needs medicine at school.",
+      "th": "ลูกต้องกินยาที่โรงเรียน",
+      "critical": true
+    },
+    {
+      "en": "Please call me at once if my child is ill.",
+      "th": "ถ้าลูกไม่สบาย ช่วยโทรหาทันทีหน่อย",
+      "critical": true
+    },
+    {
+      "en": "My child has asthma and needs an inhaler.",
+      "th": "ลูกเป็นหอบหืดและต้องใช้ยาพ่น",
+      "critical": true
+    },
+    {
+      "en": "Please do not let anyone else pick up my child.",
+      "th": "ขออย่าให้คนอื่นมารับลูก",
+      "critical": true
+    },
+    {
+      "en": "My child got hurt, please call an ambulance.",
+      "th": "ลูกบาดเจ็บ ช่วยโทรเรียกรถพยาบาลหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I would like to enroll my child.",
+      "th": "ต้องการสมัครให้ลูกเข้าเรียน"
+    },
+    {
+      "en": "Which documents do you need?",
+      "th": "ต้องใช้เอกสารอะไรบ้าง"
+    },
+    {
+      "en": "May I have the application form?",
+      "th": "ขอใบสมัครหน่อย"
+    },
+    {
+      "en": "How much is the tuition fee per year?",
+      "th": "ค่าเล่าเรียนต่อปีเท่าไร"
+    },
+    {
+      "en": "Are the uniform and books included?",
+      "th": "รวมชุดนักเรียนและหนังสือไหม"
+    },
+    {
+      "en": "Which language do the lessons use?",
+      "th": "สอนด้วยภาษาอะไร"
+    },
+    {
+      "en": "Is there an English speaking teacher?",
+      "th": "มีครูที่พูดภาษาอังกฤษไหม"
+    },
+    {
+      "en": "How many children are in one class?",
+      "th": "หนึ่งห้องมีนักเรียนกี่คน"
+    },
+    {
+      "en": "May we visit the school first?",
+      "th": "ขอเยี่ยมชมโรงเรียนก่อนได้ไหม"
+    },
+    {
+      "en": "Is there a school bus?",
+      "th": "มีรถรับส่งนักเรียนไหม"
+    },
+    {
+      "en": "What time does school start and end?",
+      "th": "โรงเรียนเริ่มและเลิกกี่โมง"
+    },
+    {
+      "en": "Is lunch served at school?",
+      "th": "ที่โรงเรียนมีอาหารกลางวันไหม"
+    },
+    {
+      "en": "When does the new term start?",
+      "th": "เปิดภาคเรียนใหม่เมื่อไร"
+    },
+    {
+      "en": "When will you tell us the result?",
+      "th": "จะแจ้งผลให้ทราบเมื่อไร"
+    },
+    {
+      "en": "Thank you for your time.",
+      "th": "ขอบคุณที่สละเวลา"
+    }
+  ]
+}

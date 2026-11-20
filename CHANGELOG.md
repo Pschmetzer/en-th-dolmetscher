@@ -16,6 +16,22 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 - Fix: the number warning no longer fires when only the thousands separator differs (1,200 vs 1200).
 - Logic in `PriceLogic`, `SummaryLogic`, `LearnLogic`, `ScenarioDetect`, `OfflineFallback`, `WindowLogic`, `ShortcutCatalog` with tests in `swift-tests`; texts in `L10n+R24.swift`.
 
+### Web round 24: tools and 23 new packs
+
+- New tools dialog (button 🧰, loaded on demand from `web-extras.js`, cached for offline use): price check with a manually entered rate and a big number card (with Thai number words), negotiation helper with counter offers, travel checklist, offline dictionary from the pack glossaries, tour guide pack shared as a link (own cards compressed into the URL fragment, nothing uploaded), travel diary with tags and file export, tone trainer with minimal pairs and quiz, microphone level hint for noisy places. No photo/text recognition: it cannot work offline without a model download.
+- 23 new phrase packs (201 in total): camping, night bus, business meeting, contractors, caves and waterfalls, climbing, surf lessons, herbal medicine, blood tests, meditation retreat, longtail boat, condo office, used vehicles, vet, school enrollment, electronics mall, copy shop, gold shop, notary and translation, work permit, neighbours and noise, orchard visit, wildlife safari. Thai lines are machine-made, not reviewed.
+- The CSP now allows `'self'` scripts for the extras file; the hash-based CSP is not done yet (the inline script still needs `'unsafe-inline'`).
+### Modules, tools and docs, round 24
+
+- Phrase book tool: `satzbuch.py report` (Markdown or JSON, by code and pack, with size) and `check --ignore CODE --pack ID`. Bug fixed: a wrong or empty `--dir` reported "0 errors" with exit code 0; it is now an error.
+- Speaker clustering: `profiles.cluster_speakers` separates voiceprints of a session into up to eight people (greedy plus k-means refinement, outliers merged); not yet wired into the engine.
+- Audio helper: `avhelper.py list` also reports loopback devices (BlackHole and similar) and the new `prep` command tells whether system audio can be captured (nothing is installed or redirected).
+- History: optional password-protected export (`Store.export_encrypted` / `import_encrypted`, scrypt with PBKDF2 fallback, encrypt-then-MAC, standard library only, no Keychain). The running database is not encrypted.
+- Corrections: `ConfusionMap.apply` replaces in one pass (a->b and b->c no longer chain) and picks the most frequent correction per word; `from_dict` ignores booleans and respects the size limit.
+- Benchmark: `bench/latency_budget.py` with `bench/latency_budget.json` (time budget per language, regression per case against the baseline, `--scale` for slow runners); the manual benchmark workflow reports it as a hint.
+- CI and docs: the Pages smoke test also compares the service worker pack list with `presets-index.json` and no longer treats a missing cache version as success; Dependabot updates merged (actions group, web-e2e group); roadmap, architecture and benchmark docs updated.
+- Tests: `tests/test_r24_modules_a.py`.
+
 ### Engine latency, round 23 (Python)
 
 - Faster Claude path: worker pools instead of a thread per call, warm-up at start plus keepalive while idle (only when the prompt cache applies), cache hit/write counters and cost by the model actually used.

@@ -1,0 +1,139 @@
+{
+  "id": "vet-clinic",
+  "names": {
+    "de": "Tierarzt",
+    "en": "Veterinary clinic",
+    "th": "คลินิกสัตวแพทย์"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Bei Einreise mit Tieren sind Impfpass und Gesundheitszeugnis nötig. Tollwut ist in Thailand verbreitet; Impfung und Chip des Tieres bereithalten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Entering with pets needs a vaccination book and health certificate. Rabies is widespread in Thailand; keep vaccination and microchip records ready. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "veterinarian",
+      "th": "สัตวแพทย์"
+    },
+    {
+      "en": "vaccination book",
+      "th": "สมุดวัคซีน"
+    },
+    {
+      "en": "rabies",
+      "th": "โรคพิษสุนัขบ้า"
+    },
+    {
+      "en": "microchip",
+      "th": "ไมโครชิป"
+    },
+    {
+      "en": "tick",
+      "th": "เห็บ"
+    },
+    {
+      "en": "flea",
+      "th": "หมัด"
+    },
+    {
+      "en": "spay",
+      "th": "ทำหมัน"
+    },
+    {
+      "en": "pet",
+      "th": "สัตว์เลี้ยง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My dog was hit by a car, please help quickly.",
+      "th": "สุนัขถูกรถชน ช่วยด่วนหน่อย",
+      "critical": true
+    },
+    {
+      "en": "My cat cannot breathe.",
+      "th": "แมวหายใจไม่ออก",
+      "critical": true
+    },
+    {
+      "en": "My dog ate poison.",
+      "th": "สุนัขกินยาพิษ",
+      "critical": true
+    },
+    {
+      "en": "My pet has seizures.",
+      "th": "สัตว์เลี้ยงชักเกร็ง",
+      "critical": true
+    },
+    {
+      "en": "My dog is bleeding heavily.",
+      "th": "สุนัขเลือดออกมาก",
+      "critical": true
+    },
+    {
+      "en": "My dog was bitten by a snake.",
+      "th": "สุนัขถูกงูกัด",
+      "critical": true
+    },
+    {
+      "en": "I would like to make an appointment for my dog.",
+      "th": "ขอนัดหมายสำหรับสุนัขหน่อย"
+    },
+    {
+      "en": "Do you speak English?",
+      "th": "พูดภาษาอังกฤษได้ไหม"
+    },
+    {
+      "en": "My cat does not eat since yesterday.",
+      "th": "แมวไม่กินอาหารตั้งแต่เมื่อวาน"
+    },
+    {
+      "en": "My dog has diarrhoea and vomits.",
+      "th": "สุนัขท้องเสียและอาเจียน"
+    },
+    {
+      "en": "Please check for ticks and fleas.",
+      "th": "ช่วยตรวจหาเห็บและหมัดหน่อย"
+    },
+    {
+      "en": "Here is the vaccination book.",
+      "th": "นี่คือสมุดวัคซีน"
+    },
+    {
+      "en": "Does my dog need a rabies shot?",
+      "th": "สุนัขต้องฉีดวัคซีนพิษสุนัขบ้าไหม"
+    },
+    {
+      "en": "Please give me a health certificate for travel.",
+      "th": "ขอใบรับรองสุขภาพสำหรับเดินทางหน่อย"
+    },
+    {
+      "en": "How much does the treatment cost?",
+      "th": "ค่ารักษาเท่าไร"
+    },
+    {
+      "en": "Please explain how to give the medicine.",
+      "th": "ช่วยอธิบายวิธีให้ยาหน่อย"
+    },
+    {
+      "en": "May I stay with my pet?",
+      "th": "ขออยู่กับสัตว์เลี้ยงได้ไหม"
+    },
+    {
+      "en": "Does the animal need to stay overnight?",
+      "th": "สัตว์ต้องค้างคืนไหม"
+    },
+    {
+      "en": "Is there an animal hotel nearby?",
+      "th": "แถวนี้มีโรงแรมสัตว์เลี้ยงไหม"
+    },
+    {
+      "en": "When should we come back for a check?",
+      "th": "ควรกลับมาตรวจอีกเมื่อไร"
+    },
+    {
+      "en": "Thank you for caring for my pet.",
+      "th": "ขอบคุณที่ดูแลสัตว์เลี้ยง"
+    }
+  ]
+}

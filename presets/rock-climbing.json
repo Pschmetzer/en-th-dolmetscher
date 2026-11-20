@@ -1,0 +1,143 @@
+{
+  "id": "rock-climbing",
+  "names": {
+    "de": "Klettern (Krabi)",
+    "en": "Rock climbing",
+    "th": "ปีนหน้าผา"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Nur mit zertifizierter Schule klettern, Ausrüstung vor dem Start prüfen. Bei Regen ist der Fels sehr rutschig. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Climb only with a certified school and check the equipment before starting. The rock is very slippery in the rain. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "climbing",
+      "th": "ปีนผา"
+    },
+    {
+      "en": "harness",
+      "th": "สายรัดนิรภัย"
+    },
+    {
+      "en": "rope",
+      "th": "เชือก"
+    },
+    {
+      "en": "helmet",
+      "th": "หมวกนิรภัย"
+    },
+    {
+      "en": "belay",
+      "th": "ประกันเชือก"
+    },
+    {
+      "en": "chalk",
+      "th": "ผงชอล์ก"
+    },
+    {
+      "en": "route",
+      "th": "เส้นทางปีน"
+    },
+    {
+      "en": "instructor",
+      "th": "ครูฝึก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Stop, I am falling, hold the rope.",
+      "th": "หยุดก่อน กำลังจะตก ช่วยจับเชือกไว้",
+      "critical": true
+    },
+    {
+      "en": "I hurt my back, please do not move me.",
+      "th": "เจ็บหลัง ขออย่าเพิ่งเคลื่อนย้าย",
+      "critical": true
+    },
+    {
+      "en": "My hand is bleeding, I need first aid.",
+      "th": "มือมีเลือดออก ต้องการปฐมพยาบาล",
+      "critical": true
+    },
+    {
+      "en": "Please lower me down slowly.",
+      "th": "ช่วยหย่อนลงช้าๆ หน่อย",
+      "critical": true
+    },
+    {
+      "en": "The rope is damaged, please check it.",
+      "th": "เชือกเสียหาย ช่วยตรวจดูหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I feel dizzy and must come down.",
+      "th": "เวียนหัวและต้องลงมาแล้ว",
+      "critical": true
+    },
+    {
+      "en": "Do you offer a course for beginners?",
+      "th": "มีคอร์สสำหรับมือใหม่ไหม"
+    },
+    {
+      "en": "How long is the half day course?",
+      "th": "คอร์สครึ่งวันใช้เวลานานเท่าไร"
+    },
+    {
+      "en": "Is the equipment included?",
+      "th": "รวมอุปกรณ์ไหม"
+    },
+    {
+      "en": "Please check my harness before we start.",
+      "th": "ช่วยตรวจสายรัดนิรภัยก่อนเริ่มหน่อย"
+    },
+    {
+      "en": "Please show me how to tie the knot.",
+      "th": "ช่วยสอนผูกเงื่อนหน่อย"
+    },
+    {
+      "en": "Which route is easy for me?",
+      "th": "เส้นทางไหนง่ายสำหรับเรา"
+    },
+    {
+      "en": "I am afraid of heights.",
+      "th": "กลัวความสูง"
+    },
+    {
+      "en": "May I try this route again?",
+      "th": "ขอลองปีนเส้นทางนี้อีกครั้งได้ไหม"
+    },
+    {
+      "en": "Please explain the rope signals.",
+      "th": "ช่วยอธิบายสัญญาณเชือกหน่อย"
+    },
+    {
+      "en": "Can I rent climbing shoes in my size?",
+      "th": "เช่ารองเท้าปีนผาไซส์ของเราได้ไหม"
+    },
+    {
+      "en": "Is it too wet to climb today?",
+      "th": "วันนี้เปียกเกินไปสำหรับปีนไหม"
+    },
+    {
+      "en": "Do you have insurance for climbers?",
+      "th": "มีประกันสำหรับผู้ปีนไหม"
+    },
+    {
+      "en": "Where can I wash my hands?",
+      "th": "ล้างมือได้ที่ไหน"
+    },
+    {
+      "en": "Please let me drink some water, it is hot.",
+      "th": "ขอดื่มน้ำหน่อย อากาศร้อน"
+    },
+    {
+      "en": "Please take a photo of me on the wall.",
+      "th": "ช่วยถ่ายรูปตอนปีนผาหน่อย"
+    },
+    {
+      "en": "Thank you, that was great fun.",
+      "th": "ขอบคุณ สนุกมาก"
+    }
+  ]
+}

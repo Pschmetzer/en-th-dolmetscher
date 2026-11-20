@@ -7,7 +7,7 @@
 - [Source and Mac/iPhone apps](https://github.com/Pschmetzer/en-th-dolmetscher)
 
 ## Content
-- 178 scenario packs (doctor, pharmacy, police, taxi, temple, scams, embassy, accessibility and more) as JSON in presets/, index in presets-index.json
+- 201 scenario packs (doctor, pharmacy, police, taxi, temple, scams, embassy, accessibility and more) as JSON in presets/, index in presets-index.json
 - Thai lines are machine-made and not yet checked by native speakers; do not treat them as verified
 - Languages: languages.json; allergy card data: allergens.json
 - Privacy: docs/DATENSCHUTZ.md in the repository
