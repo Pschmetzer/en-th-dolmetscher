@@ -302,6 +302,14 @@
 </details>
 <details data-tab="book" class="box" id="pbBox" open>
   <summary data-i18n-html="pbSum">Satzbuch &amp; Zeige-Karten (ohne Mikrofon)</summary>
+  <div class="row" id="finderRow">
+    <label><input id="topicQ" type="search" size="14" maxlength="40" autocomplete="off"> <span data-i18n="topicSearch">Thema suchen</span></label>
+    <label><span data-i18n="routeLbl">Reiseroute</span> <select id="routeSel"></select></label>
+    <label><span data-i18n="catLbl">Kategorie</span> <select id="catSel"></select></label>
+    <span id="topicCount" role="status"></span>
+  </div>
+  <div class="row" id="nowRow" hidden><span data-i18n="nowUseful">Jetzt nützlich:</span> <span id="nowTopics"></span></div>
+  <div id="dayPhrase" class="note" hidden></div>
   <div class="row">
     <label><span data-i18n="topic">Thema</span> <select id="presetSel"></select></label>
     <button class="small" id="topicPrev" type="button">‹</button><button class="small" id="topicNext" type="button">›</button>
@@ -844,7 +852,25 @@ const STR = {
   "fxTake": "In Betragsfeld übernehmen",
   "fxBack": "{b} ฿ ≈ {h} in meiner Währung",
   "myPrint": "Karten drucken",
-  "myPrintNone": "Keine Karten zum Drucken."
+  "myPrintNone": "Keine Karten zum Drucken.",
+  "topicSearch": "Thema suchen",
+  "routeLbl": "Reiseroute",
+  "routeAll": "Alle Themen",
+  "catLbl": "Kategorie",
+  "catAll": "Alle",
+  "cat_leisure": "Freizeit",
+  "cat_health": "Gesundheit",
+  "cat_transport": "Verkehr",
+  "cat_stay": "Unterkunft",
+  "cat_emergency": "Notfall",
+  "cat_culture": "Kultur",
+  "cat_food": "Essen",
+  "cat_money": "Geld",
+  "cat_general": "Allgemein",
+  "nowUseful": "Jetzt nützlich:",
+  "dayTitle": "Phrase des Tages",
+  "topicCount": "{n} Themen",
+  "topicNone": "Kein Thema passt."
  }
 };   // nur Deutsch (Standard und Rückfall) eingebaut; en/th liegen in i18n/*.json (vom Service Worker gespeichert)
 const UI_LANGS = ['de', 'en', 'th'];
@@ -1638,20 +1664,75 @@ async function phraseIn(p, lang) {        // Satz in `lang`: aus dem Preset, son
   pbSave();
   return out;
 }
-let presetMeta = {};
+let presetMeta = {}, presetInfo = {}, routesData = {}, topicFill = null;
+const NOW_TOPICS = [[5, 10, ['bakery-cafe', 'taxi', 'hotel']], [10, 14, ['restaurant', 'street-food', 'market']], [14, 17, ['temple', 'shopping', 'beach']],
+                    [17, 22, ['restaurant', 'night-market-bargain', 'taxi']], [22, 29, ['taxi', 'hotel', 'emergency']]];   // [von, bis) Stunde; ab 22 bis 5 Uhr (29 = 5 + 24)
+function nowTopics(hour, ids) {   // Themen-Vorschlag nach Tageszeit (nur vorhandene)
+  const h = hour < 5 ? hour + 24 : hour, row = NOW_TOPICS.find(r => h >= r[0] && h < r[1]);
+  return (row ? row[2] : []).filter(id => ids.includes(id));
+}
+const DAY_PACKS = ['restaurant', 'shopping', 'taxi', 'temple', 'hotel', 'places', 'street-food', 'market', 'beach', 'bakery-cafe'];
+function dayPick(day, nPacks, nPhrases) { return { pack: day % nPacks, phrase: nPhrases ? Math.floor(day / nPacks) % nPhrases : 0 }; }   // Phrase des Tages: gleicher Tag, gleiche Phrase
+function finderActive() { return !!($('routeSel').value || $('catSel').value || $('topicQ').value.trim()); }
+function topicIds() {   // Themenliste nach Reiseroute (in Routen-Reihenfolge), Kategorie und Suche (Namen aller Sprachen + Stichwörter)
+  let ids = PRESET_IDS.slice();
+  const r = $('routeSel').value, c = $('catSel').value, q = $('topicQ').value;
+  if (r && routesData[r]) ids = routesData[r].packs.filter(id => ids.includes(id));
+  if (c) ids = ids.filter(id => (presetInfo[id] || {}).cat === c);
+  if (q.trim()) ids = ids.filter(id => pbMatch(Object.values(presetMeta[id] || {}).join(' ') + ' ' + id.replace(/-/g, ' ') + ' ' + ((presetInfo[id] || {}).kw || ''), q));
+  return ids;
+}
+function refillTopics() {
+  if (!topicFill) return;
+  const ids = topicIds(); $('topicCount').textContent = finderActive() ? (ids.length ? t('topicCount', { n: ids.length }) : t('topicNone')) : '';
+  if (ids.length) { topicFill(ids); renderCards(); }
+}
+const CAT_KEY = 'cat_';   // Schlüsselpräfix je Kategorie (cat_health …)
+function finderInit() {   // Route- und Kategorieliste füllen (Sprache der Oberfläche); Auswahl bleibt erhalten
+  const fillSel = (sel, first, items) => { const keep = sel.value; sel.textContent = ''; const o = document.createElement('option'); o.value = ''; o.textContent = first; sel.appendChild(o);
+    for (const [v, label] of items) { const x = document.createElement('option'); x.value = v; x.textContent = label; sel.appendChild(x); } sel.value = [...sel.options].some(x => x.value === keep) ? keep : ''; };
+  fillSel($('routeSel'), t('routeAll'), Object.entries(routesData).map(([k, v]) => [k, v.names[UI] || v.names.de || v.names.en || k]));
+  fillSel($('catSel'), t('catAll'), [...new Set(Object.values(presetInfo).map(x => x.cat).filter(Boolean))].map(c => [c, t(CAT_KEY + c)]));
+}
+function gotoTopic(id) {   // Thema wählen, auch wenn ein Filter es ausblendet
+  if (![...$('presetSel').options].some(o => o.value === id)) { $('routeSel').value = ''; $('catSel').value = ''; $('topicQ').value = ''; refillTopics(); }
+  $('presetSel').value = id; settings.preset = id; saveSettings(); renderCards();
+}
+function renderNow() {
+  const ids = nowTopics(new Date().getHours(), PRESET_IDS), box = $('nowTopics'); box.textContent = '';
+  $('nowRow').hidden = !ids.length;
+  for (const id of ids) { const b = document.createElement('button'); b.type = 'button'; b.className = 'small'; b.textContent = topicName(id); b.onclick = () => gotoTopic(id); box.appendChild(b); }
+}
+async function dayPhraseRender() {   // eine ruhige Phrase pro Tag (lokal berechnet, nichts gesendet)
+  const box = $('dayPhrase'); box.hidden = true; box.textContent = '';
+  try {
+    const day = Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 864e5), ids = DAY_PACKS.filter(id => PRESET_IDS.includes(id));
+    const d = await loadPreset(ids[day % ids.length]), b = pair.b, ok = d.phrases.filter(p => !p.critical && p[b]);
+    if (!ok.length) return;
+    const p = ok[dayPick(day, ids.length, ok.length).phrase], a = pair.a;
+    const h = document.createElement('b'); h.textContent = t('dayTitle') + ': '; const s1 = document.createElement('span'); s1.lang = p[a] ? a : 'en'; s1.textContent = (p[a] || p.en) + ' → ';
+    const s2 = document.createElement('span'); s2.lang = b; s2.textContent = p[b]; s2.style.fontWeight = '700';
+    const bs = document.createElement('button'); bs.type = 'button'; bs.className = 'small'; bs.textContent = '🔊'; bs.setAttribute('aria-label', t('speakOnlyLbl')); bs.onclick = () => sayNow(p[b], b);
+    const bz = document.createElement('button'); bz.type = 'button'; bz.className = 'small'; bz.textContent = t('showBig'); bz.onclick = () => showBig(p[b], b);
+    box.append(h, s1, s2, ' ', bs, ' ', bz); box.hidden = false;
+  } catch {}
+}
+$('routeSel').onchange = refillTopics; $('catSel').onchange = refillTopics;
+let topicQTimer = null; $('topicQ').addEventListener('input', () => { clearTimeout(topicQTimer); topicQTimer = setTimeout(refillTopics, 250); });
 function fillPresetSelect() {
   const s = $('presetSel');
   let use = {}; try { use = JSON.parse(localStorage.getItem('pbUse') || '{}') || {}; } catch {}
   const fill = ids => {
     const keep = s.value; s.textContent = '';
-    for (const id of presetOrder(ids, use)) { const o = document.createElement('option'); o.value = id; o.textContent = presetMeta[id] ? (presetMeta[id][UI] || presetMeta[id].de || presetMeta[id].en) : id; s.appendChild(o); }
+    for (const id of (finderActive() ? ids : presetOrder(ids, use))) { const o = document.createElement('option'); o.value = id; o.textContent = presetMeta[id] ? (presetMeta[id][UI] || presetMeta[id].de || presetMeta[id].en) : id; s.appendChild(o); }
     s.value = ids.includes(keep) ? keep : ids.includes(settings.preset) ? settings.preset : ids[0];
   };
-  fill(PRESET_IDS);
+  topicFill = fill; fill(PRESET_IDS);
   s.onchange = () => { settings.preset = s.value; saveSettings(); renderCards(); };
   fetchRetry('presets-index.json').then(r => r.json()).then(d => {
-    for (const p of d.packs) presetMeta[p.id] = p.names;
-    fill(d.packs.map(p => p.id).filter(id => PRESET_IDS.includes(id))); renderCards();
+    for (const p of d.packs) { presetMeta[p.id] = p.names; presetInfo[p.id] = { cat: p.category || '', kw: (p.keywords || []).join(' ') }; }
+    routesData = d.routes || {}; finderInit();
+    fill(finderActive() ? topicIds() : d.packs.map(p => p.id).filter(id => PRESET_IDS.includes(id))); renderCards(); renderNow(); dayPhraseRender();
   }).catch(() => { for (const o of s.options) loadPreset(o.value).then(d => { o.textContent = (d.names && (d.names[UI] || d.names.de || d.names.en)) || o.value; }, () => {}); });
 }
 function renderEmerg(id) {   // Notrufnummern als eigener, nicht einklappbarer Block mit tel:-Links

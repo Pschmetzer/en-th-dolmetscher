@@ -22,6 +22,7 @@ Pull requests #16–#47. Not yet published as a release.
 - Yes/No and quick-answer buttons no longer print the same word twice when the interface language equals the partner's language.
 - Web page: exchange-rate calculator in the numbers box (the rate is remembered), slow-repeat button (turtle) on every phrase card, print my cards (hotel, address) as an A4 sheet, direct links to sections (`#book`, `#cards`, `#speak`, `#learn`), real screenshots for the install dialog (`tools/web_screenshots.py`).
 - Keyboard docs list the tab-bar arrows and Esc for the two-person screen; the Back button returns focus when it closes that screen.
+- Web phrasebook: find topics by name or keyword, filter by trip type (backpacker, family, digital nomad, medical) and by category, topic suggestions by time of day, and a phrase of the day (all computed locally).
 - Installable app: separate maskable icons, opaque 180 px Apple icon, iOS meta tags; the service worker refuses an install without page and language table and checks for updates hourly.
 
 ### Phrase packs and tooling (round 21)

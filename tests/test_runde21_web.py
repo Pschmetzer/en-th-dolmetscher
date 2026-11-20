@@ -330,10 +330,16 @@ def test_slow_card_button_print_cards_and_hash_tabs():
 
 def test_pack_counts_in_web_docs_match_the_files():
     n = len(list((ROOT / "presets").glob("*.json")))
-    for rel in ("README.md", "docs/en/WEB.md", "docs/th/WEB.md", "docs/en/FAQ.md", "docs/en/QUICKSTART.md"):
-        text = (ROOT / rel).read_text(encoding="utf-8")
-        for m in re.findall(r"\b(\d{2,3})\s+(?:phrase packs|packs|topics|หัวข้อ)", text):
-            assert int(m) == n, (rel, m, n)
+    files = [ROOT / "README.md", ROOT / "CONTRIBUTING.md"] + sorted((ROOT / "docs").rglob("*.md"))
+    pat = re.compile(r"\b(\d{2,3})\s+(?:phrase packs|scenario packs|packs|topics|Phrasenpakete|Pakete|Themen|Szenarien|ชุดสถานการณ์|ชุดวลี|หัวข้อ)")
+    seen = 0
+    for f in files:
+        for m in pat.findall(f.read_text(encoding="utf-8")):
+            if int(m) >= 50:                                   # Paketzahlen, nicht "40 Themen" (Notrufnummern) o. ä.
+                seen += 1
+                assert int(m) == n, (f.name, m, n)
+    assert seen >= 4
+
 
 
 def test_manifest_screenshots_are_real_png_files_of_the_stated_size():
@@ -351,3 +357,37 @@ def test_manifest_screenshots_are_real_png_files_of_the_stated_size():
 
 def test_back_button_closes_two_person_screen_through_the_same_path():
     assert "addEventListener('popstate', () => { if ($('convo').classList.contains('on')) convoOpen(false); })" in SCRIPT
+
+
+# ---- Welle 6: Themen-Finder, Tageszeit-Vorschlag, Phrase des Tages ----
+@node
+def test_now_topics_by_hour_and_day_phrase_pick():
+    import subprocess
+    nt = re.search(r"^const NOW_TOPICS = .*?\];.*?$", SCRIPT, re.S | re.M).group(0)
+    js = nt + "\n" + func("nowTopics") + "\n" + re.search(r"^function dayPick.*$", SCRIPT, re.M).group(0) + """
+const all = ['bakery-cafe', 'taxi', 'hotel', 'restaurant', 'street-food', 'market', 'temple', 'shopping', 'beach', 'night-market-bargain', 'emergency'];
+process.stdout.write(JSON.stringify([nowTopics(7, all), nowTopics(12, all), nowTopics(15, all), nowTopics(20, all), nowTopics(23, all), nowTopics(2, all), nowTopics(7, ['taxi']),
+  dayPick(20400, 10, 7), dayPick(20401, 10, 7), dayPick(5, 10, 0)]));"""
+    r = subprocess.run(["node", "-"], input=js, capture_output=True, text=True, timeout=30)
+    assert r.returncode == 0, r.stderr
+    got = json.loads(r.stdout)
+    assert got[:4] == [["bakery-cafe", "taxi", "hotel"], ["restaurant", "street-food", "market"], ["temple", "shopping", "beach"], ["restaurant", "night-market-bargain", "taxi"]]
+    assert got[4] == got[5] == ["taxi", "hotel", "emergency"] and got[6] == ["taxi"]
+    assert got[7] == {"pack": 0, "phrase": 2040 % 7} and got[8]["pack"] == 1 and got[9] == {"pack": 5, "phrase": 0}
+
+
+def test_topic_finder_uses_routes_categories_and_keywords_from_the_index():
+    idx = json.loads((ROOT / "presets-index.json").read_text(encoding="utf-8"))
+    cats = {p["category"] for p in idx["packs"]}
+    assert all(f"cat_{c}" in S for c in cats for S in web_str().values())            # jede Kategorie ist übersetzt
+    for r in idx["routes"].values():
+        assert set(r["packs"]) <= {p["id"] for p in idx["packs"]}
+    f = func("topicIds")
+    assert "routesData[r].packs" in f and "(presetInfo[id] || {}).cat === c" in f and ".kw" in f and "pbMatch(" in f
+    assert "presetInfo[p.id] = { cat: p.category || ''" in SCRIPT and "routesData = d.routes || {}" in SCRIPT
+    for i in ("topicQ", "routeSel", "catSel", "nowRow", "dayPhrase"):
+        assert f'id="{i}"' in HTML, i
+    ids = {p["id"] for p in idx["packs"]}
+    for row in re.findall(r"\[\d+, \d+, (\[[^\]]*\])\]", SCRIPT.split("const NOW_TOPICS", 1)[1].split("function nowTopics", 1)[0]):
+        assert set(re.findall(r"'([\w-]+)'", row)) <= ids, row
+    assert set(re.findall(r"'([\w-]+)'", re.search(r"const DAY_PACKS = \[([^\]]*)\]", SCRIPT).group(1))) <= ids
