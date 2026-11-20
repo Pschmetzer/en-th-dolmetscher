@@ -74,7 +74,12 @@ final class AudioCapture: @unchecked Sendable {
         // A2DP: Kopfhörer bekommen die Ausgabe auch ohne Headset-Mikrofon in voller Qualität.
         var opts: AVAudioSession.CategoryOptions = [.defaultToSpeaker, .allowBluetoothA2DP]
         if options.headset { opts.insert(.allowBluetoothHFP) }
-        try session.setCategory(.playAndRecord, mode: .default, options: opts)
+        // Nur setzen, wenn nötig: jeder Aufruf kann eine Route-Änderung auslösen und Bluetooth neu aushandeln.
+        if SessionTuning.needsCategory(currentCategory: session.category.rawValue, currentOptionsRaw: session.categoryOptions.rawValue,
+                                       wantCategory: AVAudioSession.Category.playAndRecord.rawValue, wantOptionsRaw: opts.rawValue)
+            || session.mode != .default {
+            try session.setCategory(.playAndRecord, mode: .default, options: opts)
+        }
         try session.setAllowHapticsAndSystemSoundsDuringRecording(true)
         try session.setActive(true)
         // Gewähltes Mikrofon (Richtmikrofon am Tisch, Headset im Lärm); ist es weg, entscheidet das System.
@@ -84,6 +89,8 @@ final class AudioCapture: @unchecked Sendable {
             session.attempt("setPreferredInput") { try $0.setPreferredInput(nil) }
         }
         if #available(iOS 18.2, *) { session.attempt("setPrefersEchoCancelledInput") { try $0.setPrefersEchoCancelledInput(options.echoCancel) } }
+        let hfp = session.currentRoute.inputs.contains { $0.portType == .bluetoothHFP }
+        if SessionTuning.isNarrowband(isHFP: hfp, sampleRate: session.sampleRate) { onEvent(.narrowbandInput) }
     }
 
     /// Prüft, ob ein Mikrofon da ist (nach `activate`, vor dem Laden teurer Modelle sinnvoll).
