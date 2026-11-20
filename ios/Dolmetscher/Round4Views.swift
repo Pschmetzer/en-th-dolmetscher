@@ -92,7 +92,7 @@ struct TravelPrepList: View {
                         Button(T("prep_allow")) { Task { _ = await AVAudioApplication.requestRecordPermission(); await refresh() } }
                     }
                     PrepRow(ok: report.ok(.recognizer), checked: checked, title: T("prep_speech"), detail: T("prep_speech_d")) {
-                        Button(T("prep_load")) { m.sheet = nil; m.start() }
+                        Button(T("prep_load")) { loadRecognizers() }
                     }
                     PrepRow(ok: report.ok(.translation), checked: checked, title: T("prep_translate"), detail: T("prep_translate_d")) {
                         Button(T("prep_load")) { requestPacks() }
@@ -114,9 +114,17 @@ struct TravelPrepList: View {
             .task { await refresh() }
             .translationTask(download) { session in
                 try? await session.prepareTranslation()
+                await m.packsChanged()
                 await refresh()
-                await m.refreshOffline()
             }
+    }
+
+    /// Nur das Erkennungsmodell laden – das Mikrofon geht dafür nicht an (früher: `m.start()` samt Berechtigungsdialog).
+    private func loadRecognizers() {
+        Task {
+            for l in [m.pair.mine, m.pair.partner] { try? await LangCheck.downloadRecognizer(l) }
+            await refresh()
+        }
     }
 
     private func requestPacks() {
@@ -423,7 +431,7 @@ struct HelpNowView: View {
     @ScaledMetric(relativeTo: .largeTitle) private var scaled40: CGFloat = 40
     @Environment(InterpreterModel.self) private var m
     @Environment(\.dismiss) private var dismiss
-    @State private var finder = LocationFinder()
+    @State private var finder: LocationFinder?   // erst beim Erscheinen anlegen (ein CLLocationManager je Struct-Init wäre Verschwendung)
 
     private var helpThai: String { m.politeness.fill("ช่วยด้วย{p} {i}ต้องการความช่วยเหลือ{p}") }
 
@@ -446,27 +454,27 @@ struct HelpNowView: View {
             .navigationTitle(T("help_now"))
             .navigationBarTitleDisplayMode(.inline)
             .doneToolbar { dismiss() }
-            .onAppear { finder.locate() }
+            .onAppear { if finder == nil { finder = LocationFinder() }; finder?.locate() }
         }
         .modifier(FullBrightness())
     }
 
     @ViewBuilder private var locationRow: some View {
-        if let l = finder.location {
+        if let l = finder?.location {
             Text(LocationFinder.text(l)).font(.title2.monospacedDigit().bold()).textSelection(.enabled)
             Text(String(format: T("help_accuracy"), Int(l.horizontalAccuracy))).font(.footnote).foregroundStyle(.secondary)
             if let url = URL(string: String(format: "https://maps.apple.com/?ll=%.5f,%.5f&q=%.5f,%.5f", l.coordinate.latitude, l.coordinate.longitude,
                                             l.coordinate.latitude, l.coordinate.longitude)) {
                 ShareLink(item: url) { Label(T("share_location"), systemImage: "square.and.arrow.up") }
             }
-            if finder.approximate {
+            if finder?.approximate == true {
                 Text(T("help_location_approx")).font(.footnote).foregroundStyle(StatusColor.warning)
             }
-        } else if finder.denied {
+        } else if finder?.denied == true {
             Text(T("help_location_denied")).foregroundStyle(.secondary)
-        } else if finder.failed {
+        } else if finder?.failed == true {
             Text(T("help_location_failed")).foregroundStyle(.secondary)
-            Button(T("retry")) { finder.locate() }
+            Button(T("retry")) { finder?.locate() }
         } else {
             HStack { ProgressView(); Text(T("help_locating")).foregroundStyle(.secondary) }
         }

@@ -135,8 +135,6 @@ struct TravelHelpersView: View {
     @State private var time = Calendar.current.date(bySettingHour: 14, minute: 30, second: 0, of: Date()) ?? Date()
     @State private var phone = ""
     @State private var asking = ""
-    @State private var km = ""
-    @State private var waitMin = 0
 
     private var thaiTime: String? {
         let c = Calendar.current.dateComponents([.hour, .minute], from: time)
@@ -188,13 +186,6 @@ struct TravelHelpersView: View {
                     .accessibilityElement(children: .combine)
                 }
             } header: { Text(T("trv_bargain")) }
-            Section {
-                TextField(T("trv_km"), text: $km).keyboardType(.decimalPad)
-                Stepper("\(T("trv_wait_min")): \(waitMin)", value: $waitMin, in: 0...120, step: 5)
-                if let k = AmountParser.parse(km), let r = TaxiFare.range(km: k, waitingMinutes: Double(waitMin)) {
-                    Text("฿\(r.lowerBound) – \(r.upperBound)").font(.title3.bold().monospacedDigit())
-                }
-            } header: { Text(T("trv_taxi")) } footer: { Text(T("trv_taxi_note")) }
             Section(T("trv_date")) {
                 let written = ThaiDate.text(Date()), said = ThaiDate.text(Date(), spoken: true)
                 Text(written).font(.title3).spokenIn("th-TH", said)

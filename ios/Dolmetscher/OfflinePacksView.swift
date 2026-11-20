@@ -75,8 +75,8 @@ struct OfflinePacksView: View {
             loading.insert(.translation)
             do { try await session.prepareTranslation() } catch { failed = true }
             loading.remove(.translation)
+            await m.packsChanged()
             await refresh()
-            await m.refreshOffline()
         }
     }
 

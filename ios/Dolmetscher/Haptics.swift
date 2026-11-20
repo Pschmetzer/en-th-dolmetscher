@@ -5,12 +5,31 @@ import UIKit
 enum Haptics {
     nonisolated(unsafe) static var enabled = true
 
-    static func tap() { guard enabled else { return }; UIImpactFeedbackGenerator(style: .light).impactOccurred() }
-    static func heard() { guard enabled else { return }; UIImpactFeedbackGenerator(style: .soft).impactOccurred() }
-    static func command() { guard enabled else { return }; UIImpactFeedbackGenerator(style: .rigid).impactOccurred() }
-    /// „Langsam wiederholen“: zweimal kurz, damit man es auch ohne Blick aufs Display merkt.
-    static func slow() { guard enabled else { return }; UIImpactFeedbackGenerator(style: .medium).impactOccurred(intensity: 0.6) }
-    static func success() { guard enabled else { return }; UINotificationFeedbackGenerator().notificationOccurred(.success) }
-    static func warning() { guard enabled else { return }; UINotificationFeedbackGenerator().notificationOccurred(.warning) }
-    static func error() { guard enabled else { return }; UINotificationFeedbackGenerator().notificationOccurred(.error) }
+    // Geteilte Generatoren: ein neuer je Aufruf spürt die erste Rückmeldung verzögert; `prepare()` hält die Taptic Engine bereit.
+    private static let light = UIImpactFeedbackGenerator(style: .light)
+    private static let soft = UIImpactFeedbackGenerator(style: .soft)
+    private static let rigid = UIImpactFeedbackGenerator(style: .rigid)
+    private static let medium = UIImpactFeedbackGenerator(style: .medium)
+    private static let notify = UINotificationFeedbackGenerator()
+
+    private static func impact(_ g: UIImpactFeedbackGenerator, _ intensity: CGFloat = 1) {
+        guard enabled else { return }
+        g.impactOccurred(intensity: intensity)
+        g.prepare()
+    }
+
+    private static func notification(_ t: UINotificationFeedbackGenerator.FeedbackType) {
+        guard enabled else { return }
+        notify.notificationOccurred(t)
+        notify.prepare()
+    }
+
+    static func tap() { impact(light) }
+    static func heard() { impact(soft) }
+    static func command() { impact(rigid) }
+    /// „Langsam wiederholen“: etwas weicher, damit man es auch ohne Blick aufs Display merkt.
+    static func slow() { impact(medium, 0.6) }
+    static func success() { notification(.success) }
+    static func warning() { notification(.warning) }
+    static func error() { notification(.error) }
 }

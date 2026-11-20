@@ -91,7 +91,8 @@ Pull requests #16–#47. Not yet published as a release.
 
 - **Travel helpers** (Baht calculator, new first row): tip and split the bill, convert °C/°F, km/mi and kg/lb, say the time in Thai (14:30 = บ่ายสองโมงครึ่ง) and read a phone number digit by digit in Thai for taxi drivers and receptionists.
 - **Privacy:** "Delete all data" now also clears the Spotlight favourites; old CSV exports in the temp folder are removed on start; the online translators use a session without disk cache or cookies (the text of a sentence sits in the MyMemory URL); backup copies of damaged history files stay out of backups, are protected like the original and are limited to the newest three.
-- **More travel helpers:** bargaining counter-offers (50–80 % of the asking price with the Thai number words), a Bangkok taxi meter estimate by distance and waiting time (a guide against inflated fares; excludes airport surcharge and tolls) and today's date in Thai (Buddhist year).
+- **More travel helpers:** bargaining counter-offers (50–80 % of the asking price with the Thai number words) and today's date in Thai (Buddhist year).
+- **Emergency card and allergy card are never translated online** (health data); they need the offline language pack. "Delete all data" also removes downloaded Whisper models. Going to the background no longer counts as a finished conversation; running translations are cancelled when a sentence is deleted; a hanging speech finalisation no longer blocks later sentences; downloading a language pack is noticed at once; "Load speech model" in the travel checklist no longer switches the microphone on.
 - **Fixes:** a failed microphone start no longer leaves a tap that crashes the next start; "nan"/"inf" are no longer accepted as an amount; the list of dismissed flash cards is capped.
 - **VoiceOver:** history rows, the big translation view and conversation lines are read with the voice of their own language.
 
