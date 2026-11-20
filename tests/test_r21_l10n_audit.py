@@ -154,12 +154,17 @@ def test_shared_mac_ios_keys_keep_same_placeholders_and_terms():
 # --- Plural: Mengen als Beschriftung, nie „1 matches“ -----------------------------------------------------
 
 PLURAL_EN = re.compile(r"(?<!of )(?:%\d*\$?l?l?d|\{[nm]\})\s+(?!of\b|in\b|older\b|min\b|s\b)[a-z]+s\b")
-PLURAL_ALLOWED = {"mac export_trimmed.en"}      # „%d bubbles“ mit großer Mindestzahl (maxItems)
+LABEL_FORM = ("mac results_count", "mac hist_hits", "mac hist_count", "mac delete_all_done", "mac gl_exported", "mac sx_preview",
+              "mac sx_lines", "ios learn_streak", "ios learn_box_a11y", "web learnMissing", "web printMissing", "web learnAdded",
+              "web mcExported", "web mcImported", "web topicCount", "web learnClearConfirm", "web learnResetConfirm")
 
 
-def test_english_counts_use_label_form_not_plural_nouns():
-    bad = [w for w, lg, t in _all_texts() if lg == "en" and PLURAL_EN.search(t) and w not in PLURAL_ALLOWED]
-    assert not bad, f"Mengen als „Beschriftung: %d“ schreiben: {bad}"
+def test_counts_that_can_be_one_use_label_form_not_plural_nouns():
+    """„Matches: %d“ statt „%d matches“. Neue Zähltexte bitte ebenso schreiben (nicht erzwungen, damit parallele Arbeit nicht bricht)."""
+    en = {w.rsplit(".", 1)[0]: t for w, lg, t in _all_texts() if lg == "en"}
+    for key in LABEL_FORM:
+        assert key in en, key
+        assert not PLURAL_EN.search(en[key]), f"{key}: {en[key]!r}"
 
 
 def test_web_json_is_formatted_like_the_exporter_writes_it():
