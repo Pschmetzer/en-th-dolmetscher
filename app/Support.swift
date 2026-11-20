@@ -66,6 +66,7 @@ extension EngineModel {
         // Über Mitternacht hinaus: Datum in jeder Zeile (sonst sind die Uhrzeiten mehrdeutig)
         let multiDay = Set(done.map { Calendar.current.startOfDay(for: $0.date) }).count > 1
         let df = DateFormatter(); df.dateFormat = multiDay ? "yyyy-MM-dd HH:mm:ss" : "HH:mm:ss"
+        df.locale = Locale(identifier: "en_US_POSIX"); df.calendar = Calendar(identifier: .gregorian)   // Export: nie buddhistisches Jahr oder fremde Ziffern
         let day = DateFormatter()
         day.dateStyle = .long; day.timeStyle = .short
         day.calendar = Calendar(identifier: .gregorian)

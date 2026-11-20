@@ -38,6 +38,7 @@ Pull requests #16–#192. First tagged release since 1.2: engine hardening, Mac 
 - Fixed machine-translation slips in the emergency-numbers and phrasebook texts: "partner" was rendered as spouse or business partner in Spanish, French, Vietnamese and Indonesian; Chinese "voices" now reads 声音.
 - Counts read "Matches: 1" instead of "1 matches" (Mac history, search, glossary, settings transfer; iPhone learning streak; web flashcard messages). Thai Mac texts say โปรด/ไมโครโฟน like iPhone and web.
 - Tests now check every iPhone table (rounds 13 to 25), that each round is registered in the lookup, and shared Mac/iPhone keys.
+- Units and number formats follow the interface language: iPhone settings show "0,8 Sek.", "75 %" and "10 Min." (German) instead of fixed English text; the web speed slider and the voice command "slower" use the decimal sign of the chosen language; the Mac conversation export always writes a Gregorian date, also on a Thai system.
 
 ### Mac app, round 21
 

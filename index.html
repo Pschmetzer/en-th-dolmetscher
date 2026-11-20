@@ -928,7 +928,7 @@ function applyUi() {   // statische Texte nach data-i18n / data-i18n-html setzen
                            ['btnPartnerSlow', 'slowLbl'], ['btnPartnerShow', 'showLbl'], ['btnPartnerShare', 'favShareLbl'], ['btnPartnerShareTx', 'shareTxLbl'], ['topicPrev', 'topicPrev'], ['topicNext', 'topicNext']]) {
     const e = $(id); if (e) { e.setAttribute('aria-label', t(key)); e.title = t(key); }
   }
-  updateThemeBtn();
+  updateThemeBtn(); showRate();
   for (const e of document.querySelectorAll('[data-aria]')) e.setAttribute('aria-label', t(e.dataset.aria));
   for (const e of document.querySelectorAll('[data-i18n]')) e.textContent = t(e.dataset.i18n);
   for (const e of document.querySelectorAll('[data-i18n-html]')) e.innerHTML = t(e.dataset.i18nHtml);   // nur eigene, feste Texte
@@ -1174,8 +1174,10 @@ function pickVoice(lang) {
       || pickBy(v => voiceLang(v) === l)
       || pickBy(v => voiceLang(v).startsWith(base));
 }
-$('rate').value = String(rate); $('rateOut').textContent = rate.toFixed(2); $('rate').setAttribute('aria-valuetext', rate.toFixed(2));
-function setRate(r) { rate = r; $('rate').value = String(r); $('rateOut').textContent = r.toFixed(2); $('rate').setAttribute('aria-valuetext', r.toFixed(2)); settings.rate = r; saveSettingsSoon(); }
+const fmt2 = x => { try { return x.toLocaleString(UI, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); } catch (e) { return x.toFixed(2); } };   // Dezimalzeichen der Oberflächensprache
+function showRate() { $('rateOut').textContent = fmt2(rate); $('rate').setAttribute('aria-valuetext', fmt2(rate)); }
+$('rate').value = String(rate); showRate();
+function setRate(r) { rate = r; $('rate').value = String(r); showRate(); settings.rate = r; saveSettingsSoon(); }
 $('rate').oninput = () => setRate(+$('rate').value);
 let vol = (+settings.vol >= 0.2 && +settings.vol <= 1) ? +settings.vol : 1;
 function setVol(v) { vol = Math.round(Math.min(1, Math.max(0.2, v)) * 10) / 10; $('vol').value = String(vol); $('volOut').textContent = Math.round(vol * 100) + ' %'; $('vol').setAttribute('aria-valuetext', Math.round(vol * 100) + ' %'); settings.vol = vol; saveSettingsSoon(); }
@@ -1303,8 +1305,8 @@ function runCommand(cmd) {
     setStatus(t('cmdPaused'), true);
   }
   else if (cmd === 'resume') { setStatus(t('cmdRunning')); }   // nur hörbar, solange nicht pausiert
-  else if (cmd === 'slower') { setRate(Math.max(0.5, +(rate - 0.15).toFixed(2))); setStatus(t('cmdTempo', { n: rate }), true); }
-  else if (cmd === 'faster') { setRate(Math.min(1.6, +(rate + 0.15).toFixed(2))); setStatus(t('cmdTempo', { n: rate }), true); }
+  else if (cmd === 'slower') { setRate(Math.max(0.5, +(rate - 0.15).toFixed(2))); setStatus(t('cmdTempo', { n: fmt2(rate) }), true); }
+  else if (cmd === 'faster') { setRate(Math.min(1.6, +(rate + 0.15).toFixed(2))); setStatus(t('cmdTempo', { n: fmt2(rate) }), true); }
   else if (cmd === 'louder') { setVol(vol + 0.2); setStatus(t('cmdVolume', { n: Math.round(vol * 100) }), true); }
   else if (cmd === 'quieter') { setVol(vol - 0.2); setStatus(t('cmdVolume', { n: Math.round(vol * 100) }), true); }
   else if (cmd === 'clear') { clearLog(); setStatus(t('cmdCleared'), true); }

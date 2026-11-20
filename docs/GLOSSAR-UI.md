@@ -17,7 +17,7 @@ Stand der Prüfung: de, en und th sind von Hand geschrieben, aber **nicht mutter
 | Lernkarte | Lernkarte(n) | flashcard(s) | บัตรคำ | Karteikarte, Lernkasten, study card |
 | Satzsammlung | Satzbuch | Phrasebook | สมุดวลี | Phrasenbuch, Sprachführer |
 | Mikrofon | Mikrofon | Microphone | ไมโครโฟน | Mic, ไมค์ |
-| Spracherkennung | Spracherkennung | Speech recognition | การรู้จำเสียง | Diktat, Spracheingabe |
+| Spracherkennung | Spracherkennung | Speech recognition | การรู้จำเสียง | Diktat, Spracheingabe, การจดจำเสียง |
 | Sprachmodell zum Erkennen | Sprachmodell | speech model | โมเดลเสียง | Sprachdatei |
 | Ausgabe der Übersetzung | Vorlesen | read aloud | อ่านออกเสียง | TTS |
 | Stimme zum Vorlesen | Stimme | voice | เสียง | Sprecher |
@@ -34,7 +34,7 @@ Regeln für Zahlen und Einheiten:
 - Dezimalzeichen, Prozent und Einheiten kommen aus den Foundation-Formatierern mit der Oberflächensprache, nicht aus festen Texten.
 - Zeitstempel in Exporten (Markdown, CSV, Text) sind ISO beziehungsweise `HH:mm:ss` mit Gregorianischem Kalender, unabhängig von der Systemsprache.
 - Höflichkeit im Thai: neutral mit „โปรด“ (statt „กรุณา“), ohne Endpartikel in Oberflächentexten. Endpartikel ครับ/ค่ะ stehen nur in den Sätzen, die die App spricht, und in der Auswahl der Partikel selbst.
-- Englisch: einheitlich amerikanische Schreibweise (recognized, favorites, color, canceled).
+- Englisch: in den Oberflächentexten einheitlich amerikanische Schreibweise (recognized, favorites, color, canceled). Dokumente (README, `docs/en/`) und die Store-Texte sind Fließtext und dürfen weiter britisch schreiben; „Sprachführer“ bleibt als Store-Stichwort erlaubt.
 
 ## Weitere Oberflächensprachen (iPhone, maschinell, ungeprüft)
 

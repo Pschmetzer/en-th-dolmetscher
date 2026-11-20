@@ -116,7 +116,7 @@ def _all_texts():
 FORBIDDEN = [   # (Sprache, Muster, Grund) – siehe docs/GLOSSAR-UI.md
     ("en", r"favourite|recognis|colour|Practise|[Cc]ancelled|study card|Partner's language", "amerikanische Schreibweise, ein Wort für Lernkarten"),
     ("de", r"Karteikarte|Lernkasten", "Lernkarte(n)"),
-    ("th", r"กรุณา|ไมค์", "โปรด / ไมโครโฟน"),
+    ("th", r"กรุณา|ไมค์|จดจำ", "โปรด / ไมโครโฟน / การรู้จำเสียง (จดจำ heißt „sich merken“)"),
     ("es", r"\bpareja\b", "Gegenüber heißt interlocutor, nicht pareja"),
     ("fr", r"partenaire", "Gegenüber heißt interlocuteur"),
     ("vi", r"đối tác", "Gegenüber heißt đối phương"),
@@ -171,6 +171,71 @@ def test_web_json_is_formatted_like_the_exporter_writes_it():
     for lg in ("en", "th"):
         text = (ROOT / "i18n" / f"{lg}.json").read_text(encoding="utf-8")
         assert text == json.dumps(json.loads(text), ensure_ascii=False, indent=1) + "\n"
+
+
+# --- Einheiten und Datumsformate im Code -----------------------------------------------------------------
+
+def test_ios_settings_units_come_from_foundation_not_fixed_text():
+    src = (IOS / "SettingsView.swift").read_text(encoding="utf-8")
+    assert not re.search(r'Text\("\d+ min"\)', src), "feste Minuten-Texte"
+    assert '"%.1f s"' not in src and '%%"' not in src, "feste Sekunden-/Prozenttexte (Dezimalzeichen, Leerzeichen vor %)"
+    for needle in ("UnitDuration.seconds", "UnitDuration.minutes", ".percent", "Locale(identifier: L10n.lang)"):
+        assert needle in src, needle
+
+
+def test_mac_transcript_export_uses_gregorian_calendar_and_posix_locale():
+    src = (ROOT / "app" / "Support.swift").read_text(encoding="utf-8")
+    block = src[src.index("func transcript("):src.index("func who(")]
+    assert 'df.locale = Locale(identifier: "en_US_POSIX")' in block
+    assert "df.calendar = Calendar(identifier: .gregorian)" in block   # Thai-Systemsprache: sonst Jahr 2569
+
+
+def test_fixed_format_date_formatters_set_a_posix_locale():
+    """`dateFormat = "yyyy…"` ohne feste Locale liefert je nach Systemsprache andere Ziffern oder Kalender."""
+    bad = []
+    for f in [*(ROOT / "app").glob("*.swift"), *IOS.glob("*.swift")]:
+        src = f.read_text(encoding="utf-8")
+        for m in re.finditer(r'\.dateFormat = [^\n]*', src):
+            window = src[max(0, m.start() - 300):m.end() + 300]
+            if "en_US_POSIX" not in window:
+                bad.append(f"{f.relative_to(ROOT)}: {m.group(0)[:50]}")
+    assert not bad, bad
+
+
+def test_web_rate_display_uses_the_decimal_sign_of_the_interface_language():
+    html = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "rateOut').textContent = r.toFixed(2)" not in html and "rate.toFixed(2)); $('rate')" not in html
+    assert "toLocaleString(UI, { minimumFractionDigits: 2" in html
+    assert "t('cmdTempo', { n: fmt2(rate) })" in html
+    assert "showRate();" in html[html.index("function applyUi()"):html.index("// ---- Sprachtabelle")]   # Sprachwechsel
+
+
+def test_info_plist_strings_have_same_keys_in_every_language():
+    keysets = {}
+    for f in sorted(IOS.glob("*.lproj/InfoPlist.strings")):
+        text = f.read_text(encoding="utf-8")
+        pairs = re.findall(r'^"([A-Za-z]+)"\s*=\s*"((?:\\.|[^"\\])*)";\s*$', text, re.M)
+        assert pairs and len(pairs) == text.count(";\n") + (0 if text.endswith("\n") else 1), f.parent.name
+        keysets[f.parent.name] = {k for k, _ in pairs}
+        assert all(v.strip() for _, v in pairs), f.parent.name
+    assert len(keysets) == 9 and len({frozenset(v) for v in keysets.values()}) == 1, keysets
+    base = (ROOT / "ios" / "Dolmetscher.xcodeproj" / "project.pbxproj").read_text(encoding="utf-8")
+    for key in next(iter(keysets.values())):
+        if key != "NSPhotoLibraryUsageDescription":     # Fotoauswahl ohne Berechtigung (PhotosPicker)
+            assert f"INFOPLIST_KEY_{key}" in base, key
+
+
+def test_partner_text_containers_follow_text_direction_for_arabic():
+    """languages.json enthält Arabisch (RTL) als Partnersprache; alle Container mit Fremdtext brauchen dir="auto"."""
+    lang = json.loads((ROOT / "languages.json").read_text(encoding="utf-8"))
+    assert any(x["code"] == "ar" for x in lang["languages"])
+    html = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert '<div id="partnerText" lang="th" dir="auto"' in html
+    assert '<div class="orig" dir="auto"></div><div class="trans" dir="auto"></div>' in html
+    assert 'id="learnFront" dir="auto"' in html and 'id="learnBack" dir="auto"' in html
+    assert "s.dir = 'auto'" in html
+    for field in ("typeIn", "inFar", "inNear", "myText", "myTr"):
+        assert re.search(rf'<textarea id="{field}"[^>]*dir="auto"', html), field
 
 
 def test_ios_language_picker_warns_about_unchecked_translations():

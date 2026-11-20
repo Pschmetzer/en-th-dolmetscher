@@ -44,11 +44,11 @@ struct SettingsView: View {
                     Toggle(T("auto_speak"), isOn: $m.autoSpeak)
                     SpeechOptionsRows()
                     slider(T("silence"), value: $m.pauseSeconds, range: 0.4...2.0, step: 0.1,
-                           text: String(format: "%.1f s", m.pauseSeconds))
+                           text: Self.secondsText(m.pauseSeconds))
                     slider(T("rate"), value: $m.rate, range: 0.5...1.5, step: 0.05,
-                           text: String(format: "%.0f %%", m.rate * 100))
+                           text: Self.percentText(m.rate))
                     slider(T("volume"), value: $m.volume, range: 0.25...1.0, step: 0.05,
-                           text: String(format: "%.0f %%", m.volume * 100))
+                           text: Self.percentText(m.volume))
                     Toggle(T("haptics"), isOn: $m.haptics)
                 }
 
@@ -148,9 +148,9 @@ struct SettingsView: View {
         return Section {
             Picker(T("auto_stop"), selection: $m.autoStopMinutes) {
                 Text(T("never")).tag(0)
-                Text("5 min").tag(5)
-                Text("10 min").tag(10)
-                Text("30 min").tag(30)
+                Text(Self.minutesText(5)).tag(5)
+                Text(Self.minutesText(10)).tag(10)
+                Text(Self.minutesText(30)).tag(30)
             }
             Toggle(T("background"), isOn: $m.background)
             Toggle(T("headset"), isOn: $m.headset)
@@ -309,6 +309,17 @@ struct SettingsView: View {
                 .accessibilityLabel(T("replay"))
         }
     }
+
+    // Einheiten, Dezimal- und Prozentzeichen kommen aus Foundation in der Oberflächensprache (kein fester Text).
+    private static var unitLocale: Locale { Locale(identifier: L10n.lang) }
+    static func secondsText(_ v: Double) -> String {
+        Measurement(value: v, unit: UnitDuration.seconds)
+            .formatted(.measurement(width: .abbreviated, usage: .asProvided, numberFormatStyle: .number.precision(.fractionLength(1))).locale(unitLocale))
+    }
+    static func minutesText(_ v: Int) -> String {
+        Measurement(value: Double(v), unit: UnitDuration.minutes).formatted(.measurement(width: .abbreviated, usage: .asProvided).locale(unitLocale))
+    }
+    static func percentText(_ v: Double) -> String { v.formatted(.percent.precision(.fractionLength(0)).locale(unitLocale)) }
 
     private func slider(_ title: String, value: Binding<Double>, range: ClosedRange<Double>, step: Double,
                         text: String) -> some View {
