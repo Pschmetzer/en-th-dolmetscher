@@ -1,0 +1,32 @@
+name: Web a11y
+
+# Playwright + axe-core on the web page (index.html). Informational for now: a failure does not block a pull request.
+on:
+  pull_request:
+    paths:
+      - index.html
+      - sw.js
+      - i18n/**
+      - tests/web-e2e/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  axe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Playwright and axe-core
+        working-directory: tests/web-e2e
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Scan every tab
+        run: |
+          python3 -m http.server 8000 &
+          sleep 2
+          cd tests/web-e2e && node axe.mjs

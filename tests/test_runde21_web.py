@@ -204,3 +204,11 @@ def test_two_person_screen_wired():
     assert "$('main').inert = on" in func("convoOpen")
     for k in ("convoBtn", "convoClose", "convoSend", "convoHint", "convoYou"):
         assert all(k in S for S in web_str().values()), k
+
+
+def test_card_image_and_ci_scan_present():
+    assert "function cardCanvas(" in SCRIPT and "toBlob(" in SCRIPT and "navigator.canShare({ files: [file] })" in SCRIPT
+    assert 'id="allergyImg"' in HTML and "'btnPartnerImg'" in SCRIPT or "id = 'btnPartnerImg'" in SCRIPT
+    wf = (ROOT / ".github" / "workflows" / "web-a11y.yml").read_text(encoding="utf-8")
+    assert "node axe.mjs" in wf and "timeout-minutes" in wf and "continue-on-error: true" in wf
+    assert "withTags(['wcag2a', 'wcag2aa'])" in (ROOT / "tests" / "web-e2e" / "axe.mjs").read_text(encoding="utf-8")
