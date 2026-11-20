@@ -126,7 +126,7 @@ extension L10n {
             "vi": "Khóa đang bật nhưng iPhone này chưa đặt mật mã – lịch sử không được bảo vệ.",
             "id": "Kunci aktif, tetapi iPhone ini tidak punya kode sandi – riwayat tidak terlindungi."],
         "learn_locked": [
-            "de": "Der Lernkasten ist gesperrt (er enthält Sätze aus Gesprächen).",
+            "de": "Die Lernkarten sind gesperrt (sie enthalten Sätze aus Gesprächen).",
             "en": "The flashcards are locked (they contain sentences from conversations).",
             "th": "การ์ดเรียนถูกล็อก (มีประโยคจากบทสนทนา)",
             "es": "Las tarjetas están bloqueadas (contienen frases de conversaciones).",
