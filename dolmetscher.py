@@ -496,7 +496,17 @@ JUNK = _JunkSet({"thank you for watching", "thanks for watching", "subtitles by"
                  "thanks for watching the video", "thank you for watching this video",
                  "thanks for watching this video", "thank you for watching bye", "thanks for watching bye",
                  "สวัสดีครับ ขอบคุณที่รับชม", "สวัสดีค่ะ ขอบคุณที่รับชม", "ขอบคุณสำหรับการรับชม",
-                 "ขอบคุณทุกท่านที่รับชม", "ขอบคุณที่ติดตามชม", "ฝากติดตามด้วย", "อย่าลืมกดติดตามช่อง"})
+                 "ขอบคุณทุกท่านที่รับชม", "ขอบคุณที่ติดตามชม", "ฝากติดตามด้วย", "อย่าลืมกดติดตามช่อง",
+                 # Runde 21: weitere bekannte Abspann-Halluzinationen (it, pt, de, ja, ko, zh, ar, hi, vi, tr, id, pl)
+                 "sottotitoli creati dalla comunità di amara.org", "grazie per la visione", "grazie per aver guardato",
+                 "legendas pela comunidade amara.org", "inscreva-se no canal", "untertitelung des zdf, 2020",
+                 "untertitelung des zdf für funk, 2017", "チャンネル登録お願いします",
+                 "最後までご視聴いただきありがとうございました", "구독과 좋아요 부탁드립니다",
+                 "字幕由amara.org社区提供", "请订阅我的频道", "感谢您的观看", "謝謝觀看", "اشتركوا في القناة",
+                 "شكرا لكم على المشاهدة", "देखने के लिए धन्यवाद", "सब्सक्राइब करना न भूलें",
+                 "cảm ơn các bạn đã theo dõi", "cảm ơn các bạn đã xem video", "đừng quên đăng ký kênh",
+                 "izlediğiniz için teşekkürler", "jangan lupa subscribe",
+                 "napisy stworzone przez społeczność amara.org", "ondertitels ingediend door de amara.org gemeenschap"})
 # Nr. 55: „Subtitles by <Name>“ – Abspann mit kurzem Namen. Nur ganze, kurze Äußerungen (junk_by): „Subtitles by
 # hand are hard“ ist echte Sprache und bleibt.
 _JUNK_BY = re.compile(r"subtitles?by\w{1,20}|(?:ซับไตเติ้ล|คำบรรยาย)โดย\w{1,20}|субтитры(?:сделал|создал)?\w{1,24}")
@@ -1216,6 +1226,11 @@ def warm_translate():
         _get_json("https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=en&tl=th&q=hi", 4)
     except Exception:
         pass
+    try:                               # pythainlp (Import + Wörterbuch, Sekunden) nicht im ersten Thai-Satz laden
+        if thai_active():
+            thai_latin("สวัสดีครับ")
+    except Exception:
+        pass
     try:                               # Claude-Client (import anthropic, ~0,5–1 s) nicht im ersten Satz bauen
         if LLM["on"] and llm_available():
             llm_client()
@@ -1333,7 +1348,7 @@ _NAME_STOP = {"the", "is", "are", "was", "you", "your", "where", "what", "when",
 
 def _looks_like_name(text):
     """Ein einzelnes Wort oder bis zu 4 groß geschriebene Wörter (Name, Marke, Ort)."""
-    words = re.findall(r"[A-Za-z][\w'’&-]*", text)
+    words = re.findall(r"[A-Za-zÀ-ÖØ-öø-ÿĀ-ſ][\w'’&-]*", text)         # auch "Café Müller", "Zürich"
     if len(words) > 1 and any(w.lower() in _NAME_STOP for w in words):
         return False
     return len(words) == 1 or (0 < len(words) <= 4 and all(w[0].isupper() for w in words))
@@ -1347,8 +1362,10 @@ class _Implausible(ValueError):
     """Antwort passt nicht zur Aufgabe (falsche Schrift, Ablehnung, Anmerkungen) – kein Netzfehler."""
 
 
-_LLM_PREFIX = re.compile(r"^\s*(?:translation|übersetzung|thai|english|คำแปล|"
-                         + "|".join(re.escape(v["name"].lower()) for v in LANGS.values()) + r")\s*:\s*", re.I)
+_LLM_PREFIX = re.compile(r"^[\s*_#>-]*(?:translations?|translated|übersetzung|traducci[óo]n|traduction|tradu[çc][ãa]o|"
+                         r"traduzione|thai|english|คำแปล|翻译|翻訳|번역|"
+                         + "|".join(re.escape(v["name"].lower()) for v in LANGS.values())
+                         + r")[\s*_]*:[\s*_]*", re.I)             # auch "**Translation:** …" (Markdown)
 _LLM_REFUSAL = re.compile(r"^\W*(?:(?:i'?m sorry|i am sorry|sorry|i can(?:no|'|’)t|i cannot|i'?m unable|i am unable)"
                           r"\b.*\btranslat|as an ai\b"
                           r"|(?:es tut mir leid|ich kann (?:das )?nicht|lo siento|no puedo|je suis désolé|désolé|"
