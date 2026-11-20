@@ -78,7 +78,7 @@ def test_partner_buttons_rotate_with_text():
 
 def test_clipboard_translate_wired():
     assert "translateClipboard()" in src("Engine.swift")
-    assert 'name: "⌃⌥C") { [weak model] in model?.translateClipboard() }' in src("HotKeys.swift")
+    assert "reg(6) { [weak model] in model?.translateClipboard() }" in src("HotKeys.swift")
     assert "ClipboardLogic.prepare" in src("Engine.swift")
     assert "translate_clipboard" in src("DolmetscherApp.swift")
 
@@ -101,3 +101,13 @@ def test_service_for_selected_text():
     assert "func translateSelection(_ pboard: NSPasteboard" in app
     assert "NSApp.servicesProvider = TranslateService.shared" in app
     assert "func translateText(_ raw: String?)" in src("Engine.swift")
+
+
+def test_hotkeys_configurable_and_mini_mode():
+    hk = src("HotKeys.swift")
+    assert "HotKeyLogic.configured()" in hk and "func setLetter" in hk
+    assert "HotKeyLogic.actions" in src("SettingsView.swift")
+    assert 'id: "mini"' in src("DolmetscherApp.swift")
+    assert "struct MiniView" in src("MiniView.swift")
+    ids = {a for a in re.findall(r"Action\(id: (\d+)", src("HotKeyLogic.swift"))}
+    assert ids == {"1", "2", "3", "4", "5", "6"}

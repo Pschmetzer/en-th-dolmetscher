@@ -198,15 +198,13 @@ struct GlossaryAddSheet: View {
 
 struct ShortcutsSheet: View {
     @Environment(\.dismiss) private var dismiss
-    static let rows: [(keys: String, key: String)] = [
+    private static let baseRows: [(keys: String, key: String)] = [
         ("⌘↩", "shortcut_startstop"), ("⌘P", "pause"), ("⌘.", "stop_speaking"), ("⌘R", "replay_last"),
         ("⌘L", "focus_typing"), ("⌥⌘S", "speak_toggle"), ("⌥⌘L", "direction_cycle"),
         ("⇧⌘C", "copy_last"), ("⌥⌘G", "glossary_add_title"), ("⌘F", "find"), ("⇧⌘E", "export"),
         ("⇧⌘P", "partner_view"), ("⌘1–9", "quick_phrases"), ("⌥⌘1–9", "preset_phrases_short"),
         ("⌘+ / ⌘− / ⌘0", "font_size"), ("⌥⌘Z", "undo_delete"),
-        // Globale Kürzel (auch bei Hintergrund-App) und Sonstiges
-        ("⌃⌥D", "shortcut_global_startstop"), ("⌃⌥P", "pause"), ("⌃⌥S", "stop_speaking"), ("⌃⌥R", "replay_last"),
-        ("⌃⌥T", "hold_to_talk"), ("⌃⌥C", "translate_clipboard"), ("⌃⌘F", "partner_fullscreen"), ("Space", "shortcut_startstop"), ("⌘/", "shortcuts_title"),
+        ("Space", "shortcut_startstop"), ("⌥⌘M", "mini_title"),
     ]
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -225,6 +223,14 @@ struct ShortcutsSheet: View {
             HStack { Spacer(); Button(L.t("close")) { dismiss() }.keyboardShortcut(.defaultAction) }
         }
         .padding(24).frame(minWidth: 460, idealWidth: 540, maxWidth: 720, minHeight: 360, idealHeight: 520, maxHeight: 640)
+    }
+    /// Feste Kürzel plus die (einstellbaren) globalen Kürzel mit ihren aktuellen Buchstaben.
+    static var rows: [(keys: String, key: String)] {
+        let g = HotKeyLogic.configured()
+        let global: [(keys: String, key: String)] = HotKeyLogic.actions.compactMap { a in
+            g[a.id].map { (HotKeyLogic.display($0), a.labelKey) }
+        }
+        return baseRows + [("⌘/", "shortcuts_title")] + global
     }
 }
 

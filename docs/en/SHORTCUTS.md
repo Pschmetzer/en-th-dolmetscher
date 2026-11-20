@@ -37,6 +37,7 @@ If another program already uses a shortcut, the app shows a notice listing the a
 | ⇧⌘C | copy the last translation |
 | ⌥⌘L | switch direction (automatic, then one language of the pair each) |
 | ⌥⌘G | add a word to the glossary |
+| ⌥⌘M | mini window (status, last sentence, start/stop; stays on top) |
 | ⌘L | put the cursor in the typing field |
 | ⌥⌘S | speech output on / off |
 | ⌘/ | shortcut overview (Help menu) |

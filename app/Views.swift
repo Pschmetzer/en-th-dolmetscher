@@ -675,6 +675,7 @@ struct MainToolbar: View {
             }
             Button(L.t("profiles")) { showProfiles = true }
             Button(L.t("partner_view") + " (⇧⌘P)") { openWindow(id: "partner") }
+            Button(L.t("mini_title") + " (⌥⌘M)") { openWindow(id: "mini") }
             Divider()
             moreItems
             Button(L.t("settings") + " (⌘,)") { NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil) }
