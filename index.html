@@ -80,6 +80,19 @@
     .card.crit, #partnerText.crit, .emerg a { border:3px solid CanvasText; }   /* Wichtiges nicht nur über Farbe */
     .starbtn[aria-pressed="true"] { outline:2px solid Highlight; }
   }
+  .tabs { display:flex; gap:6px; margin:8px 0; position:sticky; top:0; z-index:5; background:var(--bg); padding:4px 0; }
+  .tabs button { flex:1; min-height:44px; font:inherit; font-weight:600; color:var(--fg); background:var(--card); border:1px solid var(--line); border-radius:10px; cursor:pointer; }
+  .tabs button[aria-selected="true"] { background:var(--btn, #1d4ed8); color:#fff; border-color:transparent; }
+  body[data-tab="speak"] [data-tab]:not([data-tab="speak"]), body[data-tab="book"] [data-tab]:not([data-tab="book"]),
+  body[data-tab="cards"] [data-tab]:not([data-tab="cards"]), body[data-tab="learn"] [data-tab]:not([data-tab="learn"]) { display:none; }
+  @media (forced-colors: active) { .tabs button[aria-selected="true"] { outline:3px solid Highlight; } }
+  @media print { .tabs { display:none; } }
+  #convo { position:fixed; inset:0; z-index:40; display:none; flex-direction:column; background:var(--bg); color:var(--fg); }
+  #convo.on { display:flex; }
+  #convo .half { flex:1; min-height:0; display:flex; flex-direction:column; gap:8px; padding:10px 12px; }
+  #convo .far { transform:rotate(180deg); border-bottom:3px solid var(--line); }
+  #convo .out { flex:1; min-height:0; overflow:auto; display:flex; align-items:center; justify-content:center; text-align:center; font-size:clamp(22px,6vw,52px); font-weight:700; overflow-wrap:anywhere; white-space:pre-line; }
+  #convo .cin { display:flex; flex-direction:column; gap:4px; font-size:13px; color:var(--mut); } #convo textarea { width:100%; font:inherit; font-size:18px; }
   .skip { position:absolute; left:8px; top:-100px; z-index:20; background:var(--card); color:var(--fg); border:2px solid var(--focus); border-radius:8px; padding:10px 14px; }
   .skip:focus { top:8px; }
   #pbQ { font:inherit; color:var(--fg); background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 8px; min-height:44px; min-width:0; }
@@ -214,6 +227,7 @@
   <span id="appState" role="status" hidden></span>
 </header>
 <main id="content">
+<details class="box" id="notesBox"><summary data-i18n="notesSum">Hinweise: Lite-Version und Datenschutz</summary>
 <div class="note" role="note" data-i18n-html="lite">
   <b class="lite">Lite-Version – eingeschränkt.</b> Hier wählst du selbst, wer spricht (<kbd>E</kbd>/<kbd>T</kbd> oder die Knöpfe); Erkennung und Stimmen kommen vom Browser: am besten <b>Chrome</b> (Computer, Android); <b>Safari</b> (Mac, iPhone) geht nur mit eingeschalteter Diktierfunktion und mit Einschränkungen; Firefox kann keine Spracherkennung. Nicht auf allen Geräten getestet.
   Die <b>Mac-App</b> ist deutlich besser: erkennt die Sprache automatisch, Sprachbefehle, bessere Erkennung (Whisper), Neural-Stimmen, Stimmprofile, optional Übersetzung mit Claude.
@@ -222,12 +236,16 @@
 <div class="note" role="note" id="privacy" data-i18n-html="privacy">
   <b>Datenschutz:</b> Die Spracherkennung macht der Browser – Chrome sendet dein <b>Audio an Googles Server</b>, Safari an Apple (je nach Gerät auch lokal). Der erkannte Text geht zum Übersetzen an Google Translate (Ersatz: MyMemory). Die Mac-App erkennt Sprache dagegen lokal auf dem Gerät. <b>Pause</b> und <b>Stopp</b> schalten das Mikrofon ganz aus. Das Satzbuch (unten) funktioniert ohne Mikrofon und für Englisch/Thai auch offline; in anderen Sprachen werden Sätze beim ersten Tippen an Google Translate gesendet (Karte als „automatisch übersetzt“ markiert). <b>Lernkarten</b> (★ gemerkte und, nur wenn eingeschaltet, zuletzt übersetzte Sätze) bleiben nur in diesem Browser; „Alle Lernkarten löschen“ entfernt sie.
 </div>
+</details>
 <div class="note" role="status" id="offline" data-i18n="offline">Offline: Übersetzen und Spracherkennung gehen gerade nicht. Das Satzbuch mit Zeige-Karten funktioniert weiter.</div>
 <div class="note" role="status" id="swNote" hidden></div>
 <div class="note" role="note" id="installNote" hidden></div>
 <div id="warn" role="alert" aria-atomic="false"></div>
+<div class="tabs" id="tabBar" role="tablist" data-aria="tabsLbl" aria-label="Bereiche">
+  <button type="button" role="tab" data-go="speak" data-i18n="tabSpeak">Sprechen</button><button type="button" role="tab" data-go="book" data-i18n="tabBook">Satzbuch</button><button type="button" role="tab" data-go="cards" data-i18n="tabCards">Karten</button><button type="button" role="tab" data-go="learn" data-i18n="tabLearn">Lernen</button>
+</div>
 <h2 class="sr-only" data-i18n="hTalk">Sprechen und übersetzen</h2>
-<div class="pair">
+<div data-tab="speak" class="pair">
   <label><span data-i18n="iSpeak">Ich spreche</span> <select id="langA" aria-label="Meine Sprache"></select></label>
   <button class="small" id="btnSwap" type="button" aria-label="Sprachen tauschen" title="Sprachen tauschen">⇄</button>
   <label><span data-i18n="partnerSpeaks">Partner spricht</span> <select id="langB" aria-label="Sprache des Partners"></select></label>
@@ -236,11 +254,11 @@
     <option value="en-US">USA</option><option value="en-GB">Großbritannien</option><option value="en-AU">Australien</option><option value="en-IN">Indien</option>
   </select></label>
 </div>
-<div class="controls">
+<div data-tab="speak" class="controls">
   <button class="mode" id="btnA" type="button" aria-pressed="false" aria-keyshortcuts="E 1">🎙 English <kbd>E</kbd></button>
   <button class="mode" id="btnB" type="button" aria-pressed="false" aria-keyshortcuts="T 2">🎙 ไทย <kbd>T</kbd></button>
 </div>
-<div class="opts">
+<div data-tab="speak" class="opts">
   <label><input type="checkbox" id="dirA" checked> <span id="dirAText">Übersetzen A→B</span></label>
   <label><input type="checkbox" id="dirB" checked> <span id="dirBText">Übersetzen B→A</span></label>
   <label><input type="checkbox" id="speak" checked> <span data-i18n="speak">Übersetzung vorlesen</span></label>
@@ -250,9 +268,10 @@
   <label><input type="checkbox" id="duplex"> <span data-i18n="duplex">Kopfhörer: beim Vorlesen weiter zuhören (Unterbrechen)</span></label>
   <label><input type="checkbox" id="keysOn" checked> <span data-i18n="keysOn">Einzeltasten-Kürzel (E, T, P, Leertaste)</span></label>
   <button class="small" id="btnStop" type="button" disabled data-i18n-html="stop">⏹ Stopp <kbd>Leertaste</kbd></button>
+  <button class="small" id="btnConvo" type="button" data-i18n="convoBtn">Zwei Personen (Tippen)</button>
   <button class="small" id="btnPartner" type="button" data-i18n-html="partnerView">Partneransicht <kbd>P</kbd></button>
 </div>
-<details class="box" id="voiceBox">
+<details data-tab="speak" class="box" id="voiceBox">
   <summary data-i18n-html="voiceSum">Stimme &amp; Tempo</summary>
   <div class="row">
     <label><input type="range" id="rate" min="0.5" max="1.6" step="0.05" value="0.95"> <span data-i18n="rate">Tempo</span> <output id="rateOut" for="rate">0.95</output></label>
@@ -267,7 +286,7 @@
     <button class="small" id="testB" type="button" data-i18n="test">Hörprobe</button>
   </div>
 </details>
-<details class="box" id="typeBox">
+<details data-tab="speak" class="box" id="typeBox">
   <summary data-i18n-html="typeSum">Texteingabe statt Sprechen</summary>
   <div class="row"><label style="flex:1;min-width:220px"><span data-i18n="text">Text</span> <textarea id="typeIn" dir="auto" spellcheck="true" rows="2" maxlength="500" enterkeyhint="send" autocapitalize="sentences" style="width:100%"></textarea></label></div>
   <div class="row">
@@ -276,7 +295,7 @@
     <button class="small" id="typeBig" type="button" data-i18n="translateBig">Übersetzen und groß zeigen</button>
   </div>
 </details>
-<details class="box" id="pbBox" open>
+<details data-tab="book" class="box" id="pbBox" open>
   <summary data-i18n-html="pbSum">Satzbuch &amp; Zeige-Karten (ohne Mikrofon)</summary>
   <div class="row">
     <label><span data-i18n="topic">Thema</span> <select id="presetSel"></select></label>
@@ -305,7 +324,7 @@
   <div id="pbMsg" role="status"></div>
   <div id="cards"></div>
 </details>
-<details class="box" id="numBox">
+<details data-tab="book" class="box" id="numBox">
   <summary data-i18n-html="numSum">Zahlen und Preise (Handeln, Taxi, Markt)</summary>
   <div class="row">
     <label><input id="numIn" inputmode="numeric" maxlength="9" size="10" autocomplete="off"> <span data-i18n="amount">Betrag</span></label>
@@ -317,7 +336,7 @@
   <p class="note" data-i18n="numNote">Gegenüber handelt? Gerät weitergeben: Der Betrag steht groß in Ziffern, das Gegenüber tippt seinen Preis selbst ein. Thai-Zahlwörter sind maschinell erzeugt und unverbindlich.</p>
   <details><summary data-i18n="digitsSum">Thai-Ziffern lesen (Schilder, Taxameter)</summary><div id="digitTab" class="tiles" lang="th"></div></details>
 </details>
-<details class="box" id="myBox">
+<details data-tab="cards" class="box" id="myBox">
   <summary data-i18n="mySum">Meine Karten (Hotel, Adresse, Treffpunkt)</summary>
   <p class="note" data-i18n="myNote">Eigene Sätze nur in diesem Browser. Adresse in Thai-Schrift aus Maps oder von der Unterkunft einfügen; „Bitte hierher bringen“ zeigt sie mit dem Satz für den Fahrer.</p>
   <div class="row">
@@ -339,7 +358,7 @@
   <p class="note"><b data-i18n="mcFavOrder">Favoriten ordnen</b></p>
   <div id="favOrder"></div>
 </details>
-<details class="box" id="allergyBox">
+<details data-tab="cards" class="box" id="allergyBox">
   <summary data-i18n="allergySum">Allergie- und Notfallkarte</summary>
   <p class="note" data-i18n-html="allergyMt"><b>Thai maschinell erstellt, nicht von Muttersprachlern geprüft.</b> Vor Gebrauch prüfen lassen. Die Karte ersetzt keine ärztliche Information.</p>
   <div class="row"><b data-i18n="allergyH">Allergien</b></div><div id="allergyTiles" class="tiles"></div>
@@ -349,12 +368,12 @@
   <div id="allergyOut" class="big-out" lang="th"></div><div id="allergyEn" class="note" lang="en"></div>
   <div class="row"><button class="small" id="allergyShow" type="button" data-i18n="allergyShow">Karte groß zeigen</button></div>
 </details>
-<details class="box" id="glossBox">
+<details data-tab="book" class="box" id="glossBox">
   <summary data-i18n="glossSum">Wörterbuch (Englisch ⇄ Thai, alle Themen)</summary>
   <div class="row"><label><input id="glossQ" type="search" size="18" autocomplete="off"> <span data-i18n="search">Suche</span></label></div>
   <div id="glossList"></div>
 </details>
-<details class="box" id="learnBox">
+<details data-tab="learn" class="box" id="learnBox">
   <summary><span data-i18n="learnSumA">Lernen: Karteikarten (</span><span id="learnDue">0</span><span data-i18n="learnSumB"> fällig)</span></summary>
   <p id="learnInfo" data-i18n="learnInfoT">Mit ☆ gemerkte Sätze (Satzbuch, Verlauf) werden zu Karteikarten: vorne deine Sprache, hinten die Sprache des Partners. Gewusst = später wieder (1, 3, 7, 14 Tage), nicht gewusst = gleich nochmal.</p>
   <div class="row">
@@ -413,8 +432,8 @@
   Sprachbefehle, wenn Englisch gesprochen wird, als ganzer Satz (werden nie übersetzt): „Translator pause“ (Mikrofon aus – weiter mit <kbd>E</kbd>/<kbd>T</kbd> oder dem Knopf), „Translator repeat“, „slower“, „faster“, „louder“, „quieter“, „clear“ (Verlauf leeren), „help“ (diese Hilfe).</p>
 </details>
 <div id="live" aria-live="off">…</div>
-<h2 class="sr-only" data-i18n="hLog">Verlauf</h2>
-<div class="logtools">
+<h2 data-tab="speak" class="sr-only" data-i18n="hLog">Verlauf</h2>
+<div data-tab="speak" class="logtools">
   <button class="small" id="btnCopy" type="button" data-i18n="copyLog">Verlauf kopieren</button>
   <button class="small" id="btnSave" type="button" data-i18n="saveLog">Verlauf speichern (.txt)</button>
   <button class="small" id="btnCsv" type="button" data-i18n="saveCsv">Verlauf als .csv</button>
@@ -423,7 +442,7 @@
   <label><input id="logQ" type="search" size="18" maxlength="60" autocomplete="off" enterkeyhint="search"><span class="sr-only" id="logQLabel">Verlauf durchsuchen</span></label>
   <span id="logCount" role="status"></span>
 </div>
-<div id="log" role="list" aria-live="off" data-aria="aLog" aria-label="Übersetzungen, neueste zuerst"></div>
+<div data-tab="speak" id="log" role="list" aria-live="off" data-aria="aLog" aria-label="Übersetzungen, neueste zuerst"></div>
 <div id="announce" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 </main>
 </div>
@@ -440,6 +459,19 @@
   </div>
 </dialog>
 
+<div id="convo" role="dialog" aria-modal="true" aria-labelledby="convoTitle" aria-hidden="true">
+  <section class="half far" id="convoFar" aria-label="">
+    <div class="out" id="outFar" role="status" aria-live="polite"></div>
+    <label class="cin"><span id="hintFar"></span><textarea id="inFar" rows="2" maxlength="500" enterkeyhint="send" dir="auto"></textarea></label>
+    <div class="row"><button class="small" id="goFar" type="button" data-aria="convoSend">▶</button><button class="small" id="spFar" type="button">🔊</button></div>
+  </section>
+  <section class="half near" id="convoNear">
+    <div class="out" id="outNear" role="status" aria-live="polite"></div>
+    <label class="cin"><span id="hintNear"></span><textarea id="inNear" rows="2" maxlength="500" enterkeyhint="send" dir="auto"></textarea></label>
+    <div class="row"><button class="small" id="goNear" type="button" data-aria="convoSend">▶</button><button class="small" id="spNear" type="button">🔊</button><button class="small" id="convoClose" type="button" data-i18n="convoClose">Schließen</button></div>
+  </section>
+  <span id="convoTitle" class="sr-only" data-i18n="convoBtn">Zwei Personen (Tippen)</span>
+</div>
 <div id="partner" role="dialog" aria-modal="true" aria-labelledby="partnerTitle" aria-hidden="true">
   <div class="bar"><span id="partnerTitle">ไทย</span>
     <span class="btns"><span class="seq" id="seqBar" hidden><button class="small" id="btnPrev" type="button" aria-label="Vorherige Karte">‹</button><span id="seqPos"></span><button class="small" id="btnNext" type="button" aria-label="Nächste Karte">›</button></span><button class="small" id="btnReport" type="button" aria-label="Falsch? Melden" hidden>⚑</button><button class="small" id="btnFontDown" type="button" aria-label="Schrift kleiner / Smaller text">A−</button><button class="small" id="btnFontUp" type="button" aria-label="Schrift größer / Larger text">A+</button><button class="small" id="btnPartnerSlow" type="button" aria-label="Langsam vorlesen / Read slowly">🐢</button><button class="small" id="btnPartnerSpeak" type="button" aria-label="Vorlesen / Read aloud">🔊</button><button class="small" id="btnPartnerShow" type="button" aria-label="Vorzeigen / Show full screen">⛶</button><button class="small" id="btnPartnerShare" type="button" aria-label="Link teilen / Share link" hidden>🔗</button><button class="small" id="btnPartnerShareTx" type="button" aria-label="Text teilen / Share text">📤</button><button class="small" id="btnPartnerClose" type="button" aria-label="Schließen / Close">✕</button></span></div>
@@ -768,7 +800,18 @@ const STR = {
   "topicPrev": "Vorheriges Thema",
   "topicNext": "Nächstes Thema",
   "recentTopics": "Zuletzt benutzt:",
-  "topicNow": "Thema: {n}"
+  "topicNow": "Thema: {n}",
+  "tabSpeak": "Sprechen",
+  "tabBook": "Satzbuch",
+  "tabCards": "Karten",
+  "tabLearn": "Lernen",
+  "tabsLbl": "Bereiche",
+  "notesSum": "Hinweise: Lite-Version und Datenschutz",
+  "convoBtn": "Zwei Personen (Tippen)",
+  "convoClose": "Schließen",
+  "convoSend": "Senden und übersetzen",
+  "convoHint": "Gegenüber tippt hier",
+  "convoYou": "Du tippst hier"
  }
 };   // nur Deutsch (Standard und Rückfall) eingebaut; en/th liegen in i18n/*.json (vom Service Worker gespeichert)
 const UI_LANGS = ['de', 'en', 'th'];
@@ -1297,7 +1340,7 @@ warn.addEventListener('click', e => {
   else if (act === 'sharego') { clearWarn(warnMsgs.filter(m => m.includes('data-act="sharego"'))); if (sharedGo) sharedGo(); }
   else if (act === 'iosoff') { clearWarn(warnMsgs.filter(m => m.includes('data-act="iosoff"'))); lsSet('iosWarnOff', '1'); }
   else if (act === 'type') { $('typeBox').open = true; $('typeIn').focus(); }
-  else if (act === 'phrasebook') { $('pbBox').open = true; $('pbBox').scrollIntoView({ block: 'start' }); $('pbQ').focus(); }
+  else if (act === 'phrasebook') { showTab('book'); $('pbBox').open = true; $('pbBox').scrollIntoView({ block: 'start' }); $('pbQ').focus(); }
   else if (act === 'retry') { clearWarn(warnMsgs.slice()); if (!mode) chooseMode('a'); }
 });
 let trimWarned = false;
@@ -2025,7 +2068,7 @@ $('btnPartnerShareTx').onclick = async () => {   // Übersetzung als Text teilen
 $('btnPartnerShare').onclick = () => { if (bigCtx && bigCtx.idx >= 0) shareFav(bigCtx.pack, bigCtx.idx, bigCtx.lang, bigCtx.en); };
 function openFromHash() {
   const boxes = { '#numbers': 'numBox', '#allergy': 'allergyBox', '#learn': 'learnBox' };   // PWA-Kürzel
-  if (boxes[location.hash]) { const b = $(boxes[location.hash]); try { history.replaceState(null, '', location.pathname + location.search); } catch {} b.open = true; b.scrollIntoView(); return; }
+  if (boxes[location.hash]) { const b = $(boxes[location.hash]); try { history.replaceState(null, '', location.pathname + location.search); } catch {} showTab(b.dataset.tab); b.open = true; b.scrollIntoView(); return; }
   if (applyDeepLink()) return;
   const f = parseFav(location.hash, PRESET_IDS);
   if (f) { try { history.replaceState(null, '', location.pathname + location.search); } catch {} openFav(f); return; }
@@ -2164,6 +2207,8 @@ function isTyping(t) {   // Kürzel nur aus, wo getippt/gewählt wird – nicht 
 }
 document.addEventListener('keydown', e => {
   if (consentOpen()) return;                                   // Einwilligungsdialog offen: keine Kürzel (Esc schließt ihn)
+  if (e.key === 'Escape' && $('convo').classList.contains('on')) { convoOpen(false); return; }
+  if ($('convo').classList.contains('on') && e.key !== 'Escape') return;   // Zwei-Personen-Ansicht: keine Einzeltasten-Kürzel
   if (e.key === 'Escape') {                                    // closing a dialog always works; sonst Stopp (WCAG 2.1.1)
     if ($('partner').classList.contains('on')) togglePartner(false); else if (mode && !isTyping(e.target)) chooseMode(mode);
     return;
@@ -2175,12 +2220,29 @@ document.addEventListener('keydown', e => {
   if (e.code === 'KeyP') { togglePartner(); return; }
   if ($('partner').classList.contains('on') && e.code === 'KeyV') { setShow(!$('partner').classList.contains('show')); return; }
   if ($('partner').classList.contains('on') && e.code === 'KeyS' && !$('btnPartnerShare').hidden) { $('btnPartnerShare').click(); return; }
-  if (e.code === 'KeyL' && !$('partner').classList.contains('on') && log.firstElementChild) { log.firstElementChild.tabIndex = -1; log.firstElementChild.focus(); return; }   // zum neuesten Eintrag springen
+  if (e.code === 'KeyL' && !$('partner').classList.contains('on') && log.firstElementChild) { showTab('speak'); log.firstElementChild.tabIndex = -1; log.firstElementChild.focus(); return; }   // zum neuesten Eintrag springen
   if ($('partner').classList.contains('on')) return;          // Partneransicht offen: dahinter nichts umschalten
   if (e.code === 'KeyE' || e.code === 'Digit1') { if (SR) chooseMode('a'); }
   else if (e.code === 'KeyT' || e.code === 'Digit2') { if (SR) chooseMode('b'); }
   else if (e.code === 'Space' && mode && !e.target.closest('button,input,summary,a,[role=button]')) { e.preventDefault(); if (mode) setMode(mode); }
 });
+
+// ---- Bereiche (Tabs): Sprechen | Satzbuch | Karten | Lernen ----
+const TABS = ['speak', 'book', 'cards', 'learn'];
+function showTab(name, focus) {
+  if (!TABS.includes(name)) name = 'speak';
+  document.body.dataset.tab = name;
+  for (const b of document.querySelectorAll('#tabBar [role=tab]')) { const on = b.dataset.go === name; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; if (on && focus) b.focus(); }
+  if (settings.tab !== name) { settings.tab = name; saveSettings(); }
+}
+for (const b of document.querySelectorAll('#tabBar [role=tab]')) b.onclick = () => showTab(b.dataset.go);
+$('tabBar').addEventListener('keydown', e => {
+  const i = TABS.indexOf(document.body.dataset.tab), d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+  if (d) { e.preventDefault(); showTab(TABS[(i + d + TABS.length) % TABS.length], true); }
+});
+document.addEventListener('toggle', e => { const tab = e.target.dataset && e.target.dataset.tab; if (tab && e.target.open && document.body.dataset.tab !== tab) showTab(tab); }, true);   // ein Bereich wird geöffnet (Kürzel, Warnung, Link): passenden Tab zeigen
+showTab(TABS.includes(settings.tab) ? settings.tab : SR ? 'speak' : 'book');
+{ const nb = $('notesBox'); if (!settings.notesSeen) { nb.open = true; settings.notesSeen = true; saveSettings(); } }   // Hinweise beim ersten Besuch offen, danach eingeklappt
 
 // ---- Runde 7: Zahlen, eigene Karten, Allergiekarte, Lernstand, Deep-Links (reine Logik zuerst, dann Verdrahtung) ----
 const TH_D = ['ศูนย์', 'หนึ่ง', 'สอง', 'สาม', 'สี่', 'ห้า', 'หก', 'เจ็ด', 'แปด', 'เก้า'], TH_P = ['', 'สิบ', 'ร้อย', 'พัน', 'หมื่น', 'แสน'];
@@ -2372,6 +2434,34 @@ function typeSubmit(big) {
 $('typeGo').onclick = () => typeSubmit(false);
 $('typeBig').onclick = () => typeSubmit(true);
 $('typeIn').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); typeSubmit(false); } });
+
+// ---- Zwei Personen: geteilter Bildschirm, jede Seite tippt in ihrer Sprache (auch ohne Spracherkennung) ----
+function convoOpen(on) {
+  const el = $('convo'); if (on === el.classList.contains('on')) return;
+  if (on) {
+    convoOpener = document.activeElement;
+    $('hintNear').textContent = t('convoYou') + ' · ' + lname(pair.a); $('hintFar').textContent = t('convoHint') + ' · ' + LANGS[pair.b].native;
+    $('inNear').lang = pair.a; $('inFar').lang = pair.b; $('outNear').textContent = ''; $('outFar').textContent = '';
+  }
+  el.classList.toggle('on', on); el.setAttribute('aria-hidden', on ? 'false' : 'true'); $('main').inert = on;
+  if (on) $('inNear').focus(); else if (convoOpener && convoOpener.focus) convoOpener.focus();
+}
+let convoOpener = null;
+function convoSend(from) {
+  const near = from === 'near', inp = $(near ? 'inNear' : 'inFar'), out = $(near ? 'outFar' : 'outNear');
+  const text = inp.value.trim().slice(0, 500); if (!text) return;
+  const src = near ? pair.a : pair.b, dst = near ? pair.b : pair.a;
+  inp.value = ''; out.textContent = '…'; out.lang = dst;
+  translate(text, src, dst).then(r => { out.textContent = r.text; if ($('speak').checked) sayNow(r.text, dst); }, () => { out.textContent = t('trUnavailable'); });
+}
+for (const w of ['Near', 'Far']) {
+  const f = w.toLowerCase();
+  $('go' + w).onclick = () => convoSend(f);
+  $('in' + w).addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); convoSend(f); } });
+  $('sp' + w).onclick = () => { const o = $(f === 'near' ? 'outNear' : 'outFar'); if (o.textContent && o.textContent !== '…') sayNow(o.textContent, o.lang || (f === 'near' ? pair.a : pair.b)); };
+}
+$('btnConvo').onclick = () => convoOpen(true);
+$('convoClose').onclick = () => convoOpen(false);
 
 // ---- Zahlen und Preise ----
 (() => {
@@ -2700,7 +2790,7 @@ function applyDeepLink() {
   if (d.preset) {
     if (d.l && LANGS[d.l] && d.l !== pair.b) setPair(d.l, pair.b);
     $('presetSel').value = d.preset; settings.preset = d.preset; saveSettings(); renderCards();
-    $('pbBox').open = true; $('pbBox').scrollIntoView();
+    showTab('book'); $('pbBox').open = true; $('pbBox').scrollIntoView();
   }
   if (d.incoming) {   // aus einer anderen App geteilt: übersetzen und groß zeigen, nichts speichern
     const src = textLang(d.incoming, pair.b, pair.a, pair.b), dst = src === pair.a ? pair.b : pair.a;
@@ -2809,7 +2899,7 @@ if ('serviceWorker' in navigator && window.isSecureContext && /^https?:$/.test(l
 let pbQTimer = null;
 $('pbCrit').onclick = () => { const on = $('pbCrit').getAttribute('aria-pressed') !== 'true'; $('pbCrit').setAttribute('aria-pressed', String(on)); applyPbFilter(); };
 $('pbFav').onclick = () => { const on = $('pbFav').getAttribute('aria-pressed') !== 'true'; $('pbFav').setAttribute('aria-pressed', String(on)); applyPbFilter(); };
-$('skipLink').addEventListener('click', e => { e.preventDefault(); $('pbBox').open = true; $('pbBox').querySelector('summary').focus(); });   // Fokus wirklich ins Ziel setzen (Safari tut das bei #Anker nicht)
+$('skipLink').addEventListener('click', e => { e.preventDefault(); showTab('book'); $('pbBox').open = true; $('pbBox').querySelector('summary').focus(); });   // Fokus wirklich ins Ziel setzen (Safari tut das bei #Anker nicht)
 $('learnCard').addEventListener('keydown', e => {   // Pfeile: nach dem Aufdecken beantworten (nicht in Eingabefeldern)
   if (e.ctrlKey || e.metaKey || e.altKey || isTyping(e.target)) return;
   const grade = { '1': 1, '2': 2, '3': 3, '4': 4, ArrowLeft: 1, ArrowRight: 3 }[e.key];

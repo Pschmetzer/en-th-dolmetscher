@@ -308,5 +308,16 @@
  "topicPrev": "หัวข้อก่อนหน้า",
  "topicNext": "หัวข้อถัดไป",
  "recentTopics": "ใช้ล่าสุด:",
- "topicNow": "หัวข้อ: {n}"
+ "topicNow": "หัวข้อ: {n}",
+ "tabSpeak": "พูด",
+ "tabBook": "สมุดวลี",
+ "tabCards": "บัตร",
+ "tabLearn": "เรียน",
+ "tabsLbl": "ส่วนต่าง ๆ",
+ "notesSum": "หมายเหตุ: เวอร์ชัน Lite และความเป็นส่วนตัว",
+ "convoBtn": "สองคน (พิมพ์)",
+ "convoClose": "ปิด",
+ "convoSend": "ส่งและแปล",
+ "convoHint": "คู่สนทนาพิมพ์ที่นี่",
+ "convoYou": "คุณพิมพ์ที่นี่"
 }

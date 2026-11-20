@@ -13,6 +13,7 @@ Pull requests #16–#47. Not yet published as a release.
 - Shared text (`?text=`) is only sent to Google Translate after a confirmation; the learning timer no longer speaks in the background.
 - Emergency numbers (1669, 191, 199, 1155) for more than 40 topics instead of 12.
 - Fixed German texts (consent dialog, allergy card, learning box) are now translated; Android voice tags (`eng-USA`) are recognised and local voices are preferred; the iPhone hint can be closed; Thai digit tiles read aloud; sliders are announced with their value.
+- Web page in four sections (tabs: Speak, Phrasebook, Cards, Learn); the notes are folded after the first visit; new two-person screen where each side types in their own language (also without speech recognition); English and Thai interface texts moved to `i18n/*.json` (page 242 → 192 KB).
 - Installable app: separate maskable icons, opaque 180 px Apple icon, iOS meta tags; the service worker refuses an install without page and language table and checks for updates hourly.
 
 ### Phrase packs and tooling (round 21)
