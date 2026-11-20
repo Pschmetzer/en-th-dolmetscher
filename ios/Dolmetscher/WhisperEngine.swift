@@ -189,6 +189,10 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
     static let maxConsecutiveFailures = 3
     private var failures = 0   // nur im Worker
     private var lastLang: Lang?   // nur im Worker
+    /// Runde 34: Teiltexte (Schalter in den Einstellungen, Standard aus). Zustand hinter einem Schloss.
+    private let partial = PartialState()
+    private var partialsOn = false   // beim Start gelesen
+    private var sincePartial = 0.0   // nur auf `queue`
 
     struct Job: Sendable { var samples: [Float] }
 
@@ -244,7 +248,9 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
         queue.sync {
             self.langs = langs; basePause = pauseSeconds; gate.pause = pauseSeconds; gate.apply(options.sensitivity); muted = false; running = true
             preRoll.clear(); utterance = []
+            partialsOn = WhisperPartials.enabled; sincePartial = 0
         }
+        partial.reset()
         let stream = jobStream
         // Eine Äußerung nach der anderen, in Reihenfolge, außerhalb der Audio-Queue.
         worker = Task.detached { [weak self] in
@@ -262,6 +268,7 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
         jobs.finish()
         worker?.cancel()
         await worker?.value
+        await partial.waitForTask()   // dasselbe Modell: ein Neustart darf nicht in eine laufende Zwischenerkennung greifen
         // Nicht sofort entladen: ein Neustart gleich danach nimmt das Modell wieder (Entladen nach 60 s Ruhe).
         if kit != nil { WhisperKitCache.shared.idle() }
         kit = nil
@@ -287,6 +294,7 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
         queue.async {
             guard self.running, !self.muted, self.gate.inUtterance else { return }
             self.gate.reset()
+            self.partial.invalidate()
             self.emit.yield(.hearing(false))
             let u = self.utterance
             self.utterance = []
@@ -304,16 +312,19 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
 
         let ev = gate.step(rms: rms, dur: dur)
         if ev == .started {
+            partial.reset(); sincePartial = 0
             utterance = preRoll.drain()
             emit.yield(.hearing(true))
-            emit.yield(.partial([:]))   // keine Teiltexte: Whisper erkennt erst am Ende
+            emit.yield(.partial([:]))   // Teiltexte nur mit Schalter (WhisperPartials), sonst erst am Ende
         }
         if gate.inUtterance || ev == .ended {
             utterance.append(contentsOf: samples)
         } else {
             preRoll.append(samples)
         }
+        if partialsOn, gate.inUtterance, ev != .ended { maybeStartPartial(dur: dur) }
         if ev == .ended || (gate.inUtterance && utterance.count >= Int(Self.maxSeconds * Resampler16k.rate)) {
+            partial.invalidate()
             if ev != .ended { gate.reset() }
             emit.yield(.hearing(false))
             let u = utterance
@@ -324,7 +335,42 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
         }
     }
 
+    /// Auf `queue`: startet höchstens eine Zwischenerkennung, wenn `WhisperPartials.shouldStart` es erlaubt.
+    private func maybeStartPartial(dur: Double) {
+        sincePartial += dur
+        guard let kit else { return }
+        let secs = Double(utterance.count) / Resampler16k.rate
+        guard WhisperPartials.shouldStart(enabled: partialsOn, inUtterance: true, utteranceSeconds: secs, sinceLast: sincePartial,
+                                          partialBusy: partial.busy, finalPending: partial.finalRunning),
+              let lang = WhisperPartials.language(last: partial.lastLang, langs: langs) else { return }
+        sincePartial = 0
+        let samples = utterance
+        let gen = partial.begin()
+        partial.setTask(Task.detached { [weak self] in
+            await self?.recognizePartial(samples, gen: gen, kit: kit, lang: lang)
+            self?.partial.end(gen)
+        })
+    }
+
+    /// Vorläufiger Text: nur die stabilen Wörter (`PartialStabilizer`), nie ein Ausreißer. Das Endergebnis ersetzt ihn.
+    private func recognizePartial(_ samples: [Float], gen: Int, kit: WhisperKit, lang: Lang) async {
+        let duration = Double(samples.count) / Resampler16k.rate
+        let rms = samples.isEmpty ? 0 : (samples.reduce(0) { $0 + $1 * $1 } / Float(samples.count)).squareRoot()
+        guard WhisperTuning.shouldDecode(duration: duration, rms: rms) else { return }
+        let opts = DecodingOptions(language: lang.rawValue, temperatureFallbackCount: 0, usePrefillPrompt: true, detectLanguage: false,
+                                   skipSpecialTokens: true, withoutTimestamps: true, compressionRatioThreshold: 2.4,
+                                   logProbThreshold: -1.0, noSpeechThreshold: 0.6)
+        guard let r = try? await withTimeout(seconds: 5, { try await kit.transcribe(audioArray: samples, decodeOptions: opts) }),
+              !Task.isCancelled,
+              let shown = partial.feed(gen: gen, raw: r.map(\.text).joined(separator: " "), duration: duration, rms: rms) else { return }
+        emit.yield(.partial([lang: Hypothesis(text: shown, confidence: 0.5)]))
+    }
+
     private func recognize(_ job: Job, kit: WhisperKit, langs: [Lang]) async {
+        // Eine laufende Zwischenerkennung zuerst beenden (dasselbe Modell, höchstens 5 s), und neue erst danach zulassen.
+        partial.finalStarted()
+        await partial.waitForTask()
+        defer { partial.finalEnded() }
         let duration = Double(job.samples.count) / Resampler16k.rate
         let rms = job.samples.isEmpty ? 0 : (job.samples.reduce(0) { $0 + $1 * $1 } / Float(job.samples.count)).squareRoot()
         // Klick/Husten/Stille: gar nicht erst dekodieren (Akku, Halluzinationen).
@@ -380,6 +426,7 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
             let h = Hypothesis(text: text, confidence: conf)
             failures = 0
             lastLang = lang
+            partial.lastLang = lang
             emit.yield(.utterance([lang: h]))
         } catch {
             log.error("transcribe failed: \(error.localizedDescription, privacy: .public)")
@@ -389,6 +436,44 @@ final class WhisperSpeechEngine: SpeechEngine, @unchecked Sendable {
                 emit.yield(.failed("Whisper: " + error.localizedDescription))
             }
         }
+    }
+}
+
+/// Gemeinsamer Zustand der Zwischenerkennung (Audio-Queue, Zwischen-Task und Worker greifen darauf zu).
+final class PartialState: @unchecked Sendable {
+    private let lock = NSLock()
+    private var gen = 0
+    private var isBusy = false
+    private var running = false
+    private var task: Task<Void, Never>?
+    private var stabilizer = PartialStabilizer()
+    private var last: Lang?
+
+    var busy: Bool { lock.withLock { isBusy } }
+    var finalRunning: Bool { lock.withLock { running } }
+    var lastLang: Lang? {
+        get { lock.withLock { last } }
+        set { lock.withLock { last = newValue } }
+    }
+
+    /// Neue Äußerung: alter Zustand verwerfen, späte Ergebnisse der vorigen werden ignoriert.
+    func reset() { lock.withLock { gen += 1; stabilizer = PartialStabilizer() } }
+    /// Äußerung zu Ende (das Endergebnis folgt): späte Teiltexte werden ignoriert.
+    func invalidate() { lock.withLock { gen += 1; stabilizer = PartialStabilizer() } }
+    func begin() -> Int { lock.withLock { isBusy = true; return gen } }
+    func end(_ g: Int) { lock.withLock { isBusy = false } }
+    func setTask(_ t: Task<Void, Never>) { lock.withLock { task = t } }
+    func finalStarted() { lock.withLock { running = true } }
+    func finalEnded() { lock.withLock { running = false } }
+
+    func waitForTask() async {
+        let t = lock.withLock { task }
+        await t?.value
+    }
+
+    /// Nur wenn die Äußerung noch dieselbe ist und der stabile Teil länger wurde.
+    func feed(gen g: Int, raw: String, duration: Double, rms: Float) -> String? {
+        lock.withLock { g == gen ? stabilizer.feed(raw, duration: duration, rms: rms) : nil }
     }
 }
 
