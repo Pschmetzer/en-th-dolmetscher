@@ -1036,14 +1036,16 @@ struct QuickPhraseBar: View {
                     let ordered = list.filter(\.critical) + list.filter { !$0.critical }
                     ForEach(Array(ordered.enumerated()), id: \.offset) { _, ph in
                         let useTH = !Langs.hasEnglish && Langs.hasThai
-                        let text = useTH ? ph.th : ph.en
+                        let text: String = useTH ? ph.th : ph.en
+                        let altText: String = useTH ? ph.en : ph.th
+                        let tip: String = text + "\n" + altText   // einzeln gebildet: lange Ausdrücke bremsen den Typprüfer
                         Button { m.say(text, lang: useTH ? "th" : "en") } label: {
                             if ph.critical { Label(text, systemImage: "exclamationmark.triangle.fill") } else { Text(text) }
                         }
                             .lineLimit(1).frame(maxWidth: 260)
                             .buttonStyle(.bordered).tint(ph.critical ? .red : .accentColor)
                             .disabled(!m.engineReady || !(Langs.hasEnglish || Langs.hasThai))
-                            .help(text + "\n" + (useTH ? ph.en : ph.th))
+                            .help(tip)
                             .accessibilityLabel(ph.critical ? L.t("preset_critical") + ": " + text : text)
                             .accessibilityHint(L.t("preset_phrase_help"))
                     }
