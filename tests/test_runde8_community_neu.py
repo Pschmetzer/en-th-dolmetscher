@@ -17,7 +17,7 @@ NEW_TEMPLATES = ("bug-report.yml", "feature-request.yml", "phrase-review.yml")
 
 def test_community_dateien_vorhanden():
     for rel in (
-        ".github/pull_request_template.md",
+        ".github/PULL_REQUEST_TEMPLATE.md",
         "SECURITY.md",
         "CODE_OF_CONDUCT.md",
         "docs/MUTTERSPRACHLER.md",
@@ -45,7 +45,7 @@ def test_community_vorlage_frontmatter(name):
 
 
 def test_community_pr_vorlage_checkliste():
-    text = (ROOT / ".github" / "pull_request_template.md").read_text(encoding="utf-8")
+    text = (ROOT / ".github" / "PULL_REQUEST_TEMPLATE.md").read_text(encoding="utf-8")
     assert text.count("- [ ]") >= 5
     assert "CHANGELOG" in text and "DATENSCHUTZ" in text
 

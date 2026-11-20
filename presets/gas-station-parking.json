@@ -1,0 +1,117 @@
+{
+  "id": "gas-station-parking",
+  "names": {
+    "de": "Tankstelle / Parken",
+    "en": "Gas station / parking",
+    "th": "ปั๊มน้ำมัน / ที่จอดรถ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Tankstellen sind meist mit Bedienung: Sorte (Benzin 95 oder Diesel) und Menge oder Betrag sagen und prüfen, dass die Anzeige auf null steht. Trinkgeld ist nicht üblich. Bei Parkplätzen mit Schranke gibt es ein Ticket, das man nicht verlieren darf. Motorrad und Auto nie auf Gehwegen oder an roten und gelben Bordsteinen abstellen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Petrol stations are usually full-service: name the fuel type and the amount or the sum, and check that the display is at zero. Tipping is not customary. Car parks with a barrier give you a ticket that you must not lose. Never park a car or motorbike on pavements or at red and yellow kerbs. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "petrol station",
+      "th": "ปั๊มน้ำมัน"
+    },
+    {
+      "en": "petrol",
+      "th": "น้ำมันเบนซิน"
+    },
+    {
+      "en": "diesel",
+      "th": "ดีเซล"
+    },
+    {
+      "en": "full tank",
+      "th": "เต็มถัง"
+    },
+    {
+      "en": "parking",
+      "th": "ที่จอดรถ"
+    },
+    {
+      "en": "ticket",
+      "th": "บัตรจอดรถ"
+    },
+    {
+      "en": "barrier",
+      "th": "ไม้กั้น"
+    },
+    {
+      "en": "tyre",
+      "th": "ยางรถ"
+    },
+    {
+      "en": "air pump",
+      "th": "เติมลม"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please set the pump to zero before you start.",
+      "th": "ขอให้ตั้งหน้าปัดเป็นศูนย์ก่อนเริ่มเติม"
+    },
+    {
+      "en": "Fill it up, please.",
+      "th": "เติมเต็มถัง"
+    },
+    {
+      "en": "Petrol, please.",
+      "th": "ขอน้ำมันเบนซิน"
+    },
+    {
+      "en": "Diesel, please.",
+      "th": "ขอน้ำมันดีเซล"
+    },
+    {
+      "en": "Please fill up to this amount.",
+      "th": "ช่วยเติมตามจำนวนเงินนี้"
+    },
+    {
+      "en": "Is this the right fuel for my car?",
+      "th": "น้ำมันนี้ใช้กับรถคันนี้ได้ใช่ไหม"
+    },
+    {
+      "en": "Could you check the air in my tyres?",
+      "th": "ช่วยตรวจลมยางให้หน่อยได้ไหม"
+    },
+    {
+      "en": "I would like a receipt.",
+      "th": "ขอใบเสร็จ"
+    },
+    {
+      "en": "Can I pay by card?",
+      "th": "จ่ายด้วยบัตรได้ไหม"
+    },
+    {
+      "en": "Where is the toilet?",
+      "th": "ห้องน้ำอยู่ที่ไหน"
+    },
+    {
+      "en": "Is parking free here?",
+      "th": "จอดรถที่นี่ฟรีไหม"
+    },
+    {
+      "en": "How much is the parking per hour?",
+      "th": "ที่จอดรถชั่วโมงละเท่าไร"
+    },
+    {
+      "en": "I lost my parking ticket.",
+      "th": "ทำบัตรจอดรถหาย"
+    },
+    {
+      "en": "Is it allowed to park here?",
+      "th": "จอดรถตรงนี้ได้ไหม"
+    },
+    {
+      "en": "Please move your car.",
+      "th": "ช่วยเคลื่อนย้ายรถหน่อย"
+    }
+  ]
+}

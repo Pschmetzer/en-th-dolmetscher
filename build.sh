@@ -360,7 +360,11 @@ if [ "$INSTALL" = 1 ]; then
     fi
   fi
   mkdir -p "$HOME/Applications"
+  # Erst neben die alte App kopieren: bricht cp ab (Platte voll), bleibt die funktionierende App stehen.
+  NEWINSTALL="$HOME/Applications/.Dolmetscher.app.new"
+  rm -rf "$NEWINSTALL"
+  cp -R "$APP" "$NEWINSTALL" || { rm -rf "$NEWINSTALL"; echo "Kopieren fehlgeschlagen – die bisherige App bleibt unverändert."; exit 1; }
   rm -rf "$HOME/Applications/Dolmetscher.app"
-  cp -R "$APP" "$HOME/Applications/"
+  mv "$NEWINSTALL" "$HOME/Applications/Dolmetscher.app"
   echo "✓ installiert: ~/Applications/Dolmetscher.app"
 fi

@@ -1,0 +1,115 @@
+{
+  "id": "skin-clinic",
+  "names": {
+    "de": "Hautklinik / Sonnenbrand",
+    "en": "Skin clinic",
+    "th": "คลินิกผิวหนัง"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Hautärzte sind in Privatkliniken in Bangkok und Touristenorten gut erreichbar, Termine oft am selben Tag. Bei Ausschlag, Pilz, Verbrennungen oder Sonnenbrand die Symptome zeigen und Allergien nennen. Starke Schwellung im Gesicht oder Atemnot ist ein Notfall (Rettungsdienst 1669). Cremes nicht ohne Rat von anderen leihen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Dermatologists are easy to reach in private clinics in Bangkok and tourist areas, often with same-day appointments. For rashes, fungus, burns or sunburn show the symptoms and name your allergies. Severe facial swelling or trouble breathing is an emergency (ambulance 1669). Do not borrow creams from others. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "skin",
+      "th": "ผิวหนัง"
+    },
+    {
+      "en": "rash",
+      "th": "ผื่น"
+    },
+    {
+      "en": "itch",
+      "th": "คัน"
+    },
+    {
+      "en": "burn",
+      "th": "แผลไฟไหม้"
+    },
+    {
+      "en": "sunburn",
+      "th": "ผิวไหม้แดด"
+    },
+    {
+      "en": "fungus",
+      "th": "เชื้อรา"
+    },
+    {
+      "en": "ointment",
+      "th": "ยาทา"
+    },
+    {
+      "en": "acne",
+      "th": "สิว"
+    },
+    {
+      "en": "allergy",
+      "th": "ภูมิแพ้"
+    },
+    {
+      "en": "swelling",
+      "th": "บวม"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My face is swelling. I cannot breathe well.",
+      "th": "ใบหน้าบวม หายใจไม่ค่อยออก",
+      "critical": true
+    },
+    {
+      "en": "Please call an ambulance (1669).",
+      "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true
+    },
+    {
+      "en": "I have a rash and it itches.",
+      "th": "มีผื่นและคัน"
+    },
+    {
+      "en": "It started two days ago.",
+      "th": "เป็นมาสองวันแล้ว"
+    },
+    {
+      "en": "It is spreading.",
+      "th": "กำลังลามออกไป"
+    },
+    {
+      "en": "I think it is an allergy.",
+      "th": "คิดว่าเป็นภูมิแพ้"
+    },
+    {
+      "en": "I have a burn on my arm.",
+      "th": "มีแผลไฟไหม้ที่แขน"
+    },
+    {
+      "en": "I have a bad sunburn.",
+      "th": "ผิวไหม้แดดมาก"
+    },
+    {
+      "en": "I have an insect bite that is swollen.",
+      "th": "มีรอยแมลงกัดที่บวม"
+    },
+    {
+      "en": "I have a skin infection.",
+      "th": "ผิวหนังติดเชื้อ"
+    },
+    {
+      "en": "Do I need an ointment?",
+      "th": "ต้องใช้ยาทาไหม"
+    },
+    {
+      "en": "How often should I apply it?",
+      "th": "ควรทาบ่อยแค่ไหน"
+    },
+    {
+      "en": "Is it contagious?",
+      "th": "ติดต่อไหม"
+    },
+    {
+      "en": "Can I swim with this?",
+      "th": "ว่ายน้ำได้ไหม"
+    }
+  ]
+}

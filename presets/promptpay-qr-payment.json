@@ -1,0 +1,113 @@
+{
+  "id": "promptpay-qr-payment",
+  "names": {
+    "de": "QR-Zahlung / PromptPay",
+    "en": "QR payment / PromptPay",
+    "th": "จ่ายด้วยคิวอาร์ / พร้อมเพย์"
+  },
+  "style": "polite",
+  "note": {
+    "de": "In Thailand zahlt man fast überall mit QR-Code (PromptPay). Touristen können mit ausländischen Karten oft nur an größeren Läden zahlen; Thai-Banking-Apps brauchen ein thailändisches Konto. Vor dem Zahlen Betrag und Empfängername prüfen. Wer nur Bargeld hat, fragt nach einer anderen Zahlart. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "In Thailand you can pay by QR code (PromptPay) almost anywhere. Tourists with foreign cards can often only pay at larger shops; Thai banking apps need a Thai account. Check the amount and the recipient name before paying. If you only have cash, ask for another way to pay. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "QR code",
+      "th": "คิวอาร์โค้ด"
+    },
+    {
+      "en": "PromptPay",
+      "th": "พร้อมเพย์"
+    },
+    {
+      "en": "scan",
+      "th": "สแกน"
+    },
+    {
+      "en": "transfer",
+      "th": "โอนเงิน"
+    },
+    {
+      "en": "cash",
+      "th": "เงินสด"
+    },
+    {
+      "en": "card",
+      "th": "บัตร"
+    },
+    {
+      "en": "amount",
+      "th": "จำนวนเงิน"
+    },
+    {
+      "en": "confirm",
+      "th": "ยืนยัน"
+    },
+    {
+      "en": "slip",
+      "th": "สลิป"
+    },
+    {
+      "en": "wallet",
+      "th": "กระเป๋าเงินอิเล็กทรอนิกส์"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Can I pay by QR code?",
+      "th": "จ่ายด้วยคิวอาร์โค้ดได้ไหม"
+    },
+    {
+      "en": "Can I pay by card?",
+      "th": "จ่ายด้วยบัตรได้ไหม"
+    },
+    {
+      "en": "I only have cash.",
+      "th": "มีแต่เงินสด"
+    },
+    {
+      "en": "Please show me the QR code.",
+      "th": "ช่วยแสดงคิวอาร์โค้ดหน่อย"
+    },
+    {
+      "en": "Is the amount correct?",
+      "th": "จำนวนเงินถูกต้องไหม"
+    },
+    {
+      "en": "Is this the name of the shop?",
+      "th": "นี่คือชื่อร้านใช่ไหม"
+    },
+    {
+      "en": "The payment did not go through.",
+      "th": "การชำระเงินไม่สำเร็จ"
+    },
+    {
+      "en": "Did you receive the money?",
+      "th": "ได้รับเงินแล้วใช่ไหม"
+    },
+    {
+      "en": "Please check on your phone.",
+      "th": "ช่วยตรวจในโทรศัพท์หน่อย"
+    },
+    {
+      "en": "May I have a payment slip?",
+      "th": "ขอสลิปการชำระเงินได้ไหม"
+    },
+    {
+      "en": "Please do not charge twice.",
+      "th": "ช่วยอย่าเก็บเงินซ้ำ"
+    },
+    {
+      "en": "Is there a fee for paying by card?",
+      "th": "จ่ายด้วยบัตรมีค่าธรรมเนียมไหม"
+    },
+    {
+      "en": "I will pay in cash instead.",
+      "th": "จะจ่ายเป็นเงินสดแทน"
+    },
+    {
+      "en": "Where is the nearest ATM?",
+      "th": "ตู้เอทีเอ็มที่ใกล้ที่สุดอยู่ที่ไหน"
+    }
+  ]
+}

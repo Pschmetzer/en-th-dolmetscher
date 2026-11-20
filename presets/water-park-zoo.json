@@ -1,0 +1,120 @@
+{
+  "id": "water-park-zoo",
+  "names": {
+    "de": "Wasserpark / Zoo",
+    "en": "Water park / zoo",
+    "th": "สวนน้ำ / สวนสัตว์"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Eintrittspreise für Ausländer sind oft höher; Kinder unter einer bestimmten Körpergröße zahlen weniger oder nichts. Sonnenschutz, Wechselkleidung und Wasser mitnehmen. Tiere nicht füttern, wenn nicht ausdrücklich erlaubt. Wertsachen in ein Schließfach, Kinder an Rutschen beaufsichtigen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Entrance prices for foreigners are often higher; children below a certain height pay less or nothing. Bring sun protection, a change of clothes and water. Do not feed the animals unless clearly allowed. Put valuables in a locker and supervise children at slides. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "water park",
+      "th": "สวนน้ำ"
+    },
+    {
+      "en": "zoo",
+      "th": "สวนสัตว์"
+    },
+    {
+      "en": "ticket",
+      "th": "ตั๋ว"
+    },
+    {
+      "en": "locker",
+      "th": "ตู้ล็อกเกอร์"
+    },
+    {
+      "en": "slide",
+      "th": "สไลเดอร์"
+    },
+    {
+      "en": "life jacket",
+      "th": "เสื้อชูชีพ"
+    },
+    {
+      "en": "towel",
+      "th": "ผ้าเช็ดตัว"
+    },
+    {
+      "en": "feeding time",
+      "th": "เวลาให้อาหาร"
+    },
+    {
+      "en": "lost and found",
+      "th": "แจ้งของหาย"
+    },
+    {
+      "en": "first aid",
+      "th": "ปฐมพยาบาล"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My child is missing.",
+      "th": "ลูกหายไป",
+      "critical": true
+    },
+    {
+      "en": "Someone is hurt. Please call a doctor.",
+      "th": "มีคนบาดเจ็บ ช่วยเรียกหมอด้วย",
+      "critical": true
+    },
+    {
+      "en": "Where is the first aid room?",
+      "th": "ห้องปฐมพยาบาลอยู่ที่ไหน",
+      "critical": true
+    },
+    {
+      "en": "How much is a ticket for an adult?",
+      "th": "ตั๋วผู้ใหญ่ราคาเท่าไร"
+    },
+    {
+      "en": "How much is a ticket for a child?",
+      "th": "ตั๋วเด็กราคาเท่าไร"
+    },
+    {
+      "en": "Is there a price for foreigners?",
+      "th": "มีราคาสำหรับชาวต่างชาติไหม"
+    },
+    {
+      "en": "What time does it close?",
+      "th": "ปิดกี่โมง"
+    },
+    {
+      "en": "Where can I rent a locker?",
+      "th": "เช่าตู้ล็อกเกอร์ได้ที่ไหน"
+    },
+    {
+      "en": "Is there a life jacket for my child?",
+      "th": "มีเสื้อชูชีพสำหรับเด็กไหม"
+    },
+    {
+      "en": "Is this slide safe for children?",
+      "th": "สไลเดอร์นี้ปลอดภัยสำหรับเด็กไหม"
+    },
+    {
+      "en": "Can we bring our own food?",
+      "th": "นำอาหารมาเองได้ไหม"
+    },
+    {
+      "en": "Can I feed the animals?",
+      "th": "ให้อาหารสัตว์ได้ไหม"
+    },
+    {
+      "en": "When is the feeding time?",
+      "th": "ให้อาหารสัตว์กี่โมง"
+    },
+    {
+      "en": "Where is the lost and found?",
+      "th": "แจ้งของหายที่ไหน"
+    },
+    {
+      "en": "Where is the toilet?",
+      "th": "ห้องน้ำอยู่ที่ไหน"
+    }
+  ]
+}

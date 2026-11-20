@@ -9,7 +9,7 @@ A profile is created once by reading 8 sentences aloud (~1 minute). It stores
 Profiles are biometric data. They stay on this Mac in
 ~/Library/Application Support/Dolmetscher/profiles/ (or $DOLMETSCHER_HOME/profiles) and never leave it.
 """
-import contextlib, datetime, fcntl, hashlib, json, os, re, shutil, sys, threading, unicodedata
+import contextlib, datetime, fcntl, hashlib, json, os, re, shutil, sys, threading, time, unicodedata
 import urllib.request
 from collections import Counter
 import numpy as np
@@ -26,6 +26,11 @@ ENV_MODEL_FILE = "DOLMETSCHER_SPEAKER_MODEL"
 ENV_MODEL_URL = "DOLMETSCHER_SPEAKER_MODEL_URL"
 DOWNLOAD_TIMEOUT = 30          # Sekunden je Socket-Operation
 DOWNLOAD_CHUNK = 1 << 20
+MODEL_MAX_BYTES = 200 << 20    # Abbruch weit über der erwarteten Größe (~26 MB): kein endloser Strom
+LOCK_TIMEOUT_S = 10.0          # flock-Wartezeit, danach klare Fehlermeldung statt Einfrieren
+BAD_KEEP_DAYS = 7              # Quarantäne-Dateien (*.bad, Stimmabdrücke) verfallen nach so vielen Tagen
+BAD_KEEP_MAX = 5               # ... und höchstens so viele je Verzeichnis
+TMP_MAX_AGE_S = 3600           # Reste abgebrochener Schreibvorgänge (*.tmp)
 
 SCHEMA_VERSION = 2             # fehlendes Feld in der Datei = Version 1
 EMBED_MODEL_ID = "wespeaker_en_voxceleb_resnet34"
@@ -88,6 +93,7 @@ CORRUPT = []                   # Meldungen über Quarantäne/Lesefehler seit Sta
 _THREAD_LOCK = threading.RLock()
 _depth = [0]
 _lockfd = [None]
+_CLEANED = [False]
 
 
 def _nfc(s):
@@ -109,6 +115,50 @@ def _ensure_dir():
         os.chmod(PROFILE_DIR, 0o700)
 
 
+def _flock(fd, timeout=None):
+    """Exklusive Sperre mit Wartegrenze: ein hängender CLI-Prozess friert den Engine-Thread nicht ein."""
+    end = time.monotonic() + (LOCK_TIMEOUT_S if timeout is None else timeout)
+    while True:
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            return
+        except BlockingIOError:
+            if time.monotonic() >= end:
+                raise TimeoutError("profile store is locked by another process") from None
+            time.sleep(0.05)
+
+
+def cleanup_stale(now=None):
+    """Aufräumen: Quarantäne (*.bad) nach BAD_KEEP_DAYS Tagen bzw. über BAD_KEEP_MAX Stück, übrig gebliebene *.tmp
+    älter als TMP_MAX_AGE_S. -> Anzahl gelöschter Dateien. Stimmabdrücke sollen nicht ewig liegen bleiben."""
+    now = time.time() if now is None else now
+    try:
+        names = os.listdir(PROFILE_DIR)
+    except OSError:
+        return 0
+    n = 0
+    bad = []
+    for f in names:
+        path = os.path.join(PROFILE_DIR, f)
+        try:
+            mt = os.stat(path).st_mtime
+        except OSError:
+            continue
+        if f.endswith(".tmp") and now - mt > TMP_MAX_AGE_S:
+            with contextlib.suppress(OSError):
+                os.remove(path)
+                n += 1
+        elif f.endswith(".bad"):
+            bad.append((mt, path))
+    bad.sort(reverse=True)                                  # neueste zuerst
+    for i, (mt, path) in enumerate(bad):
+        if i >= BAD_KEEP_MAX or now - mt > BAD_KEEP_DAYS * 86400:
+            with contextlib.suppress(OSError):
+                os.remove(path)
+                n += 1
+    return n
+
+
 @contextlib.contextmanager
 def _locked():
     """Prozessübergreifende Sperre (CLI + Engine) plus Thread-Sperre; wiederbetretbar."""
@@ -117,11 +167,15 @@ def _locked():
             _ensure_dir()
             fd = os.open(os.path.join(PROFILE_DIR, ".lock"), os.O_RDWR | os.O_CREAT, 0o600)
             try:
-                fcntl.flock(fd, fcntl.LOCK_EX)
+                _flock(fd)
             except BaseException:
                 os.close(fd)
                 raise
             _lockfd[0] = fd
+            if not _CLEANED[0]:                       # einmal je Prozess alte .bad/.tmp-Dateien aufräumen
+                _CLEANED[0] = True
+                with contextlib.suppress(Exception):
+                    cleanup_stale()
         _depth[0] += 1
         try:
             yield
@@ -406,13 +460,19 @@ def _sha256_file(path):
 
 def _download(url, tmp):
     """Streamt in Chunks auf die Platte und hasht dabei (kein ganzes Modell im RAM)."""
+    if not url.lower().startswith(("https://", "file://")):
+        raise ValueError("only https:// (or file://) model sources are allowed")     # kein Klartext-http
     h = hashlib.sha256()
     req = urllib.request.Request(url, headers={"User-Agent": "dolmetscher"})
+    total = 0
     with urllib.request.urlopen(req, timeout=DOWNLOAD_TIMEOUT) as r, open(tmp, "wb") as out:
         while True:
             chunk = r.read(DOWNLOAD_CHUNK)
             if not chunk:
                 break
+            total += len(chunk)
+            if total > MODEL_MAX_BYTES:
+                raise RuntimeError("download larger than expected")
             h.update(chunk)
             out.write(chunk)
         out.flush()
@@ -455,7 +515,7 @@ def ensure_model():
     mdir = os.path.dirname(MODEL_PATH)
     os.makedirs(mdir, exist_ok=True)
     with open(os.path.join(mdir, ".download.lock"), "w") as lk:
-        fcntl.flock(lk, fcntl.LOCK_EX)                      # nur ein Prozess lädt/importiert gleichzeitig
+        _flock(lk, 600)                                     # nur ein Prozess lädt gleichzeitig (max. 10 min)
         if os.path.exists(MODEL_PATH) and _model_ok():
             return MODEL_PATH
         base = os.path.basename(MODEL_PATH)
@@ -478,6 +538,7 @@ def ensure_model():
                 if digest != MODEL_SHA256:
                     raise RuntimeError("checksum mismatch")
                 os.replace(tmp, MODEL_PATH)
+                _model_ok()                                 # Stempel gleich mitschreiben (kein erneutes Hashen)
                 return MODEL_PATH
             except Exception as e:                          # nächste Quelle probieren
                 errors.append("%s: %s" % (src, e))

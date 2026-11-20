@@ -1,0 +1,113 @@
+{
+  "id": "mosque-visit",
+  "names": {
+    "de": "Moschee und Gebetsraum",
+    "en": "Mosque and prayer room",
+    "th": "มัสยิดและห้องละหมาด"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Im Süden Thailands (Pattani, Yala, Satun, Krabi) und in vielen Städten leben viele Muslime. Moscheen sind für Besucher meist offen, aber nicht zu den Gebetszeiten; Schultern, Arme und Beine bedecken, Frauen tragen ein Kopftuch. Schuhe vor dem Betreten ausziehen. Vor dem Fotografieren fragen. Halal-Essen erkennt man am Schild und am Namen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Many Muslims live in southern Thailand (Pattani, Yala, Satun, Krabi) and in many cities. Mosques are usually open to visitors, but not during prayer times; cover shoulders, arms and legs, and women wear a headscarf. Take your shoes off before entering. Ask before photographing. Halal food is recognised by the sign and the name. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "mosque",
+      "th": "มัสยิด"
+    },
+    {
+      "en": "prayer",
+      "th": "ละหมาด"
+    },
+    {
+      "en": "prayer room",
+      "th": "ห้องละหมาด"
+    },
+    {
+      "en": "halal",
+      "th": "ฮาลาล"
+    },
+    {
+      "en": "headscarf",
+      "th": "ผ้าคลุมผม"
+    },
+    {
+      "en": "shoes",
+      "th": "รองเท้า"
+    },
+    {
+      "en": "Friday prayer",
+      "th": "ละหมาดวันศุกร์"
+    },
+    {
+      "en": "Ramadan",
+      "th": "รอมฎอน"
+    },
+    {
+      "en": "fasting",
+      "th": "ถือศีลอด"
+    },
+    {
+      "en": "imam",
+      "th": "อิหม่าม"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Is it all right to enter?",
+      "th": "เข้าไปได้ไหม"
+    },
+    {
+      "en": "Can I visit the mosque now?",
+      "th": "ตอนนี้เข้าชมมัสยิดได้ไหม"
+    },
+    {
+      "en": "When is the next prayer?",
+      "th": "ละหมาดครั้งต่อไปกี่โมง"
+    },
+    {
+      "en": "Where do I take off my shoes?",
+      "th": "ถอดรองเท้าได้ที่ไหน"
+    },
+    {
+      "en": "Do I need to cover my head?",
+      "th": "ต้องคลุมศีรษะไหม"
+    },
+    {
+      "en": "Do you have a scarf I can borrow?",
+      "th": "มีผ้าคลุมให้ยืมไหม"
+    },
+    {
+      "en": "Is my clothing appropriate?",
+      "th": "การแต่งกายของเราเหมาะสมไหม"
+    },
+    {
+      "en": "May I take photos?",
+      "th": "ถ่ายรูปได้ไหม"
+    },
+    {
+      "en": "Where can I wash my hands and feet?",
+      "th": "ล้างมือและเท้าได้ที่ไหน"
+    },
+    {
+      "en": "Where is a prayer room?",
+      "th": "ห้องละหมาดอยู่ที่ไหน"
+    },
+    {
+      "en": "Is this food halal?",
+      "th": "อาหารนี้ฮาลาลไหม"
+    },
+    {
+      "en": "Does this contain pork?",
+      "th": "อาหารนี้มีเนื้อหมูไหม"
+    },
+    {
+      "en": "Is there a halal restaurant nearby?",
+      "th": "แถวนี้มีร้านอาหารฮาลาลไหม"
+    },
+    {
+      "en": "Thank you for welcoming us.",
+      "th": "ขอบคุณที่ต้อนรับ"
+    }
+  ]
+}

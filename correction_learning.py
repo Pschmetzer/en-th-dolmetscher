@@ -6,9 +6,14 @@ import re
 
 _THAI = re.compile(r"[฀-๿]")
 _NUM = re.compile(r"\d")
-_UNITS = {"kg", "g", "mg", "km", "m", "cm", "mm", "l", "ml", "kb", "mb", "gb", "tb", "hz", "khz",
-          "mhz", "ghz", "w", "kw", "v", "a", "s", "h", "min", "sec", "am", "pm", "usd", "eur",
-          "thb", "baht", "บาท", "กก", "กม"}
+_UNITS = {"kg", "mg", "km", "cm", "mm", "ml", "kb", "mb", "gb", "tb", "hz", "khz", "mhz", "ghz", "kw",
+          "min", "sec", "usd", "eur", "thb", "baht", "บาท", "กก", "กม"}      # Kürzere stehen schon unter len < 3
+# Funktionswörter und Höflichkeits-/Satzpartikel sind als persönliches Vokabular wertlos
+_STOP = {"the", "and", "you", "for", "are", "was", "but", "not", "with", "that", "this", "have", "from", "they",
+         "will", "would", "could", "should", "your", "what", "when", "where", "who", "how", "can", "yes", "please",
+         "thank", "thanks", "just", "very", "also", "then", "than", "there", "here", "some", "any", "all",
+         "ครับ", "ค่ะ", "คะ", "นะ", "นะคะ", "นะครับ", "ไม่", "ใช่", "และ", "หรือ", "ที่", "ของ", "ได้", "จะ", "แล้ว",
+         "มี", "เป็น", "ก็", "ด้วย", "จ้า", "จ้ะ", "สิ", "ละ", "เลย", "อ่ะ", "เหรอ", "ไหม", "มั้ย"}
 # Wörter aller Schriften mit Leerzeichen (Latein mit Akzenten, Kyrillisch, Arabisch, Devanagari, Hangul …)
 _WORD = re.compile(r"[^\W\d_][\w'’\-]*|\d[\d.,:]*\w*", re.U)
 # Han/Kana ohne Leerzeichen: zeichenweise vergleichen, geänderte Strecken zusammenfassen
@@ -16,6 +21,7 @@ _CJK = re.compile(r"[぀-ヿ㐀-鿿]")
 # Sprachen mit Großschreibung aller Substantive: Großbuchstabe mitten im Satz sagt dort nichts über Eigennamen
 _CAPITAL_NOUNS = {"de", "lb"}
 MAX_SUGGEST = 8
+MAX_FALLBACK_RUN = 15      # längster Thai-Lauf, der ohne Tokenizer noch als „Wort“ gilt
 
 
 def _thai_tokens(text):
@@ -24,7 +30,8 @@ def _thai_tokens(text):
         from pythainlp.tokenize import word_tokenize
         toks = word_tokenize(text, keep_whitespace=False)
     except Exception:
-        toks = re.findall(r"[฀-๿]+|[A-Za-z0-9]+", text)
+        # Ohne Wörterbuch ist ein langer Thai-Lauf ein ganzer Satzteil, kein Wort: nicht als Vokabel vorschlagen
+        toks = [t for t in re.findall(r"[฀-๿]+|[A-Za-z0-9]+", text) if len(t) <= MAX_FALLBACK_RUN]
     return [t for t in toks if t.strip()]
 
 
@@ -40,9 +47,9 @@ def tokenize(text, lang):
     return _WORD.findall(text or "")
 
 
-def _skip(tok, sentence_start):
+def _skip(tok):
     low = tok.lower()
-    if _NUM.search(tok) or low in _UNITS:
+    if _NUM.search(tok) or low in _UNITS or low in _STOP:
         return True
     if _THAI.search(tok):
         return len(tok) < 2                      # einzelne Zeichen sind kein Wort
@@ -113,7 +120,7 @@ def suggest_vocab(old, new, lang="en", limit=MAX_SUGGEST):
             continue
         for j in range(j1, j2):
             tok = new_t[j]
-            if tok.lower() in old_low or tok.lower() in seen or _skip(tok, j == 0):
+            if tok.lower() in old_low or tok.lower() in seen or _skip(tok):
                 continue
             seen.add(tok.lower())
             out.append(tok)

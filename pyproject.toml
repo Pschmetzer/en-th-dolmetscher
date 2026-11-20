@@ -26,7 +26,9 @@ testpaths = ["tests"]
 # pytest-timeout: kein Test darf länger als 60 s laufen (längster heute ~4 s); hängende Threads brechen ab,
 # statt den CI-Runner bis zu dessen Limit zu blockieren. Einzelne Tests heben das per @pytest.mark.timeout an.
 timeout = 60
-addopts = "--strict-markers"
+addopts = "--strict-markers -ra"
+# ein als erwartet fehlschlagend markierter Test, der plötzlich besteht, soll auffallen
+xfail_strict = true
 markers = [
     "macos: braucht macOS-Werkzeuge (say, swiftc, Apple-Silicon-uv); läuft in CI im macOS-Job (pytest -m macos)",
 ]

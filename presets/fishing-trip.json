@@ -1,0 +1,116 @@
+{
+  "id": "fishing-trip",
+  "names": {
+    "de": "Angeln / Fischerboot",
+    "en": "Fishing trip",
+    "th": "ตกปลา"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Angelausflüge werden als Halbtages- oder Ganztagestouren angeboten; Köder und Ausrüstung sind meist inbegriffen. Gegen Seekrankheit vorher eine Tablette nehmen, Sonnenschutz und Hut mitbringen. Rettungswesten sind Pflicht. Den gefangenen Fisch kann die Küche oft zubereiten; vorher nach Fangbeschränkungen fragen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Fishing trips run as half-day or full-day tours; bait and gear are usually included. Take a seasickness tablet beforehand and bring sun protection and a hat. Life jackets are compulsory. The kitchen can often cook your catch; ask about catch limits first. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "fishing",
+      "th": "ตกปลา"
+    },
+    {
+      "en": "rod",
+      "th": "คันเบ็ด"
+    },
+    {
+      "en": "bait",
+      "th": "เหยื่อ"
+    },
+    {
+      "en": "boat",
+      "th": "เรือ"
+    },
+    {
+      "en": "life jacket",
+      "th": "เสื้อชูชีพ"
+    },
+    {
+      "en": "seasick",
+      "th": "เมาเรือ"
+    },
+    {
+      "en": "catch",
+      "th": "ปลาที่ตกได้"
+    },
+    {
+      "en": "hook",
+      "th": "ตะขอเบ็ด"
+    },
+    {
+      "en": "net",
+      "th": "แห"
+    },
+    {
+      "en": "captain",
+      "th": "กัปตัน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Someone has fallen into the water.",
+      "th": "มีคนตกน้ำ",
+      "critical": true
+    },
+    {
+      "en": "I cut myself with a hook.",
+      "th": "ถูกตะขอเบ็ดบาด",
+      "critical": true
+    },
+    {
+      "en": "Please give me a life jacket.",
+      "th": "ขอเสื้อชูชีพ",
+      "critical": true
+    },
+    {
+      "en": "I feel seasick.",
+      "th": "เมาเรือ"
+    },
+    {
+      "en": "Do you have a tablet for seasickness?",
+      "th": "มียาแก้เมาเรือไหม"
+    },
+    {
+      "en": "How long is the trip?",
+      "th": "ทริปนี้ใช้เวลานานเท่าไร"
+    },
+    {
+      "en": "Are the rod and bait included?",
+      "th": "รวมคันเบ็ดและเหยื่อไหม"
+    },
+    {
+      "en": "How much is the trip per person?",
+      "th": "ทริปราคาคนละเท่าไร"
+    },
+    {
+      "en": "What kind of fish can we catch?",
+      "th": "จะตกปลาอะไรได้บ้าง"
+    },
+    {
+      "en": "Can you show me how to use the rod?",
+      "th": "ช่วยสอนใช้คันเบ็ดหน่อยได้ไหม"
+    },
+    {
+      "en": "I caught a fish!",
+      "th": "ตกปลาได้แล้ว"
+    },
+    {
+      "en": "Can the kitchen cook the fish?",
+      "th": "ครัวช่วยปรุงปลาให้ได้ไหม"
+    },
+    {
+      "en": "Please take me back to shore.",
+      "th": "ช่วยพากลับเข้าฝั่งด้วย"
+    },
+    {
+      "en": "Is the sea rough today?",
+      "th": "วันนี้ทะเลมีคลื่นแรงไหม"
+    }
+  ]
+}

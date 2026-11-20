@@ -1,0 +1,116 @@
+{
+  "id": "sexual-health-clinic",
+  "names": {
+    "de": "Klinik für sexuelle Gesundheit",
+    "en": "Sexual health clinic",
+    "th": "คลินิกสุขภาพทางเพศ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Tests auf sexuell übertragbare Krankheiten sind in Privatkliniken und Krankenhäusern schnell, günstig und vertraulich möglich. Nach einem Risiko-Kontakt gibt es Notfallmedikamente (PEP), die möglichst innerhalb von zwei Tagen begonnen werden müssen. Kondome und Pille gibt es in Apotheken und Läden. Bei einem Übergriff Hilfe rufen: Polizei 191 oder Touristenpolizei 1155. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Tests for sexually transmitted infections are fast, cheap and confidential in private clinics and hospitals. After a risk contact there is emergency medication (PEP) that should be started within two days. Condoms and the pill are sold in pharmacies and shops. After an assault call for help: police 191 or tourist police 1155. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "sexual health",
+      "th": "สุขภาพทางเพศ"
+    },
+    {
+      "en": "test",
+      "th": "ตรวจ"
+    },
+    {
+      "en": "infection",
+      "th": "การติดเชื้อ"
+    },
+    {
+      "en": "condom",
+      "th": "ถุงยางอนามัย"
+    },
+    {
+      "en": "contraceptive pill",
+      "th": "ยาคุมกำเนิด"
+    },
+    {
+      "en": "emergency contraception",
+      "th": "ยาคุมฉุกเฉิน"
+    },
+    {
+      "en": "confidential",
+      "th": "เป็นความลับ"
+    },
+    {
+      "en": "result",
+      "th": "ผลตรวจ"
+    },
+    {
+      "en": "doctor",
+      "th": "แพทย์"
+    },
+    {
+      "en": "clinic",
+      "th": "คลินิก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have been assaulted. Please call the police (191).",
+      "th": "ถูกทำร้ายทางเพศ ช่วยเรียกตำรวจ (191)",
+      "critical": true
+    },
+    {
+      "en": "Please call the tourist police (1155).",
+      "th": "ช่วยโทรหาตำรวจท่องเที่ยว 1155 ด้วย",
+      "critical": true
+    },
+    {
+      "en": "I need emergency medication today.",
+      "th": "ต้องการยาฉุกเฉินวันนี้",
+      "critical": true
+    },
+    {
+      "en": "I would like a test, please.",
+      "th": "ต้องการตรวจ"
+    },
+    {
+      "en": "Is the test confidential?",
+      "th": "การตรวจเป็นความลับไหม"
+    },
+    {
+      "en": "How long until I get the result?",
+      "th": "จะได้ผลตรวจเมื่อไร"
+    },
+    {
+      "en": "How much is the test?",
+      "th": "ค่าตรวจเท่าไร"
+    },
+    {
+      "en": "I need emergency contraception.",
+      "th": "ต้องการยาคุมฉุกเฉิน"
+    },
+    {
+      "en": "Do you have the contraceptive pill?",
+      "th": "มียาคุมกำเนิดไหม"
+    },
+    {
+      "en": "Do you have condoms?",
+      "th": "มีถุงยางอนามัยไหม"
+    },
+    {
+      "en": "I would like to talk to a female doctor.",
+      "th": "อยากพบแพทย์หญิง"
+    },
+    {
+      "en": "Do you have a doctor who speaks English?",
+      "th": "มีแพทย์ที่พูดภาษาอังกฤษไหม"
+    },
+    {
+      "en": "Can you give me a medical certificate?",
+      "th": "ขอใบรับรองแพทย์ได้ไหม"
+    },
+    {
+      "en": "Thank you for your help.",
+      "th": "ขอบคุณมากที่ช่วย"
+    }
+  ]
+}

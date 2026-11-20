@@ -1,0 +1,113 @@
+{
+  "id": "birthday-celebration",
+  "names": {
+    "de": "Geburtstag und Feier",
+    "en": "Birthday / celebration",
+    "th": "วันเกิดและงานเลี้ยง"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Thais feiern Geburtstage meist mit Essen, Torte und Geschenken; Glückwünsche sagt man auf Thai mit „Suk-san-wan-gerd“. Gäste bringen oft ein kleines Geschenk mit. Bei Einladungen höflich zusagen und nicht zu früh gehen. Das Geburtstagskind wird oft zum Essen eingeladen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Thais usually celebrate birthdays with food, cake and gifts. Guests often bring a small present. Accept invitations politely and do not leave too early. The birthday person is often treated to the meal. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "birthday",
+      "th": "วันเกิด"
+    },
+    {
+      "en": "cake",
+      "th": "เค้ก"
+    },
+    {
+      "en": "candle",
+      "th": "เทียน"
+    },
+    {
+      "en": "gift",
+      "th": "ของขวัญ"
+    },
+    {
+      "en": "party",
+      "th": "งานเลี้ยง"
+    },
+    {
+      "en": "guest",
+      "th": "แขก"
+    },
+    {
+      "en": "invitation",
+      "th": "คำเชิญ"
+    },
+    {
+      "en": "cheers",
+      "th": "ชนแก้ว"
+    },
+    {
+      "en": "wish",
+      "th": "อธิษฐาน"
+    },
+    {
+      "en": "celebrate",
+      "th": "ฉลอง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Happy birthday!",
+      "th": "สุขสันต์วันเกิด"
+    },
+    {
+      "en": "I wish you good health and happiness.",
+      "th": "ขอให้มีสุขภาพแข็งแรงและมีความสุข"
+    },
+    {
+      "en": "Thank you for inviting me.",
+      "th": "ขอบคุณที่เชิญ"
+    },
+    {
+      "en": "This is a small gift for you.",
+      "th": "นี่คือของขวัญเล็กๆ สำหรับคุณ"
+    },
+    {
+      "en": "How old are you today?",
+      "th": "วันนี้อายุเท่าไร"
+    },
+    {
+      "en": "Today is my birthday.",
+      "th": "วันนี้วันเกิด"
+    },
+    {
+      "en": "Could we have a cake with a candle?",
+      "th": "ขอเค้กพร้อมเทียนได้ไหม"
+    },
+    {
+      "en": "Could you take a photo of us?",
+      "th": "ช่วยถ่ายรูปให้หน่อยได้ไหม"
+    },
+    {
+      "en": "Cheers!",
+      "th": "ชนแก้ว"
+    },
+    {
+      "en": "The food is delicious.",
+      "th": "อาหารอร่อยมาก"
+    },
+    {
+      "en": "I am full. Thank you.",
+      "th": "อิ่มแล้ว ขอบคุณ"
+    },
+    {
+      "en": "May I pay for the meal?",
+      "th": "ขอเลี้ยงอาหารมื้อนี้ได้ไหม"
+    },
+    {
+      "en": "It was a wonderful evening.",
+      "th": "เป็นค่ำคืนที่ยอดเยี่ยม"
+    },
+    {
+      "en": "I must go home now.",
+      "th": "ต้องกลับบ้านแล้ว"
+    }
+  ]
+}

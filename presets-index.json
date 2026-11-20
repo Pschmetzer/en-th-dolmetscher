@@ -10,7 +10,8 @@
    },
    "phrases": 25,
    "critical": 11,
-   "reviewed": false
+   "reviewed": false,
+   "category": "health"
   },
   {
    "id": "police",
@@ -21,7 +22,8 @@
    },
    "phrases": 19,
    "critical": 9,
-   "reviewed": false
+   "reviewed": false,
+   "category": "emergency"
   },
   {
    "id": "lostchild",
@@ -32,7 +34,8 @@
    },
    "phrases": 19,
    "critical": 16,
-   "reviewed": false
+   "reviewed": false,
+   "category": "health"
   },
   {
    "id": "pharmacy",
@@ -43,7 +46,8 @@
    },
    "phrases": 21,
    "critical": 5,
-   "reviewed": false
+   "reviewed": false,
+   "category": "health"
   },
   {
    "id": "dentist",
@@ -54,7 +58,8 @@
    },
    "phrases": 19,
    "critical": 5,
-   "reviewed": false
+   "reviewed": false,
+   "category": "health"
   },
   {
    "id": "taxi",
@@ -65,7 +70,8 @@
    },
    "phrases": 20,
    "critical": 1,
-   "reviewed": false
+   "reviewed": false,
+   "category": "transport"
   },
   {
    "id": "places",
@@ -76,7 +82,8 @@
    },
    "phrases": 19,
    "critical": 0,
-   "reviewed": false
+   "reviewed": false,
+   "category": "general"
   },
   {
    "id": "airport",
@@ -87,7 +94,8 @@
    },
    "phrases": 18,
    "critical": 2,
-   "reviewed": false
+   "reviewed": false,
+   "category": "transport"
   },
   {
    "id": "transport",
@@ -98,7 +106,8 @@
    },
    "phrases": 20,
    "critical": 1,
-   "reviewed": false
+   "reviewed": false,
+   "category": "transport"
   },
   {
    "id": "travel",
@@ -109,7 +118,8 @@
    },
    "phrases": 18,
    "critical": 5,
-   "reviewed": false
+   "reviewed": false,
+   "category": "general"
   },
   {
    "id": "hotel",
@@ -120,7 +130,8 @@
    },
    "phrases": 19,
    "critical": 2,
-   "reviewed": false
+   "reviewed": false,
+   "category": "stay"
   },
   {
    "id": "restaurant",
@@ -131,7 +142,8 @@
    },
    "phrases": 30,
    "critical": 11,
-   "reviewed": false
+   "reviewed": false,
+   "category": "food"
   },
   {
    "id": "shopping",
@@ -142,7 +154,8 @@
    },
    "phrases": 18,
    "critical": 1,
-   "reviewed": false
+   "reviewed": false,
+   "category": "money"
   },
   {
    "id": "bank",
@@ -153,7 +166,8 @@
    },
    "phrases": 16,
    "critical": 3,
-   "reviewed": false
+   "reviewed": false,
+   "category": "money"
   },
   {
    "id": "answers",
@@ -164,7 +178,8 @@
    },
    "phrases": 19,
    "critical": 1,
-   "reviewed": false
+   "reviewed": false,
+   "category": "general"
   },
   {
    "id": "access",
@@ -175,7 +190,8 @@
    },
    "phrases": 19,
    "critical": 1,
-   "reviewed": false
+   "reviewed": false,
+   "category": "general"
   },
   {
    "id": "spa",
@@ -186,7 +202,8 @@
    },
    "phrases": 19,
    "critical": 5,
-   "reviewed": false
+   "reviewed": false,
+   "category": "health"
   },
   {
    "id": "temple",
@@ -197,7 +214,8 @@
    },
    "phrases": 18,
    "critical": 1,
-   "reviewed": false
+   "reviewed": false,
+   "category": "culture"
   },
   {
    "id": "island",
@@ -208,7 +226,8 @@
    },
    "phrases": 17,
    "critical": 3,
-   "reviewed": false
+   "reviewed": false,
+   "category": "leisure"
   },
   {
    "id": "scooter",
@@ -219,7 +238,8 @@
    },
    "phrases": 19,
    "critical": 3,
-   "reviewed": false
+   "reviewed": false,
+   "category": "transport"
   },
   {
    "id": "rental",
@@ -230,7 +250,8 @@
    },
    "phrases": 20,
    "critical": 1,
-   "reviewed": false
+   "reviewed": false,
+   "category": "transport"
   },
   {
    "id": "services",
@@ -241,7 +262,8 @@
    },
    "phrases": 17,
    "critical": 0,
-   "reviewed": false
+   "reviewed": false,
+   "category": "general"
   },
   {
    "id": "coworking",
@@ -252,7 +274,8 @@
    },
    "phrases": 20,
    "critical": 0,
-   "reviewed": false
+   "reviewed": false,
+   "category": "stay"
   },
   {
    "id": "office",
@@ -263,7 +286,8 @@
    },
    "phrases": 15,
    "critical": 1,
-   "reviewed": false
+   "reviewed": false,
+   "category": "general"
   },
   {
    "id": "adventure-park",
@@ -274,7 +298,8 @@
    },
    "phrases": 14,
    "critical": 3,
-   "reviewed": false
+   "reviewed": false,
+   "category": "leisure"
   },
   {
    "id": "animal-bite-rabies",
@@ -285,7 +310,8 @@
    },
    "phrases": 16,
    "critical": 7,
-   "reviewed": false
+   "reviewed": false,
+   "category": "health"
   },
   {
    "id": "atm-bank-card",
@@ -296,7 +322,8 @@
    },
    "phrases": 18,
    "critical": 5,
-   "reviewed": false
+   "reviewed": false,
+   "category": "money"
   },
   {
    "id": "baby",
@@ -307,7 +334,32 @@
    },
    "phrases": 18,
    "critical": 5,
-   "reviewed": false
+   "reviewed": false,
+   "category": "health"
+  },
+  {
+   "id": "babysitter-housekeeper",
+   "names": {
+    "de": "Babysitter / Haushaltshilfe",
+    "en": "Babysitter / housekeeper",
+    "th": "พี่เลี้ยงเด็ก / แม่บ้าน"
+   },
+   "phrases": 14,
+   "critical": 3,
+   "reviewed": false,
+   "category": "stay"
+  },
+  {
+   "id": "badminton-tennis",
+   "names": {
+    "de": "Badminton / Tennis",
+    "en": "Badminton / tennis",
+    "th": "แบดมินตัน / เทนนิส"
+   },
+   "phrases": 14,
+   "critical": 2,
+   "reviewed": false,
+   "category": "leisure"
   },
   {
    "id": "bakery-cafe",
@@ -318,7 +370,8 @@
    },
    "phrases": 17,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "food"
   },
   {
    "id": "bangkok-skytrain",
@@ -329,7 +382,8 @@
    },
    "phrases": 17,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "transport"
   },
   {
    "id": "beach",
@@ -340,7 +394,8 @@
    },
    "phrases": 18,
    "critical": 5,
-   "reviewed": false
+   "reviewed": false,
+   "category": "leisure"
   },
   {
    "id": "bicycle-rental",
@@ -351,7 +406,20 @@
    },
    "phrases": 17,
    "critical": 3,
-   "reviewed": false
+   "reviewed": false,
+   "category": "transport"
+  },
+  {
+   "id": "birthday-celebration",
+   "names": {
+    "de": "Geburtstag und Feier",
+    "en": "Birthday / celebration",
+    "th": "วันเกิดและงานเลี้ยง"
+   },
+   "phrases": 14,
+   "critical": 0,
+   "reviewed": false,
+   "category": "culture"
   },
   {
    "id": "border-crossing",
@@ -362,7 +430,8 @@
    },
    "phrases": 15,
    "critical": 3,
-   "reviewed": false
+   "reviewed": false,
+   "category": "transport"
   },
   {
    "id": "buddhist-ceremony",
@@ -373,7 +442,8 @@
    },
    "phrases": 20,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "culture"
   },
   {
    "id": "buffet-bbq",
@@ -384,7 +454,8 @@
    },
    "phrases": 14,
    "critical": 2,
-   "reviewed": false
+   "reviewed": false,
+   "category": "food"
   },
   {
    "id": "bus-train",
@@ -395,7 +466,8 @@
    },
    "phrases": 19,
    "critical": 3,
-   "reviewed": false
+   "reviewed": false,
+   "category": "transport"
   },
   {
    "id": "cannabis-vape",
@@ -406,7 +478,20 @@
    },
    "phrases": 15,
    "critical": 2,
-   "reviewed": false
+   "reviewed": false,
+   "category": "emergency"
+  },
+  {
+   "id": "car-accident",
+   "names": {
+    "de": "Autounfall / Versicherung",
+    "en": "Car accident / insurance",
+    "th": "อุบัติเหตุรถยนต์ / ประกัน"
+   },
+   "phrases": 14,
+   "critical": 5,
+   "reviewed": false,
+   "category": "emergency"
   },
   {
    "id": "car-rental",
@@ -417,7 +502,8 @@
    },
    "phrases": 18,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "transport"
   },
   {
    "id": "car-wash-repair",
@@ -428,7 +514,8 @@
    },
    "phrases": 18,
    "critical": 3,
-   "reviewed": false
+   "reviewed": false,
+   "category": "transport"
   },
   {
    "id": "chronic-conditions",
@@ -439,7 +526,8 @@
    },
    "phrases": 15,
    "critical": 5,
-   "reviewed": false
+   "reviewed": false,
+   "category": "health"
   },
   {
    "id": "cinema-concert",
@@ -450,7 +538,8 @@
    },
    "phrases": 18,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "leisure"
   },
   {
    "id": "convenience-store-7eleven",
@@ -461,7 +550,8 @@
    },
    "phrases": 17,
    "critical": 3,
-   "reviewed": false
+   "reviewed": false,
+   "category": "food"
   },
   {
    "id": "currency-exchange",
@@ -472,7 +562,8 @@
    },
    "phrases": 14,
    "critical": 0,
-   "reviewed": false
+   "reviewed": false,
+   "category": "money"
   },
   {
    "id": "customs-duty-free",
@@ -483,7 +574,8 @@
    },
    "phrases": 14,
    "critical": 0,
-   "reviewed": false
+   "reviewed": false,
+   "category": "money"
   },
   {
    "id": "dating-small-talk",
@@ -494,7 +586,8 @@
    },
    "phrases": 19,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "culture"
   },
   {
    "id": "diving",
@@ -505,7 +598,20 @@
    },
    "phrases": 16,
    "critical": 5,
-   "reviewed": false
+   "reviewed": false,
+   "category": "leisure"
+  },
+  {
+   "id": "earthquake-evacuation",
+   "names": {
+    "de": "Erdbeben / Evakuierung",
+    "en": "Earthquake / evacuation",
+    "th": "แผ่นดินไหว / อพยพ"
+   },
+   "phrases": 14,
+   "critical": 6,
+   "reviewed": false,
+   "category": "emergency"
   },
   {
    "id": "elephant-sanctuary",
@@ -516,7 +622,8 @@
    },
    "phrases": 18,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "leisure"
   },
   {
    "id": "emergency",
@@ -527,7 +634,8 @@
    },
    "phrases": 18,
    "critical": 10,
-   "reviewed": false
+   "reviewed": false,
+   "category": "emergency"
   },
   {
    "id": "ferry-boat",
@@ -538,7 +646,8 @@
    },
    "phrases": 18,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "transport"
   },
   {
    "id": "festival",
@@ -549,7 +658,20 @@
    },
    "phrases": 19,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "culture"
+  },
+  {
+   "id": "fishing-trip",
+   "names": {
+    "de": "Angeln / Fischerboot",
+    "en": "Fishing trip",
+    "th": "ตกปลา"
+   },
+   "phrases": 14,
+   "critical": 3,
+   "reviewed": false,
+   "category": "leisure"
   },
   {
    "id": "flight-delay-change",
@@ -560,7 +682,8 @@
    },
    "phrases": 16,
    "critical": 3,
-   "reviewed": false
+   "reviewed": false,
+   "category": "transport"
   },
   {
    "id": "floating-market",
@@ -571,7 +694,8 @@
    },
    "phrases": 16,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "food"
   },
   {
    "id": "food-allergy",
@@ -582,7 +706,8 @@
    },
    "phrases": 17,
    "critical": 9,
-   "reviewed": false
+   "reviewed": false,
+   "category": "health"
   },
   {
    "id": "food-delivery",
@@ -593,7 +718,32 @@
    },
    "phrases": 17,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "food"
+  },
+  {
+   "id": "funeral-condolence",
+   "names": {
+    "de": "Trauerfeier / Beileid",
+    "en": "Funeral / condolences",
+    "th": "งานศพ / แสดงความเสียใจ"
+   },
+   "phrases": 14,
+   "critical": 0,
+   "reviewed": false,
+   "category": "culture"
+  },
+  {
+   "id": "gas-station-parking",
+   "names": {
+    "de": "Tankstelle / Parken",
+    "en": "Gas station / parking",
+    "th": "ปั๊มน้ำมัน / ที่จอดรถ"
+   },
+   "phrases": 15,
+   "critical": 0,
+   "reviewed": false,
+   "category": "transport"
   },
   {
    "id": "golf",
@@ -604,7 +754,8 @@
    },
    "phrases": 16,
    "critical": 0,
-   "reviewed": false
+   "reviewed": false,
+   "category": "leisure"
   },
   {
    "id": "grab-ride-hailing",
@@ -615,7 +766,8 @@
    },
    "phrases": 17,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "transport"
   },
   {
    "id": "gym",
@@ -626,7 +778,8 @@
    },
    "phrases": 18,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "leisure"
   },
   {
    "id": "hair-beauty",
@@ -637,7 +790,8 @@
    },
    "phrases": 17,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "leisure"
   },
   {
    "id": "heat-health",
@@ -648,7 +802,8 @@
    },
    "phrases": 14,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "health"
   },
   {
    "id": "hiking",
@@ -659,7 +814,20 @@
    },
    "phrases": 18,
    "critical": 5,
-   "reviewed": false
+   "reviewed": false,
+   "category": "leisure"
+  },
+  {
+   "id": "home-repair",
+   "names": {
+    "de": "Reparatur zu Hause",
+    "en": "Home repair",
+    "th": "ซ่อมแซมบ้าน"
+   },
+   "phrases": 15,
+   "critical": 3,
+   "reviewed": false,
+   "category": "stay"
   },
   {
    "id": "hospital",
@@ -670,7 +838,8 @@
    },
    "phrases": 18,
    "critical": 6,
-   "reviewed": false
+   "reviewed": false,
+   "category": "health"
   },
   {
    "id": "hostel-dorm",
@@ -681,7 +850,8 @@
    },
    "phrases": 19,
    "critical": 5,
-   "reviewed": false
+   "reviewed": false,
+   "category": "stay"
   },
   {
    "id": "immigration-90day",
@@ -692,7 +862,8 @@
    },
    "phrases": 18,
    "critical": 3,
-   "reviewed": false
+   "reviewed": false,
+   "category": "stay"
   },
   {
    "id": "island-hopping",
@@ -703,7 +874,8 @@
    },
    "phrases": 18,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "leisure"
   },
   {
    "id": "jet-ski-rental",
@@ -714,7 +886,8 @@
    },
    "phrases": 16,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "leisure"
   },
   {
    "id": "karaoke",
@@ -725,7 +898,8 @@
    },
    "phrases": 15,
    "critical": 0,
-   "reviewed": false
+   "reviewed": false,
+   "category": "leisure"
   },
   {
    "id": "kayak-national-park",
@@ -736,7 +910,8 @@
    },
    "phrases": 15,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "leisure"
   },
   {
    "id": "kids",
@@ -747,7 +922,8 @@
    },
    "phrases": 16,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "health"
   },
   {
    "id": "kids-playground",
@@ -758,7 +934,8 @@
    },
    "phrases": 17,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "leisure"
   },
   {
    "id": "laundry-deposit",
@@ -769,7 +946,8 @@
    },
    "phrases": 20,
    "critical": 3,
-   "reviewed": false
+   "reviewed": false,
+   "category": "stay"
   },
   {
    "id": "laundry-repair",
@@ -780,7 +958,8 @@
    },
    "phrases": 19,
    "critical": 1,
-   "reviewed": false
+   "reviewed": false,
+   "category": "stay"
   },
   {
    "id": "lost-luggage",
@@ -791,7 +970,8 @@
    },
    "phrases": 15,
    "critical": 0,
-   "reviewed": false
+   "reviewed": false,
+   "category": "transport"
   },
   {
    "id": "lost-passport",
@@ -802,7 +982,8 @@
    },
    "phrases": 20,
    "critical": 5,
-   "reviewed": false
+   "reviewed": false,
+   "category": "emergency"
   },
   {
    "id": "lost-phone",
@@ -813,7 +994,8 @@
    },
    "phrases": 15,
    "critical": 5,
-   "reviewed": false
+   "reviewed": false,
+   "category": "emergency"
   },
   {
    "id": "market",
@@ -824,7 +1006,8 @@
    },
    "phrases": 17,
    "critical": 2,
-   "reviewed": false
+   "reviewed": false,
+   "category": "money"
   },
   {
    "id": "massage",
@@ -835,7 +1018,20 @@
    },
    "phrases": 19,
    "critical": 7,
-   "reviewed": false
+   "reviewed": false,
+   "category": "health"
+  },
+  {
+   "id": "mental-health-counseling",
+   "names": {
+    "de": "Seelische Gesundheit / Beratung",
+    "en": "Mental health / counselling",
+    "th": "สุขภาพจิต / การให้คำปรึกษา"
+   },
+   "phrases": 14,
+   "critical": 4,
+   "reviewed": false,
+   "category": "health"
   },
   {
    "id": "mobile-sim",
@@ -846,7 +1042,8 @@
    },
    "phrases": 18,
    "critical": 3,
-   "reviewed": false
+   "reviewed": false,
+   "category": "stay"
   },
   {
    "id": "monk",
@@ -857,7 +1054,8 @@
    },
    "phrases": 18,
    "critical": 3,
-   "reviewed": false
+   "reviewed": false,
+   "category": "culture"
   },
   {
    "id": "monsoon-flood-storm",
@@ -868,7 +1066,20 @@
    },
    "phrases": 16,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "emergency"
+  },
+  {
+   "id": "mosque-visit",
+   "names": {
+    "de": "Moschee und Gebetsraum",
+    "en": "Mosque and prayer room",
+    "th": "มัสยิดและห้องละหมาด"
+   },
+   "phrases": 14,
+   "critical": 0,
+   "reviewed": false,
+   "category": "culture"
   },
   {
    "id": "mosquito-dengue",
@@ -879,7 +1090,8 @@
    },
    "phrases": 14,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "health"
   },
   {
    "id": "motorbike-accident",
@@ -890,7 +1102,20 @@
    },
    "phrases": 19,
    "critical": 6,
-   "reviewed": false
+   "reviewed": false,
+   "category": "emergency"
+  },
+  {
+   "id": "motorcycle-taxi",
+   "names": {
+    "de": "Motorrad-Taxi",
+    "en": "Motorcycle taxi",
+    "th": "วินมอเตอร์ไซค์"
+   },
+   "phrases": 14,
+   "critical": 3,
+   "reviewed": false,
+   "category": "transport"
   },
   {
    "id": "muay-thai-gym",
@@ -901,7 +1126,8 @@
    },
    "phrases": 19,
    "critical": 5,
-   "reviewed": false
+   "reviewed": false,
+   "category": "leisure"
   },
   {
    "id": "night-market-bargain",
@@ -912,7 +1138,8 @@
    },
    "phrases": 20,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "food"
   },
   {
    "id": "nightlife",
@@ -923,7 +1150,8 @@
    },
    "phrases": 20,
    "critical": 6,
-   "reviewed": false
+   "reviewed": false,
+   "category": "leisure"
   },
   {
    "id": "nomad",
@@ -934,7 +1162,8 @@
    },
    "phrases": 16,
    "critical": 0,
-   "reviewed": false
+   "reviewed": false,
+   "category": "stay"
   },
   {
    "id": "optician-eye-care",
@@ -945,7 +1174,8 @@
    },
    "phrases": 14,
    "critical": 3,
-   "reviewed": false
+   "reviewed": false,
+   "category": "health"
   },
   {
    "id": "pets",
@@ -956,7 +1186,8 @@
    },
    "phrases": 18,
    "critical": 5,
-   "reviewed": false
+   "reviewed": false,
+   "category": "stay"
   },
   {
    "id": "pharmacy-otc",
@@ -967,7 +1198,8 @@
    },
    "phrases": 18,
    "critical": 5,
-   "reviewed": false
+   "reviewed": false,
+   "category": "health"
   },
   {
    "id": "photo",
@@ -978,7 +1210,20 @@
    },
    "phrases": 18,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "leisure"
+  },
+  {
+   "id": "physiotherapy-injury",
+   "names": {
+    "de": "Physiotherapie / Sportverletzung",
+    "en": "Physiotherapy / sports injury",
+    "th": "กายภาพบำบัด / บาดเจ็บจากกีฬา"
+   },
+   "phrases": 14,
+   "critical": 3,
+   "reviewed": false,
+   "category": "health"
   },
   {
    "id": "police-checkpoint",
@@ -989,7 +1234,8 @@
    },
    "phrases": 16,
    "critical": 2,
-   "reviewed": false
+   "reviewed": false,
+   "category": "emergency"
   },
   {
    "id": "post-office-parcel",
@@ -1000,7 +1246,20 @@
    },
    "phrases": 18,
    "critical": 3,
-   "reviewed": false
+   "reviewed": false,
+   "category": "stay"
+  },
+  {
+   "id": "promptpay-qr-payment",
+   "names": {
+    "de": "QR-Zahlung / PromptPay",
+    "en": "QR payment / PromptPay",
+    "th": "จ่ายด้วยคิวอาร์ / พร้อมเพย์"
+   },
+   "phrases": 14,
+   "critical": 0,
+   "reviewed": false,
+   "category": "money"
   },
   {
    "id": "rice-field-village",
@@ -1011,7 +1270,8 @@
    },
    "phrases": 19,
    "critical": 5,
-   "reviewed": false
+   "reviewed": false,
+   "category": "leisure"
   },
   {
    "id": "scams-overcharge",
@@ -1022,7 +1282,8 @@
    },
    "phrases": 18,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "emergency"
   },
   {
    "id": "school",
@@ -1033,7 +1294,32 @@
    },
    "phrases": 16,
    "critical": 3,
-   "reviewed": false
+   "reviewed": false,
+   "category": "general"
+  },
+  {
+   "id": "sexual-health-clinic",
+   "names": {
+    "de": "Klinik für sexuelle Gesundheit",
+    "en": "Sexual health clinic",
+    "th": "คลินิกสุขภาพทางเพศ"
+   },
+   "phrases": 14,
+   "critical": 3,
+   "reviewed": false,
+   "category": "health"
+  },
+  {
+   "id": "skin-clinic",
+   "names": {
+    "de": "Hautklinik / Sonnenbrand",
+    "en": "Skin clinic",
+    "th": "คลินิกผิวหนัง"
+   },
+   "phrases": 14,
+   "critical": 2,
+   "reviewed": false,
+   "category": "health"
   },
   {
    "id": "snorkel-boat-tour",
@@ -1044,7 +1330,8 @@
    },
    "phrases": 18,
    "critical": 6,
-   "reviewed": false
+   "reviewed": false,
+   "category": "leisure"
   },
   {
    "id": "souvenir-jewelry",
@@ -1055,7 +1342,20 @@
    },
    "phrases": 15,
    "critical": 1,
-   "reviewed": false
+   "reviewed": false,
+   "category": "money"
+  },
+  {
+   "id": "spirit-house-shrine",
+   "names": {
+    "de": "Geisterhaus / Schrein",
+    "en": "Spirit house / shrine",
+    "th": "ศาลพระภูมิ / ศาลเจ้า"
+   },
+   "phrases": 14,
+   "critical": 0,
+   "reviewed": false,
+   "category": "culture"
   },
   {
    "id": "sport",
@@ -1066,7 +1366,8 @@
    },
    "phrases": 17,
    "critical": 3,
-   "reviewed": false
+   "reviewed": false,
+   "category": "leisure"
   },
   {
    "id": "street-food",
@@ -1077,7 +1378,8 @@
    },
    "phrases": 20,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "food"
   },
   {
    "id": "tailor-custom",
@@ -1088,7 +1390,8 @@
    },
    "phrases": 18,
    "critical": 3,
-   "reviewed": false
+   "reviewed": false,
+   "category": "money"
   },
   {
    "id": "tax-refund",
@@ -1099,7 +1402,8 @@
    },
    "phrases": 17,
    "critical": 3,
-   "reviewed": false
+   "reviewed": false,
+   "category": "money"
   },
   {
    "id": "thai-cooking-class",
@@ -1110,7 +1414,20 @@
    },
    "phrases": 18,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "food"
+  },
+  {
+   "id": "thai-language-lesson",
+   "names": {
+    "de": "Thai-Unterricht",
+    "en": "Thai language lesson",
+    "th": "เรียนภาษาไทย"
+   },
+   "phrases": 14,
+   "critical": 0,
+   "reviewed": false,
+   "category": "culture"
   },
   {
    "id": "tm30-address-report",
@@ -1121,7 +1438,8 @@
    },
    "phrases": 14,
    "critical": 0,
-   "reviewed": false
+   "reviewed": false,
+   "category": "stay"
   },
   {
    "id": "travel-insurance-claim",
@@ -1132,7 +1450,8 @@
    },
    "phrases": 16,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "health"
   },
   {
    "id": "tuk-tuk-songthaew",
@@ -1143,7 +1462,8 @@
    },
    "phrases": 17,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "transport"
   },
   {
    "id": "vegan-vegetarian",
@@ -1154,7 +1474,8 @@
    },
    "phrases": 20,
    "critical": 8,
-   "reviewed": false
+   "reviewed": false,
+   "category": "food"
   },
   {
    "id": "visa",
@@ -1165,7 +1486,8 @@
    },
    "phrases": 18,
    "critical": 0,
-   "reviewed": false
+   "reviewed": false,
+   "category": "stay"
   },
   {
    "id": "visa-extension",
@@ -1176,7 +1498,32 @@
    },
    "phrases": 18,
    "critical": 3,
-   "reviewed": false
+   "reviewed": false,
+   "category": "stay"
+  },
+  {
+   "id": "volunteering",
+   "names": {
+    "de": "Freiwilligenarbeit",
+    "en": "Volunteering",
+    "th": "งานอาสาสมัคร"
+   },
+   "phrases": 14,
+   "critical": 0,
+   "reviewed": false,
+   "category": "general"
+  },
+  {
+   "id": "water-park-zoo",
+   "names": {
+    "de": "Wasserpark / Zoo",
+    "en": "Water park / zoo",
+    "th": "สวนน้ำ / สวนสัตว์"
+   },
+   "phrases": 15,
+   "critical": 3,
+   "reviewed": false,
+   "category": "leisure"
   },
   {
    "id": "wedding",
@@ -1187,7 +1534,8 @@
    },
    "phrases": 18,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "culture"
   },
   {
    "id": "wifi-coworking-cafe",
@@ -1198,7 +1546,8 @@
    },
    "phrases": 17,
    "critical": 3,
-   "reviewed": false
+   "reviewed": false,
+   "category": "stay"
   },
   {
    "id": "work",
@@ -1209,7 +1558,8 @@
    },
    "phrases": 17,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "general"
   },
   {
    "id": "yoga-retreat",
@@ -1220,7 +1570,8 @@
    },
    "phrases": 17,
    "critical": 4,
-   "reviewed": false
+   "reviewed": false,
+   "category": "health"
   }
  ]
 }

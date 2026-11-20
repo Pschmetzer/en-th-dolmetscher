@@ -5,7 +5,7 @@ PY ?= python3
 PYTEST_ARGS ?=
 IGNORE_ENV = --ignore=tests/test_env_logic_swift.py --ignore=tests/test_setup_env.py
 
-.PHONY: test test-mac test-web web-test lint check web presets-index
+.PHONY: test test-mac test-web web-test lint check web presets-index audit cov lock stats
 
 test:            ## alle Tests wie die CI-Linux-Jobs (ohne Marker macos)
 	$(PY) -m pytest -q -m "not macos" $(PYTEST_ARGS) tests
@@ -31,3 +31,18 @@ web:             ## Web-Version lokal: http://localhost:8000
 
 presets-index:   ## presets-index.json nach Aenderungen an presets/ neu erzeugen
 	$(PY) tools/make_presets_index.py
+
+stats:           ## Phrasenpakete: Abdeckung je Kategorie und je Paket
+	$(PY) tools/preset_stats.py --by-category
+	$(PY) tools/preset_stats.py
+
+cov:             ## Tests mit Abdeckung (wie der CI-Job, braucht requirements-dev.txt)
+	$(PY) -m pytest -q -m "not macos" $(PYTEST_ARGS) --cov --cov-report=term tests
+
+audit:           ## bekannte Schwachstellen in den Lock-Dateien (pip-audit, braucht Netz)
+	$(PY) -m pip_audit --disable-pip --require-hashes -r requirements.txt
+	$(PY) -m pip_audit --disable-pip --require-hashes -r requirements-dev.txt
+
+lock:            ## Lock-Dateien aus den .in-Dateien neu erzeugen (braucht uv; Befehle stehen in den .in-Dateien)
+	uv pip compile requirements.in --universal --python-version 3.12 --generate-hashes -o requirements.txt
+	uv pip compile requirements-dev.in -c requirements.txt --universal --python-version 3.12 --generate-hashes -o requirements-dev.txt

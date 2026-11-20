@@ -1,6 +1,5 @@
 # ruff: noqa: E501
 """Runde 16 Web: eigene Saetze (bearbeiten, Uebersetzung, Gruppen), Reihenfolge per Auf/Ab, Export/Import, Speicher voll."""
-import json
 import re
 
 import pytest

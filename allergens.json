@@ -97,6 +97,72 @@
    "en": "bee stings",
    "de": "Bienenstiche",
    "th": "พิษผึ้ง"
+  },
+  {
+   "id": "mustard",
+   "en": "mustard",
+   "de": "Senf",
+   "th": "มัสตาร์ด"
+  },
+  {
+   "id": "lupin",
+   "en": "lupin",
+   "de": "Lupine",
+   "th": "ลูพิน"
+  },
+  {
+   "id": "sulfite",
+   "en": "sulphites",
+   "de": "Sulfite",
+   "th": "ซัลไฟต์"
+  },
+  {
+   "id": "corn",
+   "en": "corn",
+   "de": "Mais",
+   "th": "ข้าวโพด"
+  },
+  {
+   "id": "coconut",
+   "en": "coconut",
+   "de": "Kokosnuss",
+   "th": "มะพร้าว"
+  },
+  {
+   "id": "mango",
+   "en": "mango",
+   "de": "Mango",
+   "th": "มะม่วง"
+  },
+  {
+   "id": "chili",
+   "en": "chilli",
+   "de": "Chili",
+   "th": "พริก"
+  },
+  {
+   "id": "msg",
+   "en": "MSG",
+   "de": "Glutamat (MSG)",
+   "th": "ผงชูรส"
+  },
+  {
+   "id": "fishsauce",
+   "en": "fish sauce",
+   "de": "Fischsauce",
+   "th": "น้ำปลา"
+  },
+  {
+   "id": "shrimppaste",
+   "en": "shrimp paste",
+   "de": "Garnelenpaste",
+   "th": "กะปิ"
+  },
+  {
+   "id": "mollusc",
+   "en": "molluscs",
+   "de": "Weichtiere (Muscheln, Tintenfisch)",
+   "th": "หอยและหมึก"
   }
  ],
  "conditions": [
@@ -153,6 +219,48 @@
    "en": "I am pregnant",
    "de": "Schwanger",
    "th": "กำลังตั้งครรภ์"
+  },
+  {
+   "id": "nopork",
+   "en": "I do not eat pork",
+   "de": "Ich esse kein Schweinefleisch",
+   "th": "ไม่กินเนื้อหมู"
+  },
+  {
+   "id": "nobeef",
+   "en": "I do not eat beef",
+   "de": "Ich esse kein Rindfleisch",
+   "th": "ไม่กินเนื้อวัว"
+  },
+  {
+   "id": "halal",
+   "en": "I eat only halal food",
+   "de": "Ich esse nur Halal",
+   "th": "กินเฉพาะอาหารฮาลาล"
+  },
+  {
+   "id": "vegetarian",
+   "en": "I am vegetarian",
+   "de": "Ich bin Vegetarier",
+   "th": "กินมังสวิรัติ"
+  },
+  {
+   "id": "jay",
+   "en": "I eat strict vegetarian (jay): no meat, fish, fish sauce or egg",
+   "de": "Ich esse streng fleischlos (Jay): kein Fleisch, Fisch, Fischsauce oder Ei",
+   "th": "กินเจ ไม่กินเนื้อสัตว์ ปลา น้ำปลา หรือไข่"
+  },
+  {
+   "id": "noalcohol",
+   "en": "I do not drink alcohol",
+   "de": "Ich trinke keinen Alkohol",
+   "th": "ไม่ดื่มแอลกอฮอล์"
+  },
+  {
+   "id": "lowsalt",
+   "en": "I need low-salt food",
+   "de": "Ich brauche salzarme Kost",
+   "th": "ต้องการอาหารโซเดียมต่ำ"
   }
  ]
 }

@@ -1,0 +1,117 @@
+{
+  "id": "mental-health-counseling",
+  "names": {
+    "de": "Seelische Gesundheit / Beratung",
+    "en": "Mental health / counselling",
+    "th": "สุขภาพจิต / การให้คำปรึกษา"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Beratung und Psychiater gibt es in Privatkliniken in Bangkok, Chiang Mai und Phuket, oft mit englischsprachigem Personal. In einer akuten Krise sofort das Krankenhaus oder den Rettungsdienst (1669) rufen und nicht allein bleiben. Medikamente nie ohne Arzt absetzen; Rezept und Wirkstoffnamen mitführen. Hilfe zu bitten ist ein Zeichen von Stärke. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Counselling and psychiatrists are available in private clinics in Bangkok, Chiang Mai and Phuket, often with English-speaking staff. In an acute crisis call the hospital or the ambulance (1669) at once and do not stay alone. Never stop medication without a doctor; carry your prescription and the active ingredient names. Asking for help is a sign of strength. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "counselling",
+      "th": "การให้คำปรึกษา"
+    },
+    {
+      "en": "psychiatrist",
+      "th": "จิตแพทย์"
+    },
+    {
+      "en": "anxiety",
+      "th": "ความวิตกกังวล"
+    },
+    {
+      "en": "depression",
+      "th": "ภาวะซึมเศร้า"
+    },
+    {
+      "en": "panic attack",
+      "th": "อาการตื่นตระหนก"
+    },
+    {
+      "en": "sleep",
+      "th": "การนอน"
+    },
+    {
+      "en": "stress",
+      "th": "ความเครียด"
+    },
+    {
+      "en": "medication",
+      "th": "ยา"
+    },
+    {
+      "en": "appointment",
+      "th": "นัดหมาย"
+    },
+    {
+      "en": "support",
+      "th": "ให้ความช่วยเหลือ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I need help now. I do not feel safe.",
+      "th": "ต้องการความช่วยเหลือทันที รู้สึกไม่ปลอดภัย",
+      "critical": true
+    },
+    {
+      "en": "I have thoughts of hurting myself.",
+      "th": "มีความคิดทำร้ายตัวเอง",
+      "critical": true
+    },
+    {
+      "en": "Please call an ambulance (1669).",
+      "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true
+    },
+    {
+      "en": "Please do not leave me alone.",
+      "th": "ช่วยอยู่เป็นเพื่อนด้วย อย่าปล่อยให้อยู่คนเดียว",
+      "critical": true
+    },
+    {
+      "en": "I am having a panic attack.",
+      "th": "กำลังมีอาการตื่นตระหนก"
+    },
+    {
+      "en": "I feel very anxious.",
+      "th": "รู้สึกวิตกกังวลมาก"
+    },
+    {
+      "en": "I cannot sleep for several days.",
+      "th": "นอนไม่หลับมาหลายวัน"
+    },
+    {
+      "en": "I would like to talk to a counsellor.",
+      "th": "อยากคุยกับผู้ให้คำปรึกษา"
+    },
+    {
+      "en": "Do you have an English-speaking doctor?",
+      "th": "มีแพทย์ที่พูดภาษาอังกฤษไหม"
+    },
+    {
+      "en": "I need an appointment today.",
+      "th": "ต้องการนัดหมายวันนี้"
+    },
+    {
+      "en": "I take this medication every day.",
+      "th": "กินยานี้ทุกวัน"
+    },
+    {
+      "en": "I ran out of my medication.",
+      "th": "ยาหมดแล้ว"
+    },
+    {
+      "en": "How much is a session?",
+      "th": "ครั้งละเท่าไร"
+    },
+    {
+      "en": "Thank you for listening.",
+      "th": "ขอบคุณที่รับฟัง"
+    }
+  ]
+}
