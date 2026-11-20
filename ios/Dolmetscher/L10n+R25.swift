@@ -115,5 +115,17 @@ extension L10n {
             "ko": "지금 추천", "zh-Hans": "当前推荐",
             "vi": "Phù hợp lúc này", "id": "Cocok sekarang"
         ],
+        "ui_mt_note": [
+            "de": "Die Texte in dieser Sprache sind maschinell übersetzt und nicht von Muttersprachlern geprüft. Korrekturen sind willkommen.",
+            "en": "Texts in this language are machine-translated and not checked by native speakers. Corrections are welcome.",
+            "th": "ข้อความในภาษานี้แปลโดยเครื่องและยังไม่ได้ให้เจ้าของภาษาตรวจ ยินดีรับคำแนะนำแก้ไข",
+            "es": "Los textos en este idioma están traducidos automáticamente y no han sido revisados por hablantes nativos. Se agradecen las correcciones.",
+            "fr": "Les textes dans cette langue sont traduits automatiquement et n’ont pas été relus par des locuteurs natifs. Les corrections sont les bienvenues.",
+            "ja": "この言語のテキストは機械翻訳で、ネイティブスピーカーによる確認は行われていません。修正のご提案を歓迎します。",
+            "ko": "이 언어의 텍스트는 기계 번역이며 원어민이 검수하지 않았습니다. 수정 제안을 환영합니다.",
+            "zh-Hans": "此语言的文本为机器翻译，尚未经母语者审核。欢迎提出修改建议。",
+            "vi": "Văn bản ở ngôn ngữ này được dịch tự động và chưa được người bản ngữ kiểm tra. Rất hoan nghênh góp ý chỉnh sửa.",
+            "id": "Teks dalam bahasa ini diterjemahkan secara otomatis dan belum diperiksa oleh penutur asli. Koreksi sangat diterima."
+        ],
     ]
 }

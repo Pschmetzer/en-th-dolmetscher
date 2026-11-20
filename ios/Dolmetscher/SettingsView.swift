@@ -118,7 +118,8 @@ struct SettingsView: View {
                         }
                     }
                 } footer: {
-                    Text(T("shortcuts_note"))
+                    // Deutsch und Englisch sind die Entwicklungssprachen; alle anderen Oberflächentexte sind ungeprüft (docs/MUTTERSPRACHLER.md).
+                    Text(T("shortcuts_note") + (["de", "en"].contains(m.uiLang) ? "" : "\n" + T("ui_mt_note")))
                 }
             }
             .navigationTitle(T("settings"))

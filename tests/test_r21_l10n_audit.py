@@ -171,3 +171,10 @@ def test_web_json_is_formatted_like_the_exporter_writes_it():
     for lg in ("en", "th"):
         text = (ROOT / "i18n" / f"{lg}.json").read_text(encoding="utf-8")
         assert text == json.dumps(json.loads(text), ensure_ascii=False, indent=1) + "\n"
+
+
+def test_ios_language_picker_warns_about_unchecked_translations():
+    src = (IOS / "SettingsView.swift").read_text(encoding="utf-8")
+    assert 'T("ui_mt_note")' in src and '["de", "en"].contains(m.uiLang)' in src
+    row = all_ios()["ui_mt_note"]
+    assert all(row[lg].strip() for lg in IOS_LANGS)

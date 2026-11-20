@@ -24,6 +24,7 @@ Pull requests #16–#47. Not yet published as a release.
 
 ### Interface texts audit (round 21)
 
+- iPhone: the language picker in the settings now says when the chosen interface language is machine-translated and not checked by native speakers (all languages except German and English).
 - New glossary of interface terms ([docs/GLOSSAR-UI.md](docs/GLOSSAR-UI.md)); a test locks the variants it forbids. English texts use US spelling throughout; one word per language for flashcards, partner language, retry and stop reading aloud.
 - Fixed machine-translation slips in the emergency-numbers and phrasebook texts: "partner" was rendered as spouse or business partner in Spanish, French, Vietnamese and Indonesian; Chinese "voices" now reads 声音.
 - Counts read "Matches: 1" instead of "1 matches" (Mac history, search, glossary, settings transfer; iPhone learning streak; web flashcard messages). Thai Mac texts say โปรด/ไมโครโฟน like iPhone and web.
