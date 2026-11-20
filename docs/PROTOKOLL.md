@@ -602,8 +602,11 @@ App-Pipe nicht schnell genug abnahm, siehe Log).
 - **`hint`** `{code, …}` (selten, je Code höchstens alle 5 min): `slow` (`what` = `stt`\|`tr`\|`sound`, `p90`: Latenz dauerhaft
   hoch – kleineres Modell, Beam 1, `tts_race`), `mic_far` (viele sehr leise, zu kurze Äußerungen: Mikrofon näher oder
   Empfindlichkeit anheben). Die App lokalisiert über `code`.
-- **`tts_fallback`** `{reason: "offline"\|"slow"}`: die macOS-Ersatzstimme statt der Neural-Stimme spricht; einmal je Wechsel,
-  bis die Neural-Stimme wieder Ton liefert.
+- **`tts_fallback`** `{reason: "offline"\|"slow"\|"error"}`: die macOS-Ersatzstimme statt der Neural-Stimme spricht; einmal je Wechsel,
+  bis die Neural-Stimme wieder Ton liefert. Dann kommt **`tts_fallback`** `{ended: true}` (ohne `reason`): Anzeige „Ersatzstimme“
+  ausblenden. Ältere Apps ignorieren das Feld `ended`.
+- **`speak_failed`** `{reason: "say", rc}`: auch die macOS-Stimme hat nichts gesprochen (Fehler/Zeitgrenze); die App kann den
+  Text groß anzeigen oder „Wiederholen“ anbieten. Zusätzlich zu `speak_done` der Ausgabe.
 - **`subtitles`** `{path, cues}`: `--file … --subtitles` fertig geschrieben.
 - **Preset-Feld `tuning`** (optional): `{silence 0.4-2, sensitivity low|normal|high, let_finish 0-5, catch_up
   skip|fast|off, rate -50…50}` – gilt, solange das Preset aktiv ist; „kein Preset“ stellt den Stand davor wieder her.
