@@ -196,6 +196,6 @@ def test_new_wave2_packs_valid():
            "birthday-celebration", "funeral-condolence", "skin-clinic", "fishing-trip", "badminton-tennis"]
     allp = P.load_all()
     pend = (ROOT / "tools" / "web_pending_presets.txt").read_text(encoding="utf-8").split()
-    page = (ROOT / "index.html").read_text(encoding="utf-8")   # Warteliste ist abgearbeitet, wenn die Seite die Pakete kennt
+    page = (ROOT / "index.html").read_text(encoding="utf-8")   # abgearbeitet, wenn die Seite sie kennt
     for i in ids:
         assert i in allp and not P.validate(allp[i]) and (i in pend or f"'{i}'" in page)
