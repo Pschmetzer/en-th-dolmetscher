@@ -17,7 +17,7 @@ echo "== Skripte (bash -n, shellcheck) =="
 bash -n build.sh
 for f in build-support/*.sh tools/*.sh; do bash -n "$f"; done
 if command -v shellcheck >/dev/null 2>&1; then
-  shellcheck build.sh build-support/*.sh
+  shellcheck build.sh build-support/*.sh tools/*.sh
 else
   echo "shellcheck fehlt: uebersprungen (CI prueft es)"
 fi

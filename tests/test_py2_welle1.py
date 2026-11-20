@@ -100,12 +100,16 @@ def _speak(monkeypatch, ws, stopped=lambda: False):
 
 
 def test_ws_speak_complete(monkeypatch):
+    pytest.importorskip("edge_tts")
+    pytest.importorskip("aiohttp")
     go, got = _speak(monkeypatch, _FakeWS([_audio(b"1"), _audio(b"2"), _end()]))
     asyncio.run(go())
     assert got == [b"1", b"2"]
 
 
 def test_ws_speak_truncated_stream_is_error(monkeypatch):
+    pytest.importorskip("edge_tts")
+    pytest.importorskip("aiohttp")
     go, got = _speak(monkeypatch, _FakeWS([_audio(b"1")]))    # Server schließt ohne turn.end
     with pytest.raises(RuntimeError, match="vor Satzende"):
         asyncio.run(go())
@@ -113,6 +117,8 @@ def test_ws_speak_truncated_stream_is_error(monkeypatch):
 
 
 def test_ws_speak_no_audio_is_error(monkeypatch):
+    pytest.importorskip("edge_tts")
+    pytest.importorskip("aiohttp")
     go, _ = _speak(monkeypatch, _FakeWS([_end()]))
     with pytest.raises(RuntimeError, match="keine Audiodaten"):
         asyncio.run(go())

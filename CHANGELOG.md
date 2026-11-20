@@ -4,6 +4,14 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### Infrastructure and docs, round 23
+
+- Tests: `tests/test_thai_zahlen.py` is collectable again (a foreign `tests` package in site-packages shadowed the folder); tests that need `edge_tts`/`aiohttp` skip with `pytest.importorskip` instead of failing; the download-progress test no longer depends on the Hugging Face cache layout or fixed sleeps.
+- CI: Dependabot also watches `tests/web-e2e` (npm); new workflows for external doc links (lychee) and a smoke test of the published Pages site (`tools/pages_smoke.py`); shellcheck also covers `tools/*.sh`; `tools/check_doc_links.py` checks relative links.
+- Docs: FAQ entry for the browser version on iPhone (Safari), `docs/TH-QUALITAET.md`, ready-made hosting configs (Netlify, Cloudflare, nginx, Caddy) in `docs/hosting/`, short intro in the README, roadmap additions. Privacy pages now say that the iPhone online fallback starts MyMemory in parallel when Google has not answered after 1.2 s, and that MyMemory is queried with POST (the text is never in the URL).
+- Benchmark: 12 new cases for numbers, clock times and phone numbers (`th43` to `th48`, `en21` to `en26`); the baseline needs a new measurement on `main`.
+- `build.sh`: `--release` runs pip-audit on `requirements.txt` and aborts on findings; an ad-hoc signature is now reported loudly.
+
 ### Phrase packs, round 23 (presets)
 
 - 22 new scenario packs (178 in total): diabetes and insulin, travel vaccinations, bringing medication in, tourist police report, Thai massage boundaries, ride-hailing price dispute, prescription and refills, night train and sleeper, SIM / eSIM / data, dive medical clearance, sprain / fracture / X-ray, travelling with elderly parents, complaint to customer service, hotel deposit dispute, visa run and border crossing, respect for the King and royals, temple donations and etiquette, EV charging, hospital payment and insurance, food poisoning, apartment host and self check-in, international money transfer. Thai lines machine-made, not checked by native speakers.

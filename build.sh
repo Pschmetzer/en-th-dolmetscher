@@ -4,7 +4,8 @@
 #   --no-notarize  nur mit --release: ohne Notarisierung bauen (ZIP/DMG heißen dann ...-unnotarized)
 #   --bundle-wheels  Wheels aus requirements.txt mitliefern (Contents/Resources/offline/wheels): Einrichtung ohne PyPI
 #   --release   Release-Bau: Developer-ID-Signatur mit Hardened Runtime, optional Notarisierung, ZIP + SHA256
-#               in build/. Bricht ab, wenn DOLMETSCHER_SIGN_IDENTITY fehlt (kein Ad-hoc-Fallback).
+#               in build/. Bricht ab, wenn DOLMETSCHER_SIGN_IDENTITY fehlt (kein Ad-hoc-Fallback) oder pip-audit eine Schwachstelle
+#               im Lock findet bzw. nicht laufen kann (braucht uv und Netz).
 # Die App ist eigenständig (nur Apple Silicon): Sie bringt uv (Contents/Helpers/uv), den Lock
 # (requirements.txt) und setup-env.sh mit und richtet die Python-Umgebung beim ersten Start selbst ein
 # (uv-verwaltetes Python 3.12 + Pakete nach ~/Library/Application Support/Dolmetscher/venv). Audio läuft
@@ -92,6 +93,19 @@ else
   if [ -n "$UV_MINOS" ] && [ "$(printf '%s\n%s\n' "$UV_MINOS" "$MIN_MACOS" | sort -V | tail -n 1)" != "$MIN_MACOS" ]; then
     echo "uv braucht macOS $UV_MINOS, die App verspricht $MIN_MACOS – anderes uv-Binary nutzen."; exit 1
   fi
+fi
+
+# Release: bekannte Schwachstellen im Lock (requirements.txt) lassen den Bau scheitern (kein Überspringen).
+# pip-audit läuft über uv in einer eigenen Wegwerf-Umgebung (Version wie in requirements-dev.in), braucht Netz.
+if [ "$RELEASE" = 1 ]; then
+  AUDIT_PIN="$(sed -n 's/^\(pip-audit==[0-9.]*\).*/\1/p' requirements-dev.in | head -n 1)"
+  [ -n "$AUDIT_PIN" ] || { echo "pip-audit-Version in requirements-dev.in nicht gefunden – Release-Bau ohne Schwachstellenprüfung nicht erlaubt."; exit 1; }
+  echo "→ pip-audit ($AUDIT_PIN) prüft requirements.txt …"
+  "$UV_BIN" tool run --from "$AUDIT_PIN" pip-audit --disable-pip --require-hashes -r requirements.txt || {
+    echo "pip-audit hat Schwachstellen gefunden oder konnte nicht laufen (Meldung oben): Release-Bau abgebrochen."
+    echo "Lock aktualisieren (requirements.in → requirements.txt), erneut bauen; ohne Netz ist kein Release möglich."
+    exit 1
+  }
 fi
 
 PY="${DOLMETSCHER_PYTHON:-}"
@@ -284,6 +298,13 @@ else
     sign_helpers -
     codesign -s - --force "$NEWAPP"
   fi
+  # Ad hoc ist der stille Normalfall ohne DOLMETSCHER_SIGN_IDENTITY: laut sagen, was das heißt (am Ergebnis geprüft).
+  APP_SIG="$(codesign -d --verbose=2 "$NEWAPP" 2>&1 || true)"
+  case "$APP_SIG" in
+    *Signature=adhoc*)
+      echo "WARNUNG: Das Bundle ist nur AD HOC signiert (keine feste Identität). macOS fragt nach jedem Neubau erneut nach"
+      echo "         dem Mikrofon, und das Bundle läuft nur auf diesem Mac. Fester Name: DOLMETSCHER_SIGN_IDENTITY (CONTRIBUTING.md)." ;;
+  esac
 fi
 if [ -f "$TH_IN" ]; then
   TH_SIG="$(codesign -d --verbose=2 "$TH_IN" 2>&1 || true)"   # erst lesen: grep -q in der Pipe + pipefail = SIGPIPE

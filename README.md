@@ -14,6 +14,8 @@ A hands-free speech interpreter: just talk. What you say is translated into your
 
 Current version: 1.3 (single source: `version` in `pyproject.toml`). What changed since: [CHANGELOG.md](CHANGELOG.md).
 
+**In short:** try the [browser version](https://pschmetzer.github.io/en-th-dolmetscher/) right away; for the Mac app run `./build.sh --install` ([details](#install-on-the-mac)); the iPhone app is built in Xcode ([ios/README.md](ios/README.md)). Hacking on it? `make test` runs the tests without models, network or microphone, `make lint` runs ruff ([For developers](#for-developers)). Questions: [FAQ](docs/en/FAQ.md), hosting the web page yourself: [docs/WEB-HOSTING.md](docs/WEB-HOSTING.md).
+
 - [Features at a glance](#features-at-a-glance)
 - [Install on the Mac](#install-on-the-mac)
 - [iPhone app](#iphone-app)
