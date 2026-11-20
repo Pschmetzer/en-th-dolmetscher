@@ -30,4 +30,23 @@ extension HistoryLogic {
         }
         return out
     }
+
+    /// SRT-Untertitel: Zeit relativ zur ersten Zeile; Ende = nächste Zeile (max. 6 s, min. 1,5 s), letzte Zeile 4 s.
+    static func srt(_ s: HistorySession) -> String {
+        func ts(_ t: TimeInterval) -> String {
+            let ms = Int((max(0, t) * 1000).rounded())
+            return String(format: "%02d:%02d:%02d,%03d", ms / 3_600_000, ms / 60_000 % 60, ms / 1000 % 60, ms % 1000)
+        }
+        let rows = s.rows.filter { !$0.text.isEmpty || !$0.translation.isEmpty }
+        guard let first = rows.first?.time else { return "" }
+        var out = ""
+        for (i, r) in rows.enumerated() {
+            let start = r.time.timeIntervalSince(first)
+            let gap = i + 1 < rows.count ? rows[i + 1].time.timeIntervalSince(r.time) : 4
+            let end = start + min(6, max(1.5, gap))
+            let lines = [r.translation.isEmpty ? nil : r.translation, r.text.isEmpty ? nil : r.text].compactMap { $0 }
+            out += "\(i + 1)\n\(ts(start)) --> \(ts(end))\n" + lines.joined(separator: "\n") + "\n\n"
+        }
+        return out
+    }
 }
