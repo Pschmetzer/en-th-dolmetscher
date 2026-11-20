@@ -13,8 +13,8 @@ Optionen: --model small|medium|base  --mic 0  --polite krub|ka  --json
           --voice-en/--voice-th NAME --llm [--llm-model ID] --earcons --meter --list-mics
 Protokoll Engine <-> App: docs/PROTOKOLL.md
 """
-import argparse, atexit, collections, difflib, errno, functools, html, http.client, io, itertools, json, logging, \
-    logging.handlers, math, os, queue, re, shutil, signal, subprocess, sys, tempfile, threading, time, \
+import argparse, atexit, collections, difflib, errno, functools, hashlib, html, http.client, io, itertools, json, \
+    logging, logging.handlers, math, os, queue, re, shutil, signal, subprocess, sys, tempfile, threading, time, \
     urllib.error, urllib.parse, urllib.request
 import numpy as np
 import presets
@@ -605,7 +605,6 @@ def set_output_device(dev, check=True):
             log({"output_device": "liste-fehler", "err": _errtxt(e)})
             return
         if outs and _avh.match_output(outs, dev) is None and OUTPUT["device"] == dev:
-            OUTPUT["device"] = ""                # totes Gerät nicht bei jedem Abspielen neu suchen
             emit("error", code="output_not_found",
                  msg="Ausgabegerät nicht gefunden – Systemstandard wird genutzt")
     threading.Thread(target=run, name="output-check", daemon=True).start()
@@ -1370,7 +1369,7 @@ _LLM_REFUSAL = re.compile(r"^\W*(?:(?:i'?m sorry|i am sorry|sorry|i can(?:no|'|�
                           r"\b.*\btranslat|as an ai\b"
                           r"|(?:es tut mir leid|ich kann (?:das )?nicht|lo siento|no puedo|je suis désolé|désolé|"
                           r"je ne peux pas)\b.*(?:übersetz|traduc|traduire)"
-                          r"|ขออภัย.{0,40}(?:แปล|ไม่สามารถ)|ฉันไม่สามารถแปล)", re.I | re.S)
+                          r"|ขออภัย.{0,40}แปล|ฉันไม่สามารถแปล)", re.I | re.S)
 
 
 def _check_llm(text, out, dst, src=None):
@@ -1748,7 +1747,7 @@ def load_glossary(text=None):
     global _GLOSSARY_OWN
     GLOSSARY[:] = items[:GLOSSARY_LIMIT]
     _GLOSSARY_OWN = frozenset(GLOSSARY)
-    _cache_clear()                     # alte Übersetzungen kennen die neuen Einträge nicht
+    # kein _cache_clear(): der Cache-Schlüssel trägt die Glossar-Signatur (_cache_sig), alte Einträge passen nicht mehr
 
 
 # Korrekturen lernen: Eigennamen, die der Nutzer in den erkannten Text schreibt, kommen als „Name“-Zeile
@@ -1765,6 +1764,23 @@ def _own_glossary_text():
         return ""
 
 
+def _learn_while_preset(text, added):
+    """Neue eigene Einträge bei aktivem Preset: Datei schreiben, `PRESET.saved` (der eigene Stand, auf den „kein
+    Preset“ zurückstellt) und das laufende Glossar ergänzen – eigene Wörter stehen vorn, Preset-Wörter dahinter."""
+    global _GLOSSARY_OWN
+    try:
+        _write_private(GLOSSARY_FILE, text)
+    except OSError as e:
+        log({"glossary": "speichern fehlgeschlagen", "err": _errtxt(e)})
+    own = list(PRESET.saved["glossary"])
+    known = {a.casefold() for a, _ in own}
+    new = [(n, None) for n in added if n.casefold() not in known]
+    PRESET.saved["glossary"] = own + new
+    GLOSSARY[len(own):len(own)] = new
+    del GLOSSARY[GLOSSARY_LIMIT:]
+    _GLOSSARY_OWN = frozenset(PRESET.saved["glossary"])
+
+
 def learn_glossary_names(eng, names):
     """Neue Namen anhängen (Datei + Speicher) und `glossary` {text, added} melden, damit die App ihren
     Glossar-Text übernimmt. Schon vorhandene Begriffe (jede Schreibweise) und ein volles Glossar: nichts."""
@@ -1778,14 +1794,10 @@ def learn_glossary_names(eng, names):
     if not added:
         return []
     text = (text.rstrip("\n") + "\n" if text.strip() else "") + "\n".join(added) + "\n"
-    pre = PRESET.active
-    if pre:
-        set_preset(eng, None, quiet=True)      # Preset-Wörter nicht ins eigene Glossar schreiben
-    try:
+    if PRESET.active and PRESET.saved is not None:
+        _learn_while_preset(text, added)       # Preset bleibt an: kein Aus/Ein (TTS-Vorberechnung, Dateien neu lesen)
+    else:
         load_glossary(text)
-    finally:
-        if pre:                                # auch bei einem Fehler: Preset nicht ausgeschaltet lassen
-            set_preset(eng, pre, quiet=True)
     log({"learn": "glossar", "n": len(added)})
     emit("glossary", text=text, added=added)
     return added
@@ -1989,6 +2001,7 @@ def _report_preset_problems():
 
 
 _TUNING_SAVED = {}
+_TUNING_APPLIED = {}                 # was das Preset gesetzt hat (Zurückstellen nur, wenn unverändert)
 
 
 def _apply_preset_tuning(eng, p):
@@ -1996,12 +2009,20 @@ def _apply_preset_tuning(eng, p):
     davor wieder her."""
     global SILENCE_END
     if _TUNING_SAVED:
-        sv = dict(_TUNING_SAVED)
+        sv, ap = dict(_TUNING_SAVED), dict(_TUNING_APPLIED)
         _TUNING_SAVED.clear()
-        SILENCE_END = sv["silence"]
-        VAD["start"], VAD["keep"] = sv["vad"]
-        LET_FINISH["s"], CATCH_UP["mode"] = sv["let_finish"], sv["catch_up"]
-        eng.rate = sv["rate"]
+        _TUNING_APPLIED.clear()
+        # nur zurückstellen, was noch den Preset-Wert hat: eine Änderung des Nutzers währenddessen bleibt erhalten
+        if "silence" not in ap or SILENCE_END == ap["silence"]:
+            SILENCE_END = sv["silence"]
+        if "vad" not in ap or (VAD["start"], VAD["keep"]) == ap["vad"]:
+            VAD["start"], VAD["keep"] = sv["vad"]
+        if "let_finish" not in ap or LET_FINISH["s"] == ap["let_finish"]:
+            LET_FINISH["s"] = sv["let_finish"]
+        if "catch_up" not in ap or CATCH_UP["mode"] == ap["catch_up"]:
+            CATCH_UP["mode"] = sv["catch_up"]
+        if "rate" not in ap or eng.rate == ap["rate"]:
+            eng.rate = sv["rate"]
     t = (p or {}).get("tuning")
     if not t:
         return
@@ -2010,16 +2031,21 @@ def _apply_preset_tuning(eng, p):
     sil = _clamp(t.get("silence"), 0.4, 2.0)           # kaputte Preset-Datei ("silence": "x") bricht set_preset nie ab
     if sil is not None:
         SILENCE_END = float(sil)
+        _TUNING_APPLIED["silence"] = SILENCE_END
     if t.get("sensitivity") in SENSITIVITY:
         VAD["start"], VAD["keep"] = SENSITIVITY[t["sensitivity"]]
+        _TUNING_APPLIED["vad"] = (VAD["start"], VAD["keep"])
     lf = _clamp(t.get("let_finish"), 0.0, LET_FINISH_MAX)
     if lf is not None:
         LET_FINISH["s"] = float(lf)
+        _TUNING_APPLIED["let_finish"] = LET_FINISH["s"]
     if t.get("catch_up") in CATCH_UP_MODES:
         CATCH_UP["mode"] = t["catch_up"]
+        _TUNING_APPLIED["catch_up"] = CATCH_UP["mode"]
     n = _clamp(t.get("rate"), -50, 50)                 # Runde 15: wie das Steuerfeld rate (kein 999 %, kein Text)
     if n is not None:
         eng.rate = int(n)
+        _TUNING_APPLIED["rate"] = eng.rate
 
 
 def set_preset(eng, pid, quiet=False):
@@ -2032,7 +2058,7 @@ def set_preset(eng, pid, quiet=False):
     p = PRESET.activate(pid, all_p, GLOSSARY, LLM, eng, voices=VOICES)
     _apply_preset_tuning(eng, p)
     prerender_critical(eng, p)
-    _cache_clear()                     # Stil und Glossar ändern die Übersetzung
+    # kein _cache_clear(): Stil steckt im Schlüssel (mode), Glossar/Hinweis in _cache_sig – der Platten-Cache bleibt
     if not quiet:
         emit("preset", id=p["id"] if p else None, name=p["names"]["en"] if p else None, **presets.app_fields(p))
     return p["names"]["en"] if p else None
@@ -2365,21 +2391,18 @@ _SPEAK_CUR = {
     "it": {"฿": "baht", "$": "dollari", "€": "euro", "£": "sterline"},
     "pt": {"฿": "bahts", "$": "dólares", "€": "euros", "£": "libras"},
     "nl": {"฿": "baht", "$": "dollar", "€": "euro", "£": "pond"},
-    "ru": {"฿": "бат", "$": "долларов", "€": "евро", "£": "фунтов"},
     "ja": {"฿": "バーツ", "$": "ドル", "€": "ユーロ", "£": "ポンド"},
     "zh": {"฿": "泰铢", "$": "美元", "€": "欧元", "£": "英镑"},
     "ko": {"฿": "바트", "$": "달러", "€": "유로", "£": "파운드"},
 }
 _SPEAK_DEG = {"en": "degrees", "th": "องศา", "de": "Grad", "es": "grados", "fr": "degrés", "it": "gradi",
-              "pt": "graus", "nl": "graden", "ru": "градусов", "tr": "derece", "pl": "stopni", "id": "derajat",
-              "uk": "градусів", "vi": "độ"}
+              "pt": "graus", "nl": "graden", "tr": "derece", "id": "derajat", "vi": "độ"}
 _SPEAK_CELS = {"C": {"en": "Celsius", "th": "เซลเซียส", "de": "Celsius", "es": "Celsius", "fr": "Celsius",
-                     "it": "Celsius", "pt": "Celsius", "nl": "Celsius", "ru": "по Цельсию", "tr": "Celsius",
-                     "pl": "Celsjusza", "id": "Celsius", "uk": "за Цельсієм", "vi": "Celsius"},
+                     "it": "Celsius", "pt": "Celsius", "nl": "Celsius", "tr": "Celsius",
+                     "id": "Celsius", "vi": "Celsius"},
                "F": {"en": "Fahrenheit", "th": "ฟาเรนไฮต์", "de": "Fahrenheit", "es": "Fahrenheit",
                      "fr": "Fahrenheit", "it": "Fahrenheit", "pt": "Fahrenheit", "nl": "Fahrenheit",
-                     "ru": "по Фаренгейту", "tr": "Fahrenheit", "pl": "Fahrenheita", "id": "Fahrenheit",
-                     "uk": "за Фаренгейтом", "vi": "Fahrenheit"}}
+                     "tr": "Fahrenheit", "id": "Fahrenheit", "vi": "Fahrenheit"}}
 # Thai-Rufnummern (0 + 8-9 Ziffern, ohne Punkt/Komma davor/danach): Stimmen läsen sie sonst als große Zahl
 _PHONE_SPEAK = re.compile(r"(?<![\d.,])0\d{8,9}(?![\d.,])")
 _CUR_AMOUNT = re.compile(r"([฿$€£])\s?(\d+(?:[.,]\d+)*)")
@@ -2527,7 +2550,20 @@ def _cache_key(text, src, dst, use_llm, polite):
     if use_llm:
         lvl = f":{LLM['formality']}" if LLM["formality"] != "auto" else ""
         mode = f"llm:{LLM['model']}:{LLM['style']}{lvl}{':slow' if SLOW['on'] else ''}"
-    return (_norm(text), src, dst, mode, polite if dst == "th" else "")
+    return (_norm(text), src, dst, mode + _cache_sig(use_llm), polite if dst == "th" else "")
+
+
+def _cache_sig(use_llm):
+    """Kurze Signatur der Glossar-/Szenario-Lage, die in den Cache-Schlüssel geht: ein anderes Glossar oder Preset
+    trifft keine alten Einträge, ohne den (persistenten) Cache zu leeren. Leer ohne Glossar/Hinweis."""
+    if use_llm:
+        parts = (tuple(GLOSSARY), PRESET.hint or "")           # Claude bekommt Glossar und Szenario-Hinweis
+    else:
+        own = _GLOSSARY_OWN
+        parts = (tuple(sorted(own)) if own is not None else tuple(GLOSSARY),)   # Google/MyMemory: nur eigene Wörter
+    if not any(parts):
+        return ""
+    return ":g" + hashlib.blake2s(repr(parts).encode("utf-8"), digest_size=4).hexdigest()
 
 
 LLM_BILLING_BACKOFF = 1800.0       # s: Guthaben/Kontingent leer – erst nach 30 min wieder versuchen
@@ -3410,13 +3446,12 @@ _UNIT_RULES = (
     (re.compile(_NUMV + r"\s*(?:lbs?\b|pounds?\s+(?:of\s+)?weight\b)", re.I),
      lambda v: f"{round(v * 0.4536, 1):g} kg"),
     (re.compile(_NUMV + r"\s*(?:kg\b|kilograms?\b|กิโลกรัม)", re.I), lambda v: f"{round(v, 1):g} kg"),
-    # Länge/Gewicht/Fläche/Volumen: nur die nicht-metrische Seite umrechnen (Fuß, Zoll, Unzen, Gallonen, Rai …)
+    # Länge/Gewicht/Fläche/Volumen: nur die nicht-metrische Seite umrechnen (Fuß, Unzen, Gallonen, Rai …). Nicht dabei:
+    # Zoll (นิ้ว = auch Finger) und Ngan (งาน = auch Arbeit/Veranstaltung): ohne Einheitenkontext zu mehrdeutig
     (re.compile(_NUMV + r"\s*(?:feet\b|foot\b|ft\b|ฟุต)", re.I), lambda v: f"{round(v * 0.3048, 1):g} m"),
-    (re.compile(_NUMV + r"\s*(?:inch(?:es)?\b|นิ้ว)", re.I), lambda v: f"{round(v * 2.54):g} cm"),
     (re.compile(_NUMV + r"\s*(?:ounces?\b|oz\b|ออนซ์)", re.I), lambda v: f"{round(v * 28.35):g} g"),
     (re.compile(_NUMV + r"\s*(?:gallons?\b|แกลลอน)", re.I), lambda v: f"{round(v * 3.785):g} l"),
     (re.compile(_NUMV + r"\s*(?:rai\b|ไร่)", re.I), lambda v: f"{round(v * 1600):g} m²"),
-    (re.compile(_NUMV + r"\s*(?:ngan\b|งาน)", re.I), lambda v: f"{round(v * 400):g} m²"),
     (re.compile(_NUMV + r"\s*(?:square\s+wah\b|sq\.?\s*wah\b|ตารางวา)", re.I), lambda v: f"{round(v * 4):g} m²"),
 )
 
@@ -3604,6 +3639,7 @@ def _say_voices():
     """`say -v ?` einmal abfragen (zwischengespeichert; Fehler -> leer, dann gilt die Tabellenstimme)."""
     if _SAY_LIST["out"] is not None and time.monotonic() - _SAY_LIST.get("t", time.monotonic()) > SAY_LIST_TTL:
         _SAY_LIST["out"] = None                         # Nutzer hat inzwischen eine bessere Stimme installiert?
+        _SAY_LIST["gen"] = _SAY_LIST.get("gen", 0) + 1  # bereits gemerkte Stimmen der Engine neu wählen (_say_voice)
     if _SAY_LIST["out"] is None:
         t = _SAY_LIST["fail_t"]
         if t is not None and time.monotonic() - t < SAY_RETRY_S:
@@ -3646,6 +3682,11 @@ def _say_voice(eng, lang):
     v = getattr(eng, "voice", None)
     if not isinstance(v, dict):
         return pick_voice(lang)
+    _say_voices()                                       # prüft die Frist (SAY_LIST_TTL) und erhöht ggf. die Generation
+    gen = _SAY_LIST.get("gen", 0)
+    if getattr(eng, "voice_gen", 0) != gen:             # Stimmenliste wurde neu gelesen: gemerkte Wahl verwerfen
+        v.clear()
+        eng.voice_gen = gen
     if lang not in v:
         v[lang] = pick_voice(lang)
     return v[lang]
@@ -5348,7 +5389,7 @@ def report_queue():
             emit("queue", stt=cur[0], tts=cur[1])
 
 
-import glob, hashlib  # noqa: E402
+import glob  # noqa: E402
 
 ENGINE_VERSION = "1.2"
 PROTOCOL = 1                      # Version des Engine-App-Protokolls (docs/PROTOKOLL.md)

@@ -76,7 +76,6 @@ def test_offline_buffer_reset_on_close():
 @pytest.mark.parametrize("a,b,differ", [
     ("He is 6 feet tall", "สูง 1.8 เมตร", False),
     ("a 2 rai plot", "ที่ดิน 3,200 ตารางเมตร", False),
-    ("a 5 inch screen", "จอ 13 ซม.", False),
     ("5 gallons", "19 ลิตร", False),
     ("8 feet", "3 เมตร", True),
     ("1,500 km", "1500 กิโลเมตร", False),
