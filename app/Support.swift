@@ -242,6 +242,11 @@ extension EngineModel {
             lines.append("--- stderr.log (end) ---")
             lines.append(redact(Self.logTail(15)))
         }
+        lines.append("Microphone permission: " + micPermission.detail)
+        if !errorLog.entries.isEmpty {
+            lines.append("--- error log (newest first) ---")
+            lines.append(errorLog.formatted(limit: 20))
+        }
         return DiagnosticsLogic.report(lines: lines, rows: selfTest, lastError: lastError.map { $0.msg },
                                        home: NSHomeDirectory(), user: NSUserName())
     }

@@ -176,6 +176,10 @@ jobs:
         run: |
           python tools/check_presets.py --strict
           python satzbuch.py check
+      - name: Web-Version synchron (PRESET_IDS, Cache-Version, Service Worker)
+        run: |
+          python tools/sync_web.py --check
+          node --check sw.js
 
   shell:
     if: github.event_name != 'schedule'

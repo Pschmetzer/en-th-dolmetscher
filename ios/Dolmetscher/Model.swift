@@ -197,7 +197,8 @@ final class InterpreterModel {
         let form = politeness, title = T("pod_title")
         Task {
             let center = UNUserNotificationCenter.current()
-            let granted = (try? await center.requestAuthorization(options: [.alert])) ?? false
+            var granted = false
+            do { granted = try await center.requestAuthorization(options: [.alert]) } catch { Diag.fail("Mitteilungen anfragen", error) }
             if granted { await PhraseOfDay.schedule(politeness: form, title: title) } else { phraseOfDay = false; flash("🔕 " + T("pod_denied"), seconds: 5) }
         }
     }
@@ -246,6 +247,7 @@ final class InterpreterModel {
     @ObservationIgnored private let files: JSONStore
     @ObservationIgnored private var writeTask: Task<Void, Never>?
     @ObservationIgnored private var quietWarnedAt = Date.distantPast
+    @ObservationIgnored private var voiceWarnedAt = Date.distantPast
     @ObservationIgnored private var onlineFallbackNoted = false
     @ObservationIgnored private var pendingWrites: Set<PendingWrite> = []
     /// Verlauf/Favoriten waren beim Start nicht lesbar (gesperrtes Gerät): nie mit leerer Liste überschreiben.
@@ -708,7 +710,7 @@ final class InterpreterModel {
         case .failed(let why):
             guard phase == .listening else { return }
             // Ein Erkenner ist ausgefallen: einmal neu starten; fällt er gleich wieder aus, Fehler zeigen.
-            let again = Date().timeIntervalSince(lastRecognizerFailure) < 60
+            let again = Date().timeIntervalSince(lastRecognizerFailure) < SpeechTiming.recognizerRetryWindow
             lastRecognizerFailure = Date()
             if again {
                 stop()
@@ -852,8 +854,8 @@ final class InterpreterModel {
         case .pause: paused = true; stopSpeaking(); flash("⏸ " + T("paused")); liveUpdate()
         case .resume: paused = false; flash("▶️ " + T("resumed")); liveUpdate()
         case .repeat: if let last = visibleEntries.last(where: { $0.translation != nil }) { speak(last) }
-        case .slower: rate = max(0.5, rate - 0.15); flash("🐢 " + T("cmd_slower_done"))
-        case .faster: rate = min(1.5, rate + 0.15); flash("🐇 " + T("cmd_faster_done"))
+        case .slower: rate = max(SpeechRate.minRate, rate - SpeechRate.step); flash("🐢 " + T("cmd_slower_done"))
+        case .faster: rate = min(SpeechRate.maxRate, rate + SpeechRate.step); flash("🐇 " + T("cmd_faster_done"))
         case .louder: volume = min(1, volume + 0.25); flash("🔊 " + T("cmd_louder_done"))
         case .quieter: volume = max(0.25, volume - 0.25); flash("🔉 " + T("cmd_quieter_done"))
         case .clear: clear()
@@ -1344,7 +1346,16 @@ final class InterpreterModel {
         let gen = speechGeneration
         speakChain = Task {
             await prev?.value
-            let text = gen == speechGeneration ? await produce() : nil
+            // Hängt die Übersetzung, soll nicht die ganze Reihe der Sprachausgaben stehen.
+            var text: String?
+            if gen == speechGeneration {
+                if let produced = await withTimeout(seconds: SpeechTiming.produceTimeout, { await produce() }) {
+                    text = produced
+                } else {
+                    debugLog.error("Sprachausgabe: Text nach \(SpeechTiming.produceTimeout, privacy: .public) s nicht fertig, übersprungen")
+                    flash("⚠️ " + T("err_translate"), seconds: 4)
+                }
+            }
             let r = SpeechRate.effective(rate: rate, slow: slow, clear: clearSpeech)
             let session = AVAudioSession.sharedInstance()
             guard gen == speechGeneration, let text, !text.isEmpty else {   // gestoppt oder nichts zu sagen
@@ -1352,7 +1363,7 @@ final class InterpreterModel {
                 if pendingSpeech == 0 {
                     applyMute()
                     // 630: Ein vorheriger Satz hat Musik/Navi leiser gestellt – auch beim Abbruch wieder freigeben.
-                    if engine == nil { try? session.setActive(false, options: .notifyOthersOnDeactivation) }
+                    if engine == nil { session.attempt("setActive") { try $0.setActive(false, options: .notifyOthersOnDeactivation) } }
                 }
                 return
             }
@@ -1362,34 +1373,38 @@ final class InterpreterModel {
             if engine == nil {
                 // Getippt oder Satzbuch: für das Gegenüber auch mit Kopfhörern über den Lautsprecher.
                 if toPartner {
-                    try? session.setCategory(.playAndRecord, options: [.duckOthers, .defaultToSpeaker, .allowBluetoothA2DP])
-                    try? session.setActive(true)
-                    try? session.overrideOutputAudioPort(.speaker)
+                    session.attempt("setCategory") { try $0.setCategory(.playAndRecord, options: [.duckOthers, .defaultToSpeaker, .allowBluetoothA2DP]) }
+                    session.attempt("setActive") { try $0.setActive(true) }
+                    session.attempt("overrideOutputAudioPort") { try $0.overrideOutputAudioPort(.speaker) }
                 } else {
-                    try? session.setCategory(.playback, options: [.duckOthers])
-                    try? session.setActive(true)
+                    session.attempt("setCategory") { try $0.setCategory(.playback, options: [.duckOthers]) }
+                    session.attempt("setActive") { try $0.setActive(true) }
                 }
             } else if toPartner {
                 // Mit Kopfhörern hört sonst nur man selbst die Ansage für das Gegenüber.
-                try? session.overrideOutputAudioPort(.speaker)
+                session.attempt("overrideOutputAudioPort") { try $0.overrideOutputAudioPort(.speaker) }
             }
             speakingID = id
             recentSpoken = Array((recentSpoken + [(text, Date())]).suffix(5))
             liveUpdate()
-            await speaker.speak(text, lang: lang, rate: r, volume: loud ? 1 : volume, clear: clearSpeech || slow)
+            let spoken = await speaker.speak(text, lang: lang, rate: r, volume: loud ? 1 : volume, clear: clearSpeech || slow)
+            if !spoken, Date() > voiceWarnedAt.addingTimeInterval(SpeechTiming.hintCooldown) {
+                voiceWarnedAt = Date()
+                flash("🔈 " + String(format: T("voice_missing"), lang.name(in: uiLang)), seconds: 6)
+            }
             if speakingID == id { speakingID = nil; liveUpdate() }
             pendingSpeech -= 1
             if pendingSpeech == 0 {
                 lastActivity = Date()
-                try? await Task.sleep(for: .milliseconds(400))   // Nachhall nicht als Sprache werten
+                try? await Task.sleep(for: .milliseconds(SpeechTiming.tailMilliseconds))   // Nachhall nicht als Sprache werten
                 if pendingSpeech == 0 {
                     if engine != nil {
-                        try? session.overrideOutputAudioPort(.none)
+                        session.attempt("overrideOutputAudioPort") { try $0.overrideOutputAudioPort(.none) }
                         applyMute()
                     } else {
-                        try? session.overrideOutputAudioPort(.none)
+                        session.attempt("overrideOutputAudioPort") { try $0.overrideOutputAudioPort(.none) }
                         // Nur vorgelesen, nicht zugehört: Musik/Navi wieder laut machen.
-                        try? session.setActive(false, options: .notifyOthersOnDeactivation)
+                        session.attempt("setActive") { try $0.setActive(false, options: .notifyOthersOnDeactivation) }
                     }
                 }
             }
@@ -1398,7 +1413,7 @@ final class InterpreterModel {
 
     /// 593: Gerätelautstärke sehr leise – sonst merkt man erst nach dem Satz, dass nichts zu hören war.
     private func warnIfQuiet(_ session: AVAudioSession) {
-        guard VolumeHint.tooQuiet(session.outputVolume), Date() > quietWarnedAt.addingTimeInterval(60) else { return }
+        guard VolumeHint.tooQuiet(session.outputVolume), Date() > quietWarnedAt.addingTimeInterval(SpeechTiming.hintCooldown) else { return }
         quietWarnedAt = Date()
         flash("🔈 " + T("volume_low"), seconds: 4)
     }
@@ -1470,7 +1485,7 @@ final class InterpreterModel {
         engine?.flush()
         drainTask?.cancel()
         drainTask = Task { [weak self] in
-            try? await Task.sleep(for: .seconds(2.5))   // so lange darf das Ergebnis brauchen
+            try? await Task.sleep(for: .seconds(SpeechTiming.pttDrainSeconds))   // so lange darf das Ergebnis brauchen
             guard !Task.isCancelled, let self else { return }
             self.pttDraining = false
             self.applyMute()

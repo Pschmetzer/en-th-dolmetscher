@@ -1,0 +1,11 @@
+/* Widget-Erweiterung: Titel der Steuerelemente und Kurzbefehle. MASCHINELL ÜBERSETZT außer de/th, nicht muttersprachlich geprüft. */
+"Start interpreting" = "통역 시작";
+"Stop interpreting" = "통역 중지";
+"Say phrase" = "문장 말하기";
+"Swap language pair" = "언어 쌍 바꾸기";
+"Speak last translation" = "마지막 번역 읽기";
+"Phrase" = "문장";
+"Quick phrases" = "빠른 문장";
+"Source" = "출처";
+"Phrases" = "문장";
+"Female polite form (ค่ะ)" = "여성 존댓말(ค่ะ)";

@@ -14,6 +14,23 @@ _STOP = {"the", "and", "you", "for", "are", "was", "but", "not", "with", "that",
          "thank", "thanks", "just", "very", "also", "then", "than", "there", "here", "some", "any", "all",
          "ครับ", "ค่ะ", "คะ", "นะ", "นะคะ", "นะครับ", "ไม่", "ใช่", "และ", "หรือ", "ที่", "ของ", "ได้", "จะ", "แล้ว",
          "มี", "เป็น", "ก็", "ด้วย", "จ้า", "จ้ะ", "สิ", "ละ", "เลย", "อ่ะ", "เหรอ", "ไหม", "มั้ย"}
+# Runde 22: Funktionswörter je Sprache (die englische Liste allein ließ „und/nicht/pour“ als Vokabel durch)
+_STOP_LANG = {
+    "de": {"und", "oder", "aber", "nicht", "ich", "du", "sie", "wir", "ihr", "der", "die", "das", "den", "dem",
+           "ein", "eine", "einen", "mit", "für", "von", "ist", "sind", "war", "bitte", "danke", "ja", "nein",
+           "auch", "noch", "schon", "sehr", "wie", "was", "wer", "wo", "wann", "dass", "zum", "zur", "auf"},
+    "es": {"que", "los", "las", "una", "uno", "por", "para", "con", "pero", "como", "muy", "más", "sí", "gracias",
+           "favor", "del", "est", "está", "son", "fue", "yo", "tú", "usted", "nosotros", "esto", "esta"},
+    "fr": {"les", "des", "une", "pour", "avec", "mais", "pas", "oui", "non", "merci", "plaît", "est", "sont",
+           "vous", "nous", "elle", "ils", "elles", "que", "qui", "dans", "sur", "très", "aussi", "cette"},
+    "it": {"che", "per", "con", "non", "una", "sono", "grazie", "prego", "anche", "molto", "come", "gli", "del"},
+    "pt": {"que", "uma", "para", "com", "não", "sim", "obrigado", "obrigada", "favor", "muito", "como", "são"},
+    "nl": {"het", "een", "van", "niet", "met", "voor", "dank", "alsjeblieft", "ook", "zijn", "maar", "ja", "nee"},
+    "id": {"yang", "dan", "dengan", "tidak", "ini", "itu", "terima", "kasih", "tolong", "ya", "juga", "saya"},
+    "vi": {"và", "của", "không", "có", "là", "xin", "cảm", "ơn", "vâng", "tôi", "bạn"},
+    "th": {"ขอบคุณ", "สวัสดี", "ขอโทษ", "ผม", "ฉัน", "คุณ", "เรา", "เขา", "นี้", "นั้น", "ที่", "จะ", "ได้", "แล้ว",
+           "ยัง", "ก็", "ของ", "ใน", "กับ", "ให้", "ไป", "มา", "อยู่", "ไหม", "มั้ย", "อะไร"},
+}
 # Wörter aller Schriften mit Leerzeichen (Latein mit Akzenten, Kyrillisch, Arabisch, Devanagari, Hangul …)
 _WORD = re.compile(r"[^\W\d_][\w'’\-]*|\d[\d.,:]*\w*", re.U)
 # Han/Kana ohne Leerzeichen: zeichenweise vergleichen, geänderte Strecken zusammenfassen
@@ -45,6 +62,11 @@ def tokenize(text, lang):
     if _is_cjk(text, lang):
         return [c for c in (text or "") if c.strip() and not re.match(r"[\W_]", c)]
     return _WORD.findall(text or "")
+
+
+def _skip_lang(tok, lang):
+    """Funktionswort der jeweiligen Sprache (siehe _STOP_LANG)?"""
+    return tok.lower() in _STOP_LANG.get(lang or "", ())
 
 
 def _skip(tok):
@@ -120,7 +142,7 @@ def suggest_vocab(old, new, lang="en", limit=MAX_SUGGEST):
             continue
         for j in range(j1, j2):
             tok = new_t[j]
-            if tok.lower() in old_low or tok.lower() in seen or _skip(tok):
+            if tok.lower() in old_low or tok.lower() in seen or _skip_lang(tok, lang) or _skip(tok):
                 continue
             seen.add(tok.lower())
             out.append(tok)

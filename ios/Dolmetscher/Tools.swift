@@ -305,8 +305,9 @@ struct BahtCalculatorView: View {
         fxBusy = true
         defer { fxBusy = false }
         var req = URLRequest(url: url); req.timeoutInterval = 6
-        guard let (data, resp) = try? await Translator.privateSession.data(for: req),
-              OnlineStatus.of(resp) == .ok, let r = FXFetch.parse(data, code: code) else { return }
+        let data: Data, resp: URLResponse
+        do { (data, resp) = try await Translator.privateSession.data(for: req) } catch { Diag.fail("Wechselkurs laden", error); return }
+        guard OnlineStatus.of(resp) == .ok, let r = FXFetch.parse(data, code: code) else { return }
         rate = r.rate
         fxDate = r.date
     }

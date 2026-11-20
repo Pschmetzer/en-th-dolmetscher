@@ -1,5 +1,8 @@
 // Storage.swift – Dateiablage und kleine, testbare Helfer ohne Oberfläche.
 import Foundation
+import os
+
+private let log = Logger(subsystem: "dolmetscher", category: "storage")
 
 /// Gespeicherte JSON-Dateien (Verlauf, Favoriten, Notfallkarte) in Application Support.
 /// Laden unterscheidet „fehlt“, „nicht lesbar“ (Gerät gesperrt, Datenschutzklasse) und „kaputt“ –
@@ -19,24 +22,41 @@ struct JSONStore: Sendable {
     func load<T: Decodable>(_ type: T.Type, _ name: String) -> Loaded<T> {
         let u = url(name)
         guard FileManager.default.fileExists(atPath: u.path) else { return .missing }
-        guard let data = try? Data(contentsOf: u) else { return .unreadable }
-        guard let v = try? JSONDecoder().decode(T.self, from: data) else { return .corrupt }
-        return .ok(v)
+        let data: Data
+        do { data = try Data(contentsOf: u) } catch {
+            log.error("\(name, privacy: .public) nicht lesbar: \(error.localizedDescription, privacy: .public)")
+            return .unreadable
+        }
+        do { return .ok(try JSONDecoder().decode(T.self, from: data)) } catch {
+            log.error("\(name, privacy: .public) kaputt: \(String(describing: error), privacy: .public)")
+            return .corrupt
+        }
     }
 
     @discardableResult
     func store<T: Encodable>(_ value: T, _ name: String) -> Bool {
-        guard let data = try? JSONEncoder().encode(value) else { return false }
+        let data: Data
+        do { data = try JSONEncoder().encode(value) } catch {
+            log.error("\(name, privacy: .public) nicht kodierbar: \(error.localizedDescription, privacy: .public)")
+            return false
+        }
         // „UntilFirstUserAuthentication“: nach dem ersten Entsperren seit dem Neustart lesbar – auch wenn die
         // App gesperrt startet (Siri, Action-Taste) oder im Hintergrund zuhört.
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)   // nur beim Schreiben nötig
+        do { try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true) } catch {   // nur beim Schreiben nötig
+            log.error("Ordner für \(name, privacy: .public) fehlt: \(error.localizedDescription, privacy: .public)")
+        }
         var u = url(name)
-        guard (try? data.write(to: u, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])) != nil else { return false }
+        do { try data.write(to: u, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication]) } catch {
+            log.error("\(name, privacy: .public) nicht geschrieben: \(error.localizedDescription, privacy: .public)")   // Platte voll, Gerät gesperrt
+            return false
+        }
         // Nicht ins iCloud-/Computer-Backup (566): „bleibt nur auf diesem iPhone“. `.atomic` ersetzt die Datei,
         // daher nach jedem Schreiben neu setzen.
         var rv = URLResourceValues()
         rv.isExcludedFromBackup = true
-        try? u.setResourceValues(rv)
+        do { try u.setResourceValues(rv) } catch {
+            log.error("\(name, privacy: .public): Backup-Ausschluss fehlgeschlagen: \(error.localizedDescription, privacy: .public)")
+        }
         return true
     }
 
@@ -45,8 +65,15 @@ struct JSONStore: Sendable {
     func loadLossy<T: Decodable>(_ type: T.Type, _ name: String) -> Loaded<[T]> {
         let u = url(name)
         guard FileManager.default.fileExists(atPath: u.path) else { return .missing }
-        guard let data = try? Data(contentsOf: u) else { return .unreadable }
-        guard let rows = try? JSONDecoder().decode([Lossy<T>].self, from: data) else { return .corrupt }
+        let data: Data
+        do { data = try Data(contentsOf: u) } catch {
+            log.error("\(name, privacy: .public) nicht lesbar: \(error.localizedDescription, privacy: .public)")
+            return .unreadable
+        }
+        guard let rows = try? JSONDecoder().decode([Lossy<T>].self, from: data) else {
+            log.error("\(name, privacy: .public) kaputt")
+            return .corrupt
+        }
         let ok = rows.compactMap(\.value)
         if ok.count < rows.count {
             let stamp = Int(Date().timeIntervalSince1970)
@@ -70,19 +97,25 @@ struct JSONStore: Sendable {
         var u = u
         var rv = URLResourceValues()
         rv.isExcludedFromBackup = true
-        try? u.setResourceValues(rv)
+        do { try u.setResourceValues(rv) } catch { log.error("Backup-Ausschluss für Kopie fehlgeschlagen: \(error.localizedDescription, privacy: .public)") }
         try? FileManager.default.setAttributes([.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication], ofItemAtPath: u.path)
     }
 
     /// Behält von `name<marker><Zeit>` nur die neuesten `keep` – sonst wächst die Zahl der Kopien bei jedem Start.
-    func pruneCopies(_ name: String, marker: String, keep: Int = 3) {
+    func pruneCopies(_ name: String, marker: String, keep: Int = StorageLimits.keepCopies) {
         let prefix = name + marker
         let names = ((try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? []).filter { $0.hasPrefix(prefix) }
         let sorted = names.sorted { (Int($0.dropFirst(prefix.count)) ?? 0) > (Int($1.dropFirst(prefix.count)) ?? 0) }
         for n in sorted.dropFirst(keep) { remove(n) }
     }
 
-    func remove(_ name: String) { try? FileManager.default.removeItem(at: url(name)) }
+    func remove(_ name: String) {
+        do { try FileManager.default.removeItem(at: url(name)) } catch let e as NSError where e.code == NSFileNoSuchFileError {
+            // schon weg: nichts zu tun
+        } catch {
+            log.error("\(name, privacy: .public) nicht gelöscht: \(error.localizedDescription, privacy: .public)")
+        }
+    }
 
     /// Dateien entfernen, deren Name so beginnt – auch beiseitegelegte Kopien („history.json.corrupt-…“).
     func removeAll(prefixes: [String]) {
@@ -102,7 +135,7 @@ struct UndoBuffer<T> {
     private(set) var saved: T?
     private(set) var until: Date = .distantPast
 
-    mutating func keep(_ value: T, now: Date = Date(), seconds: TimeInterval = 8) {
+    mutating func keep(_ value: T, now: Date = Date(), seconds: TimeInterval = StorageLimits.undoSeconds) {
         saved = value
         until = now.addingTimeInterval(seconds)
     }

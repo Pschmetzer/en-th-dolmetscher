@@ -1,0 +1,100 @@
+{
+  "id": "tuk-tuk-scam-prevention",
+  "names": {
+    "de": "Tuk-Tuk: Abzocke vermeiden",
+    "en": "Tuk-tuk: avoiding scams",
+    "th": "ตุ๊กตุ๊ก: ป้องกันการหลอกลวง"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "scam",
+      "th": "การหลอกลวง"
+    },
+    {
+      "en": "licence plate",
+      "th": "ป้ายทะเบียน"
+    },
+    {
+      "en": "meter",
+      "th": "มิเตอร์"
+    },
+    {
+      "en": "fare",
+      "th": "ค่าโดยสาร"
+    },
+    {
+      "en": "shop",
+      "th": "ร้านค้า"
+    },
+    {
+      "en": "tourist police",
+      "th": "ตำรวจท่องเที่ยว"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Stop the vehicle now. I want to get out.",
+      "th": "จอดรถเดี๋ยวนี้ ขอลง",
+      "critical": true
+    },
+    {
+      "en": "I feel unsafe. Please stop where there are people.",
+      "th": "รู้สึกไม่ปลอดภัย ขอจอดที่ที่มีคนพลุกพล่าน",
+      "critical": true
+    },
+    {
+      "en": "I will report this to the tourist police (1155).",
+      "th": "จะแจ้งตำรวจท่องเที่ยว (1155)",
+      "critical": true
+    },
+    {
+      "en": "Please tell me the price before we go.",
+      "th": "ช่วยบอกราคาก่อนออกรถ"
+    },
+    {
+      "en": "Please use the meter, or I will get out.",
+      "th": "ขอให้เปิดมิเตอร์ ไม่เช่นนั้นจะลง"
+    },
+    {
+      "en": "I will pay at the end, not before.",
+      "th": "จะจ่ายตอนถึง ไม่จ่ายล่วงหน้า"
+    },
+    {
+      "en": "I do not want to stop at any shop on the way.",
+      "th": "ไม่ต้องการแวะร้านค้าระหว่างทาง"
+    },
+    {
+      "en": "Please do not take me to a travel agency.",
+      "th": "ขออย่าพาไปที่บริษัททัวร์"
+    },
+    {
+      "en": "I am not interested in gems or tours.",
+      "th": "ไม่สนใจอัญมณีหรือทัวร์"
+    },
+    {
+      "en": "I know that place is open today.",
+      "th": "ทราบว่าสถานที่นั้นเปิดวันนี้"
+    },
+    {
+      "en": "That price is higher than the usual fare for this distance.",
+      "th": "ราคานี้สูงกว่าค่าโดยสารปกติสำหรับระยะทางนี้"
+    },
+    {
+      "en": "I booked with the app. Please do not change the price.",
+      "th": "จองผ่านแอปไว้แล้ว ขออย่าเปลี่ยนราคา"
+    },
+    {
+      "en": "I will take a photo of your licence plate.",
+      "th": "จะถ่ายรูปป้ายทะเบียนรถ"
+    },
+    {
+      "en": "May I see your driver card?",
+      "th": "ขอดูบัตรประจำตัวคนขับได้ไหม"
+    }
+  ],
+  "note": {
+    "de": "Die App setzt die Höflichkeitspartikel (ครับ/ค่ะ) selbst. Typische Tricks: „Die Sehenswürdigkeit ist heute geschlossen“, Zwischenstopps bei Schneidern und Juwelieren, Preis erst bei Ankunft erhöhen. Preis vor der Fahrt festlegen, Kennzeichen fotografieren, lieber eine Fahrdienst-App nutzen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "The app adds the polite particles (krub/ka) itself. Typical tricks: \"the attraction is closed today\", stops at tailors and jewellers, raising the price on arrival. Agree the price before the ride, photograph the licence plate, or prefer a ride-hailing app. Thai lines machine-made, not checked by native speakers."
+  }
+}

@@ -802,6 +802,26 @@
    ]
   },
   {
+   "id": "buddhism-etiquette",
+   "names": {
+    "de": "Buddhismus und Etikette",
+    "en": "Buddhism and etiquette",
+    "th": "พุทธศาสนากับมารยาท"
+   },
+   "phrases": 15,
+   "critical": 0,
+   "reviewed": false,
+   "category": "culture",
+   "keywords": [
+    "buddha image",
+    "monk",
+    "shoes",
+    "donation",
+    "shawl",
+    "chanting"
+   ]
+  },
+  {
    "id": "buddhist-ceremony",
    "names": {
     "de": "Buddhistische Zeremonie",
@@ -1106,6 +1126,27 @@
    ]
   },
   {
+   "id": "doctor-symptom-detail",
+   "names": {
+    "de": "Beschwerden genau beschreiben",
+    "en": "Describing symptoms in detail",
+    "th": "อธิบายอาการให้ละเอียด"
+   },
+   "phrases": 16,
+   "critical": 2,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "symptom",
+    "pain",
+    "fever",
+    "vomiting",
+    "diarrhoea",
+    "dizzy",
+    "rash"
+   ]
+  },
+  {
    "id": "driving-license",
    "names": {
     "de": "Führerschein und Fahrerlaubnis",
@@ -1187,6 +1228,26 @@
     "banana",
     "mud",
     "trunk"
+   ]
+  },
+  {
+   "id": "embassy-consulate",
+   "names": {
+    "de": "Botschaft und Konsulat",
+    "en": "Embassy and consulate",
+    "th": "สถานทูตและสถานกงสุล"
+   },
+   "phrases": 15,
+   "critical": 4,
+   "reviewed": false,
+   "category": "emergency",
+   "keywords": [
+    "embassy",
+    "consulate",
+    "passport",
+    "police report",
+    "appointment",
+    "fee"
    ]
   },
   {
@@ -1351,6 +1412,26 @@
     "reception",
     "gate",
     "cash on delivery"
+   ]
+  },
+  {
+   "id": "food-spice-level",
+   "names": {
+    "de": "Schärfegrad beim Essen",
+    "en": "Spice level in food",
+    "th": "ระดับความเผ็ดของอาหาร"
+   },
+   "phrases": 16,
+   "critical": 0,
+   "reviewed": false,
+   "category": "food",
+   "keywords": [
+    "spicy",
+    "chilli",
+    "fish sauce",
+    "sugar",
+    "salty",
+    "milk"
    ]
   },
   {
@@ -1530,6 +1611,46 @@
    ]
   },
   {
+   "id": "halal-food-muslim",
+   "names": {
+    "de": "Halal-Essen und Gebet",
+    "en": "Halal food and prayer",
+    "th": "อาหารฮาลาลและการละหมาด"
+   },
+   "phrases": 15,
+   "critical": 0,
+   "reviewed": false,
+   "category": "food",
+   "keywords": [
+    "halal",
+    "pork",
+    "lard",
+    "alcohol",
+    "prayer room",
+    "mosque"
+   ]
+  },
+  {
+   "id": "hearing-speech-impaired",
+   "names": {
+    "de": "Schwerhörig oder stumm",
+    "en": "Deaf, hard of hearing or unable to speak",
+    "th": "หูหนวก หูตึง หรือพูดไม่ได้"
+   },
+   "phrases": 17,
+   "critical": 2,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "deaf",
+    "hard of hearing",
+    "sign language",
+    "hearing aid",
+    "interpreter",
+    "write"
+   ]
+  },
+  {
    "id": "heat-health",
    "names": {
     "de": "Hitze / Dehydrierung",
@@ -1634,6 +1755,26 @@
     "locker",
     "check-out",
     "shared bathroom",
+    "towel"
+   ]
+  },
+  {
+   "id": "hotel-room-problems",
+   "names": {
+    "de": "Hotel: Probleme im Zimmer",
+    "en": "Hotel: room problems",
+    "th": "โรงแรม: ปัญหาในห้องพัก"
+   },
+   "phrases": 17,
+   "critical": 2,
+   "reviewed": false,
+   "category": "stay",
+   "keywords": [
+    "air conditioner",
+    "hot water",
+    "key card",
+    "safe",
+    "leak",
     "towel"
    ]
   },
@@ -1914,6 +2055,26 @@
    ]
   },
   {
+   "id": "lost-wallet-cards",
+   "names": {
+    "de": "Geldbörse und Karten verloren",
+    "en": "Lost wallet and cards",
+    "th": "กระเป๋าสตางค์และบัตรหาย"
+   },
+   "phrases": 14,
+   "critical": 2,
+   "reviewed": false,
+   "category": "emergency",
+   "keywords": [
+    "wallet",
+    "card",
+    "cash",
+    "police report",
+    "bank",
+    "lost property"
+   ]
+  },
+  {
    "id": "luggage-storage",
    "names": {
     "de": "Gepäckaufbewahrung",
@@ -2170,6 +2331,26 @@
    ]
   },
   {
+   "id": "negotiation",
+   "names": {
+    "de": "Verhandeln und Preise drücken",
+    "en": "Negotiating a price",
+    "th": "ต่อรองราคา"
+   },
+   "phrases": 15,
+   "critical": 0,
+   "reviewed": false,
+   "category": "money",
+   "keywords": [
+    "discount",
+    "bargain",
+    "final price",
+    "cheaper",
+    "too expensive",
+    "cash"
+   ]
+  },
+  {
    "id": "night-market-bargain",
    "names": {
     "de": "Nachtmarkt und Handeln",
@@ -2227,6 +2408,29 @@
     "power outlet",
     "monthly",
     "deposit"
+   ]
+  },
+  {
+   "id": "numbers-prices",
+   "names": {
+    "de": "Zahlen und Preise",
+    "en": "Numbers and prices",
+    "th": "ตัวเลขและราคา"
+   },
+   "phrases": 15,
+   "critical": 0,
+   "reviewed": false,
+   "category": "money",
+   "keywords": [
+    "price",
+    "baht",
+    "hundred",
+    "thousand",
+    "ten thousand",
+    "total",
+    "change",
+    "calculator",
+    "receipt"
    ]
   },
   {
@@ -2446,6 +2650,26 @@
    ]
   },
   {
+   "id": "refund-complaint-shop",
+   "names": {
+    "de": "Rückgabe und Beschwerde im Laden",
+    "en": "Returns and complaints in shops",
+    "th": "คืนสินค้าและร้องเรียนในร้าน"
+   },
+   "phrases": 16,
+   "critical": 0,
+   "reviewed": false,
+   "category": "money",
+   "keywords": [
+    "refund",
+    "receipt",
+    "exchange",
+    "manager",
+    "complaint",
+    "damaged"
+   ]
+  },
+  {
    "id": "rice-field-village",
    "names": {
     "de": "Dorf und Reisfelder",
@@ -2507,6 +2731,27 @@
     "homework",
     "lunch",
     "class"
+   ]
+  },
+  {
+   "id": "scooter-rental-damage",
+   "names": {
+    "de": "Rollermiete: Schäden und Kaution",
+    "en": "Scooter rental: damage and deposit",
+    "th": "เช่ามอเตอร์ไซค์: ความเสียหายและมัดจำ"
+   },
+   "phrases": 16,
+   "critical": 3,
+   "reviewed": false,
+   "category": "transport",
+   "keywords": [
+    "scratch",
+    "deposit",
+    "insurance",
+    "repair",
+    "receipt",
+    "contract",
+    "helmet"
    ]
   },
   {
@@ -2834,6 +3079,26 @@
    ]
   },
   {
+   "id": "tuk-tuk-scam-prevention",
+   "names": {
+    "de": "Tuk-Tuk: Abzocke vermeiden",
+    "en": "Tuk-tuk: avoiding scams",
+    "th": "ตุ๊กตุ๊ก: ป้องกันการหลอกลวง"
+   },
+   "phrases": 14,
+   "critical": 3,
+   "reviewed": false,
+   "category": "transport",
+   "keywords": [
+    "scam",
+    "licence plate",
+    "meter",
+    "fare",
+    "shop",
+    "tourist police"
+   ]
+  },
+  {
    "id": "tuk-tuk-songthaew",
    "names": {
     "de": "Tuk-Tuk und Songthaew",
@@ -2982,6 +3247,26 @@
    ]
   },
   {
+   "id": "wheelchair-mobility",
+   "names": {
+    "de": "Rollstuhl und eingeschränkte Mobilität",
+    "en": "Wheelchair and limited mobility",
+    "th": "รถเข็นและการเคลื่อนไหวจำกัด"
+   },
+   "phrases": 16,
+   "critical": 1,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "wheelchair",
+    "ramp",
+    "lift",
+    "stairs",
+    "step",
+    "accessible toilet"
+   ]
+  },
+  {
    "id": "wifi-coworking-cafe",
    "names": {
     "de": "WLAN-Café und Arbeiten",
@@ -3071,7 +3356,10 @@
     "pharmacy",
     "emergency",
     "police",
-    "lost-passport"
+    "lost-passport",
+    "negotiation",
+    "tuk-tuk-scam-prevention",
+    "numbers-prices"
    ]
   },
   "family-with-kids": {
@@ -3145,7 +3433,9 @@
     "travel-insurance-claim",
     "transport",
     "hotel",
-    "emergency"
+    "emergency",
+    "doctor-symptom-detail",
+    "embassy-consulate"
    ]
   }
  }

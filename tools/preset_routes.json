@@ -2,7 +2,7 @@
  "routes": {
   "backpacker-2-weeks": {
    "names": {"de": "Backpacker, zwei Wochen", "en": "Backpacker, two weeks", "th": "แบ็คแพ็คเกอร์ สองสัปดาห์"},
-   "packs": ["travel", "answers", "airport", "bangkok-skytrain", "bus-train", "taxi", "tuk-tuk-songthaew", "hostel-dorm", "street-food", "restaurant", "night-market-bargain", "scams-overcharge", "temple", "island-hopping", "snorkel-boat-tour", "beach", "mobile-sim", "atm-bank-card", "pharmacy", "emergency", "police", "lost-passport"]
+   "packs": ["travel", "answers", "airport", "bangkok-skytrain", "bus-train", "taxi", "tuk-tuk-songthaew", "hostel-dorm", "street-food", "restaurant", "night-market-bargain", "scams-overcharge", "temple", "island-hopping", "snorkel-boat-tour", "beach", "mobile-sim", "atm-bank-card", "pharmacy", "emergency", "police", "lost-passport", "negotiation", "tuk-tuk-scam-prevention", "numbers-prices"]
   },
   "family-with-kids": {
    "names": {"de": "Familie mit Kindern", "en": "Family with children", "th": "ครอบครัวที่มีเด็ก"},
@@ -14,7 +14,7 @@
   },
   "medical-tourism": {
    "names": {"de": "Medizintourismus", "en": "Medical tourism", "th": "การท่องเที่ยวเชิงการแพทย์"},
-   "packs": ["doctor", "hospital", "dentist", "pharmacy", "pharmacy-otc", "chronic-conditions", "skin-clinic", "optician-eye-care", "physiotherapy-injury", "travel-insurance-claim", "transport", "hotel", "emergency"]
+   "packs": ["doctor", "hospital", "dentist", "pharmacy", "pharmacy-otc", "chronic-conditions", "skin-clinic", "optician-eye-care", "physiotherapy-injury", "travel-insurance-claim", "transport", "hotel", "emergency", "doctor-symptom-detail", "embassy-consulate"]
   }
  }
 }

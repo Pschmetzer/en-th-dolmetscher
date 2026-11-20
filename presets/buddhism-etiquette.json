@@ -1,0 +1,101 @@
+{
+  "id": "buddhism-etiquette",
+  "names": {
+    "de": "Buddhismus und Etikette",
+    "en": "Buddhism and etiquette",
+    "th": "พุทธศาสนากับมารยาท"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "Buddha image",
+      "th": "พระพุทธรูป"
+    },
+    {
+      "en": "monk",
+      "th": "พระ"
+    },
+    {
+      "en": "shoes",
+      "th": "รองเท้า"
+    },
+    {
+      "en": "donation",
+      "th": "เงินทำบุญ"
+    },
+    {
+      "en": "shawl",
+      "th": "ผ้าคลุม"
+    },
+    {
+      "en": "chanting",
+      "th": "การสวดมนต์"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Do I need to take off my shoes here?",
+      "th": "ต้องถอดรองเท้าตรงนี้ไหม"
+    },
+    {
+      "en": "Is my clothing suitable for this place?",
+      "th": "แต่งตัวแบบนี้เหมาะสมกับที่นี่ไหม"
+    },
+    {
+      "en": "Where can I borrow a shawl or a sarong?",
+      "th": "ยืมผ้าคลุมหรือผ้าถุงได้ที่ไหน"
+    },
+    {
+      "en": "Where may I sit without pointing my feet at the Buddha?",
+      "th": "นั่งตรงไหนไม่ให้เท้าชี้ไปทางพระพุทธรูป"
+    },
+    {
+      "en": "May I take a photo of this Buddha image?",
+      "th": "ถ่ายรูปพระพุทธรูปองค์นี้ได้ไหม"
+    },
+    {
+      "en": "Is this area open to visitors?",
+      "th": "บริเวณนี้เปิดให้เข้าชมไหม"
+    },
+    {
+      "en": "Please excuse me. I did not know.",
+      "th": "ขออภัย ไม่ทราบมาก่อน"
+    },
+    {
+      "en": "I am sorry, I touched it by mistake.",
+      "th": "ขออภัย เผลอไปโดนโดยไม่ได้ตั้งใจ"
+    },
+    {
+      "en": "How do I greet a monk correctly?",
+      "th": "ทักทายพระอย่างถูกต้องทำอย่างไร"
+    },
+    {
+      "en": "How do I make a wai correctly?",
+      "th": "ไหว้อย่างถูกต้องทำอย่างไร"
+    },
+    {
+      "en": "Where do I put a donation?",
+      "th": "ใส่เงินทำบุญตรงไหน"
+    },
+    {
+      "en": "May I make merit here?",
+      "th": "ขอทำบุญที่นี่ได้ไหม"
+    },
+    {
+      "en": "May I stay and listen to the chanting?",
+      "th": "ขออยู่ฟังพระสวดมนต์ได้ไหม"
+    },
+    {
+      "en": "Is it quiet time now?",
+      "th": "ตอนนี้ต้องเงียบหรือเปล่า"
+    },
+    {
+      "en": "Thank you for letting me visit.",
+      "th": "ขอบคุณที่ให้เข้าชม"
+    }
+  ],
+  "note": {
+    "de": "Die App setzt die Höflichkeitspartikel (ครับ/ค่ะ) selbst. Füße nie auf Buddha-Figuren oder Mönche richten, den Kopf anderer nicht berühren, in Tempeln Schultern und Knie bedecken und Schuhe ausziehen. Frauen reichen Mönchen nichts direkt. Buddha-Bilder gelten nicht als Dekoration. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "The app adds the polite particles (krub/ka) itself. Never point your feet at Buddha images or monks, do not touch anyone's head, cover shoulders and knees in temples and take your shoes off. Women do not hand things directly to monks. Buddha images are not decoration. Thai lines machine-made, not checked by native speakers."
+  }
+}

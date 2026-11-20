@@ -1,0 +1,111 @@
+{
+  "id": "doctor-symptom-detail",
+  "names": {
+    "de": "Beschwerden genau beschreiben",
+    "en": "Describing symptoms in detail",
+    "th": "อธิบายอาการให้ละเอียด"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "symptom",
+      "th": "อาการ"
+    },
+    {
+      "en": "pain",
+      "th": "ปวด"
+    },
+    {
+      "en": "fever",
+      "th": "ไข้"
+    },
+    {
+      "en": "vomiting",
+      "th": "อาเจียน"
+    },
+    {
+      "en": "diarrhoea",
+      "th": "ท้องเสีย"
+    },
+    {
+      "en": "dizzy",
+      "th": "เวียนหัว"
+    },
+    {
+      "en": "rash",
+      "th": "ผื่น"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have trouble breathing when I walk.",
+      "th": "เดินแล้วหายใจลำบาก",
+      "critical": true
+    },
+    {
+      "en": "I have chest pain when I walk.",
+      "th": "เดินแล้วเจ็บหน้าอก",
+      "critical": true
+    },
+    {
+      "en": "The pain started two days ago.",
+      "th": "เริ่มปวดมาสองวันแล้ว"
+    },
+    {
+      "en": "The pain is sharp.",
+      "th": "ปวดแปลบ"
+    },
+    {
+      "en": "The pain is dull and constant.",
+      "th": "ปวดตื้อตลอดเวลา"
+    },
+    {
+      "en": "The pain comes and goes.",
+      "th": "ปวดเป็นพัก ๆ"
+    },
+    {
+      "en": "It hurts more when I move.",
+      "th": "ขยับแล้วปวดมากขึ้น"
+    },
+    {
+      "en": "The pain is seven out of ten.",
+      "th": "ปวดระดับเจ็ดจากสิบ"
+    },
+    {
+      "en": "I have had a fever since yesterday.",
+      "th": "มีไข้ตั้งแต่เมื่อวาน"
+    },
+    {
+      "en": "I have vomited three times today.",
+      "th": "วันนี้อาเจียนสามครั้ง"
+    },
+    {
+      "en": "I have had diarrhoea for two days.",
+      "th": "ท้องเสียมาสองวันแล้ว"
+    },
+    {
+      "en": "I cannot keep food or water down.",
+      "th": "กินอาหารหรือดื่มน้ำแล้วอาเจียนออกหมด"
+    },
+    {
+      "en": "I feel dizzy when I stand up.",
+      "th": "ลุกขึ้นยืนแล้วเวียนหัว"
+    },
+    {
+      "en": "I have a rash that is spreading.",
+      "th": "ผื่นกำลังลามออกไป"
+    },
+    {
+      "en": "I take regular medicine. I will show the box.",
+      "th": "กินยาประจำอยู่ จะแสดงกล่องยาให้ดู"
+    },
+    {
+      "en": "I will point to where it hurts.",
+      "th": "จะชี้ตำแหน่งที่ปวดให้ดู"
+    }
+  ],
+  "note": {
+    "de": "Die App setzt die Höflichkeitspartikel (ครับ/ค่ะ) selbst. Ergänzt das Paket „Arzt“: Beginn, Art und Stärke der Beschwerden genau nennen. Die Schmerzskala zeigt man am besten mit den Fingern oder einer Zahl. Medikamentenliste und Allergien schriftlich mitbringen. Kein Ersatz für ärztliche Beratung. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "The app adds the polite particles (krub/ka) itself. Adds to the Doctor pack: say when it started and what kind of symptom it is and how strong. Show the pain scale with fingers or a number. Bring a written list of medicines and allergies. Not a substitute for medical advice. Thai lines machine-made, not checked by native speakers."
+  }
+}

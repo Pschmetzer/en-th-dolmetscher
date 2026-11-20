@@ -4,11 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self' https://translate.googleapis.com https://api.mymemory.translated.net; img-src 'self' data:; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self' https://translate.googleapis.com https://api.mymemory.translated.net; img-src 'self' data:; manifest-src 'self'; worker-src 'self'; frame-src 'none'; object-src 'none'; script-src-attr 'none'; base-uri 'none'; form-action 'none'">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#1d4ed8" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Dolmetscher im Browser: Sprechen, übersetzen, vorlesen, Satzbuch mit Zeige-Karten (auch offline).">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="application-name" content="Dolmetscher">
+<link rel="canonical" href="https://pschmetzer.github.io/en-th-dolmetscher/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Dolmetscher EN⇄TH">
+<meta property="og:title" content="Dolmetscher EN⇄TH (Web Lite)">
+<meta property="og:description" content="Speak, translate, read aloud. Phrasebook with show cards for Thailand, offline. Sprechen, übersetzen, vorlesen.">
+<meta property="og:url" content="https://pschmetzer.github.io/en-th-dolmetscher/">
+<meta property="og:image" content="https://pschmetzer.github.io/en-th-dolmetscher/screenshots/phrasebook-narrow.png">
+<meta property="og:image:alt" content="Phrasebook with show cards and quick answers">
+<meta property="og:locale" content="de_DE">
+<meta property="og:locale:alternate" content="en_GB">
+<meta property="og:locale:alternate" content="th_TH">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Dolmetscher EN⇄TH (Web Lite)">
+<meta name="twitter:description" content="Speak, translate, read aloud. Phrasebook with show cards for Thailand, offline.">
+<meta name="twitter:image" content="https://pschmetzer.github.io/en-th-dolmetscher/screenshots/phrasebook-narrow.png">
+<script type="application/ld+json">
+{"@context":"http://schema.org","@type":"WebApplication","name":"Dolmetscher EN⇄TH (Web Lite)","url":"https://pschmetzer.github.io/en-th-dolmetscher/","applicationCategory":"TravelApplication","operatingSystem":"Any (modern browser)","inLanguage":["de","en","th"],"isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"description":"Speak, translate and read aloud; phrasebook with show cards for Thailand that works offline."}
+</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon-180.png">
@@ -108,7 +128,9 @@
   .logtools input[type=search] { font:inherit; min-height:44px; background:var(--card); color:var(--fg); border:1px solid var(--line); border-radius:8px; padding:6px 8px; }
   .cardwrap[hidden] { display:none; }
   .retry { margin-left:10px; font-size:14px; font-style:normal; }
-  button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
+  button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible, textarea:focus-visible, a:focus-visible, [role=tab]:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
+  @media (pointer:coarse) { button, summary, [role=tab], .emerg a { min-height:44px; } }   /* Fingertipp-Ziel ≥ 44 px (WCAG 2.5.5) auch für Knöpfe ohne eigene Regel */
+  @media (prefers-contrast: more) { button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible, textarea:focus-visible, a:focus-visible, [role=tab]:focus-visible { outline-width:4px; } button, select, input, textarea { border-width:2px; } }
   .opts { display:flex; gap:10px 18px; padding:0 0 10px; color:var(--mut); font-size:14px; flex-wrap:wrap; align-items:center; }
   .opts label { cursor:pointer; }
   .opts label, .row label { display:inline-flex; align-items:center; gap:6px; min-height:44px; }   /* Fingertipp-Ziel ≥ 44 px (WCAG 2.5.5), auch am Computer */
@@ -252,7 +274,7 @@
 <div class="note" role="status" id="swNote" hidden></div>
 <div class="note" role="note" id="installNote" hidden></div>
 <div id="warn" role="alert" aria-atomic="false"></div>
-<div class="tabs" id="tabBar" role="tablist" data-aria="tabsLbl" aria-label="Bereiche">
+<div class="tabs" id="tabBar" role="tablist" aria-orientation="horizontal" data-aria="tabsLbl" aria-label="Bereiche">
   <button type="button" role="tab" data-go="speak" data-i18n="tabSpeak">Sprechen</button><button type="button" role="tab" data-go="book" data-i18n="tabBook">Satzbuch</button><button type="button" role="tab" data-go="cards" data-i18n="tabCards">Karten</button><button type="button" role="tab" data-go="learn" data-i18n="tabLearn">Lernen</button>
 </div>
 <h2 class="sr-only" data-i18n="hTalk">Sprechen und übersetzen</h2>
@@ -962,7 +984,7 @@ function loadLangTable() {   // nach 3 s ohne Antwort mit dem Notfall-Paar start
 }
 function refreshLangUi() { initPair(); fillLangSelects(); buildModes(); fillVoiceSelects(); renderCards(); }
 const DEFAULT_PAIR = ['en', 'th'];
-const PRESET_IDS = ['doctor', 'police', 'lostchild', 'pharmacy', 'dentist', 'taxi', 'places', 'airport', 'transport', 'travel', 'hotel', 'restaurant', 'shopping', 'bank', 'answers', 'access', 'spa', 'temple', 'island', 'scooter', 'rental', 'services', 'coworking', 'office', 'adventure-park', 'animal-bite-rabies', 'atm-bank-card', 'baby', 'babysitter-housekeeper', 'badminton-tennis', 'bakery-cafe', 'bangkok-skytrain', 'bank-account-opening', 'beach', 'bicycle-rental', 'birthday-celebration', 'border-crossing', 'buddhist-ceremony', 'buffet-bbq', 'bus-train', 'cannabis-vape', 'car-accident', 'car-rental', 'car-wash-repair', 'chronic-conditions', 'cinema-concert', 'convenience-store-7eleven', 'currency-exchange', 'customs-duty-free', 'dating-small-talk', 'diving', 'driving-license', 'drone-camera-rules', 'earthquake-evacuation', 'elephant-sanctuary', 'emergency', 'ferry-boat', 'festival', 'fishing-trip', 'flight-delay-change', 'floating-market', 'food-allergy', 'food-delivery', 'fruit-market-durian', 'funeral-condolence', 'gas-station-parking', 'golf', 'grab-ride-hailing', 'grand-palace-museum', 'gym', 'hair-beauty', 'heat-health', 'hiking', 'home-repair', 'hospital', 'hostel-dorm', 'immigration-90day', 'island-hopping', 'jet-ski-rental', 'karaoke', 'kayak-national-park', 'kids', 'kids-playground', 'laundry-deposit', 'laundry-repair', 'long-term-lease', 'lost-luggage', 'lost-passport', 'lost-phone', 'luggage-storage', 'market', 'massage', 'mental-health-counseling', 'mobile-sim', 'monk', 'monsoon-flood-storm', 'mosque-visit', 'mosquito-dengue', 'motorbike-accident', 'motorcycle-taxi', 'muay-thai-gym', 'night-market-bargain', 'nightlife', 'nomad', 'optician-eye-care', 'pets', 'pharmacy-otc', 'photo', 'physiotherapy-injury', 'police-checkpoint', 'post-office-parcel', 'pregnancy-maternity', 'private-driver-day-tour', 'promptpay-qr-payment', 'rice-field-village', 'scams-overcharge', 'school', 'sexual-health-clinic', 'skin-clinic', 'snorkel-boat-tour', 'songkran-water-festival', 'souvenir-jewelry', 'spirit-house-shrine', 'sport', 'street-food', 'tailor-custom', 'tattoo-piercing', 'tax-refund', 'thai-cooking-class', 'thai-language-lesson', 'tm30-address-report', 'travel-insurance-claim', 'tuk-tuk-songthaew', 'vegan-vegetarian', 'visa', 'visa-extension', 'volunteering', 'water-park-zoo', 'wedding', 'wifi-coworking-cafe', 'work', 'yoga-retreat'];
+const PRESET_IDS = ['doctor', 'police', 'lostchild', 'pharmacy', 'dentist', 'taxi', 'places', 'airport', 'transport', 'travel', 'hotel', 'restaurant', 'shopping', 'bank', 'answers', 'access', 'spa', 'temple', 'island', 'scooter', 'rental', 'services', 'coworking', 'office', 'adventure-park', 'animal-bite-rabies', 'atm-bank-card', 'baby', 'babysitter-housekeeper', 'badminton-tennis', 'bakery-cafe', 'bangkok-skytrain', 'bank-account-opening', 'beach', 'bicycle-rental', 'birthday-celebration', 'border-crossing', 'buddhism-etiquette', 'buddhist-ceremony', 'buffet-bbq', 'bus-train', 'cannabis-vape', 'car-accident', 'car-rental', 'car-wash-repair', 'chronic-conditions', 'cinema-concert', 'convenience-store-7eleven', 'currency-exchange', 'customs-duty-free', 'dating-small-talk', 'diving', 'doctor-symptom-detail', 'driving-license', 'drone-camera-rules', 'earthquake-evacuation', 'elephant-sanctuary', 'embassy-consulate', 'emergency', 'ferry-boat', 'festival', 'fishing-trip', 'flight-delay-change', 'floating-market', 'food-allergy', 'food-delivery', 'food-spice-level', 'fruit-market-durian', 'funeral-condolence', 'gas-station-parking', 'golf', 'grab-ride-hailing', 'grand-palace-museum', 'gym', 'hair-beauty', 'halal-food-muslim', 'hearing-speech-impaired', 'heat-health', 'hiking', 'home-repair', 'hospital', 'hostel-dorm', 'hotel-room-problems', 'immigration-90day', 'island-hopping', 'jet-ski-rental', 'karaoke', 'kayak-national-park', 'kids', 'kids-playground', 'laundry-deposit', 'laundry-repair', 'long-term-lease', 'lost-luggage', 'lost-passport', 'lost-phone', 'lost-wallet-cards', 'luggage-storage', 'market', 'massage', 'mental-health-counseling', 'mobile-sim', 'monk', 'monsoon-flood-storm', 'mosque-visit', 'mosquito-dengue', 'motorbike-accident', 'motorcycle-taxi', 'muay-thai-gym', 'negotiation', 'night-market-bargain', 'nightlife', 'nomad', 'numbers-prices', 'optician-eye-care', 'pets', 'pharmacy-otc', 'photo', 'physiotherapy-injury', 'police-checkpoint', 'post-office-parcel', 'pregnancy-maternity', 'private-driver-day-tour', 'promptpay-qr-payment', 'refund-complaint-shop', 'rice-field-village', 'scams-overcharge', 'school', 'scooter-rental-damage', 'sexual-health-clinic', 'skin-clinic', 'snorkel-boat-tour', 'songkran-water-festival', 'souvenir-jewelry', 'spirit-house-shrine', 'sport', 'street-food', 'tailor-custom', 'tattoo-piercing', 'tax-refund', 'thai-cooking-class', 'thai-language-lesson', 'tm30-address-report', 'travel-insurance-claim', 'tuk-tuk-scam-prevention', 'tuk-tuk-songthaew', 'vegan-vegetarian', 'visa', 'visa-extension', 'volunteering', 'water-park-zoo', 'wedding', 'wheelchair-mobility', 'wifi-coworking-cafe', 'work', 'yoga-retreat'];
 
 // ---- Schrift-Plausibilität (wie dolmetscher.py: scripts_distinct, script_share, _untranslated, _wrong_script, text_lang) ----
 const SCRIPT_RX = {}, SCRIPT_RX_G = {}, SCRIPT_RUN3 = {};
@@ -2401,6 +2423,7 @@ for (const b of document.querySelectorAll('#tabBar [role=tab]')) b.onclick = () 
 $('tabBar').addEventListener('keydown', e => {
   const i = TABS.indexOf(document.body.dataset.tab), d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
   if (d) { e.preventDefault(); showTab(TABS[(i + d + TABS.length) % TABS.length], true); }
+  else if (e.key === 'Home' || e.key === 'End') { e.preventDefault(); showTab(TABS[e.key === 'Home' ? 0 : TABS.length - 1], true); }   // WAI-ARIA Tabs: Anfang/Ende
 });
 document.addEventListener('toggle', e => { const tab = e.target.dataset && e.target.dataset.tab; if (tab && e.target.open && document.body.dataset.tab !== tab) showTab(tab); }, true);   // ein Bereich wird geöffnet (Kürzel, Warnung, Link): passenden Tab zeigen
 showTab(TABS.includes(settings.tab) ? settings.tab : SR ? 'speak' : 'book');
@@ -3170,9 +3193,10 @@ if ('serviceWorker' in navigator && window.isSecureContext && /^https?:$/.test(l
     if (!d || d.type !== 'offline-status' || !Number.isInteger(d.ok) || !Number.isInteger(d.total)) return;
     const st = $('swState');
     st.textContent = d.ok >= d.total ? t('offlineReady') : d.loading ? t('offlineLoading', { a: d.ok, b: d.total }) : t('offlinePart', { a: d.ok, b: d.total });
-    if (d.ok < d.total && !d.loading && !fillAsked && navigator.onLine !== false && !(navigator.connection && navigator.connection.saveData)) {
-      fillAsked = true;   // Pakete erst nach dem Start, einmal je Sitzung und nur mit Netz und ohne Datensparmodus laden
-      const go = () => { if (navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage({ type: 'cache-presets' }); };
+    if (d.ok < d.total && !d.loading && !fillAsked && navigator.onLine !== false) {
+      fillAsked = true;   // Pakete erst nach dem Start, einmal je Sitzung und nur mit Netz; im Datensparmodus nur die Notfallpakete
+      const lite = !!(navigator.connection && navigator.connection.saveData);
+      const go = () => { if (navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage({ type: 'cache-presets', priorityOnly: lite }); };
       if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 4000 }); else setTimeout(go, 1500);
     }
   });
@@ -3180,6 +3204,7 @@ if ('serviceWorker' in navigator && window.isSecureContext && /^https?:$/.test(l
     navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(() => navigator.serviceWorker.ready)
       .then(reg => {
         if (reg.active) reg.active.postMessage({ type: 'offline-status' });
+        try { if (navigator.storage && navigator.storage.persist && window.matchMedia('(display-mode: standalone)').matches) navigator.storage.persist(); } catch {}   // installierte App: Speicher gegen automatisches Räumen schützen (kein Dialog)
         setInterval(() => { if (!document.hidden) reg.update().catch(() => {}); }, 3600000);   // lange offen gelassene App: stündlich nach Updates fragen
         document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });   // lange offene App: beim Zurückkehren nach Updates fragen
       })

@@ -72,7 +72,7 @@ struct OnboardingView: View {
             }
             .task { await refresh() }
             .translationTask(download) { session in
-                try? await session.prepareTranslation()
+                do { try await session.prepareTranslation() } catch { PackLog.failed(error) }
                 await m.refreshOffline()
                 await refresh()
             }

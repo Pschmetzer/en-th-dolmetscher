@@ -1,0 +1,111 @@
+{
+  "id": "hearing-speech-impaired",
+  "names": {
+    "de": "Schwerhörig oder stumm",
+    "en": "Deaf, hard of hearing or unable to speak",
+    "th": "หูหนวก หูตึง หรือพูดไม่ได้"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "deaf",
+      "th": "หูหนวก"
+    },
+    {
+      "en": "hard of hearing",
+      "th": "หูตึง"
+    },
+    {
+      "en": "sign language",
+      "th": "ภาษามือ"
+    },
+    {
+      "en": "hearing aid",
+      "th": "เครื่องช่วยฟัง"
+    },
+    {
+      "en": "interpreter",
+      "th": "ล่าม"
+    },
+    {
+      "en": "write",
+      "th": "เขียน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please call an ambulance for me. I cannot speak on the phone.",
+      "th": "ช่วยเรียกรถพยาบาลให้หน่อย พูดโทรศัพท์ไม่ได้",
+      "critical": true
+    },
+    {
+      "en": "I need help. Please read my note.",
+      "th": "ต้องการความช่วยเหลือ ช่วยอ่านข้อความนี้",
+      "critical": true
+    },
+    {
+      "en": "I am deaf. Please write it down or type on your phone.",
+      "th": "เป็นผู้บกพร่องทางการได้ยิน ช่วยเขียนหรือพิมพ์ในโทรศัพท์"
+    },
+    {
+      "en": "I am hard of hearing. Please speak slowly and face me.",
+      "th": "ได้ยินไม่ชัด ช่วยพูดช้า ๆ และหันหน้ามาทางนี้"
+    },
+    {
+      "en": "I cannot speak. I will type or write.",
+      "th": "พูดไม่ได้ จะพิมพ์หรือเขียนแทน"
+    },
+    {
+      "en": "I use sign language. Is there an interpreter?",
+      "th": "ใช้ภาษามือ มีล่ามภาษามือไหม"
+    },
+    {
+      "en": "Please do not shout. Please write it down.",
+      "th": "ไม่ต้องตะโกน ช่วยเขียนให้ดูหน่อย"
+    },
+    {
+      "en": "Can you type it on this phone?",
+      "th": "พิมพ์ลงในโทรศัพท์เครื่องนี้ได้ไหม"
+    },
+    {
+      "en": "I did not hear the announcement. What did it say?",
+      "th": "ไม่ได้ยินประกาศ ประกาศว่าอะไร"
+    },
+    {
+      "en": "Please touch my arm when it is my turn.",
+      "th": "ถึงคิวแล้วช่วยแตะแขนบอกหน่อย"
+    },
+    {
+      "en": "Please show me the number on a screen or on paper.",
+      "th": "ช่วยแสดงตัวเลขบนหน้าจอหรือกระดาษ"
+    },
+    {
+      "en": "Please use gestures or point to the item.",
+      "th": "ช่วยใช้ท่าทางหรือชี้สิ่งของ"
+    },
+    {
+      "en": "I wear a hearing aid and the noise here is difficult.",
+      "th": "ใช้เครื่องช่วยฟัง ที่นี่เสียงดังรบกวน"
+    },
+    {
+      "en": "Is there a quiet place where we can talk?",
+      "th": "มีที่เงียบ ๆ ให้คุยกันไหม"
+    },
+    {
+      "en": "Please look at me when you speak so I can read your lips.",
+      "th": "ช่วยมองหน้าเวลาพูด จะได้อ่านปาก"
+    },
+    {
+      "en": "Is there a written menu or price list?",
+      "th": "มีเมนูหรือรายการราคาที่เป็นตัวอักษรไหม"
+    },
+    {
+      "en": "Thank you for writing it down.",
+      "th": "ขอบคุณที่เขียนให้"
+    }
+  ],
+  "note": {
+    "de": "Die App setzt die Höflichkeitspartikel (ครับ/ค่ะ) selbst. Zum Zeigen für Menschen mit Hörverlust oder Sprechbehinderung. Thailand hat eine eigene Gebärdensprache; internationale Gebärden helfen nur begrenzt. Schreiben oder Tippen auf dem Handy ist am zuverlässigsten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "The app adds the polite particles (krub/ka) itself. For people who are deaf, hard of hearing or unable to speak. Thailand has its own sign language; international signs help only a little. Writing or typing on a phone is the most reliable way. Thai lines machine-made, not checked by native speakers."
+  }
+}

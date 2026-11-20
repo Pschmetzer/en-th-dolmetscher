@@ -1,0 +1,5 @@
+# Static phrasebook page, no tracking. Everything may be crawled.
+User-agent: *
+Allow: /
+
+Sitemap: https://pschmetzer.github.io/en-th-dolmetscher/sitemap.xml

@@ -4,6 +4,13 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### Web Lite and phrase packs, round 22 (web)
+
+- 14 new scenario packs (156 in total): numbers and prices, negotiating, Buddhism and etiquette, scooter rental damage and deposit, describing symptoms in detail, avoiding tuk-tuk scams, embassy and consulate, spice level in food, deaf / hard of hearing / unable to speak, wheelchair and limited mobility, halal food and prayer, returns and complaints in shops, hotel room problems, lost wallet and cards. Thai lines machine-made, not checked by native speakers.
+- Offline: the service worker loads emergency and safety packs first; in data-saver mode or with little free storage it loads only those. The cache version now follows a content hash (`tools/sync_web.py`), `PRESET_IDS` in the page and the worker are generated from `presets-index.json`.
+- Installed app asks the browser to keep its storage (`navigator.storage.persist()`), manifest gets shortcuts for emergency and pharmacy and `handle_links`.
+- Page: canonical link, Open Graph and Twitter tags, JSON-LD, stricter CSP (`frame-src`, `object-src`, `script-src-attr` none), `robots.txt`, `sitemap.xml`, `llms.txt`; keyboard Home/End on the tabs, visible focus for links, text areas and tabs, stronger focus and borders with `prefers-contrast: more`, 44 px touch targets for all buttons on touch screens.
+
 ## 1.3 (20 November 2026)
 
 Pull requests #16–#192. First tagged release since 1.2: engine hardening, Mac and iPhone round 21, Web Lite tabs and i18n files, 142 phrase packs, security fixes.

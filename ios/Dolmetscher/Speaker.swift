@@ -49,8 +49,12 @@ final class Speaker: NSObject, AVSpeechSynthesizerDelegate {
     private static var hasVoiceCache: [Lang: Bool] = [:]
 
     /// `rate`: 1 = normal (0.5 … 1.5), `volume`: 0 … 1. `clear`: „Langsam und deutlich“ – Pausen zwischen Satzteilen.
-    func speak(_ text: String, lang: Lang, rate: Double, volume: Double, clear: Bool = false) async {
+    /// Gibt `false` zurück, wenn es für die Sprache keine Stimme gibt (dann wird nicht gesprochen: die Standardstimme
+    /// würde fremde Schrift unverständlich vorlesen).
+    @discardableResult
+    func speak(_ text: String, lang: Lang, rate: Double, volume: Double, clear: Bool = false) async -> Bool {
         finish()
+        guard Self.hasVoice(lang) else { return false }
         let spoken = SpeechText.normalize(text, lang: lang)
         let ssml = clear ? ClearSpeech.ssml(spoken, lang: lang) : nil
         let u = ssml.flatMap { AVSpeechUtterance(ssmlRepresentation: $0) } ?? AVSpeechUtterance(string: spoken)
@@ -72,6 +76,7 @@ final class Speaker: NSObject, AVSpeechSynthesizerDelegate {
             current = u
             synth.speak(u)
         }
+        return true
     }
 
     func stop() {
@@ -143,8 +148,10 @@ enum ClearSpeech {
     }
 
     /// Sicherungs-Zeitlimit: 8 s + 0,25 s je Zeichen, langsamer gesprochen entsprechend länger, plus Pausen.
+    static let baseSeconds = 8.0, secondsPerChar = 0.25, minRate = 0.3
+
     static func timeout(chars: Int, rate: Double, pauses: Int) -> Double {
-        (8 + Double(chars) * 0.25) / max(0.3, min(1, rate)) + Double(pauses) * pause
+        (baseSeconds + Double(chars) * secondsPerChar) / max(minRate, min(1, rate)) + Double(pauses) * pause
     }
 }
 

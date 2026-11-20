@@ -110,7 +110,7 @@ final class WhisperStore {
             defer { task = nil; progress = nil; bg.end() }
             do {
                 try Self.prepareBase()
-                try? FileManager.default.createDirectory(at: Self.folder(variant), withIntermediateDirectories: true)
+                try FileManager.default.createDirectory(at: Self.folder(variant), withIntermediateDirectories: true)
                 FileManager.default.createFile(atPath: Self.marker(variant).path, contents: Data())
                 _ = try await WhisperKit.download(variant: variant, downloadBase: Self.base, from: Self.repo) { p in
                     let f = p.fractionCompleted
@@ -125,7 +125,7 @@ final class WhisperStore {
                 if let old = installed, old != variant { try? FileManager.default.removeItem(at: Self.folder(old)) }
                 installed = variant
                 UserDefaults.standard.set(variant, forKey: "whisperInstalled")
-                try? Self.excludeFromBackup()
+                do { try Self.excludeFromBackup() } catch { log.error("backup exclusion failed: \(error.localizedDescription, privacy: .public)") }
             } catch is CancellationError {
             } catch {
                 log.error("download failed: \(error.localizedDescription, privacy: .public)")

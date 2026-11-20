@@ -1,0 +1,111 @@
+{
+  "id": "hotel-room-problems",
+  "names": {
+    "de": "Hotel: Probleme im Zimmer",
+    "en": "Hotel: room problems",
+    "th": "โรงแรม: ปัญหาในห้องพัก"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "air conditioner",
+      "th": "แอร์"
+    },
+    {
+      "en": "hot water",
+      "th": "น้ำอุ่น"
+    },
+    {
+      "en": "key card",
+      "th": "คีย์การ์ด"
+    },
+    {
+      "en": "safe",
+      "th": "ตู้เซฟ"
+    },
+    {
+      "en": "leak",
+      "th": "รั่ว"
+    },
+    {
+      "en": "towel",
+      "th": "ผ้าเช็ดตัว"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I smell smoke in the corridor.",
+      "th": "ได้กลิ่นควันในทางเดิน",
+      "critical": true
+    },
+    {
+      "en": "Someone tried to enter my room.",
+      "th": "มีคนพยายามเข้าห้อง",
+      "critical": true
+    },
+    {
+      "en": "The air conditioner does not work.",
+      "th": "เครื่องปรับอากาศใช้ไม่ได้"
+    },
+    {
+      "en": "There is no hot water.",
+      "th": "ไม่มีน้ำร้อน"
+    },
+    {
+      "en": "The room is not clean. Please clean it again.",
+      "th": "ห้องไม่สะอาด ช่วยทำความสะอาดใหม่"
+    },
+    {
+      "en": "There are bed bugs in the bed.",
+      "th": "มีตัวเรือดบนเตียง"
+    },
+    {
+      "en": "There are insects in the room.",
+      "th": "มีแมลงในห้อง"
+    },
+    {
+      "en": "The toilet is blocked.",
+      "th": "ส้วมตัน"
+    },
+    {
+      "en": "The room is very noisy. May I change rooms?",
+      "th": "ห้องเสียงดังมาก ขอเปลี่ยนห้องได้ไหม"
+    },
+    {
+      "en": "The safe does not open.",
+      "th": "ตู้เซฟเปิดไม่ได้"
+    },
+    {
+      "en": "The key card does not work.",
+      "th": "คีย์การ์ดใช้ไม่ได้"
+    },
+    {
+      "en": "Water is leaking from the ceiling.",
+      "th": "น้ำรั่วจากเพดาน"
+    },
+    {
+      "en": "Please send someone to fix it now.",
+      "th": "ช่วยส่งช่างมาซ่อมเดี๋ยวนี้"
+    },
+    {
+      "en": "This is not the room I booked.",
+      "th": "ห้องนี้ไม่ตรงกับที่จอง"
+    },
+    {
+      "en": "May I have a refund for tonight?",
+      "th": "ขอเงินคืนค่าห้องคืนนี้ได้ไหม"
+    },
+    {
+      "en": "Please do not enter my room without knocking.",
+      "th": "ขออย่าเข้าห้องโดยไม่เคาะประตู"
+    },
+    {
+      "en": "I would like extra towels.",
+      "th": "ขอผ้าเช็ดตัวเพิ่ม"
+    }
+  ],
+  "note": {
+    "de": "Die App setzt die Höflichkeitspartikel (ครับ/ค่ะ) selbst. Probleme sofort an der Rezeption melden und, wenn möglich, mit Foto belegen. Ein Zimmerwechsel ist meist kostenlos, wenn das Hotel nicht ausgebucht ist. Bei Rauch oder Gefahr nicht erst fragen, sondern das Gebäude verlassen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "The app adds the polite particles (krub/ka) itself. Report problems at the front desk at once and photograph them if you can. A room change is usually free unless the hotel is full. In case of smoke or danger do not ask first; leave the building. Thai lines machine-made, not checked by native speakers."
+  }
+}

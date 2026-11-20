@@ -32,7 +32,9 @@ DEFAULT_DIR = ROOT / "presets"
 KINDS = ("phrases", "glossary")
 THAI = re.compile(r"[฀-๿]")
 BLANK = re.compile(r"_{3,}")
-PARTICLES = ("ครับ", "ค่ะ")
+PARTICLES = ("ครับ", "ค่ะ", "คะ", "นะคะ", "นะครับ", "ดิฉัน")
+# Runde 22: auch คะ/นะคะ/ดิฉัน (weibliche Form); คะ nicht in คะแนน, คะน้า, คะนอง, คะเน, คะยั้น, คะยอ
+_PARTICLE_RX = re.compile(r"ครับ|ค่ะ|นะคะ|ดิฉัน|คะ(?!แนน|น้า|นอง|เน|ยั้น|ยอ)")
 PAIRS = (("(", ")"), ("[", "]"), ("“", "”"))
 ERROR, WARNING = "error", "warning"
 CSV_FIELDS = ("pack", "kind", "index", "en", "th", "critical", "name_de", "name_en", "name_th")
@@ -135,7 +137,7 @@ def _format(stem, where, kind, en, th):
         out.append(_f(ERROR, stem, "format", "en enthält Thai-Schrift (vertauscht?)", where))
     if len(BLANK.findall(en)) != len(BLANK.findall(th)):
         out.append(_f(ERROR, stem, "format", "Anzahl der ___-Lücken in en und th verschieden", where))
-    if kind == "phrases" and any(p in th for p in PARTICLES):
+    if kind == "phrases" and _PARTICLE_RX.search(th):
         out.append(_f(WARNING, stem, "format", "Höflichkeitspartikel in th (ergänzt die Engine)", where))
     return out
 

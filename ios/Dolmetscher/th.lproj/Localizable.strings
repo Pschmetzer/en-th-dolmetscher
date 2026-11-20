@@ -1,0 +1,18 @@
+/* Kurzbefehle, Siri und Spotlight (App Intents). MASCHINELL ÜBERSETZT außer de/th, nicht muttersprachlich geprüft. */
+"Start interpreting" = "เริ่มแปล";
+"Stop interpreting" = "หยุดแปล";
+"Say phrase" = "พูดประโยค";
+"Swap language pair" = "สลับคู่ภาษา";
+"Speak last translation" = "อ่านคำแปลล่าสุด";
+"Open phrasebook" = "เปิดสมุดประโยค";
+"Phrasebook" = "สมุดประโยค";
+"Translate text" = "แปลข้อความ";
+"Emergency phrase (Thai)" = "ประโยคฉุกเฉิน (ไทย)";
+"Emergency phrase" = "ประโยคฉุกเฉิน";
+"Say in partner's language" = "พูดเป็นภาษาของคู่สนทนา";
+"Open emergency card" = "เปิดบัตรฉุกเฉิน";
+"Emergency card" = "บัตรฉุกเฉิน";
+"Show last translation" = "แสดงคำแปลล่าสุด";
+"Say phrasebook phrase" = "พูดประโยคจากสมุดประโยค";
+"Text" = "ข้อความ";
+"Phrase" = "ประโยค";

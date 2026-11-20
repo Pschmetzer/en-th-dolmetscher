@@ -1,0 +1,18 @@
+/* Kurzbefehle, Siri und Spotlight (App Intents). MASCHINELL ÜBERSETZT außer de/th, nicht muttersprachlich geprüft. */
+"Start interpreting" = "Dolmetschen starten";
+"Stop interpreting" = "Dolmetschen beenden";
+"Say phrase" = "Satz sagen";
+"Swap language pair" = "Sprachpaar tauschen";
+"Speak last translation" = "Letzte Übersetzung vorlesen";
+"Open phrasebook" = "Satzbuch öffnen";
+"Phrasebook" = "Satzbuch";
+"Translate text" = "Text übersetzen";
+"Emergency phrase (Thai)" = "Notrufsatz (Thai)";
+"Emergency phrase" = "Notrufsatz";
+"Say in partner's language" = "In der Partnersprache sagen";
+"Open emergency card" = "Notfallkarte öffnen";
+"Emergency card" = "Notfallkarte";
+"Show last translation" = "Letzte Übersetzung zeigen";
+"Say phrasebook phrase" = "Satzbuch-Satz sagen";
+"Text" = "Text";
+"Phrase" = "Satz";

@@ -127,7 +127,7 @@ struct SettingsView: View {
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button(T("done")) { dismiss() } } }
             // Lädt die Sprachpakete über den Systemdialog; danach übersetzt die App offline.
             .translationTask(download) { session in
-                try? await session.prepareTranslation()
+                do { try await session.prepareTranslation() } catch { PackLog.failed(error) }
                 await m.packsChanged()
             }
             .task { await m.refreshOffline() }

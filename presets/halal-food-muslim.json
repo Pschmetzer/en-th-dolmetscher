@@ -1,0 +1,101 @@
+{
+  "id": "halal-food-muslim",
+  "names": {
+    "de": "Halal-Essen und Gebet",
+    "en": "Halal food and prayer",
+    "th": "อาหารฮาลาลและการละหมาด"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "halal",
+      "th": "ฮาลาล"
+    },
+    {
+      "en": "pork",
+      "th": "เนื้อหมู"
+    },
+    {
+      "en": "lard",
+      "th": "น้ำมันหมู"
+    },
+    {
+      "en": "alcohol",
+      "th": "แอลกอฮอล์"
+    },
+    {
+      "en": "prayer room",
+      "th": "ห้องละหมาด"
+    },
+    {
+      "en": "mosque",
+      "th": "มัสยิด"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Is this food halal?",
+      "th": "อาหารนี้ฮาลาลไหม"
+    },
+    {
+      "en": "Is there a halal restaurant nearby?",
+      "th": "แถวนี้มีร้านอาหารฮาลาลไหม"
+    },
+    {
+      "en": "I do not eat pork.",
+      "th": "ไม่กินเนื้อหมู"
+    },
+    {
+      "en": "Does it contain pork or lard?",
+      "th": "มีเนื้อหมูหรือน้ำมันหมูไหม"
+    },
+    {
+      "en": "Does it contain alcohol?",
+      "th": "มีแอลกอฮอล์ไหม"
+    },
+    {
+      "en": "Was it cooked with the same utensils as pork?",
+      "th": "ปรุงด้วยอุปกรณ์เดียวกับหมูหรือเปล่า"
+    },
+    {
+      "en": "Is the chicken halal?",
+      "th": "ไก่นี้เป็นฮาลาลไหม"
+    },
+    {
+      "en": "Can you cook it with beef or chicken instead of pork?",
+      "th": "เปลี่ยนจากหมูเป็นเนื้อหรือไก่ได้ไหม"
+    },
+    {
+      "en": "Is the cooking oil vegetable oil?",
+      "th": "น้ำมันที่ใช้เป็นน้ำมันพืชไหม"
+    },
+    {
+      "en": "Is there a halal sign or certificate?",
+      "th": "มีป้ายหรือใบรับรองฮาลาลไหม"
+    },
+    {
+      "en": "Is there a prayer room nearby?",
+      "th": "แถวนี้มีห้องละหมาดไหม"
+    },
+    {
+      "en": "Where is the nearest mosque?",
+      "th": "มัสยิดที่ใกล้ที่สุดอยู่ที่ไหน"
+    },
+    {
+      "en": "Which direction is Mecca?",
+      "th": "ทิศไปเมกกะอยู่ทางไหน"
+    },
+    {
+      "en": "Where can I wash before prayer?",
+      "th": "ล้างหน้าล้างมือก่อนละหมาดได้ที่ไหน"
+    },
+    {
+      "en": "I am fasting. When can I eat?",
+      "th": "กำลังถือศีลอด กินได้ตอนกี่โมง"
+    }
+  ],
+  "note": {
+    "de": "Die App setzt die Höflichkeitspartikel (ครับ/ค่ะ) selbst. Im Süden Thailands leben viele Muslime, dort ist Halal-Essen leicht zu finden, im Norden seltener. Auf grüne oder weiße Halal-Schilder achten. Fischsauce ist meist unbedenklich, Schweinefett und Alkohol in Soßen nachfragen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "The app adds the polite particles (krub/ka) itself. Many Muslims live in southern Thailand, where halal food is easy to find and rarer in the north. Look for green or white halal signs. Fish sauce is usually fine; ask about lard and alcohol in sauces. Thai lines machine-made, not checked by native speakers."
+  }
+}

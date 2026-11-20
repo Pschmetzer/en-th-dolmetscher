@@ -1,0 +1,105 @@
+{
+  "id": "embassy-consulate",
+  "names": {
+    "de": "Botschaft und Konsulat",
+    "en": "Embassy and consulate",
+    "th": "สถานทูตและสถานกงสุล"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "embassy",
+      "th": "สถานทูต"
+    },
+    {
+      "en": "consulate",
+      "th": "สถานกงสุล"
+    },
+    {
+      "en": "passport",
+      "th": "หนังสือเดินทาง"
+    },
+    {
+      "en": "police report",
+      "th": "ใบแจ้งความ"
+    },
+    {
+      "en": "appointment",
+      "th": "นัดหมาย"
+    },
+    {
+      "en": "fee",
+      "th": "ค่าธรรมเนียม"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have been arrested and need help from my embassy.",
+      "th": "ถูกจับกุม ต้องการความช่วยเหลือจากสถานทูต",
+      "critical": true
+    },
+    {
+      "en": "I have been the victim of a crime.",
+      "th": "ตกเป็นเหยื่ออาชญากรรม",
+      "critical": true
+    },
+    {
+      "en": "I need to see a doctor and I have no money.",
+      "th": "ต้องพบแพทย์ แต่ไม่มีเงิน",
+      "critical": true
+    },
+    {
+      "en": "I lost my passport and need an emergency travel document.",
+      "th": "หนังสือเดินทางหาย ต้องการเอกสารเดินทางฉุกเฉิน",
+      "critical": true
+    },
+    {
+      "en": "My passport was stolen. I have a police report.",
+      "th": "หนังสือเดินทางถูกขโมย มีใบแจ้งความแล้ว"
+    },
+    {
+      "en": "Please call the embassy for me.",
+      "th": "ช่วยโทรหาสถานทูตให้หน่อย"
+    },
+    {
+      "en": "Where is the embassy of my country?",
+      "th": "สถานทูตของประเทศตนเองอยู่ที่ไหน"
+    },
+    {
+      "en": "Is there a consulate in this city?",
+      "th": "ในเมืองนี้มีสถานกงสุลไหม"
+    },
+    {
+      "en": "Is the embassy open on Saturday?",
+      "th": "สถานทูตเปิดวันเสาร์ไหม"
+    },
+    {
+      "en": "Do I need an appointment?",
+      "th": "ต้องนัดล่วงหน้าไหม"
+    },
+    {
+      "en": "Which documents should I bring?",
+      "th": "ต้องนำเอกสารอะไรมาบ้าง"
+    },
+    {
+      "en": "I need a certified copy of a document.",
+      "th": "ต้องการสำเนาเอกสารที่รับรองแล้ว"
+    },
+    {
+      "en": "Is there an emergency phone number for citizens?",
+      "th": "มีเบอร์โทรฉุกเฉินสำหรับพลเมืองไหม"
+    },
+    {
+      "en": "I want to contact my family. Can the embassy help?",
+      "th": "ต้องการติดต่อครอบครัว สถานทูตช่วยได้ไหม"
+    },
+    {
+      "en": "How long does the process take?",
+      "th": "ขั้นตอนนี้ใช้เวลานานแค่ไหน"
+    }
+  ],
+  "note": {
+    "de": "Die App setzt die Höflichkeitspartikel (ครับ/ค่ะ) selbst. Botschaft in Bangkok, Konsulate in einigen Städten. Vor dem Besuch Öffnungszeiten, Termin und Unterlagen prüfen. Bei Verlust des Passes zuerst Anzeige bei der Polizei, dann Ersatzpapiere beantragen. Die Botschaft zahlt keine Rechnungen und bürgt nicht. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "The app adds the polite particles (krub/ka) itself. The embassy is in Bangkok, with consulates in some cities. Check opening hours, appointments and documents before you go. If your passport is lost, report it to the police first, then apply for a replacement. Embassies do not pay bills or act as guarantors. Thai lines machine-made, not checked by native speakers."
+  }
+}

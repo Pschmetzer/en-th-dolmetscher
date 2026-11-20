@@ -174,6 +174,7 @@ final class UIDrafts: ObservableObject {
     @Published var langFilter = ""
     @Published var searchOpen = false
     @Published var typedDraft = ""
+    var inputHistory = InputHistory()   // ↑/↓ im Eingabefeld (kein @Published: kein Neuzeichnen)
     var lastAppearedBubble: UUID?     // zuletzt sichtbar gewordene Blase (kein @Published: kein Neuzeichnen)
     var wasScrolledUp = false
     @Published var settingsTab = 0
@@ -218,6 +219,7 @@ struct ContentView: View {
     private var langFilter: String { get { ui.langFilter } nonmutating set { ui.langFilter = newValue } }   // "" = alle
     private var searchOpen: Bool { get { ui.searchOpen } nonmutating set { ui.searchOpen = newValue } }
     @State private var userScrolledUp = false   // Auto-Scroll pausiert, bis der Nutzer wieder unten ist
+    @State private var jump = JumpCounter()   // neue Blasen, seit der Nutzer hochgescrollt hat
     @State private var bottomVisible = true
     @State private var scrollBox = ScrollMonitorBox()
     @FocusState private var searchFocused: Bool
@@ -386,6 +388,11 @@ struct ContentView: View {
         }
     }
 
+    /// Vorkommen des Suchtexts in allen gezeigten Blasen (Original und Übersetzung).
+    private var hitTotal: Int {
+        query.isEmpty ? 0 : SearchHits.total(of: query, in: shown.flatMap { [$0.text, $0.out] })
+    }
+
     private var searchBar: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass").foregroundStyle(.secondary).accessibilityHidden(true)
@@ -400,10 +407,19 @@ struct ContentView: View {
             .pickerStyle(.segmented).labelsHidden().frame(width: 150)
             .accessibilityLabel(L.t("language_filter"))
             if filtering {
-                Text(L.f("results_count", shown.count)).font(.caption).monospacedDigit().foregroundStyle(.secondary)
+                Text(L.f("results_count", shown.count) + (hitTotal > shown.count ? " · " + L.f("matches_total", hitTotal) : ""))
+                    .font(.caption).monospacedDigit().foregroundStyle(.secondary)
+                    .accessibilityLabel(L.f("results_count", shown.count))
                 Button { exportConversation(m, only: shown) } label: { Image(systemName: "square.and.arrow.up") }
                     .buttonStyle(.borderless).disabled(shown.isEmpty)
                     .help(L.t("export_hits")).accessibilityLabel(L.t("export_hits"))
+                Button {   // Kennzahlen der Treffer in die Zwischenablage
+                    let sum = SessionStats.summarize(shown.map { (lang: $0.lang, text: $0.text, date: $0.date) })
+                    copyToPasteboard(SessionStats.line(sum, utterances: L.t("stats_utterances"), words: L.t("stats_words")))
+                    Announcer.post(L.t("copied"))
+                } label: { Image(systemName: "chart.bar") }
+                    .buttonStyle(.borderless).disabled(shown.isEmpty)
+                    .help(L.t("copy_stats")).accessibilityLabel(L.t("copy_stats"))
             }
             if searchOpen || filtering {
                 Button { query = ""; langFilter = ""; searchOpen = false; searchFocused = false } label: {
@@ -451,7 +467,10 @@ struct ContentView: View {
                         .padding(.top, 40).frame(maxWidth: .infinity)
                         .accessibilityElement(children: .combine)
                     }
-                    ForEach(shown) { u in
+                    ForEach(Array(shown.enumerated()), id: \.element.id) { idx, u in
+                        if idx > 0, !u.pending, TimeDivider.needsDivider(previous: shown[idx - 1].date, current: u.date) {
+                            TimeDividerRow(date: u.date)
+                        }
                         Bubble(m: m, u: u, scale: scale,
                                playing: m.replayingID == u.id || (u.uid.map { m.speakingIDs.contains($0) } ?? false),
                                running: m.running, twoPerson: m.twoPerson, pairKey: m.mineLang + m.partnerLang,
@@ -484,6 +503,7 @@ struct ContentView: View {
             .onChange(of: shown.count) { scrollBox.lastContentChange = Date() }
             .onChange(of: scale) { scrollBox.lastContentChange = Date() }
             .onChange(of: shown.last?.id) {   // neue Blase
+                jump.newItem(atBottom: !userScrolledUp)
                 if !userScrolledUp { scrollToEnd(sv, animated: true, last: shown.last) }
             }
             .onChange(of: shown.last?.pending) {   // Platzhalter wird zur fertigen Blase (gleiche id)
@@ -495,7 +515,7 @@ struct ContentView: View {
                     DispatchQueue.main.async { sv.scrollTo(id, anchor: .center) }
                 }
             }
-            .onChange(of: userScrolledUp) { ui.wasScrolledUp = userScrolledUp }
+            .onChange(of: userScrolledUp) { ui.wasScrolledUp = userScrolledUp; if !userScrolledUp { jump.reachedBottom() } }
             .onChange(of: shown.last?.partial) {   // Teiltext wächst: unten bleiben (ohne Animation, kommt oft)
                 if !userScrolledUp, let last = shown.last, last.pending { scrollToEnd(sv, animated: false, last: last) }
             }
@@ -505,13 +525,20 @@ struct ContentView: View {
                         userScrolledUp = false
                         scrollToEnd(sv, animated: true)
                     } label: {
-                        Label(L.t("jump_latest"), systemImage: "arrow.down.circle.fill")
+                        HStack(spacing: 6) {
+                            Label(L.t("jump_latest"), systemImage: "arrow.down.circle.fill")
+                            if jump.unseen > 0 {
+                                Text(jump.label).font(.caption.bold()).monospacedDigit()
+                                    .padding(.horizontal, 6).padding(.vertical, 1)
+                                    .background(.white.opacity(0.3), in: Capsule())
+                            }
+                        }
                     }
                     .buttonStyle(.borderedProminent)
                     .keyboardShortcut(.downArrow, modifiers: .command)   // ⌘↓ springt zum Neuesten
                     .help(L.t("jump_latest") + " (⌘↓)")
                     .padding(14)
-                    .accessibilityLabel(L.t("jump_latest"))
+                    .accessibilityLabel(jump.unseen > 0 ? L.t("jump_latest") + ", " + jump.label : L.t("jump_latest"))
                 }
             }
         }
@@ -694,7 +721,7 @@ struct MainToolbar: View {
                 if queued {
                     ProgressView().controlSize(.small).tint(.white)
                 } else {
-                    Image(systemName: m.active ? "stop.fill" : "mic.fill")
+                    Image(systemName: m.active ? "stop.fill" : "mic.fill").accessibilityHidden(true)
                 }
                 Text(queued ? L.t("start_queued") : m.active ? L.t("stop") : L.t("start"))
                     .lineLimit(1).minimumScaleFactor(0.8)
@@ -766,7 +793,8 @@ struct ConversationBar: View {
     @FocusState private var typing: Bool
 
     private func send() {
-        if m.sayTyped(draft) { draft = "" }
+        let sent = draft
+        if m.sayTyped(draft) { ui.inputHistory.push(sent); draft = "" }
     }
 
     private var controls: some View {
@@ -806,6 +834,14 @@ struct ConversationBar: View {
                 .textFieldStyle(.roundedBorder)
                 .focused($typing)
                 .onSubmit(send)
+                .onKeyPress(.upArrow) {   // ↑/↓ holt frühere Sätze zurück (Entwurf bleibt erhalten)
+                    guard let s = ui.inputHistory.up(current: draft) else { return .ignored }
+                    draft = s; return .handled
+                }
+                .onKeyPress(.downArrow) {
+                    guard let s = ui.inputHistory.down() else { return .ignored }
+                    draft = s; return .handled
+                }
                 .disabled(!m.engineReady)
                 .help(m.engineReady ? L.t("type_prompt") : L.t("type_wait"))
                 .accessibilityLabel(L.t("type_prompt"))
@@ -875,15 +911,19 @@ struct StatusCluster: View {
     var body: some View {
         HStack(spacing: 8) {
             if m.micOn { LevelBar(meter: m.meter) }
-            let parts = StatusIcon.split(m.status)
-            HStack(spacing: 5) {
-                if let sym = parts.symbol { Image(systemName: sym.name).foregroundStyle(sym.tint).accessibilityHidden(true) }
-                Text(parts.text).lineLimit(2)
+            // Frischer Fehler (< 30 s) überschreibt den Status; ein Takt blendet ihn nach Ablauf wieder aus.
+            TimelineView(.periodic(from: .now, by: 5)) { ctx in
+                let age: TimeInterval = m.lastError.map { ctx.date.timeIntervalSince($0.date) } ?? 0
+                let parts = StatusIcon.split(StatusLine.compose(error: m.lastError?.msg, errorAge: age, base: m.status, latency: nil))
+                HStack(spacing: 5) {
+                    if let sym = parts.symbol { Image(systemName: sym.name).foregroundStyle(sym.tint).accessibilityHidden(true) }
+                    Text(parts.text).lineLimit(2)
+                }
+                .scaledFont(13, .semibold).help(parts.text)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(L.t("status") + ": " + parts.text)
+                    .accessibilityAddTraits(.updatesFrequently)
             }
-            .scaledFont(13, .semibold).help(parts.text)
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel(L.t("status") + ": " + parts.text)
-                .accessibilityAddTraits(.updatesFrequently)
             if m.backlog > 0 {
                 Text("\(m.backlog) " + L.t("waiting"))
                     .font(.caption.bold()).monospacedDigit()
@@ -1357,5 +1397,21 @@ struct ViewingBanner: View {
         NoticeBanner(icon: "clock.arrow.circlepath", tint: LangStyle.warning,
                      text: L.f("hist_viewing", title),
                      action: (L.t("hist_back_live"), { m.viewingSession = nil }))
+    }
+}
+
+
+/// Dezenter Zeit-Trenner zwischen Blasen nach einer Pause (≥ 10 min) oder beim Tageswechsel.
+struct TimeDividerRow: View {
+    let date: Date
+    var body: some View {
+        HStack(spacing: 8) {
+            Rectangle().fill(Color.secondary.opacity(0.3)).frame(height: 1)
+            Text(TimeDivider.label(date)).font(.caption).foregroundStyle(.secondary).monospacedDigit()
+            Rectangle().fill(Color.secondary.opacity(0.3)).frame(height: 1)
+        }
+        .padding(.vertical, 2)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(L.t("time_divider_a11y") + ": " + TimeDivider.label(date))
     }
 }

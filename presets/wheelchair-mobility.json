@@ -1,0 +1,106 @@
+{
+  "id": "wheelchair-mobility",
+  "names": {
+    "de": "Rollstuhl und eingeschränkte Mobilität",
+    "en": "Wheelchair and limited mobility",
+    "th": "รถเข็นและการเคลื่อนไหวจำกัด"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "wheelchair",
+      "th": "รถเข็น"
+    },
+    {
+      "en": "ramp",
+      "th": "ทางลาด"
+    },
+    {
+      "en": "lift",
+      "th": "ลิฟต์"
+    },
+    {
+      "en": "stairs",
+      "th": "บันได"
+    },
+    {
+      "en": "step",
+      "th": "ขั้น"
+    },
+    {
+      "en": "accessible toilet",
+      "th": "ห้องน้ำสำหรับผู้พิการ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have fallen. Please help me up.",
+      "th": "ล้มลง ช่วยพยุงขึ้นหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I use a wheelchair. Is there step-free access?",
+      "th": "ใช้รถเข็น มีทางเข้าที่ไม่มีขั้นบันไดไหม"
+    },
+    {
+      "en": "Is there a ramp or a lift?",
+      "th": "มีทางลาดหรือลิฟต์ไหม"
+    },
+    {
+      "en": "Is the lift working today?",
+      "th": "วันนี้ลิฟต์ใช้งานได้ไหม"
+    },
+    {
+      "en": "Is the toilet accessible by wheelchair?",
+      "th": "ห้องน้ำรถเข็นเข้าได้ไหม"
+    },
+    {
+      "en": "Is there an entrance at the side without steps?",
+      "th": "มีทางเข้าด้านข้างที่ไม่มีขั้นไหม"
+    },
+    {
+      "en": "Can the taxi take a folded wheelchair?",
+      "th": "แท็กซี่ใส่รถเข็นที่พับแล้วได้ไหม"
+    },
+    {
+      "en": "Is the path flat, or are there many steps?",
+      "th": "ทางเดินเรียบ หรือมีขั้นบันไดเยอะไหม"
+    },
+    {
+      "en": "Could you help me lift the wheelchair over the step?",
+      "th": "ช่วยยกรถเข็นข้ามขั้นหน่อยได้ไหม"
+    },
+    {
+      "en": "Please do not push me without asking.",
+      "th": "ขออย่าเข็นรถโดยไม่ถามก่อน"
+    },
+    {
+      "en": "Do you have a table that a wheelchair fits under?",
+      "th": "มีโต๊ะที่รถเข็นเข้าได้ไหม"
+    },
+    {
+      "en": "I cannot climb stairs.",
+      "th": "ขึ้นบันไดไม่ได้"
+    },
+    {
+      "en": "Is there a room on the ground floor?",
+      "th": "มีห้องพักชั้นล่างไหม"
+    },
+    {
+      "en": "Is there a shower with a seat?",
+      "th": "มีห้องอาบน้ำที่มีที่นั่งไหม"
+    },
+    {
+      "en": "Where is the nearest accessible entrance?",
+      "th": "ทางเข้าสำหรับรถเข็นที่ใกล้ที่สุดอยู่ที่ไหน"
+    },
+    {
+      "en": "My wheelchair is broken. Is there a repair shop nearby?",
+      "th": "รถเข็นเสีย แถวนี้มีร้านซ่อมไหม"
+    }
+  ],
+  "note": {
+    "de": "Die App setzt die Höflichkeitspartikel (ครับ/ค่ะ) selbst. Viele Gehwege, Tempel und Fähren in Thailand haben Stufen. Vorab nach Rampen, Aufzug und ebenerdigen Zimmern fragen. Taxis nehmen einen zusammengeklappten Rollstuhl oft mit, Tuk-Tuks selten. Hilfe nur mit Zustimmung annehmen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "The app adds the polite particles (krub/ka) itself. Many pavements, temples and ferries in Thailand have steps. Ask in advance about ramps, lifts and ground-floor rooms. Taxis often take a folded wheelchair, tuk-tuks rarely. Accept help only when you agree to it. Thai lines machine-made, not checked by native speakers."
+  }
+}

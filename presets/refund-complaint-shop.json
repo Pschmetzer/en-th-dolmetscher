@@ -1,0 +1,105 @@
+{
+  "id": "refund-complaint-shop",
+  "names": {
+    "de": "Rückgabe und Beschwerde im Laden",
+    "en": "Returns and complaints in shops",
+    "th": "คืนสินค้าและร้องเรียนในร้าน"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "refund",
+      "th": "เงินคืน"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    },
+    {
+      "en": "exchange",
+      "th": "เปลี่ยนสินค้า"
+    },
+    {
+      "en": "manager",
+      "th": "ผู้จัดการ"
+    },
+    {
+      "en": "complaint",
+      "th": "ข้อร้องเรียน"
+    },
+    {
+      "en": "damaged",
+      "th": "ชำรุด"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I would like to return this item.",
+      "th": "ต้องการคืนสินค้านี้"
+    },
+    {
+      "en": "It does not work.",
+      "th": "ใช้งานไม่ได้"
+    },
+    {
+      "en": "It is damaged.",
+      "th": "สินค้าชำรุด"
+    },
+    {
+      "en": "I bought it today. Here is the receipt.",
+      "th": "ซื้อวันนี้ นี่คือใบเสร็จ"
+    },
+    {
+      "en": "May I speak to the manager?",
+      "th": "ขอพบผู้จัดการได้ไหม"
+    },
+    {
+      "en": "I would like a refund.",
+      "th": "ขอเงินคืน"
+    },
+    {
+      "en": "Can I exchange it for another one?",
+      "th": "เปลี่ยนเป็นชิ้นอื่นได้ไหม"
+    },
+    {
+      "en": "Is there a return policy?",
+      "th": "มีนโยบายการคืนสินค้าไหม"
+    },
+    {
+      "en": "It is different from the description.",
+      "th": "สินค้าไม่ตรงกับคำอธิบาย"
+    },
+    {
+      "en": "The wrong amount was charged to my card.",
+      "th": "หักเงินจากบัตรผิดจำนวน"
+    },
+    {
+      "en": "Please cancel the payment.",
+      "th": "ช่วยยกเลิกการชำระเงินหน่อย"
+    },
+    {
+      "en": "Please give me written confirmation.",
+      "th": "ขอหลักฐานเป็นลายลักษณ์อักษร"
+    },
+    {
+      "en": "Where is the customer service desk?",
+      "th": "เคาน์เตอร์บริการลูกค้าอยู่ที่ไหน"
+    },
+    {
+      "en": "I would like to make a complaint.",
+      "th": "ต้องการร้องเรียน"
+    },
+    {
+      "en": "Please give me your name and the shop phone number.",
+      "th": "ขอชื่อและเบอร์โทรของร้านหน่อย"
+    },
+    {
+      "en": "Can the money go back to my card?",
+      "th": "คืนเงินเข้าบัตรได้ไหม"
+    }
+  ],
+  "note": {
+    "de": "Die App setzt die Höflichkeitspartikel (ครับ/ค่ะ) selbst. Auf Märkten gibt es selten Rückgabe, in Kaufhäusern oft nur mit Beleg und Originalverpackung. Belege immer aufheben und Fotos machen. Ruhig und höflich bleiben, denn Gesichtsverlust verhindert jede Einigung. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "The app adds the polite particles (krub/ka) itself. Markets rarely accept returns; department stores often require the receipt and original packaging. Keep receipts and take photos. Stay calm and polite, because losing face rules out any agreement. Thai lines machine-made, not checked by native speakers."
+  }
+}

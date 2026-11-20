@@ -82,9 +82,23 @@ def low_power_mode(run=None):
     return False
 
 
+def thermal_throttled(run=None):
+    """Drosselt macOS die CPU wegen Hitze (`pmset -g therm`: "CPU_Speed_Limit = 70")? Unbekannt/Fehler: False."""
+    run = run or subprocess.run
+    try:
+        r = run(["pmset", "-g", "therm"], capture_output=True, text=True, timeout=3)
+        for line in (r.stdout or "").splitlines():
+            key, _, val = line.partition("=")
+            if key.strip().lower() == "cpu_speed_limit":
+                return int(val.strip()) < 100
+    except Exception:
+        pass
+    return False
+
+
 def power_saving(run=None):
-    """Akkubetrieb oder Energiesparmodus: dann lieber sparsam rechnen (für adjust_for_power)."""
-    return on_battery(run) or low_power_mode(run)
+    """Akkubetrieb, Energiesparmodus oder Hitzedrosselung: dann lieber sparsam rechnen (für adjust_for_power)."""
+    return on_battery(run) or low_power_mode(run) or thermal_throttled(run)
 
 
 def adjust_for_power(rec, battery):
