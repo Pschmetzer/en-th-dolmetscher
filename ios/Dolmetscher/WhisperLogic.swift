@@ -40,6 +40,17 @@ enum Hallucination {
         "ขอบคุณที่ติดตามรับชม", "ขอบคุณที่ติดตาม", "ขอบคุณที่รับชมครับ", "อย่าลืมกดไลค์ กดแชร์",
         "อย่าลืมกดไลค์ กดแชร์ กดติดตาม", "อย่าลืมกดไลค์", "อย่าลืมกดติดตาม", "กดไลค์ กดแชร์ กดติดตาม",
         "ฝากกดไลค์ กดแชร์ กดติดตาม",
+        // Nur iOS (nicht in dolmetscher.py): YouTube-Abspann-Floskeln der weiteren Oberflächensprachen, die Whisper bei Stille erfindet.
+        // Ganze Äußerung muss passen – „thanks for listening“ o. Ä. fehlt bewusst: das sagt man im echten Gespräch.
+        "thank you for watching this video",
+        "ご視聴ありがとうございました", "ご視聴ありがとうございます", "チャンネル登録お願いします", "チャンネル登録よろしくお願いします",
+        "시청해 주셔서 감사합니다", "시청해주셔서 감사합니다", "구독과 좋아요 부탁드립니다",
+        "谢谢观看", "感谢观看", "谢谢大家观看", "请订阅", "字幕由amara.org社区提供",
+        "gracias por ver el video", "gracias por ver el vídeo", "gracias por ver", "suscríbete al canal",
+        "merci d'avoir regardé cette vidéo", "merci d'avoir regardé", "sous-titres réalisés par la communauté d'amara.org",
+        "terima kasih telah menonton", "terima kasih sudah menonton",
+        "cảm ơn các bạn đã theo dõi", "hãy subscribe cho kênh ghiền mì gõ",
+        "untertitel der amara.org-community", "vielen dank fürs zuschauen",
     ]
     /// Nur bei sehr leiser, kurzer Aufnahme verdächtig.
     static let junkIfShort: Set<String> = ["thank you", "you", "bye", "ขอบคุณครับ", "ขอบคุณค่ะ"]

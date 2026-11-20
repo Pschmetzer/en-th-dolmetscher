@@ -1,0 +1,11 @@
+/* Widget-Erweiterung: Titel der Steuerelemente und Kurzbefehle. MASCHINELL ÜBERSETZT außer de/th, nicht muttersprachlich geprüft. */
+"Start interpreting" = "通訳を開始";
+"Stop interpreting" = "通訳を停止";
+"Say phrase" = "フレーズを話す";
+"Swap language pair" = "言語ペアを入れ替え";
+"Speak last translation" = "最後の翻訳を読み上げ";
+"Phrase" = "フレーズ";
+"Quick phrases" = "クイックフレーズ";
+"Source" = "ソース";
+"Phrases" = "フレーズ";
+"Female polite form (ค่ะ)" = "女性の丁寧形(ค่ะ)";

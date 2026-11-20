@@ -13,6 +13,9 @@ enum DeviceAuth {
         let ctx = LAContext()
         var error: NSError?
         guard ctx.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) else { return true }
-        return (try? await ctx.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason)) ?? false
+        do { return try await ctx.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) } catch {
+            if (error as? LAError)?.code != .userCancel { Diag.fail("Geräte-Authentifizierung", error) }
+            return false
+        }
     }
 }

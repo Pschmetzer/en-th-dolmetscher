@@ -61,7 +61,8 @@ enum PhraseOfDay {
             c.sound = nil
             let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: at)
             let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
-            try? await center.add(UNNotificationRequest(identifier: identifier(for: at), content: c, trigger: trigger))
+            do { try await center.add(UNNotificationRequest(identifier: identifier(for: at), content: c, trigger: trigger)) }
+            catch { Diag.fail("Satz des Tages planen", error) }
         }
     }
 

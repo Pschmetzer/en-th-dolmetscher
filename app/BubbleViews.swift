@@ -80,7 +80,7 @@ struct Bubble: View, Equatable {
     }
     /// VoiceOver-Text; Thai-Abschnitte tragen die Sprachkennung "th".
     private var a11yText: AttributedString {
-        var parts: [(String, String?)] = [("\(LangStyle.name(u.lang)): ", nil), (u.text, u.lang)]
+        var parts: [(String, String?)] = [(A11yBubble.clock(u.date) + " · \(LangStyle.name(u.lang)): ", nil), (u.text, u.lang)]
         if u.translated {
             parts += [(". \(LangStyle.name(u.to)): ", nil), (u.out, u.to)]
         } else {
@@ -186,9 +186,12 @@ struct Bubble: View, Equatable {
     private func saveQuickPhrase(_ s: String) {
         let ud = UserDefaults.standard
         let cur = ud.string(forKey: Prefs.quickPhrases) ?? Prefs.pairDefaults
-        guard !Prefs.phrases(cur).contains(s) else { Announcer.post(L.t("phrase_exists")); return }
-        ud.set(cur.isEmpty ? s : cur + "\n" + s, forKey: Prefs.quickPhrases)
-        Announcer.post(L.t("phrase_saved"))
+        let (outcome, all) = QuickPhraseLogic.add(s, to: cur)
+        switch outcome {
+        case .empty: Announcer.post(L.t("phrase_empty"))
+        case .duplicate: Announcer.post(L.t("phrase_exists"))
+        case .added: ud.set(all, forKey: Prefs.quickPhrases); Announcer.post(L.t("phrase_saved"))
+        }
     }
 
     private var canCorrect: Bool { u.uid != nil && running }
@@ -211,7 +214,12 @@ struct Bubble: View, Equatable {
         ForEach(Array(u.alts.enumerated()), id: \.offset) { _, alt in
             Button(L.t("alt_reading") + ": " + alt) { m.retranslate(u, text: alt) }.disabled(!canCorrect)
         }
+        Button(L.t("copy_with_time")) {
+            copy(BubbleCopy.withMeta(BubbleCopy.text(original: u.text, translation: u.out, mode: .both, translated: u.translated),
+                                     speaker: u.speaker, date: u.date))
+        }
         Button(L.t("save_phrase")) { saveQuickPhrase(u.text) }
+        if u.translated, !u.out.isEmpty { Button(L.t("save_phrase_out")) { saveQuickPhrase(u.out) } }
         Menu(L.t("lookup_word")) {
             ForEach(LookupWords.words(u.text + " " + u.out), id: \.self) { w in
                 Button(w) { Self.lookUp(w) }
@@ -244,6 +252,8 @@ private struct BubbleHeader: View {
     let scale: Double
     let playing: Bool
     @AppStorage(Prefs.translit) private var translit = true
+    @Environment(\.accessibilityDifferentiateWithoutColor) private var noColorOnly
+    @Environment(\.colorSchemeContrast) private var contrast
 
     private var line: String {
         let roleName: String? = u.role.map { L.t($0 == "me" ? "role_me" : "role_other") }
@@ -257,6 +267,12 @@ private struct BubbleHeader: View {
         VStack(alignment: en ? .leading : .trailing, spacing: 2) {
             HStack(spacing: 6) {
                 if !en { Spacer(minLength: 0) }
+                if noColorOnly || contrast == .increased {   // Hochkontrast: Sprache nicht nur über die Farbe erkennbar
+                    Text(A11yBubble.marker(lang: u.lang, mine: en)).font(.caption.bold()).monospacedDigit()
+                        .padding(.horizontal, 5).padding(.vertical, 1)
+                        .overlay(Capsule().strokeBorder(Color.primary.opacity(0.6)))
+                        .accessibilityHidden(true)
+                }
                 Text(line)
                     .font(.system(size: 15 * scale)).foregroundStyle(.secondary)
                     .multilineTextAlignment(en ? .leading : .trailing)

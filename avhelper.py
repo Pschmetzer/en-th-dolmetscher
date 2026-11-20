@@ -96,8 +96,15 @@ class Chain:
 
 def _write(b):
     if b:
-        sys.stdout.buffer.write(b)
-        sys.stdout.buffer.flush()
+        try:
+            sys.stdout.buffer.write(b)
+            sys.stdout.buffer.flush()
+        except BrokenPipeError:             # Runde 22: Engine hat die Pipe geschlossen: leise beenden, kein Traceback
+            try:
+                os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())   # Python-Exit-Flush nicht erneut scheitern lassen  # noqa: E501
+            except OSError:
+                pass
+            sys.exit(0)
 
 
 def _frames(av, container, stream):

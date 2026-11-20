@@ -1,0 +1,16 @@
+# Dolmetscher EN⇄TH (Web Lite)
+
+> Free, static web app for travellers in Thailand: speak, translate and read aloud (English, Thai and 17 more languages), plus an offline phrasebook with show cards. No account, no tracking; the browser does speech recognition, text goes to Google Translate or MyMemory.
+
+## Use
+- [Web app](https://pschmetzer.github.io/en-th-dolmetscher/): single HTML file, installable as a PWA, works offline for the phrasebook and show cards
+- [Source and Mac/iPhone apps](https://github.com/Pschmetzer/en-th-dolmetscher)
+
+## Content
+- 156 scenario packs (doctor, pharmacy, police, taxi, temple, scams, embassy, accessibility and more) as JSON in presets/, index in presets-index.json
+- Thai lines are machine-made and not yet checked by native speakers; do not treat them as verified
+- Languages: languages.json; allergy card data: allergens.json
+- Privacy: docs/DATENSCHUTZ.md in the repository
+
+## Optional
+- [Packs format](https://github.com/Pschmetzer/en-th-dolmetscher/blob/main/docs/PRESETS.md)

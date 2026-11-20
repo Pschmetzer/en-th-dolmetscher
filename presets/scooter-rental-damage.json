@@ -1,0 +1,112 @@
+{
+  "id": "scooter-rental-damage",
+  "names": {
+    "de": "Rollermiete: Schäden und Kaution",
+    "en": "Scooter rental: damage and deposit",
+    "th": "เช่ามอเตอร์ไซค์: ความเสียหายและมัดจำ"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "scratch",
+      "th": "รอยขีดข่วน"
+    },
+    {
+      "en": "deposit",
+      "th": "เงินมัดจำ"
+    },
+    {
+      "en": "insurance",
+      "th": "ประกัน"
+    },
+    {
+      "en": "repair",
+      "th": "ซ่อม"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    },
+    {
+      "en": "contract",
+      "th": "สัญญา"
+    },
+    {
+      "en": "helmet",
+      "th": "หมวกกันน็อก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I would like to call the tourist police (1155).",
+      "th": "ขอโทรหาตำรวจท่องเที่ยว (1155)",
+      "critical": true
+    },
+    {
+      "en": "I had a fall. I am hurt and need help.",
+      "th": "ล้มแล้วบาดเจ็บ ต้องการความช่วยเหลือ",
+      "critical": true
+    },
+    {
+      "en": "I will not leave my passport as a deposit.",
+      "th": "ไม่วางพาสปอร์ตเป็นมัดจำ",
+      "critical": true
+    },
+    {
+      "en": "May I take photos of the bike first?",
+      "th": "ขอถ่ายรูปรถก่อนได้ไหม"
+    },
+    {
+      "en": "Please note the existing scratches before I ride.",
+      "th": "ช่วยจดรอยที่มีอยู่แล้วก่อนขับ"
+    },
+    {
+      "en": "Please write the damage on the contract.",
+      "th": "ช่วยจดความเสียหายลงในสัญญา"
+    },
+    {
+      "en": "This scratch was already there.",
+      "th": "รอยนี้มีอยู่แล้วก่อนเช่า"
+    },
+    {
+      "en": "I can pay a cash deposit.",
+      "th": "วางเงินมัดจำเป็นเงินสดได้"
+    },
+    {
+      "en": "Is there insurance for this bike?",
+      "th": "รถคันนี้มีประกันไหม"
+    },
+    {
+      "en": "Does the insurance cover damage and theft?",
+      "th": "ประกันคุ้มครองความเสียหายและการโจรกรรมไหม"
+    },
+    {
+      "en": "The brakes were already weak when I rented it.",
+      "th": "เบรกไม่ค่อยดีตั้งแต่ตอนเช่า"
+    },
+    {
+      "en": "The helmet is cracked. Please give me another one.",
+      "th": "หมวกกันน็อกร้าว ขอเปลี่ยนใบใหม่"
+    },
+    {
+      "en": "May I see the repair receipt?",
+      "th": "ขอดูใบเสร็จค่าซ่อมได้ไหม"
+    },
+    {
+      "en": "Please show me an estimate from a garage.",
+      "th": "ขอดูใบประเมินค่าซ่อมจากอู่"
+    },
+    {
+      "en": "That price is too high for such a small scratch.",
+      "th": "รอยเล็กขนาดนี้ราคาสูงเกินไป"
+    },
+    {
+      "en": "Please do not keep my deposit without proof.",
+      "th": "ขออย่าหักเงินมัดจำโดยไม่มีหลักฐาน"
+    }
+  ],
+  "note": {
+    "de": "Die App setzt die Höflichkeitspartikel (ครับ/ค่ะ) selbst. Vor der Fahrt alle Kratzer fotografieren und im Vertrag eintragen lassen. Den Reisepass nicht als Pfand geben, Kaution lieber bar. Bei überhöhten Reparaturforderungen Belege und einen Kostenvoranschlag verlangen und im Streit die Touristenpolizei (1155) rufen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "The app adds the polite particles (krub/ka) itself. Photograph every scratch before riding and have it written into the contract. Do not leave your passport as a deposit; offer cash. If the repair bill looks inflated, ask for receipts and an estimate and call the tourist police (1155) in a dispute. Thai lines machine-made, not checked by native speakers."
+  }
+}

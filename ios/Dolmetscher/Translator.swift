@@ -138,13 +138,15 @@ actor Translator {
         self.useApple = useApple
     }
 
-    /// Der Gesprächstext steckt bei MyMemory in der URL: nie in den Festplatten-Cache (URLCache) oder Cookies schreiben.
+    /// Der Gesprächstext geht an Google/MyMemory (im Body, nie in der URL): nie in den Festplatten-Cache (URLCache) oder Cookies schreiben.
     static let privateSession: URLSession = {
         let c = URLSessionConfiguration.ephemeral
         c.urlCache = nil
         c.requestCachePolicy = .reloadIgnoringLocalCacheData
         c.httpShouldSetCookies = false
         c.httpCookieStorage = nil
+        c.waitsForConnectivity = false          // kein Netz: sofort scheitern, nicht auf Verbindung warten
+        c.timeoutIntervalForResource = OnlineTiming.resourceTimeout   // Obergrenze je Anfrage, auch bei tröpfelnder Antwort
         return URLSession(configuration: c)
     }()
 
@@ -153,12 +155,14 @@ actor Translator {
 
     static func language(_ l: Lang) -> Locale.Language { Locale.Language(identifier: l.translationCode) }
 
+    /// So lange gilt der gemerkte Paketstatus.
+    static let installedTTL = 30.0
     private var installedCache: [String: (Bool, Date)] = [:]
 
     /// Paketstatus je Richtung 30 s merken: `LanguageAvailability` je Satz zu fragen kostet Latenz.
     private func installed(from: Lang, to: Lang) async -> Bool {
         let key = "\(from.rawValue)>\(to.rawValue)"
-        if let (v, t) = installedCache[key], Date().timeIntervalSince(t) < 30 { return v }
+        if let (v, t) = installedCache[key], Date().timeIntervalSince(t) < Self.installedTTL { return v }
         let v = await Self.offlineInstalled(from: from, to: to)
         installedCache[key] = (v, Date())
         return v
@@ -198,26 +202,75 @@ actor Translator {
         guard allowOnline else { throw appleFailed ? TranslateError.appleFailed : TranslateError.offlineMissing }
         guard isOnline() else { throw TranslateError.noNetwork }
         guard breaker.allows(at: Date()) else { throw TranslateError.cooldown }
-        var limited = false
-        do {
-            let out = try await google(text, from: from, to: to)
-            if !out.isEmpty {
-                breaker.succeeded()
-                return TranslationResult(text: out, provider: "google")
-            }
-        } catch OnlineError.rateLimited { limited = true } catch is CancellationError { throw CancellationError() } catch let e as URLError where e.code == .cancelled { throw CancellationError() } catch {}
+        let (result, limited) = await onlineAttempt(text, from: from, to: to)
         try Task.checkCancellation()
-        if MyMemory.fits(text) {
-            do {
-                if let out = try await myMemory(text, from: from, to: to) {
-                    breaker.succeeded()
-                    return TranslationResult(text: out, provider: "mymemory")
-                }
-            } catch OnlineError.rateLimited { limited = true } catch is CancellationError { throw CancellationError() } catch let e as URLError where e.code == .cancelled { throw CancellationError() } catch {}
+        if let result {
+            breaker.succeeded()
+            return result
         }
-        try Task.checkCancellation()
         breaker.failed(at: Date(), rateLimited: limited)
         throw limited ? TranslateError.rateLimited : TranslateError.failed
+    }
+
+    /// Zeiten der Online-Übersetzer (kurz: wer am Markt kein Netz hat, soll nicht lange auf einen Satz warten).
+    enum OnlineTiming {
+        static let googleTimeout = 3.0
+        static let myMemoryTimeout = 3.5
+        /// Antwortet Google nach so vielen Sekunden noch nicht, startet MyMemory parallel (der schnellere gewinnt).
+        static let hedgeDelay = 1.2
+        /// Gesamtdauer einer Anfrage (URLSession), unabhängig vom Leerlauf-Zeitlimit.
+        static let resourceTimeout = 8.0
+    }
+
+    private enum Attempt: Sendable {
+        case answer(provider: String, text: String?, limited: Bool)
+        case tick
+    }
+
+    /// Google zuerst; MyMemory startet sofort, wenn Google scheitert, sonst nach `hedgeDelay` parallel dazu.
+    /// Das erste brauchbare Ergebnis gewinnt, der Rest wird abgebrochen. `limited`: ein Dienst meldete „Limit erreicht“.
+    private func onlineAttempt(_ text: String, from: Lang, to: Lang) async -> (TranslationResult?, Bool) {
+        let useMyMemory = MyMemory.fits(text)
+        return await withTaskGroup(of: Attempt.self) { group in
+            group.addTask { await self.run("google") { try await self.google(text, from: from, to: to) } }
+            if useMyMemory {
+                group.addTask {
+                    try? await Task.sleep(for: .seconds(OnlineTiming.hedgeDelay))
+                    return .tick
+                }
+            }
+            var secondStarted = false
+            var limited = false
+            func startSecond() {
+                guard useMyMemory, !secondStarted else { return }
+                secondStarted = true
+                group.addTask { await self.run("mymemory") { try await self.myMemory(text, from: from, to: to) } }
+            }
+            while let next = await group.next() {
+                switch next {
+                case .tick:
+                    startSecond()
+                case .answer(let provider, let out, let lim):
+                    if lim { limited = true }
+                    if let out, !out.isEmpty {
+                        group.cancelAll()
+                        return (TranslationResult(text: out, provider: provider), false)
+                    }
+                    if provider == "google" { startSecond() }
+                }
+            }
+            return (nil, limited)
+        }
+    }
+
+    private func run(_ provider: String, _ op: () async throws -> String?) async -> Attempt {
+        do {
+            return .answer(provider: provider, text: try await op(), limited: false)
+        } catch OnlineError.rateLimited {
+            return .answer(provider: provider, text: nil, limited: true)
+        } catch {
+            return .answer(provider: provider, text: nil, limited: false)   // Abbruch/Netzfehler: kein Ergebnis
+        }
     }
 
     /// Formular-Kodierung: „+“ muss als %2B raus, sonst wird es beim Server zum Leerzeichen.
@@ -240,7 +293,7 @@ actor Translator {
     private func google(_ text: String, from: Lang, to: Lang) async throws -> String {
         var req = URLRequest(url: URL(string: "https://translate.googleapis.com/translate_a/single?client=gtx&dt=t")!)
         req.httpMethod = "POST"
-        req.timeoutInterval = 4
+        req.timeoutInterval = OnlineTiming.googleTimeout
         req.setValue("application/x-www-form-urlencoded;charset=utf-8", forHTTPHeaderField: "Content-Type")
         req.httpBody = Self.form(["sl": from.mtCode, "tl": to.mtCode, "q": text])
         let (data, response) = try await http.data(for: req)
@@ -250,12 +303,13 @@ actor Translator {
         return parts.compactMap { $0.first as? String }.joined()
     }
 
+    /// POST statt GET: der Gesprächstext steht nicht in der URL (Proxy-/Server-Logs, Verlauf).
     private func myMemory(_ text: String, from: Lang, to: Lang) async throws -> String? {
-        var c = URLComponents(string: "https://api.mymemory.translated.net/get")!
-        c.queryItems = [URLQueryItem(name: "q", value: text),
-                        URLQueryItem(name: "langpair", value: "\(from.mtCode)|\(to.mtCode)")]
-        var req = URLRequest(url: c.url!)
-        req.timeoutInterval = 4
+        var req = URLRequest(url: URL(string: "https://api.mymemory.translated.net/get")!)
+        req.httpMethod = "POST"
+        req.timeoutInterval = OnlineTiming.myMemoryTimeout
+        req.setValue("application/x-www-form-urlencoded;charset=utf-8", forHTTPHeaderField: "Content-Type")
+        req.httpBody = Self.form(["q": text, "langpair": "\(from.mtCode)|\(to.mtCode)"])
         let (data, response) = try await http.data(for: req)
         try Self.check(response)
         return MyMemory.parse(data)

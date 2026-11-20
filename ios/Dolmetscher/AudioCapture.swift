@@ -79,11 +79,11 @@ final class AudioCapture: @unchecked Sendable {
         try session.setActive(true)
         // Gewähltes Mikrofon (Richtmikrofon am Tisch, Headset im Lärm); ist es weg, entscheidet das System.
         if let uid = options.preferredInput, let port = session.availableInputs?.first(where: { $0.uid == uid }) {
-            try? session.setPreferredInput(port)
+            session.attempt("setPreferredInput") { try $0.setPreferredInput(port) }
         } else {
-            try? session.setPreferredInput(nil)
+            session.attempt("setPreferredInput") { try $0.setPreferredInput(nil) }
         }
-        if #available(iOS 18.2, *) { try? session.setPrefersEchoCancelledInput(options.echoCancel) }
+        if #available(iOS 18.2, *) { session.attempt("setPrefersEchoCancelledInput") { try $0.setPrefersEchoCancelledInput(options.echoCancel) } }
     }
 
     /// Prüft, ob ein Mikrofon da ist (nach `activate`, vor dem Laden teurer Modelle sinnvoll).
@@ -164,7 +164,7 @@ final class AudioCapture: @unchecked Sendable {
     }
 
     func deactivate() {
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        AVAudioSession.sharedInstance().attempt("setActive(false)") { try $0.setActive(false, options: .notifyOthersOnDeactivation) }
     }
 
     /// Effektivwert des ersten Kanals.

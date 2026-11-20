@@ -22,6 +22,7 @@ struct TranslateTextIntent: AppIntent {
     var text: String
 
     func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
+        guard let text = IntentInput.clean(text) else { throw TranslateIntentError(message: T("err_translate")) }
         let d = UserDefaults.standard
         let pair = InterpreterModel.pairSetting(d)
         let src = LanguagePick.ofTyped(text, pair: pair)
@@ -38,6 +39,18 @@ struct TranslateTextIntent: AppIntent {
             out = form.adjust(out)
         }
         return .result(value: out, dialog: "\(out)")
+    }
+}
+
+/// Eingabe aus Kurzbefehlen/Siri: leer oder nur Leerraum ist kein Auftrag; sehr lange Texte werden gekürzt
+/// (Übersetzer und Sprachausgabe sind für Sätze gedacht, nicht für ganze Dokumente).
+enum IntentInput {
+    static let maxChars = 2000
+
+    static func clean(_ raw: String) -> String? {
+        let t = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !t.isEmpty else { return nil }
+        return t.count > maxChars ? String(t.prefix(maxChars)) : t
     }
 }
 
@@ -77,6 +90,7 @@ struct SayInPartnerLanguageIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult {
+        guard let text = IntentInput.clean(text) else { throw TranslateIntentError(message: T("err_translate")) }
         InterpreterModel.shared.sayInPartner(text)
         return .result()
     }

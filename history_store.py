@@ -72,6 +72,7 @@ class Store:
         self.db.execute("CREATE INDEX IF NOT EXISTS utt_ts ON utt(ts)")
         self.db.execute("CREATE INDEX IF NOT EXISTS utt_uid ON utt(uid)")           # „replaces“ löscht per uid
         self.db.execute("CREATE INDEX IF NOT EXISTS utt_session_ts ON utt(session, ts)")   # rows(session), sessions()
+        self.db.execute("CREATE INDEX IF NOT EXISTS utt_lang ON utt(lang)")        # Runde 22: search(lang=…), stats()
         self.fts = self._init_fts()
         self._migrate()
         self.db.commit()
@@ -88,6 +89,7 @@ class Store:
             for col, typ in V2_COLUMNS:
                 if col not in have:
                     self.db.execute(f"ALTER TABLE utt ADD COLUMN {col} {typ}")
+        self.db.execute("CREATE INDEX IF NOT EXISTS utt_role ON utt(role)")   # Runde 22 (Spalte gibt es ab v2)
         if v < SCHEMA_VERSION:
             self.db.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
 
@@ -118,6 +120,12 @@ class Store:
         with self.lock, self.db:
             if replaces:
                 self._delete_rows("uid = ?", (replaces,))
+            if uid:      # Runde 22: dieselbe uid mit gleichem Inhalt (Doppel-Emission) legt keine zweite Zeile an
+                dup = self.db.execute(
+                    "SELECT id FROM utt WHERE uid = ? AND text IS ? AND translation IS ? AND session = ? LIMIT 1",
+                    (uid, text, translation, session)).fetchone()
+                if dup:
+                    return dup[0]
             cur = self.db.execute(
                 "INSERT INTO utt (uid, ts, session, lang, text, translation, translit, conf, provider, t_begin, role,"
                 " speaker) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
@@ -221,8 +229,8 @@ class Store:
                 except (KeyError, TypeError, ValueError):
                     bad += 1
                     continue
-                if self.db.execute("SELECT 1 FROM utt WHERE ABS(ts - ?) < 0.002 AND session = ? AND text = ? LIMIT 1",
-                                   (ts, sess, body)).fetchone():
+                if self.db.execute("SELECT 1 FROM utt WHERE ts BETWEEN ? AND ? AND session = ? AND text = ? LIMIT 1",
+                                   (ts - 0.002, ts + 0.002, sess, body)).fetchone():   # nutzt utt_session_ts-Index
                     skipped += 1
                     continue
                 tr = r.get("translation") if isinstance(r.get("translation"), str) else None

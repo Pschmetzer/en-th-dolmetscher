@@ -4,10 +4,10 @@ Für Vereine, Schulen, Hotels: die Seite besteht nur aus statischen Dateien, ohn
 
 ## Dateien
 
-`index.html`, `sw.js`, `manifest.webmanifest`, `languages.json`, `presets-index.json`, `allergens.json`, `icon.svg`,
+`index.html`, `sw.js`, `manifest.webmanifest`, `robots.txt`, `sitemap.xml`, `llms.txt` (optional, für Suchmaschinen), `languages.json`, `presets-index.json`, `allergens.json`, `icon.svg`,
 `icon-192.png`, `icon-512.png`, `icon-maskable-192.png`, `icon-maskable-512.png`, `apple-touch-icon-180.png`, die Ordner
 `presets/` (alle `*.json`), `i18n/` (`en.json`, `th.json`) und `screenshots/` (nur für die Installationsansicht). Alles andere im Repository wird nicht gebraucht.
-Das Skript `tools/make_presets_index.py` erzeugt `presets-index.json` neu, falls du Pakete änderst.
+Das Skript `tools/make_presets_index.py` erzeugt `presets-index.json` neu, falls du Pakete änderst; danach `python3 tools/sync_web.py` (schreibt `PRESET_IDS` in `index.html` und `sw.js` und erhöht `CACHE` per Inhalts-Hash; `--check` prüft nur). Die Adressen in `robots.txt`, `sitemap.xml`, `llms.txt` und im Kopf von `index.html` (canonical, og:url) auf die eigene Domain ändern.
 
 ## Bedingungen
 
@@ -15,7 +15,7 @@ Das Skript `tools/make_presets_index.py` erzeugt `presets-index.json` neu, falls
 - Unterordner (`https://example.org/dolmetscher/`) geht: alle Pfade sind relativ, der Service Worker nutzt seinen Scope.
 - **Eigener Ursprung empfohlen**: `localStorage` gilt pro Ursprung. Läuft die Seite neben anderen Seiten unter derselben
   Domain, können diese die gespeicherten Lernkarten und Einstellungen lesen (siehe `docs/DATENSCHUTZ.md`).
-- `CACHE` in `sw.js` erhöhen, wenn Dateien dazukommen oder sich Vorab-Dateien (Pakete, Icons, `i18n/`) ändern. `index.html` selbst wird immer zuerst vom Netz geholt; die Seite fragt stündlich nach einem neuen Service Worker.
+- `CACHE` in `sw.js` erhöht `tools/sync_web.py` selbst (Inhalts-Hash); von Hand nur, wenn Dateien dazukommen oder sich Vorab-Dateien (Pakete, Icons, `i18n/`) ändern. `index.html` selbst wird immer zuerst vom Netz geholt; die Seite fragt stündlich nach einem neuen Service Worker.
 
 ## Empfohlene Header
 

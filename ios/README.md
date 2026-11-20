@@ -3,7 +3,7 @@
 Native SwiftUI app for iPhone and iPad: press Start and just talk. It interprets between *My language* and *Partner's language* (default English ⇄ Thai, 19 languages, see the [main README](../README.md#languages)). It does not use the Python engine of the Mac app.
 
 - Recognition: Apple's on-device speech recognition (`SpeechAnalyzer`, one recognizer per language on the same audio), optionally Whisper via [WhisperKit](https://github.com/argmaxinc/WhisperKit) 1.1.1.
-- Translation: Apple's Translation framework on the device; Google Translate / MyMemory only if “Online translator as fallback” is switched on (off by default).
+- Translation: Apple's Translation framework on the device; Google Translate / MyMemory only if “Online translator as fallback” is switched on (off by default); both are sent the text in the request body (POST, never in the URL), MyMemory starts in parallel when Google is slow, and failures pause online use for a short cooldown.
 - Voice: iOS system voices.
 - Phrasebook: built-in sentences (`Shared/phrases.json`, also used by the widget) plus the scenario packs from `../presets/*.json` (same files as the Mac app; the Xcode project copies the folder into the bundle as `presets/`). Each pack shows its cultural note; safety-critical sentences are marked and listed first.
 - Learn: favorites and translated sentences become flashcards with a simple Leitner schedule, stored only on the device (`learn.json`).
@@ -18,7 +18,7 @@ Native SwiftUI app for iPhone and iPad: press Start and just talk. It interprets
 | Conversation mode | split screen, the partner's half turned around, each half in its own language; hold your own half to talk |
 | Answer cards | yes, no, don't know, number pad – in all 19 languages, offline, read aloud at once |
 | Translation help | back-translation on the device (⚠️ when the meaning drifted), transliteration for th/ja/ko/zh, “phrasebook first” for checked sentences |
-| Phrasebook | built-in sentences plus 142 scenario packs with cultural notes; important sentences red and first; favourites |
+| Phrasebook | built-in sentences plus 156 scenario packs with cultural notes; important sentences red and first; favourites |
 | Learning mode | flashcards from favourites and translated sentences, Leitner boxes (now, 1, 3, 7, 14 days), local `learn.json` |
 | Emergency | emergency screen with Thai numbers, emergency card, allergy card, “Help now” with your coordinates |
 | Travel | “Ready to travel?” checklist, taxi destinations with business-card scan and Apple Maps link, Baht calculator, dish lexicon under photo text |

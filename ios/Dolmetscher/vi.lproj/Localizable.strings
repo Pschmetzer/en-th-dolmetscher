@@ -1,0 +1,18 @@
+/* Kurzbefehle, Siri und Spotlight (App Intents). MASCHINELL ÜBERSETZT außer de/th, nicht muttersprachlich geprüft. */
+"Start interpreting" = "Bắt đầu phiên dịch";
+"Stop interpreting" = "Dừng phiên dịch";
+"Say phrase" = "Nói một câu";
+"Swap language pair" = "Đổi chiều ngôn ngữ";
+"Speak last translation" = "Đọc bản dịch gần nhất";
+"Open phrasebook" = "Mở sổ câu";
+"Phrasebook" = "Sổ câu";
+"Translate text" = "Dịch văn bản";
+"Emergency phrase (Thai)" = "Câu khẩn cấp (tiếng Thái)";
+"Emergency phrase" = "Câu khẩn cấp";
+"Say in partner's language" = "Nói bằng ngôn ngữ của người đối thoại";
+"Open emergency card" = "Mở thẻ khẩn cấp";
+"Emergency card" = "Thẻ khẩn cấp";
+"Show last translation" = "Hiện bản dịch gần nhất";
+"Say phrasebook phrase" = "Nói câu trong sổ câu";
+"Text" = "Văn bản";
+"Phrase" = "Câu";

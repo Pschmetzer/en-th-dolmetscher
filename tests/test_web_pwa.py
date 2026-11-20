@@ -89,7 +89,7 @@ def test_offline_hint():
 
 def test_no_trackers_or_new_hosts():
     hosts = set(re.findall(r"https://([\w.-]+)", HTML + SW + json.dumps(MANIFEST)))
-    assert hosts <= {"translate.googleapis.com", "api.mymemory.translated.net", "github.com"}, hosts
+    assert hosts <= {"translate.googleapis.com", "api.mymemory.translated.net", "github.com", "pschmetzer.github.io"}, hosts   # pschmetzer.github.io: canonical/og-Links der eigenen Seite, nie abgerufen
 
 
 @pytest.mark.skipif(not shutil.which("node"), reason="node nicht installiert")

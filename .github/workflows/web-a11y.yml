@@ -6,12 +6,20 @@ on:
     paths:
       - index.html
       - sw.js
+      - manifest.webmanifest
+      - languages.json
+      - presets/**
+      - presets-index.json
       - i18n/**
       - tests/web-e2e/**
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: web-a11y-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   axe:

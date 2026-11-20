@@ -55,9 +55,14 @@ struct ScenarioPack: Decodable, Identifiable, Sendable {
 
     static func load(_ urls: [URL]) -> [ScenarioPack] {
         urls.sorted { $0.lastPathComponent < $1.lastPathComponent }.compactMap { url in
-            guard let data = try? Data(contentsOf: url),
-                  let p = try? JSONDecoder().decode(ScenarioPack.self, from: data), !p.phrases.isEmpty else { return nil }
-            return p
+            do {
+                let p = try JSONDecoder().decode(ScenarioPack.self, from: try Data(contentsOf: url))
+                guard !p.phrases.isEmpty else { Diag.note("Szenario \(url.lastPathComponent) ohne Sätze"); return nil }
+                return p
+            } catch {
+                Diag.fail("Szenario \(url.lastPathComponent) nicht ladbar", error)   // kaputte Preset-Datei fällt sonst nicht auf
+                return nil
+            }
         }
     }
 }

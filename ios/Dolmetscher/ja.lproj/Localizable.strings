@@ -1,0 +1,18 @@
+/* Kurzbefehle, Siri und Spotlight (App Intents). MASCHINELL ÜBERSETZT außer de/th, nicht muttersprachlich geprüft. */
+"Start interpreting" = "通訳を開始";
+"Stop interpreting" = "通訳を停止";
+"Say phrase" = "フレーズを話す";
+"Swap language pair" = "言語ペアを入れ替え";
+"Speak last translation" = "最後の翻訳を読み上げ";
+"Open phrasebook" = "フレーズ集を開く";
+"Phrasebook" = "フレーズ集";
+"Translate text" = "テキストを翻訳";
+"Emergency phrase (Thai)" = "緊急フレーズ(タイ語)";
+"Emergency phrase" = "緊急フレーズ";
+"Say in partner's language" = "相手の言語で話す";
+"Open emergency card" = "緊急カードを開く";
+"Emergency card" = "緊急カード";
+"Show last translation" = "最後の翻訳を表示";
+"Say phrasebook phrase" = "フレーズ集のフレーズを話す";
+"Text" = "テキスト";
+"Phrase" = "フレーズ";

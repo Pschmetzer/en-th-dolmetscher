@@ -30,11 +30,11 @@ final class LiveActivityController {
         guard let activity else {
             // `last` erst nach Erfolg merken: scheitert die Anfrage (Limit, Hintergrund), gilt derselbe Zustand
             // beim nächsten Versuch nicht als „schon gesendet“.
-            if let a = try? Activity.request(attributes: ListeningActivityAttributes(pair: pair),
-                                             content: .init(state: state, staleDate: Self.staleDate()), pushType: nil) {
-                self.activity = a
+            do {
+                self.activity = try Activity.request(attributes: ListeningActivityAttributes(pair: pair),
+                                                     content: .init(state: state, staleDate: Self.staleDate()), pushType: nil)
                 last = state
-            }
+            } catch { Diag.fail("Live Activity", error) }
             return
         }
         last = state

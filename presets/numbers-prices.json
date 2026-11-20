@@ -1,0 +1,113 @@
+{
+  "id": "numbers-prices",
+  "names": {
+    "de": "Zahlen und Preise",
+    "en": "Numbers and prices",
+    "th": "ตัวเลขและราคา"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "price",
+      "th": "ราคา"
+    },
+    {
+      "en": "baht",
+      "th": "บาท"
+    },
+    {
+      "en": "hundred",
+      "th": "ร้อย"
+    },
+    {
+      "en": "thousand",
+      "th": "พัน"
+    },
+    {
+      "en": "ten thousand",
+      "th": "หมื่น"
+    },
+    {
+      "en": "total",
+      "th": "ยอดรวม"
+    },
+    {
+      "en": "change",
+      "th": "เงินทอน"
+    },
+    {
+      "en": "calculator",
+      "th": "เครื่องคิดเลข"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please type the price on the calculator.",
+      "th": "ช่วยกดราคาในเครื่องคิดเลขหน่อย"
+    },
+    {
+      "en": "What is the total price?",
+      "th": "ราคารวมทั้งหมดเท่าไหร่"
+    },
+    {
+      "en": "Is that price per person or for everything?",
+      "th": "ราคานี้ต่อคน หรือรวมทั้งหมด"
+    },
+    {
+      "en": "Is the price in baht?",
+      "th": "ราคานี้เป็นเงินบาทใช่ไหม"
+    },
+    {
+      "en": "Does the price include tax and service charge?",
+      "th": "ราคานี้รวมภาษีและค่าบริการแล้วหรือยัง"
+    },
+    {
+      "en": "Please say the number again, more slowly.",
+      "th": "ช่วยพูดตัวเลขอีกครั้ง ช้าลงหน่อย"
+    },
+    {
+      "en": "Is it fifty baht or one hundred and fifty baht?",
+      "th": "ห้าสิบบาท หรือหนึ่งร้อยห้าสิบบาท"
+    },
+    {
+      "en": "Is it five hundred baht or five thousand baht?",
+      "th": "ห้าร้อยบาท หรือห้าพันบาท"
+    },
+    {
+      "en": "Please show me the price on your phone.",
+      "th": "ช่วยโชว์ราคาในโทรศัพท์หน่อย"
+    },
+    {
+      "en": "Please give me the correct change.",
+      "th": "ช่วยทอนเงินให้ถูกต้องด้วย"
+    },
+    {
+      "en": "I gave you a thousand baht note.",
+      "th": "ให้แบงก์พันไปหนึ่งใบ"
+    },
+    {
+      "en": "Do you have smaller notes?",
+      "th": "มีแบงก์ย่อยไหม"
+    },
+    {
+      "en": "The price is higher than the sign says.",
+      "th": "ราคาสูงกว่าที่ติดไว้"
+    },
+    {
+      "en": "Could I have a receipt, please?",
+      "th": "ขอใบเสร็จหน่อย"
+    },
+    {
+      "en": "Ten, twenty, fifty, one hundred, five hundred, one thousand.",
+      "th": "สิบ ยี่สิบ ห้าสิบ หนึ่งร้อย ห้าร้อย หนึ่งพัน"
+    }
+  ],
+  "note": {
+    "de": "Die App setzt die Höflichkeitspartikel (ครับ/ค่ะ) selbst. Preise im Zweifel auf dem Taschenrechner oder Handy zeigen lassen. Gesprochene Thai-Zahlen sind bei Hundertern und Tausendern schnell verwechselt. Im Zweifel nachfragen. Preise gelten fast immer in Baht, auf Märkten oft ohne Steuer. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "The app adds the polite particles (krub/ka) itself. When in doubt, ask for the price on a calculator or phone. Spoken Thai numbers are easy to mix up at hundreds and thousands. Prices are almost always in baht and often without tax at markets. Thai lines machine-made, not checked by native speakers."
+  }
+}

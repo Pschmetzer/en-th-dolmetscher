@@ -39,12 +39,13 @@ final class SelfTestModel: ObservableObject {
     }
 
     private func micRow() -> Row {
-        switch AVCaptureDevice.authorizationStatus(for: .audio) {
-        case .authorized:
+        let perm = MicPermission.from(rawStatus: AVCaptureDevice.authorizationStatus(for: .audio).rawValue)
+        switch perm {
+        case .allowed:
             let has = AVCaptureDevice.default(for: .audio) != nil
-            return Row(id: "mic", status: has ? .ok : .fail, detail: has ? "authorized" : "no input device")
-        case .notDetermined: return Row(id: "mic", status: .warn, detail: "not asked")
-        default: return Row(id: "mic", status: .fail, detail: "denied or restricted")
+            return Row(id: "mic", status: has ? .ok : .fail, detail: has ? perm.detail : "no input device")
+        case .notAsked: return Row(id: "mic", status: .warn, detail: perm.detail)
+        default: return Row(id: "mic", status: .fail, detail: perm.detail)
         }
     }
 
@@ -89,6 +90,33 @@ struct SelfTestSheet: View {
         }
     }
 
+    /// Fehlerprotokoll der Sitzung (neueste zuerst); bleibt auch nach dem Wegklicken des Hinweisbandes lesbar.
+    @ViewBuilder private var errorLogSection: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(L.t("error_log")).font(.headline).accessibilityAddTraits(.isHeader)
+                Spacer()
+                if !m.errorLog.entries.isEmpty {
+                    Button(L.t("error_log_clear")) { m.clearErrorLog() }.buttonStyle(.borderless)
+                }
+            }
+            if m.errorLog.entries.isEmpty {
+                Text(L.t("error_log_empty")).font(.callout).foregroundStyle(.secondary)
+            } else {
+                ScrollView {
+                    Text(m.errorLog.formatted(limit: 20)).font(.system(size: 11, design: .monospaced))
+                        .textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
+                }.frame(maxHeight: 110)
+            }
+            if let k = m.micPermission.hintKey {
+                Text(L.t(k)).font(.callout).foregroundStyle(.secondary)
+                if m.micPermission.canOpenSettings {
+                    Button(L.t("open_mic_settings")) { m.openMicrophoneSettings() }.buttonStyle(.link)
+                }
+            }
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(L.t("selftest_title")).font(.title2).bold().accessibilityAddTraits(.isHeader)
@@ -106,6 +134,7 @@ struct SelfTestSheet: View {
             if !model.rows.isEmpty && !model.running {
                 Text(L.t(DiagnosticsLogic.overallKeys[DiagnosticsLogic.overall(model.rows)] ?? "selftest_ok")).font(.callout).bold()
             }
+            errorLogSection
             HStack {
                 Button(L.t("selftest_run")) { model.run(outputDevice: m.outputDevice) }.disabled(model.running)
                 Button(L.t("diag_copy")) {

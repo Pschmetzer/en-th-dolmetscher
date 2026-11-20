@@ -186,6 +186,7 @@ struct PhotoTextView: View {
                                 }
                             }
                             .buttonStyle(.plain)
+                            .accessibilityAddTraits(picked.contains(i) ? .isSelected : [])
                         }
                     } header: { Text(T("pick_lines")) }
                 }

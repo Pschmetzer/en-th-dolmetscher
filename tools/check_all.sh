@@ -26,6 +26,7 @@ fi
 echo "== Phrasenpakete =="
 "$PY" tools/make_presets_index.py --check || { echo "presets-index.json veraltet: python3 tools/make_presets_index.py"; exit 1; }
 "$PY" tools/check_presets.py
+"$PY" tools/sync_web.py --check || { echo "Web-Version veraltet: python3 tools/sync_web.py"; exit 1; }
 
 echo "== pytest =="
 "$PY" -m pytest -rs -m "not macos" "$@"

@@ -1,0 +1,18 @@
+/* Kurzbefehle, Siri und Spotlight (App Intents). MASCHINELL ÜBERSETZT außer de/th, nicht muttersprachlich geprüft. */
+"Start interpreting" = "통역 시작";
+"Stop interpreting" = "통역 중지";
+"Say phrase" = "문장 말하기";
+"Swap language pair" = "언어 쌍 바꾸기";
+"Speak last translation" = "마지막 번역 읽기";
+"Open phrasebook" = "문장집 열기";
+"Phrasebook" = "문장집";
+"Translate text" = "텍스트 번역";
+"Emergency phrase (Thai)" = "긴급 문장(태국어)";
+"Emergency phrase" = "긴급 문장";
+"Say in partner's language" = "상대방 언어로 말하기";
+"Open emergency card" = "긴급 카드 열기";
+"Emergency card" = "긴급 카드";
+"Show last translation" = "마지막 번역 보기";
+"Say phrasebook phrase" = "문장집 문장 말하기";
+"Text" = "텍스트";
+"Phrase" = "문장";

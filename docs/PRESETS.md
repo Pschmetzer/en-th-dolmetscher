@@ -191,6 +191,20 @@ kennen, ignorieren sie.
 | `private-driver-day-tour` | Privatfahrer und Tagestour | 2 kritische Sätze zuerst |
 | `luggage-storage` | Gepäckaufbewahrung | 3 kritische Sätze zuerst |
 | `grand-palace-museum` | Großer Palast und Museum | 2 kritische Sätze zuerst |
+| `numbers-prices` | Zahlen und Preise | Verständigung, Zeige-Sätze |
+| `negotiation` | Verhandeln und Preise drücken | Verständigung, Zeige-Sätze |
+| `buddhism-etiquette` | Buddhismus und Etikette | Verständigung, Zeige-Sätze |
+| `scooter-rental-damage` | Rollermiete: Schäden und Kaution | 3 kritische Sätze zuerst |
+| `doctor-symptom-detail` | Beschwerden genau beschreiben | 2 kritische Sätze zuerst |
+| `tuk-tuk-scam-prevention` | Tuk-Tuk: Abzocke vermeiden | 3 kritische Sätze zuerst |
+| `embassy-consulate` | Botschaft und Konsulat | 4 kritische Sätze zuerst |
+| `food-spice-level` | Schärfegrad beim Essen | Verständigung, Zeige-Sätze |
+| `hearing-speech-impaired` | Schwerhörig oder stumm | 2 kritische Sätze zuerst |
+| `wheelchair-mobility` | Rollstuhl und eingeschränkte Mobilität | 1 kritische Sätze zuerst |
+| `halal-food-muslim` | Halal-Essen und Gebet | Verständigung, Zeige-Sätze |
+| `refund-complaint-shop` | Rückgabe und Beschwerde im Laden | Verständigung, Zeige-Sätze |
+| `hotel-room-problems` | Hotel: Probleme im Zimmer | 2 kritische Sätze zuerst |
+| `lost-wallet-cards` | Geldbörse und Karten verloren | 2 kritische Sätze zuerst |
 
 Die Kategorie je Paket (`health`, `emergency`, `transport`, `food`, `money`, `stay`, `culture`, `leisure`, `general`) steht in `tools/preset_categories.json` und landet als `category` in `presets-index.json`. `python3 tools/preset_stats.py --by-category` zeigt die Abdeckung je Kategorie; ein neues Paket gehört in genau eine Kategorie (ein Test prüft das).
 
@@ -228,7 +242,7 @@ Am wichtigsten sind die Sätze mit `critical` und die Tabelle [Unsichere Sätze]
 
 | Datei | Inhalt |
 |---|---|
-| `presets/*.json` | 142 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
+| `presets/*.json` | 156 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
 | `ios/Shared/phrases.json` | eingebautes Satzbuch der iPhone-App und des Widgets |
 | `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten, „Sie sind dran“, Allergie-Karte |
 | `ios/Dolmetscher/Round4Views.swift` | Hilfesatz auf dem Bildschirm „Hilfe – jetzt“ |

@@ -1,0 +1,99 @@
+{
+  "id": "lost-wallet-cards",
+  "names": {
+    "de": "Geldbörse und Karten verloren",
+    "en": "Lost wallet and cards",
+    "th": "กระเป๋าสตางค์และบัตรหาย"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "wallet",
+      "th": "กระเป๋าสตางค์"
+    },
+    {
+      "en": "card",
+      "th": "บัตร"
+    },
+    {
+      "en": "cash",
+      "th": "เงินสด"
+    },
+    {
+      "en": "police report",
+      "th": "ใบแจ้งความ"
+    },
+    {
+      "en": "bank",
+      "th": "ธนาคาร"
+    },
+    {
+      "en": "lost property",
+      "th": "ของหาย"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I would like to report the theft to the tourist police (1155).",
+      "th": "ต้องการแจ้งเหตุขโมยกับตำรวจท่องเที่ยว (1155)",
+      "critical": true
+    },
+    {
+      "en": "I need to block my bank card now.",
+      "th": "ต้องการอายัดบัตรธนาคารตอนนี้",
+      "critical": true
+    },
+    {
+      "en": "My wallet was stolen.",
+      "th": "กระเป๋าสตางค์ถูกขโมย"
+    },
+    {
+      "en": "Please call my bank for me.",
+      "th": "ช่วยโทรหาธนาคารให้หน่อย"
+    },
+    {
+      "en": "Is there a phone I can use for an international call?",
+      "th": "มีโทรศัพท์ให้โทรต่างประเทศไหม"
+    },
+    {
+      "en": "I need a police report for my insurance.",
+      "th": "ต้องการใบแจ้งความเพื่อใช้กับประกัน"
+    },
+    {
+      "en": "I need a copy of the report today.",
+      "th": "ต้องการสำเนาใบแจ้งความวันนี้"
+    },
+    {
+      "en": "Where can I receive money from home?",
+      "th": "รับเงินโอนจากที่บ้านได้ที่ไหน"
+    },
+    {
+      "en": "Please check the cameras. My wallet was here.",
+      "th": "ช่วยตรวจกล้องวงจรปิด กระเป๋าสตางค์อยู่ตรงนี้"
+    },
+    {
+      "en": "Has anyone handed in a wallet?",
+      "th": "มีใครนำกระเป๋าสตางค์มาส่งไหม"
+    },
+    {
+      "en": "It was a black leather wallet.",
+      "th": "เป็นกระเป๋าสตางค์หนังสีดำ"
+    },
+    {
+      "en": "There were cards and cash inside.",
+      "th": "ข้างในมีบัตรและเงินสด"
+    },
+    {
+      "en": "Please give me a lost property form.",
+      "th": "ขอแบบฟอร์มแจ้งของหาย"
+    },
+    {
+      "en": "May I pay tomorrow if you keep the room for me?",
+      "th": "จ่ายพรุ่งนี้ ขอเก็บห้องไว้ก่อนได้ไหม"
+    }
+  ],
+  "note": {
+    "de": "Die App setzt die Höflichkeitspartikel (ครับ/ค่ะ) selbst. Bankkarten sofort über die Sperr-Hotline der Bank sperren lassen, die Nummer vorab notieren. Diebstahl bei der Touristenpolizei (1155) anzeigen, die Anzeige braucht man für die Versicherung. Ersatzgeld kann nur über Überweisung oder Bank kommen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "The app adds the polite particles (krub/ka) itself. Block bank cards at once through your bank's hotline; note the number beforehand. Report theft to the tourist police (1155); you need the report for insurance. Replacement money can only come by transfer or through a bank. Thai lines machine-made, not checked by native speakers."
+  }
+}

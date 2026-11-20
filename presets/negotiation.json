@@ -1,0 +1,101 @@
+{
+  "id": "negotiation",
+  "names": {
+    "de": "Verhandeln und Preise drücken",
+    "en": "Negotiating a price",
+    "th": "ต่อรองราคา"
+  },
+  "style": "polite",
+  "glossary": [
+    {
+      "en": "discount",
+      "th": "ส่วนลด"
+    },
+    {
+      "en": "bargain",
+      "th": "ต่อราคา"
+    },
+    {
+      "en": "final price",
+      "th": "ราคาสุดท้าย"
+    },
+    {
+      "en": "cheaper",
+      "th": "ถูกกว่า"
+    },
+    {
+      "en": "too expensive",
+      "th": "แพงไป"
+    },
+    {
+      "en": "cash",
+      "th": "เงินสด"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Could you give me a discount?",
+      "th": "ลดให้หน่อยได้ไหม"
+    },
+    {
+      "en": "What is your best price?",
+      "th": "ราคาที่ถูกที่สุดเท่าไหร่"
+    },
+    {
+      "en": "That is a little too expensive for me.",
+      "th": "แพงไปหน่อยสำหรับตัวเอง"
+    },
+    {
+      "en": "I will take two if the price is lower.",
+      "th": "ซื้อสองชิ้นถ้าลดให้"
+    },
+    {
+      "en": "I saw it cheaper at another shop.",
+      "th": "เห็นร้านอื่นขายถูกกว่านี้"
+    },
+    {
+      "en": "I only have this much money.",
+      "th": "มีเงินแค่นี้"
+    },
+    {
+      "en": "Can you sell it for this price?",
+      "th": "ขายราคานี้ได้ไหม"
+    },
+    {
+      "en": "Is there a discount if I pay cash?",
+      "th": "จ่ายเงินสดลดได้ไหม"
+    },
+    {
+      "en": "Is the price fixed here?",
+      "th": "ที่นี่ราคาคงที่ใช่ไหม"
+    },
+    {
+      "en": "Let me think about it.",
+      "th": "ขอคิดดูก่อน"
+    },
+    {
+      "en": "Thank you, I will come back later.",
+      "th": "ขอบคุณ เดี๋ยวกลับมาใหม่"
+    },
+    {
+      "en": "I do not want to buy it now.",
+      "th": "ยังไม่ซื้อตอนนี้"
+    },
+    {
+      "en": "I can only offer this price.",
+      "th": "เสนอได้แค่ราคานี้"
+    },
+    {
+      "en": "I am only asking, no offence meant.",
+      "th": "แค่ลองถามราคา ไม่ได้ตั้งใจให้ไม่สบายใจ"
+    },
+    {
+      "en": "Deal. I will take it.",
+      "th": "ตกลง เอาอันนี้"
+    }
+  ],
+  "note": {
+    "de": "Die App setzt die Höflichkeitspartikel (ครับ/ค่ะ) selbst. Handeln gehört auf Märkten und bei Tuk-Tuks dazu, nicht aber in Kaufhäusern, Supermärkten oder Restaurants. Freundlich lächeln, mit etwa 60–70 Prozent des Wunschpreises beginnen und nie laut werden. Wer „Deal“ sagt, sollte auch kaufen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "The app adds the polite particles (krub/ka) itself. Bargaining is normal at markets and with tuk-tuks, but not in department stores, supermarkets or restaurants. Smile, start at around 60-70 per cent of the price you hope for, and never raise your voice. If you say yes to a price, buy it. Thai lines machine-made, not checked by native speakers."
+  }
+}

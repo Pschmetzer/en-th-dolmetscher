@@ -577,7 +577,7 @@ def file_play_cmd(path, volume):
 
 def list_outputs():
     """CoreAudio-Geräte als [{index, name, uid}] (avhelper.py; enthält auch reine Eingänge)."""
-    r = subprocess.run(avhelper_cmd("list"), capture_output=True, text=True, timeout=10)
+    r = subprocess.run(avhelper_cmd("list"), capture_output=True, text=True, timeout=10, env=_child_env())
     lines = [ln for ln in (r.stdout or "").splitlines() if ln.startswith("{")]
     if not lines:
         raise RuntimeError((r.stderr or "keine Antwort").strip()[-200:])
@@ -647,7 +647,55 @@ _OUT_LOSSY = frozenset({"level", "partial", "queue"})
 _LOSSY_PREFIXES = tuple('{"event": "%s"' % e for e in _OUT_LOSSY)
 
 
+_SECRET_ENV = ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "ANTHROPIC_BASE_URL")
+
+
+def _child_env(env=None):
+    """Umgebung für Kindprozesse (ffmpeg, afplay, avhelper, Übersetzer-Helfer): ohne API-Schlüssel/Token,
+    die Kinder brauchen sie nie und würden sie an ihre eigenen Kinder weitergeben (Runde 22)."""
+    src = os.environ if env is None else env
+    return {k: v for k, v in src.items() if k not in _SECRET_ENV}
+
+
+_HIST_LOCK = threading.RLock()          # Verlauf (deque) wird vom Erkennungs- und Korrektur-Thread angefasst
+
+
+def _trim_oldest(d, n):
+    """Älteste Einträge eines Dicts entfernen (Einfügereihenfolge). Runde 22: ein paralleler Thread, der
+    gleichzeitig einfügt, ließ `next(iter(d))` mit RuntimeError scheitern und riss die Äußerung mit."""
+    while len(d) > n:
+        try:
+            d.pop(next(iter(d)), None)
+        except (RuntimeError, StopIteration):
+            break
+
+
+_UTT_SEEN = collections.OrderedDict()   # (id, to, out) der zuletzt gemeldeten utt-Ereignisse (Idempotenz je uid)
+_UTT_SEEN_MAX = 500
+_UTT_SEEN_LOCK = threading.Lock()
+
+
+def _utt_duplicate(kw):
+    """Runde 22: dieselbe Äußerung (id + Zielsprache + Text) nie zweimal melden – Doppel-Emission
+    (Wiederholung, Nachlauf) würde in der App eine zweite Blase und einen zweiten Verlaufseintrag erzeugen.
+    Eine Korrektur trägt eine neue id (`replaces`), ist also nie ein Duplikat."""
+    uid = kw.get("id")
+    if not uid:
+        return False
+    key = (uid, kw.get("to"), kw.get("out"))
+    with _UTT_SEEN_LOCK:
+        if key in _UTT_SEEN:
+            _UTT_SEEN.move_to_end(key)
+            return True
+        _UTT_SEEN[key] = None
+        while len(_UTT_SEEN) > _UTT_SEEN_MAX:
+            _UTT_SEEN.popitem(last=False)
+    return False
+
+
 def emit(event, **kw):
+    if event == "utt" and _utt_duplicate(kw):
+        return
     queued = _OUT["q"] is not None and JSON
     if queued and event == "utt":
         _record(event, kw)             # Verlauf (SQLite) vor dem Sperren: blockiert keine Pegel-Ereignisse
@@ -1217,9 +1265,22 @@ _NORM_QUOTES = str.maketrans({"’": "'", "‘": "'", "ʼ": "'", "`": "'", "´":
                               "‐": "-", "‑": "-", "–": "-", "—": "-"})
 
 
+_TH_GAP = re.compile(r"(?<=[ก-๛])\s+(?=[ก-๛])")                 # Thai trennt Wörter nur nach Gusto mit Leerzeichen
+_TH_STRETCH = re.compile(r"([ก-ฺเ-ๅๆ])\1{2,}")                  # ค่าาา, ครับบบ: Dehnung (3+ gleiche Zeichen)
+
+
+def thai_stretch(s):
+    """Dehnungen normalisieren: ครับบบ -> ครับ, ค่าาา -> ค่า (3+ gleiche Konsonanten/Vokale -> eines)."""
+    return _TH_STRETCH.sub(r"\1", s) if s else s
+
+
+@functools.lru_cache(maxsize=2048)
 def _norm(s):
-    """Cache-Schlüssel: Groß/klein, Leerraum, . , 。 egal – ? und ! bleiben (Frage ≠ Aussage)."""
+    """Cache-Schlüssel: Groß/klein, Leerraum, . , 。 egal – ? und ! bleiben (Frage ≠ Aussage). Thai: Leerzeichen
+    zwischen Thai-Zeichen und Dehnungen (ครับบบ) zählen nicht."""
     s = s.lower().replace("？", "?").replace("！", "!")
+    if _TH_RX.search(s):
+        s = thai_stretch(_TH_GAP.sub("", s))
     s = s.translate(_NORM_QUOTES)                              # "It’s" = "It's" (Whisper wechselt zwischen beiden)
     s = re.sub(r"(?:[\s。]|(?<!\d)[.,]|[.,](?!\d))+", " ", s)   # "1.5"/"1,5" bleiben (≠ "1 5")
     s = re.sub(r"\s*([?!])[\s?!]*", r"\1", s)                  # "geht's ? !" -> "geht's?"
@@ -1593,6 +1654,11 @@ def _note_fail(name, e):
 
 LLM = {"on": False, "model": "claude-haiku-5-5", "client": None, "err": None, "skip_until": 0.0}
 LLM["context"] = 8                 # so viele letzte Sätze (Verlauf) gehen als Kontext an Claude
+LLM_STATE_LOCK = threading.RLock()  # _llm_failed/_llm_late/reset laufen in Claude-/Callback-/Engine-Threads
+LLM["no_effort_models"] = set()    # Modelle, die `effort` mit 400 ablehnten (je Modell, nicht global)
+LLM["fails"] = 0                   # Fehler in Folge (Circuit-Breaker); >0 und Pause vorbei = halb offen
+LLM["probe_t"] = None              # Beginn der einen Probe-Anfrage im halb offenen Zustand
+LLM_PROBE_S = 15.0                 # so lange gilt eine Probe als laufend (danach darf die nächste los)
 LLM_BACKOFF = 60.0                 # s ohne Claude nach einem Fehler (dann direkt Google)
 KEYFILE = os.path.expanduser("~/Library/Application Support/Dolmetscher/anthropic_key")
 # Die Mac-App legt den Schlüssel in den Schlüsselbund (Nr. 23) und benennt die Datei danach in
@@ -2343,12 +2409,13 @@ def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
     parts.append(f"Translate this {names.get(src, src)} speech into {names.get(dst, dst)}:\n<speech>{safe}</speech>")
     # statischer Teil zuerst und mit cache_control (Prompt-Caching), der wechselnde Stil danach
     static = llm_system().replace("{setting} ", "")
-    kw = dict(model=LLM["model"], max_tokens=max(512, min(4096, 3 * len(text) + 256)),   # lange Sätze nie abschneiden
+    model_used = LLM["model"]
+    kw = dict(model=model_used, max_tokens=max(512, min(4096, 3 * len(text) + 256)),   # lange Sätze nie abschneiden
               system=[{"type": "text", "text": static, "cache_control": {"type": "ephemeral"}},
                       {"type": "text", "text": STYLES.get(LLM["style"], STYLES["casual"])
                        + register_hint(dst, LLM["style"], LLM["formality"]) + (SLOW_PROMPT if SLOW["on"] else "")}],
               messages=[{"role": "user", "content": "\n\n".join(parts)}])
-    if not LLM.get("no_effort"):
+    if not _no_effort(LLM["model"]):
         kw["output_config"] = {"effort": "low"}
     kw["timeout"] = llm_timeout()                  # je Modell: Sonnet/Opus brauchen länger als Haiku
     try:
@@ -2357,7 +2424,7 @@ def claude_translate(text, src, dst, history=(), alts=(), polite="krub"):
         if getattr(e, "status_code", None) == 400 and "output_config" in kw:   # Modell kennt effort nicht
             kw.pop("output_config")
             r = client.messages.create(**kw)
-            LLM["no_effort"] = True                 # erst nach gelungenem Neuversuch (400 wegen Guthaben: nein)
+            _set_no_effort(model_used)              # erst nach gelungenem Neuversuch (400 wegen Guthaben: nein)
         else:
             raise
     pin, pout = LLM_PRICE.get(LLM["model"], (4.0, 20.0))
@@ -2454,7 +2521,22 @@ _TH_ABBREV = [(re.compile(a), b) for a, b in (
     (r"(?<=\d)\s*น\.(?![ก-๙])", " นาฬิกา"),
     (r"(?:(?<=\s)|^)ซ\.(?=\s*\S)", "ซอย"),
     (r"(?:(?<=\s)|^)ถ\.(?=\s*\S)", "ถนน"), (r"(?:(?<=\s)|^)รร\.(?=\s*\S)", "โรงเรียน"),
-    (r"(?:(?<=\s)|^)รพ\.(?=\s*\S)", "โรงพยาบาล"))]
+    (r"(?:(?<=\s)|^)รพ\.(?=\s*\S)", "โรงพยาบาล"),
+    (r"(?<![ก-๙])พ\.ศ\.?(?![ก-๙])", "พุทธศักราช"), (r"(?<![ก-๙])ค\.ศ\.?(?![ก-๙])", "คริสต์ศักราช"),
+    (r"(?<![ก-๙])บจก\.?(?![ก-๙])", "บริษัท จำกัด"), (r"(?<![ก-๙])บมจ\.?(?![ก-๙])", "บริษัท มหาชน จำกัด"),
+    (r"(?<![ก-๙])น\.ส\.?(?![ก-๙])", "นางสาว"), (r"(?<![ก-๙])ด\.ช\.?(?![ก-๙])", "เด็กชาย"),
+    (r"(?<![ก-๙])ด\.ญ\.?(?![ก-๙])", "เด็กหญิง"), (r"(?<![ก-๙])นพ\.(?=\s*\S)", "นายแพทย์"),
+    (r"(?<![ก-๙])พญ\.(?=\s*\S)", "แพทย์หญิง"), (r"(?<![ก-๙])ดร\.(?=\s*\S)", "ดอกเตอร์"),
+    (r"(?<![ก-๙])ผศ\.(?=\s*\S)", "ผู้ช่วยศาสตราจารย์"), (r"(?<![ก-๙])รศ\.(?=\s*\S)", "รองศาสตราจารย์"),
+    (r"(?<=\d)\s*กม\.?(?![ก-๙])", " กิโลเมตร"), (r"(?<=\d)\s*กก\.?(?![ก-๙])", " กิโลกรัม"),
+    (r"(?<=\d)\s*ชม\.?(?![ก-๙])", " ชั่วโมง"), (r"(?<=\d)\s*นร\.(?![ก-๙])", " นักเรียน"),
+    (r"(?<![ก-๙])ธ\.(?=\s+[ก-๙])", "ธนาคาร"), (r"(?<![ก-๙])ต\.(?=\s+[ก-๙])", "ตำบล"),
+    (r"(?<![ก-๙])ม\.ค\.?", "มกราคม"), (r"(?<![ก-๙])ก\.พ\.?", "กุมภาพันธ์"),
+    (r"(?<![ก-๙])มี\.ค\.?", "มีนาคม"), (r"(?<![ก-๙])เม\.ย\.?", "เมษายน"),
+    (r"(?<![ก-๙])พ\.ค\.?", "พฤษภาคม"), (r"(?<![ก-๙])มิ\.ย\.?", "มิถุนายน"),
+    (r"(?<![ก-๙])ก\.ค\.?", "กรกฎาคม"), (r"(?<![ก-๙])ส\.ค\.?", "สิงหาคม"),
+    (r"(?<![ก-๙])ก\.ย\.?", "กันยายน"), (r"(?<![ก-๙])ต\.ค\.?", "ตุลาคม"),
+    (r"(?<![ก-๙])พ\.ย\.?", "พฤศจิกายน"), (r"(?<![ก-๙])ธ\.ค\.?", "ธันวาคม"))]
 MAX_SPEAK_CHARS = 300             # längere Teile einer Ausgabe werden geteilt (edge-tts/say: Frist, Abbruchrisiko)
 
 
@@ -2483,6 +2565,72 @@ def chunk_long(parts, lang, limit=None):
     return [x for x in out if x]
 
 
+_TH_DIG = ("ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า")
+_TH_POS = ("", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน")
+
+
+def _th_chunk(n, higher):
+    """0 < n < 1 000 000 als Thai-Wörter; higher: davor steht schon ein Millionen-Teil (dann „เอ็ด“ statt „หนึ่ง“)."""
+    ds = str(n)
+    out, L = [], len(ds)
+    for i, ch in enumerate(ds):
+        dgt, pos = int(ch), L - 1 - i
+        if dgt == 0:
+            continue
+        if pos == 0:
+            out.append("เอ็ด" if dgt == 1 and (L > 1 or higher) else _TH_DIG[dgt])
+        elif pos == 1:
+            out.append("สิบ" if dgt == 1 else "ยี่สิบ" if dgt == 2 else _TH_DIG[dgt] + "สิบ")
+        else:
+            out.append(_TH_DIG[dgt] + _TH_POS[pos])
+    return "".join(out)
+
+
+def thai_number_words(n):
+    """Ganze Zahl 0 … 999 999 999 999 als Thai-Wörter (350 -> สามร้อยห้าสิบ, 21 -> ยี่สิบเอ็ด); sonst None."""
+    if not isinstance(n, int) or n < 0 or n >= 10 ** 12:
+        return None
+    if n == 0:
+        return _TH_DIG[0]
+    parts, higher = [], False
+    millions = []
+    while n:
+        millions.append(n % 1_000_000)
+        n //= 1_000_000
+    for idx in range(len(millions) - 1, -1, -1):
+        c = millions[idx]
+        if c:
+            parts.append(_th_chunk(c, higher))
+            higher = True
+        if idx:
+            parts.append("ล้าน")
+    return "".join(parts)
+
+
+_NUM_KEEP_BEFORE = re.compile(r"(?:ห้อง|เบอร์|โทร|โทรศัพท์|รหัส|หมายเลข|เลขที่|ไปรษณีย์|แท็กซี่|ชั้น|บัตร|บัญชี)\s*$")
+_SPEAK_NUM = re.compile(r"(?<![\w.,:/\-+#])(\d{1,3}(?:,\d{3})+|\d{1,9})(?:\.(\d{1,6}))?(?![\w:/\-]|[.,]\d)")
+
+
+def speak_numbers_th(text):
+    """Zahlen in Thai-Text als Wörter lesbar machen (die TTS liest Ziffern uneinheitlich): 350 -> สามร้อยห้าสิบ,
+    3.5 -> สามจุดห้า. Nummern (Zimmer, Telefon, Konto), führende Nullen, Uhrzeiten und Datum bleiben Ziffern."""
+    def one(m):
+        raw, frac = m.group(1), m.group(2)
+        digits = raw.replace(",", "")
+        if len(digits) > 1 and (digits[0] == "0" or _NUM_KEEP_BEFORE.search(text[:m.start()])):
+            return m.group(0)
+        words = thai_number_words(int(digits))
+        if words is None:
+            return m.group(0)
+        if frac:
+            words += "จุด" + "".join(_TH_DIG[int(c)] for c in frac)
+        return words
+    return _SPEAK_NUM.sub(one, text)
+
+
+SPEAK_NUMBER_WORDS = {"on": False}     # opt-in: speak_form liest Zahlen als Thai-Wörter (Standard: Ziffern, die Neural-TTS liest sie richtig)  # noqa: E501
+
+
 def speak_form(text, lang):
     """Nr. 52: Thai-Lachen „555“ (ohne Zahlkontext) als ฮ่าฮ่าฮ่า vorlesen statt „ห้าห้าห้า“; die Anzeige bleibt.
     Runde 8: ฿/$/€/£ vor einer Zahl und °C/°F als Wort (Zahl zuerst, wie man sie sagt)."""
@@ -2502,9 +2650,14 @@ def speak_form(text, lang):
         gap = "" if lang == "th" else " "
         text = _DEGREE.sub(lambda m: f" {_SPEAK_DEG[lang]}{gap}{_SPEAK_CELS[m.group(1)][lang]}", text)
         text = _DEG_BARE.sub(f" {_SPEAK_DEG[lang]}", text)               # "20°" ohne C/F
-    if lang != "th" or "5" not in text:
+    if lang != "th":
         return text
-    return re.sub(r"\s{2,}", " ", _laugh_sub(text, " ฮ่าฮ่าฮ่า ")).strip()
+    text = thai_stretch(text)                            # ครับบบ/ค่าาา: nicht gedehnt vorlesen
+    if "5" in text:
+        text = re.sub(r"\s{2,}", " ", _laugh_sub(text, " ฮ่าฮ่าฮ่า ")).strip()
+    if SPEAK_NUMBER_WORDS["on"] and re.search(r"\d", text):
+        text = speak_numbers_th(text)
+    return text
 
 
 def _laugh_sub(text, repl=" "):
@@ -2693,12 +2846,51 @@ def _hedge_s():
     return round(max(HEDGE_MIN, min(base * 1.5, p90 * 1.2)), 2)
 
 
+def _no_effort(model):
+    return model in LLM["no_effort_models"]
+
+
+def _set_no_effort(model):
+    with LLM_STATE_LOCK:
+        LLM["no_effort_models"].add(model)
+        LLM["no_effort"] = True              # Kompatibilität (Anzeige/Tests); entschieden wird je Modell
+
+
+def _llm_gate():
+    """Circuit-Breaker: zu (Pause läuft) -> False; halb offen (Pause vorbei, letzte Anfrage war ein Fehler) ->
+    nur EINE Probe-Anfrage, alle anderen gehen direkt an Google; sonst True."""
+    now = time.monotonic()
+    if now < LLM["skip_until"]:
+        return False
+    with LLM_STATE_LOCK:
+        if LLM.get("fails", 0) <= 0 or LLM["skip_until"] <= 0.0:    # skip_until 0 = Pause bewusst aufgehoben
+            return True
+        t = LLM.get("probe_t")
+        if t is not None and now - t < LLM_PROBE_S:
+            return False
+        LLM["probe_t"] = now
+        return True
+
+
+def _llm_ok():
+    with LLM_STATE_LOCK:
+        LLM["err"] = None
+        LLM["billing_told"] = False
+        LLM["fails"] = 0
+        LLM["probe_t"] = None
+
+
 def _llm_failed(e):
-    LLM["err"] = _errtxt(e)
-    wait = _llm_backoff(e)
-    # max: ein späterer kurzer Fehler (Timeout 10 s) darf eine lange Pause (Guthaben 30 min) nicht verkürzen
-    LLM["skip_until"] = max(LLM["skip_until"], time.monotonic() + wait)
-    net_state("llm", False, int(max(0.0, LLM["skip_until"] - time.monotonic())))
+    with LLM_STATE_LOCK:
+        LLM["err"] = _errtxt(e)
+        wait = _llm_backoff(e)
+        LLM["probe_t"] = None
+        if wait > 0:
+            LLM["fails"] = LLM.get("fails", 0) + 1
+        # max: ein späterer kurzer Fehler (Timeout 10 s) darf eine lange Pause (Guthaben 30 min) nicht verkürzen
+        LLM["skip_until"] = max(LLM["skip_until"], time.monotonic() + wait)
+        left = int(max(0.0, LLM["skip_until"] - time.monotonic()))
+    net_state("llm", False, left)
     log({"translate": "claude-fehler", "err": LLM["err"], "pause_s": wait})
     if wait >= LLM_BILLING_BACKOFF and not LLM.get("billing_told"):
         LLM["billing_told"] = True                  # nur beim Übergang melden, nicht je Fehlversuch
@@ -2709,21 +2901,32 @@ def _llm_failed(e):
 
 def llm_reset_backoff():
     """Claude-Pause und letzten Fehler vergessen (Schlüsseltausch, Guthaben aufgeladen, manueller Neuversuch)."""
-    LLM["skip_until"] = 0.0
-    LLM["err"] = None
-    LLM["billing_told"] = False
-    LLM["client"] = None                       # neuer Client: er behält sonst den alten (ungültigen) Schlüssel
-
-
-def _llm_late(fut):
-    """Claude kam nach dem Hedging zu spät: Fehler trotzdem für Backoff/Anzeige merken."""
-    e = fut.exception()
-    if e is not None:
-        _llm_failed(e)
-    else:
+    with LLM_STATE_LOCK:
+        LLM["skip_until"] = 0.0
         LLM["err"] = None
         LLM["billing_told"] = False
-        net_state("llm", True)
+        LLM["fails"] = 0
+        LLM["probe_t"] = None
+        LLM["client"] = None                       # neuer Client: er behält sonst den alten (ungültigen) Schlüssel
+
+
+def _llm_late(fut, key=None, cache_it=False):
+    """Claude kam nach dem Hedging zu spät: Fehler trotzdem für Backoff/Anzeige merken; eine späte, gute Antwort
+    (ohne Verlauf: cache_it) landet im Cache, damit die Wiederholung des Satzes sofort die Claude-Fassung hat."""
+    try:
+        e = fut.exception()
+    except BaseException as ex:      # noqa: BLE001 – abgebrochenes Future
+        e = ex
+    if e is not None:
+        _llm_failed(e)
+        return
+    _llm_ok()
+    net_state("llm", True)
+    if cache_it and key is not None:
+        try:
+            _cache_put(key, (fut.result(), "claude"))
+        except Exception:            # noqa: BLE001 – Cache ist optional
+            pass
 
 
 def _claude_async(text, src, dst, history, alts, polite):
@@ -2748,10 +2951,14 @@ def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
     Fehlermeldung zu liefern. `meta` (dict) bekommt provider und cached."""
     import concurrent.futures
     meta = meta if meta is not None else {}
-    use_llm = LLM["on"] and time.monotonic() >= LLM["skip_until"] and llm_available() and not llm_over_budget()
+    use_llm = (LLM["on"] and time.monotonic() >= LLM["skip_until"] and llm_available() and not llm_over_budget()
+               and _llm_gate())
     key = _cache_key(text, src, dst, use_llm, polite)
     hit = None if (use_llm and history) else _cache_get(key)   # mit Verlauf ist der Kontext jedes Mal anders
     if hit is not None:
+        if use_llm:
+            with LLM_STATE_LOCK:
+                LLM["probe_t"] = None                  # Probe wurde nicht gebraucht: halb offen bleibt offen
         meta.update(provider=hit[1], cached=True)
         return hit[0]
     out, fut = None, None
@@ -2763,11 +2970,10 @@ def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
             out = fut.result(timeout=hedge)
             fut = None
             meta["provider"] = "claude"
-            LLM["err"] = None
-            LLM["billing_told"] = False                 # Claude geht wieder: nächste Erschöpfung wird erneut gemeldet
+            _llm_ok()                                   # Claude geht wieder: nächste Erschöpfung wird erneut gemeldet
             net_state("llm", True)
         except concurrent.futures.TimeoutError:
-            fut.add_done_callback(_llm_late)            # Claude läuft weiter, Google parallel
+            fut.add_done_callback(functools.partial(_llm_late, key=key, cache_it=not history))            # Claude läuft weiter, Google parallel  # noqa: E501
             log({"translate": "claude-langsam", "hedge_s": hedge})
         except Exception as e:
             fut = None
@@ -2991,7 +3197,7 @@ class OfflineMT:
             cmd = [self.path] + (["--pairs", f"{pair[0]}-{pair[1]},{pair[1]}-{pair[0]}"] if pair else [])
             self.started_pair = tuple(pair) if pair else None
             self.proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                         stderr=subprocess.DEVNULL)
+                                         stderr=subprocess.DEVNULL, env=_child_env())
             hello = self._readline(OFFLINE_MT_START)
             self.pairs = (hello or {}).get("pairs") or {}
             if not (hello or {}).get("ready"):
@@ -3745,7 +3951,7 @@ def fix_thai(s, polite, question=False):
         s = re.sub(r"(?:ดิ)?ฉัน(?!ท[์าะอ])", "ผม", s)          # ฉันท์, ฉันทะ, ฉันทามติ bleiben
     else:
         s = re.sub("ครับผม|ครับ", "ค่ะ", s)
-        s = re.sub(f"(?:(?<=^)|(?<=\\s)|(?<=ของ)|(?<=กับ)|(?<=ให้)|(?<=ว่า))ผม(?!\\s*{_HAIR})", "ฉัน", s)
+        s = re.sub(f"(?:(?<=^)|(?<=\\s)|(?<=ของ)|(?<=กับ)|(?<=ให้)|(?<=ว่า)|(?<=แต่)|(?<=และ)|(?<=ถ้า)|(?<=เพราะ)|(?<=เมื่อ))ผม(?!\\s*{_HAIR})", "ฉัน", s)  # noqa: E501
         # Frage endet mit คะ (hoher Ton), Aussage mit ค่ะ: nach Fragewort oder vor einem ?
         s = re.sub(r"((?:ไหม|มั้ย|หรือ(?:เปล่า)?|(?<!ไม่มี)(?<!ไม่เป็น)อะไร|ที่ไหน|ไหน|เมื่อไหร่|เมื่อไร|ทำไม|ยังไง|"
                    r"อย่างไร|กี่\S*|ใคร)\s*)ค่ะ(?=\s*[?？]?\s*$|\s)", r"\1คะ", s)
@@ -3753,6 +3959,31 @@ def fix_thai(s, polite, question=False):
         if question:
             s = re.sub(r"ค่ะ(?=[\s.!?？]*$)", "คะ", s)                 # nur das letzte Partikel
     return s
+
+
+_TH_END_PART = re.compile(r"(?:ครับ|ครับผม|ค่ะ|คะ|นะครับ|นะคะ|นะค่ะ|จ้ะ|จ้า|จ๊ะ|คับ|ค่า|ค๊ะ)[\s.!?？]*$")
+_TH_ANY_Q = re.compile(r"ไหม|มั้ย|หรือ|เหรอ|เปล่า|อะไร|ไหน|ใคร|ทำไม|เท่าไร|เท่าไหร่|เมื่อไร|เมื่อไหร่|ยังไง|อย่างไร|กี่|[?？]")
+
+
+def add_thai_particle(out, polite, question=False, provider=None, style="casual", formality="auto"):
+    """Runde 22: Google/MyMemory kennen kein Höflichkeitsregister. Bei Stufe „polite“ fehlenden Endpartikel
+    ergänzen (Mann ครับ, Frau ค่ะ; Frage ohne Fragewort: ไหมครับ/ไหมคะ). Claude/„none“/leer bleiben unberührt."""
+    if provider not in ("google", "mymemory", "apple") or not out or polite not in ("krub", "ka"):
+        return out
+    if effective_formality(style, formality) != "polite" or not _TH_RX.search(out):
+        return out
+    body = out.rstrip()
+    if _TH_END_PART.search(body):
+        return out
+    krub = polite == "krub"
+    tail = body[-1:] in ".!?？"
+    core = body.rstrip(".!?？ ")
+    if not core:
+        return out
+    if question and not _TH_ANY_Q.search(core):
+        core += " ไหม"
+    part = "ครับ" if krub else ("คะ" if question else "ค่ะ")
+    return f"{core}{part}" + (body[len(body.rstrip('.!?？ ')):] if tail else "") + out[len(body):]
 
 
 _SAY_LIST = {"out": None, "fail_t": None}
@@ -4128,7 +4359,10 @@ def split_sentences(s, lang, min_len=60):
     if len(s) < min_len:
         return [s]
     if lang == "th":   # Thai trennt Sätze/Phrasen mit Leerzeichen
-        parts = re.split(r"(?<=[฀-๿\d?!.？])\s+(?=[฀-๿])", s)     # auch nach "?"/"!" (ไหมคะ? ต่อไป...)
+        parts = re.split(r"(?<=[฀-๿\d?!.？])\s+(?=[฀-๿])"                      # auch nach "?"/"!" (ไหมคะ? ต่อไป...)
+                         r"|(?<=[?!？！…])(?=[฀-๿])"                              # Runde 22: "?"/"!" ohne Leerzeichen
+                         r"|(?<=[ก-๙])\s*\n+\s*(?=[ก-๙])", s)                      # Zeilenumbruch = Satzgrenze
+        parts = [x for x in parts if x and x.strip()]
     elif lang in ("zh", "ja"):   # Chinesisch/Japanisch: Satzzeichen ohne Leerzeichen danach
         parts = [p for p in re.split(r"(?<=[。！？!?])\s*", s) if p]
     else:
@@ -4254,6 +4488,7 @@ class Player:
         with self.lock:                # Start und Eintragen unter einem Lock: stop() kann dazwischen nichts verpassen
             p = self._take_standby(cmd) if warm else None
             if p is None:
+                kw.setdefault("env", _child_env())
                 p = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=_child_stderr(), **kw)
             self.procs[p] = time.time()
         if warm:                       # nächsten Abspiel-Prozess schon vorbereiten (Python + PyAV laden)
@@ -4286,7 +4521,8 @@ class Player:
 
     def _spawn_standby(self, cmd):
         try:
-            p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=_child_stderr())
+            p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=_child_stderr(),
+                                 env=_child_env())
         except OSError:
             return
         with self.lock:
@@ -5149,7 +5385,8 @@ def run_cancellable(cmd, timeout=SAY_TIMEOUT, cancelled=None, step=0.05):
     """Kindprozess (kein Abspielen, sperrt also nicht das Mikrofon) mit Zeitgrenze; Stopp/Barge-in
     beendet ihn sofort. Rückgabe: Exit-Code, None bei Abbruch/Zeitüberschreitung."""
     try:
-        p = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        p = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                             env=_child_env())
     except OSError as e:                    # say fehlt / Prozesslimit: wie ein Abbruch behandeln
         log({"run_cancellable": "start fehlgeschlagen", "err": _errtxt(e)})
         return None
@@ -5543,7 +5780,18 @@ def report_queue():
 
 import glob  # noqa: E402
 
-ENGINE_VERSION = "1.3"
+def _engine_version(fallback="1.3"):
+    """Eine Versionsquelle: `version` in pyproject.toml (daraus baut auch build.sh); ohne die Datei (gepackte
+    App) der Rückfallwert."""
+    try:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "pyproject.toml"), encoding="utf-8") as f:
+            m = re.search(r'^version\s*=\s*"([^"]+)"', f.read(), re.M)
+        return m.group(1) if m else fallback
+    except OSError:
+        return fallback
+
+
+ENGINE_VERSION = _engine_version()
 PROTOCOL = 1                      # Version des Engine-App-Protokolls (docs/PROTOKOLL.md)
 STOP = threading.Event()          # gesetzt von SIGTERM/SIGINT oder stdin-Ende -> geordnetes Beenden
 _CTRL_LOCK = threading.RLock()    # Steuer-Thread (apply_control) und Arbeits-Thread schreiben dieselben Felder
@@ -6090,11 +6338,12 @@ class Engine:
     def clear_context(self):
         """Gesprächskontext und Texte im Speicher leeren (Sprachbefehl "clear", Steuerfeld `clear`):
         Verlauf, "repeat", Roh-Audio/Text, Caches, und wartende/laufende Sprachausgabe (enthält den Text)."""
-        self.history.clear()
+        with _HIST_LOCK:
+            self.history.clear()
         self.last = None
         self.prev = None
         self._cleared = True                # restore_last darf den gelöschten Satz nicht aus dem Verlauf zurückholen
-        for name in ("texts", "recent", "_hist_ids", "_recent_t"):   # kein Roh-Audio/Text im Speicher behalten
+        for name in ("texts", "recent", "_hist_ids", "_recent_t", "_failed_tr"):   # kein Roh-Audio/Text im Speicher behalten  # noqa: E501
             getattr(self, name, {}).clear()
         with _PRE_LOCK:
             PRE.clear()
@@ -6478,15 +6727,54 @@ class Engine:
             recent.pop(uid, None)
             stamps.pop(uid, None)
 
+    FAILED_MAX, FAILED_TTL = 4, 180.0      # nachzuliefernde Sätze: Anzahl, Alter in s
+
+    def _remember_failed(self, uid, lang, text, kw):
+        """Gescheiterte Übersetzung merken (Zeit, Parameter): kommt später eine Übersetzung durch (online),
+        wird der Satz automatisch nachgeliefert statt auf „Erneut versuchen“ zu warten."""
+        q = self.__dict__.setdefault("_failed_tr", collections.OrderedDict())
+        with _HIST_LOCK:
+            q[uid] = (time.monotonic(), lang, text, kw)
+            q.move_to_end(uid)
+            while len(q) > self.FAILED_MAX:
+                q.popitem(last=False)
+
+    def _flush_failed(self, current_uid=None):
+        q = self.__dict__.get("_failed_tr")
+        if not q:
+            return
+        now = time.monotonic()
+        with _HIST_LOCK:
+            todo = [(u, v) for u, v in q.items() if u != current_uid and now - v[0] <= self.FAILED_TTL]
+            q.clear()
+        if not todo:
+            return
+
+        def run():
+            for u, (_t, lang, text, kw) in todo:
+                if getattr(self, "_cleared", False) and u not in self.texts:
+                    continue
+                try:
+                    self.deliver(u, lang, text, speak=False, **kw)    # spät: nicht mehr vorlesen
+                except Exception as e:      # noqa: BLE001 – Nachlieferung ist optional
+                    log({"retry": "nachliefern-fehler", "err": _errtxt(e)})
+        threading.Thread(target=run, name="retry-failed", daemon=True).start()
+
+    def _hist_snapshot(self, skip=None):
+        """Verlauf als Tuple, race-sicher (Snapshot unter Lock): kein "deque mutated during iteration"."""
+        with _HIST_LOCK:
+            return tuple(h for h in list(self.history) if h is not skip)
+
     def _forget(self, uid):
         """Ersetzte Äußerung (Korrektur) aus Kontext und "repeat" nehmen: sonst stünde die falsch
         erkannte Fassung weiter im Claude-Kontext bzw. würde wiederholt."""
         entry = self.__dict__.setdefault("_hist_ids", {}).pop(uid, None)
         if entry is not None:
-            try:
-                self.history.remove(entry)
-            except ValueError:
-                pass                                  # schon aus dem Fenster (maxlen) gefallen
+            with _HIST_LOCK:
+                try:
+                    self.history.remove(entry)
+                except (ValueError, RuntimeError):
+                    pass                              # schon aus dem Fenster (maxlen) gefallen / parallel verändert
         recent = getattr(self, "recent", None)
         if recent is not None:
             recent.pop(uid, None)
@@ -6603,6 +6891,9 @@ class Engine:
                 source="mic", replaces=None, role=None, extra=None, polite=None):
         """Übersetzen, Blase melden, vorlesen (asynchron). Gemeinsam für Mikrofon, Schnellsätze und
         Korrekturen."""
+        prior = self.__dict__.get("_hist_ids", {}).get(uid)
+        if prior is not None and not replaces and prior[0] == lang and prior[1] == text:
+            return prior                  # Runde 22: dieselbe uid zweimal geliefert: weder doppelt vorlesen noch melden
         t1 = time.monotonic()
         base = dict(id=uid, lang=lang, text=text, stt=round(stt_s, 2), lp=round(lp, 3), speaker=speaker,
                     source=source)
@@ -6615,8 +6906,7 @@ class Engine:
         if extra:
             base.update(extra)
         self.texts[uid] = (lang, text)
-        if len(self.texts) > 200:
-            self.texts.pop(next(iter(self.texts)))
+        _trim_oldest(self.texts, 200)
         old = self.__dict__.get("_hist_ids", {}).get(replaces) if replaces else None
         if not self.translate_dir.get(lang, True):
             # diese Sprache bleibt wie sie ist: nur anzeigen, nicht übersetzen, nicht vorlesen
@@ -6633,7 +6923,7 @@ class Engine:
         try:
             # ersetzte (falsche) Fassung nicht als Kontext mitschicken; entfernt wird sie erst bei Erfolg,
             # damit die alte Blase bei einem Fehler weiter korrigierbar bleibt
-            hist = tuple(h for h in self.history if h is not old)
+            hist = self._hist_snapshot(skip=old)
             polite = polite or self.polite      # Person mit eigener Form (Profil) vor der Einstellung
             out = translate(text, lang, dst, history=hist, alts=alts, polite=polite, meta=meta)
             # Offline-Übersetzung (Apple) heißt: kein Netz – nicht als „wieder online“ melden
@@ -6641,6 +6931,8 @@ class Engine:
                 net_state("translate", False)
             elif not meta.get("cached") and meta.get("provider") != "none":
                 net_state("translate", True)   # nur eine echte Antwort beweist „online“ (Cache/Lachen nicht)
+            if meta.get("provider") not in ("apple", "none") and not meta.get("cached"):
+                self._flush_failed(uid)        # online: früher gescheiterte Sätze jetzt nachliefern
             if numbers_differ(text, out):      # Zahlen weichen ab: zweiter Anbieter entscheidet (Nr. 25)
                 out = recheck_numbers(text, lang, dst, out, meta, hist, alts, polite)
         except Exception as e:
@@ -6649,6 +6941,8 @@ class Engine:
             # mit Text und Sprache (wie `unsure`): die App kann „Erneut versuchen“ anbieten (Nr. 161)
             emit("dropped", reason="übersetzung fehlgeschlagen", code="translate_failed", id=uid,
                  text=text, lang=lang)
+            self._remember_failed(uid, lang, text, dict(lp=lp, stt_s=stt_s, speaker=speaker, alts=alts,
+                                                         source=source, role=role, extra=extra, polite=polite))
             # nur Typ/Status/eigene Meldungen – Server-Texte können den Satz zitieren (Nr. 7)
             own = isinstance(e, RuntimeError) and _SAFE_MSG.match(str(e))
             wait = translate_retry_in()
@@ -6659,6 +6953,8 @@ class Engine:
             return None
         if dst == "th":
             out = fix_thai(out, polite, question=lang != "th" and is_question(text, lang))
+            out = add_thai_particle(out, polite, lang != "th" and is_question(text, lang), meta.get("provider"),
+                                    LLM["style"], LLM["formality"])
         if replaces:
             self._forget(replaces)
         last = getattr(self, "last", None)
@@ -6670,11 +6966,11 @@ class Engine:
         elif replaces and last is not None and last[2] == replaces:
             self.last = None                          # alte (falsche) Fassung nicht mehr wiederholen
         entry = (lang, text, out)
-        self.history.append(entry)
+        with _HIST_LOCK:
+            self.history.append(entry)
         ids = self.__dict__.setdefault("_hist_ids", {})
         ids[uid] = entry
-        while len(ids) > 50:
-            ids.pop(next(iter(ids)))
+        _trim_oldest(ids, 50)
         tr_s = time.monotonic() - t1
         log({"id": uid, "out": out, "provider": meta.get("provider"), "cached": meta.get("cached", False),
              "tr_s": round(tr_s, 2)})
@@ -6741,7 +7037,8 @@ def record_one(mic="0", timeout=20.0, denoise=False):
     ffmpeg nach timeout+2 s: Lesen blockiert sonst endlos (Zugriff verweigert, Gerät hängt).
     denoise: dieselbe Rauschunterdrückung wie im Betrieb (--denoise)."""
     try:
-        ff = subprocess.Popen(capture_cmd(dev=resolve_mic(mic), af=mic_filter(bool(denoise))), stdout=subprocess.PIPE)
+        ff = subprocess.Popen(capture_cmd(dev=resolve_mic(mic), af=mic_filter(bool(denoise))), stdout=subprocess.PIPE,
+                              env=_child_env())
     except OSError as e:                        # ffmpeg fehlt/Zugriff verweigert: Fehlercode statt Traceback
         log({"record": "start fehlgeschlagen", "err": _errtxt(e)})
         return None
@@ -6749,7 +7046,7 @@ def record_one(mic="0", timeout=20.0, denoise=False):
     wd.daemon = True
     wd.start()
     vad, N = StreamVAD(), StreamVAD.N
-    fdur, buf, voiced, silence, speech, pre = N / SR, [], False, 0.0, 0.0, []
+    fdur, buf, voiced, silence, speech, pre = N / SR, [], False, 0.0, 0.0, collections.deque(maxlen=12)
     t_end = time.monotonic() + timeout
     got = False
     lv = {"n": 0, "peak": 0.0}
@@ -6775,9 +7072,9 @@ def record_one(mic="0", timeout=20.0, denoise=False):
                     emit("level", rms=round(float(min(1.0, max(0.0, (db + 60) / 60))), 2), voice=prob > 0.5)
                     lv["n"], lv["peak"] = 0, 0.0
             if not voiced:
-                pre = (pre + [f])[-12:]
+                pre.append(f)                       # deque(maxlen=12): keine Listenkopie je Frame
                 if prob > 0.5:
-                    voiced, buf = True, pre[:]
+                    voiced, buf = True, list(pre)
                     emit("hearing")
                 continue
             buf.append(f)
@@ -7560,7 +7857,7 @@ def power_check(eng, battery_fn=None, now=None):
     POWER["t"] = now
     if battery_fn is None:
         import hwprofile
-        battery_fn = hwprofile.on_battery
+        battery_fn = hwprofile.power_saving          # Akku, Energiesparmodus, Hitzedrosselung
     try:
         battery = bool(battery_fn())
     except Exception as e:                         # noqa: BLE001 – pmset fehlt o. ä.: nichts ändern
@@ -7597,7 +7894,7 @@ def segmenter(read, utts, sess=0, on_end=None):
     vad = None                      # im try angelegt: scheitert das Modell, läuft trotzdem on_end (Wiederverbinden)
     BARGE_FRAMES = 6                # ~190 ms durchgehend Sprache unterbricht die Ausgabe
     fdur = N / SR
-    buf, voiced, silence, speech, pre, peak_rms = [], False, 0.0, 0.0, [], 0.0
+    buf, voiced, silence, speech, pre, peak_rms = [], False, 0.0, 0.0, collections.deque(maxlen=12), 0.0
     was_gated, onset, t_cap, t_begin, dbg = False, 0, 0.0, 0.0, []
     meter_n, meter_peak = 0, 0.0
     t_voice = 0.0                   # Aufnahmezeit des letzten Sprach-Frames (für die Latenzmessung)
@@ -7624,7 +7921,8 @@ def segmenter(read, utts, sess=0, on_end=None):
         log({"segment": {"cut": reason, "start": round(t_begin % 1000, 2), "end": round(t_cap % 1000, 2),
                          "lag_s": round(time.time() - t_cap, 2), "speech": round(speech, 2)}})
         put(buf, reason, speech)
-        buf, pre = [], []
+        buf = []
+        pre.clear()
         with _PRE_LOCK:                 # Vorab-Erkennung dieses Satzes ist erledigt/überholt
             EARLY_END.pop(uid, None)
 
@@ -7644,7 +7942,8 @@ def segmenter(read, utts, sess=0, on_end=None):
                 if voiced:              # Ausgabe beginnt mitten in einer Äußerung: Sauberes behalten
                     gate_cut = round(peak_rms, 4)
                     finish("gate")
-                pre, was_gated = [], True
+                pre.clear()
+                was_gated = True
                 continue
             if was_gated:               # eigene Stimme ist vorbei: VAD frisch starten
                 vad.reset()
@@ -7689,9 +7988,9 @@ def segmenter(read, utts, sess=0, on_end=None):
             if not voiced:
                 if noise.update(rms, prob) and not DENOISE:
                     hint("noisy")                           # laute Umgebung: Tipp Kopfhörer-Mikro/Denoise
-                pre = (pre + [f])[-12:]                     # ~380 ms Vorlauf
+                pre.append(f)                               # ~380 ms Vorlauf (deque maxlen=12)
                 if prob > VAD["start"]:
-                    voiced, buf, silence, speech, peak_rms = True, pre[:], 0.0, fdur, rms
+                    voiced, buf, silence, speech, peak_rms = True, list(pre), 0.0, fdur, rms
                     t_voice = t_cap
                     t_begin = t_cap
                     uid, version, pre_sent, partial_at = new_id(), 0, False, 0.0
@@ -7763,7 +8062,7 @@ DENOISE = False
 def list_mics():
     """Audio-Eingänge von AVFoundation als [{index, name}] (avhelper.py bzw. DOLMETSCHER_FFMPEG)."""
     if not FFMPEG:
-        r = subprocess.run(avhelper_cmd("list"), capture_output=True, text=True, timeout=10)
+        r = subprocess.run(avhelper_cmd("list"), capture_output=True, text=True, timeout=10, env=_child_env())
         lines = [ln for ln in (r.stdout or "").splitlines() if ln.startswith("{")]
         if not lines:
             raise RuntimeError((r.stderr or "keine Antwort").strip()[-200:])
@@ -7790,7 +8089,7 @@ DECODE_MAX_S = 4 * 3600                # s Audio: längere --file-Dateien lehnt 
 def decode_file(path):
     """Audiodatei -> float32 mono in SR, über denselben Kindprozess wie die Aufnahme (avhelper.py bzw.
     DOLMETSCHER_FFMPEG) – unabhängig von faster-whispers decode_audio und dessen PyAV-Anforderungen."""
-    r = subprocess.run(capture_cmd(path=path), capture_output=True, timeout=600)
+    r = subprocess.run(capture_cmd(path=path), capture_output=True, timeout=600, env=_child_env())
     if r.returncode != 0 and not r.stdout:
         raise RuntimeError((r.stderr or b"").decode("utf-8", "replace").strip()[-200:] or "Dekodieren fehlgeschlagen")
     raw = r.stdout
@@ -7896,7 +8195,7 @@ class Mic:
             cmd = (capture_cmd(path=mic_file, af=mic_filter(DENOISE), loop=loop, realtime=True) if mic_file
                    else capture_cmd(dev=dev, af=mic_filter(DENOISE)))
             try:
-                ff = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                ff = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=_child_env())
             except OSError as e:
                 return self._fail(f"Audio-Aufnahme nicht startbar: {e}", _retry,
                                   "ffmpeg_missing" if FFMPEG else "audio_missing", fatal)
@@ -8520,7 +8819,7 @@ if __name__ == "__main__":
     if model == "auto":
         import hwprofile
         hw = hwprofile.auto_choice()
-        hw = {**hw, **hwprofile.adjust_for_power(hw, hwprofile.on_battery())}   # Akkubetrieb: sparsamer
+        hw = {**hw, **hwprofile.adjust_for_power(hw, hwprofile.power_saving())}   # Akku/Sparmodus/Hitze: sparsamer
         model = hw["model"]
     try:
         eng = Engine(model, a.polite, a.lang if a.lang in ("auto", *PAIR) else "auto", a.tts, a.device)

@@ -43,6 +43,10 @@ enum SpeechRate {
     static let slowFactor: Double = 0.65
     static let slowFloor: Double = 0.4
     static let clearCeiling: Double = 0.8
+    /// Grenzen und Schritt der Sprechgeschwindigkeit („langsamer“/„schneller“ per Sprachbefehl und Einstellung).
+    static let minRate: Double = 0.5
+    static let maxRate: Double = 1.5
+    static let step: Double = 0.15
 
     static func effective(rate: Double, slow: Bool, clear: Bool) -> Double {
         slow ? max(slowFloor, rate * slowFactor) : clear ? min(rate, clearCeiling) : rate

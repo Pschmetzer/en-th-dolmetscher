@@ -1,0 +1,11 @@
+/* Widget-Erweiterung: Titel der Steuerelemente und Kurzbefehle. MASCHINELL ÜBERSETZT außer de/th, nicht muttersprachlich geprüft. */
+"Start interpreting" = "Bắt đầu phiên dịch";
+"Stop interpreting" = "Dừng phiên dịch";
+"Say phrase" = "Nói một câu";
+"Swap language pair" = "Đổi chiều ngôn ngữ";
+"Speak last translation" = "Đọc bản dịch gần nhất";
+"Phrase" = "Câu";
+"Quick phrases" = "Câu nhanh";
+"Source" = "Nguồn";
+"Phrases" = "Câu";
+"Female polite form (ค่ะ)" = "Dạng lịch sự của nữ (ค่ะ)";

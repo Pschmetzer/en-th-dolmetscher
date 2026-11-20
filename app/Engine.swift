@@ -141,7 +141,14 @@ final class EngineModel: NSObject, ObservableObject {
     static let protocolVersion = 1
     @Published private(set) var engineVersion: String?
     /// Letzter Engine-Fehler (bleibt sichtbar, bis er weggeklickt wird – der Status wird sofort überschrieben).
-    @Published var lastError: (msg: String, date: Date)?
+    @Published var lastError: (msg: String, date: Date)? {
+        didSet { if let e = lastError { errorLog.record(e.msg, at: e.date) } }   // Verlauf fürs Diagnosefenster
+    }
+    /// Alle Fehler dieser Sitzung (Diagnosefenster); überlebt das Wegklicken des Hinweisbandes.
+    @Published private(set) var errorLog = ErrorLog()
+    func clearErrorLog() { errorLog.clear() }
+    /// Mikrofon-Berechtigung als Zustand (für Hinweise und Diagnose).
+    var micPermission: MicPermission { MicPermission.from(rawStatus: AVCaptureDevice.authorizationStatus(for: .audio).rawValue) }
     /// Fehlercode der Engine zu `lastError` (nur gültig, wenn `lastErrorCodeDate` dessen Zeit ist) – steuert die Handlungsvorschläge.
     @Published var lastErrorCode: String?
     var lastErrorCodeDate: Date?
@@ -308,6 +315,18 @@ final class EngineModel: NSObject, ObservableObject {
         glossaryWork?.cancel(); glossaryWork = nil
         try? FileManager.default.createDirectory(at: Self.glossaryURL.deletingLastPathComponent(), withIntermediateDirectories: true)
         do {
+            let url = Self.glossaryURL
+            let old = try? Data(contentsOf: url)
+            if GlossaryBackup.shouldBackup(existing: old, new: Data(glossary.utf8)), let old {
+                let bak = GlossaryBackup.backupURL(for: url)
+                do {
+                    try old.write(to: bak, options: .atomic)
+                    try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: bak.path)
+                } catch {
+                    NSLog("Dolmetscher: Glossar-Sicherung nicht angelegt: %@", WriteFailure.describe(error))
+                    lastError = (L.t("glossary_backup_failed"), Date())
+                }
+            }
             try glossary.write(to: Self.glossaryURL, atomically: true, encoding: .utf8)
             // Das Glossar enthält oft private Namen: nur für den Nutzer lesbar.
             try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: Self.glossaryURL.path)
@@ -534,6 +553,8 @@ final class EngineModel: NSObject, ObservableObject {
     static let logURL = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent("Library/Logs/Dolmetscher/stderr.log")
     private static let logMarker = "=== Dolmetscher-Engine gestartet"
+    /// Dateien, die beim letzten Rotieren nicht verschoben werden konnten (nil = alles gut); wird beim Start gemeldet.
+    nonisolated(unsafe) private static var rotationFailure: String?
 
     /// stderr.log: anhängen statt überschreiben, pro Start eine Kopfzeile mit Zeitstempel.
     /// Ab 1 MB wird beim Start rotiert (stderr.log.1 … .5).
@@ -543,9 +564,16 @@ final class EngineModel: NSObject, ObservableObject {
         let size = (try? fm.attributesOfItem(atPath: logURL.path)[.size] as? Int) ?? 0
         if size > maxBytes {
             func path(_ i: Int) -> String { i == 0 ? logURL.path : logURL.path + ".\(i)" }
-            try? fm.removeItem(atPath: path(keep))
+            var failed: [String] = []
+            if fm.fileExists(atPath: path(keep)) {
+                do { try fm.removeItem(atPath: path(keep)) } catch { failed.append(path(keep)) }
+            }
             for i in stride(from: keep - 1, through: 0, by: -1) where fm.fileExists(atPath: path(i)) {
-                try? fm.moveItem(atPath: path(i), toPath: path(i + 1))
+                do { try fm.moveItem(atPath: path(i), toPath: path(i + 1)) } catch { failed.append(path(i)) }
+            }
+            if let sum = WriteFailure.rotationSummary(failedPaths: failed) {
+                NSLog("Dolmetscher: Protokoll-Rotation fehlgeschlagen: %@", sum)
+                rotationFailure = sum
             }
         }
         let fd = open(logURL.path, O_WRONLY | O_CREAT | O_APPEND, 0o600)
@@ -837,6 +865,10 @@ final class EngineModel: NSObject, ObservableObject {
         let inp = Pipe()
         p.standardInput = inp
         p.standardError = Self.prepareLog() ?? FileHandle.nullDevice
+        if let f = Self.rotationFailure {
+            Self.rotationFailure = nil
+            lastError = (L.t("log_rotate_failed") + ": " + f, Date())
+        }
         buffer = Data(); discardingLine = false; malformedLines = 0
         resetRuntime()
         // Lese- und Ende-Handler laufen auf verschiedenen Hintergrund-Queues: das Prozessende kann die
@@ -886,7 +918,10 @@ final class EngineModel: NSObject, ObservableObject {
             if let key = ProcessInfo.processInfo.environment["ANTHROPIC_API_KEY"] ?? APIKeyStore.read(),
                var line = try? JSONSerialization.data(withJSONObject: ["api_key": key]) {
                 line.append(0x0A)
-                try? inp.fileHandleForWriting.write(contentsOf: line)
+                do { try inp.fileHandleForWriting.write(contentsOf: line) }
+                catch {   // Engine hat den Schlüssel nicht: still auf Google zurückzufallen wäre irreführend (Fehler ohne Schlüssel)
+                    lastError = (L.t("apikey_send_failed") + " – " + WriteFailure.describe(error), Date())
+                }
             }
             if pushToTalk { setPaused(true) }   // kein Startargument dafür – direkt per stdin
         } catch {
@@ -957,7 +992,7 @@ final class EngineModel: NSObject, ObservableObject {
                 }
             }
             backoffWork = w
-            DispatchQueue.main.asyncAfter(deadline: .now() + pow(2, Double(restartAttempts - 1)), execute: w)
+            DispatchQueue.main.asyncAfter(deadline: .now() + RestartBackoff.delay(attempt: restartAttempts), execute: w)
             return
         }
         wantListen = false
@@ -1585,20 +1620,22 @@ final class EngineModel: NSObject, ObservableObject {
         u.role = o["role"] as? String
         if let id { cancelHearingTimer(id); pendingIDs.remove(id) } else { pendingIDs.remove("?") }
         // Beim Ersetzen bleibt die Blasen-id erhalten: die Liste behält ihre Position (kein Scroll-Sprung).
-        if let old = o["replaces"] as? String, let i = index(of: old) {
+        // Idempotent: gleiche uid, gleicher Platzhalter oder gleicher Text vom gleichen Sprecher binnen ~4 s ersetzt.
+        let keys = items.map { BubbleKey(uid: $0.uid, pending: $0.pending, speaker: $0.speaker, text: $0.text, out: $0.out, date: $0.date) }
+        let placement = UtteranceLogic.place(in: keys, uid: id, replaces: o["replaces"] as? String,
+                                             text: u.text, out: u.out, speaker: u.speaker)
+        if case .replace(let i) = placement {
             u.id = items[i].id
             u.date = items[i].date
             if u.speaker == nil { u.speaker = items[i].speaker }
             // Korrektur: geänderte Wörter als Vokabular vorschlagen (nur fragen, nie automatisch speichern)
-            if let sv = o["suggest_vocab"] as? [String], !sv.isEmpty,
+            if o["replaces"] as? String != nil, let sv = o["suggest_vocab"] as? [String], !sv.isEmpty,
                let target = items[i].speaker ?? (l == Langs.meLang ? rolesMe : nil) {
                 vocabSuggestion = (Array(sv.prefix(10)), target)
             }
+            if u.uid == nil { u.uid = items[i].uid }
             items[i] = u
             if let id { items.removeAll { $0.pending && $0.uid == id } }
-        } else if let id, let i = items.lastIndex(where: { $0.pending && $0.uid == id }) {
-            u.id = items[i].id
-            items[i] = u
         } else {
             items.append(u)
             trimItems()
@@ -1626,14 +1663,20 @@ final class EngineModel: NSObject, ObservableObject {
             MainActor.assumeIsolated {
                 guard let self else { return }
                 self.hearingTimers[id] = nil
-                guard !self.pendingIDs.contains(id) else { return }
+                let heard = self.items.contains { $0.pending && $0.uid == id && $0.heard }
+                let inRec = self.pendingIDs.contains(id)
+                // Nicht nach heard/thinking verwerfen (spätes `utt` würde sonst eine zweite Blase anlegen).
+                if heard || inRec { return }
                 // Spricht noch jemand (Pegel), Frist verlängern – sonst springt die Blase ans Ende.
-                if Date().timeIntervalSince(self.lastVoiceAt) < 1.0 { self.scheduleHearingTimeout(id); return }
+                let since = Date().timeIntervalSince(self.lastVoiceAt)
+                if !UtteranceLogic.shouldExpirePlaceholder(heard: heard, inRecognition: inRec, secondsSinceVoice: since) {
+                    self.scheduleHearingTimeout(id); return
+                }
                 self.items.removeAll { $0.pending && $0.uid == id }
             }
         }
         hearingTimers[id] = w
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0, execute: w)
+        DispatchQueue.main.asyncAfter(deadline: .now() + UtteranceLogic.hearingTimeout, execute: w)
     }
 
     private func cancelHearingTimer(_ id: String) {
