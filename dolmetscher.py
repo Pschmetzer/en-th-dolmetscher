@@ -17,7 +17,12 @@ import argparse, atexit, collections, difflib, errno, functools, hashlib, html, 
     logging, logging.handlers, math, os, queue, re, shutil, signal, subprocess, sys, tempfile, threading, time, \
     urllib.error, urllib.parse, urllib.request
 import numpy as np
+import online_speakers
 import presets
+from textsplit import FIRST_CLAUSE_MIN, MAX_SPEAK_CHARS, _CLAUSE_END, _thai_cut_ok, chunk_long, first_clause, speakable  # noqa: F401,E501
+from numwords import _SPEAK_NUM, _NUM_KEEP_BEFORE, _TH_DIG, _TH_POS, _th_chunk, speak_numbers_th, thai_number_words  # noqa: F401,E501
+from thaiparticles import (_TH_FEMALE, _TH_KA, _TH_KRUB, _TH_MALE, _TH_Q_END, _TH_STRETCH, fit_thai_particles,  # noqa: F401
+                           thai_speaker_sex, thai_stretch)
 
 # Nr. 42: faster_whisper (ctranslate2, PyAV) braucht beim Import mehrere Sekunden. Erst beim Laden des Modells
 # importieren, damit `loading` sofort kommt. Tests ersetzen `WhisperModel` direkt.
@@ -647,7 +652,7 @@ _OUT_LOSSY = frozenset({"level", "partial", "queue"})
 _LOSSY_PREFIXES = tuple('{"event": "%s"' % e for e in _OUT_LOSSY)
 
 
-_SECRET_ENV = ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "ANTHROPIC_BASE_URL")
+_SECRET_ENV = ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "ANTHROPIC_BASE_URL", "DOLMETSCHER_HISTORY_PASSWORD")
 
 
 def _child_env(env=None):
@@ -1313,14 +1318,6 @@ _NORM_QUOTES = str.maketrans({"’": "'", "‘": "'", "ʼ": "'", "`": "'", "´":
 
 
 _TH_GAP = re.compile(r"(?<=[ก-๛])\s+(?=[ก-๛])")                 # Thai trennt Wörter nur nach Gusto mit Leerzeichen
-_TH_STRETCH = re.compile(r"([ก-ฺเ-ๅๆ])\1{2,}")                  # ค่าาา, ครับบบ: Dehnung (3+ gleiche Zeichen)
-
-
-def thai_stretch(s):
-    """Dehnungen normalisieren: ครับบบ -> ครับ, ค่าาา -> ค่า (3+ gleiche Konsonanten/Vokale -> eines)."""
-    return _TH_STRETCH.sub(r"\1", s) if s else s
-
-
 @functools.lru_cache(maxsize=2048)
 def _norm(s):
     """Cache-Schlüssel: Groß/klein, Leerraum, . , 。 egal – ? und ! bleiben (Frage ≠ Aussage). Thai: Leerzeichen
@@ -1515,14 +1512,6 @@ def _check_llm(text, out, dst, src=None):
 
 
 MYMEMORY_MAX_BYTES = 450           # MyMemory lehnt Anfragen über 500 Byte ab
-
-
-def _thai_cut_ok(prev, nxt):
-    """Darf zwischen zwei Zeichen geschnitten werden? Nicht vor Folgevokalen/Tonzeichen (hängen am Vorgänger) und
-    nicht nach Vorderen Vokalen เ แ โ ใ ไ (U+0E40-0E44, gehören zum folgenden Konsonanten)."""
-    if "\u0e40" <= prev <= "\u0e44":
-        return False
-    return not ("\u0e30" <= nxt <= "\u0e4e" and not "\u0e40" <= nxt <= "\u0e44")
 
 
 _NO_SPACE_RX = re.compile(r"[\u0e00-\u0e7f\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]")   # Schriften ohne Leerzeichen
@@ -2296,8 +2285,9 @@ def llm_month_usd():
         try:
             with open(LLM_SPEND_FILE, encoding="utf-8") as f:
                 d = json.load(f)
-            if isinstance(d, dict) and d.get("month") == m and isinstance(d.get("usd"), (int, float)):
-                usd = max(0.0, float(d["usd"]))
+            if (isinstance(d, dict) and d.get("month") == m and isinstance(d.get("usd"), (int, float))
+                    and not isinstance(d.get("usd"), bool) and math.isfinite(float(d["usd"]))):
+                usd = max(0.0, float(d["usd"]))          # Runde 25: "Infinity"/"NaN" sperrte Claude dauerhaft
         except (OSError, ValueError):
             pass
         _SPEND.update(month=m, usd=usd)
@@ -2335,19 +2325,6 @@ def llm_over_budget():
         emit("error", code="llm_budget",
              msg=f"Claude-Monatslimit (${b:.2f}) erreicht – übersetze bis Monatsende mit Google")
     return True
-
-
-_TH_FEMALE = re.compile(r"ค่ะ|คะ(?!แนน|ยั้น|เน|น้า|นอง|นึง|ยอ)|ดิฉัน")
-_TH_MALE = re.compile(r"ครับ|คับ|กระผม")
-
-
-def thai_speaker_sex(text):
-    """Nr. 51: Geschlecht der Thai sprechenden Person aus Höflichkeitspartikeln ("female"/"male"/None).
-    Nur eindeutige Fälle: beide Formen im Satz (Zitat) oder keine -> None. คะแนน (Punkte), บังคับ, คับแคบ … zählen
-    nicht."""
-    t = re.sub(r"คะแนน|คะน้า|คะนอง|คะนึง|บังคับ|คับแคบ|คับคั่ง|คับข้อง", "", text or "")
-    f, m = bool(_TH_FEMALE.search(t)), bool(_TH_MALE.search(t))
-    return "female" if f and not m else "male" if m and not f else None
 
 
 # Anrede je Zielsprache (informell, formell): Claude rät sonst du/Sie, tú/usted, tu/vous, Plain-/Keigo-Form
@@ -2404,34 +2381,6 @@ def register_hint(dst, style, formality="auto"):
     return f" Address form in {lang_name(dst)}: use {form}."
 
 
-_TH_Q_END = re.compile(r"(ไหม|มั้ย|หรือ|เหรอ|หรือเปล่า|รึเปล่า|อะไร|ไหน|ใคร|เท่าไร|เท่าไหร่|เมื่อไร|เมื่อไหร่|ทำไม"
-                       r"|อย่างไร|ยังไง|กี่\S*|\?)\s*$")
-_TH_KA = re.compile(r"ค่ะ|คะ(?!แนน|ยั้น|เน|น้า|นอง|นึง|ยอ)")
-_TH_KRUB = re.compile(r"ครับผม|ครับ|(?<!บัง)คับ(?!แคบ|คั่ง|ข้อง|ขัน|ใจ|ที่)")
-
-
-def fit_thai_particles(text, polite):
-    """Runde 11: Thai-Partikel an das Sprechergeschlecht anpassen (deterministisch, nach Claude). krub: ค่ะ/คะ ->
-    ครับ; ka: ครับ -> ค่ะ (Frage am Satzende: คะ). Enthält ein Text beide Formen (Zitat), bleibt er
-    unverändert, ebenso Text ohne Partikel."""
-    if not text or polite not in ("krub", "ka"):
-        return text
-    t = re.sub(r"คะแนน|บังคับ|คับแคบ|คับคั่ง|คับข้อง|คะน้า|คะนอง|คะนึง|คะยั้นคะยอ|คะเน|คับขัน|คับใจ|คับที่", "", text)
-    has_ka, has_krub = bool(_TH_KA.search(t)), bool(_TH_KRUB.search(t))
-    if has_ka and has_krub:
-        return text
-    if polite == "krub" and has_ka:
-        return _TH_KA.sub("ครับ", text)
-    if polite == "ka" and has_krub:
-        def sub(m):
-            before = text[:m.start()].rstrip().split("\n")[-1]
-            after = text[m.end():].lstrip()
-            q = bool(_TH_Q_END.search(before)) and not after[:1].isalnum()
-            return "คะ" if q else "ค่ะ"
-        return _TH_KRUB.sub(sub, text)
-    return text
-
-
 # ---- Runde 23: Latenz der Engine (Claude-Aufruf, Vorab-Übersetzung, Hedge, Namen, Cache) ----
 LLM["stream"] = False              # messages.stream statt create (Opt-in, noch ohne Steuerfeld)
 LLM["router"] = False              # Haiku für Kurzes, Sonnet für Schweres (Opt-in, noch ohne Steuerfeld)
@@ -2444,8 +2393,8 @@ CACHE_INACTIVE_AFTER = 8           # Aufrufe ohne jeden Cache-Lese-/Schreibtreff
 KEEPALIVE_AFTER_S = 240.0          # Prompt-Cache lebt 5 min: danach vor Ablauf einmal auffrischen
 KEEPALIVE_WHILE_S = 900.0          # … aber nur, solange zuletzt gedolmetscht wurde
 HEDGE_PARALLEL_CHARS = 160         # ab so vielen Zeichen startet Google sofort parallel (Claude braucht dafür länger)
-FIRST_CLAUSE_MIN = {"th": 8, "zh": 4, "ja": 4}
-_CLAUSE_END = re.compile(r"[,;:.!?，；：。！？、…]")
+
+
 
 
 class _DaemonPool:
@@ -2499,18 +2448,6 @@ def route_model(text, alts=(), base=None):
              or len(re.findall(r"[,;]", t)) >= 4)
     alt = LLM.get("router_model")
     return alt if heavy and alt in LLM_PRICE else base
-
-
-def first_clause(buf, lang=None):
-    """Erste vollständige Teilphrase eines wachsenden Textes (für Streaming), sonst None. Die Phrase endet an
-    Komma/Satzzeichen und gilt erst, wenn dahinter schon etwas steht (Zeichen nicht mehr unterwegs)."""
-    for m in _CLAUSE_END.finditer(buf or ""):
-        end = m.end()
-        if end < len(buf) and len(buf[:end].strip()) >= FIRST_CLAUSE_MIN.get(lang, 12):
-            if (m.group(0) in ".,:" and re.search(r"\d$", buf[:m.start()]) and buf[end:end + 1].isdigit()):
-                continue                                    # Dezimalpunkt/-komma 3.5, 3,5, 1,500 und Uhrzeit 10:30
-            return buf[:end].strip()
-    return None
 
 
 def _usage_n(u, k):
@@ -2882,95 +2819,7 @@ _TH_ABBREV = [(re.compile(a), b) for a, b in (
     (r"(?<![ก-๙])ก\.ค\.?", "กรกฎาคม"), (r"(?<![ก-๙])ส\.ค\.?", "สิงหาคม"),
     (r"(?<![ก-๙])ก\.ย\.?", "กันยายน"), (r"(?<![ก-๙])ต\.ค\.?", "ตุลาคม"),
     (r"(?<![ก-๙])พ\.ย\.?", "พฤศจิกายน"), (r"(?<![ก-๙])ธ\.ค\.?", "ธันวาคม"))]
-MAX_SPEAK_CHARS = 300             # längere Teile einer Ausgabe werden geteilt (edge-tts/say: Frist, Abbruchrisiko)
 
-
-def speakable(text):
-    """Gibt es etwas zu sprechen? Nur Satzzeichen/Leerraum würden edge-tts „NoAudioReceived“ werfen lassen
-    und `say` ein Klicken sprechen lassen."""
-    return any(c.isalnum() for c in text)
-
-
-def chunk_long(parts, lang, limit=None):
-    """Teile über `limit` Zeichen (Satz ohne Satzzeichen, Thai ohne Leerzeichen) an Wort-/Kommagrenzen teilen,
-    sonst hart; nichts geht verloren."""
-    limit = limit or MAX_SPEAK_CHARS
-    out = []
-    for p in parts:
-        while len(p) > limit:
-            cut = max(p.rfind(" ", 0, limit), p.rfind(",", 0, limit) + 1, p.rfind("，", 0, limit) + 1,
-                      p.rfind("、", 0, limit) + 1)
-            if cut < limit // 3:
-                cut = limit
-                while cut > limit // 3 and not _thai_cut_ok(p[cut - 1], p[cut]):
-                    cut -= 1                      # Thai ohne Leerzeichen: nie mitten im Zeichencluster schneiden
-            out.append(p[:cut].strip())
-            p = p[cut:].strip() if cut != limit or p[cut:cut + 1].isspace() else p[cut:]
-        out.append(p)
-    return [x for x in out if x]
-
-
-_TH_DIG = ("ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า")
-_TH_POS = ("", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน")
-
-
-def _th_chunk(n, higher):
-    """0 < n < 1 000 000 als Thai-Wörter; higher: davor steht schon ein Millionen-Teil (dann „เอ็ด“ statt „หนึ่ง“)."""
-    ds = str(n)
-    out, L = [], len(ds)
-    for i, ch in enumerate(ds):
-        dgt, pos = int(ch), L - 1 - i
-        if dgt == 0:
-            continue
-        if pos == 0:
-            out.append("เอ็ด" if dgt == 1 and (L > 1 or higher) else _TH_DIG[dgt])
-        elif pos == 1:
-            out.append("สิบ" if dgt == 1 else "ยี่สิบ" if dgt == 2 else _TH_DIG[dgt] + "สิบ")
-        else:
-            out.append(_TH_DIG[dgt] + _TH_POS[pos])
-    return "".join(out)
-
-
-def thai_number_words(n):
-    """Ganze Zahl 0 … 999 999 999 999 als Thai-Wörter (350 -> สามร้อยห้าสิบ, 21 -> ยี่สิบเอ็ด); sonst None."""
-    if not isinstance(n, int) or n < 0 or n >= 10 ** 12:
-        return None
-    if n == 0:
-        return _TH_DIG[0]
-    parts, higher = [], False
-    millions = []
-    while n:
-        millions.append(n % 1_000_000)
-        n //= 1_000_000
-    for idx in range(len(millions) - 1, -1, -1):
-        c = millions[idx]
-        if c:
-            parts.append(_th_chunk(c, higher))
-            higher = True
-        if idx:
-            parts.append("ล้าน")
-    return "".join(parts)
-
-
-_NUM_KEEP_BEFORE = re.compile(r"(?:ห้อง|เบอร์|โทร|โทรศัพท์|รหัส|หมายเลข|เลขที่|ไปรษณีย์|แท็กซี่|ชั้น|บัตร|บัญชี)\s*$")
-_SPEAK_NUM = re.compile(r"(?<![\w.,:/\-+#])(\d{1,3}(?:,\d{3})+|\d{1,9})(?:\.(\d{1,6}))?(?![\w:/\-]|[.,]\d)")
-
-
-def speak_numbers_th(text):
-    """Zahlen in Thai-Text als Wörter lesbar machen (die TTS liest Ziffern uneinheitlich): 350 -> สามร้อยห้าสิบ,
-    3.5 -> สามจุดห้า. Nummern (Zimmer, Telefon, Konto), führende Nullen, Uhrzeiten und Datum bleiben Ziffern."""
-    def one(m):
-        raw, frac = m.group(1), m.group(2)
-        digits = raw.replace(",", "")
-        if len(digits) > 1 and (digits[0] == "0" or _NUM_KEEP_BEFORE.search(text[:m.start()])):
-            return m.group(0)
-        words = thai_number_words(int(digits))
-        if words is None:
-            return m.group(0)
-        if frac:
-            words += "จุด" + "".join(_TH_DIG[int(c)] for c in frac)
-        return words
-    return _SPEAK_NUM.sub(one, text)
 
 
 SPEAK_NUMBER_WORDS = {"on": False}     # opt-in: speak_form liest Zahlen als Thai-Wörter (Standard: Ziffern, die Neural-TTS liest sie richtig)  # noqa: E501
@@ -6178,6 +6027,9 @@ CTRL_SPEC = {
     # Runde 24: bisher nur im Code vorhandene Schalter (alle Standard aus, Werte unbedenklich fürs Log)
     "defer": True, "llm_router": True, "llm_stream": True, "parallel_alt": True, "speak_numbers": True,
     "stt_prompt": True,
+    "source": True,                            # Runde 25: mic | system
+    "history_password": False,                 # Runde 25: Geheimnis, nie ins Log
+    "group_speakers": True,                    # Runde 25: Gruppenmodus (Sprecher 1, 2, 3 …)
 }
 CTRL_SPEC.update({f"tr_{k}": True for k in LANGS})
 CTRL_SPEC.update({f"voice_{k}": True for k in LANGS})
@@ -6621,6 +6473,7 @@ class Engine:
         self.spk = None
         self.two_person = True                 # "ich = mein Profil, andere Stimme = Partnersprache" (EN-Profil nötig)
         self.last_role = None                  # (rolle, ende) der letzten sicher zugeordneten Äußerung
+        self.group = online_speakers.OnlineSpeakers()           # Runde 25: Gruppenmodus (Klassenstandard: aus)
         self.recent = collections.OrderedDict()  # id -> (audio, stimmabdruck) für "Das war ich/sie"
         self.reload_profiles()
         self.speaker = Speaker(self)
@@ -6878,6 +6731,8 @@ class Engine:
             self.history.clear()
         self.last = None
         self.prev = None
+        if self.group is not None:
+            self.group.reset()              # Runde 25: Sprechernummern des Gruppenmodus beginnen wieder bei 1
         self._cleared = True                # restore_last darf den gelöschten Satz nicht aus dem Verlauf zurückholen
         for name in ("texts", "recent", "_hist_ids", "_recent_t", "_failed_tr"):   # kein Roh-Audio/Text im Speicher behalten  # noqa: E501
             getattr(self, name, {}).clear()
@@ -6923,6 +6778,7 @@ class Engine:
              # Runde 7: weitere live änderbare Werte, damit die App nach einem Neustart abgleichen kann
              silence=SILENCE_END, sensitivity=_sensitivity_name(), fast_endpoint=bool(FAST["endpoint"]),
              partial=bool(FAST["partial"]), tts_race=TTS_RACE, two_person=bool(getattr(self, "two_person", False)),
+             group_speakers=bool(getattr(self, "group_speakers", False)), source=SOURCE["kind"],
              history=bool(_history_on()), events_dropped=_OUT["dropped"],
              # Runde 24: Schalter und Latenz-Verlauf (p50/p95 über Sitzungen)
              switches={"llm_stream": bool(LLM.get("stream")), "llm_router": bool(LLM.get("router")),
@@ -7262,13 +7118,57 @@ class Engine:
         self.last_role = (role, t_end or time.time()) if role else None
         if role and emb is not None:
             self._learn_auto(role, info, audio.size / SR, emb)
-        dkw = dict(speak=speak, t_end=t_end, speaker=who["name"] if who else None, alts=alts,
+        gnum = self._group_number(audio, get_emb)
+        dkw = dict(speak=speak, t_end=t_end, speaker=who["name"] if who else (
+                       online_speakers.label(gnum) if gnum else None), alts=alts,
                    role=role if role in ("me", "other") else None, polite=self._speaker_polite(who, role),
                    extra={"dur": round(audio.size / SR, 2)})              # Nr. 205: Sprechbeginn im Verlauf
+        if gnum:
+            dkw["extra"]["group_speaker"] = gnum                            # Runde 25: additives Feld (1, 2, …)
         if defer:                               # Runde 23: nächste Erkennung läuft, während dieser Satz übersetzt wird
             deliver_later(uid, self.deliver, uid, lang, text, lp, time.monotonic() - t0, **dkw)
             return None
         return self.deliver(uid, lang, text, lp, time.monotonic() - t0, **dkw)
+
+    group_speakers = False                 # Runde 25: "Sprecher 1/2/3" ohne Stimmprofil (Steuerfeld group_speakers)
+    group = None
+    _grp_spk = None                        # eigener Stimm-Embedder, solange keine Profile geladen sind
+    _grp_lock = threading.Lock()
+
+    def _group_embedder(self):
+        """Stimmmodell für den Gruppenmodus: das der Profile, sonst ein eigenes (lazy). None + Fehlerereignis, wenn
+        es nicht geladen werden kann (Privatmodus ohne Modell, Download fehlgeschlagen) – dann geht der Modus aus."""
+        spk = getattr(self, "spk", None)
+        if spk is not None:
+            return spk
+        with self._grp_lock:
+            if self._grp_spk is None:
+                try:
+                    import profiles
+                    self._grp_spk = profiles.SpeakerID()
+                except Exception as e:
+                    self.group_speakers = False
+                    log({"group_speakers": "aus", "err": _errtxt(e)})
+                    emit("error", code="profiles_failed",             # bekannter Code der App (Sprechermodell)
+                         msg="Sprechermodell nicht verfügbar – Gruppenmodus aus")
+                    return None
+            return self._grp_spk
+
+    def _group_number(self, audio, get_emb=None):
+        """Gruppenmodus: Sprechernummer (1, 2, …) der Äußerung oder None. Nutzt den schon berechneten Abdruck
+        (`get_emb`, ein Modelllauf je Satz), sonst das Gruppen-Modell."""
+        if not self.group_speakers or self.group is None:
+            return None
+        try:
+            if get_emb is not None:
+                e = get_emb()
+            else:
+                ex = self._group_embedder()
+                e = ex.embed(audio) if ex is not None else None
+            return self.group.assign(e) if e is not None else None
+        except Exception as e:
+            log({"group_speakers": "fehler", "err": _errtxt(e)})
+            return None
 
     def _speaker_polite(self, who, role):
         """Höflichkeitsform nach der sprechenden Person (Nr. 162): Feld `polite` des erkannten Profils, sonst des
@@ -8101,11 +8001,32 @@ def apply_control(eng, d):
         if ok:
             eng.two_person = v
             later.append(eng.reload_profiles)
+        if "source" in d:                      # Runde 25: Quelle wechseln (Mikrofon <-> Systemton)
+            sv = d["source"] if isinstance(d["source"], str) and d["source"] in SOURCES else None
+            if sv is None:
+                _control_invalid("source")
+            elif sv != SOURCE["kind"]:
+                SOURCE["kind"] = sv
+                if MIC is not None and MIC.on and mic_job is None:     # Gerätewechsel derselben Zeile öffnet neu
+                    mic_job = lambda: MIC.switch(MIC.mic)      # laufende Aufnahme mit der neuen Quelle neu öffnen
+        ok, v = _flag(d, "group_speakers")
+        if ok:
+            eng.group_speakers = v                             # Runde 25: "Sprecher 3" auch ohne Stimmprofil
+            if v:
+                later.append(eng._group_embedder)              # Modell laden, nicht im ersten Satz
         ok, v = _flag(d, "reload_profiles")
         if ok and v:
             later.append(eng.reload_profiles)
         ok, v = _flag(d, "partial")
         if ok: FAST["partial"] = v
+        if "history_password" in d:            # Runde 25: verschlüsselter Verlauf; gilt für das nächste `history`
+            hp = d["history_password"]
+            if hp is None or hp == "":
+                HIST_PASS["pw"] = None
+            elif isinstance(hp, str) and len(hp) <= 256:
+                HIST_PASS["pw"] = hp
+            else:
+                _control_invalid("history_password")
         ok, v = _flag(d, "history")
         if ok:
             days = d.get("history_days")
@@ -8200,6 +8121,19 @@ def reset_learning(eng, name):
     emit("learning_reset", name=name, ok=bool(ok))
 
 
+HIST_PASS = {"pw": None}        # Runde 25: Passwort des verschlüsselten Verlaufs (nur im Speicher, nie im Log/state)
+
+
+def history_password_from_env():
+    """Start mit --history: Passwort des verschlüsselten Verlaufs aus DOLMETSCHER_HISTORY_PASSWORD übernehmen und
+    aus der Umgebung entfernen (Kindprozesse erben es nie). -> True, wenn eines gesetzt war."""
+    import history_store
+    pw = os.environ.pop(history_store.CLI_PASSWORD_ENV, None)
+    if pw:
+        HIST_PASS["pw"] = pw
+    return bool(pw)
+
+
 def history_enable(on, days=None):
     """Nr. 191: Verlauf an/aus; scheitert die Datenbank oder ist history_days ungültig, nicht still."""
     import history_store
@@ -8209,8 +8143,12 @@ def history_enable(on, days=None):
     if isinstance(days, bool) or (days not in (None, 0) and history_store.valid_days(days) is None):   # 0 = nie löschen
         days = None
         emit("error", code="history_days_invalid", msg="Aufbewahrungsdauer ungültig – es wird nichts gelöscht")
-    if not rec.enable(on, days) and on:
-        emit("error", code="history_failed", msg="Verlauf kann nicht gespeichert werden – Aufzeichnung aus")
+    ok = rec.enable(on, days, passphrase=HIST_PASS["pw"]) if HIST_PASS["pw"] else rec.enable(on, days)
+    if not ok and on:
+        if isinstance(rec.last_error, history_store.HistoryLocked):    # Text ohne Passwort/Ursachendetails
+            emit("error", code="history_failed", msg="Verlauf: falsches Passwort – Aufzeichnung aus")
+        else:
+            emit("error", code="history_failed", msg="Verlauf kann nicht gespeichert werden – Aufzeichnung aus")
 
 
 def _history_file_pos(pos):
@@ -8730,6 +8668,26 @@ def decode_file(path):
     return np.frombuffer(raw[:len(raw) // 2 * 2], dtype=np.int16).astype(np.float32) / 32768
 
 
+SOURCE = {"kind": "mic"}                # Runde 25: "mic" (Standard) oder "system" (Loopback-Gerät, z. B. BlackHole)
+SOURCES = ("mic", "system")
+
+
+def system_device(mics):
+    """Systemton-Aufnahme: Index des ersten Loopback-Geräts in der Eingangsliste oder None (reine Auswertung)."""
+    from avhelper import find_loopback
+    lb = find_loopback(mics or [])
+    return lb[0]["index"] if lb else None
+
+
+def resolve_system_mic():
+    """Loopback-Gerät bei jedem Start neu suchen (Indizes verschieben sich); None, wenn keines da ist."""
+    try:
+        return system_device(list_mics())
+    except Exception as e:
+        log({"system_audio": "liste-fehler", "err": _errtxt(e)})
+        return None
+
+
 def resolve_mic(mic, strict=False):
     """--mic/Steuerung: Index, Gerätename oder "default". Indizes verschieben sich, sobald AirPods/USB-Mikros
     dazukommen; ein Name wird deshalb erst beim Öffnen auf den aktuellen Index abgebildet. Unbekannter Name:
@@ -8812,9 +8770,15 @@ class Mic:
         if mic_file and not os.path.isfile(mic_file):
             return self._fail(f"DOLMETSCHER_MIC_FILE nicht gefunden: {os.path.basename(mic_file)}", _retry,
                               "mic_file_missing", fatal)
-        dev = None if mic_file else resolve_mic(self.mic, strict=_retry)   # kann ffmpeg abfragen: nicht unter dem Lock
-        if dev is None and not mic_file:
+        system = SOURCE["kind"] == "system" and not mic_file
+        dev = None if mic_file else (resolve_system_mic() if system else resolve_mic(self.mic, strict=_retry))
+        if dev is None and not mic_file:                  # (kann ffmpeg abfragen: nicht unter dem Lock)
+            if system:
+                return self._fail("Kein Loopback-Gerät (z. B. BlackHole) gefunden – Systemton nicht verfügbar",
+                                  _retry, "system_audio_missing", fatal)
             return self._fail("Mikrofon nicht gefunden – warte auf das Gerät", _retry, "mic_not_found", fatal)
+        if system:
+            hint("system_audio")           # Ausgabe der Engine nicht auf das Loopback-Gerät legen (sonst hört sie sich)
         with self.lock:
             if self.on:
                 emit("mic", on=True)
@@ -9326,7 +9290,8 @@ def queue_pressure():
 def capabilities():
     """Fähigkeiten dieser Engine für `ready`: `control:<feld>` je bekanntem Steuerfeld, `feature:<name>` für
     zusätzliche Verhalten. Die App prüft damit, was die laufende Engine kann, statt Versionen zu raten."""
-    feats = ("trace", "latency_history", "msg_en", "capabilities", "queue_pressure", "mps_fallback", "stream_prewarm")
+    feats = ("trace", "latency_history", "msg_en", "capabilities", "queue_pressure", "mps_fallback", "stream_prewarm",
+             "group_speakers", "system_audio")
     return sorted({f"control:{k}" for k in CTRL_KEYS} | {f"feature:{x}" for x in feats})
 
 
@@ -9342,6 +9307,7 @@ ERROR_EN = {
     "disk_full": "Not enough free disk space for the model",
     "model_offline": "Model not loaded (no network)",
     "profiles_failed": "Voice profiles could not be loaded",
+    "system_audio_missing": "No loopback device found - system audio unavailable",
     "reassign_expired": "Sentence is no longer in memory",
     "reassign_empty": "Nothing recognised in that language",
     "translate_failed": "Translation failed",
@@ -9565,6 +9531,8 @@ if __name__ == "__main__":
                     " + Thai-Modell) | auto (nach Chip/RAM)")
     ap.add_argument("--device", choices=["auto", "mps", "cpu"], default="auto")
     ap.add_argument("--mic", default="0")
+    ap.add_argument("--source", choices=SOURCES, default="mic",
+                    help="Aufnahmequelle: mic (Standard) oder system (Loopback-Gerät, z. B. BlackHole)")
     ap.add_argument("--output-device", default="", help="Ausgabegerät: UID, Name oder Index")
     ap.add_argument("--list-mics", action="store_true", help="Mikrofone als JSON ausgeben")
     ap.add_argument("--offline-translator", nargs="?", const="", default=None,
@@ -9685,6 +9653,7 @@ if __name__ == "__main__":
     if history_store.wants_cli(a):
         sys.exit(history_store.run_cli(a))
     if a.history:
+        history_password_from_env()                  # Runde 25: Passwort schon vor dem ersten Schreiben
         history_enable(True, a.history_days)
     JSON, BARGE_IN, LOG_TEXT, METER, DENOISE = a.json, a.barge_in, a.log_text, a.meter, a.denoise
     _lp = (a.langs or "").split(",")
@@ -9742,6 +9711,7 @@ if __name__ == "__main__":
         hw = {**hw, **hwprofile.adjust_for_power(hw, hwprofile.power_saving())}   # Akku/Sparmodus/Hitze: sparsamer
         model = hw["model"]
     apply_features(os.environ.get("DOLMETSCHER_FEATURES"))     # Runde 24: Schalter ohne App-Änderung
+    SOURCE["kind"] = a.source                                  # Runde 25: Systemton statt Mikrofon (opt-in)
     lat_load()
     try:
         eng = Engine(model, a.polite, a.lang if a.lang in ("auto", *PAIR) else "auto", a.tts, a.device)
