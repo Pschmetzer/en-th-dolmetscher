@@ -350,7 +350,7 @@
  "cat_general": "General",
  "nowUseful": "Useful now:",
  "dayTitle": "Phrase of the day",
- "topicCount": "{n} topics",
+ "topicCount": "Topics: {n}",
  "topicNone": "No topic matches.",
  "checkSum": "Travel checklist (offline)",
  "checkProg": "{a} of {b} done",
