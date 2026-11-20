@@ -124,6 +124,12 @@
   .card { flex:1; width:100%; text-align:left; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:10px 50px 10px 12px; cursor:pointer; min-height:56px; overflow-wrap:anywhere; }
   .card.crit { border:2px solid var(--crit); }
   #partnerText.crit { border:6px solid var(--crit); border-radius:16px; padding:12px; }
+  #nowRow { min-height:44px; }   /* Platz reservieren: kein Springen, wenn das Verzeichnis geladen ist */
+  #dayPhrase { min-height:66px; }
+  #ansRow { min-height:44px; }
+  #dayPhrase:empty { display:block; }
+  .card .alg-b { display:block; font-size:12px; font-weight:700; color:var(--crit); }
+  #learnSpark { font-size:22px; letter-spacing:2px; line-height:1.2; }
   .card .crit-b { display:block; font-size:12px; font-weight:700; color:var(--crit); }
   .cardwrap .card { min-height:92px; padding-bottom:40px; }   /* Platz für 🔗/🔊 unten rechts: lange Thai-Sätze laufen nicht darunter */
   .sharec { position:absolute; bottom:4px; right:100px; min-width:44px; min-height:44px; background:transparent; border:0; border-radius:8px; font-size:20px; cursor:pointer; }
@@ -308,15 +314,15 @@
     <label><span data-i18n="catLbl">Kategorie</span> <select id="catSel"></select></label>
     <span id="topicCount" role="status"></span>
   </div>
-  <div class="row" id="nowRow" hidden><span data-i18n="nowUseful">Jetzt nützlich:</span> <span id="nowTopics"></span></div>
-  <div id="dayPhrase" class="note" hidden></div>
+  <div class="row" id="nowRow"><span data-i18n="nowUseful">Jetzt nützlich:</span> <span id="nowTopics"></span></div>
+  <div id="dayPhrase" class="note"></div>
   <div class="row">
     <label><span data-i18n="topic">Thema</span> <select id="presetSel"></select></label>
     <button class="small" id="topicPrev" type="button">‹</button><button class="small" id="topicNext" type="button">›</button>
     <button class="yn yes" id="btnYes" type="button">Ja</button>
     <button class="yn no" id="btnNo" type="button">Nein</button>
   </div>
-  <div class="row" id="ansRow" hidden></div>
+  <div class="row" id="ansRow"></div>
   <div class="row" id="pbRecentRow" hidden><span data-i18n="recentTopics">Zuletzt benutzt:</span> <span id="pbRecent"></span></div>
   <div class="row">
     <label><input id="pbQ" type="search" aria-keyshortcuts="/" size="20" maxlength="60" autocomplete="off" enterkeyhint="search"> <span data-i18n="pbSearch">Satz suchen</span></label>
@@ -385,6 +391,12 @@
   <p class="note"><b data-i18n="mcFavOrder">Favoriten ordnen</b></p>
   <div id="favOrder"></div>
 </details>
+<details data-tab="cards" class="box" id="checkBox">
+  <summary data-i18n="checkSum">Reise-Checkliste (offline)</summary>
+  <p class="note" id="checkProg" role="status"></p>
+  <div id="checkList"></div>
+  <div class="row"><button class="small" id="checkReset" type="button" data-i18n="checkReset">Zurücksetzen</button></div>
+</details>
 <details data-tab="cards" class="box" id="allergyBox">
   <summary data-i18n="allergySum">Allergie- und Notfallkarte</summary>
   <p class="note" data-i18n-html="allergyMt"><b>Thai maschinell erstellt, nicht von Muttersprachlern geprüft.</b> Vor Gebrauch prüfen lassen. Die Karte ersetzt keine ärztliche Information.</p>
@@ -414,6 +426,7 @@
   </div>
   <div id="learnStats" role="status"></div>
   <div id="learnBoxStats"></div>
+  <div id="learnSpark" aria-hidden="true"></div>
   <div id="learnGoalLine"></div>
   <progress id="learnGoalProg" max="1" value="0"></progress>
   <progress id="learnProg" max="1" value="0"></progress>
@@ -870,7 +883,21 @@ const STR = {
   "nowUseful": "Jetzt nützlich:",
   "dayTitle": "Phrase des Tages",
   "topicCount": "{n} Themen",
-  "topicNone": "Kein Thema passt."
+  "topicNone": "Kein Thema passt.",
+  "checkSum": "Reise-Checkliste (offline)",
+  "checkProg": "{a} von {b} erledigt",
+  "chk1": "Reisepass gültig (mindestens 6 Monate), Visum oder Einreise geklärt",
+  "chk2": "Reisekrankenversicherung abgeschlossen, Police offline gespeichert",
+  "chk3": "Satzbuch offline geladen (oben „Offline bereit“)",
+  "chk4": "Allergiekarte ausgefüllt und als Bild gespeichert",
+  "chk5": "Hoteladresse in Thai-Schrift unter „Meine Karten“ gespeichert",
+  "chk6": "Notrufnummern notiert: 1669 Rettung, 191 Polizei, 1155 Touristenpolizei",
+  "chk7": "SIM, eSIM oder WLAN-Plan für die Ankunft",
+  "chk8": "Bargeld in kleinen Baht-Scheinen und Karte ohne Auslandsgebühr",
+  "chk9": "Reiseapotheke und regelmäßige Medikamente (mit Bescheinigung)",
+  "chk10": "Grab- oder Bolt-App installiert, Zahlungsart hinterlegt",
+  "algWarn": "Enthält: {a}",
+  "checkReset": "Zurücksetzen"
  }
 };   // nur Deutsch (Standard und Rückfall) eingebaut; en/th liegen in i18n/*.json (vom Service Worker gespeichert)
 const UI_LANGS = ['de', 'en', 'th'];
@@ -1700,11 +1727,11 @@ function gotoTopic(id) {   // Thema wählen, auch wenn ein Filter es ausblendet
 }
 function renderNow() {
   const ids = nowTopics(new Date().getHours(), PRESET_IDS), box = $('nowTopics'); box.textContent = '';
-  $('nowRow').hidden = !ids.length;
+  $('nowRow').style.visibility = ids.length ? '' : 'hidden';
   for (const id of ids) { const b = document.createElement('button'); b.type = 'button'; b.className = 'small'; b.textContent = topicName(id); b.onclick = () => gotoTopic(id); box.appendChild(b); }
 }
 async function dayPhraseRender() {   // eine ruhige Phrase pro Tag (lokal berechnet, nichts gesendet)
-  const box = $('dayPhrase'); box.hidden = true; box.textContent = '';
+  const box = $('dayPhrase'); box.textContent = '';
   try {
     const day = Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 864e5), ids = DAY_PACKS.filter(id => PRESET_IDS.includes(id));
     const d = await loadPreset(ids[day % ids.length]), b = pair.b, ok = d.phrases.filter(p => !p.critical && p[b]);
@@ -1714,7 +1741,7 @@ async function dayPhraseRender() {   // eine ruhige Phrase pro Tag (lokal berech
     const s2 = document.createElement('span'); s2.lang = b; s2.textContent = p[b]; s2.style.fontWeight = '700';
     const bs = document.createElement('button'); bs.type = 'button'; bs.className = 'small'; bs.textContent = '🔊'; bs.setAttribute('aria-label', t('speakOnlyLbl')); bs.onclick = () => sayNow(p[b], b);
     const bz = document.createElement('button'); bz.type = 'button'; bz.className = 'small'; bz.textContent = t('showBig'); bz.onclick = () => showBig(p[b], b);
-    box.append(h, s1, s2, ' ', bs, ' ', bz); box.hidden = false;
+    box.append(h, s1, s2, ' ', bs, ' ', bz);
   } catch {}
 }
 $('routeSel').onchange = refillTopics; $('catSel').onchange = refillTopics;
@@ -1814,7 +1841,7 @@ async function renderCards() {
     sl.setAttribute('aria-label', t('slowLbl')); sl.title = t('slowLbl');
     sl.onclick = async () => { try { sayNow(await phraseIn(p, b), b, true); } catch { msg.textContent = t('trUnavailable'); } };
     w.appendChild(sl);
-    c._p = p;
+    c._p = p; algMark(c);
     c.onclick = async () => {
       if (seqMode) { c.classList.toggle('sel'); return; }
       let out;
@@ -2528,6 +2555,10 @@ function statsAdd(st, ok, now, isNew) {   // Tageszähler (gewusst/nicht, neue K
   for (const d of Object.keys(out).sort().slice(0, -30)) delete out[d];
   return out;
 }
+function sparkLine(a) {   // 7 Tage als Balkenzeichen (relativ zum Höchstwert)
+  const m = Math.max(...a, 0);
+  return a.map(v => m && v ? '▁▂▃▄▅▆▇█'[Math.min(7, Math.ceil(v / m * 8) - 1)] : '·').join('');
+}
 function statsSummary(st, list, now) {
   const week = [];
   for (let i = 6; i >= 0; i--) { const d = new Date(now); d.setDate(d.getDate() - i); const x = st[localDay(d.getTime())] || { ok: 0, bad: 0 }; week.push(x.ok + x.bad); }
@@ -2804,6 +2835,41 @@ $('myFile').onchange = () => {
   r.readAsText(f);
 };
 
+// ---- Allergiewarnung auf Satzkarten: nur Stichwörter im englischen Satz, ersetzt keine Rückfrage beim Personal ----
+const ALG_KW = { egg: 'eggs?', milk: 'milk|dairy|cheese|butter|cream|yogh?urt', wheat: 'wheat|bread|flour|noodles?', gluten: 'gluten|wheat|bread|flour|noodles?', soy: 'soy', sesame: 'sesame', peanut: 'peanuts?', treenut: 'nuts?|almonds?|cashews?|walnuts?', fish: 'fish', shellfish: 'shellfish|shrimps?|prawns?|crabs?|lobster', mollusc: 'squid|oysters?|mussels?|clams?|mollus[ck]s?', fishsauce: 'fish sauce', shrimppaste: 'shrimp paste', coconut: 'coconut', mango: 'mango', chili: 'chil(?:i|li)|spicy', msg: 'msg', mustard: 'mustard', celery: 'celery', lupin: 'lupin', sulfite: 'sulfites?', corn: 'corn', coriander: 'coriander|cilantro', mushroom: 'mushrooms?', penicillin: 'penicillin', aspirin: 'aspirin', sulfa: 'sulfa', latex: 'latex' };
+function allergyHits(text, ids) {
+  const s = String(text || '');
+  return (ids || []).filter(id => ALG_KW[id] && new RegExp('\\b(?:' + ALG_KW[id] + ')\\b', 'i').test(s));
+}
+function algMark(c) {
+  const old = c.querySelector('.alg-b'); if (old) old.remove();
+  let hits = [];
+  try { hits = allergyHits(c._p && c._p.en, allergySel.ids); } catch {}
+  if (!hits.length) return;
+  const nm = id => { const it = allergyData && allergyData.allergies.find(x => x.id === id); return it ? (UI === 'de' ? it.de : it.en) : id; };
+  const k = document.createElement('span'); k.className = 'alg-b'; k.lang = UI; k.textContent = '⚠ ' + t('algWarn', { a: hits.map(nm).join(', ') });
+  c.insertBefore(k, c.firstChild);
+}
+function algMarkAll() { for (const c of document.querySelectorAll('#cards .card')) algMark(c); }
+
+// ---- Reise-Checkliste (offline, Häkchen nur in diesem Browser) ----
+const CHECK_N = 10, CHK_KEY = 'chk';   // Schlüssel chk1..chk10
+function checkRender() {
+  const box = $('checkList'); box.textContent = '';
+  const done = new Set(Array.isArray(settings.check) ? settings.check : []);
+  for (let i = 1; i <= CHECK_N; i++) {
+    const l = document.createElement('label'); l.style.display = 'block';
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = done.has(i);
+    cb.onchange = () => { cb.checked ? done.add(i) : done.delete(i); settings.check = [...done].sort((a, b) => a - b); saveSettings(); checkProg(); };
+    const sp = document.createElement('span'); sp.setAttribute('data-i18n', CHK_KEY + i); sp.textContent = ' ' + t(CHK_KEY + i);
+    l.append(cb, sp); box.appendChild(l);
+  }
+  checkProg();
+}
+function checkProg() { $('checkProg').textContent = t('checkProg', { a: (Array.isArray(settings.check) ? settings.check : []).length, b: CHECK_N }); }
+$('checkReset').onclick = () => { settings.check = []; saveSettings(); checkRender(); };
+checkRender();
+
 // ---- Allergie- und Notfallkarte ----
 let allergyData = null, allergySel = (() => { try { const v = JSON.parse(localStorage.getItem('allergyV1') || '{}'); return v && typeof v === 'object' ? v : {}; } catch { return {}; } })();
 if (!Array.isArray(allergySel.ids)) allergySel.ids = [];
@@ -2824,7 +2890,7 @@ function allergyTiles(boxId, items) {
     box.appendChild(b);
   }
 }
-function allergySave() { lsSet('allergyV1', JSON.stringify(allergySel)); allergyRender(); }
+function allergySave() { lsSet('allergyV1', JSON.stringify(allergySel)); allergyRender(); algMarkAll(); }
 function loadAllergens() {
   fetchRetry('allergens.json').then(r => r.json()).then(d => {
     allergyData = d; allergyTiles('allergyTiles', d.allergies); allergyTiles('condTiles', d.conditions);
@@ -2955,6 +3021,7 @@ function statsRender() {
   const s = statsSummary(learnStats, learnList, now);
   const bx = learnBoxes(learnList, settings.learnDeck || '');
   $('learnBoxStats').textContent = learnList.length ? t('learnBoxes', { a: bx[0], b: bx[1], c: bx[2], d: bx[3], e: bx[4] }) : '';
+  $('learnSpark').textContent = sparkLine(s.week);
   $('learnStats').textContent = t('dueLine', { a: s.today, b: s.week.join('/'), c: s.streak, d: s.box5 });
 }
 function download(name, text, type) {
@@ -3171,7 +3238,7 @@ $('btnTextDown').onclick = () => setUiScale(uiScale - FS_STEP);
 $('btnTextUp').onclick = () => setUiScale(uiScale + FS_STEP);
 $('uiLang').value = UI;
 function refreshUi() {   // nach Sprachwechsel oder nach dem Nachladen der Texte alles neu beschriften
-  $('uiLang').value = UI; applyUi(); renderAppState(); renderWarn();
+  $('uiLang').value = UI; applyUi(); renderAppState(); renderWarn(); checkRender();
   if (LANGS[pair.a]) { fillLangSelects(); buildModes(); fillPresetSelect(); renderCards(); statsRender(); updatePreBtn(); renderRecent(); learnRender(); if (allergyData) { allergyTiles('allergyTiles', allergyData.allergies); allergyTiles('condTiles', allergyData.conditions); } }
 }
 $('uiLang').onchange = async () => {

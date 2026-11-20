@@ -391,3 +391,38 @@ def test_topic_finder_uses_routes_categories_and_keywords_from_the_index():
     for row in re.findall(r"\[\d+, \d+, (\[[^\]]*\])\]", SCRIPT.split("const NOW_TOPICS", 1)[1].split("function nowTopics", 1)[0]):
         assert set(re.findall(r"'([\w-]+)'", row)) <= ids, row
     assert set(re.findall(r"'([\w-]+)'", re.search(r"const DAY_PACKS = \[([^\]]*)\]", SCRIPT).group(1))) <= ids
+
+
+# ---- Welle 7: Allergiewarnung, Reise-Checkliste, Lern-Statistik ----
+@node
+def test_allergy_hits_and_sparkline():
+    import subprocess
+    kw = re.search(r"^const ALG_KW = .*?;$", SCRIPT, re.S | re.M).group(0)
+    js = kw + "\n" + func("allergyHits") + "\n" + func("sparkLine") + """
+process.stdout.write(JSON.stringify([allergyHits('No peanuts and no fish sauce, please', ['peanut', 'fishsauce', 'egg', 'treenut']),
+  allergyHits('Is there shrimp paste in it?', ['shrimppaste', 'shellfish', 'fishsauce']), allergyHits('', ['egg']), allergyHits('eggplant', ['egg']),
+  sparkLine([0, 1, 4, 8, 0, 0, 2]), sparkLine([0, 0, 0, 0, 0, 0, 0])]));"""
+    r = subprocess.run(["node", "-"], input=js, capture_output=True, text=True, timeout=30)
+    assert r.returncode == 0, r.stderr
+    got = json.loads(r.stdout)
+    assert got[0] == ["peanut", "fishsauce"] and got[1] == ["shrimppaste", "shellfish"]
+    assert got[2] == [] and got[3] == [] and got[4] == "·▁▄█··▂" and got[5] == "·" * 7
+    allergens = json.loads((ROOT / "allergens.json").read_text(encoding="utf-8"))
+    ids = {a["id"] for a in allergens["allergies"]}
+    keys = set(re.findall(r"(\w+): '", kw))
+    assert keys <= ids, keys - ids
+
+
+def test_travel_checklist_is_wired_and_translated():
+    assert 'id="checkBox"' in HTML and "settings.check" in SCRIPT and "CHECK_N = 10" in SCRIPT
+    for lang, S in web_str().items():
+        for i in range(1, 11):
+            assert S.get(f"chk{i}"), (lang, i)
+        assert all(S.get(k) for k in ("checkSum", "checkProg", "checkReset", "algWarn")), lang
+    assert "algMarkAll();" in func("allergySave") and "algMark(c)" in SCRIPT and "checkRender();" in func("refreshUi")
+
+
+def test_late_filled_rows_reserve_space_against_layout_shift():
+    for sel in ("#nowRow", "#dayPhrase", "#ansRow"):
+        assert re.search(re.escape(sel) + r" \{ min-height:\d+px; \}", HTML), sel
+    assert 'id="nowRow" hidden' not in HTML and 'id="dayPhrase" class="note" hidden' not in HTML and 'id="ansRow" hidden' not in HTML
