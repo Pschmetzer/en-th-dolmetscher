@@ -73,9 +73,14 @@ class Store:
         self.db.execute("CREATE INDEX IF NOT EXISTS utt_uid ON utt(uid)")           # „replaces“ löscht per uid
         self.db.execute("CREATE INDEX IF NOT EXISTS utt_session_ts ON utt(session, ts)")   # rows(session), sessions()
         self.db.execute("CREATE INDEX IF NOT EXISTS utt_lang ON utt(lang)")        # Runde 22: search(lang=…), stats()
+        self.db.create_function("wc", 1, lambda v: len((v or "").split()), deterministic=True)
+        self.db.create_function("flatkey", 1, lambda v: _flat(v).casefold(), deterministic=True)
+        self.db.execute("CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT)")
         self.fts = self._init_fts()
         self._migrate()
         self.db.commit()
+        self._auto_repair_index()
+        self.apply_retention()
 
     def _migrate(self):
         """Nr. 207: Schema-Version (PRAGMA user_version). Neue Spalten kommen hier als Schritt
@@ -175,6 +180,105 @@ class Store:
             except sqlite3.Error:
                 return False                                          # Löschung evtl. unvollständig (best effort)
 
+    # ---- Aufbewahrung (persistent) und Wartung
+    def get_keep_days(self):
+        """Gespeicherte Aufbewahrungsdauer in Tagen oder None (= unbegrenzt)."""
+        with self.lock:
+            r = self.db.execute("SELECT value FROM meta WHERE key = 'keep_days'").fetchone()
+        return valid_days(r[0]) if r else None
+
+    def set_keep_days(self, days):
+        """Aufbewahrungsdauer dauerhaft in der Datenbank merken (None löscht die Einstellung) und sofort
+        anwenden. Ungültiger Wert: ValueError. -> Anzahl gelöschter Zeilen."""
+        if days is None:
+            with self.lock, self.db:
+                self.db.execute("DELETE FROM meta WHERE key = 'keep_days'")
+            return 0
+        d = valid_days(days)
+        if d is None:
+            raise ValueError("Tage müssen eine Zahl größer 0 sein")
+        with self.lock, self.db:
+            self.db.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('keep_days', ?)", (repr(d),))
+        return self.apply_retention()
+
+    def apply_retention(self):
+        """Gespeicherte Aufbewahrungsfrist durchsetzen (läuft beim Öffnen). -> Anzahl gelöschter Zeilen."""
+        try:
+            d = self.get_keep_days()
+            return self.purge(d) if d else 0
+        except sqlite3.Error:
+            return 0
+
+    def count(self, session=None):
+        with self.lock:
+            if session:
+                return self.db.execute("SELECT COUNT(*) FROM utt WHERE session = ?", (session,)).fetchone()[0]
+            return self.db.execute("SELECT COUNT(*) FROM utt").fetchone()[0]
+
+    def db_size(self):
+        """Dateigröße der Datenbank samt WAL in Bytes."""
+        total = 0
+        for suffix in ("", "-wal", "-shm"):
+            try:
+                total += os.path.getsize(self.path + suffix)
+            except OSError:
+                pass
+        return total
+
+    def purge_session(self, session):
+        """Eine ganze Sitzung löschen -> Anzahl Zeilen."""
+        if not isinstance(session, str) or not session:
+            raise ValueError("Sitzung fehlt")
+        n = self._delete_where("session = ?", (session,))
+        if n:
+            self._compact()
+        return n
+
+    def index_status(self):
+        """{"fts", "rows", "indexed", "ok"} – ok, wenn Suchindex und Tabelle gleich viele Zeilen haben."""
+        rows = self.count()
+        if not self.fts:
+            return {"fts": False, "rows": rows, "indexed": 0, "ok": True}
+        with self.lock:
+            idx = self.db.execute("SELECT COUNT(*) FROM utt_fts").fetchone()[0]
+        return {"fts": True, "rows": rows, "indexed": idx, "ok": idx == rows}
+
+    def reindex(self):
+        """Suchindex komplett neu aus der Tabelle aufbauen (nach Absturz/Fremdzugriff). -> Anzahl Zeilen."""
+        if not self.fts:
+            return 0
+        with self.lock, self.db:
+            self.db.execute("DELETE FROM utt_fts")
+            self.db.execute("INSERT INTO utt_fts (rowid, text, translation) "
+                            "SELECT id, COALESCE(text, ''), COALESCE(translation, '') FROM utt")
+        return self.count()
+
+    def _auto_repair_index(self):
+        try:
+            if not self.index_status()["ok"]:
+                self.reindex()
+        except sqlite3.Error:
+            pass
+
+    def iter_rows(self, session=None, chunk=500):
+        """Wie rows(), aber als Generator in Blöcken (kein ganzer Verlauf im Speicher). Zwischen den Blöcken ist
+        die Sperre frei: ein Schreiber wartet nie auf einen langsamen Leser."""
+        last_ts, last_id = float("-inf"), -1
+        while True:
+            q = "SELECT * FROM utt WHERE (ts > ? OR (ts = ? AND id > ?))"
+            args = [last_ts, last_ts, last_id]
+            if session:
+                q, args = q + " AND session = ?", args + [session]
+            with self.lock:
+                cur = self.db.execute(q + " ORDER BY ts, id LIMIT ?", args + [int(chunk)])
+                cols = [c[0] for c in cur.description]
+                batch = cur.fetchall()
+            for r in batch:
+                yield dict(zip(cols, r))
+            if len(batch) < chunk:
+                return
+            last_ts, last_id = batch[-1][cols.index("ts")], batch[-1][cols.index("id")]
+
     def rows(self, session=None):
         q, args = "SELECT * FROM utt", ()
         if session:
@@ -189,24 +293,30 @@ class Store:
     def stats(self, top=10, tz_offset_s=0):
         """Auswertung ohne Schreibzugriff: {total, sessions, first, last, per_day: {YYYY-MM-DD: {utterances, words}},
         top_sentences: [{text, count}]}. Wörter = durch Leerraum getrennte Teile des Originaltextes (Thai ohne
-        Leerzeichen zählt je Äußerung grob als ein Wort). tz_offset_s verschiebt die Tagesgrenze (z. B. 7*3600)."""
+        Leerzeichen zählt je Äußerung grob als ein Wort). tz_offset_s verschiebt die Tagesgrenze (z. B. 7*3600).
+        Aggregation in SQL: es werden nie alle Zeilen in den Speicher geladen."""
+        off = float(tz_offset_s or 0)
+        n_top = max(0, int(top))
         with self.lock:
-            rows = self.db.execute("SELECT ts, text, session FROM utt ORDER BY ts").fetchall()
-        per_day, counts, sessions = {}, {}, set()
-        for ts, text, sess in rows:
-            day = datetime.fromtimestamp(ts + tz_offset_s, timezone.utc).strftime("%Y-%m-%d")
-            d = per_day.setdefault(day, {"utterances": 0, "words": 0})
-            d["utterances"] += 1
-            d["words"] += len((text or "").split())
-            sessions.add(sess)
-            key = _flat(text).casefold()
-            if key:
-                c = counts.setdefault(key, [0, _flat(text)])
-                c[0] += 1
-        best = sorted(counts.values(), key=lambda c: (-c[0], c[1]))[:max(0, int(top))]
-        return {"total": len(rows), "sessions": len(sessions), "first": rows[0][0] if rows else None,
-                "last": rows[-1][0] if rows else None, "per_day": per_day,
-                "top_sentences": [{"text": txt, "count": n} for n, txt in best if n > 1]}
+            total, sessions, first, last = self.db.execute(
+                "SELECT COUNT(*), COUNT(DISTINCT session), MIN(ts), MAX(ts) FROM utt").fetchone()
+            days = self.db.execute(
+                "SELECT strftime('%Y-%m-%d', ts + ?, 'unixepoch') AS d, COUNT(*), SUM(wc(text)) FROM utt "
+                "GROUP BY d ORDER BY d", (off,)).fetchall()
+            best = []
+            if n_top:
+                best = self.db.execute(
+                    "SELECT k, COUNT(*) AS n, MIN(ts) FROM (SELECT flatkey(text) AS k, ts FROM utt) "
+                    "WHERE k != '' GROUP BY k HAVING n > 1 ORDER BY n DESC, k LIMIT ?", (n_top,)).fetchall()
+            shown = {}
+            for k, _n, ts0 in best:       # Anzeigetext = erste Schreibweise, nur für die Top-Treffer geholt
+                r = self.db.execute("SELECT text FROM utt WHERE ts = ? AND flatkey(text) = ? ORDER BY id LIMIT 1",
+                                    (ts0, k)).fetchone()
+                shown[k] = _flat(r[0]) if r else k
+        per_day = {d: {"utterances": n, "words": w or 0} for d, n, w in days}
+        top_s = sorted(({"text": shown[k], "count": n} for k, n, _ in best), key=lambda x: (-x["count"], x["text"]))
+        return {"total": total, "sessions": sessions, "first": first, "last": last, "per_day": per_day,
+                "top_sentences": top_s}
 
     def import_json(self, text):
         """Verlauf aus einem JSON-Export (`export(rows, "json")`) einspielen, z. B. beim Gerätewechsel.
@@ -421,6 +531,64 @@ def export(rows, fmt):
             tl = f" ({_flat(r['translit'])})" if r["translit"] else ""
             lines.append(f"  → {_flat(r['translation'])}{tl}")
     return "\n".join(lines) + "\n"
+
+
+STREAM_FORMATS = ("md", "json", "csv", "anki", "txt")   # srt/vtt brauchen den Blick auf die nächste Zeile
+_ANKI_HEAD = "#separator:tab\n#html:false\n#guid column:1\n#deck:Dolmetscher\n#tags column:5\n"
+
+
+def export_stream(store, fmt, write, session=None):
+    """Export ohne den ganzen Verlauf zu laden: ruft `write(text)` blockweise auf; Ergebnis byte-gleich zu
+    export(rows, fmt). srt/vtt: Fallback auf den normalen Export. -> Anzahl Zeilen."""
+    fmt = fmt.lower()
+    if fmt not in FORMATS:
+        raise ValueError(f"unbekanntes Format: {fmt}")
+    if fmt not in STREAM_FORMATS:
+        rows = store.rows(session)
+        write(export(rows, fmt))
+        return len(rows)
+    n = 0
+    who = []
+    if fmt == "csv":
+        with store.lock:
+            who = [k for k in WHO if store.db.execute(
+                f"SELECT 1 FROM utt WHERE {k} IS NOT NULL AND {k} != '' LIMIT 1").fetchone()]
+        buf = io.StringIO()
+        csv.writer(buf, lineterminator="\n").writerow(
+            ["time", "session", "lang", "text", "translation", "translit", "confidence", "provider", *who])
+        write(buf.getvalue())
+    elif fmt == "json":
+        write("[")
+    elif fmt == "md":
+        write("# Gesprächsverlauf\n\n")
+    elif fmt == "anki":
+        write(_ANKI_HEAD)
+    cur = None
+    for r in store.iter_rows(session):
+        if fmt == "json":
+            one = export([r], "json")                            # "[\n  {...}\n]\n"
+            write(("," if n else "") + "\n" + one[2:one.rindex("\n]")])
+        elif fmt == "csv":
+            buf = io.StringIO()
+            csv.writer(buf, lineterminator="\n").writerow([_csv_safe(v) for v in (
+                _iso(r["ts"]), r["session"], r["lang"], r["text"], r["translation"] or "",
+                r["translit"] or "", "" if r["conf"] is None else r["conf"], r["provider"] or "",
+                *(r.get(k) or "" for k in who))])
+            write(buf.getvalue())
+        elif fmt == "md":
+            body = export([r], "md")[len("# Gesprächsverlauf\n\n"):]
+            if r["session"] == cur:                              # Sitzungskopf nur beim Wechsel
+                body = body.split("\n", 2)[2]
+            cur = r["session"]
+            write(body)
+        elif fmt == "anki":
+            write(export([r], "anki")[len(_ANKI_HEAD):])
+        else:
+            write(export([r], "txt"))
+        n += 1
+    if fmt == "json":
+        write("\n]\n" if n else "]\n")
+    return n
 
 
 # ---------------------------------------------------------------- Aufzeichnung (Engine)

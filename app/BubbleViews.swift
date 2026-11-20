@@ -16,6 +16,7 @@ struct Bubble: View, Equatable {
     var onCorrect: (Utterance) -> Void = { _ in }
     @State private var hovering = false
     @State private var copied = false
+    @State private var showBackHere = false   // Rückübersetzung nur an dieser Blase einblenden
     @FocusState private var focused: Bool
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -63,6 +64,10 @@ struct Bubble: View, Equatable {
                     .help(L.reassign(Langs.reassignRole(u.lang)))
                     .accessibilityLabel(L.reassign(Langs.reassignRole(u.lang)))
             }
+            if u.translated {   // Rückübersetzung: vorhandene ein-/ausblenden, sonst für neue Sätze einschalten
+                Button { toggleBack() } label: { Image(systemName: "arrow.uturn.backward") }
+                    .help(backHelp).accessibilityLabel(backHelp)
+            }
             Button { copy(u.out) } label: { Image(systemName: "doc.on.doc") }
                 .help(L.t("copy_translation")).accessibilityLabel(L.t("copy_translation"))
         }
@@ -73,6 +78,14 @@ struct Bubble: View, Equatable {
         .overlay(Capsule().strokeBorder(Color.secondary.opacity(0.55)))
         .padding(8)
         .opacity(hovering ? 1 : 0.85)      // Nr. 381: auch im Ruhezustand gut lesbar
+    }
+    private var backHelp: String {
+        if u.back != nil { return showBackHere ? L.r23("back_hide") : L.r23("back_show") }
+        return m.backTranslate ? L.r23("back_show") : L.r23("back_enable")
+    }
+    private func toggleBack() {
+        if u.back != nil { showBackHere.toggle() }
+        else if !m.backTranslate { m.backTranslate = true; Announcer.post(L.r23("back_enable")) }
     }
     private var helpText: String {
         (u.lowConfidence ? L.t("low_conf") + " – " + L.t("click_replay") : L.t("click_replay"))
@@ -93,6 +106,7 @@ struct Bubble: View, Equatable {
         if u.lowConfidence { tail += ". " + L.t("low_conf") }
         if u.skipped { tail += ". " + L.t("not_spoken") }
         if u.cutOff { tail += ". " + L.t("cut_off") }
+        if u.interrupted { tail += ". " + L.r23("interrupted") }
         if !tail.isEmpty { parts.append((tail, nil)) }
         return a11yAttributed(parts)
     }
@@ -117,9 +131,10 @@ struct Bubble: View, Equatable {
     private var content: some View {
         VStack(alignment: en ? .leading : .trailing, spacing: 6) {
             BubbleHeader(u: u, scale: scale, playing: playing)
-            BubbleMain(u: u, scale: scale)
+            BubbleMain(u: u, scale: scale, forceBack: showBackHere)
             BubbleFooter(u: u, scale: scale, onCorrect: canCorrect ? { onCorrect(u) } : nil,
-                         onReplay: { m.replay(u) })
+                         onReplay: { m.replay(u) },
+                         onAlt: canCorrect && !u.alts.isEmpty ? { m.retranslate(u, text: $0) } : nil)
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: en ? .leading : .trailing)
@@ -203,9 +218,20 @@ struct Bubble: View, Equatable {
     }
 
     @ViewBuilder private var menu: some View {
-        Button(L.t("copy_translation")) { copy(u.out) }
-        Button(L.t("copy_original")) { copy(u.text) }
-        Button(L.t("copy_both")) { copy(u.text + "\n" + u.out) }
+        Button(L.t("copy_translation")) { copy(BubbleCopy.text(original: u.text, translation: u.out, mode: .translation, translated: u.translated)) }
+        Menu(L.r23("copy_menu")) {
+            Button(L.t("copy_original")) { copy(BubbleCopy.text(original: u.text, translation: u.out, mode: .original, translated: u.translated)) }
+            Button(L.t("copy_translation")) { copy(BubbleCopy.text(original: u.text, translation: u.out, mode: .translation, translated: u.translated)) }
+            Button(L.t("copy_both")) { copy(BubbleCopy.text(original: u.text, translation: u.out, mode: .both, translated: u.translated)) }
+            Button(L.t("copy_with_time")) {
+                copy(BubbleCopy.withMeta(BubbleCopy.text(original: u.text, translation: u.out, mode: .both, translated: u.translated),
+                                         speaker: u.speaker, date: u.date))
+            }
+        }
+        Button(L.r23("select_toggle")) {
+            let ui = UIDrafts.shared
+            ui.selecting = true; ui.selection.toggle(u.id.uuidString)
+        }
         Divider()
         Button(L.t("correct")) { onCorrect(u) }.disabled(!canCorrect)
         if canReassign {
@@ -213,10 +239,6 @@ struct Bubble: View, Equatable {
         }
         ForEach(Array(u.alts.enumerated()), id: \.offset) { _, alt in
             Button(L.t("alt_reading") + ": " + alt) { m.retranslate(u, text: alt) }.disabled(!canCorrect)
-        }
-        Button(L.t("copy_with_time")) {
-            copy(BubbleCopy.withMeta(BubbleCopy.text(original: u.text, translation: u.out, mode: .both, translated: u.translated),
-                                     speaker: u.speaker, date: u.date))
         }
         Button(L.t("save_phrase")) { saveQuickPhrase(u.text) }
         if u.translated, !u.out.isEmpty { Button(L.t("save_phrase_out")) { saveQuickPhrase(u.out) } }
@@ -296,13 +318,22 @@ private struct BubbleHeader: View {
 private struct BubbleMain: View {
     let u: Utterance
     let scale: Double
+    var forceBack = false
     @AppStorage(Prefs.translit) private var translit = true
     @AppStorage("backTranslate") private var showBack = false
+
+    /// Bei Zahlenabweichung: Zahlen der Übersetzung fett, unterstrichen und in Warnfarbe (PartnerLogic.segments).
+    private var outText: Text {
+        guard u.numWarn else { return Text(u.out) }
+        return PartnerLogic.segments(u.out).reduce(Text("")) { acc, seg in
+            acc + (seg.isNumber ? Text(seg.text).fontWeight(.black).underline().foregroundColor(LangStyle.warning) : Text(seg.text))
+        }
+    }
 
     var body: some View {
         let en = Langs.isMine(u.lang)
         VStack(alignment: en ? .leading : .trailing, spacing: 2) {
-            Text(u.out)
+            outText
                 .font(.system(size: 30 * scale, weight: .semibold))
                 .foregroundStyle(u.translated ? LangStyle.color(u.to) : .primary)
                 .multilineTextAlignment(en ? .leading : .trailing)
@@ -312,7 +343,7 @@ private struct BubbleMain: View {
                     .font(.system(size: 14 * scale)).italic().foregroundStyle(.secondary)
                     .multilineTextAlignment(en ? .leading : .trailing)
             }
-            if showBack, let back = u.back {   // Rückübersetzung: klein, zur Kontrolle
+            if showBack || forceBack, let back = u.back {   // Rückübersetzung: klein, zur Kontrolle
                 Text("↩︎ " + back)
                     .font(.system(size: max(12, 12 * scale))).foregroundStyle(.secondary)
                     .multilineTextAlignment(en ? .leading : .trailing)
@@ -329,7 +360,12 @@ private struct BubbleFooter: View {
     let scale: Double
     var onCorrect: (() -> Void)? = nil
     var onReplay: (() -> Void)? = nil
+    var onAlt: ((String) -> Void)? = nil
     @AppStorage(Prefs.showDetails) private var showDetails = false
+
+    /// Aktuelle Lesart und die anderen (Original zuerst): ein Klick schaltet zur nächsten weiter, umlaufend.
+    private var candidates: [String] { [u.text] + u.alts.filter { $0 != u.text } }
+    private var altIndex: Int { candidates.firstIndex(of: u.text) ?? 0 }
 
     private static func sec(_ v: Double) -> String { fmtSeconds(v) }
 
@@ -345,9 +381,27 @@ private struct BubbleFooter: View {
         return parts.joined(separator: " · ")
     }
 
+    /// Auffällige Zahlenwarnung: gefüllte Fläche mit den betroffenen Zahlen (nicht nur ein kleines Symbol).
+    private var numberWarning: some View {
+        let d = NumberWarning.diff(original: u.text, translation: u.out)
+        var parts: [String] = []
+        if !d.missing.isEmpty { parts.append(L.r23f("num_warn_missing", NumberWarning.listed(d.missing))) }
+        if !d.extra.isEmpty { parts.append(L.r23f("num_warn_extra", NumberWarning.listed(d.extra))) }
+        return HStack(spacing: 6) {
+            Image(systemName: "exclamationmark.triangle.fill").accessibilityHidden(true)
+            Text(L.t("num_warn")).bold()
+            if !parts.isEmpty { Text(parts.joined(separator: " · ")).monospacedDigit() }
+        }
+        .padding(.horizontal, 8).padding(.vertical, 4)
+        .foregroundStyle(.black)
+        .background(LangStyle.warning, in: RoundedRectangle(cornerRadius: 8))
+        .accessibilityElement(children: .combine)
+    }
+
     var body: some View {
         let showD = showDetails && !details.isEmpty
-        if u.skipped || u.cutOff || u.lowConfidence || u.numWarn || u.provider == "mymemory" || showD {
+        if u.skipped || u.cutOff || u.lowConfidence || u.numWarn || u.provider == "mymemory" || showD || u.interrupted
+            || (onAlt != nil && candidates.count > 1) {
             HStack(spacing: 10) {
                 if !Langs.isMine(u.lang) { Spacer(minLength: 0) }
                 if u.skipped {
@@ -363,8 +417,18 @@ private struct BubbleFooter: View {
                             .help(L.t("speak_again_help"))
                     }
                 }
-                if u.numWarn {
-                    Label(L.t("num_warn"), systemImage: "number.circle").foregroundStyle(LangStyle.warning)
+                if u.numWarn { numberWarning }
+                if u.interrupted {
+                    Label(L.r23("interrupted"), systemImage: "bolt.slash.fill").foregroundStyle(LangStyle.warning)
+                }
+                if let onAlt, candidates.count > 1 {   // andere Lesarten durchblättern
+                    let nextIdx = AltCycle.next(altIndex, count: candidates.count - 1)
+                    Button { onAlt(candidates[nextIdx]) } label: {
+                        Label(L.r23f("alt_next", AltCycle.label(index: altIndex, count: candidates.count - 1)),
+                              systemImage: "arrow.triangle.2.circlepath")
+                    }
+                    .buttonStyle(.borderless)
+                    .help(L.t("alt_reading") + ": " + candidates[nextIdx])
                 }
                 if u.provider == "mymemory" {
                     Label(L.t("weak_mt"), systemImage: "arrow.triangle.2.circlepath").foregroundStyle(.secondary)

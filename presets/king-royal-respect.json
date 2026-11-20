@@ -1,0 +1,146 @@
+{
+  "id": "king-royal-respect",
+  "names": {
+    "de": "Respekt vor König und Königshaus",
+    "en": "Respect for the King and royals",
+    "th": "ความเคารพต่อพระมหากษัตริย์"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Das Königshaus genießt höchste Achtung, Majestätsbeleidigung ist strafbar. Keine Witze oder Kritik, auch nicht online. Banknoten tragen das Bild des Königs: nicht zertreten. Bei der Königshymne in Kinos und öffentlichen Räumen aufstehen. Bei Unsicherheit höflich fragen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "The royal family is held in the highest respect and lese-majeste is a crime. No jokes or criticism, not even online. Banknotes carry the King's portrait, so do not step on them. Stand for the royal anthem in cinemas and public places. When unsure, ask politely. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "King",
+      "th": "พระมหากษัตริย์"
+    },
+    {
+      "en": "royal family",
+      "th": "พระราชวงศ์"
+    },
+    {
+      "en": "anthem",
+      "th": "เพลงสรรเสริญพระบารมี"
+    },
+    {
+      "en": "portrait",
+      "th": "พระบรมฉายาลักษณ์"
+    },
+    {
+      "en": "respect",
+      "th": "ความเคารพ"
+    },
+    {
+      "en": "procession",
+      "th": "ขบวนเสด็จ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I would like to call my embassy.",
+      "th": "ต้องการโทรหาสถานทูต",
+      "critical": true
+    },
+    {
+      "en": "I want a lawyer.",
+      "th": "ต้องการทนายความ",
+      "critical": true
+    },
+    {
+      "en": "It was a misunderstanding.",
+      "th": "เป็นความเข้าใจผิด",
+      "critical": true
+    },
+    {
+      "en": "I want to speak to a lawyer first.",
+      "th": "ขอปรึกษาทนายความก่อน",
+      "critical": true
+    },
+    {
+      "en": "I do not want to sign anything yet.",
+      "th": "ยังไม่ต้องการเซ็นอะไร",
+      "critical": true
+    },
+    {
+      "en": "I am sorry. I did not know the rule.",
+      "th": "ขอโทษ ไม่ทราบกฎนี้"
+    },
+    {
+      "en": "I need an interpreter.",
+      "th": "ต้องการล่าม"
+    },
+    {
+      "en": "I respect the King.",
+      "th": "เคารพพระมหากษัตริย์"
+    },
+    {
+      "en": "Please tell me how to behave.",
+      "th": "ช่วยบอกวิธีปฏิบัติตัวหน่อย"
+    },
+    {
+      "en": "Should I stand up for the anthem?",
+      "th": "ต้องยืนเคารพเพลงสรรเสริญพระบารมีไหม"
+    },
+    {
+      "en": "When do I stand in the cinema?",
+      "th": "ต้องลุกยืนตอนไหนในโรงภาพยนตร์"
+    },
+    {
+      "en": "Please excuse me.",
+      "th": "ขออภัย"
+    },
+    {
+      "en": "May I take a photo of this portrait?",
+      "th": "ถ่ายรูปพระบรมฉายาลักษณ์นี้ได้ไหม"
+    },
+    {
+      "en": "Is this clothing suitable for the palace?",
+      "th": "แต่งกายแบบนี้เหมาะกับพระราชวังไหม"
+    },
+    {
+      "en": "My banknote fell. I will pick it up.",
+      "th": "ธนบัตรตก จะเก็บขึ้นมา"
+    },
+    {
+      "en": "Please do not joke about the royal family.",
+      "th": "ขออย่าพูดเล่นเรื่องราชวงศ์"
+    },
+    {
+      "en": "I do not want to discuss the monarchy.",
+      "th": "ไม่ต้องการพูดคุยเรื่องสถาบันพระมหากษัตริย์"
+    },
+    {
+      "en": "Where can I pay my respects?",
+      "th": "ไปถวายความเคารพได้ที่ไหน"
+    },
+    {
+      "en": "Is there a royal ceremony today?",
+      "th": "วันนี้มีพระราชพิธีไหม"
+    },
+    {
+      "en": "Why is the road closed?",
+      "th": "ทำไมปิดถนน"
+    },
+    {
+      "en": "Is the royal procession passing here?",
+      "th": "ขบวนเสด็จผ่านทางนี้ไหม"
+    },
+    {
+      "en": "Should I wait here quietly?",
+      "th": "ต้องรออยู่ที่นี่อย่างเงียบ ๆ ไหม"
+    },
+    {
+      "en": "How should I show respect here?",
+      "th": "ควรแสดงความเคารพที่นี่อย่างไร"
+    },
+    {
+      "en": "Do I take off my hat?",
+      "th": "ต้องถอดหมวกไหม"
+    },
+    {
+      "en": "Please do not take photos here.",
+      "th": "ขออย่าถ่ายรูปที่นี่"
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "id": "bank-transfer-abroad",
+  "names": {
+    "de": "Auslandsüberweisung",
+    "en": "International money transfer",
+    "th": "โอนเงินระหว่างประเทศ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Überweisungen aus dem Ausland brauchen oft den Verwendungszweck und einen Herkunftsnachweis. Gebühren und Wechselkurs vorher vergleichen, auch bei Apps. Name und Kontonummer sehr genau prüfen. Bei Fehlüberweisung oder Betrug sofort Bank anrufen und Karte oder Konto sperren lassen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Transfers from abroad often need a stated purpose and proof of source. Compare fees and exchange rate beforehand, including apps. Check the name and account number very carefully. After a wrong transfer or fraud call the bank at once and have the card or account blocked. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "transfer",
+      "th": "โอนเงิน"
+    },
+    {
+      "en": "exchange rate",
+      "th": "อัตราแลกเปลี่ยน"
+    },
+    {
+      "en": "fee",
+      "th": "ค่าธรรมเนียม"
+    },
+    {
+      "en": "account number",
+      "th": "เลขที่บัญชี"
+    },
+    {
+      "en": "SWIFT code",
+      "th": "รหัสสวิฟต์"
+    },
+    {
+      "en": "transfer slip",
+      "th": "สลิปการโอน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I sent money to the wrong account.",
+      "th": "โอนเงินผิดบัญชี",
+      "critical": true
+    },
+    {
+      "en": "Please stop the transfer.",
+      "th": "ช่วยยกเลิกการโอนหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I think I was scammed.",
+      "th": "คิดว่าถูกหลอก",
+      "critical": true
+    },
+    {
+      "en": "My account was hacked.",
+      "th": "บัญชีถูกแฮ็ก",
+      "critical": true
+    },
+    {
+      "en": "Please block my account.",
+      "th": "ช่วยอายัดบัญชีหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I would like to send money abroad.",
+      "th": "ต้องการโอนเงินไปต่างประเทศ"
+    },
+    {
+      "en": "I would like to receive money from abroad.",
+      "th": "ต้องการรับเงินโอนจากต่างประเทศ"
+    },
+    {
+      "en": "Do I need an account here?",
+      "th": "ต้องมีบัญชีที่นี่ไหม"
+    },
+    {
+      "en": "Which documents do I need?",
+      "th": "ต้องใช้เอกสารอะไรบ้าง"
+    },
+    {
+      "en": "What is the exchange rate today?",
+      "th": "วันนี้อัตราแลกเปลี่ยนเท่าไหร่"
+    },
+    {
+      "en": "What is the transfer fee?",
+      "th": "ค่าธรรมเนียมการโอนเท่าไร"
+    },
+    {
+      "en": "Are there hidden charges?",
+      "th": "มีค่าใช้จ่ายแอบแฝงไหม"
+    },
+    {
+      "en": "How long does the transfer take?",
+      "th": "โอนนานกี่วันกว่าจะเข้า"
+    },
+    {
+      "en": "Here is the account number.",
+      "th": "นี่คือเลขที่บัญชี"
+    },
+    {
+      "en": "Here is the SWIFT code.",
+      "th": "นี่คือรหัสสวิฟต์"
+    },
+    {
+      "en": "Please check the name and the number.",
+      "th": "ช่วยตรวจชื่อและเลขบัญชีหน่อย"
+    },
+    {
+      "en": "The money has not arrived.",
+      "th": "เงินยังไม่เข้า"
+    },
+    {
+      "en": "Can you trace the transfer?",
+      "th": "ตรวจสอบสถานะการโอนได้ไหม"
+    },
+    {
+      "en": "Please give me the transfer slip.",
+      "th": "ขอสลิปการโอนหน่อย"
+    },
+    {
+      "en": "I need to prove the source of the money.",
+      "th": "ต้องแสดงที่มาของเงิน"
+    },
+    {
+      "en": "Is there a daily limit?",
+      "th": "มีวงเงินต่อวันไหม"
+    },
+    {
+      "en": "Can I send money by app?",
+      "th": "โอนเงินผ่านแอปได้ไหม"
+    }
+  ]
+}

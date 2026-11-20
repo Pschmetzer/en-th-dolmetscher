@@ -1,0 +1,142 @@
+{
+  "id": "customer-service-complaint",
+  "names": {
+    "de": "Beschwerde beim Kundenservice",
+    "en": "Complaint to customer service",
+    "th": "ร้องเรียนฝ่ายบริการลูกค้า"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Ruhig und höflich bleiben, das Gesicht zu wahren ist in Thailand wichtig. Beleg, Fotos und Namen des Mitarbeiters bereithalten. Zuerst mit dem Manager sprechen, dann die Hotline oder die Verbraucherschutzbehörde nutzen. Nur bei Gefahr die Polizei rufen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Stay calm and polite; saving face matters in Thailand. Have the receipt, photos and the staff member's name ready. Speak to the manager first, then use the hotline or the consumer protection office. Call the police only if you are in danger. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "complaint",
+      "th": "คำร้องเรียน"
+    },
+    {
+      "en": "manager",
+      "th": "ผู้จัดการ"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    },
+    {
+      "en": "replacement",
+      "th": "การเปลี่ยนสินค้า"
+    },
+    {
+      "en": "hotline",
+      "th": "สายด่วน"
+    },
+    {
+      "en": "proof",
+      "th": "หลักฐาน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am being threatened.",
+      "th": "ถูกข่มขู่",
+      "critical": true
+    },
+    {
+      "en": "Please give me back my passport.",
+      "th": "ขอหนังสือเดินทางคืน",
+      "critical": true
+    },
+    {
+      "en": "I feel unsafe here. Please call security.",
+      "th": "รู้สึกไม่ปลอดภัยที่นี่ ช่วยเรียกเจ้าหน้าที่รักษาความปลอดภัยหน่อย",
+      "critical": true
+    },
+    {
+      "en": "I need medical help. Please call a doctor.",
+      "th": "ต้องการความช่วยเหลือทางการแพทย์ ช่วยเรียกหมอหน่อย",
+      "critical": true
+    },
+    {
+      "en": "Please call the police.",
+      "th": "ช่วยเรียกตำรวจด้วย",
+      "critical": true
+    },
+    {
+      "en": "I would like to make a complaint.",
+      "th": "ต้องการร้องเรียน"
+    },
+    {
+      "en": "May I speak to the manager?",
+      "th": "ขอพบผู้จัดการได้ไหม"
+    },
+    {
+      "en": "Who is responsible for this?",
+      "th": "ใครรับผิดชอบเรื่องนี้"
+    },
+    {
+      "en": "This is not what I ordered.",
+      "th": "นี่ไม่ใช่สิ่งที่สั่ง"
+    },
+    {
+      "en": "The product is broken.",
+      "th": "สินค้าชำรุด"
+    },
+    {
+      "en": "The service was very poor.",
+      "th": "บริการแย่มาก"
+    },
+    {
+      "en": "I have been waiting a long time.",
+      "th": "รอมานานมากแล้ว"
+    },
+    {
+      "en": "The charge on my bill is wrong.",
+      "th": "ยอดในบิลไม่ถูกต้อง"
+    },
+    {
+      "en": "I was charged twice.",
+      "th": "ถูกเรียกเก็บเงินสองครั้ง"
+    },
+    {
+      "en": "Please check your system.",
+      "th": "ช่วยตรวจสอบในระบบหน่อย"
+    },
+    {
+      "en": "Here is my receipt.",
+      "th": "นี่คือใบเสร็จ"
+    },
+    {
+      "en": "I have photos as proof.",
+      "th": "มีรูปถ่ายเป็นหลักฐาน"
+    },
+    {
+      "en": "I would like a replacement.",
+      "th": "ต้องการเปลี่ยนสินค้า"
+    },
+    {
+      "en": "I would like my money back.",
+      "th": "ต้องการเงินคืน"
+    },
+    {
+      "en": "Please give me your name.",
+      "th": "ขอทราบชื่อด้วย"
+    },
+    {
+      "en": "Please give me a written confirmation.",
+      "th": "ขอหลักฐานเป็นลายลักษณ์อักษร"
+    },
+    {
+      "en": "What is the complaint hotline?",
+      "th": "สายด่วนร้องเรียนคือเบอร์อะไร"
+    },
+    {
+      "en": "Where is the consumer protection office?",
+      "th": "สำนักงานคุ้มครองผู้บริโภคอยู่ที่ไหน"
+    },
+    {
+      "en": "Please do not shout at me.",
+      "th": "ขออย่าส่งเสียงดังใส่"
+    }
+  ]
+}

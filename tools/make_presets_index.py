@@ -44,8 +44,15 @@ def keywords(d, limit=12):
     return out[:limit]
 
 
+def extra_keywords(root=ROOT):
+    """Deutsche und thailaendische Suchbegriffe je Paket (tools/preset_keywords.json, {id: {de: [...], th: [...]}})."""
+    f = pathlib.Path(root) / "tools" / "preset_keywords.json"
+    return json.loads(f.read_text(encoding="utf-8"))["keywords"] if f.exists() else {}
+
+
 def build(root=ROOT):
     cats = categories(root)
+    extra = extra_keywords(root)
     old = {}
     f = pathlib.Path(root) / "presets-index.json"
     if f.exists():
@@ -58,6 +65,14 @@ def build(root=ROOT):
                           "critical": sum(1 for x in d.get("phrases", []) if x.get("critical")),
                           "reviewed": old.get(d["id"], False), "category": cats.get(d["id"], "general"),
                           "keywords": keywords(d)}
+        for lang in ("de", "th"):
+            words = [w for w in extra.get(d["id"], {}).get(lang, []) if isinstance(w, str) and w.strip()]
+            if words:
+                packs[d["id"]]["keywords_" + lang] = words
+        de, th = packs[d["id"]].get("keywords_de", []), packs[d["id"]].get("keywords_th", [])
+        if de or th:   # Web-Suche liest nur `keywords`: en, de, th mischen (max. 12)
+            mixed = keywords(d, 6) + [w.lower() for w in de[:3]] + [w.lower() for w in th[:3]]
+            packs[d["id"]]["keywords"] = list(dict.fromkeys(mixed))[:12]
     ids = [i for i in ORDER if i in packs] + sorted(i for i in packs if i not in ORDER)
     out = {"version": 1, "packs": [packs[i] for i in ids]}
     rt = routes(root)

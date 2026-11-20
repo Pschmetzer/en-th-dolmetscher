@@ -175,6 +175,30 @@
    "en": "mushrooms",
    "de": "Pilze",
    "th": "เห็ด"
+  },
+  {
+   "id": "ibuprofen",
+   "en": "ibuprofen / NSAIDs",
+   "de": "Ibuprofen / NSAR",
+   "th": "ไอบูโพรเฟน / ยากลุ่มเอ็นเสด"
+  },
+  {
+   "id": "iodine",
+   "en": "iodine / contrast dye",
+   "de": "Jod / Kontrastmittel",
+   "th": "ไอโอดีน / สารทึบรังสี"
+  },
+  {
+   "id": "kiwi",
+   "en": "kiwi",
+   "de": "Kiwi",
+   "th": "กีวี"
+  },
+  {
+   "id": "buckwheat",
+   "en": "buckwheat",
+   "de": "Buchweizen",
+   "th": "บัควีต"
   }
  ],
  "conditions": [

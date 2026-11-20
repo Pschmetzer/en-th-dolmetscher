@@ -1,0 +1,130 @@
+{
+  "id": "ride-share-dispute",
+  "names": {
+    "de": "Fahrdienst: Streit um den Preis",
+    "en": "Ride-hailing price dispute",
+    "th": "ปัญหาราคารถเรียกผ่านแอป"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Bei Grab, Bolt und Co. gilt der Preis in der App. Fahrer bitten manchmal um Aufschlag oder wollen den Zähler nicht nutzen. Ruhig bleiben, Bildschirm mit dem Preis zeigen und Screenshot machen. Beschwerden gehen direkt in der App, Flughafengebühren stehen auf dem Beleg. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "With Grab, Bolt and similar apps the app price applies. Drivers sometimes ask for extra money or refuse the meter. Stay calm, show the price on your screen and take a screenshot. Complaints go through the app, and airport fees appear on the receipt. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "fare",
+      "th": "ค่าโดยสาร"
+    },
+    {
+      "en": "meter",
+      "th": "มิเตอร์"
+    },
+    {
+      "en": "toll",
+      "th": "ค่าทางด่วน"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    },
+    {
+      "en": "driver",
+      "th": "คนขับ"
+    },
+    {
+      "en": "route",
+      "th": "เส้นทาง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I want to get out here.",
+      "th": "ขอลงตรงนี้",
+      "critical": true
+    },
+    {
+      "en": "Please stop the car now.",
+      "th": "ช่วยจอดรถเดี๋ยวนี้",
+      "critical": true
+    },
+    {
+      "en": "The driver is driving dangerously.",
+      "th": "คนขับขับรถอันตราย",
+      "critical": true
+    },
+    {
+      "en": "Please do not lock the doors.",
+      "th": "ขออย่าล็อกประตู",
+      "critical": true
+    },
+    {
+      "en": "I feel unsafe.",
+      "th": "รู้สึกไม่ปลอดภัย",
+      "critical": true
+    },
+    {
+      "en": "The app price was agreed. Please follow it.",
+      "th": "ราคาในแอปตกลงกันแล้ว ขอให้คิดตามนั้น"
+    },
+    {
+      "en": "Please do not ask for extra money.",
+      "th": "ขออย่าเรียกเงินเพิ่ม"
+    },
+    {
+      "en": "Please turn on the meter.",
+      "th": "ช่วยเปิดมิเตอร์หน่อย"
+    },
+    {
+      "en": "This is the price on my screen.",
+      "th": "นี่คือราคาที่ขึ้นบนหน้าจอ"
+    },
+    {
+      "en": "I will pay the toll if it is on the receipt.",
+      "th": "จะจ่ายค่าทางด่วนถ้ามีในใบเสร็จ"
+    },
+    {
+      "en": "Why is the route so long?",
+      "th": "ทำไมถึงไปทางอ้อม"
+    },
+    {
+      "en": "Please follow the map.",
+      "th": "ช่วยขับตามแผนที่หน่อย"
+    },
+    {
+      "en": "Why did you cancel the ride?",
+      "th": "ทำไมถึงยกเลิกการเดินทาง"
+    },
+    {
+      "en": "I will report this in the app.",
+      "th": "จะรายงานเรื่องนี้ในแอป"
+    },
+    {
+      "en": "Please show me the fare on the meter.",
+      "th": "ขอดูค่าโดยสารบนมิเตอร์หน่อย"
+    },
+    {
+      "en": "I only have large notes. Do you have change?",
+      "th": "มีแต่ธนบัตรใบใหญ่ มีเงินทอนไหม"
+    },
+    {
+      "en": "I need a receipt, please.",
+      "th": "ขอใบเสร็จหน่อย"
+    },
+    {
+      "en": "I paid by card in the app.",
+      "th": "จ่ายด้วยบัตรผ่านแอปแล้ว"
+    },
+    {
+      "en": "That is too expensive. I will use another car.",
+      "th": "แพงเกินไป จะใช้รถคันอื่น"
+    },
+    {
+      "en": "Please wait, I will take a screenshot.",
+      "th": "รอสักครู่ จะแคปหน้าจอไว้"
+    },
+    {
+      "en": "Please turn on the air conditioning.",
+      "th": "ช่วยเปิดแอร์ด้วย"
+    }
+  ]
+}

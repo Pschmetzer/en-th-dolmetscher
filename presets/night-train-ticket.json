@@ -1,0 +1,134 @@
+{
+  "id": "night-train-ticket",
+  "names": {
+    "de": "Nachtzug und Schlafwagen",
+    "en": "Night train and sleeper",
+    "th": "รถไฟนอนและตั๋วนอน"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Nachtzüge nach Chiang Mai, Surat Thani und Nong Khai haben Schlafwagen mit Klimaanlage oder Ventilator. Untere Betten sind etwas teurer und breiter. Früh buchen, besonders vor Feiertagen. Wertsachen am Körper tragen, im Wagen ist es oft kalt. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Night trains to Chiang Mai, Surat Thani and Nong Khai have air-conditioned or fan sleepers. Lower berths cost a little more and are wider. Book early, especially before holidays. Keep valuables on you; the carriage is often cold. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "sleeper",
+      "th": "ตู้นอน"
+    },
+    {
+      "en": "berth",
+      "th": "เตียง"
+    },
+    {
+      "en": "platform",
+      "th": "ชานชาลา"
+    },
+    {
+      "en": "ticket",
+      "th": "ตั๋ว"
+    },
+    {
+      "en": "dining car",
+      "th": "ตู้เสบียง"
+    },
+    {
+      "en": "station",
+      "th": "สถานี"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My bag was stolen on the train.",
+      "th": "กระเป๋าถูกขโมยบนรถไฟ",
+      "critical": true
+    },
+    {
+      "en": "Please call the police.",
+      "th": "ช่วยเรียกตำรวจด้วย",
+      "critical": true
+    },
+    {
+      "en": "Please call a doctor. I feel unwell.",
+      "th": "ช่วยเรียกหมอหน่อย รู้สึกไม่สบาย",
+      "critical": true
+    },
+    {
+      "en": "There is a fire in the carriage.",
+      "th": "ไฟไหม้ในตู้โดยสาร",
+      "critical": true
+    },
+    {
+      "en": "Where is the emergency exit?",
+      "th": "ทางออกฉุกเฉินอยู่ที่ไหน",
+      "critical": true
+    },
+    {
+      "en": "I would like a sleeper ticket to Chiang Mai.",
+      "th": "ต้องการตั๋วรถไฟนอนไปเชียงใหม่"
+    },
+    {
+      "en": "Is there a night train tonight?",
+      "th": "คืนนี้มีรถไฟกลางคืนไหม"
+    },
+    {
+      "en": "Which class is the sleeper?",
+      "th": "ตู้นอนเป็นชั้นอะไร"
+    },
+    {
+      "en": "A lower berth, please.",
+      "th": "ขอเตียงล่าง"
+    },
+    {
+      "en": "An upper berth, please.",
+      "th": "ขอเตียงบน"
+    },
+    {
+      "en": "Does the sleeper have air conditioning?",
+      "th": "ตู้นอนมีแอร์ไหม"
+    },
+    {
+      "en": "When does the train depart?",
+      "th": "รถไฟออกกี่โมง"
+    },
+    {
+      "en": "When do we arrive?",
+      "th": "จะถึงกี่โมง"
+    },
+    {
+      "en": "Which platform is it?",
+      "th": "อยู่ชานชาลาไหน"
+    },
+    {
+      "en": "Can I buy a ticket for tomorrow?",
+      "th": "ซื้อตั๋วสำหรับพรุ่งนี้ได้ไหม"
+    },
+    {
+      "en": "Is the ticket sold out?",
+      "th": "ตั๋วหมดแล้วหรือ"
+    },
+    {
+      "en": "Where can I store my luggage?",
+      "th": "เก็บกระเป๋าได้ที่ไหน"
+    },
+    {
+      "en": "Can you wake me before my stop?",
+      "th": "ช่วยปลุกก่อนถึงสถานีหน่อย"
+    },
+    {
+      "en": "Where is the dining car?",
+      "th": "ตู้เสบียงอยู่ที่ไหน"
+    },
+    {
+      "en": "Please make my bed.",
+      "th": "ช่วยจัดเตียงให้หน่อย"
+    },
+    {
+      "en": "Is there a charging socket?",
+      "th": "มีปลั๊กชาร์จไหม"
+    },
+    {
+      "en": "I have lost my ticket.",
+      "th": "ทำตั๋วหาย"
+    }
+  ]
+}

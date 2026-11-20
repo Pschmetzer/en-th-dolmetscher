@@ -1,0 +1,146 @@
+{
+  "id": "wat-donation-etiquette",
+  "names": {
+    "de": "Tempelspenden und Etikette",
+    "en": "Temple donations and etiquette",
+    "th": "การทำบุญและมารยาทในวัด"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Spenden sind freiwillig, kleine Scheine reichen. Spendenkästen stehen oft im Hof oder vor dem Buddha. Weihrauch, Kerzen und Blumen gibt es am Eingang. Schuhe ausziehen, Schultern und Knie bedecken, Mönche (Frauen) nicht berühren. Fotos nur, wo erlaubt. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Donations are voluntary and small notes are fine. Donation boxes stand in the courtyard or before the Buddha. Incense, candles and flowers are sold at the entrance. Remove shoes, cover shoulders and knees, and women must not touch monks. Photos only where allowed. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "donation",
+      "th": "การบริจาค"
+    },
+    {
+      "en": "merit",
+      "th": "บุญ"
+    },
+    {
+      "en": "incense",
+      "th": "ธูป"
+    },
+    {
+      "en": "candle",
+      "th": "เทียน"
+    },
+    {
+      "en": "gold leaf",
+      "th": "ทองคำเปลว"
+    },
+    {
+      "en": "alms",
+      "th": "ใส่บาตร"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I feel faint from the heat.",
+      "th": "รู้สึกจะเป็นลมเพราะอากาศร้อน",
+      "critical": true
+    },
+    {
+      "en": "Please call a doctor.",
+      "th": "ช่วยเรียกแพทย์หน่อย",
+      "critical": true
+    },
+    {
+      "en": "I need medical help.",
+      "th": "ต้องการความช่วยเหลือทางการแพทย์",
+      "critical": true
+    },
+    {
+      "en": "I cannot breathe.",
+      "th": "หายใจไม่ออก",
+      "critical": true
+    },
+    {
+      "en": "Please call an ambulance.",
+      "th": "ช่วยเรียกรถพยาบาลหน่อย",
+      "critical": true
+    },
+    {
+      "en": "Where can I make a donation?",
+      "th": "ทำบุญได้ที่ไหน"
+    },
+    {
+      "en": "I would like to make merit.",
+      "th": "อยากทำบุญ"
+    },
+    {
+      "en": "Where do I put the money?",
+      "th": "ใส่เงินตรงไหน"
+    },
+    {
+      "en": "Is there a donation box?",
+      "th": "มีตู้บริจาคไหม"
+    },
+    {
+      "en": "What is the usual donation?",
+      "th": "ปกติทำบุญเท่าไร"
+    },
+    {
+      "en": "Is it all right to give any amount?",
+      "th": "ใส่เท่าไรก็ได้ใช่ไหม"
+    },
+    {
+      "en": "May I buy incense and flowers?",
+      "th": "ซื้อธูปและดอกไม้ได้ไหม"
+    },
+    {
+      "en": "How do I light the incense?",
+      "th": "จุดธูปอย่างไร"
+    },
+    {
+      "en": "How many incense sticks should I light?",
+      "th": "ควรจุดธูปกี่ดอก"
+    },
+    {
+      "en": "Where do I put the candle?",
+      "th": "ปักเทียนตรงไหน"
+    },
+    {
+      "en": "May I put gold leaf on the Buddha?",
+      "th": "ปิดทองพระได้ไหม"
+    },
+    {
+      "en": "May I ring the bells?",
+      "th": "ตีระฆังได้ไหม"
+    },
+    {
+      "en": "Please show me how to pray.",
+      "th": "ช่วยสอนวิธีไหว้หน่อย"
+    },
+    {
+      "en": "Do I take off my shoes here?",
+      "th": "ต้องถอดรองเท้าตรงนี้ไหม"
+    },
+    {
+      "en": "Is this dress all right?",
+      "th": "แต่งตัวแบบนี้ได้ไหม"
+    },
+    {
+      "en": "Can women enter this hall?",
+      "th": "ผู้หญิงเข้าในโบสถ์นี้ได้ไหม"
+    },
+    {
+      "en": "May I take photos inside?",
+      "th": "ถ่ายรูปข้างในได้ไหม"
+    },
+    {
+      "en": "Is it all right to touch this statue?",
+      "th": "แตะรูปปั้นนี้ได้ไหม"
+    },
+    {
+      "en": "How do I give alms to a monk?",
+      "th": "ใส่บาตรพระอย่างไร"
+    },
+    {
+      "en": "Please tell me if I do something wrong.",
+      "th": "ถ้าทำอะไรผิดช่วยบอกด้วย"
+    }
+  ]
+}
