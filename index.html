@@ -189,7 +189,7 @@
   @page { margin:12mm; }
   @media print {
     .skip, #warn, #announce { display:none !important; }
-    #main, #partner, dialog, noscript { display:none !important; }
+    #main, #partner, #convo, dialog, noscript { display:none !important; }
     #printSheet { display:block; color:#000; background:#fff; }
     #printSheet h1 { font-size:20px; } #printSheet table { width:100%; border-collapse:collapse; }
     #printSheet td { border-bottom:1px solid #999; padding:6px 4px; vertical-align:top; }
@@ -333,6 +333,13 @@
     <button class="small" id="numSay" type="button" data-i18n="read">🔊 Vorlesen</button>
   </div>
   <div id="numOut" class="big-out" lang="th" aria-live="polite"></div>
+  <div class="row">
+    <label><input type="time" id="timeIn"> <span data-i18n="timeLbl">Uhrzeit</span></label>
+    <label><input id="phoneIn" type="tel" inputmode="tel" maxlength="20" size="14" autocomplete="off"> <span data-i18n="phoneLbl">Telefonnummer</span></label>
+    <button class="small" id="clkShow" type="button" data-i18n="showBig">Groß zeigen</button>
+    <button class="small" id="clkSay" type="button" data-i18n="read">🔊 Vorlesen</button>
+  </div>
+  <div id="clkOut" class="big-out" lang="th" aria-live="polite"></div>
   <p class="note" data-i18n="numNote">Gegenüber handelt? Gerät weitergeben: Der Betrag steht groß in Ziffern, das Gegenüber tippt seinen Preis selbst ein. Thai-Zahlwörter sind maschinell erzeugt und unverbindlich.</p>
   <details><summary data-i18n="digitsSum">Thai-Ziffern lesen (Schilder, Taxameter)</summary><div id="digitTab" class="tiles" lang="th"></div></details>
 </details>
@@ -814,7 +821,9 @@ const STR = {
   "convoYou": "Du tippst hier",
   "imgLbl": "Als Bild teilen",
   "imgFail": "Bild konnte nicht erstellt werden.",
-  "imgSaved": "Bild gespeichert."
+  "imgSaved": "Bild gespeichert.",
+  "timeLbl": "Uhrzeit",
+  "phoneLbl": "Telefonnummer"
  }
 };   // nur Deutsch (Standard und Rückfall) eingebaut; en/th liegen in i18n/*.json (vom Service Worker gespeichert)
 const UI_LANGS = ['de', 'en', 'th'];
@@ -2267,6 +2276,18 @@ function thaiNumber(n) {
   if (n >= 1e6) return thaiNumber(Math.floor(n / 1e6)) + 'ล้าน' + (n % 1e6 ? thaiBelow(n % 1e6, true) : '');
   return thaiBelow(n, false);
 }
+function thaiClock(h, m) {   // 24-Stunden-Zeit als Thai gesprochen (หกโมงเช้า, บ่ายสองโมง, สามทุ่ม, ตีหนึ่ง); null bei ungültiger Eingabe
+  h = Number(h); m = Number(m);
+  if (!Number.isInteger(h) || !Number.isInteger(m) || h < 0 || h > 23 || m < 0 || m > 59) return null;
+  let w;
+  if (h === 0) w = 'เที่ยงคืน'; else if (h < 6) w = 'ตี' + thaiNumber(h); else if (h < 12) w = thaiNumber(h) + 'โมงเช้า'; else if (h === 12) w = 'เที่ยง';
+  else if (h === 13) w = 'บ่ายโมง'; else if (h < 16) w = 'บ่าย' + thaiNumber(h - 12) + 'โมง'; else if (h < 19) w = thaiNumber(h - 12) + 'โมงเย็น'; else w = thaiNumber(h - 18) + 'ทุ่ม';
+  return w + (m === 30 ? 'ครึ่ง' : m ? thaiNumber(m) + 'นาที' : '');
+}
+function thaiPhone(raw) {   // Telefonnummer ziffernweise gesprochen; null, wenn zu kurz/zu lang
+  const d = String(raw || '').replace(/\D/g, '');
+  return d.length >= 3 && d.length <= 15 ? [...d].map(c => TH_D[c]).join(' ') : null;
+}
 function thaiDigits(s) { return String(s).replace(/[0-9]/g, d => '๐๑๒๓๔๕๖๗๘๙'[d]); }
 function parseAmount(raw) {   // „12.50“ / „3,50“ / „1.234,50“: Dezimalstellen werden gerundet (nicht zu 1250); „1,500“ / „1.500“ = Tausender
   const s = String(raw || '').trim().replace(/[^\d.,]/g, '');
@@ -2482,6 +2503,7 @@ function convoOpen(on) {
     $('inNear').lang = pair.a; $('inFar').lang = pair.b; $('outNear').textContent = ''; $('outFar').textContent = '';
   }
   el.classList.toggle('on', on); el.setAttribute('aria-hidden', on ? 'false' : 'true'); $('main').inert = on;
+  if (on) { try { history.pushState({ convo: 1 }, ''); } catch {} } else { try { if (history.state && history.state.convo) history.back(); } catch {} }   // Zurück-Taste schliesst den Bildschirm
   if (on) $('inNear').focus(); else if (convoOpener && convoOpener.focus) convoOpener.focus();
 }
 let convoOpener = null;
@@ -2498,6 +2520,7 @@ for (const w of ['Near', 'Far']) {
   $('in' + w).addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); convoSend(f); } });
   $('sp' + w).onclick = () => { const o = $(f === 'near' ? 'outNear' : 'outFar'); if (o.textContent && o.textContent !== '…') sayNow(o.textContent, o.lang || (f === 'near' ? pair.a : pair.b)); };
 }
+window.addEventListener('popstate', () => { if ($('convo').classList.contains('on')) { $('convo').classList.remove('on'); $('convo').setAttribute('aria-hidden', 'true'); $('main').inert = false; } });
 $('btnConvo').onclick = () => convoOpen(true);
 $('convoClose').onclick = () => convoOpen(false);
 
@@ -2509,6 +2532,12 @@ $('convoClose').onclick = () => convoOpen(false);
     const n = parseAmount($('numIn').value);
     $('numOut').textContent = n === null ? '' : amountCard(n, $('numUnit').value) + ' (' + thaiDigits(n) + ')';
   };
+  const clk = () => { const tv = $('timeIn').value.split(':'), pv = $('phoneIn').value;
+    return $('phoneIn').value.trim() ? thaiPhone(pv) : tv.length === 2 ? thaiClock(tv[0], tv[1]) : null; };   // Telefonnummer hat Vorrang, wenn ausgefüllt
+  const updc = () => { $('clkOut').textContent = clk() || ''; };
+  $('timeIn').addEventListener('input', updc); $('phoneIn').addEventListener('input', updc);
+  $('clkShow').onclick = () => { const x = clk(); if (x) showBig(x, 'th'); };
+  $('clkSay').onclick = () => { const x = clk(); if (x) sayNow(x, 'th'); };
   $('numIn').addEventListener('input', upd); $('numUnit').addEventListener('change', upd);
   $('numShow').onclick = () => { const n = parseAmount($('numIn').value); if (n !== null) showBig(amountCard(n, $('numUnit').value), 'th'); };
   $('numSay').onclick = () => { const n = parseAmount($('numIn').value); if (n !== null) sayNow(thaiNumber(n) + ($('numUnit').value === '฿' ? 'บาท' : ''), 'th'); };

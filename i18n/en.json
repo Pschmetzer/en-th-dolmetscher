@@ -322,5 +322,7 @@
  "convoYou": "You type here",
  "imgLbl": "Share as image",
  "imgFail": "Could not create the image.",
- "imgSaved": "Image saved."
+ "imgSaved": "Image saved.",
+ "timeLbl": "Time",
+ "phoneLbl": "Phone number"
 }
