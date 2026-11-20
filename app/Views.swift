@@ -369,7 +369,6 @@ struct ContentView: View {
             .accessibilityLabel(L.t("language_filter"))
             if filtering {
                 Text(L.f("results_count", shown.count)).font(.caption).monospacedDigit().foregroundStyle(.secondary)
-                    .accessibilityLabel(L.f("results_count", shown.count))
                 Button { exportConversation(m, only: shown) } label: { Image(systemName: "square.and.arrow.up") }
                     .buttonStyle(.borderless).disabled(shown.isEmpty)
                     .help(L.t("export_hits")).accessibilityLabel(L.t("export_hits"))
@@ -391,9 +390,10 @@ struct ContentView: View {
         let source = m.viewingSession?.items ?? m.items
         guard filtering else { return source }
         return source.filter { u in
-            (langFilter.isEmpty || u.lang == langFilter)
-                && (query.isEmpty || u.text.localizedCaseInsensitiveContains(query)
-                    || u.out.localizedCaseInsensitiveContains(query))
+            let opts: String.CompareOptions = [.caseInsensitive, .diacriticInsensitive]   // „cafe“ findet „café“
+            return (langFilter.isEmpty || u.lang == langFilter)
+                && (query.isEmpty || u.text.range(of: query, options: opts) != nil
+                    || u.out.range(of: query, options: opts) != nil)
         }
     }
 
@@ -414,7 +414,7 @@ struct ContentView: View {
                             Image(systemName: "magnifyingglass").font(.largeTitle).foregroundStyle(.secondary).accessibilityHidden(true)
                             Text(L.t("no_results")).font(.headline)
                             Text(L.t("no_results_hint")).foregroundStyle(.secondary)
-                            Button(L.t("reset_filter")) { query = ""; langFilter = "" }
+                            Button(L.t("reset_filter")) { query = ""; langFilter = ""; searchFocused = true }
                         }
                         .padding(.top, 40).frame(maxWidth: .infinity)
                         .accessibilityElement(children: .combine)
@@ -641,7 +641,7 @@ struct MainToolbar: View {
                     Image(systemName: m.active ? "stop.fill" : "mic.fill")
                 }
                 Text(queued ? L.t("start_queued") : m.active ? L.t("stop") : L.t("start"))
-                    .lineLimit(1)
+                    .lineLimit(1).minimumScaleFactor(0.8)
             }
             .font(.title2.bold()).frame(minWidth: 110, minHeight: 34).padding(.horizontal, 6)
         }
@@ -806,6 +806,7 @@ struct StatusCluster: View {
             if m.micOn { LevelBar(meter: m.meter) }
             Text(m.status).scaledFont(13, .semibold).lineLimit(2).help(m.status)
                 .accessibilityLabel(L.t("status") + ": " + m.status)
+                .accessibilityAddTraits(.updatesFrequently)
             if m.backlog > 0 {
                 Text("\(m.backlog) " + L.t("waiting"))
                     .font(.caption.bold()).monospacedDigit()
@@ -887,7 +888,7 @@ struct LevelBar: View {
         ZStack(alignment: .bottom) {
             Capsule().fill(Color.secondary.opacity(0.2))
             Capsule().fill(meter.voice ? LangStyle.success : Color.secondary)
-                .frame(height: max(2, 22 * meter.rms))
+                .frame(height: max(2, 22 * LevelScale.display(meter.rms)))
         }
         .frame(width: 6, height: 22)
         .animation(reduceMotion ? nil : .linear(duration: 0.12), value: meter.rms)
@@ -895,6 +896,15 @@ struct LevelBar: View {
         .accessibilityElement()
         .accessibilityLabel(L.t("level"))
         .accessibilityValue("\(Int(meter.rms * 100)) %")
+        .accessibilityAddTraits(.updatesFrequently)   // wechselt ~7×/s: VoiceOver nicht fluten
+    }
+}
+
+/// Anzeigeskala des Pegels: leise Sprache (rms 0,02–0,1) bleibt sichtbar (logarithmisch, −50…0 dBFS).
+enum LevelScale {
+    static func display(_ rms: Double) -> Double {
+        guard rms > 0.0001 else { return 0 }
+        return min(1, max(0, (20 * log10(rms) + 50) / 50))
     }
 }
 
@@ -916,7 +926,7 @@ struct QuickPhraseBar: View {
 
     var body: some View {
         let phrases = Prefs.phrases(raw)
-        ScrollView(.horizontal, showsIndicators: false) {
+        ScrollView(.horizontal, showsIndicators: true) {   // sichtbare Leiste: mit der Maus ohne Shift-Rad erreichbar
             HStack(spacing: 8) {
                 Button { draft = ""; adding = true } label: { Image(systemName: "plus") }
                     .buttonStyle(.bordered)
@@ -947,9 +957,10 @@ struct QuickPhraseBar: View {
                         Button { m.say(text, lang: useTH ? "th" : "en") } label: {
                             if ph.critical { Label(text, systemImage: "exclamationmark.triangle.fill") } else { Text(text) }
                         }
+                            .lineLimit(1).frame(maxWidth: 260)
                             .buttonStyle(.bordered).tint(ph.critical ? .red : .accentColor)
                             .disabled(!m.engineReady || !(Langs.hasEnglish || Langs.hasThai))
-                            .help(useTH ? ph.en : ph.th)
+                            .help(text + "\n" + (useTH ? ph.en : ph.th))
                             .accessibilityLabel(ph.critical ? L.t("preset_critical") + ": " + text : text)
                             .accessibilityHint(L.t("preset_phrase_help"))
                     }
@@ -960,16 +971,17 @@ struct QuickPhraseBar: View {
                 }
                 ForEach(Array(phrases.enumerated()), id: \.offset) { i, p in
                     Button(p) { m.say(p, lang: Prefs.phraseLang(p)) }
+                        .lineLimit(1).frame(maxWidth: 260)
                         .buttonStyle(.bordered)
                         .disabled(!m.engineReady)
-                        .help(L.t("quick_phrase_help"))
+                        .help(p + "\n" + L.t("quick_phrase_help"))
                         .contextMenu {
                             Button(L.t("delete"), role: .destructive) { remove(i) }
                         }
                         .accessibilityAction(named: L.t("delete")) { remove(i) }
                 }
             }
-            .padding(.horizontal, 14).padding(.bottom, 10)
+            .padding(.leading, 14).padding(.trailing, 34).padding(.bottom, 10)   // Platz für den Rand-Verlauf
             .scaledFont(13)
         }
         .mask(HStack(spacing: 0) {   // weicher Rand rechts: zeigt, dass es weiter läuft
@@ -980,8 +992,10 @@ struct QuickPhraseBar: View {
         .alert(L.tp("phrase_new_title"), isPresented: $adding) {
             TextField(L.t("sentence"), text: $draft)
             Button(L.t("add")) {
-                let t = draft.trimmingCharacters(in: .whitespacesAndNewlines)
-                if !t.isEmpty { raw = (phrases + [t]).joined(separator: "\n") }
+                let t = String(draft.trimmingCharacters(in: .whitespacesAndNewlines).prefix(200))
+                if !t.isEmpty, !phrases.contains(where: { $0.caseInsensitiveCompare(t) == .orderedSame }) {   // keine Dubletten
+                    raw = (phrases + [t]).joined(separator: "\n")
+                }
             }
             Button(L.t("cancel"), role: .cancel) {}
         }
@@ -1066,13 +1080,14 @@ struct NoticeBanner: View {
             if let onClose {
                 Button(action: onClose) { Image(systemName: "xmark") }
                     .buttonStyle(.borderless)
-                    .help(L.t("hide")).accessibilityLabel(L.t("hide"))
+                    .help(L.t("close")).accessibilityLabel(L.t("close"))
             }
         }
         .padding(.horizontal, 14).padding(.vertical, 8)
         .background(tint.opacity(0.1))
         .accessibilityElement(children: .contain)
         .onAppear { Announcer.post(text) }   // Nr. 367: VoiceOver erfährt vom neuen Hinweis
+        .onChange(of: text) { _, new in Announcer.post(new) }   // auch wenn sich der Text eines Hinweises ändert
     }
 }
 
@@ -1116,6 +1131,7 @@ struct MicDeniedBanner: View {
         .padding(14)
         .background(Color.red.opacity(0.08))
         .accessibilityElement(children: .contain)
+        .onAppear { Announcer.post(L.t("nomic") + ". " + L.t("nomic_action"), force: true) }
     }
 }
 
@@ -1140,12 +1156,13 @@ struct CrashBanner: View {
             HStack {
                 Button(L.t("restart")) { m.restart() }
                     .buttonStyle(.borderedProminent)
-                Button(L.t("show_log")) { NSWorkspace.shared.activateFileViewerSelecting([EngineModel.logURL]) }
+                Button(L.t("show_log")) { openLog() }
                 Button(L.t("copy")) { copyToPasteboard(log) }
                 Button(diagCopied ? L.t("diag_copied") : L.t("diag_copy")) {   // Nr. 372: genau hier gebraucht
                     Paths.checkPython { result in
                         copyToPasteboard(m.diagnosticReport(python: result))
                         diagCopied = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { diagCopied = false }
                     }
                 }
                 .help(L.t("diag_help"))
@@ -1179,7 +1196,7 @@ struct TipsSheet: View {
                 .padding(.trailing, 8)
             }
             HStack {
-                Button(L.t("onb_later")) { later() }.help(L.t("onb_later_help"))
+                Button(L.t("onb_later")) { later() }.help(L.t("onb_later_help")).keyboardShortcut(.cancelAction)
                 Spacer()
                 Button(L.t("lets_go"), action: done).keyboardShortcut(.defaultAction)
             }

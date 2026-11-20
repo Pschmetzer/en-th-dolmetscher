@@ -226,7 +226,7 @@ struct PartnerView: View {
                 .font(.title2)
                 .padding(14)
                 }
-                if let b = stopBanner { stopBannerView(b) }
+                if let b = stopBanner { stopBannerView(b).rotationEffect(.degrees(rotated ? 180 : 0)) }   // für die Partnerin am Tisch
                 Spacer()
                 if presentation {   // Esc holt die Leiste zurück
                     Button { presentation = false } label: { Image(systemName: "xmark.circle") }
@@ -241,6 +241,7 @@ struct PartnerView: View {
                         partnerButton("partner_slower", icon: "tortoise", shortcut: "s") { m.partnerAsks("partner_asks_slower") }
                     }
                     .padding(.horizontal, 24).padding(.bottom, 18)
+                    .rotationEffect(.degrees(rotated ? 180 : 0))   // Knöpfe der Partnerin mitdrehen
                 }
             }
         }

@@ -307,7 +307,14 @@ final class EngineModel: NSObject, ObservableObject {
         guard glossaryWork != nil else { return }
         glossaryWork?.cancel(); glossaryWork = nil
         try? FileManager.default.createDirectory(at: Self.glossaryURL.deletingLastPathComponent(), withIntermediateDirectories: true)
-        try? glossary.write(to: Self.glossaryURL, atomically: true, encoding: .utf8)
+        do {
+            try glossary.write(to: Self.glossaryURL, atomically: true, encoding: .utf8)
+            // Das Glossar enthält oft private Namen: nur für den Nutzer lesbar.
+            try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: Self.glossaryURL.path)
+        } catch {
+            NSLog("Dolmetscher: Glossar nicht gespeichert: %@", error.localizedDescription)
+            lastError = (L.t("glossary_save_failed"), Date())
+        }
         send(["glossary": glossary])
     }
     @Published var llm = (ud.object(forKey: "llm") as? Bool) ?? true { didSet { Self.ud.set(llm, forKey: "llm"); send(["llm": llm]) } }
@@ -818,7 +825,7 @@ final class EngineModel: NSObject, ObservableObject {
     private func launchEngine() {
         guard state == .stopped, !Paths.pythonIsFallback,
               let script = Bundle.main.path(forResource: "dolmetscher", ofType: "py") else { return }
-        signal(SIGPIPE, SIG_IGN)   // Schreiben in eine tote Pipe soll einen Fehler liefern, nicht die App beenden
+        protocolMismatch = nil      // eine neue Engine meldet ihre Protokollversion selbst (bei `ready`)
         modelOffline = false
         let p = Process()
         p.executableURL = URL(fileURLWithPath: Paths.python)
@@ -1262,7 +1269,7 @@ final class EngineModel: NSObject, ObservableObject {
             status = "⚠️ " + msg
             // Hinweis behält die Ursache der Engine (Ausnahme, Dateiname, Gerät) – nur dort, wo sie variiert
             let detail = code.map { Self.errorDetailCodes.contains($0) } == true ? raw : nil
-            lastError = (msg + (detail.map { " – " + $0 } ?? ""), Date())
+            lastError = (msg + (detail.map { " – " + DiagnosticsLogic.redact($0, home: NSHomeDirectory(), user: NSUserName()) } ?? ""), Date())
             lastErrorCode = code; lastErrorCodeDate = lastError?.date
             Announcer.post(msg, force: true)
         case "command": applyCommand(o)
@@ -1424,6 +1431,7 @@ final class EngineModel: NSObject, ObservableObject {
     /// Ältere Engines ignorieren das unbekannte Feld `clear`.
     func clearAll() {
         items.removeAll(); trimmedCount = 0; indexCache.removeAll(); deletedBubble = nil
+        viewingSession = nil
         unsureDrop = nil; failedDrop = nil; vocabSuggestion = nil
         send(["clear": true])
     }
@@ -1508,7 +1516,7 @@ final class EngineModel: NSObject, ObservableObject {
     private func applyCommand(_ o: [String: Any]) {
         applyingRemote = true
         defer { applyingRemote = false }
-        if o["clear"] as? Bool == true { items.removeAll(); trimmedCount = 0 }
+        if o["clear"] as? Bool == true { items.removeAll(); trimmedCount = 0; indexCache.removeAll(); viewingSession = nil; unsureDrop = nil; failedDrop = nil }
         if let p = o["langs"] as? [String: Any], let mi = Langs.valid(p["mine"] as? String),
            let pa = Langs.valid(p["partner"] as? String), mi != pa, (mi, pa) != (mineLang, partnerLang) {
             mineLang = mi                      // gleiche Sprache auf beiden Seiten tauscht didSet weg

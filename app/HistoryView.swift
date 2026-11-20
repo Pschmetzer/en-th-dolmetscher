@@ -353,6 +353,6 @@ struct HistoryView: View {
         guard let id = selection, let s = store.sessions.first(where: { $0.id == id }) else { return }
         m.viewingSession = ViewedSession(title: store.title(s), items: s.rows.map { Utterance(history: $0) })
         NSApp.activate(ignoringOtherApps: true)
-        for w in NSApp.windows where w.title == L.t("app_title") { w.makeKeyAndOrderFront(nil) }
+        for w in NSApp.windows where w.identifier == Prefs.mainWindowID { w.deminiaturize(nil); w.makeKeyAndOrderFront(nil) }
     }
 }
