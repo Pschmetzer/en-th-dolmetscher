@@ -99,9 +99,9 @@ final class WhisperStore {
         if NetStatus.shared.expensive && !allowCellular { cellularPending = true; return }
         progress = 0
         // Läuft der Download, wenn die App in den Hintergrund geht, bekommt er noch ein paar Sekunden Gnadenfrist.
-        let bg = UIApplication.shared.beginBackgroundTask(withName: "whisper-download")
+        let bg = BackgroundGrace(name: "whisper-download")
         task = Task {
-            defer { task = nil; progress = nil; UIApplication.shared.endBackgroundTask(bg) }
+            defer { task = nil; progress = nil; bg.end() }
             do {
                 try Self.prepareBase()
                 try? FileManager.default.createDirectory(at: Self.folder(variant), withIntermediateDirectories: true)
