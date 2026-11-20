@@ -4,6 +4,13 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### iOS speech, audio and translation, round 31
+
+- Whisper: time budget per recognition, fewer temperature fallbacks on low battery or heat, vocabulary prompt from names in the conversation, warm-up decode, adaptive pause threshold, language stickiness, skip clicks and silence.
+- Audio: `setCategory` only when it changes, one-time warning for narrow-band Bluetooth (HFP) input.
+- Translation: in-memory LRU cache, name protection for online translators, offline pivot via English, circuit breaker with backoff and visible remaining pause.
+- Model constants instead of magic numbers; haptics throttle; English units for the voice.
+
 ### Web Lite and phrase packs, round 22 (web)
 
 - 14 new scenario packs (156 in total): numbers and prices, negotiating, Buddhism and etiquette, scooter rental damage and deposit, describing symptoms in detail, avoiding tuk-tuk scams, embassy and consulate, spice level in food, deaf / hard of hearing / unable to speak, wheelchair and limited mobility, halal food and prayer, returns and complaints in shops, hotel room problems, lost wallet and cards. Thai lines machine-made, not checked by native speakers.
