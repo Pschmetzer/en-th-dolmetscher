@@ -5026,8 +5026,9 @@ def is_echo(text, lang, now=None):
 def hint(code, **kw):
     """Ereignis `hint`: einmalig/selten ein Tipp an den Nutzer (Code, die App lokalisiert)."""
     now = time.monotonic()
-    if now - _HINT_T.get(code, -1e9) >= HINT_EVERY_S:
-        _HINT_T[code] = now
+    key = f"{code}:{kw['what']}" if "what" in kw else code     # slow/stt und slow/tr sind verschiedene Hinweise
+    if now - _HINT_T.get(key, -1e9) >= HINT_EVERY_S:
+        _HINT_T[key] = now
         emit("hint", code=code, **kw)
 
 
@@ -5254,7 +5255,7 @@ def report_queue():
     """Rückstand (wartende Äußerungen / Ausgaben) an die App melden, nur bei Änderung."""
     with _QLOCK:
         q, sp = _QSTATE["stt_q"], _QSTATE["speaker"]
-        cur = (q.qsize() if q else 0, sp.pending() if sp else 0)
+        cur = (_backlog() if q else 0, sp.pending() if sp else 0)    # nur wartende Äußerungen, keine Aufgaben
         if cur != _QSTATE["last"]:
             _QSTATE["last"] = cur
             emit("queue", stt=cur[0], tts=cur[1])
@@ -7468,6 +7469,9 @@ def list_mics():
     return mics
 
 
+DECODE_MAX_S = 4 * 3600                # s Audio: längere --file-Dateien lehnt die Engine ab
+
+
 def decode_file(path):
     """Audiodatei -> float32 mono in SR, über denselben Kindprozess wie die Aufnahme (avhelper.py bzw.
     DOLMETSCHER_FFMPEG) – unabhängig von faster-whispers decode_audio und dessen PyAV-Anforderungen."""
@@ -7475,6 +7479,8 @@ def decode_file(path):
     if r.returncode != 0 and not r.stdout:
         raise RuntimeError((r.stderr or b"").decode("utf-8", "replace").strip()[-200:] or "Dekodieren fehlgeschlagen")
     raw = r.stdout
+    if len(raw) // 2 > DECODE_MAX_S * SR:      # float32 verdoppelt den Speicher: absurd lange Dateien nicht laden
+        raise RuntimeError(f"Datei zu lang (über {DECODE_MAX_S // 3600} Stunden)")
     return np.frombuffer(raw[:len(raw) // 2 * 2], dtype=np.int16).astype(np.float32) / 32768
 
 
@@ -7931,6 +7937,9 @@ def _pid_alive(pid):
     return True
 
 
+PID_REUSE_AGE_S = 7 * 86400.0          # s: so lange darf ein "lebender" PID-Ordner unberührt bleiben
+
+
 def clean_stale_tmp(base=None, max_age=3600):
     """Nr. 43/172: Reste abgestürzter Läufe (kill -9) – auch beim Start, nicht nur beim sauberen Ende.
     Nur eigene Einträge; ein Verzeichnis eines noch laufenden Prozesses (PID im Namen) bleibt immer."""
@@ -7944,7 +7953,9 @@ def clean_stale_tmp(base=None, max_age=3600):
                 continue
             m = re.match(r"dolmetscher_(\d+)_", os.path.basename(pth))
             if m and int(m.group(1)) != os.getpid() and _pid_alive(int(m.group(1))):
-                continue
+                if time.time() - st.st_mtime <= PID_REUSE_AGE_S:
+                    continue                   # läuft wirklich noch (Ordner wird laufend benutzt)
+                # Ordner seit Tagen unberührt, PID aber "lebt": wiederverwendete PID, der alte Lauf ist tot
             dead = bool(m) and int(m.group(1)) != os.getpid()
             if not dead and time.time() - st.st_mtime <= max_age:
                 continue

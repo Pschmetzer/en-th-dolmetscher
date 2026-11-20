@@ -65,6 +65,7 @@ Pull requests #16–#47. Not yet published as a release.
 - Backlog counts only waiting utterances; confidence is weighted by segment length; Thai gets a higher token cap; abbreviations (“Dr.”, “5 p.m.”) no longer end a sentence early; changing the language pair clears pre-recognition state.
 - Speaking path: a sentence no longer waits 180 s for a stuck player (limit follows the audio length); the Neural-voice connection is only opened after 0.35 s of speech; wrong system clock (HTTP 403) is corrected from the server time; open connections are closed on exit; duplicate microphone names are reported (`mic_ambiguous`).
 - Backlog handling also considers how much text is waiting (long sentences are skipped earlier, without pre-loading voices); a microphone that stops delivering data reconnects after 5 s; with `--model auto` the engine adapts to battery/mains while running (`power` event).
+- The `queue` event counts only waiting utterances (not pending app tasks); `slow` hints for recognition, translation and sound no longer suppress each other; leftover temp folders of a dead run are cleaned even when its process id was reused; `--file` rejects audio longer than 4 hours instead of exhausting memory.
 - Subtitle export removes its temporary database; a failing chunk of a `--file` run no longer stops the rest; engine start errors report `engine_init_failed`.
 
 ### Engine (speech recognition, translation, voice – used by the Mac app)
