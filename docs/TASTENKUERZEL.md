@@ -38,6 +38,7 @@ Wenn ein anderes Programm ein Kürzel schon belegt, zeigt die App einen Hinweis 
 | ⇧⌘C | letzte Übersetzung kopieren |
 | ⌥⌘L | Richtung wechseln (automatisch, dann je eine Sprache des Paars) |
 | ⌥⌘G | Wort zum Glossar hinzufügen |
+| ⌥⌘M | Mini-Fenster (Status, letzter Satz, Start/Stopp; bleibt im Vordergrund) |
 | ⌘L | Cursor ins Tippfeld |
 | ⌥⌘S | Vorlesen ein / aus |
 | ⌘/ | Kürzel-Übersicht (Hilfe-Menü) |

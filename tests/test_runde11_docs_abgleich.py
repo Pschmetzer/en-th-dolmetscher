@@ -85,7 +85,8 @@ def test_mac_menu_shortcuts_are_all_documented():
 
 def test_documented_mac_shortcuts_exist_in_code():
     in_code = _combos("app/DolmetscherApp.swift") | _combos("app/PartnerView.swift")
-    hotkeys = set(re.findall(r'name: "(⌃⌥[A-Z])"', _read("app/HotKeys.swift")))
+    # Runde 21: Buchstaben sind einstellbar; dokumentiert sind die Standardwerte aus HotKeyLogic
+    hotkeys = {"⌃⌥" + c for c in re.findall(r'defaultLetter: "([A-Z])"', _read("app/HotKeyLogic.swift"))}
     digits = {f"⌘{i}" for i in range(1, 10)} | {f"⌥⌘{i}" for i in range(1, 10)}
     allowed = in_code | hotkeys | digits | {"⌘=", "⌘C"} | _combos("ios/Dolmetscher/Views.swift")
     for rel in ("docs/TASTENKUERZEL.md", "docs/en/SHORTCUTS.md"):
