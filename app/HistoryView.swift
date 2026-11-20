@@ -110,6 +110,7 @@ struct HistoryView: View {
     @State private var confirmRemove: String?
     @State private var renaming: String?
     @State private var renameText = ""
+    @State private var showStats = false
     @FocusState private var searchFocused: Bool
     @AppStorage(L.key) private var uiLang = L.defaultCode
 
@@ -165,11 +166,37 @@ struct HistoryView: View {
             }
             Spacer()
             if store.loading { ProgressView().controlSize(.small).accessibilityLabel(L.t("hist_loading")) }
+            Button { showStats.toggle() } label: { Image(systemName: "chart.bar") }
+                .help(L.t("hist_stats")).accessibilityLabel(L.t("hist_stats"))
+                .disabled(store.sessions.isEmpty)
+                .popover(isPresented: $showStats) { statsView }
             Button { store.reload() } label: { Image(systemName: "arrow.clockwise") }
                 .help(L.t("hist_reload")).accessibilityLabel(L.t("hist_reload"))
                 .keyboardShortcut("r", modifiers: [.command, .shift])
         }
         .padding(.horizontal, 12).padding(.vertical, 8)
+    }
+
+    private var statsView: some View {
+        let st = HistoryLogic.stats(store.sessions)
+        return VStack(alignment: .leading, spacing: 8) {
+            Text(L.t("hist_stats")).font(.headline)
+            Text(L.f("hist_stats_totals", st.utterances, st.sessions, st.words)).monospacedDigit()
+            if !st.perDay.isEmpty {
+                Divider()
+                ForEach(st.perDay, id: \.0) { d in
+                    HStack { Text(d.0).monospacedDigit(); Spacer(); Text("\(d.1)").monospacedDigit() }
+                }
+            }
+            if !st.top.isEmpty {
+                Divider()
+                Text(L.t("hist_stats_top")).font(.subheadline).foregroundStyle(.secondary)
+                ForEach(st.top, id: \.0) { t in
+                    HStack { Text(t.0).lineLimit(1); Spacer(); Text("×\(t.1)").monospacedDigit() }
+                }
+            }
+        }
+        .padding(16).frame(width: 320)
     }
 
     private var filterMenu: some View {

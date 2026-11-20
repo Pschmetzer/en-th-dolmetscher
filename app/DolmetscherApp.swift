@@ -259,6 +259,7 @@ struct MenuBarContent: View {
         let st = MenuBarLogic.status(m.menuInput)
         Text(L.f("menu_engine_status", L.t(MenuBarLogic.labelKey(st))))
         if !m.status.isEmpty { Text(m.status) }
+        if let med = m.latencyMedian { Text("⏱ " + fmtSeconds(med)).help(L.t("latency_help")) }
         Divider()
         Button(m.active ? L.t("stop") : L.t("start")) { m.toggle() }
             .disabled(!MenuBarLogic.canToggle(st))

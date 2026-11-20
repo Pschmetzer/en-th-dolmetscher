@@ -123,3 +123,9 @@ def test_quick_phrase_import_export():
     import pathlib
     sv = pathlib.Path("app/SettingsView.swift").read_text()
     assert "QuickPhraseImport.merge" in sv and "exportPhrases" in sv
+
+
+def test_history_stats_and_menu_latency():
+    import pathlib
+    assert "HistoryLogic.stats" in pathlib.Path("app/HistoryView.swift").read_text()
+    assert "latencyMedian" in pathlib.Path("app/DolmetscherApp.swift").read_text()

@@ -159,6 +159,7 @@ Pull requests #16–#47. Not yet published as a release.
 - **Wave 12** (review fix): a text to be spoken (service, menu bar, clipboard) that arrives before the engine is ready is now queued and spoken once it is loaded instead of being dropped.
 - **Wave 13** (new feature): quick phrases can be exported to a text file and imported (merged, duplicates skipped, 200 characters per line) in Settings.
 - **Wave 14** (new feature): a history session can be exported as SRT subtitles (translation, then original, timed from the first line).
+- **Wave 15** (new features): History statistics popover (utterances, sessions, words, last 7 days, most frequent sentences); the menu bar menu shows the median latency.
 - **Wave 9** (#155, new features): "Translate clipboard" (menu bar item and global shortcut ⌃⌥C; text is flattened, shortened to 1000 characters and spoken in the language of its script); the macOS fallback voice volume is clamped in one place and Settings explains that more than 100 % applies to the neural voice only; the diagnostic report is now in English for support; new XCTest tests for the clipboard and volume logic.
 - **Wave 10** (new features): the system Services menu offers "Translate with Dolmetscher" for selected text in any app (`NSServices`, the text is spoken, not replaced); a single history session can be exported as Markdown with timestamps or as CSV; 40 XCTest tests.
 
