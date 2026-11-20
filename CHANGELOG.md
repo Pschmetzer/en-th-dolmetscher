@@ -6,6 +6,10 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 Pull requests #16–#47. Not yet published as a release.
 
+### Engine robustness, round 21 (Python 2)
+
+- Engine: a deeply nested JSON line on stdin (or `--profile-stdin`) no longer stops the engine; `history_days: false` and `llm_retry: "false"` are read strictly; `say` without `lang` uses my language; a mic drop after speech keeps the recording.
+
 ### Security review, round 21
 
 - Mac: allowing a `dolmetscher://` call in the confirmation dialog now applies to that one call only; permanent permission is set only with the Settings switch.
