@@ -6679,6 +6679,7 @@ CTRL_KEYS = frozenset({
 CTRL_KEYS |= {"let_finish", "catch_up", "beam", "llm_retry", "clear", "cache_persist", "history_speakers"}   # Runde 6/7
 CTRL_KEYS |= {"currency"}                                                                           # Runde 21
 CTRL_KEYS |= {"echo_guard"}                                                                         # Runde 8
+CTRL_KEYS |= {"api_key"}   # Runde 21: Schlüssel per stdin statt Umgebung (nie geloggt)
 
 
 def apply_control(eng, d):
@@ -6687,6 +6688,11 @@ def apply_control(eng, d):
     Feldwerte werden unter _CTRL_LOCK gesetzt; langsame Aktionen (Mikrofon, Profile, Datei) laufen danach."""
     global SILENCE_END, TTS_RACE
     later = []                                 # langsame Aktionen, bewusst außerhalb des Locks
+    _k = d.get("api_key")
+    if isinstance(_k, str) and 20 <= len(_k.strip()) <= 512 and _k.strip().isprintable():
+        os.environ["ANTHROPIC_API_KEY"] = _k.strip()   # nur im Speicher; kommt nie ins Log (nicht in CTRL_LOG_KEYS)
+        with _LLM_CLIENT_LOCK:
+            LLM["client"] = None                       # Client mit dem neuen Schlüssel neu bauen
     jobs, mic_job = [], None                   # Nr. 185: mehrere Aufgaben je Zeile (listen + say) – keine geht verloren
     with _CTRL_LOCK:
         if "langs" in d:                       # zuerst: tr_*/lang/voice_* unten beziehen sich auf das neue Paar

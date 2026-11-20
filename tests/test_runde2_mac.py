@@ -33,7 +33,7 @@ def test_auto_scroll_wertet_inhalt_statt_nur_mausrad():
 def test_schriftzoom_ueberall():
     v = APP["Views.swift"]
     assert "struct ScaledFont: ViewModifier" in v
-    for snippet in ('Text(m.status).scaledFont(13, .semibold)', 'Text(text).scaledFont(12)',
+    for snippet in ('Text(parts.text).lineLimit(2)', 'Text(text).scaledFont(12)',
                     '.scaledFont(26, .semibold)'):
         assert snippet in v, snippet
     assert 'Text(m.status).font(.headline)' not in v and 'Text(text).font(.callout)' not in v

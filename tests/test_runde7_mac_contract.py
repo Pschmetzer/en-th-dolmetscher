@@ -62,7 +62,9 @@ def test_bubble_a11y_mentions_number_warning_weak_mt_speaker():
 def test_helper_processes_get_no_api_key():
     p = APP["Paths.swift"]
     assert "engineEnvironment(includeKey: Bool = false)" in p
-    assert "Paths.engineEnvironment(includeKey: true)" in APP["Engine.swift"]
+    # Runde 21: auch die Engine bekommt den Schlüssel nicht mehr in der Umgebung (ps eww), sondern per stdin
+    assert "Paths.engineEnvironment(includeKey: true)" not in APP["Engine.swift"]
+    assert '["api_key": key]' in APP["Engine.swift"]
     assert "engineEnvironment()" in APP["Profiles.swift"]
     assert "includeKey: true" not in APP["Profiles.swift"]
 

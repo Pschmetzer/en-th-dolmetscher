@@ -67,7 +67,7 @@ def test_settings_search_index_uses_existing_keys_and_tabs():
     l10n = _src("L10n.swift")
     for key, tab in pairs:
         assert f'"{key}": [' in l10n, key
-        assert int(tab) in range(4)
+        assert int(tab) in range(5)   # Runde 21: Reiter 4 = Erweitert & Datenschutz
     assert st.count(".tag(") >= 4
 
 

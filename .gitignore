@@ -22,3 +22,5 @@ tools/translate-helper/translate-helper
 coverage.xml
 tests/web-e2e/node_modules/
 tests/web-e2e/package-lock.json
+swift-tests/.build/
+swift-tests/.swiftpm/
