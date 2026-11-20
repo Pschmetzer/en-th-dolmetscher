@@ -17,7 +17,7 @@ Hilfe > „Selbsttest …“ prüft Mikrofon, Lautsprecher, Netz, Sprachmodelle 
 2. Bei einem getrennten Mikrofon versucht die App es selbst erneut, zuerst mehrfach, dann alle 10 Sekunden. Stecke es wieder an.
 3. Prüfe, ob der Zugriff erlaubt ist (siehe oben).
 
-**Browser:** Meldung „Mikrofon blockiert“: in den Website-Einstellungen des Browsers das Mikrofon erlauben (Chrome: Symbol links in der Adresszeile). Meldung „Spracherkennung nicht erlaubt“ in Safari oder auf dem iPhone: Diktierfunktion einschalten (Einstellungen, Allgemein, Tastatur, Diktierfunktion). Firefox hat keine Spracherkennung, nimm Chrome.
+**Browser:** Meldung „Mikrofon blockiert“: in den Website-Einstellungen des Browsers das Mikrofon erlauben (Chrome: Symbol links in der Adresszeile). Meldung „Spracherkennung nicht erlaubt“ in Safari oder auf dem iPhone: Diktierfunktion einschalten (Einstellungen, Allgemein, Tastatur, Diktierfunktion). Firefox hat keine Spracherkennung: nimm Chrome, oder nutze Satzbuch und „Zwei Personen (Tippen)“. Wenn Übersetzen plötzlich nicht mehr geht: Die Dienste Google (inoffizieller Endpunkt) und MyMemory können ausfallen oder Grenzen setzen; das Satzbuch geht trotzdem. Die Seite zeigt dann einen Hinweis statt einer falschen Übersetzung.
 
 **iPhone:** Mikrofon und Spracherkennung in den iOS-Einstellungen für die App erlauben.
 

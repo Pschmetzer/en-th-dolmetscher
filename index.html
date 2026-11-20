@@ -93,6 +93,8 @@
   #convo .far { transform:rotate(180deg); border-bottom:3px solid var(--line); }
   #convo .out { flex:1; min-height:0; overflow:auto; display:flex; align-items:center; justify-content:center; text-align:center; font-size:clamp(22px,6vw,52px); font-weight:700; overflow-wrap:anywhere; white-space:pre-line; }
   #convo .cin { display:flex; flex-direction:column; gap:4px; font-size:13px; color:var(--mut); } #convo textarea { width:100%; font:inherit; font-size:18px; }
+  .note:empty { display:none; }
+  #learnDue + span { margin-left:.25em; }   /* Abstand vor "fällig)" (Leerzeichen am Spananfang gehen in Flex-Zeilen verloren) */
   .skip { position:absolute; left:8px; top:-100px; z-index:20; background:var(--card); color:var(--fg); border:2px solid var(--focus); border-radius:8px; padding:10px 14px; }
   .skip:focus { top:8px; }
   #pbQ { font:inherit; color:var(--fg); background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 8px; min-height:44px; min-width:0; }
@@ -124,7 +126,8 @@
   #partnerText.crit { border:6px solid var(--crit); border-radius:16px; padding:12px; }
   .card .crit-b { display:block; font-size:12px; font-weight:700; color:var(--crit); }
   .cardwrap .card { min-height:92px; padding-bottom:40px; }   /* Platz für 🔗/🔊 unten rechts: lange Thai-Sätze laufen nicht darunter */
-  .sharec { position:absolute; bottom:4px; right:52px; min-width:44px; min-height:44px; background:transparent; border:0; border-radius:8px; font-size:20px; cursor:pointer; }
+  .sharec { position:absolute; bottom:4px; right:100px; min-width:44px; min-height:44px; background:transparent; border:0; border-radius:8px; font-size:20px; cursor:pointer; }
+  .slowc { position:absolute; bottom:4px; right:52px; min-width:44px; min-height:44px; background:transparent; border:0; border-radius:8px; font-size:20px; cursor:pointer; }
   .speakc { position:absolute; bottom:4px; right:4px; min-width:44px; min-height:44px; background:transparent; border:0; border-radius:8px; font-size:20px; cursor:pointer; }
   .star { position:absolute; top:4px; right:4px; min-width:44px; min-height:44px; background:transparent; border:0; border-radius:8px; font-size:22px; cursor:pointer; color:var(--mut); }
   .star[aria-pressed="true"] { color:var(--star); }
@@ -194,6 +197,7 @@
     #printSheet h1 { font-size:20px; } #printSheet table { width:100%; border-collapse:collapse; }
     #printSheet td { border-bottom:1px solid #999; padding:6px 4px; vertical-align:top; }
     #printSheet .th { font-size:22px; font-weight:700; } #printSheet .sm { font-size:11px; color:#333; }
+    #printSheet .pcard { break-inside:avoid; border:2px solid #000; border-radius:8px; padding:12px; margin:0 0 14px; } #printSheet .pbig { font-size:34px; font-weight:700; line-height:1.4; }
     #printSheet tr { break-inside:avoid; } #printSheet .crit td:first-child { border-left:4px solid #000; }
   }
   #partnerNote { font-size:16px; font-weight:600; color:var(--fg); text-align:center; padding:6px 8px; border-top:3px solid var(--crit); }   /* geteilter Fremdtext: Hinweis gut sichtbar (Betrugsschutz) */
@@ -221,7 +225,7 @@
 <div class="wrap" id="main" tabindex="-1">
 <header>
   <h1><span aria-hidden="true">🌐</span> Dolmetscher <small style="color:var(--mut);font-weight:400">Web Lite</small></h1>
-  <span id="status" aria-live="off">Bereit</span>
+  <span id="status" aria-live="off" data-i18n="ready">Bereit</span>
   <select id="uiLang" aria-label="Sprache der Oberfläche / Interface language / ภาษาหน้าจอ"><option value="de">Deutsch</option><option value="en">English</option><option value="th">ไทย</option></select>
   <span class="tools"><button class="small" id="btnTheme" type="button">◐</button><button class="small" id="btnTextDown" type="button">A−</button><button class="small" id="btnTextUp" type="button">A+</button></span>
   <span id="swState" role="status"></span>
@@ -341,6 +345,12 @@
     <button class="small" id="clkSay" type="button" data-i18n="read">🔊 Vorlesen</button>
   </div>
   <div id="clkOut" class="big-out" lang="th" aria-live="polite"></div>
+  <div class="row">
+    <label><input id="rateIn" inputmode="decimal" maxlength="8" size="7" autocomplete="off"> <span data-i18n="rateLbl">Kurs: ฿ für 1 Einheit meiner Währung</span></label>
+    <label><input id="homeIn" inputmode="decimal" maxlength="12" size="9" autocomplete="off"> <span data-i18n="homeLbl">Betrag in meiner Währung</span></label>
+    <button class="small" id="fxTake" type="button" data-i18n="fxTake" hidden>In Betragsfeld übernehmen</button>
+  </div>
+  <div id="fxOut" class="note" aria-live="polite"></div>
   <p class="note" data-i18n="numNote">Gegenüber handelt? Gerät weitergeben: Der Betrag steht groß in Ziffern, das Gegenüber tippt seinen Preis selbst ein. Thai-Zahlwörter sind maschinell erzeugt und unverbindlich.</p>
   <details><summary data-i18n="digitsSum">Thai-Ziffern lesen (Schilder, Taxameter)</summary><div id="digitTab" class="tiles" lang="th"></div></details>
 </details>
@@ -358,6 +368,7 @@
     <button class="small" id="myAdd" type="button" data-i18n="save">Speichern</button>
     <button class="small" id="myCancel" type="button" data-i18n="mcCancel" hidden>Abbrechen</button>
     <button class="small" id="myExport" type="button" data-i18n="mcExport">Exportieren</button>
+    <button class="small" id="myPrint" type="button" data-i18n="myPrint">Karten drucken</button>
     <button class="small" id="myImport" type="button" data-i18n="mcImport">Importieren</button>
     <span hidden><label><input type="file" id="myFile" accept="application/json,.json"> Datei</label></span>
     <label><select id="myGrpSel"></select> <span data-i18n="mcFilter">Gruppe zeigen</span></label>
@@ -826,7 +837,14 @@ const STR = {
   "timeLbl": "Uhrzeit",
   "phoneLbl": "Telefonnummer",
   "uiLoadFail": "Sprachdatei nicht geladen (Netz?). Es bleibt bei Deutsch.",
-  "invLbl": "Vorzeigen: Farben tauschen (schwarz auf weiß)"
+  "invLbl": "Vorzeigen: Farben tauschen (schwarz auf weiß)",
+  "rateLbl": "Kurs: ฿ für 1 Einheit meiner Währung",
+  "homeLbl": "Betrag in meiner Währung",
+  "fxToBaht": "{h} ≈ {b} ฿",
+  "fxTake": "In Betragsfeld übernehmen",
+  "fxBack": "{b} ฿ ≈ {h} in meiner Währung",
+  "myPrint": "Karten drucken",
+  "myPrintNone": "Keine Karten zum Drucken."
  }
 };   // nur Deutsch (Standard und Rückfall) eingebaut; en/th liegen in i18n/*.json (vom Service Worker gespeichert)
 const UI_LANGS = ['de', 'en', 'th'];
@@ -1711,6 +1729,10 @@ async function renderCards() {
       try { sayNow(await phraseIn(p, b), b); } catch { msg.textContent = t('trUnavailable'); }
     };
     w.appendChild(sp);
+    const sl = document.createElement('button'); sl.type = 'button'; sl.className = 'slowc'; sl.textContent = '🐢';   // langsam wiederholen: zum Mitsprechen
+    sl.setAttribute('aria-label', t('slowLbl')); sl.title = t('slowLbl');
+    sl.onclick = async () => { try { sayNow(await phraseIn(p, b), b, true); } catch { msg.textContent = t('trUnavailable'); } };
+    w.appendChild(sl);
     c._p = p;
     c.onclick = async () => {
       if (seqMode) { c.classList.toggle('sel'); return; }
@@ -2088,6 +2110,17 @@ $('btnPartnerShare').onclick = () => { if (bigCtx && bigCtx.idx >= 0) shareFav(b
 function openFromHash() {
   const boxes = { '#numbers': 'numBox', '#allergy': 'allergyBox', '#learn': 'learnBox' };   // PWA-Kürzel
   if (boxes[location.hash]) { const b = $(boxes[location.hash]); try { history.replaceState(null, '', location.pathname + location.search); } catch {} showTab(b.dataset.tab); b.open = true; b.scrollIntoView(); return; }
+  const [tabHash, ...tabOpts] = location.hash.slice(1).split('&');   // #book oder #book&ui=en: Bereich direkt öffnen (Lesezeichen, Screenshots)
+  if (TABS.includes(tabHash)) {
+    try { history.replaceState(null, '', location.pathname + location.search); } catch {}
+    $('notesBox').open = false; showTab(tabHash);
+    const opt = k => { const o = tabOpts.map(x => x.split('=')).find(x => x[0] === k); return o ? o[1] : null; };
+    const box = ['pbBox', 'numBox', 'myBox', 'allergyBox', 'glossBox', 'learnBox'].find(id => id === opt('open'));   // nur feste Werte aus der Liste (kein Fremdwert im DOM-Zugriff)
+    if (box) { if (box !== 'pbBox') $('pbBox').open = false; $(box).open = true; }
+    const ui = UI_LANGS.find(l => l === opt('ui'));   // Oberflächensprache nur für diese Sitzung
+    if (ui && ui !== UI) { UI = ui; refreshUi(); loadUi(UI).then(ok => { if (ok) refreshUi(); }); }
+    return;
+  }
   if (applyDeepLink()) return;
   const f = parseFav(location.hash, PRESET_IDS);
   if (f) { try { history.replaceState(null, '', location.pathname + location.search); } catch {} openFav(f); return; }
@@ -2283,6 +2316,9 @@ function thaiNumber(n) {
   if (n >= 1e6) return thaiNumber(Math.floor(n / 1e6)) + 'ล้าน' + (n % 1e6 ? thaiBelow(n % 1e6, true) : '');
   return thaiBelow(n, false);
 }
+function fxNum(raw) { const n = Number(String(raw || '').trim().replace(',', '.')); return Number.isFinite(n) && n > 0 && n < 1e9 ? n : null; }   // "36,5" und "36.5"
+function fxToBaht(home, rate) { const h = fxNum(home), r = fxNum(rate); return h === null || r === null ? null : Math.round(h * r); }   // ganze Baht
+function fxFromBaht(baht, rate) { const b = fxNum(baht), r = fxNum(rate); return b === null || r === null ? null : Math.round(b / r * 100) / 100; }
 function thaiClock(h, m) {   // 24-Stunden-Zeit als Thai gesprochen (หกโมงเช้า, บ่ายสองโมง, สามทุ่ม, ตีหนึ่ง); null bei ungültiger Eingabe
   h = Number(h); m = Number(m);
   if (!Number.isInteger(h) || !Number.isInteger(m) || h < 0 || h > 23 || m < 0 || m > 59) return null;
@@ -2554,6 +2590,15 @@ $('convoClose').onclick = () => convoOpen(false);
   $('timeIn').addEventListener('input', updc); $('phoneIn').addEventListener('input', updc);
   $('clkShow').onclick = () => { const x = clk(); if (x) showBig(x, 'th'); };
   $('clkSay').onclick = () => { const x = clk(); if (x) sayNow(x, 'th'); };
+  const fx = () => {   // Wechselkurs-Rechner: Kurs wird gemerkt (webSettings), nichts wird gesendet
+    const r = $('rateIn').value, b = fxToBaht($('homeIn').value, r), nb = parseAmount($('numIn').value), back = nb === null ? null : fxFromBaht(nb, r);
+    if (fxNum(r) !== null && settings.fx !== r) { settings.fx = r; saveSettingsSoon(); }
+    $('fxTake').hidden = b === null;
+    $('fxOut').textContent = b !== null ? t('fxToBaht', { h: $('homeIn').value.trim(), b }) : back !== null ? t('fxBack', { b: nb, h: back }) : '';
+  };
+  $('rateIn').value = settings.fx || '';
+  $('rateIn').addEventListener('input', fx); $('homeIn').addEventListener('input', fx); $('numIn').addEventListener('input', fx);
+  $('fxTake').onclick = () => { const b = fxToBaht($('homeIn').value, $('rateIn').value); if (b !== null) { $('numIn').value = String(b); $('numIn').dispatchEvent(new Event('input')); } };
   $('numIn').addEventListener('input', upd); $('numUnit').addEventListener('change', upd);
   $('numShow').onclick = () => { const n = parseAmount($('numIn').value); if (n !== null) showBig(amountCard(n, $('numUnit').value), 'th'); };
   $('numSay').onclick = () => { const n = parseAmount($('numIn').value); if (n !== null) sayNow(thaiNumber(n) + ($('numUnit').value === '฿' ? 'บาท' : ''), 'th'); };
@@ -2650,6 +2695,19 @@ $('myAdd').onclick = () => {
   if (mySave(nx)) myEditEnd();
 };
 $('myExport').onclick = () => { if (!myCards.length) { setStatus(t('mcNoneExport'), true); return; } download('dolmetscher-eigene-saetze.json', myExport(myCards), 'application/json'); setStatus(t('mcExported', { n: myCards.length }), true); };
+$('myPrint').onclick = () => {   // Karten (Hotel, Adresse, Treffpunkt) als A4-Blatt: groß in der Sprache des Partners, darunter die eigene
+  const list = myCards.filter(c => !myFilter || c.grp === myFilter);
+  if (!list.length) { setStatus(t('myPrintNone'), true); return; }
+  const sh = $('printSheet'); sh.textContent = '';
+  for (const c of list) {
+    const d = document.createElement('div'); d.className = 'pcard';
+    const h = document.createElement('div'); h.className = 'sm'; h.textContent = c.label; d.appendChild(h);
+    const big = document.createElement('div'); big.className = 'pbig'; big.lang = c.lang; big.textContent = c.lang === pair.b ? c.text : (c.tr || c.text); d.appendChild(big);
+    const sm = document.createElement('div'); sm.className = 'sm'; sm.lang = c.lang === pair.b ? c.trl || pair.a : c.lang; sm.textContent = c.lang === pair.b ? (c.tr || '') : c.text; d.appendChild(sm);
+    sh.appendChild(d);
+  }
+  window.print();
+};
 $('myImport').onclick = () => $('myFile').click();
 $('myFile').onchange = () => {
   const f = $('myFile').files[0]; $('myFile').value = '';
@@ -3032,7 +3090,7 @@ $('btnTextDown').onclick = () => setUiScale(uiScale - FS_STEP);
 $('btnTextUp').onclick = () => setUiScale(uiScale + FS_STEP);
 $('uiLang').value = UI;
 function refreshUi() {   // nach Sprachwechsel oder nach dem Nachladen der Texte alles neu beschriften
-  applyUi(); renderAppState(); renderWarn();
+  $('uiLang').value = UI; applyUi(); renderAppState(); renderWarn();
   if (LANGS[pair.a]) { fillLangSelects(); buildModes(); fillPresetSelect(); renderCards(); statsRender(); updatePreBtn(); renderRecent(); learnRender(); if (allergyData) { allergyTiles('allergyTiles', allergyData.allergies); allergyTiles('condTiles', allergyData.conditions); } }
 }
 $('uiLang').onchange = async () => {
