@@ -1022,6 +1022,10 @@ enum L {
         "volume_system_cap": ["de": "Über 100 % gilt nur für die Neural-Stimme; die macOS-Ersatzstimme spielt höchstens 100 %.",
                               "en": "Above 100 % applies to the neural voice only; the macOS fallback voice plays at 100 % at most.",
                               "th": "เกิน 100% ใช้ได้กับเสียงนิวรัลเท่านั้น เสียงสำรองของ macOS สูงสุด 100%"],
+        "hist_stats": ["de": "Statistik", "en": "Statistics", "th": "สถิติ"],
+        "hist_stats_totals": ["de": "%d Äußerungen · %d Sitzungen · %d Wörter", "en": "%d utterances · %d sessions · %d words",
+                              "th": "%d ประโยค · %d เซสชัน · %d คำ"],
+        "hist_stats_top": ["de": "Häufigste Sätze", "en": "Most frequent sentences", "th": "ประโยคที่พบบ่อย"],
         "hist_export": ["de": "Sitzung exportieren", "en": "Export session", "th": "ส่งออกเซสชัน"],
         // Tempo-Ausbau
         "then_start": ["de": "– startet danach", "en": "– starts afterwards", "th": "– จะเริ่มหลังจากนั้น"],
