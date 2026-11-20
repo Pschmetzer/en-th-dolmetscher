@@ -1677,8 +1677,10 @@ final class EngineModel: NSObject, ObservableObject {
     }
 
     /// Text aus der Zwischenablage übersetzen und vorlesen (Menüleiste, ⌃⌥C): Sprache nach Schrift, auf 1000 Zeichen gekürzt.
-    func translateClipboard() {
-        let raw = NSPasteboard.general.string(forType: .string)
+    func translateClipboard() { translateText(NSPasteboard.general.string(forType: .string)) }
+
+    /// Beliebigen Text (Zwischenablage, Dienst „Mit Dolmetscher übersetzen“) aufbereiten, übersetzen und vorlesen.
+    func translateText(_ raw: String?) {
         guard let text = ClipboardLogic.prepare(raw) else { Announcer.post(L.t("clipboard_empty"), force: true); return }
         if ClipboardLogic.wasTruncated(raw) { Announcer.post(L.t("clipboard_truncated")) }
         say(text, lang: Prefs.phraseLang(text))

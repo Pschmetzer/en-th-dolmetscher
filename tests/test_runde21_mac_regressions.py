@@ -92,3 +92,12 @@ def test_diagnostic_report_is_english():
     for de in ("verweigert", "nicht gefragt", "Modelle im Cache", "Mikrofon-Berechtigung"):
         assert de not in s, de
     assert "Microphone permission: " in s
+
+
+def test_service_for_selected_text():
+    build = (APP.parent / "build.sh").read_text(encoding="utf-8")
+    assert "<key>NSServices</key>" in build and "<string>translateSelection</string>" in build
+    app = src("DolmetscherApp.swift")
+    assert "func translateSelection(_ pboard: NSPasteboard" in app
+    assert "NSApp.servicesProvider = TranslateService.shared" in app
+    assert "func translateText(_ raw: String?)" in src("Engine.swift")

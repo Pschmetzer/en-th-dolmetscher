@@ -281,6 +281,12 @@ struct HistoryView: View {
                     .accessibilityLabel(store.meta.favorites.contains(s.id) ? L.t("hist_unfavorite") : L.t("hist_favorite"))
                     Button { startRename(s.id) } label: { Image(systemName: "pencil") }
                         .help(L.t("hist_rename")).accessibilityLabel(L.t("hist_rename"))
+                    Menu {
+                        Button("Markdown (.md)") { exportSession(s, csv: false) }
+                        Button("CSV (.csv)") { exportSession(s, csv: true) }
+                    } label: { Image(systemName: "square.and.arrow.up") }
+                        .menuStyle(.borderlessButton).fixedSize()
+                        .help(L.t("hist_export")).accessibilityLabel(L.t("hist_export"))
                     Button(L.t("hist_open")) { openSelected() }
                         .buttonStyle(.borderedProminent)
                     Button(role: .destructive) { confirmRemove = s.id } label: { Image(systemName: "trash") }
@@ -349,6 +355,18 @@ struct HistoryView: View {
     private func commitRename() {
         if let id = renaming { store.rename(id, to: renameText) }
         renaming = nil
+    }
+
+    /// Eine Sitzung als Markdown (mit Zeitstempeln) oder CSV speichern.
+    private func exportSession(_ s: HistorySession, csv: Bool) {
+        let title = store.title(s)
+        let panel = NSSavePanel()
+        panel.title = L.t("hist_export")
+        panel.nameFieldStringValue = ExportFormats.fileName(base: title, date: s.start, ext: csv ? "csv" : "md")
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        let text = csv ? HistoryLogic.csv(s) : HistoryLogic.markdown(s, title: title)
+        do { try ExportFormats.fileData(text, csv: csv).write(to: url, options: .atomic) }
+        catch { NSAlert(error: error).runModal() }
     }
 
     /// Gewählte Sitzung nur lesend im Hauptfenster zeigen.
