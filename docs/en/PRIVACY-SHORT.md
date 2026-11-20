@@ -33,7 +33,7 @@ Facts only, taken from [DATENSCHUTZ.md](../DATENSCHUTZ.md) (German), which has t
 ## iPhone
 
 - Speech recognition on the device; the audio is neither sent nor stored.
-- MyMemory (only as fallback, only with "Online translator as fallback" on) is queried with GET, so the text is in the URL.
+- Online translator (only with "Online translator as fallback" on): Google Translate, with POST in the request body. If Google has not answered after 1.2 s, MyMemory starts in parallel (also with POST); the text then goes to both services for a moment and is never in the URL.
 - History local in `history.json`, 30 days by default (adjustable, 0 switches it off), lockable with Face ID. "Delete all data" is in the settings.
 - Location is only used on the "Help now" screen and is neither stored nor sent by the app.
 - The app only downloads the Whisper model when you tap "Download model" (from Hugging Face).

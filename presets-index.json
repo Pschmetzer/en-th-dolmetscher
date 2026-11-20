@@ -566,6 +566,46 @@
    ]
   },
   {
+   "id": "apartment-host-checkin",
+   "names": {
+    "de": "Vermieter und Self-Check-in",
+    "en": "Apartment host and self check-in",
+    "th": "เจ้าของที่พักและเช็กอินเอง"
+   },
+   "phrases": 24,
+   "critical": 5,
+   "reviewed": false,
+   "category": "stay",
+   "keywords": [
+    "key box",
+    "code",
+    "host",
+    "air conditioning",
+    "rubbish",
+    "wi-fi",
+    "airbnb",
+    "vermieter",
+    "schlüssel",
+    "ที่พัก",
+    "กุญแจ",
+    "เช็กอิน"
+   ],
+   "keywords_de": [
+    "airbnb",
+    "vermieter",
+    "schlüssel",
+    "check-in",
+    "wohnung",
+    "schlüsselbox"
+   ],
+   "keywords_th": [
+    "ที่พัก",
+    "กุญแจ",
+    "เช็กอิน",
+    "เจ้าของห้อง"
+   ]
+  },
+  {
    "id": "atm-bank-card",
    "names": {
     "de": "Geldautomat: Karte und Limit",
@@ -711,6 +751,46 @@
     "deposit",
     "withdraw",
     "application form"
+   ]
+  },
+  {
+   "id": "bank-transfer-abroad",
+   "names": {
+    "de": "Auslandsüberweisung",
+    "en": "International money transfer",
+    "th": "โอนเงินระหว่างประเทศ"
+   },
+   "phrases": 22,
+   "critical": 5,
+   "reviewed": false,
+   "category": "money",
+   "keywords": [
+    "transfer",
+    "exchange rate",
+    "fee",
+    "account number",
+    "swift code",
+    "transfer slip",
+    "überweisung",
+    "ausland",
+    "wechselkurs",
+    "โอนเงิน",
+    "ต่างประเทศ",
+    "อัตราแลกเปลี่ยน"
+   ],
+   "keywords_de": [
+    "überweisung",
+    "ausland",
+    "wechselkurs",
+    "gebühren",
+    "swift",
+    "geld senden"
+   ],
+   "keywords_th": [
+    "โอนเงิน",
+    "ต่างประเทศ",
+    "อัตราแลกเปลี่ยน",
+    "ค่าธรรมเนียม"
    ]
   },
   {
@@ -1062,6 +1142,45 @@
    ]
   },
   {
+   "id": "customer-service-complaint",
+   "names": {
+    "de": "Beschwerde beim Kundenservice",
+    "en": "Complaint to customer service",
+    "th": "ร้องเรียนฝ่ายบริการลูกค้า"
+   },
+   "phrases": 24,
+   "critical": 5,
+   "reviewed": false,
+   "category": "general",
+   "keywords": [
+    "complaint",
+    "manager",
+    "receipt",
+    "replacement",
+    "hotline",
+    "proof",
+    "beschwerde",
+    "kundenservice",
+    "reklamation",
+    "ร้องเรียน",
+    "บริการลูกค้า",
+    "ผู้จัดการ"
+   ],
+   "keywords_de": [
+    "beschwerde",
+    "kundenservice",
+    "reklamation",
+    "manager",
+    "hotline"
+   ],
+   "keywords_th": [
+    "ร้องเรียน",
+    "บริการลูกค้า",
+    "ผู้จัดการ",
+    "เรียกเงินคืน"
+   ]
+  },
+  {
    "id": "customs-duty-free",
    "names": {
     "de": "Zoll / Duty-free",
@@ -1106,6 +1225,44 @@
    ]
   },
   {
+   "id": "diabetes-insulin",
+   "names": {
+    "de": "Diabetes und Insulin",
+    "en": "Diabetes and insulin",
+    "th": "เบาหวานและอินซูลิน"
+   },
+   "phrases": 21,
+   "critical": 5,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "insulin",
+    "blood sugar",
+    "needle",
+    "test strip",
+    "diabetes",
+    "low blood sugar",
+    "zucker",
+    "เบาหวาน",
+    "อินซูลิน",
+    "น้ำตาล"
+   ],
+   "keywords_de": [
+    "diabetes",
+    "zucker",
+    "insulin",
+    "unterzucker",
+    "blutzucker",
+    "spritze"
+   ],
+   "keywords_th": [
+    "เบาหวาน",
+    "อินซูลิน",
+    "น้ำตาล",
+    "เข็มฉีดยา"
+   ]
+  },
+  {
    "id": "diving",
    "names": {
     "de": "Tauchen und Schnorcheln",
@@ -1123,6 +1280,45 @@
     "fins",
     "oxygen tank",
     "wetsuit"
+   ]
+  },
+  {
+   "id": "diving-medical-clearance",
+   "names": {
+    "de": "Tauchtauglichkeit beim Arzt",
+    "en": "Dive medical clearance",
+    "th": "ใบรับรองแพทย์สำหรับดำน้ำ"
+   },
+   "phrases": 22,
+   "critical": 6,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "diving",
+    "certificate",
+    "ear",
+    "lungs",
+    "asthma",
+    "decompression",
+    "tauchen",
+    "tauchtauglichkeit",
+    "tauchschein",
+    "ดำน้ำ",
+    "ใบรับรองแพทย์",
+    "โรคน้ำหนีบ"
+   ],
+   "keywords_de": [
+    "tauchen",
+    "tauchtauglichkeit",
+    "tauchschein",
+    "ohren",
+    "dekompression"
+   ],
+   "keywords_th": [
+    "ดำน้ำ",
+    "ใบรับรองแพทย์",
+    "โรคน้ำหนีบ",
+    "หู"
    ]
   },
   {
@@ -1187,6 +1383,46 @@
    ]
   },
   {
+   "id": "drugs-medication-import",
+   "names": {
+    "de": "Medikamente einführen",
+    "en": "Bringing medication in",
+    "th": "นำยาเข้าประเทศไทย"
+   },
+   "phrases": 22,
+   "critical": 5,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "prescription",
+    "permit",
+    "customs",
+    "doctor's letter",
+    "tablet",
+    "supply",
+    "medikamente",
+    "zoll",
+    "einfuhr",
+    "นำยาเข้า",
+    "ใบสั่งยา",
+    "ศุลกากร"
+   ],
+   "keywords_de": [
+    "medikamente",
+    "zoll",
+    "einfuhr",
+    "rezept",
+    "arztbrief",
+    "betäubungsmittel"
+   ],
+   "keywords_th": [
+    "นำยาเข้า",
+    "ใบสั่งยา",
+    "ศุลกากร",
+    "ยาควบคุม"
+   ]
+  },
+  {
    "id": "earthquake-evacuation",
    "names": {
     "de": "Erdbeben / Evakuierung",
@@ -1208,6 +1444,46 @@
     "alarm",
     "assembly point",
     "lift"
+   ]
+  },
+  {
+   "id": "elderly-travel",
+   "names": {
+    "de": "Reisen mit älteren Eltern",
+    "en": "Travelling with elderly parents",
+    "th": "เดินทางกับผู้สูงอายุ"
+   },
+   "phrases": 23,
+   "critical": 5,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "elderly",
+    "wheelchair",
+    "lift",
+    "stairs",
+    "rest",
+    "blood pressure",
+    "senioren",
+    "eltern",
+    "ältere",
+    "ผู้สูงอายุ",
+    "พ่อแม่",
+    "รถเข็น"
+   ],
+   "keywords_de": [
+    "senioren",
+    "eltern",
+    "ältere",
+    "rollstuhl",
+    "hitze",
+    "pause"
+   ],
+   "keywords_th": [
+    "ผู้สูงอายุ",
+    "พ่อแม่",
+    "รถเข็น",
+    "พักผ่อน"
    ]
   },
   {
@@ -1268,6 +1544,45 @@
     "fire",
     "hospital",
     "insurance"
+   ]
+  },
+  {
+   "id": "ev-charging",
+   "names": {
+    "de": "Elektroauto laden",
+    "en": "EV charging",
+    "th": "ชาร์จรถไฟฟ้า"
+   },
+   "phrases": 24,
+   "critical": 5,
+   "reviewed": false,
+   "category": "transport",
+   "keywords": [
+    "charger",
+    "connector",
+    "battery",
+    "cable",
+    "charging station",
+    "fast charge",
+    "elektroauto",
+    "laden",
+    "ladestation",
+    "ชาร์จรถ",
+    "รถไฟฟ้า",
+    "สถานีชาร์จ"
+   ],
+   "keywords_de": [
+    "elektroauto",
+    "laden",
+    "ladestation",
+    "e-auto",
+    "stecker"
+   ],
+   "keywords_th": [
+    "ชาร์จรถ",
+    "รถไฟฟ้า",
+    "สถานีชาร์จ",
+    "แบตเตอรี่"
    ]
   },
   {
@@ -1412,6 +1727,46 @@
     "reception",
     "gate",
     "cash on delivery"
+   ]
+  },
+  {
+   "id": "food-poisoning-stomach",
+   "names": {
+    "de": "Lebensmittelvergiftung und Magen",
+    "en": "Food poisoning and stomach upset",
+    "th": "อาหารเป็นพิษและท้องเสีย"
+   },
+   "phrases": 22,
+   "critical": 6,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "food poisoning",
+    "diarrhoea",
+    "nausea",
+    "rehydration salts",
+    "fever",
+    "rice porridge",
+    "lebensmittelvergiftung",
+    "durchfall",
+    "magen",
+    "อาหารเป็นพิษ",
+    "ท้องเสีย",
+    "อาเจียน"
+   ],
+   "keywords_de": [
+    "lebensmittelvergiftung",
+    "durchfall",
+    "magen",
+    "erbrechen",
+    "übelkeit",
+    "elektrolyte"
+   ],
+   "keywords_th": [
+    "อาหารเป็นพิษ",
+    "ท้องเสีย",
+    "อาเจียน",
+    "ปวดท้อง"
    ]
   },
   {
@@ -1739,6 +2094,45 @@
    ]
   },
   {
+   "id": "hospital-payment-insurance",
+   "names": {
+    "de": "Krankenhaus: Zahlung und Versicherung",
+    "en": "Hospital payment and insurance",
+    "th": "ค่ารักษาและประกันสุขภาพ"
+   },
+   "phrases": 24,
+   "critical": 6,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "insurance",
+    "policy number",
+    "deposit",
+    "itemised bill",
+    "claim",
+    "diagnosis",
+    "krankenhaus",
+    "versicherung",
+    "rechnung",
+    "โรงพยาบาล",
+    "ประกัน",
+    "ค่ารักษา"
+   ],
+   "keywords_de": [
+    "krankenhaus",
+    "versicherung",
+    "rechnung",
+    "kostenübernahme",
+    "erstattung"
+   ],
+   "keywords_th": [
+    "โรงพยาบาล",
+    "ประกัน",
+    "ค่ารักษา",
+    "เคลม"
+   ]
+  },
+  {
    "id": "hostel-dorm",
    "names": {
     "de": "Hostel und Schlafsaal",
@@ -1756,6 +2150,46 @@
     "check-out",
     "shared bathroom",
     "towel"
+   ]
+  },
+  {
+   "id": "hotel-deposit-dispute",
+   "names": {
+    "de": "Hotel: Streit um die Kaution",
+    "en": "Hotel deposit dispute",
+    "th": "ข้อพิพาทเงินมัดจำโรงแรม"
+   },
+   "phrases": 23,
+   "critical": 5,
+   "reviewed": false,
+   "category": "stay",
+   "keywords": [
+    "deposit",
+    "damage",
+    "check-out",
+    "receipt",
+    "owner",
+    "repair",
+    "kaution",
+    "hotel",
+    "schaden",
+    "เงินมัดจำ",
+    "โรงแรม",
+    "ความเสียหาย"
+   ],
+   "keywords_de": [
+    "kaution",
+    "hotel",
+    "schaden",
+    "rückzahlung",
+    "streit",
+    "pfand"
+   ],
+   "keywords_th": [
+    "เงินมัดจำ",
+    "โรงแรม",
+    "ความเสียหาย",
+    "คืนเงิน"
    ]
   },
   {
@@ -1924,6 +2358,46 @@
     "ticket",
     "lost child",
     "first aid"
+   ]
+  },
+  {
+   "id": "king-royal-respect",
+   "names": {
+    "de": "Respekt vor König und Königshaus",
+    "en": "Respect for the King and royals",
+    "th": "ความเคารพต่อพระมหากษัตริย์"
+   },
+   "phrases": 25,
+   "critical": 5,
+   "reviewed": false,
+   "category": "culture",
+   "keywords": [
+    "king",
+    "royal family",
+    "anthem",
+    "portrait",
+    "respect",
+    "procession",
+    "könig",
+    "königshaus",
+    "majestätsbeleidigung",
+    "พระมหากษัตริย์",
+    "ราชวงศ์",
+    "เพลงสรรเสริญ"
+   ],
+   "keywords_de": [
+    "könig",
+    "königshaus",
+    "majestätsbeleidigung",
+    "hymne",
+    "respekt",
+    "banknote"
+   ],
+   "keywords_th": [
+    "พระมหากษัตริย์",
+    "ราชวงศ์",
+    "เพลงสรรเสริญ",
+    "เคารพ"
    ]
   },
   {
@@ -2371,6 +2845,45 @@
    ]
   },
   {
+   "id": "night-train-ticket",
+   "names": {
+    "de": "Nachtzug und Schlafwagen",
+    "en": "Night train and sleeper",
+    "th": "รถไฟนอนและตั๋วนอน"
+   },
+   "phrases": 22,
+   "critical": 5,
+   "reviewed": false,
+   "category": "transport",
+   "keywords": [
+    "sleeper",
+    "berth",
+    "platform",
+    "ticket",
+    "dining car",
+    "station",
+    "nachtzug",
+    "schlafwagen",
+    "zugticket",
+    "รถไฟนอน",
+    "ตั๋วรถไฟ",
+    "ตู้นอน"
+   ],
+   "keywords_de": [
+    "nachtzug",
+    "schlafwagen",
+    "zugticket",
+    "bahn",
+    "bett"
+   ],
+   "keywords_th": [
+    "รถไฟนอน",
+    "ตั๋วรถไฟ",
+    "ตู้นอน",
+    "เตียงล่าง"
+   ]
+  },
+  {
    "id": "nightlife",
    "names": {
     "de": "Nachtleben und Bars",
@@ -2495,6 +3008,45 @@
     "cough syrup",
     "sunscreen",
     "ointment"
+   ]
+  },
+  {
+   "id": "pharmacy-prescription-transfer",
+   "names": {
+    "de": "Rezept und Folgeverordnung",
+    "en": "Prescription and refills",
+    "th": "ใบสั่งยาและการรับยาต่อเนื่อง"
+   },
+   "phrases": 22,
+   "critical": 5,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "generic name",
+    "active ingredient",
+    "dose",
+    "refill",
+    "label",
+    "pharmacist",
+    "rezept",
+    "apotheke",
+    "folgerezept",
+    "ใบสั่งยา",
+    "ร้านขายยา",
+    "ตัวยา"
+   ],
+   "keywords_de": [
+    "rezept",
+    "apotheke",
+    "folgerezept",
+    "wirkstoff",
+    "dauermedikation"
+   ],
+   "keywords_th": [
+    "ใบสั่งยา",
+    "ร้านขายยา",
+    "ตัวยา",
+    "ยาประจำ"
    ]
   },
   {
@@ -2690,6 +3242,46 @@
    ]
   },
   {
+   "id": "ride-share-dispute",
+   "names": {
+    "de": "Fahrdienst: Streit um den Preis",
+    "en": "Ride-hailing price dispute",
+    "th": "ปัญหาราคารถเรียกผ่านแอป"
+   },
+   "phrases": 21,
+   "critical": 5,
+   "reviewed": false,
+   "category": "transport",
+   "keywords": [
+    "fare",
+    "meter",
+    "toll",
+    "receipt",
+    "driver",
+    "route",
+    "grab",
+    "bolt",
+    "fahrdienst",
+    "แกร็บ",
+    "รถเรียก",
+    "มิเตอร์"
+   ],
+   "keywords_de": [
+    "grab",
+    "bolt",
+    "fahrdienst",
+    "taxi streit",
+    "preis",
+    "taxameter"
+   ],
+   "keywords_th": [
+    "แกร็บ",
+    "รถเรียก",
+    "มิเตอร์",
+    "โกงราคา"
+   ]
+  },
+  {
    "id": "scams-overcharge",
    "names": {
     "de": "Betrug / Abzocke",
@@ -2776,6 +3368,45 @@
     "result",
     "doctor",
     "clinic"
+   ]
+  },
+  {
+   "id": "sim-esim-data",
+   "names": {
+    "de": "SIM, eSIM und Datentarife",
+    "en": "SIM, eSIM and data plans",
+    "th": "ซิม อีซิม และแพ็กเกจเน็ต"
+   },
+   "phrases": 23,
+   "critical": 5,
+   "reviewed": false,
+   "category": "general",
+   "keywords": [
+    "sim card",
+    "esim",
+    "data",
+    "top up",
+    "signal",
+    "hotspot",
+    "sim",
+    "datentarif",
+    "ซิม",
+    "อีซิม",
+    "เน็ต"
+   ],
+   "keywords_de": [
+    "sim",
+    "esim",
+    "datentarif",
+    "handy",
+    "internet",
+    "aufladen"
+   ],
+   "keywords_th": [
+    "ซิม",
+    "อีซิม",
+    "เน็ต",
+    "เติมเงิน"
    ]
   },
   {
@@ -2911,6 +3542,46 @@
    ]
   },
   {
+   "id": "sprain-fracture-xray",
+   "names": {
+    "de": "Verstauchung, Bruch und Röntgen",
+    "en": "Sprain, fracture and X-ray",
+    "th": "เคล็ด กระดูกหัก และเอกซเรย์"
+   },
+   "phrases": 22,
+   "critical": 5,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "x-ray",
+    "fracture",
+    "sprain",
+    "cast",
+    "crutches",
+    "swelling",
+    "röntgen",
+    "bruch",
+    "verstauchung",
+    "เอกซเรย์",
+    "กระดูกหัก",
+    "เคล็ด"
+   ],
+   "keywords_de": [
+    "röntgen",
+    "bruch",
+    "verstauchung",
+    "knochen",
+    "gips",
+    "krücken"
+   ],
+   "keywords_th": [
+    "เอกซเรย์",
+    "กระดูกหัก",
+    "เคล็ด",
+    "เฝือก"
+   ]
+  },
+  {
    "id": "street-food",
    "names": {
     "de": "Streetfood",
@@ -3035,6 +3706,44 @@
    ]
   },
   {
+   "id": "thai-massage-boundaries",
+   "names": {
+    "de": "Thai-Massage: Grenzen setzen",
+    "en": "Thai massage and boundaries",
+    "th": "นวดไทยและขอบเขต"
+   },
+   "phrases": 22,
+   "critical": 6,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "massage",
+    "pressure",
+    "towel",
+    "therapist",
+    "oil",
+    "session",
+    "grenzen",
+    "belästigung",
+    "นวด",
+    "นวดไทย",
+    "ขอบเขต"
+   ],
+   "keywords_de": [
+    "massage",
+    "grenzen",
+    "belästigung",
+    "nein sagen",
+    "druck"
+   ],
+   "keywords_th": [
+    "นวด",
+    "นวดไทย",
+    "ขอบเขต",
+    "ล่วงละเมิด"
+   ]
+  },
+  {
    "id": "tm30-address-report",
    "names": {
     "de": "TM30 / Meldung der Unterkunft",
@@ -3056,6 +3765,46 @@
     "lease",
     "90-day report",
     "copy"
+   ]
+  },
+  {
+   "id": "tourist-police-complaint",
+   "names": {
+    "de": "Anzeige bei der Touristenpolizei",
+    "en": "Tourist police report",
+    "th": "แจ้งความตำรวจท่องเที่ยว"
+   },
+   "phrases": 21,
+   "critical": 7,
+   "reviewed": false,
+   "category": "emergency",
+   "keywords": [
+    "police report",
+    "complaint",
+    "witness",
+    "evidence",
+    "scam",
+    "translator",
+    "anzeige",
+    "touristenpolizei",
+    "polizei",
+    "แจ้งความ",
+    "ตำรวจท่องเที่ยว",
+    "ร้องเรียน"
+   ],
+   "keywords_de": [
+    "anzeige",
+    "touristenpolizei",
+    "polizei",
+    "betrug",
+    "diebstahl",
+    "protokoll"
+   ],
+   "keywords_th": [
+    "แจ้งความ",
+    "ตำรวจท่องเที่ยว",
+    "ร้องเรียน",
+    "โกง"
    ]
   },
   {
@@ -3119,6 +3868,45 @@
    ]
   },
   {
+   "id": "vaccination-travel-clinic",
+   "names": {
+    "de": "Reiseimpfungen",
+    "en": "Travel vaccinations",
+    "th": "วัคซีนสำหรับนักเดินทาง"
+   },
+   "phrases": 22,
+   "critical": 5,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "vaccine",
+    "injection",
+    "rabies",
+    "hepatitis",
+    "typhoid",
+    "certificate",
+    "impfung",
+    "impfen",
+    "tollwut",
+    "วัคซีน",
+    "ฉีดยา",
+    "พิษสุนัขบ้า"
+   ],
+   "keywords_de": [
+    "impfung",
+    "impfen",
+    "tollwut",
+    "reiseklinik",
+    "impfpass"
+   ],
+   "keywords_th": [
+    "วัคซีน",
+    "ฉีดยา",
+    "พิษสุนัขบ้า",
+    "คลินิกเดินทาง"
+   ]
+  },
+  {
    "id": "vegan-vegetarian",
    "names": {
     "de": "Vegetarisch, vegan und Allergene",
@@ -3179,6 +3967,46 @@
    ]
   },
   {
+   "id": "visa-run-border",
+   "names": {
+    "de": "Visa-Run und Grenzübertritt",
+    "en": "Visa run and border crossing",
+    "th": "ข้ามด่านเพื่อต่อวีซ่า"
+   },
+   "phrases": 26,
+   "critical": 6,
+   "reviewed": false,
+   "category": "general",
+   "keywords": [
+    "border",
+    "stamp",
+    "onward ticket",
+    "overstay",
+    "entry",
+    "exit",
+    "visa-run",
+    "grenze",
+    "einreise",
+    "ข้ามด่าน",
+    "ต่อวีซ่า",
+    "ตราประทับ"
+   ],
+   "keywords_de": [
+    "visa-run",
+    "grenze",
+    "einreise",
+    "stempel",
+    "ausreise",
+    "visum"
+   ],
+   "keywords_th": [
+    "ข้ามด่าน",
+    "ต่อวีซ่า",
+    "ตราประทับ",
+    "ชายแดน"
+   ]
+  },
+  {
    "id": "volunteering",
    "names": {
     "de": "Freiwilligenarbeit",
@@ -3200,6 +4028,46 @@
     "supervisor",
     "insurance",
     "teaching"
+   ]
+  },
+  {
+   "id": "wat-donation-etiquette",
+   "names": {
+    "de": "Tempelspenden und Etikette",
+    "en": "Temple donations and etiquette",
+    "th": "การทำบุญและมารยาทในวัด"
+   },
+   "phrases": 25,
+   "critical": 5,
+   "reviewed": false,
+   "category": "culture",
+   "keywords": [
+    "donation",
+    "merit",
+    "incense",
+    "candle",
+    "gold leaf",
+    "alms",
+    "tempel",
+    "spende",
+    "wat",
+    "ทำบุญ",
+    "วัด",
+    "บริจาค"
+   ],
+   "keywords_de": [
+    "tempel",
+    "spende",
+    "wat",
+    "mönch",
+    "räucherstäbchen",
+    "etikette"
+   ],
+   "keywords_th": [
+    "ทำบุญ",
+    "วัด",
+    "บริจาค",
+    "ใส่บาตร"
    ]
   },
   {

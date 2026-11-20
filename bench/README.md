@@ -19,7 +19,7 @@ Tastaturklicks und drei Fremdsprachen (Deutsch, Japanisch, Spanisch über `say`)
 Mit `run_bench.py --negatives` misst der Lauf zusätzlich `false_accept` (fälschlich übersetzt) und die
 `dropped`-Codes; so werden Floskel-, Halluzinations- und Sprachfilter (`MIN_LANG_P`, `MIN_LOGPROB`) messbar.
 
-Die Fälle stehen in `cases.json`. Thai wird mit der Stimme „Kanya“ erzeugt, Englisch mit „Samantha“. Als ffmpeg wird `DOLMETSCHER_FFMPEG` genommen, sonst das ffmpeg im PATH, sonst `/opt/homebrew/bin/ffmpeg` bzw. `/usr/local/bin/ffmpeg` (Intel). `bench/audio/` wird nicht eingecheckt.
+Die Fälle stehen in `cases.json`; die Tags `num`, `digits`, `time`, `clock` und `phone` markieren Zahlen, Uhrzeiten und Telefonnummern (th43 bis th48, en21 bis en26; Messung mit `--only` und der ID). Die Baseline in `bench/results/` enthält diese Fälle noch nicht und ist bei der nächsten Messung auf `main` zu erneuern. Thai wird mit der Stimme „Kanya“ erzeugt, Englisch mit „Samantha“. Als ffmpeg wird `DOLMETSCHER_FFMPEG` genommen, sonst das ffmpeg im PATH, sonst `/opt/homebrew/bin/ffmpeg` bzw. `/usr/local/bin/ffmpeg` (Intel). `bench/audio/` wird nicht eingecheckt.
 
 ## 2. Messen
 

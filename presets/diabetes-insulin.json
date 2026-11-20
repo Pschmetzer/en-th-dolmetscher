@@ -1,0 +1,130 @@
+{
+  "id": "diabetes-insulin",
+  "names": {
+    "de": "Diabetes und Insulin",
+    "en": "Diabetes and insulin",
+    "th": "เบาหวานและอินซูลิน"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Insulin, Pens und Teststreifen ins Handgepäck und kühl halten, nicht in den Frachtraum. Dazu ein ärztliches Schreiben auf Englisch. Marken und Stärken in Thailand können abweichen. Bei Unterzuckerung sofort Zucker nehmen und Hilfe holen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Keep insulin, pens and test strips in your hand luggage and cool, not in the hold. Carry a doctor's letter in English. Brands and strengths in Thailand may differ. For low blood sugar take sugar at once and get help. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "insulin",
+      "th": "อินซูลิน"
+    },
+    {
+      "en": "blood sugar",
+      "th": "น้ำตาลในเลือด"
+    },
+    {
+      "en": "needle",
+      "th": "เข็ม"
+    },
+    {
+      "en": "test strip",
+      "th": "แถบตรวจน้ำตาล"
+    },
+    {
+      "en": "diabetes",
+      "th": "เบาหวาน"
+    },
+    {
+      "en": "low blood sugar",
+      "th": "น้ำตาลในเลือดต่ำ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have diabetes.",
+      "th": "เป็นเบาหวาน",
+      "critical": true
+    },
+    {
+      "en": "I need sugar now. My blood sugar is low.",
+      "th": "ต้องการน้ำตาลเดี๋ยวนี้ น้ำตาลในเลือดต่ำ",
+      "critical": true
+    },
+    {
+      "en": "I use insulin.",
+      "th": "ใช้อินซูลิน",
+      "critical": true
+    },
+    {
+      "en": "Please call a doctor. I feel faint.",
+      "th": "ช่วยเรียกหมอหน่อย รู้สึกจะเป็นลม",
+      "critical": true
+    },
+    {
+      "en": "I feel dizzy and sweaty.",
+      "th": "เวียนหัวและเหงื่อออก",
+      "critical": true
+    },
+    {
+      "en": "Please give me juice or something sweet.",
+      "th": "ขอน้ำผลไม้หรือของหวานหน่อย"
+    },
+    {
+      "en": "I need to inject insulin. Is there a private place?",
+      "th": "ต้องฉีดอินซูลิน มีที่ส่วนตัวไหม"
+    },
+    {
+      "en": "Where can I dispose of used needles?",
+      "th": "ทิ้งเข็มที่ใช้แล้วได้ที่ไหน"
+    },
+    {
+      "en": "Please keep my insulin in the fridge.",
+      "th": "ช่วยเก็บอินซูลินไว้ในตู้เย็นหน่อย"
+    },
+    {
+      "en": "Do you sell insulin pens here?",
+      "th": "ที่นี่มีปากกาอินซูลินขายไหม"
+    },
+    {
+      "en": "I need test strips for my meter.",
+      "th": "ต้องการแถบตรวจน้ำตาลสำหรับเครื่องวัดนี้"
+    },
+    {
+      "en": "Can I check my blood sugar here?",
+      "th": "ตรวจน้ำตาลในเลือดที่นี่ได้ไหม"
+    },
+    {
+      "en": "Is there sugar in this dish?",
+      "th": "จานนี้มีน้ำตาลไหม"
+    },
+    {
+      "en": "Please make it without sugar.",
+      "th": "ขอไม่ใส่น้ำตาลหน่อย"
+    },
+    {
+      "en": "I need to eat at regular times.",
+      "th": "ต้องกินอาหารให้ตรงเวลา"
+    },
+    {
+      "en": "This is my doctor's letter.",
+      "th": "นี่คือจดหมายรับรองจากแพทย์"
+    },
+    {
+      "en": "I carry insulin and needles for medical use.",
+      "th": "พกอินซูลินและเข็มไว้ใช้รักษา"
+    },
+    {
+      "en": "Please do not put my insulin through the X-ray machine.",
+      "th": "ขออย่าให้อินซูลินผ่านเครื่องเอกซเรย์"
+    },
+    {
+      "en": "I need a hospital for my diabetes.",
+      "th": "ต้องไปโรงพยาบาลเรื่องเบาหวาน"
+    },
+    {
+      "en": "Does this medicine contain sugar?",
+      "th": "ยานี้มีน้ำตาลไหม"
+    },
+    {
+      "en": "Where can I buy glucose tablets?",
+      "th": "ซื้อเม็ดน้ำตาลกลูโคสได้ที่ไหน"
+    }
+  ]
+}

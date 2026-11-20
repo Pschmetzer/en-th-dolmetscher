@@ -386,6 +386,8 @@ struct NumberPad: View {
                         .buttonStyle(.bordered)
                         .tint(k == "✓" ? StatusColor.ok : .primary)
                         .disabled(k == "✓" && digits.isEmpty)
+                        .accessibilityLabel(k == "✓" ? T("done") : k == "." ? "·" : k)
+                        .accessibilityInputLabels(k == "✓" ? [T("done"), "OK"] : [k])
                     }
                 }
             }

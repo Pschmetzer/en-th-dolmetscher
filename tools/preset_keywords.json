@@ -1,0 +1,348 @@
+{
+ "keywords": {
+  "apartment-host-checkin": {
+   "de": [
+    "airbnb",
+    "vermieter",
+    "schlüssel",
+    "check-in",
+    "wohnung",
+    "schlüsselbox"
+   ],
+   "th": [
+    "ที่พัก",
+    "กุญแจ",
+    "เช็กอิน",
+    "เจ้าของห้อง"
+   ]
+  },
+  "bank-transfer-abroad": {
+   "de": [
+    "überweisung",
+    "ausland",
+    "wechselkurs",
+    "gebühren",
+    "swift",
+    "geld senden"
+   ],
+   "th": [
+    "โอนเงิน",
+    "ต่างประเทศ",
+    "อัตราแลกเปลี่ยน",
+    "ค่าธรรมเนียม"
+   ]
+  },
+  "customer-service-complaint": {
+   "de": [
+    "beschwerde",
+    "kundenservice",
+    "reklamation",
+    "manager",
+    "hotline"
+   ],
+   "th": [
+    "ร้องเรียน",
+    "บริการลูกค้า",
+    "ผู้จัดการ",
+    "เรียกเงินคืน"
+   ]
+  },
+  "diabetes-insulin": {
+   "de": [
+    "diabetes",
+    "zucker",
+    "insulin",
+    "unterzucker",
+    "blutzucker",
+    "spritze"
+   ],
+   "th": [
+    "เบาหวาน",
+    "อินซูลิน",
+    "น้ำตาล",
+    "เข็มฉีดยา"
+   ]
+  },
+  "diving-medical-clearance": {
+   "de": [
+    "tauchen",
+    "tauchtauglichkeit",
+    "tauchschein",
+    "ohren",
+    "dekompression"
+   ],
+   "th": [
+    "ดำน้ำ",
+    "ใบรับรองแพทย์",
+    "โรคน้ำหนีบ",
+    "หู"
+   ]
+  },
+  "drugs-medication-import": {
+   "de": [
+    "medikamente",
+    "zoll",
+    "einfuhr",
+    "rezept",
+    "arztbrief",
+    "betäubungsmittel"
+   ],
+   "th": [
+    "นำยาเข้า",
+    "ใบสั่งยา",
+    "ศุลกากร",
+    "ยาควบคุม"
+   ]
+  },
+  "elderly-travel": {
+   "de": [
+    "senioren",
+    "eltern",
+    "ältere",
+    "rollstuhl",
+    "hitze",
+    "pause"
+   ],
+   "th": [
+    "ผู้สูงอายุ",
+    "พ่อแม่",
+    "รถเข็น",
+    "พักผ่อน"
+   ]
+  },
+  "ev-charging": {
+   "de": [
+    "elektroauto",
+    "laden",
+    "ladestation",
+    "e-auto",
+    "stecker"
+   ],
+   "th": [
+    "ชาร์จรถ",
+    "รถไฟฟ้า",
+    "สถานีชาร์จ",
+    "แบตเตอรี่"
+   ]
+  },
+  "food-poisoning-stomach": {
+   "de": [
+    "lebensmittelvergiftung",
+    "durchfall",
+    "magen",
+    "erbrechen",
+    "übelkeit",
+    "elektrolyte"
+   ],
+   "th": [
+    "อาหารเป็นพิษ",
+    "ท้องเสีย",
+    "อาเจียน",
+    "ปวดท้อง"
+   ]
+  },
+  "hospital-payment-insurance": {
+   "de": [
+    "krankenhaus",
+    "versicherung",
+    "rechnung",
+    "kostenübernahme",
+    "erstattung"
+   ],
+   "th": [
+    "โรงพยาบาล",
+    "ประกัน",
+    "ค่ารักษา",
+    "เคลม"
+   ]
+  },
+  "hotel-deposit-dispute": {
+   "de": [
+    "kaution",
+    "hotel",
+    "schaden",
+    "rückzahlung",
+    "streit",
+    "pfand"
+   ],
+   "th": [
+    "เงินมัดจำ",
+    "โรงแรม",
+    "ความเสียหาย",
+    "คืนเงิน"
+   ]
+  },
+  "king-royal-respect": {
+   "de": [
+    "könig",
+    "königshaus",
+    "majestätsbeleidigung",
+    "hymne",
+    "respekt",
+    "banknote"
+   ],
+   "th": [
+    "พระมหากษัตริย์",
+    "ราชวงศ์",
+    "เพลงสรรเสริญ",
+    "เคารพ"
+   ]
+  },
+  "night-train-ticket": {
+   "de": [
+    "nachtzug",
+    "schlafwagen",
+    "zugticket",
+    "bahn",
+    "bett"
+   ],
+   "th": [
+    "รถไฟนอน",
+    "ตั๋วรถไฟ",
+    "ตู้นอน",
+    "เตียงล่าง"
+   ]
+  },
+  "pharmacy-prescription-transfer": {
+   "de": [
+    "rezept",
+    "apotheke",
+    "folgerezept",
+    "wirkstoff",
+    "dauermedikation"
+   ],
+   "th": [
+    "ใบสั่งยา",
+    "ร้านขายยา",
+    "ตัวยา",
+    "ยาประจำ"
+   ]
+  },
+  "ride-share-dispute": {
+   "de": [
+    "grab",
+    "bolt",
+    "fahrdienst",
+    "taxi streit",
+    "preis",
+    "taxameter"
+   ],
+   "th": [
+    "แกร็บ",
+    "รถเรียก",
+    "มิเตอร์",
+    "โกงราคา"
+   ]
+  },
+  "sim-esim-data": {
+   "de": [
+    "sim",
+    "esim",
+    "datentarif",
+    "handy",
+    "internet",
+    "aufladen"
+   ],
+   "th": [
+    "ซิม",
+    "อีซิม",
+    "เน็ต",
+    "เติมเงิน"
+   ]
+  },
+  "sprain-fracture-xray": {
+   "de": [
+    "röntgen",
+    "bruch",
+    "verstauchung",
+    "knochen",
+    "gips",
+    "krücken"
+   ],
+   "th": [
+    "เอกซเรย์",
+    "กระดูกหัก",
+    "เคล็ด",
+    "เฝือก"
+   ]
+  },
+  "thai-massage-boundaries": {
+   "de": [
+    "massage",
+    "grenzen",
+    "belästigung",
+    "nein sagen",
+    "druck"
+   ],
+   "th": [
+    "นวด",
+    "นวดไทย",
+    "ขอบเขต",
+    "ล่วงละเมิด"
+   ]
+  },
+  "tourist-police-complaint": {
+   "de": [
+    "anzeige",
+    "touristenpolizei",
+    "polizei",
+    "betrug",
+    "diebstahl",
+    "protokoll"
+   ],
+   "th": [
+    "แจ้งความ",
+    "ตำรวจท่องเที่ยว",
+    "ร้องเรียน",
+    "โกง"
+   ]
+  },
+  "vaccination-travel-clinic": {
+   "de": [
+    "impfung",
+    "impfen",
+    "tollwut",
+    "reiseklinik",
+    "impfpass"
+   ],
+   "th": [
+    "วัคซีน",
+    "ฉีดยา",
+    "พิษสุนัขบ้า",
+    "คลินิกเดินทาง"
+   ]
+  },
+  "visa-run-border": {
+   "de": [
+    "visa-run",
+    "grenze",
+    "einreise",
+    "stempel",
+    "ausreise",
+    "visum"
+   ],
+   "th": [
+    "ข้ามด่าน",
+    "ต่อวีซ่า",
+    "ตราประทับ",
+    "ชายแดน"
+   ]
+  },
+  "wat-donation-etiquette": {
+   "de": [
+    "tempel",
+    "spende",
+    "wat",
+    "mönch",
+    "räucherstäbchen",
+    "etikette"
+   ],
+   "th": [
+    "ทำบุญ",
+    "วัด",
+    "บริจาค",
+    "ใส่บาตร"
+   ]
+  }
+ }
+}

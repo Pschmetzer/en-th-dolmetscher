@@ -11,6 +11,45 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 - Translation: in-memory LRU cache, name protection for online translators, offline pivot via English, circuit breaker with backoff and visible remaining pause.
 - Model constants instead of magic numbers; haptics throttle; English units for the voice.
 
+### Infrastructure and docs, round 23
+
+- Tests: `tests/test_thai_zahlen.py` is collectable again (a foreign `tests` package in site-packages shadowed the folder); tests that need `edge_tts`/`aiohttp` skip with `pytest.importorskip` instead of failing; the download-progress test no longer depends on the Hugging Face cache layout or fixed sleeps.
+- CI: Dependabot also watches `tests/web-e2e` (npm); new workflows for external doc links (lychee) and a smoke test of the published Pages site (`tools/pages_smoke.py`); shellcheck also covers `tools/*.sh`; `tools/check_doc_links.py` checks relative links.
+- Docs: FAQ entry for the browser version on iPhone (Safari), `docs/TH-QUALITAET.md`, ready-made hosting configs (Netlify, Cloudflare, nginx, Caddy) in `docs/hosting/`, short intro in the README, roadmap additions. Privacy pages now say that the iPhone online fallback starts MyMemory in parallel when Google has not answered after 1.2 s, and that MyMemory is queried with POST (the text is never in the URL).
+- Benchmark: 12 new cases for numbers, clock times and phone numbers (`th43` to `th48`, `en21` to `en26`); the baseline needs a new measurement on `main`.
+- `build.sh`: `--release` runs pip-audit on `requirements.txt` and aborts on findings; an ad-hoc signature is now reported loudly.
+
+### Phrase packs, round 23 (presets)
+
+- 22 new scenario packs (178 in total): diabetes and insulin, travel vaccinations, bringing medication in, tourist police report, Thai massage boundaries, ride-hailing price dispute, prescription and refills, night train and sleeper, SIM / eSIM / data, dive medical clearance, sprain / fracture / X-ray, travelling with elderly parents, complaint to customer service, hotel deposit dispute, visa run and border crossing, respect for the King and royals, temple donations and etiquette, EV charging, hospital payment and insurance, food poisoning, apartment host and self check-in, international money transfer. Thai lines machine-made, not checked by native speakers.
+- Checks: same English sentence now needs the same Thai and the same `critical` flag across all packs; Thai strings must be NFC, free of invisible characters and use Arabic digits and `บาท`. German and Thai search keywords in `presets-index.json`; optional `rom` (romanisation) per phrase with `tools/preset_rom.py`.
+
+### Web Lite, round 23 (web)
+
+- Service worker: navigation preload, retry with backoff (0.5 s, 1 s, 2 s) when loading packs, byte progress ("x MB loaded"), update hint while a new version loads, cache version shown as tooltip.
+- Privacy: "Online translation off" switch, one-time warning before online translation in sensitive topics (doctor, police, visa, bank ...), export and import of local data as a file (validated, known keys only), optional automatic deletion of old local data (30/90/365 days), storage size display, iOS note about Safari deleting site data after 7 days.
+- SOS button with emergency numbers (191, 1669, 199, 1155, 1193, 112) and large Thai sentences for ambulance and police; focus returns to the button when the dialog closes.
+- Taxi and hotel card: destination or hotel (with address) as a large Thai sentence, popular destinations, read aloud, saved on the device only.
+- Interface language now follows the whole browser language list; focus styles for dialog and tabs, forced-colors support; four more allergens (NSAIDs, iodine/contrast dye, kiwi, buckwheat).
+
+### Mac app main window, round 23
+
+- Search shows the current match as "2 / 7" with previous/next buttons (⇧⌘G / ⌘G); the matching bubble is highlighted and scrolled into view.
+- Select several bubbles (context menu or the "More" menu): copy (with or without times), export (also one language only) or delete them together.
+- Bubble context menu: "Copy as …" with original, translation, both or with time; VoiceOver announces the bubble position ("3/12").
+- Number mismatches are much easier to see: a filled warning with the differing numbers, numbers highlighted in the bubble and in the partner view.
+- Page through alternative readings of unsure speech; per-bubble back-translation button.
+- Empty history shows a daily tip; the header shows a latency sparkline with trend, a "too loud" hint when the microphone clips, and an offer to switch to Auto when the last sentences do not match the forced language.
+- Partner view: Thai text is set larger. Mini window: copy button and space bar for pause/resume.
+- Engine: partial text is throttled under load, the watchdog uses a monotonic clock, and a sentence cut off by an engine crash stays as a bubble marked "interrupted".
+
+### iPhone round 32 (iOS)
+
+- New: taxi card with large Thai script, price and haggling helper, step-by-step emergency flow, tap-a-word lexicon; emergency numbers per country; three Shortcuts actions that return values (emergency numbers, taxi phrase, counter-offers).
+- Control Center: listening toggle, emergency and taxi controls; the Live Activity goes stale after 5 minutes when paused or interrupted.
+- Storage schema version with migration; content is hidden during screen recording or mirroring (can be switched off in Settings).
+- Accessibility: layouts stack at the largest text sizes, solid backgrounds with Reduce Transparency, focus outlines without relying on colour, more voice-control names.
+
 ### Web Lite and phrase packs, round 22 (web)
 
 - 14 new scenario packs (156 in total): numbers and prices, negotiating, Buddhism and etiquette, scooter rental damage and deposit, describing symptoms in detail, avoiding tuk-tuk scams, embassy and consulate, spice level in food, deaf / hard of hearing / unable to speak, wheelchair and limited mobility, halal food and prayer, returns and complaints in shops, hotel room problems, lost wallet and cards. Thai lines machine-made, not checked by native speakers.
