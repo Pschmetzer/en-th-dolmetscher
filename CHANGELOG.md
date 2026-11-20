@@ -6,6 +6,11 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 Pull requests #16–#47. Not yet published as a release.
 
+### Security review, round 21
+
+- Mac: allowing a `dolmetscher://` call in the confirmation dialog now applies to that one call only; permanent permission is set only with the Settings switch.
+- CI: checkouts no longer keep the repository token in the working copy.
+
 ### Web version, round 21
 
 - Learning cards: keys 1-4 no longer also start the microphone; held keys no longer toggle modes repeatedly; Space still opens sections and links.
