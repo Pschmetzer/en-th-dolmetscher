@@ -158,3 +158,11 @@ def test_docs_mention_limits_and_share_confirmation():
     assert "frame-ancestors" in arch and "unsafe-inline" in arch
     assert "erst nach Tippen auf" in (ROOT / "docs" / "DATENSCHUTZ.md").read_text(encoding="utf-8")
     assert "unofficial" in (ROOT / "README.md").read_text(encoding="utf-8")
+
+
+# ---- Welle 4 ----
+def test_cards_keep_room_for_buttons_and_shared_text_note_is_prominent():
+    assert re.search(r"\.cardwrap \.card \{[^}]*padding-bottom:40px", HTML)
+    assert re.search(r"#partnerNote \{[^}]*font-size:16px", HTML)
+    for i in ("typeIn", "myText", "myTr"):
+        assert re.search(rf'<textarea id="{i}" dir="auto"', HTML), i
