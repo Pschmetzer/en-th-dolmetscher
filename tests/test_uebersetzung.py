@@ -222,7 +222,7 @@ class _Resp:
         self.status, self.reason, self._body, self.will_close = status, "x", body, False
         self.headers = {"Content-Type": ctype}
 
-    def read(self):
+    def read(self, n=-1):
         return self._body
 
     def getheader(self, k, default=None):
