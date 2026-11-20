@@ -11,6 +11,7 @@ import re
 import unicodedata
 
 STYLE_KEYS = ("casual", "neutral", "polite")
+LANG_RE = re.compile(r"[a-z]{2,3}(-[a-z0-9]{2,8})?")      # Schlüssel in texts: {lang: Text}
 ID_RE = re.compile(r"[a-z0-9][a-z0-9_-]{0,31}")
 MAX_GLOSSARY, MAX_PHRASES = 100, 50
 MAX_NAME, MAX_TERM, MAX_PHRASE, MAX_NOTE = 40, 60, 200, 500
@@ -40,6 +41,82 @@ def _text(v, limit):
     return isinstance(v, str) and 0 < len(v.strip()) <= limit
 
 
+def item_texts(it):
+    """{Sprache: Text} eines Eintrags: Schema `texts` (beliebige Sprachen) oder die alten Felder en/th."""
+    if not isinstance(it, dict):
+        return {}
+    t = it.get("texts")
+    out = {k: v for k, v in t.items() if isinstance(k, str) and isinstance(v, str)} if isinstance(t, dict) else {}
+    for k in ("en", "th"):
+        if isinstance(it.get(k), str):
+            out.setdefault(k, it[k])
+    return out
+
+
+def _item_ok(it, limit):
+    """Eintrag gültig? Alt: en + th. Neu: texts {lang: Text} mit mindestens zwei Sprachen (en/th dürfen zusätzlich
+    stehen, müssen dann zu texts passen)."""
+    if not isinstance(it, dict):
+        return False
+    if "texts" not in it:
+        return _text(it.get("en"), limit) and _text(it.get("th"), limit)
+    t = it["texts"]
+    if not (isinstance(t, dict) and len(t) >= 2
+            and all(isinstance(k, str) and LANG_RE.fullmatch(k) and _text(v, limit) for k, v in t.items())):
+        return False
+    return all(it[k] == t[k] for k in ("en", "th") if k in it and k in t)
+
+
+def migrate_item(it):
+    """Alter Eintrag {en, th, critical?} -> {texts: {en, th}, critical?}; neue Einträge bleiben unverändert (Kopie)."""
+    if not isinstance(it, dict):
+        return it
+    out = {k: v for k, v in it.items() if k not in ("en", "th")}
+    texts = item_texts(it)
+    out["texts"] = texts
+    return out
+
+
+def migrate(d):
+    """Preset auf das Schema `texts` bringen (glossary und phrases). Gibt eine Kopie zurück, ändert nichts."""
+    out = dict(d)
+    for key in ("glossary", "phrases"):
+        if isinstance(d.get(key), list):
+            out[key] = [migrate_item(it) for it in d[key]]
+    return out
+
+
+def legacy_view(d):
+    """Kopie mit en/th an jedem Eintrag, soweit in `texts` vorhanden (die App und alte Werkzeuge lesen en/th)."""
+    out = dict(d)
+    for key in ("glossary", "phrases"):
+        if isinstance(d.get(key), list):
+            items = []
+            for it in d[key]:
+                it = dict(it)
+                for k, v in item_texts(it).items():
+                    if k in ("en", "th"):
+                        it.setdefault(k, v)
+                items.append(it)
+            out[key] = items
+    return out
+
+
+def texts_for(preset, lang, kind="phrases"):
+    """Alle Texte eines Presets in einer Sprache (Einträge ohne diese Sprache werden übersprungen)."""
+    return [t[lang] for t in (item_texts(it) for it in preset.get(kind, [])) if lang in t]
+
+
+def glossary_pairs(preset, src, dst):
+    """Glossar-Paare (src-Text, dst-Text) für ein beliebiges Sprachpaar; fehlt eine Seite, wird übersprungen."""
+    out = []
+    for it in preset.get("glossary", []):
+        t = item_texts(it)
+        if src in t and dst in t:
+            out.append((t[src], t[dst]))
+    return out
+
+
 def validate(d):
     """Liste von Fehlertexten (leer = gültig)."""
     if not isinstance(d, dict):
@@ -63,8 +140,8 @@ def validate(d):
             err.append(f"{key} muss eine Liste mit höchstens {mx} Einträgen sein")
             continue
         for i, it in enumerate(items):
-            if not (isinstance(it, dict) and _text(it.get("en"), limit) and _text(it.get("th"), limit)):
-                err.append(f"{key}[{i}] braucht en und th (1-{limit} Zeichen)")
+            if not _item_ok(it, limit):
+                err.append(f"{key}[{i}] braucht en und th (1-{limit} Zeichen) oder texts {{Sprache: Text}}")
             elif key == "phrases" and "critical" in it and not isinstance(it["critical"], bool):
                 err.append(f"phrases[{i}].critical muss true oder false sein")
             elif key == "phrases" and "rom" in it and not _text(it["rom"], MAX_ROM):
@@ -161,7 +238,7 @@ def _load_all_uncached():
             seen.setdefault(folder, {})[d["id"]] = fn
             if d["id"] in out and folder == user_dir():
                 overridden.append(d["id"])
-            out[d["id"]] = d
+            out[d["id"]] = legacy_view(d)
     return out
 
 
@@ -172,16 +249,18 @@ def app_fields(preset):
         return {"note": None, "phrases": []}
     note = preset.get("note")
     return {"note": dict(note) if isinstance(note, dict) else None,
-            "phrases": [{"en": ph["en"], "th": ph["th"], "critical": bool(ph.get("critical"))}
-                        for ph in preset.get("phrases", [])]}
+            "phrases": [{"en": t["en"], "th": t["th"], "critical": bool(ph.get("critical"))}
+                        for ph in preset.get("phrases", []) for t in (item_texts(ph),) if "en" in t and "th" in t]}
 
 
 def glossary_entries(preset):
     """Glossar-Paare (Wort, Übersetzung) in beide Richtungen EN⇄TH."""
     items = []
     for g in preset.get("glossary", []):
-        items.append((g["en"], g["th"]))
-        items.append((g["th"], g["en"]))
+        t = item_texts(g)
+        if "en" in t and "th" in t:
+            items.append((t["en"], t["th"]))
+            items.append((t["th"], t["en"]))
     return items
 
 

@@ -24,6 +24,7 @@ struct HistoryView: View {
                 .toolbar { if selecting { bottomBar } }
                 .safeAreaInset(edge: .bottom) { undoBar }
         }
+        .screenShield()
         .onChange(of: m.entries.count) { selection = selection.filter { id in m.entries.contains { $0.id == id } } }
     }
 

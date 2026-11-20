@@ -400,6 +400,26 @@ def delete_all_profiles():
     return n
 
 
+def rename_profile(old, new):
+    """Profil umbenennen (Stimmabdruck bleibt). Unbekannt: KeyError, Ziel existiert: FileExistsError,
+    ungültiger Name: ProfileNameError. Die alte Datei samt Sicherungen wird gelöscht."""
+    new = _nfc(new)
+    _safe(new)
+    with _locked():
+        p = get_profile(old)
+        if p is None:
+            raise KeyError(old)
+        if _nfc(old) == new:
+            return p
+        if get_profile(new) is not None:
+            raise FileExistsError(new)
+        p = dict(p)
+        p["name"] = new
+        save_profile(p)
+        delete_profile(old)
+    return p
+
+
 def _backup(name):
     """Altes Profil vor dem Überschreiben sichern (<datei>.json.<zeit>.bak, wird nicht als Profil geladen).
     Nur die letzten MAX_BACKUPS bleiben."""
@@ -589,7 +609,68 @@ def _created_key(p):
     return (str(p.get("created") or "").replace(" ", "T"), p.get("name", ""))
 
 
+DEFAULT_PAIR = ("en", "th")          # (Sprache von "ich", Sprache der Partnerin)
+EXTRA_MIN_EMBS = 6                   # ab so vielen brauchbaren Sätzen lohnt ein zweiter Zentroid
+EXTRA_MIN_CLUSTER = 3                # jeder Zentroid braucht so viele Sätze
+EXTRA_MAX_SIM = 0.92                 # Zentroide, die sich ähnlicher sind, sind praktisch einer
+
+
+def pair_from_langs(me_lang, partner_lang):
+    """Sprachpaar prüfen -> (me, partner), klein geschrieben. Gleiche oder ungültige Sprachen: ValueError."""
+    pair = tuple(str(x or "").strip().lower() for x in (me_lang, partner_lang))
+    if not all(re.fullmatch(r"[a-z]{2,3}(-[a-z0-9]{2,8})?", x) for x in pair) or pair[0] == pair[1]:
+        raise ValueError("ungültiges Sprachpaar: %r" % (pair,))
+    return pair
+
+
+def kmeans_centroids(embs, k=2, iters=10):
+    """Deterministisches k-means auf normierten Stimmabdrücken (Kosinus). -> [(zentroid, größe)], größte Gruppe
+    zuerst. Wenige/gleiche Abdrücke liefern weniger als k Zentroide."""
+    arr = np.stack([np.asarray(e, dtype=np.float32) for e in embs])
+    arr = arr / (np.linalg.norm(arr, axis=1, keepdims=True) + 1e-9)
+    cents = [arr[0]]
+    while len(cents) < min(k, len(arr)):                 # Start: jeweils der am weitesten entfernte Abdruck
+        far = np.min(np.stack([1 - arr @ c for c in cents]), axis=0)
+        if float(far.max()) < 1e-6:
+            break
+        cents.append(arr[int(np.argmax(far))])
+    c = np.stack(cents)
+    lab = np.zeros(len(arr), dtype=int)
+    for _ in range(iters):
+        lab = np.argmax(arr @ c.T, axis=1)
+        new = []
+        for i in range(len(c)):
+            m = arr[lab == i]
+            v = m.mean(axis=0) if len(m) else c[i]
+            new.append(v / (np.linalg.norm(v) + 1e-9))
+        new = np.stack(new)
+        if np.allclose(new, c, atol=1e-6):
+            break
+        c = new
+    sizes = [int((lab == i).sum()) for i in range(len(c))]
+    return sorted(((c[i], sizes[i]) for i in range(len(c))), key=lambda t: -t[1])
+
+
+def extra_centroids(embs):
+    """Zusätzliche Zentroide (Liste von Listen) für eine Stimme mit zwei Klangfarben (Flüstern/Laut, Headset/Mikro)
+    oder [] wenn eine Gruppe genügt."""
+    if len(embs) < EXTRA_MIN_EMBS:
+        return []
+    cents = kmeans_centroids(embs, 2)
+    if len(cents) < 2 or min(n for _, n in cents) < EXTRA_MIN_CLUSTER:
+        return []
+    if float(cents[0][0] @ cents[1][0]) >= EXTRA_MAX_SIM:
+        return []
+    return [[round(float(x), 6) for x in c] for c, _ in cents]
+
+
+_LEARN_LOCK = threading.Lock()
+
+
 class SpeakerID:
+    pair = DEFAULT_PAIR
+    _learn_q = None
+
     def __init__(self):
         import sherpa_onnx as so
         cfg = so.SpeakerEmbeddingExtractorConfig(model=ensure_model(), num_threads=2)
@@ -638,6 +719,18 @@ class SpeakerID:
         e = getattr(self, "_emb", {}).get(p["name"])
         return e if e is not None else np.array(p["embedding"], dtype=np.float32)
 
+    def _sim(self, p, e):
+        """Ähnlichkeit zu einem Profil: Hauptabdruck oder – falls vorhanden – der beste zusätzliche Zentroid."""
+        best = float(self._emb_of(p) @ e)
+        for x in p.get("embedding_extra") or ():
+            try:
+                v = np.asarray(x, dtype=np.float32)
+                if v.shape == e.shape and np.isfinite(v).all():
+                    best = max(best, float(v @ e) / (float(np.linalg.norm(v)) + 1e-9))
+            except (ValueError, TypeError):
+                continue
+        return best
+
     def embed(self, audio):
         """Normierter Stimmabdruck oder None (Stille, NaN, zu kurz, Modellfehler) – nie ein Nullvektor."""
         a = np.asarray(audio, dtype=np.float32).ravel()
@@ -655,6 +748,11 @@ class SpeakerID:
             return None
         return e / n
 
+    def set_pair(self, me_lang, partner_lang):
+        """Sprachpaar der Unterhaltung setzen: me()/partner() suchen dann Profile dieser Sprachen."""
+        self.pair = pair_from_langs(me_lang, partner_lang)
+        return self.pair
+
     def _pick(self, lang):
         """Deterministisch: das zuletzt angelegte Profil der Sprache (Gleichstand: Name)."""
         c = [p for p in self.profiles if p.get("lang") == lang]
@@ -662,11 +760,11 @@ class SpeakerID:
 
     def me(self):
         """Das Profil der Person, die Englisch spricht (im Zwei-Personen-Modus 'ich')."""
-        return self._pick("en")
+        return self._pick(self.pair[0])
 
     def partner(self):
         """Das Profil der Person, die Thai spricht (im Zwei-Personen-Modus 'Partnerin'), falls angelegt."""
-        return self._pick("th")
+        return self._pick(self.pair[1])
 
     def role(self, audio, prev=None):
         """-> ('me'|'other'|None, ähnlichkeit zu mir). None = unklar, dann entscheidet die Spracherkennung."""
@@ -699,8 +797,8 @@ class SpeakerID:
         her_e = self._emb_of(her) if her else None
         if me_e.shape != e.shape or (her_e is not None and her_e.shape != e.shape):
             return {"role": None, "how": "abdruck passt nicht"}
-        sim_me = float(me_e @ e)
-        sim_her = float(her_e @ e) if her_e is not None else None
+        sim_me = self._sim(me, e)
+        sim_her = self._sim(her, e) if her_e is not None else None
         role, how = decide_role(sim_me, sim_her, audio.size / SR,
                                 max(ROLE_ME_MIN, float(me.get("role_me_min") or 0)), prev)
         return {"role": role, "how": how, "sim_me": round(sim_me, 3),
@@ -736,6 +834,48 @@ class SpeakerID:
         self._reload_one(p)
         return True
 
+    def learn_async(self, name, emb, weight, done=None):
+        """learn() im Hintergrund-Thread (Datei-Sperre + fsync halten sonst den Arbeits-Thread an). Aufträge laufen
+        nacheinander; `done(ok)` wird im Hintergrund-Thread gerufen. Voll (>32 wartend): verworfen -> False."""
+        import queue
+        with _LEARN_LOCK:
+            if self._learn_q is None:
+                self._learn_q = queue.Queue(maxsize=32)
+
+                def work(q=self._learn_q):
+                    while True:
+                        item = q.get()
+                        try:
+                            ok = False
+                            with contextlib.suppress(Exception):
+                                ok = self.learn(item[0], item[1], item[2])
+                            if item[3]:
+                                with contextlib.suppress(Exception):
+                                    item[3](ok)
+                        finally:
+                            q.task_done()
+                threading.Thread(target=work, name="profile-learn", daemon=True).start()
+            q = self._learn_q
+        try:
+            q.put_nowait((name, emb, weight, done))
+        except queue.Full:
+            return False
+        return True
+
+    def flush_learning(self, timeout=5.0):
+        """Wartende learn_async()-Aufträge abwarten (Beenden, Tests). -> True, wenn alles erledigt."""
+        q = self._learn_q
+        end = time.monotonic() + timeout
+        while q is not None and q.unfinished_tasks and time.monotonic() < end:
+            time.sleep(0.01)
+        return q is None or not q.unfinished_tasks
+
+    def delete(self, name):
+        """Profil samt Sicherungen löschen und den Speicher neu aufbauen. -> True, wenn es existierte."""
+        ok = delete_profile(name)
+        self.reload()
+        return ok
+
     def _reload_one(self, new_p):
         """Nur dieses Profil im Speicher ersetzen (statt alle Dateien neu zu lesen: learn() läuft im Arbeits-Thread).
         Bei jedem Zweifel der volle Neuaufbau."""
@@ -767,6 +907,8 @@ class SpeakerID:
         if e is None or e.shape[0] != mat.shape[1]:
             return None, 0.0, {}
         sims = mat @ e
+        if any(p.get("embedding_extra") for p in profiles):
+            sims = np.array([self._sim(p, e) for p in profiles], dtype=np.float32)
         order = np.argsort(-sims)
         scores = {profiles[i]["name"]: round(float(sims[i]), 3) for i in order}
         best = float(sims[order[0]])
@@ -996,6 +1138,9 @@ def enroll(name, lang, record_one, transcribe, emit, spk=None):
             "error_rate": round(float(np.mean([r["err"] for r in rows])), 3),
             "enroll_results": rows,
         }
+        extra = extra_centroids(embs)
+        if extra:
+            p["embedding_extra"] = extra
         if old.get("polite") in ("krub", "ka"):          # Neu-Aufnahme behält die Höflichkeitsform
             p["polite"] = old["polite"]
         save_profile(p)

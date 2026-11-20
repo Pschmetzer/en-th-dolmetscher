@@ -147,3 +147,109 @@ def suggest_vocab(old, new, lang="en", limit=MAX_SUGGEST):
             seen.add(tok.lower())
             out.append(tok)
     return out[:limit]
+
+
+# ---------------------------------------------------------------- Verwechslungen und Namen (Runde 23)
+MAX_SPAN = 3               # längste Wortstrecke, die als ein Verwechslungspaar gilt
+MAX_CONFUSIONS = 500       # Obergrenze der ConfusionMap (seltenste fallen weg)
+
+
+def confusion_pairs(old, new, lang="en"):
+    """Was wurde wofür gehört? [(falsch, richtig)] aus den ersetzten Wortstrecken (gleich lange Strecken Wort für Wort,
+    sonst bis MAX_SPAN Wörter als ein Paar). `falsch` klein geschrieben, `richtig` wie getippt; Zahlen und Paare,
+    die sich nur durch Groß-/Kleinschreibung unterscheiden, fehlen."""
+    old_t, new_t = tokenize(old, lang), tokenize(new, lang)
+    glue = "" if (_is_cjk(new, lang) and lang != "th" and not _THAI.search(new or "")) else " "
+    sm = difflib.SequenceMatcher(None, [t.lower() for t in old_t], [t.lower() for t in new_t], autojunk=False)
+    out = []
+    for op, i1, i2, j1, j2 in sm.get_opcodes():
+        if op != "replace":
+            continue
+        if i2 - i1 == j2 - j1:
+            pairs = [(old_t[i1 + k], new_t[j1 + k]) for k in range(i2 - i1)]
+        elif i2 - i1 <= MAX_SPAN and j2 - j1 <= MAX_SPAN:
+            pairs = [(glue.join(old_t[i1:i2]), glue.join(new_t[j1:j2]))]
+        else:
+            continue
+        for w, r in pairs:
+            if w.lower() != r.lower() and not _NUM.search(w + r) and w.strip() and r.strip():
+                out.append((w.lower(), r))
+    return out
+
+
+class ConfusionMap:
+    """Zählt Verwechslungen falsch -> richtig über mehrere Korrekturen. Nur im Speicher; to_dict()/from_dict() geben
+    den Stand an den Aufrufer (diese Datei speichert nie etwas)."""
+
+    def __init__(self):
+        self.counts = {}
+
+    def add(self, old, new, lang="en"):
+        """Korrektur einbuchen -> Anzahl eingebuchter Paare."""
+        pairs = confusion_pairs(old, new, lang)
+        for p in pairs:
+            self.counts[p] = self.counts.get(p, 0) + 1
+        if len(self.counts) > MAX_CONFUSIONS:
+            keep = sorted(self.counts.items(), key=lambda kv: (-kv[1], kv[0]))[:MAX_CONFUSIONS]
+            self.counts = dict(keep)
+        return len(pairs)
+
+    def top(self, min_count=2, limit=MAX_SUGGEST):
+        """[(falsch, richtig, anzahl)] – häufigste zuerst, nur ab `min_count` Wiederholungen."""
+        rows = [(w, r, n) for (w, r), n in self.counts.items() if n >= min_count]
+        rows.sort(key=lambda x: (-x[2], x[0], x[1]))
+        return rows[:max(0, int(limit))]
+
+    def best(self, wrong, min_count=2):
+        """Häufigste Korrektur für ein falsch gehörtes Wort oder None."""
+        c = [(n, r) for (w, r), n in self.counts.items() if w == (wrong or "").lower() and n >= min_count]
+        return max(c)[1] if c else None
+
+    def apply(self, text, min_count=2):
+        """Bekannte Verwechslungen in `text` ersetzen (ganze Wörter, ohne Groß-/Kleinschreibung; Thai: Teilstring)."""
+        out = text or ""
+        for w, r, _n in sorted(self.top(min_count, MAX_CONFUSIONS), key=lambda x: -len(x[0])):
+            if _THAI.search(w):
+                out = out.replace(w, r)
+            else:
+                out = re.sub(r"(?<!\w)" + re.escape(w) + r"(?!\w)", lambda _m, r=r: r, out, flags=re.I)
+        return out
+
+    def to_dict(self):
+        return {"pairs": [[w, r, n] for (w, r), n in sorted(self.counts.items())]}
+
+    @classmethod
+    def from_dict(cls, d):
+        m = cls()
+        for row in (d or {}).get("pairs", []):
+            if (isinstance(row, (list, tuple)) and len(row) == 3 and isinstance(row[0], str)
+                    and isinstance(row[1], str) and isinstance(row[2], int) and row[2] > 0):
+                m.counts[(row[0], row[1])] = row[2]
+        return m
+
+
+def name_alignment(old, new, lang="en", min_ratio=0.5):
+    """Welcher gehörte Text wurde zu welchem Namen? [(gehört, name)] für die Eigennamen aus proper_names(): die
+    ähnlichste gleich lange Wortfolge im Original, die in der Korrektur fehlt ("Chang my" -> "Chiang Mai")."""
+    names = proper_names(old, new, lang)
+    if not names:
+        return []
+    old_t = tokenize(old, lang)
+    new_low = {t.lower() for t in tokenize(new, lang)}
+    out, used = [], set()
+    for name in names:
+        n = len(name.split())
+        best, score = None, min_ratio
+        target = name.lower().replace(" ", "")
+        for w in (n, n + 1, n - 1):                  # ASR trennt Namen oft anders ("sam chi" für "Somchai")
+            for i in range(0, len(old_t) - w + 1) if w >= 1 else ():
+                span = old_t[i:i + w]
+                if any(j in used for j in range(i, i + w)) or all(t.lower() in new_low for t in span):
+                    continue
+                r = difflib.SequenceMatcher(None, "".join(span).lower(), target).ratio()
+                if r > score:
+                    best, score = (i, w), r
+        if best is not None:
+            used.update(range(best[0], best[0] + best[1]))
+            out.append((" ".join(old_t[best[0]:best[0] + best[1]]), name))
+    return out

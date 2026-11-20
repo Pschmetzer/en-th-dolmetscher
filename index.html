@@ -68,6 +68,18 @@
          padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
   .wrap { padding-left:16px; padding-right:16px; max-width:1000px; margin:0 auto; zoom:var(--ui-scale, 1); }   /* Schriftgröße A−/A+ */
   .tools { display:inline-flex; gap:6px; }
+  .sos { background:#b91c1c; color:#fff; border-color:#7f1d1d; font-weight:700; letter-spacing:.04em; }
+  .sos:hover { background:#991b1b; }
+  #sosDlg { max-width:min(34em,94vw); border:2px solid var(--line); border-radius:14px; background:var(--card); color:var(--fg); padding:16px 18px; }
+  #sosDlg::backdrop { background:rgba(0,0,0,.6); }
+  #sosDlg ul { list-style:none; margin:10px 0; padding:0; display:grid; gap:8px; }
+  #sosDlg li { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  #sosDlg a.num { display:inline-block; min-width:5.2em; text-align:center; font-size:24px; font-weight:800; padding:8px 12px; border:2px solid var(--fg); border-radius:10px; color:var(--fg); text-decoration:none; }
+  #sosDlg a.num:focus-visible, #sosDlg button:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
+  #destOut { min-height:1.4em; }
+  #privUsage, #privSwept { color:var(--mut); font-size:14px; }
+  [role=tab]:focus-visible, .tile:focus-visible, .sos:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
+  @media (forced-colors: active) { .sos, #sosDlg a.num { border:2px solid ButtonText; } }
   #pbRecentRow { align-items:center; font-size:14px; color:var(--mut); }
   #pbRecent { display:inline-flex; flex-wrap:wrap; gap:6px; }
   header { display:flex; gap:12px; align-items:center; justify-content:space-between; padding:14px 0; flex-wrap:wrap; }
@@ -255,7 +267,7 @@
   <h1><span aria-hidden="true">🌐</span> Dolmetscher <small style="color:var(--mut);font-weight:400">Web Lite</small></h1>
   <span id="status" aria-live="off" data-i18n="ready">Bereit</span>
   <select id="uiLang" aria-label="Sprache der Oberfläche / Interface language / ภาษาหน้าจอ"><option value="de">Deutsch</option><option value="en">English</option><option value="th">ไทย</option></select>
-  <span class="tools"><button class="small" id="btnTheme" type="button">◐</button><button class="small" id="btnTextDown" type="button">A−</button><button class="small" id="btnTextUp" type="button">A+</button></span>
+  <span class="tools"><button class="small sos" id="btnSos" type="button" data-aria="sosLbl" aria-label="Notruf-Schnellzugriff öffnen" aria-haspopup="dialog" data-i18n="sosBtn">SOS</button><button class="small" id="btnTheme" type="button">◐</button><button class="small" id="btnTextDown" type="button">A−</button><button class="small" id="btnTextUp" type="button">A+</button></span>
   <span id="swState" role="status"></span>
   <span id="appState" role="status" hidden></span>
 </header>
@@ -429,6 +441,40 @@
   <div id="allergyOut" class="big-out" lang="th"></div><div id="allergyEn" class="note" lang="en"></div>
   <div class="row"><button class="small" id="allergyShow" type="button" data-i18n="allergyShow">Karte groß zeigen</button> <button class="small" id="allergyImg" type="button" data-i18n="imgLbl">Als Bild teilen</button></div>
 </details>
+<details data-tab="cards" class="box" id="destBox">
+  <summary data-i18n="destSum">Taxi- und Hotelkarte (Ziel groß zeigen)</summary>
+  <p class="note" data-i18n="destHint">Name am besten auf Thai eintragen (aus der Buchungsbestätigung kopieren). Gespeichert wird nur auf diesem Gerät.</p>
+  <div class="row">
+    <label><span data-i18n="destKind">Art</span> <select id="destKind"></select></label>
+    <label><span data-i18n="destPick">Beliebtes Ziel</span> <select id="destPick"></select></label>
+  </div>
+  <div class="row">
+    <label><input id="destName" dir="auto" maxlength="80" autocomplete="off" size="22"> <span data-i18n="destName">Ziel oder Hotelname</span></label>
+    <label><input id="destAddr" dir="auto" maxlength="160" autocomplete="off" size="26"> <span data-i18n="destAddr">Adresse (optional)</span></label>
+  </div>
+  <div id="destOut" class="big-out" lang="th" aria-live="polite"></div><div id="destEn" class="note" lang="en"></div>
+  <div class="row">
+    <button class="small" id="destShow" type="button" data-i18n="destShow">Karte groß zeigen</button>
+    <button class="small" id="destSay" type="button" data-i18n="destSay">🔊 Vorlesen</button>
+    <button class="small" id="destSave" type="button" data-i18n="destSave">Merken</button>
+  </div>
+</details>
+<details data-tab="cards" class="box" id="privBox">
+  <summary data-i18n="privSum">Datenschutz und lokale Daten</summary>
+  <div class="row">
+    <label><input type="checkbox" id="onlineOff"> <span data-i18n="privOnlineOff">Online-Übersetzung aus (Satzbuch, Zahlen und Karten gehen weiter, nichts wird gesendet)</span></label>
+    <label><input type="checkbox" id="sensWarn" checked> <span data-i18n="privSens">Vor Online-Übersetzung in sensiblen Themen warnen (Arzt, Polizei, Visum, Bank …)</span></label>
+  </div>
+  <p class="note" data-i18n="privOnlineNote">Die Spracherkennung deines Browsers (Chrome: Google, Safari: Apple) bleibt davon unberührt.</p>
+  <div class="row"><label><span data-i18n="privRetain">Alte lokale Daten automatisch löschen nach</span> <select id="retainSel"></select></label></div>
+  <div id="privUsage" role="status"></div>
+  <div class="row">
+    <button class="small" id="privExport" type="button" data-i18n="privExport">Lokale Daten exportieren (.json)</button>
+    <button class="small" id="privImport" type="button" data-i18n="privImport">Lokale Daten importieren</button>
+    <span hidden><label><input type="file" id="privFile" accept="application/json,.json"> <span data-i18n="privFile">Sicherungsdatei</span></label></span>
+  </div>
+  <p class="note" id="privIos" role="note" hidden data-i18n="privIos">iPhone/iPad (Safari): Safari löscht Website-Daten nach 7 Tagen ohne Nutzung. Zum Home-Bildschirm hinzufügen oder die Daten regelmäßig exportieren.</p>
+</details>
 <details data-tab="book" class="box" id="glossBox">
   <summary data-i18n="glossSum">Wörterbuch (Englisch ⇄ Thai, alle Themen)</summary>
   <div class="row"><label><input id="glossQ" type="search" size="18" autocomplete="off"> <span data-i18n="search">Suche</span></label></div>
@@ -518,6 +564,24 @@
   <div class="row">
     <button class="small" id="consentNo" type="button" data-i18n="cancel">Abbrechen</button>
     <button class="small" id="consentOk" type="button" data-i18n="consentOk">Einverstanden, Mikrofon an</button>
+  </div>
+</dialog>
+
+<dialog id="sosDlg" aria-labelledby="sosTitle">
+  <h2 id="sosTitle" data-i18n="sosTitle">Notfall-Schnellzugriff</h2>
+  <p data-i18n="sosIntro">Notrufnummern in Thailand (kostenlos, rund um die Uhr). Antippen wählt die Nummer, sofern das Gerät telefonieren kann.</p>
+  <ul>
+    <li><a class="num" href="tel:191">191</a> <span data-i18n="sosPolice">Polizei</span></li>
+    <li><a class="num" href="tel:1669">1669</a> <span data-i18n="sosAmb">Rettung / Ambulanz</span></li>
+    <li><a class="num" href="tel:199">199</a> <span data-i18n="sosFire">Feuerwehr</span></li>
+    <li><a class="num" href="tel:1155">1155</a> <span data-i18n="sosTourist">Touristenpolizei (spricht Englisch)</span></li>
+    <li><a class="num" href="tel:1193">1193</a> <span data-i18n="sosHighway">Autobahnpolizei</span></li>
+    <li><a class="num" href="tel:112">112</a> <span data-i18n="sosIntl">Internationaler Notruf (wird weitergeleitet)</span></li>
+  </ul>
+  <div class="row">
+    <button class="small" id="sosAmb" type="button" data-i18n="sosShowAmb">Thai-Satz groß zeigen: Krankenwagen rufen</button>
+    <button class="small" id="sosPol" type="button" data-i18n="sosShowPol">Thai-Satz groß zeigen: Polizei rufen</button>
+    <button class="small" id="sosClose" type="button" data-i18n="sosClose">Schließen</button>
   </div>
 </dialog>
 
@@ -919,15 +983,67 @@ const STR = {
   "chk9": "Reiseapotheke und regelmäßige Medikamente (mit Bescheinigung)",
   "chk10": "Grab- oder Bolt-App installiert, Zahlungsart hinterlegt",
   "algWarn": "Enthält: {a}",
-  "checkReset": "Zurücksetzen"
+  "checkReset": "Zurücksetzen",
+  "sosBtn": "SOS",
+  "sosLbl": "Notruf-Schnellzugriff öffnen",
+  "sosTitle": "Notfall-Schnellzugriff",
+  "sosIntro": "Notrufnummern in Thailand (kostenlos, rund um die Uhr). Antippen wählt die Nummer, sofern das Gerät telefonieren kann.",
+  "sosPolice": "Polizei",
+  "sosAmb": "Rettung / Ambulanz",
+  "sosFire": "Feuerwehr",
+  "sosTourist": "Touristenpolizei (spricht Englisch)",
+  "sosHighway": "Autobahnpolizei",
+  "sosIntl": "Internationaler Notruf (wird weitergeleitet)",
+  "sosShowAmb": "Thai-Satz groß zeigen: Krankenwagen rufen",
+  "sosShowPol": "Thai-Satz groß zeigen: Polizei rufen",
+  "sosClose": "Schließen",
+  "destSum": "Taxi- und Hotelkarte (Ziel groß zeigen)",
+  "destHint": "Name am besten auf Thai eintragen (aus der Buchungsbestätigung kopieren). Gespeichert wird nur auf diesem Gerät.",
+  "destKindTaxi": "Taxi: bitte dorthin fahren",
+  "destKindHotel": "Hotelkarte: zurück zum Hotel",
+  "destKind": "Art",
+  "destName": "Ziel oder Hotelname",
+  "destAddr": "Adresse (optional)",
+  "destPick": "Beliebtes Ziel",
+  "destShow": "Karte groß zeigen",
+  "destSay": "🔊 Vorlesen",
+  "destSave": "Merken",
+  "destSaved": "Ziel gemerkt (nur auf diesem Gerät).",
+  "destEmpty": "Bitte zuerst ein Ziel eingeben.",
+  "privSum": "Datenschutz und lokale Daten",
+  "privOnlineOff": "Online-Übersetzung aus (Satzbuch, Zahlen und Karten gehen weiter, nichts wird gesendet)",
+  "privOnlineNote": "Die Spracherkennung deines Browsers (Chrome: Google, Safari: Apple) bleibt davon unberührt.",
+  "privSens": "Vor Online-Übersetzung in sensiblen Themen warnen (Arzt, Polizei, Visum, Bank …)",
+  "onlineOffNow": "Online-Übersetzung ist ausgeschaltet (Datenschutz).",
+  "sensWarn": "Dieses Thema enthält sensible Angaben. Der Satz wird zum Übersetzen an Google bzw. MyMemory gesendet. Trotzdem online übersetzen?",
+  "sensDeclined": "Übersetzung abgebrochen (sensibles Thema).",
+  "privRetain": "Alte lokale Daten automatisch löschen nach",
+  "privRetainOff": "Standard (90 Tage für gemerkte Übersetzungen)",
+  "privDays": "{n} Tage",
+  "privUsage": "Auf diesem Gerät gespeichert: {a}",
+  "privSwept": "Automatisch bereinigt: {a} alte Einträge.",
+  "privExport": "Lokale Daten exportieren (.json)",
+  "privImport": "Lokale Daten importieren",
+  "privFile": "Sicherungsdatei",
+  "privExported": "Lokale Daten exportiert.",
+  "privImported": "Daten importiert ({a} Bereiche). Seite lädt neu.",
+  "privBadFile": "Datei nicht lesbar oder nicht von dieser App.",
+  "privBigFile": "Datei zu groß.",
+  "privEmptyFile": "Die Datei enthält keine passenden Daten.",
+  "privConfirmImport": "Vorhandene lokale Daten dieser Bereiche werden überschrieben. Fortfahren?",
+  "privIos": "iPhone/iPad (Safari): Safari löscht Website-Daten nach 7 Tagen ohne Nutzung. Zum Home-Bildschirm hinzufügen oder die Daten regelmäßig exportieren.",
+  "swUpdating": "Neue Version wird geladen …",
+  "swMb": "{a} MB geladen"
  }
 };   // nur Deutsch (Standard und Rückfall) eingebaut; en/th liegen in i18n/*.json (vom Service Worker gespeichert)
 const UI_LANGS = ['de', 'en', 'th'];
 function pickUi() {   // gemerkte Wahl, sonst Browser-Sprache (de/th), sonst Englisch
   let v = null; try { v = JSON.parse(localStorage.getItem('webSettings') || '{}').ui; } catch {}
   if (UI_LANGS.includes(v)) return v;
-  const n = String((navigator.language || 'de')).slice(0, 2).toLowerCase();
-  return UI_LANGS.includes(n) ? n : 'en';
+  const prefs = [].concat(navigator.languages || [], navigator.language || []);   // Reihenfolge der Browser-Sprachliste: erste unterstützte gewinnt
+  if (!prefs.length) return 'de';
+  for (const p of prefs) { const n = String(p).slice(0, 2).toLowerCase(); if (UI_LANGS.includes(n)) return n; }
+  return 'en';
 }
 let UI = pickUi();
 const uiLoading = {};
@@ -1311,6 +1427,7 @@ async function translateOne(text, src, dst) {
   return { text: g, via: 'google' };
 }
 async function translate(text, src, dst) {
+  await onlineGate();   // Schalter „Online-Übersetzung aus“ und Warnung bei sensiblen Themen
   const parts = await mapLimit(splitText(text, 300), 2, p => translateOne(p, src, dst));   // wenige Anfragen gleichzeitig (Limits der Dienste)
   if (!parts.length) throw new Error('empty');
   const text2 = parts.map(p => p.text).join(/^(th|ja|zh|lo|km|my)/.test(dst) ? '' : ' ');   // Sprachen ohne Wortabstand
@@ -3190,9 +3307,11 @@ if ('serviceWorker' in navigator && window.isSecureContext && /^https?:$/.test(l
   let fillAsked = false;
   navigator.serviceWorker.addEventListener('message', e => {   // Antwort des Workers: wie viele Dateien sind offline bereit
     const d = e.data;
+    if (d && d.type === 'sw-version' && typeof d.cache === 'string') { $('swState').title = d.cache; return; }
     if (!d || d.type !== 'offline-status' || !Number.isInteger(d.ok) || !Number.isInteger(d.total)) return;
     const st = $('swState');
     st.textContent = d.ok >= d.total ? t('offlineReady') : d.loading ? t('offlineLoading', { a: d.ok, b: d.total }) : t('offlinePart', { a: d.ok, b: d.total });
+    if (Number.isFinite(d.bytes) && d.bytes > 0 && d.ok < d.total) st.textContent += ' · ' + t('swMb', { a: (d.bytes / 1048576).toFixed(1) });   // Bytefortschritt der Paketladung
     if (d.ok < d.total && !d.loading && !fillAsked && navigator.onLine !== false) {
       fillAsked = true;   // Pakete erst nach dem Start, einmal je Sitzung und nur mit Netz; im Datensparmodus nur die Notfallpakete
       const lite = !!(navigator.connection && navigator.connection.saveData);
@@ -3201,7 +3320,7 @@ if ('serviceWorker' in navigator && window.isSecureContext && /^https?:$/.test(l
     }
   });
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(() => navigator.serviceWorker.ready)
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(r => { r.addEventListener('updatefound', () => { if (hadController || navigator.serviceWorker.controller) setStatus(t('swUpdating'), true); }); return navigator.serviceWorker.ready; })
       .then(reg => {
         if (reg.active) reg.active.postMessage({ type: 'offline-status' });
         try { if (navigator.storage && navigator.storage.persist && window.matchMedia('(display-mode: standalone)').matches) navigator.storage.persist(); } catch {}   // installierte App: Speicher gegen automatisches Räumen schützen (kein Dialog)
@@ -3265,14 +3384,138 @@ $('btnTextDown').onclick = () => setUiScale(uiScale - FS_STEP);
 $('btnTextUp').onclick = () => setUiScale(uiScale + FS_STEP);
 $('uiLang').value = UI;
 function refreshUi() {   // nach Sprachwechsel oder nach dem Nachladen der Texte alles neu beschriften
-  $('uiLang').value = UI; applyUi(); renderAppState(); renderWarn(); checkRender();
+  $('uiLang').value = UI; applyUi(); renderAppState(); renderWarn(); checkRender(); r23Render();
   if (LANGS[pair.a]) { fillLangSelects(); buildModes(); fillPresetSelect(); renderCards(); statsRender(); updatePreBtn(); renderRecent(); learnRender(); if (allergyData) { allergyTiles('allergyTiles', allergyData.allergies); allergyTiles('condTiles', allergyData.conditions); } }
 }
 $('uiLang').onchange = async () => {
   const nl = $('uiLang').value; UI = nl; settings.ui = UI; saveSettings();
   refreshUi(); if (!(await loadUi(nl))) setStatus(t('uiLoadFail'), true); else refreshUi();
 };
-applyUi(); renderAppState();
+// ---- Runde 23: Datenschutz (Online-Übersetzung aus, Warnung, Export/Import, Bereinigung), Notfall-Schnellzugriff, Taxi-/Hotelkarte ----
+const R23_KEYS = ['webSettings', 'learnV1', 'learnStatsV1', 'allergyV1', 'pbTrans', 'pbUse', 'myCardsV1', 'destV1', 'iosWarnOff', 'installHint'];
+const R23_ERR = { size: 'privBigFile', empty: 'privEmptyFile' };
+const R23_FLAGS = ['iosWarnOff', 'installHint'];
+const R23_MAX_VALUE = 1500000, R23_MAX_TOTAL = 4000000;
+function backupParse(text) {   // Sicherungsdatei prüfen: nur bekannte Schlüssel, nur Texte mit gültigem JSON, Größenlimit; nie die Mikrofon-Zustimmung
+  if (typeof text !== 'string' || text.length > R23_MAX_TOTAL * 2) return { error: 'size' };
+  let o; try { o = JSON.parse(text); } catch { return { error: 'format' }; }
+  if (!o || o.app !== 'dolmetscher-web' || o.v !== 1 || !o.data || typeof o.data !== 'object' || Array.isArray(o.data)) return { error: 'format' };
+  const data = {}; let total = 0;
+  for (const k of Object.keys(o.data)) {
+    if (!R23_KEYS.includes(k)) continue;
+    const v = o.data[k];
+    if (typeof v !== 'string' || v.length > R23_MAX_VALUE) return { error: 'size' };
+    if (!R23_FLAGS.includes(k)) { try { JSON.parse(v); } catch { return { error: 'format' }; } }
+    total += v.length; if (total > R23_MAX_TOTAL) return { error: 'size' };
+    data[k] = v;
+  }
+  return Object.keys(data).length ? { data } : { error: 'empty' };
+}
+function backupBuild(read) {   // read(key) -> Text oder null
+  const data = {};
+  for (const k of R23_KEYS) { let v = null; try { v = read(k); } catch {} if (typeof v === 'string') data[k] = v; }
+  return JSON.stringify({ app: 'dolmetscher-web', v: 1, saved: new Date().toISOString(), data });
+}
+function staleKeys(map, now, days) {   // Einträge mit Zeitstempel `ts` (ms), die älter als `days` Tage sind
+  if (!(days > 0) || !map || typeof map !== 'object') return [];
+  return Object.keys(map).filter(k => { const x = map[k]; return x && Number.isFinite(x.ts) && now - x.ts > days * 864e5; });
+}
+function staleDays(stats, now, days) {   // Tagesstatistik {'JJJJ-MM-TT': …}: Tage älter als `days` (mindestens 30, die Serie braucht sie)
+  if (!(days > 0) || !stats || typeof stats !== 'object') return [];
+  const lim = now - Math.max(30, days) * 864e5;
+  return Object.keys(stats).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k) && Date.parse(k + 'T12:00:00') < lim);
+}
+function fmtBytes(n) { return n < 1024 ? n + ' B' : n < 1048576 ? (n / 1024).toFixed(n < 10240 ? 1 : 0) + ' KB' : (n / 1048576).toFixed(1) + ' MB'; }
+function storageBytes() { let n = 0; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); n += 2 * (k.length + (localStorage.getItem(k) || '').length); } } catch {} return n; }
+const SENSITIVE_PACKS = new Set(['doctor', 'hospital', 'police', 'pharmacy', 'dentist', 'sexual-health-clinic', 'mental-health-counseling', 'pregnancy-maternity', 'chronic-conditions', 'doctor-symptom-detail', 'skin-clinic', 'lost-passport', 'embassy-consulate', 'visa', 'visa-extension', 'immigration-90day', 'tm30-address-report', 'bank', 'bank-account-opening', 'atm-bank-card', 'lost-wallet-cards', 'travel-insurance-claim', 'food-allergy', 'car-accident', 'motorbike-accident', 'animal-bite-rabies', 'physiotherapy-injury']);
+const sensitivePack = id => SENSITIVE_PACKS.has(id);
+const sensAsked = new Set();
+async function onlineGate() {   // vor jeder Online-Übersetzung: Schalter „aus“, dann einmalige Warnung je sensiblem Thema und Sitzung
+  if (settings.onlineOff) throw new Error(t('onlineOffNow'));
+  const sel = $('presetSel'), id = sel ? sel.value : '';
+  if (settings.sensWarn !== false && document.body.dataset.tab === 'book' && sensitivePack(id) && !sensAsked.has(id)) {
+    if (!window.confirm(t('sensWarn'))) throw new Error(t('sensDeclined'));
+    sensAsked.add(id);
+  }
+}
+function r23Sweep() {   // beim Start: nach gewählter Frist alte gemerkte Übersetzungen und Lerntage löschen
+  const days = Number(settings.retainDays) || 0; if (!days) return 0;
+  const now = Date.now(), a = staleKeys(pbTrans, now, days), b = staleDays(learnStats, now, days);
+  for (const k of a) delete pbTrans[k];
+  for (const k of b) delete learnStats[k];
+  if (a.length) pbSave();
+  if (b.length) lsSet('learnStatsV1', JSON.stringify(learnStats));
+  return a.length + b.length;
+}
+const DEST_POPULAR = [['Suvarnabhumi Airport', 'สนามบินสุวรรณภูมิ'], ['Don Mueang Airport', 'สนามบินดอนเมือง'], ['Phuket Airport', 'สนามบินภูเก็ต'], ['Chiang Mai Airport', 'สนามบินเชียงใหม่'], ['Khao San Road', 'ถนนข้าวสาร'], ['Grand Palace', 'พระบรมมหาราชวัง'], ['Siam Paragon', 'สยามพารากอน'], ['Chatuchak Market', 'ตลาดนัดจตุจักร'], ['Mo Chit Bus Terminal', 'สถานีขนส่งหมอชิต'], ['Hospital', 'โรงพยาบาล'], ['Police station', 'สถานีตำรวจ']];
+function destText(kind, name, addr) {   // Satz für den Fahrer: Thai und Englisch; leer ohne Namen
+  name = String(name || '').trim().slice(0, 80); addr = String(addr || '').trim().slice(0, 160);
+  if (!name) return null;
+  if (kind === 'hotel') return { th: 'ช่วยพาไปส่งที่โรงแรม ' + name + ' หน่อย' + (addr ? ' ที่อยู่: ' + addr : ''), en: 'Please take me to the hotel ' + name + (addr ? ' – address: ' + addr : '') + '.' };
+  return { th: 'กรุณาไปส่งที่ ' + name + ' ด้วย กรุณาเปิดมิเตอร์ด้วย', en: 'Please take me to ' + name + '. Please use the meter.' };
+}
+function destState() { try { const o = JSON.parse(localStorage.getItem('destV1') || '{}'); return o && typeof o === 'object' ? o : {}; } catch { return {}; } }
+function destRender() {
+  const d = destText($('destKind').value, $('destName').value, $('destAddr').value);
+  $('destOut').textContent = d ? d.th : ''; $('destEn').textContent = d ? d.en : '';
+}
+function destFillPopular() {
+  const s = $('destPick'), keep = s.value; s.textContent = '';
+  const o0 = document.createElement('option'); o0.value = ''; o0.textContent = '–'; s.appendChild(o0);
+  for (const [en, th] of DEST_POPULAR) { const o = document.createElement('option'); o.value = th; o.textContent = en + ' · ' + th; s.appendChild(o); }
+  s.value = keep;
+}
+const SOS_THAI = { amb: 'ช่วยด้วย ต้องการรถพยาบาล โทร 1669', pol: 'ช่วยด้วย ต้องการตำรวจ โทร 191' };
+let sosOpener = null;
+function sosOpen() {
+  const d = $('sosDlg'); sosOpener = document.activeElement;
+  if (typeof d.showModal === 'function') { if (!d.open) d.showModal(); } else d.setAttribute('open', '');
+}
+function sosClose() { const d = $('sosDlg'); if (typeof d.close === 'function') { if (d.open) d.close(); } else d.removeAttribute('open'); }
+function r23Render() {   // nach Sprachwechsel: dynamische Texte der neuen Bereiche
+  const sel = $('retainSel');
+  if (sel) { const cur = String(settings.retainDays || 0); sel.textContent = ''; for (const v of ['0', '30', '90', '365']) { const o = document.createElement('option'); o.value = v; o.textContent = v === '0' ? t('privRetainOff') : t('privDays', { n: v }); sel.appendChild(o); } sel.value = cur; }
+  $('privUsage').textContent = t('privUsage', { a: fmtBytes(storageBytes()) });
+  const dk = $('destKind'), dv = dk.value || 'taxi'; dk.textContent = '';
+  for (const v of ['taxi', 'hotel']) { const o = document.createElement('option'); o.value = v; o.textContent = v === 'taxi' ? t('destKindTaxi') : t('destKindHotel'); dk.appendChild(o); }
+  dk.value = dv;
+  $('destOut').lang = 'th';
+}
+function r23Init() {
+  $('btnSos').onclick = sosOpen; $('sosClose').onclick = sosClose;
+  $('sosDlg').addEventListener('close', () => { const o = sosOpener; sosOpener = null; if (o && o.focus && document.contains(o)) o.focus(); });   // Fokus zurück zum Auslöser
+  $('sosDlg').addEventListener('click', e => { if (e.target === $('sosDlg')) sosClose(); });   // Klick auf den Hintergrund schließt
+  $('sosAmb').onclick = () => { sosClose(); showBig(SOS_THAI.amb, 'th', 'crit'); };
+  $('sosPol').onclick = () => { sosClose(); showBig(SOS_THAI.pol, 'th', 'crit'); };
+  const st = destState(); $('destKind').value = st.kind === 'hotel' ? 'hotel' : 'taxi'; $('destName').value = String(st.name || '').slice(0, 80); $('destAddr').value = String(st.addr || '').slice(0, 160);
+  destFillPopular(); destRender();
+  for (const id of ['destKind', 'destName', 'destAddr']) $(id).addEventListener('input', destRender);
+  $('destPick').onchange = () => { if ($('destPick').value) { $('destName').value = $('destPick').value; destRender(); } };
+  $('destShow').onclick = () => { const d = destText($('destKind').value, $('destName').value, $('destAddr').value); if (!d) { setStatus(t('destEmpty'), true); $('destName').focus(); return; } showBig(d.th, 'th'); };
+  $('destSay').onclick = () => { const d = destText($('destKind').value, $('destName').value, $('destAddr').value); if (!d) { setStatus(t('destEmpty'), true); return; } sayNow(d.th, 'th'); };
+  $('destSave').onclick = () => { if (lsSet('destV1', JSON.stringify({ kind: $('destKind').value, name: $('destName').value.slice(0, 80), addr: $('destAddr').value.slice(0, 160) }))) setStatus(t('destSaved'), true); };
+  $('onlineOff').checked = !!settings.onlineOff; $('sensWarn').checked = settings.sensWarn !== false;
+  $('onlineOff').onchange = () => { settings.onlineOff = $('onlineOff').checked; saveSettings(); };
+  $('sensWarn').onchange = () => { settings.sensWarn = $('sensWarn').checked; saveSettings(); };
+  $('retainSel').onchange = () => { settings.retainDays = Number($('retainSel').value) || 0; saveSettings(); const n = r23Sweep(); if (n) setStatus(t('privSwept', { a: n }), true); r23Render(); };
+  $('privExport').onclick = () => { download('dolmetscher-lokale-daten.json', backupBuild(k => localStorage.getItem(k)), 'application/json'); setStatus(t('privExported'), true); };
+  $('privImport').onclick = () => $('privFile').click();
+  $('privFile').onchange = async () => {
+    const f = $('privFile').files[0]; $('privFile').value = ''; if (!f) return;
+    if (f.size > R23_MAX_TOTAL * 2) { setStatus(t('privBigFile'), true); return; }
+    let txt = ''; try { txt = await f.text(); } catch { setStatus(t('privBadFile'), true); return; }
+    const r = backupParse(txt);
+    if (r.error) { setStatus(t(R23_ERR[r.error] || 'privBadFile'), true); return; }
+    if (!window.confirm(t('privConfirmImport'))) return;
+    let n = 0; for (const k of Object.keys(r.data)) if (lsSet(k, r.data[k])) n++;
+    setStatus(t('privImported', { a: n }), true); setTimeout(() => location.reload(), 700);
+  };
+  $('privIos').hidden = !(isIOS && !isStandalone());
+  const n = r23Sweep(); if (n) setStatus(t('privSwept', { a: n }));
+  r23Render();
+}
+r23Init();
+applyUi(); renderAppState(); r23Render();
 if (UI !== 'de') loadUi(UI).then(ok => { if (ok) refreshUi(); });   // kein Blockieren: erst Deutsch, dann die gewählte Sprache
 loadLangTable().then(() => {
   initPair();
