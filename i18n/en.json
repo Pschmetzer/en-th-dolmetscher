@@ -319,5 +319,8 @@
  "convoClose": "Close",
  "convoSend": "Send and translate",
  "convoHint": "Partner types here",
- "convoYou": "You type here"
+ "convoYou": "You type here",
+ "imgLbl": "Share as image",
+ "imgFail": "Could not create the image.",
+ "imgSaved": "Image saved."
 }

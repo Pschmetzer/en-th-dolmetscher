@@ -366,7 +366,7 @@
   <div class="row"><label><span data-i18n="bloodLbl">Blutgruppe</span> <select id="bloodSel"><option value="">–</option><option>A</option><option>B</option><option>AB</option><option>O</option></select></label>
     <label><span data-i18n="rhLbl">Rhesus</span> <select id="rhSel"><option value="">–</option><option value="บวก">+</option><option value="ลบ">−</option></select></label></div>
   <div id="allergyOut" class="big-out" lang="th"></div><div id="allergyEn" class="note" lang="en"></div>
-  <div class="row"><button class="small" id="allergyShow" type="button" data-i18n="allergyShow">Karte groß zeigen</button></div>
+  <div class="row"><button class="small" id="allergyShow" type="button" data-i18n="allergyShow">Karte groß zeigen</button> <button class="small" id="allergyImg" type="button" data-i18n="imgLbl">Als Bild teilen</button></div>
 </details>
 <details data-tab="book" class="box" id="glossBox">
   <summary data-i18n="glossSum">Wörterbuch (Englisch ⇄ Thai, alle Themen)</summary>
@@ -811,7 +811,10 @@ const STR = {
   "convoClose": "Schließen",
   "convoSend": "Senden und übersetzen",
   "convoHint": "Gegenüber tippt hier",
-  "convoYou": "Du tippst hier"
+  "convoYou": "Du tippst hier",
+  "imgLbl": "Als Bild teilen",
+  "imgFail": "Bild konnte nicht erstellt werden.",
+  "imgSaved": "Bild gespeichert."
  }
 };   // nur Deutsch (Standard und Rückfall) eingebaut; en/th liegen in i18n/*.json (vom Service Worker gespeichert)
 const UI_LANGS = ['de', 'en', 'th'];
@@ -2434,6 +2437,41 @@ function typeSubmit(big) {
 $('typeGo').onclick = () => typeSubmit(false);
 $('typeBig').onclick = () => typeSubmit(true);
 $('typeIn').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); typeSubmit(false); } });
+
+// ---- Karte als Bild (für Chat-Apps wie LINE, Sperrbildschirm, Zettel): Canvas, nichts verlässt das Gerät ----
+function wrapLines(ctx, text, maxW, lang) {   // Zeilenumbruch nach Wörtern (Thai: Intl.Segmenter, sonst Zeichen)
+  const parts = (typeof Intl !== 'undefined' && Intl.Segmenter) ? [...new Intl.Segmenter(lang, { granularity: 'word' }).segment(text)].map(x => x.segment) : [...text];
+  const lines = []; let cur = '';
+  for (const w of parts) {
+    if (w === '\n') { lines.push(cur); cur = ''; continue; }
+    if (cur && ctx.measureText(cur + w).width > maxW) { lines.push(cur.trimEnd()); cur = w.trimStart(); } else cur += w;
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+function cardCanvas(blocks) {   // blocks: [{ text, lang, size, bold, color }]
+  const W = 1080, pad = 60, c = document.createElement('canvas'), ctx = c.getContext('2d');
+  const lay = blocks.map(b => { ctx.font = (b.bold ? '700 ' : '400 ') + b.size + 'px system-ui, "Noto Sans Thai", sans-serif'; return { b, lines: wrapLines(ctx, b.text, W - 2 * pad, b.lang) }; });
+  let H = pad; for (const l of lay) H += l.lines.length * l.b.size * 1.35 + 30;
+  c.width = W; c.height = Math.ceil(H + pad / 2);
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height); ctx.textBaseline = 'top';
+  let y = pad;
+  for (const l of lay) { ctx.font = (l.b.bold ? '700 ' : '400 ') + l.b.size + 'px system-ui, "Noto Sans Thai", sans-serif'; ctx.fillStyle = l.b.color || '#000'; for (const ln of l.lines) { ctx.fillText(ln, pad, y); y += l.b.size * 1.35; } y += 30; }
+  return c;
+}
+async function shareCardImage(blocks, name) {
+  try {
+    const blob = await new Promise((res, rej) => cardCanvas(blocks).toBlob(b => b ? res(b) : rej(new Error('blob')), 'image/png'));
+    const file = new File([blob], name, { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file] }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    setStatus(t('imgSaved'), true);
+  } catch { setStatus(t('imgFail'), true); }
+}
+$('allergyImg').onclick = () => { const o = $('allergyOut').textContent; if (o) shareCardImage([{ text: o, lang: 'th', size: 64, bold: true }, { text: $('allergyEn').textContent, lang: 'en', size: 40, color: '#333' }], 'allergy-card.png'); else setStatus(t('allergyNoData'), true); };
+{ const b = document.createElement('button'); b.type = 'button'; b.className = 'small'; b.id = 'btnPartnerImg'; b.textContent = '🖼'; b.setAttribute('data-aria', 'imgLbl'); b.title = t('imgLbl');
+  b.onclick = () => { if (bigText) shareCardImage([{ text: bigText.text, lang: bigText.lang, size: 96, bold: true }], 'card.png'); };
+  $('btnPartnerShareTx').after(b); }
 
 // ---- Zwei Personen: geteilter Bildschirm, jede Seite tippt in ihrer Sprache (auch ohne Spracherkennung) ----
 function convoOpen(on) {

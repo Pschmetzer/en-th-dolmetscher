@@ -20,3 +20,5 @@ tools/translate-helper/translate-helper
 .coverage
 .coverage.*
 coverage.xml
+tests/web-e2e/node_modules/
+tests/web-e2e/package-lock.json
