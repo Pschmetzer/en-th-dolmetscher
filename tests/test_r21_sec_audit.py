@@ -23,7 +23,8 @@ def test_ios_gespraechstext_nicht_oeffentlich_im_system_log():
         for ln in f.read_text(encoding="utf-8").splitlines():
             if re.search(r"\.(debug|info|error|notice|warning|fault)\(", ln) and "privacy: .public" in ln:
                 # nur Sprachcodes, Fehlertexte und Zustände dürfen öffentlich sein, nie Satztexte
-                assert not re.search(r"\\\((text|raw|translation|sentence|out)\b[^)]*privacy: \.public", ln), (f.name, ln)
+                bad = re.search(r"\\\((text|raw|translation|sentence|out)\b[^)]*privacy: \.public", ln)
+                assert not bad, (f.name, ln)
 
 
 def test_ios_kursabfrage_ohne_geteilten_cache():
