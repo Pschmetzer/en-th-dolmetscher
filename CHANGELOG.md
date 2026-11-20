@@ -15,6 +15,10 @@ Pull requests #16–#47. Not yet published as a release.
 - Log/error paths: a home folder such as `/Users/x` no longer turns `/Users/xavier/...` into `~avier/...`; nested path lists in events are masked too.
 - Spoken output: `5€`, `500฿` and a bare `20°` are read as words; learned glossary names can no longer inject glossary lines; the plain console no longer fails on sparse events.
 
+### iPhone, round 21 (8)
+
+- iPhone: a cancelled translation (sentence deleted or re-translated) no longer continues to Google/MyMemory; it ends without any network access.
+
 ### Security review, round 21
 
 - Mac: allowing a `dolmetscher://` call in the confirmation dialog now applies to that one call only; permanent permission is set only with the Settings switch.
