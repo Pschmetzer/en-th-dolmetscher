@@ -79,7 +79,6 @@ CORRECTIONS = {   # Englischer Satz -> gewählte Thai-Fassung (vorher klobig ode
     "Please do not let me sign anything before I read it.": "ขออย่าเพิ่งให้เซ็นอะไรจนกว่าจะได้อ่าน",
     "Please take us to the island and wait.": "ช่วยพาไปที่เกาะแล้วรอด้วย",
     "Please send the file by email as well.": "ช่วยส่งไฟล์ทางอีเมลด้วย",
-    "Please call the lifeguard.": "ช่วยเรียกเจ้าหน้าที่กู้ภัยชายหาดหน่อย",
     "Please keep the group together.": "ช่วยอย่าให้กลุ่มแยกกันหน่อย",
 }
 
