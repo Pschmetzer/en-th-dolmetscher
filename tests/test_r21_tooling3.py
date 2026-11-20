@@ -189,3 +189,17 @@ def test_learn_weight_is_capped(spk):
     full /= np.linalg.norm(full)
     assert float(emb @ np.array([1.0, 0.0])) > float(full @ np.array([1.0, 0.0]))
     assert profiles.MAX_LEARN_WEIGHT <= 0.3
+
+
+def test_enroll_has_eight_sentences_for_each_language():
+    import profiles
+    assert {"en", "th", "de", "es", "fr"} <= set(profiles.ENROLL)
+    for lang, sents in profiles.ENROLL.items():
+        assert len(sents) == 8 and len(set(sents)) == 8, lang
+        assert all(8 <= len(s) <= 90 for s in sents), lang
+    assert "Traducteur" in profiles.ENROLL["fr"][-1] and "Übersetzer" in profiles.ENROLL["de"][-1]
+
+
+def test_ci_has_workflow_lint_job():
+    ci = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    assert "actionlint" in ci and "zizmor" in ci
