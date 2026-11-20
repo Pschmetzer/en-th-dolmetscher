@@ -111,3 +111,9 @@ def test_hotkeys_configurable_and_mini_mode():
     assert "struct MiniView" in src("MiniView.swift")
     ids = {a for a in re.findall(r"Action\(id: (\d+)", src("HotKeyLogic.swift"))}
     assert ids == {"1", "2", "3", "4", "5", "6"}
+
+
+def test_text_requested_before_ready_is_spoken_after_ready():
+    e = src("Engine.swift")
+    assert "pendingSay = (text, lang)" in e
+    assert "if let p = pendingSay { pendingSay = nil; say(p.text, lang: p.lang) }" in e

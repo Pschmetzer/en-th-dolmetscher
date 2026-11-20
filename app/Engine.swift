@@ -1166,6 +1166,7 @@ final class EngineModel: NSObject, ObservableObject {
             if let pv = (o["protocol"] as? NSNumber)?.intValue, pv != Self.protocolVersion { protocolMismatch = pv }
             else { protocolMismatch = nil }
             if !preset.isEmpty { send(["preset": preset]) }
+            if let p = pendingSay { pendingSay = nil; say(p.text, lang: p.lang) }   // vor dem Laden angeforderter Text (Dienst/Zwischenablage)
             // Paar während des Ladens geändert: nachreichen (ältere Engines ohne `langs` kennen nur en/th)
             if let p = o["langs"] as? [String: String], p["mine"] != mineLang || p["partner"] != partnerLang {
                 send(langsMessage())
@@ -1683,8 +1684,14 @@ final class EngineModel: NSObject, ObservableObject {
     func translateText(_ raw: String?) {
         guard let text = ClipboardLogic.prepare(raw) else { Announcer.post(L.t("clipboard_empty"), force: true); return }
         if ClipboardLogic.wasTruncated(raw) { Announcer.post(L.t("clipboard_truncated")) }
-        say(text, lang: Prefs.phraseLang(text))
+        let lang = Prefs.phraseLang(text)
+        if engineReady { say(text, lang: lang) }
+        else {   // Modelle laden noch (z. B. Dienst-Aufruf direkt nach App-Start): merken und nach `ready` sprechen
+            pendingSay = (text, lang)
+            Announcer.post(L.t("say_after_load"))
+        }
     }
+    private var pendingSay: (text: String, lang: String)?
 
     func say(_ text: String, lang: String = "en") {
         // Nr. 361: erst nach `ready` – sonst puffert die Engine den Satz und spricht ihn später unerwartet
