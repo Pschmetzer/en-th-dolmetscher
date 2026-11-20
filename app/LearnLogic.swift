@@ -5,10 +5,13 @@ import Foundation
 enum LearnLogic {
     /// Wörter eines Satzes in Reihenfolge. Nutzt die Wortgrenzen des Systems (ICU), damit auch Thai getrennt wird;
     /// Satzzeichen und Leerzeichen fallen weg.
-    static func words(_ text: String) -> [String] {
-        var out: [String] = []
-        text.enumerateSubstrings(in: text.startIndex..<text.endIndex, options: [.byWords, .localized]) { w, _, _, _ in
-            if let w, w.contains(where: { $0.isLetter || $0.isNumber }) { out.append(w) }
+    static func words(_ text: String) -> [String] { wordRanges(text).map { String(text[$0]) } }
+
+    /// Wortbereiche im Text (gleiche Regeln wie `words`): so trifft die Lücke genau das gewählte Wort.
+    static func wordRanges(_ text: String) -> [Range<String.Index>] {
+        var out: [Range<String.Index>] = []
+        text.enumerateSubstrings(in: text.startIndex..<text.endIndex, options: [.byWords, .localized]) { w, r, _, _ in
+            if let w, w.contains(where: { $0.isLetter || $0.isNumber }) { out.append(r) }
         }
         return out
     }
@@ -21,19 +24,11 @@ enum LearnLogic {
     /// Lückentext: das Wort an `index` wird durch „____“ (Länge ~ Wortlänge, 3…8) ersetzt. nil bei ungültigem Index
     /// oder wenn der Satz weniger als zwei Wörter hat.
     static func cloze(_ text: String, hiding index: Int) -> (prompt: String, answer: String)? {
-        let toks = words(text)
-        guard toks.count >= 2, toks.indices.contains(index) else { return nil }
-        let answer = toks[index]
-        // n-tes Vorkommen exakt treffen: so oft vorangehende gleiche Wörter überspringen
-        let skip = toks[..<index].filter { $0 == answer }.count
-        var range: Range<String.Index>?, from = text.startIndex
-        for _ in 0...skip {
-            guard let f = text.range(of: answer, range: from..<text.endIndex) else { return nil }
-            range = f; from = f.upperBound
-        }
-        guard let range else { return nil }
+        let ranges = wordRanges(text)
+        guard ranges.count >= 2, ranges.indices.contains(index) else { return nil }
+        let answer = String(text[ranges[index]])
         var p = text
-        p.replaceSubrange(range, with: String(repeating: "_", count: min(8, max(3, answer.count))))
+        p.replaceSubrange(ranges[index], with: String(repeating: "_", count: min(8, max(3, answer.count))))
         return (p, answer)
     }
 
