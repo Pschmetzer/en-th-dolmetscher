@@ -23,7 +23,7 @@ struct MiniView: View {
                 .help(L.t(m.active ? "stop_engine" : "start_engine"))
                 .accessibilityLabel(L.t(m.active ? "stop_engine" : "start_engine"))
                 .accessibilityValue(parts.text)
-                if m.micOn { LevelBar(meter: m.meter) }
+                if m.micOn { LevelBar(meter: m.meter); ClipBadge(meter: m.meter) }
                 HStack(spacing: 4) {
                     if let sym = parts.symbol { Image(systemName: sym.name).foregroundStyle(sym.tint).accessibilityHidden(true) }
                     Text(parts.text).lineLimit(1).truncationMode(.tail)
@@ -31,6 +31,11 @@ struct MiniView: View {
                 .font(.system(size: 12, weight: .semibold)).foregroundStyle(.secondary)
                 .help(parts.text)
                 Spacer(minLength: 0)
+                // Leertaste = Pause/Fortsetzen (nur in diesem Fenster; Start/Stopp liegt auf dem Knopf links)
+                Button { m.togglePause() } label: { Image(systemName: m.paused ? "play.circle" : "pause.circle") }
+                    .buttonStyle(.borderless).disabled(!m.running || !m.micOn && !m.paused)
+                    .keyboardShortcut(.space, modifiers: [])
+                    .help(L.t(m.paused ? "resume" : "pause") + " (␣)").accessibilityLabel(L.t(m.paused ? "resume" : "pause"))
                 Button { m.stopSpeaking() } label: { Image(systemName: "stop.circle") }
                     .buttonStyle(.borderless).disabled(!m.running)
                     .help(L.t("stop_speaking")).accessibilityLabel(L.t("stop_speaking"))
@@ -39,6 +44,9 @@ struct MiniView: View {
                     .help(L.t("replay_last")).accessibilityLabel(L.t("replay_last"))
             }
             if let last {
+                if last.interrupted {
+                    Label(L.r23("interrupted"), systemImage: "bolt.slash.fill").font(.caption).foregroundStyle(LangStyle.warning)
+                }
                 Text(last.out)
                     .font(.system(size: 22, weight: .semibold))
                     .foregroundStyle(LangStyle.color(last.to))
@@ -46,6 +54,9 @@ struct MiniView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .textSelection(.enabled)
                     .accessibilityLabel(Text(a11yAttributed([(last.out, last.to)])))
+                    .contextMenu {
+                        Button(L.r23("mini_copy")) { copyToPasteboard(last.out); Announcer.post(L.t("copied")) }
+                    }
                 if showOriginal {
                     Text(last.text).font(.system(size: 13)).foregroundStyle(.secondary).lineLimit(2)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -62,6 +73,8 @@ struct MiniView: View {
             if w.frameAutosaveName.isEmpty { w.setFrameAutosaveName("DolmetscherMiniWindow") }
         })
         .contextMenu {
+            Button(L.r23("mini_copy")) { if let l = last { copyToPasteboard(l.out); Announcer.post(L.t("copied")) } }
+                .disabled(last == nil)
             Toggle(L.t("always_on_top"), isOn: $onTop)
             Toggle(L.t("caption_original"), isOn: $showOriginal)
         }

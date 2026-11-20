@@ -4,6 +4,17 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### Mac app main window, round 23
+
+- Search shows the current match as "2 / 7" with previous/next buttons (⇧⌘G / ⌘G); the matching bubble is highlighted and scrolled into view.
+- Select several bubbles (context menu or the "More" menu): copy (with or without times), export (also one language only) or delete them together.
+- Bubble context menu: "Copy as …" with original, translation, both or with time; VoiceOver announces the bubble position ("3/12").
+- Number mismatches are much easier to see: a filled warning with the differing numbers, numbers highlighted in the bubble and in the partner view.
+- Page through alternative readings of unsure speech; per-bubble back-translation button.
+- Empty history shows a daily tip; the header shows a latency sparkline with trend, a "too loud" hint when the microphone clips, and an offer to switch to Auto when the last sentences do not match the forced language.
+- Partner view: Thai text is set larger. Mini window: copy button and space bar for pause/resume.
+- Engine: partial text is throttled under load, the watchdog uses a monotonic clock, and a sentence cut off by an engine crash stays as a bubble marked "interrupted".
+
 ### iPhone round 32 (iOS)
 
 - New: taxi card with large Thai script, price and haggling helper, step-by-step emergency flow, tap-a-word lexicon; emergency numbers per country; three Shortcuts actions that return values (emergency numbers, taxi phrase, counter-offers).

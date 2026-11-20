@@ -38,6 +38,7 @@ struct Utterance: Identifiable, Equatable {
     var alts: [String] = []      // andere Lesarten der Erkennung (nur bei unsicherem Thai mit Claude)
     var skipped = false          // wegen Rückstand nicht vorgelesen
     var cutOff = false           // Vorlesen riss mitten im Satz ab (`speak_done.partial`)
+    var interrupted = false      // Engine stürzte ab, bevor die Übersetzung fertig war (nur der erkannte Teil blieb)
     var pending = false          // Platzhalter: wird gerade erkannt/übersetzt
     let textLatin: String?
     let outLatin: String?
@@ -99,6 +100,11 @@ final class EngineModel: NSObject, ObservableObject {
     /// Median der letzten 10 Latenzen (Äußerungsende → erster Ton).
     @Published private(set) var latencyMedian: Double?
     private var latencies: [Double] = []
+    /// Letzte Latenzen (bis 10) für die Sparkline in der Kopfzeile.
+    var latencyHistory: [Double] { latencies }
+    /// Zwischentexte (`partial`) je Äußerung drosseln: höchstens ~8 Schreibvorgänge pro Sekunde in die Oberfläche.
+    private var partialThrottle = PartialThrottle()
+    private var partialDeferred: [String: DispatchWorkItem] = [:]
     /// Äußerungen, die gerade erkannt/übersetzt werden (thinking … utt/dropped).
     @Published private(set) var pendingIDs: Set<String> = []
     /// Ausgaben, die gerade vorgelesen werden (speaking … speak_done).
@@ -970,6 +976,7 @@ final class EngineModel: NSObject, ObservableObject {
         state = .stopped; proc = nil; stdin = nil; launchedSignature = nil
         engineReady = false; micOn = false; micKnown = false
         loadSlowWork?.cancel(); loadSlowWork = nil; loadSlow = false
+        markInterrupted()   // vor resetRuntime: das entfernt alle Platzhalter
         resetRuntime()
         let signaled = reason == .uncaughtSignal
         let envBroken = envBrokenReported || (!wasReady && (tail.contains("No module named")
@@ -1021,6 +1028,21 @@ final class EngineModel: NSObject, ObservableObject {
         awakeDisplay = display
     }
 
+    /// Absturz mitten in einer Äußerung: was schon erkannt war (`partial`/`heard`) bleibt als Blase mit „unterbrochen“-Marke.
+    /// Die Engine-ID wird verworfen: nach dem Neustart zählt sie von vorn, `UtteranceLogic.place` ersetzte sonst die falsche Blase.
+    private func markInterrupted() {
+        for i in items.indices where items[i].pending {
+            guard let t = InterruptedMark.keepText(partial: items[i].partial) else { continue }
+            items[i].text = t
+            items[i].out = t
+            items[i].translated = false
+            items[i].pending = false
+            items[i].partial = nil
+            items[i].interrupted = true
+            items[i].uid = nil
+        }
+    }
+
     /// Laufzeitzustand zurücksetzen (Start, Stopp, Absturz) – sonst bleibt z. B. „busy“ hängen.
     private func resetRuntime() {
         pendingIDs.removeAll(); speakingIDs.removeAll(); engineReplayIDs.removeAll()
@@ -1031,6 +1053,8 @@ final class EngineModel: NSObject, ObservableObject {
         llmActive = false
         llmCostUSD = 0
         latencies.removeAll(); latencyMedian = nil
+        for w in partialDeferred.values { w.cancel() }
+        partialDeferred.removeAll(); partialThrottle.reset()
         meter.reset()
         keepAwake(false)
         pttWork?.cancel(); pttWork = nil
@@ -1139,7 +1163,7 @@ final class EngineModel: NSObject, ObservableObject {
             // Mikrofon-Thread und liefe auch bei hängendem Steuer-Thread weiter. Ältere Engines ohne `pong`:
             // jede Zeile (der Wachhund ist dort ohnehin aus).
             if !pongSeen || ev == "pong" {
-                lastAlive = Date()
+                lastAlive = MonotonicClock.now()
                 if engineHung { engineHung = false }
             }
             handle(ev, obj)
@@ -1252,15 +1276,38 @@ final class EngineModel: NSObject, ObservableObject {
             guard let id else { break }
             touchPlaceholder(id)
             let text = (o["text"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            let lang = o["lang"] as? String
             if let i = index(of: id), items[i].pending, !items[i].heard, !text.isEmpty {
-                items[i].partial = text
-                if let l = o["lang"] as? String { items[i].lang = l }
+                // Rückstau: Zwischentexte kommen schneller, als die Oberfläche sie sinnvoll zeigen kann.
+                switch partialThrottle.decide(id: id, text: text, now: MonotonicClock.now()) {
+                case .apply:
+                    partialDeferred.removeValue(forKey: id)?.cancel()
+                    items[i].partial = text
+                    if let l = lang { items[i].lang = l }
+                case .skip: break
+                case .deferFor(let wait):   // neuester Text wird nach der Wartezeit nachgereicht (ältere Nachreichung entfällt)
+                    partialDeferred.removeValue(forKey: id)?.cancel()
+                    let w = DispatchWorkItem { [weak self] in
+                        MainActor.assumeIsolated {
+                            guard let self else { return }
+                            self.partialDeferred[id] = nil
+                            // Nur wenn der Platzhalter noch wartet und kein fertig erkannter Text (`heard`) da ist
+                            guard let j = self.index(of: id), self.items[j].pending, !self.items[j].heard else { return }
+                            self.partialThrottle.markApplied(id: id, text: text, now: MonotonicClock.now())
+                            self.items[j].partial = text
+                            if let l = lang { self.items[j].lang = l }
+                        }
+                    }
+                    partialDeferred[id] = w
+                    DispatchQueue.main.asyncAfter(deadline: .now() + wait, execute: w)
+                }
             }
         case "heard":   // fertig erkannter Originaltext vor der Übersetzung (gleiche id wie das folgende `utt`)
             guard let id else { break }
             let text = (o["text"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
             guard !text.isEmpty else { break }
             if let i = index(of: id), !items[i].pending { break }   // `utt` ist schon da
+            partialDeferred.removeValue(forKey: id)?.cancel(); partialThrottle.forget(id)   // kein späterer Zwischentext überschreibt `heard`
             touchPlaceholder(id)
             if let i = index(of: id) {
                 if let l = o["lang"] as? String { items[i].lang = l }
@@ -1510,8 +1557,9 @@ final class EngineModel: NSObject, ObservableObject {
     // MARK: Wachhund (ping/pong)
 
     /// Letztes Lebenszeichen der Engine: `pong` (vor dem ersten `pong` jede gültige Zeile).
-    private var lastAlive = Date()
-    private var lastTick = Date()
+    /// Monotone Uhr (`MonotonicClock`): Wanduhr-Sprünge (Zeitzone, NTP, manuelles Stellen) lösen keinen Fehlalarm aus.
+    private var lastAlive = MonotonicClock.now()
+    private var lastTick = MonotonicClock.now()
     private var pongSeen = false
     private var pingCounter = 0
     private var watchdogGen = 0
@@ -1526,7 +1574,7 @@ final class EngineModel: NSObject, ObservableObject {
     func systemDidWake() {
         guard running else { return }
         netDown.removeAll()
-        lastAlive = Date(); lastTick = Date()
+        lastAlive = MonotonicClock.now(); lastTick = MonotonicClock.now()
         pingCounter += 1
         send(["ping": pingCounter])
         refreshStatus()
@@ -1534,7 +1582,7 @@ final class EngineModel: NSObject, ObservableObject {
 
     private func startWatchdog() {
         watchdogGen += 1
-        lastAlive = Date(); lastTick = Date(); pongSeen = false; engineHung = false
+        lastAlive = MonotonicClock.now(); lastTick = MonotonicClock.now(); pongSeen = false; engineHung = false
         scheduleWatchdogTick(watchdogGen)
     }
 
@@ -1551,18 +1599,20 @@ final class EngineModel: NSObject, ObservableObject {
 
     private func watchdogTick(_ gen: Int) {
         guard gen == watchdogGen, running, engineReady else { return }
-        let now = Date()
-        // Ruhezustand/App Nap: großer Abstand zwischen zwei Ticks ist kein Hängen der Engine
-        if now.timeIntervalSince(lastTick) > Self.pingEvery * 2.5 { lastAlive = now }
-        lastTick = now
-        // Ältere Engines kennen `ping` nicht: erst nach dem ersten `pong` überwachen
-        if pongSeen, !engineHung, now.timeIntervalSince(lastAlive) > Self.hungAfter {
+        // Entscheidung in WatchdogLogic (getestet): Ruhezustand/App Nap (großer Abstand zwischen Takten) ist kein Hängen;
+        // Nr. 20: hängt die Engine lange und läuft kein Gespräch, einmal selbst neu starten (höchstens 3 Mal);
+        // „busy“ darf kein ewiger Freibrief sein.
+        var st = WatchdogLogic.State(lastAlive: lastAlive, lastTick: lastTick)
+        let verdict = WatchdogLogic.tick(&st, now: MonotonicClock.now(), pongSeen: pongSeen, alreadyHung: engineHung,
+                                         idle: !busy && !speakingNow, restartsSoFar: hungRestarts,
+                                         pingEvery: Self.pingEvery, hungAfter: Self.hungAfter,
+                                         hungRestartAfter: Self.hungRestartAfter)
+        lastAlive = st.lastAlive; lastTick = st.lastTick
+        if verdict == .hung, !engineHung {
             engineHung = true
             Announcer.post(L.t("engine_hung"), force: true)
         }
-        // Nr. 20: hängt die Engine lange und läuft kein Gespräch, einmal selbst neu starten (höchstens 3 Mal)
-        if engineHung, now.timeIntervalSince(lastAlive) > Self.hungRestartAfter, hungRestarts < 3,
-           (!busy && !speakingNow) || now.timeIntervalSince(lastAlive) > Self.hungRestartAfter * 3 {   // „busy“ darf kein ewiger Freibrief sein
+        if verdict == .restart, hungRestarts < 3 {   // höchstens 3 Neustarts (WatchdogLogic prüft es ebenfalls)
             hungRestarts += 1
             CrashNotifier.shared.notifyStopped(L.t("engine_hung"))
             restart()
