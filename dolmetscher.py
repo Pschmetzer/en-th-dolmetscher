@@ -636,9 +636,11 @@ _LOSSY_PREFIXES = tuple('{"event": "%s"' % e for e in _OUT_LOSSY)
 
 
 def emit(event, **kw):
+    queued = _OUT["q"] is not None and JSON
+    if queued and event == "utt":
+        _record(event, kw)             # Verlauf (SQLite) vor dem Sperren: Plattenzugriff hält keine Pegel-Ereignisse auf
     with _EMIT_LOCK:                   # Mikrofon- und Arbeits-Thread schreiben beide
-        if _OUT["q"] is not None and JSON:
-            _record(event, kw)
+        if queued and _OUT["q"] is not None and JSON:
             _enqueue(event, _json_line(event, kw))
         else:
             _emit(event, **kw)
@@ -1073,7 +1075,8 @@ class KeepAlive:
                     raise NotJSON("unerwartet: Antwort zu groß (Portal/Proxy?)")
             except (http.client.HTTPException, ConnectionError, OSError) as e:
                 c.close()
-                if attempt or not reused:
+                transient = isinstance(e, (ConnectionResetError, BrokenPipeError, http.client.RemoteDisconnected))
+                if attempt or not (reused or transient):    # auch eine frische Verbindung: ein Reset/EOF wird wiederholt
                     raise urllib.error.URLError(e) from e
                 if isinstance(e, TimeoutError):         # halb offene Verbindung: einmal frisch, mit halber Frist
                     timeout = max(1.0, timeout / 2)

@@ -235,7 +235,7 @@ def test_llm_billing_pauses_long_and_reports(monkeypatch):
     assert d._llm_backoff(e) == d.LLM_BILLING_BACKOFF
     d._llm_failed(e)
     assert d.LLM["skip_until"] - time.monotonic() > 1000
-    assert events and events[0][1]["code"] == "llm_billing"
+    assert [k["code"] for _, k in events if k.get("code")][:1] == ["llm_billing"]   # (ein net-Ereignis kann vorangehen)
     assert "credit balance" not in d.LLM["err"]
     assert d._llm_backoff(_ApiErr(400, "messages: field required")) == 10.0
 
