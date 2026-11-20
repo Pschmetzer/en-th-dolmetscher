@@ -315,7 +315,7 @@ def test_race_falls_back_to_prepared_local_voice(monkeypatch, tmp_path):
     class SlowStream:
         voice, cached, text = "edge", None, "hi"
 
-        def first(self, deadline=None):
+        def first(self, deadline=None, cancelled=None):
             assert deadline == 0.2
             raise RuntimeError("edge-tts lieferte keine Audiodaten")
 
