@@ -32,6 +32,7 @@ struct Utterance: Identifiable, Equatable {
     var provider: String?
     var source: String?
     var role: String?            // "me" / "other" im Zwei-Personen-Modus
+    var groupSpeaker: Int?       // Gruppenmodus: Nummer des Sprechers ohne Stimmprofil (`utt.group_speaker`)
     var dur: Double?             // Länge der Äußerung in Sekunden (`utt.dur`), für den SRT-Export
     var numWarn = false          // Ziffern in Original und Übersetzung stimmen nicht überein
     var back: String?            // Rückübersetzung (`back`), nur mit „Rückübersetzung zeigen“
@@ -82,6 +83,8 @@ final class EngineModel: NSObject, ObservableObject {
     static let shared = EngineModel()
 
     @Published var items: [Utterance] = []
+    /// Runde 26: Gruppenmodus, Quelle, Fähigkeiten, experimentelle Schalter, Latenz-Verteilung (R26Model.swift).
+    let r26 = R26Model()
     @Published var status = L.t("stopped")
     /// Prozess-Zustand. Die Engine läuft dauerhaft im Hintergrund (`--idle`), das Mikrofon schaltet `listen`.
     @Published private(set) var state: EngineState = .stopped
@@ -255,7 +258,11 @@ final class EngineModel: NSObject, ObservableObject {
     }
     /// Gesprächsverlauf lokal speichern (Engine: history.sqlite, Standard aus).
     @Published var history = ud.bool(forKey: "history") {
-        didSet { Self.ud.set(history, forKey: "history"); push(["history": history]) }
+        didSet {
+            Self.ud.set(history, forKey: "history")
+            if history { r26.sendHistoryPassword() }   // Passwort vor `history`: sonst schriebe die Engine in die Klartext-Datei
+            push(["history": history])
+        }
     }
 
     // Stimme und Audio (live)
@@ -520,6 +527,7 @@ final class EngineModel: NSObject, ObservableObject {
 
     override init() {
         super.init()
+        r26.sender = { [weak self] d in self?.send(d) }
         // Absturz bei geschlossenem Fenster: macOS-Mitteilung mit „Neu starten“ (Nr. 351)
         CrashNotifier.shared.onRestart = { [weak self] in self?.restart() }
         CrashNotifier.shared.install()
@@ -802,6 +810,7 @@ final class EngineModel: NSObject, ObservableObject {
         if backTranslate { args.append("--back-translate") }
         if !learnGlossary { args.append("--no-learn-glossary") }
         if history { args.append("--history") }
+        args += AudioSourceLogic.launchArgs(r26.source)
         if privateMode { args.append("--private") }
         if offlineMT, let helper = Paths.bundledTranslateHelper { args += ["--offline-translator", helper] }
         return args
@@ -864,7 +873,7 @@ final class EngineModel: NSObject, ObservableObject {
         let p = Process()
         p.executableURL = URL(fileURLWithPath: Paths.python)
         p.arguments = launchArgs(script)
-        p.environment = Paths.engineEnvironment()   // Schlüssel nicht in der Umgebung (ps eww), sondern per stdin unten
+        p.environment = Paths.engineEnvironment(historyPassword: history)   // Schlüssel nicht in der Umgebung (ps eww), sondern per stdin unten
 
         let out = Pipe()
         p.standardOutput = out
@@ -1063,6 +1072,7 @@ final class EngineModel: NSObject, ObservableObject {
         rolesKnown = false; rolesMe = nil
         activePreset = nil; activePresetNote = nil; activePresetPhrases = nil
         degradedModels = []
+        r26.engineStopped()
         stopWatchdog()
     }
 
@@ -1220,6 +1230,7 @@ final class EngineModel: NSObject, ObservableObject {
             engineVersion = o["engine_version"] as? String
             degradedModels = o["degraded"] as? [String] ?? []
             startWatchdog()
+            r26.engineReady(o)
             Announcer.post(L.t("a11y_ready"))   // Nr. 365
             // Fehlt `protocol`, ist es eine ältere Engine (vor dem Handshake) – das ist kein Fehler.
             if let pv = (o["protocol"] as? NSNumber)?.intValue, pv != Self.protocolVersion { protocolMismatch = pv }
@@ -1369,7 +1380,7 @@ final class EngineModel: NSObject, ObservableObject {
             let code = o["code"] as? String, raw = o["msg"] as? String
             if code == "model_offline" { modelOffline = true; download = nil }
             if code == "python_env_broken" { envBrokenReported = true }   // Nr. 402: Code statt Logsuche
-            var msg = Self.errorText(code: code, msg: raw)
+            var msg = Self.errorText(code: code, msg: raw, msgEn: o["msg_en"] as? String)
             if let s = (o["retry_in_s"] as? NSNumber)?.intValue, s > 0 { msg += " " + L.f("retry_in", s) }   // Nr. 66
             status = "⚠️ " + msg
             // Hinweis behält die Ursache der Engine (Ausnahme, Dateiname, Gerät) – nur dort, wo sie variiert
@@ -1377,6 +1388,8 @@ final class EngineModel: NSObject, ObservableObject {
             lastError = (msg + (detail.map { " – " + DiagnosticsLogic.redact($0, home: NSHomeDirectory(), user: NSUserName()) } ?? ""), Date())
             lastErrorCode = code; lastErrorCodeDate = lastError?.date
             Announcer.post(msg, force: true)
+        case "state": r26.handleState(o)   // Antwort auf `get_state` (Latenz-Verteilung, Schalter)
+        case "hint": r26.handleHint(o)
         case "command": applyCommand(o)
         case "dropped":
             if let id {
@@ -1448,10 +1461,10 @@ final class EngineModel: NSObject, ObservableObject {
     }
 
     /// Fehlertext in der App-Sprache nach `error.code`; ohne bekannten Code der Text der Engine.
-    static func errorText(code: String?, msg: String?) -> String {
+    static func errorText(code: String?, msg: String?, msgEn: String? = nil) -> String {
         if let code, let key = errorKeys[code] { return L.t(key) }
-        // Stimmerkennung (Sprechermodell) nicht ladbar – die Engine schickt dafür (noch) keinen Code
-        return msg ?? L.t("error_generic")
+        // Ohne bekannten Code: Text der Engine, in nicht-deutscher App bevorzugt `msg_en` (Runde 24)
+        return ErrorTextLogic.fallback(msg: msg, msgEn: msgEn, german: L.lang == .de) ?? L.t("error_generic")
     }
     /// Codes, deren `msg` eine wechselnde Ursache enthält: im Hinweis zusätzlich zum übersetzten Text zeigen.
     static let errorDetailCodes: Set<String> = ["translate_failed", "mic_failed", "mic_unavailable",
@@ -1477,6 +1490,7 @@ final class EngineModel: NSObject, ObservableObject {
         "file_empty": "err_file_empty", "file_failed": "err_file_failed",
         "profiles_failed": "err_speaker_model", "speak_invalid": "err_speak_invalid",
         "llm_budget": "err_llm_budget", "mic_invalid": "err_mic_invalid",
+        "system_audio_missing": "err_system_audio_missing",
     ]
     /// Status zu `dropped.code`; nil = Status nicht ändern.
     static func droppedText(_ code: String?) -> String? {
@@ -1539,6 +1553,7 @@ final class EngineModel: NSObject, ObservableObject {
         items.removeAll(); trimmedCount = 0; indexCache.removeAll(); deletedBubble = nil
         viewingSession = nil
         unsureDrop = nil; failedDrop = nil; vocabSuggestion = nil
+        r26.resetSession()   // Sprecher-Nummern beginnen nach `clear` wieder bei 1
         send(["clear": true])
     }
     private func trimItems() {
@@ -1626,7 +1641,7 @@ final class EngineModel: NSObject, ObservableObject {
     private func applyCommand(_ o: [String: Any]) {
         applyingRemote = true
         defer { applyingRemote = false }
-        if o["clear"] as? Bool == true { items.removeAll(); trimmedCount = 0; indexCache.removeAll(); viewingSession = nil; unsureDrop = nil; failedDrop = nil }
+        if o["clear"] as? Bool == true { r26.resetSession(); items.removeAll(); trimmedCount = 0; indexCache.removeAll(); viewingSession = nil; unsureDrop = nil; failedDrop = nil }
         if let p = o["langs"] as? [String: Any], let mi = Langs.valid(p["mine"] as? String),
            let pa = Langs.valid(p["partner"] as? String), mi != pa, (mi, pa) != (mineLang, partnerLang) {
             mineLang = mi                      // gleiche Sprache auf beiden Seiten tauscht didSet weg
@@ -1668,6 +1683,11 @@ final class EngineModel: NSObject, ObservableObject {
         u.numWarn = o["num_warn"] as? Bool ?? false
         u.dur = (o["dur"] as? NSNumber)?.doubleValue
         u.role = o["role"] as? String
+        if let gn = GroupSpeakerLogic.groupNumber(speaker: u.speaker, group: (o["group_speaker"] as? NSNumber)?.intValue) {
+            u.groupSpeaker = gn
+            u.speaker = r26.displayName(speaker: u.speaker, group: gn)
+            r26.noteGroup(gn)
+        }
         if let id { cancelHearingTimer(id); pendingIDs.remove(id) } else { pendingIDs.remove("?") }
         // Beim Ersetzen bleibt die Blasen-id erhalten: die Liste behält ihre Position (kein Scroll-Sprung).
         // Idempotent: gleiche uid, gleicher Platzhalter oder gleicher Text vom gleichen Sprecher binnen ~4 s ersetzt.
@@ -1679,7 +1699,7 @@ final class EngineModel: NSObject, ObservableObject {
             u.date = items[i].date
             if u.speaker == nil { u.speaker = items[i].speaker }
             // Korrektur: geänderte Wörter als Vokabular vorschlagen (nur fragen, nie automatisch speichern)
-            if o["replaces"] as? String != nil, let sv = o["suggest_vocab"] as? [String], !sv.isEmpty,
+            if o["replaces"] as? String != nil, u.groupSpeaker == nil, let sv = o["suggest_vocab"] as? [String], !sv.isEmpty,
                let target = items[i].speaker ?? (l == Langs.meLang ? rolesMe : nil) {
                 vocabSuggestion = (Array(sv.prefix(10)), target)
             }

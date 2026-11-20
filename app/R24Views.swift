@@ -246,6 +246,7 @@ struct LearnView: View {
         .padding(16)
         .frame(minWidth: 460, minHeight: 420)
         .background(WindowAccessor { R24Window.prepare($0, name: "Learn") })
+        .onChange(of: current?.id) { _, _ in clozeIndex = nil; revealed = false }   // neuer Satz: Lücke und Antwort zurücksetzen (Review R26)
     }
 
     private var cards: [LearnLogic.Card] { LearnLogic.cards(m.items.filter { !$0.pending }.map(\.exportItem), frontLang: ankiFront) }

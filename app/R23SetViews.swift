@@ -251,6 +251,7 @@ final class MicTester: ObservableObject {
     @Published private(set) var verdict: MicVerdict?
     private var engine: AVAudioEngine?
     private var peak: Float = -120
+    private var stopWork: DispatchWorkItem?   // 5-s-Frist; stop() bricht sie ab (sonst beendet sie einen neuen Lauf zu früh)
 
     func start() {
         guard !running else { return }
@@ -269,7 +270,9 @@ final class MicTester: ObservableObject {
         }
         do { try e.start() } catch { input.removeTap(onBus: 0); verdict = .silent; return }
         engine = e; running = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { MainActor.assumeIsolated { self.stop() } }
+        let work = DispatchWorkItem { [weak self] in MainActor.assumeIsolated { self?.stop() } }
+        stopWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: work)
     }
 
     private func tick(_ db: Float) {
@@ -279,6 +282,7 @@ final class MicTester: ObservableObject {
     }
 
     func stop() {
+        stopWork?.cancel(); stopWork = nil
         guard running else { return }
         engine?.inputNode.removeTap(onBus: 0)
         engine?.stop(); engine = nil
@@ -298,6 +302,8 @@ struct MicTestRow: View {
                     tester.running ? tester.stop() : tester.start()
                 }
                 .disabled(m.active)
+                .onDisappear { tester.stop() }                          // Fenster zu: Mikrofon sofort freigeben
+                .onChange(of: m.active) { _, on in if on { tester.stop() } }   // Engine hört zu: nicht zwei Zugriffe
                 if tester.running {
                     ProgressView(value: tester.level).frame(width: 140)
                         .accessibilityLabel(R23T.t("mictest_level"))

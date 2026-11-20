@@ -48,7 +48,9 @@ enum PriceLogic {
         }
         intPart = intPart.filter(\.isNumber); frac = frac.filter(\.isNumber)
         guard !intPart.isEmpty || !frac.isEmpty else { return nil }
-        return Double((intPart.isEmpty ? "0" : intPart) + (frac.isEmpty ? "" : "." + frac))
+        // Review R26: 20+ Ziffern ergaben inf/zu große Werte und ließen `Int(v.rounded())` in `format` abstürzen
+        guard let v = Double((intPart.isEmpty ? "0" : intPart) + (frac.isEmpty ? "" : "." + frac)), v.isFinite, v <= 1e12 else { return nil }
+        return v
     }
 
     private static let number = "[0-9๐-๙]+(?:[.,\\s][0-9๐-๙]{3})*(?:[.,][0-9๐-๙]{1,2})?"
