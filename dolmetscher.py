@@ -6765,9 +6765,16 @@ def _choice(d, key, allowed):
     return None
 
 
-def _num(d, key, lo, hi):
-    """Zahl aus der Steuerzeile begrenzt auf lo..hi; vorhandener, aber nicht numerischer Wert -> control_invalid
-    (statt stiller Ignoranz). None/fehlend -> None."""
+# Deklarative Tabelle der Zahlen-Steuerfelder: Name -> (min, max). Eine Quelle für apply_control, Prüfungen und Tests.
+CTRL_NUMERIC = {"rate": (-50, 50), "volume": (0.2, 2.0), "silence": (0.4, 2.0), "llm_budget": (0.0, 10000.0),
+                "tts_race": (0.0, 5.0), "let_finish": (0.0, LET_FINISH_MAX), "beam": (0, 5)}
+
+
+def _num(d, key, lo=None, hi=None):
+    """Zahl aus der Steuerzeile begrenzt auf den Bereich aus CTRL_NUMERIC (oder lo..hi); vorhandener, aber nicht
+    numerischer Wert -> control_invalid (statt stiller Ignoranz). None/fehlend -> None."""
+    if lo is None or hi is None:
+        lo, hi = CTRL_NUMERIC[key]
     if d.get(key) is None:
         return None
     n = _clamp(d.get(key), lo, hi)
@@ -6856,14 +6863,14 @@ def apply_control(eng, d):
                 jobs.append(MIC.start)         # öffnet ffmpeg – nicht im Lese-Thread blockieren
             else:
                 later.append(MIC.stop)
-        n = _num(d, "rate", -50, 50)
+        n = _num(d, "rate")
         if n is not None:
             old_rate, eng.rate = eng.rate, int(n)
             if PRESET.active and eng.rate != old_rate:      # Notfall-Sätze sind mit dem alten Tempo vorgerendert
                 later.append(lambda: prerender_critical(eng, presets.load_all().get(PRESET.active)))
-        n = _num(d, "volume", 0.2, 2.0)
+        n = _num(d, "volume")
         if n is not None: eng.volume = float(n)
-        n = _num(d, "silence", 0.4, 2.0)
+        n = _num(d, "silence")
         if n is not None: SILENCE_END = float(n)
         v = _choice(d, "sensitivity", SENSITIVITY)
         if v:
@@ -6910,7 +6917,7 @@ def apply_control(eng, d):
         ok, v = _flag(d, "clear")
         if ok and v:                           # Mac-Punkt 9: Gespräch im Speicher löschen
             later.append(lambda: (eng.clear_context(), emit("cleared")))
-        n = _num(d, "llm_budget", 0.0, 10000.0)
+        n = _num(d, "llm_budget")
         if n is not None:
             LLM["budget"] = float(n)           # USD je Monat, 0 = keine Grenze (Nr. 16)
             _SPEND["warned"] = _SPEND["warned80"] = None
@@ -6963,14 +6970,14 @@ def apply_control(eng, d):
                 later.append(eng.restore_last)
         elif "history_days" in d:              # Frist allein ändern (früher stillschweigend ignoriert)
             later.append(lambda days=d["history_days"]: history_set_days(days))
-        n = _num(d, "tts_race", 0.0, 5.0)
+        n = _num(d, "tts_race")
         if n is not None: TTS_RACE = float(n)
-        n = _num(d, "let_finish", 0.0, LET_FINISH_MAX)
+        n = _num(d, "let_finish")
         if n is not None: LET_FINISH["s"] = float(n)          # Nr. 69
         v = _choice(d, "catch_up", CATCH_UP_MODES)
         if v:
             CATCH_UP["mode"] = v                              # Nr. 171
-        n = _num(d, "beam", 0, 5)
+        n = _num(d, "beam")
         if n is not None and hasattr(eng, "beam"):            # Nr. 176: Schnell (1) … Genau (5), live;
             eng.beam = int(n) or getattr(eng, "beam_default", eng.beam)   # 0 = zurück zum Startwert
         ok, v = _flag(d, "stop_speaking")
