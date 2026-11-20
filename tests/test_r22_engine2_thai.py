@@ -307,7 +307,7 @@ def test_import_json_andere_session_ist_keine_dublette(tmp_path):
 def test_migration_bestehende_db_bekommt_role_index(tmp_path):
     p = tmp_path / "alt.db"
     c = sqlite3.connect(p)
-    c.execute("CREATE TABLE utt (id INTEGER PRIMARY KEY AUTOINCREMENT, uid TEXT, ts REAL NOT NULL, session TEXT NOT NULL,"
+    c.execute("CREATE TABLE utt (id INTEGER PRIMARY KEY AUTOINCREMENT, uid TEXT, ts REAL NOT NULL, session TEXT NOT NULL,"  # noqa: E501
               " lang TEXT, text TEXT, translation TEXT, translit TEXT, conf REAL, provider TEXT)")
     c.commit()
     c.close()

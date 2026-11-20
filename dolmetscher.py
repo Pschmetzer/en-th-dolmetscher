@@ -2628,7 +2628,7 @@ def speak_numbers_th(text):
     return _SPEAK_NUM.sub(one, text)
 
 
-SPEAK_NUMBER_WORDS = {"on": False}     # opt-in: speak_form liest Zahlen als Thai-Wörter (Standard: Ziffern, die Neural-TTS liest sie richtig)
+SPEAK_NUMBER_WORDS = {"on": False}     # opt-in: speak_form liest Zahlen als Thai-Wörter (Standard: Ziffern, die Neural-TTS liest sie richtig)  # noqa: E501
 
 
 def speak_form(text, lang):
@@ -2973,7 +2973,7 @@ def _translate(text, src, dst, history=(), alts=(), polite="krub", meta=None):
             _llm_ok()                                   # Claude geht wieder: nächste Erschöpfung wird erneut gemeldet
             net_state("llm", True)
         except concurrent.futures.TimeoutError:
-            fut.add_done_callback(functools.partial(_llm_late, key=key, cache_it=not history))            # Claude läuft weiter, Google parallel
+            fut.add_done_callback(functools.partial(_llm_late, key=key, cache_it=not history))            # Claude läuft weiter, Google parallel  # noqa: E501
             log({"translate": "claude-langsam", "hedge_s": hedge})
         except Exception as e:
             fut = None
@@ -3951,7 +3951,7 @@ def fix_thai(s, polite, question=False):
         s = re.sub(r"(?:ดิ)?ฉัน(?!ท[์าะอ])", "ผม", s)          # ฉันท์, ฉันทะ, ฉันทามติ bleiben
     else:
         s = re.sub("ครับผม|ครับ", "ค่ะ", s)
-        s = re.sub(f"(?:(?<=^)|(?<=\\s)|(?<=ของ)|(?<=กับ)|(?<=ให้)|(?<=ว่า)|(?<=แต่)|(?<=และ)|(?<=ถ้า)|(?<=เพราะ)|(?<=เมื่อ))ผม(?!\\s*{_HAIR})", "ฉัน", s)
+        s = re.sub(f"(?:(?<=^)|(?<=\\s)|(?<=ของ)|(?<=กับ)|(?<=ให้)|(?<=ว่า)|(?<=แต่)|(?<=และ)|(?<=ถ้า)|(?<=เพราะ)|(?<=เมื่อ))ผม(?!\\s*{_HAIR})", "ฉัน", s)  # noqa: E501
         # Frage endet mit คะ (hoher Ton), Aussage mit ค่ะ: nach Fragewort oder vor einem ?
         s = re.sub(r"((?:ไหม|มั้ย|หรือ(?:เปล่า)?|(?<!ไม่มี)(?<!ไม่เป็น)อะไร|ที่ไหน|ไหน|เมื่อไหร่|เมื่อไร|ทำไม|ยังไง|"
                    r"อย่างไร|กี่\S*|ใคร)\s*)ค่ะ(?=\s*[?？]?\s*$|\s)", r"\1คะ", s)
@@ -6343,7 +6343,7 @@ class Engine:
         self.last = None
         self.prev = None
         self._cleared = True                # restore_last darf den gelöschten Satz nicht aus dem Verlauf zurückholen
-        for name in ("texts", "recent", "_hist_ids", "_recent_t", "_failed_tr"):   # kein Roh-Audio/Text im Speicher behalten
+        for name in ("texts", "recent", "_hist_ids", "_recent_t", "_failed_tr"):   # kein Roh-Audio/Text im Speicher behalten  # noqa: E501
             getattr(self, name, {}).clear()
         with _PRE_LOCK:
             PRE.clear()

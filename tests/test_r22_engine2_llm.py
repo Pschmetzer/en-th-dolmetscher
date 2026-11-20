@@ -219,7 +219,7 @@ def test_translate_hedge_spaete_antwort_landet_im_cache(monkeypatch):
     monkeypatch.setattr(d, "_check_llm", lambda text, res, dst, src: res)
     monkeypatch.setattr(d, "llm_available", lambda: True)
     monkeypatch.setattr(d, "llm_over_budget", lambda: False)
-    monkeypatch.setattr(d, "_mt_chain", lambda text, src, dst, meta, deadline=None: (meta.update(provider="google"), "Google")[1])
+    monkeypatch.setattr(d, "_mt_chain", lambda text, src, dst, meta, deadline=None: (meta.update(provider="google"), "Google")[1])  # noqa: E501
     monkeypatch.setitem(d.LLM, "on", True)
     monkeypatch.setitem(d.LLM, "hedge_s", 0.05)
     meta = {}
@@ -329,7 +329,7 @@ def test_deque_maxlen_12_haelt_vorlauf():
 def _flush_eng(monkeypatch, delivered):
     e = d.Engine.__new__(d.Engine)
     e.texts = {}
-    monkeypatch.setattr(d.Engine, "deliver", lambda self, uid, lang, text, **kw: delivered.append((uid, lang, text, kw)))
+    monkeypatch.setattr(d.Engine, "deliver", lambda self, uid, lang, text, **kw: delivered.append((uid, lang, text, kw)))  # noqa: E501
     return e
 
 
