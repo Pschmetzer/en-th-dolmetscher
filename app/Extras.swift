@@ -27,6 +27,8 @@ enum HUD {
         let label = NSTextField(labelWithString: text)
         label.font = .systemFont(ofSize: 20, weight: .semibold)
         label.alignment = .center
+        label.setAccessibilityRole(.staticText)
+        label.setAccessibilityLabel(text)
         label.sizeToFit()
         let size = NSSize(width: max(180, label.frame.width + 48), height: 56)
         let fx = NSVisualEffectView(frame: NSRect(origin: .zero, size: size))
@@ -40,7 +42,10 @@ enum HUD {
         p.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
         p.contentView = fx
         p.setContentSize(size)
-        if let f = NSScreen.main?.visibleFrame {
+        // Auf dem Bildschirm mit dem Mauszeiger (dort schaut der Nutzer hin), sonst Hauptbildschirm.
+        let mouse = NSEvent.mouseLocation
+        let screen = NSScreen.screens.first { NSMouseInRect(mouse, $0.frame, false) } ?? NSScreen.main
+        if let f = screen?.visibleFrame {
             p.setFrameOrigin(NSPoint(x: f.midX - size.width / 2, y: f.maxY - size.height - 60))
         }
         p.orderFrontRegardless()

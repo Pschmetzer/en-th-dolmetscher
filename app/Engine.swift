@@ -1399,17 +1399,17 @@ final class EngineModel: NSObject, ObservableObject {
     /// Nur in der App: der Verlauf (falls an) und der Gesprächskontext der Engine bleiben, bis „Alles löschen“.
     func deleteItem(_ u: Utterance) {
         if u.id == replayingID || (u.uid.map { speakingIDs.contains($0) } ?? false) { stopSpeaking() }
-        // Nr. 34: Blase samt Position merken, damit „Rückgängig“ sie zurückholt (6 s)
+        // Nr. 34: Blase samt Position merken, damit „Rückgängig“ sie zurückholt (15 s – für VoiceOver/Switch-Nutzer sonst zu knapp)
         if let i = items.firstIndex(where: { $0.id == u.id }) { deletedBubble = (u, i) }
         deletedWork?.cancel()
         let w = DispatchWorkItem { [weak self] in MainActor.assumeIsolated { self?.deletedBubble = nil } }
         deletedWork = w
-        DispatchQueue.main.asyncAfter(deadline: .now() + 6, execute: w)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 15, execute: w)
         items.removeAll { $0.id == u.id }
         indexCache.removeAll()
         Announcer.post(L.t("bubble_deleted"))
     }
-    /// Zuletzt gelöschte Blase (nil nach 6 s) – „Rückgängig“ im Hinweisband und im Menü.
+    /// Zuletzt gelöschte Blase (nil nach 15 s) – „Rückgängig“ im Hinweisband und im Menü.
     /// Nr. 36: Wunsch der Partnerin aus der Partner-Ansicht („Bitte langsamer“); Hinweisband im Hauptfenster (8 s).
     @Published var partnerRequest: String?
     private var partnerRequestWork: DispatchWorkItem?
