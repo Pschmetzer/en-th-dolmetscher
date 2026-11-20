@@ -32,6 +32,8 @@ struct LeitnerDeck: Codable, Equatable, Sendable {
     }
 
     static let boxes = 5
+    /// Gemerkte gelöschte Karten (Texte aus Gesprächen): nicht unbegrenzt aufbewahren.
+    static let maxDismissed = 500
     /// Abstand in Tagen nach dem Wechsel in Fach 1…5.
     static let intervals: [Int] = [0, 1, 3, 7, 14]
 
@@ -90,7 +92,7 @@ struct LeitnerDeck: Codable, Equatable, Sendable {
         remove(id)
         var d = dismissed ?? []
         if !d.contains(id) { d.append(id) }
-        dismissed = d
+        dismissed = Array(d.suffix(Self.maxDismissed))
     }
 
     /// Karten aus Gesprächen entfernen, die vor `cutoff` entstanden sind (Verlaufseinstellung). Gibt die Anzahl zurück.

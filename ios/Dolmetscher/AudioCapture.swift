@@ -158,10 +158,9 @@ final class AudioCapture: @unchecked Sendable {
         routeDebounce.cancel()
         player?.cancel()
         player = nil
-        if audio.isRunning {
-            audio.inputNode.removeTap(onBus: 0)
-            audio.stop()
-        }
+        // Auch wenn `start` scheitert (Tap schon gesetzt, Engine läuft nicht): sonst stürzt der nächste `installTap` ab.
+        if Self.debugFiles == nil { audio.inputNode.removeTap(onBus: 0) }
+        if audio.isRunning { audio.stop() }
     }
 
     func deactivate() {

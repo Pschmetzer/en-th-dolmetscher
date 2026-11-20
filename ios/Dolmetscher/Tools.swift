@@ -325,6 +325,9 @@ struct BahtCalculatorView: View {
         NavigationStack {
             Form {
                 Section {
+                    NavigationLink { TravelHelpersView() } label: { Label(T("trv_open"), systemImage: "wand.and.stars") }
+                }
+                Section {
                     TextField("฿", text: $baht)
                         .keyboardType(.numbersAndPunctuation)
                         .font(.largeTitle.monospacedDigit())

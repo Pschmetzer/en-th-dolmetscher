@@ -1232,7 +1232,10 @@ final class InterpreterModel {
         // Kein verspätetes Schreiben darf Gelöschtes zurückbringen.
         dropPendingWrites()
         files.removeAll(prefixes: ["history.json", "favorites.json", "emergency.json", "places.json", "learn.json"])
+        // Favoriten stehen sonst weiter in der Spotlight-Suche, exportierte CSV-Dateien im Temp-Ordner.
+        spotlight = false   // leert über didSet den Spotlight-Index
         if let domain { UserDefaults.standard.removePersistentDomain(forName: domain) }
+        ExportCleanup.purge()
         flash("🗑 " + T("wipe_done"))
     }
 
