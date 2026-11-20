@@ -12,6 +12,7 @@ Alle Kürzel stehen so im Code (`app/DolmetscherApp.swift`, `app/HotKeys.swift`,
 | ⌃⌥P | Pause / Fortsetzen |
 | ⌃⌥S | Vorlesen abbrechen |
 | ⌃⌥R | letzte Übersetzung nochmal sprechen |
+| ⌃⌥C | Text aus der Zwischenablage übersetzen und vorlesen (auch im Menüleisten-Menü; auf 1000 Zeichen gekürzt) |
 | ⌃⌥T (halten) | sprechen, nur belegt, wenn Push-to-Talk eingeschaltet ist |
 
 Wenn ein anderes Programm ein Kürzel schon belegt, zeigt die App einen Hinweis mit den betroffenen Kürzeln. Sie versucht es bei der nächsten Aktivierung erneut.

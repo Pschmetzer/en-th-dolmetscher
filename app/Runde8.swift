@@ -206,7 +206,7 @@ struct ShortcutsSheet: View {
         ("⌘+ / ⌘− / ⌘0", "font_size"), ("⌥⌘Z", "undo_delete"),
         // Globale Kürzel (auch bei Hintergrund-App) und Sonstiges
         ("⌃⌥D", "shortcut_global_startstop"), ("⌃⌥P", "pause"), ("⌃⌥S", "stop_speaking"), ("⌃⌥R", "replay_last"),
-        ("⌃⌥T", "hold_to_talk"), ("⌃⌘F", "partner_fullscreen"), ("Space", "shortcut_startstop"), ("⌘/", "shortcuts_title"),
+        ("⌃⌥T", "hold_to_talk"), ("⌃⌥C", "translate_clipboard"), ("⌃⌘F", "partner_fullscreen"), ("Space", "shortcut_startstop"), ("⌘/", "shortcuts_title"),
     ]
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {

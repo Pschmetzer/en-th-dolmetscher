@@ -201,44 +201,44 @@ extension EngineModel {
         let pyText: String
         switch python {
         case .ok(let v): pyText = "OK – Python / faster-whisper: " + v
-        case .noModule: pyText = "faster_whisper fehlt"
-        case .failed(let e): pyText = "Fehler: " + redact(e)
+        case .noModule: pyText = "faster_whisper missing"
+        case .failed(let e): pyText = "error: " + redact(e)
         }
         let models = ModelCache.cached().sorted()
         let micAuth: String
         switch AVCaptureDevice.authorizationStatus(for: .audio) {
-        case .authorized: micAuth = "erlaubt"
-        case .denied: micAuth = "verweigert"
-        case .restricted: micAuth = "eingeschränkt"
-        default: micAuth = "nicht gefragt"
+        case .authorized: micAuth = "authorized"
+        case .denied: micAuth = "denied"
+        case .restricted: micAuth = "restricted"
+        default: micAuth = "not determined"
         }
-        let micText: String = micName.isEmpty ? (self.mic.isEmpty ? "Standard" : "#" + self.mic) : micName
+        let micText: String = micName.isEmpty ? (self.mic.isEmpty ? "default" : "#" + self.mic) : micName
         let ver = "Dolmetscher " + version + " (" + (info?["CFBundleVersion"] as? String ?? "?") + ")"
-        let settings = "Einstellungen: model=\(model), claude=\(llm) (\(llmModel)), lang=\(lang), ui=\(L.lang.rawValue), "
-            + "mic=\(micText), denoise=\(denoise), zweiPersonen=\(twoPerson), logText=\(logText), "
+        let settings = "Settings: model=\(model), claude=\(llm) (\(llmModel)), lang=\(lang), ui=\(L.lang.rawValue), "
+            + "mic=\(micText), denoise=\(denoise), twoPerson=\(twoPerson), logText=\(logText), "
             + "silence=\(silence), sensitivity=\(sensitivity), ttsRace=\(ttsRace), fastEndpoint=\(fastEndpoint), "
             + "partialText=\(partialText), rate=\(rate), volume=\(volume), "
-            + "ausgabe=\(outputDevice.isEmpty ? "Standard" : (outputDeviceName.isEmpty ? "UID" : outputDeviceName)), "
-            + "kürzelFehler=\(HotKeys.shared.failures.isEmpty ? "-" : HotKeys.shared.failures.joined(separator: "/"))"
-        let engine = "Engine: state=\(state), ready=\(engineReady), neustarts=\(restartAttempts), "
-            + "ungültige Zeilen=\(malformedLines), langsamerStart=\(loadSlow), "
-            + "version=\(engineVersion ?? "?"), protokollAbweichung=\(protocolMismatch.map(String.init) ?? "nein"), "
-            + "preset=\(preset.isEmpty ? "-" : preset), verlauf=\(history)" + (hwInfo.map { ", hw=\($0)" } ?? "")
+            + "output=\(outputDevice.isEmpty ? "default" : (outputDeviceName.isEmpty ? "UID" : outputDeviceName)), "
+            + "hotkeyFailures=\(HotKeys.shared.failures.isEmpty ? "-" : HotKeys.shared.failures.joined(separator: "/"))"
+        let engine = "Engine: state=\(state), ready=\(engineReady), restarts=\(restartAttempts), "
+            + "invalidLines=\(malformedLines), slowStart=\(loadSlow), "
+            + "version=\(engineVersion ?? "?"), protocolMismatch=\(protocolMismatch.map(String.init) ?? "no"), "
+            + "preset=\(preset.isEmpty ? "-" : preset), history=\(history)" + (hwInfo.map { ", hw=\($0)" } ?? "")
         var lines: [String] = [ver]
         lines.append("macOS \(ProcessInfo.processInfo.operatingSystemVersionString), \(arch)")
         let src: String = { switch Paths.pythonSource {
-            case .override: return " (Entwickler-Override)"
-            case .venv: return " (eigene venv, Stempel passt)"
-            case .none: return " (keine eingerichtete Umgebung)" } }()
+            case .override: return " (developer override)"
+            case .venv: return " (own venv, stamp matches)"
+            case .none: return " (no environment set up)" } }()
         lines.append("Python: \(redact(Paths.python))" + src + " – \(pyText)")
         lines.append("Audio: " + (Paths.ffmpegOverride.map { "ffmpeg " + redact($0) + " (DOLMETSCHER_FFMPEG)" } ?? "PyAV (avhelper.py)"))
-        lines.append("Modelle im Cache: " + (models.isEmpty ? "keine" : models.joined(separator: ", ")))
+        lines.append("Models in cache: " + (models.isEmpty ? "none" : models.joined(separator: ", ")))
         lines.append(settings)
-        lines.append("API-Schlüssel gespeichert: " + (APIKeyStore.exists ? "ja" : "nein"))
-        lines.append("Mikrofon-Berechtigung: " + micAuth)
+        lines.append("API key stored: " + (APIKeyStore.exists ? "yes" : "no"))
+        lines.append("Microphone permission: " + micAuth)
         lines.append(engine)
         if !logText {   // bei eingeschaltetem Text-Log könnten Gesprächsfetzen im stderr stehen
-            lines.append("--- stderr.log (Ende) ---")
+            lines.append("--- stderr.log (end) ---")
             lines.append(redact(Self.logTail(15)))
         }
         return DiagnosticsLogic.report(lines: lines, rows: selfTest, lastError: lastError.map { $0.msg },

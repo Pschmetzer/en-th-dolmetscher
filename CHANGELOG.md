@@ -137,6 +137,7 @@ Pull requests #16–#47. Not yet published as a release.
 - **Wave 6**: rolling captions (1-3 lines) in the caption window; a Settings switch to revoke the `dolmetscher://` permission; XCTest tests for glossary and export logic; fixes a slow-to-typecheck expression in the preset phrase bar.
 - **Wave 7**: the scroll position of the conversation is restored after a UI-language switch; the history search ignores diacritics; 32 XCTest tests now also cover the history logic.
 - **Wave 8**: exports spanning several days carry the date in every line; the ⌘= zoom shortcut only acts in the main window.
+- **Wave 9** (new features): "Translate clipboard" (menu bar item and global shortcut ⌃⌥C; text is flattened, shortened to 1000 characters and spoken in the language of its script); the macOS fallback voice volume is clamped in one place and Settings explains that more than 100 % applies to the neural voice only; the diagnostic report is now in English for support; new XCTest tests for the clipboard and volume logic.
 
 ### Mac app (round 19)
 

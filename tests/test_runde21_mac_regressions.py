@@ -74,3 +74,21 @@ def test_no_blocking_sleep_in_new_helpers():
 def test_partner_buttons_rotate_with_text():
     s = src("PartnerView.swift")
     assert s.count("rotationEffect(.degrees(rotated ? 180 : 0))") >= 3
+
+
+def test_clipboard_translate_wired():
+    assert "translateClipboard()" in src("Engine.swift")
+    assert 'name: "⌃⌥C") { [weak model] in model?.translateClipboard() }' in src("HotKeys.swift")
+    assert "ClipboardLogic.prepare" in src("Engine.swift")
+    assert "translate_clipboard" in src("DolmetscherApp.swift")
+
+
+def test_system_voice_volume_uses_logic():
+    assert "VolumeLogic.systemVoice(volume)" in src("Engine.swift")
+
+
+def test_diagnostic_report_is_english():
+    s = src("Support.swift")
+    for de in ("verweigert", "nicht gefragt", "Modelle im Cache", "Mikrofon-Berechtigung"):
+        assert de not in s, de
+    assert "Microphone permission: " in s

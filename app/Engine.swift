@@ -1676,6 +1676,14 @@ final class EngineModel: NSObject, ObservableObject {
         send(["speak_text": ["text": sample, "lang": code]])
     }
 
+    /// Text aus der Zwischenablage übersetzen und vorlesen (Menüleiste, ⌃⌥C): Sprache nach Schrift, auf 1000 Zeichen gekürzt.
+    func translateClipboard() {
+        let raw = NSPasteboard.general.string(forType: .string)
+        guard let text = ClipboardLogic.prepare(raw) else { Announcer.post(L.t("clipboard_empty"), force: true); return }
+        if ClipboardLogic.wasTruncated(raw) { Announcer.post(L.t("clipboard_truncated")) }
+        say(text, lang: Prefs.phraseLang(text))
+    }
+
     func say(_ text: String, lang: String = "en") {
         // Nr. 361: erst nach `ready` – sonst puffert die Engine den Satz und spricht ihn später unerwartet
         guard engineReady else { Announcer.post(L.t("empty_loading")); return }   // nicht mehr stumm verwerfen
@@ -1821,7 +1829,7 @@ final class EngineModel: NSObject, ObservableObject {
         s.voice = voice
         // Nr. 363: Sprechtempo (−50 … 50 %) und Lautstärke aus den Einstellungen statt fester Werte
         s.rate = Self.localRate(rate)
-        s.volume = Float(min(1, max(0.1, volume)))
+        s.volume = VolumeLogic.systemVoice(volume)
         if running && micOn && !paused && !replayPausedEngine {
             send(["paused": true]); replayPausedEngine = true
         }

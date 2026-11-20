@@ -57,7 +57,7 @@ def test_wachhund_nur_pong():
 
 def test_lokales_vorlesen_mit_tempo_und_lautstaerke():
     e = src("Engine.swift")
-    assert "s.rate = Self.localRate(rate)" in e and "s.volume = Float(" in e
+    assert "s.rate = Self.localRate(rate)" in e and "s.volume = VolumeLogic.systemVoice(volume)" in e
     assert "AVSpeechUtteranceDefaultSpeechRate * 0.95\n" not in e
 
 

@@ -50,10 +50,10 @@ enum DiagnosticsLogic {
     static func report(lines: [String], rows: [Row], lastError: String?, home: String, user: String) -> String {
         var out = lines
         if !rows.isEmpty {
-            out.append("Selbsttest: " + overall(rows).rawValue)
+            out.append("Self-test: " + overall(rows).rawValue)
             for r in rows { out.append("  [\(r.status.rawValue)] \(r.id): \(r.detail)") }
         }
-        if let e = lastError, !e.isEmpty { out.append("Letzter Fehler: " + e) }
+        if let e = lastError, !e.isEmpty { out.append("Last error: " + e) }
         return redact(out.joined(separator: "\n"), home: home, user: user) + "\n"
     }
 }
