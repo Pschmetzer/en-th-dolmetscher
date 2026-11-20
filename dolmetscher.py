@@ -3973,10 +3973,17 @@ class Player:
                         log({"play_span": [round(start % 1000, 2), round(time.time() % 1000, 2)]})
 
     def run(self, cmd):
-        self.wait(self.start(cmd))
+        try:
+            p = self.start(cmd)
+        except OSError as e:               # Abspielprogramm fehlt / Prozesslimit: nie den Sprechpfad abstürzen lassen
+            log({"player": "start fehlgeschlagen", "err": _errtxt(e)})
+            return False
+        self.wait(p)
+        return True
 
     def playing(self):
-        return bool(self.procs)
+        with self.lock:
+            return bool(self.procs)
 
     def gated(self, t=None):
         """Konnte zum Aufnahmezeitpunkt t unsere eigene Stimme (oder ihr Nachhall) im Mikrofon
@@ -4063,6 +4070,13 @@ def _tts_fallback(reason):
     if not _TTS_FB["on"]:
         _TTS_FB["on"] = True
         emit("tts_fallback", reason=reason)
+
+
+def _tts_fallback_end():
+    """Zurück zur Neural-Stimme: einmal melden, damit die App „Ersatzstimme aktiv“ wieder ausblendet."""
+    if _TTS_FB["on"]:
+        _TTS_FB["on"] = False
+        emit("tts_fallback", ended=True)
 
 
 def net_state(what, ok, retry_in_s=None):
@@ -4261,6 +4275,17 @@ def _ssml(text, voice, rate):
         return None
 
 
+def _ws_binary_payload(raw):
+    """Audio aus einer edge-tts-Binärnachricht (2 Byte Kopflänge, Kopf, Audio). Zu kurz/beschädigt -> Fehler statt
+    stiller leerer oder falscher Daten."""
+    if len(raw) < 2:
+        raise ValueError("edge-tts Binärpaket zu kurz")
+    n = int.from_bytes(raw[:2], "big")
+    if n + 2 > len(raw):
+        raise ValueError("edge-tts Binärpaket beschädigt")
+    return raw[n + 2:]
+
+
 WS_RECV_S = 8.0                        # s ohne neue Nachricht -> Verbindung gilt als hängend
 
 
@@ -4273,7 +4298,7 @@ async def _ws_speak(ssml, put, stopped):
     for attempt in (0, 1):
         ws = _ws_take() if attempt == 0 else None
         pooled = ws is not None
-        got = False
+        got, ended = False, False
         try:
             if ws is None:
                 ws = await _ws_open()
@@ -4288,17 +4313,19 @@ async def _ws_speak(ssml, put, stopped):
                     return pooled
                 if m.type == aiohttp.WSMsgType.TEXT:
                     if "Path:turn.end" in m.data:
+                        ended = True
                         break
                 elif m.type == aiohttp.WSMsgType.BINARY:
-                    n = int.from_bytes(m.data[:2], "big")
-                    data = m.data[n + 2:]
+                    data = _ws_binary_payload(m.data)
                     if data:
                         got = True
                         put(data)
                 elif m.type == aiohttp.WSMsgType.ERROR:
                     raise RuntimeError(f"edge-tts Websocket-Fehler: {m.data}")
-            if got:
+            if got and ended:
                 return pooled
+            if got:                            # Server schloss mitten im Satz: nie als vollständig (Cache!) melden
+                raise RuntimeError("edge-tts Verbindung vor Satzende geschlossen")
             raise RuntimeError("edge-tts lieferte keine Audiodaten")
         except Exception:
             if got or not pooled or stopped():
@@ -4381,6 +4408,11 @@ TTS_OFFLINE_PROBE = 0.8                # s: so lange darf die Neural-Stimme bei 
 TTS_RACE = 1.4                         # s: kommt die Neural-Stimme nicht, spricht die vorbereitete macOS-Stimme
 
 
+class StreamQueue(queue.Queue):
+    """Audio-Warteschlange einer edge-tts-Anfrage; `lost`: ein anderer Versuch hat gewonnen -> Erzeuger bricht ab."""
+    lost = False
+
+
 class EdgeStream:
     """edge-tts-Anfrage, die sofort startet (Vorab-Laden, während noch etwas anderes spricht).
     Abgespielt wird später mit edge_play(). Bereits gehörte kurze Sätze kommen aus dem Cache."""
@@ -4401,7 +4433,7 @@ class EdgeStream:
             elif TTS_LAST["key"] == self.key:
                 self.cached = TTS_LAST["data"]
         if self.cached is not None:
-            q = queue.Queue()
+            q = StreamQueue()
             q.put(self.cached)
             q.put(None)
             self.audio.set()
@@ -4411,7 +4443,7 @@ class EdgeStream:
 
     def _request(self):
         import asyncio, edge_tts
-        q = queue.Queue()
+        q = StreamQueue()
         stop = self.stop
         ssml = _ssml(self.text, self.voice, self.rate)
         got = {"n": 0}
@@ -4467,9 +4499,10 @@ class EdgeStream:
         errs = []
         while time.time() - t_wait < deadline:
             # zuerst nachsehen (vorab Geladenes liegt schon bereit), erst dann ggf. zweiter Versuch
+            slice_s = 0.02 / max(1, len(self.qs))     # reihum: bei zwei Anfragen nicht doppelt so lange blockieren
             for cand in list(self.qs):
                 try:
-                    x = cand.get(timeout=0.02)
+                    x = cand.get(timeout=slice_s)
                 except queue.Empty:
                     continue
                 if x is None or isinstance(x, Exception):
@@ -4592,7 +4625,7 @@ def edge_play(stream, volume, on_start=None, cancelled=None, deadline=None):
                     on_start(stats["play_start_s"])
                 PLAYER.run(file_play_cmd(mp3, volume))
             finally:
-                os.remove(mp3)
+                _rm_quiet(mp3)
     finally:
         stream.cancel()
     stats["cached"] = stream.cached is not None
@@ -4630,6 +4663,9 @@ def edge_prerender(text, voice, rate):
         stream.cancel()
 
 
+PRERENDER_MAX = 60                     # höchstens so viele Notfall-Teilsätze je Preset vorab rendern
+
+
 def prerender_critical(eng, preset):
     """Beim Aktivieren eines Presets die `critical`-Sätze (Notfall, Allergie …) in beiden Sprachen vorab in den
     TTS-Cache rendern (Hintergrund-Thread; nie im Privatmodus oder bei --tts say/stumm). -> Thread oder None."""
@@ -4646,7 +4682,9 @@ def prerender_critical(eng, preset):
 
     def run():
         done = 0
-        for text, voice, rate in jobs[:40]:
+        if len(jobs) > PRERENDER_MAX:
+            log({"prerender": "notfall-phrasen gekürzt", "von": len(jobs), "max": PRERENDER_MAX})
+        for text, voice, rate in jobs[:PRERENDER_MAX]:
             if STOP.is_set() or not NET.get("tts", True):
                 break
             done += bool(edge_prerender(text, voice, rate))
@@ -4658,9 +4696,9 @@ def prerender_critical(eng, preset):
     return t
 
 
-def edge_say(text, voice, rate, volume, on_start=None):
+def edge_say(text, voice, rate, volume, on_start=None, cancelled=None):
     """edge-tts streamen und ab dem ersten Block abspielen (ohne Vorab-Laden)."""
-    return edge_play(EdgeStream(text, voice, rate), volume, on_start)
+    return edge_play(EdgeStream(text, voice, rate), volume, on_start, cancelled)
 
 
 EARCON = "/System/Library/Sounds/Tink.aiff"
@@ -4684,7 +4722,11 @@ def _rm_quiet(path):
 def run_cancellable(cmd, timeout=SAY_TIMEOUT, cancelled=None, step=0.05):
     """Kindprozess (kein Abspielen, sperrt also nicht das Mikrofon) mit Zeitgrenze; Stopp/Barge-in
     beendet ihn sofort. Rückgabe: Exit-Code, None bei Abbruch/Zeitüberschreitung."""
-    p = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    try:
+        p = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except OSError as e:                    # say fehlt / Prozesslimit: wie ein Abbruch behandeln
+        log({"run_cancellable": "start fehlgeschlagen", "err": _errtxt(e)})
+        return None
     t = time.monotonic()
     try:
         while True:
@@ -4803,7 +4845,10 @@ def is_echo(text, lang, now=None):
     for t, lng, spoken in list(_SPOKEN):
         if lng != lang or now - t > ECHO_WINDOW_S or now < t:
             continue
-        if difflib.SequenceMatcher(None, n, spoken, autojunk=False).ratio() >= ECHO_RATIO:
+        sm = difflib.SequenceMatcher(None, n, spoken, autojunk=False)
+        if sm.real_quick_ratio() < ECHO_RATIO or sm.quick_ratio() < ECHO_RATIO:
+            continue                       # günstige Obergrenzen: O(n²)-Vergleich nur bei möglichem Treffer
+        if sm.ratio() >= ECHO_RATIO:
             return True
     return False
 
@@ -4895,7 +4940,7 @@ class Speaker:
             behind = len(self.items) + (1 if self.busy else 0)
         item = {"id": uid, "lang": lang, "kind": kind, "parts": [], "t_end": t_end, "pin": pin}
         if kind == "speech":
-            note_spoken(text, lang)
+            item["text"] = text
             boost = self.boost(behind)
             sentences = chunk_long(split_sentences(apply_pronounce(speak_form(text, lang)), lang), lang)
             for i, s in enumerate(p for p in sentences if speakable(p)):
@@ -4932,8 +4977,7 @@ class Speaker:
     def wait_idle(self, timeout=120):
         t = time.time()
         with self.cond:
-            while (self.items or self.busy) and time.time() - t < timeout:
-                self.cond.wait(0.1)
+            self.cond.wait_for(lambda: not (self.items or self.busy), timeout=timeout)
 
     def _loop(self):
         while True:
@@ -4983,6 +5027,8 @@ class Speaker:
         def on_start(first_s):
             if not started["v"]:
                 started["v"] = True
+                if it.get("text"):
+                    note_spoken(it["text"], it["lang"])      # Echo-Fenster erst ab dem hörbaren Satz, nicht ab dem Einreihen
                 lat = round(time.time() - it["t_end"], 2) if it.get("t_end") else None
                 emit("speaking", id=uid, first_s=first_s, latency_s=lat)
                 if lat is not None:
@@ -4995,7 +5041,7 @@ class Speaker:
         try:
             for i, (text, stream) in enumerate(parts):
                 if cancelled():
-                    interrupted = CANCEL["gen"] != g
+                    interrupted = CANCEL["gen"] != g or bool(self.eng.mute)   # stumm: nicht gesprochen = unterbrochen
                     break
                 if i + 1 < len(parts) and parts[i + 1][1] is None and locals_[i + 1] is None:
                     nxt, loc = self._prepare(parts[i + 1][0], it["lang"], boost)   # nächsten Teil vorab
@@ -5076,11 +5122,17 @@ def _strip_punct(s):
 
 
 _PSEUD_SALT = {"v": None}
+_PSEUD_LOCK = threading.Lock()
 
 
 def _pseud_salt():
     """Zufälliger Salz je Installation (Datei `log_salt` im Datenordner, 0600), damit sich Vornamen im Log nicht
     per Wörterbuch aus dem Pseudonym zurückrechnen lassen. Ohne beschreibbaren Ordner: Salz nur für diesen Lauf."""
+    with _PSEUD_LOCK:
+        return _pseud_salt_locked()
+
+
+def _pseud_salt_locked():
     if _PSEUD_SALT["v"] is None:
         import history_store
         path = os.path.join(history_store.home_dir(), "log_salt")
@@ -5093,7 +5145,10 @@ def _pseud_salt():
             salt = os.urandom(16).hex()
             try:
                 os.makedirs(os.path.dirname(path), mode=0o700, exist_ok=True)
-                fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+                try:                       # O_EXCL: ein zweiter Prozess überschreibt kein frisch angelegtes Salz
+                    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+                except FileExistsError:
+                    fd = os.open(path, os.O_WRONLY | os.O_TRUNC, 0o600)   # leere/kurze Altdatei
                 with os.fdopen(fd, "w", encoding="utf-8") as f:
                     f.write(salt)
             except OSError:
@@ -5290,7 +5345,7 @@ class Engine:
                     race = TTS_RACE if NET.get("tts", True) else min(TTS_RACE, TTS_OFFLINE_PROBE)
                 st = edge_play(stream, self.volume, on_start_part, cancelled, deadline=race)
                 net_state("tts", True)
-                _TTS_FB["on"] = False
+                _tts_fallback_end()
                 log({"tts": "edge", "voice": stream.voice, **st, "secs": round(time.time() - t, 2)})
                 return "partial" if st.get("partial") else None
             except Exception as e:
@@ -5327,12 +5382,15 @@ class Engine:
         fd, aiff = tempfile.mkstemp(prefix="dolmetscher_say_", suffix=".aiff", dir=private_tmp())
         os.close(fd)
         try:
-            os.remove(aiff)                        # nie eine alte Datei abspielen
+            _rm_quiet(aiff)                        # nie eine alte Datei abspielen
+            if self.tts == "edge":
+                _tts_fallback("offline" if not NET.get("tts", True) else "error")
             log({"tts": "say", "voice": _say_voice(self, lang)})
             rc = run_cancellable(say_cmd(_say_voice(self, lang), self.rate + boost, aiff, text), cancelled=cancelled)
             if rc != 0:
                 if not (cancelled and cancelled()):
                     log({"tts": "say-fehler", "rc": rc})       # rc None: Zeitgrenze überschritten
+                    emit("speak_failed", reason="say", rc=rc)  # App: Text groß zeigen / „Wiederholen“ anbieten
             elif os.path.exists(aiff) and not (cancelled and cancelled()):
                 wait_quiet(cancelled=cancelled)
                 if cancelled and cancelled():
@@ -5341,8 +5399,7 @@ class Engine:
                     on_start(round(time.time() - t, 2))
                 PLAYER.run(file_play_cmd(aiff, self.volume))
         finally:
-            if os.path.exists(aiff):
-                os.remove(aiff)
+            _rm_quiet(aiff)
 
     def reply(self, text):
         """Bestätigung eines Sprachbefehls: gesprochen oder als Signalton (--earcons)."""
@@ -5447,7 +5504,7 @@ class Engine:
         try:
             import history_store
             rec = history_store.RECORDER
-            if not (rec.on and rec.store) or getattr(self, "last", None):
+            if getattr(self, "_cleared", False) or not (rec.on and rec.store) or getattr(self, "last", None):
                 return False
             r = rec.store.last_translation()
             if r and r["lang"] in TARGET:
@@ -5462,6 +5519,7 @@ class Engine:
         Verlauf, "repeat", Roh-Audio/Text, Caches, und wartende/laufende Sprachausgabe (enthält den Text)."""
         self.history.clear()
         self.last = None
+        self._cleared = True                # restore_last darf den gelöschten Satz nicht aus dem Verlauf zurückholen
         for name in ("texts", "recent", "_hist_ids"):   # kein Roh-Audio/Text im Speicher behalten
             getattr(self, name, {}).clear()
         with _PRE_LOCK:
