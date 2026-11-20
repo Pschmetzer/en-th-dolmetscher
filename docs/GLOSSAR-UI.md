@@ -17,7 +17,7 @@ Stand der Prüfung: de, en und th sind von Hand geschrieben, aber **nicht mutter
 | Lernkarte | Lernkarte(n) | flashcard(s) | บัตรคำ | Karteikarte, Lernkasten, study card |
 | Satzsammlung | Satzbuch | Phrasebook | สมุดวลี | Phrasenbuch, Sprachführer |
 | Mikrofon | Mikrofon | Microphone | ไมโครโฟน | Mic, ไมค์ |
-| Spracherkennung | Spracherkennung | Speech recognition | การรู้จำเสียง | Diktat, Spracheingabe |
+| Spracherkennung | Spracherkennung | Speech recognition | การรู้จำเสียง | Diktat, Spracheingabe, การจดจำเสียง |
 | Sprachmodell zum Erkennen | Sprachmodell | speech model | โมเดลเสียง | Sprachdatei |
 | Ausgabe der Übersetzung | Vorlesen | read aloud | อ่านออกเสียง | TTS |
 | Stimme zum Vorlesen | Stimme | voice | เสียง | Sprecher |

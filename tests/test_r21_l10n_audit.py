@@ -116,7 +116,7 @@ def _all_texts():
 FORBIDDEN = [   # (Sprache, Muster, Grund) – siehe docs/GLOSSAR-UI.md
     ("en", r"favourite|recognis|colour|Practise|[Cc]ancelled|study card|Partner's language", "amerikanische Schreibweise, ein Wort für Lernkarten"),
     ("de", r"Karteikarte|Lernkasten", "Lernkarte(n)"),
-    ("th", r"กรุณา|ไมค์", "โปรด / ไมโครโฟน"),
+    ("th", r"กรุณา|ไมค์|จดจำ", "โปรด / ไมโครโฟน / การรู้จำเสียง (จดจำ heißt „sich merken“)"),
     ("es", r"\bpareja\b", "Gegenüber heißt interlocutor, nicht pareja"),
     ("fr", r"partenaire", "Gegenüber heißt interlocuteur"),
     ("vi", r"đối tác", "Gegenüber heißt đối phương"),
