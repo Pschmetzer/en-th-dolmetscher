@@ -44,6 +44,43 @@ Es gibt zwei getrennte Zustände, die man nicht vermischen darf:
 - **Äußerung** (je `id`): Platzhalter-Blase bei `thinking` → `utt` mit Text und Übersetzung → `speaking` (nur wenn wirklich Ton kommt) → `speak_done` (genau einmal, auch bei Überspringen oder Abbruch). `dropped` entfernt den Platzhalter. Der Status „spricht“ wird nur über `speaking`/`speak_done` gesetzt, nicht über `listening`.
 - Dazu kommen Schalter der Engine: pausiert (die Engine hört weiter auf Befehle), Sprachsperre auf eine Sprache des Paars oder automatisch, Richtungen je Paarsprache einzeln abschaltbar (`tr_mine`/`tr_partner` bzw. `tr_<code>`), stumm. Das Sprachpaar selbst (`langs`: `mine`, `partner`) lässt sich zur Laufzeit wechseln; Standard ist en/th. Die Sprachtabelle `LANGS` in `dolmetscher.py` (19 Sprachen: Name, Schrift, Stimmen, Schwellen, Code für die Übersetzungsdienste) ist die einzige Quelle dafür.
 
+## Datenfluss einer Äußerung
+
+```mermaid
+sequenceDiagram
+    participant M as Mikrofon (avhelper.py)
+    participant E as Engine (dolmetscher.py)
+    participant S as Erkennung (Whisper, lokal)
+    participant T as Übersetzung
+    participant V as Stimme (edge-tts oder say)
+    participant A as App (Engine.swift)
+    M->>E: PCM-Blöcke (s16le)
+    E->>E: VAD: Satzende nach --silence
+    E-->>A: thinking (id)
+    E->>S: Audio des Satzes
+    S-->>E: Text, Sprache
+    E->>T: Text (Claude, Google, MyMemory oder offline)
+    T-->>E: Übersetzung
+    E-->>A: utt (id, Text, Übersetzung)
+    E->>V: Übersetzung
+    E-->>A: speaking (id)
+    V-->>E: Ton fertig
+    E-->>A: speak_done (id)
+```
+
+Nur Schritte mit Netz verlassen den Mac: die Übersetzung (außer offline) und edge-tts; Audio geht nie ins Netz. Genaue
+Tabelle in [DATENSCHUTZ.md](DATENSCHUTZ.md#verlässt-den-mac). Reihenfolge und Garantien der Ereignisse:
+[PROTOKOLL.md](PROTOKOLL.md#reihenfolge-und-garantien).
+
+## Fehlerpfade
+
+| Störung | Verhalten | Ereignis |
+|---|---|---|
+| Übersetzer antwortet nicht | nächster Anbieter der Kette (Claude, dann Google/MyMemory, zuletzt der Offline-Helfer, sofern eingeschaltet) | scheitern alle: `dropped` mit Code `translate_failed` plus `error` |
+| Äußerung wird nicht übersetzt | Platzhalter wird entfernt, jede eingereihte Ausgabe endet mit genau einem `speak_done` | `dropped.code` ([PROTOKOLL.md](PROTOKOLL.md#droppedcode)) |
+| Ausgabe der Engine wird nicht gelesen | nur der Schreib-Thread blockiert, bei Überlauf fallen zuerst `level`, `partial`, `queue` weg | – |
+| Engine-Prozess endet | App bleibt offen, Zustand `stopped`, Neustart per `EngineModel.restart()` | Prozessende |
+
 ## Dateien
 
 | Datei | Inhalt |
@@ -58,7 +95,7 @@ Es gibt zwei getrennte Zustände, die man nicht vermischen darf:
 | `numwords.py`, `thaiparticles.py`, `textsplit.py` | Reine Funktionen aus `dolmetscher.py` (Runde 25, dort re-exportiert): Thai-Zahlwörter und Vorlesen von Zahlen, Höflichkeitspartikel/Sprechergeschlecht/Dehnungen, erste Teilphrase und Teilung langer Texte |
 | `online_speakers.py` | Gruppenmodus (Runde 25): stabile Sprechernummern ohne Stimmprofil über `profiles.cluster_speakers` |
 | `history_store.py`, `hwprofile.py`, `correction_learning.py`, `satzbuch.py` | Verlauf (SQLite, optional), Modellwahl `--model auto`, Glossar-Vorschläge aus Korrekturen, Export, Prüfung und Bericht (`satzbuch.py report`) des Satzbuchs (Kommandozeile); der Verlauf lässt sich passwortgeschützt exportieren |
-| `tools/` | Paket-Werkzeuge (`check_presets.py`, `preset_stats.py`, `preset_search.py`, `preset_rom.py`, `preset_lint.py` (sprachliche Muster-Prüfung der Thai-Sätze), `preset_dupes.py` (doppelte Sätze zwischen Paketen, Verweise „Siehe auch“), `preset_quality.py`, `export_phrasebook.py`, `make_presets_index.py`, `sync_web.py`, `check_doc_links.py` (tote Links in der Doku), `pages_smoke.py` (Smoke-Test der ausgelieferten Seite), `review_export.py`, `review_import.py`, `review_status.py`), Swift-Quellen von `translate-helper` (kommt ins Bundle) und des Prototyps `apple-stt` |
+| `tools/` | Paket-Werkzeuge (`check_presets.py`, `preset_stats.py`, `preset_search.py`, `preset_rom.py`, `preset_lint.py` (sprachliche Muster-Prüfung der Thai-Sätze), `preset_dupes.py` (doppelte Sätze zwischen Paketen, Verweise „Siehe auch“), `preset_quality.py`, `export_phrasebook.py`, `make_presets_index.py`, `sync_web.py`, `check_doc_links.py` (tote Links in der Doku), `pages_smoke.py` (Smoke-Test der ausgelieferten Seite), `review_export.py`, `review_import.py`, `review_status.py`), Swift-Quellen von `translate-helper` (kommt ins Bundle) und des Prototyps `apple-stt`; Doku- und CI-Prüfungen (Runde 29): `check_doc_links.py`, `check_docs_index.py`, `changelog_lint.py`, `changelog_extract.py` (Abschnitt für Release-Notes), `check_version_sync.py`, `check_workflows.py`, zusammen in `tools/check_all.sh --docs` ([CI.md](CI.md)) |
 | `build-support/` | Entitlements, `setup-env.sh` (Einrichtung), `make-stamp.sh` (Stempel) |
 | `bench/` | Benchmark für Erkennung und Übersetzung, `latency_budget.py` (Zeitbudget) |
 
