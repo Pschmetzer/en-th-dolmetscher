@@ -14,6 +14,11 @@ Only the pure Thai modules (`thaiparticles`, `thaitime`, `numwords`, `textnorm`,
 - **Normalising and splitting:** cache key ignores zero-width characters and Thai digits, `strip_thai_fillers` (เอ่อ, อืม; not อ่านหนังสือ), `split_thai_sentences` at particles without punctuation, Thai abbreviations (`น.`, `พ.ศ.`, `ม.ค.` ...) no longer end a sentence.
 - **Names and phrase books:** `name_key` (Phuket = Puket, Chiang Mai = Chiang-Mai) now drives `name_alignment`, `thai_honorific_names` (name after คุณ/นาย/พี่ ...), more Thai particles skipped as vocabulary, `satzbuch.py check --thai` (zero-width characters, gender-bound "I", ค่ะ in questions, double ๆ; all packs are clean).
 
+### Security and privacy review, round 28
+
+- Engine: the three remaining child-process calls (`say -v ?`, two ffmpeg device queries) no longer inherit `ANTHROPIC_API_KEY`; a test checks every `subprocess` call in `dolmetscher.py` for a filtered environment
+- `docs/DATENSCHUTZ.md`: documents the optional password-encrypted history (`history-enc.sqlite`) and lists what the review checked
+
 ### iPhone app, round 35: tested logic building blocks
 
 - 17 new small logic blocks in `ios/Dolmetscher/Round35.swift` (Foundation only): VoiceOver bubble label, confidence as a level instead of colour only, clamped text size, reduced motion, offline retry queue, error classes with retry rules and back-off, free-space check and size format for model downloads, session time (also spoken), quiet hours across midnight, UI language resolution, grapheme-safe truncation, share-text sanitising (control and bidi-override characters), history retention by age and count, debounce, version compare. Overview in `docs/IOS-LOGIK-R35.md`.

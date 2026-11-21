@@ -33,7 +33,7 @@ Das gilt für alle 19 Sprachen gleich: Die Wahl des Sprachpaars ändert nur, wel
 
 - **Standard: aus.** Aufgezeichnet wird nur, wenn du `--history` startest bzw. die App ihn einschaltet (`{"history": true}`).
 - **Was:** erkannter Text, Übersetzung, Umschrift, Sprache, Konfidenz, Übersetzungsdienst und Zeitpunkt jeder Äußerung. **Kein Audio.**
-- **Wo:** `~/Library/Application Support/Dolmetscher/history.sqlite` (oder `$DOLMETSCHER_HOME`), Ordner 0700, Datei 0600. Die Texte liegen **im Klartext** in der Datei (nicht verschlüsselt) und landen damit auch in Backups (z. B. Time Machine), solange du den Ordner nicht ausschließt.
+- **Wo:** `~/Library/Application Support/Dolmetscher/history.sqlite` (oder `$DOLMETSCHER_HOME`), Ordner 0700, Datei 0600. Ohne Passwort liegen die Texte **im Klartext** in der Datei und landen damit auch in Backups (z. B. Time Machine), solange du den Ordner nicht ausschließt. **Mit Passwort** (optional, Runde 25; Engine liest `DOLMETSCHER_HISTORY_PASSWORD` beim Start und entfernt es sofort aus der Umgebung, Kindprozesse erben es nie) schreibt die Engine stattdessen `history-enc.sqlite`: Text, Übersetzung, Umschrift und Sprechername sind feldweise verschlüsselt (scrypt bzw. PBKDF2, HMAC-SHA256, encrypt-then-MAC, nur Standardbibliothek). Zeitpunkt, Sprache, Konfidenz, Dienst und Rolle bleiben lesbar, einen Volltext-Suchindex gibt es dort nicht. Das Passwort wird nirgends gespeichert; ohne es ist der Verlauf nicht lesbar (kein Zurücksetzen).
 - **Aufbewahrung:** `--history-days N` löscht beim Start Einträge, die älter als N Tage sind. Ohne Angabe bleibt alles, bis du es löschst. 0 oder negative Werte werden ignoriert (sie löschen nicht alles).
 - **Löschen:** `--history-purge N` (älter als N Tage, N > 0) oder `--history-clear` (alles). Gelöschte Zeilen werden in der Datei überschrieben (`PRAGMA secure_delete`), Suchindex und Datei danach neu geschrieben (`VACUUM`), damit sie nicht in freien Bereichen lesbar bleiben. Kopien in Backups löscht das nicht.
 - **Export:** `--history-export md|json|csv|srt|vtt|anki` schreibt auf stdout oder mit `--out PFAD` in eine neue Datei mit Rechten 0600. Was du exportierst und weitergibst, liegt dann außerhalb der App.
@@ -107,7 +107,7 @@ Wer Logs teilt: `--log-text` schreibt erkannte und übersetzte Sätze in die Log
   Eine vorhandene Datei wird gegen die Prüfsumme geprüft und bei Abweichung neu geladen.
 - **Rückübersetzung** (`back_translate`, Standard aus): Ist sie an, geht der **übersetzte Satz** zusätzlich an Google Translate, um
   ihn zurück in die Ausgangssprache zu übersetzen. Höchstens zwei Anfragen gleichzeitig; mit pausiertem Google entfällt sie.
-- **Verlauf**: Die Datenbank ist nicht verschlüsselt (nur Dateirechte 0600) und enthält, wenn Stimmprofile genutzt werden,
+- **Verlauf**: Die Standard-Datenbank ist nicht verschlüsselt (nur Dateirechte 0600; Verschlüsselung mit Passwort siehe Abschnitt „Gesprächsverlauf“) und enthält, wenn Stimmprofile genutzt werden,
   **Profilnamen im Klartext** (`speaker`). Mit dem Steuerfeld `history_speakers: false` werden keine Namen gespeichert. Ausgeschaltet
   räumt die Engine die WAL-Datei mit auf; Exporte (`--out`) bekommen Rechte 0600.
 - **Übersetzungs-Cache auf der Platte** (`cache_persist`, Standard aus): Ist er an, liegen übersetzte Sätze in
@@ -135,3 +135,11 @@ Wer Logs teilt: `--log-text` schreibt erkannte und übersetzte Sätze in die Log
 - **iPhone, Bildschirmaufnahme:** Der Schalter „Bei Bildschirmaufnahme und Spiegelung verbergen“ (Standard: aus) deckt die App ab, solange der Bildschirm aufgenommen oder gespiegelt wird (`UIScreen.isCaptured`). Unabhängig davon verbirgt „Im App-Umschalter verbergen“ (Standard: an) die App in der App-Vorschau.
 - **Mac, Bildschirmaufnahme:** siehe oben (Runde 7); der Schalter gilt für Hauptfenster, Partneransicht und Untertitelfenster.
 - **Echo-Schutz** (`echo_guard`, Standard: an): Die Engine merkt sich die letzten acht vorgelesenen Sätze (normalisiert, nur im Arbeitsspeicher, 25 Sekunden lang wirksam), um erkannte Wiederholungen der eigenen Ausgabe zu verwerfen. Davon wird nichts auf die Platte geschrieben, nichts gesendet und nichts in Verlauf oder Log übernommen; beim Beenden der Engine ist es weg.
+
+## Sicherheits-Review Runde 28
+
+Durchgesehen: Secrets in Code und Git-Verlauf (nur Testwerte in Swift-Tests, keine echten Schlüssel; keine Schlüssel-, Zertifikats- oder `.env`-Dateien im Repo), Kindprozess-Umgebung, Dateirechte, Verlauf-Verschlüsselung, CSP und Service Worker, Netzwerkaufrufe, Logging und Abhängigkeiten (alle Lock-Dateien mit Hashes, `pip-audit` im Build, GitHub-Workflows mit `contents: read` und ohne gespeicherte Zugangsdaten).
+
+- **Kindprozesse:** Drei Aufrufe (`say -v ?`, zwei Geräteabfragen mit ffmpeg) erbten bisher die volle Umgebung der Engine, also auch `ANTHROPIC_API_KEY`. Jetzt laufen alle `subprocess`-Aufrufe der Engine mit gefilterter Umgebung (`_child_env()`); ein Test prüft das für jeden Aufruf im Quelltext.
+- **Unverändert geprüft und in Ordnung:** Ordner 0700 und Dateien 0600 für Verlauf, Profile, Log, Cache und Exporte; eigenes Temp-Verzeichnis 0700 für Sprachdateien; Gesprächstext nur mit `--log-text` im Log; Web: strenge CSP (`default-src 'none'`, `connect-src` nur Google und MyMemory, kein `frame-src`/`object-src`), Service Worker fasst nur eigene GET-Anfragen an und speichert nie fremde Antworten; `innerHTML` nur mit festen eigenen Texten.
+- **Bekannte Grenzen:** `'unsafe-inline'` für Skript und Stil in der Web-CSP (GitHub Pages erlaubt keine Header), Web-Übersetzung per GET mit Text in der URL, Zwischenablage am Mac nicht eingeschränkt. Siehe `SECURITY.md`.
