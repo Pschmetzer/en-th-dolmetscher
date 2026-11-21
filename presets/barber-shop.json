@@ -1,0 +1,129 @@
+{
+  "id": "barber-shop",
+  "names": {
+    "de": "Herrenfriseur und Rasur",
+    "en": "Barber shop and shave",
+    "th": "ร้านตัดผมชาย"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Ein einfacher Herrenschnitt kostet in Thailand meist nur wenige hundert Baht; vor dem Schneiden Länge in Zentimetern oder mit Fingern zeigen. Ein Foto vom gewünschten Schnitt hilft. Zahlung meist bar, Trinkgeld nicht Pflicht. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "A basic men's haircut usually costs only a few hundred baht; show the length in centimetres or with your fingers before cutting. A photo of the style helps. Payment is mostly cash, a tip is not required. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "haircut",
+      "th": "ตัดผม"
+    },
+    {
+      "en": "shave",
+      "th": "โกนหนวด"
+    },
+    {
+      "en": "beard",
+      "th": "เครา"
+    },
+    {
+      "en": "clippers",
+      "th": "ปัตตาเลี่ยน"
+    },
+    {
+      "en": "short",
+      "th": "สั้น"
+    },
+    {
+      "en": "shampoo",
+      "th": "สระผม"
+    },
+    {
+      "en": "scissors",
+      "th": "กรรไกร"
+    },
+    {
+      "en": "price",
+      "th": "ราคา"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "How much is a haircut?",
+      "th": "ตัดผมราคาเท่าไร",
+      "rom": "tatpm rakha thaorai"
+    },
+    {
+      "en": "Do I need to book?",
+      "th": "ต้องจองไหม",
+      "rom": "tong chong mai"
+    },
+    {
+      "en": "How long do I have to wait?",
+      "th": "ต้องรอนานแค่ไหน",
+      "rom": "tong ro nan khae nai"
+    },
+    {
+      "en": "A little shorter, please.",
+      "th": "สั้นลงนิดหน่อย",
+      "rom": "san long nitnoi"
+    },
+    {
+      "en": "Not too short.",
+      "th": "อย่าสั้นเกินไป",
+      "rom": "ya san koenpai"
+    },
+    {
+      "en": "Leave the top long.",
+      "th": "ด้านบนเก็บไว้ยาว",
+      "rom": "danpn kep wai yao"
+    },
+    {
+      "en": "Short on the sides.",
+      "th": "ด้านข้างตัดสั้น",
+      "rom": "dan khang tat san"
+    },
+    {
+      "en": "Please use number three on the sides.",
+      "th": "ช่วยใช้เบอร์สามด้านข้าง",
+      "rom": "chuai chai boe sam dan khang"
+    },
+    {
+      "en": "I have a photo of the style.",
+      "th": "มีรูปทรงผมที่ต้องการ",
+      "rom": "mi rup thrangaphom thi tongkan"
+    },
+    {
+      "en": "Please trim my beard.",
+      "th": "ช่วยแต่งเคราให้หน่อย",
+      "rom": "chuai taeng khera hai noi"
+    },
+    {
+      "en": "Please shave me with a razor.",
+      "th": "ช่วยโกนหนวดด้วยมีดโกนหน่อย",
+      "rom": "chuai kon nuat duai mitkon noi"
+    },
+    {
+      "en": "Please use a clean blade.",
+      "th": "ช่วยใช้ใบมีดใหม่หน่อย",
+      "rom": "chuai chaibai mit aim noi"
+    },
+    {
+      "en": "Can you wash my hair?",
+      "th": "สระผมให้ด้วยได้ไหม",
+      "rom": "srapm hai duai dai mai"
+    },
+    {
+      "en": "That is enough, thank you.",
+      "th": "แค่นี้พอแล้ว ขอบคุณ",
+      "rom": "khaeni pholaeo khopkhun"
+    },
+    {
+      "en": "Can you cut a bit more here?",
+      "th": "ตัดตรงนี้อีกนิดได้ไหม",
+      "rom": "tat trangani ik nit dai mai"
+    },
+    {
+      "en": "Do you accept cards?",
+      "th": "รับบัตรไหม",
+      "rom": "rap batn mai"
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "id": "temple-stay-overnight",
+  "names": {
+    "de": "Übernachtung im Tempel",
+    "en": "Overnight temple stay",
+    "th": "พักค้างคืนที่วัด"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Viele Tempel nehmen Gäste für Retreats auf, oft gegen Spende. Typisch: Aufstehen gegen 4 Uhr, einfache weiße Kleidung, keine Mahlzeit nach dem Mittag, Männer und Frauen getrennt, Handy aus. Immer höflich um Erlaubnis bitten und Mönchen nichts direkt reichen, Frauen berühren keine Mönche. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Many temples take guests for retreats, often for a donation. Typical: waking around 4 am, plain white clothes, no meal after noon, men and women separate, phone off. Always ask politely for permission; women do not touch monks or hand things directly to them. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "temple",
+      "th": "วัด"
+    },
+    {
+      "en": "monk",
+      "th": "พระ"
+    },
+    {
+      "en": "abbot",
+      "th": "เจ้าอาวาส"
+    },
+    {
+      "en": "white clothes",
+      "th": "ชุดขาว"
+    },
+    {
+      "en": "rules",
+      "th": "กฎระเบียบ"
+    },
+    {
+      "en": "donation",
+      "th": "ทำบุญ"
+    },
+    {
+      "en": "room",
+      "th": "กุฏิ"
+    },
+    {
+      "en": "chanting",
+      "th": "สวดมนต์"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have a food allergy.",
+      "th": "แพ้อาหาร",
+      "rom": "phae ahan",
+      "critical": true
+    },
+    {
+      "en": "Can I stay overnight at the temple?",
+      "th": "พักค้างคืนที่วัดได้ไหม",
+      "rom": "phak khangkhuen thiwat dai mai"
+    },
+    {
+      "en": "How many nights can I stay?",
+      "th": "พักได้กี่คืน",
+      "rom": "phak dai ki khuen"
+    },
+    {
+      "en": "Do I need to register in advance?",
+      "th": "ต้องลงทะเบียนล่วงหน้าไหม",
+      "rom": "tong langathabian luangna mai"
+    },
+    {
+      "en": "Is there a fee, or is it a donation?",
+      "th": "มีค่าใช้จ่ายหรือเป็นการทำบุญ",
+      "rom": "mi khachaichai rue penkan thambun"
+    },
+    {
+      "en": "What are the rules for guests?",
+      "th": "แขกที่พักต้องปฏิบัติตามกฎอะไรบ้าง",
+      "rom": "khaek thiphak tong patibatitam kot arai bang"
+    },
+    {
+      "en": "What time do we wake up?",
+      "th": "ตื่นกี่โมง",
+      "rom": "tuen ki mong"
+    },
+    {
+      "en": "What time is the chanting?",
+      "th": "สวดมนต์กี่โมง",
+      "rom": "suatmn ki mong"
+    },
+    {
+      "en": "Do I need to wear white clothes?",
+      "th": "ต้องใส่ชุดขาวไหม",
+      "rom": "tong sai chut khao mai"
+    },
+    {
+      "en": "Where can I buy white clothes?",
+      "th": "ซื้อชุดขาวได้ที่ไหน",
+      "rom": "sue chut khao dai thinai"
+    },
+    {
+      "en": "Are the rooms for men and women separate?",
+      "th": "ห้องพักชายกับหญิงแยกกันไหม",
+      "rom": "ongphak chai kap ying yaekkan mai"
+    },
+    {
+      "en": "Where do I sleep, and is there a mosquito net?",
+      "th": "นอนที่ไหน แล้วมีมุ้งไหม",
+      "rom": "non thinai laeo mi mung mai"
+    },
+    {
+      "en": "Can I keep my phone?",
+      "th": "เก็บโทรศัพท์ไว้ได้ไหม",
+      "rom": "kep thonsap wai dai mai"
+    },
+    {
+      "en": "Is there a meal in the afternoon?",
+      "th": "มีอาหารตอนบ่ายไหม",
+      "rom": "mi ahan tonbai mai"
+    },
+    {
+      "en": "I am a vegetarian.",
+      "th": "กินมังสวิรัติ",
+      "rom": "kin mangtwirati"
+    },
+    {
+      "en": "May I talk with the abbot?",
+      "th": "ขอคุยกับเจ้าอาวาสได้ไหม"
+    },
+    {
+      "en": "Where can I make a donation?",
+      "th": "ทำบุญได้ที่ไหน",
+      "rom": "thambun dai thinai"
+    },
+    {
+      "en": "Thank you for letting me stay.",
+      "th": "ขอบคุณที่ให้พัก",
+      "rom": "khopkhun thi hai phak"
+    }
+  ]
+}

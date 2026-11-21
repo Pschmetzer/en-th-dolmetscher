@@ -1,0 +1,136 @@
+{
+  "id": "lost-property-transport",
+  "names": {
+    "de": "Fundsache im Bus, Zug oder Taxi",
+    "en": "Lost property on transport",
+    "th": "ของหาย บนรถและระบบขนส่ง"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Schnell handeln: Fahrzeugnummer, Linie, Uhrzeit und Haltestelle notieren (Foto vom Kennzeichen, Quittung der Grab-App). Bei BTS und MRT gibt es Fundbüros an großen Stationen, bei Taxis hilft die Zentrale oder die Polizei. Eine Verlustbescheinigung der Polizei braucht man für Versicherung und Pass. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Act fast: note vehicle number, line, time and stop (photo of the plate, Grab receipt). BTS and MRT have lost-and-found desks at big stations; for taxis try the dispatch centre or the police. A police loss report is needed for insurance and a passport. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "lost property office",
+      "th": "ศูนย์รับแจ้งของหาย"
+    },
+    {
+      "en": "bag",
+      "th": "กระเป๋า"
+    },
+    {
+      "en": "phone",
+      "th": "โทรศัพท์"
+    },
+    {
+      "en": "taxi",
+      "th": "แท็กซี่"
+    },
+    {
+      "en": "station",
+      "th": "สถานี"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    },
+    {
+      "en": "number plate",
+      "th": "ป้ายทะเบียน"
+    },
+    {
+      "en": "police report",
+      "th": "ใบแจ้งความ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I left my bag on the bus.",
+      "th": "ลืมกระเป๋าไว้บนรถบัส",
+      "rom": "luem krapao wai bon rathabat"
+    },
+    {
+      "en": "I left my phone in the taxi.",
+      "th": "ลืมโทรศัพท์ไว้ในแท็กซี่"
+    },
+    {
+      "en": "Where is the lost property office?",
+      "th": "ศูนย์รับแจ้งของหายอยู่ที่ไหน",
+      "rom": "sun rap chaeng khong hai yu thinai"
+    },
+    {
+      "en": "It was on the train from Bangkok to Chiang Mai.",
+      "th": "อยู่บนรถไฟจากกรุงเทพไปเชียงใหม่",
+      "rom": "yu bon rathafai chak krungthep pai chianghaim"
+    },
+    {
+      "en": "It was a black backpack with a laptop inside.",
+      "th": "เป็นเป้สีดำ มีโน้ตบุ๊กอยู่ข้างใน",
+      "rom": "pen pe si dam mi notbuk yu khangnai"
+    },
+    {
+      "en": "I got off at this station about an hour ago.",
+      "th": "ลงที่สถานีนี้เมื่อประมาณหนึ่งชั่วโมงที่แล้ว",
+      "rom": "long thi sathani ni muea praman nueng chuamong thilaeo"
+    },
+    {
+      "en": "I have the receipt from the ride.",
+      "th": "มีใบเสร็จของการเดินทาง"
+    },
+    {
+      "en": "I have a photo of the number plate.",
+      "th": "มีรูปป้ายทะเบียนรถ",
+      "rom": "mi rup pai thabiannt"
+    },
+    {
+      "en": "Could you call the driver for me?",
+      "th": "ช่วยโทรหาคนขับให้หน่อยได้ไหม",
+      "rom": "chuai thon ha khanakhap hai noi dai mai"
+    },
+    {
+      "en": "Could you check if someone handed it in?",
+      "th": "ช่วยตรวจดูได้ไหมว่ามีคนเอามาส่งไว้หรือเปล่า",
+      "rom": "chuai truatdu dai mai wa mi khon ao ma song wai ruepela"
+    },
+    {
+      "en": "Please write down the phone number here.",
+      "th": "ช่วยเขียนเบอร์โทรของที่นี่ให้หน่อย",
+      "rom": "chuai khian boe thon khong thini hai noi"
+    },
+    {
+      "en": "Please call me if you find it.",
+      "th": "ถ้าเจอแล้วช่วยโทรหาผมด้วย",
+      "rom": "tha choe laeo chuai thon ha phom duai"
+    },
+    {
+      "en": "My phone number is on the paper.",
+      "th": "เบอร์โทรอยู่บนกระดาษแผ่นนี้",
+      "rom": "boe thon yu bon kradat phaen ni"
+    },
+    {
+      "en": "I need a police report for my insurance.",
+      "th": "ต้องการใบแจ้งความเพื่อใช้กับประกัน",
+      "rom": "tongkan baichaengkwam phuea chaikap prakan"
+    },
+    {
+      "en": "How long do you keep lost items?",
+      "th": "เก็บของหายไว้นานเท่าไร",
+      "rom": "kep khong hai wai nan thaorai"
+    },
+    {
+      "en": "Can someone else pick it up for me?",
+      "th": "ให้คนอื่นมารับแทนได้ไหม"
+    },
+    {
+      "en": "I will pay a reward.",
+      "th": "จะให้รางวัลกับคนที่เจอ",
+      "rom": "cha airangwan kap khon thi choe"
+    },
+    {
+      "en": "Thank you for your help.",
+      "th": "ขอบคุณมากที่ช่วย",
+      "rom": "khopkhun mak thi chuai"
+    }
+  ]
+}

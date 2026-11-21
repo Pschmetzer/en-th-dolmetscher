@@ -36,7 +36,7 @@ Current version: 1.3 (single source: `version` in `pyproject.toml`). What change
 | Conversation mode (split screen, partner half turned around) | – | ✓ | – |
 | Partner view with large type | ✓ | ✓ | ✓ |
 | Answer cards (yes / no / don't know / number) | – | ✓ | ✓ (yes / no) |
-| Phrasebook with 243 scenario packs, cultural notes, important sentences first | ✓ | ✓ | ✓ (also offline) |
+| Phrasebook with 251 scenario packs, cultural notes, important sentences first | ✓ | ✓ | ✓ (also offline) |
 | Learning mode (flashcards) | – | ✓ | ✓ |
 | Voice commands (“Translator, …”) | ✓ | ✓ | ✓ (subset) |
 | Push-to-talk | ✓ | ✓ | ✓ |
@@ -90,7 +90,7 @@ A native SwiftUI app in `ios/` with the same idea: press Start and just talk. It
 - **Translation** on the device with Apple's Translation framework once the offline language packs for your pair are installed. If a pack is missing, it can use Google Translate (fallback MyMemory) – but only if you turn on **“Online translator as fallback”** (off by default).
 - **Voice** from the iOS system voices.
 - **Conversation mode**: split screen for a table conversation, the partner's half is turned around; each half shows the conversation in its own language. **Answer cards** (yes, no, don't know, number) let the other person answer without speaking.
-- **Phrasebook** with the 243 scenario packs of the Mac app: each pack shows a short cultural note, important sentences (allergies, emergency) are marked red and come first. Sentences that match the phrasebook use the checked version (“phrasebook first”).
+- **Phrasebook** with the 251 scenario packs of the Mac app: each pack shows a short cultural note, important sentences (allergies, emergency) are marked red and come first. Sentences that match the phrasebook use the checked version (“phrasebook first”).
 - **Learning mode**: favourites and translated sentences become flashcards, stored only on the device.
 - **Widgets**: quick phrases on the home screen, a “Start interpreter” button for Control Center, lock screen and Action button, and a **Live Activity** (off by default on a new install; it never shows sentences while the iPhone is locked).
 - **iPad**: conversation on the left, tools (phrasebook, destinations, emergency, Baht) on the right.
@@ -107,7 +107,7 @@ Live: https://pschmetzer.github.io/en-th-dolmetscher/ — `index.html` is a sing
 - Per-direction switches “Translate A→B” / “Translate B→A” (named after the chosen languages): a switched-off direction is only shown, not translated or spoken. Also: “Hold to speak” (push to talk), single-key shortcuts that can be switched off, adjustable text size in the full-screen view, and the Back button closes the full-screen view.
 - **Typing instead of speaking**, **numbers and prices** (digits large plus the Thai number word), **my cards** (hotel, address, “take me here”), an **allergy and emergency card**, a **dictionary** of all topic glossaries, **print a topic** (A4 / PDF), a **sequence** of cards to show one after another, a **“wrong? report”** button (opens a prefilled GitHub issue, nothing is sent automatically).
 - Deep links and app shortcuts: `#preset=taxi&l=de` opens a topic (QR code for guests, see [docs/WEB-HOSTING.md](docs/WEB-HOSTING.md)); installed on Android it also accepts shared text and translates it.
-- The interface is available in **Deutsch, English and ไทย** (the Thai UI text is machine-made and not checked by native speakers). 243 phrase packs; the Thai sentences are not checked by native speakers (see [docs/PRESETS.md](docs/PRESETS.md)).
+- The interface is available in **Deutsch, English and ไทย** (the Thai UI text is machine-made and not checked by native speakers). 251 phrase packs; the Thai sentences are not checked by native speakers (see [docs/PRESETS.md](docs/PRESETS.md)).
 - Quality levels: the English and Thai sentences come with the packs; every other language is machine-translated on first use and marked as such. The Google and MyMemory endpoints are unofficial and may change or stop without notice.
 - Voice commands in EN mode at the start of a sentence (also “Translator resume”): “Translator pause / repeat / slower / faster / louder / quieter / clear / help”. *Pause* stops recognition completely (no more audio goes to the speech service); continue with `E`/`T` or the buttons.
 - Partner view (`P`): full screen, only the latest translation in huge type (`Esc` closes). Keys: `E` English, `T` Thai, `Space` stop.
@@ -171,7 +171,7 @@ How it works: the microphone is cut into sentences (Silero voice activity detect
 - **Output device**: speaker or headphones for all sounds, switchable while running.
 - **Back-translation** (`--back-translate`, off by default), **slow and clear** (`--slow`), **glossary learns from corrections** (on by default), **private mode** (`--private`: no warm-up requests, text never in a URL).
 - **Push-to-talk**, **menu bar** icon, global shortcuts **⌃⌥D** start/stop and **⌃⌥P** pause.
-- **Quick phrases** and **scenario presets** (243 packs, e.g. doctor, pharmacy, police, restaurant, taxi, temple, lost child): each pack has a cultural note (ⓘ), important sentences such as allergies come first and are marked red. Format and contributing: [docs/PRESETS.md](docs/PRESETS.md).
+- **Quick phrases** and **scenario presets** (251 packs, e.g. doctor, pharmacy, police, restaurant, taxi, temple, lost child): each pack has a cultural note (ⓘ), important sentences such as allergies come first and are marked red. Format and contributing: [docs/PRESETS.md](docs/PRESETS.md).
 - **Correct & retranslate** a misrecognised bubble; **“Translate anyway”** for a sentence the recogniser was unsure about; **“Speak again”** for a bubble that was cut off.
 - **Thai transliteration** (readable RTGS spelling) and a **confidence marker** on uncertain bubbles.
 - **Partner view** with large type; bubbles can be navigated with the keyboard (Tab, Enter, Esc, ⌘C); text size can be zoomed.

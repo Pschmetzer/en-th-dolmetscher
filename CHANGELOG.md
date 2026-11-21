@@ -4,6 +4,10 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### Web, round 28
+
+- **8 new phrase packs (251 in total):** lost property on transport, e-wallet and top-up, stings (scorpion, centipede, bees), bed bugs and pests, drinking water and ice, overnight temple stay, barber shop, condo visitors and parcels. Gender-neutral Thai without subject pronouns, `rom` filled, existing wordings reused for shared sentences (`check_presets.py --strict` and `preset_lint.py` clean). Categories, search terms, index and service-worker list are in sync (`sw.js` 17.4 KB, budget 17.5 KB).
+
 ### Web, round 27
 
 - **17 new phrase packs (243 in total):** snake bite, jellyfish and sea urchins, locksmith, power outage, stray dogs, online orders and parcels, phone repair, traffic fines, air pollution (PM2.5), asthma and inhaler, anaphylaxis and adrenaline pen, seafood by weight, tipping and service charge, card payment surcharge, theft in a hotel room, Chao Phraya express boat, foreigner ticket prices. Index, categories and search terms are in place; the new packs pass `check_presets.py --strict` and `preset_lint.py`.

@@ -1,0 +1,127 @@
+{
+  "id": "tap-water-ice-hygiene",
+  "names": {
+    "de": "Trinkwasser, Eis und Hygiene",
+    "en": "Drinking water, ice and hygiene",
+    "th": "น้ำดื่ม น้ำแข็ง และสุขอนามัย"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Leitungswasser nicht trinken; abgefülltes oder gefiltertes Wasser nehmen. Eis in Restaurants ist meist aus industriell gefertigtem Röhreneis und unproblematisch, Eis vom Straßenstand eher nicht. Wasserspender mit Münzeinwurf (Refill-Automaten) sind günstig, die eigene Flasche mitbringen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Do not drink tap water; use bottled or filtered water. Ice in restaurants is usually factory-made tube ice and fine; ice at street stalls less so. Coin-operated refill machines are cheap, bring your own bottle. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "drinking water",
+      "th": "น้ำดื่ม"
+    },
+    {
+      "en": "ice",
+      "th": "น้ำแข็ง"
+    },
+    {
+      "en": "bottle",
+      "th": "ขวด"
+    },
+    {
+      "en": "refill",
+      "th": "เติมน้ำ"
+    },
+    {
+      "en": "tap water",
+      "th": "น้ำประปา"
+    },
+    {
+      "en": "filtered",
+      "th": "กรองแล้ว"
+    },
+    {
+      "en": "glass",
+      "th": "แก้ว"
+    },
+    {
+      "en": "straw",
+      "th": "หลอด"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Is the tap water safe to drink?",
+      "th": "น้ำประปาที่นี่ดื่มได้ไหม",
+      "rom": "namprapa thini duemdai mai"
+    },
+    {
+      "en": "Is this water filtered?",
+      "th": "น้ำนี้กรองแล้วหรือเปล่า",
+      "rom": "nam ni krong laeo ruepela"
+    },
+    {
+      "en": "Can I have a bottle of drinking water?",
+      "th": "ขอน้ำดื่มหนึ่งขวดได้ไหม",
+      "rom": "kho namduem nueng khuat dai mai"
+    },
+    {
+      "en": "Without ice, please.",
+      "th": "ไม่ใส่น้ำแข็ง"
+    },
+    {
+      "en": "Is the ice made from drinking water?",
+      "th": "น้ำแข็งทำจากน้ำดื่มหรือเปล่า"
+    },
+    {
+      "en": "Please wash the glass with bottled water.",
+      "th": "ช่วยล้างแก้วด้วยน้ำดื่มหน่อย",
+      "rom": "chuai lang kaeo duai namduem noi"
+    },
+    {
+      "en": "Where can I refill my bottle?",
+      "th": "เติมน้ำใส่ขวดได้ที่ไหน",
+      "rom": "toem nam sai khuat dai thinai"
+    },
+    {
+      "en": "How much for one litre?",
+      "th": "ลิตรละเท่าไร",
+      "rom": "li trla thaorai"
+    },
+    {
+      "en": "Is there a water dispenser here?",
+      "th": "ที่นี่มีตู้กดน้ำไหม",
+      "rom": "thini mi tu kadanam mai"
+    },
+    {
+      "en": "No straw, please.",
+      "th": "ไม่เอาหลอด",
+      "rom": "mai ao lot"
+    },
+    {
+      "en": "Can I brush my teeth with this water?",
+      "th": "แปรงฟันด้วยน้ำนี้ได้ไหม",
+      "rom": "paenngfan duai nam ni dai mai"
+    },
+    {
+      "en": "Is the fruit washed?",
+      "th": "ผลไม้ล้างแล้วหรือเปล่า",
+      "rom": "phlamai lang laeo ruepela"
+    },
+    {
+      "en": "Is the salad safe to eat?",
+      "th": "สลัดกินได้ปลอดภัยไหม",
+      "rom": "slat kin dai plotphai mai"
+    },
+    {
+      "en": "Where can I wash my hands?",
+      "th": "ล้างมือได้ที่ไหน",
+      "rom": "langmue dai thinai"
+    },
+    {
+      "en": "Do you have hand sanitiser?",
+      "th": "มีเจลล้างมือไหม",
+      "rom": "mi chen langmue mai"
+    },
+    {
+      "en": "I have a stomach ache after drinking the water.",
+      "th": "ปวดท้องหลังดื่มน้ำนี้",
+      "rom": "puatthong lang duem nam ni"
+    }
+  ]
+}

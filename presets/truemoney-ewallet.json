@@ -1,0 +1,138 @@
+{
+  "id": "truemoney-ewallet",
+  "names": {
+    "de": "E-Wallet und Guthaben aufladen",
+    "en": "E-wallet and top-up",
+    "th": "อีวอลเล็ตและเติมเงิน"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Touristen können TrueMoney, Rabbit LINE Pay oder die Wallet der Banken nutzen. Für viele Apps braucht man eine thailändische SIM und Ausweis (Reisepass). Aufladen geht bar im 7-Eleven oder am Automaten. Beim QR-Bezahlen immer den Namen des Händlers auf dem Bildschirm vergleichen, bevor man bestätigt. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Tourists can use TrueMoney, Rabbit LINE Pay or bank wallets. Many apps need a Thai SIM and an ID (passport). Top up in cash at 7-Eleven or at a kiosk. When paying by QR, compare the merchant name on screen before confirming. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "wallet",
+      "th": "กระเป๋าเงินอิเล็กทรอนิกส์"
+    },
+    {
+      "en": "top up",
+      "th": "เติมเงิน"
+    },
+    {
+      "en": "balance",
+      "th": "ยอดเงินคงเหลือ"
+    },
+    {
+      "en": "QR code",
+      "th": "คิวอาร์โค้ด"
+    },
+    {
+      "en": "scan",
+      "th": "สแกน"
+    },
+    {
+      "en": "passport",
+      "th": "หนังสือเดินทาง"
+    },
+    {
+      "en": "verify",
+      "th": "ยืนยันตัวตน"
+    },
+    {
+      "en": "fee",
+      "th": "ค่าธรรมเนียม"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please block my wallet, my phone was stolen.",
+      "th": "ช่วยระงับกระเป๋าเงินด้วย โทรศัพท์ถูกขโมย",
+      "critical": true,
+      "rom": "chuai rangap krapao ngoen duai thonsap thuk khamoi"
+    },
+    {
+      "en": "I want to top up my wallet.",
+      "th": "ต้องการเติมเงินเข้ากระเป๋าเงิน",
+      "rom": "tongkan toem ngoen khao krapao ngoen"
+    },
+    {
+      "en": "Can I top up with cash?",
+      "th": "เติมเงินสดได้ไหม",
+      "rom": "toem ngoentt dai mai"
+    },
+    {
+      "en": "How much is the fee for topping up?",
+      "th": "เติมเงินมีค่าธรรมเนียมเท่าไร",
+      "rom": "toem ngoen mi khatamniam thaorai"
+    },
+    {
+      "en": "Please top up 500 baht.",
+      "th": "ช่วยเติมเงินห้าร้อยบาท",
+      "rom": "chuai toem ngoen ha roi bat"
+    },
+    {
+      "en": "Can a tourist open a wallet?",
+      "th": "นักท่องเที่ยวเปิดบัญชีกระเป๋าเงินได้ไหม",
+      "rom": "nakthongthiao poetbanchi krapao ngoendai mai"
+    },
+    {
+      "en": "Do I need a Thai phone number?",
+      "th": "ต้องใช้เบอร์โทรไทยหรือเปล่า",
+      "rom": "tong chai boe thon thai ruepela"
+    },
+    {
+      "en": "Here is my passport for verification.",
+      "th": "นี่คือหนังสือเดินทางสำหรับยืนยันตัวตน",
+      "rom": "ni khue nangsuedoenthang samrap yuenyan tuatn"
+    },
+    {
+      "en": "The verification code did not arrive.",
+      "th": "รหัสยืนยันไม่เข้ามา",
+      "rom": "rahat yuenyan mai khaoma"
+    },
+    {
+      "en": "Please scan this code.",
+      "th": "ช่วยสแกนคิวอาร์โค้ดนี้หน่อย",
+      "rom": "chuai sakaen khio a khot ni noi"
+    },
+    {
+      "en": "Can I pay with this app?",
+      "th": "จ่ายด้วยแอปนี้ได้ไหม",
+      "rom": "chai duai ae p ni dai mai"
+    },
+    {
+      "en": "Is the merchant name correct?",
+      "th": "ชื่อร้านค้าถูกต้องไหม",
+      "rom": "chue rankha thuktong mai"
+    },
+    {
+      "en": "The payment went through, but you did not get it.",
+      "th": "จ่ายเงินสำเร็จแล้ว แต่ทางร้านยังไม่ได้รับ"
+    },
+    {
+      "en": "Please show me the payment confirmation.",
+      "th": "ช่วยแสดงหน้าจอยืนยันการชำระเงินให้ดูหน่อย",
+      "rom": "chuai saetng nacho yuenyan kan chamrangoen hai du noi"
+    },
+    {
+      "en": "The money left my account twice.",
+      "th": "เงินถูกตัดจากบัญชีสองครั้ง",
+      "rom": "ngoen thuk tat chak banchi song khrang"
+    },
+    {
+      "en": "I need a refund of the second payment.",
+      "th": "ต้องการขอคืนเงินรายการที่สอง",
+      "rom": "tongkan kho khuenngoen raikan thisong"
+    },
+    {
+      "en": "Can I move the remaining balance back to my bank?",
+      "th": "โอนยอดคงเหลือกลับเข้าบัญชีธนาคารได้ไหม",
+      "rom": "on yot khangahelue klap khaobanchi thanakhan dai mai"
+    },
+    {
+      "en": "My wallet is locked.",
+      "th": "กระเป๋าเงินถูกล็อก"
+    }
+  ]
+}

@@ -54,7 +54,7 @@ Es gibt zwei getrennte Zustände, die man nicht vermischen darf:
 | `avhelper.py` | Audio über PyAV als Kindprozess (wie früher ffmpeg): `capture` (s16le auf stdout), `play` (mp3 von stdin → AudioToolbox, vorgewärmt), `list` (Mikrofone, Ausgaben, erkannte Loopback-Geräte), `prep` (Systemaudio-Vorbereitung: meldet, ob ein Loopback-Gerät da ist) |
 | `build.sh` | baut `build/Dolmetscher.app` (swiftc, Info.plist, uv + translate-helper + Lock + Stempel + `setup-env.sh` ins Bundle, Signatur von innen nach außen), optional `--install` (beendet eine laufende App vorher) / `--release` |
 | `languages.json` | gemeinsame Sprachtabelle (19 Sprachen, Schriften) für Engine, Mac-App und Web; Details und Tests: `tests/test_languages_json.py` |
-| `presets/*.json`, `presets.py`, `presets-index.json` | 243 Phrasenpakete (Daten) für Mac, iPhone und Web; Format: [PRESETS.md](PRESETS.md) |
+| `presets/*.json`, `presets.py`, `presets-index.json` | 251 Phrasenpakete (Daten) für Mac, iPhone und Web; Format: [PRESETS.md](PRESETS.md) |
 | `numwords.py`, `thaiparticles.py`, `textsplit.py` | Reine Funktionen aus `dolmetscher.py` (Runde 25, dort re-exportiert): Thai-Zahlwörter und Vorlesen von Zahlen, Höflichkeitspartikel/Sprechergeschlecht/Dehnungen, erste Teilphrase und Teilung langer Texte |
 | `online_speakers.py` | Gruppenmodus (Runde 25): stabile Sprechernummern ohne Stimmprofil über `profiles.cluster_speakers` |
 | `history_store.py`, `hwprofile.py`, `correction_learning.py`, `satzbuch.py` | Verlauf (SQLite, optional), Modellwahl `--model auto`, Glossar-Vorschläge aus Korrekturen, Export, Prüfung und Bericht (`satzbuch.py report`) des Satzbuchs (Kommandozeile); der Verlauf lässt sich passwortgeschützt exportieren |
