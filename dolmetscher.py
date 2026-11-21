@@ -4218,7 +4218,8 @@ def _say_voices():
         if t is not None and time.monotonic() - t < SAY_RETRY_S:
             return ""                                   # Fehlschlag gemerkt: nicht in jedem Satz 10 s warten
         try:
-            _SAY_LIST["out"] = subprocess.run([SAY, "-v", "?"], capture_output=True, text=True, timeout=10, env=_child_env()).stdout
+            _SAY_LIST["out"] = subprocess.run([SAY, "-v", "?"], capture_output=True, text=True, timeout=10,
+                                              env=_child_env()).stdout
             _SAY_LIST["fail_t"] = None
             _SAY_LIST["t"] = time.monotonic()
         except (subprocess.SubprocessError, OSError):
