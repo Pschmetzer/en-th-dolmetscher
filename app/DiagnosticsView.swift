@@ -20,14 +20,27 @@ final class SelfTestModel: ObservableObject {
     @Published var rows: [Row] = []
     @Published var running = false
 
+    private var stale = StaleGuard()
+    private var monitor: NWPathMonitor?
+
+    /// Abbruch (Fenster zu): späte Ergebnisse von Netzprüfung und Python-Check werden verworfen, der Monitor beendet.
+    func cancel() {
+        stale.cancel()
+        monitor?.cancel(); monitor = nil
+        running = false
+    }
+
     func run(outputDevice: String) {
         guard !running else { return }
         running = true
+        let token = stale.begin()
         var r: [Row] = [micRow(), speakerRow(outputDevice)]
         networkRow { net in
+            guard self.stale.isCurrent(token) else { return }
             r.append(net)
             r.append(self.modelsRow())
             Paths.checkPython { py in
+                guard self.stale.isCurrent(token) else { return }
                 switch py {
                 case .ok(let v): r.append(Row(id: "python", status: .ok, detail: v))
                 case .noModule: r.append(Row(id: "python", status: .fail, detail: "faster_whisper fehlt"))
@@ -62,6 +75,7 @@ final class SelfTestModel: ObservableObject {
         let mon = NWPathMonitor()
         let q = DispatchQueue(label: "selftest.net")
         let once = OnceFlag()
+        monitor = mon
         mon.pathUpdateHandler = { path in
             guard once.take() else { return }
             mon.cancel()
@@ -149,5 +163,6 @@ struct SelfTestSheet: View {
         }
         .padding(20).frame(minWidth: 460)
         .onAppear { model.run(outputDevice: m.outputDevice) }
+        .onDisappear { model.cancel() }
     }
 }

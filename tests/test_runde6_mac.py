@@ -178,7 +178,8 @@ def test_beispielsatz_klickbar_und_pegel_in_einstellungen():
 # ---- 402: Fehlercode python_env_broken ---------------------------------------------------------------------
 
 def test_app_erkennt_kaputte_umgebung_am_code():
-    assert '"python_env_broken": "crash_env"' in ENGINE
+    # Runde 27: Tabelle aus Engine.swift herausgelöst
+    assert '"python_env_broken": "crash_env"' in _src("EngineProtocolTexts.swift")
     assert 'if code == "python_env_broken" { envBrokenReported = true }' in ENGINE
     assert "let envBroken = envBrokenReported ||" in ENGINE
 

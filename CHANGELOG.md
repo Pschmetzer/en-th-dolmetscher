@@ -17,6 +17,17 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 - **Browser flow test:** `tests/web-e2e/flow.mjs` (Playwright): open the page, wait for the service worker to cache packs, open a pack, check the review status, show a card, search, reload offline; new CI job `e2e` in `web-a11y.yml`.
 - Budget: service worker limit raised to 17,500 bytes (17 more pack IDs).
 
+### Mac app, round 27
+
+- Key test (Settings, API key) and self test (Help menu) are cancelled when their window closes; a late network or Python answer no longer overwrites the display. The key test result is announced to VoiceOver.
+- Select all (Cmd-A) in the multi-select bar no longer blocks selecting text in a text field (local key monitor instead of a menu shortcut on the button).
+- `onAppear`/`onReceive`/`onDisappear` moved from `Section` to its first row (microphone, output device and per-direction output sections), so they fire once and reliably inside a grouped form.
+- Statistics charts are one VoiceOver element each (title as label, values as a sentence; hours without data are skipped).
+- `Engine.swift` split without behaviour change (now under 1990 lines): code-to-text tables, line framing, bubble trimming and log tail are separate, tested logic files. Trimming 500+ bubbles is a single pass; a 5000-bubble session stays at 500 in memory.
+- Every `error.code` and `dropped.code` in `docs/PROTOKOLL.md` has an app text (new Swift test reads the document).
+- Output device per direction: the engine does not know `output_device_me`/`output_device_other` yet, so the app still sends nothing; a test fails as soon as the protocol document lists them without the app sending them.
+- Tests: `R27Tests` in `swift-tests` (24 tests), `tests/test_r27_mac.py`.
+
 ### Web, round 25
 
 - **25 new phrase packs (226 in total):** sunburn and heat rash, toothache emergency, coffee and tea order, Muay Thai stadium, temple photography, massage prices, apartment hunting, electricity and water bill, waste and recycling, plumber/electrician/air con, car breakdown, bicycle touring and repair, kindergarten and daycare, pet boarding and travel, childbirth in hospital, glasses and lens repair, digital arrival card (TDAC), street food custom order, smoothie and juice stall, golf caddie and tips, banking app and OTP problems, self-service laundromat, car insurance claim, tour agency booking, minivan and airport transfer. The Thai is machine-made and not checked by native speakers.
