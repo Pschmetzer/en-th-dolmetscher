@@ -9,6 +9,10 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 - 17 new small logic blocks in `ios/Dolmetscher/Round35.swift` (Foundation only): VoiceOver bubble label, confidence as a level instead of colour only, clamped text size, reduced motion, offline retry queue, error classes with retry rules and back-off, free-space check and size format for model downloads, session time (also spoken), quiet hours across midnight, UI language resolution, grapheme-safe truncation, share-text sanitising (control and bidi-override characters), history retention by age and count, debounce, version compare. Overview in `docs/IOS-LOGIK-R35.md`.
 - Not wired into screens yet (no Mac in this round, so no UI code without a compiler); the unit tests in `Round35Tests.swift` plus extra tests for round 32 to 34 logic (travel table, hotel card, planner, card topics, Whisper partials, menu scan) are the gate in the CI job "iOS".
 
+### Web, round 28
+
+- **8 new phrase packs (251 in total):** lost property on transport, e-wallet and top-up, stings (scorpion, centipede, bees), bed bugs and pests, drinking water and ice, overnight temple stay, barber shop, condo visitors and parcels. Gender-neutral Thai without subject pronouns, `rom` filled, existing wordings reused for shared sentences (`check_presets.py --strict` and `preset_lint.py` clean). Categories, search terms, index and service-worker list are in sync (`sw.js` 17.4 KB, budget 17.5 KB).
+
 ### Mac app, round 28
 
 New testable logic in `app/R28Logic.swift` (Foundation only, 16 types, about 45 Swift tests in `R28Tests.swift`); the views pick these up in later rounds, so this round changes no screen:

@@ -23,6 +23,7 @@
    "herbal-traditional-medicine",
    "hospital",
    "hospital-payment-insurance",
+   "insect-sting-scorpion",
    "jellyfish-marine-sting",
    "kids",
    "lab-blood-test",
@@ -87,6 +88,7 @@
    "grab-ride-hailing",
    "longtail-boat-charter",
    "lost-luggage",
+   "lost-property-transport",
    "luggage-storage",
    "minivan-airport-transfer",
    "motorcycle-taxi",
@@ -120,6 +122,7 @@
    "smoothie-juice-stall",
    "street-food",
    "street-food-custom-order",
+   "tap-water-ice-hygiene",
    "thai-cooking-class",
    "vegan-vegetarian"
   ],
@@ -145,12 +148,15 @@
    "souvenir-jewelry",
    "tailor-custom",
    "tax-refund",
-   "tipping-service-charge"
+   "tipping-service-charge",
+   "truemoney-ewallet"
   ],
   "stay": [
    "apartment-host-checkin",
    "apartment-hunting",
    "babysitter-housekeeper",
+   "bed-bugs-pests",
+   "condo-visitor-parcel-security",
    "contractor-renovation",
    "coworking",
    "electricity-water-bill",
@@ -196,6 +202,7 @@
    "spirit-house-shrine",
    "temple",
    "temple-photography",
+   "temple-stay-overnight",
    "thai-language-lesson",
    "two-price-attraction-tickets",
    "wat-donation-etiquette",
@@ -241,6 +248,7 @@
   "general": [
    "access",
    "answers",
+   "barber-shop",
    "business-meeting",
    "customer-service-complaint",
    "laundromat-self-service",

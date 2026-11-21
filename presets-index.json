@@ -945,6 +945,44 @@
    ]
   },
   {
+   "id": "barber-shop",
+   "names": {
+    "de": "Herrenfriseur und Rasur",
+    "en": "Barber shop and shave",
+    "th": "ร้านตัดผมชาย"
+   },
+   "phrases": 16,
+   "critical": 0,
+   "reviewed": false,
+   "category": "general",
+   "keywords": [
+    "haircut",
+    "shave",
+    "beard",
+    "clippers",
+    "short",
+    "shampoo",
+    "friseur",
+    "haarschnitt",
+    "rasur",
+    "ตัดผม",
+    "โกนหนวด",
+    "ร้านตัดผม"
+   ],
+   "keywords_de": [
+    "friseur",
+    "haarschnitt",
+    "rasur",
+    "bart",
+    "herren"
+   ],
+   "keywords_th": [
+    "ตัดผม",
+    "โกนหนวด",
+    "ร้านตัดผม"
+   ]
+  },
+  {
    "id": "beach",
    "names": {
     "de": "Strand",
@@ -962,6 +1000,46 @@
     "wave",
     "sunscreen",
     "sunbed"
+   ]
+  },
+  {
+   "id": "bed-bugs-pests",
+   "names": {
+    "de": "Bettwanzen, Kakerlaken, Ungeziefer",
+    "en": "Bed bugs, cockroaches, pests",
+    "th": "ตัวเรือด แมลงสาบ และสัตว์รบกวน"
+   },
+   "phrases": 16,
+   "critical": 0,
+   "reviewed": false,
+   "category": "stay",
+   "keywords": [
+    "bed bug",
+    "cockroach",
+    "ant",
+    "rat",
+    "mattress",
+    "bite",
+    "bettwanzen",
+    "kakerlake",
+    "ungeziefer",
+    "ตัวเรือด",
+    "แมลงสาบ",
+    "หนู"
+   ],
+   "keywords_de": [
+    "bettwanzen",
+    "kakerlake",
+    "ungeziefer",
+    "ameisen",
+    "ratte",
+    "hotel"
+   ],
+   "keywords_th": [
+    "ตัวเรือด",
+    "แมลงสาบ",
+    "หนู",
+    "มด"
    ]
   },
   {
@@ -1577,6 +1655,45 @@
     "กาแฟ",
     "ชา",
     "คาเฟ่"
+   ]
+  },
+  {
+   "id": "condo-visitor-parcel-security",
+   "names": {
+    "de": "Wohnanlage: Besucher, Pakete, Sicherheit",
+    "en": "Condo: visitors, parcels, security",
+    "th": "คอนโด: ผู้มาเยือน พัสดุ และรปภ."
+   },
+   "phrases": 16,
+   "critical": 0,
+   "reviewed": false,
+   "category": "stay",
+   "keywords": [
+    "security guard",
+    "lobby",
+    "key card",
+    "visitor",
+    "parcel",
+    "management office",
+    "kondominium",
+    "besucher",
+    "paket",
+    "คอนโด",
+    "ยาม",
+    "พัสดุ"
+   ],
+   "keywords_de": [
+    "kondominium",
+    "besucher",
+    "paket",
+    "sicherheitsdienst",
+    "schlüsselkarte"
+   ],
+   "keywords_th": [
+    "คอนโด",
+    "ยาม",
+    "พัสดุ",
+    "คีย์การ์ด"
    ]
   },
   {
@@ -2990,6 +3107,46 @@
    ]
   },
   {
+   "id": "insect-sting-scorpion",
+   "names": {
+    "de": "Stiche: Skorpion, Hundertfüßer, Bienen",
+    "en": "Stings: scorpion, centipede, bees",
+    "th": "แมลงและสัตว์กัดต่อย"
+   },
+   "phrases": 18,
+   "critical": 7,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "scorpion",
+    "centipede",
+    "bee",
+    "wasp",
+    "sting",
+    "swelling",
+    "skorpion",
+    "hundertfüßer",
+    "biene",
+    "แมงป่อง",
+    "ตะขาบ",
+    "ผึ้ง"
+   ],
+   "keywords_de": [
+    "skorpion",
+    "hundertfüßer",
+    "biene",
+    "wespe",
+    "stich",
+    "allergie"
+   ],
+   "keywords_th": [
+    "แมงป่อง",
+    "ตะขาบ",
+    "ผึ้ง",
+    "ต่อ"
+   ]
+  },
+  {
    "id": "island-hopping",
    "names": {
     "de": "Inselhopping",
@@ -3479,6 +3636,46 @@
     "charger",
     "password",
     "bank"
+   ]
+  },
+  {
+   "id": "lost-property-transport",
+   "names": {
+    "de": "Fundsache im Bus, Zug oder Taxi",
+    "en": "Lost property on transport",
+    "th": "ของหาย บนรถและระบบขนส่ง"
+   },
+   "phrases": 18,
+   "critical": 0,
+   "reviewed": false,
+   "category": "transport",
+   "keywords": [
+    "lost property office",
+    "bag",
+    "phone",
+    "taxi",
+    "station",
+    "receipt",
+    "fundbüro",
+    "verloren",
+    "vergessen",
+    "ของหาย",
+    "ลืมของ",
+    "แท็กซี่"
+   ],
+   "keywords_de": [
+    "fundbüro",
+    "verloren",
+    "vergessen",
+    "taxi",
+    "zug",
+    "bus"
+   ],
+   "keywords_th": [
+    "ของหาย",
+    "ลืมของ",
+    "แท็กซี่",
+    "รถไฟ"
    ]
   },
   {
@@ -5307,6 +5504,46 @@
    ]
   },
   {
+   "id": "tap-water-ice-hygiene",
+   "names": {
+    "de": "Trinkwasser, Eis und Hygiene",
+    "en": "Drinking water, ice and hygiene",
+    "th": "น้ำดื่ม น้ำแข็ง และสุขอนามัย"
+   },
+   "phrases": 16,
+   "critical": 0,
+   "reviewed": false,
+   "category": "food",
+   "keywords": [
+    "drinking water",
+    "ice",
+    "bottle",
+    "refill",
+    "tap water",
+    "filtered",
+    "trinkwasser",
+    "leitungswasser",
+    "eis",
+    "น้ำดื่ม",
+    "น้ำแข็ง",
+    "น้ำประปา"
+   ],
+   "keywords_de": [
+    "trinkwasser",
+    "leitungswasser",
+    "eis",
+    "hygiene",
+    "flasche",
+    "wasser"
+   ],
+   "keywords_th": [
+    "น้ำดื่ม",
+    "น้ำแข็ง",
+    "น้ำประปา",
+    "ขวดน้ำ"
+   ]
+  },
+  {
    "id": "tattoo-piercing",
    "names": {
     "de": "Tattoo und Piercing",
@@ -5418,6 +5655,46 @@
     "วัด",
     "ถ่ายรูป",
     "กล้อง"
+   ]
+  },
+  {
+   "id": "temple-stay-overnight",
+   "names": {
+    "de": "Übernachtung im Tempel",
+    "en": "Overnight temple stay",
+    "th": "พักค้างคืนที่วัด"
+   },
+   "phrases": 18,
+   "critical": 1,
+   "reviewed": false,
+   "category": "culture",
+   "keywords": [
+    "temple",
+    "monk",
+    "abbot",
+    "white clothes",
+    "rules",
+    "donation",
+    "tempel",
+    "kloster",
+    "übernachtung",
+    "วัด",
+    "พระ",
+    "พักที่วัด"
+   ],
+   "keywords_de": [
+    "tempel",
+    "kloster",
+    "übernachtung",
+    "retreat",
+    "mönch",
+    "spende"
+   ],
+   "keywords_th": [
+    "วัด",
+    "พระ",
+    "พักที่วัด",
+    "ทำบุญ"
    ]
   },
   {
@@ -5734,6 +6011,46 @@
     "medical report",
     "original",
     "bill"
+   ]
+  },
+  {
+   "id": "truemoney-ewallet",
+   "names": {
+    "de": "E-Wallet und Guthaben aufladen",
+    "en": "E-wallet and top-up",
+    "th": "อีวอลเล็ตและเติมเงิน"
+   },
+   "phrases": 18,
+   "critical": 1,
+   "reviewed": false,
+   "category": "money",
+   "keywords": [
+    "wallet",
+    "top up",
+    "balance",
+    "qr code",
+    "scan",
+    "passport",
+    "e-wallet",
+    "truemoney",
+    "aufladen",
+    "กระเป๋าเงิน",
+    "ทรูมันนี่",
+    "เติมเงิน"
+   ],
+   "keywords_de": [
+    "e-wallet",
+    "truemoney",
+    "aufladen",
+    "guthaben",
+    "qr",
+    "bezahlen"
+   ],
+   "keywords_th": [
+    "กระเป๋าเงิน",
+    "ทรูมันนี่",
+    "เติมเงิน",
+    "คิวอาร์"
    ]
   },
   {
