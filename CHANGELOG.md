@@ -6,7 +6,7 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ### Engine, round 27
 
-- **Output device per direction:** new control fields `output_device_me` / `output_device_other` (same format as `output_device`, empty = general device, then system default). The speaker picks the device per output from the target language (own language = `me`, partner language = `other`; command replies and earcons always `me`); the Mac app has the fields prepared (`AudioRouteLogic.protocolFields`) but does not send them yet. Documented in `docs/PROTOKOLL.md`.
+- **Output device per direction:** new control fields `output_device_me` / `output_device_other` (same format as `output_device`, empty = general device, then system default). The speaker picks the device per output from the target language (own language = `me`, partner language = `other`; command replies and earcons always `me`); the Mac app sends them (`Engine.sendAudioRoute`, only to an engine whose `ready.capabilities` list the fields, on change and after `ready`); this needed a small change in `app/Engine.swift` and `app/SettingsR25.swift`, because a Mac test requires it once the protocol docs know the fields. Documented in `docs/PROTOKOLL.md`.
 - **Thai clock with minutes:** "สี่โมงสิบห้านาที" (4:15), "สามทุ่มห้านาที" (21:05) and the like were read as two separate numbers, so a correct translation "4:15" raised a false number warning. Fixed in the number comparison; the offline translator input (`th_times_for_mt`) now keeps the minutes as well (`21:05` instead of `21:00 ห้านาที`).
 - **Thai pronouns:** `fit_thai_particles` also swaps the unambiguous gendered "I" (ดิฉัน for a male voice, กระผม for a female voice); quotes with both forms and the ambiguous "ผม" (also "hair") stay untouched. 22-case test corpus incl. idempotence.
 - **Refactoring:** `textnorm.py` (cache key `_norm`, `squash_repeats`) and the abbreviation logic of the sentence splitter (now in `textsplit.py`), re-exported from `dolmetscher.py`; `build.sh` and `pyproject.toml` know the new module.
@@ -16,6 +16,16 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 - **Percent read aloud:** `100%` is spoken "หนึ่งร้อย เปอร์เซ็นต์", `3.5%` likewise; ranges (`3-4`), phone numbers, room numbers and times stay digits.
 - **Review of the hot paths** (what was looked at, not only what was changed): the translation cache (all reads and writes under `_CACHE_LOCK`, byte counter rebuilt when the dict is replaced: fine); the new per-direction route (thread-local, reset in `finally`, so an error never leaves a stale direction; the player warm-up thread builds no playback command: fine; all playback commands run on the speaker thread: checked); `lru_cache` of the number comparison (key contains `thai_active()`: fine); the `OUTPUT` dict is read by the speaker thread and written by the control thread (single-key dict writes, atomic in CPython: fine). Found and fixed: the false number warning for Thai clock times with minutes, the empty minute token, `%` spoken as a bare symbol.
 - Tests: `tests/test_r27_engine_output.py` (incl. real playback path with earcon and spoken voice), `tests/test_r27_engine_text.py`.
+### Mac app, round 27
+
+- Key test (Settings, API key) and self test (Help menu) are cancelled when their window closes; a late network or Python answer no longer overwrites the display. The key test result is announced to VoiceOver.
+- Select all (Cmd-A) in the multi-select bar no longer blocks selecting text in a text field (local key monitor instead of a menu shortcut on the button).
+- `onAppear`/`onReceive`/`onDisappear` moved from `Section` to its first row (microphone, output device and per-direction output sections), so they fire once and reliably inside a grouped form.
+- Statistics charts are one VoiceOver element each (title as label, values as a sentence; hours without data are skipped).
+- `Engine.swift` split without behaviour change (now under 1990 lines): code-to-text tables, line framing, bubble trimming and log tail are separate, tested logic files. Trimming 500+ bubbles is a single pass; a 5000-bubble session stays at 500 in memory.
+- Every `error.code` and `dropped.code` in `docs/PROTOKOLL.md` has an app text (new Swift test reads the document).
+- Output device per direction: the engine does not know `output_device_me`/`output_device_other` yet, so the app still sends nothing; a test fails as soon as the protocol document lists them without the app sending them.
+- Tests: `R27Tests` in `swift-tests` (24 tests), `tests/test_r27_mac.py`.
 
 ### Web, round 25
 

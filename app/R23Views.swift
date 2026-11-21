@@ -64,6 +64,7 @@ struct SelectionBar: View {
     @ObservedObject private var ui = UIDrafts.shared
     let shown: [Utterance]
     @State private var confirmDelete = false
+    @StateObject private var keys = SelectAllKeyMonitor()
 
     private var order: [String] { shown.map { $0.id.uuidString } }
     private var chosen: [Utterance] {
@@ -86,8 +87,7 @@ struct SelectionBar: View {
         HStack(spacing: 10) {
             Text(L.r23f("selected_n", ui.selection.count)).font(.callout.bold()).monospacedDigit()
                 .accessibilityAddTraits(.updatesFrequently)
-            Button(L.r23("select_all")) { ui.selection.selectAll(order) }
-                .keyboardShortcut("a", modifiers: .command)
+            Button(L.r23("select_all")) { ui.selection.selectAll(order) }   // Cmd-A: SelectAllKeyMonitor (nicht im Textfeld)
             Button(L.r23("select_none")) { ui.selection.clear() }.disabled(ui.selection.isEmpty)
             Spacer(minLength: 0)
             Menu {
@@ -112,6 +112,9 @@ struct SelectionBar: View {
         }
         .padding(.horizontal, 16).padding(.vertical, 6)
         .background(Color.accentColor.opacity(0.12))
+        .onChange(of: order, initial: true) { _, new in keys.order = new }
+        .onAppear { keys.start { ui.selection.selectAll($0) } }
+        .onDisappear { keys.stop() }
         .confirmationDialog(L.r23f("selected_n", ui.selection.count) + " – " + L.r23("select_delete") + "?",
                             isPresented: $confirmDelete, titleVisibility: .visible) {
             Button(L.r23("select_delete"), role: .destructive) {
@@ -121,4 +124,32 @@ struct SelectionBar: View {
             Button(L.t("cancel"), role: .cancel) {}
         }
     }
+}
+
+/// Cmd-A für die Auswahlleiste, ohne dem Textfeld das Kürzel zu nehmen: ein lokaler Tastenmonitor statt eines
+/// Menükürzels am Knopf. Bearbeitet gerade ein Textfeld (NSText als Eingabeziel), geht das Ereignis unverändert weiter.
+@MainActor
+final class SelectAllKeyMonitor: ObservableObject {
+    var order: [String] = []
+    private var monitor: Any?
+
+    func start(_ selectAll: @escaping ([String]) -> Void) {
+        stop()
+        monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] e in
+            guard e.modifierFlags.intersection(.deviceIndependentFlagsMask) == .command,
+                  e.charactersIgnoringModifiers == "a" else { return e }
+            let editing = e.window?.firstResponder is NSText
+            guard SelectAllShortcut.shouldSelectBubbles(selecting: true, textEditing: editing) else { return e }
+            // Der Monitor läuft auf dem Main-Thread; Zustand liegt im MainActor.
+            MainActor.assumeIsolated { if let self { selectAll(self.order) } }
+            return nil
+        }
+    }
+
+    func stop() {
+        if let m = monitor { NSEvent.removeMonitor(m) }
+        monitor = nil
+    }
+
+    deinit { if let m = monitor { NSEvent.removeMonitor(m) } }
 }

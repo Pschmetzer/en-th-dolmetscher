@@ -37,6 +37,10 @@ struct MicSection: View {
                         .accessibilityLabel(L.t("mic_reload"))
                 }
             }
+            // Modifier an der ersten Zeile, nicht an der Section (dort greifen sie je nach Container mehrfach oder gar nicht)
+            .onAppear { if mics.isEmpty { load() } }
+            .onReceive(NotificationCenter.default.publisher(for: .audioDevicesChanged)) { _ in load() }   // Nr. 27
+            .onDisappear { proc?.terminate(); proc = nil }
             // Nr. 413: Live-Pegel zum Prüfen des gewählten Mikrofons (kommt nur, solange zugehört wird)
             HStack(spacing: 8) {
                 Text(L.t("level"))
@@ -47,9 +51,6 @@ struct MicSection: View {
                 }
             }
         }
-        .onAppear { if mics.isEmpty { load() } }
-        .onReceive(NotificationCenter.default.publisher(for: .audioDevicesChanged)) { _ in load() }   // Nr. 27
-        .onDisappear { proc?.terminate(); proc = nil }
     }
 
     private func load() {
@@ -96,9 +97,9 @@ struct OutputSection: View {
                     .help(L.t("mic_reload"))
                     .accessibilityLabel(L.t("mic_reload"))
             }
+            .onAppear { outputs = AudioOutputs.list() }   // an der Zeile, nicht an der Section
+            .onReceive(NotificationCenter.default.publisher(for: .audioDevicesChanged)) { _ in outputs = AudioOutputs.list() }   // Nr. 27
         }
-        .onAppear { outputs = AudioOutputs.list() }
-        .onReceive(NotificationCenter.default.publisher(for: .audioDevicesChanged)) { _ in outputs = AudioOutputs.list() }   // Nr. 27
     }
 }
 
