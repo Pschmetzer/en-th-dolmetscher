@@ -16,6 +16,11 @@ No app behaviour changes; for contributors and maintainers:
 - **New scripts in `tools/` (standard library only, with tests in `tests/test_r29_infra_docs.py`):** `changelog_extract.py` (section of a version for release notes), `changelog_lint.py` (form of the changelog), `check_workflows.py` (house rules: actions pinned to a commit with version comment, `timeout-minutes` on every job, top-level `permissions`, no `pull_request_target`, no auto-deploys), `check_docs_index.py` (every doc is linked from the map), `check_version_sync.py` (`pyproject.toml`, `VERSIONEN.md`, tag).
 - **Local checks:** `tools/check_all.sh --docs` and `make docs-check` run the five fast checks in seconds; `make changelog-notes V=1.3` shows release notes; the full `check_all.sh` includes them.
 
+### Security and privacy review, round 28
+
+- Engine: the three remaining child-process calls (`say -v ?`, two ffmpeg device queries) no longer inherit `ANTHROPIC_API_KEY`; a test checks every `subprocess` call in `dolmetscher.py` for a filtered environment
+- `docs/DATENSCHUTZ.md`: documents the optional password-encrypted history (`history-enc.sqlite`) and lists what the review checked
+
 ### iPhone app, round 35: tested logic building blocks
 
 - 17 new small logic blocks in `ios/Dolmetscher/Round35.swift` (Foundation only): VoiceOver bubble label, confidence as a level instead of colour only, clamped text size, reduced motion, offline retry queue, error classes with retry rules and back-off, free-space check and size format for model downloads, session time (also spoken), quiet hours across midnight, UI language resolution, grapheme-safe truncation, share-text sanitising (control and bidi-override characters), history retention by age and count, debounce, version compare. Overview in `docs/IOS-LOGIK-R35.md`.
