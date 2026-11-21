@@ -292,6 +292,14 @@ kennen, ignorieren sie.
 | `hotel-theft-report` | Diebstahl im Hotelzimmer | 6 kritische Sätze zuerst |
 | `chao-phraya-river-boat` | Chao-Phraya-Expressboot | 5 kritische Sätze zuerst |
 | `two-price-attraction-tickets` | Eintrittspreise für Ausländer | keine kritischen Sätze |
+| `lost-property-transport` | Fundsache im Bus, Zug oder Taxi | keine kritischen Sätze |
+| `truemoney-ewallet` | E-Wallet und Guthaben aufladen | 1 kritische Sätze zuerst |
+| `insect-sting-scorpion` | Stiche: Skorpion, Hundertfüßer, Bienen | 7 kritische Sätze zuerst |
+| `bed-bugs-pests` | Bettwanzen, Kakerlaken, Ungeziefer | keine kritischen Sätze |
+| `tap-water-ice-hygiene` | Trinkwasser, Eis und Hygiene | keine kritischen Sätze |
+| `temple-stay-overnight` | Übernachtung im Tempel | 1 kritische Sätze zuerst |
+| `barber-shop` | Herrenfriseur und Rasur | keine kritischen Sätze |
+| `condo-visitor-parcel-security` | Wohnanlage: Besucher, Pakete, Sicherheit | keine kritischen Sätze |
 
 Die Kategorie je Paket (`health`, `emergency`, `transport`, `food`, `money`, `stay`, `culture`, `leisure`, `general`) steht in `tools/preset_categories.json` und landet als `category` in `presets-index.json`. `python3 tools/preset_stats.py --by-category` zeigt die Abdeckung je Kategorie; ein neues Paket gehört in genau eine Kategorie (ein Test prüft das).
 
@@ -308,6 +316,10 @@ Die Kategorie je Paket (`health`, `emergency`, `transport`, `food`, `money`, `st
 - **Verweise statt Dubletten:** `python3 tools/preset_dupes.py` listet Paare mit drei oder mehr gemeinsamen englischen Sätzen; `--apply` hängt an `note.de` und `note.en` den Satz „Siehe auch: …“ an (höchstens zwei Verweise, vor dem Hinweis auf die maschinelle Übersetzung), `--check` prüft, ob er fehlt. Die Sätze bleiben in beiden Paketen, damit jedes Paket allein benutzbar ist.
 - **17 neue Pakete (243 insgesamt):** Schlangenbiss, Quallen und Seeigel, Schlüsseldienst, Stromausfall, Straßenhunde, Online-Bestellung und Paketlieferung, Handy-Reparatur, Verkehrsbußgeld, Smog (PM2.5), Asthma und Inhalator, Anaphylaxie und Adrenalin-Pen, Meeresfrüchte nach Gewicht, Trinkgeld und Servicegebühr, Kartenzahlung und Aufschlag, Diebstahl im Hotelzimmer, Chao-Phraya-Expressboot, Eintrittspreise für Ausländer.
 - **`rom` für die älteren Pakete:** die 201 älteren Pakete haben jetzt ebenfalls Lautschrift (`tools/preset_rom.py --fill`), rund 94 % der Sätze. Lässt sich ein Satz nicht vollständig umschreiben (Medikamentennamen, Lehnwörter), bekommt er keine Lautschrift statt einer lückenhaften. Die Größenbudgets bleiben eingehalten (Pakete insgesamt unter 1,9 MB, keines über 22 KB).
+
+### Runde 28: acht neue Pakete
+
+- **251 Pakete insgesamt:** Fundsache im Bus, Zug oder Taxi; E-Wallet und Guthaben; Stiche (Skorpion, Hundertfüßer, Bienen); Bettwanzen und Ungeziefer; Trinkwasser, Eis und Hygiene; Übernachtung im Tempel; Herrenfriseur; Wohnanlage (Besucher, Pakete, Sicherheit). Thai ohne Personalpronomen, `rom` ergänzt, vorhandene Fassungen für gemeinsame Sätze übernommen.
 
 ## Unsichere Sätze (bitte zuerst prüfen)
 
@@ -343,7 +355,7 @@ Am wichtigsten sind die Sätze mit `critical` und die Tabelle [Unsichere Sätze]
 
 | Datei | Inhalt |
 |---|---|
-| `presets/*.json` | 243 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
+| `presets/*.json` | 251 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
 | `ios/Shared/phrases.json` | eingebautes Satzbuch der iPhone-App und des Widgets |
 | `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten, „Sie sind dran“, Allergie-Karte |
 | `ios/Dolmetscher/Round4Views.swift` | Hilfesatz auf dem Bildschirm „Hilfe – jetzt“ |

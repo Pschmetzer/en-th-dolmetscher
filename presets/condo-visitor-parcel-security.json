@@ -1,0 +1,129 @@
+{
+  "id": "condo-visitor-parcel-security",
+  "names": {
+    "de": "Wohnanlage: Besucher, Pakete, Sicherheit",
+    "en": "Condo: visitors, parcels, security",
+    "th": "คอนโด: ผู้มาเยือน พัสดุ และรปภ."
+  },
+  "style": "polite",
+  "note": {
+    "de": "In Kondominien und Wohnanlagen meldet man Besucher am Eingang an (Ausweis oder Schlüsselkarte). Pakete liegen oft beim Sicherheitsdienst oder in der Lobby. Die Zimmernummer und Gebäudenummer immer dazu sagen. Bei Lärm oder Problemen im Haus zuerst die Verwaltung (Juristic Person) ansprechen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "In condos and housing estates visitors register at the entrance (ID or key card). Parcels often wait with security or in the lobby. Always add room and building number. For noise or problems in the building, speak to the management (juristic person) first. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "security guard",
+      "th": "ยาม"
+    },
+    {
+      "en": "lobby",
+      "th": "ล็อบบี้"
+    },
+    {
+      "en": "key card",
+      "th": "คีย์การ์ด"
+    },
+    {
+      "en": "visitor",
+      "th": "ผู้มาเยือน"
+    },
+    {
+      "en": "parcel",
+      "th": "พัสดุ"
+    },
+    {
+      "en": "management office",
+      "th": "สำนักงานนิติบุคคล"
+    },
+    {
+      "en": "elevator",
+      "th": "ลิฟต์"
+    },
+    {
+      "en": "room number",
+      "th": "เลขห้อง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am here to visit a friend.",
+      "th": "มาเยี่ยมเพื่อน",
+      "rom": "ma yiam phuean"
+    },
+    {
+      "en": "My friend lives on the twelfth floor.",
+      "th": "เพื่อนอยู่ชั้นสิบสอง",
+      "rom": "phuean yu chan sipsong"
+    },
+    {
+      "en": "Please call the room for me.",
+      "th": "ช่วยโทรขึ้นห้องให้หน่อย",
+      "rom": "chuai thon khuenhong hai noi"
+    },
+    {
+      "en": "Do you need my ID?",
+      "th": "ต้องใช้บัตรประชาชนหรือหนังสือเดินทางไหม",
+      "rom": "tong chai batnprachatn rue nangsuedoenthang mai"
+    },
+    {
+      "en": "I have a visitor coming at three.",
+      "th": "มีแขกจะมาตอนบ่ายสามโมง",
+      "rom": "mi khaek cha ma tonbai sam mong"
+    },
+    {
+      "en": "Please let my visitor in.",
+      "th": "ช่วยให้แขกเข้ามาได้",
+      "rom": "chuai hai khaek khaoma dai"
+    },
+    {
+      "en": "Is there a parcel for my room?",
+      "th": "มีพัสดุสำหรับห้องนี้ไหม",
+      "rom": "mi phatdu samrap ong ni mai"
+    },
+    {
+      "en": "Where can I pick up the parcel?",
+      "th": "รับพัสดุได้ที่ไหน",
+      "rom": "rap phatdu dai thinai"
+    },
+    {
+      "en": "The delivery man is downstairs.",
+      "th": "คนส่งของอยู่ข้างล่าง",
+      "rom": "khon song khong yu khanglang"
+    },
+    {
+      "en": "I lost my key card.",
+      "th": "ทำคีย์การ์ดหาย",
+      "rom": "tham khi kat hai"
+    },
+    {
+      "en": "The elevator does not work.",
+      "th": "ลิฟต์เสีย",
+      "rom": "lip sia"
+    },
+    {
+      "en": "The key card does not open the door.",
+      "th": "คีย์การ์ดเปิดประตูไม่ได้",
+      "rom": "khi kat poet pratu mai dai"
+    },
+    {
+      "en": "Where is the management office?",
+      "th": "สำนักงานนิติบุคคลอยู่ที่ไหน",
+      "rom": "samnakngan nitibukkn yu thinai"
+    },
+    {
+      "en": "There is a stranger on our floor.",
+      "th": "มีคนแปลกหน้าอยู่บนชั้นนี้",
+      "rom": "mi khanapaenkna yu bon channi"
+    },
+    {
+      "en": "Where can I park a visitor's car?",
+      "th": "จอดรถแขกได้ที่ไหน",
+      "rom": "chot rot khaek dai thinai"
+    },
+    {
+      "en": "Where is the rubbish room?",
+      "th": "ห้องขยะอยู่ที่ไหน",
+      "rom": "ong khaya yu thinai"
+    }
+  ]
+}

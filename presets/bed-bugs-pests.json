@@ -1,0 +1,128 @@
+{
+  "id": "bed-bugs-pests",
+  "names": {
+    "de": "Bettwanzen, Kakerlaken, Ungeziefer",
+    "en": "Bed bugs, cockroaches, pests",
+    "th": "ตัวเรือด แมลงสาบ และสัตว์รบกวน"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Bettwanzen zeigen sich durch Bisse in Reihen und dunkle Punkte auf der Matratze. Foto machen, Zimmerwechsel in ein anderes Stockwerk verlangen, Gepäck nicht auf dem Bett lassen und die Kleidung heiß waschen. Bei Betrug oder Streit um die Anzahlung Fotos und Zeitstempel aufbewahren. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Bed bugs show as rows of bites and dark spots on the mattress. Take photos, ask for a room on another floor, keep luggage off the bed and wash clothes hot. If there is a dispute about the deposit, keep photos and timestamps. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "bed bug",
+      "th": "ตัวเรือด"
+    },
+    {
+      "en": "cockroach",
+      "th": "แมลงสาบ"
+    },
+    {
+      "en": "ant",
+      "th": "มด"
+    },
+    {
+      "en": "rat",
+      "th": "หนู"
+    },
+    {
+      "en": "mattress",
+      "th": "ที่นอน"
+    },
+    {
+      "en": "bite",
+      "th": "รอยกัด"
+    },
+    {
+      "en": "pest control",
+      "th": "บริษัทกำจัดแมลง"
+    },
+    {
+      "en": "room",
+      "th": "ห้องพัก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "There are bugs in my bed.",
+      "th": "มีตัวเรือดบนเตียง",
+      "rom": "mi tua rueat bon tiang"
+    },
+    {
+      "en": "I have bites all over my body.",
+      "th": "มีรอยกัดทั่วตัว",
+      "rom": "mi roi kat thua tua"
+    },
+    {
+      "en": "Please look at the mattress.",
+      "th": "ช่วยมาดูที่นอนหน่อย",
+      "rom": "chuai ma du thinon noi"
+    },
+    {
+      "en": "I took photos of it.",
+      "th": "ถ่ายรูปไว้แล้ว",
+      "rom": "thairup wai laeo"
+    },
+    {
+      "en": "I need another room, on a different floor.",
+      "th": "ต้องการห้องใหม่ คนละชั้นกับห้องนี้",
+      "rom": "tongkan ong aim khanlachan kap ong ni"
+    },
+    {
+      "en": "Please do not put me in the room next door.",
+      "th": "ช่วยอย่าให้พักห้องติดกัน",
+      "rom": "chuai ya hai phak ong titkan"
+    },
+    {
+      "en": "There is a cockroach in the bathroom.",
+      "th": "มีแมลงสาบในห้องน้ำ",
+      "rom": "mi maenngsap nai ongnam"
+    },
+    {
+      "en": "There are ants on the table.",
+      "th": "มีมดบนโต๊ะ",
+      "rom": "mi mot bon to"
+    },
+    {
+      "en": "I heard a rat in the ceiling.",
+      "th": "ได้ยินเสียงหนูบนเพดาน"
+    },
+    {
+      "en": "Please send someone for pest control.",
+      "th": "ช่วยเรียกคนมากำจัดแมลงหน่อย",
+      "rom": "chuai riak khon ma kamchat maenng noi"
+    },
+    {
+      "en": "Please wash my clothes at a high temperature.",
+      "th": "ช่วยซักผ้าด้วยน้ำร้อนจัด",
+      "rom": "chuai sakpha duai namron chat"
+    },
+    {
+      "en": "Do you have a spray against mosquitoes?",
+      "th": "มีสเปรย์ไล่ยุงไหม",
+      "rom": "mi sapen lai yung mai"
+    },
+    {
+      "en": "I want my money back for tonight.",
+      "th": "ขอเงินคืนสำหรับคืนนี้",
+      "rom": "kho ngoen khuen samrap khuenni"
+    },
+    {
+      "en": "I want to check out. Please refund the other nights.",
+      "th": "ต้องการเช็กเอาต์ ช่วยคืนเงินคืนที่เหลือด้วย",
+      "rom": "tongkan chekao chuai khuenngoen khuen thi elue duai"
+    },
+    {
+      "en": "Please write down what happened.",
+      "th": "ช่วยบันทึกเหตุการณ์ที่เกิดขึ้นหน่อย",
+      "rom": "chuai banthuek etukan thi koetkhuen noi"
+    },
+    {
+      "en": "Can I speak to the manager?",
+      "th": "ขอคุยกับผู้จัดการได้ไหม",
+      "rom": "kho khui kap phuchatkan dai mai"
+    }
+  ]
+}

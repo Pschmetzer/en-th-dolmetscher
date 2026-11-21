@@ -4,6 +4,10 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### Web, round 28
+
+- **8 new phrase packs (251 in total):** lost property on transport, e-wallet and top-up, stings (scorpion, centipede, bees), bed bugs and pests, drinking water and ice, overnight temple stay, barber shop, condo visitors and parcels. Gender-neutral Thai without subject pronouns, `rom` filled, existing wordings reused for shared sentences (`check_presets.py --strict` and `preset_lint.py` clean). Categories, search terms, index and service-worker list are in sync (`sw.js` 17.4 KB, budget 17.5 KB).
+
 ### Mac app, round 28
 
 New testable logic in `app/R28Logic.swift` (Foundation only, 16 types, about 45 Swift tests in `R28Tests.swift`); the views pick these up in later rounds, so this round changes no screen:

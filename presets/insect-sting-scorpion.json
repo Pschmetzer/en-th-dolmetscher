@@ -1,0 +1,145 @@
+{
+  "id": "insect-sting-scorpion",
+  "names": {
+    "de": "Stiche: Skorpion, Hundertfüßer, Bienen",
+    "en": "Stings: scorpion, centipede, bees",
+    "th": "แมลงและสัตว์กัดต่อย"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Bei Atemnot, Schwellung von Gesicht oder Hals und Kreislaufproblemen sofort die Rettung (1669) rufen (siehe auch Anaphylaxie). Stachel mit einer Karte abstreifen, nicht drücken, Stelle kühlen und ruhig halten. Den Verursacher möglichst fotografieren, aber nicht fangen. Schmerzmittel und Antihistaminika gibt es in der Apotheke. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "For trouble breathing, swelling of the face or throat or dizziness call an ambulance (1669) at once (see also anaphylaxis). Scrape the stinger off with a card, do not squeeze, cool the spot and keep still. Photograph the culprit if possible, but do not catch it. Painkillers and antihistamines are sold at pharmacies. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "scorpion",
+      "th": "แมงป่อง"
+    },
+    {
+      "en": "centipede",
+      "th": "ตะขาบ"
+    },
+    {
+      "en": "bee",
+      "th": "ผึ้ง"
+    },
+    {
+      "en": "wasp",
+      "th": "ต่อ"
+    },
+    {
+      "en": "sting",
+      "th": "ต่อย"
+    },
+    {
+      "en": "swelling",
+      "th": "บวม"
+    },
+    {
+      "en": "antihistamine",
+      "th": "ยาแก้แพ้"
+    },
+    {
+      "en": "ice pack",
+      "th": "ถุงน้ำแข็ง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I was stung by a scorpion.",
+      "th": "โดนแมงป่องต่อย",
+      "critical": true,
+      "rom": "don maeng pong toi"
+    },
+    {
+      "en": "I was bitten by a centipede.",
+      "th": "โดนตะขาบกัด",
+      "critical": true,
+      "rom": "don takhap kat"
+    },
+    {
+      "en": "My face and throat are swelling.",
+      "th": "หน้าและคอกำลังบวม",
+      "critical": true,
+      "rom": "na lae kho kamlang buam"
+    },
+    {
+      "en": "I have trouble breathing.",
+      "th": "หายใจลำบาก",
+      "critical": true,
+      "rom": "aichai lambak"
+    },
+    {
+      "en": "I am allergic to stings.",
+      "th": "แพ้พิษแมลงต่อย",
+      "critical": true,
+      "rom": "phae phit maenng toi"
+    },
+    {
+      "en": "Please call an ambulance (1669).",
+      "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true,
+      "rom": "chuai riak rathaphayaban duai 1669"
+    },
+    {
+      "en": "Where is the nearest hospital?",
+      "th": "โรงพยาบาลที่ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "rongpyaban thi kain thisut yu thinai",
+      "critical": true
+    },
+    {
+      "en": "I was stung by a bee.",
+      "th": "โดนผึ้งต่อย",
+      "rom": "don phueng toi"
+    },
+    {
+      "en": "I was stung by a wasp.",
+      "th": "โดนต่อต่อย",
+      "rom": "don to toi"
+    },
+    {
+      "en": "It hurts a lot.",
+      "th": "เจ็บมาก",
+      "rom": "chep mak"
+    },
+    {
+      "en": "The pain is spreading up my arm.",
+      "th": "ความเจ็บแผ่ขึ้นไปที่แขน",
+      "rom": "khwamchep phae khuenpai thi khaen"
+    },
+    {
+      "en": "The spot is red and warm.",
+      "th": "จุดที่โดนแดงและร้อน",
+      "rom": "chut thi don daeng lae ron"
+    },
+    {
+      "en": "Do you have an ice pack?",
+      "th": "มีถุงน้ำแข็งไหม"
+    },
+    {
+      "en": "Do you have an antihistamine?",
+      "th": "มียาแก้แพ้ไหม",
+      "rom": "mi ya kae phae mai"
+    },
+    {
+      "en": "Do you have something for the pain?",
+      "th": "มียาแก้ปวดไหม",
+      "rom": "mi yakaepuat mai"
+    },
+    {
+      "en": "Is it dangerous?",
+      "th": "อันตรายไหม",
+      "rom": "antrai mai"
+    },
+    {
+      "en": "I took a photo of it.",
+      "th": "ถ่ายรูปไว้แล้ว",
+      "rom": "thairup wai laeo"
+    },
+    {
+      "en": "Do I need a tetanus shot?",
+      "th": "ต้องฉีดบาดทะยักไหม",
+      "rom": "tong chit batthayak mai"
+    }
+  ]
+}

@@ -932,6 +932,131 @@
     "บริจาค",
     "ใส่บาตร"
    ]
+  },
+  "lost-property-transport": {
+   "de": [
+    "fundbüro",
+    "verloren",
+    "vergessen",
+    "taxi",
+    "zug",
+    "bus"
+   ],
+   "th": [
+    "ของหาย",
+    "ลืมของ",
+    "แท็กซี่",
+    "รถไฟ"
+   ]
+  },
+  "truemoney-ewallet": {
+   "de": [
+    "e-wallet",
+    "truemoney",
+    "aufladen",
+    "guthaben",
+    "qr",
+    "bezahlen"
+   ],
+   "th": [
+    "กระเป๋าเงิน",
+    "ทรูมันนี่",
+    "เติมเงิน",
+    "คิวอาร์"
+   ]
+  },
+  "insect-sting-scorpion": {
+   "de": [
+    "skorpion",
+    "hundertfüßer",
+    "biene",
+    "wespe",
+    "stich",
+    "allergie"
+   ],
+   "th": [
+    "แมงป่อง",
+    "ตะขาบ",
+    "ผึ้ง",
+    "ต่อ"
+   ]
+  },
+  "bed-bugs-pests": {
+   "de": [
+    "bettwanzen",
+    "kakerlake",
+    "ungeziefer",
+    "ameisen",
+    "ratte",
+    "hotel"
+   ],
+   "th": [
+    "ตัวเรือด",
+    "แมลงสาบ",
+    "หนู",
+    "มด"
+   ]
+  },
+  "tap-water-ice-hygiene": {
+   "de": [
+    "trinkwasser",
+    "leitungswasser",
+    "eis",
+    "hygiene",
+    "flasche",
+    "wasser"
+   ],
+   "th": [
+    "น้ำดื่ม",
+    "น้ำแข็ง",
+    "น้ำประปา",
+    "ขวดน้ำ"
+   ]
+  },
+  "temple-stay-overnight": {
+   "de": [
+    "tempel",
+    "kloster",
+    "übernachtung",
+    "retreat",
+    "mönch",
+    "spende"
+   ],
+   "th": [
+    "วัด",
+    "พระ",
+    "พักที่วัด",
+    "ทำบุญ"
+   ]
+  },
+  "barber-shop": {
+   "de": [
+    "friseur",
+    "haarschnitt",
+    "rasur",
+    "bart",
+    "herren"
+   ],
+   "th": [
+    "ตัดผม",
+    "โกนหนวด",
+    "ร้านตัดผม"
+   ]
+  },
+  "condo-visitor-parcel-security": {
+   "de": [
+    "kondominium",
+    "besucher",
+    "paket",
+    "sicherheitsdienst",
+    "schlüsselkarte"
+   ],
+   "th": [
+    "คอนโด",
+    "ยาม",
+    "พัสดุ",
+    "คีย์การ์ด"
+   ]
   }
  }
 }
