@@ -35,7 +35,7 @@ markers = [
 
 [tool.coverage.run]
 # Abdeckung der Engine-Module (CI misst sie im Linux-Lauf, Python 3.12): pytest --cov
-source = ["dolmetscher", "profiles", "history_store", "correction_learning", "hwprofile", "avhelper", "numwords", "thaiparticles", "online_speakers", "textsplit", "textnorm", "thaitime"]
+source = ["dolmetscher", "profiles", "history_store", "correction_learning", "hwprofile", "avhelper", "numwords", "thaiparticles", "online_speakers", "textsplit", "textnorm", "thaitime", "sttquality", "llmtext", "retryafter"]
 
 [tool.coverage.report]
 show_missing = false

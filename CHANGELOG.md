@@ -37,6 +37,19 @@ New testable logic in `app/R28Logic.swift` (Foundation only, 16 types, about 45 
 - Budget: service worker limit raised to 17,500 bytes (17 more pack IDs).
 
 
+### Engine, round 28
+
+- **Three new modules, re-exported from `dolmetscher.py`** (and registered in `build.sh`/`pyproject.toml`): `sttquality.py` (`mean_logprob`, `segment_flags`, `seg_float`), `llmtext.py` (`strip_quotes`, `looks_like_name`, `neutralize`, `unspeech`, `strip_tags`), `retryafter.py` (`retry_after`, `parse_seconds`). Type hints on all three; each imports without the engine.
+- **Speech recognition tolerates odd segments:** a segment whose `avg_logprob`, `no_speech_prob`, `compression_ratio`, `start`/`end` is missing, `None`, text or NaN no longer raises a `TypeError` in `mean_logprob`/`looks_hallucinated` (such a segment simply does not count); a segment with `text=None` gives an empty piece instead of an exception in `_stt`; a non-numeric duration does not break the speed check.
+- **`Retry-After` in one place:** seconds, HTTP date (relative to now, past = 1 s), the Anthropic header `retry-after-ms` (preferred), any header spelling in a plain dict; `inf`/`nan`/junk fall back to the default. Used by Google/MyMemory (`_retry_after`) and Claude (`_llm_retry_after`). An overloaded HTTP 503 from Claude now honours the server hint like 429/529 (20 s without a hint, was 60 s).
+- **Quote stripping:** also `‚…‘`, `‹…›`, `「…」`, `『…』`, `＂…＂`; text with a second quoted part stays untouched as before.
+- **Number comparison, English:** "two and a half thousand" (2500), "a million and a half" (1500000), "one and a half million" were read as 2.5 / 1000000.5 / 1.5 and raised a false warning against the correct Thai; fixed. Year pairs "nineteen ninety nine" (1999), "twenty twenty-six" (2026) count as numbers now; ambiguous pairs ("twenty thirty", "nineteen eighty": time or price) stay words on purpose.
+- **Reading aloud (`speak_form`):** ISO codes before or after an amount ("THB 1,000", "20 USD", "EUR 5.50") are spoken like the symbol ("1,000 บาท"), not spelled "T H B"; for the Thai voice `km`, `km/h`, `kg`, `cm`, `mm`, `ml` after a number become words (letters inside a word, "kmh" and the like stay).
+- **Speaking rate:** `_clamp_rate` returns 0 for `None`, text, NaN and infinity instead of raising in the speaker thread.
+- **Log and event line hardening:** `_finite` has a depth limit (a self-referencing value gave a `RecursionError` in the emit path); `_scrub_deep` no longer lets structures deeper than 6 levels pass unscrubbed (they become "…"), and scrubs sets as well.
+- **Measured:** `bench/micro_bench.py` times `speak_form`, `en_words_to_digits`, `strip_quotes`, `mean_logprob`, `looks_hallucinated` (results in `bench/results/micro_r28.json`: 1 to 40 µs, none matters next to a translation).
+- Tests: `tests/test_r28_engine_modules.py`, `tests/test_r28_engine_text.py`.
+
 ### Engine, round 27
 
 - **Output device per direction:** new control fields `output_device_me` / `output_device_other` (same format as `output_device`, empty = general device, then system default). The speaker picks the device per output from the target language (own language = `me`, partner language = `other`; command replies and earcons always `me`); the Mac app sends them (`Engine.sendAudioRoute`, only to an engine whose `ready.capabilities` list the fields, on change and after `ready`); this needed a small change in `app/Engine.swift` and `app/SettingsR25.swift`, because a Mac test requires it once the protocol docs know the fields. Documented in `docs/PROTOKOLL.md`.

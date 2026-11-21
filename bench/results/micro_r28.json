@@ -1,0 +1,25 @@
+{
+  "meta": {
+    "python": "3.13.18",
+    "machine": "x86_64",
+    "n": 2000
+  },
+  "us_per_call": {
+    "norm_warm_us": 0.143,
+    "norm_cold_us": 14.975,
+    "norm_thai_cold_us": 20.364,
+    "split_en_us": 8.078,
+    "split_th_us": 4.123,
+    "cache_key_us": 0.245,
+    "cache_put_us": 2.089,
+    "cache_get_hit_us": 0.251,
+    "cache_get_miss_us": 0.26,
+    "speak_numbers_th_us": 2.852,
+    "numbers_differ_us": 202.698,
+    "speak_form_th_us": 36.832,
+    "en_words_to_digits_us": 3.717,
+    "strip_quotes_us": 0.966,
+    "mean_logprob_us": 1.664,
+    "looks_hallucinated_us": 3.997
+  }
+}
