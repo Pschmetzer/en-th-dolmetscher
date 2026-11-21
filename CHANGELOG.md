@@ -9,6 +9,25 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 - 17 new small logic blocks in `ios/Dolmetscher/Round35.swift` (Foundation only): VoiceOver bubble label, confidence as a level instead of colour only, clamped text size, reduced motion, offline retry queue, error classes with retry rules and back-off, free-space check and size format for model downloads, session time (also spoken), quiet hours across midnight, UI language resolution, grapheme-safe truncation, share-text sanitising (control and bidi-override characters), history retention by age and count, debounce, version compare. Overview in `docs/IOS-LOGIK-R35.md`.
 - Not wired into screens yet (no Mac in this round, so no UI code without a compiler); the unit tests in `Round35Tests.swift` plus extra tests for round 32 to 34 logic (travel table, hotel card, planner, card topics, Whisper partials, menu scan) are the gate in the CI job "iOS".
 
+### Mac app, round 28
+
+New testable logic in `app/R28Logic.swift` (Foundation only, 16 types, about 45 Swift tests in `R28Tests.swift`); the views pick these up in later rounds, so this round changes no screen:
+
+- **VoiceOver sentence per bubble** (speaker, original, translation, time; empty parts skipped).
+- **Settings search:** all words must match, ignoring case and accents.
+- **Shortcut guard:** custom global shortcuts are checked against keys macOS uses (⌘Q, ⌘Space, screenshots ...), regardless of modifier order; a global shortcut without ⌘/⌃/⌥ is unsafe.
+- **Session clock** (`1:05:03`) and spoken duration ("1 hour 5 minutes"), correct plurals (de/en/th).
+- **Sensitive text guard:** API keys, card numbers (Luhn) and IBAN-like strings are detected before translating or copying.
+- **Engine restart plan:** 2, 4, 8 ... at most 30 s pause, give up after 5 attempts.
+- **Disk space advice** (ok / low under 3 GB / critical under 500 MB) with texts.
+- **Microphone level:** dBFS to 0...1, band and spoken text (silence, quiet, good, too loud).
+- **No-input advice:** muted microphone, or no speech for 30 s while listening.
+- **Export file names:** `dolmetscher_2026-11-21_1405_en-th.pdf`, sanitized.
+- **Character counter** states (ok, 90 % warning, over) and label.
+- **Settings migration:** old keys renamed to new ones without overwriting new values; idempotent.
+- **Language pair spoken** ("Englisch nach Thai"), **menu bar title** shortened at a word boundary, **history day groups** (today, yesterday, date).
+- New check `tests/test_r28_mac.py`: Foundation-only, linked into swift-tests, every type tested, no name clash.
+
 ### Web, round 27
 
 - **17 new phrase packs (243 in total):** snake bite, jellyfish and sea urchins, locksmith, power outage, stray dogs, online orders and parcels, phone repair, traffic fines, air pollution (PM2.5), asthma and inhaler, anaphylaxis and adrenaline pen, seafood by weight, tipping and service charge, card payment surcharge, theft in a hotel room, Chao Phraya express boat, foreigner ticket prices. Index, categories and search terms are in place; the new packs pass `check_presets.py --strict` and `preset_lint.py`.
@@ -22,6 +41,19 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 - **Browser flow test:** `tests/web-e2e/flow.mjs` (Playwright): open the page, wait for the service worker to cache packs, open a pack, check the review status, show a card, search, reload offline; new CI job `e2e` in `web-a11y.yml`.
 - Budget: service worker limit raised to 17,500 bytes (17 more pack IDs).
 
+
+### Engine, round 28
+
+- **Three new modules, re-exported from `dolmetscher.py`** (and registered in `build.sh`/`pyproject.toml`): `sttquality.py` (`mean_logprob`, `segment_flags`, `seg_float`), `llmtext.py` (`strip_quotes`, `looks_like_name`, `neutralize`, `unspeech`, `strip_tags`), `retryafter.py` (`retry_after`, `parse_seconds`). Type hints on all three; each imports without the engine.
+- **Speech recognition tolerates odd segments:** a segment whose `avg_logprob`, `no_speech_prob`, `compression_ratio`, `start`/`end` is missing, `None`, text or NaN no longer raises a `TypeError` in `mean_logprob`/`looks_hallucinated` (such a segment simply does not count); a segment with `text=None` gives an empty piece instead of an exception in `_stt`; a non-numeric duration does not break the speed check.
+- **`Retry-After` in one place:** seconds, HTTP date (relative to now, past = 1 s), the Anthropic header `retry-after-ms` (preferred), any header spelling in a plain dict; `inf`/`nan`/junk fall back to the default. Used by Google/MyMemory (`_retry_after`) and Claude (`_llm_retry_after`). An overloaded HTTP 503 from Claude now honours the server hint like 429/529 (20 s without a hint, was 60 s).
+- **Quote stripping:** also `‚…‘`, `‹…›`, `「…」`, `『…』`, `＂…＂`; text with a second quoted part stays untouched as before.
+- **Number comparison, English:** "two and a half thousand" (2500), "a million and a half" (1500000), "one and a half million" were read as 2.5 / 1000000.5 / 1.5 and raised a false warning against the correct Thai; fixed. Year pairs "nineteen ninety nine" (1999), "twenty twenty-six" (2026) count as numbers now; ambiguous pairs ("twenty thirty", "nineteen eighty": time or price) stay words on purpose.
+- **Reading aloud (`speak_form`):** ISO codes before or after an amount ("THB 1,000", "20 USD", "EUR 5.50") are spoken like the symbol ("1,000 บาท"), not spelled "T H B"; for the Thai voice `km`, `km/h`, `kg`, `cm`, `mm`, `ml` after a number become words (letters inside a word, "kmh" and the like stay).
+- **Speaking rate:** `_clamp_rate` returns 0 for `None`, text, NaN and infinity instead of raising in the speaker thread.
+- **Log and event line hardening:** `_finite` has a depth limit (a self-referencing value gave a `RecursionError` in the emit path); `_scrub_deep` no longer lets structures deeper than 6 levels pass unscrubbed (they become "…"), and scrubs sets as well.
+- **Measured:** `bench/micro_bench.py` times `speak_form`, `en_words_to_digits`, `strip_quotes`, `mean_logprob`, `looks_hallucinated` (results in `bench/results/micro_r28.json`: 1 to 40 µs, none matters next to a translation).
+- Tests: `tests/test_r28_engine_modules.py`, `tests/test_r28_engine_text.py`.
 
 ### Engine, round 27
 

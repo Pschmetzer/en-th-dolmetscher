@@ -24,6 +24,11 @@ from thaitime import (_TH_MIN_RX, _TH_NUM_RX, _TH_NUM_W, _TH_TENS, _TH_TIME_RULE
 from textsplit import _ABBREV, _ABBREV_NUM, _rejoin_abbrev  # noqa: F401
 from textsplit import FIRST_CLAUSE_MIN, MAX_SPEAK_CHARS, _CLAUSE_END, _thai_cut_ok, chunk_long, first_clause, speakable  # noqa: F401,E501
 from numwords import _SPEAK_NUM, _NUM_KEEP_BEFORE, _TH_DIG, _TH_POS, _th_chunk, speak_numbers_th, thai_number_words  # noqa: F401,E501
+from llmtext import (INVISIBLE as _INVISIBLE, NAME_STOP as _NAME_STOP, SPEECH_TAG as _SPEECH_TAG,  # noqa: F401
+                     TAG_LIKE as _TAG_LIKE, _QUOTE_PAIRS, looks_like_name as _looks_like_name, neutralize,
+                     strip_quotes as _strip_quotes, strip_tags as _strip_tags, unspeech)
+from retryafter import retry_after as _retry_after_hdr
+from sttquality import COMPRESSION_MAX, NO_SPEECH_LP, NO_SPEECH_P, mean_logprob, segment_flags  # noqa: F401
 from textnorm import _NORM_QUOTES, _TH_GAP, _TH_RX, _norm, squash_repeats  # noqa: F401
 from thaiparticles import (_TH_FEMALE, _TH_KA, _TH_KRUB, _TH_MALE, _TH_Q_END, _TH_STRETCH, fit_thai_particles,  # noqa: F401
                            thai_speaker_sex, thai_stretch)
@@ -835,17 +840,19 @@ def _json_default(o):
     return str(o)
 
 
-def _finite(o):
+def _finite(o, depth=0):
     """NaN/±Infinity (z. B. avg_logprob −inf, numpy-NaN) sind kein gültiges JSON (Nr. 31): rekursiv durch
-    null ersetzen; numpy-Werte vorher in Python-Typen wandeln."""
+    null ersetzen; numpy-Werte vorher in Python-Typen wandeln. Tiefe begrenzt (Zyklus: kein RecursionError)."""
     if isinstance(o, float):
         return o if math.isfinite(o) else None
+    if depth > 12:
+        return "…" if isinstance(o, (dict, list, tuple, set, frozenset)) else o
     if isinstance(o, dict):
-        return {k: _finite(v) for k, v in o.items()}
+        return {k: _finite(v, depth + 1) for k, v in o.items()}
     if isinstance(o, (list, tuple, set, frozenset)):
-        return [_finite(v) for v in o]
+        return [_finite(v, depth + 1) for v in o]
     if hasattr(o, "item") or hasattr(o, "tolist"):
-        return _finite(_json_default(o))
+        return _finite(_json_default(o), depth + 1)
     return o
 
 
@@ -1005,10 +1012,10 @@ def _scrub_deep(v, depth=0):
     if isinstance(v, str):
         return _scrub(v)
     if depth > 6:
-        return v
+        return "…" if isinstance(v, (dict, list, tuple, set, frozenset)) else v   # zu tief: nichts durchlassen
     if isinstance(v, dict):
         return {k: _scrub_deep(x, depth + 1) for k, x in v.items()}
-    if isinstance(v, (list, tuple)):
+    if isinstance(v, (list, tuple, set, frozenset)):
         return [_scrub_deep(x, depth + 1) for x in v]
     return v
 
@@ -1454,38 +1461,6 @@ def _wrong_script(out, src, dst):
     return len(_SCRIPT_RX[src].findall(out)) > len(out) / 2
 
 
-_QUOTE_PAIRS = {'"': '"', "“": "”", "„": "“", "«": "»", "‘": "’", "'": "'"}
-
-
-def _strip_quotes(text):
-    """Umschließende Anführungszeichen entfernen – nur ein zusammengehöriges Paar, innen keine weiteren
-    (`"Yes," he said, "no."` bleibt unverändert)."""
-    t = text.strip()
-    if len(t) >= 2 and _QUOTE_PAIRS.get(t[0]) == t[-1]:
-        inner = t[1:-1]
-        if not any(q in inner for q in '"“”„«»'):
-            return inner.strip()
-    return t
-
-
-# Funktionswörter: "Thank You", "Where Is The Toilet" (Titel-Schreibung) sind keine Namen
-_NAME_STOP = {"the", "is", "are", "was", "you", "your", "where", "what", "when", "how", "why", "who", "thank",
-              "thanks", "please", "a", "an", "to", "of", "in", "on", "at", "do", "does", "can", "i", "me", "my",
-              "we", "it", "this", "that", "and", "or", "not", "no", "yes", "sorry", "hello", "excuse", "good",
-              "have", "has", "will", "would", "could", "for", "with", "from", "here", "there",
-              # Gruß-/Höflichkeitswörter anderer Quellsprachen: "Guten Morgen" ist kein Name
-              "guten", "morgen", "abend", "nacht", "danke", "bitte", "hallo", "tschüss", "buenos", "buenas", "gracias",
-              "hola", "bonjour", "bonsoir", "merci", "salut", "ciao", "grazie", "obrigado", "obrigada", "dank"}
-
-
-def _looks_like_name(text):
-    """Ein einzelnes Wort oder bis zu 4 groß geschriebene Wörter (Name, Marke, Ort)."""
-    words = re.findall(r"[A-Za-zÀ-ÖØ-öø-ÿĀ-ſ][\w'’&-]*", text)         # auch "Café Müller", "Zürich"
-    if len(words) > 1 and any(w.lower() in _NAME_STOP for w in words):
-        return False
-    return len(words) == 1 or (0 < len(words) <= 4 and all(w[0].isupper() for w in words))
-
-
 class _BadClaudeAnswer(RuntimeError):
     """Claude antwortete, aber unbrauchbar (leer, abgeschnitten, Ablehnung): inhaltlich, kein Ausfall."""
 
@@ -1654,18 +1629,7 @@ def reset_net_backoff():
 
 
 def _retry_after(e, default=30.0):
-    raw = (getattr(e, "headers", None) or {}).get("Retry-After", "")
-    try:
-        v = float(raw)
-    except (TypeError, ValueError, AttributeError):
-        try:                                   # HTTP-Datum ("Wed, 21 Oct 2026 07:28:00 GMT")
-            import email.utils
-            v = email.utils.parsedate_to_datetime(raw).timestamp() - time.time()
-        except (TypeError, ValueError, AttributeError, IndexError):
-            return default
-    if v != v:
-        return default
-    return min(max(v, 1.0), 120.0)
+    return _retry_after_hdr(getattr(e, "headers", None), default, 1.0, 120.0)
 
 
 def _note_ok(name):
@@ -2652,38 +2616,6 @@ def _llm_call(client, kw, on_clause=None, lang=None):
 # ---- Runde 24: Prompt-Injection-Härtung --------------------------------------------------------------------------
 # Alles, was nicht vom Sprachmodell der Erkennung stammt (Glossar, Preset-Hinweis, Verlauf, Alternativen), wird vor
 # dem Einbetten entschärft: keine Tag-artigen Gebilde, keine Steuerzeichen/Zeilenumbrüche (kein „Human:“-Zeilenanfang).
-_TAG_LIKE = re.compile(r"</?\s*[A-Za-z_][\w\-]*(?:\s[^<>]{0,80})?/?\s*>")
-_INVISIBLE = re.compile(r"[\x00-\x1f\x7f\u0085\u200b-\u200f\u2028-\u202e\u2060-\u2069\ufeff]")
-_SPEECH_TAG = re.compile(r"</?\s*speech\b[^<>]*>", re.I)
-
-
-def _strip_tags(s):
-    """Tags entfernen, bis nichts mehr übrig ist (verschachtelt: `</spe</speech>ch>` ergäbe sonst `</speech>`)."""
-    for _ in range(6):
-        n = _TAG_LIKE.sub("", s)
-        if n == s:
-            return s
-        s = n
-    return s.replace("<", "").replace(">", "")
-
-
-def neutralize(x, limit=400):
-    """Fremden Text (Glossar, Hinweis, Verlauf, Alternative) für den Prompt entschärfen -> kurzer einzeiliger str."""
-    s = _strip_tags(_INVISIBLE.sub(" ", str(x)))
-    return re.sub(r"\s+", " ", s).strip()[:limit]
-
-
-def unspeech(text):
-    """`<speech>`-Tag aus dem Gesprochenen entfernen, auch verschachtelt/mit Attributen/Leerzeichen."""
-    s = str(text)
-    for _ in range(8):
-        n = _SPEECH_TAG.sub("", s)
-        if n == s:
-            return s
-        s = n
-    return s.replace("<", "").replace(">", "")
-
-
 def claude_translate(text, src, dst, history=(), alts=(), polite="krub", on_clause=None):
     client = llm_client()
     names = {k: v["name"] for k, v in LANGS.items()}
@@ -2813,6 +2745,14 @@ _PHONE_SPEAK = re.compile(r"(?<![\d.,])0\d{8,9}(?![\d.,])")
 _CUR_AMOUNT = re.compile(r"([฿$€£])\s?(\d+(?:[.,]\d+)*(?:\s?(?:million|billion|trillion|thousand)\b)?)", re.I)
 _DEGREE = re.compile(r"(?<=\d)\s?°\s?([CF])(?![A-Za-z0-9])")
 _CUR_AFTER = re.compile(r"(?<![A-Za-z0-9.,])(\d+(?:[.,]\d+)*)\s?([฿€£])(?![A-Za-z0-9])")  # "5€", "500฿"
+# Runde 28: ISO-Codes ("THB 1,000", "1,000 THB") wie das Zeichen sprechen, sonst buchstabiert die Stimme "T H B"
+_ISO_SYM = {"THB": "฿", "USD": "$", "EUR": "€", "GBP": "£"}
+_CUR_ISO = re.compile(r"(?<![A-Za-z0-9])(THB|USD|EUR|GBP)\s?(\d+(?:[.,]\d+)*)(?![\d.,]*[A-Za-z0-9])")
+_CUR_ISO_AFTER = re.compile(r"(?<![A-Za-z0-9.,])(\d+(?:[.,]\d+)*)\s?(THB|USD|EUR|GBP)(?![A-Za-z0-9])")
+# Thai: Maßeinheiten nach einer Zahl als Wort (Neural-Stimmen buchstabieren "km"/"kg")
+_TH_UNIT_LATIN = [(re.compile(rf"(?<![A-Za-z])(\d+(?:[.,]\d+)*)\s?{a}(?![A-Za-z0-9/²])"), rf"\1 {b}") for a, b in (
+    ("km/h", "กิโลเมตรต่อชั่วโมง"), ("kph", "กิโลเมตรต่อชั่วโมง"), ("km", "กิโลเมตร"), ("kg", "กิโลกรัม"),
+    ("cm", "เซนติเมตร"), ("mm", "มิลลิเมตร"), ("ml", "มิลลิลิตร"))]
 _DEG_BARE = re.compile(r"(?<=\d)\s?°(?!\s?[CF](?![A-Za-z0-9]))")
 
 
@@ -2860,6 +2800,13 @@ def speak_form(text, lang):
         text = _CUR_AMOUNT.sub(lambda m: f"{m.group(2)} {cur[m.group(1)]}", text)
     if cur and _CUR_AFTER.search(text):
         text = _CUR_AFTER.sub(lambda m: f"{m.group(1)} {cur[m.group(2)]}", text)
+    if cur and _CUR_ISO.search(text):
+        text = _CUR_ISO.sub(lambda m: f"{m.group(2)} {cur[_ISO_SYM[m.group(1)]]}", text)
+    if cur and _CUR_ISO_AFTER.search(text):
+        text = _CUR_ISO_AFTER.sub(lambda m: f"{m.group(1)} {cur[_ISO_SYM[m.group(2)]]}", text)
+    if lang == "th":
+        for rx, word in _TH_UNIT_LATIN:
+            text = rx.sub(word, text)
     if lang in _SPEAK_DEG and "°" in text:
         gap = "" if lang == "th" else " "
         text = _DEGREE.sub(lambda m: f" {_SPEAK_DEG[lang]}{gap}{_SPEAK_CELS[m.group(1)][lang]}", text)
@@ -2990,12 +2937,8 @@ def _llm_billing(e):
 
 
 def _llm_retry_after(e):
-    """retry-after (Sekunden) aus der Antwort des SDK-Fehlers, begrenzt auf 1 … 600 s; sonst None."""
-    try:
-        v = float(e.response.headers.get("retry-after"))
-    except (AttributeError, TypeError, ValueError):
-        return None
-    return min(max(v, 1.0), 600.0) if v == v else None
+    """retry-after(-ms) (auch HTTP-Datum) aus der Antwort des SDK-Fehlers, begrenzt auf 1 … 600 s; sonst None."""
+    return _retry_after_hdr(getattr(getattr(e, "response", None), "headers", None), None, 1.0, 600.0)
 
 
 def _llm_backoff(e):
@@ -3011,11 +2954,11 @@ def _llm_backoff(e):
         return 300.0                                     # Schlüssel falsch: nicht jeden Satz neu versuchen
     if sc == 400 or isinstance(e, TimeoutError) or "Timeout" in name:
         return 10.0
-    if sc in (429, 529):                                 # Nr. 57: Ratelimit/überlastet – Server-Vorgabe nutzen
+    if sc in (429, 503, 529):                            # Nr. 57: Ratelimit/überlastet – Server-Vorgabe nutzen
         ra = _llm_retry_after(e)
         if ra is not None:
             return ra
-        return LLM_BACKOFF if sc == 429 else 20.0
+        return LLM_BACKOFF if sc == 429 else 20.0        # 503 wie 529: kurz
     if "Connection" in name:
         return 15.0
     return LLM_BACKOFF
@@ -3698,6 +3641,9 @@ def _en_run_value(run):
 
 _EN_HALF_A = re.compile(r"\bhalf\s+an?\s+(hundred|thousand|million|billion)\b", re.I)
 _EN_A_SCALE = re.compile(r"\b(?:an?|one)\s+(hundred|thousand|million|billion)\b", re.I)
+# Runde 28: "two and a half thousand" = 2500, "a million and a half" = 1500000 (vorher 2.5 bzw. 1000000.5)
+_EN_HALF_SCALE = re.compile(r"\b(\d+|[a-z]+)\s+and\s+a\s+half\s+(hundred|thousand|million|billion)\b", re.I)
+_EN_SCALE_HALF = re.compile(r"\b(?:an?|one)\s+(hundred|thousand|million|billion)\s+and\s+a\s+half\b", re.I)
 
 
 _EN_ORD_UNIT = {"first": 1, "second": 2, "third": 3, "fourth": 4, "fifth": 5, "sixth": 6, "seventh": 7, "eighth": 8,
@@ -3732,10 +3678,35 @@ def en_ordinals_to_digits(s):
         "0" if t.lower() == "oh" else str(_EN_UNIT_W[t.lower()]) for t in re.split(r"[\s-]+", m.group(0))) + " ", s)
 
 
+# Runde 28: Jahreszahlen als Paar: "nineteen ninety nine" = 1999, "twenty twenty-six" = 2026 (vorher Wörter ohne Zahl)
+_EN_TENS_ALT = "|".join(k for k in _EN_TENS_W if k != "twenty")
+_EN_UNITS_RX = "one|two|three|four|five|six|seven|eight|nine"
+_EN_YEAR = re.compile(rf"\b(?:(nineteen)[\s-]+({_EN_TENS_ALT}|twenty)[\s-]+({_EN_UNITS_RX})"
+                      rf"|(twenty)[\s-]+(twenty)(?:[\s-]+({_EN_UNITS_RX}))?)\b"
+                      rf"(?![\s-]+(?:hundred|thousand|million|billion|percent|o.clock|degrees))", re.I)   # 20:30 ≠ 2030
+
+
+def _en_year_sub(m):
+    """Nur eindeutige Paare: "nineteen eighty" bleibt (Preis/Uhrzeit möglich), "nineteen eighty four" nicht."""
+    first, tens, unit = (1900, m.group(2), m.group(3)) if m.group(1) else (2000, m.group(5), m.group(6))
+    return f" {first + _EN_TENS_W[tens.lower()] + (_EN_UNIT_W[unit.lower()] if unit else 0)} "
+
+
+def _en_half_scale(m):
+    w = m.group(1).lower()
+    n = int(w) if w.isdigit() else _EN_UNIT_W.get(w) or _EN_TEEN_W.get(w) or _EN_TENS_W.get(w)
+    if n is None:
+        return m.group(0)
+    return f" {round((n + 0.5) * _EN_SCALE_W.get(m.group(2).lower(), 100))} "
+
+
 def en_words_to_digits(s):
     """Ausgeschriebene englische Zahlen in Ziffern: 'costs three hundred fifty baht' -> 'costs 350 baht'.
     Auch 'a hundred' = 100, 'a thousand' = 1000, 'half a million' = 500000."""
     s = _EN_HALF_A.sub(lambda m: f" {_EN_SCALE_W.get(m.group(1).lower(), 100) // 2} ", s)
+    s = _EN_YEAR.sub(_en_year_sub, s)
+    s = _EN_SCALE_HALF.sub(lambda m: f" {_EN_SCALE_W.get(m.group(1).lower(), 100) * 3 // 2} ", s)
+    s = _EN_HALF_SCALE.sub(_en_half_scale, s)
     s = _EN_A_SCALE.sub(lambda m: "one " + m.group(1), s)       # "a hundred" -> "one hundred" -> 100
 
     def one(m):
@@ -4626,19 +4597,16 @@ def max_cps(lang):
     return max(MAX_CPS.get(sc, MAX_CPS_DEFAULT) for sc in v["script"])
 
 
-NO_SPEECH_P, NO_SPEECH_LP = 0.9, -0.7      # wie Whispers eigene Stille-Regel, nur strenger (alle Segmente)
-
-
 def looks_hallucinated(text, dur, segs, lang=None):
     """Typische Whisper-Halluzination: Wiederholungsschleife oder unmöglich viele Zeichen pro Sekunde."""
     segs = list(segs)                        # Generator: zweimal durchlaufen wäre beim zweiten Mal leer
-    if any(getattr(s, "compression_ratio", 0) > 2.6 for s in segs):
+    loop, silent = segment_flags(segs)
+    if loop:
         return "wiederholung"
     chars = len(re.sub(r"\s", "", text))
-    if dur > 0 and chars / dur > max_cps(lang):
+    if isinstance(dur, (int, float)) and dur > 0 and chars / dur > max_cps(lang):
         return "zu schnell"
-    if segs and all(getattr(s, "no_speech_prob", 0.0) > NO_SPEECH_P and getattr(s, "avg_logprob", 0.0) < NO_SPEECH_LP
-                    for s in segs):
+    if silent:
         return "stille"                      # Whisper hält alles für Nicht-Sprache und rät trotzdem ("Okay.")
     return None
 
@@ -4658,7 +4626,11 @@ def private_tmp():
 
 
 def _clamp_rate(pct):
-    return max(-100, min(100, int(pct)))
+    """Sprechtempo in Prozent auf -100 … 100; Unbrauchbares (None, Text, NaN, inf) -> 0 statt Ausnahme im Sprecher."""
+    try:
+        return max(-100, min(100, int(pct)))
+    except (TypeError, ValueError, OverflowError):
+        return 0
 
 
 _FFLOG = {"f": None}
@@ -6324,22 +6296,6 @@ def stt_token_cap(dur, lang):
     return int(min(600 if lang == "th" else 440, 24 + per_s * max(0.0, dur)))
 
 
-def mean_logprob(segs):
-    """Mittlere log-prob, nach Segmentdauer gewichtet: ein kurzes unsicheres Segment zieht einen langen sicheren
-    Satz nicht mehr unter die Verwerfungsschwelle. Ohne Zeiten: ungewichtet. Keine Segmente: -9."""
-    if not segs:
-        return -9.0
-    ws = []
-    for sg in segs:
-        try:
-            w = float(sg.end) - float(sg.start)
-        except (AttributeError, TypeError, ValueError):
-            w = 0.0
-        ws.append(w if w > 0.05 else 0.05)
-    tot = sum(ws)
-    return float(sum(sg.avg_logprob * w for sg, w in zip(segs, ws)) / tot)
-
-
 MODEL_LOAD_TIMEOUT_S = 1800.0            # s: so lange wartet der Start auf Zusatzmodelle (Erkennung, Thai)
 CURRENCY = {"code": None, "per_baht": None}   # Heimwährung für die Preisanzeige (Steuerfeld `currency`)
 PRICE_MAX = 3
@@ -6801,10 +6757,10 @@ class Engine:
         if lang == "th":
             # Thai-Modell setzt Leerzeichen zwischen Wörter – Thai schreibt man ohne. Leerzeichen
             # zwischen Segmenten bleiben (sie trennen Phrasen und helfen der Übersetzung).
-            parts = [re.sub(r"(?<=[฀-๿]) (?=[฀-๿])", "", s.text.strip()) for s in segs]
+            parts = [re.sub(r"(?<=[฀-๿]) (?=[฀-๿])", "", (s.text or "").strip()) for s in segs]
             text = " ".join(p for p in parts if p).strip()
         else:
-            text = " ".join(s.text.strip() for s in segs).strip()
+            text = " ".join((s.text or "").strip() for s in segs).strip()
         return text, mean_logprob(segs), segs
 
     def _mps_to_cpu(self, err):

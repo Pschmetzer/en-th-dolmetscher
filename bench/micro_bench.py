@@ -12,6 +12,7 @@ import os
 import platform
 import sys
 import time
+import types
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
@@ -56,6 +57,12 @@ def main():
     res["speak_numbers_th_us"] = bench(lambda i: d.speak_numbers_th(TH[i % len(TH)]), n)
     res["numbers_differ_us"] = bench(lambda i: d._numbers_differ(f"{EN[i % len(EN)]} {i}", TH[i % len(TH)]),
                                      max(100, n // 10))
+    res["speak_form_th_us"] = bench(lambda i: d.speak_form(f"THB 1,500 และ {i} km", "th"), n)       # Runde 28
+    res["en_words_to_digits_us"] = bench(lambda i: d.en_words_to_digits(f"in nineteen ninety nine {i}"), n)
+    res["strip_quotes_us"] = bench(lambda i: d._strip_quotes(f'"{EN[i % len(EN)]}"'), n)
+    segs = [types.SimpleNamespace(avg_logprob=-0.3, start=0.0, end=2.0, no_speech_prob=0.1, compression_ratio=1.2)] * 3
+    res["mean_logprob_us"] = bench(lambda i: d.mean_logprob(segs), n)
+    res["looks_hallucinated_us"] = bench(lambda i: d.looks_hallucinated(EN[i % len(EN)], 6.0, segs, "en"), n)
     d._cache_clear()
     out = {"meta": {"python": platform.python_version(), "machine": platform.machine(), "n": n}, "us_per_call": res}
     print(json.dumps(out, indent=2))
