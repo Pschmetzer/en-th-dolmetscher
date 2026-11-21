@@ -4,6 +4,8 @@ Es wird nie etwas gespeichert: die Funktionen liefern nur Vorschläge (Liste von
 import difflib
 import re
 
+from textnorm import name_key
+
 _THAI = re.compile(r"[฀-๿]")
 _NUM = re.compile(r"\d")
 _UNITS = {"kg", "mg", "km", "cm", "mm", "ml", "kb", "mb", "gb", "tb", "hz", "khz", "mhz", "ghz", "kw",
@@ -13,7 +15,8 @@ _STOP = {"the", "and", "you", "for", "are", "was", "but", "not", "with", "that",
          "will", "would", "could", "should", "your", "what", "when", "where", "who", "how", "can", "yes", "please",
          "thank", "thanks", "just", "very", "also", "then", "than", "there", "here", "some", "any", "all",
          "ครับ", "ค่ะ", "คะ", "นะ", "นะคะ", "นะครับ", "ไม่", "ใช่", "และ", "หรือ", "ที่", "ของ", "ได้", "จะ", "แล้ว",
-         "มี", "เป็น", "ก็", "ด้วย", "จ้า", "จ้ะ", "สิ", "ละ", "เลย", "อ่ะ", "เหรอ", "ไหม", "มั้ย"}
+         "มี", "เป็น", "ก็", "ด้วย", "จ้า", "จ้ะ", "สิ", "ละ", "เลย", "อ่ะ", "เหรอ", "ไหม", "มั้ย",
+         "ครับผม", "คร้าบ", "เนอะ", "น่ะ", "หรอก", "แหละ", "เถอะ", "จ๊ะ", "นะจ๊ะ", "นะจ๊ะ", "ซิ", "อ่า", "เอ่อ", "อืม"}
 # Runde 22: Funktionswörter je Sprache (die englische Liste allein ließ „und/nicht/pour“ als Vokabel durch)
 _STOP_LANG = {
     "de": {"und", "oder", "aber", "nicht", "ich", "du", "sie", "wir", "ihr", "der", "die", "das", "den", "dem",
@@ -248,16 +251,38 @@ def name_alignment(old, new, lang="en", min_ratio=0.5):
     for name in names:
         n = len(name.split())
         best, score = None, min_ratio
-        target = name.lower().replace(" ", "")
+        target = name_key(name)
         for w in (n, n + 1, n - 1):                  # ASR trennt Namen oft anders ("sam chi" für "Somchai")
             for i in range(0, len(old_t) - w + 1) if w >= 1 else ():
                 span = old_t[i:i + w]
                 if any(j in used for j in range(i, i + w)) or all(t.lower() in new_low for t in span):
                     continue
-                r = difflib.SequenceMatcher(None, "".join(span).lower(), target).ratio()
+                r = difflib.SequenceMatcher(None, name_key("".join(span)), target).ratio()
                 if r > score:
                     best, score = (i, w), r
         if best is not None:
             used.update(range(best[0], best[0] + best[1]))
             out.append((" ".join(old_t[best[0]:best[0] + best[1]]), name))
     return out
+
+
+# Runde 28: Thai-Namen nach Anrede (Thai kennt keine Großschreibung)
+_HONORIFIC = re.compile(r"(?:คุณ|นางสาว|นาง|นาย|ดร\.|อาจารย์|ครู|หมอ|พี่|น้อง)\s*([฀-๿]{2,12})")
+_NAME_TAIL = ("ครับผม", "ครับ", "ค่ะ", "คะ", "นะ", "จ้ะ", "จ้า")      # Schlusspartikeln, ohne Regex (kein Backtracking)
+_NOT_THAI_NAME = ("ไม่", "ได้", "จะ", "มา", "ไป", "ช่วย", "ขอ", "อยู่", "เป็น", "มี", "ที่", "และ", "ก็", "เรา", "ผม",
+                  "ฉัน", "ต้อง", "กำลัง", "แล้ว", "ยัง", "คือ", "ใน", "กับ", "ให้")
+
+
+def thai_honorific_names(old, new, limit=3):
+    """Thai-Namen, die erst die Korrektur enthält: das Wort nach einer Anrede (คุณ, นาย, นาง, ดร., พี่ …) ohne
+    Schlusspartikel. "คุณสมชายครับ" -> ["สมชาย"]. Steht der Name schon im Original (oder als Teil davon), kommt er
+    nicht mehr vor; Funktionswörter nach der Anrede (คุณไม่ …) zählen nicht. Reine Vorschläge."""
+    out = []
+    for m in _HONORIFIC.finditer(new or ""):
+        name = m.group(1)
+        while name.endswith(_NAME_TAIL):
+            name = name[:-len(next(t for t in _NAME_TAIL if name.endswith(t)))]
+        if len(name) < 2 or name.startswith(_NOT_THAI_NAME) or name in (old or "") or name in out:
+            continue
+        out.append(name)
+    return out[:limit]

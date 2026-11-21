@@ -2,7 +2,7 @@
 re-exportiert). Reine Funktionen ohne Zustand."""
 import re
 
-_TH_STRETCH = re.compile(r"([ก-ฺเ-ๅๆ])\1{2,}")                  # ค่าาา, ครับบบ: Dehnung (3+ gleiche Zeichen)
+_TH_STRETCH = re.compile(r"([ก-ฺเ-ๅๆ็-๎])\1{2,}")                 # ค่าาา, ครับบบ, ค่่่ะ: Dehnung (3+ gleiche Zeichen)
 
 
 def thai_stretch(s):
@@ -11,7 +11,7 @@ def thai_stretch(s):
 
 
 _TH_FEMALE = re.compile(r"ค่ะ|คะ(?!แนน|ยั้น|เน|น้า|นอง|นึง|ยอ)|ดิฉัน")
-_TH_MALE = re.compile(r"ครับ|คับ|กระผม")
+_TH_MALE = re.compile(r"ครับ|คร้าบ|คร๊าบ|ครัช|คับ|กระผม")             # Runde 28: auch Schreibvarianten คร้าบ, คร๊าบ, ครัช
 
 
 def thai_speaker_sex(text):
@@ -26,7 +26,7 @@ def thai_speaker_sex(text):
 _TH_Q_END = re.compile(r"(ไหม|มั้ย|หรือ|เหรอ|หรือเปล่า|รึเปล่า|อะไร|ไหน|ใคร|เท่าไร|เท่าไหร่|เมื่อไร|เมื่อไหร่|ทำไม"
                        r"|อย่างไร|ยังไง|กี่\S*|\?)\s*$")
 _TH_KA = re.compile(r"ค่ะ|คะ(?!แนน|ยั้น|เน|น้า|นอง|นึง|ยอ)")
-_TH_KRUB = re.compile(r"ครับผม|ครับ|(?<!บัง)คับ(?!แคบ|คั่ง|ข้อง|ขัน|ใจ|ที่)")
+_TH_KRUB = re.compile(r"ครับผม|ครับ|คร้าบ|คร๊าบ|ครัช|(?<!บัง)คับ(?!แคบ|คั่ง|ข้อง|ขัน|ใจ|ที่)")
 
 
 def _fit_particles_only(text, polite):
@@ -71,3 +71,42 @@ def fit_thai_particles(text, polite):
     if polite == "ka" and _TH_PRON_FORMAL_M.search(particles) and not fem:
         return _TH_PRON_FORMAL_M.sub("ดิฉัน", particles)
     return particles
+
+
+# Runde 28: Höflichkeitsstufe und Frage-/Aussage-Partikel der Frau
+_RUDE = re.compile(r"(?<![ก-๙])กู(?!เกิล|รู)|มึง|(?:เว้ย|โว้ย|ว่ะ|วุ้ย|เฮ้ย|(?<!ส)วะ)(?![ก-๙])")
+_FORMAL = re.compile(r"กระผม|ดิฉัน|ขอรับ|เจ้าค่ะ|เจ้าข้า|ท่านผู้")
+_POLITE = re.compile(r"ครับ|ค่ะ|คะ(?!แนน|ยั้น|เน|น้า|นอง|นึง|ยอ)|คร้าบ|คร๊าบ|ครัช|(?<!บัง)คับ(?!แคบ|คั่ง|ข้อง|ขัน|ใจ|ที่)")
+_CASUAL = re.compile(r"(?:จ้ะ|จ้า|จ๊ะ|เนอะ|อ่ะ|เหอะ|เถอะ|น่ะ|แหละ|ล่ะ|ป่ะ)(?![ก-๙])")
+
+
+def thai_politeness_level(text):
+    """Höflichkeitsstufe eines Thai-Satzes aus Partikeln und Pronomen: "rude" (กู/มึง, เว้ย, วะ), "formal" (กระผม,
+    ดิฉัน, ขอรับ), "polite" (ครับ/ค่ะ/คะ), "casual" (จ้ะ, เนอะ, น่ะ, แหละ) oder None ohne Hinweis. Die gröbste Stufe
+    gewinnt, damit ein derber Ausdruck nie als höflich durchgeht (Quelle für Ton und Stil der Übersetzung)."""
+    t = re.sub(r"คะแนน|บังคับ|คับแคบ|คับคั่ง|คับข้อง|คะน้า|คะนอง|คะนึง", "", text or "")
+    if not t.strip():
+        return None
+    for name, rx in (("rude", _RUDE), ("formal", _FORMAL), ("polite", _POLITE), ("casual", _CASUAL)):
+        if rx.search(t):
+            return name
+    return None
+
+
+_TH_KA_ANY = re.compile(r"ค่ะ|คะ(?!แนน|ยั้น|เน|น้า|นอง|นึง|ยอ)")
+
+
+def normalize_ka(text):
+    """Frauen-Partikel richtig schreiben: Frage -> คะ (ไหมคะ, ที่ไหนคะ), Aussage -> ค่ะ (ขอบคุณค่ะ). ASR und LLM
+    vertauschen beide oft. Nur wenn die Partikel am Satzteilende steht (kein Thai-Zeichen direkt dahinter);
+    ครับ und alles andere bleibt unverändert."""
+    if not text or not _TH_KA_ANY.search(text):
+        return text
+
+    def sub(m):
+        nxt = text[m.end():m.end() + 1]
+        if nxt and "฀" <= nxt <= "๿":
+            return m.group(0)                                   # คะ/ค่ะ mitten im Wort oder Satz
+        before = text[:m.start()].rstrip().split("\n")[-1]
+        return "คะ" if _TH_Q_END.search(before) else "ค่ะ"
+    return _TH_KA_ANY.sub(sub, text)

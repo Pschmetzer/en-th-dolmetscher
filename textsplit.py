@@ -57,9 +57,11 @@ def chunk_long(parts, lang, limit=None):
 
 
 # Runde 8: Kürzel, nach deren Punkt kein Satz endet ("9 a.m. to 5 p.m.", "ca. 500", "z. B.", "Prof. Brown")
-_ABBREV = frozenset({"ca.", "z.", "b.", "bzw.", "usw.", "approx.", "prof.", "jr.", "sr.", "inc.", "co.", "ltd.",
-                     "mt.", "vs.", "u.a.", "d.h.", "evtl.", "str.", "dr.", "mr.", "mrs.", "ms.", "st.", "e.g.",
-                     "i.e."})
+_ABBREV_TH = ("น.", "พ.ศ.", "ค.ศ.", "ดร.", "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.",
+              "ต.ค.", "พ.ย.", "ธ.ค.")                       # Runde 28: Thai-Kürzel (Uhrzeit, Jahr, Monate)
+_ABBREV = frozenset(_ABBREV_TH + (
+    "ca.", "z.", "b.", "bzw.", "usw.", "approx.", "prof.", "jr.", "sr.", "inc.", "co.", "ltd.", "mt.", "vs.", "u.a.",
+    "d.h.", "evtl.", "str.", "dr.", "mr.", "mrs.", "ms.", "st.", "e.g.", "i.e."))
 _ABBREV_NUM = frozenset({"no.", "nr.", "tel."})     # enden auch Sätze ("No. I don't."): nur vor einer Ziffer verbinden
 
 
@@ -75,3 +77,23 @@ def _rejoin_abbrev(parts):
                 continue
         out.append(p)
     return out
+
+
+# Runde 28: Thai-Sätze ohne Satzzeichen (Whisper trennt sie nur mit Leerzeichen)
+_TH_SENT_END = ("ครับผม", "ครับ", "ค่ะ", "คะ", "คร้าบ", "นะ", "จ้ะ", "จ้า", "จ๊ะ", "ไหม", "มั้ย", "เหรอ")
+
+
+def split_thai_sentences(text):
+    """Thai-Text in Sätze teilen: an ? ! … 。 und an Leerzeichen hinter einer Schlusspartikel (ครับ, ค่ะ, นะ, ไหม …);
+    die Partikel bleibt beim Satz. Ohne Leerzeichen/Satzzeichen oder bei Zahlen (10 000) bleibt alles ein Satz."""
+    out = []
+    for part in re.split(r"(?<=[?!？！。…])\s*", text or ""):
+        cur = []
+        for tok in part.split():
+            if cur and cur[-1].endswith(_TH_SENT_END) and not cur[-1].endswith("คะแนน"):
+                out.append(" ".join(cur))
+                cur = []
+            cur.append(tok)
+        if cur:
+            out.append(" ".join(cur))
+    return [x for x in out if x.strip()]
