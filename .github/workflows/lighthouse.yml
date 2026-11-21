@@ -35,7 +35,7 @@ jobs:
       - name: Start the page locally
         run: |
           python3 -m http.server 8000 >/dev/null 2>&1 &
-          for i in 1 2 3 4 5 6 7 8 9 10; do curl -fsS http://localhost:8000/ >/dev/null && break; sleep 1; done
+          for _ in 1 2 3 4 5 6 7 8 9 10; do curl -fsS http://localhost:8000/ >/dev/null && break; sleep 1; done
       - name: Lighthouse CI (budgets, not blocking)
         continue-on-error: true
         run: npx --yes @lhci/cli@0.15.1 autorun --config=.github/lighthouse/lighthouserc.json
