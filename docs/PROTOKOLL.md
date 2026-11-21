@@ -671,4 +671,4 @@ Additiv, `PROTOCOL` bleibt 1.
 - **Ausgabegerät je Richtung:** Steuerfelder `output_device_me` / `output_device_other` (Format wie `output_device`).
   Der Speaker bestimmt die Richtung je Ausgabe aus der Zielsprache (`PAIR[0]` = `me`, sonst `other`; Befehlsantworten
   und Signaltöne immer `me`) und wählt das Gerät beim Abspielen; leere Richtung = `output_device` = Systemstandard.
-  Die Mac-App sendet die Felder aus `AudioRouteLogic.protocolFields`.
+  Die Mac-App hält die Felder in `AudioRouteLogic.protocolFields` bereit; sie sendet sie noch nicht (nächster Schritt in der App).

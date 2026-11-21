@@ -155,3 +155,27 @@ def test_micro_bench_runs_small():
                        capture_output=True, text=True, timeout=120, env={"PYTHONNOUSERSITE": "1", "PATH": ""})
     assert r.returncode == 0, r.stderr[-300:]
     assert json.loads(r.stdout)["us_per_call"]["cache_get_hit_us"] > 0
+
+
+# ---- Weitere Korrekturen und Auslagerung der Uhrzeit --------------------------------------------------------------
+def test_thaitime_module_reexported():
+    import thaitime
+    assert d.th_times_for_mt is thaitime.th_times_for_mt and d.th_minutes is thaitime.th_minutes
+    assert d._TH_TIME_RULES is thaitime._TH_TIME_RULES and d._th_num is thaitime._th_num
+    assert "thaitime.py" in (ROOT / "build.sh").read_text(encoding="utf-8")
+    assert '"thaitime"' in (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+
+
+def test_empty_minute_token_does_not_swallow_unit():
+    assert d.th_times_for_mt("ห้าทุ่มนาที") == "23:00 นาที"
+    assert d.th_times_for_mt("ห้าทุ่ม นาทีนี้") == "23:00 นาทีนี้"
+
+
+@pytest.mark.parametrize("raw,want", [
+    ("ลด 100%", "ลด หนึ่งร้อย เปอร์เซ็นต์"), ("3.5%", "สามจุดห้า เปอร์เซ็นต์"), ("3-4 วัน", "3-4 วัน"),
+    ("โทร 0812345678", "โทร 0812345678"), ("ราคา 350 บาท", "ราคา สามร้อยห้าสิบ บาท"),
+    ("เวลา 10.30 น.", "เวลา 10.30 น."), ("ห้อง 205", "ห้อง 205"), ("5% off", "ห้า เปอร์เซ็นต์ off"),
+])
+def test_speak_numbers_percent_and_unchanged(raw, want):
+    from numwords import speak_numbers_th
+    assert speak_numbers_th(raw) == want

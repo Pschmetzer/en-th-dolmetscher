@@ -19,6 +19,8 @@ import argparse, atexit, collections, difflib, errno, functools, hashlib, html, 
 import numpy as np
 import online_speakers
 import presets
+from thaitime import (_TH_MIN_RX, _TH_NUM_RX, _TH_NUM_W, _TH_TENS, _TH_TIME_RULES, _TH_UNITS,  # noqa: F401
+                      _th_num, th_minutes, th_times_for_mt)
 from textsplit import _ABBREV, _ABBREV_NUM, _rejoin_abbrev  # noqa: F401
 from textsplit import FIRST_CLAUSE_MIN, MAX_SPEAK_CHARS, _CLAUSE_END, _thai_cut_ok, chunk_long, first_clause, speakable  # noqa: F401,E501
 from numwords import _SPEAK_NUM, _NUM_KEEP_BEFORE, _TH_DIG, _TH_POS, _th_chunk, speak_numbers_th, thai_number_words  # noqa: F401,E501
@@ -588,7 +590,7 @@ def output_device_now():
     return OUTPUT.get(getattr(_ROUTE, "dir", None) or "", "") or OUTPUT["device"]
 
 
-def set_output_route(direction, dev):
+def set_output_route(direction, dev, check=True):
     """Ausgabegerät einer Richtung ("me"/"other") setzen; leer/"default" = allgemeines Gerät bzw. Standard."""
     if direction not in ("me", "other"):
         return False
@@ -598,6 +600,8 @@ def set_output_route(direction, dev):
     if FFMPEG and OUTPUT[direction]:
         emit("error", code="output_unsupported",
              msg="Ausgabegerät nur mit PyAV wählbar (DOLMETSCHER_FFMPEG gesetzt) – Systemstandard")
+    elif check and OUTPUT[direction]:
+        _check_output_async(direction, OUTPUT[direction])
     return True
 
 
@@ -633,7 +637,11 @@ def set_output_device(dev, check=True):
         return
     if not (check and dev):
         return
+    _check_output_async("device", dev)
 
+
+def _check_output_async(key, dev):
+    """Im Hintergrund prüfen, ob es das Gerät gibt (error output_not_found); key: "device", "me" oder "other"."""
     def run():
         import avhelper as _avh
         try:
@@ -641,7 +649,7 @@ def set_output_device(dev, check=True):
         except Exception as e:                  # noqa: BLE001 – nur Prüfung
             log({"output_device": "liste-fehler", "err": _errtxt(e)})
             return
-        if outs and _avh.match_output(outs, dev) is None and OUTPUT["device"] == dev:
+        if outs and _avh.match_output(outs, dev) is None and OUTPUT.get(key) == dev:
             emit("error", code="output_not_found",
                  msg="Ausgabegerät nicht gefunden – Systemstandard wird genutzt")
     threading.Thread(target=run, name="output-check", daemon=True).start()
@@ -6271,77 +6279,6 @@ def pretranslate(text, src, dst, polite="krub"):
 
 # Thai-Uhrzeiten deterministisch (nur eindeutige Formen) vor Google/MyMemory: das Sechs-Stunden-System wird dort oft
 # falsch übertragen (ตีสาม = 3 Uhr nachts, สองทุ่ม = 20 Uhr, บ่ายสองโมง = 14 Uhr). Ausgabe 24-Stunden-Ziffern.
-_TH_NUM_W = {"หนึ่ง": 1, "สอง": 2, "สาม": 3, "สี่": 4, "ห้า": 5, "หก": 6, "เจ็ด": 7, "แปด": 8, "เก้า": 9,
-             "สิบเอ็ด": 11, "สิบสอง": 12, "สิบ": 10}
-_TH_NUM_RX = r"(?<!สิบ)(สิบเอ็ด|สิบสอง|สิบ|หนึ่ง|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า|\d{1,2})"
-# Runde 27: optionale Minuten „… สิบห้านาที“ / „… 15 นาที“ (Gruppe 3) nach der Stunde
-_TH_MIN_RX = (r"(?:\s*((?:(?:ยี่|สาม|สี่|ห้า)?สิบ)?(?:เอ็ด|หนึ่ง|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า)?|\d{1,2})"
-              r"\s*นาที)?")
-_TH_TIME_RULES = (
-    (re.compile(r"เที่ยง\s*คืน"), "midnight"),
-    (re.compile(r"(?:บ่าย\s*)?" + _TH_NUM_RX + r"\s*โมง\s*เย็น(\s*ครึ่ง)?" + _TH_MIN_RX), "eve"),
-    (re.compile(r"บ่าย\s*(?:" + _TH_NUM_RX + r"\s*)?โมง(\s*ครึ่ง)?" + _TH_MIN_RX), "pm"),
-    (re.compile(_TH_NUM_RX + r"\s*โมง\s*เช้า(\s*ครึ่ง)?" + _TH_MIN_RX), "morn"),
-    (re.compile(_TH_NUM_RX + r"\s*ทุ่ม(\s*ครึ่ง)?" + _TH_MIN_RX), "tum"),
-    (re.compile(r"ตี\s*" + _TH_NUM_RX + r"(\s*ครึ่ง)?" + _TH_MIN_RX), "tee"),
-)
-_TH_TENS = {None: 1, "ยี่": 2, "สาม": 3, "สี่": 4, "ห้า": 5}
-_TH_UNITS = {"เอ็ด": 1, "หนึ่ง": 1, "สอง": 2, "สาม": 3, "สี่": 4, "ห้า": 5, "หก": 6, "เจ็ด": 7, "แปด": 8, "เก้า": 9}
-
-
-def th_minutes(tok):
-    """Minutenangabe als Zahl 0-59: Ziffern oder Thai-Wörter (สิบห้า = 15, ยี่สิบเอ็ด = 21, ห้า = 5); sonst None."""
-    if not tok:
-        return None
-    if tok.isdigit():
-        return int(tok) if int(tok) < 60 else None
-    mt = re.fullmatch(r"(?:(ยี่|สาม|สี่|ห้า)?สิบ)?(เอ็ด|หนึ่ง|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า)?", tok)
-    if not mt or not (mt.group(2) or "สิบ" in tok):
-        return None
-    tens = _TH_TENS[mt.group(1)] if "สิบ" in tok else 0
-    return tens * 10 + _TH_UNITS.get(mt.group(2), 0)
-
-
-def _th_num(tok):
-    if tok is None:
-        return 1
-    return int(tok) if tok.isdigit() else _TH_NUM_W.get(tok)
-
-
-def th_times_for_mt(text):
-    """Eindeutige Thai-Uhrzeiten in 24-Stunden-Ziffern (HH:MM) umschreiben; alles Mehrdeutige („สองโมง“ allein) und
-    alles andere bleibt unverändert."""
-    if not text or not re.search(r"โมง|ทุ่ม|ตี|เที่ยงคืน", text):
-        return text
-
-    def make(kind):
-        def sub(m):
-            if kind == "midnight":
-                return " 00:00 "
-            if kind == "pm":
-                n, half = _th_num(m.group(1)), m.group(2)
-                ok = n is not None and 1 <= n <= 6
-                h = 12 + n if ok else None
-            else:
-                n, half = _th_num(m.group(1)), m.group(2)
-                rng = {"eve": (4, 6), "morn": (6, 11), "tum": (1, 5), "tee": (1, 5)}[kind]
-                ok = n is not None and rng[0] <= n <= rng[1]
-                h = {"eve": (n or 0) + 12, "morn": n, "tum": (n or 0) + 18, "tee": n}[kind]
-            if not ok:
-                return m.group(0)
-            mi = 30 if half else 0
-            if m.lastindex and m.lastindex >= 3 and m.group(3) and not half:
-                mi = th_minutes(m.group(3))
-                if mi is None:
-                    return m.group(0)
-            return f" {h % 24:02d}:{mi:02d} "
-        return sub
-    new = text
-    for rx, kind in _TH_TIME_RULES:
-        new = rx.sub(make(kind), new)
-    return text if new == text else re.sub(r" {2,}", " ", new).strip()
-
-
 # Whisper-initial_prompt (Opt-in): Namen aus dem Gespräch helfen bei Eigennamen; kurz halten, sonst wird er bei Stille
 # nachgesprochen (die Halluzinationsfilter fangen das, aber der Satz ginge verloren)
 STT_PROMPT = {"on": False}

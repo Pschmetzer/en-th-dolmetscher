@@ -152,3 +152,53 @@ def test_capabilities_and_ctrl_spec():
 
 def test_documented_in_protocol():
     assert "`output_device_me`" in DOCS and "`output_device_other`" in DOCS and "Runde 27" in DOCS
+
+
+def test_real_earcon_path_gets_direction_device(monkeypatch, ev):
+    cmds = []
+    monkeypatch.setattr(d.PLAYER, "run", lambda cmd, *a, **k: cmds.append(cmd))
+    monkeypatch.setattr(d, "avhelper_cmd", lambda *a: ["avh", *a])
+    monkeypatch.setattr(d, "wait_quiet", lambda **k: None)
+    d.OUTPUT.update(me="AirPods", other="BoomBox")
+    sp = d.Speaker.__new__(d.Speaker)
+    sp.eng = _eng()
+    sp._play({"id": "cmd", "lang": "en", "kind": "earcon", "parts": []})
+    assert cmds[-1][-2:] == ["--device", "AirPods"]            # Signalton = Richtung "me"
+    assert getattr(d._ROUTE, "dir", None) is None
+
+
+def test_real_local_voice_path_gets_direction_device(monkeypatch, ev):
+    cmds = []
+    monkeypatch.setattr(d.PLAYER, "run", lambda cmd, *a, **k: cmds.append(cmd))
+    monkeypatch.setattr(d, "avhelper_cmd", lambda *a: ["avh", *a])
+    monkeypatch.setattr(d, "wait_quiet", lambda **k: None)
+    monkeypatch.setattr(d, "run_cancellable", lambda cmd, **k: 0)
+    monkeypatch.setattr(d, "note_spoken", lambda *a, **k: None)
+    monkeypatch.setattr(d.os.path, "exists", lambda p: True)
+    d.OUTPUT.update(me="AirPods", other="BoomBox")
+    sp = d.Speaker.__new__(d.Speaker)
+    from unittest.mock import MagicMock
+    eng = MagicMock()
+    eng.tts, eng.mute, eng.rate, eng.volume, eng.voice_for = "say", False, 0, 1.0, (lambda lang: "x")
+    eng.speak = lambda text, lang, **kw: d.PLAYER.run(d.file_play_cmd("/x.aiff", 1.0))   # Engine.speak läuft im Speaker
+    sp.eng = eng
+    sp.volume = 1.0
+    for lang, dev in (("th", "BoomBox"), ("de", "AirPods")):
+        cmds.clear()
+        sp._play({"id": "u1", "lang": lang, "kind": "speech", "text": "ok", "parts": [("ok", None)], "local": [None],
+                  "boost": 0})
+        assert cmds and cmds[-1][-2:] == ["--device", dev], (lang, cmds)
+
+
+def test_set_output_route_checks_device_in_background(monkeypatch, ev):
+    import time as _t
+    import avhelper
+    monkeypatch.setattr(d, "list_outputs", lambda: avhelper.parse_outputs(
+        ["[1] MacBook Pro-Lautsprecher, BuiltInSpeakerDevice\n"]))
+    d.set_output_route("other", "Weg")
+    for _ in range(100):
+        if any(k.get("code") == "output_not_found" for _, k in ev):
+            break
+        _t.sleep(0.02)
+    assert any(k.get("code") == "output_not_found" for _, k in ev)
+    assert d.OUTPUT["other"] == "Weg"                          # Gerät bleibt gesetzt (avhelper fällt auf Standard)
