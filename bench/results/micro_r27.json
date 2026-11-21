@@ -1,0 +1,20 @@
+{
+  "meta": {
+    "python": "3.12.9",
+    "machine": "arm64",
+    "n": 20000
+  },
+  "us_per_call": {
+    "norm_warm_us": 0.066,
+    "norm_cold_us": 6.477,
+    "norm_thai_cold_us": 7.592,
+    "split_en_us": 5.473,
+    "split_th_us": 2.249,
+    "cache_key_us": 0.171,
+    "cache_put_us": 1.342,
+    "cache_get_hit_us": 0.188,
+    "cache_get_miss_us": 0.182,
+    "speak_numbers_th_us": 1.568,
+    "numbers_differ_us": 115.037
+  }
+}

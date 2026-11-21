@@ -1,4 +1,4 @@
-// SettingsR25.swift – Einstellungen der Runde 25: Ausgabe je Richtung (nur Einstellung, die Engine nutzt sie noch nicht)
+// SettingsR25.swift – Einstellungen der Runde 25: Ausgabe je Richtung (Steuerfelder `output_device_me`/`_other`)
 // und Handoff des letzten Satzes. Regeln stehen in AudioRouteLogic und HandoffPayload (getestet in swift-tests).
 import SwiftUI
 
@@ -31,6 +31,9 @@ struct AudioRouteSection: View {
                 .onAppear { outputs = AudioOutputs.list() }   // an der ersten Zeile, nicht an der Section
                 .onReceive(NotificationCenter.default.publisher(for: .audioDevicesChanged)) { _ in outputs = AudioOutputs.list() }
             picker(R25T.t("route_partner"), $partner)
+            Color.clear.frame(height: 0)
+                .onChange(of: mine) { _ in m.sendAudioRoute() }
+                .onChange(of: partner) { _ in m.sendAudioRoute() }
             if !resolution.missing.isEmpty {
                 Label(R25T.t("route_missing"), systemImage: "exclamationmark.triangle").foregroundStyle(LangStyle.warning)
             }

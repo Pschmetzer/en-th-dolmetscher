@@ -247,6 +247,7 @@ Neu:
 | `speak_text` | `{"text": "...", "lang": CODE (Sprache des Paars), "id": "u7"}` | fertigen Text nur vorlesen (Neural-Stimme, keine Übersetzung) – „Nochmal sprechen“; `id` optional, dann kommen `speaking`/`speak_done` mit dieser id (ohne `latency_s`). Ungültig: `error` `speak_invalid`. Nicht verwechseln mit `speak` (bool, stumm schalten) |
 | `mic` | string (Index, Gerätename oder `default`) | Mikrofon zur Laufzeit wechseln, ohne Modelle neu zu laden: ist es an, öffnet die Engine ffmpeg mit dem neuen Gerät neu (danach `mic` `on: true`; wartende Äußerungen des alten Geräts verfallen, laufende Ausgaben nicht); ist es aus, gilt das Gerät beim nächsten `listen`. Vor `ready` gesendet: gilt, sobald das Mikrofon angelegt wird. Unbekannter Name: `error` `mic_not_found`, Standardmikrofon |
 | `output_device` | string (CoreAudio-UID, Name, Index; `""`/`default` = Systemstandard) | Ausgabegerät zur Laufzeit wechseln; gilt ab der nächsten Ausgabe für Neural-Stimme, macOS-Stimme und Signalton. Unbekannt: `error` `output_not_found` |
+| `output_device_me`, `output_device_other` | string (wie `output_device`; `""`/`default` = allgemeines Gerät, sonst Systemstandard) | Runde 27: Ausgabegerät je Richtung. `me`: Ausgaben in meiner Sprache (Antworten an mich, Befehlsantworten, Signalton); `other`: Ausgaben in der Partnersprache. Eine leere Richtung fällt auf `output_device` zurück. Gilt ab der nächsten Ausgabe; ungültiger Wert: `error` `output_invalid` |
 | `llm_budget` | float (USD, 0 … 10000) | Claude-Monatslimit wie `--llm-budget`; 0 = keine Grenze |
 | `api_key` | string (druckbare Zeichen, 20 … 512) | Claude-Schlüssel der App statt der Umgebungsvariable `ANTHROPIC_API_KEY` (die Umgebung eines Prozesses ist für denselben Nutzer per `ps eww` lesbar). Wird nur im Speicher gehalten, nie geloggt (nicht in `CTRL_LOG_KEYS`); verwirft den gecachten Client |
 | `slow` | bool | „Langsam und deutlich“: Ausgabe SLOW_RATE (−25) Prozentpunkte langsamer (zusammen nie unter −50), kein Aufhol-Tempo, nie überspringen; Claude bekommt den Zusatz „einfache Wörter, kurze Sätze“ (eigener Cache-Schlüssel) |
@@ -662,3 +663,12 @@ App-Pipe nicht schnell genug abnahm, siehe Log).
   Standard aus (keine Messung für Router, Stream, Prompt, Zahlen; sie ändern Text/Ton oder die Reihenfolge). Erkennung und
   Transkription sind nicht zusammengelegt: die Erkennung läuft mit `m_det`, Sperre, Profil-Vorrang, Rolle und Gegenprobe brauchen
   die Sprache vor dem Dekodieren.
+
+## Runde 27 (Engine)
+
+Additiv, `PROTOCOL` bleibt 1.
+
+- **Ausgabegerät je Richtung:** Steuerfelder `output_device_me` / `output_device_other` (Format wie `output_device`).
+  Der Speaker bestimmt die Richtung je Ausgabe aus der Zielsprache (`PAIR[0]` = `me`, sonst `other`; Befehlsantworten
+  und Signaltöne immer `me`) und wählt das Gerät beim Abspielen; leere Richtung = `output_device` = Systemstandard.
+  Die Mac-App sendet die Felder (`AudioRouteLogic.protocolFields`, `Engine.sendAudioRoute`) nach `ready` und bei jeder Änderung, aber nur an eine Engine, deren `capabilities` sie nennen.

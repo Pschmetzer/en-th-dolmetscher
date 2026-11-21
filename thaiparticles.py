@@ -29,7 +29,7 @@ _TH_KA = re.compile(r"ค่ะ|คะ(?!แนน|ยั้น|เน|น้า
 _TH_KRUB = re.compile(r"ครับผม|ครับ|(?<!บัง)คับ(?!แคบ|คั่ง|ข้อง|ขัน|ใจ|ที่)")
 
 
-def fit_thai_particles(text, polite):
+def _fit_particles_only(text, polite):
     """Runde 11: Thai-Partikel an das Sprechergeschlecht anpassen (deterministisch, nach Claude). krub: ค่ะ/คะ ->
     ครับ; ka: ครับ -> ค่ะ (Frage am Satzende: คะ). Enthält ein Text beide Formen (Zitat), bleibt er
     unverändert, ebenso Text ohne Partikel."""
@@ -49,3 +49,25 @@ def fit_thai_particles(text, polite):
             return "คะ" if q else "ค่ะ"
         return _TH_KRUB.sub(sub, text)
     return text
+
+
+_TH_PRON_FEM = re.compile(r"ดิฉัน")        # Frauen-Ich: nur das eindeutige ดิฉัน
+_TH_PRON_FORMAL_M = re.compile(r"กระผม")                              # Männer-Ich, förmlich
+_TH_PRON_M = re.compile(r"(?<![ก-๙])ผม")     # „ผม“ am Wortanfang (เส้นผม = Haar zählt nicht)
+
+
+def fit_thai_particles(text, polite):
+    """Runde 11/27: Partikel UND das eindeutig geschlechtsgebundene Ich-Pronomen an das Sprechergeschlecht anpassen.
+    krub: ค่ะ/คะ -> ครับ, ดิฉัน -> ผม; ka: ครับ -> ค่ะ/คะ, กระผม -> ดิฉัน (ผม allein bleibt: ผม heißt auch „Haar“).
+    Zitate (beide Geschlechtsformen im Text) und Text ohne Treffer bleiben unverändert."""
+    if not text or polite not in ("krub", "ka"):
+        return text
+    fem, male = bool(_TH_PRON_FEM.search(text)), bool(_TH_PRON_FORMAL_M.search(text) or _TH_PRON_M.search(text))
+    particles = _fit_particles_only(text, polite)
+    if fem and male:
+        return particles
+    if polite == "krub" and fem:
+        return _TH_PRON_FEM.sub("ผม", particles)
+    if polite == "ka" and _TH_PRON_FORMAL_M.search(particles) and not fem:
+        return _TH_PRON_FORMAL_M.sub("ดิฉัน", particles)
+    return particles

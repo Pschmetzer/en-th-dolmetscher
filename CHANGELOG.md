@@ -4,6 +4,18 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### Engine, round 27
+
+- **Output device per direction:** new control fields `output_device_me` / `output_device_other` (same format as `output_device`, empty = general device, then system default). The speaker picks the device per output from the target language (own language = `me`, partner language = `other`; command replies and earcons always `me`); the Mac app sends them (`Engine.sendAudioRoute`, only to an engine whose `ready.capabilities` list the fields, on change and after `ready`); this needed a small change in `app/Engine.swift` and `app/SettingsR25.swift`, because a Mac test requires it once the protocol docs know the fields. Documented in `docs/PROTOKOLL.md`.
+- **Thai clock with minutes:** "สี่โมงสิบห้านาที" (4:15), "สามทุ่มห้านาที" (21:05) and the like were read as two separate numbers, so a correct translation "4:15" raised a false number warning. Fixed in the number comparison; the offline translator input (`th_times_for_mt`) now keeps the minutes as well (`21:05` instead of `21:00 ห้านาที`).
+- **Thai pronouns:** `fit_thai_particles` also swaps the unambiguous gendered "I" (ดิฉัน for a male voice, กระผม for a female voice); quotes with both forms and the ambiguous "ผม" (also "hair") stay untouched. 22-case test corpus incl. idempotence.
+- **Refactoring:** `textnorm.py` (cache key `_norm`, `squash_repeats`) and the abbreviation logic of the sentence splitter (now in `textsplit.py`), re-exported from `dolmetscher.py`; `build.sh` and `pyproject.toml` know the new module.
+- **Measured instead of guessed:** `bench/micro_bench.py` times cache, `_norm`, `split_sentences`, number reading; results in `bench/results/micro_r27.json`. None of the hot paths matters next to a translation (cache hit 0.18 µs, key 0.2 µs, split 2 to 6 µs, number comparison about 115 µs); `_norm` uses precompiled patterns now.
+- **Device check per direction:** a device set per direction is checked in the background like `output_device` (`output_not_found`, shared helper `_check_output_async`).
+- **Thai clock module:** `thaitime.py` (`th_times_for_mt`, `th_minutes`, the clock patterns), re-exported; "ห้าทุ่มนาที" (empty minute word) no longer swallows the unit "นาที".
+- **Percent read aloud:** `100%` is spoken "หนึ่งร้อย เปอร์เซ็นต์", `3.5%` likewise; ranges (`3-4`), phone numbers, room numbers and times stay digits.
+- **Review of the hot paths** (what was looked at, not only what was changed): the translation cache (all reads and writes under `_CACHE_LOCK`, byte counter rebuilt when the dict is replaced: fine); the new per-direction route (thread-local, reset in `finally`, so an error never leaves a stale direction; the player warm-up thread builds no playback command: fine; all playback commands run on the speaker thread: checked); `lru_cache` of the number comparison (key contains `thai_active()`: fine); the `OUTPUT` dict is read by the speaker thread and written by the control thread (single-key dict writes, atomic in CPython: fine). Found and fixed: the false number warning for Thai clock times with minutes, the empty minute token, `%` spoken as a bare symbol.
+- Tests: `tests/test_r27_engine_output.py` (incl. real playback path with earcon and spoken voice), `tests/test_r27_engine_text.py`.
 ### Mac app, round 27
 
 - Key test (Settings, API key) and self test (Help menu) are cancelled when their window closes; a late network or Python answer no longer overwrites the display. The key test result is announced to VoiceOver.
