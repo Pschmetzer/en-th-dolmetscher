@@ -46,8 +46,7 @@
     {
       "en": "Please block my card. It was stolen.",
       "th": "ช่วยอายัดบัตร บัตรถูกขโมย",
-      "critical": true,
-      "rom": "chuai batn batn thuk khamoi"
+      "critical": true
     },
     {
       "en": "I would like to open a bank account.",

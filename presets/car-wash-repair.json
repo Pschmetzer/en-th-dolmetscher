@@ -122,13 +122,11 @@
     },
     {
       "en": "Can I have a receipt?",
-      "th": "ขอใบเสร็จได้ไหม",
-      "rom": "kho dai mai"
+      "th": "ขอใบเสร็จได้ไหม"
     },
     {
       "en": "Is the car ready?",
-      "th": "รถเสร็จหรือยัง",
-      "rom": "rot rueyang"
+      "th": "รถเสร็จหรือยัง"
     }
   ]
 }

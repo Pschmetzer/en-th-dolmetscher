@@ -72,8 +72,7 @@
     {
       "en": "Please do not let anyone else pick up my child.",
       "th": "ขออย่าให้คนอื่นมารับลูก",
-      "critical": true,
-      "rom": "kho ya hai ma rap luk"
+      "critical": true
     },
     {
       "en": "My child got hurt, please call an ambulance.",

@@ -101,8 +101,7 @@
     },
     {
       "en": "Is it only my room?",
-      "th": "ดับเฉพาะห้องนี้ไหม",
-      "rom": "dap ong ni mai"
+      "th": "ดับเฉพาะห้องนี้ไหม"
     },
     {
       "en": "Please check the breaker.",
@@ -131,18 +130,15 @@
     },
     {
       "en": "The water pump does not work either.",
-      "th": "ปั๊มน้ำก็ใช้ไม่ได้เหมือนกัน",
-      "rom": "pam nam chaimaidai emuenkan"
+      "th": "ปั๊มน้ำก็ใช้ไม่ได้เหมือนกัน"
     },
     {
       "en": "The air conditioner stopped.",
-      "th": "เครื่องปรับอากาศหยุดทำงาน",
-      "rom": "yut thamngan"
+      "th": "เครื่องปรับอากาศหยุดทำงาน"
     },
     {
       "en": "Please report the fault to the electricity authority.",
-      "th": "ช่วยแจ้งไฟฟ้าขัดข้องกับการไฟฟ้าหน่อย",
-      "rom": "chuai chaeng khatkhong kap noi"
+      "th": "ช่วยแจ้งไฟฟ้าขัดข้องกับการไฟฟ้าหน่อย"
     },
     {
       "en": "Was the power cut announced?",

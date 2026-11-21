@@ -58,8 +58,7 @@
     {
       "en": "I feel sick from the heat.",
       "th": "รู้สึกไม่สบายเพราะความร้อน",
-      "critical": true,
-      "rom": "rusuek mai sabai khwamron"
+      "critical": true
     },
     {
       "en": "I am lost.",

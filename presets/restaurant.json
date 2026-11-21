@@ -58,8 +58,7 @@
     {
       "en": "I have a severe peanut allergy. Even a small amount is dangerous.",
       "th": "แพ้ถั่วลิสงรุนแรง แม้แต่นิดเดียวก็อันตราย",
-      "critical": true,
-      "rom": "phae thualitng runraeng maetae nitdiao antrai"
+      "critical": true
     },
     {
       "en": "Please do not add any peanuts.",
@@ -192,8 +191,7 @@
     },
     {
       "en": "No ice, please.",
-      "th": "ไม่ใส่น้ำแข็ง",
-      "rom": "mai sai"
+      "th": "ไม่ใส่น้ำแข็ง"
     },
     {
       "en": "It is delicious.",

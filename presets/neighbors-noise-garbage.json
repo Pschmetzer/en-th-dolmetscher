@@ -54,8 +54,7 @@
     {
       "en": "Please call the police, there is a fight.",
       "th": "ช่วยโทรเรียกตำรวจหน่อย มีการทะเลาะวิวาท",
-      "critical": true,
-      "rom": "chuai thon riak tamruat noi mi"
+      "critical": true
     },
     {
       "en": "There is a fire in the neighbour's house.",
@@ -93,8 +92,7 @@
     },
     {
       "en": "I cannot sleep because of the noise.",
-      "th": "นอนไม่หลับเพราะเสียงดัง",
-      "rom": "nonmhailap siangdang"
+      "th": "นอนไม่หลับเพราะเสียงดัง"
     },
     {
       "en": "Could you stop the party at midnight?",
@@ -153,8 +151,7 @@
     },
     {
       "en": "I am sorry for the trouble.",
-      "th": "ขออภัยในความไม่สะดวก",
-      "rom": "khophai nai"
+      "th": "ขออภัยในความไม่สะดวก"
     }
   ]
 }

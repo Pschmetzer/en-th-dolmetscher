@@ -78,8 +78,7 @@
     {
       "en": "I am allergic to some food.",
       "th": "แพ้อาหารบางอย่าง",
-      "critical": true,
-      "rom": "phae ahan"
+      "critical": true
     },
     {
       "en": "I would like to join the retreat.",

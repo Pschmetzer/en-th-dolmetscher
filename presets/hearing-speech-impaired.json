@@ -47,13 +47,11 @@
     },
     {
       "en": "I am deaf. Please write it down or type on your phone.",
-      "th": "เป็นผู้บกพร่องทางการได้ยิน ช่วยเขียนหรือพิมพ์ในโทรศัพท์",
-      "rom": "pen phu bakaphrong thangkan chuai khian rue phim nai thonsap"
+      "th": "เป็นผู้บกพร่องทางการได้ยิน ช่วยเขียนหรือพิมพ์ในโทรศัพท์"
     },
     {
       "en": "I am hard of hearing. Please speak slowly and face me.",
-      "th": "ได้ยินไม่ชัด ช่วยพูดช้า ๆ และหันหน้ามาทางนี้",
-      "rom": "mai chat chuai phut cha lae anna ma thang ni"
+      "th": "ได้ยินไม่ชัด ช่วยพูดช้า ๆ และหันหน้ามาทางนี้"
     },
     {
       "en": "I cannot speak. I will type or write.",
@@ -77,8 +75,7 @@
     },
     {
       "en": "I did not hear the announcement. What did it say?",
-      "th": "ไม่ได้ยินประกาศ ประกาศว่าอะไร",
-      "rom": "mai prakat prakat wa arai"
+      "th": "ไม่ได้ยินประกาศ ประกาศว่าอะไร"
     },
     {
       "en": "Please touch my arm when it is my turn.",

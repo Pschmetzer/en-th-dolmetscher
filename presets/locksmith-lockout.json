@@ -56,14 +56,12 @@
     {
       "en": "I am locked out of my room.",
       "th": "ถูกล็อกอยู่นอกห้อง",
-      "critical": true,
-      "rom": "thuk yu nok ong"
+      "critical": true
     },
     {
       "en": "My child is locked inside the room.",
       "th": "เด็กถูกล็อกอยู่ในห้อง",
-      "critical": true,
-      "rom": "dek thuk yu nai ong"
+      "critical": true
     },
     {
       "en": "Please open the door quickly, it is an emergency.",
@@ -161,8 +159,7 @@
     },
     {
       "en": "Please give me a receipt.",
-      "th": "ขอใบเสร็จ",
-      "rom": "kho"
+      "th": "ขอใบเสร็จ"
     }
   ]
 }

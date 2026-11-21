@@ -89,8 +89,7 @@
     },
     {
       "en": "I have photos from check-in.",
-      "th": "มีรูปถ่ายตอนเช็กอิน",
-      "rom": "mi rupthai ton"
+      "th": "มีรูปถ่ายตอนเช็กอิน"
     },
     {
       "en": "I did not cause this damage.",
@@ -119,13 +118,11 @@
     },
     {
       "en": "I paid a deposit at check-in.",
-      "th": "จ่ายเงินมัดจำตอนเช็กอินแล้ว",
-      "rom": "chai ngoenmatcham ton laeo"
+      "th": "จ่ายเงินมัดจำตอนเช็กอินแล้ว"
     },
     {
       "en": "Here is my deposit receipt.",
-      "th": "นี่คือใบเสร็จเงินมัดจำ",
-      "rom": "ni khue ngoenmatcham"
+      "th": "นี่คือใบเสร็จเงินมัดจำ"
     },
     {
       "en": "Can I have the deposit in cash?",
@@ -154,8 +151,7 @@
     },
     {
       "en": "Please give me a written statement.",
-      "th": "ขอหนังสือชี้แจงเป็นลายลักษณ์อักษร",
-      "rom": "kho nangsue chichaeng pen"
+      "th": "ขอหนังสือชี้แจงเป็นลายลักษณ์อักษร"
     }
   ]
 }

@@ -67,8 +67,7 @@
     {
       "en": "I have been attacked and I am hurt.",
       "th": "ถูกทำร้ายร่างกาย ได้รับบาดเจ็บ",
-      "critical": true,
-      "rom": "thuk thamrairangkai"
+      "critical": true
     },
     {
       "en": "I have been robbed.",
@@ -102,8 +101,7 @@
     },
     {
       "en": "My credit card was stolen. I need to block it.",
-      "th": "บัตรเครดิตถูกขโมย ต้องอายัดบัตร",
-      "rom": "batnkhendit thuk khamoi tong batn"
+      "th": "บัตรเครดิตถูกขโมย ต้องอายัดบัตร"
     },
     {
       "en": "It happened about an hour ago.",

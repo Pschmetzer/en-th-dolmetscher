@@ -48,8 +48,7 @@
     {
       "en": "Please delete my files after printing.",
       "th": "ช่วยลบไฟล์ของเราหลังพิมพ์เสร็จหน่อย",
-      "critical": true,
-      "rom": "chuai lop fai khong rao lang phim noi"
+      "critical": true
     },
     {
       "en": "Please do not keep a copy of my passport.",
@@ -78,8 +77,7 @@
     {
       "en": "My USB stick has a virus, please be careful.",
       "th": "แฟลชไดรฟ์ของเรามีไวรัส ช่วยระวังหน่อย",
-      "critical": true,
-      "rom": "faent drai khong rao mi chuai rawang noi"
+      "critical": true
     },
     {
       "en": "How much is one page?",
@@ -148,8 +146,7 @@
     },
     {
       "en": "May I have a receipt for the printing?",
-      "th": "ขอใบเสร็จค่าพิมพ์หน่อย",
-      "rom": "kho kha phim noi"
+      "th": "ขอใบเสร็จค่าพิมพ์หน่อย"
     },
     {
       "en": "Thank you, that is all.",

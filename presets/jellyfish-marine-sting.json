@@ -74,8 +74,7 @@
     {
       "en": "Please bring vinegar quickly.",
       "th": "ช่วยเอาน้ำส้มสายชูมาเร็วๆ",
-      "critical": true,
-      "rom": "chuai ao namtmsaichu ma reo"
+      "critical": true
     },
     {
       "en": "Please call an ambulance (1669).",
@@ -119,8 +118,7 @@
     },
     {
       "en": "I stepped on a sea urchin.",
-      "th": "เหยียบเม่นทะเล",
-      "rom": "menthale"
+      "th": "เหยียบเม่นทะเล"
     },
     {
       "en": "There are spines in my foot.",

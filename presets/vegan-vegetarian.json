@@ -52,8 +52,7 @@
     {
       "en": "I am allergic to tree nuts.",
       "th": "แพ้ถั่วเปลือกแข็ง",
-      "critical": true,
-      "rom": "phae thua peluek"
+      "critical": true
     },
     {
       "en": "I am allergic to soy.",

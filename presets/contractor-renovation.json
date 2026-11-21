@@ -72,8 +72,7 @@
     {
       "en": "Please do not drill in this wall, there are pipes.",
       "th": "ขออย่าเจาะผนังนี้ เพราะมีท่ออยู่",
-      "critical": true,
-      "rom": "kho ya cho phanang ni mi tho yu"
+      "critical": true
     },
     {
       "en": "There is a crack in the ceiling.",
@@ -83,8 +82,7 @@
     },
     {
       "en": "Can you give me a written estimate?",
-      "th": "ขอใบประเมินราคาเป็นลายลักษณ์อักษรได้ไหม",
-      "rom": "kho bai pramoenrakha pen dai mai"
+      "th": "ขอใบประเมินราคาเป็นลายลักษณ์อักษรได้ไหม"
     },
     {
       "en": "How long will the work take?",
@@ -98,8 +96,7 @@
     },
     {
       "en": "Please show me the samples of the tiles.",
-      "th": "ขอดูตัวอย่างกระเบื้องหน่อย",
-      "rom": "kho du krabueang noi"
+      "th": "ขอดูตัวอย่างกระเบื้องหน่อย"
     },
     {
       "en": "I would like to pay in three parts.",
@@ -108,8 +105,7 @@
     },
     {
       "en": "Please give me a receipt for the deposit.",
-      "th": "ขอใบเสร็จค่ามัดจำหน่อย",
-      "rom": "kho kha matcham noi"
+      "th": "ขอใบเสร็จค่ามัดจำหน่อย"
     },
     {
       "en": "When can you start?",
@@ -158,8 +154,7 @@
     },
     {
       "en": "The work is finished, thank you very much.",
-      "th": "งานเสร็จแล้ว ขอบคุณมาก",
-      "rom": "ngan laeo khopkhun mak"
+      "th": "งานเสร็จแล้ว ขอบคุณมาก"
     }
   ]
 }

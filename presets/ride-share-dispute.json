@@ -58,8 +58,7 @@
     {
       "en": "Please do not lock the doors.",
       "th": "ขออย่าล็อกประตู",
-      "critical": true,
-      "rom": "kho ya pratu"
+      "critical": true
     },
     {
       "en": "I feel unsafe.",
@@ -89,8 +88,7 @@
     },
     {
       "en": "I will pay the toll if it is on the receipt.",
-      "th": "จะจ่ายค่าทางด่วนถ้ามีในใบเสร็จ",
-      "rom": "cha chai kha thangduan tha mi nai"
+      "th": "จะจ่ายค่าทางด่วนถ้ามีในใบเสร็จ"
     },
     {
       "en": "Why is the route so long?",
@@ -124,8 +122,7 @@
     },
     {
       "en": "I need a receipt, please.",
-      "th": "ขอใบเสร็จหน่อย",
-      "rom": "kho noi"
+      "th": "ขอใบเสร็จหน่อย"
     },
     {
       "en": "I paid by card in the app.",

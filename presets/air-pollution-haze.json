@@ -56,8 +56,7 @@
     {
       "en": "I cannot breathe well in this smoke.",
       "th": "หายใจไม่สะดวกเพราะควัน",
-      "critical": true,
-      "rom": "aichai mai saduak khwan"
+      "critical": true
     },
     {
       "en": "Where is the nearest clinic?",
@@ -106,13 +105,11 @@
     },
     {
       "en": "Does the room have an air purifier?",
-      "th": "ห้องนี้มีเครื่องฟอกอากาศไหม",
-      "rom": "ong ni mi mai"
+      "th": "ห้องนี้มีเครื่องฟอกอากาศไหม"
     },
     {
       "en": "Can I get an air purifier?",
-      "th": "ขอเครื่องฟอกอากาศได้ไหม",
-      "rom": "kho dai mai"
+      "th": "ขอเครื่องฟอกอากาศได้ไหม"
     },
     {
       "en": "My eyes burn and itch.",
@@ -156,8 +153,7 @@
     },
     {
       "en": "Can I change my booking because of the smoke?",
-      "th": "ขอเปลี่ยนการจองเพราะควันได้ไหม",
-      "rom": "kho pelin kan chong khwan dai mai"
+      "th": "ขอเปลี่ยนการจองเพราะควันได้ไหม"
     }
   ]
 }

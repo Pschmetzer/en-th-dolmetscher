@@ -54,8 +54,7 @@
     {
       "en": "I am allergic to aspirin.",
       "th": "แพ้ยาแอสไพริน",
-      "critical": true,
-      "rom": "phaeya"
+      "critical": true
     },
     {
       "en": "I am pregnant. Is this medicine safe?",
@@ -147,8 +146,7 @@
     },
     {
       "en": "Before or after meals?",
-      "th": "กินก่อนหรือหลังอาหาร",
-      "rom": "kin kon rue"
+      "th": "กินก่อนหรือหลังอาหาร"
     },
     {
       "en": "Does this make you drowsy?",

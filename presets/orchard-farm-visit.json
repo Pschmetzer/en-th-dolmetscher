@@ -60,8 +60,7 @@
     {
       "en": "I feel dizzy from the sun in the orchard.",
       "th": "เวียนหัวเพราะแดดในสวน",
-      "critical": true,
-      "rom": "wianhua daet nai suan"
+      "critical": true
     },
     {
       "en": "I fell and hurt my leg.",

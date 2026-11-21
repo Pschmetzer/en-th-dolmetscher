@@ -60,8 +60,7 @@
     {
       "en": "I have not got my salary for three months.",
       "th": "ยังไม่ได้รับเงินเดือนมาสามเดือน",
-      "critical": true,
-      "rom": "yang mai ngoenduean ma sam duean"
+      "critical": true
     },
     {
       "en": "My employer is holding my passport.",
@@ -128,13 +127,11 @@
     },
     {
       "en": "When will the permit be ready?",
-      "th": "ใบอนุญาตจะเสร็จเมื่อไร",
-      "rom": "bainuyat cha muearai"
+      "th": "ใบอนุญาตจะเสร็จเมื่อไร"
     },
     {
       "en": "How do I renew my permit?",
-      "th": "ต่ออายุใบอนุญาตอย่างไร",
-      "rom": "bainuyat yangrai"
+      "th": "ต่ออายุใบอนุญาตอย่างไร"
     },
     {
       "en": "May I change my employer with this permit?",

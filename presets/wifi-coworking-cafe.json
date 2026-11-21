@@ -40,8 +40,7 @@
     {
       "en": "My laptop was stolen.",
       "th": "แล็ปท็อปถูกขโมย",
-      "critical": true,
-      "rom": "thuk khamoi"
+      "critical": true
     },
     {
       "en": "I lost my charger.",
@@ -82,8 +81,7 @@
     },
     {
       "en": "Could I borrow a charger?",
-      "th": "ขอยืมที่ชาร์จหน่อยได้ไหม",
-      "rom": "thi chat noi dai mai"
+      "th": "ขอยืมที่ชาร์จหน่อยได้ไหม"
     },
     {
       "en": "Can I work here for a few hours?",

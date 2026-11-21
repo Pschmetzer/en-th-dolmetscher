@@ -90,8 +90,7 @@
     },
     {
       "en": "The air conditioner does not work.",
-      "th": "เครื่องปรับอากาศใช้ไม่ได้",
-      "rom": "chaimaidai"
+      "th": "เครื่องปรับอากาศใช้ไม่ได้"
     },
     {
       "en": "The toilet is leaking.",
@@ -115,8 +114,7 @@
     },
     {
       "en": "Please give me a receipt.",
-      "th": "ขอใบเสร็จ",
-      "rom": "kho"
+      "th": "ขอใบเสร็จ"
     }
   ]
 }

@@ -95,8 +95,7 @@
     },
     {
       "en": "Is the power stable?",
-      "th": "ไฟฟ้าเสถียรไหม",
-      "rom": "sethin mai"
+      "th": "ไฟฟ้าเสถียรไหม"
     },
     {
       "en": "Are there power cuts?",
@@ -130,8 +129,7 @@
     },
     {
       "en": "Can I cancel at any time?",
-      "th": "ยกเลิกเมื่อไรก็ได้ไหม",
-      "rom": "yakloek muearai mai"
+      "th": "ยกเลิกเมื่อไรก็ได้ไหม"
     }
   ]
 }

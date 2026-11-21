@@ -42,8 +42,7 @@
     {
       "en": "Please block my card now.",
       "th": "ช่วยอายัดบัตรให้ทันทีหน่อย",
-      "critical": true,
-      "rom": "chuai batn hai thanthi noi"
+      "critical": true
     },
     {
       "en": "The money did not come out, but my account was charged.",
@@ -60,8 +59,7 @@
     {
       "en": "My card was stolen. Please block it.",
       "th": "บัตรถูกขโมย ช่วยอายัดบัตรให้หน่อย",
-      "critical": true,
-      "rom": "batn thuk khamoi chuai batn hai noi"
+      "critical": true
     },
     {
       "en": "Can you call the bank hotline for me?",
@@ -105,8 +103,7 @@
     },
     {
       "en": "I need a receipt for this problem.",
-      "th": "ขอใบเสร็จเรื่องปัญหานี้ด้วย",
-      "rom": "kho rueang panha ni duai"
+      "th": "ขอใบเสร็จเรื่องปัญหานี้ด้วย"
     },
     {
       "en": "Please do not convert the amount into my currency.",

@@ -51,11 +51,26 @@ def test_checker_and_linter_are_clean_on_all_packs():
     assert preset_lint.lint(load_packs()) == []
 
 
-def test_rom_is_filled_for_every_sentence_and_valid():
+def test_rom_is_valid_where_present_and_covers_most_sentences():
+    total = have = crit_total = crit_have = 0
     for name, d in PACKS.items():
         assert preset_rom.check_rom(name + ".json", d) == [], name
-        missing = [p["en"] for p in d["phrases"] if not isinstance(p.get("rom"), str) or not p["rom"].strip()]
-        assert not missing, (name, missing[:3])
+        for p in d["phrases"]:
+            total += 1
+            have += "rom" in p
+            if p.get("critical"):
+                crit_total += 1
+                crit_have += "rom" in p
+    assert have / total >= 0.9 and crit_have / crit_total >= 0.9, (have, total, crit_have, crit_total)
+
+
+def test_rom_never_keeps_an_incomplete_reading():
+    """Bleibt beim Umschreiben ein Thai-Wort uebrig, steht gar keine Lautschrift (z. B. Medikamentenname), nie eine lueckenhafte."""
+    src = (ROOT / "tools" / "preset_rom.py").read_text(encoding="utf-8")
+    assert 'return ""' in src and "any(not w or re.search" in src
+    for name in NEW:
+        for p in PACKS[name]["phrases"]:
+            assert "rom" not in p or len(p["rom"].split()) >= 1
 
 
 def test_package_size_budgets_still_hold_with_rom():

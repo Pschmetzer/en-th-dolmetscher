@@ -40,8 +40,7 @@
     {
       "en": "Is it safe? Is there a lock?",
       "th": "ปลอดภัยไหม มีล็อกไหม",
-      "critical": true,
-      "rom": "plotphai mai mi mai"
+      "critical": true
     },
     {
       "en": "I lost my ticket. Here is my passport.",
@@ -82,18 +81,15 @@
     },
     {
       "en": "Can I lock it myself?",
-      "th": "ล็อกเองได้ไหม",
-      "rom": "eng dai mai"
+      "th": "ล็อกเองได้ไหม"
     },
     {
       "en": "Do you have a bigger locker?",
-      "th": "มีล็อกเกอร์ใหญ่กว่านี้ไหม",
-      "rom": "mi ain kwa ni mai"
+      "th": "มีล็อกเกอร์ใหญ่กว่านี้ไหม"
     },
     {
       "en": "Please give me a receipt.",
-      "th": "ขอใบเสร็จ",
-      "rom": "kho"
+      "th": "ขอใบเสร็จ"
     },
     {
       "en": "I want to pick up my bag.",

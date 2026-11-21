@@ -46,8 +46,7 @@
     {
       "en": "My medicine is in my checked luggage.",
       "th": "ยาอยู่ในกระเป๋าใบที่เช็กอินไปแล้ว",
-      "critical": true,
-      "rom": "ya yu nai krapao bai thi pai laeo"
+      "critical": true
     },
     {
       "en": "I feel unwell. Please call a doctor.",

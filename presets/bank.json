@@ -54,8 +54,7 @@
     {
       "en": "My card was stolen. Please block it.",
       "th": "บัตรถูกขโมย ช่วยอายัดบัตรให้หน่อย",
-      "critical": true,
-      "rom": "batn thuk khamoi chuai batn hai noi"
+      "critical": true
     },
     {
       "en": "The money did not come out, but my account was charged.",
@@ -125,8 +124,7 @@
     },
     {
       "en": "Could I have a receipt, please?",
-      "th": "ขอใบเสร็จหน่อย",
-      "rom": "kho noi"
+      "th": "ขอใบเสร็จหน่อย"
     }
   ]
 }

@@ -83,8 +83,7 @@
     {
       "en": "I am allergic to peanuts and tree nuts.",
       "th": "แพ้ถั่วลิสงและถั่วเปลือกแข็ง",
-      "critical": true,
-      "rom": "phae thualitng lae thua peluek"
+      "critical": true
     },
     {
       "en": "I am pregnant.",
@@ -173,8 +172,7 @@
     },
     {
       "en": "Before or after meals?",
-      "th": "กินก่อนหรือหลังอาหาร",
-      "rom": "kin kon rue"
+      "th": "กินก่อนหรือหลังอาหาร"
     },
     {
       "en": "I need a medical certificate for my insurance.",

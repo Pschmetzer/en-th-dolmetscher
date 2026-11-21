@@ -54,8 +54,7 @@
     {
       "en": "I need a certified interpreter for this contract.",
       "th": "ต้องการล่ามที่ได้รับการรับรองสำหรับสัญญานี้",
-      "critical": true,
-      "rom": "tongkan lam thi kan raprong samrap sanya ni"
+      "critical": true
     },
     {
       "en": "I need a lawyer before I continue.",
@@ -72,14 +71,12 @@
     {
       "en": "Please give me a written copy of the contract.",
       "th": "ขอสำเนาสัญญาเป็นลายลักษณ์อักษรหน่อย",
-      "critical": true,
-      "rom": "kho samnao sanya pen noi"
+      "critical": true
     },
     {
       "en": "I feel unwell and need a short break.",
       "th": "รู้สึกไม่สบายและขอพักสั้นๆ หน่อย",
-      "critical": true,
-      "rom": "rusuek mai sabai lae kho phak san noi"
+      "critical": true
     },
     {
       "en": "It is a pleasure to meet you.",
@@ -123,8 +120,7 @@
     },
     {
       "en": "What are your payment terms?",
-      "th": "เงื่อนไขการชำระเงินเป็นอย่างไร",
-      "rom": "pen yangrai"
+      "th": "เงื่อนไขการชำระเงินเป็นอย่างไร"
     },
     {
       "en": "We would like some time to think about it.",

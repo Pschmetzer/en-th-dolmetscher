@@ -42,13 +42,11 @@
     {
       "en": "Someone tried to enter my room.",
       "th": "มีคนพยายามเข้าห้อง",
-      "critical": true,
-      "rom": "mi khon khao ong"
+      "critical": true
     },
     {
       "en": "The air conditioner does not work.",
-      "th": "เครื่องปรับอากาศใช้ไม่ได้",
-      "rom": "chaimaidai"
+      "th": "เครื่องปรับอากาศใช้ไม่ได้"
     },
     {
       "en": "There is no hot water.",

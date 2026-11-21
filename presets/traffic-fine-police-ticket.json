@@ -56,8 +56,7 @@
     {
       "en": "Please give me a written ticket.",
       "th": "ขอใบสั่งเป็นลายลักษณ์อักษร",
-      "critical": true,
-      "rom": "kho baisang pen"
+      "critical": true
     },
     {
       "en": "I do not understand. Please call an interpreter.",
@@ -90,8 +89,7 @@
     },
     {
       "en": "I would like a receipt for the fine.",
-      "th": "ขอใบเสร็จค่าปรับ",
-      "rom": "kho khaprap"
+      "th": "ขอใบเสร็จค่าปรับ"
     },
     {
       "en": "Here are the vehicle papers.",
@@ -125,8 +123,7 @@
     },
     {
       "en": "I forgot my helmet.",
-      "th": "ลืมใส่หมวกกันน็อก",
-      "rom": "luem sai"
+      "th": "ลืมใส่หมวกกันน็อก"
     },
     {
       "en": "I did not see the sign.",

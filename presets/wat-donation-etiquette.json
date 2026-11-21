@@ -40,8 +40,7 @@
     {
       "en": "I feel faint from the heat.",
       "th": "รู้สึกจะเป็นลมเพราะอากาศร้อน",
-      "critical": true,
-      "rom": "rusuek cha pennm akat ron"
+      "critical": true
     },
     {
       "en": "Please call a doctor.",
@@ -94,8 +93,7 @@
     },
     {
       "en": "Is it all right to give any amount?",
-      "th": "ใส่เท่าไรก็ได้ใช่ไหม",
-      "rom": "sai thaorai chaimai"
+      "th": "ใส่เท่าไรก็ได้ใช่ไหม"
     },
     {
       "en": "May I buy incense and flowers?",

@@ -80,8 +80,7 @@
     {
       "en": "The wrong item arrived.",
       "th": "ได้รับสินค้าผิดชิ้น",
-      "critical": true,
-      "rom": "sinkha phit chin"
+      "critical": true
     },
     {
       "en": "Where is my parcel?",
@@ -155,8 +154,7 @@
     },
     {
       "en": "Please give me a receipt.",
-      "th": "ขอใบเสร็จ",
-      "rom": "kho"
+      "th": "ขอใบเสร็จ"
     }
   ]
 }

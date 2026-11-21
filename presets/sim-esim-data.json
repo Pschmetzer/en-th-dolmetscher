@@ -46,8 +46,7 @@
     {
       "en": "I need to make an emergency call. May I borrow your phone?",
       "th": "ต้องโทรฉุกเฉิน ขอยืมโทรศัพท์หน่อย",
-      "critical": true,
-      "rom": "tong thon chukchoen thonsap noi"
+      "critical": true
     },
     {
       "en": "Please block my SIM card.",
@@ -154,8 +153,7 @@
     },
     {
       "en": "Please cancel the auto-renewal.",
-      "th": "ช่วยยกเลิกการต่ออายุอัตโนมัติ",
-      "rom": "chuai yakloek kan atnomati"
+      "th": "ช่วยยกเลิกการต่ออายุอัตโนมัติ"
     }
   ]
 }

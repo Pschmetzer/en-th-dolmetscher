@@ -69,18 +69,15 @@
     },
     {
       "en": "We are travelling with an elderly person.",
-      "th": "พาผู้สูงอายุมาด้วย",
-      "rom": "pha ma duai"
+      "th": "พาผู้สูงอายุมาด้วย"
     },
     {
       "en": "Please give us priority seats.",
-      "th": "ขอที่นั่งสำหรับผู้สูงอายุหน่อย",
-      "rom": "kho thinang samrap noi"
+      "th": "ขอที่นั่งสำหรับผู้สูงอายุหน่อย"
     },
     {
       "en": "Please walk slowly.",
-      "th": "ช่วยเดินช้า ๆ หน่อย",
-      "rom": "chuai doen cha noi"
+      "th": "ช่วยเดินช้า ๆ หน่อย"
     },
     {
       "en": "Is there a lift?",
@@ -154,8 +151,7 @@
     },
     {
       "en": "Is there a senior discount?",
-      "th": "มีส่วนลดสำหรับผู้สูงอายุไหม",
-      "rom": "mi suannt samrap mai"
+      "th": "มีส่วนลดสำหรับผู้สูงอายุไหม"
     }
   ]
 }

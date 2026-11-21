@@ -42,8 +42,7 @@
     {
       "en": "I need to block my bank card now.",
       "th": "ต้องการอายัดบัตรธนาคารตอนนี้",
-      "critical": true,
-      "rom": "tongkan batntnakhan tonni"
+      "critical": true
     },
     {
       "en": "My wallet was stolen.",

@@ -48,8 +48,7 @@
     {
       "en": "Please stop. I feel uncomfortable.",
       "th": "หยุดก่อน รู้สึกอึดอัด",
-      "critical": true,
-      "rom": "yut kon rusuek"
+      "critical": true
     },
     {
       "en": "Please call the police.",
@@ -79,8 +78,7 @@
     },
     {
       "en": "What do you like to do in your free time?",
-      "th": "ว่างๆ ชอบทำอะไร",
-      "rom": "wang chop tham arai"
+      "th": "ว่างๆ ชอบทำอะไร"
     },
     {
       "en": "Your English is very good.",

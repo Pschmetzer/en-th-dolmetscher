@@ -56,8 +56,7 @@
     {
       "en": "I have something in my eye and it hurts.",
       "th": "มีบางอย่างเข้าตาและเจ็บ",
-      "critical": true,
-      "rom": "mi khaota lae chep"
+      "critical": true
     },
     {
       "en": "I cannot see well suddenly.",

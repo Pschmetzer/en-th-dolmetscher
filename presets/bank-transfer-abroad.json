@@ -58,14 +58,12 @@
     {
       "en": "My account was hacked.",
       "th": "บัญชีถูกแฮ็ก",
-      "critical": true,
-      "rom": "banchi thuk"
+      "critical": true
     },
     {
       "en": "Please block my account.",
       "th": "ช่วยอายัดบัญชีหน่อย",
-      "critical": true,
-      "rom": "chuai banchi noi"
+      "critical": true
     },
     {
       "en": "I would like to send money abroad.",

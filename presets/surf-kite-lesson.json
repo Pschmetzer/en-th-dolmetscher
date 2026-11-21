@@ -54,8 +54,7 @@
     {
       "en": "I cannot swim well, please stay close.",
       "th": "ว่ายน้ำไม่เก่ง ช่วยอยู่ใกล้ๆ หน่อย",
-      "critical": true,
-      "rom": "wainam mai keng chuai yu kain noi"
+      "critical": true
     },
     {
       "en": "My friend is drifting out to sea.",

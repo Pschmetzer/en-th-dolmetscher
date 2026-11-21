@@ -66,8 +66,7 @@
     {
       "en": "My pet has seizures.",
       "th": "สัตว์เลี้ยงชักเกร็ง",
-      "critical": true,
-      "rom": "satliang chak"
+      "critical": true
     },
     {
       "en": "My dog is bleeding heavily.",

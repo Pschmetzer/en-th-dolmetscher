@@ -68,8 +68,7 @@
     {
       "en": "I feel dizzy and sick from the heat.",
       "th": "เวียนหัวและคลื่นไส้เพราะอากาศร้อน",
-      "critical": true,
-      "rom": "wianhua lae khluensai akat ron"
+      "critical": true
     },
     {
       "en": "Where is the nearest hospital?",
@@ -124,8 +123,7 @@
     },
     {
       "en": "Is there a cool place nearby?",
-      "th": "แถวนี้มีที่เย็นๆ ไหม",
-      "rom": "thaeo ni mi thi yen mai"
+      "th": "แถวนี้มีที่เย็นๆ ไหม"
     }
   ]
 }

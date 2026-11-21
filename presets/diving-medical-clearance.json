@@ -64,8 +64,7 @@
     {
       "en": "Where is the nearest hyperbaric chamber?",
       "th": "ห้องปรับความกดอากาศที่ใกล้ที่สุดอยู่ที่ไหน",
-      "critical": true,
-      "rom": "ong prap thi kain thisut yu thinai"
+      "critical": true
     },
     {
       "en": "Please call an ambulance. A diver is ill.",

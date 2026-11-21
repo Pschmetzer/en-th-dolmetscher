@@ -95,7 +95,7 @@ def test_lighthouse_ci_is_configured_and_not_blocking():
 
 def test_playwright_e2e_flow_and_ci_job():
     e2e = (ROOT / "tests" / "web-e2e" / "flow.mjs").read_text(encoding="utf-8")
-    for needle in ("presetSel", "serviceWorker", "setOffline", "offline", "pbQ", "pageerror"):
+    for needle in ("presetSel", "serviceWorker", "setOffline", "offline", "pbQ", "pageerror", "qrParts"):
         assert needle in e2e, needle
     pkg = json.loads((ROOT / "tests" / "web-e2e" / "package.json").read_text(encoding="utf-8"))
     assert "playwright" in pkg["dependencies"]

@@ -48,8 +48,7 @@
     {
       "en": "I feel dizzy from the heat.",
       "th": "รู้สึกเวียนหัวเพราะอากาศร้อน",
-      "critical": true,
-      "rom": "rusuek wianhua akat ron"
+      "critical": true
     },
     {
       "en": "I am allergic to insect bites.",
@@ -69,8 +68,7 @@
     },
     {
       "en": "Are the elephants rescued?",
-      "th": "ช้างที่นี่ได้รับการช่วยเหลือมาใช่ไหม",
-      "rom": "chang thini kan chuaihelue ma chaimai"
+      "th": "ช้างที่นี่ได้รับการช่วยเหลือมาใช่ไหม"
     },
     {
       "en": "Where can I stand safely?",

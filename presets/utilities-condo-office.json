@@ -48,8 +48,7 @@
     {
       "en": "There is no electricity in my room.",
       "th": "ไฟฟ้าในห้องดับ",
-      "critical": true,
-      "rom": "nai ong dap"
+      "critical": true
     },
     {
       "en": "There is no water and the pump is broken.",
@@ -78,8 +77,7 @@
     {
       "en": "I am locked out and my child is inside.",
       "th": "ถูกล็อกอยู่นอกห้องและลูกอยู่ข้างใน",
-      "critical": true,
-      "rom": "thuk yu nok ong lae luk yu khangnai"
+      "critical": true
     },
     {
       "en": "Where is the management office?",

@@ -53,6 +53,25 @@ await step('search inside the pack', async () => {
   await page.fill('#pbQ', '');
 });
 
+await step('long card link: split into parts, collected, opened', async () => {
+  const parts = await page.evaluate(async () => {
+    await new Promise((res, rej) => { const el = document.createElement('script'); el.src = 'web-extras.js'; el.onload = res; el.onerror = rej; document.head.appendChild(el); });
+    const X = window.DolmetscherExtras, cards = [];
+    for (let i = 0; i < 8; i++) cards.push(['Hello number ' + i + ' how are you today', '\u0E2A\u0E27\u0E31\u0E2A\u0E14\u0E35 ' + i]);
+    return X.qrParts(location.href.split('#')[0], await X.packEncode({ n: 'Parts', c: cards }), 271);
+  });
+  ok(parts && parts.length >= 2, 'link was not split');
+  for (let i = 0; i < parts.length; i++) {
+    const q = await context.newPage();
+    await q.goto(parts[i]);
+    await q.waitForSelector('#extrasDlg[open]', { timeout: 15000 });
+    const txt = await q.textContent('#extrasDlg .x24body');
+    if (i < parts.length - 1) ok(/\d/.test(txt) && !/Parts/.test(txt), 'part ' + (i + 1) + ' should only be stored: ' + txt.slice(0, 60));
+    else ok(/Parts/.test(txt), 'pack did not open after the last part: ' + txt.slice(0, 60));
+    await q.close();
+  }
+});
+
 await step('offline reload: phrasebook still works', async () => {
   await context.setOffline(true);
   await page.reload();

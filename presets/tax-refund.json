@@ -52,8 +52,7 @@
     {
       "en": "Do I show the goods before check-in?",
       "th": "ต้องแสดงสินค้าก่อนเช็กอินไหม",
-      "critical": true,
-      "rom": "tong saetng sinkha kon mai"
+      "critical": true
     },
     {
       "en": "I lost the refund form.",
@@ -62,8 +61,7 @@
     },
     {
       "en": "I do not have the receipt.",
-      "th": "ไม่มีใบเสร็จ",
-      "rom": "mai mi"
+      "th": "ไม่มีใบเสร็จ"
     },
     {
       "en": "Is VAT refund available here?",
