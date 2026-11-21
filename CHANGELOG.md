@@ -4,6 +4,11 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### Security and privacy review, round 28
+
+- Engine: the three remaining child-process calls (`say -v ?`, two ffmpeg device queries) no longer inherit `ANTHROPIC_API_KEY`; a test checks every `subprocess` call in `dolmetscher.py` for a filtered environment
+- `docs/DATENSCHUTZ.md`: documents the optional password-encrypted history (`history-enc.sqlite`) and lists what the review checked
+
 ### iPhone app, round 35: tested logic building blocks
 
 - 17 new small logic blocks in `ios/Dolmetscher/Round35.swift` (Foundation only): VoiceOver bubble label, confidence as a level instead of colour only, clamped text size, reduced motion, offline retry queue, error classes with retry rules and back-off, free-space check and size format for model downloads, session time (also spoken), quiet hours across midnight, UI language resolution, grapheme-safe truncation, share-text sanitising (control and bidi-override characters), history retention by age and count, debounce, version compare. Overview in `docs/IOS-LOGIK-R35.md`.

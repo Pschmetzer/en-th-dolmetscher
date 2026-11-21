@@ -4218,7 +4218,7 @@ def _say_voices():
         if t is not None and time.monotonic() - t < SAY_RETRY_S:
             return ""                                   # Fehlschlag gemerkt: nicht in jedem Satz 10 s warten
         try:
-            _SAY_LIST["out"] = subprocess.run([SAY, "-v", "?"], capture_output=True, text=True, timeout=10).stdout
+            _SAY_LIST["out"] = subprocess.run([SAY, "-v", "?"], capture_output=True, text=True, timeout=10, env=_child_env()).stdout
             _SAY_LIST["fail_t"] = None
             _SAY_LIST["t"] = time.monotonic()
         except (subprocess.SubprocessError, OSError):
@@ -5206,7 +5206,7 @@ def pipe_player(volume):
         if _PIPE_PLAYER is None:
             try:
                 dev = subprocess.run([FFMPEG, "-hide_banner", "-devices"], capture_output=True,
-                                     text=True, timeout=5).stdout
+                                     text=True, timeout=5, env=_child_env()).stdout
             except Exception:
                 dev = ""
             near = os.path.join(os.path.dirname(FFMPEG), "ffplay")
@@ -8564,7 +8564,7 @@ def list_mics():
             raise RuntimeError((r.stderr or "keine Antwort").strip()[-200:])
         return json.loads(lines[-1])["mics"]
     r = subprocess.run([FFMPEG, "-hide_banner", "-f", "avfoundation", "-list_devices", "true", "-i", ""],
-                       capture_output=True, text=True, timeout=10)
+                       capture_output=True, text=True, timeout=10, env=_child_env())
     mics, audio = [], False
     for line in (r.stderr or "").splitlines():
         if "audio devices" in line.lower():
