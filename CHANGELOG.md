@@ -4,6 +4,25 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### Mac app, round 28
+
+New testable logic in `app/R28Logic.swift` (Foundation only, 16 types, about 45 Swift tests in `R28Tests.swift`); the views pick these up in later rounds, so this round changes no screen:
+
+- **VoiceOver sentence per bubble** (speaker, original, translation, time; empty parts skipped).
+- **Settings search:** all words must match, ignoring case and accents.
+- **Shortcut guard:** custom global shortcuts are checked against keys macOS uses (⌘Q, ⌘Space, screenshots ...), regardless of modifier order; a global shortcut without ⌘/⌃/⌥ is unsafe.
+- **Session clock** (`1:05:03`) and spoken duration ("1 hour 5 minutes"), correct plurals (de/en/th).
+- **Sensitive text guard:** API keys, card numbers (Luhn) and IBAN-like strings are detected before translating or copying.
+- **Engine restart plan:** 2, 4, 8 ... at most 30 s pause, give up after 5 attempts.
+- **Disk space advice** (ok / low under 3 GB / critical under 500 MB) with texts.
+- **Microphone level:** dBFS to 0...1, band and spoken text (silence, quiet, good, too loud).
+- **No-input advice:** muted microphone, or no speech for 30 s while listening.
+- **Export file names:** `dolmetscher_2026-11-21_1405_en-th.pdf`, sanitized.
+- **Character counter** states (ok, 90 % warning, over) and label.
+- **Settings migration:** old keys renamed to new ones without overwriting new values; idempotent.
+- **Language pair spoken** ("Englisch nach Thai"), **menu bar title** shortened at a word boundary, **history day groups** (today, yesterday, date).
+- New check `tests/test_r28_mac.py`: Foundation-only, linked into swift-tests, every type tested, no name clash.
+
 ### Web, round 27
 
 - **17 new phrase packs (243 in total):** snake bite, jellyfish and sea urchins, locksmith, power outage, stray dogs, online orders and parcels, phone repair, traffic fines, air pollution (PM2.5), asthma and inhaler, anaphylaxis and adrenaline pen, seafood by weight, tipping and service charge, card payment surcharge, theft in a hotel room, Chao Phraya express boat, foreigner ticket prices. Index, categories and search terms are in place; the new packs pass `check_presets.py --strict` and `preset_lint.py`.
