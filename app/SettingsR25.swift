@@ -28,6 +28,8 @@ struct AudioRouteSection: View {
     var body: some View {
         Section {
             picker(R25T.t("route_mine"), $mine)
+                .onAppear { outputs = AudioOutputs.list() }   // an der ersten Zeile, nicht an der Section
+                .onReceive(NotificationCenter.default.publisher(for: .audioDevicesChanged)) { _ in outputs = AudioOutputs.list() }
             picker(R25T.t("route_partner"), $partner)
             if !resolution.missing.isEmpty {
                 Label(R25T.t("route_missing"), systemImage: "exclamationmark.triangle").foregroundStyle(LangStyle.warning)
@@ -37,8 +39,6 @@ struct AudioRouteSection: View {
             }
             Text(R25T.t("route_note")).font(.caption).foregroundStyle(.secondary)
         } header: { Text(R25T.t("route_title")).accessibilityAddTraits(.isHeader) }
-        .onAppear { outputs = AudioOutputs.list() }
-        .onReceive(NotificationCenter.default.publisher(for: .audioDevicesChanged)) { _ in outputs = AudioOutputs.list() }
     }
 }
 

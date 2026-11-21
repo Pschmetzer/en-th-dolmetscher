@@ -76,19 +76,17 @@ struct R23StatsDashboard: View {
                 Text(L.t("hist_stats")).font(.title3.bold()).accessibilityAddTraits(.isHeader)
                 Text(L.f("hist_stats_totals", old.utterances, old.sessions, old.words)).monospacedDigit()
                 summary(st)
-                chartBlock(R23T.t("stats_per_day")) {
+                chartBlock(R23T.t("stats_per_day"), pairs: st.perDay.map { ($0.label, $0.count) }) {
                     Chart(st.perDay) { d in
                         BarMark(x: .value(R23T.t("stats_day"), String(d.label.suffix(5))), y: .value(R23T.t("stats_count"), d.count))
                     }
                 }
-                .accessibilityValue(st.perDay.map { "\($0.label): \($0.count)" }.joined(separator: ", "))
-                chartBlock(R23T.t("stats_per_hour")) {
+                chartBlock(R23T.t("stats_per_hour"), pairs: ChartA11y.hourPairs(st.perHour)) {
                     Chart(Array(st.perHour.enumerated()), id: \.offset) { h in
                         BarMark(x: .value(R23T.t("stats_hour"), h.offset), y: .value(R23T.t("stats_count"), h.element))
                     }
                     .chartXScale(domain: 0...23)
                 }
-                .accessibilityValue(st.perHour.enumerated().filter { $0.element > 0 }.map { "\($0.offset) h: \($0.element)" }.joined(separator: ", "))
                 HStack(alignment: .top, spacing: 20) {
                     shareChart(R23T.t("stats_per_lang"), st.perLang.map { ($0.label == "?" ? "?" : Langs.flag($0.label) + " " + $0.label.uppercased(), $0.count) })
                     shareChart(R23T.t("stats_per_speaker"), st.perSpeaker.map { (Self.speakerName($0.label), $0.count) })
@@ -125,10 +123,14 @@ struct R23StatsDashboard: View {
         .accessibilityElement(children: .combine)
     }
 
-    private func chartBlock<C: View>(_ title: String, @ViewBuilder _ chart: () -> C) -> some View {
+    /// Diagramm als ein Element für VoiceOver: Titel als Label, die Werte als Satz (ChartA11y), keine stummen Balken.
+    private func chartBlock<C: View>(_ title: String, pairs: [(String, Int)], @ViewBuilder _ chart: () -> C) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title).font(.subheadline).foregroundStyle(.secondary).accessibilityAddTraits(.isHeader)
             chart().frame(height: 130)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(title)
+                .accessibilityValue(ChartA11y.values(pairs))
         }
     }
 
@@ -143,7 +145,9 @@ struct R23StatsDashboard: View {
                         .foregroundStyle(by: .value(title, d.element.0))
                 }
                 .frame(height: 130)
-                .accessibilityValue(data.map { "\($0.0): \($0.1)" }.joined(separator: ", "))
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(title)
+                .accessibilityValue(ChartA11y.values(data))
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -374,11 +378,28 @@ final class KeyTester: ObservableObject {
         var req = URLRequest(url: URL(string: "https://api.anthropic.com/v1/models?limit=1")!, timeoutInterval: 12)
         req.setValue(R23Key.normalize(key), forHTTPHeaderField: "x-api-key")
         req.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
-        URLSession.shared.dataTask(with: req) { _, resp, _ in
+        let token = guardState.begin()
+        task?.cancel()
+        task = Task { [weak self] in
+            let resp = try? await URLSession.shared.data(for: req).1
+            guard !Task.isCancelled else { return }
             let code = (resp as? HTTPURLResponse)?.statusCode
-            DispatchQueue.main.async { MainActor.assumeIsolated { self.state = .done(R23Key.result(status: code)) } }
-        }.resume()
+            guard let self, self.guardState.isCurrent(token) else { return }
+            self.state = .done(R23Key.result(status: code))
+            if let k = self.messageKey { Announcer.post(R23T.t(k)) }   // VoiceOver hört das Ergebnis, ohne den Text zu suchen
+        }
     }
+
+    /// Abbruch (Fenster geschlossen, Einstellungen verlassen): Anfrage beenden, kein spätes Ergebnis mehr eintragen.
+    func cancel() {
+        guardState.cancel()
+        task?.cancel(); task = nil
+        if state == .testing { state = .idle }
+    }
+
+    private var guardState = StaleGuard()
+    private var task: Task<Void, Never>?
+    deinit { task?.cancel() }
 
     var messageKey: String? {
         switch state {
@@ -404,6 +425,7 @@ struct KeyTestRow: View {
         HStack {
             Button(R23T.t("keytest_button")) { t.run() }.disabled(t.state == .testing)
                 .help(R23T.t("keytest_help"))
+                .onDisappear { t.cancel() }
             if t.state == .testing { ProgressView().controlSize(.small).accessibilityLabel(R23T.t("keytest_testing")) }
             if let k = t.messageKey, t.state != .testing {
                 Text(R23T.t(k)).font(.callout)

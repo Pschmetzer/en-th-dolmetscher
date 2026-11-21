@@ -315,7 +315,8 @@ def test_dropped_code_stopped_vertrag():
     src = open(os.path.join(ROOT, "dolmetscher.py"), encoding="utf-8").read()
     assert 'emit("dropped", id=item[6], code="stopped"' in src
     app = open(os.path.join(ROOT, "app", "Engine.swift"), encoding="utf-8").read()
-    assert '"stopped": return nil' in app
+    assert '"stopped"' in open(os.path.join(ROOT, "app", "EngineProtocolTexts.swift"), encoding="utf-8").read()
+    assert "silentDroppedCodes.contains" in app   # Runde 27: aus Engine.swift herausgelöst
 
 
 # --- Rückübersetzung ------------------------------------------------------------------------------------
