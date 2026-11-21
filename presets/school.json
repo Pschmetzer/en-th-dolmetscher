@@ -40,69 +40,85 @@
     {
       "en": "My child has an allergy.",
       "th": "ลูกแพ้อาหาร",
-      "critical": true
+      "critical": true,
+      "rom": "luk phae ahan"
     },
     {
       "en": "My child needs medicine.",
       "th": "ลูกต้องกินยา",
-      "critical": true
+      "critical": true,
+      "rom": "luk tong kin ya"
     },
     {
       "en": "Please call me if something happens.",
       "th": "ถ้ามีเรื่องช่วยโทรหาด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "tha mirueang chuai thon ha duai"
     },
     {
       "en": "My child is sick today.",
-      "th": "วันนี้ลูกไม่สบาย"
+      "th": "วันนี้ลูกไม่สบาย",
+      "rom": "wanni luk mai sabai"
     },
     {
       "en": "Who may pick up my child?",
-      "th": "ใครรับลูกได้บ้าง"
+      "th": "ใครรับลูกได้บ้าง",
+      "rom": "khain rap luk dai bang"
     },
     {
       "en": "I will pick up my child at three.",
-      "th": "จะมารับลูกตอนบ่ายสามโมง"
+      "th": "จะมารับลูกตอนบ่ายสามโมง",
+      "rom": "cha ma rap luk tonbai sam mong"
     },
     {
       "en": "What time does school start?",
-      "th": "โรงเรียนเริ่มกี่โมง"
+      "th": "โรงเรียนเริ่มกี่โมง",
+      "rom": "rongrian roem ki mong"
     },
     {
       "en": "What time does school end?",
-      "th": "โรงเรียนเลิกกี่โมง"
+      "th": "โรงเรียนเลิกกี่โมง",
+      "rom": "rongrian loek ki mong"
     },
     {
       "en": "Where do I register?",
-      "th": "ต้องลงทะเบียนที่ไหน"
+      "th": "ต้องลงทะเบียนที่ไหน",
+      "rom": "tong langathabian thinai"
     },
     {
       "en": "How much are the school fees?",
-      "th": "ค่าเล่าเรียนเท่าไหร่"
+      "th": "ค่าเล่าเรียนเท่าไหร่",
+      "rom": "khalaorian thaorai"
     },
     {
       "en": "Is lunch included?",
-      "th": "รวมอาหารกลางวันไหม"
+      "th": "รวมอาหารกลางวันไหม",
+      "rom": "ruam ahanklangwan mai"
     },
     {
       "en": "Does my child need a uniform?",
-      "th": "ลูกต้องใส่ชุดนักเรียนไหม"
+      "th": "ลูกต้องใส่ชุดนักเรียนไหม",
+      "rom": "luk tong sai chutnakrian mai"
     },
     {
       "en": "Do the teachers speak English?",
-      "th": "ครูพูดภาษาอังกฤษได้ไหม"
+      "th": "ครูพูดภาษาอังกฤษได้ไหม",
+      "rom": "khru phut phasaangkrit dai mai"
     },
     {
       "en": "How is my child doing?",
-      "th": "ลูกเป็นอย่างไรบ้าง"
+      "th": "ลูกเป็นอย่างไรบ้าง",
+      "rom": "luk pen"
     },
     {
       "en": "Is there a school bus?",
-      "th": "มีรถรับส่งนักเรียนไหม"
+      "th": "มีรถรับส่งนักเรียนไหม",
+      "rom": "mi rot rap song nakrian mai"
     },
     {
       "en": "May I see the classroom?",
-      "th": "ขอดูห้องเรียนได้ไหม"
+      "th": "ขอดูห้องเรียนได้ไหม",
+      "rom": "kho du ongrian dai mai"
     }
   ]
 }

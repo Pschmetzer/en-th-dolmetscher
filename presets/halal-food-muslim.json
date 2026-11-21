@@ -35,63 +35,78 @@
   "phrases": [
     {
       "en": "Is this food halal?",
-      "th": "อาหารนี้ฮาลาลไหม"
+      "th": "อาหารนี้ฮาลาลไหม",
+      "rom": "ahan ni halan mai"
     },
     {
       "en": "Is there a halal restaurant nearby?",
-      "th": "แถวนี้มีร้านอาหารฮาลาลไหม"
+      "th": "แถวนี้มีร้านอาหารฮาลาลไหม",
+      "rom": "thaeo ni mi halan mai"
     },
     {
       "en": "I do not eat pork.",
-      "th": "ไม่กินเนื้อหมู"
+      "th": "ไม่กินเนื้อหมู",
+      "rom": "mai kin nueamu"
     },
     {
       "en": "Does it contain pork or lard?",
-      "th": "มีเนื้อหมูหรือน้ำมันหมูไหม"
+      "th": "มีเนื้อหมูหรือน้ำมันหมูไหม",
+      "rom": "mi nueamu rue nammanmu mai"
     },
     {
       "en": "Does it contain alcohol?",
-      "th": "มีแอลกอฮอล์ไหม"
+      "th": "มีแอลกอฮอล์ไหม",
+      "rom": "mi aenkoho mai"
     },
     {
       "en": "Was it cooked with the same utensils as pork?",
-      "th": "ปรุงด้วยอุปกรณ์เดียวกับหมูหรือเปล่า"
+      "th": "ปรุงด้วยอุปกรณ์เดียวกับหมูหรือเปล่า",
+      "rom": "prung duai upkn diao kap mu ruepela"
     },
     {
       "en": "Is the chicken halal?",
-      "th": "ไก่นี้เป็นฮาลาลไหม"
+      "th": "ไก่นี้เป็นฮาลาลไหม",
+      "rom": "kai ni pen halan mai"
     },
     {
       "en": "Can you cook it with beef or chicken instead of pork?",
-      "th": "เปลี่ยนจากหมูเป็นเนื้อหรือไก่ได้ไหม"
+      "th": "เปลี่ยนจากหมูเป็นเนื้อหรือไก่ได้ไหม",
+      "rom": "pelin chak mu pen nuea rue kai dai mai"
     },
     {
       "en": "Is the cooking oil vegetable oil?",
-      "th": "น้ำมันที่ใช้เป็นน้ำมันพืชไหม"
+      "th": "น้ำมันที่ใช้เป็นน้ำมันพืชไหม",
+      "rom": "namman thi chai pen nammanphuet mai"
     },
     {
       "en": "Is there a halal sign or certificate?",
-      "th": "มีป้ายหรือใบรับรองฮาลาลไหม"
+      "th": "มีป้ายหรือใบรับรองฮาลาลไหม",
+      "rom": "mi pai rue bairaprong halan mai"
     },
     {
       "en": "Is there a prayer room nearby?",
-      "th": "แถวนี้มีห้องละหมาดไหม"
+      "th": "แถวนี้มีห้องละหมาดไหม",
+      "rom": "thaeo ni mi ong lamat mai"
     },
     {
       "en": "Where is the nearest mosque?",
-      "th": "มัสยิดที่ใกล้ที่สุดอยู่ที่ไหน"
+      "th": "มัสยิดที่ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "matyit thi kain thisut yu thinai"
     },
     {
       "en": "Which direction is Mecca?",
-      "th": "ทิศไปเมกกะอยู่ทางไหน"
+      "th": "ทิศไปเมกกะอยู่ทางไหน",
+      "rom": "thit pai mekka yu thang nai"
     },
     {
       "en": "Where can I wash before prayer?",
-      "th": "ล้างหน้าล้างมือก่อนละหมาดได้ที่ไหน"
+      "th": "ล้างหน้าล้างมือก่อนละหมาดได้ที่ไหน",
+      "rom": "langna langmue kon lamat dai thinai"
     },
     {
       "en": "I am fasting. When can I eat?",
-      "th": "กำลังถือศีลอด กินได้ตอนกี่โมง"
+      "th": "กำลังถือศีลอด กินได้ตอนกี่โมง",
+      "rom": "kamlang thue silot kin dai ton ki mong"
     }
   ],
   "note": {

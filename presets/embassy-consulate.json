@@ -36,66 +36,81 @@
     {
       "en": "I have been arrested and need help from my embassy.",
       "th": "ถูกจับกุม ต้องการความช่วยเหลือจากสถานทูต",
-      "critical": true
+      "critical": true,
+      "rom": "thuk chapkum tongkan khwamchuaihelue chak sathanthut"
     },
     {
       "en": "I have been the victim of a crime.",
       "th": "ตกเป็นเหยื่ออาชญากรรม",
-      "critical": true
+      "critical": true,
+      "rom": "takapen atyakam"
     },
     {
       "en": "I need to see a doctor and I have no money.",
       "th": "ต้องพบแพทย์ แต่ไม่มีเงิน",
-      "critical": true
+      "critical": true,
+      "rom": "tong phop phaet tae mai mingoen"
     },
     {
       "en": "I lost my passport and need an emergency travel document.",
       "th": "หนังสือเดินทางหาย ต้องการเอกสารเดินทางฉุกเฉิน",
-      "critical": true
+      "critical": true,
+      "rom": "nangsuedoenthang hai tongkan eksan doenthang chukchoen"
     },
     {
       "en": "My passport was stolen. I have a police report.",
-      "th": "หนังสือเดินทางถูกขโมย มีใบแจ้งความแล้ว"
+      "th": "หนังสือเดินทางถูกขโมย มีใบแจ้งความแล้ว",
+      "rom": "nangsuedoenthang thuk khamoi mi baichaengkwam laeo"
     },
     {
       "en": "Please call the embassy for me.",
-      "th": "ช่วยโทรหาสถานทูตให้หน่อย"
+      "th": "ช่วยโทรหาสถานทูตให้หน่อย",
+      "rom": "chuai thon ha sathanthut hai noi"
     },
     {
       "en": "Where is the embassy of my country?",
-      "th": "สถานทูตของประเทศตนเองอยู่ที่ไหน"
+      "th": "สถานทูตของประเทศตนเองอยู่ที่ไหน",
+      "rom": "sathanthut khong prathet tanaeng yu thinai"
     },
     {
       "en": "Is there a consulate in this city?",
-      "th": "ในเมืองนี้มีสถานกงสุลไหม"
+      "th": "ในเมืองนี้มีสถานกงสุลไหม",
+      "rom": "nai mueang ni mi sathankngsun mai"
     },
     {
       "en": "Is the embassy open on Saturday?",
-      "th": "สถานทูตเปิดวันเสาร์ไหม"
+      "th": "สถานทูตเปิดวันเสาร์ไหม",
+      "rom": "sathanthut poet wan sao mai"
     },
     {
       "en": "Do I need an appointment?",
-      "th": "ต้องนัดล่วงหน้าไหม"
+      "th": "ต้องนัดล่วงหน้าไหม",
+      "rom": "tong nat luangna mai"
     },
     {
       "en": "Which documents should I bring?",
-      "th": "ต้องนำเอกสารอะไรมาบ้าง"
+      "th": "ต้องนำเอกสารอะไรมาบ้าง",
+      "rom": "tong nam eksan arai ma bang"
     },
     {
       "en": "I need a certified copy of a document.",
-      "th": "ต้องการสำเนาเอกสารที่รับรองแล้ว"
+      "th": "ต้องการสำเนาเอกสารที่รับรองแล้ว",
+      "rom": "tongkan samnao eksan thiraprong laeo"
     },
     {
       "en": "Is there an emergency phone number for citizens?",
-      "th": "มีเบอร์โทรฉุกเฉินสำหรับพลเมืองไหม"
+      "th": "มีเบอร์โทรฉุกเฉินสำหรับพลเมืองไหม",
+      "rom": "mi boe thon chukchoen samrap phlamueang mai"
     },
     {
       "en": "I want to contact my family. Can the embassy help?",
-      "th": "ต้องการติดต่อครอบครัว สถานทูตช่วยได้ไหม"
+      "th": "ต้องการติดต่อครอบครัว สถานทูตช่วยได้ไหม",
+      "rom": "tongkan titto khropkrua sathanthut chuai dai mai"
     },
     {
       "en": "How long does the process take?",
-      "th": "ขั้นตอนนี้ใช้เวลานานแค่ไหน"
+      "th": "ขั้นตอนนี้ใช้เวลานานแค่ไหน",
+      "rom": "khan tonni chaiwelanan khae nai"
     }
   ],
   "note": {

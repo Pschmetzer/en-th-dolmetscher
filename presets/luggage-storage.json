@@ -40,65 +40,80 @@
     {
       "en": "Is it safe? Is there a lock?",
       "th": "ปลอดภัยไหม มีล็อกไหม",
-      "critical": true
+      "critical": true,
+      "rom": "plotphai mai mi mai"
     },
     {
       "en": "I lost my ticket. Here is my passport.",
       "th": "ทำตั๋วฝากหาย นี่พาสปอร์ต",
-      "critical": true
+      "critical": true,
+      "rom": "tham tua fak hai ni phatpot"
     },
     {
       "en": "My bag is missing.",
       "th": "กระเป๋าหาย",
-      "critical": true
+      "critical": true,
+      "rom": "krapao hai"
     },
     {
       "en": "Can I leave my bag here?",
-      "th": "ฝากกระเป๋าไว้ที่นี่ได้ไหม"
+      "th": "ฝากกระเป๋าไว้ที่นี่ได้ไหม",
+      "rom": "fak krapao wai thini dai mai"
     },
     {
       "en": "How much is it per bag and day?",
-      "th": "ฝากใบละเท่าไรต่อวัน"
+      "th": "ฝากใบละเท่าไรต่อวัน",
+      "rom": "fak bai la thaorai to wan"
     },
     {
       "en": "Until what time are you open?",
-      "th": "เปิดถึงกี่โมง"
+      "th": "เปิดถึงกี่โมง",
+      "rom": "poet thueng ki mong"
     },
     {
       "en": "I will be back at six in the evening.",
-      "th": "จะกลับมาตอนหกโมงเย็น"
+      "th": "จะกลับมาตอนหกโมงเย็น",
+      "rom": "cha klapma ton ok mong yen"
     },
     {
       "en": "I will pick it up tomorrow morning.",
-      "th": "จะมารับพรุ่งนี้เช้า"
+      "th": "จะมารับพรุ่งนี้เช้า",
+      "rom": "cha ma rap phrungni chao"
     },
     {
       "en": "Can I lock it myself?",
-      "th": "ล็อกเองได้ไหม"
+      "th": "ล็อกเองได้ไหม",
+      "rom": "eng dai mai"
     },
     {
       "en": "Do you have a bigger locker?",
-      "th": "มีล็อกเกอร์ใหญ่กว่านี้ไหม"
+      "th": "มีล็อกเกอร์ใหญ่กว่านี้ไหม",
+      "rom": "mi ain kwa ni mai"
     },
     {
       "en": "Please give me a receipt.",
-      "th": "ขอใบเสร็จ"
+      "th": "ขอใบเสร็จ",
+      "rom": "kho"
     },
     {
       "en": "I want to pick up my bag.",
-      "th": "ต้องการรับกระเป๋าคืน"
+      "th": "ต้องการรับกระเป๋าคืน",
+      "rom": "tongkan rap krapao khuen"
     },
     {
       "en": "There is a battery inside. Is that fine?",
-      "th": "มีแบตเตอรี่อยู่ข้างใน ได้ไหม"
+      "th": "มีแบตเตอรี่อยู่ข้างใน ได้ไหม",
+      "rom": "mi baettoeri yu khangnai dai mai"
     },
     {
       "en": "Please do not put heavy things on it.",
-      "th": "ขออย่าวางของหนักทับ"
+      "th": "ขออย่าวางของหนักทับ",
+      "rom": "kho ya wang khong nak thap"
     },
     {
       "en": "Where is the nearest storage?",
-      "th": "ที่ฝากกระเป๋าที่ใกล้ที่สุดอยู่ที่ไหน"
+      "th": "ที่ฝากกระเป๋าที่ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "thi fak krapao thi kain thisut yu thinai"
     }
   ]
 }

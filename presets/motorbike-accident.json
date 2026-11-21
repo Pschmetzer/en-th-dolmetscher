@@ -36,88 +36,107 @@
     {
       "en": "There was an accident. Please call an ambulance.",
       "th": "เกิดอุบัติเหตุ ช่วยเรียกรถพยาบาลด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "koet ubatihetu chuai riak rathaphayaban duai"
     },
     {
       "en": "Someone is badly injured.",
       "th": "มีคนบาดเจ็บสาหัส",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon batchepsahat"
     },
     {
       "en": "Please call the police.",
       "th": "ช่วยเรียกตำรวจด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak tamruat duai"
     },
     {
       "en": "Do not move him. His neck may be hurt.",
       "th": "อย่าขยับเขา คออาจบาดเจ็บ",
-      "critical": true
+      "critical": true,
+      "rom": "ya khayap khao kho at batchep"
     },
     {
       "en": "I hit my head.",
       "th": "ศีรษะกระแทก",
-      "critical": true
+      "critical": true,
+      "rom": "sinsa krathaek"
     },
     {
       "en": "I need to go to the hospital.",
       "th": "ต้องไปโรงพยาบาล",
-      "critical": true
+      "critical": true,
+      "rom": "tong pai rongpyaban"
     },
     {
       "en": "Please do not move the vehicles yet.",
-      "th": "ขออย่าเพิ่งเคลื่อนย้ายรถ"
+      "th": "ขออย่าเพิ่งเคลื่อนย้ายรถ",
+      "rom": "kho ya phoeng kheluenyai rot"
     },
     {
       "en": "I want to make a police report for the insurance.",
-      "th": "ต้องการแจ้งความเพื่อทำเรื่องประกัน"
+      "th": "ต้องการแจ้งความเพื่อทำเรื่องประกัน",
+      "rom": "tongkan chaengkwam phuea tham rueang prakan"
     },
     {
       "en": "Can I take photos of the scene?",
-      "th": "ถ่ายรูปที่เกิดเหตุได้ไหม"
+      "th": "ถ่ายรูปที่เกิดเหตุได้ไหม",
+      "rom": "thairup thikoethetu dai mai"
     },
     {
       "en": "Can you write down your name and phone number?",
-      "th": "ช่วยเขียนชื่อและเบอร์โทรไว้ให้หน่อย"
+      "th": "ช่วยเขียนชื่อและเบอร์โทรไว้ให้หน่อย",
+      "rom": "chuai khian chue lae boe thon wai hai noi"
     },
     {
       "en": "Is there a witness who saw it?",
-      "th": "มีพยานที่เห็นเหตุการณ์ไหม"
+      "th": "มีพยานที่เห็นเหตุการณ์ไหม",
+      "rom": "mi phayan thi en etukan mai"
     },
     {
       "en": "The other driver came too fast.",
-      "th": "อีกฝ่ายขับมาเร็วเกินไป"
+      "th": "อีกฝ่ายขับมาเร็วเกินไป",
+      "rom": "ik fai khap ma reo koenpai"
     },
     {
       "en": "I have travel insurance. Here is the policy.",
-      "th": "มีประกันการเดินทาง นี่กรมธรรม์"
+      "th": "มีประกันการเดินทาง นี่กรมธรรม์",
+      "rom": "mi prakan kan doenthang ni kramathan"
     },
     {
       "en": "Which hospital is the nearest?",
-      "th": "โรงพยาบาลที่ใกล้ที่สุดคือที่ไหน"
+      "th": "โรงพยาบาลที่ใกล้ที่สุดคือที่ไหน",
+      "rom": "rongpyaban thi kain thisut khue thinai"
     },
     {
       "en": "I rented the motorbike at a shop nearby.",
-      "th": "เช่ามอเตอร์ไซค์จากร้านแถวนี้"
+      "th": "เช่ามอเตอร์ไซค์จากร้านแถวนี้",
+      "rom": "chao motoesai cha kran thaeo ni"
     },
     {
       "en": "Please call the rental shop for me.",
-      "th": "ช่วยโทรหาร้านเช่าให้หน่อย"
+      "th": "ช่วยโทรหาร้านเช่าให้หน่อย",
+      "rom": "chuai thon ha ran chao hai noi"
     },
     {
       "en": "How much is the damage?",
-      "th": "ความเสียหายคิดเป็นเงินเท่าไหร่"
+      "th": "ความเสียหายคิดเป็นเงินเท่าไหร่",
+      "rom": "khwamsiahai khit pen ngoen thaorai"
     },
     {
       "en": "I do not want to pay here. Let us go to the police.",
-      "th": "ไม่ขอจ่ายที่นี่ ไปที่สถานีตำรวจกัน"
+      "th": "ไม่ขอจ่ายที่นี่ ไปที่สถานีตำรวจกัน",
+      "rom": "mai kho chai thini pai thi sathanitamruat kan"
     },
     {
       "en": "Please give me a copy of the report.",
-      "th": "ขอสำเนารายงานด้วย"
+      "th": "ขอสำเนารายงานด้วย",
+      "rom": "kho samnao raingan duai"
     }
   ],
   "note": {
-    "de": "Nach einem Unfall zuerst Verletzte versorgen, 1669 (Rettung) und 191 (Polizei) rufen, Fahrzeuge nicht bewegen und Fotos machen. Ohne Führerschein für Motorräder zahlt die Versicherung oft nicht. Dem Vermieter sofort Bescheid geben; Reisepass nicht als Pfand lassen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "After a crash, first help the injured, call 1669 (ambulance) and 191 (police), do not move the vehicles and take photos. Without a motorcycle licence insurance often refuses to pay. Tell the rental shop at once; never leave your passport as a deposit. Thai lines machine-made, not checked by native speakers."
+    "de": "Nach einem Unfall zuerst Verletzte versorgen, 1669 (Rettung) und 191 (Polizei) rufen, Fahrzeuge nicht bewegen und Fotos machen. Ohne Führerschein für Motorräder zahlt die Versicherung oft nicht. Dem Vermieter sofort Bescheid geben; Reisepass nicht als Pfand lassen. Siehe auch: Reiseversicherung: Schaden melden. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "After a crash, first help the injured, call 1669 (ambulance) and 191 (police), do not move the vehicles and take photos. Without a motorcycle licence insurance often refuses to pay. Tell the rental shop at once; never leave your passport as a deposit. See also: Travel insurance claim. Thai lines machine-made, not checked by native speakers."
   }
 }

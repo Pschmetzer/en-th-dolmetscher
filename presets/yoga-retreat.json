@@ -40,74 +40,91 @@
     {
       "en": "I have a back injury. Please be careful.",
       "th": "หลังบาดเจ็บอยู่ ช่วยระวังด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "lang batchep yu chuai rawang duai"
     },
     {
       "en": "I am pregnant.",
       "th": "กำลังตั้งครรภ์",
-      "critical": true
+      "critical": true,
+      "rom": "kamlang tangkan"
     },
     {
       "en": "I feel dizzy.",
       "th": "เวียนหัว",
-      "critical": true
+      "critical": true,
+      "rom": "wianhua"
     },
     {
       "en": "I have a severe allergy.",
       "th": "มีอาการแพ้รุนแรง",
-      "critical": true
+      "critical": true,
+      "rom": "mi akan phae runraeng"
     },
     {
       "en": "I am a beginner.",
-      "th": "เป็นมือใหม่"
+      "th": "เป็นมือใหม่",
+      "rom": "pen muehaim"
     },
     {
       "en": "What time is the class?",
-      "th": "คลาสกี่โมง"
+      "th": "คลาสกี่โมง",
+      "rom": "khlat ki mong"
     },
     {
       "en": "Could I have a mat, please?",
-      "th": "ขอเสื่อหน่อย"
+      "th": "ขอเสื่อหน่อย",
+      "rom": "kho suea noi"
     },
     {
       "en": "Is there a class for beginners?",
-      "th": "มีคลาสสำหรับมือใหม่ไหม"
+      "th": "มีคลาสสำหรับมือใหม่ไหม",
+      "rom": "mi khlat samrap muehaim mai"
     },
     {
       "en": "Could you show me the pose again?",
-      "th": "ช่วยทำท่านี้ให้ดูอีกครั้งได้ไหม"
+      "th": "ช่วยทำท่านี้ให้ดูอีกครั้งได้ไหม",
+      "rom": "chuai thamtha ni hai du ikkrang dai mai"
     },
     {
       "en": "This hurts. I need to stop.",
-      "th": "เจ็บ ขอหยุดก่อน"
+      "th": "เจ็บ ขอหยุดก่อน",
+      "rom": "chep kho yut kon"
     },
     {
       "en": "May I take a break?",
-      "th": "ขอพักได้ไหม"
+      "th": "ขอพักได้ไหม",
+      "rom": "kho phak dai mai"
     },
     {
       "en": "Could I have some water?",
-      "th": "ขอน้ำหน่อย"
+      "th": "ขอน้ำหน่อย",
+      "rom": "kho nam noi"
     },
     {
       "en": "Is the food vegetarian?",
-      "th": "อาหารเป็นมังสวิรัติไหม"
+      "th": "อาหารเป็นมังสวิรัติไหม",
+      "rom": "ahan pen mangtwirati mai"
     },
     {
       "en": "Where is the meditation hall?",
-      "th": "ห้องนั่งสมาธิอยู่ที่ไหน"
+      "th": "ห้องนั่งสมาธิอยู่ที่ไหน",
+      "rom": "ong nangtmathi yu thinai"
     },
     {
       "en": "Is there a massage?",
-      "th": "มีนวดไหม"
+      "th": "มีนวดไหม",
+      "rom": "mi nuat mai"
     },
     {
       "en": "What time is breakfast?",
-      "th": "อาหารเช้ากี่โมง"
+      "th": "อาหารเช้ากี่โมง",
+      "rom": "ahanchao ki mong"
     },
     {
       "en": "Is there Wi-Fi in the rooms?",
-      "th": "ในห้องมีไวไฟไหม"
+      "th": "ในห้องมีไวไฟไหม",
+      "rom": "nai ong mi waifai mai"
     }
   ]
 }

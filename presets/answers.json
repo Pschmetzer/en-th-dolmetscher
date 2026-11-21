@@ -40,79 +40,98 @@
     {
       "en": "I need help.",
       "th": "ต้องการความช่วยเหลือ",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan khwamchuaihelue"
     },
     {
       "en": "Thank you.",
-      "th": "ขอบคุณ"
+      "th": "ขอบคุณ",
+      "rom": "khopkhun"
     },
     {
       "en": "Sorry.",
-      "th": "ขอโทษ"
+      "th": "ขอโทษ",
+      "rom": "khothot"
     },
     {
       "en": "Excuse me.",
-      "th": "ขออนุญาต"
+      "th": "ขออนุญาต",
+      "rom": "khonuyat"
     },
     {
       "en": "I do not know.",
-      "th": "ไม่ทราบ"
+      "th": "ไม่ทราบ",
+      "rom": "mai thrap"
     },
     {
       "en": "I do not understand.",
-      "th": "ไม่เข้าใจ"
+      "th": "ไม่เข้าใจ",
+      "rom": "mai khaochai"
     },
     {
       "en": "Please speak slowly.",
-      "th": "ช่วยพูดช้าๆ หน่อย"
+      "th": "ช่วยพูดช้าๆ หน่อย",
+      "rom": "chuai phut cha noi"
     },
     {
       "en": "Please say it again.",
-      "th": "ช่วยพูดอีกครั้งหน่อย"
+      "th": "ช่วยพูดอีกครั้งหน่อย",
+      "rom": "chuai phut ikkrang noi"
     },
     {
       "en": "Please write it down.",
-      "th": "ช่วยเขียนให้หน่อย"
+      "th": "ช่วยเขียนให้หน่อย",
+      "rom": "chuai khian hai noi"
     },
     {
       "en": "How much is it?",
-      "th": "ราคาเท่าไร"
+      "th": "ราคาเท่าไร",
+      "rom": "rakha thaorai"
     },
     {
       "en": "Please wait a moment.",
-      "th": "รอสักครู่"
+      "th": "รอสักครู่",
+      "rom": "ro sakkru"
     },
     {
       "en": "No, thank you.",
-      "th": "ไม่เอา ขอบคุณ"
+      "th": "ไม่เอา ขอบคุณ",
+      "rom": "mai ao khopkhun"
     },
     {
       "en": "That is correct.",
-      "th": "ถูกต้อง"
+      "th": "ถูกต้อง",
+      "rom": "thuktong"
     },
     {
       "en": "That is not correct.",
-      "th": "ไม่ถูกต้อง"
+      "th": "ไม่ถูกต้อง",
+      "rom": "mai thuktong"
     },
     {
       "en": "Do you speak English?",
-      "th": "พูดภาษาอังกฤษได้ไหม"
+      "th": "พูดภาษาอังกฤษได้ไหม",
+      "rom": "phut phasaangkrit dai mai"
     },
     {
       "en": "Where is the toilet?",
-      "th": "ห้องน้ำอยู่ที่ไหน"
+      "th": "ห้องน้ำอยู่ที่ไหน",
+      "rom": "ongnam yu thinai"
     },
     {
       "en": "Can you show me on the map?",
-      "th": "ช่วยชี้บนแผนที่ให้หน่อย"
+      "th": "ช่วยชี้บนแผนที่ให้หน่อย",
+      "rom": "chuai chi bon phaenthi hai noi"
     },
     {
       "en": "Please call this number.",
-      "th": "ช่วยโทรเบอร์นี้ให้หน่อย"
+      "th": "ช่วยโทรเบอร์นี้ให้หน่อย",
+      "rom": "chuai thon boe ni hai noi"
     },
     {
       "en": "Is it far from here?",
-      "th": "ไกลจากที่นี่ไหม"
+      "th": "ไกลจากที่นี่ไหม",
+      "rom": "klai chak thini mai"
     }
   ]
 }

@@ -1,0 +1,162 @@
+{
+  "id": "chao-phraya-river-boat",
+  "names": {
+    "de": "Chao-Phraya-Expressboot",
+    "en": "Chao Phraya express boat",
+    "th": "เรือด่วนเจ้าพระยา"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Die Expressboote auf dem Chao Phraya fahren nach Flaggenfarben mit eigenen Haltestellen; Preise stehen am Pier, bezahlt wird an Bord bei der Kassiererin. In der Hauptverkehrszeit sind sie voll, die Fahrt endet am Abend. Beim Ein- und Aussteigen nicht drängeln, die Boote halten nur kurz. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "The Chao Phraya express boats run by flag colour with their own stops; fares are posted at the pier and paid on board to the ticket seller. They are crowded at rush hour and stop running in the evening. Do not push when boarding or leaving, the boats stop only briefly. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "river boat",
+      "th": "เรือด่วน"
+    },
+    {
+      "en": "pier",
+      "th": "ท่าเรือ"
+    },
+    {
+      "en": "ticket",
+      "th": "ตั๋ว"
+    },
+    {
+      "en": "flag",
+      "th": "ธง"
+    },
+    {
+      "en": "stop",
+      "th": "ป้าย"
+    },
+    {
+      "en": "life jacket",
+      "th": "เสื้อชูชีพ"
+    },
+    {
+      "en": "tourist boat",
+      "th": "เรือท่องเที่ยว"
+    },
+    {
+      "en": "cross the river",
+      "th": "ข้ามฟาก"
+    },
+    {
+      "en": "last boat",
+      "th": "เรือเที่ยวสุดท้าย"
+    },
+    {
+      "en": "fare",
+      "th": "ค่าโดยสาร"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please help, someone fell into the water.",
+      "th": "ช่วยด้วย มีคนตกน้ำ",
+      "critical": true,
+      "rom": "chuaiduai mi khon takanam"
+    },
+    {
+      "en": "Please call for help.",
+      "th": "ช่วยเรียกคนมาช่วยด้วย",
+      "critical": true,
+      "rom": "chuai riak khon ma chuaiduai"
+    },
+    {
+      "en": "I need a life jacket.",
+      "th": "ต้องใช้เสื้อชูชีพ",
+      "critical": true,
+      "rom": "tong chai suea chuchip"
+    },
+    {
+      "en": "Please call an ambulance (1669).",
+      "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true,
+      "rom": "chuai riak rathaphayaban duai 1669"
+    },
+    {
+      "en": "I lost my child on the boat.",
+      "th": "ลูกหายบนเรือ",
+      "critical": true,
+      "rom": "luk hai bon ruea"
+    },
+    {
+      "en": "Where is the pier for the Grand Palace?",
+      "th": "ท่าเรือที่ไปพระบรมมหาราชวังอยู่ที่ไหน",
+      "rom": "tharuea thi pai phrapnmmharatwang yu thinai"
+    },
+    {
+      "en": "Which boat goes to Icon Siam?",
+      "th": "เรือลำไหนไปไอคอนสยาม",
+      "rom": "ruea lam nai pai khain sayam"
+    },
+    {
+      "en": "Which pier is the nearest?",
+      "th": "ท่าเรือที่ใกล้ที่สุดคือท่าไหน",
+      "rom": "tharuea thi kain thisut khue tha nai"
+    },
+    {
+      "en": "How much is the fare?",
+      "th": "ค่าโดยสารเท่าไร",
+      "rom": "khadoisan thaorai"
+    },
+    {
+      "en": "Where do I buy a ticket?",
+      "th": "ซื้อตั๋วได้ที่ไหน",
+      "rom": "sue tua dai thinai"
+    },
+    {
+      "en": "Does this boat stop at Wat Arun?",
+      "th": "เรือลำนี้จอดที่วัดอรุณไหม",
+      "rom": "ruea lam ni chot thiwat run mai"
+    },
+    {
+      "en": "Which stop is this?",
+      "th": "ป้ายนี้คือป้ายอะไร",
+      "rom": "pai ni khue pai arai"
+    },
+    {
+      "en": "Please tell me when we arrive.",
+      "th": "ถึงแล้วช่วยบอกด้วย",
+      "rom": "thueng laeo chuai bok duai"
+    },
+    {
+      "en": "When is the last boat?",
+      "th": "เรือเที่ยวสุดท้ายกี่โมง",
+      "rom": "ruea thiao sutthai ki mong"
+    },
+    {
+      "en": "How often do the boats run?",
+      "th": "เรือออกทุกกี่นาที",
+      "rom": "ruea ok thuk ki nathi"
+    },
+    {
+      "en": "How do I cross the river?",
+      "th": "ข้ามฟากไปอีกฝั่งอย่างไร",
+      "rom": "khamfak pai ik fang yangrai"
+    },
+    {
+      "en": "Is this the tourist boat?",
+      "th": "นี่คือเรือท่องเที่ยวใช่ไหม",
+      "rom": "ni khue ruea thongthiao chaimai"
+    },
+    {
+      "en": "Is there a day pass?",
+      "th": "มีตั๋วรายวันไหม",
+      "rom": "mi tua raiwan mai"
+    },
+    {
+      "en": "Please hold my bag.",
+      "th": "ช่วยถือกระเป๋าให้หน่อย",
+      "rom": "chuai thue krapao hai noi"
+    },
+    {
+      "en": "May I sit here?",
+      "th": "ขอนั่งตรงนี้ได้ไหม",
+      "rom": "kho nang trangani dai mai"
+    }
+  ]
+}

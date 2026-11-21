@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Brillen und Kontaktlinsen sind günstig und oft in unter einer Stunde fertig. Rezept oder Sehwerte (Sphäre, Zylinder, Achse) mitbringen oder eine Augenprüfung machen lassen. Bei plötzlichem Sehverlust, Schmerz oder Chemikalien im Auge sofort in die Augenklinik oder das Krankenhaus; Rettungsdienst (1669). Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Glasses and contact lenses are cheap and often ready in under an hour. Bring your prescription or have an eye test done. For sudden loss of sight, pain or chemicals in the eye go straight to an eye clinic or hospital; ambulance (1669). Thai lines machine-made, not checked by native speakers."
+    "de": "Brillen und Kontaktlinsen sind günstig und oft in unter einer Stunde fertig. Rezept oder Sehwerte (Sphäre, Zylinder, Achse) mitbringen oder eine Augenprüfung machen lassen. Bei plötzlichem Sehverlust, Schmerz oder Chemikalien im Auge sofort in die Augenklinik oder das Krankenhaus; Rettungsdienst (1669). Siehe auch: Brille und Linsen reparieren. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Glasses and contact lenses are cheap and often ready in under an hour. Bring your prescription or have an eye test done. For sudden loss of sight, pain or chemicals in the eye go straight to an eye clinic or hospital; ambulance (1669). See also: Glasses and lens repair. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -56,61 +56,75 @@
     {
       "en": "I have something in my eye and it hurts.",
       "th": "มีบางอย่างเข้าตาและเจ็บ",
-      "critical": true
+      "critical": true,
+      "rom": "mi khaota lae chep"
     },
     {
       "en": "I cannot see well suddenly.",
       "th": "มองเห็นไม่ชัดกะทันหัน",
-      "critical": true
+      "critical": true,
+      "rom": "monghen mai chat kathanhan"
     },
     {
       "en": "There is a chemical in my eye.",
       "th": "มีสารเคมีเข้าตา",
-      "critical": true
+      "critical": true,
+      "rom": "mi sankhemi khaota"
     },
     {
       "en": "I broke my glasses.",
-      "th": "แว่นหัก"
+      "th": "แว่นหัก",
+      "rom": "waen ak"
     },
     {
       "en": "Can you repair my glasses?",
-      "th": "ซ่อมแว่นได้ไหม"
+      "th": "ซ่อมแว่นได้ไหม",
+      "rom": "som waen dai mai"
     },
     {
       "en": "I need new glasses.",
-      "th": "ต้องการแว่นใหม่"
+      "th": "ต้องการแว่นใหม่",
+      "rom": "tongkan waen aim"
     },
     {
       "en": "Can you test my eyes?",
-      "th": "ตรวจวัดสายตาให้ได้ไหม"
+      "th": "ตรวจวัดสายตาให้ได้ไหม",
+      "rom": "truatwat saita aidai mai"
     },
     {
       "en": "Here is my prescription.",
-      "th": "นี่คือค่าสายตา"
+      "th": "นี่คือค่าสายตา",
+      "rom": "ni khue kha saita"
     },
     {
       "en": "How long will it take?",
-      "th": "ใช้เวลานานเท่าไหร่"
+      "th": "ใช้เวลานานเท่าไหร่",
+      "rom": "chaiwelanan thaorai"
     },
     {
       "en": "How much is it with the lenses?",
-      "th": "ราคารวมเลนส์เท่าไร"
+      "th": "ราคารวมเลนส์เท่าไร",
+      "rom": "rakha ruam len thaorai"
     },
     {
       "en": "I need contact lenses and solution.",
-      "th": "ต้องการคอนแทคเลนส์และน้ำยา"
+      "th": "ต้องการคอนแทคเลนส์และน้ำยา",
+      "rom": "tongkan khonthaeklen lae namya"
     },
     {
       "en": "I would like sunglasses with a prescription.",
-      "th": "ต้องการแว่นกันแดดที่มีค่าสายตา"
+      "th": "ต้องการแว่นกันแดดที่มีค่าสายตา",
+      "rom": "tongkan waenkandaet thi mikha saita"
     },
     {
       "en": "Do you have eye drops for dry eyes?",
-      "th": "มียาหยอดตาสำหรับตาแห้งไหม"
+      "th": "มียาหยอดตาสำหรับตาแห้งไหม",
+      "rom": "mi yayotta samrap ta aeng mai"
     },
     {
       "en": "Where is the nearest eye clinic?",
-      "th": "คลินิกตาที่ใกล้ที่สุดอยู่ที่ไหน"
+      "th": "คลินิกตาที่ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "khlinik ta thi kain thisut yu thinai"
     }
   ]
 }

@@ -4,6 +4,19 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### Web, round 27
+
+- **17 new phrase packs (243 in total):** snake bite, jellyfish and sea urchins, locksmith, power outage, stray dogs, online orders and parcels, phone repair, traffic fines, air pollution (PM2.5), asthma and inhaler, anaphylaxis and adrenaline pen, seafood by weight, tipping and service charge, card payment surcharge, theft in a hotel room, Chao Phraya express boat, foreigner ticket prices. Index, categories and search terms are in place; the new packs pass `check_presets.py --strict` and `preset_lint.py`.
+- **Transliteration (`rom`) for all packs:** the 201 older packs now carry the machine-made reading aid too (`tools/preset_rom.py --fill`); pack size budgets still hold (no pack above 22 KB, all packs below 1.9 MB). Loading `rom` on demand was not needed.
+- **Review status in the phrasebook:** each pack shows "Thai sentences: x % checked by native speakers" under its note (from `reviewed` in `presets-index.json`); medical, emergency and police packs with red sentences add a hint to have a Thai speaker double-check them first.
+- **See-also instead of duplicates:** new `tools/preset_dupes.py` lists packs sharing three or more sentences and adds "See also: ..." to their notes (73 packs), so each pack stays usable alone.
+- **History tags:** each entry of the existing history has a tag button (star, medical, money, taxi, hotel); tags are searchable and show in the text, share and CSV export (extra `tag` column only if something is tagged). Session only, like the history itself.
+- **Offline travel checklist export:** the checklist tab saves the list with its ticks as `reise-checkliste.txt`, made on the device.
+- **Longer share links:** a card pack link above one QR code (271 bytes) is split into up to 12 QR codes; each code is its own link (`#part=`), the page collects the parts on the phone and opens the pack when all are there (checksum). Links up to about 2 KB (around 24 cards) work.
+- **Lighthouse CI:** new workflow `lighthouse.yml` runs Lighthouse against the locally served page (3 runs, desktop preset) with budgets for performance, accessibility, SEO, weight, LCP, CLS and blocking time in `.github/lighthouse/lighthouserc.json`. Not blocking (job and step `continue-on-error`), report stored as artifact, nothing uploaded to a third party.
+- **Browser flow test:** `tests/web-e2e/flow.mjs` (Playwright): open the page, wait for the service worker to cache packs, open a pack, check the review status, show a card, search, reload offline; new CI job `e2e` in `web-a11y.yml`.
+- Budget: service worker limit raised to 17,500 bytes (17 more pack IDs).
+
 ### Web, round 25
 
 - **25 new phrase packs (226 in total):** sunburn and heat rash, toothache emergency, coffee and tea order, Muay Thai stadium, temple photography, massage prices, apartment hunting, electricity and water bill, waste and recycling, plumber/electrician/air con, car breakdown, bicycle touring and repair, kindergarten and daycare, pet boarding and travel, childbirth in hospital, glasses and lens repair, digital arrival card (TDAC), street food custom order, smoothie and juice stall, golf caddie and tips, banking app and OTP problems, self-service laundromat, car insurance claim, tour agency booking, minivan and airport transfer. The Thai is machine-made and not checked by native speakers.

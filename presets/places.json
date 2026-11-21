@@ -35,79 +35,98 @@
   "phrases": [
     {
       "en": "Suvarnabhumi Airport, please.",
-      "th": "ไปสนามบินสุวรรณภูมิ"
+      "th": "ไปสนามบินสุวรรณภูมิ",
+      "rom": "pai sanambin suanphumi"
     },
     {
       "en": "Don Mueang Airport, please.",
-      "th": "ไปสนามบินดอนเมือง"
+      "th": "ไปสนามบินดอนเมือง",
+      "rom": "pai sanambin donmueang"
     },
     {
       "en": "Khao San Road, please.",
-      "th": "ไปถนนข้าวสาร"
+      "th": "ไปถนนข้าวสาร",
+      "rom": "pai thanon khaosan"
     },
     {
       "en": "Chatuchak Market, please.",
-      "th": "ไปตลาดจตุจักร"
+      "th": "ไปตลาดจตุจักร",
+      "rom": "pai tlat chatuchakn"
     },
     {
       "en": "Siam Paragon, please.",
-      "th": "ไปสยามพารากอน"
+      "th": "ไปสยามพารากอน",
+      "rom": "pai sayampharakon"
     },
     {
       "en": "The Grand Palace, please.",
-      "th": "ไปพระบรมมหาราชวัง"
+      "th": "ไปพระบรมมหาราชวัง",
+      "rom": "pai phrapnmmharatwang"
     },
     {
       "en": "Wat Pho, please.",
-      "th": "ไปวัดโพธิ์"
+      "th": "ไปวัดโพธิ์",
+      "rom": "pai wat pho"
     },
     {
       "en": "Wat Arun, please.",
-      "th": "ไปวัดอรุณ"
+      "th": "ไปวัดอรุณ",
+      "rom": "pai wat run"
     },
     {
       "en": "Yaowarat (Chinatown), please.",
-      "th": "ไปเยาวราช"
+      "th": "ไปเยาวราช",
+      "rom": "pai yeaorat"
     },
     {
       "en": "Asiatique, please.",
-      "th": "ไปเอเชียทีค"
+      "th": "ไปเอเชียทีค",
+      "rom": "pai echia thi kh"
     },
     {
       "en": "Mo Chit bus terminal, please.",
-      "th": "ไปสถานีขนส่งหมอชิต"
+      "th": "ไปสถานีขนส่งหมอชิต",
+      "rom": "pai sathanikntng mochit"
     },
     {
       "en": "Krung Thep Aphiwat station, please.",
-      "th": "ไปสถานีกรุงเทพอภิวัฒน์"
+      "th": "ไปสถานีกรุงเทพอภิวัฒน์",
+      "rom": "pai sathani krungthep phi wat"
     },
     {
       "en": "Phuket Airport, please.",
-      "th": "ไปสนามบินภูเก็ต"
+      "th": "ไปสนามบินภูเก็ต",
+      "rom": "pai sanambin phuket"
     },
     {
       "en": "Patong Beach, please.",
-      "th": "ไปหาดป่าตอง"
+      "th": "ไปหาดป่าตอง",
+      "rom": "pai at patong"
     },
     {
       "en": "Phuket Old Town, please.",
-      "th": "ไปเมืองเก่าภูเก็ต"
+      "th": "ไปเมืองเก่าภูเก็ต",
+      "rom": "pai mueang kao phuket"
     },
     {
       "en": "Chiang Mai Airport, please.",
-      "th": "ไปสนามบินเชียงใหม่"
+      "th": "ไปสนามบินเชียงใหม่",
+      "rom": "pai sanambin chianghaim"
     },
     {
       "en": "Chiang Mai Old City, please.",
-      "th": "ไปเมืองเก่าเชียงใหม่"
+      "th": "ไปเมืองเก่าเชียงใหม่",
+      "rom": "pai mueang kao chianghaim"
     },
     {
       "en": "Nimmanhaemin Road, please.",
-      "th": "ไปถนนนิมมานเหมินท์"
+      "th": "ไปถนนนิมมานเหมินท์",
+      "rom": "pai thanon nimman he min"
     },
     {
       "en": "Doi Suthep, please.",
-      "th": "ไปดอยสุเทพ"
+      "th": "ไปดอยสุเทพ",
+      "rom": "pai doi suthep"
     }
   ]
 }

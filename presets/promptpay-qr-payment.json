@@ -55,59 +55,73 @@
   "phrases": [
     {
       "en": "Can I pay by QR code?",
-      "th": "จ่ายด้วยคิวอาร์โค้ดได้ไหม"
+      "th": "จ่ายด้วยคิวอาร์โค้ดได้ไหม",
+      "rom": "chai duai khio a khot dai mai"
     },
     {
       "en": "Can I pay by card?",
-      "th": "จ่ายด้วยบัตรได้ไหม"
+      "th": "จ่ายด้วยบัตรได้ไหม",
+      "rom": "chai duai batn dai mai"
     },
     {
       "en": "I only have cash.",
-      "th": "มีแต่เงินสด"
+      "th": "มีแต่เงินสด",
+      "rom": "mi tae ngoentt"
     },
     {
       "en": "Please show me the QR code.",
-      "th": "ช่วยแสดงคิวอาร์โค้ดหน่อย"
+      "th": "ช่วยแสดงคิวอาร์โค้ดหน่อย",
+      "rom": "chuai saetng khio a khot noi"
     },
     {
       "en": "Is the amount correct?",
-      "th": "จำนวนเงินถูกต้องไหม"
+      "th": "จำนวนเงินถูกต้องไหม",
+      "rom": "chamnuan ngoen thuktong mai"
     },
     {
       "en": "Is this the name of the shop?",
-      "th": "นี่คือชื่อร้านใช่ไหม"
+      "th": "นี่คือชื่อร้านใช่ไหม",
+      "rom": "ni khue chue ran chaimai"
     },
     {
       "en": "The payment did not go through.",
-      "th": "การชำระเงินไม่สำเร็จ"
+      "th": "การชำระเงินไม่สำเร็จ",
+      "rom": "kan chamrangoen mai samret"
     },
     {
       "en": "Did you receive the money?",
-      "th": "ได้รับเงินแล้วใช่ไหม"
+      "th": "ได้รับเงินแล้วใช่ไหม",
+      "rom": "dai rapngoen laeo chaimai"
     },
     {
       "en": "Please check on your phone.",
-      "th": "ช่วยตรวจในโทรศัพท์หน่อย"
+      "th": "ช่วยตรวจในโทรศัพท์หน่อย",
+      "rom": "chuai truat nai thonsap noi"
     },
     {
       "en": "May I have a payment slip?",
-      "th": "ขอสลิปการชำระเงินได้ไหม"
+      "th": "ขอสลิปการชำระเงินได้ไหม",
+      "rom": "kho slip kan chamra ngoendai mai"
     },
     {
       "en": "Please do not charge twice.",
-      "th": "ช่วยอย่าเก็บเงินซ้ำ"
+      "th": "ช่วยอย่าเก็บเงินซ้ำ",
+      "rom": "chuai ya kep ngoen sam"
     },
     {
       "en": "Is there a fee for paying by card?",
-      "th": "จ่ายด้วยบัตรมีค่าธรรมเนียมไหม"
+      "th": "จ่ายด้วยบัตรมีค่าธรรมเนียมไหม",
+      "rom": "chai duai batn mi khatamniam mai"
     },
     {
       "en": "I will pay in cash instead.",
-      "th": "จะจ่ายเป็นเงินสดแทน"
+      "th": "จะจ่ายเป็นเงินสดแทน",
+      "rom": "cha chai pen ngoentt thaen"
     },
     {
       "en": "Where is the nearest ATM?",
-      "th": "ตู้เอทีเอ็มที่ใกล้ที่สุดอยู่ที่ไหน"
+      "th": "ตู้เอทีเอ็มที่ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "tuethiem thi kain thisut yu thinai"
     }
   ]
 }

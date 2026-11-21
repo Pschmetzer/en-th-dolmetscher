@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Auf Taxameter bestehen oder den Preis vor der Fahrt festlegen. Maut für den Expressway zahlt meist der Fahrgast. Aufrunden ist als Trinkgeld üblich. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Insist on the meter or agree on the price before the ride. Expressway tolls are usually paid by the passenger. Rounding up is a common tip. Thai lines machine-made, not checked by native speakers."
+    "de": "Auf Taxameter bestehen oder den Preis vor der Fahrt festlegen. Maut für den Expressway zahlt meist der Fahrgast. Aufrunden ist als Trinkgeld üblich. Siehe auch: Fahrdienst-App (Grab, Bolt). Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Insist on the meter or agree on the price before the ride. Expressway tolls are usually paid by the passenger. Rounding up is a common tip. See also: Ride-hailing app (Grab, Bolt). Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -52,83 +52,103 @@
     {
       "en": "Please take me to the nearest hospital.",
       "th": "ช่วยไปส่งที่โรงพยาบาลที่ใกล้ที่สุด",
-      "critical": true
+      "critical": true,
+      "rom": "chuai pai song thi rongpyaban thi kain thisut"
     },
     {
       "en": "Please use the meter.",
-      "th": "รบกวนเปิดมิเตอร์ด้วย"
+      "th": "รบกวนเปิดมิเตอร์ด้วย",
+      "rom": "rabakuan poet mitoe duai"
     },
     {
       "en": "To this address, please.",
-      "th": "ไปที่นี่หน่อย"
+      "th": "ไปที่นี่หน่อย",
+      "rom": "pai thini noi"
     },
     {
       "en": "How long will it take?",
-      "th": "ใช้เวลานานเท่าไหร่"
+      "th": "ใช้เวลานานเท่าไหร่",
+      "rom": "chaiwelanan thaorai"
     },
     {
       "en": "Please turn left here.",
-      "th": "เลี้ยวซ้ายตรงนี้หน่อย"
+      "th": "เลี้ยวซ้ายตรงนี้หน่อย",
+      "rom": "liaosai trangani noi"
     },
     {
       "en": "Please stop here.",
-      "th": "จอดตรงนี้หน่อย"
+      "th": "จอดตรงนี้หน่อย",
+      "rom": "chot trangani noi"
     },
     {
       "en": "Could you wait for me for a few minutes?",
-      "th": "รอสักครู่ได้ไหม"
+      "th": "รอสักครู่ได้ไหม",
+      "rom": "ro sakkru dai mai"
     },
     {
       "en": "Do you have change?",
-      "th": "มีเงินทอนไหม"
+      "th": "มีเงินทอนไหม",
+      "rom": "mi ngoenthon mai"
     },
     {
       "en": "Could I have a receipt, please?",
-      "th": "ขอใบเสร็จหน่อย"
+      "th": "ขอใบเสร็จหน่อย",
+      "rom": "kho noi"
     },
     {
       "en": "Here is the address on my phone.",
-      "th": "นี่คือที่อยู่ในโทรศัพท์"
+      "th": "นี่คือที่อยู่ในโทรศัพท์",
+      "rom": "ni khue thiyu nai thonsap"
     },
     {
       "en": "How much is it to go there?",
-      "th": "ไปที่นั่นเท่าไหร่"
+      "th": "ไปที่นั่นเท่าไหร่",
+      "rom": "pai thinan thaorai"
     },
     {
       "en": "Please drive more slowly.",
-      "th": "ช่วยขับช้าลงหน่อย"
+      "th": "ช่วยขับช้าลงหน่อย",
+      "rom": "chuai khap cha long noi"
     },
     {
       "en": "To the airport, please.",
-      "th": "ไปสนามบินหน่อย"
+      "th": "ไปสนามบินหน่อย",
+      "rom": "pai sanambin noi"
     },
     {
       "en": "Please take the expressway.",
-      "th": "ขึ้นทางด่วนได้เลย"
+      "th": "ขึ้นทางด่วนได้เลย",
+      "rom": "khuen thangduan dai loei"
     },
     {
       "en": "Please do not take the expressway.",
-      "th": "ไม่ต้องขึ้นทางด่วน"
+      "th": "ไม่ต้องขึ้นทางด่วน",
+      "rom": "mataing khuen thangduan"
     },
     {
       "en": "Please turn right here.",
-      "th": "เลี้ยวขวาตรงนี้หน่อย"
+      "th": "เลี้ยวขวาตรงนี้หน่อย",
+      "rom": "liaokwa trangani noi"
     },
     {
       "en": "Can you make a U-turn here?",
-      "th": "กลับรถตรงนี้ได้ไหม"
+      "th": "กลับรถตรงนี้ได้ไหม",
+      "rom": "klapnt trangani dai mai"
     },
     {
       "en": "I am in a hurry.",
-      "th": "กำลังรีบ"
+      "th": "กำลังรีบ",
+      "rom": "kamlang rip"
     },
     {
       "en": "Keep the change.",
-      "th": "ไม่ต้องทอน"
+      "th": "ไม่ต้องทอน",
+      "rom": "mataing thon"
     },
     {
       "en": "Could you open the boot, please?",
-      "th": "ช่วยเปิดท้ายรถให้หน่อย"
+      "th": "ช่วยเปิดท้ายรถให้หน่อย",
+      "rom": "chuai poet thai rot hai noi"
     }
   ]
 }

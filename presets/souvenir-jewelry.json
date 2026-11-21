@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Edelsteinläden, die ein Tuk-Tuk-Fahrer empfiehlt, sind eine bekannte Abzocke; nichts als Geldanlage kaufen. Echte Ware hat ein Zertifikat. Antiquitäten und Buddha-Figuren dürfen nur mit Genehmigung ausgeführt werden. Auf Märkten handeln: mit etwa der Hälfte des ersten Preises beginnen und freundlich bleiben. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Gem shops recommended by a tuk-tuk driver are a known scam; do not buy anything as an investment. Genuine goods come with a certificate. Antiques and Buddha images may only be exported with a permit. Haggle in markets: start at about half the first price and stay friendly. Thai lines machine-made, not checked by native speakers."
+    "de": "Edelsteinläden, die ein Tuk-Tuk-Fahrer empfiehlt, sind eine bekannte Abzocke; nichts als Geldanlage kaufen. Echte Ware hat ein Zertifikat. Antiquitäten und Buddha-Figuren dürfen nur mit Genehmigung ausgeführt werden. Auf Märkten handeln: mit etwa der Hälfte des ersten Preises beginnen und freundlich bleiben. Siehe auch: Nachtmarkt und Handeln, Markt und Handeln. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Gem shops recommended by a tuk-tuk driver are a known scam; do not buy anything as an investment. Genuine goods come with a certificate. Antiques and Buddha images may only be exported with a permit. Haggle in markets: start at about half the first price and stay friendly. See also: Night market and bargaining, Market and haggling. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -56,63 +56,78 @@
     {
       "en": "I will not buy anything as an investment.",
       "th": "จะไม่ซื้อเพื่อลงทุน",
-      "critical": true
+      "critical": true,
+      "rom": "cha mai sue phuea langathun"
     },
     {
       "en": "Is this real silver?",
-      "th": "นี่คือเงินแท้ไหม"
+      "th": "นี่คือเงินแท้ไหม",
+      "rom": "ni khue ngoen thae mai"
     },
     {
       "en": "Is this real gold?",
-      "th": "นี่คือทองแท้ไหม"
+      "th": "นี่คือทองแท้ไหม",
+      "rom": "ni khue thong thae mai"
     },
     {
       "en": "Do you have a certificate?",
-      "th": "มีใบรับรองไหม"
+      "th": "มีใบรับรองไหม",
+      "rom": "mi bairaprong mai"
     },
     {
       "en": "How much is this?",
-      "th": "อันนี้ราคาเท่าไหร่"
+      "th": "อันนี้ราคาเท่าไหร่",
+      "rom": "anni rakha thaorai"
     },
     {
       "en": "That is too expensive.",
-      "th": "แพงไป"
+      "th": "แพงไป",
+      "rom": "phaeng pai"
     },
     {
       "en": "Can you give me a discount?",
-      "th": "ลดราคาได้ไหม"
+      "th": "ลดราคาได้ไหม",
+      "rom": "ladrakha dai mai"
     },
     {
       "en": "What is your best price?",
-      "th": "ราคาที่ถูกที่สุดเท่าไหร่"
+      "th": "ราคาที่ถูกที่สุดเท่าไหร่",
+      "rom": "ra khathi thuk thisut thaorai"
     },
     {
       "en": "If I buy two, what is the price?",
-      "th": "ถ้าซื้อสองชิ้นราคาเท่าไหร่"
+      "th": "ถ้าซื้อสองชิ้นราคาเท่าไหร่",
+      "rom": "tha sue song chin rakha thaorai"
     },
     {
       "en": "I will think about it.",
-      "th": "ขอไปคิดดูก่อน"
+      "th": "ขอไปคิดดูก่อน",
+      "rom": "kho pai khit dukon"
     },
     {
       "en": "Can I return it if I do not like it?",
-      "th": "ถ้าไม่ชอบคืนได้ไหม"
+      "th": "ถ้าไม่ชอบคืนได้ไหม",
+      "rom": "tha mai chop khuen dai mai"
     },
     {
       "en": "Please wrap it as a gift.",
-      "th": "ช่วยห่อเป็นของขวัญหน่อย"
+      "th": "ช่วยห่อเป็นของขวัญหน่อย",
+      "rom": "chuai ho pen khongkwan noi"
     },
     {
       "en": "Is this allowed to leave Thailand?",
-      "th": "ของชิ้นนี้นำออกนอกประเทศได้ไหม"
+      "th": "ของชิ้นนี้นำออกนอกประเทศได้ไหม",
+      "rom": "khong chin ni nam ok nok prathet dai mai"
     },
     {
       "en": "Do I need an export permit for this?",
-      "th": "ต้องมีใบอนุญาตส่งออกไหม"
+      "th": "ต้องมีใบอนุญาตส่งออกไหม",
+      "rom": "tong mi bainuyat sangok mai"
     },
     {
       "en": "May I have a receipt?",
-      "th": "ขอใบเสร็จได้ไหม"
+      "th": "ขอใบเสร็จได้ไหม",
+      "rom": "kho dai mai"
     }
   ]
 }

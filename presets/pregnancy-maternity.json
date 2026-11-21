@@ -40,70 +40,85 @@
     {
       "en": "I am pregnant.",
       "th": "กำลังตั้งครรภ์",
-      "critical": true
+      "critical": true,
+      "rom": "kamlang tangkan"
     },
     {
       "en": "I have bleeding. Please help.",
       "th": "มีเลือดออก ช่วยด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "mi lueat ok chuaiduai"
     },
     {
       "en": "I have strong pain in my stomach.",
       "th": "ปวดท้องมาก",
-      "critical": true
+      "critical": true,
+      "rom": "puatthong mak"
     },
     {
       "en": "I think my waters broke.",
       "th": "คิดว่าน้ำเดินแล้ว",
-      "critical": true
+      "critical": true,
+      "rom": "khit wa nam doen laeo"
     },
     {
       "en": "The contractions are every five minutes.",
       "th": "เจ็บท้องทุกห้านาที",
-      "critical": true
+      "critical": true,
+      "rom": "chepthong thuk ha nathi"
     },
     {
       "en": "The baby is not moving much.",
       "th": "ลูกดิ้นน้อยลง",
-      "critical": true
+      "critical": true,
+      "rom": "luk din noinng"
     },
     {
       "en": "Please call an ambulance.",
       "th": "ช่วยเรียกรถพยาบาลหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak rathaphayaban noi"
     },
     {
       "en": "Is this medicine safe in pregnancy?",
       "th": "ยานี้ปลอดภัยสำหรับคนท้องไหม",
-      "critical": true
+      "critical": true,
+      "rom": "ya ni plotphai samrap khon thong mai"
     },
     {
       "en": "I am in my twentieth week.",
-      "th": "ตั้งครรภ์ยี่สิบสัปดาห์แล้ว"
+      "th": "ตั้งครรภ์ยี่สิบสัปดาห์แล้ว",
+      "rom": "tangkan yisip sapda laeo"
     },
     {
       "en": "I need an ultrasound.",
-      "th": "ต้องการตรวจอัลตราซาวด์"
+      "th": "ต้องการตรวจอัลตราซาวด์",
+      "rom": "tongkan truat antrasao"
     },
     {
       "en": "Can I fly at this stage?",
-      "th": "อายุครรภ์เท่านี้นั่งเครื่องบินได้ไหม"
+      "th": "อายุครรภ์เท่านี้นั่งเครื่องบินได้ไหม",
+      "rom": "khan thaoni nang kheruengbin dai mai"
     },
     {
       "en": "Do I need a certificate for the airline?",
-      "th": "ต้องมีใบรับรองแพทย์สำหรับสายการบินไหม"
+      "th": "ต้องมีใบรับรองแพทย์สำหรับสายการบินไหม",
+      "rom": "tong mi bairaprongphaet samrap saikanbin mai"
     },
     {
       "en": "I feel nauseous all day.",
-      "th": "คลื่นไส้ทั้งวัน"
+      "th": "คลื่นไส้ทั้งวัน",
+      "rom": "khluensai thangwan"
     },
     {
       "en": "Is there a doctor who speaks English?",
-      "th": "มีแพทย์ที่พูดภาษาอังกฤษไหม"
+      "th": "มีแพทย์ที่พูดภาษาอังกฤษไหม",
+      "rom": "mi phaet thi phut phasaangkrit mai"
     },
     {
       "en": "What does it cost to give birth here?",
-      "th": "คลอดที่นี่ค่าใช้จ่ายเท่าไร"
+      "th": "คลอดที่นี่ค่าใช้จ่ายเท่าไร",
+      "rom": "khlot thini khachaichai thaorai"
     }
   ]
 }

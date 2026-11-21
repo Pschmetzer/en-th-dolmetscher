@@ -55,59 +55,73 @@
   "phrases": [
     {
       "en": "What is the exchange rate today?",
-      "th": "วันนี้อัตราแลกเปลี่ยนเท่าไหร่"
+      "th": "วันนี้อัตราแลกเปลี่ยนเท่าไหร่",
+      "rom": "wanni atralaekpelin thaorai"
     },
     {
       "en": "I would like to change some US dollars.",
-      "th": "ต้องการแลกดอลลาร์สหรัฐ"
+      "th": "ต้องการแลกดอลลาร์สหรัฐ",
+      "rom": "tong kanlaek donlatrat"
     },
     {
       "en": "I would like to change euros to baht.",
-      "th": "ต้องการแลกยูโรเป็นเงินบาท"
+      "th": "ต้องการแลกยูโรเป็นเงินบาท",
+      "rom": "tong kanlaek yuro pen ngoenbat"
     },
     {
       "en": "Is there a fee or a commission?",
-      "th": "มีค่าธรรมเนียมหรือค่านายหน้าไหม"
+      "th": "มีค่าธรรมเนียมหรือค่านายหน้าไหม",
+      "rom": "mi khatamniam rue khanaina mai"
     },
     {
       "en": "How much will I get in total?",
-      "th": "จะได้เงินรวมเท่าไร"
+      "th": "จะได้เงินรวมเท่าไร",
+      "rom": "cha daingoen ruam thaorai"
     },
     {
       "en": "Please give me some small notes.",
-      "th": "ขอธนบัตรย่อยบางส่วน"
+      "th": "ขอธนบัตรย่อยบางส่วน",
+      "rom": "kho thanabatnyoi bangsuan"
     },
     {
       "en": "Could you give me 100 baht notes?",
-      "th": "ขอเป็นธนบัตรใบละ 100 บาทได้ไหม"
+      "th": "ขอเป็นธนบัตรใบละ 100 บาทได้ไหม",
+      "rom": "kho pen thanabatn bai la 100 bat dai mai"
     },
     {
       "en": "Please count the money in front of me.",
-      "th": "ช่วยนับเงินต่อหน้าด้วย"
+      "th": "ช่วยนับเงินต่อหน้าด้วย",
+      "rom": "chuai nap ngoen tona duai"
     },
     {
       "en": "May I count it again?",
-      "th": "ขอนับอีกครั้งได้ไหม"
+      "th": "ขอนับอีกครั้งได้ไหม",
+      "rom": "kho nap ikkrang dai mai"
     },
     {
       "en": "Do you need my passport?",
-      "th": "ต้องใช้พาสปอร์ตไหม"
+      "th": "ต้องใช้พาสปอร์ตไหม",
+      "rom": "tong chai phatpot mai"
     },
     {
       "en": "May I have a receipt?",
-      "th": "ขอใบเสร็จได้ไหม"
+      "th": "ขอใบเสร็จได้ไหม",
+      "rom": "kho dai mai"
     },
     {
       "en": "Do you accept this note? It is not damaged.",
-      "th": "รับธนบัตรใบนี้ไหม ไม่ได้ชำรุด"
+      "th": "รับธนบัตรใบนี้ไหม ไม่ได้ชำรุด",
+      "rom": "rap thanabatn bai ni mai mai dai chamrut"
     },
     {
       "en": "Where is a better exchange rate nearby?",
-      "th": "แถวนี้ที่ไหนอัตราดีกว่า"
+      "th": "แถวนี้ที่ไหนอัตราดีกว่า",
+      "rom": "thaeo ni thinai atra dikwa"
     },
     {
       "en": "Is there an ATM nearby?",
-      "th": "แถวนี้มีตู้เอทีเอ็มไหม"
+      "th": "แถวนี้มีตู้เอทีเอ็มไหม",
+      "rom": "thaeo ni mi tuethiem mai"
     }
   ]
 }

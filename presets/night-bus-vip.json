@@ -48,104 +48,128 @@
     {
       "en": "Please stop the bus, I feel very sick.",
       "th": "ช่วยจอดรถหน่อย รู้สึกไม่สบายมาก",
-      "critical": true
+      "critical": true,
+      "rom": "chuai chot rot noi rusuek mai sabai mak"
     },
     {
       "en": "My bag was stolen on the bus.",
       "th": "กระเป๋าถูกขโมยบนรถ",
-      "critical": true
+      "critical": true,
+      "rom": "krapao thuk khamoi bon rot"
     },
     {
       "en": "The driver is driving too fast and unsafe.",
       "th": "คนขับขับเร็วและอันตรายมาก",
-      "critical": true
+      "critical": true,
+      "rom": "khanakhap khap reo lae antrai mak"
     },
     {
       "en": "There is smoke in the bus.",
       "th": "มีควันในรถ",
-      "critical": true
+      "critical": true,
+      "rom": "mi khwan nai rot"
     },
     {
       "en": "A passenger has collapsed, please call an ambulance.",
       "th": "ผู้โดยสารล้มลง ช่วยโทรเรียกรถพยาบาลหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "phudoisan lom long chuai thon riak rathaphayaban noi"
     },
     {
       "en": "I missed the bus at the rest stop, please wait.",
       "th": "ตกรถที่จุดพัก ขอให้รอหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "takrot thi chut phak khohai ro noi"
     },
     {
       "en": "Which bus is the overnight bus to Chiang Mai?",
-      "th": "รถทัวร์กลางคืนไปเชียงใหม่คือคันไหน"
+      "th": "รถทัวร์กลางคืนไปเชียงใหม่คือคันไหน",
+      "rom": "rathathua klangkhuen pai chianghaim khue khan nai"
     },
     {
       "en": "Please show me my seat number.",
-      "th": "ขอดูหมายเลขที่นั่งหน่อย"
+      "th": "ขอดูหมายเลขที่นั่งหน่อย",
+      "rom": "kho du mailek thinang noi"
     },
     {
       "en": "What time do we arrive?",
-      "th": "เราจะถึงกี่โมง"
+      "th": "เราจะถึงกี่โมง",
+      "rom": "rao cha thueng ki mong"
     },
     {
       "en": "How long is the stop at the rest area?",
-      "th": "จอดพักที่จุดพักนานเท่าไร"
+      "th": "จอดพักที่จุดพักนานเท่าไร",
+      "rom": "chot phak thi chut phak nan thaorai"
     },
     {
       "en": "Please tell me when we reach my stop.",
-      "th": "ช่วยบอกหน่อยเมื่อถึงป้ายของเรา"
+      "th": "ช่วยบอกหน่อยเมื่อถึงป้ายของเรา",
+      "rom": "chuai bok noi muea thueng pai khong rao"
     },
     {
       "en": "May I have a blanket, please?",
-      "th": "ขอผ้าห่มหน่อย"
+      "th": "ขอผ้าห่มหน่อย",
+      "rom": "kho pham noi"
     },
     {
       "en": "The air conditioning is too cold.",
-      "th": "แอร์เย็นเกินไป"
+      "th": "แอร์เย็นเกินไป",
+      "rom": "ae yen koenpai"
     },
     {
       "en": "Please turn down the air conditioning a little.",
-      "th": "ช่วยลดแอร์ลงหน่อย"
+      "th": "ช่วยลดแอร์ลงหน่อย",
+      "rom": "chuai lot ae long noi"
     },
     {
       "en": "Can I recline my seat?",
-      "th": "เอนเบาะได้ไหม"
+      "th": "เอนเบาะได้ไหม",
+      "rom": "en bo dai mai"
     },
     {
       "en": "Is there a toilet on this bus?",
-      "th": "บนรถคันนี้มีห้องน้ำไหม"
+      "th": "บนรถคันนี้มีห้องน้ำไหม",
+      "rom": "bon rot khan ni mi ongnam mai"
     },
     {
       "en": "Please keep my big bag under the bus.",
-      "th": "ขอเก็บกระเป๋าใบใหญ่ไว้ใต้ท้องรถหน่อย"
+      "th": "ขอเก็บกระเป๋าใบใหญ่ไว้ใต้ท้องรถหน่อย",
+      "rom": "kho kep krapao bai ain wai tai thong rot noi"
     },
     {
       "en": "May I see the luggage ticket?",
-      "th": "ขอดูตั๋วสัมภาระหน่อย"
+      "th": "ขอดูตั๋วสัมภาระหน่อย",
+      "rom": "kho du tua samphara noi"
     },
     {
       "en": "Is food included in the ticket?",
-      "th": "ตั๋วรวมอาหารไหม"
+      "th": "ตั๋วรวมอาหารไหม",
+      "rom": "tua ruam ahan mai"
     },
     {
       "en": "Where can I charge my phone?",
-      "th": "ชาร์จโทรศัพท์ได้ที่ไหน"
+      "th": "ชาร์จโทรศัพท์ได้ที่ไหน",
+      "rom": "chat thonsap dai thinai"
     },
     {
       "en": "Please wake me before the last stop.",
-      "th": "ช่วยปลุกหน่อยก่อนถึงป้ายสุดท้าย"
+      "th": "ช่วยปลุกหน่อยก่อนถึงป้ายสุดท้าย",
+      "rom": "chuai pluk noi kon thueng pai sutthai"
     },
     {
       "en": "Can I change my ticket to tomorrow?",
-      "th": "เปลี่ยนตั๋วเป็นพรุ่งนี้ได้ไหม"
+      "th": "เปลี่ยนตั๋วเป็นพรุ่งนี้ได้ไหม",
+      "rom": "pelin tua pen phrungni dai mai"
     },
     {
       "en": "Where is the ticket counter?",
-      "th": "ช่องขายตั๋วอยู่ที่ไหน"
+      "th": "ช่องขายตั๋วอยู่ที่ไหน",
+      "rom": "chongkhaitua yu thinai"
     },
     {
       "en": "Thank you for the safe trip.",
-      "th": "ขอบคุณสำหรับการเดินทางที่ปลอดภัย"
+      "th": "ขอบคุณสำหรับการเดินทางที่ปลอดภัย",
+      "rom": "khopkhun samrap kan doenthang thi plotphai"
     }
   ]
 }

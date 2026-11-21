@@ -56,61 +56,75 @@
     {
       "en": "Stop, I want to get down.",
       "th": "หยุดก่อน อยากลง",
-      "critical": true
+      "critical": true,
+      "rom": "yut kon yak long"
     },
     {
       "en": "I am injured. Please call an ambulance (1669).",
       "th": "บาดเจ็บ ช่วยเรียกรถพยาบาลด้วย (1669)",
-      "critical": true
+      "critical": true,
+      "rom": "batchep chuai riak rathaphayaban duai 1669"
     },
     {
       "en": "Please check my harness again.",
       "th": "ช่วยตรวจสายรัดนิรภัยอีกครั้ง",
-      "critical": true
+      "critical": true,
+      "rom": "chuai truat sai rat ninphai ikkrang"
     },
     {
       "en": "Is this tour insured?",
-      "th": "ทริปนี้มีประกันไหม"
+      "th": "ทริปนี้มีประกันไหม",
+      "rom": "thrip ni mi prakan mai"
     },
     {
       "en": "Is there a weight or age limit?",
-      "th": "มีข้อจำกัดน้ำหนักหรืออายุไหม"
+      "th": "มีข้อจำกัดน้ำหนักหรืออายุไหม",
+      "rom": "mi khochamkat namnak rue mai"
     },
     {
       "en": "How long is the zip line?",
-      "th": "ซิปไลน์ยาวเท่าไร"
+      "th": "ซิปไลน์ยาวเท่าไร",
+      "rom": "sip lai yao thaorai"
     },
     {
       "en": "Is it safe in the rain?",
-      "th": "ตอนฝนตกปลอดภัยไหม"
+      "th": "ตอนฝนตกปลอดภัยไหม",
+      "rom": "ton fanatok plotphai mai"
     },
     {
       "en": "Do you have a helmet in my size?",
-      "th": "มีหมวกนิรภัยขนาดพอดีไหม"
+      "th": "มีหมวกนิรภัยขนาดพอดีไหม",
+      "rom": "mi muakninphai khanat phodi mai"
     },
     {
       "en": "Do I need a guide?",
-      "th": "ต้องมีไกด์ไหม"
+      "th": "ต้องมีไกด์ไหม",
+      "rom": "tong mi kai mai"
     },
     {
       "en": "Do you provide a headlamp?",
-      "th": "มีไฟฉายคาดหัวให้ไหม"
+      "th": "มีไฟฉายคาดหัวให้ไหม",
+      "rom": "mi fachaiai khat hua hai mai"
     },
     {
       "en": "I am afraid of heights.",
-      "th": "กลัวความสูง"
+      "th": "กลัวความสูง",
+      "rom": "klua khwamsung"
     },
     {
       "en": "Can my child join?",
-      "th": "เด็กเข้าร่วมได้ไหม"
+      "th": "เด็กเข้าร่วมได้ไหม",
+      "rom": "dek khaoruam dai mai"
     },
     {
       "en": "Where do we meet?",
-      "th": "นัดพบกันที่ไหน"
+      "th": "นัดพบกันที่ไหน",
+      "rom": "nat phabakan thinai"
     },
     {
       "en": "Can I leave my bag here?",
-      "th": "ฝากกระเป๋าไว้ที่นี่ได้ไหม"
+      "th": "ฝากกระเป๋าไว้ที่นี่ได้ไหม",
+      "rom": "fak krapao wai thini dai mai"
     }
   ]
 }

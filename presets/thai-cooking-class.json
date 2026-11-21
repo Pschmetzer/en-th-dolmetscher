@@ -36,82 +36,100 @@
     {
       "en": "I am allergic to peanuts.",
       "th": "แพ้ถั่วลิสง",
-      "critical": true
+      "critical": true,
+      "rom": "phae thualitng"
     },
     {
       "en": "I am allergic to shellfish.",
       "th": "แพ้อาหารทะเลที่มีเปลือก",
-      "critical": true
+      "critical": true,
+      "rom": "phae ahanthale thi mi peluek"
     },
     {
       "en": "I cut myself. Do you have a plaster?",
       "th": "มีดบาดมือ มีพลาสเตอร์ไหม",
-      "critical": true
+      "critical": true,
+      "rom": "mit bat mue mi phlattoe mai"
     },
     {
       "en": "I burned my hand.",
       "th": "มือโดนน้ำร้อนลวก",
-      "critical": true
+      "critical": true,
+      "rom": "mue don namron luak"
     },
     {
       "en": "I am vegetarian.",
-      "th": "กินมังสวิรัติ"
+      "th": "กินมังสวิรัติ",
+      "rom": "kin mangtwirati"
     },
     {
       "en": "Please make it not spicy.",
-      "th": "ไม่เผ็ด"
+      "th": "ไม่เผ็ด",
+      "rom": "mai phet"
     },
     {
       "en": "A little spicy, please.",
-      "th": "เผ็ดนิดเดียว"
+      "th": "เผ็ดนิดเดียว",
+      "rom": "phet nitdiao"
     },
     {
       "en": "Does this contain fish sauce?",
-      "th": "อันนี้ใส่น้ำปลาไหม"
+      "th": "อันนี้ใส่น้ำปลาไหม",
+      "rom": "anni sai nampla mai"
     },
     {
       "en": "What time does the class start?",
-      "th": "คอร์สเริ่มกี่โมง"
+      "th": "คอร์สเริ่มกี่โมง",
+      "rom": "khot roem ki mong"
     },
     {
       "en": "Do we visit the market first?",
-      "th": "ไปตลาดก่อนไหม"
+      "th": "ไปตลาดก่อนไหม",
+      "rom": "pai tlat kon mai"
     },
     {
       "en": "How many dishes do we cook?",
-      "th": "จะทำอาหารกี่อย่าง"
+      "th": "จะทำอาหารกี่อย่าง",
+      "rom": "cha thamahan ki yang"
     },
     {
       "en": "What is this herb called?",
-      "th": "สมุนไพรนี้เรียกว่าอะไร"
+      "th": "สมุนไพรนี้เรียกว่าอะไร",
+      "rom": "samunprai ni riak wa arai"
     },
     {
       "en": "Can I write down the recipe?",
-      "th": "จดสูตรอาหารได้ไหม"
+      "th": "จดสูตรอาหารได้ไหม",
+      "rom": "chot sutn ahan dai mai"
     },
     {
       "en": "Can you send me the recipes by email?",
-      "th": "ช่วยส่งสูตรอาหารทางอีเมลให้หน่อย"
+      "th": "ช่วยส่งสูตรอาหารทางอีเมลให้หน่อย",
+      "rom": "chuai song sutn ahan thang imen hai noi"
     },
     {
       "en": "Where can I wash my hands?",
-      "th": "ล้างมือได้ที่ไหน"
+      "th": "ล้างมือได้ที่ไหน",
+      "rom": "langmue dai thinai"
     },
     {
       "en": "Can I take the leftovers with me?",
-      "th": "ห่อกลับบ้านได้ไหม"
+      "th": "ห่อกลับบ้านได้ไหม",
+      "rom": "ho klapban dai mai"
     },
     {
       "en": "Can I take photos while cooking?",
-      "th": "ถ่ายรูปตอนทำอาหารได้ไหม"
+      "th": "ถ่ายรูปตอนทำอาหารได้ไหม",
+      "rom": "thairup ton thamahan dai mai"
     },
     {
       "en": "This was delicious. Thank you.",
-      "th": "อร่อยมาก ขอบคุณ"
+      "th": "อร่อยมาก ขอบคุณ",
+      "rom": "roi mak khopkhun"
     }
   ],
   "note": {
-    "de": "Allergien und Schärfe vor Kursbeginn angeben: Thai-Küche enthält oft Erdnuss, Fischsauce, Garnelenpaste und Krabbenfleisch. Viele Kurse beginnen mit einem Marktbesuch; feste Schuhe und Haare zusammenbinden. Nach dem Kurs gibt es Rezepte, meist auch zum Mitnehmen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Tell the teacher about allergies and spice before the class: Thai cooking often uses peanuts, fish sauce, shrimp paste and crab. Many classes start with a market visit; wear closed shoes and tie your hair back. You usually get the recipes to take home. Thai lines machine-made, not checked by native speakers."
+    "de": "Allergien und Schärfe vor Kursbeginn angeben: Thai-Küche enthält oft Erdnuss, Fischsauce, Garnelenpaste und Krabbenfleisch. Viele Kurse beginnen mit einem Marktbesuch; feste Schuhe und Haare zusammenbinden. Nach dem Kurs gibt es Rezepte, meist auch zum Mitnehmen. Siehe auch: Restaurant, Streetfood. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Tell the teacher about allergies and spice before the class: Thai cooking often uses peanuts, fish sauce, shrimp paste and crab. Many classes start with a market visit; wear closed shoes and tie your hair back. You usually get the recipes to take home. See also: Restaurant, Street food. Thai lines machine-made, not checked by native speakers."
   }
 }

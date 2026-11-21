@@ -40,74 +40,91 @@
     {
       "en": "Someone has fainted on the platform.",
       "th": "มีคนเป็นลมที่ชานชาลา",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon pennm thi chanchala"
     },
     {
       "en": "Please call the station staff.",
       "th": "ช่วยเรียกเจ้าหน้าที่สถานีด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak chaonathi sathani duai"
     },
     {
       "en": "Someone is harassing me on the train.",
       "th": "มีคนคุกคามบนรถไฟ",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon khukkham bon rathafai"
     },
     {
       "en": "My bag has been stolen.",
       "th": "กระเป๋าถูกขโมย",
-      "critical": true
+      "critical": true,
+      "rom": "krapao thuk khamoi"
     },
     {
       "en": "Which line goes to the airport?",
-      "th": "สายไหนไปสนามบิน"
+      "th": "สายไหนไปสนามบิน",
+      "rom": "sai nai pai sanambin"
     },
     {
       "en": "Where do I change trains?",
-      "th": "ต้องเปลี่ยนรถไฟที่ไหน"
+      "th": "ต้องเปลี่ยนรถไฟที่ไหน",
+      "rom": "tong pelin rathafai thinai"
     },
     {
       "en": "Is this train going towards the airport?",
-      "th": "รถไฟขบวนนี้ไปสนามบินไหม"
+      "th": "รถไฟขบวนนี้ไปสนามบินไหม",
+      "rom": "rathafai khabuan ni pai sanambin mai"
     },
     {
       "en": "Which station is nearest to this place?",
-      "th": "สถานีไหนใกล้ที่นี่ที่สุด"
+      "th": "สถานีไหนใกล้ที่นี่ที่สุด",
+      "rom": "sathani nai kain thini thisut"
     },
     {
       "en": "Where is the ticket machine?",
-      "th": "เครื่องขายตั๋วอยู่ที่ไหน"
+      "th": "เครื่องขายตั๋วอยู่ที่ไหน",
+      "rom": "kherueng khai tua yu thinai"
     },
     {
       "en": "Can you give me change for the ticket machine?",
-      "th": "ขอแลกเหรียญสำหรับเครื่องขายตั๋วได้ไหม"
+      "th": "ขอแลกเหรียญสำหรับเครื่องขายตั๋วได้ไหม",
+      "rom": "kho laek erin samrap kherueng khai tua dai mai"
     },
     {
       "en": "Where can I top up my card?",
-      "th": "เติมเงินบัตรได้ที่ไหน"
+      "th": "เติมเงินบัตรได้ที่ไหน",
+      "rom": "toem ngoen batn dai thinai"
     },
     {
       "en": "My card does not work at the gate.",
-      "th": "บัตรใช้ที่ประตูไม่ได้"
+      "th": "บัตรใช้ที่ประตูไม่ได้",
+      "rom": "batn chai thi pratu mai dai"
     },
     {
       "en": "Which exit is for the shopping mall?",
-      "th": "ทางออกไหนไปห้างสรรพสินค้า"
+      "th": "ทางออกไหนไปห้างสรรพสินค้า",
+      "rom": "thangok nai pai angtapsinkha"
     },
     {
       "en": "What time is the last train?",
-      "th": "รถไฟขบวนสุดท้ายกี่โมง"
+      "th": "รถไฟขบวนสุดท้ายกี่โมง",
+      "rom": "rathafai khabuan sutthai ki mong"
     },
     {
       "en": "I left my bag on the train.",
-      "th": "ลืมกระเป๋าไว้บนรถไฟ"
+      "th": "ลืมกระเป๋าไว้บนรถไฟ",
+      "rom": "luem krapao wai bon rathafai"
     },
     {
       "en": "Excuse me, I need to get off here.",
-      "th": "ขอทางหน่อย จะลงสถานีนี้"
+      "th": "ขอทางหน่อย จะลงสถานีนี้",
+      "rom": "khothang noi cha long sathani ni"
     },
     {
       "en": "Is there a lift?",
-      "th": "มีลิฟต์ไหม"
+      "th": "มีลิฟต์ไหม",
+      "rom": "mi lip mai"
     }
   ]
 }

@@ -36,78 +36,96 @@
     {
       "en": "There is a fire. Where is the exit?",
       "th": "ไฟไหม้ ทางออกอยู่ที่ไหน",
-      "critical": true
+      "critical": true,
+      "rom": "faimai thangok yu thinai"
     },
     {
       "en": "I feel faint. I need to go outside.",
       "th": "รู้สึกจะเป็นลม ขอออกไปข้างนอก",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek cha pennm kho ok pai khangnok"
     },
     {
       "en": "Please call a doctor.",
       "th": "ช่วยเรียกแพทย์หน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak phaet noi"
     },
     {
       "en": "My bag was stolen.",
       "th": "กระเป๋าถูกขโมย",
-      "critical": true
+      "critical": true,
+      "rom": "krapao thuk khamoi"
     },
     {
       "en": "Two tickets, please.",
-      "th": "ขอตั๋วสองใบ"
+      "th": "ขอตั๋วสองใบ",
+      "rom": "kho tua song bai"
     },
     {
       "en": "Which film starts next?",
-      "th": "หนังเรื่องไหนเริ่มรอบต่อไป"
+      "th": "หนังเรื่องไหนเริ่มรอบต่อไป",
+      "rom": "nang rueang nai roem rop topai"
     },
     {
       "en": "Is it in English with Thai subtitles?",
-      "th": "เป็นเสียงภาษาอังกฤษพร้อมคำบรรยายภาษาไทยไหม"
+      "th": "เป็นเสียงภาษาอังกฤษพร้อมคำบรรยายภาษาไทยไหม",
+      "rom": "pen siang phasaangkrit phrom khampayai phasathai mai"
     },
     {
       "en": "Is the film dubbed in Thai?",
-      "th": "หนังพากย์ไทยไหม"
+      "th": "หนังพากย์ไทยไหม",
+      "rom": "nang phak thai mai"
     },
     {
       "en": "Can I choose my seat?",
-      "th": "เลือกที่นั่งได้ไหม"
+      "th": "เลือกที่นั่งได้ไหม",
+      "rom": "lueak thinang dai mai"
     },
     {
       "en": "Two seats next to each other, please.",
-      "th": "ขอที่นั่งสองที่ติดกัน"
+      "th": "ขอที่นั่งสองที่ติดกัน",
+      "rom": "kho thinang song thi titkan"
     },
     {
       "en": "Where is the entrance for this hall?",
-      "th": "ทางเข้าโรงนี้อยู่ที่ไหน"
+      "th": "ทางเข้าโรงนี้อยู่ที่ไหน",
+      "rom": "thang khaorong ni yu thinai"
     },
     {
       "en": "It is very cold in here.",
-      "th": "ในนี้หนาวมาก"
+      "th": "ในนี้หนาวมาก",
+      "rom": "nai ni nao mak"
     },
     {
       "en": "Where can I buy popcorn and a drink?",
-      "th": "ซื้อป๊อปคอร์นและเครื่องดื่มได้ที่ไหน"
+      "th": "ซื้อป๊อปคอร์นและเครื่องดื่มได้ที่ไหน",
+      "rom": "sue popkhon lae kherueng duemdai thinai"
     },
     {
       "en": "What time does the concert start?",
-      "th": "คอนเสิร์ตเริ่มกี่โมง"
+      "th": "คอนเสิร์ตเริ่มกี่โมง",
+      "rom": "khonsoet roem ki mong"
     },
     {
       "en": "Can I bring a camera?",
-      "th": "เอากล้องเข้าไปได้ไหม"
+      "th": "เอากล้องเข้าไปได้ไหม",
+      "rom": "ao klong khaopai dai mai"
     },
     {
       "en": "Can I take photos or videos?",
-      "th": "ถ่ายรูปหรือวิดีโอได้ไหม"
+      "th": "ถ่ายรูปหรือวิดีโอได้ไหม",
+      "rom": "thairup rue widio dai mai"
     },
     {
       "en": "Where is the toilet?",
-      "th": "ห้องน้ำอยู่ที่ไหน"
+      "th": "ห้องน้ำอยู่ที่ไหน",
+      "rom": "ongnam yu thinai"
     },
     {
       "en": "Where is the cloakroom?",
-      "th": "ที่ฝากของอยู่ที่ไหน"
+      "th": "ที่ฝากของอยู่ที่ไหน",
+      "rom": "thi fak khong yu thinai"
     }
   ],
   "note": {

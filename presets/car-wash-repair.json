@@ -40,77 +40,95 @@
     {
       "en": "The car broke down.",
       "th": "รถเสีย",
-      "critical": true
+      "critical": true,
+      "rom": "rot sia"
     },
     {
       "en": "The brakes do not work well.",
       "th": "เบรกไม่ค่อยดี",
-      "critical": true
+      "critical": true,
+      "rom": "benk makhaioi di"
     },
     {
       "en": "Please call a tow truck.",
       "th": "ช่วยเรียกรถลากหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak rathlak noi"
     },
     {
       "en": "I have a flat tyre.",
-      "th": "ยางแบน"
+      "th": "ยางแบน",
+      "rom": "yang baen"
     },
     {
       "en": "Could you check the car?",
-      "th": "ช่วยตรวจรถหน่อยได้ไหม"
+      "th": "ช่วยตรวจรถหน่อยได้ไหม",
+      "rom": "chuai truat rot noi dai mai"
     },
     {
       "en": "How much will it cost?",
-      "th": "ค่าใช้จ่ายเท่าไหร่"
+      "th": "ค่าใช้จ่ายเท่าไหร่",
+      "rom": "khachaichai thaorai"
     },
     {
       "en": "Please tell me the price first.",
-      "th": "ช่วยบอกราคาก่อน"
+      "th": "ช่วยบอกราคาก่อน",
+      "rom": "chuai bok rakha kon"
     },
     {
       "en": "How long will it take?",
-      "th": "ใช้เวลานานเท่าไหร่"
+      "th": "ใช้เวลานานเท่าไหร่",
+      "rom": "chaiwelanan thaorai"
     },
     {
       "en": "Could you show me the old part?",
-      "th": "ขอดูอะไหล่เก่าหน่อย"
+      "th": "ขอดูอะไหล่เก่าหน่อย",
+      "rom": "kho du alai kao noi"
     },
     {
       "en": "The engine makes a strange noise.",
-      "th": "เครื่องมีเสียงแปลก ๆ"
+      "th": "เครื่องมีเสียงแปลก ๆ",
+      "rom": "kherueng misiang paenk"
     },
     {
       "en": "The battery is dead.",
-      "th": "แบตเตอรี่หมด"
+      "th": "แบตเตอรี่หมด",
+      "rom": "baettoeri mot"
     },
     {
       "en": "The air conditioning does not cool.",
-      "th": "แอร์ไม่เย็น"
+      "th": "แอร์ไม่เย็น",
+      "rom": "ae mai yen"
     },
     {
       "en": "I need an oil change.",
-      "th": "ต้องการเปลี่ยนน้ำมันเครื่อง"
+      "th": "ต้องการเปลี่ยนน้ำมันเครื่อง",
+      "rom": "tongkan pelin nammankherueng"
     },
     {
       "en": "Please wash the car.",
-      "th": "ช่วยล้างรถด้วย"
+      "th": "ช่วยล้างรถด้วย",
+      "rom": "chuai langnt duai"
     },
     {
       "en": "Please clean the inside too.",
-      "th": "ช่วยทำความสะอาดข้างในด้วย"
+      "th": "ช่วยทำความสะอาดข้างในด้วย",
+      "rom": "chuai thamkwamsaat khangnai duai"
     },
     {
       "en": "How much for a wash?",
-      "th": "ล้างรถราคาเท่าไร"
+      "th": "ล้างรถราคาเท่าไร",
+      "rom": "langnt rakha thaorai"
     },
     {
       "en": "Can I have a receipt?",
-      "th": "ขอใบเสร็จได้ไหม"
+      "th": "ขอใบเสร็จได้ไหม",
+      "rom": "kho dai mai"
     },
     {
       "en": "Is the car ready?",
-      "th": "รถเสร็จหรือยัง"
+      "th": "รถเสร็จหรือยัง",
+      "rom": "rot rueyang"
     }
   ]
 }

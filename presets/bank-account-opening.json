@@ -40,68 +40,84 @@
     {
       "en": "My card was swallowed by the machine.",
       "th": "เครื่องกลืนบัตร",
-      "critical": true
+      "critical": true,
+      "rom": "kherueng kluen batn"
     },
     {
       "en": "Please block my card. It was stolen.",
       "th": "ช่วยอายัดบัตร บัตรถูกขโมย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai batn batn thuk khamoi"
     },
     {
       "en": "I would like to open a bank account.",
-      "th": "ต้องการเปิดบัญชีธนาคาร"
+      "th": "ต้องการเปิดบัญชีธนาคาร",
+      "rom": "tongkan poetbanchi thanakhan"
     },
     {
       "en": "Can foreigners open an account here?",
-      "th": "ชาวต่างชาติเปิดบัญชีที่นี่ได้ไหม"
+      "th": "ชาวต่างชาติเปิดบัญชีที่นี่ได้ไหม",
+      "rom": "chaotangchati poetbanchi thini dai mai"
     },
     {
       "en": "Which documents do I need?",
-      "th": "ต้องใช้เอกสารอะไรบ้าง"
+      "th": "ต้องใช้เอกสารอะไรบ้าง",
+      "rom": "tong chai eksan arai bang"
     },
     {
       "en": "Is a tourist visa enough?",
-      "th": "วีซ่านักท่องเที่ยวพอไหม"
+      "th": "วีซ่านักท่องเที่ยวพอไหม",
+      "rom": "wisa nakthongthiao pho mai"
     },
     {
       "en": "A savings account, please.",
-      "th": "ขอบัญชีออมทรัพย์"
+      "th": "ขอบัญชีออมทรัพย์",
+      "rom": "kho banchiomtrap"
     },
     {
       "en": "What is the minimum deposit?",
-      "th": "ฝากขั้นต่ำเท่าไร"
+      "th": "ฝากขั้นต่ำเท่าไร",
+      "rom": "fak khantam thaorai"
     },
     {
       "en": "Is there a monthly fee?",
-      "th": "มีค่าธรรมเนียมรายเดือนไหม"
+      "th": "มีค่าธรรมเนียมรายเดือนไหม",
+      "rom": "mi khatamniam raiduean mai"
     },
     {
       "en": "I would like a debit card.",
-      "th": "ขอบัตรเดบิต"
+      "th": "ขอบัตรเดบิต",
+      "rom": "kho batn debit"
     },
     {
       "en": "Can I use the mobile app in English?",
-      "th": "ใช้แอปเป็นภาษาอังกฤษได้ไหม"
+      "th": "ใช้แอปเป็นภาษาอังกฤษได้ไหม",
+      "rom": "chai ae p pen phasaangkrit dai mai"
     },
     {
       "en": "Can I receive money from abroad?",
-      "th": "รับเงินโอนจากต่างประเทศได้ไหม"
+      "th": "รับเงินโอนจากต่างประเทศได้ไหม",
+      "rom": "rap ngoenon chak tangprathet dai mai"
     },
     {
       "en": "What is the fee for foreign transfers?",
-      "th": "ค่าโอนต่างประเทศเท่าไร"
+      "th": "ค่าโอนต่างประเทศเท่าไร",
+      "rom": "kha on tangprathet thaorai"
     },
     {
       "en": "Please explain this form.",
-      "th": "ช่วยอธิบายแบบฟอร์มนี้หน่อย"
+      "th": "ช่วยอธิบายแบบฟอร์มนี้หน่อย",
+      "rom": "chuai thibai baepfom ni noi"
     },
     {
       "en": "Where do I sign?",
-      "th": "เซ็นตรงไหน"
+      "th": "เซ็นตรงไหน",
+      "rom": "sen trangahanai"
     },
     {
       "en": "I would like to close my account.",
-      "th": "ต้องการปิดบัญชี"
+      "th": "ต้องการปิดบัญชี",
+      "rom": "tongkan pitbanchi"
     }
   ]
 }

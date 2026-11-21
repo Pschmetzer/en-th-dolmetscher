@@ -36,79 +36,98 @@
     {
       "en": "I need assistance, please.",
       "th": "ต้องการความช่วยเหลือ",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan khwamchuaihelue"
     },
     {
       "en": "I use a wheelchair.",
-      "th": "ใช้รถเข็น"
+      "th": "ใช้รถเข็น",
+      "rom": "chai rathakhen"
     },
     {
       "en": "Is there a lift?",
-      "th": "มีลิฟต์ไหม"
+      "th": "มีลิฟต์ไหม",
+      "rom": "mi lip mai"
     },
     {
       "en": "Are there steps?",
-      "th": "มีบันไดไหม"
+      "th": "มีบันไดไหม",
+      "rom": "mi bandai mai"
     },
     {
       "en": "Is there a ramp?",
-      "th": "มีทางลาดไหม"
+      "th": "มีทางลาดไหม",
+      "rom": "mi thanglat mai"
     },
     {
       "en": "Is the entrance step-free?",
-      "th": "ทางเข้าไม่มีขั้นบันไดใช่ไหม"
+      "th": "ทางเข้าไม่มีขั้นบันไดใช่ไหม",
+      "rom": "thangkhao mai mi khanbandai chaimai"
     },
     {
       "en": "Is there an accessible toilet?",
-      "th": "มีห้องน้ำสำหรับผู้พิการไหม"
+      "th": "มีห้องน้ำสำหรับผู้พิการไหม",
+      "rom": "mi ongnam samrap phu phikan mai"
     },
     {
       "en": "I walk with a stick.",
-      "th": "ใช้ไม้เท้า"
+      "th": "ใช้ไม้เท้า",
+      "rom": "chai maithao"
     },
     {
       "en": "I cannot climb stairs.",
-      "th": "ขึ้นบันไดไม่ได้"
+      "th": "ขึ้นบันไดไม่ได้",
+      "rom": "khuen bandai mai dai"
     },
     {
       "en": "I am blind. Please guide me.",
-      "th": "ตาบอด ช่วยนำทางให้หน่อย"
+      "th": "ตาบอด ช่วยนำทางให้หน่อย",
+      "rom": "tabot chuai namthang hai noi"
     },
     {
       "en": "I have a guide dog.",
-      "th": "มีสุนัขนำทาง"
+      "th": "มีสุนัขนำทาง",
+      "rom": "mi sunak namthang"
     },
     {
       "en": "Is a guide dog allowed?",
-      "th": "สุนัขนำทางเข้าได้ไหม"
+      "th": "สุนัขนำทางเข้าได้ไหม",
+      "rom": "sunak nam thangkhao dai mai"
     },
     {
       "en": "I am hard of hearing. Please write it down.",
-      "th": "หูไม่ค่อยได้ยิน ช่วยเขียนให้หน่อย"
+      "th": "หูไม่ค่อยได้ยิน ช่วยเขียนให้หน่อย",
+      "rom": "hu makhaioi chuai khian hai noi"
     },
     {
       "en": "Please speak slowly and face me.",
-      "th": "ช่วยพูดช้าๆ โดยหันหน้ามาทางนี้"
+      "th": "ช่วยพูดช้าๆ โดยหันหน้ามาทางนี้",
+      "rom": "chuai phut cha doi anna ma thang ni"
     },
     {
       "en": "I need a seat, please.",
-      "th": "ขอที่นั่งหน่อย"
+      "th": "ขอที่นั่งหน่อย",
+      "rom": "kho thinang noi"
     },
     {
       "en": "Could you help me with the door?",
-      "th": "ช่วยเปิดประตูให้หน่อย"
+      "th": "ช่วยเปิดประตูให้หน่อย",
+      "rom": "chuai poet pratu hai noi"
     },
     {
       "en": "Could you carry my bag?",
-      "th": "ช่วยถือกระเป๋าให้หน่อย"
+      "th": "ช่วยถือกระเป๋าให้หน่อย",
+      "rom": "chuai thue krapao hai noi"
     },
     {
       "en": "I need a ground floor room.",
-      "th": "ต้องการห้องชั้นล่าง"
+      "th": "ต้องการห้องชั้นล่าง",
+      "rom": "tongkan ong chanlang"
     },
     {
       "en": "Could you call a wheelchair-accessible taxi?",
-      "th": "ช่วยเรียกแท็กซี่ที่รับรถเข็นได้ไหม"
+      "th": "ช่วยเรียกแท็กซี่ที่รับรถเข็นได้ไหม",
+      "rom": "chuai riak thi rap rathakhen dai mai"
     }
   ]
 }

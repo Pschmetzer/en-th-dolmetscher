@@ -48,92 +48,113 @@
     {
       "en": "My child has a severe allergy, please note it.",
       "th": "ลูกมีอาการแพ้รุนแรง ช่วยจดไว้หน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "luk mi akan phae runraeng chuai chot wai noi"
     },
     {
       "en": "My child needs medicine at school.",
       "th": "ลูกต้องกินยาที่โรงเรียน",
-      "critical": true
+      "critical": true,
+      "rom": "luk tong kin ya thi rongrian"
     },
     {
       "en": "Please call me at once if my child is ill.",
       "th": "ถ้าลูกไม่สบาย ช่วยโทรหาทันทีหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "tha luk mai sabai chuai thon ha thanthi noi"
     },
     {
       "en": "My child has asthma and needs an inhaler.",
       "th": "ลูกเป็นหอบหืดและต้องใช้ยาพ่น",
-      "critical": true
+      "critical": true,
+      "rom": "luk pen ophuet lae tong chai ya phon"
     },
     {
       "en": "Please do not let anyone else pick up my child.",
       "th": "ขออย่าให้คนอื่นมารับลูก",
-      "critical": true
+      "critical": true,
+      "rom": "kho ya hai ma rap luk"
     },
     {
       "en": "My child got hurt, please call an ambulance.",
       "th": "ลูกบาดเจ็บ ช่วยโทรเรียกรถพยาบาลหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "luk batchep chuai thon riak rathaphayaban noi"
     },
     {
       "en": "I would like to enroll my child.",
-      "th": "ต้องการสมัครให้ลูกเข้าเรียน"
+      "th": "ต้องการสมัครให้ลูกเข้าเรียน",
+      "rom": "tongkan samakn hai luk khaorian"
     },
     {
       "en": "Which documents do you need?",
-      "th": "ต้องใช้เอกสารอะไรบ้าง"
+      "th": "ต้องใช้เอกสารอะไรบ้าง",
+      "rom": "tong chai eksan arai bang"
     },
     {
       "en": "May I have the application form?",
-      "th": "ขอใบสมัครหน่อย"
+      "th": "ขอใบสมัครหน่อย",
+      "rom": "kho baitmakn noi"
     },
     {
       "en": "How much is the tuition fee per year?",
-      "th": "ค่าเล่าเรียนต่อปีเท่าไร"
+      "th": "ค่าเล่าเรียนต่อปีเท่าไร",
+      "rom": "khalaorian to pi thaorai"
     },
     {
       "en": "Are the uniform and books included?",
-      "th": "รวมชุดนักเรียนและหนังสือไหม"
+      "th": "รวมชุดนักเรียนและหนังสือไหม",
+      "rom": "ruam chutnakrian lae nangsue mai"
     },
     {
       "en": "Which language do the lessons use?",
-      "th": "สอนด้วยภาษาอะไร"
+      "th": "สอนด้วยภาษาอะไร",
+      "rom": "son duai phasa arai"
     },
     {
       "en": "Is there an English speaking teacher?",
-      "th": "มีครูที่พูดภาษาอังกฤษไหม"
+      "th": "มีครูที่พูดภาษาอังกฤษไหม",
+      "rom": "mi khru thi phut phasaangkrit mai"
     },
     {
       "en": "How many children are in one class?",
-      "th": "หนึ่งห้องมีนักเรียนกี่คน"
+      "th": "หนึ่งห้องมีนักเรียนกี่คน",
+      "rom": "nueng ong mi nakrian ki khon"
     },
     {
       "en": "May we visit the school first?",
-      "th": "ขอเยี่ยมชมโรงเรียนก่อนได้ไหม"
+      "th": "ขอเยี่ยมชมโรงเรียนก่อนได้ไหม",
+      "rom": "kho yiamtm rongrian kon dai mai"
     },
     {
       "en": "Is there a school bus?",
-      "th": "มีรถรับส่งนักเรียนไหม"
+      "th": "มีรถรับส่งนักเรียนไหม",
+      "rom": "mi rot rap song nakrian mai"
     },
     {
       "en": "What time does school start and end?",
-      "th": "โรงเรียนเริ่มและเลิกกี่โมง"
+      "th": "โรงเรียนเริ่มและเลิกกี่โมง",
+      "rom": "rongrian roem lae loek ki mong"
     },
     {
       "en": "Is lunch served at school?",
-      "th": "ที่โรงเรียนมีอาหารกลางวันไหม"
+      "th": "ที่โรงเรียนมีอาหารกลางวันไหม",
+      "rom": "thi rongrian mi ahanklangwan mai"
     },
     {
       "en": "When does the new term start?",
-      "th": "เปิดภาคเรียนใหม่เมื่อไร"
+      "th": "เปิดภาคเรียนใหม่เมื่อไร",
+      "rom": "poetphakrian aim muearai"
     },
     {
       "en": "When will you tell us the result?",
-      "th": "จะแจ้งผลให้ทราบเมื่อไร"
+      "th": "จะแจ้งผลให้ทราบเมื่อไร",
+      "rom": "chachaeng phon hai thrap muearai"
     },
     {
       "en": "Thank you for your time.",
-      "th": "ขอบคุณที่สละเวลา"
+      "th": "ขอบคุณที่สละเวลา",
+      "rom": "khopkhun thi slawela"
     }
   ]
 }

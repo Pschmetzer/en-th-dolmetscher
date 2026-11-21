@@ -1,0 +1,132 @@
+{
+  "id": "tipping-service-charge",
+  "names": {
+    "de": "Trinkgeld und Servicegebühr",
+    "en": "Tipping and service charge",
+    "th": "ทิปและค่าบริการ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Trinkgeld ist in Thailand nicht Pflicht, kleine Beträge (20 bis 50 Baht) werden aber gern angenommen. In Hotels und Restaurants kommen oft 10 Prozent Service und 7 Prozent Mehrwertsteuer dazu (steht als ++ auf der Karte). Die Rechnung prüfen und fragen, ob der Service schon enthalten ist. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Tipping is not required in Thailand, but small amounts (20 to 50 baht) are welcome. Hotels and restaurants often add 10 percent service and 7 percent VAT (shown as ++ on the menu). Check the bill and ask whether service is already included. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "tip",
+      "th": "ทิป"
+    },
+    {
+      "en": "service charge",
+      "th": "ค่าบริการ"
+    },
+    {
+      "en": "VAT",
+      "th": "ภาษีมูลค่าเพิ่ม"
+    },
+    {
+      "en": "bill",
+      "th": "บิล"
+    },
+    {
+      "en": "included",
+      "th": "รวมแล้ว"
+    },
+    {
+      "en": "cash",
+      "th": "เงินสด"
+    },
+    {
+      "en": "change",
+      "th": "เงินทอน"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    },
+    {
+      "en": "waiter",
+      "th": "พนักงานเสิร์ฟ"
+    },
+    {
+      "en": "thank you",
+      "th": "ขอบคุณ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Is the service charge included?",
+      "th": "รวมค่าบริการแล้วไหม",
+      "rom": "ruam khaprikan laeo mai"
+    },
+    {
+      "en": "Is the VAT included?",
+      "th": "รวมภาษีมูลค่าเพิ่มแล้วไหม",
+      "rom": "ruam phasimunkhaphoem laeo mai"
+    },
+    {
+      "en": "What is this charge on the bill?",
+      "th": "ค่านี้ในบิลคืออะไร",
+      "rom": "kha ni nai bin khue arai"
+    },
+    {
+      "en": "Please explain the bill.",
+      "th": "ช่วยอธิบายบิลหน่อย",
+      "rom": "chuai thibai bin noi"
+    },
+    {
+      "en": "Please remove the service charge.",
+      "th": "ช่วยตัดค่าบริการออกหน่อย",
+      "rom": "chuai tat khaprikan ok noi"
+    },
+    {
+      "en": "This is for you.",
+      "th": "อันนี้สำหรับคุณ",
+      "rom": "anni samrap khun"
+    },
+    {
+      "en": "Please keep the change.",
+      "th": "ไม่ต้องทอน",
+      "rom": "mataing thon"
+    },
+    {
+      "en": "Is it all right to tip here?",
+      "th": "ให้ทิปที่นี่ได้ไหม",
+      "rom": "hai thip thini dai mai"
+    },
+    {
+      "en": "Can I leave a tip on the card?",
+      "th": "ให้ทิปผ่านบัตรได้ไหม",
+      "rom": "hai thip phan batn dai mai"
+    },
+    {
+      "en": "Please give me change in small notes.",
+      "th": "ขอเงินทอนเป็นแบงค์ย่อย",
+      "rom": "kho ngoenthon pen baeng yoi"
+    },
+    {
+      "en": "The service was very good.",
+      "th": "บริการดีมาก",
+      "rom": "brikan dimak"
+    },
+    {
+      "en": "Thank you, the food was delicious.",
+      "th": "ขอบคุณ อาหารอร่อยมาก",
+      "rom": "khopkhun ahan roi mak"
+    },
+    {
+      "en": "Please share this with the team.",
+      "th": "ช่วยแบ่งให้ทีมด้วย",
+      "rom": "chuai baeng hai thim duai"
+    },
+    {
+      "en": "How much is a normal tip for a massage?",
+      "th": "ทิปนวดปกติให้เท่าไร",
+      "rom": "thip nuat pakati hai thaorai"
+    },
+    {
+      "en": "Please give me a receipt.",
+      "th": "ขอใบเสร็จ",
+      "rom": "kho"
+    }
+  ]
+}

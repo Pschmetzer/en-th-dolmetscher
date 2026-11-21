@@ -48,76 +48,94 @@
     {
       "en": "I need a wheelchair, please.",
       "th": "ต้องการรถเข็น",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan rathakhen"
     },
     {
       "en": "I need medical help.",
       "th": "ต้องการความช่วยเหลือทางการแพทย์",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan khwamchuaihelue thangkanphaet"
     },
     {
       "en": "My luggage did not arrive.",
-      "th": "กระเป๋าเดินทางไม่มา"
+      "th": "กระเป๋าเดินทางไม่มา",
+      "rom": "krapaodoenthang mai ma"
     },
     {
       "en": "My luggage is damaged.",
-      "th": "กระเป๋าเดินทางเสียหาย"
+      "th": "กระเป๋าเดินทางเสียหาย",
+      "rom": "krapaodoenthang siahai"
     },
     {
       "en": "Where is the baggage claim?",
-      "th": "จุดรับกระเป๋าอยู่ที่ไหน"
+      "th": "จุดรับกระเป๋าอยู่ที่ไหน",
+      "rom": "chut rap krapao yu thinai"
     },
     {
       "en": "Where is the lost luggage desk?",
-      "th": "เคาน์เตอร์กระเป๋าสูญหายอยู่ที่ไหน"
+      "th": "เคาน์เตอร์กระเป๋าสูญหายอยู่ที่ไหน",
+      "rom": "khaotoe krapao sunhai yu thinai"
     },
     {
       "en": "Where is my gate?",
-      "th": "ประตูขึ้นเครื่องอยู่ที่ไหน"
+      "th": "ประตูขึ้นเครื่องอยู่ที่ไหน",
+      "rom": "pratu khuen kherueng yu thinai"
     },
     {
       "en": "I missed my flight.",
-      "th": "ตกเครื่อง"
+      "th": "ตกเครื่อง",
+      "rom": "tok kherueng"
     },
     {
       "en": "Could you rebook me on the next flight?",
-      "th": "ช่วยเปลี่ยนเป็นเที่ยวบินถัดไปได้ไหม"
+      "th": "ช่วยเปลี่ยนเป็นเที่ยวบินถัดไปได้ไหม",
+      "rom": "chuai pelinpen thiaobin thatpai dai mai"
     },
     {
       "en": "I have a connecting flight.",
-      "th": "ต้องต่อเครื่อง"
+      "th": "ต้องต่อเครื่อง",
+      "rom": "tong to kherueng"
     },
     {
       "en": "Where do I transfer?",
-      "th": "ต้องเปลี่ยนเครื่องที่ไหน"
+      "th": "ต้องเปลี่ยนเครื่องที่ไหน",
+      "rom": "tong pelin kherueng thinai"
     },
     {
       "en": "I have nothing to declare.",
-      "th": "ไม่มีของต้องสำแดง"
+      "th": "ไม่มีของต้องสำแดง",
+      "rom": "mai mi khong tong samdaeng"
     },
     {
       "en": "Where is the customs office?",
-      "th": "ศุลกากรอยู่ที่ไหน"
+      "th": "ศุลกากรอยู่ที่ไหน",
+      "rom": "sunkakn yu thinai"
     },
     {
       "en": "Where is the currency exchange?",
-      "th": "แลกเงินได้ที่ไหน"
+      "th": "แลกเงินได้ที่ไหน",
+      "rom": "laek ngoendai thinai"
     },
     {
       "en": "Where is the taxi stand?",
-      "th": "จุดขึ้นแท็กซี่อยู่ที่ไหน"
+      "th": "จุดขึ้นแท็กซี่อยู่ที่ไหน",
+      "rom": "chut khuen yu thinai"
     },
     {
       "en": "How do I get to the city?",
-      "th": "ไปในเมืองได้อย่างไร"
+      "th": "ไปในเมืองได้อย่างไร",
+      "rom": "pai nai mueang dai yangrai"
     },
     {
       "en": "Where is the toilet?",
-      "th": "ห้องน้ำอยู่ที่ไหน"
+      "th": "ห้องน้ำอยู่ที่ไหน",
+      "rom": "ongnam yu thinai"
     },
     {
       "en": "Could you keep my luggage until this afternoon?",
-      "th": "ฝากกระเป๋าไว้จนถึงบ่ายได้ไหม"
+      "th": "ฝากกระเป๋าไว้จนถึงบ่ายได้ไหม",
+      "rom": "fak krapao wai chanathueng bai dai mai"
     }
   ]
 }

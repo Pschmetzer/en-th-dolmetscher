@@ -56,62 +56,76 @@
     {
       "en": "I have a high fever and severe joint pain.",
       "th": "มีไข้สูงและปวดข้อมาก",
-      "critical": true
+      "critical": true,
+      "rom": "mikhai sung lae puat kho mak"
     },
     {
       "en": "I think I may have dengue.",
       "th": "คิดว่าอาจเป็นไข้เลือดออก",
-      "critical": true
+      "critical": true,
+      "rom": "khit wa at pen khailueadok"
     },
     {
       "en": "Please call an ambulance (1669).",
       "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak rathaphayaban duai 1669"
     },
     {
       "en": "Where is the nearest clinic?",
       "th": "คลินิกที่ใกล้ที่สุดอยู่ที่ไหน",
-      "critical": true
+      "critical": true,
+      "rom": "khlinik thi kain thisut yu thinai"
     },
     {
       "en": "I need a blood test for dengue.",
-      "th": "ต้องการตรวจเลือดหาไข้เลือดออก"
+      "th": "ต้องการตรวจเลือดหาไข้เลือดออก",
+      "rom": "tong kantruatlueat ha khailueadok"
     },
     {
       "en": "I have been bitten by many mosquitoes.",
-      "th": "ถูกยุงกัดหลายที่"
+      "th": "ถูกยุงกัดหลายที่",
+      "rom": "thuk yung kat lai thi"
     },
     {
       "en": "I have a rash on my arms and legs.",
-      "th": "มีผื่นที่แขนและขา"
+      "th": "มีผื่นที่แขนและขา",
+      "rom": "mi phuen thi khaen lae kha"
     },
     {
       "en": "Do you have mosquito repellent?",
-      "th": "มียากันยุงไหม"
+      "th": "มียากันยุงไหม",
+      "rom": "mi yakanyung mai"
     },
     {
       "en": "Do you have a mosquito net?",
-      "th": "มีมุ้งไหม"
+      "th": "มีมุ้งไหม",
+      "rom": "mi mung mai"
     },
     {
       "en": "Could you spray the room, please?",
-      "th": "ช่วยฉีดยากันยุงในห้องหน่อยได้ไหม"
+      "th": "ช่วยฉีดยากันยุงในห้องหน่อยได้ไหม",
+      "rom": "chuai chit yakanyung nai ong noi dai mai"
     },
     {
       "en": "I only want paracetamol, not aspirin.",
-      "th": "ขอเฉพาะพาราเซตามอล ไม่เอาแอสไพริน"
+      "th": "ขอเฉพาะพาราเซตามอล ไม่เอาแอสไพริน",
+      "rom": "kho pharasetamon mai ao"
     },
     {
       "en": "My head hurts a lot.",
-      "th": "ปวดหัวมาก"
+      "th": "ปวดหัวมาก",
+      "rom": "puathua mak"
     },
     {
       "en": "Is there dengue in this area?",
-      "th": "แถวนี้มีไข้เลือดออกไหม"
+      "th": "แถวนี้มีไข้เลือดออกไหม",
+      "rom": "thaeo ni mi khailueadok mai"
     },
     {
       "en": "Is there a water pool nearby with mosquitoes?",
-      "th": "แถวนี้มีน้ำขังที่มียุงไหม"
+      "th": "แถวนี้มีน้ำขังที่มียุงไหม",
+      "rom": "thaeo ni mi nam khang thi mi yung mai"
     }
   ]
 }

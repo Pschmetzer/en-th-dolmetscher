@@ -56,64 +56,78 @@
     {
       "en": "Earthquake! Everyone out!",
       "th": "แผ่นดินไหว ทุกคนออกไป",
-      "critical": true
+      "critical": true,
+      "rom": "phaendinwai thukkn ok pai"
     },
     {
       "en": "Tsunami warning! Run to high ground!",
       "th": "เตือนสึนามิ วิ่งขึ้นที่สูง",
-      "critical": true
+      "critical": true,
+      "rom": "tuean suenami wing khuen thisung"
     },
     {
       "en": "Where is the emergency exit?",
       "th": "ทางออกฉุกเฉินอยู่ที่ไหน",
-      "critical": true
+      "critical": true,
+      "rom": "thangok chukchoen yu thinai"
     },
     {
       "en": "Please call an ambulance (1669).",
       "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak rathaphayaban duai 1669"
     },
     {
       "en": "There is a fire. Please call the fire brigade (199).",
       "th": "ไฟไหม้ ช่วยเรียกดับเพลิง (199)",
-      "critical": true
+      "critical": true,
+      "rom": "faimai chuai riak dap pheling 199"
     },
     {
       "en": "Someone is trapped.",
       "th": "มีคนติดอยู่ข้างใน",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon tit yu khangnai"
     },
     {
       "en": "Do not use the lift.",
-      "th": "อย่าใช้ลิฟต์"
+      "th": "อย่าใช้ลิฟต์",
+      "rom": "ya chai lip"
     },
     {
       "en": "Where is the assembly point?",
-      "th": "จุดรวมพลอยู่ที่ไหน"
+      "th": "จุดรวมพลอยู่ที่ไหน",
+      "rom": "chut ruampn yu thinai"
     },
     {
       "en": "Is it safe to go back to the building?",
-      "th": "กลับเข้าอาคารได้ปลอดภัยไหม"
+      "th": "กลับเข้าอาคารได้ปลอดภัยไหม",
+      "rom": "klap khao akhan dai plotphai mai"
     },
     {
       "en": "Is there a tsunami warning?",
-      "th": "มีการเตือนสึนามิไหม"
+      "th": "มีการเตือนสึนามิไหม",
+      "rom": "mi kan tuean suenami mai"
     },
     {
       "en": "Where is the nearest high ground?",
-      "th": "ที่สูงที่ใกล้ที่สุดอยู่ที่ไหน"
+      "th": "ที่สูงที่ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "thisung thi kain thisut yu thinai"
     },
     {
       "en": "Is there a shelter nearby?",
-      "th": "แถวนี้มีที่พักพิงไหม"
+      "th": "แถวนี้มีที่พักพิงไหม",
+      "rom": "thaeo ni mi thi phakphing mai"
     },
     {
       "en": "I cannot find my family.",
-      "th": "หาครอบครัวไม่เจอ"
+      "th": "หาครอบครัวไม่เจอ",
+      "rom": "ha khropkrua mai choe"
     },
     {
       "en": "My phone has no signal.",
-      "th": "โทรศัพท์ไม่มีสัญญาณ"
+      "th": "โทรศัพท์ไม่มีสัญญาณ",
+      "rom": "thonsap mai mi sanyan"
     }
   ]
 }

@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Ergänzt das Apotheken-Paket nur für die Verständigung, ersetzt keinen medizinischen Rat. Allergien immer zuerst nennen; bei Fieber über drei Tage oder starken Beschwerden zum Arzt. Rettung: 1669. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Complements the pharmacy pack for communication only, not medical advice. Always state allergies first; see a doctor for fever over three days or severe symptoms. Ambulance: 1669. Thai lines machine-made, not checked by native speakers."
+    "de": "Ergänzt das Apotheken-Paket nur für die Verständigung, ersetzt keinen medizinischen Rat. Allergien immer zuerst nennen; bei Fieber über drei Tage oder starken Beschwerden zum Arzt. Rettung: 1669. Siehe auch: Apotheke. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Complements the pharmacy pack for communication only, not medical advice. Always state allergies first; see a doctor for fever over three days or severe symptoms. Ambulance: 1669. See also: Pharmacy. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,79 +40,97 @@
     {
       "en": "I am allergic to penicillin.",
       "th": "แพ้ยาเพนิซิลลิน",
-      "critical": true
+      "critical": true,
+      "rom": "phaeya phe ni si l li n"
     },
     {
       "en": "I am allergic to aspirin.",
       "th": "แพ้ยาแอสไพริน",
-      "critical": true
+      "critical": true,
+      "rom": "phaeya"
     },
     {
       "en": "I am pregnant. Is this medicine safe?",
       "th": "กำลังตั้งครรภ์ ยานี้ปลอดภัยไหม",
-      "critical": true
+      "critical": true,
+      "rom": "kamlang tangkan ya ni plotphai mai"
     },
     {
       "en": "Is this medicine safe for children?",
       "th": "ยานี้เด็กกินได้ไหม",
-      "critical": true
+      "critical": true,
+      "rom": "ya ni dek kin dai mai"
     },
     {
       "en": "Can I take this together with my regular medicine?",
       "th": "กินยานี้คู่กับยาที่กินประจำได้ไหม",
-      "critical": true
+      "critical": true,
+      "rom": "kin ya ni khu kap ya thi kin pra chamdai mai"
     },
     {
       "en": "Do I need a prescription?",
-      "th": "ต้องมีใบสั่งยาไหม"
+      "th": "ต้องมีใบสั่งยาไหม",
+      "rom": "tong mi baisangya mai"
     },
     {
       "en": "I need something for a headache.",
-      "th": "ขอยาแก้ปวดหัว"
+      "th": "ขอยาแก้ปวดหัว",
+      "rom": "kho yakaepuat hua"
     },
     {
       "en": "I need something for a fever.",
-      "th": "ขอยาลดไข้"
+      "th": "ขอยาลดไข้",
+      "rom": "kho ya lot khai"
     },
     {
       "en": "I need something for a cough.",
-      "th": "ขอยาแก้ไอ"
+      "th": "ขอยาแก้ไอ",
+      "rom": "kho yakaeoai"
     },
     {
       "en": "I need something for diarrhoea.",
-      "th": "ขอยาแก้ท้องเสีย"
+      "th": "ขอยาแก้ท้องเสีย",
+      "rom": "kho ya kae thongsia"
     },
     {
       "en": "Do you have oral rehydration salts?",
-      "th": "มีผงเกลือแร่ไหม"
+      "th": "มีผงเกลือแร่ไหม",
+      "rom": "mi phong keluerae mai"
     },
     {
       "en": "Do you have plasters?",
-      "th": "มีพลาสเตอร์ปิดแผลไหม"
+      "th": "มีพลาสเตอร์ปิดแผลไหม",
+      "rom": "mi phlattoe pit phaen mai"
     },
     {
       "en": "Do you have an antihistamine?",
-      "th": "มียาแก้แพ้ไหม"
+      "th": "มียาแก้แพ้ไหม",
+      "rom": "mi ya kae phae mai"
     },
     {
       "en": "Do you have something for an upset stomach?",
-      "th": "มียาแก้ท้องอืดไหม"
+      "th": "มียาแก้ท้องอืดไหม",
+      "rom": "mi ya kae mai"
     },
     {
       "en": "Do you have antiseptic for a cut?",
-      "th": "มียาฆ่าเชื้อทาแผลไหม"
+      "th": "มียาฆ่าเชื้อทาแผลไหม",
+      "rom": "mi yakhachuea tha phaen mai"
     },
     {
       "en": "How many times a day?",
-      "th": "กินวันละกี่ครั้ง"
+      "th": "กินวันละกี่ครั้ง",
+      "rom": "kin wan la ki khrang"
     },
     {
       "en": "Before or after meals?",
-      "th": "กินก่อนหรือหลังอาหาร"
+      "th": "กินก่อนหรือหลังอาหาร",
+      "rom": "kin kon rue"
     },
     {
       "en": "Does this make you drowsy?",
-      "th": "ยานี้กินแล้วง่วงไหม"
+      "th": "ยานี้กินแล้วง่วงไหม",
+      "rom": "ya ni kin laeo nguang mai"
     }
   ]
 }

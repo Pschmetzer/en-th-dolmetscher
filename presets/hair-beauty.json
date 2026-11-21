@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Preise stehen meist auf einer Karte; für Haarschnitt, Färben, Maniküre und Pediküre vorher nachfragen. Fotos als Vorlage zeigen. Trinkgeld 20 bis 50 Baht ist üblich. Bei Tattoos und Piercings auf Einwegnadeln und Handschuhe achten und das Gerät sterilisiert fordern. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Prices are usually on a menu; ask first for haircuts, colouring, manicure and pedicure. Show photos as a template. A tip of 20 to 50 baht is customary. For tattoos and piercings insist on single-use needles and gloves and sterilised equipment. Thai lines machine-made, not checked by native speakers."
+    "de": "Preise stehen meist auf einer Karte; für Haarschnitt, Färben, Maniküre und Pediküre vorher nachfragen. Fotos als Vorlage zeigen. Trinkgeld 20 bis 50 Baht ist üblich. Bei Tattoos und Piercings auf Einwegnadeln und Handschuhe achten und das Gerät sterilisiert fordern. Siehe auch: Wäscherei, Friseur, Schneider. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Prices are usually on a menu; ask first for haircuts, colouring, manicure and pedicure. Show photos as a template. A tip of 20 to 50 baht is customary. For tattoos and piercings insist on single-use needles and gloves and sterilised equipment. See also: Laundry, hairdresser, tailor. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -56,74 +56,91 @@
     {
       "en": "Please use a new needle.",
       "th": "ช่วยใช้เข็มใหม่ด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai chai khem aim duai"
     },
     {
       "en": "Please wear new gloves.",
       "th": "ช่วยใส่ถุงมือใหม่ด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai sai thung muehaim duai"
     },
     {
       "en": "Please sterilise the equipment.",
       "th": "ช่วยฆ่าเชื้ออุปกรณ์ด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai khachuea upkn duai"
     },
     {
       "en": "I am allergic to hair dye.",
       "th": "แพ้สีย้อมผม",
-      "critical": true
+      "critical": true,
+      "rom": "phae si yompm"
     },
     {
       "en": "A haircut, please.",
-      "th": "ขอตัดผม"
+      "th": "ขอตัดผม",
+      "rom": "kho tatpm"
     },
     {
       "en": "Just a trim, please.",
-      "th": "ขอเล็มนิดหน่อย"
+      "th": "ขอเล็มนิดหน่อย",
+      "rom": "kho lem nitnoi"
     },
     {
       "en": "Like this photo, please.",
-      "th": "ขอทรงเหมือนรูปนี้"
+      "th": "ขอทรงเหมือนรูปนี้",
+      "rom": "kho throng emuen rup ni"
     },
     {
       "en": "Short on the sides and a little longer on top.",
-      "th": "ข้างสั้น ด้านบนยาวนิดหน่อย"
+      "th": "ข้างสั้น ด้านบนยาวนิดหน่อย",
+      "rom": "khang san danpn yao nitnoi"
     },
     {
       "en": "Not too short, please.",
-      "th": "ขออย่าสั้นเกินไป"
+      "th": "ขออย่าสั้นเกินไป",
+      "rom": "kho ya san koenpai"
     },
     {
       "en": "Please wash my hair.",
-      "th": "ช่วยสระผมให้หน่อย"
+      "th": "ช่วยสระผมให้หน่อย",
+      "rom": "chuai srapm hai noi"
     },
     {
       "en": "How much is a haircut?",
-      "th": "ตัดผมราคาเท่าไร"
+      "th": "ตัดผมราคาเท่าไร",
+      "rom": "tatpm rakha thaorai"
     },
     {
       "en": "How long will it take?",
-      "th": "ใช้เวลานานเท่าไหร่"
+      "th": "ใช้เวลานานเท่าไหร่",
+      "rom": "chaiwelanan thaorai"
     },
     {
       "en": "A manicure and a pedicure, please.",
-      "th": "ขอทำเล็บมือและเล็บเท้า"
+      "th": "ขอทำเล็บมือและเล็บเท้า",
+      "rom": "kho tham lepmue lae lepthao"
     },
     {
       "en": "Please shave my beard.",
-      "th": "ช่วยโกนเคราให้ด้วย"
+      "th": "ช่วยโกนเคราให้ด้วย",
+      "rom": "chuai kon khera hai duai"
     },
     {
       "en": "I would like to dye my hair.",
-      "th": "อยากย้อมผม"
+      "th": "อยากย้อมผม",
+      "rom": "yak yompm"
     },
     {
       "en": "I would like a small tattoo here.",
-      "th": "อยากสักลายเล็กๆ ตรงนี้"
+      "th": "อยากสักลายเล็กๆ ตรงนี้",
+      "rom": "yak sak lai lek trangani"
     },
     {
       "en": "Thank you, I like it.",
-      "th": "ขอบคุณ ชอบมาก"
+      "th": "ขอบคุณ ชอบมาก",
+      "rom": "khopkhun chop mak"
     }
   ]
 }

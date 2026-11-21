@@ -1,5 +1,20 @@
 {
  "keywords": {
+  "air-pollution-haze": {
+   "de": [
+    "smog",
+    "luftverschmutzung",
+    "feinstaub",
+    "rauch",
+    "maske"
+   ],
+   "th": [
+    "ฝุ่น",
+    "PM2.5",
+    "หมอกควัน",
+    "หน้ากาก"
+   ]
+  },
   "apartment-host-checkin": {
    "de": [
     "airbnb",
@@ -28,6 +43,19 @@
     "ห้องเช่า",
     "เช่า",
     "มัดจำ"
+   ]
+  },
+  "asthma-inhaler": {
+   "de": [
+    "asthma",
+    "inhalator",
+    "atemnot",
+    "spray"
+   ],
+   "th": [
+    "หอบหืด",
+    "ยาพ่น",
+    "หายใจไม่ออก"
    ]
   },
   "bank-app-otp-help": {
@@ -100,6 +128,34 @@
     "เคลมประกัน",
     "รถยนต์",
     "อุบัติเหตุ"
+   ]
+  },
+  "card-payment-surcharge": {
+   "de": [
+    "karte",
+    "kreditkarte",
+    "aufschlag",
+    "gebühr",
+    "bargeld"
+   ],
+   "th": [
+    "บัตร",
+    "บัตรเครดิต",
+    "ค่าธรรมเนียม"
+   ]
+  },
+  "chao-phraya-river-boat": {
+   "de": [
+    "boot",
+    "fluss",
+    "chao phraya",
+    "pier",
+    "fähre"
+   ],
+   "th": [
+    "เรือด่วน",
+    "เจ้าพระยา",
+    "ท่าเรือ"
    ]
   },
   "childbirth-hospital": {
@@ -221,6 +277,20 @@
     "มิเตอร์"
    ]
   },
+  "epipen-anaphylaxis": {
+   "de": [
+    "allergie",
+    "anaphylaxie",
+    "adrenalin",
+    "epipen",
+    "notfall"
+   ],
+   "th": [
+    "แพ้",
+    "แพ้รุนแรง",
+    "อะดรีนาลีน"
+   ]
+  },
   "ev-charging": {
    "de": [
     "elektroauto",
@@ -309,6 +379,37 @@
     "คืนเงิน"
    ]
   },
+  "hotel-theft-report": {
+   "de": [
+    "diebstahl",
+    "hotel",
+    "zimmer",
+    "safe",
+    "anzeige"
+   ],
+   "th": [
+    "ขโมย",
+    "ห้องพัก",
+    "ตู้เซฟ",
+    "แจ้งความ"
+   ]
+  },
+  "jellyfish-marine-sting": {
+   "de": [
+    "qualle",
+    "quallen",
+    "seeigel",
+    "koralle",
+    "essig",
+    "strand"
+   ],
+   "th": [
+    "แมงกะพรุน",
+    "เม่นทะเล",
+    "ปะการัง",
+    "น้ำส้มสายชู"
+   ]
+  },
   "kindergarten-daycare": {
    "de": [
     "kindergarten",
@@ -349,6 +450,21 @@
     "ร้านซักผ้า",
     "เครื่องซักผ้า",
     "เหรียญ"
+   ]
+  },
+  "locksmith-lockout": {
+   "de": [
+    "schlüssel",
+    "ausgesperrt",
+    "schlüsseldienst",
+    "tür",
+    "schloss"
+   ],
+   "th": [
+    "กุญแจ",
+    "ช่างกุญแจ",
+    "ล็อก",
+    "ประตู"
    ]
   },
   "massage-prices-booking": {
@@ -407,6 +523,22 @@
     "เตียงล่าง"
    ]
   },
+  "online-shopping-delivery": {
+   "de": [
+    "paket",
+    "bestellung",
+    "lieferung",
+    "shopee",
+    "lazada",
+    "nachnahme"
+   ],
+   "th": [
+    "พัสดุ",
+    "สั่งของ",
+    "ส่งของ",
+    "เก็บเงินปลายทาง"
+   ]
+  },
   "pet-boarding-flight": {
    "de": [
     "haustier",
@@ -436,6 +568,20 @@
     "ยาประจำ"
    ]
   },
+  "phone-repair-shop": {
+   "de": [
+    "handy",
+    "reparatur",
+    "display",
+    "akku",
+    "smartphone"
+   ],
+   "th": [
+    "ซ่อมมือถือ",
+    "หน้าจอ",
+    "แบตเตอรี่"
+   ]
+  },
   "plumber-electrician-aircon": {
    "de": [
     "handwerker",
@@ -448,6 +594,19 @@
     "ช่างประปา",
     "ช่างไฟ",
     "ช่างแอร์"
+   ]
+  },
+  "power-outage-blackout": {
+   "de": [
+    "stromausfall",
+    "strom",
+    "sicherung",
+    "generator"
+   ],
+   "th": [
+    "ไฟดับ",
+    "ไฟฟ้า",
+    "เบรกเกอร์"
    ]
   },
   "ride-share-dispute": {
@@ -464,6 +623,21 @@
     "รถเรียก",
     "มิเตอร์",
     "โกงราคา"
+   ]
+  },
+  "seafood-by-weight": {
+   "de": [
+    "meeresfrüchte",
+    "fisch",
+    "krabbe",
+    "garnele",
+    "gewicht"
+   ],
+   "th": [
+    "อาหารทะเล",
+    "ปู",
+    "กุ้ง",
+    "ชั่งน้ำหนัก"
    ]
   },
   "sim-esim-data": {
@@ -496,6 +670,22 @@
     "มะพร้าว"
    ]
   },
+  "snake-bite-venomous": {
+   "de": [
+    "schlange",
+    "schlangenbiss",
+    "gift",
+    "giftschlange",
+    "serum",
+    "kobra"
+   ],
+   "th": [
+    "งู",
+    "งูกัด",
+    "งูพิษ",
+    "เซรุ่ม"
+   ]
+  },
   "sprain-fracture-xray": {
    "de": [
     "röntgen",
@@ -510,6 +700,21 @@
     "กระดูกหัก",
     "เคล็ด",
     "เฝือก"
+   ]
+  },
+  "stray-dogs-safety": {
+   "de": [
+    "hund",
+    "straßenhund",
+    "streunend",
+    "biss",
+    "tollwut"
+   ],
+   "th": [
+    "สุนัข",
+    "หมา",
+    "สุนัขจรจัด",
+    "กัด"
    ]
   },
   "street-food-custom-order": {
@@ -582,6 +787,19 @@
     "ล่วงละเมิด"
    ]
   },
+  "tipping-service-charge": {
+   "de": [
+    "trinkgeld",
+    "service",
+    "rechnung",
+    "mehrwertsteuer"
+   ],
+   "th": [
+    "ทิป",
+    "ค่าบริการ",
+    "บิล"
+   ]
+  },
   "toothache-emergency": {
    "de": [
     "zahnarzt",
@@ -623,6 +841,36 @@
     "ตำรวจท่องเที่ยว",
     "ร้องเรียน",
     "โกง"
+   ]
+  },
+  "traffic-fine-police-ticket": {
+   "de": [
+    "bußgeld",
+    "strafzettel",
+    "polizei",
+    "verkehr",
+    "kontrolle"
+   ],
+   "th": [
+    "ใบสั่ง",
+    "ค่าปรับ",
+    "ตำรวจจราจร",
+    "ด่านตรวจ"
+   ]
+  },
+  "two-price-attraction-tickets": {
+   "de": [
+    "eintritt",
+    "ticket",
+    "ausländer",
+    "nationalpark",
+    "preis"
+   ],
+   "th": [
+    "ค่าเข้า",
+    "ตั๋ว",
+    "ชาวต่างชาติ",
+    "ราคา"
    ]
   },
   "vaccination-travel-clinic": {

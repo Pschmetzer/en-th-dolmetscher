@@ -1,0 +1,162 @@
+{
+  "id": "phone-repair-shop",
+  "names": {
+    "de": "Handy-Reparatur",
+    "en": "Phone repair shop",
+    "th": "ร้านซ่อมมือถือ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Vor der Reparatur Daten sichern, SIM-Karte und Passwörter selbst behalten und Fotos vom Gerät machen. Preis und Dauer vorher nennen lassen, Originalteile oder Nachbauten erfragen und eine Quittung mit Garantie verlangen. Konten vorher abmelden (Find My / Google). Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Back up your data before a repair, keep your SIM card and passwords and photograph the device. Ask for price and time first, ask for original or copy parts and request a receipt with warranty. Sign out of your accounts first (Find My / Google). Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "screen",
+      "th": "หน้าจอ"
+    },
+    {
+      "en": "battery",
+      "th": "แบตเตอรี่"
+    },
+    {
+      "en": "charging port",
+      "th": "ช่องชาร์จ"
+    },
+    {
+      "en": "repair",
+      "th": "ซ่อม"
+    },
+    {
+      "en": "warranty",
+      "th": "การรับประกัน"
+    },
+    {
+      "en": "backup",
+      "th": "สำรองข้อมูล"
+    },
+    {
+      "en": "password",
+      "th": "รหัสผ่าน"
+    },
+    {
+      "en": "water damage",
+      "th": "เครื่องโดนน้ำ"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    },
+    {
+      "en": "phone",
+      "th": "โทรศัพท์"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "My phone fell into water.",
+      "th": "โทรศัพท์ตกน้ำ",
+      "critical": true,
+      "rom": "thonsap takanam"
+    },
+    {
+      "en": "Please do not turn it on.",
+      "th": "ขออย่าเปิดเครื่อง",
+      "critical": true,
+      "rom": "kho ya poet kherueng"
+    },
+    {
+      "en": "Please do not delete any data.",
+      "th": "ขออย่าลบข้อมูลในเครื่อง",
+      "critical": true,
+      "rom": "kho ya lop khomun nai kherueng"
+    },
+    {
+      "en": "I need the phone back today.",
+      "th": "ต้องการเครื่องคืนวันนี้",
+      "critical": true,
+      "rom": "tongkan kherueng khuen wanni"
+    },
+    {
+      "en": "I need to make an emergency call.",
+      "th": "ต้องโทรฉุกเฉิน",
+      "critical": true,
+      "rom": "tong thon chukchoen"
+    },
+    {
+      "en": "The screen is cracked.",
+      "th": "หน้าจอแตก",
+      "rom": "nacho taek"
+    },
+    {
+      "en": "The touch screen does not work.",
+      "th": "จอสัมผัสไม่ทำงาน",
+      "rom": "cho samphat mai thamngan"
+    },
+    {
+      "en": "The battery drains very fast.",
+      "th": "แบตเตอรี่หมดเร็วมาก",
+      "rom": "baettoeri mot reo mak"
+    },
+    {
+      "en": "The phone does not charge.",
+      "th": "ชาร์จไม่เข้า",
+      "rom": "chat mai khao"
+    },
+    {
+      "en": "The phone will not turn on.",
+      "th": "เครื่องเปิดไม่ติด",
+      "rom": "kherueng poet mai tit"
+    },
+    {
+      "en": "How much is the repair?",
+      "th": "ค่าซ่อมเท่าไร",
+      "rom": "kha som thaorai"
+    },
+    {
+      "en": "How long will it take?",
+      "th": "ใช้เวลานานเท่าไหร่",
+      "rom": "chaiwelanan thaorai"
+    },
+    {
+      "en": "Are the parts original?",
+      "th": "อะไหล่เป็นของแท้ไหม",
+      "rom": "alai pen khongthae mai"
+    },
+    {
+      "en": "Is there a warranty on the repair?",
+      "th": "การซ่อมมีรับประกันไหม",
+      "rom": "kan som mi rapprakan mai"
+    },
+    {
+      "en": "Please tell me the price before you start.",
+      "th": "ช่วยบอกราคาก่อนเริ่มรักษาหน่อย",
+      "rom": "chuai bok rakha kon roem raksa noi"
+    },
+    {
+      "en": "Can you back up my photos first?",
+      "th": "ช่วยสำรองรูปภาพก่อนได้ไหม",
+      "rom": "chuai samrong rupphap kon dai mai"
+    },
+    {
+      "en": "I will keep my SIM card.",
+      "th": "ขอเก็บซิมการ์ดไว้เอง",
+      "rom": "kho kep sim kat wai eng"
+    },
+    {
+      "en": "Please give me a receipt with the serial number.",
+      "th": "ขอใบเสร็จที่มีเลขเครื่องด้วย",
+      "rom": "kho thi mi lek kherueng duai"
+    },
+    {
+      "en": "Can I wait here?",
+      "th": "รอที่นี่ได้ไหม",
+      "rom": "ro thini dai mai"
+    },
+    {
+      "en": "Can you put on a screen protector?",
+      "th": "ช่วยติดฟิล์มกันรอยให้หน่อยได้ไหม",
+      "rom": "chuai tit fim kan roi hai noi dai mai"
+    }
+  ]
+}

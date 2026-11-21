@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Bei Behörden gilt: ordentlich gekleidet erscheinen (keine Tank-Tops, geschlossene Schuhe sind oft Pflicht), Unterlagen im Original und in Kopie mitbringen und früh kommen. Als Ausländer in Thailand ist alle 90 Tage bei längerem Aufenthalt eine Meldung („90-Tage-Meldung“) nötig; Fristen vorab bei der Einwanderungsbehörde bestätigen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "At offices dress neatly (no tank tops, closed shoes are often required), bring originals and copies of documents and arrive early. Longer stays require a 90-day report; confirm deadlines with the immigration office beforehand. Thai lines machine-made, not checked by native speakers."
+    "de": "Bei Behörden gilt: ordentlich gekleidet erscheinen (keine Tank-Tops, geschlossene Schuhe sind oft Pflicht), Unterlagen im Original und in Kopie mitbringen und früh kommen. Als Ausländer in Thailand ist alle 90 Tage bei längerem Aufenthalt eine Meldung („90-Tage-Meldung“) nötig; Fristen vorab bei der Einwanderungsbehörde bestätigen. Siehe auch: Visumverlängerung, Führerschein und Fahrerlaubnis. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "At offices dress neatly (no tank tops, closed shoes are often required), bring originals and copies of documents and arrive early. Longer stays require a 90-day report; confirm deadlines with the immigration office beforehand. See also: Visa extension, Driving licence. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -39,75 +39,93 @@
   "phrases": [
     {
       "en": "Where is the immigration office?",
-      "th": "สำนักงานตรวจคนเข้าเมืองอยู่ที่ไหน"
+      "th": "สำนักงานตรวจคนเข้าเมืองอยู่ที่ไหน",
+      "rom": "samnakngan truat khanakhaomueang yu thinai"
     },
     {
       "en": "I would like to extend my visa.",
-      "th": "ต้องการขยายวีซ่า"
+      "th": "ต้องการขยายวีซ่า",
+      "rom": "tongkan khayai wisa"
     },
     {
       "en": "When does my visa expire?",
-      "th": "วีซ่าหมดอายุเมื่อไหร่"
+      "th": "วีซ่าหมดอายุเมื่อไหร่",
+      "rom": "wisa muearai"
     },
     {
       "en": "I need to do my 90-day report.",
-      "th": "ต้องรายงานตัว 90 วัน"
+      "th": "ต้องรายงานตัว 90 วัน",
+      "rom": "tong raingantua 90 wan"
     },
     {
       "en": "Which documents do I need?",
-      "th": "ต้องใช้เอกสารอะไรบ้าง"
+      "th": "ต้องใช้เอกสารอะไรบ้าง",
+      "rom": "tong chai eksan arai bang"
     },
     {
       "en": "Do I need a photocopy?",
-      "th": "ต้องใช้สำเนาไหม"
+      "th": "ต้องใช้สำเนาไหม",
+      "rom": "tong chai samnao mai"
     },
     {
       "en": "Where can I make copies?",
-      "th": "ถ่ายเอกสารได้ที่ไหน"
+      "th": "ถ่ายเอกสารได้ที่ไหน",
+      "rom": "thaieksan dai thinai"
     },
     {
       "en": "How much is the fee?",
-      "th": "ค่าธรรมเนียมเท่าไหร่"
+      "th": "ค่าธรรมเนียมเท่าไหร่",
+      "rom": "khatamniam thaorai"
     },
     {
       "en": "How long does it take?",
-      "th": "ใช้เวลานานเท่าไหร่"
+      "th": "ใช้เวลานานเท่าไหร่",
+      "rom": "chaiwelanan thaorai"
     },
     {
       "en": "Can I wait here?",
-      "th": "รอที่นี่ได้ไหม"
+      "th": "รอที่นี่ได้ไหม",
+      "rom": "ro thini dai mai"
     },
     {
       "en": "Which counter is it?",
-      "th": "ต้องไปช่องไหน"
+      "th": "ต้องไปช่องไหน",
+      "rom": "tong pai chong nai"
     },
     {
       "en": "Please write down what I need to do.",
-      "th": "ช่วยเขียนว่าต้องทำอะไรบ้าง"
+      "th": "ช่วยเขียนว่าต้องทำอะไรบ้าง",
+      "rom": "chuai khian wa tong tham arai bang"
     },
     {
       "en": "I would like a queue number, please.",
-      "th": "ขอบัตรคิวหน่อย"
+      "th": "ขอบัตรคิวหน่อย",
+      "rom": "kho batn khio noi"
     },
     {
       "en": "Can I pay by card?",
-      "th": "จ่ายด้วยบัตรได้ไหม"
+      "th": "จ่ายด้วยบัตรได้ไหม",
+      "rom": "chai duai batn dai mai"
     },
     {
       "en": "Please speak slowly.",
-      "th": "ช่วยพูดช้าๆ หน่อย"
+      "th": "ช่วยพูดช้าๆ หน่อย",
+      "rom": "chuai phut cha noi"
     },
     {
       "en": "When should I come back?",
-      "th": "ต้องมาอีกเมื่อไหร่"
+      "th": "ต้องมาอีกเมื่อไหร่",
+      "rom": "tong ma ik muearai"
     },
     {
       "en": "Do I need an appointment?",
-      "th": "ต้องนัดล่วงหน้าไหม"
+      "th": "ต้องนัดล่วงหน้าไหม",
+      "rom": "tong nat luangna mai"
     },
     {
       "en": "Is there someone who speaks English?",
-      "th": "มีใครพูดภาษาอังกฤษได้ไหม"
+      "th": "มีใครพูดภาษาอังกฤษได้ไหม",
+      "rom": "mi khain phut phasaangkrit dai mai"
     }
   ]
 }

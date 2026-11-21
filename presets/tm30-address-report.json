@@ -55,59 +55,73 @@
   "phrases": [
     {
       "en": "Did you report me to immigration (TM30)?",
-      "th": "ได้แจ้งที่พักกับตรวจคนเข้าเมือง ตม.30 แล้วหรือยัง"
+      "th": "ได้แจ้งที่พักกับตรวจคนเข้าเมือง ตม.30 แล้วหรือยัง",
+      "rom": "dai chaeng thiphak kap truat khanakhaomueang tam. 30 laeo rueyang"
     },
     {
       "en": "Please report my stay to immigration within 24 hours.",
-      "th": "ช่วยแจ้งที่พักกับตรวจคนเข้าเมืองภายใน 24 ชั่วโมง"
+      "th": "ช่วยแจ้งที่พักกับตรวจคนเข้าเมืองภายใน 24 ชั่วโมง",
+      "rom": "chuai chaeng thiphak kap truat khanakhaomueang phainai 24 chuamong"
     },
     {
       "en": "May I have the TM30 receipt?",
-      "th": "ขอใบเสร็จ ตม.30 ได้ไหม"
+      "th": "ขอใบเสร็จ ตม.30 ได้ไหม",
+      "rom": "kho tam. 30 dai mai"
     },
     {
       "en": "Please give me a copy of the TM30.",
-      "th": "ขอสำเนา ตม.30 ด้วย"
+      "th": "ขอสำเนา ตม.30 ด้วย",
+      "rom": "kho samnao tam. 30 duai"
     },
     {
       "en": "I moved to a new address.",
-      "th": "ย้ายมาที่อยู่ใหม่"
+      "th": "ย้ายมาที่อยู่ใหม่",
+      "rom": "yai ma thiyu aim"
     },
     {
       "en": "I need the TM30 for my visa extension.",
-      "th": "ต้องใช้ ตม.30 สำหรับต่อวีซ่า"
+      "th": "ต้องใช้ ตม.30 สำหรับต่อวีซ่า",
+      "rom": "tong chai tam. 30 samrap to wisa"
     },
     {
       "en": "The immigration office asked for the TM30.",
-      "th": "ตรวจคนเข้าเมืองขอ ตม.30"
+      "th": "ตรวจคนเข้าเมืองขอ ตม.30",
+      "rom": "truat khanakhaomueang kho tam. 30"
     },
     {
       "en": "My arrival date was the first of this month.",
-      "th": "วันเดินทางเข้าคือวันที่หนึ่งของเดือนนี้"
+      "th": "วันเดินทางเข้าคือวันที่หนึ่งของเดือนนี้",
+      "rom": "wan doen thangkhao khue wan thinueng khong duean ni"
     },
     {
       "en": "Can I report online myself?",
-      "th": "แจ้งออนไลน์เองได้ไหม"
+      "th": "แจ้งออนไลน์เองได้ไหม",
+      "rom": "chaeng onlai eng dai mai"
     },
     {
       "en": "Please write my passport number correctly.",
-      "th": "ช่วยเขียนเลขหนังสือเดินทางให้ถูกต้องด้วย"
+      "th": "ช่วยเขียนเลขหนังสือเดินทางให้ถูกต้องด้วย",
+      "rom": "chuai khian lek nangsuedoenthang hai thuktong duai"
     },
     {
       "en": "Here is my passport.",
-      "th": "นี่พาสปอร์ต"
+      "th": "นี่พาสปอร์ต",
+      "rom": "ni phatpot"
     },
     {
       "en": "Here is my lease.",
-      "th": "นี่คือสัญญาเช่า"
+      "th": "นี่คือสัญญาเช่า",
+      "rom": "ni khue sanyachao"
     },
     {
       "en": "How long is the report valid?",
-      "th": "การแจ้งนี้ใช้ได้นานเท่าไร"
+      "th": "การแจ้งนี้ใช้ได้นานเท่าไร",
+      "rom": "kan chaeng ni chaidai nan thaorai"
     },
     {
       "en": "Do I have to report again after a trip?",
-      "th": "หลังไปเที่ยวต้องแจ้งใหม่อีกไหม"
+      "th": "หลังไปเที่ยวต้องแจ้งใหม่อีกไหม",
+      "rom": "lang pathaiiao tong chaeng aim ik mai"
     }
   ]
 }

@@ -35,63 +35,78 @@
   "phrases": [
     {
       "en": "Could you give me a discount?",
-      "th": "ลดให้หน่อยได้ไหม"
+      "th": "ลดให้หน่อยได้ไหม",
+      "rom": "lot hai noi dai mai"
     },
     {
       "en": "What is your best price?",
-      "th": "ราคาที่ถูกที่สุดเท่าไหร่"
+      "th": "ราคาที่ถูกที่สุดเท่าไหร่",
+      "rom": "ra khathi thuk thisut thaorai"
     },
     {
       "en": "That is a little too expensive for me.",
-      "th": "แพงไปหน่อยสำหรับตัวเอง"
+      "th": "แพงไปหน่อยสำหรับตัวเอง",
+      "rom": "phaeng pai noi samrap tuaeng"
     },
     {
       "en": "I will take two if the price is lower.",
-      "th": "ซื้อสองชิ้นถ้าลดให้"
+      "th": "ซื้อสองชิ้นถ้าลดให้",
+      "rom": "sue song chin tha lot hai"
     },
     {
       "en": "I saw it cheaper at another shop.",
-      "th": "เห็นร้านอื่นขายถูกกว่านี้"
+      "th": "เห็นร้านอื่นขายถูกกว่านี้",
+      "rom": "en ran uen khai thuk kwa ni"
     },
     {
       "en": "I only have this much money.",
-      "th": "มีเงินแค่นี้"
+      "th": "มีเงินแค่นี้",
+      "rom": "mingoen khaeni"
     },
     {
       "en": "Can you sell it for this price?",
-      "th": "ขายราคานี้ได้ไหม"
+      "th": "ขายราคานี้ได้ไหม",
+      "rom": "khai rakha ni dai mai"
     },
     {
       "en": "Is there a discount if I pay cash?",
-      "th": "จ่ายเงินสดลดได้ไหม"
+      "th": "จ่ายเงินสดลดได้ไหม",
+      "rom": "chai ngoentt lot dai mai"
     },
     {
       "en": "Is the price fixed here?",
-      "th": "ที่นี่ราคาคงที่ใช่ไหม"
+      "th": "ที่นี่ราคาคงที่ใช่ไหม",
+      "rom": "thini rakha khangathi chaimai"
     },
     {
       "en": "Let me think about it.",
-      "th": "ขอคิดดูก่อน"
+      "th": "ขอคิดดูก่อน",
+      "rom": "kho khit dukon"
     },
     {
       "en": "Thank you, I will come back later.",
-      "th": "ขอบคุณ เดี๋ยวกลับมาใหม่"
+      "th": "ขอบคุณ เดี๋ยวกลับมาใหม่",
+      "rom": "khopkhun diao klapma aim"
     },
     {
       "en": "I do not want to buy it now.",
-      "th": "ยังไม่ซื้อตอนนี้"
+      "th": "ยังไม่ซื้อตอนนี้",
+      "rom": "yang mai sue tonni"
     },
     {
       "en": "I can only offer this price.",
-      "th": "เสนอได้แค่ราคานี้"
+      "th": "เสนอได้แค่ราคานี้",
+      "rom": "seno dai khae rakha ni"
     },
     {
       "en": "I am only asking, no offence meant.",
-      "th": "แค่ลองถามราคา ไม่ได้ตั้งใจให้ไม่สบายใจ"
+      "th": "แค่ลองถามราคา ไม่ได้ตั้งใจให้ไม่สบายใจ",
+      "rom": "khae long tham rakha mai dai tangchai hai mai sabaichai"
     },
     {
       "en": "Deal. I will take it.",
-      "th": "ตกลง เอาอันนี้"
+      "th": "ตกลง เอาอันนี้",
+      "rom": "taklong ao anni"
     }
   ],
   "note": {

@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "„Vegetarisch“ heißt in Thailand oft nur ohne Fleisch, aber mit Fischsauce, Austernsauce oder Garnelenpaste. Jay-Essen (gelbe Flagge mit rotem Schriftzeichen) ist pflanzlich. Bei Allergien sehr deutlich sein und Zutaten nachfragen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Vegetarian in Thailand often only means no meat, still with fish sauce, oyster sauce or shrimp paste. Jay food (yellow flag with red characters) is plant-based. With allergies be very clear and ask about ingredients. Thai lines machine-made, not checked by native speakers."
+    "de": "„Vegetarisch“ heißt in Thailand oft nur ohne Fleisch, aber mit Fischsauce, Austernsauce oder Garnelenpaste. Jay-Essen (gelbe Flagge mit rotem Schriftzeichen) ist pflanzlich. Bei Allergien sehr deutlich sein und Zutaten nachfragen. Siehe auch: Restaurant, Bäckerei und Café. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Vegetarian in Thailand often only means no meat, still with fish sauce, oyster sauce or shrimp paste. Jay food (yellow flag with red characters) is plant-based. With allergies be very clear and ask about ingredients. See also: Restaurant, Bakery and cafe. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,90 +40,110 @@
     {
       "en": "I have a severe allergy.",
       "th": "มีอาการแพ้รุนแรง",
-      "critical": true
+      "critical": true,
+      "rom": "mi akan phae runraeng"
     },
     {
       "en": "I am allergic to peanuts.",
       "th": "แพ้ถั่วลิสง",
-      "critical": true
+      "critical": true,
+      "rom": "phae thualitng"
     },
     {
       "en": "I am allergic to tree nuts.",
       "th": "แพ้ถั่วเปลือกแข็ง",
-      "critical": true
+      "critical": true,
+      "rom": "phae thua peluek"
     },
     {
       "en": "I am allergic to soy.",
       "th": "แพ้ถั่วเหลือง",
-      "critical": true
+      "critical": true,
+      "rom": "phae thuahelueng"
     },
     {
       "en": "I am allergic to sesame.",
       "th": "แพ้งา",
-      "critical": true
+      "critical": true,
+      "rom": "phae nga"
     },
     {
       "en": "I am allergic to wheat.",
       "th": "แพ้แป้งสาลี",
-      "critical": true
+      "critical": true,
+      "rom": "phae paengsali"
     },
     {
       "en": "I am allergic to shellfish.",
       "th": "แพ้อาหารทะเลที่มีเปลือก",
-      "critical": true
+      "critical": true,
+      "rom": "phae ahanthale thi mi peluek"
     },
     {
       "en": "I need medical help.",
       "th": "ต้องการความช่วยเหลือทางการแพทย์",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan khwamchuaihelue thangkanphaet"
     },
     {
       "en": "I am vegetarian.",
-      "th": "กินมังสวิรัติ"
+      "th": "กินมังสวิรัติ",
+      "rom": "kin mangtwirati"
     },
     {
       "en": "I am vegan.",
-      "th": "กินวีแกน"
+      "th": "กินวีแกน",
+      "rom": "kin wi kaen"
     },
     {
       "en": "No meat, no fish.",
-      "th": "ไม่ใส่เนื้อสัตว์ ไม่ใส่ปลา"
+      "th": "ไม่ใส่เนื้อสัตว์ ไม่ใส่ปลา",
+      "rom": "mai sai nueasat mai sai pla"
     },
     {
       "en": "No fish sauce, please.",
-      "th": "ไม่ใส่น้ำปลา"
+      "th": "ไม่ใส่น้ำปลา",
+      "rom": "mai sai nampla"
     },
     {
       "en": "No oyster sauce, please.",
-      "th": "ไม่ใส่น้ำมันหอย"
+      "th": "ไม่ใส่น้ำมันหอย",
+      "rom": "mai sai namman hoi"
     },
     {
       "en": "No shrimp paste, please.",
-      "th": "ไม่ใส่กะปิ"
+      "th": "ไม่ใส่กะปิ",
+      "rom": "mai sai kapi"
     },
     {
       "en": "No egg, no milk.",
-      "th": "ไม่ใส่ไข่ ไม่ใส่นม"
+      "th": "ไม่ใส่ไข่ ไม่ใส่นม",
+      "rom": "mai saikhai mai sai nom"
     },
     {
       "en": "Is the broth made with meat?",
-      "th": "น้ำซุปทำจากเนื้อสัตว์ไหม"
+      "th": "น้ำซุปทำจากเนื้อสัตว์ไหม",
+      "rom": "nam sup tham chak nueasat mai"
     },
     {
       "en": "Can you make it without meat?",
-      "th": "ทำแบบไม่ใส่เนื้อสัตว์ได้ไหม"
+      "th": "ทำแบบไม่ใส่เนื้อสัตว์ได้ไหม",
+      "rom": "tham baep mai sai nueasat dai mai"
     },
     {
       "en": "Do you have a jay menu?",
-      "th": "มีเมนูเจไหม"
+      "th": "มีเมนูเจไหม",
+      "rom": "mi menu che mai"
     },
     {
       "en": "Is this dish vegetarian?",
-      "th": "จานนี้เป็นมังสวิรัติไหม"
+      "th": "จานนี้เป็นมังสวิรัติไหม",
+      "rom": "chan ni pen mangtwirati mai"
     },
     {
       "en": "Is there a vegetarian restaurant nearby?",
-      "th": "แถวนี้มีร้านมังสวิรัติไหม"
+      "th": "แถวนี้มีร้านมังสวิรัติไหม",
+      "rom": "thaeo ni mi ran mangtwirati mai"
     }
   ]
 }

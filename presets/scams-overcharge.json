@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Bekannte Maschen: Der Palast sei heute geschlossen, dazu Tuk-Tuk-Rundfahrt und Edelsteinladen, Taxi ohne Taxameter, Jetski-Schadensbetrug, Preise ohne Preisschild. Preis vorher klären, auf das Taxameter bestehen, den Pass nie als Pfand geben, Fotos vom Zustand machen. Touristenpolizei 1155. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Known tricks: the palace is closed today with a tuk-tuk tour and gem shop, taxis without a meter, jet-ski damage claims, prices without a price tag. Agree on the price first, insist on the meter, never leave your passport as a deposit, take photos of the condition. Tourist police 1155. Thai lines machine-made, not checked by native speakers."
+    "de": "Bekannte Maschen: Der Palast sei heute geschlossen, dazu Tuk-Tuk-Rundfahrt und Edelsteinladen, Taxi ohne Taxameter, Jetski-Schadensbetrug, Preise ohne Preisschild. Preis vorher klären, auf das Taxameter bestehen, den Pass nie als Pfand geben, Fotos vom Zustand machen. Touristenpolizei 1155. Siehe auch: Jetski und Wassersport. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Known tricks: the palace is closed today with a tuk-tuk tour and gem shop, taxis without a meter, jet-ski damage claims, prices without a price tag. Agree on the price first, insist on the meter, never leave your passport as a deposit, take photos of the condition. Tourist police 1155. See also: Jet ski and water sports. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -56,78 +56,96 @@
     {
       "en": "Please call the tourist police (1155).",
       "th": "ช่วยโทรหาตำรวจท่องเที่ยว 1155 ด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai thon ha tamruat thongthiao 1155 duai"
     },
     {
       "en": "Do not keep my passport.",
       "th": "อย่ายึดหนังสือเดินทางไว้",
-      "critical": true
+      "critical": true,
+      "rom": "ya yuet nangsuedoenthang wai"
     },
     {
       "en": "I will not leave my passport as a deposit.",
       "th": "ไม่วางพาสปอร์ตเป็นมัดจำ",
-      "critical": true
+      "critical": true,
+      "rom": "mai wang phatpot pen matcham"
     },
     {
       "en": "Stop here, I want to get out.",
       "th": "จอดตรงนี้ จะลงแล้ว",
-      "critical": true
+      "critical": true,
+      "rom": "chot trangani cha long laeo"
     },
     {
       "en": "I did not cause this damage.",
-      "th": "ความเสียหายนี้ไม่ได้เกิดจากการใช้ของเรา"
+      "th": "ความเสียหายนี้ไม่ได้เกิดจากการใช้ของเรา",
+      "rom": "khwamsiahai ni mai dai koet chak kan chai khong rao"
     },
     {
       "en": "Please use the meter.",
-      "th": "รบกวนเปิดมิเตอร์ด้วย"
+      "th": "รบกวนเปิดมิเตอร์ด้วย",
+      "rom": "rabakuan poet mitoe duai"
     },
     {
       "en": "Please tell me the full price first.",
-      "th": "ช่วยบอกราคาทั้งหมดก่อน"
+      "th": "ช่วยบอกราคาทั้งหมดก่อน",
+      "rom": "chuai bok rakha thangmt kon"
     },
     {
       "en": "Is this price per person or in total?",
-      "th": "ราคานี้ต่อคนหรือรวมทั้งหมด"
+      "th": "ราคานี้ต่อคนหรือรวมทั้งหมด",
+      "rom": "rakha ni to khon rue ruamthangmt"
     },
     {
       "en": "I do not want to go to a shop.",
-      "th": "ไม่ต้องการแวะร้านค้า"
+      "th": "ไม่ต้องการแวะร้านค้า",
+      "rom": "mataingkan wae rankha"
     },
     {
       "en": "Please take me directly to my hotel.",
-      "th": "ช่วยพาไปโรงแรมโดยตรง"
+      "th": "ช่วยพาไปโรงแรมโดยตรง",
+      "rom": "chuai pha pai rongraem doitnng"
     },
     {
       "en": "That is much more than the normal price.",
-      "th": "แพงกว่าราคาปกติมาก"
+      "th": "แพงกว่าราคาปกติมาก",
+      "rom": "phaeng kwa rakha pakati mak"
     },
     {
       "en": "I will pay the price we agreed.",
-      "th": "จะจ่ายตามราคาที่ตกลงกัน"
+      "th": "จะจ่ายตามราคาที่ตกลงกัน",
+      "rom": "cha chai tam ra khathi taklong kan"
     },
     {
       "en": "Please show me the price list.",
-      "th": "ขอดูรายการราคาหน่อย"
+      "th": "ขอดูรายการราคาหน่อย",
+      "rom": "kho du raikan rakha noi"
     },
     {
       "en": "I would like a written receipt.",
-      "th": "ขอใบเสร็จเป็นลายลักษณ์อักษร"
+      "th": "ขอใบเสร็จเป็นลายลักษณ์อักษร",
+      "rom": "kho pen"
     },
     {
       "en": "I took photos before I rented it.",
-      "th": "ถ่ายรูปไว้ก่อนเช่า"
+      "th": "ถ่ายรูปไว้ก่อนเช่า",
+      "rom": "thairup wai kon chao"
     },
     {
       "en": "Please give me my money back.",
-      "th": "ช่วยคืนเงินให้ด้วย"
+      "th": "ช่วยคืนเงินให้ด้วย",
+      "rom": "chuai khuenngoen hai duai"
     },
     {
       "en": "I do not need a guide.",
-      "th": "ไม่ต้องการไกด์"
+      "th": "ไม่ต้องการไกด์",
+      "rom": "mataingkan kai"
     },
     {
       "en": "No, thank you. I am not interested.",
-      "th": "ไม่เป็นไร ไม่สนใจ"
+      "th": "ไม่เป็นไร ไม่สนใจ",
+      "rom": "maipenrai mai sanachai"
     }
   ]
 }

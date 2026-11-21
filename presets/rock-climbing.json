@@ -48,96 +48,118 @@
     {
       "en": "Stop, I am falling, hold the rope.",
       "th": "หยุดก่อน กำลังจะตก ช่วยจับเชือกไว้",
-      "critical": true
+      "critical": true,
+      "rom": "yut kon kamlangcha tok chuai chap chueak wai"
     },
     {
       "en": "I hurt my back, please do not move me.",
       "th": "เจ็บหลัง ขออย่าเพิ่งเคลื่อนย้าย",
-      "critical": true
+      "critical": true,
+      "rom": "chep lang kho ya phoeng kheluenyai"
     },
     {
       "en": "My hand is bleeding, I need first aid.",
       "th": "มือมีเลือดออก ต้องการปฐมพยาบาล",
-      "critical": true
+      "critical": true,
+      "rom": "mue mi lueat ok tong kanptmpyaban"
     },
     {
       "en": "Please lower me down slowly.",
       "th": "ช่วยหย่อนลงช้าๆ หน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai yon long cha noi"
     },
     {
       "en": "The rope is damaged, please check it.",
       "th": "เชือกเสียหาย ช่วยตรวจดูหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chueak siahai chuai truatdu noi"
     },
     {
       "en": "I feel dizzy and must come down.",
       "th": "เวียนหัวและต้องลงมาแล้ว",
-      "critical": true
+      "critical": true,
+      "rom": "wianhua lae tong langama laeo"
     },
     {
       "en": "Do you offer a course for beginners?",
-      "th": "มีคอร์สสำหรับมือใหม่ไหม"
+      "th": "มีคอร์สสำหรับมือใหม่ไหม",
+      "rom": "mi khot samrap muehaim mai"
     },
     {
       "en": "How long is the half day course?",
-      "th": "คอร์สครึ่งวันใช้เวลานานเท่าไร"
+      "th": "คอร์สครึ่งวันใช้เวลานานเท่าไร",
+      "rom": "khot khrueng wan chaiwelanan thaorai"
     },
     {
       "en": "Is the equipment included?",
-      "th": "รวมอุปกรณ์ไหม"
+      "th": "รวมอุปกรณ์ไหม",
+      "rom": "ruam upkn mai"
     },
     {
       "en": "Please check my harness before we start.",
-      "th": "ช่วยตรวจสายรัดนิรภัยก่อนเริ่มหน่อย"
+      "th": "ช่วยตรวจสายรัดนิรภัยก่อนเริ่มหน่อย",
+      "rom": "chuai truat sai rat ninphai kon roem noi"
     },
     {
       "en": "Please show me how to tie the knot.",
-      "th": "ช่วยสอนผูกเงื่อนหน่อย"
+      "th": "ช่วยสอนผูกเงื่อนหน่อย",
+      "rom": "chuai son phuk nguean noi"
     },
     {
       "en": "Which route is easy for me?",
-      "th": "เส้นทางไหนง่ายสำหรับเรา"
+      "th": "เส้นทางไหนง่ายสำหรับเรา",
+      "rom": "senthang nai ngai samrap rao"
     },
     {
       "en": "I am afraid of heights.",
-      "th": "กลัวความสูง"
+      "th": "กลัวความสูง",
+      "rom": "klua khwamsung"
     },
     {
       "en": "May I try this route again?",
-      "th": "ขอลองปีนเส้นทางนี้อีกครั้งได้ไหม"
+      "th": "ขอลองปีนเส้นทางนี้อีกครั้งได้ไหม",
+      "rom": "kho long pin senthang ni ikkrang dai mai"
     },
     {
       "en": "Please explain the rope signals.",
-      "th": "ช่วยอธิบายสัญญาณเชือกหน่อย"
+      "th": "ช่วยอธิบายสัญญาณเชือกหน่อย",
+      "rom": "chuai thibai sanyan chueak noi"
     },
     {
       "en": "Can I rent climbing shoes in my size?",
-      "th": "เช่ารองเท้าปีนผาไซส์ของเราได้ไหม"
+      "th": "เช่ารองเท้าปีนผาไซส์ของเราได้ไหม",
+      "rom": "chao rongthao pin pha sai khong rao dai mai"
     },
     {
       "en": "Is it too wet to climb today?",
-      "th": "วันนี้เปียกเกินไปสำหรับปีนไหม"
+      "th": "วันนี้เปียกเกินไปสำหรับปีนไหม",
+      "rom": "wanni piak koenpai samrap pin mai"
     },
     {
       "en": "Do you have insurance for climbers?",
-      "th": "มีประกันสำหรับผู้ปีนไหม"
+      "th": "มีประกันสำหรับผู้ปีนไหม",
+      "rom": "mi prakan samrap phu pin mai"
     },
     {
       "en": "Where can I wash my hands?",
-      "th": "ล้างมือได้ที่ไหน"
+      "th": "ล้างมือได้ที่ไหน",
+      "rom": "langmue dai thinai"
     },
     {
       "en": "Please let me drink some water, it is hot.",
-      "th": "ขอดื่มน้ำหน่อย อากาศร้อน"
+      "th": "ขอดื่มน้ำหน่อย อากาศร้อน",
+      "rom": "kho duem nam noi akat ron"
     },
     {
       "en": "Please take a photo of me on the wall.",
-      "th": "ช่วยถ่ายรูปตอนปีนผาหน่อย"
+      "th": "ช่วยถ่ายรูปตอนปีนผาหน่อย",
+      "rom": "chuai thairup ton pin pha noi"
     },
     {
       "en": "Thank you, that was great fun.",
-      "th": "ขอบคุณ สนุกมาก"
+      "th": "ขอบคุณ สนุกมาก",
+      "rom": "khopkhun sanuk mak"
     }
   ]
 }

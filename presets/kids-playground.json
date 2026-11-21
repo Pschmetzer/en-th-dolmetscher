@@ -40,74 +40,91 @@
     {
       "en": "My child is missing. Please help me!",
       "th": "ลูกหายไป ช่วยด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "luk hai pai chuaiduai"
     },
     {
       "en": "My child fell and is hurt.",
       "th": "ลูกล้มและบาดเจ็บ",
-      "critical": true
+      "critical": true,
+      "rom": "luk lom lae batchep"
     },
     {
       "en": "Please call a doctor.",
       "th": "ช่วยเรียกแพทย์หน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak phaet noi"
     },
     {
       "en": "My child has an allergy.",
       "th": "ลูกแพ้อาหาร",
-      "critical": true
+      "critical": true,
+      "rom": "luk phae ahan"
     },
     {
       "en": "Is there a first aid post?",
-      "th": "มีจุดปฐมพยาบาลไหม"
+      "th": "มีจุดปฐมพยาบาลไหม",
+      "rom": "mi chut pathamaphayaban mai"
     },
     {
       "en": "How old must the child be?",
-      "th": "เด็กต้องอายุเท่าไหร่"
+      "th": "เด็กต้องอายุเท่าไหร่",
+      "rom": "dek tong thaorai"
     },
     {
       "en": "Is there a children's price?",
-      "th": "มีราคาสำหรับเด็กไหม"
+      "th": "มีราคาสำหรับเด็กไหม",
+      "rom": "mirakha samrap dek mai"
     },
     {
       "en": "How much for one hour?",
-      "th": "หนึ่งชั่วโมงราคาเท่าไร"
+      "th": "หนึ่งชั่วโมงราคาเท่าไร",
+      "rom": "nueng chuamong rakha thaorai"
     },
     {
       "en": "Do we need socks?",
-      "th": "ต้องใส่ถุงเท้าไหม"
+      "th": "ต้องใส่ถุงเท้าไหม",
+      "rom": "tong sai thungthao mai"
     },
     {
       "en": "May I stay with my child?",
-      "th": "อยู่กับลูกได้ไหม"
+      "th": "อยู่กับลูกได้ไหม",
+      "rom": "yu kap luk dai mai"
     },
     {
       "en": "Where can I leave my shoes?",
-      "th": "วางรองเท้าไว้ที่ไหน"
+      "th": "วางรองเท้าไว้ที่ไหน",
+      "rom": "wang rongthao wai thinai"
     },
     {
       "en": "Where is the toilet?",
-      "th": "ห้องน้ำอยู่ที่ไหน"
+      "th": "ห้องน้ำอยู่ที่ไหน",
+      "rom": "ongnam yu thinai"
     },
     {
       "en": "Is there a changing room?",
-      "th": "มีห้องเปลี่ยนเสื้อผ้าไหม"
+      "th": "มีห้องเปลี่ยนเสื้อผ้าไหม",
+      "rom": "mi ong pelinsuea phamai"
     },
     {
       "en": "Where can I get water?",
-      "th": "ซื้อน้ำได้ที่ไหน"
+      "th": "ซื้อน้ำได้ที่ไหน",
+      "rom": "sue nam dai thinai"
     },
     {
       "en": "Is there shade?",
-      "th": "มีที่ร่มไหม"
+      "th": "มีที่ร่มไหม",
+      "rom": "mi thi rom mai"
     },
     {
       "en": "What time do you close?",
-      "th": "ร้านปิดกี่โมง"
+      "th": "ร้านปิดกี่โมง",
+      "rom": "ran pit ki mong"
     },
     {
       "en": "Where is the meeting point?",
-      "th": "จุดนัดพบอยู่ที่ไหน"
+      "th": "จุดนัดพบอยู่ที่ไหน",
+      "rom": "chutnatpp yu thinai"
     }
   ]
 }

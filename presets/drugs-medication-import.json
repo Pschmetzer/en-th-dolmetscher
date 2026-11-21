@@ -40,95 +40,117 @@
     {
       "en": "I need this medicine every day.",
       "th": "ต้องใช้ยานี้ทุกวัน",
-      "critical": true
+      "critical": true,
+      "rom": "tong chai ya ni thukwan"
     },
     {
       "en": "Please do not confiscate my medicine.",
       "th": "ขออย่ายึดยานี้",
-      "critical": true
+      "critical": true,
+      "rom": "kho ya yuet ya ni"
     },
     {
       "en": "This medicine is essential for my health.",
       "th": "ยานี้จำเป็นต่อสุขภาพ",
-      "critical": true
+      "critical": true,
+      "rom": "ya ni cham pento sukphap"
     },
     {
       "en": "I have a heart condition and need these tablets.",
       "th": "เป็นโรคหัวใจและต้องใช้ยาเม็ดนี้",
-      "critical": true
+      "critical": true,
+      "rom": "pen rokhuachai lae tong chai yamet ni"
     },
     {
       "en": "I have a doctor's letter for this medicine.",
       "th": "มีจดหมายจากแพทย์สำหรับยานี้",
-      "critical": true
+      "critical": true,
+      "rom": "mi chadahamai chak phaet samrap ya ni"
     },
     {
       "en": "I have prescription medicine for personal use.",
-      "th": "มียาตามใบสั่งแพทย์ไว้ใช้เอง"
+      "th": "มียาตามใบสั่งแพทย์ไว้ใช้เอง",
+      "rom": "mi ya tam baisang phaet wai chai eng"
     },
     {
       "en": "These are in the original packaging.",
-      "th": "ยาอยู่ในบรรจุภัณฑ์เดิม"
+      "th": "ยาอยู่ในบรรจุภัณฑ์เดิม",
+      "rom": "ya yu nai bachupha doem"
     },
     {
       "en": "Do I need a permit for this medicine?",
-      "th": "ยานี้ต้องมีใบอนุญาตไหม"
+      "th": "ยานี้ต้องมีใบอนุญาตไหม",
+      "rom": "ya ni tong mi bainuyat mai"
     },
     {
       "en": "Is this medicine allowed in Thailand?",
-      "th": "ยานี้นำเข้าประเทศไทยได้ไหม"
+      "th": "ยานี้นำเข้าประเทศไทยได้ไหม",
+      "rom": "ya ni namkhao prathet thai dai mai"
     },
     {
       "en": "This is for my chronic condition.",
-      "th": "ใช้รักษาโรคเรื้อรัง"
+      "th": "ใช้รักษาโรคเรื้อรัง",
+      "rom": "chai raksa rokruearang"
     },
     {
       "en": "It contains a controlled substance.",
-      "th": "มียาควบคุมพิเศษอยู่ด้วย"
+      "th": "มียาควบคุมพิเศษอยู่ด้วย",
+      "rom": "mi yakhuapkhumphiset yu duai"
     },
     {
       "en": "I have a supply for one month.",
-      "th": "มียาสำหรับหนึ่งเดือน"
+      "th": "มียาสำหรับหนึ่งเดือน",
+      "rom": "mi ya samrap nueng duean"
     },
     {
       "en": "Where do I declare medication?",
-      "th": "แจ้งยาที่ไหน"
+      "th": "แจ้งยาที่ไหน",
+      "rom": "chaeng ya thinai"
     },
     {
       "en": "May I show you the prescription?",
-      "th": "ขอแสดงใบสั่งยาได้ไหม"
+      "th": "ขอแสดงใบสั่งยาได้ไหม",
+      "rom": "kho saetng baisangya dai mai"
     },
     {
       "en": "Here is my prescription in English.",
-      "th": "นี่คือใบสั่งยาภาษาอังกฤษ"
+      "th": "นี่คือใบสั่งยาภาษาอังกฤษ",
+      "rom": "ni khue baisangya phasaangkrit"
     },
     {
       "en": "Is a translation of the letter necessary?",
-      "th": "ต้องแปลจดหมายด้วยไหม"
+      "th": "ต้องแปลจดหมายด้วยไหม",
+      "rom": "tong paen chadahamai duai mai"
     },
     {
       "en": "Can I speak to an officer who speaks English?",
-      "th": "ขอคุยกับเจ้าหน้าที่ที่พูดภาษาอังกฤษได้ไหม"
+      "th": "ขอคุยกับเจ้าหน้าที่ที่พูดภาษาอังกฤษได้ไหม",
+      "rom": "kho khui kap chaonathi thi phut phasaangkrit dai mai"
     },
     {
       "en": "Can I carry this in my hand luggage?",
-      "th": "พกไว้ในกระเป๋าถือขึ้นเครื่องได้ไหม"
+      "th": "พกไว้ในกระเป๋าถือขึ้นเครื่องได้ไหม",
+      "rom": "phok wai nai krapaothue khuen kherueng dai mai"
     },
     {
       "en": "It must stay cool. Is there a fridge?",
-      "th": "ยานี้ต้องเก็บเย็น มีตู้เย็นไหม"
+      "th": "ยานี้ต้องเก็บเย็น มีตู้เย็นไหม",
+      "rom": "ya ni tong kep yen mi tuyen mai"
     },
     {
       "en": "Can I post medicine from home?",
-      "th": "ส่งยาจากต่างประเทศมาทางไปรษณีย์ได้ไหม"
+      "th": "ส่งยาจากต่างประเทศมาทางไปรษณีย์ได้ไหม",
+      "rom": "song ya chak tangprathet ma thangpraitni dai mai"
     },
     {
       "en": "Which authority should I ask?",
-      "th": "ควรสอบถามหน่วยงานไหน"
+      "th": "ควรสอบถามหน่วยงานไหน",
+      "rom": "khuan soptham nuaingan nai"
     },
     {
       "en": "I did not know about this rule.",
-      "th": "ไม่ทราบกฎข้อนี้"
+      "th": "ไม่ทราบกฎข้อนี้",
+      "rom": "mai thrap kot kho ni"
     }
   ]
 }

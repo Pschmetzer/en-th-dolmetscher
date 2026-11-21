@@ -36,61 +36,75 @@
     {
       "en": "Stop the vehicle now. I want to get out.",
       "th": "จอดรถเดี๋ยวนี้ ขอลง",
-      "critical": true
+      "critical": true,
+      "rom": "chot rot diaoni kho long"
     },
     {
       "en": "I feel unsafe. Please stop where there are people.",
       "th": "รู้สึกไม่ปลอดภัย ขอจอดที่ที่มีคนพลุกพล่าน",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek mai plotphai kho chot thi thi mi khon phlukplan"
     },
     {
       "en": "I will report this to the tourist police (1155).",
       "th": "จะแจ้งตำรวจท่องเที่ยว (1155)",
-      "critical": true
+      "critical": true,
+      "rom": "cha chaengtamruat thongthiao 1155"
     },
     {
       "en": "Please tell me the price before we go.",
-      "th": "ช่วยบอกราคาก่อนออกรถ"
+      "th": "ช่วยบอกราคาก่อนออกรถ",
+      "rom": "chuai bok rakha kon oknt"
     },
     {
       "en": "Please use the meter, or I will get out.",
-      "th": "ขอให้เปิดมิเตอร์ ไม่เช่นนั้นจะลง"
+      "th": "ขอให้เปิดมิเตอร์ ไม่เช่นนั้นจะลง",
+      "rom": "khohai poet mitoe maichennan cha long"
     },
     {
       "en": "I will pay at the end, not before.",
-      "th": "จะจ่ายตอนถึง ไม่จ่ายล่วงหน้า"
+      "th": "จะจ่ายตอนถึง ไม่จ่ายล่วงหน้า",
+      "rom": "cha chai ton thueng mai chailuangna"
     },
     {
       "en": "I do not want to stop at any shop on the way.",
-      "th": "ไม่ต้องการแวะร้านค้าระหว่างทาง"
+      "th": "ไม่ต้องการแวะร้านค้าระหว่างทาง",
+      "rom": "mataingkan wae rankha rawangthang"
     },
     {
       "en": "Please do not take me to a travel agency.",
-      "th": "ขออย่าพาไปที่บริษัททัวร์"
+      "th": "ขออย่าพาไปที่บริษัททัวร์",
+      "rom": "kho ya pha pai thi brisat thua"
     },
     {
       "en": "I am not interested in gems or tours.",
-      "th": "ไม่สนใจอัญมณีหรือทัวร์"
+      "th": "ไม่สนใจอัญมณีหรือทัวร์",
+      "rom": "mai sanachai anmni rue thua"
     },
     {
       "en": "I know that place is open today.",
-      "th": "ทราบว่าสถานที่นั้นเปิดวันนี้"
+      "th": "ทราบว่าสถานที่นั้นเปิดวันนี้",
+      "rom": "thrap wa sathanthi nan poet wanni"
     },
     {
       "en": "That price is higher than the usual fare for this distance.",
-      "th": "ราคานี้สูงกว่าค่าโดยสารปกติสำหรับระยะทางนี้"
+      "th": "ราคานี้สูงกว่าค่าโดยสารปกติสำหรับระยะทางนี้",
+      "rom": "rakha ni sung kwa khadoisan pakati samrap rayathang ni"
     },
     {
       "en": "I booked with the app. Please do not change the price.",
-      "th": "จองผ่านแอปไว้แล้ว ขออย่าเปลี่ยนราคา"
+      "th": "จองผ่านแอปไว้แล้ว ขออย่าเปลี่ยนราคา",
+      "rom": "chong phan ae p wai laeo kho ya pelin rakha"
     },
     {
       "en": "I will take a photo of your licence plate.",
-      "th": "จะถ่ายรูปป้ายทะเบียนรถ"
+      "th": "จะถ่ายรูปป้ายทะเบียนรถ",
+      "rom": "cha thairup pai thabiannt"
     },
     {
       "en": "May I see your driver card?",
-      "th": "ขอดูบัตรประจำตัวคนขับได้ไหม"
+      "th": "ขอดูบัตรประจำตัวคนขับได้ไหม",
+      "rom": "kho du batnprachamtua khanakhap dai mai"
     }
   ],
   "note": {

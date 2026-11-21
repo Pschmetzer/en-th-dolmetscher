@@ -56,61 +56,75 @@
     {
       "en": "My child has a serious allergy.",
       "th": "ลูกแพ้อย่างรุนแรง",
-      "critical": true
+      "critical": true,
+      "rom": "luk phae yang runraeng"
     },
     {
       "en": "Call this number in an emergency.",
       "th": "ถ้าเกิดเหตุฉุกเฉินโทรเบอร์นี้",
-      "critical": true
+      "critical": true,
+      "rom": "tha koet etuchukchoen thon boe ni"
     },
     {
       "en": "Please call an ambulance (1669).",
       "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak rathaphayaban duai 1669"
     },
     {
       "en": "I am looking for a babysitter.",
-      "th": "กำลังมองหาพี่เลี้ยงเด็ก"
+      "th": "กำลังมองหาพี่เลี้ยงเด็ก",
+      "rom": "kamlang mongha phi liangdek"
     },
     {
       "en": "Do you have experience with children?",
-      "th": "มีประสบการณ์เลี้ยงเด็กไหม"
+      "th": "มีประสบการณ์เลี้ยงเด็กไหม",
+      "rom": "mipratpkan liangdek mai"
     },
     {
       "en": "Do you have references?",
-      "th": "มีจดหมายรับรองไหม"
+      "th": "มีจดหมายรับรองไหม",
+      "rom": "mi chadahamai raprong mai"
     },
     {
       "en": "What are your working hours?",
-      "th": "เวลาทำงานของคุณคือกี่โมง"
+      "th": "เวลาทำงานของคุณคือกี่โมง",
+      "rom": "welathamngan khong khun khue ki mong"
     },
     {
       "en": "How much do you charge per hour?",
-      "th": "คิดค่าจ้างชั่วโมงละเท่าไร"
+      "th": "คิดค่าจ้างชั่วโมงละเท่าไร",
+      "rom": "khit khachang chuamong la thaorai"
     },
     {
       "en": "The children go to bed at eight.",
-      "th": "เด็กๆ เข้านอนตอนสองทุ่ม"
+      "th": "เด็กๆ เข้านอนตอนสองทุ่ม",
+      "rom": "dek khaonon ton song thum"
     },
     {
       "en": "Please do not give them any sweets.",
-      "th": "ช่วยอย่าให้ขนมหวานเด็ก"
+      "th": "ช่วยอย่าให้ขนมหวานเด็ก",
+      "rom": "chuai ya hai khanamahwan dek"
     },
     {
       "en": "Please do not open the door to strangers.",
-      "th": "ช่วยอย่าเปิดประตูให้คนแปลกหน้า"
+      "th": "ช่วยอย่าเปิดประตูให้คนแปลกหน้า",
+      "rom": "chuai ya poet pratu hai khanapaenkna"
     },
     {
       "en": "Please clean the flat twice a week.",
-      "th": "ช่วยทำความสะอาดห้องสัปดาห์ละสองครั้ง"
+      "th": "ช่วยทำความสะอาดห้องสัปดาห์ละสองครั้ง",
+      "rom": "chuai thamkwamsaat ong sapda la song khrang"
     },
     {
       "en": "Please wash and iron these clothes.",
-      "th": "ช่วยซักและรีดเสื้อผ้าเหล่านี้"
+      "th": "ช่วยซักและรีดเสื้อผ้าเหล่านี้",
+      "rom": "chuai sak lae rit sueapha elani"
     },
     {
       "en": "Thank you for your help.",
-      "th": "ขอบคุณมากที่ช่วย"
+      "th": "ขอบคุณมากที่ช่วย",
+      "rom": "khopkhun mak thi chuai"
     }
   ]
 }

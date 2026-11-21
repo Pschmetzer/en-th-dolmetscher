@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "In Cafés sind Getränke oft sehr süß: „wenig Zucker“ ausdrücklich sagen. Gebäck enthält häufig Nüsse, Ei oder Milch; bei Allergien nach den Zutaten fragen. Preise stehen am Tresen, Trinkgeld ist nicht üblich. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Drinks in cafes are often very sweet: say 'less sugar' clearly. Pastries often contain nuts, egg or milk; ask about ingredients if you have allergies. Prices are on the counter, tipping is not expected. Thai lines machine-made, not checked by native speakers."
+    "de": "In Cafés sind Getränke oft sehr süß: „wenig Zucker“ ausdrücklich sagen. Gebäck enthält häufig Nüsse, Ei oder Milch; bei Allergien nach den Zutaten fragen. Preise stehen am Tresen, Trinkgeld ist nicht üblich. Siehe auch: Vegetarisch, vegan und Allergene. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Drinks in cafes are often very sweet: say 'less sugar' clearly. Pastries often contain nuts, egg or milk; ask about ingredients if you have allergies. Prices are on the counter, tipping is not expected. See also: Vegetarian, vegan and allergens. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,74 +40,91 @@
     {
       "en": "I have a severe allergy.",
       "th": "มีอาการแพ้รุนแรง",
-      "critical": true
+      "critical": true,
+      "rom": "mi akan phae runraeng"
     },
     {
       "en": "I am allergic to peanuts.",
       "th": "แพ้ถั่วลิสง",
-      "critical": true
+      "critical": true,
+      "rom": "phae thualitng"
     },
     {
       "en": "I am allergic to wheat.",
       "th": "แพ้แป้งสาลี",
-      "critical": true
+      "critical": true,
+      "rom": "phae paengsali"
     },
     {
       "en": "Does it contain nuts?",
       "th": "มีถั่วเป็นส่วนผสมไหม",
-      "critical": true
+      "critical": true,
+      "rom": "mi thua pen suanptm mai"
     },
     {
       "en": "Does it contain egg or milk?",
-      "th": "มีไข่หรือนมไหม"
+      "th": "มีไข่หรือนมไหม",
+      "rom": "mi khai rue nom mai"
     },
     {
       "en": "What do you recommend?",
-      "th": "มีอะไรแนะนำไหม"
+      "th": "มีอะไรแนะนำไหม",
+      "rom": "mi arai naenam mai"
     },
     {
       "en": "I would like a coffee, please.",
-      "th": "ขอกาแฟหนึ่งแก้ว"
+      "th": "ขอกาแฟหนึ่งแก้ว",
+      "rom": "kho kafae nueng kaeo"
     },
     {
       "en": "Iced, please.",
-      "th": "ขอแบบเย็น"
+      "th": "ขอแบบเย็น",
+      "rom": "kho baep yen"
     },
     {
       "en": "Less sugar, please.",
-      "th": "ขอหวานน้อย"
+      "th": "ขอหวานน้อย",
+      "rom": "kho wan noi"
     },
     {
       "en": "No sugar, please.",
-      "th": "ไม่ใส่น้ำตาล"
+      "th": "ไม่ใส่น้ำตาล",
+      "rom": "mai sai namtan"
     },
     {
       "en": "Could I have oat milk?",
-      "th": "ขอนมโอ๊ตได้ไหม"
+      "th": "ขอนมโอ๊ตได้ไหม",
+      "rom": "kho nom ot dai mai"
     },
     {
       "en": "I would like this croissant.",
-      "th": "ขอครัวซองต์อันนี้"
+      "th": "ขอครัวซองต์อันนี้",
+      "rom": "kho khruasong anni"
     },
     {
       "en": "Could you warm it up?",
-      "th": "ช่วยอุ่นให้หน่อย"
+      "th": "ช่วยอุ่นให้หน่อย",
+      "rom": "chuai un hai noi"
     },
     {
       "en": "For here or to go?",
-      "th": "ทานที่นี่หรือกลับบ้าน"
+      "th": "ทานที่นี่หรือกลับบ้าน",
+      "rom": "than thini rue klapban"
     },
     {
       "en": "To go, please.",
-      "th": "ขอแบบกลับบ้าน"
+      "th": "ขอแบบกลับบ้าน",
+      "rom": "kho baep klapban"
     },
     {
       "en": "Is there Wi-Fi?",
-      "th": "มีไวไฟไหม"
+      "th": "มีไวไฟไหม",
+      "rom": "mi waifai mai"
     },
     {
       "en": "How much is it?",
-      "th": "ราคาเท่าไร"
+      "th": "ราคาเท่าไร",
+      "rom": "rakha thaorai"
     }
   ]
 }

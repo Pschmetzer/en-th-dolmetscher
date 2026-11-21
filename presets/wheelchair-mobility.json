@@ -36,67 +36,83 @@
     {
       "en": "I have fallen. Please help me up.",
       "th": "ล้มลง ช่วยพยุงขึ้นหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "lom long chuai phayung khuen noi"
     },
     {
       "en": "I use a wheelchair. Is there step-free access?",
-      "th": "ใช้รถเข็น มีทางเข้าที่ไม่มีขั้นบันไดไหม"
+      "th": "ใช้รถเข็น มีทางเข้าที่ไม่มีขั้นบันไดไหม",
+      "rom": "chai rathakhen mithang khaothi mai mi khanbandai mai"
     },
     {
       "en": "Is there a ramp or a lift?",
-      "th": "มีทางลาดหรือลิฟต์ไหม"
+      "th": "มีทางลาดหรือลิฟต์ไหม",
+      "rom": "mi thanglat rue lip mai"
     },
     {
       "en": "Is the lift working today?",
-      "th": "วันนี้ลิฟต์ใช้งานได้ไหม"
+      "th": "วันนี้ลิฟต์ใช้งานได้ไหม",
+      "rom": "wanni lip chaingan dai mai"
     },
     {
       "en": "Is the toilet accessible by wheelchair?",
-      "th": "ห้องน้ำรถเข็นเข้าได้ไหม"
+      "th": "ห้องน้ำรถเข็นเข้าได้ไหม",
+      "rom": "ongnam rathakhen khao dai mai"
     },
     {
       "en": "Is there an entrance at the side without steps?",
-      "th": "มีทางเข้าด้านข้างที่ไม่มีขั้นไหม"
+      "th": "มีทางเข้าด้านข้างที่ไม่มีขั้นไหม",
+      "rom": "mi thangkhao dan khang thi mai mi khan mai"
     },
     {
       "en": "Can the taxi take a folded wheelchair?",
-      "th": "แท็กซี่ใส่รถเข็นที่พับแล้วได้ไหม"
+      "th": "แท็กซี่ใส่รถเข็นที่พับแล้วได้ไหม",
+      "rom": "sai rathakhen thi phap laeo dai mai"
     },
     {
       "en": "Is the path flat, or are there many steps?",
-      "th": "ทางเดินเรียบ หรือมีขั้นบันไดเยอะไหม"
+      "th": "ทางเดินเรียบ หรือมีขั้นบันไดเยอะไหม",
+      "rom": "thangdoen riap rue mi khanbandai yoe mai"
     },
     {
       "en": "Could you help me lift the wheelchair over the step?",
-      "th": "ช่วยยกรถเข็นข้ามขั้นหน่อยได้ไหม"
+      "th": "ช่วยยกรถเข็นข้ามขั้นหน่อยได้ไหม",
+      "rom": "chuai yok rathakhen khamkhan noi dai mai"
     },
     {
       "en": "Please do not push me without asking.",
-      "th": "ขออย่าเข็นรถโดยไม่ถามก่อน"
+      "th": "ขออย่าเข็นรถโดยไม่ถามก่อน",
+      "rom": "kho ya khen rot doi mai tham kon"
     },
     {
       "en": "Do you have a table that a wheelchair fits under?",
-      "th": "มีโต๊ะที่รถเข็นเข้าได้ไหม"
+      "th": "มีโต๊ะที่รถเข็นเข้าได้ไหม",
+      "rom": "mi to thi rathakhen khao dai mai"
     },
     {
       "en": "I cannot climb stairs.",
-      "th": "ขึ้นบันไดไม่ได้"
+      "th": "ขึ้นบันไดไม่ได้",
+      "rom": "khuen bandai mai dai"
     },
     {
       "en": "Is there a room on the ground floor?",
-      "th": "มีห้องพักชั้นล่างไหม"
+      "th": "มีห้องพักชั้นล่างไหม",
+      "rom": "mi ongphak chanlang mai"
     },
     {
       "en": "Is there a shower with a seat?",
-      "th": "มีห้องอาบน้ำที่มีที่นั่งไหม"
+      "th": "มีห้องอาบน้ำที่มีที่นั่งไหม",
+      "rom": "mi thi mi thinang mai"
     },
     {
       "en": "Where is the nearest accessible entrance?",
-      "th": "ทางเข้าสำหรับรถเข็นที่ใกล้ที่สุดอยู่ที่ไหน"
+      "th": "ทางเข้าสำหรับรถเข็นที่ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "thangkhao samrap rathakhen thi kain thisut yu thinai"
     },
     {
       "en": "My wheelchair is broken. Is there a repair shop nearby?",
-      "th": "รถเข็นเสีย แถวนี้มีร้านซ่อมไหม"
+      "th": "รถเข็นเสีย แถวนี้มีร้านซ่อมไหม",
+      "rom": "rathakhen sia thaeo ni mi ran som mai"
     }
   ],
   "note": {

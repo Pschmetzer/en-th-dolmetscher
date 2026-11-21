@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Für eine SIM-Karte wird der Reisepass verlangt. Am Flughafen gibt es Tourist-SIMs von AIS, True und dtac; Preise vergleichen. E-SIM geht nur mit passendem Handy. Notruf funktioniert auch ohne Guthaben. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "A SIM card needs your passport. Airports sell tourist SIMs from AIS, True and dtac; compare prices. An eSIM needs a compatible phone. Emergency calls work without credit. Thai lines machine-made, not checked by native speakers."
+    "de": "Für eine SIM-Karte wird der Reisepass verlangt. Am Flughafen gibt es Tourist-SIMs von AIS, True und dtac; Preise vergleichen. E-SIM geht nur mit passendem Handy. Notruf funktioniert auch ohne Guthaben. Siehe auch: Digitale Nomaden, Handy verloren / gestohlen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "A SIM card needs your passport. Airports sell tourist SIMs from AIS, True and dtac; compare prices. An eSIM needs a compatible phone. Emergency calls work without credit. See also: Digital nomads, Lost or stolen phone. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,77 +40,95 @@
     {
       "en": "My phone was stolen.",
       "th": "โทรศัพท์ถูกขโมย",
-      "critical": true
+      "critical": true,
+      "rom": "thonsap thuk khamoi"
     },
     {
       "en": "I lost my phone.",
       "th": "ทำโทรศัพท์หาย",
-      "critical": true
+      "critical": true,
+      "rom": "tham thonsap hai"
     },
     {
       "en": "Please block my SIM card.",
       "th": "ช่วยระงับซิมการ์ดให้หน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai rangap sim kat hai noi"
     },
     {
       "en": "I need a SIM card with data.",
-      "th": "ต้องการซิมการ์ดที่มีอินเทอร์เน็ต"
+      "th": "ต้องการซิมการ์ดที่มีอินเทอร์เน็ต",
+      "rom": "tongkan sim kat thi mi inthoenet"
     },
     {
       "en": "How much is the monthly data package?",
-      "th": "แพ็กเกจเน็ตรายเดือนราคาเท่าไหร่"
+      "th": "แพ็กเกจเน็ตรายเดือนราคาเท่าไหร่",
+      "rom": "net raiduean rakha thaorai"
     },
     {
       "en": "Do you need my passport?",
-      "th": "ต้องใช้พาสปอร์ตไหม"
+      "th": "ต้องใช้พาสปอร์ตไหม",
+      "rom": "tong chai phatpot mai"
     },
     {
       "en": "Can I top up online?",
-      "th": "เติมเงินออนไลน์ได้ไหม"
+      "th": "เติมเงินออนไลน์ได้ไหม",
+      "rom": "toem ngoen onlai dai mai"
     },
     {
       "en": "Do you have an eSIM?",
-      "th": "มีอีซิมไหม"
+      "th": "มีอีซิมไหม",
+      "rom": "mi i sim mai"
     },
     {
       "en": "Does this phone work with this SIM?",
-      "th": "มือถือเครื่องนี้ใช้ซิมนี้ได้ไหม"
+      "th": "มือถือเครื่องนี้ใช้ซิมนี้ได้ไหม",
+      "rom": "muethue kherueng ni chai sim ni dai mai"
     },
     {
       "en": "How many days is it valid?",
-      "th": "ใช้ได้กี่วัน"
+      "th": "ใช้ได้กี่วัน",
+      "rom": "chaidai ki wan"
     },
     {
       "en": "How much data is included?",
-      "th": "มีอินเทอร์เน็ตให้เท่าไหร่"
+      "th": "มีอินเทอร์เน็ตให้เท่าไหร่",
+      "rom": "mi inthoenet hai thaorai"
     },
     {
       "en": "What is the wifi password?",
-      "th": "รหัสไวไฟคืออะไร"
+      "th": "รหัสไวไฟคืออะไร",
+      "rom": "rahat waifai khue arai"
     },
     {
       "en": "The internet is not working.",
-      "th": "อินเทอร์เน็ตใช้ไม่ได้"
+      "th": "อินเทอร์เน็ตใช้ไม่ได้",
+      "rom": "inthoenet chaimaidai"
     },
     {
       "en": "Can you set it up for me?",
-      "th": "ช่วยตั้งค่าให้หน่อยได้ไหม"
+      "th": "ช่วยตั้งค่าให้หน่อยได้ไหม",
+      "rom": "chuai tangkha hai noi dai mai"
     },
     {
       "en": "Where can I buy a charger?",
-      "th": "ซื้อที่ชาร์จได้ที่ไหน"
+      "th": "ซื้อที่ชาร์จได้ที่ไหน",
+      "rom": "sue thi chat dai thinai"
     },
     {
       "en": "The screen is cracked. Can you repair it?",
-      "th": "หน้าจอแตก ซ่อมได้ไหม"
+      "th": "หน้าจอแตก ซ่อมได้ไหม",
+      "rom": "nacho taek som dai mai"
     },
     {
       "en": "How long will the repair take?",
-      "th": "ซ่อมนานเท่าไหร่"
+      "th": "ซ่อมนานเท่าไหร่",
+      "rom": "som nan thaorai"
     },
     {
       "en": "Where is the nearest phone shop?",
-      "th": "ร้านมือถือที่ใกล้ที่สุดอยู่ที่ไหน"
+      "th": "ร้านมือถือที่ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "ran muethue thi kain thisut yu thinai"
     }
   ]
 }

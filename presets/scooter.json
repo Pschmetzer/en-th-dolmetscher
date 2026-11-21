@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Ohne passenden Führerschein (Motorrad-Klasse im internationalen Führerschein) zahlt die Versicherung oft nicht. Es gilt Helmpflicht, Kontrollen sind häufig. Den Reisepass nicht als Pfand abgeben, lieber Kaution in bar. Kratzer vor der Fahrt fotografieren. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Without a matching licence (motorcycle class on the international driving permit) insurance often does not pay. Helmets are compulsory and checks are common. Do not leave your passport as a deposit; offer cash instead. Photograph scratches before riding. Thai lines machine-made, not checked by native speakers."
+    "de": "Ohne passenden Führerschein (Motorrad-Klasse im internationalen Führerschein) zahlt die Versicherung oft nicht. Es gilt Helmpflicht, Kontrollen sind häufig. Den Reisepass nicht als Pfand abgeben, lieber Kaution in bar. Kratzer vor der Fahrt fotografieren. Siehe auch: Fahrradverleih. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Without a matching licence (motorcycle class on the international driving permit) insurance often does not pay. Helmets are compulsory and checks are common. Do not leave your passport as a deposit; offer cash instead. Photograph scratches before riding. See also: Bicycle rental. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -48,81 +48,100 @@
     {
       "en": "I had an accident.",
       "th": "เกิดอุบัติเหตุ",
-      "critical": true
+      "critical": true,
+      "rom": "koet ubatihetu"
     },
     {
       "en": "Someone is injured. Please call an ambulance (1669).",
       "th": "มีคนบาดเจ็บ ช่วยเรียกรถพยาบาลด้วย (1669)",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon batchep chuai riak rathaphayaban duai 1669"
     },
     {
       "en": "The brakes are not working properly.",
       "th": "เบรกไม่ค่อยดี",
-      "critical": true
+      "critical": true,
+      "rom": "benk makhaioi di"
     },
     {
       "en": "I would like to rent a scooter.",
-      "th": "อยากเช่ามอเตอร์ไซค์"
+      "th": "อยากเช่ามอเตอร์ไซค์",
+      "rom": "yak chao motoesai"
     },
     {
       "en": "How much per day?",
-      "th": "วันละเท่าไหร่"
+      "th": "วันละเท่าไหร่",
+      "rom": "wan la thaorai"
     },
     {
       "en": "How much for a week?",
-      "th": "อาทิตย์ละเท่าไหร่"
+      "th": "อาทิตย์ละเท่าไหร่",
+      "rom": "athit la thaorai"
     },
     {
       "en": "Is insurance included?",
-      "th": "รวมประกันไหม"
+      "th": "รวมประกันไหม",
+      "rom": "ruam prakan mai"
     },
     {
       "en": "Could I have a helmet, please?",
-      "th": "ขอหมวกกันน็อกด้วย"
+      "th": "ขอหมวกกันน็อกด้วย",
+      "rom": "kho duai"
     },
     {
       "en": "I will not leave my passport. Can I pay a cash deposit?",
-      "th": "ไม่ฝากพาสปอร์ต ขอวางมัดจำเป็นเงินสดได้ไหม"
+      "th": "ไม่ฝากพาสปอร์ต ขอวางมัดจำเป็นเงินสดได้ไหม",
+      "rom": "mai fak phatpot kho wangmatcham pen ngoentt dai mai"
     },
     {
       "en": "These scratches were already there.",
-      "th": "รอยขีดข่วนพวกนี้มีอยู่แล้ว"
+      "th": "รอยขีดข่วนพวกนี้มีอยู่แล้ว",
+      "rom": "roikhitkhuan phuak ni mi yulaeo"
     },
     {
       "en": "I have a flat tyre.",
-      "th": "ยางแบน"
+      "th": "ยางแบน",
+      "rom": "yang baen"
     },
     {
       "en": "The scooter will not start.",
-      "th": "รถสตาร์ทไม่ติด"
+      "th": "รถสตาร์ทไม่ติด",
+      "rom": "rot satat mai tit"
     },
     {
       "en": "The light is not working.",
-      "th": "ไฟไม่ติด"
+      "th": "ไฟไม่ติด",
+      "rom": "fai mai tit"
     },
     {
       "en": "Where is the nearest petrol station?",
-      "th": "ปั๊มน้ำมันที่ใกล้ที่สุดอยู่ที่ไหน"
+      "th": "ปั๊มน้ำมันที่ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "pamnamman thi kain thisut yu thinai"
     },
     {
       "en": "Fill it up, please.",
-      "th": "เติมเต็มถัง"
+      "th": "เติมเต็มถัง",
+      "rom": "toemtem thang"
     },
     {
       "en": "Can you fix it?",
-      "th": "ซ่อมได้ไหม"
+      "th": "ซ่อมได้ไหม",
+      "rom": "som dai mai"
     },
     {
       "en": "How much will the repair cost?",
-      "th": "ค่าซ่อมเท่าไหร่"
+      "th": "ค่าซ่อมเท่าไหร่",
+      "rom": "kha som thaorai"
     },
     {
       "en": "How long will it take?",
-      "th": "ใช้เวลานานเท่าไหร่"
+      "th": "ใช้เวลานานเท่าไหร่",
+      "rom": "chaiwelanan thaorai"
     },
     {
       "en": "Please call the rental shop.",
-      "th": "ช่วยโทรหาร้านเช่ารถให้หน่อย"
+      "th": "ช่วยโทรหาร้านเช่ารถให้หน่อย",
+      "rom": "chuai thon ha ran chao rot hai noi"
     }
   ]
 }

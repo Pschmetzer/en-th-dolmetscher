@@ -48,96 +48,118 @@
     {
       "en": "Switch off the electricity, it is dangerous.",
       "th": "ปิดไฟก่อน อันตรายมาก",
-      "critical": true
+      "critical": true,
+      "rom": "pitfai kon antrai mak"
     },
     {
       "en": "There is a gas smell in the kitchen.",
       "th": "มีกลิ่นแก๊สในครัว",
-      "critical": true
+      "critical": true,
+      "rom": "mi klin kaet nai khrua"
     },
     {
       "en": "Water is flooding the room, please stop the main tap.",
       "th": "น้ำท่วมห้อง ช่วยปิดก๊อกน้ำหลักหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "namthuam ong chuai pit koknam lak noi"
     },
     {
       "en": "A worker fell from the ladder and is hurt.",
       "th": "คนงานตกจากบันไดและบาดเจ็บ",
-      "critical": true
+      "critical": true,
+      "rom": "khanangan tok chak bandai lae batchep"
     },
     {
       "en": "Please do not drill in this wall, there are pipes.",
       "th": "ขออย่าเจาะผนังนี้ เพราะมีท่ออยู่",
-      "critical": true
+      "critical": true,
+      "rom": "kho ya cho phanang ni mi tho yu"
     },
     {
       "en": "There is a crack in the ceiling.",
       "th": "มีรอยร้าวที่เพดาน",
-      "critical": true
+      "critical": true,
+      "rom": "mi roirao thi phedan"
     },
     {
       "en": "Can you give me a written estimate?",
-      "th": "ขอใบประเมินราคาเป็นลายลักษณ์อักษรได้ไหม"
+      "th": "ขอใบประเมินราคาเป็นลายลักษณ์อักษรได้ไหม",
+      "rom": "kho bai pramoenrakha pen dai mai"
     },
     {
       "en": "How long will the work take?",
-      "th": "งานนี้ใช้เวลานานเท่าไร"
+      "th": "งานนี้ใช้เวลานานเท่าไร",
+      "rom": "ngan ni chaiwelanan thaorai"
     },
     {
       "en": "Does the price include the material?",
-      "th": "ราคานี้รวมค่าวัสดุไหม"
+      "th": "ราคานี้รวมค่าวัสดุไหม",
+      "rom": "rakha ni ruam kha watdu mai"
     },
     {
       "en": "Please show me the samples of the tiles.",
-      "th": "ขอดูตัวอย่างกระเบื้องหน่อย"
+      "th": "ขอดูตัวอย่างกระเบื้องหน่อย",
+      "rom": "kho du krabueang noi"
     },
     {
       "en": "I would like to pay in three parts.",
-      "th": "ขอชำระเป็นสามงวด"
+      "th": "ขอชำระเป็นสามงวด",
+      "rom": "kho chamra pen sam nguat"
     },
     {
       "en": "Please give me a receipt for the deposit.",
-      "th": "ขอใบเสร็จค่ามัดจำหน่อย"
+      "th": "ขอใบเสร็จค่ามัดจำหน่อย",
+      "rom": "kho kha matcham noi"
     },
     {
       "en": "When can you start?",
-      "th": "เริ่มงานได้เมื่อไร"
+      "th": "เริ่มงานได้เมื่อไร",
+      "rom": "roem ngan dai muearai"
     },
     {
       "en": "Please send me a photo of the progress.",
-      "th": "ช่วยส่งรูปความคืบหน้างานหน่อย"
+      "th": "ช่วยส่งรูปความคืบหน้างานหน่อย",
+      "rom": "chuai song rup khwamkhuepna ngan noi"
     },
     {
       "en": "Please cover the furniture with plastic.",
-      "th": "ช่วยคลุมเฟอร์นิเจอร์ด้วยพลาสติกหน่อย"
+      "th": "ช่วยคลุมเฟอร์นิเจอร์ด้วยพลาสติกหน่อย",
+      "rom": "chuai khlum foenichoe duai phlattik noi"
     },
     {
       "en": "Please clean up at the end of each day.",
-      "th": "ช่วยทำความสะอาดทุกวันหลังเลิกงานหน่อย"
+      "th": "ช่วยทำความสะอาดทุกวันหลังเลิกงานหน่อย",
+      "rom": "chuai thamkwamsaat thuk wanlang loekngan noi"
     },
     {
       "en": "Is there a warranty on the work?",
-      "th": "งานนี้มีการรับประกันไหม"
+      "th": "งานนี้มีการรับประกันไหม",
+      "rom": "ngan ni mi kaaapprakan mai"
     },
     {
       "en": "Please repair this again, it is not good.",
-      "th": "ช่วยแก้ไขอีกครั้งหน่อย ยังไม่ดี"
+      "th": "ช่วยแก้ไขอีกครั้งหน่อย ยังไม่ดี",
+      "rom": "chuai kaekhai ikkrang noi yang mai di"
     },
     {
       "en": "The paint colour is not the one I chose.",
-      "th": "สีที่ทาไม่ใช่สีที่เลือก"
+      "th": "สีที่ทาไม่ใช่สีที่เลือก",
+      "rom": "si thi tha mai chai si thi lueak"
     },
     {
       "en": "Please use the cheaper material.",
-      "th": "ขอใช้วัสดุที่ราคาถูกกว่า"
+      "th": "ขอใช้วัสดุที่ราคาถูกกว่า",
+      "rom": "kho chai watdu thi rakha thuk kwa"
     },
     {
       "en": "I need the landlord to agree to this change.",
-      "th": "ต้องให้เจ้าของที่พักยินยอมก่อนจึงจะเปลี่ยนได้"
+      "th": "ต้องให้เจ้าของที่พักยินยอมก่อนจึงจะเปลี่ยนได้",
+      "rom": "tong hai chaokhong thiphak yinyom kon chueng cha pelin dai"
     },
     {
       "en": "The work is finished, thank you very much.",
-      "th": "งานเสร็จแล้ว ขอบคุณมาก"
+      "th": "งานเสร็จแล้ว ขอบคุณมาก",
+      "rom": "ngan laeo khopkhun mak"
     }
   ]
 }

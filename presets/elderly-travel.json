@@ -40,99 +40,122 @@
     {
       "en": "She feels weak and dizzy.",
       "th": "รู้สึกอ่อนแรงและเวียนหัว",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek onraeng lae wianhua"
     },
     {
       "en": "He has chest pain.",
       "th": "เจ็บหน้าอก",
-      "critical": true
+      "critical": true,
+      "rom": "chep nak"
     },
     {
       "en": "Please call an ambulance.",
       "th": "ช่วยเรียกรถพยาบาลหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak rathaphayaban noi"
     },
     {
       "en": "He takes blood thinners.",
       "th": "กินยาละลายลิ่มเลือด",
-      "critical": true
+      "critical": true,
+      "rom": "kin ya lalai limlueat"
     },
     {
       "en": "She has fallen and cannot get up.",
       "th": "ล้มและลุกไม่ได้",
-      "critical": true
+      "critical": true,
+      "rom": "lom lae luk mai dai"
     },
     {
       "en": "We are travelling with an elderly person.",
-      "th": "พาผู้สูงอายุมาด้วย"
+      "th": "พาผู้สูงอายุมาด้วย",
+      "rom": "pha ma duai"
     },
     {
       "en": "Please give us priority seats.",
-      "th": "ขอที่นั่งสำหรับผู้สูงอายุหน่อย"
+      "th": "ขอที่นั่งสำหรับผู้สูงอายุหน่อย",
+      "rom": "kho thinang samrap noi"
     },
     {
       "en": "Please walk slowly.",
-      "th": "ช่วยเดินช้า ๆ หน่อย"
+      "th": "ช่วยเดินช้า ๆ หน่อย",
+      "rom": "chuai doen cha noi"
     },
     {
       "en": "Is there a lift?",
-      "th": "มีลิฟต์ไหม"
+      "th": "มีลิฟต์ไหม",
+      "rom": "mi lip mai"
     },
     {
       "en": "Are there many stairs?",
-      "th": "มีบันไดเยอะไหม"
+      "th": "มีบันไดเยอะไหม",
+      "rom": "mi bandai yoe mai"
     },
     {
       "en": "Is it a long walk?",
-      "th": "ต้องเดินไกลไหม"
+      "th": "ต้องเดินไกลไหม",
+      "rom": "tong doen klai mai"
     },
     {
       "en": "We need a wheelchair, please.",
-      "th": "ขอรถเข็นหน่อย"
+      "th": "ขอรถเข็นหน่อย",
+      "rom": "kho rathakhen noi"
     },
     {
       "en": "Please bring a chair.",
-      "th": "ช่วยหาเก้าอี้ให้หน่อย"
+      "th": "ช่วยหาเก้าอี้ให้หน่อย",
+      "rom": "chuai ha kaoi hai noi"
     },
     {
       "en": "Is there a toilet with a seat?",
-      "th": "มีห้องน้ำแบบนั่งไหม"
+      "th": "มีห้องน้ำแบบนั่งไหม",
+      "rom": "mi ongnam baep nang mai"
     },
     {
       "en": "She takes medicine for blood pressure.",
-      "th": "กินยาความดันโลหิต"
+      "th": "กินยาความดันโลหิต",
+      "rom": "kin ya khwamdanlohit"
     },
     {
       "en": "We need a rest.",
-      "th": "ขอพักสักครู่"
+      "th": "ขอพักสักครู่",
+      "rom": "kho phak sakkru"
     },
     {
       "en": "Can we sit in the shade?",
-      "th": "นั่งพักในที่ร่มได้ไหม"
+      "th": "นั่งพักในที่ร่มได้ไหม",
+      "rom": "nang phak nai thi rom dai mai"
     },
     {
       "en": "Please bring some water.",
-      "th": "ขอน้ำหน่อย"
+      "th": "ขอน้ำหน่อย",
+      "rom": "kho nam noi"
     },
     {
       "en": "The food must be soft.",
-      "th": "อาหารต้องนิ่ม"
+      "th": "อาหารต้องนิ่ม",
+      "rom": "ahan tong nim"
     },
     {
       "en": "Not too spicy, please.",
-      "th": "ขอไม่เผ็ดมาก"
+      "th": "ขอไม่เผ็ดมาก",
+      "rom": "kho mai phet mak"
     },
     {
       "en": "Is the road flat?",
-      "th": "ทางราบไหม"
+      "th": "ทางราบไหม",
+      "rom": "thang rap mai"
     },
     {
       "en": "Can the car stop at the entrance?",
-      "th": "จอดรถที่ทางเข้าได้ไหม"
+      "th": "จอดรถที่ทางเข้าได้ไหม",
+      "rom": "chot rot thi thangkhao dai mai"
     },
     {
       "en": "Is there a senior discount?",
-      "th": "มีส่วนลดสำหรับผู้สูงอายุไหม"
+      "th": "มีส่วนลดสำหรับผู้สูงอายุไหม",
+      "rom": "mi suannt samrap mai"
     }
   ]
 }

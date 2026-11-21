@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Kaution meist 1–2 Monatsmieten. Zustand beim Einzug mit Fotos festhalten. Strom wird oft zum Tarif des Vermieters (höher als staatlich) abgerechnet: vorher fragen. Keinen Vertrag unterschreiben, den man nicht versteht. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Deposit is usually 1–2 months' rent. Take photos of the condition when moving in. Electricity is often billed at the landlord's rate (higher than the state rate): ask first. Do not sign a contract you do not understand. Thai lines machine-made, not checked by native speakers."
+    "de": "Kaution meist 1–2 Monatsmieten. Zustand beim Einzug mit Fotos festhalten. Strom wird oft zum Tarif des Vermieters (höher als staatlich) abgerechnet: vorher fragen. Keinen Vertrag unterschreiben, den man nicht versteht. Siehe auch: Wohnungssuche, Coworking und Langzeitmiete. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Deposit is usually 1–2 months' rent. Take photos of the condition when moving in. Electricity is often billed at the landlord's rate (higher than the state rate): ask first. Do not sign a contract you do not understand. See also: Apartment hunting, Coworking and long-term stay. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -48,83 +48,103 @@
     {
       "en": "I smell gas.",
       "th": "ได้กลิ่นแก๊ส",
-      "critical": true
+      "critical": true,
+      "rom": "dakailin kaet"
     },
     {
       "en": "How much is the rent per month?",
-      "th": "ค่าเช่าเดือนละเท่าไหร่"
+      "th": "ค่าเช่าเดือนละเท่าไหร่",
+      "rom": "khachao duean la thaorai"
     },
     {
       "en": "How much is the deposit?",
-      "th": "ค่ามัดจำเท่าไหร่"
+      "th": "ค่ามัดจำเท่าไหร่",
+      "rom": "kha matcham thaorai"
     },
     {
       "en": "Is electricity included?",
-      "th": "รวมค่าไฟไหม"
+      "th": "รวมค่าไฟไหม",
+      "rom": "ruam kha fai mai"
     },
     {
       "en": "How much is electricity per unit?",
-      "th": "ค่าไฟหน่วยละเท่าไหร่"
+      "th": "ค่าไฟหน่วยละเท่าไหร่",
+      "rom": "kha fai nuai la thaorai"
     },
     {
       "en": "Is water included?",
-      "th": "รวมค่าน้ำไหม"
+      "th": "รวมค่าน้ำไหม",
+      "rom": "ruam khanam mai"
     },
     {
       "en": "Is internet included?",
-      "th": "รวมอินเทอร์เน็ตไหม"
+      "th": "รวมอินเทอร์เน็ตไหม",
+      "rom": "ruam inthoenet mai"
     },
     {
       "en": "What is the minimum contract length?",
-      "th": "ต้องทำสัญญาขั้นต่ำกี่เดือน"
+      "th": "ต้องทำสัญญาขั้นต่ำกี่เดือน",
+      "rom": "tong thamsanya khantam ki duean"
     },
     {
       "en": "Can I rent for one month only?",
-      "th": "เช่าแค่หนึ่งเดือนได้ไหม"
+      "th": "เช่าแค่หนึ่งเดือนได้ไหม",
+      "rom": "chao khae nueng duean dai mai"
     },
     {
       "en": "Can I see the room?",
-      "th": "ขอดูห้องได้ไหม"
+      "th": "ขอดูห้องได้ไหม",
+      "rom": "kho du ong dai mai"
     },
     {
       "en": "Is it furnished?",
-      "th": "มีเฟอร์นิเจอร์ไหม"
+      "th": "มีเฟอร์นิเจอร์ไหม",
+      "rom": "mi foenichoe mai"
     },
     {
       "en": "When can I move in?",
-      "th": "ย้ายเข้าได้เมื่อไหร่"
+      "th": "ย้ายเข้าได้เมื่อไหร่",
+      "rom": "yai khao dai muearai"
     },
     {
       "en": "Are pets allowed?",
-      "th": "เลี้ยงสัตว์ได้ไหม"
+      "th": "เลี้ยงสัตว์ได้ไหม",
+      "rom": "liangsat dai mai"
     },
     {
       "en": "Is there parking for a scooter?",
-      "th": "มีที่จอดมอเตอร์ไซค์ไหม"
+      "th": "มีที่จอดมอเตอร์ไซค์ไหม",
+      "rom": "mi thi chot motoesai mai"
     },
     {
       "en": "Could I have the contract in English?",
-      "th": "ขอสัญญาฉบับภาษาอังกฤษได้ไหม"
+      "th": "ขอสัญญาฉบับภาษาอังกฤษได้ไหม",
+      "rom": "kho sanya chabap phasaangkrit dai mai"
     },
     {
       "en": "Who do I contact when something is broken?",
-      "th": "ถ้ามีอะไรเสียต้องติดต่อใคร"
+      "th": "ถ้ามีอะไรเสียต้องติดต่อใคร",
+      "rom": "tha mi arai sia tong titto khain"
     },
     {
       "en": "The air conditioning is broken.",
-      "th": "แอร์เสีย"
+      "th": "แอร์เสีย",
+      "rom": "ae sia"
     },
     {
       "en": "Water is leaking.",
-      "th": "น้ำรั่ว"
+      "th": "น้ำรั่ว",
+      "rom": "nam rua"
     },
     {
       "en": "There is no hot water.",
-      "th": "ไม่มีน้ำร้อน"
+      "th": "ไม่มีน้ำร้อน",
+      "rom": "mai mi namron"
     },
     {
       "en": "When will I get my deposit back?",
-      "th": "จะได้เงินมัดจำคืนเมื่อไหร่"
+      "th": "จะได้เงินมัดจำคืนเมื่อไหร่",
+      "rom": "cha dai ngoenmatcham khuen muearai"
     }
   ]
 }

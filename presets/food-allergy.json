@@ -40,79 +40,96 @@
     {
       "en": "I am having an allergic reaction.",
       "th": "กำลังมีอาการแพ้",
-      "critical": true
+      "critical": true,
+      "rom": "kamlang mi akan phae"
     },
     {
       "en": "I cannot breathe.",
       "th": "หายใจไม่ออก",
-      "critical": true
+      "critical": true,
+      "rom": "aichaimoaik"
     },
     {
       "en": "My throat is swelling.",
       "th": "คอบวม",
-      "critical": true
+      "critical": true,
+      "rom": "kho buam"
     },
     {
       "en": "This is an emergency. Please call an ambulance (1669).",
       "th": "นี่เป็นเหตุฉุกเฉิน ช่วยเรียกรถพยาบาลด้วย (1669)",
-      "critical": true
+      "critical": true,
+      "rom": "ni pen etuchukchoen chuai riak rathaphayaban duai 1669"
     },
     {
       "en": "I have an adrenaline pen in my bag.",
       "th": "มีปากกาฉีดอะดรีนาลีนอยู่ในกระเป๋า",
-      "critical": true
+      "critical": true,
+      "rom": "mi pakka chit atrinalin yu nai krapao"
     },
     {
       "en": "Please help me use my adrenaline pen.",
       "th": "ช่วยฉีดปากกาอะดรีนาลีนให้หน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai chit pakka atrinalin hai noi"
     },
     {
       "en": "I have a severe allergy.",
       "th": "มีอาการแพ้รุนแรง",
-      "critical": true
+      "critical": true,
+      "rom": "mi akan phae runraeng"
     },
     {
       "en": "I am allergic to peanuts.",
       "th": "แพ้ถั่วลิสง",
-      "critical": true
+      "critical": true,
+      "rom": "phae thualitng"
     },
     {
       "en": "I am allergic to shrimp and shellfish.",
       "th": "แพ้กุ้งและหอย",
-      "critical": true
+      "critical": true,
+      "rom": "phae kung lae hoi"
     },
     {
       "en": "Does this dish contain nuts?",
-      "th": "จานนี้มีถั่วไหม"
+      "th": "จานนี้มีถั่วไหม",
+      "rom": "chan ni mi thua mai"
     },
     {
       "en": "Is it cooked in peanut oil?",
-      "th": "ปรุงด้วยน้ำมันถั่วลิสงไหม"
+      "th": "ปรุงด้วยน้ำมันถั่วลิสงไหม",
+      "rom": "prung duai namman thualitng mai"
     },
     {
       "en": "Does it contain shrimp paste?",
-      "th": "มีกะปิไหม"
+      "th": "มีกะปิไหม",
+      "rom": "mi kapi mai"
     },
     {
       "en": "Does the sauce contain fish sauce or oyster sauce?",
-      "th": "ซอสนี้มีน้ำปลาหรือซอสหอยนางรมไหม"
+      "th": "ซอสนี้มีน้ำปลาหรือซอสหอยนางรมไหม",
+      "rom": "sot ni mi nampla rue sot oinangnm mai"
     },
     {
       "en": "Please wash the wok first.",
-      "th": "ช่วยล้างกระทะก่อนด้วย"
+      "th": "ช่วยล้างกระทะก่อนด้วย",
+      "rom": "chuai lang kratha kon duai"
     },
     {
       "en": "Please ask the chef.",
-      "th": "ช่วยถามพ่อครัวให้หน่อย"
+      "th": "ช่วยถามพ่อครัวให้หน่อย",
+      "rom": "chuai tham phokrua hai noi"
     },
     {
       "en": "Please read the ingredients to me.",
-      "th": "ช่วยอ่านส่วนผสมให้ฟังหน่อย"
+      "th": "ช่วยอ่านส่วนผสมให้ฟังหน่อย",
+      "rom": "chuai an suanptm hai fang noi"
     },
     {
       "en": "I will not eat it if you are not sure.",
-      "th": "ถ้าไม่แน่ใจ จะไม่กิน"
+      "th": "ถ้าไม่แน่ใจ จะไม่กิน",
+      "rom": "tha mai naechai cha mai kin"
     }
   ]
 }

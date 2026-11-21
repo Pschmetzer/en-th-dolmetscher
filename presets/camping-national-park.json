@@ -48,100 +48,123 @@
     {
       "en": "Our group is lost on the trail.",
       "th": "กลุ่มของเราหลงทางในเส้นทางเดินป่า",
-      "critical": true
+      "critical": true,
+      "rom": "klum khong rao long thangnai senthang doenpa"
     },
     {
       "en": "A snake bit my friend.",
       "th": "เพื่อนถูกงูกัด",
-      "critical": true
+      "critical": true,
+      "rom": "phuean thuk ngu kat"
     },
     {
       "en": "There is a fire near our tent.",
       "th": "มีไฟไหม้ใกล้เต็นท์ของเรา",
-      "critical": true
+      "critical": true,
+      "rom": "mi faimai kain ten khong rao"
     },
     {
       "en": "Someone in our group is badly hurt.",
       "th": "มีคนในกลุ่มของเราบาดเจ็บสาหัส",
-      "critical": true
+      "critical": true,
+      "rom": "mi khananai klum khong rao batchepsahat"
     },
     {
       "en": "Please call the park rescue team.",
       "th": "ช่วยโทรเรียกทีมกู้ภัยของอุทยานหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai thon riak thim kuphai khong utyan noi"
     },
     {
       "en": "We have no drinking water left.",
       "th": "น้ำดื่มของเราหมดแล้ว",
-      "critical": true
+      "critical": true,
+      "rom": "namduem khong rao mot laeo"
     },
     {
       "en": "Is there a free pitch at the campsite?",
-      "th": "ลานกางเต็นท์ยังมีที่ว่างไหม"
+      "th": "ลานกางเต็นท์ยังมีที่ว่างไหม",
+      "rom": "lan kang ten yangmi thiwang mai"
     },
     {
       "en": "How much is one night for a tent?",
-      "th": "กางเต็นท์คืนละเท่าไร"
+      "th": "กางเต็นท์คืนละเท่าไร",
+      "rom": "kang ten khuen la thaorai"
     },
     {
       "en": "Please show me where I may set up the tent.",
-      "th": "ขอดูหน่อยว่ากางเต็นท์ตรงไหนได้"
+      "th": "ขอดูหน่อยว่ากางเต็นท์ตรงไหนได้",
+      "rom": "kho du noi wa kang ten trangahanai dai"
     },
     {
       "en": "Can I rent a tent and a sleeping bag?",
-      "th": "เช่าเต็นท์และถุงนอนได้ไหม"
+      "th": "เช่าเต็นท์และถุงนอนได้ไหม",
+      "rom": "chao ten lae thungnon dai mai"
     },
     {
       "en": "Where is the nearest toilet and shower?",
-      "th": "ห้องน้ำและห้องอาบน้ำที่ใกล้ที่สุดอยู่ที่ไหน"
+      "th": "ห้องน้ำและห้องอาบน้ำที่ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "ongnam lae thi kain thisut yu thinai"
     },
     {
       "en": "Is the tap water safe to drink?",
-      "th": "น้ำประปาที่นี่ดื่มได้ไหม"
+      "th": "น้ำประปาที่นี่ดื่มได้ไหม",
+      "rom": "namprapa thini duemdai mai"
     },
     {
       "en": "Please tell me where I can buy firewood.",
-      "th": "ขอถามหน่อยว่าซื้อฟืนได้ที่ไหน"
+      "th": "ขอถามหน่อยว่าซื้อฟืนได้ที่ไหน",
+      "rom": "kho tham noi wa sue fuen dai thinai"
     },
     {
       "en": "Are campfires allowed here at night?",
-      "th": "ที่นี่จุดกองไฟตอนกลางคืนได้ไหม"
+      "th": "ที่นี่จุดกองไฟตอนกลางคืนได้ไหม",
+      "rom": "thini chut kongfai tonklangkhuen dai mai"
     },
     {
       "en": "Where do I throw away the rubbish?",
-      "th": "ทิ้งขยะได้ที่ไหน"
+      "th": "ทิ้งขยะได้ที่ไหน",
+      "rom": "thing khaya dai thinai"
     },
     {
       "en": "Please keep the noise down after ten o'clock.",
-      "th": "ช่วยลดเสียงหน่อยหลังสี่ทุ่ม"
+      "th": "ช่วยลดเสียงหน่อยหลังสี่ทุ่ม",
+      "rom": "chuai lot siang noi lang si thum"
     },
     {
       "en": "Are there wild animals near the campsite?",
-      "th": "แถวลานกางเต็นท์มีสัตว์ป่าไหม"
+      "th": "แถวลานกางเต็นท์มีสัตว์ป่าไหม",
+      "rom": "thaeo lan kang ten mi satpa mai"
     },
     {
       "en": "Which trail is safe for beginners?",
-      "th": "เส้นทางไหนปลอดภัยสำหรับมือใหม่"
+      "th": "เส้นทางไหนปลอดภัยสำหรับมือใหม่",
+      "rom": "senthang nai plotphai samrap muehaim"
     },
     {
       "en": "What time does the park close?",
-      "th": "อุทยานปิดกี่โมง"
+      "th": "อุทยานปิดกี่โมง",
+      "rom": "utyan pit ki mong"
     },
     {
       "en": "Please check the weather forecast for tomorrow.",
-      "th": "ช่วยดูพยากรณ์อากาศพรุ่งนี้หน่อย"
+      "th": "ช่วยดูพยากรณ์อากาศพรุ่งนี้หน่อย",
+      "rom": "chuai du phrungni noi"
     },
     {
       "en": "Do I need a permit for this trail?",
-      "th": "เส้นทางนี้ต้องขออนุญาตก่อนไหม"
+      "th": "เส้นทางนี้ต้องขออนุญาตก่อนไหม",
+      "rom": "senthang ni tong khonuyat kon mai"
     },
     {
       "en": "Please charge my power bank at the office.",
-      "th": "ขอชาร์จพาวเวอร์แบงก์ที่สำนักงานหน่อย"
+      "th": "ขอชาร์จพาวเวอร์แบงก์ที่สำนักงานหน่อย",
+      "rom": "kho chat phaowoe baeng thi samnakngan noi"
     },
     {
       "en": "Thank you for your help in the park.",
-      "th": "ขอบคุณที่ช่วยเหลือในอุทยาน"
+      "th": "ขอบคุณที่ช่วยเหลือในอุทยาน",
+      "rom": "khopkhun thi chuaihelue nai utyan"
     }
   ]
 }

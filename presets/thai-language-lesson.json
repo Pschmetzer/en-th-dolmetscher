@@ -55,59 +55,73 @@
   "phrases": [
     {
       "en": "I would like to learn Thai.",
-      "th": "อยากเรียนภาษาไทย"
+      "th": "อยากเรียนภาษาไทย",
+      "rom": "yak rian phasathai"
     },
     {
       "en": "I am a beginner.",
-      "th": "เป็นมือใหม่"
+      "th": "เป็นมือใหม่",
+      "rom": "pen muehaim"
     },
     {
       "en": "Do you offer a trial lesson?",
-      "th": "มีบทเรียนทดลองไหม"
+      "th": "มีบทเรียนทดลองไหม",
+      "rom": "mi bathrian thadlong mai"
     },
     {
       "en": "How much is one hour?",
-      "th": "ชั่วโมงละเท่าไร"
+      "th": "ชั่วโมงละเท่าไร",
+      "rom": "chuamong la thaorai"
     },
     {
       "en": "Is it a group or a private lesson?",
-      "th": "เป็นกลุ่มหรือเรียนตัวต่อตัว"
+      "th": "เป็นกลุ่มหรือเรียนตัวต่อตัว",
+      "rom": "pen klum rue rian tuatotua"
     },
     {
       "en": "Please speak more slowly.",
-      "th": "ช่วยพูดช้าลงหน่อย"
+      "th": "ช่วยพูดช้าลงหน่อย",
+      "rom": "chuai phut cha long noi"
     },
     {
       "en": "Please say it again.",
-      "th": "ช่วยพูดอีกครั้งหน่อย"
+      "th": "ช่วยพูดอีกครั้งหน่อย",
+      "rom": "chuai phut ikkrang noi"
     },
     {
       "en": "How do I say this in Thai?",
-      "th": "พูดสิ่งนี้เป็นภาษาไทยอย่างไร"
+      "th": "พูดสิ่งนี้เป็นภาษาไทยอย่างไร",
+      "rom": "phut sing ni pen phasathai yangrai"
     },
     {
       "en": "Is my pronunciation correct?",
-      "th": "ออกเสียงถูกต้องไหม"
+      "th": "ออกเสียงถูกต้องไหม",
+      "rom": "oksiang thuktong mai"
     },
     {
       "en": "Can you write it down?",
-      "th": "ช่วยเขียนให้หน่อยได้ไหม"
+      "th": "ช่วยเขียนให้หน่อยได้ไหม",
+      "rom": "chuai khian hai noi dai mai"
     },
     {
       "en": "Could you teach me the Thai alphabet?",
-      "th": "ช่วยสอนตัวอักษรไทยหน่อยได้ไหม"
+      "th": "ช่วยสอนตัวอักษรไทยหน่อยได้ไหม",
+      "rom": "chuai son tuaaktn thai noi dai mai"
     },
     {
       "en": "Do I get homework?",
-      "th": "มีการบ้านไหม"
+      "th": "มีการบ้านไหม",
+      "rom": "mi kanban mai"
     },
     {
       "en": "Do you help with a student visa?",
-      "th": "ช่วยเรื่องวีซ่านักเรียนไหม"
+      "th": "ช่วยเรื่องวีซ่านักเรียนไหม",
+      "rom": "chuai rueang wisa nakrian mai"
     },
     {
       "en": "Thank you, teacher.",
-      "th": "ขอบคุณครู"
+      "th": "ขอบคุณครู",
+      "rom": "khop khunkru"
     }
   ]
 }

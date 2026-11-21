@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Auf Märkten ist freundliches Handeln üblich, in Kaufhäusern nicht. Lächeln, nicht laut werden. VAT Refund nur in Geschäften mit Schild und mit Reisepass. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Friendly bargaining is normal at markets, not in department stores. Smile and stay calm. VAT refund only in shops with the sign and with your passport. Thai lines machine-made, not checked by native speakers."
+    "de": "Auf Märkten ist freundliches Handeln üblich, in Kaufhäusern nicht. Lächeln, nicht laut werden. VAT Refund nur in Geschäften mit Schild und mit Reisepass. Siehe auch: Markt und Handeln, Nachtmarkt und Handeln. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Friendly bargaining is normal at markets, not in department stores. Smile and stay calm. VAT refund only in shops with the sign and with your passport. See also: Market and haggling, Night market and bargaining. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -52,75 +52,93 @@
     {
       "en": "Please call the police.",
       "th": "ช่วยเรียกตำรวจด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak tamruat duai"
     },
     {
       "en": "How much is this?",
-      "th": "อันนี้ราคาเท่าไหร่"
+      "th": "อันนี้ราคาเท่าไหร่",
+      "rom": "anni rakha thaorai"
     },
     {
       "en": "Do you have a bigger size?",
-      "th": "มีไซซ์ใหญ่กว่านี้ไหม"
+      "th": "มีไซซ์ใหญ่กว่านี้ไหม",
+      "rom": "mi sai ain kwa ni mai"
     },
     {
       "en": "Can I try this on?",
-      "th": "ลองใส่ได้ไหม"
+      "th": "ลองใส่ได้ไหม",
+      "rom": "long sai dai mai"
     },
     {
       "en": "Is there a discount?",
-      "th": "มีส่วนลดไหม"
+      "th": "มีส่วนลดไหม",
+      "rom": "mi suannt mai"
     },
     {
       "en": "Do you have a cheaper one?",
-      "th": "มีอันที่ถูกกว่านี้ไหม"
+      "th": "มีอันที่ถูกกว่านี้ไหม",
+      "rom": "mi an thi thuk kwa ni mai"
     },
     {
       "en": "I will take this one.",
-      "th": "ขอเอาอันนี้"
+      "th": "ขอเอาอันนี้",
+      "rom": "kho ao anni"
     },
     {
       "en": "Can I pay by card?",
-      "th": "จ่ายด้วยบัตรได้ไหม"
+      "th": "จ่ายด้วยบัตรได้ไหม",
+      "rom": "chai duai batn dai mai"
     },
     {
       "en": "Could I have a bag, please?",
-      "th": "ขอถุงหน่อย"
+      "th": "ขอถุงหน่อย",
+      "rom": "kho thung noi"
     },
     {
       "en": "Can you lower the price a little?",
-      "th": "ลดหน่อยได้ไหม"
+      "th": "ลดหน่อยได้ไหม",
+      "rom": "lot noi dai mai"
     },
     {
       "en": "That is too expensive.",
-      "th": "แพงไป"
+      "th": "แพงไป",
+      "rom": "phaeng pai"
     },
     {
       "en": "I am just looking.",
-      "th": "ดูเฉยๆ"
+      "th": "ดูเฉยๆ",
+      "rom": "du choei"
     },
     {
       "en": "Do you have another colour?",
-      "th": "มีสีอื่นไหม"
+      "th": "มีสีอื่นไหม",
+      "rom": "mi si uen mai"
     },
     {
       "en": "Could you gift-wrap it, please?",
-      "th": "ช่วยห่อของขวัญให้หน่อยได้ไหม"
+      "th": "ช่วยห่อของขวัญให้หน่อยได้ไหม",
+      "rom": "chuai okhongkwan hai noi dai mai"
     },
     {
       "en": "Is this genuine?",
-      "th": "ของแท้ไหม"
+      "th": "ของแท้ไหม",
+      "rom": "khongthae mai"
     },
     {
       "en": "Could I have the VAT refund form, please?",
-      "th": "ขอเอกสารขอคืนภาษีมูลค่าเพิ่มด้วย"
+      "th": "ขอเอกสารขอคืนภาษีมูลค่าเพิ่มด้วย",
+      "rom": "kho eksan kho khuen phasimunkhaphoem duai"
     },
     {
       "en": "Where do I pay?",
-      "th": "จ่ายเงินที่ไหน"
+      "th": "จ่ายเงินที่ไหน",
+      "rom": "chai ngoen thinai"
     },
     {
       "en": "I do not need a bag.",
-      "th": "ไม่รับถุง"
+      "th": "ไม่รับถุง",
+      "rom": "mai rap thung"
     }
   ]
 }

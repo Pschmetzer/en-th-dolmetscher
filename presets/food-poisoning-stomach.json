@@ -40,96 +40,118 @@
     {
       "en": "I think I have food poisoning.",
       "th": "คิดว่าอาหารเป็นพิษ",
-      "critical": true
+      "critical": true,
+      "rom": "khit wa ahan penphit"
     },
     {
       "en": "I have been vomiting all night.",
       "th": "อาเจียนทั้งคืน",
-      "critical": true
+      "critical": true,
+      "rom": "achian thangkhuen"
     },
     {
       "en": "I cannot keep water down.",
       "th": "ดื่มน้ำแล้วอาเจียนออกมา",
-      "critical": true
+      "critical": true,
+      "rom": "duem nam laeo achian okma"
     },
     {
       "en": "I have severe stomach pain.",
       "th": "ปวดท้องรุนแรง",
-      "critical": true
+      "critical": true,
+      "rom": "puatthong runraeng"
     },
     {
       "en": "There is blood in my stool.",
       "th": "มีเลือดปนในอุจจาระ",
-      "critical": true
+      "critical": true,
+      "rom": "mi lueat pon nai utchara"
     },
     {
       "en": "Please call a doctor.",
       "th": "ช่วยเรียกแพทย์หน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak phaet noi"
     },
     {
       "en": "I have diarrhoea.",
-      "th": "ท้องเสีย"
+      "th": "ท้องเสีย",
+      "rom": "thongsia"
     },
     {
       "en": "I have a fever.",
-      "th": "มีไข้"
+      "th": "มีไข้",
+      "rom": "mikhai"
     },
     {
       "en": "I feel nauseous.",
-      "th": "คลื่นไส้"
+      "th": "คลื่นไส้",
+      "rom": "khluensai"
     },
     {
       "en": "I ate seafood yesterday.",
-      "th": "เมื่อวานกินอาหารทะเล"
+      "th": "เมื่อวานกินอาหารทะเล",
+      "rom": "mueawan kin ahanthale"
     },
     {
       "en": "I ate at a street stall.",
-      "th": "กินอาหารที่ร้านริมทาง"
+      "th": "กินอาหารที่ร้านริมทาง",
+      "rom": "kin ahan thi ran rim thang"
     },
     {
       "en": "Several people are ill.",
-      "th": "ป่วยหลายคน"
+      "th": "ป่วยหลายคน",
+      "rom": "puai lai khon"
     },
     {
       "en": "Do I need a drip?",
-      "th": "ต้องให้น้ำเกลือไหม"
+      "th": "ต้องให้น้ำเกลือไหม",
+      "rom": "tong hai namkelue mai"
     },
     {
       "en": "I need rehydration salts.",
-      "th": "ต้องการผงเกลือแร่"
+      "th": "ต้องการผงเกลือแร่",
+      "rom": "tongkan phong keluerae"
     },
     {
       "en": "Please give me medicine for diarrhoea.",
-      "th": "ขอยาแก้ท้องเสียหน่อย"
+      "th": "ขอยาแก้ท้องเสียหน่อย",
+      "rom": "kho ya kae thong sianoi"
     },
     {
       "en": "Please give me medicine for nausea.",
-      "th": "ขอยาแก้คลื่นไส้หน่อย"
+      "th": "ขอยาแก้คลื่นไส้หน่อย",
+      "rom": "kho ya kae khluensai noi"
     },
     {
       "en": "Which food should I avoid?",
-      "th": "ควรเลี่ยงอาหารอะไร"
+      "th": "ควรเลี่ยงอาหารอะไร",
+      "rom": "khuan liang ahan arai"
     },
     {
       "en": "Can I eat plain rice porridge?",
-      "th": "กินข้าวต้มธรรมดาได้ไหม"
+      "th": "กินข้าวต้มธรรมดาได้ไหม",
+      "rom": "kin khaotm thamda dai mai"
     },
     {
       "en": "Is the water safe to drink?",
-      "th": "น้ำนี้ดื่มได้ปลอดภัยไหม"
+      "th": "น้ำนี้ดื่มได้ปลอดภัยไหม",
+      "rom": "nam ni duemdai plotphai mai"
     },
     {
       "en": "Should I go to the hospital?",
-      "th": "ควรไปโรงพยาบาลไหม"
+      "th": "ควรไปโรงพยาบาลไหม",
+      "rom": "khuan pai rongpyaban mai"
     },
     {
       "en": "I need a toilet urgently.",
-      "th": "ต้องเข้าห้องน้ำด่วน"
+      "th": "ต้องเข้าห้องน้ำด่วน",
+      "rom": "tong khao ongnam duan"
     },
     {
       "en": "How long will it last?",
-      "th": "จะเป็นนานเท่าไร"
+      "th": "จะเป็นนานเท่าไร",
+      "rom": "cha pen nan thaorai"
     }
   ]
 }

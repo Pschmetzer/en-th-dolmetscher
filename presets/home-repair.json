@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Bei Mietwohnungen zuerst den Vermieter oder die Verwaltung rufen; kleine Reparaturen zahlt oft der Vermieter. Vor Beginn Preis und Dauer klären. Bei Strom, Gas oder Wasserschäden sofort Hauptschalter, Gashahn oder Wasserhahn schließen und Hilfe rufen. Nie selbst an defekter Elektrik arbeiten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "In a rented flat call the landlord or building manager first; small repairs are often paid by the landlord. Agree the price and the time before work begins. For electricity, gas or water damage shut off the main switch, gas valve or water tap at once and call for help. Never work on faulty wiring yourself. Thai lines machine-made, not checked by native speakers."
+    "de": "Bei Mietwohnungen zuerst den Vermieter oder die Verwaltung rufen; kleine Reparaturen zahlt oft der Vermieter. Vor Beginn Preis und Dauer klären. Bei Strom, Gas oder Wasserschäden sofort Hauptschalter, Gashahn oder Wasserhahn schließen und Hilfe rufen. Nie selbst an defekter Elektrik arbeiten. Siehe auch: Hotel: Probleme im Zimmer, Handwerker Wasser Strom Klima. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "In a rented flat call the landlord or building manager first; small repairs are often paid by the landlord. Agree the price and the time before work begins. For electricity, gas or water damage shut off the main switch, gas valve or water tap at once and call for help. Never work on faulty wiring yourself. See also: Hotel: room problems, Plumber, electrician, air con. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -56,65 +56,80 @@
     {
       "en": "There is a gas smell.",
       "th": "มีกลิ่นแก๊ส",
-      "critical": true
+      "critical": true,
+      "rom": "mi klin kaet"
     },
     {
       "en": "There is a fire.",
       "th": "ไฟไหม้",
-      "critical": true
+      "critical": true,
+      "rom": "faimai"
     },
     {
       "en": "I got an electric shock.",
       "th": "ถูกไฟดูด",
-      "critical": true
+      "critical": true,
+      "rom": "thuk fai dut"
     },
     {
       "en": "The water is coming through the ceiling.",
-      "th": "น้ำรั่วจากเพดาน"
+      "th": "น้ำรั่วจากเพดาน",
+      "rom": "nam rua chak phedan"
     },
     {
       "en": "There is no electricity.",
-      "th": "ไฟดับ"
+      "th": "ไฟดับ",
+      "rom": "fai dap"
     },
     {
       "en": "The air conditioner does not work.",
-      "th": "เครื่องปรับอากาศใช้ไม่ได้"
+      "th": "เครื่องปรับอากาศใช้ไม่ได้",
+      "rom": "chaimaidai"
     },
     {
       "en": "The toilet is blocked.",
-      "th": "ส้วมตัน"
+      "th": "ส้วมตัน",
+      "rom": "suam tan"
     },
     {
       "en": "There is no hot water.",
-      "th": "ไม่มีน้ำร้อน"
+      "th": "ไม่มีน้ำร้อน",
+      "rom": "mai mi namron"
     },
     {
       "en": "The door lock is broken.",
-      "th": "ล็อกประตูเสีย"
+      "th": "ล็อกประตูเสีย",
+      "rom": "pratu sia"
     },
     {
       "en": "I lost my key.",
-      "th": "ทำกุญแจหาย"
+      "th": "ทำกุญแจหาย",
+      "rom": "tham kunchae hai"
     },
     {
       "en": "Can you come today?",
-      "th": "มาวันนี้ได้ไหม"
+      "th": "มาวันนี้ได้ไหม",
+      "rom": "ma wanni dai mai"
     },
     {
       "en": "How much will the repair cost?",
-      "th": "ค่าซ่อมเท่าไหร่"
+      "th": "ค่าซ่อมเท่าไหร่",
+      "rom": "kha som thaorai"
     },
     {
       "en": "How long will it take?",
-      "th": "ใช้เวลานานเท่าไหร่"
+      "th": "ใช้เวลานานเท่าไหร่",
+      "rom": "chaiwelanan thaorai"
     },
     {
       "en": "Please tell me the price first.",
-      "th": "ช่วยบอกราคาก่อน"
+      "th": "ช่วยบอกราคาก่อน",
+      "rom": "chuai bok rakha kon"
     },
     {
       "en": "Please call the landlord.",
-      "th": "ช่วยโทรหาเจ้าของห้องหน่อย"
+      "th": "ช่วยโทรหาเจ้าของห้องหน่อย",
+      "rom": "chuai thon ha chaokhong ong noi"
     }
   ]
 }

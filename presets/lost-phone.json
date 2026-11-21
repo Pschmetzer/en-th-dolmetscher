@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Sofort Bank-Apps sperren und die SIM beim Anbieter sperren lassen (AIS, True, dtac). Ortung über iCloud oder Google Konto am Hotel-Rechner. Bei Diebstahl Anzeige bei der Touristenpolizei 1155 für die Versicherung. Gerät nie selbst zurückholen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Block bank apps at once and have the SIM blocked by the provider (AIS, True, dtac). Locate the phone through your iCloud or Google account on the hotel computer. For theft file a report with the tourist police 1155 for your insurance. Never go to get the device back yourself. Thai lines machine-made, not checked by native speakers."
+    "de": "Sofort Bank-Apps sperren und die SIM beim Anbieter sperren lassen (AIS, True, dtac). Ortung über iCloud oder Google Konto am Hotel-Rechner. Bei Diebstahl Anzeige bei der Touristenpolizei 1155 für die Versicherung. Gerät nie selbst zurückholen. Siehe auch: SIM, Internet und Handy. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Block bank apps at once and have the SIM blocked by the provider (AIS, True, dtac). Locate the phone through your iCloud or Google account on the hotel computer. For theft file a report with the tourist police 1155 for your insurance. Never go to get the device back yourself. See also: SIM, internet and phone. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -56,67 +56,82 @@
     {
       "en": "My phone was stolen.",
       "th": "โทรศัพท์ถูกขโมย",
-      "critical": true
+      "critical": true,
+      "rom": "thonsap thuk khamoi"
     },
     {
       "en": "Please call the tourist police (1155).",
       "th": "ช่วยโทรหาตำรวจท่องเที่ยว 1155 ด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai thon ha tamruat thongthiao 1155 duai"
     },
     {
       "en": "Please block my SIM card now.",
       "th": "ช่วยระงับซิมการ์ดตอนนี้เลย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai rangap sim kat tonni loei"
     },
     {
       "en": "I need to block my bank card.",
       "th": "ต้องการระงับบัตรธนาคาร",
-      "critical": true
+      "critical": true,
+      "rom": "tong kaaangap batntnakhan"
     },
     {
       "en": "I lost my phone.",
       "th": "ทำโทรศัพท์หาย",
-      "critical": true
+      "critical": true,
+      "rom": "tham thonsap hai"
     },
     {
       "en": "Did anyone hand in a phone?",
-      "th": "มีใครส่งโทรศัพท์ไว้ไหม"
+      "th": "มีใครส่งโทรศัพท์ไว้ไหม",
+      "rom": "mi khain song thonsap wai mai"
     },
     {
       "en": "It is black and has a blue case.",
-      "th": "สีดำ ใส่เคสสีน้ำเงิน"
+      "th": "สีดำ ใส่เคสสีน้ำเงิน",
+      "rom": "si dam sai khet sinamngoen"
     },
     {
       "en": "Can you call this number for me?",
-      "th": "ช่วยโทรเบอร์นี้ให้หน่อยได้ไหม"
+      "th": "ช่วยโทรเบอร์นี้ให้หน่อยได้ไหม",
+      "rom": "chuai thon boe ni hai noi dai mai"
     },
     {
       "en": "Can I use your phone for one call?",
-      "th": "ขอยืมโทรศัพท์โทรหนึ่งสายได้ไหม"
+      "th": "ขอยืมโทรศัพท์โทรหนึ่งสายได้ไหม",
+      "rom": "thonsap thon nueng sai dai mai"
     },
     {
       "en": "Please let me use the hotel computer.",
-      "th": "ขอใช้คอมพิวเตอร์ของโรงแรมหน่อย"
+      "th": "ขอใช้คอมพิวเตอร์ของโรงแรมหน่อย",
+      "rom": "kho chai khomphiotoe khong rongraem noi"
     },
     {
       "en": "I want to file a police report.",
-      "th": "ต้องการแจ้งความ"
+      "th": "ต้องการแจ้งความ",
+      "rom": "tongkan chaengkwam"
     },
     {
       "en": "I need a copy of the report for my insurance.",
-      "th": "ต้องการสำเนาใบแจ้งความสำหรับประกัน"
+      "th": "ต้องการสำเนาใบแจ้งความสำหรับประกัน",
+      "rom": "tongkan samnao baichaengkwam samrap prakan"
     },
     {
       "en": "Where is the nearest phone shop?",
-      "th": "ร้านมือถือที่ใกล้ที่สุดอยู่ที่ไหน"
+      "th": "ร้านมือถือที่ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "ran muethue thi kain thisut yu thinai"
     },
     {
       "en": "I need a new SIM card with the same number.",
-      "th": "ต้องการซิมการ์ดใหม่เบอร์เดิม"
+      "th": "ต้องการซิมการ์ดใหม่เบอร์เดิม",
+      "rom": "tongkan sim kat aim boe doem"
     },
     {
       "en": "My passport is not in the phone case.",
-      "th": "หนังสือเดินทางไม่ได้อยู่ในเคสโทรศัพท์"
+      "th": "หนังสือเดินทางไม่ได้อยู่ในเคสโทรศัพท์",
+      "rom": "nangsuedoenthang mai dai yu nai khet thonsap"
     }
   ]
 }

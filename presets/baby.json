@@ -36,79 +36,97 @@
     {
       "en": "My baby has a high fever.",
       "th": "ลูกมีไข้สูง",
-      "critical": true
+      "critical": true,
+      "rom": "luk mikhai sung"
     },
     {
       "en": "My child has trouble breathing.",
       "th": "ลูกหายใจลำบาก",
-      "critical": true
+      "critical": true,
+      "rom": "luk aichai lambak"
     },
     {
       "en": "My baby is allergic to milk.",
       "th": "ลูกแพ้นม",
-      "critical": true
+      "critical": true,
+      "rom": "luk phae nom"
     },
     {
       "en": "I need a paediatrician.",
       "th": "ต้องการกุมารแพทย์",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan kumanphaet"
     },
     {
       "en": "My child swallowed something.",
       "th": "ลูกกลืนของเข้าไป",
-      "critical": true
+      "critical": true,
+      "rom": "luk kluen khong khaopai"
     },
     {
       "en": "Where can I buy nappies?",
-      "th": "ซื้อผ้าอ้อมได้ที่ไหน"
+      "th": "ซื้อผ้าอ้อมได้ที่ไหน",
+      "rom": "sue phaom dai thinai"
     },
     {
       "en": "Do you have formula milk?",
-      "th": "มีนมผงไหม"
+      "th": "มีนมผงไหม",
+      "rom": "mi namaphong mai"
     },
     {
       "en": "Could you warm the bottle, please?",
-      "th": "ช่วยอุ่นขวดนมหน่อยได้ไหม"
+      "th": "ช่วยอุ่นขวดนมหน่อยได้ไหม",
+      "rom": "chuai un khuatnm noi dai mai"
     },
     {
       "en": "Do you have a high chair?",
-      "th": "มีเก้าอี้เด็กไหม"
+      "th": "มีเก้าอี้เด็กไหม",
+      "rom": "mi kaoi dek mai"
     },
     {
       "en": "Is there a place to change the baby?",
-      "th": "มีที่เปลี่ยนผ้าอ้อมไหม"
+      "th": "มีที่เปลี่ยนผ้าอ้อมไหม",
+      "rom": "mi thi pelin phaom mai"
     },
     {
       "en": "Is there a baby room here?",
-      "th": "ที่นี่มีห้องสำหรับทารกไหม"
+      "th": "ที่นี่มีห้องสำหรับทารกไหม",
+      "rom": "thini mi ong samrap thank mai"
     },
     {
       "en": "Is there a children's menu?",
-      "th": "มีเมนูสำหรับเด็กไหม"
+      "th": "มีเมนูสำหรับเด็กไหม",
+      "rom": "mi menu samrap dek mai"
     },
     {
       "en": "Please make it not spicy for the child.",
-      "th": "ขอแบบไม่เผ็ดสำหรับเด็ก"
+      "th": "ขอแบบไม่เผ็ดสำหรับเด็ก",
+      "rom": "kho baep mai phet samrap dek"
     },
     {
       "en": "Could I have a cot in the room?",
-      "th": "ขอเตียงเด็กในห้องได้ไหม"
+      "th": "ขอเตียงเด็กในห้องได้ไหม",
+      "rom": "kho tiang dek nai ong dai mai"
     },
     {
       "en": "Is the water safe for the baby?",
-      "th": "น้ำนี้ปลอดภัยสำหรับทารกไหม"
+      "th": "น้ำนี้ปลอดภัยสำหรับทารกไหม",
+      "rom": "nam ni plotphai samrap thank mai"
     },
     {
       "en": "Could I have a bag of ice?",
-      "th": "ขอน้ำแข็งหนึ่งถุงได้ไหม"
+      "th": "ขอน้ำแข็งหนึ่งถุงได้ไหม",
+      "rom": "kho nueng thung dai mai"
     },
     {
       "en": "Can I bring the pushchair?",
-      "th": "เอารถเข็นเด็กเข้าไปได้ไหม"
+      "th": "เอารถเข็นเด็กเข้าไปได้ไหม",
+      "rom": "ao rathakhen dek khaopai dai mai"
     },
     {
       "en": "My baby needs to sleep.",
-      "th": "ลูกต้องการนอน"
+      "th": "ลูกต้องการนอน",
+      "rom": "luk tongkan non"
     }
   ],
   "note": {

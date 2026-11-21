@@ -56,60 +56,74 @@
     {
       "en": "I hurt my ankle.",
       "th": "ข้อเท้าเจ็บ",
-      "critical": true
+      "critical": true,
+      "rom": "khothao chep"
     },
     {
       "en": "Please call a doctor.",
       "th": "ช่วยเรียกแพทย์หน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak phaet noi"
     },
     {
       "en": "I would like to book a court.",
-      "th": "อยากจองสนาม"
+      "th": "อยากจองสนาม",
+      "rom": "yak chong sanam"
     },
     {
       "en": "Is a court free this evening?",
-      "th": "คืนนี้มีสนามว่างไหม"
+      "th": "คืนนี้มีสนามว่างไหม",
+      "rom": "khuenni mi sanam wang mai"
     },
     {
       "en": "How much is it per hour?",
-      "th": "ชั่วโมงละเท่าไร"
+      "th": "ชั่วโมงละเท่าไร",
+      "rom": "chuamong la thaorai"
     },
     {
       "en": "Can I rent a racket?",
-      "th": "เช่าไม้ได้ไหม"
+      "th": "เช่าไม้ได้ไหม",
+      "rom": "chao mai dai mai"
     },
     {
       "en": "Do you sell shuttlecocks?",
-      "th": "ขายลูกขนไก่ไหม"
+      "th": "ขายลูกขนไก่ไหม",
+      "rom": "khai lukknkai mai"
     },
     {
       "en": "Do I need special shoes?",
-      "th": "ต้องใช้รองเท้าพิเศษไหม"
+      "th": "ต้องใช้รองเท้าพิเศษไหม",
+      "rom": "tong chai rongthao phiset mai"
     },
     {
       "en": "Is there a coach for beginners?",
-      "th": "มีโค้ชสำหรับมือใหม่ไหม"
+      "th": "มีโค้ชสำหรับมือใหม่ไหม",
+      "rom": "mi khot samrap muehaim mai"
     },
     {
       "en": "Could we play doubles?",
-      "th": "เล่นคู่ได้ไหม"
+      "th": "เล่นคู่ได้ไหม",
+      "rom": "len khu dai mai"
     },
     {
       "en": "Where can I change clothes?",
-      "th": "เปลี่ยนเสื้อผ้าได้ที่ไหน"
+      "th": "เปลี่ยนเสื้อผ้าได้ที่ไหน",
+      "rom": "pelin sueapha dai thinai"
     },
     {
       "en": "Is there cold water here?",
-      "th": "ที่นี่มีน้ำเย็นไหม"
+      "th": "ที่นี่มีน้ำเย็นไหม",
+      "rom": "thini mi namyen mai"
     },
     {
       "en": "Good game!",
-      "th": "เล่นได้ดี"
+      "th": "เล่นได้ดี",
+      "rom": "len"
     },
     {
       "en": "Can I pay by card?",
-      "th": "จ่ายด้วยบัตรได้ไหม"
+      "th": "จ่ายด้วยบัตรได้ไหม",
+      "rom": "chai duai batn dai mai"
     }
   ]
 }

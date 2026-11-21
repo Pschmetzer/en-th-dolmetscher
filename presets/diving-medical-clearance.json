@@ -40,96 +40,118 @@
     {
       "en": "I have asthma.",
       "th": "เป็นโรคหอบหืด",
-      "critical": true
+      "critical": true,
+      "rom": "penrok ophuet"
     },
     {
       "en": "I have a heart condition.",
       "th": "เป็นโรคหัวใจ",
-      "critical": true
+      "critical": true,
+      "rom": "pen rokhuachai"
     },
     {
       "en": "I have a headache and joint pain after diving.",
       "th": "ปวดหัวและปวดข้อหลังดำน้ำ",
-      "critical": true
+      "critical": true,
+      "rom": "puathua lae puat kho lang damnam"
     },
     {
       "en": "I think I have decompression sickness.",
       "th": "สงสัยว่าเป็นโรคน้ำหนีบ",
-      "critical": true
+      "critical": true,
+      "rom": "sangasai wa penrok nam nip"
     },
     {
       "en": "Where is the nearest hyperbaric chamber?",
       "th": "ห้องปรับความกดอากาศที่ใกล้ที่สุดอยู่ที่ไหน",
-      "critical": true
+      "critical": true,
+      "rom": "ong prap thi kain thisut yu thinai"
     },
     {
       "en": "Please call an ambulance. A diver is ill.",
       "th": "ช่วยเรียกรถพยาบาลหน่อย นักดำน้ำไม่สบาย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak rathaphayaban noi nak damnam mai sabai"
     },
     {
       "en": "I need a medical certificate for diving.",
-      "th": "ต้องการใบรับรองแพทย์สำหรับการดำน้ำ"
+      "th": "ต้องการใบรับรองแพทย์สำหรับการดำน้ำ",
+      "rom": "tongkan bairaprongphaet samrap kan damnam"
     },
     {
       "en": "Can a doctor check me for diving?",
-      "th": "แพทย์ตรวจความพร้อมสำหรับการดำน้ำได้ไหม"
+      "th": "แพทย์ตรวจความพร้อมสำหรับการดำน้ำได้ไหม",
+      "rom": "phaet truat khwamprom samrap kan damnam dai mai"
     },
     {
       "en": "I want to do a scuba course.",
-      "th": "อยากเรียนดำน้ำสคูบา"
+      "th": "อยากเรียนดำน้ำสคูบา",
+      "rom": "yak rian damnam s khu ba"
     },
     {
       "en": "Here is my dive medical form.",
-      "th": "นี่คือแบบฟอร์มตรวจสุขภาพสำหรับการดำน้ำ"
+      "th": "นี่คือแบบฟอร์มตรวจสุขภาพสำหรับการดำน้ำ",
+      "rom": "ni khue baepfom truat sukphap samrap kan damnam"
     },
     {
       "en": "Please sign this form.",
-      "th": "ช่วยเซ็นแบบฟอร์มนี้หน่อย"
+      "th": "ช่วยเซ็นแบบฟอร์มนี้หน่อย",
+      "rom": "chuai sen baepfom ni noi"
     },
     {
       "en": "Please check my ears.",
-      "th": "ช่วยตรวจหูหน่อย"
+      "th": "ช่วยตรวจหูหน่อย",
+      "rom": "chuai truat hu noi"
     },
     {
       "en": "Please check my lungs.",
-      "th": "ช่วยตรวจปอดหน่อย"
+      "th": "ช่วยตรวจปอดหน่อย",
+      "rom": "chuai truat pot noi"
     },
     {
       "en": "Please check my heart.",
-      "th": "ช่วยตรวจหัวใจหน่อย"
+      "th": "ช่วยตรวจหัวใจหน่อย",
+      "rom": "chuai truat uachai noi"
     },
     {
       "en": "I get ear problems when I fly.",
-      "th": "หูมีปัญหาเวลาขึ้นเครื่องบิน"
+      "th": "หูมีปัญหาเวลาขึ้นเครื่องบิน",
+      "rom": "hu mipanha wela khuen kheruengbin"
     },
     {
       "en": "I have a cold. Is it safe to dive?",
-      "th": "เป็นหวัด ดำน้ำได้ปลอดภัยไหม"
+      "th": "เป็นหวัด ดำน้ำได้ปลอดภัยไหม",
+      "rom": "penwat damnam dai plotphai mai"
     },
     {
       "en": "Can I dive with this medicine?",
-      "th": "ดำน้ำขณะกินยานี้ได้ไหม"
+      "th": "ดำน้ำขณะกินยานี้ได้ไหม",
+      "rom": "damnam khana kin ya ni dai mai"
     },
     {
       "en": "I cannot equalise my ears.",
-      "th": "ปรับความดันหูไม่ได้"
+      "th": "ปรับความดันหูไม่ได้",
+      "rom": "prap khwamdan hu mai dai"
     },
     {
       "en": "I have not dived for a long time.",
-      "th": "ไม่ได้ดำน้ำมานานแล้ว"
+      "th": "ไม่ได้ดำน้ำมานานแล้ว",
+      "rom": "mai dai damnam ma nan laeo"
     },
     {
       "en": "How long must I wait before flying after diving?",
-      "th": "หลังดำน้ำต้องรอนานเท่าไรจึงขึ้นเครื่องได้"
+      "th": "หลังดำน้ำต้องรอนานเท่าไรจึงขึ้นเครื่องได้",
+      "rom": "lang damnam tong ro nan thaorai chueng khuen kherueng dai"
     },
     {
       "en": "Is the certificate valid for one year?",
-      "th": "ใบรับรองใช้ได้หนึ่งปีไหม"
+      "th": "ใบรับรองใช้ได้หนึ่งปีไหม",
+      "rom": "bairaprong chaidai nueng pi mai"
     },
     {
       "en": "May I have a copy, please?",
-      "th": "ขอสำเนาหนึ่งชุดได้ไหม"
+      "th": "ขอสำเนาหนึ่งชุดได้ไหม",
+      "rom": "kho samnao nueng chut dai mai"
     }
   ]
 }

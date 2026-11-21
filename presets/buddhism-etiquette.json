@@ -35,63 +35,78 @@
   "phrases": [
     {
       "en": "Do I need to take off my shoes here?",
-      "th": "ต้องถอดรองเท้าตรงนี้ไหม"
+      "th": "ต้องถอดรองเท้าตรงนี้ไหม",
+      "rom": "tong thot rongthao trangani mai"
     },
     {
       "en": "Is my clothing suitable for this place?",
-      "th": "แต่งตัวแบบนี้เหมาะสมกับที่นี่ไหม"
+      "th": "แต่งตัวแบบนี้เหมาะสมกับที่นี่ไหม",
+      "rom": "taengtua baepni kap thini mai"
     },
     {
       "en": "Where can I borrow a shawl or a sarong?",
-      "th": "ยืมผ้าคลุมหรือผ้าถุงได้ที่ไหน"
+      "th": "ยืมผ้าคลุมหรือผ้าถุงได้ที่ไหน",
+      "rom": "yuem phaklum rue phathung dai thinai"
     },
     {
       "en": "Where may I sit without pointing my feet at the Buddha?",
-      "th": "นั่งตรงไหนไม่ให้เท้าชี้ไปทางพระพุทธรูป"
+      "th": "นั่งตรงไหนไม่ให้เท้าชี้ไปทางพระพุทธรูป",
+      "rom": "nang trangahanai mai hai thao chi pai thang phraphuttrup"
     },
     {
       "en": "May I take a photo of this Buddha image?",
-      "th": "ถ่ายรูปพระพุทธรูปองค์นี้ได้ไหม"
+      "th": "ถ่ายรูปพระพุทธรูปองค์นี้ได้ไหม",
+      "rom": "thairup phraphuttrup ong ni dai mai"
     },
     {
       "en": "Is this area open to visitors?",
-      "th": "บริเวณนี้เปิดให้เข้าชมไหม"
+      "th": "บริเวณนี้เปิดให้เข้าชมไหม",
+      "rom": "briwen ni poet hai khaotm mai"
     },
     {
       "en": "Please excuse me. I did not know.",
-      "th": "ขออภัย ไม่ทราบมาก่อน"
+      "th": "ขออภัย ไม่ทราบมาก่อน",
+      "rom": "khophai mai thrap ma kon"
     },
     {
       "en": "I am sorry, I touched it by mistake.",
-      "th": "ขออภัย เผลอไปโดนโดยไม่ได้ตั้งใจ"
+      "th": "ขออภัย เผลอไปโดนโดยไม่ได้ตั้งใจ",
+      "rom": "khophai phelopai don doi mai dai tangchai"
     },
     {
       "en": "How do I greet a monk correctly?",
-      "th": "ทักทายพระอย่างถูกต้องทำอย่างไร"
+      "th": "ทักทายพระอย่างถูกต้องทำอย่างไร",
+      "rom": "thakthai phra yang thuktong tham yangrai"
     },
     {
       "en": "How do I make a wai correctly?",
-      "th": "ไหว้อย่างถูกต้องทำอย่างไร"
+      "th": "ไหว้อย่างถูกต้องทำอย่างไร",
+      "rom": "wai yang thuktong tham yangrai"
     },
     {
       "en": "Where do I put a donation?",
-      "th": "ใส่เงินทำบุญตรงไหน"
+      "th": "ใส่เงินทำบุญตรงไหน",
+      "rom": "sai ngoen thambun trangahanai"
     },
     {
       "en": "May I make merit here?",
-      "th": "ขอทำบุญที่นี่ได้ไหม"
+      "th": "ขอทำบุญที่นี่ได้ไหม",
+      "rom": "kho thambun thini dai mai"
     },
     {
       "en": "May I stay and listen to the chanting?",
-      "th": "ขออยู่ฟังพระสวดมนต์ได้ไหม"
+      "th": "ขออยู่ฟังพระสวดมนต์ได้ไหม",
+      "rom": "kho yu fang phra suatmn dai mai"
     },
     {
       "en": "Is it quiet time now?",
-      "th": "ตอนนี้ต้องเงียบหรือเปล่า"
+      "th": "ตอนนี้ต้องเงียบหรือเปล่า",
+      "rom": "tonni tong ngiap ruepela"
     },
     {
       "en": "Thank you for letting me visit.",
-      "th": "ขอบคุณที่ให้เข้าชม"
+      "th": "ขอบคุณที่ให้เข้าชม",
+      "rom": "khopkhun thi hai khaotm"
     }
   ],
   "note": {

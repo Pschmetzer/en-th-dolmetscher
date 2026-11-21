@@ -40,86 +40,106 @@
     {
       "en": "I feel faint.",
       "th": "รู้สึกจะเป็นลม",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek cha pennm"
     },
     {
       "en": "I need medical help.",
       "th": "ต้องการความช่วยเหลือทางการแพทย์",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan khwamchuaihelue thangkanphaet"
     },
     {
       "en": "I need to sit down.",
       "th": "ขอนั่งพัก",
-      "critical": true
+      "critical": true,
+      "rom": "kho nang phak"
     },
     {
       "en": "I am allergic to incense smoke.",
       "th": "แพ้ควันธูป",
-      "critical": true
+      "critical": true,
+      "rom": "phae khwan thup"
     },
     {
       "en": "May I take part in the ceremony?",
-      "th": "ขอเข้าร่วมพิธีได้ไหม"
+      "th": "ขอเข้าร่วมพิธีได้ไหม",
+      "rom": "kho khaoruam phithi dai mai"
     },
     {
       "en": "Is it all right if I watch?",
-      "th": "ขอดูได้ไหม"
+      "th": "ขอดูได้ไหม",
+      "rom": "kho du dai mai"
     },
     {
       "en": "May I take photos?",
-      "th": "ถ่ายรูปได้ไหม"
+      "th": "ถ่ายรูปได้ไหม",
+      "rom": "thairup dai mai"
     },
     {
       "en": "Please tell me what to do.",
-      "th": "ช่วยบอกด้วยว่าต้องทำอย่างไร"
+      "th": "ช่วยบอกด้วยว่าต้องทำอย่างไร",
+      "rom": "chuai bok duaiwa tong tham yangrai"
     },
     {
       "en": "Where should I sit?",
-      "th": "ควรนั่งตรงไหน"
+      "th": "ควรนั่งตรงไหน",
+      "rom": "khuan nang trangahanai"
     },
     {
       "en": "Do I take my shoes off here?",
-      "th": "ต้องถอดรองเท้าตรงนี้ไหม"
+      "th": "ต้องถอดรองเท้าตรงนี้ไหม",
+      "rom": "tong thot rongthao trangani mai"
     },
     {
       "en": "How should I dress?",
-      "th": "ควรแต่งตัวอย่างไร"
+      "th": "ควรแต่งตัวอย่างไร",
+      "rom": "khuan taengtua yangrai"
     },
     {
       "en": "How much should I donate?",
-      "th": "ควรทำบุญเท่าไหร่"
+      "th": "ควรทำบุญเท่าไหร่",
+      "rom": "khuan thambun thaorai"
     },
     {
       "en": "Where can I buy flowers and incense?",
-      "th": "ซื้อดอกไม้ธูปเทียนได้ที่ไหน"
+      "th": "ซื้อดอกไม้ธูปเทียนได้ที่ไหน",
+      "rom": "sue dokmai thup thian dai thinai"
     },
     {
       "en": "How long does the ceremony last?",
-      "th": "พิธีใช้เวลานานเท่าไหร่"
+      "th": "พิธีใช้เวลานานเท่าไหร่",
+      "rom": "phithi chaiwelanan thaorai"
     },
     {
       "en": "What time does the ceremony start?",
-      "th": "พิธีเริ่มกี่โมง"
+      "th": "พิธีเริ่มกี่โมง",
+      "rom": "phithi roem ki mong"
     },
     {
       "en": "What is this ceremony for?",
-      "th": "พิธีนี้จัดเพื่ออะไร"
+      "th": "พิธีนี้จัดเพื่ออะไร",
+      "rom": "phithi ni chat phuea arai"
     },
     {
       "en": "Please excuse my mistake.",
-      "th": "ขอโทษที่ทำผิดมารยาท"
+      "th": "ขอโทษที่ทำผิดมารยาท",
+      "rom": "khothot thi thamphit manyat"
     },
     {
       "en": "Thank you for letting me join.",
-      "th": "ขอบคุณที่ให้เข้าร่วม"
+      "th": "ขอบคุณที่ให้เข้าร่วม",
+      "rom": "khopkhun thi hai khaoruam"
     },
     {
       "en": "May I give this to the monk?",
-      "th": "ถวายสิ่งนี้แด่พระได้ไหม"
+      "th": "ถวายสิ่งนี้แด่พระได้ไหม",
+      "rom": "thwai sing ni dae phra dai mai"
     },
     {
       "en": "I would like to make merit.",
-      "th": "อยากทำบุญ"
+      "th": "อยากทำบุญ",
+      "rom": "yak thambun"
     }
   ]
 }

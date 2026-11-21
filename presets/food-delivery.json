@@ -40,74 +40,91 @@
     {
       "en": "I have a food allergy.",
       "th": "แพ้อาหาร",
-      "critical": true
+      "critical": true,
+      "rom": "phae ahan"
     },
     {
       "en": "I am allergic to peanuts.",
       "th": "แพ้ถั่วลิสง",
-      "critical": true
+      "critical": true,
+      "rom": "phae thualitng"
     },
     {
       "en": "This contains shrimp. I am allergic to shrimp.",
       "th": "มีกุ้ง แพ้กุ้ง",
-      "critical": true
+      "critical": true,
+      "rom": "mi kung phae kung"
     },
     {
       "en": "I feel sick after eating this food.",
       "th": "กินอาหารนี้แล้วรู้สึกไม่สบาย",
-      "critical": true
+      "critical": true,
+      "rom": "kin ahan ni laeo rusuek mai sabai"
     },
     {
       "en": "Please leave the food at the door.",
-      "th": "วางอาหารไว้หน้าห้องด้วย"
+      "th": "วางอาหารไว้หน้าห้องด้วย",
+      "rom": "wang ahan wahaina ong duai"
     },
     {
       "en": "Please leave it at reception.",
-      "th": "ฝากไว้ที่เคาน์เตอร์ต้อนรับด้วย"
+      "th": "ฝากไว้ที่เคาน์เตอร์ต้อนรับด้วย",
+      "rom": "fak wai thi khaotoe tonrap duai"
     },
     {
       "en": "Please call me when you arrive.",
-      "th": "โทรหาด้วยเมื่อถึง"
+      "th": "โทรหาด้วยเมื่อถึง",
+      "rom": "thon ha duai muea thueng"
     },
     {
       "en": "I cannot find the building.",
-      "th": "หาตึกไม่เจอ"
+      "th": "หาตึกไม่เจอ",
+      "rom": "ha tuek mai choe"
     },
     {
       "en": "Please bring it to the main gate.",
-      "th": "ช่วยนำมาที่ประตูรั้วหน้าด้วย"
+      "th": "ช่วยนำมาที่ประตูรั้วหน้าด้วย",
+      "rom": "chuai namma thi praturua na duai"
     },
     {
       "en": "Where are you now?",
-      "th": "ตอนนี้อยู่ที่ไหน"
+      "th": "ตอนนี้อยู่ที่ไหน",
+      "rom": "tonni yu thinai"
     },
     {
       "en": "How long will it take?",
-      "th": "ใช้เวลานานเท่าไหร่"
+      "th": "ใช้เวลานานเท่าไหร่",
+      "rom": "chaiwelanan thaorai"
     },
     {
       "en": "The order is wrong.",
-      "th": "ออเดอร์ผิด"
+      "th": "ออเดอร์ผิด",
+      "rom": "odoe phit"
     },
     {
       "en": "One item is missing.",
-      "th": "ของขาดไปหนึ่งอย่าง"
+      "th": "ของขาดไปหนึ่งอย่าง",
+      "rom": "khong khat pai nueng yang"
     },
     {
       "en": "The food is cold.",
-      "th": "อาหารเย็นแล้ว"
+      "th": "อาหารเย็นแล้ว",
+      "rom": "ahanyen laeo"
     },
     {
       "en": "Not spicy, please.",
-      "th": "ขอไม่เผ็ด"
+      "th": "ขอไม่เผ็ด",
+      "rom": "kho mai phet"
     },
     {
       "en": "I will pay cash on delivery.",
-      "th": "จ่ายเงินสดปลายทาง"
+      "th": "จ่ายเงินสดปลายทาง",
+      "rom": "chai ngoentt plaithang"
     },
     {
       "en": "Do you have change?",
-      "th": "มีเงินทอนไหม"
+      "th": "มีเงินทอนไหม",
+      "rom": "mi ngoenthon mai"
     }
   ]
 }

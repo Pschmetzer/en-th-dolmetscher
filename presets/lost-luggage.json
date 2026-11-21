@@ -55,63 +55,78 @@
   "phrases": [
     {
       "en": "My luggage did not arrive.",
-      "th": "กระเป๋าเดินทางไม่มา"
+      "th": "กระเป๋าเดินทางไม่มา",
+      "rom": "krapaodoenthang mai ma"
     },
     {
       "en": "My suitcase is damaged.",
-      "th": "กระเป๋าเดินทางเสียหาย"
+      "th": "กระเป๋าเดินทางเสียหาย",
+      "rom": "krapaodoenthang siahai"
     },
     {
       "en": "I would like to file a report.",
-      "th": "ต้องการแจ้งความเสียหายหรือสูญหาย"
+      "th": "ต้องการแจ้งความเสียหายหรือสูญหาย",
+      "rom": "tongkan chaeng khwamsiahai rue sunhai"
     },
     {
       "en": "Here is my luggage tag.",
-      "th": "นี่คือป้ายสัมภาระ"
+      "th": "นี่คือป้ายสัมภาระ",
+      "rom": "ni khue pai samphara"
     },
     {
       "en": "It is a black suitcase with a red ribbon.",
-      "th": "เป็นกระเป๋าเดินทางสีดำผูกริบบิ้นสีแดง"
+      "th": "เป็นกระเป๋าเดินทางสีดำผูกริบบิ้นสีแดง",
+      "rom": "pen krapaodoenthang si dam phuk ripbin sidaeng"
     },
     {
       "en": "Please give me the reference number.",
-      "th": "ขอหมายเลขอ้างอิงด้วย"
+      "th": "ขอหมายเลขอ้างอิงด้วย",
+      "rom": "kho mailek duai"
     },
     {
       "en": "When will you find my luggage?",
-      "th": "จะหากระเป๋าเจอเมื่อไร"
+      "th": "จะหากระเป๋าเจอเมื่อไร",
+      "rom": "cha ha krapao choe muearai"
     },
     {
       "en": "Please deliver it to my hotel.",
-      "th": "ช่วยส่งไปที่โรงแรมด้วย"
+      "th": "ช่วยส่งไปที่โรงแรมด้วย",
+      "rom": "chuai song pai thi rongraem duai"
     },
     {
       "en": "This is the address of my hotel.",
-      "th": "นี่คือที่อยู่ของโรงแรม"
+      "th": "นี่คือที่อยู่ของโรงแรม",
+      "rom": "ni khue thiyu khong rongraem"
     },
     {
       "en": "Here is my phone number.",
-      "th": "นี่คือเบอร์โทรศัพท์"
+      "th": "นี่คือเบอร์โทรศัพท์",
+      "rom": "ni khue boethonsap"
     },
     {
       "en": "I need money for clothes and toiletries.",
-      "th": "ต้องการเงินซื้อเสื้อผ้าและของใช้ส่วนตัว"
+      "th": "ต้องการเงินซื้อเสื้อผ้าและของใช้ส่วนตัว",
+      "rom": "tong kanngoen sue sueapha lae khongchaisuantua"
     },
     {
       "en": "Does the airline pay for urgent purchases?",
-      "th": "สายการบินจ่ายค่าของจำเป็นไหม"
+      "th": "สายการบินจ่ายค่าของจำเป็นไหม",
+      "rom": "saikanbin chai kha khongchampen mai"
     },
     {
       "en": "My medicine is in the lost bag.",
-      "th": "ยาอยู่ในกระเป๋าที่หาย"
+      "th": "ยาอยู่ในกระเป๋าที่หาย",
+      "rom": "ya yu nai krapao thi hai"
     },
     {
       "en": "Please give me a copy of the report.",
-      "th": "ขอสำเนารายงานด้วย"
+      "th": "ขอสำเนารายงานด้วย",
+      "rom": "kho samnao raingan duai"
     },
     {
       "en": "Where is the baggage claim office?",
-      "th": "สำนักงานสัมภาระอยู่ที่ไหน"
+      "th": "สำนักงานสัมภาระอยู่ที่ไหน",
+      "rom": "samnakngan samphara yu thinai"
     }
   ]
 }

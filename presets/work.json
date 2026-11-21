@@ -40,74 +40,91 @@
     {
       "en": "Stop, it is dangerous!",
       "th": "หยุด อันตราย",
-      "critical": true
+      "critical": true,
+      "rom": "yut antrai"
     },
     {
       "en": "I am hurt, I need help.",
       "th": "บาดเจ็บ ต้องการความช่วยเหลือ",
-      "critical": true
+      "critical": true,
+      "rom": "batchep tongkan khwamchuaihelue"
     },
     {
       "en": "Switch off the power, please.",
       "th": "ช่วยปิดไฟหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai pitfai noi"
     },
     {
       "en": "There is a gas smell.",
       "th": "มีกลิ่นแก๊ส",
-      "critical": true
+      "critical": true,
+      "rom": "mi klin kaet"
     },
     {
       "en": "Do I need a helmet?",
-      "th": "ต้องใช้หมวกนิรภัยไหม"
+      "th": "ต้องใช้หมวกนิรภัยไหม",
+      "rom": "tong chai muakninphai mai"
     },
     {
       "en": "Where is the first aid kit?",
-      "th": "ชุดปฐมพยาบาลอยู่ที่ไหน"
+      "th": "ชุดปฐมพยาบาลอยู่ที่ไหน",
+      "rom": "chut pathamaphayaban yu thinai"
     },
     {
       "en": "What time does work start?",
-      "th": "เริ่มงานกี่โมง"
+      "th": "เริ่มงานกี่โมง",
+      "rom": "roem ngan ki mong"
     },
     {
       "en": "How long will this take?",
-      "th": "ใช้เวลานานแค่ไหน"
+      "th": "ใช้เวลานานแค่ไหน",
+      "rom": "chaiwelanan khae nai"
     },
     {
       "en": "How much will it cost in total?",
-      "th": "ค่าใช้จ่ายทั้งหมดเท่าไร"
+      "th": "ค่าใช้จ่ายทั้งหมดเท่าไร",
+      "rom": "khachaichai thangmt thaorai"
     },
     {
       "en": "Please write the price down.",
-      "th": "ช่วยเขียนราคาให้หน่อย"
+      "th": "ช่วยเขียนราคาให้หน่อย",
+      "rom": "chuai khian rakha hai noi"
     },
     {
       "en": "Can you come tomorrow?",
-      "th": "พรุ่งนี้มาได้ไหม"
+      "th": "พรุ่งนี้มาได้ไหม",
+      "rom": "phrungni ma dai mai"
     },
     {
       "en": "Can you show me how?",
-      "th": "ช่วยทำให้ดูหน่อยได้ไหม"
+      "th": "ช่วยทำให้ดูหน่อยได้ไหม",
+      "rom": "chuai thamhai du noi dai mai"
     },
     {
       "en": "I do not understand, please repeat.",
-      "th": "ไม่เข้าใจ ช่วยพูดอีกครั้งหน่อย"
+      "th": "ไม่เข้าใจ ช่วยพูดอีกครั้งหน่อย",
+      "rom": "mai khaochai chuai phut ikkrang noi"
     },
     {
       "en": "I need a receipt, please.",
-      "th": "ขอใบเสร็จหน่อย"
+      "th": "ขอใบเสร็จหน่อย",
+      "rom": "kho noi"
     },
     {
       "en": "Please fix it again, it is still broken.",
-      "th": "ช่วยซ่อมอีกครั้ง ยังเสียอยู่"
+      "th": "ช่วยซ่อมอีกครั้ง ยังเสียอยู่",
+      "rom": "chuai som ikkrang yang sia yu"
     },
     {
       "en": "Is the work finished?",
-      "th": "งานเสร็จแล้วหรือยัง"
+      "th": "งานเสร็จแล้วหรือยัง",
+      "rom": "ngan laeo rueyang"
     },
     {
       "en": "Is there a warranty?",
-      "th": "มีรับประกันไหม"
+      "th": "มีรับประกันไหม",
+      "rom": "mi rapprakan mai"
     }
   ]
 }

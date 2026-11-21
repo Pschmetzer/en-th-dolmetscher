@@ -56,61 +56,75 @@
     {
       "en": "Someone has fallen into the water.",
       "th": "มีคนตกน้ำ",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon takanam"
     },
     {
       "en": "I cut myself with a hook.",
       "th": "ถูกตะขอเบ็ดบาด",
-      "critical": true
+      "critical": true,
+      "rom": "thuk takho bet bat"
     },
     {
       "en": "Please give me a life jacket.",
       "th": "ขอเสื้อชูชีพ",
-      "critical": true
+      "critical": true,
+      "rom": "kho suea chuchip"
     },
     {
       "en": "I feel seasick.",
-      "th": "เมาเรือ"
+      "th": "เมาเรือ",
+      "rom": "maoruea"
     },
     {
       "en": "Do you have a tablet for seasickness?",
-      "th": "มียาแก้เมาเรือไหม"
+      "th": "มียาแก้เมาเรือไหม",
+      "rom": "mi ya kae maoruea mai"
     },
     {
       "en": "How long is the trip?",
-      "th": "ทริปนี้ใช้เวลานานเท่าไร"
+      "th": "ทริปนี้ใช้เวลานานเท่าไร",
+      "rom": "thrip ni chaiwelanan thaorai"
     },
     {
       "en": "Are the rod and bait included?",
-      "th": "รวมคันเบ็ดและเหยื่อไหม"
+      "th": "รวมคันเบ็ดและเหยื่อไหม",
+      "rom": "ruam khanbet lae mai"
     },
     {
       "en": "How much is the trip per person?",
-      "th": "ทริปราคาคนละเท่าไร"
+      "th": "ทริปราคาคนละเท่าไร",
+      "rom": "thrip rakha khanla thaorai"
     },
     {
       "en": "What kind of fish can we catch?",
-      "th": "จะตกปลาอะไรได้บ้าง"
+      "th": "จะตกปลาอะไรได้บ้าง",
+      "rom": "cha takapla arai dai bang"
     },
     {
       "en": "Can you show me how to use the rod?",
-      "th": "ช่วยสอนใช้คันเบ็ดหน่อยได้ไหม"
+      "th": "ช่วยสอนใช้คันเบ็ดหน่อยได้ไหม",
+      "rom": "chuai son chai khanbet noi dai mai"
     },
     {
       "en": "I caught a fish!",
-      "th": "ตกปลาได้แล้ว"
+      "th": "ตกปลาได้แล้ว",
+      "rom": "takapla dai laeo"
     },
     {
       "en": "Can the kitchen cook the fish?",
-      "th": "ครัวช่วยปรุงปลาให้ได้ไหม"
+      "th": "ครัวช่วยปรุงปลาให้ได้ไหม",
+      "rom": "khrua chuai prung pla aidai mai"
     },
     {
       "en": "Please take me back to shore.",
-      "th": "ช่วยพากลับเข้าฝั่งด้วย"
+      "th": "ช่วยพากลับเข้าฝั่งด้วย",
+      "rom": "chuai pha klap khao fang duai"
     },
     {
       "en": "Is the sea rough today?",
-      "th": "วันนี้ทะเลมีคลื่นแรงไหม"
+      "th": "วันนี้ทะเลมีคลื่นแรงไหม",
+      "rom": "wanni thale mi khluen raeng mai"
     }
   ]
 }

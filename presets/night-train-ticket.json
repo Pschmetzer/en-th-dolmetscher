@@ -40,95 +40,117 @@
     {
       "en": "My bag was stolen on the train.",
       "th": "กระเป๋าถูกขโมยบนรถไฟ",
-      "critical": true
+      "critical": true,
+      "rom": "krapao thuk khamoi bon rathafai"
     },
     {
       "en": "Please call the police.",
       "th": "ช่วยเรียกตำรวจด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak tamruat duai"
     },
     {
       "en": "Please call a doctor. I feel unwell.",
       "th": "ช่วยเรียกหมอหน่อย รู้สึกไม่สบาย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak mo noi rusuek mai sabai"
     },
     {
       "en": "There is a fire in the carriage.",
       "th": "ไฟไหม้ในตู้โดยสาร",
-      "critical": true
+      "critical": true,
+      "rom": "faimai nai tu doisan"
     },
     {
       "en": "Where is the emergency exit?",
       "th": "ทางออกฉุกเฉินอยู่ที่ไหน",
-      "critical": true
+      "critical": true,
+      "rom": "thangok chukchoen yu thinai"
     },
     {
       "en": "I would like a sleeper ticket to Chiang Mai.",
-      "th": "ต้องการตั๋วรถไฟนอนไปเชียงใหม่"
+      "th": "ต้องการตั๋วรถไฟนอนไปเชียงใหม่",
+      "rom": "tongkan tuantfai non pai chianghaim"
     },
     {
       "en": "Is there a night train tonight?",
-      "th": "คืนนี้มีรถไฟกลางคืนไหม"
+      "th": "คืนนี้มีรถไฟกลางคืนไหม",
+      "rom": "khuenni mi rathafai klangkhuen mai"
     },
     {
       "en": "Which class is the sleeper?",
-      "th": "ตู้นอนเป็นชั้นอะไร"
+      "th": "ตู้นอนเป็นชั้นอะไร",
+      "rom": "tu non pen chan arai"
     },
     {
       "en": "A lower berth, please.",
-      "th": "ขอเตียงล่าง"
+      "th": "ขอเตียงล่าง",
+      "rom": "kho tiang lang"
     },
     {
       "en": "An upper berth, please.",
-      "th": "ขอเตียงบน"
+      "th": "ขอเตียงบน",
+      "rom": "kho tiang bon"
     },
     {
       "en": "Does the sleeper have air conditioning?",
-      "th": "ตู้นอนมีแอร์ไหม"
+      "th": "ตู้นอนมีแอร์ไหม",
+      "rom": "tu non mi ae mai"
     },
     {
       "en": "When does the train depart?",
-      "th": "รถไฟออกกี่โมง"
+      "th": "รถไฟออกกี่โมง",
+      "rom": "rathafai ok ki mong"
     },
     {
       "en": "When do we arrive?",
-      "th": "จะถึงกี่โมง"
+      "th": "จะถึงกี่โมง",
+      "rom": "cha thueng ki mong"
     },
     {
       "en": "Which platform is it?",
-      "th": "อยู่ชานชาลาไหน"
+      "th": "อยู่ชานชาลาไหน",
+      "rom": "yu chanchala nai"
     },
     {
       "en": "Can I buy a ticket for tomorrow?",
-      "th": "ซื้อตั๋วสำหรับพรุ่งนี้ได้ไหม"
+      "th": "ซื้อตั๋วสำหรับพรุ่งนี้ได้ไหม",
+      "rom": "sue tua samrap phrungni dai mai"
     },
     {
       "en": "Is the ticket sold out?",
-      "th": "ตั๋วหมดแล้วหรือ"
+      "th": "ตั๋วหมดแล้วหรือ",
+      "rom": "tua mot laeo rue"
     },
     {
       "en": "Where can I store my luggage?",
-      "th": "เก็บกระเป๋าได้ที่ไหน"
+      "th": "เก็บกระเป๋าได้ที่ไหน",
+      "rom": "kep krapao dai thinai"
     },
     {
       "en": "Can you wake me before my stop?",
-      "th": "ช่วยปลุกก่อนถึงสถานีหน่อย"
+      "th": "ช่วยปลุกก่อนถึงสถานีหน่อย",
+      "rom": "chuai pluk kon thueng sathani noi"
     },
     {
       "en": "Where is the dining car?",
-      "th": "ตู้เสบียงอยู่ที่ไหน"
+      "th": "ตู้เสบียงอยู่ที่ไหน",
+      "rom": "tusebing yu thinai"
     },
     {
       "en": "Please make my bed.",
-      "th": "ช่วยจัดเตียงให้หน่อย"
+      "th": "ช่วยจัดเตียงให้หน่อย",
+      "rom": "chuai chat tiang hai noi"
     },
     {
       "en": "Is there a charging socket?",
-      "th": "มีปลั๊กชาร์จไหม"
+      "th": "มีปลั๊กชาร์จไหม",
+      "rom": "mi plak chat mai"
     },
     {
       "en": "I have lost my ticket.",
-      "th": "ทำตั๋วหาย"
+      "th": "ทำตั๋วหาย",
+      "rom": "tham tua hai"
     }
   ]
 }

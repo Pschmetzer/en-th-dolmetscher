@@ -56,60 +56,74 @@
     {
       "en": "My face is swelling. I cannot breathe well.",
       "th": "ใบหน้าบวม หายใจไม่ค่อยออก",
-      "critical": true
+      "critical": true,
+      "rom": "baina buam aichai makhaioi ok"
     },
     {
       "en": "Please call an ambulance (1669).",
       "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak rathaphayaban duai 1669"
     },
     {
       "en": "I have a rash and it itches.",
-      "th": "มีผื่นและคัน"
+      "th": "มีผื่นและคัน",
+      "rom": "mi phuen lae khan"
     },
     {
       "en": "It started two days ago.",
-      "th": "เป็นมาสองวันแล้ว"
+      "th": "เป็นมาสองวันแล้ว",
+      "rom": "penma song wan laeo"
     },
     {
       "en": "It is spreading.",
-      "th": "กำลังลามออกไป"
+      "th": "กำลังลามออกไป",
+      "rom": "kamlang lam ok pai"
     },
     {
       "en": "I think it is an allergy.",
-      "th": "คิดว่าเป็นภูมิแพ้"
+      "th": "คิดว่าเป็นภูมิแพ้",
+      "rom": "khit wa pen phumiphae"
     },
     {
       "en": "I have a burn on my arm.",
-      "th": "มีแผลไฟไหม้ที่แขน"
+      "th": "มีแผลไฟไหม้ที่แขน",
+      "rom": "mi phaen faimai thi khaen"
     },
     {
       "en": "I have a bad sunburn.",
-      "th": "ผิวไหม้แดดมาก"
+      "th": "ผิวไหม้แดดมาก",
+      "rom": "phio mai daet mak"
     },
     {
       "en": "I have an insect bite that is swollen.",
-      "th": "มีรอยแมลงกัดที่บวม"
+      "th": "มีรอยแมลงกัดที่บวม",
+      "rom": "mi roi maenng kat thi buam"
     },
     {
       "en": "I have a skin infection.",
-      "th": "ผิวหนังติดเชื้อ"
+      "th": "ผิวหนังติดเชื้อ",
+      "rom": "phionang titchuea"
     },
     {
       "en": "Do I need an ointment?",
-      "th": "ต้องใช้ยาทาไหม"
+      "th": "ต้องใช้ยาทาไหม",
+      "rom": "tong chai yatha mai"
     },
     {
       "en": "How often should I apply it?",
-      "th": "ควรทาบ่อยแค่ไหน"
+      "th": "ควรทาบ่อยแค่ไหน",
+      "rom": "khuan tha boi khae nai"
     },
     {
       "en": "Is it contagious?",
-      "th": "ติดต่อไหม"
+      "th": "ติดต่อไหม",
+      "rom": "titto mai"
     },
     {
       "en": "Can I swim with this?",
-      "th": "ว่ายน้ำได้ไหม"
+      "th": "ว่ายน้ำได้ไหม",
+      "rom": "wainam dai mai"
     }
   ]
 }

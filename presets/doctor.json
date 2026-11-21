@@ -53,113 +53,138 @@
     {
       "en": "I am allergic to this medicine.",
       "th": "แพ้ยานี้",
-      "critical": true
+      "critical": true,
+      "rom": "phaeya ni"
     },
     {
       "en": "This is an emergency. Please call an ambulance (1669).",
       "th": "นี่เป็นเหตุฉุกเฉิน ช่วยเรียกรถพยาบาลด้วย (1669)",
-      "critical": true
+      "critical": true,
+      "rom": "ni pen etuchukchoen chuai riak rathaphayaban duai 1669"
     },
     {
       "en": "I have difficulty breathing.",
       "th": "หายใจลำบาก",
-      "critical": true
+      "critical": true,
+      "rom": "aichai lambak"
     },
     {
       "en": "I have chest pain.",
       "th": "เจ็บหน้าอก",
-      "critical": true
+      "critical": true,
+      "rom": "chep nak"
     },
     {
       "en": "I am allergic to penicillin.",
       "th": "แพ้ยาเพนิซิลลิน",
-      "critical": true
+      "critical": true,
+      "rom": "phaeya phe ni si l li n"
     },
     {
       "en": "I am allergic to peanuts and tree nuts.",
       "th": "แพ้ถั่วลิสงและถั่วเปลือกแข็ง",
-      "critical": true
+      "critical": true,
+      "rom": "phae thualitng lae thua peluek"
     },
     {
       "en": "I am pregnant.",
       "th": "กำลังตั้งครรภ์",
-      "critical": true
+      "critical": true,
+      "rom": "kamlang tangkan"
     },
     {
       "en": "I have diabetes.",
       "th": "เป็นเบาหวาน",
-      "critical": true
+      "critical": true,
+      "rom": "pen baowan"
     },
     {
       "en": "Where is the nearest hospital?",
       "th": "โรงพยาบาลที่ใกล้ที่สุดอยู่ที่ไหน",
-      "critical": true
+      "critical": true,
+      "rom": "rongpyaban thi kain thisut yu thinai"
     },
     {
       "en": "I have high blood pressure.",
       "th": "เป็นความดันโลหิตสูง",
-      "critical": true
+      "critical": true,
+      "rom": "pen khwamdanlohit sung"
     },
     {
       "en": "I feel dizzy.",
       "th": "เวียนหัว",
-      "critical": true
+      "critical": true,
+      "rom": "wianhua"
     },
     {
       "en": "I would like to see a doctor.",
-      "th": "อยากพบแพทย์"
+      "th": "อยากพบแพทย์",
+      "rom": "yak phop phaet"
     },
     {
       "en": "I have an appointment.",
-      "th": "มีนัดไว้"
+      "th": "มีนัดไว้",
+      "rom": "minat wai"
     },
     {
       "en": "It hurts here.",
-      "th": "เจ็บตรงนี้"
+      "th": "เจ็บตรงนี้",
+      "rom": "chep trangani"
     },
     {
       "en": "I have been feeling unwell since yesterday.",
-      "th": "รู้สึกไม่สบายตั้งแต่เมื่อวาน"
+      "th": "รู้สึกไม่สบายตั้งแต่เมื่อวาน",
+      "rom": "rusuek mai sabai tangtae mueawan"
     },
     {
       "en": "Could you speak more slowly, please?",
-      "th": "ช่วยพูดช้าลงหน่อยได้ไหม"
+      "th": "ช่วยพูดช้าลงหน่อยได้ไหม",
+      "rom": "chuai phut cha long noi dai mai"
     },
     {
       "en": "Could you repeat that, please?",
-      "th": "ช่วยพูดอีกครั้งได้ไหม"
+      "th": "ช่วยพูดอีกครั้งได้ไหม",
+      "rom": "chuai phut ikkrang dai mai"
     },
     {
       "en": "Do you accept my insurance?",
-      "th": "ใช้ประกันสุขภาพนี้ได้ไหม"
+      "th": "ใช้ประกันสุขภาพนี้ได้ไหม",
+      "rom": "chai prakan sukphap ni dai mai"
     },
     {
       "en": "I take this medicine regularly.",
-      "th": "กินยานี้เป็นประจำ"
+      "th": "กินยานี้เป็นประจำ",
+      "rom": "kin ya ni penpracham"
     },
     {
       "en": "I have been vomiting.",
-      "th": "อาเจียน"
+      "th": "อาเจียน",
+      "rom": "achian"
     },
     {
       "en": "I have diarrhoea.",
-      "th": "ท้องเสีย"
+      "th": "ท้องเสีย",
+      "rom": "thongsia"
     },
     {
       "en": "How many times a day should I take this?",
-      "th": "ต้องกินยานี้วันละกี่ครั้ง"
+      "th": "ต้องกินยานี้วันละกี่ครั้ง",
+      "rom": "tong kin ya ni wan la ki khrang"
     },
     {
       "en": "Before or after meals?",
-      "th": "กินก่อนหรือหลังอาหาร"
+      "th": "กินก่อนหรือหลังอาหาร",
+      "rom": "kin kon rue"
     },
     {
       "en": "I need a medical certificate for my insurance.",
-      "th": "ขอใบรับรองแพทย์สำหรับประกันด้วย"
+      "th": "ขอใบรับรองแพทย์สำหรับประกันด้วย",
+      "rom": "kho bairaprongphaet samrap prakan duai"
     },
     {
       "en": "Could you write that down, please?",
-      "th": "ช่วยเขียนให้หน่อยได้ไหม"
+      "th": "ช่วยเขียนให้หน่อยได้ไหม",
+      "rom": "chuai khian hai noi dai mai"
     }
   ]
 }

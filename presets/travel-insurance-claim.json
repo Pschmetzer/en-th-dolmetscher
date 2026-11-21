@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Vor einer Behandlung wenn möglich die Notrufnummer der Versicherung anrufen, in einem Notfall aber zuerst behandeln lassen. Originalbelege, Arztbericht und bei Diebstahl den Polizeibericht aufbewahren. Eine Kopie des Reisepasses und die Policennummer griffbereit halten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Before treatment call the insurer emergency number if you can, but in an emergency get treated first. Keep the original bills, the doctor report and, after theft, the police report. Keep a copy of your passport and the policy number at hand. Thai lines machine-made, not checked by native speakers."
+    "de": "Vor einer Behandlung wenn möglich die Notrufnummer der Versicherung anrufen, in einem Notfall aber zuerst behandeln lassen. Originalbelege, Arztbericht und bei Diebstahl den Polizeibericht aufbewahren. Eine Kopie des Reisepasses und die Policennummer griffbereit halten. Siehe auch: Tierbisse und Stiche, Motorrad-Unfall. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Before treatment call the insurer emergency number if you can, but in an emergency get treated first. Keep the original bills, the doctor report and, after theft, the police report. Keep a copy of your passport and the policy number at hand. See also: Animal bites and stings, Motorbike accident. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,70 +40,86 @@
     {
       "en": "This is an emergency. Please call an ambulance (1669).",
       "th": "นี่เป็นเหตุฉุกเฉิน ช่วยเรียกรถพยาบาลด้วย (1669)",
-      "critical": true
+      "critical": true,
+      "rom": "ni pen etuchukchoen chuai riak rathaphayaban duai 1669"
     },
     {
       "en": "I need to go to the hospital.",
       "th": "ต้องไปโรงพยาบาล",
-      "critical": true
+      "critical": true,
+      "rom": "tong pai rongpyaban"
     },
     {
       "en": "I need a doctor.",
       "th": "ต้องการแพทย์",
-      "critical": true
+      "critical": true,
+      "rom": "tong kanphaet"
     },
     {
       "en": "Please start treatment first. I will arrange the insurance.",
       "th": "ช่วยรักษาก่อน เดี๋ยวจัดการเรื่องประกันเอง",
-      "critical": true
+      "critical": true,
+      "rom": "chuai raksa kon diao chatkan rueang pra kaneng"
     },
     {
       "en": "I have travel insurance. Here is the policy.",
-      "th": "มีประกันการเดินทาง นี่กรมธรรม์"
+      "th": "มีประกันการเดินทาง นี่กรมธรรม์",
+      "rom": "mi prakan kan doenthang ni kramathan"
     },
     {
       "en": "Do I need to pay first?",
-      "th": "ต้องจ่ายก่อนไหม"
+      "th": "ต้องจ่ายก่อนไหม",
+      "rom": "tong chai kon mai"
     },
     {
       "en": "Can you send the bill to my insurer?",
-      "th": "ช่วยส่งใบแจ้งหนี้ให้บริษัทประกันได้ไหม"
+      "th": "ช่วยส่งใบแจ้งหนี้ให้บริษัทประกันได้ไหม",
+      "rom": "chuai song baichaengni hai brisat prakan dai mai"
     },
     {
       "en": "I need a medical report in English.",
-      "th": "ขอรายงานแพทย์เป็นภาษาอังกฤษ"
+      "th": "ขอรายงานแพทย์เป็นภาษาอังกฤษ",
+      "rom": "kho raingan phaet pen phasaangkrit"
     },
     {
       "en": "Please write the diagnosis on the report.",
-      "th": "ช่วยเขียนการวินิจฉัยลงในรายงานด้วย"
+      "th": "ช่วยเขียนการวินิจฉัยลงในรายงานด้วย",
+      "rom": "chuai khian kanwinitchai long nai raingan duai"
     },
     {
       "en": "I need an itemised bill.",
-      "th": "ขอใบแจ้งหนี้แบบแยกรายการ"
+      "th": "ขอใบแจ้งหนี้แบบแยกรายการ",
+      "rom": "kho baichaengni baep yaek raikan"
     },
     {
       "en": "I need a receipt for the insurance claim.",
-      "th": "ขอใบเสร็จสำหรับเคลมประกัน"
+      "th": "ขอใบเสร็จสำหรับเคลมประกัน",
+      "rom": "kho samrap khenm prakan"
     },
     {
       "en": "Please give me all the original documents.",
-      "th": "ขอเอกสารต้นฉบับทั้งหมด"
+      "th": "ขอเอกสารต้นฉบับทั้งหมด",
+      "rom": "kho eksan tanachabap thangmt"
     },
     {
       "en": "I want to make a police report for the insurance.",
-      "th": "ต้องการแจ้งความเพื่อทำเรื่องประกัน"
+      "th": "ต้องการแจ้งความเพื่อทำเรื่องประกัน",
+      "rom": "tongkan chaengkwam phuea tham rueang prakan"
     },
     {
       "en": "Please sign the claim form.",
-      "th": "ช่วยเซ็นแบบฟอร์มเคลมด้วย"
+      "th": "ช่วยเซ็นแบบฟอร์มเคลมด้วย",
+      "rom": "chuai sen baepfom khenm duai"
     },
     {
       "en": "Please stamp the form.",
-      "th": "ช่วยประทับตราแบบฟอร์มด้วย"
+      "th": "ช่วยประทับตราแบบฟอร์มด้วย",
+      "rom": "chuai prathaptra baepfom duai"
     },
     {
       "en": "I need a medical certificate.",
-      "th": "ขอใบรับรองแพทย์"
+      "th": "ขอใบรับรองแพทย์",
+      "rom": "kho bairaprongphaet"
     }
   ]
 }

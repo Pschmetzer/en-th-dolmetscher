@@ -36,78 +36,96 @@
     {
       "en": "Help! The elephant is coming close.",
       "th": "ช่วยด้วย ช้างเข้ามาใกล้",
-      "critical": true
+      "critical": true,
+      "rom": "chuaiduai chang khaoma kain"
     },
     {
       "en": "Someone is hurt. Please call a doctor.",
       "th": "มีคนบาดเจ็บ ช่วยเรียกหมอด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon batchep chuai riak mo duai"
     },
     {
       "en": "I feel dizzy from the heat.",
       "th": "รู้สึกเวียนหัวเพราะอากาศร้อน",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek wianhua akat ron"
     },
     {
       "en": "I am allergic to insect bites.",
       "th": "แพ้แมลงกัดต่อย",
-      "critical": true
+      "critical": true,
+      "rom": "phae maenng kat toi"
     },
     {
       "en": "Do you offer elephant riding?",
-      "th": "ที่นี่มีให้ขี่ช้างไหม"
+      "th": "ที่นี่มีให้ขี่ช้างไหม",
+      "rom": "thini mi hai khi chang mai"
     },
     {
       "en": "I do not want to ride the elephants.",
-      "th": "ไม่ต้องการขี่ช้าง"
+      "th": "ไม่ต้องการขี่ช้าง",
+      "rom": "mataing kankhi chang"
     },
     {
       "en": "Are the elephants rescued?",
-      "th": "ช้างที่นี่ได้รับการช่วยเหลือมาใช่ไหม"
+      "th": "ช้างที่นี่ได้รับการช่วยเหลือมาใช่ไหม",
+      "rom": "chang thini kan chuaihelue ma chaimai"
     },
     {
       "en": "Where can I stand safely?",
-      "th": "ยืนตรงไหนถึงจะปลอดภัย"
+      "th": "ยืนตรงไหนถึงจะปลอดภัย",
+      "rom": "yuen trangahanai thueng cha plotphai"
     },
     {
       "en": "Can I feed the elephants?",
-      "th": "ให้อาหารช้างได้ไหม"
+      "th": "ให้อาหารช้างได้ไหม",
+      "rom": "aiahan chang dai mai"
     },
     {
       "en": "How many bananas can I give?",
-      "th": "ให้กล้วยได้กี่ลูก"
+      "th": "ให้กล้วยได้กี่ลูก",
+      "rom": "hai kluai dai ki luk"
     },
     {
       "en": "Is it safe to touch the elephant?",
-      "th": "จับช้างปลอดภัยไหม"
+      "th": "จับช้างปลอดภัยไหม",
+      "rom": "chap chang plotphai mai"
     },
     {
       "en": "Where is the toilet?",
-      "th": "ห้องน้ำอยู่ที่ไหน"
+      "th": "ห้องน้ำอยู่ที่ไหน",
+      "rom": "ongnam yu thinai"
     },
     {
       "en": "Where can I wash off the mud?",
-      "th": "ล้างโคลนได้ที่ไหน"
+      "th": "ล้างโคลนได้ที่ไหน",
+      "rom": "lang khonn dai thinai"
     },
     {
       "en": "Is the lunch included?",
-      "th": "รวมอาหารกลางวันไหม"
+      "th": "รวมอาหารกลางวันไหม",
+      "rom": "ruam ahanklangwan mai"
     },
     {
       "en": "Do you have a change of clothes?",
-      "th": "มีชุดเปลี่ยนไหม"
+      "th": "มีชุดเปลี่ยนไหม",
+      "rom": "mi chut pelin mai"
     },
     {
       "en": "What time does the tour end?",
-      "th": "ทัวร์จบกี่โมง"
+      "th": "ทัวร์จบกี่โมง",
+      "rom": "thua chop ki mong"
     },
     {
       "en": "Can you take a photo of us?",
-      "th": "ช่วยถ่ายรูปให้หน่อย"
+      "th": "ช่วยถ่ายรูปให้หน่อย",
+      "rom": "chuai thairup hai noi"
     },
     {
       "en": "Thank you, the elephants are wonderful.",
-      "th": "ขอบคุณ ช้างน่ารักมาก"
+      "th": "ขอบคุณ ช้างน่ารักมาก",
+      "rom": "khopkhun chang narak mak"
     }
   ],
   "note": {

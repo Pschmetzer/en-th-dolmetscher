@@ -48,92 +48,113 @@
     {
       "en": "I think this gold is fake, please check it.",
       "th": "คิดว่าทองนี้เป็นของปลอม ช่วยตรวจสอบหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "khit wa thong ni pen khongplom chuai truatsop noi"
     },
     {
       "en": "Please do not take my passport as a pledge.",
       "th": "ขออย่ารับหนังสือเดินทางเป็นของจำนำ",
-      "critical": true
+      "critical": true,
+      "rom": "kho ya rap nangsuedoenthang pen khong chamnam"
     },
     {
       "en": "This shop is cheating on the weight.",
       "th": "ร้านนี้โกงน้ำหนัก",
-      "critical": true
+      "critical": true,
+      "rom": "ran ni kong namnak"
     },
     {
       "en": "My jewellery was stolen, please call the police.",
       "th": "เครื่องประดับถูกขโมย ช่วยโทรเรียกตำรวจหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "kheruengpradap thuk khamoi chuai thon riak tamruat noi"
     },
     {
       "en": "I do not want to sell, please give it back.",
       "th": "ไม่ขายแล้ว ขอคืนของหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "mai khai laeo kho khuen khong noi"
     },
     {
       "en": "I feel pressured, I will leave now.",
       "th": "รู้สึกถูกกดดัน ขอออกไปก่อน",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek thuk kadadan kho ok pai kon"
     },
     {
       "en": "What is the gold price today?",
-      "th": "ราคาทองวันนี้เท่าไร"
+      "th": "ราคาทองวันนี้เท่าไร",
+      "rom": "rakha thong wanni thaorai"
     },
     {
       "en": "Please weigh it in front of me.",
-      "th": "ช่วยชั่งน้ำหนักต่อหน้าหน่อย"
+      "th": "ช่วยชั่งน้ำหนักต่อหน้าหน่อย",
+      "rom": "chuai changnamnak tona noi"
     },
     {
       "en": "How many grams is this necklace?",
-      "th": "สร้อยคอเส้นนี้หนักกี่กรัม"
+      "th": "สร้อยคอเส้นนี้หนักกี่กรัม",
+      "rom": "sroikho sen ni nak ki kram"
     },
     {
       "en": "What is the price for making the piece?",
-      "th": "ค่ากำเหน็จเท่าไร"
+      "th": "ค่ากำเหน็จเท่าไร",
+      "rom": "thaorai"
     },
     {
       "en": "Is this ninety six point five percent gold?",
-      "th": "ทองนี้เป็นทองเก้าสิบหกจุดห้าเปอร์เซ็นต์ใช่ไหม"
+      "th": "ทองนี้เป็นทองเก้าสิบหกจุดห้าเปอร์เซ็นต์ใช่ไหม",
+      "rom": "thong ni pen thong kao sip ok chut ha poesen chaimai"
     },
     {
       "en": "Please give me a certificate.",
-      "th": "ขอใบรับรองหน่อย"
+      "th": "ขอใบรับรองหน่อย",
+      "rom": "kho bairaprong noi"
     },
     {
       "en": "Please write the weight on the receipt.",
-      "th": "ช่วยเขียนน้ำหนักบนใบเสร็จหน่อย"
+      "th": "ช่วยเขียนน้ำหนักบนใบเสร็จหน่อย",
+      "rom": "chuai khian namnak bon noi"
     },
     {
       "en": "Can I sell this ring back to you?",
-      "th": "ขายแหวนวงนี้คืนให้ร้านได้ไหม"
+      "th": "ขายแหวนวงนี้คืนให้ร้านได้ไหม",
+      "rom": "khai aeon wong ni khuenhai ran dai mai"
     },
     {
       "en": "How much would you pay for this?",
-      "th": "ร้านรับซื้อเท่าไร"
+      "th": "ร้านรับซื้อเท่าไร",
+      "rom": "ran rapsue thaorai"
     },
     {
       "en": "How much interest do you charge?",
-      "th": "คิดดอกเบี้ยเท่าไร"
+      "th": "คิดดอกเบี้ยเท่าไร",
+      "rom": "khitdokbia thaorai"
     },
     {
       "en": "When must I collect my item?",
-      "th": "ต้องมารับของคืนเมื่อไร"
+      "th": "ต้องมารับของคืนเมื่อไร",
+      "rom": "tong ma rap khong khuen muearai"
     },
     {
       "en": "Please show me the pawn ticket.",
-      "th": "ขอดูใบรับจำนำหน่อย"
+      "th": "ขอดูใบรับจำนำหน่อย",
+      "rom": "kho du bairap chamnam noi"
     },
     {
       "en": "Can you make this ring smaller?",
-      "th": "ช่วยทำแหวนวงนี้ให้เล็กลงได้ไหม"
+      "th": "ช่วยทำแหวนวงนี้ให้เล็กลงได้ไหม",
+      "rom": "chuai tham aeon wong ni hai lek long dai mai"
     },
     {
       "en": "I will think about it and come back.",
-      "th": "ขอไปคิดดูก่อนแล้วจะกลับมา"
+      "th": "ขอไปคิดดูก่อนแล้วจะกลับมา",
+      "rom": "kho pai khit dukon lae wacha klapma"
     },
     {
       "en": "Thank you for your explanation.",
-      "th": "ขอบคุณที่อธิบาย"
+      "th": "ขอบคุณที่อธิบาย",
+      "rom": "khopkhun thi thibai"
     }
   ]
 }

@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Thai-Massage ist kräftig: „เบาๆ“ heißt sanfter. Schwangerschaft, Bluthochdruck oder Verletzungen vorher sagen. Trinkgeld von 50–100 Baht ist üblich. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Thai massage is firm: \"เบาๆ\" means softer. Mention pregnancy, high blood pressure or injuries first. A tip of 50–100 baht is common. Thai lines machine-made, not checked by native speakers."
+    "de": "Thai-Massage ist kräftig: „เบาๆ“ heißt sanfter. Schwangerschaft, Bluthochdruck oder Verletzungen vorher sagen. Trinkgeld von 50–100 Baht ist üblich. Siehe auch: Thai-Massage, Massage Preise und Buchung. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Thai massage is firm: \"เบาๆ\" means softer. Mention pregnancy, high blood pressure or injuries first. A tip of 50–100 baht is common. See also: Thai massage, Massage prices and booking. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -48,83 +48,102 @@
     {
       "en": "Please stop, it hurts.",
       "th": "หยุดก่อน เจ็บ",
-      "critical": true
+      "critical": true,
+      "rom": "yut kon chep"
     },
     {
       "en": "I am pregnant.",
       "th": "กำลังตั้งครรภ์",
-      "critical": true
+      "critical": true,
+      "rom": "kamlang tangkan"
     },
     {
       "en": "I have a back injury. Please be careful.",
       "th": "หลังบาดเจ็บอยู่ ช่วยระวังด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "lang batchep yu chuai rawang duai"
     },
     {
       "en": "I have high blood pressure.",
       "th": "เป็นความดันโลหิตสูง",
-      "critical": true
+      "critical": true,
+      "rom": "pen khwamdanlohit sung"
     },
     {
       "en": "I am allergic to some oils.",
       "th": "แพ้น้ำมันบางชนิด",
-      "critical": true
+      "critical": true,
+      "rom": "phae namman bang chanit"
     },
     {
       "en": "Softer, please.",
-      "th": "เบาๆ หน่อย"
+      "th": "เบาๆ หน่อย",
+      "rom": "bao noi"
     },
     {
       "en": "Stronger, please.",
-      "th": "แรงขึ้นอีกหน่อย"
+      "th": "แรงขึ้นอีกหน่อย",
+      "rom": "raeng khuen iknoi"
     },
     {
       "en": "That is just right.",
-      "th": "กำลังดี"
+      "th": "กำลังดี",
+      "rom": "kamlangdi"
     },
     {
       "en": "How much is a one-hour Thai massage?",
-      "th": "นวดแผนไทยหนึ่งชั่วโมงเท่าไหร่"
+      "th": "นวดแผนไทยหนึ่งชั่วโมงเท่าไหร่",
+      "rom": "nuat phaen thai nueng chuamong thaorai"
     },
     {
       "en": "I would like a foot massage.",
-      "th": "ขอนวดเท้า"
+      "th": "ขอนวดเท้า",
+      "rom": "kho nuat thao"
     },
     {
       "en": "I would like an oil massage.",
-      "th": "ขอนวดน้ำมัน"
+      "th": "ขอนวดน้ำมัน",
+      "rom": "kho nuat namman"
     },
     {
       "en": "Two hours, please.",
-      "th": "ขอสองชั่วโมง"
+      "th": "ขอสองชั่วโมง",
+      "rom": "kho song chuamong"
     },
     {
       "en": "Please do not massage my neck.",
-      "th": "ไม่ต้องนวดคอ"
+      "th": "ไม่ต้องนวดคอ",
+      "rom": "mataing nuat kho"
     },
     {
       "en": "Please focus on my shoulders.",
-      "th": "ช่วยนวดไหล่เยอะๆ หน่อย"
+      "th": "ช่วยนวดไหล่เยอะๆ หน่อย",
+      "rom": "chuai nuat lai yoe noi"
     },
     {
       "en": "Do I need to book?",
-      "th": "ต้องจองไหม"
+      "th": "ต้องจองไหม",
+      "rom": "tong chong mai"
     },
     {
       "en": "Do I need to change clothes?",
-      "th": "ต้องเปลี่ยนเสื้อผ้าไหม"
+      "th": "ต้องเปลี่ยนเสื้อผ้าไหม",
+      "rom": "tong pelinsuea phamai"
     },
     {
       "en": "Could I have a female therapist?",
-      "th": "ขอหมอนวดผู้หญิงได้ไหม"
+      "th": "ขอหมอนวดผู้หญิงได้ไหม",
+      "rom": "kho monuat phuying dai mai"
     },
     {
       "en": "I am a bit cold.",
-      "th": "รู้สึกหนาวนิดหน่อย"
+      "th": "รู้สึกหนาวนิดหน่อย",
+      "rom": "rusuek nao nitnoi"
     },
     {
       "en": "Thank you, that was great.",
-      "th": "ขอบคุณ ดีมาก"
+      "th": "ขอบคุณ ดีมาก",
+      "rom": "khopkhun dimak"
     }
   ]
 }

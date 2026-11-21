@@ -1,0 +1,180 @@
+{
+  "id": "epipen-anaphylaxis",
+  "names": {
+    "de": "Anaphylaxie und Adrenalin-Pen",
+    "en": "Anaphylaxis and adrenaline pen",
+    "th": "แพ้รุนแรงและเอพิเนฟริน"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Bei schwerer allergischer Reaktion sofort den Adrenalin-Autoinjektor in den Oberschenkel geben und 1669 (Rettung) rufen; auch danach ins Krankenhaus, die Reaktion kann zurückkehren. Autoinjektoren und ärztliche Bescheinigung im Handgepäck mitführen, sie sind vor Ort nicht überall zu bekommen. Ergänzt das Paket food-allergy. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "In a severe allergic reaction inject the adrenaline auto-injector into the thigh at once and call 1669 (ambulance); go to hospital afterwards too, the reaction can return. Carry auto-injectors and a doctor's note in your hand luggage, they are not available everywhere locally. Complements the pack food-allergy. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "anaphylaxis",
+      "th": "ภาวะแพ้รุนแรง"
+    },
+    {
+      "en": "adrenaline",
+      "th": "อะดรีนาลีน"
+    },
+    {
+      "en": "auto-injector",
+      "th": "ปากกาฉีดยาอัตโนมัติ"
+    },
+    {
+      "en": "allergy",
+      "th": "การแพ้"
+    },
+    {
+      "en": "peanut",
+      "th": "ถั่วลิสง"
+    },
+    {
+      "en": "shellfish",
+      "th": "อาหารทะเลที่มีเปลือก"
+    },
+    {
+      "en": "swelling",
+      "th": "อาการบวม"
+    },
+    {
+      "en": "hives",
+      "th": "ลมพิษ"
+    },
+    {
+      "en": "thigh",
+      "th": "ต้นขา"
+    },
+    {
+      "en": "hospital",
+      "th": "โรงพยาบาล"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am having a severe allergic reaction.",
+      "th": "กำลังแพ้รุนแรง",
+      "critical": true,
+      "rom": "kamlang phae runraeng"
+    },
+    {
+      "en": "I need my adrenaline pen.",
+      "th": "ต้องใช้ปากกาอะดรีนาลีน",
+      "critical": true,
+      "rom": "tong chai pakka atrinalin"
+    },
+    {
+      "en": "Please inject it into my thigh.",
+      "th": "ช่วยฉีดที่ต้นขาให้หน่อย",
+      "critical": true,
+      "rom": "chuai chit thi tanakha hai noi"
+    },
+    {
+      "en": "Please call an ambulance (1669).",
+      "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true,
+      "rom": "chuai riak rathaphayaban duai 1669"
+    },
+    {
+      "en": "My throat and tongue are swelling.",
+      "th": "คอและลิ้นบวม",
+      "critical": true,
+      "rom": "kho lae lin buam"
+    },
+    {
+      "en": "I cannot breathe.",
+      "th": "หายใจไม่ออก",
+      "critical": true,
+      "rom": "aichaimoaik"
+    },
+    {
+      "en": "I feel faint.",
+      "th": "รู้สึกจะเป็นลม",
+      "critical": true,
+      "rom": "rusuek cha pennm"
+    },
+    {
+      "en": "I am allergic to peanuts.",
+      "th": "แพ้ถั่วลิสง",
+      "critical": true,
+      "rom": "phae thualitng"
+    },
+    {
+      "en": "I have a severe allergy to shellfish.",
+      "th": "แพ้อาหารทะเลที่มีเปลือกรุนแรง",
+      "rom": "phae ahanthale thi mi peluek runraeng"
+    },
+    {
+      "en": "I have hives all over my body.",
+      "th": "เป็นลมพิษทั่วตัว",
+      "rom": "pen lamaphit thua tua"
+    },
+    {
+      "en": "Please give me an antihistamine.",
+      "th": "ขอยาแก้แพ้ด้วย",
+      "rom": "kho ya kae phae duai"
+    },
+    {
+      "en": "Please stay with me.",
+      "th": "ช่วยอยู่เป็นเพื่อนหน่อย",
+      "rom": "chuai yu penphuean noi"
+    },
+    {
+      "en": "I used my adrenaline pen at ten o'clock.",
+      "th": "ใช้ปากกาอะดรีนาลีนตอนสิบโมง",
+      "rom": "chai pakka atrinalin ton sip mong"
+    },
+    {
+      "en": "I need to go to hospital even if I feel better.",
+      "th": "ต้องไปโรงพยาบาลแม้จะรู้สึกดีขึ้นแล้ว",
+      "rom": "tong pai rongpyaban mae cha rusuek dikhuen laeo"
+    },
+    {
+      "en": "Do you have adrenaline here?",
+      "th": "ที่นี่มีอะดรีนาลีนไหม",
+      "rom": "thini mi atrinalin mai"
+    },
+    {
+      "en": "Here is my doctor's letter.",
+      "th": "นี่คือจดหมายจากแพทย์",
+      "rom": "ni khue chadahamai chak phaet"
+    },
+    {
+      "en": "My pen is expired.",
+      "th": "ปากกาหมดอายุแล้ว",
+      "rom": "pakka laeo"
+    },
+    {
+      "en": "Where can I buy a new pen?",
+      "th": "ซื้อปากกาอันใหม่ได้ที่ไหน",
+      "rom": "sue pakka an aim dai thinai"
+    },
+    {
+      "en": "Please check every dish for my allergen.",
+      "th": "ช่วยตรวจทุกจานว่ามีสิ่งที่แพ้ไหม",
+      "rom": "chuai truat thuk chan wa mi sing thi phae mai"
+    },
+    {
+      "en": "Is there peanut oil in this dish?",
+      "th": "จานนี้มีน้ำมันถั่วลิสงไหม",
+      "rom": "chan ni mi namman thualitng mai"
+    },
+    {
+      "en": "Please use a clean pan.",
+      "th": "ช่วยใช้กระทะที่สะอาดหน่อย",
+      "rom": "chuai chai kratha thi saat noi"
+    },
+    {
+      "en": "Please keep me under observation.",
+      "th": "ขอให้เฝ้าดูอาการ",
+      "rom": "khohai faodu akan"
+    },
+    {
+      "en": "Please give me a report for my insurance.",
+      "th": "ขอรายงานการรักษาสำหรับประกัน",
+      "rom": "kho raingan kaaaksa samrap prakan"
+    }
+  ]
+}

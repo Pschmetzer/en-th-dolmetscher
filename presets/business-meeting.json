@@ -48,96 +48,118 @@
     {
       "en": "Please do not let me sign anything before I read it.",
       "th": "ขออย่าเพิ่งให้เซ็นอะไรจนกว่าจะได้อ่าน",
-      "critical": true
+      "critical": true,
+      "rom": "kho ya phoeng hai sen arai chanakwa cha dai an"
     },
     {
       "en": "I need a certified interpreter for this contract.",
       "th": "ต้องการล่ามที่ได้รับการรับรองสำหรับสัญญานี้",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan lam thi kan raprong samrap sanya ni"
     },
     {
       "en": "I need a lawyer before I continue.",
       "th": "ต้องการทนายความก่อนจะคุยต่อ",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan thanaikwam kon cha khui to"
     },
     {
       "en": "I do not agree to this clause.",
       "th": "ไม่เห็นด้วยกับข้อนี้ในสัญญา",
-      "critical": true
+      "critical": true,
+      "rom": "mai enduai kap kho ni nai sanya"
     },
     {
       "en": "Please give me a written copy of the contract.",
       "th": "ขอสำเนาสัญญาเป็นลายลักษณ์อักษรหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "kho samnao sanya pen noi"
     },
     {
       "en": "I feel unwell and need a short break.",
       "th": "รู้สึกไม่สบายและขอพักสั้นๆ หน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek mai sabai lae kho phak san noi"
     },
     {
       "en": "It is a pleasure to meet you.",
-      "th": "ยินดีที่ได้พบ"
+      "th": "ยินดีที่ได้พบ",
+      "rom": "yindi thi dai phop"
     },
     {
       "en": "Please accept my business card.",
-      "th": "ขอมอบนามบัตรหน่อย"
+      "th": "ขอมอบนามบัตรหน่อย",
+      "rom": "kho mop nambatn noi"
     },
     {
       "en": "Thank you for taking the time to meet us.",
-      "th": "ขอบคุณที่สละเวลามาพบ"
+      "th": "ขอบคุณที่สละเวลามาพบ",
+      "rom": "khopkhun thi slawela ma phop"
     },
     {
       "en": "Could we look at the agenda first?",
-      "th": "ขอดูวาระการประชุมก่อนได้ไหม"
+      "th": "ขอดูวาระการประชุมก่อนได้ไหม",
+      "rom": "kho du wara kanprachum kon dai mai"
     },
     {
       "en": "Please speak a little slower.",
-      "th": "ช่วยพูดช้าลงหน่อย"
+      "th": "ช่วยพูดช้าลงหน่อย",
+      "rom": "chuai phut cha long noi"
     },
     {
       "en": "Could you repeat that point, please?",
-      "th": "ช่วยพูดประเด็นนั้นอีกครั้งหน่อย"
+      "th": "ช่วยพูดประเด็นนั้นอีกครั้งหน่อย",
+      "rom": "chuai phut praden nan ikkrang noi"
     },
     {
       "en": "Please send me the quotation by email.",
-      "th": "ช่วยส่งใบเสนอราคาทางอีเมลหน่อย"
+      "th": "ช่วยส่งใบเสนอราคาทางอีเมลหน่อย",
+      "rom": "chuai song baisenorakha thang imen noi"
     },
     {
       "en": "What is the delivery deadline?",
-      "th": "กำหนดส่งมอบคือเมื่อไร"
+      "th": "กำหนดส่งมอบคือเมื่อไร",
+      "rom": "kamnt sangamop khue muearai"
     },
     {
       "en": "What are your payment terms?",
-      "th": "เงื่อนไขการชำระเงินเป็นอย่างไร"
+      "th": "เงื่อนไขการชำระเงินเป็นอย่างไร",
+      "rom": "pen yangrai"
     },
     {
       "en": "We would like some time to think about it.",
-      "th": "ขอเวลาคิดสักหน่อย"
+      "th": "ขอเวลาคิดสักหน่อย",
+      "rom": "khowela khit saknoi"
     },
     {
       "en": "Can we meet again next week?",
-      "th": "นัดพบกันอีกครั้งสัปดาห์หน้าได้ไหม"
+      "th": "นัดพบกันอีกครั้งสัปดาห์หน้าได้ไหม",
+      "rom": "nat phabakan ikkrang sapda na dai mai"
     },
     {
       "en": "Please write down the main points.",
-      "th": "ช่วยจดประเด็นสำคัญไว้หน่อย"
+      "th": "ช่วยจดประเด็นสำคัญไว้หน่อย",
+      "rom": "chuai chot pradensamkhan wai noi"
     },
     {
       "en": "Is there a meeting room with a screen?",
-      "th": "มีห้องประชุมที่มีจอไหม"
+      "th": "มีห้องประชุมที่มีจอไหม",
+      "rom": "mi ongprachum thi mi cho mai"
     },
     {
       "en": "We will confirm the details by email.",
-      "th": "เราจะยืนยันรายละเอียดทางอีเมล"
+      "th": "เราจะยืนยันรายละเอียดทางอีเมล",
+      "rom": "rao cha yuenyan railaiat thang imen"
     },
     {
       "en": "May we invite you to dinner?",
-      "th": "ขอเชิญไปรับประทานอาหารเย็นได้ไหม"
+      "th": "ขอเชิญไปรับประทานอาหารเย็นได้ไหม",
+      "rom": "kho choen pai rapprathan ahanyen dai mai"
     },
     {
       "en": "Thank you, the meeting was very useful.",
-      "th": "ขอบคุณ การประชุมมีประโยชน์มาก"
+      "th": "ขอบคุณ การประชุมมีประโยชน์มาก",
+      "rom": "khopkhun kanprachum miprayot mak"
     }
   ]
 }

@@ -48,92 +48,113 @@
     {
       "en": "I am allergic to herbs, please check the ingredients.",
       "th": "แพ้สมุนไพร ช่วยตรวจดูส่วนผสมหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "phae samunprai chuai truatdu suanptm noi"
     },
     {
       "en": "I am pregnant, please do not give me herbs.",
       "th": "ตั้งครรภ์อยู่ ขออย่าให้สมุนไพร",
-      "critical": true
+      "critical": true,
+      "rom": "tangkan yu kho ya hai samunprai"
     },
     {
       "en": "I take blood thinning medicine.",
       "th": "กินยาละลายลิ่มเลือดอยู่",
-      "critical": true
+      "critical": true,
+      "rom": "kin ya lalai limlueat yu"
     },
     {
       "en": "I have a rash after the herbal treatment.",
       "th": "มีผื่นขึ้นหลังรักษาด้วยสมุนไพร",
-      "critical": true
+      "critical": true,
+      "rom": "mi phuen khuen lang raksa duai samunprai"
     },
     {
       "en": "I feel dizzy and cannot breathe well.",
       "th": "เวียนหัวและหายใจไม่สะดวก",
-      "critical": true
+      "critical": true,
+      "rom": "wianhua lae aichai mai saduak"
     },
     {
       "en": "Please take me to a hospital.",
       "th": "ช่วยพาไปโรงพยาบาลหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai pha pai rongpyaban noi"
     },
     {
       "en": "What is in this herbal mixture?",
-      "th": "ยาสมุนไพรนี้มีส่วนผสมอะไรบ้าง"
+      "th": "ยาสมุนไพรนี้มีส่วนผสมอะไรบ้าง",
+      "rom": "yatmunprai ni mi suanptm arai bang"
     },
     {
       "en": "What is this herb good for?",
-      "th": "สมุนไพรนี้ช่วยเรื่องอะไร"
+      "th": "สมุนไพรนี้ช่วยเรื่องอะไร",
+      "rom": "samunprai ni chuai rueang arai"
     },
     {
       "en": "Please write down the name of the herb.",
-      "th": "ช่วยเขียนชื่อสมุนไพรให้หน่อย"
+      "th": "ช่วยเขียนชื่อสมุนไพรให้หน่อย",
+      "rom": "chuai khian chue samunprai hai noi"
     },
     {
       "en": "How often should I take it?",
-      "th": "ควรกินบ่อยแค่ไหน"
+      "th": "ควรกินบ่อยแค่ไหน",
+      "rom": "khuan kin boi khae nai"
     },
     {
       "en": "Is it safe with my other medicine?",
-      "th": "กินร่วมกับยาอื่นของเราได้ไหม"
+      "th": "กินร่วมกับยาอื่นของเราได้ไหม",
+      "rom": "kin ruamkap ya uen khong rao dai mai"
     },
     {
       "en": "Is this treatment painful?",
-      "th": "การรักษานี้เจ็บไหม"
+      "th": "การรักษานี้เจ็บไหม",
+      "rom": "kaaaksa ni chep mai"
     },
     {
       "en": "Please use new needles only.",
-      "th": "ขอใช้เข็มใหม่เท่านั้น"
+      "th": "ขอใช้เข็มใหม่เท่านั้น",
+      "rom": "kho chai khem aim thaonan"
     },
     {
       "en": "How many sessions do I need?",
-      "th": "ต้องรักษากี่ครั้ง"
+      "th": "ต้องรักษากี่ครั้ง",
+      "rom": "tong raksa ki khrang"
     },
     {
       "en": "How much does one session cost?",
-      "th": "ครั้งละเท่าไร"
+      "th": "ครั้งละเท่าไร",
+      "rom": "khrang la thaorai"
     },
     {
       "en": "Please show me the herbal compress first.",
-      "th": "ขอดูลูกประคบสมุนไพรก่อนหน่อย"
+      "th": "ขอดูลูกประคบสมุนไพรก่อนหน่อย",
+      "rom": "kho du lukprakp samunprai kon noi"
     },
     {
       "en": "The heat is too strong for me.",
-      "th": "ร้อนเกินไปสำหรับเรา"
+      "th": "ร้อนเกินไปสำหรับเรา",
+      "rom": "ron koenpai samrap rao"
     },
     {
       "en": "Please stop the treatment, it hurts.",
-      "th": "ขอหยุดการรักษาก่อน เจ็บ"
+      "th": "ขอหยุดการรักษาก่อน เจ็บ",
+      "rom": "kho yut kaaaksa kon chep"
     },
     {
       "en": "Can I buy this tea to take home?",
-      "th": "ซื้อชาสมุนไพรนี้กลับบ้านได้ไหม"
+      "th": "ซื้อชาสมุนไพรนี้กลับบ้านได้ไหม",
+      "rom": "sue cha samunprai ni klapban dai mai"
     },
     {
       "en": "Is there an English leaflet?",
-      "th": "มีแผ่นพับภาษาอังกฤษไหม"
+      "th": "มีแผ่นพับภาษาอังกฤษไหม",
+      "rom": "mi phaenphap phasaangkrit mai"
     },
     {
       "en": "Thank you, I feel much better.",
-      "th": "ขอบคุณ รู้สึกดีขึ้นมาก"
+      "th": "ขอบคุณ รู้สึกดีขึ้นมาก",
+      "rom": "khopkhun rusuek dikhuen mak"
     }
   ]
 }

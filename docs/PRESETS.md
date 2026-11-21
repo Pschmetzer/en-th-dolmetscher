@@ -275,6 +275,23 @@ kennen, ignorieren sie.
 | `car-insurance-claim` | Autoversicherung Schadensfall | 5 kritische Sätze zuerst |
 | `tour-agency-booking` | Reisebüro und Tourbuchung | 5 kritische Sätze zuerst |
 | `minivan-airport-transfer` | Minivan und Flughafentransfer | 5 kritische Sätze zuerst |
+| `snake-bite-venomous` | Schlangenbiss und Giftschlangen | 8 kritische Sätze zuerst |
+| `jellyfish-marine-sting` | Quallen und Meerestiere | 9 kritische Sätze zuerst |
+| `locksmith-lockout` | Ausgesperrt und Schlüsseldienst | 6 kritische Sätze zuerst |
+| `power-outage-blackout` | Stromausfall | 6 kritische Sätze zuerst |
+| `stray-dogs-safety` | Streunende Hunde | 6 kritische Sätze zuerst |
+| `online-shopping-delivery` | Online-Bestellung und Paketlieferung | 5 kritische Sätze zuerst |
+| `phone-repair-shop` | Handy-Reparatur | 5 kritische Sätze zuerst |
+| `traffic-fine-police-ticket` | Verkehrsbußgeld und Strafzettel | 5 kritische Sätze zuerst |
+| `air-pollution-haze` | Luftverschmutzung und Smog | 6 kritische Sätze zuerst |
+| `asthma-inhaler` | Asthma und Inhalator | 8 kritische Sätze zuerst |
+| `epipen-anaphylaxis` | Anaphylaxie und Adrenalin-Pen | 8 kritische Sätze zuerst |
+| `seafood-by-weight` | Meeresfrüchte nach Gewicht | 3 kritische Sätze zuerst |
+| `tipping-service-charge` | Trinkgeld und Servicegebühr | keine kritischen Sätze |
+| `card-payment-surcharge` | Kartenzahlung und Aufschlag | 3 kritische Sätze zuerst |
+| `hotel-theft-report` | Diebstahl im Hotelzimmer | 6 kritische Sätze zuerst |
+| `chao-phraya-river-boat` | Chao-Phraya-Expressboot | 5 kritische Sätze zuerst |
+| `two-price-attraction-tickets` | Eintrittspreise für Ausländer | keine kritischen Sätze |
 
 Die Kategorie je Paket (`health`, `emergency`, `transport`, `food`, `money`, `stay`, `culture`, `leisure`, `general`) steht in `tools/preset_categories.json` und landet als `category` in `presets-index.json`. `python3 tools/preset_stats.py --by-category` zeigt die Abdeckung je Kategorie; ein neues Paket gehört in genau eine Kategorie (ein Test prüft das).
 
@@ -283,7 +300,14 @@ Die Kategorie je Paket (`health`, `emergency`, `transport`, `food`, `money`, `st
 - **Konsistenz:** `check_presets.py --strict` meldet jeden englischen Satz, der in mehreren Paketen verschieden ins Thai übersetzt ist, und jedes Paar mit anderem `critical`. Neue Pakete übernehmen vorhandene Fassungen, statt eigene zu erfinden.
 - **Thai-Form:** Unicode NFC, keine Zero-Width-Zeichen oder geschützten Leerzeichen, keine doppelten Vokal- oder Tonzeichen, Ziffern einheitlich arabisch (nie ๑๒๓ oder gemischt), Preise mit `บาท` statt `฿`.
 - **Suchbegriffe:** `tools/preset_keywords.json` hält deutsche und thailändische Begriffe je Paket. `make_presets_index.py` schreibt sie als `keywords_de` und `keywords_th` in `presets-index.json` und mischt je drei davon in `keywords` (höchstens 12), die die Web-Suche liest. `preset_search.py` findet sie ebenfalls.
-- **Lautschrift `rom` (freiwillig):** `python3 tools/preset_rom.py --check` prüft vorhandene Felder, `--fill` ergänzt fehlende (braucht `pythainlp`), `--strip` entfernt sie. Ältere Programme ignorieren das Feld; nur die 25 Pakete der Runde 25 enthalten es als Probe (maschinell erzeugt, nur eine Lesehilfe).
+- **Lautschrift `rom` (freiwillig):** `python3 tools/preset_rom.py --check` prüft vorhandene Felder, `--fill` ergänzt fehlende (braucht `pythainlp`), `--strip` entfernt sie. Ältere Programme ignorieren das Feld; seit Runde 27 enthalten alle Pakete es (maschinell erzeugt mit `pythainlp`, nur eine Lesehilfe, nie als Aussprachehilfe geprüft). Neue Pakete danach mit `--fill` ergänzen.
+
+### Runde 27: Prüfstand, Verweise, neue Pakete
+
+- **Prüfstand im Satzbuch:** unter dem Kulturhinweis zeigt die Web-Version „Thai-Sätze: x % von Muttersprachlern geprüft“ (aus `reviewed` in `presets-index.json`; ein Paket zählt erst als geprüft, wenn alle Sätze bestätigt sind). Bei Medizin-, Notfall- und Polizei-Paketen mit roten Sätzen steht zusätzlich der Hinweis, diese im Ernstfall von einer Thai sprechenden Person gegenlesen zu lassen.
+- **Verweise statt Dubletten:** `python3 tools/preset_dupes.py` listet Paare mit drei oder mehr gemeinsamen englischen Sätzen; `--apply` hängt an `note.de` und `note.en` den Satz „Siehe auch: …“ an (höchstens zwei Verweise, vor dem Hinweis auf die maschinelle Übersetzung), `--check` prüft, ob er fehlt. Die Sätze bleiben in beiden Paketen, damit jedes Paket allein benutzbar ist.
+- **17 neue Pakete (243 insgesamt):** Schlangenbiss, Quallen und Seeigel, Schlüsseldienst, Stromausfall, Straßenhunde, Online-Bestellung und Paketlieferung, Handy-Reparatur, Verkehrsbußgeld, Smog (PM2.5), Asthma und Inhalator, Anaphylaxie und Adrenalin-Pen, Meeresfrüchte nach Gewicht, Trinkgeld und Servicegebühr, Kartenzahlung und Aufschlag, Diebstahl im Hotelzimmer, Chao-Phraya-Expressboot, Eintrittspreise für Ausländer.
+- **`rom` für alle Pakete:** die 201 älteren Pakete haben jetzt ebenfalls Lautschrift (`tools/preset_rom.py --fill`), die Größenbudgets bleiben eingehalten (Pakete insgesamt unter 1,9 MB, keines über 22 KB).
 
 ## Unsichere Sätze (bitte zuerst prüfen)
 
@@ -319,7 +343,7 @@ Am wichtigsten sind die Sätze mit `critical` und die Tabelle [Unsichere Sätze]
 
 | Datei | Inhalt |
 |---|---|
-| `presets/*.json` | 226 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
+| `presets/*.json` | 243 Phrasenpakete: Sätze (`th`), Paketnamen (`names.th`), Kulturhinweise (`note.th`) |
 | `ios/Shared/phrases.json` | eingebautes Satzbuch der iPhone-App und des Widgets |
 | `ios/Dolmetscher/PartnerPhrases.swift` | Antwortkarten, „Sie sind dran“, Allergie-Karte |
 | `ios/Dolmetscher/Round4Views.swift` | Hilfesatz auf dem Bildschirm „Hilfe – jetzt“ |

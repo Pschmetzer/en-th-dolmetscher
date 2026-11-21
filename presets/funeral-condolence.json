@@ -55,59 +55,73 @@
   "phrases": [
     {
       "en": "I am very sorry for your loss.",
-      "th": "เสียใจด้วยกับการสูญเสีย"
+      "th": "เสียใจด้วยกับการสูญเสีย",
+      "rom": "siachai duai kap kan sunsia"
     },
     {
       "en": "My condolences to you and your family.",
-      "th": "ขอแสดงความเสียใจกับคุณและครอบครัว"
+      "th": "ขอแสดงความเสียใจกับคุณและครอบครัว",
+      "rom": "kho saetng khwamsiachai kap khun lae khropkrua"
     },
     {
       "en": "Peace be with him.",
-      "th": "ขอให้เขาไปสู่สุคติ"
+      "th": "ขอให้เขาไปสู่สุคติ",
+      "rom": "khohai khao pai su sukti"
     },
     {
       "en": "Peace be with her.",
-      "th": "ขอให้เธอไปสู่สุคติ"
+      "th": "ขอให้เธอไปสู่สุคติ",
+      "rom": "khohai thoe pai su sukti"
     },
     {
       "en": "What should I wear?",
-      "th": "ควรแต่งกายอย่างไร"
+      "th": "ควรแต่งกายอย่างไร",
+      "rom": "khuan taengkai yangrai"
     },
     {
       "en": "Is white or black appropriate?",
-      "th": "ใส่สีขาวหรือสีดำเหมาะสม"
+      "th": "ใส่สีขาวหรือสีดำเหมาะสม",
+      "rom": "sai si khao rue si dam"
     },
     {
       "en": "Where do I hand over the donation?",
-      "th": "ส่งเงินบริจาคได้ที่ไหน"
+      "th": "ส่งเงินบริจาคได้ที่ไหน",
+      "rom": "song ngoenprichak dai thinai"
     },
     {
       "en": "May I take part in the ceremony?",
-      "th": "ขอเข้าร่วมพิธีได้ไหม"
+      "th": "ขอเข้าร่วมพิธีได้ไหม",
+      "rom": "kho khaoruam phithi dai mai"
     },
     {
       "en": "What should I do now?",
-      "th": "ตอนนี้ควรทำอะไร"
+      "th": "ตอนนี้ควรทำอะไร",
+      "rom": "tonni khuan tham arai"
     },
     {
       "en": "Where may I sit?",
-      "th": "นั่งตรงไหนได้"
+      "th": "นั่งตรงไหนได้",
+      "rom": "nang trangahanai dai"
     },
     {
       "en": "May I take photos?",
-      "th": "ถ่ายรูปได้ไหม"
+      "th": "ถ่ายรูปได้ไหม",
+      "rom": "thairup dai mai"
     },
     {
       "en": "Thank you for letting me come.",
-      "th": "ขอบคุณที่ให้มาร่วมงาน"
+      "th": "ขอบคุณที่ให้มาร่วมงาน",
+      "rom": "khopkhun thi hai ma ruamngan"
     },
     {
       "en": "Please accept these flowers.",
-      "th": "ขอรับดอกไม้นี้ไว้ด้วย"
+      "th": "ขอรับดอกไม้นี้ไว้ด้วย",
+      "rom": "khorap dokmai ni wai duai"
     },
     {
       "en": "I will be thinking of you.",
-      "th": "จะนึกถึงเสมอ"
+      "th": "จะนึกถึงเสมอ",
+      "rom": "cha nuekthueng semo"
     }
   ]
 }

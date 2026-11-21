@@ -18,7 +18,7 @@ Native SwiftUI app for iPhone and iPad: press Start and just talk. It interprets
 | Conversation mode | split screen, the partner's half turned around, each half in its own language; hold your own half to talk |
 | Answer cards | yes, no, don't know, number pad – in all 19 languages, offline, read aloud at once |
 | Translation help | back-translation on the device (⚠️ when the meaning drifted), transliteration for th/ja/ko/zh, “phrasebook first” for checked sentences |
-| Phrasebook | built-in sentences plus 226 scenario packs with cultural notes; important sentences red and first; favourites |
+| Phrasebook | built-in sentences plus 243 scenario packs with cultural notes; important sentences red and first; favourites |
 | Learning mode | flashcards from favourites and translated sentences, Leitner boxes (now, 1, 3, 7, 14 days), local `learn.json` |
 | Emergency | emergency screen with Thai numbers, emergency card, allergy card, “Help now” with your coordinates |
 | Travel | “Ready to travel?” checklist, taxi destinations with business-card scan and Apple Maps link, Baht calculator, dish lexicon under photo text |

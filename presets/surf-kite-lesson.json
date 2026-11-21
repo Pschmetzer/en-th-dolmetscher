@@ -48,96 +48,118 @@
     {
       "en": "I am caught in a strong current, please help.",
       "th": "ติดกระแสน้ำแรง ช่วยด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "tit krasaenam raeng chuaiduai"
     },
     {
       "en": "I cannot swim well, please stay close.",
       "th": "ว่ายน้ำไม่เก่ง ช่วยอยู่ใกล้ๆ หน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "wainam mai keng chuai yu kain noi"
     },
     {
       "en": "My friend is drifting out to sea.",
       "th": "เพื่อนถูกพัดออกไปกลางทะเล",
-      "critical": true
+      "critical": true,
+      "rom": "phuean thuk phat ok pai klang thale"
     },
     {
       "en": "I hit my head on the board.",
       "th": "หัวกระแทกกระดาน",
-      "critical": true
+      "critical": true,
+      "rom": "hua krathaek kradan"
     },
     {
       "en": "Please call the lifeguard.",
       "th": "ช่วยเรียกเจ้าหน้าที่ช่วยชีวิตหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak chaonathi chuaichiwit noi"
     },
     {
       "en": "There are jellyfish in the water.",
       "th": "มีแมงกะพรุนในน้ำ",
-      "critical": true
+      "critical": true,
+      "rom": "mi maengkaprun nai nam"
     },
     {
       "en": "Do you give lessons for beginners?",
-      "th": "มีสอนสำหรับมือใหม่ไหม"
+      "th": "มีสอนสำหรับมือใหม่ไหม",
+      "rom": "mi son samrap muehaim mai"
     },
     {
       "en": "How long is one lesson?",
-      "th": "เรียนหนึ่งครั้งนานเท่าไร"
+      "th": "เรียนหนึ่งครั้งนานเท่าไร",
+      "rom": "rian nueng khrang nan thaorai"
     },
     {
       "en": "Does the price include the board?",
-      "th": "ราคารวมกระดานไหม"
+      "th": "ราคารวมกระดานไหม",
+      "rom": "rakha ruam kradan mai"
     },
     {
       "en": "Is the sea safe for beginners today?",
-      "th": "วันนี้ทะเลปลอดภัยสำหรับมือใหม่ไหม"
+      "th": "วันนี้ทะเลปลอดภัยสำหรับมือใหม่ไหม",
+      "rom": "wanni thale plotphai samrap muehaim mai"
     },
     {
       "en": "Where is the safe swimming area?",
-      "th": "บริเวณว่ายน้ำที่ปลอดภัยอยู่ตรงไหน"
+      "th": "บริเวณว่ายน้ำที่ปลอดภัยอยู่ตรงไหน",
+      "rom": "briwen wainam thi plotphai yu trangahanai"
     },
     {
       "en": "Please explain the flag colours.",
-      "th": "ช่วยอธิบายสีธงหน่อย"
+      "th": "ช่วยอธิบายสีธงหน่อย",
+      "rom": "chuai thibai si thong noi"
     },
     {
       "en": "Please show me how to stand on the board.",
-      "th": "ช่วยสอนยืนบนกระดานหน่อย"
+      "th": "ช่วยสอนยืนบนกระดานหน่อย",
+      "rom": "chuai sonyuen bon kradan noi"
     },
     {
       "en": "Please check the wind before we go out.",
-      "th": "ช่วยดูทิศลมก่อนออกไปหน่อย"
+      "th": "ช่วยดูทิศลมก่อนออกไปหน่อย",
+      "rom": "chuai du thit lom kon ok pai noi"
     },
     {
       "en": "May I rent a wetsuit?",
-      "th": "เช่าชุดว่ายน้ำกันหนาวได้ไหม"
+      "th": "เช่าชุดว่ายน้ำกันหนาวได้ไหม",
+      "rom": "chao chutwainam kan nao dai mai"
     },
     {
       "en": "Please wait for me on the beach.",
-      "th": "ช่วยรอที่ชายหาดหน่อย"
+      "th": "ช่วยรอที่ชายหาดหน่อย",
+      "rom": "chuai ro thi chaihat noi"
     },
     {
       "en": "Where can I wash off the salt water?",
-      "th": "ล้างน้ำเค็มได้ที่ไหน"
+      "th": "ล้างน้ำเค็มได้ที่ไหน",
+      "rom": "lang namkhem dai thinai"
     },
     {
       "en": "Do you have sun cream for sale?",
-      "th": "มีครีมกันแดดขายไหม"
+      "th": "มีครีมกันแดดขายไหม",
+      "rom": "mi khrimkandaet khai mai"
     },
     {
       "en": "When is the best time for waves?",
-      "th": "ช่วงเวลาไหนคลื่นดีที่สุด"
+      "th": "ช่วงเวลาไหนคลื่นดีที่สุด",
+      "rom": "chuangwela nai khluen di thisut"
     },
     {
       "en": "Can we have a lesson tomorrow morning?",
-      "th": "เรียนพรุ่งนี้เช้าได้ไหม"
+      "th": "เรียนพรุ่งนี้เช้าได้ไหม",
+      "rom": "rian phrungni chao dai mai"
     },
     {
       "en": "Please take a photo of me on the wave.",
-      "th": "ช่วยถ่ายรูปตอนโต้คลื่นหน่อย"
+      "th": "ช่วยถ่ายรูปตอนโต้คลื่นหน่อย",
+      "rom": "chuai thairup ton tokluen noi"
     },
     {
       "en": "Thank you, I learned a lot today.",
-      "th": "ขอบคุณ วันนี้ได้เรียนรู้มาก"
+      "th": "ขอบคุณ วันนี้ได้เรียนรู้มาก",
+      "rom": "khopkhun wanni dai rian rumak"
     }
   ]
 }

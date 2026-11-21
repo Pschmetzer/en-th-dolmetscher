@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Verlängerungen laufen im Immigration Office der Provinz. Pass, Passfoto, Kopien und Gebühr (meist 1.900 Baht) mitbringen, früh kommen und Nummer ziehen. Kleidung ordentlich, Fristen genau prüfen: Überziehen kostet pro Tag. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Extensions are handled at the provincial Immigration Office. Bring passport, photo, copies and the fee (usually 1,900 baht), come early and take a number. Dress neatly and check the deadline: overstaying costs money per day. Thai lines machine-made, not checked by native speakers."
+    "de": "Verlängerungen laufen im Immigration Office der Provinz. Pass, Passfoto, Kopien und Gebühr (meist 1.900 Baht) mitbringen, früh kommen und Nummer ziehen. Kleidung ordentlich, Fristen genau prüfen: Überziehen kostet pro Tag. Siehe auch: Behörden und Visum, Führerschein und Fahrerlaubnis. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Extensions are handled at the provincial Immigration Office. Bring passport, photo, copies and the fee (usually 1,900 baht), come early and take a number. Dress neatly and check the deadline: overstaying costs money per day. See also: Authorities and visa, Driving licence. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,77 +40,95 @@
     {
       "en": "I overstayed my visa by a few days.",
       "th": "อยู่เกินวีซ่ามาสองสามวัน",
-      "critical": true
+      "critical": true,
+      "rom": "yu koen wisa ma song sam wan"
     },
     {
       "en": "Is there a fine for overstaying?",
       "th": "อยู่เกินมีค่าปรับไหม",
-      "critical": true
+      "critical": true,
+      "rom": "yu koen mikha prapmai"
     },
     {
       "en": "When can I pick up my passport?",
       "th": "มารับหนังสือเดินทางได้เมื่อไหร่",
-      "critical": true
+      "critical": true,
+      "rom": "ma rap nangsuedoenthang dai muearai"
     },
     {
       "en": "When does my visa expire?",
-      "th": "วีซ่าหมดอายุเมื่อไหร่"
+      "th": "วีซ่าหมดอายุเมื่อไหร่",
+      "rom": "wisa muearai"
     },
     {
       "en": "I would like to extend my visa.",
-      "th": "ต้องการขยายวีซ่า"
+      "th": "ต้องการขยายวีซ่า",
+      "rom": "tongkan khayai wisa"
     },
     {
       "en": "Which documents do I need?",
-      "th": "ต้องใช้เอกสารอะไรบ้าง"
+      "th": "ต้องใช้เอกสารอะไรบ้าง",
+      "rom": "tong chai eksan arai bang"
     },
     {
       "en": "How much is the fee?",
-      "th": "ค่าธรรมเนียมเท่าไหร่"
+      "th": "ค่าธรรมเนียมเท่าไหร่",
+      "rom": "khatamniam thaorai"
     },
     {
       "en": "Here is my passport.",
-      "th": "นี่พาสปอร์ต"
+      "th": "นี่พาสปอร์ต",
+      "rom": "ni phatpot"
     },
     {
       "en": "I need a passport photo.",
-      "th": "ต้องใช้รูปถ่ายติดหนังสือเดินทาง"
+      "th": "ต้องใช้รูปถ่ายติดหนังสือเดินทาง",
+      "rom": "tong chai rupthai tit nangsuedoenthang"
     },
     {
       "en": "Where can I take a photo?",
-      "th": "ถ่ายรูปได้ที่ไหน"
+      "th": "ถ่ายรูปได้ที่ไหน",
+      "rom": "thairup dai thinai"
     },
     {
       "en": "Where can I make copies?",
-      "th": "ถ่ายเอกสารได้ที่ไหน"
+      "th": "ถ่ายเอกสารได้ที่ไหน",
+      "rom": "thaieksan dai thinai"
     },
     {
       "en": "Could I have a queue number?",
-      "th": "ขอบัตรคิวหน่อย"
+      "th": "ขอบัตรคิวหน่อย",
+      "rom": "kho batn khio noi"
     },
     {
       "en": "How long does it take?",
-      "th": "ใช้เวลานานเท่าไหร่"
+      "th": "ใช้เวลานานเท่าไหร่",
+      "rom": "chaiwelanan thaorai"
     },
     {
       "en": "Can I wait here?",
-      "th": "รอที่นี่ได้ไหม"
+      "th": "รอที่นี่ได้ไหม",
+      "rom": "ro thini dai mai"
     },
     {
       "en": "Do I need a hotel address?",
-      "th": "ต้องใช้ที่อยู่โรงแรมไหม"
+      "th": "ต้องใช้ที่อยู่โรงแรมไหม",
+      "rom": "tong chai thiyu rongraem mai"
     },
     {
       "en": "Do I need to report my address?",
-      "th": "ต้องแจ้งที่พักไหม"
+      "th": "ต้องแจ้งที่พักไหม",
+      "rom": "tong chaeng thiphak mai"
     },
     {
       "en": "Is the extension approved?",
-      "th": "ต่อวีซ่าอนุมัติแล้วไหม"
+      "th": "ต่อวีซ่าอนุมัติแล้วไหม",
+      "rom": "to wisa numati laeo mai"
     },
     {
       "en": "Could you write that down, please?",
-      "th": "ช่วยเขียนให้หน่อยได้ไหม"
+      "th": "ช่วยเขียนให้หน่อยได้ไหม",
+      "rom": "chuai khian hai noi dai mai"
     }
   ]
 }

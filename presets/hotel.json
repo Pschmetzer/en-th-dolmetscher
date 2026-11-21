@@ -56,84 +56,103 @@
     {
       "en": "There is a fire!",
       "th": "ไฟไหม้",
-      "critical": true
+      "critical": true,
+      "rom": "faimai"
     },
     {
       "en": "I need a doctor.",
       "th": "ต้องการแพทย์",
-      "critical": true
+      "critical": true,
+      "rom": "tong kanphaet"
     },
     {
       "en": "I have a reservation under the name Smith.",
-      "th": "จองห้องไว้ในชื่อสมิธ"
+      "th": "จองห้องไว้ในชื่อสมิธ",
+      "rom": "chong ong wai nai chue s mi th"
     },
     {
       "en": "What time is check-out?",
-      "th": "เช็คเอาท์กี่โมง"
+      "th": "เช็คเอาท์กี่โมง",
+      "rom": "chek ao ki mong"
     },
     {
       "en": "Is breakfast included?",
-      "th": "รวมอาหารเช้าไหม"
+      "th": "รวมอาหารเช้าไหม",
+      "rom": "ruam ahanchao mai"
     },
     {
       "en": "What is the Wi-Fi password?",
-      "th": "รหัสไวไฟคืออะไร"
+      "th": "รหัสไวไฟคืออะไร",
+      "rom": "rahat waifai khue arai"
     },
     {
       "en": "The air conditioning is not working.",
-      "th": "แอร์เสีย"
+      "th": "แอร์เสีย",
+      "rom": "ae sia"
     },
     {
       "en": "Could I have an extra towel, please?",
-      "th": "ขอผ้าเช็ดตัวเพิ่มหน่อย"
+      "th": "ขอผ้าเช็ดตัวเพิ่มหน่อย",
+      "rom": "kho phachettua phoem noi"
     },
     {
       "en": "Could you keep my luggage until this afternoon?",
-      "th": "ฝากกระเป๋าไว้จนถึงบ่ายได้ไหม"
+      "th": "ฝากกระเป๋าไว้จนถึงบ่ายได้ไหม",
+      "rom": "fak krapao wai chanathueng bai dai mai"
     },
     {
       "en": "Could you call a taxi for me, please?",
-      "th": "ช่วยเรียกแท็กซี่ให้หน่อยได้ไหม"
+      "th": "ช่วยเรียกแท็กซี่ให้หน่อยได้ไหม",
+      "rom": "chuai riak hai noi dai mai"
     },
     {
       "en": "Could I check out later?",
-      "th": "ขอเช็คเอาท์ช้าได้ไหม"
+      "th": "ขอเช็คเอาท์ช้าได้ไหม",
+      "rom": "kho chek ao cha dai mai"
     },
     {
       "en": "The room is too noisy. Could I change rooms?",
-      "th": "ห้องเสียงดังมาก ขอเปลี่ยนห้องได้ไหม"
+      "th": "ห้องเสียงดังมาก ขอเปลี่ยนห้องได้ไหม",
+      "rom": "ong siangdang mak kho pelin ong dai mai"
     },
     {
       "en": "There is no hot water.",
-      "th": "ไม่มีน้ำร้อน"
+      "th": "ไม่มีน้ำร้อน",
+      "rom": "mai mi namron"
     },
     {
       "en": "How do I use the safe?",
-      "th": "ตู้เซฟใช้ยังไง"
+      "th": "ตู้เซฟใช้ยังไง",
+      "rom": "tusep chai yangngai"
     },
     {
       "en": "I lost my room key.",
-      "th": "ทำกุญแจห้องหาย"
+      "th": "ทำกุญแจห้องหาย",
+      "rom": "tham kunchae ong hai"
     },
     {
       "en": "Could I have a wake-up call at 6 a.m.?",
-      "th": "ขอโทรปลุกตอนหกโมงเช้าได้ไหม"
+      "th": "ขอโทรปลุกตอนหกโมงเช้าได้ไหม",
+      "rom": "kho thon pluk ton ok mong chao dai mai"
     },
     {
       "en": "Do you have an airport transfer?",
-      "th": "มีรถรับส่งสนามบินไหม"
+      "th": "มีรถรับส่งสนามบินไหม",
+      "rom": "mi rot rap song sanambin mai"
     },
     {
       "en": "Here is my passport.",
-      "th": "นี่พาสปอร์ต"
+      "th": "นี่พาสปอร์ต",
+      "rom": "ni phatpot"
     },
     {
       "en": "Could I have a tax invoice in my company's name?",
-      "th": "ขอใบกำกับภาษีในนามบริษัทได้ไหม"
+      "th": "ขอใบกำกับภาษีในนามบริษัทได้ไหม",
+      "rom": "kho baikamkapphasi nainam brisat dai mai"
     }
   ],
   "note": {
-    "de": "Notruf Rettung 1669, Polizei 191, Touristenpolizei 1155. Bei Brand Rezeption oder Feuerwehr 199 rufen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Ambulance 1669, police 191, tourist police 1155. For fire call reception or the fire brigade 199. Thai lines machine-made, not checked by native speakers."
+    "de": "Notruf Rettung 1669, Polizei 191, Touristenpolizei 1155. Bei Brand Rezeption oder Feuerwehr 199 rufen. Siehe auch: Hostel und Schlafsaal. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Ambulance 1669, police 191, tourist police 1155. For fire call reception or the fire brigade 199. See also: Hostel and dorm. Thai lines machine-made, not checked by native speakers."
   }
 }

@@ -55,59 +55,73 @@
   "phrases": [
     {
       "en": "What is this little house for?",
-      "th": "บ้านเล็กๆ หลังนี้ไว้ทำอะไร"
+      "th": "บ้านเล็กๆ หลังนี้ไว้ทำอะไร",
+      "rom": "banlek lang ni wai tham arai"
     },
     {
       "en": "May I touch it?",
-      "th": "แตะได้ไหม"
+      "th": "แตะได้ไหม",
+      "rom": "tae dai mai"
     },
     {
       "en": "May I leave an offering?",
-      "th": "วางเครื่องบูชาได้ไหม"
+      "th": "วางเครื่องบูชาได้ไหม",
+      "rom": "wang kheruengbucha dai mai"
     },
     {
       "en": "What is a good offering?",
-      "th": "ควรบูชาด้วยอะไรดี"
+      "th": "ควรบูชาด้วยอะไรดี",
+      "rom": "khuan bucha duai arai di"
     },
     {
       "en": "Where can I buy flowers and incense?",
-      "th": "ซื้อดอกไม้ธูปเทียนได้ที่ไหน"
+      "th": "ซื้อดอกไม้ธูปเทียนได้ที่ไหน",
+      "rom": "sue dokmai thup thian dai thinai"
     },
     {
       "en": "How do I show respect here?",
-      "th": "แสดงความเคารพที่นี่อย่างไร"
+      "th": "แสดงความเคารพที่นี่อย่างไร",
+      "rom": "saetng khwamkhaonp thini yangrai"
     },
     {
       "en": "Should I take off my shoes?",
-      "th": "ต้องถอดรองเท้าไหม"
+      "th": "ต้องถอดรองเท้าไหม",
+      "rom": "tong thot rongthao mai"
     },
     {
       "en": "Can I make a wish here?",
-      "th": "ขอพรที่นี่ได้ไหม"
+      "th": "ขอพรที่นี่ได้ไหม",
+      "rom": "khopn thini dai mai"
     },
     {
       "en": "How many incense sticks should I light?",
-      "th": "ควรจุดธูปกี่ดอก"
+      "th": "ควรจุดธูปกี่ดอก",
+      "rom": "khuan chut thup ki dok"
     },
     {
       "en": "Where do I put the candle?",
-      "th": "ปักเทียนตรงไหน"
+      "th": "ปักเทียนตรงไหน",
+      "rom": "pak thian trangahanai"
     },
     {
       "en": "May I take a photo?",
-      "th": "ขอถ่ายรูปได้ไหม"
+      "th": "ขอถ่ายรูปได้ไหม",
+      "rom": "kho thairup dai mai"
     },
     {
       "en": "Is there an entrance fee?",
-      "th": "มีค่าเข้าชมไหม"
+      "th": "มีค่าเข้าชมไหม",
+      "rom": "mikha khaotm mai"
     },
     {
       "en": "Please show me how to do it.",
-      "th": "ช่วยสอนวิธีทำหน่อย"
+      "th": "ช่วยสอนวิธีทำหน่อย",
+      "rom": "chuai son withitham noi"
     },
     {
       "en": "Thank you for explaining.",
-      "th": "ขอบคุณที่อธิบาย"
+      "th": "ขอบคุณที่อธิบาย",
+      "rom": "khopkhun thi thibai"
     }
   ]
 }

@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Vor der Tour Treffpunkt, Rückfahrzeit und Nationalpark-Gebühr klären; die Gebühr ist oft nicht im Preis. Nach Alkohol und bei Wellengang nicht ins Wasser. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Before the tour confirm the meeting point, the return time and the national park fee, which is often not in the price. Stay out of the water after alcohol and in rough seas. Thai lines machine-made, not checked by native speakers."
+    "de": "Vor der Tour Treffpunkt, Rückfahrzeit und Nationalpark-Gebühr klären; die Gebühr ist oft nicht im Preis. Nach Alkohol und bei Wellengang nicht ins Wasser. Siehe auch: Fähre und Boot, Inselausflug und Tauchen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Before the tour confirm the meeting point, the return time and the national park fee, which is often not in the price. Stay out of the water after alcohol and in rough seas. See also: Ferry and boat, Island trip and diving. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,78 +40,96 @@
     {
       "en": "I cannot swim.",
       "th": "ว่ายน้ำไม่เป็น",
-      "critical": true
+      "critical": true,
+      "rom": "wainam mai pen"
     },
     {
       "en": "I need medical help.",
       "th": "ต้องการความช่วยเหลือทางการแพทย์",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan khwamchuaihelue thangkanphaet"
     },
     {
       "en": "Could I have a life jacket, please?",
       "th": "ขอเสื้อชูชีพหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "kho suea chuchip noi"
     },
     {
       "en": "I was stung by a jellyfish.",
       "th": "โดนแมงกะพรุนต่อย",
-      "critical": true
+      "critical": true,
+      "rom": "don maengkaprun toi"
     },
     {
       "en": "Which islands does the tour visit?",
-      "th": "ทัวร์ไปเกาะไหนบ้าง"
+      "th": "ทัวร์ไปเกาะไหนบ้าง",
+      "rom": "thua pai ko nai bang"
     },
     {
       "en": "How many islands are included?",
-      "th": "รวมกี่เกาะ"
+      "th": "รวมกี่เกาะ",
+      "rom": "ruam ki ko"
     },
     {
       "en": "What time does the boat return?",
-      "th": "เรือกลับกี่โมง"
+      "th": "เรือกลับกี่โมง",
+      "rom": "ruea klap ki mong"
     },
     {
       "en": "Where do we meet?",
-      "th": "นัดพบกันที่ไหน"
+      "th": "นัดพบกันที่ไหน",
+      "rom": "nat phabakan thinai"
     },
     {
       "en": "How long do we stay on each island?",
-      "th": "อยู่แต่ละเกาะนานเท่าไหร่"
+      "th": "อยู่แต่ละเกาะนานเท่าไหร่",
+      "rom": "yu taela ko nan thaorai"
     },
     {
       "en": "Is the national park fee included?",
-      "th": "ค่าเข้าอุทยานรวมแล้วไหม"
+      "th": "ค่าเข้าอุทยานรวมแล้วไหม",
+      "rom": "kha khao utyan ruam laeo mai"
     },
     {
       "en": "Is lunch included?",
-      "th": "รวมอาหารกลางวันไหม"
+      "th": "รวมอาหารกลางวันไหม",
+      "rom": "ruam ahanklangwan mai"
     },
     {
       "en": "Can I leave my bag on the boat?",
-      "th": "ฝากกระเป๋าไว้บนเรือได้ไหม"
+      "th": "ฝากกระเป๋าไว้บนเรือได้ไหม",
+      "rom": "fak krapao wai bon ruea dai mai"
     },
     {
       "en": "Is there a ferry between the islands?",
-      "th": "มีเรือข้ามระหว่างเกาะไหม"
+      "th": "มีเรือข้ามระหว่างเกาะไหม",
+      "rom": "mi ruea kham rawang ko mai"
     },
     {
       "en": "Is the beach safe for swimming?",
-      "th": "หาดนี้ว่ายน้ำปลอดภัยไหม"
+      "th": "หาดนี้ว่ายน้ำปลอดภัยไหม",
+      "rom": "at ni wainam plotphai mai"
     },
     {
       "en": "Please wait for me, I am coming back.",
-      "th": "ช่วยรอด้วย กำลังกลับไป"
+      "th": "ช่วยรอด้วย กำลังกลับไป",
+      "rom": "chuai ro duai kamlang klap pai"
     },
     {
       "en": "Where is the toilet?",
-      "th": "ห้องน้ำอยู่ที่ไหน"
+      "th": "ห้องน้ำอยู่ที่ไหน",
+      "rom": "ongnam yu thinai"
     },
     {
       "en": "Is there drinking water on the boat?",
-      "th": "บนเรือมีน้ำดื่มไหม"
+      "th": "บนเรือมีน้ำดื่มไหม",
+      "rom": "bon ruea mi namduem mai"
     },
     {
       "en": "Can I book a private longtail boat?",
-      "th": "จองเรือหางยาวส่วนตัวได้ไหม"
+      "th": "จองเรือหางยาวส่วนตัวได้ไหม",
+      "rom": "chong rueahangyao suantua dai mai"
     }
   ]
 }

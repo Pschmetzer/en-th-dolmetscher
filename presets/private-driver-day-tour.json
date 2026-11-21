@@ -40,68 +40,84 @@
     {
       "en": "We do not want to go to a shop.",
       "th": "ไม่ต้องไปที่ร้านค้า",
-      "critical": true
+      "critical": true,
+      "rom": "mataing pai thi rankha"
     },
     {
       "en": "Please drive slowly.",
       "th": "ช่วยขับช้าๆ",
-      "critical": true
+      "critical": true,
+      "rom": "chuai khap cha"
     },
     {
       "en": "How much is a full-day tour?",
-      "th": "เหมารถทั้งวันราคาเท่าไร"
+      "th": "เหมารถทั้งวันราคาเท่าไร",
+      "rom": "ema rot thangwan rakha thaorai"
     },
     {
       "en": "Does the price include fuel and tolls?",
-      "th": "ราคารวมค่าน้ำมันและค่าทางด่วนไหม"
+      "th": "ราคารวมค่าน้ำมันและค่าทางด่วนไหม",
+      "rom": "rakha ruam kha namman lae kha thangduan mai"
     },
     {
       "en": "Does the price include the entrance fees?",
-      "th": "ราคารวมค่าเข้าชมไหม"
+      "th": "ราคารวมค่าเข้าชมไหม",
+      "rom": "rakha ruam kha khaotm mai"
     },
     {
       "en": "How many hours are included?",
-      "th": "รวมกี่ชั่วโมง"
+      "th": "รวมกี่ชั่วโมง",
+      "rom": "ruam ki chuamong"
     },
     {
       "en": "Please write the price on paper.",
-      "th": "ช่วยเขียนราคาลงกระดาษ"
+      "th": "ช่วยเขียนราคาลงกระดาษ",
+      "rom": "chuai khian rakha long kradat"
     },
     {
       "en": "We start at eight in the morning.",
-      "th": "เริ่มแปดโมงเช้า"
+      "th": "เริ่มแปดโมงเช้า",
+      "rom": "roem paet mong chao"
     },
     {
       "en": "Please come to my hotel.",
-      "th": "ช่วยมารับที่โรงแรม"
+      "th": "ช่วยมารับที่โรงแรม",
+      "rom": "chuai ma rap thi rongraem"
     },
     {
       "en": "Please wait here for one hour.",
-      "th": "ช่วยรอที่นี่หนึ่งชั่วโมง"
+      "th": "ช่วยรอที่นี่หนึ่งชั่วโมง",
+      "rom": "chuai ro thini nueng chuamong"
     },
     {
       "en": "Please stop. I want to take a photo.",
-      "th": "ช่วยจอด อยากถ่ายรูป"
+      "th": "ช่วยจอด อยากถ่ายรูป",
+      "rom": "chuai chot yak thairup"
     },
     {
       "en": "Please put on your seat belt.",
-      "th": "ช่วยคาดเข็มขัดนิรภัย"
+      "th": "ช่วยคาดเข็มขัดนิรภัย",
+      "rom": "chuai khat khemkhatninphai"
     },
     {
       "en": "Is there a toilet on the way?",
-      "th": "ระหว่างทางมีห้องน้ำไหม"
+      "th": "ระหว่างทางมีห้องน้ำไหม",
+      "rom": "rawangthang mi ongnam mai"
     },
     {
       "en": "Can we stop for lunch?",
-      "th": "แวะกินข้าวกลางวันได้ไหม"
+      "th": "แวะกินข้าวกลางวันได้ไหม",
+      "rom": "wae kin khaoklangwan dai mai"
     },
     {
       "en": "Do you speak English?",
-      "th": "พูดภาษาอังกฤษได้ไหม"
+      "th": "พูดภาษาอังกฤษได้ไหม",
+      "rom": "phut phasaangkrit dai mai"
     },
     {
       "en": "Thank you, that was a great day.",
-      "th": "ขอบคุณ วันนี้สนุกมาก"
+      "th": "ขอบคุณ วันนี้สนุกมาก",
+      "rom": "khopkhun wanni sanuk mak"
     }
   ]
 }

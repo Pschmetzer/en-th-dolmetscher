@@ -40,70 +40,86 @@
     {
       "en": "My child is allergic.",
       "th": "ลูกแพ้อาหาร",
-      "critical": true
+      "critical": true,
+      "rom": "luk phae ahan"
     },
     {
       "en": "My child is lost.",
       "th": "ลูกหาย",
-      "critical": true
+      "critical": true,
+      "rom": "luk hai"
     },
     {
       "en": "My child needs a doctor.",
       "th": "ลูกต้องพบแพทย์",
-      "critical": true
+      "critical": true,
+      "rom": "luk tong phop phaet"
     },
     {
       "en": "My child cannot swim.",
       "th": "ลูกว่ายน้ำไม่เป็น",
-      "critical": true
+      "critical": true,
+      "rom": "luk wainam mai pen"
     },
     {
       "en": "My child has a fever.",
-      "th": "ลูกมีไข้"
+      "th": "ลูกมีไข้",
+      "rom": "luk mikhai"
     },
     {
       "en": "Do you have a children's menu?",
-      "th": "มีเมนูเด็กไหม"
+      "th": "มีเมนูเด็กไหม",
+      "rom": "mi menu dek mai"
     },
     {
       "en": "Do you have a high chair?",
-      "th": "มีเก้าอี้เด็กไหม"
+      "th": "มีเก้าอี้เด็กไหม",
+      "rom": "mi kaoi dek mai"
     },
     {
       "en": "Can you warm the milk, please?",
-      "th": "ช่วยอุ่นนมให้หน่อย"
+      "th": "ช่วยอุ่นนมให้หน่อย",
+      "rom": "chuai un nom hai noi"
     },
     {
       "en": "No spicy food for the child.",
-      "th": "เด็กกินเผ็ดไม่ได้"
+      "th": "เด็กกินเผ็ดไม่ได้",
+      "rom": "dek kin phet mai dai"
     },
     {
       "en": "Do you have a child seat?",
-      "th": "มีคาร์ซีทไหม"
+      "th": "มีคาร์ซีทไหม",
+      "rom": "mi kha si th mai"
     },
     {
       "en": "Is there a baby changing room?",
-      "th": "มีห้องเปลี่ยนผ้าอ้อมไหม"
+      "th": "มีห้องเปลี่ยนผ้าอ้อมไหม",
+      "rom": "mi ong pelin phaom mai"
     },
     {
       "en": "Where can I buy nappies?",
-      "th": "ซื้อผ้าอ้อมได้ที่ไหน"
+      "th": "ซื้อผ้าอ้อมได้ที่ไหน",
+      "rom": "sue phaom dai thinai"
     },
     {
       "en": "Is there a playground nearby?",
-      "th": "แถวนี้มีสนามเด็กเล่นไหม"
+      "th": "แถวนี้มีสนามเด็กเล่นไหม",
+      "rom": "thaeo ni mi sanamdeklen mai"
     },
     {
       "en": "Is there a children's price?",
-      "th": "มีราคาสำหรับเด็กไหม"
+      "th": "มีราคาสำหรับเด็กไหม",
+      "rom": "mirakha samrap dek mai"
     },
     {
       "en": "How old must the child be?",
-      "th": "เด็กต้องอายุเท่าไหร่"
+      "th": "เด็กต้องอายุเท่าไหร่",
+      "rom": "dek tong thaorai"
     },
     {
       "en": "Please do not touch my child's head.",
-      "th": "ช่วยอย่าจับหัวลูกหน่อย"
+      "th": "ช่วยอย่าจับหัวลูกหน่อย",
+      "rom": "chuai ya chap hua luk noi"
     }
   ]
 }

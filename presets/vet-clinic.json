@@ -48,92 +48,113 @@
     {
       "en": "My dog was hit by a car, please help quickly.",
       "th": "สุนัขถูกรถชน ช่วยด่วนหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "sunak thuk rathachon chuai duan noi"
     },
     {
       "en": "My cat cannot breathe.",
       "th": "แมวหายใจไม่ออก",
-      "critical": true
+      "critical": true,
+      "rom": "maeo aichaimoaik"
     },
     {
       "en": "My dog ate poison.",
       "th": "สุนัขกินยาพิษ",
-      "critical": true
+      "critical": true,
+      "rom": "sunak kin yaphit"
     },
     {
       "en": "My pet has seizures.",
       "th": "สัตว์เลี้ยงชักเกร็ง",
-      "critical": true
+      "critical": true,
+      "rom": "satliang chak"
     },
     {
       "en": "My dog is bleeding heavily.",
       "th": "สุนัขเลือดออกมาก",
-      "critical": true
+      "critical": true,
+      "rom": "sunak lueat ok mak"
     },
     {
       "en": "My dog was bitten by a snake.",
       "th": "สุนัขถูกงูกัด",
-      "critical": true
+      "critical": true,
+      "rom": "sunak thuk ngu kat"
     },
     {
       "en": "I would like to make an appointment for my dog.",
-      "th": "ขอนัดหมายสำหรับสุนัขหน่อย"
+      "th": "ขอนัดหมายสำหรับสุนัขหน่อย",
+      "rom": "kho natmai samrap sunak noi"
     },
     {
       "en": "Do you speak English?",
-      "th": "พูดภาษาอังกฤษได้ไหม"
+      "th": "พูดภาษาอังกฤษได้ไหม",
+      "rom": "phut phasaangkrit dai mai"
     },
     {
       "en": "My cat does not eat since yesterday.",
-      "th": "แมวไม่กินอาหารตั้งแต่เมื่อวาน"
+      "th": "แมวไม่กินอาหารตั้งแต่เมื่อวาน",
+      "rom": "maeo mai kin ahan tangtae mueawan"
     },
     {
       "en": "My dog has diarrhoea and vomits.",
-      "th": "สุนัขท้องเสียและอาเจียน"
+      "th": "สุนัขท้องเสียและอาเจียน",
+      "rom": "sunak thongsia lae achian"
     },
     {
       "en": "Please check for ticks and fleas.",
-      "th": "ช่วยตรวจหาเห็บและหมัดหน่อย"
+      "th": "ช่วยตรวจหาเห็บและหมัดหน่อย",
+      "rom": "chuai truatha ep lae mat noi"
     },
     {
       "en": "Here is the vaccination book.",
-      "th": "นี่คือสมุดวัคซีน"
+      "th": "นี่คือสมุดวัคซีน",
+      "rom": "ni khue samut waksin"
     },
     {
       "en": "Does my dog need a rabies shot?",
-      "th": "สุนัขต้องฉีดวัคซีนพิษสุนัขบ้าไหม"
+      "th": "สุนัขต้องฉีดวัคซีนพิษสุนัขบ้าไหม",
+      "rom": "sunak tong chitwaksin phitsunakba mai"
     },
     {
       "en": "Please give me a health certificate for travel.",
-      "th": "ขอใบรับรองสุขภาพสำหรับเดินทางหน่อย"
+      "th": "ขอใบรับรองสุขภาพสำหรับเดินทางหน่อย",
+      "rom": "kho bairaprong sukphap samrap doenthang noi"
     },
     {
       "en": "How much does the treatment cost?",
-      "th": "ค่ารักษาเท่าไร"
+      "th": "ค่ารักษาเท่าไร",
+      "rom": "kharaksa thaorai"
     },
     {
       "en": "Please explain how to give the medicine.",
-      "th": "ช่วยอธิบายวิธีให้ยาหน่อย"
+      "th": "ช่วยอธิบายวิธีให้ยาหน่อย",
+      "rom": "chuai thibai withi aiya noi"
     },
     {
       "en": "May I stay with my pet?",
-      "th": "ขออยู่กับสัตว์เลี้ยงได้ไหม"
+      "th": "ขออยู่กับสัตว์เลี้ยงได้ไหม",
+      "rom": "kho yu kap satliang dai mai"
     },
     {
       "en": "Does the animal need to stay overnight?",
-      "th": "สัตว์ต้องค้างคืนไหม"
+      "th": "สัตว์ต้องค้างคืนไหม",
+      "rom": "sat tong khangkhuen mai"
     },
     {
       "en": "Is there an animal hotel nearby?",
-      "th": "แถวนี้มีโรงแรมสัตว์เลี้ยงไหม"
+      "th": "แถวนี้มีโรงแรมสัตว์เลี้ยงไหม",
+      "rom": "thaeo ni mi rongraem satliang mai"
     },
     {
       "en": "When should we come back for a check?",
-      "th": "ควรกลับมาตรวจอีกเมื่อไร"
+      "th": "ควรกลับมาตรวจอีกเมื่อไร",
+      "rom": "khuan klapma truat ik muearai"
     },
     {
       "en": "Thank you for caring for my pet.",
-      "th": "ขอบคุณที่ดูแลสัตว์เลี้ยง"
+      "th": "ขอบคุณที่ดูแลสัตว์เลี้ยง",
+      "rom": "khopkhun thi dulae satliang"
     }
   ]
 }

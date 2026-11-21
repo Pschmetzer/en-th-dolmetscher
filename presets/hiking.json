@@ -40,79 +40,97 @@
     {
       "en": "This is an emergency. Please call an ambulance (1669).",
       "th": "นี่เป็นเหตุฉุกเฉิน ช่วยเรียกรถพยาบาลด้วย (1669)",
-      "critical": true
+      "critical": true,
+      "rom": "ni pen etuchukchoen chuai riak rathaphayaban duai 1669"
     },
     {
       "en": "I am lost.",
       "th": "หลงทาง",
-      "critical": true
+      "critical": true,
+      "rom": "langathang"
     },
     {
       "en": "Please call the park rangers.",
       "th": "ช่วยเรียกเจ้าหน้าที่อุทยานหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak chaonathi utyan noi"
     },
     {
       "en": "Someone is injured. Please call an ambulance (1669).",
       "th": "มีคนบาดเจ็บ ช่วยเรียกรถพยาบาลด้วย (1669)",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon batchep chuai riak rathaphayaban duai 1669"
     },
     {
       "en": "I was bitten by a snake.",
       "th": "โดนงูกัด",
-      "critical": true
+      "critical": true,
+      "rom": "don ngu kat"
     },
     {
       "en": "I have twisted my ankle.",
-      "th": "ข้อเท้าแพลง"
+      "th": "ข้อเท้าแพลง",
+      "rom": "khothao phaenng"
     },
     {
       "en": "Where does the trail start?",
-      "th": "ทางเดินเริ่มต้นที่ไหน"
+      "th": "ทางเดินเริ่มต้นที่ไหน",
+      "rom": "thangdoen roemtn thinai"
     },
     {
       "en": "Is this trail marked?",
-      "th": "เส้นทางนี้มีป้ายบอกทางไหม"
+      "th": "เส้นทางนี้มีป้ายบอกทางไหม",
+      "rom": "senthang ni mi paibokthang mai"
     },
     {
       "en": "How long does the hike take?",
-      "th": "เดินใช้เวลานานเท่าไร"
+      "th": "เดินใช้เวลานานเท่าไร",
+      "rom": "doen chaiwelanan thaorai"
     },
     {
       "en": "Is the trail difficult?",
-      "th": "เส้นทางนี้ยากไหม"
+      "th": "เส้นทางนี้ยากไหม",
+      "rom": "senthang ni yak mai"
     },
     {
       "en": "Do I need a guide?",
-      "th": "ต้องมีไกด์ไหม"
+      "th": "ต้องมีไกด์ไหม",
+      "rom": "tong mi kai mai"
     },
     {
       "en": "Is it safe to go alone?",
-      "th": "ไปคนเดียวปลอดภัยไหม"
+      "th": "ไปคนเดียวปลอดภัยไหม",
+      "rom": "pai khanadiao plotphai mai"
     },
     {
       "en": "Is the path slippery after rain?",
-      "th": "ทางลื่นหลังฝนตกไหม"
+      "th": "ทางลื่นหลังฝนตกไหม",
+      "rom": "thang luen lang fanatok mai"
     },
     {
       "en": "Are there leeches?",
-      "th": "มีทากไหม"
+      "th": "มีทากไหม",
+      "rom": "mi thak mai"
     },
     {
       "en": "Is there drinking water on the way?",
-      "th": "ระหว่างทางมีน้ำดื่มไหม"
+      "th": "ระหว่างทางมีน้ำดื่มไหม",
+      "rom": "rawangthang mi namduem mai"
     },
     {
       "en": "What time does it get dark?",
-      "th": "ฟ้ามืดกี่โมง"
+      "th": "ฟ้ามืดกี่โมง",
+      "rom": "fa muet ki mong"
     },
     {
       "en": "Is there a park fee?",
-      "th": "มีค่าเข้าอุทยานไหม"
+      "th": "มีค่าเข้าอุทยานไหม",
+      "rom": "mikha khao utyan mai"
     },
     {
       "en": "Where is the nearest ranger station?",
-      "th": "ที่ทำการอุทยานอยู่ที่ไหน"
+      "th": "ที่ทำการอุทยานอยู่ที่ไหน",
+      "rom": "thithamkan utyan yu thinai"
     }
   ]
 }

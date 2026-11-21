@@ -1,0 +1,163 @@
+{
+  "id": "air-pollution-haze",
+  "names": {
+    "de": "Luftverschmutzung und Smog",
+    "en": "Air pollution and haze",
+    "th": "มลพิษทางอากาศและฝุ่นละออง"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Von Februar bis April belastet Rauch im Norden die Luft (PM2.5). Die Werte in einer Luftqualitäts-App prüfen, bei schlechter Luft drinnen bleiben, eine N95-Maske tragen und keine Anstrengung im Freien. Bei Husten, Atemnot oder Brustschmerz zum Arzt oder 1669 (Rettung) rufen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "From February to April smoke pollutes the air in the north (PM2.5). Check an air-quality app, stay indoors when the air is bad, wear an N95 mask and avoid exertion outside. For cough, breathlessness or chest pain see a doctor or call 1669 (ambulance). Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "air pollution",
+      "th": "มลพิษทางอากาศ"
+    },
+    {
+      "en": "haze",
+      "th": "หมอกควัน"
+    },
+    {
+      "en": "mask",
+      "th": "หน้ากากอนามัย"
+    },
+    {
+      "en": "N95 mask",
+      "th": "หน้ากากกรองฝุ่นละเอียด"
+    },
+    {
+      "en": "air purifier",
+      "th": "เครื่องฟอกอากาศ"
+    },
+    {
+      "en": "cough",
+      "th": "ไอ"
+    },
+    {
+      "en": "eyes",
+      "th": "ตา"
+    },
+    {
+      "en": "asthma",
+      "th": "โรคหอบหืด"
+    },
+    {
+      "en": "indoors",
+      "th": "ในอาคาร"
+    },
+    {
+      "en": "smoke",
+      "th": "ควัน"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I cannot breathe well in this smoke.",
+      "th": "หายใจไม่สะดวกเพราะควัน",
+      "critical": true,
+      "rom": "aichai mai saduak khwan"
+    },
+    {
+      "en": "Where is the nearest clinic?",
+      "th": "คลินิกที่ใกล้ที่สุดอยู่ที่ไหน",
+      "critical": true,
+      "rom": "khlinik thi kain thisut yu thinai"
+    },
+    {
+      "en": "I have chest pain.",
+      "th": "เจ็บหน้าอก",
+      "critical": true,
+      "rom": "chep nak"
+    },
+    {
+      "en": "I have asthma and need my inhaler.",
+      "th": "เป็นโรคหอบหืดและต้องใช้ยาพ่น",
+      "critical": true,
+      "rom": "penrok ophuet lae tong chai ya phon"
+    },
+    {
+      "en": "My child is coughing badly.",
+      "th": "ลูกไอหนักมาก",
+      "critical": true,
+      "rom": "luk ai nak mak"
+    },
+    {
+      "en": "Please call an ambulance (1669).",
+      "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true,
+      "rom": "chuai riak rathaphayaban duai 1669"
+    },
+    {
+      "en": "How bad is the air today?",
+      "th": "วันนี้อากาศแย่แค่ไหน",
+      "rom": "wanni akat yae khae nai"
+    },
+    {
+      "en": "What is the PM2.5 level?",
+      "th": "ค่าฝุ่นละอองเล็กเท่าไร",
+      "rom": "kha funlaong lek thaorai"
+    },
+    {
+      "en": "Do you sell N95 masks?",
+      "th": "มีหน้ากากกรองฝุ่นละเอียดไหม",
+      "rom": "mi nakak krong fun laiat mai"
+    },
+    {
+      "en": "Does the room have an air purifier?",
+      "th": "ห้องนี้มีเครื่องฟอกอากาศไหม",
+      "rom": "ong ni mi mai"
+    },
+    {
+      "en": "Can I get an air purifier?",
+      "th": "ขอเครื่องฟอกอากาศได้ไหม",
+      "rom": "kho dai mai"
+    },
+    {
+      "en": "My eyes burn and itch.",
+      "th": "ตาแสบและคัน",
+      "rom": "ta saep lae khan"
+    },
+    {
+      "en": "I have a dry cough.",
+      "th": "ไอแห้ง",
+      "rom": "ai aeng"
+    },
+    {
+      "en": "Do you have eye drops?",
+      "th": "มียาหยอดตาไหม",
+      "rom": "mi yayotta mai"
+    },
+    {
+      "en": "Please close the windows.",
+      "th": "ช่วยปิดหน้าต่างหน่อย",
+      "rom": "chuai pit natang noi"
+    },
+    {
+      "en": "Is it safe to hike today?",
+      "th": "วันนี้เดินป่าปลอดภัยไหม",
+      "rom": "wanni doenpa plotphai mai"
+    },
+    {
+      "en": "Are outdoor tours cancelled?",
+      "th": "ทัวร์กลางแจ้งยกเลิกไหม",
+      "rom": "thua klangchaeng yakloek mai"
+    },
+    {
+      "en": "When does the haze get better?",
+      "th": "หมอกควันจะดีขึ้นเมื่อไร",
+      "rom": "mok khwan cha dikhuen muearai"
+    },
+    {
+      "en": "Which place has cleaner air?",
+      "th": "ที่ไหนอากาศสะอาดกว่า",
+      "rom": "thinai akat saat kwa"
+    },
+    {
+      "en": "Can I change my booking because of the smoke?",
+      "th": "ขอเปลี่ยนการจองเพราะควันได้ไหม",
+      "rom": "kho pelin kan chong khwan dai mai"
+    }
+  ]
+}

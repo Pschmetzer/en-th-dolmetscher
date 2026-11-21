@@ -36,84 +36,102 @@
     {
       "en": "Please call an ambulance.",
       "th": "ช่วยเรียกรถพยาบาลหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak rathaphayaban noi"
     },
     {
       "en": "I need a doctor now.",
       "th": "ต้องการแพทย์ด่วน",
-      "critical": true
+      "critical": true,
+      "rom": "tong kanphaet duan"
     },
     {
       "en": "I cannot breathe.",
       "th": "หายใจไม่ออก",
-      "critical": true
+      "critical": true,
+      "rom": "aichaimoaik"
     },
     {
       "en": "I have severe pain.",
       "th": "ปวดมาก",
-      "critical": true
+      "critical": true,
+      "rom": "puat mak"
     },
     {
       "en": "I am allergic to penicillin.",
       "th": "แพ้ยาเพนิซิลลิน",
-      "critical": true
+      "critical": true,
+      "rom": "phaeya phe ni si l li n"
     },
     {
       "en": "Where is the emergency room?",
       "th": "ห้องฉุกเฉินอยู่ที่ไหน",
-      "critical": true
+      "critical": true,
+      "rom": "ong chukchoen yu thinai"
     },
     {
       "en": "I have travel insurance.",
-      "th": "มีประกันการเดินทาง"
+      "th": "มีประกันการเดินทาง",
+      "rom": "mi prakan kan doenthang"
     },
     {
       "en": "Here is my passport.",
-      "th": "นี่พาสปอร์ต"
+      "th": "นี่พาสปอร์ต",
+      "rom": "ni phatpot"
     },
     {
       "en": "Is there an English-speaking doctor?",
-      "th": "มีแพทย์ที่พูดภาษาอังกฤษไหม"
+      "th": "มีแพทย์ที่พูดภาษาอังกฤษไหม",
+      "rom": "mi phaet thi phut phasaangkrit mai"
     },
     {
       "en": "How long is the wait?",
-      "th": "รอนานแค่ไหน"
+      "th": "รอนานแค่ไหน",
+      "rom": "ro nan khae nai"
     },
     {
       "en": "Do I need an X-ray?",
-      "th": "ต้องเอกซเรย์ไหม"
+      "th": "ต้องเอกซเรย์ไหม",
+      "rom": "tong ektre mai"
     },
     {
       "en": "How much will it cost?",
-      "th": "ค่าใช้จ่ายเท่าไหร่"
+      "th": "ค่าใช้จ่ายเท่าไหร่",
+      "rom": "khachaichai thaorai"
     },
     {
       "en": "Could I have a receipt for my insurance?",
-      "th": "ขอใบเสร็จสำหรับประกันได้ไหม"
+      "th": "ขอใบเสร็จสำหรับประกันได้ไหม",
+      "rom": "kho samrap prakan dai mai"
     },
     {
       "en": "Could I have a medical certificate?",
-      "th": "ขอใบรับรองแพทย์ได้ไหม"
+      "th": "ขอใบรับรองแพทย์ได้ไหม",
+      "rom": "kho bairaprongphaet dai mai"
     },
     {
       "en": "Could you explain it more slowly?",
-      "th": "ช่วยอธิบายช้าๆ หน่อยได้ไหม"
+      "th": "ช่วยอธิบายช้าๆ หน่อยได้ไหม",
+      "rom": "chuai thibai cha noi dai mai"
     },
     {
       "en": "Where is the pharmacy?",
-      "th": "ร้านขายยาอยู่ที่ไหน"
+      "th": "ร้านขายยาอยู่ที่ไหน",
+      "rom": "rankhaiya yu thinai"
     },
     {
       "en": "When is the next appointment?",
-      "th": "นัดครั้งต่อไปเมื่อไหร่"
+      "th": "นัดครั้งต่อไปเมื่อไหร่",
+      "rom": "nat khrang topai muearai"
     },
     {
       "en": "Could you write it down, please?",
-      "th": "ช่วยเขียนให้หน่อยได้ไหม"
+      "th": "ช่วยเขียนให้หน่อยได้ไหม",
+      "rom": "chuai khian hai noi dai mai"
     }
   ],
   "note": {
-    "de": "Nur zur Verständigung, kein medizinischer Rat. Private Krankenhäuser haben internationale Abteilungen, Reisekrankenversicherung und Pass bereithalten. Rettung 1669, Touristenpolizei 1155. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "For communication only, not medical advice. Private hospitals have international departments; keep travel insurance and passport ready. Ambulance 1669, tourist police 1155. Thai lines machine-made, not checked by native speakers."
+    "de": "Nur zur Verständigung, kein medizinischer Rat. Private Krankenhäuser haben internationale Abteilungen, Reisekrankenversicherung und Pass bereithalten. Rettung 1669, Touristenpolizei 1155. Siehe auch: Reise-Notfälle. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "For communication only, not medical advice. Private hospitals have international departments; keep travel insurance and passport ready. Ambulance 1669, tourist police 1155. See also: Travel emergencies. Thai lines machine-made, not checked by native speakers."
   }
 }

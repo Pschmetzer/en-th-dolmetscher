@@ -55,59 +55,73 @@
   "phrases": [
     {
       "en": "Is it all right to enter?",
-      "th": "เข้าไปได้ไหม"
+      "th": "เข้าไปได้ไหม",
+      "rom": "khaopai dai mai"
     },
     {
       "en": "Can I visit the mosque now?",
-      "th": "ตอนนี้เข้าชมมัสยิดได้ไหม"
+      "th": "ตอนนี้เข้าชมมัสยิดได้ไหม",
+      "rom": "tonni khaotm matyit dai mai"
     },
     {
       "en": "When is the next prayer?",
-      "th": "ละหมาดครั้งต่อไปกี่โมง"
+      "th": "ละหมาดครั้งต่อไปกี่โมง",
+      "rom": "lamat khrang topai ki mong"
     },
     {
       "en": "Where do I take off my shoes?",
-      "th": "ถอดรองเท้าได้ที่ไหน"
+      "th": "ถอดรองเท้าได้ที่ไหน",
+      "rom": "thot rongthao dai thinai"
     },
     {
       "en": "Do I need to cover my head?",
-      "th": "ต้องคลุมศีรษะไหม"
+      "th": "ต้องคลุมศีรษะไหม",
+      "rom": "tong khlum sinsa mai"
     },
     {
       "en": "Do you have a scarf I can borrow?",
-      "th": "มีผ้าคลุมให้ยืมไหม"
+      "th": "มีผ้าคลุมให้ยืมไหม",
+      "rom": "mi phaklum aiyuem mai"
     },
     {
       "en": "Is my clothing appropriate?",
-      "th": "การแต่งกายของเราเหมาะสมไหม"
+      "th": "การแต่งกายของเราเหมาะสมไหม",
+      "rom": "kan taengkai khong rao mai"
     },
     {
       "en": "May I take photos?",
-      "th": "ถ่ายรูปได้ไหม"
+      "th": "ถ่ายรูปได้ไหม",
+      "rom": "thairup dai mai"
     },
     {
       "en": "Where can I wash my hands and feet?",
-      "th": "ล้างมือและเท้าได้ที่ไหน"
+      "th": "ล้างมือและเท้าได้ที่ไหน",
+      "rom": "langmue lae thao dai thinai"
     },
     {
       "en": "Where is a prayer room?",
-      "th": "ห้องละหมาดอยู่ที่ไหน"
+      "th": "ห้องละหมาดอยู่ที่ไหน",
+      "rom": "ong lamat yu thinai"
     },
     {
       "en": "Is this food halal?",
-      "th": "อาหารนี้ฮาลาลไหม"
+      "th": "อาหารนี้ฮาลาลไหม",
+      "rom": "ahan ni halan mai"
     },
     {
       "en": "Does this contain pork?",
-      "th": "อาหารนี้มีเนื้อหมูไหม"
+      "th": "อาหารนี้มีเนื้อหมูไหม",
+      "rom": "ahan ni mi nueamu mai"
     },
     {
       "en": "Is there a halal restaurant nearby?",
-      "th": "แถวนี้มีร้านอาหารฮาลาลไหม"
+      "th": "แถวนี้มีร้านอาหารฮาลาลไหม",
+      "rom": "thaeo ni mi halan mai"
     },
     {
       "en": "Thank you for welcoming us.",
-      "th": "ขอบคุณที่ต้อนรับ"
+      "th": "ขอบคุณที่ต้อนรับ",
+      "rom": "khopkhun thi tonrap"
     }
   ]
 }

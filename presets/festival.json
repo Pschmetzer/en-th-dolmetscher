@@ -40,82 +40,101 @@
     {
       "en": "This is an emergency. Please call an ambulance (1669).",
       "th": "นี่เป็นเหตุฉุกเฉิน ช่วยเรียกรถพยาบาลด้วย (1669)",
-      "critical": true
+      "critical": true,
+      "rom": "ni pen etuchukchoen chuai riak rathaphayaban duai 1669"
     },
     {
       "en": "Please call the police (191).",
       "th": "ช่วยโทรแจ้งตำรวจ 191 ด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai thon chaengtamruat 191 duai"
     },
     {
       "en": "I feel faint.",
       "th": "รู้สึกจะเป็นลม",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek cha pennm"
     },
     {
       "en": "I cannot breathe in this crowd.",
       "th": "หายใจไม่ออกเพราะคนเยอะ",
-      "critical": true
+      "critical": true,
+      "rom": "aichaimoaik khon yoe"
     },
     {
       "en": "Happy Songkran!",
-      "th": "สุขสันต์วันสงกรานต์"
+      "th": "สุขสันต์วันสงกรานต์",
+      "rom": "suksan wantngkran"
     },
     {
       "en": "Happy Loy Krathong!",
-      "th": "สุขสันต์วันลอยกระทง"
+      "th": "สุขสันต์วันลอยกระทง",
+      "rom": "suksan wan loikratng"
     },
     {
       "en": "Is it okay to splash you with water?",
-      "th": "สาดน้ำใส่ได้ไหม"
+      "th": "สาดน้ำใส่ได้ไหม",
+      "rom": "sat nam sai dai mai"
     },
     {
       "en": "Please do not splash me.",
-      "th": "ช่วยอย่าสาดน้ำใส่"
+      "th": "ช่วยอย่าสาดน้ำใส่",
+      "rom": "chuai ya sat nam sai"
     },
     {
       "en": "Please do not splash my phone.",
-      "th": "ช่วยอย่าสาดน้ำใส่โทรศัพท์"
+      "th": "ช่วยอย่าสาดน้ำใส่โทรศัพท์",
+      "rom": "chuai ya sat nam sai thonsap"
     },
     {
       "en": "Where can I buy a krathong?",
-      "th": "ซื้อกระทงได้ที่ไหน"
+      "th": "ซื้อกระทงได้ที่ไหน",
+      "rom": "sue kratng dai thinai"
     },
     {
       "en": "Where can I float my krathong?",
-      "th": "ลอยกระทงได้ที่ไหน"
+      "th": "ลอยกระทงได้ที่ไหน",
+      "rom": "loikratng dai thinai"
     },
     {
       "en": "Could you show me how?",
-      "th": "ช่วยสอนวิธีให้หน่อย"
+      "th": "ช่วยสอนวิธีให้หน่อย",
+      "rom": "chuai son withi hai noi"
     },
     {
       "en": "Is it allowed to release a lantern here?",
-      "th": "ปล่อยโคมที่นี่ได้ไหม"
+      "th": "ปล่อยโคมที่นี่ได้ไหม",
+      "rom": "ploi khom thini dai mai"
     },
     {
       "en": "What time does the parade start?",
-      "th": "ขบวนแห่เริ่มกี่โมง"
+      "th": "ขบวนแห่เริ่มกี่โมง",
+      "rom": "khabuanhae roem ki mong"
     },
     {
       "en": "Is there an entrance fee for the event?",
-      "th": "มีค่าเข้างานไหม"
+      "th": "มีค่าเข้างานไหม",
+      "rom": "mikha khaongan mai"
     },
     {
       "en": "Where is the best place to watch?",
-      "th": "จุดไหนดูได้ชัดที่สุด"
+      "th": "จุดไหนดูได้ชัดที่สุด",
+      "rom": "chut nai du dai chat thisut"
     },
     {
       "en": "Is it okay to take photos here?",
-      "th": "ถ่ายรูปที่นี่ได้ไหม"
+      "th": "ถ่ายรูปที่นี่ได้ไหม",
+      "rom": "thairup thini dai mai"
     },
     {
       "en": "Is the road closed?",
-      "th": "ถนนปิดไหม"
+      "th": "ถนนปิดไหม",
+      "rom": "thanon pit mai"
     },
     {
       "en": "Where is the toilet?",
-      "th": "ห้องน้ำอยู่ที่ไหน"
+      "th": "ห้องน้ำอยู่ที่ไหน",
+      "rom": "ongnam yu thinai"
     }
   ]
 }

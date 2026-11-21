@@ -36,78 +36,96 @@
     {
       "en": "There has been an accident.",
       "th": "เกิดอุบัติเหตุ",
-      "critical": true
+      "critical": true,
+      "rom": "koet ubatihetu"
     },
     {
       "en": "Please call the police.",
       "th": "ช่วยเรียกตำรวจด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak tamruat duai"
     },
     {
       "en": "Someone is injured. Please call an ambulance.",
       "th": "มีคนบาดเจ็บ ช่วยเรียกรถพยาบาลหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon batchep chuai riak rathaphayaban noi"
     },
     {
       "en": "The car broke down.",
       "th": "รถเสีย",
-      "critical": true
+      "critical": true,
+      "rom": "rot sia"
     },
     {
       "en": "I would like to rent a car for three days.",
-      "th": "ต้องการเช่ารถสามวัน"
+      "th": "ต้องการเช่ารถสามวัน",
+      "rom": "tong kanchao rot sam wan"
     },
     {
       "en": "Is insurance included?",
-      "th": "รวมประกันไหม"
+      "th": "รวมประกันไหม",
+      "rom": "ruam prakan mai"
     },
     {
       "en": "How much is the deposit?",
-      "th": "ค่ามัดจำเท่าไหร่"
+      "th": "ค่ามัดจำเท่าไหร่",
+      "rom": "kha matcham thaorai"
     },
     {
       "en": "Is there a scratch here? Please note it down.",
-      "th": "ตรงนี้มีรอยขีดข่วน ช่วยจดไว้หน่อย"
+      "th": "ตรงนี้มีรอยขีดข่วน ช่วยจดไว้หน่อย",
+      "rom": "trangani mi roikhitkhuan chuai chot wai noi"
     },
     {
       "en": "Is the tank full?",
-      "th": "น้ำมันเต็มถังไหม"
+      "th": "น้ำมันเต็มถังไหม",
+      "rom": "namman tem thang mai"
     },
     {
       "en": "Does the car have a spare tyre?",
-      "th": "รถมียางอะไหล่ไหม"
+      "th": "รถมียางอะไหล่ไหม",
+      "rom": "rot mi yang alai mai"
     },
     {
       "en": "Is the car automatic?",
-      "th": "เป็นเกียร์อัตโนมัติไหม"
+      "th": "เป็นเกียร์อัตโนมัติไหม",
+      "rom": "pen kia atnomati mai"
     },
     {
       "en": "Do you have a child seat?",
-      "th": "มีคาร์ซีทไหม"
+      "th": "มีคาร์ซีทไหม",
+      "rom": "mi kha si th mai"
     },
     {
       "en": "Where should I return the car?",
-      "th": "ต้องคืนรถที่ไหน"
+      "th": "ต้องคืนรถที่ไหน",
+      "rom": "tong khuen rot thinai"
     },
     {
       "en": "Could I return the car at the airport?",
-      "th": "คืนรถที่สนามบินได้ไหม"
+      "th": "คืนรถที่สนามบินได้ไหม",
+      "rom": "khuen rot thi sanambin dai mai"
     },
     {
       "en": "Is there a mileage limit?",
-      "th": "จำกัดระยะทางไหม"
+      "th": "จำกัดระยะทางไหม",
+      "rom": "chamkat rayathang mai"
     },
     {
       "en": "What do I do if the car breaks down?",
-      "th": "ถ้ารถเสียต้องทำอย่างไร"
+      "th": "ถ้ารถเสียต้องทำอย่างไร",
+      "rom": "tha rot sia tong tham yangrai"
     },
     {
       "en": "Here is my driving licence.",
-      "th": "นี่ใบขับขี่"
+      "th": "นี่ใบขับขี่",
+      "rom": "ni baikhapkhi"
     },
     {
       "en": "Could I have the receipt, please?",
-      "th": "ขอใบเสร็จหน่อย"
+      "th": "ขอใบเสร็จหน่อย",
+      "rom": "kho noi"
     }
   ],
   "note": {

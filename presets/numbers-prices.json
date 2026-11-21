@@ -47,63 +47,78 @@
   "phrases": [
     {
       "en": "Please type the price on the calculator.",
-      "th": "ช่วยกดราคาในเครื่องคิดเลขหน่อย"
+      "th": "ช่วยกดราคาในเครื่องคิดเลขหน่อย",
+      "rom": "chuai kadrakha nai kheruengkhitlek noi"
     },
     {
       "en": "What is the total price?",
-      "th": "ราคารวมทั้งหมดเท่าไหร่"
+      "th": "ราคารวมทั้งหมดเท่าไหร่",
+      "rom": "rakha ruamthangmt thaorai"
     },
     {
       "en": "Is that price per person or for everything?",
-      "th": "ราคานี้ต่อคน หรือรวมทั้งหมด"
+      "th": "ราคานี้ต่อคน หรือรวมทั้งหมด",
+      "rom": "rakha ni to khon rue ruamthangmt"
     },
     {
       "en": "Is the price in baht?",
-      "th": "ราคานี้เป็นเงินบาทใช่ไหม"
+      "th": "ราคานี้เป็นเงินบาทใช่ไหม",
+      "rom": "rakha ni pen ngoenbat chaimai"
     },
     {
       "en": "Does the price include tax and service charge?",
-      "th": "ราคานี้รวมภาษีและค่าบริการแล้วหรือยัง"
+      "th": "ราคานี้รวมภาษีและค่าบริการแล้วหรือยัง",
+      "rom": "rakha ni ruam phasi lae khaprikan laeo rueyang"
     },
     {
       "en": "Please say the number again, more slowly.",
-      "th": "ช่วยพูดตัวเลขอีกครั้ง ช้าลงหน่อย"
+      "th": "ช่วยพูดตัวเลขอีกครั้ง ช้าลงหน่อย",
+      "rom": "chuai phut tualek ikkrang cha long noi"
     },
     {
       "en": "Is it fifty baht or one hundred and fifty baht?",
-      "th": "ห้าสิบบาท หรือหนึ่งร้อยห้าสิบบาท"
+      "th": "ห้าสิบบาท หรือหนึ่งร้อยห้าสิบบาท",
+      "rom": "asip bat rue nueng roihasip bat"
     },
     {
       "en": "Is it five hundred baht or five thousand baht?",
-      "th": "ห้าร้อยบาท หรือห้าพันบาท"
+      "th": "ห้าร้อยบาท หรือห้าพันบาท",
+      "rom": "ha roi bat rue ha phan bat"
     },
     {
       "en": "Please show me the price on your phone.",
-      "th": "ช่วยโชว์ราคาในโทรศัพท์หน่อย"
+      "th": "ช่วยโชว์ราคาในโทรศัพท์หน่อย",
+      "rom": "chuai cho rakha nai thonsap noi"
     },
     {
       "en": "Please give me the correct change.",
-      "th": "ช่วยทอนเงินให้ถูกต้องด้วย"
+      "th": "ช่วยทอนเงินให้ถูกต้องด้วย",
+      "rom": "chuai thonngoen hai thuktong duai"
     },
     {
       "en": "I gave you a thousand baht note.",
-      "th": "ให้แบงก์พันไปหนึ่งใบ"
+      "th": "ให้แบงก์พันไปหนึ่งใบ",
+      "rom": "hai baeng phan pai nueng bai"
     },
     {
       "en": "Do you have smaller notes?",
-      "th": "มีแบงก์ย่อยไหม"
+      "th": "มีแบงก์ย่อยไหม",
+      "rom": "mi baeng yoi mai"
     },
     {
       "en": "The price is higher than the sign says.",
-      "th": "ราคาสูงกว่าที่ติดไว้"
+      "th": "ราคาสูงกว่าที่ติดไว้",
+      "rom": "rakha su ngok wathi tit wai"
     },
     {
       "en": "Could I have a receipt, please?",
-      "th": "ขอใบเสร็จหน่อย"
+      "th": "ขอใบเสร็จหน่อย",
+      "rom": "kho noi"
     },
     {
       "en": "Ten, twenty, fifty, one hundred, five hundred, one thousand.",
-      "th": "สิบ ยี่สิบ ห้าสิบ หนึ่งร้อย ห้าร้อย หนึ่งพัน"
+      "th": "สิบ ยี่สิบ ห้าสิบ หนึ่งร้อย ห้าร้อย หนึ่งพัน",
+      "rom": "sip yisip asip nuengroi ha roi nueng phan"
     }
   ],
   "note": {

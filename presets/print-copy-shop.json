@@ -48,92 +48,113 @@
     {
       "en": "Please delete my files after printing.",
       "th": "ช่วยลบไฟล์ของเราหลังพิมพ์เสร็จหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai lop fai khong rao lang phim noi"
     },
     {
       "en": "Please do not keep a copy of my passport.",
       "th": "ขออย่าเก็บสำเนาหนังสือเดินทางของเราไว้",
-      "critical": true
+      "critical": true,
+      "rom": "kho ya kep samnao nangsuedoenthang khong rao wai"
     },
     {
       "en": "I need this printed urgently for the embassy.",
       "th": "ต้องพิมพ์ด่วนสำหรับสถานทูต",
-      "critical": true
+      "critical": true,
+      "rom": "tong phim duan samrap sathanthut"
     },
     {
       "en": "I need this document for the police today.",
       "th": "ต้องใช้เอกสารนี้กับตำรวจวันนี้",
-      "critical": true
+      "critical": true,
+      "rom": "tong chai eksan ni kap tamruat wanni"
     },
     {
       "en": "Please do not open my private photos.",
       "th": "ขออย่าเปิดรูปส่วนตัวของเรา",
-      "critical": true
+      "critical": true,
+      "rom": "kho ya poet rup suantua khong rao"
     },
     {
       "en": "My USB stick has a virus, please be careful.",
       "th": "แฟลชไดรฟ์ของเรามีไวรัส ช่วยระวังหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "faent drai khong rao mi chuai rawang noi"
     },
     {
       "en": "How much is one page?",
-      "th": "แผ่นละเท่าไร"
+      "th": "แผ่นละเท่าไร",
+      "rom": "phaen la thaorai"
     },
     {
       "en": "Please make five copies of this page.",
-      "th": "ขอถ่ายเอกสารหน้านี้ห้าชุดหน่อย"
+      "th": "ขอถ่ายเอกสารหน้านี้ห้าชุดหน่อย",
+      "rom": "kho thaieksan na ni ha chut noi"
     },
     {
       "en": "Black and white, both sides, please.",
-      "th": "ขอขาวดำ สองหน้า"
+      "th": "ขอขาวดำ สองหน้า",
+      "rom": "kho khao dam songna"
     },
     {
       "en": "Please print this in colour.",
-      "th": "ช่วยพิมพ์สีหน่อย"
+      "th": "ช่วยพิมพ์สีหน่อย",
+      "rom": "chuai phim si noi"
     },
     {
       "en": "Can you print from my phone?",
-      "th": "พิมพ์จากโทรศัพท์ของเราได้ไหม"
+      "th": "พิมพ์จากโทรศัพท์ของเราได้ไหม",
+      "rom": "phim chak thonsap khong rao dai mai"
     },
     {
       "en": "Please print from this USB stick.",
-      "th": "ช่วยพิมพ์จากแฟลชไดรฟ์นี้หน่อย"
+      "th": "ช่วยพิมพ์จากแฟลชไดรฟ์นี้หน่อย",
+      "rom": "chuai phim chak faent drai ni noi"
     },
     {
       "en": "Please enlarge this to a bigger paper size.",
-      "th": "ช่วยขยายเป็นกระดาษขนาดใหญ่ขึ้นหน่อย"
+      "th": "ช่วยขยายเป็นกระดาษขนาดใหญ่ขึ้นหน่อย",
+      "rom": "chuai khayai pen kradat khanathain khuen noi"
     },
     {
       "en": "Can you take passport photos?",
-      "th": "ถ่ายรูปติดหนังสือเดินทางได้ไหม"
+      "th": "ถ่ายรูปติดหนังสือเดินทางได้ไหม",
+      "rom": "thairup tit nangsuedoenthang dai mai"
     },
     {
       "en": "Please laminate this paper.",
-      "th": "ช่วยเคลือบกระดาษนี้หน่อย"
+      "th": "ช่วยเคลือบกระดาษนี้หน่อย",
+      "rom": "chuai kheluep kradat ni noi"
     },
     {
       "en": "Can you scan this and send it by email?",
-      "th": "สแกนแล้วส่งอีเมลให้ได้ไหม"
+      "th": "สแกนแล้วส่งอีเมลให้ได้ไหม",
+      "rom": "sakaen laeo song imen aidai mai"
     },
     {
       "en": "How long will the printing take?",
-      "th": "การพิมพ์ใช้เวลานานแค่ไหน"
+      "th": "การพิมพ์ใช้เวลานานแค่ไหน",
+      "rom": "kan phim chaiwelanan khae nai"
     },
     {
       "en": "Please bind these pages together.",
-      "th": "ช่วยเย็บเล่มหน้าเหล่านี้หน่อย"
+      "th": "ช่วยเย็บเล่มหน้าเหล่านี้หน่อย",
+      "rom": "chuai yeplem na elani noi"
     },
     {
       "en": "Do you have a bigger envelope?",
-      "th": "มีซองใหญ่กว่านี้ไหม"
+      "th": "มีซองใหญ่กว่านี้ไหม",
+      "rom": "mi song ain kwa ni mai"
     },
     {
       "en": "May I have a receipt for the printing?",
-      "th": "ขอใบเสร็จค่าพิมพ์หน่อย"
+      "th": "ขอใบเสร็จค่าพิมพ์หน่อย",
+      "rom": "kho kha phim noi"
     },
     {
       "en": "Thank you, that is all.",
-      "th": "ขอบคุณ แค่นี้"
+      "th": "ขอบคุณ แค่นี้",
+      "rom": "khopkhun khaeni"
     }
   ]
 }

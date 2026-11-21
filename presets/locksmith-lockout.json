@@ -1,0 +1,168 @@
+{
+  "id": "locksmith-lockout",
+  "names": {
+    "de": "Ausgesperrt und Schlüsseldienst",
+    "en": "Locked out and locksmith",
+    "th": "ถูกล็อกห้องและช่างกุญแจ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Zuerst Rezeption oder Vermieter nach dem Zweitschlüssel fragen; ein Schlüsseldienst (ช่างกุญแจ) sollte den Preis vor der Arbeit nennen. Nachts und bei Notfällen steigen die Preise. Ausweis zeigen, Beleg verlangen und bei Streit die Touristenpolizei 1155 anrufen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "First ask reception or the landlord for a spare key; a locksmith (ช่างกุญแจ) should state the price before starting. Prices rise at night and in emergencies. Show ID, ask for a receipt and call the tourist police 1155 in a dispute. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "key",
+      "th": "กุญแจ"
+    },
+    {
+      "en": "lock",
+      "th": "ล็อก"
+    },
+    {
+      "en": "locksmith",
+      "th": "ช่างกุญแจ"
+    },
+    {
+      "en": "spare key",
+      "th": "กุญแจสำรอง"
+    },
+    {
+      "en": "door",
+      "th": "ประตู"
+    },
+    {
+      "en": "key card",
+      "th": "คีย์การ์ด"
+    },
+    {
+      "en": "landlord",
+      "th": "เจ้าของห้อง"
+    },
+    {
+      "en": "reception",
+      "th": "แผนกต้อนรับ"
+    },
+    {
+      "en": "lost",
+      "th": "หาย"
+    },
+    {
+      "en": "price",
+      "th": "ราคา"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am locked out of my room.",
+      "th": "ถูกล็อกอยู่นอกห้อง",
+      "critical": true,
+      "rom": "thuk yu nok ong"
+    },
+    {
+      "en": "My child is locked inside the room.",
+      "th": "เด็กถูกล็อกอยู่ในห้อง",
+      "critical": true,
+      "rom": "dek thuk yu nai ong"
+    },
+    {
+      "en": "Please open the door quickly, it is an emergency.",
+      "th": "ช่วยเปิดประตูด่วน เป็นเหตุฉุกเฉิน",
+      "critical": true,
+      "rom": "chuai poet pratu duan pen etuchukchoen"
+    },
+    {
+      "en": "There is a stove on inside.",
+      "th": "มีเตาไฟเปิดทิ้งไว้ข้างใน",
+      "critical": true,
+      "rom": "mi taofai poet thing wai khangnai"
+    },
+    {
+      "en": "Please call the tourist police (1155).",
+      "th": "ช่วยโทรหาตำรวจท่องเที่ยว 1155 ด้วย",
+      "critical": true,
+      "rom": "chuai thon ha tamruat thongthiao 1155 duai"
+    },
+    {
+      "en": "Please call the landlord now.",
+      "th": "ช่วยโทรหาเจ้าของห้องตอนนี้เลย",
+      "critical": true,
+      "rom": "chuai thon ha chaokhong ong tonni loei"
+    },
+    {
+      "en": "I lost my key.",
+      "th": "ทำกุญแจหาย",
+      "rom": "tham kunchae hai"
+    },
+    {
+      "en": "I left my key inside.",
+      "th": "ลืมกุญแจไว้ในห้อง",
+      "rom": "luem kunchae wai nai ong"
+    },
+    {
+      "en": "Do you have a spare key?",
+      "th": "มีกุญแจสำรองไหม",
+      "rom": "mi kunchae samrong mai"
+    },
+    {
+      "en": "My key card does not work.",
+      "th": "คีย์การ์ดใช้ไม่ได้",
+      "rom": "khi kat chaimaidai"
+    },
+    {
+      "en": "Please reset my key card.",
+      "th": "ช่วยตั้งค่าคีย์การ์ดใหม่หน่อย",
+      "rom": "chuai tangkha khi kat aim noi"
+    },
+    {
+      "en": "Where can I find a locksmith?",
+      "th": "หาช่างกุญแจได้ที่ไหน",
+      "rom": "ha chang kunchae dai thinai"
+    },
+    {
+      "en": "How much will it cost to open the door?",
+      "th": "ค่าเปิดประตูเท่าไร",
+      "rom": "kha poet pratu thaorai"
+    },
+    {
+      "en": "Please tell me the price before you start.",
+      "th": "ช่วยบอกราคาก่อนเริ่มรักษาหน่อย",
+      "rom": "chuai bok rakha kon roem raksa noi"
+    },
+    {
+      "en": "Can you come right now?",
+      "th": "มาตอนนี้ได้ไหม",
+      "rom": "ma tonni dai mai"
+    },
+    {
+      "en": "How long will it take?",
+      "th": "ใช้เวลานานเท่าไหร่",
+      "rom": "chaiwelanan thaorai"
+    },
+    {
+      "en": "Will the door be damaged?",
+      "th": "ประตูจะเสียหายไหม",
+      "rom": "pratu cha siahai mai"
+    },
+    {
+      "en": "Can you make a new key?",
+      "th": "ทำกุญแจดอกใหม่ได้ไหม",
+      "rom": "tham kunchae dok aim dai mai"
+    },
+    {
+      "en": "Please change the lock.",
+      "th": "ช่วยเปลี่ยนลูกบิดให้หน่อย",
+      "rom": "chuai pelin lukbit hai noi"
+    },
+    {
+      "en": "Here is my passport as proof.",
+      "th": "นี่คือหนังสือเดินทางเพื่อยืนยันตัวตน",
+      "rom": "ni khue nangsuedoenthang phuea yuenyan tuatn"
+    },
+    {
+      "en": "Please give me a receipt.",
+      "th": "ขอใบเสร็จ",
+      "rom": "kho"
+    }
+  ]
+}

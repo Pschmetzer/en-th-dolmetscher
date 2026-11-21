@@ -48,83 +48,102 @@
     {
       "en": "I have severe tooth pain.",
       "th": "ปวดฟันมาก",
-      "critical": true
+      "critical": true,
+      "rom": "puatfan mak"
     },
     {
       "en": "My face is swollen.",
       "th": "หน้าบวม",
-      "critical": true
+      "critical": true,
+      "rom": "na buam"
     },
     {
       "en": "I am allergic to anaesthetic.",
       "th": "แพ้ยาชา",
-      "critical": true
+      "critical": true,
+      "rom": "phae yacha"
     },
     {
       "en": "I am allergic to penicillin.",
       "th": "แพ้ยาเพนิซิลลิน",
-      "critical": true
+      "critical": true,
+      "rom": "phaeya phe ni si l li n"
     },
     {
       "en": "Please stop, it hurts.",
       "th": "หยุดก่อน เจ็บ",
-      "critical": true
+      "critical": true,
+      "rom": "yut kon chep"
     },
     {
       "en": "I need to see a dentist today.",
-      "th": "ต้องการพบทันตแพทย์วันนี้"
+      "th": "ต้องการพบทันตแพทย์วันนี้",
+      "rom": "tongkan phop thantphaet wanni"
     },
     {
       "en": "Do you have an appointment free today?",
-      "th": "วันนี้มีคิวว่างไหม"
+      "th": "วันนี้มีคิวว่างไหม",
+      "rom": "wanni mi khio wang mai"
     },
     {
       "en": "A tooth is broken.",
-      "th": "ฟันแตก"
+      "th": "ฟันแตก",
+      "rom": "fan taek"
     },
     {
       "en": "I lost a filling.",
-      "th": "อุดฟันหลุด"
+      "th": "อุดฟันหลุด",
+      "rom": "utfan lut"
     },
     {
       "en": "My crown came off.",
-      "th": "ครอบฟันหลุด"
+      "th": "ครอบฟันหลุด",
+      "rom": "khrop fan lut"
     },
     {
       "en": "My gums are bleeding.",
-      "th": "เหงือกมีเลือดออก"
+      "th": "เหงือกมีเลือดออก",
+      "rom": "enguek mi lueat ok"
     },
     {
       "en": "Please give me a local anaesthetic.",
-      "th": "ช่วยฉีดยาชาให้หน่อย"
+      "th": "ช่วยฉีดยาชาให้หน่อย",
+      "rom": "chuai chit yacha hai noi"
     },
     {
       "en": "Could I have an X-ray?",
-      "th": "ขอเอกซเรย์ฟันได้ไหม"
+      "th": "ขอเอกซเรย์ฟันได้ไหม",
+      "rom": "kho ektre fan dai mai"
     },
     {
       "en": "Do I need a root canal?",
-      "th": "ต้องรักษารากฟันไหม"
+      "th": "ต้องรักษารากฟันไหม",
+      "rom": "tong raksa rakfan mai"
     },
     {
       "en": "Could you give me a cost estimate first?",
-      "th": "ช่วยประเมินราคาก่อนได้ไหม"
+      "th": "ช่วยประเมินราคาก่อนได้ไหม",
+      "rom": "chuai pramoenrakha kon dai mai"
     },
     {
       "en": "How much will it cost in total?",
-      "th": "ค่าใช้จ่ายทั้งหมดเท่าไร"
+      "th": "ค่าใช้จ่ายทั้งหมดเท่าไร",
+      "rom": "khachaichai thangmt thaorai"
     },
     {
       "en": "Can I take painkillers?",
-      "th": "กินยาแก้ปวดได้ไหม"
+      "th": "กินยาแก้ปวดได้ไหม",
+      "rom": "kin yakaepuat dai mai"
     },
     {
       "en": "When can I eat after the treatment?",
-      "th": "หลังรักษากินอาหารได้เมื่อไร"
+      "th": "หลังรักษากินอาหารได้เมื่อไร",
+      "rom": "lang raksa kin ahan dai muearai"
     },
     {
       "en": "Could I have a receipt, please?",
-      "th": "ขอใบเสร็จหน่อย"
+      "th": "ขอใบเสร็จหน่อย",
+      "rom": "kho noi"
     }
   ]
 }

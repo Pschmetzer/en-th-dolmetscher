@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Im Schlafsaal Wertsachen im Schließfach lassen und ein eigenes Schloss mitbringen. Nachts leise sein, Licht und Handy rücksichtsvoll nutzen. Den Pass nicht als Pfand abgeben. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "In a dorm keep valuables in the locker and bring your own lock. Be quiet at night and use lights and phone with care. Do not hand over your passport as a deposit. Thai lines machine-made, not checked by native speakers."
+    "de": "Im Schlafsaal Wertsachen im Schließfach lassen und ein eigenes Schloss mitbringen. Nachts leise sein, Licht und Handy rücksichtsvoll nutzen. Den Pass nicht als Pfand abgeben. Siehe auch: Hotel. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "In a dorm keep valuables in the locker and bring your own lock. Be quiet at night and use lights and phone with care. Do not hand over your passport as a deposit. See also: Hotel. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,83 +40,102 @@
     {
       "en": "My things were stolen.",
       "th": "ของถูกขโมย",
-      "critical": true
+      "critical": true,
+      "rom": "khong thuk khamoi"
     },
     {
       "en": "Please call the police.",
       "th": "ช่วยเรียกตำรวจด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak tamruat duai"
     },
     {
       "en": "There is a fire!",
       "th": "ไฟไหม้",
-      "critical": true
+      "critical": true,
+      "rom": "faimai"
     },
     {
       "en": "I need medical help.",
       "th": "ต้องการความช่วยเหลือทางการแพทย์",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan khwamchuaihelue thangkanphaet"
     },
     {
       "en": "Please call a doctor.",
       "th": "ช่วยเรียกแพทย์หน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak phaet noi"
     },
     {
       "en": "Do you have a bed in the dorm?",
-      "th": "มีเตียงในห้องรวมไหม"
+      "th": "มีเตียงในห้องรวมไหม",
+      "rom": "mi tiang nai ong ruam mai"
     },
     {
       "en": "How much is one night?",
-      "th": "คืนละเท่าไหร่"
+      "th": "คืนละเท่าไหร่",
+      "rom": "khuen la thaorai"
     },
     {
       "en": "Is it a mixed or a female-only dorm?",
-      "th": "เป็นห้องรวมหรือห้องหญิงล้วน"
+      "th": "เป็นห้องรวมหรือห้องหญิงล้วน",
+      "rom": "pen ong ruam rue ong ying luan"
     },
     {
       "en": "Is breakfast included?",
-      "th": "รวมอาหารเช้าไหม"
+      "th": "รวมอาหารเช้าไหม",
+      "rom": "ruam ahanchao mai"
     },
     {
       "en": "Is there a locker?",
-      "th": "มีตู้เก็บของไหม"
+      "th": "มีตู้เก็บของไหม",
+      "rom": "mi tu kep khong mai"
     },
     {
       "en": "Do I need my own lock?",
-      "th": "ต้องเอากุญแจมาเองไหม"
+      "th": "ต้องเอากุญแจมาเองไหม",
+      "rom": "tong ao kunchae ma eng mai"
     },
     {
       "en": "Where is my bed?",
-      "th": "เตียงอยู่ตรงไหน"
+      "th": "เตียงอยู่ตรงไหน",
+      "rom": "tiang yu trangahanai"
     },
     {
       "en": "What time is check-out?",
-      "th": "เช็คเอาท์กี่โมง"
+      "th": "เช็คเอาท์กี่โมง",
+      "rom": "chek ao ki mong"
     },
     {
       "en": "What is the wifi password?",
-      "th": "รหัสไวไฟคืออะไร"
+      "th": "รหัสไวไฟคืออะไร",
+      "rom": "rahat waifai khue arai"
     },
     {
       "en": "Can I leave my luggage here?",
-      "th": "ฝากกระเป๋าไว้ที่นี่ได้ไหม"
+      "th": "ฝากกระเป๋าไว้ที่นี่ได้ไหม",
+      "rom": "fak krapao wai thini dai mai"
     },
     {
       "en": "Please keep it quiet, people are sleeping.",
-      "th": "ช่วยเงียบหน่อย มีคนนอนอยู่"
+      "th": "ช่วยเงียบหน่อย มีคนนอนอยู่",
+      "rom": "chuai ngiap noi mi khon non yu"
     },
     {
       "en": "Are there towels and sheets?",
-      "th": "มีผ้าเช็ดตัวและผ้าปูที่นอนไหม"
+      "th": "มีผ้าเช็ดตัวและผ้าปูที่นอนไหม",
+      "rom": "mi phachettua lae phaputhinon mai"
     },
     {
       "en": "Is there hot water?",
-      "th": "มีน้ำร้อนไหม"
+      "th": "มีน้ำร้อนไหม",
+      "rom": "mi namron mai"
     },
     {
       "en": "Can I extend my stay by one night?",
-      "th": "ขอพักเพิ่มอีกหนึ่งคืนได้ไหม"
+      "th": "ขอพักเพิ่มอีกหนึ่งคืนได้ไหม",
+      "rom": "kho phak phoem ik nueng khuen dai mai"
     }
   ]
 }

@@ -40,91 +40,112 @@
     {
       "en": "I want to get out here.",
       "th": "ขอลงตรงนี้",
-      "critical": true
+      "critical": true,
+      "rom": "kho long trangani"
     },
     {
       "en": "Please stop the car now.",
       "th": "ช่วยจอดรถเดี๋ยวนี้",
-      "critical": true
+      "critical": true,
+      "rom": "chuai chot rot diaoni"
     },
     {
       "en": "The driver is driving dangerously.",
       "th": "คนขับขับรถอันตราย",
-      "critical": true
+      "critical": true,
+      "rom": "khanakhap khapnt antrai"
     },
     {
       "en": "Please do not lock the doors.",
       "th": "ขออย่าล็อกประตู",
-      "critical": true
+      "critical": true,
+      "rom": "kho ya pratu"
     },
     {
       "en": "I feel unsafe.",
       "th": "รู้สึกไม่ปลอดภัย",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek mai plotphai"
     },
     {
       "en": "The app price was agreed. Please follow it.",
-      "th": "ราคาในแอปตกลงกันแล้ว ขอให้คิดตามนั้น"
+      "th": "ราคาในแอปตกลงกันแล้ว ขอให้คิดตามนั้น",
+      "rom": "rakha nai ae p taklong kan laeo khohai khit tamnan"
     },
     {
       "en": "Please do not ask for extra money.",
-      "th": "ขออย่าเรียกเงินเพิ่ม"
+      "th": "ขออย่าเรียกเงินเพิ่ม",
+      "rom": "kho ya riak ngoen phoem"
     },
     {
       "en": "Please turn on the meter.",
-      "th": "ช่วยเปิดมิเตอร์หน่อย"
+      "th": "ช่วยเปิดมิเตอร์หน่อย",
+      "rom": "chuai poet mitoe noi"
     },
     {
       "en": "This is the price on my screen.",
-      "th": "นี่คือราคาที่ขึ้นบนหน้าจอ"
+      "th": "นี่คือราคาที่ขึ้นบนหน้าจอ",
+      "rom": "ni khue ra khathi khuen bon nacho"
     },
     {
       "en": "I will pay the toll if it is on the receipt.",
-      "th": "จะจ่ายค่าทางด่วนถ้ามีในใบเสร็จ"
+      "th": "จะจ่ายค่าทางด่วนถ้ามีในใบเสร็จ",
+      "rom": "cha chai kha thangduan tha mi nai"
     },
     {
       "en": "Why is the route so long?",
-      "th": "ทำไมถึงไปทางอ้อม"
+      "th": "ทำไมถึงไปทางอ้อม",
+      "rom": "thammai thueng pai thangom"
     },
     {
       "en": "Please follow the map.",
-      "th": "ช่วยขับตามแผนที่หน่อย"
+      "th": "ช่วยขับตามแผนที่หน่อย",
+      "rom": "chuai khap tam phaenthi noi"
     },
     {
       "en": "Why did you cancel the ride?",
-      "th": "ทำไมถึงยกเลิกการเดินทาง"
+      "th": "ทำไมถึงยกเลิกการเดินทาง",
+      "rom": "thammai thueng yakloek kan doenthang"
     },
     {
       "en": "I will report this in the app.",
-      "th": "จะรายงานเรื่องนี้ในแอป"
+      "th": "จะรายงานเรื่องนี้ในแอป",
+      "rom": "cha raingan rueang ni nai ae p"
     },
     {
       "en": "Please show me the fare on the meter.",
-      "th": "ขอดูค่าโดยสารบนมิเตอร์หน่อย"
+      "th": "ขอดูค่าโดยสารบนมิเตอร์หน่อย",
+      "rom": "kho du khadoisan bon mitoe noi"
     },
     {
       "en": "I only have large notes. Do you have change?",
-      "th": "มีแต่ธนบัตรใบใหญ่ มีเงินทอนไหม"
+      "th": "มีแต่ธนบัตรใบใหญ่ มีเงินทอนไหม",
+      "rom": "mi tae thanabatn bai ain mi ngoenthon mai"
     },
     {
       "en": "I need a receipt, please.",
-      "th": "ขอใบเสร็จหน่อย"
+      "th": "ขอใบเสร็จหน่อย",
+      "rom": "kho noi"
     },
     {
       "en": "I paid by card in the app.",
-      "th": "จ่ายด้วยบัตรผ่านแอปแล้ว"
+      "th": "จ่ายด้วยบัตรผ่านแอปแล้ว",
+      "rom": "chai duai batn phan ae p laeo"
     },
     {
       "en": "That is too expensive. I will use another car.",
-      "th": "แพงเกินไป จะใช้รถคันอื่น"
+      "th": "แพงเกินไป จะใช้รถคันอื่น",
+      "rom": "phaeng koenpai cha chai rot khan uen"
     },
     {
       "en": "Please wait, I will take a screenshot.",
-      "th": "รอสักครู่ จะแคปหน้าจอไว้"
+      "th": "รอสักครู่ จะแคปหน้าจอไว้",
+      "rom": "ro sakkru cha khaep nacho wai"
     },
     {
       "en": "Please turn on the air conditioning.",
-      "th": "ช่วยเปิดแอร์ด้วย"
+      "th": "ช่วยเปิดแอร์ด้วย",
+      "rom": "chuai poet ae duai"
     }
   ]
 }

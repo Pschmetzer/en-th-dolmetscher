@@ -55,63 +55,78 @@
   "phrases": [
     {
       "en": "Please set the pump to zero before you start.",
-      "th": "ขอให้ตั้งหน้าปัดเป็นศูนย์ก่อนเริ่มเติม"
+      "th": "ขอให้ตั้งหน้าปัดเป็นศูนย์ก่อนเริ่มเติม",
+      "rom": "khohai tang napat pen sun kon roem toem"
     },
     {
       "en": "Fill it up, please.",
-      "th": "เติมเต็มถัง"
+      "th": "เติมเต็มถัง",
+      "rom": "toemtem thang"
     },
     {
       "en": "Petrol, please.",
-      "th": "ขอน้ำมันเบนซิน"
+      "th": "ขอน้ำมันเบนซิน",
+      "rom": "kho nammanbensin"
     },
     {
       "en": "Diesel, please.",
-      "th": "ขอน้ำมันดีเซล"
+      "th": "ขอน้ำมันดีเซล",
+      "rom": "kho nammandisen"
     },
     {
       "en": "Please fill up to this amount.",
-      "th": "ช่วยเติมตามจำนวนเงินนี้"
+      "th": "ช่วยเติมตามจำนวนเงินนี้",
+      "rom": "chuai toem tam chamnuan ngoen ni"
     },
     {
       "en": "Is this the right fuel for my car?",
-      "th": "น้ำมันนี้ใช้กับรถคันนี้ได้ใช่ไหม"
+      "th": "น้ำมันนี้ใช้กับรถคันนี้ได้ใช่ไหม",
+      "rom": "namman ni chaikap rot khan ni dai chaimai"
     },
     {
       "en": "Could you check the air in my tyres?",
-      "th": "ช่วยตรวจลมยางให้หน่อยได้ไหม"
+      "th": "ช่วยตรวจลมยางให้หน่อยได้ไหม",
+      "rom": "chuai truat lom yang hai noi dai mai"
     },
     {
       "en": "I would like a receipt.",
-      "th": "ขอใบเสร็จ"
+      "th": "ขอใบเสร็จ",
+      "rom": "kho"
     },
     {
       "en": "Can I pay by card?",
-      "th": "จ่ายด้วยบัตรได้ไหม"
+      "th": "จ่ายด้วยบัตรได้ไหม",
+      "rom": "chai duai batn dai mai"
     },
     {
       "en": "Where is the toilet?",
-      "th": "ห้องน้ำอยู่ที่ไหน"
+      "th": "ห้องน้ำอยู่ที่ไหน",
+      "rom": "ongnam yu thinai"
     },
     {
       "en": "Is parking free here?",
-      "th": "จอดรถที่นี่ฟรีไหม"
+      "th": "จอดรถที่นี่ฟรีไหม",
+      "rom": "chot rot thini fri mai"
     },
     {
       "en": "How much is the parking per hour?",
-      "th": "ที่จอดรถชั่วโมงละเท่าไร"
+      "th": "ที่จอดรถชั่วโมงละเท่าไร",
+      "rom": "thichotnt chuamong la thaorai"
     },
     {
       "en": "I lost my parking ticket.",
-      "th": "ทำบัตรจอดรถหาย"
+      "th": "ทำบัตรจอดรถหาย",
+      "rom": "tham batnchotnt hai"
     },
     {
       "en": "Is it allowed to park here?",
-      "th": "จอดรถตรงนี้ได้ไหม"
+      "th": "จอดรถตรงนี้ได้ไหม",
+      "rom": "chot rot trangani dai mai"
     },
     {
       "en": "Please move your car.",
-      "th": "ช่วยเคลื่อนย้ายรถหน่อย"
+      "th": "ช่วยเคลื่อนย้ายรถหน่อย",
+      "rom": "chuai kheluenyai rot noi"
     }
   ]
 }

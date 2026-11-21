@@ -36,91 +36,111 @@
     {
       "en": "I lost my passport.",
       "th": "ทำพาสปอร์ตหาย",
-      "critical": true
+      "critical": true,
+      "rom": "tham phatpot hai"
     },
     {
       "en": "My passport was stolen.",
       "th": "พาสปอร์ตถูกขโมย",
-      "critical": true
+      "critical": true,
+      "rom": "phatpot thuk khamoi"
     },
     {
       "en": "I need to make a police report.",
       "th": "ต้องการแจ้งความ",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan chaengkwam"
     },
     {
       "en": "I need the report for my embassy.",
       "th": "ต้องใช้ใบแจ้งความไปสถานทูต",
-      "critical": true
+      "critical": true,
+      "rom": "tong chai baichaengkwam pai sathanthut"
     },
     {
       "en": "Please call the Tourist Police.",
       "th": "ช่วยโทรหาตำรวจท่องเที่ยวหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai thon ha tamruat thongthiao noi"
     },
     {
       "en": "Where is the nearest police station?",
-      "th": "สถานีตำรวจที่ใกล้ที่สุดอยู่ที่ไหน"
+      "th": "สถานีตำรวจที่ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "sathanitamruat thi kain thisut yu thinai"
     },
     {
       "en": "Where is my embassy?",
-      "th": "สถานทูตอยู่ที่ไหน"
+      "th": "สถานทูตอยู่ที่ไหน",
+      "rom": "sathanthut yu thinai"
     },
     {
       "en": "I have a copy of my passport.",
-      "th": "มีสำเนาหนังสือเดินทาง"
+      "th": "มีสำเนาหนังสือเดินทาง",
+      "rom": "mi samnao nangsuedoenthang"
     },
     {
       "en": "I need an emergency passport.",
-      "th": "ต้องการหนังสือเดินทางฉุกเฉิน"
+      "th": "ต้องการหนังสือเดินทางฉุกเฉิน",
+      "rom": "tongkan nangsuedoenthang chukchoen"
     },
     {
       "en": "Where can I get passport photos?",
-      "th": "ถ่ายรูปติดหนังสือเดินทางได้ที่ไหน"
+      "th": "ถ่ายรูปติดหนังสือเดินทางได้ที่ไหน",
+      "rom": "thairup tit nangsuedoenthang dai thinai"
     },
     {
       "en": "How long does a new passport take?",
-      "th": "ทำหนังสือเดินทางใหม่ใช้เวลานานแค่ไหน"
+      "th": "ทำหนังสือเดินทางใหม่ใช้เวลานานแค่ไหน",
+      "rom": "tham nangsuedoenthang aim chaiwelanan khae nai"
     },
     {
       "en": "Please write down the report number.",
-      "th": "ช่วยเขียนเลขที่ใบแจ้งความให้หน่อย"
+      "th": "ช่วยเขียนเลขที่ใบแจ้งความให้หน่อย",
+      "rom": "chuai khian lekthi baichaengkwam hai noi"
     },
     {
       "en": "Can I leave the country with this paper?",
-      "th": "ออกนอกประเทศด้วยเอกสารนี้ได้ไหม"
+      "th": "ออกนอกประเทศด้วยเอกสารนี้ได้ไหม",
+      "rom": "ok nok prathet duai eksan ni dai mai"
     },
     {
       "en": "I also lost my departure card.",
-      "th": "บัตรขาออกก็หายด้วย"
+      "th": "บัตรขาออกก็หายด้วย",
+      "rom": "batn khaok hai duai"
     },
     {
       "en": "What do I need to tell immigration?",
-      "th": "ต้องแจ้งอะไรกับสำนักงานตรวจคนเข้าเมืองบ้าง"
+      "th": "ต้องแจ้งอะไรกับสำนักงานตรวจคนเข้าเมืองบ้าง",
+      "rom": "tong chaeng arai kap samnakngan truat khanakhaomueang bang"
     },
     {
       "en": "Can you help me look in the lost and found?",
-      "th": "ช่วยหาที่แผนกของหายหน่อยได้ไหม"
+      "th": "ช่วยหาที่แผนกของหายหน่อยได้ไหม",
+      "rom": "chuai ha thi phaenk khong hai noi dai mai"
     },
     {
       "en": "Please check the camera footage.",
-      "th": "ช่วยตรวจดูกล้องวงจรปิดหน่อย"
+      "th": "ช่วยตรวจดูกล้องวงจรปิดหน่อย",
+      "rom": "chuai truatdu klonguangtnpit noi"
     },
     {
       "en": "I can pay the fee in cash.",
-      "th": "จ่ายค่าธรรมเนียมเป็นเงินสดได้"
+      "th": "จ่ายค่าธรรมเนียมเป็นเงินสดได้",
+      "rom": "chai khatamniam pen ngoentt dai"
     },
     {
       "en": "Is the office open today?",
-      "th": "วันนี้สำนักงานเปิดไหม"
+      "th": "วันนี้สำนักงานเปิดไหม",
+      "rom": "wanni samnakngan poet mai"
     },
     {
       "en": "Thank you for your help.",
-      "th": "ขอบคุณมากที่ช่วย"
+      "th": "ขอบคุณมากที่ช่วย",
+      "rom": "khopkhun mak thi chuai"
     }
   ],
   "note": {
-    "de": "Zuerst bei der nächsten Polizeistation (oder Touristenpolizei 1155) eine Verlustanzeige holen, dann zur Botschaft für einen Ersatz- oder Notpass. Mitbringen: Passfoto, Kopie des Passes, Anzeige. Bei Visum und Einreisestempel danach zur Immigration. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "First get a loss report at the nearest police station (or Tourist Police 1155), then go to your embassy for a replacement or emergency passport. Bring photos, a copy of the passport and the report. Afterwards visit immigration about your visa and entry stamp. Thai lines machine-made, not checked by native speakers."
+    "de": "Zuerst bei der nächsten Polizeistation (oder Touristenpolizei 1155) eine Verlustanzeige holen, dann zur Botschaft für einen Ersatz- oder Notpass. Mitbringen: Passfoto, Kopie des Passes, Anzeige. Bei Visum und Einreisestempel danach zur Immigration. Siehe auch: Anzeige bei der Touristenpolizei. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "First get a loss report at the nearest police station (or Tourist Police 1155), then go to your embassy for a replacement or emergency passport. Bring photos, a copy of the passport and the report. Afterwards visit immigration about your visa and entry stamp. See also: Tourist police report. Thai lines machine-made, not checked by native speakers."
   }
 }

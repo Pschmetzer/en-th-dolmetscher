@@ -56,65 +56,80 @@
     {
       "en": "My child is missing.",
       "th": "ลูกหายไป",
-      "critical": true
+      "critical": true,
+      "rom": "luk hai pai"
     },
     {
       "en": "Someone is hurt. Please call a doctor.",
       "th": "มีคนบาดเจ็บ ช่วยเรียกหมอด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon batchep chuai riak mo duai"
     },
     {
       "en": "Where is the first aid room?",
       "th": "ห้องปฐมพยาบาลอยู่ที่ไหน",
-      "critical": true
+      "critical": true,
+      "rom": "ong pathamaphayaban yu thinai"
     },
     {
       "en": "How much is a ticket for an adult?",
-      "th": "ตั๋วผู้ใหญ่ราคาเท่าไร"
+      "th": "ตั๋วผู้ใหญ่ราคาเท่าไร",
+      "rom": "tua phuhain rakha thaorai"
     },
     {
       "en": "How much is a ticket for a child?",
-      "th": "ตั๋วเด็กราคาเท่าไร"
+      "th": "ตั๋วเด็กราคาเท่าไร",
+      "rom": "tua dek rakha thaorai"
     },
     {
       "en": "Is there a price for foreigners?",
-      "th": "มีราคาสำหรับชาวต่างชาติไหม"
+      "th": "มีราคาสำหรับชาวต่างชาติไหม",
+      "rom": "mirakha samrap chaotangchati mai"
     },
     {
       "en": "What time does it close?",
-      "th": "ปิดกี่โมง"
+      "th": "ปิดกี่โมง",
+      "rom": "pit ki mong"
     },
     {
       "en": "Where can I rent a locker?",
-      "th": "เช่าตู้ล็อกเกอร์ได้ที่ไหน"
+      "th": "เช่าตู้ล็อกเกอร์ได้ที่ไหน",
+      "rom": "chao tu dai thinai"
     },
     {
       "en": "Is there a life jacket for my child?",
-      "th": "มีเสื้อชูชีพสำหรับเด็กไหม"
+      "th": "มีเสื้อชูชีพสำหรับเด็กไหม",
+      "rom": "mi suea chuchip samrap dek mai"
     },
     {
       "en": "Is this slide safe for children?",
-      "th": "สไลเดอร์นี้ปลอดภัยสำหรับเด็กไหม"
+      "th": "สไลเดอร์นี้ปลอดภัยสำหรับเด็กไหม",
+      "rom": "slaidoe ni plotphai samrap dek mai"
     },
     {
       "en": "Can we bring our own food?",
-      "th": "นำอาหารมาเองได้ไหม"
+      "th": "นำอาหารมาเองได้ไหม",
+      "rom": "nam ahan ma eng dai mai"
     },
     {
       "en": "Can I feed the animals?",
-      "th": "ให้อาหารสัตว์ได้ไหม"
+      "th": "ให้อาหารสัตว์ได้ไหม",
+      "rom": "hai ahansat dai mai"
     },
     {
       "en": "When is the feeding time?",
-      "th": "ให้อาหารสัตว์กี่โมง"
+      "th": "ให้อาหารสัตว์กี่โมง",
+      "rom": "hai ahansat ki mong"
     },
     {
       "en": "Where is the lost and found?",
-      "th": "แจ้งของหายที่ไหน"
+      "th": "แจ้งของหายที่ไหน",
+      "rom": "chaeng khong hai thinai"
     },
     {
       "en": "Where is the toilet?",
-      "th": "ห้องน้ำอยู่ที่ไหน"
+      "th": "ห้องน้ำอยู่ที่ไหน",
+      "rom": "ongnam yu thinai"
     }
   ]
 }

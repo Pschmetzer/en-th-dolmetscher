@@ -6,6 +6,7 @@ on:
     paths:
       - index.html
       - sw.js
+      - web-*.js
       - manifest.webmanifest
       - languages.json
       - presets/**
@@ -39,3 +40,22 @@ jobs:
           python3 -m http.server 8000 &
           sleep 2
           cd tests/web-e2e && node axe.mjs
+
+  e2e:
+    # End-to-end flow in Chromium: open a pack, show a card, search, then reload offline after the service worker installed.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install Playwright
+        working-directory: tests/web-e2e
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Phrasebook flow (pack, card, search, offline)
+        run: |
+          python3 -m http.server 8000 &
+          sleep 2
+          cd tests/web-e2e && node flow.mjs

@@ -35,67 +35,83 @@
   "phrases": [
     {
       "en": "I would like to return this item.",
-      "th": "ต้องการคืนสินค้านี้"
+      "th": "ต้องการคืนสินค้านี้",
+      "rom": "tong kankhuen sinkha ni"
     },
     {
       "en": "It does not work.",
-      "th": "ใช้งานไม่ได้"
+      "th": "ใช้งานไม่ได้",
+      "rom": "chaingan mai dai"
     },
     {
       "en": "It is damaged.",
-      "th": "สินค้าชำรุด"
+      "th": "สินค้าชำรุด",
+      "rom": "sinkha chamrut"
     },
     {
       "en": "I bought it today. Here is the receipt.",
-      "th": "ซื้อวันนี้ นี่คือใบเสร็จ"
+      "th": "ซื้อวันนี้ นี่คือใบเสร็จ",
+      "rom": "sue wanni ni khue"
     },
     {
       "en": "May I speak to the manager?",
-      "th": "ขอพบผู้จัดการได้ไหม"
+      "th": "ขอพบผู้จัดการได้ไหม",
+      "rom": "kho phop phuchatkan dai mai"
     },
     {
       "en": "I would like a refund.",
-      "th": "ขอเงินคืน"
+      "th": "ขอเงินคืน",
+      "rom": "kho ngoen khuen"
     },
     {
       "en": "Can I exchange it for another one?",
-      "th": "เปลี่ยนเป็นชิ้นอื่นได้ไหม"
+      "th": "เปลี่ยนเป็นชิ้นอื่นได้ไหม",
+      "rom": "pelinpen chin uen dai mai"
     },
     {
       "en": "Is there a return policy?",
-      "th": "มีนโยบายการคืนสินค้าไหม"
+      "th": "มีนโยบายการคืนสินค้าไหม",
+      "rom": "mi nayobai kankhuen sinkha mai"
     },
     {
       "en": "It is different from the description.",
-      "th": "สินค้าไม่ตรงกับคำอธิบาย"
+      "th": "สินค้าไม่ตรงกับคำอธิบาย",
+      "rom": "sinkha mai trong kap khamthibai"
     },
     {
       "en": "The wrong amount was charged to my card.",
-      "th": "หักเงินจากบัตรผิดจำนวน"
+      "th": "หักเงินจากบัตรผิดจำนวน",
+      "rom": "ak ngoen chak batn phit chamnuan"
     },
     {
       "en": "Please cancel the payment.",
-      "th": "ช่วยยกเลิกการชำระเงินหน่อย"
+      "th": "ช่วยยกเลิกการชำระเงินหน่อย",
+      "rom": "chuai yakloek kan chamrangoen noi"
     },
     {
       "en": "Please give me written confirmation.",
-      "th": "ขอหลักฐานเป็นลายลักษณ์อักษร"
+      "th": "ขอหลักฐานเป็นลายลักษณ์อักษร",
+      "rom": "kho lakthan pen"
     },
     {
       "en": "Where is the customer service desk?",
-      "th": "เคาน์เตอร์บริการลูกค้าอยู่ที่ไหน"
+      "th": "เคาน์เตอร์บริการลูกค้าอยู่ที่ไหน",
+      "rom": "khaotoe brikan lukkha yu thinai"
     },
     {
       "en": "I would like to make a complaint.",
-      "th": "ต้องการร้องเรียน"
+      "th": "ต้องการร้องเรียน",
+      "rom": "tong kaaongrian"
     },
     {
       "en": "Please give me your name and the shop phone number.",
-      "th": "ขอชื่อและเบอร์โทรของร้านหน่อย"
+      "th": "ขอชื่อและเบอร์โทรของร้านหน่อย",
+      "rom": "kho chue lae boe thon khong ran noi"
     },
     {
       "en": "Can the money go back to my card?",
-      "th": "คืนเงินเข้าบัตรได้ไหม"
+      "th": "คืนเงินเข้าบัตรได้ไหม",
+      "rom": "khuenngoen khao batn dai mai"
     }
   ],
   "note": {

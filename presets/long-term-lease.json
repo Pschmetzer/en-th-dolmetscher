@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Üblich: 1–2 Monatsmieten Kaution plus 1 Monat im Voraus, Vertrag meist 6–12 Monate. Zähler für Strom und Wasser selbst ablesen und Fotos beim Einzug machen. Vertrag auf Englisch oder Übersetzung verlangen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Usual terms: a deposit of 1-2 months' rent plus one month in advance, contract mostly 6-12 months. Read the electricity and water meters and take photos at move-in. Ask for an English contract. Thai lines machine-made, not checked by native speakers."
+    "de": "Üblich: 1–2 Monatsmieten Kaution plus 1 Monat im Voraus, Vertrag meist 6–12 Monate. Zähler für Strom und Wasser selbst ablesen und Fotos beim Einzug machen. Vertrag auf Englisch oder Übersetzung verlangen. Siehe auch: Wohnungssuche, Wohnung mieten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Usual terms: a deposit of 1-2 months' rent plus one month in advance, contract mostly 6-12 months. Read the electricity and water meters and take photos at move-in. Ask for an English contract. See also: Apartment hunting, Renting a flat. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,67 +40,83 @@
     {
       "en": "Will I get the deposit back?",
       "th": "ได้เงินมัดจำคืนไหม",
-      "critical": true
+      "critical": true,
+      "rom": "dai ngoenmatcham khuen mai"
     },
     {
       "en": "I am looking for a room to rent for six months.",
-      "th": "กำลังหาห้องเช่าหกเดือน"
+      "th": "กำลังหาห้องเช่าหกเดือน",
+      "rom": "kamlang ha ongchao ok duean"
     },
     {
       "en": "How much is the rent per month?",
-      "th": "ค่าเช่าเดือนละเท่าไหร่"
+      "th": "ค่าเช่าเดือนละเท่าไหร่",
+      "rom": "khachao duean la thaorai"
     },
     {
       "en": "How much is the deposit?",
-      "th": "ค่ามัดจำเท่าไหร่"
+      "th": "ค่ามัดจำเท่าไหร่",
+      "rom": "kha matcham thaorai"
     },
     {
       "en": "Are water and electricity included?",
-      "th": "รวมค่าน้ำค่าไฟไหม"
+      "th": "รวมค่าน้ำค่าไฟไหม",
+      "rom": "ruam khanamkhafai mai"
     },
     {
       "en": "How much is the electricity per unit?",
-      "th": "ค่าไฟหน่วยละเท่าไร"
+      "th": "ค่าไฟหน่วยละเท่าไร",
+      "rom": "kha fai nuai la thaorai"
     },
     {
       "en": "Is there Wi-Fi?",
-      "th": "มีไวไฟไหม"
+      "th": "มีไวไฟไหม",
+      "rom": "mi waifai mai"
     },
     {
       "en": "Is there a washing machine?",
-      "th": "มีเครื่องซักผ้าไหม"
+      "th": "มีเครื่องซักผ้าไหม",
+      "rom": "mi kheruengsakpha mai"
     },
     {
       "en": "Are pets allowed?",
-      "th": "เลี้ยงสัตว์ได้ไหม"
+      "th": "เลี้ยงสัตว์ได้ไหม",
+      "rom": "liangsat dai mai"
     },
     {
       "en": "Can I see the room first?",
-      "th": "ขอดูห้องก่อนได้ไหม"
+      "th": "ขอดูห้องก่อนได้ไหม",
+      "rom": "kho du ong kon dai mai"
     },
     {
       "en": "The air conditioner does not work.",
-      "th": "เครื่องปรับอากาศใช้ไม่ได้"
+      "th": "เครื่องปรับอากาศใช้ไม่ได้",
+      "rom": "chaimaidai"
     },
     {
       "en": "The toilet is leaking.",
-      "th": "ห้องน้ำรั่ว"
+      "th": "ห้องน้ำรั่ว",
+      "rom": "ongnam rua"
     },
     {
       "en": "Is there an English contract?",
-      "th": "มีสัญญาเป็นภาษาอังกฤษไหม"
+      "th": "มีสัญญาเป็นภาษาอังกฤษไหม",
+      "rom": "mi sanya pen phasaangkrit mai"
     },
     {
       "en": "May I take photos of the room before I move in?",
-      "th": "ขอถ่ายรูปห้องก่อนย้ายเข้าได้ไหม"
+      "th": "ขอถ่ายรูปห้องก่อนย้ายเข้าได้ไหม",
+      "rom": "kho thairup ong kon yai khao dai mai"
     },
     {
       "en": "Can I leave early?",
-      "th": "ย้ายออกก่อนกำหนดได้ไหม"
+      "th": "ย้ายออกก่อนกำหนดได้ไหม",
+      "rom": "yaiok konkamnt dai mai"
     },
     {
       "en": "Please give me a receipt.",
-      "th": "ขอใบเสร็จ"
+      "th": "ขอใบเสร็จ",
+      "rom": "kho"
     }
   ]
 }

@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Vor dem Einsteigen Nummernschild, Fahrername und Foto in der App mit dem Wagen vergleichen. Der Preis steht vor der Buchung fest, bei Barzahlung passendes Geld bereithalten. Die Fahrt lässt sich in der App mit Freunden teilen, im Notfall 191 (Polizei) rufen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Before getting in compare the number plate, driver name and photo in the app with the car. The price is fixed before booking, and for cash have the right money ready. You can share the trip with friends in the app, and in an emergency call 191 (police). Thai lines machine-made, not checked by native speakers."
+    "de": "Vor dem Einsteigen Nummernschild, Fahrername und Foto in der App mit dem Wagen vergleichen. Der Preis steht vor der Buchung fest, bei Barzahlung passendes Geld bereithalten. Die Fahrt lässt sich in der App mit Freunden teilen, im Notfall 191 (Polizei) rufen. Siehe auch: Taxi. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Before getting in compare the number plate, driver name and photo in the app with the car. The price is fixed before booking, and for cash have the right money ready. You can share the trip with friends in the app, and in an emergency call 191 (police). See also: Taxi. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,74 +40,91 @@
     {
       "en": "This is not the car I booked.",
       "th": "ไม่ใช่รถที่จองไว้",
-      "critical": true
+      "critical": true,
+      "rom": "mai chai rot thi chong wai"
     },
     {
       "en": "I feel unsafe. Please stop.",
       "th": "รู้สึกไม่ปลอดภัย ช่วยจอดด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek mai plotphai chuai chot duai"
     },
     {
       "en": "Please stop here. I want to get out.",
       "th": "ช่วยจอดตรงนี้ ขอลง",
-      "critical": true
+      "critical": true,
+      "rom": "chuai chot trangani kho long"
     },
     {
       "en": "Please do not drive so fast.",
       "th": "ขับช้าลงหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "khap cha long noi"
     },
     {
       "en": "I booked a ride in the app.",
-      "th": "จองรถผ่านแอปแล้ว"
+      "th": "จองรถผ่านแอปแล้ว",
+      "rom": "chong rot phan ae p laeo"
     },
     {
       "en": "I am at the pickup point.",
-      "th": "อยู่ที่จุดรับแล้ว"
+      "th": "อยู่ที่จุดรับแล้ว",
+      "rom": "yu thi chut rap laeo"
     },
     {
       "en": "Where are you now?",
-      "th": "ตอนนี้อยู่ที่ไหน"
+      "th": "ตอนนี้อยู่ที่ไหน",
+      "rom": "tonni yu thinai"
     },
     {
       "en": "Please wait, I am coming.",
-      "th": "รอสักครู่ กำลังไป"
+      "th": "รอสักครู่ กำลังไป",
+      "rom": "ro sakkru kamlang pai"
     },
     {
       "en": "Please follow the map in the app.",
-      "th": "ช่วยขับตามแผนที่ในแอปด้วย"
+      "th": "ช่วยขับตามแผนที่ในแอปด้วย",
+      "rom": "chuai khap tam phaenthi nai ae p duai"
     },
     {
       "en": "The price is already in the app.",
-      "th": "ราคาอยู่ในแอปแล้ว"
+      "th": "ราคาอยู่ในแอปแล้ว",
+      "rom": "rakha yu nai ae p laeo"
     },
     {
       "en": "I will pay in cash.",
-      "th": "จ่ายเงินสด"
+      "th": "จ่ายเงินสด",
+      "rom": "chai ngoentt"
     },
     {
       "en": "Do you have change?",
-      "th": "มีเงินทอนไหม"
+      "th": "มีเงินทอนไหม",
+      "rom": "mi ngoenthon mai"
     },
     {
       "en": "Please take the expressway.",
-      "th": "ขึ้นทางด่วนได้เลย"
+      "th": "ขึ้นทางด่วนได้เลย",
+      "rom": "khuen thangduan dai loei"
     },
     {
       "en": "Please do not take the expressway.",
-      "th": "ไม่ต้องขึ้นทางด่วน"
+      "th": "ไม่ต้องขึ้นทางด่วน",
+      "rom": "mataing khuen thangduan"
     },
     {
       "en": "Please turn on the air conditioning.",
-      "th": "ช่วยเปิดแอร์ด้วย"
+      "th": "ช่วยเปิดแอร์ด้วย",
+      "rom": "chuai poet ae duai"
     },
     {
       "en": "Can you wait two minutes?",
-      "th": "รอสองนาทีได้ไหม"
+      "th": "รอสองนาทีได้ไหม",
+      "rom": "ro song nathi dai mai"
     },
     {
       "en": "Please help me with my luggage.",
-      "th": "ช่วยยกกระเป๋าหน่อย"
+      "th": "ช่วยยกกระเป๋าหน่อย",
+      "rom": "chuai yok krapao noi"
     }
   ]
 }

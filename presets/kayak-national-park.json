@@ -56,66 +56,81 @@
     {
       "en": "Help! Someone has fallen into the water.",
       "th": "ช่วยด้วย มีคนตกน้ำ",
-      "critical": true
+      "critical": true,
+      "rom": "chuaiduai mi khon takanam"
     },
     {
       "en": "I was bitten by a snake. Please call an ambulance (1669).",
       "th": "ถูกงูกัด ช่วยเรียกรถพยาบาลด้วย 1669",
-      "critical": true
+      "critical": true,
+      "rom": "thuk ngu kat chuai riak rathaphayaban duai 1669"
     },
     {
       "en": "I am stung by a jellyfish.",
       "th": "ถูกแมงกะพรุนต่อย",
-      "critical": true
+      "critical": true,
+      "rom": "thuk maengkaprun toi"
     },
     {
       "en": "Please give me a life jacket.",
       "th": "ขอเสื้อชูชีพ",
-      "critical": true
+      "critical": true,
+      "rom": "kho suea chuchip"
     },
     {
       "en": "How much is the entrance fee for foreigners?",
-      "th": "ค่าเข้าสำหรับชาวต่างชาติเท่าไร"
+      "th": "ค่าเข้าสำหรับชาวต่างชาติเท่าไร",
+      "rom": "kha khao samrap chaotangchati thaorai"
     },
     {
       "en": "How long is the kayak tour?",
-      "th": "ทริปพายเรือคายัคนานเท่าไร"
+      "th": "ทริปพายเรือคายัคนานเท่าไร",
+      "rom": "thrip phai ruea kha yak nan thaorai"
     },
     {
       "en": "Is it safe? How are the tides today?",
-      "th": "ปลอดภัยไหม วันนี้น้ำขึ้นน้ำลงเป็นอย่างไร"
+      "th": "ปลอดภัยไหม วันนี้น้ำขึ้นน้ำลงเป็นอย่างไร",
+      "rom": "plotphai mai wanni namkhuen namnng pen yangrai"
     },
     {
       "en": "Do I need a guide?",
-      "th": "ต้องมีไกด์ไหม"
+      "th": "ต้องมีไกด์ไหม",
+      "rom": "tong mi kai mai"
     },
     {
       "en": "Can you give me a dry bag for my phone?",
-      "th": "ขอถุงกันน้ำสำหรับโทรศัพท์ได้ไหม"
+      "th": "ขอถุงกันน้ำสำหรับโทรศัพท์ได้ไหม",
+      "rom": "kho thung kannam samrap thonsap dai mai"
     },
     {
       "en": "Is the water deep here?",
-      "th": "น้ำลึกตรงนี้ไหม"
+      "th": "น้ำลึกตรงนี้ไหม",
+      "rom": "nam luek trangani mai"
     },
     {
       "en": "Are there leeches on this trail?",
-      "th": "ทางเดินนี้มีทากไหม"
+      "th": "ทางเดินนี้มีทากไหม",
+      "rom": "thangdoen ni mi thak mai"
     },
     {
       "en": "Please do not feed the monkeys.",
-      "th": "อย่าให้อาหารลิง"
+      "th": "อย่าให้อาหารลิง",
+      "rom": "ya aiahan ling"
     },
     {
       "en": "Where is the ranger station?",
-      "th": "ที่ทำการอุทยานอยู่ที่ไหน"
+      "th": "ที่ทำการอุทยานอยู่ที่ไหน",
+      "rom": "thithamkan utyan yu thinai"
     },
     {
       "en": "I would like to rent a single kayak.",
-      "th": "อยากเช่าเรือคายัคที่นั่งเดียว"
+      "th": "อยากเช่าเรือคายัคที่นั่งเดียว",
+      "rom": "yak chao ruea kha yak thinang diao"
     },
     {
       "en": "We need to be back before dark.",
-      "th": "ต้องกลับมาก่อนมืด"
+      "th": "ต้องกลับมาก่อนมืด",
+      "rom": "tong klapma kon muet"
     }
   ]
 }

@@ -55,59 +55,73 @@
   "phrases": [
     {
       "en": "I have nothing to declare.",
-      "th": "ไม่มีของต้องสำแดง"
+      "th": "ไม่มีของต้องสำแดง",
+      "rom": "mai mi khong tong samdaeng"
     },
     {
       "en": "I have something to declare.",
-      "th": "มีสิ่งของที่ต้องสำแดง"
+      "th": "มีสิ่งของที่ต้องสำแดง",
+      "rom": "mi singkhong thi tong samdaeng"
     },
     {
       "en": "This is medicine. Here is my prescription.",
-      "th": "นี่คือยา นี่คือใบสั่งยา"
+      "th": "นี่คือยา นี่คือใบสั่งยา",
+      "rom": "ni khue ya ni khue baisangya"
     },
     {
       "en": "These are gifts for my family.",
-      "th": "นี่คือของขวัญสำหรับครอบครัว"
+      "th": "นี่คือของขวัญสำหรับครอบครัว",
+      "rom": "ni khue khongkwan samrap khropkrua"
     },
     {
       "en": "This is for personal use.",
-      "th": "นี่ใช้ส่วนตัว"
+      "th": "นี่ใช้ส่วนตัว",
+      "rom": "ni chai suantua"
     },
     {
       "en": "How much alcohol may I bring?",
-      "th": "นำเข้าแอลกอฮอล์ได้เท่าไร"
+      "th": "นำเข้าแอลกอฮอล์ได้เท่าไร",
+      "rom": "namkhao aenkoho dai thaorai"
     },
     {
       "en": "How many cigarettes may I bring?",
-      "th": "นำเข้าบุหรี่ได้กี่มวน"
+      "th": "นำเข้าบุหรี่ได้กี่มวน",
+      "rom": "namkhao buri dai ki muan"
     },
     {
       "en": "Do I have to pay duty on this?",
-      "th": "ต้องเสียภาษีสิ่งนี้ไหม"
+      "th": "ต้องเสียภาษีสิ่งนี้ไหม",
+      "rom": "tong siaphasi sing ni mai"
     },
     {
       "en": "Here is the receipt.",
-      "th": "นี่คือใบเสร็จ"
+      "th": "นี่คือใบเสร็จ",
+      "rom": "ni khue"
     },
     {
       "en": "I am carrying cash.",
-      "th": "พกเงินสดมาด้วย"
+      "th": "พกเงินสดมาด้วย",
+      "rom": "phok ngoentt ma duai"
     },
     {
       "en": "Please open the bag. I will show you.",
-      "th": "ขอเปิดกระเป๋า จะให้ดู"
+      "th": "ขอเปิดกระเป๋า จะให้ดู",
+      "rom": "kho poet krapao cha hai du"
     },
     {
       "en": "Where can I buy duty-free goods?",
-      "th": "ซื้อสินค้าปลอดภาษีได้ที่ไหน"
+      "th": "ซื้อสินค้าปลอดภาษีได้ที่ไหน",
+      "rom": "sue sinkha plotphasi dai thinai"
     },
     {
       "en": "Where is the VAT refund counter?",
-      "th": "เคาน์เตอร์ขอคืนภาษีอยู่ที่ไหน"
+      "th": "เคาน์เตอร์ขอคืนภาษีอยู่ที่ไหน",
+      "rom": "khaotoe kho khuen phasi yu thinai"
     },
     {
       "en": "Where is the customs office?",
-      "th": "ศุลกากรอยู่ที่ไหน"
+      "th": "ศุลกากรอยู่ที่ไหน",
+      "rom": "sunkakn yu thinai"
     }
   ]
 }

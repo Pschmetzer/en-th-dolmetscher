@@ -48,92 +48,113 @@
     {
       "en": "I feel faint, please let me lie down.",
       "th": "รู้สึกจะเป็นลม ขอนอนลงหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek cha pennm kho nonnng noi"
     },
     {
       "en": "I am afraid of needles and may faint.",
       "th": "กลัวเข็มและอาจเป็นลม",
-      "critical": true
+      "critical": true,
+      "rom": "klua khem lae at pennm"
     },
     {
       "en": "I have a bleeding disorder.",
       "th": "มีโรคเลือดออกง่าย",
-      "critical": true
+      "critical": true,
+      "rom": "mi roklueat ok ngai"
     },
     {
       "en": "I am allergic to latex.",
       "th": "แพ้ยางลาเท็กซ์",
-      "critical": true
+      "critical": true,
+      "rom": "phae yang la thek"
     },
     {
       "en": "I am diabetic, I need something sweet.",
       "th": "เป็นเบาหวาน ต้องการของหวาน",
-      "critical": true
+      "critical": true,
+      "rom": "pen baowan tongkan khongwan"
     },
     {
       "en": "The arm is bleeding and swelling.",
       "th": "แขนมีเลือดออกและบวม",
-      "critical": true
+      "critical": true,
+      "rom": "khaen mi lueat ok lae buam"
     },
     {
       "en": "I have an appointment for a blood test.",
-      "th": "มีนัดตรวจเลือด"
+      "th": "มีนัดตรวจเลือด",
+      "rom": "minat truatlueat"
     },
     {
       "en": "Do I need to fast before the test?",
-      "th": "ต้องงดอาหารก่อนตรวจไหม"
+      "th": "ต้องงดอาหารก่อนตรวจไหม",
+      "rom": "tong ngot ahan kon truat mai"
     },
     {
       "en": "How many hours should I fast?",
-      "th": "ต้องงดอาหารกี่ชั่วโมง"
+      "th": "ต้องงดอาหารกี่ชั่วโมง",
+      "rom": "tong ngot ahan ki chuamong"
     },
     {
       "en": "May I drink water before the test?",
-      "th": "ดื่มน้ำก่อนตรวจได้ไหม"
+      "th": "ดื่มน้ำก่อนตรวจได้ไหม",
+      "rom": "duem nam kon truat dai mai"
     },
     {
       "en": "Please use the other arm.",
-      "th": "ขอใช้แขนอีกข้างหน่อย"
+      "th": "ขอใช้แขนอีกข้างหน่อย",
+      "rom": "kho chai khaen ik khang noi"
     },
     {
       "en": "My veins are hard to find.",
-      "th": "เส้นเลือดหายาก"
+      "th": "เส้นเลือดหายาก",
+      "rom": "senlueat ha yak"
     },
     {
       "en": "Please give me a small plaster.",
-      "th": "ขอพลาสเตอร์แผ่นเล็กหน่อย"
+      "th": "ขอพลาสเตอร์แผ่นเล็กหน่อย",
+      "rom": "kho phlattoe phaen lek noi"
     },
     {
       "en": "When will the results be ready?",
-      "th": "ผลตรวจจะออกเมื่อไร"
+      "th": "ผลตรวจจะออกเมื่อไร",
+      "rom": "phon truat cha ok muearai"
     },
     {
       "en": "Can you send the results by email?",
-      "th": "ส่งผลตรวจทางอีเมลได้ไหม"
+      "th": "ส่งผลตรวจทางอีเมลได้ไหม",
+      "rom": "sangaphon truat thang imen dai mai"
     },
     {
       "en": "Please give me the report in English.",
-      "th": "ขอรายงานผลเป็นภาษาอังกฤษหน่อย"
+      "th": "ขอรายงานผลเป็นภาษาอังกฤษหน่อย",
+      "rom": "kho raingan phon pen phasaangkrit noi"
     },
     {
       "en": "Where do I give the urine sample?",
-      "th": "ส่งตัวอย่างปัสสาวะได้ที่ไหน"
+      "th": "ส่งตัวอย่างปัสสาวะได้ที่ไหน",
+      "rom": "song dai thinai"
     },
     {
       "en": "How much does the whole test cost?",
-      "th": "ตรวจทั้งหมดราคาเท่าไร"
+      "th": "ตรวจทั้งหมดราคาเท่าไร",
+      "rom": "truat thangmt rakha thaorai"
     },
     {
       "en": "Does my travel insurance cover this?",
-      "th": "ประกันการเดินทางของเราครอบคลุมไหม"
+      "th": "ประกันการเดินทางของเราครอบคลุมไหม",
+      "rom": "prakan kan doenthang khong rao khropklum mai"
     },
     {
       "en": "Please give me a receipt for the insurance.",
-      "th": "ขอใบเสร็จสำหรับประกันหน่อย"
+      "th": "ขอใบเสร็จสำหรับประกันหน่อย",
+      "rom": "kho samrap prakan noi"
     },
     {
       "en": "Thank you, you were very gentle.",
-      "th": "ขอบคุณ เบามือมาก"
+      "th": "ขอบคุณ เบามือมาก",
+      "rom": "khopkhun baomue mak"
     }
   ]
 }

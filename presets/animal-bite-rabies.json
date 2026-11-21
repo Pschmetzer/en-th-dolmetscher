@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Nach Biss oder Kratzer von Hund, Katze oder Affe die Wunde sofort lange mit Seife und Wasser waschen und am selben Tag in Klinik oder Krankenhaus wegen der Tollwutimpfung fragen. Streunende Tiere nie anfassen oder füttern. Bei Schlangenbiss ruhig bleiben, nicht laufen und 1669 (Rettung) rufen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "After a bite or scratch from a dog, cat or monkey wash the wound at once for a long time with soap and water and ask a clinic or hospital the same day about rabies vaccination. Never touch or feed stray animals. After a snake bite stay calm, do not walk about and call 1669 (ambulance). Thai lines machine-made, not checked by native speakers."
+    "de": "Nach Biss oder Kratzer von Hund, Katze oder Affe die Wunde sofort lange mit Seife und Wasser waschen und am selben Tag in Klinik oder Krankenhaus wegen der Tollwutimpfung fragen. Streunende Tiere nie anfassen oder füttern. Bei Schlangenbiss ruhig bleiben, nicht laufen und 1669 (Rettung) rufen. Siehe auch: Reiseversicherung: Schaden melden. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "After a bite or scratch from a dog, cat or monkey wash the wound at once for a long time with soap and water and ask a clinic or hospital the same day about rabies vaccination. Never touch or feed stray animals. After a snake bite stay calm, do not walk about and call 1669 (ambulance). See also: Travel insurance claim. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,73 +40,89 @@
     {
       "en": "I have been bitten by a dog.",
       "th": "ถูกสุนัขกัด",
-      "critical": true
+      "critical": true,
+      "rom": "thuk sunak kat"
     },
     {
       "en": "I was bitten by a monkey.",
       "th": "ถูกลิงกัด",
-      "critical": true
+      "critical": true,
+      "rom": "thuk ling kat"
     },
     {
       "en": "I was bitten by a snake.",
       "th": "โดนงูกัด",
-      "critical": true
+      "critical": true,
+      "rom": "don ngu kat"
     },
     {
       "en": "I need a rabies injection.",
       "th": "ต้องฉีดวัคซีนพิษสุนัขบ้า",
-      "critical": true
+      "critical": true,
+      "rom": "tong chitwaksin phitsunakba"
     },
     {
       "en": "This is an emergency. Please call an ambulance (1669).",
       "th": "นี่เป็นเหตุฉุกเฉิน ช่วยเรียกรถพยาบาลด้วย (1669)",
-      "critical": true
+      "critical": true,
+      "rom": "ni pen etuchukchoen chuai riak rathaphayaban duai 1669"
     },
     {
       "en": "I need to go to the hospital.",
       "th": "ต้องไปโรงพยาบาล",
-      "critical": true
+      "critical": true,
+      "rom": "tong pai rongpyaban"
     },
     {
       "en": "Where is the nearest hospital?",
       "th": "โรงพยาบาลที่ใกล้ที่สุดอยู่ที่ไหน",
-      "critical": true
+      "critical": true,
+      "rom": "rongpyaban thi kain thisut yu thinai"
     },
     {
       "en": "I washed the wound with soap.",
-      "th": "ล้างแผลด้วยสบู่แล้ว"
+      "th": "ล้างแผลด้วยสบู่แล้ว",
+      "rom": "langphaen duai sabu laeo"
     },
     {
       "en": "The dog was a stray.",
-      "th": "สุนัขตัวนั้นเป็นสุนัขจรจัด"
+      "th": "สุนัขตัวนั้นเป็นสุนัขจรจัด",
+      "rom": "sunak tua nan pen sunaktnchat"
     },
     {
       "en": "The animal ran away.",
-      "th": "สัตว์วิ่งหนีไปแล้ว"
+      "th": "สัตว์วิ่งหนีไปแล้ว",
+      "rom": "sat wingni pai laeo"
     },
     {
       "en": "Do you have rabies vaccine here?",
-      "th": "ที่นี่มีวัคซีนพิษสุนัขบ้าไหม"
+      "th": "ที่นี่มีวัคซีนพิษสุนัขบ้าไหม",
+      "rom": "thini mi waksin phitsunakba mai"
     },
     {
       "en": "How many injections do I need?",
-      "th": "ต้องฉีดกี่เข็ม"
+      "th": "ต้องฉีดกี่เข็ม",
+      "rom": "tong chit ki khem"
     },
     {
       "en": "Do I need a tetanus shot?",
-      "th": "ต้องฉีดบาดทะยักไหม"
+      "th": "ต้องฉีดบาดทะยักไหม",
+      "rom": "tong chit batthayak mai"
     },
     {
       "en": "I have never had a rabies vaccine.",
-      "th": "ไม่เคยฉีดวัคซีนพิษสุนัขบ้ามาก่อน"
+      "th": "ไม่เคยฉีดวัคซีนพิษสุนัขบ้ามาก่อน",
+      "rom": "mai khoei chitwaksin phitsunakba ma kon"
     },
     {
       "en": "Please write down the vaccine dates.",
-      "th": "ช่วยเขียนวันที่ฉีดวัคซีนให้หน่อย"
+      "th": "ช่วยเขียนวันที่ฉีดวัคซีนให้หน่อย",
+      "rom": "chuai khian wanthi chitwaksin hai noi"
     },
     {
       "en": "I need a medical certificate.",
-      "th": "ขอใบรับรองแพทย์"
+      "th": "ขอใบรับรองแพทย์",
+      "rom": "kho bairaprongphaet"
     }
   ]
 }

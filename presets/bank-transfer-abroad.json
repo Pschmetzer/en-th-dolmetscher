@@ -40,95 +40,117 @@
     {
       "en": "I sent money to the wrong account.",
       "th": "โอนเงินผิดบัญชี",
-      "critical": true
+      "critical": true,
+      "rom": "on ngoen phit banchi"
     },
     {
       "en": "Please stop the transfer.",
       "th": "ช่วยยกเลิกการโอนหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai yakloek kan on noi"
     },
     {
       "en": "I think I was scammed.",
       "th": "คิดว่าถูกหลอก",
-      "critical": true
+      "critical": true,
+      "rom": "khit wa thuk lok"
     },
     {
       "en": "My account was hacked.",
       "th": "บัญชีถูกแฮ็ก",
-      "critical": true
+      "critical": true,
+      "rom": "banchi thuk"
     },
     {
       "en": "Please block my account.",
       "th": "ช่วยอายัดบัญชีหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai banchi noi"
     },
     {
       "en": "I would like to send money abroad.",
-      "th": "ต้องการโอนเงินไปต่างประเทศ"
+      "th": "ต้องการโอนเงินไปต่างประเทศ",
+      "rom": "tongkan on ngoen pai tangprathet"
     },
     {
       "en": "I would like to receive money from abroad.",
-      "th": "ต้องการรับเงินโอนจากต่างประเทศ"
+      "th": "ต้องการรับเงินโอนจากต่างประเทศ",
+      "rom": "tongkan rap ngoenon chak tangprathet"
     },
     {
       "en": "Do I need an account here?",
-      "th": "ต้องมีบัญชีที่นี่ไหม"
+      "th": "ต้องมีบัญชีที่นี่ไหม",
+      "rom": "tong mi banchi thini mai"
     },
     {
       "en": "Which documents do I need?",
-      "th": "ต้องใช้เอกสารอะไรบ้าง"
+      "th": "ต้องใช้เอกสารอะไรบ้าง",
+      "rom": "tong chai eksan arai bang"
     },
     {
       "en": "What is the exchange rate today?",
-      "th": "วันนี้อัตราแลกเปลี่ยนเท่าไหร่"
+      "th": "วันนี้อัตราแลกเปลี่ยนเท่าไหร่",
+      "rom": "wanni atralaekpelin thaorai"
     },
     {
       "en": "What is the transfer fee?",
-      "th": "ค่าธรรมเนียมการโอนเท่าไร"
+      "th": "ค่าธรรมเนียมการโอนเท่าไร",
+      "rom": "khatamniam kan on thaorai"
     },
     {
       "en": "Are there hidden charges?",
-      "th": "มีค่าใช้จ่ายแอบแฝงไหม"
+      "th": "มีค่าใช้จ่ายแอบแฝงไหม",
+      "rom": "mi khachaichai aepfaeng mai"
     },
     {
       "en": "How long does the transfer take?",
-      "th": "โอนนานกี่วันกว่าจะเข้า"
+      "th": "โอนนานกี่วันกว่าจะเข้า",
+      "rom": "on nan ki wan kwa cha khao"
     },
     {
       "en": "Here is the account number.",
-      "th": "นี่คือเลขที่บัญชี"
+      "th": "นี่คือเลขที่บัญชี",
+      "rom": "ni khue lekthi banchi"
     },
     {
       "en": "Here is the SWIFT code.",
-      "th": "นี่คือรหัสสวิฟต์"
+      "th": "นี่คือรหัสสวิฟต์",
+      "rom": "ni khue rahat swip"
     },
     {
       "en": "Please check the name and the number.",
-      "th": "ช่วยตรวจชื่อและเลขบัญชีหน่อย"
+      "th": "ช่วยตรวจชื่อและเลขบัญชีหน่อย",
+      "rom": "chuai truat chue lae lek banchi noi"
     },
     {
       "en": "The money has not arrived.",
-      "th": "เงินยังไม่เข้า"
+      "th": "เงินยังไม่เข้า",
+      "rom": "ngoen yang mai khao"
     },
     {
       "en": "Can you trace the transfer?",
-      "th": "ตรวจสอบสถานะการโอนได้ไหม"
+      "th": "ตรวจสอบสถานะการโอนได้ไหม",
+      "rom": "truatsop sathana kan on dai mai"
     },
     {
       "en": "Please give me the transfer slip.",
-      "th": "ขอสลิปการโอนหน่อย"
+      "th": "ขอสลิปการโอนหน่อย",
+      "rom": "kho slip kan on noi"
     },
     {
       "en": "I need to prove the source of the money.",
-      "th": "ต้องแสดงที่มาของเงิน"
+      "th": "ต้องแสดงที่มาของเงิน",
+      "rom": "tong saetng thima khong ngoen"
     },
     {
       "en": "Is there a daily limit?",
-      "th": "มีวงเงินต่อวันไหม"
+      "th": "มีวงเงินต่อวันไหม",
+      "rom": "mi wangangoen to wan mai"
     },
     {
       "en": "Can I send money by app?",
-      "th": "โอนเงินผ่านแอปได้ไหม"
+      "th": "โอนเงินผ่านแอปได้ไหม",
+      "rom": "on ngoen phan ae p dai mai"
     }
   ]
 }

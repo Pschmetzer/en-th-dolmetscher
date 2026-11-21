@@ -48,92 +48,113 @@
     {
       "en": "A bee stung me and I am allergic.",
       "th": "ถูกผึ้งต่อยและแพ้",
-      "critical": true
+      "critical": true,
+      "rom": "thuk phueng toi lae phae"
     },
     {
       "en": "There is a snake on the path.",
       "th": "มีงูอยู่บนทาง",
-      "critical": true
+      "critical": true,
+      "rom": "mi ngu yu bon thang"
     },
     {
       "en": "I feel dizzy from the sun in the orchard.",
       "th": "เวียนหัวเพราะแดดในสวน",
-      "critical": true
+      "critical": true,
+      "rom": "wianhua daet nai suan"
     },
     {
       "en": "I fell and hurt my leg.",
       "th": "ล้มและขาเจ็บ",
-      "critical": true
+      "critical": true,
+      "rom": "lom lae kha chep"
     },
     {
       "en": "Please call a doctor, my friend cannot stand.",
       "th": "ช่วยเรียกแพทย์หน่อย เพื่อนยืนไม่ไหว",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak phaet noi phuean yuen mai wai"
     },
     {
       "en": "I am allergic to this fruit.",
       "th": "แพ้ผลไม้ชนิดนี้",
-      "critical": true
+      "critical": true,
+      "rom": "phae phlamai chanit ni"
     },
     {
       "en": "May we visit your farm?",
-      "th": "ขอเข้าเยี่ยมชมฟาร์มได้ไหม"
+      "th": "ขอเข้าเยี่ยมชมฟาร์มได้ไหม",
+      "rom": "kho khao yiamtm fam dai mai"
     },
     {
       "en": "How much is the entrance?",
-      "th": "ค่าเข้าชมเท่าไร"
+      "th": "ค่าเข้าชมเท่าไร",
+      "rom": "kha khaotm thaorai"
     },
     {
       "en": "May I taste the fruit?",
-      "th": "ขอชิมผลไม้ได้ไหม"
+      "th": "ขอชิมผลไม้ได้ไหม",
+      "rom": "kho chim phlamai dai mai"
     },
     {
       "en": "May I pick one fruit myself?",
-      "th": "ขอเก็บผลไม้เองหนึ่งลูกได้ไหม"
+      "th": "ขอเก็บผลไม้เองหนึ่งลูกได้ไหม",
+      "rom": "kho kep phlamai eng nueng luk dai mai"
     },
     {
       "en": "How do you know when it is ripe?",
-      "th": "ดูอย่างไรว่าสุกแล้ว"
+      "th": "ดูอย่างไรว่าสุกแล้ว",
+      "rom": "du yangrai wa suk laeo"
     },
     {
       "en": "What is the best season for this fruit?",
-      "th": "ผลไม้นี้ฤดูไหนอร่อยที่สุด"
+      "th": "ผลไม้นี้ฤดูไหนอร่อยที่สุด",
+      "rom": "phlamai ni rueadu nai roi thisut"
     },
     {
       "en": "Please show me how you harvest.",
-      "th": "ช่วยสาธิตวิธีเก็บเกี่ยวหน่อย"
+      "th": "ช่วยสาธิตวิธีเก็บเกี่ยวหน่อย",
+      "rom": "chuai sathit withi kepkiao noi"
     },
     {
       "en": "May I feed the animals?",
-      "th": "ขอให้อาหารสัตว์ได้ไหม"
+      "th": "ขอให้อาหารสัตว์ได้ไหม",
+      "rom": "khohai ahansat dai mai"
     },
     {
       "en": "Is the water here safe to drink?",
-      "th": "น้ำที่นี่ดื่มได้ไหม"
+      "th": "น้ำที่นี่ดื่มได้ไหม",
+      "rom": "nam thini duemdai mai"
     },
     {
       "en": "Is it safe to walk between the trees?",
-      "th": "เดินระหว่างต้นไม้ปลอดภัยไหม"
+      "th": "เดินระหว่างต้นไม้ปลอดภัยไหม",
+      "rom": "doen rawang tanamai plotphai mai"
     },
     {
       "en": "Can I buy a box to take home?",
-      "th": "ซื้อเป็นกล่องกลับบ้านได้ไหม"
+      "th": "ซื้อเป็นกล่องกลับบ้านได้ไหม",
+      "rom": "sue pen klong klapban dai mai"
     },
     {
       "en": "Please pack it so it does not spoil.",
-      "th": "ช่วยห่อให้ไม่เสียหน่อย"
+      "th": "ช่วยห่อให้ไม่เสียหน่อย",
+      "rom": "chuai ho hai mai sianoi"
     },
     {
       "en": "May I take a photo of the farm?",
-      "th": "ถ่ายรูปฟาร์มได้ไหม"
+      "th": "ถ่ายรูปฟาร์มได้ไหม",
+      "rom": "thairup fam dai mai"
     },
     {
       "en": "Where can I wash my hands?",
-      "th": "ล้างมือได้ที่ไหน"
+      "th": "ล้างมือได้ที่ไหน",
+      "rom": "langmue dai thinai"
     },
     {
       "en": "Thank you for the visit.",
-      "th": "ขอบคุณที่ให้เข้าชม"
+      "th": "ขอบคุณที่ให้เข้าชม",
+      "rom": "khopkhun thi hai khaotm"
     }
   ]
 }

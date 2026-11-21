@@ -36,78 +36,96 @@
     {
       "en": "I feel dizzy. I need help.",
       "th": "รู้สึกเวียนหัว ต้องการความช่วยเหลือ",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek wianhua tongkan khwamchuaihelue"
     },
     {
       "en": "I have chest pain.",
       "th": "เจ็บหน้าอก",
-      "critical": true
+      "critical": true,
+      "rom": "chep nak"
     },
     {
       "en": "I hurt my back. Please call a doctor.",
       "th": "ปวดหลัง ช่วยเรียกแพทย์หน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "puatlang chuai riak phaet noi"
     },
     {
       "en": "Someone has collapsed.",
       "th": "มีคนล้ม",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon lom"
     },
     {
       "en": "How much is a day pass?",
-      "th": "ตั๋วรายวันราคาเท่าไหร่"
+      "th": "ตั๋วรายวันราคาเท่าไหร่",
+      "rom": "tua raiwan rakha thaorai"
     },
     {
       "en": "Could I try one session?",
-      "th": "ขอทดลองหนึ่งครั้งได้ไหม"
+      "th": "ขอทดลองหนึ่งครั้งได้ไหม",
+      "rom": "kho thadlong nueng khrang dai mai"
     },
     {
       "en": "How much is a monthly membership?",
-      "th": "สมาชิกรายเดือนราคาเท่าไหร่"
+      "th": "สมาชิกรายเดือนราคาเท่าไหร่",
+      "rom": "samachik raiduean rakha thaorai"
     },
     {
       "en": "What are the opening hours?",
-      "th": "เปิดกี่โมงถึงกี่โมง"
+      "th": "เปิดกี่โมงถึงกี่โมง",
+      "rom": "poet ki mong thueng ki mong"
     },
     {
       "en": "Where are the lockers?",
-      "th": "ตู้เก็บของอยู่ที่ไหน"
+      "th": "ตู้เก็บของอยู่ที่ไหน",
+      "rom": "tu kep khong yu thinai"
     },
     {
       "en": "Do you have towels?",
-      "th": "มีผ้าเช็ดตัวไหม"
+      "th": "มีผ้าเช็ดตัวไหม",
+      "rom": "mi phachettua mai"
     },
     {
       "en": "Where are the showers?",
-      "th": "ห้องอาบน้ำอยู่ที่ไหน"
+      "th": "ห้องอาบน้ำอยู่ที่ไหน",
+      "rom": "yu thinai"
     },
     {
       "en": "Is this machine free?",
-      "th": "เครื่องนี้ว่างไหม"
+      "th": "เครื่องนี้ว่างไหม",
+      "rom": "kherueng ni wang mai"
     },
     {
       "en": "How do I use this machine?",
-      "th": "เครื่องนี้ใช้ยังไง"
+      "th": "เครื่องนี้ใช้ยังไง",
+      "rom": "kherueng ni chai yangngai"
     },
     {
       "en": "Is there a personal trainer?",
-      "th": "มีเทรนเนอร์ส่วนตัวไหม"
+      "th": "มีเทรนเนอร์ส่วนตัวไหม",
+      "rom": "mi thennnoe suantua mai"
     },
     {
       "en": "Are there group classes?",
-      "th": "มีคลาสกลุ่มไหม"
+      "th": "มีคลาสกลุ่มไหม",
+      "rom": "mi khlat klum mai"
     },
     {
       "en": "Is there a pool?",
-      "th": "มีสระว่ายน้ำไหม"
+      "th": "มีสระว่ายน้ำไหม",
+      "rom": "mi srawainam mai"
     },
     {
       "en": "Could I have some water, please?",
-      "th": "ขอน้ำดื่มหน่อย"
+      "th": "ขอน้ำดื่มหน่อย",
+      "rom": "kho namduem noi"
     },
     {
       "en": "Is the air conditioning on?",
-      "th": "เปิดแอร์อยู่ไหม"
+      "th": "เปิดแอร์อยู่ไหม",
+      "rom": "poet ae yu mai"
     }
   ],
   "note": {

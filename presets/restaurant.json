@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Trinkgeld ist nicht Pflicht; in Restaurants mit Bedienung Kleingeld liegen lassen ist üblich. Bei Allergien den Satz zeigen und auf Bestätigung warten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Tipping is not required; leaving small change is common where there is table service. For allergies, show the sentence and wait for confirmation. Thai lines machine-made, not checked by native speakers."
+    "de": "Trinkgeld ist nicht Pflicht; in Restaurants mit Bedienung Kleingeld liegen lassen ist üblich. Bei Allergien den Satz zeigen und auf Bestätigung warten. Siehe auch: Streetfood, Vegetarisch, vegan und Allergene. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Tipping is not required; leaving small change is common where there is table service. For allergies, show the sentence and wait for confirmation. See also: Street food, Vegetarian, vegan and allergens. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -52,133 +52,163 @@
     {
       "en": "I am allergic to peanuts.",
       "th": "แพ้ถั่วลิสง",
-      "critical": true
+      "critical": true,
+      "rom": "phae thualitng"
     },
     {
       "en": "I have a severe peanut allergy. Even a small amount is dangerous.",
       "th": "แพ้ถั่วลิสงรุนแรง แม้แต่นิดเดียวก็อันตราย",
-      "critical": true
+      "critical": true,
+      "rom": "phae thualitng runraeng maetae nitdiao antrai"
     },
     {
       "en": "Please do not add any peanuts.",
       "th": "กรุณาอย่าใส่ถั่วลิสงเลย",
-      "critical": true
+      "critical": true,
+      "rom": "kruna ya sai thualitng loei"
     },
     {
       "en": "I am allergic to shrimp and shellfish.",
       "th": "แพ้กุ้งและหอย",
-      "critical": true
+      "critical": true,
+      "rom": "phae kung lae hoi"
     },
     {
       "en": "I am allergic to eggs.",
       "th": "แพ้ไข่",
-      "critical": true
+      "critical": true,
+      "rom": "phae khai"
     },
     {
       "en": "I am allergic to milk.",
       "th": "แพ้นม",
-      "critical": true
+      "critical": true,
+      "rom": "phae nom"
     },
     {
       "en": "I am allergic to wheat and gluten.",
       "th": "แพ้แป้งสาลีและกลูเตน",
-      "critical": true
+      "critical": true,
+      "rom": "phae paengsali lae klu te n"
     },
     {
       "en": "I am allergic to soy.",
       "th": "แพ้ถั่วเหลือง",
-      "critical": true
+      "critical": true,
+      "rom": "phae thuahelueng"
     },
     {
       "en": "I am allergic to sesame.",
       "th": "แพ้งา",
-      "critical": true
+      "critical": true,
+      "rom": "phae nga"
     },
     {
       "en": "I am allergic to fish.",
       "th": "แพ้ปลา",
-      "critical": true
+      "critical": true,
+      "rom": "phae pla"
     },
     {
       "en": "I am allergic to celery.",
       "th": "แพ้คื่นช่าย",
-      "critical": true
+      "critical": true,
+      "rom": "phae khuen chai"
     },
     {
       "en": "A table for two, please.",
-      "th": "ขอโต๊ะสำหรับสองคนหน่อย"
+      "th": "ขอโต๊ะสำหรับสองคนหน่อย",
+      "rom": "kho to samrap song khon noi"
     },
     {
       "en": "Could I see the menu, please?",
-      "th": "ขอดูเมนูหน่อย"
+      "th": "ขอดูเมนูหน่อย",
+      "rom": "kho du menu noi"
     },
     {
       "en": "Not spicy, please.",
-      "th": "ขอไม่เผ็ด"
+      "th": "ขอไม่เผ็ด",
+      "rom": "kho mai phet"
     },
     {
       "en": "What do you recommend?",
-      "th": "มีอะไรแนะนำไหม"
+      "th": "มีอะไรแนะนำไหม",
+      "rom": "mi arai naenam mai"
     },
     {
       "en": "Could we have some water, please?",
-      "th": "ขอน้ำเปล่าหน่อย"
+      "th": "ขอน้ำเปล่าหน่อย",
+      "rom": "kho nampela noi"
     },
     {
       "en": "The bill, please.",
-      "th": "ขอเช็คบิลหน่อย"
+      "th": "ขอเช็คบิลหน่อย",
+      "rom": "kho chekbin noi"
     },
     {
       "en": "Can I pay by card?",
-      "th": "จ่ายด้วยบัตรได้ไหม"
+      "th": "จ่ายด้วยบัตรได้ไหม",
+      "rom": "chai duai batn dai mai"
     },
     {
       "en": "No chili at all, please.",
-      "th": "ไม่ใส่พริกเลย"
+      "th": "ไม่ใส่พริกเลย",
+      "rom": "mai sai phrik loei"
     },
     {
       "en": "Does this contain fish sauce?",
-      "th": "อันนี้ใส่น้ำปลาไหม"
+      "th": "อันนี้ใส่น้ำปลาไหม",
+      "rom": "anni sai nampla mai"
     },
     {
       "en": "No MSG, please.",
-      "th": "ไม่ใส่ผงชูรส"
+      "th": "ไม่ใส่ผงชูรส",
+      "rom": "mai sai phangachunt"
     },
     {
       "en": "No fish sauce, please.",
-      "th": "ไม่ใส่น้ำปลา"
+      "th": "ไม่ใส่น้ำปลา",
+      "rom": "mai sai nampla"
     },
     {
       "en": "I am vegetarian.",
-      "th": "กินมังสวิรัติ"
+      "th": "กินมังสวิรัติ",
+      "rom": "kin mangtwirati"
     },
     {
       "en": "Do you have vegan (jay) food?",
-      "th": "มีอาหารเจไหม"
+      "th": "มีอาหารเจไหม",
+      "rom": "mi ahanche mai"
     },
     {
       "en": "Is there halal food?",
-      "th": "มีอาหารฮาลาลไหม"
+      "th": "มีอาหารฮาลาลไหม",
+      "rom": "mi ahan halan mai"
     },
     {
       "en": "Is there pork in this?",
-      "th": "อันนี้มีหมูไหม"
+      "th": "อันนี้มีหมูไหม",
+      "rom": "anni mi mu mai"
     },
     {
       "en": "No ice, please.",
-      "th": "ไม่ใส่น้ำแข็ง"
+      "th": "ไม่ใส่น้ำแข็ง",
+      "rom": "mai sai"
     },
     {
       "en": "It is delicious.",
-      "th": "อร่อยมาก"
+      "th": "อร่อยมาก",
+      "rom": "roi mak"
     },
     {
       "en": "I am full.",
-      "th": "อิ่มแล้ว"
+      "th": "อิ่มแล้ว",
+      "rom": "im laeo"
     },
     {
       "en": "Can we pay separately?",
-      "th": "แยกบิลได้ไหม"
+      "th": "แยกบิลได้ไหม",
+      "rom": "yaek bin dai mai"
     }
   ]
 }

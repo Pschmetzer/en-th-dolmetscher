@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Getränk nie unbeaufsichtigt lassen. Preise vor dem Bestellen klären und Rechnung prüfen. Nachts Taxi mit Taxameter oder per App nehmen und vorher das Ziel zeigen. Pass oder Ausweis wird manchmal verlangt; Alkoholverkauf ist zeitlich eingeschränkt. Polizei 191, Touristenpolizei 1155, Rettung 1669. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Never leave your drink unattended. Check prices before you order and check the bill. At night take a metered taxi or an app car and show the destination first. ID is sometimes asked for; alcohol sales are restricted by time. Police 191, Tourist Police 1155, ambulance 1669. Thai lines machine-made, not checked by native speakers."
+    "de": "Getränk nie unbeaufsichtigt lassen. Preise vor dem Bestellen klären und Rechnung prüfen. Nachts Taxi mit Taxameter oder per App nehmen und vorher das Ziel zeigen. Pass oder Ausweis wird manchmal verlangt; Alkoholverkauf ist zeitlich eingeschränkt. Polizei 191, Touristenpolizei 1155, Rettung 1669. Siehe auch: Restaurant. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Never leave your drink unattended. Check prices before you order and check the bill. At night take a metered taxi or an app car and show the destination first. ID is sometimes asked for; alcohol sales are restricted by time. Police 191, Tourist Police 1155, ambulance 1669. See also: Restaurant. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,88 +40,108 @@
     {
       "en": "I think my drink was spiked.",
       "th": "คิดว่ามีคนแอบใส่ยาในเครื่องดื่ม",
-      "critical": true
+      "critical": true,
+      "rom": "khit wa mi khon aep saiya nai kheruengduem"
     },
     {
       "en": "I feel unsafe.",
       "th": "รู้สึกไม่ปลอดภัย",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek mai plotphai"
     },
     {
       "en": "Someone is following me. Please help.",
       "th": "มีคนตามอยู่ ช่วยด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon tam yu chuaiduai"
     },
     {
       "en": "Please call the police (191).",
       "th": "ช่วยโทรแจ้งตำรวจ 191 ด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai thon chaengtamruat 191 duai"
     },
     {
       "en": "Please call the tourist police (1155).",
       "th": "ช่วยโทรหาตำรวจท่องเที่ยว 1155 ด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai thon ha tamruat thongthiao 1155 duai"
     },
     {
       "en": "I need medical help.",
       "th": "ต้องการความช่วยเหลือทางการแพทย์",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan khwamchuaihelue thangkanphaet"
     },
     {
       "en": "Could I see the price list first?",
-      "th": "ขอดูรายการราคาก่อน"
+      "th": "ขอดูรายการราคาก่อน",
+      "rom": "kho du raikan rakha kon"
     },
     {
       "en": "Is there a cover charge?",
-      "th": "มีค่าเข้าไหม"
+      "th": "มีค่าเข้าไหม",
+      "rom": "mikha khao mai"
     },
     {
       "en": "A beer, please.",
-      "th": "ขอเบียร์หนึ่งแก้ว"
+      "th": "ขอเบียร์หนึ่งแก้ว",
+      "rom": "kho bia nueng kaeo"
     },
     {
       "en": "Water, please.",
-      "th": "ขอน้ำเปล่า"
+      "th": "ขอน้ำเปล่า",
+      "rom": "kho nampela"
     },
     {
       "en": "Not too strong, please.",
-      "th": "ขอแบบไม่แรงมาก"
+      "th": "ขอแบบไม่แรงมาก",
+      "rom": "kho baep mai raeng mak"
     },
     {
       "en": "I do not drink alcohol.",
-      "th": "ไม่ดื่มแอลกอฮอล์"
+      "th": "ไม่ดื่มแอลกอฮอล์",
+      "rom": "mai duem aenkoho"
     },
     {
       "en": "No ice, please.",
-      "th": "ไม่ใส่น้ำแข็ง"
+      "th": "ไม่ใส่น้ำแข็ง",
+      "rom": "mai sai"
     },
     {
       "en": "What time do you close?",
-      "th": "ร้านปิดกี่โมง"
+      "th": "ร้านปิดกี่โมง",
+      "rom": "ran pit ki mong"
     },
     {
       "en": "I think the bill is wrong.",
-      "th": "คิดว่าบิลไม่ถูกต้อง"
+      "th": "คิดว่าบิลไม่ถูกต้อง",
+      "rom": "khit wa bin mai thuktong"
     },
     {
       "en": "The bill, please.",
-      "th": "ขอเช็คบิลหน่อย"
+      "th": "ขอเช็คบิลหน่อย",
+      "rom": "kho chekbin noi"
     },
     {
       "en": "Can I pay by card?",
-      "th": "จ่ายด้วยบัตรได้ไหม"
+      "th": "จ่ายด้วยบัตรได้ไหม",
+      "rom": "chai duai batn dai mai"
     },
     {
       "en": "Could you call a taxi for me?",
-      "th": "ช่วยเรียกแท็กซี่ให้หน่อย"
+      "th": "ช่วยเรียกแท็กซี่ให้หน่อย",
+      "rom": "chuai riak hai noi"
     },
     {
       "en": "Please take me straight to the hotel.",
-      "th": "ไปส่งที่โรงแรมโดยตรงเลย"
+      "th": "ไปส่งที่โรงแรมโดยตรงเลย",
+      "rom": "pai song thi rongraem doitnng loei"
     },
     {
       "en": "Please use the meter.",
-      "th": "รบกวนเปิดมิเตอร์ด้วย"
+      "th": "รบกวนเปิดมิเตอร์ด้วย",
+      "rom": "rabakuan poet mitoe duai"
     }
   ]
 }

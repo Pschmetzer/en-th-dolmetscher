@@ -40,71 +40,87 @@
     {
       "en": "I have a problem with my ears.",
       "th": "มีปัญหาที่หู",
-      "critical": true
+      "critical": true,
+      "rom": "mipanha thi hu"
     },
     {
       "en": "I am out of air.",
       "th": "อากาศใกล้หมด",
-      "critical": true
+      "critical": true,
+      "rom": "akat kain mot"
     },
     {
       "en": "Please take me up now.",
       "th": "ช่วยพาขึ้นผิวน้ำเดี๋ยวนี้",
-      "critical": true
+      "critical": true,
+      "rom": "chuai pha khuen phionam diaoni"
     },
     {
       "en": "I feel unwell.",
       "th": "รู้สึกไม่สบาย",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek mai sabai"
     },
     {
       "en": "I have asthma.",
       "th": "เป็นโรคหอบหืด",
-      "critical": true
+      "critical": true,
+      "rom": "penrok ophuet"
     },
     {
       "en": "I am not certified.",
-      "th": "ยังไม่มีใบรับรองการดำน้ำ"
+      "th": "ยังไม่มีใบรับรองการดำน้ำ",
+      "rom": "yang mai mi bairaprong kan damnam"
     },
     {
       "en": "This is my first dive.",
-      "th": "นี่เป็นการดำน้ำครั้งแรก"
+      "th": "นี่เป็นการดำน้ำครั้งแรก",
+      "rom": "ni penkan damnam khrangraek"
     },
     {
       "en": "How deep are we going?",
-      "th": "จะดำลึกประมาณเท่าไหร่"
+      "th": "จะดำลึกประมาณเท่าไหร่",
+      "rom": "cha dam luek praman thaorai"
     },
     {
       "en": "How long is the dive?",
-      "th": "ดำนานเท่าไหร่"
+      "th": "ดำนานเท่าไหร่",
+      "rom": "damnan thaorai"
     },
     {
       "en": "Is the current strong?",
-      "th": "กระแสน้ำแรงไหม"
+      "th": "กระแสน้ำแรงไหม",
+      "rom": "krasaenam raeng mai"
     },
     {
       "en": "Can you check my equipment?",
-      "th": "ช่วยตรวจอุปกรณ์ให้หน่อย"
+      "th": "ช่วยตรวจอุปกรณ์ให้หน่อย",
+      "rom": "chuai truat upkn hai noi"
     },
     {
       "en": "Is the equipment included?",
-      "th": "รวมอุปกรณ์ไหม"
+      "th": "รวมอุปกรณ์ไหม",
+      "rom": "ruam upkn mai"
     },
     {
       "en": "Do you have a smaller size?",
-      "th": "มีไซซ์เล็กกว่านี้ไหม"
+      "th": "มีไซซ์เล็กกว่านี้ไหม",
+      "rom": "mi sai lek kwa ni mai"
     },
     {
       "en": "My mask is leaking.",
-      "th": "หน้ากากรั่ว"
+      "th": "หน้ากากรั่ว",
+      "rom": "nakak rua"
     },
     {
       "en": "Can we go slowly?",
-      "th": "ช่วยไปช้าๆ หน่อยได้ไหม"
+      "th": "ช่วยไปช้าๆ หน่อยได้ไหม",
+      "rom": "chuai pai cha noi dai mai"
     },
     {
       "en": "When do we get back to the boat?",
-      "th": "กลับขึ้นเรือกี่โมง"
+      "th": "กลับขึ้นเรือกี่โมง",
+      "rom": "klap khuen ruea ki mong"
     }
   ]
 }

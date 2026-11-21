@@ -1,0 +1,168 @@
+{
+  "id": "stray-dogs-safety",
+  "names": {
+    "de": "Streunende Hunde",
+    "en": "Stray dogs",
+    "th": "สุนัขจรจัด"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Streunende Hunde sind in Thailand häufig, meist ruhig, aber Welpen und Muttertiere verteidigen sich. Nicht rennen, nicht anstarren, nachts nicht mit Futter locken. Nach Biss oder Kratzer die Wunde sofort 15 Minuten mit Seife waschen und am selben Tag zum Arzt, siehe auch das Paket animal-bite-rabies. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Stray dogs are common in Thailand and mostly calm, but puppies and mothers defend themselves. Do not run, do not stare, do not lure them with food at night. After a bite or scratch wash the wound with soap for 15 minutes at once and see a doctor the same day, see also the pack animal-bite-rabies. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "stray dog",
+      "th": "สุนัขจรจัด"
+    },
+    {
+      "en": "bite",
+      "th": "กัด"
+    },
+    {
+      "en": "scratch",
+      "th": "ข่วน"
+    },
+    {
+      "en": "rabies",
+      "th": "โรคพิษสุนัขบ้า"
+    },
+    {
+      "en": "vaccine",
+      "th": "วัคซีน"
+    },
+    {
+      "en": "owner",
+      "th": "เจ้าของ"
+    },
+    {
+      "en": "leash",
+      "th": "สายจูง"
+    },
+    {
+      "en": "puppy",
+      "th": "ลูกสุนัข"
+    },
+    {
+      "en": "soap",
+      "th": "สบู่"
+    },
+    {
+      "en": "clinic",
+      "th": "คลินิก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "A dog bit me.",
+      "th": "สุนัขกัด",
+      "critical": true,
+      "rom": "sunak kat"
+    },
+    {
+      "en": "The dog scratched me.",
+      "th": "สุนัขข่วน",
+      "critical": true,
+      "rom": "sunak khuan"
+    },
+    {
+      "en": "The dog is chasing me.",
+      "th": "สุนัขวิ่งไล่",
+      "critical": true,
+      "rom": "sunak winglai"
+    },
+    {
+      "en": "Please help, the dogs are surrounding me.",
+      "th": "ช่วยด้วย สุนัขล้อมอยู่",
+      "critical": true,
+      "rom": "chuaiduai sunak lom yu"
+    },
+    {
+      "en": "Where is the nearest hospital for rabies shots?",
+      "th": "โรงพยาบาลที่ฉีดวัคซีนพิษสุนัขบ้าที่ใกล้ที่สุดอยู่ที่ไหน",
+      "critical": true,
+      "rom": "rongpyaban thi chitwaksin phitsunakba thi kain thisut yu thinai"
+    },
+    {
+      "en": "I need a rabies vaccine today.",
+      "th": "ต้องฉีดวัคซีนพิษสุนัขบ้าวันนี้",
+      "critical": true,
+      "rom": "tong chitwaksin phitsunakba wanni"
+    },
+    {
+      "en": "Whose dog is this?",
+      "th": "สุนัขตัวนี้เป็นของใคร",
+      "rom": "sunak tua ni pen khong khain"
+    },
+    {
+      "en": "Is the dog vaccinated?",
+      "th": "สุนัขฉีดวัคซีนแล้วไหม",
+      "rom": "sunak chitwaksin laeo mai"
+    },
+    {
+      "en": "Please hold your dog.",
+      "th": "ช่วยจับสุนัขของคุณไว้หน่อย",
+      "rom": "chuai chap sunak khong khun wai noi"
+    },
+    {
+      "en": "Please call the owner.",
+      "th": "ช่วยโทรหาเจ้าของหน่อย",
+      "rom": "chuai thon ha chaokhong noi"
+    },
+    {
+      "en": "I need soap and clean water.",
+      "th": "ขอสบู่และน้ำสะอาด",
+      "rom": "kho sabu lae namsaat"
+    },
+    {
+      "en": "The dogs bark at night in front of my room.",
+      "th": "สุนัขเห่าตอนกลางคืนหน้าห้องพัก",
+      "rom": "sunak hao tonklangkhuen na ongphak"
+    },
+    {
+      "en": "Is it safe to walk here at night?",
+      "th": "ตอนกลางคืนเดินที่นี่ปลอดภัยไหม",
+      "rom": "tonklangkhuen doen thini plotphai mai"
+    },
+    {
+      "en": "Is there an aggressive dog around here?",
+      "th": "แถวนี้มีสุนัขดุไหม",
+      "rom": "thaeo ni mi sunak du mai"
+    },
+    {
+      "en": "Where is the animal shelter?",
+      "th": "ศูนย์พักพิงสัตว์อยู่ที่ไหน",
+      "rom": "sun phakphing sat yu thinai"
+    },
+    {
+      "en": "I found an injured dog.",
+      "th": "เจอสุนัขที่บาดเจ็บ",
+      "rom": "choe sunak thi batchep"
+    },
+    {
+      "en": "Please call animal rescue.",
+      "th": "ช่วยเรียกหน่วยช่วยเหลือสัตว์หน่อย",
+      "rom": "chuai riak nuai chuaihelue sat noi"
+    },
+    {
+      "en": "May I feed the dog?",
+      "th": "ให้อาหารสุนัขได้ไหม",
+      "rom": "aiahan sunak dai mai"
+    },
+    {
+      "en": "Please do not let the dog follow us.",
+      "th": "ขออย่าให้สุนัขเดินตามมา",
+      "rom": "kho ya hai sunak doen tamma"
+    },
+    {
+      "en": "Which road is safer?",
+      "th": "ถนนเส้นไหนปลอดภัยกว่า",
+      "rom": "thanon sen nai plotphai kwa"
+    },
+    {
+      "en": "Can you walk with me to the main road?",
+      "th": "เดินไปส่งที่ถนนใหญ่ได้ไหม",
+      "rom": "doen pai song thi thananahain dai mai"
+    }
+  ]
+}

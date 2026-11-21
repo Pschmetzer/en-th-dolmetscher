@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Für SIM-Karte und Mietverträge den Reisepass bereithalten. Internetgeschwindigkeit vor dem Mieten testen (Speedtest zeigen lassen). Längeres Arbeiten im Land braucht passende Visa und Arbeitserlaubnis; vorab bei Behörden klären. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Bring your passport for a SIM card and rental contracts. Test internet speed before renting. Working long-term in the country needs the right visa and work permit; check with the authorities first. Thai lines machine-made, not checked by native speakers."
+    "de": "Für SIM-Karte und Mietverträge den Reisepass bereithalten. Internetgeschwindigkeit vor dem Mieten testen (Speedtest zeigen lassen). Längeres Arbeiten im Land braucht passende Visa und Arbeitserlaubnis; vorab bei Behörden klären. Siehe auch: SIM, Internet und Handy. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Bring your passport for a SIM card and rental contracts. Test internet speed before renting. Working long-term in the country needs the right visa and work permit; check with the authorities first. See also: SIM, internet and phone. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -39,67 +39,83 @@
   "phrases": [
     {
       "en": "I need a SIM card with data.",
-      "th": "ต้องการซิมการ์ดที่มีอินเทอร์เน็ต"
+      "th": "ต้องการซิมการ์ดที่มีอินเทอร์เน็ต",
+      "rom": "tongkan sim kat thi mi inthoenet"
     },
     {
       "en": "How much is the monthly data package?",
-      "th": "แพ็กเกจเน็ตรายเดือนราคาเท่าไหร่"
+      "th": "แพ็กเกจเน็ตรายเดือนราคาเท่าไหร่",
+      "rom": "net raiduean rakha thaorai"
     },
     {
       "en": "Can I top up online?",
-      "th": "เติมเงินออนไลน์ได้ไหม"
+      "th": "เติมเงินออนไลน์ได้ไหม",
+      "rom": "toem ngoen onlai dai mai"
     },
     {
       "en": "What is the wifi password?",
-      "th": "รหัสไวไฟคืออะไร"
+      "th": "รหัสไวไฟคืออะไร",
+      "rom": "rahat waifai khue arai"
     },
     {
       "en": "How fast is the internet?",
-      "th": "อินเทอร์เน็ตเร็วแค่ไหน"
+      "th": "อินเทอร์เน็ตเร็วแค่ไหน",
+      "rom": "inthoenet reo khae nai"
     },
     {
       "en": "Can you show me a speed test?",
-      "th": "ช่วยทดสอบความเร็วเน็ตให้ดูหน่อย"
+      "th": "ช่วยทดสอบความเร็วเน็ตให้ดูหน่อย",
+      "rom": "chuai thadasop khwamreo net hai du noi"
     },
     {
       "en": "Is there a power outlet near me?",
-      "th": "มีปลั๊กไฟใกล้ที่นั่งไหม"
+      "th": "มีปลั๊กไฟใกล้ที่นั่งไหม",
+      "rom": "mi plakfai kain thinang mai"
     },
     {
       "en": "Is there a quiet room for calls?",
-      "th": "มีห้องเงียบสำหรับคุยโทรศัพท์ไหม"
+      "th": "มีห้องเงียบสำหรับคุยโทรศัพท์ไหม",
+      "rom": "mi ong ngiap samrap khui thonsap mai"
     },
     {
       "en": "Is there a monthly price?",
-      "th": "มีราคารายเดือนไหม"
+      "th": "มีราคารายเดือนไหม",
+      "rom": "mirakha raiduean mai"
     },
     {
       "en": "What happens during a power cut?",
-      "th": "ถ้าไฟดับจะทำอย่างไร"
+      "th": "ถ้าไฟดับจะทำอย่างไร",
+      "rom": "tha fai dap cha tham yangrai"
     },
     {
       "en": "Is there a backup connection?",
-      "th": "มีอินเทอร์เน็ตสำรองไหม"
+      "th": "มีอินเทอร์เน็ตสำรองไหม",
+      "rom": "mi inthoenet samrong mai"
     },
     {
       "en": "Can I get an invoice?",
-      "th": "ขอใบกำกับภาษีได้ไหม"
+      "th": "ขอใบกำกับภาษีได้ไหม",
+      "rom": "kho baikamkapphasi dai mai"
     },
     {
       "en": "Can I pay by transfer?",
-      "th": "โอนเงินได้ไหม"
+      "th": "โอนเงินได้ไหม",
+      "rom": "on ngoendai mai"
     },
     {
       "en": "Where can I print documents?",
-      "th": "พิมพ์เอกสารได้ที่ไหน"
+      "th": "พิมพ์เอกสารได้ที่ไหน",
+      "rom": "phim eksan dai thinai"
     },
     {
       "en": "Is there a coworking space near here?",
-      "th": "แถวนี้มีโคเวิร์กกิ้งสเปซไหม"
+      "th": "แถวนี้มีโคเวิร์กกิ้งสเปซไหม",
+      "rom": "thaeo ni mi kho woek king sapet mai"
     },
     {
       "en": "Is the building safe at night?",
-      "th": "ตอนกลางคืนอาคารนี้ปลอดภัยไหม"
+      "th": "ตอนกลางคืนอาคารนี้ปลอดภัยไหม",
+      "rom": "tonklangkhuen akhan ni plotphai mai"
     }
   ]
 }

@@ -36,77 +36,95 @@
     {
       "en": "Please stop. I do not want to continue.",
       "th": "หยุดก่อน ไม่ต้องการทำต่อแล้ว",
-      "critical": true
+      "critical": true,
+      "rom": "yut kon mataingkan thamto laeo"
     },
     {
       "en": "Please write down the price and the date.",
       "th": "ช่วยเขียนราคาและวันที่ไว้ให้หน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai khian rakha lae wanthi wai hai noi"
     },
     {
       "en": "I do not want to pay everything now.",
       "th": "ไม่ต้องการจ่ายเต็มจำนวนตอนนี้",
-      "critical": true
+      "critical": true,
+      "rom": "mataingkan chai tem chamnuan tonni"
     },
     {
       "en": "I would like a custom-made suit.",
-      "th": "ต้องการสั่งตัดชุดสูท"
+      "th": "ต้องการสั่งตัดชุดสูท",
+      "rom": "tongkan sangtat chut sut"
     },
     {
       "en": "How much does a suit cost?",
-      "th": "ชุดสูทราคาเท่าไหร่"
+      "th": "ชุดสูทราคาเท่าไหร่",
+      "rom": "chut sut rakha thaorai"
     },
     {
       "en": "Which fabrics do you have?",
-      "th": "มีผ้าอะไรบ้าง"
+      "th": "มีผ้าอะไรบ้าง",
+      "rom": "mi pha arai bang"
     },
     {
       "en": "Can I touch the fabric?",
-      "th": "ขอจับผ้าได้ไหม"
+      "th": "ขอจับผ้าได้ไหม",
+      "rom": "kho chap pha dai mai"
     },
     {
       "en": "Please take my measurements.",
-      "th": "ช่วยวัดตัวให้หน่อย"
+      "th": "ช่วยวัดตัวให้หน่อย",
+      "rom": "chuai wat tua hai noi"
     },
     {
       "en": "How many fittings are needed?",
-      "th": "ต้องลองตัวกี่ครั้ง"
+      "th": "ต้องลองตัวกี่ครั้ง",
+      "rom": "tong long tua ki khrang"
     },
     {
       "en": "When will it be ready?",
-      "th": "เสร็จเมื่อไร"
+      "th": "เสร็จเมื่อไร",
+      "rom": "muearai"
     },
     {
       "en": "I am leaving the day after tomorrow.",
-      "th": "จะเดินทางมะรืนนี้"
+      "th": "จะเดินทางมะรืนนี้",
+      "rom": "cha doenthang maruen ni"
     },
     {
       "en": "How much is the deposit?",
-      "th": "ค่ามัดจำเท่าไหร่"
+      "th": "ค่ามัดจำเท่าไหร่",
+      "rom": "kha matcham thaorai"
     },
     {
       "en": "Can I have the receipt?",
-      "th": "ขอใบเสร็จได้ไหม"
+      "th": "ขอใบเสร็จได้ไหม",
+      "rom": "kho dai mai"
     },
     {
       "en": "It is too tight here.",
-      "th": "ตรงนี้คับเกินไป"
+      "th": "ตรงนี้คับเกินไป",
+      "rom": "trangani khap koenpai"
     },
     {
       "en": "It is too loose here.",
-      "th": "ตรงนี้หลวมเกินไป"
+      "th": "ตรงนี้หลวมเกินไป",
+      "rom": "trangani luam koenpai"
     },
     {
       "en": "Please make the sleeves a little shorter.",
-      "th": "ช่วยทำแขนให้สั้นลงอีกนิด"
+      "th": "ช่วยทำแขนให้สั้นลงอีกนิด",
+      "rom": "chuai tham khaen hai san long ik nit"
     },
     {
       "en": "Can you add a lining?",
-      "th": "ใส่ซับในได้ไหม"
+      "th": "ใส่ซับในได้ไหม",
+      "rom": "sai sapnai dai mai"
     },
     {
       "en": "Can you ship it to my hotel?",
-      "th": "ส่งไปที่โรงแรมได้ไหม"
+      "th": "ส่งไปที่โรงแรมได้ไหม",
+      "rom": "song pai thi rongraem dai mai"
     }
   ],
   "note": {

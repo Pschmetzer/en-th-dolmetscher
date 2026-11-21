@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' 'sha256-NtoaJkHH7oyMtuSrgYGBOPDgoLbziTR7nLuvSgB+t2c='; style-src 'unsafe-inline'; connect-src 'self' https://translate.googleapis.com https://api.mymemory.translated.net; img-src 'self' data:; manifest-src 'self'; worker-src 'self'; frame-src 'none'; object-src 'none'; script-src-attr 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' 'sha256-eXNuKZ1AO8SbEkXCvJmKfmFQciVYW5wCASf5dChdn7o='; style-src 'unsafe-inline'; connect-src 'self' https://translate.googleapis.com https://api.mymemory.translated.net; img-src 'self' data:; manifest-src 'self'; worker-src 'self'; frame-src 'none'; object-src 'none'; script-src-attr 'none'; base-uri 'none'; form-action 'none'">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#1d4ed8" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)">
@@ -202,6 +202,7 @@
   .trans { font-size:30px; font-weight:600; margin-top:6px; }
   .trans.err { font-size:16px; font-weight:400; color:var(--mut); font-style:italic; }
   .badge { display:inline-block; font-size:12px; font-weight:400; font-style:normal; color:var(--mut); border:1px solid var(--line); border-radius:6px; padding:0 6px; margin-left:8px; vertical-align:middle; }
+  .entry .tagb { margin-top:6px; }
   .entry .acts { margin-top:6px; display:flex; gap:8px; flex-wrap:wrap; }
   #warn { display:none; margin:0 0 12px; padding:12px 16px; background:var(--warn-bg); border-radius:10px; }
   kbd { background:var(--kbd); padding:1px 6px; border-radius:4px; font-size:13px; font-family:inherit; }
@@ -819,6 +820,9 @@ const STR = {
   "speakOnlyLbl": "Nur vorlesen",
   "speakOnlyTitle": "Nur vorlesen (ohne Großansicht)",
   "pbUnavailable": "Satzbuch nicht verfügbar (offline und noch nie geladen?).",
+  "revStat": "Thai-Sätze: {p} % von Muttersprachlern geprüft.",
+  "revHint": "Rote Sätze im Ernstfall von einer Thai sprechenden Person gegenlesen lassen.",
+  "tagSet": "Markierung wechseln",
   "trUnavailable": "Übersetzung nicht verfügbar (offline?).",
   "trUnavailableEn": "Übersetzung nicht verfügbar (offline?) – Englisch wird gezeigt.",
   "topicUnavailable": "Thema nicht verfügbar (offline?).",
@@ -1100,7 +1104,7 @@ function loadLangTable() {   // nach 3 s ohne Antwort mit dem Notfall-Paar start
 }
 function refreshLangUi() { initPair(); fillLangSelects(); buildModes(); fillVoiceSelects(); renderCards(); }
 const DEFAULT_PAIR = ['en', 'th'];
-const PRESET_IDS = ['doctor', 'police', 'lostchild', 'pharmacy', 'dentist', 'taxi', 'places', 'airport', 'transport', 'travel', 'hotel', 'restaurant', 'shopping', 'bank', 'answers', 'access', 'spa', 'temple', 'island', 'scooter', 'rental', 'services', 'coworking', 'office', 'adventure-park', 'animal-bite-rabies', 'apartment-host-checkin', 'apartment-hunting', 'atm-bank-card', 'baby', 'babysitter-housekeeper', 'badminton-tennis', 'bakery-cafe', 'bangkok-skytrain', 'bank-account-opening', 'bank-app-otp-help', 'bank-transfer-abroad', 'beach', 'bicycle-rental', 'bicycle-touring-repair', 'birthday-celebration', 'border-crossing', 'buddhism-etiquette', 'buddhist-ceremony', 'buffet-bbq', 'bus-train', 'business-meeting', 'camping-national-park', 'cannabis-vape', 'car-accident', 'car-breakdown-roadside', 'car-insurance-claim', 'car-rental', 'car-wash-repair', 'cave-waterfall-tour', 'childbirth-hospital', 'chronic-conditions', 'cinema-concert', 'coffee-tea-order', 'contractor-renovation', 'convenience-store-7eleven', 'currency-exchange', 'customer-service-complaint', 'customs-duty-free', 'dating-small-talk', 'diabetes-insulin', 'diving', 'diving-medical-clearance', 'doctor-symptom-detail', 'driving-license', 'drone-camera-rules', 'drugs-medication-import', 'earthquake-evacuation', 'elderly-travel', 'electricity-water-bill', 'electronics-mall', 'elephant-sanctuary', 'embassy-consulate', 'emergency', 'ev-charging', 'ferry-boat', 'festival', 'fishing-trip', 'flight-delay-change', 'floating-market', 'food-allergy', 'food-delivery', 'food-poisoning-stomach', 'food-spice-level', 'fruit-market-durian', 'funeral-condolence', 'gas-station-parking', 'glasses-lens-repair', 'gold-shop', 'golf', 'golf-caddie-tips', 'grab-ride-hailing', 'grand-palace-museum', 'gym', 'hair-beauty', 'halal-food-muslim', 'hearing-speech-impaired', 'heat-health', 'herbal-traditional-medicine', 'hiking', 'home-repair', 'hospital', 'hospital-payment-insurance', 'hostel-dorm', 'hotel-deposit-dispute', 'hotel-room-problems', 'immigration-90day', 'island-hopping', 'jet-ski-rental', 'karaoke', 'kayak-national-park', 'kids', 'kids-playground', 'kindergarten-daycare', 'king-royal-respect', 'lab-blood-test', 'laundromat-self-service', 'laundry-deposit', 'laundry-repair', 'long-term-lease', 'longtail-boat-charter', 'lost-luggage', 'lost-passport', 'lost-phone', 'lost-wallet-cards', 'luggage-storage', 'market', 'massage', 'massage-prices-booking', 'meditation-retreat', 'mental-health-counseling', 'minivan-airport-transfer', 'mobile-sim', 'monk', 'monsoon-flood-storm', 'mosque-visit', 'mosquito-dengue', 'motorbike-accident', 'motorcycle-taxi', 'muay-thai-gym', 'muay-thai-stadium', 'negotiation', 'neighbors-noise-garbage', 'night-bus-vip', 'night-market-bargain', 'night-train-ticket', 'nightlife', 'nomad', 'notary-document-translation', 'numbers-prices', 'optician-eye-care', 'orchard-farm-visit', 'pet-boarding-flight', 'pets', 'pharmacy-otc', 'pharmacy-prescription-transfer', 'photo', 'physiotherapy-injury', 'plumber-electrician-aircon', 'police-checkpoint', 'post-office-parcel', 'pregnancy-maternity', 'print-copy-shop', 'private-driver-day-tour', 'promptpay-qr-payment', 'refund-complaint-shop', 'rice-field-village', 'ride-share-dispute', 'rock-climbing', 'scams-overcharge', 'school', 'school-enrollment', 'scooter-rental-damage', 'sexual-health-clinic', 'sim-esim-data', 'skin-clinic', 'smoothie-juice-stall', 'snorkel-boat-tour', 'songkran-water-festival', 'souvenir-jewelry', 'spirit-house-shrine', 'sport', 'sprain-fracture-xray', 'street-food', 'street-food-custom-order', 'sunburn-heat-rash', 'surf-kite-lesson', 'tailor-custom', 'tattoo-piercing', 'tax-refund', 'tdac-arrival-card', 'temple-photography', 'thai-cooking-class', 'thai-language-lesson', 'thai-massage-boundaries', 'tm30-address-report', 'toothache-emergency', 'tour-agency-booking', 'tourist-police-complaint', 'travel-insurance-claim', 'tuk-tuk-scam-prevention', 'tuk-tuk-songthaew', 'used-vehicle-purchase', 'utilities-condo-office', 'vaccination-travel-clinic', 'vegan-vegetarian', 'vet-clinic', 'visa', 'visa-extension', 'visa-run-border', 'volunteering', 'waste-recycling', 'wat-donation-etiquette', 'water-park-zoo', 'wedding', 'wheelchair-mobility', 'wifi-coworking-cafe', 'wildlife-safari', 'work', 'work-permit-office', 'yoga-retreat'];
+const PRESET_IDS = ['doctor', 'police', 'lostchild', 'pharmacy', 'dentist', 'taxi', 'places', 'airport', 'transport', 'travel', 'hotel', 'restaurant', 'shopping', 'bank', 'answers', 'access', 'spa', 'temple', 'island', 'scooter', 'rental', 'services', 'coworking', 'office', 'adventure-park', 'air-pollution-haze', 'animal-bite-rabies', 'apartment-host-checkin', 'apartment-hunting', 'asthma-inhaler', 'atm-bank-card', 'baby', 'babysitter-housekeeper', 'badminton-tennis', 'bakery-cafe', 'bangkok-skytrain', 'bank-account-opening', 'bank-app-otp-help', 'bank-transfer-abroad', 'beach', 'bicycle-rental', 'bicycle-touring-repair', 'birthday-celebration', 'border-crossing', 'buddhism-etiquette', 'buddhist-ceremony', 'buffet-bbq', 'bus-train', 'business-meeting', 'camping-national-park', 'cannabis-vape', 'car-accident', 'car-breakdown-roadside', 'car-insurance-claim', 'car-rental', 'car-wash-repair', 'card-payment-surcharge', 'cave-waterfall-tour', 'chao-phraya-river-boat', 'childbirth-hospital', 'chronic-conditions', 'cinema-concert', 'coffee-tea-order', 'contractor-renovation', 'convenience-store-7eleven', 'currency-exchange', 'customer-service-complaint', 'customs-duty-free', 'dating-small-talk', 'diabetes-insulin', 'diving', 'diving-medical-clearance', 'doctor-symptom-detail', 'driving-license', 'drone-camera-rules', 'drugs-medication-import', 'earthquake-evacuation', 'elderly-travel', 'electricity-water-bill', 'electronics-mall', 'elephant-sanctuary', 'embassy-consulate', 'emergency', 'epipen-anaphylaxis', 'ev-charging', 'ferry-boat', 'festival', 'fishing-trip', 'flight-delay-change', 'floating-market', 'food-allergy', 'food-delivery', 'food-poisoning-stomach', 'food-spice-level', 'fruit-market-durian', 'funeral-condolence', 'gas-station-parking', 'glasses-lens-repair', 'gold-shop', 'golf', 'golf-caddie-tips', 'grab-ride-hailing', 'grand-palace-museum', 'gym', 'hair-beauty', 'halal-food-muslim', 'hearing-speech-impaired', 'heat-health', 'herbal-traditional-medicine', 'hiking', 'home-repair', 'hospital', 'hospital-payment-insurance', 'hostel-dorm', 'hotel-deposit-dispute', 'hotel-room-problems', 'hotel-theft-report', 'immigration-90day', 'island-hopping', 'jellyfish-marine-sting', 'jet-ski-rental', 'karaoke', 'kayak-national-park', 'kids', 'kids-playground', 'kindergarten-daycare', 'king-royal-respect', 'lab-blood-test', 'laundromat-self-service', 'laundry-deposit', 'laundry-repair', 'locksmith-lockout', 'long-term-lease', 'longtail-boat-charter', 'lost-luggage', 'lost-passport', 'lost-phone', 'lost-wallet-cards', 'luggage-storage', 'market', 'massage', 'massage-prices-booking', 'meditation-retreat', 'mental-health-counseling', 'minivan-airport-transfer', 'mobile-sim', 'monk', 'monsoon-flood-storm', 'mosque-visit', 'mosquito-dengue', 'motorbike-accident', 'motorcycle-taxi', 'muay-thai-gym', 'muay-thai-stadium', 'negotiation', 'neighbors-noise-garbage', 'night-bus-vip', 'night-market-bargain', 'night-train-ticket', 'nightlife', 'nomad', 'notary-document-translation', 'numbers-prices', 'online-shopping-delivery', 'optician-eye-care', 'orchard-farm-visit', 'pet-boarding-flight', 'pets', 'pharmacy-otc', 'pharmacy-prescription-transfer', 'phone-repair-shop', 'photo', 'physiotherapy-injury', 'plumber-electrician-aircon', 'police-checkpoint', 'post-office-parcel', 'power-outage-blackout', 'pregnancy-maternity', 'print-copy-shop', 'private-driver-day-tour', 'promptpay-qr-payment', 'refund-complaint-shop', 'rice-field-village', 'ride-share-dispute', 'rock-climbing', 'scams-overcharge', 'school', 'school-enrollment', 'scooter-rental-damage', 'seafood-by-weight', 'sexual-health-clinic', 'sim-esim-data', 'skin-clinic', 'smoothie-juice-stall', 'snake-bite-venomous', 'snorkel-boat-tour', 'songkran-water-festival', 'souvenir-jewelry', 'spirit-house-shrine', 'sport', 'sprain-fracture-xray', 'stray-dogs-safety', 'street-food', 'street-food-custom-order', 'sunburn-heat-rash', 'surf-kite-lesson', 'tailor-custom', 'tattoo-piercing', 'tax-refund', 'tdac-arrival-card', 'temple-photography', 'thai-cooking-class', 'thai-language-lesson', 'thai-massage-boundaries', 'tipping-service-charge', 'tm30-address-report', 'toothache-emergency', 'tour-agency-booking', 'tourist-police-complaint', 'traffic-fine-police-ticket', 'travel-insurance-claim', 'tuk-tuk-scam-prevention', 'tuk-tuk-songthaew', 'two-price-attraction-tickets', 'used-vehicle-purchase', 'utilities-condo-office', 'vaccination-travel-clinic', 'vegan-vegetarian', 'vet-clinic', 'visa', 'visa-extension', 'visa-run-border', 'volunteering', 'waste-recycling', 'wat-donation-etiquette', 'water-park-zoo', 'wedding', 'wheelchair-mobility', 'wifi-coworking-cafe', 'wildlife-safari', 'work', 'work-permit-office', 'yoga-retreat'];
 
 // ---- Schrift-Plausibilität (wie dolmetscher.py: scripts_distinct, script_share, _untranslated, _wrong_script, text_lang) ----
 const SCRIPT_RX = {}, SCRIPT_RX_G = {}, SCRIPT_RUN3 = {};
@@ -1585,6 +1589,7 @@ function addEntry(cls, orig, trans, isErr, from, to) {
   tt.textContent = trans; if (isErr) tt.classList.add('err');
   if (!trans) tt.style.display = 'none';
   entry.setAttribute('role', 'listitem');
+  const tb = document.createElement('button'); tb.type = 'button'; tb.className = 'small tagb'; entry.appendChild(tb); tagEntry(entry, '');
   log.prepend(entry);
   if ($('logQ').value.trim()) applyLogFilter();   // neuer Eintrag respektiert den aktiven Filter
   if (log.children.length > MAX_LOG && !trimWarned) { trimWarned = true; setStatus(t('logTrimmed'), true); }
@@ -1592,6 +1597,9 @@ function addEntry(cls, orig, trans, isErr, from, to) {
   return tt;
 }
 
+const LOG_TAGS = ['', '⭐', '🏥', '💶', '🚕', '🏨'];   // Markierungen am bestehenden Verlauf (nur in dieser Sitzung)
+function tagEntry(e, g) { e.dataset.g = g; const b = e.querySelector('.tagb'); b.textContent = g || '🏷'; b.setAttribute('aria-label', t('tagSet') + (g ? ': ' + g : '')); }
+log.addEventListener('click', ev => { const b = ev.target.closest && ev.target.closest('.tagb'); if (!b) return; const e = b.closest('.entry'); tagEntry(e, LOG_TAGS[(LOG_TAGS.indexOf(e.dataset.g || '') + 1) % LOG_TAGS.length]); applyLogFilter(); });
 function clearLog() { log.textContent = ''; trimWarned = false; }
 
 function handleFinal(text, conf) {
@@ -1898,7 +1906,7 @@ function fillPresetSelect() {
   topicFill = fill; fill(PRESET_IDS);
   s.onchange = () => { settings.preset = s.value; saveSettings(); renderCards(); };
   fetchRetry('presets-index.json').then(r => r.json()).then(d => {
-    for (const p of d.packs) { presetMeta[p.id] = p.names; presetInfo[p.id] = { cat: p.category || '', kw: (p.keywords || []).join(' ') }; }
+    for (const p of d.packs) { presetMeta[p.id] = p.names; presetInfo[p.id] = { cat: p.category || '', kw: (p.keywords || []).join(' '), rv: !!p.reviewed }; }
     routesData = d.routes || {}; finderInit();
     fill(finderActive() ? topicIds() : d.packs.map(p => p.id).filter(id => PRESET_IDS.includes(id))); renderCards(); renderNow(); dayPhraseRender();
   }).catch(() => { for (const o of s.options) loadPreset(o.value).then(d => { o.textContent = (d.names && (d.names[UI] || d.names.de || d.names.en)) || o.value; }, () => {}); });
@@ -1952,6 +1960,7 @@ async function renderCards() {
   const nt = presetNote(d);   // Kulturhinweis des Pakets (nur Text)
   if (nt) $('pbNote').lang = d.note[pair.a] ? pair.a : d.note.de ? 'de' : 'en';   // Screenreader: richtige Stimme
   $('pbNote').textContent = nt ? 'ℹ️ ' + nt : ''; $('pbNote').hidden = !nt;
+  reviewLine(id, d);
   const a = pair.a, b = pair.b;
   const mi = $('myInline'); if (mi) { mi.hidden = !['taxi', 'tuk-tuk-songthaew', 'grab-ride-hailing'].includes(id) || !myCards.length; renderMine(); }
   if (!(b in (d.phrases[0] || {}))) msg.textContent = t('pbMissing', { l: lname(b) });
@@ -1997,6 +2006,14 @@ async function renderCards() {
     box.appendChild(w);
   }
   applyPbFilter();
+}
+const REV_CATS = ['health', 'emergency'];
+function reviewLine(id, d) {   // Pruefstand der Thai-Saetze: Anteil geprueft, bei wichtigen Saetzen ein Hinweis auf Muttersprachler
+  const n = $('pbNote'), inf = presetInfo[id], list = (d && d.phrases) || [];
+  if (!inf || !list.length) return;
+  const pct = inf.rv ? 100 : 0, crit = list.some(x => x.critical) && (REV_CATS.includes(inf.cat) || /police/.test(id)), s = document.createElement('small');
+  s.className = 'rev'; s.style.display = 'block'; s.style.marginTop = '6px'; s.textContent = t('revStat', { p: pct }) + (!inf.rv && crit ? ' ' + t('revHint') : '');
+  n.appendChild(s); n.hidden = false;
 }
 function presetNote(d) {
   const n = d && d.note;
@@ -2276,8 +2293,9 @@ function syncStars() { for (const b of document.querySelectorAll('.starbtn')) st
 function logCsv(rows) {   // rows: [{orig, trans}] -> CSV; Zellen mit = + - @ bekommen ein ' davor (Tabellenkalkulations-Formeln)
   const cell = v => { let x = String(v || '').replace(/\r?\n/g, ' '); if (/^[=+\-@\t]/.test(x)) x = "'" + x; return '"' + x.replace(/"/g, '""') + '"'; };
   const ext = rows.some(r => r.t);   // mit Zeit und Sprachen, wenn bekannt (Einträge dieser Sitzung)
-  const head = ext ? '"time","from","to","original","translation"' : '"original","translation"';
-  return [head].concat(rows.map(r => (ext ? cell(r.t) + ',' + cell(r.from) + ',' + cell(r.to) + ',' : '') + cell(r.orig) + ',' + cell(r.trans))).join('\r\n') + '\r\n';
+  const tg = rows.some(r => r.g);   // Spalte "tag" nur, wenn Einträge markiert sind
+  const head = (ext ? '"time","from","to","original","translation"' : '"original","translation"') + (tg ? ',"tag"' : '');
+  return [head].concat(rows.map(r => (ext ? cell(r.t) + ',' + cell(r.from) + ',' + cell(r.to) + ',' : '') + cell(r.orig) + ',' + cell(r.trans) + (tg ? ',' + cell(r.g) : ''))).join('\r\n') + '\r\n';
 }
 function learnProgress(list) {   // sicher gelernt = Fach 4 oder 5
   const total = list.length, done = list.filter(c => c.box >= 4).length;
@@ -2386,7 +2404,7 @@ function logText() {
   return [...log.children].reverse().map(e => {
     const o = e.querySelector('.orig'), t = e.querySelector('.trans');
     const tt = t && t.style.display !== 'none' && !t.classList.contains('err') ? t.firstChild && t.firstChild.textContent : '';
-    return (o ? o.firstChild.textContent : '') + (tt ? '\n→ ' + tt : '');
+    return (e.dataset.g ? e.dataset.g + ' ' : '') + (o ? o.firstChild.textContent : '') + (tt ? '\n→ ' + tt : '');
   }).join('\n\n');
 }
 $('btnCopy').onclick = async () => {
@@ -2406,10 +2424,10 @@ function logRows() {
   return [...log.children].reverse().map(e => {
     const o = e.querySelector('.orig'), tr = e.querySelector('.trans');
     const ok = tr && tr.style.display !== 'none' && !tr.classList.contains('err');
-    return { orig: o && o.firstChild ? o.firstChild.textContent : '', trans: ok && tr.firstChild ? tr.firstChild.textContent : '', t: e.dataset.t || '', from: o && o.lang || '', to: tr && tr.lang || '' };
+    return { orig: o && o.firstChild ? o.firstChild.textContent : '', trans: ok && tr.firstChild ? tr.firstChild.textContent : '', t: e.dataset.t || '', from: o && o.lang || '', to: tr && tr.lang || '', g: e.dataset.g || '' };
   });
 }
-function logSearchText(e) { return [...e.querySelectorAll('.orig,.trans')].map(x => x.firstChild ? x.firstChild.textContent : '').join(' '); }   // nur Original und Übersetzung, nicht die Knopftexte
+function logSearchText(e) { return (e.dataset.g || '') + ' ' + [...e.querySelectorAll('.orig,.trans')].map(x => x.firstChild ? x.firstChild.textContent : '').join(' '); }   // nur Original und Übersetzung, nicht die Knopftexte
 function applyLogFilter() {
   const q = $('logQ').value, items = [...log.children];
   let n = 0;
@@ -3485,7 +3503,7 @@ function r23Init() {
   $('btnSos').onclick = sosOpen; $('sosClose').onclick = sosClose;
   const loadExtras = cb => { if (window.DolmetscherExtras) return cb(window.DolmetscherExtras); const e = document.createElement('script'); e.src = 'web-extras.js'; e.onload = () => cb(window.DolmetscherExtras); e.onerror = () => { e.remove(); alert('web-extras.js: offline?'); }; document.head.appendChild(e); };   // Zusatzwerkzeuge erst bei Bedarf
   $('btnTools').onclick = () => loadExtras(x => x.open());
-  if (/^#pack=/.test(location.hash)) loadExtras(x => x.importFromHash());
+  if (/^#(pack|part)=/.test(location.hash)) loadExtras(x => x.importFromHash());
   $('sosDlg').addEventListener('close', () => { const o = sosOpener; sosOpener = null; if (o && o.focus && document.contains(o)) o.focus(); });   // Fokus zurück zum Auslöser
   $('sosDlg').addEventListener('click', e => { if (e.target === $('sosDlg')) sosClose(); });   // Klick auf den Hintergrund schließt
   $('sosAmb').onclick = () => { sosClose(); showBig(SOS_THAI.amb, 'th', 'crit'); };

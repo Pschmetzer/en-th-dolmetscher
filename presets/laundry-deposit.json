@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Beim Waschen Stückzahl gemeinsam zählen und Preis pro Kilo vorher klären. Eine Kaution immer quittieren lassen und nie den Reisepass als Pfand hinterlegen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "For laundry count the pieces together and agree the price per kilo first. Always get a receipt for a deposit and never leave your passport as security. Thai lines machine-made, not checked by native speakers."
+    "de": "Beim Waschen Stückzahl gemeinsam zählen und Preis pro Kilo vorher klären. Eine Kaution immer quittieren lassen und nie den Reisepass als Pfand hinterlegen. Siehe auch: Wäscherei, Friseur, Schneider. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "For laundry count the pieces together and agree the price per kilo first. Always get a receipt for a deposit and never leave your passport as security. See also: Laundry, hairdresser, tailor. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,85 +40,105 @@
     {
       "en": "I will not leave my passport as a deposit.",
       "th": "ไม่วางพาสปอร์ตเป็นมัดจำ",
-      "critical": true
+      "critical": true,
+      "rom": "mai wang phatpot pen matcham"
     },
     {
       "en": "Please give me my deposit back.",
       "th": "ขอเงินมัดจำคืน",
-      "critical": true
+      "critical": true,
+      "rom": "kho ngoenmatcham khuen"
     },
     {
       "en": "My clothes are missing.",
       "th": "เสื้อผ้าหาย",
-      "critical": true
+      "critical": true,
+      "rom": "sueapha hai"
     },
     {
       "en": "I need a receipt for the deposit.",
-      "th": "ขอใบเสร็จค่ามัดจำ"
+      "th": "ขอใบเสร็จค่ามัดจำ",
+      "rom": "kho kha matcham"
     },
     {
       "en": "Where can I do laundry?",
-      "th": "ซักผ้าได้ที่ไหน"
+      "th": "ซักผ้าได้ที่ไหน",
+      "rom": "sakpha dai thinai"
     },
     {
       "en": "How much per kilo?",
-      "th": "กิโลละเท่าไร"
+      "th": "กิโลละเท่าไร",
+      "rom": "kilo la thaorai"
     },
     {
       "en": "When will it be ready?",
-      "th": "เสร็จเมื่อไร"
+      "th": "เสร็จเมื่อไร",
+      "rom": "muearai"
     },
     {
       "en": "Can I have it by tomorrow?",
-      "th": "ขอรับพรุ่งนี้ได้ไหม"
+      "th": "ขอรับพรุ่งนี้ได้ไหม",
+      "rom": "khorap phrungni dai mai"
     },
     {
       "en": "Please wash separately.",
-      "th": "ช่วยซักแยกด้วย"
+      "th": "ช่วยซักแยกด้วย",
+      "rom": "chuai sak yaek duai"
     },
     {
       "en": "Please wash in cold water.",
-      "th": "ช่วยซักน้ำเย็นด้วย"
+      "th": "ช่วยซักน้ำเย็นด้วย",
+      "rom": "chuai sak namyen duai"
     },
     {
       "en": "Please do not use the dryer.",
-      "th": "ห้ามใช้เครื่องอบผ้า"
+      "th": "ห้ามใช้เครื่องอบผ้า",
+      "rom": "am chai kheruengoppha"
     },
     {
       "en": "This is delicate.",
-      "th": "ผ้าชิ้นนี้บอบบาง"
+      "th": "ผ้าชิ้นนี้บอบบาง",
+      "rom": "pha chin ni bopbang"
     },
     {
       "en": "There is a stain here.",
-      "th": "มีรอยเปื้อนตรงนี้"
+      "th": "มีรอยเปื้อนตรงนี้",
+      "rom": "mi roipuean trangani"
     },
     {
       "en": "Do you iron as well?",
-      "th": "รีดผ้าด้วยไหม"
+      "th": "รีดผ้าด้วยไหม",
+      "rom": "ritpha duai mai"
     },
     {
       "en": "Is there a coin laundry?",
-      "th": "มีร้านซักผ้าหยอดเหรียญไหม"
+      "th": "มีร้านซักผ้าหยอดเหรียญไหม",
+      "rom": "mi ran sakpha yot erin mai"
     },
     {
       "en": "How much is the deposit?",
-      "th": "ค่ามัดจำเท่าไหร่"
+      "th": "ค่ามัดจำเท่าไหร่",
+      "rom": "kha matcham thaorai"
     },
     {
       "en": "When do I get the deposit back?",
-      "th": "จะได้เงินมัดจำคืนเมื่อไหร่"
+      "th": "จะได้เงินมัดจำคืนเมื่อไหร่",
+      "rom": "cha dai ngoenmatcham khuen muearai"
     },
     {
       "en": "Do you have change for the machine?",
-      "th": "มีเหรียญทอนสำหรับเครื่องซักผ้าไหม"
+      "th": "มีเหรียญทอนสำหรับเครื่องซักผ้าไหม",
+      "rom": "mi erin thon samrap kheruengsakpha mai"
     },
     {
       "en": "Please count the pieces together.",
-      "th": "ช่วยนับจำนวนชิ้นด้วยกัน"
+      "th": "ช่วยนับจำนวนชิ้นด้วยกัน",
+      "rom": "chuai nap chamnuan chin duaikan"
     },
     {
       "en": "Is the key deposit refundable?",
-      "th": "เงินมัดจำกุญแจคืนได้ไหม"
+      "th": "เงินมัดจำกุญแจคืนได้ไหม",
+      "rom": "ngoenmatcham kunchae khuen dai mai"
     }
   ]
 }

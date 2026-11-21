@@ -56,61 +56,75 @@
     {
       "en": "I have been assaulted. Please call the police (191).",
       "th": "ถูกทำร้ายทางเพศ ช่วยเรียกตำรวจ (191)",
-      "critical": true
+      "critical": true,
+      "rom": "thuk thamrai thangphet chuai riak tamruat 191"
     },
     {
       "en": "Please call the tourist police (1155).",
       "th": "ช่วยโทรหาตำรวจท่องเที่ยว 1155 ด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai thon ha tamruat thongthiao 1155 duai"
     },
     {
       "en": "I need emergency medication today.",
       "th": "ต้องการยาฉุกเฉินวันนี้",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan ya chukchoen wanni"
     },
     {
       "en": "I would like a test, please.",
-      "th": "ต้องการตรวจ"
+      "th": "ต้องการตรวจ",
+      "rom": "tongkan truat"
     },
     {
       "en": "Is the test confidential?",
-      "th": "การตรวจเป็นความลับไหม"
+      "th": "การตรวจเป็นความลับไหม",
+      "rom": "kan truat penkwamlap mai"
     },
     {
       "en": "How long until I get the result?",
-      "th": "จะได้ผลตรวจเมื่อไร"
+      "th": "จะได้ผลตรวจเมื่อไร",
+      "rom": "cha daphain truat muearai"
     },
     {
       "en": "How much is the test?",
-      "th": "ค่าตรวจเท่าไร"
+      "th": "ค่าตรวจเท่าไร",
+      "rom": "kha truat thaorai"
     },
     {
       "en": "I need emergency contraception.",
-      "th": "ต้องการยาคุมฉุกเฉิน"
+      "th": "ต้องการยาคุมฉุกเฉิน",
+      "rom": "tongkan yakhum chukchoen"
     },
     {
       "en": "Do you have the contraceptive pill?",
-      "th": "มียาคุมกำเนิดไหม"
+      "th": "มียาคุมกำเนิดไหม",
+      "rom": "mi yakhumkamnoet mai"
     },
     {
       "en": "Do you have condoms?",
-      "th": "มีถุงยางอนามัยไหม"
+      "th": "มีถุงยางอนามัยไหม",
+      "rom": "mi thungyangonamai mai"
     },
     {
       "en": "I would like to talk to a female doctor.",
-      "th": "อยากพบแพทย์หญิง"
+      "th": "อยากพบแพทย์หญิง",
+      "rom": "yak phop phaet ying"
     },
     {
       "en": "Do you have a doctor who speaks English?",
-      "th": "มีแพทย์ที่พูดภาษาอังกฤษไหม"
+      "th": "มีแพทย์ที่พูดภาษาอังกฤษไหม",
+      "rom": "mi phaet thi phut phasaangkrit mai"
     },
     {
       "en": "Can you give me a medical certificate?",
-      "th": "ขอใบรับรองแพทย์ได้ไหม"
+      "th": "ขอใบรับรองแพทย์ได้ไหม",
+      "rom": "kho bairaprongphaet dai mai"
     },
     {
       "en": "Thank you for your help.",
-      "th": "ขอบคุณมากที่ช่วย"
+      "th": "ขอบคุณมากที่ช่วย",
+      "rom": "khopkhun mak thi chuai"
     }
   ]
 }
