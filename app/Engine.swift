@@ -598,6 +598,17 @@ final class EngineModel: NSObject, ObservableObject {
         return fh
     }
 
+    /// Ausgabegerät je Richtung (Runde 27): Steuerfelder `output_device_me`/`output_device_other`; leer = Standard.
+    /// Nur an eine Engine, die die Felder kennt (`ready.capabilities`); sonst bleibt es eine reine App-Einstellung.
+    func sendAudioRoute() {
+        guard r26.supports(control: "output_device_me") else { return }
+        let route = AudioRoute(mine: Self.ud.string(forKey: AudioRouteLogic.mineKey) ?? "",
+                               partner: Self.ud.string(forKey: AudioRouteLogic.partnerKey) ?? "")
+        var f: [String: Any] = AudioRouteLogic.protocolFields(route)
+        for k in ["output_device_me", "output_device_other"] where f[k] == nil { f[k] = "" }   // leer löscht die Zuordnung
+        send(f)
+    }
+
     /// Einstellung live an die laufende Engine schicken (eine JSON-Zeile auf stdin).
     /// Das Schreiben läuft auf einer seriellen Queue (Reihenfolge bleibt, der Main-Thread blockiert nicht,
     /// wenn die Pipe voll ist); Fehler (z. B. Engine schon weg) werden geloggt statt verschluckt.
@@ -1207,6 +1218,7 @@ final class EngineModel: NSObject, ObservableObject {
             degradedModels = o["degraded"] as? [String] ?? []
             startWatchdog()
             r26.engineReady(o)
+            sendAudioRoute()
             Announcer.post(L.t("a11y_ready"))   // Nr. 365
             // Fehlt `protocol`, ist es eine ältere Engine (vor dem Handshake) – das ist kein Fehler.
             if let pv = (o["protocol"] as? NSNumber)?.intValue, pv != Self.protocolVersion { protocolMismatch = pv }

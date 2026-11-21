@@ -49,14 +49,14 @@ _NUM_KEEP_BEFORE = re.compile(r"(?:ห้อง|เบอร์|โทร|โท
 # als Tausendertrenner) wird nicht in „สิบ 000“ zerlegt
 _TIME_AFTER = re.compile(r"\s*(?:น(?:\.|(?![ก-๙]))|นาฬิกา|โมง|นาที)")
 _SPACE_GROUP = re.compile(r"[ \u00a0\u202f]\d{3}(?!\d)")
-_SPEAK_NUM = re.compile(r"(?<![\w.,:/\-+#])(\d{1,3}(?:,\d{3})+|\d{1,9})(?:\.(\d{1,6}))?(?![\w:/\-]|[.,]\d)")
+_SPEAK_NUM = re.compile(r"(?<![\w.,:/\-+#])(\d{1,3}(?:,\d{3})+|\d{1,9})(?:\.(\d{1,6}))?(%)?(?![\w:/\-]|[.,]\d)")
 
 
 def speak_numbers_th(text):
     """Zahlen in Thai-Text als Wörter lesbar machen (die TTS liest Ziffern uneinheitlich): 350 -> สามร้อยห้าสิบ,
     3.5 -> สามจุดห้า. Nummern (Zimmer, Telefon, Konto), führende Nullen, Uhrzeiten und Datum bleiben Ziffern."""
     def one(m):
-        raw, frac = m.group(1), m.group(2)
+        raw, frac, pct = m.group(1), m.group(2), m.group(3)
         digits = raw.replace(",", "")
         if len(digits) > 1 and (digits[0] == "0" or _NUM_KEEP_BEFORE.search(text[:m.start()])):
             return m.group(0)
@@ -71,5 +71,5 @@ def speak_numbers_th(text):
             return m.group(0)
         if frac:
             words += "จุด" + "".join(_TH_DIG[int(c)] for c in frac)
-        return words
+        return words + (" เปอร์เซ็นต์" if pct else "")
     return _SPEAK_NUM.sub(one, text)

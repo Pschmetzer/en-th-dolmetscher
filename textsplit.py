@@ -54,3 +54,24 @@ def chunk_long(parts, lang, limit=None):
             p = p[cut:].strip() if cut != limit or p[cut:cut + 1].isspace() else p[cut:]
         out.append(p)
     return [x for x in out if x]
+
+
+# Runde 8: Kürzel, nach deren Punkt kein Satz endet ("9 a.m. to 5 p.m.", "ca. 500", "z. B.", "Prof. Brown")
+_ABBREV = frozenset({"ca.", "z.", "b.", "bzw.", "usw.", "approx.", "prof.", "jr.", "sr.", "inc.", "co.", "ltd.",
+                     "mt.", "vs.", "u.a.", "d.h.", "evtl.", "str.", "dr.", "mr.", "mrs.", "ms.", "st.", "e.g.",
+                     "i.e."})
+_ABBREV_NUM = frozenset({"no.", "nr.", "tel."})     # enden auch Sätze ("No. I don't."): nur vor einer Ziffer verbinden
+
+
+def _rejoin_abbrev(parts):
+    """Teile wieder verbinden, wenn der Satz nur an einem Kürzel oder vor einem Kleinbuchstaben „endete“."""
+    out = []
+    for p in parts:
+        if out:
+            last = out[-1].split()[-1].casefold() if out[-1].split() else ""
+            if (last in _ABBREV or (last in _ABBREV_NUM and p[:1].isdigit())
+                    or (out[-1].endswith(".") and p[:1].islower() and p[:1].isalpha())):
+                out[-1] += " " + p
+                continue
+        out.append(p)
+    return out

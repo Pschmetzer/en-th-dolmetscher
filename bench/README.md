@@ -100,3 +100,7 @@ das Original, Zahlen-Erhalt (`numbers_differ` der Engine), Erhalt von Eigennamen
 `--repeat`). Am Ende stehen die Mittelwerte je Anbieter. chrF der Rückübersetzung ist nur ein Näherungswert:
 Redewendungen kommen sinngemäß und nie wörtlich zurück. Sinnvoll ist der Vergleich zwischen Anbietern auf denselben
 Sätzen, nicht der absolute Wert. `--no-back` spart die Google-Anfragen.
+
+## Mikro-Benchmark der Hot-Paths (Runde 27)
+
+`python bench/micro_bench.py [--n 20000] [--out bench/results/micro_r27.json]` misst Cache (put/get), Cache-Schlüssel `_norm` (warm/kalt), `split_sentences` (en/th), `speak_numbers_th` und den Zahlenvergleich; ohne Modelle und Netz. Referenz (M-Reihe, Python 3.12, µs je Aufruf): Cache-Treffer 0,18, Schlüssel 0,18, `_norm` kalt 6,5, `split_sentences` 2 bis 6, Zahlenvergleich 115. Nichts davon ist neben Erkennung und Übersetzung messbar; das Ergebnis dient als Regressionswert für dasselbe Gerät.
