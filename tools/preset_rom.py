@@ -50,7 +50,7 @@ def romanizer():
         sys.exit("pythainlp fehlt: pip install pythainlp (nur fuer --fill noetig)")
 
     def rom(th):   # erst in Woerter zerlegen (ohne Zerlegung kommt Unsinn heraus)
-        # bleibt ein Wort unumschrieben (Thai-Zeichen [฀-๿] uebrig oder leer): gar keine Lautschrift statt einer lueckenhaften
+        # bleibt ein Wort unumschrieben ([฀-๿] uebrig oder leer): keine Lautschrift statt einer lueckenhaften
         words = [romanize(w) for w in word_tokenize(th, keep_whitespace=False)]
         if not words or any(not w or re.search("[฀-๿]", w) for w in words):
             return ""
