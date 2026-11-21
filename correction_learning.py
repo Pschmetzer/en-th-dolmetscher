@@ -268,7 +268,7 @@ def name_alignment(old, new, lang="en", min_ratio=0.5):
 
 # Runde 28: Thai-Namen nach Anrede (Thai kennt keine Großschreibung)
 _HONORIFIC = re.compile(r"(?:คุณ|นางสาว|นาง|นาย|ดร\.|อาจารย์|ครู|หมอ|พี่|น้อง)\s*([฀-๿]{2,12})")
-_NAME_TAIL = re.compile(r"(?:ครับผม|ครับ|ค่ะ|คะ|นะครับ|นะคะ|นะ|จ้ะ|จ้า)+$")
+_NAME_TAIL = ("ครับผม", "ครับ", "ค่ะ", "คะ", "นะ", "จ้ะ", "จ้า")      # Schlusspartikeln, ohne Regex (kein Backtracking)
 _NOT_THAI_NAME = ("ไม่", "ได้", "จะ", "มา", "ไป", "ช่วย", "ขอ", "อยู่", "เป็น", "มี", "ที่", "และ", "ก็", "เรา", "ผม",
                   "ฉัน", "ต้อง", "กำลัง", "แล้ว", "ยัง", "คือ", "ใน", "กับ", "ให้")
 
@@ -279,7 +279,9 @@ def thai_honorific_names(old, new, limit=3):
     nicht mehr vor; Funktionswörter nach der Anrede (คุณไม่ …) zählen nicht. Reine Vorschläge."""
     out = []
     for m in _HONORIFIC.finditer(new or ""):
-        name = _NAME_TAIL.sub("", m.group(1))
+        name = m.group(1)
+        while name.endswith(_NAME_TAIL):
+            name = name[:-len(next(t for t in _NAME_TAIL if name.endswith(t)))]
         if len(name) < 2 or name.startswith(_NOT_THAI_NAME) or name in (old or "") or name in out:
             continue
         out.append(name)
