@@ -1,7 +1,7 @@
 {
   "name": "Dolmetscher (Presets, Web, Doku)",
   "image": "mcr.microsoft.com/devcontainers/python:3.12",
-  "features": { "ghcr.io/devcontainers/features/node:1": { "version": "lts" } },
+  "features": { "ghcr.io/devcontainers/features/node:2": { "version": "lts" } },
   "postCreateCommand": "pip install pytest ruff pre-commit && pre-commit install",
   "forwardPorts": [8000],
   "customizations": { "vscode": { "extensions": ["ms-python.python", "charliermarsh.ruff"] } }
