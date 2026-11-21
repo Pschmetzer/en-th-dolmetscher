@@ -14,6 +14,17 @@ Nirgends gibt es Konten, eigene Telemetrie oder einen eigenen Server.
 
 Das gilt für alle 19 Sprachen gleich: Die Wahl des Sprachpaars ändert nur, welche Sprachen erkannt und übersetzt werden, nicht, wohin Daten gehen. Bei den Sprachcodes für die Dienste wird Chinesisch als `zh-CN` (Google/MyMemory) bzw. `zh-Hans` (Apple) angefragt.
 
+## Auf einen Blick
+
+| Frage | Antwort |
+|---|---|
+| Verlässt **Audio** den Mac? | Nein. Erkennung (Whisper) und Stimmprofile laufen lokal. |
+| Was geht ins Netz? | Erkannter **Text** zum Übersetzen (außer offline) und der übersetzte Text zum Vorlesen (Neural-Stimme); Details in der Tabelle unten. |
+| Gibt es Konten, Telemetrie oder einen eigenen Server? | Nein. |
+| Wie sendet man nichts? | `--private` aktivieren, `--tts say` wählen, Offline-Übersetzung nutzen; Erkennung läuft ohne Netz weiter. |
+| Wo liegen Daten auf dem Gerät? | Einstellungen, Stimmprofile, optional der Verlauf (`--history`, Standard aus) und `engine.log` (Text nur mit `--log-text`). |
+| Was gehört nicht in Fehlerberichte? | Gesprächstexte, Namen, Pfade mit Benutzernamen, Aufnahmen; siehe „Hinweise für Berichte und Fehlersuche“ unten. |
+
 ## Bleibt lokal
 
 | Was | Wo |

@@ -14,6 +14,18 @@ Only the pure Thai modules (`thaiparticles`, `thaitime`, `numwords`, `textnorm`,
 - **Normalising and splitting:** cache key ignores zero-width characters and Thai digits, `strip_thai_fillers` (เอ่อ, อืม; not อ่านหนังสือ), `split_thai_sentences` at particles without punctuation, Thai abbreviations (`น.`, `พ.ศ.`, `ม.ค.` ...) no longer end a sentence.
 - **Names and phrase books:** `name_key` (Phuket = Puket, Chiang Mai = Chiang-Mai) now drives `name_alignment`, `thai_honorific_names` (name after คุณ/นาย/พี่ ...), more Thai particles skipped as vocabulary, `satzbuch.py check --thai` (zero-width characters, gender-bound "I", ค่ะ in questions, double ๆ; all packs are clean).
 
+### Docs, CI and tooling, round 29
+
+No app behaviour changes; for contributors and maintainers:
+
+- **Docs map and onboarding:** new `docs/README.md` (all documents by audience, kept complete by a CI check), `docs/ENTWICKLUNG.md` (setup in 10 minutes, folder map, "I change X, so I check Y", typical tasks, pitfalls), `docs/CI.md` (every workflow, how to reproduce it locally, caches, adding a workflow) and `docs/RELEASE.md` (checklist, release notes, recovery). `.github/SUPPORT.md` points people to the right place; README and CONTRIBUTING link to the new pages.
+- **Architecture, protocol, privacy:** sequence diagram of one utterance and an error-path table in `docs/ARCHITEKTUR.md`; example exchange and compatibility rules (add fields, never rename, stable codes, when to bump the version) in `docs/PROTOKOLL.md`; "at a glance" table in `docs/DATENSCHUTZ.md`. `docs/VERSIONEN.md` said 1.2 while `pyproject.toml` is 1.3: fixed.
+- **Release workflow:** `release.yml` now checks tag, version and changelog first (fast, no macOS machine) and creates a **draft** GitHub release with the changelog section as notes and the ZIP plus SHA256. Nothing is published automatically; write access exists only in the build job. `.github/release.yml` sorts GitHub's generated notes.
+- **CI:** new fast job "Doku, Changelog, Versionen, Workflow-Regeln"; ruff cache; `workflow_dispatch` for `ci.yml`; `PIP_DISABLE_PIP_VERSION_CHECK`, `PYTHONDONTWRITEBYTECODE`, `PYTHONUNBUFFERED`.
+- **Dependabot:** 3-day cooldown for new versions, commit prefixes, labels, fixed weekday, and the Dev Container features as a fourth ecosystem.
+- **New scripts in `tools/` (standard library only, with tests in `tests/test_r29_infra_docs.py`):** `changelog_extract.py` (section of a version for release notes), `changelog_lint.py` (form of the changelog), `check_workflows.py` (house rules: actions pinned to a commit with version comment, `timeout-minutes` on every job, top-level `permissions`, no `pull_request_target`, no auto-deploys), `check_docs_index.py` (every doc is linked from the map), `check_version_sync.py` (`pyproject.toml`, `VERSIONEN.md`, tag).
+- **Local checks:** `tools/check_all.sh --docs` and `make docs-check` run the five fast checks in seconds; `make changelog-notes V=1.3` shows release notes; the full `check_all.sh` includes them.
+
 ### Security and privacy review, round 28
 
 - Engine: the three remaining child-process calls (`say -v ?`, two ffmpeg device queries) no longer inherit `ANTHROPIC_API_KEY`; a test checks every `subprocess` call in `dolmetscher.py` for a filtered environment

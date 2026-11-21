@@ -6,9 +6,16 @@ on:
   pull_request:
   schedule:
     - cron: "17 5 * * 1"       # wöchentlich: pip-audit findet neue CVEs auch ohne Commit
+  workflow_dispatch:           # von Hand: Actions -> CI -> Run workflow (z. B. nach einem Runner-Ausfall)
 
 permissions:
   contents: read
+
+# Weniger Rauschen und Schreiben im Runner: keine pip-Versionsabfrage, keine .pyc-Dateien, Ausgabe sofort im Log.
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONUNBUFFERED: "1"
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -126,6 +133,13 @@ jobs:
       - name: Icon script compiles (app/make_icon.py)
         run: python -m py_compile app/make_icon.py
       # Alle Python-Module im Hauptordner, bench/ und tests/ sind sauber: neue Befunde lassen den Lauf scheitern.
+      # Zwischenspeicher je ruff-Version: unveränderte Dateien werden nicht neu geprüft.
+      - name: Ruff cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .ruff_cache
+          key: ruff-${{ hashFiles('requirements-dev.in', 'pyproject.toml') }}-${{ github.sha }}
+          restore-keys: ruff-${{ hashFiles('requirements-dev.in', 'pyproject.toml') }}-
       - name: Ruff (blocking)
         run: ruff check --output-format=github ./*.py bench/ tests/ tools/
 
@@ -180,6 +194,22 @@ jobs:
         run: |
           python tools/sync_web.py --check
           node --check sw.js
+
+  docs:
+    name: Doku, Changelog, Versionen, Workflow-Regeln
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      # Nur Standardbibliothek, ohne Pakete: läuft in Sekunden. Lokal: tools/check_all.sh --docs (docs/CI.md).
+      - name: Doku-Links, Doku-Landkarte, Changelog, Versionen, Workflow-Regeln
+        run: bash tools/check_all.sh --docs
 
   shell:
     if: github.event_name != 'schedule'

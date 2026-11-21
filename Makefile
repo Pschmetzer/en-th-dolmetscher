@@ -5,7 +5,13 @@ PY ?= python3
 PYTEST_ARGS ?=
 IGNORE_ENV = --ignore=tests/test_env_logic_swift.py --ignore=tests/test_setup_env.py
 
-.PHONY: test test-mac test-web web-test lint check web presets-index audit cov lock stats
+.PHONY: docs-check changelog-notes test test-mac test-web web-test lint check web presets-index audit cov lock stats
+
+docs-check:      ## Doku-Links, Doku-Landkarte, Changelog-Form, Versionen, Workflow-Hausregeln (schnell, ohne Pakete)
+	bash tools/check_all.sh --docs
+
+changelog-notes: ## Release-Notes eines Abschnitts anzeigen: make changelog-notes V=1.3 (Standard: Unreleased)
+	$(PY) tools/changelog_extract.py $(or $(V),Unreleased)
 
 test:            ## alle Tests wie die CI-Linux-Jobs (ohne Marker macos)
 	$(PY) -m pytest -q -m "not macos" $(PYTEST_ARGS) tests

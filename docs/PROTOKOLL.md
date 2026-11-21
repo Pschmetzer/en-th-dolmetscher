@@ -10,6 +10,31 @@ Deshalb kann `thinking` für Satz 2 kommen, während Satz 1 noch `speaking` ist.
 Jede Äußerung hat eine `id` (String, z. B. `"u7"`). Die App darf den Status „spricht“ nur über
 `speaking`/`speak_done` setzen bzw. zurücksetzen, **nicht** über `listening`.
 
+## Beispielablauf und Kompatibilität
+
+Ein Satz (gekürzt; Felder je Ereignis siehe unten). Jede Zeile ist ein JSON-Objekt auf stdout:
+
+```
+{"event":"ready","protocol":1,"langs":{"mine":"en","partner":"th"}}
+{"event":"thinking","id":"u1"}
+{"event":"utt","id":"u1","lang":"en","to":"th","text":"Where is the station?","out":"สถานีอยู่ที่ไหนครับ","provider":"google"}
+{"event":"speaking","id":"u1"}
+{"event":"speak_done","id":"u1"}
+```
+
+Und auf stdin, eine Zeile pro Einstellung: `{"lang": "auto"}` (Sprachsperre aufheben).
+
+Regeln für Änderungen am Protokoll (damit alte App und neue Engine zusammenpassen und umgekehrt):
+
+- **Neue Felder und Ereignisse sind erlaubt**, weil unbekannte Felder und Ereignisse auf beiden Seiten ignoriert werden.
+  Die Seite, die sie nicht kennt, muss ohne sie funktionieren.
+- **Nichts umbenennen oder entfernen**, solange eine veröffentlichte App es liest. Ein neuer Name kommt zusätzlich; der alte
+  fällt erst nach einer Übergangszeit weg und wird hier als veraltet vermerkt.
+- **Codes sind stabil** (`dropped.code`, `error.code`): Texte (`reason`, `message`) dürfen sich ändern, die Codes nicht.
+- Jede Änderung gehört in diese Datei; `tests/test_protocol_docs.py` prüft Ereignisse, Startargumente und Codes gegen den Code.
+- Wird ein Feld zur Pflicht oder ändert sich seine Bedeutung, erhöht man die Protokollversion (Überschrift) und nennt die
+  Mindestversion der App im Changelog.
+
 ## Sprachpaar (mehrsprachig)
 
 Die Engine dolmetscht zwischen **zwei** Sprachen: „meine Sprache“ (`mine`, Rolle „ich“) und „Partnersprache“

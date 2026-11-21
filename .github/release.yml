@@ -1,0 +1,17 @@
+# Einteilung der von GitHub erzeugten Release-Notes ("Generate release notes" im Release-Entwurf).
+# Die eigentlichen Notes kommen aus CHANGELOG.md (tools/changelog_extract.py, Workflow release.yml).
+changelog:
+  exclude:
+    labels: [no-changelog, dependencies]
+    authors: [dependabot]
+  categories:
+    - title: Neu
+      labels: [enhancement, feature]
+    - title: Korrekturen
+      labels: [bug]
+    - title: Phrasenpakete und Sprache
+      labels: [presets, translation, thai]
+    - title: Dokumentation
+      labels: [documentation]
+    - title: Sonstiges
+      labels: ["*"]
