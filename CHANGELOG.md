@@ -4,6 +4,11 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### iPhone app, round 35: tested logic building blocks
+
+- 17 new small logic blocks in `ios/Dolmetscher/Round35.swift` (Foundation only): VoiceOver bubble label, confidence as a level instead of colour only, clamped text size, reduced motion, offline retry queue, error classes with retry rules and back-off, free-space check and size format for model downloads, session time (also spoken), quiet hours across midnight, UI language resolution, grapheme-safe truncation, share-text sanitising (control and bidi-override characters), history retention by age and count, debounce, version compare. Overview in `docs/IOS-LOGIK-R35.md`.
+- Not wired into screens yet (no Mac in this round, so no UI code without a compiler); the unit tests in `Round35Tests.swift` plus extra tests for round 32 to 34 logic (travel table, hotel card, planner, card topics, Whisper partials, menu scan) are the gate in the CI job "iOS".
+
 ### Web, round 27
 
 - **17 new phrase packs (243 in total):** snake bite, jellyfish and sea urchins, locksmith, power outage, stray dogs, online orders and parcels, phone repair, traffic fines, air pollution (PM2.5), asthma and inhaler, anaphylaxis and adrenaline pen, seafood by weight, tipping and service charge, card payment surcharge, theft in a hotel room, Chao Phraya express boat, foreigner ticket prices. Index, categories and search terms are in place; the new packs pass `check_presets.py --strict` and `preset_lint.py`.
