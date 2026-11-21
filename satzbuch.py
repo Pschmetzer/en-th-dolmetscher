@@ -212,6 +212,40 @@ def check_numbers(stem, d):
     return out
 
 
+_ZERO_WIDTH = re.compile("[\u200b\u200c\u200d\u2060\ufeff\u00ad]")
+_GENDER_PRON = re.compile(r"ดิฉัน|กระผม|(?<![ก-๙])ผม(?!ที่|ยาว|หงอก|ร่วง|สั้น|ดำ|เส้น|ของ)")
+_Q_WORD_END = re.compile(r"(ไหม|มั้ย|เหรอ|หรือเปล่า|อะไร|ไหน|ใคร|เท่าไร|เท่าไหร่|เมื่อไร|เมื่อไหร่|ทำไม|อย่างไร|ยังไง)$")
+
+
+def check_thai(stem, d):
+    """Thai-Sprachprüfung (Warnungen, Runde 28): unsichtbare Zero-Width-Zeichen, geschlechtsgebundenes Ich (ผม, ดิฉัน,
+    กระผม: Pakete sollen für Frau und Mann passen), Frage mit ค่ะ statt คะ / Aussage mit คะ statt ค่ะ, Leerzeichen
+    doppeltes ๆ."""
+    out = []
+    for kind in KINDS:
+        for i, it in enumerate(_items(d, kind)):
+            th = it.get("th") if isinstance(it, dict) else None
+            if not isinstance(th, str) or not th.strip():
+                continue
+            where = f"{kind}[{i}]"
+            if _ZERO_WIDTH.search(th):
+                out.append(_f(WARNING, stem, "thai-zerowidth", f"unsichtbares Zeichen in th: {th!r}", where))
+            if kind == "phrases" and _GENDER_PRON.search(th):
+                out.append(_f(WARNING, stem, "thai-gender", f"geschlechtsgebundenes Ich in th: {th!r}", where))
+            if "ๆๆ" in th:
+                out.append(_f(WARNING, stem, "thai-maiyamok", f"ๆ doppelt: {th!r}", where))
+            for m in re.finditer(r"ค่ะ|คะ(?!แนน|น้า|นอง|เน|ยั้น|ยอ)", th):
+                if th[m.end():m.end() + 1] and "ก" <= th[m.end()] <= "๙":
+                    continue
+                q = bool(_Q_WORD_END.search(th[:m.start()].rstrip()))
+                if q and m.group(0) == "ค่ะ" or (not q and m.group(0) == "คะ"
+                                                 and th[:m.start()].endswith(("ขอบคุณ", "ขอโทษ", "สวัสดี"))):
+                    out.append(_f(WARNING, stem, "thai-ka", f"{m.group(0)} {'in Frage' if q else 'in Aussage'}: "
+                                  f"{th!r}", where))
+                    break
+    return out
+
+
 def _fold(s):
     """Vergleichsform für unscharfes Suchen: klein, ohne Satzzeichen und Leerraum (Thai trennt keine Wörter)."""
     return "".join(c for c in ascii_digits(s or "").casefold() if c.isalnum() or "฀" <= c <= "๿")
@@ -261,7 +295,7 @@ def check_near_duplicates(stem, d, threshold=0.92):
     return out
 
 
-def check(folder=DEFAULT_DIR, numbers=False, fuzzy=False):
+def check(folder=DEFAULT_DIR, numbers=False, fuzzy=False, thai=False):
     """Alle Befunde für einen Paketordner. numbers=True: auch Zahlenformat-Prüfung, fuzzy=True: auch fast gleiche Sätze
     (beides Warnungen; aus, damit bestehende Aufrufe unverändert bleiben)."""
     packs, findings = load_dir(folder)
@@ -272,6 +306,8 @@ def check(folder=DEFAULT_DIR, numbers=False, fuzzy=False):
                 findings.extend(check_numbers(stem, d))
             if fuzzy:
                 findings.extend(check_near_duplicates(stem, d))
+            if thai:
+                findings.extend(check_thai(stem, d))
     findings.extend(check_cross({s: d for s, d in packs.items() if isinstance(d, dict)}))
     return findings
 
@@ -418,6 +454,7 @@ def main(argv=None, stdout=None):
     c.add_argument("--strict", action="store_true", help="Warnungen zählen als Fehler")
     c.add_argument("--json", action="store_true", help="Befunde als JSON ausgeben")
     c.add_argument("--numbers", action="store_true", help="auch Zahlenformat (Thai-Ziffern, en/th-Zahlen) prüfen")
+    c.add_argument("--thai", action="store_true", help="auch Thai-Sprache prüfen (Zero-Width, Ich-Pronomen, คะ/ค่ะ)")
     c.add_argument("--fuzzy", action="store_true", help="auch fast gleiche Sätze melden")
     c.add_argument("--ignore", action="append", default=[], metavar="CODE", help="Befundcode ausblenden (mehrfach)")
     c.add_argument("--pack", action="append", help="nur Befunde dieses Pakets (mehrfach möglich)")
@@ -435,7 +472,7 @@ def main(argv=None, stdout=None):
     a = ap.parse_args(argv)
 
     if a.cmd == "check":
-        findings = filter_findings(check(a.dir, numbers=a.numbers, fuzzy=a.fuzzy), a.ignore, a.pack)
+        findings = filter_findings(check(a.dir, numbers=a.numbers, fuzzy=a.fuzzy, thai=a.thai), a.ignore, a.pack)
         if a.json:
             stdout.write(json.dumps({"summary": summary(findings), "findings": findings},
                                     ensure_ascii=False, indent=1) + "\n")

@@ -44,6 +44,14 @@ def thai_number_words(n):
     return "".join(parts)
 
 
+_TH_DIGIT_MAP = str.maketrans("๐๑๒๓๔๕๖๗๘๙", "0123456789")
+
+
+def thai_digits_to_ascii(text):
+    """Thai-Ziffern ๐-๙ in 0-9 umschreiben (Zahlen, Datum, Cache-Schlüssel); alles andere bleibt."""
+    return text.translate(_TH_DIGIT_MAP) if text else text
+
+
 _NUM_KEEP_BEFORE = re.compile(r"(?:ห้อง|เบอร์|โทร|โทรศัพท์|รหัส|หมายเลข|เลขที่|ไปรษณีย์|แท็กซี่|ชั้น|บัตร|บัญชี)\s*$")
 # Runde 25: Uhrzeit „10.30 น.“ / „9.05 โมง“ (Punkt als Trenner) bleibt Ziffernfolge; „10 000“ (Leerzeichen
 # als Tausendertrenner) wird nicht in „สิบ 000“ zerlegt
@@ -55,6 +63,8 @@ _SPEAK_NUM = re.compile(r"(?<![\w.,:/\-+#])(\d{1,3}(?:,\d{3})+|\d{1,9})(?:\.(\d{
 def speak_numbers_th(text):
     """Zahlen in Thai-Text als Wörter lesbar machen (die TTS liest Ziffern uneinheitlich): 350 -> สามร้อยห้าสิบ,
     3.5 -> สามจุดห้า. Nummern (Zimmer, Telefon, Konto), führende Nullen, Uhrzeiten und Datum bleiben Ziffern."""
+    text = thai_digits_to_ascii(text)                          # Runde 28: ๓๐๐ wie 300 vorlesen
+
     def one(m):
         raw, frac, pct = m.group(1), m.group(2), m.group(3)
         digits = raw.replace(",", "")
@@ -73,3 +83,82 @@ def speak_numbers_th(text):
             words += "จุด" + "".join(_TH_DIG[int(c)] for c in frac)
         return words + (" เปอร์เซ็นต์" if pct else "")
     return _SPEAK_NUM.sub(one, text)
+
+
+# Runde 28: Gegenrichtung (STT schreibt Zahlen oft als Wörter) und Ziffernfolgen einzeln lesen
+_W_DIGIT = {w: i for i, w in enumerate(_TH_DIG)}
+_W_POS = {"สิบ": 10, "ร้อย": 100, "พัน": 1000, "หมื่น": 10000, "แสน": 100000}
+_NUM_TOK = re.compile(r"ศูนย์|หนึ่ง|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า|ยี่|เอ็ด|สิบ|ร้อย|พัน|หมื่น|แสน|ล้าน")
+
+
+def _words_chunk(toks, higher=False):
+    """Tokens unterhalb einer Million -> Zahl (oder None bei ungültiger Folge)."""
+    total, digit, last_pos = 0, None, 10 ** 6
+    for i, t in enumerate(toks):
+        if t in ("ศูนย์", "ล้าน"):
+            return None
+        if t in _W_POS:
+            pos = _W_POS[t]
+            if pos >= last_pos:
+                return None
+            total += (digit if digit is not None else 1) * pos
+            digit, last_pos = None, pos
+        elif t == "ยี่":
+            if i + 1 >= len(toks) or toks[i + 1] != "สิบ" or digit is not None:
+                return None
+            digit = 2
+        else:                                              # Ziffernwort oder เอ็ด
+            if digit is not None:
+                return None
+            if t == "เอ็ด" and i == 0 and not (higher and len(toks) == 1):
+                return None
+            digit = 1 if t == "เอ็ด" else _W_DIGIT[t]
+            if t == "เอ็ด" and i != len(toks) - 1:
+                return None
+    if digit is not None:
+        if last_pos == 1:
+            return None
+        total += digit
+    return total
+
+
+def thai_words_to_number(s):
+    """Thai-Zahlwörter als ganze Zahl (สามร้อยห้าสิบ -> 350, ยี่สิบเอ็ด -> 21, สองล้านห้าแสน -> 2500000); die
+    Umkehrung von thai_number_words. Ungültiges, Gemischtes und leere Eingaben -> None."""
+    s = re.sub(r"\s+", "", s or "")
+    if not s:
+        return None
+    toks = _NUM_TOK.findall(s)
+    if "".join(toks) != s:
+        return None
+    if toks == ["ศูนย์"]:
+        return 0
+    groups, cur = [], []
+    for t in toks:
+        if t == "ล้าน":
+            groups.append(cur)
+            cur = []
+        else:
+            cur.append(t)
+    groups.append(cur)
+    total = 0
+    for i, g in enumerate(groups):
+        if not g:
+            if i == len(groups) - 1 and len(groups) > 1 and groups[i - 1]:
+                continue                                   # „… ล้าน“ am Ende: die Zahl davor ist der Wert
+            return None
+        v = _words_chunk(g, higher=i > 0)
+        if v is None:
+            return None
+        total = total * 1_000_000 + v
+    if not groups[-1] and len(groups) > 1:
+        total *= 1_000_000
+    return total
+
+
+def speak_digits_th(s):
+    """Ziffernfolge einzeln lesen (Telefon, Zimmer, Konto): „081-234“ -> „ศูนย์แปดหนึ่ง สองสามสี่“. Gruppen an
+    -, Leerzeichen, Punkt; Nicht-Ziffern innerhalb einer Gruppe werden übersprungen."""
+    groups = re.split(r"[\s\-./]+", thai_digits_to_ascii(s or ""))
+    out = ["".join(_TH_DIG[int(c)] for c in g if c.isdigit() and c.isascii()) for g in groups]
+    return " ".join(x for x in out if x)

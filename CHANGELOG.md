@@ -4,6 +4,16 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### Thai language logic, round 28
+
+Only the pure Thai modules (`thaiparticles`, `thaitime`, `numwords`, `textnorm`, `textsplit`, `correction_learning`, `satzbuch`), 20 improvements with about 100 tests (`tests/test_r28_thai_logic.py`):
+
+- **Particles and politeness:** stretched tone marks (`ค่่่ะ`), spelling variants of ครับ (คร้าบ, คร๊าบ, ครัช) for speaker sex and particle fitting, `thai_politeness_level` (rude / formal / polite / casual, the roughest wins; Google and สวะ are no false hits), `normalize_ka` (question -> คะ, statement -> ค่ะ).
+- **Time and date:** noon (`เที่ยง`, `เที่ยงครึ่ง`, not ไม่เที่ยง/เที่ยงธรรม), `14 นาฬิกา 30 นาที` and `10.30 น.` -> `HH:MM`, Thai dates with Buddhist years (`15 มกราคม 2569` -> `15 January 2026`, invalid days and non-leap 29 Feb stay), `พ.ศ.`/`ค.ศ.` years.
+- **Numbers:** `thai_words_to_number` (inverse of `thai_number_words`, round-trip tested up to 10^12), Thai digits read aloud, `speak_digits_th` for phone and room numbers.
+- **Normalising and splitting:** cache key ignores zero-width characters and Thai digits, `strip_thai_fillers` (เอ่อ, อืม; not อ่านหนังสือ), `split_thai_sentences` at particles without punctuation, Thai abbreviations (`น.`, `พ.ศ.`, `ม.ค.` ...) no longer end a sentence.
+- **Names and phrase books:** `name_key` (Phuket = Puket, Chiang Mai = Chiang-Mai) now drives `name_alignment`, `thai_honorific_names` (name after คุณ/นาย/พี่ ...), more Thai particles skipped as vocabulary, `satzbuch.py check --thai` (zero-width characters, gender-bound "I", ค่ะ in questions, double ๆ; all packs are clean).
+
 ### iPhone app, round 35: tested logic building blocks
 
 - 17 new small logic blocks in `ios/Dolmetscher/Round35.swift` (Foundation only): VoiceOver bubble label, confidence as a level instead of colour only, clamped text size, reduced motion, offline retry queue, error classes with retry rules and back-off, free-space check and size format for model downloads, session time (also spoken), quiet hours across midnight, UI language resolution, grapheme-safe truncation, share-text sanitising (control and bidi-override characters), history retention by age and count, debounce, version compare. Overview in `docs/IOS-LOGIK-R35.md`.
