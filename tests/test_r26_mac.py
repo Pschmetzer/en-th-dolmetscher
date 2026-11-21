@@ -73,7 +73,8 @@ def test_engine_wiring():
     assert 'case "hint": r26.handleHint(o)' in e
     assert "AudioSourceLogic.launchArgs(r26.source)" in e
     assert "engineEnvironment(historyPassword: history)" in e
-    assert '"system_audio_missing": "err_system_audio_missing"' in src("EngineProtocolTexts.swift")   # Runde 27: aus Engine.swift herausgelöst
+    # Runde 27: Tabelle aus Engine.swift herausgelöst
+    assert '"system_audio_missing": "err_system_audio_missing"' in src("EngineProtocolTexts.swift")
     assert 'o["msg_en"] as? String' in e and "ErrorTextLogic.fallback" in e
     assert 'o["group_speaker"]' in e and "r26.resetSession()" in e
     # Passwort vor `history` senden

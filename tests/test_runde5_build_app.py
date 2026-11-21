@@ -93,7 +93,7 @@ def test_note_sprache_mit_englisch_als_rueckfall():
 # ---- Mac: kleine Punkte -----------------------------------------------------------------------------------------
 
 def test_export_hinweis_bei_gekuerzten_blasen():
-    assert "trimmedCount += excess - drop" in SWIFT["Engine.swift"]
+    assert "trimmedCount += drop.count" in SWIFT["Engine.swift"]   # Runde 27: Auswahl in BubbleTrimLogic
     assert '"export_trimmed"' in SWIFT["Support.swift"]
     assert "m.resetTrimmed()" in SWIFT["Views.swift"]
 
