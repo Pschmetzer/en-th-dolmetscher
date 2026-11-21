@@ -267,7 +267,7 @@ iPhone tests: see [ios/README.md](ios/README.md#tests).
 | `ios/` | iPhone app (Xcode project, own CI workflow) |
 | `index.html` | Web Lite |
 | `bench/`, `tests/`, `tools/` | Benchmark, pytest tests, phrase pack tools and the Swift helpers (`translate-helper`, `apple-stt` prototype) |
-| `docs/` | [ARCHITEKTUR](docs/ARCHITEKTUR.md), [PROTOKOLL](docs/PROTOKOLL.md), [DATENSCHUTZ](docs/DATENSCHUTZ.md), [LIZENZEN](docs/LIZENZEN.md), [PRESETS](docs/PRESETS.md) (German) |
+| `docs/` | [Doku-Landkarte](docs/README.md), [ENTWICKLUNG](docs/ENTWICKLUNG.md) (start here as a contributor), [CI](docs/CI.md), [RELEASE](docs/RELEASE.md), [ARCHITEKTUR](docs/ARCHITEKTUR.md), [PROTOKOLL](docs/PROTOKOLL.md), [DATENSCHUTZ](docs/DATENSCHUTZ.md), [LIZENZEN](docs/LIZENZEN.md), [PRESETS](docs/PRESETS.md) (German) |
 
 Thai documentation for Thai users (machine-translated, not checked by native speakers): [docs/th/](docs/th/README.md).
 

@@ -1,6 +1,7 @@
 name: Release
 
-# Skelett: Tag v<version> -> App bauen -> ZIP + SHA256 als Artefakt.
+# Tag v<version> -> Vorprüfung (Version, Changelog) -> App bauen -> ZIP + SHA256 als Artefakt -> Release-ENTWURF mit
+# den Notes aus CHANGELOG.md. Der Entwurf wird nie von allein veröffentlicht (docs/RELEASE.md).
 # Es wird NICHT signiert oder notarisiert (dafür gibt es hier keine Secrets). Das Ergebnis ist ad hoc signiert und
 # nur zum Prüfen gedacht. Echte Releases: lokal mit  DOLMETSCHER_SIGN_IDENTITY=... ./build.sh --release
 # (siehe CONTRIBUTING.md). Die Modelle (~3,5 GB) lädt die App beim ersten Start, nicht der Build.
@@ -17,9 +18,37 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Schnell und ohne macOS-Maschine: scheitert hier, bevor 45 Minuten gebaut werden.
+  precheck:
+    name: Version und Changelog
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - id: v
+        name: Tag, Version, Changelog
+        run: |
+          python tools/check_version_sync.py --tag "${GITHUB_REF_NAME}"
+          python tools/changelog_lint.py
+          python tools/changelog_extract.py "${GITHUB_REF_NAME}" > /dev/null
+          echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
   build:
+    needs: precheck
     runs-on: macos-26
     timeout-minutes: 45
+    # contents: write nur für den letzten Schritt (Release-ENTWURF); der Workflow veröffentlicht nichts ("--draft").
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -28,6 +57,8 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements*.txt
       - name: Tag must match pyproject.toml version
         run: |
           version="$(sed -n 's/^version *= *"\([^"]*\)".*/\1/p' pyproject.toml | head -n 1)"
@@ -55,3 +86,14 @@ jobs:
           name: Dolmetscher-${{ env.VERSION }}-unsigned
           path: dist/*
           if-no-files-found: error
+      # Entwurf mit den Notes aus CHANGELOG.md; Veröffentlichen bleibt ein Klick von Hand (docs/RELEASE.md).
+      - name: Draft release with changelog notes
+        run: |
+          python tools/changelog_extract.py "${GITHUB_REF_NAME}" > "$RUNNER_TEMP/notes.md"
+          if gh release view "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            gh release edit "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" --notes-file "$RUNNER_TEMP/notes.md"
+            gh release upload "${GITHUB_REF_NAME}" dist/* --repo "${GITHUB_REPOSITORY}" --clobber
+          else
+            gh release create "${GITHUB_REF_NAME}" dist/* --repo "${GITHUB_REPOSITORY}" --draft \
+              --title "Dolmetscher ${VERSION}" --notes-file "$RUNNER_TEMP/notes.md" --verify-tag
+          fi

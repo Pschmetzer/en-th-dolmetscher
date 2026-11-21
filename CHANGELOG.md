@@ -4,6 +4,18 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### Docs, CI and tooling, round 29
+
+No app behaviour changes; for contributors and maintainers:
+
+- **Docs map and onboarding:** new `docs/README.md` (all documents by audience, kept complete by a CI check), `docs/ENTWICKLUNG.md` (setup in 10 minutes, folder map, "I change X, so I check Y", typical tasks, pitfalls), `docs/CI.md` (every workflow, how to reproduce it locally, caches, adding a workflow) and `docs/RELEASE.md` (checklist, release notes, recovery). `.github/SUPPORT.md` points people to the right place; README and CONTRIBUTING link to the new pages.
+- **Architecture, protocol, privacy:** sequence diagram of one utterance and an error-path table in `docs/ARCHITEKTUR.md`; example exchange and compatibility rules (add fields, never rename, stable codes, when to bump the version) in `docs/PROTOKOLL.md`; "at a glance" table in `docs/DATENSCHUTZ.md`. `docs/VERSIONEN.md` said 1.2 while `pyproject.toml` is 1.3: fixed.
+- **Release workflow:** `release.yml` now checks tag, version and changelog first (fast, no macOS machine), caches pip, and creates a **draft** GitHub release with the changelog section as notes and the ZIP plus SHA256. Nothing is published automatically; write access exists only in the build job. `.github/release.yml` sorts GitHub's generated notes.
+- **CI:** new fast job "Doku, Changelog, Versionen, Workflow-Regeln"; ruff cache; `workflow_dispatch` for `ci.yml`; `PIP_DISABLE_PIP_VERSION_CHECK`, `PYTHONDONTWRITEBYTECODE`, `PYTHONUNBUFFERED`; pip cache in the release build.
+- **Dependabot:** 3-day cooldown for new versions, commit prefixes, labels, fixed weekday, and the Dev Container features as a fourth ecosystem.
+- **New scripts in `tools/` (standard library only, with tests in `tests/test_r29_infra_docs.py`):** `changelog_extract.py` (section of a version for release notes), `changelog_lint.py` (form of the changelog), `check_workflows.py` (house rules: actions pinned to a commit with version comment, `timeout-minutes` on every job, top-level `permissions`, no `pull_request_target`, no auto-deploys), `check_docs_index.py` (every doc is linked from the map), `check_version_sync.py` (`pyproject.toml`, `VERSIONEN.md`, tag).
+- **Local checks:** `tools/check_all.sh --docs` and `make docs-check` run the five fast checks in seconds; `make changelog-notes V=1.3` shows release notes; the full `check_all.sh` includes them.
+
 ### iPhone app, round 35: tested logic building blocks
 
 - 17 new small logic blocks in `ios/Dolmetscher/Round35.swift` (Foundation only): VoiceOver bubble label, confidence as a level instead of colour only, clamped text size, reduced motion, offline retry queue, error classes with retry rules and back-off, free-space check and size format for model downloads, session time (also spoken), quiet hours across midnight, UI language resolution, grapheme-safe truncation, share-text sanitising (control and bidi-override characters), history retention by age and count, debounce, version compare. Overview in `docs/IOS-LOGIK-R35.md`.

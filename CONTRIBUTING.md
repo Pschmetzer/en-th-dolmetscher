@@ -2,6 +2,8 @@
 
 Thanks for helping! Issues and pull requests are welcome.
 
+New here? Start with [docs/ENTWICKLUNG.md](docs/ENTWICKLUNG.md) (setup in 10 minutes, “I change X, so I check Y”, German) and the map of all docs in [docs/README.md](docs/README.md). Workflows, caches and local reproduction of CI: [docs/CI.md](docs/CI.md). Fast check for docs, CI and tooling changes: `make docs-check`.
+
 ## Layout
 
 - `dolmetscher.py` – engine (microphone → VAD → faster-whisper → translation → voice). `--json` emits events for the app.
@@ -17,7 +19,7 @@ Thanks for helping! Issues and pull requests are welcome.
 - `index.html` – browser version (Web Lite, GitHub Pages); `sw.js`, `manifest.webmanifest`, `presets-index.json`, `allergens.json` belong to it. How it works and how to test it: the “Web Lite” section of `docs/ARCHITEKTUR.md`; browser checklist: `docs/WEB-KOMPATIBILITAET.md`; self-hosting: `docs/WEB-HOSTING.md`.
 - `bench/` – latency and quality benchmark, see [bench/README.md](bench/README.md).
 - `tests/` – pytest tests.
-- `tools/` – phrase pack tools (`check_presets.py`, `preset_stats.py`, `export_phrasebook.py`, `make_presets_index.py`) and the Swift sources of `translate-helper` (bundled in the Mac app) and the `apple-stt` prototype (macOS 26).
+- `tools/` – checks for docs, changelog, versions and workflows (`check_doc_links.py`, `check_docs_index.py`, `changelog_lint.py`, `changelog_extract.py`, `check_version_sync.py`, `check_workflows.py`; run together by `tools/check_all.sh --docs`), phrase pack tools (`check_presets.py`, `preset_stats.py`, `export_phrasebook.py`, `make_presets_index.py`) and the Swift sources of `translate-helper` (bundled in the Mac app) and the `apple-stt` prototype (macOS 26).
 - `docs/LIZENZEN.md` – licenses of models, packages and services.
 
 ## Without a Mac (presets, web, docs)
@@ -88,7 +90,7 @@ The certificate only works on your Mac and is not a Developer ID: it does not ma
 
 The bundle is self-contained (Apple Silicon only): `Contents/Helpers/uv` (the pinned `UV_VERSION` from `build.sh`; its minimum macOS is checked against `LSMinimumSystemVersion`) is signed first with the hardened runtime, then the app; `codesign --verify --deep --strict` checks both. Entitlements: only `com.apple.security.device.audio-input` – without it the microphone delivers silence under the hardened runtime. Python runs as a separate process with its own signature, so `disable-library-validation` is not needed (the app process loads no Python libraries). `PYTHONPYCACHEPREFIX` keeps `.pyc` files out of the bundle. Test a release build on a Mac without Homebrew/Python: the setup screen must appear, set up the environment and download the models (setup log: `~/Library/Application Support/Dolmetscher/setup.log`).
 
-The `Release` workflow in GitHub Actions only builds an unsigned ZIP with a SHA256 file as a workflow artifact; it has no signing secrets.
+The `Release` workflow in GitHub Actions checks tag, version and changelog, builds an unsigned ZIP with a SHA256 file as a workflow artifact and creates a **draft** GitHub release with the changelog section as notes (publishing stays a manual click); it has no signing secrets. Details: [docs/RELEASE.md](docs/RELEASE.md).
 
 ### Release checklist
 
