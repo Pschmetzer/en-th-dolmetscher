@@ -40,79 +40,97 @@
     {
       "en": "I am locked out. Please help me.",
       "th": "ติดอยู่นอกห้อง ช่วยด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "tit yu nok ong chuaiduai"
     },
     {
       "en": "There is water leaking everywhere.",
       "th": "น้ำรั่วท่วมห้อง",
-      "critical": true
+      "critical": true,
+      "rom": "nam rua thuam ong"
     },
     {
       "en": "I smell gas.",
       "th": "ได้กลิ่นแก๊ส",
-      "critical": true
+      "critical": true,
+      "rom": "dakailin kaet"
     },
     {
       "en": "There is a fire in the building.",
       "th": "ไฟไหม้ในอาคาร",
-      "critical": true
+      "critical": true,
+      "rom": "faimai nai akhan"
     },
     {
       "en": "Please call the police.",
       "th": "ช่วยเรียกตำรวจด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak tamruat duai"
     },
     {
       "en": "Where is the key box?",
-      "th": "กล่องกุญแจอยู่ที่ไหน"
+      "th": "กล่องกุญแจอยู่ที่ไหน",
+      "rom": "klong kunchae yu thinai"
     },
     {
       "en": "What is the code for the key box?",
-      "th": "รหัสกล่องกุญแจคืออะไร"
+      "th": "รหัสกล่องกุญแจคืออะไร",
+      "rom": "rahat klong kunchae khue arai"
     },
     {
       "en": "The code does not work.",
-      "th": "รหัสใช้ไม่ได้"
+      "th": "รหัสใช้ไม่ได้",
+      "rom": "rahat chaimaidai"
     },
     {
       "en": "I cannot find the apartment.",
-      "th": "หาห้องไม่เจอ"
+      "th": "หาห้องไม่เจอ",
+      "rom": "ha ong mai choe"
     },
     {
       "en": "Please send me the exact location.",
-      "th": "ช่วยส่งตำแหน่งที่แน่นอนให้หน่อย"
+      "th": "ช่วยส่งตำแหน่งที่แน่นอนให้หน่อย",
+      "rom": "chuai song tamhaenng thi naenon hai noi"
     },
     {
       "en": "What is the Wi-Fi password?",
-      "th": "รหัสไวไฟคืออะไร"
+      "th": "รหัสไวไฟคืออะไร",
+      "rom": "rahat waifai khue arai"
     },
     {
       "en": "How does the air conditioning work?",
-      "th": "แอร์ใช้อย่างไร"
+      "th": "แอร์ใช้อย่างไร",
+      "rom": "ae chai yangrai"
     },
     {
       "en": "How do I use the washing machine?",
-      "th": "ใช้เครื่องซักผ้าอย่างไร"
+      "th": "ใช้เครื่องซักผ้าอย่างไร",
+      "rom": "chai kheruengsakpha yangrai"
     },
     {
       "en": "Where do I put the rubbish?",
-      "th": "ทิ้งขยะที่ไหน"
+      "th": "ทิ้งขยะที่ไหน",
+      "rom": "thing khaya thinai"
     },
     {
       "en": "There is no hot water.",
-      "th": "ไม่มีน้ำร้อน"
+      "th": "ไม่มีน้ำร้อน",
+      "rom": "mai mi namron"
     },
     {
       "en": "The air conditioning is not cooling.",
-      "th": "แอร์ไม่เย็น"
+      "th": "แอร์ไม่เย็น",
+      "rom": "ae mai yen"
     },
     {
       "en": "The lights do not work.",
-      "th": "ไฟไม่ติด"
+      "th": "ไฟไม่ติด",
+      "rom": "fai mai tit"
     },
     {
       "en": "Can you send someone to fix it?",
-      "th": "ส่งคนมาซ่อมได้ไหม"
+      "th": "ส่งคนมาซ่อมได้ไหม",
+      "rom": "song khon ma som dai mai"
     },
     {
       "en": "Can I check in early?",
@@ -120,23 +138,28 @@
     },
     {
       "en": "Can I check out late?",
-      "th": "เช็กเอาต์ช้าได้ไหม"
+      "th": "เช็กเอาต์ช้าได้ไหม",
+      "rom": "chekao cha dai mai"
     },
     {
       "en": "Where do I leave the key?",
-      "th": "คืนกุญแจที่ไหน"
+      "th": "คืนกุญแจที่ไหน",
+      "rom": "khuen kunchae thinai"
     },
     {
       "en": "Is the building quiet at night?",
-      "th": "ตอนกลางคืนอาคารเงียบไหม"
+      "th": "ตอนกลางคืนอาคารเงียบไหม",
+      "rom": "tonklangkhuen akhan ngiap mai"
     },
     {
       "en": "Are there extra towels?",
-      "th": "มีผ้าขนหนูเพิ่มไหม"
+      "th": "มีผ้าขนหนูเพิ่มไหม",
+      "rom": "mi phaknnu phoem mai"
     },
     {
       "en": "Is there a security guard?",
-      "th": "มียามไหม"
+      "th": "มียามไหม",
+      "rom": "mi yam mai"
     }
   ]
 }

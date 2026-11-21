@@ -1,0 +1,184 @@
+{
+  "id": "snake-bite-venomous",
+  "names": {
+    "de": "Schlangenbiss und Giftschlangen",
+    "en": "Snake bite and venomous snakes",
+    "th": "งูกัดและงูพิษ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Bei Schlangenbiss ruhig bleiben, den Körperteil still halten, Ringe und enge Kleidung ablegen, die Wunde nicht aufschneiden oder aussaugen und sofort ein Krankenhaus mit Antiserum aufsuchen (Rettung 1669 rufen). Die Schlange nie fangen, nur aus der Ferne fotografieren. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "After a snake bite stay calm, keep the limb still, take off rings and tight clothing, do not cut or suck the wound and go to a hospital with antivenom at once (call ambulance 1669). Never try to catch the snake; photograph it from a distance only. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "snake",
+      "th": "งู"
+    },
+    {
+      "en": "venom",
+      "th": "พิษงู"
+    },
+    {
+      "en": "antivenom",
+      "th": "เซรุ่มแก้พิษงู"
+    },
+    {
+      "en": "bite",
+      "th": "รอยกัด"
+    },
+    {
+      "en": "swelling",
+      "th": "อาการบวม"
+    },
+    {
+      "en": "hospital",
+      "th": "โรงพยาบาล"
+    },
+    {
+      "en": "tetanus",
+      "th": "บาดทะยัก"
+    },
+    {
+      "en": "ambulance",
+      "th": "รถพยาบาล"
+    },
+    {
+      "en": "cobra",
+      "th": "งูเห่า"
+    },
+    {
+      "en": "viper",
+      "th": "งูแมวเซา"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I was bitten by a snake.",
+      "th": "โดนงูกัด",
+      "critical": true,
+      "rom": "don ngu kat"
+    },
+    {
+      "en": "Please call an ambulance (1669).",
+      "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true,
+      "rom": "chuai riak rathaphayaban duai 1669"
+    },
+    {
+      "en": "I think the snake was venomous.",
+      "th": "คิดว่าเป็นงูพิษ",
+      "critical": true,
+      "rom": "khit wa pen nguphit"
+    },
+    {
+      "en": "I cannot move the bitten leg.",
+      "th": "ขยับขาที่ถูกกัดไม่ได้",
+      "critical": true,
+      "rom": "khayap kha thi thuk kat mai dai"
+    },
+    {
+      "en": "The bite is swelling quickly.",
+      "th": "แผลที่ถูกกัดบวมเร็วมาก",
+      "critical": true,
+      "rom": "phaen thi thuk kat buam reo mak"
+    },
+    {
+      "en": "I feel dizzy and cannot see well.",
+      "th": "เวียนหัวและมองเห็นไม่ชัด",
+      "critical": true,
+      "rom": "wianhua lae monghen mai chat"
+    },
+    {
+      "en": "Do you have antivenom?",
+      "th": "มีเซรุ่มแก้พิษงูไหม",
+      "critical": true,
+      "rom": "mi serum kae phitngu mai"
+    },
+    {
+      "en": "Please take me to the nearest hospital.",
+      "th": "ช่วยไปส่งที่โรงพยาบาลที่ใกล้ที่สุด",
+      "critical": true,
+      "rom": "chuai pai song thi rongpyaban thi kain thisut"
+    },
+    {
+      "en": "The bite happened about ten minutes ago.",
+      "th": "ถูกกัดมาประมาณสิบนาทีแล้ว",
+      "rom": "thuk kat ma praman sip nathi laeo"
+    },
+    {
+      "en": "It happened on the hiking trail.",
+      "th": "ถูกกัดตรงทางเดินป่า",
+      "rom": "thuk kat trong thang doenpa"
+    },
+    {
+      "en": "The snake was about one metre long.",
+      "th": "งูยาวประมาณหนึ่งเมตร",
+      "rom": "ngu yao praman nueng metn"
+    },
+    {
+      "en": "I took a photo of the snake.",
+      "th": "ถ่ายรูปงูไว้แล้ว",
+      "rom": "thairup ngu wai laeo"
+    },
+    {
+      "en": "Please do not cut or suck the wound.",
+      "th": "ขออย่ากรีดหรือดูดแผล",
+      "rom": "kho ya krit rue dut phaen"
+    },
+    {
+      "en": "Please help me take off my ring and watch.",
+      "th": "ช่วยถอดแหวนและนาฬิกาออกให้หน่อย",
+      "rom": "chuai thot aeon lae nalika ok hai noi"
+    },
+    {
+      "en": "Do I need a tetanus shot?",
+      "th": "ต้องฉีดบาดทะยักไหม",
+      "rom": "tong chit batthayak mai"
+    },
+    {
+      "en": "How long must I stay for observation?",
+      "th": "ต้องอยู่ดูอาการนานเท่าไร",
+      "rom": "tong yu du akan nan thaorai"
+    },
+    {
+      "en": "How much is the antivenom?",
+      "th": "เซรุ่มราคาเท่าไร",
+      "rom": "serum rakha thaorai"
+    },
+    {
+      "en": "Do you accept my travel insurance?",
+      "th": "รับประกันการเดินทางนี้ไหม",
+      "rom": "rapprakan kan doenthang ni mai"
+    },
+    {
+      "en": "Please give me a receipt for my insurance claim.",
+      "th": "ขอใบเสร็จสำหรับเคลมประกันด้วย"
+    },
+    {
+      "en": "Are there venomous snakes around here?",
+      "th": "แถวนี้มีงูพิษไหม",
+      "rom": "thaeo ni mi nguphit mai"
+    },
+    {
+      "en": "Which snakes are dangerous here?",
+      "th": "ที่นี่มีงูชนิดไหนอันตรายบ้าง",
+      "rom": "thini mi ngu chanit nai antrai bang"
+    },
+    {
+      "en": "Please do not touch the snake.",
+      "th": "ขออย่าจับงู",
+      "rom": "kho ya chap ngu"
+    },
+    {
+      "en": "There is a snake in my room.",
+      "th": "มีงูอยู่ในห้องพัก",
+      "rom": "mi ngu yu nai ongphak"
+    },
+    {
+      "en": "Please call someone to remove the snake.",
+      "th": "ช่วยเรียกคนมาจับงูหน่อย",
+      "rom": "chuai riak khon ma chap ngu noi"
+    }
+  ]
+}

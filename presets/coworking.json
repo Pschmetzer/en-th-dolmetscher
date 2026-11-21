@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Internetgeschwindigkeit vor Vertragsabschluss selbst testen. Für Visa oder Bank oft nötig: Rechnung mit Namen und Wohnsitzbescheinigung vom Vermieter. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Test the internet speed yourself before signing. For visas or banks you often need an invoice in your name and a residence certificate from the landlord. Thai lines machine-made, not checked by native speakers."
+    "de": "Internetgeschwindigkeit vor Vertragsabschluss selbst testen. Für Visa oder Bank oft nötig: Rechnung mit Namen und Wohnsitzbescheinigung vom Vermieter. Siehe auch: Wohnung mieten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Test the internet speed yourself before signing. For visas or banks you often need an invoice in your name and a residence certificate from the landlord. See also: Renting a flat. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -35,51 +35,63 @@
   "phrases": [
     {
       "en": "Is the internet fast?",
-      "th": "อินเทอร์เน็ตเร็วไหม"
+      "th": "อินเทอร์เน็ตเร็วไหม",
+      "rom": "inthoenet reo mai"
     },
     {
       "en": "What is the Wi-Fi speed?",
-      "th": "ความเร็วไวไฟเท่าไร"
+      "th": "ความเร็วไวไฟเท่าไร",
+      "rom": "khwamreo waifai thaorai"
     },
     {
       "en": "Can I test the connection?",
-      "th": "ขอทดสอบความเร็วอินเทอร์เน็ตได้ไหม"
+      "th": "ขอทดสอบความเร็วอินเทอร์เน็ตได้ไหม",
+      "rom": "kho thadasop khwamreo inthoenet dai mai"
     },
     {
       "en": "Is there a monthly price?",
-      "th": "มีราคารายเดือนไหม"
+      "th": "มีราคารายเดือนไหม",
+      "rom": "mirakha raiduean mai"
     },
     {
       "en": "Is electricity included?",
-      "th": "รวมค่าไฟไหม"
+      "th": "รวมค่าไฟไหม",
+      "rom": "ruam kha fai mai"
     },
     {
       "en": "Is water included?",
-      "th": "รวมค่าน้ำไหม"
+      "th": "รวมค่าน้ำไหม",
+      "rom": "ruam khanam mai"
     },
     {
       "en": "How much is the deposit?",
-      "th": "ค่ามัดจำเท่าไหร่"
+      "th": "ค่ามัดจำเท่าไหร่",
+      "rom": "kha matcham thaorai"
     },
     {
       "en": "Could I have an invoice?",
-      "th": "ขอใบแจ้งหนี้ได้ไหม"
+      "th": "ขอใบแจ้งหนี้ได้ไหม",
+      "rom": "kho baichaengni dai mai"
     },
     {
       "en": "Could I have a tax invoice?",
-      "th": "ขอใบกำกับภาษีได้ไหม"
+      "th": "ขอใบกำกับภาษีได้ไหม",
+      "rom": "kho baikamkapphasi dai mai"
     },
     {
       "en": "Could you give me a residence certificate?",
-      "th": "ช่วยออกหนังสือรับรองที่พักให้ได้ไหม"
+      "th": "ช่วยออกหนังสือรับรองที่พักให้ได้ไหม",
+      "rom": "chuai ok nangsueraprong thiphak aidai mai"
     },
     {
       "en": "Is there a desk and a good chair?",
-      "th": "มีโต๊ะและเก้าอี้ที่นั่งสบายไหม"
+      "th": "มีโต๊ะและเก้าอี้ที่นั่งสบายไหม",
+      "rom": "mi to lae kaoi thinang sabai mai"
     },
     {
       "en": "Is it quiet here?",
-      "th": "ที่นี่เงียบไหม"
+      "th": "ที่นี่เงียบไหม",
+      "rom": "thini ngiap mai"
     },
     {
       "en": "Is the power stable?",
@@ -87,27 +99,33 @@
     },
     {
       "en": "Are there power cuts?",
-      "th": "ไฟดับบ่อยไหม"
+      "th": "ไฟดับบ่อยไหม",
+      "rom": "fai dap boi mai"
     },
     {
       "en": "Is air conditioning included?",
-      "th": "รวมแอร์ไหม"
+      "th": "รวมแอร์ไหม",
+      "rom": "ruam ae mai"
     },
     {
       "en": "Can I use the meeting room?",
-      "th": "ใช้ห้องประชุมได้ไหม"
+      "th": "ใช้ห้องประชุมได้ไหม",
+      "rom": "chai ongprachum dai mai"
     },
     {
       "en": "Is there a printer?",
-      "th": "มีเครื่องพิมพ์ไหม"
+      "th": "มีเครื่องพิมพ์ไหม",
+      "rom": "mi kheruengphim mai"
     },
     {
       "en": "What are the opening hours?",
-      "th": "เปิดกี่โมงถึงกี่โมง"
+      "th": "เปิดกี่โมงถึงกี่โมง",
+      "rom": "poet ki mong thueng ki mong"
     },
     {
       "en": "What is the minimum rental period?",
-      "th": "เช่าขั้นต่ำกี่เดือน"
+      "th": "เช่าขั้นต่ำกี่เดือน",
+      "rom": "chao khantam ki duean"
     },
     {
       "en": "Can I cancel at any time?",

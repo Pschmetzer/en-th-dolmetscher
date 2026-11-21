@@ -1,0 +1,173 @@
+{
+  "id": "asthma-inhaler",
+  "names": {
+    "de": "Asthma und Inhalator",
+    "en": "Asthma and inhaler",
+    "th": "โรคหอบหืดและยาพ่น"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Inhalator und ärztliche Bescheinigung (Name des Wirkstoffs) im Handgepäck mitführen. Bei einem Anfall sofort sagen, dass es Asthma ist, und den Notfallinhalator geben lassen; bei starker Atemnot 1669 (Rettung) rufen. Smog, Staub, Räucherstäbchen und Klimaanlagen können Anfälle auslösen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Carry your inhaler and a doctor's note (name of the active ingredient) in your hand luggage. During an attack say at once that it is asthma and ask for the reliever inhaler; with severe breathlessness call 1669 (ambulance). Smog, dust, incense and air conditioning can trigger attacks. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "asthma",
+      "th": "โรคหอบหืด"
+    },
+    {
+      "en": "inhaler",
+      "th": "ยาพ่น"
+    },
+    {
+      "en": "spacer",
+      "th": "กระบอกช่วยพ่นยา"
+    },
+    {
+      "en": "wheezing",
+      "th": "หายใจมีเสียงวี้ด"
+    },
+    {
+      "en": "breathless",
+      "th": "หายใจไม่ทัน"
+    },
+    {
+      "en": "attack",
+      "th": "อาการกำเริบ"
+    },
+    {
+      "en": "prescription",
+      "th": "ใบสั่งยา"
+    },
+    {
+      "en": "pharmacy",
+      "th": "ร้านขายยา"
+    },
+    {
+      "en": "oxygen",
+      "th": "ออกซิเจน"
+    },
+    {
+      "en": "dust",
+      "th": "ฝุ่น"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I have asthma.",
+      "th": "เป็นโรคหอบหืด",
+      "critical": true,
+      "rom": "penrok ophuet"
+    },
+    {
+      "en": "I am having an asthma attack.",
+      "th": "หอบหืดกำเริบ",
+      "critical": true,
+      "rom": "ophuet kamroep"
+    },
+    {
+      "en": "I cannot breathe.",
+      "th": "หายใจไม่ออก",
+      "critical": true,
+      "rom": "aichaimoaik"
+    },
+    {
+      "en": "I need my inhaler.",
+      "th": "ต้องใช้ยาพ่น",
+      "critical": true,
+      "rom": "tong chai ya phon"
+    },
+    {
+      "en": "Please call an ambulance (1669).",
+      "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true,
+      "rom": "chuai riak rathaphayaban duai 1669"
+    },
+    {
+      "en": "My lips are turning blue.",
+      "th": "ริมฝีปากเริ่มเขียว",
+      "critical": true,
+      "rom": "rimfipak roem khiao"
+    },
+    {
+      "en": "I need oxygen.",
+      "th": "ต้องใช้ออกซิเจน",
+      "critical": true,
+      "rom": "tong chai oksichen"
+    },
+    {
+      "en": "Please sit me upright and open the window.",
+      "th": "ช่วยให้นั่งตัวตรงและเปิดหน้าต่างหน่อย",
+      "critical": true,
+      "rom": "chuai hai nang tuatnng lae poet natang noi"
+    },
+    {
+      "en": "I lost my inhaler.",
+      "th": "ยาพ่นหาย",
+      "rom": "ya phon hai"
+    },
+    {
+      "en": "Where is the nearest pharmacy?",
+      "th": "ร้านขายยาที่ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "rankhaiya thi kain thisut yu thinai"
+    },
+    {
+      "en": "Do you have a reliever inhaler?",
+      "th": "มียาพ่นขยายหลอดลมไหม",
+      "rom": "mi ya phon khayai lotnm mai"
+    },
+    {
+      "en": "Here is my doctor's note.",
+      "th": "นี่คือใบรับรองแพทย์",
+      "rom": "ni khue bairaprongphaet"
+    },
+    {
+      "en": "This is the name of my medicine.",
+      "th": "นี่คือชื่อยาที่ใช้อยู่",
+      "rom": "ni khue chue ya thi chai yu"
+    },
+    {
+      "en": "I need a spacer.",
+      "th": "ต้องใช้กระบอกช่วยพ่นยา",
+      "rom": "tong chai krabok chuai phon ya"
+    },
+    {
+      "en": "Please tell me how to use it.",
+      "th": "ช่วยบอกวิธีใช้หน่อย",
+      "rom": "chuai bok withichai noi"
+    },
+    {
+      "en": "Is there dust or mould in this room?",
+      "th": "ห้องนี้มีฝุ่นหรือเชื้อราไหม",
+      "rom": "ong ni mi fun rue chueara mai"
+    },
+    {
+      "en": "Please do not burn incense near me.",
+      "th": "ขออย่าจุดธูปใกล้ๆ"
+    },
+    {
+      "en": "Please turn off the strong air conditioning.",
+      "th": "ช่วยลดแอร์ที่แรงเกินไปหน่อย",
+      "rom": "chuai lot ae thi raeng koenpai noi"
+    },
+    {
+      "en": "Please do not smoke near me.",
+      "th": "ขออย่าสูบบุหรี่ใกล้ๆ"
+    },
+    {
+      "en": "Is there a hospital with a lung doctor?",
+      "th": "มีโรงพยาบาลที่มีหมอปอดไหม",
+      "rom": "mi rongpyaban thi mi mo pot mai"
+    },
+    {
+      "en": "How much is a visit?",
+      "th": "ค่าตรวจเท่าไร",
+      "rom": "kha truat thaorai"
+    },
+    {
+      "en": "I need a letter for my insurance.",
+      "th": "ขอเอกสารสำหรับประกัน",
+      "rom": "kho eksan samrap prakan"
+    }
+  ]
+}

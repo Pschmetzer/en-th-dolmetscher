@@ -45,42 +45,51 @@
     {
       "en": "Please call a doctor.",
       "th": "ช่วยเรียกแพทย์หน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak phaet noi"
     },
     {
       "en": "I need medical help.",
       "th": "ต้องการความช่วยเหลือทางการแพทย์",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan khwamchuaihelue thangkanphaet"
     },
     {
       "en": "I cannot breathe.",
       "th": "หายใจไม่ออก",
-      "critical": true
+      "critical": true,
+      "rom": "aichaimoaik"
     },
     {
       "en": "Please call an ambulance.",
       "th": "ช่วยเรียกรถพยาบาลหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak rathaphayaban noi"
     },
     {
       "en": "Where can I make a donation?",
-      "th": "ทำบุญได้ที่ไหน"
+      "th": "ทำบุญได้ที่ไหน",
+      "rom": "thambun dai thinai"
     },
     {
       "en": "I would like to make merit.",
-      "th": "อยากทำบุญ"
+      "th": "อยากทำบุญ",
+      "rom": "yak thambun"
     },
     {
       "en": "Where do I put the money?",
-      "th": "ใส่เงินตรงไหน"
+      "th": "ใส่เงินตรงไหน",
+      "rom": "sai ngoen trangahanai"
     },
     {
       "en": "Is there a donation box?",
-      "th": "มีตู้บริจาคไหม"
+      "th": "มีตู้บริจาคไหม",
+      "rom": "mi tu brichak mai"
     },
     {
       "en": "What is the usual donation?",
-      "th": "ปกติทำบุญเท่าไร"
+      "th": "ปกติทำบุญเท่าไร",
+      "rom": "pakati thambun thaorai"
     },
     {
       "en": "Is it all right to give any amount?",
@@ -88,59 +97,73 @@
     },
     {
       "en": "May I buy incense and flowers?",
-      "th": "ซื้อธูปและดอกไม้ได้ไหม"
+      "th": "ซื้อธูปและดอกไม้ได้ไหม",
+      "rom": "sue thup lae dokmai dai mai"
     },
     {
       "en": "How do I light the incense?",
-      "th": "จุดธูปอย่างไร"
+      "th": "จุดธูปอย่างไร",
+      "rom": "chut thup yangrai"
     },
     {
       "en": "How many incense sticks should I light?",
-      "th": "ควรจุดธูปกี่ดอก"
+      "th": "ควรจุดธูปกี่ดอก",
+      "rom": "khuan chut thup ki dok"
     },
     {
       "en": "Where do I put the candle?",
-      "th": "ปักเทียนตรงไหน"
+      "th": "ปักเทียนตรงไหน",
+      "rom": "pak thian trangahanai"
     },
     {
       "en": "May I put gold leaf on the Buddha?",
-      "th": "ปิดทองพระได้ไหม"
+      "th": "ปิดทองพระได้ไหม",
+      "rom": "pitthong phra dai mai"
     },
     {
       "en": "May I ring the bells?",
-      "th": "ตีระฆังได้ไหม"
+      "th": "ตีระฆังได้ไหม",
+      "rom": "ti rakhang dai mai"
     },
     {
       "en": "Please show me how to pray.",
-      "th": "ช่วยสอนวิธีไหว้หน่อย"
+      "th": "ช่วยสอนวิธีไหว้หน่อย",
+      "rom": "chuai son withi wai noi"
     },
     {
       "en": "Do I take off my shoes here?",
-      "th": "ต้องถอดรองเท้าตรงนี้ไหม"
+      "th": "ต้องถอดรองเท้าตรงนี้ไหม",
+      "rom": "tong thot rongthao trangani mai"
     },
     {
       "en": "Is this dress all right?",
-      "th": "แต่งตัวแบบนี้ได้ไหม"
+      "th": "แต่งตัวแบบนี้ได้ไหม",
+      "rom": "taengtua baepni dai mai"
     },
     {
       "en": "Can women enter this hall?",
-      "th": "ผู้หญิงเข้าในโบสถ์นี้ได้ไหม"
+      "th": "ผู้หญิงเข้าในโบสถ์นี้ได้ไหม",
+      "rom": "phuying khao nai bot ni dai mai"
     },
     {
       "en": "May I take photos inside?",
-      "th": "ถ่ายรูปข้างในได้ไหม"
+      "th": "ถ่ายรูปข้างในได้ไหม",
+      "rom": "thairup khangnai dai mai"
     },
     {
       "en": "Is it all right to touch this statue?",
-      "th": "แตะรูปปั้นนี้ได้ไหม"
+      "th": "แตะรูปปั้นนี้ได้ไหม",
+      "rom": "tae ruppan ni dai mai"
     },
     {
       "en": "How do I give alms to a monk?",
-      "th": "ใส่บาตรพระอย่างไร"
+      "th": "ใส่บาตรพระอย่างไร",
+      "rom": "saibatn phra yangrai"
     },
     {
       "en": "Please tell me if I do something wrong.",
-      "th": "ถ้าทำอะไรผิดช่วยบอกด้วย"
+      "th": "ถ้าทำอะไรผิดช่วยบอกด้วย",
+      "rom": "tha tham arai phit chuai bok duai"
     }
   ]
 }

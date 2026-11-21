@@ -48,12 +48,14 @@
     {
       "en": "I need an interpreter at the labour office.",
       "th": "ต้องการล่ามที่สำนักงานแรงงาน",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan lam thi samnakngan raengngan"
     },
     {
       "en": "I did not break any rule, please explain the problem.",
       "th": "ไม่ได้ฝ่าฝืนกฎใดๆ ช่วยอธิบายปัญหาหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "mai dai fafuen kot dai chuai thibai panha noi"
     },
     {
       "en": "I have not got my salary for three months.",
@@ -63,53 +65,65 @@
     {
       "en": "My employer is holding my passport.",
       "th": "นายจ้างยึดหนังสือเดินทางของเรา",
-      "critical": true
+      "critical": true,
+      "rom": "naichang yuet nangsuedoenthang khong rao"
     },
     {
       "en": "I need a lawyer, please call my embassy.",
       "th": "ต้องการทนายความ ช่วยโทรหาสถานทูตของเราหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan thanaikwam chuai thon ha sathanthut khong rao noi"
     },
     {
       "en": "I feel unsafe at my workplace.",
       "th": "รู้สึกไม่ปลอดภัยที่ที่ทำงาน",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek mai plotphai thi thithamngan"
     },
     {
       "en": "I would like to apply for a work permit.",
-      "th": "ต้องการขอใบอนุญาตทำงาน"
+      "th": "ต้องการขอใบอนุญาตทำงาน",
+      "rom": "tongkan kho bainuyat thamngan"
     },
     {
       "en": "Which documents do I need?",
-      "th": "ต้องใช้เอกสารอะไรบ้าง"
+      "th": "ต้องใช้เอกสารอะไรบ้าง",
+      "rom": "tong chai eksan arai bang"
     },
     {
       "en": "My employer will submit the papers.",
-      "th": "นายจ้างจะเป็นผู้ยื่นเอกสาร"
+      "th": "นายจ้างจะเป็นผู้ยื่นเอกสาร",
+      "rom": "naichang cha pen phu yuen eksan"
     },
     {
       "en": "How long does the permit process take?",
-      "th": "ขั้นตอนขอใบอนุญาตใช้เวลานานเท่าไร"
+      "th": "ขั้นตอนขอใบอนุญาตใช้เวลานานเท่าไร",
+      "rom": "khanton kho bainuyat chaiwelanan thaorai"
     },
     {
       "en": "How much is the permit fee?",
-      "th": "ค่าธรรมเนียมใบอนุญาตเท่าไร"
+      "th": "ค่าธรรมเนียมใบอนุญาตเท่าไร",
+      "rom": "khatamniam bainuyat thaorai"
     },
     {
       "en": "Do I need a health check first?",
-      "th": "ต้องตรวจสุขภาพก่อนไหม"
+      "th": "ต้องตรวจสุขภาพก่อนไหม",
+      "rom": "tong truat sukphap kon mai"
     },
     {
       "en": "Where can I do the health check?",
-      "th": "ตรวจสุขภาพได้ที่ไหน"
+      "th": "ตรวจสุขภาพได้ที่ไหน",
+      "rom": "truat sukphap dai thinai"
     },
     {
       "en": "Please check if my documents are complete.",
-      "th": "ช่วยตรวจดูว่าเอกสารครบไหม"
+      "th": "ช่วยตรวจดูว่าเอกสารครบไหม",
+      "rom": "chuai truatdu wa eksan khrop mai"
     },
     {
       "en": "Please give me the queue number.",
-      "th": "ขอบัตรคิวหน่อย"
+      "th": "ขอบัตรคิวหน่อย",
+      "rom": "kho batn khio noi"
     },
     {
       "en": "When will the permit be ready?",
@@ -121,19 +135,23 @@
     },
     {
       "en": "May I change my employer with this permit?",
-      "th": "เปลี่ยนนายจ้างด้วยใบอนุญาตนี้ได้ไหม"
+      "th": "เปลี่ยนนายจ้างด้วยใบอนุญาตนี้ได้ไหม",
+      "rom": "pelin naichang duai bainuyat ni dai mai"
     },
     {
       "en": "Please make a copy of my passport.",
-      "th": "ช่วยถ่ายสำเนาหนังสือเดินทางหน่อย"
+      "th": "ช่วยถ่ายสำเนาหนังสือเดินทางหน่อย",
+      "rom": "chuai thaisamnao nangsuedoenthang noi"
     },
     {
       "en": "Do I pay tax on my income?",
-      "th": "ต้องเสียภาษีจากรายได้ไหม"
+      "th": "ต้องเสียภาษีจากรายได้ไหม",
+      "rom": "tong siaphasi chak raidai mai"
     },
     {
       "en": "Thank you for helping with my permit.",
-      "th": "ขอบคุณที่ช่วยเรื่องใบอนุญาต"
+      "th": "ขอบคุณที่ช่วยเรื่องใบอนุญาต",
+      "rom": "khopkhun thi chuai rueang bainuyat"
     }
   ]
 }

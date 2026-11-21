@@ -36,74 +36,91 @@
     {
       "en": "Please stop here. I want to get off.",
       "th": "ช่วยจอดตรงนี้ ขอลง",
-      "critical": true
+      "critical": true,
+      "rom": "chuai chot trangani kho long"
     },
     {
       "en": "Please do not drive to another place.",
       "th": "ขออย่าไปที่อื่น",
-      "critical": true
+      "critical": true,
+      "rom": "kho ya pai thiuen"
     },
     {
       "en": "Let me out now.",
       "th": "ขอลงเดี๋ยวนี้",
-      "critical": true
+      "critical": true,
+      "rom": "kho long diaoni"
     },
     {
       "en": "Please take me to the hospital.",
       "th": "ช่วยพาไปโรงพยาบาลหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai pha pai rongpyaban noi"
     },
     {
       "en": "How much to the old town?",
-      "th": "ไปเมืองเก่าเท่าไหร่"
+      "th": "ไปเมืองเก่าเท่าไหร่",
+      "rom": "pai mueang kao thaorai"
     },
     {
       "en": "That is too expensive.",
-      "th": "แพงไป"
+      "th": "แพงไป",
+      "rom": "phaeng pai"
     },
     {
       "en": "Can you do it for less?",
-      "th": "ลดราคาได้ไหม"
+      "th": "ลดราคาได้ไหม",
+      "rom": "ladrakha dai mai"
     },
     {
       "en": "Please use the meter.",
-      "th": "รบกวนเปิดมิเตอร์ด้วย"
+      "th": "รบกวนเปิดมิเตอร์ด้วย",
+      "rom": "rabakuan poet mitoe duai"
     },
     {
       "en": "I agree on this price.",
-      "th": "ตกลงราคานี้"
+      "th": "ตกลงราคานี้",
+      "rom": "taklong rakha ni"
     },
     {
       "en": "Does this songthaew go to the market?",
-      "th": "สองแถวคันนี้ไปตลาดไหม"
+      "th": "สองแถวคันนี้ไปตลาดไหม",
+      "rom": "song thaeo khan ni pai tlat mai"
     },
     {
       "en": "How much per person?",
-      "th": "คนละเท่าไหร่"
+      "th": "คนละเท่าไหร่",
+      "rom": "khanla thaorai"
     },
     {
       "en": "Please tell me when we arrive.",
-      "th": "ถึงแล้วช่วยบอกด้วย"
+      "th": "ถึงแล้วช่วยบอกด้วย",
+      "rom": "thueng laeo chuai bok duai"
     },
     {
       "en": "Where is the bell?",
-      "th": "กริ่งอยู่ที่ไหน"
+      "th": "กริ่งอยู่ที่ไหน",
+      "rom": "kring yu thinai"
     },
     {
       "en": "I only want to go there, no shopping stops.",
-      "th": "ไปที่นั่นอย่างเดียว ไม่แวะซื้อของ"
+      "th": "ไปที่นั่นอย่างเดียว ไม่แวะซื้อของ",
+      "rom": "pai thinan yang diao mai wae sue khong"
     },
     {
       "en": "Can you wait for me and take me back?",
-      "th": "รอแล้วพากลับได้ไหม"
+      "th": "รอแล้วพากลับได้ไหม",
+      "rom": "ro laeo pha klap dai mai"
     },
     {
       "en": "Do you have change?",
-      "th": "มีเงินทอนไหม"
+      "th": "มีเงินทอนไหม",
+      "rom": "mi ngoenthon mai"
     },
     {
       "en": "Please drive slower.",
-      "th": "ช่วยขับช้าลงหน่อย"
+      "th": "ช่วยขับช้าลงหน่อย",
+      "rom": "chuai khap cha long noi"
     }
   ],
   "note": {

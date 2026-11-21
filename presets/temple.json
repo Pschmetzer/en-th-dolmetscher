@@ -48,23 +48,28 @@
     {
       "en": "I feel faint.",
       "th": "รู้สึกจะเป็นลม",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek cha pennm"
     },
     {
       "en": "Is it okay to take photos here?",
-      "th": "ถ่ายรูปที่นี่ได้ไหม"
+      "th": "ถ่ายรูปที่นี่ได้ไหม",
+      "rom": "thairup thini dai mai"
     },
     {
       "en": "Is it okay to use the flash?",
-      "th": "ใช้แฟลชได้ไหม"
+      "th": "ใช้แฟลชได้ไหม",
+      "rom": "chai faent dai mai"
     },
     {
       "en": "Do I need to take off my shoes?",
-      "th": "ต้องถอดรองเท้าไหม"
+      "th": "ต้องถอดรองเท้าไหม",
+      "rom": "tong thot rongthao mai"
     },
     {
       "en": "Where can I leave my shoes?",
-      "th": "วางรองเท้าไว้ที่ไหน"
+      "th": "วางรองเท้าไว้ที่ไหน",
+      "rom": "wang rongthao wai thinai"
     },
     {
       "en": "Can I borrow something to cover my shoulders?",
@@ -72,27 +77,33 @@
     },
     {
       "en": "Is this clothing okay to go inside?",
-      "th": "แต่งตัวแบบนี้เข้าไปได้ไหม"
+      "th": "แต่งตัวแบบนี้เข้าไปได้ไหม",
+      "rom": "taengtua baepni khaopai dai mai"
     },
     {
       "en": "May I go inside?",
-      "th": "เข้าไปข้างในได้ไหม"
+      "th": "เข้าไปข้างในได้ไหม",
+      "rom": "khaopai khangnai dai mai"
     },
     {
       "en": "Is it okay to sit here?",
-      "th": "นั่งตรงนี้ได้ไหม"
+      "th": "นั่งตรงนี้ได้ไหม",
+      "rom": "nang trangani dai mai"
     },
     {
       "en": "Is there an entrance fee?",
-      "th": "มีค่าเข้าชมไหม"
+      "th": "มีค่าเข้าชมไหม",
+      "rom": "mikha khaotm mai"
     },
     {
       "en": "What time does the temple close?",
-      "th": "วัดปิดกี่โมง"
+      "th": "วัดปิดกี่โมง",
+      "rom": "wat pit ki mong"
     },
     {
       "en": "What is the name of this temple?",
-      "th": "วัดนี้ชื่ออะไร"
+      "th": "วัดนี้ชื่ออะไร",
+      "rom": "wat ni chue arai"
     },
     {
       "en": "How old is this temple?",
@@ -100,23 +111,28 @@
     },
     {
       "en": "Where is the main hall?",
-      "th": "วิหารอยู่ที่ไหน"
+      "th": "วิหารอยู่ที่ไหน",
+      "rom": "wihan yu thinai"
     },
     {
       "en": "Where can I buy flowers and incense?",
-      "th": "ซื้อดอกไม้ธูปเทียนได้ที่ไหน"
+      "th": "ซื้อดอกไม้ธูปเทียนได้ที่ไหน",
+      "rom": "sue dokmai thup thian dai thinai"
     },
     {
       "en": "Where can I make a donation?",
-      "th": "ทำบุญได้ที่ไหน"
+      "th": "ทำบุญได้ที่ไหน",
+      "rom": "thambun dai thinai"
     },
     {
       "en": "Is there a guide who speaks English?",
-      "th": "มีไกด์พูดภาษาอังกฤษไหม"
+      "th": "มีไกด์พูดภาษาอังกฤษไหม",
+      "rom": "mi kai phut phasaangkrit mai"
     },
     {
       "en": "Sorry, I did not know.",
-      "th": "ขอโทษ ไม่ทราบมาก่อน"
+      "th": "ขอโทษ ไม่ทราบมาก่อน",
+      "rom": "khothot mai thrap ma kon"
     }
   ]
 }

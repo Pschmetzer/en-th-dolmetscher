@@ -48,80 +48,98 @@
     {
       "en": "Please do not keep my original passport.",
       "th": "ขออย่าเก็บหนังสือเดินทางตัวจริงไว้",
-      "critical": true
+      "critical": true,
+      "rom": "kho ya kep nangsuedoenthang tuatring wai"
     },
     {
       "en": "I need this document today, it is urgent.",
       "th": "ต้องใช้เอกสารนี้วันนี้ เป็นเรื่องด่วน",
-      "critical": true
+      "critical": true,
+      "rom": "tong chai eksan ni wanni pen rueangduan"
     },
     {
       "en": "I do not understand this paper, I will not sign.",
       "th": "ไม่เข้าใจเอกสารนี้ จึงจะไม่เซ็น",
-      "critical": true
+      "critical": true,
+      "rom": "mai khaochai eksan ni chueng cha mai sen"
     },
     {
       "en": "I need an interpreter before I sign.",
       "th": "ต้องการล่ามก่อนเซ็น",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan lam kon sen"
     },
     {
       "en": "This document may be forged.",
       "th": "เอกสารนี้อาจถูกปลอมแปลง",
-      "critical": true
+      "critical": true,
+      "rom": "eksan ni at thuk plompaenng"
     },
     {
       "en": "Please give me a copy of what I signed.",
       "th": "ขอสำเนาสิ่งที่เซ็นไปหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "kho samnao sing thi sen pai noi"
     },
     {
       "en": "I need a certified translation into Thai.",
-      "th": "ต้องการแปลเป็นภาษาไทยที่รับรองแล้ว"
+      "th": "ต้องการแปลเป็นภาษาไทยที่รับรองแล้ว",
+      "rom": "tongkan paen pen phasathai thiraprong laeo"
     },
     {
       "en": "How much is it per page?",
-      "th": "คิดราคาหน้าละเท่าไร"
+      "th": "คิดราคาหน้าละเท่าไร",
+      "rom": "khitrakha na la thaorai"
     },
     {
       "en": "How many days does it take?",
-      "th": "ใช้เวลากี่วัน"
+      "th": "ใช้เวลากี่วัน",
+      "rom": "chaiwela ki wan"
     },
     {
       "en": "Is an express service possible?",
-      "th": "มีบริการด่วนไหม"
+      "th": "มีบริการด่วนไหม",
+      "rom": "mi brikan duan mai"
     },
     {
       "en": "Will the embassy accept this translation?",
-      "th": "สถานทูตจะรับคำแปลนี้ไหม"
+      "th": "สถานทูตจะรับคำแปลนี้ไหม",
+      "rom": "sathanthut cha rap khampaen ni mai"
     },
     {
       "en": "Where can I get the legalisation stamp?",
-      "th": "ขอตราประทับรับรองเอกสารได้ที่ไหน"
+      "th": "ขอตราประทับรับรองเอกสารได้ที่ไหน",
+      "rom": "kho traprathap raprong eksan dai thinai"
     },
     {
       "en": "Which ministry must confirm this paper?",
-      "th": "กระทรวงไหนต้องรับรองเอกสารนี้"
+      "th": "กระทรวงไหนต้องรับรองเอกสารนี้",
+      "rom": "kratruang nai tong raprong eksan ni"
     },
     {
       "en": "Do I need witnesses for the signature?",
-      "th": "ต้องมีพยานตอนเซ็นไหม"
+      "th": "ต้องมีพยานตอนเซ็นไหม",
+      "rom": "tong mi phayan ton sen mai"
     },
     {
       "en": "Please check the spelling of my name.",
-      "th": "ช่วยตรวจการสะกดชื่อของเราหน่อย"
+      "th": "ช่วยตรวจการสะกดชื่อของเราหน่อย",
+      "rom": "chuai truatkan sakt chue khong rao noi"
     },
     {
       "en": "Please translate the date and the numbers carefully.",
-      "th": "ช่วยแปลวันที่และตัวเลขอย่างระมัดระวังหน่อย"
+      "th": "ช่วยแปลวันที่และตัวเลขอย่างระมัดระวังหน่อย",
+      "rom": "chuai paen wanthi lae tualek yang ramatrawang noi"
     },
     {
       "en": "May I see the draft before the stamp?",
-      "th": "ขอดูฉบับร่างก่อนประทับตราหน่อย"
+      "th": "ขอดูฉบับร่างก่อนประทับตราหน่อย",
+      "rom": "kho du chabaprang kon prathaptra noi"
     },
     {
       "en": "Please send the file by email as well.",
-      "th": "ช่วยส่งไฟล์ทางอีเมลด้วย"
+      "th": "ช่วยส่งไฟล์ทางอีเมลด้วย",
+      "rom": "chuai song fai thang imen duai"
     },
     {
       "en": "May I have a receipt for the fee?",
@@ -129,11 +147,13 @@
     },
     {
       "en": "Please give me three certified copies.",
-      "th": "ขอสำเนารับรองสามชุดหน่อย"
+      "th": "ขอสำเนารับรองสามชุดหน่อย",
+      "rom": "kho samnao raprong sam chut noi"
     },
     {
       "en": "Thank you for helping with the documents.",
-      "th": "ขอบคุณที่ช่วยเรื่องเอกสาร"
+      "th": "ขอบคุณที่ช่วยเรื่องเอกสาร",
+      "rom": "khopkhun thi chuai rueang eksan"
     }
   ]
 }

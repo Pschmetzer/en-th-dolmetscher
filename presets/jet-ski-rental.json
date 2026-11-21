@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Beim Jetski-Verleih gibt es oft Streit um angebliche Schäden. Vor der Fahrt das Gerät rundum fotografieren, Preis und Haftung schriftlich geben lassen und nie den Reisepass hinterlegen. Bei Erpressung oder Drohung die Touristenpolizei unter 1155 rufen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Jet ski hire often ends in disputes over claimed damage. Before riding photograph the machine from all sides, get the price and liability in writing and never leave your passport as security. If you are threatened or pressured call the tourist police on 1155. Thai lines machine-made, not checked by native speakers."
+    "de": "Beim Jetski-Verleih gibt es oft Streit um angebliche Schäden. Vor der Fahrt das Gerät rundum fotografieren, Preis und Haftung schriftlich geben lassen und nie den Reisepass hinterlegen. Bei Erpressung oder Drohung die Touristenpolizei unter 1155 rufen. Siehe auch: Betrug / Abzocke. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Jet ski hire often ends in disputes over claimed damage. Before riding photograph the machine from all sides, get the price and liability in writing and never leave your passport as security. If you are threatened or pressured call the tourist police on 1155. See also: Scams / overcharging. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,62 +40,76 @@
     {
       "en": "I will not leave my passport as a deposit.",
       "th": "ไม่วางพาสปอร์ตเป็นมัดจำ",
-      "critical": true
+      "critical": true,
+      "rom": "mai wang phatpot pen matcham"
     },
     {
       "en": "Please call the tourist police (1155).",
       "th": "ช่วยโทรหาตำรวจท่องเที่ยว 1155 ด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai thon ha tamruat thongthiao 1155 duai"
     },
     {
       "en": "Please give me a life jacket.",
       "th": "ขอเสื้อชูชีพ",
-      "critical": true
+      "critical": true,
+      "rom": "kho suea chuchip"
     },
     {
       "en": "I feel threatened. Please stay away.",
       "th": "รู้สึกถูกข่มขู่ ช่วยถอยห่างด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek thuk khamakhu chuai thoihang duai"
     },
     {
       "en": "I want to photograph the jet ski first.",
-      "th": "ขอถ่ายรูปเจ็ตสกีก่อน"
+      "th": "ขอถ่ายรูปเจ็ตสกีก่อน",
+      "rom": "kho thairup chettki kon"
     },
     {
       "en": "There is already a scratch here.",
-      "th": "มีรอยขีดข่วนตรงนี้อยู่แล้ว"
+      "th": "มีรอยขีดข่วนตรงนี้อยู่แล้ว",
+      "rom": "mi roikhitkhuan trangani yulaeo"
     },
     {
       "en": "How much per half hour?",
-      "th": "ครึ่งชั่วโมงเท่าไร"
+      "th": "ครึ่งชั่วโมงเท่าไร",
+      "rom": "khrueng chuamong thaorai"
     },
     {
       "en": "Please write the price on paper.",
-      "th": "ช่วยเขียนราคาลงกระดาษ"
+      "th": "ช่วยเขียนราคาลงกระดาษ",
+      "rom": "chuai khian rakha long kradat"
     },
     {
       "en": "Is insurance included?",
-      "th": "รวมประกันไหม"
+      "th": "รวมประกันไหม",
+      "rom": "ruam prakan mai"
     },
     {
       "en": "I want to read the contract.",
-      "th": "ขอดูสัญญา"
+      "th": "ขอดูสัญญา",
+      "rom": "kho du sanya"
     },
     {
       "en": "Please show me how to stop the engine.",
-      "th": "ช่วยสอนวิธีดับเครื่อง"
+      "th": "ช่วยสอนวิธีดับเครื่อง",
+      "rom": "chuai son withi dapkherueng"
     },
     {
       "en": "Where am I allowed to ride?",
-      "th": "ขับได้ตรงไหน"
+      "th": "ขับได้ตรงไหน",
+      "rom": "khap dai trangahanai"
     },
     {
       "en": "I did not cause this damage.",
-      "th": "ความเสียหายนี้ไม่ได้เกิดจากการใช้ของเรา"
+      "th": "ความเสียหายนี้ไม่ได้เกิดจากการใช้ของเรา",
+      "rom": "khwamsiahai ni mai dai koet chak kan chai khong rao"
     },
     {
       "en": "I will not pay for old damage.",
-      "th": "จะไม่จ่ายค่าเสียหายเก่า"
+      "th": "จะไม่จ่ายค่าเสียหายเก่า",
+      "rom": "cha mai chai khasiahai kao"
     },
     {
       "en": "Please give me a receipt.",
@@ -103,7 +117,8 @@
     },
     {
       "en": "I want to speak to the manager.",
-      "th": "ขอพบผู้จัดการ"
+      "th": "ขอพบผู้จัดการ",
+      "rom": "kho phop phuchatkan"
     }
   ]
 }

@@ -40,53 +40,65 @@
     {
       "en": "Please do not splash me. I am riding a scooter.",
       "th": "ขออย่าสาดน้ำ กำลังขับมอเตอร์ไซค์",
-      "critical": true
+      "critical": true,
+      "rom": "kho ya sat nam kamlang khap motoesai"
     },
     {
       "en": "Please do not splash my baby.",
       "th": "ขออย่าสาดน้ำใส่ลูก",
-      "critical": true
+      "critical": true,
+      "rom": "kho ya sat nam sai luk"
     },
     {
       "en": "The powder is in my eyes. Please help.",
       "th": "แป้งเข้าตา ช่วยด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "paeng khaota chuaiduai"
     },
     {
       "en": "Happy Songkran!",
-      "th": "สุขสันต์วันสงกรานต์"
+      "th": "สุขสันต์วันสงกรานต์",
+      "rom": "suksan wantngkran"
     },
     {
       "en": "Please do not splash my face.",
-      "th": "ขออย่าสาดน้ำใส่หน้า"
+      "th": "ขออย่าสาดน้ำใส่หน้า",
+      "rom": "kho ya sat nam sai na"
     },
     {
       "en": "I do not want to get wet.",
-      "th": "ไม่อยากเปียก"
+      "th": "ไม่อยากเปียก",
+      "rom": "mai yak piak"
     },
     {
       "en": "My phone is not waterproof.",
-      "th": "โทรศัพท์ไม่กันน้ำ"
+      "th": "โทรศัพท์ไม่กันน้ำ",
+      "rom": "thonsap mai kannam"
     },
     {
       "en": "Is the water clean?",
-      "th": "น้ำสะอาดไหม"
+      "th": "น้ำสะอาดไหม",
+      "rom": "namsaat mai"
     },
     {
       "en": "Where is a good place to join the party?",
-      "th": "ไปร่วมงานสนุกได้ที่ไหน"
+      "th": "ไปร่วมงานสนุกได้ที่ไหน",
+      "rom": "pai ruamngan sanuk dai thinai"
     },
     {
       "en": "What time does the street party start?",
-      "th": "งานปาร์ตี้ริมถนนเริ่มกี่โมง"
+      "th": "งานปาร์ตี้ริมถนนเริ่มกี่โมง",
+      "rom": "ngan pati rimtnn roem ki mong"
     },
     {
       "en": "Where can I buy a water gun?",
-      "th": "ซื้อปืนฉีดน้ำได้ที่ไหน"
+      "th": "ซื้อปืนฉีดน้ำได้ที่ไหน",
+      "rom": "sue puen chit nam dai thinai"
     },
     {
       "en": "Is it safe for children there?",
-      "th": "ที่นั่นปลอดภัยสำหรับเด็กไหม"
+      "th": "ที่นั่นปลอดภัยสำหรับเด็กไหม",
+      "rom": "thinan plotphai samrap dek mai"
     },
     {
       "en": "Is the taxi running today?",
@@ -94,15 +106,18 @@
     },
     {
       "en": "Are shops open today?",
-      "th": "วันนี้ร้านเปิดไหม"
+      "th": "วันนี้ร้านเปิดไหม",
+      "rom": "wanni ran poet mai"
     },
     {
       "en": "May I pour water on your hands as a blessing?",
-      "th": "ขอรดน้ำที่มืออวยพรได้ไหม"
+      "th": "ขอรดน้ำที่มืออวยพรได้ไหม",
+      "rom": "kho radanam thi mue uaipn dai mai"
     },
     {
       "en": "Thank you, have a nice holiday!",
-      "th": "ขอบคุณ สุขสันต์วันหยุด"
+      "th": "ขอบคุณ สุขสันต์วันหยุด",
+      "rom": "khopkhun suksan wanyut"
     }
   ]
 }

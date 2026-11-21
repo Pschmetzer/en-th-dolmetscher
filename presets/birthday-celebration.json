@@ -55,7 +55,8 @@
   "phrases": [
     {
       "en": "Happy birthday!",
-      "th": "สุขสันต์วันเกิด"
+      "th": "สุขสันต์วันเกิด",
+      "rom": "suksanwankoet"
     },
     {
       "en": "I wish you good health and happiness.",
@@ -63,7 +64,8 @@
     },
     {
       "en": "Thank you for inviting me.",
-      "th": "ขอบคุณที่เชิญ"
+      "th": "ขอบคุณที่เชิญ",
+      "rom": "khopkhun thi choen"
     },
     {
       "en": "This is a small gift for you.",
@@ -75,39 +77,48 @@
     },
     {
       "en": "Today is my birthday.",
-      "th": "วันนี้วันเกิด"
+      "th": "วันนี้วันเกิด",
+      "rom": "wanni wankoet"
     },
     {
       "en": "Could we have a cake with a candle?",
-      "th": "ขอเค้กพร้อมเทียนได้ไหม"
+      "th": "ขอเค้กพร้อมเทียนได้ไหม",
+      "rom": "kho khek phrom thian dai mai"
     },
     {
       "en": "Could you take a photo of us?",
-      "th": "ช่วยถ่ายรูปให้หน่อยได้ไหม"
+      "th": "ช่วยถ่ายรูปให้หน่อยได้ไหม",
+      "rom": "chuai thairup hai noi dai mai"
     },
     {
       "en": "Cheers!",
-      "th": "ชนแก้ว"
+      "th": "ชนแก้ว",
+      "rom": "chanakaeo"
     },
     {
       "en": "The food is delicious.",
-      "th": "อาหารอร่อยมาก"
+      "th": "อาหารอร่อยมาก",
+      "rom": "ahan roi mak"
     },
     {
       "en": "I am full. Thank you.",
-      "th": "อิ่มแล้ว ขอบคุณ"
+      "th": "อิ่มแล้ว ขอบคุณ",
+      "rom": "im laeo khopkhun"
     },
     {
       "en": "May I pay for the meal?",
-      "th": "ขอเลี้ยงอาหารมื้อนี้ได้ไหม"
+      "th": "ขอเลี้ยงอาหารมื้อนี้ได้ไหม",
+      "rom": "kho liang ahan mue ni dai mai"
     },
     {
       "en": "It was a wonderful evening.",
-      "th": "เป็นค่ำคืนที่ยอดเยี่ยม"
+      "th": "เป็นค่ำคืนที่ยอดเยี่ยม",
+      "rom": "pen khamkhuen thi yotyiam"
     },
     {
       "en": "I must go home now.",
-      "th": "ต้องกลับบ้านแล้ว"
+      "th": "ต้องกลับบ้านแล้ว",
+      "rom": "tong klapban laeo"
     }
   ]
 }

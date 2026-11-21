@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Klimatisierte Fernbusse sind kalt: Jacke griffbereit halten. Gepäckschein aufbewahren, Wertsachen im Handgepäck und nachts am Körper. Schlafwagen und Wochenend- oder Feiertagsfahrten früh buchen; Züge haben oft Verspätung. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Air-conditioned coaches are cold, so keep a jacket handy. Keep the luggage tag, carry valuables in hand luggage and on your body at night. Book sleeper cars and weekend or holiday trips early; trains are often late. Thai lines machine-made, not checked by native speakers."
+    "de": "Klimatisierte Fernbusse sind kalt: Jacke griffbereit halten. Gepäckschein aufbewahren, Wertsachen im Handgepäck und nachts am Körper. Schlafwagen und Wochenend- oder Feiertagsfahrten früh buchen; Züge haben oft Verspätung. Siehe auch: Fähre / Bus / Zug, Fähre und Boot. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Air-conditioned coaches are cold, so keep a jacket handy. Keep the luggage tag, carry valuables in hand luggage and on your body at night. Book sleeper cars and weekend or holiday trips early; trains are often late. See also: Ferry / bus / train, Ferry and boat. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,81 +40,100 @@
     {
       "en": "I need medical help.",
       "th": "ต้องการความช่วยเหลือทางการแพทย์",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan khwamchuaihelue thangkanphaet"
     },
     {
       "en": "Please stop the bus, I feel unwell.",
       "th": "ช่วยจอดรถหน่อย รู้สึกไม่สบาย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai chot rot noi rusuek mai sabai"
     },
     {
       "en": "My bag was stolen.",
       "th": "กระเป๋าถูกขโมย",
-      "critical": true
+      "critical": true,
+      "rom": "krapao thuk khamoi"
     },
     {
       "en": "One ticket to Chiang Mai, please.",
-      "th": "ขอตั๋วไปเชียงใหม่หนึ่งใบ"
+      "th": "ขอตั๋วไปเชียงใหม่หนึ่งใบ",
+      "rom": "kho tua pai chianghaim nueng bai"
     },
     {
       "en": "Where is the ticket counter?",
-      "th": "ช่องขายตั๋วอยู่ที่ไหน"
+      "th": "ช่องขายตั๋วอยู่ที่ไหน",
+      "rom": "chongkhaitua yu thinai"
     },
     {
       "en": "Where is the bus station?",
-      "th": "สถานีขนส่งอยู่ที่ไหน"
+      "th": "สถานีขนส่งอยู่ที่ไหน",
+      "rom": "sathanikntng yu thinai"
     },
     {
       "en": "What time does the bus leave?",
-      "th": "รถออกกี่โมง"
+      "th": "รถออกกี่โมง",
+      "rom": "rot ok ki mong"
     },
     {
       "en": "Which platform does the train leave from?",
-      "th": "รถไฟออกชานชาลาไหน"
+      "th": "รถไฟออกชานชาลาไหน",
+      "rom": "rathafai ok chanchala nai"
     },
     {
       "en": "Is the train delayed?",
-      "th": "รถไฟล่าช้าไหม"
+      "th": "รถไฟล่าช้าไหม",
+      "rom": "rathafai lacha mai"
     },
     {
       "en": "Where do I change trains?",
-      "th": "ต้องเปลี่ยนรถไฟที่ไหน"
+      "th": "ต้องเปลี่ยนรถไฟที่ไหน",
+      "rom": "tong pelin rathafai thinai"
     },
     {
       "en": "A sleeper, lower berth, please.",
-      "th": "ขอตู้นอน เตียงล่าง"
+      "th": "ขอตู้นอน เตียงล่าง",
+      "rom": "kho tu non tiang lang"
     },
     {
       "en": "Is there a night bus?",
-      "th": "มีรถทัวร์รอบกลางคืนไหม"
+      "th": "มีรถทัวร์รอบกลางคืนไหม",
+      "rom": "mi rathathua rop klangkhuen mai"
     },
     {
       "en": "Does the bus have a toilet?",
-      "th": "บนรถมีห้องน้ำไหม"
+      "th": "บนรถมีห้องน้ำไหม",
+      "rom": "bon rot mi ongnam mai"
     },
     {
       "en": "Could I have a window seat?",
-      "th": "ขอที่นั่งริมหน้าต่าง"
+      "th": "ขอที่นั่งริมหน้าต่าง",
+      "rom": "kho thinang rim natang"
     },
     {
       "en": "Can I change my ticket to another day?",
-      "th": "เปลี่ยนตั๋วเป็นวันอื่นได้ไหม"
+      "th": "เปลี่ยนตั๋วเป็นวันอื่นได้ไหม",
+      "rom": "pelin tua pen wan uen dai mai"
     },
     {
       "en": "How long is the journey?",
-      "th": "ใช้เวลาเดินทางนานเท่าไหร่"
+      "th": "ใช้เวลาเดินทางนานเท่าไหร่",
+      "rom": "chaiwela doenthang nan thaorai"
     },
     {
       "en": "Where can I put my luggage?",
-      "th": "วางกระเป๋าไว้ที่ไหนได้"
+      "th": "วางกระเป๋าไว้ที่ไหนได้",
+      "rom": "wang krapao wai thinaidai"
     },
     {
       "en": "Please tell me when we arrive.",
-      "th": "ถึงแล้วช่วยบอกด้วย"
+      "th": "ถึงแล้วช่วยบอกด้วย",
+      "rom": "thueng laeo chuai bok duai"
     },
     {
       "en": "I missed my stop.",
-      "th": "เลยป้ายแล้ว"
+      "th": "เลยป้ายแล้ว",
+      "rom": "loei pai laeo"
     }
   ]
 }

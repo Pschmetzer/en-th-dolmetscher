@@ -52,47 +52,58 @@
     {
       "en": "I feel unwell. Please call a doctor.",
       "th": "รู้สึกไม่สบาย ช่วยเรียกแพทย์ให้หน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek mai sabai chuai riak phaet hai noi"
     },
     {
       "en": "Nice to meet you.",
-      "th": "ยินดีที่ได้รู้จัก"
+      "th": "ยินดีที่ได้รู้จัก",
+      "rom": "yindi thi dai ruchak"
     },
     {
       "en": "When is the next meeting?",
-      "th": "การประชุมครั้งต่อไปคือเมื่อไหร่"
+      "th": "การประชุมครั้งต่อไปคือเมื่อไหร่",
+      "rom": "kanprachum khrang topai khue muearai"
     },
     {
       "en": "Could you send me the document by email?",
-      "th": "ช่วยส่งเอกสารทางอีเมลให้หน่อยได้ไหม"
+      "th": "ช่วยส่งเอกสารทางอีเมลให้หน่อยได้ไหม",
+      "rom": "chuai song eksan thang imen hai noi dai mai"
     },
     {
       "en": "The deadline is on Friday.",
-      "th": "กำหนดส่งคือวันศุกร์"
+      "th": "กำหนดส่งคือวันศุกร์",
+      "rom": "kamnt song khue wan suk"
     },
     {
       "en": "Let me check and get back to you.",
-      "th": "ขอตรวจสอบก่อนแล้วจะติดต่อกลับ"
+      "th": "ขอตรวจสอบก่อนแล้วจะติดต่อกลับ",
+      "rom": "kho truatsop kon lae wacha titto klap"
     },
     {
       "en": "Could you explain that once more?",
-      "th": "ช่วยอธิบายอีกครั้งได้ไหม"
+      "th": "ช่วยอธิบายอีกครั้งได้ไหม",
+      "rom": "chuai thibai ikkrang dai mai"
     },
     {
       "en": "I agree with that.",
-      "th": "เห็นด้วย"
+      "th": "เห็นด้วย",
+      "rom": "enduai"
     },
     {
       "en": "Thank you for your time.",
-      "th": "ขอบคุณที่สละเวลา"
+      "th": "ขอบคุณที่สละเวลา",
+      "rom": "khopkhun thi slawela"
     },
     {
       "en": "Here is my business card.",
-      "th": "นี่นามบัตร"
+      "th": "นี่นามบัตร",
+      "rom": "ni nambatn"
     },
     {
       "en": "May I introduce my colleague?",
-      "th": "ขอแนะนำเพื่อนร่วมงาน"
+      "th": "ขอแนะนำเพื่อนร่วมงาน",
+      "rom": "kho naenam phueanruamngan"
     },
     {
       "en": "What are the payment terms?",
@@ -100,15 +111,18 @@
     },
     {
       "en": "Could we schedule a meeting next week?",
-      "th": "ขอนัดประชุมสัปดาห์หน้าได้ไหม"
+      "th": "ขอนัดประชุมสัปดาห์หน้าได้ไหม",
+      "rom": "kho nat prachum sapda na dai mai"
     },
     {
       "en": "Sorry I am late.",
-      "th": "ขอโทษที่มาสาย"
+      "th": "ขอโทษที่มาสาย",
+      "rom": "khothot thi masai"
     },
     {
       "en": "Sorry to interrupt.",
-      "th": "ขอโทษที่ขัดจังหวะ"
+      "th": "ขอโทษที่ขัดจังหวะ",
+      "rom": "khothot thi khatchangwa"
     }
   ]
 }

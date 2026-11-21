@@ -56,17 +56,20 @@
     {
       "en": "Please slow down.",
       "th": "ช่วยขับช้าลงหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai khap cha long noi"
     },
     {
       "en": "Stop here, please.",
       "th": "จอดตรงนี้ด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chot trangani duai"
     },
     {
       "en": "I feel unsafe.",
       "th": "รู้สึกไม่ปลอดภัย",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek mai plotphai"
     },
     {
       "en": "Do you have a helmet for me?",
@@ -74,43 +77,53 @@
     },
     {
       "en": "How much is it to this place?",
-      "th": "ไปที่นี่ราคาเท่าไร"
+      "th": "ไปที่นี่ราคาเท่าไร",
+      "rom": "pai thini rakha thaorai"
     },
     {
       "en": "Please tell me the price first.",
-      "th": "ช่วยบอกราคาก่อน"
+      "th": "ช่วยบอกราคาก่อน",
+      "rom": "chuai bok rakha kon"
     },
     {
       "en": "Too expensive. Can you go lower?",
-      "th": "แพงไป ลดได้ไหม"
+      "th": "แพงไป ลดได้ไหม",
+      "rom": "phaeng pai lot dai mai"
     },
     {
       "en": "Do you know this place?",
-      "th": "รู้จักที่นี่ไหม"
+      "th": "รู้จักที่นี่ไหม",
+      "rom": "ruchak thini mai"
     },
     {
       "en": "Please show me the way on the map.",
-      "th": "ช่วยชี้ทางในแผนที่ให้หน่อย"
+      "th": "ช่วยชี้ทางในแผนที่ให้หน่อย",
+      "rom": "chuai chi thangnai phaenthi hai noi"
     },
     {
       "en": "Please stop at the next corner.",
-      "th": "ช่วยจอดที่หัวมุมถัดไป"
+      "th": "ช่วยจอดที่หัวมุมถัดไป",
+      "rom": "chuai chot thi uamum thatpai"
     },
     {
       "en": "I have a bag. Is that okay?",
-      "th": "มีกระเป๋า ได้ไหม"
+      "th": "มีกระเป๋า ได้ไหม",
+      "rom": "mi krapao dai mai"
     },
     {
       "en": "Please do not go on the main road.",
-      "th": "ช่วยอย่าไปทางถนนใหญ่"
+      "th": "ช่วยอย่าไปทางถนนใหญ่",
+      "rom": "chuai ya pai thang thananahain"
     },
     {
       "en": "Can you wait for me here?",
-      "th": "รอตรงนี้ได้ไหม"
+      "th": "รอตรงนี้ได้ไหม",
+      "rom": "ro trangani dai mai"
     },
     {
       "en": "Here is the money. Keep the change.",
-      "th": "นี่คือเงิน ไม่ต้องทอน"
+      "th": "นี่คือเงิน ไม่ต้องทอน",
+      "rom": "ni khue ngoen mataing thon"
     }
   ]
 }

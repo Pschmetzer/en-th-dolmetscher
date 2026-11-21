@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Drohnen über zweihundertfünfzig Gramm müssen bei der Behörde (CAAT/NBTC) angemeldet werden; Flüge nahe Flughäfen, Palästen, Tempeln und Militäranlagen sind verboten. Fotografieren von Menschen, Mönchen und Soldaten erst nach Frage. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Drones over two hundred fifty grams must be registered with the authorities (CAAT/NBTC); flying near airports, palaces, temples and military sites is banned. Ask before photographing people, monks and soldiers. Thai lines machine-made, not checked by native speakers."
+    "de": "Drohnen über zweihundertfünfzig Gramm müssen bei der Behörde (CAAT/NBTC) angemeldet werden; Flüge nahe Flughäfen, Palästen, Tempeln und Militäranlagen sind verboten. Fotografieren von Menschen, Mönchen und Soldaten erst nach Frage. Siehe auch: Fotografieren im Tempel. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Drones over two hundred fifty grams must be registered with the authorities (CAAT/NBTC); flying near airports, palaces, temples and military sites is banned. Ask before photographing people, monks and soldiers. See also: Temple photography. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,66 +40,81 @@
     {
       "en": "Is it allowed to fly a drone here?",
       "th": "ที่นี่บินโดรนได้ไหม",
-      "critical": true
+      "critical": true,
+      "rom": "thini bin donn dai mai"
     },
     {
       "en": "Do I need a permit for my drone?",
       "th": "ต้องมีใบอนุญาตสำหรับโดรนไหม",
-      "critical": true
+      "critical": true,
+      "rom": "tong mi bainuyat samrap donn mai"
     },
     {
       "en": "Is this a no-fly zone?",
       "th": "ตรงนี้เป็นเขตห้ามบินไหม",
-      "critical": true
+      "critical": true,
+      "rom": "trangani pen khet am bin mai"
     },
     {
       "en": "I am sorry, I did not know. I will land it now.",
       "th": "ขอโทษ ไม่ทราบ จะลงจอดตอนนี้เลย",
-      "critical": true
+      "critical": true,
+      "rom": "khothot mai thrap cha long chot tonni loei"
     },
     {
       "en": "Where can I register my drone?",
-      "th": "ลงทะเบียนโดรนได้ที่ไหน"
+      "th": "ลงทะเบียนโดรนได้ที่ไหน",
+      "rom": "langathabian donn dai thinai"
     },
     {
       "en": "May I take photos here?",
-      "th": "ถ่ายรูปที่นี่ได้ไหม"
+      "th": "ถ่ายรูปที่นี่ได้ไหม",
+      "rom": "thairup thini dai mai"
     },
     {
       "en": "May I take a photo of you?",
-      "th": "ขอถ่ายรูปคุณได้ไหม"
+      "th": "ขอถ่ายรูปคุณได้ไหม",
+      "rom": "kho thairup khun dai mai"
     },
     {
       "en": "May I take photos inside?",
-      "th": "ถ่ายรูปข้างในได้ไหม"
+      "th": "ถ่ายรูปข้างในได้ไหม",
+      "rom": "thairup khangnai dai mai"
     },
     {
       "en": "Is a tripod allowed?",
-      "th": "ใช้ขาตั้งกล้องได้ไหม"
+      "th": "ใช้ขาตั้งกล้องได้ไหม",
+      "rom": "chai khatang klong dai mai"
     },
     {
       "en": "Is flash allowed?",
-      "th": "ใช้แฟลชได้ไหม"
+      "th": "ใช้แฟลชได้ไหม",
+      "rom": "chai faent dai mai"
     },
     {
       "en": "I only take photos for myself.",
-      "th": "ถ่ายเก็บไว้ดูเองเท่านั้น"
+      "th": "ถ่ายเก็บไว้ดูเองเท่านั้น",
+      "rom": "thai kep wai du eng thaonan"
     },
     {
       "en": "Do I have to pay for a camera?",
-      "th": "ต้องจ่ายค่ากล้องไหม"
+      "th": "ต้องจ่ายค่ากล้องไหม",
+      "rom": "tong chai kha klong mai"
     },
     {
       "en": "Shall I delete the photo?",
-      "th": "ให้ลบรูปไหม"
+      "th": "ให้ลบรูปไหม",
+      "rom": "hai lop rup mai"
     },
     {
       "en": "Please do not take my photo.",
-      "th": "ขออย่าถ่ายรูป"
+      "th": "ขออย่าถ่ายรูป",
+      "rom": "kho ya thairup"
     },
     {
       "en": "Can you take a photo of us, please?",
-      "th": "ช่วยถ่ายรูปให้หน่อยได้ไหม"
+      "th": "ช่วยถ่ายรูปให้หน่อยได้ไหม",
+      "rom": "chuai thairup hai noi dai mai"
     }
   ]
 }

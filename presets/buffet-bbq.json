@@ -56,60 +56,74 @@
     {
       "en": "I am allergic to shellfish.",
       "th": "แพ้อาหารทะเลที่มีเปลือก",
-      "critical": true
+      "critical": true,
+      "rom": "phae ahanthale thi mi peluek"
     },
     {
       "en": "Does this contain peanuts?",
       "th": "อันนี้มีถั่วลิสงไหม",
-      "critical": true
+      "critical": true,
+      "rom": "anni mi thualitng mai"
     },
     {
       "en": "How much is the buffet per person?",
-      "th": "บุฟเฟ่ต์คนละเท่าไร"
+      "th": "บุฟเฟ่ต์คนละเท่าไร",
+      "rom": "bupfe khanla thaorai"
     },
     {
       "en": "How long can we stay?",
-      "th": "นั่งได้นานเท่าไร"
+      "th": "นั่งได้นานเท่าไร",
+      "rom": "nang dai nan thaorai"
     },
     {
       "en": "Are drinks included?",
-      "th": "รวมเครื่องดื่มไหม"
+      "th": "รวมเครื่องดื่มไหม",
+      "rom": "ruam kheruengduem mai"
     },
     {
       "en": "A table for four, please.",
-      "th": "ขอโต๊ะสำหรับสี่คน"
+      "th": "ขอโต๊ะสำหรับสี่คน",
+      "rom": "kho to samrap si khon"
     },
     {
       "en": "Could you light the grill, please?",
-      "th": "ช่วยจุดเตาย่างให้หน่อย"
+      "th": "ช่วยจุดเตาย่างให้หน่อย",
+      "rom": "chuai chut tao yang hai noi"
     },
     {
       "en": "Could we have more meat, please?",
-      "th": "ขอเนื้อเพิ่มได้ไหม"
+      "th": "ขอเนื้อเพิ่มได้ไหม",
+      "rom": "kho nuea phoem dai mai"
     },
     {
       "en": "Could we have more vegetables, please?",
-      "th": "ขอผักเพิ่มได้ไหม"
+      "th": "ขอผักเพิ่มได้ไหม",
+      "rom": "kho phak phoem dai mai"
     },
     {
       "en": "Please bring a new pair of tongs.",
-      "th": "ช่วยเอาที่คีบอันใหม่มาให้หน่อย"
+      "th": "ช่วยเอาที่คีบอันใหม่มาให้หน่อย",
+      "rom": "chuai ao thi khip an aim ma hai noi"
     },
     {
       "en": "Is the meat cooked through?",
-      "th": "เนื้อสุกดีแล้วใช่ไหม"
+      "th": "เนื้อสุกดีแล้วใช่ไหม",
+      "rom": "nuea suk dilaeo chaimai"
     },
     {
       "en": "The soup is too spicy.",
-      "th": "น้ำซุปเผ็ดเกินไป"
+      "th": "น้ำซุปเผ็ดเกินไป",
+      "rom": "nam sup phet koenpai"
     },
     {
       "en": "Do I have to pay for leftovers?",
-      "th": "ต้องจ่ายค่าอาหารที่เหลือไหม"
+      "th": "ต้องจ่ายค่าอาหารที่เหลือไหม",
+      "rom": "tong chai kha ahan thi elue mai"
     },
     {
       "en": "Please bring the bill.",
-      "th": "ขอเช็กบิลด้วย"
+      "th": "ขอเช็กบิลด้วย",
+      "rom": "kho chekbin duai"
     }
   ]
 }

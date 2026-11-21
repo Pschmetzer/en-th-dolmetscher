@@ -40,25 +40,30 @@
     {
       "en": "It is fragile. Please handle with care.",
       "th": "ของแตกง่าย ช่วยระวังด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "khong taek ngai chuai rawang duai"
     },
     {
       "en": "There is a battery inside.",
       "th": "มีแบตเตอรี่อยู่ข้างใน",
-      "critical": true
+      "critical": true,
+      "rom": "mi baettoeri yu khangnai"
     },
     {
       "en": "There is no liquid inside.",
       "th": "ไม่มีของเหลวข้างใน",
-      "critical": true
+      "critical": true,
+      "rom": "mai mi khonghen khangnai"
     },
     {
       "en": "I need to send a parcel.",
-      "th": "ต้องการส่งพัสดุ"
+      "th": "ต้องการส่งพัสดุ",
+      "rom": "tongkan song phatdu"
     },
     {
       "en": "I would like to send this to Germany.",
-      "th": "ต้องการส่งไปเยอรมนี"
+      "th": "ต้องการส่งไปเยอรมนี",
+      "rom": "tongkan song pai yoenmni"
     },
     {
       "en": "How much is it by air?",
@@ -66,35 +71,43 @@
     },
     {
       "en": "How much is it by sea?",
-      "th": "ส่งทางเรือราคาเท่าไร"
+      "th": "ส่งทางเรือราคาเท่าไร",
+      "rom": "song thangruea rakha thaorai"
     },
     {
       "en": "How long will it take?",
-      "th": "ใช้เวลานานเท่าไหร่"
+      "th": "ใช้เวลานานเท่าไหร่",
+      "rom": "chaiwelanan thaorai"
     },
     {
       "en": "Could you pack it for me?",
-      "th": "ช่วยห่อให้หน่อยได้ไหม"
+      "th": "ช่วยห่อให้หน่อยได้ไหม",
+      "rom": "chuai ho hai noi dai mai"
     },
     {
       "en": "Do you have a box?",
-      "th": "มีกล่องไหม"
+      "th": "มีกล่องไหม",
+      "rom": "mi klong mai"
     },
     {
       "en": "Which form do I fill in?",
-      "th": "ต้องกรอกแบบฟอร์มไหน"
+      "th": "ต้องกรอกแบบฟอร์มไหน",
+      "rom": "tong krok baepfom nai"
     },
     {
       "en": "Could you help me with the form?",
-      "th": "ช่วยกรอกแบบฟอร์มให้หน่อยได้ไหม"
+      "th": "ช่วยกรอกแบบฟอร์มให้หน่อยได้ไหม",
+      "rom": "chuai krok baepfom hai noi dai mai"
     },
     {
       "en": "Could I have a tracking number?",
-      "th": "ขอเลขพัสดุหน่อย"
+      "th": "ขอเลขพัสดุหน่อย",
+      "rom": "kho lek phatdu noi"
     },
     {
       "en": "Can I insure it?",
-      "th": "ทำประกันพัสดุได้ไหม"
+      "th": "ทำประกันพัสดุได้ไหม",
+      "rom": "tham prakan phatdu dai mai"
     },
     {
       "en": "Could I have a receipt?",
@@ -102,15 +115,18 @@
     },
     {
       "en": "I would like to buy stamps.",
-      "th": "ต้องการซื้อแสตมป์"
+      "th": "ต้องการซื้อแสตมป์",
+      "rom": "tongkan sue saetm"
     },
     {
       "en": "Where is the nearest post office?",
-      "th": "ที่ทำการไปรษณีย์ใกล้ที่สุดอยู่ที่ไหน"
+      "th": "ที่ทำการไปรษณีย์ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "thithamkanpraitni kain thisut yu thinai"
     },
     {
       "en": "Is there a parcel for me?",
-      "th": "มีพัสดุที่ส่งมาให้ไหม"
+      "th": "มีพัสดุที่ส่งมาให้ไหม",
+      "rom": "mi phatdu thi song ma hai mai"
     }
   ]
 }

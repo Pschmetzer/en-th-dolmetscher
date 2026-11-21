@@ -40,68 +40,84 @@
     {
       "en": "I have trouble breathing when I walk.",
       "th": "เดินแล้วหายใจลำบาก",
-      "critical": true
+      "critical": true,
+      "rom": "doen laeo aichai lambak"
     },
     {
       "en": "I have chest pain when I walk.",
       "th": "เดินแล้วเจ็บหน้าอก",
-      "critical": true
+      "critical": true,
+      "rom": "doen laeo chep nak"
     },
     {
       "en": "The pain started two days ago.",
-      "th": "เริ่มปวดมาสองวันแล้ว"
+      "th": "เริ่มปวดมาสองวันแล้ว",
+      "rom": "roem puat ma song wan laeo"
     },
     {
       "en": "The pain is sharp.",
-      "th": "ปวดแปลบ"
+      "th": "ปวดแปลบ",
+      "rom": "puatpaenp"
     },
     {
       "en": "The pain is dull and constant.",
-      "th": "ปวดตื้อตลอดเวลา"
+      "th": "ปวดตื้อตลอดเวลา",
+      "rom": "puat tue tlotwela"
     },
     {
       "en": "The pain comes and goes.",
-      "th": "ปวดเป็นพัก ๆ"
+      "th": "ปวดเป็นพัก ๆ",
+      "rom": "puat penphak"
     },
     {
       "en": "It hurts more when I move.",
-      "th": "ขยับแล้วปวดมากขึ้น"
+      "th": "ขยับแล้วปวดมากขึ้น",
+      "rom": "khayap laeo puat makkhuen"
     },
     {
       "en": "The pain is seven out of ten.",
-      "th": "ปวดระดับเจ็ดจากสิบ"
+      "th": "ปวดระดับเจ็ดจากสิบ",
+      "rom": "puat radap chet chak sip"
     },
     {
       "en": "I have had a fever since yesterday.",
-      "th": "มีไข้ตั้งแต่เมื่อวาน"
+      "th": "มีไข้ตั้งแต่เมื่อวาน",
+      "rom": "mikhai tangtae mueawan"
     },
     {
       "en": "I have vomited three times today.",
-      "th": "วันนี้อาเจียนสามครั้ง"
+      "th": "วันนี้อาเจียนสามครั้ง",
+      "rom": "wanni achian sam khrang"
     },
     {
       "en": "I have had diarrhoea for two days.",
-      "th": "ท้องเสียมาสองวันแล้ว"
+      "th": "ท้องเสียมาสองวันแล้ว",
+      "rom": "thongsia ma song wan laeo"
     },
     {
       "en": "I cannot keep food or water down.",
-      "th": "กินอาหารหรือดื่มน้ำแล้วอาเจียนออกหมด"
+      "th": "กินอาหารหรือดื่มน้ำแล้วอาเจียนออกหมด",
+      "rom": "kin ahan rue duem nam laeo achian ok mot"
     },
     {
       "en": "I feel dizzy when I stand up.",
-      "th": "ลุกขึ้นยืนแล้วเวียนหัว"
+      "th": "ลุกขึ้นยืนแล้วเวียนหัว",
+      "rom": "lukkhuen yuen laeo wianhua"
     },
     {
       "en": "I have a rash that is spreading.",
-      "th": "ผื่นกำลังลามออกไป"
+      "th": "ผื่นกำลังลามออกไป",
+      "rom": "phuen kamlang lam ok pai"
     },
     {
       "en": "I take regular medicine. I will show the box.",
-      "th": "กินยาประจำอยู่ จะแสดงกล่องยาให้ดู"
+      "th": "กินยาประจำอยู่ จะแสดงกล่องยาให้ดู",
+      "rom": "kin ya pracham yu cha saetng klong ya hai du"
     },
     {
       "en": "I will point to where it hurts.",
-      "th": "จะชี้ตำแหน่งที่ปวดให้ดู"
+      "th": "จะชี้ตำแหน่งที่ปวดให้ดู",
+      "rom": "cha chi tamhaenng thi puat hai du"
     }
   ],
   "note": {

@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Vor dem Ausflug Rettungswesten, Treffpunkt und Rückfahrzeit klären. Bei Wellengang und nach Alkohol nicht ins Wasser. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Before the trip check life jackets, meeting point and return time. Stay out of the water in rough seas or after alcohol. Thai lines machine-made, not checked by native speakers."
+    "de": "Vor dem Ausflug Rettungswesten, Treffpunkt und Rückfahrzeit klären. Bei Wellengang und nach Alkohol nicht ins Wasser. Siehe auch: Strand, Fähre und Boot. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Before the trip check life jackets, meeting point and return time. Stay out of the water in rough seas or after alcohol. See also: Beach, Ferry and boat. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -36,73 +36,90 @@
     {
       "en": "I cannot swim.",
       "th": "ว่ายน้ำไม่เป็น",
-      "critical": true
+      "critical": true,
+      "rom": "wainam mai pen"
     },
     {
       "en": "I need medical help.",
       "th": "ต้องการความช่วยเหลือทางการแพทย์",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan khwamchuaihelue thangkanphaet"
     },
     {
       "en": "Could I have a life jacket, please?",
       "th": "ขอเสื้อชูชีพหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "kho suea chuchip noi"
     },
     {
       "en": "I get seasick.",
-      "th": "เมาเรือ"
+      "th": "เมาเรือ",
+      "rom": "maoruea"
     },
     {
       "en": "Where is the meeting point?",
-      "th": "จุดนัดพบอยู่ที่ไหน"
+      "th": "จุดนัดพบอยู่ที่ไหน",
+      "rom": "chutnatpp yu thinai"
     },
     {
       "en": "What time does the boat leave?",
-      "th": "เรือออกกี่โมง"
+      "th": "เรือออกกี่โมง",
+      "rom": "ruea ok ki mong"
     },
     {
       "en": "What time is the last boat back?",
-      "th": "เรือเที่ยวสุดท้ายกลับกี่โมง"
+      "th": "เรือเที่ยวสุดท้ายกลับกี่โมง",
+      "rom": "ruea thiao sutthai klap ki mong"
     },
     {
       "en": "How long is the trip?",
-      "th": "ทริปนี้ใช้เวลานานเท่าไร"
+      "th": "ทริปนี้ใช้เวลานานเท่าไร",
+      "rom": "thrip ni chaiwelanan thaorai"
     },
     {
       "en": "Is the sea calm today?",
-      "th": "วันนี้ทะเลสงบไหม"
+      "th": "วันนี้ทะเลสงบไหม",
+      "rom": "wanni thale sangop mai"
     },
     {
       "en": "Is lunch included in the price?",
-      "th": "ราคานี้รวมอาหารกลางวันไหม"
+      "th": "ราคานี้รวมอาหารกลางวันไหม",
+      "rom": "rakha ni ruam ahanklangwan mai"
     },
     {
       "en": "Is the snorkel gear included?",
-      "th": "รวมอุปกรณ์ดำน้ำตื้นไหม"
+      "th": "รวมอุปกรณ์ดำน้ำตื้นไหม",
+      "rom": "ruam upkn damnam tuen mai"
     },
     {
       "en": "I have not dived for a long time.",
-      "th": "ไม่ได้ดำน้ำมานานแล้ว"
+      "th": "ไม่ได้ดำน้ำมานานแล้ว",
+      "rom": "mai dai damnam ma nan laeo"
     },
     {
       "en": "Is it safe to swim here?",
-      "th": "ว่ายน้ำตรงนี้ปลอดภัยไหม"
+      "th": "ว่ายน้ำตรงนี้ปลอดภัยไหม",
+      "rom": "wainam trangani plotphai mai"
     },
     {
       "en": "Are there jellyfish?",
-      "th": "มีแมงกะพรุนไหม"
+      "th": "มีแมงกะพรุนไหม",
+      "rom": "mi maengkaprun mai"
     },
     {
       "en": "Please do not go too fast.",
-      "th": "ช่วยอย่าขับเร็วเกินไป"
+      "th": "ช่วยอย่าขับเร็วเกินไป",
+      "rom": "chuai ya khap reo koenpai"
     },
     {
       "en": "Can I get a refund if the trip is cancelled?",
-      "th": "ถ้ายกเลิกทริปขอคืนเงินได้ไหม"
+      "th": "ถ้ายกเลิกทริปขอคืนเงินได้ไหม",
+      "rom": "tha yakloek thrip kho khuen ngoendai mai"
     },
     {
       "en": "Where can I rent a snorkel?",
-      "th": "เช่าอุปกรณ์ดำน้ำได้ที่ไหน"
+      "th": "เช่าอุปกรณ์ดำน้ำได้ที่ไหน",
+      "rom": "chao upkn damnam dai thinai"
     }
   ]
 }

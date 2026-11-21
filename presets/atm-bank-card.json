@@ -36,7 +36,8 @@
     {
       "en": "The ATM kept my card.",
       "th": "ตู้เอทีเอ็มกลืนบัตร",
-      "critical": true
+      "critical": true,
+      "rom": "tuethiem kluen batn"
     },
     {
       "en": "Please block my card now.",
@@ -46,12 +47,14 @@
     {
       "en": "The money did not come out, but my account was charged.",
       "th": "เงินไม่ออกมา แต่ถูกตัดเงินในบัญชีแล้ว",
-      "critical": true
+      "critical": true,
+      "rom": "ngoen mai okma tae thuk tat ngoen nai banchi laeo"
     },
     {
       "en": "Someone is watching me at the ATM.",
       "th": "มีคนจ้องมองตอนกดเงินที่ตู้",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon chongmong ton kot ngoen thi tu"
     },
     {
       "en": "My card was stolen. Please block it.",
@@ -60,35 +63,43 @@
     },
     {
       "en": "Can you call the bank hotline for me?",
-      "th": "ช่วยโทรหาสายด่วนธนาคารให้หน่อย"
+      "th": "ช่วยโทรหาสายด่วนธนาคารให้หน่อย",
+      "rom": "chuai thon ha saiduan thanakhan hai noi"
     },
     {
       "en": "Which bank does this ATM belong to?",
-      "th": "ตู้นี้เป็นของธนาคารอะไร"
+      "th": "ตู้นี้เป็นของธนาคารอะไร",
+      "rom": "tu ni pen khong thanakhan arai"
     },
     {
       "en": "What is the daily withdrawal limit?",
-      "th": "วงเงินถอนต่อวันเท่าไหร่"
+      "th": "วงเงินถอนต่อวันเท่าไหร่",
+      "rom": "wangangoen thon to wan thaorai"
     },
     {
       "en": "What is the limit per withdrawal?",
-      "th": "วงเงินถอนต่อครั้งเท่าไหร่"
+      "th": "วงเงินถอนต่อครั้งเท่าไหร่",
+      "rom": "wangangoen thon to khrang thaorai"
     },
     {
       "en": "Can you raise my limit?",
-      "th": "ช่วยเพิ่มวงเงินให้ได้ไหม"
+      "th": "ช่วยเพิ่มวงเงินให้ได้ไหม",
+      "rom": "chuai phoem wangangoen aidai mai"
     },
     {
       "en": "The screen says the limit was exceeded.",
-      "th": "หน้าจอแจ้งว่าเกินวงเงิน"
+      "th": "หน้าจอแจ้งว่าเกินวงเงิน",
+      "rom": "nacho chaeng wa koen wangangoen"
     },
     {
       "en": "Can I get my card back today?",
-      "th": "วันนี้รับบัตรคืนได้ไหม"
+      "th": "วันนี้รับบัตรคืนได้ไหม",
+      "rom": "wanni rap batn khuen dai mai"
     },
     {
       "en": "Where is the nearest branch?",
-      "th": "สาขาที่ใกล้ที่สุดอยู่ที่ไหน"
+      "th": "สาขาที่ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "sakha thi kain thisut yu thinai"
     },
     {
       "en": "I need a receipt for this problem.",
@@ -96,23 +107,27 @@
     },
     {
       "en": "Please do not convert the amount into my currency.",
-      "th": "ไม่ต้องแปลงสกุลเงิน คิดเป็นบาท"
+      "th": "ไม่ต้องแปลงสกุลเงิน คิดเป็นบาท",
+      "rom": "mataing paenng sakun ngoen khit pen bat"
     },
     {
       "en": "How much is the fee for this withdrawal?",
-      "th": "ค่าธรรมเนียมการถอนครั้งนี้เท่าไหร่"
+      "th": "ค่าธรรมเนียมการถอนครั้งนี้เท่าไหร่",
+      "rom": "khatamniam kan thon khrangni thaorai"
     },
     {
       "en": "Please check my account balance.",
-      "th": "ช่วยเช็คยอดเงินในบัญชีให้หน่อย"
+      "th": "ช่วยเช็คยอดเงินในบัญชีให้หน่อย",
+      "rom": "chuai chek yotngoen nai banchi hai noi"
     },
     {
       "en": "Can I use my passport as identification?",
-      "th": "ใช้พาสปอร์ตเป็นบัตรยืนยันตัวตนได้ไหม"
+      "th": "ใช้พาสปอร์ตเป็นบัตรยืนยันตัวตนได้ไหม",
+      "rom": "chai phatpot pen batn yuenyan tuatn dai mai"
     }
   ],
   "note": {
-    "de": "Bei verschluckter Karte nicht weggehen: die Bank-Hotline am Automaten anrufen, Karte per App sperren und mit Reisepass in die Filiale. Das Abhebelimit pro Vorgang liegt oft bei 20.000–30.000 Baht; Gebühr meist 220–250 Baht pro Abhebung. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "If the ATM keeps your card, do not walk away: call the bank hotline on the machine, freeze the card in your app and go to the branch with your passport. The limit per withdrawal is often 20,000-30,000 baht, with a fee of usually 220-250 baht. Thai lines machine-made, not checked by native speakers."
+    "de": "Bei verschluckter Karte nicht weggehen: die Bank-Hotline am Automaten anrufen, Karte per App sperren und mit Reisepass in die Filiale. Das Abhebelimit pro Vorgang liegt oft bei 20.000–30.000 Baht; Gebühr meist 220–250 Baht pro Abhebung. Siehe auch: Bank / Geldautomat. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "If the ATM keeps your card, do not walk away: call the bank hotline on the machine, freeze the card in your app and go to the branch with your passport. The limit per withdrawal is often 20,000-30,000 baht, with a fee of usually 220-250 baht. See also: Bank / ATM. Thai lines machine-made, not checked by native speakers."
   }
 }

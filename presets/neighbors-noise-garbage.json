@@ -48,7 +48,8 @@
     {
       "en": "Someone is shouting and threatening us.",
       "th": "มีคนตะโกนและขู่เรา",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon takon lae khu rao"
     },
     {
       "en": "Please call the police, there is a fight.",
@@ -58,30 +59,36 @@
     {
       "en": "There is a fire in the neighbour's house.",
       "th": "บ้านเพื่อนบ้านไฟไหม้",
-      "critical": true
+      "critical": true,
+      "rom": "ban phueanban faimai"
     },
     {
       "en": "A dog is attacking people.",
       "th": "สุนัขกำลังทำร้ายคน",
-      "critical": true
+      "critical": true,
+      "rom": "sunak kamlang thamrai khon"
     },
     {
       "en": "I smell gas from the next flat.",
       "th": "ได้กลิ่นแก๊สจากห้องข้างๆ",
-      "critical": true
+      "critical": true,
+      "rom": "dakailin kaet chak ong khang"
     },
     {
       "en": "I am afraid and need help.",
       "th": "กลัวและต้องการความช่วยเหลือ",
-      "critical": true
+      "critical": true,
+      "rom": "klua lae tongkan khwamchuaihelue"
     },
     {
       "en": "Excuse me, the music is very loud.",
-      "th": "ขอโทษ เสียงเพลงดังมาก"
+      "th": "ขอโทษ เสียงเพลงดังมาก",
+      "rom": "khothot siangphenng dang mak"
     },
     {
       "en": "Please turn the music down a little.",
-      "th": "ช่วยลดเสียงเพลงลงหน่อย"
+      "th": "ช่วยลดเสียงเพลงลงหน่อย",
+      "rom": "chuai lot siangphenng long noi"
     },
     {
       "en": "I cannot sleep because of the noise.",
@@ -89,47 +96,58 @@
     },
     {
       "en": "Could you stop the party at midnight?",
-      "th": "เลิกงานเลี้ยงตอนเที่ยงคืนได้ไหม"
+      "th": "เลิกงานเลี้ยงตอนเที่ยงคืนได้ไหม",
+      "rom": "loek nganliang ton thiangkhuen dai mai"
     },
     {
       "en": "Please do not leave your rubbish in the hall.",
-      "th": "ขออย่าวางขยะไว้ในทางเดิน"
+      "th": "ขออย่าวางขยะไว้ในทางเดิน",
+      "rom": "kho ya wang khaya wai nai thangdoen"
     },
     {
       "en": "The rubbish smells, please close the bag.",
-      "th": "ขยะมีกลิ่น ช่วยปิดถุงให้แน่นหน่อย"
+      "th": "ขยะมีกลิ่น ช่วยปิดถุงให้แน่นหน่อย",
+      "rom": "khaya mi klin chuai pit thung hai naen noi"
     },
     {
       "en": "Please keep your dog on a lead.",
-      "th": "ช่วยผูกสายจูงสุนัขหน่อย"
+      "th": "ช่วยผูกสายจูงสุนัขหน่อย",
+      "rom": "chuai phuk sai chung sunak noi"
     },
     {
       "en": "The dog barks all night.",
-      "th": "สุนัขเห่าทั้งคืน"
+      "th": "สุนัขเห่าทั้งคืน",
+      "rom": "sunak hao thangkhuen"
     },
     {
       "en": "Could we talk about this calmly?",
-      "th": "คุยเรื่องนี้กันอย่างใจเย็นได้ไหม"
+      "th": "คุยเรื่องนี้กันอย่างใจเย็นได้ไหม",
+      "rom": "khui rueang ni kan yang chaiyen dai mai"
     },
     {
       "en": "I would like to speak to the landlord.",
-      "th": "ต้องการคุยกับเจ้าของบ้าน"
+      "th": "ต้องการคุยกับเจ้าของบ้าน",
+      "rom": "tong kankhui kap chaokhongban"
     },
     {
       "en": "Please tell the management about the noise.",
-      "th": "ช่วยแจ้งนิติบุคคลเรื่องเสียงดังหน่อย"
+      "th": "ช่วยแจ้งนิติบุคคลเรื่องเสียงดังหน่อย",
+      "rom": "chuai chaeng nitibukkn rueang siangdang noi"
     },
     {
       "en": "When is the rubbish collected?",
-      "th": "เก็บขยะวันไหน"
+      "th": "เก็บขยะวันไหน",
+      "rom": "kep khaya wan nai"
     },
     {
       "en": "Where can I put old furniture?",
-      "th": "ทิ้งเฟอร์นิเจอร์เก่าได้ที่ไหน"
+      "th": "ทิ้งเฟอร์นิเจอร์เก่าได้ที่ไหน",
+      "rom": "thing foenichoe kao dai thinai"
     },
     {
       "en": "Thank you for understanding.",
-      "th": "ขอบคุณที่เข้าใจ"
+      "th": "ขอบคุณที่เข้าใจ",
+      "rom": "khopkhun thi khaochai"
     },
     {
       "en": "I am sorry for the trouble.",

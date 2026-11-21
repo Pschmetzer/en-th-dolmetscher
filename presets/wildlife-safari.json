@@ -48,36 +48,43 @@
     {
       "en": "An elephant is very close, please stay back.",
       "th": "ช้างอยู่ใกล้มาก ช่วยถอยหลังหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chang yu kain mak chuai thoilang noi"
     },
     {
       "en": "A monkey bit me, I need a doctor.",
       "th": "ลิงกัด ต้องการพบแพทย์",
-      "critical": true
+      "critical": true,
+      "rom": "ling kat tongkan phop phaet"
     },
     {
       "en": "A snake is in front of us.",
       "th": "มีงูอยู่ข้างหน้าเรา",
-      "critical": true
+      "critical": true,
+      "rom": "mi ngu yu khangna rao"
     },
     {
       "en": "Please call the ranger, an animal is hurt.",
       "th": "ช่วยเรียกเจ้าหน้าที่ป่าไม้หน่อย มีสัตว์บาดเจ็บ",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak chaonathi pamai noi mi sat batchep"
     },
     {
       "en": "We have lost the group in the forest.",
       "th": "พวกเราพลัดหลงกับกลุ่มในป่า",
-      "critical": true
+      "critical": true,
+      "rom": "phuakrao phlat long kap klum nai pa"
     },
     {
       "en": "A child is missing near the animals.",
       "th": "เด็กหายไปใกล้สัตว์",
-      "critical": true
+      "critical": true,
+      "rom": "dek hai pai kain sat"
     },
     {
       "en": "Which animals can we see here?",
-      "th": "ที่นี่ดูสัตว์อะไรได้บ้าง"
+      "th": "ที่นี่ดูสัตว์อะไรได้บ้าง",
+      "rom": "thini du sat arai dai bang"
     },
     {
       "en": "What is the best time for animal watching?",
@@ -85,19 +92,23 @@
     },
     {
       "en": "Is a ranger included in the tour?",
-      "th": "ทัวร์นี้รวมเจ้าหน้าที่นำทางไหม"
+      "th": "ทัวร์นี้รวมเจ้าหน้าที่นำทางไหม",
+      "rom": "thua ni ruam chaonathi namthang mai"
     },
     {
       "en": "How close may I go to the animals?",
-      "th": "เข้าใกล้สัตว์ได้แค่ไหน"
+      "th": "เข้าใกล้สัตว์ได้แค่ไหน",
+      "rom": "khaokain sat dai khae nai"
     },
     {
       "en": "May I feed the monkeys?",
-      "th": "ให้อาหารลิงได้ไหม"
+      "th": "ให้อาหารลิงได้ไหม",
+      "rom": "aiahan ling dai mai"
     },
     {
       "en": "Please tell me when to be quiet.",
-      "th": "ช่วยบอกหน่อยเมื่อต้องเงียบ"
+      "th": "ช่วยบอกหน่อยเมื่อต้องเงียบ",
+      "rom": "chuai bok noi muea tong ngiap"
     },
     {
       "en": "Can I borrow binoculars?",
@@ -105,35 +116,43 @@
     },
     {
       "en": "Is flash photography allowed?",
-      "th": "ใช้แฟลชถ่ายรูปได้ไหม"
+      "th": "ใช้แฟลชถ่ายรูปได้ไหม",
+      "rom": "chai faent thairup dai mai"
     },
     {
       "en": "Do you have leech socks for sale?",
-      "th": "มีถุงเท้ากันทากขายไหม"
+      "th": "มีถุงเท้ากันทากขายไหม",
+      "rom": "mi thungthao kan thak khai mai"
     },
     {
       "en": "Is the night safari safe for children?",
-      "th": "ซาฟารีกลางคืนปลอดภัยสำหรับเด็กไหม"
+      "th": "ซาฟารีกลางคืนปลอดภัยสำหรับเด็กไหม",
+      "rom": "safari klangkhuen plotphai samrap dek mai"
     },
     {
       "en": "Where does the tour start?",
-      "th": "ทัวร์เริ่มที่ไหน"
+      "th": "ทัวร์เริ่มที่ไหน",
+      "rom": "thua roem thinai"
     },
     {
       "en": "How long does the tour take?",
-      "th": "ทัวร์ใช้เวลานานเท่าไร"
+      "th": "ทัวร์ใช้เวลานานเท่าไร",
+      "rom": "thua chaiwelanan thaorai"
     },
     {
       "en": "Please keep your voice down.",
-      "th": "ช่วยเบาเสียงหน่อย"
+      "th": "ช่วยเบาเสียงหน่อย",
+      "rom": "chuai bao siang noi"
     },
     {
       "en": "Where is the park information centre?",
-      "th": "ศูนย์ข้อมูลอุทยานอยู่ที่ไหน"
+      "th": "ศูนย์ข้อมูลอุทยานอยู่ที่ไหน",
+      "rom": "sun khomun utyan yu thinai"
     },
     {
       "en": "Thank you for showing us the animals.",
-      "th": "ขอบคุณที่พาดูสัตว์"
+      "th": "ขอบคุณที่พาดูสัตว์",
+      "rom": "khopkhun thi pha du sat"
     }
   ]
 }

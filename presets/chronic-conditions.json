@@ -56,67 +56,82 @@
     {
       "en": "I have diabetes and I need sugar now.",
       "th": "เป็นเบาหวาน ต้องการน้ำตาลทันที",
-      "critical": true
+      "critical": true,
+      "rom": "pen baowan tongkan namtan thanthi"
     },
     {
       "en": "I have asthma. I cannot breathe well.",
       "th": "เป็นหอบหืด หายใจไม่ค่อยออก",
-      "critical": true
+      "critical": true,
+      "rom": "pen ophuet aichai makhaioi ok"
     },
     {
       "en": "I have epilepsy.",
       "th": "เป็นโรคลมชัก",
-      "critical": true
+      "critical": true,
+      "rom": "penrok lom chak"
     },
     {
       "en": "I have a pacemaker.",
       "th": "ใช้เครื่องกระตุ้นหัวใจ",
-      "critical": true
+      "critical": true,
+      "rom": "chai kheruengkratun uachai"
     },
     {
       "en": "Please call an ambulance (1669).",
       "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak rathaphayaban duai 1669"
     },
     {
       "en": "I need insulin. It must be kept cold.",
-      "th": "ต้องใช้อินซูลิน ต้องเก็บให้เย็น"
+      "th": "ต้องใช้อินซูลิน ต้องเก็บให้เย็น",
+      "rom": "tong chai insulin tong kep hai yen"
     },
     {
       "en": "Do you have a refrigerator for my insulin?",
-      "th": "มีตู้เย็นสำหรับเก็บอินซูลินไหม"
+      "th": "มีตู้เย็นสำหรับเก็บอินซูลินไหม",
+      "rom": "mi tuyen samrap kep insulin mai"
     },
     {
       "en": "I take this medicine every day.",
-      "th": "กินยานี้ทุกวัน"
+      "th": "กินยานี้ทุกวัน",
+      "rom": "kin ya ni thukwan"
     },
     {
       "en": "This is my medication list.",
-      "th": "นี่คือรายการยาที่ใช้ประจำ"
+      "th": "นี่คือรายการยาที่ใช้ประจำ",
+      "rom": "ni khue raikan ya thi chai pracham"
     },
     {
       "en": "My blood type is on this card.",
-      "th": "หมู่เลือดอยู่บนบัตรนี้"
+      "th": "หมู่เลือดอยู่บนบัตรนี้",
+      "rom": "mu lueat yu bon batn ni"
     },
     {
       "en": "I lost my medicine. I need a replacement.",
-      "th": "ยาหาย ต้องการยาทดแทน"
+      "th": "ยาหาย ต้องการยาทดแทน",
+      "rom": "ya hai tongkan ya thadathaen"
     },
     {
       "en": "Do you have this medicine here?",
-      "th": "ที่นี่มียานี้ไหม"
+      "th": "ที่นี่มียานี้ไหม",
+      "rom": "thini mi ya ni mai"
     },
     {
       "en": "I need a medical letter for customs.",
-      "th": "ต้องการจดหมายแพทย์สำหรับศุลกากร"
+      "th": "ต้องการจดหมายแพทย์สำหรับศุลกากร",
+      "rom": "tongkan chadahamai phaet samrap sunkakn"
     },
     {
       "en": "I need new contact lenses.",
-      "th": "ต้องการคอนแทคเลนส์ใหม่"
+      "th": "ต้องการคอนแทคเลนส์ใหม่",
+      "rom": "tongkan khonthaeklen aim"
     },
     {
       "en": "I need a place to inject.",
-      "th": "ต้องการที่ฉีดยาที่เป็นส่วนตัว"
+      "th": "ต้องการที่ฉีดยาที่เป็นส่วนตัว",
+      "rom": "tongkan thi chitya thi pen suantua"
     }
   ]
 }

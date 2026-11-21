@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Notrufe in Thailand: 191 Polizei, 199 Feuerwehr, 1669 Rettungsdienst, 1155 Touristenpolizei (auch Englisch). Zuerst den Ort nennen, dann das Problem. Bei Verlust des Passes Anzeige bei der Polizei und Termin bei der Botschaft. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Emergency numbers in Thailand: 191 police, 199 fire, 1669 ambulance, 1155 Tourist Police (English spoken). Say the place first, then the problem. After a lost passport get a police report and contact your embassy. Thai lines machine-made, not checked by native speakers."
+    "de": "Notrufe in Thailand: 191 Polizei, 199 Feuerwehr, 1669 Rettungsdienst, 1155 Touristenpolizei (auch Englisch). Zuerst den Ort nennen, dann das Problem. Bei Verlust des Passes Anzeige bei der Polizei und Termin bei der Botschaft. Siehe auch: Krankenhaus, Polizei / Diebstahl. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Emergency numbers in Thailand: 191 police, 199 fire, 1669 ambulance, 1155 Tourist Police (English spoken). Say the place first, then the problem. After a lost passport get a police report and contact your embassy. See also: Hospital, Police / theft. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,76 +40,92 @@
     {
       "en": "Help me!",
       "th": "ช่วยด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuaiduai"
     },
     {
       "en": "Please call an ambulance.",
       "th": "ช่วยเรียกรถพยาบาลหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak rathaphayaban noi"
     },
     {
       "en": "There is a fire!",
       "th": "ไฟไหม้",
-      "critical": true
+      "critical": true,
+      "rom": "faimai"
     },
     {
       "en": "I think I was drugged.",
       "th": "คิดว่าโดนวางยา",
-      "critical": true
+      "critical": true,
+      "rom": "khit wa don wangya"
     },
     {
       "en": "Someone is following me.",
       "th": "มีคนตามมา",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon tamma"
     },
     {
       "en": "There has been an accident.",
       "th": "เกิดอุบัติเหตุ",
-      "critical": true
+      "critical": true,
+      "rom": "koet ubatihetu"
     },
     {
       "en": "I cannot breathe.",
       "th": "หายใจไม่ออก",
-      "critical": true
+      "critical": true,
+      "rom": "aichaimoaik"
     },
     {
       "en": "Where is the nearest hospital?",
       "th": "โรงพยาบาลที่ใกล้ที่สุดอยู่ที่ไหน",
-      "critical": true
+      "critical": true,
+      "rom": "rongpyaban thi kain thisut yu thinai"
     },
     {
       "en": "My passport was stolen.",
       "th": "พาสปอร์ตถูกขโมย",
-      "critical": true
+      "critical": true,
+      "rom": "phatpot thuk khamoi"
     },
     {
       "en": "My phone was stolen.",
       "th": "โทรศัพท์ถูกขโมย",
-      "critical": true
+      "critical": true,
+      "rom": "thonsap thuk khamoi"
     },
     {
       "en": "I lost my wallet.",
-      "th": "กระเป๋าสตางค์หาย"
+      "th": "กระเป๋าสตางค์หาย",
+      "rom": "krapaottang hai"
     },
     {
       "en": "I need a police report for my insurance.",
-      "th": "ต้องการใบแจ้งความเพื่อใช้กับประกัน"
+      "th": "ต้องการใบแจ้งความเพื่อใช้กับประกัน",
+      "rom": "tongkan baichaengkwam phuea chaikap prakan"
     },
     {
       "en": "Please call my embassy.",
-      "th": "ช่วยโทรหาสถานทูตหน่อย"
+      "th": "ช่วยโทรหาสถานทูตหน่อย",
+      "rom": "chuai thon ha sathanthut noi"
     },
     {
       "en": "I have travel insurance.",
-      "th": "มีประกันการเดินทาง"
+      "th": "มีประกันการเดินทาง",
+      "rom": "mi prakan kan doenthang"
     },
     {
       "en": "Is it safe here?",
-      "th": "ที่นี่ปลอดภัยไหม"
+      "th": "ที่นี่ปลอดภัยไหม",
+      "rom": "thini plotphai mai"
     },
     {
       "en": "Do you speak English?",
-      "th": "พูดภาษาอังกฤษได้ไหม"
+      "th": "พูดภาษาอังกฤษได้ไหม",
+      "rom": "phut phasaangkrit dai mai"
     },
     {
       "en": "Can I use your phone, please?",
@@ -117,7 +133,8 @@
     },
     {
       "en": "I need to call my family.",
-      "th": "ต้องโทรหาครอบครัว"
+      "th": "ต้องโทรหาครอบครัว",
+      "rom": "tong thon ha khropkrua"
     }
   ]
 }

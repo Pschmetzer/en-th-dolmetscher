@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Notrufe: Polizei 191, Rettung 1669, Touristenpolizei 1155 (Englisch). Den Wai-Gruß (Hände wie zum Gebet) mit einem kurzen Wai oder Lächeln erwidern. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Emergency: police 191, ambulance 1669, tourist police 1155 (English). Return a wai greeting with a short wai or a smile. Thai lines machine-made, not checked by native speakers."
+    "de": "Notrufe: Polizei 191, Rettung 1669, Touristenpolizei 1155 (Englisch). Den Wai-Gruß (Hände wie zum Gebet) mit einem kurzen Wai oder Lächeln erwidern. Siehe auch: Polizei / Diebstahl. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Emergency: police 191, ambulance 1669, tourist police 1155 (English). Return a wai greeting with a short wai or a smile. See also: Police / theft. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -52,79 +52,97 @@
     {
       "en": "Help!",
       "th": "ช่วยด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuaiduai"
     },
     {
       "en": "Please call the police.",
       "th": "ช่วยเรียกตำรวจด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak tamruat duai"
     },
     {
       "en": "Where is the nearest hospital?",
       "th": "โรงพยาบาลที่ใกล้ที่สุดอยู่ที่ไหน",
-      "critical": true
+      "critical": true,
+      "rom": "rongpyaban thi kain thisut yu thinai"
     },
     {
       "en": "Please call an ambulance (1669).",
       "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak rathaphayaban duai 1669"
     },
     {
       "en": "I lost my passport.",
       "th": "ทำพาสปอร์ตหาย",
-      "critical": true
+      "critical": true,
+      "rom": "tham phatpot hai"
     },
     {
       "en": "Excuse me, where is the toilet?",
-      "th": "ขอโทษ ห้องน้ำอยู่ที่ไหน"
+      "th": "ขอโทษ ห้องน้ำอยู่ที่ไหน",
+      "rom": "khothot ongnam yu thinai"
     },
     {
       "en": "How do I get to the airport?",
-      "th": "ไปสนามบินยังไงดี"
+      "th": "ไปสนามบินยังไงดี",
+      "rom": "pai sanambin yangngai di"
     },
     {
       "en": "How much is a ticket to Chiang Mai?",
-      "th": "ตั๋วไปเชียงใหม่ราคาเท่าไหร่"
+      "th": "ตั๋วไปเชียงใหม่ราคาเท่าไหร่",
+      "rom": "tua pai chianghaim rakha thaorai"
     },
     {
       "en": "Could you write that down for me, please?",
-      "th": "ช่วยเขียนให้ดูหน่อยได้ไหม"
+      "th": "ช่วยเขียนให้ดูหน่อยได้ไหม",
+      "rom": "chuai khian hai du noi dai mai"
     },
     {
       "en": "Do you speak English?",
-      "th": "พูดภาษาอังกฤษได้ไหม"
+      "th": "พูดภาษาอังกฤษได้ไหม",
+      "rom": "phut phasaangkrit dai mai"
     },
     {
       "en": "I am lost. Can you help me?",
-      "th": "หลงทาง ช่วยหน่อยได้ไหม"
+      "th": "หลงทาง ช่วยหน่อยได้ไหม",
+      "rom": "langathang chuai noi dai mai"
     },
     {
       "en": "Where can I change money?",
-      "th": "แลกเงินได้ที่ไหน"
+      "th": "แลกเงินได้ที่ไหน",
+      "rom": "laek ngoendai thinai"
     },
     {
       "en": "Thank you very much for your help.",
-      "th": "ขอบคุณมากสำหรับความช่วยเหลือ"
+      "th": "ขอบคุณมากสำหรับความช่วยเหลือ",
+      "rom": "khopkhun mak samrap khwamchuaihelue"
     },
     {
       "en": "My wallet was stolen.",
-      "th": "กระเป๋าสตางค์ถูกขโมย"
+      "th": "กระเป๋าสตางค์ถูกขโมย",
+      "rom": "krapaottang thuk khamoi"
     },
     {
       "en": "Where is the nearest BTS station?",
-      "th": "สถานีบีทีเอสที่ใกล้ที่สุดอยู่ที่ไหน"
+      "th": "สถานีบีทีเอสที่ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "sathani bithiet thi kain thisut yu thinai"
     },
     {
       "en": "Does this bus go to the city centre?",
-      "th": "รถเมล์คันนี้ไปตัวเมืองไหม"
+      "th": "รถเมล์คันนี้ไปตัวเมืองไหม",
+      "rom": "rathame khan ni pai tuamueang mai"
     },
     {
       "en": "Where can I buy a SIM card?",
-      "th": "ซื้อซิมการ์ดได้ที่ไหน"
+      "th": "ซื้อซิมการ์ดได้ที่ไหน",
+      "rom": "sue sim kat dai thinai"
     },
     {
       "en": "Please contact my embassy.",
-      "th": "ช่วยติดต่อสถานทูตให้หน่อย"
+      "th": "ช่วยติดต่อสถานทูตให้หน่อย",
+      "rom": "chuai titto sathanthut hai noi"
     }
   ]
 }

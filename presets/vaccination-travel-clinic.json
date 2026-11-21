@@ -40,39 +40,47 @@
     {
       "en": "I think an animal bit me. I need a rabies shot.",
       "th": "คิดว่าสัตว์กัด ต้องฉีดวัคซีนพิษสุนัขบ้า",
-      "critical": true
+      "critical": true,
+      "rom": "khit wa sat kat tong chitwaksin phitsunakba"
     },
     {
       "en": "I am allergic to eggs.",
       "th": "แพ้ไข่",
-      "critical": true
+      "critical": true,
+      "rom": "phae khai"
     },
     {
       "en": "I feel dizzy after the injection.",
       "th": "เวียนหัวหลังฉีดยา",
-      "critical": true
+      "critical": true,
+      "rom": "wianhua lang chitya"
     },
     {
       "en": "I have a swollen face after the injection.",
       "th": "หน้าบวมหลังฉีดยา",
-      "critical": true
+      "critical": true,
+      "rom": "na buam lang chitya"
     },
     {
       "en": "I cannot breathe well after the injection.",
       "th": "หายใจไม่สะดวกหลังฉีดยา",
-      "critical": true
+      "critical": true,
+      "rom": "aichai mai saduak lang chitya"
     },
     {
       "en": "I would like to get vaccinated before my trip.",
-      "th": "อยากฉีดวัคซีนก่อนเดินทาง"
+      "th": "อยากฉีดวัคซีนก่อนเดินทาง",
+      "rom": "yak chitwaksin kon doenthang"
     },
     {
       "en": "Which vaccines do you recommend for Thailand?",
-      "th": "แนะนำให้ฉีดวัคซีนอะไรบ้างสำหรับประเทศไทย"
+      "th": "แนะนำให้ฉีดวัคซีนอะไรบ้างสำหรับประเทศไทย",
+      "rom": "naenam hai chitwaksin arai bang samrap prathet thai"
     },
     {
       "en": "Do you offer a rabies vaccine?",
-      "th": "มีวัคซีนพิษสุนัขบ้าไหม"
+      "th": "มีวัคซีนพิษสุนัขบ้าไหม",
+      "rom": "mi waksin phitsunakba mai"
     },
     {
       "en": "Do you have the hepatitis A vaccine?",
@@ -80,55 +88,68 @@
     },
     {
       "en": "Do you have the typhoid vaccine?",
-      "th": "มีวัคซีนไทฟอยด์ไหม"
+      "th": "มีวัคซีนไทฟอยด์ไหม",
+      "rom": "mi waksin thafaioi mai"
     },
     {
       "en": "Do you have the Japanese encephalitis vaccine?",
-      "th": "มีวัคซีนไข้สมองอักเสบเจอีไหม"
+      "th": "มีวัคซีนไข้สมองอักเสบเจอีไหม",
+      "rom": "mi waksin khai samong aksep che i mai"
     },
     {
       "en": "I need a yellow fever certificate.",
-      "th": "ต้องการใบรับรองการฉีดวัคซีนไข้เหลือง"
+      "th": "ต้องการใบรับรองการฉีดวัคซีนไข้เหลือง",
+      "rom": "tongkan bairaprong kan chitwaksin khaihelueng"
     },
     {
       "en": "How many doses do I need?",
-      "th": "ต้องฉีดกี่เข็ม"
+      "th": "ต้องฉีดกี่เข็ม",
+      "rom": "tong chit ki khem"
     },
     {
       "en": "How long before my trip should I start?",
-      "th": "ควรเริ่มฉีดก่อนเดินทางนานเท่าไร"
+      "th": "ควรเริ่มฉีดก่อนเดินทางนานเท่าไร",
+      "rom": "khuan roem chit kon doenthang nan thaorai"
     },
     {
       "en": "Is it a single injection or a series?",
-      "th": "ฉีดเข็มเดียวหรือเป็นชุด"
+      "th": "ฉีดเข็มเดียวหรือเป็นชุด",
+      "rom": "chit khem diao rue pen chut"
     },
     {
       "en": "Can I get two vaccines on the same day?",
-      "th": "ฉีดวัคซีนสองชนิดในวันเดียวกันได้ไหม"
+      "th": "ฉีดวัคซีนสองชนิดในวันเดียวกันได้ไหม",
+      "rom": "chitwaksin song chanit nai wandiaokan dai mai"
     },
     {
       "en": "Are there side effects?",
-      "th": "มีผลข้างเคียงไหม"
+      "th": "มีผลข้างเคียงไหม",
+      "rom": "mi phlakhangkhiang mai"
     },
     {
       "en": "I am pregnant. Is this vaccine safe?",
-      "th": "ตั้งครรภ์อยู่ วัคซีนนี้ปลอดภัยไหม"
+      "th": "ตั้งครรภ์อยู่ วัคซีนนี้ปลอดภัยไหม",
+      "rom": "tangkan yu waksin ni plotphai mai"
     },
     {
       "en": "Please write it in my vaccination card.",
-      "th": "ช่วยบันทึกลงในสมุดวัคซีนหน่อย"
+      "th": "ช่วยบันทึกลงในสมุดวัคซีนหน่อย",
+      "rom": "chuai banthuek long nai samut waksin noi"
     },
     {
       "en": "Can I have an international certificate?",
-      "th": "ขอใบรับรองการฉีดวัคซีนระหว่างประเทศได้ไหม"
+      "th": "ขอใบรับรองการฉีดวัคซีนระหว่างประเทศได้ไหม",
+      "rom": "kho bairaprong kan chitwaksin rawangprathet dai mai"
     },
     {
       "en": "Do I need to make an appointment?",
-      "th": "ต้องนัดล่วงหน้าไหม"
+      "th": "ต้องนัดล่วงหน้าไหม",
+      "rom": "tong nat luangna mai"
     },
     {
       "en": "Can I get malaria tablets here?",
-      "th": "ซื้อยาป้องกันมาลาเรียที่นี่ได้ไหม"
+      "th": "ซื้อยาป้องกันมาลาเรียที่นี่ได้ไหม",
+      "rom": "sue ya pongkan malaria thini dai mai"
     }
   ]
 }

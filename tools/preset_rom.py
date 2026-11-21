@@ -49,10 +49,12 @@ def romanizer():
     except ImportError:
         sys.exit("pythainlp fehlt: pip install pythainlp (nur fuer --fill noetig)")
 
-    def rom(th):   # erst in Woerter zerlegen (ohne Zerlegung kommt Unsinn heraus), Reste mit Thai-Zeichen weglassen
+    def rom(th):   # erst in Woerter zerlegen (ohne Zerlegung kommt Unsinn heraus)
+        # bleibt ein Wort unumschrieben ([฀-๿] uebrig oder leer): keine Lautschrift statt einer lueckenhaften
         words = [romanize(w) for w in word_tokenize(th, keep_whitespace=False)]
-        text = " ".join(w for w in words if w and not re.search("[฀-๿]", w))
-        return " ".join(re.sub(r"[^A-Za-z0-9 ,.'\-]", "", text).split())
+        if not words or any(not w or re.search("[฀-๿]", w) for w in words):
+            return ""
+        return " ".join(re.sub(r"[^A-Za-z0-9 ,.'\-]", "", " ".join(words)).split())
     return rom
 
 

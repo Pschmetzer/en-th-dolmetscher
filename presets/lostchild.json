@@ -48,32 +48,38 @@
     {
       "en": "My child is missing. Please help me!",
       "th": "ลูกหายไป ช่วยด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "luk hai pai chuaiduai"
     },
     {
       "en": "Please call the police (191).",
       "th": "ช่วยโทรแจ้งตำรวจ 191 ด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai thon chaengtamruat 191 duai"
     },
     {
       "en": "Please make an announcement.",
       "th": "ช่วยประกาศตามหาเด็กให้หน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai prakat tamha dek hai noi"
     },
     {
       "en": "Please watch the exits.",
       "th": "ช่วยเฝ้าทางออกด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai fao thangok duai"
     },
     {
       "en": "Have you seen this child?",
       "th": "เห็นเด็กคนนี้ไหม",
-      "critical": true
+      "critical": true,
+      "rom": "en dek khon ni mai"
     },
     {
       "en": "The child's name is ___.",
       "th": "เด็กชื่อ ___",
-      "critical": true
+      "critical": true,
+      "rom": "dek chue"
     },
     {
       "en": "My child is ___ years old.",
@@ -83,42 +89,50 @@
     {
       "en": "It is a boy.",
       "th": "เป็นเด็กผู้ชาย",
-      "critical": true
+      "critical": true,
+      "rom": "pen dekphuchai"
     },
     {
       "en": "It is a girl.",
       "th": "เป็นเด็กผู้หญิง",
-      "critical": true
+      "critical": true,
+      "rom": "pen dekphuying"
     },
     {
       "en": "The child is wearing a ___ shirt.",
       "th": "เด็กใส่เสื้อสี ___",
-      "critical": true
+      "critical": true,
+      "rom": "dek sai suea si"
     },
     {
       "en": "I last saw my child here ___ minutes ago.",
       "th": "เห็นลูกครั้งสุดท้ายที่นี่ เมื่อ ___ นาทีที่แล้ว",
-      "critical": true
+      "critical": true,
+      "rom": "en luk khrangsutthai thini muea nathi thilaeo"
     },
     {
       "en": "The child does not speak Thai.",
       "th": "เด็กพูดภาษาไทยไม่ได้",
-      "critical": true
+      "critical": true,
+      "rom": "dek phut phasathai mai dai"
     },
     {
       "en": "My phone number is ___.",
       "th": "เบอร์โทรติดต่อ ___",
-      "critical": true
+      "critical": true,
+      "rom": "boe thon titto"
     },
     {
       "en": "I am lost. Please call my parents.",
       "th": "หนูหลงทาง ช่วยโทรหาพ่อแม่ให้หน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "nu langathang chuai thon ha phomae hai noi"
     },
     {
       "en": "My parents' phone number is ___.",
       "th": "เบอร์โทรพ่อแม่ ___",
-      "critical": true
+      "critical": true,
+      "rom": "boe thon phomae"
     },
     {
       "en": "Please take me to the police or a security guard.",
@@ -127,15 +141,18 @@
     },
     {
       "en": "We are staying at the ___ hotel.",
-      "th": "พักอยู่ที่โรงแรม ___"
+      "th": "พักอยู่ที่โรงแรม ___",
+      "rom": "phak yu thi rongraem"
     },
     {
       "en": "Thank you for your help.",
-      "th": "ขอบคุณมากที่ช่วย"
+      "th": "ขอบคุณมากที่ช่วย",
+      "rom": "khopkhun mak thi chuai"
     },
     {
       "en": "We found the child. Thank you!",
-      "th": "เจอเด็กแล้ว ขอบคุณมาก"
+      "th": "เจอเด็กแล้ว ขอบคุณมาก",
+      "rom": "choe dek laeo khopkhun mak"
     }
   ]
 }

@@ -40,35 +40,42 @@
     {
       "en": "I think my arm is broken.",
       "th": "คิดว่าแขนหัก",
-      "critical": true
+      "critical": true,
+      "rom": "khit wa khaen ak"
     },
     {
       "en": "I think my leg is broken.",
       "th": "คิดว่าขาหัก",
-      "critical": true
+      "critical": true,
+      "rom": "khit wa kha ak"
     },
     {
       "en": "I cannot move my ankle.",
       "th": "ขยับข้อเท้าไม่ได้",
-      "critical": true
+      "critical": true,
+      "rom": "khayap khothao mai dai"
     },
     {
       "en": "I fell and hit my head.",
       "th": "ล้มและศีรษะกระแทก",
-      "critical": true
+      "critical": true,
+      "rom": "lom lae sinsa krathaek"
     },
     {
       "en": "Please do not move me.",
       "th": "ขออย่าเคลื่อนย้ายตัว",
-      "critical": true
+      "critical": true,
+      "rom": "kho ya kheluenyai tua"
     },
     {
       "en": "I need an X-ray.",
-      "th": "ต้องเอกซเรย์"
+      "th": "ต้องเอกซเรย์",
+      "rom": "tong ektre"
     },
     {
       "en": "Where is the X-ray room?",
-      "th": "ห้องเอกซเรย์อยู่ที่ไหน"
+      "th": "ห้องเอกซเรย์อยู่ที่ไหน",
+      "rom": "ong ektre yu thinai"
     },
     {
       "en": "Is it a sprain or a fracture?",
@@ -76,31 +83,38 @@
     },
     {
       "en": "My ankle is swollen.",
-      "th": "ข้อเท้าบวม"
+      "th": "ข้อเท้าบวม",
+      "rom": "khothao buam"
     },
     {
       "en": "It hurts when I walk.",
-      "th": "เจ็บเวลาเดิน"
+      "th": "เจ็บเวลาเดิน",
+      "rom": "chep wela doen"
     },
     {
       "en": "It hurts when I press here.",
-      "th": "เจ็บเวลากดตรงนี้"
+      "th": "เจ็บเวลากดตรงนี้",
+      "rom": "chep wela kot trangani"
     },
     {
       "en": "I need a splint.",
-      "th": "ต้องใส่เฝือกอ่อน"
+      "th": "ต้องใส่เฝือกอ่อน",
+      "rom": "tong saifueak on"
     },
     {
       "en": "Do I need a cast?",
-      "th": "ต้องใส่เฝือกไหม"
+      "th": "ต้องใส่เฝือกไหม",
+      "rom": "tong saifueak mai"
     },
     {
       "en": "Can I have an elastic bandage?",
-      "th": "ขอผ้ายืดพันหน่อย"
+      "th": "ขอผ้ายืดพันหน่อย",
+      "rom": "kho pha yuet phan noi"
     },
     {
       "en": "Do I need crutches?",
-      "th": "ต้องใช้ไม้ค้ำยันไหม"
+      "th": "ต้องใช้ไม้ค้ำยันไหม",
+      "rom": "tong chai mai kham yan mai"
     },
     {
       "en": "Can I borrow crutches?",
@@ -108,27 +122,33 @@
     },
     {
       "en": "Do I need surgery?",
-      "th": "ต้องผ่าตัดไหม"
+      "th": "ต้องผ่าตัดไหม",
+      "rom": "tong phatat mai"
     },
     {
       "en": "Please give me something for the pain.",
-      "th": "ขอยาแก้ปวดหน่อย"
+      "th": "ขอยาแก้ปวดหน่อย",
+      "rom": "kho yakaepuat noi"
     },
     {
       "en": "Can I get the X-ray images on a disc?",
-      "th": "ขอไฟล์ภาพเอกซเรย์ใส่แผ่นได้ไหม"
+      "th": "ขอไฟล์ภาพเอกซเรย์ใส่แผ่นได้ไหม",
+      "rom": "kho fai phap ektre sai phaen dai mai"
     },
     {
       "en": "How long until it heals?",
-      "th": "ใช้เวลาหายนานเท่าไร"
+      "th": "ใช้เวลาหายนานเท่าไร",
+      "rom": "chaiwela hai nan thaorai"
     },
     {
       "en": "Can I fly with this injury?",
-      "th": "เดินทางด้วยเครื่องบินทั้งที่บาดเจ็บได้ไหม"
+      "th": "เดินทางด้วยเครื่องบินทั้งที่บาดเจ็บได้ไหม",
+      "rom": "doenthang duai kheruengbin thangthi batchep dai mai"
     },
     {
       "en": "Please give me a medical report for my insurance.",
-      "th": "ขอรายงานทางการแพทย์สำหรับประกัน"
+      "th": "ขอรายงานทางการแพทย์สำหรับประกัน",
+      "rom": "kho raingan thangkanphaet samrap prakan"
     }
   ]
 }

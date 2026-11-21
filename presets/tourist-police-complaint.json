@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Die Touristenpolizei (1155) spricht Englisch und ist rund um die Uhr erreichbar. Für die Anzeige Pass oder Kopie, Fotos, Belege und Zeugen mitbringen. Immer eine Kopie des Protokolls für die Versicherung verlangen und nichts unterschreiben, was Sie nicht lesen können. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "The tourist police (1155) speak English and are available around the clock. For a report bring your passport or a copy, photos, receipts and witnesses. Always ask for a copy of the report for your insurance and do not sign anything you cannot read. Thai lines machine-made, not checked by native speakers."
+    "de": "Die Touristenpolizei (1155) spricht Englisch und ist rund um die Uhr erreichbar. Für die Anzeige Pass oder Kopie, Fotos, Belege und Zeugen mitbringen. Immer eine Kopie des Protokolls für die Versicherung verlangen und nichts unterschreiben, was Sie nicht lesen können. Siehe auch: Reisepass verloren. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "The tourist police (1155) speak English and are available around the clock. For a report bring your passport or a copy, photos, receipts and witnesses. Always ask for a copy of the report for your insurance and do not sign anything you cannot read. See also: Lost passport. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,61 +40,74 @@
     {
       "en": "Please call the tourist police.",
       "th": "ช่วยโทรหาตำรวจท่องเที่ยวหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai thon ha tamruat thongthiao noi"
     },
     {
       "en": "I want to report a crime.",
       "th": "ต้องการแจ้งความ",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan chaengkwam"
     },
     {
       "en": "I was robbed.",
       "th": "ถูกปล้น",
-      "critical": true
+      "critical": true,
+      "rom": "thuk plon"
     },
     {
       "en": "My passport was stolen.",
       "th": "พาสปอร์ตถูกขโมย",
-      "critical": true
+      "critical": true,
+      "rom": "phatpot thuk khamoi"
     },
     {
       "en": "Someone attacked me.",
       "th": "ถูกทำร้ายร่างกาย",
-      "critical": true
+      "critical": true,
+      "rom": "thuk thamrairangkai"
     },
     {
       "en": "I need to report a scam.",
       "th": "ต้องการแจ้งความเรื่องถูกหลอกลวง",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan chaengkwam rueang thuk lokluang"
     },
     {
       "en": "I do not want to sign something I cannot read.",
       "th": "ไม่อยากเซ็นเอกสารที่อ่านไม่ออก",
-      "critical": true
+      "critical": true,
+      "rom": "mai yak sen eksan thi anmoaik"
     },
     {
       "en": "I would like to make a complaint about a business.",
-      "th": "ต้องการร้องเรียนร้านค้า"
+      "th": "ต้องการร้องเรียนร้านค้า",
+      "rom": "tong kaaongrian rankha"
     },
     {
       "en": "Is there an English-speaking officer?",
-      "th": "มีเจ้าหน้าที่ที่พูดภาษาอังกฤษไหม"
+      "th": "มีเจ้าหน้าที่ที่พูดภาษาอังกฤษไหม",
+      "rom": "mi chaonathi thi phut phasaangkrit mai"
     },
     {
       "en": "Where is the tourist police station?",
-      "th": "สถานีตำรวจท่องเที่ยวอยู่ที่ไหน"
+      "th": "สถานีตำรวจท่องเที่ยวอยู่ที่ไหน",
+      "rom": "sathanitamruat thongthiao yu thinai"
     },
     {
       "en": "I need a police report for my insurance.",
-      "th": "ต้องการใบแจ้งความเพื่อใช้กับประกัน"
+      "th": "ต้องการใบแจ้งความเพื่อใช้กับประกัน",
+      "rom": "tongkan baichaengkwam phuea chaikap prakan"
     },
     {
       "en": "Please write down the report number.",
-      "th": "ช่วยเขียนเลขที่ใบแจ้งความให้หน่อย"
+      "th": "ช่วยเขียนเลขที่ใบแจ้งความให้หน่อย",
+      "rom": "chuai khian lekthi baichaengkwam hai noi"
     },
     {
       "en": "May I have a copy of the report?",
-      "th": "ขอสำเนาใบแจ้งความได้ไหม"
+      "th": "ขอสำเนาใบแจ้งความได้ไหม",
+      "rom": "kho samnao baichaengkwam dai mai"
     },
     {
       "en": "I have photos and receipts as evidence.",
@@ -102,31 +115,38 @@
     },
     {
       "en": "There was a witness.",
-      "th": "มีพยานเห็นเหตุการณ์"
+      "th": "มีพยานเห็นเหตุการณ์",
+      "rom": "mi phayan en etukan"
     },
     {
       "en": "It happened this morning near the market.",
-      "th": "เกิดเหตุเมื่อเช้านี้ใกล้ตลาด"
+      "th": "เกิดเหตุเมื่อเช้านี้ใกล้ตลาด",
+      "rom": "koethetu mueachaoni kain tlat"
     },
     {
       "en": "The person wore a blue shirt.",
-      "th": "คนร้ายใส่เสื้อสีฟ้า"
+      "th": "คนร้ายใส่เสื้อสีฟ้า",
+      "rom": "khanrai sai suea si fa"
     },
     {
       "en": "Can I have a translator?",
-      "th": "ขอล่ามได้ไหม"
+      "th": "ขอล่ามได้ไหม",
+      "rom": "kho lam dai mai"
     },
     {
       "en": "Please do not make me pay to file a report.",
-      "th": "ขออย่าเรียกเก็บเงินค่าแจ้งความ"
+      "th": "ขออย่าเรียกเก็บเงินค่าแจ้งความ",
+      "rom": "kho ya riakkepngoen kha chaengkwam"
     },
     {
       "en": "What happens next?",
-      "th": "ขั้นตอนต่อไปคืออะไร"
+      "th": "ขั้นตอนต่อไปคืออะไร",
+      "rom": "khanton topai khue arai"
     },
     {
       "en": "Can I contact my embassy?",
-      "th": "ติดต่อสถานทูตได้ไหม"
+      "th": "ติดต่อสถานทูตได้ไหม",
+      "rom": "titto sathanthut dai mai"
     }
   ]
 }

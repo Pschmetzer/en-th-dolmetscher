@@ -1,0 +1,149 @@
+{
+  "id": "card-payment-surcharge",
+  "names": {
+    "de": "Kartenzahlung und Aufschlag",
+    "en": "Card payment and surcharge",
+    "th": "จ่ายบัตรและค่าธรรมเนียม"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Kleine Läden und Märkte nehmen oft nur Bargeld; manche berechnen 2 bis 3 Prozent Aufschlag für Karten. Vor dem Bezahlen nach der Gebühr fragen, die Währung am Terminal in Baht wählen (nicht in der Heimatwährung) und den Beleg behalten. Karte nie aus den Augen lassen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Small shops and markets often take cash only; some add 2 to 3 percent for cards. Ask about the fee before paying, choose baht (not your home currency) on the terminal and keep the receipt. Never let the card out of your sight. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "card",
+      "th": "บัตร"
+    },
+    {
+      "en": "credit card",
+      "th": "บัตรเครดิต"
+    },
+    {
+      "en": "surcharge",
+      "th": "ค่าธรรมเนียม"
+    },
+    {
+      "en": "cash",
+      "th": "เงินสด"
+    },
+    {
+      "en": "PIN",
+      "th": "รหัสพิน"
+    },
+    {
+      "en": "contactless",
+      "th": "แตะจ่าย"
+    },
+    {
+      "en": "terminal",
+      "th": "เครื่องรูดบัตร"
+    },
+    {
+      "en": "baht",
+      "th": "บาท"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    },
+    {
+      "en": "cancel",
+      "th": "ยกเลิก"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I did not agree to this charge.",
+      "th": "ไม่ได้ยอมรับค่าใช้จ่ายนี้",
+      "critical": true,
+      "rom": "mai dai yomrap khachaichai ni"
+    },
+    {
+      "en": "Please do not take my card out of my sight.",
+      "th": "ขออย่านำบัตรออกจากสายตา",
+      "critical": true,
+      "rom": "kho ya nam batn okchak saita"
+    },
+    {
+      "en": "The payment was charged twice.",
+      "th": "ตัดเงินสองครั้ง",
+      "critical": true,
+      "rom": "tat ngoen song khrang"
+    },
+    {
+      "en": "Do you accept cards?",
+      "th": "รับบัตรไหม",
+      "rom": "rap batn mai"
+    },
+    {
+      "en": "Is there a fee for paying by card?",
+      "th": "จ่ายด้วยบัตรมีค่าธรรมเนียมไหม",
+      "rom": "chai duai batn mi khatamniam mai"
+    },
+    {
+      "en": "How much is the fee?",
+      "th": "ค่าธรรมเนียมเท่าไหร่",
+      "rom": "khatamniam thaorai"
+    },
+    {
+      "en": "I will pay in cash.",
+      "th": "จ่ายเงินสด",
+      "rom": "chai ngoentt"
+    },
+    {
+      "en": "Please charge me in baht.",
+      "th": "ขอคิดเป็นเงินบาท",
+      "rom": "kho khit pen ngoenbat"
+    },
+    {
+      "en": "Can I pay by contactless?",
+      "th": "แตะจ่ายได้ไหม",
+      "rom": "tae chai dai mai"
+    },
+    {
+      "en": "Can I pay with my phone?",
+      "th": "จ่ายด้วยโทรศัพท์ได้ไหม",
+      "rom": "chai duai thonsap dai mai"
+    },
+    {
+      "en": "Please enter the amount again.",
+      "th": "ช่วยใส่จำนวนเงินอีกครั้งหน่อย",
+      "rom": "chuai sai chamnuan ngoen ikkrang noi"
+    },
+    {
+      "en": "The card was declined.",
+      "th": "บัตรถูกปฏิเสธ",
+      "rom": "batn thuk patiset"
+    },
+    {
+      "en": "Let me try another card.",
+      "th": "ขอลองบัตรใบอื่น",
+      "rom": "kho long batn bai uen"
+    },
+    {
+      "en": "Please cancel the payment.",
+      "th": "ช่วยยกเลิกการชำระเงินหน่อย",
+      "rom": "chuai yakloek kan chamrangoen noi"
+    },
+    {
+      "en": "Please give me the card slip.",
+      "th": "ขอสลิปบัตรด้วย",
+      "rom": "kho slip batn duai"
+    },
+    {
+      "en": "Where is the nearest ATM?",
+      "th": "ตู้เอทีเอ็มที่ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "tuethiem thi kain thisut yu thinai"
+    },
+    {
+      "en": "What is the minimum amount for cards?",
+      "th": "ยอดขั้นต่ำสำหรับจ่ายบัตรเท่าไร",
+      "rom": "yot khantam samrap chai batn thaorai"
+    },
+    {
+      "en": "Please give me a receipt.",
+      "th": "ขอใบเสร็จ"
+    }
+  ]
+}

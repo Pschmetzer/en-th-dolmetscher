@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Nach einem Unfall anhalten, Verletzte versorgen und die Polizei (191) sowie bei Verletzten den Rettungsdienst (1669) rufen. Fahrzeuge nicht bewegen, bevor Fotos gemacht wurden, außer sie blockieren die Straße. Bei Mietwagen sofort den Vermieter und die Versicherung anrufen. Nichts unterschreiben, was man nicht versteht, und nie ohne Polizeibericht Geld zahlen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "After an accident stop, help the injured and call the police (191) and, if anyone is hurt, the ambulance (1669). Do not move the vehicles before taking photos unless they block the road. With a rental car call the rental company and the insurer at once. Sign nothing you do not understand and never pay money without a police report. Thai lines machine-made, not checked by native speakers."
+    "de": "Nach einem Unfall anhalten, Verletzte versorgen und die Polizei (191) sowie bei Verletzten den Rettungsdienst (1669) rufen. Fahrzeuge nicht bewegen, bevor Fotos gemacht wurden, außer sie blockieren die Straße. Bei Mietwagen sofort den Vermieter und die Versicherung anrufen. Nichts unterschreiben, was man nicht versteht, und nie ohne Polizeibericht Geld zahlen. Siehe auch: Autoversicherung Schadensfall. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "After an accident stop, help the injured and call the police (191) and, if anyone is hurt, the ambulance (1669). Do not move the vehicles before taking photos unless they block the road. With a rental car call the rental company and the insurer at once. Sign nothing you do not understand and never pay money without a police report. See also: Car insurance claim. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -56,63 +56,77 @@
     {
       "en": "There has been an accident. Please call the police (191).",
       "th": "เกิดอุบัติเหตุ ช่วยเรียกตำรวจ (191)",
-      "critical": true
+      "critical": true,
+      "rom": "koet ubatihetu chuai riak tamruat 191"
     },
     {
       "en": "Please call an ambulance (1669).",
       "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak rathaphayaban duai 1669"
     },
     {
       "en": "Someone is injured.",
       "th": "มีคนบาดเจ็บ",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon batchep"
     },
     {
       "en": "Please do not move the injured person.",
       "th": "ช่วยอย่าเคลื่อนย้ายผู้บาดเจ็บ",
-      "critical": true
+      "critical": true,
+      "rom": "chuai ya kheluenyai phubatchep"
     },
     {
       "en": "Please call a tow truck.",
       "th": "ช่วยเรียกรถลากหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak rathlak noi"
     },
     {
       "en": "I will not sign anything I do not understand.",
-      "th": "จะไม่เซ็นเอกสารที่ไม่เข้าใจ"
+      "th": "จะไม่เซ็นเอกสารที่ไม่เข้าใจ",
+      "rom": "cha mai sen eksan thi mai khaochai"
     },
     {
       "en": "I need a police report for my insurance.",
-      "th": "ต้องการใบแจ้งความเพื่อใช้กับประกัน"
+      "th": "ต้องการใบแจ้งความเพื่อใช้กับประกัน",
+      "rom": "tongkan baichaengkwam phuea chaikap prakan"
     },
     {
       "en": "Please show me the other driver's insurance.",
-      "th": "ขอดูประกันของอีกฝ่าย"
+      "th": "ขอดูประกันของอีกฝ่าย",
+      "rom": "kho du prakan khong ik fai"
     },
     {
       "en": "Please write down your licence plate and phone number.",
-      "th": "ช่วยจดป้ายทะเบียนและเบอร์โทรศัพท์ด้วย"
+      "th": "ช่วยจดป้ายทะเบียนและเบอร์โทรศัพท์ด้วย",
+      "rom": "chuai chot pai thabian lae boethonsap duai"
     },
     {
       "en": "I will take photos of the cars.",
-      "th": "ขอถ่ายรูปรถทั้งสองคัน"
+      "th": "ขอถ่ายรูปรถทั้งสองคัน",
+      "rom": "kho thairup rot thangsong khan"
     },
     {
       "en": "Are there any witnesses?",
-      "th": "มีพยานไหม"
+      "th": "มีพยานไหม",
+      "rom": "mi phayan mai"
     },
     {
       "en": "I have to call the rental company.",
-      "th": "ต้องโทรหาบริษัทรถเช่า"
+      "th": "ต้องโทรหาบริษัทรถเช่า",
+      "rom": "tong thon ha brisat rathachao"
     },
     {
       "en": "The road is blocked. Please help me.",
-      "th": "ถนนถูกปิด ช่วยหน่อย"
+      "th": "ถนนถูกปิด ช่วยหน่อย",
+      "rom": "thanon thuk pit chuai noi"
     },
     {
       "en": "I will not pay anything before the police arrive.",
-      "th": "จะไม่จ่ายเงินก่อนตำรวจมา"
+      "th": "จะไม่จ่ายเงินก่อนตำรวจมา",
+      "rom": "cha mai chai ngoen kon tamruat ma"
     }
   ]
 }

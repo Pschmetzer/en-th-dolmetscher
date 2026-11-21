@@ -36,79 +36,97 @@
     {
       "en": "My dog is sick. I need a vet.",
       "th": "สุนัขป่วย ต้องการสัตวแพทย์",
-      "critical": true
+      "critical": true,
+      "rom": "sunak puai tongkan satphaet"
     },
     {
       "en": "I was bitten by a dog.",
       "th": "ถูกสุนัขกัด",
-      "critical": true
+      "critical": true,
+      "rom": "thuk sunak kat"
     },
     {
       "en": "I need a rabies injection.",
       "th": "ต้องฉีดวัคซีนพิษสุนัขบ้า",
-      "critical": true
+      "critical": true,
+      "rom": "tong chitwaksin phitsunakba"
     },
     {
       "en": "My pet is lost.",
       "th": "สัตว์เลี้ยงหาย",
-      "critical": true
+      "critical": true,
+      "rom": "satliang hai"
     },
     {
       "en": "My pet ate something bad. It is an emergency.",
       "th": "สัตว์เลี้ยงกินของไม่ดี เป็นเรื่องฉุกเฉิน",
-      "critical": true
+      "critical": true,
+      "rom": "satliang kin khong mai di pen rueangchukchoen"
     },
     {
       "en": "Are pets allowed here?",
-      "th": "สัตว์เลี้ยงเข้าได้ไหม"
+      "th": "สัตว์เลี้ยงเข้าได้ไหม",
+      "rom": "satliang khao dai mai"
     },
     {
       "en": "Is there an extra charge for the dog?",
-      "th": "คิดค่าธรรมเนียมสำหรับสุนัขเพิ่มไหม"
+      "th": "คิดค่าธรรมเนียมสำหรับสุนัขเพิ่มไหม",
+      "rom": "khit khatamniam samrap sunak phoem mai"
     },
     {
       "en": "Does the dog have to be on a leash?",
-      "th": "ต้องใช้สายจูงไหม"
+      "th": "ต้องใช้สายจูงไหม",
+      "rom": "tong chai sai chung mai"
     },
     {
       "en": "Where is the nearest vet?",
-      "th": "สัตวแพทย์ใกล้ที่สุดอยู่ที่ไหน"
+      "th": "สัตวแพทย์ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "satphaet kain thisut yu thinai"
     },
     {
       "en": "Is the clinic open today?",
-      "th": "คลินิกเปิดวันนี้ไหม"
+      "th": "คลินิกเปิดวันนี้ไหม",
+      "rom": "khlinik poet wanni mai"
     },
     {
       "en": "The dog needs a vaccination.",
-      "th": "สุนัขต้องฉีดวัคซีน"
+      "th": "สุนัขต้องฉีดวัคซีน",
+      "rom": "sunak tong chitwaksin"
     },
     {
       "en": "Here is the pet passport.",
-      "th": "นี่หนังสือเดินทางสัตว์เลี้ยง"
+      "th": "นี่หนังสือเดินทางสัตว์เลี้ยง",
+      "rom": "ni nangsuedoenthang satliang"
     },
     {
       "en": "Could you recommend pet food?",
-      "th": "ช่วยแนะนำอาหารสัตว์เลี้ยงหน่อยได้ไหม"
+      "th": "ช่วยแนะนำอาหารสัตว์เลี้ยงหน่อยได้ไหม",
+      "rom": "chuai naenam ahan satliang noi dai mai"
     },
     {
       "en": "Is there a dog park nearby?",
-      "th": "แถวนี้มีสวนสุนัขไหม"
+      "th": "แถวนี้มีสวนสุนัขไหม",
+      "rom": "thaeo ni mi suan sunak mai"
     },
     {
       "en": "Can the dog come on the ferry?",
-      "th": "สุนัขขึ้นเรือเฟอร์รี่ได้ไหม"
+      "th": "สุนัขขึ้นเรือเฟอร์รี่ได้ไหม",
+      "rom": "sunak khuen ruea foeri dai mai"
     },
     {
       "en": "Can the cat travel in the cabin?",
-      "th": "แมวเดินทางในห้องโดยสารได้ไหม"
+      "th": "แมวเดินทางในห้องโดยสารได้ไหม",
+      "rom": "maeo doen thangnai ong doisan dai mai"
     },
     {
       "en": "The dog is friendly.",
-      "th": "สุนัขเป็นมิตร"
+      "th": "สุนัขเป็นมิตร",
+      "rom": "sunak penmitn"
     },
     {
       "en": "Could I have a bowl of water for the dog?",
-      "th": "ขอชามน้ำให้สุนัขหน่อย"
+      "th": "ขอชามน้ำให้สุนัขหน่อย",
+      "rom": "kho cham nam hai sunak noi"
     }
   ],
   "note": {

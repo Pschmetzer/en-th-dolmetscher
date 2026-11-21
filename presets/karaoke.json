@@ -55,39 +55,48 @@
   "phrases": [
     {
       "en": "Is there a minimum spend?",
-      "th": "มีขั้นต่ำในการสั่งไหม"
+      "th": "มีขั้นต่ำในการสั่งไหม",
+      "rom": "mi khantam nai kan sang mai"
     },
     {
       "en": "How much is the room per hour?",
-      "th": "ห้องชั่วโมงละเท่าไร"
+      "th": "ห้องชั่วโมงละเท่าไร",
+      "rom": "ong chuamong la thaorai"
     },
     {
       "en": "Is there a service charge?",
-      "th": "มีค่าบริการไหม"
+      "th": "มีค่าบริการไหม",
+      "rom": "mi khaprikan mai"
     },
     {
       "en": "A room for four people, please.",
-      "th": "ขอห้องสำหรับสี่คน"
+      "th": "ขอห้องสำหรับสี่คน",
+      "rom": "kho ong samrap si khon"
     },
     {
       "en": "Do you have songs in English?",
-      "th": "มีเพลงภาษาอังกฤษไหม"
+      "th": "มีเพลงภาษาอังกฤษไหม",
+      "rom": "mi phenng phasaangkrit mai"
     },
     {
       "en": "Can I see the song list?",
-      "th": "ขอดูรายชื่อเพลงหน่อย"
+      "th": "ขอดูรายชื่อเพลงหน่อย",
+      "rom": "kho du raichue phenng noi"
     },
     {
       "en": "Please play this song.",
-      "th": "ช่วยเปิดเพลงนี้ด้วย"
+      "th": "ช่วยเปิดเพลงนี้ด้วย",
+      "rom": "chuai poet phenng ni duai"
     },
     {
       "en": "Could you turn the volume down a little?",
-      "th": "ช่วยลดเสียงลงหน่อยได้ไหม"
+      "th": "ช่วยลดเสียงลงหน่อยได้ไหม",
+      "rom": "chuai lot siang long noi dai mai"
     },
     {
       "en": "The microphone does not work.",
-      "th": "ไมโครโฟนใช้ไม่ได้"
+      "th": "ไมโครโฟนใช้ไม่ได้",
+      "rom": "maikhonfon chaimaidai"
     },
     {
       "en": "Could we have more ice, please?",
@@ -95,19 +104,23 @@
     },
     {
       "en": "A bottle of water, please.",
-      "th": "ขอน้ำเปล่าหนึ่งขวด"
+      "th": "ขอน้ำเปล่าหนึ่งขวด",
+      "rom": "kho nampela nueng khuat"
     },
     {
       "en": "We want to stay one more hour.",
-      "th": "อยากอยู่ต่ออีกหนึ่งชั่วโมง"
+      "th": "อยากอยู่ต่ออีกหนึ่งชั่วโมง",
+      "rom": "yak yu to ik nueng chuamong"
     },
     {
       "en": "Please check the bill.",
-      "th": "ช่วยเช็กบิลหน่อย"
+      "th": "ช่วยเช็กบิลหน่อย",
+      "rom": "chuai chekbin noi"
     },
     {
       "en": "I did not order this.",
-      "th": "ไม่ได้สั่งอันนี้"
+      "th": "ไม่ได้สั่งอันนี้",
+      "rom": "mai dai sang anni"
     },
     {
       "en": "Please call a taxi for us.",

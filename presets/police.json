@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Touristenpolizei 1155 (Englisch), Polizei 191. Für die Versicherung ein Protokoll (ใบแจ้งความ) und eine Kopie verlangen. Ruhig und höflich bleiben; laut werden schadet. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Tourist police 1155 (English), police 191. Ask for a police report (ใบแจ้งความ) and a copy for your insurance. Stay calm and polite; raising your voice does not help. Thai lines machine-made, not checked by native speakers.",
+    "de": "Touristenpolizei 1155 (Englisch), Polizei 191. Für die Versicherung ein Protokoll (ใบแจ้งความ) und eine Kopie verlangen. Ruhig und höflich bleiben; laut werden schadet. Siehe auch: Reise-Notfälle, Reisen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Tourist police 1155 (English), police 191. Ask for a police report (ใบแจ้งความ) and a copy for your insurance. Stay calm and polite; raising your voice does not help. See also: Travel emergencies, Travel. Thai lines machine-made, not checked by native speakers.",
     "th": "ตำรวจท่องเที่ยว 1155 (พูดภาษาอังกฤษได้) ตำรวจ 191 ขอใบแจ้งความและสำเนาสำหรับประกัน"
   },
   "glossary": [
@@ -49,17 +49,20 @@
     {
       "en": "Help! Please call the police.",
       "th": "ช่วยด้วย ช่วยเรียกตำรวจด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuaiduai chuai riak tamruat duai"
     },
     {
       "en": "Please call the tourist police (1155).",
       "th": "ช่วยโทรหาตำรวจท่องเที่ยว 1155 ด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai thon ha tamruat thongthiao 1155 duai"
     },
     {
       "en": "Please call an ambulance (1669).",
       "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak rathaphayaban duai 1669"
     },
     {
       "en": "I have been attacked and I am hurt.",
@@ -69,27 +72,32 @@
     {
       "en": "I have been robbed.",
       "th": "ถูกปล้น",
-      "critical": true
+      "critical": true,
+      "rom": "thuk plon"
     },
     {
       "en": "Someone is following me.",
       "th": "มีคนตามมา",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon tamma"
     },
     {
       "en": "My bag was stolen.",
       "th": "กระเป๋าถูกขโมย",
-      "critical": true
+      "critical": true,
+      "rom": "krapao thuk khamoi"
     },
     {
       "en": "My phone was stolen.",
       "th": "โทรศัพท์ถูกขโมย",
-      "critical": true
+      "critical": true,
+      "rom": "thonsap thuk khamoi"
     },
     {
       "en": "I lost my passport.",
       "th": "ทำพาสปอร์ตหาย",
-      "critical": true
+      "critical": true,
+      "rom": "tham phatpot hai"
     },
     {
       "en": "My credit card was stolen. I need to block it.",
@@ -97,39 +105,48 @@
     },
     {
       "en": "It happened about an hour ago.",
-      "th": "เกิดขึ้นประมาณหนึ่งชั่วโมงที่แล้ว"
+      "th": "เกิดขึ้นประมาณหนึ่งชั่วโมงที่แล้ว",
+      "rom": "koetkhuen praman nueng chuamong thilaeo"
     },
     {
       "en": "It happened here.",
-      "th": "เกิดขึ้นตรงนี้"
+      "th": "เกิดขึ้นตรงนี้",
+      "rom": "koetkhuen trangani"
     },
     {
       "en": "Where is the nearest police station?",
-      "th": "สถานีตำรวจที่ใกล้ที่สุดอยู่ที่ไหน"
+      "th": "สถานีตำรวจที่ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "sathanitamruat thi kain thisut yu thinai"
     },
     {
       "en": "I need a police report for my insurance.",
-      "th": "ต้องการใบแจ้งความเพื่อใช้กับประกัน"
+      "th": "ต้องการใบแจ้งความเพื่อใช้กับประกัน",
+      "rom": "tongkan baichaengkwam phuea chaikap prakan"
     },
     {
       "en": "Could I have a copy of the report?",
-      "th": "ขอสำเนาใบแจ้งความได้ไหม"
+      "th": "ขอสำเนาใบแจ้งความได้ไหม",
+      "rom": "kho samnao baichaengkwam dai mai"
     },
     {
       "en": "Is there someone who speaks English?",
-      "th": "มีใครพูดภาษาอังกฤษได้ไหม"
+      "th": "มีใครพูดภาษาอังกฤษได้ไหม",
+      "rom": "mi khain phut phasaangkrit dai mai"
     },
     {
       "en": "I need an interpreter.",
-      "th": "ต้องการล่าม"
+      "th": "ต้องการล่าม",
+      "rom": "tongkan lam"
     },
     {
       "en": "Please contact my embassy.",
-      "th": "ช่วยติดต่อสถานทูตให้หน่อย"
+      "th": "ช่วยติดต่อสถานทูตให้หน่อย",
+      "rom": "chuai titto sathanthut hai noi"
     },
     {
       "en": "I did not do anything wrong.",
-      "th": "ไม่ได้ทำอะไรผิด"
+      "th": "ไม่ได้ทำอะไรผิด",
+      "rom": "mai dai tham arai phit"
     }
   ]
 }

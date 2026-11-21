@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Touristen-SIMs gibt es am Flughafen und in Läden der großen Anbieter, Registrierung mit Pass ist Pflicht. eSIM nur mit kompatiblem, entsperrtem Handy. Auf Datenmenge, Gültigkeit und Hotspot achten. Aufladen geht an Automaten und im Supermarkt. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Tourist SIMs are sold at the airport and in shops of the big providers; registration with your passport is required. An eSIM needs a compatible, unlocked phone. Check data amount, validity and hotspot. Top up at machines and in supermarkets. Thai lines machine-made, not checked by native speakers."
+    "de": "Touristen-SIMs gibt es am Flughafen und in Läden der großen Anbieter, Registrierung mit Pass ist Pflicht. eSIM nur mit kompatiblem, entsperrtem Handy. Auf Datenmenge, Gültigkeit und Hotspot achten. Aufladen geht an Automaten und im Supermarkt. Siehe auch: SIM, Internet und Handy. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Tourist SIMs are sold at the airport and in shops of the big providers; registration with your passport is required. An eSIM needs a compatible, unlocked phone. Check data amount, validity and hotspot. Top up at machines and in supermarkets. See also: SIM, internet and phone. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,7 +40,8 @@
     {
       "en": "Please help me call an ambulance.",
       "th": "ช่วยโทรเรียกรถพยาบาลหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai thon riak rathaphayaban noi"
     },
     {
       "en": "I need to make an emergency call. May I borrow your phone?",
@@ -50,85 +51,105 @@
     {
       "en": "Please block my SIM card.",
       "th": "ช่วยระงับซิมการ์ดให้หน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai rangap sim kat hai noi"
     },
     {
       "en": "Someone is using my number.",
       "th": "มีคนแอบใช้เบอร์",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon aep chai boe"
     },
     {
       "en": "I lost my phone with the SIM card. Please block it.",
       "th": "ทำโทรศัพท์หายพร้อมซิม ช่วยระงับหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "tham thonsap hai phrom sim chuai rangap noi"
     },
     {
       "en": "I would like a tourist SIM card.",
-      "th": "ต้องการซิมสำหรับนักท่องเที่ยว"
+      "th": "ต้องการซิมสำหรับนักท่องเที่ยว",
+      "rom": "tongkan sim samrap nakthongthiao"
     },
     {
       "en": "Do you sell eSIMs?",
-      "th": "มีอีซิมขายไหม"
+      "th": "มีอีซิมขายไหม",
+      "rom": "mi i sim khai mai"
     },
     {
       "en": "Does my phone support eSIM?",
-      "th": "โทรศัพท์รุ่นนี้รองรับอีซิมไหม"
+      "th": "โทรศัพท์รุ่นนี้รองรับอีซิมไหม",
+      "rom": "thonsap run ni rongrap i sim mai"
     },
     {
       "en": "How much data is included?",
-      "th": "มีอินเทอร์เน็ตให้เท่าไหร่"
+      "th": "มีอินเทอร์เน็ตให้เท่าไหร่",
+      "rom": "mi inthoenet hai thaorai"
     },
     {
       "en": "How many days is it valid?",
-      "th": "ใช้ได้กี่วัน"
+      "th": "ใช้ได้กี่วัน",
+      "rom": "chaidai ki wan"
     },
     {
       "en": "Is the data unlimited?",
-      "th": "เน็ตไม่จำกัดไหม"
+      "th": "เน็ตไม่จำกัดไหม",
+      "rom": "net mai chamkat mai"
     },
     {
       "en": "Is it 5G?",
-      "th": "รองรับห้าจีไหม"
+      "th": "รองรับห้าจีไหม",
+      "rom": "rongrap ha chi mai"
     },
     {
       "en": "Can I use it as a hotspot?",
-      "th": "ใช้แชร์เน็ตได้ไหม"
+      "th": "ใช้แชร์เน็ตได้ไหม",
+      "rom": "chai chae net dai mai"
     },
     {
       "en": "Can I keep my home number?",
-      "th": "ใช้เบอร์เดิมต่อได้ไหม"
+      "th": "ใช้เบอร์เดิมต่อได้ไหม",
+      "rom": "chai boe doem to dai mai"
     },
     {
       "en": "Can I also make phone calls?",
-      "th": "โทรออกได้ด้วยไหม"
+      "th": "โทรออกได้ด้วยไหม",
+      "rom": "thon ok dai duai mai"
     },
     {
       "en": "Please show me how to activate it.",
-      "th": "ช่วยสอนวิธีเปิดใช้งานหน่อย"
+      "th": "ช่วยสอนวิธีเปิดใช้งานหน่อย",
+      "rom": "chuai son withi poet chaingan noi"
     },
     {
       "en": "Please set it up for me.",
-      "th": "ช่วยตั้งค่าให้หน่อย"
+      "th": "ช่วยตั้งค่าให้หน่อย",
+      "rom": "chuai tangkha hai noi"
     },
     {
       "en": "Do you need my passport for registration?",
-      "th": "ต้องใช้หนังสือเดินทางลงทะเบียนไหม"
+      "th": "ต้องใช้หนังสือเดินทางลงทะเบียนไหม",
+      "rom": "tong chai nangsuedoenthang langathabian mai"
     },
     {
       "en": "I have no signal.",
-      "th": "ไม่มีสัญญาณ"
+      "th": "ไม่มีสัญญาณ",
+      "rom": "mai mi sanyan"
     },
     {
       "en": "My data ran out.",
-      "th": "เน็ตหมดแล้ว"
+      "th": "เน็ตหมดแล้ว",
+      "rom": "net mot laeo"
     },
     {
       "en": "How do I top up?",
-      "th": "เติมเงินอย่างไร"
+      "th": "เติมเงินอย่างไร",
+      "rom": "toem ngoen yangrai"
     },
     {
       "en": "Can I top up at a convenience store?",
-      "th": "เติมเงินที่ร้านสะดวกซื้อได้ไหม"
+      "th": "เติมเงินที่ร้านสะดวกซื้อได้ไหม",
+      "rom": "toem ngoen thi ran saduak sue dai mai"
     },
     {
       "en": "Please cancel the auto-renewal.",

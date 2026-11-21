@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Stände mit viel Andrang und frisch gegartem, heißem Essen wählen. Zutaten kann der Verkäufer oft nicht vollständig nennen; Erdnüsse, Garnelenpaste und Fischsauce sind häufig. Leitungswasser nicht trinken, Eis nur aus Fabrikeis. Meist Bargeld, teils QR-Code. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Choose busy stalls with freshly cooked, hot food. Vendors often cannot name every ingredient; peanuts, shrimp paste and fish sauce are common. Do not drink tap water; ice is usually factory-made. Mostly cash, sometimes QR code. Thai lines machine-made, not checked by native speakers."
+    "de": "Stände mit viel Andrang und frisch gegartem, heißem Essen wählen. Zutaten kann der Verkäufer oft nicht vollständig nennen; Erdnüsse, Garnelenpaste und Fischsauce sind häufig. Leitungswasser nicht trinken, Eis nur aus Fabrikeis. Meist Bargeld, teils QR-Code. Siehe auch: Restaurant, Markt und Handeln. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Choose busy stalls with freshly cooked, hot food. Vendors often cannot name every ingredient; peanuts, shrimp paste and fish sauce are common. Do not drink tap water; ice is usually factory-made. Mostly cash, sometimes QR code. See also: Restaurant, Market and haggling. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,54 +40,66 @@
     {
       "en": "I am allergic to peanuts.",
       "th": "แพ้ถั่วลิสง",
-      "critical": true
+      "critical": true,
+      "rom": "phae thualitng"
     },
     {
       "en": "I am allergic to shrimp and shellfish.",
       "th": "แพ้กุ้งและหอย",
-      "critical": true
+      "critical": true,
+      "rom": "phae kung lae hoi"
     },
     {
       "en": "I am allergic to eggs.",
       "th": "แพ้ไข่",
-      "critical": true
+      "critical": true,
+      "rom": "phae khai"
     },
     {
       "en": "I am allergic to fish.",
       "th": "แพ้ปลา",
-      "critical": true
+      "critical": true,
+      "rom": "phae pla"
     },
     {
       "en": "What is this?",
-      "th": "นี่คืออะไร"
+      "th": "นี่คืออะไร",
+      "rom": "ni khue arai"
     },
     {
       "en": "How much is this?",
-      "th": "อันนี้ราคาเท่าไหร่"
+      "th": "อันนี้ราคาเท่าไหร่",
+      "rom": "anni rakha thaorai"
     },
     {
       "en": "Not spicy, please.",
-      "th": "ขอไม่เผ็ด"
+      "th": "ขอไม่เผ็ด",
+      "rom": "kho mai phet"
     },
     {
       "en": "A little spicy, please.",
-      "th": "เผ็ดนิดเดียว"
+      "th": "เผ็ดนิดเดียว",
+      "rom": "phet nitdiao"
     },
     {
       "en": "No fish sauce, please.",
-      "th": "ไม่ใส่น้ำปลา"
+      "th": "ไม่ใส่น้ำปลา",
+      "rom": "mai sai nampla"
     },
     {
       "en": "No sugar, please.",
-      "th": "ไม่ใส่น้ำตาล"
+      "th": "ไม่ใส่น้ำตาล",
+      "rom": "mai sai namtan"
     },
     {
       "en": "I am vegetarian.",
-      "th": "กินมังสวิรัติ"
+      "th": "กินมังสวิรัติ",
+      "rom": "kin mangtwirati"
     },
     {
       "en": "Is there pork in this?",
-      "th": "อันนี้มีหมูไหม"
+      "th": "อันนี้มีหมูไหม",
+      "rom": "anni mi mu mai"
     },
     {
       "en": "No ice, please.",
@@ -95,31 +107,38 @@
     },
     {
       "en": "Is it cooked fresh?",
-      "th": "ปรุงสดใหม่ไหม"
+      "th": "ปรุงสดใหม่ไหม",
+      "rom": "prung sot aim mai"
     },
     {
       "en": "Please cook it well done.",
-      "th": "ช่วยทำให้สุกดีหน่อย"
+      "th": "ช่วยทำให้สุกดีหน่อย",
+      "rom": "chuai thamhai suk di noi"
     },
     {
       "en": "Takeaway, please.",
-      "th": "ขอห่อกลับบ้าน"
+      "th": "ขอห่อกลับบ้าน",
+      "rom": "kho ho klapban"
     },
     {
       "en": "Eating here.",
-      "th": "กินที่นี่"
+      "th": "กินที่นี่",
+      "rom": "kin thini"
     },
     {
       "en": "One more portion, please.",
-      "th": "ขออีกหนึ่งที่"
+      "th": "ขออีกหนึ่งที่",
+      "rom": "kho ik nueng thi"
     },
     {
       "en": "Do you have bottled water?",
-      "th": "มีน้ำดื่มขวดไหม"
+      "th": "มีน้ำดื่มขวดไหม",
+      "rom": "mi namduem khuat mai"
     },
     {
       "en": "Can I pay by QR code?",
-      "th": "จ่ายด้วยคิวอาร์โค้ดได้ไหม"
+      "th": "จ่ายด้วยคิวอาร์โค้ดได้ไหม",
+      "rom": "chai duai khio a khot dai mai"
     }
   ]
 }

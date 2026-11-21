@@ -40,72 +40,88 @@
     {
       "en": "Is the needle new and sterile?",
       "th": "เข็มใหม่และปลอดเชื้อไหม",
-      "critical": true
+      "critical": true,
+      "rom": "khem aim lae plotchuea mai"
     },
     {
       "en": "Please open the needle package in front of me.",
       "th": "ช่วยเปิดซองเข็มต่อหน้า",
-      "critical": true
+      "critical": true,
+      "rom": "chuai poet song khem tona"
     },
     {
       "en": "Please wear new clean gloves.",
       "th": "ช่วยใส่ถุงมือใหม่ที่สะอาด",
-      "critical": true
+      "critical": true,
+      "rom": "chuai sai thung muehaim thi saat"
     },
     {
       "en": "I am allergic to ink or latex.",
       "th": "แพ้หมึกหรือยางลาเท็กซ์",
-      "critical": true
+      "critical": true,
+      "rom": "phae muek rue yang la thek"
     },
     {
       "en": "I take blood thinners.",
       "th": "กินยาละลายลิ่มเลือดอยู่",
-      "critical": true
+      "critical": true,
+      "rom": "kin ya lalai limlueat yu"
     },
     {
       "en": "I feel dizzy. Please stop.",
       "th": "รู้สึกเวียนหัว ช่วยหยุดก่อน",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek wianhua chuai yut kon"
     },
     {
       "en": "How much is this design?",
-      "th": "ลายนี้ราคาเท่าไร"
+      "th": "ลายนี้ราคาเท่าไร",
+      "rom": "lai ni rakha thaorai"
     },
     {
       "en": "Please draw the design first so I can check it.",
-      "th": "ช่วยวาดลายให้ดูก่อน"
+      "th": "ช่วยวาดลายให้ดูก่อน",
+      "rom": "chuai wat lai hai dukon"
     },
     {
       "en": "Please check the spelling of this text.",
-      "th": "ช่วยเช็กตัวสะกดของข้อความนี้"
+      "th": "ช่วยเช็กตัวสะกดของข้อความนี้",
+      "rom": "chuai chek tuasakt khong khokwam ni"
     },
     {
       "en": "How long will it take?",
-      "th": "ใช้เวลานานเท่าไหร่"
+      "th": "ใช้เวลานานเท่าไหร่",
+      "rom": "chaiwelanan thaorai"
     },
     {
       "en": "Do I need to pay a deposit?",
-      "th": "ต้องมัดจำไหม"
+      "th": "ต้องมัดจำไหม",
+      "rom": "tong matcham mai"
     },
     {
       "en": "I need a short break.",
-      "th": "ขอพักสักครู่"
+      "th": "ขอพักสักครู่",
+      "rom": "kho phak sakkru"
     },
     {
       "en": "How do I take care of it?",
-      "th": "ต้องดูแลแผลยังไง"
+      "th": "ต้องดูแลแผลยังไง",
+      "rom": "tong dulae phaen yangngai"
     },
     {
       "en": "When can I swim or go in the sun again?",
-      "th": "ว่ายน้ำหรืออาบแดดได้เมื่อไร"
+      "th": "ว่ายน้ำหรืออาบแดดได้เมื่อไร",
+      "rom": "wainam rue apdaet dai muearai"
     },
     {
       "en": "The skin is red and swollen. Is that normal?",
-      "th": "ผิวแดงและบวม แบบนี้ปกติไหม"
+      "th": "ผิวแดงและบวม แบบนี้ปกติไหม",
+      "rom": "phio daeng lae buam baepni pakati mai"
     },
     {
       "en": "Can I pay by card?",
-      "th": "จ่ายด้วยบัตรได้ไหม"
+      "th": "จ่ายด้วยบัตรได้ไหม",
+      "rom": "chai duai batn dai mai"
     }
   ]
 }

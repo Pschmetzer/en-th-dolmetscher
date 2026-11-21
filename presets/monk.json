@@ -36,49 +36,60 @@
     {
       "en": "I feel faint. May I sit down?",
       "th": "รู้สึกจะเป็นลม ขอนั่งได้ไหม",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek cha pennm kho nang dai mai"
     },
     {
       "en": "Please call a doctor.",
       "th": "ช่วยเรียกแพทย์หน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak phaet noi"
     },
     {
       "en": "I am sorry, I did not know.",
       "th": "ขอโทษ ไม่ทราบ",
-      "critical": true
+      "critical": true,
+      "rom": "khothot mai thrap"
     },
     {
       "en": "Is this area closed to visitors?",
-      "th": "บริเวณนี้ปิดไม่ให้เข้าชมไหม"
+      "th": "บริเวณนี้ปิดไม่ให้เข้าชมไหม",
+      "rom": "briwen ni pit mai hai khaotm mai"
     },
     {
       "en": "May I speak with you, venerable sir?",
-      "th": "ขออนุญาตพูดคุยกับท่านได้ไหม"
+      "th": "ขออนุญาตพูดคุยกับท่านได้ไหม",
+      "rom": "khonuyat phutkhui kap than dai mai"
     },
     {
       "en": "May I give alms?",
-      "th": "ขอใส่บาตรได้ไหม"
+      "th": "ขอใส่บาตรได้ไหม",
+      "rom": "kho saibatn dai mai"
     },
     {
       "en": "How should I offer this?",
-      "th": "ควรถวายอย่างไร"
+      "th": "ควรถวายอย่างไร",
+      "rom": "khuan thwai yangrai"
     },
     {
       "en": "Where should I put the offering?",
-      "th": "ควรวางเครื่องสักการะตรงไหน"
+      "th": "ควรวางเครื่องสักการะตรงไหน",
+      "rom": "khuan wang kherueng sakkara trangahanai"
     },
     {
       "en": "May I sit here?",
-      "th": "ขอนั่งตรงนี้ได้ไหม"
+      "th": "ขอนั่งตรงนี้ได้ไหม",
+      "rom": "kho nang trangani dai mai"
     },
     {
       "en": "Should I take off my shoes?",
-      "th": "ต้องถอดรองเท้าไหม"
+      "th": "ต้องถอดรองเท้าไหม",
+      "rom": "tong thot rongthao mai"
     },
     {
       "en": "Is it all right to take photos?",
-      "th": "ถ่ายรูปได้ไหม"
+      "th": "ถ่ายรูปได้ไหม",
+      "rom": "thairup dai mai"
     },
     {
       "en": "Is this dress appropriate?",
@@ -86,27 +97,33 @@
     },
     {
       "en": "Could I have a blessing?",
-      "th": "ขอพรได้ไหม"
+      "th": "ขอพรได้ไหม",
+      "rom": "khopn dai mai"
     },
     {
       "en": "Could you teach me to meditate?",
-      "th": "ช่วยสอนนั่งสมาธิหน่อยได้ไหม"
+      "th": "ช่วยสอนนั่งสมาธิหน่อยได้ไหม",
+      "rom": "chuai son nangtmathi noi dai mai"
     },
     {
       "en": "What time is the morning chanting?",
-      "th": "สวดมนต์เช้ากี่โมง"
+      "th": "สวดมนต์เช้ากี่โมง",
+      "rom": "suatmn chao ki mong"
     },
     {
       "en": "Can I stay overnight at the temple?",
-      "th": "พักค้างคืนที่วัดได้ไหม"
+      "th": "พักค้างคืนที่วัดได้ไหม",
+      "rom": "phak khangkhuen thiwat dai mai"
     },
     {
       "en": "Thank you for your kindness.",
-      "th": "ขอบคุณในความเมตตา"
+      "th": "ขอบคุณในความเมตตา",
+      "rom": "khopkhun nai khwammetta"
     },
     {
       "en": "Is there a donation box?",
-      "th": "มีตู้บริจาคไหม"
+      "th": "มีตู้บริจาคไหม",
+      "rom": "mi tu brichak mai"
     }
   ],
   "note": {

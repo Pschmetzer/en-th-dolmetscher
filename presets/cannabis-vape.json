@@ -56,20 +56,24 @@
     {
       "en": "I need a lawyer or an interpreter.",
       "th": "ต้องการทนายความหรือล่าม",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan thanaikwam rue lam"
     },
     {
       "en": "I did not know this was forbidden.",
       "th": "ไม่ทราบว่าห้าม",
-      "critical": true
+      "critical": true,
+      "rom": "mai thrap wa am"
     },
     {
       "en": "Please call my embassy.",
-      "th": "ช่วยโทรหาสถานทูตหน่อย"
+      "th": "ช่วยโทรหาสถานทูตหน่อย",
+      "rom": "chuai thon ha sathanthut noi"
     },
     {
       "en": "Is this allowed here?",
-      "th": "ที่นี่อนุญาตไหม"
+      "th": "ที่นี่อนุญาตไหม",
+      "rom": "thini nuyat mai"
     },
     {
       "en": "Is vaping allowed here?",
@@ -77,31 +81,38 @@
     },
     {
       "en": "Is smoking allowed in this area?",
-      "th": "พื้นที่นี้สูบบุหรี่ได้ไหม"
+      "th": "พื้นที่นี้สูบบุหรี่ได้ไหม",
+      "rom": "phuenthi ni supburi dai mai"
     },
     {
       "en": "Where is the smoking area?",
-      "th": "พื้นที่สูบบุหรี่อยู่ที่ไหน"
+      "th": "พื้นที่สูบบุหรี่อยู่ที่ไหน",
+      "rom": "phuenthi supburi yu thinai"
     },
     {
       "en": "Do you have a licence to sell this?",
-      "th": "มีใบอนุญาตขายสิ่งนี้ไหม"
+      "th": "มีใบอนุญาตขายสิ่งนี้ไหม",
+      "rom": "mi bainuyat khai sing ni mai"
     },
     {
       "en": "I have a doctor's prescription.",
-      "th": "มีใบสั่งยาจากแพทย์"
+      "th": "มีใบสั่งยาจากแพทย์",
+      "rom": "mi baisangya chak phaet"
     },
     {
       "en": "Is cannabis allowed in this food?",
-      "th": "อาหารนี้มีกัญชาไหม"
+      "th": "อาหารนี้มีกัญชาไหม",
+      "rom": "ahan ni mi kancha mai"
     },
     {
       "en": "Please make it without cannabis.",
-      "th": "ขอแบบไม่ใส่กัญชา"
+      "th": "ขอแบบไม่ใส่กัญชา",
+      "rom": "kho baep mai sai kancha"
     },
     {
       "en": "I do not smoke. Please do not smoke here.",
-      "th": "ไม่สูบบุหรี่ ช่วยอย่าสูบตรงนี้"
+      "th": "ไม่สูบบุหรี่ ช่วยอย่าสูบตรงนี้",
+      "rom": "mai supburi chuai ya sup trangani"
     },
     {
       "en": "Where can I throw away my e-cigarette?",
@@ -109,11 +120,13 @@
     },
     {
       "en": "Is there a fine for this?",
-      "th": "มีค่าปรับไหม"
+      "th": "มีค่าปรับไหม",
+      "rom": "mikha prapmai"
     },
     {
       "en": "Thank you for telling me.",
-      "th": "ขอบคุณที่บอก"
+      "th": "ขอบคุณที่บอก",
+      "rom": "khopkhun thi bok"
     }
   ]
 }

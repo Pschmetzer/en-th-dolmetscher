@@ -40,17 +40,20 @@
     {
       "en": "I was bitten by a snake.",
       "th": "โดนงูกัด",
-      "critical": true
+      "critical": true,
+      "rom": "don ngu kat"
     },
     {
       "en": "I need medical help.",
       "th": "ต้องการความช่วยเหลือทางการแพทย์",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan khwamchuaihelue thangkanphaet"
     },
     {
       "en": "Where is the nearest clinic?",
       "th": "คลินิกที่ใกล้ที่สุดอยู่ที่ไหน",
-      "critical": true
+      "critical": true,
+      "rom": "khlinik thi kain thisut yu thinai"
     },
     {
       "en": "I feel sick from the heat.",
@@ -60,63 +63,78 @@
     {
       "en": "I am lost.",
       "th": "หลงทาง",
-      "critical": true
+      "critical": true,
+      "rom": "langathang"
     },
     {
       "en": "May I walk through the rice field?",
-      "th": "ขอเดินผ่านนาข้าวได้ไหม"
+      "th": "ขอเดินผ่านนาข้าวได้ไหม",
+      "rom": "kho doenphan na khao dai mai"
     },
     {
       "en": "May I take a photo of the field?",
-      "th": "ขอถ่ายรูปนาข้าวได้ไหม"
+      "th": "ขอถ่ายรูปนาข้าวได้ไหม",
+      "rom": "kho thairup na khao dai mai"
     },
     {
       "en": "May I take a photo of you?",
-      "th": "ขอถ่ายรูปคุณได้ไหม"
+      "th": "ขอถ่ายรูปคุณได้ไหม",
+      "rom": "kho thairup khun dai mai"
     },
     {
       "en": "When is the harvest?",
-      "th": "เก็บเกี่ยวเมื่อไหร่"
+      "th": "เก็บเกี่ยวเมื่อไหร่",
+      "rom": "kepkiao muearai"
     },
     {
       "en": "Can I help with the planting?",
-      "th": "ขอช่วยปลูกข้าวได้ไหม"
+      "th": "ขอช่วยปลูกข้าวได้ไหม",
+      "rom": "kho chuai pluk khao dai mai"
     },
     {
       "en": "Is there a homestay in the village?",
-      "th": "ในหมู่บ้านมีโฮมสเตย์ไหม"
+      "th": "ในหมู่บ้านมีโฮมสเตย์ไหม",
+      "rom": "nai muban mi homtte mai"
     },
     {
       "en": "Where can I buy local rice?",
-      "th": "ซื้อข้าวท้องถิ่นได้ที่ไหน"
+      "th": "ซื้อข้าวท้องถิ่นได้ที่ไหน",
+      "rom": "sue khao thongthin dai thinai"
     },
     {
       "en": "Is there a guide for the village?",
-      "th": "มีไกด์พาเดินในหมู่บ้านไหม"
+      "th": "มีไกด์พาเดินในหมู่บ้านไหม",
+      "rom": "mi kai pha doen nai muban mai"
     },
     {
       "en": "Is it safe to walk here at night?",
-      "th": "ตอนกลางคืนเดินที่นี่ปลอดภัยไหม"
+      "th": "ตอนกลางคืนเดินที่นี่ปลอดภัยไหม",
+      "rom": "tonklangkhuen doen thini plotphai mai"
     },
     {
       "en": "Where is the footpath?",
-      "th": "ทางเดินอยู่ที่ไหน"
+      "th": "ทางเดินอยู่ที่ไหน",
+      "rom": "thangdoen yu thinai"
     },
     {
       "en": "Are the buffalo dangerous?",
-      "th": "ควายอันตรายไหม"
+      "th": "ควายอันตรายไหม",
+      "rom": "khwai antrai mai"
     },
     {
       "en": "I would like to try local food.",
-      "th": "อยากลองอาหารพื้นบ้าน"
+      "th": "อยากลองอาหารพื้นบ้าน",
+      "rom": "yak long ahan phuenban"
     },
     {
       "en": "Thank you for your hospitality.",
-      "th": "ขอบคุณที่ต้อนรับ"
+      "th": "ขอบคุณที่ต้อนรับ",
+      "rom": "khopkhun thi tonrap"
     },
     {
       "en": "Do you have mosquito repellent?",
-      "th": "มียากันยุงไหม"
+      "th": "มียากันยุงไหม",
+      "rom": "mi yakanyung mai"
     }
   ]
 }

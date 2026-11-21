@@ -40,60 +40,73 @@
     {
       "en": "Please stop.",
       "th": "หยุดก่อน",
-      "critical": true
+      "critical": true,
+      "rom": "yut kon"
     },
     {
       "en": "Do not touch me there.",
       "th": "อย่าจับตรงนั้น",
-      "critical": true
+      "critical": true,
+      "rom": "ya chap tranganan"
     },
     {
       "en": "I do not want that service.",
       "th": "ไม่ต้องการบริการนั้น",
-      "critical": true
+      "critical": true,
+      "rom": "mataingkan brikan nan"
     },
     {
       "en": "I want to leave now.",
       "th": "ขอกลับเดี๋ยวนี้",
-      "critical": true
+      "critical": true,
+      "rom": "kho klap diaoni"
     },
     {
       "en": "Please call the tourist police.",
       "th": "ช่วยโทรหาตำรวจท่องเที่ยวหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai thon ha tamruat thongthiao noi"
     },
     {
       "en": "I have an injury here.",
       "th": "มีอาการบาดเจ็บตรงนี้",
-      "critical": true
+      "critical": true,
+      "rom": "mi akan batchep trangani"
     },
     {
       "en": "Please press a little softer.",
-      "th": "ช่วยนวดเบาลงหน่อย"
+      "th": "ช่วยนวดเบาลงหน่อย",
+      "rom": "chuai nuat bao long noi"
     },
     {
       "en": "Please press harder.",
-      "th": "ช่วยนวดแรงขึ้นหน่อย"
+      "th": "ช่วยนวดแรงขึ้นหน่อย",
+      "rom": "chuai nuat raeng khuen noi"
     },
     {
       "en": "That hurts.",
-      "th": "เจ็บ"
+      "th": "เจ็บ",
+      "rom": "chep"
     },
     {
       "en": "That is perfect.",
-      "th": "กำลังดี"
+      "th": "กำลังดี",
+      "rom": "kamlangdi"
     },
     {
       "en": "Please do not crack my neck.",
-      "th": "ขออย่าบิดคอ"
+      "th": "ขออย่าบิดคอ",
+      "rom": "kho ya bit kho"
     },
     {
       "en": "I have a bad back.",
-      "th": "เป็นโรคปวดหลัง"
+      "th": "เป็นโรคปวดหลัง",
+      "rom": "penrok puatlang"
     },
     {
       "en": "I am pregnant. Please be careful.",
-      "th": "ตั้งครรภ์อยู่ ช่วยระวังด้วย"
+      "th": "ตั้งครรภ์อยู่ ช่วยระวังด้วย",
+      "rom": "tangkan yu chuai rawang duai"
     },
     {
       "en": "Only the feet, please.",
@@ -105,31 +118,38 @@
     },
     {
       "en": "Can I keep my clothes on?",
-      "th": "ใส่เสื้อผ้าไว้ได้ไหม"
+      "th": "ใส่เสื้อผ้าไว้ได้ไหม",
+      "rom": "sai sueapha wai dai mai"
     },
     {
       "en": "Please turn around while I change.",
-      "th": "ช่วยหันไปก่อนระหว่างเปลี่ยนเสื้อผ้าหน่อย"
+      "th": "ช่วยหันไปก่อนระหว่างเปลี่ยนเสื้อผ้าหน่อย",
+      "rom": "chuai anpai kon rawang pelin sueapha noi"
     },
     {
       "en": "Please cover me with a towel.",
-      "th": "ขอผ้าขนหนูคลุมหน่อย"
+      "th": "ขอผ้าขนหนูคลุมหน่อย",
+      "rom": "kho phaknnu khlum noi"
     },
     {
       "en": "I only want a normal massage.",
-      "th": "ต้องการนวดธรรมดาเท่านั้น"
+      "th": "ต้องการนวดธรรมดาเท่านั้น",
+      "rom": "tongkan nuat thamda thaonan"
     },
     {
       "en": "Is the oil safe for sensitive skin?",
-      "th": "น้ำมันนี้ปลอดภัยกับผิวแพ้ง่ายไหม"
+      "th": "น้ำมันนี้ปลอดภัยกับผิวแพ้ง่ายไหม",
+      "rom": "namman ni plotphai kap phio phae ngai mai"
     },
     {
       "en": "How long is the session?",
-      "th": "นวดนานเท่าไร"
+      "th": "นวดนานเท่าไร",
+      "rom": "nuat nan thaorai"
     },
     {
       "en": "Can I have a female therapist?",
-      "th": "ขอหมอนวดผู้หญิงได้ไหม"
+      "th": "ขอหมอนวดผู้หญิงได้ไหม",
+      "rom": "kho monuat phuying dai mai"
     }
   ]
 }

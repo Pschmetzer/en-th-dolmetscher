@@ -56,61 +56,75 @@
     {
       "en": "I cannot move my leg.",
       "th": "ขยับขาไม่ได้",
-      "critical": true
+      "critical": true,
+      "rom": "khayap kha mai dai"
     },
     {
       "en": "I think my bone is broken.",
       "th": "คิดว่ากระดูกหัก",
-      "critical": true
+      "critical": true,
+      "rom": "khit wa kraduk ak"
     },
     {
       "en": "Please call an ambulance (1669).",
       "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak rathaphayaban duai 1669"
     },
     {
       "en": "I hurt my back.",
-      "th": "ปวดหลัง"
+      "th": "ปวดหลัง",
+      "rom": "puatlang"
     },
     {
       "en": "I twisted my ankle.",
-      "th": "ข้อเท้าแพลง"
+      "th": "ข้อเท้าแพลง",
+      "rom": "khothao phaenng"
     },
     {
       "en": "It happened yesterday while playing sport.",
-      "th": "เกิดขึ้นเมื่อวานตอนเล่นกีฬา"
+      "th": "เกิดขึ้นเมื่อวานตอนเล่นกีฬา",
+      "rom": "koetkhuen mueawan ton len kila"
     },
     {
       "en": "It hurts when I move.",
-      "th": "เจ็บเวลาขยับ"
+      "th": "เจ็บเวลาขยับ",
+      "rom": "chep wela khayap"
     },
     {
       "en": "It is swollen and warm.",
-      "th": "บวมและร้อน"
+      "th": "บวมและร้อน",
+      "rom": "buam lae ron"
     },
     {
       "en": "Do I need an X-ray?",
-      "th": "ต้องเอกซเรย์ไหม"
+      "th": "ต้องเอกซเรย์ไหม",
+      "rom": "tong ektre mai"
     },
     {
       "en": "Can you give me a bandage or a brace?",
-      "th": "ขอผ้าพันแผลหรือที่รัดได้ไหม"
+      "th": "ขอผ้าพันแผลหรือที่รัดได้ไหม",
+      "rom": "kho phaphanphaen rue thi rat dai mai"
     },
     {
       "en": "How many sessions will I need?",
-      "th": "ต้องรักษากี่ครั้ง"
+      "th": "ต้องรักษากี่ครั้ง",
+      "rom": "tong raksa ki khrang"
     },
     {
       "en": "How much is one session?",
-      "th": "ฝึกครั้งละเท่าไหร่"
+      "th": "ฝึกครั้งละเท่าไหร่",
+      "rom": "fuek khrang la thaorai"
     },
     {
       "en": "Can you show me the exercises?",
-      "th": "ช่วยสอนท่าออกกำลังกายหน่อยได้ไหม"
+      "th": "ช่วยสอนท่าออกกำลังกายหน่อยได้ไหม",
+      "rom": "chuai son tha okkamlangkai noi dai mai"
     },
     {
       "en": "May I have a report for my insurance?",
-      "th": "ขอรายงานสำหรับประกันได้ไหม"
+      "th": "ขอรายงานสำหรับประกันได้ไหม",
+      "rom": "kho raingan samrap prakan dai mai"
     }
   ]
 }

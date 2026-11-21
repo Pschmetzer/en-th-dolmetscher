@@ -56,12 +56,14 @@
     {
       "en": "Please call an ambulance (1669).",
       "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak rathaphayaban duai 1669"
     },
     {
       "en": "He is unconscious and very hot.",
       "th": "หมดสติ ตัวร้อนมาก",
-      "critical": true
+      "critical": true,
+      "rom": "madasati tuaron mak"
     },
     {
       "en": "I feel dizzy and sick from the heat.",
@@ -71,43 +73,53 @@
     {
       "en": "Where is the nearest hospital?",
       "th": "โรงพยาบาลที่ใกล้ที่สุดอยู่ที่ไหน",
-      "critical": true
+      "critical": true,
+      "rom": "rongpyaban thi kain thisut yu thinai"
     },
     {
       "en": "I need to sit in the shade.",
-      "th": "ต้องการนั่งในที่ร่ม"
+      "th": "ต้องการนั่งในที่ร่ม",
+      "rom": "tongkan nang nai thi rom"
     },
     {
       "en": "Please bring cold water.",
-      "th": "ช่วยเอาน้ำเย็นมาให้หน่อย"
+      "th": "ช่วยเอาน้ำเย็นมาให้หน่อย",
+      "rom": "chuai ao namyen ma hai noi"
     },
     {
       "en": "Do you have oral rehydration salts?",
-      "th": "มีผงเกลือแร่ไหม"
+      "th": "มีผงเกลือแร่ไหม",
+      "rom": "mi phong keluerae mai"
     },
     {
       "en": "Please turn on the air conditioning.",
-      "th": "ช่วยเปิดแอร์ด้วย"
+      "th": "ช่วยเปิดแอร์ด้วย",
+      "rom": "chuai poet ae duai"
     },
     {
       "en": "I have a bad sunburn.",
-      "th": "ผิวไหม้แดดมาก"
+      "th": "ผิวไหม้แดดมาก",
+      "rom": "phio mai daet mak"
     },
     {
       "en": "Do you have a cream for sunburn?",
-      "th": "มีครีมสำหรับผิวไหม้แดดไหม"
+      "th": "มีครีมสำหรับผิวไหม้แดดไหม",
+      "rom": "mi khrim samrap phio mai daet mai"
     },
     {
       "en": "Where can I buy sunscreen?",
-      "th": "ซื้อครีมกันแดดได้ที่ไหน"
+      "th": "ซื้อครีมกันแดดได้ที่ไหน",
+      "rom": "sue khrimkandaet dai thinai"
     },
     {
       "en": "I have not sweated for a long time.",
-      "th": "ไม่มีเหงื่อออกมานานแล้ว"
+      "th": "ไม่มีเหงื่อออกมานานแล้ว",
+      "rom": "mai mi engue okma nan laeo"
     },
     {
       "en": "I would like to rest for a while.",
-      "th": "ขอพักสักครู่"
+      "th": "ขอพักสักครู่",
+      "rom": "kho phak sakkru"
     },
     {
       "en": "Is there a cool place nearby?",

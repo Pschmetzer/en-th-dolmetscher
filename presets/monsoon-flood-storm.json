@@ -40,26 +40,31 @@
     {
       "en": "The water is rising. We need to leave.",
       "th": "น้ำกำลังขึ้น ต้องรีบออกไป",
-      "critical": true
+      "critical": true,
+      "rom": "nam kamlang khuen tong rip ok pai"
     },
     {
       "en": "We are trapped by the water.",
       "th": "ติดอยู่ในน้ำท่วม",
-      "critical": true
+      "critical": true,
+      "rom": "tit yu nai namthuam"
     },
     {
       "en": "This is an emergency. Please call an ambulance (1669).",
       "th": "นี่เป็นเหตุฉุกเฉิน ช่วยเรียกรถพยาบาลด้วย (1669)",
-      "critical": true
+      "critical": true,
+      "rom": "ni pen etuchukchoen chuai riak rathaphayaban duai 1669"
     },
     {
       "en": "Please call the police (191).",
       "th": "ช่วยโทรแจ้งตำรวจ 191 ด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai thon chaengtamruat 191 duai"
     },
     {
       "en": "Is the road flooded?",
-      "th": "ถนนน้ำท่วมไหม"
+      "th": "ถนนน้ำท่วมไหม",
+      "rom": "thanon namthuam mai"
     },
     {
       "en": "Is there a storm warning?",
@@ -67,35 +72,43 @@
     },
     {
       "en": "Will the ferry run today?",
-      "th": "วันนี้เรือข้ามฟากออกไหม"
+      "th": "วันนี้เรือข้ามฟากออกไหม",
+      "rom": "wanni rueakhamfak ok mai"
     },
     {
       "en": "When will the rain stop?",
-      "th": "ฝนจะหยุดเมื่อไร"
+      "th": "ฝนจะหยุดเมื่อไร",
+      "rom": "fon cha yut muearai"
     },
     {
       "en": "Is it safe to go out?",
-      "th": "ออกไปข้างนอกปลอดภัยไหม"
+      "th": "ออกไปข้างนอกปลอดภัยไหม",
+      "rom": "ok pai khangnok plotphai mai"
     },
     {
       "en": "Where is the nearest shelter?",
-      "th": "ที่หลบภัยที่ใกล้ที่สุดอยู่ที่ไหน"
+      "th": "ที่หลบภัยที่ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "thinpphai thi kain thisut yu thinai"
     },
     {
       "en": "Do you have a torch?",
-      "th": "มีไฟฉายไหม"
+      "th": "มีไฟฉายไหม",
+      "rom": "mi fachaiai mai"
     },
     {
       "en": "Do you have drinking water?",
-      "th": "มีน้ำดื่มไหม"
+      "th": "มีน้ำดื่มไหม",
+      "rom": "mi namduem mai"
     },
     {
       "en": "There is no electricity.",
-      "th": "ไฟดับ"
+      "th": "ไฟดับ",
+      "rom": "fai dap"
     },
     {
       "en": "Please do not drive through the water.",
-      "th": "ไม่ควรขับผ่านน้ำท่วม"
+      "th": "ไม่ควรขับผ่านน้ำท่วม",
+      "rom": "mai khuan khap phan namthuam"
     },
     {
       "en": "Please check the weather forecast.",
@@ -103,7 +116,8 @@
     },
     {
       "en": "Can I stay another night?",
-      "th": "ขออยู่ต่ออีกคืนได้ไหม"
+      "th": "ขออยู่ต่ออีกคืนได้ไหม",
+      "rom": "kho yu to ik khuen dai mai"
     }
   ]
 }

@@ -40,49 +40,60 @@
     {
       "en": "I would like to call the tourist police (1155).",
       "th": "ขอโทรหาตำรวจท่องเที่ยว (1155)",
-      "critical": true
+      "critical": true,
+      "rom": "kho thon ha tamruat thongthiao 1155"
     },
     {
       "en": "I had a fall. I am hurt and need help.",
       "th": "ล้มแล้วบาดเจ็บ ต้องการความช่วยเหลือ",
-      "critical": true
+      "critical": true,
+      "rom": "lom laeo batchep tongkan khwamchuaihelue"
     },
     {
       "en": "I will not leave my passport as a deposit.",
       "th": "ไม่วางพาสปอร์ตเป็นมัดจำ",
-      "critical": true
+      "critical": true,
+      "rom": "mai wang phatpot pen matcham"
     },
     {
       "en": "May I take photos of the bike first?",
-      "th": "ขอถ่ายรูปรถก่อนได้ไหม"
+      "th": "ขอถ่ายรูปรถก่อนได้ไหม",
+      "rom": "kho thairup rot kon dai mai"
     },
     {
       "en": "Please note the existing scratches before I ride.",
-      "th": "ช่วยจดรอยที่มีอยู่แล้วก่อนขับ"
+      "th": "ช่วยจดรอยที่มีอยู่แล้วก่อนขับ",
+      "rom": "chuai chot roi thi mi yulaeo kon khap"
     },
     {
       "en": "Please write the damage on the contract.",
-      "th": "ช่วยจดความเสียหายลงในสัญญา"
+      "th": "ช่วยจดความเสียหายลงในสัญญา",
+      "rom": "chuai chot khwamsiahai long nai sanya"
     },
     {
       "en": "This scratch was already there.",
-      "th": "รอยนี้มีอยู่แล้วก่อนเช่า"
+      "th": "รอยนี้มีอยู่แล้วก่อนเช่า",
+      "rom": "roi ni mi yulaeo kon chao"
     },
     {
       "en": "I can pay a cash deposit.",
-      "th": "วางเงินมัดจำเป็นเงินสดได้"
+      "th": "วางเงินมัดจำเป็นเงินสดได้",
+      "rom": "wang ngoenmatcham pen ngoentt dai"
     },
     {
       "en": "Is there insurance for this bike?",
-      "th": "รถคันนี้มีประกันไหม"
+      "th": "รถคันนี้มีประกันไหม",
+      "rom": "rot khan ni mi prakan mai"
     },
     {
       "en": "Does the insurance cover damage and theft?",
-      "th": "ประกันคุ้มครองความเสียหายและการโจรกรรมไหม"
+      "th": "ประกันคุ้มครองความเสียหายและการโจรกรรมไหม",
+      "rom": "prakan khumkrong khwamsiahai lae kanchonkam mai"
     },
     {
       "en": "The brakes were already weak when I rented it.",
-      "th": "เบรกไม่ค่อยดีตั้งแต่ตอนเช่า"
+      "th": "เบรกไม่ค่อยดีตั้งแต่ตอนเช่า",
+      "rom": "benk makhaioi di tangtae ton chao"
     },
     {
       "en": "The helmet is cracked. Please give me another one.",
@@ -94,15 +105,18 @@
     },
     {
       "en": "Please show me an estimate from a garage.",
-      "th": "ขอดูใบประเมินค่าซ่อมจากอู่"
+      "th": "ขอดูใบประเมินค่าซ่อมจากอู่",
+      "rom": "kho du bai pramoenkha som chak u"
     },
     {
       "en": "That price is too high for such a small scratch.",
-      "th": "รอยเล็กขนาดนี้ราคาสูงเกินไป"
+      "th": "รอยเล็กขนาดนี้ราคาสูงเกินไป",
+      "rom": "roi lek khanat ni rakha sung koenpai"
     },
     {
       "en": "Please do not keep my deposit without proof.",
-      "th": "ขออย่าหักเงินมัดจำโดยไม่มีหลักฐาน"
+      "th": "ขออย่าหักเงินมัดจำโดยไม่มีหลักฐาน",
+      "rom": "kho ya ak ngoenmatcham doi mai mi lakthan"
     }
   ],
   "note": {

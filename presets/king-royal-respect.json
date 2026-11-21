@@ -40,55 +40,67 @@
     {
       "en": "I would like to call my embassy.",
       "th": "ต้องการโทรหาสถานทูต",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan thon ha sathanthut"
     },
     {
       "en": "I want a lawyer.",
       "th": "ต้องการทนายความ",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan thanaikwam"
     },
     {
       "en": "It was a misunderstanding.",
       "th": "เป็นความเข้าใจผิด",
-      "critical": true
+      "critical": true,
+      "rom": "pen khwamkhaochaiphit"
     },
     {
       "en": "I want to speak to a lawyer first.",
       "th": "ขอปรึกษาทนายความก่อน",
-      "critical": true
+      "critical": true,
+      "rom": "kho prueksa thanaikwam kon"
     },
     {
       "en": "I do not want to sign anything yet.",
       "th": "ยังไม่ต้องการเซ็นอะไร",
-      "critical": true
+      "critical": true,
+      "rom": "yang mataingkan sen arai"
     },
     {
       "en": "I am sorry. I did not know the rule.",
-      "th": "ขอโทษ ไม่ทราบกฎนี้"
+      "th": "ขอโทษ ไม่ทราบกฎนี้",
+      "rom": "khothot mai thrap kot ni"
     },
     {
       "en": "I need an interpreter.",
-      "th": "ต้องการล่าม"
+      "th": "ต้องการล่าม",
+      "rom": "tongkan lam"
     },
     {
       "en": "I respect the King.",
-      "th": "เคารพพระมหากษัตริย์"
+      "th": "เคารพพระมหากษัตริย์",
+      "rom": "khaonp phramhaksatri"
     },
     {
       "en": "Please tell me how to behave.",
-      "th": "ช่วยบอกวิธีปฏิบัติตัวหน่อย"
+      "th": "ช่วยบอกวิธีปฏิบัติตัวหน่อย",
+      "rom": "chuai bok withi patibatitua noi"
     },
     {
       "en": "Should I stand up for the anthem?",
-      "th": "ต้องยืนเคารพเพลงสรรเสริญพระบารมีไหม"
+      "th": "ต้องยืนเคารพเพลงสรรเสริญพระบารมีไหม",
+      "rom": "tong yuen khaonp phenng saserin phra banmi mai"
     },
     {
       "en": "When do I stand in the cinema?",
-      "th": "ต้องลุกยืนตอนไหนในโรงภาพยนตร์"
+      "th": "ต้องลุกยืนตอนไหนในโรงภาพยนตร์",
+      "rom": "tong luk yuen ton nai nai rongphapn"
     },
     {
       "en": "Please excuse me.",
-      "th": "ขออภัย"
+      "th": "ขออภัย",
+      "rom": "khophai"
     },
     {
       "en": "May I take a photo of this portrait?",
@@ -100,27 +112,33 @@
     },
     {
       "en": "My banknote fell. I will pick it up.",
-      "th": "ธนบัตรตก จะเก็บขึ้นมา"
+      "th": "ธนบัตรตก จะเก็บขึ้นมา",
+      "rom": "thanabatn tok cha kep khuen ma"
     },
     {
       "en": "Please do not joke about the royal family.",
-      "th": "ขออย่าพูดเล่นเรื่องราชวงศ์"
+      "th": "ขออย่าพูดเล่นเรื่องราชวงศ์",
+      "rom": "kho ya phutlen rueang rachuang"
     },
     {
       "en": "I do not want to discuss the monarchy.",
-      "th": "ไม่ต้องการพูดคุยเรื่องสถาบันพระมหากษัตริย์"
+      "th": "ไม่ต้องการพูดคุยเรื่องสถาบันพระมหากษัตริย์",
+      "rom": "mataingkan phutkhui rueang sathaban phramhaksatri"
     },
     {
       "en": "Where can I pay my respects?",
-      "th": "ไปถวายความเคารพได้ที่ไหน"
+      "th": "ไปถวายความเคารพได้ที่ไหน",
+      "rom": "pai thwai khwamkhaonp dai thinai"
     },
     {
       "en": "Is there a royal ceremony today?",
-      "th": "วันนี้มีพระราชพิธีไหม"
+      "th": "วันนี้มีพระราชพิธีไหม",
+      "rom": "wanni mi phraratphithi mai"
     },
     {
       "en": "Why is the road closed?",
-      "th": "ทำไมปิดถนน"
+      "th": "ทำไมปิดถนน",
+      "rom": "thammai pit thanon"
     },
     {
       "en": "Is the royal procession passing here?",
@@ -128,19 +146,23 @@
     },
     {
       "en": "Should I wait here quietly?",
-      "th": "ต้องรออยู่ที่นี่อย่างเงียบ ๆ ไหม"
+      "th": "ต้องรออยู่ที่นี่อย่างเงียบ ๆ ไหม",
+      "rom": "tong ro yu thini yang ngiap mai"
     },
     {
       "en": "How should I show respect here?",
-      "th": "ควรแสดงความเคารพที่นี่อย่างไร"
+      "th": "ควรแสดงความเคารพที่นี่อย่างไร",
+      "rom": "khuan saetng khwamkhaonp thini yangrai"
     },
     {
       "en": "Do I take off my hat?",
-      "th": "ต้องถอดหมวกไหม"
+      "th": "ต้องถอดหมวกไหม",
+      "rom": "tong thot muak mai"
     },
     {
       "en": "Please do not take photos here.",
-      "th": "ขออย่าถ่ายรูปที่นี่"
+      "th": "ขออย่าถ่ายรูปที่นี่",
+      "rom": "kho ya thairup thini"
     }
   ]
 }

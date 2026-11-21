@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Touristen auf Rollern werden häufig kontrolliert. Nötig: Reisepass oder Kopie, Führerschein der richtigen Klasse (internationaler Führerschein mit Klasse A für Motorräder) und Helm. Ruhig bleiben, höflich fragen, ob es ein Bußgeld ist, und eine Quittung (ใบสั่ง) verlangen. Wie und wo ein Bußgeld bezahlt wird, im Zweifel nachfragen; nicht auf der Straße um Geld verhandeln. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Tourists on scooters are often stopped. You need your passport or a copy, the right licence class (an international permit covering motorcycles) and a helmet. Stay calm, ask politely whether it is a fine and ask for a ticket (ใบสั่ง). Ask how and where a fine is paid when in doubt; do not haggle for cash on the street. Thai lines machine-made, not checked by native speakers."
+    "de": "Touristen auf Rollern werden häufig kontrolliert. Nötig: Reisepass oder Kopie, Führerschein der richtigen Klasse (internationaler Führerschein mit Klasse A für Motorräder) und Helm. Ruhig bleiben, höflich fragen, ob es ein Bußgeld ist, und eine Quittung (ใบสั่ง) verlangen. Wie und wo ein Bußgeld bezahlt wird, im Zweifel nachfragen; nicht auf der Straße um Geld verhandeln. Siehe auch: Verkehrsbußgeld und Strafzettel. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Tourists on scooters are often stopped. You need your passport or a copy, the right licence class (an international permit covering motorcycles) and a helmet. Stay calm, ask politely whether it is a fine and ask for a ticket (ใบสั่ง). Ask how and where a fine is paid when in doubt; do not haggle for cash on the street. See also: Traffic fine and police ticket. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -56,32 +56,39 @@
     {
       "en": "Please call the tourist police (1155).",
       "th": "ช่วยโทรหาตำรวจท่องเที่ยว 1155 ด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai thon ha tamruat thongthiao 1155 duai"
     },
     {
       "en": "I do not understand. Is there someone who speaks English?",
       "th": "ไม่เข้าใจ มีคนพูดภาษาอังกฤษได้ไหม",
-      "critical": true
+      "critical": true,
+      "rom": "mai khaochai mi khanaphut phasaangkrit dai mai"
     },
     {
       "en": "Here is my driving licence.",
-      "th": "นี่ใบขับขี่"
+      "th": "นี่ใบขับขี่",
+      "rom": "ni baikhapkhi"
     },
     {
       "en": "This is my international driving permit.",
-      "th": "นี่คือใบขับขี่สากล"
+      "th": "นี่คือใบขับขี่สากล",
+      "rom": "ni khue baikhapkhi sakn"
     },
     {
       "en": "My passport is at the hotel. Here is a copy.",
-      "th": "หนังสือเดินทางอยู่ที่โรงแรม นี่คือสำเนา"
+      "th": "หนังสือเดินทางอยู่ที่โรงแรม นี่คือสำเนา",
+      "rom": "nangsuedoenthang yu thi rongraem ni khue samnao"
     },
     {
       "en": "The scooter is rented. Here is the contract.",
-      "th": "รถมอเตอร์ไซค์เช่ามา นี่คือสัญญาเช่า"
+      "th": "รถมอเตอร์ไซค์เช่ามา นี่คือสัญญาเช่า",
+      "rom": "rathamotoesai chao ma ni khue sanyachao"
     },
     {
       "en": "Here is the registration of the scooter.",
-      "th": "นี่คือทะเบียนรถ"
+      "th": "นี่คือทะเบียนรถ",
+      "rom": "ni khue thabiannt"
     },
     {
       "en": "I am wearing my helmet.",
@@ -89,23 +96,28 @@
     },
     {
       "en": "What did I do wrong?",
-      "th": "ทำผิดอะไร"
+      "th": "ทำผิดอะไร",
+      "rom": "thamphit arai"
     },
     {
       "en": "Is this an official fine?",
-      "th": "นี่คือค่าปรับตามกฎหมายใช่ไหม"
+      "th": "นี่คือค่าปรับตามกฎหมายใช่ไหม",
+      "rom": "ni khue khaprap tamktmai chaimai"
     },
     {
       "en": "How much is the fine?",
-      "th": "ค่าปรับเท่าไหร่"
+      "th": "ค่าปรับเท่าไหร่",
+      "rom": "khaprap thaorai"
     },
     {
       "en": "May I pay at the police station?",
-      "th": "ขอจ่ายที่สถานีตำรวจได้ไหม"
+      "th": "ขอจ่ายที่สถานีตำรวจได้ไหม",
+      "rom": "kho chai thi sathanitamruat dai mai"
     },
     {
       "en": "Please give me a ticket.",
-      "th": "ขอใบสั่งด้วย"
+      "th": "ขอใบสั่งด้วย",
+      "rom": "kho baisang duai"
     },
     {
       "en": "May I have a receipt?",
@@ -113,11 +125,13 @@
     },
     {
       "en": "I am sorry. I did not know the rule.",
-      "th": "ขอโทษ ไม่ทราบกฎนี้"
+      "th": "ขอโทษ ไม่ทราบกฎนี้",
+      "rom": "khothot mai thrap kot ni"
     },
     {
       "en": "Thank you. May I go now?",
-      "th": "ขอบคุณ ไปต่อได้แล้วใช่ไหม"
+      "th": "ขอบคุณ ไปต่อได้แล้วใช่ไหม",
+      "rom": "khopkhun pai to dai laeo chaimai"
     }
   ]
 }

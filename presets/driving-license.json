@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Mit Roller oder Auto braucht man den Internationalen Führerschein (Klasse Motorrad extra). Die Fahrerlaubnis für Ausländer läuft über das Verkehrsamt (กรมการขนส่งทางบก); Termin, Pass, Visum und ärztliches Attest mitbringen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "For a scooter or car you need an international licence (motorcycle class included). Foreigners apply at the Department of Land Transport; bring passport, visa and a medical certificate. Thai lines machine-made, not checked by native speakers."
+    "de": "Mit Roller oder Auto braucht man den Internationalen Führerschein (Klasse Motorrad extra). Die Fahrerlaubnis für Ausländer läuft über das Verkehrsamt (กรมการขนส่งทางบก); Termin, Pass, Visum und ärztliches Attest mitbringen. Siehe auch: Behörden und Visum, Visumverlängerung. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "For a scooter or car you need an international licence (motorcycle class included). Foreigners apply at the Department of Land Transport; bring passport, visa and a medical certificate. See also: Authorities and visa, Visa extension. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,51 +40,63 @@
     {
       "en": "Is my licence valid for motorbikes?",
       "th": "ใบขับขี่นี้ขับมอเตอร์ไซค์ได้ไหม",
-      "critical": true
+      "critical": true,
+      "rom": "baikhapkhi ni khap motoesai dai mai"
     },
     {
       "en": "I would like to apply for a Thai driving licence.",
-      "th": "ขอทำใบขับขี่ไทย"
+      "th": "ขอทำใบขับขี่ไทย",
+      "rom": "kho tham baikhapkhi thai"
     },
     {
       "en": "I have an international driving permit.",
-      "th": "มีใบขับขี่สากล"
+      "th": "มีใบขับขี่สากล",
+      "rom": "mi baikhapkhi sakn"
     },
     {
       "en": "Which documents do I need?",
-      "th": "ต้องใช้เอกสารอะไรบ้าง"
+      "th": "ต้องใช้เอกสารอะไรบ้าง",
+      "rom": "tong chai eksan arai bang"
     },
     {
       "en": "Do I need a medical certificate?",
-      "th": "ต้องมีใบรับรองแพทย์ไหม"
+      "th": "ต้องมีใบรับรองแพทย์ไหม",
+      "rom": "tong mi bairaprongphaet mai"
     },
     {
       "en": "Where can I get a medical certificate?",
-      "th": "ขอใบรับรองแพทย์ได้ที่ไหน"
+      "th": "ขอใบรับรองแพทย์ได้ที่ไหน",
+      "rom": "kho bairaprongphaet dai thinai"
     },
     {
       "en": "Do I need a document from my embassy?",
-      "th": "ต้องมีเอกสารจากสถานทูตไหม"
+      "th": "ต้องมีเอกสารจากสถานทูตไหม",
+      "rom": "tong mi eksan chak sathanthut mai"
     },
     {
       "en": "Do I need a certificate of residence?",
-      "th": "ต้องมีหนังสือรับรองที่พักไหม"
+      "th": "ต้องมีหนังสือรับรองที่พักไหม",
+      "rom": "tong mi nangsueraprong thiphak mai"
     },
     {
       "en": "Is there a theory test or a practical test?",
-      "th": "มีสอบทฤษฎีหรือสอบขับจริงไหม"
+      "th": "มีสอบทฤษฎีหรือสอบขับจริงไหม",
+      "rom": "mi sop thritdi rue sop khap chring mai"
     },
     {
       "en": "Is the test available in English?",
-      "th": "สอบเป็นภาษาอังกฤษได้ไหม"
+      "th": "สอบเป็นภาษาอังกฤษได้ไหม",
+      "rom": "sop pen phasaangkrit dai mai"
     },
     {
       "en": "How much is the fee?",
-      "th": "ค่าธรรมเนียมเท่าไหร่"
+      "th": "ค่าธรรมเนียมเท่าไหร่",
+      "rom": "khatamniam thaorai"
     },
     {
       "en": "How long does it take?",
-      "th": "ใช้เวลานานเท่าไหร่"
+      "th": "ใช้เวลานานเท่าไหร่",
+      "rom": "chaiwelanan thaorai"
     },
     {
       "en": "I would like to renew my licence.",
@@ -92,15 +104,18 @@
     },
     {
       "en": "I lost my licence.",
-      "th": "ใบขับขี่หาย"
+      "th": "ใบขับขี่หาย",
+      "rom": "baikhapkhi hai"
     },
     {
       "en": "Please make an appointment for me.",
-      "th": "ช่วยนัดวันให้หน่อย"
+      "th": "ช่วยนัดวันให้หน่อย",
+      "rom": "chuai nat wan hai noi"
     },
     {
       "en": "Can you write the address in Thai?",
-      "th": "ช่วยเขียนที่อยู่เป็นภาษาไทยได้ไหม"
+      "th": "ช่วยเขียนที่อยู่เป็นภาษาไทยได้ไหม",
+      "rom": "chuai khian thiyu pen phasathai dai mai"
     }
   ]
 }

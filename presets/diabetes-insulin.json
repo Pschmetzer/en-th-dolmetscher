@@ -40,91 +40,112 @@
     {
       "en": "I have diabetes.",
       "th": "เป็นเบาหวาน",
-      "critical": true
+      "critical": true,
+      "rom": "pen baowan"
     },
     {
       "en": "I need sugar now. My blood sugar is low.",
       "th": "ต้องการน้ำตาลเดี๋ยวนี้ น้ำตาลในเลือดต่ำ",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan namtan diaoni namtan nai lueat tam"
     },
     {
       "en": "I use insulin.",
       "th": "ใช้อินซูลิน",
-      "critical": true
+      "critical": true,
+      "rom": "chai insulin"
     },
     {
       "en": "Please call a doctor. I feel faint.",
       "th": "ช่วยเรียกหมอหน่อย รู้สึกจะเป็นลม",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak mo noi rusuek cha pennm"
     },
     {
       "en": "I feel dizzy and sweaty.",
       "th": "เวียนหัวและเหงื่อออก",
-      "critical": true
+      "critical": true,
+      "rom": "wianhua lae engue ok"
     },
     {
       "en": "Please give me juice or something sweet.",
-      "th": "ขอน้ำผลไม้หรือของหวานหน่อย"
+      "th": "ขอน้ำผลไม้หรือของหวานหน่อย",
+      "rom": "kho nampnmai rue khongwan noi"
     },
     {
       "en": "I need to inject insulin. Is there a private place?",
-      "th": "ต้องฉีดอินซูลิน มีที่ส่วนตัวไหม"
+      "th": "ต้องฉีดอินซูลิน มีที่ส่วนตัวไหม",
+      "rom": "tong chit insulin mi thi suantua mai"
     },
     {
       "en": "Where can I dispose of used needles?",
-      "th": "ทิ้งเข็มที่ใช้แล้วได้ที่ไหน"
+      "th": "ทิ้งเข็มที่ใช้แล้วได้ที่ไหน",
+      "rom": "thing khem thi chailaeo dai thinai"
     },
     {
       "en": "Please keep my insulin in the fridge.",
-      "th": "ช่วยเก็บอินซูลินไว้ในตู้เย็นหน่อย"
+      "th": "ช่วยเก็บอินซูลินไว้ในตู้เย็นหน่อย",
+      "rom": "chuai kep insulin wai nai tuyen noi"
     },
     {
       "en": "Do you sell insulin pens here?",
-      "th": "ที่นี่มีปากกาอินซูลินขายไหม"
+      "th": "ที่นี่มีปากกาอินซูลินขายไหม",
+      "rom": "thini mi pakka insulin khai mai"
     },
     {
       "en": "I need test strips for my meter.",
-      "th": "ต้องการแถบตรวจน้ำตาลสำหรับเครื่องวัดนี้"
+      "th": "ต้องการแถบตรวจน้ำตาลสำหรับเครื่องวัดนี้",
+      "rom": "tongkan thaep truat namtan samrap kheruengwat ni"
     },
     {
       "en": "Can I check my blood sugar here?",
-      "th": "ตรวจน้ำตาลในเลือดที่นี่ได้ไหม"
+      "th": "ตรวจน้ำตาลในเลือดที่นี่ได้ไหม",
+      "rom": "truat namtan nai lueat thini dai mai"
     },
     {
       "en": "Is there sugar in this dish?",
-      "th": "จานนี้มีน้ำตาลไหม"
+      "th": "จานนี้มีน้ำตาลไหม",
+      "rom": "chan ni mi namtan mai"
     },
     {
       "en": "Please make it without sugar.",
-      "th": "ขอไม่ใส่น้ำตาลหน่อย"
+      "th": "ขอไม่ใส่น้ำตาลหน่อย",
+      "rom": "kho mai sai namtan noi"
     },
     {
       "en": "I need to eat at regular times.",
-      "th": "ต้องกินอาหารให้ตรงเวลา"
+      "th": "ต้องกินอาหารให้ตรงเวลา",
+      "rom": "tong kin ahan hai trangwela"
     },
     {
       "en": "This is my doctor's letter.",
-      "th": "นี่คือจดหมายรับรองจากแพทย์"
+      "th": "นี่คือจดหมายรับรองจากแพทย์",
+      "rom": "ni khue chadahamai raprong chak phaet"
     },
     {
       "en": "I carry insulin and needles for medical use.",
-      "th": "พกอินซูลินและเข็มไว้ใช้รักษา"
+      "th": "พกอินซูลินและเข็มไว้ใช้รักษา",
+      "rom": "phok insulin lae khem wai chai raksa"
     },
     {
       "en": "Please do not put my insulin through the X-ray machine.",
-      "th": "ขออย่าให้อินซูลินผ่านเครื่องเอกซเรย์"
+      "th": "ขออย่าให้อินซูลินผ่านเครื่องเอกซเรย์",
+      "rom": "kho ya hai insulin phan kherueng ektre"
     },
     {
       "en": "I need a hospital for my diabetes.",
-      "th": "ต้องไปโรงพยาบาลเรื่องเบาหวาน"
+      "th": "ต้องไปโรงพยาบาลเรื่องเบาหวาน",
+      "rom": "tong pai rongpyaban rueang baowan"
     },
     {
       "en": "Does this medicine contain sugar?",
-      "th": "ยานี้มีน้ำตาลไหม"
+      "th": "ยานี้มีน้ำตาลไหม",
+      "rom": "ya ni mi namtan mai"
     },
     {
       "en": "Where can I buy glucose tablets?",
-      "th": "ซื้อเม็ดน้ำตาลกลูโคสได้ที่ไหน"
+      "th": "ซื้อเม็ดน้ำตาลกลูโคสได้ที่ไหน",
+      "rom": "sue met namtan klukhot dai thinai"
     }
   ]
 }

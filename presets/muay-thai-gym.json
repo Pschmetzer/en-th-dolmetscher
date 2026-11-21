@@ -40,75 +40,92 @@
     {
       "en": "Stop!",
       "th": "หยุด",
-      "critical": true
+      "critical": true,
+      "rom": "yut"
     },
     {
       "en": "I hit my head.",
       "th": "ศีรษะกระแทก",
-      "critical": true
+      "critical": true,
+      "rom": "sinsa krathaek"
     },
     {
       "en": "I cannot breathe.",
       "th": "หายใจไม่ออก",
-      "critical": true
+      "critical": true,
+      "rom": "aichaimoaik"
     },
     {
       "en": "I need medical help.",
       "th": "ต้องการความช่วยเหลือทางการแพทย์",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan khwamchuaihelue thangkanphaet"
     },
     {
       "en": "I have an injury here.",
       "th": "มีอาการบาดเจ็บตรงนี้",
-      "critical": true
+      "critical": true,
+      "rom": "mi akan batchep trangani"
     },
     {
       "en": "I am a beginner.",
-      "th": "เป็นมือใหม่"
+      "th": "เป็นมือใหม่",
+      "rom": "pen muehaim"
     },
     {
       "en": "How much is one session?",
-      "th": "ฝึกครั้งละเท่าไหร่"
+      "th": "ฝึกครั้งละเท่าไหร่",
+      "rom": "fuek khrang la thaorai"
     },
     {
       "en": "How much is a week?",
-      "th": "รายสัปดาห์เท่าไหร่"
+      "th": "รายสัปดาห์เท่าไหร่",
+      "rom": "raisapda thaorai"
     },
     {
       "en": "What time is the morning class?",
-      "th": "คลาสเช้ากี่โมง"
+      "th": "คลาสเช้ากี่โมง",
+      "rom": "khlat chao ki mong"
     },
     {
       "en": "Is there a class for beginners?",
-      "th": "มีคลาสสำหรับมือใหม่ไหม"
+      "th": "มีคลาสสำหรับมือใหม่ไหม",
+      "rom": "mi khlat samrap muehaim mai"
     },
     {
       "en": "Can I try one class first?",
-      "th": "ขอลองเรียนหนึ่งคลาสก่อนได้ไหม"
+      "th": "ขอลองเรียนหนึ่งคลาสก่อนได้ไหม",
+      "rom": "kho long rian nueng khlat kon dai mai"
     },
     {
       "en": "Is a private lesson possible?",
-      "th": "เรียนตัวต่อตัวได้ไหม"
+      "th": "เรียนตัวต่อตัวได้ไหม",
+      "rom": "rian tuatotua dai mai"
     },
     {
       "en": "Do you provide gloves and shin guards?",
-      "th": "มีนวมและสนับแข้งให้ไหม"
+      "th": "มีนวมและสนับแข้งให้ไหม",
+      "rom": "mi nuam lae sanapkhaeng hai mai"
     },
     {
       "en": "Where can I buy shorts and hand wraps?",
-      "th": "ซื้อกางเกงและผ้าพันมือได้ที่ไหน"
+      "th": "ซื้อกางเกงและผ้าพันมือได้ที่ไหน",
+      "rom": "sue kangkeng lae pha phan mue dai thinai"
     },
     {
       "en": "Please go slower.",
-      "th": "ช่วยทำช้าลงหน่อย"
+      "th": "ช่วยทำช้าลงหน่อย",
+      "rom": "chuai tham cha long noi"
     },
     {
       "en": "Can you show me again?",
-      "th": "ช่วยทำให้ดูอีกครั้งได้ไหม"
+      "th": "ช่วยทำให้ดูอีกครั้งได้ไหม",
+      "rom": "chuai thamhai du ikkrang dai mai"
     },
     {
       "en": "Lighter, please.",
-      "th": "ขอเบาลงหน่อย"
+      "th": "ขอเบาลงหน่อย",
+      "rom": "kho bao long noi"
     },
     {
       "en": "Is there a shower?",
@@ -116,7 +133,8 @@
     },
     {
       "en": "Do you offer accommodation?",
-      "th": "มีที่พักให้ไหม"
+      "th": "มีที่พักให้ไหม",
+      "rom": "mi thiphak hai mai"
     }
   ]
 }

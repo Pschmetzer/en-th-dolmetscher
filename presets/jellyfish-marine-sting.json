@@ -1,0 +1,179 @@
+{
+  "id": "jellyfish-marine-sting",
+  "names": {
+    "de": "Quallen und Meerestiere",
+    "en": "Jellyfish and sea stings",
+    "th": "แมงกะพรุนและสัตว์ทะเลต่อย"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Bei Verbrennungen durch Würfelquallen (Box Jellyfish, vor allem in der Regenzeit im Golf) die Stelle sofort mit viel Essig übergießen, nicht reiben, kein Süßwasser, und 1669 (Rettung) rufen. Seeigel-Stacheln und Korallenschnitte vom Arzt säubern lassen. Rettungsschwimmer und rote Flaggen am Strand beachten. Siehe auch: Strand. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "For box jellyfish stings (mostly in the rainy season in the Gulf) pour plenty of vinegar on the area at once, do not rub, use no fresh water, and call 1669 (ambulance). Have sea urchin spines and coral cuts cleaned by a doctor. Heed lifeguards and red flags on the beach. See also: Beach. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "jellyfish",
+      "th": "แมงกะพรุน"
+    },
+    {
+      "en": "vinegar",
+      "th": "น้ำส้มสายชู"
+    },
+    {
+      "en": "sting",
+      "th": "การต่อย"
+    },
+    {
+      "en": "sea urchin",
+      "th": "เม่นทะเล"
+    },
+    {
+      "en": "coral",
+      "th": "ปะการัง"
+    },
+    {
+      "en": "lifeguard",
+      "th": "เจ้าหน้าที่ช่วยชีวิต"
+    },
+    {
+      "en": "red flag",
+      "th": "ธงแดง"
+    },
+    {
+      "en": "rash",
+      "th": "ผื่น"
+    },
+    {
+      "en": "beach",
+      "th": "ชายหาด"
+    },
+    {
+      "en": "pain",
+      "th": "ความเจ็บปวด"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I was stung by a jellyfish.",
+      "th": "โดนแมงกะพรุนต่อย",
+      "critical": true,
+      "rom": "don maengkaprun toi"
+    },
+    {
+      "en": "Where is the nearest clinic?",
+      "th": "คลินิกที่ใกล้ที่สุดอยู่ที่ไหน",
+      "critical": true,
+      "rom": "khlinik thi kain thisut yu thinai"
+    },
+    {
+      "en": "I think it was a box jellyfish.",
+      "th": "คิดว่าเป็นแมงกะพรุนกล่อง",
+      "critical": true,
+      "rom": "khit wa pen maengkaprun klong"
+    },
+    {
+      "en": "Please bring vinegar quickly.",
+      "th": "ช่วยเอาน้ำส้มสายชูมาเร็วๆ",
+      "critical": true
+    },
+    {
+      "en": "Please call an ambulance (1669).",
+      "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
+      "critical": true,
+      "rom": "chuai riak rathaphayaban duai 1669"
+    },
+    {
+      "en": "I have severe pain and difficulty breathing.",
+      "th": "เจ็บปวดมากและหายใจลำบาก",
+      "critical": true,
+      "rom": "cheppuat mak lae aichai lambak"
+    },
+    {
+      "en": "My chest feels tight.",
+      "th": "แน่นหน้าอก",
+      "critical": true,
+      "rom": "naennak"
+    },
+    {
+      "en": "Please call a lifeguard.",
+      "th": "ช่วยเรียกเจ้าหน้าที่ช่วยชีวิตด้วย",
+      "critical": true,
+      "rom": "chuai riak chaonathi chuaichiwit duai"
+    },
+    {
+      "en": "Please do not rub the skin.",
+      "th": "ขออย่าถูผิวหนัง",
+      "critical": true,
+      "rom": "kho ya thu phionang"
+    },
+    {
+      "en": "Do you have vinegar here?",
+      "th": "ที่นี่มีน้ำส้มสายชูไหม",
+      "rom": "thini mi namtmsaichu mai"
+    },
+    {
+      "en": "Please do not wash it with fresh water.",
+      "th": "ขออย่าล้างด้วยน้ำจืด",
+      "rom": "kho ya lang duai namchuet"
+    },
+    {
+      "en": "I stepped on a sea urchin.",
+      "th": "เหยียบเม่นทะเล"
+    },
+    {
+      "en": "There are spines in my foot.",
+      "th": "มีหนามติดอยู่ในเท้า",
+      "rom": "mi nam tit yu nai thao"
+    },
+    {
+      "en": "I cut myself on coral.",
+      "th": "โดนปะการังบาด",
+      "rom": "don pakarang bat"
+    },
+    {
+      "en": "Is there a first aid post on this beach?",
+      "th": "ชายหาดนี้มีจุดปฐมพยาบาลไหม",
+      "rom": "chaihat ni mi chut pathamaphayaban mai"
+    },
+    {
+      "en": "Are there jellyfish in the water today?",
+      "th": "วันนี้มีแมงกะพรุนในน้ำไหม",
+      "rom": "wanni mi maengkaprun nai nam mai"
+    },
+    {
+      "en": "What does the red flag mean?",
+      "th": "ธงแดงหมายความว่าอย่างไร",
+      "rom": "thong daeng maikwamwa yangrai"
+    },
+    {
+      "en": "Is it safe to swim here?",
+      "th": "ว่ายน้ำตรงนี้ปลอดภัยไหม",
+      "rom": "wainam trangani plotphai mai"
+    },
+    {
+      "en": "Do I need a tetanus shot?",
+      "th": "ต้องฉีดบาดทะยักไหม",
+      "rom": "tong chit batthayak mai"
+    },
+    {
+      "en": "I have a red rash on my arm.",
+      "th": "มีผื่นแดงที่แขน",
+      "rom": "mi phuen daeng thi khaen"
+    },
+    {
+      "en": "Please give me something for the pain.",
+      "th": "ขอยาแก้ปวดหน่อย",
+      "rom": "kho yakaepuat noi"
+    },
+    {
+      "en": "Where can I buy an after-sting cream?",
+      "th": "ซื้อครีมทาหลังโดนต่อยได้ที่ไหน",
+      "rom": "sue khrim tha lang don toi dai thinai"
+    },
+    {
+      "en": "Please give me a certificate for my insurance.",
+      "th": "ขอใบรับรองแพทย์สำหรับประกันด้วย",
+      "rom": "kho bairaprongphaet samrap prakan duai"
+    }
+  ]
+}

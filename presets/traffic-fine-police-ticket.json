@@ -1,0 +1,164 @@
+{
+  "id": "traffic-fine-police-ticket",
+  "names": {
+    "de": "Verkehrsbußgeld und Strafzettel",
+    "en": "Traffic fine and police ticket",
+    "th": "ใบสั่งจราจรและค่าปรับ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Bei einer Kontrolle ruhig und höflich bleiben, Führerschein und Fahrzeugpapiere zeigen und einen schriftlichen Bescheid (ใบสั่ง) verlangen. Die Strafe wird gegen Quittung bei der Polizeistation oder über die offiziellen Zahlstellen bezahlt; Barzahlung am Straßenrand ohne Beleg ablehnen. Bei Streit Touristenpolizei 1155 rufen. Siehe auch: Polizeikontrolle / Führerschein. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "During a stop stay calm and polite, show your licence and vehicle papers and ask for a written ticket (ใบสั่ง). Fines are paid against a receipt at the police station or official payment points; decline roadside cash without a receipt. In a dispute call the tourist police 1155. See also: Police checkpoint. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "fine",
+      "th": "ค่าปรับ"
+    },
+    {
+      "en": "ticket",
+      "th": "ใบสั่ง"
+    },
+    {
+      "en": "police",
+      "th": "ตำรวจ"
+    },
+    {
+      "en": "licence",
+      "th": "ใบขับขี่"
+    },
+    {
+      "en": "helmet",
+      "th": "หมวกกันน็อก"
+    },
+    {
+      "en": "speeding",
+      "th": "ขับเร็ว"
+    },
+    {
+      "en": "red light",
+      "th": "ไฟแดง"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    },
+    {
+      "en": "police station",
+      "th": "สถานีตำรวจ"
+    },
+    {
+      "en": "registration",
+      "th": "ทะเบียนรถ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Please give me a written ticket.",
+      "th": "ขอใบสั่งเป็นลายลักษณ์อักษร",
+      "critical": true
+    },
+    {
+      "en": "I do not understand. Please call an interpreter.",
+      "th": "ไม่เข้าใจ ช่วยเรียกล่ามหน่อย",
+      "critical": true,
+      "rom": "mai khaochai chuai riak lam noi"
+    },
+    {
+      "en": "Please call the tourist police (1155).",
+      "th": "ช่วยโทรหาตำรวจท่องเที่ยว 1155 ด้วย",
+      "critical": true,
+      "rom": "chuai thon ha tamruat thongthiao 1155 duai"
+    },
+    {
+      "en": "I would like to contact my embassy.",
+      "th": "ขอติดต่อสถานทูต",
+      "critical": true,
+      "rom": "kho titto sathanthut"
+    },
+    {
+      "en": "Please do not keep my passport.",
+      "th": "ขออย่าเก็บหนังสือเดินทางไว้",
+      "critical": true,
+      "rom": "kho ya kep nangsuedoenthang wai"
+    },
+    {
+      "en": "Here is my driving licence.",
+      "th": "นี่ใบขับขี่",
+      "rom": "ni baikhapkhi"
+    },
+    {
+      "en": "I would like a receipt for the fine.",
+      "th": "ขอใบเสร็จค่าปรับ"
+    },
+    {
+      "en": "Here are the vehicle papers.",
+      "th": "นี่คือเอกสารรถ",
+      "rom": "ni khue eksan rot"
+    },
+    {
+      "en": "What is the offence?",
+      "th": "ผิดข้อหาอะไร",
+      "rom": "phit khoha arai"
+    },
+    {
+      "en": "How much is the fine?",
+      "th": "ค่าปรับเท่าไหร่",
+      "rom": "khaprap thaorai"
+    },
+    {
+      "en": "Where can I pay the fine?",
+      "th": "จ่ายค่าปรับได้ที่ไหน",
+      "rom": "chai khaprap dai thinai"
+    },
+    {
+      "en": "Can I pay at the police station?",
+      "th": "จ่ายที่สถานีตำรวจได้ไหม",
+      "rom": "chai thi sathanitamruat dai mai"
+    },
+    {
+      "en": "Can I pay by card or QR code?",
+      "th": "จ่ายด้วยบัตรหรือคิวอาร์โค้ดได้ไหม",
+      "rom": "chai duai batn rue khio a khot dai mai"
+    },
+    {
+      "en": "I forgot my helmet.",
+      "th": "ลืมใส่หมวกกันน็อก"
+    },
+    {
+      "en": "I did not see the sign.",
+      "th": "ไม่เห็นป้าย",
+      "rom": "mai en pai"
+    },
+    {
+      "en": "I am a tourist and new here.",
+      "th": "เป็นนักท่องเที่ยวและยังไม่คุ้นเคย",
+      "rom": "pen nakthongthiao lae yang mai khunkhoei"
+    },
+    {
+      "en": "Is this the official amount?",
+      "th": "นี่คือจำนวนเงินตามกฎหมายใช่ไหม",
+      "rom": "ni khue chamnuan ngoen tamktmai chaimai"
+    },
+    {
+      "en": "Can I see your ticket book?",
+      "th": "ขอดูสมุดใบสั่งหน่อยได้ไหม",
+      "rom": "kho du samut baisang noi dai mai"
+    },
+    {
+      "en": "How long do I have to pay?",
+      "th": "มีเวลาจ่ายนานเท่าไร",
+      "rom": "mi wela chai nan thaorai"
+    },
+    {
+      "en": "Do I get my licence back after paying?",
+      "th": "จ่ายแล้วได้ใบขับขี่คืนไหม",
+      "rom": "chai laeo dai baikhapkhi khuen mai"
+    },
+    {
+      "en": "Thank you for your help.",
+      "th": "ขอบคุณมากที่ช่วย",
+      "rom": "khopkhun mak thi chuai"
+    }
+  ]
+}

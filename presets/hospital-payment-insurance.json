@@ -40,60 +40,73 @@
     {
       "en": "Please treat me first. I will pay later.",
       "th": "ขอรักษาก่อน แล้วจะจ่ายทีหลัง",
-      "critical": true
+      "critical": true,
+      "rom": "kho raksa kon lae wacha chai thilang"
     },
     {
       "en": "I need to speak to a doctor now.",
       "th": "ขอพบแพทย์เดี๋ยวนี้",
-      "critical": true
+      "critical": true,
+      "rom": "kho phop phaet diaoni"
     },
     {
       "en": "I do not have insurance. Please help me.",
       "th": "ไม่มีประกัน ช่วยด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "mai mi prakan chuaiduai"
     },
     {
       "en": "Please call my insurance company. It is urgent.",
       "th": "ช่วยโทรหาบริษัทประกันด่วน",
-      "critical": true
+      "critical": true,
+      "rom": "chuai thon ha brisat prakan duan"
     },
     {
       "en": "I am in severe pain.",
       "th": "ปวดมาก",
-      "critical": true
+      "critical": true,
+      "rom": "puat mak"
     },
     {
       "en": "I cannot breathe.",
       "th": "หายใจไม่ออก",
-      "critical": true
+      "critical": true,
+      "rom": "aichaimoaik"
     },
     {
       "en": "I need an interpreter.",
-      "th": "ต้องการล่าม"
+      "th": "ต้องการล่าม",
+      "rom": "tongkan lam"
     },
     {
       "en": "Do you accept my travel insurance?",
-      "th": "รับประกันการเดินทางนี้ไหม"
+      "th": "รับประกันการเดินทางนี้ไหม",
+      "rom": "rapprakan kan doenthang ni mai"
     },
     {
       "en": "I have travel insurance.",
-      "th": "มีประกันการเดินทาง"
+      "th": "มีประกันการเดินทาง",
+      "rom": "mi prakan kan doenthang"
     },
     {
       "en": "Here is my policy number.",
-      "th": "นี่คือเลขกรมธรรม์"
+      "th": "นี่คือเลขกรมธรรม์",
+      "rom": "ni khue lek kramathan"
     },
     {
       "en": "Can you send the bill directly to the insurer?",
-      "th": "ส่งบิลตรงไปที่บริษัทประกันได้ไหม"
+      "th": "ส่งบิลตรงไปที่บริษัทประกันได้ไหม",
+      "rom": "song bin trong pai thi brisat prakan dai mai"
     },
     {
       "en": "Do I need to pay a deposit first?",
-      "th": "ต้องวางเงินมัดจำก่อนไหม"
+      "th": "ต้องวางเงินมัดจำก่อนไหม",
+      "rom": "tong wang ngoenmatcham kon mai"
     },
     {
       "en": "How much will the treatment cost?",
-      "th": "ค่ารักษาประมาณเท่าไร"
+      "th": "ค่ารักษาประมาณเท่าไร",
+      "rom": "kharaksa praman thaorai"
     },
     {
       "en": "Please give me an estimate in writing.",
@@ -101,19 +114,23 @@
     },
     {
       "en": "Can I pay by credit card?",
-      "th": "จ่ายด้วยบัตรเครดิตได้ไหม"
+      "th": "จ่ายด้วยบัตรเครดิตได้ไหม",
+      "rom": "chai duai batnkhendit dai mai"
     },
     {
       "en": "Can I pay in instalments?",
-      "th": "ผ่อนจ่ายได้ไหม"
+      "th": "ผ่อนจ่ายได้ไหม",
+      "rom": "phon chai dai mai"
     },
     {
       "en": "Please give me an itemised bill.",
-      "th": "ขอบิลแยกรายการ"
+      "th": "ขอบิลแยกรายการ",
+      "rom": "kho bin yaek raikan"
     },
     {
       "en": "I need a medical certificate for my insurance.",
-      "th": "ขอใบรับรองแพทย์สำหรับประกันด้วย"
+      "th": "ขอใบรับรองแพทย์สำหรับประกันด้วย",
+      "rom": "kho bairaprongphaet samrap prakan duai"
     },
     {
       "en": "I need a receipt in English.",
@@ -121,23 +138,28 @@
     },
     {
       "en": "Please write the diagnosis in English.",
-      "th": "ช่วยเขียนผลวินิจฉัยเป็นภาษาอังกฤษ"
+      "th": "ช่วยเขียนผลวินิจฉัยเป็นภาษาอังกฤษ",
+      "rom": "chuai khian phon winitchai pen phasaangkrit"
     },
     {
       "en": "Is the claim form here?",
-      "th": "มีแบบฟอร์มเคลมประกันไหม"
+      "th": "มีแบบฟอร์มเคลมประกันไหม",
+      "rom": "mi baepfom khenm prakan mai"
     },
     {
       "en": "Please stamp this form.",
-      "th": "ช่วยประทับตราแบบฟอร์มนี้หน่อย"
+      "th": "ช่วยประทับตราแบบฟอร์มนี้หน่อย",
+      "rom": "chuai prathaptra baepfom ni noi"
     },
     {
       "en": "Is there a private room?",
-      "th": "มีห้องพิเศษไหม"
+      "th": "มีห้องพิเศษไหม",
+      "rom": "mi ong phiset mai"
     },
     {
       "en": "Is there an interpreter?",
-      "th": "มีล่ามไหม"
+      "th": "มีล่ามไหม",
+      "rom": "mi lam mai"
     }
   ]
 }

@@ -48,76 +48,93 @@
     {
       "en": "Please do not take my passport as a deposit.",
       "th": "ขออย่ารับหนังสือเดินทางเป็นมัดจำ",
-      "critical": true
+      "critical": true,
+      "rom": "kho ya rap nangsuedoenthang pen matcham"
     },
     {
       "en": "I do not pay before I see the registration book.",
       "th": "จะไม่จ่ายเงินก่อนได้เห็นเล่มทะเบียนรถ",
-      "critical": true
+      "critical": true,
+      "rom": "cha mai chai ngoen kon dai en lem thabiannt"
     },
     {
       "en": "The brakes do not work well.",
       "th": "เบรกไม่ค่อยดี",
-      "critical": true
+      "critical": true,
+      "rom": "benk makhaioi di"
     },
     {
       "en": "There is an accident record on this car.",
       "th": "รถคันนี้มีประวัติอุบัติเหตุ",
-      "critical": true
+      "critical": true,
+      "rom": "rot khan ni miprawati ubatihetu"
     },
     {
       "en": "Please call the police, this seller is cheating.",
       "th": "ช่วยโทรเรียกตำรวจหน่อย คนขายหลอกลวง",
-      "critical": true
+      "critical": true,
+      "rom": "chuai thon riak tamruat noi khon khai lokluang"
     },
     {
       "en": "I need a lawyer to check the contract.",
       "th": "ต้องการทนายความช่วยตรวจสัญญา",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan thanaikwam chuai truat sanya"
     },
     {
       "en": "I would like to buy a used motorbike.",
-      "th": "ต้องการซื้อมอเตอร์ไซค์มือสอง"
+      "th": "ต้องการซื้อมอเตอร์ไซค์มือสอง",
+      "rom": "tongkan sue motoesai muesong"
     },
     {
       "en": "How many owners did it have before?",
-      "th": "มีเจ้าของมาก่อนกี่คน"
+      "th": "มีเจ้าของมาก่อนกี่คน",
+      "rom": "michaokhong ma kon ki khon"
     },
     {
       "en": "May I see the registration book?",
-      "th": "ขอดูเล่มทะเบียนรถหน่อย"
+      "th": "ขอดูเล่มทะเบียนรถหน่อย",
+      "rom": "kho du lem thabiannt noi"
     },
     {
       "en": "Is the tax up to date?",
-      "th": "ภาษีรถเป็นปัจจุบันไหม"
+      "th": "ภาษีรถเป็นปัจจุบันไหม",
+      "rom": "phasi rot pen patchuban mai"
     },
     {
       "en": "May I take a test drive?",
-      "th": "ขอทดลองขับได้ไหม"
+      "th": "ขอทดลองขับได้ไหม",
+      "rom": "kho thadlong khap dai mai"
     },
     {
       "en": "What is the lowest price?",
-      "th": "ราคาต่ำสุดเท่าไร"
+      "th": "ราคาต่ำสุดเท่าไร",
+      "rom": "rakha tamsut thaorai"
     },
     {
       "en": "Please let a mechanic check the engine.",
-      "th": "ขอให้ช่างตรวจเครื่องยนต์หน่อย"
+      "th": "ขอให้ช่างตรวจเครื่องยนต์หน่อย",
+      "rom": "khohai chang truat kheruengn noi"
     },
     {
       "en": "Is there a warranty after the sale?",
-      "th": "หลังขายมีการรับประกันไหม"
+      "th": "หลังขายมีการรับประกันไหม",
+      "rom": "lang khai mi kaaapprakan mai"
     },
     {
       "en": "Who pays for the transfer of ownership?",
-      "th": "ใครเป็นคนจ่ายค่าโอนทะเบียน"
+      "th": "ใครเป็นคนจ่ายค่าโอนทะเบียน",
+      "rom": "khain pen khon chai kha on thabian"
     },
     {
       "en": "Please write the price in the contract.",
-      "th": "ช่วยเขียนราคาในสัญญาหน่อย"
+      "th": "ช่วยเขียนราคาในสัญญาหน่อย",
+      "rom": "chuai khian rakha nai sanya noi"
     },
     {
       "en": "Can a foreigner register a vehicle here?",
-      "th": "ชาวต่างชาติจดทะเบียนรถที่นี่ได้ไหม"
+      "th": "ชาวต่างชาติจดทะเบียนรถที่นี่ได้ไหม",
+      "rom": "chaotangchati chot thabiannt thini dai mai"
     },
     {
       "en": "I would like a receipt for the payment.",
@@ -125,15 +142,18 @@
     },
     {
       "en": "Where do I buy insurance for this vehicle?",
-      "th": "ซื้อประกันสำหรับรถคันนี้ได้ที่ไหน"
+      "th": "ซื้อประกันสำหรับรถคันนี้ได้ที่ไหน",
+      "rom": "sue prakan samrap rot khan ni dai thinai"
     },
     {
       "en": "Please give me both keys.",
-      "th": "ขอกุญแจทั้งสองดอกหน่อย"
+      "th": "ขอกุญแจทั้งสองดอกหน่อย",
+      "rom": "kho kunchae thangsong dok noi"
     },
     {
       "en": "Thank you, I will think about it.",
-      "th": "ขอบคุณ จะขอไปคิดดูก่อน"
+      "th": "ขอบคุณ จะขอไปคิดดูก่อน",
+      "rom": "khopkhun cha kho pai khit dukon"
     }
   ]
 }

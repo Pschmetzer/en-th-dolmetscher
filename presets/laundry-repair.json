@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Vor einer Handyreparatur Daten sichern und Gerät sperren; Zustand fotografieren. Preis und Dauer vorher klären, Beleg und Garantie verlangen. Bei Kleidung und Schuhen Probe oder Abholzeit festhalten. Preise schwanken stark, im Zweifel zwei Läden vergleichen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Back up your data and lock the device before a phone repair; photograph its condition. Agree price and time first and ask for a receipt and guarantee. For clothes and shoes fix a fitting or pick-up time. Prices vary a lot, compare two shops if in doubt. Thai lines machine-made, not checked by native speakers."
+    "de": "Vor einer Handyreparatur Daten sichern und Gerät sperren; Zustand fotografieren. Preis und Dauer vorher klären, Beleg und Garantie verlangen. Bei Kleidung und Schuhen Probe oder Abholzeit festhalten. Preise schwanken stark, im Zweifel zwei Läden vergleichen. Siehe auch: Wäscherei, Friseur, Schneider. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Back up your data and lock the device before a phone repair; photograph its condition. Agree price and time first and ask for a receipt and guarantee. For clothes and shoes fix a fitting or pick-up time. Prices vary a lot, compare two shops if in doubt. See also: Laundry, hairdresser, tailor. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,19 +40,23 @@
     {
       "en": "Please do not erase my data.",
       "th": "ห้ามลบข้อมูลในเครื่อง",
-      "critical": true
+      "critical": true,
+      "rom": "am lop khomun nai kherueng"
     },
     {
       "en": "Can you repair this?",
-      "th": "ซ่อมอันนี้ได้ไหม"
+      "th": "ซ่อมอันนี้ได้ไหม",
+      "rom": "som anni dai mai"
     },
     {
       "en": "Please agree the price before you start.",
-      "th": "ขอตกลงราคาก่อนเริ่มทำ"
+      "th": "ขอตกลงราคาก่อนเริ่มทำ",
+      "rom": "kho taklong rakha kon roem tham"
     },
     {
       "en": "How much will the repair cost?",
-      "th": "ค่าซ่อมเท่าไหร่"
+      "th": "ค่าซ่อมเท่าไหร่",
+      "rom": "kha som thaorai"
     },
     {
       "en": "When will it be ready?",
@@ -60,55 +64,68 @@
     },
     {
       "en": "How long will it take?",
-      "th": "ใช้เวลานานเท่าไหร่"
+      "th": "ใช้เวลานานเท่าไหร่",
+      "rom": "chaiwelanan thaorai"
     },
     {
       "en": "The screen is cracked.",
-      "th": "หน้าจอแตก"
+      "th": "หน้าจอแตก",
+      "rom": "nacho taek"
     },
     {
       "en": "The battery drains quickly.",
-      "th": "แบตเตอรี่หมดเร็ว"
+      "th": "แบตเตอรี่หมดเร็ว",
+      "rom": "baettoeri mot reo"
     },
     {
       "en": "The phone fell into water.",
-      "th": "โทรศัพท์ตกน้ำ"
+      "th": "โทรศัพท์ตกน้ำ",
+      "rom": "thonsap takanam"
     },
     {
       "en": "The charging port does not work.",
-      "th": "ช่องชาร์จใช้ไม่ได้"
+      "th": "ช่องชาร์จใช้ไม่ได้",
+      "rom": "chong chat chaimaidai"
     },
     {
       "en": "Could you replace the zip?",
-      "th": "ช่วยเปลี่ยนซิปให้หน่อย"
+      "th": "ช่วยเปลี่ยนซิปให้หน่อย",
+      "rom": "chuai pelin sip hai noi"
     },
     {
       "en": "Could you sew on this button?",
-      "th": "ช่วยเย็บกระดุมให้หน่อย"
+      "th": "ช่วยเย็บกระดุมให้หน่อย",
+      "rom": "chuai yep kradum hai noi"
     },
     {
       "en": "Could you shorten these trousers?",
-      "th": "ช่วยตัดกางเกงให้สั้นลงหน่อย"
+      "th": "ช่วยตัดกางเกงให้สั้นลงหน่อย",
+      "rom": "chuai tat kangkeng hai san long noi"
     },
     {
       "en": "Could you alter this?",
-      "th": "ช่วยแก้ขนาดให้หน่อยได้ไหม"
+      "th": "ช่วยแก้ขนาดให้หน่อยได้ไหม",
+      "rom": "chuai kae khanat hai noi dai mai"
     },
     {
       "en": "Could you resole these shoes?",
-      "th": "ช่วยเปลี่ยนพื้นรองเท้าให้หน่อย"
+      "th": "ช่วยเปลี่ยนพื้นรองเท้าให้หน่อย",
+      "rom": "chuai pelin phuen rongthao hai noi"
     },
     {
       "en": "Could you glue the sole?",
-      "th": "ช่วยติดกาวพื้นรองเท้าให้หน่อย"
+      "th": "ช่วยติดกาวพื้นรองเท้าให้หน่อย",
+      "rom": "chuai tit kao phuen rongthao hai noi"
     },
     {
       "en": "Could you polish my shoes?",
-      "th": "ช่วยขัดรองเท้าให้หน่อย"
+      "th": "ช่วยขัดรองเท้าให้หน่อย",
+      "rom": "chuai khat rongthao hai noi"
     },
     {
       "en": "Is the repair guaranteed?",
-      "th": "รับประกันงานซ่อมไหม"
+      "th": "รับประกันงานซ่อมไหม",
+      "rom": "rapprakan ngan som mai"
     },
     {
       "en": "Could I have a receipt, please?",

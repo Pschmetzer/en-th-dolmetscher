@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Schuhe vor dem Laden ausziehen; ein Lächeln und ein Wai zur Begrüßung sind üblich. Schwangerschaft, Verletzungen, Fieber, Herz- oder Blutdruckprobleme vorher ansagen. Preis vorher klären, Trinkgeld (oft 50–100 Baht) ist üblich, aber freiwillig. Wertsachen nicht im Raum lassen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Take your shoes off before entering; a smile and a wai are the usual greeting. Mention pregnancy, injuries, fever, heart or blood-pressure problems beforehand. Agree the price first; a tip (often 50–100 baht) is usual but optional. Do not leave valuables in the room. Thai lines machine-made, not checked by native speakers."
+    "de": "Schuhe vor dem Laden ausziehen; ein Lächeln und ein Wai zur Begrüßung sind üblich. Schwangerschaft, Verletzungen, Fieber, Herz- oder Blutdruckprobleme vorher ansagen. Preis vorher klären, Trinkgeld (oft 50–100 Baht) ist üblich, aber freiwillig. Wertsachen nicht im Raum lassen. Siehe auch: Massage / Spa. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Take your shoes off before entering; a smile and a wai are the usual greeting. Mention pregnancy, injuries, fever, heart or blood-pressure problems beforehand. Agree the price first; a tip (often 50–100 baht) is usual but optional. Do not leave valuables in the room. See also: Massage / spa. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,37 +40,44 @@
     {
       "en": "Please stop, it hurts.",
       "th": "หยุดก่อน เจ็บ",
-      "critical": true
+      "critical": true,
+      "rom": "yut kon chep"
     },
     {
       "en": "I am pregnant.",
       "th": "กำลังตั้งครรภ์",
-      "critical": true
+      "critical": true,
+      "rom": "kamlang tangkan"
     },
     {
       "en": "I have a back injury. Please be careful.",
       "th": "หลังบาดเจ็บอยู่ ช่วยระวังด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "lang batchep yu chuai rawang duai"
     },
     {
       "en": "I have high blood pressure.",
       "th": "เป็นความดันโลหิตสูง",
-      "critical": true
+      "critical": true,
+      "rom": "pen khwamdanlohit sung"
     },
     {
       "en": "I have a heart condition.",
       "th": "เป็นโรคหัวใจ",
-      "critical": true
+      "critical": true,
+      "rom": "pen rokhuachai"
     },
     {
       "en": "I have recently had surgery.",
       "th": "เพิ่งผ่าตัดมา",
-      "critical": true
+      "critical": true,
+      "rom": "phoeng phatat ma"
     },
     {
       "en": "Please do not crack my neck or back.",
       "th": "ไม่ต้องดัดคอหรือหลัง",
-      "critical": true
+      "critical": true,
+      "rom": "mataing dat kho rue lang"
     },
     {
       "en": "Softer, please.",
@@ -78,23 +85,28 @@
     },
     {
       "en": "Stronger, please.",
-      "th": "แรงขึ้นอีกหน่อย"
+      "th": "แรงขึ้นอีกหน่อย",
+      "rom": "raeng khuen iknoi"
     },
     {
       "en": "That is just right.",
-      "th": "กำลังดี"
+      "th": "กำลังดี",
+      "rom": "kamlangdi"
     },
     {
       "en": "That hurts a little.",
-      "th": "เจ็บนิดหน่อย"
+      "th": "เจ็บนิดหน่อย",
+      "rom": "chep nitnoi"
     },
     {
       "en": "How much is a one-hour Thai massage?",
-      "th": "นวดแผนไทยหนึ่งชั่วโมงเท่าไหร่"
+      "th": "นวดแผนไทยหนึ่งชั่วโมงเท่าไหร่",
+      "rom": "nuat phaen thai nueng chuamong thaorai"
     },
     {
       "en": "Two hours, please.",
-      "th": "ขอสองชั่วโมง"
+      "th": "ขอสองชั่วโมง",
+      "rom": "kho song chuamong"
     },
     {
       "en": "Please focus on my shoulders.",
@@ -102,23 +114,28 @@
     },
     {
       "en": "Please press here.",
-      "th": "ช่วยกดตรงนี้หน่อย"
+      "th": "ช่วยกดตรงนี้หน่อย",
+      "rom": "chuai kot trangani noi"
     },
     {
       "en": "Could I have a female therapist?",
-      "th": "ขอหมอนวดผู้หญิงได้ไหม"
+      "th": "ขอหมอนวดผู้หญิงได้ไหม",
+      "rom": "kho monuat phuying dai mai"
     },
     {
       "en": "Could you turn the air conditioning down?",
-      "th": "ช่วยลดแอร์หน่อย"
+      "th": "ช่วยลดแอร์หน่อย",
+      "rom": "chuai lot ae noi"
     },
     {
       "en": "Where can I leave my valuables?",
-      "th": "ฝากของมีค่าไว้ที่ไหนได้"
+      "th": "ฝากของมีค่าไว้ที่ไหนได้",
+      "rom": "fak khongmikha wai thinaidai"
     },
     {
       "en": "Do I need to tip?",
-      "th": "ต้องให้ทิปไหม"
+      "th": "ต้องให้ทิปไหม",
+      "rom": "tong hai thip mai"
     }
   ]
 }

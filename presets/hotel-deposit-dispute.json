@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Beim Check-in Zimmer fotografieren und Quittung für die Kaution aufheben. Beim Auschecken die Kontrolle gemeinsam machen und Schäden schriftlich begründen lassen. Den Reisepass nie als Pfand dalassen. Bei Streit Buchungsportal und Touristenpolizei (1155) einschalten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Photograph the room at check-in and keep the deposit receipt. At check-out inspect the room together and have damage claims written down. Never leave your passport as a pledge. In a dispute contact the booking site and the tourist police (1155). Thai lines machine-made, not checked by native speakers."
+    "de": "Beim Check-in Zimmer fotografieren und Quittung für die Kaution aufheben. Beim Auschecken die Kontrolle gemeinsam machen und Schäden schriftlich begründen lassen. Den Reisepass nie als Pfand dalassen. Bei Streit Buchungsportal und Touristenpolizei (1155) einschalten. Siehe auch: Beschwerde beim Kundenservice. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Photograph the room at check-in and keep the deposit receipt. At check-out inspect the room together and have damage claims written down. Never leave your passport as a pledge. In a dispute contact the booking site and the tourist police (1155). See also: Complaint to customer service. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,43 +40,52 @@
     {
       "en": "Please do not keep my passport.",
       "th": "ขออย่าเก็บหนังสือเดินทางไว้",
-      "critical": true
+      "critical": true,
+      "rom": "kho ya kep nangsuedoenthang wai"
     },
     {
       "en": "Please give me back my passport.",
       "th": "ขอหนังสือเดินทางคืน",
-      "critical": true
+      "critical": true,
+      "rom": "kho nangsuedoenthang khuen"
     },
     {
       "en": "I am being threatened.",
       "th": "ถูกข่มขู่",
-      "critical": true
+      "critical": true,
+      "rom": "thuk khamakhu"
     },
     {
       "en": "Please call the police.",
       "th": "ช่วยเรียกตำรวจด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak tamruat duai"
     },
     {
       "en": "Please call the tourist police.",
       "th": "ช่วยโทรหาตำรวจท่องเที่ยวหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai thon ha tamruat thongthiao noi"
     },
     {
       "en": "I would like my deposit back.",
-      "th": "ต้องการเงินมัดจำคืน"
+      "th": "ต้องการเงินมัดจำคืน",
+      "rom": "tongkan ngoenmatcham khuen"
     },
     {
       "en": "When will the deposit be returned?",
-      "th": "จะคืนเงินมัดจำเมื่อไร"
+      "th": "จะคืนเงินมัดจำเมื่อไร",
+      "rom": "cha khuen ngoenmatcham muearai"
     },
     {
       "en": "Please inspect the room with me.",
-      "th": "ช่วยตรวจห้องพร้อมกันหน่อย"
+      "th": "ช่วยตรวจห้องพร้อมกันหน่อย",
+      "rom": "chuai truat ong phromkan noi"
     },
     {
       "en": "The room was already damaged.",
-      "th": "ห้องเสียหายอยู่ก่อนแล้ว"
+      "th": "ห้องเสียหายอยู่ก่อนแล้ว",
+      "rom": "ong siahai yu kon laeo"
     },
     {
       "en": "I have photos from check-in.",
@@ -84,23 +93,28 @@
     },
     {
       "en": "I did not cause this damage.",
-      "th": "ความเสียหายนี้ไม่ได้เกิดจากการใช้ของเรา"
+      "th": "ความเสียหายนี้ไม่ได้เกิดจากการใช้ของเรา",
+      "rom": "khwamsiahai ni mai dai koet chak kan chai khong rao"
     },
     {
       "en": "How much are you charging for the damage?",
-      "th": "คิดค่าเสียหายเท่าไร"
+      "th": "คิดค่าเสียหายเท่าไร",
+      "rom": "khit khasiahai thaorai"
     },
     {
       "en": "Please show me the repair cost.",
-      "th": "ขอดูค่าซ่อมหน่อย"
+      "th": "ขอดูค่าซ่อมหน่อย",
+      "rom": "kho du kha som noi"
     },
     {
       "en": "This charge is too high.",
-      "th": "ค่านี้สูงเกินไป"
+      "th": "ค่านี้สูงเกินไป",
+      "rom": "kha ni sung koenpai"
     },
     {
       "en": "Please write down the reason.",
-      "th": "ช่วยเขียนเหตุผลให้หน่อย"
+      "th": "ช่วยเขียนเหตุผลให้หน่อย",
+      "rom": "chuai khian etupn hai noi"
     },
     {
       "en": "I paid a deposit at check-in.",
@@ -112,23 +126,28 @@
     },
     {
       "en": "Can I have the deposit in cash?",
-      "th": "ขอคืนเงินมัดจำเป็นเงินสดได้ไหม"
+      "th": "ขอคืนเงินมัดจำเป็นเงินสดได้ไหม",
+      "rom": "kho khuen ngoenmatcham pen ngoentt dai mai"
     },
     {
       "en": "Can you transfer it to my account?",
-      "th": "โอนเข้าบัญชีได้ไหม"
+      "th": "โอนเข้าบัญชีได้ไหม",
+      "rom": "on khaobanchi dai mai"
     },
     {
       "en": "I must catch a flight. Please be quick.",
-      "th": "ต้องไปขึ้นเครื่อง ช่วยเร็วหน่อย"
+      "th": "ต้องไปขึ้นเครื่อง ช่วยเร็วหน่อย",
+      "rom": "tong pai khuen kherueng chuai reo noi"
     },
     {
       "en": "I will contact the booking website.",
-      "th": "จะติดต่อเว็บไซต์ที่จอง"
+      "th": "จะติดต่อเว็บไซต์ที่จอง",
+      "rom": "cha titto wepsai thi chong"
     },
     {
       "en": "Please call the owner.",
-      "th": "ช่วยโทรหาเจ้าของหน่อย"
+      "th": "ช่วยโทรหาเจ้าของหน่อย",
+      "rom": "chuai thon ha chaokhong noi"
     },
     {
       "en": "Please give me a written statement.",

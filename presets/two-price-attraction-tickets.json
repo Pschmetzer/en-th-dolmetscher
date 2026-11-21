@@ -1,0 +1,130 @@
+{
+  "id": "two-price-attraction-tickets",
+  "names": {
+    "de": "Eintrittspreise für Ausländer",
+    "en": "Foreigner ticket prices",
+    "th": "ค่าเข้าชมราคาชาวต่างชาติ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Viele Nationalparks, Museen und Tempel verlangen von Ausländern höhere Eintrittspreise als von Thailändern; das ist offiziell und steht meist am Schalter. Preis auf der Tafel vergleichen, Quittung mitnehmen und bei Verdacht auf Überteuerung freundlich nachfragen. Kinder, Studenten und Senioren haben teils Ermäßigung. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Many national parks, museums and temples charge foreigners more than Thai visitors; this is official and usually posted at the ticket window. Compare with the price board, take the receipt and ask politely if you suspect overcharging. Children, students and seniors sometimes get discounts. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "ticket",
+      "th": "ตั๋ว"
+    },
+    {
+      "en": "entrance fee",
+      "th": "ค่าเข้า"
+    },
+    {
+      "en": "foreigner",
+      "th": "ชาวต่างชาติ"
+    },
+    {
+      "en": "Thai",
+      "th": "คนไทย"
+    },
+    {
+      "en": "discount",
+      "th": "ส่วนลด"
+    },
+    {
+      "en": "student card",
+      "th": "บัตรนักศึกษา"
+    },
+    {
+      "en": "child",
+      "th": "เด็ก"
+    },
+    {
+      "en": "senior",
+      "th": "ผู้สูงอายุ"
+    },
+    {
+      "en": "price board",
+      "th": "ป้ายราคา"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "How much is the ticket for a foreigner?",
+      "th": "ตั๋วสำหรับชาวต่างชาติราคาเท่าไร",
+      "rom": "tua samrap chaotangchati rakha thaorai"
+    },
+    {
+      "en": "How much is it for Thai people?",
+      "th": "ราคาสำหรับคนไทยเท่าไร",
+      "rom": "rakha samrap khanathai thaorai"
+    },
+    {
+      "en": "Where is the price board?",
+      "th": "ป้ายราคาอยู่ที่ไหน",
+      "rom": "pairakha yu thinai"
+    },
+    {
+      "en": "Is there a discount for children?",
+      "th": "เด็กมีส่วนลดไหม",
+      "rom": "dek mi suannt mai"
+    },
+    {
+      "en": "Is there a discount for students?",
+      "th": "มีส่วนลดนักเรียนไหม",
+      "rom": "mi suannt nakrian mai"
+    },
+    {
+      "en": "Is there a discount for seniors?",
+      "th": "ผู้สูงอายุมีส่วนลดไหม"
+    },
+    {
+      "en": "I have a work permit.",
+      "th": "มีใบอนุญาตทำงาน",
+      "rom": "mi bainuyat thamngan"
+    },
+    {
+      "en": "I have a Thai driving licence.",
+      "th": "มีใบขับขี่ไทย",
+      "rom": "mi baikhapkhi thai"
+    },
+    {
+      "en": "Does the ticket include the museum?",
+      "th": "ตั๋วนี้รวมพิพิธภัณฑ์ไหม",
+      "rom": "tua ni ruam phiphitpha mai"
+    },
+    {
+      "en": "Is the ticket valid all day?",
+      "th": "ตั๋วใช้ได้ทั้งวันไหม",
+      "rom": "tua chaidai thangwan mai"
+    },
+    {
+      "en": "Can I get a combined ticket?",
+      "th": "มีตั๋วรวมหลายที่ไหม",
+      "rom": "mi tua ruam lai thi mai"
+    },
+    {
+      "en": "Can I pay by card?",
+      "th": "จ่ายด้วยบัตรได้ไหม",
+      "rom": "chai duai batn dai mai"
+    },
+    {
+      "en": "Please give me a receipt.",
+      "th": "ขอใบเสร็จ"
+    },
+    {
+      "en": "Where do I buy tickets online?",
+      "th": "ซื้อตั๋วออนไลน์ได้ที่ไหน",
+      "rom": "sue tua onlai dai thinai"
+    },
+    {
+      "en": "What time does it close?",
+      "th": "ปิดกี่โมง",
+      "rom": "pit ki mong"
+    }
+  ]
+}

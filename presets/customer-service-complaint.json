@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Ruhig und höflich bleiben, das Gesicht zu wahren ist in Thailand wichtig. Beleg, Fotos und Namen des Mitarbeiters bereithalten. Zuerst mit dem Manager sprechen, dann die Hotline oder die Verbraucherschutzbehörde nutzen. Nur bei Gefahr die Polizei rufen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Stay calm and polite; saving face matters in Thailand. Have the receipt, photos and the staff member's name ready. Speak to the manager first, then use the hotline or the consumer protection office. Call the police only if you are in danger. Thai lines machine-made, not checked by native speakers."
+    "de": "Ruhig und höflich bleiben, das Gesicht zu wahren ist in Thailand wichtig. Beleg, Fotos und Namen des Mitarbeiters bereithalten. Zuerst mit dem Manager sprechen, dann die Hotline oder die Verbraucherschutzbehörde nutzen. Nur bei Gefahr die Polizei rufen. Siehe auch: Hotel: Streit um die Kaution. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Stay calm and polite; saving face matters in Thailand. Have the receipt, photos and the staff member's name ready. Speak to the manager first, then use the hotline or the consumer protection office. Call the police only if you are in danger. See also: Hotel deposit dispute. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,67 +40,82 @@
     {
       "en": "I am being threatened.",
       "th": "ถูกข่มขู่",
-      "critical": true
+      "critical": true,
+      "rom": "thuk khamakhu"
     },
     {
       "en": "Please give me back my passport.",
       "th": "ขอหนังสือเดินทางคืน",
-      "critical": true
+      "critical": true,
+      "rom": "kho nangsuedoenthang khuen"
     },
     {
       "en": "I feel unsafe here. Please call security.",
       "th": "รู้สึกไม่ปลอดภัยที่นี่ ช่วยเรียกเจ้าหน้าที่รักษาความปลอดภัยหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek mai plotphai thini chuai riak chaonathi raksa khwamplotphai noi"
     },
     {
       "en": "I need medical help. Please call a doctor.",
       "th": "ต้องการความช่วยเหลือทางการแพทย์ ช่วยเรียกหมอหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan khwamchuaihelue thangkanphaet chuai riak mo noi"
     },
     {
       "en": "Please call the police.",
       "th": "ช่วยเรียกตำรวจด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak tamruat duai"
     },
     {
       "en": "I would like to make a complaint.",
-      "th": "ต้องการร้องเรียน"
+      "th": "ต้องการร้องเรียน",
+      "rom": "tong kaaongrian"
     },
     {
       "en": "May I speak to the manager?",
-      "th": "ขอพบผู้จัดการได้ไหม"
+      "th": "ขอพบผู้จัดการได้ไหม",
+      "rom": "kho phop phuchatkan dai mai"
     },
     {
       "en": "Who is responsible for this?",
-      "th": "ใครรับผิดชอบเรื่องนี้"
+      "th": "ใครรับผิดชอบเรื่องนี้",
+      "rom": "khain rapphitchop rueang ni"
     },
     {
       "en": "This is not what I ordered.",
-      "th": "นี่ไม่ใช่สิ่งที่สั่ง"
+      "th": "นี่ไม่ใช่สิ่งที่สั่ง",
+      "rom": "ni mai chai sing thi sang"
     },
     {
       "en": "The product is broken.",
-      "th": "สินค้าชำรุด"
+      "th": "สินค้าชำรุด",
+      "rom": "sinkha chamrut"
     },
     {
       "en": "The service was very poor.",
-      "th": "บริการแย่มาก"
+      "th": "บริการแย่มาก",
+      "rom": "brikan yaemak"
     },
     {
       "en": "I have been waiting a long time.",
-      "th": "รอมานานมากแล้ว"
+      "th": "รอมานานมากแล้ว",
+      "rom": "ro ma nan mak laeo"
     },
     {
       "en": "The charge on my bill is wrong.",
-      "th": "ยอดในบิลไม่ถูกต้อง"
+      "th": "ยอดในบิลไม่ถูกต้อง",
+      "rom": "yot nai bin mai thuktong"
     },
     {
       "en": "I was charged twice.",
-      "th": "ถูกเรียกเก็บเงินสองครั้ง"
+      "th": "ถูกเรียกเก็บเงินสองครั้ง",
+      "rom": "thuk riakkepngoen song khrang"
     },
     {
       "en": "Please check your system.",
-      "th": "ช่วยตรวจสอบในระบบหน่อย"
+      "th": "ช่วยตรวจสอบในระบบหน่อย",
+      "rom": "chuai truatsop nai rapp noi"
     },
     {
       "en": "Here is my receipt.",
@@ -108,19 +123,23 @@
     },
     {
       "en": "I have photos as proof.",
-      "th": "มีรูปถ่ายเป็นหลักฐาน"
+      "th": "มีรูปถ่ายเป็นหลักฐาน",
+      "rom": "mi rupthai pen lakthan"
     },
     {
       "en": "I would like a replacement.",
-      "th": "ต้องการเปลี่ยนสินค้า"
+      "th": "ต้องการเปลี่ยนสินค้า",
+      "rom": "tongkan pelin sinkha"
     },
     {
       "en": "I would like my money back.",
-      "th": "ต้องการเงินคืน"
+      "th": "ต้องการเงินคืน",
+      "rom": "tong kanngoen khuen"
     },
     {
       "en": "Please give me your name.",
-      "th": "ขอทราบชื่อด้วย"
+      "th": "ขอทราบชื่อด้วย",
+      "rom": "kho thrap chue duai"
     },
     {
       "en": "Please give me a written confirmation.",
@@ -128,15 +147,18 @@
     },
     {
       "en": "What is the complaint hotline?",
-      "th": "สายด่วนร้องเรียนคือเบอร์อะไร"
+      "th": "สายด่วนร้องเรียนคือเบอร์อะไร",
+      "rom": "saiduan rongrian khue boe arai"
     },
     {
       "en": "Where is the consumer protection office?",
-      "th": "สำนักงานคุ้มครองผู้บริโภคอยู่ที่ไหน"
+      "th": "สำนักงานคุ้มครองผู้บริโภคอยู่ที่ไหน",
+      "rom": "samnakngan khumkrong phupriphok yu thinai"
     },
     {
       "en": "Please do not shout at me.",
-      "th": "ขออย่าส่งเสียงดังใส่"
+      "th": "ขออย่าส่งเสียงดังใส่",
+      "rom": "kho ya song siangdang sai"
     }
   ]
 }

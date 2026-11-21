@@ -1,0 +1,160 @@
+{
+  "id": "online-shopping-delivery",
+  "names": {
+    "de": "Online-Bestellung und Paketlieferung",
+    "en": "Online orders and parcel delivery",
+    "th": "สั่งของออนไลน์และส่งพัสดุ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Bei Lieferungen (Shopee, Lazada, Flash, Kerry, Thailand Post) die Telefonnummer und die Lieferadresse auf Thai bereithalten. Barzahlung bei Lieferung (COD, เก็บเงินปลายทาง) ist üblich: Paket erst öffnen oder fotografieren, dann zahlen. Beschädigte Ware sofort über die App melden. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "For deliveries (Shopee, Lazada, Flash, Kerry, Thailand Post) keep your phone number and the delivery address in Thai ready. Cash on delivery (COD, เก็บเงินปลายทาง) is common: open or photograph the parcel first, then pay. Report damaged goods through the app right away. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "parcel",
+      "th": "พัสดุ"
+    },
+    {
+      "en": "delivery",
+      "th": "การจัดส่ง"
+    },
+    {
+      "en": "tracking number",
+      "th": "เลขพัสดุ"
+    },
+    {
+      "en": "cash on delivery",
+      "th": "เก็บเงินปลายทาง"
+    },
+    {
+      "en": "courier",
+      "th": "บริษัทขนส่ง"
+    },
+    {
+      "en": "address",
+      "th": "ที่อยู่"
+    },
+    {
+      "en": "refund",
+      "th": "คืนเงิน"
+    },
+    {
+      "en": "return",
+      "th": "ส่งคืน"
+    },
+    {
+      "en": "order",
+      "th": "คำสั่งซื้อ"
+    },
+    {
+      "en": "receipt",
+      "th": "ใบเสร็จ"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I did not order this parcel.",
+      "th": "ไม่ได้สั่งพัสดุชิ้นนี้",
+      "critical": true,
+      "rom": "mai dai sang phatdu chin ni"
+    },
+    {
+      "en": "I have not paid yet.",
+      "th": "ยังไม่ได้จ่ายเงิน",
+      "critical": true,
+      "rom": "yang mai dai chai ngoen"
+    },
+    {
+      "en": "Please let me open the parcel before I pay.",
+      "th": "ขอเปิดพัสดุก่อนจ่ายเงินได้ไหม",
+      "critical": true,
+      "rom": "kho poet phatdu kon chai ngoendai mai"
+    },
+    {
+      "en": "The goods are damaged.",
+      "th": "สินค้าเสียหาย",
+      "critical": true,
+      "rom": "sinkha siahai"
+    },
+    {
+      "en": "The wrong item arrived.",
+      "th": "ได้รับสินค้าผิดชิ้น",
+      "critical": true
+    },
+    {
+      "en": "Where is my parcel?",
+      "th": "พัสดุอยู่ที่ไหน",
+      "rom": "phatdu yu thinai"
+    },
+    {
+      "en": "Here is my tracking number.",
+      "th": "นี่คือเลขพัสดุ",
+      "rom": "ni khue lek phatdu"
+    },
+    {
+      "en": "Please deliver to this address.",
+      "th": "ช่วยส่งไปที่อยู่นี้หน่อย",
+      "rom": "chuai song pai thiyu ni noi"
+    },
+    {
+      "en": "Please call me before delivery.",
+      "th": "ช่วยโทรหาก่อนมาส่งหน่อย",
+      "rom": "chuai thon ha kon ma song noi"
+    },
+    {
+      "en": "Please leave it with reception.",
+      "th": "ช่วยฝากไว้ที่แผนกต้อนรับ",
+      "rom": "chuai fak wai thi phaenktonrap"
+    },
+    {
+      "en": "Can I collect it at a pickup point?",
+      "th": "ไปรับเองที่จุดรับพัสดุได้ไหม",
+      "rom": "pai rap eng thi chut rap phatdu dai mai"
+    },
+    {
+      "en": "How much is the delivery fee?",
+      "th": "ค่าส่งเท่าไร",
+      "rom": "kha song thaorai"
+    },
+    {
+      "en": "Is cash on delivery possible?",
+      "th": "เก็บเงินปลายทางได้ไหม",
+      "rom": "kep ngoen plai thangdai mai"
+    },
+    {
+      "en": "When will it arrive?",
+      "th": "จะมาถึงเมื่อไร",
+      "rom": "cha mathueng muearai"
+    },
+    {
+      "en": "The parcel is late.",
+      "th": "พัสดุมาช้า",
+      "rom": "phatdu ma cha"
+    },
+    {
+      "en": "I want to return this item.",
+      "th": "ต้องการส่งสินค้าคืน",
+      "rom": "tongkan sangasinkha khuen"
+    },
+    {
+      "en": "I want a refund.",
+      "th": "ขอคืนเงิน",
+      "rom": "kho khuenngoen"
+    },
+    {
+      "en": "Please send it abroad.",
+      "th": "ช่วยส่งไปต่างประเทศ",
+      "rom": "chuai song pai tangprathet"
+    },
+    {
+      "en": "Please wrap it carefully.",
+      "th": "ช่วยห่อให้แน่นหนาหน่อย",
+      "rom": "chuai ho hai naenna noi"
+    },
+    {
+      "en": "Please give me a receipt.",
+      "th": "ขอใบเสร็จ"
+    }
+  ]
+}

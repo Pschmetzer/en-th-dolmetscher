@@ -1,0 +1,171 @@
+{
+  "id": "hotel-theft-report",
+  "names": {
+    "de": "Diebstahl im Hotelzimmer",
+    "en": "Theft in a hotel room",
+    "th": "ของหายในห้องพัก"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Bei Diebstahl im Zimmer nichts mehr anfassen, sofort die Rezeption und die Touristenpolizei 1155 rufen und eine Anzeige (Police Report) mit Stempel verlangen; sie ist für die Versicherung nötig. Karten sofort sperren lassen. Wertsachen künftig im Zimmersafe lassen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "After a theft in your room do not touch anything more, call reception and the tourist police 1155 at once and ask for a stamped police report; your insurance needs it. Have your cards blocked immediately. Keep valuables in the room safe in future. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "theft",
+      "th": "การขโมย"
+    },
+    {
+      "en": "police report",
+      "th": "บันทึกประจำวัน"
+    },
+    {
+      "en": "room safe",
+      "th": "ตู้เซฟในห้อง"
+    },
+    {
+      "en": "manager",
+      "th": "ผู้จัดการ"
+    },
+    {
+      "en": "camera footage",
+      "th": "ภาพกล้องวงจรปิด"
+    },
+    {
+      "en": "passport",
+      "th": "หนังสือเดินทาง"
+    },
+    {
+      "en": "wallet",
+      "th": "กระเป๋าสตางค์"
+    },
+    {
+      "en": "laptop",
+      "th": "แล็ปท็อป"
+    },
+    {
+      "en": "insurance",
+      "th": "ประกัน"
+    },
+    {
+      "en": "room key",
+      "th": "กุญแจห้อง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "Something was stolen from my room.",
+      "th": "ของถูกขโมยจากห้องพัก",
+      "critical": true,
+      "rom": "khong thuk khamoi chak ongphak"
+    },
+    {
+      "en": "Please call the tourist police (1155).",
+      "th": "ช่วยโทรหาตำรวจท่องเที่ยว 1155 ด้วย",
+      "critical": true,
+      "rom": "chuai thon ha tamruat thongthiao 1155 duai"
+    },
+    {
+      "en": "Please call the manager.",
+      "th": "ช่วยเรียกผู้จัดการหน่อย",
+      "critical": true,
+      "rom": "chuai riak phuchatkan noi"
+    },
+    {
+      "en": "My passport is missing.",
+      "th": "หนังสือเดินทางหาย",
+      "critical": true,
+      "rom": "nangsuedoenthang hai"
+    },
+    {
+      "en": "Please help me block my cards.",
+      "th": "ช่วยระงับบัตรหน่อย",
+      "critical": true,
+      "rom": "chuai rangap batn noi"
+    },
+    {
+      "en": "I have not touched anything.",
+      "th": "ยังไม่ได้แตะต้องอะไร",
+      "critical": true,
+      "rom": "yang mai dai taetong arai"
+    },
+    {
+      "en": "I need a police report for my insurance.",
+      "th": "ต้องการใบแจ้งความเพื่อใช้กับประกัน",
+      "rom": "tongkan baichaengkwam phuea chaikap prakan"
+    },
+    {
+      "en": "The door was open when I came back.",
+      "th": "ประตูเปิดอยู่ตอนกลับมา",
+      "rom": "pratu poet yu ton klapma"
+    },
+    {
+      "en": "The room safe was opened.",
+      "th": "ตู้เซฟในห้องถูกเปิด",
+      "rom": "tusep nai ong thuk poet"
+    },
+    {
+      "en": "My laptop and phone are gone.",
+      "th": "แล็ปท็อปและโทรศัพท์หายไป"
+    },
+    {
+      "en": "Can I see the camera footage?",
+      "th": "ขอดูภาพกล้องวงจรปิดได้ไหม",
+      "rom": "kho du phap klonguangtnpit dai mai"
+    },
+    {
+      "en": "Who had a key to my room?",
+      "th": "ใครมีกุญแจห้องนี้บ้าง",
+      "rom": "khain mi kunchae ong ni bang"
+    },
+    {
+      "en": "When did the room get cleaned?",
+      "th": "ห้องถูกทำความสะอาดเมื่อไร",
+      "rom": "ong thuk thamkwamsaat muearai"
+    },
+    {
+      "en": "Please change the room lock.",
+      "th": "ช่วยเปลี่ยนล็อกห้องหน่อย"
+    },
+    {
+      "en": "Please move me to another room.",
+      "th": "ช่วยย้ายไปห้องอื่นหน่อย",
+      "rom": "chuai yai pai ong uen noi"
+    },
+    {
+      "en": "Please write down what happened.",
+      "th": "ช่วยบันทึกเหตุการณ์ที่เกิดขึ้นหน่อย",
+      "rom": "chuai banthuek etukan thi koetkhuen noi"
+    },
+    {
+      "en": "Please give me a copy of the report.",
+      "th": "ขอสำเนารายงานด้วย",
+      "rom": "kho samnao raingan duai"
+    },
+    {
+      "en": "Where is the police station?",
+      "th": "สถานีตำรวจอยู่ที่ไหน",
+      "rom": "sathanitamruat yu thinai"
+    },
+    {
+      "en": "Can someone come with me to the police?",
+      "th": "มีคนไปที่สถานีตำรวจเป็นเพื่อนได้ไหม",
+      "rom": "mi khon pai thi sathanitamruat penphuean dai mai"
+    },
+    {
+      "en": "Does the hotel have insurance for guests?",
+      "th": "โรงแรมมีประกันสำหรับแขกไหม",
+      "rom": "rongraem mi prakan samrap khaek mai"
+    },
+    {
+      "en": "I need a letter from the hotel.",
+      "th": "ขอจดหมายยืนยันจากโรงแรม",
+      "rom": "kho chadahamai yuenyan chak rongraem"
+    },
+    {
+      "en": "I need an emergency passport.",
+      "th": "ต้องการหนังสือเดินทางฉุกเฉิน",
+      "rom": "tongkan nangsuedoenthang chukchoen"
+    }
+  ]
+}

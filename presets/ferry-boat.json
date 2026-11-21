@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Auf Booten gilt: Rettungswesten suchen, bevor die Fahrt beginnt. Bei hohem Wellengang fahren Fähren oft nicht; nach der letzten Rückfahrt fragen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "On boats find the life jackets before departure. In rough seas ferries often do not run; ask about the last return trip. Thai lines machine-made, not checked by native speakers."
+    "de": "Auf Booten gilt: Rettungswesten suchen, bevor die Fahrt beginnt. Bei hohem Wellengang fahren Fähren oft nicht; nach der letzten Rückfahrt fragen. Siehe auch: Fähre / Bus / Zug, Fernbus und Bahn. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "On boats find the life jackets before departure. In rough seas ferries often do not run; ask about the last return trip. See also: Ferry / bus / train, Long-distance bus and train. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,78 +40,96 @@
     {
       "en": "I cannot swim.",
       "th": "ว่ายน้ำไม่เป็น",
-      "critical": true
+      "critical": true,
+      "rom": "wainam mai pen"
     },
     {
       "en": "Someone fell into the water!",
       "th": "มีคนตกน้ำ",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon takanam"
     },
     {
       "en": "Where are the life jackets?",
       "th": "เสื้อชูชีพอยู่ที่ไหน",
-      "critical": true
+      "critical": true,
+      "rom": "suea chuchip yu thinai"
     },
     {
       "en": "I need medical help.",
       "th": "ต้องการความช่วยเหลือทางการแพทย์",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan khwamchuaihelue thangkanphaet"
     },
     {
       "en": "Which pier does the ferry leave from?",
-      "th": "เรือออกจากท่าไหน"
+      "th": "เรือออกจากท่าไหน",
+      "rom": "ruea okchak tha nai"
     },
     {
       "en": "What time is the next ferry?",
-      "th": "เรือเที่ยวต่อไปกี่โมง"
+      "th": "เรือเที่ยวต่อไปกี่โมง",
+      "rom": "ruea thiao topai ki mong"
     },
     {
       "en": "How long is the crossing?",
-      "th": "ข้ามไปใช้เวลานานเท่าไหร่"
+      "th": "ข้ามไปใช้เวลานานเท่าไหร่",
+      "rom": "kham pai chaiwelanan thaorai"
     },
     {
       "en": "One ticket to the island, please.",
-      "th": "ขอตั๋วไปเกาะหนึ่งใบ"
+      "th": "ขอตั๋วไปเกาะหนึ่งใบ",
+      "rom": "kho tua pai ko nueng bai"
     },
     {
       "en": "What time is the last boat back?",
-      "th": "เรือเที่ยวสุดท้ายกลับกี่โมง"
+      "th": "เรือเที่ยวสุดท้ายกลับกี่โมง",
+      "rom": "ruea thiao sutthai klap ki mong"
     },
     {
       "en": "Is the sea rough today?",
-      "th": "วันนี้ทะเลมีคลื่นแรงไหม"
+      "th": "วันนี้ทะเลมีคลื่นแรงไหม",
+      "rom": "wanni thale mi khluen raeng mai"
     },
     {
       "en": "I feel seasick.",
-      "th": "เมาเรือ"
+      "th": "เมาเรือ",
+      "rom": "maoruea"
     },
     {
       "en": "Do you have seasickness tablets?",
-      "th": "มียาแก้เมาเรือไหม"
+      "th": "มียาแก้เมาเรือไหม",
+      "rom": "mi ya kae maoruea mai"
     },
     {
       "en": "Where can I put my luggage?",
-      "th": "วางกระเป๋าไว้ที่ไหนได้"
+      "th": "วางกระเป๋าไว้ที่ไหนได้",
+      "rom": "wang krapao wai thinaidai"
     },
     {
       "en": "Can I take my motorbike on the ferry?",
-      "th": "เอามอเตอร์ไซค์ขึ้นเรือได้ไหม"
+      "th": "เอามอเตอร์ไซค์ขึ้นเรือได้ไหม",
+      "rom": "ao motoesai khuen ruea dai mai"
     },
     {
       "en": "Where is the toilet?",
-      "th": "ห้องน้ำอยู่ที่ไหน"
+      "th": "ห้องน้ำอยู่ที่ไหน",
+      "rom": "ongnam yu thinai"
     },
     {
       "en": "Can I sit on the upper deck?",
-      "th": "นั่งชั้นบนได้ไหม"
+      "th": "นั่งชั้นบนได้ไหม",
+      "rom": "nang chanpn dai mai"
     },
     {
       "en": "Please tell me when we arrive.",
-      "th": "ถึงแล้วช่วยบอกด้วย"
+      "th": "ถึงแล้วช่วยบอกด้วย",
+      "rom": "thueng laeo chuai bok duai"
     },
     {
       "en": "Can I sit inside, out of the sun?",
-      "th": "ขอนั่งในที่ร่มได้ไหม"
+      "th": "ขอนั่งในที่ร่มได้ไหม",
+      "rom": "kho nang nai thi rom dai mai"
     }
   ]
 }

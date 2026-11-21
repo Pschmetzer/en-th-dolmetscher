@@ -36,12 +36,14 @@
     {
       "en": "Please call an ambulance for me. I cannot speak on the phone.",
       "th": "ช่วยเรียกรถพยาบาลให้หน่อย พูดโทรศัพท์ไม่ได้",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak rathaphayaban hai noi phutthonsap mai dai"
     },
     {
       "en": "I need help. Please read my note.",
       "th": "ต้องการความช่วยเหลือ ช่วยอ่านข้อความนี้",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan khwamchuaihelue chuai an khokwam ni"
     },
     {
       "en": "I am deaf. Please write it down or type on your phone.",
@@ -53,19 +55,23 @@
     },
     {
       "en": "I cannot speak. I will type or write.",
-      "th": "พูดไม่ได้ จะพิมพ์หรือเขียนแทน"
+      "th": "พูดไม่ได้ จะพิมพ์หรือเขียนแทน",
+      "rom": "phut mai dai cha phim rue khian thaen"
     },
     {
       "en": "I use sign language. Is there an interpreter?",
-      "th": "ใช้ภาษามือ มีล่ามภาษามือไหม"
+      "th": "ใช้ภาษามือ มีล่ามภาษามือไหม",
+      "rom": "chai phasamue mi lam phasamue mai"
     },
     {
       "en": "Please do not shout. Please write it down.",
-      "th": "ไม่ต้องตะโกน ช่วยเขียนให้ดูหน่อย"
+      "th": "ไม่ต้องตะโกน ช่วยเขียนให้ดูหน่อย",
+      "rom": "mataing takon chuai khian hai du noi"
     },
     {
       "en": "Can you type it on this phone?",
-      "th": "พิมพ์ลงในโทรศัพท์เครื่องนี้ได้ไหม"
+      "th": "พิมพ์ลงในโทรศัพท์เครื่องนี้ได้ไหม",
+      "rom": "phim long nai thonsap kherueng ni dai mai"
     },
     {
       "en": "I did not hear the announcement. What did it say?",
@@ -73,35 +79,43 @@
     },
     {
       "en": "Please touch my arm when it is my turn.",
-      "th": "ถึงคิวแล้วช่วยแตะแขนบอกหน่อย"
+      "th": "ถึงคิวแล้วช่วยแตะแขนบอกหน่อย",
+      "rom": "thueng khio laeo chuai tae khaen bok noi"
     },
     {
       "en": "Please show me the number on a screen or on paper.",
-      "th": "ช่วยแสดงตัวเลขบนหน้าจอหรือกระดาษ"
+      "th": "ช่วยแสดงตัวเลขบนหน้าจอหรือกระดาษ",
+      "rom": "chuai saetng tualek bon nacho rue kradat"
     },
     {
       "en": "Please use gestures or point to the item.",
-      "th": "ช่วยใช้ท่าทางหรือชี้สิ่งของ"
+      "th": "ช่วยใช้ท่าทางหรือชี้สิ่งของ",
+      "rom": "chuai chai thathang rue chi singkhong"
     },
     {
       "en": "I wear a hearing aid and the noise here is difficult.",
-      "th": "ใช้เครื่องช่วยฟัง ที่นี่เสียงดังรบกวน"
+      "th": "ใช้เครื่องช่วยฟัง ที่นี่เสียงดังรบกวน",
+      "rom": "chai kheruengchuaifang thini siangdang rabakuan"
     },
     {
       "en": "Is there a quiet place where we can talk?",
-      "th": "มีที่เงียบ ๆ ให้คุยกันไหม"
+      "th": "มีที่เงียบ ๆ ให้คุยกันไหม",
+      "rom": "mi thi ngiap hai khui kan mai"
     },
     {
       "en": "Please look at me when you speak so I can read your lips.",
-      "th": "ช่วยมองหน้าเวลาพูด จะได้อ่านปาก"
+      "th": "ช่วยมองหน้าเวลาพูด จะได้อ่านปาก",
+      "rom": "chuai mongna wela phut cha dai an pak"
     },
     {
       "en": "Is there a written menu or price list?",
-      "th": "มีเมนูหรือรายการราคาที่เป็นตัวอักษรไหม"
+      "th": "มีเมนูหรือรายการราคาที่เป็นตัวอักษรไหม",
+      "rom": "mi menu rue raikan ra khathi pen tuaaktn mai"
     },
     {
       "en": "Thank you for writing it down.",
-      "th": "ขอบคุณที่เขียนให้"
+      "th": "ขอบคุณที่เขียนให้",
+      "rom": "khopkhun thi khian hai"
     }
   ],
   "note": {

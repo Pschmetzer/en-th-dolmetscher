@@ -546,6 +546,45 @@
    ]
   },
   {
+   "id": "air-pollution-haze",
+   "names": {
+    "de": "Luftverschmutzung und Smog",
+    "en": "Air pollution and haze",
+    "th": "มลพิษทางอากาศและฝุ่นละออง"
+   },
+   "phrases": 20,
+   "critical": 6,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "air pollution",
+    "haze",
+    "mask",
+    "n95 mask",
+    "air purifier",
+    "cough",
+    "smog",
+    "luftverschmutzung",
+    "feinstaub",
+    "ฝุ่น",
+    "pm2.5",
+    "หมอกควัน"
+   ],
+   "keywords_de": [
+    "smog",
+    "luftverschmutzung",
+    "feinstaub",
+    "rauch",
+    "maske"
+   ],
+   "keywords_th": [
+    "ฝุ่น",
+    "PM2.5",
+    "หมอกควัน",
+    "หน้ากาก"
+   ]
+  },
+  {
    "id": "animal-bite-rabies",
    "names": {
     "de": "Tierbisse und Stiche",
@@ -641,6 +680,42 @@
     "ห้องเช่า",
     "เช่า",
     "มัดจำ"
+   ]
+  },
+  {
+   "id": "asthma-inhaler",
+   "names": {
+    "de": "Asthma und Inhalator",
+    "en": "Asthma and inhaler",
+    "th": "โรคหอบหืดและยาพ่น"
+   },
+   "phrases": 22,
+   "critical": 8,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "asthma",
+    "inhaler",
+    "spacer",
+    "wheezing",
+    "breathless",
+    "attack",
+    "inhalator",
+    "atemnot",
+    "หอบหืด",
+    "ยาพ่น",
+    "หายใจไม่ออก"
+   ],
+   "keywords_de": [
+    "asthma",
+    "inhalator",
+    "atemnot",
+    "spray"
+   ],
+   "keywords_th": [
+    "หอบหืด",
+    "ยาพ่น",
+    "หายใจไม่ออก"
    ]
   },
   {
@@ -1287,6 +1362,44 @@
    ]
   },
   {
+   "id": "card-payment-surcharge",
+   "names": {
+    "de": "Kartenzahlung und Aufschlag",
+    "en": "Card payment and surcharge",
+    "th": "จ่ายบัตรและค่าธรรมเนียม"
+   },
+   "phrases": 18,
+   "critical": 3,
+   "reviewed": false,
+   "category": "money",
+   "keywords": [
+    "card",
+    "credit card",
+    "surcharge",
+    "cash",
+    "pin",
+    "contactless",
+    "karte",
+    "kreditkarte",
+    "aufschlag",
+    "บัตร",
+    "บัตรเครดิต",
+    "ค่าธรรมเนียม"
+   ],
+   "keywords_de": [
+    "karte",
+    "kreditkarte",
+    "aufschlag",
+    "gebühr",
+    "bargeld"
+   ],
+   "keywords_th": [
+    "บัตร",
+    "บัตรเครดิต",
+    "ค่าธรรมเนียม"
+   ]
+  },
+  {
    "id": "cave-waterfall-tour",
    "names": {
     "de": "Höhle und Wasserfall",
@@ -1306,6 +1419,44 @@
     "guide",
     "life jacket",
     "rope"
+   ]
+  },
+  {
+   "id": "chao-phraya-river-boat",
+   "names": {
+    "de": "Chao-Phraya-Expressboot",
+    "en": "Chao Phraya express boat",
+    "th": "เรือด่วนเจ้าพระยา"
+   },
+   "phrases": 20,
+   "critical": 5,
+   "reviewed": false,
+   "category": "transport",
+   "keywords": [
+    "river boat",
+    "pier",
+    "ticket",
+    "flag",
+    "stop",
+    "life jacket",
+    "boot",
+    "fluss",
+    "chao phraya",
+    "เรือด่วน",
+    "เจ้าพระยา",
+    "ท่าเรือ"
+   ],
+   "keywords_de": [
+    "boot",
+    "fluss",
+    "chao phraya",
+    "pier",
+    "fähre"
+   ],
+   "keywords_th": [
+    "เรือด่วน",
+    "เจ้าพระยา",
+    "ท่าเรือ"
    ]
   },
   {
@@ -1956,6 +2107,44 @@
     "fire",
     "hospital",
     "insurance"
+   ]
+  },
+  {
+   "id": "epipen-anaphylaxis",
+   "names": {
+    "de": "Anaphylaxie und Adrenalin-Pen",
+    "en": "Anaphylaxis and adrenaline pen",
+    "th": "แพ้รุนแรงและเอพิเนฟริน"
+   },
+   "phrases": 23,
+   "critical": 8,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "anaphylaxis",
+    "adrenaline",
+    "auto-injector",
+    "allergy",
+    "peanut",
+    "shellfish",
+    "allergie",
+    "anaphylaxie",
+    "adrenalin",
+    "แพ้",
+    "แพ้รุนแรง",
+    "อะดรีนาลีน"
+   ],
+   "keywords_de": [
+    "allergie",
+    "anaphylaxie",
+    "adrenalin",
+    "epipen",
+    "notfall"
+   ],
+   "keywords_th": [
+    "แพ้",
+    "แพ้รุนแรง",
+    "อะดรีนาลีน"
    ]
   },
   {
@@ -2742,6 +2931,45 @@
    ]
   },
   {
+   "id": "hotel-theft-report",
+   "names": {
+    "de": "Diebstahl im Hotelzimmer",
+    "en": "Theft in a hotel room",
+    "th": "ของหายในห้องพัก"
+   },
+   "phrases": 22,
+   "critical": 6,
+   "reviewed": false,
+   "category": "emergency",
+   "keywords": [
+    "theft",
+    "police report",
+    "room safe",
+    "manager",
+    "camera footage",
+    "passport",
+    "diebstahl",
+    "hotel",
+    "zimmer",
+    "ขโมย",
+    "ห้องพัก",
+    "ตู้เซฟ"
+   ],
+   "keywords_de": [
+    "diebstahl",
+    "hotel",
+    "zimmer",
+    "safe",
+    "anzeige"
+   ],
+   "keywords_th": [
+    "ขโมย",
+    "ห้องพัก",
+    "ตู้เซฟ",
+    "แจ้งความ"
+   ]
+  },
+  {
    "id": "immigration-90day",
    "names": {
     "de": "Immigration: 90-Tage-Meldung",
@@ -2779,6 +3007,46 @@
     "jellyfish",
     "return trip",
     "meeting point"
+   ]
+  },
+  {
+   "id": "jellyfish-marine-sting",
+   "names": {
+    "de": "Quallen und Meerestiere",
+    "en": "Jellyfish and sea stings",
+    "th": "แมงกะพรุนและสัตว์ทะเลต่อย"
+   },
+   "phrases": 23,
+   "critical": 9,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "jellyfish",
+    "vinegar",
+    "sting",
+    "sea urchin",
+    "coral",
+    "lifeguard",
+    "qualle",
+    "quallen",
+    "seeigel",
+    "แมงกะพรุน",
+    "เม่นทะเล",
+    "ปะการัง"
+   ],
+   "keywords_de": [
+    "qualle",
+    "quallen",
+    "seeigel",
+    "koralle",
+    "essig",
+    "strand"
+   ],
+   "keywords_th": [
+    "แมงกะพรุน",
+    "เม่นทะเล",
+    "ปะการัง",
+    "น้ำส้มสายชู"
    ]
   },
   {
@@ -3062,6 +3330,45 @@
     "zip",
     "sole",
     "screen protector"
+   ]
+  },
+  {
+   "id": "locksmith-lockout",
+   "names": {
+    "de": "Ausgesperrt und Schlüsseldienst",
+    "en": "Locked out and locksmith",
+    "th": "ถูกล็อกห้องและช่างกุญแจ"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "stay",
+   "keywords": [
+    "key",
+    "lock",
+    "locksmith",
+    "spare key",
+    "door",
+    "key card",
+    "schlüssel",
+    "ausgesperrt",
+    "schlüsseldienst",
+    "กุญแจ",
+    "ช่างกุญแจ",
+    "ล็อก"
+   ],
+   "keywords_de": [
+    "schlüssel",
+    "ausgesperrt",
+    "schlüsseldienst",
+    "tür",
+    "schloss"
+   ],
+   "keywords_th": [
+    "กุญแจ",
+    "ช่างกุญแจ",
+    "ล็อก",
+    "ประตู"
    ]
   },
   {
@@ -3792,6 +4099,46 @@
    ]
   },
   {
+   "id": "online-shopping-delivery",
+   "names": {
+    "de": "Online-Bestellung und Paketlieferung",
+    "en": "Online orders and parcel delivery",
+    "th": "สั่งของออนไลน์และส่งพัสดุ"
+   },
+   "phrases": 20,
+   "critical": 5,
+   "reviewed": false,
+   "category": "money",
+   "keywords": [
+    "parcel",
+    "delivery",
+    "tracking number",
+    "cash on delivery",
+    "courier",
+    "address",
+    "paket",
+    "bestellung",
+    "lieferung",
+    "พัสดุ",
+    "สั่งของ",
+    "ส่งของ"
+   ],
+   "keywords_de": [
+    "paket",
+    "bestellung",
+    "lieferung",
+    "shopee",
+    "lazada",
+    "nachnahme"
+   ],
+   "keywords_th": [
+    "พัสดุ",
+    "สั่งของ",
+    "ส่งของ",
+    "เก็บเงินปลายทาง"
+   ]
+  },
+  {
    "id": "optician-eye-care",
    "names": {
     "de": "Optiker / Augen",
@@ -3955,6 +4302,44 @@
    ]
   },
   {
+   "id": "phone-repair-shop",
+   "names": {
+    "de": "Handy-Reparatur",
+    "en": "Phone repair shop",
+    "th": "ร้านซ่อมมือถือ"
+   },
+   "phrases": 20,
+   "critical": 5,
+   "reviewed": false,
+   "category": "general",
+   "keywords": [
+    "screen",
+    "battery",
+    "charging port",
+    "repair",
+    "warranty",
+    "backup",
+    "handy",
+    "reparatur",
+    "display",
+    "ซ่อมมือถือ",
+    "หน้าจอ",
+    "แบตเตอรี่"
+   ],
+   "keywords_de": [
+    "handy",
+    "reparatur",
+    "display",
+    "akku",
+    "smartphone"
+   ],
+   "keywords_th": [
+    "ซ่อมมือถือ",
+    "หน้าจอ",
+    "แบตเตอรี่"
+   ]
+  },
+  {
    "id": "photo",
    "names": {
     "de": "Fotografieren",
@@ -4078,6 +4463,43 @@
     "customs form",
     "by air",
     "by sea"
+   ]
+  },
+  {
+   "id": "power-outage-blackout",
+   "names": {
+    "de": "Stromausfall",
+    "en": "Power outage",
+    "th": "ไฟดับ"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "stay",
+   "keywords": [
+    "power cut",
+    "electricity",
+    "breaker",
+    "generator",
+    "flashlight",
+    "lift",
+    "stromausfall",
+    "strom",
+    "sicherung",
+    "ไฟดับ",
+    "ไฟฟ้า",
+    "เบรกเกอร์"
+   ],
+   "keywords_de": [
+    "stromausfall",
+    "strom",
+    "sicherung",
+    "generator"
+   ],
+   "keywords_th": [
+    "ไฟดับ",
+    "ไฟฟ้า",
+    "เบรกเกอร์"
    ]
   },
   {
@@ -4356,6 +4778,45 @@
    ]
   },
   {
+   "id": "seafood-by-weight",
+   "names": {
+    "de": "Meeresfrüchte nach Gewicht",
+    "en": "Seafood sold by weight",
+    "th": "อาหารทะเลชั่งน้ำหนัก"
+   },
+   "phrases": 18,
+   "critical": 3,
+   "reviewed": false,
+   "category": "food",
+   "keywords": [
+    "seafood",
+    "crab",
+    "prawn",
+    "fish",
+    "squid",
+    "shellfish",
+    "meeresfrüchte",
+    "fisch",
+    "krabbe",
+    "อาหารทะเล",
+    "ปู",
+    "กุ้ง"
+   ],
+   "keywords_de": [
+    "meeresfrüchte",
+    "fisch",
+    "krabbe",
+    "garnele",
+    "gewicht"
+   ],
+   "keywords_th": [
+    "อาหารทะเล",
+    "ปู",
+    "กุ้ง",
+    "ชั่งน้ำหนัก"
+   ]
+  },
+  {
    "id": "sexual-health-clinic",
    "names": {
     "de": "Klinik für sexuelle Gesundheit",
@@ -4478,6 +4939,46 @@
     "น้ำปั่น",
     "น้ำผลไม้",
     "มะพร้าว"
+   ]
+  },
+  {
+   "id": "snake-bite-venomous",
+   "names": {
+    "de": "Schlangenbiss und Giftschlangen",
+    "en": "Snake bite and venomous snakes",
+    "th": "งูกัดและงูพิษ"
+   },
+   "phrases": 24,
+   "critical": 8,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "snake",
+    "venom",
+    "antivenom",
+    "bite",
+    "swelling",
+    "hospital",
+    "schlange",
+    "schlangenbiss",
+    "gift",
+    "งู",
+    "งูกัด",
+    "งูพิษ"
+   ],
+   "keywords_de": [
+    "schlange",
+    "schlangenbiss",
+    "gift",
+    "giftschlange",
+    "serum",
+    "kobra"
+   ],
+   "keywords_th": [
+    "งู",
+    "งูกัด",
+    "งูพิษ",
+    "เซรุ่ม"
    ]
   },
   {
@@ -4626,6 +5127,45 @@
     "กระดูกหัก",
     "เคล็ด",
     "เฝือก"
+   ]
+  },
+  {
+   "id": "stray-dogs-safety",
+   "names": {
+    "de": "Streunende Hunde",
+    "en": "Stray dogs",
+    "th": "สุนัขจรจัด"
+   },
+   "phrases": 21,
+   "critical": 6,
+   "reviewed": false,
+   "category": "health",
+   "keywords": [
+    "stray dog",
+    "bite",
+    "scratch",
+    "rabies",
+    "vaccine",
+    "owner",
+    "hund",
+    "straßenhund",
+    "streunend",
+    "สุนัข",
+    "หมา",
+    "สุนัขจรจัด"
+   ],
+   "keywords_de": [
+    "hund",
+    "straßenhund",
+    "streunend",
+    "biss",
+    "tollwut"
+   ],
+   "keywords_th": [
+    "สุนัข",
+    "หมา",
+    "สุนัขจรจัด",
+    "กัด"
    ]
   },
   {
@@ -4963,6 +5503,43 @@
    ]
   },
   {
+   "id": "tipping-service-charge",
+   "names": {
+    "de": "Trinkgeld und Servicegebühr",
+    "en": "Tipping and service charge",
+    "th": "ทิปและค่าบริการ"
+   },
+   "phrases": 15,
+   "critical": 0,
+   "reviewed": false,
+   "category": "money",
+   "keywords": [
+    "tip",
+    "service charge",
+    "vat",
+    "bill",
+    "included",
+    "cash",
+    "trinkgeld",
+    "service",
+    "rechnung",
+    "ทิป",
+    "ค่าบริการ",
+    "บิล"
+   ],
+   "keywords_de": [
+    "trinkgeld",
+    "service",
+    "rechnung",
+    "mehrwertsteuer"
+   ],
+   "keywords_th": [
+    "ทิป",
+    "ค่าบริการ",
+    "บิล"
+   ]
+  },
+  {
    "id": "tm30-address-report",
    "names": {
     "de": "TM30 / Meldung der Unterkunft",
@@ -5101,6 +5678,45 @@
    ]
   },
   {
+   "id": "traffic-fine-police-ticket",
+   "names": {
+    "de": "Verkehrsbußgeld und Strafzettel",
+    "en": "Traffic fine and police ticket",
+    "th": "ใบสั่งจราจรและค่าปรับ"
+   },
+   "phrases": 21,
+   "critical": 5,
+   "reviewed": false,
+   "category": "transport",
+   "keywords": [
+    "fine",
+    "ticket",
+    "police",
+    "licence",
+    "helmet",
+    "speeding",
+    "bußgeld",
+    "strafzettel",
+    "polizei",
+    "ใบสั่ง",
+    "ค่าปรับ",
+    "ตำรวจจราจร"
+   ],
+   "keywords_de": [
+    "bußgeld",
+    "strafzettel",
+    "polizei",
+    "verkehr",
+    "kontrolle"
+   ],
+   "keywords_th": [
+    "ใบสั่ง",
+    "ค่าปรับ",
+    "ตำรวจจราจร",
+    "ด่านตรวจ"
+   ]
+  },
+  {
    "id": "travel-insurance-claim",
    "names": {
     "de": "Reiseversicherung: Schaden melden",
@@ -5158,6 +5774,44 @@
     "bell",
     "route",
     "change"
+   ]
+  },
+  {
+   "id": "two-price-attraction-tickets",
+   "names": {
+    "de": "Eintrittspreise für Ausländer",
+    "en": "Foreigner ticket prices",
+    "th": "ค่าเข้าชมราคาชาวต่างชาติ"
+   },
+   "phrases": 15,
+   "critical": 0,
+   "reviewed": false,
+   "category": "culture",
+   "keywords": [
+    "ticket",
+    "entrance fee",
+    "foreigner",
+    "thai",
+    "discount",
+    "student card",
+    "eintritt",
+    "ausländer",
+    "ค่าเข้า",
+    "ตั๋ว",
+    "ชาวต่างชาติ"
+   ],
+   "keywords_de": [
+    "eintritt",
+    "ticket",
+    "ausländer",
+    "nationalpark",
+    "preis"
+   ],
+   "keywords_th": [
+    "ค่าเข้า",
+    "ตั๋ว",
+    "ชาวต่างชาติ",
+    "ราคา"
    ]
   },
   {

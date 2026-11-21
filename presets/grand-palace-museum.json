@@ -40,28 +40,34 @@
     {
       "en": "Is the palace open today?",
       "th": "วันนี้พระราชวังเปิดไหม",
-      "critical": true
+      "critical": true,
+      "rom": "wanni phraratwang poet mai"
     },
     {
       "en": "A stranger told me it is closed. Is that true?",
       "th": "มีคนบอกว่าปิด จริงไหม",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon bo kwa pit chring mai"
     },
     {
       "en": "Where is the ticket counter?",
-      "th": "ช่องขายตั๋วอยู่ที่ไหน"
+      "th": "ช่องขายตั๋วอยู่ที่ไหน",
+      "rom": "chongkhaitua yu thinai"
     },
     {
       "en": "How much is the entrance fee?",
-      "th": "ค่าเข้าชมเท่าไร"
+      "th": "ค่าเข้าชมเท่าไร",
+      "rom": "kha khaotm thaorai"
     },
     {
       "en": "What are the opening hours?",
-      "th": "เปิดกี่โมงถึงกี่โมง"
+      "th": "เปิดกี่โมงถึงกี่โมง",
+      "rom": "poet ki mong thueng ki mong"
     },
     {
       "en": "Is there a dress code?",
-      "th": "มีข้อกำหนดการแต่งกายไหม"
+      "th": "มีข้อกำหนดการแต่งกายไหม",
+      "rom": "mi kho kamntkan taengkai mai"
     },
     {
       "en": "Can I borrow a long skirt or trousers?",
@@ -69,39 +75,48 @@
     },
     {
       "en": "Is there a locker for my bag?",
-      "th": "มีที่ฝากกระเป๋าไหม"
+      "th": "มีที่ฝากกระเป๋าไหม",
+      "rom": "mi thi fak krapao mai"
     },
     {
       "en": "Do you have an audio guide in English?",
-      "th": "มีเครื่องบรรยายเสียงภาษาอังกฤษไหม"
+      "th": "มีเครื่องบรรยายเสียงภาษาอังกฤษไหม",
+      "rom": "mi kherueng bayai siang phasaangkrit mai"
     },
     {
       "en": "Is there a guided tour in English?",
-      "th": "มีทัวร์นำชมภาษาอังกฤษไหม"
+      "th": "มีทัวร์นำชมภาษาอังกฤษไหม",
+      "rom": "mi thua nam chom phasaangkrit mai"
     },
     {
       "en": "May I take photos inside?",
-      "th": "ถ่ายรูปข้างในได้ไหม"
+      "th": "ถ่ายรูปข้างในได้ไหม",
+      "rom": "thairup khangnai dai mai"
     },
     {
       "en": "Where is the toilet?",
-      "th": "ห้องน้ำอยู่ที่ไหน"
+      "th": "ห้องน้ำอยู่ที่ไหน",
+      "rom": "ongnam yu thinai"
     },
     {
       "en": "How long does the visit take?",
-      "th": "ใช้เวลาเที่ยวนานแค่ไหน"
+      "th": "ใช้เวลาเที่ยวนานแค่ไหน",
+      "rom": "chaiwela thiao nan khae nai"
     },
     {
       "en": "Is there a discount for students?",
-      "th": "มีส่วนลดนักเรียนไหม"
+      "th": "มีส่วนลดนักเรียนไหม",
+      "rom": "mi suannt nakrian mai"
     },
     {
       "en": "Is it wheelchair accessible?",
-      "th": "รถเข็นเข้าได้ไหม"
+      "th": "รถเข็นเข้าได้ไหม",
+      "rom": "rathakhen khao dai mai"
     },
     {
       "en": "Is there a café inside?",
-      "th": "ข้างในมีร้านกาแฟไหม"
+      "th": "ข้างในมีร้านกาแฟไหม",
+      "rom": "khangnai mi rankafae mai"
     }
   ]
 }

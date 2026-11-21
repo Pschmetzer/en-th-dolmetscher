@@ -48,96 +48,118 @@
     {
       "en": "The water level is rising, we must leave now.",
       "th": "ระดับน้ำสูงขึ้น ต้องออกไปตอนนี้",
-      "critical": true
+      "critical": true,
+      "rom": "radapnam sung khuen tong ok pai tonni"
     },
     {
       "en": "My friend slipped and cannot walk.",
       "th": "เพื่อนลื่นล้มและเดินไม่ได้",
-      "critical": true
+      "critical": true,
+      "rom": "phuean luennm lae doen mai dai"
     },
     {
       "en": "Someone hit their head, please call help.",
       "th": "มีคนหัวกระแทก ช่วยโทรเรียกความช่วยเหลือหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon hua krathaek chuai thon riak khwamchuaihelue noi"
     },
     {
       "en": "I cannot swim, please give me a life jacket.",
       "th": "ว่ายน้ำไม่เป็น ขอเสื้อชูชีพหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "wainam mai pen kho suea chuchip noi"
     },
     {
       "en": "One person from our group is missing in the cave.",
       "th": "มีคนในกลุ่มหายไปในถ้ำ",
-      "critical": true
+      "critical": true,
+      "rom": "mi khananai klum hai pai nai tham"
     },
     {
       "en": "My light is out and I cannot see.",
       "th": "ไฟดับและมองไม่เห็น",
-      "critical": true
+      "critical": true,
+      "rom": "fai dap lae mongmaihen"
     },
     {
       "en": "Is the cave safe today?",
-      "th": "วันนี้ถ้ำปลอดภัยไหม"
+      "th": "วันนี้ถ้ำปลอดภัยไหม",
+      "rom": "wanni tham plotphai mai"
     },
     {
       "en": "Is a guide included in the price?",
-      "th": "ราคารวมไกด์ไหม"
+      "th": "ราคารวมไกด์ไหม",
+      "rom": "rakha ruam kai mai"
     },
     {
       "en": "Please give me a helmet and a headlamp.",
-      "th": "ขอหมวกนิรภัยและไฟคาดหัวหน่อย"
+      "th": "ขอหมวกนิรภัยและไฟคาดหัวหน่อย",
+      "rom": "kho muakninphai lae fai khat hua noi"
     },
     {
       "en": "How long is the walk to the waterfall?",
-      "th": "เดินไปน้ำตกนานเท่าไร"
+      "th": "เดินไปน้ำตกนานเท่าไร",
+      "rom": "doen pai namtk nan thaorai"
     },
     {
       "en": "Is the path slippery after the rain?",
-      "th": "ทางลื่นไหมหลังฝนตก"
+      "th": "ทางลื่นไหมหลังฝนตก",
+      "rom": "thang luen mai lang fanatok"
     },
     {
       "en": "Can we swim at the waterfall?",
-      "th": "ว่ายน้ำที่น้ำตกได้ไหม"
+      "th": "ว่ายน้ำที่น้ำตกได้ไหม",
+      "rom": "wainam thi namtk dai mai"
     },
     {
       "en": "How deep is the water at this pool?",
-      "th": "สระตรงนี้น้ำลึกเท่าไร"
+      "th": "สระตรงนี้น้ำลึกเท่าไร",
+      "rom": "sra trangani nam luek thaorai"
     },
     {
       "en": "Please wait for me, I walk slowly.",
-      "th": "ช่วยรอหน่อย เดินช้า"
+      "th": "ช่วยรอหน่อย เดินช้า",
+      "rom": "chuai ro noi doen cha"
     },
     {
       "en": "Please show me where to put my feet.",
-      "th": "ช่วยบอกหน่อยว่าควรวางเท้าตรงไหน"
+      "th": "ช่วยบอกหน่อยว่าควรวางเท้าตรงไหน",
+      "rom": "chuai bok noi wa khuan wang thao trangahanai"
     },
     {
       "en": "May we take photos inside the cave?",
-      "th": "ถ่ายรูปในถ้ำได้ไหม"
+      "th": "ถ่ายรูปในถ้ำได้ไหม",
+      "rom": "thairup nai tham dai mai"
     },
     {
       "en": "Please keep the group together.",
-      "th": "ช่วยอย่าให้กลุ่มแยกกันหน่อย"
+      "th": "ช่วยอย่าให้กลุ่มแยกกันหน่อย",
+      "rom": "chuai ya hai klum yaekkan noi"
     },
     {
       "en": "Where can I leave my bag?",
-      "th": "ฝากกระเป๋าไว้ได้ที่ไหน"
+      "th": "ฝากกระเป๋าไว้ได้ที่ไหน",
+      "rom": "fak krapao wai dai thinai"
     },
     {
       "en": "Are there bats or snakes in the cave?",
-      "th": "ในถ้ำมีค้างคาวหรืองูไหม"
+      "th": "ในถ้ำมีค้างคาวหรืองูไหม",
+      "rom": "nai tham mi khangkhao rue ngu mai"
     },
     {
       "en": "I need a break, please.",
-      "th": "ขอพักหน่อย"
+      "th": "ขอพักหน่อย",
+      "rom": "kho phak noi"
     },
     {
       "en": "Please take us back to the entrance.",
-      "th": "ช่วยพาพวกเรากลับไปที่ทางเข้าหน่อย"
+      "th": "ช่วยพาพวกเรากลับไปที่ทางเข้าหน่อย",
+      "rom": "chuai pha phuakrao klap pai thi thangkhao noi"
     },
     {
       "en": "Thank you, the tour was wonderful.",
-      "th": "ขอบคุณ ทัวร์วันนี้ยอดเยี่ยมมาก"
+      "th": "ขอบคุณ ทัวร์วันนี้ยอดเยี่ยมมาก",
+      "rom": "khopkhun thua wanni yotyiam mak"
     }
   ]
 }

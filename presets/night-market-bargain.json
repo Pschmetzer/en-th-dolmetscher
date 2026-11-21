@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Handeln ist erwünscht, aber freundlich und mit Lächeln; bei Essen, Festpreisen und Markenläden wird nicht gehandelt. Im Gedränge Taschen vorne tragen und beim Essen auf Allergene achten. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Bargaining is expected, but keep it friendly and smiling; food, fixed prices and brand shops do not bargain. Wear bags in front in crowds and watch allergens when eating. Thai lines machine-made, not checked by native speakers."
+    "de": "Handeln ist erwünscht, aber freundlich und mit Lächeln; bei Essen, Festpreisen und Markenläden wird nicht gehandelt. Im Gedränge Taschen vorne tragen und beim Essen auf Allergene achten. Siehe auch: Markt und Handeln, Souvenirs / Schmuck. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Bargaining is expected, but keep it friendly and smiling; food, fixed prices and brand shops do not bargain. Wear bags in front in crowds and watch allergens when eating. See also: Market and haggling, Souvenirs / jewellery. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,50 +40,61 @@
     {
       "en": "Please call the police.",
       "th": "ช่วยเรียกตำรวจด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak tamruat duai"
     },
     {
       "en": "I am allergic to peanuts.",
       "th": "แพ้ถั่วลิสง",
-      "critical": true
+      "critical": true,
+      "rom": "phae thualitng"
     },
     {
       "en": "I am allergic to shellfish.",
       "th": "แพ้อาหารทะเลที่มีเปลือก",
-      "critical": true
+      "critical": true,
+      "rom": "phae ahanthale thi mi peluek"
     },
     {
       "en": "Please let go of my arm.",
       "th": "ปล่อยแขนด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "ploi khaen duai"
     },
     {
       "en": "My wallet was stolen.",
-      "th": "กระเป๋าสตางค์ถูกขโมย"
+      "th": "กระเป๋าสตางค์ถูกขโมย",
+      "rom": "krapaottang thuk khamoi"
     },
     {
       "en": "How much is this?",
-      "th": "อันนี้ราคาเท่าไหร่"
+      "th": "อันนี้ราคาเท่าไหร่",
+      "rom": "anni rakha thaorai"
     },
     {
       "en": "That is too expensive.",
-      "th": "แพงไป"
+      "th": "แพงไป",
+      "rom": "phaeng pai"
     },
     {
       "en": "Can you give a discount?",
-      "th": "ลดหน่อยได้ไหม"
+      "th": "ลดหน่อยได้ไหม",
+      "rom": "lot noi dai mai"
     },
     {
       "en": "What is your best price?",
-      "th": "ราคาที่ถูกที่สุดเท่าไหร่"
+      "th": "ราคาที่ถูกที่สุดเท่าไหร่",
+      "rom": "ra khathi thuk thisut thaorai"
     },
     {
       "en": "If I buy two, what is the price?",
-      "th": "ถ้าซื้อสองชิ้นราคาเท่าไหร่"
+      "th": "ถ้าซื้อสองชิ้นราคาเท่าไหร่",
+      "rom": "tha sue song chin rakha thaorai"
     },
     {
       "en": "I will think about it.",
-      "th": "ขอไปคิดดูก่อน"
+      "th": "ขอไปคิดดูก่อน",
+      "rom": "kho pai khit dukon"
     },
     {
       "en": "Just looking, thank you.",
@@ -91,11 +102,13 @@
     },
     {
       "en": "Is this price for one piece?",
-      "th": "ราคานี้ต่อหนึ่งชิ้นใช่ไหม"
+      "th": "ราคานี้ต่อหนึ่งชิ้นใช่ไหม",
+      "rom": "rakha ni to nueng chin chaimai"
     },
     {
       "en": "Can I try it on?",
-      "th": "ขอลองได้ไหม"
+      "th": "ขอลองได้ไหม",
+      "rom": "kho long dai mai"
     },
     {
       "en": "Do you have a smaller size?",
@@ -103,23 +116,28 @@
     },
     {
       "en": "Can you write the price down?",
-      "th": "ช่วยเขียนราคาให้หน่อย"
+      "th": "ช่วยเขียนราคาให้หน่อย",
+      "rom": "chuai khian rakha hai noi"
     },
     {
       "en": "Do you take cards?",
-      "th": "รับบัตรไหม"
+      "th": "รับบัตรไหม",
+      "rom": "rap batn mai"
     },
     {
       "en": "Do you have change for 1000 baht?",
-      "th": "ทอนจากพันบาทได้ไหม"
+      "th": "ทอนจากพันบาทได้ไหม",
+      "rom": "thon chak phan bat dai mai"
     },
     {
       "en": "Is this real or fake?",
-      "th": "ของแท้หรือของปลอม"
+      "th": "ของแท้หรือของปลอม",
+      "rom": "khongthae rue khongplom"
     },
     {
       "en": "Where is the food area?",
-      "th": "โซนอาหารอยู่ที่ไหน"
+      "th": "โซนอาหารอยู่ที่ไหน",
+      "rom": "son ahan yu thinai"
     }
   ]
 }

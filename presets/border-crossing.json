@@ -56,57 +56,70 @@
     {
       "en": "I do not want to pay an extra fee.",
       "th": "ไม่ต้องการจ่ายค่าธรรมเนียมเพิ่ม",
-      "critical": true
+      "critical": true,
+      "rom": "mataingkan chai khatamniam phoem"
     },
     {
       "en": "Is this the official price?",
       "th": "นี่คือราคาอย่างเป็นทางการใช่ไหม",
-      "critical": true
+      "critical": true,
+      "rom": "ni khue rakha yang penthangkan chaimai"
     },
     {
       "en": "Please call the tourist police (1155).",
       "th": "ช่วยโทรหาตำรวจท่องเที่ยว 1155 ด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai thon ha tamruat thongthiao 1155 duai"
     },
     {
       "en": "Where is the immigration counter?",
-      "th": "ช่องตรวจคนเข้าเมืองอยู่ที่ไหน"
+      "th": "ช่องตรวจคนเข้าเมืองอยู่ที่ไหน",
+      "rom": "chong truat khanakhaomueang yu thinai"
     },
     {
       "en": "I want to leave Thailand and come back today.",
-      "th": "ต้องการออกจากประเทศไทยและกลับเข้ามาวันนี้"
+      "th": "ต้องการออกจากประเทศไทยและกลับเข้ามาวันนี้",
+      "rom": "tongkan okchak prathet thai lae klap khaoma wanni"
     },
     {
       "en": "How many days will I get when I come back?",
-      "th": "กลับเข้ามาแล้วจะได้กี่วัน"
+      "th": "กลับเข้ามาแล้วจะได้กี่วัน",
+      "rom": "klap khaoma lae wacha dai ki wan"
     },
     {
       "en": "Here is my passport.",
-      "th": "นี่พาสปอร์ต"
+      "th": "นี่พาสปอร์ต",
+      "rom": "ni phatpot"
     },
     {
       "en": "Here is my passport photo.",
-      "th": "นี่คือรูปถ่ายหนังสือเดินทาง"
+      "th": "นี่คือรูปถ่ายหนังสือเดินทาง",
+      "rom": "ni khue rupthai nangsuedoenthang"
     },
     {
       "en": "Where do I get the departure card?",
-      "th": "รับบัตรขาออกได้ที่ไหน"
+      "th": "รับบัตรขาออกได้ที่ไหน",
+      "rom": "rap batn khaok dai thinai"
     },
     {
       "en": "What is the official fee?",
-      "th": "ค่าธรรมเนียมอย่างเป็นทางการเท่าไร"
+      "th": "ค่าธรรมเนียมอย่างเป็นทางการเท่าไร",
+      "rom": "khatamniam yang penthangkan thaorai"
     },
     {
       "en": "Do you accept Thai baht?",
-      "th": "รับเงินบาทไหม"
+      "th": "รับเงินบาทไหม",
+      "rom": "rap ngoenbat mai"
     },
     {
       "en": "What time does the border close?",
-      "th": "ชายแดนปิดกี่โมง"
+      "th": "ชายแดนปิดกี่โมง",
+      "rom": "chaidaen pit ki mong"
     },
     {
       "en": "Where is the minivan to the city?",
-      "th": "รถตู้เข้าเมืองอยู่ที่ไหน"
+      "th": "รถตู้เข้าเมืองอยู่ที่ไหน",
+      "rom": "rathatu khao mueang yu thinai"
     },
     {
       "en": "How much is the taxi to the next town?",
@@ -114,7 +127,8 @@
     },
     {
       "en": "Please check the stamp in my passport.",
-      "th": "ช่วยตรวจตราประทับในหนังสือเดินทางด้วย"
+      "th": "ช่วยตรวจตราประทับในหนังสือเดินทางด้วย",
+      "rom": "chuai truat traprathap nai nangsuedoenthang duai"
     }
   ]
 }

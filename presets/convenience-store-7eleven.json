@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "7-Eleven gibt es überall und rund um die Uhr: Snacks, Mikrowellen-Essen, SIM-Karten, Rechnungen zahlen. Fragen, ob das Essen aufgewärmt wird („Heiß machen?“). Alkohol gibt es nur zu bestimmten Zeiten und nicht an Feiertagen. Tüte lehnt man ab mit „brauche keine“. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "7-Eleven is everywhere and open round the clock: snacks, microwave meals, SIM cards, bill payments. You will be asked whether to heat the food. Alcohol is sold only at set hours and not on holidays. Decline a bag by saying you do not need one. Thai lines machine-made, not checked by native speakers."
+    "de": "7-Eleven gibt es überall und rund um die Uhr: Snacks, Mikrowellen-Essen, SIM-Karten, Rechnungen zahlen. Fragen, ob das Essen aufgewärmt wird („Heiß machen?“). Alkohol gibt es nur zu bestimmten Zeiten und nicht an Feiertagen. Tüte lehnt man ab mit „brauche keine“. Siehe auch: Markt und Handeln. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "7-Eleven is everywhere and open round the clock: snacks, microwave meals, SIM cards, bill payments. You will be asked whether to heat the food. Alcohol is sold only at set hours and not on holidays. Decline a bag by saying you do not need one. See also: Market and haggling. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,45 +40,55 @@
     {
       "en": "I am allergic to peanuts.",
       "th": "แพ้ถั่วลิสง",
-      "critical": true
+      "critical": true,
+      "rom": "phae thualitng"
     },
     {
       "en": "Is this halal?",
       "th": "อันนี้ฮาลาลไหม",
-      "critical": true
+      "critical": true,
+      "rom": "anni halan mai"
     },
     {
       "en": "Does it contain pork?",
       "th": "มีเนื้อหมูไหม",
-      "critical": true
+      "critical": true,
+      "rom": "mi nueamu mai"
     },
     {
       "en": "Where is the pharmacy?",
-      "th": "ร้านขายยาอยู่ที่ไหน"
+      "th": "ร้านขายยาอยู่ที่ไหน",
+      "rom": "rankhaiya yu thinai"
     },
     {
       "en": "Could you heat it up, please?",
-      "th": "ช่วยอุ่นให้หน่อย"
+      "th": "ช่วยอุ่นให้หน่อย",
+      "rom": "chuai un hai noi"
     },
     {
       "en": "How much is it?",
-      "th": "ราคาเท่าไร"
+      "th": "ราคาเท่าไร",
+      "rom": "rakha thaorai"
     },
     {
       "en": "I do not need a bag.",
-      "th": "ไม่รับถุง"
+      "th": "ไม่รับถุง",
+      "rom": "mai rap thung"
     },
     {
       "en": "Could I have a bag, please?",
-      "th": "ขอถุงหน่อย"
+      "th": "ขอถุงหน่อย",
+      "rom": "kho thung noi"
     },
     {
       "en": "Could I have a spoon and a fork?",
-      "th": "ขอช้อนส้อมด้วย"
+      "th": "ขอช้อนส้อมด้วย",
+      "rom": "kho chonsom duai"
     },
     {
       "en": "Do you take cards?",
-      "th": "รับบัตรไหม"
+      "th": "รับบัตรไหม",
+      "rom": "rap batn mai"
     },
     {
       "en": "Could I have a receipt?",
@@ -86,19 +96,23 @@
     },
     {
       "en": "Where is the water?",
-      "th": "น้ำดื่มอยู่ที่ไหน"
+      "th": "น้ำดื่มอยู่ที่ไหน",
+      "rom": "namduem yu thinai"
     },
     {
       "en": "I need a SIM card with data.",
-      "th": "ต้องการซิมการ์ดที่มีอินเทอร์เน็ต"
+      "th": "ต้องการซิมการ์ดที่มีอินเทอร์เน็ต",
+      "rom": "tongkan sim kat thi mi inthoenet"
     },
     {
       "en": "I would like to top up my phone.",
-      "th": "ต้องการเติมเงินโทรศัพท์"
+      "th": "ต้องการเติมเงินโทรศัพท์",
+      "rom": "tongkan toem ngoen thonsap"
     },
     {
       "en": "Where is the toilet?",
-      "th": "ห้องน้ำอยู่ที่ไหน"
+      "th": "ห้องน้ำอยู่ที่ไหน",
+      "rom": "ongnam yu thinai"
     },
     {
       "en": "Could I have ice?",
@@ -106,7 +120,8 @@
     },
     {
       "en": "Do you sell phone chargers?",
-      "th": "มีที่ชาร์จโทรศัพท์ขายไหม"
+      "th": "มีที่ชาร์จโทรศัพท์ขายไหม",
+      "rom": "mi thi chat thonsap khai mai"
     }
   ]
 }

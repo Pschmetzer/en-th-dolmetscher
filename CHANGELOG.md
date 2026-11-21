@@ -4,6 +4,20 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### Web, round 27
+
+- **17 new phrase packs (243 in total):** snake bite, jellyfish and sea urchins, locksmith, power outage, stray dogs, online orders and parcels, phone repair, traffic fines, air pollution (PM2.5), asthma and inhaler, anaphylaxis and adrenaline pen, seafood by weight, tipping and service charge, card payment surcharge, theft in a hotel room, Chao Phraya express boat, foreigner ticket prices. Index, categories and search terms are in place; the new packs pass `check_presets.py --strict` and `preset_lint.py`.
+- **Transliteration (`rom`) for the older packs:** the 201 older packs now carry the machine-made reading aid too (`tools/preset_rom.py --fill`), about 94 % of all sentences; a sentence whose words cannot all be romanized (drug names, loanwords) gets none instead of an incomplete reading (`preset_rom.py` no longer drops words silently). Pack size budgets still hold (no pack above 22 KB, all packs below 1.9 MB), so loading `rom` on demand was not needed.
+- **Review status in the phrasebook:** each pack shows "Thai sentences: x % checked by native speakers" under its note (from `reviewed` in `presets-index.json`); medical, emergency and police packs with red sentences add a hint to have a Thai speaker double-check them first.
+- **See-also instead of duplicates:** new `tools/preset_dupes.py` lists packs sharing three or more sentences and adds "See also: ..." to their notes (73 packs), so each pack stays usable alone.
+- **History tags:** each entry of the existing history has a tag button (star, medical, money, taxi, hotel); tags are searchable and show in the text, share and CSV export (extra `tag` column only if something is tagged). Session only, like the history itself.
+- **Offline travel checklist export:** the checklist tab saves the list with its ticks as `reise-checkliste.txt`, made on the device.
+- **Longer share links:** a card pack link above one QR code (271 bytes) is split into up to 12 QR codes; each code is its own link (`#part=`), the page collects the parts on the phone and opens the pack when all are there (checksum). Links up to about 2 KB (around 24 cards) work.
+- **Lighthouse CI:** new workflow `lighthouse.yml` runs Lighthouse against the locally served page (3 runs, desktop preset) with budgets for performance, accessibility, SEO, weight, LCP, CLS and blocking time in `.github/lighthouse/lighthouserc.json`. Not blocking (job and step `continue-on-error`), report stored as artifact, nothing uploaded to a third party.
+- **Browser flow test:** `tests/web-e2e/flow.mjs` (Playwright): open the page, wait for the service worker to cache packs, open a pack, check the review status, show a card, search, reload offline; new CI job `e2e` in `web-a11y.yml`.
+- Budget: service worker limit raised to 17,500 bytes (17 more pack IDs).
+
+
 ### Engine, round 27
 
 - **Output device per direction:** new control fields `output_device_me` / `output_device_other` (same format as `output_device`, empty = general device, then system default). The speaker picks the device per output from the target language (own language = `me`, partner language = `other`; command replies and earcons always `me`); the Mac app sends them (`Engine.sendAudioRoute`, only to an engine whose `ready.capabilities` list the fields, on change and after `ready`); this needed a small change in `app/Engine.swift` and `app/SettingsR25.swift`, because a Mac test requires it once the protocol docs know the fields. Documented in `docs/PROTOKOLL.md`.

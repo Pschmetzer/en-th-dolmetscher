@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Auf Märkten ist freundliches Handeln üblich, in Supermärkten und Läden mit Festpreis nicht. Mit etwa 70 Prozent des ersten Preises beginnen, lächeln und gelassen bleiben. Bei Lebensmitteln und frischem Obst darf man oft probieren; nach dem Preis pro Kilo fragen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Friendly haggling is normal at markets but not in fixed-price shops. Start around 70 per cent of the first price, smile and stay calm. At food stalls ask to taste; ask for the price per kilo. Thai lines machine-made, not checked by native speakers."
+    "de": "Auf Märkten ist freundliches Handeln üblich, in Supermärkten und Läden mit Festpreis nicht. Mit etwa 70 Prozent des ersten Preises beginnen, lächeln und gelassen bleiben. Bei Lebensmitteln und frischem Obst darf man oft probieren; nach dem Preis pro Kilo fragen. Siehe auch: Nachtmarkt und Handeln, Souvenirs / Schmuck. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Friendly haggling is normal at markets but not in fixed-price shops. Start around 70 per cent of the first price, smile and stay calm. At food stalls ask to taste; ask for the price per kilo. See also: Night market and bargaining, Souvenirs / jewellery. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,72 +40,89 @@
     {
       "en": "I am allergic to peanuts.",
       "th": "แพ้ถั่วลิสง",
-      "critical": true
+      "critical": true,
+      "rom": "phae thualitng"
     },
     {
       "en": "Does this contain shellfish?",
       "th": "อันนี้มีกุ้งหรือหอยไหม",
-      "critical": true
+      "critical": true,
+      "rom": "anni mi kung rue hoi mai"
     },
     {
       "en": "How much is this?",
-      "th": "อันนี้ราคาเท่าไหร่"
+      "th": "อันนี้ราคาเท่าไหร่",
+      "rom": "anni rakha thaorai"
     },
     {
       "en": "That is too expensive.",
-      "th": "แพงไป"
+      "th": "แพงไป",
+      "rom": "phaeng pai"
     },
     {
       "en": "Can you give a discount?",
-      "th": "ลดหน่อยได้ไหม"
+      "th": "ลดหน่อยได้ไหม",
+      "rom": "lot noi dai mai"
     },
     {
       "en": "What is your best price?",
-      "th": "ราคาที่ถูกที่สุดเท่าไหร่"
+      "th": "ราคาที่ถูกที่สุดเท่าไหร่",
+      "rom": "ra khathi thuk thisut thaorai"
     },
     {
       "en": "I will take two.",
-      "th": "เอาสองอัน"
+      "th": "เอาสองอัน",
+      "rom": "ao song an"
     },
     {
       "en": "Can I taste it?",
-      "th": "ขอชิมได้ไหม"
+      "th": "ขอชิมได้ไหม",
+      "rom": "kho chim dai mai"
     },
     {
       "en": "How much per kilo?",
-      "th": "กิโลละเท่าไร"
+      "th": "กิโลละเท่าไร",
+      "rom": "kilo la thaorai"
     },
     {
       "en": "Is this fresh?",
-      "th": "อันนี้สดไหม"
+      "th": "อันนี้สดไหม",
+      "rom": "anni sot mai"
     },
     {
       "en": "Not spicy, please.",
-      "th": "ขอไม่เผ็ด"
+      "th": "ขอไม่เผ็ด",
+      "rom": "kho mai phet"
     },
     {
       "en": "A little spicy, please.",
-      "th": "เผ็ดนิดเดียว"
+      "th": "เผ็ดนิดเดียว",
+      "rom": "phet nitdiao"
     },
     {
       "en": "I do not need a bag.",
-      "th": "ไม่รับถุง"
+      "th": "ไม่รับถุง",
+      "rom": "mai rap thung"
     },
     {
       "en": "I think the change is wrong.",
-      "th": "เงินทอนน่าจะผิด"
+      "th": "เงินทอนน่าจะผิด",
+      "rom": "ngoenthon nacha phit"
     },
     {
       "en": "Do you have a smaller one?",
-      "th": "มีอันเล็กกว่านี้ไหม"
+      "th": "มีอันเล็กกว่านี้ไหม",
+      "rom": "mi an lek kwa ni mai"
     },
     {
       "en": "I will think about it.",
-      "th": "ขอไปคิดดูก่อน"
+      "th": "ขอไปคิดดูก่อน",
+      "rom": "kho pai khit dukon"
     },
     {
       "en": "Where is the toilet?",
-      "th": "ห้องน้ำอยู่ที่ไหน"
+      "th": "ห้องน้ำอยู่ที่ไหน",
+      "rom": "ongnam yu thinai"
     }
   ]
 }

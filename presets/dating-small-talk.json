@@ -36,12 +36,14 @@
     {
       "en": "Please leave me alone.",
       "th": "ขออยู่คนเดียว ช่วยอย่ามายุ่งด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "kho yu khanadiao chuai ya ma yung duai"
     },
     {
       "en": "No, I do not want that.",
       "th": "ไม่ ไม่ต้องการแบบนั้น",
-      "critical": true
+      "critical": true,
+      "rom": "mai mataingkan baep nan"
     },
     {
       "en": "Please stop. I feel uncomfortable.",
@@ -51,23 +53,28 @@
     {
       "en": "Please call the police.",
       "th": "ช่วยเรียกตำรวจด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak tamruat duai"
     },
     {
       "en": "Hello, nice to meet you.",
-      "th": "สวัสดี ยินดีที่ได้รู้จัก"
+      "th": "สวัสดี ยินดีที่ได้รู้จัก",
+      "rom": "swatdi yindi thi dai ruchak"
     },
     {
       "en": "What is your name?",
-      "th": "ชื่ออะไร"
+      "th": "ชื่ออะไร",
+      "rom": "chue arai"
     },
     {
       "en": "Where are you from?",
-      "th": "มาจากที่ไหน"
+      "th": "มาจากที่ไหน",
+      "rom": "machak thinai"
     },
     {
       "en": "What do you do?",
-      "th": "ทำงานอะไร"
+      "th": "ทำงานอะไร",
+      "rom": "thamngan arai"
     },
     {
       "en": "What do you like to do in your free time?",
@@ -75,43 +82,53 @@
     },
     {
       "en": "Your English is very good.",
-      "th": "พูดภาษาอังกฤษเก่งมาก"
+      "th": "พูดภาษาอังกฤษเก่งมาก",
+      "rom": "phut phasaangkrit keng mak"
     },
     {
       "en": "Can we speak a little slower?",
-      "th": "พูดช้าลงอีกนิดได้ไหม"
+      "th": "พูดช้าลงอีกนิดได้ไหม",
+      "rom": "phut cha long ik nit dai mai"
     },
     {
       "en": "Would you like a coffee?",
-      "th": "อยากดื่มกาแฟไหม"
+      "th": "อยากดื่มกาแฟไหม",
+      "rom": "yak duem kafae mai"
     },
     {
       "en": "I enjoyed talking with you.",
-      "th": "ดีใจที่ได้คุยด้วย"
+      "th": "ดีใจที่ได้คุยด้วย",
+      "rom": "dichai thi dai khui duai"
     },
     {
       "en": "May I have your Line ID?",
-      "th": "ขอไลน์ไอดีได้ไหม"
+      "th": "ขอไลน์ไอดีได้ไหม",
+      "rom": "kho lai ai di dai mai"
     },
     {
       "en": "Would you like to have dinner some day?",
-      "th": "วันหลังไปกินข้าวเย็นด้วยกันไหม"
+      "th": "วันหลังไปกินข้าวเย็นด้วยกันไหม",
+      "rom": "wanlang pai kin khaoyen duaikan mai"
     },
     {
       "en": "Is that okay for you?",
-      "th": "แบบนี้โอเคไหม"
+      "th": "แบบนี้โอเคไหม",
+      "rom": "baepni okhe mai"
     },
     {
       "en": "We can meet in a public place.",
-      "th": "เจอกันในที่สาธารณะได้"
+      "th": "เจอกันในที่สาธารณะได้",
+      "rom": "choekan nai thisathanna dai"
     },
     {
       "en": "I do not drink alcohol.",
-      "th": "ไม่ดื่มแอลกอฮอล์"
+      "th": "ไม่ดื่มแอลกอฮอล์",
+      "rom": "mai duem aenkoho"
     },
     {
       "en": "Have a good evening.",
-      "th": "ขอให้เย็นนี้เป็นเวลาที่ดี"
+      "th": "ขอให้เย็นนี้เป็นเวลาที่ดี",
+      "rom": "khohai yen ni penwela thi di"
     }
   ],
   "note": {

@@ -48,27 +48,32 @@
     {
       "en": "I feel very unwell and need a doctor.",
       "th": "รู้สึกไม่สบายมากและต้องการพบแพทย์",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek mai sabai mak lae tongkan phop phaet"
     },
     {
       "en": "I must leave the retreat, it is an emergency.",
       "th": "ต้องออกจากคอร์สนี้ เป็นเรื่องฉุกเฉิน",
-      "critical": true
+      "critical": true,
+      "rom": "tong okchak khot ni pen rueangchukchoen"
     },
     {
       "en": "I have a heart problem, please be careful.",
       "th": "มีโรคหัวใจ ช่วยระวังหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "mi rokhuachai chuai rawang noi"
     },
     {
       "en": "I take medicine every day and need it with me.",
       "th": "ต้องกินยาทุกวันและต้องเก็บยาไว้กับตัว",
-      "critical": true
+      "critical": true,
+      "rom": "tong kin ya thukwan lae tong kep ya wai kap tua"
     },
     {
       "en": "I feel very anxious and need to talk to someone.",
       "th": "รู้สึกกังวลมากและต้องการคุยกับใครสักคน",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek kanguan mak lae tong kankhui kap khain sak khon"
     },
     {
       "en": "I am allergic to some food.",
@@ -77,63 +82,78 @@
     },
     {
       "en": "I would like to join the retreat.",
-      "th": "ต้องการเข้าร่วมคอร์ส"
+      "th": "ต้องการเข้าร่วมคอร์ส",
+      "rom": "tongkan khaoruam khot"
     },
     {
       "en": "How many days is the course?",
-      "th": "คอร์สนี้กี่วัน"
+      "th": "คอร์สนี้กี่วัน",
+      "rom": "khot ni ki wan"
     },
     {
       "en": "Is the course free or by donation?",
-      "th": "คอร์สนี้ฟรีหรือบริจาคตามศรัทธา"
+      "th": "คอร์สนี้ฟรีหรือบริจาคตามศรัทธา",
+      "rom": "khot ni fri rue brichak tam srattha"
     },
     {
       "en": "What is the daily schedule?",
-      "th": "ตารางเวลาแต่ละวันเป็นอย่างไร"
+      "th": "ตารางเวลาแต่ละวันเป็นอย่างไร",
+      "rom": "tarangwela taelawan pen yangrai"
     },
     {
       "en": "When do we get up in the morning?",
-      "th": "ตื่นนอนตอนเช้ากี่โมง"
+      "th": "ตื่นนอนตอนเช้ากี่โมง",
+      "rom": "tuennon tonchao ki mong"
     },
     {
       "en": "Do I have to give up my phone?",
-      "th": "ต้องส่งโทรศัพท์ไหม"
+      "th": "ต้องส่งโทรศัพท์ไหม",
+      "rom": "tong song thonsap mai"
     },
     {
       "en": "Where can I get white clothes?",
-      "th": "หาซื้อชุดขาวได้ที่ไหน"
+      "th": "หาซื้อชุดขาวได้ที่ไหน",
+      "rom": "ha sue chut khao dai thinai"
     },
     {
       "en": "May I speak with the teacher?",
-      "th": "ขอพูดคุยกับครูผู้สอนได้ไหม"
+      "th": "ขอพูดคุยกับครูผู้สอนได้ไหม",
+      "rom": "kho phutkhui kap khruphuson dai mai"
     },
     {
       "en": "I am a beginner, please explain the method.",
-      "th": "เป็นมือใหม่ ช่วยอธิบายวิธีปฏิบัติหน่อย"
+      "th": "เป็นมือใหม่ ช่วยอธิบายวิธีปฏิบัติหน่อย",
+      "rom": "pen muehaim chuai thibai withi patibati noi"
     },
     {
       "en": "My legs hurt when sitting, may I use a chair?",
-      "th": "ปวดขาเวลานั่ง ขอใช้เก้าอี้ได้ไหม"
+      "th": "ปวดขาเวลานั่ง ขอใช้เก้าอี้ได้ไหม",
+      "rom": "puat kha wela nang kho chai kaoi dai mai"
     },
     {
       "en": "Is there a vegetarian meal?",
-      "th": "มีอาหารมังสวิรัติไหม"
+      "th": "มีอาหารมังสวิรัติไหม",
+      "rom": "mi ahan mangtwirati mai"
     },
     {
       "en": "Where is the bathroom for women or men?",
-      "th": "ห้องน้ำหญิงหรือชายอยู่ที่ไหน"
+      "th": "ห้องน้ำหญิงหรือชายอยู่ที่ไหน",
+      "rom": "ongnam ying rue chai yu thinai"
     },
     {
       "en": "Where can I wash my clothes?",
-      "th": "ซักผ้าได้ที่ไหน"
+      "th": "ซักผ้าได้ที่ไหน",
+      "rom": "sakpha dai thinai"
     },
     {
       "en": "May I leave a donation at the end?",
-      "th": "ขอร่วมบริจาคตอนจบคอร์สได้ไหม"
+      "th": "ขอร่วมบริจาคตอนจบคอร์สได้ไหม",
+      "rom": "kho ruam brichak tontp khot dai mai"
     },
     {
       "en": "Thank you for teaching me.",
-      "th": "ขอบคุณที่สอน"
+      "th": "ขอบคุณที่สอน",
+      "rom": "khopkhun thi son"
     }
   ]
 }

@@ -56,62 +56,76 @@
     {
       "en": "I need help now. I do not feel safe.",
       "th": "ต้องการความช่วยเหลือทันที รู้สึกไม่ปลอดภัย",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan khwamchuaihelue thanthi rusuek mai plotphai"
     },
     {
       "en": "I have thoughts of hurting myself.",
       "th": "มีความคิดทำร้ายตัวเอง",
-      "critical": true
+      "critical": true,
+      "rom": "mi khwamkhit thamrai tuaeng"
     },
     {
       "en": "Please call an ambulance (1669).",
       "th": "ช่วยเรียกรถพยาบาลด้วย (1669)",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak rathaphayaban duai 1669"
     },
     {
       "en": "Please do not leave me alone.",
       "th": "ช่วยอยู่เป็นเพื่อนด้วย อย่าปล่อยให้อยู่คนเดียว",
-      "critical": true
+      "critical": true,
+      "rom": "chuai yu penphuean duai ya ploi hai yu khanadiao"
     },
     {
       "en": "I am having a panic attack.",
-      "th": "กำลังมีอาการตื่นตระหนก"
+      "th": "กำลังมีอาการตื่นตระหนก",
+      "rom": "kamlang mi akan tuentrank"
     },
     {
       "en": "I feel very anxious.",
-      "th": "รู้สึกวิตกกังวลมาก"
+      "th": "รู้สึกวิตกกังวลมาก",
+      "rom": "rusuek witkkanguan mak"
     },
     {
       "en": "I cannot sleep for several days.",
-      "th": "นอนไม่หลับมาหลายวัน"
+      "th": "นอนไม่หลับมาหลายวัน",
+      "rom": "nonmhailap ma lai wan"
     },
     {
       "en": "I would like to talk to a counsellor.",
-      "th": "อยากคุยกับผู้ให้คำปรึกษา"
+      "th": "อยากคุยกับผู้ให้คำปรึกษา",
+      "rom": "yak khui kap phuhaikhamprueksa"
     },
     {
       "en": "Do you have an English-speaking doctor?",
-      "th": "มีแพทย์ที่พูดภาษาอังกฤษไหม"
+      "th": "มีแพทย์ที่พูดภาษาอังกฤษไหม",
+      "rom": "mi phaet thi phut phasaangkrit mai"
     },
     {
       "en": "I need an appointment today.",
-      "th": "ต้องการนัดหมายวันนี้"
+      "th": "ต้องการนัดหมายวันนี้",
+      "rom": "tongkan natmai wanni"
     },
     {
       "en": "I take this medication every day.",
-      "th": "กินยานี้ทุกวัน"
+      "th": "กินยานี้ทุกวัน",
+      "rom": "kin ya ni thukwan"
     },
     {
       "en": "I ran out of my medication.",
-      "th": "ยาหมดแล้ว"
+      "th": "ยาหมดแล้ว",
+      "rom": "ya mot laeo"
     },
     {
       "en": "How much is a session?",
-      "th": "ครั้งละเท่าไร"
+      "th": "ครั้งละเท่าไร",
+      "rom": "khrang la thaorai"
     },
     {
       "en": "Thank you for listening.",
-      "th": "ขอบคุณที่รับฟัง"
+      "th": "ขอบคุณที่รับฟัง",
+      "rom": "khopkhun thi rapfang"
     }
   ]
 }

@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Schwimmweste anlassen, auch wenn man gut schwimmt. Korallen nicht berühren und nicht darauf stehen; riffschonende Sonnencreme benutzen. Zählung der Gruppe vor der Abfahrt ist üblich. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "Keep the life jacket on even if you swim well. Do not touch or stand on coral; use reef-safe sunscreen. Counting the group before departure is normal. Thai lines machine-made, not checked by native speakers."
+    "de": "Schwimmweste anlassen, auch wenn man gut schwimmt. Korallen nicht berühren und nicht darauf stehen; riffschonende Sonnencreme benutzen. Zählung der Gruppe vor der Abfahrt ist üblich. Siehe auch: Inselausflug und Tauchen, Inselhopping. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "Keep the life jacket on even if you swim well. Do not touch or stand on coral; use reef-safe sunscreen. Counting the group before departure is normal. See also: Island trip and diving, Island hopping. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -40,80 +40,98 @@
     {
       "en": "I cannot swim.",
       "th": "ว่ายน้ำไม่เป็น",
-      "critical": true
+      "critical": true,
+      "rom": "wainam mai pen"
     },
     {
       "en": "I need medical help.",
       "th": "ต้องการความช่วยเหลือทางการแพทย์",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan khwamchuaihelue thangkanphaet"
     },
     {
       "en": "Please help me back to the boat.",
       "th": "ช่วยพากลับขึ้นเรือด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai pha klap khuen ruea duai"
     },
     {
       "en": "Someone is missing from the group.",
       "th": "มีคนหายไปจากกลุ่ม",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon hai pai chak klum"
     },
     {
       "en": "I feel dizzy.",
       "th": "เวียนหัว",
-      "critical": true
+      "critical": true,
+      "rom": "wianhua"
     },
     {
       "en": "Could I have a life jacket, please?",
       "th": "ขอเสื้อชูชีพหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "kho suea chuchip noi"
     },
     {
       "en": "Could I have a mask and snorkel, please?",
-      "th": "ขออุปกรณ์ดำน้ำตื้นหน่อย"
+      "th": "ขออุปกรณ์ดำน้ำตื้นหน่อย",
+      "rom": "kho upkn damnam tuen noi"
     },
     {
       "en": "Do you have fins in a bigger size?",
-      "th": "มีตีนกบไซส์ใหญ่กว่านี้ไหม"
+      "th": "มีตีนกบไซส์ใหญ่กว่านี้ไหม",
+      "rom": "mi tinkp sai ain kwa ni mai"
     },
     {
       "en": "My mask is leaking.",
-      "th": "หน้ากากรั่ว"
+      "th": "หน้ากากรั่ว",
+      "rom": "nakak rua"
     },
     {
       "en": "How deep is the water here?",
-      "th": "ตรงนี้น้ำลึกเท่าไหร่"
+      "th": "ตรงนี้น้ำลึกเท่าไหร่",
+      "rom": "trangani nam luek thaorai"
     },
     {
       "en": "Is there a strong current?",
-      "th": "กระแสน้ำแรงไหม"
+      "th": "กระแสน้ำแรงไหม",
+      "rom": "krasaenam raeng mai"
     },
     {
       "en": "Please do not touch the coral.",
-      "th": "ห้ามแตะปะการัง"
+      "th": "ห้ามแตะปะการัง",
+      "rom": "am tae pakarang"
     },
     {
       "en": "Which reef do we visit?",
-      "th": "ไปดำน้ำที่แนวปะการังไหน"
+      "th": "ไปดำน้ำที่แนวปะการังไหน",
+      "rom": "pai damnam thi naeopakarang nai"
     },
     {
       "en": "How long do we stay in the water?",
-      "th": "อยู่ในน้ำนานเท่าไหร่"
+      "th": "อยู่ในน้ำนานเท่าไหร่",
+      "rom": "yu nai nam nan thaorai"
     },
     {
       "en": "Where can I rinse off?",
-      "th": "ล้างตัวได้ที่ไหน"
+      "th": "ล้างตัวได้ที่ไหน",
+      "rom": "lang tua dai thinai"
     },
     {
       "en": "Is reef-safe sunscreen required?",
-      "th": "ต้องใช้ครีมกันแดดที่ปลอดภัยต่อปะการังไหม"
+      "th": "ต้องใช้ครีมกันแดดที่ปลอดภัยต่อปะการังไหม",
+      "rom": "tong chai khrimkandaet thi plotphai to pakarang mai"
     },
     {
       "en": "I want to go back to the boat.",
-      "th": "ขอกลับขึ้นเรือ"
+      "th": "ขอกลับขึ้นเรือ",
+      "rom": "kho klap khuen ruea"
     },
     {
       "en": "Please count everyone before we leave.",
-      "th": "ช่วยนับคนก่อนออกเรือด้วย"
+      "th": "ช่วยนับคนก่อนออกเรือด้วย",
+      "rom": "chuai nap khon kon okruea duai"
     }
   ]
 }

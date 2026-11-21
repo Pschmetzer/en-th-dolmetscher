@@ -36,74 +36,91 @@
     {
       "en": "Someone feels sick. Please call a doctor.",
       "th": "มีคนไม่สบาย ช่วยเรียกแพทย์หน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon mai sabai chuai riak phaet noi"
     },
     {
       "en": "I have a food allergy.",
       "th": "แพ้อาหาร",
-      "critical": true
+      "critical": true,
+      "rom": "phae ahan"
     },
     {
       "en": "Where is the exit?",
       "th": "ทางออกอยู่ที่ไหน",
-      "critical": true
+      "critical": true,
+      "rom": "thangok yu thinai"
     },
     {
       "en": "Please call an ambulance.",
       "th": "ช่วยเรียกรถพยาบาลหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak rathaphayaban noi"
     },
     {
       "en": "Congratulations to you both!",
-      "th": "ขอแสดงความยินดีกับทั้งสองท่าน"
+      "th": "ขอแสดงความยินดีกับทั้งสองท่าน",
+      "rom": "khosaetngkwamyindi kap thangsong than"
     },
     {
       "en": "Thank you very much for inviting us.",
-      "th": "ขอบคุณมากที่เชิญ"
+      "th": "ขอบคุณมากที่เชิญ",
+      "rom": "khopkhun mak thi choen"
     },
     {
       "en": "I wish you a happy marriage.",
-      "th": "ขอให้มีความสุขในชีวิตสมรส"
+      "th": "ขอให้มีความสุขในชีวิตสมรส",
+      "rom": "khohai mikwamsuk nai chiwittmnt"
     },
     {
       "en": "What time does the ceremony start?",
-      "th": "พิธีเริ่มกี่โมง"
+      "th": "พิธีเริ่มกี่โมง",
+      "rom": "phithi roem ki mong"
     },
     {
       "en": "Where should I sit?",
-      "th": "ควรนั่งตรงไหน"
+      "th": "ควรนั่งตรงไหน",
+      "rom": "khuan nang trangahanai"
     },
     {
       "en": "Where is the gift table?",
-      "th": "โต๊ะรับของขวัญอยู่ที่ไหน"
+      "th": "โต๊ะรับของขวัญอยู่ที่ไหน",
+      "rom": "to rap khongkwan yu thinai"
     },
     {
       "en": "Is there a dress code?",
-      "th": "มีข้อกำหนดการแต่งกายไหม"
+      "th": "มีข้อกำหนดการแต่งกายไหม",
+      "rom": "mi kho kamntkan taengkai mai"
     },
     {
       "en": "Is this dish spicy?",
-      "th": "จานนี้เผ็ดไหม"
+      "th": "จานนี้เผ็ดไหม",
+      "rom": "chan ni phet mai"
     },
     {
       "en": "Does this have peanuts?",
-      "th": "อันนี้มีถั่วลิสงไหม"
+      "th": "อันนี้มีถั่วลิสงไหม",
+      "rom": "anni mi thualitng mai"
     },
     {
       "en": "Cheers!",
-      "th": "ชนแก้ว"
+      "th": "ชนแก้ว",
+      "rom": "chanakaeo"
     },
     {
       "en": "The food is delicious.",
-      "th": "อาหารอร่อยมาก"
+      "th": "อาหารอร่อยมาก",
+      "rom": "ahan roi mak"
     },
     {
       "en": "Could we take a photo together?",
-      "th": "ถ่ายรูปด้วยกันได้ไหม"
+      "th": "ถ่ายรูปด้วยกันได้ไหม",
+      "rom": "thairup duaikan dai mai"
     },
     {
       "en": "Where is the toilet?",
-      "th": "ห้องน้ำอยู่ที่ไหน"
+      "th": "ห้องน้ำอยู่ที่ไหน",
+      "rom": "ongnam yu thinai"
     },
     {
       "en": "Could you call a taxi for us?",

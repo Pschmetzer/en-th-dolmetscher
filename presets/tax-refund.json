@@ -40,12 +40,14 @@
     {
       "en": "My bag was stolen.",
       "th": "กระเป๋าถูกขโมย",
-      "critical": true
+      "critical": true,
+      "rom": "krapao thuk khamoi"
     },
     {
       "en": "My flight leaves soon. Please hurry.",
       "th": "เครื่องบินใกล้ออกแล้ว ช่วยเร่งด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "kheruengbin kain ok laeo chuai reng duai"
     },
     {
       "en": "Do I show the goods before check-in?",
@@ -54,7 +56,8 @@
     },
     {
       "en": "I lost the refund form.",
-      "th": "ทำแบบฟอร์มขอคืนภาษีหาย"
+      "th": "ทำแบบฟอร์มขอคืนภาษีหาย",
+      "rom": "tham baepfom kho khuen phasi hai"
     },
     {
       "en": "I do not have the receipt.",
@@ -62,51 +65,63 @@
     },
     {
       "en": "Is VAT refund available here?",
-      "th": "ที่นี่ขอคืนภาษีได้ไหม"
+      "th": "ที่นี่ขอคืนภาษีได้ไหม",
+      "rom": "thini kho khuen phasi dai mai"
     },
     {
       "en": "I would like a VAT refund form.",
-      "th": "ขอแบบฟอร์มขอคืนภาษี"
+      "th": "ขอแบบฟอร์มขอคืนภาษี",
+      "rom": "kho baepfom kho khuen phasi"
     },
     {
       "en": "Could I have a tax invoice?",
-      "th": "ขอใบกำกับภาษีได้ไหม"
+      "th": "ขอใบกำกับภาษีได้ไหม",
+      "rom": "kho baikamkapphasi dai mai"
     },
     {
       "en": "Here is my passport.",
-      "th": "นี่พาสปอร์ต"
+      "th": "นี่พาสปอร์ต",
+      "rom": "ni phatpot"
     },
     {
       "en": "What is the minimum amount?",
-      "th": "ยอดขั้นต่ำเท่าไร"
+      "th": "ยอดขั้นต่ำเท่าไร",
+      "rom": "yot khantam thaorai"
     },
     {
       "en": "Where is the VAT refund counter?",
-      "th": "เคาน์เตอร์ขอคืนภาษีอยู่ที่ไหน"
+      "th": "เคาน์เตอร์ขอคืนภาษีอยู่ที่ไหน",
+      "rom": "khaotoe kho khuen phasi yu thinai"
     },
     {
       "en": "Can I get the refund in cash?",
-      "th": "รับเงินคืนเป็นเงินสดได้ไหม"
+      "th": "รับเงินคืนเป็นเงินสดได้ไหม",
+      "rom": "rapngoen khuen pen ngoentt dai mai"
     },
     {
       "en": "Can I get it on my credit card?",
-      "th": "รับคืนเข้าบัตรเครดิตได้ไหม"
+      "th": "รับคืนเข้าบัตรเครดิตได้ไหม",
+      "rom": "rapkhuen khao batnkhendit dai mai"
     },
     {
       "en": "Where is the customs office?",
-      "th": "ศุลกากรอยู่ที่ไหน"
+      "th": "ศุลกากรอยู่ที่ไหน",
+      "rom": "sunkakn yu thinai"
     },
     {
       "en": "Which queue is this?",
-      "th": "นี่คือแถวไหน"
+      "th": "นี่คือแถวไหน",
+      "rom": "ni khue thaeo nai"
     },
     {
       "en": "How long does the refund take?",
-      "th": "ขอคืนภาษีใช้เวลานานแค่ไหน"
+      "th": "ขอคืนภาษีใช้เวลานานแค่ไหน",
+      "rom": "kho khuen phasi chaiwelanan khae nai"
     },
     {
       "en": "Please stamp the form.",
-      "th": "ช่วยประทับตราแบบฟอร์มด้วย"
+      "th": "ช่วยประทับตราแบบฟอร์มด้วย",
+      "rom": "chuai prathaptra baepfom duai"
     }
   ]
 }

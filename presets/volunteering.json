@@ -55,59 +55,73 @@
   "phrases": [
     {
       "en": "I want to volunteer here.",
-      "th": "อยากเป็นอาสาสมัครที่นี่"
+      "th": "อยากเป็นอาสาสมัครที่นี่",
+      "rom": "yak pen asatmakn thini"
     },
     {
       "en": "Do I need a work permit to volunteer?",
-      "th": "ต้องมีใบอนุญาตทำงานสำหรับอาสาสมัครไหม"
+      "th": "ต้องมีใบอนุญาตทำงานสำหรับอาสาสมัครไหม",
+      "rom": "tong mi bainuyat thamngan samrap asatmakn mai"
     },
     {
       "en": "Is the work paid or unpaid?",
-      "th": "งานนี้มีค่าตอบแทนหรือไม่"
+      "th": "งานนี้มีค่าตอบแทนหรือไม่",
+      "rom": "ngan ni mi khatopthaen ruemai"
     },
     {
       "en": "What are the working hours?",
-      "th": "เวลาทำงานคือกี่โมง"
+      "th": "เวลาทำงานคือกี่โมง",
+      "rom": "welathamngan khue ki mong"
     },
     {
       "en": "What will I have to do?",
-      "th": "ต้องทำอะไรบ้าง"
+      "th": "ต้องทำอะไรบ้าง",
+      "rom": "tong tham arai bang"
     },
     {
       "en": "Where will I stay?",
-      "th": "จะพักที่ไหน"
+      "th": "จะพักที่ไหน",
+      "rom": "cha phak thinai"
     },
     {
       "en": "Are meals included?",
-      "th": "รวมอาหารไหม"
+      "th": "รวมอาหารไหม",
+      "rom": "ruam ahan mai"
     },
     {
       "en": "How much is the programme fee?",
-      "th": "ค่าโครงการเท่าไร"
+      "th": "ค่าโครงการเท่าไร",
+      "rom": "kha khonngkan thaorai"
     },
     {
       "en": "Where does the money go?",
-      "th": "เงินไปที่ไหน"
+      "th": "เงินไปที่ไหน",
+      "rom": "ngoen pai thinai"
     },
     {
       "en": "Is there insurance for volunteers?",
-      "th": "มีประกันสำหรับอาสาสมัครไหม"
+      "th": "มีประกันสำหรับอาสาสมัครไหม",
+      "rom": "mi prakan samrap asatmakn mai"
     },
     {
       "en": "Who is my supervisor?",
-      "th": "ใครเป็นหัวหน้างาน"
+      "th": "ใครเป็นหัวหน้างาน",
+      "rom": "khain pen uanangan"
     },
     {
       "en": "I would like to see a contract.",
-      "th": "อยากดูสัญญา"
+      "th": "อยากดูสัญญา",
+      "rom": "yak du sanya"
     },
     {
       "en": "I can help for two weeks.",
-      "th": "ช่วยได้สองสัปดาห์"
+      "th": "ช่วยได้สองสัปดาห์",
+      "rom": "chuai dai song sapda"
     },
     {
       "en": "Thank you for having me.",
-      "th": "ขอบคุณที่รับเข้าร่วม"
+      "th": "ขอบคุณที่รับเข้าร่วม",
+      "rom": "khopkhun thi rap khaoruam"
     }
   ]
 }

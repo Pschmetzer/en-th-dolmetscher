@@ -48,32 +48,38 @@
     {
       "en": "This device is a fake, I want my money back.",
       "th": "เครื่องนี้เป็นของปลอม ขอเงินคืน",
-      "critical": true
+      "critical": true,
+      "rom": "kherueng ni pen khongplom kho ngoen khuen"
     },
     {
       "en": "The battery is swelling, it is dangerous.",
       "th": "แบตเตอรี่บวม อันตราย",
-      "critical": true
+      "critical": true,
+      "rom": "baettoeri buam antrai"
     },
     {
       "en": "My phone is very hot and smoking.",
       "th": "โทรศัพท์ร้อนมากและมีควัน",
-      "critical": true
+      "critical": true,
+      "rom": "thonsap ron mak lae mi khwan"
     },
     {
       "en": "My bag was stolen in the mall.",
       "th": "กระเป๋าถูกขโมยในห้าง",
-      "critical": true
+      "critical": true,
+      "rom": "krapao thuk khamoi nai ang"
     },
     {
       "en": "Please call the security guard.",
       "th": "ช่วยเรียกเจ้าหน้าที่รักษาความปลอดภัยหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak chaonathi raksa khwamplotphai noi"
     },
     {
       "en": "I do not want to pay before I test it.",
       "th": "ไม่ขอจ่ายก่อนทดสอบเครื่อง",
-      "critical": true
+      "critical": true,
+      "rom": "mai kho chai kon thadasop kherueng"
     },
     {
       "en": "Do you have this phone in stock?",
@@ -81,19 +87,23 @@
     },
     {
       "en": "Is this a new or a used device?",
-      "th": "เครื่องนี้เป็นเครื่องใหม่หรือเครื่องมือสอง"
+      "th": "เครื่องนี้เป็นเครื่องใหม่หรือเครื่องมือสอง",
+      "rom": "kherueng ni pen kherueng aim rue kherueng muesong"
     },
     {
       "en": "May I switch it on and test it?",
-      "th": "ขอเปิดเครื่องและทดสอบได้ไหม"
+      "th": "ขอเปิดเครื่องและทดสอบได้ไหม",
+      "rom": "kho poet kherueng lae thadasop dai mai"
     },
     {
       "en": "Can you give me a better price?",
-      "th": "ลดราคาได้ไหม"
+      "th": "ลดราคาได้ไหม",
+      "rom": "ladrakha dai mai"
     },
     {
       "en": "Is there a warranty in my country?",
-      "th": "ประกันใช้ได้ในประเทศของเราไหม"
+      "th": "ประกันใช้ได้ในประเทศของเราไหม",
+      "rom": "prakan chaidai naiprathet khong rao mai"
     },
     {
       "en": "Please write the serial number on the receipt.",
@@ -101,39 +111,48 @@
     },
     {
       "en": "Is the original charger included?",
-      "th": "รวมที่ชาร์จแท้ไหม"
+      "th": "รวมที่ชาร์จแท้ไหม",
+      "rom": "ruam thi chat thae mai"
     },
     {
       "en": "I need a plug adapter for Europe.",
-      "th": "ต้องการหัวแปลงปลั๊กสำหรับยุโรป"
+      "th": "ต้องการหัวแปลงปลั๊กสำหรับยุโรป",
+      "rom": "tongkan hua paenng plak samrap yurop"
     },
     {
       "en": "Please install a screen protector.",
-      "th": "ช่วยติดฟิล์มกันรอยหน่อย"
+      "th": "ช่วยติดฟิล์มกันรอยหน่อย",
+      "rom": "chuai tit fim kan roi noi"
     },
     {
       "en": "Can I pay by card without extra fee?",
-      "th": "จ่ายด้วยบัตรโดยไม่มีค่าธรรมเนียมเพิ่มได้ไหม"
+      "th": "จ่ายด้วยบัตรโดยไม่มีค่าธรรมเนียมเพิ่มได้ไหม",
+      "rom": "chai duai batn doi mai mi khatamniam phoem dai mai"
     },
     {
       "en": "May I return it within seven days?",
-      "th": "คืนสินค้าภายในเจ็ดวันได้ไหม"
+      "th": "คืนสินค้าภายในเจ็ดวันได้ไหม",
+      "rom": "khuen sinkha phainai chet wan dai mai"
     },
     {
       "en": "Please repair the screen, how much is it?",
-      "th": "ช่วยซ่อมหน้าจอหน่อย ราคาเท่าไร"
+      "th": "ช่วยซ่อมหน้าจอหน่อย ราคาเท่าไร",
+      "rom": "chuai som nacho noi rakha thaorai"
     },
     {
       "en": "How long does the repair take?",
-      "th": "ซ่อมนานแค่ไหน"
+      "th": "ซ่อมนานแค่ไหน",
+      "rom": "som nan khae nai"
     },
     {
       "en": "Is there a tax refund for tourists?",
-      "th": "มีการคืนภาษีสำหรับนักท่องเที่ยวไหม"
+      "th": "มีการคืนภาษีสำหรับนักท่องเที่ยวไหม",
+      "rom": "mi kankhuen phasi samrap nakthongthiao mai"
     },
     {
       "en": "Thank you, I will take it.",
-      "th": "ขอบคุณ ขอเอาเครื่องนี้"
+      "th": "ขอบคุณ ขอเอาเครื่องนี้",
+      "rom": "khopkhun kho ao kherueng ni"
     }
   ]
 }

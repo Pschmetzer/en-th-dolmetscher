@@ -1,0 +1,48 @@
+name: Lighthouse
+
+# Lighthouse CI gegen die lokal gestartete Seite (python3 -m http.server), Budgets in .github/lighthouse/lighthouserc.json.
+# Nicht blockierend: Messwerte auf geteilten Runnern schwanken; der Lauf meldet Verstöße als Warnungen und legt den
+# Bericht als Artefakt ab. Nichts wird an einen Fremddienst hochgeladen (Ziel "filesystem").
+on:
+  pull_request:
+    paths:
+      - index.html
+      - sw.js
+      - manifest.webmanifest
+      - web-*.js
+      - presets-index.json
+      - i18n/**
+      - .github/lighthouse/**
+      - .github/workflows/lighthouse.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lighthouse-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lhci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Start the page locally
+        run: |
+          python3 -m http.server 8000 >/dev/null 2>&1 &
+          for _ in 1 2 3 4 5 6 7 8 9 10; do curl -fsS http://localhost:8000/ >/dev/null && break; sleep 1; done
+      - name: Lighthouse CI (budgets, not blocking)
+        continue-on-error: true
+        run: npx --yes @lhci/cli@0.15.1 autorun --config=.github/lighthouse/lighthouserc.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: lighthouse-report
+          path: .lighthouseci/
+          if-no-files-found: ignore
+          retention-days: 14

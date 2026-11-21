@@ -40,7 +40,8 @@
     {
       "en": "I have a medical condition and need my medicine.",
       "th": "มีโรคประจำตัวและต้องกินยา",
-      "critical": true
+      "critical": true,
+      "rom": "mi rokprachamtua lae tong kin ya"
     },
     {
       "en": "My medicine is in my checked luggage.",
@@ -50,59 +51,73 @@
     {
       "en": "I feel unwell. Please call a doctor.",
       "th": "รู้สึกไม่สบาย ช่วยเรียกแพทย์ให้หน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "rusuek mai sabai chuai riak phaet hai noi"
     },
     {
       "en": "My flight has been delayed.",
-      "th": "เที่ยวบินล่าช้า"
+      "th": "เที่ยวบินล่าช้า",
+      "rom": "thiaobin lacha"
     },
     {
       "en": "My flight was cancelled.",
-      "th": "เที่ยวบินถูกยกเลิก"
+      "th": "เที่ยวบินถูกยกเลิก",
+      "rom": "thiaobin thuk yakloek"
     },
     {
       "en": "How long is the delay?",
-      "th": "ล่าช้านานแค่ไหน"
+      "th": "ล่าช้านานแค่ไหน",
+      "rom": "la chanan khae nai"
     },
     {
       "en": "Which gate is it now?",
-      "th": "ตอนนี้ประตูไหน"
+      "th": "ตอนนี้ประตูไหน",
+      "rom": "tonni pratu nai"
     },
     {
       "en": "I have a connecting flight.",
-      "th": "ต้องต่อเครื่อง"
+      "th": "ต้องต่อเครื่อง",
+      "rom": "tong to kherueng"
     },
     {
       "en": "Will I miss my connection?",
-      "th": "จะตกเที่ยวบินต่อไหม"
+      "th": "จะตกเที่ยวบินต่อไหม",
+      "rom": "cha tok thiaobin to mai"
     },
     {
       "en": "Can you put me on the next flight?",
-      "th": "ช่วยจัดเที่ยวบินถัดไปให้ได้ไหม"
+      "th": "ช่วยจัดเที่ยวบินถัดไปให้ได้ไหม",
+      "rom": "chuai chat thiaobin thatpai aidai mai"
     },
     {
       "en": "Can I get a meal voucher?",
-      "th": "ขอบัตรแทนอาหารได้ไหม"
+      "th": "ขอบัตรแทนอาหารได้ไหม",
+      "rom": "kho batn thaen ahan dai mai"
     },
     {
       "en": "Can I get a hotel for tonight?",
-      "th": "ขอที่พักสำหรับคืนนี้ได้ไหม"
+      "th": "ขอที่พักสำหรับคืนนี้ได้ไหม",
+      "rom": "kho thiphak samrap khuenni dai mai"
     },
     {
       "en": "Please confirm the delay in writing.",
-      "th": "ช่วยเขียนยืนยันความล่าช้าให้ด้วย"
+      "th": "ช่วยเขียนยืนยันความล่าช้าให้ด้วย",
+      "rom": "chuai khian yuenyan khwamlacha hai duai"
     },
     {
       "en": "Can I change my ticket?",
-      "th": "เปลี่ยนตั๋วได้ไหม"
+      "th": "เปลี่ยนตั๋วได้ไหม",
+      "rom": "pelin tua dai mai"
     },
     {
       "en": "Is there a fee for the change?",
-      "th": "มีค่าธรรมเนียมการเปลี่ยนตั๋วไหม"
+      "th": "มีค่าธรรมเนียมการเปลี่ยนตั๋วไหม",
+      "rom": "mi khatamniam kan pelin tua mai"
     },
     {
       "en": "Where is the transfer desk?",
-      "th": "เคาน์เตอร์ต่อเครื่องอยู่ที่ไหน"
+      "th": "เคาน์เตอร์ต่อเครื่องอยู่ที่ไหน",
+      "rom": "khaotoe to kherueng yu thinai"
     }
   ]
 }

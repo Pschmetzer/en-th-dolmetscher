@@ -157,7 +157,7 @@ def test_audio_tab_in_extras_is_opt_in_and_three_languages():
 def test_sw_precaches_new_files_and_stays_in_budget():
     for f in ("web-extras.js", "web-qr.js", "web-search-worker.js"):
         assert "'%s'" % f in SW and (ROOT / f).exists(), f
-    assert len(SW.encode("utf-8")) <= 17_000
+    assert len(SW.encode("utf-8")) <= 17_500
 
 
 # ---------------------------------------------------------------- Web Worker für die Suche

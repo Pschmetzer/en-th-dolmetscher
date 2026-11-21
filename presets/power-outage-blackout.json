@@ -1,0 +1,164 @@
+{
+  "id": "power-outage-blackout",
+  "names": {
+    "de": "Stromausfall",
+    "en": "Power outage",
+    "th": "ไฟดับ"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Bei Stromausfall zuerst Sicherung und Nachbarn prüfen. Störungen melden: Bangkok (MEA) 1130, übrige Provinzen (PEA) 1129. Kerzen und offene Flammen meiden, Geräte vom Netz nehmen und Aufzüge nicht benutzen. Bei Brandgeruch 199 (Feuerwehr) rufen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "In a power cut first check the breaker and ask neighbours. Report faults: Bangkok (MEA) 1130, other provinces (PEA) 1129. Avoid candles and open flames, unplug devices and do not use lifts. If you smell burning call 199 (fire brigade). Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "power cut",
+      "th": "ไฟดับ"
+    },
+    {
+      "en": "electricity",
+      "th": "ไฟฟ้า"
+    },
+    {
+      "en": "breaker",
+      "th": "เบรกเกอร์"
+    },
+    {
+      "en": "generator",
+      "th": "เครื่องปั่นไฟ"
+    },
+    {
+      "en": "flashlight",
+      "th": "ไฟฉาย"
+    },
+    {
+      "en": "lift",
+      "th": "ลิฟต์"
+    },
+    {
+      "en": "fan",
+      "th": "พัดลม"
+    },
+    {
+      "en": "air conditioner",
+      "th": "เครื่องปรับอากาศ"
+    },
+    {
+      "en": "charger",
+      "th": "ที่ชาร์จ"
+    },
+    {
+      "en": "repair",
+      "th": "ซ่อม"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "There is a smell of burning.",
+      "th": "มีกลิ่นไหม้",
+      "critical": true,
+      "rom": "mi klin mai"
+    },
+    {
+      "en": "I see sparks from the socket.",
+      "th": "เห็นประกายไฟออกจากปลั๊ก",
+      "critical": true,
+      "rom": "en prakaifai okchak plak"
+    },
+    {
+      "en": "Please call the fire brigade (199).",
+      "th": "ช่วยเรียกดับเพลิงด้วย (199)",
+      "critical": true,
+      "rom": "chuai riak dap pheling duai 199"
+    },
+    {
+      "en": "I am stuck in the lift.",
+      "th": "ติดอยู่ในลิฟต์",
+      "critical": true,
+      "rom": "tit yu nai lip"
+    },
+    {
+      "en": "I need power for medical equipment.",
+      "th": "ต้องใช้ไฟสำหรับเครื่องมือแพทย์",
+      "critical": true,
+      "rom": "tong chai fai samrap kheruengmuephaet"
+    },
+    {
+      "en": "I need to keep my medicine cold.",
+      "th": "ต้องเก็บยาในที่เย็น",
+      "critical": true,
+      "rom": "tong kep ya nai thi yen"
+    },
+    {
+      "en": "The power is out.",
+      "th": "ไฟดับ",
+      "rom": "fai dap"
+    },
+    {
+      "en": "Is the whole building without power?",
+      "th": "ไฟดับทั้งอาคารไหม",
+      "rom": "fai dap thang akhan mai"
+    },
+    {
+      "en": "Is it only my room?",
+      "th": "ดับเฉพาะห้องนี้ไหม"
+    },
+    {
+      "en": "Please check the breaker.",
+      "th": "ช่วยตรวจเบรกเกอร์หน่อย",
+      "rom": "chuai truat benk koe noi"
+    },
+    {
+      "en": "When will the power come back?",
+      "th": "ไฟจะมาเมื่อไร",
+      "rom": "fai cha ma muearai"
+    },
+    {
+      "en": "Do you have a generator?",
+      "th": "มีเครื่องปั่นไฟไหม",
+      "rom": "mi kheruengpanfai mai"
+    },
+    {
+      "en": "Do you have a flashlight?",
+      "th": "มีไฟฉายไหม",
+      "rom": "mi fachaiai mai"
+    },
+    {
+      "en": "Can I charge my phone here?",
+      "th": "ชาร์จโทรศัพท์ที่นี่ได้ไหม",
+      "rom": "chat thonsap thini dai mai"
+    },
+    {
+      "en": "The water pump does not work either.",
+      "th": "ปั๊มน้ำก็ใช้ไม่ได้เหมือนกัน"
+    },
+    {
+      "en": "The air conditioner stopped.",
+      "th": "เครื่องปรับอากาศหยุดทำงาน"
+    },
+    {
+      "en": "Please report the fault to the electricity authority.",
+      "th": "ช่วยแจ้งไฟฟ้าขัดข้องกับการไฟฟ้าหน่อย"
+    },
+    {
+      "en": "Was the power cut announced?",
+      "th": "ไฟดับครั้งนี้มีการแจ้งล่วงหน้าไหม",
+      "rom": "fai dap khrangni mi kan chaeng luangna mai"
+    },
+    {
+      "en": "Can I get a refund for tonight?",
+      "th": "ขอคืนเงินค่าห้องคืนนี้ได้ไหม",
+      "rom": "kho khuenngoen kha ong khuenni dai mai"
+    },
+    {
+      "en": "Can I move to another room?",
+      "th": "ย้ายไปห้องอื่นได้ไหม",
+      "rom": "yai pai ong uen dai mai"
+    },
+    {
+      "en": "Where is the nearest cafe that still has power?",
+      "th": "ร้านกาแฟที่ใกล้ที่สุดที่ยังมีไฟอยู่ที่ไหน",
+      "rom": "rankafae thi kain thisut thi yangmi fai yu thinai"
+    }
+  ]
+}

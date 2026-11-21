@@ -48,92 +48,113 @@
     {
       "en": "Please give me a life jacket now.",
       "th": "ขอเสื้อชูชีพตอนนี้เลย",
-      "critical": true
+      "critical": true,
+      "rom": "kho suea chuchip tonni loei"
     },
     {
       "en": "Water is coming into the boat.",
       "th": "น้ำเข้าเรือ",
-      "critical": true
+      "critical": true,
+      "rom": "nam khao ruea"
     },
     {
       "en": "The waves are too high, please go back.",
       "th": "คลื่นสูงเกินไป ช่วยกลับเข้าฝั่งหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "khluen sung koenpai chuai klap khao fang noi"
     },
     {
       "en": "A child fell into the water.",
       "th": "เด็กตกน้ำ",
-      "critical": true
+      "critical": true,
+      "rom": "dek takanam"
     },
     {
       "en": "The engine stopped, we need help.",
       "th": "เครื่องยนต์ดับ ต้องการความช่วยเหลือ",
-      "critical": true
+      "critical": true,
+      "rom": "kheruengn dap tongkan khwamchuaihelue"
     },
     {
       "en": "Someone is hurt on the boat, please call help.",
       "th": "มีคนบาดเจ็บบนเรือ ช่วยโทรเรียกความช่วยเหลือหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon batchep bon ruea chuai thon riak khwamchuaihelue noi"
     },
     {
       "en": "How much is the boat for two hours?",
-      "th": "เช่าเรือสองชั่วโมงราคาเท่าไร"
+      "th": "เช่าเรือสองชั่วโมงราคาเท่าไร",
+      "rom": "chao ruea song chuamong rakha thaorai"
     },
     {
       "en": "Is the price for the whole boat?",
-      "th": "ราคานี้คิดทั้งลำใช่ไหม"
+      "th": "ราคานี้คิดทั้งลำใช่ไหม",
+      "rom": "rakha ni khit thang lam chaimai"
     },
     {
       "en": "I will pay when we are back.",
-      "th": "จะจ่ายเมื่อกลับมาถึง"
+      "th": "จะจ่ายเมื่อกลับมาถึง",
+      "rom": "cha chai muea klap mathueng"
     },
     {
       "en": "Please take us to the island and wait.",
-      "th": "ช่วยพาไปที่เกาะแล้วรอด้วย"
+      "th": "ช่วยพาไปที่เกาะแล้วรอด้วย",
+      "rom": "chuai pha pai thi ko laeo ro duai"
     },
     {
       "en": "How long does it take to get there?",
-      "th": "ไปถึงใช้เวลานานเท่าไร"
+      "th": "ไปถึงใช้เวลานานเท่าไร",
+      "rom": "pai thueng chaiwelanan thaorai"
     },
     {
       "en": "Please go slowly, I feel sick.",
-      "th": "ช่วยขับช้าๆ หน่อย รู้สึกเมา"
+      "th": "ช่วยขับช้าๆ หน่อย รู้สึกเมา",
+      "rom": "chuai khap cha noi rusuek mao"
     },
     {
       "en": "Can we stop here for photos?",
-      "th": "จอดถ่ายรูปตรงนี้ได้ไหม"
+      "th": "จอดถ่ายรูปตรงนี้ได้ไหม",
+      "rom": "chot thairup trangani dai mai"
     },
     {
       "en": "Can we see the sunset from the boat?",
-      "th": "ดูพระอาทิตย์ตกจากเรือได้ไหม"
+      "th": "ดูพระอาทิตย์ตกจากเรือได้ไหม",
+      "rom": "du phraathit tok chak ruea dai mai"
     },
     {
       "en": "Do you have a cover against the sun or rain?",
-      "th": "มีหลังคากันแดดหรือฝนไหม"
+      "th": "มีหลังคากันแดดหรือฝนไหม",
+      "rom": "mi langkha kandaet rue fon mai"
     },
     {
       "en": "Where is the pier for the return?",
-      "th": "ท่าเรือสำหรับขากลับอยู่ที่ไหน"
+      "th": "ท่าเรือสำหรับขากลับอยู่ที่ไหน",
+      "rom": "tharuea samrap khaklap yu thinai"
     },
     {
       "en": "What time is the last boat back?",
-      "th": "เรือเที่ยวสุดท้ายกลับกี่โมง"
+      "th": "เรือเที่ยวสุดท้ายกลับกี่โมง",
+      "rom": "ruea thiao sutthai klap ki mong"
     },
     {
       "en": "Please wait for us here for one hour.",
-      "th": "ช่วยรอพวกเราที่นี่หนึ่งชั่วโมงหน่อย"
+      "th": "ช่วยรอพวกเราที่นี่หนึ่งชั่วโมงหน่อย",
+      "rom": "chuai ro phuakrao thini nueng chuamong noi"
     },
     {
       "en": "Can I swim near the boat?",
-      "th": "ว่ายน้ำใกล้เรือได้ไหม"
+      "th": "ว่ายน้ำใกล้เรือได้ไหม",
+      "rom": "wainam kain ruea dai mai"
     },
     {
       "en": "Please keep my bag dry.",
-      "th": "ช่วยเก็บกระเป๋าไม่ให้เปียกหน่อย"
+      "th": "ช่วยเก็บกระเป๋าไม่ให้เปียกหน่อย",
+      "rom": "chuai kep krapao mai hai piak noi"
     },
     {
       "en": "Thank you, it was a lovely trip.",
-      "th": "ขอบคุณ เป็นทริปที่น่ารักมาก"
+      "th": "ขอบคุณ เป็นทริปที่น่ารักมาก",
+      "rom": "khopkhun pen thrip thi narak mak"
     }
   ]
 }

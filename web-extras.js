@@ -74,6 +74,39 @@
     if (t.length > MAX_FRAG) throw new Error('too big');
     return t;
   }
+  // Runde 27: langer Link -> mehrere QR-Codes. Jeder Code ist ein eigener Link (#part=i.n.id.daten); die Seite sammelt die Teile
+  // im lokalen Speicher und öffnet das Paket, sobald alle da sind (Prüfsumme id). Nichts wird gesendet.
+  var MAX_PARTS = 12;
+  function hash4(t) { var h = 2166136261, i; for (i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return ('0000' + h.toString(36)).slice(-4); }
+  function qrParts(base, frag, maxBytes) {     // -> Liste von Links oder null, wenn mehr als MAX_PARTS Teile nötig wären
+    var id = hash4(frag), head = base + '#part=', n, per, i, out;
+    for (n = 2; n <= MAX_PARTS; n++) {
+      per = Math.ceil(frag.length / n);
+      if (head.length + String(n).length * 2 + 3 + 4 + per <= maxBytes) {
+        out = [];
+        for (i = 0; i < n; i++) out.push(head + (i + 1) + '.' + n + '.' + id + '.' + frag.slice(i * per, (i + 1) * per));
+        return out;
+      }
+    }
+    return null;
+  }
+  function partParse(hash) {
+    var m = /^#part=(\d{1,2})\.(\d{1,2})\.([a-z0-9]{4})\.([A-Za-z0-9_-]{1,400})$/.exec(hash || '');
+    if (!m) return null;
+    var i = +m[1], n = +m[2];
+    return i >= 1 && n >= 2 && i <= n && n <= MAX_PARTS ? { i: i, n: n, id: m[3], d: m[4] } : null;
+  }
+  function partAdd(st, pt) {                   // gesammelte Teile + neues Teil -> { st, got, done, frag }
+    if (!st || st.id !== pt.id || st.n !== pt.n || typeof st.got !== 'object') st = { id: pt.id, n: pt.n, got: {} };
+    st.got[pt.i] = pt.d;
+    var got = Object.keys(st.got).length, frag = '', k;
+    if (got < st.n) return { st: st, got: got, done: false };
+    for (k = 1; k <= st.n; k++) frag += st.got[k] || '';
+    return hash4(frag) === st.id ? { st: null, got: got, done: true, frag: frag } : { st: null, got: got, done: false, bad: true };
+  }
+  function checklistText(title, items, done) { // Offline-Export der Reise-Checkliste als Text
+    return title + '\n\n' + items.map(function (x, i) { return (done && done[i] ? '[x] ' : '[ ] ') + x; }).join('\n') + '\n';
+  }
   async function packDecode(text) {
     if (typeof text !== 'string' || text.length > MAX_FRAG || !/^[A-Za-z0-9_-]+$/.test(text)) return null;
     try {
@@ -124,9 +157,14 @@
     th: { audio: 'เสียง', qrAlt: 'คิวอาร์โค้ดของลิงก์ (สร้างบนเครื่องนี้)', qrTooLong: 'ยาวเกินไปสำหรับคิวอาร์โค้ด ให้คัดลอกลิงก์แทนการสแกน', qrHelp: 'สแกนด้วยโทรศัพท์อีกเครื่อง โค้ดคำนวณบนเครื่องนี้',
       audioHelp: 'ไฟล์เสียงที่เก็บไว้ล่วงหน้า (โฟลเดอร์ audio/) ใช้แบบออฟไลน์ได้ ปิด: ไม่เก็บอะไรเลย เสียงพูดของเบราว์เซอร์ไม่ต้องใช้ที่เก็บนี้', audioOn: 'เก็บเสียงไว้ใช้ออฟไลน์', audioClear: 'ล้างที่เก็บเสียง', audioCleared: 'ล้างที่เก็บเสียงแล้ว', audioNoSw: 'ใช้ไม่ได้ ไม่มี service worker', audioCount: 'ไฟล์ที่เก็บไว้' }
   };
+  var TXT27 = {   // Runde 27: Checkliste exportieren, Mehrfach-QR für lange Karten-Links
+    de: { ckExport: 'Checkliste als Datei sichern', ckTitle: 'Reise-Checkliste Thailand', qrParts: 'Der Link ist zu lang für einen QR-Code und wurde auf {n} Codes verteilt. Alle Codes nacheinander mit dem anderen Handy scannen; die Seite sammelt die Teile und öffnet das Paket, sobald alle da sind.', partSaved: 'Teil {i} von {n} gespeichert. Es fehlen noch {m}.', partPart: 'Teil' },
+    en: { ckExport: 'Save checklist as a file', ckTitle: 'Thailand travel checklist', qrParts: 'The link is too long for one QR code and was split into {n} codes. Scan all of them one after another with the other phone; the page collects the parts and opens the pack when all have arrived.', partSaved: 'Part {i} of {n} saved. {m} still missing.', partPart: 'Part' },
+    th: { ckExport: 'บันทึกเช็คลิสต์เป็นไฟล์', ckTitle: 'เช็คลิสต์เที่ยวไทย', qrParts: 'ลิงก์ยาวเกินไปสำหรับคิวอาร์โค้ดหนึ่งอัน จึงแบ่งเป็น {n} โค้ด สแกนทุกโค้ดต่อกันด้วยโทรศัพท์อีกเครื่อง หน้านี้จะรวบรวมแล้วเปิดชุดเมื่อได้ครบ', partSaved: 'บันทึกส่วนที่ {i} จาก {n} แล้ว ยังขาดอีก {m}', partPart: 'ส่วน' }
+  };
   var NEGO = [['Can you give a discount?', 'ลดหน่อยได้ไหม'], ['That is too expensive.', 'แพงไป'], ['What is your best price?', 'ราคาที่ดีที่สุดเท่าไร'], ['I will look at other shops first.', 'ขอดูร้านอื่นก่อน'], ['Can I get a discount for two?', 'ซื้อสองชิ้นลดได้ไหม']];
 
-  function tr() { var l = (document.documentElement.lang || 'de').slice(0, 2); l = TXT[l] ? l : 'de'; var o = {}, k; for (k in TXT[l]) o[k] = TXT[l][k]; for (k in TXT25[l]) o[k] = TXT25[l][k]; return o; }
+  function tr() { var l = (document.documentElement.lang || 'de').slice(0, 2); l = TXT[l] ? l : 'de'; var o = {}, k; for (k in TXT[l]) o[k] = TXT[l][k]; for (k in TXT25[l]) o[k] = TXT25[l][k]; for (k in TXT27[l]) o[k] = TXT27[l][k]; return o; }
   function ck() { var l = (document.documentElement.lang || 'de').slice(0, 2); return CHECK[l] || CHECK.de; }
   function store(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem('x24_' + k)); localStorage.setItem('x24_' + k, JSON.stringify(v)); } catch (e) { return null; } return null; }
   function el(tag, props, kids) {
@@ -146,6 +184,16 @@
     return new Promise(function (ok, fail) {
       var e = document.createElement('script'); e.src = src; e.onload = ok; e.onerror = function () { e.remove(); fail(new Error(src)); }; document.head.appendChild(e);
     });
+  }
+  async function qrMany(box, frag, T) {   // Link zu lang für einen Code: auf mehrere verteilen (höchstens MAX_PARTS)
+    var parts = qrParts(location.href.split('#')[0], frag, window.DolmetscherQR.maxBytes), i, c;
+    if (!parts) { box.textContent = T.qrTooLong; return; }
+    box.appendChild(el('p', { text: T.qrParts.replace('{n}', parts.length) }));
+    for (i = 0; i < parts.length; i++) {
+      c = await qrCanvas(parts[i], T);
+      if (!c) { box.textContent = T.qrTooLong; return; }
+      box.appendChild(el('p', { text: T.partPart + ' ' + (i + 1) + '/' + parts.length })); box.appendChild(c);
+    }
   }
   async function qrCanvas(text, T) {    // QR-Code als Leinwand; null, wenn zu lang
     if (!window.DolmetscherQR) await loadScript('web-qr.js');
@@ -212,6 +260,10 @@
         box.appendChild(el('label', { style: 'display:block;margin:6px 0' }, [c, el('span', { text: ' ' + txt })]));
       });
       box.appendChild(btn(T.reset, function () { store('check', {}); box.textContent = ''; TABS.check(box, T); }));
+      box.appendChild(btn(T.ckExport, function () {      // offline: Textdatei aus dem Gedächtnis des Geräts, kein Upload
+        var a = el('a', { href: URL.createObjectURL(new Blob([checklistText(T.ckTitle, items, done)], { type: 'text/plain;charset=utf-8' })), download: 'reise-checkliste.txt' });
+        document.body.appendChild(a); a.click(); a.remove();
+      }));
     },
     dict: function (box, T) {
       var q = field(T.search, 'x24q', 'search'), res = el('div', { 'aria-live': 'polite' }), all = null, wk = null, wkReady = null, qid = 0;
@@ -273,7 +325,7 @@
           qrBox.textContent = '';
           try {
             var c = await qrCanvas(link.value, T);
-            if (c) { qrBox.appendChild(el('p', { text: T.qrHelp })); qrBox.appendChild(c); } else qrBox.textContent = T.qrTooLong;
+            if (c) { qrBox.appendChild(el('p', { text: T.qrHelp })); qrBox.appendChild(c); } else await qrMany(qrBox, t, T);
           } catch (e2) { qrBox.textContent = T.qrTooLong; }
         } catch (e) { o.textContent = T.tooBig; }
       }));
@@ -374,6 +426,15 @@
   }
 
   async function importFromHash() {
+    var pt = partParse(location.hash || ''), T = tr();
+    if (pt) {
+      var r = partAdd(store('parts'), pt);
+      store('parts', r.st);
+      if (r.done) { var pk = await packDecode(r.frag); if (pk) showPack(pk, T); return !!pk; }
+      var d = openDlg(), body = d.querySelector('.x24body'); body.textContent = '';
+      body.appendChild(el('p', { role: 'status', text: T.partSaved.replace('{i}', pt.i).replace('{n}', pt.n).replace('{m}', pt.n - r.got) }));
+      return !r.bad;
+    }
     var m = /^#pack=([A-Za-z0-9_-]+)$/.exec(location.hash || '');
     if (!m) return false;
     var p = await packDecode(m[1]);
@@ -381,7 +442,7 @@
     return !!p;
   }
 
-  var api = { thaiNum: thaiNum, convert: convert, offers: offers, packEncode: packEncode, packDecode: packDecode, cleanPack: cleanPack, PAIRS: PAIRS, CHECK: CHECK, open: openDlg, importFromHash: importFromHash, tr: tr };
+  var api = { thaiNum: thaiNum, convert: convert, offers: offers, packEncode: packEncode, packDecode: packDecode, qrParts: qrParts, partParse: partParse, partAdd: partAdd, checklistText: checklistText, hash4: hash4, cleanPack: cleanPack, PAIRS: PAIRS, CHECK: CHECK, open: openDlg, importFromHash: importFromHash, tr: tr };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else { window.DolmetscherExtras = api; }
 })();

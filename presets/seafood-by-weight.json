@@ -1,0 +1,150 @@
+{
+  "id": "seafood-by-weight",
+  "names": {
+    "de": "Meeresfrüchte nach Gewicht",
+    "en": "Seafood sold by weight",
+    "th": "อาหารทะเลชั่งน้ำหนัก"
+  },
+  "style": "polite",
+  "note": {
+    "de": "Auf Märkten und in Meeresfrüchte-Restaurants wird Fisch, Krabbe und Garnele nach Gewicht (Kilo oder Gramm) berechnet. Die Waage selbst ansehen, Preis pro Kilo, Zubereitung und Gesamtpreis vor dem Kochen nennen lassen und aufschreiben. Bei Schalentier-Allergie vorher fragen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "In markets and seafood restaurants fish, crab and prawns are priced by weight (kilo or grams). Watch the scale yourself, ask for the price per kilo, the cooking style and the total before cooking, and write it down. Ask first if you have a shellfish allergy. Thai lines machine-made, not checked by native speakers."
+  },
+  "glossary": [
+    {
+      "en": "seafood",
+      "th": "อาหารทะเล"
+    },
+    {
+      "en": "crab",
+      "th": "ปู"
+    },
+    {
+      "en": "prawn",
+      "th": "กุ้ง"
+    },
+    {
+      "en": "fish",
+      "th": "ปลา"
+    },
+    {
+      "en": "squid",
+      "th": "ปลาหมึก"
+    },
+    {
+      "en": "shellfish",
+      "th": "หอย"
+    },
+    {
+      "en": "kilo",
+      "th": "กิโลกรัม"
+    },
+    {
+      "en": "scale",
+      "th": "ตาชั่ง"
+    },
+    {
+      "en": "steamed",
+      "th": "นึ่ง"
+    },
+    {
+      "en": "grilled",
+      "th": "ย่าง"
+    }
+  ],
+  "phrases": [
+    {
+      "en": "I am allergic to shellfish.",
+      "th": "แพ้อาหารทะเลที่มีเปลือก",
+      "critical": true,
+      "rom": "phae ahanthale thi mi peluek"
+    },
+    {
+      "en": "Is this fish fresh?",
+      "th": "ปลาตัวนี้สดไหม",
+      "critical": true,
+      "rom": "pla tua ni sot mai"
+    },
+    {
+      "en": "Please do not use shrimp paste.",
+      "th": "ขอไม่ใส่กะปิ",
+      "critical": true,
+      "rom": "kho mai sai kapi"
+    },
+    {
+      "en": "How much is it per kilo?",
+      "th": "กิโลกรัมละเท่าไร",
+      "rom": "kilokram la thaorai"
+    },
+    {
+      "en": "How much is the total?",
+      "th": "รวมทั้งหมดเท่าไร",
+      "rom": "ruamthangmt thaorai"
+    },
+    {
+      "en": "Please weigh it in front of me.",
+      "th": "ช่วยชั่งน้ำหนักต่อหน้าหน่อย",
+      "rom": "chuai changnamnak tona noi"
+    },
+    {
+      "en": "How many grams is it?",
+      "th": "หนักกี่กรัม",
+      "rom": "nak ki kram"
+    },
+    {
+      "en": "Please write the price down.",
+      "th": "ช่วยเขียนราคาให้หน่อย",
+      "rom": "chuai khian rakha hai noi"
+    },
+    {
+      "en": "Is the cooking fee included?",
+      "th": "รวมค่าปรุงแล้วไหม",
+      "rom": "ruam kha prung laeo mai"
+    },
+    {
+      "en": "Please steam the fish with lime and chilli.",
+      "th": "ขอปลานึ่งมะนาว",
+      "rom": "kho pla nueng manao"
+    },
+    {
+      "en": "Please grill the prawns.",
+      "th": "ขอกุ้งเผา",
+      "rom": "kho kung phao"
+    },
+    {
+      "en": "Please fry the crab with curry powder.",
+      "th": "ขอปูผัดผงกะหรี่",
+      "rom": "kho pu phat phong kari"
+    },
+    {
+      "en": "Please make it not spicy.",
+      "th": "ไม่เผ็ด",
+      "rom": "mai phet"
+    },
+    {
+      "en": "Can I choose the fish myself?",
+      "th": "เลือกปลาเองได้ไหม",
+      "rom": "lueak pla eng dai mai"
+    },
+    {
+      "en": "Is that crab alive?",
+      "th": "ปูตัวนี้ยังมีชีวิตอยู่ไหม",
+      "rom": "pu tua ni yang michiwit yu mai"
+    },
+    {
+      "en": "That is too heavy, a smaller one please.",
+      "th": "ตัวนี้ใหญ่เกินไป ขอตัวเล็กกว่านี้",
+      "rom": "tua ni ain koenpai kho tualek kwa ni"
+    },
+    {
+      "en": "Please check the bill again.",
+      "th": "ช่วยตรวจบิลอีกครั้งหน่อย",
+      "rom": "chuai truat bin ikkrang noi"
+    },
+    {
+      "en": "Can you pack the rest to take away?",
+      "th": "ช่วยห่อที่เหลือกลับบ้านได้ไหม",
+      "rom": "chuai ho thi elue klapban dai mai"
+    }
+  ]
+}

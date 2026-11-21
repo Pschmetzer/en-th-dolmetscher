@@ -36,78 +36,96 @@
     {
       "en": "Please stop. I do not want to be photographed.",
       "th": "กรุณาหยุด ไม่ต้องการให้ถ่ายรูป",
-      "critical": true
+      "critical": true,
+      "rom": "kruna yut mataingkan hai thairup"
     },
     {
       "en": "Please delete the photo.",
       "th": "ช่วยลบรูปนั้นหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai lop rup nan noi"
     },
     {
       "en": "Someone stole my camera.",
       "th": "มีคนขโมยกล้อง",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon khamoi klong"
     },
     {
       "en": "Please call the police.",
       "th": "ช่วยเรียกตำรวจด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak tamruat duai"
     },
     {
       "en": "May I take a photo?",
-      "th": "ขอถ่ายรูปได้ไหม"
+      "th": "ขอถ่ายรูปได้ไหม",
+      "rom": "kho thairup dai mai"
     },
     {
       "en": "May I take a photo of you?",
-      "th": "ขอถ่ายรูปคุณได้ไหม"
+      "th": "ขอถ่ายรูปคุณได้ไหม",
+      "rom": "kho thairup khun dai mai"
     },
     {
       "en": "Is photography allowed here?",
-      "th": "ที่นี่ถ่ายรูปได้ไหม"
+      "th": "ที่นี่ถ่ายรูปได้ไหม",
+      "rom": "thini thairup dai mai"
     },
     {
       "en": "Is flash allowed?",
-      "th": "ใช้แฟลชได้ไหม"
+      "th": "ใช้แฟลชได้ไหม",
+      "rom": "chai faent dai mai"
     },
     {
       "en": "Could you take a photo of us, please?",
-      "th": "ช่วยถ่ายรูปให้หน่อยได้ไหม"
+      "th": "ช่วยถ่ายรูปให้หน่อยได้ไหม",
+      "rom": "chuai thairup hai noi dai mai"
     },
     {
       "en": "Could you take one more?",
-      "th": "ขอถ่ายอีกรูปได้ไหม"
+      "th": "ขอถ่ายอีกรูปได้ไหม",
+      "rom": "kho thai ik rup dai mai"
     },
     {
       "en": "Could I use a tripod?",
-      "th": "ใช้ขาตั้งกล้องได้ไหม"
+      "th": "ใช้ขาตั้งกล้องได้ไหม",
+      "rom": "chai khatang klong dai mai"
     },
     {
       "en": "Is a drone allowed here?",
-      "th": "ที่นี่ใช้โดรนได้ไหม"
+      "th": "ที่นี่ใช้โดรนได้ไหม",
+      "rom": "thini chai donn dai mai"
     },
     {
       "en": "Do I need a permit for filming?",
-      "th": "ต้องขออนุญาตถ่ายทำไหม"
+      "th": "ต้องขออนุญาตถ่ายทำไหม",
+      "rom": "tong khonuyat thaitham mai"
     },
     {
       "en": "Could I show you the photo?",
-      "th": "ขอให้ดูรูปได้ไหม"
+      "th": "ขอให้ดูรูปได้ไหม",
+      "rom": "khohai du rup dai mai"
     },
     {
       "en": "Could I send you the photo?",
-      "th": "ขอส่งรูปให้ได้ไหม"
+      "th": "ขอส่งรูปให้ได้ไหม",
+      "rom": "kho song rup aidai mai"
     },
     {
       "en": "Where is the best view?",
-      "th": "จุดชมวิวที่ดีที่สุดอยู่ที่ไหน"
+      "th": "จุดชมวิวที่ดีที่สุดอยู่ที่ไหน",
+      "rom": "chuttmwio thi di thisut yu thinai"
     },
     {
       "en": "Where can I buy a memory card?",
-      "th": "ซื้อเมมโมรี่การ์ดได้ที่ไหน"
+      "th": "ซื้อเมมโมรี่การ์ดได้ที่ไหน",
+      "rom": "sue memmori kat dai thinai"
     },
     {
       "en": "Thank you for letting me take a photo.",
-      "th": "ขอบคุณที่ให้ถ่ายรูป"
+      "th": "ขอบคุณที่ให้ถ่ายรูป",
+      "rom": "khopkhun thi hai thairup"
     }
   ],
   "note": {

@@ -40,32 +40,39 @@
     {
       "en": "I am allergic to mango.",
       "th": "แพ้มะม่วง",
-      "critical": true
+      "critical": true,
+      "rom": "phae mamuang"
     },
     {
       "en": "I am allergic to nuts.",
       "th": "แพ้ถั่ว",
-      "critical": true
+      "critical": true,
+      "rom": "phae thua"
     },
     {
       "en": "How much is this per kilo?",
-      "th": "อันนี้กิโลละเท่าไร"
+      "th": "อันนี้กิโลละเท่าไร",
+      "rom": "anni kilo la thaorai"
     },
     {
       "en": "Is this durian ripe?",
-      "th": "ทุเรียนนี้สุกแล้วไหม"
+      "th": "ทุเรียนนี้สุกแล้วไหม",
+      "rom": "thurian ni suk laeo mai"
     },
     {
       "en": "Please open it for me.",
-      "th": "ช่วยผ่าให้หน่อย"
+      "th": "ช่วยผ่าให้หน่อย",
+      "rom": "chuai pha hai noi"
     },
     {
       "en": "Can I try one piece?",
-      "th": "ขอลองชิมชิ้นหนึ่งได้ไหม"
+      "th": "ขอลองชิมชิ้นหนึ่งได้ไหม",
+      "rom": "kho long chim chin nueng dai mai"
     },
     {
       "en": "Not too ripe, please.",
-      "th": "ขอไม่สุกมาก"
+      "th": "ขอไม่สุกมาก",
+      "rom": "kho mai suk mak"
     },
     {
       "en": "Very sweet, please.",
@@ -73,35 +80,43 @@
     },
     {
       "en": "Please put it in a box.",
-      "th": "ช่วยใส่กล่องให้หน่อย"
+      "th": "ช่วยใส่กล่องให้หน่อย",
+      "rom": "chuai sai klong hai noi"
     },
     {
       "en": "Can I take it on the plane?",
-      "th": "เอาขึ้นเครื่องบินได้ไหม"
+      "th": "เอาขึ้นเครื่องบินได้ไหม",
+      "rom": "ao khuen kheruengbin dai mai"
     },
     {
       "en": "Is this fruit allowed in the hotel?",
-      "th": "เอาผลไม้นี้เข้าโรงแรมได้ไหม"
+      "th": "เอาผลไม้นี้เข้าโรงแรมได้ไหม",
+      "rom": "ao phlamai ni khao rongraem dai mai"
     },
     {
       "en": "Please wash it first.",
-      "th": "ช่วยล้างให้ก่อน"
+      "th": "ช่วยล้างให้ก่อน",
+      "rom": "chuai lang hai kon"
     },
     {
       "en": "Please cut it.",
-      "th": "ช่วยหั่นให้หน่อย"
+      "th": "ช่วยหั่นให้หน่อย",
+      "rom": "chuai an hai noi"
     },
     {
       "en": "Two kilos, please.",
-      "th": "ขอสองกิโล"
+      "th": "ขอสองกิโล",
+      "rom": "kho song kilo"
     },
     {
       "en": "Do you have a smaller one?",
-      "th": "มีอันเล็กกว่านี้ไหม"
+      "th": "มีอันเล็กกว่านี้ไหม",
+      "rom": "mi an lek kwa ni mai"
     },
     {
       "en": "I will take this one.",
-      "th": "ขอเอาอันนี้"
+      "th": "ขอเอาอันนี้",
+      "rom": "kho ao anni"
     }
   ]
 }

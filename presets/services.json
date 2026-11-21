@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Beim Maßanzug Preis, Stoff und Zahl der Anproben vorher festhalten; Preis pro Kilo bei der Wäscherei vorher erfragen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "For a tailored suit agree price, fabric and number of fittings beforehand; ask the price per kilo at the laundry. Thai lines machine-made, not checked by native speakers."
+    "de": "Beim Maßanzug Preis, Stoff und Zahl der Anproben vorher festhalten; Preis pro Kilo bei der Wäscherei vorher erfragen. Siehe auch: Friseur / Schönheit, Wäsche und Kaution. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "For a tailored suit agree price, fabric and number of fittings beforehand; ask the price per kilo at the laundry. See also: Hair salon / beauty, Laundry and deposit. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -35,11 +35,13 @@
   "phrases": [
     {
       "en": "Where can I do laundry?",
-      "th": "ซักผ้าได้ที่ไหน"
+      "th": "ซักผ้าได้ที่ไหน",
+      "rom": "sakpha dai thinai"
     },
     {
       "en": "How much per kilo?",
-      "th": "กิโลละเท่าไร"
+      "th": "กิโลละเท่าไร",
+      "rom": "kilo la thaorai"
     },
     {
       "en": "When will it be ready?",
@@ -47,59 +49,73 @@
     },
     {
       "en": "Please wash this separately.",
-      "th": "ช่วยซักแยกให้หน่อย"
+      "th": "ช่วยซักแยกให้หน่อย",
+      "rom": "chuai sak yaek hai noi"
     },
     {
       "en": "Please iron it.",
-      "th": "ช่วยรีดให้หน่อย"
+      "th": "ช่วยรีดให้หน่อย",
+      "rom": "chuai rit hai noi"
     },
     {
       "en": "Do not use hot water.",
-      "th": "อย่าใช้น้ำร้อน"
+      "th": "อย่าใช้น้ำร้อน",
+      "rom": "ya chai namron"
     },
     {
       "en": "Please do not use bleach.",
-      "th": "ไม่ใช้น้ำยาฟอกขาว"
+      "th": "ไม่ใช้น้ำยาฟอกขาว",
+      "rom": "mai chai namya fokkhao"
     },
     {
       "en": "I need express service.",
-      "th": "ต้องการแบบด่วน"
+      "th": "ต้องการแบบด่วน",
+      "rom": "tongkan baep duan"
     },
     {
       "en": "A haircut, please.",
-      "th": "ขอตัดผม"
+      "th": "ขอตัดผม",
+      "rom": "kho tatpm"
     },
     {
       "en": "Just a trim, please.",
-      "th": "ขอเล็มนิดหน่อย"
+      "th": "ขอเล็มนิดหน่อย",
+      "rom": "kho lem nitnoi"
     },
     {
       "en": "Not too short, please.",
-      "th": "ขออย่าสั้นเกินไป"
+      "th": "ขออย่าสั้นเกินไป",
+      "rom": "kho ya san koenpai"
     },
     {
       "en": "Please wash my hair.",
-      "th": "ช่วยสระผมให้หน่อย"
+      "th": "ช่วยสระผมให้หน่อย",
+      "rom": "chuai srapm hai noi"
     },
     {
       "en": "Could you take my measurements?",
-      "th": "ช่วยวัดตัวให้หน่อย"
+      "th": "ช่วยวัดตัวให้หน่อย",
+      "rom": "chuai wat tua hai noi"
     },
     {
       "en": "How many days for a tailored suit?",
-      "th": "ตัดสูทใช้เวลากี่วัน"
+      "th": "ตัดสูทใช้เวลากี่วัน",
+      "rom": "tat sut chaiwela ki wan"
     },
     {
       "en": "Please agree the price before you start.",
-      "th": "ขอตกลงราคาก่อนเริ่มทำ"
+      "th": "ขอตกลงราคาก่อนเริ่มทำ",
+      "rom": "kho taklong rakha kon roem tham"
     },
     {
       "en": "Could I have a fitting first?",
-      "th": "ขอลองชุดก่อนได้ไหม"
+      "th": "ขอลองชุดก่อนได้ไหม",
+      "rom": "kho long chut kon dai mai"
     },
     {
       "en": "Could you alter this?",
-      "th": "ช่วยแก้ขนาดให้หน่อยได้ไหม"
+      "th": "ช่วยแก้ขนาดให้หน่อยได้ไหม",
+      "rom": "chuai kae khanat hai noi dai mai"
     }
   ]
 }

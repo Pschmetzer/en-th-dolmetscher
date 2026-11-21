@@ -7,8 +7,8 @@
   },
   "style": "polite",
   "note": {
-    "de": "Auf Fähren den Platz der Schwimmwesten merken; bei hohem Wellengang lieber warten. Schlafwagen im Zug früh buchen. Gepäck nicht unbeaufsichtigt lassen. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
-    "en": "On ferries, note where the life jackets are; in rough seas, consider waiting. Book sleeper trains early. Do not leave luggage unattended. Thai lines machine-made, not checked by native speakers."
+    "de": "Auf Fähren den Platz der Schwimmwesten merken; bei hohem Wellengang lieber warten. Schlafwagen im Zug früh buchen. Gepäck nicht unbeaufsichtigt lassen. Siehe auch: Fernbus und Bahn, Fähre und Boot. Thai-Sätze maschinell erstellt, nicht von Muttersprachlern geprüft.",
+    "en": "On ferries, note where the life jackets are; in rough seas, consider waiting. Book sleeper trains early. Do not leave luggage unattended. See also: Long-distance bus and train, Ferry and boat. Thai lines machine-made, not checked by native speakers."
   },
   "glossary": [
     {
@@ -48,83 +48,103 @@
     {
       "en": "Where are the life jackets?",
       "th": "เสื้อชูชีพอยู่ที่ไหน",
-      "critical": true
+      "critical": true,
+      "rom": "suea chuchip yu thinai"
     },
     {
       "en": "Where can I buy a ticket?",
-      "th": "ซื้อตั๋วได้ที่ไหน"
+      "th": "ซื้อตั๋วได้ที่ไหน",
+      "rom": "sue tua dai thinai"
     },
     {
       "en": "One ticket to Bangkok, please.",
-      "th": "ขอตั๋วไปกรุงเทพหนึ่งใบ"
+      "th": "ขอตั๋วไปกรุงเทพหนึ่งใบ",
+      "rom": "kho tua pai krungthep nueng bai"
     },
     {
       "en": "A return ticket, please.",
-      "th": "ขอตั๋วไปกลับ"
+      "th": "ขอตั๋วไปกลับ",
+      "rom": "kho tuapkailap"
     },
     {
       "en": "Where is the bus stop?",
-      "th": "ป้ายรถเมล์อยู่ที่ไหน"
+      "th": "ป้ายรถเมล์อยู่ที่ไหน",
+      "rom": "paintme yu thinai"
     },
     {
       "en": "Does this bus go to the city centre?",
-      "th": "รถเมล์คันนี้ไปตัวเมืองไหม"
+      "th": "รถเมล์คันนี้ไปตัวเมืองไหม",
+      "rom": "rathame khan ni pai tuamueang mai"
     },
     {
       "en": "Where is the nearest BTS station?",
-      "th": "สถานีบีทีเอสที่ใกล้ที่สุดอยู่ที่ไหน"
+      "th": "สถานีบีทีเอสที่ใกล้ที่สุดอยู่ที่ไหน",
+      "rom": "sathani bithiet thi kain thisut yu thinai"
     },
     {
       "en": "Which platform does the train leave from?",
-      "th": "รถไฟออกชานชาลาไหน"
+      "th": "รถไฟออกชานชาลาไหน",
+      "rom": "rathafai ok chanchala nai"
     },
     {
       "en": "Where do I change trains?",
-      "th": "ต้องเปลี่ยนรถไฟที่ไหน"
+      "th": "ต้องเปลี่ยนรถไฟที่ไหน",
+      "rom": "tong pelin rathafai thinai"
     },
     {
       "en": "A sleeper, lower berth, please.",
-      "th": "ขอตู้นอน เตียงล่าง"
+      "th": "ขอตู้นอน เตียงล่าง",
+      "rom": "kho tu non tiang lang"
     },
     {
       "en": "Is the train delayed?",
-      "th": "รถไฟล่าช้าไหม"
+      "th": "รถไฟล่าช้าไหม",
+      "rom": "rathafai lacha mai"
     },
     {
       "en": "What time does the next ferry leave?",
-      "th": "เรือเที่ยวต่อไปออกกี่โมง"
+      "th": "เรือเที่ยวต่อไปออกกี่โมง",
+      "rom": "ruea thiao topai ok ki mong"
     },
     {
       "en": "Where does the ferry to the island leave from?",
-      "th": "เรือไปเกาะออกที่ไหน"
+      "th": "เรือไปเกาะออกที่ไหน",
+      "rom": "ruea pai ko ok thinai"
     },
     {
       "en": "Does the ferry still run when the sea is rough?",
-      "th": "ถ้าคลื่นแรงเรือยังออกไหม"
+      "th": "ถ้าคลื่นแรงเรือยังออกไหม",
+      "rom": "tha khluen raeng ruea yang ok mai"
     },
     {
       "en": "How long is the journey?",
-      "th": "ใช้เวลาเดินทางนานเท่าไหร่"
+      "th": "ใช้เวลาเดินทางนานเท่าไหร่",
+      "rom": "chaiwela doenthang nan thaorai"
     },
     {
       "en": "Is this seat taken?",
-      "th": "ที่นั่งนี้มีคนนั่งไหม"
+      "th": "ที่นั่งนี้มีคนนั่งไหม",
+      "rom": "thinang ni mi khon nang mai"
     },
     {
       "en": "Please tell me when we arrive.",
-      "th": "ถึงแล้วช่วยบอกด้วย"
+      "th": "ถึงแล้วช่วยบอกด้วย",
+      "rom": "thueng laeo chuai bok duai"
     },
     {
       "en": "I missed my stop.",
-      "th": "เลยป้ายแล้ว"
+      "th": "เลยป้ายแล้ว",
+      "rom": "loei pai laeo"
     },
     {
       "en": "Where can I put my luggage?",
-      "th": "วางกระเป๋าไว้ที่ไหนได้"
+      "th": "วางกระเป๋าไว้ที่ไหนได้",
+      "rom": "wang krapao wai thinaidai"
     },
     {
       "en": "I feel seasick.",
-      "th": "เมาเรือ"
+      "th": "เมาเรือ",
+      "rom": "maoruea"
     }
   ]
 }

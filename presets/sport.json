@@ -40,53 +40,65 @@
     {
       "en": "I am hurt, please stop.",
       "th": "บาดเจ็บ ช่วยหยุดก่อน",
-      "critical": true
+      "critical": true,
+      "rom": "batchep chuai yut kon"
     },
     {
       "en": "I feel dizzy.",
       "th": "เวียนหัว",
-      "critical": true
+      "critical": true,
+      "rom": "wianhua"
     },
     {
       "en": "I have a heart problem.",
       "th": "มีปัญหาเรื่องหัวใจ",
-      "critical": true
+      "critical": true,
+      "rom": "mipanha rueang uachai"
     },
     {
       "en": "I need water, please.",
-      "th": "ขอน้ำหน่อย"
+      "th": "ขอน้ำหน่อย",
+      "rom": "kho nam noi"
     },
     {
       "en": "I need a break.",
-      "th": "ขอพักหน่อย"
+      "th": "ขอพักหน่อย",
+      "rom": "kho phak noi"
     },
     {
       "en": "I am a beginner.",
-      "th": "เป็นมือใหม่"
+      "th": "เป็นมือใหม่",
+      "rom": "pen muehaim"
     },
     {
       "en": "How much is a day pass?",
-      "th": "ตั๋วรายวันราคาเท่าไหร่"
+      "th": "ตั๋วรายวันราคาเท่าไหร่",
+      "rom": "tua raiwan rakha thaorai"
     },
     {
       "en": "How much is a monthly membership?",
-      "th": "สมาชิกรายเดือนราคาเท่าไหร่"
+      "th": "สมาชิกรายเดือนราคาเท่าไหร่",
+      "rom": "samachik raiduean rakha thaorai"
     },
     {
       "en": "What time do you open?",
-      "th": "เปิดกี่โมง"
+      "th": "เปิดกี่โมง",
+      "rom": "poet ki mong"
     },
     {
       "en": "Is there a trial session?",
-      "th": "มีคลาสทดลองไหม"
+      "th": "มีคลาสทดลองไหม",
+      "rom": "mi khlat thadlong mai"
     },
     {
       "en": "Can I rent gloves?",
-      "th": "เช่าถุงมือได้ไหม"
+      "th": "เช่าถุงมือได้ไหม",
+      "rom": "chao thungmue dai mai"
     },
     {
       "en": "Is there a locker?",
-      "th": "มีตู้เก็บของไหม"
+      "th": "มีตู้เก็บของไหม",
+      "rom": "mi tu kep khong mai"
     },
     {
       "en": "Do you have a shower?",
@@ -94,19 +106,23 @@
     },
     {
       "en": "Can I have a towel?",
-      "th": "ขอผ้าเช็ดตัวหน่อย"
+      "th": "ขอผ้าเช็ดตัวหน่อย",
+      "rom": "kho phachettua noi"
     },
     {
       "en": "Can you show me how to use this?",
-      "th": "ช่วยสอนวิธีใช้เครื่องนี้หน่อย"
+      "th": "ช่วยสอนวิธีใช้เครื่องนี้หน่อย",
+      "rom": "chuai son withichai kherueng ni noi"
     },
     {
       "en": "Is there a class in English?",
-      "th": "มีคลาสภาษาอังกฤษไหม"
+      "th": "มีคลาสภาษาอังกฤษไหม",
+      "rom": "mi khlat phasaangkrit mai"
     },
     {
       "en": "Where can I sign the waiver?",
-      "th": "เซ็นใบยินยอมได้ที่ไหน"
+      "th": "เซ็นใบยินยอมได้ที่ไหน",
+      "rom": "sen bai yinyom dai thinai"
     }
   ]
 }

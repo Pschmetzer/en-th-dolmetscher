@@ -36,7 +36,8 @@
     {
       "en": "I would like to report the theft to the tourist police (1155).",
       "th": "ต้องการแจ้งเหตุขโมยกับตำรวจท่องเที่ยว (1155)",
-      "critical": true
+      "critical": true,
+      "rom": "tongkan chaenghetu khamoi kap tamruat thongthiao 1155"
     },
     {
       "en": "I need to block my bank card now.",
@@ -45,51 +46,63 @@
     },
     {
       "en": "My wallet was stolen.",
-      "th": "กระเป๋าสตางค์ถูกขโมย"
+      "th": "กระเป๋าสตางค์ถูกขโมย",
+      "rom": "krapaottang thuk khamoi"
     },
     {
       "en": "Please call my bank for me.",
-      "th": "ช่วยโทรหาธนาคารให้หน่อย"
+      "th": "ช่วยโทรหาธนาคารให้หน่อย",
+      "rom": "chuai thon ha thanakhan hai noi"
     },
     {
       "en": "Is there a phone I can use for an international call?",
-      "th": "มีโทรศัพท์ให้โทรต่างประเทศไหม"
+      "th": "มีโทรศัพท์ให้โทรต่างประเทศไหม",
+      "rom": "mi thonsap hai thon tangprathet mai"
     },
     {
       "en": "I need a police report for my insurance.",
-      "th": "ต้องการใบแจ้งความเพื่อใช้กับประกัน"
+      "th": "ต้องการใบแจ้งความเพื่อใช้กับประกัน",
+      "rom": "tongkan baichaengkwam phuea chaikap prakan"
     },
     {
       "en": "I need a copy of the report today.",
-      "th": "ต้องการสำเนาใบแจ้งความวันนี้"
+      "th": "ต้องการสำเนาใบแจ้งความวันนี้",
+      "rom": "tongkan samnao baichaengkwam wanni"
     },
     {
       "en": "Where can I receive money from home?",
-      "th": "รับเงินโอนจากที่บ้านได้ที่ไหน"
+      "th": "รับเงินโอนจากที่บ้านได้ที่ไหน",
+      "rom": "rap ngoenon chak thi ban dai thinai"
     },
     {
       "en": "Please check the cameras. My wallet was here.",
-      "th": "ช่วยตรวจกล้องวงจรปิด กระเป๋าสตางค์อยู่ตรงนี้"
+      "th": "ช่วยตรวจกล้องวงจรปิด กระเป๋าสตางค์อยู่ตรงนี้",
+      "rom": "chuai truat klonguangtnpit krapaottang yu trangani"
     },
     {
       "en": "Has anyone handed in a wallet?",
-      "th": "มีใครนำกระเป๋าสตางค์มาส่งไหม"
+      "th": "มีใครนำกระเป๋าสตางค์มาส่งไหม",
+      "rom": "mi khain nam krapaottang ma song mai"
     },
     {
       "en": "It was a black leather wallet.",
-      "th": "เป็นกระเป๋าสตางค์หนังสีดำ"
+      "th": "เป็นกระเป๋าสตางค์หนังสีดำ",
+      "rom": "pen krapaottang nang si dam"
     },
     {
       "en": "There were cards and cash inside.",
-      "th": "ข้างในมีบัตรและเงินสด"
+      "th": "ข้างในมีบัตรและเงินสด",
+      "rom": "khangnai mi batn lae ngoentt"
     },
     {
       "en": "Please give me a lost property form.",
-      "th": "ขอแบบฟอร์มแจ้งของหาย"
+      "th": "ขอแบบฟอร์มแจ้งของหาย",
+      "rom": "kho baepfom chaeng khong hai"
     },
     {
       "en": "May I pay tomorrow if you keep the room for me?",
-      "th": "จ่ายพรุ่งนี้ ขอเก็บห้องไว้ก่อนได้ไหม"
+      "th": "จ่ายพรุ่งนี้ ขอเก็บห้องไว้ก่อนได้ไหม",
+      "rom": "chai phrungni kho kep ong wai kon dai mai"
     }
   ],
   "note": {

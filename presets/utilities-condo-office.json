@@ -53,22 +53,26 @@
     {
       "en": "There is no water and the pump is broken.",
       "th": "น้ำไม่ไหลและปั๊มน้ำเสีย",
-      "critical": true
+      "critical": true,
+      "rom": "nam mai lai lae pam namsia"
     },
     {
       "en": "There is a gas leak in the building.",
       "th": "มีแก๊สรั่วในอาคาร",
-      "critical": true
+      "critical": true,
+      "rom": "mi kaet rua nai akhan"
     },
     {
       "en": "The elevator is stuck with people inside.",
       "th": "ลิฟต์ค้างและมีคนอยู่ข้างใน",
-      "critical": true
+      "critical": true,
+      "rom": "lip khang lae mi khon yu khangnai"
     },
     {
       "en": "There is a fire alarm, please open the stairs.",
       "th": "สัญญาณเตือนไฟไหม้ดัง ช่วยเปิดบันไดหนีไฟหน่อย",
-      "critical": true
+      "critical": true,
+      "rom": "sanyan tuean faimai dang chuai poet banthainifai noi"
     },
     {
       "en": "I am locked out and my child is inside.",
@@ -77,63 +81,78 @@
     },
     {
       "en": "Where is the management office?",
-      "th": "สำนักงานนิติบุคคลอยู่ที่ไหน"
+      "th": "สำนักงานนิติบุคคลอยู่ที่ไหน",
+      "rom": "samnakngan nitibukkn yu thinai"
     },
     {
       "en": "Can you show me the electricity bill?",
-      "th": "ขอดูใบแจ้งค่าไฟหน่อย"
+      "th": "ขอดูใบแจ้งค่าไฟหน่อย",
+      "rom": "kho du bai chaeng kha fai noi"
     },
     {
       "en": "What is the price per unit of electricity?",
-      "th": "ค่าไฟหน่วยละเท่าไร"
+      "th": "ค่าไฟหน่วยละเท่าไร",
+      "rom": "kha fai nuai la thaorai"
     },
     {
       "en": "Please read the meter with me.",
-      "th": "ช่วยอ่านมิเตอร์พร้อมกันหน่อย"
+      "th": "ช่วยอ่านมิเตอร์พร้อมกันหน่อย",
+      "rom": "chuai an mitoe phromkan noi"
     },
     {
       "en": "Where do I pay the water bill?",
-      "th": "จ่ายค่าน้ำได้ที่ไหน"
+      "th": "จ่ายค่าน้ำได้ที่ไหน",
+      "rom": "chai khanam dai thinai"
     },
     {
       "en": "Please give me a new key card.",
-      "th": "ขอคีย์การ์ดใบใหม่หน่อย"
+      "th": "ขอคีย์การ์ดใบใหม่หน่อย",
+      "rom": "kho khi kat bai aim noi"
     },
     {
       "en": "I lost my key card.",
-      "th": "ทำคีย์การ์ดหาย"
+      "th": "ทำคีย์การ์ดหาย",
+      "rom": "tham khi kat hai"
     },
     {
       "en": "May I have a parking space?",
-      "th": "ขอที่จอดรถได้ไหม"
+      "th": "ขอที่จอดรถได้ไหม",
+      "rom": "kho thichotnt dai mai"
     },
     {
       "en": "The air conditioner is leaking water.",
-      "th": "แอร์น้ำหยด"
+      "th": "แอร์น้ำหยด",
+      "rom": "ae nam yot"
     },
     {
       "en": "Please send a technician today.",
-      "th": "ช่วยส่งช่างมาวันนี้หน่อย"
+      "th": "ช่วยส่งช่างมาวันนี้หน่อย",
+      "rom": "chuai song chang ma wanni noi"
     },
     {
       "en": "Can I use the swimming pool and the gym?",
-      "th": "ใช้สระว่ายน้ำและฟิตเนสได้ไหม"
+      "th": "ใช้สระว่ายน้ำและฟิตเนสได้ไหม",
+      "rom": "chai srawainam lae fitnet dai mai"
     },
     {
       "en": "Please tell the neighbours to be quiet.",
-      "th": "ช่วยบอกเพื่อนบ้านให้เงียบหน่อย"
+      "th": "ช่วยบอกเพื่อนบ้านให้เงียบหน่อย",
+      "rom": "chuai bok phueanban hai ngiap noi"
     },
     {
       "en": "Where do I put the rubbish?",
-      "th": "ทิ้งขยะที่ไหน"
+      "th": "ทิ้งขยะที่ไหน",
+      "rom": "thing khaya thinai"
     },
     {
       "en": "May I receive packages at the front desk?",
-      "th": "รับพัสดุที่เคาน์เตอร์ได้ไหม"
+      "th": "รับพัสดุที่เคาน์เตอร์ได้ไหม",
+      "rom": "rap phatdu thi khaotoe dai mai"
     },
     {
       "en": "Thank you for your quick help.",
-      "th": "ขอบคุณที่ช่วยอย่างรวดเร็ว"
+      "th": "ขอบคุณที่ช่วยอย่างรวดเร็ว",
+      "rom": "khopkhun thi chuai yang ruatreo"
     }
   ]
 }

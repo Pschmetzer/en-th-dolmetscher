@@ -40,71 +40,87 @@
     {
       "en": "I ran out of my heart medication.",
       "th": "ยาโรคหัวใจหมด",
-      "critical": true
+      "critical": true,
+      "rom": "ya rokhuachai mot"
     },
     {
       "en": "I ran out of my insulin.",
       "th": "อินซูลินหมด",
-      "critical": true
+      "critical": true,
+      "rom": "insulin mot"
     },
     {
       "en": "I cannot stop taking this medicine.",
       "th": "ห้ามหยุดยาตัวนี้",
-      "critical": true
+      "critical": true,
+      "rom": "am yut ya tua ni"
     },
     {
       "en": "I am allergic to penicillin.",
       "th": "แพ้ยาเพนิซิลลิน",
-      "critical": true
+      "critical": true,
+      "rom": "phaeya phe ni si l li n"
     },
     {
       "en": "I need this medicine today.",
       "th": "ต้องใช้ยานี้วันนี้",
-      "critical": true
+      "critical": true,
+      "rom": "tong chai ya ni wanni"
     },
     {
       "en": "I take this medicine regularly.",
-      "th": "กินยานี้เป็นประจำ"
+      "th": "กินยานี้เป็นประจำ",
+      "rom": "kin ya ni penpracham"
     },
     {
       "en": "Here is my prescription from home.",
-      "th": "นี่คือใบสั่งยาจากประเทศบ้านเกิด"
+      "th": "นี่คือใบสั่งยาจากประเทศบ้านเกิด",
+      "rom": "ni khue baisangya chak prathet bankoet"
     },
     {
       "en": "Can you fill a foreign prescription?",
-      "th": "รับใบสั่งยาจากต่างประเทศได้ไหม"
+      "th": "รับใบสั่งยาจากต่างประเทศได้ไหม",
+      "rom": "rap baisangya chak tangprathet dai mai"
     },
     {
       "en": "Do I need a Thai doctor's prescription?",
-      "th": "ต้องมีใบสั่งยาจากแพทย์ไทยไหม"
+      "th": "ต้องมีใบสั่งยาจากแพทย์ไทยไหม",
+      "rom": "tong mi baisangya chak phaet thai mai"
     },
     {
       "en": "Can a doctor here write a new prescription?",
-      "th": "แพทย์ที่นี่เขียนใบสั่งยาใหม่ให้ได้ไหม"
+      "th": "แพทย์ที่นี่เขียนใบสั่งยาใหม่ให้ได้ไหม",
+      "rom": "phaet thini khian baisangya aim aidai mai"
     },
     {
       "en": "This is the generic name of the drug.",
-      "th": "นี่คือชื่อสามัญของยา"
+      "th": "นี่คือชื่อสามัญของยา",
+      "rom": "ni khue chue saman khong ya"
     },
     {
       "en": "Do you have the same active ingredient?",
-      "th": "มียาที่มีตัวยาสำคัญเหมือนกันไหม"
+      "th": "มียาที่มีตัวยาสำคัญเหมือนกันไหม",
+      "rom": "mi ya thi mi tua ya samkhan emuenkan mai"
     },
     {
       "en": "Is there a similar brand in Thailand?",
-      "th": "ในไทยมียาตัวคล้ายกันไหม"
+      "th": "ในไทยมียาตัวคล้ายกันไหม",
+      "rom": "nai thai mi ya tua khlai kan mai"
     },
     {
       "en": "Please check the dose on the box.",
-      "th": "ช่วยดูขนาดยาบนกล่องหน่อย"
+      "th": "ช่วยดูขนาดยาบนกล่องหน่อย",
+      "rom": "chuai du khanatya bon klong noi"
     },
     {
       "en": "Which pharmacy is open now?",
-      "th": "ร้านขายยาไหนเปิดอยู่ตอนนี้"
+      "th": "ร้านขายยาไหนเปิดอยู่ตอนนี้",
+      "rom": "rankhaiya nai poet yu tonni"
     },
     {
       "en": "Can I buy a one-week supply?",
-      "th": "ซื้อยาสำหรับหนึ่งสัปดาห์ได้ไหม"
+      "th": "ซื้อยาสำหรับหนึ่งสัปดาห์ได้ไหม",
+      "rom": "sue ya samrap nueng sapda dai mai"
     },
     {
       "en": "Do you have a smaller pack?",
@@ -112,19 +128,23 @@
     },
     {
       "en": "Please label it in English.",
-      "th": "ช่วยเขียนฉลากเป็นภาษาอังกฤษหน่อย"
+      "th": "ช่วยเขียนฉลากเป็นภาษาอังกฤษหน่อย",
+      "rom": "chuai khian chlak pen phasaangkrit noi"
     },
     {
       "en": "Please write how often to take it.",
-      "th": "ช่วยเขียนว่าต้องกินบ่อยแค่ไหน"
+      "th": "ช่วยเขียนว่าต้องกินบ่อยแค่ไหน",
+      "rom": "chuai khian wa tong kin boi khae nai"
     },
     {
       "en": "Should I take it with food?",
-      "th": "ควรกินพร้อมอาหารไหม"
+      "th": "ควรกินพร้อมอาหารไหม",
+      "rom": "khuan kin phrom ahan mai"
     },
     {
       "en": "Can I take this with my other tablets?",
-      "th": "กินร่วมกับยาตัวอื่นได้ไหม"
+      "th": "กินร่วมกับยาตัวอื่นได้ไหม",
+      "rom": "kin ruamkap ya tua uen dai mai"
     },
     {
       "en": "Can I get a receipt for my insurance?",

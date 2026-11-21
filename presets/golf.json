@@ -55,67 +55,83 @@
   "phrases": [
     {
       "en": "I would like to book a tee time.",
-      "th": "อยากจองเวลาออกรอบ"
+      "th": "อยากจองเวลาออกรอบ",
+      "rom": "yak chong wela o krop"
     },
     {
       "en": "Do you have a tee time tomorrow morning?",
-      "th": "พรุ่งนี้เช้ามีเวลาออกรอบว่างไหม"
+      "th": "พรุ่งนี้เช้ามีเวลาออกรอบว่างไหม",
+      "rom": "phrungni chao mi wela o krop wang mai"
     },
     {
       "en": "Two players, please.",
-      "th": "สองคน"
+      "th": "สองคน",
+      "rom": "song khon"
     },
     {
       "en": "How much is the green fee?",
-      "th": "ค่ากรีนฟีเท่าไร"
+      "th": "ค่ากรีนฟีเท่าไร",
+      "rom": "kha krin fi thaorai"
     },
     {
       "en": "Does the price include the caddie and the cart?",
-      "th": "ราคานี้รวมแคดดี้และรถกอล์ฟไหม"
+      "th": "ราคานี้รวมแคดดี้และรถกอล์ฟไหม",
+      "rom": "rakha ni ruam khae dadi lae rot kop mai"
     },
     {
       "en": "Can I rent a set of clubs?",
-      "th": "เช่าไม้กอล์ฟได้ไหม"
+      "th": "เช่าไม้กอล์ฟได้ไหม",
+      "rom": "chao makaip dai mai"
     },
     {
       "en": "Right-handed, please.",
-      "th": "ถนัดขวา"
+      "th": "ถนัดขวา",
+      "rom": "thanatkwa"
     },
     {
       "en": "Left-handed, please.",
-      "th": "ถนัดซ้าย"
+      "th": "ถนัดซ้าย",
+      "rom": "thanatsai"
     },
     {
       "en": "Where is the driving range?",
-      "th": "สนามไดรฟ์อยู่ที่ไหน"
+      "th": "สนามไดรฟ์อยู่ที่ไหน",
+      "rom": "sanam drai yu thinai"
     },
     {
       "en": "A bucket of balls, please.",
-      "th": "ขอลูกกอล์ฟหนึ่งถัง"
+      "th": "ขอลูกกอล์ฟหนึ่งถัง",
+      "rom": "kho luk kop nueng thang"
     },
     {
       "en": "Could you bring some cold water?",
-      "th": "ช่วยเอาน้ำเย็นมาให้หน่อยได้ไหม"
+      "th": "ช่วยเอาน้ำเย็นมาให้หน่อยได้ไหม",
+      "rom": "chuai ao namyen ma hai noi dai mai"
     },
     {
       "en": "How far is it to the green?",
-      "th": "ถึงกรีนอีกไกลแค่ไหน"
+      "th": "ถึงกรีนอีกไกลแค่ไหน",
+      "rom": "thueng krin ik klai khae nai"
     },
     {
       "en": "Where is the next tee?",
-      "th": "ที่ทีถัดไปอยู่ที่ไหน"
+      "th": "ที่ทีถัดไปอยู่ที่ไหน",
+      "rom": "thi thi thatpai yu thinai"
     },
     {
       "en": "Is there a lightning warning?",
-      "th": "มีคำเตือนฟ้าผ่าไหม"
+      "th": "มีคำเตือนฟ้าผ่าไหม",
+      "rom": "mi khamtuean fapha mai"
     },
     {
       "en": "I would like to pay with a card.",
-      "th": "ขอจ่ายด้วยบัตร"
+      "th": "ขอจ่ายด้วยบัตร",
+      "rom": "kho chai duai batn"
     },
     {
       "en": "The caddie was very helpful.",
-      "th": "แคดดี้ช่วยได้มาก"
+      "th": "แคดดี้ช่วยได้มาก",
+      "rom": "khae dadi chuai dai mak"
     }
   ]
 }

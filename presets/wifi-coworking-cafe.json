@@ -45,32 +45,39 @@
     {
       "en": "I lost my charger.",
       "th": "ทำที่ชาร์จหาย",
-      "critical": true
+      "critical": true,
+      "rom": "tham thi chat hai"
     },
     {
       "en": "Please call the police.",
       "th": "ช่วยเรียกตำรวจด้วย",
-      "critical": true
+      "critical": true,
+      "rom": "chuai riak tamruat duai"
     },
     {
       "en": "Could you watch my bag, please?",
-      "th": "ช่วยดูกระเป๋าให้หน่อย"
+      "th": "ช่วยดูกระเป๋าให้หน่อย",
+      "rom": "chuai du krapao hai noi"
     },
     {
       "en": "What is the Wi-Fi password?",
-      "th": "รหัสไวไฟคืออะไร"
+      "th": "รหัสไวไฟคืออะไร",
+      "rom": "rahat waifai khue arai"
     },
     {
       "en": "The Wi-Fi does not work.",
-      "th": "ไวไฟใช้ไม่ได้"
+      "th": "ไวไฟใช้ไม่ได้",
+      "rom": "waifai chaimaidai"
     },
     {
       "en": "The connection is very slow.",
-      "th": "สัญญาณช้ามาก"
+      "th": "สัญญาณช้ามาก",
+      "rom": "sanyan cha mak"
     },
     {
       "en": "Is there a table with a power socket?",
-      "th": "มีโต๊ะที่มีปลั๊กไฟไหม"
+      "th": "มีโต๊ะที่มีปลั๊กไฟไหม",
+      "rom": "mi to thi mi plakfai mai"
     },
     {
       "en": "Could I borrow a charger?",
@@ -78,35 +85,43 @@
     },
     {
       "en": "Can I work here for a few hours?",
-      "th": "นั่งทำงานที่นี่สองสามชั่วโมงได้ไหม"
+      "th": "นั่งทำงานที่นี่สองสามชั่วโมงได้ไหม",
+      "rom": "nang thamngan thini song sam chuamong dai mai"
     },
     {
       "en": "Do I need to order every hour?",
-      "th": "ต้องสั่งทุกชั่วโมงไหม"
+      "th": "ต้องสั่งทุกชั่วโมงไหม",
+      "rom": "tong sang thuk chuamong mai"
     },
     {
       "en": "Is it quiet here?",
-      "th": "ที่นี่เงียบไหม"
+      "th": "ที่นี่เงียบไหม",
+      "rom": "thini ngiap mai"
     },
     {
       "en": "Could you turn the music down?",
-      "th": "ช่วยลดเสียงเพลงหน่อยได้ไหม"
+      "th": "ช่วยลดเสียงเพลงหน่อยได้ไหม",
+      "rom": "chuai lot siangphenng noi dai mai"
     },
     {
       "en": "Do you have a quiet room?",
-      "th": "มีห้องเงียบไหม"
+      "th": "มีห้องเงียบไหม",
+      "rom": "mi ong ngiap mai"
     },
     {
       "en": "Is the air conditioning on?",
-      "th": "เปิดแอร์อยู่ไหม"
+      "th": "เปิดแอร์อยู่ไหม",
+      "rom": "poet ae yu mai"
     },
     {
       "en": "What time do you close?",
-      "th": "ร้านปิดกี่โมง"
+      "th": "ร้านปิดกี่โมง",
+      "rom": "ran pit ki mong"
     },
     {
       "en": "Could I have the bill, please?",
-      "th": "ขอบิลหน่อย"
+      "th": "ขอบิลหน่อย",
+      "rom": "kho bin noi"
     }
   ]
 }

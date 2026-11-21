@@ -40,70 +40,86 @@
     {
       "en": "Please give me a life jacket.",
       "th": "ขอเสื้อชูชีพ",
-      "critical": true
+      "critical": true,
+      "rom": "kho suea chuchip"
     },
     {
       "en": "Someone fell into the water.",
       "th": "มีคนตกน้ำ",
-      "critical": true
+      "critical": true,
+      "rom": "mi khon takanam"
     },
     {
       "en": "The boat is taking in water.",
       "th": "เรือมีน้ำเข้า",
-      "critical": true
+      "critical": true,
+      "rom": "ruea mi nam khao"
     },
     {
       "en": "I cannot swim.",
       "th": "ว่ายน้ำไม่เป็น",
-      "critical": true
+      "critical": true,
+      "rom": "wainam mai pen"
     },
     {
       "en": "How much is the boat ride?",
-      "th": "นั่งเรือเท่าไร"
+      "th": "นั่งเรือเท่าไร",
+      "rom": "nang ruea thaorai"
     },
     {
       "en": "How long is the boat ride?",
-      "th": "นั่งเรือนานแค่ไหน"
+      "th": "นั่งเรือนานแค่ไหน",
+      "rom": "nang ruea nan khae nai"
     },
     {
       "en": "Please agree the price before we go.",
-      "th": "ขอตกลงราคาก่อนออกเรือ"
+      "th": "ขอตกลงราคาก่อนออกเรือ",
+      "rom": "kho taklong rakha kon okruea"
     },
     {
       "en": "Please do not stop at a shop.",
-      "th": "ไม่ต้องแวะร้านค้า"
+      "th": "ไม่ต้องแวะร้านค้า",
+      "rom": "mataing wae rankha"
     },
     {
       "en": "Where do I meet the boat again?",
-      "th": "จะกลับมาพบเรือที่ไหน"
+      "th": "จะกลับมาพบเรือที่ไหน",
+      "rom": "cha klapma phop ruea thinai"
     },
     {
       "en": "Is this fruit fresh?",
-      "th": "ผลไม้นี้สดไหม"
+      "th": "ผลไม้นี้สดไหม",
+      "rom": "phlamai ni sot mai"
     },
     {
       "en": "Can I try a little?",
-      "th": "ขอชิมนิดหน่อยได้ไหม"
+      "th": "ขอชิมนิดหน่อยได้ไหม",
+      "rom": "kho chim nitnoi dai mai"
     },
     {
       "en": "Is it spicy?",
-      "th": "เผ็ดไหม"
+      "th": "เผ็ดไหม",
+      "rom": "phet mai"
     },
     {
       "en": "Please cut it for me.",
-      "th": "ช่วยหั่นให้หน่อย"
+      "th": "ช่วยหั่นให้หน่อย",
+      "rom": "chuai an hai noi"
     },
     {
       "en": "Can you make it cheaper?",
-      "th": "ลดราคาได้ไหม"
+      "th": "ลดราคาได้ไหม",
+      "rom": "ladrakha dai mai"
     },
     {
       "en": "Where is the toilet?",
-      "th": "ห้องน้ำอยู่ที่ไหน"
+      "th": "ห้องน้ำอยู่ที่ไหน",
+      "rom": "ongnam yu thinai"
     },
     {
       "en": "Can I take a photo?",
-      "th": "ขอถ่ายรูปได้ไหม"
+      "th": "ขอถ่ายรูปได้ไหม",
+      "rom": "kho thairup dai mai"
     }
   ]
 }
