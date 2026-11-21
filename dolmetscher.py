@@ -19,8 +19,10 @@ import argparse, atexit, collections, difflib, errno, functools, hashlib, html, 
 import numpy as np
 import online_speakers
 import presets
+from textsplit import _ABBREV, _ABBREV_NUM, _rejoin_abbrev  # noqa: F401
 from textsplit import FIRST_CLAUSE_MIN, MAX_SPEAK_CHARS, _CLAUSE_END, _thai_cut_ok, chunk_long, first_clause, speakable  # noqa: F401,E501
 from numwords import _SPEAK_NUM, _NUM_KEEP_BEFORE, _TH_DIG, _TH_POS, _th_chunk, speak_numbers_th, thai_number_words  # noqa: F401,E501
+from textnorm import _NORM_QUOTES, _TH_GAP, _TH_RX, _norm, squash_repeats  # noqa: F401
 from thaiparticles import (_TH_FEMALE, _TH_KA, _TH_KRUB, _TH_MALE, _TH_Q_END, _TH_STRETCH, fit_thai_particles,  # noqa: F401
                            thai_speaker_sex, thai_stretch)
 
@@ -568,15 +570,43 @@ def capture_cmd(dev=None, path=None, af="", loop=False, realtime=False):
 # Nr. 24/357: Ausgabegerät (CoreAudio-UID, Name oder Index; "" = Systemstandard). Gilt für alle eigenen
 # Wiedergabewege über avhelper.py (Neural-Stimme, macOS-Stimme, Signalton). Mit DOLMETSCHER_FFMPEG
 # (altes ffmpeg/afplay) bleibt es beim Systemstandard.
-OUTPUT = {"device": ""}
+OUTPUT = {"device": "", "me": "", "other": ""}   # Runde 27: me/other = Gerät je Richtung (leer = `device`/Standard)
 AFPLAY = "/usr/bin/afplay"
+_ROUTE = threading.local()                       # Richtung der gerade spielenden Ausgabe (Speaker-Thread)
+
+
+def output_route(lang, uid=None):
+    """Richtung einer Ausgabe: "me" (in meiner Sprache, Antwort an mich, Befehlsantwort) oder "other" (in der
+    Partnersprache). Dritte Sprachen gelten wie die Partnersprache (siehe target_of)."""
+    if uid == "cmd" or lang == PAIR[0]:
+        return "me"
+    return "other"
+
+
+def output_device_now():
+    """Ausgabegerät für die Wiedergabe im aktuellen Thread: das Gerät der Richtung, sonst das allgemeine."""
+    return OUTPUT.get(getattr(_ROUTE, "dir", None) or "", "") or OUTPUT["device"]
+
+
+def set_output_route(direction, dev):
+    """Ausgabegerät einer Richtung ("me"/"other") setzen; leer/"default" = allgemeines Gerät bzw. Standard."""
+    if direction not in ("me", "other"):
+        return False
+    dev = (dev or "").strip()
+    OUTPUT[direction] = "" if dev.lower() == "default" else dev
+    log({f"output_device_{direction}": OUTPUT[direction] or "standard"})
+    if FFMPEG and OUTPUT[direction]:
+        emit("error", code="output_unsupported",
+             msg="Ausgabegerät nur mit PyAV wählbar (DOLMETSCHER_FFMPEG gesetzt) – Systemstandard")
+    return True
 
 
 def file_play_cmd(path, volume):
     """Audiodatei (aiff von `say`, Signalton, gepuffertes mp3) abspielen: mit gewähltem Ausgabegerät über
     avhelper.py, sonst wie bisher afplay."""
-    if OUTPUT["device"] and not FFMPEG:
-        return avhelper_cmd("play", "--file", path, "--volume", f"{volume:.2f}", "--device", OUTPUT["device"])
+    dev = output_device_now()
+    if dev and not FFMPEG:
+        return avhelper_cmd("play", "--file", path, "--volume", f"{volume:.2f}", "--device", dev)
     return [AFPLAY, "-v", f"{volume:.2f}", path]
 
 
@@ -1311,24 +1341,6 @@ def cache_persist(on):
                 os.unlink(CACHE_FILE)
             except OSError:
                 pass
-
-
-_NORM_QUOTES = str.maketrans({"’": "'", "‘": "'", "ʼ": "'", "`": "'", "´": "'", "“": '"', "”": '"', "„": '"',
-                              "‐": "-", "‑": "-", "–": "-", "—": "-"})
-
-
-_TH_GAP = re.compile(r"(?<=[ก-๛])\s+(?=[ก-๛])")                 # Thai trennt Wörter nur nach Gusto mit Leerzeichen
-@functools.lru_cache(maxsize=2048)
-def _norm(s):
-    """Cache-Schlüssel: Groß/klein, Leerraum, . , 。 egal – ? und ! bleiben (Frage ≠ Aussage). Thai: Leerzeichen
-    zwischen Thai-Zeichen und Dehnungen (ครับบบ) zählen nicht."""
-    s = s.lower().replace("？", "?").replace("！", "!")
-    if _TH_RX.search(s):
-        s = thai_stretch(_TH_GAP.sub("", s))
-    s = s.translate(_NORM_QUOTES)                              # "It’s" = "It's" (Whisper wechselt zwischen beiden)
-    s = re.sub(r"(?:[\s。]|(?<!\d)[.,]|[.,](?!\d))+", " ", s)   # "1.5"/"1,5" bleiben (≠ "1 5")
-    s = re.sub(r"\s*([?!])[\s?!]*", r"\1", s)                  # "geht's ? !" -> "geht's?"
-    return s.strip()
 
 
 def warm_translate():
@@ -3518,7 +3530,6 @@ def _is_conn_error(e):
     return isinstance(e, (OSError, http.client.HTTPException))
 
 
-_TH_RX = re.compile(r"[\u0e00-\u0e7f]")
 
 
 _THAINLP = {"missing": False}
@@ -3871,6 +3882,15 @@ _HALF_HOUR_RULES = (
 _CLOCK_RULES = (
     # Thai (Zahlwörter sind schon Ziffern): สองทุ่ม = 20:00, ตีสาม = 3:00, ห้าโมงเย็น = 17:00, …
     (re.compile(r"เที่ยง\s*คืน|สองยาม"), lambda m: " 0:00 "),
+    # Runde 27: Stunde + Minuten mit „นาที“ (สี่โมงสิบห้านาที = 4:15, สามทุ่มห้านาที = 21:05); ohne „นาที“ bleibt es
+    # bei der alten Lesart (zu mehrdeutig). Minuten nur 0-59, Stunde nur 0-24.
+    (re.compile(r"(\d{1,2})\s*ทุ่ม\s*(\d{1,2})\s*นาที"), lambda m: _hmm(18 + int(m.group(1)), m.group(2), m)),
+    (re.compile(r"ตี\s*(\d{1,2})\s*(\d{1,2})\s*นาที"), lambda m: _hmm(int(m.group(1)), m.group(2), m)),
+    (re.compile(r"(?:บ่าย\s*)?(\d{1,2})\s*โมง\s*เย็น\s*(\d{1,2})\s*นาที"),
+     lambda m: _hmm(int(m.group(1)) + 12, m.group(2), m)),
+    (re.compile(r"บ่าย\s*(\d{1,2})\s*โมง\s*(\d{1,2})\s*นาที"), lambda m: _hmm(int(m.group(1)) + 12, m.group(2), m)),
+    (re.compile(r"(\d{1,2})\s*โมง\s*(?:เช้า\s*)?(\d{1,2})\s*นาที"), lambda m: _hmm(int(m.group(1)), m.group(2), m)),
+    (re.compile(r"เที่ยง(?:\s*วัน)?\s*(\d{1,2})\s*นาที"), lambda m: _hmm(12, m.group(1), m)),
     (re.compile(r"(\d{1,2})\s*ทุ่ม" + _HALF), lambda m: _hm(18 + int(m.group(1)), m.group(2))),
     (re.compile(r"ตี\s*(\d{1,2})" + _HALF), lambda m: _hm(int(m.group(1)), m.group(2))),
     (re.compile(r"(?:บ่าย\s*)?(\d{1,2})\s*โมง\s*เย็น" + _HALF), lambda m: _hm(int(m.group(1)) + 12, m.group(2))),
@@ -3890,6 +3910,14 @@ _CLOCK_RULES = (
 
 def _hm(h, half):
     return f" {h % 24}:{'30' if half else '00'} "
+
+
+def _hmm(h, minutes, m):
+    """H:MM für Stunde + Minuten; ungültig (Minute > 59, Stunde > 36) -> Fundstelle unverändert."""
+    mi = int(minutes)
+    if mi > 59 or h > 36:
+        return m.group(0)
+    return f" {h % 24}:{mi:02d} "
 
 
 def clock_words_to_24h(s, equiv=True):
@@ -4542,27 +4570,6 @@ def normalize(audio, target_rms=0.06, max_gain=10.0, peak=0.95, min_rms=0.003, f
     return np.clip(audio * g, -1.0, 1.0).astype(audio.dtype, copy=False), pk
 
 
-# Runde 8: Kürzel, nach deren Punkt kein Satz endet ("9 a.m. to 5 p.m.", "ca. 500", "z. B.", "Prof. Brown")
-_ABBREV = frozenset({"ca.", "z.", "b.", "bzw.", "usw.", "approx.", "prof.", "jr.", "sr.", "inc.", "co.", "ltd.",
-                     "mt.", "vs.", "u.a.", "d.h.", "evtl.", "str.", "dr.", "mr.", "mrs.", "ms.", "st.", "e.g.",
-                     "i.e."})
-_ABBREV_NUM = frozenset({"no.", "nr.", "tel."})     # enden auch Sätze ("No. I don't."): nur vor einer Ziffer verbinden
-
-
-def _rejoin_abbrev(parts):
-    """Teile wieder verbinden, wenn der Satz nur an einem Kürzel oder vor einem Kleinbuchstaben „endete“."""
-    out = []
-    for p in parts:
-        if out:
-            last = out[-1].split()[-1].casefold() if out[-1].split() else ""
-            if (last in _ABBREV or (last in _ABBREV_NUM and p[:1].isdigit())
-                    or (out[-1].endswith(".") and p[:1].islower() and p[:1].isalpha())):
-                out[-1] += " " + p
-                continue
-        out.append(p)
-    return out
-
-
 def split_sentences(s, lang, min_len=None):
     """Lange Ausgaben satzweise vorlesen: der erste Satz klingt früher, der Rest wird vorab geladen.
     Runde 23: ohne `min_len` gilt je Sprache SPLIT_MIN_LEN (Thai früher teilen), sonst 60."""
@@ -4595,18 +4602,6 @@ def split_sentences(s, lang, min_len=None):
         else:
             out.append(cur)
     return out or [s]
-
-
-def squash_repeats(text):
-    """Wiederholungsschleifen kürzen statt den ganzen Satz zu verlieren:
-    'สติ๊กฮ่าาาาาาา' -> 'สติ๊กฮ่าาา', 'ha ha ha ha ha ha' -> 'ha ha ha'."""
-    text = re.sub(r"(\D)\1{3,}", r"\1\1\1", text)
-    # Ziffernfolgen (Telefon "0808080808", Zimmer "11111111") nie kürzen – nur Schleifen mit Buchstaben;
-    # ohne Leerzeichen geschrieben (Thai/Chinesisch "ฮ่าฮ่าฮ่าฮ่า") bleibt die Schleife ohne Leerzeichen
-    text = re.sub(r"(.{2,12}?)(?:\s*\1){3,}",
-                  lambda m: (f"{m.group(1)}{' ' if re.search(chr(92) + 's', m.group(0)) else ''}" * 3).rstrip()
-                  if re.search(r"[^\W\d_]", m.group(1)) else m.group(0), text, flags=re.I)   # "Ja ja ja ja" auch
-    return text
 
 
 # Nr. 34: Zeichen (ohne Leerraum) je Sekunde, ab denen ein Text als erfunden gilt – je Schrift. Schnelles
@@ -5222,7 +5217,7 @@ def pipe_player(volume):
     DOLMETSCHER_FFMPEG wie früher ffmpeg -> AudioToolbox, sonst ffplay, sonst None (afplay)."""
     global _PIPE_PLAYER
     if not FFMPEG:
-        dev = ["--device", OUTPUT["device"]] if OUTPUT["device"] else []
+        dev = ["--device", output_device_now()] if output_device_now() else []
         return avhelper_cmd("play", "--volume", f"{volume:.2f}", *dev)
     with _PIPE_PLAYER_LOCK:                    # Vorwärmen und erster Satz: nur einmal nachsehen
         miss = _PIPE_PLAYER_MISS["t"]
@@ -5922,6 +5917,13 @@ class Speaker:
                 report_queue()
 
     def _play(self, it, gen=None):
+        _ROUTE.dir = output_route(it.get("lang"), it.get("id"))          # Runde 27: Ausgabegerät je Richtung
+        try:
+            self._play_routed(it, gen)
+        finally:
+            _ROUTE.dir = None
+
+    def _play_routed(self, it, gen=None):
         eng, uid = self.eng, it["id"]
         g = CANCEL["gen"] if gen is None else gen
         if it["kind"] == "earcon":
@@ -6022,7 +6024,8 @@ CTRL_SPEC = {
     "api_key": False, "back_translate": False, "cache_persist": False, "clear": False, "currency": False,
     "echo_guard": False, "get_state": False, "glossary": False, "history": False, "history_days": False,
     "history_speakers": False, "learn_glossary": False, "llm_retry": False, "mic": False,
-    "output_device": False, "preset": False, "reassign": False, "reset_learning": False, "retranslate": False,
+    "output_device": False, "output_device_me": False, "output_device_other": False, "preset": False,
+    "reassign": False, "reset_learning": False, "retranslate": False,
     "say": False, "slow": False, "speak_text": False,
     # Runde 24: bisher nur im Code vorhandene Schalter (alle Standard aus, Werte unbedenklich fürs Log)
     "defer": True, "llm_router": True, "llm_stream": True, "parallel_alt": True, "speak_numbers": True,
@@ -6271,14 +6274,32 @@ def pretranslate(text, src, dst, polite="krub"):
 _TH_NUM_W = {"หนึ่ง": 1, "สอง": 2, "สาม": 3, "สี่": 4, "ห้า": 5, "หก": 6, "เจ็ด": 7, "แปด": 8, "เก้า": 9,
              "สิบเอ็ด": 11, "สิบสอง": 12, "สิบ": 10}
 _TH_NUM_RX = r"(?<!สิบ)(สิบเอ็ด|สิบสอง|สิบ|หนึ่ง|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า|\d{1,2})"
+# Runde 27: optionale Minuten „… สิบห้านาที“ / „… 15 นาที“ (Gruppe 3) nach der Stunde
+_TH_MIN_RX = (r"(?:\s*((?:(?:ยี่|สาม|สี่|ห้า)?สิบ)?(?:เอ็ด|หนึ่ง|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า)?|\d{1,2})"
+              r"\s*นาที)?")
 _TH_TIME_RULES = (
     (re.compile(r"เที่ยง\s*คืน"), "midnight"),
-    (re.compile(r"(?:บ่าย\s*)?" + _TH_NUM_RX + r"\s*โมง\s*เย็น(\s*ครึ่ง)?"), "eve"),
-    (re.compile(r"บ่าย\s*(?:" + _TH_NUM_RX + r"\s*)?โมง(\s*ครึ่ง)?"), "pm"),
-    (re.compile(_TH_NUM_RX + r"\s*โมง\s*เช้า(\s*ครึ่ง)?"), "morn"),
-    (re.compile(_TH_NUM_RX + r"\s*ทุ่ม(\s*ครึ่ง)?"), "tum"),
-    (re.compile(r"ตี\s*" + _TH_NUM_RX + r"(\s*ครึ่ง)?"), "tee"),
+    (re.compile(r"(?:บ่าย\s*)?" + _TH_NUM_RX + r"\s*โมง\s*เย็น(\s*ครึ่ง)?" + _TH_MIN_RX), "eve"),
+    (re.compile(r"บ่าย\s*(?:" + _TH_NUM_RX + r"\s*)?โมง(\s*ครึ่ง)?" + _TH_MIN_RX), "pm"),
+    (re.compile(_TH_NUM_RX + r"\s*โมง\s*เช้า(\s*ครึ่ง)?" + _TH_MIN_RX), "morn"),
+    (re.compile(_TH_NUM_RX + r"\s*ทุ่ม(\s*ครึ่ง)?" + _TH_MIN_RX), "tum"),
+    (re.compile(r"ตี\s*" + _TH_NUM_RX + r"(\s*ครึ่ง)?" + _TH_MIN_RX), "tee"),
 )
+_TH_TENS = {None: 1, "ยี่": 2, "สาม": 3, "สี่": 4, "ห้า": 5}
+_TH_UNITS = {"เอ็ด": 1, "หนึ่ง": 1, "สอง": 2, "สาม": 3, "สี่": 4, "ห้า": 5, "หก": 6, "เจ็ด": 7, "แปด": 8, "เก้า": 9}
+
+
+def th_minutes(tok):
+    """Minutenangabe als Zahl 0-59: Ziffern oder Thai-Wörter (สิบห้า = 15, ยี่สิบเอ็ด = 21, ห้า = 5); sonst None."""
+    if not tok:
+        return None
+    if tok.isdigit():
+        return int(tok) if int(tok) < 60 else None
+    mt = re.fullmatch(r"(?:(ยี่|สาม|สี่|ห้า)?สิบ)?(เอ็ด|หนึ่ง|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า)?", tok)
+    if not mt or not (mt.group(2) or "สิบ" in tok):
+        return None
+    tens = _TH_TENS[mt.group(1)] if "สิบ" in tok else 0
+    return tens * 10 + _TH_UNITS.get(mt.group(2), 0)
 
 
 def _th_num(tok):
@@ -6308,7 +6329,12 @@ def th_times_for_mt(text):
                 h = {"eve": (n or 0) + 12, "morn": n, "tum": (n or 0) + 18, "tee": n}[kind]
             if not ok:
                 return m.group(0)
-            return f" {h % 24:02d}:{'30' if half else '00'} "
+            mi = 30 if half else 0
+            if m.lastindex and m.lastindex >= 3 and m.group(3) and not half:
+                mi = th_minutes(m.group(3))
+                if mi is None:
+                    return m.group(0)
+            return f" {h % 24:02d}:{mi:02d} "
         return sub
     new = text
     for rx, kind in _TH_TIME_RULES:
@@ -7974,6 +8000,13 @@ def apply_control(eng, d):
                 later.append(lambda ov=ov: set_output_device(ov))
             else:
                 emit("error", code="output_invalid", msg="Ausgabegerät-Angabe ungültig – Gerät unverändert")
+        for _dk, _key in (("me", "output_device_me"), ("other", "output_device_other")):   # Runde 27: je Richtung
+            if _key in d:
+                ov = d[_key]
+                if isinstance(ov, str) and len(ov) <= 300:
+                    set_output_route(_dk, ov)
+                else:
+                    emit("error", code="output_invalid", msg="Ausgabegerät-Angabe ungültig – Gerät unverändert")
         if "reset_learning" in d:             # Nr. 182: nachgeführten Stimmabdruck verwerfen
             nm = _text_arg(d["reset_learning"], 80) if isinstance(d["reset_learning"], str) else None
             if nm:

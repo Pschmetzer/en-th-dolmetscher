@@ -4,6 +4,15 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+### Engine, round 27
+
+- **Output device per direction:** new control fields `output_device_me` / `output_device_other` (same format as `output_device`, empty = general device, then system default). The speaker picks the device per output from the target language (own language = `me`, partner language = `other`; command replies and earcons always `me`); the Mac app already sends the fields. Documented in `docs/PROTOKOLL.md`.
+- **Thai clock with minutes:** "สี่โมงสิบห้านาที" (4:15), "สามทุ่มห้านาที" (21:05) and the like were read as two separate numbers, so a correct translation "4:15" raised a false number warning. Fixed in the number comparison; the offline translator input (`th_times_for_mt`) now keeps the minutes as well (`21:05` instead of `21:00 ห้านาที`).
+- **Thai pronouns:** `fit_thai_particles` also swaps the unambiguous gendered "I" (ดิฉัน for a male voice, กระผม for a female voice); quotes with both forms and the ambiguous "ผม" (also "hair") stay untouched. 22-case test corpus incl. idempotence.
+- **Refactoring:** `textnorm.py` (cache key `_norm`, `squash_repeats`) and the abbreviation logic of the sentence splitter (now in `textsplit.py`), re-exported from `dolmetscher.py`; `build.sh` and `pyproject.toml` know the new module.
+- **Measured instead of guessed:** `bench/micro_bench.py` times cache, `_norm`, `split_sentences`, number reading; results in `bench/results/micro_r27.json`. None of the hot paths matters next to a translation (cache hit 0.18 µs, key 0.2 µs, split 2 to 6 µs, number comparison about 115 µs); `_norm` uses precompiled patterns now.
+- Tests: `tests/test_r27_engine_output.py`, `tests/test_r27_engine_text.py`.
+
 ### Web, round 25
 
 - **25 new phrase packs (226 in total):** sunburn and heat rash, toothache emergency, coffee and tea order, Muay Thai stadium, temple photography, massage prices, apartment hunting, electricity and water bill, waste and recycling, plumber/electrician/air con, car breakdown, bicycle touring and repair, kindergarten and daycare, pet boarding and travel, childbirth in hospital, glasses and lens repair, digital arrival card (TDAC), street food custom order, smoothie and juice stall, golf caddie and tips, banking app and OTP problems, self-service laundromat, car insurance claim, tour agency booking, minivan and airport transfer. The Thai is machine-made and not checked by native speakers.
