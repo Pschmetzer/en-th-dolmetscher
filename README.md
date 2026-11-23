@@ -145,6 +145,7 @@ Pick *My language* and *Partner's language*. Every pair of these 20 languages wo
 | Turkish | `tr` | ✓ | ✓ | ✓ |
 | Polish | `pl` | ✓ | ✓ | ✓ |
 | Ukrainian | `uk` | ✓ | ✓ | ✓ |
+| Lao | `lo` | ✓ | – | ✓ |
 
 - **iPhone:** the list depends on the device. Languages without on-device recognition are hidden; ⬇︎ means a model, language pack or voice still has to be downloaded, 🌐 means Apple cannot translate the pair on the device (online only). For pairs written in the same script (e.g. English ⇄ German, Russian ⇄ Ukrainian, Chinese ⇄ Japanese) “Automatic” is hidden and you choose the direction by tapping.
 - **Only with Thai in the pair:** ครับ/ค่ะ politeness, the Thai Whisper model, 555 laughter, Thai number words and Thai transliteration (Mac); politeness, Baht calculator, Thai emergency numbers and the built-in phrasebook (iPhone).

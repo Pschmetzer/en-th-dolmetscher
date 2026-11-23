@@ -1,4 +1,4 @@
-Dolmetscher is a hands-free speech interpreter for your Mac. Just talk: what you say is translated into your partner's language and spoken aloud right away, and their answer comes back in yours. The app detects which of the two languages is being spoken, so there are no buttons to switch. English ⇄ Thai is ready out of the box, and you can pick any pair of 19 languages.
+Dolmetscher is a hands-free speech interpreter for your Mac. Just talk: what you say is translated into your partner's language and spoken aloud right away, and their answer comes back in yours. The app detects which of the two languages is being spoken, so there are no buttons to switch. English ⇄ Thai is ready out of the box, and you can pick any pair of 20 languages.
 
 PRIVATE BY DESIGN
 • No account, no telemetry, no server of our own.

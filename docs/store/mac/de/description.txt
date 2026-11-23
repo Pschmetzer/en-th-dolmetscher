@@ -1,4 +1,4 @@
-Dolmetscher ist ein freihändiger Sprach-Dolmetscher für deinen Mac. Einfach sprechen: Was du sagst, wird sofort in die Sprache deines Gegenübers übersetzt und laut vorgelesen, seine Antwort kommt in deiner zurück. Die App erkennt, welche der beiden Sprachen gesprochen wird, du musst nichts umschalten. Englisch ⇄ Thai ist sofort startklar, du kannst jedes Paar aus 19 Sprachen wählen.
+Dolmetscher ist ein freihändiger Sprach-Dolmetscher für deinen Mac. Einfach sprechen: Was du sagst, wird sofort in die Sprache deines Gegenübers übersetzt und laut vorgelesen, seine Antwort kommt in deiner zurück. Die App erkennt, welche der beiden Sprachen gesprochen wird, du musst nichts umschalten. Englisch ⇄ Thai ist sofort startklar, du kannst jedes Paar aus 20 Sprachen wählen.
 
 PRIVAT ENTWORFEN
 • Kein Konto, keine Telemetrie, kein eigener Server.

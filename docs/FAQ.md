@@ -6,7 +6,7 @@ Englische Fassung: [en/FAQ.md](en/FAQ.md). Einstieg: [SCHNELLSTART.md](SCHNELLST
 
 **Was ist der Dolmetscher?** Ein freihändiger Sprachdolmetscher: Du sprichst, es wird in die Sprache des Gegenübers übersetzt und laut vorgelesen, die Antwort kommt in deiner Sprache zurück. Standard ist Englisch und Thai.
 
-**Welche Sprachen gibt es?** 19: Englisch, Thai, Deutsch, Spanisch, Französisch, Italienisch, Portugiesisch, Niederländisch, Russisch, Chinesisch (Mandarin), Japanisch, Koreanisch, Vietnamesisch, Indonesisch, Arabisch, Hindi, Türkisch, Polnisch und Ukrainisch. Jedes Paar geht. Die neuen Sprachen sind noch nicht mit echten Sprecherinnen und Sprechern getestet.
+**Welche Sprachen gibt es?** 20: Englisch, Thai, Deutsch, Spanisch, Französisch, Italienisch, Portugiesisch, Niederländisch, Russisch, Chinesisch (Mandarin), Japanisch, Koreanisch, Vietnamesisch, Indonesisch, Arabisch, Hindi, Türkisch, Polnisch, Ukrainisch und Laotisch. Jedes Paar geht. Die neuen Sprachen sind noch nicht mit echten Sprecherinnen und Sprechern getestet.
 
 **Auf welchen Geräten läuft er?** Mac (Apple Silicon, macOS 14 oder neuer), iPhone und iPad (iOS 26 oder neuer) und im Browser (Web Lite, am besten Chrome). Die Mac-App kann am meisten, zum Beispiel die automatische Spracherkennung, Sprachbefehle, Stimmprofile und die Claude-Übersetzung.
 

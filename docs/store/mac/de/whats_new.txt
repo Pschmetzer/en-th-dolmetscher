@@ -1,4 +1,4 @@
-• 19 Sprachen: „meine Sprache“ und Sprache des Gegenübers wählen, zum Beispiel Deutsch ⇄ Thai.
+• 20 Sprachen: „meine Sprache“ und Sprache des Gegenübers wählen, zum Beispiel Deutsch ⇄ Thai.
 • Die App richtet sich beim ersten Start selbst ein, ohne Homebrew oder Python.
 • Offline übersetzen mit der Apple-Übersetzung ab macOS 26.4.
 • Optionale Rückübersetzung und Modus „Langsam und deutlich“.
