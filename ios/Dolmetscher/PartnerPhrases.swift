@@ -29,6 +29,7 @@ enum PartnerPhrases {
         "tr": ["Sıra sizde – lütfen konuşun", "Evet", "Hayır", "Bilmiyorum", "Sayı", "Ya da bir cevaba dokunun", "Dinliyorum …"],
         "pl": ["Teraz Pan/Pani – proszę mówić", "Tak", "Nie", "Nie wiem", "Liczba", "Albo dotknij odpowiedzi", "Słucham …"],
         "uk": ["Ваша черга – говоріть, будь ласка", "Так", "Ні", "Не знаю", "Число", "Або торкніться відповіді", "Слухаю …"],
+        "lo": ["ຮອດຄິວຂອງທ່ານແລ້ວ – ກະລຸນາເວົ້າ", "ແມ່ນ", "ບໍ່ແມ່ນ", "ບໍ່ຮູ້", "ຕົວເລກ", "ຫຼືແຕະເພື່ອຕອບ", "ກຳລັງຟັງ …"],
     ]
 
     static func text(_ key: PartnerKey, _ lang: Lang) -> String {

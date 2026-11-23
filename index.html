@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' 'sha256-9ZvYK1kQ3wUmYlZa/CJKTfWZhHzNBhOQ+Rjv0KVhHIo='; style-src 'unsafe-inline'; connect-src 'self' https://translate.googleapis.com https://api.mymemory.translated.net; img-src 'self' data:; manifest-src 'self'; worker-src 'self'; frame-src 'none'; object-src 'none'; script-src-attr 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' 'sha256-6r67iXqZ2ws9gVEJUHivjjwUuQeY0cYXOmEQ8W1zhco='; style-src 'unsafe-inline'; connect-src 'self' https://translate.googleapis.com https://api.mymemory.translated.net; img-src 'self' data:; manifest-src 'self'; worker-src 'self'; frame-src 'none'; object-src 'none'; script-src-attr 'none'; base-uri 'none'; form-action 'none'">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#1d4ed8" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)">
@@ -1280,7 +1280,7 @@ if (!TTS) { showWarn(() => t('noTts')); $('speak').checked = false; $('speak').d
 
 // ---- Voices ----
 const voiceWarned = new Set();
-const ISO3 = { eng: 'en', tha: 'th', deu: 'de', ger: 'de', fra: 'fr', fre: 'fr', spa: 'es', ita: 'it', por: 'pt', rus: 'ru', jpn: 'ja', kor: 'ko', zho: 'zh', chi: 'zh', ara: 'ar', hin: 'hi', vie: 'vi', ind: 'id', nld: 'nl', dut: 'nl', pol: 'pl', tur: 'tr', swe: 'sv', heb: 'he', iw: 'he', in: 'id', fil: 'tl' };   // Android meldet "eng-USA", "tha-THA"
+const ISO3 = { eng: 'en', tha: 'th', deu: 'de', ger: 'de', fra: 'fr', fre: 'fr', spa: 'es', ita: 'it', por: 'pt', rus: 'ru', jpn: 'ja', kor: 'ko', zho: 'zh', chi: 'zh', ara: 'ar', hin: 'hi', vie: 'vi', ind: 'id', nld: 'nl', dut: 'nl', pol: 'pl', tur: 'tr', swe: 'sv', heb: 'he', iw: 'he', in: 'id', fil: 'tl', lao: 'lo' };   // Android meldet "eng-USA", "tha-THA"
 const voiceLang = v => { const [b, ...r] = String(v.lang).replace('_', '-').toLowerCase().split('-'); return [ISO3[b] || b, ...r].join('-'); };
 function loadVoices() {
   voices = TTS ? TTS.getVoices() : [];

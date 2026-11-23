@@ -15,7 +15,7 @@ CODES = [x["code"] for x in LANGS]
 HTML = (ROOT / "index.html").read_text(encoding="utf-8")
 IOS = ROOT / "ios" / "Dolmetscher"
 SCRIPT_RANGES = {  # Schrift -> ein Zeichen, das dazu gehören muss (Eigenname der Sprache)
-    "thai": "th", "cyrillic": "ru", "arabic": "ar", "devanagari": "hi",
+    "thai": "th", "cyrillic": "ru", "arabic": "ar", "devanagari": "hi", "lao": "lo",
 }
 
 

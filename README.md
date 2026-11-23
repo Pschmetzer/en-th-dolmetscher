@@ -2,7 +2,7 @@
 
 # Dolmetscher EN ⇄ TH
 
-A hands-free speech interpreter: just talk. What you say is translated into your partner's language and spoken aloud right away, and their answer comes back in yours. The app **detects which of the two languages is being spoken**, so there are no buttons to switch. English ⇄ Thai is the default, but you can pick any pair of [19 languages](#languages).
+A hands-free speech interpreter: just talk. What you say is translated into your partner's language and spoken aloud right away, and their answer comes back in yours. The app **detects which of the two languages is being spoken**, so there are no buttons to switch. English ⇄ Thai is the default, but you can pick any pair of [20 languages](#languages).
 
 | Platform | What it is | Speech recognition | Translation |
 |---|---|---|---|
@@ -29,7 +29,7 @@ Current version: 1.3 (single source: `version` in `pyproject.toml`). What change
 | Feature | Mac | iPhone / iPad | Browser |
 |---|:-:|:-:|:-:|
 | Automatic detection of who speaks which language | ✓ | ✓ | – (you tap the side) |
-| 19 languages, any pair | ✓ | ✓ | ✓ |
+| 20 languages, any pair | ✓ | ✓ | ✓ |
 | Translation on the device, without internet | ✓ (Apple, macOS 26.4+, as fallback) | ✓ (Apple, default) | – |
 | Claude translation (optional, paid) | ✓ | – | – |
 | Back-translation to check the meaning | ✓ (online, optional) | ✓ (on the device) | – |
@@ -101,7 +101,7 @@ Needs iOS 26 and Xcode 26 or newer. There is no App Store version yet: build it 
 
 ## Browser version (Web Lite)
 
-Live: https://pschmetzer.github.io/en-th-dolmetscher/ — `index.html` is a single file, no build step, no external scripts. Same 19 languages as the apps (English ⇄ Thai by default). It uses the browser's Web Speech API (best in Chrome; Firefox has no speech recognition), so you pick who speaks yourself (buttons or keys `E` for your language, `T` for the partner's). The Mac app is better: automatic language detection, voice commands in both languages, better recognition.
+Live: https://pschmetzer.github.io/en-th-dolmetscher/ — `index.html` is a single file, no build step, no external scripts. Same 20 languages as the apps (English ⇄ Thai by default). It uses the browser's Web Speech API (best in Chrome; Firefox has no speech recognition), so you pick who speaks yourself (buttons or keys `E` for your language, `T` for the partner's). The Mac app is better: automatic language detection, voice commands in both languages, better recognition.
 
 - Asks for consent once before the microphone starts for the first time.
 - Per-direction switches “Translate A→B” / “Translate B→A” (named after the chosen languages): a switched-off direction is only shown, not translated or spoken. Also: “Hold to speak” (push to talk), single-key shortcuts that can be switched off, adjustable text size in the full-screen view, and the Back button closes the full-screen view.
@@ -122,7 +122,7 @@ Run it locally with `python3 -m http.server` and open it in Chrome.
 
 ## Languages
 
-Pick *My language* and *Partner's language*. Every pair of these 19 languages works; detection only chooses between the two languages of the pair. Without a choice it stays English ⇄ Thai.
+Pick *My language* and *Partner's language*. Every pair of these 20 languages works; detection only chooses between the two languages of the pair. Without a choice it stays English ⇄ Thai.
 
 | Language | Code | Mac | iPhone | Web |
 |---|---|:-:|:-:|:-:|
