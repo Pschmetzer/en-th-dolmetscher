@@ -9,7 +9,7 @@ import pytest
 import dolmetscher as d
 
 CODES = {"en", "th", "de", "es", "fr", "it", "pt", "nl", "ru", "zh", "ja", "ko", "vi", "id", "ar", "hi", "tr", "pl",
-         "uk"}
+         "uk", "lo"}
 
 
 @pytest.fixture(autouse=True)

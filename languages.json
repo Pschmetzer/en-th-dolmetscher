@@ -39,6 +39,9 @@
     ],
     "devanagari": [
       "0900-097F"
+    ],
+    "lao": [
+      "0E80-0EFF"
     ]
   },
   "languages": [
@@ -669,6 +672,38 @@
         "please_speak": "Говоріть, будь ласка",
         "yes": "Так",
         "no": "Ні"
+      }
+    },
+    {
+      "code": "lo",
+      "names": {
+        "en": "Lao",
+        "de": "Laotisch",
+        "native": "ລາວ"
+      },
+      "flag": "🇱🇦",
+      "scripts": [
+        "lao"
+      ],
+      "locale": "lo_LA",
+      "edge": {
+        "m": "lo-LA-ChanthavongNeural",
+        "f": "lo-LA-KeomanyNeural",
+        "voices": [
+          "lo-LA-ChanthavongNeural",
+          "lo-LA-KeomanyNeural"
+        ]
+      },
+      "macos": {
+        "voice": "Kanya",
+        "locale": "th_TH"
+      },
+      "min_logprob": -1.3,
+      "mt": "lo",
+      "phrases": {
+        "please_speak": "ກະລຸນາເວົ້າ",
+        "yes": "ແມ່ນ",
+        "no": "ບໍ່ແມ່ນ"
       }
     }
   ]

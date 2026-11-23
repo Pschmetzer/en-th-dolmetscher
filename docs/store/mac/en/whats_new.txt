@@ -1,4 +1,4 @@
-• 19 languages: pick "my language" and your partner's language, for example German ⇄ Thai.
+• 20 languages: pick "my language" and your partner's language, for example German ⇄ Thai.
 • The app sets itself up on first start, no Homebrew or Python needed.
 • Offline translation with Apple's translation on macOS 26.4 or newer.
 • Optional back-translation and a "Slow and clear" mode.

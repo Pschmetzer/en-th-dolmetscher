@@ -103,6 +103,7 @@ _BUILTIN_SCRIPTS = {
     "hangul": "ᄀ-ᇿ㄰-㆏가-힯",
     "arabic": "؀-ۿݐ-ݿﭐ-﷿ﹰ-﻿",
     "devanagari": "ऀ-ॿ",
+    "lao": "\u0e80-\u0eff",
 }
 
 
@@ -153,6 +154,9 @@ _BUILTIN_LANGS = {
     "pl": _lang("Polish", "Polnisch", "latin", "pl-PL-MarekNeural", "pl-PL-ZofiaNeural", "Zosia", "pl_PL"),
     "uk": _lang("Ukrainian", "Ukrainisch", "cyrillic", "uk-UA-OstapNeural", "uk-UA-PolinaNeural", "Lesya",
                 "uk_UA"),
+    # Lao: edge-tts hat lo-LA-Stimmen, macOS keine – `say` fällt auf die Thai-Stimme zurück (nur Notnagel).
+    "lo": _lang("Lao", "Laotisch", "lao", "lo-LA-ChanthavongNeural", "lo-LA-KeomanyNeural", "Kanya", "th_TH",
+                min_lp=-1.3, mt="lo"),
 }
 LANG_MIN_LP = {"ja": -1.1, "zh": -1.1, "ko": -1.1, "tr": -1.1, "uk": -1.1, "id": -1.1,
                "vi": -1.2, "ar": -1.2, "hi": -1.2}
@@ -2320,7 +2324,7 @@ REGISTER = {
     "ko": ("informal speech (반말)", "polite speech (존댓말, 해요체/합쇼체)"),
     "zh": ("你", "您"), "id": ("kamu (informal)", "Anda/Bapak/Ibu (formal)"),
     "vi": ("informal pronouns (bạn/cậu, anh/chị/em by relation)", "polite forms (quý khách, dạ/vâng, anh/chị)"),
-    "ar": ("informal address (أنتَ/أنتِ)", "polite, formal address (حضرتك)"),
+    "ar": ("informal address (أنتَ/أنتِ)", "polite, formal address (حضرتك)"),    "lo": ("informal address (ເຈົ້າ/ເຈົ້າເອງ)", "polite address (ທ່ານ, ending with ເດີ້/ເດີ)"),
 }
 
 
@@ -4587,7 +4591,7 @@ def split_sentences(s, lang, min_len=None):
 # Nr. 34: Zeichen (ohne Leerraum) je Sekunde, ab denen ein Text als erfunden gilt – je Schrift. Schnelles
 # Englisch hat ~15, schnelles Thai < ~20; Han/Kana/Hangul tragen mehr je Zeichen (≈ 6–9/s).
 MAX_CPS = {"latin": 22, "thai": 26, "cyrillic": 22, "han": 13, "kana": 16, "hangul": 13, "arabic": 22,
-           "devanagari": 22}
+           "devanagari": 22, "lao": 26}
 MAX_CPS_DEFAULT = 30
 
 

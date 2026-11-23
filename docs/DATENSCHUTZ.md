@@ -12,7 +12,7 @@ Kurz je Plattform:
 
 Nirgends gibt es Konten, eigene Telemetrie oder einen eigenen Server.
 
-Das gilt für alle 19 Sprachen gleich: Die Wahl des Sprachpaars ändert nur, welche Sprachen erkannt und übersetzt werden, nicht, wohin Daten gehen. Bei den Sprachcodes für die Dienste wird Chinesisch als `zh-CN` (Google/MyMemory) bzw. `zh-Hans` (Apple) angefragt.
+Das gilt für alle 20 Sprachen gleich: Die Wahl des Sprachpaars ändert nur, welche Sprachen erkannt und übersetzt werden, nicht, wohin Daten gehen. Bei den Sprachcodes für die Dienste wird Chinesisch als `zh-CN` (Google/MyMemory) bzw. `zh-Hans` (Apple) angefragt.
 
 ## Auf einen Blick
 
@@ -93,7 +93,7 @@ Willst du nichts senden: Ohne Netz läuft die Erkennung weiter. Übersetzt wird 
 
 - **Vor dem ersten Mikrofon-Start** fragt die Seite einmal um Zustimmung (im Browser gespeichert, `localStorage`). Die Zustimmung trägt eine Textversion (`CONSENT_VER` in `index.html`, aktuell **1**): ändern sich Dialogtext oder Datenfluss, wird die Version erhöht und neu gefragt.
 - **Spracherkennung**: nutzt die Web Speech API des Browsers. **Chrome** sendet das Mikrofon-Audio an Googles Spracherkennungsdienst, **Safari** an Apple (je nach Gerät auch lokal); beides ist nicht von uns kontrollierbar. Firefox hat keine Spracherkennung. **Pause** und **Stopp** beenden die Erkennung ganz, danach wird kein Audio mehr gesendet.
-- **Übersetzung**: der erkannte Text geht direkt aus dem Browser an Google Translate, ersatzweise MyMemory, jeweils per GET, also **in der URL** der Anfrage. Das gilt für alle 19 Sprachen. Satzbuch-Sätze, die es im Paket nicht in der Partnersprache gibt (alles außer Englisch und Thai), werden beim ersten Tippen einmal übersetzt (also an Google Translate gesendet; die Karte ist als „automatisch übersetzt“ markiert) und im Browser gemerkt (`pbTrans`).
+- **Übersetzung**: der erkannte Text geht direkt aus dem Browser an Google Translate, ersatzweise MyMemory, jeweils per GET, also **in der URL** der Anfrage. Das gilt für alle 20 Sprachen. Satzbuch-Sätze, die es im Paket nicht in der Partnersprache gibt (alles außer Englisch und Thai), werden beim ersten Tippen einmal übersetzt (also an Google Translate gesendet; die Karte ist als „automatisch übersetzt“ markiert) und im Browser gemerkt (`pbTrans`).
 - **Sprachausgabe**: lokale Browser-Stimmen (Web Speech Synthesis), je nach Browser/System.
 - **Gespeichert** wird nur im Browser (`localStorage`): Einstellungen (`webSettings`, `keysOn`), Zustimmung (`micConsent`), das Schließen des iPhone-Hinweises (`iosWarnOff`), übersetzte Satzbuch-Sätze (`pbTrans`) und die Lernkarten. Die Gesprächsliste verschwindet beim Schließen der Seite, außer du kopierst sie oder speicherst sie als Textdatei.
 - **Geteilter Text** (`?text=`, „Teilen mit …“ an die App): wird nicht automatisch übersetzt, sondern erst nach Tippen auf „Übersetzen“ an Google gesendet. Allergien und Blutgruppe sind Gesundheitsdaten: sie liegen unverschlüsselt in `localStorage` und werden nie gesendet; wer eine eigene Domain nutzt, trennt sie von anderen Projekten auf derselben Adresse.

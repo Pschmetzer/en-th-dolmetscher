@@ -24,7 +24,7 @@ enum Langs {
     static let maleVoices: Set<String> = ["Guy", "Andrew", "Brian", "Ryan", "Niwat", "Christopher", "Eric", "Christoph",
                                           "Jonas", "Jan", "Alvaro", "Jorge", "Henri", "Diego", "Antonio", "Duarte",
                                           "Maarten", "Dmitry", "Yunxi", "Yunyang", "Keita", "InJoon", "NamMinh",
-                                          "Ardi", "Hamed", "Shakir", "Madhur", "Ahmet", "Marek", "Ostap"]
+                                          "Ardi", "Hamed", "Shakir", "Madhur", "Ahmet", "Marek", "Ostap", "Chanthavong"]
 
     static func info(_ code: String) -> LangInfo? { all.first { $0.code == code } }
     static func valid(_ code: String?) -> String? { code.flatMap { codes.contains($0) ? $0 : nil } }

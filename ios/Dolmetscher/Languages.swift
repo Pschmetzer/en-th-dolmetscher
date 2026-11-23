@@ -4,7 +4,7 @@ import Foundation
 
 /// Schriften; die Bereiche stehen unter `scripts` in languages.json.
 enum Script: String, CaseIterable, Sendable {
-    case latin, thai, cyrillic, han, kana, hangul, arabic, devanagari
+    case latin, thai, cyrillic, han, kana, hangul, arabic, devanagari, lao
 
     private var ranges: [ClosedRange<UInt32>] { LangTable.shared.scripts[rawValue] ?? [] }
 
@@ -74,7 +74,7 @@ struct Lang: RawRepresentable, Hashable, Codable, Sendable, Identifiable, Custom
                fr = Lang(code: "fr"), it = Lang(code: "it"), pt = Lang(code: "pt"), nl = Lang(code: "nl"),
                ru = Lang(code: "ru"), zh = Lang(code: "zh"), ja = Lang(code: "ja"), ko = Lang(code: "ko"),
                vi = Lang(code: "vi"), id = Lang(code: "id"), ar = Lang(code: "ar"), hi = Lang(code: "hi"),
-               tr = Lang(code: "tr"), pl = Lang(code: "pl"), uk = Lang(code: "uk")
+               tr = Lang(code: "tr"), pl = Lang(code: "pl"), uk = Lang(code: "uk"), lo = Lang(code: "lo")
 
     /// Reihenfolge wie in languages.json.
     static let all: [Lang] = LangTable.shared.order.map(Lang.init(code:))

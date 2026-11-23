@@ -4,6 +4,12 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+## 1.4 (23 November 2026)
+
+### Lao
+
+- **Lao (`lo`) is the 20th language:** pick it as *My language* or *Partner's language* in the Mac app and the web version, with any other language as the pair. Lao script is recognised, spoken aloud with the Microsoft Lao voices (Keomany, Chanthavong) and translated through Google/MyMemory (Claude when a key is set). Lao is new and not yet checked by native speakers. macOS has no Lao voice, so without the neural voices the Thai voice is the only fallback. Speech recognition for Lao is weaker than for Thai.
+
 ### Thai language logic, round 28
 
 Only the pure Thai modules (`thaiparticles`, `thaitime`, `numwords`, `textnorm`, `textsplit`, `correction_learning`, `satzbuch`), 20 improvements with about 100 tests (`tests/test_r28_thai_logic.py`):

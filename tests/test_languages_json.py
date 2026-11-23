@@ -48,13 +48,13 @@ def test_top_level():
     assert DATA["default_pair"] == ["en", "th"]
 
 
-def test_same_19_languages_in_order():
+def test_same_20_languages_in_order():
     assert CODES == ["en", "th", "de", "es", "fr", "it", "pt", "nl", "ru", "zh", "ja", "ko", "vi", "id", "ar",
-                     "hi", "tr", "pl", "uk"]
+                     "hi", "tr", "pl", "uk", "lo"]
 
 
 def test_scripts_are_hex_ranges():
-    assert set(DATA["scripts"]) == {"latin", "thai", "cyrillic", "han", "kana", "hangul", "arabic", "devanagari"}
+    assert set(DATA["scripts"]) == {"latin", "thai", "cyrillic", "han", "kana", "hangul", "arabic", "devanagari", "lao"}
     for name, ranges in DATA["scripts"].items():
         assert ranges, name
         for r in ranges:
