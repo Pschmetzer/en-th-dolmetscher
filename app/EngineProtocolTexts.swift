@@ -32,7 +32,7 @@ enum EngineProtocolTexts {
     /// Status zu `dropped.code`; fehlt ein Code hier, gilt der allgemeine Text („dropped“).
     static let droppedKeys: [String: String] = [
         "too_short": "drop_too_short", "other_language": "drop_other_language", "locked": "drop_locked",
-        "paused": "paused", "unsure": "drop_unsure", "hallucination": "dropped", "filler": "dropped",
+        "paused": "paused", "unsure": "drop_unsure", "hallucination": "dropped", "filler": "dropped", "laughter": "dropped",
         "empty": "dropped", "error": "drop_error", "other": "dropped",
     ]
     /// Codes ohne Statusänderung: Antwort kommt als `command`, `translate_failed` folgt als `error`, `stopped` ist still.

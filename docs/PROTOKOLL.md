@@ -190,6 +190,7 @@ hier stehen, Standardwerte in der Spalte „Standard“.
 | `unsure` | unsicher | Erkennung zu unsicher; mit `text`, `lang`, `lp` (App bietet „Trotzdem übersetzen“ per `retranslate` mit dieser `id` an) |
 | `hallucination` | halluzination (…) | typische Whisper-Erfindung |
 | `filler` | floskel | „Thank you.“ u. ä. bei sehr leiser, kurzer Aufnahme |
+| `laughter` | lachen | Kichern/Lachen, von Whisper als wiederholtes Wort erkannt („Recover, recover, recover.“) |
 | `empty` | nichts erkannt | kein Text |
 | `translate_failed` | übersetzung fehlgeschlagen | zusätzlich `error` mit `code` `translate_failed`; mit `text`, `lang` für „Erneut versuchen“ |
 | `error` | fehler | interner Fehler bei diesem Satz |

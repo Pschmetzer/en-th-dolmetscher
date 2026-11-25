@@ -4616,6 +4616,17 @@ def looks_hallucinated(text, dur, segs, lang=None):
     return None
 
 
+def looks_like_laugh_noise(text, dur, lp):
+    """Gelächter/Kichern erkennt Whisper als Wörter ("Recover, recover, recover.", "Be loud."): kurzer Ausbruch,
+    dasselbe Wort mehrfach und unsicher. Kurze echte Sätze bleiben unberührt."""
+    words = re.findall(r"\w+", text.lower())
+    if not words or not isinstance(dur, (int, float)) or dur > 3.0:
+        return False
+    if len(words) >= 3 and len(set(words)) <= max(1, len(words) // 3) and lp < -0.3:
+        return True                          # dasselbe Wort mehrfach im kurzen Ausbruch
+    return False
+
+
 NULL_AUDIO = bool(os.environ.get("DOLMETSCHER_NULL_AUDIO"))
 _TMPDIR = {"path": None}
 _TMPDIR_LOCK = threading.RLock()       # RLock: der SIGTERM-Handler (clean_tmp) darf nicht hängen
@@ -6112,7 +6123,8 @@ DEGRADE_AT = 3                   # ab so vielen wartenden Äußerungen: keine Zu
 _DROP_CODES = (("zu kurz", "too_short"), ("befehl", "command"), ("andere Sprache", "other_language"),
                ("weder ", "other_language"),("gesperrt", "locked"), ("nur ", "locked"),
                ("pausiert", "paused"), ("unsicher", "unsure"), ("halluzination", "hallucination"),
-               ("floskel", "filler"), ("nichts erkannt", "empty"), ("übersetzung", "translate_failed"),
+               ("floskel", "filler"), ("lachen", "laughter"), ("nichts erkannt", "empty"),
+               ("übersetzung", "translate_failed"),
                ("fehler", "error"))
 
 
@@ -7016,6 +7028,9 @@ class Engine:
                 text = ""
         if text and is_junk(text, 1.0 if rms is None else rms, audio.size / SR):
             info["drop"] = "floskel"
+            text = ""
+        if text and looks_like_laugh_noise(text, audio.size / SR, lp):
+            info["drop"] = "lachen"             # Kichern/Lachen nicht als Wörter übersetzen
             text = ""
         if text and is_echo(text, lang):
             info["drop"] = "echo"
