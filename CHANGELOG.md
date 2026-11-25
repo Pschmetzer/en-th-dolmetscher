@@ -4,6 +4,8 @@ User-facing changes, newest first. Numbers in brackets are the pull requests on 
 
 ## Unreleased
 
+- **Laughter is no longer translated as words:** short giggles that speech recognition turns into a repeated word ("Recover, recover, recover.") are now dropped with the status *lachen* instead of being translated and spoken. [#231]
+
 ## 1.4 (23 November 2026)
 
 ### Lao
